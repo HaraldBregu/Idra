@@ -15,7 +15,6 @@ import type { HeartbeatService } from './heartbeat';
 import type { SpeechToTextService } from './stt';
 import type { StoreService } from './store';
 import type { TasksService } from './tasks';
-import type { TextToSpeechService } from './tts';
 import type { ToolService } from './agent/tools';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
@@ -39,7 +38,6 @@ export interface MainServices {
 	speechToText: SpeechToTextService;
 	store: StoreService;
 	taskManager: TasksService;
-	textToSpeech: TextToSpeechService;
 	toolService: ToolService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;

@@ -27,7 +27,6 @@ import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './agent/tools';
 import { SkillsService } from './agent/skills';
 import { SpeechToTextService } from './stt';
-import { TextToSpeechService } from './tts';
 
 import type { IpcModule } from './ipc';
 import {
@@ -105,7 +104,6 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
-	container.register('textToSpeech', new TextToSpeechService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
