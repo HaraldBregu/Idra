@@ -355,6 +355,10 @@ export class ConnectorsService implements McpConnectorStore {
 		});
 	}
 
+	getMcpClientService(): AgentMcpClientServicePort {
+		return this.mcpClient;
+	}
+
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
 		const catalogEntries = await this.catalogEntriesFromProvider();
 		const oauthConnectorIds = new Set(catalogEntries.filter((entry) => entry.oauth).map((entry) => entry.id));
