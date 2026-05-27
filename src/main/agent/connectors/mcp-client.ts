@@ -29,6 +29,7 @@ export type ConnectorMcpClientFactory = (connector: ConnectorConfig) => Connecto
 interface ResolvedHttpMcpConfig {
 	transport: 'http';
 	url: string;
+	method?: 'POST';
 	headers?: Record<string, string>;
 	sessionId?: string;
 }
@@ -192,6 +193,7 @@ function resolveHttpConfig(
 	return {
 		transport: 'http',
 		url: mcp.url,
+		method: mcp.method,
 		headers: Object.keys(headers).length > 0 ? headers : undefined,
 		sessionId: mcp.sessionId,
 	};
