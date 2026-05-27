@@ -101,7 +101,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const startedAt = new Date().toISOString();
 
 		try {
-			await this.log({ runId, sessionId, type: 'run.started', timestamp: startedAt, data: this.redact({ task: input.task }) });
+			await this.log({ runId, sessionId, type: 'run.started', timestamp: startedAt, data: this.redactRecord({ task: input.task }) });
 			this.emit({ type: 'run.started', runId, sessionId, task: input.task });
 			await this.runHooks('before_run', { runId, sessionId, input });
 			const boundaryInput = await this.config.boundary?.filterInput?.({ task: input.task, context });
@@ -191,7 +191,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				sessionId,
 				type: 'run.finished',
 				timestamp: new Date().toISOString(),
-				data: this.redact({ stopReason: finalResult.stopReason, outputChars: finalResult.finalText.length }),
+					data: this.redactRecord({ stopReason: finalResult.stopReason, outputChars: finalResult.finalText.length }),
 			});
 			return finalResult;
 		} catch (error) {
@@ -210,7 +210,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				sessionId,
 				type: 'run.failed',
 				timestamp: new Date().toISOString(),
-				data: this.redact({ error: error instanceof Error ? error.message : String(error) }),
+				data: this.redactRecord({ error: error instanceof Error ? error.message : String(error) }),
 			});
 			throw error;
 		} finally {
@@ -1031,5 +1031,12 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 
 	private redact(value: unknown): unknown {
 		return this.redactor.redact(value);
+	}
+
+	private redactRecord(value: Record<string, unknown>): Record<string, unknown> {
+		const redacted = this.redact(value);
+		return redacted && typeof redacted === 'object' && !Array.isArray(redacted)
+			? redacted as Record<string, unknown>
+			: {};
 	}
 }
