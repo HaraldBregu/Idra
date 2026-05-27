@@ -6,53 +6,8 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
-import {
-	checkFilePolicy,
-	filePolicyAllows,
-	type FilePolicyCheck,
-} from './policy';
-import type { Permission } from '../../../../shared/policy';
-
-function expandUser(p: string): string {
-	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
-	return p;
-}
-
-function isInsidePath(root: string, target: string): boolean {
-	const relative = path.relative(path.resolve(root), path.resolve(target));
-	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
-}
-
-function resolveAbs(workspace: string, target: string): string {
-	const expanded = expandUser(target);
-	return path.isAbsolute(expanded)
-		? path.resolve(expanded)
-		: path.resolve(workspace, expanded);
-}
-
-// Returns an error message if fsPolicy explicitly restricts this path, null otherwise.
-function checkFsRestriction(ctx: ToolContext, abs: string, toolName: string, isWrite: boolean): string | null {
-	if (!isInsidePath(ctx.workspace, abs)) {
-		if (ctx.fsPolicy?.workspaceOnly) return `${toolName}: path is outside the workspace.`;
-		if (isWrite && ctx.fsPolicy?.writeWorkspaceOnly) return `${toolName}: path is outside the workspace.`;
-	}
-	return null;
-}
-
-function outsidePathNeedsApproval(
-	ctx: ToolContext,
-	target: string,
-	permissions: readonly Permission[],
-	mode: 'all' | 'any' = 'all'
-): boolean {
-	const abs = resolveAbs(ctx.workspace, target);
-	if (isInsidePath(ctx.workspace, abs)) return false;
-	const allowed =
-		mode === 'all'
-			? permissions.every((permission) => filePolicyAllows(ctx, abs, permission))
-			: permissions.some((permission) => filePolicyAllows(ctx, abs, permission));
-	return !allowed;
-}
+import { checkFilePolicy, type FilePolicyCheck } from './policy';
+import { checkFsRestriction, isInsidePath, outsidePathNeedsApproval, resolveAbs } from './path-policy';
 
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
 	return { mtimeMs: stat.mtimeMs, size: stat.size };
