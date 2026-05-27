@@ -1,11 +1,9 @@
-import { AGENT_TOOLS, type AgentToolName } from '../../../shared/tools';
-
-const METADATA_BY_NAME = new Map(AGENT_TOOLS.map((tool) => [tool.name, tool]));
+import { AGENT_TOOL_METADATA_BY_NAME, type AgentToolName } from '../../../shared/tools';
 
 export function toolDescription(name: AgentToolName): string {
-	return METADATA_BY_NAME.get(name)?.description ?? name;
+	return AGENT_TOOL_METADATA_BY_NAME[name]?.description ?? name;
 }
 
 export function toolTitle(name: AgentToolName): string {
-	return METADATA_BY_NAME.get(name)?.title ?? name;
+	return AGENT_TOOL_METADATA_BY_NAME[name]?.title ?? name;
 }
