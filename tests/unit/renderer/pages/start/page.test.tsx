@@ -299,8 +299,8 @@ describe('StartPage', () => {
 			renderStartPage();
 			await advanceToAssistantStep(user);
 			await waitFor(() => expect(screen.getByRole('button', { name: /Continue/ })).toBeEnabled());
-			expect(screen.getByText('OpenAI')).toBeInTheDocument();
-			expect(screen.getByText('GPT-5.4 Mini')).toBeInTheDocument();
+			expect(screen.getByText('OpenAI', { selector: 'span' })).toBeInTheDocument();
+			expect(screen.getByText('GPT-5.4 Mini', { selector: 'span' })).toBeInTheDocument();
 		});
 
 		it('enables Continue on a required step only after models are loaded', async () => {
