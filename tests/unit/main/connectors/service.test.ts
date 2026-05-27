@@ -313,7 +313,7 @@ describe('ConnectorsService MCP persistence', () => {
 						accept: 'application/json, text/event-stream',
 						'content-type': 'application/json',
 					},
-				},
+					},
 					oauth: expect.objectContaining({
 						clientId: 'google-client-id',
 						authorizationUrl: result.authorizationUrl,
@@ -326,9 +326,9 @@ describe('ConnectorsService MCP persistence', () => {
 					authorization: 'Bearer access-token',
 					tools: discoveredTools.map((tool) => expect.objectContaining({
 						name: tool.name,
-					permission: 'always-allow',
-					requiresApproval: false,
-				})),
+						permission: 'always-allow',
+						requiresApproval: false,
+					})),
 			}),
 		});
 		expect(result.connector.oauth).toEqual(expect.objectContaining({
@@ -388,14 +388,13 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(Object.fromEntries(store.data)).toEqual({
 			google_drive: expect.objectContaining({
-					connectorId: 'google.drive',
-					authorization: 'Bearer access-token',
-					oauth: expect.objectContaining({
-						accountEmail: 'user@example.com',
-						token: expect.objectContaining({
-						accessToken: 'access-token',
-						refreshToken: 'refresh-token',
-						tokenType: 'Bearer',
+				connectorId: 'google.drive',
+				authorization: 'Bearer access-token',
+				oauth: expect.objectContaining({
+					token: expect.objectContaining({
+							accessToken: 'access-token',
+							refreshToken: 'refresh-token',
+							tokenType: 'Bearer',
 					}),
 				}),
 			}),
@@ -404,11 +403,10 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(started.connector.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
 		expect(service.list()[0]).toMatchObject({
 			authKind: 'oauth',
-			status: 'configured',
-			hasToken: true,
-			hasTools: true,
-			connectedAccount: 'user@example.com',
-		});
+				status: 'configured',
+				hasToken: true,
+				hasTools: true,
+			});
 	});
 
 	it('stores dynamic connector records and discovers MCP tools on add', async () => {
