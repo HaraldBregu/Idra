@@ -10,7 +10,7 @@ import {
 	checkFilePolicy,
 	filePolicyAllows,
 	type FilePolicyCheck,
-} from './agent/policy';
+} from './policy';
 import type { Permission } from '../../../../shared/policy';
 
 function expandUser(p: string): string {

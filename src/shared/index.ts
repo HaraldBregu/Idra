@@ -11,6 +11,6 @@ export * from './connectors';
 export * from './cron';
 export * from './heartbeat';
 export * from './monitor';
-export * from './agent/policy';
+export * from './policy';
 export * from './tasks';
 export * from './tts';

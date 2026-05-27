@@ -15,7 +15,7 @@ const TEMPLATE_FILES = [
 // Bundled at build time by Vite — keys are template filenames, values are file contents.
 const TEMPLATES: Record<string, string> = Object.fromEntries(
 	Object.entries(
-		import.meta.glob('./templates/*.md', {
+		import.meta.glob('./agent/templates/*.md', {
 			query: '?raw',
 			eager: true,
 			import: 'default',
