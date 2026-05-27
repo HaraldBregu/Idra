@@ -119,29 +119,21 @@ function SettingsOverviewCard({
 			variant="outline"
 			size="md"
 			disabled={comingSoon}
-			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/60 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
+			className="grid grid-cols-[minmax(0,1fr)_auto] items-center border-b border-border/40 px-5 py-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-50"
 		>
-			<ItemIcon icon={item.icon} />
-			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
-					{t(item.labelKey)}
-				</ItemTitle>
-				{'descriptionKey' in item && item.descriptionKey && (
-					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-						{t(item.descriptionKey)}
-					</p>
-				)}
-			</ItemContent>
-			<ItemActions className="ml-0 flex-none justify-end">
+			<ItemTitle className="text-[15px] font-normal leading-5 text-foreground/80">
+				{t(item.labelKey)}
+			</ItemTitle>
+			<ItemActions className="ml-0 flex-none items-center gap-2 justify-end">
 				{badge}
 				{comingSoon ? (
-					<Badge variant="secondary" className="text-[10px] leading-none">
+					<Badge variant="secondary" className="text-[11px]">
 						Soon
 					</Badge>
 				) : (
 					<ChevronRight
-						className="size-3 shrink-0 text-muted-foreground"
-						strokeWidth={1.8}
+						className="size-4 shrink-0 text-muted-foreground/60"
+						strokeWidth={1.5}
 					/>
 				)}
 			</ItemActions>
