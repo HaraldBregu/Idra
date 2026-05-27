@@ -447,6 +447,69 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		blocks: AgentContentBlock[];
 		toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }>;
 		usage: Usage;
+		costUsd: number;
+		stopReason: string;
+	}> {
+		const candidates = this.modelCandidates();
+		let lastError: unknown;
+		for (let candidateIndex = 0; candidateIndex < candidates.length; candidateIndex++) {
+			const candidate = candidates[candidateIndex];
+			if (candidateIndex > 0) {
+				this.emit({
+					type: 'model.fallback',
+					runId: input.runId,
+					sessionId: input.session.id,
+					iteration: input.iteration,
+					provider: candidate.provider,
+					modelId: candidate.modelId,
+				});
+			}
+			const attempts = this.config.models?.retry?.maxAttempts ?? 2;
+			for (let attempt = 1; attempt <= attempts; attempt++) {
+				try {
+					return await this.collectModelTurnOnce(input, candidate);
+				} catch (error) {
+					lastError = error;
+					if (input.signal.aborted || !isRecoverableError(error) || attempt >= attempts) break;
+					const delayMs = this.retryDelayMs(attempt);
+					this.emit({
+						type: 'model.retry',
+						runId: input.runId,
+						sessionId: input.session.id,
+						iteration: input.iteration,
+						attempt,
+						delayMs,
+						error: toHarnessErrorShape(error),
+					});
+					await this.sleep(delayMs, input.signal);
+				}
+			}
+		}
+		throw new AgentHarnessError({
+			code: 'provider_failed',
+			message: lastError instanceof Error ? lastError.message : 'All model providers failed.',
+			recoverable: isRecoverableError(lastError),
+			cause: lastError,
+		});
+	}
+
+	private async collectModelTurnOnce(
+		input: {
+			runId: string;
+			session: AgentHarnessSession;
+			tools: AgentHarnessTool[];
+			systemPrompt: string;
+			maxTokens: number;
+			signal: AbortSignal;
+			iteration: number;
+		},
+		candidate: AgentHarnessModelCandidate
+	): Promise<{
+		text: string;
+		blocks: AgentContentBlock[];
+		toolCalls: Array<{ id: string; name: string; args: Record<string, unknown> }>;
+		usage: Usage;
+		costUsd: number;
 		stopReason: string;
 	}> {
 		let text = '';
@@ -460,9 +523,9 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			schema: tool.schema,
 		}));
 
-		for await (const event of this.config.model.stream({
-			model: this.config.modelId,
-			effort: this.config.effort,
+		for await (const event of candidate.model.stream({
+			model: candidate.modelId,
+			effort: candidate.effort ?? this.config.effort,
 			system: input.systemPrompt,
 			messages: input.session.transcript,
 			tools,
@@ -477,6 +540,13 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				});
 			} else if (event.type === 'text_delta') {
 				text += event.text;
+				this.emit({
+					type: 'model.delta',
+					runId: input.runId,
+					sessionId: input.session.id,
+					iteration: input.iteration,
+					text: event.text,
+				});
 			} else if (event.type === 'tool_call_start') {
 				pending.set(event.id, { name: event.name, argsText: '' });
 			} else if (event.type === 'tool_call_args_delta') {
@@ -499,7 +569,8 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			blocks.push({ type: 'tool_use', toolUseId: call.id, toolName: call.name, toolArgs: call.args });
 		}
 		if (blocks.length === 0) blocks.push({ type: 'text', text: '' });
-		return { text, blocks, toolCalls, usage, stopReason };
+		const descriptor = this.config.models?.registry?.get(candidate.provider, candidate.modelId);
+		return { text, blocks, toolCalls, usage, costUsd: estimateUsageCost(usage, descriptor?.cost), stopReason };
 	}
 
 	private async executeToolCall(input: {
