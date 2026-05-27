@@ -2,22 +2,20 @@ import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import type { LoggerService } from '../../logger';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
-import {
-	OPENAI_CONNECTOR_CATALOG,
-	getConnectorAuthKind,
-	getConnectorCatalogItem,
-	isOpenAiConnectorId,
-	type ConnectorCallToolOptions,
-	type ConnectorConfig,
-	type ConnectorInput,
-	type ConnectorMcpConfig,
-	type ConnectorMcpEnvSecret,
-	type ConnectorMcpHeaderSecret,
-	type ConnectorOAuthConnectResult,
-	type ConnectorStatus,
-	type ConnectorTestResult,
-	type ConnectorTool,
-	type ConnectorView,
+import type {
+	ConnectorCallToolOptions,
+	ConnectorCatalogEntry,
+	ConnectorConfig,
+	ConnectorInput,
+	ConnectorMcpConfig,
+	ConnectorMcpEnvSecret,
+	ConnectorMcpHeaderSecret,
+	ConnectorOAuthConnectResult,
+	ConnectorProviderId,
+	ConnectorStatus,
+	ConnectorTestResult,
+	ConnectorTool,
+	ConnectorView,
 } from '../../../shared/connector';
 import {
 	createSdkConnectorMcpClient,
@@ -28,8 +26,11 @@ import {
 
 const CONNECTOR_STORE_NAME = 'connector';
 const CONNECTOR_STORE_KEY = 'connectors';
+const CONNECTOR_TOOLS_STORE_NAME = 'connector-tools';
+const CONNECTOR_TOOLS_STORE_KEY = 'tools';
 const CONNECTORS_LOG_SOURCE = 'ConnectorsService';
 const SERVER_LABEL_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const CONNECTOR_ID_PATTERN = /^[a-zA-Z0-9._:-]+$/;
 const ENV_NAME_PATTERN = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const SECRET_HEADER_NAMES = new Set(['authorization', 'x-api-key', 'api-key']);
 
@@ -38,6 +39,16 @@ interface ConnectorPersistenceStore {
 	set(key: string, value: ConnectorConfig[]): void;
 	delete(key: string): void;
 }
+
+interface ConnectorToolPersistenceStore {
+	get(key: string): unknown;
+	set(key: string, value: Record<string, ConnectorTool[]>): void;
+	delete(key: string): void;
+}
+
+type ConnectorCatalogProvider =
+	| readonly ConnectorCatalogEntry[]
+	| (() => readonly ConnectorCatalogEntry[] | Promise<readonly ConnectorCatalogEntry[]>);
 
 interface ToolContext {
 	sessionId?: string;
@@ -64,6 +75,8 @@ interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 
 interface ConnectorsServiceOptions {
 	store?: ConnectorPersistenceStore;
+	toolStore?: ConnectorToolPersistenceStore;
+	catalogProvider?: ConnectorCatalogProvider;
 	mcpClientFactory?: ConnectorMcpClientFactory;
 }
 
@@ -92,7 +105,7 @@ function toView(connector: ConnectorConfig): ConnectorView {
 		id: connector.id,
 		name: connector.name,
 		connectorId: connector.connectorId,
-		authKind: getConnectorAuthKind(connector.connectorId),
+		authKind: 'mcp_env',
 		serverLabel: connector.serverLabel,
 		enabled: connector.enabled,
 		status: statusFor(connector),
@@ -203,7 +216,7 @@ function sanitizeInput(input: unknown, current?: ConnectorConfig): ConnectorInpu
 	const mcp = sanitizeMcpConfig(raw.mcp, current?.mcp);
 
 	if (!name) throw new Error('Connector name is required.');
-	if (!isOpenAiConnectorId(connectorId)) throw new Error('Unsupported connector id: ' + connectorId);
+	assertConnectorId(connectorId);
 	if (!serverLabel) throw new Error('Server label is required.');
 	if (!SERVER_LABEL_PATTERN.test(serverLabel)) {
 		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
@@ -217,7 +230,7 @@ function sanitizeInput(input: unknown, current?: ConnectorConfig): ConnectorInpu
 		name,
 		connectorId,
 		serverLabel,
-		serverDescription: serverDescription || getConnectorCatalogItem(connectorId)?.description,
+		serverDescription,
 		authorization: '',
 		requireApproval,
 		allowedTools: Array.from(new Set(allowedTools)),
@@ -330,12 +343,20 @@ function sanitizeEnvSecrets(value: unknown, current?: ConnectorMcpEnvSecret[]): 
 	return secrets.length > 0 ? secrets : undefined;
 }
 
+function assertConnectorId(value: string): void {
+	if (!value) throw new Error('Connector id is required.');
+	if (!CONNECTOR_ID_PATTERN.test(value)) {
+		throw new Error('Connector id can contain only letters, numbers, dots, colons, underscores, and hyphens.');
+	}
+}
+
 function assertEnvName(value: string, label: string): void {
 	if (!ENV_NAME_PATTERN.test(value)) throw new Error(label + ' must be a valid environment variable name.');
 }
 
 export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
+	private readonly toolStore: ConnectorToolPersistenceStore;
 	private readonly clients = new Map<string, ConnectorMcpClient>();
 
 	constructor(
@@ -348,10 +369,19 @@ export class ConnectorsService {
 				name: CONNECTOR_STORE_NAME,
 				accessPropertiesByDotNotation: false,
 			}) as ConnectorPersistenceStore);
+		this.toolStore =
+			options.toolStore ??
+			(new Store<Record<string, Record<string, ConnectorTool[]>>>({
+				name: CONNECTOR_TOOLS_STORE_NAME,
+				accessPropertiesByDotNotation: false,
+			}) as ConnectorToolPersistenceStore);
 	}
 
-	catalog(): typeof OPENAI_CONNECTOR_CATALOG {
-		return OPENAI_CONNECTOR_CATALOG;
+	async catalog(): Promise<ConnectorCatalogEntry[]> {
+		return mergeCatalogEntries([
+			...(await this.catalogEntriesFromProvider()),
+			...this.validConnectors().map((connector) => this.catalogEntryFromConnector(connector)),
+		]);
 	}
 
 	list(): ConnectorView[] {
@@ -369,7 +399,7 @@ export class ConnectorsService {
 	restoreEnabledConnectors(): void {
 		for (const connector of this.validConnectors()) {
 			if (connector.enabled && connector.tools.length > 0) {
-				this.replace({ ...connector, tools: this.applyToolPolicy(connector, connector.tools) });
+				this.writeTools(connector.id, this.applyToolPolicy(connector, connector.tools));
 			}
 		}
 	}
@@ -420,6 +450,7 @@ export class ConnectorsService {
 			return;
 		}
 		await this.closeClient(connector.id);
+		this.deleteTools(connector.id);
 		this.writeAll(connectors.filter((item) => item.id !== id));
 		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
 	}
@@ -468,7 +499,7 @@ export class ConnectorsService {
 	}
 
 	listTools(id: string): ConnectorTool[] {
-		return this.getStored(id).tools;
+		return this.readTools(this.getStored(id).id);
 	}
 
 	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
@@ -477,8 +508,9 @@ export class ConnectorsService {
 		const callOptions = readConnectorCallToolOptions(options);
 		const nextArgs = readConnectorToolArguments(args);
 		const connector = this.getStored(connectorId);
+		const tools = this.readTools(connector.id);
 		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
-		if (!connector.tools.some((tool) => tool.name === toolName)) {
+		if (!tools.some((tool) => tool.name === toolName)) {
 			throw new Error('Tool ' + toolName + ' is not enabled for ' + connector.name + '.');
 		}
 		return this.clientFor(connector).callTool(toolName, nextArgs, callOptions);
@@ -517,20 +549,22 @@ export class ConnectorsService {
 
 	private async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
 		if (!connector.enabled || missingMcpSecretNames(connector).length > 0) {
-			return { ...connector, tools: this.applyToolPolicy(connector, connector.tools) };
+			return { ...connector, tools: this.readTools(connector.id) };
 		}
 		try {
 			return await this.withDiscoveredTools(connector);
 		} catch (error) {
+			this.writeTools(connector.id, []);
 			return { ...connector, tools: [], lastError: this.errorMessage(error) };
 		}
 	}
 
 	private async withDiscoveredTools(connector: ConnectorConfig): Promise<ConnectorConfig> {
-		const tools = await this.clientFor(connector).listTools();
+		const tools = this.applyToolPolicy(connector, await this.clientFor(connector).listTools());
+		this.writeTools(connector.id, tools);
 		return {
 			...connector,
-			tools: this.applyToolPolicy(connector, tools),
+			tools,
 			lastRefreshedAt: new Date().toISOString(),
 			lastError: undefined,
 		};
@@ -558,7 +592,10 @@ export class ConnectorsService {
 	}
 
 	private validConnectors(): ConnectorConfig[] {
-		return this.readStoredConnectors().filter(isStoredConnectorValid).map(normalizeStoredConnector);
+		return this.readStoredConnectors()
+			.filter(isStoredConnectorValid)
+			.map(normalizeStoredConnector)
+			.map((connector) => ({ ...connector, tools: this.readTools(connector.id) }));
 	}
 
 	private replace(connector: ConnectorConfig): void {
@@ -614,12 +651,75 @@ export class ConnectorsService {
 
 	private writeAll(connectors: ConnectorConfig[]): void {
 		try {
-			this.store.set(CONNECTOR_STORE_KEY, connectors);
+			this.store.set(CONNECTOR_STORE_KEY, connectors.map(stripToolCache));
 			this.logDebug('Wrote connector settings', { key: CONNECTOR_STORE_KEY, count: connectors.length });
 		} catch (error) {
 			this.logError('Failed to write connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
 			throw error;
 		}
+	}
+
+	private readTools(connectorId: string): ConnectorTool[] {
+		const raw = this.readToolRecords()[connectorId];
+		if (!Array.isArray(raw)) return [];
+		return raw.filter(isConnectorToolRecord).map((tool) => ({ ...tool }));
+	}
+
+	private writeTools(connectorId: string, tools: readonly ConnectorTool[]): void {
+		const records = this.readToolRecords();
+		records[connectorId] = tools.map((tool) => ({ ...tool }));
+		try {
+			this.toolStore.set(CONNECTOR_TOOLS_STORE_KEY, records);
+			this.logDebug('Wrote connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId, count: tools.length });
+		} catch (error) {
+			this.logError('Failed to write connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId, error: this.errorMessage(error) });
+			throw error;
+		}
+	}
+
+	private deleteTools(connectorId: string): void {
+		const records = this.readToolRecords();
+		delete records[connectorId];
+		try {
+			this.toolStore.set(CONNECTOR_TOOLS_STORE_KEY, records);
+			this.logDebug('Deleted connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId });
+		} catch (error) {
+			this.logError('Failed to delete connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, connectorId, error: this.errorMessage(error) });
+			throw error;
+		}
+	}
+
+	private readToolRecords(): Record<string, ConnectorTool[]> {
+		try {
+			const raw = this.toolStore.get(CONNECTOR_TOOLS_STORE_KEY);
+			if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+			return { ...(raw as Record<string, ConnectorTool[]>) };
+		} catch (error) {
+			this.logError('Failed to read connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, error: this.errorMessage(error) });
+			throw error;
+		}
+	}
+
+	private async catalogEntriesFromProvider(): Promise<ConnectorCatalogEntry[]> {
+		const provider = this.options.catalogProvider;
+		const entries = typeof provider === 'function' ? await provider() : provider ?? [];
+		return entries.map(normalizeCatalogEntry);
+	}
+
+	private catalogEntryFromConnector(connector: ConnectorConfig): ConnectorCatalogEntry {
+		return normalizeCatalogEntry({
+			id: connector.connectorId,
+			name: connector.name,
+			description: connector.serverDescription ?? connector.name,
+			environmentSecretNames: environmentSecretNamesFor(connector.mcp),
+			platformDocumentationPages: [],
+			tools: connector.tools.map((tool) => tool.name),
+			scopes: [],
+			setupInstructions: [],
+			authKind: 'mcp_env',
+			runtimeKind: 'mcp',
+			allowMultipleInstances: true,
+		});
 	}
 
 	private validateConnectorInput<T>(action: 'add' | 'update', run: () => T): T {
@@ -660,7 +760,7 @@ function isStoredConnectorValid(connector: ConnectorConfig): boolean {
 		typeof connector.id === 'string' &&
 		typeof connector.name === 'string' &&
 		typeof connector.connectorId === 'string' &&
-		isOpenAiConnectorId(connector.connectorId) &&
+		CONNECTOR_ID_PATTERN.test(connector.connectorId) &&
 		connector.mcp !== undefined
 	);
 }
@@ -671,8 +771,16 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		authorization: '',
 		oauth: undefined,
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
-		tools: Array.isArray(connector.tools) ? connector.tools : [],
+		tools: [],
 	};
+}
+
+function stripToolCache(connector: ConnectorConfig): ConnectorConfig {
+	return { ...connector, tools: [] };
+}
+
+function isConnectorToolRecord(value: unknown): value is ConnectorTool {
+	return Boolean(value && typeof value === 'object' && !Array.isArray(value) && typeof (value as ConnectorTool).name === 'string');
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
@@ -719,4 +827,39 @@ function schemaForTool(tool: ConnectorTool): AgentTool['schema'] {
 	const schema = tool.inputSchema;
 	if (schema && typeof schema === 'object' && !Array.isArray(schema)) return schema as JSONSchema;
 	return { type: 'object', properties: {}, additionalProperties: true };
+}
+
+function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
+	if (!mcp) return [];
+	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
+	return (mcp.envSecrets ?? []).map((secret) => secret.env);
+}
+
+function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEntry {
+	assertConnectorId(entry.id);
+	return {
+		id: entry.id,
+		directConnectorId: entry.directConnectorId,
+		name: entry.name?.trim() || entry.id,
+		description: entry.description?.trim() || entry.name?.trim() || entry.id,
+		docsPath: entry.docsPath,
+		docsLabel: entry.docsLabel,
+		environmentSecretNames: Array.from(new Set(entry.environmentSecretNames ?? [])),
+		platformDocumentationPages: entry.platformDocumentationPages ?? [],
+		example: entry.example,
+		tools: Array.from(new Set(entry.tools ?? [])),
+		scopes: entry.scopes ?? [],
+		setupUrl: entry.setupUrl,
+		setupInstructions: entry.setupInstructions ?? [],
+		authKind: 'mcp_env',
+		redirectUri: entry.redirectUri,
+		runtimeKind: 'mcp',
+		allowMultipleInstances: entry.allowMultipleInstances ?? true,
+	};
+}
+
+function mergeCatalogEntries(entries: ConnectorCatalogEntry[]): ConnectorCatalogEntry[] {
+	const byId = new Map<ConnectorProviderId, ConnectorCatalogEntry>();
+	for (const entry of entries) byId.set(entry.id, { ...byId.get(entry.id), ...entry });
+	return [...byId.values()].sort((left, right) => left.name.localeCompare(right.name));
 }
