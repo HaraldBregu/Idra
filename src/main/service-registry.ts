@@ -3,20 +3,20 @@ import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core
 import type { WindowContextManager } from './core';
 import type { AgentService } from './agent';
 import type { AppPermissionsService } from './app-permissions';
-import type { ConnectorsService } from './connectors';
+import type { ConnectorsService } from './agent/connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
-import type { McpRegistry } from './mcp';
+import type { McpRegistry } from './agent/mcp';
 import type { MonitorService } from './monitor';
 import type { PolicyService } from './policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
-import type { SkillsService } from './skills';
+import type { SkillsService } from './agent/skills';
 import type { HeartbeatService } from './heartbeat';
 import type { SpeechToTextService } from './stt';
 import type { StoreService } from './store';
 import type { TasksService } from './tasks';
 import type { TextToSpeechService } from './tts';
-import type { ToolService } from './tools';
+import type { ToolService } from './agent/tools';
 import type { UserDataDirectoryService } from './user-data';
 import type { WorkspaceService } from './workspace';
 

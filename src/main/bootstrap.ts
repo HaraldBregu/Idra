@@ -18,14 +18,14 @@ import {
 	SubagentSpawnService,
 } from './agent';
 import { WorkspaceService } from './workspace';
-import { ConnectorsService } from './connectors';
-import { McpRegistry } from './mcp';
+import { ConnectorsService } from './agent/connectors';
+import { McpRegistry } from './agent/mcp';
 import { MonitorService } from './monitor';
 import { TasksService } from './tasks';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
-import { ToolService } from './tools';
-import { SkillsService } from './skills';
+import { ToolService } from './agent/tools';
+import { SkillsService } from './agent/skills';
 import { SpeechToTextService } from './stt';
 import { TextToSpeechService } from './tts';
 
