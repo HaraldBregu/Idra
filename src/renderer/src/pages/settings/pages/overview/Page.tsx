@@ -202,7 +202,7 @@ const OverviewPage: React.FC = () => {
 					}
 
 					return (
-						<SettingsSection key={group.id} title={t(group.titleKey)}>
+						<SettingsSection key={group.id} title={t(group.titleKey)} titleClassName="px-2">
 							{panel}
 						</SettingsSection>
 					);
