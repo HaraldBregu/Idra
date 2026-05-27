@@ -1023,8 +1023,13 @@ function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
 			environmentSecretNames: [
 				GOOGLE_OAUTH_CLIENT_ID_ENV,
 			],
-			platformDocumentationPages: [],
-			tools: connector.capabilities,
+			platformDocumentationPages: connector.mcp
+				? [
+					{ label: `${connector.name} MCP reference`, url: connector.mcp.referenceUrl },
+					{ label: 'Google MCP authentication', url: GOOGLE_MCP_AUTHENTICATION_URL },
+				]
+				: [],
+			tools: connector.mcp?.tools ?? connector.capabilities,
 			scopes: connector.oauth.scopes,
 			setupUrl: connector.setupUrl,
 			setupInstructions: [
@@ -1034,10 +1039,16 @@ function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
 			],
 			authKind: 'oauth',
 			redirectUri: connector.oauth.redirectUri,
-			runtimeKind: 'oauth',
+			runtimeKind: connector.mcp ? 'mcp' : 'oauth',
 			allowMultipleInstances: false,
 		})
 	);
+}
+
+function mcpConfigForOAuthConnector(
+	connector: (typeof GOOGLE_WORKSPACE_OAUTH_CONNECTORS)[number]
+): ConnectorMcpConfig | undefined {
+	return connector.mcp ? { transport: 'http', url: connector.mcp.endpoint } : undefined;
 }
 
 function googleOAuthAuthorizationUrl(
