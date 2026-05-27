@@ -1,10 +1,9 @@
 import type { AgentTool } from '../core/types';
 import {
-	AGENT_TOOL_APPROVAL_ALWAYS,
-	AGENT_TOOL_APPROVAL_NONE,
-	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-	AGENT_TOOL_STANDARD_PROFILES,
+	AGENT_TOOL_METADATA_BY_NAME,
+	AGENT_TOOL_NAMES,
 	type AgentToolApprovalPolicy,
+	type AgentDefaultToolName,
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../../shared/tools';
@@ -57,7 +56,7 @@ export type LocalToolApprovalPolicy = AgentToolApprovalPolicy;
 type LocalToolImplementation = AgentTool<any, any>;
 
 export interface LocalToolCatalogEntry {
-	name: string;
+	name: AgentDefaultToolName;
 	tool: LocalToolImplementation;
 	group: LocalToolGroup;
 	profiles: readonly LocalToolProfile[];
@@ -65,218 +64,59 @@ export interface LocalToolCatalogEntry {
 	ownerOnly?: boolean;
 }
 
-function localTool(definition: Omit<LocalToolCatalogEntry, 'name'>): LocalToolCatalogEntry {
-	const entry = { name: definition.tool.name, ...definition };
-	const ownerOnly = definition.ownerOnly ?? definition.tool.ownerOnly;
+function localTool(name: AgentDefaultToolName, tool: LocalToolImplementation): LocalToolCatalogEntry {
+	const metadata = AGENT_TOOL_METADATA_BY_NAME[name];
+	const entry = {
+		name,
+		tool,
+		group: metadata.group,
+		profiles: metadata.profiles,
+		approval: metadata.approval,
+	};
+	const ownerOnly = tool.ownerOnly;
 	return ownerOnly === undefined ? entry : { ...entry, ownerOnly };
 }
 
-export const LOCAL_TOOL_CATALOG = [
-	localTool({
-		tool: readFileTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: writeFileTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: editFileTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-	}),
-	localTool({
-		tool: listDirectoryTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: searchFilesTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: grepTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: runShellTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: gitStatusTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: gitDiffTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: undoLastOperationTool,
-		group: 'coreWorkspace',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-	}),
-	localTool({
-		tool: writeTodosTool,
-		group: 'stateTask',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: updateTodoTool,
-		group: 'stateTask',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: listTodosTool,
-		group: 'stateTask',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: completeTaskTool,
-		group: 'stateTask',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: writeScratchTool,
-		group: 'stateTask',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: readScratchTool,
-		group: 'stateTask',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: requestApprovalTool,
-		group: 'humanDecision',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-	}),
-	localTool({
-		tool: requestClarificationTool,
-		group: 'humanDecision',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: presentPlanTool,
-		group: 'humanDecision',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: requestAuthorizationTool,
-		group: 'humanDecision',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-	}),
-	localTool({
-		tool: spawnSubagentTool,
-		group: 'subagent',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: listSkillsTool,
-		group: 'skill',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: loadSkillTool,
-		group: 'skill',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: useSkillTool,
-		group: 'skill',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: listMcpServersTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: connectMcpServerTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: refreshMcpServerTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: listMcpToolsTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: loadMcpToolTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: callMcpToolTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-	}),
-	localTool({
-		tool: listMcpResourcesTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: readMcpResourceTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: listMcpPromptsTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-	localTool({
-		tool: loadMcpPromptTool,
-		group: 'mcpConnector',
-		profiles: AGENT_TOOL_STANDARD_PROFILES,
-		approval: AGENT_TOOL_APPROVAL_NONE,
-	}),
-] as const satisfies readonly LocalToolCatalogEntry[];
+const LOCAL_TOOL_IMPLEMENTATIONS = {
+	read_file: readFileTool,
+	write_file: writeFileTool,
+	edit_file: editFileTool,
+	list_directory: listDirectoryTool,
+	search_files: searchFilesTool,
+	grep: grepTool,
+	run_shell: runShellTool,
+	git_status: gitStatusTool,
+	git_diff: gitDiffTool,
+	undo_last_operation: undoLastOperationTool,
+	write_todos: writeTodosTool,
+	update_todo: updateTodoTool,
+	list_todos: listTodosTool,
+	complete_task: completeTaskTool,
+	write_scratch: writeScratchTool,
+	read_scratch: readScratchTool,
+	request_approval: requestApprovalTool,
+	request_clarification: requestClarificationTool,
+	present_plan: presentPlanTool,
+	request_authorization: requestAuthorizationTool,
+	spawn_subagent: spawnSubagentTool,
+	list_skills: listSkillsTool,
+	load_skill: loadSkillTool,
+	use_skill: useSkillTool,
+	list_mcp_servers: listMcpServersTool,
+	connect_mcp_server: connectMcpServerTool,
+	refresh_mcp_server: refreshMcpServerTool,
+	list_mcp_tools: listMcpToolsTool,
+	load_mcp_tool: loadMcpToolTool,
+	call_mcp_tool: callMcpToolTool,
+	list_mcp_resources: listMcpResourcesTool,
+	read_mcp_resource: readMcpResourceTool,
+	list_mcp_prompts: listMcpPromptsTool,
+	load_mcp_prompt: loadMcpPromptTool,
+} as const satisfies Record<AgentDefaultToolName, LocalToolImplementation>;
+
+export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
+	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
+) as readonly LocalToolCatalogEntry[];
 
 export function localToolNamesForProfile(profile: LocalToolProfile): string[] {
 	return LOCAL_TOOL_CATALOG.filter((entry) => entry.profiles.includes(profile)).map(
