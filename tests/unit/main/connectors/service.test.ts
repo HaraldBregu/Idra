@@ -209,12 +209,22 @@ function createTokenFetch(overrides: Record<string, unknown> = {}) {
 
 function createOAuthOptions(overrides: { readonly fetch?: typeof fetch } = {}) {
 	const tokenFetch = overrides.fetch ?? createTokenFetch();
+	let resolveCode: ((code: string) => void) | undefined;
+	const code = new Promise<string>((resolve) => {
+		resolveCode = resolve;
+	});
+	const close = jest.fn(async () => undefined);
+	const oauthCallbackListenerFactory = jest.fn(async () => ({
+		redirectUri: 'http://127.0.0.1:49152/oauth/callback',
+		code,
+		close,
+	}));
 	const openExternalUrl = jest.fn(async (authorizationUrl: string) => {
 		const url = new URL(authorizationUrl);
 		const redirectUri = url.searchParams.get('redirect_uri');
 		const state = url.searchParams.get('state');
 		if (!redirectUri || !state) throw new Error('OAuth URL missing redirect details.');
-		await fetch(`${redirectUri}?code=authorization-code&state=${state}`);
+		resolveCode?.('authorization-code');
 	});
 	return {
 		env: {
@@ -223,6 +233,8 @@ function createOAuthOptions(overrides: { readonly fetch?: typeof fetch } = {}) {
 		},
 		openExternalUrl,
 		fetch: tokenFetch,
+		oauthCallbackListenerFactory,
+		close,
 	};
 }
 
@@ -230,6 +242,11 @@ function createService(client = createFakeMcpClient(), options: {
 	readonly env?: NodeJS.ProcessEnv;
 	readonly openExternalUrl?: (url: string) => Promise<void>;
 	readonly fetch?: typeof fetch;
+	readonly oauthCallbackListenerFactory?: (state: string, timeoutMs?: number) => Promise<{
+		redirectUri: string;
+		code: Promise<string>;
+		close(): Promise<void>;
+	}>;
 } = {}) {
 	const logger = makeLogger();
 	const factory = jest.fn(() => client);
@@ -238,6 +255,7 @@ function createService(client = createFakeMcpClient(), options: {
 		env: options.env,
 		openExternalUrl: options.openExternalUrl,
 		fetch: options.fetch,
+		oauthCallbackListenerFactory: options.oauthCallbackListenerFactory,
 	});
 	const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
 		data: Map<string, unknown>;
