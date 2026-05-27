@@ -41,51 +41,6 @@ const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
 	},
 ];
 
-const OAUTH_CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
-	{
-		id: 'google.gmail',
-		name: 'Gmail',
-		description: 'Gmail OAuth connector',
-		directConnectorId: 'gmail',
-		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID'],
-		platformDocumentationPages: [],
-		tools: ['Search mail', 'Read messages'],
-		scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'oauth',
-		allowMultipleInstances: false,
-	},
-	{
-		id: 'google.calendar',
-		name: 'Google Calendar',
-		description: 'Calendar OAuth connector',
-		directConnectorId: 'google_calendar',
-		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID'],
-		platformDocumentationPages: [],
-		tools: ['Search events', 'Read events'],
-		scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'oauth',
-		allowMultipleInstances: false,
-	},
-	{
-		id: 'google.drive',
-		name: 'Google Drive',
-		description: 'Drive OAuth connector',
-		directConnectorId: 'google_drive',
-		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID'],
-		platformDocumentationPages: [],
-		tools: ['Search files', 'Read content'],
-		scopes: ['https://www.googleapis.com/auth/drive.readonly'],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'oauth',
-		allowMultipleInstances: false,
-	},
-];
-
 jest.mock(
 	'../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorIcon',
 	() => ({
@@ -190,13 +145,15 @@ describe('connector settings docs', () => {
 
 	it('renders static Google OAuth connectors and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
-		(window.connectors.catalog as jest.Mock).mockResolvedValue(OAUTH_CONNECTOR_CATALOG);
+		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
 
 		renderConnectorsPage();
 
 		expect(await screen.findByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
 		expect(screen.getByRole('heading', { name: 'Google Calendar' })).toBeInTheDocument();
 		expect(screen.getByRole('heading', { name: 'Google Drive' })).toBeInTheDocument();
+		expect(screen.getByText('search_threads')).toBeInTheDocument();
+		expect(screen.getByText('list_events')).toBeInTheDocument();
 
 		await user.click(screen.getByRole('button', { name: /Authorize Gmail/ }));
 
