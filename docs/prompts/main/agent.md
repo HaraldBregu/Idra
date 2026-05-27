@@ -165,6 +165,16 @@ The harness emits typed events via an EventEmitter for every state transition.
 7. TOOL SYSTEM LAYER
 ============================================================
 
+Tools follow the structure and rules defined in docs/prompts/main/tools.md. That document is the authoritative specification for tool module structure, service boundaries, dependency rules, tool groups, policy enforcement, logging requirements, and testing requirements. Implement the tools layer in full conformance with it.
+
+Key points from that spec that apply here:
+- Tool behavior must stay centralized inside the tools module. No tool logic is duplicated across other modules.
+- Tools depend on PolicyService, CronService, SkillsService, and ConnectorService as defined in the spec. No tool bypasses these dependencies.
+- Filesystem tools and cron tools are implemented as dedicated groups per the spec.
+- PolicyService is called before any filesystem or cron tool executes.
+- CronService handles all scheduling behavior for cron tools.
+- Only the module index exposes tools to consumers. Internal tool files are not imported directly from outside the module.
+
 All tools are registered in the shared store under the tools key.
 
 Each tool has an id, name, description, JSON schema, and an execute function.
