@@ -21,7 +21,7 @@ export function ConnectorCatalogItem({
 	readonly onConfigure: () => void;
 	readonly alreadyConfigured: boolean;
 }) {
-	const googleOAuth = 'authKind' in item && item.authKind === 'google_oauth';
+	const authLabel = 'MCP env variables';
 
 	return (
 		<Collapsible className="rounded-lg border border-border/70 bg-card">
@@ -30,7 +30,7 @@ export function ConnectorCatalogItem({
 				<span className="min-w-0 flex-1">
 					<span className="block truncate text-[13px] font-medium">{item.name}</span>
 					<span className="block truncate text-[11px] text-muted-foreground">
-						{googleOAuth ? 'Google OAuth' : 'Manual OAuth access token'}
+						{authLabel}
 					</span>
 				</span>
 				{alreadyConfigured && (

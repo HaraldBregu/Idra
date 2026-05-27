@@ -299,7 +299,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 			setConnector(nextConnector);
 			setCatalogItem(item);
-			setForm(formFromConnector(nextConnector, item));
+			setForm(formFromConnector(nextConnector, catalogItem));
 			setTools(nextTools);
 			setToolsError(nextToolsError);
 		} catch (caught) {
@@ -389,7 +389,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			const nextTools = await window.connectors.refreshTools(connector.id);
 			const nextConnector = await window.connectors.get(connector.id);
 			setConnector(nextConnector);
-			setForm(formFromConnector(nextConnector, item));
+			setForm(formFromConnector(nextConnector, catalogItem));
 			setTools(nextTools);
 			setStatusMessage('Connector tools refreshed.');
 		} catch (caught) {
@@ -426,7 +426,7 @@ const ConnectorDetailsPage: React.FC = () => {
 				window.connectors.listTools(connector.id),
 			]);
 			setConnector(nextConnector);
-			setForm(formFromConnector(nextConnector, item));
+			setForm(formFromConnector(nextConnector, catalogItem));
 			setTools(nextTools);
 			setStatusMessage(result.message ?? `${connector.name} connected.`);
 			setToolsError(null);
