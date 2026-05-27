@@ -167,11 +167,12 @@ export function resolveMcpConfig(
 ): ResolvedMcpConfig {
 	const mcp = connector.mcp;
 	if (!mcp) throw new Error('Connector ' + connector.name + ' is missing MCP transport configuration.');
-	if (mcp.transport === 'http') return resolveHttpConfig(mcp, env);
+	if (mcp.transport === 'http') return resolveHttpConfig(connector, mcp, env);
 	return resolveStdioConfig(mcp, env);
 }
 
 function resolveHttpConfig(
+	connector: ConnectorConfig,
 	mcp: Extract<ConnectorMcpConfig, { transport: 'http' }>,
 	env: NodeJS.ProcessEnv
 ): ResolvedHttpMcpConfig {
@@ -185,6 +186,8 @@ function resolveHttpConfig(
 		headers[header] = header.toLowerCase() === 'authorization' && scheme === 'bearer'
 			? 'Bearer ' + secret
 			: secret;
+	} else if (connector.oauth?.token?.accessToken) {
+		headers.Authorization = 'Bearer ' + connector.oauth.token.accessToken;
 	}
 	return {
 		transport: 'http',
