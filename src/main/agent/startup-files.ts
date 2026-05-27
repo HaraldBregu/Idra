@@ -108,7 +108,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		}
 
 		if (!state.bootstrapSeededAt && !state.setupCompletedAt && !bootstrapExists) {
-			if (await this.hasExistingUserEvidence(root)) {
+			if (await this.profileLooksConfigured(root)) {
 				markState({ setupCompletedAt: now() });
 			} else {
 				const wroteBootstrap = await writeFileIfMissing(

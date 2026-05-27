@@ -100,7 +100,7 @@ export function bootstrapServices(): BootstrapResult {
 			rootPath: agentDataDirectory.resolve('workspaces', DEFAULT_AGENT_ID),
 		})
 	);
-	container.register(
+	const startupFiles = container.register(
 		'startupFiles',
 		new AgentStartupFilesService({
 			rootPath: agentDataDirectory.resolve('workspaces'),
@@ -147,6 +147,7 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		eventBus,
 		workspace,
+		startupFiles,
 		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,
