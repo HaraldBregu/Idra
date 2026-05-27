@@ -6,7 +6,7 @@ import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../../store';
 import type { TasksService } from '../../../tasks';
 import type { McpRegistry } from '../../mcp';
-import type { SkillsService } from '../../skills';
+import type { SkillsService } from '../../../skills';
 import type { UserDataDirectoryServicePort } from '../../../user-data';
 import type { WorkspaceService } from '../../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../../provider/types';
