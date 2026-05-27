@@ -98,6 +98,7 @@ interface OAuthCallbackListener {
 }
 
 interface OAuthTokenExchangeInput {
+	state: string;
 	code: string;
 	codeVerifier: string;
 	redirectUri: string;
@@ -492,6 +493,7 @@ export class ConnectorsService {
 			const code = await callback.code;
 			const completed = this.completeOAuth(await exchangeOAuthCode(definition, {
 				code,
+				state,
 				codeVerifier,
 				redirectUri: callback.redirectUri,
 				clientId: clientId.trim(),
@@ -1333,7 +1335,7 @@ async function exchangeOAuthCode(
 		throw new Error('OAuth token exchange failed: ' + oauthTokenErrorMessage(payload, response.statusText));
 	}
 	return {
-		state: readRequiredString(payload.access_token ? input.code : '', 'OAuth state'),
+		state: input.state,
 		accessToken: readRequiredString(payload.access_token, 'OAuth access token'),
 		refreshToken: readOptionalTokenString(payload, 'refresh_token'),
 		tokenType: readOptionalTokenString(payload, 'token_type'),
