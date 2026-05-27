@@ -49,6 +49,7 @@ export interface PolicyServiceOptions {
 	storeAccessor?: PolicyStoreAccessor;
 	workspaceRoot?: string;
 	agentRoot?: string;
+	userDataRoot?: string;
 	logger?: PolicyEvaluationLogger;
 }
 
@@ -111,6 +112,7 @@ export class PolicyService implements PolicyServicePort {
 	private readonly storeAccessor?: PolicyStoreAccessor;
 	private readonly workspaceRoot?: string;
 	private readonly agentRoot?: string;
+	private readonly userDataRoot?: string;
 	private readonly logger?: PolicyEvaluationLogger;
 	private readonly rules: PolicyRuleRegistry = {
 		path: (input) =>
@@ -127,10 +129,12 @@ export class PolicyService implements PolicyServicePort {
 		this.storeAccessor = options.storeAccessor;
 		this.workspaceRoot = options.workspaceRoot;
 		this.agentRoot = options.agentRoot;
+		this.userDataRoot = options.userDataRoot;
 		this.logger = options.logger;
 		this.logger?.info?.('PolicyService', 'Policy service initialized', {
 			workspaceRoot: this.workspaceRoot,
 			agentRoot: this.agentRoot,
+			userDataRoot: this.userDataRoot,
 		});
 	}
 
@@ -154,8 +158,15 @@ export class PolicyService implements PolicyServicePort {
 	}
 
 	// Maps real paths to virtual prefixes used in stored policy configs:
-	// paths under agentRoot → /agent/..., paths under workspaceRoot → /workspace/...
+	// paths under userDataRoot → /.friday/..., agentRoot → /agent/...,
+	// paths under workspaceRoot → /workspace/...
 	private toVirtualPath(targetPath: string): string {
+		if (this.userDataRoot) {
+			const rel = path.relative(this.userDataRoot, targetPath);
+			if (!rel.startsWith('..') && !path.isAbsolute(rel)) {
+				return '/.friday' + (rel ? '/' + rel : '');
+			}
+		}
 		if (this.agentRoot) {
 			const rel = path.relative(this.agentRoot, targetPath);
 			if (!rel.startsWith('..') && !path.isAbsolute(rel)) {
