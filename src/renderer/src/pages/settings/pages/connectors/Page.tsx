@@ -18,6 +18,11 @@ import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors } from './hooks/useConnectors';
 
+type GoogleWorkspaceConnectorCard = Pick<
+	ConnectorCatalogEntry,
+	'id' | 'name' | 'description' | 'directConnectorId' | 'tools'
+>;
+
 const ConnectorsPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -30,7 +35,29 @@ const ConnectorsPage = () => {
 		statusMessage,
 		toggleConnector,
 	} = useConnectors();
-	const oauthCatalog = catalog.filter((connector) => connector.authKind === 'oauth');
+	const oauthCatalog: GoogleWorkspaceConnectorCard[] = [
+		{
+			id: 'google.gmail',
+			name: 'Gmail',
+			description: 'Authorize the official Gmail MCP server for mail search, drafts, labels, and threads.',
+			directConnectorId: 'gmail',
+			tools: ['create_draft', 'list_drafts', 'get_thread', 'search_threads', 'label_thread', 'unlabel_thread', 'list_labels', 'label_message', 'unlabel_message', 'create_label'],
+		},
+		{
+			id: 'google.calendar',
+			name: 'Google Calendar',
+			description: 'Authorize the official Calendar MCP server for calendars, events, scheduling, and RSVPs.',
+			directConnectorId: 'google_calendar',
+			tools: ['list_events', 'get_event', 'list_calendars', 'suggest_time', 'create_event', 'update_event', 'delete_event', 'respond_to_event'],
+		},
+		{
+			id: 'google.drive',
+			name: 'Google Drive',
+			description: 'Authorize Drive access for file search, metadata, content reads, and file creation.',
+			directConnectorId: 'google_drive',
+			tools: ['Search files', 'Read content', 'Inspect metadata', 'Create files'],
+		},
+	];
 	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth');
 	const oauthConfiguredConnectorIds = new Set(
 		connectors.filter((connector) => connector.authKind === 'oauth').map((connector) => connector.connectorId)
@@ -46,7 +73,7 @@ const ConnectorsPage = () => {
 		navigate(`/settings/connectors/configure/${encodeURIComponent(id)}`);
 	};
 
-	const authorizeOAuthConnector = async (connector: ConnectorCatalogEntry): Promise<void> => {
+	const authorizeOAuthConnector = async (connector: GoogleWorkspaceConnectorCard): Promise<void> => {
 		setOauthError(null);
 		setOauthMessage(null);
 		setOauthBusyId(connector.id);
