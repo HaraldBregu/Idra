@@ -88,15 +88,21 @@ type ToolIntent =
 
 function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolIntent {
 	const normalized = normalizeForCapabilityMatch(message);
+	const fileContext = hasFileContext(message, tokens);
 	if (/\b(every|daily|weekly|monthly|tomorrow|tonight|schedule|scheduled|remind|reminder|recurring|cron)\b/.test(normalized)) return 'scheduled';
 	if (/\b(email|gmail|inbox|mail)\b/.test(normalized)) return 'email';
 	if (/\b(calendar|agenda|meeting|event|events)\b/.test(normalized)) return 'calendar';
 	if (/\b(google drive|drive|document|documents)\b/.test(normalized)) return 'drive';
 	if (/\b(weather|latest|current|web|url|http|fetch)\b/.test(normalized)) return 'web';
-	if (hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
-	if (hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])) return 'file_write';
-	if (hasAny(tokens, ['read', 'find', 'inspect', 'search', 'show', 'list', 'open'])) return 'file_read';
+	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
+	if (fileContext && hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])) return 'file_write';
+	if (fileContext && hasAny(tokens, ['read', 'find', 'inspect', 'search', 'show', 'list', 'open'])) return 'file_read';
 	return 'none';
+}
+
+function hasFileContext(message: string, tokens: ReadonlySet<string>): boolean {
+	return hasAny(tokens, ['file', 'files', 'folder', 'folders', 'path', 'workspace', 'repo', 'repository', 'code', 'source', 'directory'])
+		|| /[\w.-]+\.(?:ts|tsx|js|jsx|json|md|txt|yaml|yml|css|html|py|go|rs|java|kt|swift|sql)\b/i.test(message);
 }
 
 function hasNoToolIntent(message: string): boolean {
