@@ -203,6 +203,10 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 		await Promise.all([...this.clients.keys()].map((id) => this.closeClient(id)));
 	}
 
+	async closeConnector(id: string): Promise<void> {
+		await this.closeClient(id);
+	}
+
 	private async withMcpTools(connector: ConnectorConfig): Promise<ConnectorConfig> {
 		const missing = missingMcpSecretNames(connector);
 		if (missing.length > 0) throw new Error('Missing MCP secret environment variable: ' + missing.join(', '));
