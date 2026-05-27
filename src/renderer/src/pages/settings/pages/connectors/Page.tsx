@@ -92,38 +92,26 @@ const ConnectorsPage = () => {
 				</div>
 			</SettingsSection>
 
-			<SettingsSection title="MCP connectors">
-				<div className="grid gap-2">
-					{mcpConnectors.length === 0 && mcpCatalog.length === 0 ? (
-						<Item variant="outline" size="md" className="rounded-lg border border-border/70 bg-card">
-							<ItemContent>
-								<SettingsEmptyState
-									icon={Plug}
-									title="No connectors configured yet."
-									description="Add a connector to make external tools available to agent runs."
-								/>
-							</ItemContent>
-						</Item>
-					) : (
-						<>
-							{mcpConnectors.map((connector) => (
-								<ConnectorCard
-									key={connector.id}
-									connector={connector}
-									onViewDetails={() => openConnectorDetails(connector.id)}
-								/>
-							))}
-							{mcpCatalog.map((item) => (
-								<ConnectorCatalogItem
-									key={item.id}
-									item={item}
-									onConfigure={() => configureCatalogConnector(item.id)}
-								/>
-							))}
-						</>
-					)}
-				</div>
-			</SettingsSection>
+			{(mcpConnectors.length > 0 || mcpCatalog.length > 0) && (
+				<SettingsSection title="MCP connectors">
+					<div className="grid gap-2">
+						{mcpConnectors.map((connector) => (
+							<ConnectorCard
+								key={connector.id}
+								connector={connector}
+								onViewDetails={() => openConnectorDetails(connector.id)}
+							/>
+						))}
+						{mcpCatalog.map((item) => (
+							<ConnectorCatalogItem
+								key={item.id}
+								item={item}
+								onConfigure={() => configureCatalogConnector(item.id)}
+							/>
+						))}
+					</div>
+				</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };
