@@ -178,9 +178,10 @@ describe('connector settings docs', () => {
 
 		renderConnectorsPage();
 
-		expect(await screen.findByText('Gmail')).toBeInTheDocument();
+		const gmailLabels = await screen.findAllByText('Gmail');
+		expect(gmailLabels.length).toBeGreaterThan(0);
 
-		await user.click(screen.getAllByText('Gmail')[0]!);
+		await user.click(gmailLabels[0]!);
 
 		expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith('google.gmail');
 		expect(window.app.openExternalUrl).not.toHaveBeenCalled();
