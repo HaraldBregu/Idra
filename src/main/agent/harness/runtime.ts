@@ -915,12 +915,27 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 	}
 
 	private async withToolTimeout<T>(work: Promise<T>, signal: AbortSignal, toolName: string): Promise<T> {
-		if (!signal.aborted) return work;
-		throw new AgentHarnessError({
-			code: 'tool_failed',
-			message: `Tool ${toolName} timed out or was cancelled.`,
-			recoverable: true,
-		});
+		if (signal.aborted) {
+			throw new AgentHarnessError({
+				code: 'tool_failed',
+				message: `Tool ${toolName} timed out or was cancelled.`,
+				recoverable: true,
+			});
+		}
+		return Promise.race([
+			work,
+			new Promise<T>((_, reject) => {
+				signal.addEventListener(
+					'abort',
+					() => reject(new AgentHarnessError({
+						code: 'tool_failed',
+						message: `Tool ${toolName} timed out or was cancelled.`,
+						recoverable: true,
+					})),
+					{ once: true }
+				);
+			}),
+		]);
 	}
 
 	private retryDelayMs(attempt: number): number {
