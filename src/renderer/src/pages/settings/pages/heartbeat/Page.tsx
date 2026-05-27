@@ -315,7 +315,6 @@ const HeartbeatPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.heartbeat')}
 				description={t('settings.heartbeat.description')}
-				icon={Activity}
 				action={
 					<Button
 						type="button"
