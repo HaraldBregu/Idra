@@ -430,7 +430,7 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 		expect(added.authorization).toBe('');
 		expect(service.list()).toEqual([
-			expect.objectContaining({ name: 'Gmail MCP', status: 'configured', toolsCount: 2 }),
+			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 2 }),
 		]);
 	});
 
@@ -493,7 +493,7 @@ describe('ConnectorsService MCP persistence', () => {
 			args: { query: 'roadmap' },
 		});
 		await expect(service.callTool(added.id, 'write_note', { text: 'draft' })).rejects.toThrow(
-			'Tool write_note is blocked for Gmail MCP.'
+			'Tool write_note is blocked for Remote Gmail MCP.'
 		);
 		expect(client.callTool).toHaveBeenCalledWith('search', { query: 'roadmap' }, undefined);
 
@@ -512,8 +512,7 @@ describe('ConnectorsService MCP persistence', () => {
 
 		const added = await service.add(mcpInput());
 
-		expect(added).toMatchObject({ lastError: 'server down' });
-		expect(service.list()[0]).toMatchObject({ status: 'configured' });
+		expect(service.list()[0]).toMatchObject({ status: 'error', lastError: 'server down' });
 		expect(await service.test(added.id)).toMatchObject({ status: 'error', message: 'server down' });
 	});
 
