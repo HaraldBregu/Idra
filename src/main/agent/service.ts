@@ -7,7 +7,7 @@ import type { McpRegistry } from './mcp';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ConnectorsService } from './connectors';
-import type { SkillsService } from './skills';
+import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
