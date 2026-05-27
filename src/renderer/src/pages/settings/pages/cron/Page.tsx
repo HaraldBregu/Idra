@@ -331,7 +331,7 @@ const CronPage: React.FC = () => {
 			/>
 
 			{showForm && (
-				<SettingsSection title="New scheduled task">
+				<SettingsSection title={t('settings.cron.newTaskTitle')}>
 					<ScheduleTaskForm onCreated={handleCreated} onCancel={() => setShowForm(false)} />
 				</SettingsSection>
 			)}
