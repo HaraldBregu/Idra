@@ -40,8 +40,9 @@ const SECRET_HEADER_NAMES = new Set(['authorization', 'x-api-key', 'api-key']);
 
 interface ConnectorPersistenceStore {
 	get(key: string): unknown;
-	set(key: string, value: unknown[]): void;
+	set(key: string, value: unknown): void;
 	delete(key: string): void;
+	store?: Record<string, unknown>;
 }
 
 interface ConnectorToolPersistenceStore {
@@ -790,32 +791,45 @@ export class ConnectorsService {
 		this.logDebug('Read connector settings');
 		const raw = this.readConnectorStore();
 		if (raw === undefined) return [];
-		if (!Array.isArray(raw)) {
-			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, reason: 'not_array' });
+		if (Array.isArray(raw)) {
+			return raw.flatMap((entry, index) => this.normalizeStoredConnectorEntry(entry, index));
+		}
+		const record = readRecord(raw);
+		if (record) {
+			return Object.entries(record).flatMap(([key, entry], index) =>
+				this.normalizeStoredConnectorEntry(entry, index, key)
+			);
+		}
+		this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, reason: 'not_object' });
+		return [];
+	}
+
+	private normalizeStoredConnectorEntry(entry: unknown, index: number, storageKey?: string): ConnectorConfig[] {
+		const record = readRecord(entry);
+		if (!record) {
+			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
 			return [];
 		}
-		return raw.flatMap((entry, index) => {
-			const record = readRecord(entry);
-			if (!record) {
-				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
-				return [];
-			}
-			const connector = record as unknown as ConnectorConfig;
-			if (!isStoredConnectorValid(connector)) {
-				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId });
-				return [];
-			}
-			try {
-				return [normalizeStoredConnector(connector)];
-			} catch (error) {
-				this.logError('Failed to normalize connector settings', { key: CONNECTOR_STORE_KEY, index, error: this.errorMessage(error) });
-				return [];
-			}
-		});
+		const connector = record as unknown as ConnectorConfig;
+		if (!isStoredConnectorValid(connector)) {
+			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId ?? storageKey });
+			return [];
+		}
+		try {
+			return [normalizeStoredConnector(connector, storageKey)];
+		} catch (error) {
+			this.logError('Failed to normalize connector settings', { key: CONNECTOR_STORE_KEY, index, error: this.errorMessage(error) });
+			return [];
+		}
 	}
 
 	private readConnectorStore(): unknown {
 		try {
+			const root = this.store.store;
+			if (root && typeof root === 'object' && !Array.isArray(root)) {
+				const legacy = root[CONNECTOR_STORE_KEY];
+				return legacy === undefined ? root : legacy;
+			}
 			return this.store.get(CONNECTOR_STORE_KEY);
 		} catch (error) {
 			this.logError('Failed to read connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
@@ -828,8 +842,13 @@ export class ConnectorsService {
 	}
 
 	private writeAll(connectors: ConnectorConfig[]): void {
+		const records = toStoredConnectorRecords(connectors);
 		try {
-			this.store.set(CONNECTOR_STORE_KEY, connectors.map(toStoredConnectorRecord));
+			if ('store' in this.store) {
+				this.store.store = records;
+			} else {
+				this.store.set(CONNECTOR_STORE_KEY, records);
+			}
 			this.logDebug('Wrote connector settings', { key: CONNECTOR_STORE_KEY, count: connectors.length });
 		} catch (error) {
 			this.logError('Failed to write connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
@@ -915,6 +934,31 @@ export class ConnectorsService {
 		return error instanceof Error ? error.message : String(error);
 	}
 }
+
+/*
+if (!Array.isArray(raw)) {
+			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, reason: 'not_array' });
+			return [];
+		}
+		return raw.flatMap((entry, index) => {
+			const record = readRecord(entry);
+			if (!record) {
+				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
+				return [];
+			}
+			const connector = record as unknown as ConnectorConfig;
+			if (!isStoredConnectorValid(connector)) {
+				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId });
+				return [];
+			}
+			try {
+				return [normalizeStoredConnector(connector)];
+			} catch (error) {
+				this.logError('Failed to normalize connector settings', { key: CONNECTOR_STORE_KEY, index, error: this.errorMessage(error) });
+				return [];
+			}
+		});
+*/
 
 function isStoredConnectorValid(connector: ConnectorConfig): boolean {
 	return (
