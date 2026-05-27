@@ -88,7 +88,6 @@ interface GoogleWorkspaceOAuthConnectorDefinition {
 	readonly id: string;
 	readonly providerId: string;
 	readonly name: string;
-	readonly description: string;
 	readonly tools: readonly string[];
 	readonly scopes: readonly string[];
 	readonly mcp?: {
@@ -102,7 +101,6 @@ function googleWorkspaceOAuthConnector(connectorId: string): GoogleWorkspaceOAut
 			id: 'google.gmail',
 			providerId: 'google',
 			name: 'Gmail',
-			description: 'Authorize the official Gmail MCP server for mail search, drafts, labels, and threads.',
 			tools: [
 				'create_draft',
 				'list_drafts',
@@ -133,7 +131,6 @@ function googleWorkspaceOAuthConnector(connectorId: string): GoogleWorkspaceOAut
 			id: 'google.calendar',
 			providerId: 'google',
 			name: 'Google Calendar',
-			description: 'Authorize the official Calendar MCP server for calendars, events, scheduling, and RSVPs.',
 			tools: [
 				'list_events',
 				'get_event',
@@ -161,8 +158,7 @@ function googleWorkspaceOAuthConnector(connectorId: string): GoogleWorkspaceOAut
 			id: 'google.drive',
 			providerId: 'google',
 			name: 'Google Drive',
-			description: 'Authorize Drive access for file search, metadata, content reads, and file creation.',
-			tools: ['Search files', 'Read content', 'Inspect metadata', 'Create files'],
+			tools: [],
 			scopes: [
 				'https://www.googleapis.com/auth/userinfo.email',
 				'https://www.googleapis.com/auth/userinfo.profile',
@@ -519,7 +515,7 @@ export class ConnectorsService {
 			name: existing?.name ?? definition.name,
 			connectorId: definition.id,
 			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
-			serverDescription: definition.description,
+			serverDescription: existing?.serverDescription,
 			enabled: true,
 			authorization: '',
 			requireApproval,
