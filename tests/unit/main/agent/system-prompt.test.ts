@@ -52,7 +52,7 @@ describe('agent/system-prompt', () => {
 
 		expect(prompt).toContain('BOOTSTRAP.md is pending');
 		expect(prompt).toContain('## Project Context');
-		expect(prompt).toContain('<startup_file name="SOUL.md" path="/repo/SOUL.md">');
+		expect(prompt).toContain('<workspace_file name="SOUL.md" path="/repo/SOUL.md">');
 		expect(prompt).toContain('persona/tone guidance only');
 	});
 
