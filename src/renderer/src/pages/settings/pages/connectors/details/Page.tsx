@@ -688,7 +688,7 @@ const ConnectorDetailsPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
-			<SettingsSection title="Setup">
+			<SettingsSection title={t('settings.connectors.setup')}>
 				<Card size="sm" className="gap-0! p-0!">
 					<div className="grid gap-3 px-3 py-2.5">
 						<div className="flex flex-wrap items-center justify-between gap-2">
