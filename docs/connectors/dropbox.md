@@ -9,7 +9,7 @@ Official provider documentation was checked on 2026-05-24.
 
 | Field               | Value                                                          |
 | ------------------- | -------------------------------------------------------------- |
-| Connector id        | `connector_dropbox`                                            |
+| Connector id        | `dropbox.files`                                            |
 | Direct connector id | `dropbox`                                                      |
 | Runtime status      | Settings catalog only                                          |
 | Auth kind           | MCP env variables                                      |
@@ -18,9 +18,9 @@ Official provider documentation was checked on 2026-05-24.
 ## Implementation
 
 Dropbox metadata is defined in
-[`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts) and
+the dynamic connector catalog returned by the connectors API and
 receives a docs/runtime label from
-[`PROVIDER_CONNECTOR_DOCS`](../../src/shared/connector/provider-docs.ts).
+dynamic connector metadata.
 
 `ConnectorsService` can add, update, enable, disable, test, and list this
 connector because it is in the shared catalog. It does not have a local runtime
@@ -77,5 +77,4 @@ apps that cannot protect a client secret.
 
 ## Related Source
 
-- [`src/shared/connector/connectors.ts`](../../src/shared/connector/connectors.ts)
 - [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)

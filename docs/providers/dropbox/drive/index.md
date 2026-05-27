@@ -4,7 +4,7 @@ Catalog notes for Friday's Dropbox connector.
 
 | Field               | Value                                                          |
 | ------------------- | -------------------------------------------------------------- |
-| Connector id        | `connector_dropbox`                                            |
+| Connector id        | `dropbox.files`                                            |
 | Direct connector id | `dropbox`                                                      |
 | Name                | Dropbox                                                        |
 | Runtime status      | Settings catalog only                                          |

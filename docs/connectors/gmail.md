@@ -9,7 +9,7 @@ Official provider documentation was checked on 2026-05-24.
 
 | Field               | Value                                                                         |
 | ------------------- | ----------------------------------------------------------------------------- |
-| Connector id        | `connector_gmail`                                                             |
+| Connector id        | `google.gmail`                                                             |
 | Direct connector id | `gmail`                                                                       |
 | Runtime status      | Dynamic MCP tools                                          |
 | Auth kind           | Google OAuth                                                                  |
@@ -19,7 +19,7 @@ Official provider documentation was checked on 2026-05-24.
 ## Implementation
 
 The catalog entry is defined in
-[`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts). Local
+the dynamic connector catalog returned by the connectors API. Local
 execution is implemented by `ConnectorsService` with a Gmail runtime strategy
 and API helpers in
 [`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts).

@@ -18,9 +18,9 @@ Official provider documentation was checked on 2026-05-24.
 ## Implementation
 
 Outlook Email metadata is defined in
-[`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts) and
+the dynamic connector catalog returned by the connectors API and
 receives a docs/runtime label from
-[`PROVIDER_CONNECTOR_DOCS`](../../src/shared/connector/provider-docs.ts).
+dynamic connector metadata.
 
 `ConnectorsService` can store and test this connector as catalog metadata. It
 does not have a local runtime strategy, so `createAgentTools()` does not expose
@@ -82,6 +82,5 @@ fetch.
 
 ## Related Source
 
-- [`src/shared/connector/connectors.ts`](../../src/shared/connector/connectors.ts)
 - [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
 - [`docs/providers/microsoft/outlook-email/index.md`](../providers/microsoft/outlook-email/index.md)

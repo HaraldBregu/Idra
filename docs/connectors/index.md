@@ -14,8 +14,8 @@ Official provider documentation was checked on 2026-05-24.
 
 ## Shared Runtime Behavior
 
-- Connector catalog metadata lives in src/shared/connector/connectors.ts.
-- Provider docs metadata and runtime status labels live in src/shared/connector/provider-docs.ts.
+- Connector catalog metadata is loaded dynamically from the connectors API.
+- Discovered connector tools are stored in the connector tool cache, separate from connector config.
 - The production connector facade is src/main/agent/connectors/service.ts.
 - Connector records are stored as a dynamic array in the dedicated Electron Store named connector.
 - Tool metadata is refreshed from the connected MCP server with the official MCP SDK client.

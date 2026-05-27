@@ -4,7 +4,7 @@ Catalog and runtime notes for Friday's Gmail connector.
 
 | Field               | Value                                                                         |
 | ------------------- | ----------------------------------------------------------------------------- |
-| Connector id        | `connector_gmail`                                                             |
+| Connector id        | `google.gmail`                                                             |
 | Direct connector id | `gmail`                                                                       |
 | Name                | Gmail                                                                         |
 | Runtime status      | Dynamic MCP tools                                          |

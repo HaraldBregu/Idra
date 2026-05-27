@@ -19,7 +19,7 @@ Official provider documentation was checked on 2026-05-24.
 ## Implementation
 
 The catalog entry is defined in
-[`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts). Local
+the dynamic connector catalog returned by the connectors API. Local
 execution is implemented by `ConnectorsService` with a Drive runtime strategy
 and API helpers in
 [`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts).

@@ -8,7 +8,7 @@ function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 	return {
 		id: 'c1',
 		name: 'Gmail',
-		connectorId: 'connector_gmail',
+		connectorId: 'google.gmail',
 		serverLabel: 'gmail',
 		enabled: true,
 		authorization: '',
