@@ -776,25 +776,35 @@ export class ConnectorsService {
 
 	private async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
 		if (connector.oauth) {
-			return connector;
+			return this.withOAuthTools(connector);
 		}
 		if (!connector.mcp) {
-			return { ...connector, tools: this.readTools(connector.id) };
+			return connector;
 		}
 		if (!connector.enabled || missingMcpSecretNames(connector).length > 0) {
-			return { ...connector, tools: this.readTools(connector.id) };
+			return connector;
 		}
 		try {
 			return await this.withDiscoveredTools(connector);
 		} catch (error) {
-			this.writeTools(connector.id, []);
 			return { ...connector, tools: [], lastError: this.errorMessage(error) };
 		}
 	}
 
-	private async withDiscoveredTools(connector: ConnectorConfig): Promise<ConnectorConfig> {
-		const tools = this.applyToolPolicy(connector, await this.clientFor(connector).listTools());
-		this.writeTools(connector.id, tools);
+	private async withOAuthTools(connector: ConnectorConfig): Promise<ConnectorConfig> {
+		if (!connector.mcp) return connector;
+		try {
+			return await this.withDiscoveredTools(connector, DEFAULT_CONNECTOR_TOOL_PERMISSION);
+		} catch (error) {
+			return { ...connector, lastError: this.errorMessage(error) };
+		}
+	}
+
+	private async withDiscoveredTools(
+		connector: ConnectorConfig,
+		defaultPermission?: ConnectorToolPermission
+	): Promise<ConnectorConfig> {
+		const tools = this.applyToolPolicy(connector, await this.clientFor(connector).listTools(), defaultPermission);
 		return {
 			...connector,
 			tools,
@@ -803,11 +813,14 @@ export class ConnectorsService {
 		};
 	}
 
-	private applyToolPolicy(connector: ConnectorConfig, tools: readonly ConnectorTool[]): ConnectorTool[] {
-		const allowed = new Set(connector.allowedTools);
-		return tools
-			.filter((tool) => allowed.size === 0 || allowed.has(tool.name))
-			.map((tool) => ({ ...tool, requiresApproval: requiresApprovalForTool(connector, tool.name) }));
+	private applyToolPolicy(
+		connector: ConnectorConfig,
+		tools: readonly ConnectorTool[],
+		defaultPermission?: ConnectorToolPermission
+	): ConnectorTool[] {
+		return tools.map((tool) =>
+			normalizeConnectorTool(tool, defaultPermission ?? permissionForTool(connector, tool.name))
+		);
 	}
 
 	private clientFor(connector: ConnectorConfig): ConnectorMcpClient {
