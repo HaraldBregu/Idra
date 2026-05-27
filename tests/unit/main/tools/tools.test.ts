@@ -7,11 +7,29 @@ import {
 	deleteTool,
 	editTool,
 	findTool,
+	filesystemCopyTool,
+	filesystemCreateTool,
+	filesystemDeleteTool,
+	filesystemListTool,
+	filesystemMoveTool,
+	filesystemReadTool,
+	filesystemSearchTool,
+	filesystemUpdateTool,
 	inspectFileTool,
 	moveTool,
 	readTool,
 	writeTool,
 } from '../../../../src/main/agent/tools/fs';
+import {
+	cronCreateTool,
+	cronDeleteTool,
+	cronListTool,
+	cronReadTool,
+	cronRunTool,
+	cronStartTool,
+	cronStopTool,
+	cronUpdateTool,
+} from '../../../../src/main/agent/tools/cron/tools';
 import { scriptRunTool } from '../../../../src/main/agent/tools/scripts/tools';
 import { runShellTool } from '../../../../src/main/agent/tools/workspace/tools';
 import {
@@ -26,6 +44,9 @@ import {
 	AGENT_TOOL_APPROVAL_ALWAYS,
 	AGENT_TOOL_APPROVAL_NONE,
 	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+	AGENT_ALL_TOOL_NAMES,
+	AGENT_DEFAULT_TOOL_GROUPS,
+	AGENT_DEFAULT_TOOLS,
 	AGENT_TOOL_GROUPS,
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_NAMES,
