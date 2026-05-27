@@ -568,6 +568,7 @@
 			"detailsTitle": "Task scheduler details",
 			"notFoundTitle": "Scheduled task not found",
 			"notFoundDescription": "The scheduled task may have been removed.",
+			"newTaskTitle": "New scheduled task",
 			"emptyTitle": "No scheduled tasks",
 			"emptyDescription": "Scheduled tasks will appear here once they are configured."
 		},
