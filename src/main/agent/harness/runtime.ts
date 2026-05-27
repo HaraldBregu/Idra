@@ -49,16 +49,44 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 	private readonly emitter = new AgentHarnessEmitter();
 	private readonly controllers = new Map<string, AbortController>();
 	private readonly loadedSkills = new Map<string, AgentHarnessSkill>();
+	private readonly redactor;
+	private readonly toolRegistry;
 
 	constructor(private readonly config: AgentHarnessConfig) {
+		validateAgentHarnessConfig(config);
 		this.id = config.id ?? 'default';
 		this.label = config.label ?? this.id;
 		this.persistence = config.persistence ?? new InMemoryAgentHarnessPersistence();
 		this.logs = config.logs ?? new InMemoryAgentHarnessOperationLogger();
+		this.redactor = config.secrets ?? new DefaultAgentHarnessSecretRedactor();
+		this.toolRegistry = config.toolRegistry ?? new DefaultAgentHarnessToolRegistry(config.tools ?? []);
 	}
 
 	on(type: AgentHarnessEvent['type'], handler: (event: AgentHarnessEvent) => void): () => void {
 		return this.emitter.on(type, handler);
+	}
+
+	async *stream(input: AgentHarnessExecuteInput): AsyncIterable<AgentHarnessEvent> {
+		const queue = new AgentHarnessEventQueue();
+		const off = this.emitter.onAny((event) => {
+			if (!input.runId || !('runId' in event) || event.runId === input.runId) queue.push(event);
+		});
+		try {
+			const execution = this.execute(input)
+				.catch((error: unknown) => {
+					const runId = input.runId ?? 'unknown';
+					const sessionId = input.sessionId ?? runId;
+					queue.push({ type: 'run.error', runId, sessionId, error: toHarnessErrorShape(error) });
+				})
+				.finally(() => queue.close());
+			for await (const event of queue) {
+				yield event;
+			}
+			await execution;
+		} finally {
+			off();
+			queue.close();
+		}
 	}
 
 	async execute(input: AgentHarnessExecuteInput): Promise<AgentHarnessRunResult> {
