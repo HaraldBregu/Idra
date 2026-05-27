@@ -305,14 +305,14 @@ describe('ConnectorsService MCP persistence', () => {
 				name: 'Gmail',
 				connectorId: 'google.gmail',
 				serverLabel: 'gmail',
-				mcp: {
-					transport: 'http',
-					url: 'https://gmailmcp.googleapis.com/mcp/v1',
-					method: 'POST',
-					headers: {
-						accept: 'application/json, text/event-stream',
-						'content-type': 'application/json',
-					},
+					mcp: {
+						transport: 'http',
+						url: 'https://gmailmcp.googleapis.com/mcp/v1',
+						method: 'POST',
+						headers: {
+							accept: 'application/json, text/event-stream',
+							'content-type': 'application/json',
+						},
 					},
 					oauth: expect.objectContaining({
 						clientId: 'google-client-id',
@@ -387,22 +387,22 @@ describe('ConnectorsService MCP persistence', () => {
 		const started = await service.authorizeOAuth(oauthInput('google.drive'));
 
 		expect(Object.fromEntries(store.data)).toEqual({
-			google_drive: expect.objectContaining({
-				connectorId: 'google.drive',
-				authorization: 'Bearer access-token',
-				oauth: expect.objectContaining({
-					token: expect.objectContaining({
+				google_drive: expect.objectContaining({
+					connectorId: 'google.drive',
+					authorization: 'Bearer access-token',
+					oauth: expect.objectContaining({
+						token: expect.objectContaining({
 							accessToken: 'access-token',
 							refreshToken: 'refresh-token',
 							tokenType: 'Bearer',
+						}),
 					}),
 				}),
-			}),
 		});
 		expect(started.connector.authorization).toBe('');
-		expect(started.connector.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
-		expect(service.list()[0]).toMatchObject({
-			authKind: 'oauth',
+			expect(started.connector.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
+			expect(service.list()[0]).toMatchObject({
+				authKind: 'oauth',
 				status: 'configured',
 				hasToken: true,
 				hasTools: true,
