@@ -933,6 +933,12 @@ export class ConnectorsService {
 		return (await this.catalogEntriesFromProvider()).find((entry) => entry.id === id && entry.oauth);
 	}
 
+	private oauthClientSecret(definition: ConnectorCatalogEntry): string | undefined {
+		const secretEnv = definition.oauth?.clientSecretEnv;
+		if (!secretEnv) return undefined;
+		return (this.options.env?.[secretEnv] ?? process.env[secretEnv])?.trim() || undefined;
+	}
+
 	private catalogEntryFromConnector(connector: ConnectorConfig): ConnectorCatalogEntry {
 		return normalizeCatalogEntry({
 			id: connector.connectorId,
