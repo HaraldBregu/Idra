@@ -402,6 +402,7 @@ export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
 	private readonly toolStore?: ConnectorToolPersistenceStore;
 	private readonly clients = new Map<string, ConnectorMcpClient>();
+	private readonly runtimeConnectors = new Map<string, RuntimeConnector>();
 	private readonly pendingOAuthConnectors = new Map<string, RuntimeConnector>();
 
 	constructor(
@@ -834,6 +835,7 @@ export class ConnectorsService {
 
 	private validConnectors(): RuntimeConnector[] {
 		return this.readStoredConnectors()
+			.map((connector) => this.mergeRuntimeConnector(connector))
 			.map((connector) => {
 				if (connector.tools.length > 0) return connector;
 				const legacyTools = this.readLegacyTools(connector.id);
@@ -908,6 +910,8 @@ export class ConnectorsService {
 	private writeAll(connectors: RuntimeConnector[]): void {
 		const records = toStoredConnectorRecords(connectors);
 		try {
+			this.runtimeConnectors.clear();
+			for (const connector of connectors) this.runtimeConnectors.set(connector.id, connector);
 			if ('store' in this.store) {
 				this.store.store = records;
 			} else {
@@ -918,6 +922,18 @@ export class ConnectorsService {
 			this.logError('Failed to write connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
 			throw error;
 		}
+	}
+
+	private mergeRuntimeConnector(connector: RuntimeConnector): RuntimeConnector {
+		const runtime = this.runtimeConnectors.get(connector.id);
+		if (!runtime) return connector;
+		return {
+			...connector,
+			...runtime,
+			mcp: connector.mcp ?? runtime.mcp,
+			authorization: connector.authorization || runtime.authorization,
+			tools: connector.tools.length > 0 ? connector.tools : runtime.tools,
+		};
 	}
 
 	private readLegacyTools(connectorId: string): ConnectorTool[] {
