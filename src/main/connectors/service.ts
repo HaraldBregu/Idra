@@ -136,31 +136,25 @@ function serverLabelFromName(name: string): string {
 }
 
 function statusFor(connector: ConnectorConfig): ConnectorStatus {
-	if (!connector.enabled) return 'disabled';
-	if (connector.oauth) return connector.oauth.token ? 'configured' : 'missing_auth';
+	if (connector.enabled === false) return 'disabled';
+	if (connector.oauth && !hasConnectorAuthorization(connector)) return 'missing_auth';
 	if (!connector.mcp) return 'missing_auth';
+	if (isOAuthMcpConfig(connector.mcp) && !hasConnectorAuthorization(connector)) return 'missing_auth';
 	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
 	if (connector.lastError) return 'error';
 	return 'configured';
 }
 
-function toView(connector: ConnectorConfig): ConnectorView {
+function toView(connector: RuntimeConnector): ConnectorConfig {
+	const redacted = redactConnectorSecrets(connector);
 	return {
-		id: connector.id,
-		name: connector.name,
-		connectorId: connector.connectorId,
-		authKind: connector.oauth ? 'oauth' : 'mcp_env',
-		serverLabel: connector.serverLabel,
-		enabled: connector.enabled,
+		...redacted,
+		authKind: authKindFor(connector),
 		status: statusFor(connector),
-		requireApproval: connector.requireApproval,
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
-		hasToken: Boolean(connector.oauth?.token?.accessToken),
+		hasToken: hasConnectorAuthorization(connector),
 		hasTools: connector.tools.length > 0,
-		deferLoading: connector.deferLoading,
-		lastRefreshedAt: connector.lastRefreshedAt,
-		lastError: connector.lastError,
 		connectedAccount: connector.oauth?.accountEmail,
 	};
 }
