@@ -22,7 +22,7 @@ export function SettingsPageShell({
 	className,
 }: SettingsPageShellProps): React.JSX.Element {
 	return (
-		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-4 pb-5', className)}>
+		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-4 px-3 pb-5', className)}>
 			{children}
 		</div>
 	);
