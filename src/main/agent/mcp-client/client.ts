@@ -5,45 +5,12 @@ import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type {
 	ConnectorCallToolOptions,
 	ConnectorConfig,
-	ConnectorMcpConfig,
 	ConnectorTool,
-} from '../../shared/connector';
-import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
-import type { JSONSchema } from '../provider/types';
-
-export interface ConnectorMcpClient {
-	listTools(options?: ConnectorCallToolOptions): Promise<ConnectorTool[]>;
-	callTool(name: string, args: Record<string, unknown>, options?: ConnectorCallToolOptions): Promise<unknown>;
-	listResources(options?: ConnectorCallToolOptions): Promise<unknown>;
-	readResource(uri: string, options?: ConnectorCallToolOptions): Promise<unknown>;
-	listPrompts(options?: ConnectorCallToolOptions): Promise<unknown>;
-	getPrompt(
-		name: string,
-		args: Record<string, unknown>,
-		options?: ConnectorCallToolOptions
-	): Promise<unknown>;
-	close(): Promise<void>;
-}
-
-export type ConnectorMcpClientFactory = (connector: ConnectorConfig) => ConnectorMcpClient;
-
-interface ResolvedHttpMcpConfig {
-	transport: 'http';
-	url: string;
-	method?: 'POST';
-	headers?: Record<string, string>;
-	sessionId?: string;
-}
-
-interface ResolvedStdioMcpConfig {
-	transport: 'stdio';
-	command: string;
-	args?: string[];
-	cwd?: string;
-	env?: Record<string, string>;
-}
-
-type ResolvedMcpConfig = ResolvedHttpMcpConfig | ResolvedStdioMcpConfig;
+} from '../../../shared/connector';
+import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../../shared/connector';
+import type { JSONSchema } from '../../provider/types';
+import { resolveMcpConfig } from './config';
+import type { ConnectorMcpClient, ResolvedHttpMcpConfig, ResolvedMcpConfig } from './types';
 
 export class SdkConnectorMcpClient implements ConnectorMcpClient {
 	private readonly client = new Client({ name: 'friday-connector-mcp', version: '1.0.0' });
@@ -151,83 +118,6 @@ export function createSdkConnectorMcpClient(connector: ConnectorConfig): Connect
 	return new SdkConnectorMcpClient(connector);
 }
 
-export function missingMcpSecretNames(
-	connector: ConnectorConfig,
-	env: NodeJS.ProcessEnv = process.env
-): string[] {
-	const mcp = connector.mcp;
-	if (!mcp) return [];
-	if (mcp.transport === 'http') {
-		const secret = mcp.auth?.env?.trim();
-		return secret && !env[secret] ? [secret] : [];
-	}
-	return (mcp.envSecrets ?? [])
-		.map((secret) => secret.env.trim())
-		.filter((name) => name && !env[name]);
-}
-
-export function resolveMcpConfig(
-	connector: ConnectorConfig,
-	env: NodeJS.ProcessEnv = process.env
-): ResolvedMcpConfig {
-	const mcp = connector.mcp;
-	if (!mcp) throw new Error('Connector ' + connector.name + ' is missing MCP transport configuration.');
-	if (mcp.transport === 'http') return resolveHttpConfig(connector, mcp, env);
-	return resolveStdioConfig(mcp, env);
-}
-
-function resolveHttpConfig(
-	connector: ConnectorConfig,
-	mcp: Extract<ConnectorMcpConfig, { transport: 'http' }>,
-	env: NodeJS.ProcessEnv
-): ResolvedHttpMcpConfig {
-	const headers = { ...(mcp.headers ?? {}) };
-	const authEnv = mcp.auth?.env?.trim();
-	const authorization = connector.authorization?.trim();
-	if (authEnv) {
-		const secret = env[authEnv];
-		if (!secret) throw new Error('Missing MCP secret environment variable: ' + authEnv);
-		const header = mcp.auth?.header?.trim() || 'Authorization';
-		const scheme = mcp.auth?.scheme ?? 'bearer';
-		headers[header] = header.toLowerCase() === 'authorization' && scheme === 'bearer'
-			? 'Bearer ' + secret
-			: secret;
-	} else if (connector.oauth?.token?.accessToken) {
-		headers.Authorization = 'Bearer ' + connector.oauth.token.accessToken;
-	} else if (authorization) {
-		headers.Authorization = authorization;
-	}
-	return {
-		transport: 'http',
-		url: mcp.url,
-		method: mcp.method,
-		headers: Object.keys(headers).length > 0 ? headers : undefined,
-		sessionId: mcp.sessionId,
-	};
-}
-
-function resolveStdioConfig(
-	mcp: Extract<ConnectorMcpConfig, { transport: 'stdio' }>,
-	env: NodeJS.ProcessEnv
-): ResolvedStdioMcpConfig {
-	const resolvedEnv = { ...(mcp.env ?? {}) };
-	for (const secret of mcp.envSecrets ?? []) {
-		const source = secret.env.trim();
-		const target = secret.target.trim();
-		if (!source || !target) continue;
-		const value = env[source];
-		if (!value) throw new Error('Missing MCP secret environment variable: ' + source);
-		resolvedEnv[target] = value;
-	}
-	return {
-		transport: 'stdio',
-		command: mcp.command,
-		args: mcp.args,
-		cwd: mcp.cwd,
-		env: Object.keys(resolvedEnv).length > 0 ? resolvedEnv : undefined,
-	};
-}
-
 function createTransport(config: ResolvedMcpConfig): Transport {
 	if (config.transport === 'stdio') {
 		return new StdioClientTransport({
@@ -299,8 +189,6 @@ async function postHttpMcpJsonRpc(
 			throw new Error(message);
 		}
 
-
-		console.log(JSON.stringify(payload))
 
 		return payload;
 	} finally {
