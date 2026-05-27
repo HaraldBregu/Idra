@@ -51,7 +51,9 @@ const GOOGLE_WORKSPACE_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 		oauth: {
 			providerId: 'google',
 			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
 			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			tokenUrl: 'https://oauth2.googleapis.com/token',
 			redirectUri: 'http://127.0.0.1',
 			authorizationParams: {
 				response_type: 'code',
@@ -92,7 +94,9 @@ const GOOGLE_WORKSPACE_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 		oauth: {
 			providerId: 'google',
 			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
 			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			tokenUrl: 'https://oauth2.googleapis.com/token',
 			redirectUri: 'http://127.0.0.1',
 			authorizationParams: {
 				response_type: 'code',
@@ -132,7 +136,9 @@ const GOOGLE_WORKSPACE_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 		oauth: {
 			providerId: 'google',
 			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
 			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			tokenUrl: 'https://oauth2.googleapis.com/token',
 			redirectUri: 'http://127.0.0.1',
 			authorizationParams: {
 				response_type: 'code',
