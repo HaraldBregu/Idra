@@ -470,7 +470,7 @@ export class ConnectorsService implements McpConnectorStore {
 				token: existing?.oauth?.token,
 			},
 		};
-		const next = await this.withOAuthTools(connector);
+		const next = normalizeStoredConnector(await this.mcpClient.refreshConnectorToolsIfConfigured(connector));
 
 		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
@@ -567,7 +567,7 @@ export class ConnectorsService implements McpConnectorStore {
 			enabled: sanitized.enabled ?? true,
 			mcp: sanitized.mcp,
 		};
-		const next = await this.refreshConnectorToolsIfConfigured(connector);
+		const next = normalizeStoredConnector(await this.mcpClient.refreshConnectorToolsIfConfigured(connector));
 		this.writeConnector(next);
 		return redactConnectorSecrets(next);
 	}
@@ -575,13 +575,13 @@ export class ConnectorsService implements McpConnectorStore {
 	async update(id: string, input: unknown): Promise<ConnectorConfig> {
 		const current = this.getStored(id);
 		const sanitized = this.validateConnectorInput('update', () => sanitizeInput(input, current));
-		const next = await this.refreshConnectorToolsIfConfigured({
+		const next = normalizeStoredConnector(await this.mcpClient.refreshConnectorToolsIfConfigured({
 			...current,
 			...sanitized,
 			authorization: '',
 			lastError: undefined,
 			updatedAt: new Date().toISOString(),
-		});
+		}));
 		this.replace(next);
 		return redactConnectorSecrets(next);
 	}
@@ -593,7 +593,6 @@ export class ConnectorsService implements McpConnectorStore {
 			this.logDebug('Skipped connector delete because it was not configured', { id });
 			return;
 		}
-		await this.closeClient(connector.id);
 		this.writeAll(connectors.filter((item) => item.id !== id));
 		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
 	}
