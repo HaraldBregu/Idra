@@ -94,8 +94,6 @@ export const grepTool: AgentTool<{
 		required: ['pattern'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) =>
-		outsidePathNeedsApproval(ctx, args.cwd ?? ctx.workspace, ['write']),
 	async execute(args, ctx) {
 		const pattern = String(args.pattern ?? '');
 		if (!pattern) return textResult('grep: pattern is required.', true);
@@ -156,6 +154,8 @@ export const runShellTool: AgentTool<{
 		required: ['command'],
 		additionalProperties: false,
 	},
+	needsApproval: (args, ctx) =>
+		outsidePathNeedsApproval(ctx, args.cwd ?? ctx.workspace, ['write']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('run_shell: disabled by read-only filesystem policy.', true);
