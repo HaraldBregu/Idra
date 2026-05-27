@@ -90,7 +90,6 @@ function installConnectorApi(connector = configuredConnector()): void {
 		refreshTools: jest.fn(async () => connector.tools),
 		listTools: jest.fn(async () => connector.tools),
 		callTool: jest.fn(async () => ({})),
-		connectOAuth: jest.fn(async () => ({ status: 'configured' })),
 	};
 }
 

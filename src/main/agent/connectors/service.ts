@@ -10,7 +10,6 @@ import type {
 	ConnectorMcpConfig,
 	ConnectorMcpEnvSecret,
 	ConnectorMcpHeaderSecret,
-	ConnectorOAuthConnectResult,
 	ConnectorProviderId,
 	ConnectorStatus,
 	ConnectorTestResult,
@@ -485,9 +484,6 @@ export class ConnectorsService {
 		return this.test(id);
 	}
 
-	async connectOAuth(_id: string): Promise<ConnectorOAuthConnectResult> {
-		throw new Error('OAuth is not managed by connector records. Configure MCP auth with environment variable references and refresh tools.');
-	}
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.getStored(id);
@@ -769,7 +765,6 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
 		authorization: '',
-		oauth: undefined,
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
 		tools: [],
 	};
@@ -787,7 +782,6 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
 		authorization: '',
-		oauth: undefined,
 		mcp: redactMcpConfig(connector.mcp),
 	};
 }

@@ -104,19 +104,6 @@ export interface ConnectorMcpStdioConfig {
 
 export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
 
-export interface GoogleOAuthCredential {
-	provider: 'google';
-	clientId?: string;
-	clientSecret?: string;
-	redirectUri: string;
-	accessToken?: string;
-	refreshToken?: string;
-	expiresAt?: number;
-	tokenType?: string;
-	scope?: string;
-	email?: string;
-	connectedAt?: string;
-}
 
 export interface ConnectorTool {
 	name: string;
@@ -133,7 +120,6 @@ export interface ConnectorConfig {
 	serverDescription?: string;
 	enabled: boolean;
 	authorization: string;
-	oauth?: GoogleOAuthCredential;
 	mcp?: ConnectorMcpConfig;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
@@ -184,11 +170,6 @@ export interface ConnectorTestResult {
 	message?: string;
 }
 
-export interface ConnectorOAuthConnectResult {
-	status: ConnectorStatus;
-	message?: string;
-	connectedAccount?: string;
-}
 
 export interface ConnectorCallToolOptions {
 	timeoutMs?: number;

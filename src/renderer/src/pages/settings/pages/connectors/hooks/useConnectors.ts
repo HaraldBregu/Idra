@@ -7,7 +7,6 @@ export function useConnectors() {
 	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
 	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
 	const [busyId, setBusyId] = useState<string | null>(null);
-	const [connectingId, setConnectingId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -61,23 +60,6 @@ export function useConnectors() {
 			setSelectedId(connectorId);
 		});
 
-	const connectOAuth = async (connector: ConnectorView): Promise<void> => {
-		setBusyId(connector.id);
-		setConnectingId(connector.id);
-		setError(null);
-		setStatusMessage(`Opening browser for ${connector.name}...`);
-		try {
-			const result = await window.connectors.connectOAuth(connector.id);
-			setStatusMessage(result.message ?? `${connector.name} connected.`);
-			await load();
-		} catch (err) {
-			setError(err instanceof Error ? err.message : String(err));
-			setStatusMessage(null);
-		} finally {
-			setBusyId(null);
-			setConnectingId(null);
-		}
-	};
 
 	const removeConnector = (connector: ConnectorView): Promise<void> =>
 		run(connector.id, async () => {
@@ -103,7 +85,6 @@ export function useConnectors() {
 		catalog,
 		connectors,
 		busyId,
-		connectingId,
 		error,
 		setError,
 		statusMessage,
@@ -112,7 +93,6 @@ export function useConnectors() {
 		load,
 		toggleConnector,
 		refreshTools,
-		connectOAuth,
 		removeConnector,
 		viewDetails,
 		clearSelection,

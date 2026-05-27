@@ -423,29 +423,6 @@ const ConnectorDetailsPage: React.FC = () => {
 		}
 	};
 
-	const connectGoogleOAuth = async (): Promise<void> => {
-		if (!connector || !catalogItem) return;
-		setConnecting(true);
-		setError(null);
-		setStatusMessage(`Opening browser for ${connector.name}...`);
-		try {
-			const result = await window.connectors.connectOAuth(connector.id);
-			const [nextConnector, nextTools] = await Promise.all([
-				window.connectors.get(connector.id),
-				window.connectors.listTools(connector.id),
-			]);
-			setConnector(nextConnector);
-			setForm(formFromConnector(nextConnector, catalogItem));
-			setTools(nextTools);
-			setStatusMessage(result.message ?? `${connector.name} connected.`);
-			setToolsError(null);
-		} catch (caught) {
-			setError(caught instanceof Error ? caught.message : String(caught));
-			setStatusMessage(null);
-		} finally {
-			setConnecting(false);
-		}
-	};
 
 	const deleteConnector = async (): Promise<void> => {
 		if (!connector) return;
@@ -492,10 +469,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const googleOAuth = false;
 	const mcpEnvAuth = true;
-	const connectedGoogleAccount = connector?.oauth?.email ?? null;
-	const hasGoogleConnection = Boolean(connector?.oauth?.connectedAt || connectedGoogleAccount);
 	const title = connector?.name ?? catalogItem.name;
 	const idPrefix = connector?.id ?? catalogItem.id;
 	const formBusy = saving || connecting || deleting;
@@ -506,20 +480,6 @@ const ConnectorDetailsPage: React.FC = () => {
 				title={title}
 				description={catalogItem.description}
 				iconNode={<ConnectorIcon directConnectorId={catalogItem.directConnectorId} name={catalogItem.name} />}
-				action={
-					googleOAuth && connector ? (
-						<Button
-							type="button"
-							size="xs"
-							variant={hasGoogleConnection ? 'outline' : 'default'}
-							disabled={formBusy}
-							onClick={() => void connectGoogleOAuth()}
-						>
-							{connecting && <LoaderCircle className="size-3 animate-spin" />}
-							{hasGoogleConnection ? 'Reconnect Google' : 'Connect Google'}
-						</Button>
-					) : undefined
-				}
 			/>
 
 			{error && (
@@ -619,16 +579,7 @@ const ConnectorDetailsPage: React.FC = () => {
 									</Select>
 								</SettingsField>
 
-								{googleOAuth ? (
-									<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
-										<div className="text-[11px] font-medium leading-4 text-foreground">
-											Google OAuth
-										</div>
-										<div className="mt-1 break-all text-[11px] leading-4 text-muted-foreground">
-											Redirect: <span className="font-mono">Not configured</span>
-										</div>
-									</div>
-								) : mcpEnvAuth ? (
+								{mcpEnvAuth ? (
 									<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
 										<div className="text-[11px] font-medium leading-4 text-foreground">
 											MCP environment auth
@@ -775,10 +726,7 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem)} />
 					<DetailRow label="Auth" value="MCP env variables" />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(form.requireApproval)} />
-					<DetailRow
-						label="Connected account"
-						value={connectedGoogleAccount ?? 'MCP server'}
-					/>
+					<DetailRow label="Connected account" value="MCP server" />
 					<DetailRow label="Last refreshed" value={formatTimestamp(connector?.lastRefreshedAt)} />
 					<DetailRow label="Updated" value={formatTimestamp(connector?.updatedAt)} />
 				</Card>

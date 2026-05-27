@@ -3,7 +3,6 @@ import { connectors } from '../../../../src/preload';
 import type {
 	ConnectorCatalogEntry,
 	ConnectorConfig,
-	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
@@ -70,11 +69,6 @@ const testResult: ConnectorTestResult = {
 	message: 'Connected.',
 };
 
-const oauthResult: ConnectorOAuthConnectResult = {
-	status: 'configured',
-	message: 'Connected Google account user@example.com.',
-	connectedAccount: 'user@example.com',
-};
 
 describe('connectors preload API', () => {
 	beforeEach(() => {
@@ -169,12 +163,6 @@ describe('connectors preload API', () => {
 				channel: ConnectorsChannels.callTool,
 				args: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
 				data: { emailAddress: 'user@example.com' },
-			},
-			{
-				run: () => connectors.connectOAuth(connectorConfig.id),
-				channel: ConnectorsChannels.connectOAuth,
-				args: [connectorConfig.id],
-				data: oauthResult,
 			},
 		] as const;
 

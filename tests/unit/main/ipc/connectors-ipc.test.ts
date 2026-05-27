@@ -5,7 +5,6 @@ import type { MainServiceContainer } from '../../../../src/main/service-registry
 import type {
 	ConnectorCatalogEntry,
 	ConnectorConfig,
-	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
@@ -70,11 +69,6 @@ const testResult: ConnectorTestResult = {
 	message: 'Connected.',
 };
 
-const oauthResult: ConnectorOAuthConnectResult = {
-	status: 'configured',
-	message: 'Connected Google account user@example.com.',
-	connectedAccount: 'user@example.com',
-};
 
 function registeredHandler(channel: string) {
 	const call = (ipcMain.handle as jest.Mock).mock.calls.find(([name]) => name === channel);
@@ -97,7 +91,6 @@ function createConnectorsService() {
 		refreshTools: jest.fn(() => [connectorTool]),
 		listTools: jest.fn(() => [connectorTool]),
 		callTool: jest.fn(() => ({ emailAddress: 'user@example.com' })),
-		connectOAuth: jest.fn(() => oauthResult),
 	};
 }
 
@@ -221,13 +214,6 @@ describe('ConnectorsIpc', () => {
 				method: connectors.callTool,
 				expectedArgs: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
 				expectedData: { emailAddress: 'user@example.com' },
-			},
-			{
-				channel: ConnectorsChannels.connectOAuth,
-				args: [connectorConfig.id],
-				method: connectors.connectOAuth,
-				expectedArgs: [connectorConfig.id],
-				expectedData: oauthResult,
 			},
 		] as const;
 
