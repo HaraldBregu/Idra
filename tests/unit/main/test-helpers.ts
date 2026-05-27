@@ -1,7 +1,7 @@
 import path from 'node:path';
 import os from 'node:os';
 import { promises as fs } from 'node:fs';
-import type { ToolContext } from '../../../src/main/tools/types';
+import type { ToolContext } from '../../../src/main/agent/tools/types';
 
 export async function makeTempDir(prefix = 'friday-main-test-'): Promise<string> {
 	return fs.mkdtemp(path.join(os.tmpdir(), prefix));

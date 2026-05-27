@@ -15,7 +15,7 @@ jest.mock('electron-store', () => {
 });
 
 import Store from 'electron-store';
-import { ConnectorsService } from '../../../../src/main/connectors';
+import { ConnectorsService } from '../../../../src/main/agent/connectors';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';
 import { makeLogger } from '../test-helpers';
 

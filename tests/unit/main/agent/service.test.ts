@@ -7,7 +7,7 @@ import type {
 } from '../../../../src/main/provider/types';
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
-import type { AgentTool } from '../../../../src/main/tools/types';
+import type { AgentTool } from '../../../../src/main/agent/tools/types';
 import { PolicyService } from '../../../../src/main/policy';
 import { makeLogger, makeTempDir } from '../test-helpers';
 

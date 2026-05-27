@@ -2,7 +2,7 @@ import {
 	ToolService,
 	localToolNamesForGroup,
 	type AgentTool,
-} from '../../../../src/main/tools';
+} from '../../../../src/main/agent/tools';
 import { makeLogger, makeToolContext } from '../test-helpers';
 
 describe('ToolService', () => {

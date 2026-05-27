@@ -6,7 +6,7 @@ import {
 	registerAgentToolResultMiddleware,
 	registerAgentHarnessHookHandler,
 } from '../../../../src/main/agent';
-import type { AgentTool } from '../../../../src/main/tools/types';
+import type { AgentTool } from '../../../../src/main/agent/tools/types';
 import type { SessionFile } from '../../../../src/main/session/store';
 import { makeToolContext } from '../test-helpers';
 

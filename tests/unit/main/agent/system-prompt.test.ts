@@ -1,5 +1,5 @@
 import { buildSystemPrompt } from '../../../../src/main/agent';
-import type { AgentTool } from '../../../../src/main/tools/types';
+import type { AgentTool } from '../../../../src/main/agent/tools/types';
 
 describe('agent/system-prompt', () => {
 	it('builds deterministic prompts with sorted tool guidance and memory blocks', async () => {

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/before-call';
+import { beforeToolCall, newCallTracker } from '../../../../src/main/agent/tools/before-call';
 import {
 	applyPatchTool,
 	copyTool,
@@ -11,7 +11,7 @@ import {
 	moveTool,
 	readTool,
 	writeTool,
-} from '../../../../src/main/tools/fs';
+} from '../../../../src/main/agent/tools/fs';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -19,8 +19,8 @@ import {
 	localToolNamesForGroup,
 	localToolNamesForProfile,
 	PRELOADED_LOCAL_TOOLS,
-} from '../../../../src/main/tools/registry';
-import { textResult, type AgentTool } from '../../../../src/main/tools/types';
+} from '../../../../src/main/agent/tools/registry';
+import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
 import { PolicyService } from '../../../../src/main/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 import type { PolicyConfig } from '../../../../src/shared/policy';

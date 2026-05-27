@@ -1,7 +1,7 @@
-import { McpRegistry } from '../../../../src/main/mcp/McpRegistry';
-import { createSafeMcpEnv } from '../../../../src/main/mcp/env';
-import { McpPermissionError, McpTimeoutError, normalizeMcpError } from '../../../../src/main/mcp/errors';
-import { withRetry, withTimeout } from '../../../../src/main/mcp/timeout';
+import { McpRegistry } from '../../../../src/main/agent/mcp/McpRegistry';
+import { createSafeMcpEnv } from '../../../../src/main/agent/mcp/env';
+import { McpPermissionError, McpTimeoutError, normalizeMcpError } from '../../../../src/main/agent/mcp/errors';
+import { withRetry, withTimeout } from '../../../../src/main/agent/mcp/timeout';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';
 
 function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {

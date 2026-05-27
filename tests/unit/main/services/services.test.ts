@@ -2,7 +2,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app, shell } from 'electron';
 import { AppsService } from '../../../../src/main/apps';
-import { ConnectorsService } from '../../../../src/main/connectors';
+import { ConnectorsService } from '../../../../src/main/agent/connectors';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { UserDataDirectoryService } from '../../../../src/main/user-data';
 import { WorkspaceService } from '../../../../src/main/workspace';

@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { createToolDiagnostics, getToolMetadata, markClientTool, markCoreTool, setToolMetadata, type AgentTool } from '../../../../src/main/tools/common';
-import { textResult, jsonResult, blockedToolResult } from '../../../../src/main/tools/results';
+import { createToolDiagnostics, getToolMetadata, markClientTool, markCoreTool, setToolMetadata, type AgentTool } from '../../../../src/main/agent/tools/common';
+import { textResult, jsonResult, blockedToolResult } from '../../../../src/main/agent/tools/results';
 import {
 	asParamsRecord,
 	coerceJsonObject,
@@ -10,17 +10,17 @@ import {
 	readNumberParam,
 	readStringArrayParam,
 	readStringParam,
-} from '../../../../src/main/tools/params';
-import { createReadTool } from '../../../../src/main/tools/files/read-tool';
-import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create-agent-tools';
+} from '../../../../src/main/agent/tools/params';
+import { createReadTool } from '../../../../src/main/agent/tools/files/read-tool';
+import { planToolConstruction, createAgentTools } from '../../../../src/main/agent/tools/create-agent-tools';
 import { PolicyService } from '../../../../src/main/policy';
-import { applyToolPolicyPipeline } from '../../../../src/main/tools/tool-policy-pipeline';
-import { normalizeToolSchemas } from '../../../../src/main/tools/schema-normalization';
-import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/tools/before-tool-call';
-import { toToolDefinitions } from '../../../../src/main/tools/tool-definition-adapter';
-import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/tools/runtime/legacy-tool-adapter';
-import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
-import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
+import { applyToolPolicyPipeline } from '../../../../src/main/agent/tools/tool-policy-pipeline';
+import { normalizeToolSchemas } from '../../../../src/main/agent/tools/schema-normalization';
+import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/agent/tools/before-tool-call';
+import { toToolDefinitions } from '../../../../src/main/agent/tools/tool-definition-adapter';
+import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/agent/tools/runtime/legacy-tool-adapter';
+import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/agent/tools/runtime/legacy-bridge';
+import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/agent/tools/types';
 import { makeTempDir } from '../test-helpers';
 
 function tool(name: string, overrides: Partial<AgentTool> = {}): AgentTool {
