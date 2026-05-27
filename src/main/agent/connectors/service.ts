@@ -831,7 +831,10 @@ export class ConnectorsService {
 		return this.readStoredConnectors()
 			.filter(isStoredConnectorValid)
 			.map(normalizeStoredConnector)
-			.map((connector) => ({ ...connector, tools: this.readTools(connector.id) }));
+			.map((connector) => ({
+				...connector,
+				tools: connector.oauth ? connector.tools : this.readTools(connector.id),
+			}));
 	}
 
 	private replace(connector: ConnectorConfig): void {
@@ -1011,7 +1014,7 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 }
 
 function stripToolCache(connector: ConnectorConfig): ConnectorConfig {
-	return { ...connector, tools: [] };
+	return connector.oauth ? connector : { ...connector, tools: [] };
 }
 
 function isConnectorToolRecord(value: unknown): value is ConnectorTool {
