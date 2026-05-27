@@ -4,7 +4,7 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
 import { checkFilePolicy } from '../files/policy';
-import { checkFsRestriction, resolveAbs } from '../files/path-policy';
+import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from '../files/path-policy';
 import { editTool, findTool, readTool, writeTool, filesystemListTool } from '../files/tools';
 import { toolDescription } from '../metadata';
 
@@ -94,6 +94,8 @@ export const grepTool: AgentTool<{
 		required: ['pattern'],
 		additionalProperties: false,
 	},
+	needsApproval: (args, ctx) =>
+		outsidePathNeedsApproval(ctx, args.cwd ?? ctx.workspace, ['write']),
 	async execute(args, ctx) {
 		const pattern = String(args.pattern ?? '');
 		if (!pattern) return textResult('grep: pattern is required.', true);
