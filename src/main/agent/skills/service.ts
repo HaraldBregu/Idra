@@ -23,6 +23,7 @@ const MAX_FRONTMATTER_BYTES = 64 * 1024;
 const SUPPORT_DIRECTORIES = new Set(['scripts', 'references', 'assets']);
 const DEFAULT_SKILL_SEARCH_LIMIT = 3;
 const MAX_SKILL_SEARCH_LIMIT = 12;
+const SKILL_SEARCH_STOP_WORDS = new Set(['the', 'and', 'for', 'with', 'from', 'that', 'this', 'into', 'about']);
 
 export interface SkillsServiceOptions {
 	rootPath?: string;
@@ -617,7 +618,7 @@ function tokenize(value: string): string[] {
 		.replace(/[^a-z0-9]+/g, ' ')
 		.trim();
 	if (!normalized) return [];
-	return Array.from(new Set(normalized.split(/\s+/).filter((token) => token.length >= 3)));
+	return Array.from(new Set(normalized.split(/\s+/).filter((token) => token.length >= 3 && !SKILL_SEARCH_STOP_WORDS.has(token))));
 }
 
 function scoreSkill(
