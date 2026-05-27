@@ -410,14 +410,15 @@ export class ConnectorsService {
 			requireObject(input, 'OAuth authorization request').connectorId,
 			'Connector id'
 		);
-		const definition = googleWorkspaceOAuthConnector(connectorId);
-		if (!definition) throw new Error('OAuth connector not found: ' + connectorId);
+		const definition = await this.oauthCatalogEntry(connectorId);
+		if (!definition?.oauth) throw new Error('OAuth connector not found: ' + connectorId);
 
-		const clientId = this.options.env?.[GOOGLE_OAUTH_CLIENT_ID_ENV] ?? process.env[GOOGLE_OAUTH_CLIENT_ID_ENV];
-		if (!clientId?.trim()) throw new Error('Missing Google OAuth client id environment variable: ' + GOOGLE_OAUTH_CLIENT_ID_ENV);
+		const clientIdEnv = definition.oauth.clientIdEnv;
+		const clientId = this.options.env?.[clientIdEnv] ?? process.env[clientIdEnv];
+		if (!clientId?.trim()) throw new Error('Missing OAuth client id environment variable: ' + clientIdEnv);
 
 		const state = randomUUID();
-		const authorizationUrl = googleOAuthAuthorizationUrl(definition, clientId.trim(), state);
+		const authorizationUrl = oauthAuthorizationUrl(definition, clientId.trim(), state);
 		const now = new Date().toISOString();
 		const existing = this.validConnectors().find((connector) => connector.connectorId === definition.id);
 		const requireApproval = existing?.requireApproval ?? 'always';
@@ -433,17 +434,15 @@ export class ConnectorsService {
 			requireApproval,
 			allowedTools,
 			deferLoading: existing?.deferLoading ?? false,
-			tools: normalizeConnectorTools(existing?.tools.length
-				? existing.tools
-				: predefinedOAuthTools(definition), DEFAULT_CONNECTOR_TOOL_PERMISSION),
+			tools: normalizeConnectorTools(existing?.tools ?? [], DEFAULT_CONNECTOR_TOOL_PERMISSION),
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
-			mcp: existing?.mcp ?? mcpConfigForOAuthConnector(definition),
+			mcp: existing?.mcp ?? definition.mcp,
 			oauth: {
-				providerId: definition.providerId,
+				providerId: definition.oauth.providerId,
 				authorizationUrl,
 				clientId: clientId.trim(),
-				redirectUri: 'http://127.0.0.1',
+				redirectUri: definition.oauth.redirectUri,
 				scopes: definition.scopes,
 				state,
 				accountEmail: existing?.oauth?.accountEmail,
@@ -846,8 +845,14 @@ export class ConnectorsService {
 
 	private async catalogEntriesFromProvider(): Promise<ConnectorCatalogEntry[]> {
 		const provider = this.options.catalogProvider;
-		const entries = typeof provider === 'function' ? await provider() : provider ?? [];
+		const entries = typeof provider === 'function'
+			? await provider()
+			: provider ?? defaultConnectorCatalog as ConnectorCatalogEntry[];
 		return entries.map(normalizeCatalogEntry);
+	}
+
+	private async oauthCatalogEntry(id: string): Promise<ConnectorCatalogEntry | undefined> {
+		return (await this.catalogEntriesFromProvider()).find((entry) => entry.id === id && entry.oauth);
 	}
 
 	private catalogEntryFromConnector(connector: ConnectorConfig): ConnectorCatalogEntry {
