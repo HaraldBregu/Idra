@@ -7,6 +7,7 @@ export class McpRegistry {
 		const servers: AgentHarnessMcpServerConfig[] = [];
 		for (const connector of connectors) {
 			if (!connector.enabled || !connector.mcp || missingMcpSecretNames(connector).length > 0) continue;
+			if (connector.oauth && !connector.oauth.token?.accessToken) continue;
 			const config = resolveMcpConfig(connector);
 			if (config.transport === 'http') {
 				servers.push({
