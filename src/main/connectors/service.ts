@@ -522,9 +522,9 @@ export class ConnectorsService {
 			requireApproval,
 			allowedTools,
 			deferLoading: existing?.deferLoading ?? false,
-			tools: existing?.tools.length
+			tools: normalizeConnectorTools(existing?.tools.length
 				? existing.tools
-				: predefinedOAuthTools(definition, requireApproval, allowedTools),
+				: predefinedOAuthTools(definition), DEFAULT_CONNECTOR_TOOL_PERMISSION),
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
 			mcp: existing?.mcp ?? mcpConfigForOAuthConnector(definition),
@@ -539,14 +539,15 @@ export class ConnectorsService {
 				token: existing?.oauth?.token,
 			},
 		};
+		const next = await this.withOAuthTools(connector);
 
-		this.replace(connector);
+		this.replace(next);
 		await (this.options.openExternalUrl ?? shell.openExternal)(authorizationUrl);
 
 		return {
 			connectorId: definition.id,
 			authorizationUrl,
-			connector: redactConnectorSecrets(connector),
+			connector: redactConnectorSecrets(next),
 		};
 	}
 
