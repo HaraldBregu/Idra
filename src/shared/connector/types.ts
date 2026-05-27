@@ -149,6 +149,11 @@ export interface ConnectorTool {
 }
 
 export interface ConnectorConfig {
+	mcp?: ConnectorMcpConfig;
+	tools: ConnectorTool[];
+}
+
+export interface ConnectorRuntimeConfig extends ConnectorConfig {
 	id: string;
 	name: string;
 	connectorId: ConnectorProviderId;
@@ -168,7 +173,7 @@ export interface ConnectorConfig {
 	lastError?: string;
 }
 
-export type Connector = ConnectorConfig;
+export type Connector = ConnectorRuntimeConfig;
 
 export interface ConnectorView {
 	id: string;
@@ -212,7 +217,7 @@ export interface ConnectorOAuthAuthorizeRequest {
 export interface ConnectorOAuthAuthorizeResult {
 	connectorId: ConnectorProviderId;
 	authorizationUrl: string;
-	connector: ConnectorConfig;
+	connector: ConnectorRuntimeConfig;
 }
 
 export interface ConnectorOAuthCompleteInput {
