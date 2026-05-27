@@ -33,6 +33,6 @@ export type {
 	PolicyDecision,
 	PolicyEntry,
 	PolicyOutcome,
-} from '../../shared/policy';
+} from '../../../shared/policy';
 
 export type { ToolPolicyProfile as ToolProfile } from './service';

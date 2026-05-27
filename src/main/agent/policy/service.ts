@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { PolicyConfig, PolicyDecision, Permission } from '../../shared/policy';
+import type { PolicyConfig, PolicyDecision, Permission } from '../../../shared/policy';
 import { evaluate } from './evaluate';
 import { PolicyStore, type PolicyStoreAccessor } from './store';
 import {
