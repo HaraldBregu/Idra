@@ -2,9 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorCatalogEntry, ConnectorView } from '../../../../../../shared/connector';
+import type { ConnectorCatalogEntry } from '../../../../../../shared/connector';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
