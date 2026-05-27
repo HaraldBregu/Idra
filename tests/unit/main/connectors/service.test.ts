@@ -186,7 +186,7 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(factory).toHaveBeenCalled();
 	});
 
-	it('keeps completed OAuth tokens out of connectors.json', async () => {
+	it('stores completed OAuth token state on the connector', async () => {
 		const { service, store } = createService(createFakeMcpClient(), {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
 			openExternalUrl: jest.fn(async () => undefined),
@@ -206,14 +206,25 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 
 		expect(store.data.get('connectors')).toEqual([
-			expect.not.objectContaining({
-				oauth: expect.anything(),
+			expect.objectContaining({
+				connectorId: 'google.drive',
+				oauth: expect.objectContaining({
+					accountEmail: 'user@example.com',
+					token: expect.objectContaining({
+						accessToken: 'access-token',
+						refreshToken: 'refresh-token',
+						tokenType: 'Bearer',
+					}),
+				}),
 			}),
 		]);
 		expect(completed.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
 		expect(service.list()[0]).toMatchObject({
-			authKind: 'mcp_env',
+			authKind: 'oauth',
 			status: 'configured',
+			hasToken: true,
+			hasTools: true,
+			connectedAccount: 'user@example.com',
 		});
 	});
 
