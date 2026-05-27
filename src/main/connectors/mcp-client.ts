@@ -299,7 +299,7 @@ async function postHttpMcpJsonRpc(
 		}
 
 
-		console.log(payload)
+		console.log(JSON.stringify(payload))
 
 		return payload;
 	} finally {
