@@ -1,43 +1,28 @@
 # Connectors And MCP
 
-Connectors let Friday integrate with external accounts, provider-hosted connector tools, MCP servers, and plugin-provided runtime surfaces.
+Connectors let Friday integrate with external services through pluggable MCP servers. A connector record stores connection metadata, MCP transport config, approval policy, and the last discovered tool inventory. The actual executable tools come from the MCP server at runtime.
 
-## Local Google Connectors
+## Dynamic MCP Connectors
 
-Friday has local runtime strategies for:
+Friday supports remote Streamable HTTP MCP servers and local stdio MCP servers. When a connector is saved or refreshed, the main process uses the official MCP SDK client to connect, list server tools, and store the discovered tool metadata. Agent runs then expose those discovered tools as connector tools.
 
-- Gmail
-- Google Calendar
-- Google Drive
+Secrets are not stored in connector records. If a remote MCP server needs an API key or bearer token, the connector config stores only the environment variable name, such as `REMOTE_MCP_API_KEY`; the main process resolves the value from the app environment when it connects.
 
-These connectors support OAuth with a local loopback callback, PKCE, token refresh, account profile lookup, secret redaction on public reads, and agent tool creation for enabled configured connectors.
+## Catalog
 
-Available Google tool coverage includes:
+The shared connector catalog still lists provider-oriented entries such as Gmail, Google Calendar, Google Drive, Dropbox, Microsoft Teams, Outlook Calendar, Outlook Email, SharePoint, plus generic remote and stdio MCP connector entries. These catalog entries are starting points for configuration; the connected MCP server owns the real tool list. Multiple connector records can use the same provider id.
 
-- Gmail: profile, search message ids, recent/search emails, read email, batch read email, create draft, send email, trash email.
-- Google Calendar: profile, list calendars, search events, read/fetch event, create event, update event, delete event.
-- Google Drive: profile, list drives, search files, recent files, file metadata, file permissions, read/download content, create file.
+## Runtime
 
-Google Drive `create_file` requires approval unless connector approval settings explicitly disable that requirement.
+Connector configuration is stored in the dedicated Electron Store named `connector` under the `connectors` key. The active runtime lives under `src/main/agent/connectors` and uses an MCP client adapter so tests can inject fake clients and production can use the official SDK transports.
 
-## Catalog And Provider-Hosted Connectors
-
-The connector catalog includes entries such as Dropbox, Gmail, Google Calendar, Google Drive, Microsoft Teams, Outlook Calendar, Outlook Email, and SharePoint. The broader direct connector planning catalog also describes many productivity, developer, business, data, and automation integrations.
-
-Only Gmail, Google Calendar, and Google Drive have local execution strategies in the current source. Other catalog entries can be configured as catalog/provider-hosted surfaces, but local agent execution needs a runtime strategy, MCP server, provider-hosted connector, or plugin implementation.
-
-## MCP And Plugin Extension
-
-The MCP registry can build OpenAI Responses API MCP tool descriptors from enabled connector configuration. The tool runtime can also materialize MCP tools when an MCP runtime is supplied and the agent tool allowlist includes MCP tools.
-
-Plugin manifests can declare providers, channels, tools, hooks, model catalogs, auth choices, runtime entries, setup entries, and activation capabilities. Plugin discovery scans for `friday.plugin.json`, normalizes manifests, blocks unsafe paths, and supports bundled, installed, and workspace origins.
+The MCP registry can also translate enabled connector records into harness MCP server configs, so the agent harness can materialize server tools through the same MCP discovery path.
 
 ## Source
 
-- `src/main/connectors`
-- `src/main/mcp`
-- `src/main/plugins`
+- `src/main/agent/connectors`
+- `src/main/agent/mcp`
+- `src/main/agent/harness/mcp.ts`
 - `src/shared/connector`
 - `src/renderer/src/pages/settings/pages/connectors`
-- Existing docs: `docs/providers/google/index.md`, `docs/providers/microsoft/index.md`, `docs/providers/dropbox/index.md`
-
+- Provider docs: `docs/providers/google/index.md`, `docs/providers/microsoft/index.md`, `docs/providers/dropbox/index.md`, `docs/providers/mcp/remote/index.md`, `docs/providers/mcp/stdio/index.md`
