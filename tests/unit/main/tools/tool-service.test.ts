@@ -3,6 +3,7 @@ import {
 	localToolNamesForGroup,
 	type AgentTool,
 } from '../../../../src/main/agent/tools';
+import { AGENT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeToolContext } from '../test-helpers';
 
 describe('ToolService', () => {
@@ -45,20 +46,20 @@ describe('ToolService', () => {
 		const service = new ToolService();
 
 		const tools = service.createDefaultTools({
-			denylist: ['write'],
+			denylist: ['write_file'],
 		});
 
-		expect(tools.map((tool) => tool.name)).toContain('read');
-		expect(tools.map((tool) => tool.name)).not.toContain('write');
+		expect(tools.map((tool) => tool.name)).toContain('read_file');
+		expect(tools.map((tool) => tool.name)).not.toContain('write_file');
 	});
 
 	it('uses injected policy and logger for service-managed tools', async () => {
 		const logger = makeLogger();
 		const policy = {
 			evaluateTools: jest.fn((subjects: Array<{ name: string }>) => ({
-				allowed: new Set(subjects.filter((subject) => subject.name === 'read').map((subject) => subject.name)),
+				allowed: new Set(subjects.filter((subject) => subject.name === 'read_file').map((subject) => subject.name)),
 				filtered: subjects
-					.filter((subject) => subject.name !== 'read')
+					.filter((subject) => subject.name !== 'read_file')
 					.map((subject) => ({
 						toolName: subject.name,
 						stage: 'test',
@@ -84,7 +85,7 @@ describe('ToolService', () => {
 			}),
 		};
 
-		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual(['read']);
+		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual(['read_file']);
 		await expect(
 			service.executeToolWithManagement(
 				managedTool,
@@ -102,44 +103,27 @@ describe('ToolService', () => {
 		);
 	});
 
-	it('exposes filesystem and cron groups through the tools service registry', () => {
+	it('exposes shared local tool groups through the tools service registry', () => {
 		const service = new ToolService();
 
-		expect(localToolNamesForGroup('filesystem')).toEqual([
-			'filesystem_create',
-			'filesystem_read',
-			'filesystem_update',
-			'filesystem_delete',
-			'filesystem_list',
-			'filesystem_move',
-			'filesystem_copy',
-			'filesystem_search',
-		]);
-		expect(service.getToolsByGroup('cron').map((tool) => tool.name)).toEqual([
-			'cron_create',
-			'cron_read',
-			'cron_update',
-			'cron_delete',
-			'cron_list',
-			'cron_start',
-			'cron_stop',
-			'cron_run',
-		]);
+		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
+			AGENT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
+		);
+		expect(service.getToolsByGroup('mcpConnector').map((tool) => tool.name)).toEqual(
+			AGENT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
+		);
+		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
 	});
 
-	it('uses PolicyService before CronService for cron tools', async () => {
+	it('uses PolicyService before executing service-managed tools', async () => {
 		const service = new ToolService();
-		const cronCreate = service.getToolsByGroup('cron').find((tool) => tool.name === 'cron_create');
+		const runShell = service.getToolsByGroup('coreWorkspace').find((tool) => tool.name === 'run_shell');
 		const ctx = makeToolContext();
-		const cron = {
-			createSchedule: jest.fn(async () => ({ id: 'schedule-1' })),
-		};
 		ctx.agentId = 'agent-1';
-		ctx.services.cron = cron as never;
 		ctx.services.policy = {
 			evaluateToolUse: jest.fn(() => ({
 				outcome: 'deny',
-				key: 'cron_create::{}',
+				key: 'run_shell::{}',
 				callCount: 1,
 				status: 'error',
 				deniedReason: 'approval_required',
@@ -147,19 +131,9 @@ describe('ToolService', () => {
 			})),
 		} as never;
 
-		const result = await cronCreate?.execute(
-			{
-				name: 'Reminder',
-				type: 'oneTime',
-				runAt: '2026-05-27T10:00:00.000Z',
-				taskType: 'agent',
-				taskInput: { prompt: 'check in' },
-			},
-			ctx
-		);
+		const result = await runShell?.execute({ command: 'echo hi' }, ctx);
 
 		expect(result).toMatchObject({ status: 'error' });
 		expect(result?.content[0]?.text).toBe('blocked by policy');
-		expect(cron.createSchedule).not.toHaveBeenCalled();
 	});
 });
