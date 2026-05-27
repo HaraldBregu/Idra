@@ -101,6 +101,7 @@ function serverLabelFromName(name: string): string {
 function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.oauth) return connector.oauth.token ? 'configured' : 'missing_auth';
+	if (isCatalogOAuthConnector(connector)) return 'missing_auth';
 	if (!connector.mcp) return 'missing_auth';
 	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
 	if (connector.lastError) return 'error';
@@ -112,13 +113,15 @@ function toView(connector: ConnectorConfig): ConnectorView {
 		id: connector.id,
 		name: connector.name,
 		connectorId: connector.connectorId,
-		authKind: connector.oauth ? 'oauth' : 'mcp_env',
+		authKind: connector.oauth || isCatalogOAuthConnector(connector) ? 'oauth' : 'mcp_env',
 		serverLabel: connector.serverLabel,
 		enabled: connector.enabled,
 		status: statusFor(connector),
 		requireApproval: connector.requireApproval,
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
+		hasToken: Boolean(connector.oauth?.token?.accessToken),
+		hasTools: connector.tools.length > 0,
 		deferLoading: connector.deferLoading,
 		lastRefreshedAt: connector.lastRefreshedAt,
 		lastError: connector.lastError,
@@ -952,7 +955,7 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 
 function toStoredConnectorRecord(connector: ConnectorConfig): ConnectorConfig | { mcp?: ConnectorMcpConfig; tools: ConnectorTool[] } {
 	const normalized = normalizeStoredConnector(connector);
-	if (connector.oauth || (connector.mcp && catalogEntryForMcp(connector.mcp)?.oauth)) {
+	if ((connector.oauth || (connector.mcp && catalogEntryForMcp(connector.mcp)?.oauth)) && !connector.oauth?.token) {
 		return {
 			mcp: connector.mcp,
 			tools: normalized.tools,
