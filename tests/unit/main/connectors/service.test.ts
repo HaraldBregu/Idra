@@ -234,18 +234,18 @@ function createService(client = createFakeMcpClient(), options: {
 	const logger = makeLogger();
 	const factory = jest.fn(() => client);
 	const service = new ConnectorsService(logger as never, {
-			mcpClientFactory: factory,
-			env: options.env,
-			openExternalUrl: options.openExternalUrl,
-			fetch: options.fetch,
-		});
-		const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
-			data: Map<string, unknown>;
-			get: jest.Mock;
-			set: jest.Mock;
-			delete: jest.Mock;
-			store: Record<string, unknown>;
-		});
+		mcpClientFactory: factory,
+		env: options.env,
+		openExternalUrl: options.openExternalUrl,
+		fetch: options.fetch,
+	});
+	const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
+		data: Map<string, unknown>;
+		get: jest.Mock;
+		set: jest.Mock;
+		delete: jest.Mock;
+		store: Record<string, unknown>;
+	});
 	const [store] = stores;
 	return { service, store: store!, logger, client, factory };
 }
