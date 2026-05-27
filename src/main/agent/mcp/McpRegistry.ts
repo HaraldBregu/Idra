@@ -1,38 +1,31 @@
-import type { Tool as ResponseTool } from 'openai/resources/responses/responses';
 import type { ConnectorConfig } from '../../../shared/connector';
-
-type McpTool = ResponseTool.Mcp;
-
-function approvalPolicy(_connector: ConnectorConfig): McpTool['require_approval'] {
-	return 'never';
-}
+import type { AgentHarnessMcpServerConfig } from '../harness/mcp';
+import { missingMcpSecretNames, resolveMcpConfig } from '../connectors/mcp-client';
 
 export class McpRegistry {
-	buildTools(connectors: readonly ConnectorConfig[]): McpTool[] {
-		return connectors
-			.filter((connector) => connector.enabled && connector.authorization.trim().length > 0)
-			.map((connector) => {
-				const tool: McpTool = {
-					type: 'mcp',
-					server_label: connector.serverLabel,
-					connector_id: connector.connectorId,
-					authorization: connector.authorization,
-					require_approval: approvalPolicy(connector),
-				};
-
-				if (connector.serverDescription?.trim()) {
-					tool.server_description = connector.serverDescription.trim();
-				}
-
-				if (connector.allowedTools.length > 0) {
-					tool.allowed_tools = connector.allowedTools;
-				}
-
-				if (connector.deferLoading) {
-					tool.defer_loading = true;
-				}
-
-				return tool;
-			});
+	buildServers(connectors: readonly ConnectorConfig[]): AgentHarnessMcpServerConfig[] {
+		return connectors.flatMap((connector) => {
+			if (!connector.enabled || !connector.mcp || missingMcpSecretNames(connector).length > 0) return [];
+			const config = resolveMcpConfig(connector);
+			if (config.transport === 'http') {
+				return [{
+					name: connector.serverLabel,
+					transport: 'http',
+					url: config.url,
+					headers: config.headers,
+					sessionId: config.sessionId,
+					toolPrefix: connector.serverLabel,
+				} satisfies AgentHarnessMcpServerConfig];
+			}
+			return [{
+				name: connector.serverLabel,
+				transport: 'stdio',
+				command: config.command,
+				args: config.args,
+				cwd: config.cwd,
+				env: config.env,
+				toolPrefix: connector.serverLabel,
+			} satisfies AgentHarnessMcpServerConfig];
+		});
 	}
 }
