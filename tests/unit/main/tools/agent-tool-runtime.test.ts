@@ -21,6 +21,7 @@ import { toToolDefinitions } from '../../../../src/main/agent/tools/tool-definit
 import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/agent/tools/runtime/legacy-tool-adapter';
 import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/agent/tools/runtime/legacy-bridge';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/agent/tools/types';
+import { AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeTempDir } from '../test-helpers';
 
 function tool(name: string, overrides: Partial<AgentTool> = {}): AgentTool {
@@ -356,6 +357,17 @@ describe('canonical agent tool runtime', () => {
 		});
 		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file']);
 		expect(result.diagnostics.builtTools).toContain('read_file');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('assembles the requested local tool set for wildcard runtime construction', async () => {
+		const workspace = await makeTempDir();
+		const result = await createAgentTools({
+			workspaceDir: workspace,
+			toolsAllow: ['*'],
+		});
+
+		expect(result.tools.map((entry) => entry.name)).toEqual([...AGENT_TOOL_NAMES]);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
