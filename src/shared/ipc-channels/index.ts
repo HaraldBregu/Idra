@@ -167,6 +167,7 @@ export const ConnectorsChannels = {
 	refreshTools: 'connectors:refreshTools',
 	listTools: 'connectors:listTools',
 	callTool: 'connectors:callTool',
+	authorizeOAuth: 'connectors:authorizeOAuth',
 	get: 'connectors:get',
 } as const;
 
@@ -693,6 +694,10 @@ interface ConnectorsInvokeChannelMap {
 			options?: import('../connector').ConnectorCallToolOptions,
 		];
 		result: unknown;
+	};
+	[ConnectorsChannels.authorizeOAuth]: {
+		args: [input: import('../connector').ConnectorOAuthAuthorizeRequest];
+		result: import('../connector').ConnectorOAuthAuthorizeResult;
 	};
 }
 
