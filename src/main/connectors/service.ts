@@ -1,4 +1,6 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { createServer, type Server, type ServerResponse } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { shell } from 'electron';
 import Store from 'electron-store';
 import type { LoggerService } from '../logger';
@@ -14,6 +16,7 @@ import type {
 	ConnectorMcpEnvSecret,
 	ConnectorMcpHeaderSecret,
 	ConnectorOAuthAuthorizeResult,
+	ConnectorOAuthCompleteInput,
 	ConnectorProviderId,
 	ConnectorStatus,
 	ConnectorTestResult,
@@ -83,7 +86,24 @@ interface ConnectorsServiceOptions {
 	catalogProvider?: ConnectorCatalogProvider;
 	mcpClientFactory?: ConnectorMcpClientFactory;
 	openExternalUrl?: (url: string) => Promise<void>;
+	fetch?: typeof fetch;
+	oauthCallbackTimeoutMs?: number;
 	env?: NodeJS.ProcessEnv;
+}
+
+interface OAuthCallbackListener {
+	redirectUri: string;
+	code: Promise<string>;
+	close(): Promise<void>;
+}
+
+interface OAuthTokenExchangeInput {
+	code: string;
+	codeVerifier: string;
+	redirectUri: string;
+	clientId: string;
+	clientSecret?: string;
+	fetch: typeof fetch;
 }
 
 function textResult(text: string, isError = false): AgentToolResult {
