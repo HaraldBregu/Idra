@@ -358,7 +358,7 @@ const ConnectorDetailsPage: React.FC = () => {
 					formToUpdateInput(form, catalogItem, manualAuth)
 				);
 				setConnector(saved);
-				setForm(formFromConnector(saved, item));
+				setForm(formFromConnector(saved, catalogItem));
 				try {
 					setTools(await window.connectors.listTools(saved.id));
 				} catch (caught) {
@@ -619,6 +619,15 @@ const ConnectorDetailsPage: React.FC = () => {
 										</div>
 										<div className="mt-1 break-all text-[11px] leading-4 text-muted-foreground">
 											Redirect: <span className="font-mono">{redirectUri}</span>
+										</div>
+									</div>
+								) : mcpEnvAuth ? (
+									<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
+										<div className="text-[11px] font-medium leading-4 text-foreground">
+											MCP environment auth
+										</div>
+										<div className="mt-1 text-[11px] leading-4 text-muted-foreground">
+											Secrets are read from the environment variables named in the MCP config.
 										</div>
 									</div>
 								) : (
