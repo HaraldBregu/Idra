@@ -825,7 +825,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'https://www.googleapis.com/auth/gmail.send',
 			'https://www.googleapis.com/auth/gmail.modify',
 		],
-		authKind: 'google_oauth',
+		authKind: 'mcp_env',
 		redirectUri: 'http://127.0.0.1:<temporary-port>',
 		setupUrl: 'https://console.cloud.google.com/apis/credentials',
 		setupInstructions: [
@@ -866,7 +866,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'https://www.googleapis.com/auth/calendar.events.readonly',
 			'https://www.googleapis.com/auth/calendar.events',
 		],
-		authKind: 'google_oauth',
+		authKind: 'mcp_env',
 		redirectUri: 'http://127.0.0.1:<temporary-port>',
 		setupUrl: 'https://console.cloud.google.com/apis/credentials',
 		setupInstructions: [
@@ -909,7 +909,7 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'https://www.googleapis.com/auth/drive.readonly',
 			'https://www.googleapis.com/auth/drive.file',
 		],
-		authKind: 'google_oauth',
+		authKind: 'mcp_env',
 		redirectUri: 'http://127.0.0.1:<temporary-port>',
 		setupUrl: 'https://console.cloud.google.com/apis/credentials',
 		setupInstructions: [
@@ -1034,6 +1034,55 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'Complete OAuth for the account and paste the resulting access token here.',
 		],
 	},
+
+	{
+		id: 'connector_remote_mcp',
+		directConnectorId: 'custom_rest_openapi',
+		name: 'Remote MCP Server',
+		description: 'Connect to any remote MCP server over streamable HTTP and discover its tools dynamically.',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_remote_mcp.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_remote_mcp.providerDocsLabel,
+		environmentSecretNames: ['REMOTE_MCP_API_KEY'],
+		platformDocumentationPages: [
+			{ label: 'Build an MCP client', url: 'https://modelcontextprotocol.io/docs/develop/build-client' },
+		],
+		example: { tool: 'discovered_tool', input: {} },
+		tools: [],
+		scopes: [],
+		setupUrl: 'https://modelcontextprotocol.io/docs/develop/build-client',
+		setupInstructions: [
+			'Run or choose a remote MCP server that exposes the target service tools.',
+			'Store any required API key in an environment variable, then reference that variable in the connector MCP auth config.',
+			'Save the connector and refresh tools to discover the server capabilities.',
+		],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	},
+	{
+		id: 'connector_stdio_mcp',
+		directConnectorId: 'custom_rest_openapi',
+		name: 'Local MCP Server',
+		description: 'Launch a local MCP server over stdio and discover its tools dynamically.',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_stdio_mcp.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_stdio_mcp.providerDocsLabel,
+		environmentSecretNames: [],
+		platformDocumentationPages: [
+			{ label: 'Build an MCP client', url: 'https://modelcontextprotocol.io/docs/develop/build-client' },
+		],
+		example: { tool: 'discovered_tool', input: {} },
+		tools: [],
+		scopes: [],
+		setupUrl: 'https://modelcontextprotocol.io/docs/develop/build-client',
+		setupInstructions: [
+			'Install or build a local MCP server package.',
+			'Configure the command, args, and any env var mappings needed by the server.',
+			'Save the connector and refresh tools to discover the server capabilities.',
+		],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	},
 ] as const satisfies readonly OpenAiConnectorCatalogEntry[];
 
 export type OpenAiConnectorId = (typeof OPENAI_CONNECTOR_CATALOG)[number]['id'];
@@ -1042,11 +1091,17 @@ export function getConnectorCatalogItem(id: OpenAiConnectorId) {
 	return OPENAI_CONNECTOR_CATALOG.find((connector) => connector.id === id);
 }
 
+export const PLUGGABLE_MCP_CONNECTOR_IDS = [
+	'connector_remote_mcp',
+	'connector_stdio_mcp',
+] as const satisfies readonly OpenAiConnectorId[];
+
 export function getConnectorAuthKind(id: OpenAiConnectorId): ConnectorAuthKind {
-	const connector = getConnectorCatalogItem(id);
-	return connector && 'authKind' in connector && connector.authKind === 'google_oauth'
-		? 'google_oauth'
-		: 'manual_oauth_access_token';
+	return getConnectorCatalogItem(id)?.authKind ?? 'mcp_env';
+}
+
+export function connectorAllowsMultipleInstances(id: OpenAiConnectorId): boolean {
+	return getConnectorCatalogItem(id)?.allowMultipleInstances ?? true;
 }
 
 export function isOpenAiConnectorId(value: string): value is OpenAiConnectorId {
