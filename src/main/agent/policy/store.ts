@@ -3,7 +3,7 @@ import Store from 'electron-store';
 import type { PolicyConfig, PolicyEntry, Permission } from '../../../shared/policy';
 
 const VALID_PERMISSIONS = new Set<Permission>(['read', 'write', 'create', 'delete']);
-const DEFAULT_POLICY_PATHS = ['/workspace', '/agent'];
+const DEFAULT_POLICY_PATHS = ['/.friday', '/workspace', '/agent'];
 const DEFAULT_POLICY_PERMISSIONS: Permission[] = ['read', 'write', 'create', 'delete'];
 
 type PolicyStoreSchema = Partial<PolicyConfig> & { policy?: PolicyConfig };
