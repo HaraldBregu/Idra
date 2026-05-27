@@ -128,6 +128,7 @@ export function bootstrapServices(): BootstrapResult {
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
 	const connectors = container.register('connectors', new ConnectorsService(logger));
+	const mcpClient = container.register('mcpClient', connectors.getMcpClientService());
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
@@ -152,6 +153,7 @@ export function bootstrapServices(): BootstrapResult {
 		agentDataDirectory,
 		agentSettings,
 		connectors,
+		mcpClient,
 		skills,
 		mcpRegistry,
 		policy,
