@@ -443,7 +443,16 @@ export class ConnectorsService {
 		if (!clientId?.trim()) throw new Error('Missing OAuth client id environment variable: ' + clientIdEnv);
 
 		const state = randomUUID();
-		const authorizationUrl = oauthAuthorizationUrl(definition, clientId.trim(), state);
+		const codeVerifier = createPkceCodeVerifier();
+		const codeChallenge = createPkceCodeChallenge(codeVerifier);
+		const callback = await createOAuthCallbackListener(state, this.options.oauthCallbackTimeoutMs);
+		const authorizationUrl = oauthAuthorizationUrl(
+			definition,
+			clientId.trim(),
+			state,
+			callback.redirectUri,
+			codeChallenge
+		);
 		const now = new Date().toISOString();
 		const existing = this.validConnectors().find((connector) => connector.connectorId === definition.id);
 		const requireApproval = existing?.requireApproval ?? 'always';
@@ -452,13 +461,13 @@ export class ConnectorsService {
 			id: existing?.id ?? definition.id,
 			name: existing?.name ?? definition.name,
 			connectorId: definition.id,
-				serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
-				serverDescription: existing?.serverDescription,
-				enabled: true,
-				authorization: existing?.authorization || oauthAuthorizationHeader(existing?.oauth?.token),
-				requireApproval,
-				allowedTools,
-				deferLoading: existing?.deferLoading ?? false,
+			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
+			serverDescription: existing?.serverDescription,
+			enabled: true,
+			authorization: existing?.authorization || oauthAuthorizationHeader(existing?.oauth?.token),
+			requireApproval,
+			allowedTools,
+			deferLoading: existing?.deferLoading ?? false,
 			tools: normalizeConnectorTools(existing?.tools ?? [], DEFAULT_CONNECTOR_TOOL_PERMISSION),
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
@@ -467,7 +476,7 @@ export class ConnectorsService {
 				providerId: definition.oauth.providerId,
 				authorizationUrl,
 				clientId: clientId.trim(),
-				redirectUri: definition.oauth.redirectUri,
+				redirectUri: callback.redirectUri,
 				scopes: definition.scopes,
 				state,
 				accountEmail: existing?.oauth?.accountEmail,
@@ -478,13 +487,28 @@ export class ConnectorsService {
 
 		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
-		await (this.options.openExternalUrl ?? shell.openExternal)(authorizationUrl);
-
-		return {
-			connectorId: definition.id,
-			authorizationUrl,
-			connector: redactConnectorSecrets(next),
-		};
+		try {
+			await (this.options.openExternalUrl ?? shell.openExternal)(authorizationUrl);
+			const code = await callback.code;
+			const completed = this.completeOAuth(await exchangeOAuthCode(definition, {
+				code,
+				codeVerifier,
+				redirectUri: callback.redirectUri,
+				clientId: clientId.trim(),
+				clientSecret: this.oauthClientSecret(definition),
+				fetch: this.options.fetch ?? fetch,
+			}));
+			return {
+				connectorId: definition.id,
+				authorizationUrl,
+				connector: completed,
+			};
+		} catch (error) {
+			this.replace({ ...next, lastError: this.errorMessage(error), updatedAt: new Date().toISOString() });
+			throw error;
+		} finally {
+			await callback.close();
+		}
 	}
 
 	completeOAuth(input: unknown): ConnectorConfig {
