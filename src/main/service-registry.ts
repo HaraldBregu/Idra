@@ -10,6 +10,7 @@ import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './agent/mcp';
+import type { AgentMcpClientServicePort } from './agent/mcp-client';
 import type { MonitorService } from './monitor';
 import type { PolicyService } from './agent/policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
@@ -36,6 +37,7 @@ export interface MainServices {
 	eventBus: EventBus;
 	heartbeat: HeartbeatService;
 	logger: LoggerService;
+	mcpClient: AgentMcpClientServicePort;
 	mcpRegistry: McpRegistry;
 	monitor: MonitorService;
 	policy: PolicyService;
