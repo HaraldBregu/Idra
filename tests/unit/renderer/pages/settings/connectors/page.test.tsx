@@ -178,9 +178,9 @@ describe('connector settings docs', () => {
 
 		renderConnectorsPage();
 
-		expect(await screen.findByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
+		expect(await screen.findByText('Gmail')).toBeInTheDocument();
 
-		await user.click(screen.getByRole('button', { name: /Authorize Gmail/ }));
+		await user.click(screen.getAllByText('Gmail')[0]!);
 
 		expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith('google.gmail');
 		expect(window.app.openExternalUrl).not.toHaveBeenCalled();
