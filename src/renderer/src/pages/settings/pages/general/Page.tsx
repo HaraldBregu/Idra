@@ -59,7 +59,7 @@ const GeneralPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.general')} />
+			<SettingsPageHeader title={t('settings.tabs.general')} description={t('settings.overview.descriptions.general')} />
 
 			<SettingsSection title={t('settings.application.information')}>
 				<Card size="sm" className="gap-0! p-0!">
