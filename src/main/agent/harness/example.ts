@@ -20,6 +20,7 @@ export async function runAgentHarnessExample(): Promise<void> {
 	await server.connect(serverTransport);
 
 	const events: string[] = [];
+	const eventSink = { emit: (event: { type: string }) => events.push(event.type) };
 	const model = createScriptedExampleModel();
 	const tools: AgentHarnessTool[] = [
 		{
@@ -55,7 +56,7 @@ export async function runAgentHarnessExample(): Promise<void> {
 	];
 	const mcp = new McpAgentHarnessToolProvider([
 		{ name: 'demo', transport: 'custom', createTransport: () => clientTransport },
-	]);
+	], { events: eventSink });
 	const harness = await createAgentHarness({
 		modelId: 'fake-harness-model',
 		systemPrompt: 'You are running the Friday harness example.',
@@ -64,7 +65,7 @@ export async function runAgentHarnessExample(): Promise<void> {
 		externalTools: [mcp],
 		memory: new InMemoryAgentHarnessMemory(),
 		approvals: { checkpoint: async () => ({ approved: true, reason: 'example approval' }) },
-		events: { emit: (event) => events.push(event.type) },
+		events: eventSink,
 		runtime: { maxIterations: 8, maxTokens: 1_000, toolTimeoutMs: 5_000 },
 	});
 
