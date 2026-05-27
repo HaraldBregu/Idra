@@ -600,7 +600,10 @@ export class ConnectorsService {
 		}
 		const missing = missingMcpSecretNames(connector);
 		if (missing.length > 0) throw new Error('Missing MCP secret environment variable: ' + missing.join(', '));
-		const next = await this.withDiscoveredTools(connector);
+		const next = await this.withDiscoveredTools(
+			connector,
+			isCatalogOAuthConnector(connector) ? DEFAULT_CONNECTOR_TOOL_PERMISSION : undefined
+		);
 		this.replace(next);
 		return next.tools;
 	}
@@ -1045,11 +1048,15 @@ function missingSecretMessage(connector: ConnectorConfig): string | undefined {
 }
 
 function permissionForTool(connector: ConnectorConfig, toolName: string): ConnectorToolPermission {
-	if (connector.oauth) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
+	if (connector.oauth || isCatalogOAuthConnector(connector)) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
 	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
 	if (connector.requireApproval === 'never') return 'always-allow';
 	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) return 'always-allow';
 	return 'needs-approval';
+}
+
+function isCatalogOAuthConnector(connector: ConnectorConfig): boolean {
+	return Boolean(connector.mcp && catalogEntryForMcp(connector.mcp)?.oauth);
 }
 
 function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
