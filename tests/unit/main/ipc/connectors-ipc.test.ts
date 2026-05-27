@@ -55,6 +55,8 @@ const connectorView: ConnectorView = {
 	requireApproval: 'always',
 	allowedToolsCount: 1,
 	toolsCount: 1,
+	hasToken: false,
+	hasTools: true,
 	deferLoading: false,
 };
 
