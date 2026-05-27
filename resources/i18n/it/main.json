@@ -150,6 +150,8 @@
 			"groups": {
 				"app": "App",
 				"ai": "AI",
+				"agent": "Agente",
+				"voice": "Voce e Media",
 				"knowledge": "Conoscenza",
 				"channels": "Canali",
 				"automation": "Automazione",
