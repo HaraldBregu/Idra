@@ -794,10 +794,13 @@ export const connectors: ConnectorsApi = {
 	): Promise<unknown> => {
 		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
 	},
-	authorizeOAuth: (connectorId: string): Promise<ConnectorOAuthAuthorizeResult> => {
-		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, { connectorId });
-	},
-};
+		authorizeOAuth: (connector: string | ConnectorCatalogEntry): Promise<ConnectorOAuthAuthorizeResult> => {
+			const input = typeof connector === 'string'
+				? { connectorId: connector }
+				: { connectorId: connector.id, connector };
+			return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, input);
+		},
+	};
 
 if (process.contextIsolated) {
 	try {
