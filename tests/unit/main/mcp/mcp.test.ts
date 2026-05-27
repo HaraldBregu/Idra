@@ -2,6 +2,7 @@ import { McpRegistry } from '../../../../src/main/agent/mcp/McpRegistry';
 import { createSafeMcpEnv } from '../../../../src/main/agent/mcp/env';
 import { McpPermissionError, McpTimeoutError, normalizeMcpError } from '../../../../src/main/agent/mcp/errors';
 import { withRetry, withTimeout } from '../../../../src/main/agent/mcp/timeout';
+import { resolveMcpConfig } from '../../../../src/main/agent/connectors/mcp-client';
 import type { ConnectorConfig } from '../../../../src/shared/connector';
 
 function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
@@ -42,6 +43,36 @@ describe('mcp modules', () => {
 			}),
 		]);
 		delete process.env.REMOTE_MCP_API_KEY;
+	});
+
+	it('uses stored OAuth tokens for remote MCP authorization', () => {
+		const oauthConnector = connector({
+			mcp: { transport: 'http', url: 'https://gmailmcp.googleapis.com/mcp/v1' },
+			oauth: {
+				providerId: 'google',
+				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+				clientId: 'google-client-id',
+				redirectUri: 'http://127.0.0.1',
+				scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+				state: 'state',
+				token: { accessToken: 'oauth-access-token' },
+			},
+		});
+
+		expect(resolveMcpConfig(oauthConnector)).toMatchObject({
+			transport: 'http',
+			url: 'https://gmailmcp.googleapis.com/mcp/v1',
+			headers: { Authorization: 'Bearer oauth-access-token' },
+		});
+		expect(new McpRegistry().buildServers([
+			{ ...oauthConnector, id: 'pending', oauth: { ...oauthConnector.oauth!, token: undefined } },
+			oauthConnector,
+		])).toEqual([
+			expect.objectContaining({
+				url: 'https://gmailmcp.googleapis.com/mcp/v1',
+				headers: { Authorization: 'Bearer oauth-access-token' },
+			}),
+		]);
 	});
 
 	it('creates safe environment maps and normalizes errors', () => {
