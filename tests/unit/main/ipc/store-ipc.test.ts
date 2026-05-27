@@ -41,13 +41,18 @@ describe('StoreIpc', () => {
 		const connectors = {
 			getConnectorSettings: jest.fn(() => []),
 		};
+		const agentSettings = {
+			getAgentRoutingSettings: jest.fn(() => ({ agents: [], bindings: [] })),
+		};
 		const powerSaveBlocker = {
 			setEnabled: jest.fn((enabled: boolean) => enabled),
 		};
 		const container = {
-			get: jest.fn((key: 'store' | 'connectors' | 'logger' | 'powerSaveBlocker') =>
+			get: jest.fn((key: 'store' | 'agentSettings' | 'connectors' | 'logger' | 'powerSaveBlocker') =>
 				key === 'store'
 					? store
+					: key === 'agentSettings'
+						? agentSettings
 					: key === 'connectors'
 						? connectors
 						: key === 'powerSaveBlocker'
@@ -90,6 +95,11 @@ describe('StoreIpc', () => {
 			data: [],
 		});
 		expect(connectors.getConnectorSettings).toHaveBeenCalled();
+		await expect(registeredHandler(StoreChannels.getAgentRoutingSettings)({})).resolves.toEqual({
+			success: true,
+			data: { agents: [], bindings: [] },
+		});
+		expect(agentSettings.getAgentRoutingSettings).toHaveBeenCalled();
 		await expect(
 			registeredHandler(StoreChannels.saveAssistantOperator)(
 				{},
