@@ -229,8 +229,8 @@ describe('policy module', () => {
 		const { service } = makePolicyService(() => ({ version: 1, defaultPolicy: 'deny', paths: [] }));
 		const decision = service.evaluateTools(
 			[
-				{ name: 'read' },
-				{ name: 'write' },
+				{ name: 'read_file' },
+				{ name: 'write_file' },
 				{ name: 'calendar_search', pluginId: 'calendar', ownerKind: 'plugin' },
 				{ name: 'owner_secret', ownerOnly: true },
 			],
@@ -238,16 +238,16 @@ describe('policy module', () => {
 				sender: { isOwner: false },
 				stages: {
 					profile: { allow: ['group:file', 'calendar', 'owner_secret'] },
-					sandbox: { deny: ['write'] },
+					sandbox: { deny: ['write_file'] },
 				},
 			}
 		);
 
-		expect([...decision.allowed]).toEqual(['read', 'calendar_search']);
+		expect([...decision.allowed]).toEqual(['read_file', 'calendar_search']);
 		expect(decision.filtered).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({ toolName: 'owner_secret', stage: 'ownerOnly' }),
-				expect.objectContaining({ toolName: 'write', stage: 'sandbox' }),
+				expect.objectContaining({ toolName: 'write_file', stage: 'sandbox' }),
 			])
 		);
 	});
