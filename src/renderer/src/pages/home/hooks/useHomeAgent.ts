@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
-import type { AgentResponseEvent } from '../../../../../shared/agents/service';
+import type {
+	AgentResponseEvent,
+	AgentSendRuntimeOptions,
+	ModelReasoningEffort,
+} from '../../../../../shared/agents/service';
 import { useHomeAgentContext } from '../context';
 
 type WindowWithOptionalAgent = Window & {
@@ -8,6 +12,12 @@ type WindowWithOptionalAgent = Window & {
 };
 
 const HOME_AGENT_ID = 'main';
+const HIGH_REASONING_PATTERN =
+	/\b(architecture|analy[sz]e|debug|diagnose|investigate|refactor|review|root cause|security|performance|race condition|trade-?off|think hard|deep dive|step by step|plan|design|why|failing|broken|error|exception|stack trace)\b/i;
+const MEDIUM_REASONING_PATTERN =
+	/\b(compare|explain|summari[sz]e|estimate|strategy|approach|implement|change|improve|optimi[sz]e|test|typescript|react|electron|ipc)\b/i;
+const LOW_REASONING_PATTERN =
+	/\b(quick|brief|short|simple|just answer|no reasoning|without reasoning|don't think|do not think|no thinking|fast answer)\b/i;
 
 function getAgentApi(): Window['agent'] | undefined {
 	return (window as WindowWithOptionalAgent).agent;
@@ -15,6 +25,29 @@ function getAgentApi(): Window['agent'] | undefined {
 
 function messageId(prefix: string): string {
 	return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function resolvePromptReasoningEffort(prompt: string): {
+	effort: ModelReasoningEffort;
+	lightContext: boolean;
+} {
+	const hasCodeContext =
+		prompt.includes('```') ||
+		/\b(src\/|tests?\/|package\.json|tsconfig|console|trace|diff)\b/i.test(prompt);
+	if (LOW_REASONING_PATTERN.test(prompt)) {
+		return { effort: 'none', lightContext: true };
+	}
+	if (HIGH_REASONING_PATTERN.test(prompt) || hasCodeContext || prompt.length > 500) {
+		return { effort: 'high', lightContext: false };
+	}
+	if (MEDIUM_REASONING_PATTERN.test(prompt) || prompt.length > 220) {
+		return { effort: 'medium', lightContext: false };
+	}
+	return { effort: 'none', lightContext: true };
+}
+
+function runtimeOptionsForPrompt(prompt: string): AgentSendRuntimeOptions {
+	return resolvePromptReasoningEffort(prompt);
 }
 
 export function useHomeAgent({
@@ -87,6 +120,7 @@ export function useHomeAgent({
 			requestIdRef.current = requestId;
 			requestActiveRef.current = true;
 			const submittedAtMs = Date.now();
+			const runtimeOptions = runtimeOptionsForPrompt(trimmed);
 
 			setInput('');
 			setIsLoading(true);
@@ -96,6 +130,8 @@ export function useHomeAgent({
 				agentMessageId: messageId('agent'),
 				content: trimmed,
 				submittedAtMs,
+				reasoningEffort: runtimeOptions.effort,
+				lightContext: runtimeOptions.lightContext,
 			});
 
 			const agent = getAgentApi();
@@ -111,7 +147,7 @@ export function useHomeAgent({
 			}
 
 			try {
-				const response = await agent.send(trimmed);
+				const response = await agent.send(trimmed, runtimeOptions);
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);

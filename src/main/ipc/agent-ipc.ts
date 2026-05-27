@@ -5,8 +5,13 @@ import type { EventBus } from '../core/event-bus';
 import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import type { AgentHistoryMessage, AgentSendRuntimeOptions } from '../../shared/agents/service';
+import {
+	isModelReasoningEffort,
+	type AgentHistoryMessage,
+	type AgentSendRuntimeOptions,
+} from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../provider/types';
+import type { AgentSendOptions } from '../agent';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
@@ -31,6 +36,55 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 			base64: block.base64 ? '[base64 image]' : undefined,
 		};
 	});
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function optionalTrimmedString(value: unknown): string | undefined {
+	if (typeof value !== 'string') return undefined;
+	const trimmed = value.trim();
+	return trimmed || undefined;
+}
+
+function optionalStringList(value: unknown): string[] | undefined {
+	if (!Array.isArray(value)) return undefined;
+	const items = value
+		.map(optionalTrimmedString)
+		.filter((item): item is string => Boolean(item));
+	return items.length > 0 ? items : undefined;
+}
+
+export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
+	if (options === undefined || options === null) return {};
+	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
+
+	const effort = options.effort;
+	if (effort !== undefined && !isModelReasoningEffort(effort)) {
+		throw new Error('Invalid assistant reasoning effort.');
+	}
+
+	const sessionId =
+		optionalTrimmedString(options.sessionId) ?? optionalTrimmedString(options.agentRuntime);
+	return {
+		...(optionalTrimmedString(options.runId) ? { runId: optionalTrimmedString(options.runId) } : {}),
+		...(sessionId ? { sessionId } : {}),
+		...(optionalTrimmedString(options.providerId)
+			? { providerId: optionalTrimmedString(options.providerId) }
+			: {}),
+		...(optionalTrimmedString(options.model) ? { model: optionalTrimmedString(options.model) } : {}),
+		...(effort ? { effort } : {}),
+		...(typeof options.lightContext === 'boolean'
+			? { lightContext: options.lightContext }
+			: {}),
+		...(optionalStringList(options.toolsAllow)
+			? { toolsAllow: optionalStringList(options.toolsAllow) }
+			: {}),
+		...(optionalStringList(options.toolsDeny)
+			? { toolsDeny: optionalStringList(options.toolsDeny) }
+			: {}),
+	};
 }
 
 async function openPathOrThrow(target: string): Promise<void> {
@@ -94,7 +148,7 @@ export class AgentIpc implements IpcModule {
 			AgentChannels.send,
 			wrapSimpleHandler((message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
 				return agent.send(message, undefined, {
-					...options,
+					...normalizeAgentSendRuntimeOptions(options),
 					streamEvent: (event) => eventBus.broadcast('agent:response', event),
 				});
 			}, AgentChannels.send)

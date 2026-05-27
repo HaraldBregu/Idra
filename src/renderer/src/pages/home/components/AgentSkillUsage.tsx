@@ -26,7 +26,7 @@ export function AgentSkillUsage({
 				<span
 					key={skill.version ? `${skill.id}@${skill.version}` : skill.id}
 					className="inline-flex max-w-full items-center gap-1 rounded-md border border-border/70 bg-muted/40 px-1.5 py-0 font-mono text-[10px] text-foreground"
-					title={skill.label}
+					title={skill.reason ? `${skill.label}: ${skill.reason}` : skill.label}
 				>
 					<Sparkles className="size-3 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 					<span className="min-w-0 truncate">{skill.label}</span>

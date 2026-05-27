@@ -981,6 +981,8 @@ export class AgentService {
 		let effort: ModelReasoningEffort | undefined;
 		if (providerId === 'openai') {
 			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
+		} else if (overrides.effort) {
+			effort = overrides.effort;
 		}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}

@@ -16,7 +16,7 @@ export function AgentToolActivity({
 		<div className={cn('w-full', className)}>
 			<div className="flex w-full flex-col gap-2">
 				{tools.map((tool) => (
-					<Tool key={tool.toolCallId} toolPart={tool} className="w-full max-w-md" />
+					<Tool key={tool.toolCallId} toolPart={tool} className="w-full max-w-2xl" />
 				))}
 			</div>
 		</div>

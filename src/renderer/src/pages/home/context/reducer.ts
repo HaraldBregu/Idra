@@ -2,8 +2,13 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentToolCallStatus,
+	ModelReasoningEffort,
 } from '../../../../../shared/agents/service';
 import type { AgentChatAction } from './actions';
+import {
+	agentSkillUsageFromName,
+	mergeAgentSkillUsages,
+} from './skill-usage';
 import {
 	applyAgentResponseEventToTools,
 	type AgentToolPart,
@@ -15,10 +20,16 @@ import {
 	welcomeMessage,
 	type AgentChatState,
 	type AgentMessage,
+	type AgentReasoningSummary,
 	type HomeChatMessage,
 	type UserMessage,
 } from './state';
 
+type CapabilityResolutionEvent = Extract<
+	AgentResponseEvent,
+	{ type: 'capability_resolution_result' }
+>;
+type ReasoningSummaryEvent = Extract<AgentResponseEvent, { type: 'reasoning_summary' }>;
 
 function isAgentMessage(message: HomeChatMessage): message is AgentMessage {
 	return message.role === 'agent' && message.type === 'agent';
@@ -36,7 +47,11 @@ function createUserMessage(id: string, content: string): UserMessage {
 function createAgentMessage(
 	id: string,
 	runId?: string,
-	startedAtMs?: number
+	startedAtMs?: number,
+	options: {
+		reasoningEffort?: ModelReasoningEffort;
+		lightContext?: boolean;
+	} = {}
 ): AgentMessage {
 	return {
 		id,
@@ -46,6 +61,8 @@ function createAgentMessage(
 		runId,
 		state: 'thinking',
 		tools: [],
+		requestedEffort: options.reasoningEffort,
+		lightContext: options.lightContext,
 		startedAtMs,
 	};
 }
@@ -108,6 +125,32 @@ function isTerminalRunState(state: AgentMessage['state']): boolean {
 	return state === 'completed' || state === 'cancelled' || state === 'error';
 }
 
+function upsertReasoningSummary(
+	summaries: readonly AgentReasoningSummary[] | undefined,
+	event: ReasoningSummaryEvent
+): AgentReasoningSummary[] {
+	const next = {
+		id: event.id,
+		title: event.title,
+		summary: event.summary,
+		state: event.state,
+	};
+	if (!summaries) return [next];
+	const index = summaries.findIndex((summary) => summary.id === event.id);
+	if (index === -1) return [...summaries, next];
+	return summaries.map((summary, currentIndex) => (currentIndex === index ? next : summary));
+}
+
+function skillUsagesFromCapability(
+	event: CapabilityResolutionEvent
+): NonNullable<AgentMessage['selectedSkills']> {
+	return event.skills
+		.map((skill) => agentSkillUsageFromName(skill.name, skill.reason))
+		.filter((skill): skill is NonNullable<ReturnType<typeof agentSkillUsageFromName>> =>
+			Boolean(skill)
+		);
+}
+
 function applyResponseEvent(
 	state: AgentChatState,
 	event: AgentResponseEvent,
@@ -128,8 +171,53 @@ function applyResponseEvent(
 		}));
 	}
 
+	if (event.type === 'model_selected') {
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+			...message,
+			runId: event.runId,
+			model: {
+				providerId: event.providerId,
+				model: event.model,
+				effort: event.effort,
+			},
+			startedAtMs: message.startedAtMs ?? receivedAtMs,
+		}));
+	}
+
+	if (event.type === 'capability_resolution_start') {
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+			...message,
+			runId: event.runId,
+			state: message.state === 'thinking' ? 'thinking' : message.state,
+			startedAtMs: message.startedAtMs ?? receivedAtMs,
+		}));
+	}
+
+	if (event.type === 'capability_resolution_result') {
+		const selectedSkills = skillUsagesFromCapability(event);
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+			...message,
+			runId: event.runId,
+			capability: {
+				tools: event.tools,
+				connectorTools: event.connectorTools,
+				skills: event.skills,
+				directAnswer: event.directAnswer,
+				decision: event.decision,
+			},
+			selectedSkills: mergeAgentSkillUsages(message.selectedSkills ?? [], selectedSkills),
+			startedAtMs: message.startedAtMs ?? receivedAtMs,
+		}));
+	}
+
 	if (event.type === 'reasoning_summary') {
-		return ensured.state;
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+			...message,
+			runId: event.runId,
+			state: message.content.length > 0 ? message.state : 'reasoning',
+			reasoning: upsertReasoningSummary(message.reasoning, event),
+			startedAtMs: message.startedAtMs ?? receivedAtMs,
+		}));
 	}
 
 	if (event.type === 'text_delta') {
@@ -259,7 +347,11 @@ export function agentChatReducer(
 			const agentMessage = createAgentMessage(
 				action.agentMessageId,
 				undefined,
-				action.submittedAtMs
+				action.submittedAtMs,
+				{
+					reasoningEffort: action.reasoningEffort,
+					lightContext: action.lightContext,
+				}
 			);
 			return {
 				messages: [...state.messages, userMessage, agentMessage],

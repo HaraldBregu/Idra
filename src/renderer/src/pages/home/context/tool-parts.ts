@@ -1,4 +1,5 @@
 import type { ToolPart } from '@/components/prompt-kit/tool';
+import type { AgentCapabilityServiceKind } from '../../../../../shared/agents/constants';
 import type {
 	AgentHistoryContentBlock,
 	AgentResponseEvent,
@@ -8,6 +9,9 @@ import type {
 export type AgentToolPart = ToolPart & {
 	toolCallId: string;
 	status?: AgentToolCallStatus;
+	displayName?: string;
+	serviceKind?: AgentCapabilityServiceKind;
+	serviceId?: string;
 };
 
 type AgentToolPartPatch = Omit<Partial<AgentToolPart>, 'toolCallId'>;
@@ -28,6 +32,9 @@ function createAgentToolPart(
 		durationMs: patch.durationMs,
 		errorText: patch.errorText,
 		status: patch.status,
+		displayName: patch.displayName,
+		serviceKind: patch.serviceKind,
+		serviceId: patch.serviceId,
 	};
 }
 
@@ -62,6 +69,9 @@ export function applyAgentResponseEventToTools(
 		case 'tool_call_start':
 			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
+				displayName: event.displayName,
+				serviceKind: event.serviceKind,
+				serviceId: event.serviceId,
 				state: 'input-streaming',
 				iteration: event.iteration,
 				inputText: '',
@@ -88,6 +98,9 @@ export function applyAgentResponseEventToTools(
 
 			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
+				displayName: event.displayName,
+				serviceKind: event.serviceKind,
+				serviceId: event.serviceId,
 				state: isError ? 'output-error' : 'output-available',
 				iteration: event.iteration,
 				input: event.input,

@@ -7,13 +7,14 @@ export interface AgentSkillUsage {
 	readonly id: string;
 	readonly version?: string;
 	readonly label: string;
+	readonly reason?: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function parseSkillKey(value: unknown): AgentSkillUsage | undefined {
+function parseSkillKey(value: unknown, reason?: string): AgentSkillUsage | undefined {
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();
 	if (!trimmed) return undefined;
@@ -21,9 +22,9 @@ function parseSkillKey(value: unknown): AgentSkillUsage | undefined {
 	if (atIndex > 0 && atIndex < trimmed.length - 1) {
 		const id = trimmed.slice(0, atIndex);
 		const version = trimmed.slice(atIndex + 1);
-		return { id, version, label: `${id}@${version}` };
+		return { id, version, label: `${id}@${version}`, reason };
 	}
-	return { id: trimmed, label: trimmed };
+	return { id: trimmed, label: trimmed, reason };
 }
 
 function parseJsonObject(value: string | undefined): Record<string, unknown> | undefined {
@@ -63,6 +64,25 @@ function addUsage(
 	}
 	seen.add(key);
 	items.push(usage);
+}
+
+export function agentSkillUsageFromName(
+	name: string,
+	reason?: string
+): AgentSkillUsage | undefined {
+	return parseSkillKey(name, reason);
+}
+
+export function mergeAgentSkillUsages(
+	first: readonly AgentSkillUsage[],
+	second: readonly AgentSkillUsage[]
+): AgentSkillUsage[] {
+	const items: AgentSkillUsage[] = [];
+	const seen = new Set<string>();
+	for (const usage of [...first, ...second]) {
+		addUsage(items, seen, usage);
+	}
+	return items;
 }
 
 function collectFromResultPayload(

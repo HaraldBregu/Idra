@@ -361,6 +361,8 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 			const pending = new Map<string, { name: string; argsStr: string }>();
 			let turnStop = 'end_turn';
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
+			let reasoningStarted = false;
+			const reasoningSummaryId = `${runId}:${iter}:reasoning`;
 
 			try {
 				const request = {
@@ -389,13 +391,17 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 								provider: event.provider ?? 'openai',
 								item: event.item,
 							});
-							streamEvent?.({
-								type: 'reasoning_summary',
-								id: `${runId}:${iter}:reasoning`,
-								title: 'Reasoning',
-								summary: 'The model produced provider reasoning metadata.',
-								state: 'running',
-							});
+							if (!reasoningStarted) {
+								reasoningStarted = true;
+								streamEvent?.({ type: 'run_state', state: 'reasoning', label: 'Reasoning' });
+								streamEvent?.({
+									type: 'reasoning_summary',
+									id: reasoningSummaryId,
+									title: 'Reasoning',
+									summary: 'The model is using reasoning for this turn.',
+									state: 'running',
+								});
+							}
 							break;
 						case 'text_delta':
 							firstTokenLatencyMs ??= Date.now() - runStart;
@@ -503,6 +509,16 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 				});
 				streamEvent?.({ type: 'run_finished', stopReason, outputChars: finalText.length });
 				throw err;
+			}
+
+			if (reasoningStarted) {
+				streamEvent?.({
+					type: 'reasoning_summary',
+					id: reasoningSummaryId,
+					title: 'Reasoning',
+					summary: 'Reasoning finished before the answer.',
+					state: 'completed',
+				});
 			}
 
 			completedIterations = iter + 1;

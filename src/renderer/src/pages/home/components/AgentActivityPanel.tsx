@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { Brain } from 'lucide-react';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { cn } from '@/lib/utils';
 import type { AgentMessage } from '../context';
@@ -15,6 +16,27 @@ function statusLabelContent(
 	}
 
 	return statusLabel;
+}
+
+function AgentReasoningSummaries({
+	message,
+}: {
+	readonly message: AgentMessage;
+}): ReactElement | null {
+	const summaries = message.reasoning ?? [];
+	if (summaries.length === 0) return null;
+	const latest = summaries[summaries.length - 1];
+	if (!latest) return null;
+
+	return (
+		<div className="flex max-w-2xl items-start gap-2 rounded-md border border-border/70 bg-muted/30 px-2 py-1.5 text-xs text-muted-foreground">
+			<Brain className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.8} />
+			<div className="min-w-0">
+				<div className="font-medium text-foreground">{latest.title}</div>
+				<div className="break-words leading-relaxed">{latest.summary}</div>
+			</div>
+		</div>
+	);
 }
 
 export function AgentActivityPanel({
@@ -49,6 +71,7 @@ export function AgentActivityPanel({
 					className="w-full"
 				/>
 			)}
+			<AgentReasoningSummaries message={message} />
 			{message.errorText && (
 				<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
 					{message.errorText}

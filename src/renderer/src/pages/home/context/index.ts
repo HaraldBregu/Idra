@@ -21,6 +21,8 @@ export {
 	updateAgentToolPart,
 } from './tool-parts';
 export {
+	agentSkillUsageFromName,
 	getAgentSkillUsages,
+	mergeAgentSkillUsages,
 	type AgentSkillUsage,
 } from './skill-usage';

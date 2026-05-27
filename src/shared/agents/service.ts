@@ -153,7 +153,18 @@ export interface Model {
 	effort?: ModelReasoningEffort;
 }
 
-export interface AgentSendRuntimeOptions {}
+export interface AgentSendRuntimeOptions {
+	readonly runId?: string;
+	readonly sessionId?: string;
+	/** @deprecated Use sessionId. */
+	readonly agentRuntime?: string;
+	readonly providerId?: string;
+	readonly model?: string;
+	readonly effort?: ModelReasoningEffort;
+	readonly lightContext?: boolean;
+	readonly toolsAllow?: readonly string[];
+	readonly toolsDeny?: readonly string[];
+}
 
 export const ASSISTANT_OPERATOR_ID = 'friday';
 export const ASSISTANT_RUNTIME_ID = 'main';

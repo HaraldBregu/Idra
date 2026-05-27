@@ -87,6 +87,7 @@ import type {
 	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
+import { isModelReasoningEffort } from '../shared/agents/service';
 import type {
 	Channel,
 	ChannelStatusEvent,
@@ -123,6 +124,50 @@ function assertHeartbeatObject<T>(request: T): T {
 	return request;
 }
 
+function optionalTrimmedString(value: unknown): string | undefined {
+	if (typeof value !== 'string') return undefined;
+	const trimmed = value.trim();
+	return trimmed || undefined;
+}
+
+function optionalStringList(value: unknown): string[] | undefined {
+	if (!Array.isArray(value)) return undefined;
+	const items = value
+		.map(optionalTrimmedString)
+		.filter((item): item is string => Boolean(item));
+	return items.length > 0 ? items : undefined;
+}
+
+function normalizeAgentSendRuntimeOptions(
+	options?: AgentSendRuntimeOptions
+): AgentSendRuntimeOptions | undefined {
+	if (!options) return undefined;
+	const normalized: AgentSendRuntimeOptions = {
+		...(optionalTrimmedString(options.runId) ? { runId: optionalTrimmedString(options.runId) } : {}),
+		...(optionalTrimmedString(options.sessionId)
+			? { sessionId: optionalTrimmedString(options.sessionId) }
+			: {}),
+		...(optionalTrimmedString(options.agentRuntime)
+			? { agentRuntime: optionalTrimmedString(options.agentRuntime) }
+			: {}),
+		...(optionalTrimmedString(options.providerId)
+			? { providerId: optionalTrimmedString(options.providerId) }
+			: {}),
+		...(optionalTrimmedString(options.model) ? { model: optionalTrimmedString(options.model) } : {}),
+		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
+		...(typeof options.lightContext === 'boolean'
+			? { lightContext: options.lightContext }
+			: {}),
+		...(optionalStringList(options.toolsAllow)
+			? { toolsAllow: optionalStringList(options.toolsAllow) }
+			: {}),
+		...(optionalStringList(options.toolsDeny)
+			? { toolsDeny: optionalStringList(options.toolsDeny) }
+			: {}),
+	};
+	return Object.keys(normalized).length > 0 ? normalized : undefined;
+}
+
 const win: WindowApi = {
 	minimize: (): void => {
 		typedSend(WindowChannels.minimize);
@@ -152,7 +197,10 @@ const win: WindowApi = {
 
 export const agent: AgentApi = {
 	send: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-		return typedInvokeUnwrap(AgentChannels.send, message, options);
+		const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
+		return runtimeOptions
+			? typedInvokeUnwrap(AgentChannels.send, message, runtimeOptions)
+			: typedInvokeUnwrap(AgentChannels.send, message);
 	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.reset);

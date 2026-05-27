@@ -1,6 +1,7 @@
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
+	ModelReasoningEffort,
 } from '../../../../../shared/agents/service';
 
 export type AgentChatAction =
@@ -10,6 +11,8 @@ export type AgentChatAction =
 			agentMessageId: string;
 			content: string;
 			submittedAtMs?: number;
+			reasoningEffort?: ModelReasoningEffort;
+			lightContext?: boolean;
 	  }
 	| { type: 'append_user_message'; messageId: string; content: string }
 	| { type: 'apply_response_event'; event: AgentResponseEvent; receivedAtMs: number }

@@ -3,7 +3,11 @@ import { Markdown } from '@/components/prompt-kit/markdown';
 import { Button } from '@/components/ui/button';
 import { Message } from '@/components/ui/message';
 import { cn } from '@/lib/utils';
-import { getAgentSkillUsages, type AgentMessage } from '../context';
+import {
+	getAgentSkillUsages,
+	mergeAgentSkillUsages,
+	type AgentMessage,
+} from '../context';
 import { AssistantMessageHeader } from './AssistantMessageHeader';
 import { AgentActivityPanel } from './AgentActivityPanel';
 import { AgentSkillUsage } from './AgentSkillUsage';
@@ -24,7 +28,10 @@ export function AgentTextMessage({
 	readonly collapseLongContent?: boolean;
 	readonly className?: string;
 }): ReactElement {
-	const skillUsages = getAgentSkillUsages(message.tools);
+	const skillUsages = mergeAgentSkillUsages(
+		message.selectedSkills ?? [],
+		getAgentSkillUsages(message.tools)
+	);
 	const canToggleContent =
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
