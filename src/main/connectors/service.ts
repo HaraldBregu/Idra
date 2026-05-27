@@ -56,6 +56,7 @@ interface ConnectorToolPersistenceStore {
 type ConnectorCatalogProvider =
 	| readonly ConnectorCatalogEntry[]
 	| (() => readonly ConnectorCatalogEntry[] | Promise<readonly ConnectorCatalogEntry[]>);
+type OAuthCallbackListenerFactory = (state: string, timeoutMs?: number) => Promise<OAuthCallbackListener>;
 
 interface ToolContext {
 	sessionId?: string;
@@ -88,6 +89,7 @@ interface ConnectorsServiceOptions {
 	openExternalUrl?: (url: string) => Promise<void>;
 	fetch?: typeof fetch;
 	oauthCallbackTimeoutMs?: number;
+	oauthCallbackListenerFactory?: OAuthCallbackListenerFactory;
 	env?: NodeJS.ProcessEnv;
 }
 
@@ -446,7 +448,10 @@ export class ConnectorsService {
 		const state = randomUUID();
 		const codeVerifier = createPkceCodeVerifier();
 		const codeChallenge = createPkceCodeChallenge(codeVerifier);
-		const callback = await createOAuthCallbackListener(state, this.options.oauthCallbackTimeoutMs);
+		const callback = await (this.options.oauthCallbackListenerFactory ?? createOAuthCallbackListener)(
+			state,
+			this.options.oauthCallbackTimeoutMs
+		);
 		const authorizationUrl = oauthAuthorizationUrl(
 			definition,
 			clientId.trim(),
