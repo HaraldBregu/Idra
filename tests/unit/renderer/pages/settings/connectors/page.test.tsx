@@ -70,7 +70,7 @@ function configuredConnector(): ConnectorConfig {
 		requireApproval: 'always',
 		allowedTools: ['search_emails'],
 		deferLoading: false,
-		tools: [{ name: 'search_emails', requiresApproval: true }],
+		tools: [{ name: 'search_emails', permission: 'needs-approval', requiresApproval: true }],
 		createdAt: '2026-05-22T00:00:00.000Z',
 		updatedAt: '2026-05-22T00:00:00.000Z',
 	};
@@ -208,7 +208,7 @@ describe('connector settings docs', () => {
 			serverLabel: 'my_dropbox',
 			authorization: '',
 			allowedTools: ['search'],
-			tools: [{ name: 'search', requiresApproval: false }],
+			tools: [{ name: 'search', permission: 'always-allow', requiresApproval: false }],
 		} satisfies ConnectorConfig;
 		installConnectorApi(connector);
 
@@ -243,7 +243,7 @@ describe('connector settings docs', () => {
 			serverLabel: 'dropbox',
 			authorization: '',
 			allowedTools: ['search'],
-			tools: [{ name: 'search', requiresApproval: false }],
+			tools: [{ name: 'search', permission: 'always-allow', requiresApproval: false }],
 		} satisfies ConnectorConfig;
 		installConnectorApi(connector);
 		(window.connectors.list as jest.Mock).mockResolvedValue([]);
