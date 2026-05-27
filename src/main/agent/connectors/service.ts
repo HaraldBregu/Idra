@@ -662,6 +662,9 @@ export class ConnectorsService {
 				message: missingSecretMessage(connector) ?? 'MCP connector configuration is incomplete.',
 			};
 		}
+		if (connector.oauth) {
+			return { status: 'configured', message: 'OAuth connector is configured with ' + connector.tools.length + ' predefined tools.' };
+		}
 		try {
 			const tools = await this.refreshTools(id);
 			return { status: 'configured', message: 'MCP server is reachable with ' + tools.length + ' tools.' };
