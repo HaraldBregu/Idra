@@ -1031,14 +1031,6 @@ function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[
 	return (mcp.envSecrets ?? []).map((secret) => secret.env);
 }
 
-function predefinedOAuthTools(connector: GoogleWorkspaceOAuthConnectorDefinition): ConnectorTool[] {
-	return connector.tools.map((name) => ({
-		name,
-		permission: DEFAULT_CONNECTOR_TOOL_PERMISSION,
-		requiresApproval: false,
-	}));
-}
-
 function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEntry {
 	assertConnectorId(entry.id);
 	return {
@@ -1059,41 +1051,25 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 		redirectUri: entry.redirectUri,
 		runtimeKind: entry.runtimeKind ?? 'mcp',
 		allowMultipleInstances: entry.allowMultipleInstances ?? true,
+		mcp: entry.mcp,
+		oauth: entry.oauth,
 	};
 }
 
-function mcpConfigForOAuthConnector(
-	connector: GoogleWorkspaceOAuthConnectorDefinition
-): ConnectorMcpConfig | undefined {
-	return connector.mcp
-		? {
-			transport: 'http',
-			url: connector.mcp.endpoint,
-			method: 'POST',
-			headers: {
-				accept: 'application/json, text/event-stream',
-				'content-type': 'application/json',
-			},
-		}
-		: undefined;
-}
-
-function googleOAuthAuthorizationUrl(
-	connector: GoogleWorkspaceOAuthConnectorDefinition,
+function oauthAuthorizationUrl(
+	connector: ConnectorCatalogEntry,
 	clientId: string,
 	state: string
 ): string {
+	if (!connector.oauth) throw new Error('OAuth connector is missing OAuth metadata: ' + connector.id);
 	const params = new URLSearchParams({
+		...connector.oauth.authorizationParams,
 		client_id: clientId,
-		redirect_uri: 'http://127.0.0.1',
-		response_type: 'code',
+		redirect_uri: connector.oauth.redirectUri,
 		scope: connector.scopes.join(' '),
-		access_type: 'offline',
-		include_granted_scopes: 'true',
-		prompt: 'consent',
 		state,
 	});
-	return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+	return `${connector.oauth.authorizationUrl}?${params.toString()}`;
 }
 
 function mergeCatalogEntries(entries: ConnectorCatalogEntry[]): ConnectorCatalogEntry[] {
