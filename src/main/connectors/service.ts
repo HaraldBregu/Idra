@@ -4,11 +4,19 @@ import type { AddressInfo } from 'node:net';
 import { shell } from 'electron';
 import Store from 'electron-store';
 import type { LoggerService } from '../logger';
-import type { JSONSchema, ToolResultBlock } from '../provider/types';
 import { resolveDefaultAppDataPath } from '../agent/storage';
-import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
+import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
+import {
+	AgentMcpClientService,
+	authorizationFromMcp,
+	connectorAuthKindFor,
+	connectorHasAuthorization,
+	connectorStatusFor,
+	type AgentMcpClientServicePort,
+	type ConnectorMcpClientFactory,
+	type McpConnectorStore,
+} from '../agent/mcp-client';
 import type {
-	ConnectorCallToolOptions,
 	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorInput,
@@ -18,17 +26,10 @@ import type {
 	ConnectorOAuthAuthorizeResult,
 	ConnectorOAuthCompleteInput,
 	ConnectorProviderId,
-	ConnectorStatus,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorToolPermission,
 } from '../../shared/connector';
-import {
-	createSdkConnectorMcpClient,
-	missingMcpSecretNames,
-	type ConnectorMcpClient,
-	type ConnectorMcpClientFactory,
-} from './mcp-client';
 
 const CONNECTOR_STORE_NAME = 'connectors';
 const CONNECTOR_STORE_KEY = 'connectors';
