@@ -21,7 +21,14 @@ export interface SystemPromptCtx {
 	};
 }
 
-const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> = {
+const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> & Record<string, string> = {
+	read: 'Read a file before editing or overwriting it.',
+	write: 'Create or overwrite files. Read existing files first.',
+	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
+	find: 'Glob-search the workspace for files.',
+	exec: 'Run commands only when this tool is available. Use `python3` for Python scripts.',
+	cron: 'Use this for later or repeating work. Before add/remove, make sure timing is clear. Do not use host schedulers such as crontab.',
+	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
 	read_file: 'Read a file before editing or overwriting it.',
 	write_file: 'Create or overwrite files. Read existing files first.',
 	edit_file: 'Surgical string-replacement edit. Provide enough context to make the old text unique.',
