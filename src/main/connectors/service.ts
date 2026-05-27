@@ -541,6 +541,7 @@ export class ConnectorsService {
 		const next: ConnectorConfig = {
 			...current,
 			authorization: oauthAuthorizationHeader(token),
+			lastError: undefined,
 			updatedAt: new Date().toISOString(),
 			oauth: {
 				...current.oauth,
