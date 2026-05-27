@@ -785,26 +785,45 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		task: string,
 		session: AgentHarnessSession,
 		memory: AgentHarnessMemoryRecord[],
-		context: Record<string, unknown>
+		context: Record<string, unknown>,
+		model: AgentHarnessModelDescriptor | undefined
 	): Promise<Required<AgentHarnessContextBuildResult>> {
-		const result = await this.config.context?.build({ task, session, memory, context });
+		const contextReserve = this.config.runtime?.contextReserveTokens ?? 1_500;
+		const budgetTokens = model?.contextWindowTokens
+			? Math.max(1_000, model.contextWindowTokens - contextReserve)
+			: this.config.runtime?.maxInputTokens;
+		const result = await this.config.context?.build({ task, session, memory, context, model, budgetTokens });
 		return {
 			systemPromptAdditions: result?.systemPromptAdditions ?? [],
 			messages: result?.messages ?? [],
 			metadata: result?.metadata ?? {},
+			trace: result?.trace ?? {
+				budgetTokens: budgetTokens ?? 0,
+				estimatedTokens: 0,
+				included: ['default'],
+				dropped: [],
+				summarized: [],
+			},
 		};
 	}
 
 	private async resolveTools(
 		task: string,
 		session: AgentHarnessSession,
-		context: Record<string, unknown>
+		context: Record<string, unknown>,
+		input?: Pick<AgentHarnessExecuteInput, 'enabledTools' | 'disabledTools' | 'toolGroups'>
 	): Promise<AgentHarnessTool[]> {
-		return [
-			...(this.config.tools ?? []),
+		const tools = [
+			...this.toolRegistry.list(),
 			...[...this.loadedSkills.values()].flatMap((skill) => skill.tools ?? []),
 			...(await this.discoverExternalTools(task, session, context)),
 		];
+		return filterToolsByPermissions(tools, {
+			permissions: this.config.permissions,
+			enabledTools: input?.enabledTools,
+			disabledTools: input?.disabledTools,
+			toolGroups: input?.toolGroups,
+		});
 	}
 
 	private async discoverExternalTools(
@@ -819,15 +838,23 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 	}
 
 	private async ensureSkills(
+		task: string,
 		names: string[],
 		session: AgentHarnessSession,
 		context: Record<string, unknown>
 	): Promise<void> {
 		if (!this.config.skills) return;
-		for (const name of names) {
+		const candidates = await this.config.skills.list?.({ session, context }) ?? [];
+		const selected = await this.config.skills.select?.({ task, session, context, candidates }) ?? [];
+		const allowed = this.config.permissions?.allowSkills ? new Set(this.config.permissions.allowSkills) : undefined;
+		const denied = new Set(this.config.permissions?.denySkills ?? []);
+		for (const name of [...new Set([...names, ...selected])]) {
+			if (allowed && !allowed.has(name)) continue;
+			if (denied.has(name)) continue;
 			if (this.loadedSkills.has(name)) continue;
 			const skill = await this.config.skills.load(name, { session, context });
 			this.loadedSkills.set(skill.name, skill);
+			this.emit({ type: 'skill.loaded', name: skill.name });
 		}
 	}
 
