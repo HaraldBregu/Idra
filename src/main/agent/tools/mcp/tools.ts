@@ -204,7 +204,11 @@ export const loadMcpPromptTool: AgentTool<{
 };
 
 function mcpConnectors(ctx: { services: unknown }): McpConnectors | undefined {
-	const connectors = (ctx.services as { connectors?: Partial<McpConnectors> }).connectors;
+	const services = ctx.services as {
+		mcpClient?: Partial<McpConnectors>;
+		connectors?: Partial<McpConnectors>;
+	};
+	const connectors = services.mcpClient ?? services.connectors;
 	if (!connectors) return undefined;
 	if (
 		typeof connectors.list !== 'function' ||
@@ -227,7 +231,7 @@ function jsonText(value: unknown) {
 }
 
 function missing(toolName: string) {
-	return textResult(`${toolName}: ConnectorsService is unavailable.`, true);
+	return textResult(`${toolName}: MCP client service is unavailable.`, true);
 }
 
 function emptySchema() {
