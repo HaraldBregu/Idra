@@ -1020,19 +1020,23 @@ function isStoredConnectorValid(connector: ConnectorConfig, storageKey?: string)
 	);
 }
 
-function normalizeStoredConnector(connector: ConnectorConfig, storageKey?: string): ConnectorConfig {
-	const name = connector.name ?? titleFromStorageKey(storageKey) ?? 'MCP Connector';
-	const connectorId = connector.connectorId ?? storageKey ?? serverLabelFromName(name);
+function normalizeStoredConnector(connector: ConnectorConfig, storageKey?: string): RuntimeConnector {
+	const metadata = connectorMetadataFromStorage(connector, storageKey);
+	const name = connector.name ?? metadata?.name ?? titleFromStorageKey(storageKey) ?? 'MCP Connector';
+	const connectorId = connector.connectorId ?? metadata?.connectorId ?? storageKey ?? serverLabelFromName(name);
+	const serverLabel = connector.serverLabel ?? storageKey ?? serverLabelFromName(name);
 	const createdAt = typeof connector.createdAt === 'string' ? connector.createdAt : '';
 	const updatedAt = typeof connector.updatedAt === 'string' ? connector.updatedAt : createdAt;
 	return {
 		...connector,
-		id: typeof connector.id === 'string' ? connector.id : connectorId,
-			name,
-			connectorId,
-			serverLabel: typeof connector.serverLabel === 'string' ? connector.serverLabel : serverLabelFromName(name),
-			authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
-			enabled: typeof connector.enabled === 'boolean' ? connector.enabled : true,
+		id: typeof connector.id === 'string' ? connector.id : metadata?.id ?? storageKey ?? connectorId,
+		name,
+		connectorId,
+		serverLabel,
+		authorization: typeof connector.authorization === 'string'
+			? connector.authorization
+			: authorizationFromMcp(connector.mcp),
+		enabled: typeof connector.enabled === 'boolean' ? connector.enabled : true,
 		requireApproval: connector.requireApproval ?? 'always',
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
 		deferLoading: typeof connector.deferLoading === 'boolean' ? connector.deferLoading : false,
@@ -1044,7 +1048,7 @@ function normalizeStoredConnector(connector: ConnectorConfig, storageKey?: strin
 	};
 }
 
-function toStoredConnectorRecords(connectors: readonly ConnectorConfig[]): Record<string, ConnectorConfig> {
+function toStoredConnectorRecords(connectors: readonly RuntimeConnector[]): Record<string, ConnectorConfig> {
 	const records: Record<string, ConnectorConfig> = {};
 	for (const connector of connectors) {
 		const normalized = normalizeStoredConnector(connector);
@@ -1055,13 +1059,32 @@ function toStoredConnectorRecords(connectors: readonly ConnectorConfig[]): Recor
 			key = baseKey + '_' + suffix;
 			suffix += 1;
 		}
-		records[key] = normalized;
+		records[key] = toStoredConnectorRecord(normalized);
 	}
 	return records;
 }
 
 function connectorStorageKey(connector: ConnectorConfig): string {
-	return sanitizeConnectorStorageKey(connector.serverLabel || connector.connectorId || connector.id);
+	return sanitizeConnectorStorageKey(connector.serverLabel ?? connector.connectorId ?? connector.id ?? connector.name ?? 'connector');
+}
+
+function uniqueConnectorStorageKey(value: string, connectors: readonly RuntimeConnector[]): string {
+	const existing = new Set(connectors.map((connector) => connectorStorageKey(connector)));
+	const baseKey = sanitizeConnectorStorageKey(value);
+	let key = baseKey;
+	let suffix = 2;
+	while (existing.has(key)) {
+		key = baseKey + '_' + suffix;
+		suffix += 1;
+	}
+	return key;
+}
+
+function toStoredConnectorRecord(connector: RuntimeConnector): ConnectorConfig {
+	return {
+		...(connector.mcp ? { mcp: mcpWithConnectorAuthorization(connector) } : {}),
+		tools: connector.tools,
+	};
 }
 
 function sanitizeConnectorStorageKey(value: string): string {
