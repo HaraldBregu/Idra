@@ -130,7 +130,7 @@ function hasNoToolIntent(message: string): boolean {
 }
 
 function isToolInventoryQuestion(message: string): boolean {
-	return /\b(what tools do you have|available tools|list tools|tool inventory)\b/i.test(message);
+	return /\b(what tools do you have|do you have (?:any )?(?:internal )?tools|available tools|list tools|tool inventory)\b/i.test(message);
 }
 
 function isImmediateBackgroundTask(message: string): boolean {
