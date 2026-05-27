@@ -145,6 +145,7 @@ export class StoreIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
+		const agentSettings = container.get('agentSettings');
 		const connectors = container.get('connectors');
 		const logger = container.get('logger');
 		const powerSaveBlocker = container.get('powerSaveBlocker');
@@ -256,8 +257,8 @@ export class StoreIpc implements IpcModule {
 
 		ipcMain.handle(
 			StoreChannels.getAgentRoutingSettings,
-			wrapSimpleHandler((): ReturnType<typeof store.getAgentRoutingSettings> => {
-				return store.getAgentRoutingSettings();
+			wrapSimpleHandler((): ReturnType<typeof agentSettings.getAgentRoutingSettings> => {
+				return agentSettings.getAgentRoutingSettings();
 			}, StoreChannels.getAgentRoutingSettings)
 		);
 
