@@ -476,6 +476,7 @@
 			"modeDescription": "Abilita strumenti e opzioni avanzate per sviluppatori"
 		},
 		"connectors": {
+			"description": "Configura connettori MCP come strumenti per i tuoi agenti.",
 			"detailsTitle": "Dettagli Connettore",
 			"setup": "Configurazione",
 			"notFoundTitle": "Connettore non trovato",
