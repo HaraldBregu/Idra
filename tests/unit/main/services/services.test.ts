@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app } from 'electron';
-import { ConnectorsService } from '../../../../src/main/agent/connectors';
+import { ConnectorsService } from '../../../../src/main/connectors';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { WorkspaceService } from '../../../../src/main/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent';
@@ -22,23 +22,6 @@ function connectorStoreFor(
 	};
 }
 
-function connectorToolStoreFor(
-	read: () => Record<string, unknown>,
-	write: (tools: Record<string, unknown>) => void
-): { get: jest.Mock; set: jest.Mock; delete: jest.Mock } {
-	return {
-		get: jest.fn((key: string) => (key === 'tools' ? read() : undefined)),
-		set: jest.fn((key: string, value: unknown) => {
-			if (key === 'tools' && value && typeof value === 'object' && !Array.isArray(value)) {
-				write(value as Record<string, unknown>);
-			}
-		}),
-		delete: jest.fn((key: string) => {
-			if (key === 'tools') write({});
-		}),
-	};
-}
-
 describe('connectors service', () => {
 	function fakeMcpClient() {
 		return {
@@ -47,12 +30,14 @@ describe('connectors service', () => {
 					name: 'search',
 					description: 'Search remotely discovered data.',
 					inputSchema: { type: 'object', properties: { query: { type: 'string' } } },
+					permission: 'always-allow',
 					requiresApproval: false,
 				},
 				{
 					name: 'write_note',
 					description: 'Write a note.',
 					inputSchema: { type: 'object', properties: { text: { type: 'string' } } },
+					permission: 'always-allow',
 					requiresApproval: false,
 				},
 			]),
@@ -69,17 +54,9 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
-		let connectorTools: Record<string, unknown> = {};
-		const toolStore = connectorToolStoreFor(
-			() => connectorTools,
-			(next) => {
-				connectorTools = next;
-			}
-		);
 		const client = fakeMcpClient();
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
-			toolStore: toolStore as never,
 			mcpClientFactory: jest.fn(() => client),
 		});
 		const added = await service.add({
@@ -101,7 +78,7 @@ describe('connectors service', () => {
 		expect(service.list()[0]).toMatchObject({
 			name: 'Remote Gmail',
 			status: 'configured',
-			toolsCount: 1,
+			toolsCount: 2,
 			authKind: 'mcp_env',
 		});
 		expect(await service.test(added.id)).toMatchObject({ status: 'configured' });
@@ -124,16 +101,8 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
-		let connectorTools: Record<string, unknown> = {};
-		const toolStore = connectorToolStoreFor(
-			() => connectorTools,
-			(next) => {
-				connectorTools = next;
-			}
-		);
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
-			toolStore: toolStore as never,
 			mcpClientFactory: jest.fn(() => fakeMcpClient()),
 		});
 
@@ -161,16 +130,8 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
-		let connectorTools: Record<string, unknown> = {};
-		const toolStore = connectorToolStoreFor(
-			() => connectorTools,
-			(next) => {
-				connectorTools = next;
-			}
-		);
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
-			toolStore: toolStore as never,
 		});
 
 		await expect(service.add(undefined)).rejects.toThrow(/Connector configuration is required/);
@@ -202,17 +163,9 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
-		let connectorTools: Record<string, unknown> = {};
-		const toolStore = connectorToolStoreFor(
-			() => connectorTools,
-			(next) => {
-				connectorTools = next;
-			}
-		);
 		const client = fakeMcpClient();
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
-			toolStore: toolStore as never,
 			mcpClientFactory: jest.fn(() => client),
 		});
 		const added = await service.add({
