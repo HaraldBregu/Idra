@@ -109,12 +109,12 @@ const ConnectorsPage = () => {
 										{connector.tools.length > 0 && (
 											<div className="mt-1.5 flex flex-wrap gap-1">
 												{connector.tools.map((capability) => (
-												<span
-													key={capability}
-													className="rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] text-muted-foreground"
-												>
-													{capability}
-												</span>
+													<span
+														key={capability}
+														className="rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] text-muted-foreground"
+													>
+														{capability}
+													</span>
 												))}
 											</div>
 										)}
@@ -125,7 +125,7 @@ const ConnectorsPage = () => {
 									size="sm"
 									disabled={oauthBusyId === connector.id}
 									className="w-full sm:w-auto"
-									aria-label={`Authorize ${connector.name} with Google OAuth`}
+									aria-label={`Authorize ${connector.name} with OAuth`}
 									onClick={() => void authorizeOAuthConnector(connector)}
 								>
 									<ExternalLink className="size-3.5" />
