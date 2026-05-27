@@ -606,85 +606,36 @@ export class ConnectorsService implements McpConnectorStore {
 	}
 
 	async test(id: string): Promise<ConnectorTestResult> {
-		const connector = this.getStored(id);
-		const status = statusFor(connector);
-		if (status === 'disabled') return { status, message: 'Connector is disabled.' };
-		if (status === 'missing_auth') {
-			return {
-				status,
-				message: missingSecretMessage(connector) ?? 'MCP connector configuration is incomplete.',
-			};
-		}
-		if (connector.oauth) {
-			return { status: 'configured', message: 'OAuth connector is configured with ' + connector.tools.length + ' tools.' };
-		}
-		try {
-			const tools = await this.refreshTools(id);
-			return { status: 'configured', message: 'MCP server is reachable with ' + tools.length + ' tools.' };
-		} catch (error) {
-			return { status: 'error', message: this.errorMessage(error) };
-		}
+		return this.mcpClient.test(id);
 	}
 
 	async reconnect(id: string): Promise<ConnectorTestResult> {
-		return this.test(id);
+		return this.mcpClient.reconnect(id);
 	}
 
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
-		const connector = this.getStored(id);
-		if (connector.oauth || isOAuthMcpConfig(connector.mcp)) {
-			const next = await this.withOAuthTools(connector);
-			this.replace(next);
-			return next.tools;
-		}
-		const missing = missingMcpSecretNames(connector);
-		if (missing.length > 0) throw new Error('Missing MCP secret environment variable: ' + missing.join(', '));
-			const next = await this.withDiscoveredTools(
-				connector,
-				connector.oauth ? DEFAULT_CONNECTOR_TOOL_PERMISSION : undefined
-			);
-		this.replace(next);
-		return next.tools;
+		return this.mcpClient.refreshTools(id);
 	}
 
 	listTools(id: string): ConnectorTool[] {
-		const connector = this.getStored(id);
-		return connector.tools;
+		return this.mcpClient.listTools(id);
 	}
 
 	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
-		const connectorId = readRequiredString(id, 'Connector id');
-		const toolName = readRequiredString(name, 'Connector tool name');
-		const callOptions = readConnectorCallToolOptions(options);
-		const nextArgs = readConnectorToolArguments(args);
-		const connector = this.getStored(connectorId);
-		const tool = connector.tools.find((item) => item.name === toolName);
-		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
-		if (!tool) {
-			throw new Error('Tool ' + toolName + ' is not enabled for ' + connector.name + '.');
-		}
-		if (tool.permission === 'blocked') throw new Error('Tool ' + toolName + ' is blocked for ' + connector.name + '.');
-		return this.clientFor(connector).callTool(toolName, nextArgs, callOptions);
+		return this.mcpClient.callTool(id, name, args, options);
 	}
 
 	async listResources(id: unknown, options?: unknown): Promise<unknown> {
-		const connector = this.requireConfiguredConnector(id);
-		return this.clientFor(connector).listResources(readConnectorCallToolOptions(options));
+		return this.mcpClient.listResources(id, options);
 	}
 
 	async readResource(id: unknown, uri: unknown, options?: unknown): Promise<unknown> {
-		const connector = this.requireConfiguredConnector(id);
-		const resourceUri = readRequiredString(uri, 'MCP resource URI');
-		return this.clientFor(connector).readResource(
-			resourceUri,
-			readConnectorCallToolOptions(options)
-		);
+		return this.mcpClient.readResource(id, uri, options);
 	}
 
 	async listPrompts(id: unknown, options?: unknown): Promise<unknown> {
-		const connector = this.requireConfiguredConnector(id);
-		return this.clientFor(connector).listPrompts(readConnectorCallToolOptions(options));
+		return this.mcpClient.listPrompts(id, options);
 	}
 
 	async getPrompt(
@@ -693,109 +644,15 @@ export class ConnectorsService implements McpConnectorStore {
 		args?: unknown,
 		options?: unknown
 	): Promise<unknown> {
-		const connector = this.requireConfiguredConnector(id);
-		const promptName = readRequiredString(name, 'MCP prompt name');
-		return this.clientFor(connector).getPrompt(
-			promptName,
-			readConnectorToolArguments(args),
-			readConnectorCallToolOptions(options)
-		);
+		return this.mcpClient.getPrompt(id, name, args, options);
 	}
 
-	createAgentTools(): AgentTool[] {
-		return this.validConnectors()
-			.filter((connector) => connector.enabled && statusFor(connector) === 'configured')
-			.flatMap((connector) =>
-				connector.tools.filter((tool) => tool.permission !== 'blocked').map((tool) => {
-					const rawToolName = tool.name;
-					return {
-						name: agentToolNameFor(connector, rawToolName),
-						displayName: connector.name + ': ' + rawToolName,
-						description: connector.name + ': ' + (tool.description ?? 'Run ' + rawToolName + '.'),
-						schema: schemaForTool(tool),
-						serviceKind: 'connector',
-						serviceId: connector.id,
-						needsApproval: tool.permission === 'needs-approval' ? () => true : false,
-						execute: async (toolArgs: unknown) => {
-							try {
-								const payload = await this.callTool(connector.id, rawToolName, toolArgs);
-								return textResult(JSON.stringify(payload, null, 2));
-							} catch (error) {
-								return textResult(error instanceof Error ? error.message : String(error), true);
-							}
-						},
-					} satisfies AgentTool;
-				})
-			);
+	createAgentTools() {
+		return this.mcpClient.createAgentTools();
 	}
 
 	async close(): Promise<void> {
-		await Promise.all([...this.clients.keys()].map((id) => this.closeClient(id)));
-	}
-
-	private async refreshConnectorToolsIfConfigured(connector: RuntimeConnector): Promise<RuntimeConnector> {
-		if (connector.oauth) {
-			return this.withOAuthTools(connector);
-		}
-		if (!connector.mcp) {
-			return connector;
-		}
-		if (!connector.enabled || missingMcpSecretNames(connector).length > 0) {
-			return connector;
-		}
-		try {
-			return await this.withDiscoveredTools(connector);
-		} catch (error) {
-			return { ...connector, tools: [], lastError: this.errorMessage(error) };
-		}
-	}
-
-	private async withOAuthTools(connector: RuntimeConnector): Promise<RuntimeConnector> {
-		if (!connector.mcp) return connector;
-		try {
-			return await this.withDiscoveredTools(connector, DEFAULT_CONNECTOR_TOOL_PERMISSION);
-		} catch (error) {
-			return { ...connector, lastError: this.errorMessage(error) };
-		}
-	}
-
-	private async withDiscoveredTools(
-		connector: RuntimeConnector,
-		defaultPermission?: ConnectorToolPermission
-	): Promise<RuntimeConnector> {
-		const tools = this.applyToolPolicy(connector, await this.clientFor(connector).listTools(), defaultPermission);
-		return {
-			...connector,
-			tools,
-			lastRefreshedAt: new Date().toISOString(),
-			lastError: undefined,
-		};
-	}
-
-	private applyToolPolicy(
-		connector: RuntimeConnector,
-		tools: readonly ConnectorTool[],
-		defaultPermission?: ConnectorToolPermission
-	): ConnectorTool[] {
-		return tools.map((tool) => {
-			const permission = defaultPermission ?? permissionForTool(connector, tool.name);
-			return { ...normalizeConnectorTool(tool, permission), permission, requiresApproval: permission === 'needs-approval' };
-		});
-	}
-
-	private clientFor(connector: RuntimeConnector): ConnectorMcpClient {
-		const existing = this.clients.get(connector.id);
-		if (existing) return existing;
-		const client = this.options.mcpClientFactory?.(connector) ?? createSdkConnectorMcpClient(connector);
-		this.clients.set(connector.id, client);
-		return client;
-	}
-
-	private requireConfiguredConnector(id: unknown): RuntimeConnector {
-		const connectorId = readRequiredString(id, 'Connector id');
-		const connector = this.getStored(connectorId);
-		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
-		return connector;
+		await this.mcpClient.close();
 	}
 
 	private getStored(id: string): RuntimeConnector {
