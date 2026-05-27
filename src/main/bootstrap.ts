@@ -28,7 +28,7 @@ import { TasksService } from './tasks';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './agent/tools';
-import { SkillsService } from './agent/skills';
+import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
 import { AgentRunLogger } from './run-logger';
 import { DEFAULT_AGENT_ID } from './constants';
