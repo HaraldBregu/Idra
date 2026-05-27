@@ -167,6 +167,9 @@ function googleWorkspaceOAuthConnector(connectorId: string): GoogleWorkspaceOAut
 				'https://www.googleapis.com/auth/drive.readonly',
 				'https://www.googleapis.com/auth/drive.file',
 			],
+			mcp: {
+				endpoint: 'https://drivemcp.googleapis.com/mcp/v1',
+			},
 		};
 	}
 	return undefined;
@@ -453,7 +456,7 @@ function assertEnvName(value: string, label: string): void {
 
 export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
-	private readonly toolStore: ConnectorToolPersistenceStore;
+	private readonly toolStore?: ConnectorToolPersistenceStore;
 	private readonly clients = new Map<string, ConnectorMcpClient>();
 
 	constructor(
@@ -464,14 +467,10 @@ export class ConnectorsService {
 			options.store ??
 			(new Store<Record<string, ConnectorConfig[]>>({
 				name: CONNECTOR_STORE_NAME,
+				cwd: resolveDefaultAppDataPath(),
 				accessPropertiesByDotNotation: false,
 			}) as ConnectorPersistenceStore);
-		this.toolStore =
-			options.toolStore ??
-			(new Store<Record<string, Record<string, ConnectorTool[]>>>({
-				name: CONNECTOR_TOOLS_STORE_NAME,
-				accessPropertiesByDotNotation: false,
-			}) as ConnectorToolPersistenceStore);
+		this.toolStore = options.toolStore;
 	}
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
