@@ -172,6 +172,10 @@ export type ToolPolicyIndex = {
 	ownerGroups: Map<string, string[]>;
 };
 
+function toolNamesForSharedGroup(group: AgentToolGroupName): readonly string[] {
+	return AGENT_TOOL_GROUPS[group].map((tool) => tool.name);
+}
+
 export function evaluateToolPolicy(
 	subjects: readonly ToolPolicySubject[],
 	context: ToolPolicyEvaluationContext = {}
