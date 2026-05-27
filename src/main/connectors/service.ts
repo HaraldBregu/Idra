@@ -402,7 +402,7 @@ export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
 	private readonly toolStore?: ConnectorToolPersistenceStore;
 	private readonly clients = new Map<string, ConnectorMcpClient>();
-	private readonly pendingOAuthConnectors = new Map<string, ConnectorConfig>();
+	private readonly pendingOAuthConnectors = new Map<string, RuntimeConnector>();
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -429,7 +429,7 @@ export class ConnectorsService {
 		]);
 	}
 
-	list(): ConnectorView[] {
+	list(): ConnectorConfig[] {
 		return this.validConnectors().map(toView);
 	}
 
@@ -471,14 +471,14 @@ export class ConnectorsService {
 		const existing = this.validConnectors().find((connector) => connector.connectorId === definition.id);
 		const requireApproval = existing?.requireApproval ?? 'always';
 		const allowedTools = existing?.allowedTools ?? [];
-		const connector: ConnectorConfig = {
+		const connector: RuntimeConnector = {
 			id: existing?.id ?? definition.id,
 			name: existing?.name ?? definition.name,
 			connectorId: definition.id,
 			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
 			serverDescription: existing?.serverDescription,
 			enabled: true,
-			authorization: existing?.authorization || oauthAuthorizationHeader(existing?.oauth?.token),
+			authorization: existing?.authorization || oauthAuthorizationHeader(existing?.oauth?.token) || authorizationFromMcp(existing?.mcp),
 			requireApproval,
 			allowedTools,
 			deferLoading: existing?.deferLoading ?? false,
@@ -551,7 +551,7 @@ export class ConnectorsService {
 				? new Date(Date.now() + expiresIn * 1000).toISOString()
 				: undefined,
 		};
-		const next: ConnectorConfig = {
+		const next: RuntimeConnector = {
 			...current,
 			authorization: oauthAuthorizationHeader(token),
 			lastError: undefined,
@@ -574,11 +574,15 @@ export class ConnectorsService {
 	async add(input: unknown): Promise<ConnectorConfig> {
 		const sanitized = this.validateConnectorInput('add', () => sanitizeInput(input));
 		const now = new Date().toISOString();
-		const connector: ConnectorConfig = {
-			id: randomUUID(),
+		const serverLabel = uniqueConnectorStorageKey(
+			sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
+			this.validConnectors()
+		);
+		const connector: RuntimeConnector = {
+			id: serverLabel,
 			name: sanitized.name,
 			connectorId: sanitized.connectorId,
-			serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
+			serverLabel,
 			serverDescription: sanitized.serverDescription,
 			authorization: '',
 			requireApproval: sanitized.requireApproval ?? 'always',
