@@ -130,7 +130,7 @@ export class AgentIpc implements IpcModule {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
 		const workspace = container.get('workspace');
-		const userDataDirectory = container.get('userDataDirectory');
+		const agentDataDirectory = container.get('agentDataDirectory');
 		const listStartupFiles = (): ReturnType<typeof workspace.listWorkspaceFiles> => {
 			return workspace.listWorkspaceFiles();
 		};
@@ -170,7 +170,7 @@ export class AgentIpc implements IpcModule {
 		ipcMain.handle(
 			AgentChannels.openHistoryFolder,
 			wrapSimpleHandler(async (): Promise<void> => {
-				const target = userDataDirectory.resolve('agent', 'sessions');
+				const target = agentDataDirectory.resolve('sessions');
 				await fs.mkdir(target, { recursive: true, mode: 0o700 });
 				if (process.platform !== 'win32') {
 					await fs.chmod(target, 0o700).catch(() => undefined);
