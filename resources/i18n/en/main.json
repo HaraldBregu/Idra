@@ -514,6 +514,7 @@
 			}
 		},
 		"cron": {
+			"description": "Schedule and manage recurring agent tasks with cron expressions.",
 			"columns": {
 				"id": "Id",
 				"message": "Message",
