@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { Permission } from '../../../../shared/policy';
 import type { ToolContext } from '../core/types';
-import { filePolicyAllows, hasFilePolicy } from './policy';
+import { hasFilePolicy } from './policy';
 
 export function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
@@ -12,6 +12,16 @@ export function expandUser(p: string): string {
 export function isInsidePath(root: string, target: string): boolean {
 	const relative = path.relative(path.resolve(root), path.resolve(target));
 	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+export function fridayToolRoot(ctx: ToolContext): string {
+	try {
+		const root = ctx.services.userDataDirectory.getRootPath();
+		if (root.trim()) return path.resolve(root);
+	} catch {
+		/* fall back to workspace */
+	}
+	return path.resolve(ctx.workspace);
 }
 
 export function resolveAbs(workspace: string, target: string): string {
@@ -28,6 +38,7 @@ export function checkFsRestriction(
 	isWrite: boolean
 ): string | null {
 	if (isInsidePath(ctx.workspace, abs)) return null;
+	if (isInsidePath(fridayToolRoot(ctx), abs)) return null;
 	if (ctx.fsPolicy?.workspaceOnly) return `${toolName}: path is outside the workspace.`;
 	if (!isWrite) return null;
 	if (ctx.fsPolicy?.writeWorkspaceOnly) return `${toolName}: path is outside the workspace.`;
@@ -42,10 +53,7 @@ export function outsidePathNeedsApproval(
 	mode: 'all' | 'any' = 'all'
 ): boolean {
 	const abs = resolveAbs(ctx.workspace, target);
-	if (isInsidePath(ctx.workspace, abs)) return false;
-	const allowed =
-		mode === 'all'
-			? permissions.every((permission) => filePolicyAllows(ctx, abs, permission))
-			: permissions.some((permission) => filePolicyAllows(ctx, abs, permission));
-	return !allowed;
+	void permissions;
+	void mode;
+	return !isInsidePath(fridayToolRoot(ctx), abs);
 }
