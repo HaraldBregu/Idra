@@ -188,8 +188,6 @@ async function postHttpMcpJsonRpc(
 			const message = typeof error?.message === 'string' ? error.message : 'MCP tools/list failed.';
 			throw new Error(message);
 		}
-
-
 		return payload;
 	} finally {
 		if (timeout) clearTimeout(timeout);
