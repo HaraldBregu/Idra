@@ -998,7 +998,10 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 	}
 
 	private async log(entry: Parameters<AgentHarnessToolContext['log']>[0]): Promise<void> {
-		await this.logs.append(entry);
+		await this.logs.append({
+			...entry,
+			data: entry.data ? this.redact(entry.data) as Record<string, unknown> : undefined,
+		});
 	}
 
 	private async runHooks(name: AgentHarnessHookName, payload: unknown): Promise<void> {
@@ -1013,5 +1016,9 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const abort = (): void => controller.abort();
 		signal.addEventListener('abort', abort, { once: true });
 		return () => signal.removeEventListener('abort', abort);
+	}
+
+	private redact(value: unknown): unknown {
+		return this.redactor.redact(value);
 	}
 }
