@@ -77,7 +77,6 @@ export function bootstrapServices(): BootstrapResult {
 	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
 	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
-	const skills = container.register('skills', new SkillsService(logger));
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
 	void userDataDirectory.ensureRoot().catch((error) => {
@@ -88,6 +87,11 @@ export function bootstrapServices(): BootstrapResult {
 	void agentDataDirectory.ensureRoot().catch((error) => {
 		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
 	});
+
+	const skills = container.register(
+		'skills',
+		new SkillsService(logger, { rootPath: agentDataDirectory.resolve('skills') })
+	);
 
 	const workspace = container.register(
 		'workspace',
