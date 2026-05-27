@@ -1,7 +1,7 @@
 import type { LoggerService } from '../../logger';
-import type { ConnectorsService } from '../../connectors';
-import type { SkillsService } from '../../skills';
-import type { AgentTool } from '../../tools';
+import type { ConnectorsService } from '../connectors';
+import type { SkillsService } from '../skills';
+import type { AgentTool } from '../tools';
 import type { SkillDetails, SkillInfo } from '../../../shared/skills';
 import type {
 	AgentCapabilityBundle,

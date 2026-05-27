@@ -1,5 +1,5 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../../tools';
-import { textResult } from '../../tools';
+import type { AgentTool, AgentToolResult, ToolContext } from '../tools';
+import { textResult } from '../tools';
 import { DEFAULT_AGENT_ID } from '../../constants';
 import type { SubagentSpawnPort } from './spawn-service';
 import type { SessionsSpawnResult } from './types';
