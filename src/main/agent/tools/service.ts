@@ -237,6 +237,14 @@ export class ToolService implements ToolServicePort {
 			provider: input.provider,
 			modelId: input.modelId,
 		});
+		if (input.management?.enabled === false) {
+			return {
+				toolsForPrompt: providerTools,
+				systemPromptSuffix: '',
+				rankedTools: providerTools,
+				management,
+			};
+		}
 		const selection = this.selectToolsForTurn(providerTools, input.userMessage, input.ctx, management);
 		if (selection.toolsForPrompt.length > 0 || providerTools.length !== 1) {
 			return {

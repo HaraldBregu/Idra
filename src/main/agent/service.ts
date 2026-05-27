@@ -19,6 +19,7 @@ import {
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
 } from '../workspace';
+import { assertWorkspaceFileName, type WorkspaceFileName } from '../workspace/files';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
@@ -47,6 +48,10 @@ import {
 } from './session/store';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logger';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
+import {
+	AgentStartupFilesService,
+	type AgentStartupFilesServicePort,
+} from './startup-files';
 import type { AgentSettingsStorePort } from './settings';
 import {
 	type AgentRunState,
@@ -96,6 +101,7 @@ export interface AgentServiceDependencies {
 	toolService?: ToolServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
+	startupFiles?: AgentStartupFilesServicePort;
 }
 
 export interface AgentToolsFactoryContext {
@@ -212,6 +218,32 @@ function recordPhase<T>(durations: Record<string, number>, name: string, work: (
 	}
 }
 
+function startupToolText(text: string, isError = false): ReturnType<AgentTool['execute']> {
+	return Promise.resolve({
+		status: isError ? 'error' : 'ok',
+		content: [{ type: 'text', text }],
+	});
+}
+
+function requireStartupFileName(value: unknown): WorkspaceFileName {
+	if (typeof value !== 'string') throw new Error('name is required.');
+	assertWorkspaceFileName(value);
+	return value;
+}
+
+function startupFileWrites(args: Record<string, unknown>): Array<[WorkspaceFileName, string]> {
+	if (args.files && typeof args.files === 'object' && !Array.isArray(args.files)) {
+		return Object.entries(args.files).map(([name, content]) => {
+			assertWorkspaceFileName(name);
+			if (typeof content !== 'string') throw new Error(`${name} content must be a string.`);
+			return [name, content];
+		});
+	}
+	const name = requireStartupFileName(args.name);
+	if (typeof args.content !== 'string') throw new Error('content is required.');
+	return [[name, args.content]];
+}
+
 async function recordAsyncPhase<T>(
 	durations: Record<string, number>,
 	name: string,
@@ -240,7 +272,7 @@ export class AgentService {
 	private heartbeatStore: HeartbeatFileStore | null = null;
 	private readonly runtimes = new Map<string, Runtime>();
 	private readonly runRecords = new Map<string, AgentRunRecord>();
-	private readonly startupWorkspaces = new Map<string, WorkspaceService>();
+	private startupFilesService: AgentStartupFilesServicePort | null = null;
 
 	constructor(
 		private readonly dependencies: AgentServiceDependencies,
@@ -565,11 +597,19 @@ export class AgentService {
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
 				this.policyService.evaluateToolRequest({ userRequest: message })
 			);
+			const isPrimaryRun =
+				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending(agentId)
 			);
-			const isPrimaryRun =
-				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
+			let bootstrapMode = resolveBootstrapMode({
+				bootstrapPending,
+				isInteractiveUserFacing: true,
+				isPrimaryRun,
+				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
+				hasBootstrapFileAccess: this.hasBootstrapFileAccess(agentId, workspaceRoot, agentConfig?.tools),
+				runKind,
+			});
 			let startupFiles: WorkspaceContextFile[] = [];
 			let toolSelection: AgentToolSelectionForTurn = {
 				toolsForPrompt: [],
@@ -630,13 +670,22 @@ export class AgentService {
 				bootstrapPending =
 					bootstrapPending ||
 					startupFiles.some((file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing);
+				bootstrapMode = resolveBootstrapMode({
+					bootstrapPending,
+					isInteractiveUserFacing: true,
+					isPrimaryRun,
+					isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
+					hasBootstrapFileAccess: this.hasBootstrapFileAccess(
+						agentId,
+						workspaceRoot,
+						agentConfig?.tools
+					),
+					runKind,
+				});
+				startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
 				toolSelection =
 					bootstrapPending && isPrimaryRun
-						? {
-								toolsForPrompt: [],
-								systemPromptSuffix: '',
-								rankedTools: [],
-							}
+						? this.selectBootstrapTools(agentId, bootstrapMode)
 						: recordPhase(phaseDurationsMs, 'select_tools', () =>
 								this.toolService.selectToolsForTurn(
 									baseTools,
@@ -670,15 +719,6 @@ export class AgentService {
 			selectedTools = capabilities.tools;
 			capabilityPromptAdditions = capabilities.promptAdditions;
 			directAnswer = capabilities.directAnswer;
-			const bootstrapMode = resolveBootstrapMode({
-				bootstrapPending,
-				isInteractiveUserFacing: true,
-				isPrimaryRun,
-				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-				hasBootstrapFileAccess: false,
-				runKind,
-			});
-			startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
 			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
 				buildSystemPrompt({
 					workspace: workspaceRoot,
@@ -1020,7 +1060,7 @@ export class AgentService {
 
 	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
-			return await this.getStartupWorkspace(agentId).isBootstrapPending();
+			return await this.getStartupFilesService().isBootstrapPending(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
 				error: (error as Error).message,
@@ -1031,7 +1071,7 @@ export class AgentService {
 
 	private async loadStartupFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		try {
-			return await this.getStartupWorkspace(agentId).loadContextFiles();
+			return await this.getStartupFilesService().loadContextFiles(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
 				error: (error as Error).message,
@@ -1040,24 +1080,95 @@ export class AgentService {
 		return [];
 	}
 
-	private getStartupWorkspace(agentId: string): WorkspaceService {
-		const resolvedAgentId = agentId.trim();
-		if (!resolvedAgentId) throw new Error('Agent id is required.');
-		let workspace = this.startupWorkspaces.get(resolvedAgentId);
-		if (workspace) return workspace;
-		workspace = new WorkspaceService(this.dependencies.logger, {
+	private getStartupFilesService(): AgentStartupFilesServicePort {
+		if (this.dependencies.startupFiles) return this.dependencies.startupFiles;
+		if (this.startupFilesService) return this.startupFilesService;
+		this.startupFilesService = new AgentStartupFilesService({
 			rootPath:
-				this.dependencies.agentDataDirectory?.resolve(
-					'workspaces',
-					encodeURIComponent(resolvedAgentId)
-				) ??
-				resolveDefaultAgentDataPath(
-					'workspaces',
-					encodeURIComponent(resolvedAgentId)
-				),
+				this.dependencies.agentDataDirectory?.resolve('workspaces') ??
+				resolveDefaultAgentDataPath('workspaces'),
+			logger: this.dependencies.logger,
 		});
-		this.startupWorkspaces.set(resolvedAgentId, workspace);
-		return workspace;
+		return this.startupFilesService;
+	}
+
+	private hasBootstrapFileAccess(
+		agentId: string,
+		workspaceRoot: string,
+		toolPolicy?: AgentToolPolicy
+	): boolean {
+		if (toolPolicy?.fs?.readOnly) return false;
+		try {
+			return (
+				path.resolve(this.getStartupFilesService().getRootPath(agentId)) ===
+				path.resolve(workspaceRoot)
+			);
+		} catch {
+			return false;
+		}
+	}
+
+	private selectBootstrapTools(
+		agentId: string,
+		bootstrapMode: 'none' | 'limited' | 'full'
+	): AgentToolSelectionForTurn {
+		if (bootstrapMode !== 'full') {
+			return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
+		}
+		const tool = this.createStartupFilesTool(agentId);
+		return { toolsForPrompt: [tool], systemPromptSuffix: '', rankedTools: [tool] };
+	}
+
+	private createStartupFilesTool(agentId: string): AgentTool {
+		const startupFiles = this.getStartupFilesService();
+		return {
+			name: 'startup_files',
+			description:
+				'Read, update, or complete Friday startup files during first-run bootstrap. Use complete_bootstrap only after the needed startup files are written.',
+			schema: {
+				type: 'object',
+				properties: {
+					operation: {
+						type: 'string',
+						enum: ['read', 'write', 'complete_bootstrap'],
+					},
+					name: { type: 'string' },
+					content: { type: 'string' },
+					files: {
+						type: 'object',
+						additionalProperties: { type: 'string' },
+					},
+				},
+				required: ['operation'],
+				additionalProperties: false,
+			},
+			execute: async (args) => {
+				try {
+					const operation = typeof args.operation === 'string' ? args.operation : '';
+					if (operation === 'read') {
+						const name = requireStartupFileName(args.name);
+						const file = await startupFiles.readFile(agentId, name);
+						return startupToolText(file.content ?? '');
+					}
+					if (operation === 'write') {
+						const writes = startupFileWrites(args);
+						const written: WorkspaceFileName[] = [];
+						for (const [name, content] of writes) {
+							await startupFiles.writeFile(agentId, name, content);
+							written.push(name);
+						}
+						return startupToolText(`updated ${written.join(', ')}`);
+					}
+					if (operation === 'complete_bootstrap') {
+						await startupFiles.completeBootstrap(agentId);
+						return startupToolText('bootstrap completed');
+					}
+					return startupToolText('startup_files: unsupported operation', true);
+				} catch (error) {
+					return startupToolText(`startup_files: ${(error as Error).message}`, true);
+				}
+			},
+		};
 	}
 
 	private filterStartupFilesForRun(
