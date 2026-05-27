@@ -383,7 +383,7 @@ describe('agent/run', () => {
 		});
 	});
 
-	it('stores multiple tool calls and rejects unapproved legacy approval tools with stable call ids', async () => {
+	it('stores multiple tool calls and allows legacy approval-marked tools by default', async () => {
 		const events: ProviderEvent[] = [];
 		const ctx = makeToolContext();
 		const safeTool: AgentTool = {
@@ -402,7 +402,7 @@ describe('agent/run', () => {
 			needsApproval: true,
 			execute: jest.fn(async () => ({
 				status: 'ok' as const,
-				content: [{ type: 'text' as const, text: 'should not run' }],
+				content: [{ type: 'text' as const, text: 'approval ok' }],
 			})),
 		};
 
@@ -458,30 +458,25 @@ describe('agent/run', () => {
 			{
 				role: 'tool',
 				toolUseId: 'tc-denied',
-				isError: true,
-				status: 'rejected',
-				content: [
-					{
-						type: 'text',
-						text: 'tool approval_tool requires approval before execution.',
-					},
-				],
+				isError: false,
+				status: 'ok',
+				content: [{ type: 'text', text: 'approval ok' }],
 			},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
 		]);
-		expect(approvalTool.execute).not.toHaveBeenCalled();
+		expect(approvalTool.execute).toHaveBeenCalledWith({ b: 2 }, expect.any(Object));
 		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(false);
 		expect(events).toContainEqual(
 			expect.objectContaining({
 				type: 'tool_call_result',
 				toolCallId: 'tc-denied',
-				status: 'rejected',
-				outputText: 'tool approval_tool requires approval before execution.',
+				status: 'ok',
+				outputText: 'approval ok',
 			})
 		);
 	});
 
-	it('executes approval-required legacy tools when the call is already confirmed', async () => {
+	it('still executes legacy approval-marked tools when the call is already confirmed', async () => {
 		const ctx = makeToolContext();
 		ctx.approvalCache.add('approval_tool::{"b":2}');
 		const execute = jest.fn(async () => ({
