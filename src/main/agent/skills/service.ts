@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
 import type { LoggerService } from '../../logger';
+import { resolveDefaultAgentDataPath } from '../storage';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -68,7 +69,7 @@ export class SkillsService {
 		private readonly logger: SkillsLogger,
 		options: SkillsServiceOptions = {}
 	) {
-		this.rootPath = path.resolve(options.rootPath ?? path.join('appdata', 'skills'));
+		this.rootPath = path.resolve(options.rootPath ?? resolveDefaultAgentDataPath('skills'));
 	}
 
 	getRootPath(): string {
