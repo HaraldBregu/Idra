@@ -164,16 +164,16 @@ export const SETTINGS_NAVIGATION = [
 		icon: Server,
 	},
 	{
-		path: '/settings/skills',
-		labelKey: 'settings.tabs.skills',
-		descriptionKey: 'settings.overview.descriptions.skills',
-		icon: Sparkles,
-	},
-	{
 		path: '/settings/tools',
 		labelKey: 'settings.tabs.tools',
 		descriptionKey: 'settings.overview.descriptions.tools',
 		icon: Wrench,
+	},
+	{
+		path: '/settings/skills',
+		labelKey: 'settings.tabs.skills',
+		descriptionKey: 'settings.overview.descriptions.skills',
+		icon: Sparkles,
 	},
 	{
 		path: '/settings/connectors',

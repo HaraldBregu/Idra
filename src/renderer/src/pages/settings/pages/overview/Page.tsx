@@ -105,9 +105,6 @@ function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): Setting
 	return { ...item, id: agentId };
 }
 
-const SETTINGS_OVERVIEW_AGENT_ITEMS = SETTINGS_OVERVIEW_AGENT_IDS.map(
-	getSettingsOverviewAgentItem
-);
 
 function SettingsOverviewCard({
 	item,
