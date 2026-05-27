@@ -20,10 +20,10 @@ function createContainer(overrides: {
 		cancel: jest.Mock;
 		getHistory: jest.Mock;
 	}>;
-	startupFiles?: Partial<{
-		listFiles: jest.Mock;
-		readFile: jest.Mock;
-		writeFile: jest.Mock;
+	workspace?: Partial<{
+		listWorkspaceFiles: jest.Mock;
+		readWorkspaceFile: jest.Mock;
+		writeWorkspaceFile: jest.Mock;
 	}>;
 	userDataDirectory?: Partial<{ resolve: jest.Mock }>;
 }): MainServiceContainer {
@@ -38,11 +38,11 @@ function createContainer(overrides: {
 			getHistory: jest.fn(),
 			...overrides.agentService,
 		},
-		startupFiles: {
-			listFiles: jest.fn(),
-			readFile: jest.fn(),
-			writeFile: jest.fn(),
-			...overrides.startupFiles,
+		workspace: {
+			listWorkspaceFiles: jest.fn(),
+			readWorkspaceFile: jest.fn(),
+			writeWorkspaceFile: jest.fn(),
+			...overrides.workspace,
 		},
 		userDataDirectory: {
 			resolve: jest.fn(() => '/tmp/agent/sessions'),
@@ -157,15 +157,22 @@ describe('agent/ipc history conversion', () => {
 			cancel: jest.fn(),
 			getHistory: jest.fn().mockResolvedValue([]),
 		};
-		const startupFiles = {
-			listFiles: jest.fn().mockResolvedValue([{ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }]),
-			readFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
-			writeFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
+		const workspace = {
+			listWorkspaceFiles: jest.fn().mockResolvedValue([{ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }]),
+			readWorkspaceFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
+			writeWorkspaceFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
 		};
 
-		new AgentIpc().register(createContainer({ agentService, startupFiles }), new EventBus());
+		new AgentIpc().register(createContainer({ agentService, workspace }), new EventBus());
 
-		await expect(registeredHandler(AgentChannels.send)({}, 'hello')).resolves.toEqual({
+		await expect(
+			registeredHandler(AgentChannels.send)({}, 'hello', {
+				agentRuntime: 'main',
+				effort: 'high',
+				lightContext: false,
+				toolsAllow: [' read_file ', ''],
+			})
+		).resolves.toEqual({
 			success: true,
 			data: 'response',
 		});
@@ -185,20 +192,30 @@ describe('agent/ipc history conversion', () => {
 			registeredHandler(AgentChannels.writeStartupFile)({}, 'AGENTS.md', 'updated content')
 		).resolves.toEqual({ success: true, data: { name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false } });
 
-		expect(startupFiles.listFiles).toHaveBeenCalledWith(DEFAULT_AGENT_ID);
-		expect(startupFiles.readFile).toHaveBeenCalledWith(DEFAULT_AGENT_ID, 'AGENTS.md');
-		expect(startupFiles.writeFile).toHaveBeenCalledWith(
-			DEFAULT_AGENT_ID,
+		expect(agentService.send).toHaveBeenCalledWith(
+			'hello',
+			undefined,
+			expect.objectContaining({
+				sessionId: 'main',
+				effort: 'high',
+				lightContext: false,
+				toolsAllow: ['read_file'],
+				streamEvent: expect.any(Function),
+			})
+		);
+		expect(workspace.listWorkspaceFiles).toHaveBeenCalledWith();
+		expect(workspace.readWorkspaceFile).toHaveBeenCalledWith('AGENTS.md');
+		expect(workspace.writeWorkspaceFile).toHaveBeenCalledWith(
 			'AGENTS.md',
 			'updated content'
 		);
 	});
 
 	it('registers legacy workspace file handlers that proxy to startup files', async () => {
-		const startupFiles = {
-			listFiles: jest.fn().mockResolvedValue([{ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }]),
-			readFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
-			writeFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
+		const workspace = {
+			listWorkspaceFiles: jest.fn().mockResolvedValue([{ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }]),
+			readWorkspaceFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
+			writeWorkspaceFile: jest.fn().mockResolvedValue({ name: 'AGENTS.md', path: '/tmp/AGENTS.md', missing: false }),
 		};
 
 		new AgentIpc().register(
@@ -209,7 +226,7 @@ describe('agent/ipc history conversion', () => {
 					cancel: jest.fn(),
 					getHistory: jest.fn().mockResolvedValue([]),
 				},
-				startupFiles,
+				workspace,
 			}),
 			new EventBus()
 		);
@@ -229,8 +246,8 @@ describe('agent/ipc history conversion', () => {
 			}
 		);
 
-		expect(startupFiles.listFiles).toHaveBeenCalledWith(DEFAULT_AGENT_ID);
-		expect(startupFiles.readFile).toHaveBeenCalledWith(DEFAULT_AGENT_ID, 'AGENTS.md');
-		expect(startupFiles.writeFile).toHaveBeenCalledWith(DEFAULT_AGENT_ID, 'AGENTS.md', 'legacy content');
+		expect(workspace.listWorkspaceFiles).toHaveBeenCalledWith();
+		expect(workspace.readWorkspaceFile).toHaveBeenCalledWith('AGENTS.md');
+		expect(workspace.writeWorkspaceFile).toHaveBeenCalledWith('AGENTS.md', 'legacy content');
 	});
 });

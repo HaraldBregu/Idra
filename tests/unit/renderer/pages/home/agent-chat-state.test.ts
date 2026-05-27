@@ -80,7 +80,7 @@ describe('agent chat state', () => {
 		});
 	});
 
-	it('ignores reasoning summaries because the homepage only shows run state and tool traces', () => {
+	it('tracks reasoning summaries on the active agent message', () => {
 		const next = agentChatReducer(startRun(), {
 			type: 'apply_response_event',
 			receivedAtMs: 42,
@@ -96,8 +96,47 @@ describe('agent chat state', () => {
 
 		expect(agentMessage(next)).toMatchObject({
 			runId: 'run-1',
-			state: 'thinking',
+			state: 'reasoning',
 			tools: [],
+			reasoning: [
+				{
+					id: 'summary-1',
+					title: 'Checking context',
+					summary: 'Selecting relevant project context.',
+					state: 'completed',
+				},
+			],
+		});
+	});
+
+	it('tracks selected skills from capability resolution events', () => {
+		const next = agentChatReducer(startRun(), {
+			type: 'apply_response_event',
+			receivedAtMs: 42,
+			event: {
+				...baseEvent,
+				type: 'capability_resolution_result',
+				tools: [],
+				connectorTools: [],
+				skills: [{ name: 'react-shadcn-ui', reason: 'matched React UI work' }],
+				directAnswer: false,
+				decision: { mode: 'use_skills', reason: 'matched available skills' },
+			} satisfies AgentResponseEvent,
+		});
+
+		expect(agentMessage(next)).toMatchObject({
+			runId: 'run-1',
+			selectedSkills: [
+				{
+					id: 'react-shadcn-ui',
+					label: 'react-shadcn-ui',
+					reason: 'matched React UI work',
+				},
+			],
+			capability: expect.objectContaining({
+				directAnswer: false,
+				decision: { mode: 'use_skills', reason: 'matched available skills' },
+			}),
 		});
 	});
 
