@@ -150,7 +150,7 @@
 			"groups": {
 				"app": "App",
 				"ai": "AI",
-				"agent": "Agente",
+				"agent": "Assistente personale",
 				"modelServices": "Servizi modello",
 				"knowledge": "Conoscenza",
 				"channels": "Canali",
@@ -878,7 +878,7 @@
 			"identity": "Identita",
 			"configuration": "Configurazione",
 			"fridayBreadcrumb": "Friday",
-			"assistantName": "AI Assistant",
+			"assistantName": "Agente",
 			"fridayDescription": "Risponde alle domande, pianifica il lavoro e usa strumenti.",
 			"speechTranscriberName": "Speech to Text",
 			"speechTranscriberDescription": "Trascrive l'audio del microfono in testo.",
