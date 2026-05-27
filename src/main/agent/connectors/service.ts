@@ -1104,7 +1104,7 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 }
 
 function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
-	return (GOOGLE_WORKSPACE_OAUTH_CONNECTORS as readonly StaticOAuthConnectorDefinition[]).map((connector) =>
+	return googleWorkspaceOAuthConnectors().map((connector) =>
 		normalizeCatalogEntry({
 			id: connector.id,
 			directConnectorId: connector.directConnectorId,
@@ -1118,19 +1118,19 @@ function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
 			platformDocumentationPages: connector.mcp
 				? [
 					{ label: `${connector.name} MCP reference`, url: connector.mcp.referenceUrl },
-					{ label: 'Google MCP authentication', url: GOOGLE_MCP_AUTHENTICATION_URL },
+					{ label: 'Google MCP authentication', url: 'https://docs.cloud.google.com/mcp/authenticate-mcp' },
 				]
 				: [],
-			tools: connector.mcp?.tools ?? connector.capabilities,
-			scopes: connector.oauth.scopes,
-			setupUrl: connector.setupUrl,
+			tools: connector.tools,
+			scopes: connector.scopes,
+			setupUrl: 'https://console.cloud.google.com/apis/credentials',
 			setupInstructions: [
 				'Create a Google OAuth client for a desktop application.',
 				`Set ${GOOGLE_OAUTH_CLIENT_ID_ENV} before launching Friday.`,
 				'Authorize the connector from Settings > Connectors.',
 			],
 			authKind: 'oauth',
-			redirectUri: connector.oauth.redirectUri,
+			redirectUri: 'http://127.0.0.1',
 			runtimeKind: connector.mcp ? 'mcp' : 'oauth',
 			allowMultipleInstances: false,
 		})
@@ -1138,27 +1138,27 @@ function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
 }
 
 function mcpConfigForOAuthConnector(
-	connector: StaticOAuthConnectorDefinition
+	connector: GoogleWorkspaceOAuthConnectorDefinition
 ): ConnectorMcpConfig | undefined {
 	return connector.mcp ? { transport: 'http', url: connector.mcp.endpoint } : undefined;
 }
 
 function googleOAuthAuthorizationUrl(
-	connector: StaticOAuthConnectorDefinition,
+	connector: GoogleWorkspaceOAuthConnectorDefinition,
 	clientId: string,
 	state: string
 ): string {
 	const params = new URLSearchParams({
 		client_id: clientId,
-		redirect_uri: connector.oauth.redirectUri,
-		response_type: connector.oauth.responseType,
-		scope: connector.oauth.scopes.join(' '),
-		access_type: connector.oauth.accessType,
+		redirect_uri: 'http://127.0.0.1',
+		response_type: 'code',
+		scope: connector.scopes.join(' '),
+		access_type: 'offline',
 		include_granted_scopes: 'true',
-		prompt: connector.oauth.prompt,
+		prompt: 'consent',
 		state,
 	});
-	return `${connector.oauth.authorizationUrl}?${params.toString()}`;
+	return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
 function mergeCatalogEntries(entries: ConnectorCatalogEntry[]): ConnectorCatalogEntry[] {
