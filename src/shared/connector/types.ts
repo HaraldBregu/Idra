@@ -204,6 +204,7 @@ export type ConnectorUpdateInput = Partial<ConnectorInput>;
 
 export interface ConnectorOAuthAuthorizeRequest {
 	connectorId: ConnectorProviderId;
+	connector?: ConnectorCatalogEntry;
 }
 
 export interface ConnectorOAuthAuthorizeResult {
