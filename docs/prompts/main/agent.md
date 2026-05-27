@@ -240,7 +240,17 @@ Hooks are executed in order at their trigger point. Hook handlers are TypeScript
 
 Skills are dynamic capabilities loaded on demand.
 
-Skills are stored in the skills key of the store. Each skill has a name, description, and an execute function path.
+Skills follow the structure and rules defined in docs/prompts/main/skills.md. That document is the authoritative specification for skill format, folder structure, SKILL.md schema, validation rules, error handling, progressive loading behavior, and testing requirements. Implement the skills layer in full conformance with it.
+
+Key points from that spec that apply here:
+- A skill is a folder. A folder is only treated as a skill if it contains a SKILL.md file.
+- SKILL.md contains YAML frontmatter (name, description, and optional fields) followed by Markdown instructions.
+- Skill metadata is loaded at discovery time. Full instructions are loaded only when a skill is activated.
+- Supporting files in scripts/, references/, and assets/ are read only when the activated instructions reference them.
+- Skill names must match their parent folder name and follow the naming rules defined in the spec.
+- Invalid or partial skill folders are skipped without breaking unrelated skills.
+
+Skills are stored in the skills key of the store. Each entry holds the skill name, description, and resolved install path. The full SKILL.md content is not stored in the store; it is read from disk when the skill is activated.
 
 Skills are loaded at runtime from the store. No skill is hardcoded into the harness.
 
