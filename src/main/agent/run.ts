@@ -409,7 +409,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 							break;
 						case 'tool_call_start': {
 							pending.set(event.id, { name: event.name, argsStr: '' });
-							const tool = toolsForPrompt.find((entry) => entry.name === event.name);
+							const tool = tools.find((entry) => entry.name === event.name);
 							streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
 							streamEvent?.({
 								type: 'tool_call_start',
@@ -542,7 +542,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 					break;
 				}
 				toolCalls++;
-				const tool = toolsForPrompt.find((x) => x.name === t.name);
+				const tool = tools.find((x) => x.name === t.name);
 				const parsedArgs = parseToolArgsForExecution(t.name, t.argsStr);
 				const args = parsedArgs.args;
 				streamEvent?.({
