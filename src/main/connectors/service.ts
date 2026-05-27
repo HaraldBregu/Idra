@@ -761,7 +761,7 @@ export class ConnectorsService {
 		await Promise.all([...this.clients.keys()].map((id) => this.closeClient(id)));
 	}
 
-	private async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
+	private async refreshConnectorToolsIfConfigured(connector: RuntimeConnector): Promise<RuntimeConnector> {
 		if (connector.oauth) {
 			return this.withOAuthTools(connector);
 		}
@@ -778,7 +778,7 @@ export class ConnectorsService {
 		}
 	}
 
-	private async withOAuthTools(connector: ConnectorConfig): Promise<ConnectorConfig> {
+	private async withOAuthTools(connector: RuntimeConnector): Promise<RuntimeConnector> {
 		if (!connector.mcp) return connector;
 		try {
 			return await this.withDiscoveredTools(connector, DEFAULT_CONNECTOR_TOOL_PERMISSION);
@@ -788,9 +788,9 @@ export class ConnectorsService {
 	}
 
 	private async withDiscoveredTools(
-		connector: ConnectorConfig,
+		connector: RuntimeConnector,
 		defaultPermission?: ConnectorToolPermission
-	): Promise<ConnectorConfig> {
+	): Promise<RuntimeConnector> {
 		const tools = this.applyToolPolicy(connector, await this.clientFor(connector).listTools(), defaultPermission);
 		return {
 			...connector,
@@ -801,7 +801,7 @@ export class ConnectorsService {
 	}
 
 	private applyToolPolicy(
-		connector: ConnectorConfig,
+		connector: RuntimeConnector,
 		tools: readonly ConnectorTool[],
 		defaultPermission?: ConnectorToolPermission
 	): ConnectorTool[] {
@@ -811,7 +811,7 @@ export class ConnectorsService {
 		});
 	}
 
-	private clientFor(connector: ConnectorConfig): ConnectorMcpClient {
+	private clientFor(connector: RuntimeConnector): ConnectorMcpClient {
 		const existing = this.clients.get(connector.id);
 		if (existing) return existing;
 		const client = this.options.mcpClientFactory?.(connector) ?? createSdkConnectorMcpClient(connector);
@@ -819,20 +819,20 @@ export class ConnectorsService {
 		return client;
 	}
 
-	private requireConfiguredConnector(id: unknown): ConnectorConfig {
+	private requireConfiguredConnector(id: unknown): RuntimeConnector {
 		const connectorId = readRequiredString(id, 'Connector id');
 		const connector = this.getStored(connectorId);
 		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
 		return connector;
 	}
 
-	private getStored(id: string): ConnectorConfig {
+	private getStored(id: string): RuntimeConnector {
 		const connector = this.validConnectors().find((item) => item.id === id);
 		if (!connector) throw new Error('Connector not found: ' + id);
 		return connector;
 	}
 
-	private validConnectors(): ConnectorConfig[] {
+	private validConnectors(): RuntimeConnector[] {
 		return this.readStoredConnectors()
 			.map((connector) => {
 				if (connector.tools.length > 0) return connector;
@@ -841,7 +841,7 @@ export class ConnectorsService {
 			});
 	}
 
-	private replace(connector: ConnectorConfig): void {
+	private replace(connector: RuntimeConnector): void {
 		void this.closeClient(connector.id);
 		const connectors = this.validConnectors();
 		const next = connectors.some((item) => item.id === connector.id)
@@ -851,7 +851,7 @@ export class ConnectorsService {
 		this.logDebug('Updated connector ' + connector.name, { connectorId: connector.connectorId });
 	}
 
-	private readStoredConnectors(): ConnectorConfig[] {
+	private readStoredConnectors(): RuntimeConnector[] {
 		this.logDebug('Read connector settings');
 		const raw = this.readConnectorStore();
 		if (raw === undefined) return [];
@@ -868,7 +868,7 @@ export class ConnectorsService {
 		return [];
 	}
 
-	private normalizeStoredConnectorEntry(entry: unknown, index: number, storageKey?: string): ConnectorConfig[] {
+	private normalizeStoredConnectorEntry(entry: unknown, index: number, storageKey?: string): RuntimeConnector[] {
 		const record = readRecord(entry);
 		if (!record) {
 			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
@@ -901,11 +901,11 @@ export class ConnectorsService {
 		}
 	}
 
-	private writeConnector(connector: ConnectorConfig): void {
+	private writeConnector(connector: RuntimeConnector): void {
 		this.writeAll([...this.validConnectors(), connector]);
 	}
 
-	private writeAll(connectors: ConnectorConfig[]): void {
+	private writeAll(connectors: RuntimeConnector[]): void {
 		const records = toStoredConnectorRecords(connectors);
 		try {
 			if ('store' in this.store) {
@@ -959,7 +959,7 @@ export class ConnectorsService {
 		return (this.options.env?.[secretEnv] ?? process.env[secretEnv])?.trim() || undefined;
 	}
 
-	private catalogEntryFromConnector(connector: ConnectorConfig): ConnectorCatalogEntry {
+	private catalogEntryFromConnector(connector: RuntimeConnector): ConnectorCatalogEntry {
 		return normalizeCatalogEntry({
 			id: connector.connectorId,
 			name: connector.name,
