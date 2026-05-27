@@ -568,6 +568,7 @@
 			"detailsTitle": "Dettagli pianificatore attivita",
 			"notFoundTitle": "Attivita programmata non trovata",
 			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
+			"newTaskTitle": "Nuova attività pianificata",
 			"emptyTitle": "Nessuna attivita programmata",
 			"emptyDescription": "Le attivita programmate appariranno qui dopo la configurazione."
 		},
