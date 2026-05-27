@@ -11,6 +11,7 @@ import type { JSONSchema } from '../../provider/types';
 import type { AgentTool } from '../tools/core/types';
 import { textResult } from '../tools/core/types';
 import {
+	connectorAuthKindFor,
 	connectorStatusFor,
 	isOAuthMcpConfig,
 	missingMcpSecretMessage,
@@ -38,6 +39,28 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 		private readonly connectors: McpConnectorStore,
 		private readonly options: AgentMcpClientServiceOptions = {}
 	) {}
+
+	list(): ConnectorConfig[] {
+		return this.connectors.listConnectorsForMcp().map((connector) => ({
+			id: connector.id,
+			name: connector.name,
+			connectorId: connector.connectorId,
+			authKind: connectorAuthKindFor(connector),
+			serverLabel: connector.serverLabel,
+			enabled: connector.enabled,
+			status: connectorStatusFor(connector),
+			requireApproval: connector.requireApproval,
+			allowedToolsCount: connector.allowedTools?.length ?? 0,
+			toolsCount: connector.tools.length,
+			hasToken: Boolean(connector.authorization || connector.oauth?.token?.accessToken),
+			hasTools: connector.tools.length > 0,
+			deferLoading: connector.deferLoading,
+			lastRefreshedAt: connector.lastRefreshedAt,
+			lastError: connector.lastError,
+			connectedAccount: connector.oauth?.accountEmail,
+			tools: [],
+		}));
+	}
 
 	async test(id: string): Promise<ConnectorTestResult> {
 		const connector = this.connectors.getConnectorForMcp(id);
