@@ -77,6 +77,7 @@ interface ConnectorsServiceOptions {
 	store?: ConnectorPersistenceStore;
 	toolStore?: ConnectorToolPersistenceStore;
 	catalogProvider?: ConnectorCatalogProvider;
+	mcpClient?: AgentMcpClientServicePort;
 	mcpClientFactory?: ConnectorMcpClientFactory;
 	openExternalUrl?: (url: string) => Promise<void>;
 	fetch?: typeof fetch;
