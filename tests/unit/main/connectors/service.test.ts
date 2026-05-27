@@ -318,36 +318,23 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(tokenBody.get('client_secret')).toBe('google-client-secret');
 		expect(tokenBody.get('code_verifier')).toEqual(expect.any(String));
 		expect(Object.fromEntries(store.data)).toEqual({
-			gmail: expect.objectContaining({
-				id: 'google.gmail',
-				name: 'Gmail',
-				connectorId: 'google.gmail',
-				serverLabel: 'gmail',
-					mcp: {
-						transport: 'http',
-						url: 'https://gmailmcp.googleapis.com/mcp/v1',
-						method: 'POST',
-						headers: {
-							accept: 'application/json, text/event-stream',
-							'content-type': 'application/json',
-						},
+			gmail: {
+				mcp: {
+					transport: 'http',
+					url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					method: 'POST',
+					headers: {
+						accept: 'application/json, text/event-stream',
+						'content-type': 'application/json',
+						Authorization: 'Bearer access-token',
 					},
-					oauth: expect.objectContaining({
-						clientId: 'google-client-id',
-						authorizationUrl: result.authorizationUrl,
-						state: expect.any(String),
-						token: expect.objectContaining({
-							accessToken: 'access-token',
-							refreshToken: 'refresh-token',
-						}),
-					}),
-					authorization: 'Bearer access-token',
-					tools: discoveredTools.map((tool) => expect.objectContaining({
-						name: tool.name,
-						permission: 'always-allow',
-						requiresApproval: false,
-					})),
-			}),
+				},
+				tools: discoveredTools.map((tool) => expect.objectContaining({
+					name: tool.name,
+					permission: 'always-allow',
+					requiresApproval: false,
+				})),
+			},
 		});
 		expect(result.connector.oauth).toEqual(expect.objectContaining({
 			clientId: 'google-client-id',
@@ -367,8 +354,7 @@ describe('ConnectorsService MCP persistence', () => {
 		await service.authorizeOAuth(oauthInput('google.calendar'));
 
 		expect(Object.fromEntries(store.data)).toEqual({
-			google_calendar: expect.objectContaining({
-				connectorId: 'google.calendar',
+			google_calendar: {
 				mcp: {
 					transport: 'http',
 					url: 'https://calendarmcp.googleapis.com/mcp/v1',
@@ -376,6 +362,7 @@ describe('ConnectorsService MCP persistence', () => {
 					headers: {
 						accept: 'application/json, text/event-stream',
 						'content-type': 'application/json',
+						Authorization: 'Bearer access-token',
 					},
 				},
 				tools: discoveredTools.map((tool) => expect.objectContaining({
@@ -383,7 +370,7 @@ describe('ConnectorsService MCP persistence', () => {
 					permission: 'always-allow',
 					requiresApproval: false,
 				})),
-			}),
+			},
 		});
 	});
 
@@ -405,17 +392,16 @@ describe('ConnectorsService MCP persistence', () => {
 		const started = await service.authorizeOAuth(oauthInput('google.drive'));
 
 		expect(Object.fromEntries(store.data)).toEqual({
-				google_drive: expect.objectContaining({
-					connectorId: 'google.drive',
-					authorization: 'Bearer access-token',
-					oauth: expect.objectContaining({
-						token: expect.objectContaining({
-							accessToken: 'access-token',
-							refreshToken: 'refresh-token',
-							tokenType: 'Bearer',
-						}),
-					}),
+			google_drive: expect.objectContaining({
+				mcp: expect.objectContaining({
+					headers: expect.objectContaining({ Authorization: 'Bearer access-token' }),
 				}),
+				tools: discoveredTools.map((tool) => expect.objectContaining({
+					name: tool.name,
+					permission: 'always-allow',
+					requiresApproval: false,
+				})),
+			}),
 		});
 		expect(started.connector.authorization).toBe('');
 			expect(started.connector.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
@@ -434,19 +420,17 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(client.listTools).toHaveBeenCalledTimes(1);
 		expect(Object.fromEntries(store.data)).toEqual({
-			gmail_mcp: expect.objectContaining({
-				id: added.id,
-				connectorId: 'google.gmail',
+			gmail_mcp: {
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 				tools: [
 					expect.objectContaining({ name: 'search', permission: 'needs-approval', requiresApproval: true }),
 					expect.objectContaining({ name: 'write_note', permission: 'blocked', requiresApproval: false }),
 				],
-			}),
+			},
 		});
 		expect(added.authorization).toBe('');
 		expect(service.list()).toEqual([
-			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 2 }),
+			expect.objectContaining({ name: 'Gmail MCP', status: 'configured', toolsCount: 2 }),
 		]);
 	});
 
@@ -509,7 +493,7 @@ describe('ConnectorsService MCP persistence', () => {
 			args: { query: 'roadmap' },
 		});
 		await expect(service.callTool(added.id, 'write_note', { text: 'draft' })).rejects.toThrow(
-			'Tool write_note is blocked for Remote Gmail MCP.'
+			'Tool write_note is blocked for Gmail MCP.'
 		);
 		expect(client.callTool).toHaveBeenCalledWith('search', { query: 'roadmap' }, undefined);
 
@@ -528,7 +512,8 @@ describe('ConnectorsService MCP persistence', () => {
 
 		const added = await service.add(mcpInput());
 
-		expect(service.list()[0]).toMatchObject({ status: 'error', lastError: 'server down' });
+		expect(added).toMatchObject({ lastError: 'server down' });
+		expect(service.list()[0]).toMatchObject({ status: 'configured' });
 		expect(await service.test(added.id)).toMatchObject({ status: 'error', message: 'server down' });
 	});
 
