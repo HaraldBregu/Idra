@@ -110,8 +110,8 @@ function installConnectorApi(connector = configuredConnector()): void {
 		refreshTools: jest.fn(async () => connector.tools),
 		listTools: jest.fn(async () => connector.tools),
 		callTool: jest.fn(async () => ({})),
-			authorizeOAuth: jest.fn(async (connector: string | ConnectorCatalogEntry) => ({
-				connectorId: typeof connector === 'string' ? connector : connector.id,
+			authorizeOAuth: jest.fn(async (selected: string | ConnectorCatalogEntry) => ({
+				connectorId: typeof selected === 'string' ? selected : selected.id,
 				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
 				connector,
 			})),
