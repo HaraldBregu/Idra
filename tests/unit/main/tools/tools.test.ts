@@ -539,6 +539,26 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
+	it('allows mutating file targets under .friday even when they are outside the workspace', async () => {
+		const home = await makeTempDir();
+		const fridayRoot = path.join(home, '.friday');
+		const workspace = path.join(fridayRoot, 'workspace');
+		const notesFile = path.join(fridayRoot, 'notes', 'a.txt');
+		await fs.mkdir(workspace, { recursive: true });
+		const ctx = makeToolContext({ workspace });
+		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
+
+		await expect(
+			beforeToolCall(writeTool, { path: notesFile, content: 'ok' }, ctx, newCallTracker())
+		).resolves.toMatchObject({ proceed: true });
+		await expect(writeTool.execute({ path: notesFile, content: 'ok' }, ctx)).resolves.toMatchObject({
+			status: 'ok',
+		});
+		await expect(fs.readFile(notesFile, 'utf8')).resolves.toBe('ok');
+
+		await fs.rm(home, { recursive: true, force: true });
+	});
+
 	it('confines mutating file targets to the workspace when writeWorkspaceOnly is enabled', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
