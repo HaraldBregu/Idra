@@ -5,6 +5,7 @@ import type { MainServiceContainer } from '../../../../src/main/service-registry
 import type {
 	ConnectorCatalogEntry,
 	ConnectorConfig,
+	ConnectorOAuthAuthorizeResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
@@ -69,6 +70,11 @@ const testResult: ConnectorTestResult = {
 	message: 'Connected.',
 };
 
+const oauthAuthorizeResult: ConnectorOAuthAuthorizeResult = {
+	connectorId: 'google.gmail',
+	authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+	connector: connectorConfig,
+};
 
 function registeredHandler(channel: string) {
 	const call = (ipcMain.handle as jest.Mock).mock.calls.find(([name]) => name === channel);
@@ -91,6 +97,7 @@ function createConnectorsService() {
 		refreshTools: jest.fn(() => [connectorTool]),
 		listTools: jest.fn(() => [connectorTool]),
 		callTool: jest.fn(() => ({ emailAddress: 'user@example.com' })),
+		authorizeOAuth: jest.fn(() => oauthAuthorizeResult),
 	};
 }
 
@@ -122,6 +129,7 @@ describe('ConnectorsIpc', () => {
 		};
 		const updateInput = { enabled: false };
 		const callOptions = { timeoutMs: 1000 };
+		const oauthInput = { connectorId: 'google.gmail' };
 
 		const cases = [
 			{
@@ -214,6 +222,13 @@ describe('ConnectorsIpc', () => {
 				method: connectors.callTool,
 				expectedArgs: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
 				expectedData: { emailAddress: 'user@example.com' },
+			},
+			{
+				channel: ConnectorsChannels.authorizeOAuth,
+				args: [oauthInput],
+				method: connectors.authorizeOAuth,
+				expectedArgs: [oauthInput],
+				expectedData: oauthAuthorizeResult,
 			},
 		] as const;
 
