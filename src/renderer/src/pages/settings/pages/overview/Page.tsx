@@ -162,7 +162,7 @@ const OverviewPage: React.FC = () => {
 	}, []);
 
 	return (
-		<SettingsPageShell className="px-6">
+		<SettingsPageShell className="px-4">
 				<SettingsPageHeader
 					title={t('settings.title')}
 					description={t('settings.description')}
