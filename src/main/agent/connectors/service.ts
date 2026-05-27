@@ -696,7 +696,7 @@ export class ConnectorsService {
 		const callOptions = readConnectorCallToolOptions(options);
 		const nextArgs = readConnectorToolArguments(args);
 		const connector = this.getStored(connectorId);
-		const tools = this.readTools(connector.id);
+		const tools = connector.oauth ? connector.tools : this.readTools(connector.id);
 		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
 		if (!tools.some((tool) => tool.name === toolName)) {
 			throw new Error('Tool ' + toolName + ' is not enabled for ' + connector.name + '.');
