@@ -20,18 +20,14 @@ const ConnectorsPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [oauthError, setOauthError] = useState<string | null>(null);
-	const [oauthBusyId, setOauthBusyId] = useState<string | null>(null);
 	const {
 		catalog, connectors,
-		busyId,
 		error,
 		statusMessage,
-		toggleConnector,
 	} = useConnectors();
 	const oauthCatalog = catalog.filter((connector) => connector.authKind === 'oauth' || connector.oauth);
 	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth' && !connector.oauth);
 	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
-	const mcpConfiguredConnectorIds = new Set(mcpConnectors.map((connector) => connector.connectorId));
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
@@ -43,13 +39,10 @@ const ConnectorsPage = () => {
 
 	const authorizeOAuthConnector = async (connector: ConnectorCatalogEntry): Promise<void> => {
 		setOauthError(null);
-		setOauthBusyId(connector.id);
 		try {
 			await window.connectors.authorizeOAuth(connector.id);
 		} catch (err) {
 			setOauthError(err instanceof Error ? err.message : String(err));
-		} finally {
-			setOauthBusyId(null);
 		}
 	};
 
