@@ -477,6 +477,7 @@
 		},
 		"connectors": {
 			"detailsTitle": "Dettagli Connettore",
+			"setup": "Configurazione",
 			"notFoundTitle": "Connettore non trovato",
 			"notFoundDescription": "Il connettore potrebbe essere stato rimosso."
 		},
