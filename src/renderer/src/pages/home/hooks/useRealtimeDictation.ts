@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeTranscriptionEvent } from '../../../../../shared/realtime-transcription';
+import {
+	canCaptureAudio,
+	dictationErrorMessage,
+	getAppMicrophoneEnabled,
+	mergeDictationText,
+	pcm16ToBase64,
+	preferredLanguage,
+	resampleToPcm16,
+	stopStream,
+} from './audio';
 
 export type RealtimeDictationStatus =
 	| 'idle'
@@ -13,97 +23,6 @@ type RealtimeTranscriptionApi = Window['realtimeTranscription'];
 
 const AUDIO_BUFFER_SIZE = 4096;
 const CLOCK_INTERVAL_MS = 250;
-
-function canCaptureAudio(): boolean {
-	return Boolean(
-		navigator.mediaDevices &&
-			typeof navigator.mediaDevices.getUserMedia === 'function' &&
-			typeof AudioContext !== 'undefined'
-	);
-}
-
-async function getAppMicrophoneEnabled(): Promise<boolean> {
-	try {
-		const settings = await window.app.getMicrophonePermission();
-		return settings.enabled && settings.systemStatus !== 'denied' && settings.systemStatus !== 'restricted';
-	} catch {
-		return true;
-	}
-}
-
-function dictationErrorMessage(error: unknown): string {
-	if (error instanceof DOMException) {
-		if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
-			return 'Microphone access is blocked. Allow microphone access and try again.';
-		}
-		if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-			return 'No microphone was found.';
-		}
-	}
-
-	if (error instanceof Error && error.message.trim().length > 0) {
-		return error.message;
-	}
-
-	return 'Live dictation failed.';
-}
-
-function mergeDictationText(baseText: string, transcript: string): string {
-	if (!baseText) return transcript;
-	if (!transcript) return baseText;
-	const separator = /\s$/.test(baseText) || /^\s/.test(transcript) ? '' : ' ';
-	return `${baseText}${separator}${transcript}`;
-}
-
-function stopStream(stream: MediaStream | null): void {
-	stream?.getTracks().forEach((track) => track.stop());
-}
-
-function resampleToPcm16(input: Float32Array, inputRate: number, outputRate: number): Int16Array {
-	if (input.length === 0) return new Int16Array();
-	const ratio = inputRate / outputRate;
-	const outputLength = Math.max(1, Math.floor(input.length / ratio));
-	const output = new Int16Array(outputLength);
-	let inputOffset = 0;
-
-	for (let outputOffset = 0; outputOffset < outputLength; outputOffset += 1) {
-		const nextInputOffset = Math.min(
-			input.length,
-			Math.round((outputOffset + 1) * ratio)
-		);
-		let sum = 0;
-		let count = 0;
-
-		for (; inputOffset < nextInputOffset; inputOffset += 1) {
-			sum += input[inputOffset] ?? 0;
-			count += 1;
-		}
-
-		const sample = Math.max(-1, Math.min(1, count > 0 ? sum / count : 0));
-		output[outputOffset] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
-	}
-
-	return output;
-}
-
-function pcm16ToBase64(pcm: Int16Array): string {
-	const bytes = new Uint8Array(pcm.buffer, pcm.byteOffset, pcm.byteLength);
-	let binary = '';
-	const chunkSize = 0x8000;
-
-	for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-		const chunk = bytes.subarray(offset, offset + chunkSize);
-		binary += String.fromCharCode(...chunk);
-	}
-
-	return btoa(binary);
-}
-
-function preferredLanguage(): string | undefined {
-	const language = navigator.language?.trim();
-	if (!language) return undefined;
-	return language.slice(0, 2).toLowerCase();
-}
 
 export function useRealtimeDictation({
 	value,
