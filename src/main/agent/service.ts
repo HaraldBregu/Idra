@@ -3,11 +3,11 @@ import path from 'node:path';
 import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
-import type { McpRegistry } from '../mcp';
+import type { McpRegistry } from './mcp';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
-import type { ConnectorsService } from '../connectors';
-import type { SkillsService } from '../skills';
+import type { ConnectorsService } from './connectors';
+import type { SkillsService } from './skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
@@ -69,7 +69,7 @@ import {
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 	type ToolServicePort,
-} from '../tools';
+} from './tools';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,

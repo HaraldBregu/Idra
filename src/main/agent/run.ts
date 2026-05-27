@@ -1,12 +1,12 @@
 import type { Usage } from '../provider/types';
 import { ContextOverflowError } from '../provider/types';
 import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../provider/types';
-import type { AgentTool, ToolContext } from '../tools';
+import type { AgentTool, ToolContext } from './tools';
 import {
 	type AgentToolManagementOptions,
 	ToolService,
 	type ToolServicePort,
-} from '../tools';
+} from './tools';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
