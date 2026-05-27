@@ -149,50 +149,33 @@ export interface ConnectorTool {
 }
 
 export interface ConnectorConfig {
-	mcp?: ConnectorMcpConfig;
-	tools: ConnectorTool[];
-}
-
-export interface ConnectorRuntimeConfig extends ConnectorConfig {
-	id: string;
-	name: string;
-	connectorId: ConnectorProviderId;
-	serverLabel: string;
+	id?: string;
+	name?: string;
+	connectorId?: ConnectorProviderId;
+	authKind?: ConnectorAuthKind;
+	serverLabel?: string;
 	serverDescription?: string;
-	enabled: boolean;
-	authorization: string;
+	enabled?: boolean;
+	status?: ConnectorStatus;
+	authorization?: string;
 	mcp?: ConnectorMcpConfig;
 	oauth?: ConnectorOAuthConfig;
-	requireApproval: ConnectorApprovalMode;
-	allowedTools: string[];
-	deferLoading: boolean;
+	requireApproval?: ConnectorApprovalMode;
+	allowedTools?: string[];
+	allowedToolsCount?: number;
+	toolsCount?: number;
+	hasToken?: boolean;
+	hasTools?: boolean;
+	deferLoading?: boolean;
 	tools: ConnectorTool[];
 	lastRefreshedAt?: string;
-	createdAt: string;
-	updatedAt: string;
-	lastError?: string;
-}
-
-export type Connector = ConnectorRuntimeConfig;
-
-export interface ConnectorView {
-	id: string;
-	name: string;
-	connectorId: ConnectorProviderId;
-	authKind: ConnectorAuthKind;
-	serverLabel: string;
-	enabled: boolean;
-	status: ConnectorStatus;
-	requireApproval: ConnectorApprovalMode;
-	allowedToolsCount: number;
-	toolsCount: number;
-	hasToken: boolean;
-	hasTools: boolean;
-	deferLoading: boolean;
-	lastRefreshedAt?: string;
-	lastError?: string;
 	connectedAccount?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	lastError?: string;
 }
+
+export type Connector = ConnectorConfig;
 
 export interface ConnectorInput {
 	name: string;
@@ -217,7 +200,7 @@ export interface ConnectorOAuthAuthorizeRequest {
 export interface ConnectorOAuthAuthorizeResult {
 	connectorId: ConnectorProviderId;
 	authorizationUrl: string;
-	connector: ConnectorRuntimeConfig;
+	connector: ConnectorConfig;
 }
 
 export interface ConnectorOAuthCompleteInput {
