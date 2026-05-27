@@ -41,6 +41,7 @@ export interface AgentMcpClientServicePort {
 	getPrompt(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown>;
 	createAgentTools(): AgentTool[];
 	refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig>;
+	closeConnector(id: string): Promise<void>;
 	close(): Promise<void>;
 }
 
