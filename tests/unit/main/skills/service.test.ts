@@ -90,6 +90,24 @@ describe('SkillsService', () => {
 		);
 	});
 
+	it('searches installed skill metadata and configured skill names', async () => {
+		const root = await makeTempDir();
+		await writeSkill(root, 'research-brief', {
+			description: 'Plan and summarize research from references.',
+		});
+		await writeSkill(root, 'react-ui', {
+			description: 'Build polished React screens and components.',
+		});
+		const service = new SkillsService(makeLogger() as never, { rootPath: root });
+
+		await expect(service.search('prepare a research summary')).resolves.toEqual([
+			expect.objectContaining({ name: 'research-brief', reason: 'matched skill description' }),
+		]);
+		await expect(service.search('hello', { names: ['react-ui'] })).resolves.toEqual([
+			expect.objectContaining({ name: 'react-ui', score: 1000, reason: 'configured for this agent' }),
+		]);
+	});
+
 	it('loads full instructions and support files only when a skill is selected', async () => {
 		const root = await makeTempDir();
 		await writeSkill(root, 'research-brief', {
