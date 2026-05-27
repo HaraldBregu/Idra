@@ -648,7 +648,7 @@ interface ConnectorsInvokeChannelMap {
 		args: [];
 		result: import('../connector').ConnectorCatalogEntry[];
 	};
-	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorView[] };
+	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorConfig[] };
 	[ConnectorsChannels.get]: {
 		args: [id: string];
 		result: import('../connector').ConnectorConfig;
