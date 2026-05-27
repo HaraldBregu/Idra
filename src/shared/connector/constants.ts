@@ -12,6 +12,11 @@ export interface StaticOAuthConnectorDefinition {
 	readonly docsPath: string;
 	readonly setupUrl: string;
 	readonly capabilities: readonly string[];
+	readonly mcp?: {
+		readonly endpoint: string;
+		readonly referenceUrl: string;
+		readonly tools: readonly string[];
+	};
 	readonly oauth: {
 		readonly authorizationUrl: string;
 		readonly clientIdEnvVar: string;
@@ -29,6 +34,9 @@ export const GOOGLE_OAUTH_CLIENT_ID_ENV = 'GOOGLE_OAUTH_CLIENT_ID' as const;
 export const GOOGLE_OAUTH_CLIENT_SECRET_ENV = 'GOOGLE_OAUTH_CLIENT_SECRET' as const;
 export const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1' as const;
 export const GOOGLE_OAUTH_SETUP_URL = 'https://console.cloud.google.com/apis/credentials' as const;
+export const GOOGLE_MCP_AUTHENTICATION_URL = 'https://docs.cloud.google.com/mcp/authenticate-mcp' as const;
+export const GOOGLE_GMAIL_MCP_ENDPOINT = 'https://gmailmcp.googleapis.com/mcp/v1' as const;
+export const GOOGLE_GMAIL_MCP_REFERENCE_URL = 'https://developers.google.com/workspace/gmail/api/reference/mcp' as const;
 
 export const GOOGLE_WORKSPACE_OAUTH_CONNECTORS = [
 	{
@@ -36,11 +44,27 @@ export const GOOGLE_WORKSPACE_OAUTH_CONNECTORS = [
 		providerId: GOOGLE_OAUTH_PROVIDER_ID,
 		directConnectorId: 'gmail',
 		name: 'Gmail',
-		description: 'Authorize Gmail access for mail search, drafts, sending, and mailbox updates.',
+		description: 'Authorize the official Gmail MCP server for mail search, drafts, labels, and threads.',
 		authKind: 'oauth',
 		docsPath: 'docs/connectors/gmail.md',
 		setupUrl: GOOGLE_OAUTH_SETUP_URL,
-		capabilities: ['Search mail', 'Read messages', 'Create drafts', 'Send mail'],
+		capabilities: ['Search mail', 'Read messages', 'Create drafts', 'Manage labels'],
+		mcp: {
+			endpoint: GOOGLE_GMAIL_MCP_ENDPOINT,
+			referenceUrl: GOOGLE_GMAIL_MCP_REFERENCE_URL,
+			tools: [
+				'create_draft',
+				'list_drafts',
+				'get_thread',
+				'search_threads',
+				'label_thread',
+				'unlabel_thread',
+				'list_labels',
+				'label_message',
+				'unlabel_message',
+				'create_label',
+			],
+		},
 		oauth: {
 			authorizationUrl: GOOGLE_OAUTH_AUTHORIZATION_URL,
 			clientIdEnvVar: GOOGLE_OAUTH_CLIENT_ID_ENV,
