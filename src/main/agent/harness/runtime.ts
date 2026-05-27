@@ -276,17 +276,42 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const parentSession = input.parentSessionId
 			? await this.persistence.loadSession(input.parentSessionId)
 			: null;
+		const childRunId = randomUUID();
+		const childSessionId = input.sessionId ?? `${input.parentSessionId ?? 'root'}:subagent:${childRunId}`;
+		this.emit({
+			type: 'subagent.started',
+			runId: childRunId,
+			sessionId: childSessionId,
+			parentSessionId: input.parentSessionId,
+			task: input.task,
+		});
 		if (this.config.subagents && parentSession) {
-			return this.config.subagents.run({ ...input, parentSession });
+			const result = await this.config.subagents.run({ ...input, sessionId: childSessionId, parentSession });
+			this.emit({
+				type: 'subagent.finished',
+				runId: result.runId,
+				sessionId: result.sessionId,
+				parentSessionId: input.parentSessionId,
+				stopReason: result.stopReason,
+			});
+			return result;
 		}
-		const childSessionId = input.sessionId ?? `${input.parentSessionId ?? 'root'}:subagent:${randomUUID()}`;
-		return this.execute({
+		const result = await this.execute({
+			runId: childRunId,
 			task: input.task,
 			sessionId: childSessionId,
 			parentSessionId: input.parentSessionId,
 			context: input.context,
 			requiredSkills: input.requiredSkills,
 		});
+		this.emit({
+			type: 'subagent.finished',
+			runId: result.runId,
+			sessionId: result.sessionId,
+			parentSessionId: input.parentSessionId,
+			stopReason: result.stopReason,
+		});
+		return result;
 	}
 
 	private async runLoop(input: {
