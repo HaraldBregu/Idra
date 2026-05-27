@@ -23,6 +23,7 @@ import {
 } from '../../../../src/main/agent/tools/registry';
 import {
 	AGENT_TOOL_APPROVAL_ALWAYS,
+	AGENT_TOOL_APPROVAL_NONE,
 	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
 	AGENT_TOOL_GROUPS,
 	AGENT_TOOL_METADATA_BY_NAME,
@@ -129,7 +130,7 @@ describe('tools/policy and registry', () => {
 		});
 		expect(byName.get('run_shell')).toMatchObject({
 			group: 'coreWorkspace',
-			approval: AGENT_TOOL_APPROVAL_ALWAYS,
+			approval: AGENT_TOOL_APPROVAL_NONE,
 		});
 		expect(byName.has('exec')).toBe(false);
 		expect(byName.has('cron')).toBe(false);
