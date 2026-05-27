@@ -324,12 +324,17 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		systemPrompt: string;
 		maxIterations: number;
 		maxTokens: number;
+		maxCostUsd?: number;
+		model?: AgentHarnessModelDescriptor;
+		startedAtMs: number;
+		timeoutMs?: number;
 		signal: AbortSignal;
 	}): Promise<AgentHarnessRunResult> {
 		let session = input.session;
 		let finalText = '';
 		let toolCalls = 0;
 		const usage: Usage = { inputTokens: 0, outputTokens: 0 };
+		let costUsd = 0;
 		let stopReason: AgentHarnessRunResult['stopReason'] = 'end_turn';
 
 		for (let iteration = 0; iteration < input.maxIterations; iteration++) {
@@ -337,6 +342,15 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				stopReason = 'cancelled';
 				break;
 			}
+			if (this.isTimeoutExceeded(input.startedAtMs, input.timeoutMs)) {
+				stopReason = 'cancelled';
+				break;
+			}
+			if (this.isBudgetExceeded({ usage, costUsd, maxCostUsd: input.maxCostUsd })) {
+				stopReason = usage.outputTokens >= input.maxTokens ? 'max_tokens' : 'error';
+				break;
+			}
+			session = this.compactSessionForModel(session, input.model);
 			this.emit({ type: 'model.request', runId: input.runId, sessionId: session.id, iteration });
 			await this.runHooks('before_model_call', { runId: input.runId, sessionId: session.id, iteration });
 			let response: Awaited<ReturnType<DefaultAgentHarness['collectModelTurn']>>;
@@ -355,6 +369,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			}
 			usage.inputTokens += response.usage.inputTokens;
 			usage.outputTokens += response.usage.outputTokens;
+			costUsd += response.costUsd;
 			finalText += response.text;
 			session = {
 				...session,
@@ -367,7 +382,9 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				sessionId: session.id,
 				iteration,
 				usage: response.usage,
+				costUsd: response.costUsd,
 			});
+			this.emit({ type: 'usage.updated', runId: input.runId, sessionId: session.id, usage, costUsd });
 			await this.runHooks('after_model_call', { runId: input.runId, sessionId: session.id, iteration, response });
 			if (response.toolCalls.length === 0) {
 				stopReason = response.stopReason === 'max_tokens' ? 'max_tokens' : 'end_turn';
@@ -401,6 +418,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 					updatedAt: new Date().toISOString(),
 				};
 			}
+			await this.persistence.saveSession(session);
 			if (iteration === input.maxIterations - 1) stopReason = 'max_iterations';
 		}
 
@@ -410,6 +428,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			finalText,
 			toolCalls,
 			usage,
+			costUsd,
 			stopReason,
 			session,
 		};
