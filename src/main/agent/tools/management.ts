@@ -16,6 +16,7 @@ const GENERIC_TOOL_ACTION_TOKENS = new Set([
 	'list',
 	'open',
 	'run',
+	'execute',
 ]);
 
 export interface AgentToolSelectionForTurn {
@@ -81,6 +82,7 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 	if (intent === 'calendar' && hasAny(toolTokens, ['calendar', 'agenda', 'event', 'events'])) score += 60;
 	if (intent === 'drive' && hasAny(toolTokens, ['drive', 'file', 'files', 'document', 'documents'])) score += 50;
 	if (intent === 'web' && hasAny(toolTokens, ['web', 'fetch', 'weather', 'current', 'latest'])) score += 50;
+	if (intent === 'script_run' && hasAny(toolTokens, ['script', 'command', 'python', 'node', 'bash', 'execute', 'run', 'terminal'])) score += 80;
 	if (intent === 'file_read' && hasAny(toolTokens, ['read', 'find', 'inspect', 'search'])) score += 40;
 	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'patch', 'create', 'delete', 'copy', 'move'])) score += 40;
 	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
@@ -98,6 +100,7 @@ type ToolIntent =
 	| 'calendar'
 	| 'drive'
 	| 'web'
+	| 'script_run'
 	| 'file_read'
 	| 'file_write'
 	| 'file_move';
@@ -110,6 +113,7 @@ function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolInte
 	if (/\b(calendar|agenda|meeting|event|events)\b/.test(normalized)) return 'calendar';
 	if (/\b(google drive|drive|document|documents)\b/.test(normalized)) return 'drive';
 	if (/\b(weather|latest|current|web|url|http|fetch)\b/.test(normalized)) return 'web';
+	if (/\b(script|scripts|python|node|bash|terminal|command)\b/.test(normalized) && hasAny(tokens, ['run', 'execute', 'start', 'open'])) return 'script_run';
 	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
 	if (fileContext && hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])) return 'file_write';
 	if (fileContext && hasAny(tokens, ['read', 'find', 'inspect', 'search', 'show', 'list', 'open'])) return 'file_read';
