@@ -805,13 +805,6 @@ export class ConnectorsService implements McpConnectorStore {
 		}
 	}
 
-	private async closeClient(id: string): Promise<void> {
-		const client = this.clients.get(id);
-		if (!client) return;
-		this.clients.delete(id);
-		await client.close();
-	}
-
 	private logDebug(message: string, data?: unknown): void {
 		this.logger.debug(CONNECTORS_LOG_SOURCE, message, data);
 	}
