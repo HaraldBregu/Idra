@@ -832,7 +832,19 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		context: Record<string, unknown>
 	): Promise<AgentHarnessTool[]> {
 		const discovered = await Promise.all(
-			(this.config.externalTools ?? []).map((provider) => provider.discover({ task, session, context }))
+			(this.config.externalTools ?? []).map(async (provider) => {
+				try {
+					return await provider.discover({ task, session, context });
+				} catch (error) {
+					this.emit({
+						type: 'tool.discovered',
+						provider: 'external-error',
+						count: 0,
+						names: [toHarnessErrorShape(error).message],
+					});
+					return [];
+				}
+			})
 		);
 		return discovered.flat();
 	}
