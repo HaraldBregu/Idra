@@ -356,19 +356,21 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 
 		expect(Object.fromEntries(store.data)).toEqual({
-			google_drive: expect.objectContaining({
-				connectorId: 'google.drive',
-				oauth: expect.objectContaining({
-					accountEmail: 'user@example.com',
-					token: expect.objectContaining({
+				google_drive: expect.objectContaining({
+					connectorId: 'google.drive',
+					authorization: 'Bearer access-token',
+					oauth: expect.objectContaining({
+						accountEmail: 'user@example.com',
+						token: expect.objectContaining({
 						accessToken: 'access-token',
 						refreshToken: 'refresh-token',
 						tokenType: 'Bearer',
 					}),
 				}),
-			}),
-		});
-		expect(completed.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
+				}),
+			});
+			expect(completed.authorization).toBe('');
+			expect(completed.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
 		expect(service.list()[0]).toMatchObject({
 			authKind: 'oauth',
 			status: 'configured',
