@@ -2,6 +2,8 @@ import type { ChannelRegistry, ChannelsService } from './channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core';
 import type { WindowContextManager } from './core';
 import type { AgentService } from './agent';
+import type { AgentDataDirectoryService } from './agent/storage';
+import type { AgentSettingsStore } from './agent/settings';
 import type { AppPermissionsService } from './app-permissions';
 import type { ConnectorsService } from './agent/connectors';
 import type { CronService } from './cron';
@@ -22,6 +24,8 @@ import type { WorkspaceService } from './workspace';
 export interface MainServices {
 	appState: AppState;
 	appPermissions: AppPermissionsService;
+	agentDataDirectory: AgentDataDirectoryService;
+	agentSettings: AgentSettingsStore;
 	agentService: AgentService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
