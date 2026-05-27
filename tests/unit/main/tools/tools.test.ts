@@ -12,6 +12,7 @@ import {
 	readTool,
 	writeTool,
 } from '../../../../src/main/agent/tools/fs';
+import { scriptRunTool } from '../../../../src/main/agent/tools/scripts/tools';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -80,7 +81,18 @@ describe('tools/policy and registry', () => {
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
 		expect(createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)).toEqual(
-			LOCAL_TOOL_CATALOG.map((entry) => entry.name)
+			[
+				'read',
+				'write',
+				'edit',
+				'apply_patch',
+				'delete',
+				'copy',
+				'move',
+				'inspect_file',
+				'find',
+				'script_run',
+			]
 		);
 	});
 
@@ -107,6 +119,7 @@ describe('tools/policy and registry', () => {
 			'move',
 			'inspect_file',
 			'find',
+			'script_run',
 		];
 		const byName = localToolCatalogByName();
 
@@ -118,9 +131,14 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForProfile('coding')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
-		expect(localToolNamesForGroup('file')).toEqual(standardToolNames);
+		expect(localToolNamesForGroup('file')).toEqual(standardToolNames.filter((name) => name !== 'script_run'));
+		expect(localToolNamesForGroup('script')).toEqual(['script_run']);
 		expect(byName.get('write')).toMatchObject({
 			group: 'file',
+			approval: { mode: 'workspace-boundary', target: 'write-target' },
+		});
+		expect(byName.get('script_run')).toMatchObject({
+			group: 'script',
 			approval: { mode: 'workspace-boundary', target: 'write-target' },
 		});
 		expect(byName.has('exec')).toBe(false);
