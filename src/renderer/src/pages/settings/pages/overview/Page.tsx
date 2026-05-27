@@ -37,8 +37,8 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/tools', '/settings/skills', '/settings/connectors'],
 	},
 	{
-		id: 'voice',
-		titleKey: 'settings.overview.groups.voice',
+		id: 'modelServices',
+		titleKey: 'settings.overview.groups.modelServices',
 		agentIds: [
 			AGENTS.speechToText,
 			AGENTS.textToSpeech,

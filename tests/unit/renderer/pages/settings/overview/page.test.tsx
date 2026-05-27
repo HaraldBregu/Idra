@@ -12,6 +12,16 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
+beforeEach(() => {
+	Object.defineProperty(window, 'heartbeat', {
+		configurable: true,
+		value: {
+			status: jest.fn().mockResolvedValue({ enabled: false }),
+			onEvent: jest.fn(() => jest.fn()),
+		},
+	});
+});
+
 function LocationProbe(): React.JSX.Element {
 	const location = useLocation();
 	return <div data-testid="location">{location.pathname}</div>;
@@ -43,7 +53,7 @@ describe('OverviewPage', () => {
 			name: 'settings.overview.groups.agent',
 		})).toBeInTheDocument();
 		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.voice',
+			name: 'settings.overview.groups.modelServices',
 		})).toBeInTheDocument();
 		const monitoringSection = screen.getByRole('heading', {
 			name: 'settings.overview.groups.monitoring',
