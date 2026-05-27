@@ -3,11 +3,11 @@ import { constants as fsConstants, promises as fs } from 'node:fs';
 import type { Stats } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
+import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
 import { checkFilePolicy, type FilePolicyCheck } from './policy';
-import { checkFsRestriction, isInsidePath, outsidePathNeedsApproval, resolveAbs } from './path-policy';
+import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from './path-policy';
 
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
 	return { mtimeMs: stat.mtimeMs, size: stat.size };
