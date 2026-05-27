@@ -40,8 +40,7 @@ export async function beforeToolCall(
 	tracker.counts.set(key, count);
 
 	let requires = false;
-	if (tool.needsApproval === true) requires = true;
-	else if (typeof tool.needsApproval === 'function') {
+	if (typeof tool.needsApproval === 'function') {
 		requires = await tool.needsApproval(args as Record<string, unknown>, ctx);
 	}
 
@@ -51,7 +50,7 @@ export async function beforeToolCall(
 		callCount: count,
 		loopWarnAt: LOOP_WARN_AT,
 		loopStopAt: LOOP_STOP_AT,
-		requiresApproval: requires || (ctx.approvalRequired?.has(tool.name) ?? false),
+		requiresApproval: requires,
 		approvalCached: ctx.approvalCache?.has(key) ?? false,
 	});
 
