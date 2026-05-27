@@ -31,10 +31,22 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/general', '/settings/system', '/settings/providers'],
 	},
 	{
-		id: 'ai',
-		titleKey: 'settings.overview.groups.ai',
-		agents: true,
-		paths: ['/settings/skills', '/settings/connectors'],
+		id: 'agent',
+		titleKey: 'settings.overview.groups.agent',
+		agentIds: [AGENTS.assistant],
+		paths: ['/settings/tools', '/settings/skills', '/settings/connectors'],
+	},
+	{
+		id: 'voice',
+		titleKey: 'settings.overview.groups.voice',
+		agentIds: [
+			AGENTS.speechToText,
+			AGENTS.textToSpeech,
+			AGENTS.textToImage,
+			AGENTS.textToVideo,
+			AGENTS.textToAudio,
+		],
+		paths: [],
 	},
 	{
 		id: 'channels',
@@ -54,7 +66,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
-	readonly agents?: boolean;
+	readonly agentIds?: readonly SettingsOverviewAgentId[];
 	readonly paths: readonly string[];
 }[];
 
@@ -170,9 +182,10 @@ const OverviewPage: React.FC = () => {
 				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
 					const panel = (
 						<SettingsPanel>
-							{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
-								<SettingsOverviewCard key={item.path} item={item} />
-							))}
+							{group.agentIds?.map((agentId) => {
+								const item = getSettingsOverviewAgentItem(agentId);
+								return <SettingsOverviewCard key={item.path} item={item} />;
+							})}
 							{group.paths.map((path) => {
 								const item = getSettingsNavigationItem(path);
 								const badge =

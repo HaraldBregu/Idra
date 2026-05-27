@@ -30,6 +30,7 @@ const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page
 const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
 const OperatorDetailsPage = lazy(() => import('./pages/settings/pages/operators/details/Page'));
 const ChatHistoryPage = lazy(() => import('./pages/settings/pages/operators/details/chathistory/Page'));
+const ToolsPage = lazy(() => import('./pages/settings/pages/tools/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
@@ -235,6 +236,14 @@ const routes: RouteObject[] = [
 								),
 							},
 						],
+					},
+					{
+						path: 'tools',
+						element: (
+							<SettingsRouteWrapper>
+								<ToolsPage />
+							</SettingsRouteWrapper>
+						),
 					},
 					{
 						path: 'skills',

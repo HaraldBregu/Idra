@@ -10,6 +10,7 @@ describe('settings navigation', () => {
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'settings.tabs.skills',
+			'settings.tabs.tools',
 			'settings.tabs.connectors',
 			'settings.tabs.channels',
 			'settings.tabs.heartbeat',

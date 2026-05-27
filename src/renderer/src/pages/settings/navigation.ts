@@ -16,6 +16,7 @@ import {
 	Sparkles,
 	Video,
 	Volume2,
+	Wrench,
 	type LucideIcon,
 } from 'lucide-react';
 import {
@@ -128,6 +129,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.allowFrom', descriptionKey: 'settings.channels.allowFromDescription', keywords: 'whitelist users allowed senders' },
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
+	{ path: '/settings/tools', labelKey: 'settings.tabs.tools', descriptionKey: 'settings.overview.descriptions.tools', keywords: 'tools capabilities permissions approval mcp workspace skill' },
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
 	// Operators
 	...SETTINGS_OPERATOR_ITEMS,
@@ -166,6 +168,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
 		icon: Sparkles,
+	},
+	{
+		path: '/settings/tools',
+		labelKey: 'settings.tabs.tools',
+		descriptionKey: 'settings.overview.descriptions.tools',
+		icon: Wrench,
 	},
 	{
 		path: '/settings/connectors',

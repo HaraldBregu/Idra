@@ -40,7 +40,10 @@ describe('OverviewPage', () => {
 			name: 'settings.overview.groups.app',
 		})).toBeInTheDocument();
 		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.ai',
+			name: 'settings.overview.groups.agent',
+		})).toBeInTheDocument();
+		expect(screen.getByRole('heading', {
+			name: 'settings.overview.groups.voice',
 		})).toBeInTheDocument();
 		const monitoringSection = screen.getByRole('heading', {
 			name: 'settings.overview.groups.monitoring',
@@ -50,15 +53,16 @@ describe('OverviewPage', () => {
 		expect(buttonTitles()).toEqual([
 			'settings.tabs.general',
 			'settings.tabs.system',
+			'settings.tabs.providers',
 			'AI Assistant',
+			'settings.tabs.tools',
+			'settings.tabs.skills',
+			'settings.tabs.connectors',
 			'settings.operators.speechTranscriberName',
 			'settings.operators.textToSpeechName',
 			'settings.operators.imageAssistantName',
 			'settings.operators.videoCreatorName',
 			'settings.operators.musicCreatorName',
-			'settings.tabs.providers',
-			'settings.tabs.skills',
-			'settings.tabs.connectors',
 			'settings.tabs.channels',
 			'settings.tabs.heartbeat',
 			'settings.sections.taskScheduler',
