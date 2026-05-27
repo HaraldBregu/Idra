@@ -2,8 +2,8 @@ import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { ConnectorsIpc } from '../../../../src/main/ipc/connectors-ipc';
 import type { MainServiceContainer } from '../../../../src/main/service-registry';
-import { OPENAI_CONNECTOR_CATALOG } from '../../../../src/shared/connector';
 import type {
+	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
@@ -12,10 +12,26 @@ import type {
 } from '../../../../src/shared/connector';
 import { ConnectorsChannels } from '../../../../src/shared/ipc-channels';
 
+const connectorCatalog: ConnectorCatalogEntry[] = [
+	{
+		id: 'google.gmail',
+		name: 'Google Gmail MCP',
+		description: 'Discovered Gmail MCP connector.',
+		environmentSecretNames: ['GOOGLE_MCP_API_KEY'],
+		platformDocumentationPages: [],
+		tools: ['get_profile'],
+		scopes: [],
+		setupInstructions: [],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	},
+];
+
 const connectorConfig: ConnectorConfig = {
 	id: 'connector-record-1',
 	name: 'My Gmail',
-	connectorId: 'connector_gmail',
+	connectorId: 'google.gmail',
 	serverLabel: 'my_gmail',
 	enabled: true,
 	mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
@@ -68,7 +84,7 @@ function registeredHandler(channel: string) {
 
 function createConnectorsService() {
 	return {
-		catalog: jest.fn(() => OPENAI_CONNECTOR_CATALOG),
+		catalog: jest.fn(() => connectorCatalog),
 		list: jest.fn(() => [connectorView]),
 		get: jest.fn(() => connectorConfig),
 		add: jest.fn(() => connectorConfig),
@@ -108,7 +124,7 @@ describe('ConnectorsIpc', () => {
 
 		const addInput = {
 			name: 'My Gmail',
-			connectorId: 'connector_gmail',
+			connectorId: 'google.gmail',
 			allowedTools: ['get_profile'],
 		};
 		const updateInput = { enabled: false };
@@ -120,7 +136,7 @@ describe('ConnectorsIpc', () => {
 				args: [],
 				method: connectors.catalog,
 				expectedArgs: [],
-				expectedData: OPENAI_CONNECTOR_CATALOG,
+				expectedData: connectorCatalog,
 			},
 			{
 				channel: ConnectorsChannels.list,

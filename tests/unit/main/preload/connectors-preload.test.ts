@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { connectors } from '../../../../src/preload';
-import { OPENAI_CONNECTOR_CATALOG } from '../../../../src/shared/connector';
 import type {
+	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
@@ -12,10 +12,26 @@ import { ConnectorsChannels } from '../../../../src/shared/ipc-channels';
 
 const mockedIpcRenderer = ipcRenderer as jest.Mocked<typeof ipcRenderer>;
 
+const connectorCatalog: ConnectorCatalogEntry[] = [
+	{
+		id: 'google.gmail',
+		name: 'Google Gmail MCP',
+		description: 'Discovered Gmail MCP connector.',
+		environmentSecretNames: ['GOOGLE_MCP_API_KEY'],
+		platformDocumentationPages: [],
+		tools: ['get_profile'],
+		scopes: [],
+		setupInstructions: [],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	},
+];
+
 const connectorConfig: ConnectorConfig = {
 	id: 'connector-record-1',
 	name: 'My Gmail',
-	connectorId: 'connector_gmail',
+	connectorId: 'google.gmail',
 	serverLabel: 'my_gmail',
 	enabled: true,
 	mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
@@ -68,7 +84,7 @@ describe('connectors preload API', () => {
 	it('invokes every connector API method through the typed IPC channels', async () => {
 		const addInput = {
 			name: 'My Gmail',
-			connectorId: 'connector_gmail',
+			connectorId: 'google.gmail',
 			allowedTools: ['get_profile'],
 		};
 		const updateInput = { enabled: false };
@@ -79,7 +95,7 @@ describe('connectors preload API', () => {
 				run: () => connectors.catalog(),
 				channel: ConnectorsChannels.catalog,
 				args: [],
-				data: OPENAI_CONNECTOR_CATALOG,
+				data: connectorCatalog,
 			},
 			{
 				run: () => connectors.list(),
