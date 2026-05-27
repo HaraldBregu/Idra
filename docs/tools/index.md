@@ -1,10 +1,10 @@
 # Tools
 
-Tools let an agent do work outside plain text. In this section, the documented tools are file tools: they let the agent read, inspect, find, create, update, move, copy, and delete files when policy allows the requested path.
+Tools let an agent do work outside plain text. In this section, the documented tools are local tools: they let the agent read, inspect, find, create, update, move, copy, delete, and run existing script files when policy allows the requested paths.
 
 An agent should use tools when they make the result more accurate, current, verified, or executable. It should avoid tools when the user needs a direct answer and the available context is already enough.
 
-This section documents file tools. File tool policy is a separate system module.
+This section documents file and script tools. File path policy is a separate system module.
 
 ## How Agents Should Use Tools
 
@@ -17,7 +17,8 @@ This section documents file tools. File tool policy is a separate system module.
 ## Basic Rules
 
 - Use file tools when the answer depends on workspace content or a specific readable file path.
-- File tools must ask [file tool policy](../policy/index.md) before reading, writing, editing, moving, copying, deleting, finding, or inspecting a path.
+- Use `script_run` only for an existing script file, not arbitrary shell command text.
+- Local tools must ask [file tool policy](../policy/index.md) before reading, writing, editing, moving, copying, deleting, finding, inspecting, or executing against a path.
 - Keep mutating file operations inside allowed directories.
 - Read or inspect files before changing them.
 - Ask before irreversible, external, or high-impact actions.
@@ -35,15 +36,16 @@ The file tools documented here are not loaded through a model-callable search co
 2. The policy module filters candidates by profile, allow/deny rules, sender context, sandbox context, and runtime allow/deny options.
 3. Provider schema normalization adapts the remaining tool schemas for the selected model.
 4. The active turn receives the selected tool schemas.
-5. During execution, each file tool asks file policy before operating on a path.
+5. During execution, each local file or script tool asks file policy before operating on a path.
 
-## File Tool Area
+## Local Tool Areas
 
-The file tools can keep full filesystem capability in their implementation, but execution is gated by the [policy module](../policy/index.md).
+Local tools can keep filesystem or process capability in their implementation, but execution is gated by the [policy module](../policy/index.md).
 
 | Area | Current tools | Docs |
 | --- | --- | --- |
 | File tools | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files.md) |
+| Script tools | `script_run` | [script_run](script-run.md) |
 
 ## Related Docs
 
