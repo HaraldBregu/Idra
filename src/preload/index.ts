@@ -104,7 +104,6 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
-	ConnectorView,
 } from '../shared/connector';
 import {
 	isRealtimeTranscriptionAudioChunk,
@@ -753,7 +752,7 @@ export const connectors: ConnectorsApi = {
 	catalog: (): Promise<ConnectorCatalogEntry[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.catalog);
 	},
-	list: (): Promise<ConnectorView[]> => {
+	list: (): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.list);
 	},
 	get: (id: string): Promise<ConnectorConfig> => {
