@@ -514,6 +514,7 @@
 			}
 		},
 		"cron": {
+			"description": "Pianifica e gestisci attività agente ricorrenti con espressioni cron.",
 			"columns": {
 				"id": "Id",
 				"message": "Messaggio",
