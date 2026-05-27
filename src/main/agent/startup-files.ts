@@ -2,9 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { LoggerService } from '../logger';
 import {
-	DEFAULT_AGENTS_FILENAME,
 	DEFAULT_BOOTSTRAP_FILENAME,
-	DEFAULT_HEARTBEAT_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_MEMORY_FILENAME,
 	DEFAULT_SOUL_FILENAME,

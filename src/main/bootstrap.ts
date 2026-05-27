@@ -147,7 +147,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		eventBus,
 		workspace,
-		startupFiles,
 		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,
