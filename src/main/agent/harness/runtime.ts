@@ -6,7 +6,7 @@ import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } 
 import { DefaultAgentHarnessSecretRedactor, validateAgentHarnessConfig } from './config';
 import { compactTranscriptToBudget } from './context';
 import { AgentHarnessError, isRecoverableError, toHarnessErrorShape } from './errors';
-import { describeModelCandidate, estimateUsageCost } from './model';
+import { estimateUsageCost } from './model';
 import { validateJsonSchemaValue } from './schema';
 import { DefaultAgentHarnessToolRegistry, filterToolsByPermissions, requiresPolicyApproval } from './tools';
 import type {
@@ -17,7 +17,6 @@ import type {
 	AgentHarnessEvent,
 	AgentHarnessExecuteInput,
 	AgentHarnessHookName,
-	AgentHarnessModel,
 	AgentHarnessModelCandidate,
 	AgentHarnessModelDescriptor,
 	AgentHarnessMemoryRecord,
