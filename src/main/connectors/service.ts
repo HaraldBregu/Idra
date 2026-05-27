@@ -1255,7 +1255,7 @@ function oauthAuthorizationHeader(token: NonNullable<ConnectorConfig['oauth']>['
 	return (token.tokenType?.trim() || 'Bearer') + ' ' + token.accessToken;
 }
 
-function permissionForTool(connector: ConnectorConfig, toolName: string): ConnectorToolPermission {
+function permissionForTool(connector: RuntimeConnector, toolName: string): ConnectorToolPermission {
 	if (connector.oauth) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
 	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
 	if (connector.requireApproval === 'never') return 'always-allow';
@@ -1263,7 +1263,7 @@ function permissionForTool(connector: ConnectorConfig, toolName: string): Connec
 	return 'needs-approval';
 }
 
-function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
+function agentToolNameFor(connector: RuntimeConnector, toolName: string): string {
 	return (connector.serverLabel + '_' + toolName)
 		.toLowerCase()
 		.replace(/[^a-z0-9_]+/g, '_')
