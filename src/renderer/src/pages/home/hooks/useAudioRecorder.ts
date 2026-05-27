@@ -1,5 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MicrophonePermissionSettings } from '@shared/app-permissions';
+import {
+	canRecordAudio,
+	createRecordingFileName,
+	createRecordingId,
+	getAppMicrophonePermission,
+	normalizePermissionState,
+	objectUrlForBlob,
+	queryMicrophonePermission,
+	recorderErrorMessage,
+	stopStream,
+	supportedMimeType,
+} from './audio';
 
 export type AudioRecorderStatus = 'idle' | 'checking-permission' | 'recording' | 'stopping' | 'error';
 export type AudioRecorderPermissionState =
@@ -19,99 +30,8 @@ export type AudioRecording = {
 	readonly size: number;
 };
 
-const AUDIO_MIME_TYPES = [
-	'audio/webm;codecs=opus',
-	'audio/webm',
-	'audio/mp4',
-	'audio/ogg;codecs=opus',
-] as const;
-
 const RECORDING_TIMESLICE_MS = 1000;
 const CLOCK_INTERVAL_MS = 250;
-
-function canRecordAudio(): boolean {
-	const mediaDevices = navigator.mediaDevices as MediaDevices | undefined;
-	return Boolean(
-		mediaDevices &&
-			typeof mediaDevices.getUserMedia === 'function' &&
-			typeof MediaRecorder !== 'undefined'
-	);
-}
-
-function supportedMimeType(): string | undefined {
-	if (typeof MediaRecorder === 'undefined') return undefined;
-	return AUDIO_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type));
-}
-
-function extensionForMimeType(mimeType: string): string {
-	if (mimeType.startsWith('audio/mp4')) return 'm4a';
-	if (mimeType.startsWith('audio/ogg')) return 'ogg';
-	return 'webm';
-}
-
-function createRecordingId(): string {
-	if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-	return `audio-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function createRecordingFileName(mimeType: string): string {
-	const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-	return `friday-audio-${timestamp}.${extensionForMimeType(mimeType)}`;
-}
-
-function normalizePermissionState(state: PermissionState): AudioRecorderPermissionState {
-	if (state === 'granted' || state === 'denied' || state === 'prompt') return state;
-	return 'unknown';
-}
-
-async function queryMicrophonePermission(): Promise<AudioRecorderPermissionState> {
-	if (!navigator.permissions?.query) return 'unknown';
-
-	try {
-		const status = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-		return normalizePermissionState(status.state);
-	} catch {
-		return 'unknown';
-	}
-}
-
-async function getAppMicrophonePermission(): Promise<MicrophonePermissionSettings | null> {
-	const appApi = (window as Window & { app?: Partial<Window['app']> }).app;
-	if (!appApi?.getMicrophonePermission) return null;
-
-	try {
-		return await appApi.getMicrophonePermission();
-	} catch {
-		return null;
-	}
-}
-
-function recorderErrorMessage(error: unknown): string {
-	if (error instanceof DOMException) {
-		if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
-			return 'Microphone access is blocked. Allow microphone access and try again.';
-		}
-
-		if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-			return 'No microphone was found.';
-		}
-	}
-
-	if (error instanceof Error && error.message.trim().length > 0) {
-		return error.message;
-	}
-
-	return 'Audio recording failed.';
-}
-
-function stopStream(stream: MediaStream | null): void {
-	stream?.getTracks().forEach((track) => track.stop());
-}
-
-function objectUrlForBlob(blob: Blob): string | undefined {
-	if (typeof URL.createObjectURL !== 'function') return undefined;
-	return URL.createObjectURL(blob);
-}
 
 export function useAudioRecorder() {
 	const [status, setStatus] = useState<AudioRecorderStatus>('idle');
