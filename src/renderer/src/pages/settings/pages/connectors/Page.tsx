@@ -232,11 +232,7 @@ const ConnectorsPage = () => {
 				description="Authorize services through OAuth."
 			>
 				<div className="grid gap-2">
-					{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => {
-						const state = connectorByProviderId.get(connector.id);
-						const tokenLabel = state?.hasToken ? 'Token saved' : 'Token missing';
-						const toolsLabel = state?.hasTools ? `${state.toolsCount} tools` : 'No tools';
-						return (
+					{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => (
 						<Item
 							key={connector.id}
 							variant="outline"
@@ -248,24 +244,14 @@ const ConnectorsPage = () => {
 								directConnectorId={connector.directConnectorId}
 								name={connector.name}
 							/>
-							<ItemContent className="min-w-0 flex-col items-start gap-1">
+							<ItemContent className="min-w-0">
 								<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
-								<p className="text-[11px] leading-4 text-muted-foreground/60">
-									{connector.description}
-								</p>
 							</ItemContent>
-							<ItemActions className="ml-auto flex-none flex-wrap justify-end gap-1.5">
-								<Badge variant={state?.hasToken ? 'secondary' : 'outline'} className="h-5 px-1.5 text-[10px]">
-									{tokenLabel}
-								</Badge>
-								<Badge variant={state?.hasTools ? 'secondary' : 'outline'} className="h-5 px-1.5 text-[10px]">
-									{toolsLabel}
-								</Badge>
+							<ItemActions className="ml-auto flex-none justify-end">
 								<ChevronRight className="size-3.5 text-muted-foreground" />
 							</ItemActions>
 						</Item>
-						);
-					})}
+					))}
 				</div>
 			</SettingsSection>
 
