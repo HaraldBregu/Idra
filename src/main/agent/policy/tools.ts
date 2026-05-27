@@ -1,3 +1,10 @@
+import {
+	AGENT_TOOL_GROUPS,
+	AGENT_TOOL_LEGACY_ALIASES,
+	AGENT_TOOL_NAMES,
+	type AgentToolGroupName,
+} from '../../../shared/tools';
+
 export type ToolPolicyProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
 export type ToolPolicy = {
@@ -125,51 +132,12 @@ export type ToolApprovalPolicyDecision =
 	| { outcome: 'allow'; resolution: 'allow-once' | 'allow-always' }
 	| { outcome: 'deny'; resolution: 'deny'; reason: string; deniedReason: string };
 
-const CORE_WORKSPACE_TOOL_NAMES = [
-	'read_file',
-	'write_file',
-	'edit_file',
-	'list_directory',
-	'search_files',
-	'grep',
-	'run_shell',
-	'git_status',
-	'git_diff',
-	'undo_last_operation',
-] as const;
-
-const STATE_TASK_TOOL_NAMES = [
-	'write_todos',
-	'update_todo',
-	'list_todos',
-	'complete_task',
-	'write_scratch',
-	'read_scratch',
-] as const;
-
-const HUMAN_DECISION_TOOL_NAMES = [
-	'request_approval',
-	'request_clarification',
-	'present_plan',
-	'request_authorization',
-] as const;
-
-const SUBAGENT_TOOL_NAMES = ['spawn_subagent'] as const;
-
-const SKILL_TOOL_NAMES = ['list_skills', 'load_skill', 'use_skill'] as const;
-
-const MCP_CONNECTOR_TOOL_NAMES = [
-	'list_mcp_servers',
-	'connect_mcp_server',
-	'refresh_mcp_server',
-	'list_mcp_tools',
-	'load_mcp_tool',
-	'call_mcp_tool',
-	'list_mcp_resources',
-	'read_mcp_resource',
-	'list_mcp_prompts',
-	'load_mcp_prompt',
-] as const;
+const CORE_WORKSPACE_TOOL_NAMES = toolNamesForSharedGroup('coreWorkspace');
+const STATE_TASK_TOOL_NAMES = toolNamesForSharedGroup('stateTask');
+const HUMAN_DECISION_TOOL_NAMES = toolNamesForSharedGroup('humanDecision');
+const SUBAGENT_TOOL_NAMES = toolNamesForSharedGroup('subagent');
+const SKILL_TOOL_NAMES = toolNamesForSharedGroup('skill');
+const MCP_CONNECTOR_TOOL_NAMES = toolNamesForSharedGroup('mcpConnector');
 
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:coreworkspace': CORE_WORKSPACE_TOOL_NAMES,
@@ -190,38 +158,13 @@ export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 
 const PROFILE_ALLOW: Record<ToolPolicyProfile, readonly string[] | '*'> = {
 	minimal: [],
-	coding: [
-		...CORE_WORKSPACE_TOOL_NAMES,
-		...STATE_TASK_TOOL_NAMES,
-		...HUMAN_DECISION_TOOL_NAMES,
-		...SUBAGENT_TOOL_NAMES,
-		...SKILL_TOOL_NAMES,
-		...MCP_CONNECTOR_TOOL_NAMES,
-	],
+	coding: AGENT_TOOL_NAMES,
 	messaging: [],
-	standard: [
-		...CORE_WORKSPACE_TOOL_NAMES,
-		...STATE_TASK_TOOL_NAMES,
-		...HUMAN_DECISION_TOOL_NAMES,
-		...SUBAGENT_TOOL_NAMES,
-		...SKILL_TOOL_NAMES,
-		...MCP_CONNECTOR_TOOL_NAMES,
-	],
+	standard: AGENT_TOOL_NAMES,
 	full: '*',
 };
 
-const TOOL_POLICY_ALIASES: Record<string, readonly string[]> = {
-	read: ['read_file'],
-	write: ['write_file'],
-	edit: ['edit_file'],
-	find: ['search_files'],
-	filesystem_read: ['read_file'],
-	filesystem_update: ['write_file'],
-	filesystem_list: ['list_directory'],
-	filesystem_search: ['search_files'],
-	script_run: ['run_shell'],
-	sessions_spawn: ['spawn_subagent'],
-};
+const TOOL_POLICY_ALIASES: Record<string, readonly string[]> = AGENT_TOOL_LEGACY_ALIASES;
 
 export type ToolPolicyIndex = {
 	names: Map<string, ToolPolicySubject>;
