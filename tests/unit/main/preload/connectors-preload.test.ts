@@ -62,6 +62,7 @@ const connectorTool: ConnectorTool = {
 	name: 'get_profile',
 	description: 'Get profile.',
 	inputSchema: { type: 'object' },
+	permission: 'always-allow',
 	requiresApproval: false,
 };
 
