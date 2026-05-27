@@ -131,9 +131,14 @@ describe('ToolService', () => {
 			})),
 		} as never;
 
-		const result = await runShell?.execute({ command: 'echo hi' }, ctx);
+		const result = await service.beforeCall(
+			runShell!,
+			{ command: 'echo hi' },
+			ctx,
+			service.createCallTracker()
+		);
 
-		expect(result).toMatchObject({ status: 'error' });
-		expect(result?.content[0]?.text).toBe('blocked by policy');
+		expect(result.proceed).toBe(false);
+		expect(result.vetoResult?.content[0]?.text).toBe('blocked by policy');
 	});
 });
