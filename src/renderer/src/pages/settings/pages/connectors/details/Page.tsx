@@ -266,15 +266,6 @@ const ConnectorDetailsPage: React.FC = () => {
 				const item = getConnectorCatalogItem(decodedCatalogId);
 				if (!item) throw new Error(`Connector not found: ${decodedCatalogId}`);
 
-				const existing = (await window.connectors.list()).find(
-					(candidate) => candidate.connectorId === decodedCatalogId
-				);
-				if (existing) {
-					navigate(`/settings/connectors/connectordetails/${encodeURIComponent(existing.id)}`, {
-						replace: true,
-					});
-					return;
-				}
 
 				setConnector(null);
 				setCatalogItem(item);
