@@ -61,10 +61,10 @@ Discovered MCP tools are exposed as `server__tool` names and execute through the
 `example.ts` creates an in-process MCP server, native tools, memory, an approval gate, a scripted model, and streams events:
 
 ```bash
-yarn node --loader ts-node/esm src/main/agent/harness/example.ts
+node src/main/agent/harness/example-runner.mjs
 ```
 
-If the local repo does not have a TypeScript runtime loader installed, import and call `runAgentHarnessExample()` from an existing dev entry point.
+The runner uses Node's built-in TypeScript transform hooks, so it does not need a new package script or dev dependency.
 
 ## Evals
 
