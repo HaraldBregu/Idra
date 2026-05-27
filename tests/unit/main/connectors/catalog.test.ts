@@ -69,7 +69,7 @@ describe('shared connector catalog', () => {
 		expect(getProviderConnectorCatalogItem('connector_gmail')).toMatchObject({
 			providerId: 'google',
 			docsPath: 'docs/providers/google/gmail/index.md',
-			runtimeStatus: 'local_oauth_and_local_tool_execution',
+			runtimeStatus: 'mcp_dynamic_tools',
 		});
 		expect(listProviderConnectorsByProvider('microsoft').map((connector) => connector.id)).toEqual(
 			expect.arrayContaining([
