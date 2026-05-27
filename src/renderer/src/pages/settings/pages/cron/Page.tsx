@@ -320,6 +320,7 @@ const CronPage: React.FC = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title={t('settings.tabs.taskScheduler')}
+				description={t('settings.cron.description')}
 				action={
 					!showForm && (
 						<Button size="sm" onClick={() => setShowForm(true)}>
