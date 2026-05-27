@@ -3,6 +3,7 @@ import { connectors } from '../../../../src/preload';
 import type {
 	ConnectorCatalogEntry,
 	ConnectorConfig,
+	ConnectorOAuthAuthorizeResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
@@ -69,6 +70,11 @@ const testResult: ConnectorTestResult = {
 	message: 'Connected.',
 };
 
+const oauthAuthorizeResult: ConnectorOAuthAuthorizeResult = {
+	connectorId: 'google.gmail',
+	authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+	connector: connectorConfig,
+};
 
 describe('connectors preload API', () => {
 	beforeEach(() => {
@@ -163,6 +169,12 @@ describe('connectors preload API', () => {
 				channel: ConnectorsChannels.callTool,
 				args: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
 				data: { emailAddress: 'user@example.com' },
+			},
+			{
+				run: () => connectors.authorizeOAuth('google.gmail'),
+				channel: ConnectorsChannels.authorizeOAuth,
+				args: [{ connectorId: 'google.gmail' }],
+				data: oauthAuthorizeResult,
 			},
 		] as const;
 
