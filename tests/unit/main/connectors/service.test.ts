@@ -77,11 +77,13 @@ const googleOAuthConnectors: Record<string, ConnectorCatalogEntry> = {
 				'content-type': 'application/json',
 			},
 		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			redirectUri: 'http://127.0.0.1',
+			oauth: {
+				providerId: 'google',
+				clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+				clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
+				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+				tokenUrl: 'https://oauth2.googleapis.com/token',
+				redirectUri: 'http://127.0.0.1',
 			authorizationParams: {
 				response_type: 'code',
 				access_type: 'offline',
@@ -118,11 +120,13 @@ const googleOAuthConnectors: Record<string, ConnectorCatalogEntry> = {
 				'content-type': 'application/json',
 			},
 		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			redirectUri: 'http://127.0.0.1',
+			oauth: {
+				providerId: 'google',
+				clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+				clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
+				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+				tokenUrl: 'https://oauth2.googleapis.com/token',
+				redirectUri: 'http://127.0.0.1',
 			authorizationParams: {
 				response_type: 'code',
 				access_type: 'offline',
@@ -158,11 +162,13 @@ const googleOAuthConnectors: Record<string, ConnectorCatalogEntry> = {
 				'content-type': 'application/json',
 			},
 		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			redirectUri: 'http://127.0.0.1',
+			oauth: {
+				providerId: 'google',
+				clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+				clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
+				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+				tokenUrl: 'https://oauth2.googleapis.com/token',
+				redirectUri: 'http://127.0.0.1',
 			authorizationParams: {
 				response_type: 'code',
 				access_type: 'offline',
