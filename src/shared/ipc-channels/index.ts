@@ -646,7 +646,7 @@ interface SkillsInvokeChannelMap {
 interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.catalog]: {
 		args: [];
-		result: typeof import('../connector').OPENAI_CONNECTOR_CATALOG;
+		result: import('../connector').ConnectorCatalogEntry[];
 	};
 	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorView[] };
 	[ConnectorsChannels.get]: {

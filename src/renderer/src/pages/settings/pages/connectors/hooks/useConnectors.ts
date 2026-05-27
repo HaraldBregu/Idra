@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
-import type {
-	ConnectorTool,
-	ConnectorView,
-	OPENAI_CONNECTOR_CATALOG,
-} from '../../../../../../../shared/connector';
+import type { ConnectorCatalogEntry, ConnectorTool, ConnectorView } from '../../../../../../../shared/connector';
 
-export type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
+export type ConnectorCatalog = readonly ConnectorCatalogEntry[];
 
 export function useConnectors() {
 	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);

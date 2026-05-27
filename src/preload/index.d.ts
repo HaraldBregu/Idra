@@ -105,7 +105,7 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	catalog: () => Promise<typeof OPENAI_CONNECTOR_CATALOG>;
+	catalog: () => Promise<ConnectorCatalogEntry[]>;
 	list: () => Promise<ConnectorView[]>;
 	get: (id: string) => Promise<ConnectorConfig>;
 	add: (input: ConnectorInput) => Promise<ConnectorConfig>;
@@ -257,7 +257,7 @@ import type {
 } from '../shared/speech-to-text';
 import type { TaskEvent, TaskRecord, TaskRunRequest } from '../shared/tasks';
 import type {
-	OPENAI_CONNECTOR_CATALOG,
+	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,

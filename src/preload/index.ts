@@ -95,7 +95,7 @@ import type {
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
-	OPENAI_CONNECTOR_CATALOG,
+	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
@@ -702,7 +702,7 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	catalog: (): Promise<typeof OPENAI_CONNECTOR_CATALOG> => {
+	catalog: (): Promise<ConnectorCatalogEntry[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.catalog);
 	},
 	list: (): Promise<ConnectorView[]> => {

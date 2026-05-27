@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Plug } from 'lucide-react';
-import type { OpenAiConnectorId } from '@shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -28,7 +27,7 @@ const ConnectorsPage = () => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
 	};
 
-	const configureCatalogConnector = (id: OpenAiConnectorId): void => {
+	const configureCatalogConnector = (id: string): void => {
 		navigate(`/settings/connectors/configure/${encodeURIComponent(id)}`);
 	};
 
