@@ -36,10 +36,10 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 		let mounted = true;
 		setConnectorDetailName(null);
-		void window.connectors.get(connectorDetailId).then(
-			(connector) => {
-				if (mounted) setConnectorDetailName(connector.name);
-			},
+			void window.connectors.get(connectorDetailId).then(
+				(connector) => {
+					if (mounted) setConnectorDetailName(connector.name ?? connectorDetailId);
+				},
 			() => {
 				if (mounted) setConnectorDetailName(null);
 			}
