@@ -163,20 +163,20 @@ export const LOCAL_TOOL_CATALOG = [
 		profiles: FULL_PROFILE,
 		approval: WRITE_WORKSPACE_BOUNDARY,
 	}),
-localTool({
-	tool: filesystemSearchTool,
-	group: 'filesystem',
-	profiles: FULL_PROFILE,
-	approval: NO_APPROVAL,
-}),
-localTool({
-	tool: scriptRunTool,
-	group: 'script',
-	profiles: STANDARD_PROFILES,
-	approval: WRITE_WORKSPACE_BOUNDARY,
-}),
-localTool({
-	tool: cronCreateTool,
+	localTool({
+		tool: filesystemSearchTool,
+		group: 'filesystem',
+		profiles: FULL_PROFILE,
+		approval: NO_APPROVAL,
+	}),
+	localTool({
+		tool: scriptRunTool,
+		group: 'script',
+		profiles: STANDARD_PROFILES,
+		approval: WRITE_WORKSPACE_BOUNDARY,
+	}),
+	localTool({
+		tool: cronCreateTool,
 		group: 'cron',
 		profiles: FULL_PROFILE,
 		approval: { mode: 'always' },
