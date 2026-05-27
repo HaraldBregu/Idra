@@ -34,6 +34,8 @@ const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> & Record<string, str
 	edit_file: 'Surgical string-replacement edit. Provide enough context to make the old text unique.',
 	search_files: 'Glob-search the workspace for files.',
 	run_shell: 'Run shell commands only when necessary and within the available permission model.',
+	startup_files:
+		'Read or update Friday startup files and mark BOOTSTRAP.md complete after first-run setup.',
 };
 
 const ACCEPTANCE_CONTRACT = [

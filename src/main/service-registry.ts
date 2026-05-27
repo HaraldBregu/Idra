@@ -2,6 +2,7 @@ import type { ChannelRegistry, ChannelsService } from './channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from './core';
 import type { WindowContextManager } from './core';
 import type { AgentService } from './agent';
+import type { AgentStartupFilesService } from './agent/startup-files';
 import type { AgentDataDirectoryService } from './agent/storage';
 import type { AgentSettingsStore } from './agent/settings';
 import type { AppPermissionsService } from './app-permissions';
@@ -27,6 +28,7 @@ export interface MainServices {
 	agentDataDirectory: AgentDataDirectoryService;
 	agentSettings: AgentSettingsStore;
 	agentService: AgentService;
+	startupFiles: AgentStartupFilesService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;

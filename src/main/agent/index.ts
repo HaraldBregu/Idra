@@ -24,6 +24,7 @@ export * from './subagents';
 export * from './routing';
 export * from './settings';
 export * from './storage';
+export * from './startup-files';
 export * from './before-agent-run';
 export * from './system-prompt';
 export * from './harness';

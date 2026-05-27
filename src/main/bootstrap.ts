@@ -12,6 +12,7 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import {
 	AgentService,
+	AgentStartupFilesService,
 	type AgentServiceDependencies,
 	SubagentRegistry,
 	SubagentRunTaskHandler,
@@ -99,6 +100,13 @@ export function bootstrapServices(): BootstrapResult {
 			rootPath: agentDataDirectory.resolve('workspaces', DEFAULT_AGENT_ID),
 		})
 	);
+	const startupFiles = container.register(
+		'startupFiles',
+		new AgentStartupFilesService({
+			rootPath: agentDataDirectory.resolve('workspaces'),
+			logger,
+		})
+	);
 	const store = container.register('store', new StoreService(logger));
 	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
@@ -139,6 +147,7 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		eventBus,
 		workspace,
+		startupFiles,
 		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,
