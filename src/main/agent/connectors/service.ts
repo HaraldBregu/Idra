@@ -87,27 +87,22 @@ interface ConnectorsServiceOptions {
 interface GoogleWorkspaceOAuthConnectorDefinition {
 	readonly id: string;
 	readonly providerId: string;
-	readonly directConnectorId: string;
 	readonly name: string;
 	readonly description: string;
-	readonly docsPath: string;
 	readonly tools: readonly string[];
 	readonly scopes: readonly string[];
 	readonly mcp?: {
 		readonly endpoint: string;
-		readonly referenceUrl: string;
 	};
 }
 
-function googleWorkspaceOAuthConnectors(): readonly GoogleWorkspaceOAuthConnectorDefinition[] {
-	return [
-		{
+function googleWorkspaceOAuthConnector(connectorId: string): GoogleWorkspaceOAuthConnectorDefinition | undefined {
+	if (connectorId === 'google.gmail') {
+		return {
 			id: 'google.gmail',
 			providerId: 'google',
-			directConnectorId: 'gmail',
 			name: 'Gmail',
 			description: 'Authorize the official Gmail MCP server for mail search, drafts, labels, and threads.',
-			docsPath: 'docs/connectors/gmail.md',
 			tools: [
 				'create_draft',
 				'list_drafts',
@@ -130,16 +125,15 @@ function googleWorkspaceOAuthConnectors(): readonly GoogleWorkspaceOAuthConnecto
 			],
 			mcp: {
 				endpoint: 'https://gmailmcp.googleapis.com/mcp/v1',
-				referenceUrl: 'https://developers.google.com/workspace/gmail/api/reference/mcp',
 			},
-		},
-		{
+		};
+	}
+	if (connectorId === 'google.calendar') {
+		return {
 			id: 'google.calendar',
 			providerId: 'google',
-			directConnectorId: 'google_calendar',
 			name: 'Google Calendar',
 			description: 'Authorize the official Calendar MCP server for calendars, events, scheduling, and RSVPs.',
-			docsPath: 'docs/connectors/google-calendar.md',
 			tools: [
 				'list_events',
 				'get_event',
@@ -159,16 +153,15 @@ function googleWorkspaceOAuthConnectors(): readonly GoogleWorkspaceOAuthConnecto
 			],
 			mcp: {
 				endpoint: 'https://calendarmcp.googleapis.com/mcp/v1',
-				referenceUrl: 'https://developers.google.com/workspace/calendar/api/v3/reference/mcp',
 			},
-		},
-		{
+		};
+	}
+	if (connectorId === 'google.drive') {
+		return {
 			id: 'google.drive',
 			providerId: 'google',
-			directConnectorId: 'google_drive',
 			name: 'Google Drive',
 			description: 'Authorize Drive access for file search, metadata, content reads, and file creation.',
-			docsPath: 'docs/connectors/google-drive.md',
 			tools: ['Search files', 'Read content', 'Inspect metadata', 'Create files'],
 			scopes: [
 				'https://www.googleapis.com/auth/userinfo.email',
@@ -176,8 +169,9 @@ function googleWorkspaceOAuthConnectors(): readonly GoogleWorkspaceOAuthConnecto
 				'https://www.googleapis.com/auth/drive.readonly',
 				'https://www.googleapis.com/auth/drive.file',
 			],
-		},
-	];
+		};
+	}
+	return undefined;
 }
 
 function textResult(text: string, isError = false): AgentToolResult {
