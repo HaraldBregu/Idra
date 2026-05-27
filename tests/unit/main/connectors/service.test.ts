@@ -95,29 +95,6 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 	});
 
-	it('catalogs Gmail as an OAuth-authorized Google MCP connector', async () => {
-		const { service } = createService();
-
-		const catalog = await service.catalog();
-		const gmail = catalog.find((connector) => connector.id === 'google.gmail');
-
-		expect(gmail).toMatchObject({
-			authKind: 'oauth',
-			runtimeKind: 'mcp',
-			tools: expect.arrayContaining(['search_threads', 'create_draft', 'list_labels']),
-			platformDocumentationPages: expect.arrayContaining([
-				{
-					label: 'Gmail MCP reference',
-					url: 'https://developers.google.com/workspace/gmail/api/reference/mcp',
-				},
-				{
-					label: 'Google MCP authentication',
-					url: 'https://docs.cloud.google.com/mcp/authenticate-mcp',
-				},
-			]),
-		});
-	});
-
 	it('opens Google OAuth through the backend and stores connector auth state in connectors.json', async () => {
 		const openExternalUrl = jest.fn(async () => undefined);
 		const { service, store } = createService(createFakeMcpClient(), {
@@ -139,7 +116,17 @@ describe('ConnectorsService MCP persistence', () => {
 				mcp: {
 					transport: 'http',
 					url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					method: 'POST',
+					headers: {
+						accept: 'application/json, text/event-stream',
+						'content-type': 'application/json',
+					},
 				},
+				tools: expect.arrayContaining([
+					expect.objectContaining({ name: 'search_threads', requiresApproval: true }),
+					expect.objectContaining({ name: 'create_draft', requiresApproval: true }),
+					expect.objectContaining({ name: 'list_labels', requiresApproval: true }),
+				]),
 				oauth: expect.objectContaining({
 					clientId: 'google-client-id',
 					authorizationUrl: result.authorizationUrl,
@@ -150,16 +137,33 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(result.connector.oauth?.token).toBeUndefined();
 	});
 
-	it('refreshes Gmail MCP tools with the completed OAuth token', async () => {
-		const client = createFakeMcpClient([
-			{
-				name: 'search_threads',
-				description: 'Search Gmail threads.',
-				inputSchema: { type: 'object', properties: { q: { type: 'string' } } },
-				requiresApproval: false,
-			},
+	it('stores Calendar MCP setup and predefined tools in connectors.json', async () => {
+		const { service, store } = createService(createFakeMcpClient(), {
+			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
+			openExternalUrl: jest.fn(async () => undefined),
+		});
+
+		await service.authorizeOAuth({ connectorId: 'google.calendar' });
+
+		expect(store.data.get('connectors')).toEqual([
+			expect.objectContaining({
+				connectorId: 'google.calendar',
+				mcp: expect.objectContaining({
+					transport: 'http',
+					url: 'https://calendarmcp.googleapis.com/mcp/v1',
+					method: 'POST',
+				}),
+				tools: expect.arrayContaining([
+					expect.objectContaining({ name: 'list_events' }),
+					expect.objectContaining({ name: 'suggest_time' }),
+					expect.objectContaining({ name: 'respond_to_event' }),
+				]),
+			}),
 		]);
-		const { service, factory } = createService(client, {
+	});
+
+	it('uses predefined Gmail MCP tools after OAuth completion', async () => {
+		const { service, factory } = createService(createFakeMcpClient(), {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
 			openExternalUrl: jest.fn(async () => undefined),
 		});
@@ -173,13 +177,11 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 		const tools = await service.refreshTools(completed.id);
 
-		expect(tools).toEqual([expect.objectContaining({ name: 'search_threads' })]);
-		expect(factory).toHaveBeenCalledWith(expect.objectContaining({
-			mcp: { transport: 'http', url: 'https://gmailmcp.googleapis.com/mcp/v1' },
-			oauth: expect.objectContaining({
-				token: expect.objectContaining({ accessToken: 'access-token' }),
-			}),
-		}));
+		expect(tools).toEqual(expect.arrayContaining([
+			expect.objectContaining({ name: 'search_threads' }),
+			expect.objectContaining({ name: 'create_draft' }),
+		]));
+		expect(factory).not.toHaveBeenCalled();
 	});
 
 	it('stores completed OAuth tokens in connectors.json and redacts them from public reads', async () => {
