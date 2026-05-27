@@ -122,7 +122,7 @@ function SettingsOverviewCard({
 			disabled={comingSoon}
 			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
-			<ItemIcon icon={item.icon} />
+			<ItemIcon icon={item.icon} className="size-7 [&_svg]:size-3.5" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal text-muted-foreground">
 					{t(item.labelKey)}
