@@ -435,7 +435,7 @@ export class ConnectorsService {
 				serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
 				serverDescription: existing?.serverDescription,
 				enabled: true,
-				authorization: existing?.authorization ?? oauthAuthorizationHeader(existing?.oauth?.token),
+				authorization: existing?.authorization || oauthAuthorizationHeader(existing?.oauth?.token),
 				requireApproval,
 				allowedTools,
 				deferLoading: existing?.deferLoading ?? false,
