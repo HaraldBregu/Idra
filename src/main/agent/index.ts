@@ -22,6 +22,8 @@ export {
 export * from './capabilities';
 export * from './subagents';
 export * from './routing';
+export * from './settings';
+export * from './storage';
 export * from './before-agent-run';
 export * from './system-prompt';
 export * from './harness';
