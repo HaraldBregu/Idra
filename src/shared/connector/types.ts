@@ -113,7 +113,9 @@ export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfi
 export interface ConnectorCatalogOAuthConfig {
 	providerId: string;
 	clientIdEnv: string;
+	clientSecretEnv?: string;
 	authorizationUrl: string;
+	tokenUrl: string;
 	redirectUri: string;
 	authorizationParams: Record<string, string>;
 }
