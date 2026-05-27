@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ExternalLink, Plug } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { openExternalUrl } from '@/lib/external-links';
-import { GOOGLE_WORKSPACE_OAUTH_CONNECTORS } from '../../../../../../shared/connector';
+import type { ConnectorCatalogEntry } from '../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -24,14 +23,20 @@ const ConnectorsPage = () => {
 	const navigate = useNavigate();
 	const [oauthError, setOauthError] = useState<string | null>(null);
 	const [oauthMessage, setOauthMessage] = useState<string | null>(null);
+	const [oauthBusyId, setOauthBusyId] = useState<string | null>(null);
 	const {
 		catalog, connectors, busyId,
 		error,
 		statusMessage,
 		toggleConnector,
 	} = useConnectors();
-	const configuredConnectorIds = new Set(connectors.map((connector) => connector.connectorId));
-	const googleOAuthClientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID?.trim() ?? '';
+	const oauthCatalog = catalog.filter((connector) => connector.authKind === 'oauth');
+	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth');
+	const oauthConfiguredConnectorIds = new Set(
+		connectors.filter((connector) => connector.authKind === 'oauth').map((connector) => connector.connectorId)
+	);
+	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
+	const mcpConfiguredConnectorIds = new Set(mcpConnectors.map((connector) => connector.connectorId));
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
@@ -41,28 +46,18 @@ const ConnectorsPage = () => {
 		navigate(`/settings/connectors/configure/${encodeURIComponent(id)}`);
 	};
 
-	const authorizeOAuthConnector = (connector: (typeof GOOGLE_WORKSPACE_OAUTH_CONNECTORS)[number]): void => {
+	const authorizeOAuthConnector = async (connector: ConnectorCatalogEntry): Promise<void> => {
 		setOauthError(null);
 		setOauthMessage(null);
-
-		if (!googleOAuthClientId) {
-			setOauthError(`Missing ${connector.oauth.clientIdEnvVar} for Google OAuth.`);
-			return;
+		setOauthBusyId(connector.id);
+		try {
+			await window.connectors.authorizeOAuth(connector.id);
+			setOauthMessage(`${connector.name} OAuth request opened.`);
+		} catch (err) {
+			setOauthError(err instanceof Error ? err.message : String(err));
+		} finally {
+			setOauthBusyId(null);
 		}
-
-		const params = new URLSearchParams({
-			client_id: googleOAuthClientId,
-			redirect_uri: connector.oauth.redirectUri,
-			response_type: connector.oauth.responseType,
-			scope: connector.oauth.scopes.join(' '),
-			access_type: connector.oauth.accessType,
-			include_granted_scopes: 'true',
-			prompt: connector.oauth.prompt,
-			state: connector.id,
-		});
-
-		openExternalUrl(`${connector.oauth.authorizationUrl}?${params.toString()}`);
-		setOauthMessage(`${connector.name} OAuth request opened. Friday did not save a token.`);
 	};
 
 	return (
@@ -87,10 +82,10 @@ const ConnectorsPage = () => {
 
 			<SettingsSection
 				title="Google Workspace"
-				description="Authorize Google services through OAuth. Tokens are not stored in Friday yet."
+				description="Authorize Google services through OAuth."
 			>
 				<div className="grid gap-2">
-					{GOOGLE_WORKSPACE_OAUTH_CONNECTORS.map((connector) => (
+					{oauthCatalog.map((connector) => (
 						<SettingsPanel key={connector.id} className="overflow-hidden">
 							<div className="grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
 								<div className="flex min-w-0 items-start gap-2.5">
@@ -112,7 +107,7 @@ const ConnectorsPage = () => {
 											{connector.description}
 										</p>
 										<div className="mt-1.5 flex flex-wrap gap-1">
-											{connector.capabilities.map((capability) => (
+											{connector.tools.map((capability) => (
 												<span
 													key={capability}
 													className="rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] text-muted-foreground"
@@ -126,12 +121,13 @@ const ConnectorsPage = () => {
 								<Button
 									type="button"
 									size="sm"
+									disabled={oauthBusyId === connector.id}
 									className="w-full sm:w-auto"
 									aria-label={`Authorize ${connector.name} with Google OAuth`}
-									onClick={() => authorizeOAuthConnector(connector)}
+									onClick={() => void authorizeOAuthConnector(connector)}
 								>
 									<ExternalLink className="size-3.5" />
-									Authorize
+									{oauthConfiguredConnectorIds.has(connector.id) ? 'Reconnect' : 'Authorize'}
 								</Button>
 							</div>
 						</SettingsPanel>
@@ -141,7 +137,7 @@ const ConnectorsPage = () => {
 
 			<SettingsSection title="MCP connectors">
 				<div className="grid gap-2">
-					{connectors.length === 0 ? (
+					{mcpConnectors.length === 0 ? (
 						<SettingsPanel>
 							<SettingsEmptyState
 								icon={Plug}
@@ -150,7 +146,7 @@ const ConnectorsPage = () => {
 							/>
 						</SettingsPanel>
 					) : (
-						connectors.map((connector) => (
+						mcpConnectors.map((connector) => (
 							<ConnectorCard
 								key={connector.id}
 								connector={connector}
@@ -160,12 +156,12 @@ const ConnectorsPage = () => {
 							/>
 						))
 					)}
-					{catalog.map((item) => (
+					{mcpCatalog.map((item) => (
 						<ConnectorCatalogItem
 							key={item.id}
 							item={item}
 							onConfigure={() => configureCatalogConnector(item.id)}
-							alreadyConfigured={configuredConnectorIds.has(item.id)}
+							alreadyConfigured={mcpConfiguredConnectorIds.has(item.id)}
 						/>
 					))}
 				</div>
