@@ -196,12 +196,13 @@ function createService(client = createFakeMcpClient(), options: {
 		env: options.env,
 		openExternalUrl: options.openExternalUrl,
 	});
-	const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
-		data: Map<string, unknown>;
-		get: jest.Mock;
-		set: jest.Mock;
-		delete: jest.Mock;
-	});
+		const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
+			data: Map<string, unknown>;
+			get: jest.Mock;
+			set: jest.Mock;
+			delete: jest.Mock;
+			store: Record<string, unknown>;
+		});
 	const [store] = stores;
 	return { service, store: store!, logger, client, factory };
 }
