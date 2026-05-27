@@ -13,6 +13,7 @@ import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { useConnectors } from './hooks/useConnectors';
 
 const ConnectorsPage = () => {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId,
