@@ -128,6 +128,11 @@ describe('policy module', () => {
 			defaultPolicy: 'deny' as const,
 			paths: [
 				{
+					path: '/.friday',
+					permissions: ['read', 'write', 'create', 'delete'],
+					recursive: true,
+				},
+				{
 					path: '/workspace',
 					permissions: ['read', 'write', 'create', 'delete'],
 					recursive: true,
@@ -142,6 +147,28 @@ describe('policy module', () => {
 
 		expect(service.getPolicy()).toEqual(expected);
 		expect(accessor.write).toHaveBeenCalledWith(expected);
+	});
+
+	it('maps the configured user data directory to the .friday policy root', () => {
+		const service = new PolicyService({
+			storeAccessor: {
+				read: jest.fn(() => ({
+					version: 1,
+					defaultPolicy: 'deny',
+					paths: [{ path: '/.friday', permissions: ['read', 'write'], recursive: true }],
+				})),
+				write: jest.fn(),
+			},
+			userDataRoot: '/Users/test/.friday',
+		});
+
+		expect(service.evaluate('/Users/test/.friday/workspace/file.txt', 'write')).toMatchObject({
+			outcome: 'allow',
+			reason: "'write' granted by /.friday",
+		});
+		expect(service.evaluate('/Users/test/other/file.txt', 'write')).toMatchObject({
+			outcome: 'deny',
+		});
 	});
 
 	it('normalizes policy grants while preserving valid path order', () => {
