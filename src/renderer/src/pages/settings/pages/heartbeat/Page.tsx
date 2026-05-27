@@ -4,8 +4,6 @@ import {
 	Activity,
 	AlertTriangle,
 	BellOff,
-	Clock3,
-	Power,
 	RefreshCw,
 	Send,
 	TimerReset,
