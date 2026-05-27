@@ -16,6 +16,11 @@ import {
 	type BeforeToolCallContext,
 	newCallTracker,
 } from '../wrap';
+import {
+	AGENT_TOOL_LEGACY_ALIASES,
+	AGENT_TOOL_NAMES,
+	AGENT_TOOL_READ_ONLY_DENY_NAMES,
+} from '../../../../shared/tools';
 
 type AppConfig = Record<string, unknown>;
 type AuthContext = Record<string, unknown>;
@@ -80,51 +85,12 @@ export type CreateAgentToolsResult = {
 	dispose: () => Promise<void>;
 };
 
-const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = {
-	read_file: 'includeFileTools',
-	write_file: 'includeFileTools',
-	edit_file: 'includeFileTools',
-	list_directory: 'includeFileTools',
-	search_files: 'includeFileTools',
-	grep: 'includeFileTools',
-	run_shell: 'includeFileTools',
-	git_status: 'includeFileTools',
-	git_diff: 'includeFileTools',
-	undo_last_operation: 'includeFileTools',
-	write_todos: 'includeFileTools',
-	update_todo: 'includeFileTools',
-	list_todos: 'includeFileTools',
-	complete_task: 'includeFileTools',
-	write_scratch: 'includeFileTools',
-	read_scratch: 'includeFileTools',
-	request_approval: 'includeFileTools',
-	request_clarification: 'includeFileTools',
-	present_plan: 'includeFileTools',
-	request_authorization: 'includeFileTools',
-	spawn_subagent: 'includeFileTools',
-	list_skills: 'includeFileTools',
-	load_skill: 'includeFileTools',
-	use_skill: 'includeFileTools',
-	list_mcp_servers: 'includeFileTools',
-	connect_mcp_server: 'includeFileTools',
-	refresh_mcp_server: 'includeFileTools',
-	list_mcp_tools: 'includeFileTools',
-	load_mcp_tool: 'includeFileTools',
-	call_mcp_tool: 'includeFileTools',
-	list_mcp_resources: 'includeFileTools',
-	read_mcp_resource: 'includeFileTools',
-	list_mcp_prompts: 'includeFileTools',
-	load_mcp_prompt: 'includeFileTools',
-	read: 'includeFileTools',
-	write: 'includeFileTools',
-	edit: 'includeFileTools',
-	find: 'includeFileTools',
-	filesystem_read: 'includeFileTools',
-	filesystem_update: 'includeFileTools',
-	filesystem_list: 'includeFileTools',
-	filesystem_search: 'includeFileTools',
-	script_run: 'includeFileTools',
-};
+const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = Object.fromEntries(
+	[...AGENT_TOOL_NAMES, ...Object.keys(AGENT_TOOL_LEGACY_ALIASES)].map((name) => [
+		name,
+		'includeFileTools',
+	])
+) as Record<string, keyof ToolConstructionPlan>;
 
 const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
 
@@ -316,15 +282,7 @@ function prepareRuntimeTools(
 function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
 	return readOnly
 		? {
-				deny: [
-					'write_file',
-					'edit_file',
-					'run_shell',
-					'undo_last_operation',
-					'connect_mcp_server',
-					'refresh_mcp_server',
-					'call_mcp_tool',
-				],
+				deny: [...AGENT_TOOL_READ_ONLY_DENY_NAMES],
 			}
 		: undefined;
 }
