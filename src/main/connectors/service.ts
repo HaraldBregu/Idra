@@ -22,7 +22,6 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorToolPermission,
-	ConnectorView,
 } from '../../shared/connector';
 import {
 	createSdkConnectorMcpClient,
@@ -80,6 +79,21 @@ interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }
+
+type RuntimeConnector = ConnectorConfig & {
+	id: string;
+	name: string;
+	connectorId: ConnectorProviderId;
+	serverLabel: string;
+	enabled: boolean;
+	authorization: string;
+	requireApproval: NonNullable<ConnectorConfig['requireApproval']>;
+	allowedTools: string[];
+	deferLoading: boolean;
+	tools: ConnectorTool[];
+	createdAt: string;
+	updatedAt: string;
+};
 
 interface ConnectorsServiceOptions {
 	store?: ConnectorPersistenceStore;
