@@ -12,6 +12,7 @@ import type { AgentTool } from '../tools/core/types';
 import { textResult } from '../tools/core/types';
 import {
 	connectorAuthKindFor,
+	connectorHasAuthorization,
 	connectorStatusFor,
 	isOAuthMcpConfig,
 	missingMcpSecretMessage,
@@ -52,7 +53,7 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 			requireApproval: connector.requireApproval,
 			allowedToolsCount: connector.allowedTools?.length ?? 0,
 			toolsCount: connector.tools.length,
-			hasToken: Boolean(connector.authorization || connector.oauth?.token?.accessToken),
+			hasToken: connectorHasAuthorization(connector),
 			hasTools: connector.tools.length > 0,
 			deferLoading: connector.deferLoading,
 			lastRefreshedAt: connector.lastRefreshedAt,
