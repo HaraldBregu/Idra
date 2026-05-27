@@ -16,143 +16,201 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { ConnectorsService } from '../../../../src/main/agent/connectors';
-import type { ConnectorConfig } from '../../../../src/shared/connectors';
+import type { ConnectorConfig, ConnectorTool } from '../../../../src/shared/connectors';
 import { makeLogger } from '../test-helpers';
 
 const MockStore = Store as jest.MockedClass<typeof Store>;
 
-function createService() {
+const discoveredTools: ConnectorTool[] = [
+	{
+		name: 'search',
+		description: 'Search the connected service.',
+		inputSchema: { type: 'object', properties: { query: { type: 'string' } } },
+		requiresApproval: false,
+	},
+	{
+		name: 'write_note',
+		description: 'Write a note.',
+		inputSchema: { type: 'object', properties: { text: { type: 'string' } } },
+		requiresApproval: false,
+	},
+];
+
+function createFakeMcpClient(tools = discoveredTools) {
+	return {
+		listTools: jest.fn(async () => tools),
+		callTool: jest.fn(async (name: string, args: Record<string, unknown>) => ({ name, args })),
+		close: jest.fn(async () => undefined),
+	};
+}
+
+function createService(client = createFakeMcpClient()) {
 	const logger = makeLogger();
-	const service = new ConnectorsService(logger as never);
+	const factory = jest.fn(() => client);
+	const service = new ConnectorsService(logger as never, { mcpClientFactory: factory });
 	const store = MockStore.mock.results[MockStore.mock.results.length - 1]?.value as {
 		data: Map<string, unknown>;
 		get: jest.Mock;
 		set: jest.Mock;
 		delete: jest.Mock;
 	};
-	return { service, store, logger };
+	return { service, store, logger, client, factory };
 }
 
-function gmailConnector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
+function mcpInput(overrides: Record<string, unknown> = {}) {
+	return {
+		name: 'Remote Gmail MCP',
+		connectorId: 'connector_gmail',
+		serverLabel: 'gmail_mcp',
+		allowedTools: ['search'],
+		mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
+		...overrides,
+	};
+}
+
+function storedConnector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 	return {
 		id: 'connector-1',
-		name: 'Gmail',
+		name: 'Remote Gmail MCP',
 		connectorId: 'connector_gmail',
-		serverLabel: 'gmail',
+		serverLabel: 'gmail_mcp',
 		enabled: true,
-		authorization: 'token',
+		authorization: '',
 		requireApproval: 'always',
-		allowedTools: ['get_profile'],
+		allowedTools: ['search'],
 		deferLoading: false,
-		tools: [],
+		tools: discoveredTools.slice(0, 1),
+		mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 		createdAt: '2026-05-22T00:00:00.000Z',
 		updatedAt: '2026-05-22T00:00:00.000Z',
 		...overrides,
 	};
 }
 
-describe('ConnectorsService persistence', () => {
+describe('ConnectorsService MCP persistence', () => {
 	beforeEach(() => {
 		MockStore.mockClear();
+		delete process.env.REMOTE_MCP_API_KEY;
 	});
 
-	it('constructs a dedicated connectors Electron Store', () => {
+	it('constructs a dedicated connector Electron Store', () => {
 		createService();
 
 		expect(MockStore).toHaveBeenCalledWith({
-			name: 'connectors',
+			name: 'connector',
 			accessPropertiesByDotNotation: false,
 		});
 	});
 
-	it('reads, writes, lists, updates, and deletes connector settings by connector key', async () => {
-		const { service, store, logger } = createService();
+	it('stores dynamic connector records and discovers MCP tools on add', async () => {
+		const { service, store, client } = createService();
 
-		const added = await service.add({
-			name: 'My Gmail',
-			connectorId: 'connector_gmail',
-			authorization: 'token',
-			allowedTools: ['get_profile'],
-		});
+		const added = await service.add(mcpInput());
 
-		expect(store.data.get('google_gmail')).toMatchObject({ authorization: 'token' });
-		expect(added.authorization).toBe('');
-		expect(service.getConnectorSettings()[0]).toMatchObject({
-			name: 'My Gmail',
-			authorization: '',
-		});
-		expect(service.list()).toEqual([
-			expect.objectContaining({ name: 'My Gmail', status: 'configured' }),
+		expect(client.listTools).toHaveBeenCalledTimes(1);
+		expect(store.data.get('connectors')).toEqual([
+			expect.objectContaining({
+				id: added.id,
+				connectorId: 'connector_gmail',
+				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp/' },
+				tools: [expect.objectContaining({ name: 'search', requiresApproval: false })],
+			}),
 		]);
+		expect(added.authorization).toBe('');
+		expect(service.list()).toEqual([
+			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 1 }),
+		]);
+	});
 
-		await service.update(added.id, { name: 'Work Gmail' });
-		expect(store.data.get('google_gmail')).toMatchObject({ name: 'Work Gmail' });
+	it('allows multiple connector instances for the same provider id', async () => {
+		const { service } = createService();
 
-		await service.remove(added.id);
-		expect(store.data.get('google_gmail')).toBeUndefined();
-		expect(service.list()).toEqual([]);
-		expect(logger.debug).toHaveBeenCalledWith(
+		const first = await service.add(mcpInput({ name: 'Work Gmail', serverLabel: 'work_gmail' }));
+		const second = await service.add(mcpInput({ name: 'Personal Gmail', serverLabel: 'personal_gmail' }));
+
+		expect(first.id).not.toBe(second.id);
+		expect(service.list().map((connector) => connector.name)).toEqual(['Work Gmail', 'Personal Gmail']);
+	});
+
+	it('validates MCP config and rejects stored authorization secrets', async () => {
+		const { service, logger } = createService();
+
+		await expect(service.add({ name: 'Bad', connectorId: 'connector_gmail' })).rejects.toThrow(
+			/MCP transport configuration is required/
+		);
+		await expect(service.add(mcpInput({ authorization: 'token' }))).rejects.toThrow(
+			/environment variables/
+		);
+		await expect(
+			service.add(mcpInput({ mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', headers: { Authorization: 'token' } } }))
+		).rejects.toThrow(/secret headers/);
+		expect(logger.warn).toHaveBeenCalledWith(
 			'ConnectorsService',
-			'Deleted connector settings',
-			expect.objectContaining({ key: 'google_gmail' })
+			'Connector validation failed',
+			expect.objectContaining({ action: 'add' })
 		);
 	});
 
-	it('drops invalid stored connector records and logs the failure', () => {
+	it('reports missing MCP secret environment variables without storing secret values', async () => {
+		const { service, client } = createService();
+
+		const added = await service.add(
+			mcpInput({
+				mcp: {
+					transport: 'http',
+					url: 'https://mcp.example.test/mcp',
+					auth: { env: 'REMOTE_MCP_API_KEY' },
+				},
+			})
+		);
+
+		expect(client.listTools).not.toHaveBeenCalled();
+		expect(service.list()[0]).toMatchObject({ status: 'missing_auth' });
+		await expect(service.refreshTools(added.id)).rejects.toThrow('REMOTE_MCP_API_KEY');
+		expect(service.get(added.id).mcp).toMatchObject({ auth: { env: 'REMOTE_MCP_API_KEY' } });
+	});
+
+	it('calls dynamically discovered MCP tools and exposes them to the agent', async () => {
+		const { service, client } = createService();
+		const added = await service.add(
+			mcpInput({ allowedTools: ['search'], requireApproval: 'never_for_allowed_tools' })
+		);
+
+		await expect(service.callTool(added.id, 'search', { query: 'roadmap' })).resolves.toEqual({
+			name: 'search',
+			args: { query: 'roadmap' },
+		});
+		expect(client.callTool).toHaveBeenCalledWith('search', { query: 'roadmap' }, undefined);
+
+		const tools = service.createAgentTools();
+		expect(tools.map((tool) => tool.name)).toEqual(['gmail_mcp_search']);
+		await expect(tools[0]!.execute({ query: 'roadmap' }, {} as never)).resolves.toMatchObject({
+			status: 'ok',
+			content: [expect.objectContaining({ text: expect.stringContaining('roadmap') })],
+		});
+	});
+
+	it('contains MCP discovery failures in connector state', async () => {
+		const client = createFakeMcpClient();
+		client.listTools.mockRejectedValue(new Error('server down'));
+		const { service } = createService(client);
+
+		const added = await service.add(mcpInput());
+
+		expect(service.list()[0]).toMatchObject({ status: 'error', lastError: 'server down' });
+		expect(await service.test(added.id)).toMatchObject({ status: 'error', message: 'server down' });
+	});
+
+	it('drops invalid stored records and logs persistence failures', async () => {
 		const { service, store, logger } = createService();
-		store.data.set('google_gmail', { id: 'connector-1' });
+		store.data.set('connectors', [{ id: 'connector-1' }]);
 
 		expect(service.list()).toEqual([]);
 		expect(logger.warn).toHaveBeenCalledWith(
 			'ConnectorsService',
 			'Dropped invalid connector settings',
-			expect.objectContaining({ key: 'google_gmail' })
+			expect.objectContaining({ key: 'connectors' })
 		);
-	});
-
-	it('validates settings before writing and logs validation failures', async () => {
-		const { service, logger } = createService();
-
-		await expect(
-			service.add({
-				name: 'Bad Gmail',
-				connectorId: 'connector_gmail',
-				allowedTools: ['missing'],
-			})
-		).rejects.toThrow(/not available/);
-		expect(logger.warn).toHaveBeenCalledWith(
-			'ConnectorsService',
-			'Connector validation failed',
-			expect.objectContaining({
-				action: 'add',
-				error: expect.stringContaining('not available'),
-			})
-		);
-
-		await service.add({
-			name: 'My Gmail',
-			connectorId: 'connector_gmail',
-			authorization: 'token',
-		});
-		await expect(
-			service.add({
-				name: 'Duplicate Gmail',
-				connectorId: 'connector_gmail',
-				authorization: 'token',
-			})
-		).rejects.toThrow(/already configured/);
-		expect(logger.warn).toHaveBeenCalledWith(
-			'ConnectorsService',
-			'Connector validation failed',
-			expect.objectContaining({
-				action: 'add',
-				error: expect.stringContaining('already configured'),
-			})
-		);
-	});
-
-	it('logs and rethrows connector read, write, and delete persistence errors', async () => {
-		const { service, store, logger } = createService();
 
 		store.get = jest.fn(() => {
 			throw new Error('read failed');
@@ -161,69 +219,22 @@ describe('ConnectorsService persistence', () => {
 		expect(logger.error).toHaveBeenCalledWith(
 			'ConnectorsService',
 			'Failed to read connector settings',
-			expect.objectContaining({ key: 'google_gmail', error: 'read failed' })
-		);
-
-		const writeHarness = createService();
-		writeHarness.store.set = jest.fn(() => {
-			throw new Error('write failed');
-		});
-		await expect(
-			writeHarness.service.add({
-				name: 'My Gmail',
-				connectorId: 'connector_gmail',
-				authorization: 'token',
-			})
-		).rejects.toThrow('write failed');
-		expect(writeHarness.logger.error).toHaveBeenCalledWith(
-			'ConnectorsService',
-			'Failed to write connector settings',
-			expect.objectContaining({ key: 'google_gmail', error: 'write failed' })
-		);
-
-		const deleteHarness = createService();
-		deleteHarness.store.data.set('google_gmail', gmailConnector());
-		deleteHarness.store.delete = jest.fn(() => {
-			throw new Error('delete failed');
-		});
-		await expect(deleteHarness.service.remove('connector-1')).rejects.toThrow('delete failed');
-		expect(deleteHarness.logger.error).toHaveBeenCalledWith(
-			'ConnectorsService',
-			'Failed to delete connector settings',
-			expect.objectContaining({ key: 'google_gmail', error: 'delete failed' })
+			expect.objectContaining({ key: 'connectors', error: 'read failed' })
 		);
 	});
 
-	it('validates connector tool-call arguments before execution', async () => {
+	it('validates connector tool-call arguments and options', async () => {
 		const { service } = createService();
+		const connector = await service.add(mcpInput());
 
-		const connector = await service.add({
-			name: 'My Gmail',
-			connectorId: 'connector_gmail',
-			authorization: 'token',
-			allowedTools: ['get_profile'],
-		});
-
-		await expect(service.callTool(connector.id, 'get_profile', 'bad')).rejects.toThrow(
+		await expect(service.callTool(connector.id, 'search', 'bad')).rejects.toThrow(
 			'Connector tool arguments must be an object.'
 		);
-	});
-
-	it('validates connector tool-call options and ids', async () => {
-		const { service } = createService();
-
-		const connector = await service.add({
-			name: 'My Gmail',
-			connectorId: 'connector_gmail',
-			authorization: 'token',
-			allowedTools: ['get_profile'],
-		});
-
-		await expect(
-			service.callTool(connector.id, 'get_profile', {}, { timeoutMs: -1 })
-		).rejects.toThrow('Connector tool option timeoutMs must be a non-negative integer.');
-		await expect(
-			service.callTool(123 as unknown as string, 'get_profile', {})
-		).rejects.toThrow('Connector id must be a string.');
+		await expect(service.callTool(connector.id, 'search', {}, { timeoutMs: -1 })).rejects.toThrow(
+			'Connector tool option timeoutMs must be a non-negative integer.'
+		);
+		await expect(service.callTool(123 as unknown as string, 'search', {})).rejects.toThrow(
+			'Connector id must be a string.'
+		);
 	});
 });
