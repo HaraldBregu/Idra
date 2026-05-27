@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	AlertTriangle,
-	Bot,
 	CheckCircle2,
 	ChevronDown,
 	ChevronRight,
