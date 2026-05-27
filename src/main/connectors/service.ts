@@ -990,35 +990,6 @@ function normalizeToolPermission(
 	return fallbackPermission;
 }
 
-function authKindFor(connector: ConnectorConfig): NonNullable<ConnectorConfig['authKind']> {
-	return connector.oauth || isOAuthMcpConfig(connector.mcp) ? 'oauth' : 'mcp_env';
-}
-
-function isOAuthMcpConfig(mcp: ConnectorMcpConfig | undefined): boolean {
-	if (mcp?.transport !== 'http') return false;
-	return (
-		mcp.url === 'https://gmailmcp.googleapis.com/mcp/v1' ||
-		mcp.url === 'https://calendarmcp.googleapis.com/mcp/v1' ||
-		mcp.url === 'https://drivemcp.googleapis.com/mcp/v1'
-	);
-}
-
-function hasConnectorAuthorization(connector: ConnectorConfig): boolean {
-	return Boolean(
-		connector.oauth?.token?.accessToken ||
-		connector.authorization?.trim() ||
-		authorizationFromMcp(connector.mcp)
-	);
-}
-
-function authorizationFromMcp(mcp: ConnectorMcpConfig | undefined): string {
-	if (mcp?.transport !== 'http') return '';
-	for (const [key, value] of Object.entries(mcp.headers ?? {})) {
-		if (key.toLowerCase() === 'authorization') return value.trim();
-	}
-	return '';
-}
-
 function mcpWithConnectorAuthorization(connector: RuntimeConnector): ConnectorMcpConfig | undefined {
 	if (!connector.mcp) return undefined;
 	const authorization =
@@ -1092,35 +1063,9 @@ function redactOAuthConfig(oauth: ConnectorConfig['oauth']): ConnectorConfig['oa
 	};
 }
 
-function missingSecretMessage(connector: ConnectorConfig): string | undefined {
-	const missing = missingMcpSecretNames(connector);
-	return missing.length > 0 ? 'Missing MCP secret environment variable: ' + missing.join(', ') : undefined;
-}
-
 function oauthAuthorizationHeader(token: NonNullable<ConnectorConfig['oauth']>['token']): string {
 	if (!token?.accessToken) return '';
 	return (token.tokenType?.trim() || 'Bearer') + ' ' + token.accessToken;
-}
-
-function permissionForTool(connector: RuntimeConnector, toolName: string): ConnectorToolPermission {
-	if (connector.oauth || isOAuthMcpConfig(connector.mcp)) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
-	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
-	if (connector.requireApproval === 'never') return 'always-allow';
-	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) return 'always-allow';
-	return 'needs-approval';
-}
-
-function agentToolNameFor(connector: RuntimeConnector, toolName: string): string {
-	return (connector.serverLabel + '_' + toolName)
-		.toLowerCase()
-		.replace(/[^a-z0-9_]+/g, '_')
-		.replace(/^_+|_+$/g, '');
-}
-
-function schemaForTool(tool: ConnectorTool): AgentTool['schema'] {
-	const schema = tool.inputSchema;
-	if (schema && typeof schema === 'object' && !Array.isArray(schema)) return schema as JSONSchema;
-	return { type: 'object', properties: {}, additionalProperties: true };
 }
 
 function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
