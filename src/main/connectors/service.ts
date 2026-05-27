@@ -1212,18 +1212,179 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 		};
 	}
 
+function createPkceCodeVerifier(): string {
+	return randomBytes(32).toString('base64url');
+}
+
+function createPkceCodeChallenge(verifier: string): string {
+	return createHash('sha256').update(verifier).digest('base64url');
+}
+
+async function createOAuthCallbackListener(
+	state: string,
+	timeoutMs = 120_000
+): Promise<OAuthCallbackListener> {
+	let settled = false;
+	let timeout: NodeJS.Timeout;
+	let resolveCode: (code: string) => void;
+	let rejectCode: (error: Error) => void;
+	const code = new Promise<string>((resolve, reject) => {
+		resolveCode = resolve;
+		rejectCode = reject;
+	});
+	const server = createServer((request, response) => {
+		const url = new URL(request.url ?? '/', 'http://127.0.0.1');
+		if (url.pathname !== '/oauth/callback') {
+			sendOAuthCallbackResponse(response, 404, 'OAuth callback not found.');
+			return;
+		}
+		const returnedState = url.searchParams.get('state');
+		if (returnedState !== state) {
+			sendOAuthCallbackResponse(response, 400, 'OAuth state did not match.');
+			settleOAuthCallback(new Error('OAuth state did not match.'));
+			return;
+		}
+		const error = url.searchParams.get('error');
+		if (error) {
+			const description = url.searchParams.get('error_description');
+			sendOAuthCallbackResponse(response, 400, 'OAuth authorization failed.');
+			settleOAuthCallback(new Error(description ? error + ': ' + description : error));
+			return;
+		}
+		const authCode = url.searchParams.get('code');
+		if (!authCode) {
+			sendOAuthCallbackResponse(response, 400, 'OAuth authorization code was missing.');
+			settleOAuthCallback(new Error('OAuth authorization code was missing.'));
+			return;
+		}
+		sendOAuthCallbackResponse(response, 200, 'Authorization complete. You can return to Friday.');
+		settleOAuthCallback(undefined, authCode);
+	});
+	await new Promise<void>((resolve, reject) => {
+		server.once('error', reject);
+		server.listen(0, '127.0.0.1', () => {
+			server.off('error', reject);
+			resolve();
+		});
+	});
+	timeout = setTimeout(() => {
+		settleOAuthCallback(new Error('OAuth authorization timed out.'));
+	}, timeoutMs);
+	const address = server.address() as AddressInfo;
+	return {
+		redirectUri: `http://127.0.0.1:${address.port}/oauth/callback`,
+		code,
+		close: () => closeServer(server),
+	};
+
+	function settleOAuthCallback(error?: Error, authCode?: string): void {
+		if (settled) return;
+		settled = true;
+		clearTimeout(timeout);
+		if (error) {
+			rejectCode(error);
+		} else {
+			resolveCode(authCode ?? '');
+		}
+	}
+}
+
+function sendOAuthCallbackResponse(response: ServerResponse, statusCode: number, message: string): void {
+	response.writeHead(statusCode, { 'content-type': 'text/html; charset=utf-8' });
+	response.end('<!doctype html><title>Friday OAuth</title><p>' + escapeHtml(message) + '</p>');
+}
+
+function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;');
+}
+
+async function closeServer(server: Server): Promise<void> {
+	if (!server.listening) return;
+	await new Promise<void>((resolve) => {
+		server.close(() => resolve());
+	});
+}
+
+async function exchangeOAuthCode(
+	definition: ConnectorCatalogEntry,
+	input: OAuthTokenExchangeInput
+): Promise<ConnectorOAuthCompleteInput> {
+	if (!definition.oauth) throw new Error('OAuth connector is missing OAuth metadata: ' + definition.id);
+	const body = new URLSearchParams({
+		client_id: input.clientId,
+		code: input.code,
+		code_verifier: input.codeVerifier,
+		grant_type: 'authorization_code',
+		redirect_uri: input.redirectUri,
+	});
+	if (input.clientSecret) body.set('client_secret', input.clientSecret);
+	const response = await input.fetch(definition.oauth.tokenUrl, {
+		method: 'POST',
+		headers: { 'content-type': 'application/x-www-form-urlencoded' },
+		body,
+	});
+	const text = await response.text();
+	const payload = parseJsonObject(text);
+	if (!response.ok) {
+		throw new Error('OAuth token exchange failed: ' + oauthTokenErrorMessage(payload, response.statusText));
+	}
+	return {
+		state: readRequiredString(payload.access_token ? input.code : '', 'OAuth state'),
+		accessToken: readRequiredString(payload.access_token, 'OAuth access token'),
+		refreshToken: readOptionalTokenString(payload, 'refresh_token'),
+		tokenType: readOptionalTokenString(payload, 'token_type'),
+		scope: readOptionalTokenString(payload, 'scope'),
+		expiresIn: readOptionalTokenNumber(payload, 'expires_in'),
+	};
+}
+
+function parseJsonObject(text: string): Record<string, unknown> {
+	try {
+		const value = JSON.parse(text);
+		if (value && typeof value === 'object' && !Array.isArray(value)) return value as Record<string, unknown>;
+	} catch {
+		return {};
+	}
+	return {};
+}
+
+function readOptionalTokenString(payload: Record<string, unknown>, key: string): string | undefined {
+	const value = payload[key];
+	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
+}
+
+function readOptionalTokenNumber(payload: Record<string, unknown>, key: string): number | undefined {
+	const value = payload[key];
+	return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function oauthTokenErrorMessage(payload: Record<string, unknown>, statusText: string): string {
+	const error = readOptionalTokenString(payload, 'error');
+	const description = readOptionalTokenString(payload, 'error_description');
+	if (error && description) return error + ': ' + description;
+	return description || error || statusText || 'request failed';
+}
+
 function oauthAuthorizationUrl(
 	connector: ConnectorCatalogEntry,
 	clientId: string,
-	state: string
+	state: string,
+	redirectUri: string,
+	codeChallenge: string
 ): string {
 	if (!connector.oauth) throw new Error('OAuth connector is missing OAuth metadata: ' + connector.id);
 	const params = new URLSearchParams({
 		...connector.oauth.authorizationParams,
 		client_id: clientId,
-		redirect_uri: connector.oauth.redirectUri,
+		redirect_uri: redirectUri,
 		scope: connector.scopes.join(' '),
 		state,
+		code_challenge: codeChallenge,
+		code_challenge_method: 'S256',
 	});
 	return `${connector.oauth.authorizationUrl}?${params.toString()}`;
 }
