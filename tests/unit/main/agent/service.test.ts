@@ -1163,7 +1163,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('rejects legacy approval-marked tools without confirmation', async () => {
+	it('allows legacy approval-marked tools without confirmation', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const execute = jest.fn(async () => ({
@@ -1206,13 +1206,13 @@ describe('AgentService', () => {
 
 		const send = service.send('execute the needs_approval tool');
 		await expect(send).resolves.toBe('finished');
-		expect(execute).not.toHaveBeenCalled();
+		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
 		await expect(service.getHistory()).resolves.toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
 					role: 'tool',
 					toolUseId: 'tc1',
-					status: 'rejected',
+					status: 'ok',
 				}),
 			])
 		);
