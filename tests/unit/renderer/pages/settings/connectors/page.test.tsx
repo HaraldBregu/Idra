@@ -149,9 +149,10 @@ describe('connector settings docs', () => {
 
 		renderConnectorsPage();
 
-		expect(screen.getByText('Gmail')).toBeInTheDocument();
-		expect(screen.getByText('Google Calendar')).toBeInTheDocument();
-		expect(screen.getByText('Google Drive')).toBeInTheDocument();
+		expect(await screen.findByText('Dropbox')).toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: 'Google Calendar' })).toBeInTheDocument();
+		expect(screen.getByRole('heading', { name: 'Google Drive' })).toBeInTheDocument();
 
 		await user.click(screen.getByRole('button', { name: /Authorize Gmail/ }));
 
