@@ -59,13 +59,48 @@ export interface OpenAiConnectorCatalogEntry {
 	readonly scopes: readonly string[];
 	readonly setupUrl: string;
 	readonly setupInstructions: readonly string[];
-	readonly authKind?: 'google_oauth';
+	readonly authKind?: ConnectorAuthKind;
 	readonly redirectUri?: string;
+	readonly runtimeKind?: ConnectorRuntimeKind;
+	readonly allowMultipleInstances?: boolean;
 }
 
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
-export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth';
+export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth' | 'mcp_env';
+export type ConnectorRuntimeKind = 'mcp';
+export type ConnectorMcpTransport = 'http' | 'stdio';
+export type ConnectorMcpHeaderAuthScheme = 'bearer' | 'raw';
+
+export interface ConnectorMcpHeaderSecret {
+	env: string;
+	header?: string;
+	scheme?: ConnectorMcpHeaderAuthScheme;
+}
+
+export interface ConnectorMcpEnvSecret {
+	env: string;
+	target: string;
+}
+
+export interface ConnectorMcpHttpConfig {
+	transport: 'http';
+	url: string;
+	headers?: Record<string, string>;
+	sessionId?: string;
+	auth?: ConnectorMcpHeaderSecret;
+}
+
+export interface ConnectorMcpStdioConfig {
+	transport: 'stdio';
+	command: string;
+	args?: string[];
+	cwd?: string;
+	env?: Record<string, string>;
+	envSecrets?: ConnectorMcpEnvSecret[];
+}
+
+export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
 
 export interface GoogleOAuthCredential {
 	provider: 'google';
@@ -97,6 +132,7 @@ export interface ConnectorConfig {
 	enabled: boolean;
 	authorization: string;
 	oauth?: GoogleOAuthCredential;
+	mcp?: ConnectorMcpConfig;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
 	deferLoading: boolean;
@@ -136,6 +172,7 @@ export interface ConnectorInput {
 	allowedTools?: string[];
 	deferLoading?: boolean;
 	enabled?: boolean;
+	mcp?: ConnectorMcpConfig;
 }
 
 export type ConnectorUpdateInput = Partial<ConnectorInput>;
