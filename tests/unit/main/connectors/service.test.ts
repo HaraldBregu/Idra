@@ -191,17 +191,54 @@ function createFakeMcpClient(tools = discoveredTools) {
 	};
 }
 
+function createTokenFetch(overrides: Record<string, unknown> = {}) {
+	return jest.fn(async () => ({
+		ok: true,
+		status: 200,
+		statusText: 'OK',
+		text: async () => JSON.stringify({
+			access_token: 'access-token',
+			refresh_token: 'refresh-token',
+			token_type: 'Bearer',
+			scope: 'https://www.googleapis.com/auth/gmail.readonly',
+			expires_in: 3600,
+			...overrides,
+		}),
+	})) as jest.MockedFunction<typeof fetch>;
+}
+
+function createOAuthOptions(overrides: { readonly fetch?: typeof fetch } = {}) {
+	const tokenFetch = overrides.fetch ?? createTokenFetch();
+	const openExternalUrl = jest.fn(async (authorizationUrl: string) => {
+		const url = new URL(authorizationUrl);
+		const redirectUri = url.searchParams.get('redirect_uri');
+		const state = url.searchParams.get('state');
+		if (!redirectUri || !state) throw new Error('OAuth URL missing redirect details.');
+		await fetch(`${redirectUri}?code=authorization-code&state=${state}`);
+	});
+	return {
+		env: {
+			GOOGLE_OAUTH_CLIENT_ID: 'google-client-id',
+			GOOGLE_OAUTH_CLIENT_SECRET: 'google-client-secret',
+		},
+		openExternalUrl,
+		fetch: tokenFetch,
+	};
+}
+
 function createService(client = createFakeMcpClient(), options: {
 	readonly env?: NodeJS.ProcessEnv;
 	readonly openExternalUrl?: (url: string) => Promise<void>;
+	readonly fetch?: typeof fetch;
 } = {}) {
 	const logger = makeLogger();
 	const factory = jest.fn(() => client);
 	const service = new ConnectorsService(logger as never, {
-		mcpClientFactory: factory,
-		env: options.env,
-		openExternalUrl: options.openExternalUrl,
-	});
+			mcpClientFactory: factory,
+			env: options.env,
+			openExternalUrl: options.openExternalUrl,
+			fetch: options.fetch,
+		});
 		const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
 			data: Map<string, unknown>;
 			get: jest.Mock;
