@@ -709,4 +709,67 @@ describe('tools/fs', () => {
 		await expect(fs.stat(path.join(workspace, 'copied-dir'))).rejects.toThrow();
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
+
+	it('runs script files and applies shared path policy checks', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		await fs.writeFile(
+			path.join(workspace, 'hello.js'),
+			"console.log('hello ' + process.argv[2]);\n",
+			'utf8'
+		);
+		await fs.writeFile(path.join(outside, 'outside.js'), "console.log('outside');\n", 'utf8');
+		const ctx = makeToolContext({ workspace });
+
+		const result = await scriptRunTool.execute(
+			{ path: 'hello.js', args: ['Friday'] },
+			ctx
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.content[0]?.text).toContain('hello Friday');
+		expect(
+			(
+				await scriptRunTool.execute(
+					{ path: path.join(outside, 'outside.js') },
+					makeToolContext({ workspace })
+				)
+			).status
+		).toBe('error');
+		await expect(
+			scriptRunTool.execute(
+				{ path: 'hello.js' },
+				makeToolContext({ workspace, fsPolicy: { readOnly: true } })
+			)
+		).resolves.toMatchObject({ status: 'error' });
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
+	it('denies script execution when the file policy denies the script path', async () => {
+		const workspace = await makeTempDir();
+		const privateDir = path.join(workspace, 'private');
+		await fs.mkdir(privateDir);
+		await fs.writeFile(path.join(privateDir, 'secret.js'), "console.log('secret');\n", 'utf8');
+		const ctx = makeToolContext({ workspace });
+		useFilePolicy(ctx, {
+			version: 1,
+			defaultPolicy: 'deny',
+			paths: [
+				{
+					path: workspace,
+					permissions: ['read', 'write', 'create', 'delete'],
+					recursive: true,
+				},
+				{ path: privateDir, permissions: [], recursive: true },
+			],
+		});
+
+		const result = await scriptRunTool.execute({ path: 'private/secret.js' }, ctx);
+
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('denied by file policy');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
 });
