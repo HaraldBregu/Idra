@@ -280,7 +280,12 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.policyService = dependencies.policy ?? new PolicyService({ logger: dependencies.logger });
+		this.policyService =
+			dependencies.policy ??
+			new PolicyService({
+				logger: dependencies.logger,
+				userDataRoot: dependencies.userDataDirectory.getRootPath(),
+			});
 		this.toolService =
 			options.toolService ??
 			dependencies.toolService ??
