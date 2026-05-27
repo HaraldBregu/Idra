@@ -79,8 +79,11 @@ describe('connectors service', () => {
 		expect(added.authorization).toBe('');
 		expect(service.get(added.id).authorization).toBe('');
 		expect(connectors.remote_gmail).toMatchObject({
-			connectorId: 'google.gmail',
 			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
+			tools: expect.arrayContaining([
+				expect.objectContaining({ name: 'search' }),
+				expect.objectContaining({ name: 'write_note' }),
+			]),
 		});
 		expect(service.list()[0]).toMatchObject({
 			name: 'Remote Gmail',
