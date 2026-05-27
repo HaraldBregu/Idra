@@ -17,6 +17,8 @@ import {
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
 } from './agent';
+import { AgentDataDirectoryService } from './agent/storage';
+import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './agent/connectors';
 import { McpRegistry } from './agent/mcp';
@@ -27,6 +29,8 @@ import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './agent/tools';
 import { SkillsService } from './agent/skills';
 import { SpeechToTextService } from './stt';
+import { AgentRunLogger } from './run-logger';
+import { DEFAULT_AGENT_ID } from './constants';
 
 import type { IpcModule } from './ipc';
 import {
@@ -55,6 +59,7 @@ export interface BootstrapResult {
 	appState: AppState;
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryService;
+	agentDataDirectory: AgentDataDirectoryService;
 	workspace: WorkspaceService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
@@ -79,17 +84,25 @@ export function bootstrapServices(): BootstrapResult {
 		logger.error('UserDataDirectoryService', 'Failed to create user data directory', error);
 	});
 
+	const agentDataDirectory = container.register('agentDataDirectory', new AgentDataDirectoryService());
+	void agentDataDirectory.ensureRoot().catch((error) => {
+		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
+	});
+
 	const workspace = container.register(
 		'workspace',
-		new WorkspaceService(logger, { userDataDirectory })
+		new WorkspaceService(logger, {
+			rootPath: agentDataDirectory.resolve('workspaces', DEFAULT_AGENT_ID),
+		})
 	);
 	const store = container.register('store', new StoreService(logger));
+	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
 	const policy = container.register(
 		'policy',
 		new PolicyService({
 			workspaceRoot: workspace.getRootPath(),
-			agentRoot: userDataDirectory.resolve('agent'),
+			agentRoot: agentDataDirectory.getRootPath(),
 			logger,
 		})
 	);
@@ -123,6 +136,8 @@ export function bootstrapServices(): BootstrapResult {
 		eventBus,
 		workspace,
 		userDataDirectory,
+		agentDataDirectory,
+		agentSettings,
 		connectors,
 		skills,
 		mcpRegistry,
@@ -131,11 +146,18 @@ export function bootstrapServices(): BootstrapResult {
 		taskManager,
 		channels,
 	};
-	const agentService = container.register('agentService', new AgentService(agentDependencies));
+	const agentService = container.register(
+		'agentService',
+		new AgentService(agentDependencies, {
+			sessionBaseDir: agentDataDirectory.resolve('sessions'),
+			runLoggerFactory: (agentId) =>
+				new AgentRunLogger(agentId, { baseDir: agentDataDirectory.resolve('runs') }),
+		})
+	);
 	taskManager.configureAgentRuntime(agentService);
 	taskManager.registerHandler(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
 	agentDependencies.subagents = new SubagentSpawnService({
-		store,
+		agentSettings,
 		taskManager,
 		registry: subagentRegistry,
 		eventBus,
@@ -143,7 +165,7 @@ export function bootstrapServices(): BootstrapResult {
 	});
 	const channelRegistry = container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService, store })
+		new ChannelRegistry({ logger, eventBus, agentService, agentSettings })
 	);
 	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(
@@ -170,6 +192,7 @@ export function bootstrapServices(): BootstrapResult {
 		appState,
 		logger,
 		userDataDirectory,
+		agentDataDirectory,
 		workspace,
 		windowContextManager,
 	};
