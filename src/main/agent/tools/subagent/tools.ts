@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../../constants';
+import { DEFAULT_AGENT_ID } from '../../../constants';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { toolDescription } from '../metadata';

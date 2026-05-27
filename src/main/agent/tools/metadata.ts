@@ -1,4 +1,4 @@
-import { AGENT_TOOLS, type AgentToolName } from '../../../../shared/tools';
+import { AGENT_TOOLS, type AgentToolName } from '../../../shared/tools';
 
 const METADATA_BY_NAME = new Map(AGENT_TOOLS.map((tool) => [tool.name, tool]));
 

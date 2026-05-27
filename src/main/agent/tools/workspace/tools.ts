@@ -1,10 +1,8 @@
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { Stats } from 'node:fs';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
-import { TOOL_LIMITS } from '../core/limits';
 import { checkFilePolicy } from '../files/policy';
 import { checkFsRestriction, resolveAbs } from '../files/path-policy';
 import { editTool, findTool, readTool, writeTool, filesystemListTool } from '../files/tools';
@@ -23,13 +21,19 @@ type UndoEntry = {
 
 const undoStacks = new WeakMap<ToolContext, UndoEntry[]>();
 
-export const readFileTool: AgentTool = {
+type ReadFileArgs = Parameters<typeof readTool.execute>[0];
+type WriteFileArgs = Parameters<typeof writeTool.execute>[0];
+type EditFileArgs = Parameters<typeof editTool.execute>[0];
+type ListDirectoryArgs = Parameters<typeof filesystemListTool.execute>[0];
+type SearchFilesArgs = Parameters<typeof findTool.execute>[0];
+
+export const readFileTool: AgentTool<ReadFileArgs> = {
 	...readTool,
 	name: 'read_file',
 	description: toolDescription('read_file'),
 };
 
-export const writeFileTool: AgentTool = {
+export const writeFileTool: AgentTool<WriteFileArgs> = {
 	...writeTool,
 	name: 'write_file',
 	description: toolDescription('write_file'),
@@ -43,7 +47,7 @@ export const writeFileTool: AgentTool = {
 	},
 };
 
-export const editFileTool: AgentTool = {
+export const editFileTool: AgentTool<EditFileArgs> = {
 	...editTool,
 	name: 'edit_file',
 	description: toolDescription('edit_file'),
@@ -57,13 +61,13 @@ export const editFileTool: AgentTool = {
 	},
 };
 
-export const listDirectoryTool: AgentTool = {
+export const listDirectoryTool: AgentTool<ListDirectoryArgs> = {
 	...filesystemListTool,
 	name: 'list_directory',
 	description: toolDescription('list_directory'),
 };
 
-export const searchFilesTool: AgentTool = {
+export const searchFilesTool: AgentTool<SearchFilesArgs> = {
 	...findTool,
 	name: 'search_files',
 	description: toolDescription('search_files'),

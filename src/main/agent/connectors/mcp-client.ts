@@ -123,7 +123,7 @@ export class SdkConnectorMcpClient implements ConnectorMcpClient {
 		options?: ConnectorCallToolOptions
 	): Promise<unknown> {
 		await this.connect(options);
-		return this.client.getPrompt({ name, arguments: args }, { timeout: options?.timeoutMs });
+		return this.client.getPrompt({ name, arguments: stringArguments(args) }, { timeout: options?.timeoutMs });
 	}
 
 	async close(): Promise<void> {
@@ -237,4 +237,13 @@ function normalizeInputSchema(value: unknown): Record<string, unknown> {
 		return value as JSONSchema;
 	}
 	return { type: 'object', properties: {}, additionalProperties: true };
+}
+
+function stringArguments(args: Record<string, unknown>): Record<string, string> {
+	return Object.fromEntries(
+		Object.entries(args).map(([key, value]) => [
+			key,
+			typeof value === 'string' ? value : JSON.stringify(value),
+		])
+	);
 }
