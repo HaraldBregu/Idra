@@ -3,7 +3,7 @@ import { textResult } from '../core/types';
 import { toolDescription } from '../metadata';
 
 type McpConnectors = {
-	list(): Array<{ id: string; name: string; authKind?: string; status?: string; toolsCount?: number }>;
+	list(): Array<{ id?: string; name?: string; authKind?: string; status?: string; toolsCount?: number }>;
 	reconnect(id: string): Promise<unknown>;
 	refreshTools(id: string): Promise<unknown>;
 	listTools(id: string): unknown;
