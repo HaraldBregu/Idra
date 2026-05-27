@@ -173,7 +173,7 @@ export function SettingsRow({
 						</span>
 					))}
 				<div className="min-w-0 flex-1">
-					<div className="text-[13px] font-medium leading-4 tracking-normal text-foreground">
+					<div className="text-[13px] font-medium leading-4 tracking-normal text-muted-foreground">
 						{title}
 					</div>
 					{description && (
