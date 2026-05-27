@@ -300,7 +300,7 @@ const OperatorDetailsPage: React.FC = () => {
 	if (!config) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.operators.detailsTitle')} icon={Bot} />
+				<SettingsPageHeader title={t('settings.operators.detailsTitle')} />
 				<SettingsPanel>
 					<SettingsEmptyState
 						icon={CircleOff}
