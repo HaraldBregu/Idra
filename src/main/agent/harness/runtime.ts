@@ -716,7 +716,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const requires =
 			typeof tool.requiresApproval === 'function'
 				? await tool.requiresApproval(args, ctx)
-				: tool.requiresApproval === true;
+				: tool.requiresApproval === true || requiresPolicyApproval(tool, this.config.permissions);
 		if (!requires) return { approved: true };
 		return this.requestApproval({
 			runId: ctx.runId,
