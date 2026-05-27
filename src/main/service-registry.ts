@@ -13,7 +13,7 @@ import type { McpRegistry } from './agent/mcp';
 import type { MonitorService } from './monitor';
 import type { PolicyService } from './agent/policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
-import type { SkillsService } from './agent/skills';
+import type { SkillsService } from './skills';
 import type { HeartbeatService } from './heartbeat';
 import type { SpeechToTextService } from './stt';
 import type { StoreService } from './store';
