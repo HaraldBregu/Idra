@@ -95,7 +95,7 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(MockStore).toHaveBeenCalledTimes(1);
 	});
 
-	it('opens Google OAuth through the backend and stores connector auth state in connectors.json', async () => {
+	it('opens Google OAuth through the backend and stores only MCP config plus fetched tools', async () => {
 		const openExternalUrl = jest.fn(async () => undefined);
 		const { service, store } = createService(createFakeMcpClient(), {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
@@ -111,8 +111,7 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(url.searchParams.get('response_type')).toBe('code');
 		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
 		expect(store.data.get('connectors')).toEqual([
-			expect.objectContaining({
-				connectorId: 'google.gmail',
+			{
 				mcp: {
 					transport: 'http',
 					url: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -127,13 +126,13 @@ describe('ConnectorsService MCP persistence', () => {
 					permission: 'always-allow',
 					requiresApproval: false,
 				})),
-				oauth: expect.objectContaining({
-					clientId: 'google-client-id',
-					authorizationUrl: result.authorizationUrl,
-					state: expect.any(String),
-				}),
-			}),
+			},
 		]);
+		expect(result.connector.oauth).toEqual(expect.objectContaining({
+			clientId: 'google-client-id',
+			authorizationUrl: result.authorizationUrl,
+			state: expect.any(String),
+		}));
 		expect(result.connector.oauth?.token).toBeUndefined();
 	});
 
@@ -146,19 +145,22 @@ describe('ConnectorsService MCP persistence', () => {
 		await service.authorizeOAuth({ connectorId: 'google.calendar' });
 
 		expect(store.data.get('connectors')).toEqual([
-			expect.objectContaining({
-				connectorId: 'google.calendar',
-				mcp: expect.objectContaining({
+			{
+				mcp: {
 					transport: 'http',
 					url: 'https://calendarmcp.googleapis.com/mcp/v1',
 					method: 'POST',
-				}),
+					headers: {
+						accept: 'application/json, text/event-stream',
+						'content-type': 'application/json',
+					},
+				},
 				tools: discoveredTools.map((tool) => expect.objectContaining({
 					name: tool.name,
 					permission: 'always-allow',
 					requiresApproval: false,
 				})),
-			}),
+			},
 		]);
 	});
 
@@ -184,7 +186,7 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(factory).toHaveBeenCalled();
 	});
 
-	it('stores completed OAuth tokens in connectors.json and redacts them from public reads', async () => {
+	it('keeps completed OAuth tokens out of connectors.json', async () => {
 		const { service, store } = createService(createFakeMcpClient(), {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
 			openExternalUrl: jest.fn(async () => undefined),
@@ -204,23 +206,14 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 
 		expect(store.data.get('connectors')).toEqual([
-			expect.objectContaining({
-				connectorId: 'google.drive',
-				oauth: expect.objectContaining({
-					accountEmail: 'user@example.com',
-					token: expect.objectContaining({
-						accessToken: 'access-token',
-						refreshToken: 'refresh-token',
-						tokenType: 'Bearer',
-					}),
-				}),
+			expect.not.objectContaining({
+				oauth: expect.anything(),
 			}),
 		]);
 		expect(completed.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
 		expect(service.list()[0]).toMatchObject({
-			authKind: 'oauth',
+			authKind: 'mcp_env',
 			status: 'configured',
-			connectedAccount: 'user@example.com',
 		});
 	});
 
