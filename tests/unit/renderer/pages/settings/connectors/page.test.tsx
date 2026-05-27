@@ -1,12 +1,44 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import {
-	OPENAI_CONNECTOR_CATALOG,
-	type ConnectorConfig,
-} from '../../../../../../src/shared/connectors';
+import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../src/shared/connectors';
 import { ConnectorDocumentationRows } from '../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorDocumentationRows';
 import ConnectorDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/details/Page';
+
+const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
+	{
+		id: 'google.gmail',
+		name: 'Gmail',
+		description: 'Gmail connector',
+		docsLabel: 'Gmail connector guide',
+		docsPath: 'docs/providers/google/gmail/index.md',
+		environmentSecretNames: ['GOOGLE_MCP_API_KEY'],
+		platformDocumentationPages: [
+			{ label: 'Gmail API guides', url: 'https://developers.google.com/workspace/gmail/api/guides' },
+			{ label: 'Gmail API reference', url: 'https://developers.google.com/workspace/gmail/api/reference/rest' },
+		],
+		example: { tool: 'search_emails', input: { query: 'from:alice@example.com newer_than:7d' } },
+		tools: ['search_emails'],
+		scopes: [],
+		setupInstructions: [],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	},
+	{
+		id: 'dropbox.files',
+		name: 'Dropbox',
+		description: 'Dropbox connector',
+		environmentSecretNames: ['DROPBOX_MCP_API_KEY'],
+		platformDocumentationPages: [],
+		tools: ['search'],
+		scopes: [],
+		setupInstructions: [],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	},
+];
 
 jest.mock(
 	'../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorIcon',
@@ -29,7 +61,7 @@ function configuredConnector(): ConnectorConfig {
 	return {
 		id: 'connector-1',
 		name: 'My Gmail',
-		connectorId: 'connector_gmail',
+		connectorId: 'google.gmail',
 		serverLabel: 'my_gmail',
 		serverDescription: 'Gmail connector',
 		enabled: true,
@@ -45,7 +77,7 @@ function configuredConnector(): ConnectorConfig {
 
 function installConnectorApi(connector = configuredConnector()): void {
 	window.connectors = {
-		catalog: jest.fn(async () => OPENAI_CONNECTOR_CATALOG),
+		catalog: jest.fn(async () => CONNECTOR_CATALOG),
 		list: jest.fn(async () => []),
 		get: jest.fn(async () => connector),
 		add: jest.fn(async () => connector),
@@ -96,14 +128,14 @@ describe('connector settings docs', () => {
 
 	it('renders docs metadata and opens platform docs through the app bridge', async () => {
 		const user = userEvent.setup();
-		const gmail = OPENAI_CONNECTOR_CATALOG.find((connector) => connector.id === 'connector_gmail');
+		const gmail = CONNECTOR_CATALOG.find((connector) => connector.id === 'google.gmail');
 		expect(gmail).toBeDefined();
 
 		render(<ConnectorDocumentationRows connector={gmail!} />);
 
 		expect(screen.getByText('Gmail connector guide')).toBeInTheDocument();
 		expect(screen.getByText('docs/providers/google/gmail/index.md')).toBeInTheDocument();
-		expect(screen.getByText('GOOGLE_OAUTH_CLIENT_ID')).toBeInTheDocument();
+		expect(screen.getByText('GOOGLE_MCP_API_KEY')).toBeInTheDocument();
 		expect(screen.getByText('search_emails')).toBeInTheDocument();
 		expect(screen.getByText('{"query":"from:alice@example.com newer_than:7d"}')).toBeInTheDocument();
 
@@ -120,7 +152,7 @@ describe('connector settings docs', () => {
 		expect(await screen.findByText('My Gmail')).toBeInTheDocument();
 		expect(screen.getByText('Gmail connector guide')).toBeInTheDocument();
 		expect(screen.getByText('docs/providers/google/gmail/index.md')).toBeInTheDocument();
-		expect(screen.getByText('GOOGLE_OAUTH_CLIENT_SECRET')).toBeInTheDocument();
+		expect(screen.getByText('GOOGLE_MCP_API_KEY')).toBeInTheDocument();
 		expect(screen.getByText('Gmail API reference')).toBeInTheDocument();
 		expect(screen.getAllByText('search_emails').length).toBeGreaterThan(0);
 
@@ -134,7 +166,7 @@ describe('connector settings docs', () => {
 		const user = userEvent.setup();
 		const connector = {
 			...configuredConnector(),
-			connectorId: 'connector_dropbox',
+			connectorId: 'dropbox.files',
 			name: 'My Dropbox',
 			serverLabel: 'my_dropbox',
 			authorization: '',
@@ -159,7 +191,7 @@ describe('connector settings docs', () => {
 			'connector-1',
 			expect.objectContaining({
 				name: 'Dropbox Files',
-				connectorId: 'connector_dropbox',
+				connectorId: 'dropbox.files',
 			})
 		);
 	});
@@ -169,7 +201,7 @@ describe('connector settings docs', () => {
 		const connector = {
 			...configuredConnector(),
 			id: 'connector-dropbox',
-			connectorId: 'connector_dropbox',
+			connectorId: 'dropbox.files',
 			name: 'Dropbox',
 			serverLabel: 'dropbox',
 			authorization: '',
@@ -179,7 +211,7 @@ describe('connector settings docs', () => {
 		installConnectorApi(connector);
 		(window.connectors.list as jest.Mock).mockResolvedValue([]);
 
-		renderConnectorDetails('/settings/connectors/configure/connector_dropbox');
+		renderConnectorDetails('/settings/connectors/configure/dropbox.files');
 
 		const mcpConfig = await screen.findByLabelText('MCP config');
 		expect((mcpConfig as HTMLTextAreaElement).value).toContain('https://example.com/mcp');
@@ -188,7 +220,7 @@ describe('connector settings docs', () => {
 		await waitFor(() => {
 			expect(window.connectors.add).toHaveBeenCalledWith(
 				expect.objectContaining({
-					connectorId: 'connector_dropbox',
+					connectorId: 'dropbox.files',
 					mcp: expect.objectContaining({ transport: 'http' }),
 				})
 			);
