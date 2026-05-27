@@ -47,6 +47,136 @@ const discoveredTools: ConnectorTool[] = [
 	},
 ];
 
+const googleOAuthConnectors: Record<string, ConnectorCatalogEntry> = {
+	'google.gmail': {
+		id: 'google.gmail',
+		name: 'Gmail',
+		description: 'Authorize the official Gmail MCP server.',
+		directConnectorId: 'gmail',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/gmail.readonly',
+			'https://www.googleapis.com/auth/gmail.compose',
+			'https://www.googleapis.com/auth/gmail.send',
+			'https://www.googleapis.com/auth/gmail.modify',
+		],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://gmailmcp.googleapis.com/mcp/v1',
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: {
+				response_type: 'code',
+				access_type: 'offline',
+				include_granted_scopes: 'true',
+				prompt: 'consent',
+			},
+		},
+	},
+	'google.calendar': {
+		id: 'google.calendar',
+		name: 'Google Calendar',
+		description: 'Authorize the official Calendar MCP server.',
+		directConnectorId: 'google_calendar',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/calendar.readonly',
+			'https://www.googleapis.com/auth/calendar.events.readonly',
+			'https://www.googleapis.com/auth/calendar.events',
+		],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://calendarmcp.googleapis.com/mcp/v1',
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: {
+				response_type: 'code',
+				access_type: 'offline',
+				include_granted_scopes: 'true',
+				prompt: 'consent',
+			},
+		},
+	},
+	'google.drive': {
+		id: 'google.drive',
+		name: 'Google Drive',
+		description: 'Authorize the official Drive MCP server.',
+		directConnectorId: 'google_drive',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/drive.readonly',
+			'https://www.googleapis.com/auth/drive.file',
+		],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://drivemcp.googleapis.com/mcp/v1',
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: {
+				response_type: 'code',
+				access_type: 'offline',
+				include_granted_scopes: 'true',
+				prompt: 'consent',
+			},
+		},
+	},
+};
+
+function oauthInput(connectorId: string) {
+	return { connectorId, connector: googleOAuthConnectors[connectorId] };
+}
+
 function createFakeMcpClient(tools = discoveredTools) {
 	return {
 		listTools: jest.fn(async () => tools),
