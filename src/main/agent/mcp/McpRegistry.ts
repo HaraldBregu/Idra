@@ -1,6 +1,6 @@
 import type { ConnectorConfig } from '../../../shared/connector';
 import type { AgentHarnessMcpServerConfig } from '../harness/mcp';
-import { missingMcpSecretNames, resolveMcpConfig } from '../connectors/mcp-client';
+import { missingMcpSecretNames, resolveMcpConfig } from '../../connectors/mcp-client';
 
 export class McpRegistry {
 	buildServers(connectors: readonly ConnectorConfig[]): AgentHarnessMcpServerConfig[] {
