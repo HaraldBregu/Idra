@@ -28,10 +28,11 @@ import {
 	readTool,
 	writeTool,
 } from '../files/tools';
+import { scriptRunTool } from '../scripts/tools';
 
 export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 
-export type LocalToolGroup = 'file' | 'filesystem' | 'cron';
+export type LocalToolGroup = 'file' | 'filesystem' | 'cron' | 'script';
 
 export type LocalToolApprovalPolicy =
 	| { mode: 'none' }
@@ -162,14 +163,20 @@ export const LOCAL_TOOL_CATALOG = [
 		profiles: FULL_PROFILE,
 		approval: WRITE_WORKSPACE_BOUNDARY,
 	}),
-	localTool({
-		tool: filesystemSearchTool,
-		group: 'filesystem',
-		profiles: FULL_PROFILE,
-		approval: NO_APPROVAL,
-	}),
-	localTool({
-		tool: cronCreateTool,
+localTool({
+	tool: filesystemSearchTool,
+	group: 'filesystem',
+	profiles: FULL_PROFILE,
+	approval: NO_APPROVAL,
+}),
+localTool({
+	tool: scriptRunTool,
+	group: 'script',
+	profiles: STANDARD_PROFILES,
+	approval: WRITE_WORKSPACE_BOUNDARY,
+}),
+localTool({
+	tool: cronCreateTool,
 		group: 'cron',
 		profiles: FULL_PROFILE,
 		approval: { mode: 'always' },
