@@ -123,8 +123,8 @@ export interface ConnectorsApi {
 		args: Record<string, unknown>,
 		options?: ConnectorCallToolOptions
 	) => Promise<unknown>;
-	authorizeOAuth: (connectorId: string) => Promise<ConnectorOAuthAuthorizeResult>;
-}
+		authorizeOAuth: (connector: string | ConnectorCatalogEntry) => Promise<ConnectorOAuthAuthorizeResult>;
+	}
 
 export interface SkillsApi {
 	list: () => Promise<SkillInfo[]>;
