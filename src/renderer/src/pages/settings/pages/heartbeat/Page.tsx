@@ -4,6 +4,8 @@ import {
 	Activity,
 	AlertTriangle,
 	BellOff,
+	Clock3,
+	Power,
 	RefreshCw,
 	Send,
 	TimerReset,
@@ -12,6 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type {
@@ -339,136 +342,219 @@ const HeartbeatPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.heartbeat.runtime.title')}>
+			<SettingsSection
+				title={t('settings.heartbeat.runtime.title')}
+			>
 				<SettingsPanel>
 					{loading && !status ? (
 						<SettingsLoadingRows rows={2} />
 					) : (
 						<>
-							<div className="flex min-h-[52px] items-center justify-between border-b border-border/60 px-4 last:border-b-0">
-								<span className="text-[13px] text-muted-foreground">
-									{t('settings.heartbeat.runtime.enabled')}
-								</span>
-								<Switch
-									checked={runtimeEnabled}
-									disabled={loading || isBusy}
-									onCheckedChange={handleToggle}
-									aria-label={t('settings.heartbeat.runtime.toggleLabel')}
-								/>
-							</div>
-							<div className="flex min-h-[52px] items-center justify-between px-4">
-								<span className="text-[13px] text-muted-foreground">
-									{t('settings.heartbeat.runtime.nextDue')}
-								</span>
-								<span className="text-[13px] text-foreground">
-									{nextDue ?? t('settings.heartbeat.values.notScheduled')}
-								</span>
-							</div>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Power className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.runtime.enabled')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.runtime.enabledDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
+									<Badge
+										variant={runtimeEnabled ? 'outline' : 'secondary'}
+										className="h-5 rounded-md px-1.5 text-[10px]"
+									>
+										{runtimeEnabled
+											? t('settings.heartbeat.values.enabled')
+											: t('settings.heartbeat.values.paused')}
+									</Badge>
+									<Switch
+										checked={runtimeEnabled}
+										disabled={loading || isBusy}
+										onCheckedChange={handleToggle}
+										aria-label={t('settings.heartbeat.runtime.toggleLabel')}
+									/>
+								</ItemActions>
+							</Item>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<TimerReset className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.runtime.nextDue')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.runtime.nextDueDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
+									<Badge
+										variant={status?.runnerActive ? 'outline' : 'secondary'}
+										className="h-5 rounded-md px-1.5 text-[10px]"
+									>
+										{status?.runnerActive
+											? t('settings.heartbeat.values.active')
+											: t('settings.heartbeat.values.idle')}
+									</Badge>
+									<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+										{t('settings.heartbeat.runtime.agentCount', { count: status?.agentCount ?? 0 })}
+									</Badge>
+									<Badge variant="outline" className="h-5 max-w-full rounded-md px-1.5 text-[10px]">
+										<span className="truncate">
+											{nextDue ?? t('settings.heartbeat.values.notScheduled')}
+										</span>
+									</Badge>
+								</ItemActions>
+							</Item>
 						</>
 					)}
 				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.heartbeat.timing.title')}>
+			<SettingsSection
+				title={t('settings.heartbeat.timing.title')}
+			>
 				<SettingsPanel>
 					{loading && !timing ? (
 						<SettingsLoadingRows rows={2} />
 					) : (
 						<>
-							<div className="flex items-start justify-between gap-6 border-b border-border/60 px-4 py-3.5 last:border-b-0">
-								<span className="mt-1 shrink-0 text-[13px] text-muted-foreground">
-									{t('settings.heartbeat.timing.every')}
-								</span>
-								<div className="grid w-52 gap-1.5">
-									<Input
-										id="heartbeat-every"
-										value={timingDraft.every}
-										onChange={(event) =>
-											setTimingDraft((current) => ({ ...current, every: event.target.value }))
-										}
-										disabled={loading || isBusy}
-										placeholder={t('settings.heartbeat.timing.everyPlaceholder')}
-										className="h-7 font-mono text-xs md:text-xs"
-										aria-label={t('settings.heartbeat.timing.every')}
-										aria-invalid={!isValidEvery(timingDraft.every)}
-									/>
-									<div className="flex flex-wrap items-center gap-1">
-										{TIMING_PRESETS.map((preset) => (
-											<Button
-												key={preset}
-												type="button"
-												variant={timingDraft.every.trim() === preset ? 'secondary' : 'outline'}
-												size="xs"
-												onClick={() => setTimingDraft((current) => ({ ...current, every: preset }))}
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Clock3 className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.timing.every')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.timing.everyDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[520px] sm:justify-end">
+									<div className="grid w-full gap-1.5">
+										<Input
+											id="heartbeat-every"
+											value={timingDraft.every}
+											onChange={(event) =>
+												setTimingDraft((current) => ({ ...current, every: event.target.value }))
+											}
+											disabled={loading || isBusy}
+											placeholder={t('settings.heartbeat.timing.everyPlaceholder')}
+											className="h-7 font-mono text-xs md:text-xs"
+											aria-label={t('settings.heartbeat.timing.every')}
+											aria-invalid={!isValidEvery(timingDraft.every)}
+										/>
+										<div className="flex flex-wrap items-center gap-1.5">
+											{TIMING_PRESETS.map((preset) => (
+												<Button
+													key={preset}
+													type="button"
+													variant={timingDraft.every.trim() === preset ? 'secondary' : 'outline'}
+													size="xs"
+													onClick={() => setTimingDraft((current) => ({ ...current, every: preset }))}
+													disabled={loading || isBusy}
+												>
+													{preset === '0m'
+														? t('settings.heartbeat.timing.disablePreset')
+														: preset}
+												</Button>
+											))}
+										</div>
+									</div>
+								</ItemActions>
+							</Item>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<TimerReset className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.timing.activeHours')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+										{t('settings.heartbeat.timing.activeHoursDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[620px] sm:justify-end">
+									<div className="grid w-full gap-2">
+										<div className="grid gap-1.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.35fr)]">
+											<Input
+												id="heartbeat-active-start"
+												type="time"
+												value={timingDraft.start}
+												onChange={(event) =>
+													setTimingDraft((current) => ({ ...current, start: event.target.value }))
+												}
 												disabled={loading || isBusy}
+												className="h-7 text-xs md:text-xs"
+												aria-label={t('settings.heartbeat.timing.activeStart')}
+											/>
+											<Input
+												id="heartbeat-active-end"
+												type="time"
+												value={timingDraft.end}
+												onChange={(event) =>
+													setTimingDraft((current) => ({ ...current, end: event.target.value }))
+												}
+												disabled={loading || isBusy}
+												className="h-7 text-xs md:text-xs"
+												aria-label={t('settings.heartbeat.timing.activeEnd')}
+											/>
+											<Input
+												id="heartbeat-active-timezone"
+												value={timingDraft.timezone}
+												onChange={(event) =>
+													setTimingDraft((current) => ({ ...current, timezone: event.target.value }))
+												}
+												disabled={loading || isBusy}
+												placeholder={t('settings.heartbeat.timing.timezonePlaceholder')}
+												className="h-7 font-mono text-xs md:text-xs"
+												aria-label={t('settings.heartbeat.timing.timezone')}
+											/>
+										</div>
+										<div className="flex justify-end">
+											<Button
+												type="button"
+												size="xs"
+												onClick={handleSaveTiming}
+												disabled={loading || isBusy || !timingDirty || !timingValid}
 											>
-												{preset === '0m'
-													? t('settings.heartbeat.timing.disablePreset')
-													: preset}
+												<TimerReset className="size-3" />
+												{t('settings.heartbeat.actions.saveTiming')}
 											</Button>
-										))}
+										</div>
 									</div>
-								</div>
-							</div>
-							<div className="flex items-start justify-between gap-6 px-4 py-3.5">
-								<span className="mt-1 shrink-0 text-[13px] text-muted-foreground">
-									{t('settings.heartbeat.timing.activeHours')}
-								</span>
-								<div className="grid w-72 gap-2">
-									<div className="grid grid-cols-2 gap-1.5">
-										<Input
-											id="heartbeat-active-start"
-											type="time"
-											value={timingDraft.start}
-											onChange={(event) =>
-												setTimingDraft((current) => ({ ...current, start: event.target.value }))
-											}
-											disabled={loading || isBusy}
-											className="h-7 text-xs md:text-xs"
-											aria-label={t('settings.heartbeat.timing.activeStart')}
-										/>
-										<Input
-											id="heartbeat-active-end"
-											type="time"
-											value={timingDraft.end}
-											onChange={(event) =>
-												setTimingDraft((current) => ({ ...current, end: event.target.value }))
-											}
-											disabled={loading || isBusy}
-											className="h-7 text-xs md:text-xs"
-											aria-label={t('settings.heartbeat.timing.activeEnd')}
-										/>
-									</div>
-									<Input
-										id="heartbeat-active-timezone"
-										value={timingDraft.timezone}
-										onChange={(event) =>
-											setTimingDraft((current) => ({ ...current, timezone: event.target.value }))
-										}
-										disabled={loading || isBusy}
-										placeholder={t('settings.heartbeat.timing.timezonePlaceholder')}
-										className="h-7 font-mono text-xs md:text-xs"
-										aria-label={t('settings.heartbeat.timing.timezone')}
-									/>
-									<div className="flex justify-end">
-										<Button
-											type="button"
-											size="xs"
-											onClick={handleSaveTiming}
-											disabled={loading || isBusy || !timingDirty || !timingValid}
-										>
-											<TimerReset className="size-3" />
-											{t('settings.heartbeat.actions.saveTiming')}
-										</Button>
-									</div>
-								</div>
-							</div>
+								</ItemActions>
+							</Item>
 						</>
 					)}
 				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.heartbeat.last.title')}>
+			<SettingsSection
+				title={t('settings.heartbeat.last.title')}
+			>
 				<SettingsPanel>
 					{loading && !lastHeartbeat ? (
 						<SettingsLoadingRows rows={1} />
@@ -479,11 +565,23 @@ const HeartbeatPage: React.FC = () => {
 							description={t('settings.heartbeat.last.emptyDescription')}
 						/>
 					) : (
-						<div className="flex min-h-[52px] items-center justify-between gap-4 px-4">
-							<span className="min-w-0 truncate text-[13px] text-muted-foreground">
-								{lastDescription}
-							</span>
-							<div className="flex shrink-0 items-center gap-2">
+						<Item
+							variant="outline"
+							size="md"
+							className="border-b border-border/60 px-3 py-2 last:border-b-0"
+						>
+							<ItemMedia variant="icon" className="size-6">
+								<Activity className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+								<ItemTitle className="max-w-full truncate">
+									{t('settings.heartbeat.last.latest')}
+								</ItemTitle>
+								<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+									{lastDescription}
+								</p>
+							</ItemContent>
+							<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
 								<Badge
 									variant={statusVariant(lastHeartbeat.status)}
 									className="h-5 rounded-md px-1.5 text-[10px]"
@@ -491,71 +589,108 @@ const HeartbeatPage: React.FC = () => {
 									{t(`settings.heartbeat.status.${lastHeartbeat.status}`)}
 								</Badge>
 								{lastTimestamp && (
-									<span className="text-[11px] text-muted-foreground">{lastTimestamp}</span>
+									<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+										{lastTimestamp}
+									</Badge>
 								)}
 								{lastDuration && (
-									<span className="font-mono text-[11px] text-muted-foreground">{lastDuration}</span>
+									<Badge variant="outline" className="h-5 rounded-md px-1.5 font-mono text-[10px]">
+										{lastDuration}
+									</Badge>
 								)}
-							</div>
-						</div>
+								<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
+									{lastHeartbeat.channel ?? t('settings.heartbeat.values.noChannel')}
+								</Badge>
+							</ItemActions>
+						</Item>
 					)}
 				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.heartbeat.controls.title')}>
+			<SettingsSection
+				title={t('settings.heartbeat.controls.title')}
+			>
 				<SettingsPanel>
-					<div className="flex min-h-[52px] items-center justify-between border-b border-border/60 px-4 last:border-b-0">
-						<span className="text-[13px] text-muted-foreground">
-							{t('settings.heartbeat.controls.wakeNow')}
-						</span>
-						<Button
-							type="button"
-							variant="outline"
-							size="xs"
-							onClick={handleWakeNow}
-							disabled={loading || isBusy}
-						>
-							<Zap className="size-3" />
-							{t('settings.heartbeat.actions.wakeNow')}
-						</Button>
-					</div>
-					<div className="flex items-start justify-between gap-6 px-4 py-3.5">
-						<span className="mt-1 shrink-0 text-[13px] text-muted-foreground">
-							{t('settings.heartbeat.controls.systemEvent')}
-						</span>
-						<div className="grid w-72 gap-1.5">
-							<Textarea
-								id="heartbeat-system-event"
-								value={eventText}
-								onChange={(event) => setEventText(event.target.value)}
+					<Item
+						variant="outline"
+						size="md"
+						className="border-b border-border/60 px-3 py-2 last:border-b-0"
+					>
+						<ItemMedia variant="icon" className="size-6">
+							<Zap className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle className="max-w-full truncate">
+								{t('settings.heartbeat.controls.wakeNow')}
+							</ItemTitle>
+							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+								{t('settings.heartbeat.controls.wakeNowDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-auto sm:justify-end">
+							<Button
+								type="button"
+								variant="outline"
+								size="xs"
+								onClick={handleWakeNow}
 								disabled={loading || isBusy}
-								placeholder={t('settings.heartbeat.controls.systemEventPlaceholder')}
-								className="min-h-16 resize-y text-xs leading-5 md:text-xs"
-								aria-label={t('settings.heartbeat.controls.systemEvent')}
-							/>
-							<div className="flex flex-wrap items-center justify-end gap-1.5">
-								<Button
-									type="button"
-									size="xs"
-									onClick={() => handleSystemEvent('now')}
-									disabled={loading || isBusy || eventText.trim().length === 0}
-								>
-									<Send className="size-3" />
-									{t('settings.heartbeat.actions.sendNow')}
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									size="xs"
-									onClick={() => handleSystemEvent('next-heartbeat')}
-									disabled={loading || isBusy || eventText.trim().length === 0}
-								>
-									<TimerReset className="size-3" />
-									{t('settings.heartbeat.actions.sendNext')}
-								</Button>
+							>
+								<Zap className="size-3" />
+								{t('settings.heartbeat.actions.wakeNow')}
+							</Button>
+						</ItemActions>
+					</Item>
+					<Item
+						variant="outline"
+						size="md"
+						className="border-b border-border/60 px-3 py-2 last:border-b-0"
+					>
+						<ItemMedia variant="icon" className="size-6">
+							<Send className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+							<ItemTitle className="max-w-full truncate">
+								{t('settings.heartbeat.controls.systemEvent')}
+							</ItemTitle>
+							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+								{t('settings.heartbeat.controls.systemEventDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[520px] sm:justify-end">
+							<div className="grid w-full gap-1.5">
+								<Textarea
+									id="heartbeat-system-event"
+									value={eventText}
+									onChange={(event) => setEventText(event.target.value)}
+									disabled={loading || isBusy}
+									placeholder={t('settings.heartbeat.controls.systemEventPlaceholder')}
+									className="min-h-16 resize-y text-xs leading-5 md:text-xs"
+									aria-label={t('settings.heartbeat.controls.systemEvent')}
+								/>
+								<div className="flex flex-wrap items-center justify-end gap-1.5">
+									<Button
+										type="button"
+										size="xs"
+										onClick={() => handleSystemEvent('now')}
+										disabled={loading || isBusy || eventText.trim().length === 0}
+									>
+										<Send className="size-3" />
+										{t('settings.heartbeat.actions.sendNow')}
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										size="xs"
+										onClick={() => handleSystemEvent('next-heartbeat')}
+										disabled={loading || isBusy || eventText.trim().length === 0}
+									>
+										<TimerReset className="size-3" />
+										{t('settings.heartbeat.actions.sendNext')}
+									</Button>
+								</div>
 							</div>
-						</div>
-					</div>
+						</ItemActions>
+					</Item>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>

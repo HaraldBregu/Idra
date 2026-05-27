@@ -1,5 +1,14 @@
 import type { AgentTool } from '../core/types';
 import {
+	AGENT_TOOL_APPROVAL_ALWAYS,
+	AGENT_TOOL_APPROVAL_NONE,
+	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+	AGENT_TOOL_STANDARD_PROFILES,
+	type AgentToolApprovalPolicy,
+	type AgentToolGroupName,
+	type AgentToolProfile,
+} from '../../../../shared/tools';
+import {
 	editFileTool,
 	gitDiffTool,
 	gitStatusTool,
@@ -40,21 +49,9 @@ import {
 	refreshMcpServerTool,
 } from '../mcp/tools';
 
-export type LocalToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
-
-export type LocalToolGroup =
-	| 'coreWorkspace'
-	| 'stateTask'
-	| 'humanDecision'
-	| 'subagent'
-	| 'skill'
-	| 'mcpConnector';
-
-export type LocalToolApprovalPolicy =
-	| { mode: 'none' }
-	| { mode: 'workspace-boundary'; target: 'write-target' | 'workdir' }
-	| { mode: 'action'; actions: readonly string[] }
-	| { mode: 'always' };
+export type LocalToolProfile = AgentToolProfile;
+export type LocalToolGroup = AgentToolGroupName;
+export type LocalToolApprovalPolicy = AgentToolApprovalPolicy;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LocalToolImplementation = AgentTool<any, any>;
@@ -68,14 +65,6 @@ export interface LocalToolCatalogEntry {
 	ownerOnly?: boolean;
 }
 
-const STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
-const NO_APPROVAL = { mode: 'none' } as const;
-const WRITE_WORKSPACE_BOUNDARY = {
-	mode: 'workspace-boundary',
-	target: 'write-target',
-} as const;
-const ALWAYS_APPROVAL = { mode: 'always' } as const;
-
 function localTool(definition: Omit<LocalToolCatalogEntry, 'name'>): LocalToolCatalogEntry {
 	const entry = { name: definition.tool.name, ...definition };
 	const ownerOnly = definition.ownerOnly ?? definition.tool.ownerOnly;
@@ -86,62 +75,62 @@ export const LOCAL_TOOL_CATALOG = [
 	localTool({
 		tool: readFileTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: writeFileTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
 	}),
 	localTool({
 		tool: editFileTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: WRITE_WORKSPACE_BOUNDARY,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
 	}),
 	localTool({
 		tool: listDirectoryTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: searchFilesTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: grepTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: runShellTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: ALWAYS_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 	}),
 	localTool({
 		tool: gitStatusTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: gitDiffTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: NO_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_NONE,
 	}),
 	localTool({
 		tool: undoLastOperationTool,
 		group: 'coreWorkspace',
-		profiles: STANDARD_PROFILES,
-		approval: ALWAYS_APPROVAL,
+		profiles: AGENT_TOOL_STANDARD_PROFILES,
+		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 	}),
 	localTool({
 		tool: writeTodosTool,
