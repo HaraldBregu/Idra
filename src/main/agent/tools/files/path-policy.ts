@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { Permission } from '../../../../shared/policy';
 import type { ToolContext } from '../core/types';
-import { hasFilePolicy } from './policy';
+import { filePolicyAllows, hasFilePolicy } from './policy';
 
 export function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
@@ -49,9 +49,12 @@ export function checkFsRestriction(
 export function outsidePathNeedsApproval(
 	ctx: ToolContext,
 	target: string,
-	_permissions: readonly Permission[],
-	_mode: 'all' | 'any' = 'all'
+	permissions: readonly Permission[],
+	mode: 'all' | 'any' = 'all'
 ): boolean {
 	const abs = resolveAbs(ctx.workspace, target);
-	return !isInsidePath(fridayToolRoot(ctx), abs);
+	if (isInsidePath(fridayToolRoot(ctx), abs)) return false;
+	if (!hasFilePolicy(ctx)) return true;
+	const allowed = permissions.map((permission) => filePolicyAllows(ctx, abs, permission));
+	return mode === 'any' ? !allowed.some(Boolean) : !allowed.every(Boolean);
 }
