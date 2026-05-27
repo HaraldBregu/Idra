@@ -121,6 +121,7 @@ describe('ToolService', () => {
 		const ctx = makeToolContext();
 		ctx.agentId = 'agent-1';
 		ctx.services.policy = {
+			createToolUseKey: jest.fn(() => 'run_shell::{"command":"echo hi"}'),
 			evaluateToolUse: jest.fn(() => ({
 				outcome: 'deny',
 				key: 'run_shell::{}',
