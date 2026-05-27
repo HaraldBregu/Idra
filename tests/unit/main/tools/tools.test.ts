@@ -141,18 +141,20 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
 		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
-			AGENT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
+			AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
 		);
 		expect(localToolNamesForGroup('mcpConnector')).toEqual(
-			AGENT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
+			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
 		);
 		expect(byName.get('write_file')).toMatchObject({
 			group: 'coreWorkspace',
 			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+			profiles: AGENT_TOOL_METADATA_BY_NAME.write_file.profiles,
 		});
 		expect(byName.get('run_shell')).toMatchObject({
 			group: 'coreWorkspace',
 			approval: AGENT_TOOL_APPROVAL_NONE,
+			profiles: AGENT_TOOL_METADATA_BY_NAME.run_shell.profiles,
 		});
 		expect(byName.has('exec')).toBe(false);
 		expect(byName.has('cron')).toBe(false);
@@ -161,11 +163,14 @@ describe('tools/policy and registry', () => {
 	});
 
 	it('exports shared metadata with descriptions, permissions, and approval policy', () => {
-		expect(AGENT_TOOLS.map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
+		expect(AGENT_DEFAULT_TOOLS.map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
+		expect(AGENT_TOOLS.map((tool) => tool.name)).toEqual([...AGENT_ALL_TOOL_NAMES]);
 		expect(AGENT_TOOL_METADATA_BY_NAME.read_file).toMatchObject({
 			group: 'coreWorkspace',
 			description: 'Read a UTF-8 workspace file with optional line offset and limit.',
 			permissions: ['read'],
+			profiles: ['coding', 'standard', 'full'],
+			availability: 'default',
 		});
 		expect(AGENT_TOOL_METADATA_BY_NAME.write_file).toMatchObject({
 			permissions: ['create', 'write'],
@@ -175,6 +180,66 @@ describe('tools/policy and registry', () => {
 			permissions: ['mcp:call'],
 			approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		});
+		expect(AGENT_TOOL_METADATA_BY_NAME.script_run).toMatchObject({
+			group: 'script',
+			permissions: ['read', 'write', 'execute'],
+			availability: 'optional',
+		});
+		expect(AGENT_TOOL_METADATA_BY_NAME.cron_create).toMatchObject({
+			group: 'cron',
+			permissions: ['cron:createSchedule'],
+			availability: 'optional',
+		});
+		expect(AGENT_TOOL_METADATA_BY_NAME.apply_patch).toMatchObject({
+			permissions: ['create', 'write', 'delete'],
+			availability: 'legacy',
+		});
+	});
+
+	it('covers every native tool implementation with shared UI metadata', () => {
+		const implementedToolNames = [
+			...LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name),
+			readTool.name,
+			writeTool.name,
+			editTool.name,
+			applyPatchTool.name,
+			deleteTool.name,
+			copyTool.name,
+			moveTool.name,
+			inspectFileTool.name,
+			findTool.name,
+			filesystemCreateTool.name,
+			filesystemListTool.name,
+			filesystemReadTool.name,
+			filesystemUpdateTool.name,
+			filesystemDeleteTool.name,
+			filesystemMoveTool.name,
+			filesystemCopyTool.name,
+			filesystemSearchTool.name,
+			scriptRunTool.name,
+			cronCreateTool.name,
+			cronReadTool.name,
+			cronUpdateTool.name,
+			cronDeleteTool.name,
+			cronListTool.name,
+			cronStartTool.name,
+			cronStopTool.name,
+			cronRunTool.name,
+		];
+		const uniqueImplementedNames = [...new Set(implementedToolNames)].sort();
+
+		expect(uniqueImplementedNames).toEqual([...AGENT_ALL_TOOL_NAMES].sort());
+		for (const name of uniqueImplementedNames) {
+			expect(AGENT_TOOL_METADATA_BY_NAME[name]).toEqual(
+				expect.objectContaining({
+					name,
+					description: expect.any(String),
+					permissions: expect.any(Array),
+					approval: expect.any(Object),
+				})
+			);
+			expect(AGENT_TOOL_METADATA_BY_NAME[name].permissions.length).toBeGreaterThan(0);
+		}
 	});
 });
 
