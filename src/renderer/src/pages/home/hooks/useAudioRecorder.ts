@@ -4,7 +4,6 @@ import {
 	createRecordingFileName,
 	createRecordingId,
 	getAppMicrophonePermission,
-	normalizePermissionState,
 	objectUrlForBlob,
 	queryMicrophonePermission,
 	recorderErrorMessage,
