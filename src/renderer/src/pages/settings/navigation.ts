@@ -85,6 +85,7 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.imageAssistantDescription',
 		keywords: 'image generation image assistant editing creative model',
 		icon: ImageIcon,
+		comingSoon: true,
 	},
 	{
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
