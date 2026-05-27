@@ -494,8 +494,11 @@ describe('ConnectorsService MCP persistence', () => {
 			expect.objectContaining({ key: 'connectors' })
 		);
 
-		store.get = jest.fn(() => {
-			throw new Error('read failed');
+		Object.defineProperty(store, 'store', {
+			configurable: true,
+			get: () => {
+				throw new Error('read failed');
+			},
 		});
 		expect(() => service.list()).toThrow('read failed');
 		expect(logger.error).toHaveBeenCalledWith(
