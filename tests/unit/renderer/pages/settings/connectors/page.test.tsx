@@ -181,9 +181,8 @@ describe('connector settings docs', () => {
 
 		renderConnectorDetails('/settings/connectors/configure/connector_dropbox');
 
-		expect(await screen.findByLabelText('MCP config')).toHaveValue(
-			expect.stringContaining('https://example.com/mcp')
-		);
+		const mcpConfig = await screen.findByLabelText('MCP config');
+		expect((mcpConfig as HTMLTextAreaElement).value).toContain('https://example.com/mcp');
 		await user.click(screen.getByRole('button', { name: /Add Connector/ }));
 
 		await waitFor(() => {
