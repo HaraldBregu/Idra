@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorCatalogEntry } from '../../../../../../shared/connector';
+import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../shared/connector';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
@@ -178,6 +178,9 @@ const ConnectorsPage = () => {
 		}
 	};
 
+	const isConfiguredConnector = (connector: ConnectorConfig): connector is ConnectorConfig & { id: string } =>
+		typeof connector.id === 'string' && connector.id.length > 0;
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
@@ -228,7 +231,7 @@ const ConnectorsPage = () => {
 			{(mcpConnectors.length > 0 || mcpCatalog.length > 0) && (
 				<SettingsSection title="MCP connectors">
 					<div className="grid gap-2">
-						{mcpConnectors.map((connector) => (
+						{mcpConnectors.filter(isConfiguredConnector).map((connector) => (
 							<ConnectorCard
 								key={connector.id}
 								connector={connector}
