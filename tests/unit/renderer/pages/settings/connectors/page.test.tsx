@@ -41,6 +41,35 @@ const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
 	},
 ];
 
+const OAUTH_CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
+	{
+		id: 'google.gmail',
+		name: 'Gmail',
+		description: 'Gmail OAuth connector',
+		directConnectorId: 'gmail',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://gmailmcp.googleapis.com/mcp/v1',
+			method: 'POST',
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: { response_type: 'code' },
+		},
+	},
+];
+
 jest.mock(
 	'../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorIcon',
 	() => ({
@@ -143,17 +172,13 @@ describe('connector settings docs', () => {
 		installConnectorApi();
 	});
 
-	it('renders static Google OAuth connectors and authorizes through the connectors API', async () => {
+	it('renders OAuth connectors from the catalog and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
-		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
+		(window.connectors.catalog as jest.Mock).mockResolvedValue(OAUTH_CONNECTOR_CATALOG);
 
 		renderConnectorsPage();
 
 		expect(await screen.findByRole('heading', { name: 'Gmail' })).toBeInTheDocument();
-		expect(screen.getByRole('heading', { name: 'Google Calendar' })).toBeInTheDocument();
-		expect(screen.getByRole('heading', { name: 'Google Drive' })).toBeInTheDocument();
-		expect(screen.getByText('search_threads')).toBeInTheDocument();
-		expect(screen.getByText('list_events')).toBeInTheDocument();
 
 		await user.click(screen.getByRole('button', { name: /Authorize Gmail/ }));
 
