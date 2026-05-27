@@ -29,6 +29,7 @@ export interface McpConnectorStore {
 }
 
 export interface AgentMcpClientServicePort {
+	list(): ConnectorConfig[];
 	test(id: string): Promise<ConnectorTestResult>;
 	reconnect(id: string): Promise<ConnectorTestResult>;
 	refreshTools(id: string): Promise<ConnectorTool[]>;
