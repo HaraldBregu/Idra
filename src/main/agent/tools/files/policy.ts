@@ -1,4 +1,4 @@
-import type { PolicyServicePort } from '../../policy';
+import type { PolicyServicePort } from '../../../policy';
 import type { Permission, PolicyDecision } from '../../../shared/policy';
 import type { ToolContext } from '../core/types';
 
