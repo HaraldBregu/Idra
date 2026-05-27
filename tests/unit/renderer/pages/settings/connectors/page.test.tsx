@@ -41,6 +41,51 @@ const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
 	},
 ];
 
+const OAUTH_CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
+	{
+		id: 'google.gmail',
+		name: 'Gmail',
+		description: 'Gmail OAuth connector',
+		directConnectorId: 'gmail',
+		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID'],
+		platformDocumentationPages: [],
+		tools: ['Search mail', 'Read messages'],
+		scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'oauth',
+		allowMultipleInstances: false,
+	},
+	{
+		id: 'google.calendar',
+		name: 'Google Calendar',
+		description: 'Calendar OAuth connector',
+		directConnectorId: 'google_calendar',
+		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID'],
+		platformDocumentationPages: [],
+		tools: ['Search events', 'Read events'],
+		scopes: ['https://www.googleapis.com/auth/calendar.readonly'],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'oauth',
+		allowMultipleInstances: false,
+	},
+	{
+		id: 'google.drive',
+		name: 'Google Drive',
+		description: 'Drive OAuth connector',
+		directConnectorId: 'google_drive',
+		environmentSecretNames: ['GOOGLE_OAUTH_CLIENT_ID'],
+		platformDocumentationPages: [],
+		tools: ['Search files', 'Read content'],
+		scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'oauth',
+		allowMultipleInstances: false,
+	},
+];
+
 jest.mock(
 	'../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorIcon',
 	() => ({
@@ -91,6 +136,11 @@ function installConnectorApi(connector = configuredConnector()): void {
 		refreshTools: jest.fn(async () => connector.tools),
 		listTools: jest.fn(async () => connector.tools),
 		callTool: jest.fn(async () => ({})),
+		authorizeOAuth: jest.fn(async (connectorId: string) => ({
+			connectorId,
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			connector,
+		})),
 	};
 }
 
@@ -98,11 +148,6 @@ function installAppApi(): void {
 	window.app = {
 		openExternalUrl: jest.fn(async () => undefined),
 	} as typeof window.app;
-}
-
-function setViteEnv(values: Record<string, unknown>): void {
-	const target = globalThis as typeof globalThis & { __VITE_ENV__?: Record<string, unknown> };
-	target.__VITE_ENV__ = { ...(target.__VITE_ENV__ ?? {}), ...values };
 }
 
 function renderConnectorsPage(): void {
@@ -141,12 +186,11 @@ describe('connector settings docs', () => {
 	beforeEach(() => {
 		installAppApi();
 		installConnectorApi();
-		setViteEnv({ VITE_GOOGLE_OAUTH_CLIENT_ID: 'google-oauth-client-id' });
 	});
 
-	it('renders static Google OAuth connectors and opens authorization without saving tokens', async () => {
+	it('renders static Google OAuth connectors and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
-		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
+		(window.connectors.catalog as jest.Mock).mockResolvedValue(OAUTH_CONNECTOR_CATALOG);
 
 		renderConnectorsPage();
 
@@ -157,12 +201,8 @@ describe('connector settings docs', () => {
 
 		await user.click(screen.getByRole('button', { name: /Authorize Gmail/ }));
 
-		expect(window.app.openExternalUrl).toHaveBeenCalledTimes(1);
-		const url = new URL((window.app.openExternalUrl as jest.Mock).mock.calls[0]![0]);
-		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
-		expect(url.searchParams.get('client_id')).toBe('google-oauth-client-id');
-		expect(url.searchParams.get('response_type')).toBe('code');
-		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
+		expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith('google.gmail');
+		expect(window.app.openExternalUrl).not.toHaveBeenCalled();
 		expect(window.connectors.add).not.toHaveBeenCalled();
 		expect(window.connectors.update).not.toHaveBeenCalled();
 	});
