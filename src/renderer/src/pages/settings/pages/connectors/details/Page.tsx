@@ -280,7 +280,11 @@ const ConnectorDetailsPage: React.FC = () => {
 			if (!connectorId) throw new Error('Connector not found.');
 
 			const nextConnector = await window.connectors.get(connectorId);
-			const item = findCatalogItem(catalog, nextConnector.connectorId, nextConnector);
+			const item = findCatalogItem(
+				catalog,
+				nextConnector.connectorId ?? nextConnector.id ?? connectorId,
+				nextConnector
+			);
 
 			let nextTools: readonly ConnectorTool[] = [];
 			let nextToolsError: string | null = null;
@@ -343,17 +347,18 @@ const ConnectorDetailsPage: React.FC = () => {
 		setError(null);
 		setStatusMessage(null);
 		setToolsError(null);
-		try {
-			if (connector) {
-				const saved = await window.connectors.update(
-					connector.id,
-					formToUpdateInput(form, catalogItem)
-				);
-				setConnector(saved);
-				setForm(formFromConnector(saved, catalogItem));
-				try {
-					setTools(await window.connectors.listTools(saved.id));
-				} catch (caught) {
+			try {
+				if (connector) {
+					const connectorRecordId = requireConnectorId(connector);
+					const saved = await window.connectors.update(
+						connectorRecordId,
+						formToUpdateInput(form, catalogItem)
+					);
+					setConnector(saved);
+					setForm(formFromConnector(saved, catalogItem));
+					try {
+						setTools(await window.connectors.listTools(saved.id ?? connectorRecordId));
+					} catch (caught) {
 					setTools([]);
 					setToolsError(caught instanceof Error ? caught.message : String(caught));
 				}
@@ -362,7 +367,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			}
 
 			const created = await window.connectors.add(formToCreateInput(form, catalogItem));
-			navigate(`/settings/connectors/connectordetails/${encodeURIComponent(created.id)}`, {
+			navigate(`/settings/connectors/connectordetails/${encodeURIComponent(requireConnectorId(created))}`, {
 				replace: true,
 			});
 		} catch (caught) {
@@ -374,12 +379,13 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	const refreshConnectorTools = async (): Promise<void> => {
 		if (!connector || !catalogItem) return;
+		const connectorRecordId = requireConnectorId(connector);
 		setRefreshingTools(true);
 		setError(null);
 		setToolsError(null);
 		try {
-			const nextTools = await window.connectors.refreshTools(connector.id);
-			const nextConnector = await window.connectors.get(connector.id);
+			const nextTools = await window.connectors.refreshTools(connectorRecordId);
+			const nextConnector = await window.connectors.get(connectorRecordId);
 			setConnector(nextConnector);
 			setForm(formFromConnector(nextConnector, catalogItem));
 			setTools(nextTools);
@@ -393,11 +399,12 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	const testConnector = async (): Promise<void> => {
 		if (!connector) return;
+		const connectorRecordId = requireConnectorId(connector);
 		setTesting(true);
 		setError(null);
 		setStatusMessage(null);
 		try {
-			const result = await window.connectors.test(connector.id);
+			const result = await window.connectors.test(connectorRecordId);
 			setStatusMessage(result.message ?? `Connector status: ${result.status}.`);
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
@@ -409,12 +416,13 @@ const ConnectorDetailsPage: React.FC = () => {
 	const deleteConnector = async (): Promise<void> => {
 		if (!connector) return;
 		if (!window.confirm(`Delete ${connector.name}?`)) return;
+		const connectorRecordId = requireConnectorId(connector);
 
 		setDeleting(true);
 		setError(null);
 		setStatusMessage(null);
 		try {
-			await window.connectors.remove(connector.id);
+			await window.connectors.remove(connectorRecordId);
 			navigate('/settings/connectors');
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
