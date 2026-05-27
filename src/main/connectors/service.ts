@@ -5,7 +5,7 @@ import { shell } from 'electron';
 import Store from 'electron-store';
 import type { LoggerService } from '../logger';
 import { resolveDefaultAppDataPath } from '../agent/storage';
-import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
+import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
 import {
 	AgentMcpClientService,
 	authorizationFromMcp,
