@@ -153,11 +153,10 @@ const OverviewPage: React.FC = () => {
 	}, []);
 
 	return (
-		<SettingsPageShell>
-				<SettingsPageHeader
-					title={t('settings.title')}
-					description={t('settings.description')}
-				/>
+		<SettingsPageShell className="gap-5">
+			<h1 className="px-0.5 text-2xl font-bold tracking-tight text-foreground">
+				{t('settings.title')}
+			</h1>
 				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
 					const panel = (
 						<SettingsPanel>
