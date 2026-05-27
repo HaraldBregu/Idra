@@ -386,6 +386,7 @@ export class ConnectorsService {
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
 		return mergeCatalogEntries([
+			...googleOAuthCatalogEntries(),
 			...(await this.catalogEntriesFromProvider()),
 			...this.validConnectors().map((connector) => this.catalogEntryFromConnector(connector)),
 		]);
@@ -401,6 +402,93 @@ export class ConnectorsService {
 
 	get(id: string): ConnectorConfig {
 		return redactConnectorSecrets(this.getStored(id));
+	}
+
+	async authorizeOAuth(input: unknown): Promise<ConnectorOAuthAuthorizeResult> {
+		const connectorId = readRequiredString(
+			requireObject(input, 'OAuth authorization request').connectorId,
+			'Connector id'
+		);
+		const definition = GOOGLE_WORKSPACE_OAUTH_CONNECTORS.find((connector) => connector.id === connectorId);
+		if (!definition) throw new Error('OAuth connector not found: ' + connectorId);
+
+		const clientId = this.options.env?.[GOOGLE_OAUTH_CLIENT_ID_ENV] ?? process.env[GOOGLE_OAUTH_CLIENT_ID_ENV];
+		if (!clientId?.trim()) throw new Error('Missing Google OAuth client id environment variable: ' + GOOGLE_OAUTH_CLIENT_ID_ENV);
+
+		const state = randomUUID();
+		const authorizationUrl = googleOAuthAuthorizationUrl(definition, clientId.trim(), state);
+		const now = new Date().toISOString();
+		const existing = this.validConnectors().find((connector) => connector.connectorId === definition.id);
+		const connector: ConnectorConfig = {
+			id: existing?.id ?? randomUUID(),
+			name: existing?.name ?? definition.name,
+			connectorId: definition.id,
+			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
+			serverDescription: definition.description,
+			enabled: true,
+			authorization: '',
+			requireApproval: existing?.requireApproval ?? 'always',
+			allowedTools: existing?.allowedTools ?? [],
+			deferLoading: existing?.deferLoading ?? false,
+			tools: [],
+			createdAt: existing?.createdAt ?? now,
+			updatedAt: now,
+			oauth: {
+				providerId: definition.providerId,
+				authorizationUrl,
+				clientId: clientId.trim(),
+				redirectUri: definition.oauth.redirectUri,
+				scopes: definition.oauth.scopes,
+				state,
+				accountEmail: existing?.oauth?.accountEmail,
+				token: existing?.oauth?.token,
+			},
+		};
+
+		this.replace(connector);
+		await (this.options.openExternalUrl ?? shell.openExternal)(authorizationUrl);
+
+		return {
+			connectorId: definition.id,
+			authorizationUrl,
+			connector: redactConnectorSecrets(connector),
+		};
+	}
+
+	completeOAuth(input: unknown): ConnectorConfig {
+		const raw = requireObject(input, 'OAuth completion');
+		const state = readRequiredString(raw.state, 'OAuth state');
+		const accessToken = readRequiredString(raw.accessToken, 'OAuth access token');
+		const refreshToken = readOptionalString(raw, 'refreshToken')?.trim();
+		const tokenType = readOptionalString(raw, 'tokenType')?.trim();
+		const scope = readOptionalString(raw, 'scope')?.trim();
+		const accountEmail = readOptionalString(raw, 'accountEmail')?.trim();
+		const expiresIn = raw.expiresIn;
+		if (expiresIn !== undefined && (typeof expiresIn !== 'number' || !Number.isFinite(expiresIn) || expiresIn < 0)) {
+			throw new Error('OAuth expiresIn must be a non-negative number.');
+		}
+
+		const current = this.validConnectors().find((connector) => connector.oauth?.state === state);
+		if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
+		const next: ConnectorConfig = {
+			...current,
+			updatedAt: new Date().toISOString(),
+			oauth: {
+				...current.oauth,
+				accountEmail: accountEmail || current.oauth.accountEmail,
+				token: {
+					accessToken,
+					refreshToken,
+					tokenType,
+					scope,
+					expiresAt: typeof expiresIn === 'number'
+						? new Date(Date.now() + expiresIn * 1000).toISOString()
+						: undefined,
+				},
+			},
+		};
+		this.replace(next);
+		return redactConnectorSecrets(next);
 	}
 
 	restoreEnabledConnectors(): void {
