@@ -120,15 +120,15 @@ function SettingsOverviewCard({
 			variant="outline"
 			size="md"
 			disabled={comingSoon}
-			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/60 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
+			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
 			<ItemIcon icon={item.icon} />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal text-muted-foreground">
 					{t(item.labelKey)}
 				</ItemTitle>
 				{'descriptionKey' in item && item.descriptionKey && (
-					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground/50">
 						{t(item.descriptionKey)}
 					</p>
 				)}
@@ -141,7 +141,7 @@ function SettingsOverviewCard({
 					</Badge>
 				) : (
 					<ChevronRight
-						className="size-3 shrink-0 text-muted-foreground"
+						className="size-3 shrink-0 text-muted-foreground/40"
 						strokeWidth={1.8}
 					/>
 				)}
