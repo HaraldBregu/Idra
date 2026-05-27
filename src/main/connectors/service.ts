@@ -847,7 +847,7 @@ export class ConnectorsService {
 		const provider = this.options.catalogProvider;
 		const entries = typeof provider === 'function'
 			? await provider()
-			: provider ?? defaultConnectorCatalog as ConnectorCatalogEntry[];
+			: (provider ?? defaultConnectorCatalog) as ConnectorCatalogEntry[];
 		return entries.map(normalizeCatalogEntry);
 	}
 
