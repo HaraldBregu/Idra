@@ -2,7 +2,7 @@ import matter from 'gray-matter';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import type { LoggerService } from '../logger';
+import type { LoggerService } from '../../logger';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -12,7 +12,7 @@ import type {
 	SkillSupportFile,
 	SkillValidationIssue,
 	SkillValidationResult,
-} from '../../shared/skills';
+} from '../../../shared/skills';
 
 const LOG_SOURCE = 'SkillsService';
 const SKILL_FILE_NAME = 'SKILL.md';

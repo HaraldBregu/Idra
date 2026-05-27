@@ -1,5 +1,5 @@
 import type { Tool as ResponseTool } from 'openai/resources/responses/responses';
-import type { ConnectorConfig } from '../../shared/connector';
+import type { ConnectorConfig } from '../../../shared/connector';
 
 type McpTool = ResponseTool.Mcp;
 

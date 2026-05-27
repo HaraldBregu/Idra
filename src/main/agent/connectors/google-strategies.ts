@@ -1,4 +1,4 @@
-import type { ConnectorConfig, ConnectorTool, OpenAiConnectorId } from '../../shared/connector';
+import type { ConnectorConfig, ConnectorTool, OpenAiConnectorId } from '../../../shared/connector';
 import {
 	GoogleCalendarApiClient,
 	GoogleDriveApiClient,

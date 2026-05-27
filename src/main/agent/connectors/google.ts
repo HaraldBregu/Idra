@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import type { GoogleOAuthCredential } from '../../shared/connector';
+import type { GoogleOAuthCredential } from '../../../shared/connector';
 
 export const GOOGLE_OAUTH_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';

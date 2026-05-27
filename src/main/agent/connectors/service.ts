@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
 import Store from 'electron-store';
-import type { LoggerService } from '../logger';
-import type { JSONSchema, ToolResultBlock } from '../provider/types';
+import type { LoggerService } from '../../logger';
+import type { JSONSchema, ToolResultBlock } from '../../provider/types';
 import {
 	OPENAI_CONNECTOR_CATALOG,
 	getConnectorAuthKind,
@@ -19,7 +19,7 @@ import {
 	type ConnectorView,
 	type GoogleOAuthCredential,
 	type OpenAiConnectorId,
-} from '../../shared/connector';
+} from '../../../shared/connector';
 import {
 	GOOGLE_OAUTH_REDIRECT_URI,
 	GoogleProfileClient,
