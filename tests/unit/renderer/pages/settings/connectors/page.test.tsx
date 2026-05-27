@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../src/shared/connectors';
+import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../src/shared/connector';
 import { ConnectorDocumentationRows } from '../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorDocumentationRows';
 import ConnectorDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/details/Page';
 

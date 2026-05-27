@@ -809,7 +809,7 @@ interface StoreInvokeChannelMap {
 	};
 	[StoreChannels.getConnectorSettings]: {
 		args: [];
-		result: import('../connectors').ConnectorConfig[];
+		result: import('../connector').ConnectorConfig[];
 	};
 	[StoreChannels.getAssistantOperator]: {
 		args: [];

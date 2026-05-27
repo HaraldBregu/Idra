@@ -7,7 +7,7 @@ export * from './providers';
 export * from './shortcuts';
 export * from './skills';
 export * from './store';
-export * from './connectors';
+export * from './connector';
 export * from './cron';
 export * from './heartbeat';
 export * from './monitor';
