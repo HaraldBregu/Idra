@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { ConnectorCatalogEntry, ConnectorConfig, ConnectorView } from '../../../../../../src/shared/connector';
+import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../src/shared/connector';
 import { ConnectorDocumentationRows } from '../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorDocumentationRows';
 import ConnectorsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/Page';
 import ConnectorDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/connectors/details/Page';
@@ -76,7 +76,7 @@ function configuredConnector(): ConnectorConfig {
 	};
 }
 
-function connectorView(overrides: Partial<ConnectorView> = {}): ConnectorView {
+function connectorView(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 	return {
 		id: 'google.gmail',
 		name: 'Gmail',
