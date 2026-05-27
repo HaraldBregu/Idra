@@ -76,25 +76,6 @@ function mcpInput(overrides: Record<string, unknown> = {}) {
 	};
 }
 
-function storedConnector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
-	return {
-		id: 'connector-1',
-		name: 'Remote Gmail MCP',
-		connectorId: 'google.gmail',
-		serverLabel: 'gmail_mcp',
-		enabled: true,
-		authorization: '',
-		requireApproval: 'always',
-		allowedTools: ['search'],
-		deferLoading: false,
-		tools: discoveredTools.slice(0, 1),
-		mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
-		createdAt: '2026-05-22T00:00:00.000Z',
-		updatedAt: '2026-05-22T00:00:00.000Z',
-		...overrides,
-	};
-}
-
 describe('ConnectorsService MCP persistence', () => {
 	beforeEach(() => {
 		MockStore.mockClear();
