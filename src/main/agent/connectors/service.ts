@@ -17,7 +17,7 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorView,
-	type StaticOAuthConnectorDefinition,
+	StaticOAuthConnectorDefinition,
 } from '../../../shared/connector';
 import {
 	GOOGLE_MCP_AUTHENTICATION_URL,
