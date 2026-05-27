@@ -807,8 +807,8 @@ export class ConnectorsService {
 		if (!record) {
 			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
 			return [];
-		}
-		const connector = record as unknown as ConnectorConfig;
+			}
+			const connector = record as unknown as ConnectorConfig;
 			if (!isStoredConnectorValid(connector, storageKey)) {
 				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId ?? storageKey });
 				return [];
