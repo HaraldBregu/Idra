@@ -686,7 +686,6 @@ export class ConnectorsService implements McpConnectorStore {
 	}
 
 	private replace(connector: RuntimeConnector): void {
-		void this.closeClient(connector.id);
 		const connectors = this.validConnectors();
 		const next = connectors.some((item) => item.id === connector.id)
 			? connectors.map((item) => (item.id === connector.id ? connector : item))
