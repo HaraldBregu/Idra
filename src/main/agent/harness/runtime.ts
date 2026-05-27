@@ -1,8 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import type { AgentContentBlock, ToolResultBlock, Usage } from '../../provider/types';
 import type { AgentToolResultStatus } from '../../../shared/agents/constants';
-import { AgentHarnessEmitter } from './events';
+import { AgentHarnessEmitter, AgentHarnessEventQueue } from './events';
 import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
+import { DefaultAgentHarnessSecretRedactor, validateAgentHarnessConfig } from './config';
+import { compactTranscriptToBudget } from './context';
+import { AgentHarnessError, isRecoverableError, toHarnessErrorShape } from './errors';
+import { describeModelCandidate, estimateUsageCost } from './model';
+import { validateJsonSchemaValue } from './schema';
+import { DefaultAgentHarnessToolRegistry, filterToolsByPermissions, requiresPolicyApproval } from './tools';
 import type {
 	AgentHarnessApprovalDecision,
 	AgentHarnessApprovalRequest,
@@ -11,6 +17,9 @@ import type {
 	AgentHarnessEvent,
 	AgentHarnessExecuteInput,
 	AgentHarnessHookName,
+	AgentHarnessModel,
+	AgentHarnessModelCandidate,
+	AgentHarnessModelDescriptor,
 	AgentHarnessMemoryRecord,
 	AgentHarnessRunResult,
 	AgentHarnessSession,
