@@ -5,7 +5,6 @@ import { EventBus } from '../../../../src/main/core/event-bus';
 import { AgentIpc } from '../../../../src/main/ipc/agent-ipc';
 import type { MainServiceContainer } from '../../../../src/main/service-registry';
 import { AgentChannels } from '../../../../src/shared/ipc-channels';
-import { DEFAULT_AGENT_ID } from '../../../../src/main/constants';
 
 function registeredHandler(channel: string) {
 	const call = (ipcMain.handle as jest.Mock).mock.calls.find(([name]) => name === channel);
