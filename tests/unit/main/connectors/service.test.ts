@@ -235,14 +235,14 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(MockStore).toHaveBeenCalledTimes(1);
 	});
 
-	it('opens Google OAuth through the backend and stores only MCP config plus fetched tools', async () => {
+	it('opens Google OAuth through the backend and stores full connector data by provider key', async () => {
 		const openExternalUrl = jest.fn(async () => undefined);
 		const { service, store } = createService(createFakeMcpClient(), {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
 			openExternalUrl,
 		});
 
-		const result = await service.authorizeOAuth({ connectorId: 'google.gmail' });
+		const result = await service.authorizeOAuth(oauthInput('google.gmail'));
 
 		expect(openExternalUrl).toHaveBeenCalledWith(result.authorizationUrl);
 		const url = new URL(result.authorizationUrl);
@@ -250,8 +250,12 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(url.searchParams.get('client_id')).toBe('google-client-id');
 		expect(url.searchParams.get('response_type')).toBe('code');
 		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
-		expect(store.data.get('connectors')).toEqual([
-			{
+		expect(Object.fromEntries(store.data)).toEqual({
+			gmail: expect.objectContaining({
+				id: 'google.gmail',
+				name: 'Gmail',
+				connectorId: 'google.gmail',
+				serverLabel: 'gmail',
 				mcp: {
 					transport: 'http',
 					url: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -261,13 +265,18 @@ describe('ConnectorsService MCP persistence', () => {
 						'content-type': 'application/json',
 					},
 				},
+				oauth: expect.objectContaining({
+					clientId: 'google-client-id',
+					authorizationUrl: result.authorizationUrl,
+					state: expect.any(String),
+				}),
 				tools: discoveredTools.map((tool) => expect.objectContaining({
 					name: tool.name,
 					permission: 'always-allow',
 					requiresApproval: false,
 				})),
-			},
-		]);
+			}),
+		});
 		expect(result.connector.oauth).toEqual(expect.objectContaining({
 			clientId: 'google-client-id',
 			authorizationUrl: result.authorizationUrl,
@@ -282,10 +291,11 @@ describe('ConnectorsService MCP persistence', () => {
 			openExternalUrl: jest.fn(async () => undefined),
 		});
 
-		await service.authorizeOAuth({ connectorId: 'google.calendar' });
+		await service.authorizeOAuth(oauthInput('google.calendar'));
 
-		expect(store.data.get('connectors')).toEqual([
-			{
+		expect(Object.fromEntries(store.data)).toEqual({
+			google_calendar: expect.objectContaining({
+				connectorId: 'google.calendar',
 				mcp: {
 					transport: 'http',
 					url: 'https://calendarmcp.googleapis.com/mcp/v1',
@@ -300,8 +310,8 @@ describe('ConnectorsService MCP persistence', () => {
 					permission: 'always-allow',
 					requiresApproval: false,
 				})),
-			},
-		]);
+			}),
+		});
 	});
 
 	it('uses fetched Gmail MCP tools after OAuth completion', async () => {
@@ -309,7 +319,7 @@ describe('ConnectorsService MCP persistence', () => {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
 			openExternalUrl: jest.fn(async () => undefined),
 		});
-		const started = await service.authorizeOAuth({ connectorId: 'google.gmail' });
+		const started = await service.authorizeOAuth(oauthInput('google.gmail'));
 
 		const completed = service.completeOAuth({
 			state: started.connector.oauth?.state,
@@ -331,7 +341,7 @@ describe('ConnectorsService MCP persistence', () => {
 			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
 			openExternalUrl: jest.fn(async () => undefined),
 		});
-		const started = await service.authorizeOAuth({ connectorId: 'google.drive' });
+		const started = await service.authorizeOAuth(oauthInput('google.drive'));
 		const state = started.connector.oauth?.state;
 		expect(state).toBeTruthy();
 
@@ -345,8 +355,8 @@ describe('ConnectorsService MCP persistence', () => {
 			accountEmail: 'user@example.com',
 		});
 
-		expect(store.data.get('connectors')).toEqual([
-			expect.objectContaining({
+		expect(Object.fromEntries(store.data)).toEqual({
+			google_drive: expect.objectContaining({
 				connectorId: 'google.drive',
 				oauth: expect.objectContaining({
 					accountEmail: 'user@example.com',
@@ -357,7 +367,7 @@ describe('ConnectorsService MCP persistence', () => {
 					}),
 				}),
 			}),
-		]);
+		});
 		expect(completed.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
 		expect(service.list()[0]).toMatchObject({
 			authKind: 'oauth',
@@ -374,8 +384,8 @@ describe('ConnectorsService MCP persistence', () => {
 		const added = await service.add(mcpInput());
 
 		expect(client.listTools).toHaveBeenCalledTimes(1);
-		expect(store.data.get('connectors')).toEqual([
-			expect.objectContaining({
+		expect(Object.fromEntries(store.data)).toEqual({
+			gmail_mcp: expect.objectContaining({
 				id: added.id,
 				connectorId: 'google.gmail',
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
@@ -384,7 +394,7 @@ describe('ConnectorsService MCP persistence', () => {
 					expect.objectContaining({ name: 'write_note', permission: 'blocked', requiresApproval: false }),
 				],
 			}),
-		]);
+		});
 		expect(added.authorization).toBe('');
 		expect(service.list()).toEqual([
 			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 2 }),
