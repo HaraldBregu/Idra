@@ -27,18 +27,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { handleExternalLinkClick } from '@/lib/external-links';
-import {
-	PROVIDER_CONNECTOR_DOCS,
-	getConnectorAuthKind,
-	getConnectorCatalogItem,
-	isOpenAiConnectorId,
-	type ConnectorApprovalMode,
-	type ConnectorConfig,
-	type ConnectorInput,
-	type ConnectorMcpConfig,
-	type ConnectorTool,
-	type ConnectorUpdateInput,
-	type OpenAiConnectorId,
+import type {
+	ConnectorApprovalMode,
+	ConnectorCatalogEntry,
+	ConnectorConfig,
+	ConnectorInput,
+	ConnectorMcpConfig,
+	ConnectorTool,
+	ConnectorUpdateInput,
 } from '../../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
@@ -52,7 +48,7 @@ import { ConnectorDocumentationRows } from '../components/ConnectorDocumentation
 import { ConnectorIcon } from '../components/ConnectorIcon';
 import { ConnectorToolsList } from '../components/ConnectorToolsList';
 
-type ConnectorCatalogItem = NonNullable<ReturnType<typeof getConnectorCatalogItem>>;
+type ConnectorCatalogItem = ConnectorCatalogEntry;
 
 interface ConnectorFormState {
 	readonly name: string;
@@ -123,6 +119,33 @@ function formFromConnector(connector: ConnectorConfig, item: ConnectorCatalogIte
 	};
 }
 
+function catalogItemFromId(id: string, connector?: ConnectorConfig): ConnectorCatalogItem {
+	const name = connector?.name ?? id;
+	return {
+		id,
+		name,
+		description: connector?.serverDescription ?? name,
+		environmentSecretNames: environmentSecretNamesFor(connector?.mcp),
+		platformDocumentationPages: [],
+		tools: connector?.tools.map((tool) => tool.name) ?? [],
+		scopes: [],
+		setupInstructions: [],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+	};
+}
+
+function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
+	if (!mcp) return [];
+	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
+	return (mcp.envSecrets ?? []).map((secret) => secret.env);
+}
+
+function findCatalogItem(catalog: readonly ConnectorCatalogItem[], id: string, connector?: ConnectorConfig): ConnectorCatalogItem {
+	return catalog.find((item) => item.id === id) ?? catalogItemFromId(id, connector);
+}
+
 function formatTimestamp(value?: string): string {
 	if (!value) return 'Never';
 	const date = new Date(value);
@@ -136,9 +159,8 @@ function formatApprovalPolicy(value: ConnectorApprovalMode): string {
 	return 'Always require approval';
 }
 
-function formatRuntimeStatus(connectorId: OpenAiConnectorId): string {
-	const runtimeStatus = PROVIDER_CONNECTOR_DOCS[connectorId].runtimeStatus;
-	return runtimeStatus === 'mcp_dynamic_tools' ? 'Dynamic MCP tools' : 'Settings catalog only';
+function formatRuntimeStatus(item: ConnectorCatalogItem): string {
+	return item.runtimeKind === 'mcp' ? 'Dynamic MCP tools' : 'Dynamic connector';
 }
 
 function DetailRow({
@@ -258,14 +280,11 @@ const ConnectorDetailsPage: React.FC = () => {
 		setToolsError(null);
 
 		try {
+			const catalog = await window.connectors.catalog();
+
 			if (connectorCatalogId) {
 				const decodedCatalogId = decodeURIComponent(connectorCatalogId);
-				if (!isOpenAiConnectorId(decodedCatalogId)) {
-					throw new Error(`Unsupported connector id: ${decodedCatalogId}`);
-				}
-				const item = getConnectorCatalogItem(decodedCatalogId);
-				if (!item) throw new Error(`Connector not found: ${decodedCatalogId}`);
-
+				const item = findCatalogItem(catalog, decodedCatalogId);
 
 				setConnector(null);
 				setCatalogItem(item);
@@ -277,8 +296,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			if (!connectorId) throw new Error('Connector not found.');
 
 			const nextConnector = await window.connectors.get(connectorId);
-			const item = getConnectorCatalogItem(nextConnector.connectorId);
-			if (!item) throw new Error(`Connector not found: ${nextConnector.connectorId}`);
+			const item = findCatalogItem(catalog, nextConnector.connectorId, nextConnector);
 
 			let nextTools: readonly ConnectorTool[] = [];
 			let nextToolsError: string | null = null;
@@ -289,7 +307,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			}
 
 			setConnector(nextConnector);
-			setCatalogItem(item);
+			setCatalogItem({ ...item, tools: nextTools.map((tool) => tool.name) });
 			setForm(formFromConnector(nextConnector, item));
 			setTools(nextTools);
 			setToolsError(nextToolsError);
@@ -331,7 +349,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		event.preventDefault();
 		if (!form || !catalogItem) return;
 
-		const manualAuth = getConnectorAuthKind(catalogItem.id) === 'manual_oauth_access_token';
+		const manualAuth = false;
 		const validationError = formValidationError(form, manualAuth && !connector);
 		if (validationError) {
 			setError(validationError);
@@ -474,12 +492,10 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const authKind = getConnectorAuthKind(catalogItem.id);
-	const googleOAuth = authKind === 'google_oauth';
-	const mcpEnvAuth = authKind === 'mcp_env';
+	const googleOAuth = false;
+	const mcpEnvAuth = true;
 	const connectedGoogleAccount = connector?.oauth?.email ?? null;
 	const hasGoogleConnection = Boolean(connector?.oauth?.connectedAt || connectedGoogleAccount);
-	const redirectUri = 'redirectUri' in catalogItem ? catalogItem.redirectUri : 'Not configured';
 	const title = connector?.name ?? catalogItem.name;
 	const idPrefix = connector?.id ?? catalogItem.id;
 	const formBusy = saving || connecting || deleting;
@@ -489,7 +505,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={title}
 				description={catalogItem.description}
-				iconNode={<ConnectorIcon connectorId={catalogItem.id} name={catalogItem.name} />}
+				iconNode={<ConnectorIcon directConnectorId={catalogItem.directConnectorId} name={catalogItem.name} />}
 				action={
 					googleOAuth && connector ? (
 						<Button
@@ -609,7 +625,7 @@ const ConnectorDetailsPage: React.FC = () => {
 											Google OAuth
 										</div>
 										<div className="mt-1 break-all text-[11px] leading-4 text-muted-foreground">
-											Redirect: <span className="font-mono">{redirectUri}</span>
+											Redirect: <span className="font-mono">Not configured</span>
 										</div>
 									</div>
 								) : mcpEnvAuth ? (
@@ -756,12 +772,12 @@ const ConnectorDetailsPage: React.FC = () => {
 			>
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={catalogItem.id} mono />
-					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem.id)} />
-					<DetailRow label="Auth" value={mcpEnvAuth ? 'MCP env variables' : googleOAuth ? 'Google OAuth' : 'MCP env variables'} />
+					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem)} />
+					<DetailRow label="Auth" value="MCP env variables" />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(form.requireApproval)} />
 					<DetailRow
 						label="Connected account"
-						value={connectedGoogleAccount ?? (googleOAuth ? 'Not connected' : mcpEnvAuth ? 'MCP server' : 'Manual token')}
+						value={connectedGoogleAccount ?? 'MCP server'}
 					/>
 					<DetailRow label="Last refreshed" value={formatTimestamp(connector?.lastRefreshedAt)} />
 					<DetailRow label="Updated" value={formatTimestamp(connector?.updatedAt)} />
