@@ -21,6 +21,14 @@ import {
 	localToolNamesForProfile,
 	PRELOADED_LOCAL_TOOLS,
 } from '../../../../src/main/agent/tools/registry';
+import {
+	AGENT_TOOL_APPROVAL_ALWAYS,
+	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+	AGENT_TOOL_GROUPS,
+	AGENT_TOOL_METADATA_BY_NAME,
+	AGENT_TOOL_NAMES,
+	AGENT_TOOLS,
+} from '../../../../src/shared/tools';
 import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
 import { PolicyService } from '../../../../src/main/agent/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
@@ -58,7 +66,7 @@ describe('tools/types', () => {
 });
 
 describe('tools/policy and registry', () => {
-	const all: AgentTool[] = ['read', 'write', 'find', 'exec'].map((name) => ({
+	const all: AgentTool[] = ['read_file', 'write_file', 'search_files', 'exec'].map((name) => ({
 		name,
 		description: name,
 		schema: {},
@@ -70,29 +78,18 @@ describe('tools/policy and registry', () => {
 			filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)
 		).toEqual([]);
 		expect(
-			filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read'], deny: [] }).map(
+			filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read_file'], deny: [] }).map(
 				(t) => t.name
 			)
-		).toEqual(['read']);
+		).toEqual(['read_file']);
 		expect(
-			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['write_backup'] }).map((t) => t.name)
-		).toEqual(['write']);
+			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['write_file_backup'] }).map((t) => t.name)
+		).toEqual(['write_file']);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
 		expect(createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)).toEqual(
-			[
-				'read',
-				'write',
-				'edit',
-				'apply_patch',
-				'delete',
-				'copy',
-				'move',
-				'inspect_file',
-				'find',
-				'script_run',
-			]
+			[...AGENT_TOOL_NAMES]
 		);
 	});
 
@@ -109,18 +106,7 @@ describe('tools/policy and registry', () => {
 
 	it('defines local tool control metadata in one catalog', () => {
 		const catalogNames = LOCAL_TOOL_CATALOG.map((entry) => entry.name);
-		const standardToolNames = [
-			'read',
-			'write',
-			'edit',
-			'apply_patch',
-			'delete',
-			'copy',
-			'move',
-			'inspect_file',
-			'find',
-			'script_run',
-		];
+		const standardToolNames = [...AGENT_TOOL_NAMES];
 		const byName = localToolCatalogByName();
 
 		expect(new Set(catalogNames).size).toBe(catalogNames.length);
@@ -131,20 +117,41 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForProfile('coding')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
-		expect(localToolNamesForGroup('file')).toEqual(standardToolNames.filter((name) => name !== 'script_run'));
-		expect(localToolNamesForGroup('script')).toEqual(['script_run']);
-		expect(byName.get('write')).toMatchObject({
-			group: 'file',
-			approval: { mode: 'workspace-boundary', target: 'write-target' },
+		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
+			AGENT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
+		);
+		expect(localToolNamesForGroup('mcpConnector')).toEqual(
+			AGENT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
+		);
+		expect(byName.get('write_file')).toMatchObject({
+			group: 'coreWorkspace',
+			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
 		});
-		expect(byName.get('script_run')).toMatchObject({
-			group: 'script',
-			approval: { mode: 'workspace-boundary', target: 'write-target' },
+		expect(byName.get('run_shell')).toMatchObject({
+			group: 'coreWorkspace',
+			approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		});
 		expect(byName.has('exec')).toBe(false);
 		expect(byName.has('cron')).toBe(false);
 		expect(byName.has('bootstrap')).toBe(false);
 		expect(byName.has('startup_files')).toBe(false);
+	});
+
+	it('exports shared metadata with descriptions, permissions, and approval policy', () => {
+		expect(AGENT_TOOLS.map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
+		expect(AGENT_TOOL_METADATA_BY_NAME.read_file).toMatchObject({
+			group: 'coreWorkspace',
+			description: 'Read a UTF-8 workspace file with optional line offset and limit.',
+			permissions: ['read'],
+		});
+		expect(AGENT_TOOL_METADATA_BY_NAME.write_file).toMatchObject({
+			permissions: ['create', 'write'],
+			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+		});
+		expect(AGENT_TOOL_METADATA_BY_NAME.call_mcp_tool).toMatchObject({
+			permissions: ['mcp:call'],
+			approval: AGENT_TOOL_APPROVAL_ALWAYS,
+		});
 	});
 });
 
