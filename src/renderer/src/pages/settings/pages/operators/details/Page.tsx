@@ -348,7 +348,7 @@ const OperatorDetailsPage: React.FC = () => {
 			{successMessage && <SettingsNotice icon={CheckCircle2}>{successMessage}</SettingsNotice>}
 
 			{config.isAssistant && (
-				<SettingsSection title={t('settings.operators.history')}>
+				<SettingsSection hideTitle title={t('settings.operators.history')}>
 					<SettingsPanel>
 						<Item
 							as="button"
@@ -370,6 +370,7 @@ const OperatorDetailsPage: React.FC = () => {
 
 			{!config.isRuntime ? (
 				<SettingsSection
+					hideTitle={!config.isAssistant}
 					title={t('settings.operators.configuration')}
 					description={t(config.configDescKey)}
 				>
@@ -422,6 +423,7 @@ const OperatorDetailsPage: React.FC = () => {
 				</SettingsSection>
 			) : (
 				<SettingsSection
+					hideTitle={!config.isAssistant}
 					title={t('settings.operators.configuration')}
 					description={t(config.configDescKey)}
 				>

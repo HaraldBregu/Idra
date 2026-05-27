@@ -505,6 +505,7 @@ const SystemPage: React.FC = () => {
 			)}
 
 			<SettingsSection
+				hideTitle
 				title={t('settings.system.mediaPermissions.title')}
 				description={t('settings.system.mediaPermissions.description')}
 			>

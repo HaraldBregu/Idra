@@ -30,6 +30,7 @@ export function SettingsPageShell({
 
 interface SettingsPageHeaderProps {
 	readonly title: ReactNode;
+	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly icon?: LucideIcon;
 	readonly iconNode?: ReactNode;
@@ -75,6 +76,7 @@ export function SettingsPageHeader({
 
 interface SettingsSectionProps {
 	readonly title: ReactNode;
+	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly action?: ReactNode;
 	readonly children: ReactNode;
@@ -84,31 +86,41 @@ interface SettingsSectionProps {
 
 export function SettingsSection({
 	title,
+	hideTitle = false,
 	description,
 	action,
 	children,
 	className,
 	titleClassName,
 }: SettingsSectionProps): React.JSX.Element {
+	const hasTitleContent = !hideTitle || description;
+	const hasHeader = hasTitleContent || action;
+
 	return (
 		<section className={cn('flex flex-col gap-2', className)}>
-			<div className={cn('flex flex-col gap-1 px-2 sm:flex-row sm:items-end sm:justify-between', titleClassName)}>
-				<div className="min-w-0">
-					<h2 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-						{title}
-					</h2>
-					{description && (
-						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground/60">
-							{description}
-						</p>
+			{hasHeader && (
+				<div className={cn('flex flex-col gap-1 px-2 sm:flex-row sm:items-end sm:justify-between', titleClassName)}>
+					{hasTitleContent && (
+						<div className="min-w-0">
+							{!hideTitle && (
+								<h2 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+									{title}
+								</h2>
+							)}
+							{description && (
+								<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground/60">
+									{description}
+								</p>
+							)}
+						</div>
+					)}
+					{action && (
+						<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
+							{action}
+						</div>
 					)}
 				</div>
-				{action && (
-					<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
-						{action}
-					</div>
-				)}
-			</div>
+			)}
 			{children}
 		</section>
 	);
@@ -135,6 +147,7 @@ export function SettingsPanel({ children, className }: SettingsPanelProps): Reac
 
 interface SettingsRowProps {
 	readonly title: ReactNode;
+	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly icon?: LucideIcon;
 	readonly media?: ReactNode;
@@ -251,6 +264,7 @@ export function SettingsNotice({
 interface SettingsEmptyStateProps {
 	readonly icon?: LucideIcon;
 	readonly title: ReactNode;
+	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly children?: ReactNode;
 	readonly className?: string;

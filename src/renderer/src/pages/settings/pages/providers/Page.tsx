@@ -79,7 +79,7 @@ const ProvidersPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.providers.registeredProviders')}>
+			<SettingsSection hideTitle title={t('settings.providers.registeredProviders')}>
 				<div className="space-y-2">
 					{DEFAULT_PROVIDERS.map((provider) => {
 						const isSaved = apiKeyStatus[provider.id] ?? false;

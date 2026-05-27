@@ -462,6 +462,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 			<form onSubmit={saveConnector} className="grid gap-4">
 				<SettingsSection
+					hideTitle
 					title="Configuration"
 					action={
 						connector ? (

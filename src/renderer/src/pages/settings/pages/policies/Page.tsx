@@ -78,7 +78,7 @@ const PoliciesPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.policies.activePolicy')}>
+			<SettingsSection hideTitle title={t('settings.policies.activePolicy')}>
 				<SettingsPanel>
 					{loading ? (
 						<SettingsLoadingRows rows={3} />

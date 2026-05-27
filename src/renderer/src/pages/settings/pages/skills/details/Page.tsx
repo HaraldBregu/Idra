@@ -169,7 +169,7 @@ const SkillDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.skills.details')}>
+			<SettingsSection hideTitle title={t('settings.skills.details')}>
 				<SettingsPanel>
 					<SkillDetail label={t('settings.skills.detailId')} value={skill.id} mono />
 					<SkillDetail

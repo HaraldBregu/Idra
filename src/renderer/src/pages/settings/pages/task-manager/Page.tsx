@@ -173,6 +173,7 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 
 	return (
 		<SettingsSection
+			hideTitle
 			title={t('settings.taskManager.runtime.title')}
 			description={t('settings.taskManager.runtime.description')}
 		>

@@ -163,7 +163,7 @@ const ChatHistoryPage: React.FC = () => {
 				description={t('settings.chatHistory.description')}
 			/>
 
-			<SettingsSection title={t('settings.chatHistory.title')}>
+			<SettingsSection hideTitle title={t('settings.chatHistory.title')}>
 				<Card size="sm" className="gap-0! p-0!">
 					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">

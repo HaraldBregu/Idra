@@ -60,7 +60,7 @@ const ChannelsPage: React.FC = () => {
 				description={t('settings.channels.description')}
 			/>
 
-			<SettingsSection title={t('settings.channels.catalog')}>
+			<SettingsSection hideTitle title={t('settings.channels.catalog')}>
 				<SettingsPanel>
 					{catalog.filter((entry) => entry.catalogVisible).map((entry) => {
 						const isRuntimeChannel = entry.runtime === 'bundled';

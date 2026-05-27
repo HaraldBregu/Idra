@@ -156,7 +156,7 @@ const TaskDetailsPage: React.FC = () => {
 				</SettingsPanel>
 			)}
 
-			<SettingsSection title={t('settings.taskManager.details')}>
+			<SettingsSection hideTitle title={t('settings.taskManager.details')}>
 				<SettingsPanel>
 					<dl className="grid gap-2 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
 						<TaskDetail label={t('settings.taskManager.fields.id')} value={task.id} mono />

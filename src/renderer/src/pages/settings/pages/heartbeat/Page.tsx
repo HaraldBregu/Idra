@@ -342,6 +342,7 @@ const HeartbeatPage: React.FC = () => {
 			)}
 
 			<SettingsSection
+				hideTitle
 				title={t('settings.heartbeat.runtime.title')}
 			>
 				<SettingsPanel>

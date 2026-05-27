@@ -149,7 +149,7 @@ const CronDetailsPage: React.FC = () => {
 				</Card>
 			)}
 
-			<SettingsSection title={t('settings.cron.details.prompt')}>
+			<SettingsSection hideTitle title={t('settings.cron.details.prompt')}>
 				<Card size="sm" className="gap-0! p-0!">
 					<div className="px-3 py-2">
 						<div className="mb-2 flex flex-wrap items-center gap-1.5">

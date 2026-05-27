@@ -117,6 +117,7 @@ const SkillsPage: React.FC = () => {
 			)}
 
 			<SettingsSection
+				hideTitle
 				title={t('settings.skills.title')}
 				description={skillsRoot || undefined}
 			>

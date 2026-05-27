@@ -496,6 +496,7 @@ const ChannelDetailPage: React.FC = () => {
 
 			{selectedId ? (
 				<SettingsSection
+					hideTitle
 					title={t('settings.channels.configuration')}
 					action={
 						<Badge

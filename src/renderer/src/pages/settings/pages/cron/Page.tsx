@@ -332,12 +332,12 @@ const CronPage: React.FC = () => {
 			/>
 
 			{showForm && (
-				<SettingsSection title={t('settings.cron.newTaskTitle')}>
+				<SettingsSection hideTitle title={t('settings.cron.newTaskTitle')}>
 					<ScheduleTaskForm onCreated={handleCreated} onCancel={() => setShowForm(false)} />
 				</SettingsSection>
 			)}
 
-			<SettingsSection title={t('settings.sections.taskScheduler')}>
+			<SettingsSection hideTitle={!showForm} title={t('settings.sections.taskScheduler')}>
 				{error && (
 					<SettingsPanel>
 						<div className="flex min-w-0 items-start gap-2 px-3 py-2 text-destructive">

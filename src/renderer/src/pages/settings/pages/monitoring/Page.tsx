@@ -406,6 +406,7 @@ const MonitoringPage: React.FC = () => {
 			)}
 
 			<SettingsSection
+				hideTitle
 				title={t('settings.monitoring.summary.title')}
 				description={t('settings.monitoring.summary.description')}
 			>

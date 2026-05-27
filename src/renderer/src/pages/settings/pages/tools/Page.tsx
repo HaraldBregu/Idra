@@ -24,12 +24,13 @@ const ToolsPage: React.FC = () => {
 				description={t('settings.overview.descriptions.tools')}
 			/>
 
-			{Object.entries(AGENT_TOOL_GROUPS).map(([groupName, tools]) => {
+			{Object.entries(AGENT_TOOL_GROUPS).map(([groupName, tools], index) => {
 				const metadata = AGENT_TOOL_GROUP_METADATA[groupName as AgentToolGroupName];
 
 				return (
 					<SettingsSection
 						key={groupName}
+						hideTitle={index === 0}
 						title={metadata.title}
 						description={metadata.description}
 					>
