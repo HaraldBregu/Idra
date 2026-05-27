@@ -475,9 +475,10 @@ export class ConnectorsService {
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
 		return mergeCatalogEntries([
-			...googleOAuthCatalogEntries(),
 			...(await this.catalogEntriesFromProvider()),
-			...this.validConnectors().map((connector) => this.catalogEntryFromConnector(connector)),
+			...this.validConnectors()
+				.filter((connector) => !connector.oauth)
+				.map((connector) => this.catalogEntryFromConnector(connector)),
 		]);
 	}
 
@@ -498,7 +499,7 @@ export class ConnectorsService {
 			requireObject(input, 'OAuth authorization request').connectorId,
 			'Connector id'
 		);
-		const definition = googleWorkspaceOAuthConnectors().find((connector) => connector.id === connectorId);
+		const definition = googleWorkspaceOAuthConnector(connectorId);
 		if (!definition) throw new Error('OAuth connector not found: ' + connectorId);
 
 		const clientId = this.options.env?.[GOOGLE_OAUTH_CLIENT_ID_ENV] ?? process.env[GOOGLE_OAUTH_CLIENT_ID_ENV];
@@ -508,6 +509,8 @@ export class ConnectorsService {
 		const authorizationUrl = googleOAuthAuthorizationUrl(definition, clientId.trim(), state);
 		const now = new Date().toISOString();
 		const existing = this.validConnectors().find((connector) => connector.connectorId === definition.id);
+		const requireApproval = existing?.requireApproval ?? 'always';
+		const allowedTools = existing?.allowedTools ?? [];
 		const connector: ConnectorConfig = {
 			id: existing?.id ?? randomUUID(),
 			name: existing?.name ?? definition.name,
@@ -516,10 +519,12 @@ export class ConnectorsService {
 			serverDescription: definition.description,
 			enabled: true,
 			authorization: '',
-			requireApproval: existing?.requireApproval ?? 'always',
-			allowedTools: existing?.allowedTools ?? [],
+			requireApproval,
+			allowedTools,
 			deferLoading: existing?.deferLoading ?? false,
-			tools: [],
+			tools: existing?.tools.length
+				? existing.tools
+				: predefinedOAuthTools(definition, requireApproval, allowedTools),
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
 			mcp: existing?.mcp ?? mcpConfigForOAuthConnector(definition),
