@@ -47,7 +47,7 @@ export function ConnectorCatalogItem({
 						onConfigure();
 					}}
 				>
-					{alreadyConfigured ? 'Open' : 'Configure'}
+					{alreadyConfigured ? 'Add another' : 'Configure'}
 				</Button>
 				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 			</CollapsibleTrigger>

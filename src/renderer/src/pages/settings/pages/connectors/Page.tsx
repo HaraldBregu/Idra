@@ -29,11 +29,6 @@ const ConnectorsPage = () => {
 	};
 
 	const configureCatalogConnector = (id: OpenAiConnectorId): void => {
-		const configured = connectors.find((connector) => connector.connectorId === id);
-		if (configured) {
-			openConnectorDetails(configured.id);
-			return;
-		}
 		navigate(`/settings/connectors/configure/${encodeURIComponent(id)}`);
 	};
 
@@ -41,7 +36,7 @@ const ConnectorsPage = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="Connectors"
-				description="Configure OpenAI-maintained connectors for Responses API tool use."
+				description="Configure MCP-backed connectors for agent tool use."
 			/>
 
 			{error && (
@@ -73,7 +68,7 @@ const ConnectorsPage = () => {
 						/>
 					))
 				)}
-				{catalog.filter((item) => !configuredConnectorIds.has(item.id)).map((item) => (
+				{catalog.map((item) => (
 					<ConnectorCatalogItem
 						key={item.id}
 						item={item}
