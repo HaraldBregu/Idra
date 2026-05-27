@@ -504,7 +504,7 @@ export class ConnectorsService {
 			requireObject(input, 'OAuth authorization request').connectorId,
 			'Connector id'
 		);
-		const definition = GOOGLE_WORKSPACE_OAUTH_CONNECTORS.find((connector) => connector.id === connectorId);
+		const definition = googleWorkspaceOAuthConnectors().find((connector) => connector.id === connectorId);
 		if (!definition) throw new Error('OAuth connector not found: ' + connectorId);
 
 		const clientId = this.options.env?.[GOOGLE_OAUTH_CLIENT_ID_ENV] ?? process.env[GOOGLE_OAUTH_CLIENT_ID_ENV];
@@ -533,8 +533,8 @@ export class ConnectorsService {
 				providerId: definition.providerId,
 				authorizationUrl,
 				clientId: clientId.trim(),
-				redirectUri: definition.oauth.redirectUri,
-				scopes: definition.oauth.scopes,
+				redirectUri: 'http://127.0.0.1',
+				scopes: definition.scopes,
 				state,
 				accountEmail: existing?.oauth?.accountEmail,
 				token: existing?.oauth?.token,
