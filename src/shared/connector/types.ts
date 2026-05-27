@@ -179,6 +179,8 @@ export interface ConnectorView {
 	requireApproval: ConnectorApprovalMode;
 	allowedToolsCount: number;
 	toolsCount: number;
+	hasToken: boolean;
+	hasTools: boolean;
 	deferLoading: boolean;
 	lastRefreshedAt?: string;
 	lastError?: string;
