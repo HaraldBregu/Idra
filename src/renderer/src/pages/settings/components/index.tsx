@@ -79,6 +79,7 @@ interface SettingsSectionProps {
 	readonly action?: ReactNode;
 	readonly children: ReactNode;
 	readonly className?: string;
+	readonly titleClassName?: string;
 }
 
 export function SettingsSection({
@@ -87,10 +88,11 @@ export function SettingsSection({
 	action,
 	children,
 	className,
+	titleClassName,
 }: SettingsSectionProps): React.JSX.Element {
 	return (
 		<section className={cn('flex flex-col gap-2', className)}>
-			<div className="flex flex-col gap-1 px-0.5 sm:flex-row sm:items-end sm:justify-between">
+			<div className={cn('flex flex-col gap-1 px-0.5 sm:flex-row sm:items-end sm:justify-between', titleClassName)}>
 				<div className="min-w-0">
 					<h2 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
 						{title}
