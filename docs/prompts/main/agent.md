@@ -1,61 +1,76 @@
 # Agent Module Prompt
 
-Implement and maintain the main-process agent runtime under `src/main/agent`.
-
-The current implementation is an Electron main-process service, not a standalone `src/agent` package and not a UI component. It coordinates provider selection, session persistence, system prompt construction, tool selection and execution, capability resolution, subagent spawning, routing, heartbeat integration, run logging, and streaming events for renderer and channel consumers.
+Implement and maintain the main-process agent runtime as an Electron main-process service. The agent module coordinates provider selection, session persistence, system prompt construction, tool selection and execution, capability resolution, subagent spawning, routing, heartbeat integration, run logging, and streaming events for renderer and channel consumers.
 
 Use the existing service boundaries. Do not introduce a parallel agent harness, a separate singleton agent store, or a new persistence model unless the requested change explicitly requires it.
 
 ## Scope
 
-The agent module owns:
+The agent module owns these responsibilities:
 
-- `AgentService` orchestration in `src/main/agent/service.ts`.
-- Model/tool execution loop behavior in `src/main/agent/run.ts`.
-- System prompt construction in `src/main/agent/system-prompt.ts`.
-- Session loading, saving, indexing, repair, and locking in `src/main/agent/session`.
-- Capability resolution for local tools, connector tools, and skills in `src/main/agent/capabilities`.
-- Before-run policy hooks in `src/main/agent/before-agent-run.ts`.
-- Tool integration through `src/main/agent/tools`.
-- Agent routing for channel and session scope in `src/main/agent/routing`.
-- Subagent spawn and control tools in `src/main/agent/subagents`.
-- MCP, connector, skills, and harness integration under their existing submodules.
+- `AgentService` orchestration.
+- Model and tool execution loop behavior.
+- System prompt construction.
+- Session loading, saving, indexing, repair, and locking.
+- Capability resolution for local tools, connector tools, and skills.
+- Before-run policy hooks.
+- Tool integration through the tools module.
+- Agent routing for channel and session scope.
+- Subagent spawn and control behavior.
+- MCP, connector, skills, and harness integration under their existing module families.
 
-Do not move these responsibilities into renderer, preload, channel, cron, provider, or store modules. Other modules may call the exported service APIs, but agent orchestration stays in `src/main/agent`.
+Do not move these responsibilities into renderer, preload, channel, cron, provider, or store modules. Other modules may call exported service APIs, but agent orchestration stays inside the agent module.
+
+## Module Names
+
+Use existing module and folder names when extending the implementation:
+
+- `service` for application-facing orchestration.
+- `run` for provider loop mechanics and transcript updates.
+- `system-prompt` for prompt assembly.
+- `session` for durable conversation state.
+- `capabilities` for connector and skill selection.
+- `tools` for local tool construction, filtering, policy checks, approval checks, and execution.
+- `routing` for channel-to-agent resolution.
+- `subagents` for spawn and control behavior.
+- `harness` for tool result middleware and run harness integration.
+- `mcp`, `connectors`, and `skills` for their corresponding integrations.
+
+Add a new module family only when it represents a durable responsibility. For one-off helpers, prefer local helper functions near the behavior they support.
 
 ## Public API
 
-Expose public agent functionality through `src/main/agent/index.ts`.
+Expose public agent functionality through the agent index module.
 
-Keep these exports coherent with the implementation:
+Keep public exports coherent with the implementation:
 
-- `AgentService` and its option, dependency, run, send, and factory types.
-- `AgentExecutionService` and run-loop types.
-- Capability, routing, subagent, before-run, system-prompt, and harness exports.
+- Export `AgentService` and its option, dependency, run, send, and factory types.
+- Export the execution service and run-loop types.
+- Export capability, routing, subagent, before-run, system-prompt, and harness types when outside modules need them.
 
-Do not import deep internal files from outside the agent module when an index export exists. Add a public export only when another module genuinely needs the boundary.
+Do not import private implementation modules from outside the agent boundary when an index export exists. Add a public export only when another module genuinely needs that boundary.
 
 ## AgentService Responsibilities
 
-`AgentService` is the application-facing facade. It should remain responsible for:
+`AgentService` is the application-facing facade. Keep it responsible for orchestration only:
 
-- Resolving the default agent id and per-agent runtime state.
-- Resolving provider, model, base URL, API key, and reasoning effort from `StoreService` and send options.
-- Loading and saving `SessionFile` state through `src/main/agent/session/store.ts`.
-- Resolving the workspace root from configured agent workspace settings.
-- Constructing the `ToolContext` with workspace, session, run signal, filesystem policy, cron context, and main-process services.
-- Evaluating request-level tool policy through `PolicyService.evaluateToolRequest`.
-- Checking bootstrap state and loading startup context files through `WorkspaceService`.
-- Building local tools through the configured `toolsFactory`.
-- Filtering, selecting, and provider-normalizing tools through `ToolService`.
-- Resolving connector tools and skill prompt additions through `AgentCapabilityService`.
-- Building the final system prompt through `buildSystemPrompt`.
-- Running before-agent-run hooks before model inference.
-- Calling `AgentExecutionService.execute`.
-- Updating in-memory run records, session status, and run logger lifecycle entries.
-- Broadcasting `AgentResponseEvent` stream events unless a heartbeat run suppresses them.
+- Resolve the default agent id and per-agent runtime state.
+- Resolve provider, model, base URL, API key, and reasoning effort from store settings and send options.
+- Load and save session state through the session store.
+- Resolve the workspace root from configured agent workspace settings.
+- Construct `ToolContext` with workspace, session, run signal, filesystem policy, cron context, and main-process services.
+- Evaluate request-level tool policy through `PolicyService`.
+- Check bootstrap state and load startup context through `WorkspaceService`.
+- Build local tools through the configured `toolsFactory`.
+- Filter, select, and provider-normalize tools through `ToolService`.
+- Resolve connector tools and skill prompt additions through `AgentCapabilityService`.
+- Build the final system prompt through `buildSystemPrompt`.
+- Run before-agent-run hooks before model inference.
+- Call the execution service.
+- Update in-memory run records, session status, and run logger lifecycle entries.
+- Broadcast typed response events unless a heartbeat run suppresses them.
 
-Keep `AgentService` as orchestration. Do not move provider streaming, tool execution internals, connector implementation, cron scheduling, policy evaluation, or skill loading into it.
+Do not move provider streaming, tool execution internals, connector implementation, cron scheduling, policy evaluation, or skill loading into `AgentService`.
 
 ## Run Lifecycle
 
@@ -73,23 +88,23 @@ Preserve the current high-level send flow:
 10. Build local tools only when bootstrap or tool policy requires them.
 11. Load startup files and resolve bootstrap mode.
 12. Select prompt tools with `ToolService`.
-13. Prepare tools for provider schema/name constraints.
+13. Prepare tools for provider schema and provider name constraints.
 14. Resolve connector tools and skills.
 15. Build the system prompt and append capability prompt additions.
 16. Evaluate before-agent-run hooks.
-17. Execute the provider/tool loop.
+17. Execute the provider and tool loop.
 18. Save the final session, update the run record, emit completion state, and return final text.
 
 If a change alters this order, add tests that prove the behavioral reason. Be especially careful around bootstrap, before-run hooks, and session persistence because those protect user context and sensitive prompts.
 
 ## Execution Loop
 
-`AgentExecutionService` and `executeAgentRun` own the model/tool loop.
+The execution service owns the model and tool loop.
 
 Keep these behaviors intact:
 
 - Resolve provider and model before streaming.
-- Prepare tools for the current turn through `ToolService.prepareToolsForRun`.
+- Prepare tools for the current turn through `ToolService`.
 - Send the provider only the selected prompt tools.
 - Append the user message to the session transcript before streaming.
 - Stream typed events for run state, text deltas, reasoning summaries, tool call start, tool arguments, tool input, tool result, and run finish.
@@ -100,22 +115,21 @@ Keep these behaviors intact:
 - Append assistant and tool transcript entries in provider-compatible order.
 - Normalize tool statuses to `ok`, `blocked`, `rejected`, or `error`.
 - Apply harness tool result middleware before recording tool output.
-- Persist `ctx.plan.entries` back onto the session.
+- Persist plan entries back onto the session.
 
-On `ContextOverflowError`, keep the current compaction path: flush session memory best-effort, compact the transcript, store compaction markers, and retry the iteration once.
+On context overflow, keep the current compaction path: flush session memory best-effort, compact the transcript, store compaction markers, and retry the iteration once.
 
 ## Sessions
 
-Sessions are JSON files managed by `src/main/agent/session/store.ts`; they are not stored in a singleton `agent.json`.
+Sessions are JSON-backed conversation records managed by the session store. They are not stored in a singleton agent record.
 
 The session store must:
 
-- Default to the user data path `agent/sessions`.
-- Support an override `baseDir` for tests and embedded runs.
-- Store one session as `<id>.json` and maintain `sessions.json` as an index.
+- Store each session independently and maintain a session index.
+- Support an override base directory for tests and embedded runs.
 - Save with a temporary file and write lock.
 - Use restrictive file and directory modes where supported.
-- Repair tool-use/tool-result transcript pairing on load and save.
+- Repair tool-use and tool-result transcript pairing on load and save.
 - Truncate large text tool results and replace image results with text placeholders before storage.
 - Preserve session metadata, plan, compaction markers, parent session ids, spawned session ids, labels, model overrides, and memory flush metadata.
 
@@ -136,26 +150,47 @@ The prompt should include, in this order:
 - Optional bootstrap guidance.
 - Optional project context rendered from startup files.
 
-Tool guidance must be deterministic and sorted by tool name. Keep tool-specific guidance in the local `TOOL_GUIDANCE` map when a tool needs safer or clearer instruction than its description.
+Tool guidance must be deterministic and sorted by tool name. Keep tool-specific guidance in the local guidance map when a tool needs safer or clearer instruction than its description.
 
 Do not let startup files, memory, connector output, MCP output, or tool output override system, developer, or user instructions. Continue to describe project context as lower-priority context.
 
 ## Tool Integration
 
-The agent module consumes tools through `ToolService` and the `src/main/agent/tools` public API.
+The agent module consumes local tools through `ToolService` and the tools public API.
 
-Follow `docs/prompts/main/tools.md` for tool-module implementation details. From the agent side:
+From the agent side:
 
-- Build local tools through `toolsFactory`, defaulting to `ToolService.createDefaultTools`.
-- Use per-agent `AgentToolPolicy` and send-time `toolsAllow`/`toolsDeny`.
-- Keep connector tools out of the default local tool surface. Let `AgentCapabilityService` add matching connector tools.
-- Do not call individual tool implementation files from `AgentService` or `run.ts`.
+- Build local tools through `toolsFactory`, defaulting to the standard tool factory.
+- Use per-agent tool policy and send-time allow and deny lists.
+- Keep connector tools out of the default local tool surface. Let capability resolution add matching connector tools.
+- Do not call individual tool implementation modules from `AgentService` or the execution loop.
 - Do not bypass `ToolService.beforeCall`, loop detection, approval checks, policy checks, provider-safe name conversion, schema normalization, or execution management.
-- Read-before-write and filesystem policy behavior belong to the tools module.
-- Cron behavior belongs to cron tools and `CronService`, not host cron or ad hoc scheduling.
-- Script execution, when available, must run through the centralized script tool and shared file/path policy checks. Do not add arbitrary shell execution directly to the agent loop.
+- Keep read-before-write and filesystem policy behavior inside the tools module.
+- Keep cron behavior in cron tools and `CronService`, not host schedulers or ad hoc scheduling.
+- Keep script execution behind the centralized script tool and shared file policy checks.
 
 When a tool policy changes, cover both prompt selection and execution gating in tests.
+
+## Script Execution
+
+Script execution must be implemented as a local tool, not as arbitrary shell command execution in the agent loop.
+
+The script tool must:
+
+- Run existing script files only.
+- Accept arguments as an array of strings.
+- Avoid shell interpolation for script arguments.
+- Support only the approved interpreter set.
+- Infer the interpreter only from trusted script metadata or recognized script type.
+- Respect read-only filesystem policy.
+- Use the shared path policy helper for workspace and outside-workspace decisions.
+- Use file policy checks for script read access and working-directory write access.
+- Use the same approval pipeline as other tools when a path crosses a restricted boundary.
+- Bound runtime with a timeout.
+- Bound output size and report truncation.
+- Return structured text results that include exit code, signal, stdout, stderr, timeout, and truncation state.
+
+Do not add a separate command runner to `AgentService`, the execution loop, or provider adapters. If broader shell support is requested, extend the tools module with the same policy, approval, timeout, and output constraints.
 
 ## Capability Resolution
 
@@ -164,10 +199,10 @@ When a tool policy changes, cover both prompt selection and execution gating in 
 Keep these constraints:
 
 - Resolve connector tools only when tools are needed or bootstrap is pending.
-- Mark connector tools with `serviceKind: 'connector'`.
+- Mark connector tools with connector service metadata.
 - Match connector tools by prompt against tool name and description.
-- Search skills through `SkillsService.search`.
-- Load selected skill instructions through `SkillsService.load`.
+- Search skills through the skills service.
+- Load selected skill instructions through the skills service.
 - Limit selected skills and trim skill prompt size.
 - Return a capability decision that distinguishes direct answer, tools, skills, and combined use.
 - Emit capability resolution start and result events.
@@ -207,7 +242,7 @@ If a before-run hook blocks, the service should save an assistant message with t
 
 Agent routing maps inbound channel messages to an agent id and session key.
 
-Keep routing in `src/main/agent/routing`:
+Keep routing behavior in the routing module:
 
 - Match configured bindings by channel, account, peer, parent peer, and role ids.
 - Prefer more specific bindings over general bindings.
@@ -219,12 +254,12 @@ Do not duplicate route matching in channel modules. Channels should normalize in
 
 ## Subagents
 
-Subagent behavior belongs in `src/main/agent/subagents`.
+Subagent behavior belongs in the subagents module.
 
 Preserve these constraints:
 
 - Spawn input must be validated and bounded.
-- Only `run` mode and isolated context are currently supported.
+- Only run mode and isolated context are currently supported.
 - Spawn depth and child count limits come from parent agent config with safe defaults.
 - Explicit target agents are allowed only when policy permits them.
 - Restricted target agents must require sandbox inheritance when appropriate.
@@ -266,7 +301,7 @@ When adding a new safety gate, prefer a small policy or hook seam over scattered
 
 ## Events And Logging
 
-Agent runs produce events for UI and channel consumers. Keep event payloads stable and typed through `src/shared/agents/events`.
+Agent runs produce events for UI and channel consumers. Keep event payloads stable and typed through shared event contracts.
 
 Important event families include:
 
@@ -284,7 +319,7 @@ Operational logging belongs in `AgentRunLogger`, `agentLogger`, or injected `Log
 
 ## Dependencies
 
-Use these dependencies through existing constructors and service ports:
+Use dependencies through existing constructors and service ports:
 
 - `StoreService` for provider, model, agent, operator, routing, and connector configuration.
 - `WorkspaceService` for workspace roots and startup context files.
@@ -295,35 +330,38 @@ Use these dependencies through existing constructors and service ports:
 - `SkillsService` through capability resolution.
 - `TasksService` through subagent task spawning.
 - `EventBus` for broadcast and heartbeat events.
-- `ProviderAdapter` through provider factory and execution service.
+- Provider adapters through provider factory and the execution service.
 
-Do not add global singletons or hidden module-level mutable state. The existing default services are acceptable only where the current code already uses them as fallback adapters.
+Do not add global singletons or hidden module-level mutable state. Existing default services are acceptable only where the current implementation already uses them as fallback adapters.
 
 ## Implementation Rules
 
-When changing `src/main/agent`:
+When changing the agent module:
 
-- Match the existing TypeScript style and file boundaries.
+- Match the existing TypeScript style and module boundaries.
 - Prefer service ports and constructor injection where the module already uses them.
-- Keep orchestration in `AgentService`, loop mechanics in `run.ts`, prompt assembly in `system-prompt.ts`, and persistence in `session/store.ts`.
-- Add helper functions locally before introducing a new file.
+- Keep orchestration in `AgentService`.
+- Keep loop mechanics in the execution service and run module.
+- Keep prompt assembly in `system-prompt`.
+- Keep persistence in the session store.
+- Add helper functions locally before introducing a new module.
 - Add a new submodule only when there is a durable responsibility, not for a one-off helper.
 - Do not introduce decorative design patterns.
 - Do not create compatibility shims unless an existing test or public import requires them and the requested change is explicitly about compatibility.
-- Remove imports, exports, and files made unused by your change.
+- Remove imports, exports, and modules made unused by your change.
 - Keep generated provider, channel, store, renderer, and preload changes out of agent work unless the agent boundary requires them.
 
 ## Testing
 
-Add or update focused tests under `tests/unit/main/agent` or `tests/unit/main/tools` for behavior changes.
+Add or update focused unit tests for behavior changes.
 
-Cover the relevant path:
+Cover the relevant behavior:
 
 - `AgentService` orchestration with mocked provider streams and injected dependencies.
-- `AgentExecutionService` loop behavior with mocked providers and tools.
+- Execution loop behavior with mocked providers and tools.
 - System prompt output for deterministic prompt sections.
 - Tool selection, policy gating, approval, and tool result events.
-- Session save/load, transcript repair, truncation, and index updates.
+- Session save and load, transcript repair, truncation, and index updates.
 - Before-run hook pass, block, timeout, invalid decision, and thrown-error cases.
 - Capability resolution for connector tools and skills.
 - Routing specificity and session key generation.
