@@ -88,6 +88,7 @@ export interface ConnectorMcpEnvSecret {
 export interface ConnectorMcpHttpConfig {
 	transport: 'http';
 	url: string;
+	method?: 'POST';
 	headers?: Record<string, string>;
 	sessionId?: string;
 	auth?: ConnectorMcpHeaderSecret;
