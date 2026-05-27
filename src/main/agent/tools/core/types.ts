@@ -2,6 +2,7 @@ import type { EventBus } from '../../../core/event-bus';
 import type { LoggerService } from '../../../logger';
 import type { CronService } from '../../../cron';
 import type { ConnectorsService } from '../../../connectors';
+import type { AgentMcpClientServicePort } from '../../mcp-client';
 import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../../store';
 import type { TasksService } from '../../../tasks';
@@ -27,6 +28,7 @@ export interface FridayServices {
 	policy?: PolicyServicePort;
 	taskManager?: TasksService;
 	connectors?: ConnectorsService;
+	mcpClient?: AgentMcpClientServicePort;
 	skills?: SkillsService;
 	mcpRegistry?: McpRegistry;
 }
