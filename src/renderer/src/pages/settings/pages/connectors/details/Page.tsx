@@ -757,7 +757,7 @@ const ConnectorDetailsPage: React.FC = () => {
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={catalogItem.id} mono />
 					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem.id)} />
-					<DetailRow label="Auth" value={mcpEnvAuth ? 'MCP env variables' : googleOAuth ? 'Google OAuth' : 'Manual OAuth access token'} />
+					<DetailRow label="Auth" value={mcpEnvAuth ? 'MCP env variables' : googleOAuth ? 'Google OAuth' : 'MCP env variables'} />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(form.requireApproval)} />
 					<DetailRow
 						label="Connected account"
