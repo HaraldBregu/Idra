@@ -369,6 +369,7 @@ export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
 	private readonly toolStore?: ConnectorToolPersistenceStore;
 	private readonly clients = new Map<string, ConnectorMcpClient>();
+	private readonly pendingOAuthConnectors = new Map<string, ConnectorConfig>();
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -385,10 +386,12 @@ export class ConnectorsService {
 	}
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
+		const catalogEntries = await this.catalogEntriesFromProvider();
+		const oauthConnectorIds = new Set(catalogEntries.filter((entry) => entry.oauth).map((entry) => entry.id));
 		return mergeCatalogEntries([
-			...(await this.catalogEntriesFromProvider()),
+			...catalogEntries,
 			...this.validConnectors()
-				.filter((connector) => !connector.oauth)
+				.filter((connector) => !connector.oauth && !oauthConnectorIds.has(connector.connectorId))
 				.map((connector) => this.catalogEntryFromConnector(connector)),
 		]);
 	}
@@ -424,7 +427,7 @@ export class ConnectorsService {
 		const requireApproval = existing?.requireApproval ?? 'always';
 		const allowedTools = existing?.allowedTools ?? [];
 		const connector: ConnectorConfig = {
-			id: existing?.id ?? randomUUID(),
+			id: existing?.id ?? definition.id,
 			name: existing?.name ?? definition.name,
 			connectorId: definition.id,
 			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
@@ -451,6 +454,7 @@ export class ConnectorsService {
 		};
 		const next = await this.withOAuthTools(connector);
 
+		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
 		await (this.options.openExternalUrl ?? shell.openExternal)(authorizationUrl);
 
@@ -474,7 +478,8 @@ export class ConnectorsService {
 			throw new Error('OAuth expiresIn must be a non-negative number.');
 		}
 
-		const current = this.validConnectors().find((connector) => connector.oauth?.state === state);
+		const current = this.validConnectors().find((connector) => connector.oauth?.state === state) ??
+			this.pendingOAuthConnectors.get(state);
 		if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
 		const next: ConnectorConfig = {
 			...current,
@@ -493,6 +498,7 @@ export class ConnectorsService {
 				},
 			},
 		};
+		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
 		return redactConnectorSecrets(next);
 	}
