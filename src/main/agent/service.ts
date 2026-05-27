@@ -546,7 +546,11 @@ export class AgentService {
 				...event,
 			} as AgentResponseEvent;
 			if (heartbeatOptions?.suppressAgentEvents) return;
-			options.streamEvent?.(responseEvent);
+			if (options.streamEvent) {
+				options.streamEvent(responseEvent);
+			} else {
+				this.dependencies.eventBus.broadcast('agent:response', responseEvent);
+			}
 		};
 		const runStartedAt = Date.now();
 		const phaseDurationsMs: Record<string, number> = {};
