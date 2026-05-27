@@ -9,19 +9,10 @@ import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
 import { PolicyService } from '../../../../src/main/agent/policy';
+import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
-const FILE_TOOL_NAMES = [
-	'read',
-	'write',
-	'edit',
-	'apply_patch',
-	'delete',
-	'copy',
-	'move',
-	'inspect_file',
-	'find',
-];
+const CORE_WORKSPACE_TOOL_NAMES = AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name);
 
 function provider(events: ProviderEvent[]): ProviderAdapter {
 	return {
@@ -541,7 +532,7 @@ describe('AgentService', () => {
 			}
 		);
 
-		await expect(service.send('write a short poem about spring')).resolves.toBe('roses are red');
+		await expect(service.send('read a short poem from a file')).resolves.toBe('roses are red');
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
 		expect(requests[0]!.system).toContain('**read**');
 		expect(requests[0]!.system).not.toContain('## Skills');
@@ -591,7 +582,7 @@ describe('AgentService', () => {
 			}
 		);
 
-		await expect(service.send('hello there')).resolves.toBe('hello');
+		await expect(service.send('read hello.txt')).resolves.toBe('hello');
 		expect(toolsFactory).toHaveBeenCalled();
 		expect(startupFiles.loadContextFiles).toHaveBeenCalled();
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
@@ -738,8 +729,8 @@ describe('AgentService', () => {
 				},
 			}),
 			toolsFactory: () => [
-				makeAgentTool('read', 'Read files'),
-				makeAgentTool('write', 'Write files'),
+				makeAgentTool('read_file', 'Read files'),
+				makeAgentTool('write_file', 'Write files'),
 				makeAgentTool('find', 'Find files'),
 				makeAgentTool('delete', 'Delete files'),
 			],
@@ -747,10 +738,10 @@ describe('AgentService', () => {
 
 		await expect(
 			service.send('What tools do you have?', 'main', {
-				toolsAllow: ['read', 'write'],
+				toolsAllow: ['read_file', 'write_file'],
 			})
 		).resolves.toBe('allowed tools');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read', 'write']);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read_file', 'write_file']);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -780,13 +771,13 @@ describe('AgentService', () => {
 			})
 		).resolves.toBe('file tools only');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toContain('read');
+		expect(toolNames).toContain('read_file');
 		expect(toolNames).not.toEqual(expect.arrayContaining(['exec', 'process', 'web_fetch']));
-		expect(toolNames.every((name) => FILE_TOOL_NAMES.includes(name))).toBe(true);
+		expect(toolNames.every((name) => CORE_WORKSPACE_TOOL_NAMES.includes(name))).toBe(true);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('does not expose connector tools in the default tool surface', async () => {
+	it('exposes matched connector tools for connector-backed requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -819,8 +810,8 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
-		expect(connectors.createAgentTools).not.toHaveBeenCalled();
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('my_gmail_get_profile');
+		expect(connectors.createAgentTools).toHaveBeenCalled();
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -840,7 +831,7 @@ describe('AgentService', () => {
 				async *stream(req) {
 					requests.push(req);
 					if (turn++ === 0) {
-						yield { type: 'tool_call_start' as const, id: 'read-outside', name: 'read' };
+						yield { type: 'tool_call_start' as const, id: 'read-outside', name: 'read_file' };
 						yield {
 							type: 'tool_call_args_delta' as const,
 							id: 'read-outside',
@@ -866,7 +857,7 @@ describe('AgentService', () => {
 
 		await expect(service.send(`read ${outsideFile}`)).resolves.toBe('read complete');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toContain('read');
+		expect(toolNames).toContain('read_file');
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
 		expect(JSON.stringify(history)).toContain('outside readable');
@@ -906,7 +897,7 @@ describe('AgentService', () => {
 				providerFactory: () => ({
 					async *stream() {
 						if (turn++ === 0) {
-							yield { type: 'tool_call_start' as const, id: 'write-outside', name: 'write' };
+							yield { type: 'tool_call_start' as const, id: 'write-outside', name: 'write_file' };
 							yield {
 								type: 'tool_call_args_delta' as const,
 								id: 'write-outside',
@@ -944,7 +935,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes only local file tools by default', async () => {
+	it('exposes default local tools for inventory requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -966,7 +957,7 @@ describe('AgentService', () => {
 
 		await expect(service.send('Do you have any internal tools?')).resolves.toBe('tool inventory ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual(FILE_TOOL_NAMES);
+		expect(toolNames).toEqual([...AGENT_TOOL_NAMES]);
 		expect(toolNames).not.toContain('exec');
 		expect(toolNames).not.toContain('process');
 		expect(toolNames).not.toContain('web_fetch');
@@ -1121,7 +1112,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes read with move for file relocation requests', async () => {
+	it('exposes available relocation tools for file move requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -1143,7 +1134,7 @@ describe('AgentService', () => {
 
 		await expect(service.send('Move the file from one directory to another.')).resolves.toBe('ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual(expect.arrayContaining(['read', 'move']));
+		expect(toolNames).toEqual(expect.arrayContaining(['list_directory', 'run_shell']));
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
