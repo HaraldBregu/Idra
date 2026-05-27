@@ -561,6 +561,7 @@ export class ConnectorsService implements McpConnectorStore {
 			this.logDebug('Skipped connector delete because it was not configured', { id });
 			return;
 		}
+		await this.mcpClient.closeConnector(connector.id);
 		this.writeAll(connectors.filter((item) => item.id !== id));
 		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
 	}
@@ -654,6 +655,7 @@ export class ConnectorsService implements McpConnectorStore {
 	}
 
 	private replace(connector: RuntimeConnector): void {
+		void this.mcpClient.closeConnector(connector.id);
 		const connectors = this.validConnectors();
 		const next = connectors.some((item) => item.id === connector.id)
 			? connectors.map((item) => (item.id === connector.id ? connector : item))
