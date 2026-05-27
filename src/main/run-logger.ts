@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { resolveDefaultUserDataPath } from './user-data';
+import { resolveDefaultAgentDataPath } from './agent/storage';
 
 export interface RunLogStart {
 	runId: string;
@@ -114,7 +114,7 @@ export interface RunLoggerOptions {
 
 /**
  * Append-only JSONL audit trail of every agent run.
- * One file per agent id under `.friday/agent/runs/<id>.jsonl`.
+ * One file per agent id under the agent app-data runs directory.
  * Each line is a typed RunLogRecord — start, iteration, tool_call,
  * approval_request, approval_resolution, finish.
  */
@@ -123,7 +123,7 @@ export class AgentRunLogger {
 	private writeQueue: Promise<void> = Promise.resolve();
 
 	constructor(agentId: string, opts: RunLoggerOptions = {}) {
-		const baseDir = opts.baseDir ?? resolveDefaultUserDataPath('agent', 'runs');
+		const baseDir = opts.baseDir ?? resolveDefaultAgentDataPath('runs');
 		this.filePath = path.join(baseDir, `${agentId}.jsonl`);
 	}
 
