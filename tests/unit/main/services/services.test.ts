@@ -22,6 +22,23 @@ function connectorStoreFor(
 	};
 }
 
+function connectorToolStoreFor(
+	read: () => Record<string, unknown>,
+	write: (tools: Record<string, unknown>) => void
+): { get: jest.Mock; set: jest.Mock; delete: jest.Mock } {
+	return {
+		get: jest.fn((key: string) => (key === 'tools' ? read() : undefined)),
+		set: jest.fn((key: string, value: unknown) => {
+			if (key === 'tools' && value && typeof value === 'object' && !Array.isArray(value)) {
+				write(value as Record<string, unknown>);
+			}
+		}),
+		delete: jest.fn((key: string) => {
+			if (key === 'tools') write({});
+		}),
+	};
+}
+
 describe('connectors service', () => {
 	function fakeMcpClient() {
 		return {
@@ -52,14 +69,22 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
+		let connectorTools: Record<string, unknown> = {};
+		const toolStore = connectorToolStoreFor(
+			() => connectorTools,
+			(next) => {
+				connectorTools = next;
+			}
+		);
 		const client = fakeMcpClient();
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
+			toolStore: toolStore as never,
 			mcpClientFactory: jest.fn(() => client),
 		});
 		const added = await service.add({
 			name: 'Remote Gmail',
-			connectorId: 'connector_gmail',
+			connectorId: 'google.gmail',
 			serverLabel: 'remote_gmail',
 			allowedTools: ['search'],
 			requireApproval: 'never_for_allowed_tools',
@@ -70,7 +95,7 @@ describe('connectors service', () => {
 		expect(added.authorization).toBe('');
 		expect(service.get(added.id).authorization).toBe('');
 		expect(connectors[0]).toMatchObject({
-			connectorId: 'connector_gmail',
+			connectorId: 'google.gmail',
 			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 		});
 		expect(service.list()[0]).toMatchObject({
@@ -99,20 +124,28 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
+		let connectorTools: Record<string, unknown> = {};
+		const toolStore = connectorToolStoreFor(
+			() => connectorTools,
+			(next) => {
+				connectorTools = next;
+			}
+		);
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
+			toolStore: toolStore as never,
 			mcpClientFactory: jest.fn(() => fakeMcpClient()),
 		});
 
 		await service.add({
 			name: 'Work Gmail',
-			connectorId: 'connector_gmail',
+			connectorId: 'google.gmail',
 			serverLabel: 'work_gmail',
 			mcp: { transport: 'http', url: 'https://work.example.test/mcp' },
 		});
 		await service.add({
 			name: 'Personal Gmail',
-			connectorId: 'connector_gmail',
+			connectorId: 'google.gmail',
 			serverLabel: 'personal_gmail',
 			mcp: { transport: 'http', url: 'https://personal.example.test/mcp' },
 		});
@@ -128,16 +161,23 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
+		let connectorTools: Record<string, unknown> = {};
+		const toolStore = connectorToolStoreFor(
+			() => connectorTools,
+			(next) => {
+				connectorTools = next;
+			}
+		);
 		const service = new ConnectorsService(makeLogger() as never, { store: store as never });
 
 		await expect(service.add(undefined)).rejects.toThrow(/Connector configuration is required/);
 		await expect(
-			service.add({ name: 'Bad', connectorId: 'connector_gmail', allowedTools: ['search', 42] })
+			service.add({ name: 'Bad', connectorId: 'google.gmail', allowedTools: ['search', 42] })
 		).rejects.toThrow(/allowedTools must be an array of strings/);
 		await expect(
 			service.add({
 				name: 'Bad',
-				connectorId: 'connector_gmail',
+				connectorId: 'google.gmail',
 				authorization: 'token',
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 			})
@@ -145,7 +185,7 @@ describe('connectors service', () => {
 		await expect(
 			service.add({
 				name: 'Bad',
-				connectorId: 'connector_gmail',
+				connectorId: 'google.gmail',
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', headers: { Authorization: 'token' } },
 			})
 		).rejects.toThrow(/secret headers/);
@@ -159,14 +199,22 @@ describe('connectors service', () => {
 				connectors = next;
 			}
 		);
+		let connectorTools: Record<string, unknown> = {};
+		const toolStore = connectorToolStoreFor(
+			() => connectorTools,
+			(next) => {
+				connectorTools = next;
+			}
+		);
 		const client = fakeMcpClient();
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
+			toolStore: toolStore as never,
 			mcpClientFactory: jest.fn(() => client),
 		});
 		const added = await service.add({
 			name: 'Remote MCP',
-			connectorId: 'connector_remote_mcp',
+			connectorId: 'remote.mcp',
 			serverLabel: 'remote',
 			mcp: {
 				transport: 'http',

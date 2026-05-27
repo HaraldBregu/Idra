@@ -48,19 +48,20 @@ function createService(client = createFakeMcpClient()) {
 	const logger = makeLogger();
 	const factory = jest.fn(() => client);
 	const service = new ConnectorsService(logger as never, { mcpClientFactory: factory });
-	const store = MockStore.mock.results[MockStore.mock.results.length - 1]?.value as {
+	const stores = MockStore.mock.results.slice(-2).map((result) => result.value as {
 		data: Map<string, unknown>;
 		get: jest.Mock;
 		set: jest.Mock;
 		delete: jest.Mock;
-	};
-	return { service, store, logger, client, factory };
+	});
+	const [store, toolStore] = stores;
+	return { service, store: store!, toolStore: toolStore!, logger, client, factory };
 }
 
 function mcpInput(overrides: Record<string, unknown> = {}) {
 	return {
 		name: 'Remote Gmail MCP',
-		connectorId: 'connector_gmail',
+		connectorId: 'google.gmail',
 		serverLabel: 'gmail_mcp',
 		allowedTools: ['search'],
 		mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
@@ -72,7 +73,7 @@ function storedConnector(overrides: Partial<ConnectorConfig> = {}): ConnectorCon
 	return {
 		id: 'connector-1',
 		name: 'Remote Gmail MCP',
-		connectorId: 'connector_gmail',
+		connectorId: 'google.gmail',
 		serverLabel: 'gmail_mcp',
 		enabled: true,
 		authorization: '',
@@ -93,17 +94,21 @@ describe('ConnectorsService MCP persistence', () => {
 		delete process.env.REMOTE_MCP_API_KEY;
 	});
 
-	it('constructs a dedicated connector Electron Store', () => {
+	it('constructs dedicated connector config and tool cache Electron Stores', () => {
 		createService();
 
 		expect(MockStore).toHaveBeenCalledWith({
 			name: 'connector',
 			accessPropertiesByDotNotation: false,
 		});
+		expect(MockStore).toHaveBeenCalledWith({
+			name: 'connector-tools',
+			accessPropertiesByDotNotation: false,
+		});
 	});
 
 	it('stores dynamic connector records and discovers MCP tools on add', async () => {
-		const { service, store, client } = createService();
+		const { service, store, toolStore, client } = createService();
 
 		const added = await service.add(mcpInput());
 
@@ -111,11 +116,14 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(store.data.get('connectors')).toEqual([
 			expect.objectContaining({
 				id: added.id,
-				connectorId: 'connector_gmail',
+				connectorId: 'google.gmail',
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
-				tools: [expect.objectContaining({ name: 'search', requiresApproval: true })],
+				tools: [],
 			}),
 		]);
+		expect(toolStore.data.get('tools')).toEqual({
+			[added.id]: [expect.objectContaining({ name: 'search', requiresApproval: true })],
+		});
 		expect(added.authorization).toBe('');
 		expect(service.list()).toEqual([
 			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 1 }),
@@ -135,7 +143,7 @@ describe('ConnectorsService MCP persistence', () => {
 	it('validates MCP config and rejects stored authorization secrets', async () => {
 		const { service, logger } = createService();
 
-		await expect(service.add({ name: 'Bad', connectorId: 'connector_gmail' })).rejects.toThrow(
+		await expect(service.add({ name: 'Bad', connectorId: 'google.gmail' })).rejects.toThrow(
 			/MCP transport configuration is required/
 		);
 		await expect(service.add(mcpInput({ authorization: 'token' }))).rejects.toThrow(
