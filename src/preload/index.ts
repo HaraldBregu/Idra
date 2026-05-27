@@ -794,6 +794,9 @@ export const connectors: ConnectorsApi = {
 	): Promise<unknown> => {
 		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
 	},
+	authorizeOAuth: (connectorId: string): Promise<ConnectorOAuthAuthorizeResult> => {
+		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, { connectorId });
+	},
 };
 
 if (process.contextIsolated) {
