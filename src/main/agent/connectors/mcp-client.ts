@@ -13,6 +13,14 @@ import type { JSONSchema } from '../../provider/types';
 export interface ConnectorMcpClient {
 	listTools(options?: ConnectorCallToolOptions): Promise<ConnectorTool[]>;
 	callTool(name: string, args: Record<string, unknown>, options?: ConnectorCallToolOptions): Promise<unknown>;
+	listResources(options?: ConnectorCallToolOptions): Promise<unknown>;
+	readResource(uri: string, options?: ConnectorCallToolOptions): Promise<unknown>;
+	listPrompts(options?: ConnectorCallToolOptions): Promise<unknown>;
+	getPrompt(
+		name: string,
+		args: Record<string, unknown>,
+		options?: ConnectorCallToolOptions
+	): Promise<unknown>;
 	close(): Promise<void>;
 }
 
@@ -74,6 +82,48 @@ export class SdkConnectorMcpClient implements ConnectorMcpClient {
 			undefined,
 			{ timeout: options?.timeoutMs, resetTimeoutOnProgress: true }
 		);
+	}
+
+	async listResources(options?: ConnectorCallToolOptions): Promise<unknown> {
+		await this.connect(options);
+		const resources: unknown[] = [];
+		let cursor: string | undefined;
+		do {
+			const result = await this.client.listResources(cursor ? { cursor } : undefined, {
+				timeout: options?.timeoutMs,
+			});
+			resources.push(...result.resources);
+			cursor = result.nextCursor;
+		} while (cursor);
+		return resources;
+	}
+
+	async readResource(uri: string, options?: ConnectorCallToolOptions): Promise<unknown> {
+		await this.connect(options);
+		return this.client.readResource({ uri }, { timeout: options?.timeoutMs });
+	}
+
+	async listPrompts(options?: ConnectorCallToolOptions): Promise<unknown> {
+		await this.connect(options);
+		const prompts: unknown[] = [];
+		let cursor: string | undefined;
+		do {
+			const result = await this.client.listPrompts(cursor ? { cursor } : undefined, {
+				timeout: options?.timeoutMs,
+			});
+			prompts.push(...result.prompts);
+			cursor = result.nextCursor;
+		} while (cursor);
+		return prompts;
+	}
+
+	async getPrompt(
+		name: string,
+		args: Record<string, unknown>,
+		options?: ConnectorCallToolOptions
+	): Promise<unknown> {
+		await this.connect(options);
+		return this.client.getPrompt({ name, arguments: args }, { timeout: options?.timeoutMs });
 	}
 
 	async close(): Promise<void> {

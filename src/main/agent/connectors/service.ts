@@ -512,6 +512,40 @@ export class ConnectorsService {
 		return this.clientFor(connector).callTool(toolName, nextArgs, callOptions);
 	}
 
+	async listResources(id: unknown, options?: unknown): Promise<unknown> {
+		const connector = this.requireConfiguredConnector(id);
+		return this.clientFor(connector).listResources(readConnectorCallToolOptions(options));
+	}
+
+	async readResource(id: unknown, uri: unknown, options?: unknown): Promise<unknown> {
+		const connector = this.requireConfiguredConnector(id);
+		const resourceUri = readRequiredString(uri, 'MCP resource URI');
+		return this.clientFor(connector).readResource(
+			resourceUri,
+			readConnectorCallToolOptions(options)
+		);
+	}
+
+	async listPrompts(id: unknown, options?: unknown): Promise<unknown> {
+		const connector = this.requireConfiguredConnector(id);
+		return this.clientFor(connector).listPrompts(readConnectorCallToolOptions(options));
+	}
+
+	async getPrompt(
+		id: unknown,
+		name: unknown,
+		args?: unknown,
+		options?: unknown
+	): Promise<unknown> {
+		const connector = this.requireConfiguredConnector(id);
+		const promptName = readRequiredString(name, 'MCP prompt name');
+		return this.clientFor(connector).getPrompt(
+			promptName,
+			readConnectorToolArguments(args),
+			readConnectorCallToolOptions(options)
+		);
+	}
+
 	createAgentTools(): AgentTool[] {
 		return this.validConnectors()
 			.filter((connector) => connector.enabled && statusFor(connector) === 'configured')
@@ -579,6 +613,13 @@ export class ConnectorsService {
 		const client = this.options.mcpClientFactory?.(connector) ?? createSdkConnectorMcpClient(connector);
 		this.clients.set(connector.id, client);
 		return client;
+	}
+
+	private requireConfiguredConnector(id: unknown): ConnectorConfig {
+		const connectorId = readRequiredString(id, 'Connector id');
+		const connector = this.getStored(connectorId);
+		if (statusFor(connector) !== 'configured') throw new Error('Connector is not configured: ' + connector.name);
+		return connector;
 	}
 
 	private getStored(id: string): ConnectorConfig {
