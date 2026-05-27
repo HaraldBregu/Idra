@@ -41,35 +41,6 @@ const CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
 	},
 ];
 
-const OAUTH_CONNECTOR_CATALOG: ConnectorCatalogEntry[] = [
-	{
-		id: 'google.gmail',
-		name: 'Gmail',
-		description: 'Gmail OAuth connector',
-		directConnectorId: 'gmail',
-		environmentSecretNames: [],
-		platformDocumentationPages: [],
-		tools: [],
-		scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: false,
-		mcp: {
-			transport: 'http',
-			url: 'https://gmailmcp.googleapis.com/mcp/v1',
-			method: 'POST',
-		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			redirectUri: 'http://127.0.0.1',
-			authorizationParams: { response_type: 'code' },
-		},
-	},
-];
-
 jest.mock(
 	'../../../../../../src/renderer/src/pages/settings/pages/connectors/components/ConnectorIcon',
 	() => ({
