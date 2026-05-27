@@ -7,7 +7,7 @@ Catalog and runtime notes for Friday's Gmail connector.
 | Connector id        | `connector_gmail`                                                             |
 | Direct connector id | `gmail`                                                                       |
 | Name                | Gmail                                                                         |
-| Runtime status      | Local OAuth and local tool execution                                          |
+| Runtime status      | Dynamic MCP tools                                          |
 | Auth kind           | Google OAuth                                                                  |
 | Redirect URI        | `http://127.0.0.1:<temporary-port>`                                           |
 | Setup URL           | [Google Cloud credentials](https://console.cloud.google.com/apis/credentials) |

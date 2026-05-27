@@ -12,7 +12,7 @@ Official provider documentation was checked on 2026-05-24.
 | Connector id        | `connector_outlookcalendar`                                                                                               |
 | Direct connector id | `outlook`                                                                                                                 |
 | Runtime status      | Settings catalog only                                                                                                     |
-| Auth kind           | Manual OAuth access token                                                                                                 |
+| Auth kind           | MCP env variables                                                                                                 |
 | Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Implementation
@@ -61,7 +61,7 @@ batched event records.
 1. Create or open an app registration in Microsoft Entra.
 2. Grant the listed Microsoft Graph calendar permissions.
 3. Complete OAuth for the account.
-4. Paste the access token into the connector authorization field for local
+4. Paste the access token into the connector MCP config for local
    catalog testing.
 5. Keep `allowedTools` limited to read/search tools until local execution and
    approval behavior are implemented.
@@ -82,5 +82,5 @@ batched event records.
 ## Related Source
 
 - [`src/shared/connector/connectors.ts`](../../src/shared/connector/connectors.ts)
-- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
+- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
 - [`docs/providers/microsoft/outlook-calendar/index.md`](../providers/microsoft/outlook-calendar/index.md)

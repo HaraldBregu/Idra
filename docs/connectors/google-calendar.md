@@ -12,7 +12,7 @@ Official provider documentation was checked on 2026-05-24.
 | ------------------- | ----------------------------------------------------------------------------- |
 | Connector id        | `connector_googlecalendar`                                                    |
 | Direct connector id | `google_calendar`                                                             |
-| Runtime status      | Local OAuth and local tool execution                                          |
+| Runtime status      | Dynamic MCP tools                                          |
 | Auth kind           | Google OAuth                                                                  |
 | Redirect URI        | `http://127.0.0.1:<temporary-port>`                                           |
 | Setup URL           | [Google Cloud credentials](https://console.cloud.google.com/apis/credentials) |
@@ -23,7 +23,7 @@ The catalog entry is defined in
 [`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts). Local
 execution is implemented by `ConnectorsService` with a Calendar runtime strategy
 and API helpers in
-[`src/main/connectors/google.ts`](../../src/main/connectors/google.ts).
+[`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts).
 
 OAuth uses the same Google installed-app flow as Gmail: loopback redirect,
 browser consent, PKCE, state validation, token exchange, refresh, and secret
@@ -107,6 +107,6 @@ through HTTP calls or Google client libraries. Friday calls resources under
 
 ## Related Source
 
-- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
-- [`src/main/connectors/google.ts`](../../src/main/connectors/google.ts)
+- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
+- [`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts)
 - [`docs/providers/google/calendar/index.md`](../providers/google/calendar/index.md)

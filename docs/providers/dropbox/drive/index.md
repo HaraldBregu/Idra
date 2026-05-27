@@ -8,7 +8,7 @@ Catalog notes for Friday's Dropbox connector.
 | Direct connector id | `dropbox`                                                      |
 | Name                | Dropbox                                                        |
 | Runtime status      | Settings catalog only                                          |
-| Auth kind           | Manual OAuth access token                                      |
+| Auth kind           | MCP env variables                                      |
 | Setup URL           | [Dropbox App Console](https://www.dropbox.com/developers/apps) |
 
 ## Environment Secrets
@@ -38,7 +38,7 @@ Dropbox is present in the Settings catalog with setup metadata, scopes, and tool
 names. It does not have a local `ConnectorToolStrategy` yet, so default agent
 tool execution is not implemented for this connector.
 
-The Settings access-token field can store a manual OAuth access token for local
+The MCP config env reference can store a manual OAuth access token for local
 development. For production work, add a real OAuth or secret-backed credential
 flow before relying on this connector.
 
@@ -47,7 +47,7 @@ flow before relying on this connector.
 1. Create or open a Dropbox app in the Dropbox App Console.
 2. Grant the listed file metadata, file content, and account scopes.
 3. Complete OAuth for the account.
-4. Paste the access token into the Settings OAuth access-token field only for
+4. Paste the access token into the MCP config env reference only for
    local development.
 5. Keep `allowedTools` limited to the smallest read/search surface until local
    execution and approval behavior are implemented.

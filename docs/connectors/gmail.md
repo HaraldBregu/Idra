@@ -1,7 +1,7 @@
 # Gmail Connector
 
 Friday's Gmail connector searches, reads, drafts, sends, and trashes Gmail
-messages through local Google OAuth and local API execution.
+messages through dynamic MCP tool discovery.
 
 Official provider documentation was checked on 2026-05-24.
 
@@ -11,7 +11,7 @@ Official provider documentation was checked on 2026-05-24.
 | ------------------- | ----------------------------------------------------------------------------- |
 | Connector id        | `connector_gmail`                                                             |
 | Direct connector id | `gmail`                                                                       |
-| Runtime status      | Local OAuth and local tool execution                                          |
+| Runtime status      | Dynamic MCP tools                                          |
 | Auth kind           | Google OAuth                                                                  |
 | Redirect URI        | `http://127.0.0.1:<temporary-port>`                                           |
 | Setup URL           | [Google Cloud credentials](https://console.cloud.google.com/apis/credentials) |
@@ -22,7 +22,7 @@ The catalog entry is defined in
 [`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts). Local
 execution is implemented by `ConnectorsService` with a Gmail runtime strategy
 and API helpers in
-[`src/main/connectors/google.ts`](../../src/main/connectors/google.ts).
+[`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts).
 
 OAuth uses Google's installed-app flow: Friday starts a loopback HTTP listener
 on `127.0.0.1`, opens the system browser, sends a PKCE code challenge and state,
@@ -106,6 +106,6 @@ data and sending mail. Friday calls Gmail REST resources under
 
 ## Related Source
 
-- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
-- [`src/main/connectors/google.ts`](../../src/main/connectors/google.ts)
+- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
+- [`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts)
 - [`docs/providers/google/gmail/index.md`](../providers/google/gmail/index.md)

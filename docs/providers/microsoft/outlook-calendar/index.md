@@ -8,7 +8,7 @@ Catalog notes for Friday's Outlook Calendar connector.
 | Direct connector id | `outlook`                                                                                                                 |
 | Name                | Outlook Calendar                                                                                                          |
 | Runtime status      | Settings catalog only                                                                                                     |
-| Auth kind           | Manual OAuth access token                                                                                                 |
+| Auth kind           | MCP env variables                                                                                                 |
 | Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Environment Secrets
@@ -37,7 +37,7 @@ Outlook Calendar is present in the Settings catalog with setup metadata, scopes,
 and tool names. It does not have a local `ConnectorToolStrategy` yet, so default
 agent tool execution is not implemented for this connector.
 
-The Settings access-token field can store a manual Microsoft Graph OAuth access
+The MCP config env reference can store a manual Microsoft Graph OAuth access
 token for local development. For production work, add a real OAuth or
 secret-backed credential flow before relying on this connector.
 
@@ -46,7 +46,7 @@ secret-backed credential flow before relying on this connector.
 1. Create or open an app registration in Microsoft Entra.
 2. Grant the listed Microsoft Graph calendar permissions.
 3. Complete OAuth for the account.
-4. Paste the access token into the Settings OAuth access-token field only for
+4. Paste the access token into the MCP config env reference only for
    local development.
 5. Keep `allowedTools` limited to read/search tools until local execution and
    approval behavior are implemented.

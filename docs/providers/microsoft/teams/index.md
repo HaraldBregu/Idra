@@ -8,7 +8,7 @@ Catalog notes for Friday's Microsoft Teams connector.
 | Direct connector id | `microsoft_teams`                                                                                                         |
 | Name                | Microsoft Teams                                                                                                           |
 | Runtime status      | Settings catalog only                                                                                                     |
-| Auth kind           | Manual OAuth access token                                                                                                 |
+| Auth kind           | MCP env variables                                                                                                 |
 | Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Environment Secrets
@@ -37,7 +37,7 @@ Microsoft Teams is present in the Settings catalog with setup metadata, scopes,
 and tool names. It does not have a local `ConnectorToolStrategy` yet, so default
 agent tool execution is not implemented for this connector.
 
-The Settings access-token field can store a manual Microsoft Graph OAuth access
+The MCP config env reference can store a manual Microsoft Graph OAuth access
 token for local development. For production work, add a real OAuth or
 secret-backed credential flow before relying on this connector.
 
@@ -47,7 +47,7 @@ secret-backed credential flow before relying on this connector.
 2. Grant the listed Microsoft Graph permissions and complete any required admin
    consent for tenant-wide scopes.
 3. Complete OAuth for the tenant/user.
-4. Paste the access token into the Settings OAuth access-token field only for
+4. Paste the access token into the MCP config env reference only for
    local development.
 5. Keep `allowedTools` limited to read/search tools until local execution and
    approval behavior are implemented.

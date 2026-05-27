@@ -13,7 +13,7 @@ Official provider documentation was checked on 2026-05-24.
 | Connector id        | `connector_sharepoint`                                                                                                    |
 | Direct connector id | `sharepoint_onedrive`                                                                                                     |
 | Runtime status      | Settings catalog only                                                                                                     |
-| Auth kind           | Manual OAuth access token                                                                                                 |
+| Auth kind           | MCP env variables                                                                                                 |
 | Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Implementation
@@ -64,7 +64,7 @@ and document fetch.
 1. Create or open an app registration in Microsoft Entra.
 2. Grant the listed Microsoft Graph files and sites permissions.
 3. Complete OAuth for the account or tenant-approved app.
-4. Paste the access token into the connector authorization field for local
+4. Paste the access token into the connector MCP config for local
    catalog testing.
 5. Keep `allowedTools` limited to read/search tools until local execution and
    approval behavior are implemented.
@@ -85,5 +85,5 @@ and document fetch.
 ## Related Source
 
 - [`src/shared/connector/connectors.ts`](../../src/shared/connector/connectors.ts)
-- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
+- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
 - [`docs/providers/microsoft/sharepoint/index.md`](../providers/microsoft/sharepoint/index.md)

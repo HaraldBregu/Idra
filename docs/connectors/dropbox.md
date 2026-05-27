@@ -12,7 +12,7 @@ Official provider documentation was checked on 2026-05-24.
 | Connector id        | `connector_dropbox`                                            |
 | Direct connector id | `dropbox`                                                      |
 | Runtime status      | Settings catalog only                                          |
-| Auth kind           | Manual OAuth access token                                      |
+| Auth kind           | MCP env variables                                      |
 | Setup URL           | [Dropbox App Console](https://www.dropbox.com/developers/apps) |
 
 ## Implementation
@@ -56,7 +56,7 @@ apps that cannot protect a client secret.
 1. Create or open a Dropbox app in the App Console.
 2. Enable the listed file metadata, file content, and account-info scopes.
 3. Complete OAuth for the Dropbox account.
-4. Paste the access token into the connector authorization field for local
+4. Paste the access token into the connector MCP config for local
    catalog testing.
 5. Keep `allowedTools` limited to read/search tools until local execution and
    approval handling exist.
@@ -78,4 +78,4 @@ apps that cannot protect a client secret.
 ## Related Source
 
 - [`src/shared/connector/connectors.ts`](../../src/shared/connector/connectors.ts)
-- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
+- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
