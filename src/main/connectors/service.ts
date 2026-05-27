@@ -102,10 +102,6 @@ interface OAuthTokenExchangeInput {
 	fetch: typeof fetch;
 }
 
-function textResult(text: string, isError = false): AgentToolResult {
-	return { status: isError ? 'error' : 'ok', content: [{ type: 'text', text }] };
-}
-
 function serverLabelFromName(name: string): string {
 	return name
 		.trim()
@@ -159,38 +155,6 @@ function readOptionalBoolean(params: Record<string, unknown>, key: string): bool
 	if (value === undefined || value === null) return undefined;
 	if (typeof value !== 'boolean') throw new Error(key + ' must be a boolean.');
 	return value;
-}
-
-function readConnectorToolArguments(args: unknown): Record<string, unknown> {
-	if (args === undefined || args === null) return {};
-	if (typeof args !== 'object' || Array.isArray(args)) {
-		throw new Error('Connector tool arguments must be an object.');
-	}
-	return args as Record<string, unknown>;
-}
-
-function readConnectorCallToolOptions(options: unknown): ConnectorCallToolOptions | undefined {
-	if (options === undefined || options === null) return undefined;
-	if (typeof options !== 'object' || Array.isArray(options)) {
-		throw new Error('Connector tool options must be an object.');
-	}
-	const raw = options as { timeoutMs?: unknown; retries?: unknown };
-	const timeoutMs = raw.timeoutMs;
-	if (timeoutMs !== undefined) {
-		if (typeof timeoutMs !== 'number' || !Number.isInteger(timeoutMs) || timeoutMs < 0) {
-			throw new Error('Connector tool option timeoutMs must be a non-negative integer.');
-		}
-	}
-	const retries = raw.retries;
-	if (retries !== undefined) {
-		if (typeof retries !== 'number' || !Number.isInteger(retries) || retries < 0) {
-			throw new Error('Connector tool option retries must be a non-negative integer.');
-		}
-	}
-	return {
-		timeoutMs: timeoutMs as number | undefined,
-		retries: retries as number | undefined,
-	};
 }
 
 function readOptionalStringArray(params: Record<string, unknown>, key: string): string[] | undefined {
