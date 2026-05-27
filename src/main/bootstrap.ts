@@ -91,7 +91,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const skills = container.register(
 		'skills',
-		new SkillsService(logger, { rootPath: agentDataDirectory.resolve('skills') })
+		new SkillsService(logger)
 	);
 
 	const workspace = container.register(
@@ -100,7 +100,7 @@ export function bootstrapServices(): BootstrapResult {
 			rootPath: agentDataDirectory.resolve('workspaces', DEFAULT_AGENT_ID),
 		})
 	);
-	const startupFiles = container.register(
+	container.register(
 		'startupFiles',
 		new AgentStartupFilesService({
 			rootPath: agentDataDirectory.resolve('workspaces'),
@@ -147,7 +147,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		eventBus,
 		workspace,
-		startupFiles,
 		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,

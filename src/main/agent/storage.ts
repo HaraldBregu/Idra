@@ -78,6 +78,24 @@ export function resolveDefaultAgentDataPath(...segments: string[]): string {
 	return new AgentDataDirectoryService().resolve(...segments);
 }
 
+export function resolveDefaultAppDataPath(...segments: string[]): string {
+	const rootPath = path.join(path.resolve(resolveAppDataPath()), AGENT_APP_DATA_DIRECTORY_NAME);
+	for (const segment of segments) {
+		if (path.isAbsolute(segment) || path.win32.isAbsolute(segment)) {
+			throw new Error(`App data path segment must be relative: ${segment}`);
+		}
+		if (segment.split(/[\\/]+/).includes('..')) {
+			throw new Error(`App data path segment cannot traverse directories: ${segment}`);
+		}
+	}
+
+	const targetPath = path.resolve(rootPath, ...segments);
+	if (!isPathInside(rootPath, targetPath)) {
+		throw new Error(`App data path is outside root: ${segments.join(path.sep)}`);
+	}
+	return targetPath;
+}
+
 function resolveAppDataPath(): string {
 	try {
 		return app.getPath('appData');

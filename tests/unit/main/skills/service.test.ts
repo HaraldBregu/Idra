@@ -47,12 +47,13 @@ describe('SkillsService', () => {
 		(app.getPath as jest.Mock).mockImplementation((name: string) => `/tmp/friday-test/${name}`);
 	});
 
-	it('defaults the skills root to Electron appData instead of the project directory', () => {
+	it('defaults the skills root to appData instead of the agent data directory', () => {
 		const service = new SkillsService(makeLogger() as never);
 
 		expect(service.getRootPath()).toBe(
-			path.join('/tmp/friday-test/appData', 'friday', 'agent', 'skills')
+			path.join('/tmp/friday-test/appData', 'friday', 'skills')
 		);
+		expect(service.getRootPath()).not.toContain(`${path.sep}agent${path.sep}skills`);
 		expect(service.getRootPath()).not.toContain(`${path.sep}appdata${path.sep}skills`);
 	});
 
