@@ -161,6 +161,9 @@ const ConnectorsPage = () => {
 	} = useConnectors();
 	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth' && !connector.oauth);
 	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
+	const oauthConnectorByProviderId = new Map(
+		connectors.filter((c) => c.authKind === 'oauth').map((c) => [c.connectorId, c])
+	);
 
 	useEffect(() => {
 		const connector = connectors.find((item) =>
