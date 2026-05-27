@@ -40,6 +40,7 @@ export class DefaultAgentHarnessConnectorRegistry implements AgentHarnessConnect
 }
 
 export class NativeAgentHarnessConnector implements AgentHarnessConnector {
+	readonly kind = 'native' as const;
 	private currentStatus: AgentHarnessConnectorStatus = 'configured';
 	private error: string | undefined;
 
