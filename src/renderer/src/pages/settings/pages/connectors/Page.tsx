@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
@@ -153,13 +153,24 @@ const ConnectorsPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [oauthError, setOauthError] = useState<string | null>(null);
+	const [refreshedToolIds, setRefreshedToolIds] = useState<ReadonlySet<string>>(new Set());
 	const {
 		catalog, connectors,
 		error,
 		statusMessage,
+		refreshTools,
 	} = useConnectors();
 	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth' && !connector.oauth);
 	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
+
+	useEffect(() => {
+		const connector = connectors.find((item) =>
+			item.authKind === 'oauth' && item.id && !item.hasTools && !refreshedToolIds.has(item.id)
+		);
+		if (!connector?.id) return;
+		setRefreshedToolIds((current) => new Set(current).add(connector.id!));
+		void refreshTools(connector.id);
+	}, [connectors, refreshedToolIds, refreshTools]);
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
