@@ -16,29 +16,131 @@ import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors } from './hooks/useConnectors';
 
-type HardcodedOAuthConnector = Pick<
-	ConnectorCatalogEntry,
-	'id' | 'name' | 'description' | 'directConnectorId'
->;
+type HardcodedOAuthConnector = ConnectorCatalogEntry;
 
 const GOOGLE_WORKSPACE_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 	{
 		id: 'google.gmail',
 		name: 'Gmail',
-		description: 'Gmail MCP connector',
+		description: 'Authorize the official Gmail MCP server.',
 		directConnectorId: 'gmail',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/gmail.readonly',
+			'https://www.googleapis.com/auth/gmail.compose',
+			'https://www.googleapis.com/auth/gmail.send',
+			'https://www.googleapis.com/auth/gmail.modify',
+		],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://gmailmcp.googleapis.com/mcp/v1',
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: {
+				response_type: 'code',
+				access_type: 'offline',
+				include_granted_scopes: 'true',
+				prompt: 'consent',
+			},
+		},
 	},
 	{
 		id: 'google.calendar',
 		name: 'Google Calendar',
-		description: 'Google Calendar MCP connector',
+		description: 'Authorize the official Calendar MCP server.',
 		directConnectorId: 'google_calendar',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/calendar.readonly',
+			'https://www.googleapis.com/auth/calendar.events.readonly',
+			'https://www.googleapis.com/auth/calendar.events',
+		],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://calendarmcp.googleapis.com/mcp/v1',
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: {
+				response_type: 'code',
+				access_type: 'offline',
+				include_granted_scopes: 'true',
+				prompt: 'consent',
+			},
+		},
 	},
 	{
 		id: 'google.drive',
 		name: 'Google Drive',
-		description: 'Google Drive MCP connector',
+		description: 'Authorize the official Drive MCP server.',
 		directConnectorId: 'google_drive',
+		environmentSecretNames: [],
+		platformDocumentationPages: [],
+		tools: [],
+		scopes: [
+			'https://www.googleapis.com/auth/userinfo.email',
+			'https://www.googleapis.com/auth/userinfo.profile',
+			'https://www.googleapis.com/auth/drive.readonly',
+			'https://www.googleapis.com/auth/drive.file',
+		],
+		setupInstructions: [],
+		authKind: 'oauth',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: false,
+		mcp: {
+			transport: 'http',
+			url: 'https://drivemcp.googleapis.com/mcp/v1',
+			method: 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+			},
+		},
+		oauth: {
+			providerId: 'google',
+			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
+			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+			redirectUri: 'http://127.0.0.1',
+			authorizationParams: {
+				response_type: 'code',
+				access_type: 'offline',
+				include_granted_scopes: 'true',
+				prompt: 'consent',
+			},
+		},
 	},
 ];
 
@@ -94,7 +196,7 @@ const ConnectorsPage = () => {
 	const authorizeOAuthConnector = async (connector: HardcodedOAuthConnector): Promise<void> => {
 		setOauthError(null);
 		try {
-			await window.connectors.authorizeOAuth(connector.id);
+			await window.connectors.authorizeOAuth(connector);
 			await load();
 		} catch (err) {
 			setOauthError(err instanceof Error ? err.message : String(err));
