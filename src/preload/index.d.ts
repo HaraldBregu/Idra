@@ -106,7 +106,7 @@ export interface ChannelsApi {
 
 export interface ConnectorsApi {
 	catalog: () => Promise<ConnectorCatalogEntry[]>;
-	list: () => Promise<ConnectorView[]>;
+	list: () => Promise<ConnectorConfig[]>;
 	get: (id: string) => Promise<ConnectorConfig>;
 	add: (input: ConnectorInput) => Promise<ConnectorConfig>;
 	update: (id: string, input: ConnectorUpdateInput) => Promise<ConnectorConfig>;
@@ -265,7 +265,6 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
-	ConnectorView,
 } from '../shared/connector';
 
 export interface AppApi {
