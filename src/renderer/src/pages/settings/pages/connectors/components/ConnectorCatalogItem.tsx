@@ -1,114 +1,29 @@
-import { ChevronDown, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
-import { handleExternalLinkClick } from '@/lib/external-links';
-import { SettingsNotice } from '../../../components';
-import { ConnectorDocumentationRows } from './ConnectorDocumentationRows';
+import { ChevronRight } from 'lucide-react';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { ConnectorIcon } from './ConnectorIcon';
 import type { ConnectorCatalog } from '../hooks/useConnectors';
 
 export function ConnectorCatalogItem({
 	item,
 	onConfigure,
-	alreadyConfigured,
 }: {
 	readonly item: ConnectorCatalog[number];
 	readonly onConfigure: () => void;
-	readonly alreadyConfigured: boolean;
 }) {
-	const authLabel = 'MCP env variables';
-	const scopes = item.scopes ?? [];
-	const setupInstructions = item.setupInstructions ?? [];
-	const tools = item.tools ?? [];
-
 	return (
-		<Collapsible className="rounded-lg border border-border/70 bg-card">
-			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-				<ConnectorIcon directConnectorId={item.directConnectorId} name={item.name} />
-				<span className="min-w-0 flex-1">
-					<span className="block truncate text-[13px] font-medium">{item.name}</span>
-					<span className="block truncate text-[11px] text-muted-foreground">
-						{authLabel}
-					</span>
-				</span>
-				{alreadyConfigured && (
-					<Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
-						Configured
-					</Badge>
-				)}
-				<Button
-					type="button"
-					size="xs"
-					variant={alreadyConfigured ? 'outline' : 'default'}
-					onClick={(event) => {
-						event.stopPropagation();
-						onConfigure();
-					}}
-				>
-					{alreadyConfigured ? 'Add another' : 'Configure'}
-				</Button>
-				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-			</CollapsibleTrigger>
-			<CollapsibleContent className="grid gap-2 border-t border-border/60 px-3 py-2.5">
-				{scopes.length > 0 && (
-					<div className="flex flex-wrap gap-1.5">
-						{scopes.map((scope) => (
-							<Badge key={scope} variant="outline" className="h-4 px-1.5 text-[10px]">
-								{scope}
-							</Badge>
-						))}
-					</div>
-				)}
-				{setupInstructions.length > 0 && (
-					<div>
-						<div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-							<p className="text-[11px] font-medium text-foreground">Setup</p>
-							{item.setupUrl && (
-								<a
-									href={item.setupUrl}
-									target="_blank"
-									rel="noreferrer"
-									onClick={(e) => handleExternalLinkClick(e, item.setupUrl)}
-									className="inline-flex items-center gap-1 text-[11px] text-foreground underline-offset-2 hover:underline"
-								>
-									Open setup
-									<ExternalLink className="size-3" />
-								</a>
-							)}
-						</div>
-						<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground/60">
-							{setupInstructions.map((step) => (
-								<li key={step}>{step}</li>
-							))}
-						</ol>
-					</div>
-				)}
-				<SettingsNotice variant="default">
-					Connector tools are discovered from the configured MCP server. Store API key
-					values in environment variables and reference only the env names in config.
-				</SettingsNotice>
-				{tools.length > 0 && (
-					<div>
-						<p className="mb-1 text-[11px] font-medium text-foreground">Tools</p>
-						<div className="flex flex-wrap gap-1">
-							{tools.map((tool) => (
-								<span
-									key={tool}
-									className="rounded-md border border-border/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
-								>
-									{tool}
-								</span>
-							))}
-						</div>
-					</div>
-				)}
-				<ConnectorDocumentationRows connector={item} />
-			</CollapsibleContent>
-		</Collapsible>
+		<Item
+			variant="outline"
+			size="md"
+			onClick={onConfigure}
+			className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
+		>
+			<ConnectorIcon directConnectorId={item.directConnectorId} name={item.name} />
+			<ItemContent className="min-w-0">
+				<ItemTitle className="min-w-0 truncate">{item.name}</ItemTitle>
+			</ItemContent>
+			<ItemActions className="ml-auto flex-none justify-end">
+				<ChevronRight className="size-3.5 text-muted-foreground" />
+			</ItemActions>
+		</Item>
 	);
 }
