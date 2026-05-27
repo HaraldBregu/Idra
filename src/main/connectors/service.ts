@@ -526,26 +526,26 @@ export class ConnectorsService {
 
 		const current = this.validConnectors().find((connector) => connector.oauth?.state === state) ??
 			this.pendingOAuthConnectors.get(state);
-			if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
-			const token = {
-				accessToken,
-				refreshToken,
-				tokenType,
-				scope,
-				expiresAt: typeof expiresIn === 'number'
-					? new Date(Date.now() + expiresIn * 1000).toISOString()
-					: undefined,
-			};
-			const next: ConnectorConfig = {
-				...current,
-				authorization: oauthAuthorizationHeader(token),
-				updatedAt: new Date().toISOString(),
-				oauth: {
-					...current.oauth,
-					accountEmail: accountEmail || current.oauth.accountEmail,
-					token,
-				},
-			};
+		if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
+		const token = {
+			accessToken,
+			refreshToken,
+			tokenType,
+			scope,
+			expiresAt: typeof expiresIn === 'number'
+				? new Date(Date.now() + expiresIn * 1000).toISOString()
+				: undefined,
+		};
+		const next: ConnectorConfig = {
+			...current,
+			authorization: oauthAuthorizationHeader(token),
+			updatedAt: new Date().toISOString(),
+			oauth: {
+				...current.oauth,
+				accountEmail: accountEmail || current.oauth.accountEmail,
+				token,
+			},
+		};
 		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
 		return redactConnectorSecrets(next);
