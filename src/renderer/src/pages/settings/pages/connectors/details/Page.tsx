@@ -54,7 +54,6 @@ interface ConnectorFormState {
 	readonly name: string;
 	readonly serverLabel: string;
 	readonly serverDescription: string;
-	readonly authorization: string;
 	readonly mcpText: string;
 	readonly requireApproval: ConnectorApprovalMode;
 	readonly allowedTools: string[];
@@ -96,7 +95,6 @@ function formFromCatalog(item: ConnectorCatalogItem): ConnectorFormState {
 		name: item.name,
 		serverLabel: serverLabelFromName(item.name),
 		serverDescription: item.description,
-		authorization: '',
 		mcpText: defaultMcpText(item),
 		requireApproval: 'always',
 		allowedTools: [],
@@ -110,7 +108,6 @@ function formFromConnector(connector: ConnectorConfig, item: ConnectorCatalogIte
 		name: connector.name,
 		serverLabel: connector.serverLabel,
 		serverDescription: connector.serverDescription ?? '',
-		authorization: '',
 		mcpText: mcpTextFromConnector(connector, item),
 		requireApproval: connector.requireApproval,
 		allowedTools: connector.allowedTools,
@@ -192,19 +189,13 @@ function DetailRow({
 	);
 }
 
-function formValidationError(
-	form: ConnectorFormState,
-	requiresManualToken: boolean
-): string | null {
+function formValidationError(form: ConnectorFormState): string | null {
 	const name = form.name.trim();
 	const serverLabel = form.serverLabel.trim() || serverLabelFromName(name);
 	if (!name) return 'Connector name is required.';
 	if (!serverLabel) return 'Server label is required.';
 	if (!SERVER_LABEL_PATTERN.test(serverLabel)) {
 		return 'Server label can contain only letters, numbers, underscores, and hyphens.';
-	}
-	if (requiresManualToken && !form.authorization.trim()) {
-		return 'OAuth access token is required for this connector.';
 	}
 	try {
 		parseMcpText(form.mcpText);
@@ -229,27 +220,12 @@ function baseConnectorInput(form: ConnectorFormState, item: ConnectorCatalogItem
 	};
 }
 
-function formToCreateInput(
-	form: ConnectorFormState,
-	item: ConnectorCatalogItem,
-	manualAuth: boolean
-): ConnectorInput {
-	return {
-		...baseConnectorInput(form, item),
-		...(manualAuth ? { authorization: form.authorization.trim() } : {}),
-	};
+function formToCreateInput(form: ConnectorFormState, item: ConnectorCatalogItem): ConnectorInput {
+	return baseConnectorInput(form, item);
 }
 
-function formToUpdateInput(
-	form: ConnectorFormState,
-	item: ConnectorCatalogItem,
-	manualAuth: boolean
-): ConnectorUpdateInput {
-	const authorization = form.authorization.trim();
-	return {
-		...baseConnectorInput(form, item),
-		...(manualAuth && authorization ? { authorization } : {}),
-	};
+function formToUpdateInput(form: ConnectorFormState, item: ConnectorCatalogItem): ConnectorUpdateInput {
+	return baseConnectorInput(form, item);
 }
 
 const ConnectorDetailsPage: React.FC = () => {
@@ -265,7 +241,6 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [tools, setTools] = useState<readonly ConnectorTool[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
-	const [connecting, setConnecting] = useState(false);
 	const [deleting, setDeleting] = useState(false);
 	const [refreshingTools, setRefreshingTools] = useState(false);
 	const [testing, setTesting] = useState(false);
@@ -349,8 +324,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		event.preventDefault();
 		if (!form || !catalogItem) return;
 
-		const manualAuth = false;
-		const validationError = formValidationError(form, manualAuth && !connector);
+		const validationError = formValidationError(form);
 		if (validationError) {
 			setError(validationError);
 			return;
@@ -364,7 +338,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			if (connector) {
 				const saved = await window.connectors.update(
 					connector.id,
-					formToUpdateInput(form, catalogItem, manualAuth)
+					formToUpdateInput(form, catalogItem)
 				);
 				setConnector(saved);
 				setForm(formFromConnector(saved, catalogItem));
@@ -378,7 +352,7 @@ const ConnectorDetailsPage: React.FC = () => {
 				return;
 			}
 
-			const created = await window.connectors.add(formToCreateInput(form, catalogItem, manualAuth));
+			const created = await window.connectors.add(formToCreateInput(form, catalogItem));
 			navigate(`/settings/connectors/connectordetails/${encodeURIComponent(created.id)}`, {
 				replace: true,
 			});
@@ -469,10 +443,9 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const mcpEnvAuth = true;
 	const title = connector?.name ?? catalogItem.name;
 	const idPrefix = connector?.id ?? catalogItem.id;
-	const formBusy = saving || connecting || deleting;
+	const formBusy = saving || deleting;
 
 	return (
 		<SettingsPageShell>
@@ -579,31 +552,14 @@ const ConnectorDetailsPage: React.FC = () => {
 									</Select>
 								</SettingsField>
 
-								{mcpEnvAuth ? (
-									<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
-										<div className="text-[11px] font-medium leading-4 text-foreground">
-											MCP environment auth
-										</div>
-										<div className="mt-1 text-[11px] leading-4 text-muted-foreground">
-											Secrets are read from the environment variables named in the MCP config.
-										</div>
+								<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
+									<div className="text-[11px] font-medium leading-4 text-foreground">
+										MCP environment auth
 									</div>
-								) : (
-									<SettingsField
-										id={`${idPrefix}-connector-authorization`}
-										label="OAuth access token"
-										description={connector ? 'Leave blank to keep the saved token.' : undefined}
-									>
-										<Input
-											id={`${idPrefix}-connector-authorization`}
-											type="password"
-											value={form.authorization}
-											onChange={(event) => update('authorization', event.target.value)}
-											placeholder={connector ? 'Paste a replacement token' : 'Paste OAuth access token'}
-											className="h-8 px-2 text-xs md:text-xs"
-										/>
-									</SettingsField>
-								)}
+									<div className="mt-1 text-[11px] leading-4 text-muted-foreground">
+										Secrets are read from the environment variables named in the MCP config.
+									</div>
+								</div>
 							</div>
 
 							<div className="grid gap-2">

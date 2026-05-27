@@ -70,13 +70,6 @@ export class ConnectorsIpc implements IpcModule {
 				ConnectorsChannels.callTool
 			)
 		);
-		ipcMain.handle(
-			ConnectorsChannels.connectOAuth,
-			wrapSimpleHandler(
-				(id: string) => connectors.connectOAuth(id),
-				ConnectorsChannels.connectOAuth
-			)
-		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);
 	}
