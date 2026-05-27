@@ -1046,16 +1046,15 @@ export class AgentService {
 		let workspace = this.startupWorkspaces.get(resolvedAgentId);
 		if (workspace) return workspace;
 		workspace = new WorkspaceService(this.dependencies.logger, {
-			rootPath: (
+			rootPath:
 				this.dependencies.agentDataDirectory?.resolve(
 					'workspaces',
 					encodeURIComponent(resolvedAgentId)
 				) ??
 				resolveDefaultAgentDataPath(
-				'workspaces',
-				encodeURIComponent(resolvedAgentId)
-				)
-			),
+					'workspaces',
+					encodeURIComponent(resolvedAgentId)
+				),
 		});
 		this.startupWorkspaces.set(resolvedAgentId, workspace);
 		return workspace;
