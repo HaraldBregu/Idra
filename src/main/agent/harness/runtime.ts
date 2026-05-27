@@ -729,11 +729,12 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 	}
 
 	private async requestApproval(request: AgentHarnessApprovalRequest): Promise<AgentHarnessApprovalDecision> {
-		this.emit({ type: 'approval.requested', request });
+		const safeRequest = { ...request, args: this.redact(request.args) };
+		this.emit({ type: 'approval.requested', request: safeRequest });
 		const decision = this.config.approvals
 			? await this.config.approvals.checkpoint(request)
 			: { approved: false, reason: request.reason };
-		this.emit({ type: 'approval.resolved', request, decision });
+		this.emit({ type: 'approval.resolved', request: safeRequest, decision });
 		return decision;
 	}
 
