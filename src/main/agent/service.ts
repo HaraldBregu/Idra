@@ -4,6 +4,7 @@ import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
 import type { McpRegistry } from './mcp';
+import type { AgentMcpClientServicePort } from './mcp-client';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ConnectorsService } from '../connectors';
@@ -93,6 +94,7 @@ export interface AgentServiceDependencies {
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
+	mcpClient?: AgentMcpClientServicePort;
 	skills?: SkillsService;
 	mcpRegistry?: McpRegistry;
 	taskManager?: TasksService;
@@ -298,6 +300,7 @@ export class AgentService {
 			options.capabilityService ??
 			new AgentCapabilityService({
 				connectors: dependencies.connectors,
+				mcpClient: dependencies.mcpClient,
 				skills: dependencies.skills,
 				logger: dependencies.logger,
 			});
