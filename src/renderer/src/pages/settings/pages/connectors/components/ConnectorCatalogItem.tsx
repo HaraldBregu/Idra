@@ -22,6 +22,9 @@ export function ConnectorCatalogItem({
 	readonly alreadyConfigured: boolean;
 }) {
 	const authLabel = 'MCP env variables';
+	const scopes = item.scopes ?? [];
+	const setupInstructions = item.setupInstructions ?? [];
+	const tools = item.tools ?? [];
 
 	return (
 		<Collapsible className="rounded-lg border border-border/70 bg-card">
@@ -52,16 +55,16 @@ export function ConnectorCatalogItem({
 				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 			</CollapsibleTrigger>
 			<CollapsibleContent className="grid gap-2 border-t border-border/60 px-3 py-2.5">
-				{item.scopes.length > 0 && (
+				{scopes.length > 0 && (
 					<div className="flex flex-wrap gap-1.5">
-						{item.scopes.map((scope) => (
+						{scopes.map((scope) => (
 							<Badge key={scope} variant="outline" className="h-4 px-1.5 text-[10px]">
 								{scope}
 							</Badge>
 						))}
 					</div>
 				)}
-				{item.setupInstructions.length > 0 && (
+				{setupInstructions.length > 0 && (
 					<div>
 						<div className="mb-1 flex flex-wrap items-center justify-between gap-2">
 							<p className="text-[11px] font-medium text-foreground">Setup</p>
@@ -79,7 +82,7 @@ export function ConnectorCatalogItem({
 							)}
 						</div>
 						<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground">
-							{item.setupInstructions.map((step) => (
+							{setupInstructions.map((step) => (
 								<li key={step}>{step}</li>
 							))}
 						</ol>
@@ -89,11 +92,11 @@ export function ConnectorCatalogItem({
 					Connector tools are discovered from the configured MCP server. Store API key
 					values in environment variables and reference only the env names in config.
 				</SettingsNotice>
-				{item.tools.length > 0 && (
+				{tools.length > 0 && (
 					<div>
 						<p className="mb-1 text-[11px] font-medium text-foreground">Tools</p>
 						<div className="flex flex-wrap gap-1">
-							{item.tools.map((tool) => (
+							{tools.map((tool) => (
 								<span
 									key={tool}
 									className="rounded-md border border-border/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
