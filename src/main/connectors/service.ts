@@ -411,12 +411,12 @@ export class ConnectorsService {
 	}
 
 	async authorizeOAuth(input: unknown): Promise<ConnectorOAuthAuthorizeResult> {
-			const connectorId = readRequiredString(
-				requireObject(input, 'OAuth authorization request').connectorId,
-				'Connector id'
-			);
-			const definition = await this.oauthCatalogEntry(connectorId, input);
-			if (!definition?.oauth) throw new Error('OAuth connector not found: ' + connectorId);
+		const connectorId = readRequiredString(
+			requireObject(input, 'OAuth authorization request').connectorId,
+			'Connector id'
+		);
+		const definition = await this.oauthCatalogEntry(connectorId, input);
+		if (!definition?.oauth) throw new Error('OAuth connector not found: ' + connectorId);
 
 		const clientIdEnv = definition.oauth.clientIdEnv;
 		const clientId = this.options.env?.[clientIdEnv] ?? process.env[clientIdEnv];
@@ -432,13 +432,13 @@ export class ConnectorsService {
 			id: existing?.id ?? definition.id,
 			name: existing?.name ?? definition.name,
 			connectorId: definition.id,
-			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
-			serverDescription: existing?.serverDescription,
-			enabled: true,
-			authorization: '',
-			requireApproval,
-			allowedTools,
-			deferLoading: existing?.deferLoading ?? false,
+				serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
+				serverDescription: existing?.serverDescription,
+				enabled: true,
+				authorization: existing?.authorization ?? oauthAuthorizationHeader(existing?.oauth?.token),
+				requireApproval,
+				allowedTools,
+				deferLoading: existing?.deferLoading ?? false,
 			tools: normalizeConnectorTools(existing?.tools ?? [], DEFAULT_CONNECTOR_TOOL_PERMISSION),
 			createdAt: existing?.createdAt ?? now,
 			updatedAt: now,
@@ -482,24 +482,26 @@ export class ConnectorsService {
 
 		const current = this.validConnectors().find((connector) => connector.oauth?.state === state) ??
 			this.pendingOAuthConnectors.get(state);
-		if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
-		const next: ConnectorConfig = {
-			...current,
-			updatedAt: new Date().toISOString(),
-			oauth: {
-				...current.oauth,
-				accountEmail: accountEmail || current.oauth.accountEmail,
-				token: {
-					accessToken,
-					refreshToken,
-					tokenType,
-					scope,
-					expiresAt: typeof expiresIn === 'number'
-						? new Date(Date.now() + expiresIn * 1000).toISOString()
-						: undefined,
+			if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
+			const token = {
+				accessToken,
+				refreshToken,
+				tokenType,
+				scope,
+				expiresAt: typeof expiresIn === 'number'
+					? new Date(Date.now() + expiresIn * 1000).toISOString()
+					: undefined,
+			};
+			const next: ConnectorConfig = {
+				...current,
+				authorization: oauthAuthorizationHeader(token),
+				updatedAt: new Date().toISOString(),
+				oauth: {
+					...current.oauth,
+					accountEmail: accountEmail || current.oauth.accountEmail,
+					token,
 				},
-			},
-		};
+			};
 		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
 		return redactConnectorSecrets(next);
