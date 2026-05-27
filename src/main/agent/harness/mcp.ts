@@ -53,7 +53,7 @@ export class McpAgentHarnessToolProvider implements AgentHarnessExternalToolProv
 		private readonly options: { events?: AgentHarnessEventSink; requestTimeoutMs?: number } = {}
 	) {}
 
-	async discover(input: {
+	async discover(_input: {
 		task: string;
 		session: AgentHarnessSession;
 		context: Record<string, unknown>;
