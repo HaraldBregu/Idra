@@ -1,5 +1,5 @@
 import type { AgentRunStreamEvent } from '../../../shared/agents/events';
-import type { AgentSelectedSkillSummary } from '../../../shared/agents/capabilities';
+import type { AgentCapabilityDecisionSummary, AgentSelectedSkillSummary } from '../../../shared/agents/capabilities';
 import type { AgentTool, AgentToolSelectionForTurn, ToolContext } from '../tools';
 
 export interface AgentResolvedSkill extends AgentSelectedSkillSummary {
@@ -12,6 +12,7 @@ export interface AgentCapabilityBundle {
 	skills: AgentResolvedSkill[];
 	promptAdditions: string;
 	directAnswer: boolean;
+	decision: AgentCapabilityDecisionSummary;
 	toolSelection?: AgentToolSelectionForTurn;
 }
 
