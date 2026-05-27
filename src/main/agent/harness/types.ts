@@ -320,15 +320,80 @@ export interface AgentHarnessHook {
 
 export type AgentHarnessEvent =
 	| { type: 'run.started'; runId: string; sessionId: string; task: string }
-	| { type: 'run.finished'; runId: string; sessionId: string; stopReason: AgentRunStopReason; outputChars: number }
+	| {
+			type: 'run.finished';
+			runId: string;
+			sessionId: string;
+			stopReason: AgentRunStopReason;
+			outputChars: number;
+			usage?: Usage;
+			costUsd?: number;
+	  }
 	| { type: 'run.cancelled'; runId: string; sessionId: string }
+	| { type: 'run.error'; runId: string; sessionId: string; error: AgentHarnessErrorShape }
 	| { type: 'model.request'; runId: string; sessionId: string; iteration: number }
-	| { type: 'model.response'; runId: string; sessionId: string; iteration: number; usage: Usage }
+	| { type: 'model.delta'; runId: string; sessionId: string; iteration: number; text: string }
+	| {
+			type: 'model.response';
+			runId: string;
+			sessionId: string;
+			iteration: number;
+			usage: Usage;
+			costUsd?: number;
+	  }
+	| {
+			type: 'model.retry';
+			runId: string;
+			sessionId: string;
+			iteration: number;
+			attempt: number;
+			delayMs: number;
+			error: AgentHarnessErrorShape;
+	  }
+	| {
+			type: 'model.fallback';
+			runId: string;
+			sessionId: string;
+			iteration: number;
+			provider?: string;
+			modelId: string;
+	  }
+	| { type: 'usage.updated'; runId: string; sessionId: string; usage: Usage; costUsd?: number }
+	| { type: 'context.assembled'; runId: string; sessionId: string; trace: AgentHarnessContextAssemblyTrace }
+	| { type: 'memory.read'; runId: string; sessionId: string; count: number }
+	| { type: 'memory.write'; runId: string; sessionId: string; count: number }
+	| { type: 'tool.discovered'; provider?: string; count: number; names: string[] }
 	| { type: 'tool.started'; runId: string; sessionId: string; toolName: string; toolCallId: string }
-	| { type: 'tool.finished'; runId: string; sessionId: string; toolName: string; toolCallId: string; status: AgentToolResultStatus }
+	| {
+			type: 'tool.finished';
+			runId: string;
+			sessionId: string;
+			toolName: string;
+			toolCallId: string;
+			status: AgentToolResultStatus;
+			durationMs?: number;
+	  }
+	| { type: 'tool.error'; runId: string; sessionId: string; toolName: string; toolCallId: string; error: AgentHarnessErrorShape }
+	| { type: 'mcp.server.connecting'; server: string }
+	| { type: 'mcp.server.connected'; server: string }
+	| { type: 'mcp.server.disconnected'; server: string }
+	| { type: 'mcp.server.error'; server: string; error: AgentHarnessErrorShape }
+	| { type: 'mcp.inventory'; server: string; tools: number; resources: number; prompts: number }
+	| { type: 'connector.status'; connectorId: string; status: AgentHarnessConnectorStatus; error?: AgentHarnessErrorShape }
+	| { type: 'skill.loaded'; name: string }
+	| { type: 'subagent.started'; runId: string; sessionId: string; parentSessionId?: string; task: string }
+	| { type: 'subagent.finished'; runId: string; sessionId: string; parentSessionId?: string; stopReason: AgentRunStopReason }
 	| { type: 'approval.requested'; request: AgentHarnessApprovalRequest }
 	| { type: 'approval.resolved'; request: AgentHarnessApprovalRequest; decision: AgentHarnessApprovalDecision }
 	| { type: 'snapshot.created'; snapshotId: string; sessionId: string };
+
+export interface AgentHarnessErrorShape {
+	name: string;
+	message: string;
+	code?: string;
+	recoverable: boolean;
+	details?: unknown;
+}
 
 export interface AgentHarnessEventSink {
 	emit(event: AgentHarnessEvent): void;
@@ -336,16 +401,44 @@ export interface AgentHarnessEventSink {
 
 export interface AgentHarnessExternalToolProvider {
 	discover(input: { task: string; session: AgentHarnessSession; context: Record<string, unknown> }): Promise<AgentHarnessTool[]>;
+	close?(): Promise<void>;
 }
 
 export interface AgentHarnessSkill {
 	name: string;
+	description?: string;
 	instructions?: string;
+	references?: Array<{ name: string; content: string; mimeType?: string }>;
 	tools?: AgentHarnessTool[];
 }
 
 export interface AgentHarnessSkillLoader {
+	list?(input: { session: AgentHarnessSession; context: Record<string, unknown> }): Promise<Array<Pick<AgentHarnessSkill, 'name' | 'description'>>>;
+	select?(input: {
+		task: string;
+		session: AgentHarnessSession;
+		context: Record<string, unknown>;
+		candidates: Array<Pick<AgentHarnessSkill, 'name' | 'description'>>;
+	}): Promise<string[]>;
 	load(name: string, input: { session: AgentHarnessSession; context: Record<string, unknown> }): Promise<AgentHarnessSkill>;
+}
+
+export type AgentHarnessConnectorStatus = 'configured' | 'connecting' | 'connected' | 'disconnected' | 'error';
+
+export interface AgentHarnessConnector {
+	id: string;
+	name: string;
+	kind: 'mcp' | 'native';
+	status(): Promise<{ status: AgentHarnessConnectorStatus; error?: string }>;
+	connect?(): Promise<void>;
+	disconnect?(): Promise<void>;
+	tools?(): Promise<AgentHarnessTool[]>;
+}
+
+export interface AgentHarnessConnectorRegistry {
+	register(connector: AgentHarnessConnector): void;
+	get(id: string): AgentHarnessConnector | undefined;
+	list(): AgentHarnessConnector[];
 }
 
 export interface AgentHarnessSubagentInput {
@@ -493,6 +586,7 @@ export interface AgentHarness {
 	loadSkill?(name: string, input?: { sessionId?: string; context?: Record<string, unknown> }): Promise<AgentHarnessSkill>;
 	runSubagent?(input: AgentHarnessSubagentInput & { parentSessionId?: string }): Promise<AgentHarnessRunResult>;
 	on?(type: AgentHarnessEvent['type'], handler: (event: AgentHarnessEvent) => void): () => void;
+	stream?(input: AgentHarnessExecuteInput): AsyncIterable<AgentHarnessEvent>;
 	supports?(input: { provider: string; modelId: string }): AgentHarnessSupportDecision;
 	runAttempt?(params: AgentHarnessAttemptParams): Promise<AgentHarnessAttemptResult>;
 	classify?(result: AgentHarnessAttemptResult, params: AgentHarnessAttemptParams): string | undefined;
@@ -512,6 +606,7 @@ export interface ExecutableAgentHarness extends AgentHarness {
 	loadSkill(name: string, input?: { sessionId?: string; context?: Record<string, unknown> }): Promise<AgentHarnessSkill>;
 	runSubagent(input: AgentHarnessSubagentInput & { parentSessionId?: string }): Promise<AgentHarnessRunResult>;
 	on(type: AgentHarnessEvent['type'], handler: (event: AgentHarnessEvent) => void): () => void;
+	stream(input: AgentHarnessExecuteInput): AsyncIterable<AgentHarnessEvent>;
 }
 
 export type HarnessAssistantBlock = Extract<AgentContentBlock, { type: 'text' | 'tool_use' | 'reasoning' }>;
