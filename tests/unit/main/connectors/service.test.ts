@@ -44,10 +44,17 @@ function createFakeMcpClient(tools = discoveredTools) {
 	};
 }
 
-function createService(client = createFakeMcpClient()) {
+function createService(client = createFakeMcpClient(), options: {
+	readonly env?: NodeJS.ProcessEnv;
+	readonly openExternalUrl?: (url: string) => Promise<void>;
+} = {}) {
 	const logger = makeLogger();
 	const factory = jest.fn(() => client);
-	const service = new ConnectorsService(logger as never, { mcpClientFactory: factory });
+	const service = new ConnectorsService(logger as never, {
+		mcpClientFactory: factory,
+		env: options.env,
+		openExternalUrl: options.openExternalUrl,
+	});
 	const stores = MockStore.mock.results.slice(-2).map((result) => result.value as {
 		data: Map<string, unknown>;
 		get: jest.Mock;
@@ -98,12 +105,80 @@ describe('ConnectorsService MCP persistence', () => {
 		createService();
 
 		expect(MockStore).toHaveBeenCalledWith({
-			name: 'connector',
+			name: 'connectors',
 			accessPropertiesByDotNotation: false,
 		});
 		expect(MockStore).toHaveBeenCalledWith({
 			name: 'connector-tools',
 			accessPropertiesByDotNotation: false,
+		});
+	});
+
+	it('opens Google OAuth through the backend and stores connector auth state in connectors.json', async () => {
+		const openExternalUrl = jest.fn(async () => undefined);
+		const { service, store } = createService(createFakeMcpClient(), {
+			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
+			openExternalUrl,
+		});
+
+		const result = await service.authorizeOAuth({ connectorId: 'google.gmail' });
+
+		expect(openExternalUrl).toHaveBeenCalledWith(result.authorizationUrl);
+		const url = new URL(result.authorizationUrl);
+		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
+		expect(url.searchParams.get('client_id')).toBe('google-client-id');
+		expect(url.searchParams.get('response_type')).toBe('code');
+		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.readonly');
+		expect(store.data.get('connectors')).toEqual([
+			expect.objectContaining({
+				connectorId: 'google.gmail',
+				oauth: expect.objectContaining({
+					clientId: 'google-client-id',
+					authorizationUrl: result.authorizationUrl,
+					state: expect.any(String),
+				}),
+			}),
+		]);
+		expect(result.connector.oauth?.token).toBeUndefined();
+	});
+
+	it('stores completed OAuth tokens in connectors.json and redacts them from public reads', async () => {
+		const { service, store } = createService(createFakeMcpClient(), {
+			env: { GOOGLE_OAUTH_CLIENT_ID: 'google-client-id' },
+			openExternalUrl: jest.fn(async () => undefined),
+		});
+		const started = await service.authorizeOAuth({ connectorId: 'google.drive' });
+		const state = started.connector.oauth?.state;
+		expect(state).toBeTruthy();
+
+		const completed = service.completeOAuth({
+			state,
+			accessToken: 'access-token',
+			refreshToken: 'refresh-token',
+			tokenType: 'Bearer',
+			scope: 'https://www.googleapis.com/auth/drive.readonly',
+			expiresIn: 3600,
+			accountEmail: 'user@example.com',
+		});
+
+		expect(store.data.get('connectors')).toEqual([
+			expect.objectContaining({
+				connectorId: 'google.drive',
+				oauth: expect.objectContaining({
+					accountEmail: 'user@example.com',
+					token: expect.objectContaining({
+						accessToken: 'access-token',
+						refreshToken: 'refresh-token',
+						tokenType: 'Bearer',
+					}),
+				}),
+			}),
+		]);
+		expect(completed.oauth?.token).toMatchObject({ accessToken: '', refreshToken: '' });
+		expect(service.list()[0]).toMatchObject({
+			authKind: 'oauth',
+			status: 'configured',
+			connectedAccount: 'user@example.com',
 		});
 	});
 
