@@ -106,15 +106,16 @@ function formFromCatalog(item: ConnectorCatalogItem): ConnectorFormState {
 }
 
 function formFromConnector(connector: ConnectorConfig, item: ConnectorCatalogItem): ConnectorFormState {
+	const name = connector.name ?? item.name;
 	return {
-		name: connector.name,
-		serverLabel: connector.serverLabel,
+		name,
+		serverLabel: connector.serverLabel ?? serverLabelFromName(name),
 		serverDescription: connector.serverDescription ?? '',
 		mcpText: mcpTextFromConnector(connector, item),
-		requireApproval: connector.requireApproval,
-		allowedTools: connector.allowedTools,
-		deferLoading: connector.deferLoading,
-		enabled: connector.enabled,
+		requireApproval: connector.requireApproval ?? 'always',
+		allowedTools: connector.allowedTools ?? [],
+		deferLoading: connector.deferLoading ?? false,
+		enabled: connector.enabled ?? true,
 	};
 }
 
@@ -156,6 +157,11 @@ function formatApprovalPolicy(value: ConnectorApprovalMode): string {
 	if (value === 'never_for_allowed_tools') return 'Skip approval for allowed tools';
 	if (value === 'never') return 'Never require approval';
 	return 'Always require approval';
+}
+
+function requireConnectorId(connector: ConnectorConfig): string {
+	if (!connector.id) throw new Error('Connector id is missing.');
+	return connector.id;
 }
 
 function formatRuntimeStatus(item: ConnectorCatalogItem): string {
