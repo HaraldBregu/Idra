@@ -1,16 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, ExternalLink, Plug } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AlertTriangle, ChevronRight, Plug } from 'lucide-react';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { ConnectorCatalogEntry } from '../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsPanel,
 	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
@@ -22,19 +20,16 @@ const ConnectorsPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [oauthError, setOauthError] = useState<string | null>(null);
-	const [oauthMessage, setOauthMessage] = useState<string | null>(null);
 	const [oauthBusyId, setOauthBusyId] = useState<string | null>(null);
 	const {
-		catalog, connectors, busyId,
+		catalog, connectors,
+		busyId,
 		error,
 		statusMessage,
 		toggleConnector,
 	} = useConnectors();
 	const oauthCatalog = catalog.filter((connector) => connector.authKind === 'oauth' || connector.oauth);
 	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth' && !connector.oauth);
-	const oauthConfiguredConnectorIds = new Set(
-		connectors.filter((connector) => connector.authKind === 'oauth').map((connector) => connector.connectorId)
-	);
 	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
 	const mcpConfiguredConnectorIds = new Set(mcpConnectors.map((connector) => connector.connectorId));
 
@@ -48,11 +43,9 @@ const ConnectorsPage = () => {
 
 	const authorizeOAuthConnector = async (connector: ConnectorCatalogEntry): Promise<void> => {
 		setOauthError(null);
-		setOauthMessage(null);
 		setOauthBusyId(connector.id);
 		try {
 			await window.connectors.authorizeOAuth(connector.id);
-			setOauthMessage(`${connector.name} OAuth request opened.`);
 		} catch (err) {
 			setOauthError(err instanceof Error ? err.message : String(err));
 		} finally {
@@ -78,7 +71,6 @@ const ConnectorsPage = () => {
 				</SettingsNotice>
 			)}
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
-			{oauthMessage && <SettingsNotice variant="default">{oauthMessage}</SettingsNotice>}
 
 			<SettingsSection
 				title="OAuth connectors"
@@ -86,86 +78,58 @@ const ConnectorsPage = () => {
 			>
 				<div className="grid gap-2">
 					{oauthCatalog.map((connector) => (
-						<SettingsPanel key={connector.id} className="overflow-hidden">
-							<div className="grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-								<div className="flex min-w-0 items-start gap-2.5">
-									<ConnectorIcon
-										directConnectorId={connector.directConnectorId}
-										name={connector.name}
-										className="mt-0.5 size-8"
-									/>
-									<div className="min-w-0">
-										<div className="flex min-w-0 flex-wrap items-center gap-1.5">
-											<h2 className="min-w-0 truncate text-[13px] font-semibold leading-4 text-foreground">
-												{connector.name}
-											</h2>
-											<Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
-												{connector.oauth?.providerId ?? 'OAuth'}
-											</Badge>
-										</div>
-										<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground/70">
-											{connector.description}
-										</p>
-										{connector.tools.length > 0 && (
-											<div className="mt-1.5 flex flex-wrap gap-1">
-												{connector.tools.map((capability) => (
-													<span
-														key={capability}
-														className="rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] text-muted-foreground"
-													>
-														{capability}
-													</span>
-												))}
-											</div>
-										)}
-									</div>
-								</div>
-								<Button
-									type="button"
-									size="sm"
-									disabled={oauthBusyId === connector.id}
-									className="w-full sm:w-auto"
-									aria-label={`Authorize ${connector.name} with OAuth`}
-									onClick={() => void authorizeOAuthConnector(connector)}
-								>
-									<ExternalLink className="size-3.5" />
-									{oauthConfiguredConnectorIds.has(connector.id) ? 'Reconnect' : 'Authorize'}
-								</Button>
-							</div>
-						</SettingsPanel>
+						<Item
+							key={connector.id}
+							variant="outline"
+							size="md"
+							onClick={() => void authorizeOAuthConnector(connector)}
+							className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
+						>
+							<ConnectorIcon
+								directConnectorId={connector.directConnectorId}
+								name={connector.name}
+							/>
+							<ItemContent className="min-w-0">
+								<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<ChevronRight className="size-3.5 text-muted-foreground" />
+							</ItemActions>
+						</Item>
 					))}
 				</div>
 			</SettingsSection>
 
 			<SettingsSection title="MCP connectors">
 				<div className="grid gap-2">
-					{mcpConnectors.length === 0 ? (
-						<SettingsPanel>
-							<SettingsEmptyState
-								icon={Plug}
-								title="No connectors configured yet."
-								description="Add a connector to make external tools available to agent runs."
-							/>
-						</SettingsPanel>
+					{mcpConnectors.length === 0 && mcpCatalog.length === 0 ? (
+						<Item variant="outline" size="md" className="rounded-lg border border-border/70 bg-card">
+							<ItemContent>
+								<SettingsEmptyState
+									icon={Plug}
+									title="No connectors configured yet."
+									description="Add a connector to make external tools available to agent runs."
+								/>
+							</ItemContent>
+						</Item>
 					) : (
-						mcpConnectors.map((connector) => (
-							<ConnectorCard
-								key={connector.id}
-								connector={connector}
-								busy={busyId === connector.id}
-								onToggle={() => void toggleConnector(connector)}
-								onViewDetails={() => openConnectorDetails(connector.id)}
-							/>
-						))
+						<>
+							{mcpConnectors.map((connector) => (
+								<ConnectorCard
+									key={connector.id}
+									connector={connector}
+									onViewDetails={() => openConnectorDetails(connector.id)}
+								/>
+							))}
+							{mcpCatalog.map((item) => (
+								<ConnectorCatalogItem
+									key={item.id}
+									item={item}
+									onConfigure={() => configureCatalogConnector(item.id)}
+								/>
+							))}
+						</>
 					)}
-					{mcpCatalog.map((item) => (
-						<ConnectorCatalogItem
-							key={item.id}
-							item={item}
-							onConfigure={() => configureCatalogConnector(item.id)}
-							alreadyConfigured={mcpConfiguredConnectorIds.has(item.id)}
-						/>
-					))}
 				</div>
 			</SettingsSection>
 		</SettingsPageShell>

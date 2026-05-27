@@ -328,7 +328,8 @@ function parseJsonRpcPayload(text: string): Record<string, unknown> {
 
 function readToolRecord(value: unknown): ConnectorTool[] {
 	const record = readRecord(value);
-	const name = typeof record?.name === 'string' ? record.name.trim() : '';
+	if (!record) return [];
+	const name = typeof record.name === 'string' ? record.name.trim() : '';
 	if (!name) return [];
 	return [{
 		name,
