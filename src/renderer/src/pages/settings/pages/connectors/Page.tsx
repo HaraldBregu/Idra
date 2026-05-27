@@ -15,10 +15,8 @@ const ConnectorsPage = () => {
 	const navigate = useNavigate();
 	const {
 		catalog, connectors, busyId,
-		connectingId,
 		error,
 		statusMessage,
-		connectOAuth,
 		toggleConnector,
 	} = useConnectors();
 	const configuredConnectorIds = new Set(connectors.map((connector) => connector.connectorId));
@@ -60,8 +58,6 @@ const ConnectorsPage = () => {
 							key={connector.id}
 							connector={connector}
 							busy={busyId === connector.id}
-							connecting={connectingId === connector.id}
-							onConnectOAuth={() => void connectOAuth(connector)}
 							onToggle={() => void toggleConnector(connector)}
 							onViewDetails={() => openConnectorDetails(connector.id)}
 						/>
