@@ -8,6 +8,7 @@ import type {
 	ConnectorMcpConfig,
 	ConnectorTool,
 } from '../../shared/connector';
+import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
 import type { JSONSchema } from '../provider/types';
 
 export interface ConnectorMcpClient {
@@ -52,6 +53,8 @@ export class SdkConnectorMcpClient implements ConnectorMcpClient {
 	constructor(private readonly connector: ConnectorConfig) {}
 
 	async listTools(options?: ConnectorCallToolOptions): Promise<ConnectorTool[]> {
+		const resolved = resolveMcpConfig(this.connector);
+		if (resolved.transport === 'http') return listToolsOverHttp(resolved, options);
 		await this.connect(options);
 		const tools: ConnectorTool[] = [];
 		let cursor: string | undefined;
@@ -64,6 +67,7 @@ export class SdkConnectorMcpClient implements ConnectorMcpClient {
 					name: tool.name,
 					description: tool.description,
 					inputSchema: normalizeInputSchema(tool.inputSchema),
+					permission: DEFAULT_CONNECTOR_TOOL_PERMISSION,
 					requiresApproval: false,
 				}))
 			);
@@ -235,6 +239,109 @@ function createTransport(config: ResolvedMcpConfig): Transport {
 		sessionId: config.sessionId,
 		requestInit: config.headers ? { headers: config.headers } : undefined,
 	});
+}
+
+async function listToolsOverHttp(
+	config: ResolvedHttpMcpConfig,
+	options?: ConnectorCallToolOptions
+): Promise<ConnectorTool[]> {
+	const tools: ConnectorTool[] = [];
+	let cursor: string | undefined;
+	let id = 1;
+	do {
+		const result = await postHttpMcpJsonRpc(config, {
+			jsonrpc: '2.0',
+			id: id++,
+			method: 'tools/list',
+			...(cursor ? { params: { cursor } } : {}),
+		}, options);
+		const record = readRecord(result.result);
+		if (!record) throw new Error('MCP tools/list response is missing a result object.');
+		const rawTools = record.tools;
+		if (!Array.isArray(rawTools)) throw new Error('MCP tools/list response is missing tools.');
+		tools.push(...rawTools.flatMap(readToolRecord));
+		cursor = typeof record.nextCursor === 'string' && record.nextCursor ? record.nextCursor : undefined;
+	} while (cursor);
+	return tools;
+}
+
+async function postHttpMcpJsonRpc(
+	config: ResolvedHttpMcpConfig,
+	body: Record<string, unknown>,
+	options?: ConnectorCallToolOptions
+): Promise<Record<string, unknown>> {
+	const fetchImpl = globalThis.fetch;
+	if (!fetchImpl) throw new Error('Global fetch is unavailable for HTTP MCP connector.');
+	const controller = options?.timeoutMs ? new AbortController() : undefined;
+	const timeout = controller && options?.timeoutMs
+		? setTimeout(() => controller.abort(), options.timeoutMs)
+		: undefined;
+	try {
+		const response = await fetchImpl(config.url, {
+			method: config.method ?? 'POST',
+			headers: {
+				accept: 'application/json, text/event-stream',
+				'content-type': 'application/json',
+				...(config.headers ?? {}),
+			},
+			body: JSON.stringify(body),
+			signal: controller?.signal,
+		});
+		const text = await response.text();
+		if (!response.ok) throw new Error('MCP tools/list failed with HTTP ' + response.status + ': ' + text);
+		const payload = parseJsonRpcPayload(text);
+		if (payload.error) {
+			const error = readRecord(payload.error);
+			const message = typeof error?.message === 'string' ? error.message : 'MCP tools/list failed.';
+			throw new Error(message);
+		}
+		return payload;
+	} finally {
+		if (timeout) clearTimeout(timeout);
+	}
+}
+
+function parseJsonRpcPayload(text: string): Record<string, unknown> {
+	try {
+		const payload = JSON.parse(text);
+		if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+			return payload as Record<string, unknown>;
+		}
+	} catch {
+		for (const line of text.split(/\r?\n/)) {
+			const trimmed = line.trim();
+			if (!trimmed.startsWith('data:')) continue;
+			const data = trimmed.slice(5).trim();
+			if (!data || data === '[DONE]') continue;
+			try {
+				const payload = JSON.parse(data);
+				if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+					return payload as Record<string, unknown>;
+				}
+			} catch {
+				continue;
+			}
+		}
+	}
+	throw new Error('MCP tools/list response was not valid JSON.');
+}
+
+function readToolRecord(value: unknown): ConnectorTool[] {
+	const record = readRecord(value);
+	const name = typeof record?.name === 'string' ? record.name.trim() : '';
+	if (!name) return [];
+	return [{
+		name,
+		description: typeof record.description === 'string' ? record.description : undefined,
+		inputSchema: normalizeInputSchema(record.inputSchema),
+		permission: DEFAULT_CONNECTOR_TOOL_PERMISSION,
+		requiresApproval: false,
+	}];
+}
+
+function readRecord(value: unknown): Record<string, unknown> | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	return value as Record<string, unknown>;
 }
 
 function normalizeInputSchema(value: unknown): Record<string, unknown> {
