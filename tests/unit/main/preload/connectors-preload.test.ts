@@ -6,7 +6,6 @@ import type {
 	ConnectorOAuthAuthorizeResult,
 	ConnectorTestResult,
 	ConnectorTool,
-	ConnectorView,
 } from '../../../../src/shared/connector';
 import { ConnectorsChannels } from '../../../../src/shared/ipc-channels';
 
@@ -44,7 +43,7 @@ const connectorConfig: ConnectorConfig = {
 	updatedAt: '2026-05-24T00:00:00.000Z',
 };
 
-const connectorView: ConnectorView = {
+const connectorView: ConnectorConfig = {
 	id: connectorConfig.id,
 	name: connectorConfig.name,
 	connectorId: connectorConfig.connectorId,
