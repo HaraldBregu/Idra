@@ -59,11 +59,12 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('plans construction for file tools only', () => {
-		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: false });
+	it('plans construction for file and script tools by default', () => {
+		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: true });
 		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false }));
-		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeMcpTools: false, includeLspTools: false }));
+		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeShellTools: true, includeMcpTools: false, includeLspTools: false }));
 		expect(planToolConstruction(['group:file']).includeFileTools).toBe(true);
+		expect(planToolConstruction(['group:script']).includeShellTools).toBe(true);
 		expect(planToolConstruction(['custom_tool']).includeFileTools).toBe(false);
 		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(false);
 		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(false);
