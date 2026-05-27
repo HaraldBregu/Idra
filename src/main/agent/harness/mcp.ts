@@ -23,6 +23,12 @@ export type AgentHarnessMcpServerConfig =
 			headers?: Record<string, string>;
 			sessionId?: string;
 			toolPrefix?: string;
+	  }
+	| {
+			name: string;
+			transport: 'custom';
+			createTransport: () => Transport;
+			toolPrefix?: string;
 	  };
 
 export interface AgentHarnessMcpInventory {
@@ -141,6 +147,9 @@ export class McpAgentHarnessToolProvider implements AgentHarnessExternalToolProv
 				cwd: config.cwd,
 				stderr: 'pipe',
 			});
+		}
+		if (config.transport === 'custom') {
+			return config.createTransport();
 		}
 		return new StreamableHTTPClientTransport(new URL(config.url), {
 			sessionId: config.sessionId,
