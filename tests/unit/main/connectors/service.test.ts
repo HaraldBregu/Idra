@@ -1,7 +1,7 @@
 jest.mock('electron-store', () => {
 	return jest.fn().mockImplementation(() => {
 		const data = new Map<string, unknown>();
-		return {
+		const store = {
 			data,
 			get: (key: string) => data.get(key),
 			set: (key: string, value: unknown) => {
@@ -11,6 +11,15 @@ jest.mock('electron-store', () => {
 				data.delete(key);
 			},
 		};
+		Object.defineProperty(store, 'store', {
+			configurable: true,
+			get: () => Object.fromEntries(data),
+			set: (value: Record<string, unknown>) => {
+				data.clear();
+				for (const [key, entry] of Object.entries(value)) data.set(key, entry);
+			},
+		});
+		return store;
 	});
 });
 
