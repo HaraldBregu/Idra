@@ -661,7 +661,7 @@ export class ConnectorsService {
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.getStored(id);
-		if (connector.oauth) {
+		if (connector.oauth || isOAuthMcpConfig(connector.mcp)) {
 			const next = await this.withOAuthTools(connector);
 			this.replace(next);
 			return next.tools;
@@ -1081,8 +1081,9 @@ function uniqueConnectorStorageKey(value: string, connectors: readonly RuntimeCo
 }
 
 function toStoredConnectorRecord(connector: RuntimeConnector): ConnectorConfig {
+	const mcp = mcpWithConnectorAuthorization(connector);
 	return {
-		...(connector.mcp ? { mcp: mcpWithConnectorAuthorization(connector) } : {}),
+		...(mcp ? { mcp: compactMcpConfig(mcp) } : {}),
 		tools: connector.tools,
 	};
 }
@@ -1103,7 +1104,11 @@ function titleFromStorageKey(storageKey?: string): string | undefined {
 		.split(/\s+/)
 		.filter(Boolean);
 	if (words.length === 0) return undefined;
-	return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+	return words.map((word) => {
+		const lower = word.toLowerCase();
+		if (lower === 'mcp') return 'MCP';
+		return word.charAt(0).toUpperCase() + word.slice(1);
+	}).join(' ');
 }
 
 function connectorMetadataFromStorage(
@@ -1209,6 +1214,27 @@ function mcpWithConnectorAuthorization(connector: RuntimeConnector): ConnectorMc
 	};
 }
 
+function compactMcpConfig(mcp: ConnectorMcpConfig): ConnectorMcpConfig {
+	if (mcp.transport === 'http') {
+		return {
+			transport: 'http',
+			url: mcp.url,
+			...(mcp.method ? { method: mcp.method } : {}),
+			...(mcp.headers && Object.keys(mcp.headers).length > 0 ? { headers: mcp.headers } : {}),
+			...(mcp.sessionId ? { sessionId: mcp.sessionId } : {}),
+			...(mcp.auth ? { auth: mcp.auth } : {}),
+		};
+	}
+	return {
+		transport: 'stdio',
+		command: mcp.command,
+		...(mcp.args ? { args: mcp.args } : {}),
+		...(mcp.cwd ? { cwd: mcp.cwd } : {}),
+		...(mcp.env && Object.keys(mcp.env).length > 0 ? { env: mcp.env } : {}),
+		...(mcp.envSecrets ? { envSecrets: mcp.envSecrets } : {}),
+	};
+}
+
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
@@ -1256,7 +1282,7 @@ function oauthAuthorizationHeader(token: NonNullable<ConnectorConfig['oauth']>['
 }
 
 function permissionForTool(connector: RuntimeConnector, toolName: string): ConnectorToolPermission {
-	if (connector.oauth) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
+	if (connector.oauth || isOAuthMcpConfig(connector.mcp)) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
 	if (connector.allowedTools.length > 0 && !connector.allowedTools.includes(toolName)) return 'blocked';
 	if (connector.requireApproval === 'never') return 'always-allow';
 	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) return 'always-allow';
