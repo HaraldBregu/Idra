@@ -6,7 +6,7 @@ import type { AgentStartupFilesService } from './agent/startup-files';
 import type { AgentDataDirectoryService } from './agent/storage';
 import type { AgentSettingsStore } from './agent/settings';
 import type { AppPermissionsService } from './app-permissions';
-import type { ConnectorsService } from './agent/connectors';
+import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './agent/mcp';
