@@ -157,47 +157,47 @@ const OverviewPage: React.FC = () => {
 			<h1 className="px-0.5 text-2xl font-bold tracking-tight text-foreground">
 				{t('settings.title')}
 			</h1>
-				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
-					const panel = (
-						<SettingsPanel>
-							{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
-								<SettingsOverviewCard key={item.path} item={item} />
-							))}
-							{group.paths.map((path) => {
-								const item = getSettingsNavigationItem(path);
-								const badge =
-									path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
-										<Badge
-											variant={heartbeatEnabled ? 'outline' : 'secondary'}
-											className="h-5 rounded-md px-1.5 text-[10px]"
-										>
-											{t(
-												heartbeatEnabled
-													? 'settings.heartbeat.values.enabled'
-													: 'settings.heartbeat.values.paused'
-											)}
-										</Badge>
-									) : undefined;
-								return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
-							})}
-						</SettingsPanel>
-					);
+			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
+				const panel = (
+					<SettingsPanel>
+						{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
+							<SettingsOverviewCard key={item.path} item={item} />
+						))}
+						{group.paths.map((path) => {
+							const item = getSettingsNavigationItem(path);
+							const badge =
+								path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
+									<Badge
+										variant={heartbeatEnabled ? 'outline' : 'secondary'}
+										className="h-5 rounded-md px-1.5 text-[10px]"
+									>
+										{t(
+											heartbeatEnabled
+												? 'settings.heartbeat.values.enabled'
+												: 'settings.heartbeat.values.paused'
+										)}
+									</Badge>
+								) : undefined;
+							return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
+						})}
+					</SettingsPanel>
+				);
 
-					if (!group.titleKey) {
-						return (
-							<section key={group.id} className="flex flex-col gap-2">
-								{panel}
-							</section>
-						);
-					}
-
+				if (!group.titleKey) {
 					return (
-						<SettingsSection key={group.id} title={t(group.titleKey)}>
+						<section key={group.id} className="flex flex-col gap-2">
 							{panel}
-						</SettingsSection>
+						</section>
 					);
-				})}
-			</SettingsPageShell>
+				}
+
+				return (
+					<SettingsSection key={group.id} title={t(group.titleKey)}>
+						{panel}
+					</SettingsSection>
+				);
+			})}
+		</SettingsPageShell>
 		);
 	};
 
