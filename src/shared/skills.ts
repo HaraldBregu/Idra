@@ -26,6 +26,16 @@ export interface SkillDetails extends SkillInfo {
 	supportFiles: SkillSupportFile[];
 }
 
+export interface SkillSearchResult extends SkillInfo {
+	score: number;
+	reason: string;
+}
+
+export interface SkillSearchOptions {
+	names?: readonly string[];
+	limit?: number;
+}
+
 export interface SkillValidationIssue {
 	code: string;
 	message: string;
