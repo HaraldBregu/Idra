@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { PolicyService } from '../../../src/main/policy';
-import type { PolicyConfig } from '../../../src/shared/policy';
+import { PolicyService } from '../../../src/main/agent/policy';
+import type { PolicyConfig } from '../../../../shared/policy';
 
 function makePolicyService(policy: () => PolicyConfig) {
 	const accessor = {

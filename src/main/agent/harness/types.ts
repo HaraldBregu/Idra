@@ -8,7 +8,7 @@ import type {
 	Usage,
 } from '../../provider/types';
 import type { AgentTool, ToolContext } from '../tools';
-import type { PlanEntry, SessionFile } from '../../session/store';
+import type { PlanEntry, SessionFile } from '../session/store';
 import type { AgentRunStopReason, AgentToolResultStatus } from '../../../shared/agents/constants';
 
 export type AgentHarnessLayer =

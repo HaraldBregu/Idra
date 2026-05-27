@@ -60,7 +60,7 @@ export type WorkspaceFileSummary = {
 
 const BUNDLED_TEMPLATES: Record<string, string> = Object.fromEntries(
 	Object.entries(
-		import.meta.glob('../templates/*.md', {
+		import.meta.glob('../agent/templates/*.md', {
 			query: '?raw',
 			eager: true,
 			import: 'default',
@@ -84,7 +84,7 @@ export async function loadWorkspaceTemplate(name: WorkspaceFileName): Promise<st
 	const bundled = BUNDLED_TEMPLATES[name];
 	if (bundled !== undefined) return bundled;
 
-	const sourcePath = path.resolve(process.cwd(), 'src', 'main', 'templates', name);
+	const sourcePath = path.resolve(process.cwd(), 'src', 'main', 'agent', 'templates', name);
 	try {
 		return stripFrontMatter(await fs.readFile(sourcePath, 'utf8'));
 	} catch {

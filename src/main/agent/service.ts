@@ -34,7 +34,7 @@ import { makeProvider, type ProviderSpec } from '../provider/factory';
 import {
 	PolicyService,
 	type PolicyServicePort,
-} from '../policy';
+} from './policy';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import {
 	loadSession,
@@ -44,7 +44,7 @@ import {
 	clearSession,
 	type SessionFile,
 	type SessionStatus,
-} from '../session/store';
+} from './session/store';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logger';
 import { resolveDefaultUserDataPath } from '../user-data';
 import {

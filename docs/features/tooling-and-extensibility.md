@@ -46,7 +46,7 @@ The runtime can include host tools, plugin tools, MCP tools, LSP tools, and clie
 - `src/main/tools`
 - `src/main/browser`
 - `src/main/workspace`
-- `src/main/session`
+- `src/main/agent/session`
 - `src/main/memory-runtime.ts`
 - `src/main/plugins`
 - `src/main/agent/mcp`

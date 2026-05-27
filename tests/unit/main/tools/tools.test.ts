@@ -21,9 +21,9 @@ import {
 	PRELOADED_LOCAL_TOOLS,
 } from '../../../../src/main/agent/tools/registry';
 import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
-import { PolicyService } from '../../../../src/main/policy';
+import { PolicyService } from '../../../../src/main/agent/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
-import type { PolicyConfig } from '../../../../src/shared/policy';
+import type { PolicyConfig } from '../../../../../shared/policy';
 
 type ToolFilterPolicy = {
 	profile: 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';

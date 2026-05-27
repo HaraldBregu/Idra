@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { acquireWriteLock } from '../../../../src/main/session/lock';
-import { sanitizeToolUseResultPairing } from '../../../../src/main/session/repair';
-import { clearSession, loadSession, saveSession, type SessionFile } from '../../../../src/main/session/store';
+import { acquireWriteLock } from '../../../../src/main/agent/session/lock';
+import { sanitizeToolUseResultPairing } from '../../../../src/main/agent/session/repair';
+import { clearSession, loadSession, saveSession, type SessionFile } from '../../../../src/main/agent/session/store';
 import { makeTempDir } from '../test-helpers';
 
 describe('session/repair', () => {

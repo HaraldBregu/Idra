@@ -8,7 +8,7 @@ import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { McpRegistry } from './agent/mcp';
 import type { MonitorService } from './monitor';
-import type { PolicyService } from './policy';
+import type { PolicyService } from './agent/policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { SkillsService } from './agent/skills';
 import type { HeartbeatService } from './heartbeat';

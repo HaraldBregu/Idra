@@ -47,4 +47,4 @@ This folder documents Friday's current feature surface from the source tree and 
 - Desktop shell and UI: `src/main`, `src/preload`, `src/renderer/src`
 - Browser automation: `src/main/browser`
 - Plugins and agent harnesses: `src/main/plugins`, `src/main/agent/harness`
-- Memory, sessions, and workspace context: `src/main/memory-runtime.ts`, `src/main/session`, `src/main/workspace`
+- Memory, sessions, and workspace context: `src/main/memory-runtime.ts`, `src/main/agent/session`, `src/main/workspace`

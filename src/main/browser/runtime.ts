@@ -1,7 +1,7 @@
 import type { BrowserContext, Page } from 'playwright-core';
 import { chromium } from 'playwright-core';
 import type { BrowserTab } from './types';
-import { validateUrl } from './policy';
+import { validateUrl } from './agent/policy';
 
 const LAUNCH_ARGS = [
 	'--no-first-run',

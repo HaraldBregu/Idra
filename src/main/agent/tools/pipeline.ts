@@ -6,7 +6,7 @@ import {
 	type ToolPolicy,
 	type ToolPolicyStageName,
 	type ToolPolicySubject,
-} from '../../policy';
+} from '../policy';
 
 export type PolicyStageName = ToolPolicyStageName;
 

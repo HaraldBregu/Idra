@@ -3,7 +3,7 @@ import { EventBus } from '../../../../src/main/core/event-bus';
 import { PolicyIpc } from '../../../../src/main/ipc/policy-ipc';
 import type { MainServiceContainer } from '../../../../src/main/service-registry';
 import { PolicyChannels } from '../../../../src/shared/ipc-channels';
-import type { PolicyConfig } from '../../../../src/shared/policy';
+import type { PolicyConfig } from '../../../../../shared/policy';
 
 function registeredHandler(channel: string) {
 	const call = (ipcMain.handle as jest.Mock).mock.calls.find(([name]) => name === channel);

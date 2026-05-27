@@ -13,7 +13,7 @@ import {
 	type AgentHarnessAttemptParams,
 	type AgentHarnessAttemptResult,
 } from '../../../../src/main/agent';
-import type { SessionFile } from '../../../../src/main/session/store';
+import type { SessionFile } from '../../../../src/main/agent/session/store';
 
 function clearHarnessActivationState(): void {
 	delete (globalThis as { [key: symbol]: unknown })[

@@ -8,7 +8,7 @@ import type {
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import { PolicyService } from '../../../../src/main/policy';
+import { PolicyService } from '../../../../src/main/agent/policy';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 const FILE_TOOL_NAMES = [

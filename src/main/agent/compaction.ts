@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { agentLogger } from './logger';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
-import type { CompactionMarker } from '../session/store';
+import type { CompactionMarker } from './session/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 
 const KEEP_RECENT = 6;

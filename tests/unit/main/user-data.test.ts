@@ -5,7 +5,7 @@ import {
 	USER_DATA_DIRECTORY_NAME,
 	UserDataDirectoryService,
 } from '../../../src/main/user-data';
-import { loadSession, saveSession } from '../../../src/main/session/store';
+import { loadSession, saveSession } from '../../../src/main/agent/session/store';
 import { makeTempDir } from './test-helpers';
 
 describe('UserDataDirectoryService', () => {

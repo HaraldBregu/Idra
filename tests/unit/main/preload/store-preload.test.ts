@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { policy, store } from '../../../../src/preload';
 import { PolicyChannels, StoreChannels } from '../../../../src/shared/ipc-channels';
-import type { PolicyConfig } from '../../../../src/shared/policy';
+import type { PolicyConfig } from '../../../../../shared/policy';
 import type { PublicProvider } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/agents/service';
 

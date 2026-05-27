@@ -28,8 +28,8 @@ Friday keeps agent work grounded through persisted sessions, workspace startup f
 
 ## Source
 
-- `src/main/session/store.ts`
-- `src/main/session/repair.ts`
+- `src/main/agent/session/store.ts`
+- `src/main/agent/session/repair.ts`
 - `src/main/memory-runtime.ts`
 - `src/main/workspace/service.ts`
 - `src/main/workspace/files.ts`

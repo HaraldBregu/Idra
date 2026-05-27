@@ -7,7 +7,7 @@ import {
 	registerAgentHarnessHookHandler,
 } from '../../../../src/main/agent';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import type { SessionFile } from '../../../../src/main/session/store';
+import type { SessionFile } from '../../../../src/main/agent/session/store';
 import { makeToolContext } from '../test-helpers';
 
 function session(): SessionFile {
