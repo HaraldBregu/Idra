@@ -823,7 +823,7 @@ export class ConnectorsService {
 
 	private writeAll(connectors: ConnectorConfig[]): void {
 		try {
-			this.store.set(CONNECTOR_STORE_KEY, connectors.map(normalizeStoredConnector));
+			this.store.set(CONNECTOR_STORE_KEY, connectors.map(toStoredConnectorRecord));
 			this.logDebug('Wrote connector settings', { key: CONNECTOR_STORE_KEY, count: connectors.length });
 		} catch (error) {
 			this.logError('Failed to write connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
@@ -912,23 +912,57 @@ export class ConnectorsService {
 
 function isStoredConnectorValid(connector: ConnectorConfig): boolean {
 	return (
-		typeof connector.id === 'string' &&
-		typeof connector.name === 'string' &&
-		typeof connector.connectorId === 'string' &&
-		CONNECTOR_ID_PATTERN.test(connector.connectorId) &&
-		(connector.mcp !== undefined || connector.oauth !== undefined)
+		(
+			typeof connector.id === 'string' &&
+			typeof connector.name === 'string' &&
+			typeof connector.connectorId === 'string' &&
+			CONNECTOR_ID_PATTERN.test(connector.connectorId)
+		) ||
+		Boolean(connector.mcp && catalogEntryForMcp(connector.mcp))
 	);
 }
 
 function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
+	const catalogEntry = connector.mcp ? catalogEntryForMcp(connector.mcp) : undefined;
+	const name = connector.name ?? catalogEntry?.name ?? 'MCP Connector';
+	const connectorId = connector.connectorId ?? catalogEntry?.id ?? serverLabelFromName(name);
+	const createdAt = typeof connector.createdAt === 'string' ? connector.createdAt : '';
+	const updatedAt = typeof connector.updatedAt === 'string' ? connector.updatedAt : createdAt;
 	return {
 		...connector,
+		id: typeof connector.id === 'string' ? connector.id : connectorId,
+		name,
+		connectorId,
+		serverLabel: typeof connector.serverLabel === 'string' ? connector.serverLabel : serverLabelFromName(name),
 		authorization: '',
+		enabled: typeof connector.enabled === 'boolean' ? connector.enabled : true,
+		requireApproval: connector.requireApproval ?? 'always',
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
+		deferLoading: typeof connector.deferLoading === 'boolean' ? connector.deferLoading : false,
 		tools: Array.isArray(connector.tools)
 			? connector.tools.flatMap((tool) => isConnectorToolRecord(tool) ? [normalizeConnectorTool(tool)] : [])
 			: [],
+		createdAt,
+		updatedAt,
 	};
+}
+
+function toStoredConnectorRecord(connector: ConnectorConfig): ConnectorConfig | { mcp?: ConnectorMcpConfig; tools: ConnectorTool[] } {
+	const normalized = normalizeStoredConnector(connector);
+	if (connector.oauth || (connector.mcp && catalogEntryForMcp(connector.mcp)?.oauth)) {
+		return {
+			mcp: connector.mcp,
+			tools: normalized.tools,
+		};
+	}
+	return normalized;
+}
+
+function catalogEntryForMcp(mcp: ConnectorMcpConfig): ConnectorCatalogEntry | undefined {
+	if (mcp.transport !== 'http') return undefined;
+	return (defaultConnectorCatalog as ConnectorCatalogEntry[]).find((entry) =>
+		entry.mcp?.transport === 'http' && entry.mcp.url === mcp.url
+	);
 }
 
 function isConnectorToolRecord(value: unknown): value is ConnectorTool {
