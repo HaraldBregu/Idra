@@ -34,8 +34,8 @@ const ConnectorsPage = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title="Connectors"
-				description="Configure MCP-backed connectors for agent tool use."
+				title={t('settings.tabs.connectors')}
+				description={t('settings.connectors.description')}
 			/>
 
 			{error && (
