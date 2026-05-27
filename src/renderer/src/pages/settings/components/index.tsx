@@ -58,7 +58,7 @@ export function SettingsPageHeader({
 						{title}
 					</h1>
 					{description && (
-						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground/60">
 							{description}
 						</p>
 					)}
@@ -98,7 +98,7 @@ export function SettingsSection({
 						{title}
 					</h2>
 					{description && (
-						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground/60">
 							{description}
 						</p>
 					)}
@@ -345,7 +345,7 @@ export function SettingsField({
 					{label}
 				</Label>
 				{description && (
-					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground">
+					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground/60">
 						{description}
 					</p>
 				)}

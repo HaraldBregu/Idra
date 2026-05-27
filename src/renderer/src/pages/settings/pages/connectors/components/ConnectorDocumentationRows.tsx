@@ -25,7 +25,7 @@ export function ConnectorDocumentationRows({
 							<div className="text-[11px] font-medium leading-4 text-foreground">{connector.docsLabel}</div>
 						)}
 						{connector.docsPath && (
-							<div className="break-all font-mono text-[11px] leading-4 text-muted-foreground">
+							<div className="break-all font-mono text-[11px] leading-4 text-muted-foreground/60">
 								{connector.docsPath}
 							</div>
 						)}
@@ -79,7 +79,7 @@ export function ConnectorDocumentationRows({
 						<Terminal className="size-3 text-muted-foreground" strokeWidth={1.8} />
 						Example
 					</div>
-					<div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
+					<div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] leading-4 text-muted-foreground/60">
 						<Badge variant="secondary" className="h-5 max-w-full px-1.5 font-mono text-[10px]">
 							<span className="truncate">{connector.example.tool}</span>
 						</Badge>

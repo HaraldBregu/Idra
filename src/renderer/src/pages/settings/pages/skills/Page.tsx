@@ -150,7 +150,7 @@ const SkillsPage: React.FC = () => {
 									<ItemTitle className="max-w-full truncate">
 										{skill.name}
 									</ItemTitle>
-									<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground">
+									<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground/60">
 										{skill.description || t('settings.skills.noDescription')}
 									</p>
 								</ItemContent>

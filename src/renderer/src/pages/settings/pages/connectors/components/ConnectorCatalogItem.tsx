@@ -81,7 +81,7 @@ export function ConnectorCatalogItem({
 								</a>
 							)}
 						</div>
-						<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground">
+						<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground/60">
 							{setupInstructions.map((step) => (
 								<li key={step}>{step}</li>
 							))}

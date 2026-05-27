@@ -442,7 +442,7 @@ const OperatorDetailsPage: React.FC = () => {
 						>
 							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 								<ItemTitle>{t('settings.operators.provider')}</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 									{providerCardSummary}
 								</p>
 							</ItemContent>
@@ -517,7 +517,7 @@ const OperatorDetailsPage: React.FC = () => {
 										</SelectContent>
 									</Select>
 									{selectedProvider && !loadingModels && modelOptions.length === 0 && (
-										<p className="text-[11px] leading-4 text-muted-foreground">
+										<p className="text-[11px] leading-4 text-muted-foreground/60">
 											{t('settings.operators.noModels')}
 										</p>
 									)}

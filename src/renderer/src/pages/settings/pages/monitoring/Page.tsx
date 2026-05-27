@@ -199,7 +199,7 @@ function MonitoringMetric({
 				<div className="text-lg font-semibold leading-5 tracking-normal text-foreground">
 					{value}
 				</div>
-				<div className="mt-1 truncate text-[11px] leading-4 text-muted-foreground">
+				<div className="mt-1 truncate text-[11px] leading-4 text-muted-foreground/60">
 					{label}
 				</div>
 			</div>
@@ -252,7 +252,7 @@ function MonitorEventItem({
 						<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 							{record.eventType}
 						</ItemTitle>
-						<div className="mt-1 flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-4 text-muted-foreground">
+						<div className="mt-1 flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-4 text-muted-foreground/60">
 							<span className="max-w-40 truncate font-mono">{record.source}</span>
 							<span className="max-w-40 truncate">{record.category}</span>
 							<span>{observedAt}</span>
@@ -282,11 +282,11 @@ function MonitorEventItem({
 						<SearchCode className="size-3 shrink-0 text-muted-foreground" strokeWidth={1.8} />
 					</summary>
 					{payload ? (
-						<pre className="max-h-64 overflow-auto border-t border-border/60 p-2 text-[11px] leading-4 text-muted-foreground">
+						<pre className="max-h-64 overflow-auto border-t border-border/60 p-2 text-[11px] leading-4 text-muted-foreground/60">
 							{payload}
 						</pre>
 					) : (
-						<div className="border-t border-border/60 px-2 py-2 text-[11px] leading-4 text-muted-foreground">
+						<div className="border-t border-border/60 px-2 py-2 text-[11px] leading-4 text-muted-foreground/60">
 							{t('settings.monitoring.events.payloadEmpty')}
 						</div>
 					)}
@@ -555,7 +555,7 @@ const MonitoringPage: React.FC = () => {
 				title={t('settings.monitoring.events.title')}
 				description={t('settings.monitoring.events.description')}
 				action={
-					<div className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
+					<div className="flex min-w-0 items-center gap-1.5 text-[11px] leading-4 text-muted-foreground/60">
 						<Clock3 className="size-3 shrink-0" strokeWidth={1.8} />
 						<span className="truncate">
 							{t('settings.monitoring.events.generatedAt', { time: generatedLabel })}

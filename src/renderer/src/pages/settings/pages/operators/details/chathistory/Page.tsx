@@ -168,7 +168,7 @@ const ChatHistoryPage: React.FC = () => {
 					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 							<ItemTitle>{t('settings.chatHistory.messages')}</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground/60">
 								{chatHistoryLoading
 									? t('settings.chatHistory.loading')
 									: t('settings.chatHistory.breakdown', {
@@ -191,7 +191,7 @@ const ChatHistoryPage: React.FC = () => {
 					<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 							<ItemTitle>{t('settings.chatHistory.contextSize')}</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground/60">
 								{t('settings.chatHistory.contextSizeDescription')}
 							</p>
 						</ItemContent>
@@ -224,7 +224,7 @@ const ChatHistoryPage: React.FC = () => {
 						<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 							<ItemTitle>{t('settings.chatHistory.openFolder')}</ItemTitle>
 							{chatHistoryErrorKey === 'settings.chatHistory.errors.openFolder' && (
-								<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+								<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground/60">
 									{t(chatHistoryErrorKey)}
 								</p>
 							)}
@@ -250,7 +250,7 @@ const ChatHistoryPage: React.FC = () => {
 									? t('settings.chatHistory.deleting')
 									: t('settings.chatHistory.delete')}
 							</ItemTitle>
-							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground">
+							<p className="mt-0.5 w-full text-[11px] leading-4 text-muted-foreground/60">
 								{chatHistoryErrorKey === 'settings.chatHistory.errors.delete'
 									? t(chatHistoryErrorKey)
 									: t('settings.chatHistory.actionsDescription')}

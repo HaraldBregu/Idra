@@ -362,7 +362,7 @@ const HeartbeatPage: React.FC = () => {
 									<ItemTitle className="max-w-full truncate">
 										{t('settings.heartbeat.runtime.enabled')}
 									</ItemTitle>
-									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 										{t('settings.heartbeat.runtime.enabledDescription')}
 									</p>
 								</ItemContent>
@@ -395,7 +395,7 @@ const HeartbeatPage: React.FC = () => {
 									<ItemTitle className="max-w-full truncate">
 										{t('settings.heartbeat.runtime.nextDue')}
 									</ItemTitle>
-									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 										{t('settings.heartbeat.runtime.nextDueDescription')}
 									</p>
 								</ItemContent>
@@ -443,7 +443,7 @@ const HeartbeatPage: React.FC = () => {
 									<ItemTitle className="max-w-full truncate">
 										{t('settings.heartbeat.timing.every')}
 									</ItemTitle>
-									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 										{t('settings.heartbeat.timing.everyDescription')}
 									</p>
 								</ItemContent>
@@ -492,7 +492,7 @@ const HeartbeatPage: React.FC = () => {
 									<ItemTitle className="max-w-full truncate">
 										{t('settings.heartbeat.timing.activeHours')}
 									</ItemTitle>
-									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 										{t('settings.heartbeat.timing.activeHoursDescription')}
 									</p>
 								</ItemContent>
@@ -577,7 +577,7 @@ const HeartbeatPage: React.FC = () => {
 								<ItemTitle className="max-w-full truncate">
 									{t('settings.heartbeat.last.latest')}
 								</ItemTitle>
-								<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+								<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 									{lastDescription}
 								</p>
 							</ItemContent>
@@ -623,7 +623,7 @@ const HeartbeatPage: React.FC = () => {
 							<ItemTitle className="max-w-full truncate">
 								{t('settings.heartbeat.controls.wakeNow')}
 							</ItemTitle>
-							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 								{t('settings.heartbeat.controls.wakeNowDescription')}
 							</p>
 						</ItemContent>
@@ -652,7 +652,7 @@ const HeartbeatPage: React.FC = () => {
 							<ItemTitle className="max-w-full truncate">
 								{t('settings.heartbeat.controls.systemEvent')}
 							</ItemTitle>
-							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground">
+							<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
 								{t('settings.heartbeat.controls.systemEventDescription')}
 							</p>
 						</ItemContent>

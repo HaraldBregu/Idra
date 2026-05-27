@@ -477,6 +477,7 @@
 		},
 		"connectors": {
 			"detailsTitle": "Connector Details",
+			"setup": "Setup",
 			"notFoundTitle": "Connector not found",
 			"notFoundDescription": "The connector may have been removed."
 		},

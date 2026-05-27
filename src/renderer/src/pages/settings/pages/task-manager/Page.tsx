@@ -230,12 +230,12 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 					</div>
 
 					{providers.length === 0 && !loading && (
-						<p className="text-[11px] leading-4 text-muted-foreground">
+						<p className="text-[11px] leading-4 text-muted-foreground/60">
 							{t('settings.taskManager.runtime.noProviders')}
 						</p>
 					)}
 					{selectedProvider && models.length === 0 && !loading && !loadingModels && (
-						<p className="text-[11px] leading-4 text-muted-foreground">
+						<p className="text-[11px] leading-4 text-muted-foreground/60">
 							{t('settings.taskManager.runtime.noModels')}
 						</p>
 					)}
@@ -246,7 +246,7 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 						</div>
 					)}
 					{saved && (
-						<p className="text-[11px] leading-4 text-muted-foreground">
+						<p className="text-[11px] leading-4 text-muted-foreground/60">
 							{t('settings.taskManager.runtime.saved')}
 						</p>
 					)}
@@ -437,7 +437,7 @@ const TaskManagerPage: React.FC = () => {
 									<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 										{task.title}
 									</ItemTitle>
-									<div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-4 text-muted-foreground">
+									<div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-4 text-muted-foreground/60">
 										<span className="max-w-56 truncate font-mono">{task.type}</span>
 										<span>{formatTimestamp(task.createdAt)}</span>
 									</div>

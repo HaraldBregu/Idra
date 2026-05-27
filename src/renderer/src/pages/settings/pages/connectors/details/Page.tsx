@@ -556,7 +556,7 @@ const ConnectorDetailsPage: React.FC = () => {
 									<div className="text-[11px] font-medium leading-4 text-foreground">
 										MCP environment auth
 									</div>
-									<div className="mt-1 text-[11px] leading-4 text-muted-foreground">
+									<div className="mt-1 text-[11px] leading-4 text-muted-foreground/60">
 										Secrets are read from the environment variables named in the MCP config.
 									</div>
 								</div>
@@ -601,7 +601,7 @@ const ConnectorDetailsPage: React.FC = () => {
 									<label htmlFor={`${idPrefix}-connector-defer-loading`} className="block cursor-pointer text-[13px] font-medium text-foreground">
 										Defer tool loading
 									</label>
-									<p className="text-[11px] leading-4 text-muted-foreground">
+									<p className="text-[11px] leading-4 text-muted-foreground/60">
 										Load tools only when the connector is used.
 									</p>
 								</div>
@@ -617,7 +617,7 @@ const ConnectorDetailsPage: React.FC = () => {
 									<label htmlFor={`${idPrefix}-connector-enabled`} className="block cursor-pointer text-[13px] font-medium text-foreground">
 										Enabled
 									</label>
-									<p className="text-[11px] leading-4 text-muted-foreground">
+									<p className="text-[11px] leading-4 text-muted-foreground/60">
 										Make this connector available to agent runs.
 									</p>
 								</div>
@@ -707,7 +707,7 @@ const ConnectorDetailsPage: React.FC = () => {
 							)}
 						</div>
 						{catalogItem.setupInstructions.length > 0 && (
-							<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground">
+							<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground/60">
 								{catalogItem.setupInstructions.map((step) => (
 									<li key={step}>{step}</li>
 								))}

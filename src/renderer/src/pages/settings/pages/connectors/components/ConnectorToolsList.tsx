@@ -50,7 +50,7 @@ export function ConnectorToolsList({
 								</Badge>
 							</div>
 							{tool.description && (
-								<p className="text-[11px] leading-4 text-muted-foreground">
+								<p className="text-[11px] leading-4 text-muted-foreground/60">
 									{tool.description}
 								</p>
 							)}
