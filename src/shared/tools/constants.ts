@@ -426,4 +426,4 @@ export const AGENT_TOOL_LEGACY_ALIASES = {
 
 export const AGENT_TOOL_METADATA_BY_NAME = Object.fromEntries(
 	AGENT_TOOLS.map((tool) => [tool.name, tool])
-) as Record<AgentToolName, AgentToolMetadata>;
+) as unknown as Record<AgentToolName, AgentToolMetadata>;
