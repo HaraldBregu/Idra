@@ -1,6 +1,7 @@
 import type { AgentTool } from './tools';
 import type { MemoryManager } from '../memory';
 import type { BootstrapMode } from '../workspace';
+import type { AgentToolName } from '../../shared/tools';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	renderWorkspaceContextFiles,
@@ -20,14 +21,12 @@ export interface SystemPromptCtx {
 	};
 }
 
-const TOOL_GUIDANCE: Record<string, string> = {
-	read: 'Read a file before editing or overwriting it.',
-	write: 'Create or overwrite files. Read existing files first.',
-	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
-	find: 'Glob-search the workspace for files.',
-	exec: 'Run commands only when this tool is available. Use `python3` for Python scripts.',
-	cron: 'Use this for later or repeating work. Before add/remove, make sure timing is clear. Do not use host schedulers such as crontab.',
-	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
+const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> = {
+	read_file: 'Read a file before editing or overwriting it.',
+	write_file: 'Create or overwrite files. Read existing files first.',
+	edit_file: 'Surgical string-replacement edit. Provide enough context to make the old text unique.',
+	search_files: 'Glob-search the workspace for files.',
+	run_shell: 'Run shell commands only when necessary and within the available permission model.',
 };
 
 const ACCEPTANCE_CONTRACT = [
@@ -64,7 +63,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			'Only these tools are available for this turn. Use a tool only when it is necessary for the request.',
 		];
 		for (const tool of [...ctx.tools].sort((a, b) => a.name.localeCompare(b.name))) {
-			const line = TOOL_GUIDANCE[tool.name] ?? tool.description;
+			const line = TOOL_GUIDANCE[tool.name as AgentToolName] ?? tool.description;
 			guidance.push(`- **${tool.name}** — ${line}`);
 		}
 		parts.push(guidance.join('\n'));
