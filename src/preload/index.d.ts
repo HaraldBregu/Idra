@@ -260,6 +260,7 @@ import type {
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
+	ConnectorOAuthAuthorizeResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
