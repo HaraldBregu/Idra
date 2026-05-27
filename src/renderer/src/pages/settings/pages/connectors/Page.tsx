@@ -8,7 +8,6 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
 import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
