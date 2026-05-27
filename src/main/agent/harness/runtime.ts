@@ -858,6 +858,93 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		}
 	}
 
+	private describeActiveModel(): AgentHarnessModelDescriptor | undefined {
+		return this.config.models?.registry?.get(this.config.provider, this.config.modelId);
+	}
+
+	private modelCandidates(): AgentHarnessModelCandidate[] {
+		return [
+			{
+				provider: this.config.provider,
+				modelId: this.config.modelId,
+				model: this.config.model,
+				effort: this.config.effort,
+			},
+			...(this.config.models?.fallbacks ?? []),
+		];
+	}
+
+	private compactSessionForModel(
+		session: AgentHarnessSession,
+		model: AgentHarnessModelDescriptor | undefined
+	): AgentHarnessSession {
+		const inputBudget = this.config.runtime?.maxInputTokens ??
+			(model?.contextWindowTokens ? Math.max(1_000, model.contextWindowTokens - (this.config.runtime?.contextReserveTokens ?? 1_500)) : undefined);
+		if (!inputBudget) return session;
+		const compacted = compactTranscriptToBudget(session.transcript, inputBudget);
+		if (compacted.transcript.length === session.transcript.length) return session;
+		return {
+			...session,
+			transcript: compacted.transcript,
+			metadata: {
+				...session.metadata,
+				lastContextCompaction: compacted.trace,
+			},
+			updatedAt: new Date().toISOString(),
+		};
+	}
+
+	private isBudgetExceeded(input: {
+		usage: Usage;
+		costUsd: number;
+		maxCostUsd?: number;
+	}): boolean {
+		if (this.config.runtime?.maxInputTokens && input.usage.inputTokens >= this.config.runtime.maxInputTokens) return true;
+		if (this.config.runtime?.maxOutputTokens && input.usage.outputTokens >= this.config.runtime.maxOutputTokens) return true;
+		if (input.maxCostUsd && input.costUsd >= input.maxCostUsd) return true;
+		return false;
+	}
+
+	private isTimeoutExceeded(startedAtMs: number, timeoutMs: number | undefined): boolean {
+		return timeoutMs !== undefined && Date.now() - startedAtMs >= timeoutMs;
+	}
+
+	private updatedArgs(current: Record<string, unknown>, updated: unknown): Record<string, unknown> {
+		if (!updated || typeof updated !== 'object' || Array.isArray(updated)) return current;
+		return updated as Record<string, unknown>;
+	}
+
+	private async withToolTimeout<T>(work: Promise<T>, signal: AbortSignal, toolName: string): Promise<T> {
+		if (!signal.aborted) return work;
+		throw new AgentHarnessError({
+			code: 'tool_failed',
+			message: `Tool ${toolName} timed out or was cancelled.`,
+			recoverable: true,
+		});
+	}
+
+	private retryDelayMs(attempt: number): number {
+		const policy = this.config.models?.retry;
+		const base = policy?.baseDelayMs ?? 250;
+		const max = policy?.maxDelayMs ?? 5_000;
+		return Math.min(max, base * 2 ** Math.max(0, attempt - 1));
+	}
+
+	private sleep(ms: number, signal: AbortSignal): Promise<void> {
+		if (signal.aborted) return Promise.resolve();
+		return new Promise((resolve) => {
+			const timeout = setTimeout(resolve, ms);
+			signal.addEventListener(
+				'abort',
+				() => {
+					clearTimeout(timeout);
+					resolve();
+				},
+				{ once: true }
+			);
+		});
+	}
+
 	private buildSystemPrompt(
 		context: Required<AgentHarnessContextBuildResult>,
 		memory: AgentHarnessMemoryRecord[]
