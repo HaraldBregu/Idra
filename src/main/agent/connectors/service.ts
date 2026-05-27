@@ -674,6 +674,9 @@ export class ConnectorsService {
 	}
 
 	private async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
+		if (connector.oauth || !connector.mcp) {
+			return { ...connector, tools: this.readTools(connector.id) };
+		}
 		if (!connector.enabled || missingMcpSecretNames(connector).length > 0) {
 			return { ...connector, tools: this.readTools(connector.id) };
 		}
@@ -894,7 +897,7 @@ function isStoredConnectorValid(connector: ConnectorConfig): boolean {
 		typeof connector.name === 'string' &&
 		typeof connector.connectorId === 'string' &&
 		CONNECTOR_ID_PATTERN.test(connector.connectorId) &&
-		connector.mcp !== undefined
+		(connector.mcp !== undefined || connector.oauth !== undefined)
 	);
 }
 
@@ -920,6 +923,7 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 		...connector,
 		authorization: '',
 		mcp: redactMcpConfig(connector.mcp),
+		oauth: redactOAuthConfig(connector.oauth),
 	};
 }
 
@@ -934,6 +938,20 @@ function redactMcpConfig(mcp: ConnectorMcpConfig | undefined): ConnectorMcpConfi
 		};
 	}
 	return { ...mcp, env: mcp.env ? Object.fromEntries(Object.keys(mcp.env).map((key) => [key, ''])) : undefined };
+}
+
+function redactOAuthConfig(oauth: ConnectorConfig['oauth']): ConnectorConfig['oauth'] {
+	if (!oauth) return undefined;
+	return {
+		...oauth,
+		token: oauth.token
+			? {
+				...oauth.token,
+				accessToken: '',
+				refreshToken: oauth.token.refreshToken ? '' : undefined,
+			}
+			: undefined,
+	};
 }
 
 function missingSecretMessage(connector: ConnectorConfig): string | undefined {
@@ -982,11 +1000,58 @@ function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEn
 		scopes: entry.scopes ?? [],
 		setupUrl: entry.setupUrl,
 		setupInstructions: entry.setupInstructions ?? [],
-		authKind: 'mcp_env',
+		authKind: entry.authKind ?? 'mcp_env',
 		redirectUri: entry.redirectUri,
-		runtimeKind: 'mcp',
+		runtimeKind: entry.runtimeKind ?? 'mcp',
 		allowMultipleInstances: entry.allowMultipleInstances ?? true,
 	};
+}
+
+function googleOAuthCatalogEntries(): ConnectorCatalogEntry[] {
+	return GOOGLE_WORKSPACE_OAUTH_CONNECTORS.map((connector) =>
+		normalizeCatalogEntry({
+			id: connector.id,
+			directConnectorId: connector.directConnectorId,
+			name: connector.name,
+			description: connector.description,
+			docsPath: connector.docsPath,
+			docsLabel: `${connector.name} connector guide`,
+			environmentSecretNames: [
+				GOOGLE_OAUTH_CLIENT_ID_ENV,
+			],
+			platformDocumentationPages: [],
+			tools: connector.capabilities,
+			scopes: connector.oauth.scopes,
+			setupUrl: connector.setupUrl,
+			setupInstructions: [
+				'Create a Google OAuth client for a desktop application.',
+				`Set ${GOOGLE_OAUTH_CLIENT_ID_ENV} before launching Friday.`,
+				'Authorize the connector from Settings > Connectors.',
+			],
+			authKind: 'oauth',
+			redirectUri: connector.oauth.redirectUri,
+			runtimeKind: 'oauth',
+			allowMultipleInstances: false,
+		})
+	);
+}
+
+function googleOAuthAuthorizationUrl(
+	connector: (typeof GOOGLE_WORKSPACE_OAUTH_CONNECTORS)[number],
+	clientId: string,
+	state: string
+): string {
+	const params = new URLSearchParams({
+		client_id: clientId,
+		redirect_uri: connector.oauth.redirectUri,
+		response_type: connector.oauth.responseType,
+		scope: connector.oauth.scopes.join(' '),
+		access_type: connector.oauth.accessType,
+		include_granted_scopes: 'true',
+		prompt: connector.oauth.prompt,
+		state,
+	});
+	return `${connector.oauth.authorizationUrl}?${params.toString()}`;
 }
 
 function mergeCatalogEntries(entries: ConnectorCatalogEntry[]): ConnectorCatalogEntry[] {
