@@ -216,9 +216,9 @@ const ConnectorsPage = () => {
 			<div className="grid gap-2">
 				{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => {
 					const existing = oauthConnectorByProviderId.get(connector.id);
-					const handleClick = existing?.hasToken
-						? () => openConnectorDetails(existing.id)
-						: () => void authorizeOAuthConnector(connector);
+						const handleClick = existing?.hasToken && existing.id
+							? () => openConnectorDetails(existing.id)
+							: () => void authorizeOAuthConnector(connector);
 					return (
 						<Item
 							key={connector.id}
