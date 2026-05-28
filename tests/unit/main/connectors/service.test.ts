@@ -476,7 +476,7 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(service.get(added.id).mcp).toMatchObject({ auth: { env: 'REMOTE_MCP_API_KEY' } });
 	});
 
-	it('calls dynamically discovered MCP tools and exposes them to the agent', async () => {
+	it('calls dynamically discovered MCP tools and makes them searchable', async () => {
 		const { service, mcpClient, client } = createService();
 		const added = await service.add(
 			mcpInput({ allowedTools: ['search'], requireApproval: 'never_for_allowed_tools' })
@@ -484,20 +484,29 @@ describe('ConnectorsService MCP persistence', () => {
 
 		await mcpClient.refreshTools(added.id);
 
-		await expect(mcpClient.callTool(added.id, 'search', { query: 'roadmap' })).resolves.toEqual({
+		await expect(service.execTool({
+			connectorId: added.id,
+			toolName: 'search',
+			args: { query: 'roadmap' },
+		})).resolves.toEqual({
 			name: 'search',
 			args: { query: 'roadmap' },
 		});
-		await expect(mcpClient.callTool(added.id, 'write_note', { text: 'draft' })).rejects.toThrow(
+		await expect(service.execTool({
+			connectorId: added.id,
+			toolName: 'write_note',
+			args: { text: 'draft' },
+		})).rejects.toThrow(
 			'Tool write_note is blocked for Remote Gmail MCP.'
 		);
 		expect(client.callTool).toHaveBeenCalledWith('search', { query: 'roadmap' }, undefined);
 
-		const tools = mcpClient.createAgentTools();
+		const tools = service.searchTools({ query: 'search connected service' });
 		expect(tools.map((tool) => tool.name)).toEqual(['gmail_mcp_search']);
-		await expect(tools[0]!.execute({ query: 'roadmap' }, {} as never)).resolves.toMatchObject({
-			status: 'ok',
-			content: [expect.objectContaining({ text: expect.stringContaining('roadmap') })],
+		expect(tools[0]).toMatchObject({
+			connectorId: added.id,
+			toolName: 'search',
+			permission: 'always-allow',
 		});
 	});
 
