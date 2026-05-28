@@ -2,31 +2,27 @@ import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from '../core';
 import type { WindowContextManager } from '../core';
 import type { AgentService } from '../agent';
-import type { AgentStartupFilesService } from '../agent/context/startup';
-import type { AgentDataDirectoryService } from '../agent/storage';
-import type { AgentSettingsStore } from '../agent/settings';
 import type { AppPermissionsService } from './permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
-import type { AgentMcpClientServicePort, McpRegistry } from '../agent/capabilities/mcp';
+import type { McpRegistry } from '../mcp';
 import type { MonitorService } from '../monitor';
+import type { PolicyService } from '../policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { SkillsService } from '../skills';
 import type { HeartbeatService } from '../heartbeat';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
-import type { ToolService } from '../agent/capabilities/local';
+import type { ToolService } from '../tools';
 import type { UserDataDirectoryService } from '../user-data';
+import type { WorkspaceService } from '../workspace';
 
 export interface MainServices {
 	appState: AppState;
 	appPermissions: AppPermissionsService;
-	agentDataDirectory: AgentDataDirectoryService;
-	agentSettings: AgentSettingsStore;
 	agentService: AgentService;
-	startupFiles: AgentStartupFilesService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
@@ -34,9 +30,9 @@ export interface MainServices {
 	eventBus: EventBus;
 	heartbeat: HeartbeatService;
 	logger: LoggerService;
-	mcpClient: AgentMcpClientServicePort;
 	mcpRegistry: McpRegistry;
 	monitor: MonitorService;
+	policy: PolicyService;
 	powerSaveBlocker: PowerSaveBlockerService;
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
@@ -46,6 +42,7 @@ export interface MainServices {
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
+	workspace: WorkspaceService;
 }
 
 export type MainServiceContainer = ServiceContainer<MainServices>;
