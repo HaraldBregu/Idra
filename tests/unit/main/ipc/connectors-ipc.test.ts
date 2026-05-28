@@ -94,28 +94,20 @@ function createConnectorsService() {
 		remove: jest.fn(async () => undefined),
 		enable: jest.fn(() => connectorConfig),
 		disable: jest.fn(() => connectorConfig),
-		authorizeOAuth: jest.fn(() => oauthAuthorizeResult),
-	};
-}
-
-function createMcpClientService() {
-	return {
 		test: jest.fn(() => testResult),
 		reconnect: jest.fn(() => testResult),
 		refreshTools: jest.fn(() => [connectorTool]),
 		listTools: jest.fn(() => [connectorTool]),
 		callTool: jest.fn(() => ({ emailAddress: 'user@example.com' })),
-		closeConnector: jest.fn(async () => undefined),
+		authorizeOAuth: jest.fn(() => oauthAuthorizeResult),
 	};
 }
 
 function createContainer(
-	connectors: ReturnType<typeof createConnectorsService>,
-	mcpClient: ReturnType<typeof createMcpClientService>
+	connectors: ReturnType<typeof createConnectorsService>
 ): MainServiceContainer {
 	const services = {
 		connectors,
-		mcpClient,
 		logger: { info: jest.fn() },
 	};
 	return {
@@ -128,10 +120,9 @@ describe('ConnectorsIpc', () => {
 		jest.clearAllMocks();
 	});
 
-	it('forwards connector IPC channels to connector storage and MCP services', async () => {
+	it('forwards connector IPC channels to the connectors service', async () => {
 		const connectors = createConnectorsService();
-		const mcpClient = createMcpClientService();
-		new ConnectorsIpc().register(createContainer(connectors, mcpClient), new EventBus());
+		new ConnectorsIpc().register(createContainer(connectors), new EventBus());
 
 		const addInput = {
 			name: 'My Gmail',
@@ -202,35 +193,35 @@ describe('ConnectorsIpc', () => {
 			{
 				channel: ConnectorsChannels.test,
 				args: [connectorConfig.id],
-				method: mcpClient.test,
+				method: connectors.test,
 				expectedArgs: [connectorConfig.id],
 				expectedData: testResult,
 			},
 			{
 				channel: ConnectorsChannels.reconnect,
 				args: [connectorConfig.id],
-				method: mcpClient.reconnect,
+				method: connectors.reconnect,
 				expectedArgs: [connectorConfig.id],
 				expectedData: testResult,
 			},
 			{
 				channel: ConnectorsChannels.refreshTools,
 				args: [connectorConfig.id],
-				method: mcpClient.refreshTools,
+				method: connectors.refreshTools,
 				expectedArgs: [connectorConfig.id],
 				expectedData: [connectorTool],
 			},
 			{
 				channel: ConnectorsChannels.listTools,
 				args: [connectorConfig.id],
-				method: mcpClient.listTools,
+				method: connectors.listTools,
 				expectedArgs: [connectorConfig.id],
 				expectedData: [connectorTool],
 			},
 			{
 				channel: ConnectorsChannels.callTool,
 				args: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
-				method: mcpClient.callTool,
+				method: connectors.callTool,
 				expectedArgs: [connectorConfig.id, 'get_profile', { verbose: true }, callOptions],
 				expectedData: { emailAddress: 'user@example.com' },
 			},
