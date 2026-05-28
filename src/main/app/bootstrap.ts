@@ -20,12 +20,12 @@ import {
 import { AgentDataDirectoryService, resolveDefaultAppDataPath } from '../agent/storage';
 import { AgentSettingsStore } from '../agent/settings';
 import { ConnectorsService } from '../connectors';
-import { AgentMcpClientService, McpRegistry } from '../agent/mcp';
+import { AgentMcpClientService, McpRegistry } from '../agent/capabilities/mcp';
 import { MonitorService } from '../monitor';
 import { TasksService } from '../tasks';
 import { UserDataDirectoryService } from '../user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
-import { ToolService } from '../agent/tools';
+import { ToolService } from '../agent/capabilities/local';
 import { SkillsService } from '../skills';
 import { SpeechToTextService } from '../stt';
 
