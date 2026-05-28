@@ -1,5 +1,5 @@
 import type { ConnectorConfig } from '../../../shared/connector';
-import type { AgentRuntimeMcpServerConfig } from '../runtime/mcp';
+import type { AgentRuntimeMcpServerConfig } from '../../execution/runtime/mcp';
 import { resolveMcpConfig } from './config';
 
 export class McpRegistry {
