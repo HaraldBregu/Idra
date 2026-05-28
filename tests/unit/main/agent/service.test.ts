@@ -782,7 +782,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('defaults to outside-readable local tools for file-backed requests', async () => {
+	it('keeps file-backed requests isolated to the Friday root', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
@@ -827,13 +827,13 @@ describe('AgentService', () => {
 		expect(toolNames).toContain('read_file');
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
-		expect(JSON.stringify(history)).toContain('outside readable');
+		expect(JSON.stringify(history)).toContain('outside the current Friday workspace');
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('writes outside the workspace directly in agent tool execution', async () => {
+	it('blocks writes outside the Friday root in agent tool execution', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
@@ -877,9 +877,9 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send(`write ${outsideFile}`)).resolves.toBe('write complete');
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('outside write');
+		await expect(fs.stat(outsideFile)).rejects.toThrow();
 		const history = await service.getHistory();
-		expect(JSON.stringify(history)).toContain(`wrote ${outsideFile}`);
+		expect(JSON.stringify(history)).toContain('outside the current Friday workspace');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
