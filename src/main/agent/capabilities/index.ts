@@ -1,3 +1,7 @@
-export * from './types';
-export * from './service';
-export * from './resolve';
+export { AgentCapabilityService, type AgentCapabilityServiceOptions } from './service';
+export type {
+	AgentCapabilityBundle,
+	AgentCapabilityResolveInput,
+	AgentCapabilityServicePort,
+	AgentResolvedSkill,
+} from './types';

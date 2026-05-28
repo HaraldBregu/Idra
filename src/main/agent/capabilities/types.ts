@@ -1,19 +1,33 @@
-export interface AgentCapability {
-	id: string;
-	name: string;
-	kind: 'tool' | 'connector' | 'mcp';
-	description?: string;
+import type { AgentRunStreamEvent } from '../../../shared/agents/events';
+import type { AgentSelectedSkillSummary } from '../../../shared/agents/capabilities';
+import type { AgentTool, AgentToolSelectionForTurn, ToolContext } from '../../tools';
+
+export interface AgentResolvedSkill extends AgentSelectedSkillSummary {
+	prompt: string;
 }
-export interface AgentCapabilityServicePort {
-	list(): AgentCapability[];
-	refresh(): Promise<AgentCapability[]>;
-	resolveForPrompt(input: AgentCapabilityResolveInput): Promise<import('./resolve').ResolvedAgentCapabilities>;
+
+export interface AgentCapabilityBundle {
+	tools: AgentTool[];
+	connectorTools: AgentTool[];
+	skills: AgentResolvedSkill[];
+	promptAdditions: string;
+	directAnswer: boolean;
+	toolSelection?: AgentToolSelectionForTurn;
 }
 
 export interface AgentCapabilityResolveInput {
-	message: string;
-	localTools: import('./local').AgentTool[];
-	configuredSkillNames?: readonly string[];
-	toolsAllow?: readonly string[];
-	toolsDeny?: readonly string[];
+	userMessage: string;
+	localTools: AgentTool[];
+	ctx: ToolContext;
+	providerId: string;
+	model: string;
+	shouldUseTools: boolean;
+	bootstrapPending: boolean;
+	directAnswer: boolean;
+	configuredSkillNames?: string[];
+	streamEvent?: (event: AgentRunStreamEvent) => void;
+}
+
+export interface AgentCapabilityServicePort {
+	resolveForPrompt(input: AgentCapabilityResolveInput): Promise<AgentCapabilityBundle>;
 }
