@@ -1,5 +1,4 @@
 import type { AgentTool } from './tools';
-import type { MemoryManager } from '../memory';
 import type { BootstrapMode } from '../workspace';
 import type { AgentToolName } from '../../shared/tools';
 import {
@@ -13,7 +12,9 @@ export interface SystemPromptCtx {
 	date: string;
 	model: string;
 	tools: AgentTool[];
-	memory?: MemoryManager;
+	memory?: {
+		readAll(): Promise<Record<string, string>>;
+	};
 	startupFiles?: WorkspaceContextFile[];
 	bootstrapMode?: BootstrapMode;
 	heartbeat?: {
