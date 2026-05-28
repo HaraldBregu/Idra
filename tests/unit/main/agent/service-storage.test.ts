@@ -5,8 +5,9 @@ import { AgentRunLogger } from '../../../../src/main/agent/run-logger';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {
-	it('uses agent app-data workspaces and agent.json settings for agent config', async () => {
+	it('uses .friday workspaces and app-data agent settings for agent config', async () => {
 		const root = await makeTempDir();
+		const userDataRoot = path.join(root, '.friday');
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
 		const providerFactory = jest.fn(() => ({
@@ -24,6 +25,12 @@ describe('AgentService agent storage wiring', () => {
 			ensureRoot: jest.fn(async () => root),
 			resolve: jest.fn((...segments: string[]) => path.join(root, ...segments)),
 			resolveExisting: jest.fn(async (...segments: string[]) => path.join(root, ...segments)),
+		};
+		const userDataDirectory = {
+			getRootPath: jest.fn(() => userDataRoot),
+			ensureRoot: jest.fn(async () => userDataRoot),
+			resolve: jest.fn((...segments: string[]) => path.join(userDataRoot, ...segments)),
+			resolveExisting: jest.fn(async (...segments: string[]) => path.join(userDataRoot, ...segments)),
 		};
 		const agentSettings = {
 			getAgentConfig: jest.fn(() => ({
@@ -48,8 +55,8 @@ describe('AgentService agent storage wiring', () => {
 				cron: {} as never,
 				logger: makeLogger() as never,
 				eventBus: { broadcast: jest.fn(), emit: jest.fn(), on: jest.fn() } as never,
-				workspace: { getRootPath: jest.fn(() => path.join(root, 'workspaces', 'main')) } as never,
-				userDataDirectory: {} as never,
+				workspace: { getRootPath: jest.fn(() => { throw new Error('workspace unavailable'); }) } as never,
+				userDataDirectory: userDataDirectory as never,
 				agentDataDirectory,
 				agentSettings: agentSettings as never,
 				policy: {
@@ -67,7 +74,9 @@ describe('AgentService agent storage wiring', () => {
 		await expect(service.send('hello')).resolves.toBe('done');
 
 		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith('main');
-		expect(agentDataDirectory.resolve).toHaveBeenCalledWith('workspaces', 'main');
+		expect(userDataDirectory.resolve).toHaveBeenCalledWith('workspace');
+		expect(userDataDirectory.resolve).toHaveBeenCalledWith('agent', 'workspaces');
+		expect(agentDataDirectory.resolve).not.toHaveBeenCalledWith('workspaces', 'main');
 		expect(providerFactory).toHaveBeenCalledWith({
 			id: 'anthropic',
 			apiKey: 'sk-test',

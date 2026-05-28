@@ -22,6 +22,7 @@ import {
 } from '../workspace';
 import { assertWorkspaceFileName, type WorkspaceFileName } from '../workspace/files';
 import type { UserDataDirectoryServicePort } from '../user-data';
+import { resolveDefaultUserDataPath } from '../user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
 import {
@@ -48,7 +49,7 @@ import {
 	type SessionStatus,
 } from './session/store';
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
-import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
+import type { AgentDataDirectoryServicePort } from './storage';
 import {
 	AgentStartupFilesService,
 	type AgentStartupFilesServicePort,
@@ -1056,8 +1057,8 @@ export class AgentService {
 			return this.dependencies.workspace.getRootPath();
 		} catch {
 			return (
-				this.dependencies.agentDataDirectory?.resolve('workspaces', this.defaultAgentId) ??
-				resolveDefaultAgentDataPath('workspaces', this.defaultAgentId)
+				this.dependencies.userDataDirectory?.resolve?.('workspace') ??
+				resolveDefaultUserDataPath('workspace')
 			);
 		}
 	}
@@ -1096,8 +1097,8 @@ export class AgentService {
 		if (this.startupFilesService) return this.startupFilesService;
 		this.startupFilesService = new AgentStartupFilesService({
 			rootPath:
-				this.dependencies.agentDataDirectory?.resolve('workspaces') ??
-				resolveDefaultAgentDataPath('workspaces'),
+				this.dependencies.userDataDirectory?.resolve?.('agent', 'workspaces') ??
+				resolveDefaultUserDataPath('agent', 'workspaces'),
 			logger: this.dependencies.logger,
 		});
 		return this.startupFilesService;
