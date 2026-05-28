@@ -24,9 +24,13 @@ jest.mock('electron-store', () => {
 });
 
 import Store from 'electron-store';
-import { ConnectorsService } from '../../../../src/main/connectors';
+import {
+	ConnectorsService,
+	normalizeStoredConnector,
+	toStoredConnectorRecords,
+} from '../../../../src/main/connectors';
 import { AgentMcpClientService } from '../../../../src/main/agent/mcp-client';
-import type { ConnectorCatalogEntry, ConnectorTool } from '../../../../src/shared/connector';
+import type { ConnectorCatalogEntry, ConnectorConfig, ConnectorTool } from '../../../../src/shared/connector';
 import { makeLogger } from '../test-helpers';
 
 const MockStore = Store as jest.MockedClass<typeof Store>;
