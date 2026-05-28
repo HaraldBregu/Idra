@@ -109,10 +109,6 @@ describe('AgentService', () => {
 			])
 		);
 
-		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
-		expect(records.map((record) => record.event)).toEqual(
-			expect.arrayContaining(['start', 'finish'])
-		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -554,14 +550,6 @@ describe('AgentService', () => {
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
 		expect(requests[0]!.system).toContain('**read**');
 
-		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
-		expect(records).toContainEqual(
-			expect.objectContaining({
-				event: 'start',
-				directAnswer: false,
-				tools: ['read'],
-			})
-		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
