@@ -507,6 +507,51 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 	});
 
+	it('normalizes arbitrary MCP records through the common connector format', () => {
+		const runtime = normalizeStoredConnector({
+			mcp: {
+				transport: 'http',
+				url: 'https://notion.example.test/mcp',
+				headers: {
+					'x-client': 'friday',
+					Authorization: 'Bearer legacy-token',
+				},
+			},
+			tools: [
+				{
+					name: 'query',
+					permission: 'needs-approval',
+					requiresApproval: true,
+				},
+			],
+		} satisfies ConnectorConfig, 'notion_mcp');
+
+		expect(runtime).toMatchObject({
+			id: 'notion_mcp',
+			name: 'Notion MCP',
+			connectorId: 'notion_mcp',
+			serverLabel: 'notion_mcp',
+			token: { accessToken: 'legacy-token', tokenType: 'Bearer' },
+		});
+		expect(toStoredConnectorRecords([runtime])).toEqual({
+			notion_mcp: {
+				mcp: {
+					transport: 'http',
+					url: 'https://notion.example.test/mcp',
+					headers: { 'x-client': 'friday' },
+				},
+				token: { accessToken: 'legacy-token', tokenType: 'Bearer' },
+				tools: [
+					{
+						name: 'query',
+						permission: 'needs-approval',
+						requiresApproval: true,
+					},
+				],
+			},
+		});
+	});
+
 	it('stores dynamic connector records without discovering MCP tools on add', async () => {
 		const { service, store, client } = createService();
 
