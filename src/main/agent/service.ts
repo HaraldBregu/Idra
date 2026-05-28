@@ -35,10 +35,6 @@ import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agent
 import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
 import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
-import {
-	PolicyService,
-	type PolicyServicePort,
-} from './policy';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import {
 	loadSession,
@@ -79,6 +75,7 @@ import {
 	type ToolContext,
 	type ToolServicePort,
 } from './tools';
+import { evaluateToolRequestPolicy } from './tools/access';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
@@ -100,7 +97,6 @@ export interface AgentServiceDependencies {
 	mcpRegistry?: McpRegistry;
 	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
-	policy?: PolicyServicePort;
 	toolService?: ToolServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
@@ -265,7 +261,6 @@ export class AgentService {
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly toolService: ToolServicePort;
-	private readonly policyService: PolicyServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
@@ -283,17 +278,10 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.policyService =
-			dependencies.policy ??
-			new PolicyService({
-				logger: dependencies.logger,
-				userDataRoot: dependencies.userDataDirectory.getRootPath(),
-			});
 		this.toolService =
 			options.toolService ??
 			dependencies.toolService ??
 			new ToolService({
-				policy: this.policyService,
 				cron: dependencies.cron,
 				logger: dependencies.logger,
 			});
@@ -610,7 +598,7 @@ export class AgentService {
 				services: this.dependencies,
 			};
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-				this.policyService.evaluateToolRequest({ userRequest: message })
+				evaluateToolRequestPolicy({ userRequest: message })
 			);
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
@@ -654,8 +642,7 @@ export class AgentService {
 				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 					baseTools = this.toolService.filterToolsByAllowlist(
 						baseTools,
-						options.toolsAllow,
-						this.dependencies.policy
+						options.toolsAllow
 					);
 				}
 			}
