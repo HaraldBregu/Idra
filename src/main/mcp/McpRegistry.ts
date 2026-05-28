@@ -10,13 +10,13 @@ function approvalPolicy(_connector: ConnectorConfig): McpTool['require_approval'
 export class McpRegistry {
 	buildTools(connectors: readonly ConnectorConfig[]): McpTool[] {
 		return connectors
-			.filter((connector) => connector.enabled && connector.authorization.trim().length > 0)
+			.filter((connector) => connector.enabled && connector.authorization?.trim())
 			.map((connector) => {
 				const tool: McpTool = {
 					type: 'mcp',
-					server_label: connector.serverLabel,
-					connector_id: connector.connectorId,
-					authorization: connector.authorization,
+					server_label: connector.serverLabel ?? connector.id,
+					connector_id: connector.connectorId as McpTool['connector_id'],
+					authorization: connector.authorization ?? '',
 					require_approval: approvalPolicy(connector),
 				};
 
@@ -24,7 +24,7 @@ export class McpRegistry {
 					tool.server_description = connector.serverDescription.trim();
 				}
 
-				if (connector.allowedTools.length > 0) {
+				if (connector.allowedTools && connector.allowedTools.length > 0) {
 					tool.allowed_tools = connector.allowedTools;
 				}
 
