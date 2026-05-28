@@ -7,7 +7,6 @@ describe('AgentService agent storage wiring', () => {
 	it('uses app-data agent storage for runtime workspace and agent config', async () => {
 		const root = await makeTempDir();
 		const agentRoot = path.join(root, 'agent');
-		const userDataRoot = path.join(root, '.friday');
 		const sessionBaseDir = await makeTempDir();
 		const providerFactory = jest.fn(() => ({
 			async *stream() {
