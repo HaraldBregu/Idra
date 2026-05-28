@@ -215,12 +215,13 @@ export class AgentService {
 		try {
 			const selection = this.resolveProviderAndModel(options);
 			const session = await loadSession(sessionId, selection.modelId, selection.providerId, { baseDir: this.sessionBaseDir });
+			const workspace = await this.dependencies.userDataDirectory.ensureRoot();
 			this.emitAgentEvent({ type: 'run_state', state: 'thinking', label: 'started' }, sessionId, runId, options);
 			this.emitAgentEvent({ type: 'model_selected', providerId: selection.providerId, model: selection.modelId, effort: selection.effort }, sessionId, runId, options);
 			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
 			const startup = this.getStartupFilesService();
 			const startupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
-			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options);
+			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options, workspace);
 			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
 			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
 				const capabilities = await resolveAgentCapabilities({
@@ -288,8 +289,8 @@ export class AgentService {
 		const provider = this.dependencies.store.getProviderById(providerId) ?? { id: providerId, apiKey: '', baseUrl: undefined };
 		return { providerId, modelId, effort: resolvedEffort, adapter: this.providerFactory({ id: provider.id, apiKey: provider.apiKey, baseURL: provider.baseUrl }) };
 	}
-	private toolContext(agentId: string, sessionId: string, session: SessionFile, signal: AbortSignal, options: AgentSendOptions): ToolContext {
-		return { workspace: this.dependencies.userDataDirectory.resolve('workspace'), agentId, sessionId, sessionBaseDir: this.sessionBaseDir, cronContext: options.cronContext, readState: new Map(), plan: { entries: session.plan }, signal, services: this.dependencies as never };
+	private toolContext(agentId: string, sessionId: string, session: SessionFile, signal: AbortSignal, options: AgentSendOptions, workspace: string): ToolContext {
+		return { workspace, agentId, sessionId, sessionBaseDir: this.sessionBaseDir, cronContext: options.cronContext, readState: new Map(), plan: { entries: session.plan }, signal, services: this.dependencies as never };
 	}
 	private emitAgentEvent(event: Omit<AgentResponseEvent, 'agentId' | 'runId'> | AgentResponseEvent, agentId: string, runId: string, options: AgentSendOptions): void {
 		const payload = { ...event, agentId, runId } as AgentResponseEvent;
