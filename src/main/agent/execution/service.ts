@@ -164,7 +164,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 		if (!validation.valid) return { status: 'error' as const, content: [{ type: 'text' as const, text: validation.errors.join('; ') }] };
 		const access = await this.toolService.beforeCall(tool, parsed.args, input.ctx, tracker);
 		if (access.allowed === false) return { status: 'blocked' as const, content: [{ type: 'text' as const, text: access.reason ?? 'Tool is blocked.' }] };
-		const requiresApproval = typeof tool.needsApproval === 'function' ? await tool.needsApproval(parsed.args, input.ctx) : tool.needsApproval === true;
+		const requiresApproval = input.ctx.approvalRequired?.has(tool.name) === true;
 		if (requiresApproval) {
 			const approvalId = `${input.runId}:${toolCallId}`;
 			this.emit(input, { type: 'approval_requested', approvalId, toolCallId, toolName: tool.name, displayName: tool.displayName, reason: `Approve ${tool.displayName ?? tool.name}`, input: parsed.args });
