@@ -1,7 +1,6 @@
 import path from 'node:path';
 import type { ProviderStreamRequest } from '../../../../src/main/provider/types';
 import { AgentService, AgentStartupFilesService } from '../../../../src/main/agent';
-import { AgentRunLogger } from '../../../../src/main/agent/run-logger';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 function end() {
@@ -58,7 +57,6 @@ describe('AgentService first-run startup bootstrap', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(makeDeps(workspace, startupFiles), {
 			sessionBaseDir: path.join(root, 'sessions'),
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: path.join(root, 'runs') }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -113,7 +111,6 @@ describe('AgentService first-run startup bootstrap', () => {
 		let turn = 0;
 		const service = new AgentService(makeDeps(workspace, startupFiles), {
 			sessionBaseDir: path.join(root, 'sessions'),
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: path.join(root, 'runs') }),
 			providerFactory: () => ({
 				async *stream() {
 					for (const event of turns[turn++] ?? []) yield event;
