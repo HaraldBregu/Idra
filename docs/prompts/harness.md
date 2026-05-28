@@ -129,7 +129,24 @@ Each cycle in `runLoop`:
 
 The loop continues until the model produces no tool calls (convergence), a budget ceiling is hit, or the run is cancelled.
 
-For complex tasks that exceed a single context window, use orchestrator-worker decomposition through subagents: the orchestrator breaks the task into subtasks and delegates each to a worker with a restricted tool set and isolated context. Workers cannot call each other. Results flow back to the orchestrator. Each worker's context window is independent — overflow in one worker does not affect others.
+For complex tasks that exceed a single context window, or tasks that can be parallelized, use orchestrator-worker decomposition through subagents:
+
+- The orchestrator breaks the task into subtasks and delegates each to a worker.
+- Each worker receives a restricted tool set scoped to its subtask and an isolated context window.
+- Workers run in parallel when subtasks are independent. Use `Promise.all` over `runSubagent` calls for parallel dispatch.
+- Workers cannot call each other. Results flow back to the orchestrator.
+- Overflow in one worker's context window does not affect others.
+
+When to use subagents:
+
+- The task has independent parallel workstreams (research multiple topics simultaneously, process multiple files).
+- A subtask needs a different tool set than the parent (a web-search worker should not have filesystem write access).
+- A subtask is long-running and should not block the main session (background download, monitoring loop).
+
+When not to use subagents:
+
+- The task is sequential and fits in the current context window.
+- The overhead of coordination exceeds the benefit of isolation.
 
 Do not implement orchestration inline in the run loop. Subagent spawning belongs in `runSubagent` and the subagent runtime configured through `AgentHarnessConfig.subagents`.
 
