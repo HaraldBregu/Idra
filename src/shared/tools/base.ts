@@ -7,8 +7,28 @@ import {
 
 const DEFAULT_TOOL_PROFILES = AGENT_TOOL_STANDARD_PROFILES;
 
-function tool<TName extends string>(metadata: AgentToolMetadata & { name: TName }) {
-	return metadata;
+type ToolMetadataInput = Omit<AgentToolMetadata, 'permissions' | 'approval' | 'profiles' | 'availability'> & {
+	permissions?: AgentToolMetadata['permissions'];
+	approval?: AgentToolMetadata['approval'];
+	profiles?: AgentToolMetadata['profiles'];
+	availability?: AgentToolMetadata['availability'];
+};
+
+const DEFAULT_WRITE_TOOL_METADATA: Pick<
+	AgentToolMetadata,
+	'permissions' | 'approval' | 'profiles' | 'availability'
+> = {
+	permissions: ['create', 'write'],
+	approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+	profiles: DEFAULT_TOOL_PROFILES,
+	availability: 'default',
+};
+
+function tool<TName extends string>(metadata: ToolMetadataInput & { name: TName }) {
+	return {
+		...DEFAULT_WRITE_TOOL_METADATA,
+		...metadata,
+	} as AgentToolMetadata;
 }
 
 export const AGENT_TOOL_FILESYSTEM_READ_TOOLS = [
@@ -112,50 +132,30 @@ export const AGENT_TOOL_FILESYSTEM_WRITE_TOOLS = [
 		group: 'filesystem:write',
 		title: 'Edit file',
 		description: 'Replace exact text in a UTF-8 workspace file.',
-		permissions: ['write'],
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'create_dir',
 		group: 'filesystem:write',
 		title: 'Create directory',
 		description: 'Create a workspace directory.',
-		permissions: ['create'],
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'copy_path',
 		group: 'filesystem:write',
 		title: 'Copy path',
 		description: 'Copy a file or directory within the workspace.',
-		permissions: ['read', 'create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'move_path',
 		group: 'filesystem:write',
 		title: 'Move path',
 		description: 'Move or rename a workspace path.',
-		permissions: ['read', 'delete', 'create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'apply_patch',
 		group: 'filesystem:write',
 		title: 'Apply patch',
 		description: 'Apply a unified diff to workspace files.',
-		permissions: ['create', 'write', 'delete'],
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 ] as const;
 

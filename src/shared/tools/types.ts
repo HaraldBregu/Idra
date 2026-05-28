@@ -42,9 +42,4 @@ export interface AgentToolMetadata {
 	group: string;
 	title: string;
 	description: string;
-	permissions: readonly AgentToolPermission[];
-	approval: AgentToolApprovalPolicy;
-	profiles: readonly AgentToolProfile[];
-	availability: AgentToolAvailability;
-	ownerOnly?: boolean;
 }
