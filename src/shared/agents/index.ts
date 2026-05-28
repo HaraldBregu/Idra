@@ -1,6 +1,7 @@
 import { MODEL_CAPABILITIES, type ModelCapability } from '../providers/models';
 
 export * from './capabilities';
+export * from './assistant';
 export * from './constants';
 export * from './events';
 
