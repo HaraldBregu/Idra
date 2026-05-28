@@ -172,4 +172,33 @@ describe('AgentCapabilityService', () => {
 		expect(connectors.refreshTools).toHaveBeenCalledWith('google.gmail');
 		expect(connectors.searchTools).toHaveBeenCalledWith({ query: 'search gmail', limit: 8 });
 	});
+
+	it('refreshes authorized connectors with stale errors before searching connector tools', async () => {
+		const connectors = {
+			list: jest.fn(() => [
+				{
+					id: 'google.gmail',
+					name: 'Gmail',
+					connectorId: 'google.gmail',
+					enabled: true,
+					status: 'error',
+					hasToken: true,
+					toolsCount: 0,
+					tools: [],
+					lastError: 'OAuth authorization timed out.',
+				},
+			]),
+			refreshTools: jest.fn(async () => [
+				{ name: 'search_threads', permission: 'always-allow', requiresApproval: false },
+			]),
+			searchTools: jest.fn(() => []),
+			execTool: jest.fn(),
+		};
+		const service = new AgentCapabilityService({ connectors: connectors as never });
+
+		await service.resolveForPrompt(baseInput({ userMessage: 'get my last emails' }));
+
+		expect(connectors.refreshTools).toHaveBeenCalledWith('google.gmail');
+		expect(connectors.searchTools).toHaveBeenCalledWith({ query: 'get my last emails', limit: 8 });
+	});
 });

@@ -739,6 +739,48 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 	});
 
+	it('keeps authorized OAuth Gmail tools usable when a stale auth error is present', async () => {
+		const gmailTools: ConnectorTool[] = [
+			{
+				name: 'create_draft',
+				description: 'Creates a draft email in Gmail.',
+				permission: 'always-allow',
+				requiresApproval: false,
+			},
+			{
+				name: 'search_threads',
+				description: 'Lists email threads from the authenticated user Gmail inbox.',
+				inputSchema: { type: 'object', properties: { query: { type: 'string' } } },
+				permission: 'always-allow',
+				requiresApproval: false,
+			},
+		];
+		const { service, client, store } = createService(createFakeMcpClient(gmailTools));
+		store.data.set('gmail', {
+			id: 'google.gmail',
+			connectorId: 'google.gmail',
+			authKind: 'oauth',
+			mcp: googleOAuthConnectors['google.gmail'].mcp,
+			token: { accessToken: 'access-token', tokenType: 'Bearer' },
+			lastError: 'OAuth authorization timed out.',
+			tools: gmailTools,
+		});
+
+		const tools = service.searchTools({ query: 'get my last emails', limit: 1 });
+
+		expect(service.list()[0]).toMatchObject({ status: 'error', hasToken: true, hasTools: true });
+		expect(tools.map((tool) => tool.name)).toEqual(['gmail_search_threads']);
+		await expect(service.execTool({
+			connectorId: 'google.gmail',
+			toolName: 'search_threads',
+			args: { query: 'in:inbox' },
+		})).resolves.toEqual({
+			name: 'search_threads',
+			args: { query: 'in:inbox' },
+		});
+		expect(client.callTool).toHaveBeenCalledWith('search_threads', { query: 'in:inbox' }, undefined);
+	});
+
 	it('reports MCP discovery failures from the MCP client', async () => {
 		const client = createFakeMcpClient();
 		client.listTools.mockRejectedValue(new Error('server down'));
