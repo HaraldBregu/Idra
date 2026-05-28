@@ -45,13 +45,48 @@ function resolveWorkspacePath(ctx: ToolContext, target: unknown = '.'): string {
 	const input = typeof target === 'string' && target.trim() ? target : '.';
 	const resolved = path.resolve(root, input);
 	const relative = path.relative(root, resolved);
-	if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('path is outside workspace.');
+	if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('path is outside the .friday workspace.');
 	return resolved;
 }
 
 function relativeToWorkspace(ctx: ToolContext, target: string): string {
 	const relative = path.relative(workspaceRoot(ctx), target);
 	return relative || '.';
+}
+
+function isInside(root: string, target: string): boolean {
+	const relative = path.relative(root, target);
+	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+async function realpathOrUndefined(target: string): Promise<string | undefined> {
+	return fs.realpath(target).catch(() => undefined);
+}
+
+async function assertRealPathInside(ctx: ToolContext, target: string): Promise<void> {
+	const root = await fs.realpath(workspaceRoot(ctx));
+	const realTarget = await fs.realpath(target);
+	if (!isInside(root, realTarget)) throw new Error('path is outside the .friday workspace.');
+}
+
+async function assertNearestExistingAncestorInside(ctx: ToolContext, target: string): Promise<void> {
+	const root = workspaceRoot(ctx);
+	let current = path.resolve(target);
+	while (!(await pathExists(current))) {
+		const parent = path.dirname(current);
+		if (parent === current) throw new Error('path is outside the .friday workspace.');
+		current = parent;
+	}
+	const rootReal = await fs.realpath(root);
+	const ancestorReal = await fs.realpath(current);
+	if (!isInside(rootReal, ancestorReal)) throw new Error('path is outside the .friday workspace.');
+}
+
+async function assertSafeWritePath(ctx: ToolContext, target: string): Promise<void> {
+	const rootReal = await fs.realpath(workspaceRoot(ctx));
+	const realTarget = await realpathOrUndefined(target);
+	if (realTarget && !isInside(rootReal, realTarget)) throw new Error('path is outside the .friday workspace.');
+	await assertNearestExistingAncestorInside(ctx, path.dirname(target));
 }
 
 function entryType(stat: Awaited<ReturnType<typeof fs.lstat>>): DirectoryEntry['type'] {
@@ -112,6 +147,7 @@ async function pathExists(target: string): Promise<boolean> {
 }
 
 async function readTextFile(ctx: ToolContext, target: string): Promise<string> {
+	await assertRealPathInside(ctx, target);
 	const stat = await fs.stat(target);
 	if (!stat.isFile()) throw new Error('path is not a file.');
 	ctx.readState.set(target, { mtimeMs: stat.mtimeMs, size: stat.size });
