@@ -156,6 +156,7 @@ export function bootstrapServices(): BootstrapResult {
 		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,
+		connectors,
 		mcpClient,
 		skills,
 		mcpRegistry,
