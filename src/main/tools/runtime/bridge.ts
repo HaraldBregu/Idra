@@ -59,7 +59,7 @@ export function legacyResultToCanonical(
 		content: legacyContentToCanonical(result.content),
 		details:
 			result.status !== 'ok'
-				? detailsWithStatus(result.status, result.details)
+				? detailsWithStatus(result.status === 'rejected' ? 'blocked' : result.status, result.details)
 				: result.details,
 	};
 }
