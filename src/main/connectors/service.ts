@@ -15,6 +15,7 @@ import type {
 	ConnectorMcpHeaderSecret,
 	ConnectorOAuthAuthorizeResult,
 	ConnectorOAuthCompleteInput,
+	ConnectorOAuthTokenSet,
 	ConnectorProviderId,
 	ConnectorStatus,
 	ConnectorTestResult,
@@ -455,7 +456,8 @@ export class ConnectorsService {
 			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
 			serverDescription: existing?.serverDescription,
 			enabled: true,
-			authorization: existing?.authorization || oauthAuthorizationHeader(existing?.oauth?.token) || authorizationFromMcp(existing?.mcp),
+			authorization: connectorAuthorization(existing),
+			token: existing?.token ?? existing?.oauth?.token ?? tokenFromAuthorization(authorizationFromMcp(existing?.mcp)),
 			requireApproval,
 			allowedTools,
 			deferLoading: existing?.deferLoading ?? false,
@@ -533,6 +535,7 @@ export class ConnectorsService {
 		const next: RuntimeConnector = {
 			...current,
 			authorization: oauthAuthorizationHeader(token),
+			token,
 			lastError: undefined,
 			updatedAt: new Date().toISOString(),
 			oauth: {
@@ -785,7 +788,8 @@ export class ConnectorsService {
 			...connector,
 			...runtime,
 			mcp: connector.mcp ?? runtime.mcp,
-			authorization: connector.authorization || runtime.authorization,
+		authorization: connector.authorization || runtime.authorization,
+			token: connector.token ?? runtime.token,
 			tools: connector.tools.length > 0 ? connector.tools : runtime.tools,
 		};
 	}
@@ -896,9 +900,11 @@ function normalizeStoredConnector(connector: ConnectorConfig, storageKey?: strin
 		name,
 		connectorId,
 		serverLabel,
-		authorization: typeof connector.authorization === 'string'
-			? connector.authorization
-			: authorizationFromMcp(connector.mcp),
+		token: normalizeTokenSet(connector.token) ??
+			normalizeTokenSet(connector.oauth?.token) ??
+			tokenFromAuthorization(typeof connector.authorization === 'string' ? connector.authorization : '') ??
+			tokenFromAuthorization(authorizationFromMcp(connector.mcp)),
+		authorization: connectorAuthorization(connector),
 		enabled: typeof connector.enabled === 'boolean' ? connector.enabled : true,
 		requireApproval: connector.requireApproval ?? 'always',
 		allowedTools: Array.isArray(connector.allowedTools) ? connector.allowedTools : [],
@@ -944,9 +950,13 @@ function uniqueConnectorStorageKey(value: string, connectors: readonly RuntimeCo
 }
 
 function toStoredConnectorRecord(connector: RuntimeConnector): ConnectorConfig {
-	const mcp = mcpWithConnectorAuthorization(connector);
+	const mcp = connector.mcp ? compactMcpConfig(mcpWithoutAuthorization(connector.mcp)) : undefined;
+	const token = tokenForStorage(connector);
+	const authorization = token ? '' : connectorAuthorization(connector);
 	return {
 		...(mcp ? { mcp: compactMcpConfig(mcp) } : {}),
+		...(token ? { token } : {}),
+		...(authorization ? { authorization } : {}),
 		tools: connector.tools,
 	};
 }
@@ -1096,19 +1106,14 @@ function normalizeSearchText(value: string): string {
 	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-function mcpWithConnectorAuthorization(connector: RuntimeConnector): ConnectorMcpConfig | undefined {
-	if (!connector.mcp) return undefined;
-	const authorization =
-		connector.authorization ||
-		oauthAuthorizationHeader(connector.oauth?.token) ||
-		authorizationFromMcp(connector.mcp);
-	if (connector.mcp.transport !== 'http' || !authorization) return connector.mcp;
+function mcpWithoutAuthorization(mcp: ConnectorMcpConfig): ConnectorMcpConfig {
+	if (mcp.transport !== 'http') return mcp;
+	const headers = Object.fromEntries(
+		Object.entries(mcp.headers ?? {}).filter(([key]) => key.toLowerCase() !== 'authorization')
+	);
 	return {
-		...connector.mcp,
-		headers: {
-			...(connector.mcp.headers ?? {}),
-			Authorization: authorization,
-		},
+		...mcp,
+		headers: Object.keys(headers).length > 0 ? headers : undefined,
 	};
 }
 
@@ -1137,6 +1142,7 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
 		authorization: '',
+		token: redactOAuthTokenSet(connector.token),
 		mcp: redactMcpConfig(connector.mcp),
 		oauth: redactOAuthConfig(connector.oauth),
 	};
@@ -1159,19 +1165,58 @@ function redactOAuthConfig(oauth: ConnectorConfig['oauth']): ConnectorConfig['oa
 	if (!oauth) return undefined;
 	return {
 		...oauth,
-		token: oauth.token
-			? {
-				...oauth.token,
-				accessToken: '',
-				refreshToken: oauth.token.refreshToken ? '' : undefined,
-			}
-			: undefined,
+		token: redactOAuthTokenSet(oauth.token),
 	};
 }
 
-function oauthAuthorizationHeader(token: NonNullable<ConnectorConfig['oauth']>['token']): string {
+function redactOAuthTokenSet(token: ConnectorOAuthTokenSet | undefined): ConnectorOAuthTokenSet | undefined {
+	if (!token) return undefined;
+	return {
+		...token,
+		accessToken: '',
+		refreshToken: token.refreshToken ? '' : undefined,
+	};
+}
+
+function oauthAuthorizationHeader(token: ConnectorOAuthTokenSet | undefined): string {
 	if (!token?.accessToken) return '';
 	return (token.tokenType?.trim() || 'Bearer') + ' ' + token.accessToken;
+}
+
+function connectorAuthorization(connector: ConnectorConfig | undefined): string {
+	if (!connector) return '';
+	return (
+		oauthAuthorizationHeader(connector.token) ||
+		oauthAuthorizationHeader(connector.oauth?.token) ||
+		connector.authorization?.trim() ||
+		authorizationFromMcp(connector.mcp)
+	);
+}
+
+function normalizeTokenSet(token: ConnectorOAuthTokenSet | undefined): ConnectorOAuthTokenSet | undefined {
+	if (!token?.accessToken?.trim()) return undefined;
+	return {
+		accessToken: token.accessToken.trim(),
+		refreshToken: token.refreshToken?.trim() || undefined,
+		tokenType: token.tokenType?.trim() || undefined,
+		scope: token.scope?.trim() || undefined,
+		expiresAt: token.expiresAt?.trim() || undefined,
+	};
+}
+
+function tokenForStorage(connector: ConnectorConfig): ConnectorOAuthTokenSet | undefined {
+	return normalizeTokenSet(connector.token) ??
+		normalizeTokenSet(connector.oauth?.token) ??
+		tokenFromAuthorization(connector.authorization) ??
+		tokenFromAuthorization(authorizationFromMcp(connector.mcp));
+}
+
+function tokenFromAuthorization(authorization: string | undefined): ConnectorOAuthTokenSet | undefined {
+	const value = authorization?.trim();
+	if (!value) return undefined;
+	const match = /^Bearer\s+(.+)$/i.exec(value);
+	if (!match?.[1]?.trim()) return undefined;
+	return { accessToken: match[1].trim(), tokenType: 'Bearer' };
 }
 
 function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
@@ -1197,6 +1242,7 @@ function connectorAuthKindFor(connector: ConnectorConfig): ConnectorAuthKind {
 function connectorHasAuthorization(connector: ConnectorConfig): boolean {
 	return Boolean(
 		connector.oauth?.token?.accessToken ||
+		connector.token?.accessToken ||
 		connector.authorization?.trim() ||
 		authorizationFromMcp(connector.mcp)
 	);
