@@ -1,12 +1,18 @@
 import type { ConnectorConfig } from '../../../shared/connector';
 import type { AgentHarnessMcpServerConfig } from '../harness/mcp';
+import { resolveMcpConfig } from './config';
 
 export class McpRegistry {
 	buildServers(connectors: readonly ConnectorConfig[] = []): AgentHarnessMcpServerConfig[] {
-		return connectors.flatMap((connector) => connector.enabled === false ? [] : [{
-			name: connector.id ?? connector.name ?? connector.connectorId ?? 'connector',
-			transport: 'http' as const,
-			url: typeof connector.mcp === 'object' && connector.mcp && 'url' in connector.mcp && typeof connector.mcp.url === 'string' ? connector.mcp.url : 'http://localhost',
-		}]);
+		return connectors.flatMap((connector) => {
+			if (connector.enabled === false) return [];
+			try {
+				const config = resolveMcpConfig(connector);
+				const name = connector.serverLabel ?? connector.id ?? connector.name ?? connector.connectorId ?? 'connector';
+				return [{ name, toolPrefix: name, ...config }];
+			} catch {
+				return [];
+			}
+		});
 	}
 }

@@ -1,3 +1,1 @@
-export function resolveMcpConfig(config: unknown): unknown {
-	return config;
-}
+export { resolveMcpConfig } from '../../connectors/config';
