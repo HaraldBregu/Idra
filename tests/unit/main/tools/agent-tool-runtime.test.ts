@@ -378,7 +378,7 @@ describe('canonical agent tool runtime', () => {
 		);
 	});
 
-	it('uses fs config as compatibility metadata and removes write-capable tools in read-only sandboxes', async () => {
+	it('keeps fs config compatibility while enforcing Friday-root isolation and read-only sandboxes', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
@@ -395,7 +395,7 @@ describe('canonical agent tool runtime', () => {
 		});
 		const read = wide.tools.find((entry) => entry.name === 'read_file')!;
 		await expect(read.execute('tc-outside', { path: path.join(outside, 'outside.txt') })).resolves.toMatchObject({
-			details: expect.objectContaining({ size: 7 }),
+			details: expect.objectContaining({ status: 'error' }),
 		});
 
 		const sandboxed = await createAgentTools({
