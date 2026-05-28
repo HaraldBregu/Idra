@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { resolveDefaultUserDataPath, type UserDataDirectoryServicePort } from '../user-data';
+import { resolveAppDataPath } from '../user-data';
 
 export const DEFAULT_AGENTS_FILENAME = 'AGENTS.md';
 export const DEFAULT_SOUL_FILENAME = 'SOUL.md';
