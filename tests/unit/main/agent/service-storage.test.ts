@@ -71,7 +71,7 @@ describe('AgentService agent storage wiring', () => {
 		await expect(service.send('hello')).resolves.toBe('done');
 
 		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith('main');
-		expect(userDataDirectory.resolve).toHaveBeenCalledWith('workspace');
+		expect(userDataDirectory.ensureRoot).toHaveBeenCalled();
 		expect(userDataDirectory.resolve).toHaveBeenCalledWith('agent', 'workspaces');
 		expect(agentDataDirectory.resolve).not.toHaveBeenCalledWith('workspaces', 'main');
 		expect(providerFactory).toHaveBeenCalledWith({
