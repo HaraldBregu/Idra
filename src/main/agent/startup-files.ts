@@ -72,7 +72,6 @@ export type AgentStartupFileSummary = {
 
 export interface AgentStartupFilesServiceOptions {
 	rootPath?: string;
-	userDataDirectory?: UserDataDirectoryServicePort;
 }
 
 export interface AgentStartupFilesServicePort {
