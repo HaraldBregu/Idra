@@ -949,7 +949,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('keeps owner-only cron hidden from subagent default turns', async () => {
+	it('keeps cron tools available to subagent default turns', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -972,7 +972,9 @@ describe('AgentService', () => {
 		await expect(
 			service.send('schedule a task that runs each 5 minutes', 'worker')
 		).resolves.toBe('subagent ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('cron');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
+			expect.arrayContaining(['cron_create'])
+		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
