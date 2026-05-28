@@ -14,7 +14,7 @@ import type { AgentToolApprovalDecision } from '../../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../../shared/agents/models';
 import type { AgentSessionMetadata } from '../../../shared/store';
 import type { PublicProvider } from '../../../shared/providers';
-import type { ProviderSpec } from '../../provider/factory';
+import { makeProvider, type ProviderSpec } from '../../provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from '../../provider/types';
 import { HeartbeatFileStore } from '../../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../../shared/heartbeat';
