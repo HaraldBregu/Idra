@@ -32,7 +32,7 @@ const PERMISSION_OPTIONS: Array<{ value: AgentToolPermissionMode; label: string;
 	{ value: 'ask', label: 'Ask for confirmation', icon: ShieldAlert },
 ];
 
-const filesystemToolNames = new Set([
+const filesystemToolNames = new Set<string>([
 	...AGENT_TOOL_FILESYSTEM_READ_TOOLS,
 	...AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
 	...AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
