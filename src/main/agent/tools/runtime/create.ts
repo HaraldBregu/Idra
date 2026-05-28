@@ -18,6 +18,7 @@ import {
 } from '../wrap';
 import {
 	AGENT_TOOL_LEGACY_ALIASES,
+	AGENT_TOOL_GROUPS,
 	AGENT_TOOL_NAMES,
 	AGENT_TOOL_READ_ONLY_DENY_NAMES,
 } from '../../../../shared/tools';
@@ -91,6 +92,12 @@ const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = Object.fr
 		'includeFileTools',
 	])
 ) as Record<string, keyof ToolConstructionPlan>;
+for (const tool of AGENT_TOOL_GROUPS.script) {
+	CORE_TOOL_FAMILIES[tool.name] = 'includeShellTools';
+}
+for (const tool of AGENT_TOOL_GROUPS.cron) {
+	CORE_TOOL_FAMILIES[tool.name] = 'includeCronTools';
+}
 
 const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
 
@@ -110,11 +117,13 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		return {
 			...empty,
 			includeFileTools: true,
+			includeCronTools: true,
+			includeShellTools: true,
 		};
 	}
 	const normalized = toolsAllow.map(normalizeToolName);
 	if (normalized.includes('*')) {
-		return { ...empty, includeFileTools: true };
+		return { ...empty, includeFileTools: true, includeCronTools: true, includeShellTools: true };
 	}
 	const plan = { ...empty };
 	for (const name of normalized) {
@@ -130,9 +139,9 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		) {
 			plan.includeFileTools = true;
 		} else if (name.startsWith('group:script') || name.startsWith('group:shell')) {
-			plan.includeFileTools = true;
+			plan.includeShellTools = true;
 		} else if (name.startsWith('group:cron')) {
-			plan.includeFileTools = true;
+			plan.includeCronTools = true;
 		} else if (!name.startsWith('group:')) {
 			const family = CORE_TOOL_FAMILIES[name];
 			if (family) plan[family] = true;
@@ -231,7 +240,7 @@ function addHostToolCandidates(
 	const existingNames = new Set(candidates.map((tool) => normalizeToolName(tool.name)));
 	for (const tool of options.hostTools ?? []) {
 		const name = normalizeToolName(tool.name);
-		if (!FILE_TOOL_NAMES.has(name) || existingNames.has(name)) continue;
+		if (existingNames.has(name)) continue;
 		candidates.push(tool);
 		existingNames.add(name);
 	}
