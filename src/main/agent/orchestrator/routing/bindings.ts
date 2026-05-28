@@ -78,8 +78,8 @@ function normalizeAgentRouteMatch(value: unknown): AgentRouteBinding['match'] | 
 	const record = value as Record<string, unknown>;
 	const channel = optionalString(record.channel)?.toLowerCase();
 	const accountId = optionalString(record.accountId);
-	const peer = normalizeRoutePeer(record.peer, true);
-	const parentPeer = normalizeRoutePeer(record.parentPeer, false);
+	const peer = normalizeRoutePeer(record.peer);
+	const parentPeer = normalizeParentRoutePeer(record.parentPeer);
 	const roleIds = Array.isArray(record.roleIds)
 		? record.roleIds.flatMap((roleId) => optionalString(roleId) ?? [])
 		: undefined;
@@ -93,15 +93,25 @@ function normalizeAgentRouteMatch(value: unknown): AgentRouteBinding['match'] | 
 	};
 }
 
-function normalizeRoutePeer(value: unknown, allowThread: boolean): AgentRouteBinding['match']['peer'] | AgentRouteBinding['match']['parentPeer'] | undefined {
+function normalizeRoutePeer(value: unknown): AgentRouteBinding['match']['peer'] | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	const record = value as Record<string, unknown>;
 	const kind = optionalString(record.kind)?.toLowerCase();
-	const allowedKind = kind === 'direct' || kind === 'group' || kind === 'channel' || (allowThread && kind === 'thread');
+	const allowedKind = kind === 'direct' || kind === 'group' || kind === 'channel' || kind === 'thread';
 	if (!allowedKind) return undefined;
 	const id = optionalString(record.id);
 	if (!id) return undefined;
 	return { kind, id } as AgentRouteBinding['match']['peer'];
+}
+
+function normalizeParentRoutePeer(value: unknown): AgentRouteBinding['match']['parentPeer'] | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	const record = value as Record<string, unknown>;
+	const kind = optionalString(record.kind)?.toLowerCase();
+	if (kind !== 'direct' && kind !== 'group' && kind !== 'channel') return undefined;
+	const id = optionalString(record.id);
+	if (!id) return undefined;
+	return { kind, id };
 }
 
 function normalizeAgentRouteSession(value: unknown): AgentRouteBinding['session'] | undefined {
