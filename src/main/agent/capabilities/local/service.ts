@@ -65,7 +65,9 @@ export class ToolService implements ToolServicePort {
 	}
 
 	getToolsByGroup(_group: string): AgentTool[] {
-		return [...createDefaultToolRegistry().values()];
+		return [...localToolCatalogByName().values()]
+			.filter((entry) => entry.group === _group)
+			.map((entry) => entry.tool);
 	}
 
 	createDefaultTools(input: { toolPolicy?: DefaultToolPolicy; denylist?: string[] }): AgentTool[] {
@@ -93,7 +95,7 @@ export class ToolService implements ToolServicePort {
 	}
 
 	createManagementOptions(options: AgentToolManagementOptions = {}): AgentToolManagementOptions {
-		return { maxToolsForPrompt: 9, maxToolCallsPerTurn: 25, ...options };
+		return { maxToolsForPrompt: createDefaultToolRegistry().size, maxToolCallsPerTurn: 25, ...options };
 	}
 
 	prepareToolsForProvider(tools: AgentTool[]): AgentTool[] {
