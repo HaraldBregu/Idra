@@ -4,6 +4,7 @@ import {
 	normalizeAgentRoutingSettings,
 	resolveAgentIntentRoute,
 	resolveAgentRoute,
+	shouldExposeStartupFilesTool,
 } from '../../../../src/main/agent';
 
 describe('agent routing', () => {
@@ -117,5 +118,10 @@ describe('agent routing', () => {
 			useLocalTools: false,
 			useConnectorTools: true,
 		});
+	});
+
+	it('exposes startup files only for agent identity and memory prompts', () => {
+		expect(shouldExposeStartupFilesTool('Do not call me Harry anymore')).toBe(true);
+		expect(shouldExposeStartupFilesTool('Explain dependency injection')).toBe(false);
 	});
 });
