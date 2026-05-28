@@ -1,4 +1,4 @@
-import type { ConnectorConfig } from '../../../shared/connector';
+import type { ConnectorConfig } from '../../../../shared/connector';
 import type { AgentRuntimeMcpServerConfig } from '../../execution/runtime/mcp';
 import { resolveMcpConfig } from './config';
 
