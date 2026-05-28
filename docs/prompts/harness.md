@@ -1,24 +1,24 @@
-# Harness Module Prompt
+# Agent Module Prompt
 
-The foundational formula for any reliable AI agent is: **Agent = Model + Harness**. The model provides probabilistic reasoning; the harness provides deterministic control. Neither is sufficient alone.
+An agent is not just a model. It is the model plus every piece of code, configuration, and execution logic that surrounds it. The model provides probabilistic reasoning; the control layer provides deterministic enforcement. Neither is sufficient alone.
 
-Harness engineering is the discipline that encompasses prompt engineering and context engineering, then goes further: it adds constraint enforcement and iterative refinement. A system that only crafts good prompts or delivers relevant context is still at the mercy of the model's stochastic output. A system with a harness governs what the model is allowed to do, validates what it produces, and converges toward a correct state regardless of how the model behaves in any single turn.
+Agent engineering is the discipline that encompasses prompt engineering and context engineering, then goes further: it adds constraint enforcement and iterative refinement. A system that only crafts good prompts or delivers relevant context is still at the mercy of the model's stochastic output. A properly engineered agent governs what the model is allowed to do, validates what it produces, and converges toward a correct state regardless of how the model behaves in any single turn.
 
-Implement and maintain the agent harness as the deterministic software layer that wraps the probabilistic model. The harness is every piece of code, configuration, and execution logic that is not the model itself — it governs workflow execution through bounded operational constraints rather than relying on model self-reporting. It is UI-independent, model-agnostic, and provider-neutral: the model does not need to know what provider powers it, what transport delivers its tools, or what enforcement layer surrounds it.
+Implement and maintain the agent runtime as the deterministic software layer that wraps the probabilistic model. It is UI-independent, model-agnostic, and provider-neutral: the model does not need to know what provider powers it, what transport delivers its tools, or what enforcement layer surrounds it.
 
-The harness owns: context shaping, task decomposition support, deterministic gating, durable state management, bounded self-repair, human-in-the-loop checkpoints, tool lifecycle hooks, intent-driven capability selection, skill loading, MCP integration, and result middleware. It does not own session persistence, provider streaming, or system prompt assembly — those belong to the agent module.
+This module owns: context shaping, task decomposition support, deterministic gating, durable state management, bounded self-repair, human-in-the-loop checkpoints, tool lifecycle hooks, intent-driven capability selection, skill loading, MCP integration, and result middleware. It does not own session persistence, provider streaming, or system prompt assembly — those belong to the agent module.
 
 Use the existing layer model defined in `AGENT_HARNESS_LAYERS`. Do not introduce new layers unless a new durable responsibility emerges. Do not duplicate responsibilities across layers.
 
-## Three Dimensions of Harness Architecture
+## Three Dimensions of Agent Architecture
 
-Every harness decision maps to one of three dimensions. Use these as the primary lens when evaluating what a new feature, gate, or interface belongs to.
+Every design decision maps to one of three dimensions. Use these as the primary lens when evaluating what a new feature, gate, or interface belongs to.
 
-**Context** — declarative and procedural knowledge that informs agent decisions. Context includes the task description, relevant memory records, skill instructions, startup files, and project state. The harness shapes context by retrieving only what is necessary, fitting it to the available token budget, and assembling it in a priority order the model can reason from. Good context reduces hallucination; excessive or unstructured context increases it.
+**Context** — declarative and procedural knowledge that informs agent decisions. Context includes the task description, relevant memory records, skill instructions, startup files, and project state. The agent shapes context by retrieving only what is necessary, fitting it to the available token budget, and assembling it in a priority order the model can reason from. Good context reduces hallucination; excessive or unstructured context increases it.
 
-**Constraint** — rules that govern agent outputs and prevent problematic patterns. Constraints are enforced deterministically, not through the model's interpretation of instructions. They include tool permission filters, JSON schema validation on tool arguments, safety controller decisions, approval checkpoints, budget ceilings, and policy gates. Constraints are the harness analogue of linters and type checkers: they catch structural problems before they propagate.
+**Constraint** — rules that govern agent outputs and prevent problematic patterns. Constraints are enforced deterministically, not through the model's interpretation of instructions. They include tool permission filters, JSON schema validation on tool arguments, safety controller decisions, approval checkpoints, budget ceilings, and policy gates. Constraints are the software analogue of linters and type checkers: they catch structural problems before they propagate.
 
-**Convergence** — iterative refinement processes that drive the run toward a stable, correct state. A harness converges when reapplying it to a given input produces no further changes — this property is called structural idempotence. In practice, convergence means the run loop continues until the model produces no more tool calls, all tool calls pass their gates, all results are recorded, and the session reaches a terminal status. Bounded self-repair belongs here: the harness attempts correction within hard limits, then halts rather than looping indefinitely.
+**Convergence** — iterative refinement processes that drive the run toward a stable, correct state. An agent converges when reapplying it to a given input produces no further changes — this property is called structural idempotence. In practice, convergence means the run loop continues until the model produces no more tool calls, all tool calls pass their gates, all results are recorded, and the session reaches a terminal status. Bounded self-repair belongs here: the agent attempts correction within hard limits, then halts rather than looping indefinitely.
 
 ## Design Principle: Start Simple
 
@@ -26,55 +26,55 @@ A single agent with good context engineering consistently outperforms a swarm of
 
 This applies at every scale:
 
-- Prefer one harness with well-shaped context over multiple harnesses with split context.
+- Prefer one agent with well-shaped context over multiple agents with split context.
 - Prefer a small, focused tool surface over a large general one.
 - Prefer keyword skill selection over semantic search until keyword matching demonstrably fails.
 - Prefer `InMemoryAgentHarnessPersistence` in tests and development over a custom persistence layer.
 
-Complexity in the harness becomes technical debt that compounds across every run. Add it deliberately and remove it when it no longer earns its cost.
+Complexity in this module becomes technical debt that compounds across every run. Add it deliberately and remove it when it no longer earns its cost.
 
 ## Design Principle: Constraint Enforcement
 
-Constraints are the harness dimension analogous to linters and type checkers in a software build. They are structural checks that run outside the model's control. A constraint is not a prompt instruction the model may or may not follow — it is a gate the harness enforces before, during, or after every model action.
+Constraints are the dimension analogous to linters and type checkers in a software build. They are structural checks that run outside the model's control. A constraint is not a prompt instruction the model may or may not follow — it is a gate enforced before, during, or after every model action.
 
-When designing a new constraint, express it as a deterministic check in the harness layer it belongs to:
+When designing a new constraint, express it as a deterministic check in the layer it belongs to:
 
 - Input constraints (what the model may be asked to do) → `AgentHarnessBoundaryFilter.filterInput` and `AgentHarnessSafetyController.reviewTask`.
 - Tool argument constraints (what arguments are structurally valid) → JSON Schema validation in `executeToolCall`.
 - Tool execution constraints (which tools are allowed to run) → `AgentHarnessPermissions`, `AgentHarnessSafetyController.reviewToolCall`, and `AgentHarnessApprovalController`.
 - Output constraints (what the model may return) → `AgentHarnessBoundaryFilter.filterOutput`.
 
-Do not rely on the system prompt to enforce constraints that must hold unconditionally. Prompt-based constraints are advisory; harness constraints are structural.
+Do not rely on the system prompt to enforce constraints that must hold unconditionally. Prompt-based constraints are advisory; structural constraints are enforced.
 
 ## Design Principle: Enforcement Over Instruction
 
-A prompt that says "run tests after writing code" is guidance. A harness that prevents workflow continuation until deterministic test execution succeeds is enforcement. These are not equivalent.
+A prompt that says "run tests after writing code" is guidance. A gate that prevents workflow continuation until deterministic test execution succeeds is enforcement. These are not equivalent.
 
-The harness separates instruction from enforcement. Behavioral requirements that must hold regardless of model output belong in the harness as deterministic gates, not in the system prompt as probabilistic suggestions. When adding a new requirement, decide first whether it is advisory (system prompt) or structural (harness gate). If it would break correctness or safety when violated, it belongs in the harness.
+Separate instruction from enforcement. Behavioral requirements that must hold regardless of model output belong as deterministic gates, not in the system prompt as probabilistic suggestions. When adding a new requirement, decide first whether it is advisory (system prompt) or structural (gate). If it would break correctness or safety when violated, it belongs as a gate.
 
 ## Design Principle: Reliability Compounding
 
-Reliability compounds across workflow stages. A multi-step process at 95% per-stage success produces only ~66% end-to-end reliability across eight stages. The harness addresses this by making each gate deterministic and each failure mode explicit, so per-stage reliability approaches 99%+ and compounds favorably.
+Reliability compounds across workflow stages. A multi-step process at 95% per-stage success produces only ~66% end-to-end reliability across eight stages. Making each gate deterministic and each failure mode explicit drives per-stage reliability toward 99%+, which compounds favorably.
 
 Every gate added to `executeToolCall`, every validation step in `resolveTools`, and every bounded retry in self-repair exists to protect end-to-end reliability — not to add ceremony.
 
 ## Design Principle: Model Agnosticism
 
-The harness must make no assumptions about the underlying model family, provider, or capability set. All model interaction flows through the `AgentHarnessModel` interface. The harness never calls a provider SDK directly.
+The agent must make no assumptions about the underlying model family, provider, or capability set. All model interaction flows through the `AgentHarnessModel` interface. No provider SDK is called directly.
 
 Consequences:
 
 - Tool schemas are expressed as JSON Schema, not provider-specific formats. The model interface normalizes them.
 - Streaming events (`ProviderEvent`) are consumed through the model adapter's `stream` method only.
-- Reasoning blocks, tool call formats, and stop reasons are handled by the model adapter before reaching the harness.
+- Reasoning blocks, tool call formats, and stop reasons are handled by the model adapter before reaching the run loop.
 - Model capabilities (context window, cost, tool support) come from `AgentHarnessModelRegistry`, not from hardcoded provider names.
 - Fallback candidates in `models.fallbacks` may use entirely different providers. The run loop treats them identically.
 
-Do not add conditionals in the harness that branch on provider name, model family, or capability flags. When a capability gap exists, express it through the model descriptor in the registry.
+Do not add conditionals that branch on provider name, model family, or capability flags. When a capability gap exists, express it through the model descriptor in the registry.
 
 ## Scope
 
-The harness module owns these responsibilities:
+This module owns these responsibilities:
 
 - `createAgentHarness` factory and `DefaultAgentHarness` implementation.
 - Context shaping: retrieving and assembling only the context relevant to the task.
@@ -91,11 +91,11 @@ The harness module owns these responsibilities:
 - Budget enforcement for iterations, tokens, cost, and time.
 - Procedural integrity: structured, tamper-evident audit trails for governance and compliance.
 
-Do not move provider streaming, session indexing, system prompt construction, or cron scheduling into the harness. The harness integrates with those systems through injected interfaces.
+Do not move provider streaming, session indexing, system prompt construction, or cron scheduling into this module. It integrates with those systems through injected interfaces.
 
 ## Run Loop: ReAct Pattern
 
-The harness run loop implements the ReAct (Reason-Act-Observe) cycle: the model receives the current state, reasons about the next action, executes that action via a tool, observes the result, and repeats until a stopping condition is met.
+The run loop implements the ReAct (Reason-Act-Observe) cycle: the model receives the current state, reasons about the next action, executes that action via a tool, observes the result, and repeats until a stopping condition is met.
 
 Each cycle in `runLoop`:
 
@@ -124,17 +124,17 @@ Use existing file names when extending the implementation:
 - `config` for validation and secret redaction.
 - `model` for cost estimation and model descriptor helpers.
 - `schema` for JSON schema validation.
-- `errors` for typed harness errors and error shape conversion.
+- `errors` for typed errors and error shape conversion.
 - `types` for all shared interfaces and the layer descriptor table.
 
 Add a new file only when it represents a durable responsibility that does not fit the existing set.
 
 ## Memory Architecture
 
-The harness works across three memory layers with fundamentally different properties. Every piece of state the agent produces belongs to exactly one layer.
+The agent works across three memory layers with fundamentally different properties. Every piece of state produced belongs to exactly one layer.
 
 **Layer 1 — Filesystem (long-term memory)**
-Durable state that survives session boundaries: persisted sessions, operation logs, snapshots, and any files produced by tools. This is the primary state mechanism in production harnesses. The agent can resume from a crash by reading back from the filesystem. No vector databases are required for basic long-term memory — structured files are sufficient and more reliable.
+Durable state that survives session boundaries: persisted sessions, operation logs, snapshots, and any files produced by tools. This is the primary state mechanism in production agents. The agent can resume from a crash by reading back from the filesystem. No vector databases are required for basic long-term memory — structured files are sufficient and more reliable.
 
 **Layer 2 — RAM (short-term memory)**
 Working memory for the current session: the in-memory conversation transcript, loaded skill instructions, and discovered tool lists. Fast but volatile — lost on process exit. The `InMemoryAgentHarnessPersistence` and `InMemoryAgentHarnessOperationLogger` live here. Do not treat RAM as a substitute for filesystem persistence.
@@ -153,7 +153,7 @@ The strictest constraint. Everything the model knows about the current task must
 
 ## Context Shaping
 
-The harness must retrieve and structure only the information the model needs for the current task. Flooding the model with all available documents or memory entries degrades reasoning quality and wastes context budget.
+Only the information the model needs for the current task should enter the context window. Flooding the model with all available documents or memory entries degrades reasoning quality and wastes context budget.
 
 Context shaping happens in `buildContext` via `AgentHarnessContextManager`:
 
@@ -166,12 +166,12 @@ The `BudgetedAgentHarnessContextManager` is the provided implementation. It fits
 
 Memory records retrieved through `AgentHarnessMemory.retrieve` are the primary source of task-relevant durable facts. They are passed to the context manager as a separate input so the manager can decide how much memory to include based on remaining budget.
 
-Context must be treated as live, not cached at startup. MCP servers, skill files, and external connectors may change between runs. Load and assemble context fresh on each activation so the agent always reasons from current state — not from a snapshot baked into the system prompt at deploy time. This self-updating property is what separates a harness from a static prompt template: the harness fetches the current context; a template embeds a past one.
+Context must be treated as live, not cached at initialization. MCP servers, skill files, and external connectors may change between runs. Load and assemble context fresh on each activation so the agent always reasons from current state — not from a snapshot baked into the system prompt at deploy time. This self-updating property is what separates a properly engineered agent from a static prompt template: the agent fetches current context; a template embeds a past one.
 
 Context engineering strategies for the context manager:
 
 - **Progressive disclosure**: retrieve context in priority order and stop when the budget is consumed. High-priority blocks (task, memory, skill instructions) enter first; lower-priority blocks (startup files, project context) enter only if budget remains.
-- **Just-in-time retrieval**: fetch data when it is needed, not at harness initialization. MCP tools and external context should be discovered per run.
+- **Just-in-time retrieval**: fetch data when it is needed, not at initialization. MCP tools and external context should be discovered per run.
 - **Compaction threshold**: when the session transcript consumes more than roughly 90% of the input budget, compact it through `compactSessionForModel` before the next model turn. Do not wait until the transcript overflows.
 - **Structured note-taking**: long-running tasks should maintain progress state in the filesystem (via tools), not solely in the transcript. The model can read its own progress notes at the start of each session rather than relying on transcript history.
 
@@ -179,7 +179,7 @@ Do not pass the entire session transcript or all available memory into every mod
 
 ## Intent-Driven Capability Selection
 
-The harness selects tools based on the inferred intent of the task, not by exposing the full tool surface on every run. A smaller, focused tool surface per run reduces model confusion and improves tool call precision.
+Tools are selected based on the inferred intent of the task, not by exposing the full tool surface on every run. A smaller, focused tool surface per run reduces model confusion and improves tool call precision.
 
 Intent classification happens before each run in `resolveTools`:
 
@@ -202,7 +202,7 @@ Do not register MCP tools in the local tool registry. MCP tools come from `Agent
 
 ## Pre-Tool-Use and Post-Tool-Use Hooks
 
-Hooks are the harness extension point for observability, auditing, compliance logging, and side effects. They are observers — they cannot block execution or mutate tool arguments.
+Hooks are the extension point for observability, auditing, compliance logging, and side effects around tool execution. They are observers — they cannot block execution or mutate tool arguments.
 
 The `AgentHarnessHook` interface exposes these lifecycle names:
 
@@ -227,7 +227,7 @@ Use hooks for: structured audit trail entries, compliance event emission, extern
 
 ## Deterministic Gating
 
-Before any tool executes, the harness runs a deterministic validation sequence. Gates run regardless of what the model requested. They cannot be skipped by model output or prompt instructions.
+Before any tool executes, a deterministic validation sequence runs. Gates run regardless of what the model requested. They cannot be skipped by model output or prompt instructions.
 
 The gate sequence in `executeToolCall`:
 
@@ -264,9 +264,9 @@ Do not build feedback loops by adding polling or sleep to tools. Tools must comp
 
 ## Bounded Self-Repair
 
-The harness permits limited remediation before escalating or halting. Unbounded retry loops convert model uncertainty into cost and latency without improving outcomes.
+Limited remediation is permitted before escalating or halting. Unbounded retry loops convert model uncertainty into cost and latency without improving outcomes.
 
-The convergence goal is **structural idempotence**: a run that has converged produces the same session state when re-evaluated — the model makes no further tool calls, all gates pass, and the transcript is stable. The harness drives toward this state through the run loop and halts when either convergence is reached or a hard ceiling is hit. It never continues past a ceiling hoping for convergence.
+The convergence goal is **structural idempotence**: a run that has converged produces the same session state when re-evaluated — the model makes no further tool calls, all gates pass, and the transcript is stable. The run loop drives toward this state and halts when either convergence is reached or a hard ceiling is hit. It never continues past a ceiling hoping for convergence.
 
 Self-repair boundaries:
 
@@ -286,9 +286,9 @@ Do not add ad hoc retry logic outside `collectModelTurn`. All model-level repair
 
 ## Durable State Management
 
-The harness maintains persistent records through `AgentHarnessPersistence` and `AgentHarnessOperationLogger`. These are not conversation history — they are structured workflow state that outlives any single model turn.
+Persistent records are maintained through `AgentHarnessPersistence` and `AgentHarnessOperationLogger`. These are not conversation history — they are structured workflow state that outlives any single model turn.
 
-**Durability invariant**: state produced during a run must be written to the filesystem before it is discarded from memory. Never drop a tool result, session update, or transcript entry from RAM without first persisting it. A mid-run crash must leave the filesystem in a state the harness can resume from — not in a state where work was done but not recorded.
+**Durability invariant**: state produced during a run must be written to the filesystem before it is discarded from memory. Never drop a tool result, session update, or transcript entry from RAM without first persisting it. A mid-run crash must leave the filesystem in a resumable state — not in a state where work was done but not recorded.
 
 Persistence responsibilities:
 
@@ -304,11 +304,11 @@ Operation log responsibilities:
 - Entries form the tamper-evident audit trail required for governance and compliance.
 - Redact secrets from all log entries using `AgentHarnessSecretRedactor` before appending.
 
-Do not use the operation log as a debug console. It is a durable, structured record of what the harness did and why.
+Do not use the operation log as a debug console. It is a durable, structured record of what the agent did and why.
 
 ## Human-in-the-Loop Design
 
-Human involvement in the harness is not manual operation — it is structured approval at high-risk decision points. Humans act as reviewers and exception handlers, not as operators of every step.
+Human involvement is not manual operation — it is structured approval at high-risk decision points. Humans act as reviewers and exception handlers, not as operators of every step.
 
 The `AgentHarnessApprovalController` is the HITL interface. It receives an `AgentHarnessApprovalRequest` containing the tool name, call id, arguments, and reason for approval. It returns an `AgentHarnessApprovalDecision` with approved/rejected, an optional reason, and optional updated arguments.
 
@@ -369,7 +369,7 @@ These are not advisory — they are structural gates. A model that requests a de
 
 ## Procedural Integrity and Audit Trail
 
-The harness produces a structured, tamper-evident record of every decision made during a run. This record must be sufficient to demonstrate to an external reviewer that the harness operated within policy boundaries.
+A structured, tamper-evident record of every decision made during a run must be produced. This record must be sufficient to demonstrate to an external reviewer that the agent operated within policy boundaries.
 
 The audit trail is assembled from:
 
@@ -397,7 +397,7 @@ Operation log entries are separate from events. Use `AgentHarnessOperationLogger
 
 ## Configuration
 
-The full harness configuration is `AgentHarnessConfig`. Required fields are `modelId` and `model`. All other fields are optional with safe defaults.
+The full agent configuration is `AgentHarnessConfig`. Required fields are `modelId` and `model`. All other fields are optional with safe defaults.
 
 Defaults applied when fields are absent:
 
@@ -412,11 +412,11 @@ Validate the configuration in `validateAgentHarnessConfig` before constructing t
 
 ## Public API
 
-Expose the harness through `createAgentHarness`:
+Expose the agent through `createAgentHarness`:
 
 ```ts
-const harness = await createAgentHarness(config);
-for await (const event of harness.stream({ task: '...' })) {
+const agent = await createAgentHarness(config);
+for await (const event of agent.stream({ task: '...' })) {
   render(event);
 }
 ```
@@ -427,7 +427,7 @@ Do not expose internal runtime state. Session state is accessible only through `
 
 ## Implementation Rules
 
-When changing the harness module:
+When changing this module:
 
 - Match the existing TypeScript style and file boundaries.
 - Keep the run loop in `runtime`. Do not move loop mechanics into `tools`, `skills`, or `mcp`.
@@ -436,7 +436,7 @@ When changing the harness module:
 - Keep deterministic gates in `executeToolCall`. Do not add inline safety or approval checks elsewhere.
 - Keep hook execution in `runHooks`. Do not call hooks inline in the middle of other logic.
 - Keep all tool sources unified through `executeToolCall`. Do not create separate fast paths for MCP or skill tools.
-- Never branch on provider name or model family inside the harness.
+- Never branch on provider name or model family inside this module.
 - Add a new file only when there is a durable responsibility. Local helper functions near the behavior they support are preferred.
 - Remove imports, exports, and files made unused by your change.
 - Do not introduce decorative abstractions or compatibility shims.
@@ -472,10 +472,10 @@ Use the narrowest test command that covers the change. If a broader suite has un
 
 ## Verification Checklist
 
-Before finishing a harness change, verify:
+Before finishing a change to this module, verify:
 
-- The harness still compiles for main-process TypeScript.
-- No code inside the harness imports or references a provider SDK directly.
+- The module still compiles for main-process TypeScript.
+- No code inside this module imports or references a provider SDK directly.
 - `resolveTools` returns only tools appropriate to the task and permissions.
 - `before_tool_call` and `after_tool_call` hooks receive correct payloads and a throwing hook does not abort the call.
 - Deterministic gates run in order and cannot be bypassed by model input.
