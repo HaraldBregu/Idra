@@ -25,6 +25,7 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { ConnectorsService } from '../../../../src/main/connectors';
+import { AgentMcpClientService } from '../../../../src/main/agent/mcp-client';
 import type { ConnectorCatalogEntry, ConnectorTool } from '../../../../src/shared/connector';
 import { makeLogger } from '../test-helpers';
 
@@ -187,6 +188,10 @@ function createFakeMcpClient(tools = discoveredTools) {
 	return {
 		listTools: jest.fn(async () => tools),
 		callTool: jest.fn(async (name: string, args: Record<string, unknown>) => ({ name, args })),
+		listResources: jest.fn(async () => []),
+		readResource: jest.fn(async () => ({})),
+		listPrompts: jest.fn(async () => []),
+		getPrompt: jest.fn(async () => ({})),
 		close: jest.fn(async () => undefined),
 	};
 }
@@ -251,11 +256,14 @@ function createService(client = createFakeMcpClient(), options: {
 	const logger = makeLogger();
 	const factory = jest.fn(() => client);
 	const service = new ConnectorsService(logger as never, {
-		mcpClientFactory: factory,
+		storeCwd: '/tmp/friday-test/appData/friday',
 		env: options.env,
 		openExternalUrl: options.openExternalUrl,
 		fetch: options.fetch,
 		oauthCallbackListenerFactory: options.oauthCallbackListenerFactory,
+	});
+	const mcpClient = new AgentMcpClientService(logger as never, service, {
+		mcpClientFactory: factory,
 	});
 	const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
 		data: Map<string, unknown>;
@@ -265,7 +273,7 @@ function createService(client = createFakeMcpClient(), options: {
 		store: Record<string, unknown>;
 	});
 	const [store] = stores;
-	return { service, store: store!, logger, client, factory };
+	return { service, mcpClient, store: store!, logger, client, factory };
 }
 
 function mcpInput(overrides: Record<string, unknown> = {}) {
@@ -329,11 +337,7 @@ describe('ConnectorsService MCP persistence', () => {
 						Authorization: 'Bearer access-token',
 					},
 				},
-				tools: discoveredTools.map((tool) => expect.objectContaining({
-					name: tool.name,
-					permission: 'always-allow',
-					requiresApproval: false,
-				})),
+				tools: [],
 			},
 		});
 		expect(result.connector.oauth).toEqual(expect.objectContaining({
@@ -348,7 +352,7 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(result.connector.authorization).toBe('');
 	});
 
-	it('stores Calendar MCP setup and fetched tools in connectors.json', async () => {
+	it('stores Calendar MCP setup in connectors.json', async () => {
 		const { service, store } = createService(createFakeMcpClient(), createOAuthOptions());
 
 		await service.authorizeOAuth(oauthInput('google.calendar'));
@@ -365,20 +369,16 @@ describe('ConnectorsService MCP persistence', () => {
 						Authorization: 'Bearer access-token',
 					},
 				},
-				tools: discoveredTools.map((tool) => expect.objectContaining({
-					name: tool.name,
-					permission: 'always-allow',
-					requiresApproval: false,
-				})),
+				tools: [],
 			},
 		});
 	});
 
 	it('uses fetched Gmail MCP tools after OAuth completion', async () => {
-		const { service, factory } = createService(createFakeMcpClient(), createOAuthOptions());
+		const { service, mcpClient, factory } = createService(createFakeMcpClient(), createOAuthOptions());
 		const started = await service.authorizeOAuth(oauthInput('google.gmail'));
 
-		const tools = await service.refreshTools(started.connector.id);
+		const tools = await mcpClient.refreshTools(started.connector.id);
 
 		expect(tools).toEqual(expect.arrayContaining([
 			expect.objectContaining({ name: 'search', permission: 'always-allow' }),
@@ -396,11 +396,7 @@ describe('ConnectorsService MCP persistence', () => {
 				mcp: expect.objectContaining({
 					headers: expect.objectContaining({ Authorization: 'Bearer access-token' }),
 				}),
-				tools: discoveredTools.map((tool) => expect.objectContaining({
-					name: tool.name,
-					permission: 'always-allow',
-					requiresApproval: false,
-				})),
+				tools: [],
 			}),
 		});
 		expect(started.connector.authorization).toBe('');
@@ -409,28 +405,25 @@ describe('ConnectorsService MCP persistence', () => {
 				authKind: 'oauth',
 				status: 'configured',
 				hasToken: true,
-				hasTools: true,
+				hasTools: false,
 			});
 	});
 
-	it('stores dynamic connector records and discovers MCP tools on add', async () => {
+	it('stores dynamic connector records without discovering MCP tools on add', async () => {
 		const { service, store, client } = createService();
 
 		const added = await service.add(mcpInput());
 
-		expect(client.listTools).toHaveBeenCalledTimes(1);
+		expect(client.listTools).not.toHaveBeenCalled();
 		expect(Object.fromEntries(store.data)).toEqual({
 			gmail_mcp: {
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
-				tools: [
-					expect.objectContaining({ name: 'search', permission: 'needs-approval', requiresApproval: true }),
-					expect.objectContaining({ name: 'write_note', permission: 'blocked', requiresApproval: false }),
-				],
+				tools: [],
 			},
 		});
 		expect(added.authorization).toBe('');
 		expect(service.list()).toEqual([
-			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 2 }),
+			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 0 }),
 		]);
 	});
 
@@ -464,7 +457,7 @@ describe('ConnectorsService MCP persistence', () => {
 	});
 
 	it('reports missing MCP secret environment variables without storing secret values', async () => {
-		const { service, client } = createService();
+		const { service, mcpClient, client } = createService();
 
 		const added = await service.add(
 			mcpInput({
@@ -478,26 +471,28 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(client.listTools).not.toHaveBeenCalled();
 		expect(service.list()[0]).toMatchObject({ status: 'missing_auth' });
-		await expect(service.refreshTools(added.id)).rejects.toThrow('REMOTE_MCP_API_KEY');
+		await expect(mcpClient.refreshTools(added.id)).rejects.toThrow('REMOTE_MCP_API_KEY');
 		expect(service.get(added.id).mcp).toMatchObject({ auth: { env: 'REMOTE_MCP_API_KEY' } });
 	});
 
 	it('calls dynamically discovered MCP tools and exposes them to the agent', async () => {
-		const { service, client } = createService();
+		const { service, mcpClient, client } = createService();
 		const added = await service.add(
 			mcpInput({ allowedTools: ['search'], requireApproval: 'never_for_allowed_tools' })
 		);
 
-		await expect(service.callTool(added.id, 'search', { query: 'roadmap' })).resolves.toEqual({
+		await mcpClient.refreshTools(added.id);
+
+		await expect(mcpClient.callTool(added.id, 'search', { query: 'roadmap' })).resolves.toEqual({
 			name: 'search',
 			args: { query: 'roadmap' },
 		});
-		await expect(service.callTool(added.id, 'write_note', { text: 'draft' })).rejects.toThrow(
+		await expect(mcpClient.callTool(added.id, 'write_note', { text: 'draft' })).rejects.toThrow(
 			'Tool write_note is blocked for Remote Gmail MCP.'
 		);
 		expect(client.callTool).toHaveBeenCalledWith('search', { query: 'roadmap' }, undefined);
 
-		const tools = service.createAgentTools();
+		const tools = mcpClient.createAgentTools();
 		expect(tools.map((tool) => tool.name)).toEqual(['gmail_mcp_search']);
 		await expect(tools[0]!.execute({ query: 'roadmap' }, {} as never)).resolves.toMatchObject({
 			status: 'ok',
@@ -505,15 +500,15 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 	});
 
-	it('contains MCP discovery failures in connector state', async () => {
+	it('reports MCP discovery failures from the MCP client', async () => {
 		const client = createFakeMcpClient();
 		client.listTools.mockRejectedValue(new Error('server down'));
-		const { service } = createService(client);
+		const { service, mcpClient } = createService(client);
 
 		const added = await service.add(mcpInput());
 
-		expect(service.list()[0]).toMatchObject({ status: 'error', lastError: 'server down' });
-		expect(await service.test(added.id)).toMatchObject({ status: 'error', message: 'server down' });
+		expect(service.list()[0]).toMatchObject({ status: 'configured', lastError: undefined });
+		expect(await mcpClient.test(added.id)).toMatchObject({ status: 'error', message: 'server down' });
 	});
 
 	it('drops invalid stored records and logs persistence failures', async () => {
@@ -542,16 +537,16 @@ describe('ConnectorsService MCP persistence', () => {
 	});
 
 	it('validates connector tool-call arguments and options', async () => {
-		const { service } = createService();
+		const { service, mcpClient } = createService();
 		const connector = await service.add(mcpInput());
 
-		await expect(service.callTool(connector.id, 'search', 'bad')).rejects.toThrow(
+		await expect(mcpClient.callTool(connector.id, 'search', 'bad')).rejects.toThrow(
 			'Connector tool arguments must be an object.'
 		);
-		await expect(service.callTool(connector.id, 'search', {}, { timeoutMs: -1 })).rejects.toThrow(
+		await expect(mcpClient.callTool(connector.id, 'search', {}, { timeoutMs: -1 })).rejects.toThrow(
 			'Connector tool option timeoutMs must be a non-negative integer.'
 		);
-		await expect(service.callTool(123 as unknown as string, 'search', {})).rejects.toThrow(
+		await expect(mcpClient.callTool(123 as unknown as string, 'search', {})).rejects.toThrow(
 			'Connector id must be a string.'
 		);
 	});
