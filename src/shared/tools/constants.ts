@@ -7,8 +7,6 @@ import {
 	AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
 	AGENT_TOOL_FILESYSTEM_TOOLS,
 } from './base';
-import { AGENT_TOOL_CRON_TOOLS } from './cron';
-import { AGENT_TOOL_TASK_TOOLS } from './task';
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
 	'filesystem:read': AGENT_TOOL_FILESYSTEM_READ_TOOLS,
@@ -30,12 +28,12 @@ export const AGENT_TOOL_GROUPS = {
 	'filesystem:delete': AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
 	coreWorkspace: [],
 	humanDecision: [],
-	stateTask: AGENT_TOOL_TASK_TOOLS,
+	stateTask: [],
 	subagent: [],
 	skill: [],
 	mcpConnector: [],
 	script: [],
-	cron: AGENT_TOOL_CRON_TOOLS,
+	cron: [],
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_DEFAULT_TOOLS = [
@@ -48,14 +46,6 @@ export const AGENT_TOOLS = [
 	...AGENT_TOOL_GROUPS['filesystem:read'],
 	...AGENT_TOOL_GROUPS['filesystem:write'],
 	...AGENT_TOOL_GROUPS['filesystem:delete'],
-	...AGENT_TOOL_GROUPS['coreWorkspace'],
-	...AGENT_TOOL_GROUPS['humanDecision'],
-	...AGENT_TOOL_GROUPS['stateTask'],
-	...AGENT_TOOL_GROUPS['subagent'],
-	...AGENT_TOOL_GROUPS['skill'],
-	...AGENT_TOOL_GROUPS['mcpConnector'],
-	...AGENT_TOOL_GROUPS['script'],
-	...AGENT_TOOL_GROUPS['cron'],
 ] as const;
 
 export type AgentToolName = (typeof AGENT_TOOLS)[number]['name'];
