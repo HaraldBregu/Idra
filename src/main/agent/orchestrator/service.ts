@@ -223,16 +223,19 @@ export class AgentService {
 			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options);
 			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
 			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
-			const capabilities = await resolveAgentCapabilities({
-				message,
-				localTools,
-				connectors: this.dependencies.connectors,
-				skills: this.dependencies.skills,
+				const capabilities = await resolveAgentCapabilities({
+					message,
+					localTools,
+					connectors: this.dependencies.connectors,
+					skills: this.dependencies.skills,
 				configuredSkillNames: this.dependencies.agentSettings?.getAgentConfig(agentId)?.skills,
-				toolsAllow: options.toolsAllow,
-				toolsDeny: options.toolsDeny,
-			});
-			const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow);
+					toolsAllow: options.toolsAllow,
+					toolsDeny: options.toolsDeny,
+				});
+				for (const status of capabilities.connectorStatuses) {
+					this.emitAgentEvent({ type: 'connector_status', ...status }, sessionId, runId, options);
+				}
+				const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow);
 			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
 			const result = await this.executionService.run({
 				runId,

@@ -27,7 +27,7 @@ export async function resolveAgentCapabilities(input: {
 	const connectorResult = await resolveConnectorTools(input.connectors, input.message);
 	const skillAllowedTools = selectedSkills.flatMap((skill) => skill.frontmatter.allowedTools ?? []);
 	const tools = filterTools([...input.localTools, ...connectorResult.tools], input.toolsAllow, input.toolsDeny, skillAllowedTools);
-	const connectorNames = connectorTools.map((tool) => tool.name);
+	const connectorNames = connectorResult.tools.map((tool) => tool.name);
 	const skillSummaries = selectedSkills.map((skill): AgentSelectedSkillSummary => ({
 		name: skill.name,
 		reason: input.configuredSkillNames?.includes(skill.name) ? 'configured for this agent' : 'matched the user request',
