@@ -643,6 +643,9 @@ export const store: StoreApi = {
 	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
 	},
+	setAgentRoutingSettings: (settings: AgentRoutingSettings): Promise<AgentRoutingSettings> => {
+		return typedInvokeUnwrap(StoreChannels.setAgentRoutingSettings, settings);
+	},
 	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
 	},
