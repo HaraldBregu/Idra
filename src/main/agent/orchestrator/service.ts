@@ -32,7 +32,7 @@ import type { AgentMcpClientServicePort, McpRegistry } from '../capabilities/mcp
 import type { SubagentSpawnPort } from '../execution/subagents';
 import { ToolService, type AgentTool, type CronToolContext, type ToolContext, type ToolServicePort } from '../capabilities/local';
 import type { AgentCapabilityServicePort } from '../capabilities';
-import { resolveAgentCapabilities } from '../capabilities';
+import { AgentCapabilityService } from '../capabilities';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-run';
 
 export interface AgentServiceDependencies {
@@ -125,6 +125,7 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolService: ToolServicePort;
+	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly sessionBaseDir?: string;
@@ -139,6 +140,7 @@ export class AgentService {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService({ cron: dependencies.cron, logger: dependencies.logger });
+		this.capabilityService = options.capabilityService ?? new AgentCapabilityService({ connectors: dependencies.connectors, skills: dependencies.skills, logger: dependencies.logger });
 		this.executionService = options.executionService ?? new AgentExecutionService(this.toolService);
 		this.toolsFactory = options.toolsFactory ?? ((ctx) => this.toolService.createDefaultTools({ toolPolicy: { allow: ctx.toolsAllow }, denylist: ctx.toolsDeny }));
 		this.sessionBaseDir = options.sessionBaseDir;
@@ -229,11 +231,9 @@ export class AgentService {
 			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options, workspace);
 			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
 			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
-			const capabilities = await resolveAgentCapabilities({
+			const capabilities = await this.capabilityService.resolveForPrompt({
 				message,
 				localTools,
-				connectors: this.dependencies.connectors,
-				skills: this.dependencies.skills,
 				configuredSkillNames: agentConfig?.skills,
 				toolsAllow: options.toolsAllow,
 				toolsDeny: options.toolsDeny,
