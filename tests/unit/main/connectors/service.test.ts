@@ -335,8 +335,14 @@ describe('ConnectorsService MCP persistence', () => {
 					headers: {
 						accept: 'application/json, text/event-stream',
 						'content-type': 'application/json',
-						Authorization: 'Bearer access-token',
 					},
+				},
+				token: {
+					accessToken: 'access-token',
+					refreshToken: 'refresh-token',
+					tokenType: 'Bearer',
+					scope: 'https://www.googleapis.com/auth/gmail.readonly',
+					expiresAt: expect.any(String),
 				},
 				tools: [],
 			},
@@ -367,8 +373,14 @@ describe('ConnectorsService MCP persistence', () => {
 					headers: {
 						accept: 'application/json, text/event-stream',
 						'content-type': 'application/json',
-						Authorization: 'Bearer access-token',
 					},
+				},
+				token: {
+					accessToken: 'access-token',
+					refreshToken: 'refresh-token',
+					tokenType: 'Bearer',
+					scope: 'https://www.googleapis.com/auth/gmail.readonly',
+					expiresAt: expect.any(String),
 				},
 				tools: [],
 			},
@@ -395,7 +407,11 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(Object.fromEntries(store.data)).toEqual({
 			google_drive: expect.objectContaining({
 				mcp: expect.objectContaining({
-					headers: expect.objectContaining({ Authorization: 'Bearer access-token' }),
+					headers: expect.not.objectContaining({ Authorization: expect.any(String) }),
+				}),
+				token: expect.objectContaining({
+					accessToken: 'access-token',
+					refreshToken: 'refresh-token',
 				}),
 				tools: [],
 			}),
@@ -408,6 +424,45 @@ describe('ConnectorsService MCP persistence', () => {
 				hasToken: true,
 				hasTools: false,
 			});
+	});
+
+	it('migrates legacy MCP Authorization headers into the connector token field', () => {
+		const { service, store } = createService();
+		store.data.set('gmail', {
+			mcp: {
+				transport: 'http',
+				url: 'https://gmailmcp.googleapis.com/mcp/v1',
+				method: 'POST',
+				headers: {
+					accept: 'application/json, text/event-stream',
+					'content-type': 'application/json',
+					Authorization: 'Bearer legacy-access-token',
+				},
+			},
+			tools: [],
+		});
+
+		service.restoreEnabledConnectors();
+
+		expect(Object.fromEntries(store.data)).toEqual({
+			gmail: {
+				mcp: {
+					transport: 'http',
+					url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					method: 'POST',
+					headers: {
+						accept: 'application/json, text/event-stream',
+						'content-type': 'application/json',
+					},
+				},
+				token: {
+					accessToken: 'legacy-access-token',
+					tokenType: 'Bearer',
+				},
+				tools: [],
+			},
+		});
+		expect(service.list()[0]).toMatchObject({ status: 'configured', hasToken: true });
 	});
 
 	it('stores dynamic connector records without discovering MCP tools on add', async () => {
