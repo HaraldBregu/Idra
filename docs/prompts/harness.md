@@ -20,6 +20,19 @@ Every harness decision maps to one of three dimensions. Use these as the primary
 
 **Convergence** — iterative refinement processes that drive the run toward a stable, correct state. A harness converges when reapplying it to a given input produces no further changes — this property is called structural idempotence. In practice, convergence means the run loop continues until the model produces no more tool calls, all tool calls pass their gates, all results are recorded, and the session reaches a terminal status. Bounded self-repair belongs here: the harness attempts correction within hard limits, then halts rather than looping indefinitely.
 
+## Design Principle: Start Simple
+
+A single agent with good context engineering consistently outperforms a swarm of specialized agents when the task fits a single context window. Do not add multi-agent orchestration, subagent layers, or complex tool surfaces because the problem seems large — add them only when a concrete bottleneck requires them.
+
+This applies at every scale:
+
+- Prefer one harness with well-shaped context over multiple harnesses with split context.
+- Prefer a small, focused tool surface over a large general one.
+- Prefer keyword skill selection over semantic search until keyword matching demonstrably fails.
+- Prefer `InMemoryAgentHarnessPersistence` in tests and development over a custom persistence layer.
+
+Complexity in the harness becomes technical debt that compounds across every run. Add it deliberately and remove it when it no longer earns its cost.
+
 ## Design Principle: Constraint Enforcement
 
 Constraints are the harness dimension analogous to linters and type checkers in a software build. They are structural checks that run outside the model's control. A constraint is not a prompt instruction the model may or may not follow — it is a gate the harness enforces before, during, or after every model action.
