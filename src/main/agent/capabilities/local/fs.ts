@@ -437,6 +437,8 @@ export const copyPathTool: AgentTool = {
 		if (blocked) return blocked;
 		const source = resolveWorkspacePath(ctx, args.sourcePath);
 		const destination = resolveWorkspacePath(ctx, args.destinationPath);
+		await assertRealPathInside(ctx, source);
+		await assertSafeWritePath(ctx, destination);
 		await ensureParent(destination);
 		await fs.cp(source, destination, { recursive: true, force: booleanArg(args.overwrite), errorOnExist: !booleanArg(args.overwrite) });
 		return textResult(`copied ${relativeToWorkspace(ctx, source)} to ${relativeToWorkspace(ctx, destination)}`);
@@ -456,6 +458,8 @@ export const movePathTool: AgentTool = {
 		if (blocked) return blocked;
 		const source = resolveWorkspacePath(ctx, args.sourcePath);
 		const destination = resolveWorkspacePath(ctx, args.destinationPath);
+		await assertRealPathInside(ctx, source);
+		await assertSafeWritePath(ctx, destination);
 		if (!booleanArg(args.overwrite) && await pathExists(destination)) throw new Error('destination already exists.');
 		await ensureParent(destination);
 		if (booleanArg(args.overwrite)) await fs.rm(destination, { recursive: true, force: true });
@@ -472,7 +476,7 @@ export const applyPatchTool: AgentTool = {
 		const blocked = ensureWritable(ctx);
 		if (blocked) return blocked;
 		const patch = stringArg(args.patch, 'patch');
-		for (const patchPath of extractPatchPaths(patch)) resolveWorkspacePath(ctx, patchPath);
+		for (const patchPath of extractPatchPaths(patch)) await assertSafeWritePath(ctx, resolveWorkspacePath(ctx, patchPath));
 		return textResult(await runGitApply(workspaceRoot(ctx), patch, ctx.signal));
 	},
 };
@@ -485,6 +489,7 @@ export const deletePathTool: AgentTool = {
 		const blocked = ensureWritable(ctx);
 		if (blocked) return blocked;
 		const target = resolveWorkspacePath(ctx, args.path);
+		await assertRealPathInside(ctx, target);
 		const stat = await fs.lstat(target);
 		await fs.rm(target, { recursive: stat.isDirectory() ? booleanArg(args.recursive) : false, force: false });
 		return textResult(`deleted ${relativeToWorkspace(ctx, target)}`);
