@@ -97,7 +97,8 @@ function normalizeRoutePeer(value: unknown, allowThread: boolean): AgentRouteBin
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	const record = value as Record<string, unknown>;
 	const kind = optionalString(record.kind)?.toLowerCase();
-	if (kind !== 'direct' && kind !== 'group' && kind !== 'channel' && (allowThread ? kind !== 'thread' : true)) return undefined;
+	const allowedKind = kind === 'direct' || kind === 'group' || kind === 'channel' || (allowThread && kind === 'thread');
+	if (!allowedKind) return undefined;
 	const id = optionalString(record.id);
 	if (!id) return undefined;
 	return { kind, id } as AgentRouteBinding['match']['peer'];
