@@ -101,4 +101,44 @@ describe('AgentCapabilityService', () => {
 			directAnswer: false,
 		});
 	});
+
+	it('searches connector tools and executes them through connector exec commands', async () => {
+		const connectors = {
+			searchTools: jest.fn(() => [
+				{
+					id: 'gmail:search',
+					name: 'gmail_search',
+					displayName: 'Gmail: search',
+					description: 'Gmail: Search mail.',
+					connectorId: 'gmail',
+					connectorName: 'Gmail',
+					connectorProviderId: 'google.gmail',
+					toolName: 'search',
+					inputSchema: { type: 'object', properties: { query: { type: 'string' } } },
+					permission: 'always-allow',
+					requiresApproval: false,
+					score: 20,
+				},
+			]),
+			execTool: jest.fn(async () => ({ messages: [] })),
+		};
+		const service = new AgentCapabilityService({ connectors: connectors as never });
+
+		const result = await service.resolveForPrompt(baseInput({ userMessage: 'search gmail for invoices' }));
+
+		expect(connectors.searchTools).toHaveBeenCalledWith({
+			query: 'search gmail for invoices',
+			limit: 8,
+		});
+		expect(result.connectorTools.map((entry) => entry.name)).toEqual(['gmail_search']);
+		await expect(result.connectorTools[0]!.execute({ query: 'invoice' }, makeToolContext())).resolves.toMatchObject({
+			status: 'ok',
+			content: [expect.objectContaining({ text: expect.stringContaining('messages') })],
+		});
+		expect(connectors.execTool).toHaveBeenCalledWith({
+			connectorId: 'gmail',
+			toolName: 'search',
+			args: { query: 'invoice' },
+		});
+	});
 });
