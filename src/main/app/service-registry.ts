@@ -21,7 +21,6 @@ import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ToolService } from '../agent/tools';
 import type { UserDataDirectoryService } from '../user-data';
-import type { WorkspaceService } from '../workspace';
 
 export interface MainServices {
 	appState: AppState;
@@ -50,7 +49,6 @@ export interface MainServices {
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
-	workspace: WorkspaceService;
 }
 
 export type MainServiceContainer = ServiceContainer<MainServices>;
