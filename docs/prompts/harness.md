@@ -288,6 +288,8 @@ Do not add ad hoc retry logic outside `collectModelTurn`. All model-level repair
 
 The harness maintains persistent records through `AgentHarnessPersistence` and `AgentHarnessOperationLogger`. These are not conversation history — they are structured workflow state that outlives any single model turn.
 
+**Durability invariant**: state produced during a run must be written to the filesystem before it is discarded from memory. Never drop a tool result, session update, or transcript entry from RAM without first persisting it. A mid-run crash must leave the filesystem in a state the harness can resume from — not in a state where work was done but not recorded.
+
 Persistence responsibilities:
 
 - Save and load sessions by id through `persistence.loadSession` and `persistence.saveSession`.
