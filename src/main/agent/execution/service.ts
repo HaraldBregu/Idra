@@ -1,9 +1,9 @@
-import type { ProviderAdapter, TranscriptEntry, Usage } from '../provider/types';
-import type { AgentResponseEvent } from '../../shared/agents/events';
-import type { AgentRunStopReason } from '../../shared/agents/constants';
-import type { AgentTool, ToolContext, ToolServicePort } from './tools';
-import { ToolService } from './tools';
-import type { SessionFile } from './session/store';
+import type { ProviderAdapter, TranscriptEntry, Usage } from '../../provider/types';
+import type { AgentResponseEvent } from '../../../shared/agents/events';
+import type { AgentRunStopReason } from '../../../shared/agents/constants';
+import type { AgentTool, ToolContext, ToolServicePort } from '../capabilities/local';
+import { ToolService } from '../capabilities/local';
+import type { SessionFile } from '../context/session/store';
 
 export interface AgentRunHooks {
 	streamEvent?: (event: AgentResponseEvent) => void;
