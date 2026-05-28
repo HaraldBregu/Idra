@@ -203,6 +203,7 @@ export const StoreChannels = {
 	getCronSettings: 'store:get-cron-settings',
 	getTaskSettings: 'store:get-task-settings',
 	getAgentRoutingSettings: 'store:get-agent-routing-settings',
+	setAgentRoutingSettings: 'store:set-agent-routing-settings',
 	getConnectorSettings: 'store:get-connector-settings',
 	getAssistantOperator: 'store:get-assistant-operator',
 	saveAssistantOperator: 'store:save-assistant-operator',
@@ -810,6 +811,10 @@ interface StoreInvokeChannelMap {
 	};
 	[StoreChannels.getAgentRoutingSettings]: {
 		args: [];
+		result: import('../store').AgentRoutingSettings;
+	};
+	[StoreChannels.setAgentRoutingSettings]: {
+		args: [settings: import('../store').AgentRoutingSettings];
 		result: import('../store').AgentRoutingSettings;
 	};
 	[StoreChannels.getConnectorSettings]: {
