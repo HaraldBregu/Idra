@@ -34,6 +34,7 @@ import { ToolService, type AgentTool, type CronToolContext, type ToolContext, ty
 import type { AgentCapabilityServicePort } from '../capabilities';
 import { AgentCapabilityService } from '../capabilities';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-run';
+import { shouldExposeStartupFilesTool } from './routing/intent';
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -246,9 +247,12 @@ export class AgentService {
 				this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow),
 				agentConfig
 			);
+			const startupToolAllowed = bootstrapPending || shouldExposeStartupFilesTool(message);
 			const allowedTools = bootstrapPending
 				? [startupTool]
-				: [...configuredTools, startupTool];
+				: startupToolAllowed
+					? [...configuredTools, startupTool]
+					: configuredTools;
 			ctx.approvalRequired = this.agentToolApprovals(agentConfig, allowedTools);
 			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
 			const result = await this.executionService.run({
