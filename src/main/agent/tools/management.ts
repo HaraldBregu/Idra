@@ -377,11 +377,13 @@ export function selectAgentToolsForTurn(
 	const ranked = rankToolsForPrompt(tools, message);
 	const matched = ranked.filter((entry) => entry.score > 0);
 	const toolsForPrompt = selectPromptTools(matched, message, options);
+	const promptToolNames = new Set(toolsForPrompt.map((tool) => tool.name));
+	const rankedForPrompt = matched.filter((entry) => promptToolNames.has(entry.tool.name));
 	const systemPromptSuffix =
 		options?.forceSelection && toolsForPrompt.length > 0
 			? renderSelectedToolPrompt(toolsForPrompt)
 			: '';
-	return { toolsForPrompt, systemPromptSuffix, rankedTools: matched as unknown as AgentTool[] };
+	return { toolsForPrompt, systemPromptSuffix, rankedTools: rankedForPrompt as unknown as AgentTool[] };
 }
 
 function rankToolsForPrompt(tools: readonly AgentTool[], message: string): Array<{ tool: AgentTool; score: number; explanations: string[] }> {
@@ -434,10 +436,10 @@ type ToolIntent =
 function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolIntent {
 	const normalized = normalizeForCapabilityMatch(message);
 	const fileContext = hasFileContext(message, tokens);
-	if (/\b(every|daily|weekly|monthly|tomorrow|tonight|schedule|scheduled|remind|reminder|recurring|cron)\b/.test(normalized)) return 'scheduled';
 	if (/\b(email|gmail|inbox|mail)\b/.test(normalized)) return 'email';
 	if (/\b(calendar|agenda|meeting|event|events)\b/.test(normalized)) return 'calendar';
 	if (/\b(google drive|drive|document|documents)\b/.test(normalized)) return 'drive';
+	if (/\b(every|daily|weekly|monthly|tomorrow|tonight|schedule|scheduled|remind|reminder|recurring|cron)\b/.test(normalized)) return 'scheduled';
 	if (/\b(weather|latest|current|web|url|http|fetch)\b/.test(normalized)) return 'web';
 	if (/\b(shell|script|scripts|python|node|bash|terminal|command)\b/.test(normalized) && hasAny(tokens, ['run', 'execute', 'start', 'open'])) return 'run_shell';
 	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
