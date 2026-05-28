@@ -1030,6 +1030,70 @@ function normalizeToolPermission(
 	return fallbackPermission;
 }
 
+function executableToolFor(
+	connector: RuntimeConnector,
+	tool: ConnectorTool,
+	query: string
+): ConnectorExecutableTool {
+	const connectorId = connector.id ?? connector.connectorId ?? connector.serverLabel;
+	const score = scoreConnectorTool(query, [
+		agentToolNameFor(connector, tool.name),
+		tool.name,
+		tool.description,
+		connector.name,
+		connector.serverDescription,
+		connector.serverLabel,
+		connector.connectorId,
+	]);
+	return {
+		id: connectorId + ':' + tool.name,
+		name: agentToolNameFor(connector, tool.name),
+		displayName: connector.name + ': ' + tool.name,
+		description: connector.name + ': ' + (tool.description ?? 'Run ' + tool.name + '.'),
+		connectorId,
+		connectorName: connector.name,
+		connectorProviderId: connector.connectorId,
+		toolName: tool.name,
+		inputSchema: tool.inputSchema,
+		permission: tool.permission,
+		requiresApproval: tool.requiresApproval,
+		score,
+	};
+}
+
+function agentToolNameFor(connector: RuntimeConnector, toolName: string): string {
+	return ((connector.serverLabel ?? connector.id ?? connector.connectorId ?? connector.name) + '_' + toolName)
+		.toLowerCase()
+		.replace(/[^a-z0-9_]+/g, '_')
+		.replace(/^_+|_+$/g, '');
+}
+
+function scoreConnectorTool(query: string, values: Array<string | undefined>): number {
+	const normalizedQuery = normalizeSearchText(query);
+	if (!normalizedQuery) return 1;
+	const tokens = normalizedQuery.split(' ').filter((token) => token.length >= 3);
+	if (tokens.length === 0) return 1;
+	let score = 0;
+	for (const value of values) {
+		const normalizedValue = normalizeSearchText(value ?? '');
+		if (!normalizedValue) continue;
+		if (normalizedValue === normalizedQuery) score += 100;
+		if (normalizedValue.includes(normalizedQuery)) score += 25;
+		for (const token of tokens) {
+			if (normalizedValue.split(' ').includes(token)) {
+				score += 10;
+			} else if (normalizedValue.includes(token)) {
+				score += 3;
+			}
+		}
+	}
+	return score;
+}
+
+function normalizeSearchText(value: string): string {
+	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
 function mcpWithConnectorAuthorization(connector: RuntimeConnector): ConnectorMcpConfig | undefined {
 	if (!connector.mcp) return undefined;
 	const authorization =
