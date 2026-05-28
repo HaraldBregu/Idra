@@ -261,8 +261,13 @@ describe('agent startup files service', () => {
 		await expect(fs.readFile(path.join(agentRoot, 'TOOLS.md'), 'utf8')).resolves.toContain(
 			'# TOOLS.md - Local Notes'
 		);
-		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
-		expect((await readStartupState(agentRoot)).setupCompletedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
+		await expect(fs.readFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
+			'# BOOTSTRAP.md - Hello, World'
+		);
+		const initialState = await readStartupState(agentRoot);
+		expect(initialState.bootstrapSeededAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
+		expect(initialState.setupCompletedAt).toBeUndefined();
+		await expect(service.isBootstrapPending('main')).resolves.toBe(true);
 
 		await service.writeFile('main', 'SOUL.md', 'custom soul');
 		await service.ensureReady('main');
@@ -294,7 +299,7 @@ describe('agent startup files service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('does not create BOOTSTRAP.md during normal startup template seeding', async () => {
+	it('records setup completion when seeded BOOTSTRAP.md is deleted', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({
 			rootPath: path.join(root, 'agent', 'workspaces'),
@@ -302,6 +307,7 @@ describe('agent startup files service', () => {
 		const agentRoot = service.getRootPath('main');
 
 		await service.ensureReady('main');
+		await fs.rm(path.join(agentRoot, 'BOOTSTRAP.md'), { force: true });
 		await service.ensureReady('main');
 
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
