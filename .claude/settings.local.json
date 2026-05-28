@@ -218,8 +218,7 @@
       "Bash(sed -i '' 's|./local/exec|./execution/tools|' /Users/haraldbregu/Documents/friday/src/main/tools/exec.ts)",
       "Bash(sed -i '' 's|./local/fs|./files/tools|' /Users/haraldbregu/Documents/friday/src/main/tools/fs.ts)",
       "Bash(sed -i '' 's|./local/registry|./catalog/registry|' /Users/haraldbregu/Documents/friday/src/main/tools/registry.ts)",
-      "Bash(echo \"Exit code: $?\")",
-      "WebFetch(domain:medium.com)"
+      "Bash(echo \"Exit code: $?\")"
     ],
     "deny": [
       "Bash(git push --force:*)",
