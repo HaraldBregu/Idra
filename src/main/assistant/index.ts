@@ -149,7 +149,12 @@ export async function assistant(input: AssistantRunInput): Promise<AssistantRunR
   for (const tool of input.deferredTools ?? []) deferredTools.set(tool.name, tool);
 
   for (let turn = 0; turn < maxTurns; turn += 1) {
-    const tools = [...visibleTools.values()].map(({ execute: _execute, ...metadata }) => metadata);
+    const tools: Omit<AssistantTool, "execute">[] = [];
+
+    for (const tool of visibleTools.values()) {
+      const { name, description, inputSchema, permission, risk, tags, lockKey } = tool;
+      tools.push({ name, description, inputSchema, permission, risk, tags, lockKey });
+    }
     const output = await input.model({ agent: ASSISTANT_AGENT, turn, messages, tools });
     trace.push({ type: "model", turn, detail: { hasContent: Boolean(output.content), toolCalls: output.toolCalls?.length ?? 0 } });
 
