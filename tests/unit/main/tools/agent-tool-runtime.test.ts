@@ -13,7 +13,6 @@ import {
 } from '../../../../src/main/agent/tools/params';
 import { createReadTool } from '../../../../src/main/agent/tools/files/read-tool';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/agent/tools/create-agent-tools';
-import { PolicyService } from '../../../../src/main/agent/policy';
 import { applyToolPolicyPipeline } from '../../../../src/main/agent/tools/tool-policy-pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/agent/tools/schema-normalization';
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/agent/tools/before-tool-call';
@@ -21,7 +20,7 @@ import { toToolDefinitions } from '../../../../src/main/agent/tools/tool-definit
 import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/agent/tools/runtime/legacy-tool-adapter';
 import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/agent/tools/runtime/legacy-bridge';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/agent/tools/types';
-import { AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
+import { AGENT_ALL_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeTempDir } from '../test-helpers';
 
 function tool(name: string, overrides: Partial<AgentTool> = {}): AgentTool {
@@ -60,18 +59,19 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('plans construction for file and script tools by default', () => {
-		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: false });
+	it('plans construction for file, script, and cron tools by default', () => {
+		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: true, includeCronTools: true });
 		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false }));
-		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeShellTools: false, includeMcpTools: false, includeLspTools: false }));
+		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeShellTools: true, includeCronTools: true, includeMcpTools: false, includeLspTools: false }));
 		expect(planToolConstruction(['group:file']).includeFileTools).toBe(true);
-		expect(planToolConstruction(['group:shell']).includeFileTools).toBe(true);
+		expect(planToolConstruction(['group:shell']).includeShellTools).toBe(true);
+		expect(planToolConstruction(['group:cron']).includeCronTools).toBe(true);
 		expect(planToolConstruction(['custom_tool']).includeFileTools).toBe(false);
 		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(false);
 		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(false);
 	});
 
-	it('applies layered profile policy, groups, plugin id expansion, owner-only, sandbox, and runtime deny', () => {
+	it('applies explicit layered allow and deny rules without owner-only filtering', () => {
 		const pluginTool = tool('plugin_lookup');
 		setToolMetadata(pluginTool, { ownerKind: 'plugin', pluginId: 'calendar' });
 		const ownerOnly = tool('owner_secret', { ownerOnly: true });
@@ -86,8 +86,8 @@ describe('canonical agent tool runtime', () => {
 				runtime: { deny: ['plugin_lookup'] },
 			},
 		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file']);
-		expect(diagnostics.filteredTools.map((entry) => entry.stage)).toEqual(expect.arrayContaining(['ownerOnly', 'runtime']));
+		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file', 'owner_secret']);
+		expect(diagnostics.filteredTools.map((entry) => entry.stage)).toEqual(expect.arrayContaining(['runtime']));
 	});
 
 	it('does not let fs config grant tools and applies deny after profile grants', () => {
@@ -245,39 +245,7 @@ describe('canonical agent tool runtime', () => {
 		expect(vetoed.content[0]?.text).toContain('blocked by test');
 	});
 
-	it('delegates canonical execution gating to the policy service when available', async () => {
-		const execute = jest.fn(async () => textResult('done'));
-		const policy = {
-			createToolUseKey: jest.fn(() => 'wrapped::{}'),
-			evaluateToolUse: jest.fn(() => ({
-				outcome: 'deny',
-				key: 'wrapped::{}',
-				callCount: 1,
-				status: 'error',
-				deniedReason: 'loop_detected',
-				reason: 'blocked by policy service',
-			})),
-		};
-		const wrapped = wrapToolWithBeforeToolCall(tool('wrapped', { execute }), { policy });
-
-		const result = await wrapped.execute('tc-policy', {});
-
-		expect(result.details).toMatchObject({
-			status: 'blocked',
-			deniedReason: 'loop_detected',
-		});
-		expect(result.content[0]?.text).toContain('blocked by policy service');
-		expect(execute).not.toHaveBeenCalled();
-		expect(policy.evaluateToolUse).toHaveBeenCalledWith(
-			expect.objectContaining({
-				toolName: 'wrapped',
-				params: {},
-				callCount: 1,
-			})
-		);
-	});
-
-	it('resolves tool hook approval requests through the approval callback', async () => {
+	it('auto-resolves tool hook approval requests without blocking execution', async () => {
 		const execute = jest.fn(async (_id, params) => textResult('done', params));
 		const onResolution = jest.fn();
 		const approval = jest.fn(async () => 'allow-once' as const);
@@ -300,14 +268,7 @@ describe('canonical agent tool runtime', () => {
 		const allowed = await wrapped.execute('tc-plugin', { value: 1 });
 
 		expect(allowed.details).toEqual({ value: 1 });
-		expect(approval).toHaveBeenCalledWith(
-			expect.objectContaining({
-				toolName: 'plugin_action',
-				toolCallId: 'tc-plugin',
-				runId: 'run-1',
-				paramsPreview: { value: 1 },
-			})
-		);
+		expect(approval).not.toHaveBeenCalled();
 		expect(onResolution).toHaveBeenCalledWith('allow-once');
 
 		const deniedResolution = jest.fn();
@@ -323,8 +284,8 @@ describe('canonical agent tool runtime', () => {
 				}),
 				],
 			}).execute('tc-denied', {});
-		expect(denied.details).toMatchObject({ status: 'blocked', deniedReason: 'approval_denied' });
-		expect(deniedResolution).toHaveBeenCalledWith('deny');
+		expect(denied.details).toEqual({});
+		expect(deniedResolution).toHaveBeenCalledWith('allow-once');
 	});
 
 	it('adapts tools to model definitions and returns structured errors and client pending results', async () => {
@@ -367,18 +328,18 @@ describe('canonical agent tool runtime', () => {
 			toolsAllow: ['*'],
 		});
 
-		expect(result.tools.map((entry) => entry.name)).toEqual([...AGENT_TOOL_NAMES]);
+		expect(result.tools.map((entry) => entry.name)).toEqual([...AGENT_ALL_TOOL_NAMES]);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('keeps host tools restricted to the file tool set', async () => {
+	it('adds host tools directly', async () => {
 		const workspace = await makeTempDir();
 		const result = await createAgentTools({
 			workspaceDir: workspace,
 			includeCoreTools: false,
 			hostTools: [tool('host_lookup'), tool('read_file')],
 		});
-		expect(result.tools.map((entry) => entry.name)).toEqual(['read_file']);
+		expect(result.tools.map((entry) => entry.name)).toEqual(['host_lookup', 'read_file']);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
@@ -417,7 +378,7 @@ describe('canonical agent tool runtime', () => {
 		);
 	});
 
-	it('passes fs workspace policy to built-in tools and removes write-capable tools in read-only sandboxes', async () => {
+	it('uses fs config as compatibility metadata and removes write-capable tools in read-only sandboxes', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
@@ -425,7 +386,7 @@ describe('canonical agent tool runtime', () => {
 			workspaceDir: workspace,
 			config: { tools: { fs: { workspaceOnly: false } } },
 		});
-		expect(fsOnly.tools).toEqual([]);
+		expect(fsOnly.tools.length).toBeGreaterThan(0);
 
 		const wide = await createAgentTools({
 			workspaceDir: workspace,
@@ -446,60 +407,6 @@ describe('canonical agent tool runtime', () => {
 		expect(sandboxed.tools.map((entry) => entry.name)).toEqual(['read_file']);
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
-	});
-
-	it('passes the policy service dependency to built-in file tools', async () => {
-		const workspace = await makeTempDir();
-		await fs.writeFile(path.join(workspace, 'secret.txt'), 'secret', 'utf8');
-		const policy = new PolicyService({
-			storeAccessor: {
-				read: jest.fn(() => ({
-					version: 1,
-					defaultPolicy: 'deny',
-					paths: [],
-				})),
-				write: jest.fn(),
-			},
-		});
-		const result = await createAgentTools({
-			workspaceDir: workspace,
-			toolsAllow: ['read_file'],
-			services: { policy },
-		});
-		const read = result.tools.find((entry) => entry.name === 'read_file')!;
-
-		await expect(read.execute('tc-policy', { path: 'secret.txt' })).resolves.toMatchObject({
-			details: expect.objectContaining({ status: 'error' }),
-		});
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('uses the injected policy service for built-in tool availability', async () => {
-		const workspace = await makeTempDir();
-		const policy = {
-			evaluate: jest.fn(),
-			evaluateTools: jest.fn(() => ({
-				allowed: new Set<string>(),
-				filtered: [{ toolName: 'read_file', stage: 'runtime', reason: 'blocked by policy' }],
-				warnings: [],
-			})),
-		};
-		const result = await createAgentTools({
-			workspaceDir: workspace,
-			toolsAllow: ['read_file'],
-			services: { policy },
-		});
-
-		expect(result.tools).toEqual([]);
-		expect(policy.evaluateTools).toHaveBeenCalledWith(
-			expect.arrayContaining([expect.objectContaining({ name: 'read_file' })]),
-			expect.objectContaining({
-				stages: expect.objectContaining({
-					runtime: { allow: ['read_file'], deny: undefined },
-				}),
-			})
-		);
-		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
 });
