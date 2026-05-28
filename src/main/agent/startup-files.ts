@@ -123,10 +123,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly basePath: string;
 
 	constructor(options: AgentStartupFilesServiceOptions = {}) {
-		this.basePath =
-			options.rootPath ??
-			options.userDataDirectory?.resolve('agent', 'workspaces') ??
-			resolveDefaultUserDataPath('agent', 'workspaces');
+		this.basePath = options.rootPath ?? resolveAppDataPath('agent', 'startup');
 	}
 
 	getRootPath(agentId: string): string {
