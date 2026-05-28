@@ -781,17 +781,27 @@ describe('AgentService', () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
-		const gmailProfileTool: AgentTool = {
-			name: 'my_gmail_get_profile',
-			description: 'My Gmail: Get the connected Gmail profile.',
-			schema: { type: 'object', properties: {}, additionalProperties: false },
-			execute: jest.fn(),
-		};
-		const mcpClient = {
-			createAgentTools: jest.fn(() => [gmailProfileTool]),
+		const connectors = {
+			searchTools: jest.fn(() => [
+				{
+					id: 'my_gmail:get_profile',
+					name: 'my_gmail_get_profile',
+					displayName: 'My Gmail: get_profile',
+					description: 'My Gmail: Get the connected Gmail profile.',
+					connectorId: 'my_gmail',
+					connectorName: 'My Gmail',
+					connectorProviderId: 'google.gmail',
+					toolName: 'get_profile',
+					inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+					permission: 'always-allow',
+					requiresApproval: false,
+					score: 10,
+				},
+			]),
+			execTool: jest.fn(async () => ({ emailAddress: 'user@example.com' })),
 		};
 		const service = new AgentService(
-			{ ...deps, mcpClient: mcpClient as never },
+			{ ...deps, connectors: connectors as never },
 			{
 				sessionBaseDir,
 				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
@@ -810,7 +820,7 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
-		expect(mcpClient.createAgentTools).toHaveBeenCalled();
+		expect(connectors.searchTools).toHaveBeenCalledWith({ query: 'get my gmail profile', limit: 8 });
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
