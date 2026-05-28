@@ -56,7 +56,3 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'apply_patch',
 	'delete_path',
 ] as const satisfies readonly AgentToolName[];
-
-export const AGENT_TOOL_METADATA_BY_NAME = Object.fromEntries(
-	AGENT_TOOLS.map((tool) => [tool.name, tool])
-) as Record<AgentToolName, AgentToolMetadata>;
