@@ -221,11 +221,6 @@ export const StoreChannels = {
 	saveSpeechTranscriberService: 'store:save-speech-transcriber-service',
 } as const;
 
-export const PolicyChannels = {
-	get: 'policy:get',
-	set: 'policy:set',
-} as const;
-
 interface AppInvokeChannelMap {
 	[AppChannels.getLogs]: {
 		args: [limit?: number];
@@ -906,17 +901,6 @@ interface StoreInvokeChannelMap {
 	};
 }
 
-interface PolicyInvokeChannelMap {
-	[PolicyChannels.get]: {
-		args: [];
-		result: import('../policy').PolicyConfig;
-	};
-	[PolicyChannels.set]: {
-		args: [policy: import('../policy').PolicyConfig];
-		result: import('../policy').PolicyConfig;
-	};
-}
-
 export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
@@ -930,8 +914,7 @@ export interface InvokeChannelMap
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
-		StoreInvokeChannelMap,
-		PolicyInvokeChannelMap {}
+		StoreInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
