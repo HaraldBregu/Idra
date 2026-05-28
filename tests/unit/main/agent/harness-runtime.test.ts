@@ -1,4 +1,10 @@
-import { createAgentHarness, type AgentHarnessEvent, type AgentHarnessModelRequest } from '../../../../src/main/agent';
+import {
+	createAgentHarness,
+	InMemoryAgentHarnessOperationLogger,
+	type AgentHarnessEvent,
+	type AgentHarnessModelRequest,
+	type AgentHarnessTool,
+} from '../../../../src/main/agent';
 
 describe('createAgentHarness', () => {
 	it('runs a UI-independent harness with injected runtime layers', async () => {
@@ -131,5 +137,110 @@ describe('createAgentHarness', () => {
 		const child = await harness.runSubagent({ task: 'child', parentSessionId: 'main' });
 		expect(child.session.parentSessionId).toBe('main');
 		expect(child.session.id).not.toBe('main');
+	});
+
+	it('isolates hook failures and still emits after-tool hooks for gate errors', async () => {
+		const logs = new InMemoryAgentHarnessOperationLogger();
+		const afterToolPayloads: unknown[] = [];
+		const tool: AgentHarnessTool = {
+			name: 'validated_lookup',
+			description: 'Lookup with required args',
+			schema: {
+				type: 'object',
+				required: ['q'],
+				properties: { q: { type: 'string' } },
+			},
+			execute: jest.fn(async () => ({
+				status: 'ok' as const,
+				content: [{ type: 'text' as const, text: 'should not execute' }],
+			})),
+		};
+		const harness = await createAgentHarness({
+			modelId: 'gpt-test',
+			model: {
+				async *stream(req) {
+					if (!req.messages.some((entry) => entry.role === 'tool')) {
+						yield { type: 'tool_call_start' as const, id: 'tc1', name: 'validated_lookup' };
+						yield { type: 'tool_call_args_delta' as const, id: 'tc1', jsonDelta: '{}' };
+						yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+						return;
+					}
+					yield { type: 'text_delta' as const, text: 'handled invalid args' };
+					yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+				},
+			},
+			tools: [tool],
+			logs,
+			hooks: [
+				{
+					name: 'broken-before-tool',
+					handle: ({ name }) => {
+						if (name === 'before_tool_call') throw new Error('hook failed');
+					},
+				},
+				{
+					name: 'recorder',
+					handle: ({ name, payload }) => {
+						if (name === 'after_tool_call') afterToolPayloads.push(payload);
+					},
+				},
+			],
+		});
+
+		const result = await harness.execute({ task: 'use invalid args', sessionId: 'hooks' });
+
+		expect(result.finalText).toBe('handled invalid args');
+		expect(tool.execute).not.toHaveBeenCalled();
+		expect(afterToolPayloads).toHaveLength(1);
+		expect(afterToolPayloads[0]).toMatchObject({
+			toolName: 'validated_lookup',
+			result: { status: 'error' },
+		});
+		expect(logs.readAll()).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ type: 'hook.error', data: expect.objectContaining({ lifecycle: 'before_tool_call' }) }),
+				expect.objectContaining({ type: 'tool.executed', data: expect.objectContaining({ status: 'error' }) }),
+			])
+		);
+	});
+
+	it('deduplicates resolved tools with local tools taking priority', async () => {
+		const requests: AgentHarnessModelRequest[] = [];
+		const harness = await createAgentHarness({
+			modelId: 'gpt-test',
+			model: {
+				async *stream(req) {
+					requests.push(req);
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+				},
+			},
+			tools: [
+				{
+					name: 'shared_lookup',
+					description: 'Local lookup',
+					schema: { type: 'object' },
+					execute: jest.fn(),
+				},
+			],
+			externalTools: [
+				{
+					discover: jest.fn(async () => [
+						{
+							name: 'shared_lookup',
+							description: 'External lookup',
+							schema: { type: 'object' },
+							execute: jest.fn(),
+						},
+					]),
+				},
+			],
+		});
+
+		await harness.execute({ task: 'lookup', sessionId: 'dedupe' });
+
+		expect(requests[0].tools.filter((tool) => tool.name === 'shared_lookup')).toEqual([
+			expect.objectContaining({ description: 'Local lookup' }),
+		]);
 	});
 });
