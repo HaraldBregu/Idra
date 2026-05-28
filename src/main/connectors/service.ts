@@ -952,38 +952,6 @@ function normalizeSearchText(value: string): string {
 	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }
 
-function mcpWithoutAuthorization(mcp: ConnectorMcpConfig): ConnectorMcpConfig {
-	if (mcp.transport !== 'http') return mcp;
-	const headers = Object.fromEntries(
-		Object.entries(mcp.headers ?? {}).filter(([key]) => key.toLowerCase() !== 'authorization')
-	);
-	return {
-		...mcp,
-		headers: Object.keys(headers).length > 0 ? headers : undefined,
-	};
-}
-
-function compactMcpConfig(mcp: ConnectorMcpConfig): ConnectorMcpConfig {
-	if (mcp.transport === 'http') {
-		return {
-			transport: 'http',
-			url: mcp.url,
-			...(mcp.method ? { method: mcp.method } : {}),
-			...(mcp.headers && Object.keys(mcp.headers).length > 0 ? { headers: mcp.headers } : {}),
-			...(mcp.sessionId ? { sessionId: mcp.sessionId } : {}),
-			...(mcp.auth ? { auth: mcp.auth } : {}),
-		};
-	}
-	return {
-		transport: 'stdio',
-		command: mcp.command,
-		...(mcp.args ? { args: mcp.args } : {}),
-		...(mcp.cwd ? { cwd: mcp.cwd } : {}),
-		...(mcp.env && Object.keys(mcp.env).length > 0 ? { env: mcp.env } : {}),
-		...(mcp.envSecrets ? { envSecrets: mcp.envSecrets } : {}),
-	};
-}
-
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
@@ -1022,47 +990,6 @@ function redactOAuthTokenSet(token: ConnectorOAuthTokenSet | undefined): Connect
 		accessToken: '',
 		refreshToken: token.refreshToken ? '' : undefined,
 	};
-}
-
-function oauthAuthorizationHeader(token: ConnectorOAuthTokenSet | undefined): string {
-	if (!token?.accessToken) return '';
-	return (token.tokenType?.trim() || 'Bearer') + ' ' + token.accessToken;
-}
-
-function connectorAuthorization(connector: ConnectorConfig | undefined): string {
-	if (!connector) return '';
-	return (
-		oauthAuthorizationHeader(connector.token) ||
-		oauthAuthorizationHeader(connector.oauth?.token) ||
-		connector.authorization?.trim() ||
-		authorizationFromMcp(connector.mcp)
-	);
-}
-
-function normalizeTokenSet(token: ConnectorOAuthTokenSet | undefined): ConnectorOAuthTokenSet | undefined {
-	if (!token?.accessToken?.trim()) return undefined;
-	return {
-		accessToken: token.accessToken.trim(),
-		refreshToken: token.refreshToken?.trim() || undefined,
-		tokenType: token.tokenType?.trim() || undefined,
-		scope: token.scope?.trim() || undefined,
-		expiresAt: token.expiresAt?.trim() || undefined,
-	};
-}
-
-function tokenForStorage(connector: ConnectorConfig): ConnectorOAuthTokenSet | undefined {
-	return normalizeTokenSet(connector.token) ??
-		normalizeTokenSet(connector.oauth?.token) ??
-		tokenFromAuthorization(connector.authorization) ??
-		tokenFromAuthorization(authorizationFromMcp(connector.mcp));
-}
-
-function tokenFromAuthorization(authorization: string | undefined): ConnectorOAuthTokenSet | undefined {
-	const value = authorization?.trim();
-	if (!value) return undefined;
-	const match = /^Bearer\s+(.+)$/i.exec(value);
-	if (!match?.[1]?.trim()) return undefined;
-	return { accessToken: match[1].trim(), tokenType: 'Bearer' };
 }
 
 function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
