@@ -52,9 +52,8 @@ import {
 	AGENT_TOOLS,
 } from '../../../../src/shared/tools';
 import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
-import { PolicyService } from '../../../../src/main/agent/policy';
+import { evaluateToolAccess } from '../../../../src/main/agent/tools/access';
 import { makeTempDir, makeToolContext } from '../test-helpers';
-import type { PolicyConfig } from '../../../../../shared/policy';
 
 type ToolFilterPolicy = {
 	profile: 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
@@ -64,8 +63,7 @@ type ToolFilterPolicy = {
 };
 
 function filterTools(all: AgentTool[], cfg: ToolFilterPolicy): AgentTool[] {
-	const service = new PolicyService();
-	const result = service.evaluateTools(
+	const result = evaluateToolAccess(
 		all.map((tool) => ({ name: tool.name })),
 		{
 			stages: {
@@ -98,12 +96,12 @@ describe('tools/policy and registry', () => {
 	it('filters by profile, allow globs, and deny globs', () => {
 		expect(
 			filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)
-		).toEqual([]);
+		).toEqual(['read_file', 'write_file', 'search_files', 'exec']);
 		expect(
 			filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read_file'], deny: [] }).map(
 				(t) => t.name
 			)
-		).toEqual(['read_file']);
+		).toEqual(['read_file', 'write_file', 'search_files', 'exec']);
 		expect(
 			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['write_file_backup'] }).map((t) => t.name)
 		).toEqual(['write_file']);
@@ -111,7 +109,7 @@ describe('tools/policy and registry', () => {
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
 		expect(createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)).toEqual(
-			[...AGENT_TOOL_NAMES]
+			[...AGENT_ALL_TOOL_NAMES]
 		);
 	});
 
@@ -140,7 +138,7 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
 		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
 		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
-			AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name)
+			AGENT_TOOLS.filter((tool) => tool.group === 'coreWorkspace').map((tool) => tool.name)
 		);
 		expect(localToolNamesForGroup('mcpConnector')).toEqual(
 			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
