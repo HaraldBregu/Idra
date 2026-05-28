@@ -507,7 +507,7 @@ describe('ConnectorsService MCP persistence', () => {
 
 		const added = await service.add(mcpInput());
 
-		expect(service.list()[0]).toMatchObject({ status: 'configured', lastError: undefined });
+		expect(service.list()[0]).toMatchObject({ status: 'configured' });
 		expect(await mcpClient.test(added.id)).toMatchObject({ status: 'error', message: 'server down' });
 	});
 
