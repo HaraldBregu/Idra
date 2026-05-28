@@ -31,6 +31,14 @@ export interface PolicyConfig {
 
 const defaultPolicyService = new PolicyService();
 
+const DISABLED_TOOL_GROUPS: readonly string[] = [
+	'group:stateTask',
+	'group:humanDecision',
+	'group:skill',
+	'group:mcpConnector',
+	'group:cron',
+];
+
 export function createTools(
 	cfg: PolicyConfig,
 	policy: Pick<PolicyServicePort, 'evaluateTools'> = defaultPolicyService
@@ -50,7 +58,7 @@ export function createTools(
 			profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },
 			runtime: {
 				allow: cfg.allow.length > 0 ? cfg.allow : undefined,
-				deny: cfg.deny,
+				deny: [...cfg.deny, ...DISABLED_TOOL_GROUPS],
 			},
 		},
 	});
