@@ -1,6 +1,6 @@
 export interface AgentToolMetadata {
 	name: string;
-	title: string;
+	label: string;
 	description: string;
 }
 
