@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ConnectorCatalogEntry, ConnectorConfig, ConnectorTool } from '../../../../../../../shared/connector';
 
-export type ConnectorCatalog = readonly ConnectorCatalogEntry[];
+type ConnectorConfig = Awaited<ReturnType<Window['connectors']['list']>>[number];
+type ConnectorTool = Awaited<ReturnType<Window['connectors']['listTools']>>[number];
 
 export function useConnectors() {
-	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
 	const [connectors, setConnectors] = useState<ConnectorConfig[]>([]);
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
@@ -14,11 +13,7 @@ export function useConnectors() {
 
 	const load = useCallback(async (): Promise<void> => {
 		try {
-			const [nextCatalog, nextConnectors] = await Promise.all([
-				window.connectors.catalog(),
-				window.connectors.list(),
-			]);
-			setCatalog(nextCatalog);
+			const nextConnectors = await window.connectors.list();
 			setConnectors(nextConnectors);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -82,7 +77,6 @@ export function useConnectors() {
 	};
 
 	return {
-		catalog,
 		connectors,
 		busyId,
 		error,
