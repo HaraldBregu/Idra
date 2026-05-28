@@ -3,6 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { resolveDefaultAgentDataPath } from '../storage';
 import type { TranscriptEntry } from '../../provider/types';
+import { sanitizeToolUseResultPairing } from './repair';
 
 export type SessionStatus = 'active' | 'waiting' | 'completed' | 'failed' | 'cancelled';
 
@@ -57,7 +58,8 @@ export async function loadSession(
 
 export async function loadExistingSession(id: string, options: SessionStoreOptions = {}): Promise<SessionFile | null> {
 	try {
-		return JSON.parse(await fs.readFile(sessionPath(id, options), 'utf8')) as SessionFile;
+		const session = JSON.parse(await fs.readFile(sessionPath(id, options), 'utf8')) as SessionFile;
+		return { ...session, transcript: sanitizeToolUseResultPairing(session.transcript ?? []) };
 	} catch (error) {
 		if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
 		throw error;
