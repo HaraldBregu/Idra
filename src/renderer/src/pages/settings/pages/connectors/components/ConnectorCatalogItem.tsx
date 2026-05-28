@@ -1,13 +1,14 @@
 import { ChevronRight } from 'lucide-react';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { ConnectorIcon } from './ConnectorIcon';
-import type { ConnectorCatalog } from '../hooks/useConnectors';
+
+type CatalogItem = Awaited<ReturnType<Window['connectors']['catalog']>>[number];
 
 export function ConnectorCatalogItem({
 	item,
 	onConfigure,
 }: {
-	readonly item: ConnectorCatalog[number];
+	readonly item: CatalogItem;
 	readonly onConfigure: () => void;
 }) {
 	return (
