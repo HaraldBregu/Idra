@@ -8,8 +8,7 @@ import type {
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/agent/run-logger';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import { PolicyService } from '../../../../src/main/agent/policy';
-import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
+import { AGENT_ALL_TOOL_NAMES, AGENT_DEFAULT_TOOL_GROUPS } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 const CORE_WORKSPACE_TOOL_NAMES = AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name);
@@ -64,15 +63,6 @@ function makeDeps(workspace = '/workspace') {
 			resolveExisting: jest.fn(async (...segments: string[]) =>
 				[workspace, ...segments].join('/')
 			),
-		} as never,
-		workspace: {
-			getRootPath: jest.fn(() => workspace),
-			isBootstrapPending: jest.fn(async () => false),
-			loadContextFiles: jest.fn(async () => []),
-			listWorkspaceFiles: jest.fn(async () => []),
-			readWorkspaceFile: jest.fn(),
-			writeWorkspaceFile: jest.fn(),
-			completeBootstrap: jest.fn(),
 		} as never,
 		startupFiles: {
 			getRootPath: jest.fn(() => `${workspace}/agent/workspaces/main`),
@@ -194,12 +184,9 @@ describe('AgentService', () => {
 			getToolRegistry: jest.fn(() => new Map()),
 			getToolsByGroup: jest.fn(() => []),
 		};
-		const policy: any = {
-			evaluateToolRequest: jest.fn(() => ({ shouldUseTools: true, reason: 'test' })),
-		};
 		let turn = 0;
 		const service = new AgentService(
-			{ ...deps, policy: policy as never, toolService: toolService as never },
+			{ ...deps, toolService: toolService as never },
 			{
 				sessionBaseDir,
 				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
@@ -600,39 +587,6 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
-	it('uses the injected policy service for request-level tool use', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
-		const deps = makeDeps();
-		const toolsFactory = jest.fn(() => []);
-		const policy = {
-			evaluateToolRequest: jest.fn(() => ({ shouldUseTools: false, reason: 'direct answer' })),
-		};
-		const service = new AgentService(
-			{ ...deps, policy: policy as never },
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
-				providerFactory: () =>
-					provider([
-						{ type: 'text_delta', text: 'hello' },
-						{
-							type: 'message_end',
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						},
-					]),
-				toolsFactory,
-			}
-		);
-
-		await expect(service.send('hello there')).resolves.toBe('hello');
-		expect(policy.evaluateToolRequest).toHaveBeenCalledWith({ userRequest: 'hello there' });
-		expect(toolsFactory).not.toHaveBeenCalled();
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
-	});
-
 	it('exposes available tools when the user asks about tool capabilities', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
@@ -879,31 +833,15 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('uses file policy grants for outside writes in agent tool execution', async () => {
+	it('writes outside the workspace directly in agent tool execution', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
-		const outsideFile = path.join(outside, 'policy-write.txt');
+		const outsideFile = path.join(outside, 'outside-write.txt');
 		const deps = makeDeps(workspace);
-		const policy = new PolicyService({
-			storeAccessor: {
-				read: jest.fn(() => ({
-					version: 1,
-					defaultPolicy: 'deny',
-					paths: [
-						{
-							path: outside,
-							permissions: ['read', 'write', 'create', 'delete'],
-							recursive: true,
-						},
-					],
-				})),
-				write: jest.fn(),
-			},
-		});
 		let turn = 0;
 		const service = new AgentService(
-			{ ...deps, policy },
+			deps,
 			{
 				sessionBaseDir,
 				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
@@ -916,7 +854,7 @@ describe('AgentService', () => {
 								id: 'write-outside',
 								jsonDelta: JSON.stringify({
 									path: outsideFile,
-									content: 'from policy',
+									content: 'outside write',
 								}),
 							};
 							yield { type: 'tool_call_end' as const, id: 'write-outside' };
@@ -939,7 +877,7 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send(`write ${outsideFile}`)).resolves.toBe('write complete');
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('from policy');
+		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('outside write');
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(`wrote ${outsideFile}`);
 
@@ -970,7 +908,7 @@ describe('AgentService', () => {
 
 		await expect(service.send('Do you have any internal tools?')).resolves.toBe('tool inventory ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual([...AGENT_TOOL_NAMES]);
+		expect(toolNames).toEqual([...AGENT_ALL_TOOL_NAMES]);
 		expect(toolNames).not.toContain('exec');
 		expect(toolNames).not.toContain('process');
 		expect(toolNames).not.toContain('web_fetch');
@@ -980,7 +918,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('does not expose cron for scheduled task requests', async () => {
+	it('exposes cron tools for scheduled task requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -1003,8 +941,10 @@ describe('AgentService', () => {
 		await expect(
 			service.send('schedule a task that runs each 5 minutes and creates lorem ipsum data')
 		).resolves.toBe('scheduled');
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('cron');
-		expect(requests[0]!.system).not.toContain('**cron**');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
+			expect.arrayContaining(['cron_create'])
+		);
+		expect(requests[0]!.system).toContain('**cron_create**');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
