@@ -129,6 +129,28 @@ Use existing file names when extending the implementation:
 
 Add a new file only when it represents a durable responsibility that does not fit the existing set.
 
+## Memory Architecture
+
+The harness works across three memory layers with fundamentally different properties. Every piece of state the agent produces belongs to exactly one layer.
+
+**Layer 1 — Filesystem (long-term memory)**
+Durable state that survives session boundaries: persisted sessions, operation logs, snapshots, and any files produced by tools. This is the primary state mechanism in production harnesses. The agent can resume from a crash by reading back from the filesystem. No vector databases are required for basic long-term memory — structured files are sufficient and more reliable.
+
+**Layer 2 — RAM (short-term memory)**
+Working memory for the current session: the in-memory conversation transcript, loaded skill instructions, and discovered tool lists. Fast but volatile — lost on process exit. The `InMemoryAgentHarnessPersistence` and `InMemoryAgentHarnessOperationLogger` live here. Do not treat RAM as a substitute for filesystem persistence.
+
+**Layer 3 — Context Window (what the model sees)**
+The strictest constraint. Everything the model knows about the current task must fit within the context window minus the reserve for output and tool calls. Context window contents are assembled fresh each turn from layers 1 and 2 by `buildContext` and `compactSessionForModel`.
+
+**Memory orchestration cycle for each model turn:**
+
+1. Load relevant state from the filesystem (via `AgentHarnessPersistence` and `AgentHarnessMemory`).
+2. Assemble the context window: select, summarize, and budget the loaded state.
+3. Run the model turn.
+4. Persist produced state to the filesystem before discarding it from RAM.
+
+**Durability invariant**: memory must be flushed to the filesystem before being dropped from the context window or RAM. This is a strict ordering requirement. A crash between step 3 and step 4 must leave the filesystem in a state that allows resumption — not in a state where work was performed but not recorded.
+
 ## Context Shaping
 
 The harness must retrieve and structure only the information the model needs for the current task. Flooding the model with all available documents or memory entries degrades reasoning quality and wastes context budget.
