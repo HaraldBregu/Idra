@@ -789,7 +789,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const decision = this.config.approvals
 			? await this.config.approvals.checkpoint(request)
 			: { approved: false, reason: request.reason };
-		this.emit({ type: 'approval.resolved', request: safeRequest, decision });
+		this.emit({ type: 'approval.resolved', request: safeRequest, decision: this.redactApprovalDecision(decision) });
 		return decision;
 	}
 
