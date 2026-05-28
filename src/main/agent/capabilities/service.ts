@@ -160,21 +160,6 @@ function decideCapabilities(input: {
 	};
 }
 
-function matchesPrompt(prompt: string, values: string[]): boolean {
-	const normalizedPrompt = normalizeForMatch(prompt);
-	if (!normalizedPrompt) return false;
-	return values.some((value) => {
-		const words = normalizeForMatch(value)
-			.split(' ')
-			.filter((word) => word.length >= 4);
-		return words.some((word) => normalizedPrompt.includes(word));
-	});
-}
-
-function normalizeForMatch(value: string): string {
-	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-
 function trimPrompt(value: string): string {
 	const trimmed = value.trim();
 	return trimmed.length <= MAX_SKILL_PROMPT_CHARS
