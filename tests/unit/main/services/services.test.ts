@@ -328,7 +328,7 @@ describe('agent startup files service', () => {
 		await fs.writeFile(path.join(agentRoot, 'USER.md'), 'custom user', 'utf8');
 		await service.ensureReady('main');
 
-		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).resolves.toBeUndefined();
+		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
 		const state = await readStartupState(agentRoot);
 		expect(state.setupCompletedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
 		await expect(service.isBootstrapPending('main')).resolves.toBe(false);
