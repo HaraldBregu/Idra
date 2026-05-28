@@ -7,7 +7,7 @@ import {
 	resolveMemoryFlushPlan,
 	sanitizeTranscriptForMemory,
 } from '../../../src/main/agent/memory/runtime';
-import { saveSession, type SessionFile } from '../../../src/main/agent/session/store';
+import { saveSession, type SessionFile } from '../../../src/main/agent/context/session/store';
 import { makeTempDir } from './test-helpers';
 
 function session(id: string, transcript: SessionFile['transcript']): SessionFile {

@@ -1,5 +1,5 @@
 import { AgentCapabilityService } from '../../../../src/main/agent/capabilities';
-import type { AgentTool } from '../../../../src/main/agent/tools';
+import type { AgentTool } from '../../../../src/main/agent/capabilities/local';
 import type { SkillDetails, SkillSearchResult } from '../../../../src/shared/skills';
 import { makeToolContext } from '../test-helpers';
 

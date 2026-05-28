@@ -6,8 +6,8 @@ import {
 	registerAgentToolResultMiddleware,
 	registerAgentHarnessHookHandler,
 } from '../../../../src/main/agent';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import type { SessionFile } from '../../../../src/main/agent/session/store';
+import type { AgentTool } from '../../../../src/main/agent/capabilities/local/types';
+import type { SessionFile } from '../../../../src/main/agent/context/session/store';
 import { makeToolContext } from '../test-helpers';
 
 function session(): SessionFile {

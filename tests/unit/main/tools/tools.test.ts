@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { beforeToolCall, newCallTracker } from '../../../../src/main/agent/tools/before-call';
+import { beforeToolCall, newCallTracker } from '../../../../src/main/agent/capabilities/local/before-call';
 import {
 	applyPatchTool,
 	copyTool,
@@ -19,7 +19,7 @@ import {
 	moveTool,
 	readTool,
 	writeTool,
-} from '../../../../src/main/agent/tools/fs';
+} from '../../../../src/main/agent/capabilities/local/fs';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -29,9 +29,9 @@ import {
 	cronStartTool,
 	cronStopTool,
 	cronUpdateTool,
-} from '../../../../src/main/agent/tools/cron/tools';
-import { scriptRunTool } from '../../../../src/main/agent/tools/scripts/tools';
-import { runShellTool } from '../../../../src/main/agent/tools/workspace/tools';
+} from '../../../../src/main/agent/capabilities/local/cron/tools';
+import { scriptRunTool } from '../../../../src/main/agent/capabilities/local/scripts/tools';
+import { runShellTool } from '../../../../src/main/agent/capabilities/local/workspace/tools';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -39,7 +39,7 @@ import {
 	localToolNamesForGroup,
 	localToolNamesForProfile,
 	PRELOADED_LOCAL_TOOLS,
-} from '../../../../src/main/agent/tools/registry';
+} from '../../../../src/main/agent/capabilities/local/registry';
 import {
 	AGENT_TOOL_APPROVAL_ALWAYS,
 	AGENT_TOOL_APPROVAL_NONE,
@@ -51,8 +51,8 @@ import {
 	AGENT_TOOL_NAMES,
 	AGENT_TOOLS,
 } from '../../../../src/shared/tools';
-import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
-import { evaluateToolAccess } from '../../../../src/main/agent/tools/access';
+import { textResult, type AgentTool } from '../../../../src/main/agent/capabilities/local/types';
+import { evaluateToolAccess } from '../../../../src/main/agent/capabilities/local/access';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
 type ToolFilterPolicy = {

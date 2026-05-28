@@ -7,7 +7,7 @@ import type {
 	ProviderStreamRequest,
 } from '../../../../src/main/provider/types';
 import { AgentService } from '../../../../src/main/agent';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
+import type { AgentTool } from '../../../../src/main/agent/capabilities/local/types';
 import { AGENT_ALL_TOOL_NAMES, AGENT_TOOL_GROUPS } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 

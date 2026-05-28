@@ -2,7 +2,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app } from 'electron';
 import { ConnectorsService } from '../../../../src/main/connectors';
-import { AgentMcpClientService } from '../../../../src/main/agent/mcp';
+import { AgentMcpClientService } from '../../../../src/main/agent/capabilities/mcp';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { AgentStartupFilesService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';

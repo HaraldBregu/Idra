@@ -30,7 +30,7 @@ import {
 	sanitizeConnectorInput,
 	toStoredConnectorRecords,
 } from '../../../../src/main/connectors';
-import { AgentMcpClientService } from '../../../../src/main/agent/mcp';
+import { AgentMcpClientService } from '../../../../src/main/agent/capabilities/mcp';
 import type { ConnectorCatalogEntry, ConnectorConfig, ConnectorTool } from '../../../../src/shared/connector';
 import { makeLogger } from '../test-helpers';
 

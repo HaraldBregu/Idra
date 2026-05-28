@@ -19,9 +19,9 @@ import {
 	type SessionContext,
 	type Tool,
 	type ToolExecutionContext,
-} from '../../../../src/main/agent/tools/management';
-import { writeTool } from '../../../../src/main/agent/tools/fs';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
+} from '../../../../src/main/agent/capabilities/local/management';
+import { writeTool } from '../../../../src/main/agent/capabilities/local/fs';
+import type { AgentTool } from '../../../../src/main/agent/capabilities/local/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
 function sessionContext(permissions: string[] = ['*']): SessionContext {
