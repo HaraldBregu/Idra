@@ -12,7 +12,7 @@ import {
 	type ToolProfile,
 } from './access';
 
-export type { ToolAccessRule as ToolPolicy };
+export type { ToolAccessRule as ToolPolicy, ToolProfile };
 
 export type ToolCatalogIndex = ToolAccessIndex;
 
