@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../service-registry';
+import type { MainServiceContainer } from '../app/service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/ipc-channels';
 import {

@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import { ipcMain, shell } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../service-registry';
+import type { MainServiceContainer } from '../app/service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
 import {

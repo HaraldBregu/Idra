@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../service-registry';
+import type { MainServiceContainer } from '../app/service-registry';
 import { parseTaskRunRequest } from '../tasks';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { TaskChannels } from '../../shared/ipc-channels';

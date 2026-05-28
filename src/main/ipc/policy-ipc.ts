@@ -1,7 +1,7 @@
 import type { PolicyConfig } from '../../shared/policy';
 import { PolicyChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../service-registry';
+import type { MainServiceContainer } from '../app/service-registry';
 import type { IpcModule } from './ipc-module';
 import { registerCommand, registerQuery } from './ipc-gateway';
 

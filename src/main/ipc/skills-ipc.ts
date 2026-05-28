@@ -2,7 +2,7 @@ import { dialog, ipcMain } from 'electron';
 
 import type { EventBus } from '../core/event-bus';
 import type { IpcModule } from './ipc-module';
-import type { MainServiceContainer } from '../service-registry';
+import type { MainServiceContainer } from '../app/service-registry';
 import { SkillsChannels } from '../../shared/ipc-channels';
 import { wrapSimpleHandler } from './ipc-error-handler';
 
