@@ -6,6 +6,7 @@ import Store from 'electron-store';
 import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
 import type {
 	ConnectorAuthKind,
+	ConnectorCallToolOptions,
 	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorInput,
@@ -16,6 +17,7 @@ import type {
 	ConnectorOAuthCompleteInput,
 	ConnectorProviderId,
 	ConnectorStatus,
+	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorToolPermission,
 } from '../../shared/connector';
@@ -46,6 +48,49 @@ interface ConnectorLogger {
 	debug(source: string, message: string, data?: unknown): void;
 	warn(source: string, message: string, data?: unknown): void;
 	error(source: string, message: string, data?: unknown): void;
+}
+
+export interface ConnectorToolRuntime {
+	test(id: string): Promise<ConnectorTestResult>;
+	reconnect(id: string): Promise<ConnectorTestResult>;
+	refreshTools(id: string): Promise<ConnectorTool[]>;
+	listTools(id: string): ConnectorTool[];
+	callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown>;
+	closeConnector(id: string): Promise<void>;
+}
+
+export interface ConnectorToolSearchInput {
+	query?: string;
+	connectorId?: string;
+	limit?: number;
+	includeBlocked?: boolean;
+}
+
+export interface ConnectorExecutableTool {
+	id: string;
+	name: string;
+	displayName: string;
+	description: string;
+	connectorId: string;
+	connectorName: string;
+	connectorProviderId: ConnectorProviderId;
+	toolName: string;
+	inputSchema?: Record<string, unknown>;
+	permission: ConnectorToolPermission;
+	requiresApproval: boolean;
+	score: number;
+}
+
+export interface ConnectorToolExecCommand {
+	connectorId: string;
+	toolName: string;
+	args?: Record<string, unknown>;
+	options?: ConnectorCallToolOptions;
+}
+
+export interface ConnectorToolServicePort {
+	searchTools(input?: ConnectorToolSearchInput | string): ConnectorExecutableTool[];
+	execTool(command: ConnectorToolExecCommand): Promise<unknown>;
 }
 
 type ConnectorCatalogProvider =
@@ -328,6 +373,7 @@ function assertEnvName(value: string, label: string): void {
 export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
 	private readonly toolStore?: ConnectorToolPersistenceStore;
+	private toolRuntime?: ConnectorToolRuntime;
 	private readonly runtimeConnectors = new Map<string, RuntimeConnector>();
 	private readonly pendingOAuthConnectors = new Map<string, RuntimeConnector>();
 
@@ -343,6 +389,10 @@ export class ConnectorsService {
 				accessPropertiesByDotNotation: false,
 			}) as ConnectorPersistenceStore);
 		this.toolStore = options.toolStore;
+	}
+
+	setToolRuntime(runtime: ConnectorToolRuntime): void {
+		this.toolRuntime = runtime;
 	}
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
@@ -537,6 +587,7 @@ export class ConnectorsService {
 			updatedAt: new Date().toISOString(),
 		});
 		this.replace(next);
+		await this.closeConnectorClient(id);
 		return redactConnectorSecrets(next);
 	}
 
@@ -548,6 +599,7 @@ export class ConnectorsService {
 			return;
 		}
 		this.writeAll(connectors.filter((item) => item.id !== id));
+		await this.closeConnectorClient(connector.id);
 		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
 	}
 
@@ -557,6 +609,52 @@ export class ConnectorsService {
 
 	async disable(id: string): Promise<ConnectorConfig> {
 		return this.update(id, { enabled: false });
+	}
+
+	async test(id: string): Promise<ConnectorTestResult> {
+		return this.requireToolRuntime().test(id);
+	}
+
+	async reconnect(id: string): Promise<ConnectorTestResult> {
+		return this.requireToolRuntime().reconnect(id);
+	}
+
+	async refreshTools(id: string): Promise<ConnectorTool[]> {
+		return this.requireToolRuntime().refreshTools(id);
+	}
+
+	listTools(id: string): ConnectorTool[] {
+		return this.requireToolRuntime().listTools(id);
+	}
+
+	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
+		return this.requireToolRuntime().callTool(id, name, args, options);
+	}
+
+	searchTools(input: ConnectorToolSearchInput | string = {}): ConnectorExecutableTool[] {
+		const query = typeof input === 'string' ? input : input.query ?? '';
+		const connectorId = typeof input === 'string' ? undefined : input.connectorId;
+		const includeBlocked = typeof input !== 'string' && input.includeBlocked === true;
+		const limit = typeof input === 'string' ? undefined : input.limit;
+		const matches = this.validConnectors()
+			.filter((connector) => connector.enabled !== false && connectorStatusFor(connector) === 'configured')
+			.filter((connector) => !connectorId || connector.id === connectorId || connector.connectorId === connectorId)
+			.flatMap((connector) => connector.tools
+				.filter((tool) => includeBlocked || tool.permission !== 'blocked')
+				.map((tool) => executableToolFor(connector, tool, query))
+			)
+			.filter((tool) => !query.trim() || tool.score > 0)
+			.sort((left, right) => right.score - left.score || left.name.localeCompare(right.name));
+		return typeof limit === 'number' && limit >= 0 ? matches.slice(0, limit) : matches;
+	}
+
+	async execTool(command: ConnectorToolExecCommand): Promise<unknown> {
+		return this.requireToolRuntime().callTool(
+			command.connectorId,
+			command.toolName,
+			command.args ?? {},
+			command.options
+		);
 	}
 
 	listConnectorsForMcp(): ConnectorConfig[] {
@@ -596,6 +694,15 @@ export class ConnectorsService {
 			: [...connectors, connector];
 		this.writeAll(next);
 		this.logDebug('Updated connector ' + connector.name, { connectorId: connector.connectorId });
+	}
+
+	private requireToolRuntime(): ConnectorToolRuntime {
+		if (!this.toolRuntime) throw new Error('Connector tool runtime is unavailable.');
+		return this.toolRuntime;
+	}
+
+	private async closeConnectorClient(id: string): Promise<void> {
+		await this.toolRuntime?.closeConnector(id);
 	}
 
 	private readStoredConnectors(): RuntimeConnector[] {
