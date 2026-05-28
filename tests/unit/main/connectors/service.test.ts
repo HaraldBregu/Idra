@@ -328,6 +328,9 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(tokenBody.get('code_verifier')).toEqual(expect.any(String));
 		expect(Object.fromEntries(store.data)).toEqual({
 			gmail: {
+				id: 'google.gmail',
+				connectorId: 'google.gmail',
+				authKind: 'oauth',
 				mcp: {
 					transport: 'http',
 					url: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -357,6 +360,11 @@ describe('ConnectorsService MCP persistence', () => {
 			state: expect.any(String),
 		}));
 		expect(result.connector.authorization).toBe('');
+		expect(service.list()[0]).toMatchObject({
+			id: 'google.gmail',
+			connectorId: 'google.gmail',
+			authKind: 'oauth',
+		});
 	});
 
 	it('stores Calendar MCP setup in connectors.json', async () => {
@@ -366,6 +374,9 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(Object.fromEntries(store.data)).toEqual({
 			google_calendar: {
+				id: 'google.calendar',
+				connectorId: 'google.calendar',
+				authKind: 'oauth',
 				mcp: {
 					transport: 'http',
 					url: 'https://calendarmcp.googleapis.com/mcp/v1',
@@ -406,6 +417,9 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(Object.fromEntries(store.data)).toEqual({
 			google_drive: expect.objectContaining({
+				id: 'google.drive',
+				connectorId: 'google.drive',
+				authKind: 'oauth',
 				mcp: expect.objectContaining({
 					headers: expect.not.objectContaining({ Authorization: expect.any(String) }),
 				}),
@@ -446,6 +460,7 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(Object.fromEntries(store.data)).toEqual({
 			gmail: {
+				authKind: 'oauth',
 				mcp: {
 					transport: 'http',
 					url: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -473,6 +488,9 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(client.listTools).not.toHaveBeenCalled();
 		expect(Object.fromEntries(store.data)).toEqual({
 			gmail_mcp: {
+				name: 'Remote Gmail MCP',
+				connectorId: 'google.gmail',
+				allowedTools: ['search'],
 				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 				tools: [],
 			},
@@ -480,6 +498,49 @@ describe('ConnectorsService MCP persistence', () => {
 		expect(added.authorization).toBe('');
 		expect(service.list()).toEqual([
 			expect.objectContaining({ name: 'Remote Gmail MCP', status: 'configured', toolsCount: 0 }),
+		]);
+	});
+
+	it('restores custom MCP connector identity and policy from the common connector record', async () => {
+		const { service, store, logger } = createService();
+
+		await service.add({
+			name: 'Acme Custom MCP',
+			serverLabel: 'acme_mcp',
+			requireApproval: 'never_for_allowed_tools',
+			allowedTools: ['search'],
+			mcp: {
+				transport: 'stdio',
+				command: 'npx',
+				args: ['-y', 'acme-mcp'],
+			},
+		});
+
+		expect(Object.fromEntries(store.data)).toEqual({
+			acme_mcp: {
+				name: 'Acme Custom MCP',
+				requireApproval: 'never_for_allowed_tools',
+				allowedTools: ['search'],
+				mcp: {
+					transport: 'stdio',
+					command: 'npx',
+					args: ['-y', 'acme-mcp'],
+				},
+				tools: [],
+			},
+		});
+
+		const restored = new ConnectorsService(logger as never, { store: store as never });
+
+		expect(restored.list()).toEqual([
+			expect.objectContaining({
+				id: 'acme_mcp',
+				name: 'Acme Custom MCP',
+				connectorId: 'acme_mcp',
+				requireApproval: 'never_for_allowed_tools',
+				allowedToolsCount: 1,
+				status: 'configured',
+			}),
 		]);
 	});
 
