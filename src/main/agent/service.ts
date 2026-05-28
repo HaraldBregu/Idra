@@ -1054,14 +1054,10 @@ export class AgentService {
 		if (override) {
 			return path.isAbsolute(override) ? override : path.resolve(this.workspaceRoot(), override);
 		}
-		try {
-			return this.dependencies.workspace.getRootPath();
-		} catch {
-			return (
-				this.dependencies.userDataDirectory?.resolve?.('workspace') ??
-				resolveDefaultUserDataPath('workspace')
-			);
-		}
+		return (
+			this.dependencies.userDataDirectory?.resolve?.('workspace') ??
+			resolveDefaultUserDataPath('workspace')
+		);
 	}
 
 	private getOperatorConfig(): OperatorStoreState | undefined {
