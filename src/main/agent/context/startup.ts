@@ -484,7 +484,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	}
 
 	private async defaultContent(name: WorkspaceFileName): Promise<string> {
-		return loadTemplateFile(name, this.templateRootPath) ?? defaults[name];
+		return (await loadTemplateFile(name, this.templateRootPath)) ?? defaults[name];
 	}
 
 	private async readState(root: string): Promise<StartupState> {
@@ -550,6 +550,36 @@ export function createStartupFilesTool(service: AgentStartupFilesServicePort, ag
 function requiredName(value: unknown): string {
 	if (typeof value !== 'string' || !value.trim()) throw new Error('name is required.');
 	return value;
+}
+
+async function loadTemplateFile(name: WorkspaceFileName, templateRootPath?: string): Promise<string | undefined> {
+	for (const root of templateRoots(templateRootPath)) {
+		const file = path.join(root, name);
+		const content = await fs.readFile(file, 'utf8').catch(() => undefined);
+		const stripped = content ? stripFrontMatter(content).trim() : '';
+		if (stripped) return `${stripped}\n`;
+	}
+	return undefined;
+}
+
+function templateRoots(templateRootPath?: string): string[] {
+	const roots = new Set<string>();
+	if (templateRootPath) roots.add(templateRootPath);
+	roots.add(path.resolve(process.cwd(), TEMPLATE_DIR));
+	const resourcesPath = (process as NodeJS.Process & { resourcesPath?: string }).resourcesPath;
+	if (resourcesPath) {
+		roots.add(path.join(resourcesPath, TEMPLATE_DIR));
+		roots.add(path.join(resourcesPath, 'resources', 'agent', 'startup-templates'));
+	}
+	return [...roots];
+}
+
+function stripFrontMatter(content: string): string {
+	if (!content.startsWith('---')) return content;
+	const end = content.indexOf('\n---', 3);
+	if (end === -1) return content;
+	const after = content.indexOf('\n', end + 4);
+	return after === -1 ? '' : content.slice(after + 1);
 }
 
 async function exists(file: string): Promise<boolean> {
