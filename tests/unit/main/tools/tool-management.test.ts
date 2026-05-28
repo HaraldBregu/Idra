@@ -583,7 +583,7 @@ describe('tool management layer', () => {
 		expect(selected.systemPromptSuffix).toContain('Tool: read');
 	});
 
-	it('rejects sensitive managed actions without confirmation', async () => {
+	it('runs sensitive managed actions without confirmation', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
 			category: 'calendar',
@@ -596,11 +596,10 @@ describe('tool management layer', () => {
 			{ query: 'meeting' },
 			executionContext(['calendar:write'])
 		);
-		expect(result.success).toBe(false);
-		expect(result.error?.code).toBe('TOOL_CONFIRMATION_REQUIRED');
+		expect(result.success).toBe(true);
 	});
 
-	it('runs sensitive managed actions with explicit confirmation', async () => {
+	it('does not require explicit confirmation for sensitive managed actions', async () => {
 		const requestConfirmation = jest.fn(async () => true);
 		const tool = makeTool({
 			id: 'calendar-create',
@@ -614,17 +613,10 @@ describe('tool management layer', () => {
 			requestConfirmation,
 		});
 		expect(result.success).toBe(true);
-		expect(requestConfirmation).toHaveBeenCalledWith(
-			expect.objectContaining({
-				toolId: 'calendar-create',
-				toolName: 'calendar-create',
-				permissions: ['calendar:write'],
-				safetyLevel: 'high',
-			})
-		);
+		expect(requestConfirmation).not.toHaveBeenCalled();
 	});
 
-	it('rejects approval-required legacy agent tools without confirmation', async () => {
+	it('runs approval-marked legacy agent tools without confirmation', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
 			content: [{ type: 'text' as const, text: 'wrote' }],
@@ -646,15 +638,11 @@ describe('tool management layer', () => {
 			{ path: 'a.txt', content: 'x' },
 			makeToolContext()
 		);
-		expect(result.status).toBe('rejected');
-		expect(result.content[0]).toEqual({
-			type: 'text',
-			text: 'tool write requires approval before execution.',
-		});
-		expect(execute).not.toHaveBeenCalled();
+		expect(result.status).toBe('ok');
+		expect(execute).toHaveBeenCalledWith({ path: 'a.txt', content: 'x' }, expect.any(Object));
 	});
 
-	it('executes approval-required legacy agent tools with explicit confirmation', async () => {
+	it('ignores explicit confirmation callbacks for legacy agent tools', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
 			content: [{ type: 'text' as const, text: 'wrote' }],
@@ -681,14 +669,8 @@ describe('tool management layer', () => {
 		);
 		expect(result.status).toBe('ok');
 		expect(execute).toHaveBeenCalledWith({ path: 'a.txt', content: 'x' }, expect.any(Object));
-		expect(ctx.approvalCache.has('write::{"path":"a.txt","content":"x"}')).toBe(true);
-		expect(requestConfirmation).toHaveBeenCalledWith(
-			expect.objectContaining({
-				toolId: 'write',
-				toolName: 'write',
-				safetyLevel: 'high',
-			})
-		);
+		expect(ctx.approvalCache.has('write::{"path":"a.txt","content":"x"}')).toBe(false);
+		expect(requestConfirmation).not.toHaveBeenCalled();
 	});
 
 	it('reuses existing legacy approval instead of asking for duplicate confirmation', async () => {
@@ -715,7 +697,7 @@ describe('tool management layer', () => {
 		expect(execute).toHaveBeenCalled();
 	});
 
-	it('runs workspace-local write tools without confirmation and rejects outside writes', async () => {
+	it('runs workspace-local write tools without confirmation and blocks outside writes', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const insideCtx = makeToolContext({ workspace });
@@ -735,11 +717,11 @@ describe('tool management layer', () => {
 			{ path: `${outside}/outside.txt`, content: 'no' },
 			outsideCtx
 		);
-		expect(outsideWrite.status).toBe('rejected');
-		expect(outsideWrite.content[0]).toEqual({
+		expect(outsideWrite.status).toBe('error');
+		expect(outsideWrite.content[0]).toEqual(expect.objectContaining({
 			type: 'text',
-			text: 'tool write requires approval before execution.',
-		});
+			text: expect.stringContaining('outside the current Friday workspace'),
+		}));
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
