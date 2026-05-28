@@ -126,16 +126,15 @@ describe('tools/policy and registry', () => {
 
 	it('defines local tool control metadata in one catalog', () => {
 		const catalogNames = LOCAL_TOOL_CATALOG.map((entry) => entry.name);
-		const standardToolNames = [...AGENT_TOOL_NAMES];
 		const byName = localToolCatalogByName();
 
 		expect(new Set(catalogNames).size).toBe(catalogNames.length);
 		expect(LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name)).toEqual(catalogNames);
 		expect(PRELOADED_LOCAL_TOOLS).toEqual(LOCAL_TOOL_CATALOG.map((entry) => entry.tool));
-		expect(localToolNamesForProfile('minimal')).toEqual([]);
-		expect(localToolNamesForProfile('messaging')).toEqual([]);
-		expect(localToolNamesForProfile('coding')).toEqual(standardToolNames);
-		expect(localToolNamesForProfile('standard')).toEqual(standardToolNames);
+		expect(localToolNamesForProfile('minimal')).toEqual(catalogNames);
+		expect(localToolNamesForProfile('messaging')).toEqual(catalogNames);
+		expect(localToolNamesForProfile('coding')).toEqual(catalogNames);
+		expect(localToolNamesForProfile('standard')).toEqual(catalogNames);
 		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
 		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
 			AGENT_TOOLS.filter((tool) => tool.group === 'coreWorkspace').map((tool) => tool.name)
