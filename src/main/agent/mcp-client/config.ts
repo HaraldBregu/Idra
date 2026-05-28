@@ -23,6 +23,7 @@ export function connectorAuthKindFor(connector: ConnectorConfig): ConnectorAuthK
 export function connectorHasAuthorization(connector: ConnectorConfig): boolean {
 	return Boolean(
 		connector.oauth?.token?.accessToken ||
+		connector.token?.accessToken ||
 		connector.authorization?.trim() ||
 		authorizationFromMcp(connector.mcp)
 	);
@@ -93,6 +94,8 @@ function resolveHttpConfig(
 			: secret;
 	} else if (connector.oauth?.token?.accessToken) {
 		headers.Authorization = 'Bearer ' + connector.oauth.token.accessToken;
+	} else if (connector.token?.accessToken) {
+		headers.Authorization = (connector.token.tokenType?.trim() || 'Bearer') + ' ' + connector.token.accessToken;
 	} else if (authorization) {
 		headers.Authorization = authorization;
 	}
