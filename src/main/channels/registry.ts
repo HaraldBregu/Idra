@@ -3,7 +3,7 @@ import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { AgentService } from '../agent';
-import type { AgentSettingsStorePort } from '../agent/settings';
+import type { StoreService } from '../store';
 import { channelMessageRouteInput, resolveAgentRoute } from '../agent';
 import type { TelegramAdapterOptions } from './telegram/types';
 import { createBundledCatalogPlugins } from './catalog-plugins';
@@ -30,7 +30,7 @@ export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	agentService?: AgentService;
-	agentSettings?: Pick<AgentSettingsStorePort, 'getAgentRoutingSettings'>;
+	store?: Pick<StoreService, 'getAgentRoutingSettings'>;
 	runtimeFactories?: Partial<Record<ChannelType, ChannelRuntimeFactory>>;
 }
 
@@ -269,7 +269,7 @@ export class ChannelRegistry {
 					const route = resolveAgentRoute(
 						channelMessageRouteInput(
 							normalized,
-							this.dependencies.agentSettings?.getAgentRoutingSettings()
+							this.dependencies.store?.getAgentRoutingSettings()
 						)
 					);
 					this.dependencies.eventBus.emit('channel:route', {
