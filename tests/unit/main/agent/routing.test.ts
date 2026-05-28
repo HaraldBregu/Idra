@@ -2,6 +2,7 @@ import {
 	buildAgentSessionKey,
 	channelMessageRouteInput,
 	normalizeAgentRoutingSettings,
+	resolveAgentIntentRoute,
 	resolveAgentRoute,
 } from '../../../../src/main/agent';
 
@@ -92,5 +93,29 @@ describe('agent routing', () => {
 		expect(buildAgentSessionKey({ agentId: 'research', kind: 'subagent', id: 'run-1' })).toBe(
 			'agent:research:subagent:run-1'
 		);
+	});
+
+	it('routes simple prompts directly through the LLM', () => {
+		expect(resolveAgentIntentRoute('Explain dependency injection in simple terms')).toMatchObject({
+			mode: 'direct_answer',
+			useLocalTools: false,
+			useConnectorTools: false,
+		});
+	});
+
+	it('routes workspace work to local tools only', () => {
+		expect(resolveAgentIntentRoute('Read the package.json file and summarize it')).toMatchObject({
+			mode: 'use_tools',
+			useLocalTools: true,
+			useConnectorTools: false,
+		});
+	});
+
+	it('routes remote service work to connector tools', () => {
+		expect(resolveAgentIntentRoute('Search GitHub issues assigned to me')).toMatchObject({
+			mode: 'use_tools',
+			useLocalTools: false,
+			useConnectorTools: true,
+		});
 	});
 });
