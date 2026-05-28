@@ -180,7 +180,8 @@ export type Connector = ConnectorConfig;
 
 export interface ConnectorInput {
 	name: string;
-	connectorId: ConnectorProviderId;
+	connectorId?: ConnectorProviderId;
+	authKind?: ConnectorAuthKind;
 	serverLabel?: string;
 	serverDescription?: string;
 	authorization?: string;
