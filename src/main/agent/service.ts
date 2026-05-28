@@ -621,7 +621,6 @@ export class AgentService {
 				bootstrapPending,
 				isInteractiveUserFacing: true,
 				isPrimaryRun,
-				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 				hasBootstrapFileAccess: this.hasBootstrapFileAccess(agentId, workspaceRoot, agentConfig?.tools),
 				runKind,
 			});
@@ -689,7 +688,6 @@ export class AgentService {
 					bootstrapPending,
 					isInteractiveUserFacing: true,
 					isPrimaryRun,
-					isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 					hasBootstrapFileAccess: this.hasBootstrapFileAccess(
 						agentId,
 						workspaceRoot,
