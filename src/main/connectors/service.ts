@@ -142,6 +142,12 @@ interface OAuthTokenExchangeInput {
 	fetch: typeof fetch;
 }
 
+type SanitizedConnectorInput = ConnectorInput & {
+	connectorId: ConnectorProviderId;
+	serverLabel: string;
+	mcp: ConnectorMcpConfig;
+};
+
 function serverLabelFromName(name: string): string {
 	return name
 		.trim()
@@ -223,7 +229,7 @@ function readOptionalAuthKind(params: Record<string, unknown>, key: string): Con
 	throw new Error(key + ' must be one of: mcp_env, oauth.');
 }
 
-function sanitizeInput(input: unknown, current?: ConnectorConfig): ConnectorInput {
+function sanitizeInput(input: unknown, current?: ConnectorConfig): SanitizedConnectorInput {
 	const raw = requireObject(input, current ? 'Connector update' : 'Connector configuration');
 	const name = readOptionalString(raw, 'name')?.trim() ?? current?.name ?? '';
 	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || current?.serverLabel || serverLabelFromName(name);
