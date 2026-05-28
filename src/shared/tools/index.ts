@@ -57,28 +57,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'delete_path',
 ] as const satisfies readonly AgentToolName[];
 
-export const AGENT_TOOL_LEGACY_ALIASES = {
-	list_directory: ['list_dir'],
-	grep: ['grep_files'],
-	git_diff: ['read_diff'],
-	read: ['read_file'],
-	write: ['write_file'],
-	edit: ['edit_file'],
-	delete: ['delete_path'],
-	copy: ['copy_path'],
-	move: ['move_path'],
-	inspect_file: ['stat_path'],
-	find: ['search_files'],
-	filesystem_create: ['create_dir'],
-	filesystem_read: ['read_file'],
-	filesystem_update: ['write_file'],
-	filesystem_list: ['list_dir'],
-	filesystem_delete: ['delete_path'],
-	filesystem_move: ['move_path'],
-	filesystem_copy: ['copy_path'],
-	filesystem_search: ['search_files'],
-} as const satisfies Record<string, readonly AgentDefaultToolName[]>;
-
 export const AGENT_TOOL_METADATA_BY_NAME = Object.fromEntries(
 	AGENT_TOOLS.map((tool) => [tool.name, tool])
 ) as Record<AgentToolName, AgentToolMetadata>;
