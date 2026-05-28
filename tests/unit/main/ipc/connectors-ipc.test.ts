@@ -105,6 +105,7 @@ function createMcpClientService() {
 		refreshTools: jest.fn(() => [connectorTool]),
 		listTools: jest.fn(() => [connectorTool]),
 		callTool: jest.fn(() => ({ emailAddress: 'user@example.com' })),
+		closeConnector: jest.fn(async () => undefined),
 	};
 }
 
