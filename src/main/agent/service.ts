@@ -26,8 +26,7 @@ import { loadExistingSession, loadSession, saveSession, clearSession, listSessio
 import { AgentRunLogger } from './run-logger';
 import type { AgentDataDirectoryServicePort } from './storage';
 import type { AgentSettingsStorePort } from './settings';
-import type { AgentMcpClientServicePort } from './mcp-client';
-import type { McpRegistry } from './mcp';
+import type { AgentMcpClientServicePort, McpRegistry } from './mcp';
 import type { SubagentSpawnPort } from './subagents';
 import { ToolService, type AgentTool, type CronToolContext, type ToolContext, type ToolServicePort } from './tools';
 import type { AgentCapabilityServicePort } from './capabilities';

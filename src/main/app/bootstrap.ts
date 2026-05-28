@@ -20,8 +20,7 @@ import {
 import { AgentDataDirectoryService, resolveDefaultAppDataPath } from '../agent/storage';
 import { AgentSettingsStore } from '../agent/settings';
 import { ConnectorsService } from '../connectors';
-import { AgentMcpClientService } from '../agent/mcp-client';
-import { McpRegistry } from '../agent/mcp';
+import { AgentMcpClientService, McpRegistry } from '../agent/mcp';
 import { MonitorService } from '../monitor';
 import { TasksService } from '../tasks';
 import { UserDataDirectoryService } from '../user-data';
