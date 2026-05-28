@@ -351,3 +351,147 @@ async function assertSafeWritableStartupFile(
 		if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
 	}
 }
+
+export function isWorkspaceFileName(name: string): name is WorkspaceFileName {
+	return workspaceFileNames.has(name);
+}
+
+export function assertWorkspaceFileName(name: string): asserts name is WorkspaceFileName {
+	if (!isWorkspaceFileName(name)) {
+		throw new Error(`Unsupported workspace file: ${name}`);
+	}
+}
+
+export async function loadWorkspaceTemplate(name: WorkspaceFileName): Promise<string> {
+	const bundled = BUNDLED_TEMPLATES[name];
+	if (bundled !== undefined) return bundled;
+
+	const sourcePath = path.resolve(process.cwd(), 'src', 'main', 'agent', 'templates', name);
+	try {
+		return stripFrontMatter(await fs.readFile(sourcePath, 'utf8'));
+	} catch {
+		throw new Error(`Missing workspace template: ${name}`);
+	}
+}
+
+export async function writeFileIfMissing(filePath: string, content: string): Promise<boolean> {
+	try {
+		await fs.writeFile(filePath, content, { encoding: 'utf8', flag: 'wx', mode: 0o600 });
+		return true;
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'EEXIST') return false;
+		throw error;
+	}
+}
+
+export function isPathInside(rootPath: string, targetPath: string): boolean {
+	const relativePath = path.relative(path.resolve(rootPath), path.resolve(targetPath));
+	return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+}
+
+export async function safeReadWorkspaceFile(
+	workspaceRoot: string,
+	name: WorkspaceFileName
+): Promise<WorkspaceContextFile> {
+	const filePath = path.join(workspaceRoot, name);
+	try {
+		const stat = await fs.lstat(filePath);
+		if (stat.isSymbolicLink()) {
+			return unsafeFile(name, filePath, 'symbolic links are not allowed');
+		}
+		if (!stat.isFile()) {
+			return unsafeFile(name, filePath, 'not a regular file');
+		}
+		if (stat.nlink > 1) {
+			return unsafeFile(name, filePath, 'hard-linked files are not allowed');
+		}
+		if (stat.size > MAX_WORKSPACE_CONTEXT_FILE_BYTES) {
+			return unsafeFile(name, filePath, `file exceeds ${MAX_WORKSPACE_CONTEXT_FILE_BYTES} bytes`);
+		}
+
+		return {
+			name,
+			path: filePath,
+			content: await fs.readFile(filePath, 'utf8'),
+			missing: false,
+		};
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return { name, path: filePath, missing: true, error: 'missing' };
+		}
+		return {
+			name,
+			path: filePath,
+			missing: true,
+			error: 'io',
+			detail: error instanceof Error ? error.message : String(error),
+		};
+	}
+}
+
+export function resolveBootstrapMode(params: {
+	bootstrapPending: boolean;
+	isInteractiveUserFacing: boolean;
+	isPrimaryRun: boolean;
+	hasBootstrapFileAccess: boolean;
+	runKind?: 'default' | 'heartbeat' | 'cron';
+}): BootstrapMode {
+	if (!params.bootstrapPending) return 'none';
+	if (params.runKind === 'heartbeat' || params.runKind === 'cron') return 'none';
+	if (!params.isInteractiveUserFacing || !params.isPrimaryRun) return 'none';
+	return params.hasBootstrapFileAccess ? 'full' : 'limited';
+}
+
+export function renderWorkspaceContextFiles(
+	files: WorkspaceContextFile[],
+	options: { maxChars?: number; totalMaxChars?: number } = {}
+): string {
+	const maxChars = options.maxChars ?? DEFAULT_WORKSPACE_CONTEXT_MAX_CHARS;
+	let remaining = options.totalMaxChars ?? DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS;
+	const blocks: string[] = [];
+
+	for (const file of [...files].sort(compareContextFilesForPrompt)) {
+		if (remaining <= 0) break;
+		const content = file.missing
+			? `[MISSING] Expected at: ${file.path}${file.detail ? ` (${file.detail})` : ''}`
+			: file.content ?? '';
+		const trimmed = trimWithMarker(content.trimEnd(), file.name, Math.min(maxChars, remaining));
+		remaining -= trimmed.length;
+		const note =
+			file.name === 'SOUL.md'
+				? '\nNote: persona/tone guidance only; higher-priority instructions override it.'
+				: '';
+		blocks.push(
+			[`<workspace_file name="${file.name}" path="${file.path}">`, trimmed, `${note}</workspace_file>`].join('\n')
+		);
+	}
+
+	return blocks.join('\n\n');
+}
+
+function compareContextFilesForPrompt(a: WorkspaceContextFile, b: WorkspaceContextFile): number {
+	const aOrder = CONTEXT_FILE_PROMPT_ORDER.get(a.name) ?? Number.MAX_SAFE_INTEGER;
+	const bOrder = CONTEXT_FILE_PROMPT_ORDER.get(b.name) ?? Number.MAX_SAFE_INTEGER;
+	if (aOrder !== bOrder) return aOrder - bOrder;
+	return a.path.localeCompare(b.path);
+}
+
+function stripFrontMatter(content: string): string {
+	if (!content.startsWith('---')) return content;
+	const endIndex = content.indexOf('\n---', 3);
+	if (endIndex === -1) return content;
+	return content.slice(endIndex + '\n---'.length).replace(/^\s+/, '');
+}
+
+function trimWithMarker(content: string, fileName: string, maxChars: number): string {
+	if (content.length <= maxChars) return content;
+	const marker = `\n[...truncated ${fileName}; read the file for full content...]\n`;
+	const budget = Math.max(0, maxChars - marker.length);
+	const head = Math.floor(budget * 0.75);
+	const tail = budget - head;
+	return `${content.slice(0, head)}${marker}${tail > 0 ? content.slice(-tail) : ''}`;
+}
+
+function unsafeFile(name: WorkspaceFileName, filePath: string, detail: string): WorkspaceContextFile {
+	return { name, path: filePath, missing: true, error: 'unsafe', detail };
+}
