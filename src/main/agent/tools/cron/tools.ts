@@ -257,8 +257,6 @@ export const cronRunTool: AgentTool<CronReadArgs> = {
 	description: 'Run a scheduled job immediately through CronService.',
 	schema: cronIdSchema,
 	async execute(args, ctx) {
-		const denied = checkCronPolicy(ctx, 'cron_run', args);
-		if (denied) return textResult(denied, true);
 		const service = cronService(ctx);
 		if (!service) return textResult('cron_run: CronService is unavailable.', true);
 		try {
@@ -268,17 +266,6 @@ export const cronRunTool: AgentTool<CronReadArgs> = {
 		}
 	},
 };
-
-function checkCronPolicy(ctx: ToolContext, toolName: string, params: unknown): string | null {
-	const policy = ctx.services.policy;
-	if (!policy) return null;
-	try {
-		const decision = policy.evaluateToolUse({ toolName, params, callCount: 1 });
-		return decision.outcome === 'allow' ? null : decision.reason;
-	} catch (err) {
-		return `${toolName}: cron policy unavailable: ${(err as Error).message}`;
-	}
-}
 
 function cronService(ctx: ToolContext): CronService | undefined {
 	return ctx.services.cron;
