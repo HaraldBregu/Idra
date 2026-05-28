@@ -19,6 +19,7 @@ import type {
 } from '../../shared/connector';
 import {
 	authorizationFromMcp,
+	connectorCanUseTools,
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,
@@ -453,7 +454,7 @@ export class ConnectorsService {
 		const includeBlocked = typeof input !== 'string' && input.includeBlocked === true;
 		const limit = typeof input === 'string' ? undefined : input.limit;
 		const matches = this.validConnectors()
-			.filter((connector) => connector.enabled !== false && connectorStatusFor(connector) === 'configured')
+			.filter((connector) => connectorCanUseTools(connector))
 			.filter((connector) => !connectorId || connector.id === connectorId || connector.connectorId === connectorId)
 			.flatMap((connector) => connector.tools
 				.filter((tool) => includeBlocked || tool.permission !== 'blocked')
@@ -733,17 +734,35 @@ function scoreConnectorTool(query: string, values: Array<string | undefined>): n
 	for (const value of values) {
 		const normalizedValue = normalizeSearchText(value ?? '');
 		if (!normalizedValue) continue;
+		const valueTokens = normalizedValue.split(' ');
 		if (normalizedValue === normalizedQuery) score += 100;
 		if (normalizedValue.includes(normalizedQuery)) score += 25;
 		for (const token of tokens) {
-			if (normalizedValue.split(' ').includes(token)) {
+			const variants = searchTokenVariants(token);
+			if (variants.some((variant) => valueTokens.includes(variant))) {
 				score += 10;
-			} else if (normalizedValue.includes(token)) {
+			} else if (variants.some((variant) => normalizedValue.includes(variant))) {
 				score += 3;
 			}
 		}
 	}
 	return score;
+}
+
+function searchTokenVariants(token: string): string[] {
+	const variants = new Set([token]);
+	if (token.endsWith('s') && token.length > 3) variants.add(token.slice(0, -1));
+	if (token === 'email' || token === 'emails' || token === 'mail') {
+		for (const value of ['email', 'emails', 'mail', 'message', 'messages', 'thread', 'threads', 'inbox']) {
+			variants.add(value);
+		}
+	}
+	if (token === 'last' || token === 'latest' || token === 'recent') {
+		for (const value of ['last', 'latest', 'recent', 'newest', 'list', 'lists', 'search']) {
+			variants.add(value);
+		}
+	}
+	return [...variants];
 }
 
 function normalizeSearchText(value: string): string {
