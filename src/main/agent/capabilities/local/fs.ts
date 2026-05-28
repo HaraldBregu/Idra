@@ -310,7 +310,9 @@ export const readDiffTool: AgentTool = {
 	async execute(args, ctx) {
 		const root = workspaceRoot(ctx);
 		const target = optionalStringArg(args.path);
-		const commandArgs = ['diff', ...(booleanArg(args.staged) ? ['--cached'] : []), '--', ...(target ? [relativeToWorkspace(ctx, resolveWorkspacePath(ctx, target))] : [])];
+		const resolvedTarget = target ? resolveWorkspacePath(ctx, target) : undefined;
+		if (resolvedTarget) await assertRealPathInside(ctx, resolvedTarget);
+		const commandArgs = ['diff', ...(booleanArg(args.staged) ? ['--cached'] : []), '--', ...(resolvedTarget ? [relativeToWorkspace(ctx, resolvedTarget)] : [])];
 		return new Promise<AgentToolResult>((resolve) => {
 			const child = spawn('git', commandArgs, { cwd: root, signal: ctx.signal });
 			let stdout = '';
@@ -357,6 +359,7 @@ export const writeFileTool: AgentTool = {
 		if (blocked) return blocked;
 		const content = textArg(args.content, 'content');
 		const file = resolveWorkspacePath(ctx, args.path);
+		await assertSafeWritePath(ctx, file);
 		await ensureParent(file);
 		await fs.writeFile(file, content, 'utf8');
 		return textResult(`wrote ${relativeToWorkspace(ctx, file)}`);
@@ -372,6 +375,7 @@ export const appendFileTool: AgentTool = {
 		if (blocked) return blocked;
 		const content = textArg(args.content, 'content');
 		const file = resolveWorkspacePath(ctx, args.path);
+		await assertSafeWritePath(ctx, file);
 		await ensureParent(file);
 		await fs.appendFile(file, content, 'utf8');
 		return textResult(`appended ${relativeToWorkspace(ctx, file)}`);
@@ -395,6 +399,7 @@ export const editFileTool: AgentTool = {
 		const blocked = ensureWritable(ctx);
 		if (blocked) return blocked;
 		const file = resolveWorkspacePath(ctx, args.path);
+		await assertSafeWritePath(ctx, file);
 		const oldText = stringArg(args.oldText, 'oldText');
 		const newText = typeof args.newText === 'string' ? args.newText : '';
 		const content = await readTextFile(ctx, file);
@@ -413,6 +418,7 @@ export const createDirTool: AgentTool = {
 		const blocked = ensureWritable(ctx);
 		if (blocked) return blocked;
 		const dir = resolveWorkspacePath(ctx, args.path);
+		await assertSafeWritePath(ctx, dir);
 		await fs.mkdir(dir, { recursive: true });
 		return textResult(`created ${relativeToWorkspace(ctx, dir)}`);
 	},
