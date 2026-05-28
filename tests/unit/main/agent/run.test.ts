@@ -1,10 +1,10 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent, type ToolResultBlock } from '../../../../src/main/provider/types';
 import {
 	AgentExecutionService,
-	clearAgentHarnessHookProviders,
+	clearAgentRuntimeHookProviders,
 	clearAgentToolResultMiddlewareRegistrations,
 	registerAgentToolResultMiddleware,
-	registerAgentHarnessHookHandler,
+	registerAgentRuntimeHookHandler,
 } from '../../../../src/main/agent';
 import type { AgentTool } from '../../../../src/main/agent/capabilities/local/types';
 import type { SessionFile } from '../../../../src/main/agent/context/session/store';
@@ -48,7 +48,7 @@ function runAgent(input: Parameters<AgentExecutionService['execute']>[0]) {
 
 describe('agent/run', () => {
 	beforeEach(() => {
-		clearAgentHarnessHookProviders();
+		clearAgentRuntimeHookProviders();
 		clearAgentToolResultMiddlewareRegistrations();
 	});
 
@@ -163,15 +163,15 @@ describe('agent/run', () => {
 		]);
 	});
 
-	it('fires harness lifecycle hooks and applies tool result middleware', async () => {
+	it('fires runtime lifecycle hooks and applies tool result middleware', async () => {
 		const hookEvents: string[] = [];
 		const afterToolCall = jest.fn();
 		for (const hookName of ['before_message_write', 'llm_input', 'llm_output', 'agent_end']) {
-			registerAgentHarnessHookHandler(hookName, () => {
+			registerAgentRuntimeHookHandler(hookName, () => {
 				hookEvents.push(hookName);
 			});
 		}
-		registerAgentHarnessHookHandler('after_tool_call', (payload) => {
+		registerAgentRuntimeHookHandler('after_tool_call', (payload) => {
 			afterToolCall(payload);
 			hookEvents.push('after_tool_call');
 		});
@@ -199,7 +199,7 @@ describe('agent/run', () => {
 			userMessage: 'do it',
 			systemPrompt: 'sys',
 			session: session(),
-			agentHarnessId: 'pi',
+			agentRuntimeId: 'pi',
 			provider: provider([
 				[
 					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },

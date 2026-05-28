@@ -1,23 +1,23 @@
 import {
-	clearRegisteredAgentHarnesses,
-	clearAgentHarnessHookProviders,
-	collectConfiguredAgentHarnessRuntimes,
-	maybeCompactAgentHarnessSession,
-	registerAgentHarness,
-	registerAgentHarnessHookHandler,
-	resetRegisteredAgentHarnesses,
-	selectAgentHarness,
-	adaptAgentHarnessToV2,
-	runAgentHarnessV2LifecycleAttempt,
-	type AgentHarness,
-	type AgentHarnessAttemptParams,
-	type AgentHarnessAttemptResult,
+	clearRegisteredAgentRuntimes,
+	clearAgentRuntimeHookProviders,
+	collectConfiguredAgentRuntimes,
+	maybeCompactAgentRuntimeSession,
+	registerAgentRuntime,
+	registerAgentRuntimeHookHandler,
+	resetRegisteredAgentRuntimes,
+	selectAgentRuntime,
+	adaptAgentRuntimeToV2,
+	runAgentRuntimeV2LifecycleAttempt,
+	type AgentRuntime,
+	type AgentRuntimeAttemptParams,
+	type AgentRuntimeAttemptResult,
 } from '../../../../src/main/agent';
 import type { SessionFile } from '../../../../src/main/agent/context/session/store';
 
-function clearHarnessActivationState(): void {
+function clearRuntimeActivationState(): void {
 	delete (globalThis as { [key: symbol]: unknown })[
-		Symbol.for('friday.agentHarnessRuntimeActivationState')
+		Symbol.for('friday.agentRuntimeActivationState')
 	];
 }
 
@@ -34,7 +34,7 @@ function session(): SessionFile {
 	};
 }
 
-function result(): AgentHarnessAttemptResult {
+function result(): AgentRuntimeAttemptResult {
 	return {
 		finalText: 'done',
 		toolCalls: 0,
@@ -44,7 +44,7 @@ function result(): AgentHarnessAttemptResult {
 	};
 }
 
-function params(): AgentHarnessAttemptParams {
+function params(): AgentRuntimeAttemptParams {
 	return {
 		runId: 'r1',
 		provider: 'openai',
@@ -53,20 +53,20 @@ function params(): AgentHarnessAttemptParams {
 		systemPrompt: 'sys',
 		session: session(),
 		tools: [],
-		ctx: {} as AgentHarnessAttemptParams['ctx'],
-		providerAdapter: {} as AgentHarnessAttemptParams['providerAdapter'],
+		ctx: {} as AgentRuntimeAttemptParams['ctx'],
+		providerAdapter: {} as AgentRuntimeAttemptParams['providerAdapter'],
 	};
 }
 
-describe('agent harness core', () => {
+describe('agent runtime core', () => {
 	beforeEach(() => {
-		clearRegisteredAgentHarnesses();
-		clearAgentHarnessHookProviders();
-		clearHarnessActivationState();
+		clearRegisteredAgentRuntimes();
+		clearAgentRuntimeHookProviders();
+		clearRuntimeActivationState();
 	});
 
-	it('stamps harness results and applies optional classification', async () => {
-		const harness: AgentHarness = {
+	it('stamps runtime results and applies optional classification', async () => {
+		const runtime: AgentRuntime = {
 			id: 'classified',
 			label: 'Classified',
 			supports: () => ({ supported: true }),
@@ -74,30 +74,30 @@ describe('agent harness core', () => {
 			classify: jest.fn(() => 'complete'),
 		};
 
-		const output = await runAgentHarnessV2LifecycleAttempt(
-			adaptAgentHarnessToV2(harness),
+		const output = await runAgentRuntimeV2LifecycleAttempt(
+			adaptAgentRuntimeToV2(runtime),
 			params()
 		);
 
-		expect(output.agentHarnessId).toBe('classified');
-		expect(output.agentHarnessResultClassification).toBe('complete');
-		expect(harness.classify).toHaveBeenCalledWith(
-			expect.not.objectContaining({ agentHarnessResultClassification: expect.anything() }),
+		expect(output.agentRuntimeId).toBe('classified');
+		expect(output.agentRuntimeResultClassification).toBe('complete');
+		expect(runtime.classify).toHaveBeenCalledWith(
+			expect.not.objectContaining({ agentRuntimeResultClassification: expect.anything() }),
 			expect.objectContaining({ runId: 'r1' })
 		);
 	});
 
 	it('fires the before-agent-start hook for every lifecycle attempt', async () => {
 		const handler = jest.fn();
-		registerAgentHarnessHookHandler('before_agent_start', handler);
-		const harness: AgentHarness = {
+		registerAgentRuntimeHookHandler('before_agent_start', handler);
+		const runtime: AgentRuntime = {
 			id: 'hooked',
 			label: 'Hooked',
 			supports: () => ({ supported: true }),
 			runAttempt: jest.fn(async () => result()),
 		};
 
-		await runAgentHarnessV2LifecycleAttempt(adaptAgentHarnessToV2(harness), params());
+		await runAgentRuntimeV2LifecycleAttempt(adaptAgentRuntimeToV2(runtime), params());
 
 		expect(handler).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -109,39 +109,39 @@ describe('agent harness core', () => {
 		);
 	});
 
-	it('selects auto harnesses by priority and id while keeping missing forced runtimes strict', () => {
-		registerAgentHarness({
+	it('selects auto runtimes by priority and id while keeping missing forced runtimes strict', () => {
+		registerAgentRuntime({
 			id: 'zeta',
 			label: 'Zeta',
 			supports: () => ({ supported: true, priority: 50 }),
 			runAttempt: jest.fn(async () => result()),
 		});
-		registerAgentHarness({
+		registerAgentRuntime({
 			id: 'alpha',
 			label: 'Alpha',
 			supports: () => ({ supported: true, priority: 50 }),
 			runAttempt: jest.fn(async () => result()),
 		});
-		registerAgentHarness({
+		registerAgentRuntime({
 			id: 'low',
 			label: 'Low',
 			supports: () => ({ supported: true, priority: 1 }),
 			runAttempt: jest.fn(async () => result()),
 		});
 
-		expect(selectAgentHarness({ provider: 'openai', modelId: 'gpt-test' }).id).toBe('alpha');
+		expect(selectAgentRuntime({ provider: 'openai', modelId: 'gpt-test' }).id).toBe('alpha');
 		expect(() =>
-			selectAgentHarness({
+			selectAgentRuntime({
 				provider: 'openai',
 				modelId: 'gpt-test',
 				requestedRuntime: 'missing',
 			})
-		).toThrow('Requested agent harness "missing" is not registered.');
+		).toThrow('Requested agent runtime "missing" is not registered.');
 	});
 
-	it('isolates reset failures across registered harnesses', async () => {
+	it('isolates reset failures across registered runtimes', async () => {
 		const resetOk = jest.fn();
-		registerAgentHarness({
+		registerAgentRuntime({
 			id: 'broken',
 			label: 'Broken',
 			supports: () => ({ supported: true }),
@@ -150,7 +150,7 @@ describe('agent harness core', () => {
 				throw new Error('reset failed');
 			},
 		});
-		registerAgentHarness({
+		registerAgentRuntime({
 			id: 'ok',
 			label: 'Ok',
 			supports: () => ({ supported: true }),
@@ -158,14 +158,14 @@ describe('agent harness core', () => {
 			reset: resetOk,
 		});
 
-		await expect(resetRegisteredAgentHarnesses({ reason: 'reset' })).resolves.toBeUndefined();
+		await expect(resetRegisteredAgentRuntimes({ reason: 'reset' })).resolves.toBeUndefined();
 		expect(resetOk).toHaveBeenCalledWith({ reason: 'reset' });
 	});
 
-	it('delegates compaction to a forced harness that implements compact', async () => {
+	it('delegates compaction to a forced runtime that implements compact', async () => {
 		const compactResult = { ok: true, compacted: true };
 		const compact = jest.fn(async () => compactResult);
-		registerAgentHarness({
+		registerAgentRuntime({
 			id: 'compact-runtime',
 			label: 'Compact runtime',
 			supports: () => ({ supported: true }),
@@ -174,7 +174,7 @@ describe('agent harness core', () => {
 		});
 
 		await expect(
-			maybeCompactAgentHarnessSession({
+			maybeCompactAgentRuntimeSession({
 				requestedRuntime: 'compact-runtime',
 				provider: 'openai',
 				modelId: 'gpt-test',
@@ -186,12 +186,12 @@ describe('agent harness core', () => {
 		);
 	});
 
-	it('collects configured harness runtimes from env and nested agent options', () => {
+	it('collects configured runtime runtimes from env and nested agent options', () => {
 		expect(
-			collectConfiguredAgentHarnessRuntimes(
+			collectConfiguredAgentRuntimes(
 				{
 					assistant: { options: { agentRuntime: ' codex ' } },
-					agents: [{ options: { agentHarnessId: 'remote' } }],
+					agents: [{ options: { agentRuntimeId: 'remote' } }],
 					models: [{ options: { agentRuntime: 'pi' } }],
 				},
 				{ FRIDAY_AGENT_RUNTIME: ' sidecar ' }

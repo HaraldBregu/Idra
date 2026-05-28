@@ -25,7 +25,7 @@ function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 }
 
 describe('mcp modules', () => {
-	it('builds harness MCP server configs from enabled connectors with env secrets', () => {
+	it('builds runtime MCP server configs from enabled connectors with env secrets', () => {
 		process.env.REMOTE_MCP_API_KEY = 'secret';
 		const servers = new McpRegistry().buildServers([
 			connector(),

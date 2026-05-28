@@ -1,15 +1,15 @@
 import {
-	createAgentHarness,
-	InMemoryAgentHarnessOperationLogger,
-	type AgentHarnessEvent,
-	type AgentHarnessModelRequest,
-	type AgentHarnessTool,
+	createAgentRuntime,
+	InMemoryAgentRuntimeOperationLogger,
+	type AgentRuntimeEvent,
+	type AgentRuntimeModelRequest,
+	type AgentRuntimeTool,
 } from '../../../../src/main/agent';
 
-describe('createAgentHarness', () => {
-	it('runs a UI-independent harness with injected runtime layers', async () => {
-		const requests: AgentHarnessModelRequest[] = [];
-		const events: AgentHarnessEvent[] = [];
+describe('createAgentRuntime', () => {
+	it('runs a UI-independent runtime with injected runtime layers', async () => {
+		const requests: AgentRuntimeModelRequest[] = [];
+		const events: AgentRuntimeEvent[] = [];
 		const memoryStore = jest.fn();
 		const approval = jest.fn(async () => ({ approved: true }));
 		const tool = {
@@ -22,7 +22,7 @@ describe('createAgentHarness', () => {
 				content: [{ type: 'text' as const, text: 'raw result' }],
 			})),
 		};
-		const harness = await createAgentHarness({
+		const runtime = await createAgentRuntime({
 			id: 'core',
 			label: 'Core',
 			modelId: 'gpt-test',
@@ -73,7 +73,7 @@ describe('createAgentHarness', () => {
 			},
 		});
 
-		const result = await harness.execute({
+		const result = await runtime.execute({
 			task: 'answer with tools',
 			sessionId: 'session-1',
 			requiredSkills: ['research'],
@@ -109,14 +109,14 @@ describe('createAgentHarness', () => {
 				'run.finished',
 			])
 		);
-		await expect(harness.getSession('session-1')).resolves.toMatchObject({
+		await expect(runtime.getSession('session-1')).resolves.toMatchObject({
 			id: 'session-1',
 			status: 'completed',
 		});
 	});
 
 	it('restores undo snapshots and isolates subagent sessions', async () => {
-		const harness = await createAgentHarness({
+		const runtime = await createAgentRuntime({
 			modelId: 'gpt-test',
 			model: {
 				async *stream() {
@@ -126,23 +126,23 @@ describe('createAgentHarness', () => {
 			},
 		});
 
-		await harness.execute({ task: 'first', sessionId: 'main' });
-		const snapshot = await harness.createSnapshot('main', 'checkpoint');
-		await harness.execute({ task: 'second', sessionId: 'main' });
-		await expect(harness.undo(snapshot.id)).resolves.toMatchObject({
+		await runtime.execute({ task: 'first', sessionId: 'main' });
+		const snapshot = await runtime.createSnapshot('main', 'checkpoint');
+		await runtime.execute({ task: 'second', sessionId: 'main' });
+		await expect(runtime.undo(snapshot.id)).resolves.toMatchObject({
 			id: 'main',
 			transcript: expect.arrayContaining([expect.objectContaining({ role: 'user', content: 'first' })]),
 		});
 
-		const child = await harness.runSubagent({ task: 'child', parentSessionId: 'main' });
+		const child = await runtime.runSubagent({ task: 'child', parentSessionId: 'main' });
 		expect(child.session.parentSessionId).toBe('main');
 		expect(child.session.id).not.toBe('main');
 	});
 
 	it('isolates hook failures and still emits after-tool hooks for gate errors', async () => {
-		const logs = new InMemoryAgentHarnessOperationLogger();
+		const logs = new InMemoryAgentRuntimeOperationLogger();
 		const afterToolPayloads: unknown[] = [];
-		const tool: AgentHarnessTool = {
+		const tool: AgentRuntimeTool = {
 			name: 'validated_lookup',
 			description: 'Lookup with required args',
 			schema: {
@@ -155,7 +155,7 @@ describe('createAgentHarness', () => {
 				content: [{ type: 'text' as const, text: 'should not execute' }],
 			})),
 		};
-		const harness = await createAgentHarness({
+		const runtime = await createAgentRuntime({
 			modelId: 'gpt-test',
 			model: {
 				async *stream(req) {
@@ -187,7 +187,7 @@ describe('createAgentHarness', () => {
 			],
 		});
 
-		const result = await harness.execute({ task: 'use invalid args', sessionId: 'hooks' });
+		const result = await runtime.execute({ task: 'use invalid args', sessionId: 'hooks' });
 
 		expect(result.finalText).toBe('handled invalid args');
 		expect(tool.execute).not.toHaveBeenCalled();
@@ -205,8 +205,8 @@ describe('createAgentHarness', () => {
 	});
 
 	it('deduplicates resolved tools with local tools taking priority', async () => {
-		const requests: AgentHarnessModelRequest[] = [];
-		const harness = await createAgentHarness({
+		const requests: AgentRuntimeModelRequest[] = [];
+		const runtime = await createAgentRuntime({
 			modelId: 'gpt-test',
 			model: {
 				async *stream(req) {
@@ -237,7 +237,7 @@ describe('createAgentHarness', () => {
 			],
 		});
 
-		await harness.execute({ task: 'lookup', sessionId: 'dedupe' });
+		await runtime.execute({ task: 'lookup', sessionId: 'dedupe' });
 
 		expect(requests[0].tools.filter((tool) => tool.name === 'shared_lookup')).toEqual([
 			expect.objectContaining({ description: 'Local lookup' }),
