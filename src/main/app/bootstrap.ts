@@ -7,8 +7,8 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { AppPermissionsService } from './permissions';
 import { LoggerService } from '../logger';
 import { StoreService } from '../store';
-import { PolicyService } from './agent/policy';
-import { CronService } from './cron';
+import { PolicyService } from '../agent/policy';
+import { CronService } from '../cron';
 import { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	AgentService,

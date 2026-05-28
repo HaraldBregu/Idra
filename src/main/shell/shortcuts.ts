@@ -1,5 +1,5 @@
 import type { BrowserWindow } from 'electron';
-import { ShortcutId, SHORTCUT_ACCELERATORS } from '../shared/shortcuts';
+import { ShortcutId, SHORTCUT_ACCELERATORS } from '../../shared/shortcuts';
 
 interface KeyCombo {
 	key: string;
