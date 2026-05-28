@@ -4,7 +4,7 @@ export {
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,
-	isOAuthMcpConfig,
+	isOAuthConnector,
 	missingMcpSecretMessage,
 	missingMcpSecretNames,
 	resolveMcpConfig,
