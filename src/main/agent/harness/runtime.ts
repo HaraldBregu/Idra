@@ -1128,6 +1128,13 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		return this.redactor.redact(value);
 	}
 
+	private redactApprovalDecision(decision: AgentHarnessApprovalDecision): AgentHarnessApprovalDecision {
+		const redacted = this.redact(decision);
+		return redacted && typeof redacted === 'object' && !Array.isArray(redacted)
+			? redacted as AgentHarnessApprovalDecision
+			: { approved: decision.approved, reason: decision.reason };
+	}
+
 	private redactRecord(value: Record<string, unknown>): Record<string, unknown> {
 		const redacted = this.redact(value);
 		return redacted && typeof redacted === 'object' && !Array.isArray(redacted)
