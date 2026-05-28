@@ -28,7 +28,6 @@ import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from '../agent/tools';
 import { SkillsService } from '../skills';
 import { SpeechToTextService } from '../stt';
-import { AgentRunLogger } from '../agent/run-logger';
 
 import type { IpcModule } from '../ipc';
 import {
@@ -151,8 +150,6 @@ export function bootstrapServices(): BootstrapResult {
 		'agentService',
 		new AgentService(agentDependencies, {
 			sessionBaseDir: agentDataDirectory.resolve('sessions'),
-			runLoggerFactory: (agentId) =>
-				new AgentRunLogger(agentId, { baseDir: agentDataDirectory.resolve('runs') }),
 		})
 	);
 	taskManager.configureAgentRuntime(agentService);
