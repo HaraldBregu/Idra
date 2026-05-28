@@ -206,9 +206,8 @@ export const loadMcpPromptTool: AgentTool<{
 function mcpConnectors(ctx: { services: unknown }): McpConnectors | undefined {
 	const services = ctx.services as {
 		mcpClient?: Partial<McpConnectors>;
-		connectors?: Partial<McpConnectors>;
 	};
-	const connectors = services.mcpClient ?? services.connectors;
+	const connectors = services.mcpClient;
 	if (!connectors) return undefined;
 	if (
 		typeof connectors.list !== 'function' ||
