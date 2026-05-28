@@ -1,25 +1,69 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { LoggerService } from '../logger';
-import {
-	DEFAULT_BOOTSTRAP_FILENAME,
-	DEFAULT_IDENTITY_FILENAME,
-	DEFAULT_MEMORY_FILENAME,
-	DEFAULT_SOUL_FILENAME,
-	DEFAULT_USER_FILENAME,
-	MAX_WORKSPACE_CONTEXT_FILE_BYTES,
-	SEEDED_WORKSPACE_FILE_NAMES,
-	WORKSPACE_CONTEXT_FILE_NAMES,
-	assertWorkspaceFileName,
-	isPathInside,
-	loadWorkspaceTemplate,
-	safeReadWorkspaceFile,
-	writeFileIfMissing,
-	type WorkspaceContextFile,
-	type WorkspaceFileName,
-	type WorkspaceFileSummary,
-} from '../workspace/files';
 import { resolveDefaultUserDataPath } from '../user-data';
+
+export const DEFAULT_AGENTS_FILENAME = 'AGENTS.md';
+export const DEFAULT_SOUL_FILENAME = 'SOUL.md';
+export const DEFAULT_IDENTITY_FILENAME = 'IDENTITY.md';
+export const DEFAULT_USER_FILENAME = 'USER.md';
+export const DEFAULT_HEARTBEAT_FILENAME = 'HEARTBEAT.md';
+export const DEFAULT_BOOTSTRAP_FILENAME = 'BOOTSTRAP.md';
+export const DEFAULT_MEMORY_FILENAME = 'MEMORY.md';
+
+export const WORKSPACE_CONTEXT_FILE_NAMES = [
+	DEFAULT_AGENTS_FILENAME,
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_USER_FILENAME,
+	DEFAULT_HEARTBEAT_FILENAME,
+	DEFAULT_BOOTSTRAP_FILENAME,
+	DEFAULT_MEMORY_FILENAME,
+] as const;
+
+export const SEEDED_WORKSPACE_FILE_NAMES = [
+	DEFAULT_AGENTS_FILENAME,
+	DEFAULT_SOUL_FILENAME,
+	DEFAULT_IDENTITY_FILENAME,
+	DEFAULT_USER_FILENAME,
+	DEFAULT_HEARTBEAT_FILENAME,
+] as const;
+
+export const DEFAULT_WORKSPACE_CONTEXT_MAX_CHARS = 12_000;
+export const DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS = 60_000;
+export const MAX_WORKSPACE_CONTEXT_FILE_BYTES = 2 * 1024 * 1024;
+
+export type WorkspaceFileName = (typeof WORKSPACE_CONTEXT_FILE_NAMES)[number];
+
+export type WorkspaceContextFile = {
+	name: WorkspaceFileName;
+	path: string;
+	content?: string;
+	missing: boolean;
+	error?: 'missing' | 'unsafe' | 'io';
+	detail?: string;
+};
+
+export type WorkspaceFileSummary = {
+	name: WorkspaceFileName;
+	path: string;
+	missing: boolean;
+	size?: number;
+};
+
+export type BootstrapMode = 'none' | 'limited' | 'full';
+
+const BUNDLED_TEMPLATES: Record<string, string> = Object.fromEntries(
+	Object.entries(
+		import.meta.glob('./templates/*.md', {
+			query: '?raw',
+			eager: true,
+			import: 'default',
+		}) as Record<string, string>
+	).map(([templatePath, content]) => [path.basename(templatePath), stripFrontMatter(content)])
+);
+
+const workspaceFileNames = new Set<string>(WORKSPACE_CONTEXT_FILE_NAMES);
 
 export interface AgentStartupFilesServiceOptions {
 	rootPath?: string;
@@ -52,6 +96,16 @@ const PROFILE_FILE_NAMES = [
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_USER_FILENAME,
 ] as const satisfies readonly WorkspaceFileName[];
+
+const CONTEXT_FILE_PROMPT_ORDER = new Map<WorkspaceFileName, number>([
+	[DEFAULT_AGENTS_FILENAME, 10],
+	[DEFAULT_SOUL_FILENAME, 20],
+	[DEFAULT_IDENTITY_FILENAME, 30],
+	[DEFAULT_USER_FILENAME, 40],
+	[DEFAULT_BOOTSTRAP_FILENAME, 60],
+	[DEFAULT_MEMORY_FILENAME, 70],
+	[DEFAULT_HEARTBEAT_FILENAME, 80],
+]);
 
 export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly rootPath: string;
