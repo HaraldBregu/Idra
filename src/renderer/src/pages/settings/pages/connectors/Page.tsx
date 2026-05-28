@@ -8,11 +8,9 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 } from '../../components';
-import { ConnectorCard } from './components/ConnectorCard';
 import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors } from './hooks/useConnectors';
 
-type ConnectorConfig = Awaited<ReturnType<Window['connectors']['list']>>[number];
 type HardcodedOAuthConnector = Exclude<Parameters<Window['connectors']['authorizeOAuth']>[0], string>;
 
 const GOOGLE_GMAIL_CONNECTORS: readonly HardcodedOAuthConnector[] = [
@@ -73,7 +71,6 @@ const ConnectorsPage = () => {
 		statusMessage,
 		refreshTools,
 	} = useConnectors();
-	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
 	const oauthConnectorByProviderId = new Map(
 		connectors.filter((c) => c.authKind === 'oauth').map((c) => [c.connectorId, c])
 	);
@@ -99,9 +96,6 @@ const ConnectorsPage = () => {
 			setOauthError(err instanceof Error ? err.message : String(err));
 		}
 	};
-
-	const isConfiguredConnector = (connector: ConnectorConfig): connector is ConnectorConfig & { id: string } =>
-		typeof connector.id === 'string' && connector.id.length > 0;
 
 	return (
 		<SettingsPageShell>
@@ -150,13 +144,6 @@ const ConnectorsPage = () => {
 						</Item>
 					);
 				})}
-				{mcpConnectors.filter(isConfiguredConnector).map((connector) => (
-					<ConnectorCard
-						key={connector.id}
-						connector={connector}
-						onViewDetails={() => openConnectorDetails(connector.id)}
-					/>
-				))}
 			</div>
 		</SettingsPageShell>
 	);

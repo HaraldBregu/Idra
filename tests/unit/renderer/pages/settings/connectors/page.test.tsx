@@ -164,12 +164,23 @@ describe('connector settings docs', () => {
 
 	it('renders only the hardcoded Gmail OAuth connector and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
+		(window.connectors.list as jest.Mock).mockResolvedValue([
+			{
+				...configuredConnector(),
+				id: 'dropbox-configured',
+				name: 'Configured Dropbox',
+				connectorId: 'dropbox.files',
+				serverLabel: 'dropbox',
+				tools: [],
+			},
+		]);
 
 		renderConnectorsPage();
 
 		const gmailLabels = await screen.findAllByText('Gmail');
 		expect(gmailLabels.length).toBeGreaterThan(0);
 		expect(screen.queryByText('Dropbox')).not.toBeInTheDocument();
+		expect(screen.queryByText('Configured Dropbox')).not.toBeInTheDocument();
 		expect(screen.queryByText('Google Calendar')).not.toBeInTheDocument();
 		expect(screen.queryByText('Google Drive')).not.toBeInTheDocument();
 		expect(window.connectors.catalog).not.toHaveBeenCalled();
