@@ -224,19 +224,19 @@ export class AgentService {
 			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options, workspace);
 			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
 			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
-				const capabilities = await resolveAgentCapabilities({
-					message,
-					localTools,
-					connectors: this.dependencies.connectors,
-					skills: this.dependencies.skills,
+			const capabilities = await resolveAgentCapabilities({
+				message,
+				localTools,
+				connectors: this.dependencies.connectors,
+				skills: this.dependencies.skills,
 				configuredSkillNames: this.dependencies.agentSettings?.getAgentConfig(agentId)?.skills,
-					toolsAllow: options.toolsAllow,
-					toolsDeny: options.toolsDeny,
-				});
-				for (const status of capabilities.connectorStatuses) {
-					this.emitAgentEvent({ type: 'connector_status', ...status }, sessionId, runId, options);
-				}
-				const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow);
+				toolsAllow: options.toolsAllow,
+				toolsDeny: options.toolsDeny,
+			});
+			for (const status of capabilities.connectorStatuses) {
+				this.emitAgentEvent({ type: 'connector_status', ...status }, sessionId, runId, options);
+			}
+			const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow);
 			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
 			const result = await this.executionService.run({
 				runId,
@@ -246,13 +246,13 @@ export class AgentService {
 				systemPrompt: buildSystemPrompt({ startupFiles, skills: capabilities.selectedSkills, tools: allowedTools }),
 				session,
 				tools: allowedTools,
-					ctx,
-					message,
-					signal: abort.signal,
-					hooks: {
-						streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options),
-						requestApproval: (request) => this.waitForToolApproval(request.approvalId, abort.signal),
-					},
+				ctx,
+				message,
+				signal: abort.signal,
+				hooks: {
+					streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options),
+					requestApproval: (request) => this.waitForToolApproval(request.approvalId, abort.signal),
+				},
 			});
 			await saveSession({ ...result.session, status: this.sessionStatusForStop(result.stopReason) }, { baseDir: this.sessionBaseDir });
 			this.emitAgentEvent({ type: 'run_finished', stopReason: result.stopReason, outputChars: result.finalText.length }, sessionId, runId, options);
