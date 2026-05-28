@@ -38,9 +38,21 @@ export const AGENT_TOOL_PROFILES = ['minimal', 'coding', 'messaging', 'standard'
 export const AGENT_TOOL_STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
 
 export const AGENT_TOOL_GROUP_METADATA = {
+	'filesystem:read': {
+		title: 'Filesystem read tools',
+		description: 'List, read, inspect, search, diff, and resolve workspace paths.',
+	},
+	'filesystem:write': {
+		title: 'Filesystem write tools',
+		description: 'Create, overwrite, append, edit, copy, move, and patch workspace paths.',
+	},
+	'filesystem:delete': {
+		title: 'Filesystem delete tools',
+		description: 'Delete workspace files and directories.',
+	},
 	coreWorkspace: {
-		title: 'Core workspace tools',
-		description: 'Read, write, search, inspect, and run commands inside a workspace.',
+		title: 'Legacy workspace tools',
+		description: 'Compatibility metadata for older workspace tool names.',
 	},
 	stateTask: {
 		title: 'State / task tools',
