@@ -1,6 +1,5 @@
 export * from './types';
 
-import type { AgentToolMetadata, AgentToolGroupName } from './types';
 import {
 	AGENT_TOOL_FILESYSTEM_READ_TOOLS,
 	AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
@@ -8,34 +7,19 @@ import {
 } from './base';
 import { AGENT_TOOL_CRON_TOOLS } from './cron';
 import { AGENT_TOOL_TASK_TOOLS } from './task';
-export const AGENT_DEFAULT_TOOL_GROUPS = {
-	'filesystem:read': AGENT_TOOL_FILESYSTEM_READ_TOOLS,
-	'filesystem:write': AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
-	'filesystem:delete': AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
-	task: [],
-	cron: [],
-} as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
-
-export const AGENT_TOOL_GROUPS = {
-	'filesystem:read': AGENT_TOOL_FILESYSTEM_READ_TOOLS,
-	'filesystem:write': AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
-	'filesystem:delete': AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
-	task: AGENT_TOOL_TASK_TOOLS,
-	cron: AGENT_TOOL_CRON_TOOLS,
-} as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_DEFAULT_TOOLS = [
-	...AGENT_DEFAULT_TOOL_GROUPS['filesystem:read'],
-	...AGENT_DEFAULT_TOOL_GROUPS['filesystem:write'],
-	...AGENT_DEFAULT_TOOL_GROUPS['filesystem:delete'],
+	...AGENT_TOOL_FILESYSTEM_READ_TOOLS,
+	...AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
+	...AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
 ] as const;
 
 export const AGENT_TOOLS = [
-	...AGENT_TOOL_GROUPS['filesystem:read'],
-	...AGENT_TOOL_GROUPS['filesystem:write'],
-	...AGENT_TOOL_GROUPS['filesystem:delete'],
-	...AGENT_TOOL_GROUPS['task'],
-	...AGENT_TOOL_GROUPS['cron'],
+	...AGENT_TOOL_FILESYSTEM_READ_TOOLS,
+	...AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
+	...AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
+	...AGENT_TOOL_TASK_TOOLS,
+	...AGENT_TOOL_CRON_TOOLS,
 ] as const;
 
 export type AgentToolName = (typeof AGENT_TOOLS)[number]['name'];
