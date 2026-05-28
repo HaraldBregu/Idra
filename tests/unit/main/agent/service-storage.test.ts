@@ -67,9 +67,9 @@ describe('AgentService agent storage wiring', () => {
 		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith(DEFAULT_AGENT_ID);
 		expect(agentDataDirectory.ensureRoot).toHaveBeenCalled();
 		expect(providerFactory).toHaveBeenCalledWith({
-			id: 'anthropic',
+			id: 'openai',
 			apiKey: 'sk-test',
-			baseURL: 'https://anthropic.example.test',
+			baseURL: 'https://openai.example.test',
 		});
 		await fs.rm(root, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
