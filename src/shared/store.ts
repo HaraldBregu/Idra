@@ -40,9 +40,12 @@ export interface AgentToolPolicy {
 	allow?: string[];
 	alsoAllow?: string[];
 	deny?: string[];
+	permissions?: Record<string, AgentToolPermissionMode>;
 	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	exec?: Record<string, unknown>;
 }
+
+export type AgentToolPermissionMode = 'allow' | 'deny' | 'ask';
 
 export interface AgentConfig {
 	id: string;
