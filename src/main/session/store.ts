@@ -60,7 +60,7 @@ export interface SessionStoreOptions {
 const MAX_TOOL_RESULT_CHARS = 16_000;
 
 function defaultBaseDir(): string {
-	return resolveDefaultUserDataPath('agent', 'sessions');
+	return resolveAppDataPath('agent');
 }
 
 function sessionPath(baseDir: string, id: string): string {
