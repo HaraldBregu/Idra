@@ -93,6 +93,22 @@ The harness module owns these responsibilities:
 
 Do not move provider streaming, session indexing, system prompt construction, or cron scheduling into the harness. The harness integrates with those systems through injected interfaces.
 
+## Run Loop: ReAct Pattern
+
+The harness run loop implements the ReAct (Reason-Act-Observe) cycle: the model receives the current state, reasons about the next action, executes that action via a tool, observes the result, and repeats until a stopping condition is met.
+
+Each cycle in `runLoop`:
+
+1. **Reason** — call the model via `collectModelTurn`. The model receives the current transcript, system prompt, and available tool schemas. It emits text and zero or more tool calls.
+2. **Act** — execute each tool call through `executeToolCall`. Tools read from or write to the world. Results are deterministic: a tool either returns a result or fails with a typed status.
+3. **Observe** — append the tool results to the transcript. The model sees exactly what happened — success, error, blocked, or rejected — and uses that to plan the next action.
+
+The loop continues until the model produces no tool calls (convergence), a budget ceiling is hit, or the run is cancelled.
+
+For complex tasks that exceed a single context window, use orchestrator-worker decomposition through subagents: the orchestrator breaks the task into subtasks and delegates each to a worker with a restricted tool set and isolated context. Workers cannot call each other. Results flow back to the orchestrator. Each worker's context window is independent — overflow in one worker does not affect others.
+
+Do not implement orchestration inline in the run loop. Subagent spawning belongs in `runSubagent` and the subagent runtime configured through `AgentHarnessConfig.subagents`.
+
 ## Module Names
 
 Use existing file names when extending the implementation:
