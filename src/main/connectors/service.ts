@@ -3,7 +3,7 @@ import { createServer, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { shell } from 'electron';
 import Store from 'electron-store';
-import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
+import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
 import type {
 	ConnectorAuthKind,
 	ConnectorCallToolOptions,
@@ -27,6 +27,20 @@ import {
 	connectorHasAuthorization,
 	connectorStatusFor,
 } from './config';
+import {
+	connectorAuthorization,
+	isConnectorToolRecord,
+	isStoredConnectorValid,
+	normalizeConnectorTool,
+	normalizeConnectorTools,
+	normalizeStoredConnector,
+	oauthAuthorizationHeader,
+	serverLabelFromName,
+	toStoredConnectorRecords,
+	tokenFromAuthorization,
+	uniqueConnectorStorageKey,
+	type RuntimeConnector,
+} from './format';
 
 const CONNECTOR_STORE_NAME = 'connectors';
 const CONNECTOR_STORE_KEY = 'connectors';
@@ -104,21 +118,6 @@ type ConnectorCatalogProvider =
 	| (() => readonly ConnectorCatalogEntry[] | Promise<readonly ConnectorCatalogEntry[]>);
 type OAuthCallbackListenerFactory = (state: string, timeoutMs?: number) => Promise<OAuthCallbackListener>;
 
-type RuntimeConnector = ConnectorConfig & {
-	id: string;
-	name: string;
-	connectorId: ConnectorProviderId;
-	serverLabel: string;
-	enabled: boolean;
-	authorization: string;
-	requireApproval: NonNullable<ConnectorConfig['requireApproval']>;
-	allowedTools: string[];
-	deferLoading: boolean;
-	tools: ConnectorTool[];
-	createdAt: string;
-	updatedAt: string;
-};
-
 interface ConnectorsServiceOptions {
 	store?: ConnectorPersistenceStore;
 	toolStore?: ConnectorToolPersistenceStore;
@@ -152,14 +151,6 @@ type SanitizedConnectorInput = ConnectorInput & {
 	serverLabel: string;
 	mcp: ConnectorMcpConfig;
 };
-
-function serverLabelFromName(name: string): string {
-	return name
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9_-]+/g, '_')
-		.replace(/^_+|_+$/g, '');
-}
 
 function toView(connector: RuntimeConnector): ConnectorConfig {
 	const redacted = redactConnectorSecrets(connector);
