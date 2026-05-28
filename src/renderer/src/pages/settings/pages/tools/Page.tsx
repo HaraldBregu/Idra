@@ -11,7 +11,11 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import {
+	AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
+	AGENT_TOOL_FILESYSTEM_READ_TOOLS,
+	AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
 	AGENT_TOOLS,
+	type AgentToolMetadata,
 } from '../../../../../../shared/tools';
 import type { AgentConfig, AgentRoutingSettings, AgentToolPermissionMode } from '../../../../../../shared/store';
 import {
@@ -21,31 +25,24 @@ import {
 	SettingsSection,
 } from '../../components';
 
-function optionalStringField(value: unknown, key: string): string | undefined {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
-	const entry = (value as Record<string, unknown>)[key];
-	return typeof entry === 'string' ? entry : undefined;
-}
-
-function optionalStringListField(value: unknown, key: string): string[] {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
-	const entry = (value as Record<string, unknown>)[key];
-	return Array.isArray(entry) ? entry.filter((item): item is string => typeof item === 'string') : [];
-}
-
-function approvalMode(value: unknown): string {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) return 'none';
-	const approval = (value as Record<string, unknown>).approval;
-	if (!approval || typeof approval !== 'object' || Array.isArray(approval)) return 'none';
-	const mode = (approval as Record<string, unknown>).mode;
-	return typeof mode === 'string' ? mode : 'none';
-}
-
 const DEFAULT_AGENT_ID = 'main';
 const PERMISSION_OPTIONS: Array<{ value: AgentToolPermissionMode; label: string; icon: typeof ShieldCheck }> = [
-	{ value: 'allow', label: 'Allow', icon: ShieldCheck },
-	{ value: 'ask', label: 'Ask', icon: ShieldAlert },
 	{ value: 'deny', label: 'Deny', icon: ShieldX },
+	{ value: 'allow', label: 'Allow', icon: ShieldCheck },
+	{ value: 'ask', label: 'Ask for confirmation', icon: ShieldAlert },
+];
+
+const filesystemToolNames = new Set([
+	...AGENT_TOOL_FILESYSTEM_READ_TOOLS,
+	...AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
+	...AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
+].map((tool) => tool.name));
+
+const TOOL_GROUPS: Array<{ title: string; tools: readonly AgentToolMetadata[] }> = [
+	{ title: 'Read-only tools', tools: AGENT_TOOL_FILESYSTEM_READ_TOOLS },
+	{ title: 'Write and edit tools', tools: AGENT_TOOL_FILESYSTEM_WRITE_TOOLS },
+	{ title: 'Delete tools', tools: AGENT_TOOL_FILESYSTEM_DELETE_TOOLS },
+	{ title: 'Other tools', tools: AGENT_TOOLS.filter((tool) => !filesystemToolNames.has(tool.name)) },
 ];
 
 function defaultToolPermissions(): Record<string, AgentToolPermissionMode> {
