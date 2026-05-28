@@ -1,8 +1,8 @@
-import type { AgentHarnessContextBuildResult, AgentHarnessContextManager, AgentHarnessMemoryRecord, AgentHarnessSession } from './types';
+import type { AgentRuntimeContextBuildResult, AgentRuntimeContextManager, AgentRuntimeMemoryRecord, AgentRuntimeSession } from './types';
 
-export class BudgetedAgentHarnessContextManager implements AgentHarnessContextManager {
+export class BudgetedAgentRuntimeContextManager implements AgentRuntimeContextManager {
 	constructor(private readonly options: { maxHistoryMessages?: number; defaultBudgetTokens?: number } = {}) {}
-	async build(input: { task: string; session: AgentHarnessSession; memory: AgentHarnessMemoryRecord[]; budgetTokens?: number }): Promise<AgentHarnessContextBuildResult> {
+	async build(input: { task: string; session: AgentRuntimeSession; memory: AgentRuntimeMemoryRecord[]; budgetTokens?: number }): Promise<AgentRuntimeContextBuildResult> {
 		const limit = this.options.maxHistoryMessages ?? 20;
 		const messages = input.session.transcript.slice(-limit);
 		return {

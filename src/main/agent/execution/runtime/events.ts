@@ -1,29 +1,29 @@
-import type { AgentHarnessEvent } from './types';
+import type { AgentRuntimeEvent } from './types';
 
-export class AgentHarnessEmitter {
-	private readonly listeners = new Map<AgentHarnessEvent['type'], Set<(event: AgentHarnessEvent) => void>>();
-	private readonly anyListeners = new Set<(event: AgentHarnessEvent) => void>();
-	on(type: AgentHarnessEvent['type'], handler: (event: AgentHarnessEvent) => void): () => void {
+export class AgentRuntimeEmitter {
+	private readonly listeners = new Map<AgentRuntimeEvent['type'], Set<(event: AgentRuntimeEvent) => void>>();
+	private readonly anyListeners = new Set<(event: AgentRuntimeEvent) => void>();
+	on(type: AgentRuntimeEvent['type'], handler: (event: AgentRuntimeEvent) => void): () => void {
 		const set = this.listeners.get(type) ?? new Set();
 		set.add(handler);
 		this.listeners.set(type, set);
 		return () => set.delete(handler);
 	}
-	onAny(handler: (event: AgentHarnessEvent) => void): () => void {
+	onAny(handler: (event: AgentRuntimeEvent) => void): () => void {
 		this.anyListeners.add(handler);
 		return () => this.anyListeners.delete(handler);
 	}
-	emit(event: AgentHarnessEvent): void {
+	emit(event: AgentRuntimeEvent): void {
 		this.listeners.get(event.type)?.forEach((handler) => handler(event));
 		this.anyListeners.forEach((handler) => handler(event));
 	}
 }
 
-export class AgentHarnessEventQueue implements AsyncIterable<AgentHarnessEvent> {
-	private readonly events: AgentHarnessEvent[] = [];
-	private readonly waiters: Array<(value: IteratorResult<AgentHarnessEvent>) => void> = [];
+export class AgentRuntimeEventQueue implements AsyncIterable<AgentRuntimeEvent> {
+	private readonly events: AgentRuntimeEvent[] = [];
+	private readonly waiters: Array<(value: IteratorResult<AgentRuntimeEvent>) => void> = [];
 	private closed = false;
-	push(event: AgentHarnessEvent): void {
+	push(event: AgentRuntimeEvent): void {
 		const waiter = this.waiters.shift();
 		if (waiter) waiter({ done: false, value: event });
 		else this.events.push(event);
@@ -32,7 +32,7 @@ export class AgentHarnessEventQueue implements AsyncIterable<AgentHarnessEvent> 
 		this.closed = true;
 		this.waiters.splice(0).forEach((waiter) => waiter({ done: true, value: undefined }));
 	}
-	[Symbol.asyncIterator](): AsyncIterator<AgentHarnessEvent> {
+	[Symbol.asyncIterator](): AsyncIterator<AgentRuntimeEvent> {
 		return {
 			next: () => {
 				const event = this.events.shift();

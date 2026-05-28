@@ -1,6 +1,6 @@
-import type { AgentHarnessExternalToolProvider, AgentHarnessTool } from './types';
+import type { AgentRuntimeExternalToolProvider, AgentRuntimeTool } from './types';
 
-export type AgentHarnessMcpServerConfig =
+export type AgentRuntimeMcpServerConfig =
 	| {
 			name: string;
 			transport: 'stdio';
@@ -20,9 +20,9 @@ export type AgentHarnessMcpServerConfig =
 			toolPrefix?: string;
 	  };
 
-export class McpAgentHarnessToolProvider implements AgentHarnessExternalToolProvider {
-	constructor(private readonly servers: AgentHarnessMcpServerConfig[] = []) {}
-	async discover(): Promise<AgentHarnessTool[]> {
+export class McpAgentRuntimeToolProvider implements AgentRuntimeExternalToolProvider {
+	constructor(private readonly servers: AgentRuntimeMcpServerConfig[] = []) {}
+	async discover(): Promise<AgentRuntimeTool[]> {
 		return [];
 	}
 	getInventory() {

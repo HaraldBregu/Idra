@@ -1,7 +1,7 @@
-import type { AgentHarnessConfig, AgentHarnessSecretRedactor } from './types';
-import { AgentHarnessError } from './errors';
+import type { AgentRuntimeConfig, AgentRuntimeSecretRedactor } from './types';
+import { AgentRuntimeError } from './errors';
 
-export class DefaultAgentHarnessSecretRedactor implements AgentHarnessSecretRedactor {
+export class DefaultAgentRuntimeSecretRedactor implements AgentRuntimeSecretRedactor {
 	redact(value: unknown): unknown {
 		if (Array.isArray(value)) return value.map((entry) => this.redact(entry));
 		if (!value || typeof value !== 'object') return value;
@@ -9,7 +9,7 @@ export class DefaultAgentHarnessSecretRedactor implements AgentHarnessSecretReda
 	}
 }
 
-export function validateAgentHarnessConfig(config: AgentHarnessConfig): void {
-	if (!config.modelId?.trim()) throw new AgentHarnessError({ code: 'config_invalid', message: 'modelId is required.' });
-	if (!config.model) throw new AgentHarnessError({ code: 'config_invalid', message: 'model is required.' });
+export function validateAgentRuntimeConfig(config: AgentRuntimeConfig): void {
+	if (!config.modelId?.trim()) throw new AgentRuntimeError({ code: 'config_invalid', message: 'modelId is required.' });
+	if (!config.model) throw new AgentRuntimeError({ code: 'config_invalid', message: 'model is required.' });
 }

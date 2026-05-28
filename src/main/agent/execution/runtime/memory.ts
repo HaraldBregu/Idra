@@ -1,26 +1,26 @@
-import type { AgentHarnessMemory, AgentHarnessMemoryRecord, AgentHarnessOperationLogEntry, AgentHarnessOperationLogger, AgentHarnessPersistence, AgentHarnessRunResult, AgentHarnessSession, AgentHarnessSnapshot } from './types';
+import type { AgentRuntimeMemory, AgentRuntimeMemoryRecord, AgentRuntimeOperationLogEntry, AgentRuntimeOperationLogger, AgentRuntimePersistence, AgentRuntimeRunResult, AgentRuntimeSession, AgentRuntimeSnapshot } from './types';
 
-export class InMemoryAgentHarnessPersistence implements AgentHarnessPersistence {
-	private readonly sessions = new Map<string, AgentHarnessSession>();
-	private readonly snapshots = new Map<string, AgentHarnessSnapshot>();
-	async loadSession(id: string): Promise<AgentHarnessSession | null> { return this.sessions.get(id) ?? null; }
-	async saveSession(session: AgentHarnessSession): Promise<void> { this.sessions.set(session.id, structuredClone(session)); }
-	async listSessions(): Promise<AgentHarnessSession[]> { return [...this.sessions.values()].map((session) => structuredClone(session)); }
+export class InMemoryAgentRuntimePersistence implements AgentRuntimePersistence {
+	private readonly sessions = new Map<string, AgentRuntimeSession>();
+	private readonly snapshots = new Map<string, AgentRuntimeSnapshot>();
+	async loadSession(id: string): Promise<AgentRuntimeSession | null> { return this.sessions.get(id) ?? null; }
+	async saveSession(session: AgentRuntimeSession): Promise<void> { this.sessions.set(session.id, structuredClone(session)); }
+	async listSessions(): Promise<AgentRuntimeSession[]> { return [...this.sessions.values()].map((session) => structuredClone(session)); }
 	async deleteSession(id: string): Promise<void> { this.sessions.delete(id); }
-	async saveSnapshot(snapshot: AgentHarnessSnapshot): Promise<void> { this.snapshots.set(snapshot.id, structuredClone(snapshot)); }
-	async loadSnapshot(id: string): Promise<AgentHarnessSnapshot | null> { return this.snapshots.get(id) ?? null; }
+	async saveSnapshot(snapshot: AgentRuntimeSnapshot): Promise<void> { this.snapshots.set(snapshot.id, structuredClone(snapshot)); }
+	async loadSnapshot(id: string): Promise<AgentRuntimeSnapshot | null> { return this.snapshots.get(id) ?? null; }
 }
 
-export class InMemoryAgentHarnessOperationLogger implements AgentHarnessOperationLogger {
-	private readonly entries: AgentHarnessOperationLogEntry[] = [];
-	async append(entry: AgentHarnessOperationLogEntry): Promise<void> { this.entries.push(structuredClone(entry)); }
-	readAll(): AgentHarnessOperationLogEntry[] { return this.entries.map((entry) => structuredClone(entry)); }
+export class InMemoryAgentRuntimeOperationLogger implements AgentRuntimeOperationLogger {
+	private readonly entries: AgentRuntimeOperationLogEntry[] = [];
+	async append(entry: AgentRuntimeOperationLogEntry): Promise<void> { this.entries.push(structuredClone(entry)); }
+	readAll(): AgentRuntimeOperationLogEntry[] { return this.entries.map((entry) => structuredClone(entry)); }
 }
 
-export class InMemoryAgentHarnessMemory implements AgentHarnessMemory {
-	constructor(private readonly records: AgentHarnessMemoryRecord[] = []) {}
-	async retrieve(): Promise<AgentHarnessMemoryRecord[]> { return this.records.map((record) => ({ ...record })); }
-	async store(input: { session: AgentHarnessSession; result: AgentHarnessRunResult }): Promise<void> {
+export class InMemoryAgentRuntimeMemory implements AgentRuntimeMemory {
+	constructor(private readonly records: AgentRuntimeMemoryRecord[] = []) {}
+	async retrieve(): Promise<AgentRuntimeMemoryRecord[]> { return this.records.map((record) => ({ ...record })); }
+	async store(input: { session: AgentRuntimeSession; result: AgentRuntimeRunResult }): Promise<void> {
 		if (input.result.finalText.trim()) {
 			this.records.push({ id: `${input.session.id}:${input.result.runId}`, text: input.result.finalText, createdAt: new Date().toISOString() });
 		}

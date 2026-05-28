@@ -1,9 +1,9 @@
 import type { ConnectorConfig } from '../../../shared/connector';
-import type { AgentHarnessMcpServerConfig } from '../harness/mcp';
+import type { AgentRuntimeMcpServerConfig } from '../runtime/mcp';
 import { resolveMcpConfig } from './config';
 
 export class McpRegistry {
-	buildServers(connectors: readonly ConnectorConfig[] = []): AgentHarnessMcpServerConfig[] {
+	buildServers(connectors: readonly ConnectorConfig[] = []): AgentRuntimeMcpServerConfig[] {
 		return connectors.flatMap((connector) => {
 			if (connector.enabled === false) return [];
 			if (connector.oauth && !connector.oauth.token?.accessToken && !connector.authorization?.trim()) return [];

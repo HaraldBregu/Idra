@@ -1,52 +1,52 @@
 import { randomUUID } from 'node:crypto';
 import type { AgentContentBlock, ToolResultBlock, Usage } from '../../provider/types';
-import { AgentHarnessEmitter, AgentHarnessEventQueue } from './events';
-import { validateAgentHarnessConfig, DefaultAgentHarnessSecretRedactor } from './config';
-import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
-import { BudgetedAgentHarnessContextManager } from './context';
+import { AgentRuntimeEmitter, AgentRuntimeEventQueue } from './events';
+import { validateAgentRuntimeConfig, DefaultAgentRuntimeSecretRedactor } from './config';
+import { InMemoryAgentRuntimeOperationLogger, InMemoryAgentRuntimePersistence } from './memory';
+import { BudgetedAgentRuntimeContextManager } from './context';
 import { toRuntimeErrorShape } from './errors';
 import { validateJsonSchemaValue } from './schema';
-import { DefaultAgentHarnessToolRegistry, filterToolsByPermissions, requiresPolicyApproval } from './tools';
-import type { AgentHarnessConfig, AgentHarnessEvent, AgentHarnessExecuteInput, AgentHarnessHookName, AgentHarnessRunResult, AgentHarnessSession, AgentHarnessSnapshot, AgentHarnessSubagentInput, AgentHarnessTool } from './types';
-import { AGENT_HARNESS_LAYERS } from './types';
+import { DefaultAgentRuntimeToolRegistry, filterToolsByPermissions, requiresPolicyApproval } from './tools';
+import type { AgentRuntimeConfig, AgentRuntimeEvent, AgentRuntimeExecuteInput, AgentRuntimeHookName, AgentRuntimeRunResult, AgentRuntimeSession, AgentRuntimeSnapshot, AgentRuntimeSubagentInput, AgentRuntimeTool } from './types';
+import { AGENT_RUNTIME_LAYERS } from './types';
 
 const DEFAULT_MAX_ITERATIONS = 25;
 const DEFAULT_MAX_TOKENS = 4096;
 
-export async function createAgentHarness(config: AgentHarnessConfig) {
-	return new DefaultAgentHarness(config);
+export async function createAgentRuntime(config: AgentRuntimeConfig) {
+	return new DefaultAgentRuntime(config);
 }
 
-export class DefaultAgentHarness {
+export class DefaultAgentRuntime {
 	readonly id: string;
 	readonly label: string;
-	readonly layers = AGENT_HARNESS_LAYERS;
+	readonly layers = AGENT_RUNTIME_LAYERS;
 	private readonly persistence;
 	private readonly logs;
 	private readonly redactor;
 	private readonly tools;
 	private readonly context;
-	private readonly emitter = new AgentHarnessEmitter();
+	private readonly emitter = new AgentRuntimeEmitter();
 	private readonly controllers = new Map<string, AbortController>();
-	private readonly loadedSkills = new Map<string, { instructions?: string; tools?: AgentHarnessTool[] }>();
+	private readonly loadedSkills = new Map<string, { instructions?: string; tools?: AgentRuntimeTool[] }>();
 
-	constructor(private readonly config: AgentHarnessConfig) {
-		validateAgentHarnessConfig(config);
+	constructor(private readonly config: AgentRuntimeConfig) {
+		validateAgentRuntimeConfig(config);
 		this.id = config.id ?? 'default';
 		this.label = config.label ?? this.id;
-		this.persistence = config.persistence ?? new InMemoryAgentHarnessPersistence();
-		this.logs = config.logs ?? new InMemoryAgentHarnessOperationLogger();
-		this.redactor = config.secrets ?? new DefaultAgentHarnessSecretRedactor();
-		this.tools = config.toolRegistry ?? new DefaultAgentHarnessToolRegistry(config.tools ?? []);
-		this.context = config.context ?? new BudgetedAgentHarnessContextManager();
+		this.persistence = config.persistence ?? new InMemoryAgentRuntimePersistence();
+		this.logs = config.logs ?? new InMemoryAgentRuntimeOperationLogger();
+		this.redactor = config.secrets ?? new DefaultAgentRuntimeSecretRedactor();
+		this.tools = config.toolRegistry ?? new DefaultAgentRuntimeToolRegistry(config.tools ?? []);
+		this.context = config.context ?? new BudgetedAgentRuntimeContextManager();
 	}
 
-	on(type: AgentHarnessEvent['type'], handler: (event: AgentHarnessEvent) => void): () => void {
+	on(type: AgentRuntimeEvent['type'], handler: (event: AgentRuntimeEvent) => void): () => void {
 		return this.emitter.on(type, handler);
 	}
 
-	async *stream(input: AgentHarnessExecuteInput): AsyncIterable<AgentHarnessEvent> {
-		const queue = new AgentHarnessEventQueue();
+	async *stream(input: AgentRuntimeExecuteInput): AsyncIterable<AgentRuntimeEvent> {
+		const queue = new AgentRuntimeEventQueue();
 		const off = this.emitter.onAny((event) => queue.push(event));
 		void this.execute(input).catch((error) => queue.push({ type: 'run.error', runId: input.runId ?? 'unknown', sessionId: input.sessionId ?? 'unknown', error: toRuntimeErrorShape(error) })).finally(() => queue.close());
 		try {
@@ -56,7 +56,7 @@ export class DefaultAgentHarness {
 		}
 	}
 
-	async execute(input: AgentHarnessExecuteInput): Promise<AgentHarnessRunResult> {
+	async execute(input: AgentRuntimeExecuteInput): Promise<AgentRuntimeRunResult> {
 		const runId = input.runId ?? randomUUID();
 		const session = await this.loadOrCreateSession(input.sessionId ?? runId, input.parentSessionId, input.metadata);
 		const controller = new AbortController();
@@ -107,7 +107,7 @@ export class DefaultAgentHarness {
 		}
 	}
 
-	private async runLoop(input: { runId: string; session: AgentHarnessSession; task: string; systemPrompt: string; tools: AgentHarnessTool[]; context: Record<string, unknown>; memory: unknown[]; maxIterations: number; maxTokens: number; signal: AbortSignal }): Promise<AgentHarnessRunResult> {
+	private async runLoop(input: { runId: string; session: AgentRuntimeSession; task: string; systemPrompt: string; tools: AgentRuntimeTool[]; context: Record<string, unknown>; memory: unknown[]; maxIterations: number; maxTokens: number; signal: AbortSignal }): Promise<AgentRuntimeRunResult> {
 		let session = input.session;
 		let finalText = '';
 		let toolCalls = 0;
@@ -133,7 +133,7 @@ export class DefaultAgentHarness {
 		return { runId: input.runId, sessionId: session.id, finalText, toolCalls, usage, stopReason: 'max_iterations', session };
 	}
 
-	private async collectModelTurn(runId: string, session: AgentHarnessSession, system: string, tools: AgentHarnessTool[], maxTokens: number, signal: AbortSignal, iteration: number) {
+	private async collectModelTurn(runId: string, session: AgentRuntimeSession, system: string, tools: AgentRuntimeTool[], maxTokens: number, signal: AbortSignal, iteration: number) {
 		let text = '';
 		let usage: Usage = { inputTokens: 0, outputTokens: 0 };
 		let stopReason = 'end_turn';
@@ -158,7 +158,7 @@ export class DefaultAgentHarness {
 		return { text, usage, stopReason, toolCalls, blocks: blocks.length ? blocks : [{ type: 'text' as const, text: '' }] };
 	}
 
-	private async executeToolCall(runId: string, session: AgentHarnessSession, toolCallId: string, toolName: string, args: Record<string, unknown>, tools: AgentHarnessTool[], context: Record<string, unknown>, signal: AbortSignal): Promise<{ status: import('../../../shared/agents/constants').AgentToolResultStatus; content: ToolResultBlock[] }> {
+	private async executeToolCall(runId: string, session: AgentRuntimeSession, toolCallId: string, toolName: string, args: Record<string, unknown>, tools: AgentRuntimeTool[], context: Record<string, unknown>, signal: AbortSignal): Promise<{ status: import('../../../shared/agents/constants').AgentToolResultStatus; content: ToolResultBlock[] }> {
 		const tool = tools.find((entry) => entry.name === toolName);
 		if (!tool) return { status: 'error', content: [{ type: 'text', text: `tool ${toolName} is unavailable` }] };
 		const started = Date.now();
@@ -192,11 +192,11 @@ export class DefaultAgentHarness {
 		}
 	}
 
-	private toolContext(runId: string, session: AgentHarnessSession, signal: AbortSignal, context: Record<string, unknown>) {
-		return { runId, sessionId: session.id, session, signal, context, memory: [], emit: (event: AgentHarnessEvent) => this.emit(event), log: (entry: Parameters<typeof this.logs.append>[0]) => this.logs.append(entry), requestApproval: (request: never) => this.config.approvals?.checkpoint(request) ?? Promise.resolve({ approved: false }), runSubagent: (input: AgentHarnessSubagentInput) => this.runSubagent({ ...input, parentSessionId: session.id }) };
+	private toolContext(runId: string, session: AgentRuntimeSession, signal: AbortSignal, context: Record<string, unknown>) {
+		return { runId, sessionId: session.id, session, signal, context, memory: [], emit: (event: AgentRuntimeEvent) => this.emit(event), log: (entry: Parameters<typeof this.logs.append>[0]) => this.logs.append(entry), requestApproval: (request: never) => this.config.approvals?.checkpoint(request) ?? Promise.resolve({ approved: false }), runSubagent: (input: AgentRuntimeSubagentInput) => this.runSubagent({ ...input, parentSessionId: session.id }) };
 	}
 
-	private async resolveTools(input: AgentHarnessExecuteInput, session: AgentHarnessSession, context: Record<string, unknown>): Promise<AgentHarnessTool[]> {
+	private async resolveTools(input: AgentRuntimeExecuteInput, session: AgentRuntimeSession, context: Record<string, unknown>): Promise<AgentRuntimeTool[]> {
 		const external = (await Promise.all((this.config.externalTools ?? []).map((provider) => provider.discover({ task: input.task, session, context }).catch(() => [])))).flat();
 		const skillTools = [...this.loadedSkills.values()].flatMap((skill) => skill.tools ?? []);
 		const tools = [...this.tools.list(), ...skillTools, ...external];
@@ -204,16 +204,16 @@ export class DefaultAgentHarness {
 		return filterToolsByPermissions(unique, { permissions: this.config.permissions, enabledTools: input.enabledTools, disabledTools: input.disabledTools, toolGroups: input.toolGroups });
 	}
 
-	private async loadOrCreateSession(id: string, parentSessionId?: string, metadata?: Record<string, unknown>): Promise<AgentHarnessSession> {
+	private async loadOrCreateSession(id: string, parentSessionId?: string, metadata?: Record<string, unknown>): Promise<AgentRuntimeSession> {
 		const existing = await this.persistence.loadSession(id);
 		if (existing) return existing;
 		const now = new Date().toISOString();
-		const session: AgentHarnessSession = { id, createdAt: now, updatedAt: now, status: 'active', model: this.config.modelId, provider: this.config.provider, parentSessionId, metadata, transcript: [], plan: [], compactionMarkers: [] };
+		const session: AgentRuntimeSession = { id, createdAt: now, updatedAt: now, status: 'active', model: this.config.modelId, provider: this.config.provider, parentSessionId, metadata, transcript: [], plan: [], compactionMarkers: [] };
 		await this.persistence.saveSession(session);
 		return session;
 	}
 
-	private async ensureSkills(task: string, names: string[], session: AgentHarnessSession, context: Record<string, unknown>): Promise<void> {
+	private async ensureSkills(task: string, names: string[], session: AgentRuntimeSession, context: Record<string, unknown>): Promise<void> {
 		if (!this.config.skills) return;
 		const candidates = await this.config.skills.list?.({ session, context }) ?? [];
 		const selected = await this.config.skills.select?.({ task, session, context, candidates }) ?? [];
@@ -231,7 +231,7 @@ export class DefaultAgentHarness {
 	listSessions() { return this.persistence.listSessions(); }
 	async resetSession(sessionId: string) { await this.persistence.deleteSession(sessionId); }
 	abortRun(runId: string): void { this.controllers.get(runId)?.abort(); }
-	async createSnapshot(sessionId: string, reason?: string): Promise<AgentHarnessSnapshot> {
+	async createSnapshot(sessionId: string, reason?: string): Promise<AgentRuntimeSnapshot> {
 		const session = await this.persistence.loadSession(sessionId);
 		if (!session) throw new Error(`session not found: ${sessionId}`);
 		const snapshot = { id: randomUUID(), sessionId, createdAt: new Date().toISOString(), reason, session };
@@ -239,17 +239,17 @@ export class DefaultAgentHarness {
 		this.emit({ type: 'snapshot.created', snapshotId: snapshot.id, sessionId });
 		return snapshot;
 	}
-	async undo(snapshotId: string): Promise<AgentHarnessSession> {
+	async undo(snapshotId: string): Promise<AgentRuntimeSession> {
 		const snapshot = await this.persistence.loadSnapshot(snapshotId);
 		if (!snapshot) throw new Error(`snapshot not found: ${snapshotId}`);
 		await this.persistence.saveSession(snapshot.session);
 		return snapshot.session;
 	}
-	async runSubagent(input: AgentHarnessSubagentInput & { parentSessionId?: string }): Promise<AgentHarnessRunResult> {
+	async runSubagent(input: AgentRuntimeSubagentInput & { parentSessionId?: string }): Promise<AgentRuntimeRunResult> {
 		return this.execute({ task: input.task, sessionId: input.sessionId ?? `${input.parentSessionId ?? 'root'}:${randomUUID()}`, parentSessionId: input.parentSessionId, context: input.context, requiredSkills: input.requiredSkills });
 	}
-	private emit(event: AgentHarnessEvent): void { this.config.events?.emit(event); this.emitter.emit(event); }
-	private async runHooks(name: AgentHarnessHookName, payload: unknown): Promise<void> {
+	private emit(event: AgentRuntimeEvent): void { this.config.events?.emit(event); this.emitter.emit(event); }
+	private async runHooks(name: AgentRuntimeHookName, payload: unknown): Promise<void> {
 		for (const hook of this.config.hooks ?? []) {
 			try { await hook.handle({ name, payload }); } catch (error) { await this.logs.append({ type: 'hook.error', timestamp: new Date().toISOString(), data: { lifecycle: name, hook: hook.name, error: error instanceof Error ? error.message : String(error) } }); }
 		}

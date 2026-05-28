@@ -1,61 +1,61 @@
-import type { AgentHarness, AgentHarnessAttemptParams, AgentHarnessAttemptResult, AgentHarnessSupportDecision } from './types';
+import type { AgentRuntime, AgentRuntimeAttemptParams, AgentRuntimeAttemptResult, AgentRuntimeSupportDecision } from './types';
 
-export type AgentHarnessLifecycleHookName = 'before_agent_start' | 'after_tool_call' | 'before_message_write' | 'llm_input' | 'llm_output' | 'agent_end';
-export type AgentHarnessLifecycleHookHandler = (payload: Record<string, unknown>) => void | Promise<void>;
-const harnesses = new Map<string, AgentHarness>();
-const hooks = new Map<AgentHarnessLifecycleHookName, Set<AgentHarnessLifecycleHookHandler>>();
+export type AgentRuntimeLifecycleHookName = 'before_agent_start' | 'after_tool_call' | 'before_message_write' | 'llm_input' | 'llm_output' | 'agent_end';
+export type AgentRuntimeLifecycleHookHandler = (payload: Record<string, unknown>) => void | Promise<void>;
+const runtimes = new Map<string, AgentRuntime>();
+const hooks = new Map<AgentRuntimeLifecycleHookName, Set<AgentRuntimeLifecycleHookHandler>>();
 
-export function registerAgentHarness(harness: AgentHarness): () => void {
-	harnesses.set(harness.id, harness);
-	return () => harnesses.delete(harness.id);
+export function registerAgentRuntime(runtime: AgentRuntime): () => void {
+	runtimes.set(runtime.id, runtime);
+	return () => runtimes.delete(runtime.id);
 }
-export function clearRegisteredAgentHarnesses(): void { harnesses.clear(); }
-export function selectAgentHarness(input: { provider: string; modelId: string; requestedRuntime?: string }): AgentHarness {
+export function clearRegisteredAgentRuntimes(): void { runtimes.clear(); }
+export function selectAgentRuntime(input: { provider: string; modelId: string; requestedRuntime?: string }): AgentRuntime {
 	if (input.requestedRuntime) {
-		const harness = harnesses.get(input.requestedRuntime);
-		if (!harness) throw new Error(`Requested agent harness "${input.requestedRuntime}" is not registered.`);
-		return harness;
+		const runtime = runtimes.get(input.requestedRuntime);
+		if (!runtime) throw new Error(`Requested agent runtime "${input.requestedRuntime}" is not registered.`);
+		return runtime;
 	}
-	const selected = [...harnesses.values()].map((harness) => ({ harness, decision: harness.supports(input) })).filter((entry) => entry.decision.supported).sort((a, b) => (b.decision.priority ?? 0) - (a.decision.priority ?? 0) || a.harness.id.localeCompare(b.harness.id))[0]?.harness;
-	if (!selected) throw new Error('No agent harness is registered.');
+	const selected = [...runtimes.values()].map((runtime) => ({ runtime, decision: runtime.supports(input) })).filter((entry) => entry.decision.supported).sort((a, b) => (b.decision.priority ?? 0) - (a.decision.priority ?? 0) || a.runtime.id.localeCompare(b.runtime.id))[0]?.runtime;
+	if (!selected) throw new Error('No agent runtime is registered.');
 	return selected;
 }
-export async function resetRegisteredAgentHarnesses(input: { reason: string }): Promise<void> {
-	await Promise.all([...harnesses.values()].map(async (harness) => {
+export async function resetRegisteredAgentRuntimes(input: { reason: string }): Promise<void> {
+	await Promise.all([...runtimes.values()].map(async (runtime) => {
 		try {
-			await harness.reset?.(input);
+			await runtime.reset?.(input);
 		} catch {
 			return;
 		}
 	}));
 }
-export function adaptAgentHarnessToV2(harness: AgentHarness): AgentHarness { return harness; }
-export async function runAgentHarnessV2LifecycleAttempt(harness: AgentHarness, params: AgentHarnessAttemptParams): Promise<AgentHarnessAttemptResult> {
-	await emitAgentHarnessLifecycleHook('before_agent_start', { runId: params.runId, userMessage: params.userMessage, provider: params.provider, modelId: params.model });
-	const result = await harness.runAttempt(params);
-	const stamped = { ...result, agentHarnessId: harness.id };
-	const classification = harness.classify?.(stamped, params);
-	return classification ? { ...stamped, agentHarnessResultClassification: classification } : stamped;
+export function adaptAgentRuntimeToV2(runtime: AgentRuntime): AgentRuntime { return runtime; }
+export async function runAgentRuntimeV2LifecycleAttempt(runtime: AgentRuntime, params: AgentRuntimeAttemptParams): Promise<AgentRuntimeAttemptResult> {
+	await emitAgentRuntimeLifecycleHook('before_agent_start', { runId: params.runId, userMessage: params.userMessage, provider: params.provider, modelId: params.model });
+	const result = await runtime.runAttempt(params);
+	const stamped = { ...result, agentRuntimeId: runtime.id };
+	const classification = runtime.classify?.(stamped, params);
+	return classification ? { ...stamped, agentRuntimeResultClassification: classification } : stamped;
 }
-export function registerAgentHarnessHookHandler(name: AgentHarnessLifecycleHookName, handler: AgentHarnessLifecycleHookHandler): () => void {
+export function registerAgentRuntimeHookHandler(name: AgentRuntimeLifecycleHookName, handler: AgentRuntimeLifecycleHookHandler): () => void {
 	const set = hooks.get(name) ?? new Set();
 	set.add(handler);
 	hooks.set(name, set);
 	return () => set.delete(handler);
 }
-export function clearAgentHarnessHookProviders(): void { hooks.clear(); }
-export async function emitAgentHarnessLifecycleHook(name: AgentHarnessLifecycleHookName, payload: Record<string, unknown>): Promise<void> {
+export function clearAgentRuntimeHookProviders(): void { hooks.clear(); }
+export async function emitAgentRuntimeLifecycleHook(name: AgentRuntimeLifecycleHookName, payload: Record<string, unknown>): Promise<void> {
 	for (const handler of hooks.get(name) ?? []) await handler(payload);
 }
-export async function maybeCompactAgentHarnessSession(params: { requestedRuntime?: string; provider: string; modelId: string; sessionKey: string }): Promise<unknown> {
-	const harness = selectAgentHarness({ provider: params.provider, modelId: params.modelId, requestedRuntime: params.requestedRuntime });
-	return harness.compact?.(params);
+export async function maybeCompactAgentRuntimeSession(params: { requestedRuntime?: string; provider: string; modelId: string; sessionKey: string }): Promise<unknown> {
+	const runtime = selectAgentRuntime({ provider: params.provider, modelId: params.modelId, requestedRuntime: params.requestedRuntime });
+	return runtime.compact?.(params);
 }
-export function collectConfiguredAgentHarnessRuntimes(config: unknown, env: Record<string, string | undefined> = process.env): string[] {
+export function collectConfiguredAgentRuntimes(config: unknown, env: Record<string, string | undefined> = process.env): string[] {
 	const found = new Set<string>();
 	const visitRuntimeOptions = (value: unknown): void => {
 		if (!value || typeof value !== 'object') return;
-		for (const key of ['agentRuntime', 'agentHarnessId']) {
+		for (const key of ['agentRuntime', 'agentRuntimeId']) {
 			const entry = (value as Record<string, unknown>)[key];
 			if (typeof entry === 'string' && entry.trim()) found.add(entry.trim());
 		}
@@ -70,6 +70,6 @@ export function collectConfiguredAgentHarnessRuntimes(config: unknown, env: Reco
 	if (env.FRIDAY_AGENT_RUNTIME?.trim()) found.add(env.FRIDAY_AGENT_RUNTIME.trim());
 	return [...found];
 }
-export function supportDecision(supported: boolean, priority?: number, reason?: string): AgentHarnessSupportDecision {
+export function supportDecision(supported: boolean, priority?: number, reason?: string): AgentRuntimeSupportDecision {
 	return { supported, priority, reason };
 }
