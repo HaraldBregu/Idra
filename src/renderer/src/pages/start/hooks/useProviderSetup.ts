@@ -21,7 +21,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 			try {
 				const savedEntries = await Promise.all(
 					actionableProviderCatalog.map(async (provider) => {
-						const saved = await window.store.isProviderApiKeySaved(provider.id);
+						const saved = await window.app.isProviderApiKeySaved(provider.id);
 						return [provider.id, saved] as const;
 					})
 				);
@@ -30,7 +30,6 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 				dispatch({ type: 'MERGE_PROVIDER_SAVED_STATUS', savedStatus });
 			} catch (error) {
 				if (cancelled) return;
-				console.error('[useProviderSetup] Failed to check saved provider status:', error);
 				dispatch({
 					type: 'SET_ERROR',
 					message: getErrorMessage(error, 'Could not check saved provider access.'),
@@ -66,11 +65,10 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		dispatch({ type: 'SET_SAVING_PROVIDER', providerId });
 		dispatch({ type: 'CLEAR_ERROR' });
 		try {
-			await window.store.setProviderApiKey(providerId, apiKey);
+			await window.app.setProviderApiKey(providerId, apiKey);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 			return true;
 		} catch (error) {
-			console.error('[useProviderSetup] Failed to save API key:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, 'Could not save provider API key.'),
@@ -92,7 +90,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		try {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 			for (const entry of entriesToSave) {
-				await window.store.setProviderApiKey(entry.providerId, entry.apiKey.trim());
+				await window.app.setProviderApiKey(entry.providerId, entry.apiKey.trim());
 			}
 			if (entriesToSave.length > 0) {
 				dispatch({
@@ -105,7 +103,6 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 				dispatch({ type: 'GO_TO_STEP', step: firstModelStep });
 			}
 		} catch (error) {
-			console.error('[useProviderSetup] Failed to save provider API keys:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, 'Could not save provider API keys.'),

@@ -31,7 +31,7 @@ const ProvidersPage: React.FC = () => {
 	useEffect(() => {
 		void Promise.all(
 			DEFAULT_PROVIDERS.map(async (provider) => {
-				const saved = await window.store.isProviderApiKeySaved(provider.id);
+				const saved = await window.app.isProviderApiKeySaved(provider.id);
 				return [provider.id, saved] as const;
 			})
 		).then((entries) => setApiKeyStatus(Object.fromEntries(entries)));
@@ -55,7 +55,7 @@ const ProvidersPage: React.FC = () => {
 		setSaving(providerId);
 		setError(null);
 		try {
-			await window.store.setProviderApiKey(providerId, draft);
+			await window.app.setProviderApiKey(providerId, draft);
 			setApiKeyStatus((current) => ({ ...current, [providerId]: true }));
 			setEditing((current) => ({ ...current, [providerId]: false }));
 			setDrafts((current) => ({ ...current, [providerId]: '' }));
@@ -79,7 +79,7 @@ const ProvidersPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection hideTitle title={t('settings.providers.registeredProviders')}>
+			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				<div className="space-y-2">
 					{DEFAULT_PROVIDERS.map((provider) => {
 						const isSaved = apiKeyStatus[provider.id] ?? false;

@@ -1,4 +1,4 @@
-import type { AgentSessionMetadata } from '../../../shared/store';
+import type { AgentSessionMetadata } from '../../store/types';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
 
 export type SubagentOutcome = 'ok' | 'error' | 'timeout' | 'cancelled';

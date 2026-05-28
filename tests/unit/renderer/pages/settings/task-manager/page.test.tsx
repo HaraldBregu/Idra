@@ -66,15 +66,12 @@ function mockTasksApi(overrides: Partial<typeof window.tasks> = {}): void {
 function mockAppApi(overrides: Partial<typeof window.app> = {}): void {
 	window.app = {
 		...window.app,
-		getModels: jest.fn(async () => [assistantModel]),
-		...overrides,
-	} as typeof window.app;
-	window.store = {
-		...window.store,
 		getProviders: jest.fn(async () => [openAiProvider]),
+		getModels: jest.fn(async () => [assistantModel]),
 		getAgentService: jest.fn(async () => ({ provider: openAiProvider, model: assistantModel })),
 		saveAgentService: jest.fn(async () => true),
-	} as typeof window.store;
+		...overrides,
+	} as typeof window.app;
 }
 
 function LocationProbe(): React.JSX.Element {
@@ -157,13 +154,14 @@ describe('TaskManagerPage', () => {
 
 	it('saves the provider and model used by background tasks', async () => {
 		let resolveSave: ((saved: boolean) => void) | undefined;
-		mockAppApi();
-		window.store.saveAgentService = jest.fn(
-			() =>
-				new Promise<boolean>((resolve) => {
-					resolveSave = resolve;
-				})
-		);
+		mockAppApi({
+			saveAgentService: jest.fn(
+				() =>
+					new Promise<boolean>((resolve) => {
+						resolveSave = resolve;
+					})
+			),
+		});
 		const user = userEvent.setup();
 		renderTaskManagerPage();
 		const saveButton = await waitForRuntimeReady();
@@ -172,7 +170,7 @@ describe('TaskManagerPage', () => {
 
 		let resolved = false;
 		await waitFor(() => {
-			expect(window.store.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
+			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
 			if (!resolved) {
 				resolved = true;
 				resolveSave?.(true);

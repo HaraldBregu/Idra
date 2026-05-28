@@ -1,15 +1,27 @@
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import {
+	describeChatMemoryFile,
+	resolveChatDailyMemoryTarget,
+	validateChatDailyMemoryRelativePath,
+	type ChatMemoryScope,
+	type ChatMemoryScopeInput,
+	type ChatMemoryScopeKind,
+} from './memory/chat';
 import type { TranscriptEntry } from './provider/types';
+import { describeRagFile } from './rag';
 import { acquireWriteLock } from './session/lock';
 import { listSessions, type SessionFile } from './session/store';
+import { describeWikiFile } from './wiki';
 
 export type MemorySource = 'memory' | 'sessions';
-export type MemoryCorpus = 'memory' | 'sessions' | 'all';
+export type MemoryCorpus = 'memory' | 'sessions' | 'rag' | 'wiki' | 'all';
 export type MemoryFileCorpus = Exclude<MemoryCorpus, 'sessions' | 'all'>;
 export type MemoryResultCorpus = Exclude<MemoryCorpus, 'all'>;
-export type MemoryScopeKind = 'global';
+export type MemoryScopeKind = ChatMemoryScopeKind;
+export type MemoryScope = ChatMemoryScope;
+export type MemoryScopeInput = ChatMemoryScopeInput;
 export type SessionVisibility = 'self' | 'tree' | 'agent' | 'all';
 
 export interface MemorySearchResult {
@@ -78,6 +90,7 @@ export interface MemoryFlushPlan {
 	prompt: string;
 	workspaceDir?: string;
 	corpus?: MemoryFileCorpus;
+	scope?: MemoryScope;
 }
 
 type IndexedChunk = {
@@ -96,7 +109,6 @@ type IndexedChunk = {
 
 const MEMORY_FILENAME = 'MEMORY.md';
 const MEMORY_DIRNAME = 'memory';
-const DATE_FILE_PATTERN = /^\d{4}-\d{2}-\d{2}\.md$/;
 const DEFAULT_MAX_RESULTS = 8;
 const MAX_RESULTS = 25;
 const DEFAULT_MIN_SCORE = 0.1;
@@ -297,30 +309,31 @@ export function sanitizeTranscriptForMemory(transcript: TranscriptEntry[]): Arra
 
 export function resolveMemoryFlushPlan(
 	workspaceDir: string,
-	clock: () => Date = () => new Date()
+	clock: () => Date = () => new Date(),
+	scope?: MemoryScopeInput
 ): MemoryFlushPlan {
 	const date = toLocalDate(clock());
-	const workspace = path.resolve(workspaceDir);
-	const relativePath = path.join(MEMORY_DIRNAME, `${date}.md`);
+	const target = resolveChatDailyMemoryTarget(workspaceDir, scope, date);
 	return {
-		targetPath: path.resolve(workspace, relativePath),
-		relativePath,
-		workspaceDir: workspace,
+		targetPath: target.targetPath,
+		relativePath: target.relativePath,
+		workspaceDir: path.resolve(workspaceDir),
 		corpus: 'memory',
-		prompt: `Append durable facts, decisions, TODOs, and user preferences from the current session to ${relativePath}.`,
+		scope: target.scope,
+		prompt: `Append durable facts, decisions, TODOs, and user preferences from the current session to ${target.relativePath}.`,
 	};
 }
 
 export async function appendOnlyMemoryFlush(plan: MemoryFlushPlan, content: string): Promise<void> {
 	const target = path.resolve(plan.targetPath);
-	validateDailyMemoryRelativePath(plan.relativePath);
+	validateChatDailyMemoryRelativePath(plan.relativePath);
 	const workspace = path.resolve(plan.workspaceDir ?? deriveWorkspaceFromRelativeTarget(target, plan.relativePath));
 	if (path.resolve(workspace, plan.relativePath) !== target) {
 		throw new Error('Memory flush target must match the planned daily memory file.');
 	}
 	const descriptor = describeWorkspaceMemoryFile(workspace, target);
 	if (!descriptor || descriptor.corpus !== 'memory') {
-		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md.');
+		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/chats/<chatScope>/YYYY-MM-DD.md.');
 	}
 	const memoryDir = path.dirname(target);
 	await fs.mkdir(memoryDir, { recursive: true, mode: 0o700 });
@@ -340,6 +353,7 @@ export async function flushSessionMemoryBeforeCompaction(
 	options: {
 		clock?: () => Date;
 		minTranscriptBytes?: number;
+		scope?: MemoryScopeInput;
 	} = {}
 ): Promise<{ status: 'skipped' | 'flushed'; targetPath?: string; reason?: string }> {
 	const rendered = sanitizeTranscriptForMemory(session.transcript)
@@ -351,7 +365,7 @@ export async function flushSessionMemoryBeforeCompaction(
 	const contextHash = createHash('sha1').update(rendered).digest('hex').slice(0, 12);
 	if (session.memoryFlushContextHash === contextHash) return { status: 'skipped', reason: 'already_flushed' };
 
-	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock);
+	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock, options.scope);
 	const now = (options.clock ?? (() => new Date()))().toISOString();
 	const content = [
 		`## Session ${session.id} pre-compaction ${now}`,
@@ -364,17 +378,6 @@ export async function flushSessionMemoryBeforeCompaction(
 	session.memoryFlushCompactionCount = session.compactionMarkers.length;
 	session.memoryFlushContextHash = contextHash;
 	return { status: 'flushed', targetPath: plan.targetPath };
-}
-
-function validateDailyMemoryRelativePath(relativePath: string): void {
-	if (isUnsafeRelativePath(relativePath)) {
-		throw new Error('Memory flush target must stay inside the workspace.');
-	}
-	const parts = splitMemoryPath(relativePath);
-	const fileName = parts[parts.length - 1] ?? '';
-	if (parts.length !== 2 || parts[0] !== MEMORY_DIRNAME || !DATE_FILE_PATTERN.test(fileName)) {
-		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md.');
-	}
 }
 
 async function listMemoryFiles(workspaceDir: string, extraPaths: string[]): Promise<string[]> {
@@ -517,24 +520,11 @@ function describeWorkspaceMemoryFile(
 	workspaceDir: string,
 	filePath: string
 ): WorkspaceMemoryFileDescriptor | undefined {
-	const relativePath = relativeWorkspacePath(workspaceDir, filePath);
-	if (!relativePath) return undefined;
-	if (relativePath === MEMORY_FILENAME) {
-		return {
-			corpus: 'memory',
-			scopeKind: 'global',
-			scopeId: 'global',
-			relativePath,
-		};
-	}
-	const parts = splitMemoryPath(relativePath);
-	if (parts[0] !== MEMORY_DIRNAME || parts.length < 2) return undefined;
-	return {
-		corpus: 'memory',
-		scopeKind: 'global',
-		scopeId: 'global',
-		relativePath,
-	};
+	return (
+		describeRagFile(workspaceDir, filePath) ??
+		describeWikiFile(workspaceDir, filePath) ??
+		describeChatMemoryFile(workspaceDir, filePath)
+	);
 }
 
 function matchesMemorySearchFilter(
@@ -555,8 +545,8 @@ function normalizeMemoryScopeFilter(scopeId: string): string {
 
 function resolveRequestedCorpora(options: Parameters<MemorySearchManager['search']>[1] = {}): MemoryResultCorpus[] {
 	const requested = options.corpora ?? (options.corpus ? [options.corpus] : (['memory', 'sessions'] as MemoryCorpus[]));
-	if (requested.includes('all')) return ['memory', 'sessions'];
-	const allowed = new Set<MemoryResultCorpus>(['memory', 'sessions']);
+	if (requested.includes('all')) return ['memory', 'sessions', 'rag', 'wiki'];
+	const allowed = new Set<MemoryResultCorpus>(['memory', 'sessions', 'rag', 'wiki']);
 	const unique = [...new Set(requested)].filter((corpus): corpus is MemoryResultCorpus =>
 		allowed.has(corpus as MemoryResultCorpus)
 	);
@@ -617,21 +607,6 @@ function tokenize(value: string): string[] {
 function truncate(value: string, maxChars: number): string {
 	if (value.length <= maxChars) return value;
 	return `${value.slice(0, maxChars)} [truncated ${value.length - maxChars} chars]`;
-}
-
-function relativeWorkspacePath(workspaceDir: string, filePath: string): string | undefined {
-	const relativePath = path.relative(path.resolve(workspaceDir), path.resolve(filePath));
-	return isUnsafeRelativePath(relativePath) ? undefined : relativePath;
-}
-
-function splitMemoryPath(relativePath: string): string[] {
-	return relativePath.split(/[\\/]+/).filter(Boolean);
-}
-
-function isUnsafeRelativePath(relativePath: string): boolean {
-	if (!relativePath || path.isAbsolute(relativePath)) return true;
-	const parts = splitMemoryPath(relativePath);
-	return parts.length === 0 || parts.includes('..');
 }
 
 function isInside(root: string, target: string): boolean {

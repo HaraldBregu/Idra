@@ -1,82 +1,33 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { beforeToolCall, newCallTracker } from '../../../../src/main/agent/capabilities/local/before-call';
+import { shell } from 'electron';
+import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/before-call';
+import { execTool, processTool } from '../../../../src/main/tools/exec';
 import {
 	applyPatchTool,
 	copyTool,
 	deleteTool,
 	editTool,
 	findTool,
-	filesystemCopyTool,
-	filesystemCreateTool,
-	filesystemDeleteTool,
-	filesystemListTool,
-	filesystemMoveTool,
-	filesystemReadTool,
-	filesystemSearchTool,
-	filesystemUpdateTool,
 	inspectFileTool,
 	moveTool,
 	readTool,
 	writeTool,
-} from '../../../../src/main/agent/capabilities/local/fs';
+} from '../../../../src/main/tools/fs';
+import { filterTools } from '../../../../src/main/tools/policy';
+import { createTools, PRELOADED_LOCAL_TOOLS } from '../../../../src/main/tools/registry';
+import { openBrowserTool } from '../../../../src/main/tools/app';
 import {
-	cronCreateTool,
-	cronDeleteTool,
+	cronAddTool,
 	cronListTool,
-	cronReadTool,
-	cronRunTool,
-	cronStartTool,
-	cronStopTool,
-	cronUpdateTool,
-} from '../../../../src/main/agent/capabilities/local/cron/tools';
-import { scriptRunTool } from '../../../../src/main/agent/capabilities/local/scripts/tools';
-import { runShellTool } from '../../../../src/main/agent/capabilities/local/workspace/tools';
-import {
-	createTools,
-	LOCAL_TOOL_CATALOG,
-	localToolCatalogByName,
-	localToolNamesForGroup,
-	localToolNamesForProfile,
-	PRELOADED_LOCAL_TOOLS,
-} from '../../../../src/main/agent/capabilities/local/registry';
-import {
-	AGENT_TOOL_APPROVAL_ALWAYS,
-	AGENT_TOOL_APPROVAL_NONE,
-	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-	AGENT_ALL_TOOL_NAMES,
-	AGENT_DEFAULT_TOOL_GROUPS,
-	AGENT_DEFAULT_TOOLS,
-	AGENT_TOOL_METADATA_BY_NAME,
-	AGENT_TOOL_NAMES,
-	AGENT_TOOLS,
-} from '../../../../src/shared/tools';
-import { textResult, type AgentTool } from '../../../../src/main/agent/capabilities/local/types';
-import { evaluateToolAccess } from '../../../../src/main/agent/capabilities/local/access';
+	cronRemoveTool,
+	cronTool,
+} from '../../../../src/main/tools/cron';
+import { taskTool } from '../../../../src/main/tools/task';
+import { startupFilesTool } from '../../../../src/main/tools/startup';
+import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
+import { textResult, type AgentTool } from '../../../../src/main/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
-
-type ToolFilterPolicy = {
-	profile: 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
-	allow: string[];
-	alsoAllow?: string[];
-	deny: string[];
-};
-
-function filterTools(all: AgentTool[], cfg: ToolFilterPolicy): AgentTool[] {
-	const result = evaluateToolAccess(
-		all.map((tool) => ({ name: tool.name })),
-		{
-			stages: {
-				profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },
-				runtime: {
-					allow: cfg.allow.length > 0 ? cfg.allow : undefined,
-					deny: cfg.deny,
-				},
-			},
-		}
-	);
-	return all.filter((tool) => result.allowed.has(tool.name.trim().toLowerCase()));
-}
 
 describe('tools/types', () => {
 	it('creates text results with ok and error status', () => {
@@ -86,7 +37,7 @@ describe('tools/types', () => {
 });
 
 describe('tools/policy and registry', () => {
-	const all: AgentTool[] = ['read_file', 'write_file', 'search_files', 'exec'].map((name) => ({
+	const all: AgentTool[] = ['read', 'write', 'web_fetch', 'exec'].map((name) => ({
 		name,
 		description: name,
 		schema: {},
@@ -96,151 +47,115 @@ describe('tools/policy and registry', () => {
 	it('filters by profile, allow globs, and deny globs', () => {
 		expect(
 			filterTools(all, { profile: 'minimal', allow: [], deny: [] }).map((t) => t.name)
-		).toEqual(['read_file', 'write_file', 'search_files', 'exec']);
+		).toEqual([]);
 		expect(
-			filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read_file'], deny: [] }).map(
+			filterTools(all, { profile: 'minimal', allow: [], alsoAllow: ['read'], deny: [] }).map(
 				(t) => t.name
 			)
-		).toEqual(['read_file', 'write_file', 'search_files', 'exec']);
+		).toEqual(['read']);
 		expect(
-			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['write_file_backup'] }).map((t) => t.name)
-		).toEqual(['write_file']);
+			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['web_*'] }).map((t) => t.name)
+		).toEqual(['write']);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
 		expect(createTools({ profile: 'standard', allow: [], deny: [] }).map((t) => t.name)).toEqual(
-			[...AGENT_ALL_TOOL_NAMES]
+			expect.arrayContaining(['cron'])
 		);
+		expect(
+			createTools({ profile: 'standard', allow: [], deny: [] }).some((t) => t.name === 'task')
+		).toBe(true);
 	});
 
-	it('keeps the preloaded local registry aligned with the catalog', () => {
-		const catalogTools = LOCAL_TOOL_CATALOG.map((entry) => entry.name);
+	it('keeps the preloaded local registry aligned with the docs index', async () => {
+		const index = await fs.readFile(
+			path.resolve(process.cwd(), 'docs/tools/list/index.md'),
+			'utf8'
+		);
+		const documentedTools = [...index.matchAll(/\| \[([a-z_]+)\]\([^)]+\.md\) \|/g)].map(
+			(match) => match[1]
+		);
 
-		expect(PRELOADED_LOCAL_TOOLS.map((tool) => tool.name)).toEqual(catalogTools);
+		expect(PRELOADED_LOCAL_TOOLS.map((tool) => tool.name)).toEqual(documentedTools);
 		expect(createTools({ profile: 'full', allow: [], deny: [] }).map((tool) => tool.name)).toEqual(
-			catalogTools
+			documentedTools
 		);
-		expect(catalogTools).not.toContain('bootstrap');
-		expect(catalogTools).not.toContain('startup_files');
+		expect(documentedTools).not.toContain('startup_files');
 	});
+});
 
-	it('defines local tool control metadata in one catalog', () => {
-		const catalogNames = LOCAL_TOOL_CATALOG.map((entry) => entry.name);
-		const byName = localToolCatalogByName();
+describe('tools/task', () => {
+	it('starts a background task through the main task manager', async () => {
+		const record = {
+			id: 'task-1',
+			type: 'agent.run',
+			title: 'Summarize workspace',
+			status: 'queued' as const,
+			createdAt: '2026-05-21T00:00:00.000Z',
+			metadata: {},
+		};
+		const taskManager = {
+			startUserTask: jest.fn(() => record),
+		};
 
-		expect(new Set(catalogNames).size).toBe(catalogNames.length);
-		expect(LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name)).toEqual(catalogNames);
-		expect(PRELOADED_LOCAL_TOOLS).toEqual(LOCAL_TOOL_CATALOG.map((entry) => entry.tool));
-		expect(localToolNamesForProfile('minimal')).toEqual(catalogNames);
-		expect(localToolNamesForProfile('messaging')).toEqual(catalogNames);
-		expect(localToolNamesForProfile('coding')).toEqual(catalogNames);
-		expect(localToolNamesForProfile('standard')).toEqual(catalogNames);
-		expect(localToolNamesForProfile('full')).toEqual(catalogNames);
-		expect(localToolNamesForGroup('coreWorkspace')).toEqual(
-			AGENT_TOOLS.filter((tool) => tool.group === 'coreWorkspace').map((tool) => tool.name)
+		const result = await taskTool.execute(
+			{
+				type: 'agent.run',
+				title: ' Summarize workspace ',
+				input: { message: 'Summarize the workspace' },
+				metadata: { source: 'test' },
+			},
+			makeToolContext({
+				services: {
+					...makeToolContext().services,
+					taskManager: taskManager as never,
+				},
+			})
 		);
-		expect(localToolNamesForGroup('mcpConnector')).toEqual(
-			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
-		);
-		expect(byName.get('write_file')).toMatchObject({
-			group: 'coreWorkspace',
-			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-			profiles: AGENT_TOOL_METADATA_BY_NAME.write_file.profiles,
-		});
-		expect(byName.get('run_shell')).toMatchObject({
-			group: 'coreWorkspace',
-			approval: AGENT_TOOL_APPROVAL_NONE,
-			profiles: AGENT_TOOL_METADATA_BY_NAME.run_shell.profiles,
-		});
-		expect(byName.has('exec')).toBe(false);
-		expect(byName.has('cron')).toBe(false);
-		expect(byName.has('bootstrap')).toBe(false);
-		expect(byName.has('startup_files')).toBe(false);
-	});
 
-	it('exports shared metadata with descriptions, permissions, and approval policy', () => {
-		expect(AGENT_DEFAULT_TOOLS.map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
-		expect(AGENT_TOOLS.map((tool) => tool.name)).toEqual([...AGENT_ALL_TOOL_NAMES]);
-		expect(AGENT_TOOL_METADATA_BY_NAME.read_file).toMatchObject({
-			group: 'coreWorkspace',
-			description: 'Read a UTF-8 workspace file with optional line offset and limit.',
-			permissions: ['read'],
-			profiles: ['coding', 'standard', 'full'],
-			availability: 'default',
-		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.write_file).toMatchObject({
-			permissions: ['create', 'write'],
-			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.call_mcp_tool).toMatchObject({
-			permissions: ['mcp:call'],
-			approval: AGENT_TOOL_APPROVAL_ALWAYS,
-		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.script_run).toMatchObject({
-			group: 'script',
-			permissions: ['read', 'write', 'execute'],
-			availability: 'optional',
-		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.cron_create).toMatchObject({
-			group: 'cron',
-			permissions: ['cron:createSchedule'],
-			availability: 'optional',
-		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.apply_patch).toMatchObject({
-			permissions: ['create', 'write', 'delete'],
-			availability: 'legacy',
+		expect(result.status).toBe('ok');
+		expect(result.details).toBe(record);
+		expect(taskManager.startUserTask).toHaveBeenCalledWith({
+			type: 'agent.run',
+			title: 'Summarize workspace',
+			input: { message: 'Summarize the workspace' },
+			metadata: { source: 'test' },
 		});
 	});
 
-	it('covers every native tool implementation with shared UI metadata', () => {
-		const implementedToolNames = [
-			...LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name),
-			readTool.name,
-			writeTool.name,
-			editTool.name,
-			applyPatchTool.name,
-			deleteTool.name,
-			copyTool.name,
-			moveTool.name,
-			inspectFileTool.name,
-			findTool.name,
-			filesystemCreateTool.name,
-			filesystemListTool.name,
-			filesystemReadTool.name,
-			filesystemUpdateTool.name,
-			filesystemDeleteTool.name,
-			filesystemMoveTool.name,
-			filesystemCopyTool.name,
-			filesystemSearchTool.name,
-			scriptRunTool.name,
-			cronCreateTool.name,
-			cronReadTool.name,
-			cronUpdateTool.name,
-			cronDeleteTool.name,
-			cronListTool.name,
-			cronStartTool.name,
-			cronStopTool.name,
-			cronRunTool.name,
-		];
-		const uniqueImplementedNames = [...new Set(implementedToolNames)].sort();
+	it('returns a tool error when the task manager service is unavailable', async () => {
+		const result = await taskTool.execute(
+			{ type: 'agent.run', title: 'Missing service', input: { message: 'hello' } },
+			makeToolContext()
+		);
 
-		expect(uniqueImplementedNames).toEqual([...AGENT_ALL_TOOL_NAMES].sort());
-		for (const name of uniqueImplementedNames) {
-			expect(AGENT_TOOL_METADATA_BY_NAME[name]).toEqual(
-				expect.objectContaining({
-					name,
-					description: expect.any(String),
-					permissions: expect.any(Array),
-					approval: expect.any(Object),
-				})
-			);
-			expect(AGENT_TOOL_METADATA_BY_NAME[name].permissions.length).toBeGreaterThan(0);
-		}
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('TaskManager service is not available');
+	});
+
+	it('rejects malformed task tool requests before calling the task manager', async () => {
+		const taskManager = {
+			startUserTask: jest.fn(),
+		};
+
+		const result = await taskTool.execute(
+			{ type: 'agent.run', title: 'Bad metadata', metadata: [] as never },
+			makeToolContext({
+				services: {
+					...makeToolContext().services,
+					taskManager: taskManager as never,
+				},
+			})
+		);
+
+		expect(result.status).toBe('error');
+		expect(result.content[0]?.text).toContain('Task metadata must be an object');
+		expect(taskManager.startUserTask).not.toHaveBeenCalled();
 	});
 });
 
 describe('tools/before-call', () => {
-	it('allows static approval-marked tools and still tracks repeated calls', async () => {
+	it('auto-allows legacy approval-marked tools and warns on repeated identical calls', async () => {
 		const tool: AgentTool = {
 			name: 'write',
 			description: '',
@@ -251,47 +166,11 @@ describe('tools/before-call', () => {
 		const ctx = makeToolContext();
 		const tracker = newCallTracker();
 
-		const unconfirmed = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
-		expect(unconfirmed.proceed).toBe(true);
-
+		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		expect((await beforeToolCall(tool, { path: 'a' }, ctx, tracker)).proceed).toBe(true);
 		const third = await beforeToolCall(tool, { path: 'a' }, ctx, tracker);
 		expect(third.warning).toContain('3th identical call');
-		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(false);
-	});
-
-	it('does not require approval for run_shell by default', async () => {
-		const result = await beforeToolCall(
-			runShellTool,
-			{ command: 'echo ok' },
-			makeToolContext(),
-			newCallTracker()
-		);
-
-		expect(result.proceed).toBe(true);
-	});
-
-	it('does not require approval for run_shell but rejects cwd outside the .friday root', async () => {
-		const home = await makeTempDir();
-		const fridayRoot = path.join(home, '.friday');
-		const workspace = path.join(fridayRoot, 'workspace');
-		const outside = await makeTempDir();
-		await fs.mkdir(workspace, { recursive: true });
-		const ctx = makeToolContext({ workspace });
-		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
-
-		await expect(
-			beforeToolCall(runShellTool, { command: 'pwd' }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
-		await expect(
-			beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
-		await expect(runShellTool.execute({ command: 'pwd', cwd: outside }, ctx)).resolves.toMatchObject({
-			status: 'error',
-		});
-
-		await fs.rm(home, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
+		expect(ctx.approvalCache.has('write::{"path":"a"}')).toBe(true);
 	});
 
 });
@@ -325,7 +204,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('isolates reads to the Friday root and still honors read-only mode', async () => {
+	it('enforces workspace-only and read-only filesystem policy', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
@@ -347,131 +226,7 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('keeps outside paths approval-free but blocked at execution', async () => {
-		const workspace = await makeTempDir();
-		const outside = await makeTempDir();
-		const outsideFile = path.join(outside, 'allowed.txt');
-		const ctx = makeToolContext({ workspace });
-
-		const writeArgs = { path: outsideFile, content: 'created' };
-		await expect(
-			beforeToolCall(
-				writeTool,
-				writeArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(writeTool.execute(writeArgs, ctx)).resolves.toMatchObject({
-			status: 'error',
-		});
-
-		const editArgs = { path: outsideFile, old: 'created', new: 'updated' };
-		await expect(
-			beforeToolCall(
-				editTool,
-				editArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(editTool.execute(editArgs, ctx)).resolves.toMatchObject({ status: 'error' });
-
-		const outsideCopy = path.join(outside, 'copy.txt');
-		const copyArgs = { source: outsideFile, destination: outsideCopy };
-		await expect(
-			beforeToolCall(
-				copyTool,
-				copyArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(copyTool.execute(copyArgs, ctx)).resolves.toMatchObject({ status: 'error' });
-
-		const outsideMoved = path.join(outside, 'moved.txt');
-		const moveArgs = { source: outsideCopy, destination: outsideMoved };
-		await expect(
-			beforeToolCall(
-				moveTool,
-				moveArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(moveTool.execute(moveArgs, ctx)).resolves.toMatchObject({ status: 'error' });
-
-		const patchArgs = {
-			diff: [
-				`--- ${outsideMoved}`,
-				`+++ ${outsideMoved}`,
-				'@@ -1 +1 @@',
-				'-updated',
-				'+patched',
-			].join('\n'),
-		};
-		await expect(
-			beforeToolCall(
-				applyPatchTool,
-				patchArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(applyPatchTool.execute(patchArgs, ctx)).resolves.toMatchObject({ status: 'error' });
-
-		const deleteArgs = { path: outsideMoved };
-		await expect(
-			beforeToolCall(deleteTool, deleteArgs, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
-		await expect(deleteTool.execute(deleteArgs, ctx)).resolves.toMatchObject({
-			status: 'error',
-		});
-
-		await fs.rm(workspace, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-	});
-
-	it('allows mutating file targets under .friday even when they are outside the workspace', async () => {
-		const home = await makeTempDir();
-		const fridayRoot = path.join(home, '.friday');
-		const workspace = path.join(fridayRoot, 'workspace');
-		const notesFile = path.join(fridayRoot, 'notes', 'a.txt');
-		await fs.mkdir(workspace, { recursive: true });
-		const ctx = makeToolContext({ workspace });
-		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
-
-		await expect(
-			beforeToolCall(writeTool, { path: notesFile, content: 'ok' }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
-		await expect(writeTool.execute({ path: notesFile, content: 'ok' }, ctx)).resolves.toMatchObject({
-			status: 'ok',
-		});
-		await expect(fs.readFile(notesFile, 'utf8')).resolves.toBe('ok');
-
-		await fs.rm(home, { recursive: true, force: true });
-	});
-
-	it('blocks symlink escapes from the .friday root', async () => {
-		const home = await makeTempDir();
-		const fridayRoot = path.join(home, '.friday');
-		const workspace = path.join(fridayRoot, 'workspace');
-		const outside = await makeTempDir();
-		await fs.mkdir(workspace, { recursive: true });
-		await fs.writeFile(path.join(outside, 'secret.txt'), 'secret', 'utf8');
-		await fs.symlink(path.join(outside, 'secret.txt'), path.join(workspace, 'leak.txt'));
-		const ctx = makeToolContext({ workspace });
-		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
-
-		await expect(readTool.execute({ path: 'leak.txt' }, ctx)).resolves.toMatchObject({
-			status: 'error',
-		});
-
-		await fs.rm(home, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-	});
-
-	it('confines mutating file targets to the Friday root when writeWorkspaceOnly is enabled', async () => {
+	it('confines mutating file targets to the workspace when writeWorkspaceOnly is enabled', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
@@ -479,14 +234,16 @@ describe('tools/fs', () => {
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
-		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
+		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
 		).toBe('error');
+		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
 
 		expect(
 			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
-		).toBe('error');
+		).toBe('ok');
+		await expect(fs.readFile(path.join(workspace, 'copied.txt'), 'utf8')).resolves.toBe('outside');
 
 		expect(
 			(
@@ -500,26 +257,41 @@ describe('tools/fs', () => {
 		expect(
 			(await editTool.execute({ path: outsideFile, old: 'outside', new: 'changed' }, ctx)).status
 		).toBe('error');
+		expect((await deleteTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
+		expect(
+			(await moveTool.execute({ source: outsideFile, destination: 'moved.txt' }, ctx)).status
+		).toBe('error');
+
+		const patch = [
+			`--- ${outsideFile}`,
+			`+++ ${outsideFile}`,
+			'@@ -1 +1 @@',
+			'-outside',
+			'+changed',
+		].join('\n');
+		expect((await applyPatchTool.execute({ diff: patch }, ctx)).status).toBe('error');
+		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('outside');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('confines file targets to the Friday root by default', async () => {
+	it('confines mutating file targets to the workspace by default', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
 		const outsideFile = path.join(outside, 'outside.txt');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
-		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
+		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
 		).toBe('error');
+		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
 
 		expect(
 			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
-		).toBe('error');
+		).toBe('ok');
 		expect(
 			(
 				await copyTool.execute(
@@ -563,51 +335,10 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('applies create, modify, and delete entries in unified diffs', async () => {
-		const workspace = await makeTempDir();
-		const ctx = makeToolContext({ workspace });
-		await fs.writeFile(path.join(workspace, 'update.txt'), 'old\n', 'utf8');
-		await fs.writeFile(path.join(workspace, 'remove.txt'), 'remove me\n', 'utf8');
-		await readTool.execute({ path: 'update.txt' }, ctx);
-		await readTool.execute({ path: 'remove.txt' }, ctx);
-
-		const result = await applyPatchTool.execute(
-			{
-				diff: [
-					'--- /dev/null',
-					'+++ b/new.txt',
-					'@@ -0,0 +1,2 @@',
-					'+created',
-					'+file',
-					'--- a/update.txt',
-					'+++ b/update.txt',
-					'@@ -1 +1 @@',
-					'-old',
-					'+new',
-					'--- a/remove.txt',
-					'+++ /dev/null',
-					'@@ -1 +0,0 @@',
-					'-remove me',
-				].join('\n'),
-			},
-			ctx
-		);
-
-		expect(result.status).toBe('ok');
-		await expect(fs.readFile(path.join(workspace, 'new.txt'), 'utf8')).resolves.toBe(
-			'created\nfile\n'
-		);
-		await expect(fs.readFile(path.join(workspace, 'update.txt'), 'utf8')).resolves.toBe('new\n');
-		await expect(fs.stat(path.join(workspace, 'remove.txt'))).rejects.toThrow();
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
 	it('deletes, copies, moves files, and inspects image bytes directly', async () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
 		await fs.writeFile(path.join(workspace, 'source.txt'), 'alpha', 'utf8');
-		await fs.mkdir(path.join(workspace, 'source-dir', 'nested'), { recursive: true });
-		await fs.writeFile(path.join(workspace, 'source-dir', 'nested', 'item.txt'), 'nested', 'utf8');
 		await fs.writeFile(path.join(workspace, 'delete-me.txt'), 'remove', 'utf8');
 		const png = Buffer.from(
 			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
@@ -617,15 +348,8 @@ describe('tools/fs', () => {
 
 		expect(
 			(await copyTool.execute({ source: 'source.txt', destination: 'copy.txt' }, ctx)).status
-			).toBe('ok');
-		await expect(fs.readFile(path.join(workspace, 'copy.txt'), 'utf8')).resolves.toBe('alpha');
-
-		expect(
-			(await copyTool.execute({ source: 'source-dir', destination: 'copied-dir' }, ctx)).status
 		).toBe('ok');
-		await expect(
-			fs.readFile(path.join(workspace, 'copied-dir', 'nested', 'item.txt'), 'utf8')
-		).resolves.toBe('nested');
+		await expect(fs.readFile(path.join(workspace, 'copy.txt'), 'utf8')).resolves.toBe('alpha');
 
 		await readTool.execute({ path: 'copy.txt' }, ctx);
 		expect(
@@ -655,60 +379,185 @@ describe('tools/fs', () => {
 		expect(inspected.content[0]?.text).toContain('dimensions: 1x1');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
+});
 
-	it('copies nested files without stored file policy checks', async () => {
+describe('tools/exec', () => {
+	it('runs commands and denies dangerous patterns', async () => {
 		const workspace = await makeTempDir();
-		const sourceDir = path.join(workspace, 'source-dir');
-		const privateDir = path.join(sourceDir, 'private');
-		await fs.mkdir(privateDir, { recursive: true });
-		await fs.writeFile(path.join(sourceDir, 'public.txt'), 'public', 'utf8');
-		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
-		const ctx = makeToolContext({ workspace });
+		const ok = await execTool.execute({ command: 'printf hello' }, makeToolContext({ workspace }));
+		expect(ok.status).toBe('ok');
+		expect(ok.content[0]?.text).toContain('hello');
 
-		const result = await copyTool.execute({ source: 'source-dir', destination: 'copied-dir' }, ctx);
-
-		expect(result.status).toBe('ok');
-		await expect(
-			fs.readFile(path.join(workspace, 'copied-dir', 'private', 'secret.txt'), 'utf8')
-		).resolves.toBe('secret');
+		const denied = await execTool.execute({ command: 'rm -rf /' }, makeToolContext({ workspace }));
+		expect(denied.status).toBe('error');
+		expect(denied.content[0]?.text).toContain('denied');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('runs script files only inside the Friday root', async () => {
+	it('allows disabling the foreground command timeout', async () => {
 		const workspace = await makeTempDir();
-		const outside = await makeTempDir();
-		await fs.writeFile(
-			path.join(workspace, 'hello.js'),
-			"console.log('hello ' + process.argv[2]);\n",
-			'utf8'
-		);
-		await fs.writeFile(path.join(outside, 'outside.js'), "console.log('outside');\n", 'utf8');
-		const ctx = makeToolContext({ workspace });
-
-		const result = await scriptRunTool.execute(
-			{ path: 'hello.js', args: ['Friday'] },
-			ctx
+		const result = await execTool.execute(
+			{ command: 'node -e "setTimeout(() => console.log(\'done\'), 25)"', timeoutMs: 0 },
+			makeToolContext({ workspace })
 		);
 
 		expect(result.status).toBe('ok');
-		expect(result.content[0]?.text).toContain('hello Friday');
-		expect(
-			(
-				await scriptRunTool.execute(
-					{ path: path.join(outside, 'outside.js') },
-					makeToolContext({ workspace })
-				)
-			).status
-		).toBe('error');
-		await expect(
-			scriptRunTool.execute(
-				{ path: 'hello.js' },
-				makeToolContext({ workspace, fsPolicy: { readOnly: true } })
-			)
-		).resolves.toMatchObject({ status: 'error' });
+		expect(result.content[0]?.text).toContain('done');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('keeps shell workdirs inside the workspace when writeWorkspaceOnly is enabled', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
+
+		const inside = await execTool.execute({ command: 'printf ok', workdir: workspace }, ctx);
+		expect(inside.status).toBe('ok');
+		expect(inside.content[0]?.text).toContain('ok');
+
+		const blocked = await execTool.execute({ command: 'printf no', workdir: outside }, ctx);
+		expect(blocked.status).toBe('error');
+		expect(blocked.content[0]?.text).toContain('workdir is outside the workspace');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
+	it('runs Python scripts through shell execution', async () => {
+		const workspace = await makeTempDir();
+		const result = await execTool.execute(
+			{ command: 'python3 -c "print(6 * 7)"' },
+			makeToolContext({ workspace })
+		);
+
+		expect(result.status).toBe('ok');
+		expect(result.content[0]?.text).toContain('42');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('terminates foreground commands when the tool context is aborted', async () => {
+		const workspace = await makeTempDir();
+		const controller = new AbortController();
+		const promise = execTool.execute(
+			{ command: 'node -e "setTimeout(() => {}, 5000)"' },
+			makeToolContext({ workspace, signal: controller.signal })
+		);
+		setTimeout(() => controller.abort(), 20);
+
+		const result = await promise;
+
+		expect(result.status).toBe('error');
+		expect(result.details?.exitCode).toBe(-1);
+		expect(result.details?.durationMs).toBeLessThan(1000);
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+
+	it('starts and inspects background processes', async () => {
+		const workspace = await makeTempDir();
+		const started = await execTool.execute(
+			{ command: 'printf bg', background: true },
+			makeToolContext({ workspace })
+		);
+		expect(started.status).toBe('ok');
+		const id = /process (\d+)/.exec(started.content[0]?.text ?? '')?.[1];
+		expect(id).toBeDefined();
+		await new Promise((resolve) => setTimeout(resolve, 25));
+		const log = await processTool.execute({ action: 'log', id }, makeToolContext({ workspace }));
+		expect(log.content[0]?.text).toContain('bg');
+		await fs.rm(workspace, { recursive: true, force: true });
+	});
+});
+
+describe('tools/app, cron, and startup', () => {
+	it('opens browser URLs through Electron and rejects non-http URLs', async () => {
+		const ctx = makeToolContext();
+		expect((await openBrowserTool.execute({ url: 'https://example.com' }, ctx)).status).toBe('ok');
+		expect(shell.openExternal).toHaveBeenCalledWith('https://example.com');
+		expect((await openBrowserTool.execute({ url: 'file:///tmp/secret' }, ctx)).status).toBe(
+			'error'
+		);
+	});
+
+	it('manages cron tools through CronService', async () => {
+		const jobs = new Map<string, { id: string; expression: string }>();
+		const cron = {
+			schedule: jest.fn((id: string, expression: string) => jobs.set(id, { id, expression })),
+			listJobs: jest.fn(() => [...jobs.values()]),
+			has: jest.fn((id: string) => jobs.has(id)),
+			unschedule: jest.fn((id: string) => jobs.delete(id)),
+		};
+		const ctx = makeToolContext({
+			services: { ...makeToolContext().services, cron: cron as never },
+		});
+		expect(
+			(
+				await cronAddTool.execute(
+					{ id: 'job1', expression: '* * * * *', data: { type: 'agent' } },
+					ctx
+				)
+			).status
+		).toBe('ok');
+		expect((await cronListTool.execute({}, ctx)).content[0]?.text).toContain('job1');
+		expect((await cronRemoveTool.execute({ job_id: 'job1' }, ctx)).status).toBe('ok');
+	});
+
+	it('routes structured cron tool actions through CronService', async () => {
+		const cron = {
+			fridayAction: jest.fn(async () => ({
+				status: 'ok',
+				enabled: true,
+				result: { enabled: true, timerArmed: false, jobCount: 0, runningCount: 0 },
+			})),
+		};
+		const ctx = makeToolContext({
+			services: { ...makeToolContext().services, cron: cron as never },
+		});
+
+		const result = await cronTool.execute({ action: 'status' }, ctx);
+
+		expect(result.status).toBe('ok');
+		expect(cron.fridayAction).toHaveBeenCalledWith(
+			{ action: 'status' },
+			{
+				role: 'owner',
+				sessionId: 'test-session',
+			}
+		);
+		expect(result.content[0]?.text).toContain('"timerArmed": false');
+	});
+
+	it('manages allowlisted agent startup files through the startup tool', async () => {
+		const root = await makeTempDir();
+		const services = {
+			...makeToolContext().services,
+			startupFiles: new AgentStartupFilesService({
+				rootPath: path.join(root, 'agent', 'workspaces'),
+			}),
+		};
+		const ctx = makeToolContext({ agentId: 'main', services });
+
+		const listed = await startupFilesTool.execute({ action: 'list' }, ctx);
+		expect(listed.status).toBe('ok');
+		expect(listed.content[0]?.text).toContain('IDENTITY.md');
+
+		const wrote = await startupFilesTool.execute(
+			{
+				action: 'write',
+				name: 'IDENTITY.md',
+				content: 'identity',
+			},
+			ctx
+		);
+		expect(wrote.status).toBe('ok');
+
+		const read = await startupFilesTool.execute({ action: 'read', name: 'IDENTITY.md' }, ctx);
+		expect(read.content[0]?.text).toContain('identity');
+
+		const completed = await startupFilesTool.execute({ action: 'complete_bootstrap' }, ctx);
+		expect(completed.status).toBe('ok');
+		await expect(
+			fs.access(path.join(root, 'agent', 'workspaces', 'main', 'BOOTSTRAP.md'))
+		).rejects.toThrow();
+		await fs.rm(root, { recursive: true, force: true });
+	});
 });

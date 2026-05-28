@@ -60,7 +60,7 @@ const ChannelsPage: React.FC = () => {
 				description={t('settings.channels.description')}
 			/>
 
-			<SettingsSection hideTitle title={t('settings.channels.catalog')}>
+			<SettingsSection title={t('settings.channels.catalog')}>
 				<SettingsPanel>
 					{catalog.filter((entry) => entry.catalogVisible).map((entry) => {
 						const isRuntimeChannel = entry.runtime === 'bundled';
@@ -85,7 +85,7 @@ const ChannelsPage: React.FC = () => {
 								/>
 								<ItemContent className="min-w-0 flex-col items-start gap-0">
 									<ItemTitle className="truncate">{entry.label}</ItemTitle>
-									<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground/60">
+									<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 										{entry.blurb}
 									</p>
 								</ItemContent>

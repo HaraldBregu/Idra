@@ -1,10 +1,4 @@
-import type {
-	AgentRunState,
-	ModelReasoningEffort,
-	ReasoningSummaryState,
-} from '../../../../../shared/agents/service';
-import type { AgentCapabilityResolutionSummary } from '../../../../../shared/agents/capabilities';
-import type { AgentSkillUsage } from './skill-usage';
+import type { AgentRunState } from '../../../../../shared/agents/service';
 import type { AgentToolPart } from './tool-parts';
 
 export type { AgentRunState, AgentToolPart };
@@ -24,38 +18,9 @@ export interface AgentMessage {
 	readonly runId?: string;
 	readonly state: AgentRunState;
 	readonly tools: readonly AgentToolPart[];
-	readonly requestedEffort?: ModelReasoningEffort;
-	readonly lightContext?: boolean;
-	readonly model?: AgentModelSelection;
-	readonly reasoning?: readonly AgentReasoningSummary[];
-	readonly capability?: AgentCapabilityResolutionSummary;
-	readonly selectedSkills?: readonly AgentSkillUsage[];
 	readonly errorText?: string;
 	readonly startedAtMs?: number;
 	readonly completedAtMs?: number;
-}
-
-export interface PendingToolApproval {
-	readonly approvalId: string;
-	readonly runId: string;
-	readonly toolCallId: string;
-	readonly toolName: string;
-	readonly displayName?: string;
-	readonly reason: string;
-	readonly input: unknown;
-}
-
-export interface AgentModelSelection {
-	readonly providerId: string;
-	readonly model: string;
-	readonly effort?: ModelReasoningEffort;
-}
-
-export interface AgentReasoningSummary {
-	readonly id: string;
-	readonly title: string;
-	readonly summary: string;
-	readonly state: ReasoningSummaryState;
 }
 
 export type HomeChatMessage = UserMessage | AgentMessage;
@@ -64,7 +29,6 @@ export interface AgentChatState {
 	readonly messages: readonly HomeChatMessage[];
 	readonly activeAgentId?: string;
 	readonly activeRunId?: string;
-	readonly pendingApproval?: PendingToolApproval;
 }
 
 export const welcomeMessage: AgentMessage = {
@@ -80,3 +44,4 @@ export const welcomeMessage: AgentMessage = {
 export const initialAgentChatState: AgentChatState = {
 	messages: [welcomeMessage],
 };
+

@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../app/service-registry';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { ConnectorsChannels } from '../../shared/ipc-channels';
 
@@ -30,7 +30,7 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.update,
-			wrapSimpleHandler((id: string, input) => connectors.update(id, input), ConnectorsChannels.update)
+			wrapSimpleHandler((id, input) => connectors.update(id, input), ConnectorsChannels.update)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.remove,
@@ -71,10 +71,10 @@ export class ConnectorsIpc implements IpcModule {
 			)
 		);
 		ipcMain.handle(
-			ConnectorsChannels.authorizeOAuth,
+			ConnectorsChannels.connectOAuth,
 			wrapSimpleHandler(
-				(input) => connectors.authorizeOAuth(input),
-				ConnectorsChannels.authorizeOAuth
+				(id: string) => connectors.connectOAuth(id),
+				ConnectorsChannels.connectOAuth
 			)
 		);
 

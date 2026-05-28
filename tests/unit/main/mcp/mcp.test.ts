@@ -1,19 +1,17 @@
-import { McpRegistry } from '../../../../src/main/agent/capabilities/mcp/McpRegistry';
-import { createSafeMcpEnv } from '../../../../src/main/agent/capabilities/mcp/env';
-import { McpPermissionError, McpTimeoutError, normalizeMcpError } from '../../../../src/main/agent/capabilities/mcp/errors';
-import { withRetry, withTimeout } from '../../../../src/main/agent/capabilities/mcp/timeout';
-import { resolveMcpConfig } from '../../../../src/main/agent/capabilities/mcp';
-import type { ConnectorConfig } from '../../../../src/shared/connector';
+import { McpRegistry } from '../../../../src/main/mcp/McpRegistry';
+import { createSafeMcpEnv } from '../../../../src/main/mcp/env';
+import { McpPermissionError, McpTimeoutError, normalizeMcpError } from '../../../../src/main/mcp/errors';
+import { withRetry, withTimeout } from '../../../../src/main/mcp/timeout';
+import type { ConnectorConfig } from '../../../../src/shared/connectors';
 
 function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 	return {
 		id: 'c1',
 		name: 'Gmail',
-		connectorId: 'google.gmail',
+		connectorId: 'connector_gmail',
 		serverLabel: 'gmail',
 		enabled: true,
-		authorization: '',
-		mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', auth: { env: 'REMOTE_MCP_API_KEY' } },
+		authorization: 'token',
 		requireApproval: 'never_for_allowed_tools',
 		allowedTools: ['get_profile'],
 		deferLoading: true,
@@ -25,61 +23,26 @@ function connector(overrides: Partial<ConnectorConfig> = {}): ConnectorConfig {
 }
 
 describe('mcp modules', () => {
-	it('builds runtime MCP server configs from enabled connectors with env secrets', () => {
-		process.env.REMOTE_MCP_API_KEY = 'secret';
-		const servers = new McpRegistry().buildServers([
-			connector(),
+	it('builds OpenAI MCP tools only for enabled authorized connectors', () => {
+		const tools = new McpRegistry().buildTools([
+			connector({ serverDescription: ' Gmail ' }),
 			connector({ id: 'off', enabled: false }),
-			connector({ id: 'missing', mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', auth: { env: 'MISSING_MCP_KEY' } } }),
+			connector({ id: 'missing', authorization: '' }),
 		]);
 
-		expect(servers).toEqual([
+		expect(tools).toEqual([
 			expect.objectContaining({
-				name: 'gmail',
-				transport: 'http',
-				url: 'https://mcp.example.test/mcp',
-				headers: { Authorization: 'Bearer secret' },
-				toolPrefix: 'gmail',
-			}),
-		]);
-		delete process.env.REMOTE_MCP_API_KEY;
-	});
-
-	it('uses stored OAuth tokens for remote MCP authorization', () => {
-		const oauthConnector = connector({
-			mcp: { transport: 'http', url: 'https://gmailmcp.googleapis.com/mcp/v1' },
-			oauth: {
-				providerId: 'google',
-				authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-				clientId: 'google-client-id',
-				redirectUri: 'http://127.0.0.1',
-				scopes: ['https://www.googleapis.com/auth/gmail.readonly'],
-				state: 'state',
-				token: { accessToken: 'oauth-access-token' },
-			},
-		});
-
-		expect(resolveMcpConfig(oauthConnector)).toMatchObject({
-			transport: 'http',
-			url: 'https://gmailmcp.googleapis.com/mcp/v1',
-			headers: { Authorization: 'Bearer oauth-access-token' },
-		});
-			expect(new McpRegistry().buildServers([
-				{ ...oauthConnector, id: 'pending', oauth: { ...oauthConnector.oauth!, token: undefined } },
-				oauthConnector,
-			])).toEqual([
-				expect.objectContaining({
-					url: 'https://gmailmcp.googleapis.com/mcp/v1',
-					headers: { Authorization: 'Bearer oauth-access-token' },
+				type: 'mcp',
+				server_label: 'gmail',
+				connector_id: 'connector_gmail',
+				authorization: 'token',
+					server_description: 'Gmail',
+					allowed_tools: ['get_profile'],
+					defer_loading: true,
+					require_approval: 'never',
 				}),
 			]);
-			expect(resolveMcpConfig(connector({
-				mcp: { transport: 'http', url: 'https://gmailmcp.googleapis.com/mcp/v1' },
-				authorization: 'Bearer stored-access-token',
-			}))).toMatchObject({
-				headers: { Authorization: 'Bearer stored-access-token' },
-			});
-		});
+	});
 
 	it('creates safe environment maps and normalizes errors', () => {
 		process.env.PATH = '/bin';

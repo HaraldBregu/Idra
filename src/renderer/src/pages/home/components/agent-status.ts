@@ -3,7 +3,7 @@ import type { AgentMessage, AgentRunState } from '../context';
 const runStateLabels: Record<AgentRunState, string> = {
 	idle: 'Ready',
 	thinking: 'Thinking',
-	reasoning: 'Reasoning',
+	reasoning: 'Thinking',
 	using_tools: 'Using tools',
 	answering: 'Answering',
 	completed: 'Completed',
@@ -27,16 +27,6 @@ export function stateTone(state: AgentRunState): string {
 	return 'bg-info/10 text-info';
 }
 
-function reasoningEffort(message: AgentMessage): string | undefined {
-	return message.model?.effort ?? message.requestedEffort;
-}
-
-function usesReasoning(message: AgentMessage): boolean {
-	const effort = reasoningEffort(message);
-	if (effort === 'none') return false;
-	return Boolean(effort) || (message.reasoning?.length ?? 0) > 0;
-}
-
 function formatElapsedSeconds(message: AgentMessage): string | undefined {
 	if (message.startedAtMs === undefined || message.completedAtMs === undefined) {
 		return undefined;
@@ -47,10 +37,6 @@ function formatElapsedSeconds(message: AgentMessage): string | undefined {
 }
 
 export function agentStatusLabel(message: AgentMessage): string {
-	if (message.state === 'thinking' && reasoningEffort(message) === 'none') {
-		return 'Preparing answer';
-	}
-
 	if (message.state === 'answering' && message.tools.length > 0) {
 		return 'Answering with tool results';
 	}
@@ -60,10 +46,7 @@ export function agentStatusLabel(message: AgentMessage): string {
 		if (message.tools.length > 0) {
 			return elapsed ? `Finished in ${elapsed}` : 'Finished';
 		}
-		if (!usesReasoning(message)) {
-			return elapsed ? `Answered in ${elapsed}` : 'Answered';
-		}
-		return elapsed ? `Reasoned for ${elapsed}` : 'Reasoned for a moment';
+		return elapsed ? `Thought for ${elapsed}` : 'Thought for a moment';
 	}
 
 	return runStateLabels[message.state];

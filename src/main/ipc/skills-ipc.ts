@@ -1,10 +1,9 @@
-import { dialog, ipcMain } from 'electron';
-
-import type { EventBus } from '../core/event-bus';
+import { BrowserWindow, dialog, type OpenDialogOptions } from 'electron';
 import type { IpcModule } from './ipc-module';
-import type { MainServiceContainer } from '../app/service-registry';
+import type { EventBus } from '../core/event-bus';
+import type { MainServiceContainer } from '../service-registry';
+import { registerCommand, registerCommandWithEvent, registerQuery } from './ipc-gateway';
 import { SkillsChannels } from '../../shared/ipc-channels';
-import { wrapSimpleHandler } from './ipc-error-handler';
 
 export class SkillsIpc implements IpcModule {
 	readonly name = 'skills';
@@ -12,50 +11,45 @@ export class SkillsIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const skills = container.get('skills');
 
-		ipcMain.handle(
-			SkillsChannels.list,
-			wrapSimpleHandler(() => skills.list(), SkillsChannels.list)
-		);
+		registerQuery(SkillsChannels.list, () => skills.list());
+		registerQuery(SkillsChannels.getRoot, () => skills.getSkillsRoot());
 
-		ipcMain.handle(
-			SkillsChannels.load,
-			wrapSimpleHandler((name: string) => skills.load(name), SkillsChannels.load)
-		);
+		registerCommandWithEvent(SkillsChannels.import, async (event) => {
+			const parent = BrowserWindow.fromWebContents(event.sender);
+			const options: OpenDialogOptions = {
+				title: 'Upload Skill',
+				buttonLabel: 'Upload Skill',
+				properties: ['openDirectory'],
+			};
+			const result = parent
+				? await dialog.showOpenDialog(parent, options)
+				: await dialog.showOpenDialog(options);
 
-		ipcMain.handle(
-			SkillsChannels.import,
-			wrapSimpleHandler(async () => {
-				const result = await dialog.showOpenDialog({
-					properties: ['openDirectory'],
-					title: 'Import skill',
-				});
-				const sourcePath = result.filePaths[0];
-				if (result.canceled || !sourcePath) return undefined;
-				return skills.importSkill(sourcePath);
-			}, SkillsChannels.import)
-		);
+			if (result.canceled || result.filePaths.length === 0) {
+				return undefined;
+			}
 
-		ipcMain.handle(
-			SkillsChannels.download,
-			wrapSimpleHandler(async (name: string) => {
-				const result = await dialog.showOpenDialog({
-					properties: ['openDirectory', 'createDirectory'],
-					title: 'Download skill',
-				});
-				const destinationPath = result.filePaths[0];
-				if (result.canceled || !destinationPath) return undefined;
-				return skills.downloadSkill(name, destinationPath);
-			}, SkillsChannels.download)
-		);
+			return skills.importFromPath(result.filePaths[0]);
+		});
 
-		ipcMain.handle(
-			SkillsChannels.delete,
-			wrapSimpleHandler((name: string) => skills.deleteSkill(name), SkillsChannels.delete)
-		);
+		registerCommandWithEvent(SkillsChannels.download, async (event, id) => {
+			const parent = BrowserWindow.fromWebContents(event.sender);
+			const options: OpenDialogOptions = {
+				title: 'Download Skill',
+				buttonLabel: 'Download Skill',
+				properties: ['openDirectory', 'createDirectory'],
+			};
+			const result = parent
+				? await dialog.showOpenDialog(parent, options)
+				: await dialog.showOpenDialog(options);
 
-		ipcMain.handle(
-			SkillsChannels.getRoot,
-			wrapSimpleHandler(() => skills.getRootPath(), SkillsChannels.getRoot)
-		);
+			if (result.canceled || result.filePaths.length === 0) {
+				return undefined;
+			}
+
+			return skills.downloadToPath(id, result.filePaths[0]);
+		});
+
+		registerCommand(SkillsChannels.delete, (id: string) => skills.delete(id));
 	}
 }

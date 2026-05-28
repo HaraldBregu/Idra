@@ -11,31 +11,26 @@ export interface WindowApi {
 
 export interface AgentApi {
 	send: (message: string, options?: AgentSendRuntimeOptions) => Promise<string>;
-	resolveToolApproval: (decision: AgentToolApprovalDecision) => Promise<void>;
 	reset: () => Promise<void>;
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AgentHistoryMessage[]>;
 	openHistoryFolder: () => Promise<void>;
-	listStartupFiles: () => Promise<AgentStartupFileSummary[]>;
-	readStartupFile: (name: string) => Promise<AgentStartupFileContent>;
-	writeStartupFile: (name: string, content: string) => Promise<AgentStartupFileContent>;
-	/** @deprecated Use listStartupFiles. */
 	listWorkspaceFiles: () => Promise<WorkspaceFileSummary[]>;
-	/** @deprecated Use readStartupFile. */
 	readWorkspaceFile: (name: string) => Promise<WorkspaceFileContent>;
-	/** @deprecated Use writeStartupFile. */
 	writeWorkspaceFile: (name: string, content: string) => Promise<WorkspaceFileContent>;
 	onResponse: (callback: (event: AgentResponseEvent) => void) => () => void;
 }
 
 export interface CronApi {
 	list: () => Promise<CronTaskView[]>;
+	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<FridayCronJob[]>;
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
 		options?: { id?: string; timezone?: string }
 	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
+	removeJob: (id: string) => Promise<void>;
 	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
 	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest) => Promise<CronSchedule>;
 	pauseSchedule: (scheduleId: string) => Promise<void>;
@@ -47,6 +42,7 @@ export interface CronApi {
 	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
 	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
 	runNow: (scheduleId: string) => Promise<CronScheduledTask>;
+	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
 	subscribeToSchedule: (
 		scheduleId: string,
@@ -57,16 +53,9 @@ export interface CronApi {
 export interface HeartbeatApi {
 	status: () => Promise<HeartbeatStatus>;
 	last: () => Promise<HeartbeatEventPayload | null>;
-	settings: () => Promise<HeartbeatSettings>;
-	saveSettings: (request: HeartbeatSettingsUpdate) => Promise<HeartbeatSettings>;
 	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
 	getTiming: () => Promise<HeartbeatTimingSettings>;
 	updateTiming: (request: HeartbeatTimingSettings) => Promise<HeartbeatTimingSettings>;
-	setProviderId: (request: HeartbeatSetProviderRequest) => Promise<HeartbeatSettings>;
-	setModelId: (request: HeartbeatSetModelRequest) => Promise<HeartbeatSettings>;
-	setReasoningEffort: (
-		request: HeartbeatSetReasoningEffortRequest
-	) => Promise<HeartbeatSettings>;
 	systemEvent: (request: HeartbeatSystemEventRequest) => Promise<HeartbeatSystemEventResult>;
 	request: (request: HeartbeatWakeRequest) => Promise<void>;
 	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
@@ -106,8 +95,8 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	catalog: () => Promise<ConnectorCatalogEntry[]>;
-	list: () => Promise<ConnectorConfig[]>;
+	catalog: () => Promise<typeof OPENAI_CONNECTOR_CATALOG>;
+	list: () => Promise<ConnectorView[]>;
 	get: (id: string) => Promise<ConnectorConfig>;
 	add: (input: ConnectorInput) => Promise<ConnectorConfig>;
 	update: (id: string, input: ConnectorUpdateInput) => Promise<ConnectorConfig>;
@@ -121,55 +110,36 @@ export interface ConnectorsApi {
 	callTool: (
 		id: string,
 		name: string,
-		args: Record<string, unknown>,
+		args: unknown,
 		options?: ConnectorCallToolOptions
 	) => Promise<unknown>;
-		authorizeOAuth: (connector: string | ConnectorCatalogEntry) => Promise<ConnectorOAuthAuthorizeResult>;
-	}
+	connectOAuth: (id: string) => Promise<ConnectorOAuthConnectResult>;
+}
 
 export interface SkillsApi {
 	list: () => Promise<SkillInfo[]>;
-	load: (name: string) => Promise<SkillDetails>;
 	importSkill: () => Promise<SkillImportResult | undefined>;
-	downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
-	delete: (name: string) => Promise<SkillDeleteResult>;
+	downloadSkill: (id: string) => Promise<SkillDownloadResult | undefined>;
+	delete: (id: string) => Promise<void>;
 	getRoot: () => Promise<string>;
 }
 
-export interface StoreApi {
-	getProviders: () => Promise<PublicProvider[]>;
-	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
-	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
-	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
-	getKeepAwakeEnabled: () => Promise<boolean>;
-	setKeepAwakeEnabled: (enabled: boolean) => Promise<boolean>;
-	getAssistantSettings: () => Promise<AssistantSettings | undefined>;
-	getSpeechToTextSettings: () => Promise<SpeechToTextSettings | undefined>;
-	getTextToSpeechSettings: () => Promise<TextToSpeechSettings | undefined>;
-	getImageCreatorSettings: () => Promise<ImageCreatorSettings | undefined>;
-	getTextToVideoSettings: () => Promise<TextToVideoSettings | undefined>;
-	getTextToSoundSettings: () => Promise<TextToSoundSettings | undefined>;
-	getCronSettings: () => Promise<CronSettings>;
-	getTaskSettings: () => Promise<TaskSettings>;
-	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
-	setAgentRoutingSettings: (settings: AgentRoutingSettings) => Promise<AgentRoutingSettings>;
-	getConnectorSettings: () => Promise<ConnectorConfig[]>;
-	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSpeechOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveTextToSpeechOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getImageCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveImageCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToVideoOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveTextToVideoOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getMusicCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveMusicCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getAgentService: () => Promise<Agent | undefined>;
-	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechTranscriberService: () => Promise<Agent | undefined>;
-	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+export interface ChatMemoryApi {
+	list: (request?: ChatMemoryListRequest) => Promise<MemoryFileSummary[]>;
+	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
+	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
+}
+
+export interface RagApi {
+	list: () => Promise<MemoryFileSummary[]>;
+	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
+	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
+}
+
+export interface WikiApi {
+	list: () => Promise<MemoryFileSummary[]>;
+	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
+	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
 }
 
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -185,15 +155,13 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
+	FridayCronJob,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
-	HeartbeatSetModelRequest,
-	HeartbeatSetProviderRequest,
-	HeartbeatSetReasoningEffortRequest,
-	HeartbeatSettings,
-	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
@@ -202,39 +170,27 @@ import type {
 } from '../shared/heartbeat';
 import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
-	AssistantSettings,
-	AgentRoutingSettings,
-	CronSettings,
-	ImageCreatorSettings,
-	SpeechToTextSettings,
-	TextToSoundSettings,
-	TextToSpeechSettings,
-	TextToVideoSettings,
-	TaskSettings,
-} from '../shared/store';
-import type {
 	Agent,
 	ConfiguredModelOperator,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
-	AgentStartupFileContent,
-	AgentStartupFileSummary,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
-	AgentToolApprovalDecision,
 } from '../shared/agents/service';
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
+import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
 import type {
-	SkillDeleteResult,
-	SkillDetails,
-	SkillDownloadResult,
-	SkillImportResult,
-	SkillInfo,
-} from '../shared/skills';
+	ChatMemoryListRequest,
+	MemoryFileSummary,
+	MemoryReadRequest,
+	MemoryReadResult,
+	MemorySearchRequest,
+	MemorySearchResult,
+} from '../shared/memory';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
@@ -245,23 +201,17 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
-import type {
-	SpeechToTextDictationSession,
-	SpeechToTextDictationStartRequest,
-	SpeechToTextEvent,
-	SpeechToTextTranscribeRequest,
-	SpeechToTextTranscription,
-} from '../shared/speech-to-text';
 import type { TaskEvent, TaskRecord, TaskRunRequest } from '../shared/tasks';
 import type {
-	ConnectorCatalogEntry,
+	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
-	ConnectorOAuthAuthorizeResult,
+	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
+	ConnectorView,
 } from '../shared/connector';
 
 export interface AppApi {
@@ -315,31 +265,21 @@ export interface RealtimeTranscriptionApi {
 	onEvent: (callback: (event: RealtimeTranscriptionEvent) => void) => () => void;
 }
 
-export interface SpeechToTextApi {
-	transcribe: (request: SpeechToTextTranscribeRequest) => Promise<SpeechToTextTranscription>;
-	startDictation: (
-		request?: SpeechToTextDictationStartRequest
-	) => Promise<SpeechToTextDictationSession>;
-	appendAudio: (sessionId: string, audio: string) => void;
-	finishDictation: (sessionId: string) => Promise<void>;
-	cancelDictation: (sessionId: string) => Promise<void>;
-	onEvent: (callback: (event: SpeechToTextEvent) => void) => () => void;
-}
-
 declare global {
 	interface Window {
 		win?: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
 		realtimeTranscription: RealtimeTranscriptionApi;
-		speechToText: SpeechToTextApi;
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
 		tasks: TasksApi;
 		monitor: MonitorApi;
+		chatMemory: ChatMemoryApi;
+		rag: RagApi;
+		wiki: WikiApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
-		store: StoreApi;
 	}
 }

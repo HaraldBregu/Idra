@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import type { SkillDetails, SkillInfo } from '../../../../../../src/shared/skills';
+import type { SkillInfo } from '../../../../../../src/shared/skills';
 import SkillsPage from '../../../../../../src/renderer/src/pages/settings/pages/skills/Page';
 import SkillDetailsPage from '../../../../../../src/renderer/src/pages/settings/pages/skills/details/Page';
 
@@ -19,24 +19,22 @@ jest.mock('react-i18next', () => ({
 function makeSkill(id: string, name: string): SkillInfo {
 	return {
 		id,
-		name,
-		description: `${name} description`,
-		location: `/skills/${id}`,
-	};
-}
-
-function makeSkillDetails(id: string, name: string): SkillDetails {
-	return {
-		...makeSkill(id, name),
-		frontmatter: {
+		folderPath: `/skills/${id}`,
+		skillPath: `/skills/${id}/SKILL.md`,
+		structure: {
+			format: 'agent-skill',
+			standard: 'agentskills.io',
+			kind: 'direct',
+			resourceDirectories: ['references'],
+		},
+		manifest: {
 			name,
 			description: `${name} description`,
-			license: 'MIT',
-			compatibility: 'Local only',
+			version: '1.2.3',
+			category: 'workflow',
 			allowedTools: ['web_fetch'],
+			tags: ['test'],
 		},
-		instructions: '# Instructions',
-		supportFiles: [{ relativePath: 'references/guide.md', kind: 'reference', size: 5 }],
 	};
 }
 
@@ -66,11 +64,10 @@ describe('SkillsPage', () => {
 	beforeEach(() => {
 		window.skills = {
 			list: jest.fn(async () => []),
-			load: jest.fn(async (id: string) => makeSkillDetails(id, id)),
 			getRoot: jest.fn(async () => '/skills'),
 			importSkill: jest.fn(async () => undefined),
 			downloadSkill: jest.fn(async () => undefined),
-			delete: jest.fn(async (id: string) => ({ id, name: id, deleted: true })),
+			delete: jest.fn(async () => undefined),
 		};
 	});
 
@@ -127,49 +124,47 @@ describe('SkillsPage', () => {
 	});
 
 	it('downloads an installed skill', async () => {
-		const skill = makeSkillDetails('greet', 'greet');
-		(window.skills.load as jest.Mock).mockResolvedValue(skill);
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 		(window.skills.downloadSkill as jest.Mock).mockResolvedValue({
 			id: 'greet',
-			name: 'greet',
 			destinationPath: '/downloads/greet',
 		});
 		const user = userEvent.setup();
 
 		renderSkillDetailsPage();
 
-		await screen.findByRole('heading', { name: 'greet' });
+		await screen.findByText('Greet');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.download' }));
 
 		await waitFor(() => {
 			expect(window.skills.downloadSkill).toHaveBeenCalledWith('greet');
 		});
-		expect(await screen.findByText('settings.skills.downloaded:greet:/downloads/greet')).toBeInTheDocument();
+		expect(await screen.findByText('settings.skills.downloaded:Greet:/downloads/greet')).toBeInTheDocument();
 	});
 
 	it('shows skill details on the detail page', async () => {
-		const skill = makeSkillDetails('greet', 'greet');
-		(window.skills.load as jest.Mock).mockResolvedValue(skill);
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 
 		renderSkillDetailsPage();
 
-		expect(await screen.findByText('settings.skills.detailLicense')).toBeInTheDocument();
-		expect(screen.getByText('MIT')).toBeInTheDocument();
-		expect(screen.getByText('Local only')).toBeInTheDocument();
-		expect(screen.getByText('/skills/greet')).toBeInTheDocument();
-		expect(screen.getByText('references/guide.md')).toBeInTheDocument();
+		expect(await screen.findByText('settings.skills.detailVersion')).toBeInTheDocument();
+		expect(screen.getByText('agentskills.io')).toBeInTheDocument();
+		expect(screen.getByText('1.2.3')).toBeInTheDocument();
+		expect(screen.getByText('/skills/greet/SKILL.md')).toBeInTheDocument();
 		expect(screen.getByText('web_fetch')).toBeInTheDocument();
 	});
 
 	it('calls delete and returns to the list after confirming', async () => {
-		const skill = makeSkillDetails('greet', 'greet');
-		(window.skills.load as jest.Mock).mockResolvedValue(skill);
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 		jest.spyOn(window, 'confirm').mockReturnValue(true);
 
 		const user = userEvent.setup();
 		renderSkillDetailsPage();
 
-		await screen.findByRole('heading', { name: 'greet' });
+		await screen.findByText('Greet');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.delete' }));
 
 		await waitFor(() => {
@@ -179,14 +174,14 @@ describe('SkillsPage', () => {
 	});
 
 	it('does not delete when the confirmation is dismissed', async () => {
-		const skill = makeSkillDetails('greet', 'greet');
-		(window.skills.load as jest.Mock).mockResolvedValue(skill);
+		const skill = makeSkill('greet', 'Greet');
+		(window.skills.list as jest.Mock).mockResolvedValue([skill]);
 		jest.spyOn(window, 'confirm').mockReturnValue(false);
 
 		const user = userEvent.setup();
 		renderSkillDetailsPage();
 
-		await screen.findByRole('heading', { name: 'greet' });
+		await screen.findByText('Greet');
 		await user.click(screen.getByRole('button', { name: 'settings.skills.delete' }));
 
 		expect(window.skills.delete).not.toHaveBeenCalled();

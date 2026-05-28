@@ -2,7 +2,7 @@
  * Unit tests for CronService (src/main/cron/service.ts).
  *
  * node-cron is mocked so timers never start. Cron tasks are persisted via
- * an in-memory cron persistence stub, exercising the real schedule/unschedule/
+ * an in-memory StoreService stub, exercising the real schedule/unschedule/
  * restore logic without touching electron-store or the filesystem.
  */
 
@@ -22,8 +22,8 @@ jest.mock('node-cron', () => {
 });
 
 import cron from 'node-cron';
-import { CronService, type CronServiceStore } from '../../../../src/main/cron';
-import { emptyCronStoreState } from '../../../../src/main/cron/store/cron-store-migrations';
+import { CronService } from '../../../../src/main/cron';
+import type { StoreService } from '../../../../src/main/store';
 import type { LoggerService } from '../../../../src/main/logger';
 import type { CronTask, CronTaskMessageData } from '../../../../src/shared/cron';
 
@@ -41,16 +41,14 @@ const stopMock = (jest.requireMock('node-cron') as { _stop: jest.Mock })._stop;
 // Test helpers — in-memory store + silent logger + data factory.
 // ---------------------------------------------------------------------------
 
-function createStore(initial: CronTask[] = []): CronServiceStore {
+function createStore(initial: CronTask[] = []): StoreService {
 	let tasks: CronTask[] = [...initial];
 	return {
 		getCronTasks: jest.fn(() => tasks),
 		setCronTasks: jest.fn((next: CronTask[]) => {
 			tasks = next;
 		}),
-		getCronSchedulerState: jest.fn(() => emptyCronStoreState()),
-		setCronSchedulerState: jest.fn(),
-	};
+	} as unknown as StoreService;
 }
 
 function createLogger(): LoggerService {
@@ -89,7 +87,7 @@ describe('CronService', () => {
 	describe('schedule()', () => {
 		it('schedules a job and persists it (with data) to the store', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.schedule('job-1', '* * * * *', msg('Daily backup'), () => undefined, {
 				timezone: 'UTC',
@@ -102,41 +100,16 @@ describe('CronService', () => {
 			expect(persisted).toHaveLength(1);
 			expect(persisted[0]).toMatchObject({
 				id: 'job-1',
-				name: 'job-1',
-				schedule: '* * * * *',
 				expression: '* * * * *',
-				enabled: true,
-				status: 'active',
-				target: 'job',
-				payload: { type: 'message', message: 'Daily backup' },
 				data: { type: 'message', message: 'Daily backup' },
 				timezone: 'UTC',
-				runCount: 0,
-				failureCount: 0,
 			});
 			expect(typeof persisted[0].createdAt).toBe('string');
-			expect(typeof persisted[0].updatedAt).toBe('string');
-		});
-
-		it('stores provider and model ids from schedule options', () => {
-			const store = createStore();
-			const service = new CronService(createLogger(), { store });
-
-			service.schedule('job-1', '* * * * *', msg('Daily backup'), () => undefined, {
-				providerId: 'anthropic',
-				modelId: 'claude-sonnet-4-5',
-			});
-
-			const persisted = (store.setCronTasks as jest.Mock).mock.calls[0][0] as CronTask[];
-			expect(persisted[0]).toMatchObject({
-				providerId: 'anthropic',
-				modelId: 'claude-sonnet-4-5',
-			});
 		});
 
 		it('returns the persisted CronTask record including the data payload', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			const result = service.schedule(
 				'job-1',
@@ -158,7 +131,7 @@ describe('CronService', () => {
 				readonly prompt: string;
 			}
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			const result = service.schedule<AgentLike>(
 				'agent-job',
@@ -173,7 +146,7 @@ describe('CronService', () => {
 
 		it('throws and does not persist when the id is already registered', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 			service.schedule('dup', '* * * * *', msg('first'), () => undefined);
 			(store.setCronTasks as jest.Mock).mockClear();
 
@@ -185,7 +158,7 @@ describe('CronService', () => {
 
 		it('throws and does not persist when the expression is invalid', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			expect(() =>
 				service.schedule('bad', 'invalid', msg('msg'), () => undefined)
@@ -197,7 +170,7 @@ describe('CronService', () => {
 		it('runs the handler immediately when runOnStart is true', async () => {
 			const store = createStore();
 			const handler = jest.fn();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.schedule('eager', '* * * * *', msg('eager run'), handler, { runOnStart: true });
 			await Promise.resolve();
@@ -207,7 +180,7 @@ describe('CronService', () => {
 
 		it('persists multiple jobs as a list (no overwrite) and keeps each payload', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.schedule('a', '* * * * *', msg('msg-a'), () => undefined);
 			service.schedule('b', '*/5 * * * *', msg('msg-b'), () => undefined);
@@ -222,7 +195,7 @@ describe('CronService', () => {
 		it('logs and swallows errors thrown by the cron handler', async () => {
 			const store = createStore();
 			const logger = createLogger();
-			const service = new CronService(logger, { store });
+			const service = new CronService(store, logger);
 			const handler = jest.fn(() => {
 				throw new Error('boom');
 			});
@@ -238,18 +211,6 @@ describe('CronService', () => {
 				expect.any(Error)
 			);
 		});
-
-		it('logs successful cron handler completion', async () => {
-			const store = createStore();
-			const logger = createLogger();
-			const service = new CronService(logger, { store });
-
-			service.schedule('ok', '* * * * *', msg('will pass'), () => undefined);
-			const wrapper = cronMock.schedule.mock.calls[0][1] as () => Promise<void>;
-			await wrapper();
-
-			expect(logger.info).toHaveBeenCalledWith('CronService', 'Job "ok" completed');
-		});
 	});
 
 	// -------------------------------------------------------------------------
@@ -259,7 +220,7 @@ describe('CronService', () => {
 	describe('unschedule()', () => {
 		it('stops the task and removes it from the store', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 			service.schedule('job-1', '* * * * *', msg('msg'), () => undefined);
 
 			service.unschedule('job-1');
@@ -272,7 +233,7 @@ describe('CronService', () => {
 
 		it('only removes the targeted id, leaving other persisted tasks intact', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 			service.schedule('keep', '* * * * *', msg('keep me'), () => undefined);
 			service.schedule('drop', '*/2 * * * *', msg('drop me'), () => undefined);
 
@@ -285,7 +246,7 @@ describe('CronService', () => {
 
 		it('is a no-op when the id is unknown', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.unschedule('ghost');
 
@@ -317,7 +278,7 @@ describe('CronService', () => {
 			];
 			const store = createStore(tasks);
 			const dispatcher = jest.fn();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.restore(dispatcher);
 
@@ -329,16 +290,7 @@ describe('CronService', () => {
 
 			const wrapperA = cronMock.schedule.mock.calls[0][1] as () => Promise<void>;
 			await wrapperA();
-			expect(dispatcher).toHaveBeenCalledWith(
-				expect.objectContaining({
-					id: 'a',
-					expression: '* * * * *',
-					data: msg('task a'),
-					schedule: '* * * * *',
-					target: 'job',
-					payload: msg('task a'),
-				})
-			);
+			expect(dispatcher).toHaveBeenCalledWith(tasks[0]);
 			expect(messageOf(dispatcher.mock.calls[0][0] as CronTask)).toBe('task a');
 		});
 
@@ -353,7 +305,7 @@ describe('CronService', () => {
 			] as unknown as CronTask[];
 			const store = createStore(legacy);
 			const dispatcher = jest.fn();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.restore(dispatcher);
 
@@ -373,7 +325,7 @@ describe('CronService', () => {
 				},
 			];
 			const store = createStore(tasks);
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 			service.schedule('a', '* * * * *', msg('task a (live)'), () => undefined);
 			cronMock.schedule.mockClear();
 
@@ -399,7 +351,7 @@ describe('CronService', () => {
 			];
 			const store = createStore(tasks);
 			const logger = createLogger();
-			const service = new CronService(logger, { store });
+			const service = new CronService(store, logger);
 
 			service.restore(() => undefined);
 
@@ -413,7 +365,7 @@ describe('CronService', () => {
 
 		it('returns early and does not call cron.schedule when the store is empty', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 
 			service.restore(() => undefined);
 
@@ -431,7 +383,7 @@ describe('CronService', () => {
 			];
 			const store = createStore(tasks);
 			const logger = createLogger();
-			const service = new CronService(logger, { store });
+			const service = new CronService(store, logger);
 
 			service.restore(() => {
 				throw new Error('dispatcher boom');
@@ -453,7 +405,7 @@ describe('CronService', () => {
 
 	describe('listJobs() and has()', () => {
 		it('listJobs returns id+expression for every active job', () => {
-			const service = new CronService(createLogger(), { store: createStore() });
+			const service = new CronService(createStore(), createLogger());
 			service.schedule('a', '* * * * *', msg('msg-a'), () => undefined);
 			service.schedule('b', '*/5 * * * *', msg('msg-b'), () => undefined);
 
@@ -464,7 +416,7 @@ describe('CronService', () => {
 		});
 
 		it('has returns true only for currently scheduled ids', () => {
-			const service = new CronService(createLogger(), { store: createStore() });
+			const service = new CronService(createStore(), createLogger());
 			service.schedule('present', '* * * * *', msg('present msg'), () => undefined);
 
 			expect(service.has('present')).toBe(true);
@@ -478,7 +430,7 @@ describe('CronService', () => {
 
 	describe('destroy()', () => {
 		it('stops every active job and clears the in-memory map', () => {
-			const service = new CronService(createLogger(), { store: createStore() });
+			const service = new CronService(createStore(), createLogger());
 			service.schedule('a', '* * * * *', msg('msg-a'), () => undefined);
 			service.schedule('b', '*/5 * * * *', msg('msg-b'), () => undefined);
 
@@ -490,7 +442,7 @@ describe('CronService', () => {
 
 		it('does NOT clear persisted tasks (they survive across restarts)', () => {
 			const store = createStore();
-			const service = new CronService(createLogger(), { store });
+			const service = new CronService(store, createLogger());
 			service.schedule('a', '* * * * *', msg('msg-a'), () => undefined);
 			(store.setCronTasks as jest.Mock).mockClear();
 
@@ -500,7 +452,7 @@ describe('CronService', () => {
 		});
 
 		it('logs and continues when stopping a job throws', () => {
-			const service = new CronService(createLogger(), { store: createStore() });
+			const service = new CronService(createStore(), createLogger());
 			service.schedule('a', '* * * * *', msg('msg-a'), () => undefined);
 			stopMock.mockImplementationOnce(() => {
 				throw new Error('stop boom');

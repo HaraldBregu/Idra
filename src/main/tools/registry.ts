@@ -1,1 +1,1 @@
-export * from './catalog/registry';
+export * from './local/registry';

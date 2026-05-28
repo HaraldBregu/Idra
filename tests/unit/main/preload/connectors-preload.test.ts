@@ -1,39 +1,23 @@
 import { ipcRenderer } from 'electron';
 import { connectors } from '../../../../src/preload';
+import { OPENAI_CONNECTOR_CATALOG } from '../../../../src/shared/connector';
 import type {
-	ConnectorCatalogEntry,
 	ConnectorConfig,
-	ConnectorOAuthAuthorizeResult,
+	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
+	ConnectorView,
 } from '../../../../src/shared/connector';
 import { ConnectorsChannels } from '../../../../src/shared/ipc-channels';
 
 const mockedIpcRenderer = ipcRenderer as jest.Mocked<typeof ipcRenderer>;
 
-const connectorCatalog: ConnectorCatalogEntry[] = [
-	{
-		id: 'google.gmail',
-		name: 'Google Gmail MCP',
-		description: 'Discovered Gmail MCP connector.',
-		environmentSecretNames: ['GOOGLE_MCP_API_KEY'],
-		platformDocumentationPages: [],
-		tools: ['get_profile'],
-		scopes: [],
-		setupInstructions: [],
-		authKind: 'mcp_env',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: true,
-	},
-];
-
 const connectorConfig: ConnectorConfig = {
 	id: 'connector-record-1',
 	name: 'My Gmail',
-	connectorId: 'google.gmail',
+	connectorId: 'connector_gmail',
 	serverLabel: 'my_gmail',
 	enabled: true,
-	mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 	authorization: '',
 	requireApproval: 'always',
 	allowedTools: ['get_profile'],
@@ -43,19 +27,17 @@ const connectorConfig: ConnectorConfig = {
 	updatedAt: '2026-05-24T00:00:00.000Z',
 };
 
-const connectorView: ConnectorConfig = {
+const connectorView: ConnectorView = {
 	id: connectorConfig.id,
 	name: connectorConfig.name,
 	connectorId: connectorConfig.connectorId,
-	authKind: 'mcp_env',
+	authKind: 'google_oauth',
 	serverLabel: connectorConfig.serverLabel,
 	enabled: true,
 	status: 'configured',
 	requireApproval: 'always',
 	allowedToolsCount: 1,
 	toolsCount: 1,
-	hasToken: false,
-	hasTools: true,
 	deferLoading: false,
 };
 
@@ -63,7 +45,6 @@ const connectorTool: ConnectorTool = {
 	name: 'get_profile',
 	description: 'Get profile.',
 	inputSchema: { type: 'object' },
-	permission: 'always-allow',
 	requiresApproval: false,
 };
 
@@ -72,10 +53,10 @@ const testResult: ConnectorTestResult = {
 	message: 'Connected.',
 };
 
-const oauthAuthorizeResult: ConnectorOAuthAuthorizeResult = {
-	connectorId: 'google.gmail',
-	authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-	connector: connectorConfig,
+const oauthResult: ConnectorOAuthConnectResult = {
+	status: 'configured',
+	message: 'Connected Google account user@example.com.',
+	connectedAccount: 'user@example.com',
 };
 
 describe('connectors preload API', () => {
@@ -86,7 +67,7 @@ describe('connectors preload API', () => {
 	it('invokes every connector API method through the typed IPC channels', async () => {
 		const addInput = {
 			name: 'My Gmail',
-			connectorId: 'google.gmail',
+			connectorId: 'connector_gmail',
 			allowedTools: ['get_profile'],
 		};
 		const updateInput = { enabled: false };
@@ -97,7 +78,7 @@ describe('connectors preload API', () => {
 				run: () => connectors.catalog(),
 				channel: ConnectorsChannels.catalog,
 				args: [],
-				data: connectorCatalog,
+				data: OPENAI_CONNECTOR_CATALOG,
 			},
 			{
 				run: () => connectors.list(),
@@ -173,10 +154,10 @@ describe('connectors preload API', () => {
 				data: { emailAddress: 'user@example.com' },
 			},
 			{
-				run: () => connectors.authorizeOAuth('google.gmail'),
-				channel: ConnectorsChannels.authorizeOAuth,
-				args: [{ connectorId: 'google.gmail' }],
-				data: oauthAuthorizeResult,
+				run: () => connectors.connectOAuth(connectorConfig.id),
+				channel: ConnectorsChannels.connectOAuth,
+				args: [connectorConfig.id],
+				data: oauthResult,
 			},
 		] as const;
 

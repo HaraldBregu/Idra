@@ -20,13 +20,10 @@ function renderSystemPage(): void {
 
 describe('SystemPage', () => {
 	beforeEach(() => {
-		window.store = {
-			...window.store,
-			getKeepAwakeEnabled: jest.fn(async () => false),
-			setKeepAwakeEnabled: jest.fn(async (enabled: boolean) => enabled),
-		} as typeof window.store;
 		window.app = {
 			...window.app,
+			getKeepAwakeEnabled: jest.fn(async () => false),
+			setKeepAwakeEnabled: jest.fn(async (enabled: boolean) => enabled),
 			getMicrophonePermission: jest.fn(async () => ({
 				enabled: true,
 				systemStatus: 'not-determined',
@@ -75,7 +72,7 @@ describe('SystemPage', () => {
 	});
 
 	it('loads and reflects the initial keep-awake state', async () => {
-		(window.store.getKeepAwakeEnabled as jest.Mock).mockResolvedValue(true);
+		(window.app.getKeepAwakeEnabled as jest.Mock).mockResolvedValue(true);
 		renderSystemPage();
 
 		const toggle = await screen.findByRole('switch', { name: 'settings.application.keepAwake' });
@@ -95,7 +92,7 @@ describe('SystemPage', () => {
 		await user.click(toggle);
 
 		await waitFor(() => {
-			expect(window.store.setKeepAwakeEnabled).toHaveBeenCalledWith(true);
+			expect(window.app.setKeepAwakeEnabled).toHaveBeenCalledWith(true);
 		});
 	});
 

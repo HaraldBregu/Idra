@@ -169,6 +169,7 @@ export function buildHeartbeatPrompt(input: {
 	execEvents?: string[];
 	cronEvents?: string[];
 	deliverToUser: boolean;
+	useResponseTool: boolean;
 	now?: Date;
 }): string {
 	const parts: string[] = [];
@@ -193,6 +194,11 @@ export function buildHeartbeatPrompt(input: {
 	if (prose) parts.push(['Additional HEARTBEAT.md context:', prose].join('\n\n'));
 	if (input.heartbeatPath && input.basePrompt.includes('HEARTBEAT.md')) {
 		parts.push(`HEARTBEAT.md path: ${input.heartbeatPath}`);
+	}
+	if (input.useResponseTool) {
+		parts.push(
+			'Use heartbeat_respond to report the outcome. Set notify=false when nothing should interrupt the user. Set notify=true only for user-relevant alerts.'
+		);
 	}
 	const now = input.now ?? new Date();
 	parts.push(`Current time: ${now.toISOString()}`);

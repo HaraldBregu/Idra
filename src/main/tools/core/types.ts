@@ -1,16 +1,12 @@
+import type { CronService, FridayCronActor } from '../../cron';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
-import type { CronService } from '../../cron';
-import type { ConnectorsService } from '../../connectors';
-import type { PolicyServicePort } from '../../policy';
+import type { AgentStartupFilesServicePort } from '../../agent/startup-files';
 import type { StoreService } from '../../store';
-import type { TasksService } from '../../tasks';
-import type { McpRegistry } from '../../mcp';
-import type { SkillsService } from '../../skills';
+import type { TaskManager } from '../../tasks';
 import type { UserDataDirectoryServicePort } from '../../user-data';
 import type { WorkspaceService } from '../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
-import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../shared/agents/constants';
 
 export interface PlanEntry {
 	task: string;
@@ -19,31 +15,23 @@ export interface PlanEntry {
 
 export interface FridayServices {
 	store: StoreService;
+	cron: CronService;
 	eventBus: EventBus;
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
-	cron?: CronService;
-	policy?: PolicyServicePort;
-	taskManager?: TasksService;
-	connectors?: ConnectorsService;
-	skills?: SkillsService;
-	mcpRegistry?: McpRegistry;
+	startupFiles: AgentStartupFilesServicePort;
+	taskManager?: TaskManager;
 }
 
-export type CronToolContext =
-	| { role: 'owner'; agentId?: string }
-	| { role: 'subagent'; agentId?: string }
-	| { role: 'http'; userId?: string }
-	| { role: 'cron-self'; jobId?: string; agentId?: string; sessionKey?: string | null };
 
 export interface ToolContext {
 	/** Workspace root (absolute path). */
 	workspace: string;
 	/** Agent id that owns this run, when available. */
 	agentId?: string;
-	/** Scheduled-task actor context for cron-triggered runs. */
-	cronContext?: CronToolContext;
+	/** Cron authorization context supplied by the Gateway for owner or cron-self calls. */
+	cronContext?: FridayCronActor;
 	/** Best-effort live chat delivery context for tools that can persist follow-up work. */
 	deliveryContext?: Record<string, unknown>;
 	/** Run-scoped id used by the run logger / session. */
@@ -56,33 +44,32 @@ export interface ToolContext {
 	readState: Map<string, { mtimeMs: number; size: number }>;
 	/** Current plan; tools may read or replace. */
 	plan: { entries: PlanEntry[] };
+	/** Legacy compatibility set; tools no longer block on human approval. */
+	approvalRequired: Set<string>;
 	/** Filesystem exposure policy for model-visible host tools. */
 	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	/** Abort signal for the current tool call or agent run. */
 	signal?: AbortSignal;
-	approvalRequired?: Set<string>;
-	approvalCache?: Set<string>;
-	/** Friday-side services (store, event-bus, logger, user data, workspace). */
+	/** Legacy compatibility cache (keyed by tool+args). */
+	approvalCache: Set<string>;
+	/** Friday-side services (store, cron, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }
 
 export interface AgentToolResult<TDetails = unknown> {
-	status: AgentToolResultStatus;
+	status: 'ok' | 'error';
 	content: ToolResultBlock[];
 	details?: TDetails;
 }
 
 export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 	name: string;
-	displayName?: string;
 	displaySummary?: string;
 	description: string;
 	schema: JSONSchema;
-	serviceKind?: AgentCapabilityServiceKind;
-	serviceId?: string;
 	/** Marks control-plane tools that should only be exposed to owner contexts. */
 	ownerOnly?: boolean;
-	/** Approval marker; execution is blocked unless the call is confirmed. */
+	/** Legacy approval marker; execution proceeds without human approval. */
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }

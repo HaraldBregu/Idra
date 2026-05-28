@@ -1,1 +1,1 @@
-export * from './runtime/definitions';
+export * from './runtime/tool-definition-adapter';

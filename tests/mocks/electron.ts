@@ -14,10 +14,6 @@ const shell = {
 	openExternal: jest.fn(async () => undefined),
 };
 
-const dialog = {
-	showOpenDialog: jest.fn(async () => ({ canceled: true, filePaths: [] })),
-};
-
 const nativeTheme = {
 	themeSource: 'system',
 };
@@ -88,7 +84,6 @@ module.exports = {
 	app,
 	BrowserWindow,
 	contextBridge,
-	dialog,
 	ipcMain,
 	ipcRenderer,
 	nativeTheme,

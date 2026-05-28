@@ -1,8 +1,11 @@
 import {
 	Activity,
 	Bot,
+	BookOpenText,
+	Brain,
 	CalendarClock,
 	ClipboardList,
+	DatabaseSearch,
 	ImageIcon,
 	Info,
 	Mic,
@@ -15,7 +18,6 @@ import {
 	Sparkles,
 	Video,
 	Volume2,
-	Wrench,
 	type LucideIcon,
 } from 'lucide-react';
 import {
@@ -84,7 +86,6 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.imageAssistantDescription',
 		keywords: 'image generation image assistant editing creative model',
 		icon: ImageIcon,
-		comingSoon: true,
 	},
 	{
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
@@ -129,8 +130,10 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.allowFrom', descriptionKey: 'settings.channels.allowFromDescription', keywords: 'whitelist users allowed senders' },
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
-	{ path: '/settings/tools', labelKey: 'settings.tabs.tools', descriptionKey: 'settings.overview.descriptions.tools', keywords: 'tools capabilities permissions approval mcp workspace skill' },
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
+	{ path: '/settings/memory', labelKey: 'settings.tabs.memory', descriptionKey: 'settings.memory.description', keywords: 'memory markdown files chat workspace', icon: Brain },
+	{ path: '/settings/rag', labelKey: 'settings.tabs.rag', descriptionKey: 'settings.memory.ragDescription', keywords: 'rag retrieval augmented generation knowledge markdown files', icon: DatabaseSearch },
+	{ path: '/settings/wiki', labelKey: 'settings.tabs.wiki', descriptionKey: 'settings.memory.wikiDescription', keywords: 'wiki knowledge markdown files', icon: BookOpenText },
 	// Operators
 	...SETTINGS_OPERATOR_ITEMS,
 	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
@@ -163,12 +166,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Server,
 	},
 	{
-		path: '/settings/tools',
-		labelKey: 'settings.tabs.tools',
-		descriptionKey: 'settings.overview.descriptions.tools',
-		icon: Wrench,
-	},
-	{
 		path: '/settings/skills',
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
@@ -179,6 +176,24 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.connectors',
 		descriptionKey: 'settings.overview.descriptions.connectors',
 		icon: Plug,
+	},
+	{
+		path: '/settings/memory',
+		labelKey: 'settings.tabs.memory',
+		descriptionKey: 'settings.overview.descriptions.memory',
+		icon: Brain,
+	},
+	{
+		path: '/settings/rag',
+		labelKey: 'settings.tabs.rag',
+		descriptionKey: 'settings.overview.descriptions.rag',
+		icon: DatabaseSearch,
+	},
+	{
+		path: '/settings/wiki',
+		labelKey: 'settings.tabs.wiki',
+		descriptionKey: 'settings.overview.descriptions.wiki',
+		icon: BookOpenText,
 	},
 	{
 		path: '/settings/channels',

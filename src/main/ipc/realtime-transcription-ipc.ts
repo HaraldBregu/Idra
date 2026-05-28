@@ -1,7 +1,7 @@
 import { ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../app/service-registry';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapIpcHandler } from './ipc-error-handler';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type {
@@ -12,6 +12,7 @@ import {
 	isRealtimeTranscriptionSessionId,
 	normalizeRealtimeTranscriptionStartRequest,
 } from '../../shared/realtime-transcription';
+import { SpeechToTextService } from '../stt';
 
 function errorMessage(error: unknown): string {
 	if (error instanceof Error && error.message.trim()) return error.message;
@@ -24,7 +25,10 @@ export class RealtimeTranscriptionIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
-		const speechToText = container.get('speechToText');
+		const speechToText = new SpeechToTextService({
+			store: container.get('store'),
+			logger,
+		});
 
 		ipcMain.handle(
 			RealtimeTranscriptionChannels.start,

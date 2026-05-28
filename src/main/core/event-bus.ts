@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import type { SubagentRunRecord } from '../agent';
+import type { SubagentRunRecord } from '../agent/subagents';
 import type { TaskEvent } from '../../shared/tasks';
 
 type TaskEventOf<TType extends TaskEvent['type']> = Extract<TaskEvent, { type: TType }>;
@@ -40,7 +40,7 @@ export interface AppEvents {
 		to: string;
 		threadId?: string;
 		replyToMessageId?: string;
-		chatType?: import('../channels').ChannelChatType;
+		chatType?: import('../channels/types').ChannelChatType;
 		sessionKey?: string;
 		legacySessionKey?: string;
 		agentId?: string;

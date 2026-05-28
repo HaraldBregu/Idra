@@ -9,27 +9,29 @@ import {
 	OperatorChannels,
 	ProviderChannels,
 	RealtimeTranscriptionChannels,
-	SpeechToTextChannels,
 	TaskChannels,
 	CronChannels,
 	HeartbeatChannels,
 	MonitorChannels,
 	SkillsChannels,
-	StoreChannels,
+	ChatMemoryChannels,
+	RagChannels,
+	WikiChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
 	AgentApi,
 	ChannelsApi,
+	ChatMemoryApi,
 	ConnectorsApi,
 	CronApi,
 	HeartbeatApi,
 	MonitorApi,
+	RagApi,
 	RealtimeTranscriptionApi,
-	SpeechToTextApi,
 	SkillsApi,
-	StoreApi,
 	TasksApi,
+	WikiApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -45,32 +47,19 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
+	FridayCronJob,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
-	HeartbeatSetModelRequest,
-	HeartbeatSetProviderRequest,
-	HeartbeatSetReasoningEffortRequest,
-	HeartbeatSettings,
-	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
-import type {
-	AssistantSettings,
-	AgentRoutingSettings,
-	CronSettings,
-	ImageCreatorSettings,
-	SpeechToTextSettings,
-	TextToSoundSettings,
-	TextToSpeechSettings,
-	TextToVideoSettings,
-	TaskSettings,
-} from '../shared/store';
 import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
 	Agent,
@@ -78,14 +67,10 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
-	AgentStartupFileContent,
-	AgentStartupFileSummary,
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
-	AgentToolApprovalDecision,
 } from '../shared/agents/service';
-import { isModelReasoningEffort } from '../shared/agents/service';
 import type {
 	Channel,
 	ChannelStatusEvent,
@@ -94,77 +79,21 @@ import type {
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
-	ConnectorCatalogEntry,
+	OPENAI_CONNECTOR_CATALOG,
 	ConnectorConfig,
 	ConnectorCallToolOptions,
 	ConnectorInput,
-	ConnectorOAuthAuthorizeResult,
+	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorUpdateInput,
+	ConnectorView,
 } from '../shared/connector';
 import {
 	isRealtimeTranscriptionAudioChunk,
 	isRealtimeTranscriptionSessionId,
 	normalizeRealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
-import {
-	isSpeechToTextAudioChunk,
-	isSpeechToTextSessionId,
-	normalizeSpeechToTextDictationStartRequest,
-	normalizeSpeechToTextTranscribeRequest,
-} from '../shared/speech-to-text';
-
-function assertHeartbeatObject<T>(request: T): T {
-	if (!request || typeof request !== 'object' || Array.isArray(request)) {
-		throw new Error('Invalid heartbeat request.');
-	}
-	return request;
-}
-
-function optionalTrimmedString(value: unknown): string | undefined {
-	if (typeof value !== 'string') return undefined;
-	const trimmed = value.trim();
-	return trimmed || undefined;
-}
-
-function optionalStringList(value: unknown): string[] | undefined {
-	if (!Array.isArray(value)) return undefined;
-	const items = value
-		.map(optionalTrimmedString)
-		.filter((item): item is string => Boolean(item));
-	return items.length > 0 ? items : undefined;
-}
-
-function normalizeAgentSendRuntimeOptions(
-	options?: AgentSendRuntimeOptions
-): AgentSendRuntimeOptions | undefined {
-	if (!options) return undefined;
-	const normalized: AgentSendRuntimeOptions = {
-		...(optionalTrimmedString(options.runId) ? { runId: optionalTrimmedString(options.runId) } : {}),
-		...(optionalTrimmedString(options.sessionId)
-			? { sessionId: optionalTrimmedString(options.sessionId) }
-			: {}),
-		...(optionalTrimmedString(options.agentRuntime)
-			? { agentRuntime: optionalTrimmedString(options.agentRuntime) }
-			: {}),
-		...(optionalTrimmedString(options.providerId)
-			? { providerId: optionalTrimmedString(options.providerId) }
-			: {}),
-		...(optionalTrimmedString(options.model) ? { model: optionalTrimmedString(options.model) } : {}),
-		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
-		...(typeof options.lightContext === 'boolean'
-			? { lightContext: options.lightContext }
-			: {}),
-		...(optionalStringList(options.toolsAllow)
-			? { toolsAllow: optionalStringList(options.toolsAllow) }
-			: {}),
-		...(optionalStringList(options.toolsDeny)
-			? { toolsDeny: optionalStringList(options.toolsDeny) }
-			: {}),
-	};
-	return Object.keys(normalized).length > 0 ? normalized : undefined;
-}
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -193,15 +122,29 @@ const win: WindowApi = {
 	},
 } satisfies WindowApi;
 
+function isFridayCronJob(value: unknown): value is FridayCronJob {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		typeof (value as { id?: unknown }).id === 'string' &&
+		typeof (value as { name?: unknown }).name === 'string' &&
+		typeof (value as { enabled?: unknown }).enabled === 'boolean' &&
+		typeof (value as { state?: unknown }).state === 'object' &&
+		(value as { state?: unknown }).state !== null
+	);
+}
+
+async function cronAction(request: FridayCronToolRequest): Promise<FridayCronToolResponse> {
+	const response = await typedInvokeUnwrap(CronChannels.action, request);
+	if (response.status === 'error') {
+		throw new Error(response.error ?? 'Cron action failed.');
+	}
+	return response;
+}
+
 export const agent: AgentApi = {
 	send: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-		const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
-		return runtimeOptions
-			? typedInvokeUnwrap(AgentChannels.send, message, runtimeOptions)
-			: typedInvokeUnwrap(AgentChannels.send, message);
-	},
-	resolveToolApproval: (decision: AgentToolApprovalDecision): Promise<void> => {
-		return typedInvokeUnwrap(AgentChannels.resolveToolApproval, decision);
+		return typedInvokeUnwrap(AgentChannels.send, message, options);
 	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.reset);
@@ -214,15 +157,6 @@ export const agent: AgentApi = {
 	},
 	openHistoryFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.openHistoryFolder);
-	},
-	listStartupFiles: (): Promise<AgentStartupFileSummary[]> => {
-		return typedInvokeUnwrap(AgentChannels.listStartupFiles);
-	},
-	readStartupFile: (name: string): Promise<AgentStartupFileContent> => {
-		return typedInvokeUnwrap(AgentChannels.readStartupFile, name);
-	},
-	writeStartupFile: (name: string, content: string): Promise<AgentStartupFileContent> => {
-		return typedInvokeUnwrap(AgentChannels.writeStartupFile, name, content);
 	},
 	listWorkspaceFiles: (): Promise<WorkspaceFileSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
@@ -255,10 +189,10 @@ export const app: AppApi = {
 		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
 	},
 	getKeepAwakeEnabled: (): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.getKeepAwakeEnabled);
+		return typedInvokeUnwrap(AppChannels.getKeepAwakeEnabled);
 	},
 	setKeepAwakeEnabled: (enabled: boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.setKeepAwakeEnabled, enabled);
+		return typedInvokeUnwrap(AppChannels.setKeepAwakeEnabled, enabled);
 	},
 	getMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
@@ -282,82 +216,82 @@ export const app: AppApi = {
 		return typedInvokeUnwrap(AppChannels.requestCameraPermission);
 	},
 	setProviderApiKey: (providerId: string, apikey: string): Promise<void> => {
-		return typedInvokeUnwrap(StoreChannels.setProviderApiKey, providerId, apikey);
+		return typedInvokeUnwrap(ProviderChannels.setApiKey, providerId, apikey);
 	},
 	isProviderApiKeySaved: (providerId: string): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.isProviderApiKeySaved, providerId);
+		return typedInvokeUnwrap(ProviderChannels.isApiKeySaved, providerId);
 	},
 	getProviders: (): Promise<PublicProvider[]> => {
-		return typedInvokeUnwrap(StoreChannels.getProviders);
+		return typedInvokeUnwrap(ProviderChannels.getAll);
 	},
 	addProvider: (input: ProviderInput): Promise<PublicProvider> => {
-		return typedInvokeUnwrap(StoreChannels.addProvider, input);
+		return typedInvokeUnwrap(ProviderChannels.add, input);
 	},
 	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
 	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAssistantOperator);
+		return typedInvokeUnwrap(OperatorChannels.getAssistant);
 	},
 	saveAssistantOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAssistantOperator, provider, model);
+		return typedInvokeUnwrap(OperatorChannels.saveAssistant, provider, model);
 	},
 	getSpeechToTextOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechToTextOperator);
+		return typedInvokeUnwrap(OperatorChannels.getSpeechToText);
 	},
 	getSpeechToTextModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(OperatorChannels.getSpeechToTextModels, provider);
 	},
 	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechToTextOperator, provider, model);
+		return typedInvokeUnwrap(OperatorChannels.saveSpeechToText, provider, model);
 	},
 	getTextToSpeechOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechOperator);
+		return typedInvokeUnwrap(OperatorChannels.getTextToSpeech);
 	},
 	getTextToSpeechModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(OperatorChannels.getTextToSpeechModels, provider);
 	},
 	saveTextToSpeechOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechOperator, provider, model);
+		return typedInvokeUnwrap(OperatorChannels.saveTextToSpeech, provider, model);
 	},
 	getImageCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorOperator);
+		return typedInvokeUnwrap(OperatorChannels.getImageCreator);
 	},
 	getImageCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(OperatorChannels.getImageCreatorModels, provider);
 	},
 	saveImageCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveImageCreatorOperator, provider, model);
+		return typedInvokeUnwrap(OperatorChannels.saveImageCreator, provider, model);
 	},
 	getTextToVideoOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoOperator);
+		return typedInvokeUnwrap(OperatorChannels.getTextToVideo);
 	},
 	getTextToVideoModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(OperatorChannels.getTextToVideoModels, provider);
 	},
 	saveTextToVideoOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToVideoOperator, provider, model);
+		return typedInvokeUnwrap(OperatorChannels.saveTextToVideo, provider, model);
 	},
 	getMusicCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getMusicCreatorOperator);
+		return typedInvokeUnwrap(OperatorChannels.getMusicCreator);
 	},
 	getMusicCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(OperatorChannels.getMusicCreatorModels, provider);
 	},
 	saveMusicCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveMusicCreatorOperator, provider, model);
+		return typedInvokeUnwrap(OperatorChannels.saveMusicCreator, provider, model);
 	},
 	getAgentService: (): Promise<Agent | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAgentService);
+		return typedInvokeUnwrap(ProviderChannels.getAgentService);
 	},
 	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAgentService, provider, model);
+		return typedInvokeUnwrap(ProviderChannels.saveAgentService, provider, model);
 	},
 	getSpeechTranscriberService: (): Promise<Agent | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechTranscriberService);
+		return typedInvokeUnwrap(ProviderChannels.getSpeechTranscriberService);
 	},
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechTranscriberService, provider, model);
+		return typedInvokeUnwrap(ProviderChannels.saveSpeechTranscriberService, provider, model);
 	},
 };
 
@@ -394,48 +328,14 @@ export const realtimeTranscription: RealtimeTranscriptionApi = {
 	},
 };
 
-export const speechToText: SpeechToTextApi = {
-	transcribe: (request) => {
-		return typedInvokeUnwrap(
-			SpeechToTextChannels.transcribe,
-			normalizeSpeechToTextTranscribeRequest(request)
-		);
-	},
-	startDictation: (request) => {
-		return typedInvokeUnwrap(
-			SpeechToTextChannels.startDictation,
-			normalizeSpeechToTextDictationStartRequest(request)
-		);
-	},
-	appendAudio: (sessionId: string, audio: string): void => {
-		if (!isSpeechToTextSessionId(sessionId)) {
-			throw new Error('Invalid speech-to-text session id.');
-		}
-		if (!isSpeechToTextAudioChunk(audio)) {
-			throw new Error('Invalid speech-to-text audio chunk.');
-		}
-		typedSend(SpeechToTextChannels.appendAudio, sessionId, audio);
-	},
-	finishDictation: (sessionId: string): Promise<void> => {
-		if (!isSpeechToTextSessionId(sessionId)) {
-			throw new Error('Invalid speech-to-text session id.');
-		}
-		return typedInvokeUnwrap(SpeechToTextChannels.finishDictation, sessionId);
-	},
-	cancelDictation: (sessionId: string): Promise<void> => {
-		if (!isSpeechToTextSessionId(sessionId)) {
-			throw new Error('Invalid speech-to-text session id.');
-		}
-		return typedInvokeUnwrap(SpeechToTextChannels.cancelDictation, sessionId);
-	},
-	onEvent: (callback): (() => void) => {
-		return typedOn(SpeechToTextChannels.event, callback);
-	},
-};
-
 export const cron: CronApi = {
 	list: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
+	},
+	listJobs: async (include = 'all'): Promise<FridayCronJob[]> => {
+		const response = await cronAction({ action: 'list', include });
+		if (!Array.isArray(response.result)) return [];
+		return response.result.filter(isFridayCronJob);
 	},
 	add: <TData extends CronTaskData>(
 		expression: string,
@@ -448,6 +348,9 @@ export const cron: CronApi = {
 	},
 	remove: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
+	},
+	removeJob: async (id: string): Promise<void> => {
+		await cronAction({ action: 'remove', jobId: id });
 	},
 	createSchedule: (request: CronScheduleCreateRequest): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.createSchedule, request);
@@ -482,6 +385,7 @@ export const cron: CronApi = {
 	runNow: (scheduleId: string): Promise<CronScheduledTask> => {
 		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
 	},
+	action: cronAction,
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void): (() => void) => {
 		return typedOn(CronChannels.event, listener);
 	},
@@ -502,43 +406,22 @@ export const heartbeat: HeartbeatApi = {
 	last: (): Promise<HeartbeatEventPayload | null> => {
 		return typedInvokeUnwrap(HeartbeatChannels.last);
 	},
-	settings: (): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.settings);
-	},
-	saveSettings: (request: HeartbeatSettingsUpdate): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.saveSettings, assertHeartbeatObject(request));
-	},
 	setEnabled: (request: HeartbeatSetEnabledRequest): Promise<HeartbeatStatus> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, assertHeartbeatObject(request));
+		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, request);
 	},
 	getTiming: (): Promise<HeartbeatTimingSettings> => {
 		return typedInvokeUnwrap(HeartbeatChannels.getTiming);
 	},
 	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, assertHeartbeatObject(request));
-	},
-	setProviderId: (request: HeartbeatSetProviderRequest): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setProviderId, assertHeartbeatObject(request));
-	},
-	setModelId: (request: HeartbeatSetModelRequest): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setModelId, assertHeartbeatObject(request));
-	},
-	setReasoningEffort: (
-		request: HeartbeatSetReasoningEffortRequest
-	): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(
-			HeartbeatChannels.setReasoningEffort,
-			assertHeartbeatObject(request)
-		);
+		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, request);
 	},
 	systemEvent: (request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> => {
-		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, assertHeartbeatObject(request));
+		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, request);
 	},
 	request: (request: HeartbeatWakeRequest): Promise<void> => {
-		return typedInvokeUnwrap(HeartbeatChannels.request, assertHeartbeatObject(request));
+		return typedInvokeUnwrap(HeartbeatChannels.request, request);
 	},
 	onEvent: (callback: (event: HeartbeatEventPayload) => void): (() => void) => {
-		if (typeof callback !== 'function') throw new Error('heartbeat event callback must be a function.');
 		return typedOn(HeartbeatChannels.event, callback);
 	},
 };
@@ -561,6 +444,42 @@ export const tasks: TasksApi = {
 	},
 };
 
+export const chatMemory: ChatMemoryApi = {
+	list: (request) => {
+		return typedInvokeUnwrap(ChatMemoryChannels.list, request);
+	},
+	read: (request) => {
+		return typedInvokeUnwrap(ChatMemoryChannels.read, request);
+	},
+	search: (request) => {
+		return typedInvokeUnwrap(ChatMemoryChannels.search, request);
+	},
+};
+
+export const rag: RagApi = {
+	list: () => {
+		return typedInvokeUnwrap(RagChannels.list);
+	},
+	read: (request) => {
+		return typedInvokeUnwrap(RagChannels.read, request);
+	},
+	search: (request) => {
+		return typedInvokeUnwrap(RagChannels.search, request);
+	},
+};
+
+export const wiki: WikiApi = {
+	list: () => {
+		return typedInvokeUnwrap(WikiChannels.list);
+	},
+	read: (request) => {
+		return typedInvokeUnwrap(WikiChannels.read, request);
+	},
+	search: (request) => {
+		return typedInvokeUnwrap(WikiChannels.search, request);
+	},
+};
+
 export const monitor: MonitorApi = {
 	snapshot: (filter?: MonitorEventFilter): Promise<MonitorSnapshot> => {
 		return typedInvokeUnwrap(MonitorChannels.snapshot, filter);
@@ -580,122 +499,17 @@ export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
 	},
-	load: (name: string) => {
-		return typedInvokeUnwrap(SkillsChannels.load, name);
-	},
 	importSkill: () => {
 		return typedInvokeUnwrap(SkillsChannels.import);
 	},
-	downloadSkill: (name: string) => {
-		return typedInvokeUnwrap(SkillsChannels.download, name);
+	downloadSkill: (id: string) => {
+		return typedInvokeUnwrap(SkillsChannels.download, id);
 	},
-	delete: (name: string) => {
-		return typedInvokeUnwrap(SkillsChannels.delete, name);
+	delete: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(SkillsChannels.delete, id);
 	},
 	getRoot: (): Promise<string> => {
 		return typedInvokeUnwrap(SkillsChannels.getRoot);
-	},
-};
-
-export const store: StoreApi = {
-	getProviders: (): Promise<PublicProvider[]> => {
-		return typedInvokeUnwrap(StoreChannels.getProviders);
-	},
-	setProviderApiKey: (providerId: string, apiKey: string): Promise<void> => {
-		return typedInvokeUnwrap(StoreChannels.setProviderApiKey, providerId, apiKey);
-	},
-	isProviderApiKeySaved: (providerId: string): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.isProviderApiKeySaved, providerId);
-	},
-	addProvider: (input: ProviderInput): Promise<PublicProvider> => {
-		return typedInvokeUnwrap(StoreChannels.addProvider, input);
-	},
-	getKeepAwakeEnabled: (): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.getKeepAwakeEnabled);
-	},
-	setKeepAwakeEnabled: (enabled: boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.setKeepAwakeEnabled, enabled);
-	},
-	getAssistantSettings: (): Promise<AssistantSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAssistantSettings);
-	},
-	getSpeechToTextSettings: (): Promise<SpeechToTextSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechToTextSettings);
-	},
-	getTextToSpeechSettings: (): Promise<TextToSpeechSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechSettings);
-	},
-	getImageCreatorSettings: (): Promise<ImageCreatorSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorSettings);
-	},
-	getTextToVideoSettings: (): Promise<TextToVideoSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoSettings);
-	},
-	getTextToSoundSettings: (): Promise<TextToSoundSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSoundSettings);
-	},
-	getCronSettings: (): Promise<CronSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getCronSettings);
-	},
-	getTaskSettings: (): Promise<TaskSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getTaskSettings);
-	},
-	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
-	},
-	setAgentRoutingSettings: (settings: AgentRoutingSettings): Promise<AgentRoutingSettings> => {
-		return typedInvokeUnwrap(StoreChannels.setAgentRoutingSettings, settings);
-	},
-	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
-		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
-	},
-	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAssistantOperator);
-	},
-	saveAssistantOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAssistantOperator, provider, model);
-	},
-	getSpeechToTextOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechToTextOperator);
-	},
-	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechToTextOperator, provider, model);
-	},
-	getTextToSpeechOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechOperator);
-	},
-	saveTextToSpeechOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechOperator, provider, model);
-	},
-	getImageCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorOperator);
-	},
-	saveImageCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveImageCreatorOperator, provider, model);
-	},
-	getTextToVideoOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoOperator);
-	},
-	saveTextToVideoOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToVideoOperator, provider, model);
-	},
-	getMusicCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getMusicCreatorOperator);
-	},
-	saveMusicCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveMusicCreatorOperator, provider, model);
-	},
-	getAgentService: (): Promise<Agent | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAgentService);
-	},
-	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAgentService, provider, model);
-	},
-	getSpeechTranscriberService: (): Promise<Agent | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechTranscriberService);
-	},
-	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechTranscriberService, provider, model);
 	},
 };
 
@@ -744,10 +558,10 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	catalog: (): Promise<ConnectorCatalogEntry[]> => {
+	catalog: (): Promise<typeof OPENAI_CONNECTOR_CATALOG> => {
 		return typedInvokeUnwrap(ConnectorsChannels.catalog);
 	},
-	list: (): Promise<ConnectorConfig[]> => {
+	list: (): Promise<ConnectorView[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.list);
 	},
 	get: (id: string): Promise<ConnectorConfig> => {
@@ -783,18 +597,15 @@ export const connectors: ConnectorsApi = {
 	callTool: (
 		id: string,
 		name: string,
-		args: Record<string, unknown>,
+		args: unknown,
 		options?: ConnectorCallToolOptions
 	): Promise<unknown> => {
 		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
 	},
-		authorizeOAuth: (connector: string | ConnectorCatalogEntry): Promise<ConnectorOAuthAuthorizeResult> => {
-			const input = typeof connector === 'string'
-				? { connectorId: connector }
-				: { connectorId: connector.id, connector };
-			return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, input);
-		},
-	};
+	connectOAuth: (id: string): Promise<ConnectorOAuthConnectResult> => {
+		return typedInvokeUnwrap(ConnectorsChannels.connectOAuth, id);
+	},
+};
 
 if (process.contextIsolated) {
 	try {
@@ -802,15 +613,16 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
-		contextBridge.exposeInMainWorld('speechToText', speechToText);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('tasks', tasks);
 		contextBridge.exposeInMainWorld('monitor', monitor);
+		contextBridge.exposeInMainWorld('chatMemory', chatMemory);
+		contextBridge.exposeInMainWorld('rag', rag);
+		contextBridge.exposeInMainWorld('wiki', wiki);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
-		contextBridge.exposeInMainWorld('store', store);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -824,8 +636,6 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.realtimeTranscription = realtimeTranscription;
 	// @ts-ignore (define in dts)
-	globalThis.speechToText = speechToText;
-	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)
 	globalThis.heartbeat = heartbeat;
@@ -834,11 +644,15 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.monitor = monitor;
 	// @ts-ignore (define in dts)
+	globalThis.chatMemory = chatMemory;
+	// @ts-ignore (define in dts)
+	globalThis.rag = rag;
+	// @ts-ignore (define in dts)
+	globalThis.wiki = wiki;
+	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.connectors = connectors;
 	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
-	// @ts-ignore (define in dts)
-	globalThis.store = store;
 }

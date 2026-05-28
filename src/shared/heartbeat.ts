@@ -1,6 +1,4 @@
 import type { ChannelType } from './channels';
-import type { Model, ModelReasoningEffort } from './agents/service';
-import type { PublicProvider } from './providers';
 
 export const HEARTBEAT_OK = 'HEARTBEAT_OK';
 
@@ -16,10 +14,7 @@ export type HeartbeatDirectPolicy = 'allow' | 'block';
 export interface AgentHeartbeatConfig {
 	every?: string;
 	activeHours?: HeartbeatActiveHoursConfig;
-	providerId?: PublicProvider['id'];
-	modelId?: Model['id'];
 	model?: string;
-	reasoningEffort?: ModelReasoningEffort;
 	session?: 'main' | 'global' | string;
 	target?: HeartbeatTarget;
 	directPolicy?: HeartbeatDirectPolicy;
@@ -126,28 +121,6 @@ export interface HeartbeatStatus {
 	agentCount: number;
 	nextDueMs?: number;
 	lastHeartbeat: HeartbeatEventPayload | null;
-}
-
-export interface HeartbeatSettings {
-	every: string;
-	activeHours?: HeartbeatActiveHoursConfig;
-	providerId?: PublicProvider['id'];
-	modelId?: Model['id'];
-	reasoningEffort?: ModelReasoningEffort;
-}
-
-export type HeartbeatSettingsUpdate = Partial<HeartbeatSettings>;
-
-export interface HeartbeatSetProviderRequest {
-	providerId: PublicProvider['id'];
-}
-
-export interface HeartbeatSetModelRequest {
-	modelId: Model['id'];
-}
-
-export interface HeartbeatSetReasoningEffortRequest {
-	reasoningEffort: ModelReasoningEffort;
 }
 
 export interface HeartbeatSetEnabledRequest {

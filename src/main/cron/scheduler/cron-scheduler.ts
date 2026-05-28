@@ -21,8 +21,6 @@ import type {
 	CronScheduleUpdateRequest,
 	CronScheduleStore,
 	CronScheduledTask,
-	CronStoredSchedule,
-	CronStoredTarget,
 } from '../core/cron.types';
 import { ScheduleDescriber } from '../core/cron.describer';
 import {
@@ -37,6 +35,7 @@ import { assertScheduleCanRun, validateScheduleShape } from '../core/cron.valida
 import { CronNextRunCalculator } from './cron-next-run-calculator';
 import { CronScheduleEventBus } from '../events/cron-event-bus';
 import { redactCronValue, summarizeCronValue } from '../security/cron-redaction';
+import { AGENT_TASK_TYPE } from '../../tasks';
 
 interface CronLogger {
 	debug(scope: string, message: string, metadata?: unknown): void;
@@ -68,6 +67,9 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 	runnerId: `cron-${process.pid}-${randomUUID()}`,
 	pollIntervalMs: 30_000,
 	lockTtlMs: 2 * 60_000,
+	maxToolCallsPerTurn: 20,
+	maxPlanningDepth: 10,
+	totalTurnTimeoutMs: 5 * 60_000,
 	runPolicy: DEFAULT_CRON_RUN_POLICY,
 	defaultRetryPolicy: DEFAULT_CRON_RETRY_POLICY,
 	defaultTimezone: 'UTC',
@@ -82,6 +84,9 @@ const SECRET_VALUE_PATTERNS: readonly RegExp[] = [
 	/authorization\s*:\s*bearer\s+\S+/i,
 	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
 ];
+const AGENT_TASK_INPUT_KEYS = new Set(['message']);
+const MAX_AGENT_INSTRUCTION_LENGTH = 200_000;
+
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -146,40 +151,50 @@ function assertSafeStoredSchedulePayload(
 	if (request.metadata !== undefined) assertSafeStoredScheduleValue(request.metadata, 'metadata');
 }
 
-function normalizeScheduleTask(
+function assertOnlyAgentInstruction(input: Record<string, unknown>): void {
+	for (const key of Object.keys(input)) {
+		if (!AGENT_TASK_INPUT_KEYS.has(key)) {
+			throw new CronScheduleValidationError(
+				`Scheduled agent input only supports message; ${key} is not allowed.`,
+				{ field: `taskInput.${key}` }
+			);
+		}
+	}
+}
+
+function normalizeAgentTaskInput(value: CronJsonValue | undefined): CronJsonObject {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) {
+		throw new CronScheduleValidationError('taskInput must be an object with a message.');
+	}
+	assertOnlyAgentInstruction(value);
+	if (typeof value.message !== 'string') {
+		throw new CronScheduleValidationError('taskInput.message is required.');
+	}
+	const message = value.message.trim();
+	if (!message) throw new CronScheduleValidationError('taskInput.message is required.');
+	if (message.length > MAX_AGENT_INSTRUCTION_LENGTH) {
+		throw new CronScheduleValidationError('taskInput.message is too long.');
+	}
+	if (SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(message))) {
+		throw new CronScheduleValidationError('taskInput.message contains secret-looking content.');
+	}
+	return { message };
+}
+
+function normalizeAgentScheduleTask(
 	request: CronScheduleCreateRequest | CronScheduleUpdateRequest,
 	existing?: CronSchedule
-): { taskType: string; taskInput: CronJsonValue } {
-	const taskType = (request.taskType ?? existing?.taskType)?.trim();
-	if (!taskType) throw new CronScheduleValidationError('taskType is required.');
-	const taskInput = request.taskInput ?? existing?.taskInput;
-	if (taskInput === undefined) throw new CronScheduleValidationError('taskInput is required.');
+): { taskType: string; taskInput: CronJsonObject } {
+	const taskType = request.taskType ?? existing?.taskType;
+	if (taskType !== AGENT_TASK_TYPE) {
+		throw new CronScheduleValidationError(
+			`Scheduled tasks must create ${AGENT_TASK_TYPE} background tasks.`
+		);
+	}
 	return {
-		taskType,
-		taskInput,
+		taskType: AGENT_TASK_TYPE,
+		taskInput: normalizeAgentTaskInput(request.taskInput ?? existing?.taskInput),
 	};
-}
-
-function storedScheduleConfig(
-	input: Pick<
-		CronSchedule,
-		'type' | 'cronExpression' | 'intervalMs' | 'runAt' | 'startAt' | 'endAt' | 'maxRuns'
-	>
-): CronStoredSchedule {
-	if (input.type === 'cron' && input.cronExpression) return input.cronExpression;
-	return {
-		type: input.type,
-		...(input.intervalMs !== undefined ? { intervalMs: input.intervalMs } : {}),
-		...(input.runAt ? { runAt: input.runAt } : {}),
-		...(input.startAt ? { startAt: input.startAt } : {}),
-		...(input.endAt ? { endAt: input.endAt } : {}),
-		...(input.maxRuns !== undefined ? { maxRuns: input.maxRuns } : {}),
-	};
-}
-
-function scheduleTarget(taskType: string, target?: CronStoredTarget): CronStoredTarget {
-	if (target) return target;
-	return taskType === 'agent' || taskType.startsWith('agent.') ? 'agent' : 'task';
 }
 
 export class CronSchedulerService implements CronScheduler {
@@ -215,10 +230,6 @@ export class CronSchedulerService implements CronScheduler {
 	async start(): Promise<void> {
 		if (this.started) return;
 		this.started = true;
-		this.logger?.info('CronScheduler', 'Cron scheduler started.', {
-			pollIntervalMs: this.options.pollIntervalMs,
-			runnerId: this.options.runnerId,
-		});
 		await this.recoverSchedulesOnStartup();
 		this.timer = setInterval(() => {
 			void this.processDueSchedules(new Date()).catch((error) => {
@@ -232,15 +243,9 @@ export class CronSchedulerService implements CronScheduler {
 		if (this.timer) clearInterval(this.timer);
 		this.timer = undefined;
 		this.started = false;
-		this.logger?.info('CronScheduler', 'Cron scheduler stopped.', {
-			runnerId: this.options.runnerId,
-		});
 	}
 
 	async reload(): Promise<void> {
-		this.logger?.info('CronScheduler', 'Cron scheduler reload requested.', {
-			runnerId: this.options.runnerId,
-		});
 		await this.recoverSchedulesOnStartup();
 	}
 
@@ -248,15 +253,12 @@ export class CronSchedulerService implements CronScheduler {
 		request: CronScheduleCreateRequest,
 		actor = this.systemActor(request.ownerUserId)
 	): Promise<CronSchedule> {
-		await this.authorize({ action: 'createSchedule', request, actor });
-		this.validateRequest('createSchedule', request, actor);
-		const normalizedTask = normalizeScheduleTask(request);
+		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
+		this.accessPolicy.validateFrequency({ request, actor });
+		validateScheduleShape(request, this.options.runPolicy);
+		assertSafeStoredSchedulePayload(request);
+		const normalizedTask = normalizeAgentScheduleTask(request);
 		if (this.accessPolicy.requiresConfirmation({ request, actor })) {
-			this.logger?.warn('CronScheduler', 'Cron schedule requires confirmation.', {
-				action: 'createSchedule',
-				source: actor.source,
-				userId: actor.userId ?? null,
-			});
 			throw new CronPermissionError('Cron schedule requires confirmation before it can be saved.', {
 				action: 'createSchedule',
 			});
@@ -264,23 +266,10 @@ export class CronSchedulerService implements CronScheduler {
 
 		const now = new Date();
 		const nowIso = now.toISOString();
-		const cronExpression = request.cronExpression?.trim().replace(/\s+/g, ' ');
-		const scheduleConfig =
-			request.schedule ??
-			storedScheduleConfig({
-				type: request.type,
-				cronExpression,
-				intervalMs: request.intervalMs,
-				runAt: request.runAt,
-				startAt: request.startAt,
-				endAt: request.endAt,
-				maxRuns: request.maxRuns,
-			});
 		const schedule: CronSchedule = {
 			id: randomUUID(),
 			name: request.name.trim(),
 			description: request.description?.trim(),
-			schedule: scheduleConfig,
 			type: request.type,
 			status: request.enabled === false ? 'disabled' : 'active',
 			source: request.source,
@@ -290,23 +279,18 @@ export class CronSchedulerService implements CronScheduler {
 			createdBy: request.createdBy,
 			visibility: request.visibility ?? 'user',
 			timezone: request.timezone || actor.timezone || this.options.defaultTimezone,
-			cronExpression,
+			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
 			intervalMs: request.intervalMs,
 			runAt: request.runAt,
 			startAt: request.startAt,
 			endAt: request.endAt,
 			maxRuns: request.maxRuns,
 			runCount: 0,
-			failureCount: 0,
 			missedRunPolicy: request.missedRunPolicy ?? 'skip',
 			maxCatchUpRuns: request.maxCatchUpRuns ?? this.options.runPolicy.maxCatchUpRuns,
 			catchUpWindowMs: request.catchUpWindowMs ?? this.options.runPolicy.catchUpWindowMs,
 			concurrencyPolicy: request.concurrencyPolicy ?? 'skipIfRunning',
 			retryPolicy: mergeRetryPolicy(this.options.defaultRetryPolicy, request.retryPolicy),
-			providerId: request.providerId,
-			modelId: request.modelId,
-			target: scheduleTarget(normalizedTask.taskType, request.target),
-			payload: request.payload ?? normalizedTask.taskInput,
 			taskType: normalizedTask.taskType,
 			taskInput: normalizedTask.taskInput,
 			taskPriority: request.taskPriority ?? 'normal',
@@ -342,21 +326,17 @@ export class CronSchedulerService implements CronScheduler {
 		actor = this.systemActor()
 	): Promise<CronSchedule> {
 		const current = await this.store.getSchedule(scheduleId);
-		await this.authorize({
+		await this.accessPolicy.authorize({
 			action: 'updateSchedule',
 			schedule: current,
 			request: patch,
 			actor,
 		});
-		this.validateRequest('updateSchedule', patch, actor, current);
-		const normalizedTask = normalizeScheduleTask(patch, current);
+		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
+		validateScheduleShape(patch, this.options.runPolicy, current);
+		assertSafeStoredSchedulePayload(patch);
+		const normalizedTask = normalizeAgentScheduleTask(patch, current);
 		if (this.accessPolicy.requiresConfirmation({ request: patch, actor, existingSchedule: current })) {
-			this.logger?.warn('CronScheduler', 'Cron schedule update requires confirmation.', {
-				action: 'updateSchedule',
-				scheduleId,
-				source: actor.source,
-				userId: actor.userId ?? null,
-			});
 			throw new CronPermissionError('Cron schedule update requires confirmation before it can be saved.', {
 				action: 'updateSchedule',
 				scheduleId,
@@ -375,9 +355,6 @@ export class CronSchedulerService implements CronScheduler {
 				this.audit(current, 'schedule.updated', 'Schedule updated.', actor.source),
 			],
 		};
-		merged.schedule = normalizedPatch.schedule ?? storedScheduleConfig(merged);
-		merged.target = scheduleTarget(merged.taskType, normalizedPatch.target ?? current.target);
-		merged.payload = normalizedPatch.payload ?? normalizedTask.taskInput;
 		merged.nextRunAt = this.calculator.getNextRun(merged, new Date())?.toISOString();
 		const updated = await this.store.updateSchedule(scheduleId, merged);
 		await this.emitEvent({
@@ -393,7 +370,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async pauseSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<void> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.authorize({ action: 'pauseSchedule', schedule, actor });
+		await this.accessPolicy.authorize({ action: 'pauseSchedule', schedule, actor });
 		const now = new Date().toISOString();
 		const updated = await this.store.updateSchedule(scheduleId, {
 			status: 'paused',
@@ -416,7 +393,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async resumeSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<void> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.authorize({ action: 'resumeSchedule', schedule, actor });
+		await this.accessPolicy.authorize({ action: 'resumeSchedule', schedule, actor });
 		const now = new Date();
 		const nextRunAt = this.calculator
 			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
@@ -444,7 +421,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async deleteSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<void> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.authorize({ action: 'deleteSchedule', schedule, actor });
+		await this.accessPolicy.authorize({ action: 'deleteSchedule', schedule, actor });
 		const now = new Date().toISOString();
 		await this.store.updateSchedule(scheduleId, {
 			status: 'deleted',
@@ -469,7 +446,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	async getSchedule(scheduleId: CronScheduleId, actor = this.systemActor()): Promise<CronSchedule> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.authorize({ action: 'listSchedules', schedule, actor });
+		await this.accessPolicy.authorize({ action: 'listSchedules', schedule, actor });
 		return schedule;
 	}
 
@@ -477,7 +454,7 @@ export class CronSchedulerService implements CronScheduler {
 		filter: CronScheduleFilter = {},
 		actor = this.systemActor()
 	): Promise<CronSchedule[]> {
-		await this.authorize({ action: 'listSchedules', actor });
+		await this.accessPolicy.authorize({ action: 'listSchedules', actor });
 		return this.store.listSchedules({
 			...filter,
 			ownerUserId: actor.permissions.includes('adminScheduleManagement')
@@ -491,7 +468,7 @@ export class CronSchedulerService implements CronScheduler {
 		actor = this.systemActor()
 	): Promise<CronScheduledTask> {
 		const schedule = await this.store.getSchedule(scheduleId);
-		await this.authorize({ action: 'runScheduleNow', schedule, actor });
+		await this.accessPolicy.authorize({ action: 'runScheduleNow', schedule, actor });
 		const task = await this.triggerSchedule(schedule, new Date().toISOString(), false, true);
 		if (!task) throw new CronScheduleExecutionError('Schedule did not create a task.');
 		return task;
@@ -611,10 +588,7 @@ export class CronSchedulerService implements CronScheduler {
 			case 'fail':
 				await this.store.updateSchedule(schedule.id, {
 					status: 'failed',
-					lastRunStatus: 'failure',
-					lastError: 'A scheduled run was missed.',
 					lastFailedRunAt: now.toISOString(),
-					failureCount: schedule.failureCount + 1,
 					updatedAt: now.toISOString(),
 				});
 				await this.emitEvent({
@@ -703,7 +677,7 @@ export class CronSchedulerService implements CronScheduler {
 				missedRun,
 				idempotencyKey
 			);
-			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt, 'success');
+			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt);
 			await this.recordExecution(
 				updated,
 				idempotencyKey,
@@ -829,8 +803,7 @@ export class CronSchedulerService implements CronScheduler {
 
 	private async updateScheduleAfterTrigger(
 		schedule: CronSchedule,
-		scheduledRunAt: string,
-		lastRunStatus: 'success' | 'skipped' = 'success'
+		scheduledRunAt: string
 	): Promise<CronSchedule> {
 		const now = new Date().toISOString();
 		const runCount = schedule.runCount + 1;
@@ -850,8 +823,6 @@ export class CronSchedulerService implements CronScheduler {
 		const updated = await this.store.updateSchedule(schedule.id, {
 			runCount,
 			lastRunAt: scheduledRunAt,
-			lastRunStatus,
-			lastError: undefined,
 			lastEvaluatedAt: now,
 			nextRunAt,
 			status,
@@ -915,10 +886,7 @@ export class CronSchedulerService implements CronScheduler {
 			metadata: {},
 		});
 		await this.store.updateSchedule(schedule.id, {
-			lastRunStatus: 'failure',
-			lastError: toCronRecordError(error).safeUserMessage,
 			lastFailedRunAt: now,
-			failureCount: schedule.failureCount + 1,
 			updatedAt: now,
 		});
 		await this.emitEvent({
@@ -969,7 +937,7 @@ export class CronSchedulerService implements CronScheduler {
 		schedule: Pick<CronSchedule, 'id'>,
 		action: string,
 		message: string,
-		actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc'
+		actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'agent-cron-service'
 	): CronScheduleAuditEntry {
 		return {
 			auditId: randomUUID(),
@@ -982,85 +950,22 @@ export class CronSchedulerService implements CronScheduler {
 		};
 	}
 
-	private async authorize(input: Parameters<CronScheduleAccessPolicy['authorize']>[0]): Promise<void> {
-		try {
-			await this.accessPolicy.authorize(input);
-			this.logger?.debug('CronScheduler', 'Cron policy authorized.', {
-				action: input.action,
-				source: input.actor.source,
-				userId: input.actor.userId ?? null,
-				scheduleId: input.schedule?.id ?? null,
-			});
-		} catch (error) {
-			this.logger?.warn('CronScheduler', 'Cron policy denied.', {
-				action: input.action,
-				source: input.actor.source,
-				userId: input.actor.userId ?? null,
-				scheduleId: input.schedule?.id ?? null,
-				error: error instanceof Error ? error.message : String(error),
-			});
-			throw error;
-		}
-	}
-
-	private validateRequest(
-		action: 'createSchedule' | 'updateSchedule',
-		request: CronScheduleCreateRequest | CronScheduleUpdateRequest,
-		actor: CronActorContext,
-		existingSchedule?: CronSchedule
-	): void {
-		try {
-			this.accessPolicy.validateFrequency({ request, actor, existingSchedule });
-			validateScheduleShape(request, this.options.runPolicy, existingSchedule);
-			assertSafeStoredSchedulePayload(request);
-		} catch (error) {
-			this.logger?.warn('CronScheduler', 'Cron schedule validation failed.', {
-				action,
-				source: actor.source,
-				userId: actor.userId ?? null,
-				scheduleId: existingSchedule?.id ?? null,
-				error: error instanceof Error ? error.message : String(error),
-			});
-			throw error;
-		}
-	}
-
 	private async emitEvent(input: Omit<CronScheduleEvent, 'eventId' | 'timestamp'>): Promise<void> {
+		if (input.scheduleId === 'pending') {
+			this.eventBus.emit({
+				...input,
+				eventId: randomUUID(),
+				timestamp: new Date().toISOString(),
+			});
+			return;
+		}
 		const event: CronScheduleEvent = {
 			...input,
 			eventId: randomUUID(),
 			timestamp: new Date().toISOString(),
 		};
-		this.logEvent(event);
-		if (input.scheduleId === 'pending') {
-			this.eventBus.emit(event);
-			return;
-		}
 		await this.store.appendScheduleEvent(event);
 		this.eventBus.emit(event);
-	}
-
-	private logEvent(event: CronScheduleEvent): void {
-		const metadata = {
-			scheduleId: event.scheduleId,
-			source: event.source,
-			userId: event.userId ?? null,
-			eventId: event.eventId,
-			...event.metadata,
-		};
-		if (event.type === 'schedule.failed') {
-			this.logger?.error('CronScheduler', event.message, metadata);
-			return;
-		}
-		if (
-			event.type === 'schedule.permissionDenied' ||
-			event.type === 'schedule.skipped' ||
-			event.type === 'schedule.missed'
-		) {
-			this.logger?.warn('CronScheduler', event.message, metadata);
-			return;
-		}
-		this.logger?.info('CronScheduler', event.message, metadata);
 	}
 
 	private auditMetadata(schedule: CronSchedule): CronJsonObject {

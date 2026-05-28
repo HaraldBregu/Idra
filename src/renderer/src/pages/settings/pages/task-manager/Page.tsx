@@ -81,8 +81,8 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 			setRuntimeError(null);
 			try {
 				const [nextProviders, currentAgentService] = await Promise.all([
-					window.store.getProviders(),
-					window.store.getAgentService(),
+					window.app.getProviders(),
+					window.app.getAgentService(),
 				]);
 				if (!mounted) return;
 
@@ -161,7 +161,7 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			const didSave = await window.store.saveAgentService(selectedProvider, selectedModel);
+			const didSave = await window.app.saveAgentService(selectedProvider, selectedModel);
 			if (!didSave) throw new Error(t('settings.taskManager.runtime.errors.saveFailed'));
 			setSaved(true);
 		} catch (caught) {
@@ -173,7 +173,6 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 
 	return (
 		<SettingsSection
-			hideTitle
 			title={t('settings.taskManager.runtime.title')}
 			description={t('settings.taskManager.runtime.description')}
 		>
@@ -231,12 +230,12 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 					</div>
 
 					{providers.length === 0 && !loading && (
-						<p className="text-[11px] leading-4 text-muted-foreground/60">
+						<p className="text-[11px] leading-4 text-muted-foreground">
 							{t('settings.taskManager.runtime.noProviders')}
 						</p>
 					)}
 					{selectedProvider && models.length === 0 && !loading && !loadingModels && (
-						<p className="text-[11px] leading-4 text-muted-foreground/60">
+						<p className="text-[11px] leading-4 text-muted-foreground">
 							{t('settings.taskManager.runtime.noModels')}
 						</p>
 					)}
@@ -247,7 +246,7 @@ function TaskAgentRuntimeSettings(): React.JSX.Element {
 						</div>
 					)}
 					{saved && (
-						<p className="text-[11px] leading-4 text-muted-foreground/60">
+						<p className="text-[11px] leading-4 text-muted-foreground">
 							{t('settings.taskManager.runtime.saved')}
 						</p>
 					)}
@@ -438,7 +437,7 @@ const TaskManagerPage: React.FC = () => {
 									<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 										{task.title}
 									</ItemTitle>
-									<div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-4 text-muted-foreground/60">
+									<div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-[11px] leading-4 text-muted-foreground">
 										<span className="max-w-56 truncate font-mono">{task.type}</span>
 										<span>{formatTimestamp(task.createdAt)}</span>
 									</div>

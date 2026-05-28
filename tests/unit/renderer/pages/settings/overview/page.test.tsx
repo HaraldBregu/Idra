@@ -6,21 +6,11 @@ import OverviewPage from '../../../../../../src/renderer/src/pages/settings/page
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
-			if (key === 'settings.operators.assistantName') return 'Agent';
+			if (key === 'settings.operators.assistantName') return 'AI Assistant';
 			return key;
 		},
 	}),
 }));
-
-beforeEach(() => {
-	Object.defineProperty(window, 'heartbeat', {
-		configurable: true,
-		value: {
-			status: jest.fn(() => new Promise(() => undefined)),
-			onEvent: jest.fn(() => jest.fn()),
-		},
-	});
-});
 
 function LocationProbe(): React.JSX.Element {
 	const location = useLocation();
@@ -36,62 +26,58 @@ function renderOverviewPage(): void {
 	);
 }
 
-function buttonTitles(container: HTMLElement = document.body): Array<string | null> {
-	return within(container).getAllByRole('button').map((button) => (
-		button.querySelector('[data-slot="item-title"]')?.textContent ?? null
-	));
-}
-
 describe('OverviewPage', () => {
 	it('renders settings navigation rows in grouped sections', () => {
 		renderOverviewPage();
 
-		expect(screen.queryByRole('heading', {
-			name: 'settings.overview.groups.app',
-		})).not.toBeInTheDocument();
 		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.agent',
+			name: 'settings.overview.groups.general',
 		})).toBeInTheDocument();
 		expect(screen.getByRole('heading', {
-			name: 'settings.overview.groups.modelServices',
+			name: 'settings.overview.groups.aiAgents',
 		})).toBeInTheDocument();
-		const monitoringSection = screen.getByRole('heading', {
-			name: 'settings.overview.groups.monitoring',
-		}).closest('section');
-		expect(monitoringSection).not.toBeNull();
+			expect(screen.getByRole('heading', {
+				name: 'settings.overview.groups.aiFeatures',
+			})).toBeInTheDocument();
+			const automationsSection = screen.getByRole('heading', {
+				name: 'settings.overview.groups.automations',
+			}).closest('section');
+			expect(automationsSection).not.toBeNull();
 
-		expect(buttonTitles()).toEqual([
-			'settings.tabs.general',
+			expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+				'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
-			'Agent',
-			'settings.tabs.tools',
-			'settings.tabs.skills',
-			'settings.tabs.connectors',
-			'settings.operators.speechTranscriberName',
-			'settings.operators.textToSpeechName',
-			'settings.operators.imageAssistantName',
-			'settings.operators.videoCreatorName',
-			'settings.operators.musicCreatorName',
 			'settings.tabs.channels',
-			'settings.tabs.heartbeat',
-			'settings.sections.taskScheduler',
-			'settings.tabs.backgroundTasks',
-			'settings.tabs.monitoring',
-		]);
-		expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
-			'settings.tabs.backgroundTasks',
-			'settings.tabs.monitoring',
-		]);
+				'AI Assistant',
+			'settings.operators.speechTranscriberName',
+			'settings.operators.textToSpeechNameSoon',
+			'settings.operators.imageAssistantName',
+			'settings.operators.videoCreatorNameSoon',
+			'settings.operators.musicCreatorNameSoon',
+				'settings.tabs.skills',
+				'settings.tabs.connectors',
+				'settings.tabs.heartbeat',
+				'settings.tabs.taskScheduler',
+				'settings.tabs.backgroundTasks',
+				'settings.tabs.apps',
+			]);
+			expect(within(automationsSection as HTMLElement).getAllByRole('button').map((button) => button.textContent)).toEqual([
+				'settings.tabs.heartbeat',
+				'settings.tabs.taskScheduler',
+				'settings.tabs.backgroundTasks',
+			]);
 
-		expect(buttonTitles().at(-1)).toBe('settings.tabs.monitoring');
-	});
+			const appsSection = screen.getByRole('button', { name: 'settings.tabs.apps' }).closest('section');
+			expect(appsSection).not.toBe(automationsSection);
+			expect(within(appsSection as HTMLElement).queryByRole('heading')).not.toBeInTheDocument();
+		});
 
 	it('navigates to the selected settings route when clicked', async () => {
 		const user = userEvent.setup();
 		renderOverviewPage();
 
-		await user.click(screen.getByRole('button', { name: /Agent/ }));
+		await user.click(screen.getByRole('button', { name: 'AI Assistant' }));
 
 		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
 	});

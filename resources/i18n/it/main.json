@@ -150,8 +150,6 @@
 			"groups": {
 				"app": "App",
 				"ai": "AI",
-				"agent": "Assistente personale",
-				"modelServices": "Servizi modello",
 				"knowledge": "Conoscenza",
 				"channels": "Canali",
 				"automation": "Automazione",
@@ -159,7 +157,6 @@
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
-				"tools": "Strumenti e capacità disponibili ai tuoi agenti",
 				"operators": "Configurazione operatori",
 				"system": "Permessi, mantieni attivo e capacita desktop",
 				"channels": "Canali messaggi",
@@ -172,8 +169,7 @@
 				"cron": "Pianificatore attivita",
 				"taskManager": "Attivita in background",
 				"heartbeat": "Controlli periodici agenti",
-				"monitoring": "Diagnostica runtime",
-				"policies": "Policy di accesso salvate"
+				"monitoring": "Diagnostica runtime"
 			}
 		},
 		"tabs": {
@@ -193,7 +189,6 @@
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"monitoring": "Monitoraggio",
-			"policies": "Policies",
 			"memory": "Memory",
 			"rag": "RAG",
 			"wiki": "Wiki",
@@ -479,9 +474,7 @@
 			"modeDescription": "Abilita strumenti e opzioni avanzate per sviluppatori"
 		},
 		"connectors": {
-			"description": "Configura connettori MCP come strumenti per i tuoi agenti.",
 			"detailsTitle": "Dettagli Connettore",
-			"setup": "Configurazione",
 			"notFoundTitle": "Connettore non trovato",
 			"notFoundDescription": "Il connettore potrebbe essere stato rimosso."
 		},
@@ -518,7 +511,6 @@
 			}
 		},
 		"cron": {
-			"description": "Pianifica e gestisci attività agente ricorrenti con espressioni cron.",
 			"columns": {
 				"id": "Id",
 				"message": "Messaggio",
@@ -573,7 +565,6 @@
 			"detailsTitle": "Dettagli pianificatore attivita",
 			"notFoundTitle": "Attivita programmata non trovata",
 			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
-			"newTaskTitle": "Nuova attività pianificata",
 			"emptyTitle": "Nessuna attivita programmata",
 			"emptyDescription": "Le attivita programmate appariranno qui dopo la configurazione."
 		},
@@ -854,20 +845,6 @@
 			"keySaved": "Chiave API salvata",
 			"keyMissing": "Chiave API mancante"
 		},
-		"policies": {
-			"description": "Rivedi la policy di accesso attiva salvata nello store.",
-			"activePolicy": "Policy attiva",
-			"defaultPolicy": "Policy predefinita",
-			"defaultPolicyDescription": "Decisione fallback quando nessuna regola percorso corrisponde.",
-			"recursive": "Si applica ai percorsi nidificati",
-			"singlePath": "Si applica solo a questo percorso",
-			"noPaths": "Nessuna policy percorso configurata.",
-			"unavailable": "Policy non disponibile.",
-			"outcomes": {
-				"allow": "Consenti",
-				"deny": "Nega"
-			}
-		},
 		"operators": {
 			"title": "Operatori",
 			"description": "Rivedi gli operatori con incarichi specifici disponibili in Friday.",
@@ -878,7 +855,7 @@
 			"identity": "Identita",
 			"configuration": "Configurazione",
 			"fridayBreadcrumb": "Friday",
-			"assistantName": "Agente",
+			"assistantName": "AI Assistant",
 			"fridayDescription": "Risponde alle domande, pianifica il lavoro e usa strumenti.",
 			"speechTranscriberName": "Speech to Text",
 			"speechTranscriberDescription": "Trascrive l'audio del microfono in testo.",
@@ -967,9 +944,6 @@
 			"detailSafety": "Sicurezza",
 			"detailVisibility": "Visibilità",
 			"detailAuthor": "Autore",
-			"detailLicense": "Licenza",
-			"detailCompatibility": "Compatibilità",
-			"detailSupportFiles": "File di supporto",
 			"detailTools": "Strumenti",
 			"detailConnectors": "Connettori",
 			"detailTags": "Tag",

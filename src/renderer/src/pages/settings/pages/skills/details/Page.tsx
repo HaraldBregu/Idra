@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AlertTriangle, Download, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { SkillDetails } from '../../../../../../../shared/skills';
+import type { SkillInfo } from '../../../../../../../shared/skills';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -26,12 +26,21 @@ function compactList(values: readonly string[] | undefined, emptyLabel: string):
 	return values && values.length > 0 ? values.join(', ') : emptyLabel;
 }
 
+function metadataFlag(skill: SkillInfo, key: string): boolean | undefined {
+	const value = skill.manifest.metadata?.[key];
+	return typeof value === 'boolean' ? value : undefined;
+}
+
+function skillVersion(skill: SkillInfo): string {
+	return skill.manifest.version?.trim() || '0.1.0';
+}
+
 const SkillDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { skillId } = useParams<{ skillId: string }>();
 	const decodedSkillId = decodeURIComponent(skillId ?? '');
-	const [skill, setSkill] = useState<SkillDetails | null>(null);
+	const [skill, setSkill] = useState<SkillInfo | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [downloading, setDownloading] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -43,7 +52,8 @@ const SkillDetailsPage: React.FC = () => {
 		setLoading(true);
 		setErrorMessage('');
 		try {
-			setSkill(await window.skills.load(decodedSkillId));
+			const list = await window.skills.list();
+			setSkill(list.find((item) => item.id === decodedSkillId) ?? null);
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, loadErrorFallback));
 			setSkill(null);
@@ -66,7 +76,7 @@ const SkillDetailsPage: React.FC = () => {
 			if (downloaded) {
 				setSuccessMessage(
 					t('settings.skills.downloaded', {
-						name: skill.name,
+						name: skill.manifest.name,
 						path: downloaded.destinationPath,
 					})
 				);
@@ -80,7 +90,7 @@ const SkillDetailsPage: React.FC = () => {
 
 	const handleDelete = useCallback(async (): Promise<void> => {
 		if (!skill) return;
-		const message = t('settings.skills.confirmDelete', { name: skill.name });
+		const message = t('settings.skills.confirmDelete', { name: skill.manifest.name });
 		if (!window.confirm(message)) return;
 
 		setDeleting(true);
@@ -131,8 +141,8 @@ const SkillDetailsPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={skill.name}
-				description={skill.description || t('settings.skills.noDescription')}
+				title={skill.manifest.name}
+				description={skill.manifest.description || t('settings.skills.noDescription')}
 				action={
 					<div className="flex flex-wrap items-center gap-1.5">
 						<Button
@@ -169,32 +179,86 @@ const SkillDetailsPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection hideTitle title={t('settings.skills.details')}>
+			<SettingsSection title={t('settings.skills.details')}>
 				<SettingsPanel>
 					<SkillDetail label={t('settings.skills.detailId')} value={skill.id} mono />
 					<SkillDetail
-						label={t('settings.skills.detailLicense')}
-						value={skill.frontmatter.license || t('settings.skills.none')}
+						label={t('settings.skills.detailFormat')}
+						value={skill.structure?.standard || t('settings.skills.none')}
+					/>
+					<SkillDetail label={t('settings.skills.detailVersion')} value={skillVersion(skill)} />
+					<SkillDetail
+						label={t('settings.skills.detailCategory')}
+						value={skill.manifest.category || t('settings.skills.none')}
 					/>
 					<SkillDetail
-						label={t('settings.skills.detailCompatibility')}
-						value={skill.frontmatter.compatibility || t('settings.skills.none')}
+						label={t('settings.skills.detailSafety')}
+						value={skill.manifest.safetyLevel || t('settings.skills.none')}
+					/>
+					<SkillDetail
+						label={t('settings.skills.detailVisibility')}
+						value={skill.manifest.visibility || t('settings.skills.none')}
+					/>
+					<SkillDetail
+						label={t('settings.skills.detailAuthor')}
+						value={skill.manifest.author || t('settings.skills.none')}
 					/>
 					<SkillDetail
 						label={t('settings.skills.detailTools')}
-						value={compactList(skill.frontmatter.allowedTools, t('settings.skills.none'))}
+						value={compactList(
+							[
+								...(skill.manifest.requiredTools ?? []),
+								...(skill.manifest.allowedTools ?? []),
+							],
+							t('settings.skills.none')
+						)}
 					/>
 					<SkillDetail
-						label={t('settings.skills.detailSupportFiles')}
+						label={t('settings.skills.detailConnectors')}
+						value={compactList(skill.manifest.requiredConnectors, t('settings.skills.none'))}
+					/>
+					<SkillDetail
+						label={t('settings.skills.detailTags')}
+						value={compactList(skill.manifest.tags, t('settings.skills.none'))}
+					/>
+					<SkillDetail
+						label={t('settings.skills.detailModel')}
 						value={
-							skill.supportFiles.length > 0
-								? skill.supportFiles.map((file) => file.relativePath).join(', ')
-								: t('settings.skills.none')
+							metadataFlag(skill, 'disableModelInvocation') === true
+								? t('settings.skills.modelHidden')
+								: t('settings.skills.modelVisible')
 						}
 					/>
-					<SkillDetail label={t('settings.skills.detailFolder')} value={skill.location} mono />
+					<SkillDetail label={t('settings.skills.detailFolder')} value={skill.folderPath} mono />
+					<SkillDetail
+						label={t('settings.skills.detailSkillFile')}
+						value={skill.skillPath || t('settings.skills.none')}
+						mono
+					/>
 				</SettingsPanel>
 			</SettingsSection>
+
+			{skill.diagnostics && skill.diagnostics.length > 0 && (
+				<SettingsSection title={t('settings.skills.detailDiagnostics')}>
+					<SettingsPanel>
+						{skill.diagnostics.map((diagnostic) => (
+							<Item
+								key={`${diagnostic.code}:${diagnostic.message}`}
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 last:border-b-0"
+							>
+								<ItemContent className="min-w-0 flex-col items-start gap-1">
+									<ItemTitle className="max-w-full truncate">{diagnostic.code}</ItemTitle>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{diagnostic.message}
+									</p>
+								</ItemContent>
+							</Item>
+						))}
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };

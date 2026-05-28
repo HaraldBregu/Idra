@@ -1,7 +1,7 @@
 import {
 	evaluateBeforeAgentRunHooks,
 	type BeforeAgentRunEvent,
-} from '../../../../src/main/agent';
+} from '../../../../src/main/agent/before-agent-run';
 
 const event: BeforeAgentRunEvent = {
 	prompt: 'raw secret prompt',

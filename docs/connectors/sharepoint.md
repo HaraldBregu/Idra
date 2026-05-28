@@ -13,15 +13,15 @@ Official provider documentation was checked on 2026-05-24.
 | Connector id        | `connector_sharepoint`                                                                                                    |
 | Direct connector id | `sharepoint_onedrive`                                                                                                     |
 | Runtime status      | Settings catalog only                                                                                                     |
-| Auth kind           | MCP env variables                                                                                                 |
+| Auth kind           | Manual OAuth access token                                                                                                 |
 | Setup URL           | [Microsoft Entra app registrations](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) |
 
 ## Implementation
 
 SharePoint metadata is defined in
-the dynamic connector catalog returned by the connectors API and
+[`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts) and
 receives a docs/runtime label from
-dynamic connector metadata.
+[`PROVIDER_CONNECTOR_DOCS`](../../src/shared/connector/provider-docs.ts).
 
 `ConnectorsService` can store and test this connector as catalog metadata. It
 does not have a local runtime strategy, so `createAgentTools()` does not expose
@@ -64,7 +64,7 @@ and document fetch.
 1. Create or open an app registration in Microsoft Entra.
 2. Grant the listed Microsoft Graph files and sites permissions.
 3. Complete OAuth for the account or tenant-approved app.
-4. Paste the access token into the connector MCP config for local
+4. Paste the access token into the connector authorization field for local
    catalog testing.
 5. Keep `allowedTools` limited to read/search tools until local execution and
    approval behavior are implemented.
@@ -84,5 +84,6 @@ and document fetch.
 
 ## Related Source
 
-- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
+- [`src/shared/connector/connectors.ts`](../../src/shared/connector/connectors.ts)
+- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
 - [`docs/providers/microsoft/sharepoint/index.md`](../providers/microsoft/sharepoint/index.md)

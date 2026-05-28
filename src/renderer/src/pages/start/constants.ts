@@ -34,9 +34,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Powers chat replies, reasoning, summaries, and planning.',
 		icon: Bot,
 		required: true,
-		getOperator: () => window.store.getAssistantOperator(),
+		getOperator: () => window.app.getAssistantOperator(),
 		getModels: (provider) => window.app.getModels(provider),
-		saveOperator: (provider, model) => window.store.saveAssistantOperator(provider, model),
+		saveOperator: (provider, model) => window.app.saveAssistantOperator(provider, model),
 	},
 	{
 		id: SPEECH_TO_TEXT_OPERATOR_ID,
@@ -46,9 +46,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Transcribes your voice and audio into text before Friday responds.',
 		icon: Mic,
 		required: false,
-		getOperator: () => window.store.getSpeechToTextOperator(),
+		getOperator: () => window.app.getSpeechToTextOperator(),
 		getModels: (provider) => window.app.getSpeechToTextModels(provider),
-		saveOperator: (provider, model) => window.store.saveSpeechToTextOperator(provider, model),
+		saveOperator: (provider, model) => window.app.saveSpeechToTextOperator(provider, model),
 	},
 	{
 		id: TEXT_TO_SPEECH_OPERATOR_ID,
@@ -58,9 +58,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'The voice Friday uses when reading responses and content aloud.',
 		icon: Volume2,
 		required: false,
-		getOperator: () => window.store.getTextToSpeechOperator(),
+		getOperator: () => window.app.getTextToSpeechOperator(),
 		getModels: (provider) => window.app.getTextToSpeechModels(provider),
-		saveOperator: (provider, model) => window.store.saveTextToSpeechOperator(provider, model),
+		saveOperator: (provider, model) => window.app.saveTextToSpeechOperator(provider, model),
 	},
 	{
 		id: IMAGE_CREATOR_OPERATOR_ID,
@@ -70,9 +70,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Creates images and visual assets from your text prompts.',
 		icon: ImageIcon,
 		required: false,
-		getOperator: () => window.store.getImageCreatorOperator(),
+		getOperator: () => window.app.getImageCreatorOperator(),
 		getModels: (provider) => window.app.getImageCreatorModels(provider),
-		saveOperator: (provider, model) => window.store.saveImageCreatorOperator(provider, model),
+		saveOperator: (provider, model) => window.app.saveImageCreatorOperator(provider, model),
 	},
 	{
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
@@ -82,9 +82,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Generates and edits short clips from prompts or existing footage.',
 		icon: Video,
 		required: false,
-		getOperator: () => window.store.getTextToVideoOperator(),
+		getOperator: () => window.app.getTextToVideoOperator(),
 		getModels: (provider) => window.app.getTextToVideoModels(provider),
-		saveOperator: (provider, model) => window.store.saveTextToVideoOperator(provider, model),
+		saveOperator: (provider, model) => window.app.saveTextToVideoOperator(provider, model),
 	},
 	{
 		id: MUSIC_CREATOR_OPERATOR_ID,
@@ -94,9 +94,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Composes songs, loops, and short audio pieces.',
 		icon: Music,
 		required: false,
-		getOperator: () => window.store.getMusicCreatorOperator(),
+		getOperator: () => window.app.getMusicCreatorOperator(),
 		getModels: (provider) => window.app.getMusicCreatorModels(provider),
-		saveOperator: (provider, model) => window.store.saveMusicCreatorOperator(provider, model),
+		saveOperator: (provider, model) => window.app.saveMusicCreatorOperator(provider, model),
 	},
 ];
 
@@ -122,7 +122,7 @@ export const STEP_COPY: Record<'presentation' | 'providers', { title: string; de
 		presentation: {
 			title: 'Welcome to Friday',
 			description:
-				'Friday is a personal AI assistant that can learn how to work with you, then connect to the providers and tools you choose.',
+				'Connect your AI providers and pick a model for each capability. It only takes a minute.',
 		},
 		providers: {
 			title: 'Connect a provider',

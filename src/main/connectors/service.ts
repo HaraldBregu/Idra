@@ -1,158 +1,130 @@
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { createServer, type Server, type ServerResponse } from 'node:http';
-import type { AddressInfo } from 'node:net';
+import { randomUUID } from 'node:crypto';
+import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
-import Store from 'electron-store';
-import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
-import type {
-	ConnectorCallToolOptions,
-	ConnectorCatalogEntry,
-	ConnectorConfig,
-	ConnectorMcpConfig,
-	ConnectorOAuthAuthorizeResult,
-	ConnectorOAuthCompleteInput,
-	ConnectorOAuthTokenSet,
-	ConnectorProviderId,
-	ConnectorTestResult,
-	ConnectorTool,
-	ConnectorToolPermission,
+import type { StoreService } from '../store';
+import type { LoggerService } from '../logger';
+import type { SkillConnector } from '../skills/core/types';
+import type { AgentTool, ToolContext } from '../tools/types';
+import { textResult } from '../tools/types';
+import {
+	OPENAI_CONNECTOR_CATALOG,
+	getConnectorAuthKind,
+	getConnectorCatalogItem,
+	isOpenAiConnectorId,
+	type ConnectorConfig,
+	type ConnectorInput,
+	type ConnectorOAuthConnectResult,
+	type ConnectorStatus,
+	type ConnectorTestResult,
+	type ConnectorTool,
+	type ConnectorView,
+	type GoogleOAuthCredential,
+	type OpenAiConnectorId,
 } from '../../shared/connector';
 import {
-	authorizationFromMcp,
-	connectorCanUseTools,
-	connectorAuthKindFor,
-	connectorHasAuthorization,
-	connectorStatusFor,
-} from './config';
-import { textResult, type AgentTool } from '../tools';
+	GOOGLE_OAUTH_REDIRECT_URI,
+	GoogleProfileClient,
+	buildGoogleAuthorizationUrl,
+	createGooglePkcePair,
+	exchangeGoogleAuthorizationCode,
+	mergeGoogleOAuthCredential,
+	refreshGoogleAccessToken,
+	scopesForGoogleConnectorTools,
+	type FetchLike,
+} from './google';
 import {
-	connectorAuthorization,
-	isConnectorToolRecord,
-	isStoredConnectorValid,
-	normalizeConnectorTool,
-	normalizeConnectorTools,
-	normalizeStoredConnector,
-	oauthAuthorizationHeader,
-	serverLabelFromName,
-	toStoredConnectorRecords,
-	tokenFromAuthorization,
-	uniqueConnectorStorageKey,
-	type RuntimeConnector,
-} from './format';
-import { assertConnectorId, sanitizeConnectorInput } from './input';
+	GmailRuntimeStrategy,
+	GoogleCalendarRuntimeStrategy,
+	GoogleDriveRuntimeStrategy,
+} from './google-strategies';
+import type { ConnectorRuntimeStrategy } from './runtime';
 
-const CONNECTOR_STORE_NAME = 'connectors';
-const CONNECTOR_STORE_KEY = 'connectors';
-const CONNECTOR_TOOLS_STORE_KEY = 'tools';
-const CONNECTORS_LOG_SOURCE = 'ConnectorsService';
-interface ConnectorPersistenceStore {
-	get(key: string): unknown;
-	set(key: string, value: unknown): void;
-	delete(key: string): void;
-	store?: Record<string, unknown>;
+const GOOGLE_CONNECTOR_IDS = new Set([
+	'connector_gmail',
+	'connector_googlecalendar',
+	'connector_googledrive',
+]);
+const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
+const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
+
+type GoogleOAuthRuntimeCredential = GoogleOAuthCredential & { clientId: string };
+
+interface OAuthLoopbackServer {
+	redirectUri: string;
+	callback: Promise<{ code: string }>;
+	close: () => void;
 }
-
-interface ConnectorToolPersistenceStore {
-	get(key: string): unknown;
-	set(key: string, value: Record<string, ConnectorTool[]>): void;
-	delete(key: string): void;
-}
-
-interface ConnectorLogger {
-	debug(source: string, message: string, data?: unknown): void;
-	warn(source: string, message: string, data?: unknown): void;
-	error(source: string, message: string, data?: unknown): void;
-}
-
-export interface ConnectorToolRuntime {
-	test(id: string): Promise<ConnectorTestResult>;
-	reconnect(id: string): Promise<ConnectorTestResult>;
-	refreshTools(id: string): Promise<ConnectorTool[]>;
-	listTools(id: string): ConnectorTool[];
-	callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown>;
-	closeConnector(id: string): Promise<void>;
-}
-
-export interface ConnectorToolSearchInput {
-	query?: string;
-	connectorId?: string;
-	limit?: number;
-	includeBlocked?: boolean;
-}
-
-export interface ConnectorExecutableTool {
-	id: string;
-	name: string;
-	displayName: string;
-	description: string;
-	connectorId: string;
-	connectorName: string;
-	connectorProviderId: ConnectorProviderId;
-	toolName: string;
-	inputSchema?: Record<string, unknown>;
-	permission: ConnectorToolPermission;
-	requiresApproval: boolean;
-	score: number;
-}
-
-export interface ConnectorToolExecCommand {
-	connectorId: string;
-	toolName: string;
-	args?: Record<string, unknown>;
-	options?: ConnectorCallToolOptions;
-}
-
-export interface ConnectorToolServicePort {
-	list(): ConnectorConfig[];
-	refreshTools(id: string): Promise<ConnectorTool[]>;
-	searchTools(input?: ConnectorToolSearchInput | string): ConnectorExecutableTool[];
-	execTool(command: ConnectorToolExecCommand): Promise<unknown>;
-}
-
-type ConnectorCatalogProvider =
-	| readonly ConnectorCatalogEntry[]
-	| (() => readonly ConnectorCatalogEntry[] | Promise<readonly ConnectorCatalogEntry[]>);
-type OAuthCallbackListenerFactory = (state: string, timeoutMs?: number) => Promise<OAuthCallbackListener>;
 
 interface ConnectorsServiceOptions {
-	store?: ConnectorPersistenceStore;
-	toolStore?: ConnectorToolPersistenceStore;
-	storeCwd?: string;
-	catalogProvider?: ConnectorCatalogProvider;
-	openExternalUrl?: (url: string) => Promise<void>;
-	fetch?: typeof fetch;
-	oauthCallbackTimeoutMs?: number;
-	oauthCallbackListenerFactory?: OAuthCallbackListenerFactory;
-	env?: NodeJS.ProcessEnv;
+	fetchImpl?: FetchLike;
+	openExternal?: (url: string) => Promise<void>;
+	createOAuthLoopbackServer?: (expectedState: string) => Promise<OAuthLoopbackServer>;
+	oauthRedirectUri?: string;
+	oauthTimeoutMs?: number;
+	googleOAuthClientId?: string;
+	googleOAuthClientSecret?: string;
 }
 
-interface OAuthCallbackListener {
-	redirectUri: string;
-	code: Promise<string>;
-	close(): Promise<void>;
+function serverLabelFromName(name: string): string {
+	return name
+		.trim()
+		.toLowerCase()
+		.replace(/[^a-z0-9_-]+/g, '_')
+		.replace(/^_+|_+$/g, '');
 }
 
-interface OAuthTokenExchangeInput {
-	state: string;
-	code: string;
-	codeVerifier: string;
-	redirectUri: string;
-	clientId: string;
-	clientSecret?: string;
-	fetch: typeof fetch;
+function knownTools(connector: ConnectorConfig): ConnectorTool[] {
+	const catalog = getConnectorCatalogItem(connector.connectorId);
+	const allowed = new Set(connector.allowedTools);
+	const names = catalog?.tools.filter((tool) => allowed.size === 0 || allowed.has(tool)) ?? [];
+
+	return names.map((name) => ({
+		name,
+		description: descriptionForTool(connector, name),
+		inputSchema: schemaForTool(connector, name),
+		requiresApproval: requiresApprovalForTool(connector, name),
+	}));
 }
 
-function toView(connector: RuntimeConnector): ConnectorConfig {
-	const redacted = redactConnectorSecrets(connector);
+function dedupeByConnectorId(connectors: ConnectorConfig[]): ConnectorConfig[] {
+	const seen = new Set<string>();
+	return connectors.filter((connector) => {
+		if (seen.has(connector.connectorId)) return false;
+		seen.add(connector.connectorId);
+		return true;
+	});
+}
+
+function statusFor(connector: ConnectorConfig): ConnectorStatus {
+	if (!connector.enabled) return 'disabled';
+	if (connector.lastError) return 'error';
+	if (isGoogleConnector(connector.connectorId)) {
+		return connector.oauth?.refreshToken ||
+			connector.oauth?.accessToken ||
+			connector.authorization?.trim()
+			? 'configured'
+			: 'missing_auth';
+	}
+	if (!connector.authorization?.trim()) return 'missing_auth';
+	return 'configured';
+}
+
+function toView(connector: ConnectorConfig): ConnectorView {
 	return {
-		...redacted,
-		authKind: connectorAuthKindFor(connector),
-		status: connectorStatusFor(connector),
+		id: connector.id,
+		name: connector.name,
+		connectorId: connector.connectorId,
+		authKind: getConnectorAuthKind(connector.connectorId),
+		serverLabel: connector.serverLabel,
+		enabled: connector.enabled,
+		status: statusFor(connector),
+		requireApproval: connector.requireApproval,
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
-		hasToken: connectorHasAuthorization(connector),
-		hasTools: connector.tools.length > 0,
-		connectedAccount: connector.oauth?.accountEmail,
+		deferLoading: connector.deferLoading,
+		lastRefreshedAt: connector.lastRefreshedAt,
+		lastError: connector.lastError,
+		connectedAccount: connector.oauth?.email,
 	};
 }
 
@@ -160,226 +132,164 @@ function requireObject(value: unknown, label: string): Record<string, unknown> {
 	if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
 		return value as Record<string, unknown>;
 	}
-	throw new Error(label + ' is required.');
-}
-
-function readRecord(value: unknown): Record<string, unknown> | undefined {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
-	return value as Record<string, unknown>;
+	throw new Error(`${label} is required.`);
 }
 
 function readOptionalString(params: Record<string, unknown>, key: string): string | undefined {
 	const value = params[key];
 	if (value === undefined || value === null) return undefined;
-	if (typeof value !== 'string') throw new Error(key + ' must be a string.');
+	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
 	return value;
 }
 
-function readRequiredString(value: unknown, label: string): string {
-	if (typeof value !== 'string') throw new Error(label + ' must be a string.');
-	const trimmed = value.trim();
-	if (!trimmed) throw new Error(label + ' is required.');
-	return trimmed;
+function readOptionalBoolean(params: Record<string, unknown>, key: string): boolean | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value !== 'boolean') throw new Error(`${key} must be a boolean.`);
+	return value;
+}
+
+function readOptionalStringArray(
+	params: Record<string, unknown>,
+	key: string
+): string[] | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
+		throw new Error(`${key} must be an array of strings.`);
+	}
+	return value.map((entry) => entry.trim()).filter(Boolean);
+}
+
+function readOptionalApprovalMode(
+	params: Record<string, unknown>,
+	key: string
+): ConnectorInput['requireApproval'] | undefined {
+	const value = readOptionalString(params, key);
+	if (value === undefined) return undefined;
+	if (value === 'always' || value === 'never' || value === 'never_for_allowed_tools') return value;
+	throw new Error(`${key} must be one of: always, never, never_for_allowed_tools.`);
+}
+
+function sanitizeInput(input: unknown): ConnectorInput {
+	const raw = requireObject(input, 'Connector configuration');
+	const name = readOptionalString(raw, 'name')?.trim() ?? '';
+	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? '';
+	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
+	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || serverLabelFromName(name);
+	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim();
+	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? 'always';
+	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
+	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? false;
+	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
+
+	if (!name) throw new Error('Connector name is required.');
+	if (!isOpenAiConnectorId(connectorId))
+		throw new Error(`Unsupported connector id: ${connectorId}`);
+	if (!serverLabel) throw new Error('Server label is required.');
+	if (!/^[a-zA-Z0-9_-]+$/.test(serverLabel)) {
+		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
+	}
+
+	const catalog = getConnectorCatalogItem(connectorId);
+	const knownToolNames = new Set<string>(catalog?.tools ?? []);
+	const uniqueAllowedTools = Array.from(
+		new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean))
+	);
+	const unknownTool = uniqueAllowedTools.find((tool) => !knownToolNames.has(tool));
+	if (unknownTool) {
+		throw new Error(`Tool "${unknownTool}" is not available for ${catalog?.name ?? connectorId}.`);
+	}
+
+	return {
+		name,
+		connectorId,
+		serverLabel,
+		serverDescription: serverDescription || catalog?.description,
+		authorization,
+		requireApproval,
+		allowedTools: uniqueAllowedTools,
+		deferLoading,
+		enabled,
+	};
 }
 
 export class ConnectorsService {
-	private readonly store: ConnectorPersistenceStore;
-	private readonly toolStore?: ConnectorToolPersistenceStore;
-	private toolRuntime?: ConnectorToolRuntime;
-	private readonly runtimeConnectors = new Map<string, RuntimeConnector>();
-	private readonly pendingOAuthConnectors = new Map<string, RuntimeConnector>();
+	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> =
+		{
+			connector_gmail: new GmailRuntimeStrategy({
+				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+				fetchImpl: () => this.fetchImpl(),
+				listTools: knownTools,
+			}),
+			connector_googlecalendar: new GoogleCalendarRuntimeStrategy({
+				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+				fetchImpl: () => this.fetchImpl(),
+				listTools: knownTools,
+			}),
+			connector_googledrive: new GoogleDriveRuntimeStrategy({
+				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
+				fetchImpl: () => this.fetchImpl(),
+				listTools: knownTools,
+			}),
+		};
 
 	constructor(
-		private readonly logger: ConnectorLogger,
+		private readonly store: StoreService,
+		private readonly logger: LoggerService,
 		private readonly options: ConnectorsServiceOptions = {}
-	) {
-		this.store =
-			options.store ??
-			(new Store<Record<string, unknown>>({
-				name: CONNECTOR_STORE_NAME,
-				...(options.storeCwd ? { cwd: options.storeCwd } : {}),
-				accessPropertiesByDotNotation: false,
-			}) as ConnectorPersistenceStore);
-		this.toolStore = options.toolStore;
+	) {}
+
+	catalog(): typeof OPENAI_CONNECTOR_CATALOG {
+		return OPENAI_CONNECTOR_CATALOG;
 	}
 
-	setToolRuntime(runtime: ConnectorToolRuntime): void {
-		this.toolRuntime = runtime;
-	}
-
-	async catalog(): Promise<ConnectorCatalogEntry[]> {
-		const catalogEntries = await this.catalogEntriesFromProvider();
-		const oauthConnectorIds = new Set(catalogEntries.filter((entry) => entry.oauth).map((entry) => entry.id));
-		return mergeCatalogEntries([
-			...catalogEntries,
-			...this.validConnectors()
-				.filter((connector) => !connector.oauth && !oauthConnectorIds.has(connector.connectorId))
-				.map((connector) => this.catalogEntryFromConnector(connector)),
-		]);
-	}
-
-	list(): ConnectorConfig[] {
+	list(): ConnectorView[] {
 		return this.validConnectors().map(toView);
 	}
 
-	getConnectorSettings(): ConnectorConfig[] {
-		return this.validConnectors().map(redactConnectorSecrets);
-	}
-
 	get(id: string): ConnectorConfig {
-		return redactConnectorSecrets(this.getStored(id));
+		const connector = this.getStored(id);
+		return redactConnectorSecrets(connector);
 	}
 
-	async authorizeOAuth(input: unknown): Promise<ConnectorOAuthAuthorizeResult> {
-		const connectorId = readRequiredString(
-			requireObject(input, 'OAuth authorization request').connectorId,
-			'Connector id'
-		);
-		const definition = await this.oauthCatalogEntry(connectorId, input);
-		if (!definition?.oauth) throw new Error('OAuth connector not found: ' + connectorId);
-
-		const clientIdEnv = definition.oauth.clientIdEnv;
-		const clientId = this.options.env?.[clientIdEnv] ?? process.env[clientIdEnv];
-		if (!clientId?.trim()) throw new Error('Missing OAuth client id environment variable: ' + clientIdEnv);
-
-		const state = randomUUID();
-		const codeVerifier = createPkceCodeVerifier();
-		const codeChallenge = createPkceCodeChallenge(codeVerifier);
-		const callback = await (this.options.oauthCallbackListenerFactory ?? createOAuthCallbackListener)(
-			state,
-			this.options.oauthCallbackTimeoutMs
-		);
-		const authorizationUrl = oauthAuthorizationUrl(
-			definition,
-			clientId.trim(),
-			state,
-			callback.redirectUri,
-			codeChallenge
-		);
-		const now = new Date().toISOString();
-		const existing = this.validConnectors().find((connector) => connector.connectorId === definition.id);
-		const requireApproval = existing?.requireApproval ?? 'always';
-		const allowedTools = existing?.allowedTools ?? [];
-		const connector: RuntimeConnector = {
-			id: existing?.id ?? definition.id,
-			name: existing?.name ?? definition.name,
-			connectorId: definition.id,
-			authKind: 'oauth',
-			serverLabel: existing?.serverLabel ?? serverLabelFromName(definition.name),
-			serverDescription: existing?.serverDescription,
-			enabled: true,
-			authorization: connectorAuthorization(existing),
-			token: existing?.token ?? existing?.oauth?.token ?? tokenFromAuthorization(authorizationFromMcp(existing?.mcp)),
-			requireApproval,
-			allowedTools,
-			deferLoading: existing?.deferLoading ?? false,
-			tools: normalizeConnectorTools(existing?.tools ?? [], DEFAULT_CONNECTOR_TOOL_PERMISSION),
-			createdAt: existing?.createdAt ?? now,
-			updatedAt: now,
-			mcp: existing?.mcp ?? definition.mcp,
-			oauth: {
-				providerId: definition.oauth.providerId,
-				authorizationUrl,
-				clientId: clientId.trim(),
-				redirectUri: callback.redirectUri,
-				scopes: definition.scopes,
-				state,
-				accountEmail: existing?.oauth?.accountEmail,
-				token: existing?.oauth?.token,
-			},
-		};
-		const next = normalizeStoredConnector(connector);
-
-		this.pendingOAuthConnectors.set(state, next);
-		this.replace(next);
-		try {
-			await (this.options.openExternalUrl ?? shell.openExternal)(authorizationUrl);
-			const code = await callback.code;
-			const completed = this.completeOAuth(await exchangeOAuthCode(definition, {
-				code,
-				state,
-				codeVerifier,
-				redirectUri: callback.redirectUri,
-				clientId: clientId.trim(),
-				clientSecret: this.oauthClientSecret(definition),
-				fetch: this.options.fetch ?? fetch,
-			}));
-			await this.closeConnectorClient(completed.id ?? definition.id);
-			return {
-				connectorId: definition.id,
-				authorizationUrl,
-				connector: completed,
-			};
-		} catch (error) {
-			this.replace({ ...next, lastError: this.errorMessage(error), updatedAt: new Date().toISOString() });
-			await this.closeConnectorClient(next.id);
-			throw error;
-		} finally {
-			await callback.close();
-		}
-	}
-
-	completeOAuth(input: unknown): ConnectorConfig {
-		const raw = requireObject(input, 'OAuth completion');
-		const state = readRequiredString(raw.state, 'OAuth state');
-		const accessToken = readRequiredString(raw.accessToken, 'OAuth access token');
-		const refreshToken = readOptionalString(raw, 'refreshToken')?.trim();
-		const tokenType = readOptionalString(raw, 'tokenType')?.trim();
-		const scope = readOptionalString(raw, 'scope')?.trim();
-		const accountEmail = readOptionalString(raw, 'accountEmail')?.trim();
-		const expiresIn = raw.expiresIn;
-		if (expiresIn !== undefined && (typeof expiresIn !== 'number' || !Number.isFinite(expiresIn) || expiresIn < 0)) {
-			throw new Error('OAuth expiresIn must be a non-negative number.');
-		}
-
-		const current = this.validConnectors().find((connector) => connector.oauth?.state === state) ??
-			this.pendingOAuthConnectors.get(state);
-		if (!current?.oauth) throw new Error('OAuth connector not found for state: ' + state);
-		const token = {
-			accessToken,
-			refreshToken,
-			tokenType,
-			scope,
-			expiresAt: typeof expiresIn === 'number'
-				? new Date(Date.now() + expiresIn * 1000).toISOString()
-				: undefined,
-		};
-		const next: RuntimeConnector = {
-			...current,
-			authorization: oauthAuthorizationHeader(token),
-			token,
-			lastError: undefined,
-			updatedAt: new Date().toISOString(),
-			oauth: {
-				...current.oauth,
-				accountEmail: accountEmail || current.oauth.accountEmail,
-				token,
-			},
-		};
-		this.pendingOAuthConnectors.set(state, next);
-		this.replace(next);
-		return redactConnectorSecrets(next);
+	private getStored(id: string): ConnectorConfig {
+		const connector = this.validConnectors().find((item) => item.id === id);
+		if (!connector) throw new Error(`Connector not found: ${id}`);
+		return connector;
 	}
 
 	restoreEnabledConnectors(): void {
-		this.writeAll(this.validConnectors());
+		const validConnectors = this.validConnectors();
+		if (validConnectors.length !== this.store.getConnectors().length) {
+			this.store.setConnectors(validConnectors);
+		}
+
+		for (const connector of validConnectors) {
+			if (connector.enabled && connector.tools.length === 0) {
+				this.replace(this.withKnownTools(connector));
+			}
+		}
 	}
 
 	async add(input: unknown): Promise<ConnectorConfig> {
-		const sanitized = this.validateConnectorInput('add', () => sanitizeConnectorInput(input));
+		const sanitized = sanitizeInput(input);
+		if (
+			this.store
+				.getConnectors()
+				.some((connector) => connector.connectorId === sanitized.connectorId)
+		) {
+			throw new Error(`Connector ${sanitized.connectorId} is already configured.`);
+		}
 		const now = new Date().toISOString();
-		const serverLabel = uniqueConnectorStorageKey(
-			sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
-			this.validConnectors()
-		);
-		const connector: RuntimeConnector = {
-			id: serverLabel,
+		const connector: ConnectorConfig = {
+			id: randomUUID(),
 			name: sanitized.name,
 			connectorId: sanitized.connectorId,
-			authKind: sanitized.authKind,
-			serverLabel,
+			serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
 			serverDescription: sanitized.serverDescription,
-			authorization: '',
+			authorization: sanitized.authorization ?? '',
+			oauth: buildOAuthConfig(sanitized, undefined, this.oauthRedirectUri()),
 			requireApproval: sanitized.requireApproval ?? 'always',
 			allowedTools: sanitized.allowedTools ?? [],
 			deferLoading: sanitized.deferLoading ?? false,
@@ -387,38 +297,41 @@ export class ConnectorsService {
 			createdAt: now,
 			updatedAt: now,
 			enabled: sanitized.enabled ?? true,
-			mcp: sanitized.mcp,
 		};
-		const next = normalizeStoredConnector(connector);
-		this.writeConnector(next);
+		const next = this.withKnownTools(connector);
+		this.store.setConnectors([...this.store.getConnectors(), next]);
 		return redactConnectorSecrets(next);
 	}
 
 	async update(id: string, input: unknown): Promise<ConnectorConfig> {
 		const current = this.getStored(id);
-		const sanitized = this.validateConnectorInput('update', () => sanitizeConnectorInput(input, current));
-		const next = normalizeStoredConnector({
+		const patch = requireObject(input, 'Connector update');
+		const merged = sanitizeInput({
+			name: readOptionalString(patch, 'name') ?? current.name,
+			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
+			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
+			serverDescription:
+				readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
+			requireApproval:
+				readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
+			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
+			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
+			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
+		});
+		const next = this.withKnownTools({
 			...current,
-			...sanitized,
-			authorization: '',
+			...merged,
+			oauth: buildOAuthConfig(merged, current.oauth, this.oauthRedirectUri()),
 			lastError: undefined,
 			updatedAt: new Date().toISOString(),
 		});
 		this.replace(next);
-		await this.closeConnectorClient(id);
 		return redactConnectorSecrets(next);
 	}
 
 	async remove(id: string): Promise<void> {
-		const connectors = this.validConnectors();
-		const connector = connectors.find((item) => item.id === id);
-		if (!connector) {
-			this.logDebug('Skipped connector delete because it was not configured', { id });
-			return;
-		}
-		this.writeAll(connectors.filter((item) => item.id !== id));
-		await this.closeConnectorClient(connector.id);
-		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
+		this.store.setConnectors(this.store.getConnectors().filter((connector) => connector.id !== id));
 	}
 
 	async enable(id: string): Promise<ConnectorConfig> {
@@ -430,633 +343,719 @@ export class ConnectorsService {
 	}
 
 	async test(id: string): Promise<ConnectorTestResult> {
-		return this.requireToolRuntime().test(id);
+		const connector = this.getStored(id);
+		const status = statusFor(connector);
+
+		if (status === 'configured') {
+			const runtime = this.runtimeFor(connector);
+			return {
+				status,
+				message: isGoogleConnector(connector.connectorId)
+					? `Google connector is connected${connector.oauth?.email ? ` as ${connector.oauth.email}` : ''}.`
+					: runtime
+						? 'Connector is configured for local agent tool execution.'
+						: 'Connector is configured for catalog/provider-hosted use. Local agent execution is not implemented.',
+			};
+		}
+
+		if (status === 'missing_auth') {
+			return {
+				status,
+				message: isGoogleConnector(connector.connectorId)
+					? 'Google OAuth connection is required for this connector.'
+					: 'OAuth access token is required for this connector.',
+			};
+		}
+
+		if (status === 'disabled') {
+			return { status, message: 'Connector is disabled.' };
+		}
+
+		return { status, message: connector.lastError ?? 'Connector has a configuration error.' };
 	}
 
 	async reconnect(id: string): Promise<ConnectorTestResult> {
-		return this.requireToolRuntime().reconnect(id);
+		return this.test(id);
+	}
+
+	async connectOAuth(id: string): Promise<ConnectorOAuthConnectResult> {
+		const connector = this.getStored(id);
+		if (!isGoogleConnector(connector.connectorId)) {
+			throw new Error(
+				`Connector ${connector.connectorId} does not support local OAuth connection.`
+			);
+		}
+		const oauth = this.requireGoogleOAuthConfig(connector);
+		const state = randomUUID();
+		const scopes = scopesForGoogleConnectorTools(
+			connector.connectorId,
+			knownTools(connector).map((tool) => tool.name)
+		);
+		const pkce = createGooglePkcePair();
+		const loopback = await this.openOAuthLoopbackServer(state);
+		const authorizationUrl = buildGoogleAuthorizationUrl({
+			clientId: oauth.clientId,
+			redirectUri: loopback.redirectUri,
+			state,
+			scopes,
+			codeChallenge: pkce.codeChallenge,
+			codeChallengeMethod: pkce.codeChallengeMethod,
+		});
+		try {
+			this.logger.info('ConnectorsService', `Opening Google OAuth consent for ${connector.name}`);
+			if (this.options.openExternal) {
+				await this.options.openExternal(authorizationUrl);
+			} else {
+				await shell.openExternal(authorizationUrl, { activate: true });
+			}
+			const { code } = await loopback.callback;
+			const token = await exchangeGoogleAuthorizationCode({
+				code,
+				clientId: oauth.clientId,
+				clientSecret: oauth.clientSecret,
+				redirectUri: loopback.redirectUri,
+				codeVerifier: pkce.codeVerifier,
+				fetchImpl: this.fetchImpl(),
+			});
+			const connected = mergeGoogleOAuthCredential(
+				{ ...oauth, redirectUri: loopback.redirectUri },
+				token
+			);
+			const profile = await new GoogleProfileClient(
+				connected.accessToken!,
+				this.fetchImpl()
+			).getUserInfo();
+			const next = this.withKnownTools({
+				...connector,
+				oauth: stripGoogleOAuthClientCredentials({
+					...connected,
+					email: profile.email,
+					connectedAt: new Date().toISOString(),
+				}),
+				lastError: undefined,
+				updatedAt: new Date().toISOString(),
+			});
+			this.replace(next);
+			return {
+				status: 'configured',
+				message: `Connected Google account${profile.email ? ` ${profile.email}` : ''}.`,
+				connectedAccount: profile.email,
+			};
+		} finally {
+			loopback.close();
+		}
 	}
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
-		return this.requireToolRuntime().refreshTools(id);
+		const connector = this.withKnownTools(this.getStored(id));
+		this.replace(connector);
+		return connector.tools;
 	}
 
 	listTools(id: string): ConnectorTool[] {
-		return this.requireToolRuntime().listTools(id);
+		return this.getStored(id).tools;
 	}
 
-	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
-		return this.requireToolRuntime().callTool(id, name, args, options);
-	}
-
-	searchTools(input: ConnectorToolSearchInput | string = {}): ConnectorExecutableTool[] {
-		const query = typeof input === 'string' ? input : input.query ?? '';
-		const connectorId = typeof input === 'string' ? undefined : input.connectorId;
-		const includeBlocked = typeof input !== 'string' && input.includeBlocked === true;
-		const limit = typeof input === 'string' ? undefined : input.limit;
-		const matches = this.validConnectors()
-			.filter((connector) => connectorCanUseTools(connector))
-			.filter((connector) => !connectorId || connector.id === connectorId || connector.connectorId === connectorId)
-			.flatMap((connector) => connector.tools
-				.filter((tool) => includeBlocked || tool.permission !== 'blocked')
-				.map((tool) => executableToolFor(connector, tool, query))
-			)
-			.filter((tool) => !query.trim() || tool.score > 0)
-			.sort((left, right) => right.score - left.score || left.name.localeCompare(right.name));
-		return typeof limit === 'number' && limit >= 0 ? matches.slice(0, limit) : matches;
-	}
-
-	async execTool(command: ConnectorToolExecCommand): Promise<unknown> {
-		return this.requireToolRuntime().callTool(
-			command.connectorId,
-			command.toolName,
-			command.args ?? {},
-			command.options
-		);
+	async callTool(id?: string, name?: string, args?: unknown, _options?: unknown): Promise<unknown> {
+		if (!id) throw new Error('Connector id is required.');
+		if (!name) throw new Error('Connector tool name is required.');
+		const connector = this.getStored(id);
+		if (statusFor(connector) !== 'configured') {
+			throw new Error(`Connector is not configured: ${connector.name}`);
+		}
+		const strategy = this.runtimeFor(connector);
+		if (!strategy) {
+			throw new Error(`Connector is catalog-only in local runtime: ${connector.connectorId}.`);
+		}
+		if (!connector.tools.some((tool) => tool.name === name)) {
+			throw new Error(`Tool ${name} is not enabled for ${connector.name}.`);
+		}
+		return strategy.callTool(connector, name, args);
 	}
 
 	createAgentTools(): AgentTool[] {
-		return this.searchTools().map((tool) => ({
-			name: tool.name,
-			displayName: tool.displayName,
-			description: tool.description,
-			schema: tool.inputSchema ?? { type: 'object', properties: {}, additionalProperties: true },
-			serviceKind: 'connector',
-			serviceId: tool.connectorId,
-			needsApproval: tool.requiresApproval,
-			execute: async (args: Record<string, unknown>) => {
-				try {
-					const payload = await this.execTool({
-						connectorId: tool.connectorId,
-						toolName: tool.toolName,
-						args,
-					});
-					return textResult(JSON.stringify(payload, null, 2));
-				} catch (error) {
-					return textResult(error instanceof Error ? error.message : String(error), true);
-				}
-			},
-		}));
-	}
-
-	listConnectorsForMcp(): ConnectorConfig[] {
-		return this.validConnectors();
-	}
-
-	getConnectorForMcp(id: string): ConnectorConfig {
-		return this.getStored(id);
-	}
-
-	saveConnectorFromMcp(connector: ConnectorConfig): ConnectorConfig {
-		const next = normalizeStoredConnector(connector);
-		this.replace(next);
-		return next;
-	}
-
-	private getStored(id: string): RuntimeConnector {
-		const connector = this.validConnectors().find((item) => item.id === id);
-		if (!connector) throw new Error('Connector not found: ' + id);
-		return connector;
-	}
-
-	private validConnectors(): RuntimeConnector[] {
-		return this.readStoredConnectors()
-			.map((connector) => this.mergeRuntimeConnector(connector))
-			.map((connector) => {
-				if (connector.tools.length > 0) return connector;
-				const legacyTools = this.readLegacyTools(connector.id);
-				return legacyTools.length > 0 ? { ...connector, tools: legacyTools } : connector;
-			});
-	}
-
-	private replace(connector: RuntimeConnector): void {
-		const connectors = this.validConnectors();
-		const next = connectors.some((item) => item.id === connector.id)
-			? connectors.map((item) => (item.id === connector.id ? connector : item))
-			: [...connectors, connector];
-		this.writeAll(next);
-		this.logDebug('Updated connector ' + connector.name, { connectorId: connector.connectorId });
-	}
-
-	private requireToolRuntime(): ConnectorToolRuntime {
-		if (!this.toolRuntime) throw new Error('Connector tool runtime is unavailable.');
-		return this.toolRuntime;
-	}
-
-	private async closeConnectorClient(id: string): Promise<void> {
-		await this.toolRuntime?.closeConnector(id);
-	}
-
-	private readStoredConnectors(): RuntimeConnector[] {
-		this.logDebug('Read connector settings');
-		const raw = this.readConnectorStore();
-		if (raw === undefined) return [];
-		if (Array.isArray(raw)) {
-			return raw.flatMap((entry, index) => this.normalizeStoredConnectorEntry(entry, index));
-		}
-		const record = readRecord(raw);
-		if (record) {
-			return Object.entries(record).flatMap(([key, entry], index) =>
-				this.normalizeStoredConnectorEntry(entry, index, key)
+		return this.validConnectors()
+			.filter(
+				(connector) =>
+					connector.enabled &&
+					statusFor(connector) === 'configured' &&
+					this.runtimeFor(connector) !== undefined
+			)
+			.flatMap((connector) =>
+				connector.tools.map((tool) => {
+					const rawToolName = tool.name;
+					const agentToolName = agentToolNameFor(connector, rawToolName);
+					return {
+						name: agentToolName,
+						description: `${connector.name}: ${descriptionForTool(connector, rawToolName)}`,
+						schema: schemaForTool(connector, rawToolName),
+						needsApproval: (_args: unknown, _ctx: ToolContext) =>
+							requiresApprovalForTool(connector, rawToolName),
+						execute: async (args: unknown) => {
+							try {
+								const payload = await this.callTool(connector.id, rawToolName, args);
+								return textResult(JSON.stringify(payload, null, 2));
+							} catch (error) {
+								return textResult(error instanceof Error ? error.message : String(error), true);
+							}
+						},
+					} satisfies AgentTool;
+				})
 			);
-		}
-		this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, reason: 'not_object' });
-		return [];
 	}
 
-	private normalizeStoredConnectorEntry(entry: unknown, index: number, storageKey?: string): RuntimeConnector[] {
-		const record = readRecord(entry);
-		if (!record) {
-			this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, reason: 'not_object' });
-			return [];
+	createSkillConnectors(): SkillConnector[] {
+		const connectors: SkillConnector[] = [];
+		const seen = new Set<string>();
+		for (const connector of this.validConnectors()) {
+			if (
+				!connector.enabled ||
+				statusFor(connector) !== 'configured' ||
+				this.runtimeFor(connector) === undefined
+			) {
+				continue;
 			}
-			const connector = record as unknown as ConnectorConfig;
-			if (!isStoredConnectorValid(connector, storageKey)) {
-				this.logWarn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY, index, connectorId: record.connectorId ?? storageKey });
-				return [];
+			const tools = new Set(connector.tools.map((tool) => tool.name));
+			for (const id of [connector.id, connector.connectorId, connector.serverLabel]) {
+				const normalized = id.trim();
+				if (!normalized || seen.has(normalized)) continue;
+				seen.add(normalized);
+				connectors.push({
+					id: normalized,
+					name: connector.name,
+					tools,
+					call: (toolName, args) => this.callTool(connector.id, toolName, args),
+				});
 			}
-		try {
-			return [normalizeStoredConnector(connector, storageKey)];
-		} catch (error) {
-			this.logError('Failed to normalize connector settings', { key: CONNECTOR_STORE_KEY, index, error: this.errorMessage(error) });
-			return [];
 		}
+		return connectors;
 	}
 
-	private readConnectorStore(): unknown {
-		try {
-			const root = this.store.store;
-			if (root && typeof root === 'object' && !Array.isArray(root)) {
-				const legacy = root[CONNECTOR_STORE_KEY];
-				return legacy === undefined ? root : legacy;
-			}
-			return this.store.get(CONNECTOR_STORE_KEY);
-		} catch (error) {
-			this.logError('Failed to read connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
-			throw error;
-		}
-	}
-
-	private writeConnector(connector: RuntimeConnector): void {
-		this.writeAll([...this.validConnectors(), connector]);
-	}
-
-	private writeAll(connectors: RuntimeConnector[]): void {
-		const records = toStoredConnectorRecords(connectors);
-		try {
-			this.runtimeConnectors.clear();
-			for (const connector of connectors) this.runtimeConnectors.set(connector.id, connector);
-			if ('store' in this.store) {
-				this.store.store = records;
-			} else {
-				this.store.set(CONNECTOR_STORE_KEY, records);
-			}
-			this.logDebug('Wrote connector settings', { key: CONNECTOR_STORE_KEY, count: connectors.length });
-		} catch (error) {
-			this.logError('Failed to write connector settings', { key: CONNECTOR_STORE_KEY, error: this.errorMessage(error) });
-			throw error;
-		}
-	}
-
-	private mergeRuntimeConnector(connector: RuntimeConnector): RuntimeConnector {
-		const runtime = this.runtimeConnectors.get(connector.id);
-		if (!runtime) return connector;
+	private withKnownTools(connector: ConnectorConfig): ConnectorConfig {
+		const runtime = this.runtimeFor(connector);
 		return {
 			...connector,
-			...runtime,
-			mcp: connector.mcp ?? runtime.mcp,
-			authorization: connector.authorization || runtime.authorization,
-			token: connector.token ?? runtime.token,
-			tools: connector.tools.length > 0 ? connector.tools : runtime.tools,
+			tools: runtime?.listTools(connector) ?? knownTools(connector),
+			lastRefreshedAt: new Date().toISOString(),
 		};
 	}
 
-	private readLegacyTools(connectorId: string): ConnectorTool[] {
-		const raw = this.readLegacyToolRecords()[connectorId];
-		if (!Array.isArray(raw)) return [];
-		return raw.flatMap((tool) => isConnectorToolRecord(tool) ? [normalizeConnectorTool(tool)] : []);
+	private runtimeFor(connector: ConnectorConfig): ConnectorRuntimeStrategy | undefined {
+		return this.runtimeStrategies[connector.connectorId];
 	}
 
-	private readLegacyToolRecords(): Record<string, ConnectorTool[]> {
-		if (!this.toolStore) return {};
-		try {
-			const raw = this.toolStore.get(CONNECTOR_TOOLS_STORE_KEY);
-			if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
-			return { ...(raw as Record<string, ConnectorTool[]>) };
-		} catch (error) {
-			this.logError('Failed to read connector tool cache', { key: CONNECTOR_TOOLS_STORE_KEY, error: this.errorMessage(error) });
-			throw error;
+	private validConnectors(): ConnectorConfig[] {
+		return dedupeByConnectorId(
+			this.store.getConnectors().filter(isStoredConnectorValid).map(normalizeStoredConnector)
+		);
+	}
+
+	private replace(connector: ConnectorConfig): void {
+		this.logger.debug('ConnectorsService', `Updated connector ${connector.name}`);
+		this.store.setConnectors(
+			this.store.getConnectors().map((item) => (item.id === connector.id ? connector : item))
+		);
+	}
+
+	private async getGoogleAccessToken(connector: ConnectorConfig): Promise<string> {
+		if (connector.authorization?.trim() && !connector.oauth?.refreshToken) {
+			return connector.authorization.trim();
 		}
+		const oauth = this.requireGoogleOAuthConfig(connector);
+		if (oauth.accessToken && (oauth.expiresAt ?? 0) > Date.now() + 60_000) {
+			return oauth.accessToken;
+		}
+		if (!oauth.refreshToken) {
+			if (oauth.accessToken) return oauth.accessToken;
+			throw new Error(
+				`Google connector ${connector.name} is missing a refresh token. Reconnect it.`
+			);
+		}
+		const token = await refreshGoogleAccessToken({
+			clientId: oauth.clientId,
+			clientSecret: oauth.clientSecret,
+			refreshToken: oauth.refreshToken,
+			fetchImpl: this.fetchImpl(),
+		});
+		const nextOAuth = stripGoogleOAuthClientCredentials(mergeGoogleOAuthCredential(oauth, token));
+		if (!nextOAuth?.accessToken) {
+			throw new Error(`Google connector ${connector.name} did not return an access token.`);
+		}
+		const next = {
+			...connector,
+			oauth: nextOAuth,
+			updatedAt: new Date().toISOString(),
+			lastError: undefined,
+		};
+		this.replace(next);
+		return nextOAuth.accessToken;
 	}
 
-	private async catalogEntriesFromProvider(): Promise<ConnectorCatalogEntry[]> {
-		const provider = this.options.catalogProvider;
-		const entries = typeof provider === 'function'
-			? await provider()
-			: (provider ?? []) as ConnectorCatalogEntry[];
-		return entries.map(normalizeCatalogEntry);
+	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthRuntimeCredential {
+		const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
+		const clientId = this.options.googleOAuthClientId || process.env.GOOGLE_OAUTH_CLIENT_ID;
+		const clientSecret =
+			this.options.googleOAuthClientSecret || process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+		if (!clientId || !clientSecret) {
+			throw new Error(
+				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment.'
+			);
+		}
+		return {
+			provider: 'google',
+			redirectUri: oauth?.redirectUri || this.oauthRedirectUri(),
+			...oauth,
+			clientId,
+			clientSecret,
+		};
 	}
 
-	private async oauthCatalogEntry(id: string, input: unknown): Promise<ConnectorCatalogEntry | undefined> {
-		const request = requireObject(input, 'OAuth authorization request');
-		const provided = readOptionalCatalogEntry(request.connector, id);
-		if (provided) return provided;
-		return (await this.catalogEntriesFromProvider()).find((entry) => entry.id === id && entry.oauth);
-	}
-
-	private oauthClientSecret(definition: ConnectorCatalogEntry): string | undefined {
-		const secretEnv = definition.oauth?.clientSecretEnv;
-		if (!secretEnv) return undefined;
-		return (this.options.env?.[secretEnv] ?? process.env[secretEnv])?.trim() || undefined;
-	}
-
-	private catalogEntryFromConnector(connector: RuntimeConnector): ConnectorCatalogEntry {
-		return normalizeCatalogEntry({
-			id: connector.connectorId,
-			name: connector.name,
-			description: connector.serverDescription ?? connector.name,
-			environmentSecretNames: environmentSecretNamesFor(connector.mcp),
-			platformDocumentationPages: [],
-			tools: connector.tools.map((tool) => tool.name),
-			scopes: [],
-			setupInstructions: [],
-			authKind: 'mcp_env',
-			runtimeKind: 'mcp',
-			allowMultipleInstances: true,
+	private openOAuthLoopbackServer(expectedState: string): Promise<OAuthLoopbackServer> {
+		if (this.options.createOAuthLoopbackServer) {
+			return this.options.createOAuthLoopbackServer(expectedState);
+		}
+		const configuredRedirectUri = this.options.oauthRedirectUri
+			? new URL(this.options.oauthRedirectUri)
+			: undefined;
+		const hostname = configuredRedirectUri?.hostname || GOOGLE_OAUTH_LOOPBACK_HOST;
+		const port = configuredRedirectUri?.port ? Number(configuredRedirectUri.port) : 0;
+		const pathname = configuredRedirectUri?.pathname || '/';
+		let server: Server | null = null;
+		let timeout: NodeJS.Timeout | null = null;
+		let callbackSettled = false;
+		let rejectCallback: (error: Error) => void = () => {};
+		const close = (): void => {
+			if (timeout) clearTimeout(timeout);
+			server?.close();
+			server = null;
+		};
+		const callback = new Promise<{ code: string }>((resolve, reject) => {
+			timeout = setTimeout(() => {
+				close();
+				reject(new Error('Google OAuth timed out before authorization completed.'));
+			}, this.options.oauthTimeoutMs ?? GOOGLE_OAUTH_TIMEOUT_MS);
+			rejectCallback = reject;
+			server = createServer((request, response) => {
+				try {
+					const requestUrl = new URL(request.url ?? '/', `http://${hostname}`);
+					if (requestUrl.pathname !== pathname) {
+						response.writeHead(404);
+						response.end('Not found');
+						return;
+					}
+					const state = requestUrl.searchParams.get('state');
+					const code = requestUrl.searchParams.get('code');
+					const error = requestUrl.searchParams.get('error');
+					if (state !== expectedState) {
+						response.writeHead(400);
+						response.end('OAuth state mismatch. You can close this tab.');
+						return;
+					}
+					if (error) throw new Error(`Google OAuth failed: ${error}`);
+					if (!code) throw new Error('Google OAuth did not return an authorization code.');
+					response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+					response.end('<p>Google connector connected. You can close this tab.</p>');
+					callbackSettled = true;
+					close();
+					resolve({ code });
+				} catch (error) {
+					callbackSettled = true;
+					close();
+					response.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' });
+					response.end(error instanceof Error ? error.message : String(error));
+					reject(error);
+				}
+			});
+		});
+		return new Promise((resolve, reject) => {
+			const rejectStartup = (error: Error): void => {
+				close();
+				reject(
+					new Error(
+						`Could not start the local Google OAuth callback server: ${
+							error instanceof Error ? error.message : String(error)
+						}`
+					)
+				);
+			};
+			server?.once('error', rejectStartup);
+			server?.listen(port, hostname, () => {
+				server?.off('error', rejectStartup);
+				server?.on('error', (error) => {
+					close();
+					if (!callbackSettled) rejectCallback(error);
+				});
+				const address = server?.address();
+				const actualPort = typeof address === 'object' && address ? address.port : port;
+				const redirectUri = configuredRedirectUri
+					? `${configuredRedirectUri.protocol}//${hostname}:${actualPort}${pathname === '/' ? '' : pathname}`
+					: `http://${hostname}:${actualPort}`;
+				resolve({ redirectUri, callback, close });
+			});
 		});
 	}
 
-	private validateConnectorInput<T>(action: 'add' | 'update', run: () => T): T {
-		try {
-			return run();
-		} catch (error) {
-			this.logWarn('Connector validation failed', { action, error: this.errorMessage(error) });
-			throw error;
-		}
+	private fetchImpl(): FetchLike {
+		return this.options.fetchImpl ?? fetch;
 	}
 
-	private logDebug(message: string, data?: unknown): void {
-		this.logger.debug(CONNECTORS_LOG_SOURCE, message, data);
-	}
-
-	private logWarn(message: string, data?: unknown): void {
-		this.logger.warn(CONNECTORS_LOG_SOURCE, message, data);
-	}
-
-	private logError(message: string, data?: unknown): void {
-		this.logger.error(CONNECTORS_LOG_SOURCE, message, data);
-	}
-
-	private errorMessage(error: unknown): string {
-		return error instanceof Error ? error.message : String(error);
+	private oauthRedirectUri(): string {
+		return this.options.oauthRedirectUri ?? GOOGLE_OAUTH_REDIRECT_URI;
 	}
 }
 
-function executableToolFor(
-	connector: RuntimeConnector,
-	tool: ConnectorTool,
-	query: string
-): ConnectorExecutableTool {
-	const connectorId = connector.id ?? connector.connectorId ?? connector.serverLabel;
-	const score = scoreConnectorTool(query, [
-		agentToolNameFor(connector, tool.name),
-		tool.name,
-		tool.description,
-		connector.name,
-		connector.serverDescription,
-		connector.serverLabel,
-		connector.connectorId,
-	]);
+function isGoogleConnector(connectorId: string): boolean {
+	return GOOGLE_CONNECTOR_IDS.has(connectorId);
+}
+
+function isStoredConnectorValid(connector: ConnectorConfig): boolean {
+	return (
+		typeof connector.id === 'string' &&
+		typeof connector.name === 'string' &&
+		typeof connector.connectorId === 'string' &&
+		isOpenAiConnectorId(connector.connectorId)
+	);
+}
+
+function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
+	if (!isGoogleConnector(connector.connectorId) || !connector.oauth) return connector;
+	const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
+	return oauth === connector.oauth ? connector : { ...connector, oauth };
+}
+
+function buildOAuthConfig(
+	input: ConnectorInput,
+	current: GoogleOAuthCredential | undefined,
+	redirectUri: string
+): GoogleOAuthCredential | undefined {
+	if (!isGoogleConnector(input.connectorId)) return undefined;
+	const oauth = stripGoogleOAuthClientCredentials(current);
 	return {
-		id: connectorId + ':' + tool.name,
-		name: agentToolNameFor(connector, tool.name),
-		displayName: connector.name + ': ' + tool.name,
-		description: connector.name + ': ' + (tool.description ?? 'Run ' + tool.name + '.'),
-		connectorId,
-		connectorName: connector.name,
-		connectorProviderId: connector.connectorId,
-		toolName: tool.name,
-		inputSchema: tool.inputSchema,
-		permission: tool.permission,
-		requiresApproval: tool.requiresApproval,
-		score,
+		provider: 'google',
+		redirectUri: oauth?.redirectUri || redirectUri,
+		...oauth,
 	};
 }
 
-function agentToolNameFor(connector: RuntimeConnector, toolName: string): string {
-	return ((connector.serverLabel ?? connector.id ?? connector.connectorId ?? connector.name) + '_' + toolName)
+function stripGoogleOAuthClientCredentials(
+	oauth: GoogleOAuthCredential | undefined
+): GoogleOAuthCredential | undefined {
+	if (!oauth) return undefined;
+	const { clientId: _clientId, clientSecret: _clientSecret, ...safeOAuth } = oauth;
+	return safeOAuth;
+}
+
+function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
+	const redacted = { ...connector, authorization: '' };
+	if (!connector.oauth) return redacted;
+	const {
+		accessToken: _accessToken,
+		refreshToken: _refreshToken,
+		clientId: _clientId,
+		clientSecret: _clientSecret,
+		...oauth
+	} = connector.oauth;
+	return {
+		...redacted,
+		oauth,
+	};
+}
+
+function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): boolean {
+	if (connector.connectorId !== 'connector_googledrive' || toolName !== 'create_file') return false;
+	if (connector.requireApproval === 'never') return false;
+	if (
+		connector.requireApproval === 'never_for_allowed_tools' &&
+		connector.allowedTools.includes(toolName)
+	) {
+		return false;
+	}
+	return true;
+}
+
+function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
+	return `${connector.serverLabel}_${toolName}`
 		.toLowerCase()
 		.replace(/[^a-z0-9_]+/g, '_')
 		.replace(/^_+|_+$/g, '');
 }
 
-function scoreConnectorTool(query: string, values: Array<string | undefined>): number {
-	const normalizedQuery = normalizeSearchText(query);
-	if (!normalizedQuery) return 1;
-	const tokens = normalizedQuery.split(' ').filter((token) => token.length >= 3);
-	if (tokens.length === 0) return 1;
-	let score = 0;
-	for (const value of values) {
-		const normalizedValue = normalizeSearchText(value ?? '');
-		if (!normalizedValue) continue;
-		const valueTokens = normalizedValue.split(' ');
-		if (normalizedValue === normalizedQuery) score += 100;
-		if (normalizedValue.includes(normalizedQuery)) score += 25;
-		for (const token of tokens) {
-			const variants = searchTokenVariants(token);
-			if (variants.some((variant) => valueTokens.includes(variant))) {
-				score += 10;
-			} else if (variants.some((variant) => normalizedValue.includes(variant))) {
-				score += 3;
-			}
-		}
-	}
-	return score;
-}
-
-function searchTokenVariants(token: string): string[] {
-	const variants = new Set([token]);
-	if (token.endsWith('s') && token.length > 3) variants.add(token.slice(0, -1));
-	if (token === 'email' || token === 'emails' || token === 'mail') {
-		for (const value of ['email', 'emails', 'mail', 'message', 'messages', 'thread', 'threads', 'inbox']) {
-			variants.add(value);
-		}
-	}
-	if (token === 'last' || token === 'latest' || token === 'recent') {
-		for (const value of ['last', 'latest', 'recent', 'newest', 'list', 'lists', 'search']) {
-			variants.add(value);
-		}
-	}
-	return [...variants];
-}
-
-function normalizeSearchText(value: string): string {
-	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-}
-
-function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
-	return {
-		...connector,
-		authorization: '',
-		token: redactOAuthTokenSet(connector.token),
-		mcp: redactMcpConfig(connector.mcp),
-		oauth: redactOAuthConfig(connector.oauth),
+function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
+	const driveDescriptions: Record<string, string> = {
+		get_profile: 'Get the connected Google account profile.',
+		search_files: 'Search Google Drive files by name or content.',
+		list_recent_files: 'List recently modified Google Drive files.',
+		read_file_content: 'Read text content from a Google Drive file.',
+		get_file_metadata: 'Get Google Drive file metadata by id.',
+		get_file_permissions: 'List permissions for a Google Drive file or shared drive.',
+		download_file_content: 'Download text content from a Google Drive file.',
+		create_file: 'Create a Google Drive file.',
+		list_drives: 'List shared drives available to the connected account.',
+		search: 'Search Google Drive files by name or content. Legacy alias for search_files.',
+		recent_documents:
+			'List recently modified Google Drive files. Legacy alias for list_recent_files.',
+		fetch: 'Fetch Google Drive file metadata and text content. Legacy alias for read_file_content.',
 	};
+	const calendarDescriptions: Record<string, string> = {
+		get_profile: 'Get the connected Google account profile.',
+		list_calendars: 'List Google calendars available to the connected account.',
+		search: 'Search Google Calendar events.',
+		fetch: 'Read a Google Calendar event by id.',
+		search_events: 'Search Google Calendar events by text and time range.',
+		read_event: 'Read a Google Calendar event by id.',
+		create_event: 'Create a Google Calendar event.',
+		update_event: 'Update a Google Calendar event.',
+		delete_event: 'Delete a Google Calendar event.',
+	};
+	const gmailDescriptions: Record<string, string> = {
+		get_profile: 'Get the connected Gmail profile.',
+		search_emails: 'Search Gmail messages using Gmail search syntax.',
+		search_email_ids: 'Search Gmail and return matching message ids.',
+		get_recent_emails: 'List recent Gmail messages.',
+		read_email: 'Read a Gmail message by id.',
+		batch_read_email: 'Read up to 10 Gmail messages by id.',
+		create_draft: 'Create a Gmail draft without sending it.',
+		send_email: 'Send a Gmail email.',
+		trash_email: 'Move a Gmail message to trash.',
+	};
+	const descriptions =
+		connector.connectorId === 'connector_googlecalendar'
+			? calendarDescriptions
+			: connector.connectorId === 'connector_googledrive'
+				? driveDescriptions
+				: gmailDescriptions;
+	return descriptions[toolName] ?? `Run ${toolName}.`;
 }
 
-function redactMcpConfig(mcp: ConnectorMcpConfig | undefined): ConnectorMcpConfig | undefined {
-	if (!mcp) return undefined;
-	if (mcp.transport === 'http') {
+function schemaForTool(connector: ConnectorConfig, toolName: string): AgentTool['schema'] {
+	if (toolName === 'get_profile') {
+		return { type: 'object', properties: {}, additionalProperties: false };
+	}
+	if (connector.connectorId === 'connector_googlecalendar') {
+		return schemaForGoogleCalendarTool(toolName);
+	}
+	if (connector.connectorId === 'connector_googledrive') {
+		return schemaForGoogleDriveTool(toolName);
+	}
+	if (['search_emails', 'search_email_ids'].includes(toolName)) {
 		return {
-			...mcp,
-			headers: mcp.headers
-				? Object.fromEntries(Object.keys(mcp.headers).map((key) => [key, '']))
-				: undefined,
+			type: 'object',
+			properties: {
+				query: { type: 'string', description: 'Gmail search query.' },
+				maxResults: { type: 'integer', description: 'Maximum messages to return, capped at 20.' },
+				pageToken: { type: 'string' },
+				labelIds: { type: 'array', items: { type: 'string' } },
+				includeSpamTrash: { type: 'boolean' },
+			},
+			additionalProperties: false,
 		};
 	}
-	return { ...mcp, env: mcp.env ? Object.fromEntries(Object.keys(mcp.env).map((key) => [key, ''])) : undefined };
-}
-
-function redactOAuthConfig(oauth: ConnectorConfig['oauth']): ConnectorConfig['oauth'] {
-	if (!oauth) return undefined;
-	return {
-		...oauth,
-		token: redactOAuthTokenSet(oauth.token),
-	};
-}
-
-function redactOAuthTokenSet(token: ConnectorOAuthTokenSet | undefined): ConnectorOAuthTokenSet | undefined {
-	if (!token) return undefined;
-	return {
-		...token,
-		accessToken: '',
-		refreshToken: token.refreshToken ? '' : undefined,
-	};
-}
-
-function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
-	if (!mcp) return [];
-	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
-	return (mcp.envSecrets ?? []).map((secret) => secret.env);
-}
-
-function readOptionalCatalogEntry(value: unknown, expectedId: string): ConnectorCatalogEntry | undefined {
-	if (value === undefined || value === null) return undefined;
-	const entry = normalizeCatalogEntry(value as ConnectorCatalogEntry);
-	if (entry.id !== expectedId) throw new Error('OAuth connector definition id must match connector id.');
-	return entry;
-}
-
-function normalizeCatalogEntry(entry: ConnectorCatalogEntry): ConnectorCatalogEntry {
-	assertConnectorId(entry.id);
-	return {
-		id: entry.id,
-		directConnectorId: entry.directConnectorId,
-		name: entry.name?.trim() || entry.id,
-		description: entry.description?.trim() || entry.name?.trim() || entry.id,
-		docsPath: entry.docsPath,
-		docsLabel: entry.docsLabel,
-		environmentSecretNames: Array.from(new Set(entry.environmentSecretNames ?? [])),
-		platformDocumentationPages: entry.platformDocumentationPages ?? [],
-		example: entry.example,
-		tools: Array.from(new Set(entry.tools ?? [])),
-		scopes: entry.scopes ?? [],
-		setupUrl: entry.setupUrl,
-		setupInstructions: entry.setupInstructions ?? [],
-		authKind: entry.authKind ?? 'mcp_env',
-		redirectUri: entry.redirectUri,
-		runtimeKind: entry.runtimeKind ?? 'mcp',
-		allowMultipleInstances: entry.allowMultipleInstances ?? true,
-		mcp: entry.mcp,
-		oauth: entry.oauth
-			? {
-				...entry.oauth,
-				clientSecretEnv: entry.oauth.clientSecretEnv,
-				tokenUrl: readRequiredString(entry.oauth.tokenUrl, 'OAuth token URL'),
-			}
-			: undefined,
-	};
-}
-
-function createPkceCodeVerifier(): string {
-	return randomBytes(32).toString('base64url');
-}
-
-function createPkceCodeChallenge(verifier: string): string {
-	return createHash('sha256').update(verifier).digest('base64url');
-}
-
-async function createOAuthCallbackListener(
-	state: string,
-	timeoutMs = 120_000
-): Promise<OAuthCallbackListener> {
-	let settled = false;
-	let timeout: NodeJS.Timeout;
-	let resolveCode: (code: string) => void;
-	let rejectCode: (error: Error) => void;
-	const code = new Promise<string>((resolve, reject) => {
-		resolveCode = resolve;
-		rejectCode = reject;
-	});
-	const server = createServer((request, response) => {
-		const url = new URL(request.url ?? '/', 'http://127.0.0.1');
-		if (url.pathname !== '/oauth/callback') {
-			sendOAuthCallbackResponse(response, 404, 'OAuth callback not found.');
-			return;
-		}
-		const returnedState = url.searchParams.get('state');
-		if (returnedState !== state) {
-			sendOAuthCallbackResponse(response, 400, 'OAuth state did not match.');
-			settleOAuthCallback(new Error('OAuth state did not match.'));
-			return;
-		}
-		const error = url.searchParams.get('error');
-		if (error) {
-			const description = url.searchParams.get('error_description');
-			sendOAuthCallbackResponse(response, 400, 'OAuth authorization failed.');
-			settleOAuthCallback(new Error(description ? error + ': ' + description : error));
-			return;
-		}
-		const authCode = url.searchParams.get('code');
-		if (!authCode) {
-			sendOAuthCallbackResponse(response, 400, 'OAuth authorization code was missing.');
-			settleOAuthCallback(new Error('OAuth authorization code was missing.'));
-			return;
-		}
-		sendOAuthCallbackResponse(response, 200, 'Authorization complete. You can return to Friday.');
-		settleOAuthCallback(undefined, authCode);
-	});
-	await new Promise<void>((resolve, reject) => {
-		server.once('error', reject);
-		server.listen(0, '127.0.0.1', () => {
-			server.off('error', reject);
-			resolve();
-		});
-	});
-	timeout = setTimeout(() => {
-		settleOAuthCallback(new Error('OAuth authorization timed out.'));
-	}, timeoutMs);
-	const address = server.address() as AddressInfo;
-	return {
-		redirectUri: `http://127.0.0.1:${address.port}/oauth/callback`,
-		code,
-		close: () => closeServer(server),
-	};
-
-	function settleOAuthCallback(error?: Error, authCode?: string): void {
-		if (settled) return;
-		settled = true;
-		clearTimeout(timeout);
-		if (error) {
-			rejectCode(error);
-		} else {
-			resolveCode(authCode ?? '');
-		}
+	if (toolName === 'get_recent_emails') {
+		return {
+			type: 'object',
+			properties: {
+				maxResults: { type: 'integer', description: 'Maximum messages to return, capped at 20.' },
+				labelIds: { type: 'array', items: { type: 'string' } },
+				includeSpamTrash: { type: 'boolean' },
+			},
+			additionalProperties: false,
+		};
 	}
-}
-
-function sendOAuthCallbackResponse(response: ServerResponse, statusCode: number, message: string): void {
-	response.writeHead(statusCode, { 'content-type': 'text/html; charset=utf-8' });
-	response.end('<!doctype html><title>Friday OAuth</title><p>' + escapeHtml(message) + '</p>');
-}
-
-function escapeHtml(value: string): string {
-	return value
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;');
-}
-
-async function closeServer(server: Server): Promise<void> {
-	if (!server.listening) return;
-	await new Promise<void>((resolve) => {
-		server.close(() => resolve());
-	});
-}
-
-async function exchangeOAuthCode(
-	definition: ConnectorCatalogEntry,
-	input: OAuthTokenExchangeInput
-): Promise<ConnectorOAuthCompleteInput> {
-	if (!definition.oauth) throw new Error('OAuth connector is missing OAuth metadata: ' + definition.id);
-	const body = new URLSearchParams({
-		client_id: input.clientId,
-		code: input.code,
-		code_verifier: input.codeVerifier,
-		grant_type: 'authorization_code',
-		redirect_uri: input.redirectUri,
-	});
-	if (input.clientSecret) body.set('client_secret', input.clientSecret);
-	const response = await input.fetch(definition.oauth.tokenUrl, {
-		method: 'POST',
-		headers: { 'content-type': 'application/x-www-form-urlencoded' },
-		body,
-	});
-	const text = await response.text();
-	const payload = parseJsonObject(text);
-	if (!response.ok) {
-		throw new Error('OAuth token exchange failed: ' + oauthTokenErrorMessage(payload, response.statusText));
+	if (toolName === 'batch_read_email') {
+		return {
+			type: 'object',
+			properties: { ids: { type: 'array', items: { type: 'string' } } },
+			required: ['ids'],
+			additionalProperties: false,
+		};
+	}
+	if (['create_draft', 'send_email'].includes(toolName)) {
+		return {
+			type: 'object',
+			properties: {
+				to: { type: 'array', items: { type: 'string' } },
+				cc: { type: 'array', items: { type: 'string' } },
+				bcc: { type: 'array', items: { type: 'string' } },
+				subject: { type: 'string' },
+				body: { type: 'string' },
+				isHtml: { type: 'boolean' },
+			},
+			required: ['to', 'subject', 'body'],
+			additionalProperties: false,
+		};
 	}
 	return {
-		state: input.state,
-		accessToken: readRequiredString(payload.access_token, 'OAuth access token'),
-		refreshToken: readOptionalTokenString(payload, 'refresh_token'),
-		tokenType: readOptionalTokenString(payload, 'token_type'),
-		scope: readOptionalTokenString(payload, 'scope'),
-		expiresIn: readOptionalTokenNumber(payload, 'expires_in'),
+		type: 'object',
+		properties: {
+			id: { type: 'string', description: 'Gmail message id.' },
+			messageId: { type: 'string', description: 'Gmail message id.' },
+		},
+		additionalProperties: false,
 	};
 }
 
-function parseJsonObject(text: string): Record<string, unknown> {
-	try {
-		const value = JSON.parse(text);
-		if (value && typeof value === 'object' && !Array.isArray(value)) return value as Record<string, unknown>;
-	} catch {
-		return {};
+function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
+	if (toolName === 'list_drives') {
+		return {
+			type: 'object',
+			properties: {
+				maxResults: {
+					type: 'integer',
+					description: 'Maximum shared drives to return, capped at 100.',
+				},
+				pageToken: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
 	}
-	return {};
+	if (['fetch', 'read_file_content', 'download_file_content'].includes(toolName)) {
+		return {
+			type: 'object',
+			properties: {
+				id: { type: 'string', description: 'Google Drive file id.' },
+				fileId: { type: 'string', description: 'Google Drive file id.' },
+				exportMimeType: {
+					type: 'string',
+					description: 'Export MIME type for Google Workspace files.',
+				},
+				mimeType: {
+					type: 'string',
+					description: 'Alias for exportMimeType on Google Workspace files.',
+				},
+			},
+			additionalProperties: false,
+		};
+	}
+	if (toolName === 'get_file_metadata') {
+		return {
+			type: 'object',
+			properties: {
+				id: { type: 'string', description: 'Google Drive file id.' },
+				fileId: { type: 'string', description: 'Google Drive file id.' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (toolName === 'get_file_permissions') {
+		return {
+			type: 'object',
+			properties: {
+				id: { type: 'string', description: 'Google Drive file or shared drive id.' },
+				fileId: { type: 'string', description: 'Google Drive file or shared drive id.' },
+				maxResults: {
+					type: 'integer',
+					description: 'Maximum permissions to return, capped at 100.',
+				},
+				pageToken: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (toolName === 'create_file') {
+		return {
+			type: 'object',
+			properties: {
+				name: { type: 'string', description: 'New file name.' },
+				fileName: { type: 'string', description: 'Alias for name.' },
+				mimeType: { type: 'string', description: 'Drive file MIME type. Defaults to text/plain.' },
+				content: { type: 'string', description: 'Optional file content.' },
+				text: { type: 'string', description: 'Alias for content.' },
+				contentMimeType: { type: 'string', description: 'MIME type for uploaded content.' },
+				parents: { type: 'array', items: { type: 'string' }, description: 'Parent folder ids.' },
+				parentId: { type: 'string', description: 'Single parent folder id.' },
+				description: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
+	}
+	return {
+		type: 'object',
+		properties: {
+			query: {
+				type: 'string',
+				description: 'Search text matched against Drive file names and content.',
+			},
+			q: { type: 'string', description: 'Alias for query.' },
+			driveQuery: {
+				type: 'string',
+				description: 'Raw Google Drive q expression for advanced searches.',
+			},
+			mimeType: { type: 'string', description: 'Restrict results to one MIME type.' },
+			driveId: { type: 'string', description: 'Shared drive id to search.' },
+			corpora: {
+				type: 'string',
+				description: 'Drive corpora value such as user, drive, domain, or allDrives.',
+			},
+			maxResults: { type: 'integer', description: 'Maximum files to return, capped at 20.' },
+			pageToken: { type: 'string' },
+			orderBy: { type: 'string', description: 'Google Drive orderBy expression.' },
+		},
+		additionalProperties: false,
+	};
 }
 
-function readOptionalTokenString(payload: Record<string, unknown>, key: string): string | undefined {
-	const value = payload[key];
-	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
-
-function readOptionalTokenNumber(payload: Record<string, unknown>, key: string): number | undefined {
-	const value = payload[key];
-	return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
-}
-
-function oauthTokenErrorMessage(payload: Record<string, unknown>, statusText: string): string {
-	const error = readOptionalTokenString(payload, 'error');
-	const description = readOptionalTokenString(payload, 'error_description');
-	if (error && description) return error + ': ' + description;
-	return description || error || statusText || 'request failed';
-}
-
-function oauthAuthorizationUrl(
-	connector: ConnectorCatalogEntry,
-	clientId: string,
-	state: string,
-	redirectUri: string,
-	codeChallenge: string
-): string {
-	if (!connector.oauth) throw new Error('OAuth connector is missing OAuth metadata: ' + connector.id);
-	const params = new URLSearchParams({
-		...connector.oauth.authorizationParams,
-		client_id: clientId,
-		redirect_uri: redirectUri,
-		scope: connector.scopes.join(' '),
-		state,
-		code_challenge: codeChallenge,
-		code_challenge_method: 'S256',
-	});
-	return `${connector.oauth.authorizationUrl}?${params.toString()}`;
-}
-
-function mergeCatalogEntries(entries: ConnectorCatalogEntry[]): ConnectorCatalogEntry[] {
-	const byId = new Map<ConnectorProviderId, ConnectorCatalogEntry>();
-	for (const entry of entries) byId.set(entry.id, { ...byId.get(entry.id), ...entry });
-	return [...byId.values()].sort((left, right) => left.name.localeCompare(right.name));
+function schemaForGoogleCalendarTool(toolName: string): AgentTool['schema'] {
+	if (toolName === 'list_calendars') {
+		return {
+			type: 'object',
+			properties: {
+				maxResults: { type: 'integer', description: 'Maximum calendars to return, capped at 50.' },
+				pageToken: { type: 'string' },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (['search', 'search_events'].includes(toolName)) {
+		return {
+			type: 'object',
+			properties: {
+				calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
+				query: { type: 'string', description: 'Free-text event search query.' },
+				timeMin: {
+					type: 'string',
+					description: 'Lower event start bound as an RFC3339 timestamp.',
+				},
+				timeMax: {
+					type: 'string',
+					description: 'Upper event start bound as an RFC3339 timestamp.',
+				},
+				maxResults: { type: 'integer', description: 'Maximum events to return, capped at 20.' },
+				pageToken: { type: 'string' },
+				showDeleted: { type: 'boolean' },
+				singleEvents: { type: 'boolean' },
+				orderBy: { type: 'string', enum: ['startTime', 'updated'] },
+			},
+			additionalProperties: false,
+		};
+	}
+	if (['fetch', 'read_event', 'delete_event'].includes(toolName)) {
+		return {
+			type: 'object',
+			properties: {
+				calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
+				eventId: { type: 'string', description: 'Google Calendar event id.' },
+				id: { type: 'string', description: 'Google Calendar event id.' },
+			},
+			additionalProperties: false,
+		};
+	}
+	return {
+		type: 'object',
+		properties: {
+			calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
+			eventId: { type: 'string', description: 'Google Calendar event id, required for updates.' },
+			id: { type: 'string', description: 'Google Calendar event id, accepted for updates.' },
+			summary: { type: 'string' },
+			title: { type: 'string', description: 'Alias for summary.' },
+			description: { type: 'string' },
+			location: { type: 'string' },
+			start: { type: 'string', description: 'RFC3339 date-time or YYYY-MM-DD all-day date.' },
+			end: { type: 'string', description: 'RFC3339 date-time or YYYY-MM-DD all-day date.' },
+			timeZone: { type: 'string' },
+			attendees: { type: 'array', items: { type: 'string' } },
+			recurrence: { type: 'array', items: { type: 'string' } },
+		},
+		required: toolName === 'create_event' ? ['summary', 'start', 'end'] : ['eventId'],
+		additionalProperties: false,
+	};
 }

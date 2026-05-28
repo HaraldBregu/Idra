@@ -5,6 +5,7 @@ import {
 	BatteryCharging,
 	Camera,
 	Mic,
+	MonitorCog,
 	MonitorUp,
 	RefreshCw,
 	ShieldCheck,
@@ -189,7 +190,7 @@ function SystemSettingsItem({
 					{title}
 				</ItemTitle>
 				{description && (
-					<p className="max-w-full text-[11px] leading-4 text-muted-foreground/60">
+					<p className="max-w-full text-[11px] leading-4 text-muted-foreground">
 						{description}
 					</p>
 				)}
@@ -308,7 +309,7 @@ function SystemCapabilityGroupPanel({
 				<h3 className="text-[13px] font-medium leading-4 text-foreground">
 					{t(group.titleKey)}
 				</h3>
-				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground/60">
+				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
 					{t(group.descriptionKey)}
 				</p>
 			</div>
@@ -336,7 +337,7 @@ const SystemPage: React.FC = () => {
 
 	useEffect(() => {
 		let mounted = true;
-		void window.store.getKeepAwakeEnabled()
+		void window.app.getKeepAwakeEnabled()
 			.then((enabled) => {
 				if (mounted) setKeepAwakeEnabled(enabled);
 			})
@@ -386,12 +387,12 @@ const SystemPage: React.FC = () => {
 		setKeepAwakeEnabled(checked);
 		setKeepAwakeLoading(true);
 		setKeepAwakeError('');
-		void window.store.setKeepAwakeEnabled(checked)
+		void window.app.setKeepAwakeEnabled(checked)
 			.then(setKeepAwakeEnabled)
 			.catch((error: unknown) => {
 				setKeepAwakeEnabled(!checked);
 				setKeepAwakeError(errorMessage(error, t('settings.system.errors.keepAwakeSave')));
-				void window.store.getKeepAwakeEnabled()
+				void window.app.getKeepAwakeEnabled()
 					.then(setKeepAwakeEnabled)
 					.catch(() => undefined);
 			})
@@ -495,6 +496,7 @@ const SystemPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.system')}
 				description={t('settings.system.description')}
+				icon={MonitorCog}
 			/>
 
 			{systemPreferenceError && (
@@ -505,7 +507,6 @@ const SystemPage: React.FC = () => {
 			)}
 
 			<SettingsSection
-				hideTitle
 				title={t('settings.system.mediaPermissions.title')}
 				description={t('settings.system.mediaPermissions.description')}
 			>

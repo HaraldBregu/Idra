@@ -55,7 +55,6 @@ function buildChatMessages(
 					type: 'function' as const,
 					function: { name: b.toolName, arguments: JSON.stringify(b.toolArgs ?? {}) },
 				}));
-			if (!text && toolCalls.length === 0) continue;
 			const msg: OpenAI.ChatCompletionAssistantMessageParam = {
 				role: 'assistant',
 				content: text || null,

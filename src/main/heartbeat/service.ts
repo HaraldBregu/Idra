@@ -1,24 +1,16 @@
 import type { Disposable } from '../core/service-container';
-import type { AgentService } from '../agent';
-import {
-	getModelReasoningEfforts,
-	isModelReasoningEffort,
-	requireModelReasoningEffort,
-	type ModelReasoningEffort,
-	type OperatorStoreState,
-} from '../../shared/agents/service';
-import {
-	normalizeChannelId,
-	type ChannelChatType,
-	type ChannelOutboundMessage,
-} from '../channels';
+import type { AppEvent, EventBus } from '../core/event-bus';
+import type { LoggerService } from '../logger';
+import type { StoreService } from '../store';
+import type { AgentStartupFilesServicePort } from '../agent/startup-files';
+import type { ChannelRegistry } from '../channels';
+import { normalizeChannelId } from '../channels';
+import type { ChannelChatType, ChannelOutboundMessage } from '../channels/types';
+import type { AgentService } from '../service';
 import { DEFAULT_AGENT_ID } from '../constants';
 import type {
-	AgentHeartbeatConfig,
 	HeartbeatEventPayload,
 	HeartbeatRunResult,
-	HeartbeatSettings,
-	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
 	HeartbeatSystemEventRequest,
 	HeartbeatSystemEventResult,
@@ -60,9 +52,18 @@ import {
 	setHeartbeatsEnabled,
 	setHeartbeatWakeHandler,
 } from './wake';
-import { normalizeHeartbeatReply } from './response';
-import { HeartbeatRuntimeState } from './state';
+import { normalizeHeartbeatReply, type HeartbeatToolResponse } from './response';
+import { HeartbeatRuntimeState, StoreServiceHeartbeatStateStorage } from './state';
 import { resolveHeartbeatVisibility } from './visibility';
+
+export interface HeartbeatServiceDependencies {
+	store: StoreService;
+	logger: LoggerService;
+	eventBus: EventBus;
+	startupFiles: AgentStartupFilesServicePort;
+	agentService?: AgentService;
+	channelRegistry?: ChannelRegistry;
+}
 
 interface AgentSchedule {
 	agentId: string;
@@ -116,8 +117,10 @@ export class HeartbeatService implements Disposable {
 	private routesBySession = new Map<string, DeliveryRoute>();
 	private readonly runtimeState: HeartbeatRuntimeState;
 
-	constructor(private readonly agentService: AgentService) {
-		this.runtimeState = new HeartbeatRuntimeState(agentService.getHeartbeatStore());
+	constructor(private readonly dependencies: HeartbeatServiceDependencies) {
+		this.runtimeState = new HeartbeatRuntimeState(
+			new StoreServiceHeartbeatStateStorage(dependencies.store)
+		);
 	}
 
 	start(): void {
@@ -125,8 +128,8 @@ export class HeartbeatService implements Disposable {
 		this.started = true;
 		this.updateConfig();
 		this.wakeDisposer = setHeartbeatWakeHandler((wake) => this.runHeartbeatOnce(wake));
-		this.routeDisposer = this.agentService.onHeartbeatRoute((payload) => {
-			this.recordDeliveryRoute(payload as DeliveryRoute);
+		this.routeDisposer = this.dependencies.eventBus.on('channel:route', (event: AppEvent) => {
+			this.recordDeliveryRoute(event.payload as DeliveryRoute);
 		});
 		this.armTimer();
 	}
@@ -147,7 +150,7 @@ export class HeartbeatService implements Disposable {
 
 	updateConfig(): void {
 		const now = Date.now();
-		const operator = this.getHeartbeatOperator();
+		const operator = this.dependencies.store.getOperator();
 		const summaries = resolveHeartbeatAgentSummaries(operator);
 		const next = new Map<string, AgentSchedule>();
 		for (const summary of summaries) {
@@ -210,62 +213,6 @@ export class HeartbeatService implements Disposable {
 		return this.lastHeartbeat;
 	}
 
-	getSettings(): HeartbeatSettings {
-		const heartbeat = this.getDefaultHeartbeatConfig();
-		const providerId = this.normalizeString(heartbeat.providerId)?.toLowerCase();
-		const modelId = this.normalizeString(heartbeat.modelId) ?? this.normalizeString(heartbeat.model);
-		const reasoningEffort =
-			providerId &&
-			modelId &&
-			isModelReasoningEffort(heartbeat.reasoningEffort) &&
-			getModelReasoningEfforts(modelId, providerId).includes(heartbeat.reasoningEffort)
-				? heartbeat.reasoningEffort
-				: undefined;
-		return {
-			every: this.normalizeString(heartbeat.every) ?? DEFAULT_HEARTBEAT_EVERY,
-			...(heartbeat.activeHours ? { activeHours: heartbeat.activeHours } : {}),
-			...(providerId ? { providerId } : {}),
-			...(modelId ? { modelId } : {}),
-			...(reasoningEffort ? { reasoningEffort } : {}),
-		};
-	}
-
-	saveSettings(request: HeartbeatSettingsUpdate): HeartbeatSettings {
-		this.assertObject(request);
-		const patch = this.normalizeSettingsUpdate(request);
-		const current = this.getSettings();
-		const hasProviderId = Object.prototype.hasOwnProperty.call(patch, 'providerId');
-		const hasModelId = Object.prototype.hasOwnProperty.call(patch, 'modelId');
-		const hasReasoningEffort = Object.prototype.hasOwnProperty.call(patch, 'reasoningEffort');
-		const nextProviderId = hasProviderId ? patch.providerId : current.providerId;
-		const nextModelId = hasModelId ? patch.modelId : current.modelId;
-
-		if (hasProviderId && patch.providerId) this.requireProvider(patch.providerId);
-		if (hasModelId && patch.modelId) this.requireModel(nextProviderId, patch.modelId);
-		if (hasProviderId && !hasModelId && patch.providerId && current.modelId) {
-			this.requireModel(patch.providerId, current.modelId);
-		}
-
-		if (hasReasoningEffort) {
-			patch.reasoningEffort = patch.reasoningEffort
-				? this.requireReasoningEffort(nextProviderId, nextModelId, patch.reasoningEffort)
-				: undefined;
-		} else if ((hasProviderId || hasModelId) && current.reasoningEffort) {
-			patch.reasoningEffort = this.isReasoningEffortSupported(
-				nextProviderId,
-				nextModelId,
-				current.reasoningEffort
-			)
-				? current.reasoningEffort
-				: undefined;
-		}
-
-		if (hasModelId) patch.model = undefined;
-		this.agentService.getHeartbeatStore().setDefaultHeartbeatConfig(patch);
-		this.updateConfig();
-		return this.getSettings();
-	}
-
 	setEnabled(enabled: boolean): HeartbeatStatus {
 		this.runtimeEnabled = enabled;
 		setHeartbeatsEnabled(enabled);
@@ -279,28 +226,24 @@ export class HeartbeatService implements Disposable {
 	}
 
 	getTiming(): HeartbeatTimingSettings {
-		const settings = this.getSettings();
+		const heartbeat = this.dependencies.store.getOperator()?.agents?.defaults?.heartbeat;
 		return {
-			every: settings.every,
-			...(settings.activeHours ? { activeHours: settings.activeHours } : {}),
+			every: typeof heartbeat?.every === 'string' && heartbeat.every.trim()
+				? heartbeat.every.trim()
+				: DEFAULT_HEARTBEAT_EVERY,
+			...(heartbeat?.activeHours ? { activeHours: heartbeat.activeHours } : {}),
 		};
 	}
 
 	updateTiming(request: HeartbeatTimingSettings): HeartbeatTimingSettings {
-		this.saveSettings({ every: request.every, activeHours: request.activeHours });
+		const every = typeof request.every === 'string' ? request.every.trim() : '';
+		if (!every) throw new Error('Heartbeat cadence is required.');
+		this.dependencies.store.setDefaultHeartbeatConfig({
+			every,
+			activeHours: this.normalizeActiveHours(request.activeHours),
+		});
+		this.updateConfig();
 		return this.getTiming();
-	}
-
-	setProviderId(providerId: string): HeartbeatSettings {
-		return this.saveSettings({ providerId });
-	}
-
-	setModelId(modelId: string): HeartbeatSettings {
-		return this.saveSettings({ modelId });
-	}
-
-	setReasoningEffort(reasoningEffort: ModelReasoningEffort): HeartbeatSettings {
-		return this.saveSettings({ reasoningEffort });
 	}
 
 	request(wake: HeartbeatWakeRequest): void {
@@ -310,7 +253,7 @@ export class HeartbeatService implements Disposable {
 	async systemEvent(request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> {
 		const text = request.text?.trim();
 		if (!text) throw new Error('system-event text is required.');
-		const operator = this.getHeartbeatOperator();
+		const operator = this.dependencies.store.getOperator();
 		const agentId = request.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
 		const sessionKey = request.sessionKey?.trim() || agentId;
 		const mode = request.mode ?? 'next-heartbeat';
@@ -320,7 +263,7 @@ export class HeartbeatService implements Disposable {
 			createdAtMs: Date.now(),
 			source: 'cron',
 		});
-		this.agentService.broadcastHeartbeatSystemEvent({
+		this.dependencies.eventBus.broadcast('heartbeat:system-event', {
 			text,
 			agentId,
 			sessionKey,
@@ -341,7 +284,7 @@ export class HeartbeatService implements Disposable {
 
 	async runHeartbeatOnce(wake: HeartbeatWakeRequest): Promise<HeartbeatRunResult> {
 		const startedAt = Date.now();
-		const operator = this.getHeartbeatOperator();
+		const operator = this.dependencies.store.getOperator();
 		const agentId = wake.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
 		const summary = this.mergeWakeOverride(resolveHeartbeatSummaryForAgent(operator, agentId), wake.heartbeat);
 		const schedule = this.ensureSchedule(summary);
@@ -373,7 +316,7 @@ export class HeartbeatService implements Disposable {
 		if (defer.defer) {
 			if (defer.reason === 'flood' && !schedule.floodLogged) {
 				schedule.floodLogged = true;
-				this.agentService.warnHeartbeat('Heartbeat flood guard deferred a wake.', {
+				this.dependencies.logger.warn('HeartbeatService', 'Heartbeat flood guard deferred a wake.', {
 					agentId,
 					source: wake.source,
 				});
@@ -381,10 +324,10 @@ export class HeartbeatService implements Disposable {
 			return { status: 'skipped', reason: defer.reason };
 		}
 
-		if (this.agentService.isBusy(agentId)) {
+		if (this.dependencies.agentService?.isBusy(agentId)) {
 			return { status: 'skipped', reason: HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT };
 		}
-		if (actualSessionKey !== agentId && this.agentService.isBusy(actualSessionKey)) {
+		if (actualSessionKey !== agentId && this.dependencies.agentService?.isBusy(actualSessionKey)) {
 			return { status: 'skipped', reason: HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT };
 		}
 
@@ -397,20 +340,10 @@ export class HeartbeatService implements Disposable {
 			});
 		}
 		const deliverToUser = delivery.status === 'ok';
-		const channelSettings = delivery.status === 'ok'
-			? this.agentService.getHeartbeatChannel()
-			: undefined;
-		if (delivery.status === 'ok' && !channelSettings) {
-			return this.skipAndAdvance(schedule, 'no-target', {
-				channel: delivery.message.type,
-				target: delivery.message.to,
-				accountId: delivery.message.accountId,
-			});
-		}
 		const visibility =
-			delivery.status === 'ok' && channelSettings
+			delivery.status === 'ok'
 				? resolveHeartbeatVisibility({
-						channel: channelSettings,
+						channel: this.dependencies.store.getChannel(),
 						channelId: delivery.message.type,
 						accountId: delivery.message.accountId,
 				  })
@@ -455,38 +388,41 @@ export class HeartbeatService implements Disposable {
 			execEvents: pendingEvents.exec,
 			cronEvents: pendingEvents.cron,
 			deliverToUser,
+			useResponseTool: true,
 			now: new Date(startedAt),
 		});
 
+		let toolResponse: HeartbeatToolResponse | undefined;
 		schedule.lastRunStartedAtMs = startedAt;
 		recordRunStart(schedule.recentRunStarts, startedAt);
 		schedule.floodLogged = false;
 
 		const typingTarget = delivery.status === 'ok' ? delivery.message.to : undefined;
-		const typingPlugin = delivery.status === 'ok'
-			? this.agentService.getHeartbeatChannelRegistry()?.getPlugin(delivery.message.type)
-			: undefined;
+		const typingPlugin = delivery.status === 'ok' ? this.dependencies.channelRegistry?.getPlugin(delivery.message.type) : undefined;
 		if (typingTarget && typingPlugin?.heartbeat?.sendTyping) {
 			await Promise.resolve(typingPlugin.heartbeat.sendTyping(typingTarget)).catch(() => undefined);
 		}
 
 		try {
-			const model = summary.modelId ?? summary.model;
-			const text = await this.agentService.send(prompt, agentId, {
+			if (!this.dependencies.agentService) return this.skipAndAdvance(schedule, 'no-agent-service');
+			const text = await this.dependencies.agentService.send(prompt, agentId, {
 				sessionId: actualSessionKey,
-				providerId: summary.providerId,
-				model,
-				effort: summary.reasoningEffort,
 				heartbeat: {
-					model,
+					model: summary.model,
 					timeoutSeconds: summary.timeoutSeconds,
 					lightContext: summary.lightContext,
 					suppressToolErrorWarnings: summary.suppressToolErrorWarnings,
+					enableHeartbeatTool: true,
+					forceHeartbeatTool: true,
 					suppressAgentEvents: true,
+					onToolResponse: (response) => {
+						toolResponse = response;
+					},
 				},
 			});
 			const normalized = normalizeHeartbeatReply({
 				text,
+				toolResponse,
 				ackMaxChars: summary.ackMaxChars,
 			});
 			let sent = false;
@@ -494,7 +430,7 @@ export class HeartbeatService implements Disposable {
 			if (delivery.status === 'ok') {
 				if (normalized.kind === 'alert' && visibility.showAlerts) {
 					if (!this.runtimeState.isDuplicateAlert(baseSessionKey, normalized.text, startedAt)) {
-						await this.agentService.getHeartbeatChannelRegistry()?.send({
+						await this.dependencies.channelRegistry?.send({
 							...delivery.message,
 							text: normalized.text,
 							idempotencyKey: `heartbeat:${agentId}:${startedAt}`,
@@ -506,7 +442,7 @@ export class HeartbeatService implements Disposable {
 						silent = true;
 					}
 				} else if (normalized.kind === 'ok' && visibility.showOk) {
-					await this.agentService.getHeartbeatChannelRegistry()?.send({
+					await this.dependencies.channelRegistry?.send({
 						...delivery.message,
 						text: HEARTBEAT_OK,
 						idempotencyKey: `heartbeat:${agentId}:${startedAt}:ok`,
@@ -543,7 +479,7 @@ export class HeartbeatService implements Disposable {
 				durationMs: Date.now() - startedAt,
 				indicatorType: 'error',
 			});
-			this.agentService.errorHeartbeat('Heartbeat run failed', error);
+			this.dependencies.logger.error('HeartbeatService', 'Heartbeat run failed', error);
 			return { status: 'failed', reason: error instanceof Error ? error.message : String(error) };
 		} finally {
 			if (typingTarget && typingPlugin?.heartbeat?.clearTyping) {
@@ -671,96 +607,12 @@ export class HeartbeatService implements Disposable {
 		return sessionKey === agentId || !sessionKey.startsWith('agent:') || sessionKey.startsWith(`agent:${agentId}:`);
 	}
 
-	private getDefaultHeartbeatConfig(): AgentHeartbeatConfig {
-		return this.agentService.getHeartbeatStore().getAgentsConfig()?.defaults?.heartbeat ?? {};
-	}
-
-	private assertObject(value: unknown): asserts value is Record<string, unknown> {
-		if (!value || typeof value !== 'object' || Array.isArray(value)) {
-			throw new Error('Invalid heartbeat request.');
-		}
-	}
-
-	private normalizeString(value: unknown): string | undefined {
-		return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-	}
-
-	private normalizeSettingsUpdate(request: HeartbeatSettingsUpdate): Partial<AgentHeartbeatConfig> {
-		const patch: Partial<AgentHeartbeatConfig> = {};
-		if ('every' in request) {
-			const every = this.normalizeString(request.every);
-			if (!every) throw new Error('Heartbeat cadence is required.');
-			patch.every = every;
-		}
-		if ('activeHours' in request) {
-			patch.activeHours = this.normalizeActiveHours(request.activeHours);
-		}
-		if ('providerId' in request) {
-			const providerId = this.normalizeString(request.providerId)?.toLowerCase();
-			if (!providerId) throw new Error('Heartbeat provider id is required.');
-			patch.providerId = providerId;
-		}
-		if ('modelId' in request) {
-			const modelId = this.normalizeString(request.modelId);
-			if (!modelId) throw new Error('Heartbeat model id is required.');
-			patch.modelId = modelId;
-		}
-		if ('reasoningEffort' in request) {
-			if (request.reasoningEffort === undefined || request.reasoningEffort === null) {
-				patch.reasoningEffort = undefined;
-			} else if (isModelReasoningEffort(request.reasoningEffort)) {
-				patch.reasoningEffort = request.reasoningEffort;
-			} else {
-				throw new Error('Heartbeat reasoning effort is not supported.');
-			}
-		}
-		return patch;
-	}
-
-	private requireProvider(providerId: string | undefined): asserts providerId is string {
-		if (!providerId) throw new Error('Heartbeat provider id is required.');
-		const provider = this.agentService.getHeartbeatProvider(providerId);
-		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
-	}
-
-	private requireModel(providerId: string | undefined, modelId: string): void {
-		this.requireProvider(providerId);
-		const model = this.agentService.getHeartbeatModel(providerId, modelId);
-		if (!model) throw new Error(`Model is not supported for heartbeat: ${modelId}`);
-	}
-
-	private requireReasoningEffort(
-		providerId: string | undefined,
-		modelId: string | undefined,
-		reasoningEffort: ModelReasoningEffort
-	): ModelReasoningEffort {
-		if (!providerId || !modelId) {
-			throw new Error('Heartbeat provider id and model id are required for reasoning effort.');
-		}
-		this.requireModel(providerId, modelId);
-		return requireModelReasoningEffort(modelId, reasoningEffort, providerId);
-	}
-
-	private isReasoningEffortSupported(
-		providerId: string | undefined,
-		modelId: string | undefined,
-		reasoningEffort: ModelReasoningEffort
-	): boolean {
-		return Boolean(
-			providerId &&
-				modelId &&
-				getModelReasoningEfforts(modelId, providerId).includes(reasoningEffort)
-		);
-	}
-
 	private normalizeActiveHours(
-		activeHours: HeartbeatTimingSettings['activeHours'] | unknown
+		activeHours: HeartbeatTimingSettings['activeHours']
 	): HeartbeatTimingSettings['activeHours'] {
-		if (activeHours === undefined || activeHours === null) return undefined;
-		this.assertObject(activeHours);
-		const start = this.normalizeString(activeHours.start);
-		const end = this.normalizeString(activeHours.end);
-		const timezone = this.normalizeString(activeHours.timezone);
+		const start = activeHours?.start?.trim();
+		const end = activeHours?.end?.trim();
+		const timezone = activeHours?.timezone?.trim();
 		if (!start && !end && !timezone) return undefined;
 		return {
 			...(start ? { start } : {}),
@@ -769,21 +621,13 @@ export class HeartbeatService implements Disposable {
 		};
 	}
 
-	private getHeartbeatOperator(): OperatorStoreState | undefined {
-		const operator = this.agentService.getHeartbeatOperatorConfig();
-		const agents = this.agentService.getHeartbeatStore().getAgentsConfig();
-		if (!operator) return agents ? { agents } : undefined;
-		const { agents: _legacyAgents, ...baseOperator } = operator;
-		return agents ? { ...baseOperator, agents } : baseOperator;
-	}
-
-	private async readHeartbeatFile(_agentId: string): Promise<{
+	private async readHeartbeatFile(agentId: string): Promise<{
 		exists: boolean;
 		path?: string;
 		content?: string;
 	}> {
 		try {
-			const file = await this.agentService.readHeartbeatWorkspaceFile('HEARTBEAT.md');
+			const file = await this.dependencies.startupFiles.readFile(agentId, 'HEARTBEAT.md');
 			return {
 				exists: !file.missing,
 				path: file.path,
@@ -850,8 +694,7 @@ export class HeartbeatService implements Disposable {
 
 	private resolveDelivery(summary: HeartbeatSummary, sessionKey: string): DeliveryResolution {
 		if (summary.target === 'none') return { status: 'none' };
-		const registry = this.agentService.getHeartbeatChannelRegistry();
-		if (!registry) return { status: 'skip', reason: 'no-target' };
+		if (!this.dependencies.channelRegistry) return { status: 'skip', reason: 'no-target' };
 		if (summary.target === 'last') {
 			const route = this.routesBySession.get(sessionKey) ?? this.lastRoute;
 			if (!route) return { status: 'skip', reason: 'no-target' };
@@ -876,10 +719,9 @@ export class HeartbeatService implements Disposable {
 		const explicit = this.parseExplicitTarget(summary.target);
 		const channelId = explicit?.channelId ?? normalizeChannelId(summary.target);
 		if (!channelId) return { status: 'skip', reason: 'no-target' };
-		const plugin = registry.getPlugin(channelId);
+		const plugin = this.dependencies.channelRegistry.getPlugin(channelId);
 		if (!plugin) return { status: 'skip', reason: 'no-target', channel: channelId };
-		const channelConfig = this.agentService.getHeartbeatChannelConfig(channelId);
-		if (!channelConfig) return { status: 'skip', reason: 'no-target', channel: channelId };
+		const channelConfig = this.dependencies.store.getChannel()[channelId];
 		const accountId = summary.accountId ?? explicit?.accountId ?? plugin.config.defaultAccountId(channelConfig) ?? 'default';
 		const account = plugin.config.resolveAccount(channelConfig, accountId);
 		if (!account) return { status: 'skip', reason: 'unknown-account', channel: channelId, accountId };
@@ -906,7 +748,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	private parseExplicitTarget(target: string) {
-		for (const plugin of this.agentService.getHeartbeatChannelRegistry()?.listPlugins() ?? []) {
+		for (const plugin of this.dependencies.channelRegistry?.listPlugins() ?? []) {
 			const parsed = plugin.messaging?.parseExplicitTarget(target);
 			if (parsed) return parsed;
 		}
@@ -925,7 +767,8 @@ export class HeartbeatService implements Disposable {
 			...event,
 		};
 		this.lastHeartbeat = payload;
-		this.agentService.emitHeartbeatEvent(payload);
+		this.dependencies.eventBus.emit('heartbeat:event', payload);
+		this.dependencies.eventBus.broadcast('heartbeat:event', payload);
 	}
 }
 
@@ -948,29 +791,8 @@ export class NoopHeartbeatService implements Disposable {
 	getLastHeartbeat(): HeartbeatEventPayload | null {
 		return null;
 	}
-	getSettings(): HeartbeatSettings {
-		return { every: DEFAULT_HEARTBEAT_EVERY };
-	}
-	saveSettings(): HeartbeatSettings {
-		return this.getSettings();
-	}
 	setEnabled(): HeartbeatStatus {
 		return this.getStatus();
-	}
-	getTiming(): HeartbeatTimingSettings {
-		return { every: DEFAULT_HEARTBEAT_EVERY };
-	}
-	updateTiming(): HeartbeatTimingSettings {
-		return this.getTiming();
-	}
-	setProviderId(): HeartbeatSettings {
-		return this.getSettings();
-	}
-	setModelId(): HeartbeatSettings {
-		return this.getSettings();
-	}
-	setReasoningEffort(): HeartbeatSettings {
-		return this.getSettings();
 	}
 	request(): void {
 		return;

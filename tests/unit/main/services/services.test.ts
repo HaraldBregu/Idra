@@ -1,207 +1,856 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { app } from 'electron';
+import { app, shell } from 'electron';
+import { AppsService } from '../../../../src/main/apps';
 import { ConnectorsService } from '../../../../src/main/connectors';
-import { AgentMcpClientService } from '../../../../src/main/agent/capabilities/mcp';
+import {
+	buildGoogleAuthorizationUrl,
+	scopesForGoogleDriveTools,
+	scopesForGmailTools,
+	scopesForGoogleCalendarTools,
+} from '../../../../src/main/connectors/google';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
-import { AgentStartupFilesService } from '../../../../src/main/agent';
+import { UserDataDirectoryService } from '../../../../src/main/user-data';
+import { WorkspaceService } from '../../../../src/main/workspace';
+import { AgentStartupFilesService } from '../../../../src/main/agent/startup-files';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
-function connectorStoreFor(
-	read: () => Record<string, unknown>,
-	write: (connectors: Record<string, unknown>) => void
-): { get: jest.Mock; set: jest.Mock; delete: jest.Mock; store: Record<string, unknown> } {
-	const store = {
-		get: jest.fn((key: string) => (key === 'connectors' ? read() : undefined)),
-		set: jest.fn((key: string, value: unknown) => {
-			if (key === 'connectors' && value && typeof value === 'object' && !Array.isArray(value)) {
-				write(value as Record<string, unknown>);
-			}
-		}),
-		delete: jest.fn((key: string) => {
-			if (key === 'connectors') write({});
-		}),
-	} as { get: jest.Mock; set: jest.Mock; delete: jest.Mock; store: Record<string, unknown> };
-	Object.defineProperty(store, 'store', {
-		get: read,
-		set: write,
+describe('apps service', () => {
+	it('lists valid app manifests with embedded icons and validates ids for destructive operations', async () => {
+		const tempRoot = await makeTempDir();
+		const userDataDirectory = new UserDataDirectoryService({ homePath: tempRoot });
+		const service = new AppsService(makeLogger() as never, userDataDirectory);
+		const root = service.getAppsRoot();
+		await fs.mkdir(path.join(root, 'alpha'), { recursive: true });
+		await fs.writeFile(path.join(root, 'alpha', 'icon.png'), Buffer.from('icon'));
+		await fs.writeFile(
+			path.join(root, 'alpha', 'manifest.json'),
+			JSON.stringify({ name: 'Alpha', version: '1.0.0', icon: 'icon.png' })
+		);
+
+		const apps = await service.list();
+		expect(apps).toHaveLength(1);
+		expect(apps[0]?.iconDataUrl).toContain('data:image/png;base64');
+
+		await service.openFolder('alpha');
+		expect(shell.openPath).toHaveBeenCalledWith(path.join(root, 'alpha'));
+		(shell.openPath as jest.Mock).mockResolvedValueOnce('permission denied');
+		await expect(service.openFolder('alpha')).rejects.toThrow(/Could not open app folder/);
+		await expect(service.delete('../bad')).rejects.toThrow(/Invalid app id/);
+		await fs.rm(tempRoot, { recursive: true, force: true });
 	});
-	return store;
-}
+});
 
 describe('connectors service', () => {
-	function fakeMcpClient() {
-		return {
-			listTools: jest.fn(async () => [
-				{
-					name: 'search',
-					description: 'Search remotely discovered data.',
-					inputSchema: { type: 'object', properties: { query: { type: 'string' } } },
-					permission: 'always-allow',
-					requiresApproval: false,
-				},
-				{
-					name: 'write_note',
-					description: 'Write a note.',
-					inputSchema: { type: 'object', properties: { text: { type: 'string' } } },
-					permission: 'always-allow',
-					requiresApproval: false,
-				},
-			]),
-			callTool: jest.fn(async (name: string, args: Record<string, unknown>) => ({ name, args })),
-			listResources: jest.fn(async () => []),
-			readResource: jest.fn(async () => ({})),
-			listPrompts: jest.fn(async () => []),
-			getPrompt: jest.fn(async () => ({})),
-			close: jest.fn(async () => undefined),
-		};
-	}
-
-	it('adds, lists, updates, tests, and removes dynamic MCP connector configs', async () => {
-		let connectors: Record<string, unknown> = {};
-		const store = connectorStoreFor(
-			() => connectors,
-			(next) => {
+	it('adds, lists, updates, tests, and removes connector configs', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
 				connectors = next;
-			}
-		);
-		const client = fakeMcpClient();
-		const service = new ConnectorsService(makeLogger() as never, {
-			store: store as never,
-		});
-		const mcpClient = new AgentMcpClientService(makeLogger() as never, service, {
-			mcpClientFactory: jest.fn(() => client),
-		});
-		service.setToolRuntime(mcpClient);
+			}),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
 		const added = await service.add({
-			name: 'Remote Gmail',
-			connectorId: 'google.gmail',
-			serverLabel: 'remote_gmail',
-			allowedTools: ['search'],
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'token',
+			allowedTools: ['get_profile'],
 			requireApproval: 'never_for_allowed_tools',
-			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 		});
-		await mcpClient.refreshTools(added.id);
 
-		expect(added.serverLabel).toBe('remote_gmail');
+		expect(added.serverLabel).toBe('my_gmail');
 		expect(added.authorization).toBe('');
 		expect(service.get(added.id).authorization).toBe('');
-		expect(connectors.remote_gmail).toMatchObject({
-			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
-			tools: expect.arrayContaining([
-				expect.objectContaining({ name: 'search' }),
-				expect.objectContaining({ name: 'write_note' }),
-			]),
-		});
+		expect(connectors[0]).toMatchObject({ authorization: 'token' });
 		expect(service.list()[0]).toMatchObject({
-			name: 'Remote Gmail',
+			name: 'My Gmail',
 			status: 'configured',
-			toolsCount: 2,
-			authKind: 'mcp_env',
+			toolsCount: 1,
 		});
-		expect(await mcpClient.test(added.id)).toMatchObject({ status: 'configured' });
-		await expect(mcpClient.callTool(added.id, 'search', { query: 'report' })).resolves.toEqual({
-			name: 'search',
-			args: { query: 'report' },
-		});
+		expect(await service.test(added.id)).toMatchObject({ status: 'configured' });
 		const updated = await service.disable(added.id);
 		expect(updated.enabled).toBe(false);
-		expect(await mcpClient.test(added.id)).toMatchObject({ status: 'disabled' });
+		expect(await service.test(added.id)).toMatchObject({ status: 'disabled' });
 		await service.remove(added.id);
 		expect(service.list()).toEqual([]);
+		await expect(
+			service.add({
+				name: 'Bad',
+				connectorId: 'connector_gmail',
+				authorization: 'x',
+				allowedTools: ['missing'],
+			})
+		).rejects.toThrow(/not available/);
 	});
 
-	it('allows more than one configured connector per provider id', async () => {
-		let connectors: Record<string, unknown> = {};
-		const store = connectorStoreFor(
-			() => connectors,
-			(next) => {
+	it('validates connector add and update payloads before storing them', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
 				connectors = next;
-			}
-		);
-		const service = new ConnectorsService(makeLogger() as never, {
-			store: store as never,
-		});
-
-		await service.add({
-			name: 'Work Gmail',
-			connectorId: 'google.gmail',
-			serverLabel: 'work_gmail',
-			mcp: { transport: 'http', url: 'https://work.example.test/mcp' },
-		});
-		await service.add({
-			name: 'Personal Gmail',
-			connectorId: 'google.gmail',
-			serverLabel: 'personal_gmail',
-			mcp: { transport: 'http', url: 'https://personal.example.test/mcp' },
-		});
-
-		expect(service.list().map((connector) => connector.name)).toEqual(['Work Gmail', 'Personal Gmail']);
-	});
-
-	it('validates MCP connector payloads before storing them', async () => {
-		let connectors: Record<string, unknown> = {};
-		const store = connectorStoreFor(
-			() => connectors,
-			(next) => {
-				connectors = next;
-			}
-		);
-		const service = new ConnectorsService(makeLogger() as never, {
-			store: store as never,
-		});
+			}),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
 
 		await expect(service.add(undefined)).rejects.toThrow(/Connector configuration is required/);
 		await expect(
-			service.add({ name: 'Bad', connectorId: 'google.gmail', allowedTools: ['search', 42] })
+			service.add({
+				name: 'Bad',
+				connectorId: 'connector_gmail',
+				allowedTools: ['get_profile', 42],
+			})
 		).rejects.toThrow(/allowedTools must be an array of strings/);
 		await expect(
 			service.add({
 				name: 'Bad',
-				connectorId: 'google.gmail',
-				authorization: 'token',
-				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
+				connectorId: 'connector_gmail',
+				requireApproval: 'sometimes',
 			})
-		).rejects.toThrow(/environment variables/);
-		await expect(
-			service.add({
-				name: 'Bad',
-				connectorId: 'google.gmail',
-				mcp: { transport: 'http', url: 'https://mcp.example.test/mcp', headers: { Authorization: 'token' } },
-			})
-		).rejects.toThrow(/secret headers/);
+		).rejects.toThrow(/requireApproval must be one of/);
+
+		const added = await service.add({
+			name: '  My Gmail  ',
+			connectorId: 'connector_gmail',
+			authorization: ' token ',
+			allowedTools: [' get_profile ', 'get_profile', ''],
+		});
+
+		expect(connectors[0]).toMatchObject({
+			name: 'My Gmail',
+			authorization: 'token',
+			allowedTools: ['get_profile'],
+		});
+		await expect(service.update(added.id, undefined)).rejects.toThrow(
+			/Connector update is required/
+		);
+		await expect(service.update(added.id, { enabled: 'false' })).rejects.toThrow(
+			/enabled must be a boolean/
+		);
 	});
 
-	it('reports missing secret env vars instead of storing API keys', async () => {
-		let connectors: Record<string, unknown> = {};
-		const store = connectorStoreFor(
-			() => connectors,
-			(next) => {
+	it('keeps catalog-only connectors configurable but out of local agent tools', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
 				connectors = next;
-			}
-		);
-		const client = fakeMcpClient();
-		const service = new ConnectorsService(makeLogger() as never, {
-			store: store as never,
+			}),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['get_profile'],
 		});
-		const mcpClient = new AgentMcpClientService(makeLogger() as never, service, {
-			mcpClientFactory: jest.fn(() => client),
-		});
-		service.setToolRuntime(mcpClient);
-		const added = await service.add({
-			name: 'Remote MCP',
-			connectorId: 'remote.mcp',
-			serverLabel: 'remote',
-			mcp: {
-				transport: 'http',
-				url: 'https://mcp.example.test/mcp',
-				auth: { env: 'REMOTE_MCP_API_KEY' },
+		const catalogOnlyInputs = [
+			{
+				name: 'My Dropbox',
+				connectorId: 'connector_dropbox',
+				authorization: 'dropbox-token',
+				allowedTools: ['search'],
 			},
+			{
+				name: 'My Teams',
+				connectorId: 'connector_microsoftteams',
+				authorization: 'teams-token',
+				allowedTools: ['search'],
+			},
+			{
+				name: 'My Outlook Calendar',
+				connectorId: 'connector_outlookcalendar',
+				authorization: 'outlook-calendar-token',
+				allowedTools: ['search_events'],
+			},
+			{
+				name: 'My Outlook Email',
+				connectorId: 'connector_outlookemail',
+				authorization: 'outlook-email-token',
+				allowedTools: ['search_messages'],
+			},
+			{
+				name: 'My SharePoint',
+				connectorId: 'connector_sharepoint',
+				authorization: 'sharepoint-token',
+				allowedTools: ['search'],
+			},
+		] as const;
+		const catalogOnly: Array<{ connector: { id: string }; toolName: string }> = [];
+		for (const input of catalogOnlyInputs) {
+			catalogOnly.push({
+				connector: await service.add(input),
+				toolName: input.allowedTools[0],
+			});
+		}
+
+		expect(service.list()).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ name: 'My Gmail', status: 'configured', toolsCount: 1 }),
+				...catalogOnlyInputs.map((input) =>
+					expect.objectContaining({ name: input.name, status: 'configured', toolsCount: 1 })
+				),
+			])
+		);
+		for (const { connector, toolName } of catalogOnly) {
+			expect(service.listTools(connector.id).map((tool) => tool.name)).toEqual([toolName]);
+		}
+		expect(service.createAgentTools().map((tool) => tool.name)).toEqual(['my_gmail_get_profile']);
+		for (const { connector, toolName } of catalogOnly) {
+			await expect(service.test(connector.id)).resolves.toMatchObject({
+				status: 'configured',
+				message: expect.stringContaining('catalog/provider-hosted use'),
+			});
+			await expect(service.callTool(connector.id, toolName, { query: 'report' })).rejects.toThrow(
+				/catalog-only in local runtime/
+			);
+		}
+	});
+
+	it('exposes only allowed Google strategy tools as provider-neutral agent tools', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const service = new ConnectorsService(store as never, makeLogger() as never);
+		const gmail = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['get_profile'],
+		});
+		const calendar = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			authorization: 'google-token',
+			allowedTools: ['search_events'],
+		});
+		const drive = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			authorization: 'google-token',
+			allowedTools: ['search_files', 'create_file'],
 		});
 
-		expect(client.listTools).not.toHaveBeenCalled();
-		expect(service.list()[0]).toMatchObject({ status: 'missing_auth' });
-		await expect(mcpClient.refreshTools(added.id)).rejects.toThrow('REMOTE_MCP_API_KEY');
+		expect(service.listTools(gmail.id).map((tool) => tool.name)).toEqual(['get_profile']);
+		expect(service.listTools(calendar.id).map((tool) => tool.name)).toEqual(['search_events']);
+		expect(service.listTools(drive.id).map((tool) => tool.name)).toEqual([
+			'search_files',
+			'create_file',
+		]);
+		const tools = service.createAgentTools();
+
+		expect(tools.map((tool) => tool.name)).toEqual([
+			'my_gmail_get_profile',
+			'my_calendar_search_events',
+			'my_drive_search_files',
+			'my_drive_create_file',
+		]);
+		const needsApproval = tools.find((tool) => tool.name === 'my_drive_create_file')?.needsApproval;
+		expect(typeof needsApproval).toBe('function');
+		if (typeof needsApproval !== 'function')
+			throw new Error('create_file approval predicate is missing');
+		expect(await needsApproval({}, {} as never)).toBe(true);
+	});
+
+	it('validates required Google tool arguments before API calls', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async () => {
+			throw new Error('unexpected fetch');
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, { fetchImpl });
+		const gmail = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['read_email'],
+		});
+		const calendar = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			authorization: 'google-token',
+			allowedTools: ['read_event'],
+		});
+		const drive = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			authorization: 'google-token',
+			allowedTools: ['read_file_content'],
+		});
+
+		await expect(service.callTool(gmail.id, 'read_email', {})).rejects.toThrow(
+			/message id is required/
+		);
+		await expect(service.callTool(calendar.id, 'read_event', {})).rejects.toThrow(
+			/event id is required/
+		);
+		await expect(service.callTool(drive.id, 'read_file_content', {})).rejects.toThrow(
+			/Google Drive file id is required/
+		);
+		expect(fetchImpl).not.toHaveBeenCalled();
+	});
+
+	it('validates Google strategy arguments before refreshing OAuth tokens', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async () => {
+			throw new Error('unexpected fetch');
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
+		const drive = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			allowedTools: ['read_file_content'],
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...(connectors[0] as { oauth: Record<string, unknown> }).oauth,
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		await expect(service.callTool(drive.id, 'read_file_content', {})).rejects.toThrow(
+			/Google Drive file id is required/
+		);
+		expect(fetchImpl).not.toHaveBeenCalled();
+	});
+
+	it('builds Google OAuth URLs with offline access and least required Gmail scopes', () => {
+		const url = new URL(
+			buildGoogleAuthorizationUrl({
+				clientId: 'client-id',
+				redirectUri: 'http://127.0.0.1:49152',
+				state: 'state',
+				scopes: scopesForGmailTools(['search_emails', 'send_email']),
+				codeChallenge: 'challenge',
+				codeChallengeMethod: 'S256',
+			})
+		);
+
+		expect(url.origin + url.pathname).toBe('https://accounts.google.com/o/oauth2/v2/auth');
+		expect(url.searchParams.get('redirect_uri')).toBe('http://127.0.0.1:49152');
+		expect(url.searchParams.get('access_type')).toBe('offline');
+		expect(url.searchParams.get('include_granted_scopes')).toBe('true');
+		expect(url.searchParams.get('prompt')).toBe('consent');
+		expect(url.searchParams.get('code_challenge')).toBe('challenge');
+		expect(url.searchParams.get('code_challenge_method')).toBe('S256');
+		expect(url.searchParams.get('scope')).toContain(
+			'https://www.googleapis.com/auth/gmail.readonly'
+		);
+		expect(url.searchParams.get('scope')).toContain('https://www.googleapis.com/auth/gmail.send');
+	});
+
+	it('builds least required Google Calendar OAuth scopes for writable event tools', () => {
+		const scopes = scopesForGoogleCalendarTools(['search_events', 'create_event']);
+
+		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events.readonly');
+		expect(scopes).toContain('https://www.googleapis.com/auth/calendar.events');
+		expect(scopes).toContain('https://www.googleapis.com/auth/userinfo.email');
+	});
+
+	it('builds least required Google Drive OAuth scopes for file tools', () => {
+		const profileOnlyScopes = scopesForGoogleDriveTools(['get_profile']);
+		const fileScopes = scopesForGoogleDriveTools(['search_files', 'read_file_content']);
+		const writeScopes = scopesForGoogleDriveTools(['create_file']);
+
+		expect(profileOnlyScopes).toContain('https://www.googleapis.com/auth/userinfo.email');
+		expect(profileOnlyScopes).not.toContain('https://www.googleapis.com/auth/drive.readonly');
+		expect(fileScopes).toContain('https://www.googleapis.com/auth/drive.readonly');
+		expect(fileScopes).not.toContain('https://www.googleapis.com/auth/drive.file');
+		expect(writeScopes).toContain('https://www.googleapis.com/auth/drive.file');
+	});
+
+	it('opens Google OAuth with a runtime loopback redirect and exchanges the code with PKCE', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const openedUrls: string[] = [];
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = new URLSearchParams(String(init?.body));
+				expect(body.get('code')).toBe('code-1');
+				expect(body.get('client_id')).toBe('client-id');
+				expect(body.get('client_secret')).toBe('client-secret');
+				expect(body.get('grant_type')).toBe('authorization_code');
+				expect(body.get('redirect_uri')).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+				expect(body.get('code_verifier')).toMatch(/^[A-Za-z0-9._~-]{43,128}$/);
+				return jsonResponse({
+					access_token: 'access-token',
+					refresh_token: 'refresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url === 'https://www.googleapis.com/oauth2/v3/userinfo') {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer access-token' });
+				return jsonResponse({ email: 'user@example.com' });
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+			createOAuthLoopbackServer: async () => ({
+				redirectUri: 'http://127.0.0.1:49152',
+				callback: Promise.resolve({ code: 'code-1' }),
+				close: jest.fn(),
+			}),
+			openExternal: async (url: string) => {
+				openedUrls.push(url);
+				const authUrl = new URL(url);
+				const redirectUri = authUrl.searchParams.get('redirect_uri');
+				expect(redirectUri).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+				expect(authUrl.searchParams.get('state')).toBeTruthy();
+				expect(authUrl.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]+$/);
+				expect(authUrl.searchParams.get('code_challenge_method')).toBe('S256');
+			},
+		});
+		const added = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			allowedTools: ['get_profile'],
+		});
+
+		await expect(service.connectOAuth(added.id)).resolves.toMatchObject({
+			status: 'configured',
+			connectedAccount: 'user@example.com',
+		});
+		expect(openedUrls).toHaveLength(1);
+		expect(connectors[0]).toMatchObject({
+			oauth: expect.not.objectContaining({
+				clientId: expect.any(String),
+				clientSecret: expect.any(String),
+			}),
+		});
+		expect(service.list()[0]).toMatchObject({
+			status: 'configured',
+			connectedAccount: 'user@example.com',
+		});
+	});
+
+	it('connects Gmail tools to Google OAuth tokens and exposes them to the agent', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				expect(String(init?.body)).toContain('grant_type=refresh_token');
+				return jsonResponse({
+					access_token: 'fresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url.startsWith('https://gmail.googleapis.com/gmail/v1/users/me/messages?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({ messages: [{ id: 'msg-1', threadId: 'thread-1' }] });
+			}
+			if (url.includes('/messages/msg-1')) {
+				return jsonResponse({
+					id: 'msg-1',
+					threadId: 'thread-1',
+					snippet: 'Hello from Gmail',
+					payload: {
+						headers: [
+							{ name: 'From', value: 'sender@example.com' },
+							{ name: 'Subject', value: 'Hello' },
+							{ name: 'Date', value: 'Today' },
+						],
+					},
+				});
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			allowedTools: ['search_emails'],
+			requireApproval: 'never_for_allowed_tools',
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...(connectors[0] as { oauth: Record<string, unknown> }).oauth,
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		const tools = service.createAgentTools();
+		const skillConnectors = service.createSkillConnectors();
+
+		expect(tools.map((tool) => tool.name)).toEqual(['my_gmail_search_emails']);
+		expect(skillConnectors.map((connector) => connector.id)).toEqual(
+			expect.arrayContaining(['connector_gmail', 'my_gmail'])
+		);
+		await expect(
+			tools[0]!.execute({ query: 'from:sender@example.com' }, {} as never)
+		).resolves.toMatchObject({
+			status: 'ok',
+			content: [expect.objectContaining({ text: expect.stringContaining('msg-1') })],
+		});
+		await expect(
+			skillConnectors
+				.find((connector) => connector.id === 'connector_gmail')!
+				.call('search_emails', { query: 'from:sender@example.com' })
+		).resolves.toMatchObject({
+			messages: [expect.objectContaining({ id: 'msg-1' })],
+		});
+	});
+
+	it('uses app-level Google OAuth credentials instead of per-connector client fields', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = String(init?.body);
+				expect(body).toContain('client_id=app-client-id');
+				expect(body).toContain('grant_type=refresh_token');
+				return jsonResponse({
+					access_token: 'fresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url.endsWith('/profile')) {
+				return jsonResponse({ emailAddress: 'user@example.com' });
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'app-client-id',
+			googleOAuthClientSecret: 'app-client-secret',
+		});
+		const added = await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			allowedTools: ['get_profile'],
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					provider: 'google',
+					redirectUri: 'http://127.0.0.1:49152',
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		await expect(service.callTool(added.id, 'get_profile', {})).resolves.toMatchObject({
+			emailAddress: 'user@example.com',
+		});
+	});
+
+	it('ignores legacy saved Google OAuth client settings and uses app-level credentials', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = String(init?.body);
+				expect(body).toContain('client_id=app-client-id');
+				expect(body).toContain('client_secret=app-client-secret');
+				return jsonResponse({
+					access_token: 'fresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/calendar/v3/calendars/primary/events?')) {
+				return jsonResponse({ items: [{ id: 'event-1', summary: 'Shared auth' }] });
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'app-client-id',
+			googleOAuthClientSecret: 'app-client-secret',
+		});
+		await service.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			allowedTools: ['get_profile'],
+		});
+		const calendar = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			allowedTools: ['search_events'],
+		});
+		connectors = [
+			connectors[0],
+			{
+				...(connectors[1] as Record<string, unknown>),
+				oauth: {
+					provider: 'google',
+					redirectUri: 'http://127.0.0.1:49152',
+					clientId: 'legacy-client-id',
+					clientSecret: 'legacy-client-secret',
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		await expect(service.callTool(calendar.id, 'search_events', {})).resolves.toMatchObject({
+			items: [expect.objectContaining({ id: 'event-1' })],
+		});
+	});
+
+	it('executes Google Calendar read and write tools with Google OAuth tokens', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				expect(String(init?.body)).toContain('grant_type=refresh_token');
+				return jsonResponse({
+					access_token: 'fresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/calendar/v3/calendars/primary/events?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					items: [
+						{
+							id: 'event-1',
+							summary: 'Planning',
+							start: { dateTime: '2026-05-17T10:00:00Z' },
+							end: { dateTime: '2026-05-17T11:00:00Z' },
+						},
+					],
+				});
+			}
+			if (url === 'https://www.googleapis.com/calendar/v3/calendars/primary/events') {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				expect(JSON.parse(String(init?.body))).toMatchObject({ summary: 'Demo' });
+				return jsonResponse({
+					id: 'event-2',
+					summary: 'Demo',
+					start: { dateTime: '2026-05-18T10:00:00Z' },
+					end: { dateTime: '2026-05-18T11:00:00Z' },
+				});
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
+		const added = await service.add({
+			name: 'My Calendar',
+			connectorId: 'connector_googlecalendar',
+			allowedTools: ['search_events', 'create_event'],
+			requireApproval: 'never_for_allowed_tools',
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...(connectors[0] as { oauth: Record<string, unknown> }).oauth,
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		await expect(
+			service.callTool(added.id, 'search_events', { query: 'planning' })
+		).resolves.toMatchObject({
+			items: [expect.objectContaining({ id: 'event-1', summary: 'Planning' })],
+		});
+		await expect(
+			service.callTool(added.id, 'create_event', {
+				summary: 'Demo',
+				start: '2026-05-18T10:00:00Z',
+				end: '2026-05-18T11:00:00Z',
+			})
+		).resolves.toMatchObject({ id: 'event-2', summary: 'Demo' });
+	});
+
+	it('executes Google Drive MCP-style tools with Google OAuth tokens', async () => {
+		let connectors: unknown[] = [];
+		const store = {
+			getConnectors: jest.fn(() => connectors),
+			setConnectors: jest.fn((next: unknown[]) => {
+				connectors = next;
+			}),
+		};
+		const fetchImpl = jest.fn(async (url: string, init?: RequestInit) => {
+			if (url === 'https://oauth2.googleapis.com/token') {
+				const body = String(init?.body);
+				expect(body).toContain('client_id=client-id');
+				expect(body).toContain('client_secret=client-secret');
+				expect(body).toContain('grant_type=refresh_token');
+				return jsonResponse({
+					access_token: 'fresh-token',
+					expires_in: 3600,
+					token_type: 'Bearer',
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/drive/v3/files?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					files: [
+						{
+							id: 'file-1',
+							name: 'Roadmap',
+							mimeType: 'application/vnd.google-apps.document',
+							webViewLink: 'https://drive.google.com/file/d/file-1/view',
+						},
+					],
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/drive/v3/files/file-1?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					id: 'file-1',
+					name: 'Roadmap',
+					mimeType: 'application/vnd.google-apps.document',
+					webViewLink: 'https://drive.google.com/file/d/file-1/view',
+				});
+			}
+			if (url === 'https://www.googleapis.com/drive/v3/files/file-1/export?mimeType=text%2Fplain') {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return textResponse('Drive document body');
+			}
+			if (url.startsWith('https://www.googleapis.com/drive/v3/files/file-1/permissions?')) {
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				return jsonResponse({
+					permissions: [
+						{
+							id: 'permission-1',
+							type: 'user',
+							role: 'reader',
+							emailAddress: 'reader@example.com',
+						},
+					],
+				});
+			}
+			if (url.startsWith('https://www.googleapis.com/upload/drive/v3/files?')) {
+				expect(init?.method).toBe('POST');
+				expect(init?.headers).toMatchObject({ authorization: 'Bearer fresh-token' });
+				expect(String(init?.body)).toContain('Draft note');
+				expect(String(init?.body)).toContain('Hello Drive');
+				return jsonResponse({
+					id: 'file-2',
+					name: 'Draft note',
+					mimeType: 'text/plain',
+					webViewLink: 'https://drive.google.com/file/d/file-2/view',
+				});
+			}
+			throw new Error(`unexpected fetch: ${url}`);
+		}) as unknown as typeof fetch;
+		const service = new ConnectorsService(store as never, makeLogger() as never, {
+			fetchImpl,
+			googleOAuthClientId: 'client-id',
+			googleOAuthClientSecret: 'client-secret',
+		});
+		const added = await service.add({
+			name: 'My Drive',
+			connectorId: 'connector_googledrive',
+			allowedTools: [
+				'search_files',
+				'read_file_content',
+				'get_file_metadata',
+				'get_file_permissions',
+				'create_file',
+			],
+			requireApproval: 'never_for_allowed_tools',
+		});
+		connectors = [
+			{
+				...(connectors[0] as Record<string, unknown>),
+				oauth: {
+					...(connectors[0] as { oauth: Record<string, unknown> }).oauth,
+					refreshToken: 'refresh-token',
+				},
+			},
+		];
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		await expect(
+			service.callTool(added.id, 'search_files', { query: 'roadmap' })
+		).resolves.toMatchObject({
+			files: [expect.objectContaining({ id: 'file-1', name: 'Roadmap' })],
+		});
+		await expect(
+			service.callTool(added.id, 'read_file_content', { id: 'file-1' })
+		).resolves.toMatchObject({
+			id: 'file-1',
+			content: 'Drive document body',
+		});
+		await expect(
+			service.callTool(added.id, 'get_file_metadata', { id: 'file-1' })
+		).resolves.toMatchObject({
+			id: 'file-1',
+			name: 'Roadmap',
+		});
+		await expect(
+			service.callTool(added.id, 'get_file_permissions', { id: 'file-1' })
+		).resolves.toMatchObject({
+			permissions: [expect.objectContaining({ id: 'permission-1', role: 'reader' })],
+		});
+		await expect(
+			service.callTool(added.id, 'create_file', {
+				name: 'Draft note',
+				content: 'Hello Drive',
+			})
+		).resolves.toMatchObject({ id: 'file-2', name: 'Draft note' });
 	});
 });
 
@@ -223,7 +872,7 @@ function textResponse(payload: string, status = 200): Response {
 	} as Response;
 }
 
-describe('agent startup files service', () => {
+describe('workspace service', () => {
 	const startupStatePath = (agentRoot: string): string =>
 		path.join(agentRoot, '.friday', 'startup-state.json');
 	const readStartupState = async (
@@ -234,16 +883,28 @@ describe('agent startup files service', () => {
 			setupCompletedAt?: string;
 		};
 
-	it('defaults startup files under Electron appData agent storage', () => {
-		(app.getPath as jest.Mock).mockImplementation((name: string) => `/tmp/friday-test/${name}`);
-		const service = new AgentStartupFilesService();
-
-		expect(service.getRootPath('main')).toBe(
-			path.join('/tmp/friday-test/appData', 'friday', 'agent', 'workspaces', 'main')
-		);
+	it('confines reads and writes to the configured root', async () => {
+		const root = await makeTempDir();
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+		await service.writeText('nested/file.txt', 'hello');
+		await expect(service.readText('nested/file.txt')).resolves.toBe('hello');
+		await service.writeJson('data.json', { ok: true });
+		await expect(service.readJson('data.json')).resolves.toEqual({ ok: true });
+		expect(() => service.resolvePath('..', 'outside')).toThrow(/outside root/);
+		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('seeds agent startup files under the agent workspace without overwriting user edits', async () => {
+	it('does not seed agent startup files into the workspace root', async () => {
+		const root = await makeTempDir();
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+
+		await service.ensureReady({ initializeGit: false });
+		await expect(fs.access(path.join(root, 'AGENTS.md'))).rejects.toThrow();
+		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('seeds agent startup files under .friday/agent without overwriting user edits', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({
 			rootPath: path.join(root, 'agent', 'workspaces'),
@@ -253,21 +914,11 @@ describe('agent startup files service', () => {
 		const agentRoot = service.getRootPath('main');
 		expect(agentRoot).toBe(path.join(root, 'agent', 'workspaces', 'main'));
 		await expect(fs.readFile(path.join(agentRoot, 'AGENTS.md'), 'utf8')).resolves.toContain(
-			'# AGENTS.md - Your Workspace'
-		);
-		await expect(fs.readFile(path.join(agentRoot, 'SOUL.md'), 'utf8')).resolves.toContain(
-			'# SOUL.md - Who You Are'
-		);
-		await expect(fs.readFile(path.join(agentRoot, 'TOOLS.md'), 'utf8')).resolves.toContain(
-			'# TOOLS.md - Local Notes'
+			'startup context'
 		);
 		await expect(fs.readFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
-			'# BOOTSTRAP.md - Hello, World'
+			'First Run'
 		);
-		const initialState = await readStartupState(agentRoot);
-		expect(initialState.bootstrapSeededAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
-		expect(initialState.setupCompletedAt).toBeUndefined();
-		await expect(service.isBootstrapPending('main')).resolves.toBe(true);
 
 		await service.writeFile('main', 'SOUL.md', 'custom soul');
 		await service.ensureReady('main');
@@ -299,7 +950,7 @@ describe('agent startup files service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('records setup completion when seeded BOOTSTRAP.md is deleted', async () => {
+	it('records agent setup completion when seeded BOOTSTRAP.md is deleted', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({
 			rootPath: path.join(root, 'agent', 'workspaces'),
@@ -307,7 +958,7 @@ describe('agent startup files service', () => {
 		const agentRoot = service.getRootPath('main');
 
 		await service.ensureReady('main');
-		await fs.rm(path.join(agentRoot, 'BOOTSTRAP.md'), { force: true });
+		await fs.unlink(path.join(agentRoot, 'BOOTSTRAP.md'));
 		await service.ensureReady('main');
 
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
@@ -316,7 +967,7 @@ describe('agent startup files service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('does not treat a stale BOOTSTRAP.md as pending after setup is complete', async () => {
+	it('repairs stale agent BOOTSTRAP.md when profile files show setup completed', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({
 			rootPath: path.join(root, 'agent', 'workspaces'),
@@ -324,31 +975,27 @@ describe('agent startup files service', () => {
 		const agentRoot = service.getRootPath('main');
 
 		await service.ensureReady('main');
-		await fs.writeFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'stale bootstrap', 'utf8');
 		await fs.writeFile(path.join(agentRoot, 'USER.md'), 'custom user', 'utf8');
 		await service.ensureReady('main');
 
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
 		const state = await readStartupState(agentRoot);
+		expect(state.bootstrapSeededAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
 		expect(state.setupCompletedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
-		await expect(service.isBootstrapPending('main')).resolves.toBe(false);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('loads only safe canonical startup files', async () => {
+	it('loads only safe canonical workspace files', async () => {
 		const root = await makeTempDir();
-		const service = new AgentStartupFilesService({
-			rootPath: path.join(root, 'agent', 'workspaces'),
-		});
-		const agentRoot = service.getRootPath('main');
-		await service.ensureReady('main');
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+		await service.ensureReady({ initializeGit: false });
 
-		await fs.rm(path.join(agentRoot, 'USER.md'), { force: true });
-		await fs.symlink(path.join(agentRoot, 'AGENTS.md'), path.join(agentRoot, 'USER.md'));
-		const loaded = await service.readFile('main', 'USER.md');
+		await fs.rm(path.join(root, 'USER.md'), { force: true });
+		await fs.symlink(path.join(root, 'AGENTS.md'), path.join(root, 'USER.md'));
+		const loaded = await service.readWorkspaceFile('USER.md');
 
 		expect(loaded).toMatchObject({ name: 'USER.md', missing: true, error: 'unsafe' });
-		await expect(service.readFile('main', '../outside')).rejects.toThrow(/Unsupported/);
+		await expect(service.readWorkspaceFile('../outside')).rejects.toThrow(/Unsupported/);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 });

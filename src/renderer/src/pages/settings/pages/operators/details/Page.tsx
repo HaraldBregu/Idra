@@ -2,12 +2,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	AlertTriangle,
+	Bot,
 	CheckCircle2,
 	ChevronDown,
 	ChevronRight,
 	CircleOff,
+	ImageIcon,
 	LoaderCircle,
+	Mic,
+	Music,
 	Save,
+	Video,
+	Volume2,
+	type LucideIcon,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -29,18 +36,221 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../../components';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../../../../../shared/providers';
 import {
 	ASSISTANT_OPERATOR_ID,
+	ASSISTANT_RUNTIME_ID,
 	DEFAULT_MODEL_REASONING_EFFORT,
+	IMAGE_CREATOR_OPERATOR_ID,
+	MUSIC_CREATOR_OPERATOR_ID,
+	OPERATOR_DEFINITIONS,
+	SPEECH_TO_TEXT_OPERATOR_ID,
+	TEXT_TO_SPEECH_OPERATOR_ID,
+	TEXT_TO_VIDEO_OPERATOR_ID,
+	getDefaultModelReasoningEffort,
 	getModelReasoningEfforts,
+	isModelReasoningEffortSupported,
 	supportsModelReasoningEffortProvider,
 	type ConfiguredModelOperator,
 	type Model,
 	type ModelReasoningEffort,
 } from '../../../../../../../shared/agents/service';
-import { type PublicProvider } from '../../../../../../../shared/providers';
-import { resolveOperatorConfig } from './configs';
-import { effortForModel, getErrorMessage, mergeProviders, storedEffortForComparison } from './utils';
+import {
+	IMAGE_CREATOR_MODELS,
+	MUSIC_CREATOR_MODELS,
+	TEXT_TO_SPEECH_MODELS,
+	TEXT_TO_SPEECH_PROVIDER_ID,
+	TEXT_TO_VIDEO_MODELS,
+} from '../../../../../../../shared/providers';
+
+// ─── helpers ─────────────────────────────────────────────────────────────────
+
+function getErrorMessage(error: unknown, fallback: string): string {
+	if (error instanceof Error && error.message.trim().length > 0) return error.message;
+	return fallback;
+}
+
+function effortForModel(modelId: string, value: unknown, providerId?: string): ModelReasoningEffort {
+	return isModelReasoningEffortSupported(modelId, value, providerId)
+		? value
+		: getDefaultModelReasoningEffort(modelId, providerId);
+}
+
+function storedEffortForComparison(
+	model: Model,
+	providerId: string
+): ModelReasoningEffort | undefined {
+	if (model.effort === undefined) return getDefaultModelReasoningEffort(model.id, providerId);
+	return isModelReasoningEffortSupported(model.id, model.effort, providerId) ? model.effort : undefined;
+}
+
+function mergeProviders(
+	providers: readonly PublicProvider[],
+	operator: ConfiguredModelOperator | undefined
+): PublicProvider[] {
+	const byId = new Map(providers.map((p) => [p.id, p]));
+	if (operator && !byId.has(operator.provider.id)) byId.set(operator.provider.id, operator.provider);
+	return [...byId.values()];
+}
+
+// ─── operator config table ────────────────────────────────────────────────────
+
+interface OperatorConfig {
+	readonly nameKey: string;
+	readonly descriptionKey: string;
+	readonly configDescKey: string;
+	readonly providerDescKey: string;
+	readonly modelLabelKey: string;
+	readonly modelDescKey: string;
+	readonly icon: LucideIcon;
+	readonly isAssistant: boolean;
+	readonly isCapability: boolean;
+	// isRuntime: false → operator is "coming soon"; shows a read-only preview UI
+	readonly isRuntime: boolean;
+	readonly operatorDef: typeof OPERATOR_DEFINITIONS[keyof typeof OPERATOR_DEFINITIONS];
+	readonly getOperator: () => Promise<ConfiguredModelOperator>;
+	readonly saveOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	// null for the assistant (uses window.app.getModels instead)
+	readonly getCapabilityModels: ((provider: PublicProvider) => Promise<Model[]>) | null;
+	readonly providerMissingKey: string | null;
+	readonly readOnly: {
+		readonly providerName: string;
+		readonly providerValue: string;
+		readonly model: Model | undefined;
+	} | null;
+}
+
+const OPERATOR_CONFIGS: Record<string, OperatorConfig> = {
+	[ASSISTANT_OPERATOR_ID]: {
+		nameKey: 'settings.operators.assistantName',
+		descriptionKey: 'settings.operators.fridayDescription',
+		configDescKey: 'settings.operators.subtitle',
+		providerDescKey: 'settings.operators.providerDescription',
+		modelLabelKey: 'settings.operators.model',
+		modelDescKey: 'settings.operators.modelDescription',
+		icon: Bot,
+		isAssistant: true,
+		isCapability: false,
+		isRuntime: true,
+		operatorDef: OPERATOR_DEFINITIONS.assistant,
+		getOperator: () => window.app.getAssistantOperator(),
+		saveOperator: (p, m) => window.app.saveAssistantOperator(p, m),
+		getCapabilityModels: null,
+		providerMissingKey: null,
+		readOnly: null,
+	},
+	[SPEECH_TO_TEXT_OPERATOR_ID]: {
+		nameKey: 'settings.operators.speechTranscriberName',
+		descriptionKey: 'settings.operators.speechTranscriberDescription',
+		configDescKey: 'settings.operators.speechConfigurationSubtitle',
+		providerDescKey: 'settings.operators.speechProviderDescription',
+		modelLabelKey: 'settings.operators.speechModel',
+		modelDescKey: 'settings.operators.speechModelDescription',
+		icon: Mic,
+		isAssistant: false,
+		isCapability: true,
+		isRuntime: true,
+		operatorDef: OPERATOR_DEFINITIONS.speechToText,
+		getOperator: () => window.app.getSpeechToTextOperator(),
+		saveOperator: (p, m) => window.app.saveSpeechToTextOperator(p, m),
+		getCapabilityModels: (p) => window.app.getSpeechToTextModels(p),
+		providerMissingKey: 'settings.operators.speechProviderMissing',
+		readOnly: null,
+	},
+	[TEXT_TO_SPEECH_OPERATOR_ID]: {
+		nameKey: 'settings.operators.textToSpeechName',
+		descriptionKey: 'settings.operators.textToSpeechDescription',
+		configDescKey: 'settings.operators.textToSpeechConfigurationSubtitle',
+		providerDescKey: 'settings.operators.textToSpeechProviderDescription',
+		modelLabelKey: 'settings.operators.textToSpeechModel',
+		modelDescKey: 'settings.operators.textToSpeechModelDescription',
+		icon: Volume2,
+		isAssistant: false,
+		isCapability: true,
+		isRuntime: false,
+		operatorDef: OPERATOR_DEFINITIONS.textToSpeech,
+		getOperator: () => window.app.getTextToSpeechOperator(),
+		saveOperator: (p, m) => window.app.saveTextToSpeechOperator(p, m),
+		getCapabilityModels: (p) => window.app.getTextToSpeechModels(p),
+		providerMissingKey: null,
+		readOnly: {
+			providerName:
+				DEFAULT_PROVIDERS.find((p) => p.id === TEXT_TO_SPEECH_PROVIDER_ID)?.name ?? 'ElevenLabs',
+			providerValue: TEXT_TO_SPEECH_PROVIDER_ID,
+			model: TEXT_TO_SPEECH_MODELS[0],
+		},
+	},
+	[IMAGE_CREATOR_OPERATOR_ID]: {
+		nameKey: 'settings.operators.imageAssistantName',
+		descriptionKey: 'settings.operators.imageAssistantDescription',
+		configDescKey: 'settings.operators.imageConfigurationSubtitle',
+		providerDescKey: 'settings.operators.imageProviderDescription',
+		modelLabelKey: 'settings.operators.imageModel',
+		modelDescKey: 'settings.operators.imageModelDescription',
+		icon: ImageIcon,
+		isAssistant: false,
+		isCapability: true,
+		isRuntime: true,
+		operatorDef: OPERATOR_DEFINITIONS.imageCreator,
+		getOperator: () => window.app.getImageCreatorOperator(),
+		saveOperator: (p, m) => window.app.saveImageCreatorOperator(p, m),
+		getCapabilityModels: (p) => window.app.getImageCreatorModels(p),
+		providerMissingKey: null,
+		readOnly: null,
+	},
+	[TEXT_TO_VIDEO_OPERATOR_ID]: {
+		nameKey: 'settings.operators.videoCreatorName',
+		descriptionKey: 'settings.operators.videoCreatorDescription',
+		configDescKey: 'settings.operators.videoConfigurationSubtitle',
+		providerDescKey: 'settings.operators.videoProviderDescription',
+		modelLabelKey: 'settings.operators.videoModel',
+		modelDescKey: 'settings.operators.videoModelDescription',
+		icon: Video,
+		isAssistant: false,
+		isCapability: true,
+		isRuntime: false,
+		operatorDef: OPERATOR_DEFINITIONS.videoCreator,
+		getOperator: () => window.app.getTextToVideoOperator(),
+		saveOperator: (p, m) => window.app.saveTextToVideoOperator(p, m),
+		getCapabilityModels: (p) => window.app.getTextToVideoModels(p),
+		providerMissingKey: null,
+		readOnly: {
+			providerName: 'Video provider',
+			providerValue: 'video-provider-coming-soon',
+			model: TEXT_TO_VIDEO_MODELS[0],
+		},
+	},
+	[MUSIC_CREATOR_OPERATOR_ID]: {
+		nameKey: 'settings.operators.musicCreatorName',
+		descriptionKey: 'settings.operators.musicCreatorDescription',
+		configDescKey: 'settings.operators.musicConfigurationSubtitle',
+		providerDescKey: 'settings.operators.musicProviderDescription',
+		modelLabelKey: 'settings.operators.musicModel',
+		modelDescKey: 'settings.operators.musicModelDescription',
+		icon: Music,
+		isAssistant: false,
+		isCapability: true,
+		isRuntime: false,
+		operatorDef: OPERATOR_DEFINITIONS.musicCreator,
+		getOperator: () => window.app.getMusicCreatorOperator(),
+		saveOperator: (p, m) => window.app.saveMusicCreatorOperator(p, m),
+		getCapabilityModels: (p) => window.app.getMusicCreatorModels(p),
+		providerMissingKey: null,
+		readOnly: {
+			providerName: 'Music provider',
+			providerValue: 'music-provider-coming-soon',
+			model: MUSIC_CREATOR_MODELS[0],
+		},
+	},
+};
+
+function resolveOperatorConfig(operatorId: string): OperatorConfig | undefined {
+	// The assistant can be reached via two IDs
+	if (operatorId === ASSISTANT_RUNTIME_ID) return OPERATOR_CONFIGS[ASSISTANT_OPERATOR_ID];
+	return OPERATOR_CONFIGS[operatorId];
+}
+
+// ─── component ────────────────────────────────────────────────────────────────
 
 const OperatorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -76,7 +286,7 @@ const OperatorDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 
-		void Promise.all([window.store.getProviders(), config.getOperator()])
+		void Promise.all([window.app.getProviders(), config.getOperator()])
 			.then(async ([nextProviders, nextOperator]) => {
 				if (!mounted) return;
 				const mergedProviders = mergeProviders(nextProviders, nextOperator);
@@ -299,7 +509,7 @@ const OperatorDetailsPage: React.FC = () => {
 	if (!config) {
 		return (
 			<SettingsPageShell>
-				<SettingsPageHeader title={t('settings.operators.detailsTitle')} />
+				<SettingsPageHeader title={t('settings.operators.detailsTitle')} icon={Bot} />
 				<SettingsPanel>
 					<SettingsEmptyState
 						icon={CircleOff}
@@ -318,6 +528,7 @@ const OperatorDetailsPage: React.FC = () => {
 				<SettingsPageHeader
 					title={t('settings.operators.detailsTitle')}
 					description={t('settings.operators.description')}
+					icon={config.isAssistant ? undefined : config.icon}
 				/>
 				<SettingsPanel>
 					<SettingsLoadingRows rows={3} />
@@ -337,6 +548,7 @@ const OperatorDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t(config.nameKey)}
 				description={t(config.descriptionKey)}
+				icon={config.isAssistant ? undefined : config.icon}
 			/>
 
 			{errorMessage && (
@@ -348,7 +560,7 @@ const OperatorDetailsPage: React.FC = () => {
 			{successMessage && <SettingsNotice icon={CheckCircle2}>{successMessage}</SettingsNotice>}
 
 			{config.isAssistant && (
-				<SettingsSection hideTitle title={t('settings.operators.history')}>
+				<SettingsSection title={t('settings.operators.history')}>
 					<SettingsPanel>
 						<Item
 							as="button"
@@ -370,7 +582,6 @@ const OperatorDetailsPage: React.FC = () => {
 
 			{!config.isRuntime ? (
 				<SettingsSection
-					hideTitle={!config.isAssistant}
 					title={t('settings.operators.configuration')}
 					description={t(config.configDescKey)}
 				>
@@ -423,7 +634,6 @@ const OperatorDetailsPage: React.FC = () => {
 				</SettingsSection>
 			) : (
 				<SettingsSection
-					hideTitle={!config.isAssistant}
 					title={t('settings.operators.configuration')}
 					description={t(config.configDescKey)}
 				>
@@ -441,7 +651,7 @@ const OperatorDetailsPage: React.FC = () => {
 						>
 							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
 								<ItemTitle>{t('settings.operators.provider')}</ItemTitle>
-								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground/60">
+								<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 									{providerCardSummary}
 								</p>
 							</ItemContent>
@@ -516,7 +726,7 @@ const OperatorDetailsPage: React.FC = () => {
 										</SelectContent>
 									</Select>
 									{selectedProvider && !loadingModels && modelOptions.length === 0 && (
-										<p className="text-[11px] leading-4 text-muted-foreground/60">
+										<p className="text-[11px] leading-4 text-muted-foreground">
 											{t('settings.operators.noModels')}
 										</p>
 									)}

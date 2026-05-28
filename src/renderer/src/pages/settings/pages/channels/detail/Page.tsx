@@ -64,6 +64,7 @@ import {
 	isChannelId,
 	type ChannelCatalogEntry,
 } from '../../../../../../../shared/channels';
+import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
@@ -485,6 +486,17 @@ const ChannelDetailPage: React.FC = () => {
 						</Button>
 					) : undefined
 				}
+				iconNode={
+					selectedId ? (
+						<ChannelIcon
+							channelId={selectedId}
+							name={selectedTitle}
+							brandIconId={selectedEntry?.brandIconId}
+							className="size-full border-0 bg-transparent p-1"
+							fallbackClassName="size-3"
+						/>
+					) : undefined
+				}
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
@@ -496,7 +508,6 @@ const ChannelDetailPage: React.FC = () => {
 
 			{selectedId ? (
 				<SettingsSection
-					hideTitle
 					title={t('settings.channels.configuration')}
 					action={
 						<Badge

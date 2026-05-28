@@ -150,8 +150,6 @@
 			"groups": {
 				"app": "App",
 				"ai": "AI",
-				"agent": "Personal assistant",
-				"modelServices": "Model services",
 				"knowledge": "Knowledge",
 				"channels": "Channels",
 				"automation": "Automation",
@@ -159,7 +157,6 @@
 			},
 			"descriptions": {
 				"general": "App info, appearance, folders",
-				"tools": "Tools and capabilities available to your agents",
 				"operators": "Operator configuration",
 				"system": "Permissions, keep-awake controls, and desktop capabilities",
 				"channels": "Messaging channels",
@@ -172,8 +169,7 @@
 				"cron": "Task scheduler",
 				"taskManager": "Background tasks",
 				"heartbeat": "Periodic agent checks",
-				"monitoring": "Runtime diagnostics",
-				"policies": "Stored access policies"
+				"monitoring": "Runtime diagnostics"
 			}
 		},
 		"tabs": {
@@ -193,7 +189,6 @@
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"monitoring": "Monitoring",
-			"policies": "Policies",
 			"memory": "Memory",
 			"rag": "RAG",
 			"wiki": "Wiki",
@@ -479,9 +474,7 @@
 			"modeDescription": "Enable advanced developer tools and options"
 		},
 		"connectors": {
-			"description": "Configure MCP-backed connectors as tools for your agents.",
 			"detailsTitle": "Connector Details",
-			"setup": "Setup",
 			"notFoundTitle": "Connector not found",
 			"notFoundDescription": "The connector may have been removed."
 		},
@@ -518,7 +511,6 @@
 			}
 		},
 		"cron": {
-			"description": "Schedule and manage recurring agent tasks with cron expressions.",
 			"columns": {
 				"id": "Id",
 				"message": "Message",
@@ -573,7 +565,6 @@
 			"detailsTitle": "Task scheduler details",
 			"notFoundTitle": "Scheduled task not found",
 			"notFoundDescription": "The scheduled task may have been removed.",
-			"newTaskTitle": "New scheduled task",
 			"emptyTitle": "No scheduled tasks",
 			"emptyDescription": "Scheduled tasks will appear here once they are configured."
 		},
@@ -854,20 +845,6 @@
 			"keySaved": "API key saved",
 			"keyMissing": "API key missing"
 		},
-		"policies": {
-			"description": "Review the active store-backed access policy.",
-			"activePolicy": "Active policy",
-			"defaultPolicy": "Default policy",
-			"defaultPolicyDescription": "Fallback decision when no path rule matches.",
-			"recursive": "Applies to nested paths",
-			"singlePath": "Applies only to this path",
-			"noPaths": "No path policies configured.",
-			"unavailable": "Policy unavailable.",
-			"outcomes": {
-				"allow": "Allow",
-				"deny": "Deny"
-			}
-		},
 		"operators": {
 			"title": "Operators",
 			"description": "Review the job-specific operators available to Friday.",
@@ -878,7 +855,7 @@
 			"identity": "Identity",
 			"configuration": "Configuration",
 			"fridayBreadcrumb": "Friday",
-			"assistantName": "Agent",
+			"assistantName": "AI Assistant",
 			"fridayDescription": "Answers questions, plans work, and uses tools.",
 			"speechTranscriberName": "Speech to Text",
 			"speechTranscriberDescription": "Transcribes microphone audio into text.",
@@ -967,9 +944,6 @@
 			"detailSafety": "Safety",
 			"detailVisibility": "Visibility",
 			"detailAuthor": "Author",
-			"detailLicense": "License",
-			"detailCompatibility": "Compatibility",
-			"detailSupportFiles": "Support files",
 			"detailTools": "Tools",
 			"detailConnectors": "Connectors",
 			"detailTags": "Tags",

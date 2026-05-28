@@ -1,4 +1,8 @@
 import { HEARTBEAT_OK } from '../../shared/heartbeat';
+import type { AgentTool } from '../tools/types';
+import { textResult } from '../tools/types';
+
+export const HEARTBEAT_RESPONSE_TOOL_NAME = 'heartbeat_respond';
 
 export const HEARTBEAT_TOOL_OUTCOMES = [
 	'no_change',
@@ -25,6 +29,61 @@ export interface HeartbeatToolResponse {
 export type HeartbeatNormalizedReply =
 	| { kind: 'ok'; status: 'ok-empty' | 'ok-token'; text: ''; structured?: HeartbeatToolResponse }
 	| { kind: 'alert'; status: 'sent'; text: string; structured?: HeartbeatToolResponse };
+
+const OUTCOMES = new Set<string>(HEARTBEAT_TOOL_OUTCOMES);
+const PRIORITIES = new Set<string>(HEARTBEAT_TOOL_PRIORITIES);
+
+export function createHeartbeatResponseTool(
+	onResponse: (response: HeartbeatToolResponse) => void
+): AgentTool<Record<string, unknown>> {
+	return {
+		name: HEARTBEAT_RESPONSE_TOOL_NAME,
+		displaySummary: 'Heartbeat',
+		description:
+			'Record the result of a heartbeat run. Use notify=false when nothing should be sent visibly. Use notify=true with notificationText when the user should receive a concise heartbeat alert.',
+		schema: {
+			type: 'object',
+			properties: {
+				outcome: { type: 'string', enum: [...HEARTBEAT_TOOL_OUTCOMES] },
+				notify: { type: 'boolean' },
+				summary: { type: 'string' },
+				notificationText: { type: 'string' },
+				reason: { type: 'string' },
+				priority: { type: 'string', enum: [...HEARTBEAT_TOOL_PRIORITIES] },
+				nextCheck: { type: 'string' },
+			},
+			required: ['outcome', 'notify', 'summary'],
+			additionalProperties: false,
+		},
+		async execute(args) {
+			const response = normalizeHeartbeatToolResponse(args);
+			if (!response) return textResult('heartbeat_respond: invalid response payload', true);
+			onResponse(response);
+			return textResult(JSON.stringify({ status: 'recorded', ...response }, null, 2));
+		},
+	};
+}
+
+export function normalizeHeartbeatToolResponse(value: unknown): HeartbeatToolResponse | undefined {
+	if (!isRecord(value)) return undefined;
+	const outcome = readString(value.outcome);
+	const notify = typeof value.notify === 'boolean' ? value.notify : undefined;
+	const summary = readString(value.summary);
+	if (!outcome || !OUTCOMES.has(outcome) || notify === undefined || !summary) return undefined;
+	const priority = readString(value.priority);
+	const notificationText = readString(value.notificationText ?? value.notification_text);
+	const reason = readString(value.reason);
+	const nextCheck = readString(value.nextCheck ?? value.next_check);
+	return {
+		outcome: outcome as HeartbeatToolOutcome,
+		notify,
+		summary,
+		...(notificationText ? { notificationText } : {}),
+		...(reason ? { reason } : {}),
+		...(priority && PRIORITIES.has(priority) ? { priority: priority as HeartbeatToolPriority } : {}),
+		...(nextCheck ? { nextCheck } : {}),
+	};
+}
 
 export function normalizeHeartbeatReply(input: {
 	text?: string;
@@ -79,4 +138,12 @@ function stripHeartbeatToken(raw: string): { text: string; didStrip: boolean } {
 		}
 	}
 	return { text: text.replace(/\s+/g, ' ').trim(), didStrip };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function readString(value: unknown): string | undefined {
+	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
 }

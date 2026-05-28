@@ -5,6 +5,7 @@ import { resolveDefaultUserDataPath } from './user-data';
 const TEMPLATE_FILES = [
 	'AGENTS.md',
 	'SOUL.md',
+	'TOOLS.md',
 	'IDENTITY.md',
 	'USER.md',
 	'HEARTBEAT.md',

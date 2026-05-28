@@ -1,7 +1,7 @@
 import path from 'node:path';
 import os from 'node:os';
 import { promises as fs } from 'node:fs';
-import type { ToolContext } from '../../../src/main/agent/capabilities/local/types';
+import type { ToolContext } from '../../../src/main/tools/types';
 
 export async function makeTempDir(prefix = 'friday-main-test-'): Promise<string> {
 	return fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -36,20 +36,31 @@ export function makeToolContext(overrides: Partial<ToolContext> = {}): ToolConte
 				resolve: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
 				resolveExisting: jest.fn(async (...segments: string[]) => path.resolve(workspace, ...segments)),
 			} as unknown as ToolContext['services']['userDataDirectory'],
-			startupFiles: {
-				getRootPath: jest.fn(() => path.resolve(workspace, 'agent', 'workspaces', 'main')),
-				ensureReady: jest.fn(async () => undefined),
-				isBootstrapPending: jest.fn(async () => false),
-				loadContextFiles: jest.fn(async () => []),
-				listFiles: jest.fn(async () => []),
-				readFile: jest.fn(),
-				writeFile: jest.fn(),
-				completeBootstrap: jest.fn(),
-			} as unknown as ToolContext['services']['startupFiles'],
-		},
-		...overrides,
-	};
-}
+				workspace: {
+					getRootPath: jest.fn(() => workspace),
+					resolvePath: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
+					ensureReady: jest.fn(async () => undefined),
+					isBootstrapPending: jest.fn(async () => false),
+					loadContextFiles: jest.fn(async () => []),
+					listWorkspaceFiles: jest.fn(async () => []),
+					readWorkspaceFile: jest.fn(),
+					writeWorkspaceFile: jest.fn(),
+					completeBootstrap: jest.fn(),
+				} as unknown as ToolContext['services']['workspace'],
+				startupFiles: {
+					getRootPath: jest.fn(() => path.resolve(workspace, 'agent', 'workspaces', 'main')),
+					ensureReady: jest.fn(async () => undefined),
+					isBootstrapPending: jest.fn(async () => false),
+					loadContextFiles: jest.fn(async () => []),
+					listFiles: jest.fn(async () => []),
+					readFile: jest.fn(),
+					writeFile: jest.fn(),
+					completeBootstrap: jest.fn(),
+				} as unknown as ToolContext['services']['startupFiles'],
+			},
+			...overrides,
+		};
+	}
 
 export async function collectAsync<T>(iterable: AsyncIterable<T>): Promise<T[]> {
 	const out: T[] = [];

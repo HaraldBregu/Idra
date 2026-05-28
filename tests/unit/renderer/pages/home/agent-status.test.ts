@@ -14,7 +14,7 @@ function agentMessage(overrides: Partial<AgentMessage> = {}): AgentMessage {
 }
 
 describe('agent status labels', () => {
-	it('uses elapsed answer time for completed direct responses without reasoning', () => {
+	it('uses elapsed thinking time for completed direct responses', () => {
 		expect(
 			agentStatusLabel(
 				agentMessage({
@@ -22,19 +22,7 @@ describe('agent status labels', () => {
 					completedAtMs: 4_000,
 				})
 			)
-		).toBe('Answered in 3 seconds');
-	});
-
-	it('uses elapsed reasoning time for completed responses with reasoning effort', () => {
-		expect(
-			agentStatusLabel(
-				agentMessage({
-					requestedEffort: 'high',
-					startedAtMs: 1_000,
-					completedAtMs: 4_000,
-				})
-			)
-		).toBe('Reasoned for 3 seconds');
+		).toBe('Thought for 3 seconds');
 	});
 
 	it('uses elapsed finish time for completed tool responses', () => {

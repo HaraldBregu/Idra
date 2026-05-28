@@ -7,7 +7,6 @@ Heartbeat runs periodic or manual agent check-ins so Friday can surface reminder
 - Runs scheduled agent turns for the main assistant or configured heartbeat agents.
 - Supports manual wake requests and queued system events.
 - Supports active hours, per-agent cadence, flood guards, and busy-session deferral.
-- Stores custom heartbeat config and runtime bookkeeping in `heartbeat.json`.
 - Reads `HEARTBEAT.md` startup context when available.
 - Parses lightweight heartbeat tasks from heartbeat context and skips runs when no tasks are due.
 - Can use isolated sessions, light context, model overrides, and run timeouts.
@@ -23,6 +22,7 @@ A response of `HEARTBEAT_OK` is treated as a quiet success. Alert responses can 
 
 - `src/main/heartbeat`
 - `src/shared/heartbeat.ts`
-- `src/main/bootstrap.ts`
+- `src/main/service.ts`
 - `src/renderer/src/pages/settings/pages/heartbeat`
-- Existing docs: `docs/store/heartbeat.md`
+- Existing docs: `docs/heartbeat/index.md`
+

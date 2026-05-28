@@ -2,10 +2,8 @@ import {
 	buildAgentSessionKey,
 	channelMessageRouteInput,
 	normalizeAgentRoutingSettings,
-	resolveAgentIntentRoute,
 	resolveAgentRoute,
-	shouldExposeStartupFilesTool,
-} from '../../../../src/main/agent';
+} from '../../../../src/main/agent/routing';
 
 describe('agent routing', () => {
 	it('falls back to the synthetic main agent when no agents are configured', () => {
@@ -94,34 +92,5 @@ describe('agent routing', () => {
 		expect(buildAgentSessionKey({ agentId: 'research', kind: 'subagent', id: 'run-1' })).toBe(
 			'agent:research:subagent:run-1'
 		);
-	});
-
-	it('routes simple prompts directly through the LLM', () => {
-		expect(resolveAgentIntentRoute('Explain dependency injection in simple terms')).toMatchObject({
-			mode: 'direct_answer',
-			useLocalTools: false,
-			useConnectorTools: false,
-		});
-	});
-
-	it('routes workspace work to local tools only', () => {
-		expect(resolveAgentIntentRoute('Read the package.json file and summarize it')).toMatchObject({
-			mode: 'use_tools',
-			useLocalTools: true,
-			useConnectorTools: false,
-		});
-	});
-
-	it('routes remote service work to connector tools', () => {
-		expect(resolveAgentIntentRoute('Search GitHub issues assigned to me')).toMatchObject({
-			mode: 'use_tools',
-			useLocalTools: false,
-			useConnectorTools: true,
-		});
-	});
-
-	it('exposes startup files only for agent identity and memory prompts', () => {
-		expect(shouldExposeStartupFilesTool('Do not call me Harry anymore')).toBe(true);
-		expect(shouldExposeStartupFilesTool('Explain dependency injection')).toBe(false);
 	});
 });

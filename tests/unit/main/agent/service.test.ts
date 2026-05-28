@@ -1,17 +1,17 @@
 import { promises as fs } from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import type {
 	ProviderAdapter,
 	ProviderEvent,
 	ProviderStreamRequest,
 } from '../../../../src/main/provider/types';
-import { AgentService } from '../../../../src/main/agent';
-import type { AgentTool } from '../../../../src/main/agent/capabilities/local/types';
-import { AGENT_ALL_TOOL_NAMES, AGENT_TOOL_GROUPS } from '../../../../src/shared/tools';
+import { ConnectorsService } from '../../../../src/main/connectors';
+import { AgentService } from '../../../../src/main/service';
+import { AgentRunLogger } from '../../../../src/main/run-logger';
+import { SkillsService } from '../../../../src/main/skills';
+import type { SkillPromptChoice } from '../../../../src/main/skills/types';
+import type { AgentTool } from '../../../../src/main/tools/types';
 import { makeLogger, makeTempDir } from '../test-helpers';
-
-const CORE_WORKSPACE_TOOL_NAMES = AGENT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name);
 
 function provider(events: ProviderEvent[]): ProviderAdapter {
 	return {
@@ -31,7 +31,7 @@ function providerTurns(turns: ProviderEvent[][]): ProviderAdapter {
 	};
 }
 
-function makeDeps(workspace = path.join(os.tmpdir(), `friday-agent-service-test-${process.pid}`)) {
+function makeDeps(workspace = '/workspace') {
 	const providerRecord = {
 		id: 'openai',
 		name: 'OpenAI',
@@ -64,6 +64,15 @@ function makeDeps(workspace = path.join(os.tmpdir(), `friday-agent-service-test-
 				[workspace, ...segments].join('/')
 			),
 		} as never,
+		workspace: {
+			getRootPath: jest.fn(() => workspace),
+			isBootstrapPending: jest.fn(async () => false),
+			loadContextFiles: jest.fn(async () => []),
+			listWorkspaceFiles: jest.fn(async () => []),
+			readWorkspaceFile: jest.fn(),
+			writeWorkspaceFile: jest.fn(),
+			completeBootstrap: jest.fn(),
+		} as never,
 		startupFiles: {
 			getRootPath: jest.fn(() => `${workspace}/agent/workspaces/main`),
 			ensureReady: jest.fn(async () => undefined),
@@ -80,9 +89,11 @@ function makeDeps(workspace = path.join(os.tmpdir(), `friday-agent-service-test-
 describe('AgentService', () => {
 	it('drives the new agent loop directly from the IPC-facing service', async () => {
 		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory: jest.fn(() =>
 				provider([
 					{ type: 'message_start' },
@@ -109,127 +120,17 @@ describe('AgentService', () => {
 			])
 		);
 
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('creates, reads, updates, lists, and deletes agent runs through the service', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const service = new AgentService(deps, { sessionBaseDir, toolsFactory: () => [] });
-
-		const run = await service.createRun({
-			runId: 'run-1',
-			agentId: 'main',
-			providerId: 'openai',
-			model: 'gpt-test',
-		});
-
-		expect(run).toMatchObject({ id: 'run-1', state: 'idle', sessionId: 'run-1' });
-		await expect(service.getRunState('run-1')).resolves.toBe('idle');
-
-		await expect(
-			service.updateRunState('run-1', { state: 'using_tools', label: 'Using tools' })
-		).resolves.toMatchObject({ id: 'run-1', state: 'using_tools', label: 'Using tools' });
-		await expect(service.listRuns()).resolves.toEqual(
-			expect.arrayContaining([expect.objectContaining({ id: 'run-1', state: 'using_tools' })])
+		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
+		expect(records.map((record) => record.event)).toEqual(
+			expect.arrayContaining(['start', 'finish'])
 		);
-
-		await service.deleteRun('run-1');
-		await expect(service.getRun('run-1')).resolves.toBeUndefined();
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('executes created runs and routes tool calls through ToolService', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const tool: AgentTool = {
-			name: 'ping',
-			description: 'Ping',
-			schema: { type: 'object' },
-			execute: jest.fn(async () => ({
-				status: 'ok' as const,
-				content: [{ type: 'text' as const, text: 'pong' }],
-			})),
-		};
-		const toolService: any = {
-			createDefaultTools: jest.fn(() => [tool]),
-			filterToolsByAllowlist: jest.fn((tools) => tools),
-			filterToolsByDenylist: jest.fn((tools) => tools),
-			createCallTracker: jest.fn(() => ({})),
-			createManagementOptions: jest.fn((options) => options ?? {}),
-			prepareToolsForProvider: jest.fn((tools) => tools),
-			selectToolsForTurn: jest.fn((tools) => ({
-				toolsForPrompt: tools,
-				systemPromptSuffix: '',
-				rankedTools: tools,
-			})),
-			prepareToolsForRun: jest.fn(({ tools, management }) => ({
-				toolsForPrompt: tools,
-				systemPromptSuffix: '',
-				rankedTools: tools,
-				management: management ?? {},
-			})),
-			beforeCall: jest.fn(async () => ({ proceed: true })),
-			executeToolWithManagement: jest.fn((toolToRun, args, ctx) =>
-				toolToRun.execute(args, ctx)
-			),
-			getToolRegistry: jest.fn(() => new Map()),
-			getToolsByGroup: jest.fn(() => []),
-		};
-		let turn = 0;
-		const service = new AgentService(
-			{ ...deps, toolService: toolService as never },
-			{
-				sessionBaseDir,
-				providerFactory: () => ({
-					async *stream() {
-						turn++;
-						if (turn === 1) {
-							yield { type: 'tool_call_start' as const, id: 'tc1', name: 'ping' };
-							yield {
-								type: 'tool_call_args_delta' as const,
-								id: 'tc1',
-								jsonDelta: '{"value":1}',
-							};
-							yield { type: 'tool_call_end' as const, id: 'tc1' };
-							yield {
-								type: 'message_end' as const,
-								stopReason: 'end_turn',
-								usage: { inputTokens: 1, outputTokens: 1 },
-							};
-							return;
-						}
-						yield { type: 'text_delta' as const, text: 'done' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-				toolsFactory: () => [tool],
-				toolService: toolService as never,
-			}
-		);
-		const run = await service.createRun({
-			runId: 'tool-run',
-			providerId: 'openai',
-			model: 'gpt-test',
-		});
-
-		await expect(service.executeRun(run.id, 'use ping')).resolves.toBe('done');
-		expect(toolService.executeToolWithManagement).toHaveBeenCalledWith(
-			expect.objectContaining({ name: 'ping' }),
-			{ value: 1 },
-			expect.any(Object),
-			expect.any(Object)
-		);
-		await expect(service.getRunState(run.id)).resolves.toBe('completed');
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('passes saved OpenAI model effort into provider requests', async () => {
 		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		deps.store.getAssistantOperator.mockReturnValue({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
@@ -238,6 +139,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -255,10 +157,12 @@ describe('AgentService', () => {
 		await expect(service.send('hi')).resolves.toBe('done');
 		expect(requests[0]).toMatchObject({ model: 'gpt-5.5', effort: 'xhigh' });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('uses per-run provider and model overrides', async () => {
 		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		deps.store.getProviderById.mockImplementation((id: string) => {
 			if (id === 'anthropic') {
@@ -291,6 +195,7 @@ describe('AgentService', () => {
 		}));
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory,
 			toolsFactory: (context) => {
 				contexts.push(context);
@@ -316,10 +221,12 @@ describe('AgentService', () => {
 			model: 'claude-test',
 		});
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('rejects unsupported OpenAI model effort before calling the provider', async () => {
 		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		deps.store.getAssistantOperator.mockReturnValue({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
@@ -333,6 +240,7 @@ describe('AgentService', () => {
 		);
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory,
 			toolsFactory: () => [],
 		});
@@ -342,6 +250,7 @@ describe('AgentService', () => {
 		);
 		expect(providerFactory).not.toHaveBeenCalled();
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('blocks before model inference without persisting the raw prompt', async () => {
@@ -353,6 +262,7 @@ describe('AgentService', () => {
 		const providerFactory = jest.fn(() => ({ stream }));
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory,
 			toolsFactory: () => [],
 			beforeAgentRunHooks: [
@@ -387,6 +297,7 @@ describe('AgentService', () => {
 		const contexts: unknown[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				provider([
 					{ type: 'message_start' },
@@ -409,7 +320,7 @@ describe('AgentService', () => {
 			agentId: 'main',
 			providerId: 'openai',
 			model: 'gpt-test',
-			workspace: expect.any(String),
+			workspace: '/workspace',
 			session: expect.objectContaining({ id: 'main' }),
 			runId: expect.any(String),
 			signal: expect.any(AbortSignal),
@@ -424,6 +335,7 @@ describe('AgentService', () => {
 		const contexts: unknown[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				provider([
 					{ type: 'message_start' },
@@ -466,14 +378,16 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('omits skill guidance when no skills are selected', async () => {
+	it('does not expose tools or skill guidance when a request can be answered directly', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
+		const skills = new SkillsService(deps.logger as never);
 		const service = new AgentService(
-			deps,
+			{ ...deps, skills },
 			{
 				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -496,15 +410,16 @@ describe('AgentService', () => {
 			}
 		);
 
-		await expect(service.send('read a short poem from a file')).resolves.toBe('roses are red');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
-		expect(requests[0]!.system).toContain('**read**');
-		expect(requests[0]!.system).not.toContain('## Skills');
+		await expect(service.send('write a short poem about spring')).resolves.toBe('roses are red');
+		expect(requests[0]!.tools).toEqual([]);
+		expect(requests[0]!.system).toContain('No tools are available for this turn');
+		expect(requests[0]!.system).not.toContain('## Skill guidance');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('loads file tools and startup context for ordinary prompts', async () => {
+	it('skips tool and startup context loading for direct-answer prompts', async () => {
 		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const startupFiles = {
@@ -529,6 +444,7 @@ describe('AgentService', () => {
 			{ ...deps, startupFiles: startupFiles as never },
 			{
 				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -544,13 +460,23 @@ describe('AgentService', () => {
 			}
 		);
 
-		await expect(service.send('read hello.txt')).resolves.toBe('hello');
-		expect(toolsFactory).toHaveBeenCalled();
-		expect(startupFiles.loadContextFiles).toHaveBeenCalled();
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
-		expect(requests[0]!.system).toContain('**read**');
+		await expect(service.send('hello there')).resolves.toBe('hello');
+		expect(toolsFactory).not.toHaveBeenCalled();
+		expect(startupFiles.loadContextFiles).not.toHaveBeenCalled();
+		expect(requests[0]!.tools).toEqual([]);
+		expect(requests[0]!.system).toContain('No tools are available for this turn');
 
+		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
+		expect(records).toContainEqual(
+			expect.objectContaining({
+				event: 'start',
+				directAnswer: true,
+				toolPolicyReason: 'no tool is required to answer safely',
+				tools: [],
+			})
+		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('exposes available tools when the user asks about tool capabilities', async () => {
@@ -559,6 +485,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -593,6 +520,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -617,6 +545,7 @@ describe('AgentService', () => {
 		await expect(service.send('read a workspace file with the bad tool')).resolves.toBe('done');
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['bad_tool']);
 		expect(requests[0]!.system).toContain('**bad_tool**');
+		expect(requests[0]!.system).toContain('Tool: bad_tool');
 		expect(requests[0]!.system).not.toContain('**Bad Tool!**');
 		expect(requests[0]!.system).not.toContain('Tool: Bad Tool!');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
@@ -634,6 +563,7 @@ describe('AgentService', () => {
 		});
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -646,19 +576,24 @@ describe('AgentService', () => {
 				},
 			}),
 			toolsFactory: () => [
-				makeAgentTool('read_file', 'Read files'),
-				makeAgentTool('write_file', 'Write files'),
+				makeAgentTool('read', 'Read files'),
+				makeAgentTool('write', 'Write files'),
 				makeAgentTool('find', 'Find files'),
-				makeAgentTool('delete', 'Delete files'),
+				makeAgentTool('gmail_get_recent_emails', 'Gmail: Get recent emails.'),
+				makeAgentTool('web_fetch', 'Fetch web pages.'),
 			],
 		});
 
 		await expect(
 			service.send('What tools do you have?', 'main', {
-				toolsAllow: ['read_file', 'write_file'],
+				toolsAllow: ['read', 'write', 'gmail_*'],
 			})
 		).resolves.toBe('allowed tools');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read_file', 'write_file']);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual([
+			'read',
+			'write',
+			'gmail_get_recent_emails',
+		]);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -668,6 +603,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -687,40 +623,44 @@ describe('AgentService', () => {
 			})
 		).resolves.toBe('file tools only');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
+		expect(toolNames).toContain('read');
 		expect(toolNames).not.toEqual(expect.arrayContaining(['exec', 'process', 'web_fetch']));
-		expect(toolNames.every((name) => CORE_WORKSPACE_TOOL_NAMES.includes(name))).toBe(true);
+		expect(
+			toolNames.every((name) =>
+				[
+					'read',
+					'write',
+					'edit',
+					'apply_patch',
+					'delete',
+					'copy',
+					'move',
+					'inspect_file',
+					'find',
+				].includes(name)
+			)
+		).toBe(true);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes matched connector tools for connector-backed requests', async () => {
+	it('exposes connected Google connector tools for Gmail profile requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
+		const gmailProfileTool: AgentTool = {
+			name: 'my_gmail_get_profile',
+			description: 'My Gmail: Get the connected Gmail profile.',
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		};
 		const connectors = {
-			list: jest.fn(() => []),
-			refreshTools: jest.fn(async () => []),
-			searchTools: jest.fn(() => [
-				{
-					id: 'my_gmail:get_profile',
-					name: 'my_gmail_get_profile',
-					displayName: 'My Gmail: get_profile',
-					description: 'My Gmail: Get the connected Gmail profile.',
-					connectorId: 'my_gmail',
-					connectorName: 'My Gmail',
-					connectorProviderId: 'google.gmail',
-					toolName: 'get_profile',
-					inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-					permission: 'always-allow',
-					requiresApproval: false,
-					score: 10,
-				},
-			]),
-			execTool: jest.fn(async () => ({ emailAddress: 'user@example.com' })),
+			createAgentTools: jest.fn(() => [gmailProfileTool]),
 		};
 		const service = new AgentService(
 			{ ...deps, connectors: connectors as never },
 			{
 				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -736,13 +676,100 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
-		expect(connectors.list).toHaveBeenCalled();
-		expect(connectors.searchTools).toHaveBeenCalledWith({ query: 'get my gmail profile', limit: 8 });
+		expect(connectors.createAgentTools).toHaveBeenCalled();
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('keeps file-backed requests isolated to the Friday root', async () => {
+	it('passes real connector tools through provider-neutral model overrides', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const runLogDir = await makeTempDir();
+		const deps = makeDeps();
+		deps.store.getProviderById.mockImplementation((id: string) => {
+			if (id === 'anthropic') {
+				return {
+					id: 'anthropic',
+					name: 'Anthropic',
+					apiKey: 'sk-ant-test',
+					baseUrl: 'https://api.anthropic.com',
+				};
+			}
+			return {
+				id: 'openai',
+				name: 'OpenAI',
+				apiKey: 'sk-test',
+				baseUrl: 'https://api.openai.com/v1',
+			};
+		});
+		let connectorRecords: unknown[] = [];
+		const connectorStore = {
+			getConnectors: jest.fn(() => connectorRecords),
+			setConnectors: jest.fn((next: unknown[]) => { connectorRecords = next; }),
+		};
+		const connectors = new ConnectorsService(connectorStore as never, makeLogger() as never);
+		await connectors.add({
+			name: 'My Gmail',
+			connectorId: 'connector_gmail',
+			authorization: 'google-token',
+			allowedTools: ['get_profile'],
+		});
+		const requests: ProviderStreamRequest[] = [];
+		const providerFactory = jest.fn(() => ({
+			async *stream(req) {
+				requests.push(req);
+				yield { type: 'text_delta' as const, text: 'profile ready' };
+				yield {
+					type: 'message_end' as const,
+					stopReason: 'end_turn',
+					usage: { inputTokens: 1, outputTokens: 1 },
+				};
+			},
+		}));
+		const service = new AgentService(
+			{ ...deps, connectors },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
+				providerFactory,
+			}
+		);
+
+		await expect(
+			service.send('get my gmail profile', 'main', {
+				providerId: 'anthropic',
+				model: 'claude-test',
+			})
+		).resolves.toBe('profile ready');
+		await expect(
+			service.send('get my gmail profile again', 'main', {
+				providerId: 'openai',
+				model: 'gpt-test',
+			})
+		).resolves.toBe('profile ready');
+		expect(providerFactory).toHaveBeenNthCalledWith(1, {
+			id: 'anthropic',
+			apiKey: 'sk-ant-test',
+			baseURL: 'https://api.anthropic.com',
+		});
+		expect(providerFactory).toHaveBeenNthCalledWith(2, {
+			id: 'openai',
+			apiKey: 'sk-test',
+			baseURL: 'https://api.openai.com/v1',
+		});
+		expect(requests.map((request) => request.model)).toEqual(['claude-test', 'gpt-test']);
+		for (const request of requests) {
+			expect(request.tools).toEqual(expect.arrayContaining([
+				expect.objectContaining({
+					name: 'my_gmail_get_profile',
+					schema: expect.objectContaining({ type: 'object' }),
+				}),
+			]));
+		}
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+		await fs.rm(runLogDir, { recursive: true, force: true });
+	});
+
+	it('defaults to outside-readable local tools for file-backed requests', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
@@ -753,11 +780,12 @@ describe('AgentService', () => {
 		let turn = 0;
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
 					if (turn++ === 0) {
-						yield { type: 'tool_call_start' as const, id: 'read-outside', name: 'read_file' };
+						yield { type: 'tool_call_start' as const, id: 'read-outside', name: 'read' };
 						yield {
 							type: 'tool_call_args_delta' as const,
 							id: 'read-outside',
@@ -783,73 +811,22 @@ describe('AgentService', () => {
 
 		await expect(service.send(`read ${outsideFile}`)).resolves.toBe('read complete');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toContain('read_file');
+		expect(toolNames).toContain('read');
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
-		expect(JSON.stringify(history)).toContain('outside the .friday workspace');
+		expect(JSON.stringify(history)).toContain('outside readable');
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('blocks writes outside the Friday root in agent tool execution', async () => {
-		const workspace = await makeTempDir();
-		const outside = await makeTempDir();
-		const sessionBaseDir = await makeTempDir();
-		const outsideFile = path.join(outside, 'outside-write.txt');
-		const deps = makeDeps(workspace);
-		let turn = 0;
-		const service = new AgentService(
-			deps,
-			{
-				sessionBaseDir,
-				providerFactory: () => ({
-					async *stream() {
-						if (turn++ === 0) {
-							yield { type: 'tool_call_start' as const, id: 'write-outside', name: 'write_file' };
-							yield {
-								type: 'tool_call_args_delta' as const,
-								id: 'write-outside',
-								jsonDelta: JSON.stringify({
-									path: outsideFile,
-									content: 'outside write',
-								}),
-							};
-							yield { type: 'tool_call_end' as const, id: 'write-outside' };
-							yield {
-								type: 'message_end' as const,
-								stopReason: 'tool_use',
-								usage: { inputTokens: 1, outputTokens: 1 },
-							};
-							return;
-						}
-						yield { type: 'text_delta' as const, text: 'write complete' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-			}
-		);
-
-		await expect(service.send(`write ${outsideFile}`)).resolves.toBe('write complete');
-		await expect(fs.stat(outsideFile)).rejects.toThrow();
-		const history = await service.getHistory();
-		expect(JSON.stringify(history)).toContain('outside the .friday workspace');
-
-		await fs.rm(workspace, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('exposes default local tools for inventory requests', async () => {
+	it('exposes local file mutation, inspection, patch, and shell tools by default', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -865,88 +842,39 @@ describe('AgentService', () => {
 
 		await expect(service.send('Do you have any internal tools?')).resolves.toBe('tool inventory ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual([...AGENT_ALL_TOOL_NAMES]);
-		expect(toolNames).not.toContain('exec');
-		expect(toolNames).not.toContain('process');
-		expect(toolNames).not.toContain('web_fetch');
-		expect(toolNames).not.toContain('cron');
+		expect(toolNames).toEqual(
+			expect.arrayContaining([
+				'read',
+				'write',
+				'edit',
+				'apply_patch',
+				'delete',
+				'copy',
+				'move',
+				'inspect_file',
+				'find',
+				'exec',
+				'process',
+			])
+		);
 		expect(toolNames).not.toContain('startup_files');
-		expect(toolNames).not.toContain('bootstrap');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes cron tools for scheduled task requests', async () => {
+	it('adds agent startup context and startup_files for full bootstrap turns', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const service = new AgentService(deps, {
-			sessionBaseDir,
-			providerFactory: () => ({
-				async *stream(req) {
-					requests.push(req);
-					yield { type: 'text_delta' as const, text: 'scheduled' };
-					yield {
-						type: 'message_end' as const,
-						stopReason: 'end_turn',
-						usage: { inputTokens: 1, outputTokens: 1 },
-					};
-				},
-			}),
-		});
-
-		await expect(
-			service.send('schedule a task that runs each 5 minutes and creates lorem ipsum data')
-		).resolves.toBe('scheduled');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
-			expect.arrayContaining(['cron_create'])
-		);
-		expect(requests[0]!.system).toContain('**cron_create**');
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('keeps cron tools available to subagent default turns', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const service = new AgentService(deps, {
-			sessionBaseDir,
-			providerFactory: () => ({
-				async *stream(req) {
-					requests.push(req);
-					yield { type: 'text_delta' as const, text: 'subagent ready' };
-					yield {
-						type: 'message_end' as const,
-						stopReason: 'end_turn',
-						usage: { inputTokens: 1, outputTokens: 1 },
-					};
-				},
-			}),
-		});
-
-		await expect(
-			service.send('schedule a task that runs each 5 minutes', 'worker')
-		).resolves.toBe('subagent ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
-			expect.arrayContaining(['cron_create'])
-		);
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('keeps bootstrap turns tool-free when bootstrap file access is unavailable', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const startupRoot = deps.startupFiles.getRootPath();
+		const deps = makeDeps('/workspace');
 		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
 		(deps.startupFiles.loadContextFiles as jest.Mock).mockResolvedValue([
 			{
 				name: 'AGENTS.md',
-				path: `${startupRoot}/AGENTS.md`,
+				path: '/workspace/agent/workspaces/main/AGENTS.md',
 				content: 'rules',
 				missing: false,
 			},
 			{
 				name: 'BOOTSTRAP.md',
-				path: `${startupRoot}/BOOTSTRAP.md`,
+				path: '/workspace/agent/workspaces/main/BOOTSTRAP.md',
 				content: 'bootstrap ritual',
 				missing: false,
 			},
@@ -954,6 +882,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -968,33 +897,32 @@ describe('AgentService', () => {
 		});
 
 		await expect(service.send('hi')).resolves.toBe('bootstrap ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual([]);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['startup_files']);
 		expect(requests[0]!.system).toContain('## Bootstrap');
-		expect(requests[0]!.system).not.toContain('bootstrap ritual');
+		expect(requests[0]!.system).toContain('bootstrap ritual');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
 	it('strips BOOTSTRAP.md from secondary session context', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const startupRoot = deps.startupFiles.getRootPath();
+		const deps = makeDeps('/workspace');
 		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
 		(deps.startupFiles.loadContextFiles as jest.Mock).mockResolvedValue([
 			{
 				name: 'AGENTS.md',
-				path: `${startupRoot}/AGENTS.md`,
+				path: '/workspace/agent/workspaces/main/AGENTS.md',
 				content: 'rules',
 				missing: false,
 			},
 			{
 				name: 'MEMORY.md',
-				path: `${startupRoot}/MEMORY.md`,
+				path: '/workspace/agent/workspaces/main/MEMORY.md',
 				content: 'memory',
 				missing: false,
 			},
 			{
 				name: 'BOOTSTRAP.md',
-				path: `${startupRoot}/BOOTSTRAP.md`,
+				path: '/workspace/agent/workspaces/main/BOOTSTRAP.md',
 				content: 'bootstrap ritual',
 				missing: false,
 			},
@@ -1002,6 +930,7 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1022,12 +951,13 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('exposes available relocation tools for file move requests', async () => {
+	it('exposes read with move for file relocation requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1043,16 +973,17 @@ describe('AgentService', () => {
 
 		await expect(service.send('Move the file from one directory to another.')).resolves.toBe('ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual(expect.arrayContaining(['move', 'copy']));
+		expect(toolNames).toEqual(expect.arrayContaining(['read', 'move']));
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('does not expose exec for plain Python script run requests', async () => {
+	it('exposes exec for plain Python script run requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1067,11 +998,11 @@ describe('AgentService', () => {
 		});
 
 		await expect(service.send('Run the Python script.')).resolves.toBe('ready');
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('exec');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('exec');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('allows legacy approval-marked tools without confirmation', async () => {
+	it('executes legacy approval-marked tools without IPC pending approval', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const execute = jest.fn(async () => ({
@@ -1087,6 +1018,7 @@ describe('AgentService', () => {
 		};
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				providerTurns([
 					[
@@ -1114,15 +1046,6 @@ describe('AgentService', () => {
 		const send = service.send('execute the needs_approval tool');
 		await expect(send).resolves.toBe('finished');
 		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
-		await expect(service.getHistory()).resolves.toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({
-					role: 'tool',
-					toolUseId: 'tc1',
-					status: 'ok',
-				}),
-			])
-		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -1141,6 +1064,7 @@ describe('AgentService', () => {
 		};
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				providerTurns([
 					[
@@ -1191,104 +1115,20 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('waits for approval before executing approval-marked tools', async () => {
+	it('adds compact skill guidance and execute_skill tool for executable skills', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
-		const execute = jest.fn(async () => ({
-			status: 'ok' as const,
-			content: [{ type: 'text' as const, text: 'approved result' }],
-		}));
-		const tool: AgentTool = {
-			name: 'approval_tool',
-			description: 'Needs approval',
-			schema: { type: 'object', properties: { ok: { type: 'boolean' } } },
-			needsApproval: true,
-			execute,
-		};
-		const service = new AgentService(deps, {
-			sessionBaseDir,
-			providerFactory: () =>
-				providerTurns([
-					[
-						{ type: 'tool_call_start', id: 'tc1', name: 'approval_tool' },
-						{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"ok":true}' },
-						{ type: 'tool_call_end', id: 'tc1' },
-						{
-							type: 'message_end',
-							stopReason: 'tool_use',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						},
-					],
-					[
-						{ type: 'text_delta', text: 'finished' },
-						{
-							type: 'message_end',
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						},
-					],
-				]),
-			toolsFactory: () => [tool],
-		});
-
-		(deps.eventBus.broadcast as jest.Mock).mockImplementation((_channel, payload) => {
-			if (payload?.type === 'approval_requested') {
-				service.resolveToolApproval({ approvalId: payload.approvalId, approved: true });
-			}
-		});
-
-		await expect(service.send('use the approval tool')).resolves.toBe('finished');
-		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
-		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
-			'agent:response',
-			expect.objectContaining({ type: 'approval_resolved', approved: true })
-		);
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('refreshes connector tools before exposing connector-backed capabilities', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const connectors = {
-			list: jest.fn(() => [
-				{
-					id: 'gmail',
-					connectorId: 'google.gmail',
-					name: 'Gmail',
-					enabled: true,
-					status: 'configured',
-					hasTools: false,
-					tools: [],
-				},
-			]),
-			refreshTools: jest.fn(async () => []),
-			searchTools: jest.fn(() => [
-				{
-					id: 'gmail:get_profile',
-					name: 'gmail_get_profile',
-					displayName: 'Gmail profile',
-					description: 'Read Gmail profile.',
-					connectorId: 'gmail',
-					connectorName: 'Gmail',
-					connectorProviderId: 'google.gmail',
-					toolName: 'get_profile',
-					inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-					permission: 'always-allow',
-					requiresApproval: false,
-					score: 10,
-				},
-			]),
-			execTool: jest.fn(async () => ({ emailAddress: 'user@example.com' })),
-		};
 		const requests: ProviderStreamRequest[] = [];
+		const skills = new SkillsService(deps.logger as never);
 		const service = new AgentService(
-			{ ...deps, connectors: connectors as never },
+			{ ...deps, skills },
 			{
 				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
-						yield { type: 'text_delta' as const, text: 'ready' };
+						yield { type: 'text_delta' as const, text: 'done' };
 						yield {
 							type: 'message_end' as const,
 							stopReason: 'end_turn',
@@ -1296,16 +1136,170 @@ describe('AgentService', () => {
 						};
 					},
 				}),
+				toolsFactory: () => [],
 			}
 		);
 
-		await expect(service.send('get gmail profile')).resolves.toBe('ready');
-		expect(connectors.refreshTools).toHaveBeenCalledWith('gmail');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('gmail_get_profile');
-		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
-			'agent:response',
-			expect.objectContaining({ type: 'connector_status', connectorId: 'gmail', status: 'refreshed' })
+		await expect(service.send('summarize this document')).resolves.toBe('done');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
+		expect(requests[0]!.system).toContain('## Skills');
+		expect(requests[0]!.system).toContain('summarize-document@1.0.0');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('passes skill connectors through discovery and execute_skill setup', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const skillConnector = {
+			id: 'connector_gmail',
+			name: 'Gmail',
+			tools: new Set(['search_emails']),
+			call: jest.fn(),
+		};
+		const skillChoice: SkillPromptChoice = {
+			id: 'gmail-summary',
+			version: '1.0.0',
+			name: 'gmail-summary',
+			description: 'Summarize Gmail messages through a scoped connector.',
+			category: 'communication',
+			tags: [],
+			requiredTools: [],
+			requiredConnectors: ['connector_gmail'],
+			permissionsRequired: [],
+			safetyLevel: 'low',
+			score: 0.95,
+		};
+		const skills = {
+			discoverForPrompt: jest.fn(async () => [skillChoice]),
+			createExecutionTool: jest.fn(() => ({
+				name: 'execute_skill',
+				description: 'Execute skill',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			})),
+		};
+		const connectors = {
+			createSkillConnectors: jest.fn(() => [skillConnector]),
+		};
+		const service = new AgentService(
+			{
+				...deps,
+				connectors: connectors as never,
+				skills: skills as unknown as SkillsService,
+			},
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'done' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [],
+			}
 		);
+
+		await expect(service.send('Use the Gmail summary skill')).resolves.toBe('done');
+		expect(connectors.createSkillConnectors).toHaveBeenCalled();
+		expect(skills.discoverForPrompt.mock.calls[0]![1]).toMatchObject({
+			connectors: [skillConnector],
+		});
+		expect(skills.createExecutionTool).toHaveBeenCalledWith(
+			expect.objectContaining({
+				connectors: [skillConnector],
+			})
+		);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('uses read-on-demand guidance for file-backed skills without execute_skill', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const readTool: AgentTool = {
+			name: 'read',
+			description: 'Read files',
+			schema: {
+				type: 'object',
+				properties: { path: { type: 'string' } },
+				required: ['path'],
+				additionalProperties: false,
+			},
+			execute: jest.fn(),
+		};
+		const skillChoice: SkillPromptChoice = {
+			id: 'research-brief',
+			version: '1.0.0',
+			name: 'research-brief',
+			description: 'Create concise research briefs from local documents.',
+			path: '/workspace/skills/research-brief/SKILL.md',
+			category: 'research',
+			tags: [],
+			requiredTools: [],
+			allowedTools: ['write'],
+			requiredConnectors: [],
+			permissionsRequired: [],
+			safetyLevel: 'low',
+			score: 0.95,
+		};
+		const skills = {
+			discoverForPrompt: jest.fn(async () => [skillChoice]),
+			createExecutionTool: jest.fn(() => ({
+				name: 'execute_skill',
+				description: 'Execute skill',
+				schema: { type: 'object', properties: {}, additionalProperties: false },
+				execute: jest.fn(),
+			})),
+		};
+		const service = new AgentService(
+			{ ...deps, skills: skills as unknown as SkillsService },
+			{
+				sessionBaseDir,
+				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'done' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [
+					readTool,
+					{
+						name: 'write',
+						description: 'Write files',
+						schema: {
+							type: 'object',
+							properties: { path: { type: 'string' }, content: { type: 'string' } },
+							required: ['path', 'content'],
+							additionalProperties: false,
+						},
+						execute: jest.fn(),
+					},
+				],
+			}
+		);
+
+		await expect(service.send('Use the research-brief skill')).resolves.toBe('done');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(
+			expect.arrayContaining(['read', 'write'])
+		);
+		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('execute_skill');
+		expect(skills.createExecutionTool).not.toHaveBeenCalled();
+		expect(requests[0]!.system).toContain('read its SKILL.md at the exact <location> with `read`');
+		expect(requests[0]!.system).toContain('<location>/workspace/skills/research-brief/SKILL.md</location>');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
@@ -1314,6 +1308,7 @@ describe('AgentService', () => {
 		const deps = makeDeps();
 		const service = new AgentService(deps, {
 			sessionBaseDir,
+			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				provider([
 					{ type: 'message_start' },

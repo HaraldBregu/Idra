@@ -9,15 +9,14 @@ describe('settings navigation', () => {
 			'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
-			'settings.tabs.tools',
 			'settings.tabs.skills',
-			'settings.tabs.connectors',
-			'settings.tabs.channels',
-			'settings.tabs.heartbeat',
-			'settings.sections.taskScheduler',
-			'settings.tabs.backgroundTasks',
-			'settings.tabs.monitoring',
-		]);
+				'settings.tabs.connectors',
+				'settings.tabs.channels',
+				'settings.tabs.heartbeat',
+				'settings.tabs.taskScheduler',
+				'settings.tabs.backgroundTasks',
+				'settings.tabs.apps',
+			]);
 	});
 
 	it('keeps operator rows available for the settings overview', () => {

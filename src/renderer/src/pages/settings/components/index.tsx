@@ -22,7 +22,7 @@ export function SettingsPageShell({
 	className,
 }: SettingsPageShellProps): React.JSX.Element {
 	return (
-		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-4 px-3 pb-5', className)}>
+		<div className={cn('mx-auto flex w-full max-w-4xl flex-col gap-4 pb-5', className)}>
 			{children}
 		</div>
 	);
@@ -58,7 +58,7 @@ export function SettingsPageHeader({
 						{title}
 					</h1>
 					{description && (
-						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground/60">
+						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
 							{description}
 						</p>
 					)}
@@ -75,51 +75,38 @@ export function SettingsPageHeader({
 
 interface SettingsSectionProps {
 	readonly title: ReactNode;
-	readonly hideTitle?: boolean;
 	readonly description?: ReactNode;
 	readonly action?: ReactNode;
 	readonly children: ReactNode;
 	readonly className?: string;
-	readonly titleClassName?: string;
 }
 
 export function SettingsSection({
 	title,
-	hideTitle = false,
 	description,
 	action,
 	children,
 	className,
-	titleClassName,
 }: SettingsSectionProps): React.JSX.Element {
-	const hasTitleContent = !hideTitle || description;
-	const hasHeader = hasTitleContent || action;
-
 	return (
 		<section className={cn('flex flex-col gap-2', className)}>
-			{hasHeader && (
-				<div className={cn('flex flex-col gap-1 px-2 sm:flex-row sm:items-end sm:justify-between', titleClassName)}>
-					{hasTitleContent && (
-						<div className="min-w-0">
-							{!hideTitle && (
-								<h2 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-									{title}
-								</h2>
-							)}
-							{description && (
-								<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground/60">
-									{description}
-								</p>
-							)}
-						</div>
-					)}
-					{action && (
-						<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
-							{action}
-						</div>
+			<div className="flex flex-col gap-1 px-0.5 sm:flex-row sm:items-end sm:justify-between">
+				<div className="min-w-0">
+					<h2 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+						{title}
+					</h2>
+					{description && (
+						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
+							{description}
+						</p>
 					)}
 				</div>
-			)}
+				{action && (
+					<div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:shrink-0 sm:justify-end">
+						{action}
+					</div>
+				)}
+			</div>
 			{children}
 		</section>
 	);
@@ -184,11 +171,11 @@ export function SettingsRow({
 						</span>
 					))}
 				<div className="min-w-0 flex-1">
-					<div className="text-[13px] font-medium leading-4 tracking-normal text-muted-foreground">
+					<div className="text-[13px] font-medium leading-4 tracking-normal text-foreground">
 						{title}
 					</div>
 					{description && (
-						<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground/60">{description}</p>
+						<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">{description}</p>
 					)}
 				</div>
 			</div>
@@ -356,7 +343,7 @@ export function SettingsField({
 					{label}
 				</Label>
 				{description && (
-					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground/60">
+					<p id={`${id}-description`} className="text-[11px] leading-4 text-muted-foreground">
 						{description}
 					</p>
 				)}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, ShieldAlert, ShieldX, Wrench } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ConnectorTool } from '../../../../../../../shared/connector';
@@ -38,25 +38,19 @@ export function ConnectorToolsList({
 							<div className="flex flex-wrap items-center gap-1.5">
 								<h4 className="text-xs font-medium leading-4">{tool.name}</h4>
 								<Badge
-									variant={tool.permission === 'always-allow' ? 'secondary' : 'outline'}
+									variant={tool.requiresApproval ? 'outline' : 'secondary'}
 									className="h-4 gap-1 px-1.5 text-[10px]"
 								>
-									{tool.permission === 'blocked' ? (
-										<ShieldX className="size-2.5" />
-									) : tool.permission === 'needs-approval' ? (
+									{tool.requiresApproval ? (
 										<ShieldAlert className="size-2.5" />
 									) : (
 										<ShieldCheck className="size-2.5" />
 									)}
-									{tool.permission === 'blocked'
-										? 'Blocked'
-										: tool.permission === 'needs-approval'
-											? 'Approval required'
-											: 'Always allowed'}
+									{tool.requiresApproval ? 'Approval required' : 'No approval'}
 								</Badge>
 							</div>
 							{tool.description && (
-								<p className="text-[11px] leading-4 text-muted-foreground/60">
+								<p className="text-[11px] leading-4 text-muted-foreground">
 									{tool.description}
 								</p>
 							)}

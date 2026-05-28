@@ -1,6 +1,4 @@
-export { ChannelsService } from './service';
 export { ChannelRegistry } from './registry';
-export type { ChannelsLogger } from './service';
 export {
 	createChannelPluginBase,
 	createChatChannelPlugin,
@@ -33,7 +31,6 @@ export type {
 	ChannelApprovalCapability,
 	ChannelBindingsAdapter,
 	ChannelCapabilities,
-	ChannelChatType,
 	ChannelConversationBindingsAdapter,
 	ChannelConversationResolution,
 	ChannelConfigAdapter,

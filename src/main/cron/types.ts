@@ -1,14 +1,8 @@
 import type { ScheduledTask } from 'node-cron';
-import type { CronStoredTarget, CronTask } from '../../shared/cron';
+import type { CronTask } from '../../shared/cron';
 
 export interface CronJobOptions {
-	name?: string;
-	description?: string;
 	timezone?: string;
-	enabled?: boolean;
-	providerId?: string;
-	modelId?: string;
-	target?: CronStoredTarget;
 	runOnStart?: boolean;
 }
 

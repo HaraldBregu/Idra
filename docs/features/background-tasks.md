@@ -20,12 +20,14 @@ Background tasks let Friday run agent work outside the active foreground convers
 
 ## State Model
 
-Task records are sanitized runtime state persisted in Electron Store as `task.json`. They are separate from persisted cron schedule definitions. Provider and model ids are copied onto the task record when the task is created, but live handlers, promises, abort controllers, listeners, provider clients, task input, and secrets are not stored.
+Task records are in-memory runtime state. They are separate from persisted cron schedule definitions. Provider and model settings are resolved at execution time instead of being copied into the task payload.
 
 ## Source
 
 - `src/main/tasks`
+- `src/main/tasks/handlers/agent-task-handler.ts`
 - `src/main/agent/subagents/task-handler.ts`
 - `src/shared/tasks.ts`
 - `src/renderer/src/pages/settings/pages/task-manager`
 - Existing docs: `docs/tasks/index.md`, `docs/tasks/background/index.md`
+

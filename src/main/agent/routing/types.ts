@@ -4,7 +4,7 @@ import type {
 	AgentRoutePeer,
 	AgentRouteSessionScope,
 	AgentRoutingSettings,
-} from '../../../shared/store';
+} from '../../store/types';
 
 export type { AgentConfig, AgentRouteBinding, AgentRoutePeer, AgentRouteSessionScope };
 

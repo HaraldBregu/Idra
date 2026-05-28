@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../app/service-registry';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import {
@@ -12,12 +12,30 @@ import {
 } from '../../shared/channels';
 import { listChannelCatalog, normalizeChannelId } from '../../shared/channels';
 
+function normalizeTelegramConfig(config: TelegramChannelProperties): TelegramChannelProperties {
+	const normalized: TelegramChannelProperties = {
+		token: config.token.trim(),
+		allowFrom: config.allowFrom.map((value) => String(value).trim()).filter(Boolean),
+	};
+	if (config.enabled !== undefined) normalized.enabled = config.enabled;
+	if (config.defaultAccountId?.trim()) normalized.defaultAccountId = config.defaultAccountId.trim();
+	if (config.defaultTarget?.trim()) normalized.defaultTarget = config.defaultTarget.trim();
+	if (config.dmPolicy) normalized.dmPolicy = config.dmPolicy;
+	if (config.groupAllowFrom) {
+		normalized.groupAllowFrom = config.groupAllowFrom
+			.map((value) => String(value).trim())
+			.filter(Boolean);
+	}
+	if (config.accounts) normalized.accounts = config.accounts;
+	return normalized;
+}
+
 export class ChannelsIpc implements IpcModule {
 	readonly name = 'channels';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
-		const channels = container.get('channels');
+		const store = container.get('store');
 		const channelRegistry = container.get('channelRegistry');
 
 		ipcMain.handle(
@@ -30,14 +48,14 @@ export class ChannelsIpc implements IpcModule {
 		ipcMain.handle(
 			ChannelsChannels.getConfig,
 			wrapSimpleHandler((): Channel => {
-				return channels.getChannel();
+				return store.getChannel();
 			}, ChannelsChannels.getConfig)
 		);
 
 		ipcMain.handle(
 			ChannelsChannels.getChannelConfig,
 			wrapSimpleHandler((type: ChannelType): Channel[ChannelType] => {
-				return channels.getChannelConfig(resolveChannelType(type));
+				return store.getChannelConfig(resolveChannelType(type));
 			}, ChannelsChannels.getChannelConfig)
 		);
 
@@ -46,7 +64,7 @@ export class ChannelsIpc implements IpcModule {
 			wrapSimpleHandler(
 				(type: ChannelType, config: Channel[ChannelType]): Channel[ChannelType] => {
 					const channelType = resolveChannelType(type);
-					const next = channels.setChannelConfig(channelType, config);
+					const next = store.setChannelConfig(channelType, config);
 					if (channelType === 'telegram') {
 						channelRegistry.configure({ telegram: next as TelegramChannelProperties });
 					}
@@ -66,14 +84,14 @@ export class ChannelsIpc implements IpcModule {
 		ipcMain.handle(
 			ChannelsChannels.getTelegramConfig,
 			wrapSimpleHandler((): TelegramChannelProperties => {
-				return channels.getTelegramChannel();
+				return store.getTelegramChannel();
 			}, ChannelsChannels.getTelegramConfig)
 		);
 
 		ipcMain.handle(
 			ChannelsChannels.saveTelegramConfig,
 			wrapSimpleHandler((config: TelegramChannelProperties): TelegramChannelProperties => {
-				const next = channels.setTelegramChannel(config);
+				const next = store.setTelegramChannel(normalizeTelegramConfig(config));
 				channelRegistry.configure({ telegram: next });
 				return next;
 			}, ChannelsChannels.saveTelegramConfig)
@@ -89,7 +107,7 @@ export class ChannelsIpc implements IpcModule {
 		ipcMain.handle(
 			ChannelsChannels.startTelegram,
 			wrapSimpleHandler(async (): Promise<ChannelStatusEvent | undefined> => {
-				await channelRegistry.startTelegram(channels.getTelegramChannel());
+				await channelRegistry.startTelegram(store.getTelegramChannel());
 				return channelRegistry.getStatus();
 			}, ChannelsChannels.startTelegram)
 		);
@@ -104,7 +122,7 @@ export class ChannelsIpc implements IpcModule {
 		ipcMain.handle(
 			ChannelsChannels.restartTelegram,
 			wrapSimpleHandler(async (): Promise<ChannelStatusEvent | undefined> => {
-				await channelRegistry.restartTelegram(channels.getTelegramChannel());
+				await channelRegistry.restartTelegram(store.getTelegramChannel());
 				return channelRegistry.getStatus();
 			}, ChannelsChannels.restartTelegram)
 		);

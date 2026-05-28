@@ -8,7 +8,6 @@ import {
 	Plug,
 	RefreshCw,
 	Save,
-	ShieldCheck,
 	Trash2,
 	Wrench,
 } from 'lucide-react';
@@ -28,14 +27,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { handleExternalLinkClick } from '@/lib/external-links';
-import type {
-	ConnectorApprovalMode,
-	ConnectorCatalogEntry,
-	ConnectorConfig,
-	ConnectorInput,
-	ConnectorMcpConfig,
-	ConnectorTool,
-	ConnectorUpdateInput,
+import {
+	PROVIDER_CONNECTOR_DOCS,
+	getConnectorAuthKind,
+	getConnectorCatalogItem,
+	isOpenAiConnectorId,
+	type ConnectorApprovalMode,
+	type ConnectorConfig,
+	type ConnectorInput,
+	type ConnectorTool,
+	type ConnectorUpdateInput,
+	type OpenAiConnectorId,
 } from '../../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
@@ -46,22 +48,21 @@ import {
 	SettingsSection,
 } from '../../../components';
 import { ConnectorDocumentationRows } from '../components/ConnectorDocumentationRows';
+import { ConnectorIcon } from '../components/ConnectorIcon';
 import { ConnectorToolsList } from '../components/ConnectorToolsList';
 
-type ConnectorCatalogItem = ConnectorCatalogEntry;
+type ConnectorCatalogItem = NonNullable<ReturnType<typeof getConnectorCatalogItem>>;
 
 interface ConnectorFormState {
 	readonly name: string;
 	readonly serverLabel: string;
 	readonly serverDescription: string;
-	readonly mcpText: string;
+	readonly authorization: string;
 	readonly requireApproval: ConnectorApprovalMode;
 	readonly allowedTools: string[];
 	readonly deferLoading: boolean;
 	readonly enabled: boolean;
 }
-
-type DetailTab = 'tools' | 'permissions';
 
 const SERVER_LABEL_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
@@ -73,31 +74,12 @@ function serverLabelFromName(name: string): string {
 		.replace(/^_+|_+$/g, '');
 }
 
-function defaultMcpText(item: ConnectorCatalogItem): string {
-	const base = item.id === 'connector_stdio_mcp'
-		? { transport: 'stdio', command: 'node', args: ['server.js'] }
-		: { transport: 'http', url: 'https://example.com/mcp', auth: { env: item.environmentSecretNames[0] ?? 'MCP_API_KEY' } };
-	return JSON.stringify(base, null, 2);
-}
-
-function mcpTextFromConnector(connector: ConnectorConfig, item: ConnectorCatalogItem): string {
-	return JSON.stringify(connector.mcp ?? JSON.parse(defaultMcpText(item)), null, 2);
-}
-
-function parseMcpText(value: string): ConnectorMcpConfig {
-	try {
-		return JSON.parse(value) as ConnectorMcpConfig;
-	} catch {
-		throw new Error('MCP config must be valid JSON.');
-	}
-}
-
 function formFromCatalog(item: ConnectorCatalogItem): ConnectorFormState {
 	return {
 		name: item.name,
 		serverLabel: serverLabelFromName(item.name),
 		serverDescription: item.description,
-		mcpText: defaultMcpText(item),
+		authorization: '',
 		requireApproval: 'always',
 		allowedTools: [],
 		deferLoading: false,
@@ -105,45 +87,17 @@ function formFromCatalog(item: ConnectorCatalogItem): ConnectorFormState {
 	};
 }
 
-function formFromConnector(connector: ConnectorConfig, item: ConnectorCatalogItem): ConnectorFormState {
-	const name = connector.name ?? item.name;
+function formFromConnector(connector: ConnectorConfig): ConnectorFormState {
 	return {
-		name,
-		serverLabel: connector.serverLabel ?? serverLabelFromName(name),
+		name: connector.name,
+		serverLabel: connector.serverLabel,
 		serverDescription: connector.serverDescription ?? '',
-		mcpText: mcpTextFromConnector(connector, item),
-		requireApproval: connector.requireApproval ?? 'always',
-		allowedTools: connector.allowedTools ?? [],
-		deferLoading: connector.deferLoading ?? false,
-		enabled: connector.enabled ?? true,
+		authorization: '',
+		requireApproval: connector.requireApproval,
+		allowedTools: connector.allowedTools,
+		deferLoading: connector.deferLoading,
+		enabled: connector.enabled,
 	};
-}
-
-function catalogItemFromId(id: string, connector?: ConnectorConfig): ConnectorCatalogItem {
-	const name = connector?.name ?? id;
-	return {
-		id,
-		name,
-		description: connector?.serverDescription ?? name,
-		environmentSecretNames: environmentSecretNamesFor(connector?.mcp),
-		platformDocumentationPages: [],
-		tools: connector?.tools.map((tool) => tool.name) ?? [],
-		scopes: [],
-		setupInstructions: [],
-		authKind: 'mcp_env',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: true,
-	};
-}
-
-function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[] {
-	if (!mcp) return [];
-	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
-	return (mcp.envSecrets ?? []).map((secret) => secret.env);
-}
-
-function findCatalogItem(catalog: readonly ConnectorCatalogItem[], id: string, connector?: ConnectorConfig): ConnectorCatalogItem {
-	return catalog.find((item) => item.id === id) ?? catalogItemFromId(id, connector);
 }
 
 function formatTimestamp(value?: string): string {
@@ -159,13 +113,11 @@ function formatApprovalPolicy(value: ConnectorApprovalMode): string {
 	return 'Always require approval';
 }
 
-function requireConnectorId(connector: ConnectorConfig): string {
-	if (!connector.id) throw new Error('Connector id is missing.');
-	return connector.id;
-}
-
-function formatRuntimeStatus(item: ConnectorCatalogItem): string {
-	return item.runtimeKind === 'mcp' ? 'Dynamic MCP tools' : 'Dynamic connector';
+function formatRuntimeStatus(connectorId: OpenAiConnectorId): string {
+	const runtimeStatus = PROVIDER_CONNECTOR_DOCS[connectorId].runtimeStatus;
+	return runtimeStatus === 'local_oauth_and_local_tool_execution'
+		? 'Local OAuth and local tools'
+		: 'Settings catalog only';
 }
 
 function DetailRow({
@@ -197,7 +149,10 @@ function DetailRow({
 	);
 }
 
-function formValidationError(form: ConnectorFormState): string | null {
+function formValidationError(
+	form: ConnectorFormState,
+	requiresManualToken: boolean
+): string | null {
 	const name = form.name.trim();
 	const serverLabel = form.serverLabel.trim() || serverLabelFromName(name);
 	if (!name) return 'Connector name is required.';
@@ -205,10 +160,8 @@ function formValidationError(form: ConnectorFormState): string | null {
 	if (!SERVER_LABEL_PATTERN.test(serverLabel)) {
 		return 'Server label can contain only letters, numbers, underscores, and hyphens.';
 	}
-	try {
-		parseMcpText(form.mcpText);
-	} catch (caught) {
-		return caught instanceof Error ? caught.message : String(caught);
+	if (requiresManualToken && !form.authorization.trim()) {
+		return 'OAuth access token is required for this connector.';
 	}
 	return null;
 }
@@ -220,7 +173,6 @@ function baseConnectorInput(form: ConnectorFormState, item: ConnectorCatalogItem
 		connectorId: item.id,
 		serverLabel: form.serverLabel.trim() || serverLabelFromName(name),
 		serverDescription: form.serverDescription.trim() || undefined,
-		mcp: parseMcpText(form.mcpText),
 		requireApproval: form.requireApproval,
 		allowedTools: form.allowedTools,
 		deferLoading: form.deferLoading,
@@ -228,12 +180,27 @@ function baseConnectorInput(form: ConnectorFormState, item: ConnectorCatalogItem
 	};
 }
 
-function formToCreateInput(form: ConnectorFormState, item: ConnectorCatalogItem): ConnectorInput {
-	return baseConnectorInput(form, item);
+function formToCreateInput(
+	form: ConnectorFormState,
+	item: ConnectorCatalogItem,
+	manualAuth: boolean
+): ConnectorInput {
+	return {
+		...baseConnectorInput(form, item),
+		...(manualAuth ? { authorization: form.authorization.trim() } : {}),
+	};
 }
 
-function formToUpdateInput(form: ConnectorFormState, item: ConnectorCatalogItem): ConnectorUpdateInput {
-	return baseConnectorInput(form, item);
+function formToUpdateInput(
+	form: ConnectorFormState,
+	item: ConnectorCatalogItem,
+	manualAuth: boolean
+): ConnectorUpdateInput {
+	const authorization = form.authorization.trim();
+	return {
+		...baseConnectorInput(form, item),
+		...(manualAuth && authorization ? { authorization } : {}),
+	};
 }
 
 const ConnectorDetailsPage: React.FC = () => {
@@ -249,13 +216,13 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [tools, setTools] = useState<readonly ConnectorTool[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
+	const [connecting, setConnecting] = useState(false);
 	const [deleting, setDeleting] = useState(false);
 	const [refreshingTools, setRefreshingTools] = useState(false);
 	const [testing, setTesting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [toolsError, setToolsError] = useState<string | null>(null);
-	const [activeTab, setActiveTab] = useState<DetailTab>('tools');
 
 	const load = useCallback(async (): Promise<void> => {
 		setLoading(true);
@@ -264,11 +231,23 @@ const ConnectorDetailsPage: React.FC = () => {
 		setToolsError(null);
 
 		try {
-			const catalog = await window.connectors.catalog();
-
 			if (connectorCatalogId) {
 				const decodedCatalogId = decodeURIComponent(connectorCatalogId);
-				const item = findCatalogItem(catalog, decodedCatalogId);
+				if (!isOpenAiConnectorId(decodedCatalogId)) {
+					throw new Error(`Unsupported connector id: ${decodedCatalogId}`);
+				}
+				const item = getConnectorCatalogItem(decodedCatalogId);
+				if (!item) throw new Error(`Connector not found: ${decodedCatalogId}`);
+
+				const existing = (await window.connectors.list()).find(
+					(candidate) => candidate.connectorId === decodedCatalogId
+				);
+				if (existing) {
+					navigate(`/settings/connectors/connectordetails/${encodeURIComponent(existing.id)}`, {
+						replace: true,
+					});
+					return;
+				}
 
 				setConnector(null);
 				setCatalogItem(item);
@@ -280,11 +259,8 @@ const ConnectorDetailsPage: React.FC = () => {
 			if (!connectorId) throw new Error('Connector not found.');
 
 			const nextConnector = await window.connectors.get(connectorId);
-			const item = findCatalogItem(
-				catalog,
-				nextConnector.connectorId ?? nextConnector.id ?? connectorId,
-				nextConnector
-			);
+			const item = getConnectorCatalogItem(nextConnector.connectorId);
+			if (!item) throw new Error(`Connector not found: ${nextConnector.connectorId}`);
 
 			let nextTools: readonly ConnectorTool[] = [];
 			let nextToolsError: string | null = null;
@@ -295,8 +271,8 @@ const ConnectorDetailsPage: React.FC = () => {
 			}
 
 			setConnector(nextConnector);
-			setCatalogItem({ ...item, tools: nextTools.map((tool) => tool.name) });
-			setForm(formFromConnector(nextConnector, item));
+			setCatalogItem(item);
+			setForm(formFromConnector(nextConnector));
 			setTools(nextTools);
 			setToolsError(nextToolsError);
 		} catch (caught) {
@@ -337,7 +313,8 @@ const ConnectorDetailsPage: React.FC = () => {
 		event.preventDefault();
 		if (!form || !catalogItem) return;
 
-		const validationError = formValidationError(form);
+		const manualAuth = getConnectorAuthKind(catalogItem.id) === 'manual_oauth_access_token';
+		const validationError = formValidationError(form, manualAuth && !connector);
 		if (validationError) {
 			setError(validationError);
 			return;
@@ -347,18 +324,17 @@ const ConnectorDetailsPage: React.FC = () => {
 		setError(null);
 		setStatusMessage(null);
 		setToolsError(null);
-			try {
-				if (connector) {
-					const connectorRecordId = requireConnectorId(connector);
-					const saved = await window.connectors.update(
-						connectorRecordId,
-						formToUpdateInput(form, catalogItem)
-					);
-					setConnector(saved);
-					setForm(formFromConnector(saved, catalogItem));
-					try {
-						setTools(await window.connectors.listTools(saved.id ?? connectorRecordId));
-					} catch (caught) {
+		try {
+			if (connector) {
+				const saved = await window.connectors.update(
+					connector.id,
+					formToUpdateInput(form, catalogItem, manualAuth)
+				);
+				setConnector(saved);
+				setForm(formFromConnector(saved));
+				try {
+					setTools(await window.connectors.listTools(saved.id));
+				} catch (caught) {
 					setTools([]);
 					setToolsError(caught instanceof Error ? caught.message : String(caught));
 				}
@@ -366,8 +342,8 @@ const ConnectorDetailsPage: React.FC = () => {
 				return;
 			}
 
-			const created = await window.connectors.add(formToCreateInput(form, catalogItem));
-			navigate(`/settings/connectors/connectordetails/${encodeURIComponent(requireConnectorId(created))}`, {
+			const created = await window.connectors.add(formToCreateInput(form, catalogItem, manualAuth));
+			navigate(`/settings/connectors/connectordetails/${encodeURIComponent(created.id)}`, {
 				replace: true,
 			});
 		} catch (caught) {
@@ -378,16 +354,15 @@ const ConnectorDetailsPage: React.FC = () => {
 	};
 
 	const refreshConnectorTools = async (): Promise<void> => {
-		if (!connector || !catalogItem) return;
-		const connectorRecordId = requireConnectorId(connector);
+		if (!connector) return;
 		setRefreshingTools(true);
 		setError(null);
 		setToolsError(null);
 		try {
-			const nextTools = await window.connectors.refreshTools(connectorRecordId);
-			const nextConnector = await window.connectors.get(connectorRecordId);
+			const nextTools = await window.connectors.refreshTools(connector.id);
+			const nextConnector = await window.connectors.get(connector.id);
 			setConnector(nextConnector);
-			setForm(formFromConnector(nextConnector, catalogItem));
+			setForm(formFromConnector(nextConnector));
 			setTools(nextTools);
 			setStatusMessage('Connector tools refreshed.');
 		} catch (caught) {
@@ -399,12 +374,11 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	const testConnector = async (): Promise<void> => {
 		if (!connector) return;
-		const connectorRecordId = requireConnectorId(connector);
 		setTesting(true);
 		setError(null);
 		setStatusMessage(null);
 		try {
-			const result = await window.connectors.test(connectorRecordId);
+			const result = await window.connectors.test(connector.id);
 			setStatusMessage(result.message ?? `Connector status: ${result.status}.`);
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
@@ -413,16 +387,39 @@ const ConnectorDetailsPage: React.FC = () => {
 		}
 	};
 
+	const connectGoogleOAuth = async (): Promise<void> => {
+		if (!connector) return;
+		setConnecting(true);
+		setError(null);
+		setStatusMessage(`Opening browser for ${connector.name}...`);
+		try {
+			const result = await window.connectors.connectOAuth(connector.id);
+			const [nextConnector, nextTools] = await Promise.all([
+				window.connectors.get(connector.id),
+				window.connectors.listTools(connector.id),
+			]);
+			setConnector(nextConnector);
+			setForm(formFromConnector(nextConnector));
+			setTools(nextTools);
+			setStatusMessage(result.message ?? `${connector.name} connected.`);
+			setToolsError(null);
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+			setStatusMessage(null);
+		} finally {
+			setConnecting(false);
+		}
+	};
+
 	const deleteConnector = async (): Promise<void> => {
 		if (!connector) return;
 		if (!window.confirm(`Delete ${connector.name}?`)) return;
-		const connectorRecordId = requireConnectorId(connector);
 
 		setDeleting(true);
 		setError(null);
 		setStatusMessage(null);
 		try {
-			await window.connectors.remove(connectorRecordId);
+			await window.connectors.remove(connector.id);
 			navigate('/settings/connectors');
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
@@ -459,15 +456,35 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
+	const authKind = getConnectorAuthKind(catalogItem.id);
+	const googleOAuth = authKind === 'google_oauth';
+	const connectedGoogleAccount = connector?.oauth?.email ?? null;
+	const hasGoogleConnection = Boolean(connector?.oauth?.connectedAt || connectedGoogleAccount);
+	const redirectUri = 'redirectUri' in catalogItem ? catalogItem.redirectUri : 'Not configured';
 	const title = connector?.name ?? catalogItem.name;
 	const idPrefix = connector?.id ?? catalogItem.id;
-	const formBusy = saving || deleting;
+	const formBusy = saving || connecting || deleting;
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title={title}
 				description={catalogItem.description}
+				iconNode={<ConnectorIcon connectorId={catalogItem.id} name={catalogItem.name} />}
+				action={
+					googleOAuth && connector ? (
+						<Button
+							type="button"
+							size="xs"
+							variant={hasGoogleConnection ? 'outline' : 'default'}
+							disabled={formBusy}
+							onClick={() => void connectGoogleOAuth()}
+						>
+							{connecting && <LoaderCircle className="size-3 animate-spin" />}
+							{hasGoogleConnection ? 'Reconnect Google' : 'Connect Google'}
+						</Button>
+					) : undefined
+				}
 			/>
 
 			{error && (
@@ -479,7 +496,6 @@ const ConnectorDetailsPage: React.FC = () => {
 
 			<form onSubmit={saveConnector} className="grid gap-4">
 				<SettingsSection
-					hideTitle
 					title="Configuration"
 					action={
 						connector ? (
@@ -529,139 +545,58 @@ const ConnectorDetailsPage: React.FC = () => {
 								/>
 							</SettingsField>
 
-							<SettingsField
-								id={`${idPrefix}-connector-mcp`}
-								label="MCP config"
-								description="Use env variable names for secrets; do not paste API key values here."
-							>
-								<Textarea
-									id={`${idPrefix}-connector-mcp`}
-									value={form.mcpText}
-									onChange={(event) => update('mcpText', event.target.value)}
-									className="min-h-28 font-mono text-xs md:text-xs"
-								/>
-							</SettingsField>
-						</div>
+							<div className="grid gap-3 md:grid-cols-2">
+								<SettingsField id={`${idPrefix}-connector-approval-policy`} label="Approval policy">
+									<Select
+										value={form.requireApproval}
+										onValueChange={(value) => {
+											if (value) update('requireApproval', value as ConnectorApprovalMode);
+										}}
+									>
+										<SelectTrigger
+											id={`${idPrefix}-connector-approval-policy`}
+											size="sm"
+											className="w-full text-xs [&_svg]:size-3"
+											aria-label="Approval policy"
+										>
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="always">Always require approval</SelectItem>
+											<SelectItem value="never_for_allowed_tools">
+												Skip approval for allowed tools
+											</SelectItem>
+											<SelectItem value="never">Never require approval</SelectItem>
+										</SelectContent>
+									</Select>
+								</SettingsField>
 
-						<div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/60 p-3">
-							<Button type="submit" size="xs" disabled={formBusy}>
-								{saving ? (
-									<LoaderCircle className="size-3 animate-spin" />
+								{googleOAuth ? (
+									<div className="rounded-md border border-border/70 bg-muted/20 px-2.5 py-2">
+										<div className="text-[11px] font-medium leading-4 text-foreground">
+											Google OAuth
+										</div>
+										<div className="mt-1 break-all text-[11px] leading-4 text-muted-foreground">
+											Redirect: <span className="font-mono">{redirectUri}</span>
+										</div>
+									</div>
 								) : (
-									<Save className="size-3" />
+									<SettingsField
+										id={`${idPrefix}-connector-authorization`}
+										label="OAuth access token"
+										description={connector ? 'Leave blank to keep the saved token.' : undefined}
+									>
+										<Input
+											id={`${idPrefix}-connector-authorization`}
+											type="password"
+											value={form.authorization}
+											onChange={(event) => update('authorization', event.target.value)}
+											placeholder={connector ? 'Paste a replacement token' : 'Paste OAuth access token'}
+											className="h-8 px-2 text-xs md:text-xs"
+										/>
+									</SettingsField>
 								)}
-								{connector ? 'Save Changes' : 'Add Connector'}
-							</Button>
-						</div>
-					</Card>
-				</SettingsSection>
-			</form>
-
-			{/* Tools & Permissions tabs */}
-			<SettingsSection
-				title=""
-				hideTitle
-				action={
-					<div className="flex items-center gap-1 rounded-lg border border-border/60 bg-muted/30 p-0.5">
-						<Button
-							type="button"
-							size="xs"
-							variant={activeTab === 'tools' ? 'secondary' : 'ghost'}
-							className="h-6 gap-1.5 px-2 text-[11px]"
-							onClick={() => setActiveTab('tools')}
-						>
-							<Wrench className="size-3" />
-							Tools
-							{connector && (
-								<span className="ml-0.5 text-muted-foreground">({tools.length})</span>
-							)}
-						</Button>
-						<Button
-							type="button"
-							size="xs"
-							variant={activeTab === 'permissions' ? 'secondary' : 'ghost'}
-							className="h-6 gap-1.5 px-2 text-[11px]"
-							onClick={() => setActiveTab('permissions')}
-						>
-							<ShieldCheck className="size-3" />
-							Permissions
-						</Button>
-					</div>
-				}
-			>
-				{activeTab === 'tools' && (
-					<>
-						{toolsError && (
-							<SettingsNotice variant="destructive" icon={AlertTriangle}>
-								{toolsError}
-							</SettingsNotice>
-						)}
-						{connector?.lastError && (
-							<SettingsNotice variant="destructive" icon={AlertTriangle}>
-								{connector.lastError}
-							</SettingsNotice>
-						)}
-						<div className="flex justify-end">
-							{connector && (
-								<div className="flex gap-1.5">
-									<Button
-										type="button"
-										size="xs"
-										variant="outline"
-										disabled={testing || formBusy}
-										onClick={() => void testConnector()}
-									>
-										{testing && <LoaderCircle className="size-3 animate-spin" />}
-										Test
-									</Button>
-									<Button
-										type="button"
-										size="xs"
-										variant="outline"
-										disabled={refreshingTools || formBusy}
-										onClick={() => void refreshConnectorTools()}
-									>
-										{refreshingTools ? (
-											<LoaderCircle className="size-3 animate-spin" />
-										) : (
-											<RefreshCw className="size-3" />
-										)}
-										Refresh
-									</Button>
-								</div>
-							)}
-						</div>
-						<ConnectorToolsList tools={tools} />
-					</>
-				)}
-
-				{activeTab === 'permissions' && form && (
-					<Card size="sm" className="gap-0! p-0!">
-						<div className="grid gap-3 p-3">
-							<SettingsField id={`${idPrefix}-connector-approval-policy`} label="Approval policy">
-								<Select
-									value={form.requireApproval}
-									onValueChange={(value) => {
-										if (value) update('requireApproval', value as ConnectorApprovalMode);
-									}}
-								>
-									<SelectTrigger
-										id={`${idPrefix}-connector-approval-policy`}
-										size="sm"
-										className="w-full text-xs [&_svg]:size-3"
-										aria-label="Approval policy"
-									>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="always">Always require approval</SelectItem>
-										<SelectItem value="never_for_allowed_tools">
-											Skip approval for allowed tools
-										</SelectItem>
-										<SelectItem value="never">Never require approval</SelectItem>
-									</SelectContent>
-								</Select>
-							</SettingsField>
+							</div>
 
 							<div className="grid gap-2">
 								<div className="flex flex-wrap items-center justify-between gap-2">
@@ -702,7 +637,7 @@ const ConnectorDetailsPage: React.FC = () => {
 									<label htmlFor={`${idPrefix}-connector-defer-loading`} className="block cursor-pointer text-[13px] font-medium text-foreground">
 										Defer tool loading
 									</label>
-									<p className="text-[11px] leading-4 text-muted-foreground/60">
+									<p className="text-[11px] leading-4 text-muted-foreground">
 										Load tools only when the connector is used.
 									</p>
 								</div>
@@ -718,7 +653,7 @@ const ConnectorDetailsPage: React.FC = () => {
 									<label htmlFor={`${idPrefix}-connector-enabled`} className="block cursor-pointer text-[13px] font-medium text-foreground">
 										Enabled
 									</label>
-									<p className="text-[11px] leading-4 text-muted-foreground/60">
+									<p className="text-[11px] leading-4 text-muted-foreground">
 										Make this connector available to agent runs.
 									</p>
 								</div>
@@ -731,45 +666,68 @@ const ConnectorDetailsPage: React.FC = () => {
 							</div>
 						</div>
 
-						<div className="flex justify-end border-t border-border/60 p-3">
-							<Button
-								type="button"
-								size="xs"
-								disabled={formBusy}
-								onClick={() => {
-									const validationError = formValidationError(form);
-									if (validationError) { setError(validationError); return; }
-									void saveConnector({ preventDefault: () => {} } as FormEvent<HTMLFormElement>);
-								}}
-							>
-								{saving ? <LoaderCircle className="size-3 animate-spin" /> : <Save className="size-3" />}
-								Save Permissions
+						<div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/60 p-3">
+							<Button type="submit" size="xs" disabled={formBusy}>
+								{saving ? (
+									<LoaderCircle className="size-3 animate-spin" />
+								) : (
+									<Save className="size-3" />
+								)}
+								{connector ? 'Save Changes' : 'Add Connector'}
 							</Button>
 						</div>
 					</Card>
-				)}
-			</SettingsSection>
+				</SettingsSection>
+			</form>
 
 			<SettingsSection
 				title="Status"
 				action={
 					connector ? (
 						<div className="flex flex-wrap gap-1.5">
-							<DetailRow label="Last refreshed" value={formatTimestamp(connector?.lastRefreshedAt)} />
-							<DetailRow label="Updated" value={formatTimestamp(connector?.updatedAt)} />
+							<Button
+								type="button"
+								size="xs"
+								variant="outline"
+								disabled={testing || formBusy}
+								onClick={() => void testConnector()}
+							>
+								{testing && <LoaderCircle className="size-3 animate-spin" />}
+								Test
+							</Button>
+							<Button
+								type="button"
+								size="xs"
+								variant="outline"
+								disabled={refreshingTools || formBusy}
+								onClick={() => void refreshConnectorTools()}
+							>
+								{refreshingTools ? (
+									<LoaderCircle className="size-3 animate-spin" />
+								) : (
+									<RefreshCw className="size-3" />
+								)}
+								Refresh Tools
+							</Button>
 						</div>
 					) : undefined
 				}
 			>
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={catalogItem.id} mono />
-					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem)} />
-					<DetailRow label="Auth" value="MCP env variables" />
+					<DetailRow label="Runtime" value={formatRuntimeStatus(catalogItem.id)} />
+					<DetailRow label="Auth" value={googleOAuth ? 'Google OAuth' : 'Manual OAuth access token'} />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(form.requireApproval)} />
+					<DetailRow
+						label="Connected account"
+						value={connectedGoogleAccount ?? (googleOAuth ? 'Not connected' : 'Manual token')}
+					/>
+					<DetailRow label="Last refreshed" value={formatTimestamp(connector?.lastRefreshedAt)} />
+					<DetailRow label="Updated" value={formatTimestamp(connector?.updatedAt)} />
 				</Card>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.connectors.setup')}>
+			<SettingsSection title="Setup">
 				<Card size="sm" className="gap-0! p-0!">
 					<div className="grid gap-3 px-3 py-2.5">
 						<div className="flex flex-wrap items-center justify-between gap-2">
@@ -788,7 +746,7 @@ const ConnectorDetailsPage: React.FC = () => {
 							)}
 						</div>
 						{catalogItem.setupInstructions.length > 0 && (
-							<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground/60">
+							<ol className="grid list-decimal gap-1 pl-4 text-[11px] leading-4 text-muted-foreground">
 								{catalogItem.setupInstructions.map((step) => (
 									<li key={step}>{step}</li>
 								))}
@@ -809,6 +767,35 @@ const ConnectorDetailsPage: React.FC = () => {
 					</div>
 				</Card>
 			</SettingsSection>
+
+			{connector?.lastError && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{connector.lastError}
+				</SettingsNotice>
+			)}
+
+			{toolsError && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{toolsError}
+				</SettingsNotice>
+			)}
+
+			{connector && (
+				<SettingsSection
+					title="Tools"
+					action={
+						<Badge
+							variant="outline"
+							className="h-5 rounded-md bg-muted/40 px-1.5 text-[10px] text-muted-foreground"
+						>
+							<Wrench className="mr-1 size-3" />
+							{tools.length} tools
+						</Badge>
+					}
+				>
+					<ConnectorToolsList tools={tools} />
+				</SettingsSection>
+			)}
 
 			{connector && (
 				<div className="border-t border-border/60 pt-3">

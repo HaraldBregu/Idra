@@ -1,18 +1,21 @@
 import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
+	AgentCronService,
 	CronScheduleExecutionError,
 	CronScheduleValidationError,
-} from '../../../../src/main/cron/core/cron.errors';
-import type {
-	CronActorContext,
-	CronSchedule,
-	CronScheduleCreateRequest,
-	CronScheduleRunner,
-} from '../../../../src/main/cron/core/cron.types';
-import { CronSchedulerService } from '../../../../src/main/cron/scheduler/cron-scheduler';
-import { DefaultCronScheduleAccessPolicy } from '../../../../src/main/cron/security/cron-access-policy';
-import { redactCronValue } from '../../../../src/main/cron/security/cron-redaction';
-import { InMemoryCronScheduleStore } from '../../../../src/main/cron/store/in-memory-cron-schedule-store';
+	CronSchedulerService,
+	DefaultCronScheduleAccessPolicy,
+	InMemoryCronScheduleStore,
+	redactCronValue,
+	TaskManagerCronScheduleRunner,
+	type CronActorContext,
+	type CronSchedule,
+	type CronScheduleCreateRequest,
+	type CronScheduleRunner,
+} from '../../../../src/main/cron';
+import { EventBus } from '../../../../src/main/core';
+import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
+import type { TaskContext } from '../../../../src/shared/tasks';
 
 class RecordingRunner implements CronScheduleRunner {
 	tasks: CronScheduledTask[] = [];
@@ -128,7 +131,7 @@ function request(overrides: Partial<CronScheduleCreateRequest> = {}): CronSchedu
 		cronExpression: '0 9 * * 1',
 		missedRunPolicy: 'skip',
 		concurrencyPolicy: 'skipIfRunning',
-		taskType: 'agent.run',
+		taskType: AGENT_TASK_TYPE,
 		taskInput: { message: 'Review invoices' },
 		...overrides,
 	};
@@ -150,15 +153,6 @@ describe('CronSchedulerService', () => {
 
 		expect(schedule.timezone).toBe('Europe/Rome');
 		expect(schedule.nextRunAt).toBeTruthy();
-		expect(schedule).toMatchObject({
-			schedule: '0 9 * * 1',
-			enabled: true,
-			status: 'active',
-			target: 'agent',
-			payload: { message: 'Review invoices' },
-			runCount: 0,
-			failureCount: 0,
-		});
 		await expect(store.getSchedule(schedule.id)).resolves.toMatchObject({ id: schedule.id });
 	});
 
@@ -174,6 +168,12 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request({ taskInput: { model: 'gpt-5.5' } }), actor)
 		).rejects.toThrow(/Runtime configuration/);
+		await expect(
+			scheduler.createSchedule(
+				request({ taskInput: { message: 'Review invoices', extra: 'not allowed' } }),
+				actor
+			)
+		).rejects.toThrow(/only supports message/);
 	});
 
 	it('computes timezone-aware cron and interval next runs', async () => {
@@ -364,7 +364,7 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request({ requiresConfirmation: true, confirmed: true }), actor)
 		).resolves.toMatchObject({
-			taskType: 'agent.run',
+			taskType: AGENT_TASK_TYPE,
 		});
 	});
 
@@ -380,15 +380,44 @@ describe('CronSchedulerService', () => {
 		await expect(scheduler.listSchedules({}, otherActor)).resolves.toEqual([]);
 	});
 
-	it('supports non-agent task types without a task service dependency', async () => {
+	it('rejects non-agent task types', async () => {
 		const { scheduler } = makeScheduler();
 		await expect(
-			scheduler.createSchedule(request({ taskType: 'email.send', taskInput: { to: 'user@example.com' } }), actor)
-		).resolves.toMatchObject({
-			taskType: 'email.send',
-			target: 'task',
-			payload: { to: 'user@example.com' },
-		});
+			scheduler.createSchedule(
+				request({ taskType: 'email.send', requiresConfirmation: true }),
+				actor
+			)
+		).rejects.toThrow(/agent\.run/);
+	});
+
+	it('allows agents to create inspectable schedules through AgentCronService', async () => {
+		const { scheduler } = makeScheduler();
+		const agentCron = new AgentCronService(scheduler);
+
+		const schedule = await agentCron.createScheduleFromAgent(
+			{
+				name: 'Agent reminder',
+				type: 'cron',
+				cronExpression: '0 9 * * 1',
+				taskInput: { message: 'Review invoices' },
+			},
+			{
+				agentId: 'agent-1',
+				userId: 'user-1',
+				timezone: 'Europe/Rome',
+				permissions: actor.permissions,
+			}
+		);
+
+		expect(schedule.source).toBe('agent');
+		await expect(
+			agentCron.explainSchedule(schedule.id, {
+				agentId: 'agent-1',
+				userId: 'user-1',
+				timezone: 'Europe/Rome',
+				permissions: actor.permissions,
+			})
+		).resolves.toContain('Monday');
 	});
 
 	it('redacts audit/log payloads', () => {
@@ -398,4 +427,39 @@ describe('CronSchedulerService', () => {
 		});
 	});
 
+	it('creates approved agent background tasks through TaskManagerCronScheduleRunner', async () => {
+		const eventBus = new EventBus();
+		const registry = new TaskRegistry();
+		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({
+			text: `done: ${context.input.message}`,
+		}));
+		registry.register(
+			{
+				type: AGENT_TASK_TYPE,
+				validateInput(input: unknown) {
+					return input as { message: string };
+				},
+				run,
+			},
+			{ userFacing: true }
+		);
+		const taskManager = new TaskManager({ registry, eventBus });
+		const runner = new TaskManagerCronScheduleRunner(taskManager);
+		const { scheduler, store } = makeScheduler(runner);
+		const schedule = await scheduler.createSchedule(request(), actor);
+		await due(schedule, store, new Date(Date.now() - 1_000).toISOString());
+
+		await scheduler.processDueSchedules(new Date());
+
+		expect(taskManager.list()).toEqual([
+			expect.objectContaining({
+				type: AGENT_TASK_TYPE,
+				title: 'Weekly reminder',
+				metadata: expect.objectContaining({
+					cronScheduleId: schedule.id,
+					cronInput: { message: 'Review invoices' },
+				}),
+			}),
+		]);
+	});
 });

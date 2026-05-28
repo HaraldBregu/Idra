@@ -29,7 +29,7 @@ export function useModelServices(
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
 				const [storedProviders, ...configuredOperators] = await Promise.all([
-					window.store.getProviders(),
+					window.app.getProviders(),
 					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getOperator()),
 				]);
 				if (cancelled) return;
@@ -60,7 +60,6 @@ export function useModelServices(
 									modelGroups.push({ provider, models });
 								}
 							} catch (error) {
-								console.warn('[useModelServices] Failed to load models for provider:', provider.id, error);
 								firstError ??= error;
 							}
 						}
@@ -89,7 +88,6 @@ export function useModelServices(
 				}
 			} catch (error) {
 				if (cancelled) return;
-				console.error('[useModelServices] Failed to load service configuration:', error);
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: createInitialModelServiceState() });
 				dispatch({
 					type: 'SET_ERROR',
@@ -150,7 +148,6 @@ export function useModelServices(
 			}
 			dispatch({ type: 'GO_TO_STEP', step: nextStep });
 		} catch (error) {
-			console.error('[useModelServices] Failed to save operator config:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, `Could not save the selected ${service.stepTitle} model.`),

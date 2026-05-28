@@ -5,8 +5,7 @@ import {
 	USER_DATA_DIRECTORY_NAME,
 	UserDataDirectoryService,
 } from '../../../src/main/user-data';
-import { AGENT_APP_DATA_DIRECTORY_NAME, AGENT_DATA_DIRECTORY_NAME } from '../../../src/main/agent/storage';
-import { loadSession, saveSession } from '../../../src/main/agent/context/session/store';
+import { loadSession, saveSession } from '../../../src/main/session/store';
 import { makeTempDir } from './test-helpers';
 
 describe('UserDataDirectoryService', () => {
@@ -60,19 +59,14 @@ describe('UserDataDirectoryService', () => {
 });
 
 describe('session store user data path', () => {
-	it('uses appData for default agent sessions without reading legacy home user data', async () => {
+	it('uses .friday for default agent sessions without reading legacy app data', async () => {
 		const parent = await makeTempDir();
 		const appData = path.join(parent, 'appData');
-		const legacySessions = path.join(parent, USER_DATA_DIRECTORY_NAME, 'agent', 'sessions');
-		const nextSessions = path.join(
-			appData,
-			AGENT_APP_DATA_DIRECTORY_NAME,
-			AGENT_DATA_DIRECTORY_NAME,
-			'sessions'
-		);
+		const legacySessions = path.join(appData, 'agent', 'sessions');
+		const nextSessions = path.join(parent, USER_DATA_DIRECTORY_NAME, 'agent', 'sessions');
 		(app.getPath as jest.Mock).mockImplementation((name: string) => {
 			if (name === 'home') return parent;
-			if (name === 'appData') return appData;
+			if (name === 'userData') return appData;
 			return path.join(parent, name);
 		});
 		await fs.mkdir(legacySessions, { recursive: true });

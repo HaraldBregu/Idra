@@ -21,32 +21,12 @@ export interface CronTaskMessageData extends CronTaskData<'message'> {
 	readonly message: string;
 }
 
-export type CronStoredSchedule = string | CronJsonObject;
-export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
-export type CronStoredRunStatus = 'success' | 'failure' | 'skipped';
-
 export interface CronTask<TData extends CronTaskData = CronTaskData> {
 	readonly id: string;
-	readonly name: string;
-	readonly description?: string;
-	readonly schedule: CronStoredSchedule;
 	readonly expression: string;
-	readonly timezone: string;
-	readonly enabled: boolean;
-	readonly status: CronScheduleStatus;
-	readonly providerId?: string;
-	readonly modelId?: string;
-	readonly target: CronStoredTarget;
-	readonly payload: TData;
 	readonly data: TData;
+	readonly timezone?: string;
 	readonly createdAt: string;
-	readonly updatedAt: string;
-	readonly lastRunAt?: string;
-	readonly nextRunAt?: string;
-	readonly lastRunStatus?: CronStoredRunStatus;
-	readonly lastError?: string;
-	readonly runCount: number;
-	readonly failureCount: number;
 	readonly lastRun?: string;
 }
 
@@ -234,7 +214,7 @@ export interface CronScheduleAuditEntry {
 	auditId: string;
 	scheduleId: CronScheduleId;
 	action: string;
-	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc';
+	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'agent-cron-service';
 	message: string;
 	createdAt: string;
 	metadata: CronJsonObject;
@@ -244,7 +224,6 @@ export interface CronScheduleDefinition {
 	id: CronScheduleId;
 	name: string;
 	description?: string;
-	schedule: CronStoredSchedule;
 	type: CronScheduleType;
 	status: CronScheduleStatus;
 	source: CronScheduleSource;
@@ -263,21 +242,14 @@ export interface CronScheduleDefinition {
 	runCount: number;
 	lastRunAt?: string;
 	nextRunAt?: string;
-	lastRunStatus?: CronStoredRunStatus;
-	lastError?: string;
 	lastSuccessfulRunAt?: string;
 	lastFailedRunAt?: string;
 	lastEvaluatedAt?: string;
-	failureCount: number;
 	missedRunPolicy: CronMissedRunPolicy;
 	maxCatchUpRuns?: number;
 	catchUpWindowMs?: number;
 	concurrencyPolicy: CronConcurrencyPolicy;
 	retryPolicy: CronRetryPolicy;
-	providerId?: string;
-	modelId?: string;
-	target: CronStoredTarget;
-	payload: CronJsonValue;
 	taskType: string;
 	taskInput: CronJsonValue;
 	taskPriority: CronTaskPriority;
@@ -300,7 +272,6 @@ export type CronSchedule = CronScheduleDefinition;
 export interface CronScheduleCreateRequest {
 	name: string;
 	description?: string;
-	schedule?: CronStoredSchedule;
 	type: CronScheduleType;
 	source: CronScheduleSource;
 	sourceId?: string;
@@ -320,10 +291,6 @@ export interface CronScheduleCreateRequest {
 	catchUpWindowMs?: number;
 	concurrencyPolicy?: CronConcurrencyPolicy;
 	retryPolicy?: Partial<CronRetryPolicy>;
-	providerId?: string;
-	modelId?: string;
-	target?: CronStoredTarget;
-	payload?: CronJsonValue;
 	taskType: string;
 	taskInput: CronJsonValue;
 	taskPriority?: CronTaskPriority;
@@ -340,7 +307,6 @@ export interface CronScheduleCreateRequest {
 export interface CronScheduleUpdateRequest {
 	name?: string;
 	description?: string;
-	schedule?: CronStoredSchedule;
 	status?: Exclude<CronScheduleStatus, 'deleted'>;
 	visibility?: CronScheduleVisibility;
 	timezone?: CronTimezone;
@@ -355,10 +321,6 @@ export interface CronScheduleUpdateRequest {
 	catchUpWindowMs?: number;
 	concurrencyPolicy?: CronConcurrencyPolicy;
 	retryPolicy?: Partial<CronRetryPolicy>;
-	providerId?: string;
-	modelId?: string;
-	target?: CronStoredTarget;
-	payload?: CronJsonValue;
 	taskType?: string;
 	taskInput?: CronJsonValue;
 	taskPriority?: CronTaskPriority;
@@ -432,16 +394,6 @@ export interface CronScheduleConfirmation {
 	createdAt: string;
 }
 
-export interface CronStoreState {
-	schemaVersion: number;
-	schedules: CronSchedule[];
-	events: CronScheduleEvent[];
-	executions: CronExecutionRecord[];
-	locks: Record<string, { runnerId: string; expiresAt: string }>;
-	confirmations: CronScheduleConfirmation[];
-	quarantined: CronJsonObject[];
-}
-
 export interface CronValidationResult {
 	valid: boolean;
 	message?: string;
@@ -452,4 +404,225 @@ export interface CronNextRunPreview {
 	scheduleId: CronScheduleId;
 	runs: string[];
 	description: string;
+}
+
+export type FridayCronSchedule =
+	| { kind: 'at'; at: string }
+	| { kind: 'every'; everyMs: number; anchorMs?: number }
+	| {
+			kind: 'cron';
+			expr: string;
+			tz?: string;
+			staggerMs?: number;
+	  };
+
+export type FridayCronSessionTarget = 'main' | 'isolated' | 'current' | `session:${string}`;
+
+export type FridayCronWakeMode = 'now' | 'next-heartbeat';
+
+export type FridayCronPayload =
+	| { kind: 'systemEvent'; text: string }
+	| {
+			kind: 'agentTurn';
+			message: string;
+			fallbacks?: string[];
+			thinking?: 'low' | 'medium' | 'high';
+			timeoutSeconds?: number;
+			lightContext?: boolean;
+			toolsAllow?: string[];
+			allowUnsafeExternalContent?: boolean;
+	  };
+
+export interface FridayCronDeliveryTarget {
+	channel?: 'last' | string;
+	to?: string;
+	threadId?: string;
+	accountId?: string;
+}
+
+export interface FridayCronDelivery extends FridayCronDeliveryTarget {
+	mode: 'announce' | 'webhook' | 'none';
+	bestEffort?: boolean;
+	failureDestination?: FridayCronDeliveryTarget & {
+		mode?: 'announce' | 'webhook' | 'none';
+	};
+}
+
+export interface FridayCronFailureAlert {
+	after?: number;
+	cooldownMs?: number;
+	mode?: 'announce' | 'webhook' | 'none';
+	channel?: string;
+	to?: string;
+	threadId?: string;
+	accountId?: string;
+	includeSkipped?: boolean;
+}
+
+export interface FridayCronDeliveryState {
+	mode: FridayCronDelivery['mode'];
+	status: 'sent' | 'skipped' | 'failed';
+	attemptedAtMs: number;
+	target?: FridayCronDeliveryTarget;
+	error?: string;
+	duplicateSuppressed?: boolean;
+}
+
+export interface FridayCronRunError {
+	code: string;
+	message: string;
+	permanent?: boolean;
+}
+
+export type FridayCronRunStatus = 'ok' | 'error' | 'skipped';
+
+export interface FridayCronJobState {
+	nextRunAtMs?: number;
+	runningAtMs?: number;
+	lastRunAtMs?: number;
+	lastRunStatus?: FridayCronRunStatus;
+	lastError?: FridayCronRunError;
+	diagnostics?: CronJsonObject;
+	delivery?: FridayCronDeliveryState;
+	consecutiveErrors: number;
+	consecutiveSkipped: number;
+	consecutiveScheduleErrors: number;
+	attempts: number;
+	scheduleIdentity?: string;
+	lastFailureAlertAtMs?: number;
+}
+
+export interface FridayCronJobDefinition {
+	id: string;
+	name: string;
+	description: string;
+	enabled: boolean;
+	createdAtMs: number;
+	updatedAtMs: number;
+	schedule: FridayCronSchedule;
+	sessionTarget: FridayCronSessionTarget;
+	wakeMode: FridayCronWakeMode;
+	payload: FridayCronPayload;
+	delivery: FridayCronDelivery;
+	failureAlert?: FridayCronFailureAlert | false;
+	agentId?: string | null;
+	sessionKey?: string | null;
+	deleteAfterRun?: boolean;
+	maxAttempts?: number;
+	backoffMs?: number;
+	maxBackoffMs?: number;
+}
+
+export interface FridayCronJob extends FridayCronJobDefinition {
+	state: FridayCronJobState;
+}
+
+export interface FridayCronRunRecord {
+	runId: string;
+	jobId: string;
+	status: FridayCronRunStatus;
+	mode: 'automatic' | 'manual-force' | 'manual-due' | 'startup-recovery';
+	scheduledForMs: number;
+	startedAtMs: number;
+	finishedAtMs: number;
+	attempt: number;
+	output?: string;
+	skippedReason?: string;
+	error?: FridayCronRunError;
+	delivery?: FridayCronDeliveryState;
+	alreadyDelivered?: boolean;
+}
+
+export interface FridayCronAddRequest {
+	id?: string;
+	name: string;
+	description?: string;
+	enabled?: boolean;
+	schedule: FridayCronSchedule;
+	sessionTarget?: FridayCronSessionTarget;
+	wakeMode?: FridayCronWakeMode;
+	payload: FridayCronPayload;
+	delivery?: Partial<FridayCronDelivery>;
+	failureAlert?: FridayCronFailureAlert | false;
+	agentId?: string | null;
+	sessionKey?: string | null;
+	deleteAfterRun?: boolean;
+	maxAttempts?: number;
+	backoffMs?: number;
+	maxBackoffMs?: number;
+}
+
+export type FridayCronUpdateRequest = Partial<
+	Omit<FridayCronAddRequest, 'id' | 'name' | 'payload' | 'schedule' | 'delivery'>
+> & {
+	name?: string;
+	payload?: FridayCronPayload;
+	schedule?: FridayCronSchedule;
+	delivery?: Partial<FridayCronDelivery>;
+};
+
+export type FridayCronToolAction =
+	| 'status'
+	| 'list'
+	| 'get'
+	| 'add'
+	| 'update'
+	| 'remove'
+	| 'run'
+	| 'runs'
+	| 'wake';
+
+export interface FridayCronToolRequest {
+	action: FridayCronToolAction;
+	jobId?: string;
+	id?: string;
+	job?: FridayCronAddRequest | Record<string, unknown>;
+	patch?: FridayCronUpdateRequest | Record<string, unknown>;
+	include?: 'enabled' | 'disabled' | 'all';
+	includeDisabled?: boolean;
+	agentId?: string | null;
+	contextMessages?: number;
+	timeoutMs?: number;
+	runMode?: 'force' | 'due';
+	mode?: 'force' | 'due' | 'now' | 'next-heartbeat';
+	force?: boolean;
+	limit?: number;
+	text?: string;
+	[key: string]: unknown;
+}
+
+export type FridayCronCanonicalToolRequest =
+	| { action: 'status' }
+	| { action: 'list'; include?: 'enabled' | 'disabled' | 'all'; agentId?: string | null }
+	| { action: 'get'; jobId: string }
+	| { action: 'add'; job: FridayCronAddRequest }
+	| { action: 'update'; jobId: string; patch: FridayCronUpdateRequest }
+	| { action: 'remove'; jobId: string }
+	| { action: 'run'; jobId: string; runMode?: 'force' | 'due' }
+	| { action: 'runs'; jobId: string; limit?: number }
+	| { action: 'wake'; text: string; mode: 'now' | 'next-heartbeat' };
+
+export interface FridayCronStatus {
+	enabled: boolean;
+	timerArmed: boolean;
+	jobCount: number;
+	runningCount: number;
+	nextRunAtMs?: number;
+	warning?: string;
+}
+
+export interface FridayCronToolResponse {
+	status: 'ok' | 'error';
+	enabled?: boolean;
+	warning?: string;
+	result?:
+		| FridayCronStatus
+		| FridayCronJob
+		| FridayCronJob[]
+		| FridayCronRunRecord
+		| FridayCronRunRecord[]
+		| { enabled: boolean }
+		| { removed: true; jobId: string }
+		| { woken: true; status: FridayCronStatus };
+	error?: string;
 }

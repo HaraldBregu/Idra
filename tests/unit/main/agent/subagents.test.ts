@@ -2,8 +2,8 @@ import {
 	SubagentRegistry,
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
-} from '../../../../src/main/agent';
-import { SUBAGENT_RUN_TASK_TYPE } from '../../../../src/main/agent';
+} from '../../../../src/main/agent/subagents';
+import { SUBAGENT_RUN_TASK_TYPE } from '../../../../src/main/agent/subagents/task-handler';
 
 describe('subagent orchestration', () => {
 	function createSpawnService(options: {
@@ -16,7 +16,7 @@ describe('subagent orchestration', () => {
 		const eventBus = { emit: jest.fn() };
 		const agents = options.agents ?? {};
 		const service = new SubagentSpawnService({
-			agentSettings: {
+			store: {
 				getAgentConfig: jest.fn((id: string) => agents[id]),
 			} as never,
 			taskManager: taskManager as never,

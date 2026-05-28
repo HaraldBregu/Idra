@@ -1,13 +1,14 @@
 import Store from 'electron-store';
-import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
+import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
+import { getDefaultAgentModels } from '../../shared/agents/models';
 import {
 	OPERATOR_DEFINITIONS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
+	isAllowedSpeechToTextModel,
 	isAllowedImageCreatorModelForProvider,
 	isAllowedMusicCreatorModel,
-	isAllowedSpeechToTextModel,
 	isAllowedTextToSpeechModel,
 	isAllowedTextToVideoModel,
 	isModelReasoningEffort,
@@ -16,40 +17,43 @@ import {
 	type ModelOperatorSelection,
 	type OperatorStoreState,
 } from '../../shared/agents/service';
-import type {
-	CronJsonObject,
-	CronSchedule,
-	CronStoreState,
-	CronStoredSchedule,
-	CronTask,
-} from '../../shared/cron';
-import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
 import {
 	getMusicModelsByProvider,
 	getTextToSpeechModelsByProvider,
 	getTextToVideoModelsByProvider,
 } from '../../shared/providers';
+import type { CronTask } from '../../shared/cron';
+import {
+	CHANNEL_PROVIDER_IDS,
+	type Channel,
+	type ChannelAccountProperties,
+	type ChannelType,
+	type GenericChannelProperties,
+	type TelegramChannelProperties,
+} from '../../shared/channels';
+import type { ConnectorConfig } from '../../shared/connector';
 import type {
 	AgentConfig,
-	AgentModuleOptions,
-	AgentRouteBinding,
-	AgentRoutePeer,
-	AgentRouteSessionScope,
 	AgentRoutingSettings,
-	AgentToolPermissionMode,
-	CronSettings,
+	BackgroundTaskSettings,
+	ModelProviderSettings,
 	ModelModuleSettings,
+	AgentModuleOptions,
 	SettingsStoreAccessor,
 	StoreSchema,
-	TaskSettings,
-} from '../../shared/store';
-
-export interface StoreLogger {
-	debug(source: string, message: string, data?: unknown): void;
-	info(source: string, message: string, data?: unknown): void;
-	warn(source: string, message: string, data?: unknown): void;
-	error(source: string, message: string, data?: unknown): void;
-}
+	TaskSchedulerSettings,
+} from './types';
+import { normalizeAgentRoutingSettings } from '../agent/routing';
+import type { CronStoreState } from '../cron/core/cron.types';
+import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
+import type { FridayCronStoreState } from '../cron/friday/store';
+import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
+import type {
+	AgentHeartbeatConfig,
+	AgentsHeartbeatConfig,
+	HeartbeatStoreState,
+} from '../../shared/heartbeat';
+import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
 
 type ConfiguredModelOperatorKey =
 	| 'assistant'
@@ -58,15 +62,13 @@ type ConfiguredModelOperatorKey =
 	| 'imageCreator'
 	| 'textToVideo'
 	| 'textToSound';
-
 type ModelModuleRootKey =
-	| 'assistant'
+	| 'llmAgent'
 	| 'speechToText'
 	| 'textToSpeech'
 	| 'imageCreator'
 	| 'textToVideo'
 	| 'textToSound';
-
 type OperatorDefinitionKey =
 	| 'assistant'
 	| 'speechToText'
@@ -74,19 +76,11 @@ type OperatorDefinitionKey =
 	| 'imageCreator'
 	| 'videoCreator'
 	| 'musicCreator';
-
-const STORE_LOG_SOURCE = 'StoreService';
-const CRON_STORE_SCHEMA_VERSION = 1;
-
-const AGENT_ROUTE_SESSION_SCOPES = new Set<AgentRouteSessionScope>([
-	'main',
-	'per-peer',
-	'per-channel-peer',
-	'per-account-channel-peer',
-]);
+type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
+type KeepAwakeSettings = { readonly keepAwakeEnabled: boolean };
 
 const MODEL_MODULE_ROOT_KEYS = {
-	assistant: 'assistant',
+	assistant: 'llmAgent',
 	speechToText: 'speechToText',
 	textToSpeech: 'textToSpeech',
 	imageCreator: 'imageCreator',
@@ -103,56 +97,30 @@ const OPERATOR_DEFINITION_KEYS = {
 	textToSound: 'musicCreator',
 } satisfies Record<ConfiguredModelOperatorKey, OperatorDefinitionKey>;
 
+const CONNECTOR_STORE_KEY_BY_ID = {
+	connector_gmail: 'google_gmail',
+	connector_googlecalendar: 'google_calendar',
+	connector_googledrive: 'google_drive',
+	connector_microsoftteams: 'microsoft_teams',
+	connector_outlookcalendar: 'outlook_calendar',
+	connector_outlookemail: 'outlook_email',
+	connector_sharepoint: 'sharepoint',
+	connector_dropbox: 'dropbox',
+} satisfies Record<ConnectorConfig['connectorId'], ConnectorStoreKey>;
+
+const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorStoreKey[];
+
+function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
+	return {
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+	};
+}
+
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	return value as Record<string, unknown>;
-}
-
-function defaultProviderForId(id: string): Provider | undefined {
-	const providerId = id.trim().toLowerCase();
-	return DEFAULT_PROVIDERS.find((provider) => provider.id.trim().toLowerCase() === providerId);
-}
-
-function providerFromSettings(settings: Provider): Provider {
-	return {
-		...(defaultProviderForId(settings.id) ?? {}),
-		...settings,
-	};
-}
-
-function providerSettings(
-	provider: Provider
-): Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'> {
-	return {
-		id: provider.id.trim().toLowerCase(),
-		name: provider.name.trim(),
-		baseUrl: provider.baseUrl.trim(),
-		apiKey: provider.apiKey.trim(),
-	};
-}
-
-function readProviderSettings(value: unknown): Provider | undefined {
-	const record = readRecord(value);
-	if (!record) return undefined;
-	const id = typeof record.id === 'string' ? record.id.trim().toLowerCase() : '';
-	const name = typeof record.name === 'string' ? record.name.trim() : '';
-	const baseUrl = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : '';
-	const apiKey = typeof record.apiKey === 'string' ? record.apiKey.trim() : '';
-	if (!id || !name || !baseUrl) return undefined;
-	return { id, name, baseUrl, apiKey };
-}
-
-function readProviderSettingsList(value: unknown): Provider[] {
-	if (!Array.isArray(value)) return [];
-	return value.flatMap((entry) => {
-		const provider = readProviderSettings(entry);
-		return provider ? [provider] : [];
-	});
-}
-
-function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
-	const { apiKey: _apiKey, ...publicProvider } = provider;
-	return publicProvider;
 }
 
 function readModelModuleSettings(value: unknown): ModelModuleSettings | undefined {
@@ -172,12 +140,6 @@ function readModelModuleSettings(value: unknown): ModelModuleSettings | undefine
 	};
 }
 
-function normalizeAgentRuntime(value: unknown): string | undefined {
-	if (typeof value !== 'string') return undefined;
-	const trimmed = value.trim();
-	return trimmed || undefined;
-}
-
 function readAgentModuleOptions(value: unknown): AgentModuleOptions {
 	const options = readRecord(value);
 	const next: AgentModuleOptions = options ? { ...options } : {};
@@ -188,6 +150,94 @@ function readAgentModuleOptions(value: unknown): AgentModuleOptions {
 		next.agentRuntime = runtime;
 	}
 	return next;
+}
+
+function normalizeAgentRuntime(value: unknown): string | undefined {
+	if (typeof value !== 'string') return undefined;
+	const trimmed = value.trim();
+	return trimmed || undefined;
+}
+
+function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
+	const record = readRecord(value);
+	if (!record) return {};
+	const allowedTaskTypes = Array.isArray(record.allowedTaskTypes)
+		? record.allowedTaskTypes.flatMap((item) =>
+				typeof item === 'string' && item.trim() ? [item.trim()] : []
+			)
+		: undefined;
+	const defaultConcurrency =
+		typeof record.defaultConcurrency === 'number' &&
+		Number.isInteger(record.defaultConcurrency) &&
+		record.defaultConcurrency > 0
+			? record.defaultConcurrency
+			: undefined;
+	return {
+		...(allowedTaskTypes && allowedTaskTypes.length > 0 ? { allowedTaskTypes } : {}),
+		...(defaultConcurrency ? { defaultConcurrency } : {}),
+	};
+}
+
+function modelProviderSettings(provider: Provider): ModelProviderSettings {
+	return {
+		id: provider.id.trim().toLowerCase(),
+		name: provider.name.trim(),
+		baseUrl: provider.baseUrl.trim(),
+		apiKey: provider.apiKey.trim(),
+	};
+}
+
+function readModelProviderSettings(value: unknown): ModelProviderSettings | undefined {
+	const record = readRecord(value);
+	if (!record) return undefined;
+	const id = typeof record.id === 'string' ? record.id.trim().toLowerCase() : '';
+	const name = typeof record.name === 'string' ? record.name.trim() : '';
+	const baseUrl = typeof record.baseUrl === 'string' ? record.baseUrl.trim() : '';
+	const apiKey = typeof record.apiKey === 'string' ? record.apiKey.trim() : '';
+	if (!id || !name || !baseUrl) return undefined;
+	return { id, name, baseUrl, apiKey };
+}
+
+function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] {
+	if (!Array.isArray(value)) return [];
+	return value.flatMap((entry) => {
+		const provider = readModelProviderSettings(entry);
+		return provider ? [provider] : [];
+	});
+}
+
+function readConnectorSettingsList(value: unknown): ConnectorConfig[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => (readRecord(entry) ? [entry as ConnectorConfig] : []));
+	}
+	const record = readRecord(value);
+	if (!record) return [];
+	return CONNECTOR_STORE_KEYS.flatMap((key) => {
+		const connector = record[key];
+		return readRecord(connector) ? [connector as ConnectorConfig] : [];
+	});
+}
+
+function connectorSettingsByKey(
+	connectors: ConnectorConfig[]
+): NonNullable<StoreSchema['connectors']> {
+	const next: NonNullable<StoreSchema['connectors']> = {};
+	for (const connector of connectors) {
+		next[CONNECTOR_STORE_KEY_BY_ID[connector.connectorId]] = connector;
+	}
+	return next;
+}
+
+function defaultProviderForId(id: string): Provider | undefined {
+	const providerId = id.trim().toLowerCase();
+	return DEFAULT_PROVIDERS.find((provider) => provider.id.trim().toLowerCase() === providerId);
+}
+
+function providerFromSettings(settings: ModelProviderSettings): Provider {
+	return {
+		...(defaultProviderForId(settings.id) ?? {}),
+		...settings,
+	};
 }
 
 function modelModuleSettings(
@@ -210,8 +260,7 @@ function modelFromCatalog(catalog: readonly Model[], settings: ModelModuleSettin
 		name: settings.modelId,
 	};
 	return {
-		id: model.id,
-		name: model.name,
+		...model,
 		...(settings.effort ? { effort: settings.effort } : {}),
 	};
 }
@@ -240,19 +289,11 @@ function modelForModule(
 	return modelFromCatalog(catalog, settings);
 }
 
-function isAllowedModuleModel(
-	key: ConfiguredModelOperatorKey,
-	settings: ModelModuleSettings,
-	provider: Provider
-): boolean {
-	if (key === 'speechToText') return isAllowedSpeechToTextModel(provider.id, settings.modelId);
-	if (key === 'textToSpeech') return isAllowedTextToSpeechModel(provider.id, settings.modelId);
-	if (key === 'imageCreator') {
-		return isAllowedImageCreatorModelForProvider(provider, settings.modelId);
-	}
-	if (key === 'textToVideo') return isAllowedTextToVideoModel(provider.id, settings.modelId);
-	if (key === 'textToSound') return isAllowedMusicCreatorModel(provider.id, settings.modelId);
-	return isAllowedAgentModel(provider.id, settings.modelId);
+function readAgentsHeartbeatConfig(
+	settings: ModelModuleSettings | undefined
+): AgentsHeartbeatConfig | undefined {
+	const agents = readRecord(settings?.options?.agents);
+	return agents as AgentsHeartbeatConfig | undefined;
 }
 
 function configuredModelOperator(
@@ -267,325 +308,43 @@ function configuredModelOperator(
 	};
 }
 
-function readTaskSettings(value: unknown): TaskSettings {
-	const record = readRecord(value);
-	if (!record) return {};
-	const allowedTaskTypes = Array.isArray(record.allowedTaskTypes)
-		? record.allowedTaskTypes.flatMap((item) =>
-				typeof item === 'string' && item.trim() ? [item.trim()] : []
-			)
-		: undefined;
-	const defaultConcurrency =
-		typeof record.defaultConcurrency === 'number' &&
-		Number.isInteger(record.defaultConcurrency) &&
-		record.defaultConcurrency > 0
-			? record.defaultConcurrency
-			: undefined;
-	return {
-		...(allowedTaskTypes && allowedTaskTypes.length > 0 ? { allowedTaskTypes } : {}),
-		...(defaultConcurrency ? { defaultConcurrency } : {}),
-	};
-}
-
-function normalizeId(value: unknown): string | undefined {
-	if (typeof value !== 'string') return undefined;
-	const trimmed = value.trim();
-	return trimmed || undefined;
-}
-
-function normalizeLowerId(value: unknown): string | undefined {
-	return normalizeId(value)?.toLowerCase();
-}
-
-function normalizeAgentStringList(value: unknown): string[] | undefined {
-	if (!Array.isArray(value)) return undefined;
-	const list = [
-		...new Set(
-			value.flatMap((item) => (typeof item === 'string' && item.trim() ? [item.trim()] : []))
-		),
-	];
-	return list.length > 0 ? list : undefined;
-}
-
-function normalizeAgentToolPermissions(value: unknown): Record<string, AgentToolPermissionMode> | undefined {
-	const record = readRecord(value);
-	if (!record) return undefined;
-	const out: Record<string, AgentToolPermissionMode> = {};
-	for (const [toolName, mode] of Object.entries(record)) {
-		const name = toolName.trim();
-		if (!name || mode !== 'allow' && mode !== 'deny' && mode !== 'ask') continue;
-		out[name] = mode;
-	}
-	return Object.keys(out).length > 0 ? out : undefined;
-}
-
-function normalizePositiveInteger(value: unknown): number | undefined {
-	return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 ? value : undefined;
-}
-
-function normalizeAgentRoutePeer(value: unknown, allowThread: boolean): AgentRoutePeer | undefined {
-	const record = readRecord(value);
-	if (!record) return undefined;
-	const kind = normalizeLowerId(record.kind);
-	const allowedKinds = allowThread
-		? new Set(['direct', 'group', 'channel', 'thread'])
-		: new Set(['direct', 'group', 'channel']);
-	if (!kind || !allowedKinds.has(kind)) return undefined;
-	const id = normalizeId(record.id);
-	return id ? { kind: kind as AgentRoutePeer['kind'], id } : undefined;
-}
-
-function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
-	const record = readRecord(value);
-	if (!record) return undefined;
-	const id = normalizeId(record.id);
-	if (!id) return undefined;
-	const model = readRecord(record.model);
-	const tools = readRecord(record.tools);
-	const subagents = readRecord(record.subagents);
-	const childModel = readRecord(subagents?.model);
-	const config: AgentConfig = { id };
-	if (record.default === true) config.default = true;
-	const name = normalizeId(record.name);
-	if (name) config.name = name;
-	const workspace = normalizeId(record.workspace);
-	if (workspace) config.workspace = workspace;
-	const providerId = normalizeLowerId(model?.providerId);
-	const modelId = normalizeId(model?.modelId);
-	if (providerId || modelId || typeof model?.effort === 'string') {
-		config.model = {
-			...(providerId ? { providerId } : {}),
-			...(modelId ? { modelId } : {}),
-			...(typeof model?.effort === 'string'
-				? { effort: model.effort as NonNullable<AgentConfig['model']>['effort'] }
-				: {}),
-		};
-	}
-	const skills = normalizeAgentStringList(record.skills);
-	if (skills) config.skills = skills;
-	if (tools) {
-		const allow = normalizeAgentStringList(tools.allow);
-		const alsoAllow = normalizeAgentStringList(tools.alsoAllow);
-		const deny = normalizeAgentStringList(tools.deny);
-		const permissions = normalizeAgentToolPermissions(tools.permissions);
-		config.tools = {
-			...(tools.profile === 'minimal' ||
-			tools.profile === 'coding' ||
-			tools.profile === 'messaging' ||
-			tools.profile === 'full'
-				? { profile: tools.profile }
-				: {}),
-			...(allow ? { allow } : {}),
-			...(alsoAllow ? { alsoAllow } : {}),
-			...(deny ? { deny } : {}),
-			...(permissions ? { permissions } : {}),
-			...(readRecord(tools.fs) ? { fs: tools.fs as NonNullable<AgentConfig['tools']>['fs'] } : {}),
-			...(readRecord(tools.exec) ? { exec: tools.exec as Record<string, unknown> } : {}),
-		};
-	}
-	if (subagents) {
-		const allowAgents = normalizeAgentStringList(subagents.allowAgents);
-		const childProviderId = normalizeLowerId(childModel?.providerId);
-		const childModelId = normalizeId(childModel?.modelId);
-		config.subagents = {
-			...(allowAgents ? { allowAgents } : {}),
-			...(normalizePositiveInteger(subagents.maxSpawnDepth)
-				? { maxSpawnDepth: normalizePositiveInteger(subagents.maxSpawnDepth) }
-				: {}),
-			...(normalizePositiveInteger(subagents.maxChildrenPerAgent)
-				? { maxChildrenPerAgent: normalizePositiveInteger(subagents.maxChildrenPerAgent) }
-				: {}),
-			...(subagents.requireAgentId === true ? { requireAgentId: true } : {}),
-			...(childProviderId || childModelId || typeof childModel?.effort === 'string'
-				? {
-						model: {
-							...(childProviderId ? { providerId: childProviderId } : {}),
-							...(childModelId ? { modelId: childModelId } : {}),
-							...(typeof childModel?.effort === 'string'
-								? { effort: childModel.effort as NonNullable<AgentConfig['model']>['effort'] }
-								: {}),
-						},
-					}
-				: {}),
-			...(normalizePositiveInteger(subagents.runTimeoutSeconds)
-				? { runTimeoutSeconds: normalizePositiveInteger(subagents.runTimeoutSeconds) }
-				: {}),
-		};
-	}
-	return config;
-}
-
-function normalizeAgentRouteBinding(value: unknown): AgentRouteBinding | undefined {
-	const record = readRecord(value);
-	if (!record) return undefined;
-	const agentId = normalizeId(record.agentId);
-	const match = readRecord(record.match);
-	if (!agentId || !match) return undefined;
-	const channel = normalizeLowerId(match.channel);
-	const accountId = normalizeId(match.accountId);
-	const peer = normalizeAgentRoutePeer(match.peer, true);
-	const parentPeer = normalizeAgentRoutePeer(
-		match.parentPeer,
-		false
-	) as AgentRouteBinding['match']['parentPeer'];
-	const roleIds = normalizeAgentStringList(match.roleIds);
-	if (!channel && !accountId && !peer && !parentPeer && !roleIds) return undefined;
-	const session = readRecord(record.session);
-	const scope = normalizeId(session?.scope);
-	return {
-		agentId,
-		match: {
-			...(channel ? { channel } : {}),
-			...(accountId ? { accountId } : {}),
-			...(peer ? { peer } : {}),
-			...(parentPeer ? { parentPeer } : {}),
-			...(roleIds ? { roleIds } : {}),
-		},
-		...(scope && AGENT_ROUTE_SESSION_SCOPES.has(scope as AgentRouteSessionScope)
-			? { session: { scope: scope as AgentRouteSessionScope } }
-			: {}),
-	};
-}
-
-function normalizeAgentRoutingSettings(value: unknown): AgentRoutingSettings {
-	const record = readRecord(value);
-	const agents = Array.isArray(record?.agents)
-		? record.agents.flatMap((entry) => {
-				const agent = normalizeAgentConfig(entry);
-				return agent ? [agent] : [];
-			})
-		: [];
-	const bindings = Array.isArray(record?.bindings)
-		? record.bindings.flatMap((entry) => {
-				const binding = normalizeAgentRouteBinding(entry);
-				return binding ? [binding] : [];
-			})
-		: [];
-	return { agents, bindings };
-}
-
-function emptyCronStoreState(): CronStoreState {
-	return {
-		schemaVersion: CRON_STORE_SCHEMA_VERSION,
-		schedules: [],
-		events: [],
-		executions: [],
-		locks: {},
-		confirmations: [],
-		quarantined: [],
-	};
-}
-
-function storedScheduleConfig(schedule: Record<string, unknown>): CronStoredSchedule {
-	if (typeof schedule.schedule === 'string' || readRecord(schedule.schedule)) {
-		return schedule.schedule as CronStoredSchedule;
-	}
-	if (typeof schedule.cronExpression === 'string') return schedule.cronExpression;
-	return {
-		type: typeof schedule.type === 'string' ? schedule.type : 'cron',
-		...(typeof schedule.intervalMs === 'number' ? { intervalMs: schedule.intervalMs } : {}),
-		...(typeof schedule.runAt === 'string' ? { runAt: schedule.runAt } : {}),
-		...(typeof schedule.startAt === 'string' ? { startAt: schedule.startAt } : {}),
-		...(typeof schedule.endAt === 'string' ? { endAt: schedule.endAt } : {}),
-		...(typeof schedule.maxRuns === 'number' ? { maxRuns: schedule.maxRuns } : {}),
-	};
-}
-
-function normalizeSchedule(value: Record<string, unknown>): CronSchedule {
-	const taskType = typeof value.taskType === 'string' ? value.taskType : 'cron.job';
-	const taskInput = value.taskInput ?? {};
-	return {
-		...value,
-		schedule: storedScheduleConfig(value),
-		failureCount: typeof value.failureCount === 'number' ? value.failureCount : 0,
-		target:
-			typeof value.target === 'string'
-				? value.target
-				: taskType === 'agent' || taskType.startsWith('agent.')
-					? 'agent'
-					: 'job',
-		payload: value.payload ?? taskInput,
-		runCount: typeof value.runCount === 'number' ? value.runCount : 0,
-	} as unknown as CronSchedule;
-}
-
-function normalizeCronStoreState(raw: unknown): CronStoreState {
-	const record = readRecord(raw);
-	if (!record) return emptyCronStoreState();
-	const base = emptyCronStoreState();
-	return {
-		schemaVersion: CRON_STORE_SCHEMA_VERSION,
-		schedules: Array.isArray(record.schedules)
-			? record.schedules.flatMap((schedule) => {
-					const scheduleRecord = readRecord(schedule);
-					return scheduleRecord ? [normalizeSchedule(scheduleRecord)] : [];
-				})
-			: base.schedules,
-		events: Array.isArray(record.events)
-			? (record.events.filter(readRecord) as unknown as CronStoreState['events'])
-			: base.events,
-		executions: Array.isArray(record.executions)
-			? (record.executions.filter(readRecord) as unknown as CronStoreState['executions'])
-			: base.executions,
-		locks: readRecord(record.locks) ? (record.locks as CronStoreState['locks']) : base.locks,
-		confirmations: Array.isArray(record.confirmations)
-			? (record.confirmations.filter(readRecord) as unknown as CronStoreState['confirmations'])
-			: base.confirmations,
-		quarantined: Array.isArray(record.quarantined)
-			? (record.quarantined.filter(readRecord) as CronJsonObject[])
-			: base.quarantined,
-	};
-}
-
-function readCronSettings(value: unknown): CronSettings {
-	const record = readRecord(value);
-	if (!record) return {};
-	return {
-		...(typeof record.enabled === 'boolean' ? { enabled: record.enabled } : {}),
-		...(record.scheduler !== undefined
-			? { scheduler: normalizeCronStoreState(record.scheduler) }
-			: {}),
-		...(Array.isArray(record.tasks) ? { tasks: record.tasks as CronTask[] } : {}),
-	};
-}
-
 export class StoreService {
 	private store: SettingsStoreAccessor;
 	private keepAwakeEnabled = false;
 
-	constructor(private readonly logger?: StoreLogger) {
-		try {
-			this.store = new Store<StoreSchema>({
-				name: 'settings',
-				accessPropertiesByDotNotation: false,
-			}) as unknown as SettingsStoreAccessor;
-			this.logInfo('Initialized settings store');
-		} catch (error) {
-			this.logError('Failed to initialize settings store', error);
-			throw error;
-		}
+	constructor() {
+		this.store = new Store<StoreSchema>({
+			name: 'settings',
+			accessPropertiesByDotNotation: false,
+		}) as unknown as SettingsStoreAccessor;
 	}
 
 	getProviderById(id: string): Provider | undefined {
 		const providerId = id.trim().toLowerCase();
-		this.logDebug('Reading provider by id', { providerId });
-		return this.getStoredProviders().find(
+		return this.getStoredModelProviders().find(
 			(provider) => provider.id.trim().toLowerCase() === providerId
 		);
 	}
 
 	getProviders(): Provider[] {
-		this.logDebug('Reading providers');
-		return this.getStoredProviders();
+		return this.getStoredModelProviders();
+	}
+
+	getKeepAwakeEnabled(): boolean {
+		return this.keepAwakeEnabled;
+	}
+
+	setKeepAwakeEnabled(enabled: boolean): KeepAwakeSettings {
+		this.keepAwakeEnabled = enabled;
+		return { keepAwakeEnabled: enabled };
 	}
 
 	addProvider(input: Provider): Provider {
 		const id = input.id.trim().toLowerCase();
-		const providers = this.getStoredProviders();
+		const providers = this.getStoredModelProviders();
 		const exists = providers.some((provider) => provider.id.trim().toLowerCase() === id);
 
 		if (exists) {
-			this.logWarn('Provider validation failed', { providerId: id, reason: 'duplicate' });
 			throw new Error(`Provider already exists: ${input.id}`);
 		}
 
@@ -596,13 +355,13 @@ export class StoreService {
 			apiKey: input.apiKey.trim(),
 		};
 
-		this.setStoredProviders([...providers, provider]);
+		this.setStoredModelProviders([...providers, provider]);
 		return provider;
 	}
 
 	upsertProvider(input: Provider): void {
 		const id = input.id.trim().toLowerCase();
-		const providers = this.getStoredProviders();
+		const providers = this.getStoredModelProviders();
 		const index = providers.findIndex((p) => p.id.trim().toLowerCase() === id);
 		const record: Provider = {
 			id,
@@ -615,41 +374,26 @@ export class StoreService {
 		} else {
 			providers.push(record);
 		}
-		this.setStoredProviders(providers);
-	}
-
-	setOpenAiApiKey(key: string): void {
-		this.upsertProvider({
-			id: 'openai',
-			name: 'OpenAI',
-			apiKey: key,
-			baseUrl: 'https://api.openai.com/v1',
-		});
-	}
-
-	setAnthropicApiKey(key: string): void {
-		this.upsertProvider({
-			id: 'anthropic',
-			name: 'Anthropic',
-			apiKey: key,
-			baseUrl: 'https://api.anthropic.com/v1',
-		});
+		this.setStoredModelProviders(providers);
 	}
 
 	getOperator(): OperatorStoreState | undefined {
 		const next: OperatorStoreState = {};
-		const assistant = this.getAssistantOperator();
+		const assistant = this.getConfiguredModelOperator('assistant');
 		if (assistant) next.assistant = assistant;
-		const speechToText = this.getSpeechToTextOperator();
+		const speechToText = this.getConfiguredModelOperator('speechToText');
 		if (speechToText) next.speechToText = speechToText;
-		const textToSpeech = this.getTextToSpeechOperator();
+		const textToSpeech = this.getConfiguredModelOperator('textToSpeech');
 		if (textToSpeech) next.textToSpeech = textToSpeech;
-		const imageCreator = this.getImageCreatorOperator();
+		const imageCreator = this.getConfiguredModelOperator('imageCreator');
 		if (imageCreator) next.imageCreator = imageCreator;
-		const textToVideo = this.getTextToVideoOperator();
+		const textToVideo = this.getConfiguredModelOperator('textToVideo');
 		if (textToVideo) next.videoCreator = textToVideo;
-		const textToSound = this.getTextToSoundOperator();
+		const textToSound = this.getConfiguredModelOperator('textToSound');
 		if (textToSound) next.musicCreator = textToSound;
+		const agentSettings = this.getModelModuleSettings('llmAgent');
+		const agents = readAgentsHeartbeatConfig(agentSettings);
+		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
 	}
 
@@ -657,12 +401,41 @@ export class StoreService {
 		return this.getOperator();
 	}
 
-	getAssistantOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('assistant');
+	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
+		const currentAgentSettings = this.getModelModuleSettings('llmAgent');
+		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? {};
+		const currentDefaults = currentAgents.defaults ?? {};
+		const currentHeartbeat = currentDefaults.heartbeat ?? {};
+		const nextHeartbeat: AgentHeartbeatConfig = {
+			...currentHeartbeat,
+			...config,
+		};
+		if ('activeHours' in config && config.activeHours === undefined) {
+			delete nextHeartbeat.activeHours;
+		}
+		const next: OperatorStoreState = {
+			agents: {
+				...currentAgents,
+				defaults: {
+					...currentDefaults,
+					heartbeat: nextHeartbeat,
+				},
+			},
+		};
+		if (currentAgentSettings) {
+			this.store.set('llmAgent', {
+				...currentAgentSettings,
+				options: {
+					...(currentAgentSettings.options ?? {}),
+					agents: next.agents,
+				},
+			});
+		}
+		return nextHeartbeat;
 	}
 
-	getAssistantSettings(): ModelModuleSettings | undefined {
-		return this.getModelModuleSettings('assistant');
+	getAssistantOperator(): ConfiguredModelOperator | undefined {
+		return this.getConfiguredModelOperator('assistant');
 	}
 
 	getAssistantModel(): Model | undefined {
@@ -677,16 +450,8 @@ export class StoreService {
 		return this.getConfiguredModelOperator('speechToText');
 	}
 
-	getSpeechToTextSettings(): ModelModuleSettings | undefined {
-		return this.getModelModuleSettings('speechToText');
-	}
-
 	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('textToSpeech');
-	}
-
-	getTextToSpeechSettings(): ModelModuleSettings | undefined {
-		return this.getModelModuleSettings('textToSpeech');
 	}
 
 	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
@@ -697,20 +462,8 @@ export class StoreService {
 		return this.getConfiguredModelOperator('textToVideo');
 	}
 
-	getTextToVideoSettings(): ModelModuleSettings | undefined {
-		return this.getModelModuleSettings('textToVideo');
-	}
-
-	getTextToSoundOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToSound');
-	}
-
 	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.getTextToSoundOperator();
-	}
-
-	getTextToSoundSettings(): ModelModuleSettings | undefined {
-		return this.getModelModuleSettings('textToSound');
+		return this.getConfiguredModelOperator('textToSound');
 	}
 
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
@@ -718,14 +471,16 @@ export class StoreService {
 	}
 
 	getAgentRuntimePreference(): string | undefined {
-		const settings = this.getModelModuleSettings('assistant');
+		const settings = this.getModelModuleSettings('llmAgent');
 		return settings ? readAgentModuleOptions(settings.options)?.agentRuntime : undefined;
 	}
 
 	setAgentRuntimePreference(agentRuntime?: string): boolean {
 		const runtime = normalizeAgentRuntime(agentRuntime);
-		const settings = this.getModelModuleSettings('assistant');
-		if (!settings) return false;
+		const settings = this.getModelModuleSettings('llmAgent');
+		if (!settings) {
+			return false;
+		}
 		const nextOptions = readAgentModuleOptions(settings.options);
 		if (runtime === undefined) {
 			delete nextOptions.agentRuntime;
@@ -734,33 +489,58 @@ export class StoreService {
 		}
 		const nextSettings: ModelModuleSettings = {
 			...settings,
-			options: nextOptions,
+			...(Object.keys(nextOptions).length > 0 ? { options: nextOptions } : {}),
 		};
-		if (Object.keys(nextOptions).length === 0) delete nextSettings.options;
-		this.write('assistant', nextSettings);
+		this.store.set('llmAgent', nextSettings);
 		return true;
+	}
+
+	getBackgroundTaskSettings(): BackgroundTaskSettings {
+		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
+	}
+
+	getAgentRoutingSettings(): AgentRoutingSettings {
+		return normalizeAgentRoutingSettings(this.store.get('agents'));
+	}
+
+	getConfiguredAgents(): AgentConfig[] {
+		return this.getAgentRoutingSettings().agents;
+	}
+
+	getAgentConfig(id: string): AgentConfig | undefined {
+		const agentId = id.trim();
+		if (!agentId) return undefined;
+		return this.getConfiguredAgents().find((agent) => agent.id === agentId);
+	}
+
+	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings {
+		const next = normalizeAgentRoutingSettings(settings);
+		this.store.set('agents', next);
+		return next;
 	}
 
 	setAssistantOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
-			this.logWarn('Rejected assistant model selection', { providerId });
 			return false;
 		}
-		const current = this.getModelModuleSettings('assistant');
-		this.write('assistant', modelModuleSettings(provider.id, model, current?.options));
+		const current = this.getModelModuleSettings('llmAgent');
+		const settings = modelModuleSettings(provider.id, model, current?.options);
+		this.store.set('llmAgent', settings);
 		return true;
 	}
 
 	setSpeechToTextOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
-		if (!provider || !isAllowedSpeechToTextModel(provider.id, model.id)) {
-			this.logWarn('Rejected speech-to-text model selection', { providerId, modelId: model.id });
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedSpeechToTextModel(provider.id, model.id)) {
 			return false;
 		}
 		const current = this.getModelModuleSettings('speechToText');
 		const catalogModel = getSpeechToTextModels(provider.id).find((entry) => entry.id === model.id);
-		this.write(
+		this.store.set(
 			'speechToText',
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
 		);
@@ -769,15 +549,17 @@ export class StoreService {
 
 	setTextToSpeechOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
-		if (!provider || !isAllowedTextToSpeechModel(provider.id, model.id)) {
-			this.logWarn('Rejected text-to-speech model selection', { providerId, modelId: model.id });
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedTextToSpeechModel(provider.id, model.id)) {
 			return false;
 		}
 		const current = this.getModelModuleSettings('textToSpeech');
 		const catalogModel = getTextToSpeechModelsByProvider(provider.id).find(
 			(entry) => entry.id === model.id
 		);
-		this.write(
+		this.store.set(
 			'textToSpeech',
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
 		);
@@ -786,57 +568,55 @@ export class StoreService {
 
 	setImageCreatorOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
-		if (!provider || !isAllowedImageCreatorModelForProvider(provider, model.id)) {
-			this.logWarn('Rejected image creator model selection', { providerId, modelId: model.id });
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedImageCreatorModelForProvider(provider, model.id)) {
 			return false;
 		}
 		const catalogModel = getImageCreatorModelsForProvider(provider).find(
 			(entry) => entry.id === model.id
 		);
-		const current = this.getModelModuleSettings('imageCreator');
-		this.write(
-			'imageCreator',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
+		this.store.set('imageCreator', modelModuleSettings(provider.id, catalogModel ?? model));
 		return true;
 	}
 
 	setTextToVideoOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
-		if (!provider || !isAllowedTextToVideoModel(provider.id, model.id)) {
-			this.logWarn('Rejected text-to-video model selection', { providerId, modelId: model.id });
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedTextToVideoModel(provider.id, model.id)) {
 			return false;
 		}
 		const current = this.getModelModuleSettings('textToVideo');
 		const catalogModel = getTextToVideoModelsByProvider(provider.id).find(
 			(entry) => entry.id === model.id
 		);
-		this.write(
+		this.store.set(
 			'textToVideo',
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
 		);
 		return true;
 	}
 
-	setTextToSoundOperator(providerId: string, model: Model): boolean {
+	setMusicCreatorOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
-		if (!provider || !isAllowedMusicCreatorModel(provider.id, model.id)) {
-			this.logWarn('Rejected text-to-sound model selection', { providerId, modelId: model.id });
+		if (!provider) {
+			return false;
+		}
+		if (!isAllowedMusicCreatorModel(provider.id, model.id)) {
 			return false;
 		}
 		const current = this.getModelModuleSettings('textToSound');
 		const catalogModel = getMusicModelsByProvider(provider.id).find(
 			(entry) => entry.id === model.id
 		);
-		this.write(
+		this.store.set(
 			'textToSound',
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
 		);
 		return true;
-	}
-
-	setMusicCreatorOperator(providerId: string, model: Model): boolean {
-		return this.setTextToSoundOperator(providerId, model);
 	}
 
 	getAgentModel(): Model | undefined {
@@ -865,173 +645,427 @@ export class StoreService {
 		return this.setSpeechToTextOperator(providerId, model);
 	}
 
-	getKeepAwakeEnabled(): boolean {
-		return this.keepAwakeEnabled;
-	}
+	setOpenAiApiKey(key: string): void {
+		const providers = this.getStoredModelProviders();
+		const openAiProviderIndex = providers.findIndex(
+			(provider) => provider.id.trim().toLowerCase() === 'openai'
+		);
 
-	setKeepAwakeEnabled(enabled: boolean): { readonly keepAwakeEnabled: boolean } {
-		this.keepAwakeEnabled = enabled;
-		this.logDebug('Updated keep-awake runtime setting', { enabled });
-		return { keepAwakeEnabled: enabled };
-	}
-
-	getAgentRoutingSettings(): AgentRoutingSettings {
-		const raw = this.read('agents');
-		if (raw !== undefined && !readRecord(raw)) {
-			this.logWarn('Invalid stored agent routing settings');
-		}
-		return normalizeAgentRoutingSettings(raw);
-	}
-
-	getConfiguredAgents(): AgentConfig[] {
-		return this.getAgentRoutingSettings().agents;
-	}
-
-	getAgentConfig(id: string): AgentConfig | undefined {
-		const agentId = id.trim();
-		if (!agentId) return undefined;
-		return this.getConfiguredAgents().find((agent) => agent.id === agentId);
-	}
-
-	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings {
-		const next = normalizeAgentRoutingSettings(settings);
-		this.write('agents', next);
-		return next;
-	}
-
-	getCronSettings(): CronSettings {
-		const settings = this.getStoredCronSettings();
-		return {
-			...settings,
-			scheduler: settings.scheduler ?? emptyCronStoreState(),
-			tasks: settings.tasks ?? [],
+		const newProvider: Provider = {
+			id: 'openai',
+			name: 'OpenAI',
+			apiKey: key,
+			baseUrl: 'https://api.openai.com/v1',
 		};
-	}
 
-	setCronSettings(settings: unknown): CronSettings {
-		const next = readCronSettings(settings);
-		this.write('cron', next);
-		return this.getCronSettings();
+		if (openAiProviderIndex !== -1) {
+			providers[openAiProviderIndex] = newProvider;
+		} else {
+			providers.push(newProvider);
+		}
+		this.setStoredModelProviders(providers);
 	}
 
 	getCronTasks(): CronTask[] {
-		return this.getStoredCronSettings().tasks ?? [];
+		const legacyTasks = this.getTaskSchedulerSettings().legacyTasks;
+		if (Array.isArray(legacyTasks)) return legacyTasks as CronTask[];
+		return [];
 	}
 
 	setCronTasks(tasks: CronTask[]): void {
-		this.write('cron', {
-			...this.getStoredCronSettings(),
-			tasks,
-		});
+		this.setTaskSchedulerSettings({ legacyTasks: tasks });
 	}
 
 	getCronSchedulerState(): CronStoreState {
-		return this.getStoredCronSettings().scheduler ?? emptyCronStoreState();
+		const managed = this.getTaskSchedulerSettings().managed;
+		return migrateCronStoreState(managed ?? emptyCronStoreState());
 	}
 
 	setCronSchedulerState(state: CronStoreState): void {
-		this.write('cron', {
-			...this.getStoredCronSettings(),
-			scheduler: normalizeCronStoreState(state),
-		});
+		this.setTaskSchedulerSettings({ managed: migrateCronStoreState(state) });
 	}
 
-	getTaskSettings(): TaskSettings {
-		const raw = this.read('task');
-		if (raw !== undefined && !readRecord(raw)) this.logWarn('Invalid stored task settings');
-		return readTaskSettings(raw);
+	getFridayCronState(): FridayCronStoreState {
+		const friday = this.getTaskSchedulerSettings().friday;
+		return migrateFridayCronStoreState(friday ?? emptyFridayCronStoreState());
 	}
 
-	setTaskSettings(settings: unknown): TaskSettings {
-		const next = readTaskSettings(settings);
-		this.write('task', next);
-		return next;
+	setFridayCronState(state: FridayCronStoreState): void {
+		this.setTaskSchedulerSettings({ friday: migrateFridayCronStoreState(state) });
 	}
 
-	private getStoredProviders(): Provider[] {
-		const raw = this.read('providers');
-		if (raw !== undefined && !Array.isArray(raw)) this.logWarn('Invalid stored providers root');
-		return readProviderSettingsList(raw).map(providerFromSettings);
+	getHeartbeatState(): HeartbeatStoreState {
+		return migrateHeartbeatStoreState(this.store.get('heartbeat') ?? emptyHeartbeatStoreState());
 	}
 
-	private setStoredProviders(providers: Provider[]): void {
-		this.write('providers', providers.map(providerSettings));
+	setHeartbeatState(state: HeartbeatStoreState): void {
+		this.store.set('heartbeat', migrateHeartbeatStoreState(state));
 	}
 
 	private getConfiguredModelOperator(
 		key: ConfiguredModelOperatorKey
 	): ConfiguredModelOperator | undefined {
-		const settings = this.getModelModuleSettings(MODEL_MODULE_ROOT_KEYS[key]);
-		if (!settings) return undefined;
-		const provider = this.getProviderById(settings.providerId);
-		if (!provider || !isAllowedModuleModel(key, settings, provider)) {
-			this.logWarn('Dropped invalid stored model module selection', {
-				module: key,
-				providerId: settings.providerId,
-				modelId: settings.modelId,
-			});
-			return undefined;
+		const rootKey = MODEL_MODULE_ROOT_KEYS[key];
+		const settings = this.getModelModuleSettings(rootKey);
+		if (settings) {
+			const provider = this.getProviderById(settings.providerId);
+			if (provider) {
+				return configuredModelOperator(
+					key,
+					publicProvider(provider),
+					modelForModule(key, settings, provider)
+				);
+			}
 		}
-		return configuredModelOperator(
-			key,
-			publicProvider(provider),
-			modelForModule(key, settings, provider)
-		);
+
+		return undefined;
 	}
 
 	private getModelModuleSettings(rootKey: ModelModuleRootKey): ModelModuleSettings | undefined {
-		const raw = this.read(rootKey);
-		const settings = readModelModuleSettings(raw);
-		if (raw !== undefined && !settings) {
-			this.logWarn('Invalid stored model module settings', { module: rootKey });
+		return readModelModuleSettings(this.store.get(rootKey));
+	}
+
+	private getStoredModelProviders(): Provider[] {
+		return readModelProviderSettingsList(this.store.get('modelProviders')).map(
+			providerFromSettings
+		);
+	}
+
+	private setStoredModelProviders(providers: Provider[]): void {
+		this.store.set('modelProviders', providers.map(modelProviderSettings));
+	}
+
+	private getTaskSchedulerSettings(): TaskSchedulerSettings {
+		return readRecord(this.store.get('taskScheduler')) ?? {};
+	}
+
+	private setTaskSchedulerSettings(patch: TaskSchedulerSettings): void {
+		this.store.set('taskScheduler', {
+			...this.getTaskSchedulerSettings(),
+			...patch,
+		});
+	}
+
+	getConnectors(): ConnectorConfig[] {
+		return readConnectorSettingsList(this.store.get('connectors'));
+	}
+
+	getConnectorById(id: string): ConnectorConfig | undefined {
+		return this.getConnectors().find((connector) => connector.id === id);
+	}
+
+	setConnectors(connectors: ConnectorConfig[]): void {
+		this.store.set('connectors', connectorSettingsByKey(connectors));
+	}
+
+	getChannel(): Channel {
+		const channel = this.getStoredChannelRoot();
+		const next = createDefaultChannelState();
+		if (channel?.defaults && typeof channel.defaults === 'object') {
+			setChannelDefaults(next, channel.defaults);
 		}
-		return settings;
+		for (const channelId of CHANNEL_PROVIDER_IDS) {
+			setChannelConfigValue(
+				next,
+				channelId,
+				mergeChannelConfig(channelId, getStoredChannelConfig(channel, channelId))
+			);
+		}
+		return next;
 	}
 
-	private getStoredCronSettings(): CronSettings {
-		const raw = this.read('cron');
-		if (raw !== undefined && !readRecord(raw)) this.logWarn('Invalid stored cron settings');
-		return readCronSettings(raw);
+	getTelegramChannel(): TelegramChannelProperties {
+		return this.getChannel().telegram;
 	}
 
-	private read<TKey extends keyof StoreSchema>(key: TKey): StoreSchema[TKey] {
-		try {
-			const value = this.store.get(key);
-			this.logDebug('Read settings property', { key });
-			return value;
-		} catch (error) {
-			this.logError('Failed to read settings property', { key, error: this.errorMessage(error) });
-			throw error;
+	getChannelConfig<TKey extends ChannelType>(type: TKey): Channel[TKey] {
+		return this.getChannel()[type];
+	}
+
+	setChannelProperties<TKey extends ChannelType>(
+		type: TKey,
+		properties: Partial<Channel[TKey]>
+	): Channel {
+		const current = this.getStoredChannelRoot();
+		const currentProperties = readRecord(current[type]) ?? {};
+		const next = compactChannelRoot({
+			...current,
+			[type]: mergeChannelConfig(type, {
+				...currentProperties,
+				...properties,
+			}),
+		});
+		this.store.set('channels', next);
+		return this.getChannel();
+	}
+
+	setChannelConfig<TKey extends ChannelType>(type: TKey, config: Channel[TKey]): Channel[TKey] {
+		const current = this.getStoredChannelRoot();
+		const next = compactChannelRoot({
+			...current,
+			[type]: mergeChannelConfig(type, config) as Channel[TKey],
+		});
+		this.store.set('channels', next);
+		return this.getChannel()[type];
+	}
+
+	setTelegramChannel(config: TelegramChannelProperties): TelegramChannelProperties {
+		return this.setChannelProperties('telegram', {
+			token: config.token,
+			allowFrom: config.allowFrom,
+			enabled: config.enabled,
+			defaultAccountId: config.defaultAccountId,
+			defaultTarget: config.defaultTarget,
+			dmPolicy: config.dmPolicy,
+			groupAllowFrom: config.groupAllowFrom,
+			accounts: config.accounts,
+		}).telegram;
+	}
+
+	private getStoredChannelRoot(): Partial<Channel> {
+		return readStoredChannel(this.store.get('channels') ?? this.store.get('channel')) ?? {};
+	}
+
+	setAnthropicApiKey(key: string): void {
+		const providers = this.getStoredModelProviders();
+		const anthropicProviderIndex = providers.findIndex(
+			(provider) => provider.id.trim().toLowerCase() === 'anthropic'
+		);
+
+		const newProvider: Provider = {
+			id: 'anthropic',
+			name: 'Anthropic',
+			apiKey: key,
+			baseUrl: 'https://api.anthropic.com/v1',
+		};
+
+		if (anthropicProviderIndex !== -1) {
+			providers[anthropicProviderIndex] = newProvider;
+		} else {
+			providers.push(newProvider);
+		}
+		this.setStoredModelProviders(providers);
+	}
+}
+
+function readStoredChannel(value: unknown): Partial<Channel> | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	return compactChannelRoot(value as Partial<Channel>);
+}
+
+function compactChannelRoot(channel: Partial<Channel>): Partial<Channel> {
+	const next: Partial<Channel> = {};
+	if (readRecord(channel.defaults)) next.defaults = removeUndefinedProperties(channel.defaults);
+	for (const channelId of CHANNEL_PROVIDER_IDS) {
+		const config = channel[channelId];
+		if (readRecord(config)) {
+			(next as Partial<Record<ChannelType, unknown>>)[channelId] =
+				removeUndefinedProperties(config);
 		}
 	}
+	return next;
+}
 
-	private write<TKey extends keyof StoreSchema>(key: TKey, value: StoreSchema[TKey]): void {
-		try {
-			this.store.set(key, value);
-			this.logDebug('Wrote settings property', { key });
-		} catch (error) {
-			this.logError('Failed to write settings property', { key, error: this.errorMessage(error) });
-			throw error;
-		}
+function removeUndefinedProperties<T>(value: T): T {
+	if (Array.isArray(value)) return value.map(removeUndefinedProperties) as T;
+	if (!value || typeof value !== 'object') return value;
+	return Object.fromEntries(
+		Object.entries(value as Record<string, unknown>).flatMap(([key, item]) =>
+			item === undefined ? [] : [[key, removeUndefinedProperties(item)]]
+		)
+	) as T;
+}
+
+function createDefaultChannelState(): Channel {
+	const state = {} as Channel;
+	setChannelDefaults(state, {});
+	for (const channelId of CHANNEL_PROVIDER_IDS) {
+		setChannelConfigValue(state, channelId, createDefaultChannelConfig(channelId));
+	}
+	return state;
+}
+
+function setChannelDefaults(state: Channel, defaults: Channel['defaults']): void {
+	Object.defineProperty(state, 'defaults', {
+		value: defaults,
+		enumerable: false,
+		writable: true,
+		configurable: true,
+	});
+}
+
+function setChannelConfigValue<TKey extends ChannelType>(
+	state: Channel,
+	channelId: TKey,
+	config: Channel[TKey]
+): void {
+	state[channelId] = config;
+}
+
+function createDefaultChannelConfig<TKey extends ChannelType>(channelId: TKey): Channel[TKey] {
+	if (channelId === 'telegram') {
+		return {
+			token: '',
+			allowFrom: [],
+			enabled: false,
+			defaultAccountId: 'default',
+			dmPolicy: 'allowlist',
+			groupAllowFrom: [],
+		} as unknown as Channel[TKey];
+	}
+	if (channelId === 'whatsapp') {
+		return {
+			phoneNumber: '',
+			token: '',
+			enabled: false,
+			defaultAccountId: 'default',
+			dmPolicy: 'allowlist',
+			allowFrom: [],
+			groupAllowFrom: [],
+		} as unknown as Channel[TKey];
+	}
+	if (channelId === 'discord') {
+		return {
+			token: '',
+			allowFrom: [],
+			enabled: false,
+			defaultAccountId: 'default',
+			dmPolicy: 'allowlist',
+			groupAllowFrom: [],
+		} as unknown as Channel[TKey];
 	}
 
-	private logDebug(message: string, data?: unknown): void {
-		this.logger?.debug(STORE_LOG_SOURCE, message, data);
+	const generic: GenericChannelProperties = {
+		enabled: false,
+		defaultAccountId: 'default',
+		accounts: {
+			default: createDefaultAccountConfig(channelId),
+		},
+	};
+	return generic as Channel[TKey];
+}
+
+function createDefaultAccountConfig(channelId: ChannelType): ChannelAccountProperties {
+	return {
+		label: `${channelId} default`,
+		enabled: false,
+		token: '',
+		serverUrl: '',
+		webhookUrl: '',
+		defaultTarget: '',
+		allowFrom: [],
+		groupAllowFrom: [],
+		dmPolicy: 'allowlist',
+	};
+}
+
+function getStoredChannelConfig(
+	channel: Partial<Channel> | undefined,
+	channelId: ChannelType
+): unknown {
+	if (!channel || typeof channel !== 'object') return undefined;
+	return channel[channelId];
+}
+
+function mergeChannelConfig<TKey extends ChannelType>(
+	channelId: TKey,
+	stored: unknown
+): Channel[TKey] {
+	const defaults = createDefaultChannelConfig(channelId);
+	if (!stored || typeof stored !== 'object') return defaults;
+	const storedObject = stored as Record<string, unknown>;
+
+	if (channelId === 'telegram') {
+		return {
+			...defaults,
+			...storedObject,
+			token: typeof storedObject.token === 'string' ? storedObject.token : '',
+			allowFrom: normalizeStringList(storedObject.allowFrom),
+			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
+			accounts: normalizeAccounts(storedObject.accounts),
+		} as Channel[TKey];
+	}
+	if (channelId === 'whatsapp') {
+		return {
+			...defaults,
+			...storedObject,
+			phoneNumber: typeof storedObject.phoneNumber === 'string' ? storedObject.phoneNumber : '',
+			token: typeof storedObject.token === 'string' ? storedObject.token : '',
+			allowFrom: normalizeStringList(storedObject.allowFrom),
+			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
+			accounts: normalizeAccounts(storedObject.accounts),
+		} as Channel[TKey];
+	}
+	if (channelId === 'discord') {
+		return {
+			...defaults,
+			...storedObject,
+			token: typeof storedObject.token === 'string' ? storedObject.token : '',
+			allowFrom: normalizeStringList(storedObject.allowFrom),
+			groupAllowFrom: normalizeStringList(storedObject.groupAllowFrom),
+			accounts: normalizeAccounts(storedObject.accounts),
+		} as Channel[TKey];
 	}
 
-	private logInfo(message: string, data?: unknown): void {
-		this.logger?.info(STORE_LOG_SOURCE, message, data);
-	}
+	return {
+		...defaults,
+		...storedObject,
+		accounts:
+			normalizeAccounts(storedObject.accounts) ?? (defaults as GenericChannelProperties).accounts,
+	} as Channel[TKey];
+}
 
-	private logWarn(message: string, data?: unknown): void {
-		this.logger?.warn(STORE_LOG_SOURCE, message, data);
+function normalizeAccounts(input: unknown): Record<string, ChannelAccountProperties> | undefined {
+	if (!input || typeof input !== 'object') return undefined;
+	const accounts: Record<string, ChannelAccountProperties> = {};
+	for (const [accountId, account] of Object.entries(input as Record<string, unknown>)) {
+		if (!account || typeof account !== 'object') continue;
+		const normalizedId = accountId.trim();
+		if (!normalizedId) continue;
+		const accountObject = account as Record<string, unknown>;
+		accounts[normalizedId] = {
+			label: readOptionalString(accountObject.label),
+			enabled: typeof accountObject.enabled === 'boolean' ? accountObject.enabled : undefined,
+			token: readOptionalString(accountObject.token),
+			secret: readOptionalString(accountObject.secret),
+			serverUrl: readOptionalString(accountObject.serverUrl),
+			webhookUrl: readOptionalString(accountObject.webhookUrl),
+			appId: readOptionalString(accountObject.appId),
+			clientId: readOptionalString(accountObject.clientId),
+			clientSecret: readOptionalString(accountObject.clientSecret),
+			username: readOptionalString(accountObject.username),
+			phoneNumber: readOptionalString(accountObject.phoneNumber),
+			botUserId: readOptionalString(accountObject.botUserId),
+			defaultTarget: readOptionalString(accountObject.defaultTarget),
+			allowFrom: normalizeStringList(accountObject.allowFrom),
+			groupAllowFrom: normalizeStringList(accountObject.groupAllowFrom),
+			dmPolicy:
+				accountObject.dmPolicy === 'pairing' ||
+				accountObject.dmPolicy === 'open' ||
+				accountObject.dmPolicy === 'deny'
+					? accountObject.dmPolicy
+					: 'allowlist',
+			heartbeat: normalizeHeartbeatVisibility(accountObject.heartbeat),
+		};
 	}
+	return Object.keys(accounts).length > 0 ? accounts : undefined;
+}
 
-	private logError(message: string, data?: unknown): void {
-		this.logger?.error(STORE_LOG_SOURCE, message, data);
-	}
+function normalizeHeartbeatVisibility(input: unknown) {
+	if (!input || typeof input !== 'object') return undefined;
+	const source = input as Record<string, unknown>;
+	return {
+		showOk: typeof source.showOk === 'boolean' ? source.showOk : undefined,
+		showAlerts: typeof source.showAlerts === 'boolean' ? source.showAlerts : undefined,
+		useIndicator: typeof source.useIndicator === 'boolean' ? source.useIndicator : undefined,
+	};
+}
 
-	private errorMessage(error: unknown): string {
-		return error instanceof Error ? error.message : String(error);
-	}
+function normalizeStringList(input: unknown): string[] {
+	if (!Array.isArray(input)) return [];
+	return [...new Set(input.map((value) => String(value).trim()).filter(Boolean))];
+}
+
+function readOptionalString(input: unknown): string | undefined {
+	return typeof input === 'string' ? input : undefined;
 }

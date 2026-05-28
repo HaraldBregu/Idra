@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channels';
 import {
+	getConnectorCatalogItem,
+	isOpenAiConnectorId,
+} from '../../../../../shared/connector';
+import {
 	IMAGE_CREATOR_OPERATOR_ID,
 	MUSIC_CREATOR_OPERATOR_ID,
 	SPEECH_TO_TEXT_OPERATOR_ID,
@@ -16,6 +20,14 @@ interface SettingsBreadcrumbItem {
 	readonly path?: string;
 }
 
+function getFileLabelFromSearch(search: string): string | null {
+	const filePath = new URLSearchParams(search).get('path')?.trim();
+	if (!filePath) return null;
+	const normalized = filePath.replace(/\\/g, '/');
+	const parts = normalized.split('/').filter(Boolean);
+	return parts[parts.length - 1] ?? filePath;
+}
+
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
@@ -26,7 +38,6 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		? decodeURIComponent(location.pathname.split('/').at(-1) ?? '')
 		: null;
 	const [connectorDetailName, setConnectorDetailName] = useState<string | null>(null);
-	const [connectorCatalogName, setConnectorCatalogName] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!connectorDetailId) {
@@ -36,10 +47,10 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 		let mounted = true;
 		setConnectorDetailName(null);
-			void window.connectors.get(connectorDetailId).then(
-				(connector) => {
-					if (mounted) setConnectorDetailName(connector.name ?? connectorDetailId);
-				},
+		void window.connectors.get(connectorDetailId).then(
+			(connector) => {
+				if (mounted) setConnectorDetailName(connector.name);
+			},
 			() => {
 				if (mounted) setConnectorDetailName(null);
 			}
@@ -49,29 +60,6 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 			mounted = false;
 		};
 	}, [connectorDetailId]);
-
-	useEffect(() => {
-		if (!connectorCatalogId) {
-			setConnectorCatalogName(null);
-			return;
-		}
-
-		let mounted = true;
-		setConnectorCatalogName(null);
-		void window.connectors.catalog().then(
-			(catalog) => {
-				const item = catalog.find((connector) => connector.id === connectorCatalogId);
-				if (mounted) setConnectorCatalogName(item?.name ?? connectorCatalogId);
-			},
-			() => {
-				if (mounted) setConnectorCatalogName(connectorCatalogId);
-			}
-		);
-
-		return () => {
-			mounted = false;
-		};
-	}, [connectorCatalogId]);
 
 	if (location.pathname === '/settings') return [];
 
@@ -122,8 +110,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	}
 
 	if (location.pathname.startsWith('/settings/connectors/configure/')) {
+		const connectorName = connectorCatalogId && isOpenAiConnectorId(connectorCatalogId)
+			? getConnectorCatalogItem(connectorCatalogId)?.name
+			: null;
 		items[0] = { ...items[0], path: current.path };
-		items.push({ label: connectorCatalogName ?? connectorCatalogId ?? t('settings.connectors.detailsTitle') });
+		items.push({ label: connectorName ?? t('settings.connectors.detailsTitle') });
 	}
 
 	if (location.pathname.startsWith('/settings/skills/skilldetails/')) {
@@ -140,6 +131,15 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	if (location.pathname.startsWith('/settings/task-manager/taskdetails/')) {
 		items[0] = { ...items[0], path: current.path };
 		items.push({ label: t('settings.taskManager.detailsTitle') });
+	}
+
+	if (
+		location.pathname.startsWith('/settings/memory/details') ||
+		location.pathname.startsWith('/settings/rag/details') ||
+		location.pathname.startsWith('/settings/wiki/details')
+	) {
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: getFileLabelFromSearch(location.search) ?? t('settings.memory.detailsTitle') });
 	}
 
 	return items;

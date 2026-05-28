@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { CronSchedule } from '../../../../../../../shared/cron';
+import type { FridayCronJob } from '../../../../../../../shared/cron';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -14,8 +14,10 @@ import {
 	SettingsSection,
 } from '../../../components';
 import {
+	deliverySummary,
 	formatSchedule,
 	formatTimestamp,
+	isFridayCronJob,
 	payloadEntries,
 	payloadSummary,
 } from '../utils';
@@ -49,7 +51,7 @@ const CronDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { jobId } = useParams<{ jobId: string }>();
-	const [job, setJob] = useState<CronSchedule | null>(null);
+	const [job, setJob] = useState<FridayCronJob | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [removing, setRemoving] = useState(false);
@@ -67,10 +69,13 @@ const CronDetailsPage: React.FC = () => {
 
 		setLoading(true);
 		window.cron
-			.getSchedule(jobId)
+			.action({ action: 'get', jobId })
 			.then((response) => {
 				if (!mounted) return;
-				setJob(response);
+				if (!isFridayCronJob(response.result)) {
+					throw new Error(t('settings.cron.notFoundDescription'));
+				}
+				setJob(response.result);
 				setError(null);
 			})
 			.catch((caught) => {
@@ -94,7 +99,7 @@ const CronDetailsPage: React.FC = () => {
 		setRemoving(true);
 		setError(null);
 		try {
-			await window.cron.deleteSchedule(job.id);
+			await window.cron.removeJob(job.id);
 			navigate('/settings/cron');
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
@@ -149,7 +154,7 @@ const CronDetailsPage: React.FC = () => {
 				</Card>
 			)}
 
-			<SettingsSection hideTitle title={t('settings.cron.details.prompt')}>
+			<SettingsSection title={t('settings.cron.details.prompt')}>
 				<Card size="sm" className="gap-0! p-0!">
 					<div className="px-3 py-2">
 						<div className="mb-2 flex flex-wrap items-center gap-1.5">
@@ -160,10 +165,10 @@ const CronDetailsPage: React.FC = () => {
 								{job.enabled ? t('settings.cron.enabled') : t('settings.cron.disabled')}
 							</Badge>
 							<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-								{job.target}
+								{job.payload.kind}
 							</Badge>
 							<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-								{job.type}
+								{job.schedule.kind}
 							</Badge>
 						</div>
 						<p className="whitespace-pre-wrap break-words text-xs leading-5 text-foreground">
@@ -178,23 +183,23 @@ const CronDetailsPage: React.FC = () => {
 					<dl className="grid gap-2 px-3 py-2 sm:grid-cols-2 lg:grid-cols-4">
 						<CronDetail label={t('settings.cron.details.id')} value={job.id} mono />
 						<CronDetail label={t('settings.cron.details.schedule')} value={schedule} mono />
-						<CronDetail label={t('settings.cron.details.target')} value={job.target} mono />
-						<CronDetail label="Task type" value={job.taskType} mono />
+						<CronDetail label={t('settings.cron.details.target')} value={job.sessionTarget} mono />
+						<CronDetail label={t('settings.cron.details.delivery')} value={deliverySummary(job)} mono />
 						<CronDetail
 							label={t('settings.cron.details.createdAt')}
-							value={formatTimestamp(job.createdAt)}
+							value={formatTimestamp(job.createdAtMs)}
 						/>
 						<CronDetail
 							label={t('settings.cron.details.updatedAt')}
-							value={formatTimestamp(job.updatedAt)}
+							value={formatTimestamp(job.updatedAtMs)}
 						/>
 						<CronDetail
 							label={t('settings.cron.details.lastRun')}
-							value={formatTimestamp(job.lastRunAt)}
+							value={formatTimestamp(job.state.lastRunAtMs)}
 						/>
 						<CronDetail
 							label={t('settings.cron.details.nextRun')}
-							value={formatTimestamp(job.nextRunAt)}
+							value={formatTimestamp(job.state.nextRunAtMs)}
 						/>
 					</dl>
 				</Card>

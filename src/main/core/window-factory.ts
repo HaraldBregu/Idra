@@ -1,6 +1,5 @@
 import { BrowserWindow, BrowserWindowConstructorOptions, shell } from 'electron';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 import type { LoggerService } from '../logger';
 import { normalizeExternalUrl } from '../../shared/external-links';
@@ -25,9 +24,19 @@ export class WindowFactory {
 	private readonly iconPath: string;
 
 	constructor(private readonly logger?: LoggerService) {
-		const __dirname = path.dirname(fileURLToPath(import.meta.url));
+		// Use path.resolve to ensure absolute path for preload
+		// Output as .js (CommonJS) for Electron preload compatibility
 		this.preloadPath = path.resolve(__dirname, '../preload/index.js');
 		this.iconPath = path.resolve(__dirname, '../../resources/icons/icon.png');
+		this.logger?.info('WindowFactory', `Preload path: ${this.preloadPath}`);
+		// Verify preload file exists
+		try {
+			const { existsSync } = require('fs');
+			const exists = existsSync(this.preloadPath);
+			this.logger?.info('WindowFactory', `Preload file exists: ${exists}`);
+		} catch {
+			// Silent fail
+		}
 	}
 
 	private getBaseWebPreferences(): Electron.WebPreferences {
@@ -116,7 +125,7 @@ export class WindowFactory {
 			win.loadURL(url.toString());
 		} else {
 			const loadOptions = hash ? { hash } : undefined;
-			win.loadFile(path.join(path.dirname(fileURLToPath(import.meta.url)), '../renderer', html), loadOptions);
+			win.loadFile(path.join(__dirname, '../renderer', html), loadOptions);
 		}
 	}
 }

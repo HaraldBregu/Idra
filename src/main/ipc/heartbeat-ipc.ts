@@ -1,15 +1,11 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../app/service-registry';
+import type { MainServiceContainer } from '../service-registry';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { HeartbeatChannels } from '../../shared/ipc-channels';
 import type {
 	HeartbeatSetEnabledRequest,
-	HeartbeatSetModelRequest,
-	HeartbeatSetProviderRequest,
-	HeartbeatSetReasoningEffortRequest,
-	HeartbeatSettingsUpdate,
 	HeartbeatSystemEventRequest,
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
@@ -38,19 +34,6 @@ export class HeartbeatIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			HeartbeatChannels.settings,
-			wrapSimpleHandler(() => heartbeat.getSettings(), HeartbeatChannels.settings)
-		);
-
-		ipcMain.handle(
-			HeartbeatChannels.saveSettings,
-			wrapSimpleHandler((request: HeartbeatSettingsUpdate) => {
-				assertObject(request);
-				return heartbeat.saveSettings(request);
-			}, HeartbeatChannels.saveSettings)
-		);
-
-		ipcMain.handle(
 			HeartbeatChannels.setEnabled,
 			wrapSimpleHandler((request: HeartbeatSetEnabledRequest) => {
 				assertObject(request);
@@ -70,30 +53,6 @@ export class HeartbeatIpc implements IpcModule {
 				assertObject(request);
 				return heartbeat.updateTiming(request);
 			}, HeartbeatChannels.updateTiming)
-		);
-
-		ipcMain.handle(
-			HeartbeatChannels.setProviderId,
-			wrapSimpleHandler((request: HeartbeatSetProviderRequest) => {
-				assertObject(request);
-				return heartbeat.setProviderId(request.providerId);
-			}, HeartbeatChannels.setProviderId)
-		);
-
-		ipcMain.handle(
-			HeartbeatChannels.setModelId,
-			wrapSimpleHandler((request: HeartbeatSetModelRequest) => {
-				assertObject(request);
-				return heartbeat.setModelId(request.modelId);
-			}, HeartbeatChannels.setModelId)
-		);
-
-		ipcMain.handle(
-			HeartbeatChannels.setReasoningEffort,
-			wrapSimpleHandler((request: HeartbeatSetReasoningEffortRequest) => {
-				assertObject(request);
-				return heartbeat.setReasoningEffort(request.reasoningEffort);
-			}, HeartbeatChannels.setReasoningEffort)
 		);
 
 		ipcMain.handle(

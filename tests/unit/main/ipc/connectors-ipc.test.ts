@@ -1,39 +1,23 @@
 import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { ConnectorsIpc } from '../../../../src/main/ipc/connectors-ipc';
-import type { MainServiceContainer } from '../../../../src/main/app/service-registry';
+import type { MainServiceContainer } from '../../../../src/main/service-registry';
+import { OPENAI_CONNECTOR_CATALOG } from '../../../../src/shared/connector';
 import type {
-	ConnectorCatalogEntry,
 	ConnectorConfig,
-	ConnectorOAuthAuthorizeResult,
+	ConnectorOAuthConnectResult,
 	ConnectorTestResult,
 	ConnectorTool,
+	ConnectorView,
 } from '../../../../src/shared/connector';
 import { ConnectorsChannels } from '../../../../src/shared/ipc-channels';
-
-const connectorCatalog: ConnectorCatalogEntry[] = [
-	{
-		id: 'google.gmail',
-		name: 'Google Gmail MCP',
-		description: 'Discovered Gmail MCP connector.',
-		environmentSecretNames: ['GOOGLE_MCP_API_KEY'],
-		platformDocumentationPages: [],
-		tools: ['get_profile'],
-		scopes: [],
-		setupInstructions: [],
-		authKind: 'mcp_env',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: true,
-	},
-];
 
 const connectorConfig: ConnectorConfig = {
 	id: 'connector-record-1',
 	name: 'My Gmail',
-	connectorId: 'google.gmail',
+	connectorId: 'connector_gmail',
 	serverLabel: 'my_gmail',
 	enabled: true,
-	mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 	authorization: '',
 	requireApproval: 'always',
 	allowedTools: ['get_profile'],
@@ -43,19 +27,17 @@ const connectorConfig: ConnectorConfig = {
 	updatedAt: '2026-05-24T00:00:00.000Z',
 };
 
-const connectorView: ConnectorConfig = {
+const connectorView: ConnectorView = {
 	id: connectorConfig.id,
 	name: connectorConfig.name,
 	connectorId: connectorConfig.connectorId,
-	authKind: 'mcp_env',
+	authKind: 'google_oauth',
 	serverLabel: connectorConfig.serverLabel,
 	enabled: true,
 	status: 'configured',
 	requireApproval: 'always',
 	allowedToolsCount: 1,
 	toolsCount: 1,
-	hasToken: false,
-	hasTools: true,
 	deferLoading: false,
 };
 
@@ -63,7 +45,6 @@ const connectorTool: ConnectorTool = {
 	name: 'get_profile',
 	description: 'Get profile.',
 	inputSchema: { type: 'object' },
-	permission: 'always-allow',
 	requiresApproval: false,
 };
 
@@ -72,10 +53,10 @@ const testResult: ConnectorTestResult = {
 	message: 'Connected.',
 };
 
-const oauthAuthorizeResult: ConnectorOAuthAuthorizeResult = {
-	connectorId: 'google.gmail',
-	authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-	connector: connectorConfig,
+const oauthResult: ConnectorOAuthConnectResult = {
+	status: 'configured',
+	message: 'Connected Google account user@example.com.',
+	connectedAccount: 'user@example.com',
 };
 
 function registeredHandler(channel: string) {
@@ -86,7 +67,7 @@ function registeredHandler(channel: string) {
 
 function createConnectorsService() {
 	return {
-		catalog: jest.fn(() => connectorCatalog),
+		catalog: jest.fn(() => OPENAI_CONNECTOR_CATALOG),
 		list: jest.fn(() => [connectorView]),
 		get: jest.fn(() => connectorConfig),
 		add: jest.fn(() => connectorConfig),
@@ -99,7 +80,7 @@ function createConnectorsService() {
 		refreshTools: jest.fn(() => [connectorTool]),
 		listTools: jest.fn(() => [connectorTool]),
 		callTool: jest.fn(() => ({ emailAddress: 'user@example.com' })),
-		authorizeOAuth: jest.fn(() => oauthAuthorizeResult),
+		connectOAuth: jest.fn(() => oauthResult),
 	};
 }
 
@@ -120,18 +101,17 @@ describe('ConnectorsIpc', () => {
 		jest.clearAllMocks();
 	});
 
-	it('forwards connector IPC channels to the connectors service', async () => {
+	it('forwards every connector IPC channel to the connectors service', async () => {
 		const connectors = createConnectorsService();
 		new ConnectorsIpc().register(createContainer(connectors), new EventBus());
 
 		const addInput = {
 			name: 'My Gmail',
-			connectorId: 'google.gmail',
+			connectorId: 'connector_gmail',
 			allowedTools: ['get_profile'],
 		};
 		const updateInput = { enabled: false };
 		const callOptions = { timeoutMs: 1000 };
-		const oauthInput = { connectorId: 'google.gmail' };
 
 		const cases = [
 			{
@@ -139,7 +119,7 @@ describe('ConnectorsIpc', () => {
 				args: [],
 				method: connectors.catalog,
 				expectedArgs: [],
-				expectedData: connectorCatalog,
+				expectedData: OPENAI_CONNECTOR_CATALOG,
 			},
 			{
 				channel: ConnectorsChannels.list,
@@ -226,11 +206,11 @@ describe('ConnectorsIpc', () => {
 				expectedData: { emailAddress: 'user@example.com' },
 			},
 			{
-				channel: ConnectorsChannels.authorizeOAuth,
-				args: [oauthInput],
-				method: connectors.authorizeOAuth,
-				expectedArgs: [oauthInput],
-				expectedData: oauthAuthorizeResult,
+				channel: ConnectorsChannels.connectOAuth,
+				args: [connectorConfig.id],
+				method: connectors.connectOAuth,
+				expectedArgs: [connectorConfig.id],
+				expectedData: oauthResult,
 			},
 		] as const;
 

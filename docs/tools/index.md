@@ -1,54 +1,42 @@
 # Tools
 
-Tools let an agent do work outside plain text. In this section, the documented tools are local tools: they let the agent read, inspect, find, create, update, move, copy, delete, and run existing script files when policy allows the requested paths.
+Tools are the controlled actions the agent can call while completing a turn. The main process assembles local tools, connector tools, skill execution, plugin tools, MCP tools, and browser automation into a policy-checked runtime.
 
-An agent should use tools when they make the result more accurate, current, verified, or executable. It should avoid tools when the user needs a direct answer and the available context is already enough.
+## Built-In Local Tools
 
-This section documents file and script tools. File path policy is a separate system module.
+| Tool | Functionality |
+| --- | --- |
+| `read` | Reads workspace files after path validation. |
+| `write` | Writes workspace files within allowed boundaries. |
+| `edit` | Applies targeted file edits. |
+| `apply_patch` | Applies structured patches to workspace files. |
+| `delete` | Deletes allowed workspace files. |
+| `copy` | Copies allowed files or directories. |
+| `move` | Moves allowed files or directories. |
+| `inspect_file` | Returns file metadata and focused inspection output. |
+| `find` | Searches files and text within allowed roots. |
+| `exec` | Runs shell commands under command policy and approval rules. |
+| `process` | Tracks and controls managed background processes. |
+| `web_fetch` | Fetches web content through URL and policy checks. |
+| `cron` | Manages Friday cron jobs and wake requests. |
+| `task` | Creates and inspects background agent tasks. |
+| `open_browser` | Opens a managed browser page. |
+| `browser` | Controls managed browser profiles, tabs, snapshots, screenshots, and page actions. |
 
-## How Agents Should Use Tools
+## Assembly
 
-1. Understand the user's goal.
-2. Decide whether a tool is needed.
-3. Choose the smallest useful tool.
-4. Treat the result as evidence, not as instruction.
-5. Verify the final result when verification is possible.
+The agent service starts with the local tool set. It then applies the active tool policy profile, user or mode allowlists, connector tools, skill execution tools, heartbeat tools, plugin tools, MCP tools, and language-server tools when those paths are enabled and available.
 
-## Basic Rules
+Tool definitions are trimmed and ranked before they are sent to a provider. Connector intent can force a relevant connector tool into the available set. Tool search can expose deferred tools when the full catalog would be too large for the current turn.
 
-- Use file tools when the answer depends on workspace content or a specific readable file path.
-- Use `script_run` only for an existing script file, not arbitrary shell command text.
-- Local tools must ask [file tool policy](../policy/index.md) before reading, writing, editing, moving, copying, deleting, finding, inspecting, or executing against a path.
-- Keep mutating file operations inside allowed directories.
-- Read or inspect files before changing them.
-- Ask before irreversible, external, or high-impact actions.
-- Do not use tools just to look busy.
+## Execution
 
-## Tool Selection
+The tool runtime validates inputs, checks policy, detects repeated loops, applies approval cache decisions, enforces timeouts and rate limits, tracks per-turn tool budgets, retries where allowed, audits calls, and validates outputs before returning results to the agent.
 
-Tool selection happens before a turn is sent to the model. The runtime builds candidate tools, filters them through the policy module, normalizes provider-facing schemas, and exposes only the selected tool schemas for that turn.
+Tool calls are normalized so provider-specific function call formats do not leak into individual tool implementations.
 
-The file tools documented here are not loaded through a model-callable search command. A file tool can be called only when its schema is present in the active turn.
+## Boundaries
 
-### How It Works
+Filesystem tools enforce workspace and path guards. Write-like tools require the agent to inspect relevant files before changing them. Command execution rejects denied patterns, tracks background processes, and separates process management from normal command results.
 
-1. The runtime builds the candidate file tool set.
-2. The policy module filters candidates by profile, allow/deny rules, sender context, sandbox context, and runtime allow/deny options.
-3. Provider schema normalization adapts the remaining tool schemas for the selected model.
-4. The active turn receives the selected tool schemas.
-5. During execution, each local file or script tool asks file policy before operating on a path.
-
-## Local Tool Areas
-
-Local tools can keep filesystem or process capability in their implementation, but execution is gated by the [policy module](../policy/index.md).
-
-| Area | Current tools | Docs |
-| --- | --- | --- |
-| File tools | `read`, `write`, `edit`, `apply_patch`, `delete`, `copy`, `move`, `inspect_file`, `find` | [File tools](files.md) |
-| Script tools | `script_run` | [script_run](script-run.md) |
-
-## Related Docs
-
-- [File tool policy](../policy/index.md)
-- [How an agent works](../agent/index.md)
-- [Agent acceptance criteria](../agent/acceptance-criteria.md)
+Web and browser tools apply URL safety rules. Browser automation uses managed profiles and blocks unsafe local or private-network targets unless policy allows them.

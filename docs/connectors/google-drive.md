@@ -1,7 +1,7 @@
 # Google Drive Connector
 
 Friday's Google Drive connector searches, reads, downloads, inspects, and
-creates Drive files through dynamic MCP tool discovery.
+creates Drive files through local Google OAuth and local API execution.
 
 Official provider documentation was checked on 2026-05-24.
 
@@ -11,7 +11,7 @@ Official provider documentation was checked on 2026-05-24.
 | ------------------- | ----------------------------------------------------------------------------- |
 | Connector id        | `connector_googledrive`                                                       |
 | Direct connector id | `google_drive`                                                                |
-| Runtime status      | Dynamic MCP tools                                          |
+| Runtime status      | Local OAuth and local tool execution                                          |
 | Auth kind           | Google OAuth                                                                  |
 | Redirect URI        | `http://127.0.0.1:<temporary-port>`                                           |
 | Setup URL           | [Google Cloud credentials](https://console.cloud.google.com/apis/credentials) |
@@ -19,10 +19,10 @@ Official provider documentation was checked on 2026-05-24.
 ## Implementation
 
 The catalog entry is defined in
-the dynamic connector catalog returned by the connectors API. Local
+[`OPENAI_CONNECTOR_CATALOG`](../../src/shared/connector/connectors.ts). Local
 execution is implemented by `ConnectorsService` with a Drive runtime strategy
 and API helpers in
-[`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts).
+[`src/main/connectors/google.ts`](../../src/main/connectors/google.ts).
 
 OAuth uses the same Google installed-app flow as Gmail and Calendar: loopback
 redirect, browser consent, PKCE, state validation, token exchange, refresh, and
@@ -110,6 +110,6 @@ resources under `https://www.googleapis.com/drive/v3`.
 
 ## Related Source
 
-- [`src/main/agent/connectors/service.ts`](../../src/main/agent/connectors/service.ts)
-- [`src/main/agent/connectors/mcp-client.ts`](../../src/main/agent/connectors/mcp-client.ts)
+- [`src/main/connectors/service.ts`](../../src/main/connectors/service.ts)
+- [`src/main/connectors/google.ts`](../../src/main/connectors/google.ts)
 - [`docs/providers/google/drive/index.md`](../providers/google/drive/index.md)

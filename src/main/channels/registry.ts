@@ -2,9 +2,9 @@ import type { ChannelStatusEvent } from '../../shared/channels';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
-import type { AgentService } from '../agent';
+import type { AgentService } from '../service';
 import type { StoreService } from '../store';
-import { channelMessageRouteInput, resolveAgentRoute } from '../agent';
+import { channelMessageRouteInput, resolveAgentRoute } from '../agent/routing';
 import type { TelegramAdapterOptions } from './telegram/types';
 import { createBundledCatalogPlugins } from './catalog-plugins';
 import { listChannelCatalog, normalizeChannelId } from './catalog';
@@ -267,10 +267,7 @@ export class ChannelRegistry {
 					const target = plugin.threading?.resolveReplyTarget(message) ?? { to: message.chatId };
 					const legacySessionKey = plugin.threading?.getSessionKey(normalized);
 					const route = resolveAgentRoute(
-						channelMessageRouteInput(
-							normalized,
-							this.dependencies.store?.getAgentRoutingSettings()
-						)
+						channelMessageRouteInput(normalized, this.dependencies.store?.getAgentRoutingSettings())
 					);
 					this.dependencies.eventBus.emit('channel:route', {
 						channel: channelId,

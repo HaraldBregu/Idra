@@ -1,60 +1,94 @@
-export interface SkillFrontmatter {
+export const SKILL_CATEGORIES = [
+	'communication',
+	'research',
+	'coding',
+	'planning',
+	'analytics',
+	'productivity',
+	'content',
+	'workflow',
+	'automation',
+	'support',
+	'retrieval',
+	'reasoning',
+	'creative',
+	'operations',
+	'developerTools',
+] as const;
+
+export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
+
+export type SkillVisibility = 'public' | 'private' | 'internal' | 'unlisted';
+
+export type SkillSafetyLevel = 'low' | 'medium' | 'high' | 'restricted';
+
+export interface SkillExampleManifest {
+	description?: string;
+	input?: unknown;
+	output?: unknown;
+}
+
+export interface SkillDependencyManifest {
+	id: string;
+	version?: string;
+	optional?: boolean;
+}
+
+export interface SkillManifest {
+	id?: string;
 	name: string;
-	description: string;
+	description?: string;
 	license?: string;
 	compatibility?: string;
-	metadata?: Record<string, unknown>;
+	category?: SkillCategory;
+	tags?: string[];
+	version?: string;
+	author?: string;
+	enabled?: boolean;
+	visibility?: SkillVisibility;
+	safetyLevel?: SkillSafetyLevel;
+	permissionsRequired?: string[];
+	requiredTools?: string[];
 	allowedTools?: string[];
+	requiredConnectors?: string[];
+	requiredMemoryKinds?: string[];
+	inputSchema?: Record<string, unknown>;
+	outputSchema?: Record<string, unknown>;
+	estimatedCost?: number;
+	estimatedLatency?: number;
+	reliabilityScore?: number;
+	examples?: SkillExampleManifest[];
+	dependencies?: SkillDependencyManifest[];
+	deprecated?: boolean;
+	metadata?: Record<string, unknown>;
 }
 
 export interface SkillInfo {
 	id: string;
-	name: string;
-	description: string;
-	location: string;
+	folderPath: string;
+	skillPath?: string;
+	manifest: SkillManifest;
+	diagnostics?: SkillDiagnostic[];
+	structure?: SkillStructureInfo;
 }
 
-export interface SkillSupportFile {
-	relativePath: string;
-	kind: 'script' | 'reference' | 'asset' | 'file';
-	size: number;
+export interface SkillDownloadResult {
+	id: string;
+	destinationPath: string;
 }
 
-export interface SkillDetails extends SkillInfo {
-	frontmatter: SkillFrontmatter;
-	instructions: string;
-	supportFiles: SkillSupportFile[];
-}
-
-export interface SkillSearchResult extends SkillInfo {
-	score: number;
-	reason: string;
-}
-
-export interface SkillSearchOptions {
-	names?: readonly string[];
-	limit?: number;
-}
-
-export interface SkillValidationIssue {
+export interface SkillDiagnostic {
+	level: 'warning' | 'error';
 	code: string;
 	message: string;
 }
 
-export type SkillValidationResult =
-	| {
-			valid: true;
-			issues: [];
-			skill: {
-				info: SkillInfo;
-				frontmatter: SkillFrontmatter;
-				instructions?: string;
-			};
-	  }
-	| {
-			valid: false;
-			issues: SkillValidationIssue[];
-	  };
+export interface SkillStructureInfo {
+	format: 'agent-skill';
+	standard: 'agentskills.io';
+	kind: 'direct' | 'container-child';
+	resourceDirectories: string[];
+}
 
 export interface SkillImportSkipped {
 	name: string;
@@ -65,16 +99,4 @@ export interface SkillImportSkipped {
 export interface SkillImportResult {
 	imported: SkillInfo[];
 	skipped: SkillImportSkipped[];
-}
-
-export interface SkillDownloadResult {
-	id: string;
-	name: string;
-	destinationPath: string;
-}
-
-export interface SkillDeleteResult {
-	id: string;
-	name: string;
-	deleted: boolean;
 }

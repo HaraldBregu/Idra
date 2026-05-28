@@ -117,7 +117,6 @@ const SkillsPage: React.FC = () => {
 			)}
 
 			<SettingsSection
-				hideTitle
 				title={t('settings.skills.title')}
 				description={skillsRoot || undefined}
 			>
@@ -139,20 +138,20 @@ const SkillsPage: React.FC = () => {
 								variant="outline"
 								size="md"
 								className="cursor-pointer border-b border-border/60 hover:bg-muted/40 last:border-b-0"
-								onClick={() => navigate(`/settings/skills/skilldetails/${encodeURIComponent(skill.name)}`)}
+								onClick={() => navigate(`/settings/skills/skilldetails/${encodeURIComponent(skill.id)}`)}
 								onKeyDown={(event) => {
 									if (event.key === 'Enter' || event.key === ' ') {
 										event.preventDefault();
-										navigate(`/settings/skills/skilldetails/${encodeURIComponent(skill.name)}`);
+										navigate(`/settings/skills/skilldetails/${encodeURIComponent(skill.id)}`);
 									}
 								}}
 							>
 								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
 									<ItemTitle className="max-w-full truncate">
-										{skill.name}
+										{skill.manifest.name}
 									</ItemTitle>
-									<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground/60">
-										{skill.description || t('settings.skills.noDescription')}
+									<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground">
+										{skill.manifest.description || t('settings.skills.noDescription')}
 									</p>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end">

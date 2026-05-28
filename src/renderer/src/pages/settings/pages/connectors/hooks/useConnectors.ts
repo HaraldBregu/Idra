@@ -1,28 +1,47 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type {
+	ConnectorTool,
+	ConnectorView,
+	OPENAI_CONNECTOR_CATALOG,
+} from '../../../../../../../shared/connector';
 
-type ConnectorConfig = Awaited<ReturnType<Window['connectors']['list']>>[number];
-type ConnectorTool = Awaited<ReturnType<Window['connectors']['listTools']>>[number];
+export type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
+
+function dedupeByConnectorId(connectors: ConnectorView[]): ConnectorView[] {
+	const seen = new Set<string>();
+	return connectors.filter((connector) => {
+		if (seen.has(connector.connectorId)) return false;
+		seen.add(connector.connectorId);
+		return true;
+	});
+}
 
 export function useConnectors() {
-	const [connectors, setConnectors] = useState<ConnectorConfig[]>([]);
+	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
+	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
 	const [busyId, setBusyId] = useState<string | null>(null);
+	const [connectingId, setConnectingId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [statusMessage, setStatusMessage] = useState<string | null>(null);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [selectedTools, setSelectedTools] = useState<ConnectorTool[]>([]);
 
-	const load = useCallback(async (): Promise<void> => {
+	const load = async (): Promise<void> => {
 		try {
-			const nextConnectors = await window.connectors.list();
-			setConnectors(nextConnectors);
+			const [nextCatalog, nextConnectors] = await Promise.all([
+				window.connectors.catalog(),
+				window.connectors.list(),
+			]);
+			setCatalog(nextCatalog);
+			setConnectors(dedupeByConnectorId(nextConnectors));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
-	}, []);
+	};
 
 	useEffect(() => {
 		void load();
-	}, [load]);
+	}, []);
 
 	const run = async (id: string, action: () => Promise<unknown>): Promise<void> => {
 		setBusyId(id);
@@ -41,11 +60,11 @@ export function useConnectors() {
 		}
 	};
 
-	const toggleConnector = (connector: ConnectorConfig): Promise<void> =>
-		run(connector.id ?? '', () =>
+	const toggleConnector = (connector: ConnectorView): Promise<void> =>
+		run(connector.id, () =>
 			connector.enabled
-				? window.connectors.disable(connector.id ?? '')
-				: window.connectors.enable(connector.id ?? '')
+				? window.connectors.disable(connector.id)
+				: window.connectors.enable(connector.id)
 		);
 
 	const refreshTools = (connectorId: string): Promise<void> =>
@@ -55,11 +74,28 @@ export function useConnectors() {
 			setSelectedId(connectorId);
 		});
 
+	const connectOAuth = async (connector: ConnectorView): Promise<void> => {
+		setBusyId(connector.id);
+		setConnectingId(connector.id);
+		setError(null);
+		setStatusMessage(`Opening browser for ${connector.name}...`);
+		try {
+			const result = await window.connectors.connectOAuth(connector.id);
+			setStatusMessage(result.message ?? `${connector.name} connected.`);
+			await load();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : String(err));
+			setStatusMessage(null);
+		} finally {
+			setBusyId(null);
+			setConnectingId(null);
+		}
+	};
 
-	const removeConnector = (connector: ConnectorConfig): Promise<void> =>
-		run(connector.id ?? '', async () => {
+	const removeConnector = (connector: ConnectorView): Promise<void> =>
+		run(connector.id, async () => {
 			if (!window.confirm(`Remove ${connector.name}?`)) return;
-			await window.connectors.remove(connector.id ?? '');
+			await window.connectors.remove(connector.id);
 			if (selectedId === connector.id) {
 				setSelectedId(null);
 				setSelectedTools([]);
@@ -77,8 +113,10 @@ export function useConnectors() {
 	};
 
 	return {
+		catalog,
 		connectors,
 		busyId,
+		connectingId,
 		error,
 		setError,
 		statusMessage,
@@ -87,6 +125,7 @@ export function useConnectors() {
 		load,
 		toggleConnector,
 		refreshTools,
+		connectOAuth,
 		removeConnector,
 		viewDetails,
 		clearSelection,

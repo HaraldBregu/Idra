@@ -1,13 +1,12 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent, type ToolResultBlock } from '../../../../src/main/provider/types';
+import { runAgent } from '../../../../src/main/agent/run';
+import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
 import {
-	AgentExecutionService,
-	clearAgentRuntimeHookProviders,
 	clearAgentToolResultMiddlewareRegistrations,
 	registerAgentToolResultMiddleware,
-	registerAgentRuntimeHookHandler,
-} from '../../../../src/main/agent';
-import type { AgentTool } from '../../../../src/main/agent/capabilities/local/types';
-import type { SessionFile } from '../../../../src/main/agent/context/session/store';
+} from '../../../../src/main/agent/harness/tool-result-middleware';
+import type { AgentTool } from '../../../../src/main/tools/types';
+import type { SessionFile } from '../../../../src/main/session/store';
 import { makeToolContext } from '../test-helpers';
 
 function session(): SessionFile {
@@ -40,15 +39,9 @@ const end = (usage = { inputTokens: 1, outputTokens: 1 }): ProviderEvent => ({
 	usage,
 });
 
-const agentExecutionService = new AgentExecutionService();
-
-function runAgent(input: Parameters<AgentExecutionService['execute']>[0]) {
-	return agentExecutionService.execute(input);
-}
-
 describe('agent/run', () => {
 	beforeEach(() => {
-		clearAgentRuntimeHookProviders();
+		clearAgentHarnessHookProviders();
 		clearAgentToolResultMiddlewareRegistrations();
 	});
 
@@ -163,15 +156,15 @@ describe('agent/run', () => {
 		]);
 	});
 
-	it('fires runtime lifecycle hooks and applies tool result middleware', async () => {
+	it('fires harness lifecycle hooks and applies tool result middleware', async () => {
 		const hookEvents: string[] = [];
 		const afterToolCall = jest.fn();
 		for (const hookName of ['before_message_write', 'llm_input', 'llm_output', 'agent_end']) {
-			registerAgentRuntimeHookHandler(hookName, () => {
+			registerAgentHarnessHookHandler(hookName, () => {
 				hookEvents.push(hookName);
 			});
 		}
-		registerAgentRuntimeHookHandler('after_tool_call', (payload) => {
+		registerAgentHarnessHookHandler('after_tool_call', (payload) => {
 			afterToolCall(payload);
 			hookEvents.push('after_tool_call');
 		});
@@ -199,7 +192,7 @@ describe('agent/run', () => {
 			userMessage: 'do it',
 			systemPrompt: 'sys',
 			session: session(),
-			agentRuntimeId: 'pi',
+			agentHarnessId: 'pi',
 			provider: provider([
 				[
 					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
@@ -383,7 +376,7 @@ describe('agent/run', () => {
 		});
 	});
 
-	it('stores multiple tool calls and allows legacy approval-marked tools by default', async () => {
+	it('stores multiple tool calls and auto-allowed legacy approval tools with stable call ids', async () => {
 		const events: ProviderEvent[] = [];
 		const ctx = makeToolContext();
 		const safeTool: AgentTool = {
@@ -402,7 +395,7 @@ describe('agent/run', () => {
 			needsApproval: true,
 			execute: jest.fn(async () => ({
 				status: 'ok' as const,
-				content: [{ type: 'text' as const, text: 'approval ok' }],
+				content: [{ type: 'text' as const, text: 'should not run' }],
 			})),
 		};
 
@@ -460,64 +453,19 @@ describe('agent/run', () => {
 				toolUseId: 'tc-denied',
 				isError: false,
 				status: 'ok',
-				content: [{ type: 'text', text: 'approval ok' }],
+				content: [{ type: 'text', text: 'should not run' }],
 			},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
 		]);
-		expect(approvalTool.execute).toHaveBeenCalledWith({ b: 2 }, expect.any(Object));
-		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(false);
+		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(true);
 		expect(events).toContainEqual(
 			expect.objectContaining({
 				type: 'tool_call_result',
 				toolCallId: 'tc-denied',
 				status: 'ok',
-				outputText: 'approval ok',
+				outputText: 'should not run',
 			})
 		);
-	});
-
-	it('still executes legacy approval-marked tools when the call is already confirmed', async () => {
-		const ctx = makeToolContext();
-		ctx.approvalCache.add('approval_tool::{"b":2}');
-		const execute = jest.fn(async () => ({
-			status: 'ok' as const,
-			content: [{ type: 'text' as const, text: 'approved' }],
-		}));
-		const approvalTool: AgentTool = {
-			name: 'approval_tool',
-			description: 'Approval',
-			schema: { type: 'object' },
-			needsApproval: true,
-			execute,
-		};
-
-		const result = await runAgent({
-			runId: 'r1',
-			userMessage: 'use tool',
-			systemPrompt: 'sys',
-			session: session(),
-			provider: provider([
-				[
-					{ type: 'tool_call_start', id: 'tc-approved', name: 'approval_tool' },
-					{ type: 'tool_call_args_delta', id: 'tc-approved', jsonDelta: '{"b":2}' },
-					{ type: 'tool_call_end', id: 'tc-approved' },
-					end(),
-				],
-				[{ type: 'text_delta', text: 'done' }, end()],
-			]),
-			model: 'gpt-test',
-			tools: [approvalTool],
-			ctx,
-		});
-
-		expect(execute).toHaveBeenCalledWith({ b: 2 }, expect.any(Object));
-		expect(result.session.transcript[2]).toMatchObject({
-			role: 'tool',
-			toolUseId: 'tc-approved',
-			isError: false,
-			status: 'ok',
-			content: [{ type: 'text', text: 'approved' }],
-		});
 	});
 
 	it('compacts once on context overflow and retries', async () => {
