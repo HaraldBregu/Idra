@@ -309,12 +309,12 @@ describe('tool management layer', () => {
 		expect(plan.steps.map((step) => step.toolId)).toEqual(['primary-search']);
 	});
 
-	it('avoids unnecessary tools for creative or provided-context tasks', () => {
+	it('keeps tools available for creative or provided-context tasks', () => {
 		expect(
 			new ToolUsePolicy().evaluate({ userRequest: 'Write a short poem about spring.' })
 		).toEqual({
-			shouldUseTools: false,
-			reason: 'request can be handled from provided context or general reasoning',
+			shouldUseTools: true,
+			reason: 'tools are available for every request',
 		});
 	});
 
@@ -325,7 +325,7 @@ describe('tool management layer', () => {
 			})
 		).toEqual({
 			shouldUseTools: true,
-			reason: 'request needs the Friday scheduler',
+			reason: 'tools are available for every request',
 		});
 		expect(
 			new ToolUsePolicy().evaluate({
@@ -333,7 +333,7 @@ describe('tool management layer', () => {
 			})
 		).toEqual({
 			shouldUseTools: true,
-			reason: 'request needs the Friday scheduler',
+			reason: 'tools are available for every request',
 		});
 		expect(
 			new ToolUsePolicy().evaluate({
@@ -341,7 +341,7 @@ describe('tool management layer', () => {
 			})
 		).toEqual({
 			shouldUseTools: true,
-			reason: 'request needs the Friday scheduler',
+			reason: 'tools are available for every request',
 		});
 		expect(
 			new ToolUsePolicy().evaluate({
@@ -349,20 +349,20 @@ describe('tool management layer', () => {
 			})
 		).toEqual({
 			shouldUseTools: true,
-			reason: 'request needs the Friday scheduler',
+			reason: 'tools are available for every request',
 		});
 	});
 
 	it('uses tools for plain script and Python execution requests', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run the Python script.' })).toEqual({
 			shouldUseTools: true,
-			reason: 'request benefits from reliable computation or execution',
+			reason: 'tools are available for every request',
 		});
 		expect(
 			new ToolUsePolicy().evaluate({ userRequest: 'Open a terminal and run scripts.' })
 		).toEqual({
 			shouldUseTools: true,
-			reason: 'request benefits from reliable computation or execution',
+			reason: 'tools are available for every request',
 		});
 	});
 
@@ -371,33 +371,33 @@ describe('tool management layer', () => {
 			new ToolUsePolicy().evaluate({ userRequest: 'Do you have any internal tools?' })
 		).toEqual({
 			shouldUseTools: true,
-			reason: 'user is asking about available tools',
+			reason: 'tools are available for every request',
 		});
 	});
 
 	it('treats Google profile and mail requests as tool-backed private data access', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Get my Gmail profile.' })).toEqual({
 			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			reason: 'tools are available for every request',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Show my messages.' })).toEqual({
 			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			reason: 'tools are available for every request',
 		});
 	});
 
-	it('does not route immediate background task requests to local tools', () => {
+	it('keeps tools available for immediate background task requests', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'List active tasks.' })).toEqual({
-			shouldUseTools: false,
-			reason: 'no tool is required to answer safely',
+			shouldUseTools: true,
+			reason: 'tools are available for every request',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run a task in background.' })).toEqual({
-			shouldUseTools: false,
-			reason: 'background task tool is not available',
+			shouldUseTools: true,
+			reason: 'tools are available for every request',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Cancel task task-1.' })).toEqual({
-			shouldUseTools: false,
-			reason: 'no tool is required to answer safely',
+			shouldUseTools: true,
+			reason: 'tools are available for every request',
 		});
 	});
 
