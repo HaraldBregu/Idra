@@ -19,17 +19,17 @@ import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
 import { DEFAULT_AGENT_ID } from './constants';
-import { AgentStartupFilesService, type AgentStartupFilesServicePort } from './startup-files';
-import { buildSystemPrompt } from './system-prompt';
-import { AgentExecutionService, type AgentExecutionServicePort } from './run';
-import { loadExistingSession, loadSession, saveSession, clearSession, listSessions, type SessionFile, type SessionStatus } from './session/store';
+import { AgentStartupFilesService, type AgentStartupFilesServicePort } from '../context/startup';
+import { buildSystemPrompt } from '../context/prompt';
+import { AgentExecutionService, type AgentExecutionServicePort } from '../execution/service';
+import { loadExistingSession, loadSession, saveSession, clearSession, listSessions, type SessionFile, type SessionStatus } from '../context/session/store';
 import type { AgentDataDirectoryServicePort } from './storage';
 import type { AgentSettingsStorePort } from './settings';
-import type { AgentMcpClientServicePort, McpRegistry } from './mcp';
-import type { SubagentSpawnPort } from './subagents';
-import { ToolService, type AgentTool, type CronToolContext, type ToolContext, type ToolServicePort } from './tools';
+import type { AgentMcpClientServicePort, McpRegistry } from '../capabilities/mcp';
+import type { SubagentSpawnPort } from '../execution/subagents';
+import { ToolService, type AgentTool, type CronToolContext, type ToolContext, type ToolServicePort } from '../capabilities/local';
 import type { AgentCapabilityServicePort } from './capabilities';
-import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
+import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-run';
 
 export interface AgentServiceDependencies {
 	store: StoreService;
