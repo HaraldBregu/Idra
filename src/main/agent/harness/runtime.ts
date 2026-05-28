@@ -957,7 +957,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const inputBudget = this.config.runtime?.maxInputTokens ??
 			(model?.contextWindowTokens ? Math.max(1_000, model.contextWindowTokens - (this.config.runtime?.contextReserveTokens ?? 1_500)) : undefined);
 		if (!inputBudget) return session;
-		const compacted = compactTranscriptToBudget(session.transcript, inputBudget);
+		const compacted = compactTranscriptToBudget(session.transcript, Math.max(1, Math.floor(inputBudget * 0.9)));
 		if (compacted.transcript.length === session.transcript.length) return session;
 		return {
 			...session,
@@ -1082,7 +1082,37 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 
 	private async runHooks(name: AgentHarnessHookName, payload: unknown): Promise<void> {
 		for (const hook of this.config.hooks ?? []) {
-			await hook.handle({ name, payload });
+			try {
+				await hook.handle({ name, payload });
+			} catch (error) {
+				await this.logHookError(name, hook.name, payload, error);
+			}
+		}
+	}
+
+	private async logHookError(
+		name: AgentHarnessHookName,
+		hookName: string | undefined,
+		payload: unknown,
+		error: unknown
+	): Promise<void> {
+		const payloadRecord = payload && typeof payload === 'object' && !Array.isArray(payload)
+			? payload as Record<string, unknown>
+			: {};
+		try {
+			await this.log({
+				runId: typeof payloadRecord.runId === 'string' ? payloadRecord.runId : undefined,
+				sessionId: typeof payloadRecord.sessionId === 'string' ? payloadRecord.sessionId : undefined,
+				type: 'hook.error',
+				timestamp: new Date().toISOString(),
+				data: this.redactRecord({
+					hook: hookName ?? 'anonymous',
+					lifecycle: name,
+					error: error instanceof Error ? error.message : String(error),
+				}),
+			});
+		} catch {
+			// Hook failures must not change the run outcome.
 		}
 	}
 
