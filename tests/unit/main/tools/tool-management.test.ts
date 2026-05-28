@@ -720,7 +720,7 @@ describe('tool management layer', () => {
 		expect(outsideWrite.status).toBe('error');
 		expect(outsideWrite.content[0]).toEqual(expect.objectContaining({
 			type: 'text',
-			text: expect.stringContaining('outside the current Friday workspace'),
+			text: expect.stringContaining('outside the .friday workspace'),
 		}));
 
 		await fs.rm(workspace, { recursive: true, force: true });
