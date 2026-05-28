@@ -16,7 +16,7 @@ import { useConnectors } from './hooks/useConnectors';
 
 type HardcodedOAuthConnector = ConnectorCatalogEntry;
 
-const GOOGLE_WORKSPACE_CONNECTORS: readonly HardcodedOAuthConnector[] = [
+const GOOGLE_GMAIL_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 	{
 		id: 'google.gmail',
 		name: 'Gmail',
@@ -40,91 +40,6 @@ const GOOGLE_WORKSPACE_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 		mcp: {
 			transport: 'http',
 			url: 'https://gmailmcp.googleapis.com/mcp/v1',
-			method: 'POST',
-			headers: {
-				accept: 'application/json, text/event-stream',
-				'content-type': 'application/json',
-			},
-		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			tokenUrl: 'https://oauth2.googleapis.com/token',
-			redirectUri: 'http://127.0.0.1',
-			authorizationParams: {
-				response_type: 'code',
-				access_type: 'offline',
-				include_granted_scopes: 'true',
-				prompt: 'consent',
-			},
-		},
-	},
-	{
-		id: 'google.calendar',
-		name: 'Google Calendar',
-		description: 'Authorize the official Calendar MCP server.',
-		directConnectorId: 'google_calendar',
-		environmentSecretNames: [],
-		platformDocumentationPages: [],
-		tools: [],
-		scopes: [
-			'https://www.googleapis.com/auth/userinfo.email',
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/calendar.readonly',
-			'https://www.googleapis.com/auth/calendar.events.readonly',
-			'https://www.googleapis.com/auth/calendar.events',
-		],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: false,
-		mcp: {
-			transport: 'http',
-			url: 'https://calendarmcp.googleapis.com/mcp/v1',
-			method: 'POST',
-			headers: {
-				accept: 'application/json, text/event-stream',
-				'content-type': 'application/json',
-			},
-		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET',
-			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
-			tokenUrl: 'https://oauth2.googleapis.com/token',
-			redirectUri: 'http://127.0.0.1',
-			authorizationParams: {
-				response_type: 'code',
-				access_type: 'offline',
-				include_granted_scopes: 'true',
-				prompt: 'consent',
-			},
-		},
-	},
-	{
-		id: 'google.drive',
-		name: 'Google Drive',
-		description: 'Authorize the official Drive MCP server.',
-		directConnectorId: 'google_drive',
-		environmentSecretNames: [],
-		platformDocumentationPages: [],
-		tools: [],
-		scopes: [
-			'https://www.googleapis.com/auth/userinfo.email',
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/drive.readonly',
-			'https://www.googleapis.com/auth/drive.file',
-		],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: false,
-		mcp: {
-			transport: 'http',
-			url: 'https://drivemcp.googleapis.com/mcp/v1',
 			method: 'POST',
 			headers: {
 				accept: 'application/json, text/event-stream',
@@ -214,7 +129,7 @@ const ConnectorsPage = () => {
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
 			<div className="grid gap-2">
-					{GOOGLE_WORKSPACE_CONNECTORS.map((connector) => {
+					{GOOGLE_GMAIL_CONNECTORS.map((connector) => {
 						const existing = oauthConnectorByProviderId.get(connector.id);
 						const existingId = existing?.id;
 						const handleClick = existing?.hasToken && existingId

@@ -162,7 +162,7 @@ describe('connector settings docs', () => {
 		installConnectorApi();
 	});
 
-	it('renders hardcoded Google OAuth connectors and authorizes through the connectors API', async () => {
+	it('renders the Gmail OAuth connector and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
 		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
 
@@ -170,8 +170,8 @@ describe('connector settings docs', () => {
 
 		const gmailLabels = await screen.findAllByText('Gmail');
 		expect(gmailLabels.length).toBeGreaterThan(0);
-		expect(screen.getAllByText('Google Calendar').length).toBeGreaterThan(0);
-		expect(screen.getAllByText('Google Drive').length).toBeGreaterThan(0);
+		expect(screen.queryByText('Google Calendar')).not.toBeInTheDocument();
+		expect(screen.queryByText('Google Drive')).not.toBeInTheDocument();
 
 		await user.click(gmailLabels[0]!);
 
