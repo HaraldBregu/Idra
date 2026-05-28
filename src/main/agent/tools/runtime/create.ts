@@ -9,7 +9,7 @@ import { createFileTools } from '../files/runtime';
 import { createCronTools } from '../cron/runtime';
 import { createScriptTools } from '../scripts/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
-import type { ToolPolicy, ToolPolicyStageName } from '../../policy';
+import type { ToolAccessRule, ToolAccessStageName } from '../access';
 import { applyToolPolicyPipeline } from '../pipeline';
 import {
 	wrapToolWithBeforeToolCall,
@@ -26,17 +26,17 @@ type AppConfig = Record<string, unknown>;
 type AuthContext = Record<string, unknown>;
 type DeliveryContext = Record<string, unknown>;
 
-type PolicyStageName = ToolPolicyStageName;
+type PolicyStageName = ToolAccessStageName;
 
 export type SandboxContext = {
 	sandboxed?: boolean;
 	readOnly?: boolean;
-	policy?: ToolPolicy;
+	policy?: ToolAccessRule;
 };
 
 export type CreateAgentToolsOptions = {
 	config?: AppConfig & {
-		toolPolicies?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
+		toolPolicies?: Partial<Record<PolicyStageName, ToolAccessRule | undefined>>;
 		tools?: {
 			fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 		};
@@ -239,7 +239,7 @@ function addHostToolCandidates(
 
 function buildPolicyStages(
 	options: CreateAgentToolsOptions
-): Partial<Record<PolicyStageName, ToolPolicy | undefined>> {
+): Partial<Record<PolicyStageName, ToolAccessRule | undefined>> {
 	const fsPolicy = options.config?.tools?.fs;
 	const runtimeAllow =
 		options.toolsAllow ?? (hasToolControlsWithoutGrants(options.config) ? [] : undefined);
@@ -279,7 +279,7 @@ function prepareRuntimeTools(
 	return effective;
 }
 
-function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
+function readOnlyPolicy(readOnly: boolean | undefined): ToolAccessRule | undefined {
 	return readOnly
 		? {
 				deny: [...AGENT_TOOL_READ_ONLY_DENY_NAMES],
@@ -287,8 +287,8 @@ function readOnlyPolicy(readOnly: boolean | undefined): ToolPolicy | undefined {
 		: undefined;
 }
 
-function mergeToolPolicy(...policies: Array<ToolPolicy | undefined>): ToolPolicy | undefined {
-	const present = policies.filter((policy): policy is ToolPolicy => policy !== undefined);
+function mergeToolPolicy(...policies: Array<ToolAccessRule | undefined>): ToolAccessRule | undefined {
+	const present = policies.filter((policy): policy is ToolAccessRule => policy !== undefined);
 	if (present.length === 0) return undefined;
 	return {
 		profile: present[present.length - 1]?.profile,
