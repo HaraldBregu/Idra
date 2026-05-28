@@ -1,10 +1,24 @@
 # Harness Module Prompt
 
-Implement and maintain the agent harness as the deterministic software layer that wraps a probabilistic model. The harness governs workflow execution through bounded operational constraints rather than relying on model self-reporting. It is UI-independent, model-agnostic, and provider-neutral — the model does not need to know what provider powers it, what transport delivers its tools, or what enforcement layer surrounds it.
+The foundational formula for any reliable AI agent is: **Agent = Model + Harness**. The model provides probabilistic reasoning; the harness provides deterministic control. Neither is sufficient alone.
+
+Harness engineering is the discipline that encompasses prompt engineering and context engineering, then goes further: it adds constraint enforcement and iterative refinement. A system that only crafts good prompts or delivers relevant context is still at the mercy of the model's stochastic output. A system with a harness governs what the model is allowed to do, validates what it produces, and converges toward a correct state regardless of how the model behaves in any single turn.
+
+Implement and maintain the agent harness as the deterministic software layer that wraps the probabilistic model. The harness governs workflow execution through bounded operational constraints rather than relying on model self-reporting. It is UI-independent, model-agnostic, and provider-neutral — the model does not need to know what provider powers it, what transport delivers its tools, or what enforcement layer surrounds it.
 
 The harness owns: context shaping, task decomposition support, deterministic gating, durable state management, bounded self-repair, human-in-the-loop checkpoints, tool lifecycle hooks, intent-driven capability selection, skill loading, MCP integration, and result middleware. It does not own session persistence, provider streaming, or system prompt assembly — those belong to the agent module.
 
 Use the existing layer model defined in `AGENT_HARNESS_LAYERS`. Do not introduce new layers unless a new durable responsibility emerges. Do not duplicate responsibilities across layers.
+
+## Three Dimensions of Harness Architecture
+
+Every harness decision maps to one of three dimensions. Use these as the primary lens when evaluating what a new feature, gate, or interface belongs to.
+
+**Context** — declarative and procedural knowledge that informs agent decisions. Context includes the task description, relevant memory records, skill instructions, startup files, and project state. The harness shapes context by retrieving only what is necessary, fitting it to the available token budget, and assembling it in a priority order the model can reason from. Good context reduces hallucination; excessive or unstructured context increases it.
+
+**Constraint** — rules that govern agent outputs and prevent problematic patterns. Constraints are enforced deterministically, not through the model's interpretation of instructions. They include tool permission filters, JSON schema validation on tool arguments, safety controller decisions, approval checkpoints, budget ceilings, and policy gates. Constraints are the harness analogue of linters and type checkers: they catch structural problems before they propagate.
+
+**Convergence** — iterative refinement processes that drive the run toward a stable, correct state. A harness converges when reapplying it to a given input produces no further changes — this property is called structural idempotence. In practice, convergence means the run loop continues until the model produces no more tool calls, all tool calls pass their gates, all results are recorded, and the session reaches a terminal status. Bounded self-repair belongs here: the harness attempts correction within hard limits, then halts rather than looping indefinitely.
 
 ## Design Principle: Enforcement Over Instruction
 
