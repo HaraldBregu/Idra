@@ -39,7 +39,7 @@ const ToolsPage: React.FC = () => {
 									<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
 										{tool.name}
 									</Badge>
-									{tool.availability !== 'default' ? (
+									{'availability' in tool && tool.availability !== 'default' ? (
 										<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
 											{tool.availability}
 										</Badge>
@@ -49,7 +49,7 @@ const ToolsPage: React.FC = () => {
 									{tool.description}
 								</p>
 								<div className="flex flex-wrap gap-1">
-									{tool.permissions.map((permission) => (
+									{('permissions' in tool ? tool.permissions : []).map((permission) => (
 										<Badge
 											key={permission}
 											variant="outline"
@@ -58,7 +58,7 @@ const ToolsPage: React.FC = () => {
 											{permission}
 										</Badge>
 									))}
-									{tool.approval.mode !== 'none' ? (
+									{'approval' in tool && tool.approval.mode !== 'none' ? (
 										<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
 											approval: {tool.approval.mode}
 										</Badge>
