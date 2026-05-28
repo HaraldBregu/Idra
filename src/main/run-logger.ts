@@ -123,7 +123,7 @@ export class AgentRunLogger {
 	private writeQueue: Promise<void> = Promise.resolve();
 
 	constructor(agentId: string, opts: RunLoggerOptions = {}) {
-		const baseDir = opts.baseDir ?? resolveDefaultUserDataPath('agent', 'runs');
+		const baseDir = opts.baseDir ?? resolveAppDataPath('agent', 'runs');
 		this.filePath = path.join(baseDir, `${agentId}.jsonl`);
 	}
 
