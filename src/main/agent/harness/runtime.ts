@@ -1112,6 +1112,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				}),
 			});
 		} catch {
+			return;
 		}
 	}
 
