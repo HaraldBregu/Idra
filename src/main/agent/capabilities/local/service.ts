@@ -1,7 +1,7 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './types';
 import { blockedToolResult } from './types';
 import { createDefaultToolRegistry, localToolCatalogByName } from './registry';
-import { evaluateToolAccess, type ToolProfile } from './access';
+import { evaluateToolAccess, type ToolProfile } from '../../permissions/access';
 
 export interface ToolServiceOptions {
 	cron?: unknown;
