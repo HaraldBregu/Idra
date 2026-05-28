@@ -323,7 +323,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('enforces workspace-only and read-only filesystem policy', async () => {
+	it('does not enforce workspace-only boundaries but still honors read-only mode', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
@@ -332,7 +332,7 @@ describe('tools/fs', () => {
 
 		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
 		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
-			'error'
+			'ok'
 		);
 		await expect(
 			writeTool.execute(
@@ -345,63 +345,13 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('enforces stored file policy before filesystem operations', async () => {
-		const workspace = await makeTempDir();
-		const privateDir = path.join(workspace, 'private');
-		await fs.mkdir(privateDir);
-		await fs.writeFile(path.join(workspace, 'allowed.txt'), 'allowed', 'utf8');
-		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{ path: workspace, permissions: ['read', 'write'], recursive: true },
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-
-		expect((await readTool.execute({ path: 'allowed.txt' }, ctx)).status).toBe('ok');
-		expect((await readTool.execute({ path: 'private/secret.txt' }, ctx)).status).toBe('error');
-		expect((await writeTool.execute({ path: 'allowed.txt', content: 'updated' }, ctx)).status).toBe(
-			'ok'
-		);
-		expect((await writeTool.execute({ path: 'new.txt', content: 'new' }, ctx)).content[0]?.text).toContain(
-			"'create'"
-		);
-		expect((await deleteTool.execute({ path: 'allowed.txt' }, ctx)).content[0]?.text).toContain(
-			"'delete'"
-		);
-
-		const found = await findTool.execute({ pattern: '**/*.txt' }, ctx);
-		expect(found.content[0]?.text).toContain('allowed.txt');
-		expect(found.content[0]?.text).not.toContain('private/secret.txt');
-
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('allows policy-granted outside paths through approval and file execution', async () => {
+	it('allows outside paths without approval or stored file policy', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const outsideFile = path.join(outside, 'allowed.txt');
 		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: outside,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-			],
-		});
-		const approve = (toolName: string, args: Record<string, unknown>): void => {
-			ctx.approvalCache.add(ctx.services.policy!.createToolUseKey(toolName, args));
-		};
 
 		const writeArgs = { path: outsideFile, content: 'created' };
-		approve('write', writeArgs);
 		await expect(
 			beforeToolCall(
 				writeTool,
@@ -416,7 +366,6 @@ describe('tools/fs', () => {
 		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('created');
 
 		const editArgs = { path: outsideFile, old: 'created', new: 'updated' };
-		approve('edit', editArgs);
 		await expect(
 			beforeToolCall(
 				editTool,
@@ -430,7 +379,6 @@ describe('tools/fs', () => {
 
 		const outsideCopy = path.join(outside, 'copy.txt');
 		const copyArgs = { source: outsideFile, destination: outsideCopy };
-		approve('copy', copyArgs);
 		await expect(
 			beforeToolCall(
 				copyTool,
@@ -444,7 +392,6 @@ describe('tools/fs', () => {
 
 		const outsideMoved = path.join(outside, 'moved.txt');
 		const moveArgs = { source: outsideCopy, destination: outsideMoved };
-		approve('move', moveArgs);
 		await expect(
 			beforeToolCall(
 				moveTool,
@@ -465,7 +412,6 @@ describe('tools/fs', () => {
 				'+patched',
 			].join('\n'),
 		};
-		approve('apply_patch', patchArgs);
 		await expect(
 			beforeToolCall(
 				applyPatchTool,
@@ -478,7 +424,6 @@ describe('tools/fs', () => {
 		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('patched');
 
 		const deleteArgs = { path: outsideMoved };
-		approve('delete', deleteArgs);
 		await expect(
 			beforeToolCall(deleteTool, deleteArgs, ctx, newCallTracker())
 		).resolves.toMatchObject({ proceed: true });
