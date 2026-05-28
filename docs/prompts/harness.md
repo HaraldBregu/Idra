@@ -20,6 +20,19 @@ Every harness decision maps to one of three dimensions. Use these as the primary
 
 **Convergence** — iterative refinement processes that drive the run toward a stable, correct state. A harness converges when reapplying it to a given input produces no further changes — this property is called structural idempotence. In practice, convergence means the run loop continues until the model produces no more tool calls, all tool calls pass their gates, all results are recorded, and the session reaches a terminal status. Bounded self-repair belongs here: the harness attempts correction within hard limits, then halts rather than looping indefinitely.
 
+## Design Principle: Constraint Enforcement
+
+Constraints are the harness dimension analogous to linters and type checkers in a software build. They are structural checks that run outside the model's control. A constraint is not a prompt instruction the model may or may not follow — it is a gate the harness enforces before, during, or after every model action.
+
+When designing a new constraint, express it as a deterministic check in the harness layer it belongs to:
+
+- Input constraints (what the model may be asked to do) → `AgentHarnessBoundaryFilter.filterInput` and `AgentHarnessSafetyController.reviewTask`.
+- Tool argument constraints (what arguments are structurally valid) → JSON Schema validation in `executeToolCall`.
+- Tool execution constraints (which tools are allowed to run) → `AgentHarnessPermissions`, `AgentHarnessSafetyController.reviewToolCall`, and `AgentHarnessApprovalController`.
+- Output constraints (what the model may return) → `AgentHarnessBoundaryFilter.filterOutput`.
+
+Do not rely on the system prompt to enforce constraints that must hold unconditionally. Prompt-based constraints are advisory; harness constraints are structural.
+
 ## Design Principle: Enforcement Over Instruction
 
 A prompt that says "run tests after writing code" is guidance. A harness that prevents workflow continuation until deterministic test execution succeeds is enforcement. These are not equivalent.
