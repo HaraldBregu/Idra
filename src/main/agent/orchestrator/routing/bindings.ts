@@ -1,5 +1,5 @@
 import { DEFAULT_AGENT_ID } from '../constants';
-import type { AgentConfig, AgentRouteBinding, AgentRoutingSettings } from '../../../shared/store';
+import type { AgentConfig, AgentRouteBinding, AgentRoutingSettings } from '../../../../shared/store';
 
 export function resolveDefaultAgentId(settings?: Partial<AgentRoutingSettings>, fallbackAgentId = DEFAULT_AGENT_ID): string {
 	return settings?.agents?.find((agent) => agent.default)?.id ?? settings?.agents?.[0]?.id ?? fallbackAgentId;
