@@ -786,7 +786,7 @@ describe('AgentService', () => {
 		expect(toolNames).toContain('read_file');
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
-		expect(JSON.stringify(history)).toContain('outside the current Friday workspace');
+		expect(JSON.stringify(history)).toContain('outside the .friday workspace');
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
@@ -837,7 +837,7 @@ describe('AgentService', () => {
 		await expect(service.send(`write ${outsideFile}`)).resolves.toBe('write complete');
 		await expect(fs.stat(outsideFile)).rejects.toThrow();
 		const history = await service.getHistory();
-		expect(JSON.stringify(history)).toContain('outside the current Friday workspace');
+		expect(JSON.stringify(history)).toContain('outside the .friday workspace');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
