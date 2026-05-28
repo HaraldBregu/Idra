@@ -36,31 +36,20 @@ export function makeToolContext(overrides: Partial<ToolContext> = {}): ToolConte
 				resolve: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
 				resolveExisting: jest.fn(async (...segments: string[]) => path.resolve(workspace, ...segments)),
 			} as unknown as ToolContext['services']['userDataDirectory'],
-				workspace: {
-					getRootPath: jest.fn(() => workspace),
-					resolvePath: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
-					ensureReady: jest.fn(async () => undefined),
-					isBootstrapPending: jest.fn(async () => false),
-					loadContextFiles: jest.fn(async () => []),
-					listWorkspaceFiles: jest.fn(async () => []),
-					readWorkspaceFile: jest.fn(),
-					writeWorkspaceFile: jest.fn(),
-					completeBootstrap: jest.fn(),
-				} as unknown as ToolContext['services']['workspace'],
-				startupFiles: {
-					getRootPath: jest.fn(() => path.resolve(workspace, 'agent', 'workspaces', 'main')),
-					ensureReady: jest.fn(async () => undefined),
-					isBootstrapPending: jest.fn(async () => false),
-					loadContextFiles: jest.fn(async () => []),
-					listFiles: jest.fn(async () => []),
-					readFile: jest.fn(),
-					writeFile: jest.fn(),
-					completeBootstrap: jest.fn(),
-				} as unknown as ToolContext['services']['startupFiles'],
-			},
-			...overrides,
-		};
-	}
+			startupFiles: {
+				getRootPath: jest.fn(() => path.resolve(workspace, 'agent', 'workspaces', 'main')),
+				ensureReady: jest.fn(async () => undefined),
+				isBootstrapPending: jest.fn(async () => false),
+				loadContextFiles: jest.fn(async () => []),
+				listFiles: jest.fn(async () => []),
+				readFile: jest.fn(),
+				writeFile: jest.fn(),
+				completeBootstrap: jest.fn(),
+			} as unknown as ToolContext['services']['startupFiles'],
+		},
+		...overrides,
+	};
+}
 
 export async function collectAsync<T>(iterable: AsyncIterable<T>): Promise<T[]> {
 	const out: T[] = [];
