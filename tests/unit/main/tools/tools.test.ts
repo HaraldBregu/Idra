@@ -452,6 +452,25 @@ describe('tools/fs', () => {
 		await fs.rm(home, { recursive: true, force: true });
 	});
 
+	it('blocks symlink escapes from the .friday root', async () => {
+		const home = await makeTempDir();
+		const fridayRoot = path.join(home, '.friday');
+		const workspace = path.join(fridayRoot, 'workspace');
+		const outside = await makeTempDir();
+		await fs.mkdir(workspace, { recursive: true });
+		await fs.writeFile(path.join(outside, 'secret.txt'), 'secret', 'utf8');
+		await fs.symlink(path.join(outside, 'secret.txt'), path.join(workspace, 'leak.txt'));
+		const ctx = makeToolContext({ workspace });
+		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
+
+		await expect(readTool.execute({ path: 'leak.txt' }, ctx)).resolves.toMatchObject({
+			status: 'error',
+		});
+
+		await fs.rm(home, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
+	});
+
 	it('confines mutating file targets to the Friday root when writeWorkspaceOnly is enabled', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
