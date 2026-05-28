@@ -51,7 +51,7 @@ function makeDeps(workspace: string, startupFiles: AgentStartupFilesService) {
 }
 
 describe('AgentService first-run startup bootstrap', () => {
-	it('seeds startup templates without triggering bootstrap questions for a fresh workspace', async () => {
+	it('seeds startup templates and triggers presentation bootstrap for a fresh workspace', async () => {
 		const root = await makeTempDir();
 		const startupFiles = new AgentStartupFilesService({ rootPath: path.join(root, 'workspaces') });
 		const workspace = startupFiles.getRootPath(DEFAULT_AGENT_ID);
@@ -69,14 +69,15 @@ describe('AgentService first-run startup bootstrap', () => {
 
 		await expect(service.send('hi')).resolves.toBe('Hi, I am Friday.');
 
-		expect(requests[0]!.system).not.toContain('BOOTSTRAP.md is pending');
-		expect(requests[0]!.system).not.toContain('Follow the first-run ritual');
-		expect(requests[0]!.system).not.toContain('Hey. I just came online. Who am I? Who are you?');
+		expect(requests[0]!.system).toContain('BOOTSTRAP.md is pending');
+		expect(requests[0]!.system).toContain('start with a brief presentation');
+		expect(requests[0]!.system).toContain('Hey. I just came online. Who am I? Who are you?');
 		expect(requests[0]!.system).toContain('# AGENTS.md');
-		expect(requests[0]!.tools.map((tool) => tool.name)).not.toContain('startup_files');
-		await expect(startupFiles.isBootstrapPending(DEFAULT_AGENT_ID)).resolves.toBe(false);
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('startup_files');
+		await expect(startupFiles.isBootstrapPending(DEFAULT_AGENT_ID)).resolves.toBe(true);
 		await expect(startupFiles.readFile(DEFAULT_AGENT_ID, 'BOOTSTRAP.md')).resolves.toMatchObject({
-			missing: true,
+			missing: false,
+			content: expect.stringContaining('Hello, World'),
 		});
 	});
 
