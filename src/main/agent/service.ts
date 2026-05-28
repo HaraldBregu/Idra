@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
@@ -12,15 +13,15 @@ import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
-	WorkspaceService,
 	type WorkspaceContextFile,
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
-} from '../workspace';
-import { assertWorkspaceFileName, type WorkspaceFileName } from '../workspace/files';
+	assertWorkspaceFileName,
+	type WorkspaceFileName,
+} from './startup-files';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import { resolveDefaultUserDataPath } from '../user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
@@ -90,7 +91,6 @@ export interface AgentServiceDependencies {
 	cron: CronService;
 	logger: LoggerService;
 	eventBus: EventBus;
-	workspace: WorkspaceService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
