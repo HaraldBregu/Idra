@@ -1,6 +1,7 @@
 import path from 'node:path';
 import type { ProviderStreamRequest } from '../../../../src/main/provider/types';
 import { AgentService, AgentStartupFilesService } from '../../../../src/main/agent';
+import { DEFAULT_AGENT_ID } from '../../../../src/main/agent/constants';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 function end() {
@@ -53,7 +54,7 @@ describe('AgentService first-run startup bootstrap', () => {
 	it('injects BOOTSTRAP.md and exposes startup_files for a fresh primary workspace', async () => {
 		const root = await makeTempDir();
 		const startupFiles = new AgentStartupFilesService({ rootPath: path.join(root, 'workspaces') });
-		const workspace = startupFiles.getRootPath('main');
+		const workspace = startupFiles.getRootPath(DEFAULT_AGENT_ID);
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(makeDeps(workspace, startupFiles), {
 			sessionBaseDir: path.join(root, 'sessions'),
@@ -72,13 +73,13 @@ describe('AgentService first-run startup bootstrap', () => {
 		expect(requests[0]!.system).toContain('Follow the first-run ritual');
 		expect(requests[0]!.system).toContain('Hey. I just came online. Who am I? Who are you?');
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['startup_files']);
-		await expect(startupFiles.isBootstrapPending('main')).resolves.toBe(true);
+		await expect(startupFiles.isBootstrapPending(DEFAULT_AGENT_ID)).resolves.toBe(true);
 	});
 
 	it('lets the agent update startup files and complete bootstrap', async () => {
 		const root = await makeTempDir();
 		const startupFiles = new AgentStartupFilesService({ rootPath: path.join(root, 'workspaces') });
-		const workspace = startupFiles.getRootPath('main');
+		const workspace = startupFiles.getRootPath(DEFAULT_AGENT_ID);
 		const turns = [
 			[
 				{ type: 'tool_call_start' as const, id: 'write-startup', name: 'startup_files' },
@@ -123,11 +124,11 @@ describe('AgentService first-run startup bootstrap', () => {
 			'Bootstrap complete.'
 		);
 
-		await expect(startupFiles.isBootstrapPending('main')).resolves.toBe(false);
-		await expect(startupFiles.readFile('main', 'BOOTSTRAP.md')).resolves.toMatchObject({
+		await expect(startupFiles.isBootstrapPending(DEFAULT_AGENT_ID)).resolves.toBe(false);
+		await expect(startupFiles.readFile(DEFAULT_AGENT_ID, 'BOOTSTRAP.md')).resolves.toMatchObject({
 			missing: true,
 		});
-		await expect(startupFiles.readFile('main', 'USER.md')).resolves.toMatchObject({
+		await expect(startupFiles.readFile(DEFAULT_AGENT_ID, 'USER.md')).resolves.toMatchObject({
 			content: expect.stringContaining('Harald'),
 		});
 	});
