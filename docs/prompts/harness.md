@@ -246,6 +246,22 @@ Never bypass this sequence for any tool source. MCP tools, skill tools, and conn
 
 Statuses returned by gates (`error`, `blocked`, `rejected`) are recorded in the session transcript and visible to the model. They are not silent failures — the model should see what happened and decide how to proceed.
 
+## Feedback Loops
+
+Tools that verify work and feed diagnostics back to the model improve output quality significantly more than tools that only act on the world. Design tools to close the loop: after writing a file, run a linter; after editing code, run affected tests; after calling an external service, validate the response schema.
+
+Feedback tools are ordinary `AgentHarnessTool` implementations. Their design principle is that they return actionable diagnostic output — structured errors, line numbers, failing assertions — that the model can act on in the next iteration. A feedback tool that returns "success" or "failure" with no detail is not useful. A feedback tool that returns the specific line and error message that failed is.
+
+When integrating language-aware feedback (LSP diagnostics, type errors, lint violations):
+
+- Run the diagnostic tool immediately after the relevant write or edit tool call, not at the end of the run.
+- Return structured results: file path, line number, severity, and message.
+- Do not suppress errors. A blocked or failed result that carries diagnostic information is more useful than a silent success.
+
+The `after_tool_call` hook is the right place to trigger automatic follow-up diagnostics without adding them to every tool implementation. A hook can inspect the tool name and result, and enqueue a diagnostic tool call for the next iteration through the run context.
+
+Do not build feedback loops by adding polling or sleep to tools. Tools must complete synchronously or fail with a timeout. Iterative refinement is the run loop's job — not individual tool logic.
+
 ## Bounded Self-Repair
 
 The harness permits limited remediation before escalating or halting. Unbounded retry loops convert model uncertainty into cost and latency without improving outcomes.
