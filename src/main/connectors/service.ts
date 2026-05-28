@@ -216,13 +216,21 @@ function readOptionalApprovalMode(
 	throw new Error(key + ' must be one of: always, never, never_for_allowed_tools.');
 }
 
+function readOptionalAuthKind(params: Record<string, unknown>, key: string): ConnectorAuthKind | undefined {
+	const value = readOptionalString(params, key);
+	if (value === undefined) return undefined;
+	if (value === 'mcp_env' || value === 'oauth') return value;
+	throw new Error(key + ' must be one of: mcp_env, oauth.');
+}
+
 function sanitizeInput(input: unknown, current?: ConnectorConfig): ConnectorInput {
 	const raw = requireObject(input, current ? 'Connector update' : 'Connector configuration');
 	const name = readOptionalString(raw, 'name')?.trim() ?? current?.name ?? '';
-	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? current?.connectorId ?? '';
 	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || current?.serverLabel || serverLabelFromName(name);
+	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? current?.connectorId ?? serverLabel;
 	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim() || current?.serverDescription;
 	const authorization = readOptionalString(raw, 'authorization')?.trim();
+	const authKind = readOptionalAuthKind(raw, 'authKind') ?? current?.authKind;
 	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? current?.requireApproval ?? 'always';
 	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? current?.allowedTools ?? [];
 	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? current?.deferLoading ?? false;
@@ -243,6 +251,7 @@ function sanitizeInput(input: unknown, current?: ConnectorConfig): ConnectorInpu
 	return {
 		name,
 		connectorId,
+		authKind,
 		serverLabel,
 		serverDescription,
 		authorization: '',
