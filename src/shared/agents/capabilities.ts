@@ -21,7 +21,7 @@ export interface AgentCapabilityResolutionSummary {
 	connectorTools: string[];
 	skills: AgentSelectedSkillSummary[];
 	directAnswer: boolean;
-	decision: AgentCapabilityDecisionSummary;
+	decision?: AgentCapabilityDecisionSummary;
 }
 
 export interface AgentToolCapabilitySummary {
