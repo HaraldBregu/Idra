@@ -127,7 +127,7 @@ describe('ConnectorsIpc', () => {
 		jest.clearAllMocks();
 	});
 
-	it('forwards every connector IPC channel to the connectors service', async () => {
+	it('forwards connector IPC channels to connector storage and MCP services', async () => {
 		const connectors = createConnectorsService();
 		const mcpClient = createMcpClientService();
 		new ConnectorsIpc().register(createContainer(connectors, mcpClient), new EventBus());
