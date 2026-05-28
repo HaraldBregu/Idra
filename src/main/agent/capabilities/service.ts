@@ -60,6 +60,7 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 		const connectors = this.options.connectors;
 		if (!connectors || (!input.shouldUseTools && !input.bootstrapPending)) return [];
 		try {
+			await this.refreshMissingConnectorTools(connectors);
 			return connectors
 				.searchTools({ query: input.userMessage, limit: 8 })
 				.map((tool) => connectorAgentTool(tool, connectors));
@@ -69,6 +70,25 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			});
 			return [];
 		}
+	}
+
+	private async refreshMissingConnectorTools(connectors: ConnectorToolServicePort): Promise<void> {
+		const missingTools = connectors.list().filter((connector) =>
+			connector.enabled !== false &&
+			connector.status === 'configured' &&
+			connector.id &&
+			(connector.toolsCount ?? connector.tools.length) === 0
+		);
+		await Promise.all(missingTools.map(async (connector) => {
+			try {
+				await connectors.refreshTools(connector.id!);
+			} catch (error) {
+				this.options.logger?.warn('AgentCapabilityService', 'Failed to refresh connector tools', {
+					connectorId: connector.id,
+					error: error instanceof Error ? error.message : String(error),
+				});
+			}
+		}));
 	}
 
 	private async resolveSkills(input: AgentCapabilityResolveInput): Promise<AgentResolvedSkill[]> {

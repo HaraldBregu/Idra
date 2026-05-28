@@ -101,6 +101,8 @@ export interface ConnectorToolExecCommand {
 }
 
 export interface ConnectorToolServicePort {
+	list(): ConnectorConfig[];
+	refreshTools(id: string): Promise<ConnectorTool[]>;
 	searchTools(input?: ConnectorToolSearchInput | string): ConnectorExecutableTool[];
 	execTool(command: ConnectorToolExecCommand): Promise<unknown>;
 }

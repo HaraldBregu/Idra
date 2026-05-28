@@ -104,6 +104,8 @@ describe('AgentCapabilityService', () => {
 
 	it('searches connector tools and executes them through connector exec commands', async () => {
 		const connectors = {
+			list: jest.fn(() => []),
+			refreshTools: jest.fn(async () => []),
 			searchTools: jest.fn(() => [
 				{
 					id: 'gmail:search',
@@ -126,6 +128,8 @@ describe('AgentCapabilityService', () => {
 
 		const result = await service.resolveForPrompt(baseInput({ userMessage: 'search gmail for invoices' }));
 
+		expect(connectors.list).toHaveBeenCalled();
+		expect(connectors.refreshTools).not.toHaveBeenCalled();
 		expect(connectors.searchTools).toHaveBeenCalledWith({
 			query: 'search gmail for invoices',
 			limit: 8,
@@ -140,5 +144,32 @@ describe('AgentCapabilityService', () => {
 			toolName: 'search',
 			args: { query: 'invoice' },
 		});
+	});
+
+	it('refreshes configured connectors with missing tools before searching connector tools', async () => {
+		const connectors = {
+			list: jest.fn(() => [
+				{
+					id: 'google.gmail',
+					name: 'Gmail',
+					connectorId: 'google.gmail',
+					enabled: true,
+					status: 'configured',
+					toolsCount: 0,
+					tools: [],
+				},
+			]),
+			refreshTools: jest.fn(async () => [
+				{ name: 'search', permission: 'always-allow', requiresApproval: false },
+			]),
+			searchTools: jest.fn(() => []),
+			execTool: jest.fn(),
+		};
+		const service = new AgentCapabilityService({ connectors: connectors as never });
+
+		await service.resolveForPrompt(baseInput({ userMessage: 'search gmail' }));
+
+		expect(connectors.refreshTools).toHaveBeenCalledWith('google.gmail');
+		expect(connectors.searchTools).toHaveBeenCalledWith({ query: 'search gmail', limit: 8 });
 	});
 });

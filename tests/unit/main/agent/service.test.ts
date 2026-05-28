@@ -782,6 +782,8 @@ describe('AgentService', () => {
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const connectors = {
+			list: jest.fn(() => []),
+			refreshTools: jest.fn(async () => []),
 			searchTools: jest.fn(() => [
 				{
 					id: 'my_gmail:get_profile',
@@ -820,6 +822,7 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
+		expect(connectors.list).toHaveBeenCalled();
 		expect(connectors.searchTools).toHaveBeenCalledWith({ query: 'get my gmail profile', limit: 8 });
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
