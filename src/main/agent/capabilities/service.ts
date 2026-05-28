@@ -39,6 +39,18 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			connectorTools: connectorTools.map((tool) => tool.name),
 			skills: skills.map(({ name, reason }) => ({ name, reason })),
 			directAnswer,
+			decision: {
+				mode: directAnswer
+					? 'direct_answer'
+					: tools.length > 0 && skills.length > 0
+						? 'use_tools_and_skills'
+						: tools.length > 0
+							? 'use_tools'
+							: 'use_skills',
+				reason: directAnswer
+					? 'No tools were selected for this turn.'
+					: 'Resolved available capabilities for this turn.',
+			},
 		});
 
 		return {
