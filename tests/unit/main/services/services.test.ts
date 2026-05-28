@@ -4,7 +4,6 @@ import { app } from 'electron';
 import { ConnectorsService } from '../../../../src/main/connectors';
 import { AgentMcpClientService } from '../../../../src/main/agent/mcp-client';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
-import { WorkspaceService } from '../../../../src/main/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
@@ -224,7 +223,7 @@ function textResponse(payload: string, status = 200): Response {
 	} as Response;
 }
 
-describe('workspace service', () => {
+describe('agent startup files service', () => {
 	const startupStatePath = (agentRoot: string): string =>
 		path.join(agentRoot, '.friday', 'startup-state.json');
 	const readStartupState = async (
@@ -234,27 +233,6 @@ describe('workspace service', () => {
 			bootstrapSeededAt?: string;
 			setupCompletedAt?: string;
 		};
-
-	it('confines reads and writes to the configured root', async () => {
-		const root = await makeTempDir();
-		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
-		await service.writeText('nested/file.txt', 'hello');
-		await expect(service.readText('nested/file.txt')).resolves.toBe('hello');
-		await service.writeJson('data.json', { ok: true });
-		await expect(service.readJson('data.json')).resolves.toEqual({ ok: true });
-		expect(() => service.resolvePath('..', 'outside')).toThrow(/outside root/);
-		await fs.rm(root, { recursive: true, force: true });
-	});
-
-	it('does not seed agent startup files into the workspace root', async () => {
-		const root = await makeTempDir();
-		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
-
-		await service.ensureReady({ initializeGit: false });
-		await expect(fs.access(path.join(root, 'AGENTS.md'))).rejects.toThrow();
-		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
-		await fs.rm(root, { recursive: true, force: true });
-	});
 
 	it('seeds agent startup files under .friday/agent without overwriting user edits', async () => {
 		const root = await makeTempDir();
@@ -337,17 +315,20 @@ describe('workspace service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('loads only safe canonical workspace files', async () => {
+	it('loads only safe canonical startup files', async () => {
 		const root = await makeTempDir();
-		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
-		await service.ensureReady({ initializeGit: false });
+		const service = new AgentStartupFilesService({
+			rootPath: path.join(root, 'agent', 'workspaces'),
+		});
+		const agentRoot = service.getRootPath('main');
+		await service.ensureReady('main');
 
-		await fs.rm(path.join(root, 'USER.md'), { force: true });
-		await fs.symlink(path.join(root, 'AGENTS.md'), path.join(root, 'USER.md'));
-		const loaded = await service.readWorkspaceFile('USER.md');
+		await fs.rm(path.join(agentRoot, 'USER.md'), { force: true });
+		await fs.symlink(path.join(agentRoot, 'AGENTS.md'), path.join(agentRoot, 'USER.md'));
+		const loaded = await service.readFile('main', 'USER.md');
 
 		expect(loaded).toMatchObject({ name: 'USER.md', missing: true, error: 'unsafe' });
-		await expect(service.readWorkspaceFile('../outside')).rejects.toThrow(/Unsupported/);
+		await expect(service.readFile('main', '../outside')).rejects.toThrow(/Unsupported/);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 });
