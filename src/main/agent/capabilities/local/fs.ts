@@ -195,6 +195,7 @@ export const listDirTool: AgentTool = {
 	},
 	async execute(args, ctx) {
 		const dir = resolveWorkspacePath(ctx, args.path);
+		await assertRealPathInside(ctx, dir);
 		const maxResults = numberArg(args.maxResults, DEFAULT_MAX_RESULTS);
 		const entries = booleanArg(args.recursive)
 			? await walk(ctx, dir, maxResults)
@@ -230,7 +231,9 @@ export const statPathTool: AgentTool = {
 	description: 'Return metadata for a workspace path.',
 	schema: { type: 'object', required: ['path'], properties: { path: { type: 'string' } } },
 	async execute(args, ctx) {
-		return jsonResult(await statEntry(ctx, resolveWorkspacePath(ctx, args.path)));
+		const target = resolveWorkspacePath(ctx, args.path);
+		await assertRealPathInside(ctx, target);
+		return jsonResult(await statEntry(ctx, target));
 	},
 };
 
@@ -249,6 +252,7 @@ export const searchFilesTool: AgentTool = {
 	async execute(args, ctx) {
 		const query = stringArg(args.query, 'query');
 		const root = resolveWorkspacePath(ctx, args.path);
+		await assertRealPathInside(ctx, root);
 		const maxResults = numberArg(args.maxResults, DEFAULT_MAX_RESULTS);
 		const matcher = query.includes('*') || query.includes('?') ? wildcardToRegExp(query) : undefined;
 		const entries = await walk(ctx, root, maxResults * 5);
@@ -273,6 +277,7 @@ export const grepFilesTool: AgentTool = {
 	async execute(args, ctx) {
 		const query = stringArg(args.query, 'query');
 		const root = resolveWorkspacePath(ctx, args.path);
+		await assertRealPathInside(ctx, root);
 		const maxResults = numberArg(args.maxResults, DEFAULT_MAX_RESULTS);
 		const flags = booleanArg(args.caseSensitive) ? 'g' : 'gi';
 		const pattern = booleanArg(args.regex) ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags);
