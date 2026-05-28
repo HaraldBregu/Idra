@@ -209,22 +209,22 @@ function addCoreToolCandidates(
 			})
 		);
 	}
-	if (plan.includeCronTools) {
-		candidates.push(
-			...createCronTools({
-				workspaceDir: options.workspaceDir,
-				sessionId: options.sessionId,
-				signal: options.abortSignal,
-				services: options.services,
-			})
-		);
-	}
 	if (plan.includeShellTools) {
 		candidates.push(
 			...createScriptTools({
 				workspaceDir: options.workspaceDir,
 				sessionId: options.sessionId,
 				fsPolicy,
+				signal: options.abortSignal,
+				services: options.services,
+			})
+		);
+	}
+	if (plan.includeCronTools) {
+		candidates.push(
+			...createCronTools({
+				workspaceDir: options.workspaceDir,
+				sessionId: options.sessionId,
 				signal: options.abortSignal,
 				services: options.services,
 			})
@@ -249,8 +249,7 @@ function buildPolicyStages(
 	options: CreateAgentToolsOptions
 ): Partial<Record<PolicyStageName, ToolAccessRule | undefined>> {
 	const fsPolicy = options.config?.tools?.fs;
-	const runtimeAllow =
-		options.toolsAllow ?? (hasToolControlsWithoutGrants(options.config) ? [] : undefined);
+	const runtimeAllow = options.toolsAllow;
 	return {
 		...(options.config?.toolPolicies ?? {}),
 		sandbox: mergeToolPolicy(
@@ -310,17 +309,6 @@ function mergeToolPolicy(...policies: Array<ToolAccessRule | undefined>): ToolAc
 function mergeList(values: Array<string[] | undefined>): string[] | undefined {
 	const present = values.filter((value): value is string[] => value !== undefined);
 	return present.length > 0 ? present.flat() : undefined;
-}
-
-function hasToolControlsWithoutGrants(
-	config: CreateAgentToolsOptions['config'] | undefined
-): boolean {
-	if (!config?.tools) return false;
-	const policies = Object.values(config.toolPolicies ?? {});
-	return !policies.some((policy) => {
-		if (!policy) return false;
-		return Boolean(policy.profile || policy.allow !== undefined || policy.alsoAllow !== undefined);
-	});
 }
 
 export function clientToolNames(tools: AgentTool[]): string[] {
