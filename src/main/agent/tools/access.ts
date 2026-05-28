@@ -270,6 +270,10 @@ export function expandToolEntries(
 	for (const rawEntry of entries) {
 		const entry = normalizeToolAccessName(rawEntry);
 		if (!entry) continue;
+		if (index.names.has(entry)) {
+			expanded.add(entry);
+			continue;
+		}
 		const alias = AGENT_TOOL_LEGACY_ALIASES[entry as keyof typeof AGENT_TOOL_LEGACY_ALIASES];
 		if (alias) {
 			for (const name of alias) {
@@ -292,10 +296,6 @@ export function expandToolEntries(
 		}
 		for (const name of index.pluginIds.get(entry) ?? []) expanded.add(name);
 		for (const name of index.ownerGroups.get(entry) ?? []) expanded.add(name);
-		if (index.names.has(entry)) {
-			expanded.add(entry);
-			continue;
-		}
 		if (entry.includes('*')) {
 			const matches = allNames.filter((name) => globMatchToolAccessEntry(entry, name));
 			for (const name of matches) expanded.add(name);
