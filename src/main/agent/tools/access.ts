@@ -263,7 +263,7 @@ export function expandToolEntries(
 	stage = 'tools'
 ): Set<string> | undefined {
 	if (!entries) return undefined;
-	const index = Array.isArray(subjectsOrIndex) ? createToolAccessIndex(subjectsOrIndex) : subjectsOrIndex;
+	const index = toToolAccessIndex(subjectsOrIndex);
 	const expanded = new Set<string>();
 	const allNames = [...index.names.keys()];
 
@@ -315,8 +315,12 @@ export function expandToolProfile(
 	_warnings?: string[],
 	_stage = 'profile'
 ): Set<string> | undefined {
-	const index = Array.isArray(subjectsOrIndex) ? createToolAccessIndex(subjectsOrIndex) : subjectsOrIndex;
+	const index = toToolAccessIndex(subjectsOrIndex);
 	return new Set(index.names.keys());
+}
+
+function toToolAccessIndex(subjectsOrIndex: readonly ToolAccessSubject[] | ToolAccessIndex): ToolAccessIndex {
+	return 'names' in subjectsOrIndex ? subjectsOrIndex : createToolAccessIndex(subjectsOrIndex);
 }
 
 function toolNamesForSharedGroup(group: AgentToolGroupName): readonly string[] {
