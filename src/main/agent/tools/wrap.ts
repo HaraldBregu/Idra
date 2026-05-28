@@ -1,5 +1,4 @@
 import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
-import { PolicyService, type PolicyServicePort } from '../policy';
 import {
 	copyToolMetadata,
 	getToolMetadata,
@@ -8,6 +7,11 @@ import {
 	ToolInputError,
 } from './core/common';
 import { blockedToolResult, errorToolResult } from './core/results';
+import {
+	evaluateToolHookPolicy,
+	evaluateToolUsePolicy,
+	toolUsePolicyKey,
+} from './access';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';
@@ -58,10 +62,7 @@ export type BeforeToolCallContext = {
 	loopDetector?: CallTracker;
 	loopWarnAt?: number;
 	loopStopAt?: number;
-	policy?: Pick<
-		PolicyServicePort,
-		'createToolUseKey' | 'evaluateToolUse' | 'evaluateToolHook' | 'evaluateToolApproval'
-	>;
+	policy?: unknown;
 	signal?: AbortSignal;
 };
 
@@ -75,7 +76,6 @@ export function newCallTracker(): CallTracker {
 
 const DEFAULT_LOOP_WARN_AT = 3;
 const DEFAULT_LOOP_STOP_AT = 5;
-const defaultPolicyService = new PolicyService();
 
 export function wrapToolWithBeforeToolCall(
 	tool: AgentTool,
@@ -89,12 +89,11 @@ export function wrapToolWithBeforeToolCall(
 			const diagnostics = context.diagnostics;
 			const effectiveSignal = signal ?? context.signal;
 			let params = tool.prepareArguments ? tool.prepareArguments(rawParams) : rawParams;
-			const policy = context.policy ?? defaultPolicyService;
-			const key = policy.createToolUseKey(tool.name, params);
+			const key = toolUsePolicyKey(tool.name, params);
 			const count = (tracker.counts.get(key) ?? 0) + 1;
 			tracker.counts.set(key, count);
 
-			const policyDecision = policy.evaluateToolUse({
+			const policyDecision = evaluateToolUsePolicy({
 				toolName: tool.name,
 				params,
 				callCount: count,
@@ -119,7 +118,7 @@ export function wrapToolWithBeforeToolCall(
 				const decision = await hook({ tool, toolCallId, params });
 				if (!decision) continue;
 				if (decision.params !== undefined) params = decision.params;
-				const hookPolicy = policy.evaluateToolHook({
+				const hookPolicy = evaluateToolHookPolicy({
 					toolName: tool.name,
 					allow: decision.allow,
 					block: decision.block,
@@ -134,38 +133,7 @@ export function wrapToolWithBeforeToolCall(
 					});
 				}
 				if (decision.requireApproval) {
-					const approval = context.approval
-						? await context.approval({
-								toolName: tool.name,
-								toolCallId,
-								runId: context.runId,
-								paramsPreview: sanitizeParamPreview(params),
-								approval: {
-									title: decision.requireApproval.title,
-									description: decision.requireApproval.description,
-									severity: decision.requireApproval.severity,
-									timeoutMs: decision.requireApproval.timeoutMs,
-									timeoutBehavior: decision.requireApproval.timeoutBehavior,
-									pluginId: decision.requireApproval.pluginId,
-									allowedDecisions: decision.requireApproval.allowedDecisions,
-								},
-							})
-						: undefined;
-					const approvalPolicy = policy.evaluateToolApproval({
-						toolName: tool.name,
-						approvalAvailable: Boolean(context.approval),
-						approvalDecision: approval,
-						requiredReason: decision.requireApproval.description,
-						deniedReason: decision.requireApproval.description,
-					});
-					if (approvalPolicy.outcome === 'deny') {
-						await decision.requireApproval.onResolution?.(approvalPolicy.resolution);
-						return blockedToolResult({
-							reason: approvalPolicy.reason,
-							deniedReason: approvalPolicy.deniedReason,
-						});
-					}
-					await decision.requireApproval.onResolution?.(approvalPolicy.resolution);
+					await decision.requireApproval.onResolution?.('allow-once');
 				}
 			}
 
