@@ -17,11 +17,17 @@ import type {
 	ConnectorOAuthCompleteInput,
 	ConnectorOAuthTokenSet,
 	ConnectorProviderId,
-	ConnectorStatus,
 	ConnectorTestResult,
 	ConnectorTool,
 	ConnectorToolPermission,
 } from '../../shared/connector';
+import {
+	authorizationFromMcp,
+	connectorAuthKindFor,
+	connectorHasAuthorization,
+	connectorStatusFor,
+	missingMcpSecretNames,
+} from './config';
 
 const CONNECTOR_STORE_NAME = 'connectors';
 const CONNECTOR_STORE_KEY = 'connectors';
@@ -1231,51 +1237,6 @@ function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[
 	if (!mcp) return [];
 	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
 	return (mcp.envSecrets ?? []).map((secret) => secret.env);
-}
-
-function connectorStatusFor(connector: ConnectorConfig): ConnectorStatus {
-	if (connector.enabled === false) return 'disabled';
-	if (connectorAuthKindFor(connector) === 'oauth' && !connectorHasAuthorization(connector)) return 'missing_auth';
-	if (!connector.mcp) return 'missing_auth';
-	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
-	if (connector.lastError) return 'error';
-	return 'configured';
-}
-
-function connectorAuthKindFor(connector: ConnectorConfig): ConnectorAuthKind {
-	return connector.authKind === 'oauth' || connector.oauth || connector.token?.accessToken ? 'oauth' : 'mcp_env';
-}
-
-function connectorHasAuthorization(connector: ConnectorConfig): boolean {
-	return Boolean(
-		connector.oauth?.token?.accessToken ||
-		connector.token?.accessToken ||
-		connector.authorization?.trim() ||
-		authorizationFromMcp(connector.mcp)
-	);
-}
-
-function authorizationFromMcp(mcp: ConnectorMcpConfig | undefined): string {
-	if (mcp?.transport !== 'http') return '';
-	for (const [key, value] of Object.entries(mcp.headers ?? {})) {
-		if (key.toLowerCase() === 'authorization') return value.trim();
-	}
-	return '';
-}
-
-function missingMcpSecretNames(
-	connector: ConnectorConfig,
-	env: NodeJS.ProcessEnv = process.env
-): string[] {
-	const mcp = connector.mcp;
-	if (!mcp) return [];
-	if (mcp.transport === 'http') {
-		const secret = mcp.auth?.env?.trim();
-		return secret && !env[secret] ? [secret] : [];
-	}
-	return (mcp.envSecrets ?? [])
-		.map((secret) => secret.env.trim())
-		.filter((name) => name && !env[name]);
 }
 
 function readOptionalCatalogEntry(value: unknown, expectedId: string): ConnectorCatalogEntry | undefined {
