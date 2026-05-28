@@ -162,31 +162,31 @@ describe('connector settings docs', () => {
 		installConnectorApi();
 	});
 
-	it('renders the Gmail OAuth connector and authorizes through the connectors API', async () => {
+	it('renders only the hardcoded Gmail OAuth connector and authorizes through the connectors API', async () => {
 		const user = userEvent.setup();
-		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
 
 		renderConnectorsPage();
 
 		const gmailLabels = await screen.findAllByText('Gmail');
 		expect(gmailLabels.length).toBeGreaterThan(0);
+		expect(screen.queryByText('Dropbox')).not.toBeInTheDocument();
 		expect(screen.queryByText('Google Calendar')).not.toBeInTheDocument();
 		expect(screen.queryByText('Google Drive')).not.toBeInTheDocument();
+		expect(window.connectors.catalog).not.toHaveBeenCalled();
 
 		await user.click(gmailLabels[0]!);
 
-			expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith(expect.objectContaining({
-				id: 'google.gmail',
-				mcp: expect.objectContaining({ url: 'https://gmailmcp.googleapis.com/mcp/v1' }),
-				oauth: expect.objectContaining({ clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID' }),
-			}));
+		expect(window.connectors.authorizeOAuth).toHaveBeenCalledWith(expect.objectContaining({
+			id: 'google.gmail',
+			mcp: expect.objectContaining({ url: 'https://gmailmcp.googleapis.com/mcp/v1' }),
+			oauth: expect.objectContaining({ clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID' }),
+		}));
 		expect(window.app.openExternalUrl).not.toHaveBeenCalled();
 		expect(window.connectors.add).not.toHaveBeenCalled();
 		expect(window.connectors.update).not.toHaveBeenCalled();
 	});
 
 	it('refreshes missing tools for a saved Google connector state', async () => {
-		(window.connectors.catalog as jest.Mock).mockResolvedValue([]);
 		(window.connectors.list as jest.Mock)
 			.mockResolvedValueOnce([connectorView()])
 			.mockResolvedValueOnce([connectorView({ toolsCount: 2, hasTools: true })]);
