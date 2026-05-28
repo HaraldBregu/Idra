@@ -253,7 +253,13 @@ describe('agent startup files service', () => {
 		const agentRoot = service.getRootPath('main');
 		expect(agentRoot).toBe(path.join(root, 'agent', 'workspaces', 'main'));
 		await expect(fs.readFile(path.join(agentRoot, 'AGENTS.md'), 'utf8')).resolves.toContain(
-			'startup context'
+			'# AGENTS.md - Your Workspace'
+		);
+		await expect(fs.readFile(path.join(agentRoot, 'SOUL.md'), 'utf8')).resolves.toContain(
+			'# SOUL.md - Who You Are'
+		);
+		await expect(fs.readFile(path.join(agentRoot, 'TOOLS.md'), 'utf8')).resolves.toContain(
+			'# TOOLS.md - Local Notes'
 		);
 		await expect(fs.readFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
 			'Hello, World'
