@@ -220,7 +220,7 @@ export class AgentService {
 		try {
 			const selection = resolveAgentModelSelection(options, { store: this.dependencies.store, providerFactory: this.providerFactory });
 			const session = await loadSession(sessionId, selection.modelId, selection.providerId, { baseDir: this.sessionBaseDir });
-			const workspace = await this.dependencies.userDataDirectory.ensureRoot();
+			const workspace = await (this.dependencies.agentDataDirectory?.ensureRoot() ?? this.dependencies.userDataDirectory.ensureRoot());
 			this.emitAgentEvent({ type: 'run_state', state: 'thinking', label: 'started' }, sessionId, runId, options);
 			this.emitAgentEvent({ type: 'model_selected', providerId: selection.providerId, model: selection.modelId, effort: selection.effort }, sessionId, runId, options);
 			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });

@@ -26,8 +26,11 @@ function appDataPath(): string {
 }
 
 function assertRelative(segment: string): void {
-	if (path.isAbsolute(segment) || segment.split(/[\\/]+/).includes('..')) {
-		throw new Error(`Path segment must be relative and non-traversing: ${segment}`);
+	if (path.isAbsolute(segment)) {
+		throw new Error(`Path segment must be relative: ${segment}`);
+	}
+	if (segment.split(/[\\/]+/).includes('..')) {
+		throw new Error(`Path segment cannot traverse directories: ${segment}`);
 	}
 }
 

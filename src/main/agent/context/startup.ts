@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { resolveDefaultUserDataPath } from '../../user-data';
+import { resolveDefaultAgentDataPath } from '../storage';
 import type { AgentTool } from '../capabilities/local/types';
 import { jsonResult, textResult } from '../capabilities/local/types';
 
@@ -153,7 +153,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly rootPath: string;
 
 	constructor(options: { rootPath?: string; logger?: unknown } = {}) {
-		this.rootPath = options.rootPath ?? resolveDefaultUserDataPath('agent', 'workspaces');
+		this.rootPath = options.rootPath ?? resolveDefaultAgentDataPath('workspaces');
 	}
 
 	getRootPath(agentId: string): string {
