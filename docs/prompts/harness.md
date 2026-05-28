@@ -168,7 +168,14 @@ Memory records retrieved through `AgentHarnessMemory.retrieve` are the primary s
 
 Context must be treated as live, not cached at startup. MCP servers, skill files, and external connectors may change between runs. Load and assemble context fresh on each activation so the agent always reasons from current state — not from a snapshot baked into the system prompt at deploy time. This self-updating property is what separates a harness from a static prompt template: the harness fetches the current context; a template embeds a past one.
 
-Do not pass the entire session transcript or all available memory into every model turn. Use compaction in `compactSessionForModel` when the transcript exceeds the input budget.
+Context engineering strategies for the context manager:
+
+- **Progressive disclosure**: retrieve context in priority order and stop when the budget is consumed. High-priority blocks (task, memory, skill instructions) enter first; lower-priority blocks (startup files, project context) enter only if budget remains.
+- **Just-in-time retrieval**: fetch data when it is needed, not at harness initialization. MCP tools and external context should be discovered per run.
+- **Compaction threshold**: when the session transcript consumes more than roughly 90% of the input budget, compact it through `compactSessionForModel` before the next model turn. Do not wait until the transcript overflows.
+- **Structured note-taking**: long-running tasks should maintain progress state in the filesystem (via tools), not solely in the transcript. The model can read its own progress notes at the start of each session rather than relying on transcript history.
+
+Do not pass the entire session transcript or all available memory into every model turn. Apply compaction proactively — at the 90% threshold, not at overflow.
 
 ## Intent-Driven Capability Selection
 
