@@ -75,7 +75,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 	const startupFiles = container.register(
 		'startupFiles',
-		new AgentStartupFilesService({ userDataDirectory })
+		new AgentStartupFilesService()
 	);
 
 	const store = container.register('store', new StoreService());
