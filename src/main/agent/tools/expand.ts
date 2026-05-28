@@ -1,7 +1,6 @@
 import type { AgentTool, ToolDiagnostics } from './core/common';
 import { getToolMetadata } from './core/common';
 import {
-	CORE_TOOL_GROUPS,
 	createToolAccessIndex,
 	expandToolEntries,
 	expandToolProfile,
@@ -13,6 +12,7 @@ import {
 } from './access';
 
 export type { ToolAccessRule as ToolPolicy, ToolProfile };
+export { CORE_TOOL_GROUPS } from './access';
 
 export type ToolCatalogIndex = ToolAccessIndex;
 
