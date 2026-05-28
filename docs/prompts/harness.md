@@ -133,6 +133,62 @@ For complex tasks that exceed a single context window, use orchestrator-worker d
 
 Do not implement orchestration inline in the run loop. Subagent spawning belongs in `runSubagent` and the subagent runtime configured through `AgentHarnessConfig.subagents`.
 
+## Autonomous Operation
+
+The agent works independently. Once a task is understood and confirmed, the user should not need to manage intermediate steps. The agent plans, executes, handles errors, and reports back when done.
+
+Autonomous operation principles:
+
+- **Plan before acting on multi-step tasks.** For tasks that require more than one tool call, produce a plan entry via `AgentHarnessPlanner` before the first action. This gives the run a recoverable shape — if the agent restarts, it knows where it was.
+- **Do not ask for permission mid-task unless something unexpected requires it.** If a file is missing or a service is unavailable, try to resolve it before escalating. Only involve the user when the situation requires a decision they need to make.
+- **Report progress on long-running tasks.** Emit events as work advances. Do not wait until completion to communicate. For background tasks specifically, persist progress state to the filesystem so the user can query status at any time.
+- **Self-correct on errors.** When a tool call fails, use the error information to try an alternative approach before concluding the task cannot be completed. Bounded self-repair applies here: try within the iteration budget, then report the failure with enough detail for the user to act on it.
+- **Summarize results, not steps.** When reporting back, tell the user what was accomplished, not every tool call made to accomplish it. Reserve detailed trace information for logs and events.
+
+## Background Execution and Task Scheduling
+
+Many tasks do not need the user to wait. Downloads, long-running processes, monitoring, and periodic actions should run in the background while the user continues with other things.
+
+**Background tasks** run in a detached subagent. The main session returns a reference the user can query for status or cancel. Background subagents:
+
+- Write progress to the filesystem periodically so status can be read without holding the session open.
+- Emit events on completion, failure, and significant milestones.
+- Are bounded by the same iteration, time, and cost ceilings as foreground runs.
+- Can be cancelled by the user at any time through `abortRun`.
+
+**Scheduled tasks** are created through `CronService` via the cron tools. The agent must not schedule work by sleeping inside a tool or the run loop. Scheduling creates a durable cron record that fires independently of the current session.
+
+When a user expresses a scheduling intent ("remind me every morning", "run this at 9am", "check for updates weekly"):
+
+1. Resolve the schedule expression from the natural language description.
+2. Create the cron record through the cron tool with the task description and schedule.
+3. Confirm the schedule to the user before leaving the session.
+
+Scheduled runs start a new session with the cron task as the initial prompt. They have access to the same tool surface as any other run, constrained by the policy configured for scheduled runs.
+
+Do not implement scheduling logic inside individual tools or the run loop. All scheduling goes through `CronService`.
+
+## System Integration
+
+The agent has access to machine-level capabilities through local system tools. These cover OS services, hardware state, and platform APIs the user would otherwise manage manually.
+
+System tools expose these capabilities:
+
+- **Network** — toggle wifi on/off, list available networks, connect to a network, check connection status.
+- **Bluetooth** — toggle on/off, list paired and available devices, connect/disconnect a device, check device battery.
+- **Volume and media** — set system volume, mute/unmute, pause/play, skip track, query currently playing.
+- **Display** — adjust brightness, toggle dark mode, manage display arrangement.
+- **Power** — sleep, restart, shutdown (with approval), query battery status.
+- **Notifications** — send a system notification, query do-not-disturb status, toggle focus modes.
+- **Clipboard** — read from or write to the system clipboard.
+- **Applications** — launch, quit, or switch focus to an application.
+
+System tools that change hardware state or affect other applications must be tagged `destructive: true` or `externalWrite: true` as appropriate, so the approval gate can intercept them when configured to do so.
+
+System tool implementations live in the tools module, not in this module. This module consumes them through the standard tool registry. Do not import platform APIs directly into the run loop.
+
+For unattended or background runs, system tools that require physical confirmation (Bluetooth pairing a new device, shutting down the machine) must require explicit approval even if the general approval gate is disabled.
+
 ## Module Names
 
 Use existing file names when extending the implementation:
