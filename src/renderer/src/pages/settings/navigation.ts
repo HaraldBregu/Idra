@@ -12,7 +12,6 @@ import {
 	Radar,
 	RadioTower,
 	Server,
-	ShieldCheck,
 	Sparkles,
 	Video,
 	Volume2,
