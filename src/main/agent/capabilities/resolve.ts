@@ -25,8 +25,7 @@ export async function resolveAgentCapabilities(input: {
 }): Promise<ResolvedAgentCapabilities> {
 	const selectedSkills = await resolveSkills(input.skills, input.message, input.configuredSkillNames);
 	const connectorResult = await resolveConnectorTools(input.connectors, input.message);
-	const skillAllowedTools = selectedSkills.flatMap((skill) => skill.frontmatter.allowedTools ?? []);
-	const tools = filterTools([...input.localTools, ...connectorResult.tools], input.toolsAllow, input.toolsDeny, skillAllowedTools);
+	const tools = filterTools([...input.localTools, ...connectorResult.tools], input.toolsAllow, input.toolsDeny);
 	const connectorNames = connectorResult.tools.map((tool) => tool.name);
 	const skillSummaries = selectedSkills.map((skill): AgentSelectedSkillSummary => ({
 		name: skill.name,
@@ -116,13 +115,11 @@ async function loadSkillReferences(skill: SkillDetails): Promise<SkillDetails> {
 	return { ...skill, instructions: `${skill.instructions}${chunks.join('')}` };
 }
 
-function filterTools(tools: AgentTool[], allow: readonly string[] | undefined, deny: readonly string[] | undefined, skillAllowedTools: readonly string[]): AgentTool[] {
+function filterTools(tools: AgentTool[], allow: readonly string[] | undefined, deny: readonly string[] | undefined): AgentTool[] {
 	const denied = new Set(deny ?? []);
 	const allowed = allow?.length ? new Set(allow) : undefined;
-	const skillAllowed = skillAllowedTools.length ? new Set(skillAllowedTools) : undefined;
 	return tools.filter((tool) =>
 		!denied.has(tool.name) &&
-		(!skillAllowed || tool.serviceKind === 'connector' || skillAllowed.has(tool.name)) &&
 		(!allowed || allowed.has(tool.name) || allow?.some((entry) => entry.startsWith('group:') && tool.serviceKind !== 'connector'))
 	);
 }
