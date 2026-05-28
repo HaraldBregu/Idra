@@ -1,27 +1,27 @@
 import type { AgentTool, ToolDiagnostics } from './core/common';
 import { getToolMetadata } from './core/common';
 import {
-	PolicyService,
-	type ToolPolicy,
-	type ToolPolicyIndex,
-	type ToolPolicyProfile,
-	type ToolPolicySubject,
-} from '../policy';
+	CORE_TOOL_GROUPS,
+	createToolAccessIndex,
+	expandToolEntries,
+	expandToolProfile,
+	globMatchToolAccessEntry,
+	type ToolAccessIndex,
+	type ToolAccessRule,
+	type ToolAccessSubject,
+	type ToolProfile,
+} from './access';
 
-const policyService = new PolicyService();
+export type { ToolAccessRule as ToolPolicy };
 
-export type ToolProfile = ToolPolicyProfile;
-export type { ToolPolicy };
-export const CORE_TOOL_GROUPS = policyService.getCoreToolGroups();
-
-export type ToolCatalogIndex = ToolPolicyIndex;
+export type ToolCatalogIndex = ToolAccessIndex;
 
 export function createToolCatalogIndex(tools: AgentTool[]): ToolCatalogIndex {
-	return policyService.createToolPolicyIndex(tools.map(toolPolicySubject));
+	return createToolAccessIndex(tools.map(toolPolicySubject));
 }
 
 export function globMatch(pattern: string, name: string): boolean {
-	return policyService.globMatchToolPolicyEntry(pattern, name);
+	return globMatchToolAccessEntry(pattern, name);
 }
 
 export function expandPolicyEntries(
@@ -30,7 +30,7 @@ export function expandPolicyEntries(
 	diagnostics?: Pick<ToolDiagnostics, 'warnings'>,
 	stage = 'policy'
 ): Set<string> | undefined {
-	return policyService.expandToolPolicyEntries(
+	return expandToolEntries(
 		entries,
 		[...tools].map(toolPolicySubject),
 		diagnostics?.warnings,
@@ -44,7 +44,7 @@ export function expandProfile(
 	diagnostics?: Pick<ToolDiagnostics, 'warnings'>,
 	stage = 'profile'
 ): Set<string> | undefined {
-	return policyService.expandToolPolicyProfile(
+	return expandToolProfile(
 		profile,
 		[...tools].map(toolPolicySubject),
 		diagnostics?.warnings,
@@ -52,7 +52,7 @@ export function expandProfile(
 	);
 }
 
-function toolPolicySubject(tool: AgentTool): ToolPolicySubject {
+function toolPolicySubject(tool: AgentTool): ToolAccessSubject {
 	const metadata = getToolMetadata(tool);
 	return {
 		name: tool.name,
