@@ -11,7 +11,7 @@ const toolMetadata: Map<string, (typeof assistant.tools)[number]> = new Map(assi
 function withAssistantMetadata(tool: AgentTool): AgentTool {
 	const metadata = toolMetadata.get(tool.name);
 	if (!metadata) return tool;
-	return { ...tool, name: metadata.name, displayName: metadata.title, description: metadata.description };
+	return { ...tool, name: metadata.name, displayName: metadata.label, description: metadata.description };
 }
 
 function assistantTools(entries: AgentTool[]): AgentTool[] {
