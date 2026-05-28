@@ -286,6 +286,10 @@ export class AgentService {
 	private getStartupFilesService(): AgentStartupFilesServicePort {
 		return this.dependencies.startupFiles ?? (this.startupFiles ??= new AgentStartupFilesService());
 	}
+	private startupFilesForSession(files: WorkspaceContextFile[], primarySession: boolean): WorkspaceContextFile[] {
+		if (primarySession) return files;
+		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME && file.name !== DEFAULT_MEMORY_FILENAME);
+	}
 	private resolveProviderAndModel(options: AgentSendOptions): { providerId: string; modelId: string; effort?: ModelReasoningEffort; adapter: ProviderAdapter } {
 		const configured = this.dependencies.store.getAgentService?.();
 		const providerId = (options.providerId ?? configured?.provider.id ?? 'openai').trim().toLowerCase();
