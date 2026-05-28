@@ -1,3 +1,5 @@
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import type { ConnectorsService, ConnectorExecutableTool } from '../../connectors';
 import type { SkillsService } from '../../skills';
 import type { SkillDetails } from '../../../shared/skills';
@@ -8,21 +10,23 @@ import { jsonResult, textResult } from './local';
 export interface ResolvedAgentCapabilities {
 	tools: AgentTool[];
 	selectedSkills: SkillDetails[];
+	connectorStatuses: Array<{ connectorId: string; status: 'ready' | 'refreshed' | 'unavailable'; message?: string }>;
 	summary: AgentCapabilityResolutionSummary;
 }
 
 export async function resolveAgentCapabilities(input: {
 	message: string;
 	localTools: AgentTool[];
-	connectors?: Pick<ConnectorsService, 'list' | 'searchTools' | 'execTool'>;
+	connectors?: Pick<ConnectorsService, 'list' | 'refreshTools' | 'searchTools' | 'execTool'>;
 	skills?: Pick<SkillsService, 'search' | 'load'>;
 	configuredSkillNames?: readonly string[];
 	toolsAllow?: readonly string[];
 	toolsDeny?: readonly string[];
 }): Promise<ResolvedAgentCapabilities> {
 	const selectedSkills = await resolveSkills(input.skills, input.message, input.configuredSkillNames);
-	const connectorTools = await resolveConnectorTools(input.connectors, input.message);
-	const tools = filterTools([...input.localTools, ...connectorTools], input.toolsAllow, input.toolsDeny);
+	const connectorResult = await resolveConnectorTools(input.connectors, input.message);
+	const skillAllowedTools = selectedSkills.flatMap((skill) => skill.frontmatter.allowedTools ?? []);
+	const tools = filterTools([...input.localTools, ...connectorResult.tools], input.toolsAllow, input.toolsDeny, skillAllowedTools);
 	const connectorNames = connectorTools.map((tool) => tool.name);
 	const skillSummaries = selectedSkills.map((skill): AgentSelectedSkillSummary => ({
 		name: skill.name,
@@ -32,6 +36,7 @@ export async function resolveAgentCapabilities(input: {
 	return {
 		tools,
 		selectedSkills,
+		connectorStatuses: connectorResult.statuses,
 		summary: {
 			tools: toolNames,
 			connectorTools: connectorNames.filter((name) => tools.some((tool) => tool.name === name)),
@@ -55,17 +60,31 @@ async function resolveSkills(
 	if (!configuredSkillNames?.length) {
 		for (const match of await skills.search(message, { limit: 3 }).catch(() => [])) names.add(match.name);
 	}
-	const loaded = await Promise.all([...names].map((name) => skills.load(name).catch(() => undefined)));
+	const loaded = await Promise.all([...names].map((name) => skills.load(name).then(loadSkillReferences).catch(() => undefined)));
 	return loaded.filter((skill): skill is SkillDetails => Boolean(skill?.instructions.trim()));
 }
 
 async function resolveConnectorTools(
-	connectors: Pick<ConnectorsService, 'list' | 'searchTools' | 'execTool'> | undefined,
+	connectors: Pick<ConnectorsService, 'list' | 'refreshTools' | 'searchTools' | 'execTool'> | undefined,
 	message: string
-): Promise<AgentTool[]> {
-	if (!connectors) return [];
-	connectors.list();
-	return connectors.searchTools({ query: message, limit: 8 }).map((tool) => connectorToolToAgentTool(tool, connectors));
+): Promise<{ tools: AgentTool[]; statuses: Array<{ connectorId: string; status: 'ready' | 'refreshed' | 'unavailable'; message?: string }> }> {
+	if (!connectors) return { tools: [], statuses: [] };
+	const statuses: Array<{ connectorId: string; status: 'ready' | 'refreshed' | 'unavailable'; message?: string }> = [];
+	for (const connector of connectors.list()) {
+		const id = connector.id ?? connector.connectorId;
+		if (!id || connector.enabled === false) continue;
+		if (!connector.hasTools || connector.status === 'error') {
+			try {
+				await connectors.refreshTools(id);
+				statuses.push({ connectorId: id, status: 'refreshed' });
+			} catch (error) {
+				statuses.push({ connectorId: id, status: 'unavailable', message: error instanceof Error ? error.message : String(error) });
+			}
+		} else {
+			statuses.push({ connectorId: id, status: 'ready' });
+		}
+	}
+	return { tools: connectors.searchTools({ query: message, limit: 8 }).map((tool) => connectorToolToAgentTool(tool, connectors)), statuses };
 }
 
 function connectorToolToAgentTool(tool: ConnectorExecutableTool, connectors: Pick<ConnectorsService, 'execTool'>): AgentTool {
@@ -85,8 +104,25 @@ function connectorToolToAgentTool(tool: ConnectorExecutableTool, connectors: Pic
 	};
 }
 
-function filterTools(tools: AgentTool[], allow: readonly string[] | undefined, deny: readonly string[] | undefined): AgentTool[] {
+async function loadSkillReferences(skill: SkillDetails): Promise<SkillDetails> {
+	const references = skill.supportFiles.filter((file) => file.kind === 'reference').slice(0, 3);
+	if (references.length === 0) return skill;
+	const chunks = await Promise.all(references.map(async (file) => {
+		const target = path.resolve(skill.location, file.relativePath);
+		if (!target.startsWith(path.resolve(skill.location))) return '';
+		const content = await fs.readFile(target, 'utf8').catch(() => '');
+		return content ? `\n\n### ${file.relativePath}\n${content.slice(0, 8000)}` : '';
+	}));
+	return { ...skill, instructions: `${skill.instructions}${chunks.join('')}` };
+}
+
+function filterTools(tools: AgentTool[], allow: readonly string[] | undefined, deny: readonly string[] | undefined, skillAllowedTools: readonly string[]): AgentTool[] {
 	const denied = new Set(deny ?? []);
 	const allowed = allow?.length ? new Set(allow) : undefined;
-	return tools.filter((tool) => !denied.has(tool.name) && (!allowed || allowed.has(tool.name) || allow?.some((entry) => entry.startsWith('group:') && tool.serviceKind !== 'connector')));
+	const skillAllowed = skillAllowedTools.length ? new Set(skillAllowedTools) : undefined;
+	return tools.filter((tool) =>
+		!denied.has(tool.name) &&
+		(!skillAllowed || tool.serviceKind === 'connector' || skillAllowed.has(tool.name)) &&
+		(!allowed || allowed.has(tool.name) || allow?.some((entry) => entry.startsWith('group:') && tool.serviceKind !== 'connector'))
+	);
 }
