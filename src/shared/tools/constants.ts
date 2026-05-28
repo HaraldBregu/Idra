@@ -5,7 +5,6 @@ import {
 	AGENT_TOOL_FILESYSTEM_READ_TOOLS,
 	AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
 	AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
-	AGENT_TOOL_FILESYSTEM_TOOLS,
 } from './base';
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
@@ -108,5 +107,3 @@ export const AGENT_TOOL_LEGACY_ALIASES = {
 export const AGENT_TOOL_METADATA_BY_NAME = Object.fromEntries(
 	AGENT_TOOLS.map((tool) => [tool.name, tool])
 ) as Record<AgentToolName, AgentToolMetadata>;
-
-export { AGENT_TOOL_FILESYSTEM_TOOLS as AGENT_TOOL_FILESYSTEM_TOOLS_SET };
