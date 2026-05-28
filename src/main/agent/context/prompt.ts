@@ -1,5 +1,5 @@
-import type { WorkspaceContextFile } from './startup-files';
-import type { AgentTool } from './tools';
+import type { WorkspaceContextFile } from './startup';
+import type { AgentTool } from '../capabilities/local';
 
 export function buildSystemPrompt(input: { base?: string; startupFiles?: WorkspaceContextFile[]; tools?: AgentTool[] } = {}): string {
 	return [
