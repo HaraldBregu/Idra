@@ -13,7 +13,7 @@ function tool<TName extends string>(metadata: AgentToolMetadata & { name: TName 
 export const AGENT_TOOL_TASK_TOOLS = [
 	tool({
 		name: 'todo_create',
-		group: 'stateTask',
+		group: 'task',
 		title: 'Create todo',
 		description: 'Create a local todo entry for the current run.',
 		permissions: ['state'],
@@ -23,7 +23,7 @@ export const AGENT_TOOL_TASK_TOOLS = [
 	}),
 	tool({
 		name: 'todo_update',
-		group: 'stateTask',
+		group: 'task',
 		title: 'Update todo',
 		description: 'Update a local todo entry for the current run.',
 		permissions: ['state'],
@@ -33,7 +33,7 @@ export const AGENT_TOOL_TASK_TOOLS = [
 	}),
 	tool({
 		name: 'todo_complete',
-		group: 'stateTask',
+		group: 'task',
 		title: 'Complete todo',
 		description: 'Mark a local todo as completed.',
 		permissions: ['state'],
