@@ -3,20 +3,9 @@ import { createServer, type Server, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { shell } from 'electron';
 import Store from 'electron-store';
-import type { LoggerService } from '../logger';
-import { resolveDefaultAppDataPath } from '../agent/storage';
 import { CONNECTOR_TOOL_PERMISSIONS, DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
-import {
-	AgentMcpClientService,
-	authorizationFromMcp,
-	connectorAuthKindFor,
-	connectorHasAuthorization,
-	connectorStatusFor,
-	type AgentMcpClientServicePort,
-	type ConnectorMcpClientFactory,
-	type McpConnectorStore,
-} from '../agent/mcp-client';
 import type {
+	ConnectorAuthKind,
 	ConnectorCatalogEntry,
 	ConnectorConfig,
 	ConnectorInput,
@@ -26,7 +15,7 @@ import type {
 	ConnectorOAuthAuthorizeResult,
 	ConnectorOAuthCompleteInput,
 	ConnectorProviderId,
-	ConnectorTestResult,
+	ConnectorStatus,
 	ConnectorTool,
 	ConnectorToolPermission,
 } from '../../shared/connector';
@@ -53,6 +42,12 @@ interface ConnectorToolPersistenceStore {
 	delete(key: string): void;
 }
 
+interface ConnectorLogger {
+	debug(source: string, message: string, data?: unknown): void;
+	warn(source: string, message: string, data?: unknown): void;
+	error(source: string, message: string, data?: unknown): void;
+}
+
 type ConnectorCatalogProvider =
 	| readonly ConnectorCatalogEntry[]
 	| (() => readonly ConnectorCatalogEntry[] | Promise<readonly ConnectorCatalogEntry[]>);
@@ -76,9 +71,8 @@ type RuntimeConnector = ConnectorConfig & {
 interface ConnectorsServiceOptions {
 	store?: ConnectorPersistenceStore;
 	toolStore?: ConnectorToolPersistenceStore;
+	storeCwd?: string;
 	catalogProvider?: ConnectorCatalogProvider;
-	mcpClient?: AgentMcpClientServicePort;
-	mcpClientFactory?: ConnectorMcpClientFactory;
 	openExternalUrl?: (url: string) => Promise<void>;
 	fetch?: typeof fetch;
 	oauthCallbackTimeoutMs?: number;
@@ -331,32 +325,24 @@ function assertEnvName(value: string, label: string): void {
 	if (!ENV_NAME_PATTERN.test(value)) throw new Error(label + ' must be a valid environment variable name.');
 }
 
-export class ConnectorsService implements McpConnectorStore {
+export class ConnectorsService {
 	private readonly store: ConnectorPersistenceStore;
 	private readonly toolStore?: ConnectorToolPersistenceStore;
-	private readonly mcpClient: AgentMcpClientServicePort;
 	private readonly runtimeConnectors = new Map<string, RuntimeConnector>();
 	private readonly pendingOAuthConnectors = new Map<string, RuntimeConnector>();
 
 	constructor(
-		private readonly logger: LoggerService,
+		private readonly logger: ConnectorLogger,
 		private readonly options: ConnectorsServiceOptions = {}
 	) {
 		this.store =
 			options.store ??
 			(new Store<Record<string, unknown>>({
 				name: CONNECTOR_STORE_NAME,
-				cwd: resolveDefaultAppDataPath(),
+				...(options.storeCwd ? { cwd: options.storeCwd } : {}),
 				accessPropertiesByDotNotation: false,
 			}) as ConnectorPersistenceStore);
 		this.toolStore = options.toolStore;
-		this.mcpClient = options.mcpClient ?? new AgentMcpClientService(logger, this, {
-			mcpClientFactory: options.mcpClientFactory,
-		});
-	}
-
-	getMcpClientService(): AgentMcpClientServicePort {
-		return this.mcpClient;
 	}
 
 	async catalog(): Promise<ConnectorCatalogEntry[]> {
@@ -438,7 +424,7 @@ export class ConnectorsService implements McpConnectorStore {
 				token: existing?.oauth?.token,
 			},
 		};
-		const next = normalizeStoredConnector(await this.mcpClient.refreshConnectorToolsIfConfigured(connector));
+		const next = normalizeStoredConnector(connector);
 
 		this.pendingOAuthConnectors.set(state, next);
 		this.replace(next);
@@ -535,7 +521,7 @@ export class ConnectorsService implements McpConnectorStore {
 			enabled: sanitized.enabled ?? true,
 			mcp: sanitized.mcp,
 		};
-		const next = normalizeStoredConnector(await this.mcpClient.refreshConnectorToolsIfConfigured(connector));
+		const next = normalizeStoredConnector(connector);
 		this.writeConnector(next);
 		return redactConnectorSecrets(next);
 	}
@@ -543,13 +529,13 @@ export class ConnectorsService implements McpConnectorStore {
 	async update(id: string, input: unknown): Promise<ConnectorConfig> {
 		const current = this.getStored(id);
 		const sanitized = this.validateConnectorInput('update', () => sanitizeInput(input, current));
-		const next = normalizeStoredConnector(await this.mcpClient.refreshConnectorToolsIfConfigured({
+		const next = normalizeStoredConnector({
 			...current,
 			...sanitized,
 			authorization: '',
 			lastError: undefined,
 			updatedAt: new Date().toISOString(),
-		}));
+		});
 		this.replace(next);
 		return redactConnectorSecrets(next);
 	}
@@ -561,7 +547,6 @@ export class ConnectorsService implements McpConnectorStore {
 			this.logDebug('Skipped connector delete because it was not configured', { id });
 			return;
 		}
-		await this.mcpClient.closeConnector(connector.id);
 		this.writeAll(connectors.filter((item) => item.id !== id));
 		this.logDebug('Deleted connector settings', { id, connectorId: connector.connectorId });
 	}
@@ -572,56 +557,6 @@ export class ConnectorsService implements McpConnectorStore {
 
 	async disable(id: string): Promise<ConnectorConfig> {
 		return this.update(id, { enabled: false });
-	}
-
-	async test(id: string): Promise<ConnectorTestResult> {
-		return this.mcpClient.test(id);
-	}
-
-	async reconnect(id: string): Promise<ConnectorTestResult> {
-		return this.mcpClient.reconnect(id);
-	}
-
-
-	async refreshTools(id: string): Promise<ConnectorTool[]> {
-		return this.mcpClient.refreshTools(id);
-	}
-
-	listTools(id: string): ConnectorTool[] {
-		return this.mcpClient.listTools(id);
-	}
-
-	async callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown> {
-		return this.mcpClient.callTool(id, name, args, options);
-	}
-
-	async listResources(id: unknown, options?: unknown): Promise<unknown> {
-		return this.mcpClient.listResources(id, options);
-	}
-
-	async readResource(id: unknown, uri: unknown, options?: unknown): Promise<unknown> {
-		return this.mcpClient.readResource(id, uri, options);
-	}
-
-	async listPrompts(id: unknown, options?: unknown): Promise<unknown> {
-		return this.mcpClient.listPrompts(id, options);
-	}
-
-	async getPrompt(
-		id: unknown,
-		name: unknown,
-		args?: unknown,
-		options?: unknown
-	): Promise<unknown> {
-		return this.mcpClient.getPrompt(id, name, args, options);
-	}
-
-	createAgentTools() {
-		return this.mcpClient.createAgentTools();
-	}
-
-	async close(): Promise<void> {
-		await this.mcpClient.close();
 	}
 
 	listConnectorsForMcp(): ConnectorConfig[] {
@@ -655,7 +590,6 @@ export class ConnectorsService implements McpConnectorStore {
 	}
 
 	private replace(connector: RuntimeConnector): void {
-		void this.mcpClient.closeConnector(connector.id);
 		const connectors = this.validConnectors();
 		const next = connectors.some((item) => item.id === connector.id)
 			? connectors.map((item) => (item.id === connector.id ? connector : item))
