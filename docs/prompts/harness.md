@@ -550,6 +550,15 @@ Add or update focused unit tests for behavior changes.
 
 Cover the relevant behavior:
 
+- Intent classification: immediate vs background vs scheduled vs question vs preference.
+- Ambiguity resolution: a single clarifying question before a hard-to-reverse action.
+- Memory-informed intent: a prior user preference is used without re-asking.
+- Autonomous multi-step execution: the agent completes a multi-step task without user prompts between steps.
+- Background subagent: runs detached, writes progress to filesystem, is cancellable.
+- Scheduled task creation: cron record is created and confirmed; no scheduling logic in the run loop.
+- System tools: bluetooth, wifi, volume, display, and power tools tagged with correct destructive/externalWrite flags.
+- System tools that require approval in unattended runs are blocked when no approval controller is configured.
+- Parallel subagents: independent subtasks dispatched in parallel, results merged by orchestrator.
 - Tool resolution with intent-matching providers that return subsets of tools.
 - Context shaping with budget limits: included, dropped, and summarized blocks; compaction at ~90% threshold.
 - Progressive disclosure: high-priority context enters first; lower-priority blocks are dropped when budget is exhausted.
