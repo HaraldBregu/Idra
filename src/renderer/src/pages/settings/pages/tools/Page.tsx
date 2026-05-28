@@ -116,7 +116,8 @@ const ToolsPage: React.FC = () => {
 		}
 	}
 
-	function selectAgent(nextAgentId: string): void {
+	function selectAgent(nextAgentId: string | null): void {
+		if (!nextAgentId) return;
 		const agent = settings?.agents.find((entry) => entry.id === nextAgentId) ?? { id: nextAgentId };
 		setAgentId(nextAgentId);
 		setPermissions(normalizeToolPermissions(agent.tools?.permissions));
@@ -200,7 +201,7 @@ const ToolsPage: React.FC = () => {
 							<Select
 								value={permissions[tool.name] ?? 'allow'}
 								disabled={savingTool === tool.name}
-								onValueChange={(value) => void savePermission(tool.name, value as AgentToolPermissionMode)}
+								onValueChange={(value) => { if (value) void savePermission(tool.name, value as AgentToolPermissionMode); }}
 							>
 								<SelectTrigger size="sm" className="w-32 shrink-0">
 									<SelectValue />
