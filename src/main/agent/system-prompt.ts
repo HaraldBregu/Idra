@@ -1,11 +1,11 @@
 import type { AgentTool } from './tools';
-import type { BootstrapMode } from '../workspace';
 import type { AgentToolName } from '../../shared/tools';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	renderWorkspaceContextFiles,
+	type BootstrapMode,
 	type WorkspaceContextFile,
-} from '../workspace';
+} from './startup-files';
 
 export interface SystemPromptCtx {
 	workspace: string;
