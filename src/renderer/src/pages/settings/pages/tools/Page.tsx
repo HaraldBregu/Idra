@@ -12,6 +12,26 @@ import {
 	SettingsSection,
 } from '../../components';
 
+function optionalStringField(value: unknown, key: string): string | undefined {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+	const entry = (value as Record<string, unknown>)[key];
+	return typeof entry === 'string' ? entry : undefined;
+}
+
+function optionalStringListField(value: unknown, key: string): string[] {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+	const entry = (value as Record<string, unknown>)[key];
+	return Array.isArray(entry) ? entry.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function approvalMode(value: unknown): string {
+	if (!value || typeof value !== 'object' || Array.isArray(value)) return 'none';
+	const approval = (value as Record<string, unknown>).approval;
+	if (!approval || typeof approval !== 'object' || Array.isArray(approval)) return 'none';
+	const mode = (approval as Record<string, unknown>).mode;
+	return typeof mode === 'string' ? mode : 'none';
+}
+
 const ToolsPage: React.FC = () => {
 	const { t } = useTranslation();
 
@@ -39,9 +59,9 @@ const ToolsPage: React.FC = () => {
 									<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
 										{tool.name}
 									</Badge>
-									{'availability' in tool && tool.availability !== 'default' ? (
+									{optionalStringField(tool, 'availability') && optionalStringField(tool, 'availability') !== 'default' ? (
 										<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
-											{tool.availability}
+											{optionalStringField(tool, 'availability')}
 										</Badge>
 									) : null}
 								</div>
@@ -49,7 +69,7 @@ const ToolsPage: React.FC = () => {
 									{tool.description}
 								</p>
 								<div className="flex flex-wrap gap-1">
-									{('permissions' in tool ? tool.permissions : []).map((permission) => (
+									{optionalStringListField(tool, 'permissions').map((permission) => (
 										<Badge
 											key={permission}
 											variant="outline"
@@ -58,9 +78,9 @@ const ToolsPage: React.FC = () => {
 											{permission}
 										</Badge>
 									))}
-									{'approval' in tool && tool.approval.mode !== 'none' ? (
+									{approvalMode(tool) !== 'none' ? (
 										<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
-											approval: {tool.approval.mode}
+											approval: {approvalMode(tool)}
 										</Badge>
 									) : null}
 								</div>
