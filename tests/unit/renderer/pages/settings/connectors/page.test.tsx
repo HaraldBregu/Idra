@@ -199,6 +199,7 @@ describe('connector settings docs', () => {
 		await waitFor(() => {
 			expect(window.connectors.list).toHaveBeenCalledTimes(2);
 		});
+		expect(window.connectors.catalog).not.toHaveBeenCalled();
 	});
 
 	it('renders docs metadata and opens platform docs through the app bridge', async () => {
