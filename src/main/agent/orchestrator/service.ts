@@ -24,7 +24,7 @@ import { AgentStartupFilesService, createStartupFilesTool, type AgentStartupFile
 import { buildSystemPrompt } from '../context/prompt';
 import { AgentExecutionService, type AgentExecutionServicePort } from '../execution/service';
 import { loadExistingSession, loadSession, saveSession, clearSession, listSessions, type SessionFile, type SessionStatus } from '../context/session/store';
-import type { AgentDataDirectoryServicePort } from '../storage';
+import { AgentDataDirectoryService, type AgentDataDirectoryServicePort } from '../storage';
 import type { AgentSettingsStorePort } from '../settings';
 import type { AgentMcpClientServicePort, McpRegistry } from '../capabilities/mcp';
 import type { SubagentSpawnPort } from '../execution/subagents';
@@ -137,6 +137,7 @@ export class AgentService {
 	private readonly pendingApprovals = new Map<string, (decision: AgentToolApprovalDecision) => void>();
 	private heartbeatStore: HeartbeatFileStore | null = null;
 	private startupFiles: AgentStartupFilesServicePort | null = null;
+	private fallbackAgentDataDirectory: AgentDataDirectoryServicePort | null = null;
 
 	constructor(private readonly dependencies: AgentServiceDependencies, options: AgentServiceOptions = {}) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
@@ -220,7 +221,7 @@ export class AgentService {
 		try {
 			const selection = resolveAgentModelSelection(options, { store: this.dependencies.store, providerFactory: this.providerFactory });
 			const session = await loadSession(sessionId, selection.modelId, selection.providerId, { baseDir: this.sessionBaseDir });
-			const workspace = await (this.dependencies.agentDataDirectory?.ensureRoot() ?? this.dependencies.userDataDirectory.ensureRoot());
+			const workspace = await this.getAgentDataDirectory().ensureRoot();
 			this.emitAgentEvent({ type: 'run_state', state: 'thinking', label: 'started' }, sessionId, runId, options);
 			this.emitAgentEvent({ type: 'model_selected', providerId: selection.providerId, model: selection.modelId, effort: selection.effort }, sessionId, runId, options);
 			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
@@ -285,6 +286,9 @@ export class AgentService {
 
 	private getStartupFilesService(): AgentStartupFilesServicePort {
 		return this.dependencies.startupFiles ?? (this.startupFiles ??= new AgentStartupFilesService());
+	}
+	private getAgentDataDirectory(): AgentDataDirectoryServicePort {
+		return this.dependencies.agentDataDirectory ?? (this.fallbackAgentDataDirectory ??= new AgentDataDirectoryService());
 	}
 	private emitAgentEvent(event: Omit<AgentResponseEvent, 'agentId' | 'runId'> | AgentResponseEvent, agentId: string, runId: string, options: AgentSendOptions): void {
 		const payload = { ...event, agentId, runId } as AgentResponseEvent;
