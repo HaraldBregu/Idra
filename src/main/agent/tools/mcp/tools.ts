@@ -2,12 +2,15 @@ import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { toolDescription } from '../metadata';
 
-type McpConnectors = {
+type McpToolControls = {
 	list(): Array<{ id?: string; name?: string; authKind?: string; status?: string; toolsCount?: number }>;
 	reconnect(id: string): Promise<unknown>;
 	refreshTools(id: string): Promise<unknown>;
 	listTools(id: string): unknown;
 	callTool(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown>;
+};
+
+type McpResourceControls = {
 	listResources(id: unknown, options?: unknown): Promise<unknown>;
 	readResource(id: unknown, uri: unknown, options?: unknown): Promise<unknown>;
 	listPrompts(id: unknown, options?: unknown): Promise<unknown>;
@@ -19,7 +22,7 @@ export const listMcpServersTool: AgentTool = {
 	description: toolDescription('list_mcp_servers'),
 	schema: emptySchema(),
 	async execute(_args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpToolControls(ctx);
 		if (!connectors) return missing('list_mcp_servers');
 		return jsonText(connectors.list().filter((server) => server.authKind === 'mcp_env'));
 	},
@@ -30,7 +33,7 @@ export const connectMcpServerTool: AgentTool<{ id: string }> = {
 	description: toolDescription('connect_mcp_server'),
 	schema: idSchema(),
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpToolControls(ctx);
 		if (!connectors) return missing('connect_mcp_server');
 		try {
 			return jsonText(await connectors.reconnect(args.id));
@@ -45,7 +48,7 @@ export const refreshMcpServerTool: AgentTool<{ id: string }> = {
 	description: toolDescription('refresh_mcp_server'),
 	schema: idSchema(),
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpToolControls(ctx);
 		if (!connectors) return missing('refresh_mcp_server');
 		try {
 			return jsonText(await connectors.refreshTools(args.id));
@@ -60,7 +63,7 @@ export const listMcpToolsTool: AgentTool<{ id: string }> = {
 	description: toolDescription('list_mcp_tools'),
 	schema: idSchema(),
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpToolControls(ctx);
 		if (!connectors) return missing('list_mcp_tools');
 		try {
 			return jsonText(connectors.listTools(args.id));
@@ -75,7 +78,7 @@ export const loadMcpToolTool: AgentTool<{ id: string; name: string }> = {
 	description: toolDescription('load_mcp_tool'),
 	schema: namedSchema('MCP tool name.'),
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpToolControls(ctx);
 		if (!connectors) return missing('load_mcp_tool');
 		try {
 			const tools = connectors.listTools(args.id);
@@ -109,7 +112,7 @@ export const callMcpToolTool: AgentTool<{
 	},
 	needsApproval: true,
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpToolControls(ctx);
 		if (!connectors) return missing('call_mcp_tool');
 		try {
 			return jsonText(await connectors.callTool(args.id, args.name, args.args ?? {}, args.options));
@@ -124,7 +127,7 @@ export const listMcpResourcesTool: AgentTool<{ id: string; options?: Record<stri
 	description: toolDescription('list_mcp_resources'),
 	schema: optionsSchema(),
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpResourceControls(ctx);
 		if (!connectors) return missing('list_mcp_resources');
 		try {
 			return jsonText(await connectors.listResources(args.id, args.options));
@@ -148,7 +151,7 @@ export const readMcpResourceTool: AgentTool<{ id: string; uri: string; options?:
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpResourceControls(ctx);
 		if (!connectors) return missing('read_mcp_resource');
 		try {
 			return jsonText(await connectors.readResource(args.id, args.uri, args.options));
@@ -163,7 +166,7 @@ export const listMcpPromptsTool: AgentTool<{ id: string; options?: Record<string
 	description: toolDescription('list_mcp_prompts'),
 	schema: optionsSchema(),
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpResourceControls(ctx);
 		if (!connectors) return missing('list_mcp_prompts');
 		try {
 			return jsonText(await connectors.listPrompts(args.id, args.options));
@@ -193,7 +196,7 @@ export const loadMcpPromptTool: AgentTool<{
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		const connectors = mcpConnectors(ctx);
+		const connectors = mcpResourceControls(ctx);
 		if (!connectors) return missing('load_mcp_prompt');
 		try {
 			return jsonText(await connectors.getPrompt(args.id, args.name, args.args ?? {}, args.options));
@@ -203,18 +206,32 @@ export const loadMcpPromptTool: AgentTool<{
 	},
 };
 
-function mcpConnectors(ctx: { services: unknown }): McpConnectors | undefined {
+function mcpToolControls(ctx: { services: unknown }): McpToolControls | undefined {
 	const services = ctx.services as {
-		mcpClient?: Partial<McpConnectors>;
+		connectors?: Partial<McpToolControls>;
+		mcpClient?: Partial<McpToolControls>;
 	};
-	const connectors = services.mcpClient;
+	const connectors = services.connectors ?? services.mcpClient;
 	if (!connectors) return undefined;
 	if (
 		typeof connectors.list !== 'function' ||
 		typeof connectors.reconnect !== 'function' ||
 		typeof connectors.refreshTools !== 'function' ||
 		typeof connectors.listTools !== 'function' ||
-		typeof connectors.callTool !== 'function' ||
+		typeof connectors.callTool !== 'function'
+	) {
+		return undefined;
+	}
+	return connectors as McpToolControls;
+}
+
+function mcpResourceControls(ctx: { services: unknown }): McpResourceControls | undefined {
+	const services = ctx.services as {
+		mcpClient?: Partial<McpResourceControls>;
+	};
+	const connectors = services.mcpClient;
+	if (!connectors) return undefined;
+	if (
 		typeof connectors.listResources !== 'function' ||
 		typeof connectors.readResource !== 'function' ||
 		typeof connectors.listPrompts !== 'function' ||
@@ -222,7 +239,7 @@ function mcpConnectors(ctx: { services: unknown }): McpConnectors | undefined {
 	) {
 		return undefined;
 	}
-	return connectors as McpConnectors;
+	return connectors as McpResourceControls;
 }
 
 function jsonText(value: unknown) {
