@@ -4,9 +4,15 @@ import { providerSafeToolName } from '../capabilities/local/tool-definition-adap
 import { assistant } from '../../../shared/agents/assistant';
 import type { SkillDetails } from '../../../shared/skills';
 
-export function buildSystemPrompt(input: { base?: string; startupFiles?: WorkspaceContextFile[]; skills?: SkillDetails[]; tools?: AgentTool[] } = {}): string {
+export function buildSystemPrompt(input: { base?: string; startupFiles?: WorkspaceContextFile[]; bootstrapPending?: boolean; skills?: SkillDetails[]; tools?: AgentTool[] } = {}): string {
 	return [
 		input.base ?? `You are ${assistant.name}. ${assistant.description}`,
+		input.bootstrapPending ? [
+			'## Bootstrap',
+			'BOOTSTRAP.md is pending for this agent workspace.',
+			'Start with a brief presentation, then ask the user what to call the agent and what to call them.',
+			'When the presentation details are clear, use `startup_files` to update IDENTITY.md, USER.md, and SOUL.md, then complete the bootstrap.',
+		].join('\n') : '',
 		...(input.startupFiles ?? []).flatMap((file) => !file.missing && file.content ? [`# ${file.name}\n${file.content}`] : []),
 		input.skills?.length ? `## Skills\n${input.skills.map((skill) => `### ${skill.name}\n${skill.instructions}`).join('\n\n')}` : '',
 		input.tools?.length ? `## Tools\n${input.tools.map((tool) => `- **${providerSafeToolName(tool.name)}**: ${tool.description}`).join('\n')}` : 'No tools are available for this turn.',
