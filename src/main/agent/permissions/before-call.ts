@@ -1,4 +1,4 @@
-export { type BeforeCallOutcome, type CallTracker } from './service';
+export { type BeforeCallOutcome, type CallTracker } from '../capabilities/local/service';
 export function newCallTracker() {
 	return { calls: new Map<string, number>() };
 }
