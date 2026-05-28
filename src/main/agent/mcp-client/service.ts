@@ -11,7 +11,7 @@ import {
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,
-	isOAuthMcpConfig,
+	isOAuthConnector,
 	missingMcpSecretMessage,
 	missingMcpSecretNames,
 } from './config';
@@ -87,7 +87,7 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.connectors.getConnectorForMcp(id);
-		const next = connector.oauth || isOAuthMcpConfig(connector.mcp)
+		const next = isOAuthConnector(connector)
 			? await this.withOAuthTools(connector)
 			: await this.withMcpTools(connector);
 		this.connectors.saveConnectorFromMcp(next);
@@ -152,7 +152,7 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 	}
 
 	async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
-		if (connector.oauth || isOAuthMcpConfig(connector.mcp)) {
+		if (isOAuthConnector(connector)) {
 			return this.withOAuthTools(connector);
 		}
 		if (!connector.mcp) {
@@ -309,7 +309,7 @@ function normalizeToolPermission(
 }
 
 function permissionForTool(connector: ConnectorConfig, toolName: string): ConnectorToolPermission {
-	if (connector.oauth || isOAuthMcpConfig(connector.mcp)) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
+	if (isOAuthConnector(connector)) return DEFAULT_CONNECTOR_TOOL_PERMISSION;
 	const allowedTools = connector.allowedTools ?? [];
 	if (allowedTools.length > 0 && !allowedTools.includes(toolName)) return 'blocked';
 	if (connector.requireApproval === 'never') return 'always-allow';
