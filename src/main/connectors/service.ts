@@ -490,6 +490,7 @@ export class ConnectorsService {
 				clientSecret: this.oauthClientSecret(definition),
 				fetch: this.options.fetch ?? fetch,
 			}));
+			await this.closeConnectorClient(completed.id ?? definition.id);
 			return {
 				connectorId: definition.id,
 				authorizationUrl,
@@ -497,6 +498,7 @@ export class ConnectorsService {
 			};
 		} catch (error) {
 			this.replace({ ...next, lastError: this.errorMessage(error), updatedAt: new Date().toISOString() });
+			await this.closeConnectorClient(next.id);
 			throw error;
 		} finally {
 			await callback.close();
