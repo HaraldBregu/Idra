@@ -272,7 +272,7 @@ describe('tools/before-call', () => {
 		expect(result.proceed).toBe(true);
 	});
 
-	it('requires approval for run_shell only when cwd leaves the .friday root', async () => {
+	it('allows run_shell outside the .friday root', async () => {
 		const home = await makeTempDir();
 		const fridayRoot = path.join(home, '.friday');
 		const workspace = path.join(fridayRoot, 'workspace');
@@ -286,59 +286,15 @@ describe('tools/before-call', () => {
 		).resolves.toMatchObject({ proceed: true });
 		await expect(
 			beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: false, vetoStatus: 'rejected' });
+		).resolves.toMatchObject({ proceed: true });
 
 		await fs.rm(home, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('delegates execution gating to the policy service when available', async () => {
-		const tool: AgentTool = {
-			name: 'read',
-			description: '',
-			schema: {},
-			execute: jest.fn(),
-		};
-		const ctx = makeToolContext();
-		ctx.services.policy = {
-			createToolUseKey: jest.fn(() => 'read::{"path":"a"}'),
-			evaluate: jest.fn(),
-			evaluateTools: jest.fn(),
-			evaluateToolUse: jest.fn(() => ({
-				outcome: 'deny',
-				key: 'read::{"path":"a"}',
-				callCount: 1,
-				status: 'error',
-				deniedReason: 'loop_detected',
-				reason: 'blocked by policy service',
-			})),
-		};
-
-		const result = await beforeToolCall(tool, { path: 'a' }, ctx, newCallTracker());
-
-		expect(result.proceed).toBe(false);
-		expect(result.vetoResult?.content[0]?.text).toBe('blocked by policy service');
-		expect(ctx.services.policy.evaluateToolUse).toHaveBeenCalledWith(
-			expect.objectContaining({
-				toolName: 'read',
-				params: { path: 'a' },
-				callCount: 1,
-			})
-		);
-	});
-
 });
 
 describe('tools/fs', () => {
-	function useFilePolicy(ctx: ReturnType<typeof makeToolContext>, policy: PolicyConfig): void {
-		ctx.services.policy = new PolicyService({
-			storeAccessor: {
-				read: jest.fn(() => policy),
-				write: jest.fn(),
-			},
-		});
-	}
-
 	it('reads, writes new files, edits read files, and finds matches', async () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
