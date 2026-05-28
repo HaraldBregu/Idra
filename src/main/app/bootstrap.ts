@@ -7,7 +7,6 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { AppPermissionsService } from './permissions';
 import { LoggerService } from '../logger';
 import { StoreService } from '../store';
-import { PolicyService } from '../agent/policy';
 import { CronService } from '../cron';
 import { ChannelRegistry, ChannelsService } from '../channels';
 import {
@@ -41,7 +40,6 @@ import {
 	CronIpc,
 	HeartbeatIpc,
 	MonitorIpc,
-	PolicyIpc,
 	RealtimeTranscriptionIpc,
 	SpeechToTextIpc,
 	SkillsIpc,
@@ -107,15 +105,6 @@ export function bootstrapServices(): BootstrapResult {
 	const store = container.register('store', new StoreService(logger));
 	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
-	const policy = container.register(
-		'policy',
-		new PolicyService({
-			workspaceRoot,
-			agentRoot: agentDataDirectory.getRootPath(),
-			userDataRoot: userDataDirectory.getRootPath(),
-			logger,
-		})
-	);
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
@@ -131,7 +120,7 @@ export function bootstrapServices(): BootstrapResult {
 	connectors.setToolRuntime(mcpClient);
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
-	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
+	const toolService = container.register('toolService', new ToolService({ cron, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
 	const taskManager = container.register(
@@ -155,7 +144,6 @@ export function bootstrapServices(): BootstrapResult {
 		mcpClient,
 		skills,
 		mcpRegistry,
-		policy,
 		toolService,
 		taskManager,
 		channels,
@@ -238,7 +226,6 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new CronIpc(),
 		new HeartbeatIpc(),
 		new MonitorIpc(),
-		new PolicyIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SpeechToTextIpc(),
 		new SkillsIpc(),
