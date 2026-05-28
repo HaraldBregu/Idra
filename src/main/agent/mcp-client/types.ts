@@ -43,20 +43,8 @@ export interface AgentMcpClientServicePort {
 	close(): Promise<void>;
 }
 
-export interface ResolvedHttpMcpConfig {
-	transport: 'http';
-	url: string;
-	method?: 'POST';
-	headers?: Record<string, string>;
-	sessionId?: string;
-}
-
-export interface ResolvedStdioMcpConfig {
-	transport: 'stdio';
-	command: string;
-	args?: string[];
-	cwd?: string;
-	env?: Record<string, string>;
-}
-
-export type ResolvedMcpConfig = ResolvedHttpMcpConfig | ResolvedStdioMcpConfig;
+export type {
+	ResolvedHttpMcpConfig,
+	ResolvedMcpConfig,
+	ResolvedStdioMcpConfig,
+} from '../../connectors/config';
