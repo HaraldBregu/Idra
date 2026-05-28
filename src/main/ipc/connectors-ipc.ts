@@ -11,7 +11,6 @@ export class ConnectorsIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const connectors = container.get('connectors');
-		const mcpClient = container.get('mcpClient');
 
 		ipcMain.handle(
 			ConnectorsChannels.catalog,
@@ -31,69 +30,50 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.update,
-			wrapSimpleHandler(async (id: string, input) => {
-				const connector = await connectors.update(id, input);
-				await mcpClient.closeConnector(id);
-				return connector;
-			}, ConnectorsChannels.update)
+			wrapSimpleHandler((id: string, input) => connectors.update(id, input), ConnectorsChannels.update)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.remove,
-			wrapSimpleHandler(async (id: string) => {
-				await connectors.remove(id);
-				await mcpClient.closeConnector(id);
-			}, ConnectorsChannels.remove)
+			wrapSimpleHandler((id: string) => connectors.remove(id), ConnectorsChannels.remove)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.enable,
-			wrapSimpleHandler(async (id: string) => {
-				const connector = await connectors.enable(id);
-				await mcpClient.closeConnector(id);
-				return connector;
-			}, ConnectorsChannels.enable)
+			wrapSimpleHandler((id: string) => connectors.enable(id), ConnectorsChannels.enable)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.disable,
-			wrapSimpleHandler(async (id: string) => {
-				const connector = await connectors.disable(id);
-				await mcpClient.closeConnector(id);
-				return connector;
-			}, ConnectorsChannels.disable)
+			wrapSimpleHandler((id: string) => connectors.disable(id), ConnectorsChannels.disable)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.test,
-			wrapSimpleHandler((id: string) => mcpClient.test(id), ConnectorsChannels.test)
+			wrapSimpleHandler((id: string) => connectors.test(id), ConnectorsChannels.test)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.reconnect,
-			wrapSimpleHandler((id: string) => mcpClient.reconnect(id), ConnectorsChannels.reconnect)
+			wrapSimpleHandler((id: string) => connectors.reconnect(id), ConnectorsChannels.reconnect)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.refreshTools,
 			wrapSimpleHandler(
-				(id: string) => mcpClient.refreshTools(id),
+				(id: string) => connectors.refreshTools(id),
 				ConnectorsChannels.refreshTools
 			)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.listTools,
-			wrapSimpleHandler((id: string) => mcpClient.listTools(id), ConnectorsChannels.listTools)
+			wrapSimpleHandler((id: string) => connectors.listTools(id), ConnectorsChannels.listTools)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.callTool,
 			wrapSimpleHandler(
-				(id, name, args, options) => mcpClient.callTool(id, name, args, options),
+				(id, name, args, options) => connectors.callTool(id, name, args, options),
 				ConnectorsChannels.callTool
 			)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.authorizeOAuth,
 			wrapSimpleHandler(
-				async (input) => {
-					const result = await connectors.authorizeOAuth(input);
-					await mcpClient.closeConnector(result.connector.id ?? result.connectorId);
-					return result;
-				},
+				(input) => connectors.authorizeOAuth(input),
 				ConnectorsChannels.authorizeOAuth
 			)
 		);
