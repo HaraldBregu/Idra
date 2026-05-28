@@ -123,12 +123,12 @@ const ConnectorsPage = () => {
 			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
 
 			<div className="grid gap-2">
-					{GOOGLE_GMAIL_CONNECTORS.map((connector) => {
-						const existing = oauthConnectorByProviderId.get(connector.id);
-						const existingId = existing?.id;
-						const handleClick = existing?.hasToken && existingId
-							? () => openConnectorDetails(existingId)
-							: () => void authorizeOAuthConnector(connector);
+				{GOOGLE_GMAIL_CONNECTORS.map((connector) => {
+					const existing = oauthConnectorByProviderId.get(connector.id);
+					const existingId = existing?.id;
+					const handleClick = existing?.hasToken && existingId
+						? () => openConnectorDetails(existingId)
+						: () => void authorizeOAuthConnector(connector);
 					return (
 						<Item
 							key={connector.id}
@@ -155,13 +155,6 @@ const ConnectorsPage = () => {
 						key={connector.id}
 						connector={connector}
 						onViewDetails={() => openConnectorDetails(connector.id)}
-					/>
-				))}
-				{mcpCatalog.map((item) => (
-					<ConnectorCatalogItem
-						key={item.id}
-						item={item}
-						onConfigure={() => configureCatalogConnector(item.id)}
 					/>
 				))}
 			</div>
