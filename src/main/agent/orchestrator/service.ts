@@ -242,14 +242,13 @@ export class AgentService {
 				systemPrompt: buildSystemPrompt({ startupFiles, skills: capabilities.selectedSkills, tools: allowedTools }),
 				session,
 				tools: allowedTools,
-				ctx,
-				message,
-				signal: abort.signal,
-				hooks: { streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options) },
-				hooks: {
-					streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options),
-					requestApproval: (request) => this.waitForToolApproval(request.approvalId, abort.signal),
-				},
+					ctx,
+					message,
+					signal: abort.signal,
+					hooks: {
+						streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options),
+						requestApproval: (request) => this.waitForToolApproval(request.approvalId, abort.signal),
+					},
 			});
 			await saveSession({ ...result.session, status: this.sessionStatusForStop(result.stopReason) }, { baseDir: this.sessionBaseDir });
 			this.emitAgentEvent({ type: 'run_finished', stopReason: result.stopReason, outputChars: result.finalText.length }, sessionId, runId, options);
