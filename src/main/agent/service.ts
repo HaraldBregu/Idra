@@ -368,8 +368,8 @@ export class AgentService {
 		this.dependencies.logger.error('HeartbeatService', message, error);
 	}
 
-	readHeartbeatWorkspaceFile(name: string): ReturnType<WorkspaceService['readWorkspaceFile']> {
-		return this.dependencies.workspace.readWorkspaceFile(name);
+	readHeartbeatWorkspaceFile(name: string): ReturnType<AgentStartupFilesServicePort['readFile']> {
+		return this.getStartupFilesService().readFile(this.defaultAgentId, name);
 	}
 
 	getHeartbeatChannel(): ReturnType<ChannelsService['getChannel']> | undefined {
