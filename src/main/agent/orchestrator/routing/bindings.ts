@@ -13,7 +13,12 @@ export function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 	const config = { ...(record as unknown as AgentConfig), id };
 	const tools = record.tools && typeof record.tools === 'object' && !Array.isArray(record.tools) ? record.tools as Record<string, unknown> : undefined;
 	const permissions = normalizeAgentToolPermissions(tools?.permissions);
-	if (tools && permissions) config.tools = { ...(config.tools ?? {}), permissions };
+	if (tools) {
+		const nextTools = { ...(config.tools ?? {}) };
+		if (permissions) nextTools.permissions = permissions;
+		else delete nextTools.permissions;
+		config.tools = nextTools;
+	}
 	return config;
 }
 
