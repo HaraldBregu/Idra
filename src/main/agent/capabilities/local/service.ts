@@ -1,5 +1,4 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './types';
-import { blockedToolResult } from './types';
 import { createDefaultToolRegistry, localToolCatalogByName } from './registry';
 import { evaluateToolAccess, type ToolProfile } from '../../permissions/access';
 
@@ -72,8 +71,11 @@ export class ToolService implements ToolServicePort {
 
 	createDefaultTools(input: { toolPolicy?: DefaultToolPolicy; denylist?: string[] }): AgentTool[] {
 		const tools = [...createDefaultToolRegistry().values()];
+		const allow = this.expandAllowlist(input.toolPolicy?.allow);
+		const alsoAllow = this.expandAllowlist(input.toolPolicy?.alsoAllow);
+		const baseAllow = allow.length ? allow : this.minimalToolNames();
 		return this.filterToolsByDenylist(
-			this.filterToolsByAllowlist(tools, input.toolPolicy?.allow),
+			this.filterToolsByAllowlist(tools, [...new Set([...baseAllow, ...alsoAllow])]),
 			[...(input.toolPolicy?.deny ?? []), ...(input.denylist ?? [])]
 		);
 	}
@@ -119,8 +121,36 @@ export class ToolService implements ToolServicePort {
 	}
 
 	async executeToolWithManagement(tool: AgentTool, args: Record<string, unknown>, ctx: ToolContext): Promise<AgentToolResult> {
-		const approval = typeof tool.needsApproval === 'function' ? await tool.needsApproval(args, ctx) : tool.needsApproval;
-		if (approval && !ctx.approvalCache?.has(tool.name)) return blockedToolResult(`Tool ${tool.name} requires approval.`);
 		return tool.execute(args, ctx);
+	}
+
+	private minimalToolNames(): string[] {
+		return [...localToolCatalogByName().entries()]
+			.filter(([, entry]) => entry.group === 'filesystem:read')
+			.map(([name]) => name);
+	}
+
+	private expandAllowlist(allowlist: string[] | undefined): string[] {
+		if (!allowlist?.length) return [];
+		const catalog = localToolCatalogByName();
+		const out = new Set<string>();
+		for (const item of allowlist) {
+			if (!item.startsWith('group:')) {
+				out.add(item);
+				continue;
+			}
+			const group = item.slice('group:'.length);
+			for (const [name, entry] of catalog) {
+				if (
+					entry.group === group ||
+					(group === 'file' && entry.group.startsWith('filesystem:')) ||
+					(group === 'filesystem' && entry.group.startsWith('filesystem:')) ||
+					(group === 'read' && entry.group === 'filesystem:read') ||
+					(group === 'write' && entry.group === 'filesystem:write') ||
+					(group === 'delete' && entry.group === 'filesystem:delete')
+				) out.add(name);
+			}
+		}
+		return [...out];
 	}
 }

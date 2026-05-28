@@ -13,6 +13,8 @@ import type { Model, ModelReasoningEffort, OperatorStoreState, AgentRunState } f
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../../shared/agents/models';
 import type { AgentSessionMetadata } from '../../../shared/store';
 import type { PublicProvider } from '../../../shared/providers';
+import { requireModelReasoningEffort } from '../../../shared/agents/service';
+import type { AgentResponseEvent } from '../../../shared/agents/events';
 import { makeProvider, type ProviderSpec } from '../../provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from '../../provider/types';
 import { HeartbeatFileStore } from '../../heartbeat/store';
@@ -29,6 +31,7 @@ import type { AgentMcpClientServicePort, McpRegistry } from '../capabilities/mcp
 import type { SubagentSpawnPort } from '../execution/subagents';
 import { ToolService, type AgentTool, type CronToolContext, type ToolContext, type ToolServicePort } from '../capabilities/local';
 import type { AgentCapabilityServicePort } from '../capabilities';
+import { resolveAgentCapabilities } from '../capabilities';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-run';
 
 export interface AgentServiceDependencies {
@@ -200,30 +203,52 @@ export class AgentService {
 		this.cancel(sessionId);
 		const abort = new AbortController();
 		this.aborts.set(sessionId, abort);
-		const selection = this.resolveProviderAndModel(options);
-		const session = await loadSession(sessionId, selection.modelId, selection.providerId, { baseDir: this.sessionBaseDir });
-		await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
-		const startup = this.getStartupFilesService();
-		const startupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
-		const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options);
-		const tools = await this.toolsFactory({ agentId, runId: options.runId ?? randomUUID(), providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
-		const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(tools, options.toolsDeny), options.toolsAllow);
-		const result = await this.executionService.run({
-			runId: options.runId ?? randomUUID(),
-			providerAdapter: selection.adapter,
-			model: selection.modelId,
-			effort: options.effort,
-			systemPrompt: buildSystemPrompt({ startupFiles, tools: allowedTools }),
-			session,
-			tools: allowedTools,
-			ctx,
-			message,
-			signal: abort.signal,
-			hooks: { streamEvent: options.streamEvent },
-		});
-		await saveSession({ ...result.session, status: this.sessionStatusForStop(result.stopReason) }, { baseDir: this.sessionBaseDir });
-		this.aborts.delete(sessionId);
-		return result.finalText;
+		const runId = options.runId ?? randomUUID();
+		try {
+			const selection = this.resolveProviderAndModel(options);
+			const session = await loadSession(sessionId, selection.modelId, selection.providerId, { baseDir: this.sessionBaseDir });
+			this.emitAgentEvent({ type: 'run_state', state: 'thinking', label: 'started' }, sessionId, runId, options);
+			this.emitAgentEvent({ type: 'model_selected', providerId: selection.providerId, model: selection.modelId, effort: selection.effort }, sessionId, runId, options);
+			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
+			const startup = this.getStartupFilesService();
+			const startupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
+			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options);
+			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
+			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
+			const capabilities = await resolveAgentCapabilities({
+				message,
+				localTools,
+				connectors: this.dependencies.connectors,
+				skills: this.dependencies.skills,
+				configuredSkillNames: this.dependencies.agentSettings?.getAgentConfig(agentId)?.skills,
+				toolsAllow: options.toolsAllow,
+				toolsDeny: options.toolsDeny,
+			});
+			const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow);
+			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
+			const result = await this.executionService.run({
+				runId,
+				providerAdapter: selection.adapter,
+				model: selection.modelId,
+				effort: selection.effort,
+				systemPrompt: buildSystemPrompt({ startupFiles, skills: capabilities.selectedSkills, tools: allowedTools }),
+				session,
+				tools: allowedTools,
+				ctx,
+				message,
+				signal: abort.signal,
+				hooks: { streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options) },
+			});
+			await saveSession({ ...result.session, status: this.sessionStatusForStop(result.stopReason) }, { baseDir: this.sessionBaseDir });
+			this.emitAgentEvent({ type: 'run_finished', stopReason: result.stopReason, outputChars: result.finalText.length }, sessionId, runId, options);
+			this.emitAgentEvent({ type: 'run_state', state: this.sessionStatusForStop(result.stopReason) === 'cancelled' ? 'cancelled' : 'completed' }, sessionId, runId, options);
+			return result.finalText;
+		} catch (error) {
+			this.emitAgentEvent({ type: 'run_state', state: 'error', label: error instanceof Error ? error.message : String(error) }, sessionId, runId, options);
+			throw error;
+		} finally {
+			this.aborts.delete(sessionId);
+		}
 	}
 
 	cancel(sessionId?: string): void {
@@ -240,15 +265,22 @@ export class AgentService {
 	private getStartupFilesService(): AgentStartupFilesServicePort {
 		return this.dependencies.startupFiles ?? (this.startupFiles ??= new AgentStartupFilesService());
 	}
-	private resolveProviderAndModel(options: AgentSendOptions): { providerId: string; modelId: string; adapter: ProviderAdapter } {
+	private resolveProviderAndModel(options: AgentSendOptions): { providerId: string; modelId: string; effort?: ModelReasoningEffort; adapter: ProviderAdapter } {
 		const configured = this.dependencies.store.getAgentService?.();
-		const providerId = options.providerId ?? configured?.provider.id ?? 'openai';
-		const modelId = options.model ?? configured?.model.id ?? configured?.model.name ?? 'gpt-5.4-mini';
+		const providerId = (options.providerId ?? configured?.provider.id ?? 'openai').trim().toLowerCase();
+		const modelId = (options.model ?? configured?.model.id ?? configured?.model.name ?? 'gpt-5.4-mini').trim();
+		const effort = options.effort ?? configured?.model.effort;
+		const resolvedEffort = effort ? requireModelReasoningEffort(modelId, effort, providerId) : undefined;
 		const provider = this.dependencies.store.getProviderById(providerId) ?? { id: providerId, apiKey: '', baseUrl: undefined };
-		return { providerId, modelId, adapter: this.providerFactory({ id: provider.id, apiKey: provider.apiKey, baseURL: provider.baseUrl }) };
+		return { providerId, modelId, effort: resolvedEffort, adapter: this.providerFactory({ id: provider.id, apiKey: provider.apiKey, baseURL: provider.baseUrl }) };
 	}
 	private toolContext(agentId: string, sessionId: string, session: SessionFile, signal: AbortSignal, options: AgentSendOptions): ToolContext {
 		return { workspace: this.dependencies.userDataDirectory.resolve('workspace'), agentId, sessionId, sessionBaseDir: this.sessionBaseDir, cronContext: options.cronContext, readState: new Map(), plan: { entries: session.plan }, signal, services: this.dependencies as never };
+	}
+	private emitAgentEvent(event: Omit<AgentResponseEvent, 'agentId' | 'runId'> | AgentResponseEvent, agentId: string, runId: string, options: AgentSendOptions): void {
+		const payload = { ...event, agentId, runId } as AgentResponseEvent;
+		this.dependencies.eventBus.broadcast('agent:response', payload);
+		options.streamEvent?.(payload);
 	}
 	private upsertRun(run: AgentRunRecord): AgentRunRecord { this.runRecords.set(run.id, run); return { ...run }; }
 	private requireRun(runId: string): AgentRunRecord { const run = this.runRecords.get(runId); if (!run) throw new Error(`Agent run not found: ${runId}`); return run; }

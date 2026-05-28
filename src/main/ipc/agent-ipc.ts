@@ -147,10 +147,7 @@ export class AgentIpc implements IpcModule {
 		ipcMain.handle(
 			AgentChannels.send,
 			wrapSimpleHandler((message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-				return agent.send(message, undefined, {
-					...normalizeAgentSendRuntimeOptions(options),
-					streamEvent: (event) => eventBus.broadcast('agent:response', event),
-				});
+				return agent.send(message, undefined, normalizeAgentSendRuntimeOptions(options));
 			}, AgentChannels.send)
 		);
 
