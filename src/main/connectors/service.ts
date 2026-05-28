@@ -26,7 +26,6 @@ import {
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,
-	missingMcpSecretNames,
 } from './config';
 
 const CONNECTOR_STORE_NAME = 'connectors';
