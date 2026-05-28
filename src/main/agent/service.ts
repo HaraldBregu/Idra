@@ -23,7 +23,6 @@ import { AgentStartupFilesService, type AgentStartupFilesServicePort } from './s
 import { buildSystemPrompt } from './system-prompt';
 import { AgentExecutionService, type AgentExecutionServicePort } from './run';
 import { loadExistingSession, loadSession, saveSession, clearSession, listSessions, type SessionFile, type SessionStatus } from './session/store';
-import { AgentRunLogger } from './run-logger';
 import type { AgentDataDirectoryServicePort } from './storage';
 import type { AgentSettingsStorePort } from './settings';
 import type { AgentMcpClientServicePort, McpRegistry } from './mcp';
@@ -74,7 +73,6 @@ export interface AgentServiceOptions {
 	toolService?: ToolServicePort;
 	capabilityService?: AgentCapabilityServicePort;
 	executionService?: AgentExecutionServicePort;
-	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
 	beforeAgentRunHooks?: BeforeAgentRunHook[];
 }
@@ -138,8 +136,6 @@ export class AgentService {
 		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService({ cron: dependencies.cron, logger: dependencies.logger });
 		this.executionService = options.executionService ?? new AgentExecutionService(this.toolService);
 		this.toolsFactory = options.toolsFactory ?? ((ctx) => this.toolService.createDefaultTools({ denylist: ctx.toolsDeny }));
-		const runLoggerFactory = options.runLoggerFactory ?? ((agentId: string) => new AgentRunLogger(agentId));
-		runLoggerFactory(this.defaultAgentId);
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 	}
