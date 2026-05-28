@@ -553,6 +553,46 @@ describe('ConnectorsService MCP persistence', () => {
 		});
 	});
 
+	it('sanitizes custom MCP connector input through the common connector input boundary', () => {
+		expect(sanitizeConnectorInput({
+			name: 'Linear MCP',
+			serverLabel: 'linear_mcp',
+			requireApproval: 'never_for_allowed_tools',
+			allowedTools: ['list_issues', 'list_issues'],
+			mcp: {
+				transport: 'http',
+				url: 'https://linear.example.test/mcp',
+				headers: { accept: 'application/json' },
+				auth: { env: 'LINEAR_API_KEY', scheme: 'bearer' },
+			},
+		})).toEqual({
+			name: 'Linear MCP',
+			connectorId: 'linear_mcp',
+			authKind: undefined,
+			serverLabel: 'linear_mcp',
+			serverDescription: undefined,
+			authorization: '',
+			requireApproval: 'never_for_allowed_tools',
+			allowedTools: ['list_issues'],
+			deferLoading: false,
+			enabled: true,
+			mcp: {
+				transport: 'http',
+				url: 'https://linear.example.test/mcp',
+				headers: { accept: 'application/json' },
+				auth: { env: 'LINEAR_API_KEY', scheme: 'bearer' },
+			},
+		});
+		expect(() => sanitizeConnectorInput({
+			name: 'Bad MCP',
+			mcp: {
+				transport: 'http',
+				url: 'https://linear.example.test/mcp',
+				headers: { Authorization: 'Bearer token' },
+			},
+		})).toThrow(/secret headers/);
+	});
+
 	it('stores dynamic connector records without discovering MCP tools on add', async () => {
 		const { service, store, client } = createService();
 
