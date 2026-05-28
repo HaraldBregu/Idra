@@ -71,7 +71,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const workspace = container.register(
 		'workspace',
-		new WorkspaceService(logger, { userDataDirectory })
+		new WorkspaceService(logger, { rootPath: userDataDirectory.getRootPath() })
 	);
 	const startupFiles = container.register(
 		'startupFiles',
