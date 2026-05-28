@@ -1,5 +1,5 @@
-import type { JSONSchema, ToolResultBlock } from '../../provider/types';
-import type { AgentToolResultStatus } from '../../../shared/agents/constants';
+import type { JSONSchema, ToolResultBlock } from '../../../provider/types';
+import type { AgentToolResultStatus } from '../../../../shared/agents/constants';
 
 export interface PlanEntry {
 	task: string;

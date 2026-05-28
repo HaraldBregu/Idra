@@ -1,5 +1,5 @@
-import type { ProviderAdapter, ProviderEvent, TranscriptEntry, Usage, JSONSchema, ToolResultBlock } from '../../provider/types';
-import type { AgentRunStopReason, AgentToolResultStatus } from '../../../shared/agents/constants';
+import type { ProviderAdapter, ProviderEvent, TranscriptEntry, Usage, JSONSchema, ToolResultBlock } from '../../../provider/types';
+import type { AgentRunStopReason, AgentToolResultStatus } from '../../../../shared/agents/constants';
 
 export type AgentRuntimeLayer =
 	| 'public_api'

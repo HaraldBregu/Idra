@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { AgentContentBlock, ToolResultBlock, Usage } from '../../provider/types';
+import type { AgentContentBlock, ToolResultBlock, Usage } from '../../../provider/types';
 import { AgentRuntimeEmitter, AgentRuntimeEventQueue } from './events';
 import { validateAgentRuntimeConfig, DefaultAgentRuntimeSecretRedactor } from './config';
 import { InMemoryAgentRuntimeOperationLogger, InMemoryAgentRuntimePersistence } from './memory';
@@ -158,12 +158,12 @@ export class DefaultAgentRuntime {
 		return { text, usage, stopReason, toolCalls, blocks: blocks.length ? blocks : [{ type: 'text' as const, text: '' }] };
 	}
 
-	private async executeToolCall(runId: string, session: AgentRuntimeSession, toolCallId: string, toolName: string, args: Record<string, unknown>, tools: AgentRuntimeTool[], context: Record<string, unknown>, signal: AbortSignal): Promise<{ status: import('../../../shared/agents/constants').AgentToolResultStatus; content: ToolResultBlock[] }> {
+	private async executeToolCall(runId: string, session: AgentRuntimeSession, toolCallId: string, toolName: string, args: Record<string, unknown>, tools: AgentRuntimeTool[], context: Record<string, unknown>, signal: AbortSignal): Promise<{ status: import('../../../../shared/agents/constants').AgentToolResultStatus; content: ToolResultBlock[] }> {
 		const tool = tools.find((entry) => entry.name === toolName);
 		if (!tool) return { status: 'error', content: [{ type: 'text', text: `tool ${toolName} is unavailable` }] };
 		const started = Date.now();
 		this.emit({ type: 'tool.started', runId, sessionId: session.id, toolName, toolCallId });
-		const finish = async (status: import('../../../shared/agents/constants').AgentToolResultStatus, content: ToolResultBlock[]) => {
+		const finish = async (status: import('../../../../shared/agents/constants').AgentToolResultStatus, content: ToolResultBlock[]) => {
 			await this.runHooks('after_tool_call', { runId, sessionId: session.id, toolCallId, toolName, tool, args, result: { status, content }, durationMs: Date.now() - started });
 			await this.logs.append({ runId, sessionId: session.id, type: 'tool.executed', timestamp: new Date().toISOString(), data: { toolName, toolCallId, status } });
 			this.emit({ type: 'tool.finished', runId, sessionId: session.id, toolName, toolCallId, status, durationMs: Date.now() - started });

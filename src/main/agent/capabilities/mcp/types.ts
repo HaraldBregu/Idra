@@ -1,4 +1,4 @@
-import type { ConnectorTestResult, ConnectorTool } from '../../../shared/connector';
+import type { ConnectorTestResult, ConnectorTool } from '../../../../shared/connector';
 
 export interface AgentMcpClientServicePort {
 	test(id: string): Promise<ConnectorTestResult>;

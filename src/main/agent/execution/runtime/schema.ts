@@ -1,4 +1,4 @@
-import type { JSONSchema } from '../../provider/types';
+import type { JSONSchema } from '../../../provider/types';
 
 export function validateJsonSchemaValue(schema: JSONSchema, value: unknown): { valid: boolean; errors: string[] } {
 	if (schema.type === 'object' && (!value || typeof value !== 'object' || Array.isArray(value))) return { valid: false, errors: ['value must be an object'] };

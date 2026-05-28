@@ -1,4 +1,4 @@
-import type { ModelReasoningEffort } from '../../../shared/agents/service';
+import type { ModelReasoningEffort } from '../../../../shared/agents/service';
 
 export type SubagentOutcome = 'ok' | 'error' | 'timeout' | 'cancelled';
 export type SubagentSpawnMode = 'run' | 'session';

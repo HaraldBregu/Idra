@@ -1,4 +1,4 @@
-import type { Usage } from '../../provider/types';
+import type { Usage } from '../../../provider/types';
 
 export function estimateTokenCount(text: string): number {
 	return Math.ceil(text.length / 4);

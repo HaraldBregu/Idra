@@ -1,4 +1,4 @@
-import type { ConnectorTestResult, ConnectorTool } from '../../../shared/connector';
+import type { ConnectorTestResult, ConnectorTool } from '../../../../shared/connector';
 import type { AgentMcpClientServicePort } from './types';
 
 export class AgentMcpClientService implements AgentMcpClientServicePort {

@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from '../../provider/types';
+import type { TranscriptEntry } from '../../../provider/types';
 
 export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): TranscriptEntry[] {
 	const repaired: TranscriptEntry[] = [];
