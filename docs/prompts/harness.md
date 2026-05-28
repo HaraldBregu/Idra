@@ -102,6 +102,8 @@ The `BudgetedAgentHarnessContextManager` is the provided implementation. It fits
 
 Memory records retrieved through `AgentHarnessMemory.retrieve` are the primary source of task-relevant durable facts. They are passed to the context manager as a separate input so the manager can decide how much memory to include based on remaining budget.
 
+Context must be treated as live, not cached at startup. MCP servers, skill files, and external connectors may change between runs. Load and assemble context fresh on each activation so the agent always reasons from current state — not from a snapshot baked into the system prompt at deploy time. This self-updating property is what separates a harness from a static prompt template: the harness fetches the current context; a template embeds a past one.
+
 Do not pass the entire session transcript or all available memory into every model turn. Use compaction in `compactSessionForModel` when the transcript exceeds the input budget.
 
 ## Intent-Driven Capability Selection
