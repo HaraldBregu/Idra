@@ -21,7 +21,7 @@ import { HeartbeatFileStore } from '../../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../../shared/heartbeat';
 import type { ChannelType } from '../../../shared/channels';
 import { DEFAULT_AGENT_ID } from '../constants';
-import { AgentStartupFilesService, type AgentStartupFilesServicePort } from '../context/startup';
+import { AgentStartupFilesService, createStartupFilesTool, DEFAULT_BOOTSTRAP_FILENAME, DEFAULT_MEMORY_FILENAME, type AgentStartupFilesServicePort, type WorkspaceContextFile } from '../context/startup';
 import { buildSystemPrompt } from '../context/prompt';
 import { AgentExecutionService, type AgentExecutionServicePort } from '../execution/service';
 import { loadExistingSession, loadSession, saveSession, clearSession, listSessions, type SessionFile, type SessionStatus } from '../context/session/store';
@@ -220,7 +220,10 @@ export class AgentService {
 			this.emitAgentEvent({ type: 'model_selected', providerId: selection.providerId, model: selection.modelId, effort: selection.effort }, sessionId, runId, options);
 			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
 			const startup = this.getStartupFilesService();
-			const startupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
+			const primarySession = sessionId === agentId;
+			const rawStartupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
+			const bootstrapPending = !options.lightContext && primarySession && await startup.isBootstrapPending(agentId).catch(() => false);
+			const startupFiles = this.startupFilesForSession(rawStartupFiles, primarySession);
 			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options, workspace);
 			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
 			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
@@ -236,14 +239,17 @@ export class AgentService {
 			for (const status of capabilities.connectorStatuses) {
 				this.emitAgentEvent({ type: 'connector_status', ...status }, sessionId, runId, options);
 			}
-			const allowedTools = this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow);
+			const startupTool = createStartupFilesTool(startup, agentId);
+			const allowedTools = bootstrapPending
+				? [startupTool]
+				: [...this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow), startupTool];
 			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
 			const result = await this.executionService.run({
 				runId,
 				providerAdapter: selection.adapter,
 				model: selection.modelId,
 				effort: selection.effort,
-				systemPrompt: buildSystemPrompt({ startupFiles, skills: capabilities.selectedSkills, tools: allowedTools }),
+				systemPrompt: buildSystemPrompt({ startupFiles, bootstrapPending, skills: capabilities.selectedSkills, tools: allowedTools }),
 				session,
 				tools: allowedTools,
 				ctx,
