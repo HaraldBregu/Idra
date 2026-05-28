@@ -8,11 +8,11 @@ import {
 } from './base';
 import { AGENT_TOOL_CRON_TOOLS } from './cron';
 import { AGENT_TOOL_TASK_TOOLS } from './task';
-    export const AGENT_DEFAULT_TOOL_GROUPS = {
+export const AGENT_DEFAULT_TOOL_GROUPS = {
 	'filesystem:read': AGENT_TOOL_FILESYSTEM_READ_TOOLS,
 	'filesystem:write': AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
 	'filesystem:delete': AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
-	stateTask: [],
+	task: [],
 	cron: [],
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
@@ -20,7 +20,7 @@ export const AGENT_TOOL_GROUPS = {
 	'filesystem:read': AGENT_TOOL_FILESYSTEM_READ_TOOLS,
 	'filesystem:write': AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
 	'filesystem:delete': AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
-	stateTask: AGENT_TOOL_TASK_TOOLS,
+	task: AGENT_TOOL_TASK_TOOLS,
 	cron: AGENT_TOOL_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
@@ -34,7 +34,7 @@ export const AGENT_TOOLS = [
 	...AGENT_TOOL_GROUPS['filesystem:read'],
 	...AGENT_TOOL_GROUPS['filesystem:write'],
 	...AGENT_TOOL_GROUPS['filesystem:delete'],
-	...AGENT_TOOL_GROUPS['stateTask'],
+	...AGENT_TOOL_GROUPS['task'],
 	...AGENT_TOOL_GROUPS['cron'],
 ] as const;
 
