@@ -3,7 +3,6 @@ import type { LoggerService } from '../../../logger';
 import type { CronService } from '../../../cron';
 import type { AgentMcpClientServicePort } from '../../mcp-client';
 import type { ConnectorToolServicePort } from '../../../connectors';
-import type { PolicyServicePort } from '../../policy';
 import type { StoreService } from '../../../store';
 import type { TasksService } from '../../../tasks';
 import type { McpRegistry } from '../../mcp';
@@ -23,7 +22,6 @@ export interface FridayServices {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	cron?: CronService;
-	policy?: PolicyServicePort;
 	taskManager?: TasksService;
 	connectors?: ConnectorToolServicePort;
 	mcpClient?: AgentMcpClientServicePort;
@@ -62,7 +60,7 @@ export interface ToolContext {
 	signal?: AbortSignal;
 	approvalRequired?: Set<string>;
 	approvalCache?: Set<string>;
-	/** Friday-side services (store, event-bus, logger, user data, workspace). */
+	/** Friday-side services (store, event-bus, logger, user data, and integrations). */
 	services: FridayServices;
 }
 
