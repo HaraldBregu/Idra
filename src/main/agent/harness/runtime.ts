@@ -847,12 +847,12 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		const budgetTokens = model?.contextWindowTokens
 			? Math.max(1_000, model.contextWindowTokens - contextReserve)
 			: this.config.runtime?.maxInputTokens;
-		const result = await this.config.context?.build({ task, session, memory, context, model, budgetTokens });
+		const result = await this.contextManager.build({ task, session, memory, context, model, budgetTokens });
 		return {
-			systemPromptAdditions: result?.systemPromptAdditions ?? [],
-			messages: result?.messages ?? [],
-			metadata: result?.metadata ?? {},
-			trace: result?.trace ?? {
+			systemPromptAdditions: result.systemPromptAdditions ?? [],
+			messages: result.messages ?? [],
+			metadata: result.metadata ?? {},
+			trace: result.trace ?? {
 				budgetTokens: budgetTokens ?? 0,
 				estimatedTokens: 0,
 				included: ['default'],
