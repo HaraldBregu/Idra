@@ -1,7 +1,10 @@
 import type { LoggerService } from '../../logger';
 import type { SkillsService } from '../../skills';
-import type { AgentMcpClientServicePort } from '../mcp-client';
-import type { AgentTool } from '../tools';
+import type {
+	ConnectorExecutableTool,
+	ConnectorToolServicePort,
+} from '../../connectors';
+import { textResult, type AgentTool } from '../tools';
 import type { SkillDetails } from '../../../shared/skills';
 import type {
 	AgentCapabilityBundle,
@@ -14,7 +17,7 @@ const MAX_SKILLS_PER_RUN = 3;
 const MAX_SKILL_PROMPT_CHARS = 4000;
 
 export interface AgentCapabilityServiceOptions {
-	mcpClient?: Pick<AgentMcpClientServicePort, 'createAgentTools'>;
+	connectors?: ConnectorToolServicePort;
 	skills?: SkillsService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -54,14 +57,12 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	}
 
 	private async resolveConnectorTools(input: AgentCapabilityResolveInput): Promise<AgentTool[]> {
-		const mcpClient = this.options.mcpClient;
-		if (!mcpClient || (!input.shouldUseTools && !input.bootstrapPending)) return [];
+		const connectors = this.options.connectors;
+		if (!connectors || (!input.shouldUseTools && !input.bootstrapPending)) return [];
 		try {
-			const tools = mcpClient.createAgentTools().map((tool) => ({
-				...tool,
-				serviceKind: 'connector' as const,
-			}));
-			return tools.filter((tool) => matchesPrompt(input.userMessage, [tool.name, tool.description]));
+			return connectors
+				.searchTools({ query: input.userMessage, limit: 8 })
+				.map((tool) => connectorAgentTool(tool, connectors));
 		} catch (error) {
 			this.options.logger?.warn('AgentCapabilityService', 'Failed to resolve connector tools', {
 				error: error instanceof Error ? error.message : String(error),
@@ -88,6 +89,47 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			return [];
 		}
 	}
+}
+
+function connectorAgentTool(
+	tool: ConnectorExecutableTool,
+	connectors: ConnectorToolServicePort
+): AgentTool {
+	return {
+		name: tool.name,
+		displayName: tool.displayName,
+		description: tool.description,
+		schema: connectorToolSchema(tool),
+		serviceKind: 'connector',
+		serviceId: tool.connectorId,
+		needsApproval: tool.permission === 'needs-approval' ? () => true : false,
+		execute: async (args: unknown) => {
+			try {
+				const payload = await connectors.execTool({
+					connectorId: tool.connectorId,
+					toolName: tool.toolName,
+					args: readConnectorToolArgs(args),
+				});
+				return textResult(JSON.stringify(payload, null, 2));
+			} catch (error) {
+				return textResult(error instanceof Error ? error.message : String(error), true);
+			}
+		},
+	};
+}
+
+function connectorToolSchema(tool: ConnectorExecutableTool): AgentTool['schema'] {
+	return tool.inputSchema && typeof tool.inputSchema === 'object'
+		? tool.inputSchema as AgentTool['schema']
+		: { type: 'object', properties: {}, additionalProperties: true };
+}
+
+function readConnectorToolArgs(args: unknown): Record<string, unknown> {
+	if (args === undefined || args === null) return {};
+	if (typeof args !== 'object' || Array.isArray(args)) {
+		throw new Error('Connector tool arguments must be an object.');
+	}
+	return args as Record<string, unknown>;
 }
 
 function toResolvedSkill(skill: SkillDetails, reason: string): AgentResolvedSkill {
