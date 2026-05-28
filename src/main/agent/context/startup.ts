@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { resolveDefaultUserDataPath } from '../../user-data';
-import type { AgentTool } from '../capabilities/local';
-import { jsonResult, textResult } from '../capabilities/local';
+import type { AgentTool } from '../capabilities/local/types';
+import { jsonResult, textResult } from '../capabilities/local/types';
 
 export const DEFAULT_AGENTS_FILENAME = 'AGENTS.md';
 export const DEFAULT_SOUL_FILENAME = 'SOUL.md';
