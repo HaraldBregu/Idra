@@ -129,33 +129,29 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
-		const startupFiles = container.get('startupFiles');
-		const agentDataDirectory = container.get('agentDataDirectory');
-		const listStartupFiles = (): ReturnType<typeof startupFiles.listFiles> => {
-			return startupFiles.listFiles('main');
+		const workspace = container.get('workspace');
+		const userDataDirectory = container.get('userDataDirectory');
+		const listStartupFiles = (): ReturnType<typeof workspace.listWorkspaceFiles> => {
+			return workspace.listWorkspaceFiles();
 		};
-		const readStartupFile = (name: string): ReturnType<typeof startupFiles.readFile> => {
-			return startupFiles.readFile('main', name);
+		const readStartupFile = (name: string): ReturnType<typeof workspace.readWorkspaceFile> => {
+			return workspace.readWorkspaceFile(name);
 		};
 		const writeStartupFile = (
 			name: string,
 			content: string
-		): ReturnType<typeof startupFiles.writeFile> => {
-			return startupFiles.writeFile('main', name, content);
+		): ReturnType<typeof workspace.writeWorkspaceFile> => {
+			return workspace.writeWorkspaceFile(name, content);
 		};
 
 		ipcMain.handle(
 			AgentChannels.send,
 			wrapSimpleHandler((message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-				return agent.send(message, undefined, normalizeAgentSendRuntimeOptions(options));
+				return agent.send(message, undefined, {
+					...normalizeAgentSendRuntimeOptions(options),
+					streamEvent: (event) => _eventBus.broadcast('agent:response', event),
+				});
 			}, AgentChannels.send)
-		);
-
-		ipcMain.handle(
-			AgentChannels.resolveToolApproval,
-			wrapSimpleHandler((decision) => {
-				agent.resolveToolApproval(decision);
-			}, AgentChannels.resolveToolApproval)
 		);
 
 		ipcMain.handle(
@@ -174,7 +170,7 @@ export class AgentIpc implements IpcModule {
 		ipcMain.handle(
 			AgentChannels.openHistoryFolder,
 			wrapSimpleHandler(async (): Promise<void> => {
-				const target = agentDataDirectory.resolve('sessions');
+				const target = userDataDirectory.resolve('agent', 'sessions');
 				await fs.mkdir(target, { recursive: true, mode: 0o700 });
 				if (process.platform !== 'win32') {
 					await fs.chmod(target, 0o700).catch(() => undefined);
