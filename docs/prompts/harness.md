@@ -448,8 +448,13 @@ Add or update focused unit tests for behavior changes.
 Cover the relevant behavior:
 
 - Tool resolution with intent-matching providers that return subsets of tools.
-- Context shaping with budget limits: included, dropped, and summarized blocks.
+- Context shaping with budget limits: included, dropped, and summarized blocks; compaction at ~90% threshold.
+- Progressive disclosure: high-priority context enters first; lower-priority blocks are dropped when budget is exhausted.
+- Three-layer memory: filesystem persistence survives crashes; RAM state is rebuilt on resume; context window assembles from both.
+- Durability invariant: session state is persisted before being dropped from memory; mid-run crashes leave resumable filesystem state.
 - Pre-tool-use and post-tool-use hook execution order, error isolation, and payload shape.
+- Feedback loop hooks: a hook that inspects the tool result and the run context to trigger a follow-up diagnostic.
+- ReAct cycle: Reason-Act-Observe produces a transcript that the model uses to plan the next action.
 - Deterministic gate sequence: schema validation, safety block, and approval rejection — each returns the correct status without executing the tool.
 - Permission filtering: allow-list, deny-list, group filter, and destructive approval gate.
 - MCP provider connection, tool discovery, server failure degradation, and tool name prefixing.
@@ -457,6 +462,7 @@ Cover the relevant behavior:
 - Skill tool inclusion in the resolved tool surface.
 - Result optimizer invocation and content replacement.
 - Bounded self-repair: iteration cap, token cap, cost cap, timeout, and model retry/fallback.
+- Orchestrator-worker: subagent with restricted tool set and isolated context window.
 - Audit log entries at run start, finish, failure, and tool execution.
 - Session snapshot creation and undo.
 - Event emission order for the full tool call lifecycle.
