@@ -31,19 +31,34 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.update,
-			wrapSimpleHandler((id, input) => connectors.update(id, input), ConnectorsChannels.update)
+			wrapSimpleHandler(async (id, input) => {
+				const connector = await connectors.update(id, input);
+				await mcpClient.closeConnector(id);
+				return connector;
+			}, ConnectorsChannels.update)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.remove,
-			wrapSimpleHandler((id: string) => connectors.remove(id), ConnectorsChannels.remove)
+			wrapSimpleHandler(async (id: string) => {
+				await connectors.remove(id);
+				await mcpClient.closeConnector(id);
+			}, ConnectorsChannels.remove)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.enable,
-			wrapSimpleHandler((id: string) => connectors.enable(id), ConnectorsChannels.enable)
+			wrapSimpleHandler(async (id: string) => {
+				const connector = await connectors.enable(id);
+				await mcpClient.closeConnector(id);
+				return connector;
+			}, ConnectorsChannels.enable)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.disable,
-			wrapSimpleHandler((id: string) => connectors.disable(id), ConnectorsChannels.disable)
+			wrapSimpleHandler(async (id: string) => {
+				const connector = await connectors.disable(id);
+				await mcpClient.closeConnector(id);
+				return connector;
+			}, ConnectorsChannels.disable)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.test,
@@ -74,7 +89,11 @@ export class ConnectorsIpc implements IpcModule {
 		ipcMain.handle(
 			ConnectorsChannels.authorizeOAuth,
 			wrapSimpleHandler(
-				(input) => connectors.authorizeOAuth(input),
+				async (input) => {
+					const result = await connectors.authorizeOAuth(input);
+					await mcpClient.closeConnector(result.connector.id ?? result.connectorId);
+					return result;
+				},
 				ConnectorsChannels.authorizeOAuth
 			)
 		);
