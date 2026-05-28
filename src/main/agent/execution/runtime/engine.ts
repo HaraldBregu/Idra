@@ -4,7 +4,7 @@ import { AgentHarnessEmitter, AgentHarnessEventQueue } from './events';
 import { validateAgentHarnessConfig, DefaultAgentHarnessSecretRedactor } from './config';
 import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
 import { BudgetedAgentHarnessContextManager } from './context';
-import { toHarnessErrorShape } from './errors';
+import { toRuntimeErrorShape } from './errors';
 import { validateJsonSchemaValue } from './schema';
 import { DefaultAgentHarnessToolRegistry, filterToolsByPermissions, requiresPolicyApproval } from './tools';
 import type { AgentHarnessConfig, AgentHarnessEvent, AgentHarnessExecuteInput, AgentHarnessHookName, AgentHarnessRunResult, AgentHarnessSession, AgentHarnessSnapshot, AgentHarnessSubagentInput, AgentHarnessTool } from './types';
@@ -48,7 +48,7 @@ export class DefaultAgentHarness {
 	async *stream(input: AgentHarnessExecuteInput): AsyncIterable<AgentHarnessEvent> {
 		const queue = new AgentHarnessEventQueue();
 		const off = this.emitter.onAny((event) => queue.push(event));
-		void this.execute(input).catch((error) => queue.push({ type: 'run.error', runId: input.runId ?? 'unknown', sessionId: input.sessionId ?? 'unknown', error: toHarnessErrorShape(error) })).finally(() => queue.close());
+		void this.execute(input).catch((error) => queue.push({ type: 'run.error', runId: input.runId ?? 'unknown', sessionId: input.sessionId ?? 'unknown', error: toRuntimeErrorShape(error) })).finally(() => queue.close());
 		try {
 			for await (const event of queue) yield event;
 		} finally {
@@ -100,7 +100,7 @@ export class DefaultAgentHarness {
 			await this.logs.append({ runId, sessionId: session.id, type: 'run.finished', timestamp: new Date().toISOString(), data: { stopReason: finalResult.stopReason } });
 			return finalResult;
 		} catch (error) {
-			this.emit({ type: 'run.error', runId, sessionId: session.id, error: toHarnessErrorShape(error) });
+			this.emit({ type: 'run.error', runId, sessionId: session.id, error: toRuntimeErrorShape(error) });
 			throw error;
 		} finally {
 			this.controllers.delete(runId);
@@ -187,7 +187,7 @@ export class DefaultAgentHarness {
 			const content = await this.config.resultOptimizer?.optimize({ toolName, content: result.content, details: result.details, context: this.toolContext(runId, session, signal, context) }) ?? result.content;
 			return finish(result.status, content);
 		} catch (error) {
-			this.emit({ type: 'tool.error', runId, sessionId: session.id, toolName, toolCallId, error: toHarnessErrorShape(error) });
+			this.emit({ type: 'tool.error', runId, sessionId: session.id, toolName, toolCallId, error: toRuntimeErrorShape(error) });
 			return finish('error', [{ type: 'text', text: error instanceof Error ? error.message : String(error) }]);
 		}
 	}

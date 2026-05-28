@@ -15,7 +15,7 @@ export class AgentHarnessError extends Error {
 	}
 }
 
-export function toHarnessErrorShape(error: unknown): AgentHarnessErrorShape {
+export function toRuntimeErrorShape(error: unknown): AgentHarnessErrorShape {
 	return {
 		name: error instanceof Error ? error.name : 'Error',
 		message: error instanceof Error ? error.message : String(error),
