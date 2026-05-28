@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import { PageContainer } from '@/components/app/base/page';
+import { Button } from '@/components/ui/button';
 import {
 	ChatContainerContent,
 	ChatContainerRoot,
