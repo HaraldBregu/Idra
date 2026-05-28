@@ -234,7 +234,16 @@ describe('agent startup files service', () => {
 			setupCompletedAt?: string;
 		};
 
-	it('seeds agent startup files under .friday/agent without overwriting user edits', async () => {
+	it('defaults startup files under Electron appData agent storage', () => {
+		(app.getPath as jest.Mock).mockImplementation((name: string) => `/tmp/friday-test/${name}`);
+		const service = new AgentStartupFilesService();
+
+		expect(service.getRootPath('main')).toBe(
+			path.join('/tmp/friday-test/appData', 'friday', 'agent', 'workspaces', 'main')
+		);
+	});
+
+	it('seeds agent startup files under the agent workspace without overwriting user edits', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({
 			rootPath: path.join(root, 'agent', 'workspaces'),

@@ -4,8 +4,9 @@ import { AgentService } from '../../../../src/main/agent';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {
-	it('uses .friday workspaces and app-data agent settings for agent config', async () => {
+	it('uses app-data agent storage for runtime workspace and agent config', async () => {
 		const root = await makeTempDir();
+		const agentRoot = path.join(root, 'agent');
 		const userDataRoot = path.join(root, '.friday');
 		const sessionBaseDir = await makeTempDir();
 		const providerFactory = jest.fn(() => ({
@@ -19,10 +20,10 @@ describe('AgentService agent storage wiring', () => {
 			},
 		}));
 		const agentDataDirectory = {
-			getRootPath: jest.fn(() => root),
-			ensureRoot: jest.fn(async () => root),
-			resolve: jest.fn((...segments: string[]) => path.join(root, ...segments)),
-			resolveExisting: jest.fn(async (...segments: string[]) => path.join(root, ...segments)),
+			getRootPath: jest.fn(() => agentRoot),
+			ensureRoot: jest.fn(async () => agentRoot),
+			resolve: jest.fn((...segments: string[]) => path.join(agentRoot, ...segments)),
+			resolveExisting: jest.fn(async (...segments: string[]) => path.join(agentRoot, ...segments)),
 		};
 		const userDataDirectory = {
 			getRootPath: jest.fn(() => userDataRoot),
@@ -71,9 +72,8 @@ describe('AgentService agent storage wiring', () => {
 		await expect(service.send('hello')).resolves.toBe('done');
 
 		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith('main');
-		expect(userDataDirectory.ensureRoot).toHaveBeenCalled();
-		expect(userDataDirectory.resolve).toHaveBeenCalledWith('agent', 'workspaces');
-		expect(agentDataDirectory.resolve).not.toHaveBeenCalledWith('workspaces', 'main');
+		expect(agentDataDirectory.ensureRoot).toHaveBeenCalled();
+		expect(userDataDirectory.ensureRoot).not.toHaveBeenCalled();
 		expect(providerFactory).toHaveBeenCalledWith({
 			id: 'anthropic',
 			apiKey: 'sk-test',
