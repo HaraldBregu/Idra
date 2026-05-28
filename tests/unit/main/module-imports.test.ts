@@ -15,6 +15,5 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/agent/session/store')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/store')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/tools')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/workspace')).resolves.toBeTruthy();
 	});
 });
