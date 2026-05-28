@@ -23,7 +23,7 @@ export function filterToolsByPermissions(tools: AgentRuntimeTool[], input: { per
 }
 
 export function requiresPolicyApproval(tool: AgentRuntimeTool, permissions: AgentRuntimePermissions | undefined): boolean {
-	if (tool.destructive && permissions?.requireApprovalForDestructiveTools !== false) return true;
-	if (tool.externalWrite && permissions?.requireApprovalForExternalWrites !== false) return true;
+	if (tool.destructive && permissions?.requireApprovalForDestructiveTools === true) return true;
+	if (tool.externalWrite && permissions?.requireApprovalForExternalWrites === true) return true;
 	return false;
 }
