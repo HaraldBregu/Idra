@@ -1,5 +1,5 @@
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
-import type { AgentService } from '../service';
+import type { AgentService } from '../../orchestrator/service';
 import type { SubagentRegistry } from './registry';
 import type { SubagentRunTaskInput, SubagentRunTaskResult } from './types';
 
