@@ -132,6 +132,7 @@ export function bootstrapServices(): BootstrapResult {
 		storeCwd: resolveDefaultAppDataPath(),
 	}));
 	const mcpClient = container.register('mcpClient', new AgentMcpClientService(logger, connectors));
+	connectors.setToolRuntime(mcpClient);
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
