@@ -73,6 +73,7 @@ describe('connectors service', () => {
 		const mcpClient = new AgentMcpClientService(makeLogger() as never, service, {
 			mcpClientFactory: jest.fn(() => client),
 		});
+		service.setToolRuntime(mcpClient);
 		const added = await service.add({
 			name: 'Remote Gmail',
 			connectorId: 'google.gmail',
@@ -187,6 +188,7 @@ describe('connectors service', () => {
 		const mcpClient = new AgentMcpClientService(makeLogger() as never, service, {
 			mcpClientFactory: jest.fn(() => client),
 		});
+		service.setToolRuntime(mcpClient);
 		const added = await service.add({
 			name: 'Remote MCP',
 			connectorId: 'remote.mcp',
