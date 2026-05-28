@@ -31,12 +31,12 @@ import {
 } from '../../shared/providers';
 import type {
 	AgentConfig,
-	type AgentToolPermissionMode,
 	AgentModuleOptions,
 	AgentRouteBinding,
 	AgentRoutePeer,
 	AgentRouteSessionScope,
 	AgentRoutingSettings,
+	AgentToolPermissionMode,
 	CronSettings,
 	ModelModuleSettings,
 	SettingsStoreAccessor,
