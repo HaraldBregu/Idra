@@ -482,6 +482,9 @@ Before finishing a harness change, verify:
 - MCP tool names are prefixed and do not collide with local tool names.
 - Safety blocks and approval rejections return the correct status without executing the tool.
 - All tool sources enter execution through `executeToolCall`.
+- State is persisted to the filesystem before being dropped from memory (durability invariant holds).
+- Transcript compaction fires before the 90% input budget threshold, not at overflow.
 - Audit log entries are structured, typed, and free of unredacted secrets.
 - Bounded self-repair ceilings are enforced and produce the correct stop reasons.
+- The implementation is not more complex than the task requires.
 - New behavior is covered by focused unit tests.
