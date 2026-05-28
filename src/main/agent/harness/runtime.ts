@@ -1112,7 +1112,6 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				}),
 			});
 		} catch {
-			// Hook failures must not change the run outcome.
 		}
 	}
 
