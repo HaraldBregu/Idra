@@ -163,7 +163,7 @@ export const AGENT_TOOL_FILESYSTEM_WRITE_TOOLS = [
 		permissions: ['create', 'write', 'delete'],
 		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
 		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'legacy',
+		availability: 'default',
 	}),
 ] as const;
 
