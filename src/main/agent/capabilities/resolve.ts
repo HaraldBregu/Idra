@@ -6,6 +6,7 @@ import type { SkillDetails } from '../../../shared/skills';
 import type { AgentCapabilityResolutionSummary, AgentSelectedSkillSummary } from '../../../shared/agents/capabilities';
 import type { AgentTool } from './local';
 import { jsonResult, textResult } from './local';
+import { resolveAgentIntentRoute, selectLocalToolsForIntent } from '../orchestrator/routing/intent';
 
 export interface ResolvedAgentCapabilities {
 	tools: AgentTool[];
@@ -23,15 +24,26 @@ export async function resolveAgentCapabilities(input: {
 	toolsAllow?: readonly string[];
 	toolsDeny?: readonly string[];
 }): Promise<ResolvedAgentCapabilities> {
+	const intent = resolveAgentIntentRoute(input.message);
 	const selectedSkills = await resolveSkills(input.skills, input.message, input.configuredSkillNames);
-	const connectorResult = await resolveConnectorTools(input.connectors, input.message);
-	const tools = filterTools([...input.localTools, ...connectorResult.tools], input.toolsAllow, input.toolsDeny);
+	const selectedLocalTools = selectLocalToolsForIntent(input.localTools, intent);
+	const connectorResult = intent.useConnectorTools
+		? await resolveConnectorTools(input.connectors, input.message)
+		: { tools: [], statuses: [] };
+	const tools = filterTools([...selectedLocalTools, ...connectorResult.tools], input.toolsAllow, input.toolsDeny);
 	const connectorNames = connectorResult.tools.map((tool) => tool.name);
 	const skillSummaries = selectedSkills.map((skill): AgentSelectedSkillSummary => ({
 		name: skill.name,
 		reason: input.configuredSkillNames?.includes(skill.name) ? 'configured for this agent' : 'matched the user request',
 	}));
 	const toolNames = tools.filter((tool) => tool.serviceKind !== 'connector').map((tool) => tool.name);
+	const mode = tools.length && selectedSkills.length
+		? 'use_tools_and_skills'
+		: tools.length
+			? 'use_tools'
+			: selectedSkills.length
+				? 'use_skills'
+				: 'direct_answer';
 	return {
 		tools,
 		selectedSkills,
@@ -42,8 +54,10 @@ export async function resolveAgentCapabilities(input: {
 			skills: skillSummaries,
 			directAnswer: tools.length === 0 && selectedSkills.length === 0,
 			decision: {
-				mode: tools.length && selectedSkills.length ? 'use_tools_and_skills' : tools.length ? 'use_tools' : selectedSkills.length ? 'use_skills' : 'direct_answer',
-				reason: 'Selected the smallest available context for this turn.',
+				mode,
+				reason: selectedSkills.length && !tools.length
+					? 'Matched skill context for this turn.'
+					: intent.reason,
 			},
 		},
 	};
