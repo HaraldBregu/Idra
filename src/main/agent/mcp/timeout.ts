@@ -24,8 +24,8 @@ export async function withTimeout<T>(
 			work(controller.signal),
 			new Promise<T>((_, reject) => {
 				timeout = setTimeout(() => {
-					controller.abort();
 					reject(new McpTimeoutError(`${label} timed out.`));
+					controller.abort();
 				}, timeoutMs);
 			}),
 		]);

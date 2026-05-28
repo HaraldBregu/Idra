@@ -6,6 +6,7 @@ export class McpRegistry {
 	buildServers(connectors: readonly ConnectorConfig[] = []): AgentHarnessMcpServerConfig[] {
 		return connectors.flatMap((connector) => {
 			if (connector.enabled === false) return [];
+			if (connector.oauth && !connector.oauth.token?.accessToken && !connector.authorization?.trim()) return [];
 			try {
 				const config = resolveMcpConfig(connector);
 				const name = connector.serverLabel ?? connector.id ?? connector.name ?? connector.connectorId ?? 'connector';
