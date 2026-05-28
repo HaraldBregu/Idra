@@ -166,6 +166,12 @@ export interface AgentSendRuntimeOptions {
 	readonly toolsDeny?: readonly string[];
 }
 
+export interface AgentToolApprovalDecision {
+	readonly approvalId: string;
+	readonly approved: boolean;
+	readonly reason?: string;
+}
+
 export const ASSISTANT_OPERATOR_ID = 'friday';
 export const ASSISTANT_RUNTIME_ID = 'main';
 export const SPEECH_TO_TEXT_OPERATOR_ID = 'speech-to-text';

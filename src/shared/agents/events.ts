@@ -28,6 +28,28 @@ export type AgentRunStreamEvent =
 			summary: string;
 			state: ReasoningSummaryState;
 	  }
+	| {
+			type: 'approval_requested';
+			approvalId: string;
+			toolCallId: string;
+			toolName: string;
+			displayName?: string;
+			reason: string;
+			input: unknown;
+	  }
+	| {
+			type: 'approval_resolved';
+			approvalId: string;
+			toolCallId: string;
+			approved: boolean;
+			reason?: string;
+	  }
+	| {
+			type: 'connector_status';
+			connectorId: string;
+			status: 'ready' | 'refreshed' | 'unavailable';
+			message?: string;
+	  }
 	| { type: 'text_delta'; delta: string }
 	| ({
 			type: 'tool_call_start';

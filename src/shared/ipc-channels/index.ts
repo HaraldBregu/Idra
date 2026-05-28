@@ -13,6 +13,7 @@ export const WindowChannels = {
 
 export const AgentChannels = {
 	send: 'agent:send',
+	resolveToolApproval: 'agent:resolve-tool-approval',
 	reset: 'agent:reset',
 	getHistory: 'agent:get-history',
 	openHistoryFolder: 'agent:open-history-folder',
@@ -451,6 +452,10 @@ interface AgentInvokeChannelMap {
 	[AgentChannels.send]: {
 		args: [message: string, options?: AgentSendRuntimeOptions];
 		result: string;
+	};
+	[AgentChannels.resolveToolApproval]: {
+		args: [decision: import('../agents/service').AgentToolApprovalDecision];
+		result: void;
 	};
 	[AgentChannels.reset]: { args: []; result: void };
 	[AgentChannels.getHistory]: {

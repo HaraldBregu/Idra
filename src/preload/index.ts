@@ -83,6 +83,7 @@ import type {
 	WorkspaceFileContent,
 	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
+	AgentToolApprovalDecision,
 } from '../shared/agents/service';
 import { isModelReasoningEffort } from '../shared/agents/service';
 import type {
@@ -198,6 +199,9 @@ export const agent: AgentApi = {
 		return runtimeOptions
 			? typedInvokeUnwrap(AgentChannels.send, message, runtimeOptions)
 			: typedInvokeUnwrap(AgentChannels.send, message);
+	},
+	resolveToolApproval: (decision: AgentToolApprovalDecision): Promise<void> => {
+		return typedInvokeUnwrap(AgentChannels.resolveToolApproval, decision);
 	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.reset);
