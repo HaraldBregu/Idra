@@ -2,14 +2,14 @@ import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AppState, EventBus, ServiceContainer, WindowFactory } from '../core';
 import type { WindowContextManager } from '../core';
 import type { AgentService } from '../agent';
-import type { AgentStartupFilesService } from '../agent/startup-files';
+import type { AgentStartupFilesService } from '../agent/context/startup';
 import type { AgentDataDirectoryService } from '../agent/storage';
 import type { AgentSettingsStore } from '../agent/settings';
 import type { AppPermissionsService } from './permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
-import type { AgentMcpClientServicePort, McpRegistry } from '../agent/mcp';
+import type { AgentMcpClientServicePort, McpRegistry } from '../agent/capabilities/mcp';
 import type { MonitorService } from '../monitor';
 import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { SkillsService } from '../skills';
@@ -17,7 +17,7 @@ import type { HeartbeatService } from '../heartbeat';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
-import type { ToolService } from '../agent/tools';
+import type { ToolService } from '../agent/capabilities/local';
 import type { UserDataDirectoryService } from '../user-data';
 
 export interface MainServices {
