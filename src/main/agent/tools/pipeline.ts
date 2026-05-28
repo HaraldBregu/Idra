@@ -1,25 +1,23 @@
 import type { AgentTool, FilteredToolDiagnostic, ToolDiagnostics } from './core/common';
 import { getToolMetadata, normalizeToolName } from './core/common';
 import {
-	PolicyService,
-	type PolicyServicePort,
-	type ToolPolicy,
-	type ToolPolicyStageName,
-	type ToolPolicySubject,
-} from '../policy';
+	evaluateToolAccess,
+	TOOL_ACCESS_STAGE_ORDER,
+	type ToolAccessRule,
+	type ToolAccessStageName,
+	type ToolAccessSubject,
+} from './access';
 
-export type PolicyStageName = ToolPolicyStageName;
-
-const defaultPolicyService = new PolicyService();
-
-export const POLICY_STAGE_ORDER = defaultPolicyService.getToolPolicyStageOrder();
+export type PolicyStageName = ToolAccessStageName;
+export type ToolPolicy = ToolAccessRule;
+export const POLICY_STAGE_ORDER = TOOL_ACCESS_STAGE_ORDER;
 
 export type ToolPolicyPipelineContext = {
 	sender?: { id?: string; isOwner?: boolean; trustedOwnerGrant?: boolean };
 	trustedOwnerToolGrants?: string[];
 	stages?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
 	diagnostics?: ToolDiagnostics;
-	policy?: Pick<PolicyServicePort, 'evaluateTools'>;
+	policy?: unknown;
 };
 
 export type ToolPolicyPipelineResult = {
@@ -34,10 +32,7 @@ export function applyToolPolicyPipeline(
 ): ToolPolicyPipelineResult {
 	const diagnostics = context.diagnostics;
 	const subjects = tools.map(toolPolicySubject);
-	const policyService = context.policy ?? defaultPolicyService;
-	const result = policyService.evaluateTools(subjects, {
-		sender: context.sender,
-		trustedOwnerToolGrants: context.trustedOwnerToolGrants,
+	const result = evaluateToolAccess(subjects, {
 		stages: context.stages,
 		warnings: diagnostics?.warnings,
 	});
@@ -47,7 +42,7 @@ export function applyToolPolicyPipeline(
 	return { tools: current, filtered, warnings: result.warnings };
 }
 
-function toolPolicySubject(tool: AgentTool): ToolPolicySubject {
+function toolPolicySubject(tool: AgentTool): ToolAccessSubject {
 	const metadata = getToolMetadata(tool);
 	return {
 		name: tool.name,
