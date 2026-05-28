@@ -20,7 +20,6 @@ import {
 } from '../agent';
 import { AgentDataDirectoryService, resolveDefaultAppDataPath } from '../agent/storage';
 import { AgentSettingsStore } from '../agent/settings';
-import { WorkspaceService } from '../workspace';
 import { ConnectorsService } from '../connectors';
 import { AgentMcpClientService } from '../agent/mcp-client';
 import { McpRegistry } from '../agent/mcp';
@@ -61,7 +60,7 @@ export interface BootstrapResult {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryService;
 	agentDataDirectory: AgentDataDirectoryService;
-	workspace: WorkspaceService;
+	workspaceRoot: string;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -94,12 +93,10 @@ export function bootstrapServices(): BootstrapResult {
 		new SkillsService(logger)
 	);
 
-	const workspace = container.register(
-		'workspace',
-		new WorkspaceService(logger, {
-			rootPath: userDataDirectory.resolve('workspace'),
-		})
-	);
+	const workspaceRoot = userDataDirectory.resolve('workspace');
+	void fs.promises.mkdir(workspaceRoot, { recursive: true }).catch((error) => {
+		logger.error('Workspace', 'Failed to create workspace directory', error);
+	});
 	container.register(
 		'startupFiles',
 		new AgentStartupFilesService({
@@ -151,7 +148,6 @@ export function bootstrapServices(): BootstrapResult {
 		cron,
 		logger,
 		eventBus,
-		workspace,
 		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,
@@ -211,7 +207,7 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		userDataDirectory,
 		agentDataDirectory,
-		workspace,
+		workspaceRoot,
 		windowContextManager,
 	};
 }
