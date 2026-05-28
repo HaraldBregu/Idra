@@ -126,7 +126,7 @@ export function transcriptToHistory(t: TranscriptEntry[]): AgentHistoryMessage[]
 export class AgentIpc implements IpcModule {
 	readonly name = 'agent';
 
-	register(container: MainServiceContainer, eventBus: EventBus): void {
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
 		const startupFiles = container.get('startupFiles');

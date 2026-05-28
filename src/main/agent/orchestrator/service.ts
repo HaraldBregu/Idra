@@ -14,7 +14,6 @@ import { getDefaultAgentModels, isAllowedAgentModel } from '../../../shared/agen
 import type { AgentSessionMetadata } from '../../../shared/store';
 import type { PublicProvider } from '../../../shared/providers';
 import { requireModelReasoningEffort } from '../../../shared/agents/service';
-import type { AgentResponseEvent } from '../../../shared/agents/events';
 import { makeProvider, type ProviderSpec } from '../../provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from '../../provider/types';
 import { HeartbeatFileStore } from '../../heartbeat/store';

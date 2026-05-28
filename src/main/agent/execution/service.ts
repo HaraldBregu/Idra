@@ -1,5 +1,5 @@
 import type { AgentContentBlock, ProviderAdapter, TranscriptEntry, ToolResultBlock, Usage } from '../../provider/types';
-import type { AgentResponseEvent } from '../../../shared/agents/events';
+import type { AgentResponseEvent, AgentRunStreamEvent } from '../../../shared/agents/events';
 import type { AgentRunStopReason } from '../../../shared/agents/constants';
 import type { AgentTool, ToolContext, ToolServicePort } from '../capabilities/local';
 import { ToolService } from '../capabilities/local';
@@ -80,7 +80,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 				} else if (event.type === 'tool_call_args_delta') {
 					const call = pending.get(event.id);
 					if (call) call.argsText += event.jsonDelta;
-					this.emit(input, { type: 'tool_call_args_delta', iteration, toolCallId: event.id, toolName: event.name, jsonDelta: event.jsonDelta, argsText: call?.argsText ?? event.jsonDelta });
+					this.emit(input, { type: 'tool_call_args_delta', iteration, toolCallId: event.id, toolName: call?.name ?? 'unknown', jsonDelta: event.jsonDelta, argsText: call?.argsText ?? event.jsonDelta });
 				} else if (event.type === 'message_end') {
 					usage.inputTokens += event.usage.inputTokens;
 					usage.outputTokens += event.usage.outputTokens;
@@ -140,7 +140,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 		}
 	}
 
-	private emit(input: AgentRunInput, event: Omit<AgentResponseEvent, 'agentId' | 'runId'>): void {
+	private emit(input: AgentRunInput, event: AgentRunStreamEvent): void {
 		input.hooks?.streamEvent?.({ ...event, agentId: input.ctx.sessionId, runId: input.runId } as AgentResponseEvent);
 	}
 }
@@ -174,8 +174,8 @@ function bindTools(tools: AgentTool[]) {
 	return { definitions, byProviderName };
 }
 
-function toolEvent(type: 'tool_call_start', iteration: number, toolCallId: string, toolName: string, tool?: AgentTool) {
-	return { type, iteration, toolCallId, toolName, name: toolName, serviceKind: tool?.serviceKind ?? 'tool' as const, displayName: tool?.displayName, serviceId: tool?.serviceId };
+function toolEvent<TType extends 'tool_call_start' | 'tool_call_result'>(type: TType, iteration: number, toolCallId: string, toolName: string, tool?: AgentTool): Extract<AgentRunStreamEvent, { type: TType }> {
+	return { type, iteration, toolCallId, toolName, name: toolName, serviceKind: tool?.serviceKind ?? 'tool', displayName: tool?.displayName, serviceId: tool?.serviceId } as Extract<AgentRunStreamEvent, { type: TType }>;
 }
 
 function outputText(content: ToolResultBlock[]): string {
