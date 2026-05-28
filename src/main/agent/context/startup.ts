@@ -24,6 +24,10 @@ export const WORKSPACE_CONTEXT_FILE_NAMES = [
 	DEFAULT_MEMORY_FILENAME,
 ] as const;
 
+const SEEDED_WORKSPACE_FILE_NAMES = WORKSPACE_CONTEXT_FILE_NAMES.filter(
+	(name) => name !== DEFAULT_BOOTSTRAP_FILENAME && name !== DEFAULT_MEMORY_FILENAME
+);
+
 export type WorkspaceFileName = (typeof WORKSPACE_CONTEXT_FILE_NAMES)[number];
 export type BootstrapMode = 'none' | 'limited' | 'full';
 export interface WorkspaceContextFile {
@@ -377,28 +381,20 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		const existing = await this.existingCanonicalFiles(root);
 		const hasProfile = existing.some((name) => name !== DEFAULT_BOOTSTRAP_FILENAME && name !== DEFAULT_MEMORY_FILENAME);
 
-		if (!state.bootstrapSeededAt && !state.setupCompletedAt && hasProfile) {
+		if (!state.setupCompletedAt && hasProfile) {
 			await this.writeState(root, { ...state, setupCompletedAt: new Date().toISOString() });
-		} else if (!state.bootstrapSeededAt && !state.setupCompletedAt) {
-			const nextState = { ...state, bootstrapSeededAt: new Date().toISOString() };
-			await Promise.all(WORKSPACE_CONTEXT_FILE_NAMES.filter((name) => name !== DEFAULT_MEMORY_FILENAME).map((name) => this.seedFile(root, name)));
+		} else if (!state.setupCompletedAt) {
+			const nextState = { ...state, setupCompletedAt: new Date().toISOString() };
+			await Promise.all(SEEDED_WORKSPACE_FILE_NAMES.map((name) => this.seedFile(root, name)));
 			await this.writeState(root, nextState);
 		} else {
-			await Promise.all(WORKSPACE_CONTEXT_FILE_NAMES.filter((name) => name !== DEFAULT_MEMORY_FILENAME && name !== DEFAULT_BOOTSTRAP_FILENAME).map((name) => this.seedFile(root, name)));
-		}
-
-		const nextState = await this.readState(root);
-		if (nextState.bootstrapSeededAt && !nextState.setupCompletedAt) {
-			const bootstrapPath = path.join(root, DEFAULT_BOOTSTRAP_FILENAME);
-			const bootstrapExists = await exists(bootstrapPath);
-			if (!bootstrapExists || await this.hasCustomizedProfile(root)) {
-				await fs.rm(bootstrapPath, { force: true });
-				await this.writeState(root, { ...nextState, setupCompletedAt: new Date().toISOString() });
-			}
+			await Promise.all(SEEDED_WORKSPACE_FILE_NAMES.map((name) => this.seedFile(root, name)));
 		}
 	}
 
 	async isBootstrapPending(agentId: string): Promise<boolean> {
+		const state = await this.readState(this.getRootPath(agentId));
+		if (state.setupCompletedAt) return false;
 		const file = await this.readFile(agentId, DEFAULT_BOOTSTRAP_FILENAME);
 		return !file.missing;
 	}
