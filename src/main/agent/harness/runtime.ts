@@ -606,10 +606,19 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			toolCallId: input.toolCallId,
 		});
 		try {
-			await this.runHooks('before_tool_call', { ...input, tool });
+			await this.runHooks('before_tool_call', {
+				runId: input.runId,
+				sessionId: input.session.id,
+				toolCallId: input.toolCallId,
+				toolName: input.toolName,
+				tool,
+				args: input.args,
+			});
 			const validation = validateJsonSchemaValue(tool.schema, input.args);
 			if (!validation.valid) {
 				return this.finishToolCall(input, {
+					tool,
+					args: input.args,
 					status: 'error',
 					content: [{ type: 'text', text: `Invalid tool arguments: ${validation.errors.join('; ')}` }],
 					durationMs: Date.now() - startedAt,
@@ -623,6 +632,8 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			});
 			if (safety && !safety.allowed) {
 				return this.finishToolCall(input, {
+					tool,
+					args: input.args,
 					status: 'blocked',
 					content: [{ type: 'text', text: safety.reason ?? `Tool ${input.toolName} was blocked by safety policy.` }],
 					durationMs: Date.now() - startedAt,
@@ -631,13 +642,14 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			const approval = await this.resolveApproval(tool, input.args, toolContext, input.toolCallId);
 			if (!approval.approved) {
 				return this.finishToolCall(input, {
+					tool,
+					args: input.args,
 					status: 'rejected',
 					content: [{ type: 'text', text: approval.reason ?? `tool ${input.toolName} requires approval before execution.` }],
 					durationMs: Date.now() - startedAt,
 				});
 			}
 			const args = this.updatedArgs(input.args, approval.updatedArgs);
-			let args = input.args;
 			const result = await this.withToolTimeout(tool.execute(args, toolContext), toolController.signal, input.toolName);
 			const content = await this.config.resultOptimizer?.optimize({
 				toolName: input.toolName,
@@ -645,8 +657,14 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				details: result.details,
 				context: toolContext,
 			}) ?? result.content;
-			await this.runHooks('after_tool_call', { ...input, tool, result: { ...result, content } });
-			return this.finishToolCall(input, { status: result.status, content, durationMs: Date.now() - startedAt });
+			return this.finishToolCall(input, {
+				tool,
+				args,
+				status: result.status,
+				content,
+				details: result.details,
+				durationMs: Date.now() - startedAt,
+			});
 		} catch (error) {
 			this.emit({
 				type: 'tool.error',
@@ -657,6 +675,8 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				error: toHarnessErrorShape(error),
 			});
 			return this.finishToolCall(input, {
+				tool,
+				args: input.args,
 				status: 'error',
 				content: [
 					{
@@ -672,10 +692,43 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		}
 	}
 
-	private finishToolCall(
+	private async finishToolCall(
 		input: { runId: string; session: AgentHarnessSession; toolCallId: string; toolName: string },
-		result: { status: AgentToolResultStatus; content: ToolResultBlock[]; durationMs?: number }
-	): { status: AgentToolResultStatus; content: ToolResultBlock[] } {
+		result: {
+			tool: AgentHarnessTool;
+			args: Record<string, unknown>;
+			status: AgentToolResultStatus;
+			content: ToolResultBlock[];
+			details?: unknown;
+			durationMs?: number;
+		}
+	): Promise<{ status: AgentToolResultStatus; content: ToolResultBlock[] }> {
+		await this.runHooks('after_tool_call', {
+			runId: input.runId,
+			sessionId: input.session.id,
+			toolCallId: input.toolCallId,
+			toolName: input.toolName,
+			tool: result.tool,
+			args: result.args,
+			result: {
+				status: result.status,
+				content: result.content,
+				details: result.details,
+			},
+			durationMs: result.durationMs,
+		});
+		await this.log({
+			runId: input.runId,
+			sessionId: input.session.id,
+			type: 'tool.executed',
+			timestamp: new Date().toISOString(),
+			data: this.redactRecord({
+				toolName: input.toolName,
+				toolCallId: input.toolCallId,
+				status: result.status,
+				durationMs: result.durationMs,
+			}),
+		});
 		this.emit({
 			type: 'tool.finished',
 			runId: input.runId,
@@ -685,7 +738,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			status: result.status,
 			durationMs: result.durationMs,
 		});
-		return result;
+		return { status: result.status, content: result.content };
 	}
 
 	private createToolContext(
