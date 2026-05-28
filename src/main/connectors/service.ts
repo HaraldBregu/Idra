@@ -1235,16 +1235,15 @@ function environmentSecretNamesFor(mcp: ConnectorMcpConfig | undefined): string[
 
 function connectorStatusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (connector.enabled === false) return 'disabled';
-	if (connector.oauth && !connectorHasAuthorization(connector)) return 'missing_auth';
+	if (connectorAuthKindFor(connector) === 'oauth' && !connectorHasAuthorization(connector)) return 'missing_auth';
 	if (!connector.mcp) return 'missing_auth';
-	if (isOAuthMcpConfig(connector.mcp) && !connectorHasAuthorization(connector)) return 'missing_auth';
 	if (missingMcpSecretNames(connector).length > 0) return 'missing_auth';
 	if (connector.lastError) return 'error';
 	return 'configured';
 }
 
 function connectorAuthKindFor(connector: ConnectorConfig): ConnectorAuthKind {
-	return connector.oauth || isOAuthMcpConfig(connector.mcp) ? 'oauth' : 'mcp_env';
+	return connector.authKind === 'oauth' || connector.oauth || connector.token?.accessToken ? 'oauth' : 'mcp_env';
 }
 
 function connectorHasAuthorization(connector: ConnectorConfig): boolean {
@@ -1262,15 +1261,6 @@ function authorizationFromMcp(mcp: ConnectorMcpConfig | undefined): string {
 		if (key.toLowerCase() === 'authorization') return value.trim();
 	}
 	return '';
-}
-
-function isOAuthMcpConfig(mcp: ConnectorMcpConfig | undefined): boolean {
-	if (mcp?.transport !== 'http') return false;
-	return (
-		mcp.url === 'https://gmailmcp.googleapis.com/mcp/v1' ||
-		mcp.url === 'https://calendarmcp.googleapis.com/mcp/v1' ||
-		mcp.url === 'https://drivemcp.googleapis.com/mcp/v1'
-	);
 }
 
 function missingMcpSecretNames(
