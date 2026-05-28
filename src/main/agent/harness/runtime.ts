@@ -873,11 +873,20 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			...[...this.loadedSkills.values()].flatMap((skill) => skill.tools ?? []),
 			...(await this.discoverExternalTools(task, session, context)),
 		];
-		return filterToolsByPermissions(tools, {
+		return filterToolsByPermissions(this.uniqueToolsByName(tools), {
 			permissions: this.config.permissions,
 			enabledTools: input?.enabledTools,
 			disabledTools: input?.disabledTools,
 			toolGroups: input?.toolGroups,
+		});
+	}
+
+	private uniqueToolsByName(tools: AgentHarnessTool[]): AgentHarnessTool[] {
+		const seen = new Set<string>();
+		return tools.filter((tool) => {
+			if (seen.has(tool.name)) return false;
+			seen.add(tool.name);
+			return true;
 		});
 	}
 
