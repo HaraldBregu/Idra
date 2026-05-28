@@ -1,6 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { resolveDefaultUserDataPath } from '../../user-data';
+import type { AgentTool } from '../capabilities/local';
+import { jsonResult, textResult } from '../capabilities/local';
 
 export const DEFAULT_AGENTS_FILENAME = 'AGENTS.md';
 export const DEFAULT_SOUL_FILENAME = 'SOUL.md';
@@ -44,19 +46,34 @@ export interface AgentStartupFilesServicePort {
 	listFiles(agentId: string): Promise<WorkspaceFileSummary[]>;
 	readFile(agentId: string, name: string): Promise<WorkspaceContextFile>;
 	writeFile(agentId: string, name: string, content: string): Promise<WorkspaceContextFile>;
+	deleteFile(agentId: string, name: string): Promise<WorkspaceContextFile>;
+	resetFiles(agentId: string): Promise<WorkspaceFileSummary[]>;
 	completeBootstrap(agentId: string): Promise<WorkspaceContextFile>;
 }
 
 const names = new Set<string>(WORKSPACE_CONTEXT_FILE_NAMES);
 const defaults: Record<WorkspaceFileName, string> = {
-	[DEFAULT_AGENTS_FILENAME]: '# Agent Instructions\n',
-	[DEFAULT_SOUL_FILENAME]: '# Soul\n',
-	[DEFAULT_IDENTITY_FILENAME]: '# Identity\n',
-	[DEFAULT_USER_FILENAME]: '# User\n',
-	[DEFAULT_HEARTBEAT_FILENAME]: '# Heartbeat\n',
-	[DEFAULT_BOOTSTRAP_FILENAME]: '# Bootstrap\n',
-	[DEFAULT_MEMORY_FILENAME]: '# Memory\n',
+	[DEFAULT_AGENTS_FILENAME]: '# Agent Instructions\n\nThis file contains persistent startup context for the Friday agent.\n',
+	[DEFAULT_SOUL_FILENAME]: '# Soul\n\nDescribe the agent persona, tone, values, and boundaries here.\n',
+	[DEFAULT_IDENTITY_FILENAME]: '# Identity\n\n- Name: Friday\n- Role: Personal AI assistant\n',
+	[DEFAULT_USER_FILENAME]: '# User\n\nAdd the user profile, preferred name, timezone, projects, and communication preferences here.\n',
+	[DEFAULT_HEARTBEAT_FILENAME]: '# Heartbeat\n\nKeep scheduled-check guidance short and concrete.\n',
+	[DEFAULT_BOOTSTRAP_FILENAME]: [
+		'# First Run',
+		'',
+		'You are setting up this Friday agent for the first time.',
+		'Start with a brief presentation of who you are, then ask one focused question at a time to learn:',
+		'- what the user wants to call you;',
+		'- what you should call the user;',
+		'- the preferred tone, boundaries, and working style.',
+		'',
+		'When you have enough information, use the internal `startup_files` tool to write `IDENTITY.md`, `USER.md`, and `SOUL.md`, then call `startup_files` with `operation: "complete_bootstrap"`.',
+	].join('\n'),
+	[DEFAULT_MEMORY_FILENAME]: '# Memory\n\nCurated long-term memory belongs here when needed.\n',
 };
+const STATE_DIR = '.friday';
+const STATE_FILENAME = 'startup-state.json';
+type StartupState = { bootstrapSeededAt?: string; setupCompletedAt?: string };
 
 export function assertWorkspaceFileName(name: string): asserts name is WorkspaceFileName {
 	if (!names.has(name)) throw new Error(`Unsupported startup file: ${name}`);
