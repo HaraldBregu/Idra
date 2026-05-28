@@ -32,7 +32,6 @@ import { ToolService } from '../agent/tools';
 import { SkillsService } from '../skills';
 import { SpeechToTextService } from '../stt';
 import { AgentRunLogger } from '../agent/run-logger';
-import { DEFAULT_AGENT_ID } from '../agent/constants';
 
 import type { IpcModule } from '../ipc';
 import {
