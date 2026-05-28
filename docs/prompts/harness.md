@@ -177,6 +177,8 @@ Statuses returned by gates (`error`, `blocked`, `rejected`) are recorded in the 
 
 The harness permits limited remediation before escalating or halting. Unbounded retry loops convert model uncertainty into cost and latency without improving outcomes.
 
+The convergence goal is **structural idempotence**: a run that has converged produces the same session state when re-evaluated — the model makes no further tool calls, all gates pass, and the transcript is stable. The harness drives toward this state through the run loop and halts when either convergence is reached or a hard ceiling is hit. It never continues past a ceiling hoping for convergence.
+
 Self-repair boundaries:
 
 - **Iterations**: `runtime.maxIterations` caps the total number of model turns per run. Default: 25.
