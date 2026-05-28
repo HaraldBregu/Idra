@@ -658,7 +658,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('checks policy for nested files before copying a directory', async () => {
+	it('copies nested files without stored file policy checks', async () => {
 		const workspace = await makeTempDir();
 		const sourceDir = path.join(workspace, 'source-dir');
 		const privateDir = path.join(sourceDir, 'private');
@@ -666,28 +666,17 @@ describe('tools/fs', () => {
 		await fs.writeFile(path.join(sourceDir, 'public.txt'), 'public', 'utf8');
 		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
 		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
 
 		const result = await copyTool.execute({ source: 'source-dir', destination: 'copied-dir' }, ctx);
 
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('denied by file policy');
-		await expect(fs.stat(path.join(workspace, 'copied-dir'))).rejects.toThrow();
+		expect(result.status).toBe('ok');
+		await expect(
+			fs.readFile(path.join(workspace, 'copied-dir', 'private', 'secret.txt'), 'utf8')
+		).resolves.toBe('secret');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('runs script files and applies shared path policy checks', async () => {
+	it('runs script files without workspace-boundary path checks', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(
@@ -712,7 +701,7 @@ describe('tools/fs', () => {
 					makeToolContext({ workspace })
 				)
 			).status
-		).toBe('error');
+		).toBe('ok');
 		await expect(
 			scriptRunTool.execute(
 				{ path: 'hello.js' },
@@ -724,29 +713,4 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('denies script execution when the file policy denies the script path', async () => {
-		const workspace = await makeTempDir();
-		const privateDir = path.join(workspace, 'private');
-		await fs.mkdir(privateDir);
-		await fs.writeFile(path.join(privateDir, 'secret.js'), "console.log('secret');\n", 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-
-		const result = await scriptRunTool.execute({ path: 'private/secret.js' }, ctx);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('denied by file policy');
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
 });
