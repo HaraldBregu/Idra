@@ -598,5 +598,10 @@ Before finishing a change to this module, verify:
 - Transcript compaction fires before the 90% input budget threshold, not at overflow.
 - Audit log entries are structured, typed, and free of unredacted secrets.
 - Bounded self-repair ceilings are enforced and produce the correct stop reasons.
+- Intent is classified and ambiguity is resolved before any tool is selected.
+- Background tasks run in detached subagents with filesystem-based progress, not in the main session loop.
+- Scheduled tasks go through `CronService`; no scheduling logic exists in the run loop or individual tools.
+- System tools (bluetooth, wifi, etc.) are consumed through the tool registry and tagged correctly for approval gating.
+- Parallel subagents use `Promise.all` over `runSubagent`; they do not share context windows.
 - The implementation is not more complex than the task requires.
 - New behavior is covered by focused unit tests.
