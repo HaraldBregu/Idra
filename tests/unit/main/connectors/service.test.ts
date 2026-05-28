@@ -27,6 +27,7 @@ import Store from 'electron-store';
 import {
 	ConnectorsService,
 	normalizeStoredConnector,
+	sanitizeConnectorInput,
 	toStoredConnectorRecords,
 } from '../../../../src/main/connectors';
 import { AgentMcpClientService } from '../../../../src/main/agent/mcp-client';
