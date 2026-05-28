@@ -27,6 +27,11 @@ function optionalStringArg(value: unknown): string | undefined {
 	return typeof value === 'string' && value.trim() ? value : undefined;
 }
 
+function textArg(value: unknown, name: string): string {
+	if (typeof value !== 'string') throw new Error(`${name} is required.`);
+	return value;
+}
+
 function numberArg(value: unknown, fallback: number): number {
 	return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? Math.floor(value) : fallback;
 }
@@ -309,7 +314,7 @@ export const writeFileTool: AgentTool = {
 	async execute(args, ctx) {
 		const blocked = ensureWritable(ctx);
 		if (blocked) return blocked;
-		const content = stringArg(args.content, 'content');
+		const content = textArg(args.content, 'content');
 		const file = resolveWorkspacePath(ctx, args.path);
 		await ensureParent(file);
 		await fs.writeFile(file, content, 'utf8');
@@ -324,7 +329,7 @@ export const appendFileTool: AgentTool = {
 	async execute(args, ctx) {
 		const blocked = ensureWritable(ctx);
 		if (blocked) return blocked;
-		const content = stringArg(args.content, 'content');
+		const content = textArg(args.content, 'content');
 		const file = resolveWorkspacePath(ctx, args.path);
 		await ensureParent(file);
 		await fs.appendFile(file, content, 'utf8');
