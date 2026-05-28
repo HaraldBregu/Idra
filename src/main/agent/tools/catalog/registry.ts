@@ -1,7 +1,7 @@
-import { PolicyService, type PolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../../policy';
 import type { AgentTool } from '../core/types';
 import { normalizeToolName } from '../core/common';
 import { LOCAL_TOOL_CATALOG, localToolCatalogByName } from './catalog';
+import { evaluateToolAccess, type ToolAccessSubject, type ToolProfile } from '../access';
 
 export {
 	LOCAL_TOOL_CATALOG,
@@ -29,23 +29,10 @@ export interface PolicyConfig {
 	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 }
 
-const defaultPolicyService = new PolicyService();
-
-const DISABLED_TOOL_GROUPS: readonly string[] = [
-	'group:stateTask',
-	'group:humanDecision',
-	'group:skill',
-	'group:mcpConnector',
-	'group:cron',
-];
-
-export function createTools(
-	cfg: PolicyConfig,
-	policy: Pick<PolicyServicePort, 'evaluateTools'> = defaultPolicyService
-): AgentTool[] {
+export function createTools(cfg: PolicyConfig): AgentTool[] {
 	const tools = PRELOADED_LOCAL_TOOLS as unknown as AgentTool[];
 	const catalog = localToolCatalogByName();
-	const subjects: ToolPolicySubject[] = tools.map((tool) => {
+	const subjects: ToolAccessSubject[] = tools.map((tool) => {
 		const entry = catalog.get(tool.name);
 		return {
 			name: tool.name,
@@ -53,12 +40,12 @@ export function createTools(
 			groups: entry ? [`group:${entry.group}`] : undefined,
 		};
 	});
-	const result = policy.evaluateTools(subjects, {
+	const result = evaluateToolAccess(subjects, {
 		stages: {
 			profile: { profile: cfg.profile, alsoAllow: cfg.alsoAllow },
 			runtime: {
 				allow: cfg.allow.length > 0 ? cfg.allow : undefined,
-				deny: [...cfg.deny, ...DISABLED_TOOL_GROUPS],
+				deny: cfg.deny,
 			},
 		},
 	});
