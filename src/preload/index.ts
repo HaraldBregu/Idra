@@ -12,26 +12,18 @@ import {
 	TaskChannels,
 	CronChannels,
 	HeartbeatChannels,
-	MonitorChannels,
 	SkillsChannels,
-	ChatMemoryChannels,
-	RagChannels,
-	WikiChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
 	AgentApi,
 	ChannelsApi,
-	ChatMemoryApi,
 	ConnectorsApi,
 	CronApi,
 	HeartbeatApi,
-	MonitorApi,
-	RagApi,
 	RealtimeTranscriptionApi,
 	SkillsApi,
 	TasksApi,
-	WikiApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -60,7 +52,6 @@ import type {
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
-import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
 	Agent,
 	ConfiguredModelOperator,
@@ -89,11 +80,6 @@ import type {
 	ConnectorUpdateInput,
 	ConnectorView,
 } from '../shared/connector';
-import {
-	isRealtimeTranscriptionAudioChunk,
-	isRealtimeTranscriptionSessionId,
-	normalizeRealtimeTranscriptionStartRequest,
-} from '../shared/realtime-transcription';
 
 const win: WindowApi = {
 	minimize: (): void => {
@@ -297,30 +283,15 @@ export const app: AppApi = {
 
 export const realtimeTranscription: RealtimeTranscriptionApi = {
 	start: (request) => {
-		return typedInvokeUnwrap(
-			RealtimeTranscriptionChannels.start,
-			normalizeRealtimeTranscriptionStartRequest(request)
-		);
+		return typedInvokeUnwrap(RealtimeTranscriptionChannels.start, request);
 	},
 	appendAudio: (sessionId: string, audio: string): void => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
-			throw new Error('Invalid realtime transcription session id.');
-		}
-		if (!isRealtimeTranscriptionAudioChunk(audio)) {
-			throw new Error('Invalid realtime transcription audio chunk.');
-		}
 		typedSend(RealtimeTranscriptionChannels.appendAudio, sessionId, audio);
 	},
 	finish: (sessionId: string): Promise<void> => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
-			throw new Error('Invalid realtime transcription session id.');
-		}
 		return typedInvokeUnwrap(RealtimeTranscriptionChannels.finish, sessionId);
 	},
 	cancel: (sessionId: string): Promise<void> => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
-			throw new Error('Invalid realtime transcription session id.');
-		}
 		return typedInvokeUnwrap(RealtimeTranscriptionChannels.cancel, sessionId);
 	},
 	onEvent: (callback): (() => void) => {
@@ -441,57 +412,6 @@ export const tasks: TasksApi = {
 	},
 	onEvent: (callback) => {
 		return typedOn(TaskChannels.event, callback);
-	},
-};
-
-export const chatMemory: ChatMemoryApi = {
-	list: (request) => {
-		return typedInvokeUnwrap(ChatMemoryChannels.list, request);
-	},
-	read: (request) => {
-		return typedInvokeUnwrap(ChatMemoryChannels.read, request);
-	},
-	search: (request) => {
-		return typedInvokeUnwrap(ChatMemoryChannels.search, request);
-	},
-};
-
-export const rag: RagApi = {
-	list: () => {
-		return typedInvokeUnwrap(RagChannels.list);
-	},
-	read: (request) => {
-		return typedInvokeUnwrap(RagChannels.read, request);
-	},
-	search: (request) => {
-		return typedInvokeUnwrap(RagChannels.search, request);
-	},
-};
-
-export const wiki: WikiApi = {
-	list: () => {
-		return typedInvokeUnwrap(WikiChannels.list);
-	},
-	read: (request) => {
-		return typedInvokeUnwrap(WikiChannels.read, request);
-	},
-	search: (request) => {
-		return typedInvokeUnwrap(WikiChannels.search, request);
-	},
-};
-
-export const monitor: MonitorApi = {
-	snapshot: (filter?: MonitorEventFilter): Promise<MonitorSnapshot> => {
-		return typedInvokeUnwrap(MonitorChannels.snapshot, filter);
-	},
-	list: (filter?: MonitorEventFilter): Promise<MonitorEventRecord[]> => {
-		return typedInvokeUnwrap(MonitorChannels.list, filter);
-	},
-	get: (id: string): Promise<MonitorEventRecord | undefined> => {
-		return typedInvokeUnwrap(MonitorChannels.get, id);
-	},
-	onEvent: (callback: (record: MonitorEventRecord) => void): (() => void) => {
-		return typedOn(MonitorChannels.event, callback);
 	},
 };
 
@@ -616,10 +536,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('tasks', tasks);
-		contextBridge.exposeInMainWorld('monitor', monitor);
-		contextBridge.exposeInMainWorld('chatMemory', chatMemory);
-		contextBridge.exposeInMainWorld('rag', rag);
-		contextBridge.exposeInMainWorld('wiki', wiki);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
@@ -641,14 +557,6 @@ if (process.contextIsolated) {
 	globalThis.heartbeat = heartbeat;
 	// @ts-ignore (define in dts)
 	globalThis.tasks = tasks;
-	// @ts-ignore (define in dts)
-	globalThis.monitor = monitor;
-	// @ts-ignore (define in dts)
-	globalThis.chatMemory = chatMemory;
-	// @ts-ignore (define in dts)
-	globalThis.rag = rag;
-	// @ts-ignore (define in dts)
-	globalThis.wiki = wiki;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)

@@ -14,7 +14,6 @@ import {
 	ToolExecutor,
 	type AgentToolManagementOptions,
 } from '../tools/management';
-import { prepareLegacyToolsForProvider } from '../tools/runtime/legacy-tool-adapter';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
 import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
@@ -25,18 +24,6 @@ import type {
 	ReasoningSummaryState,
 } from '../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
-import { buildAgentHookContext, type AgentHarnessHookContext } from './harness/hook-context';
-import { fireAfterToolCallHook, fireBeforeMessageWriteHook } from './harness/hook-helpers';
-import {
-	fireAgentEndHook,
-	fireLlmInputHook,
-	fireLlmOutputHook,
-} from './harness/lifecycle-hook-helpers';
-import {
-	listAgentToolResultMiddlewareRegistrations,
-	runAgentToolResultMiddleware,
-	sanitizeToolResultDetails,
-} from './harness/tool-result-middleware';
 
 export interface AgentProviderStore {
 	getAssistantOperator(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
@@ -127,7 +114,6 @@ export interface AgentRunInput {
 	provider?: ProviderAdapter;
 	providerId?: string;
 	model?: string;
-	agentHarnessId?: string;
 	requestedRuntime?: string;
 	storedRuntime?: string;
 	effort?: ModelReasoningEffort;
@@ -211,85 +197,6 @@ function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknow
 	return details === undefined ? resultBlocksToOutput(content) : details;
 }
 
-function normalizeRuntimeId(input: unknown): string | undefined {
-	if (typeof input !== 'string') return undefined;
-	const runtime = input.trim().toLowerCase();
-	return runtime || undefined;
-}
-
-function resolveRunHarnessRuntime(input: AgentRunInput): string | undefined {
-	return (
-		normalizeRuntimeId(input.agentHarnessId) ??
-		normalizeRuntimeId(input.requestedRuntime) ??
-		normalizeRuntimeId(input.storedRuntime)
-	);
-}
-
-function buildRunHookContext(params: {
-	runId: string;
-	input: AgentRunInput;
-	session: SessionFile;
-	ctx: ToolContext;
-	model: string;
-}): AgentHarnessHookContext {
-	return buildAgentHookContext({
-		runId: params.runId,
-		agentId: params.ctx.agentId,
-		sessionId: params.session.id,
-		sessionKey: params.ctx.sessionId,
-		provider: params.input.providerId,
-		modelId: params.model,
-		channelId: readString(params.ctx.deliveryContext?.channelId),
-	});
-}
-
-function readString(value: unknown): string | undefined {
-	return typeof value === 'string' && value.trim() ? value : undefined;
-}
-
-function assistantBlocksToHookText(blocks: AgentContentBlock[]): string {
-	return blocks
-		.map((block) => {
-			if (block.type === 'text') return block.text;
-			if (block.type === 'tool_use') return `[tool ${block.toolName}]`;
-			return '';
-		})
-		.filter(Boolean)
-		.join('\n');
-}
-
-async function applyToolResultMiddlewareForRun(params: {
-	content: ToolResultBlock[];
-	hookContext: AgentHarnessHookContext;
-	runtime?: string;
-}): Promise<ToolResultBlock[]> {
-	return runAgentToolResultMiddleware(
-		params.content,
-		listAgentToolResultMiddlewareRegistrations(),
-		params.hookContext,
-		params.runtime
-	);
-}
-
-async function prepareToolResultForRun(params: {
-	content: ToolResultBlock[];
-	details?: unknown;
-	hookContext: AgentHarnessHookContext;
-	runtime?: string;
-}): Promise<{ content: ToolResultBlock[]; outputText: string; output: unknown }> {
-	const content = await applyToolResultMiddlewareForRun({
-		content: params.content,
-		hookContext: params.hookContext,
-		runtime: params.runtime,
-	});
-	const outputText = resultBlocksToText(content);
-	return {
-		content,
-		outputText,
-		output: toolResultOutput(content, params.details),
-	};
-}
-
 /**
  * Provider-neutral agent loop.
  *
@@ -338,6 +245,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		signal,
 	} = input;
 
+	session.transcript.push({ role: 'user', content: userMessage });
+
 	const tracker = newCallTracker();
 	const managedExecutor =
 		input.toolManagement?.executor ??
@@ -346,11 +255,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 		...input.toolManagement,
 		executor: managedExecutor,
 	};
-	const providerTools = prepareLegacyToolsForProvider(tools, ctx, {
-		provider: input.providerId,
-		modelId: model,
-	});
-	const toolSelection = selectAgentToolsForTurn(providerTools, userMessage, ctx, toolManagement);
+	const toolSelection = selectAgentToolsForTurn(tools, userMessage, ctx, toolManagement);
 	const toolsForPrompt = toolSelection.toolsForPrompt;
 	const systemPromptForTurn = toolSelection.systemPromptSuffix
 		? `${systemPrompt}\n\n${toolSelection.systemPromptSuffix}`
@@ -364,26 +269,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 	let completedIterations = 0;
 	let firstTokenLatencyMs: number | undefined;
 	const runStart = Date.now();
-	const hookContext = buildRunHookContext({ runId, input, session, ctx, model });
-	const harnessRuntime = resolveRunHarnessRuntime(input);
-	let didFireAgentEndHook = false;
-	const fireAgentEndOnce = async (): Promise<void> => {
-		if (didFireAgentEndHook) return;
-		didFireAgentEndHook = true;
-		await fireAgentEndHook({
-			...hookContext,
-			stopReason,
-			turnCount: completedIterations,
-		});
-	};
-
-	await fireBeforeMessageWriteHook({
-		...hookContext,
-		role: 'user',
-		content: userMessage,
-		sessionKey: hookContext.sessionKey,
-	});
-	session.transcript.push({ role: 'user', content: userMessage });
 
 	await hooks?.onStart?.({ runId });
 	agentLogger.info('agent:run', 'run started', { runId, model, tools: tools.map((t) => t.name), userMessageLen: userMessage.length });
@@ -405,11 +290,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 
 			try {
-				await fireLlmInputHook({
-					...hookContext,
-					messages: session.transcript,
-					systemPrompt: systemPromptForTurn,
-				});
 				for await (const event of provider.stream({
 					model,
 					effort,
@@ -488,11 +368,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 							break;
 					}
 				}
-				await fireLlmOutputHook({
-					...hookContext,
-					stopReason: turnStop,
-					outputTokens: iterUsage.outputTokens,
-				});
 			} catch (err) {
 				if (err instanceof ContextOverflowError && !didCompact) {
 					didCompact = true;
@@ -536,7 +411,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					firstTokenLatencyMs,
 					error: err as Error,
 				});
-				await fireAgentEndOnce();
 				throw err;
 			}
 
@@ -555,12 +429,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
 			if (!blocks.some(isVisibleAssistantBlock)) blocks.push({ type: 'text', text: '' });
-			await fireBeforeMessageWriteHook({
-				...hookContext,
-				role: 'assistant',
-				content: assistantBlocksToHookText(blocks),
-				sessionKey: hookContext.sessionKey,
-			});
 			session.transcript.push({ role: 'assistant', content: blocks });
 			finalText += text;
 
@@ -588,11 +456,7 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 				});
 				const toolStart = Date.now();
 				if (!parsedArgs.ok) {
-					const toolResult = await prepareToolResultForRun({
-						content: [{ type: 'text', text: parsedArgs.message }],
-						hookContext,
-						runtime: harnessRuntime,
-					});
+					const out = parsedArgs.message;
 					const durationMs = Date.now() - toolStart;
 					await hooks?.onToolCall?.({
 						runId,
@@ -602,8 +466,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						args,
 						status: 'error',
 						durationMs,
-						outputChars: toolResult.outputText.length,
-						outputText: toolResult.outputText,
+						outputChars: out.length,
+						outputText: out,
 					});
 					agentLogger.warn('agent:run', 'tool args invalid', { runId, tool: t.name, iter, durationMs });
 					streamEvent?.({
@@ -612,40 +476,23 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolCallId: id,
 						toolName: t.name,
 						input: args,
-						output: toolResult.output,
-						outputText: toolResult.outputText,
+						output: out,
+						outputText: out,
 						status: 'error',
 						durationMs,
-						errorText: toolResult.outputText,
-					});
-					await fireAfterToolCallHook({
-						...hookContext,
-						toolName: t.name,
-						toolUseId: id,
-						result: toolResult.content,
-						isError: true,
-					});
-					await fireBeforeMessageWriteHook({
-						...hookContext,
-						role: 'tool',
-						content: toolResult.outputText,
-						sessionKey: hookContext.sessionKey,
+						errorText: out,
 					});
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
 						isError: true,
 						status: 'error',
-						content: toolResult.content,
+						content: [{ type: 'text', text: out }],
 					});
 					continue;
 				}
 				if (!tool) {
-					const toolResult = await prepareToolResultForRun({
-						content: [{ type: 'text', text: `tool '${t.name}' is not available in this run.` }],
-						hookContext,
-						runtime: harnessRuntime,
-					});
+					const out = `tool '${t.name}' is not available in this run.`;
 					const durationMs = Date.now() - toolStart;
 					await hooks?.onToolCall?.({
 						runId,
@@ -655,8 +502,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						args,
 						status: 'error',
 						durationMs,
-						outputChars: toolResult.outputText.length,
-						outputText: toolResult.outputText,
+						outputChars: out.length,
+						outputText: out,
 					});
 					agentLogger.warn('agent:run', 'tool not found', { runId, tool: t.name, iter });
 					streamEvent?.({
@@ -665,44 +512,27 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolCallId: id,
 						toolName: t.name,
 						input: args,
-						output: toolResult.output,
-						outputText: toolResult.outputText,
+						output: out,
+						outputText: out,
 						status: 'error',
 						durationMs,
-						errorText: toolResult.outputText,
-					});
-					await fireAfterToolCallHook({
-						...hookContext,
-						toolName: t.name,
-						toolUseId: id,
-						result: toolResult.content,
-						isError: true,
-					});
-					await fireBeforeMessageWriteHook({
-						...hookContext,
-						role: 'tool',
-						content: toolResult.outputText,
-						sessionKey: hookContext.sessionKey,
+						errorText: out,
 					});
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
 						isError: true,
 						status: 'error',
-						content: toolResult.content,
+						content: [{ type: 'text', text: out }],
 					});
 					continue;
 				}
 				const before = await beforeToolCall(tool, args, ctx, tracker);
 				if (!before.proceed && before.vetoResult) {
 					const status: ToolResultStatus = before.vetoStatus ?? 'error';
-					const vetoResult = sanitizeToolResultDetails(before.vetoResult);
-					const toolResult = await prepareToolResultForRun({
-						content: vetoResult.content,
-						details: vetoResult.details,
-						hookContext,
-						runtime: harnessRuntime,
-					});
+					const outText = before.vetoResult.content
+						.map((c) => (c.type === 'text' ? (c.text ?? '') : ''))
+						.join(' ');
 					const durationMs = Date.now() - toolStart;
 					await hooks?.onToolCall?.({
 						runId,
@@ -712,8 +542,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						args,
 						status,
 						durationMs,
-						outputChars: toolResult.outputText.length,
-						outputText: toolResult.outputText,
+						outputChars: outText.length,
+						outputText: outText,
 					});
 					streamEvent?.({
 						type: 'tool_call_result',
@@ -721,31 +551,18 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						toolCallId: id,
 						toolName: t.name,
 						input: args,
-						output: toolResult.output,
-						outputText: toolResult.outputText,
+						output: toolResultOutput(before.vetoResult.content, before.vetoResult.details),
+						outputText: outText,
 						status,
 						durationMs,
-						errorText: toolResult.outputText,
-					});
-					await fireAfterToolCallHook({
-						...hookContext,
-						toolName: t.name,
-						toolUseId: id,
-						result: toolResult.content,
-						isError: true,
-					});
-					await fireBeforeMessageWriteHook({
-						...hookContext,
-						role: 'tool',
-						content: toolResult.outputText,
-						sessionKey: hookContext.sessionKey,
+						errorText: outText,
 					});
 					session.transcript.push({
 						role: 'tool',
 						toolUseId: id,
 						isError: true,
 						status,
-						content: toolResult.content,
+						content: before.vetoResult.content,
 					});
 					continue;
 				}
@@ -766,18 +583,12 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 						],
 					};
 				}
-				const sanitizedResult = sanitizeToolResultDetails(res);
-				const rawContent = before.warning
-					? [...sanitizedResult.content, { type: 'text' as const, text: before.warning }]
-					: sanitizedResult.content;
-				const toolResult = await prepareToolResultForRun({
-					content: rawContent,
-					details: sanitizedResult.details,
-					hookContext,
-					runtime: harnessRuntime,
-				});
+				const content = before.warning
+					? [...res.content, { type: 'text' as const, text: before.warning }]
+					: res.content;
+				const outText = resultBlocksToText(content);
 				const durationMs = Date.now() - toolStart;
-				const status: ToolResultStatus = sanitizedResult.status === 'ok' ? 'ok' : 'error';
+				const status: ToolResultStatus = res.status === 'ok' ? 'ok' : 'error';
 				await hooks?.onToolCall?.({
 					runId,
 					iteration: iter,
@@ -786,8 +597,8 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					args,
 					status,
 					durationMs,
-					outputChars: toolResult.outputText.length,
-					outputText: toolResult.outputText,
+					outputChars: outText.length,
+					outputText: outText,
 				});
 				streamEvent?.({
 					type: 'tool_call_result',
@@ -795,32 +606,19 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 					toolCallId: id,
 					toolName: t.name,
 					input: args,
-					output: toolResult.output,
-					outputText: toolResult.outputText,
+					output: toolResultOutput(content, res.details),
+					outputText: outText,
 					status,
 					durationMs,
-					errorText: status === 'error' ? toolResult.outputText : undefined,
+					errorText: status === 'error' ? outText : undefined,
 				});
-				await fireAfterToolCallHook({
-					...hookContext,
-					toolName: t.name,
-					toolUseId: id,
-					result: toolResult.content,
-					isError: status === 'error',
-				});
-				await fireBeforeMessageWriteHook({
-					...hookContext,
-					role: 'tool',
-					content: toolResult.outputText,
-					sessionKey: hookContext.sessionKey,
-				});
-				agentLogger.info('agent:run', 'tool call', { runId, tool: t.name, iter, status, durationMs, outputChars: toolResult.outputText.length });
+				agentLogger.info('agent:run', 'tool call', { runId, tool: t.name, iter, status, durationMs, outputChars: outText.length });
 				session.transcript.push({
 					role: 'tool',
 					toolUseId: id,
 					isError: status === 'error',
 					status,
-					content: toolResult.content,
+					content,
 				});
 			}
 
@@ -836,7 +634,6 @@ export async function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
 
 	session.plan = ctx.plan.entries;
 
-	await fireAgentEndOnce();
 	await hooks?.onFinish?.({
 		runId,
 		stopReason,

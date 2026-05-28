@@ -12,13 +12,13 @@ import {
 	RadioTower,
 	Server,
 	ShieldCheck,
-	type LucideIcon,
 	UserRound,
 	X,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
 	InputGroup,
@@ -39,7 +39,6 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsPanel,
 	SettingsSection,
 } from '../../../components';
 import { openExternalUrl } from '@/lib/external-links';
@@ -48,8 +47,6 @@ import type {
 	ChannelAccountProperties,
 	ChannelConnectionStatus,
 	ChannelDmPolicy,
-	ChannelHeartbeatVisibilityConfig,
-	ChannelSetupField,
 	ChannelType,
 	DiscordChannelProperties,
 	GenericChannelProperties,
@@ -57,9 +54,6 @@ import type {
 	WhatsappChannelProperties,
 } from '../../../../../../../shared/channels';
 import {
-	CHANNEL_DEFAULT_ACCOUNT_ID,
-	CHANNEL_DEFAULT_DM_POLICY,
-	CHANNEL_DM_POLICIES,
 	buildChannelDocsUrl,
 	isChannelId,
 	type ChannelCatalogEntry,
@@ -68,99 +62,34 @@ import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
-type TextSetupField = Extract<
-	ChannelSetupField,
-	| 'token'
-	| 'secret'
-	| 'serverUrl'
-	| 'webhookUrl'
-	| 'appId'
-	| 'clientId'
-	| 'clientSecret'
-	| 'username'
-	| 'phoneNumber'
-	| 'botUserId'
-	| 'defaultTarget'
->;
 
-const TEXT_SETUP_FIELD_CONFIG: Record<
-	TextSetupField,
-	{
-		readonly labelKey: string;
-		readonly placeholderKey: string;
-		readonly icon: LucideIcon;
-		readonly inputType?: React.HTMLInputTypeAttribute;
-	}
-> = {
-	token: {
-		labelKey: 'settings.channels.token',
-		placeholderKey: 'settings.channels.tokenPlaceholder',
-		icon: KeyRound,
-		inputType: 'password',
-	},
-	secret: {
-		labelKey: 'settings.channels.secret',
-		placeholderKey: 'settings.channels.secretPlaceholder',
-		icon: KeyRound,
-		inputType: 'password',
-	},
-	serverUrl: {
-		labelKey: 'settings.channels.serverUrl',
-		placeholderKey: 'settings.channels.serverUrlPlaceholder',
-		icon: Server,
-	},
-	webhookUrl: {
-		labelKey: 'settings.channels.webhookUrl',
-		placeholderKey: 'settings.channels.webhookUrlPlaceholder',
-		icon: Link2,
-	},
-	appId: {
-		labelKey: 'settings.channels.appId',
-		placeholderKey: 'settings.channels.appIdPlaceholder',
-		icon: Hash,
-	},
-	clientId: {
-		labelKey: 'settings.channels.clientId',
-		placeholderKey: 'settings.channels.clientIdPlaceholder',
-		icon: Hash,
-	},
-	clientSecret: {
-		labelKey: 'settings.channels.clientSecret',
-		placeholderKey: 'settings.channels.clientSecretPlaceholder',
-		icon: KeyRound,
-		inputType: 'password',
-	},
-	username: {
-		labelKey: 'settings.channels.username',
-		placeholderKey: 'settings.channels.usernamePlaceholder',
-		icon: UserRound,
-	},
-	phoneNumber: {
-		labelKey: 'settings.channels.phoneNumber',
-		placeholderKey: 'settings.channels.phoneNumberPlaceholder',
-		icon: Phone,
-		inputType: 'tel',
-	},
-	botUserId: {
-		labelKey: 'settings.channels.botUserId',
-		placeholderKey: 'settings.channels.botUserIdPlaceholder',
-		icon: UserRound,
-	},
-	defaultTarget: {
-		labelKey: 'settings.channels.defaultTarget',
-		placeholderKey: 'settings.channels.defaultTargetPlaceholder',
-		icon: Hash,
-	},
-};
+const PHONE_CHANNELS = new Set<ChannelType>([
+	'imessage',
+	'line',
+	'qqbot',
+	'signal',
+	'telegram',
+	'whatsapp',
+	'zalo',
+	'zalouser',
+]);
+const SERVER_CHANNELS = new Set<ChannelType>([
+	'discord',
+	'feishu',
+	'googlechat',
+	'irc',
+	'matrix',
+	'mattermost',
+	'msteams',
+	'nextcloud-talk',
+	'nostr',
+	'slack',
+	'synology-chat',
+	'tlon',
+	'twitch',
+]);
 
-const HEARTBEAT_FIELDS: readonly {
-	readonly field: keyof ChannelHeartbeatVisibilityConfig;
-	readonly labelKey: string;
-}[] = [
-	{ field: 'showOk', labelKey: 'settings.channels.heartbeatShowOk' },
-	{ field: 'showAlerts', labelKey: 'settings.channels.heartbeatShowAlerts' },
-	{ field: 'useIndicator', labelKey: 'settings.channels.heartbeatUseIndicator' },
-];
+const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
@@ -226,7 +155,6 @@ const ChannelDetailPage: React.FC = () => {
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
 	const selectedDocsUrl = selectedEntry ? buildChannelDocsUrl(selectedEntry.docsPath, __APP_HOMEPAGE__) : null;
-	const selectedSetupFields = selectedEntry?.setupFields ?? [];
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
 		if (!selectedId) return;
@@ -321,152 +249,6 @@ const ChannelDetailPage: React.FC = () => {
 		}
 	};
 
-	const renderTextSetupField = (field: TextSetupField): React.JSX.Element => {
-		const config = TEXT_SETUP_FIELD_CONFIG[field];
-		const Icon = config.icon;
-		const label = t(config.labelKey);
-		const placeholder =
-			field === 'token' && selectedId ? getTokenPlaceholder(selectedId, t) : t(config.placeholderKey);
-
-		return (
-			<Item key={field} variant="outline" size="md" className="border-b border-border/60">
-				<ItemMedia variant="icon">
-					<Icon className="size-3" strokeWidth={1.8} />
-				</ItemMedia>
-				<ItemContent>
-					<ItemTitle>{label}</ItemTitle>
-				</ItemContent>
-				<ItemActions className="ml-auto flex-none justify-end">
-					<Input
-						type={config.inputType}
-						value={getAccountStringValue(selectedAccount, field)}
-						onChange={(event) => updateAccountField(field, event.target.value)}
-						onBlur={() => void saveSelectedConfig()}
-						placeholder={placeholder}
-						className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-						aria-label={label}
-					/>
-				</ItemActions>
-			</Item>
-		);
-	};
-
-	const renderListSetupField = (field: ListField): React.JSX.Element => {
-		const config =
-			field === 'allowFrom'
-				? {
-						icon: UserRound,
-						label: t('settings.channels.allowFrom'),
-						placeholder: t('settings.channels.allowFromPlaceholder'),
-						addLabel: t('settings.channels.addAllowFrom'),
-						removeLabel: (item: string) => t('settings.channels.removeAllowFrom', { value: item }),
-						emptyLabel: t('settings.channels.noAllowFrom'),
-					}
-				: {
-						icon: Hash,
-						label: t('settings.channels.groupAllowFrom'),
-						placeholder: t('settings.channels.groupAllowFromPlaceholder'),
-						addLabel: t('settings.channels.addGroupAllowFrom'),
-						removeLabel: (item: string) =>
-							t('settings.channels.removeGroupAllowFrom', { value: item }),
-						emptyLabel: t('settings.channels.noGroupAllowFrom'),
-					};
-		const Icon = config.icon;
-
-		return (
-			<Item
-				key={field}
-				variant="outline"
-				size="md"
-				className="border-b border-border/60 flex-wrap"
-			>
-				<ItemMedia variant="icon">
-					<Icon className="size-3" strokeWidth={1.8} />
-				</ItemMedia>
-				<ItemContent>
-					<ItemTitle>{config.label}</ItemTitle>
-				</ItemContent>
-				<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
-					<ListEditor
-						value={listDrafts[field]}
-						items={selectedAccount[field] ?? []}
-						placeholder={config.placeholder}
-						addLabel={config.addLabel}
-						removeLabel={config.removeLabel}
-						emptyLabel={config.emptyLabel}
-						onDraftChange={(value) =>
-							setListDrafts((current) => ({ ...current, [field]: value }))
-						}
-						onAdd={() => addListValue(field)}
-						onRemove={(value) => removeListValue(field, value)}
-					/>
-				</ItemActions>
-			</Item>
-		);
-	};
-
-	const renderDmPolicyField = (): React.JSX.Element => (
-		<Item key="dmPolicy" variant="outline" size="md" className="border-b border-border/60">
-			<ItemMedia variant="icon">
-				<ShieldCheck className="size-3" strokeWidth={1.8} />
-			</ItemMedia>
-			<ItemContent>
-				<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
-			</ItemContent>
-			<ItemActions className="ml-auto flex-none justify-end">
-				<Select
-					value={selectedAccount.dmPolicy ?? 'allowlist'}
-					onValueChange={(value) =>
-						updateAccountField('dmPolicy', value as ChannelDmPolicy, { save: true })
-					}
-				>
-					<SelectTrigger size="sm" className="w-full sm:w-56">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{CHANNEL_DM_POLICIES.map((policy) => (
-							<SelectItem key={policy} value={policy}>
-								{t(`settings.channels.dmPolicies.${policy}`)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</ItemActions>
-		</Item>
-	);
-
-	const renderHeartbeatField = (): React.JSX.Element => (
-		<Item
-			key="heartbeat"
-			variant="outline"
-			size="md"
-			className="border-b border-border/60 flex-wrap"
-		>
-			<ItemMedia variant="icon">
-				<RadioTower className="size-3" strokeWidth={1.8} />
-			</ItemMedia>
-			<ItemContent>
-				<ItemTitle>{t('settings.channels.heartbeat')}</ItemTitle>
-			</ItemContent>
-			<ItemActions className="ml-auto w-full justify-end sm:w-80 sm:flex-none">
-				<HeartbeatEditor
-					value={selectedAccount.heartbeat}
-					onChange={(heartbeat) => updateAccountField('heartbeat', heartbeat, { save: true })}
-					t={t}
-				/>
-			</ItemActions>
-		</Item>
-	);
-
-	const renderSetupField = (field: ChannelSetupField): React.JSX.Element | null => {
-		if (field === 'enabled') return null;
-		if (isTextSetupField(field)) return renderTextSetupField(field);
-		if (field === 'allowFrom' || field === 'groupAllowFrom') return renderListSetupField(field);
-		if (field === 'dmPolicy') return renderDmPolicyField();
-		if (field === 'heartbeat') return renderHeartbeatField();
-		return null;
-	};
-
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
@@ -500,7 +282,7 @@ const ChannelDetailPage: React.FC = () => {
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
-			{selectedEntry && selectedEntry.runtime !== 'bundled' && (
+			{selectedEntry && selectedId !== 'telegram' && (
 				<SettingsNotice icon={CircleOff}>
 					{t('settings.channels.runtimeUnavailable')}
 				</SettingsNotice>
@@ -510,17 +292,22 @@ const ChannelDetailPage: React.FC = () => {
 				<SettingsSection
 					title={t('settings.channels.configuration')}
 					action={
-						<Badge
-							variant={isChannelEnabled(selectedId, selectedConfig) ? 'secondary' : 'outline'}
-							className="h-5 px-2 text-[10px]"
-						>
-							{isChannelEnabled(selectedId, selectedConfig)
-								? t('settings.channels.enabled')
-								: t('settings.channels.disabled')}
-						</Badge>
+						<div className="flex flex-wrap items-center gap-1.5">
+							<Badge variant="outline" className="h-5 px-2 text-[10px]">
+								{selectedId}
+							</Badge>
+							<Badge
+								variant={isChannelEnabled(selectedId, selectedConfig) ? 'secondary' : 'outline'}
+								className="h-5 px-2 text-[10px]"
+							>
+								{isChannelEnabled(selectedId, selectedConfig)
+									? t('settings.channels.enabled')
+									: t('settings.channels.disabled')}
+							</Badge>
+						</div>
 					}
 				>
-					<SettingsPanel>
+					<Card size="sm" className="gap-0! p-0!">
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<ShieldCheck className="size-3" strokeWidth={1.8} />
@@ -560,7 +347,298 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						{selectedSetupFields.map(renderSetupField)}
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<UserRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.username')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									value={selectedAccount.username ?? ''}
+									onChange={(event) => updateAccountField('username', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.usernamePlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.username')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<UserRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.botUserId')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									value={selectedAccount.botUserId ?? ''}
+									onChange={(event) => updateAccountField('botUserId', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.botUserIdPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.botUserId')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<KeyRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.token')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									type="password"
+									value={selectedAccount.token ?? ''}
+									onChange={(event) => updateAccountField('token', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={getTokenPlaceholder(selectedId, t)}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.token')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<KeyRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.secret')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									type="password"
+									value={selectedAccount.secret ?? ''}
+									onChange={(event) => updateAccountField('secret', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.secretPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.secret')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.appId')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									value={selectedAccount.appId ?? ''}
+									onChange={(event) => updateAccountField('appId', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.appIdPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.appId')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.clientId')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									value={selectedAccount.clientId ?? ''}
+									onChange={(event) => updateAccountField('clientId', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.clientIdPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.clientId')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<KeyRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.clientSecret')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									type="password"
+									value={selectedAccount.clientSecret ?? ''}
+									onChange={(event) => updateAccountField('clientSecret', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.clientSecretPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.clientSecret')}
+								/>
+							</ItemActions>
+						</Item>
+
+						{PHONE_CHANNELS.has(selectedId) && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Phone className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.phoneNumber')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										type="tel"
+										value={selectedAccount.phoneNumber ?? ''}
+										onChange={(event) => updateAccountField('phoneNumber', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.phoneNumberPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.phoneNumber')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
+
+						{SERVER_CHANNELS.has(selectedId) && (
+							<Item variant="outline" size="md" className="border-b border-border/60">
+								<ItemMedia variant="icon">
+									<Server className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent>
+									<ItemTitle>{t('settings.channels.serverUrl')}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<Input
+										value={selectedAccount.serverUrl ?? ''}
+										onChange={(event) => updateAccountField('serverUrl', event.target.value)}
+										onBlur={() => void saveSelectedConfig()}
+										placeholder={t('settings.channels.serverUrlPlaceholder')}
+										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+										aria-label={t('settings.channels.serverUrl')}
+									/>
+								</ItemActions>
+							</Item>
+						)}
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<Link2 className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.webhookUrl')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									value={selectedAccount.webhookUrl ?? ''}
+									onChange={(event) => updateAccountField('webhookUrl', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.webhookUrlPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.webhookUrl')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.defaultTarget')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Input
+									value={selectedAccount.defaultTarget ?? ''}
+									onChange={(event) => updateAccountField('defaultTarget', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
+									placeholder={t('settings.channels.defaultTargetPlaceholder')}
+									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									aria-label={t('settings.channels.defaultTarget')}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemMedia variant="icon">
+								<ShieldCheck className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<Select
+									value={selectedAccount.dmPolicy ?? 'allowlist'}
+									onValueChange={(value) =>
+										updateAccountField('dmPolicy', value as ChannelDmPolicy, { save: true })
+									}
+								>
+									<SelectTrigger size="sm" className="w-full sm:w-56">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{DM_POLICY_OPTIONS.map((policy) => (
+											<SelectItem key={policy} value={policy}>
+												{t(`settings.channels.dmPolicies.${policy}`)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
+							<ItemMedia variant="icon">
+								<UserRound className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+								<ListEditor
+									value={listDrafts.allowFrom}
+									items={selectedAccount.allowFrom ?? []}
+									placeholder={t('settings.channels.allowFromPlaceholder')}
+									addLabel={t('settings.channels.addAllowFrom')}
+									removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
+									emptyLabel={t('settings.channels.noAllowFrom')}
+									onDraftChange={(value) =>
+										setListDrafts((current) => ({ ...current, allowFrom: value }))
+									}
+									onAdd={() => addListValue('allowFrom')}
+									onRemove={(value) => removeListValue('allowFrom', value)}
+								/>
+							</ItemActions>
+						</Item>
+
+						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
+							<ItemMedia variant="icon">
+								<Hash className="size-3" strokeWidth={1.8} />
+							</ItemMedia>
+							<ItemContent>
+								<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
+							</ItemContent>
+							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+								<ListEditor
+									value={listDrafts.groupAllowFrom}
+									items={selectedAccount.groupAllowFrom ?? []}
+									placeholder={t('settings.channels.groupAllowFromPlaceholder')}
+									addLabel={t('settings.channels.addGroupAllowFrom')}
+									removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
+									emptyLabel={t('settings.channels.noGroupAllowFrom')}
+									onDraftChange={(value) =>
+										setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
+									}
+									onAdd={() => addListValue('groupAllowFrom')}
+									onRemove={(value) => removeListValue('groupAllowFrom', value)}
+								/>
+							</ItemActions>
+						</Item>
 
 						<Item variant="outline" size="md">
 							<ItemMedia variant="icon">
@@ -611,7 +689,7 @@ const ChannelDetailPage: React.FC = () => {
 								)}
 							</ItemActions>
 						</Item>
-					</SettingsPanel>
+					</Card>
 				</SettingsSection>
 			) : (
 				<SettingsNotice variant="destructive">
@@ -677,17 +755,19 @@ function ListEditor({
 						<Badge
 							key={item}
 							variant="outline"
-							className="max-w-full gap-1 px-2 pr-1 text-[10px]"
+							className="h-4 max-w-full gap-1 px-1.5 pr-0.5 text-[10px]"
 						>
 							<span className="max-w-48 truncate">{item}</span>
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="icon-xs"
 								onClick={() => onRemove(item)}
-								className="flex shrink-0 items-center justify-center rounded-full p-0.5 text-muted-foreground outline-none hover:text-foreground"
+								className="size-4 rounded-sm p-0 text-muted-foreground hover:text-foreground"
 								aria-label={removeLabel(item)}
 							>
 								<X className="size-2.5" />
-							</button>
+							</Button>
 						</Badge>
 					))
 				) : (
@@ -698,57 +778,13 @@ function ListEditor({
 	);
 }
 
-function HeartbeatEditor({
-	value,
-	onChange,
-	t,
-}: {
-	readonly value: ChannelHeartbeatVisibilityConfig | undefined;
-	readonly onChange: (value: ChannelHeartbeatVisibilityConfig) => void;
-	readonly t: (key: string) => string;
-}): React.JSX.Element {
-	return (
-		<div className="grid w-full min-w-0 gap-1">
-			{HEARTBEAT_FIELDS.map(({ field, labelKey }) => {
-				const label = t(labelKey);
-				return (
-					<Item key={field} variant="outline" size="sm" className="rounded-lg border border-border/60">
-						<ItemContent className="flex-1">
-							<ItemTitle className="text-[11px] font-normal text-muted-foreground">{label}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch
-								checked={Boolean(value?.[field])}
-								onCheckedChange={(checked) => onChange({ ...(value ?? {}), [field]: checked })}
-								aria-label={label}
-							/>
-						</ItemActions>
-					</Item>
-				);
-			})}
-		</div>
-	);
-}
-
-function isTextSetupField(field: ChannelSetupField): field is TextSetupField {
-	return Object.prototype.hasOwnProperty.call(TEXT_SETUP_FIELD_CONFIG, field);
-}
-
-function getAccountStringValue(
-	account: ChannelAccountProperties,
-	field: TextSetupField
-): string {
-	const value = account[field];
-	return typeof value === 'string' ? value : '';
-}
-
 function getDefaultAccountConfig(
 	channelId: ChannelType,
 	config: EditableChannelConfig
 ): ChannelAccountProperties {
 	if (channelId === 'telegram') {
 		const telegram = config as TelegramChannelProperties;
-		const account = telegram.accounts?.[resolveDefaultAccountId(telegram)];
+		const account = telegram.accounts?.[telegram.defaultAccountId ?? 'default'];
 		return {
 			...account,
 			label: account?.label ?? 'Telegram bot',
@@ -757,12 +793,12 @@ function getDefaultAccountConfig(
 			defaultTarget: account?.defaultTarget ?? telegram.defaultTarget,
 			allowFrom: account?.allowFrom ?? telegram.allowFrom,
 			groupAllowFrom: account?.groupAllowFrom ?? telegram.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? telegram.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY,
+			dmPolicy: account?.dmPolicy ?? telegram.dmPolicy ?? 'allowlist',
 		};
 	}
 	if (channelId === 'discord') {
 		const discord = config as DiscordChannelProperties;
-		const account = discord.accounts?.[resolveDefaultAccountId(discord)];
+		const account = discord.accounts?.[discord.defaultAccountId ?? 'default'];
 		return {
 			...account,
 			label: account?.label ?? 'Discord bot',
@@ -771,12 +807,12 @@ function getDefaultAccountConfig(
 			defaultTarget: account?.defaultTarget ?? discord.defaultTarget,
 			allowFrom: account?.allowFrom ?? discord.allowFrom,
 			groupAllowFrom: account?.groupAllowFrom ?? discord.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? discord.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY,
+			dmPolicy: account?.dmPolicy ?? discord.dmPolicy ?? 'allowlist',
 		};
 	}
 	if (channelId === 'whatsapp') {
 		const whatsapp = config as WhatsappChannelProperties;
-		const account = whatsapp.accounts?.[resolveDefaultAccountId(whatsapp)];
+		const account = whatsapp.accounts?.[whatsapp.defaultAccountId ?? 'default'];
 		return {
 			...account,
 			label: account?.label ?? 'WhatsApp account',
@@ -786,12 +822,12 @@ function getDefaultAccountConfig(
 			defaultTarget: account?.defaultTarget ?? whatsapp.defaultTarget,
 			allowFrom: account?.allowFrom ?? whatsapp.allowFrom ?? [],
 			groupAllowFrom: account?.groupAllowFrom ?? whatsapp.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? whatsapp.dmPolicy ?? CHANNEL_DEFAULT_DM_POLICY,
+			dmPolicy: account?.dmPolicy ?? whatsapp.dmPolicy ?? 'allowlist',
 		};
 	}
 
 	const generic = config as GenericChannelProperties;
-	return generic.accounts?.[resolveDefaultAccountId(generic)] ?? emptyAccountConfig(channelId);
+	return generic.accounts?.[generic.defaultAccountId ?? 'default'] ?? emptyAccountConfig(channelId);
 }
 
 function updateDefaultAccountConfig(
@@ -804,7 +840,6 @@ function updateDefaultAccountConfig(
 
 	if (channelId === 'telegram') {
 		const telegram = config as TelegramChannelProperties;
-		const accountId = resolveDefaultAccountId(telegram);
 		return {
 			...telegram,
 			token: nextAccount.token ?? '',
@@ -814,13 +849,12 @@ function updateDefaultAccountConfig(
 			dmPolicy: nextAccount.dmPolicy,
 			accounts: {
 				...(telegram.accounts ?? {}),
-				[accountId]: nextAccount,
+				default: nextAccount,
 			},
 		};
 	}
 	if (channelId === 'discord') {
 		const discord = config as DiscordChannelProperties;
-		const accountId = resolveDefaultAccountId(discord);
 		return {
 			...discord,
 			token: nextAccount.token ?? '',
@@ -830,13 +864,12 @@ function updateDefaultAccountConfig(
 			dmPolicy: nextAccount.dmPolicy,
 			accounts: {
 				...(discord.accounts ?? {}),
-				[accountId]: nextAccount,
+				default: nextAccount,
 			},
 		};
 	}
 	if (channelId === 'whatsapp') {
 		const whatsapp = config as WhatsappChannelProperties;
-		const accountId = resolveDefaultAccountId(whatsapp);
 		return {
 			...whatsapp,
 			token: nextAccount.token ?? '',
@@ -847,19 +880,18 @@ function updateDefaultAccountConfig(
 			dmPolicy: nextAccount.dmPolicy,
 			accounts: {
 				...(whatsapp.accounts ?? {}),
-				[accountId]: nextAccount,
+				default: nextAccount,
 			},
 		};
 	}
 
 	const generic = config as GenericChannelProperties;
-	const accountId = resolveDefaultAccountId(generic);
 	return {
 		...generic,
-		defaultAccountId: accountId,
+		defaultAccountId: generic.defaultAccountId ?? 'default',
 		accounts: {
 			...(generic.accounts ?? {}),
-			[accountId]: nextAccount,
+			default: nextAccount,
 		},
 	};
 }
@@ -888,12 +920,8 @@ function emptyAccountConfig(channelId: ChannelType): ChannelAccountProperties {
 		defaultTarget: '',
 		allowFrom: [],
 		groupAllowFrom: [],
-		dmPolicy: CHANNEL_DEFAULT_DM_POLICY,
+		dmPolicy: 'allowlist',
 	};
-}
-
-function resolveDefaultAccountId(config: { readonly defaultAccountId?: string }): string {
-	return config.defaultAccountId?.trim() || CHANNEL_DEFAULT_ACCOUNT_ID;
 }
 
 function normalizeList(values: readonly string[]): string[] {

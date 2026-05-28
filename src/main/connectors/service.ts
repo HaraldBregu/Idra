@@ -3,7 +3,6 @@ import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
 import type { StoreService } from '../store';
 import type { LoggerService } from '../logger';
-import type { SkillConnector } from '../skills/core/types';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
 import {
@@ -22,28 +21,29 @@ import {
 	type OpenAiConnectorId,
 } from '../../shared/connector';
 import {
-	GOOGLE_OAUTH_REDIRECT_URI,
+	GoogleCalendarApiClient,
+	GoogleDriveApiClient,
 	GoogleProfileClient,
+	GmailApiClient,
+	GOOGLE_OAUTH_REDIRECT_URI,
 	buildGoogleAuthorizationUrl,
+	buildRawEmail,
 	createGooglePkcePair,
 	exchangeGoogleAuthorizationCode,
 	mergeGoogleOAuthCredential,
+	projectGoogleCalendarEvent,
+	projectGoogleCalendarListEntry,
+	projectGoogleDriveFile,
+	projectGoogleDrivePermission,
+	projectGmailMessage,
+	projectGmailMessageWithBody,
 	refreshGoogleAccessToken,
 	scopesForGoogleConnectorTools,
 	type FetchLike,
+	type GoogleCalendarEvent,
 } from './google';
-import {
-	GmailRuntimeStrategy,
-	GoogleCalendarRuntimeStrategy,
-	GoogleDriveRuntimeStrategy,
-} from './google-strategies';
-import type { ConnectorRuntimeStrategy } from './runtime';
 
-const GOOGLE_CONNECTOR_IDS = new Set([
-	'connector_gmail',
-	'connector_googlecalendar',
-	'connector_googledrive',
-]);
+const GOOGLE_CONNECTOR_IDS = new Set(['connector_gmail', 'connector_googlecalendar', 'connector_googledrive']);
 const GOOGLE_OAUTH_TIMEOUT_MS = 5 * 60 * 1000;
 const GOOGLE_OAUTH_LOOPBACK_HOST = '127.0.0.1';
 
@@ -64,6 +64,12 @@ interface ConnectorsServiceOptions {
 	googleOAuthClientId?: string;
 	googleOAuthClientSecret?: string;
 }
+
+type ConnectorToolStrategy = (
+	connector: ConnectorConfig,
+	name: string,
+	args: unknown
+) => Promise<unknown>;
 
 function serverLabelFromName(name: string): string {
 	return name
@@ -99,9 +105,7 @@ function statusFor(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
 	if (isGoogleConnector(connector.connectorId)) {
-		return connector.oauth?.refreshToken ||
-			connector.oauth?.accessToken ||
-			connector.authorization?.trim()
+		return connector.oauth?.refreshToken || connector.oauth?.accessToken || connector.authorization?.trim()
 			? 'configured'
 			: 'missing_auth';
 	}
@@ -149,10 +153,7 @@ function readOptionalBoolean(params: Record<string, unknown>, key: string): bool
 	return value;
 }
 
-function readOptionalStringArray(
-	params: Record<string, unknown>,
-	key: string
-): string[] | undefined {
+function readOptionalStringArray(params: Record<string, unknown>, key: string): string[] | undefined {
 	const value = params[key];
 	if (value === undefined || value === null) return undefined;
 	if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
@@ -184,8 +185,7 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
 
 	if (!name) throw new Error('Connector name is required.');
-	if (!isOpenAiConnectorId(connectorId))
-		throw new Error(`Unsupported connector id: ${connectorId}`);
+	if (!isOpenAiConnectorId(connectorId)) throw new Error(`Unsupported connector id: ${connectorId}`);
 	if (!serverLabel) throw new Error('Server label is required.');
 	if (!/^[a-zA-Z0-9_-]+$/.test(serverLabel)) {
 		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
@@ -193,9 +193,7 @@ function sanitizeInput(input: unknown): ConnectorInput {
 
 	const catalog = getConnectorCatalogItem(connectorId);
 	const knownToolNames = new Set<string>(catalog?.tools ?? []);
-	const uniqueAllowedTools = Array.from(
-		new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean))
-	);
+	const uniqueAllowedTools = Array.from(new Set(allowedTools.map((tool) => tool.trim()).filter(Boolean)));
 	const unknownTool = uniqueAllowedTools.find((tool) => !knownToolNames.has(tool));
 	if (unknownTool) {
 		throw new Error(`Tool "${unknownTool}" is not available for ${catalog?.name ?? connectorId}.`);
@@ -215,24 +213,13 @@ function sanitizeInput(input: unknown): ConnectorInput {
 }
 
 export class ConnectorsService {
-	private readonly runtimeStrategies: Partial<Record<OpenAiConnectorId, ConnectorRuntimeStrategy>> =
-		{
-			connector_gmail: new GmailRuntimeStrategy({
-				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
-				fetchImpl: () => this.fetchImpl(),
-				listTools: knownTools,
-			}),
-			connector_googlecalendar: new GoogleCalendarRuntimeStrategy({
-				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
-				fetchImpl: () => this.fetchImpl(),
-				listTools: knownTools,
-			}),
-			connector_googledrive: new GoogleDriveRuntimeStrategy({
-				getAccessToken: (connector) => this.getGoogleAccessToken(connector),
-				fetchImpl: () => this.fetchImpl(),
-				listTools: knownTools,
-			}),
-		};
+	private readonly toolStrategies: Partial<Record<OpenAiConnectorId, ConnectorToolStrategy>> = {
+		connector_gmail: (connector, name, args) => this.callGmailTool(connector, name, args),
+		connector_googlecalendar: (connector, name, args) =>
+			this.callGoogleCalendarTool(connector, name, args),
+		connector_googledrive: (connector, name, args) =>
+			this.callGoogleDriveTool(connector, name, args),
+	};
 
 	constructor(
 		private readonly store: StoreService,
@@ -267,18 +254,18 @@ export class ConnectorsService {
 
 		for (const connector of validConnectors) {
 			if (connector.enabled && connector.tools.length === 0) {
-				this.replace(this.withKnownTools(connector));
+				this.replace({
+					...connector,
+					tools: knownTools(connector),
+					lastRefreshedAt: new Date().toISOString(),
+				});
 			}
 		}
 	}
 
 	async add(input: unknown): Promise<ConnectorConfig> {
 		const sanitized = sanitizeInput(input);
-		if (
-			this.store
-				.getConnectors()
-				.some((connector) => connector.connectorId === sanitized.connectorId)
-		) {
+		if (this.store.getConnectors().some((connector) => connector.connectorId === sanitized.connectorId)) {
 			throw new Error(`Connector ${sanitized.connectorId} is already configured.`);
 		}
 		const now = new Date().toISOString();
@@ -310,11 +297,9 @@ export class ConnectorsService {
 			name: readOptionalString(patch, 'name') ?? current.name,
 			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
 			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
-			serverDescription:
-				readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+			serverDescription: readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
 			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
-			requireApproval:
-				readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
+			requireApproval: readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
 			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
 			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
 			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
@@ -347,14 +332,11 @@ export class ConnectorsService {
 		const status = statusFor(connector);
 
 		if (status === 'configured') {
-			const runtime = this.runtimeFor(connector);
 			return {
 				status,
 				message: isGoogleConnector(connector.connectorId)
 					? `Google connector is connected${connector.oauth?.email ? ` as ${connector.oauth.email}` : ''}.`
-					: runtime
-						? 'Connector is configured for local agent tool execution.'
-						: 'Connector is configured for catalog/provider-hosted use. Local agent execution is not implemented.',
+					: 'Connector is configured for Responses API requests.',
 			};
 		}
 
@@ -381,9 +363,7 @@ export class ConnectorsService {
 	async connectOAuth(id: string): Promise<ConnectorOAuthConnectResult> {
 		const connector = this.getStored(id);
 		if (!isGoogleConnector(connector.connectorId)) {
-			throw new Error(
-				`Connector ${connector.connectorId} does not support local OAuth connection.`
-			);
+			throw new Error(`Connector ${connector.connectorId} does not support local OAuth connection.`);
 		}
 		const oauth = this.requireGoogleOAuthConfig(connector);
 		const state = randomUUID();
@@ -417,14 +397,8 @@ export class ConnectorsService {
 				codeVerifier: pkce.codeVerifier,
 				fetchImpl: this.fetchImpl(),
 			});
-			const connected = mergeGoogleOAuthCredential(
-				{ ...oauth, redirectUri: loopback.redirectUri },
-				token
-			);
-			const profile = await new GoogleProfileClient(
-				connected.accessToken!,
-				this.fetchImpl()
-			).getUserInfo();
+			const connected = mergeGoogleOAuthCredential({ ...oauth, redirectUri: loopback.redirectUri }, token);
+			const profile = await new GoogleProfileClient(connected.accessToken!, this.fetchImpl()).getUserInfo();
 			const next = this.withKnownTools({
 				...connector,
 				oauth: stripGoogleOAuthClientCredentials({
@@ -456,31 +430,29 @@ export class ConnectorsService {
 		return this.getStored(id).tools;
 	}
 
-	async callTool(id?: string, name?: string, args?: unknown, _options?: unknown): Promise<unknown> {
+	async callTool(
+		id?: string,
+		name?: string,
+		args?: unknown,
+		_options?: unknown
+	): Promise<unknown> {
 		if (!id) throw new Error('Connector id is required.');
 		if (!name) throw new Error('Connector tool name is required.');
 		const connector = this.getStored(id);
 		if (statusFor(connector) !== 'configured') {
 			throw new Error(`Connector is not configured: ${connector.name}`);
 		}
-		const strategy = this.runtimeFor(connector);
-		if (!strategy) {
-			throw new Error(`Connector is catalog-only in local runtime: ${connector.connectorId}.`);
-		}
 		if (!connector.tools.some((tool) => tool.name === name)) {
 			throw new Error(`Tool ${name} is not enabled for ${connector.name}.`);
 		}
-		return strategy.callTool(connector, name, args);
+		const strategy = this.toolStrategies[connector.connectorId];
+		if (strategy) return strategy(connector, name, args);
+		throw new Error(`Local execution is not implemented for ${connector.connectorId}.`);
 	}
 
 	createAgentTools(): AgentTool[] {
 		return this.validConnectors()
-			.filter(
-				(connector) =>
-					connector.enabled &&
-					statusFor(connector) === 'configured' &&
-					this.runtimeFor(connector) !== undefined
-			)
+			.filter((connector) => connector.enabled && statusFor(connector) === 'configured')
 			.flatMap((connector) =>
 				connector.tools.map((tool) => {
 					const rawToolName = tool.name;
@@ -496,7 +468,10 @@ export class ConnectorsService {
 								const payload = await this.callTool(connector.id, rawToolName, args);
 								return textResult(JSON.stringify(payload, null, 2));
 							} catch (error) {
-								return textResult(error instanceof Error ? error.message : String(error), true);
+								return textResult(
+									error instanceof Error ? error.message : String(error),
+									true
+								);
 							}
 						},
 					} satisfies AgentTool;
@@ -504,49 +479,19 @@ export class ConnectorsService {
 			);
 	}
 
-	createSkillConnectors(): SkillConnector[] {
-		const connectors: SkillConnector[] = [];
-		const seen = new Set<string>();
-		for (const connector of this.validConnectors()) {
-			if (
-				!connector.enabled ||
-				statusFor(connector) !== 'configured' ||
-				this.runtimeFor(connector) === undefined
-			) {
-				continue;
-			}
-			const tools = new Set(connector.tools.map((tool) => tool.name));
-			for (const id of [connector.id, connector.connectorId, connector.serverLabel]) {
-				const normalized = id.trim();
-				if (!normalized || seen.has(normalized)) continue;
-				seen.add(normalized);
-				connectors.push({
-					id: normalized,
-					name: connector.name,
-					tools,
-					call: (toolName, args) => this.callTool(connector.id, toolName, args),
-				});
-			}
-		}
-		return connectors;
-	}
-
 	private withKnownTools(connector: ConnectorConfig): ConnectorConfig {
-		const runtime = this.runtimeFor(connector);
 		return {
 			...connector,
-			tools: runtime?.listTools(connector) ?? knownTools(connector),
+			tools: knownTools(connector),
 			lastRefreshedAt: new Date().toISOString(),
 		};
 	}
 
-	private runtimeFor(connector: ConnectorConfig): ConnectorRuntimeStrategy | undefined {
-		return this.runtimeStrategies[connector.connectorId];
-	}
-
 	private validConnectors(): ConnectorConfig[] {
 		return dedupeByConnectorId(
-			this.store.getConnectors().filter(isStoredConnectorValid).map(normalizeStoredConnector)
+			this.store.getConnectors()
+				.filter(isStoredConnectorValid)
+				.map(normalizeStoredConnector)
 		);
 	}
 
@@ -555,6 +500,219 @@ export class ConnectorsService {
 		this.store.setConnectors(
 			this.store.getConnectors().map((item) => (item.id === connector.id ? connector : item))
 		);
+	}
+
+	private async callGmailTool(
+		connector: ConnectorConfig,
+		name: string,
+		args: unknown
+	): Promise<unknown> {
+		const gmail = new GmailApiClient(await this.getGoogleAccessToken(connector), this.fetchImpl());
+		const params = paramsRecord(args);
+		switch (name) {
+			case 'get_profile':
+				return gmail.getProfile();
+			case 'search_email_ids': {
+				const listed = await gmail.listMessages({
+					query: readString(params, 'query'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					labelIds: readStringList(params, 'labelIds'),
+					includeSpamTrash: readBoolean(params, 'includeSpamTrash'),
+				});
+				return {
+					...listed,
+					messages: (listed.messages ?? []).map((message) => ({
+						id: message.id,
+						threadId: message.threadId,
+					})),
+				};
+			}
+			case 'get_recent_emails':
+			case 'search_emails': {
+				const listed = await gmail.listMessages({
+					query: name === 'search_emails' ? readString(params, 'query') : undefined,
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					labelIds: readStringList(params, 'labelIds'),
+					includeSpamTrash: readBoolean(params, 'includeSpamTrash'),
+				});
+				const messages = await Promise.all(
+					(listed.messages ?? []).slice(0, 10).flatMap((message) =>
+						message.id
+							? [
+									gmail
+										.getMessage(message.id, 'metadata', ['From', 'To', 'Subject', 'Date'])
+										.then(projectGmailMessage),
+								]
+							: []
+					)
+				);
+				return { ...listed, messages };
+			}
+			case 'read_email': {
+				const id = readRequiredMessageId(params);
+				return projectGmailMessageWithBody(await gmail.getMessage(id, 'full'));
+			}
+			case 'batch_read_email': {
+				const ids = readStringList(params, 'ids') ?? [];
+				if (ids.length === 0) throw new Error('ids must include at least one message id.');
+				return {
+					messages: await Promise.all(
+						ids.slice(0, 10).map((id) => gmail.getMessage(id, 'full').then(projectGmailMessageWithBody))
+					),
+				};
+			}
+			case 'create_draft':
+				return gmail.createDraft(buildRawEmail(readEmailDraftParams(params)));
+			case 'send_email':
+				return gmail.sendMessage(buildRawEmail(readEmailDraftParams(params)));
+			case 'trash_email':
+				return gmail.trashMessage(readRequiredMessageId(params));
+			default:
+				throw new Error(`Unsupported Gmail tool: ${name}`);
+		}
+	}
+
+	private async callGoogleCalendarTool(
+		connector: ConnectorConfig,
+		name: string,
+		args: unknown
+	): Promise<unknown> {
+		const calendar = new GoogleCalendarApiClient(await this.getGoogleAccessToken(connector), this.fetchImpl());
+		const params = paramsRecord(args);
+		switch (name) {
+			case 'get_profile':
+				return new GoogleProfileClient(await this.getGoogleAccessToken(connector), this.fetchImpl()).getUserInfo();
+			case 'list_calendars': {
+				const listed = await calendar.listCalendars({
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+				});
+				return {
+					...listed,
+					items: (listed.items ?? []).map(projectGoogleCalendarListEntry),
+				};
+			}
+			case 'search':
+			case 'search_events': {
+				const listed = await calendar.listEvents({
+					calendarId: readCalendarId(params),
+					query: readString(params, 'query'),
+					timeMin: readString(params, 'timeMin'),
+					timeMax: readString(params, 'timeMax'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					showDeleted: readBoolean(params, 'showDeleted'),
+					singleEvents: readBoolean(params, 'singleEvents'),
+					orderBy: readString(params, 'orderBy'),
+				});
+				return {
+					...listed,
+					items: (listed.items ?? []).map(projectGoogleCalendarEvent),
+				};
+			}
+			case 'fetch':
+			case 'read_event': {
+				const { calendarId, eventId } = readEventLookupParams(params);
+				return projectGoogleCalendarEvent(await calendar.getEvent(calendarId, eventId));
+			}
+			case 'create_event': {
+				const calendarId = readCalendarId(params);
+				return projectGoogleCalendarEvent(await calendar.createEvent(calendarId, readCalendarEventPayload(params, true)));
+			}
+			case 'update_event': {
+				const { calendarId, eventId } = readEventLookupParams(params);
+				return projectGoogleCalendarEvent(await calendar.updateEvent(calendarId, eventId, readCalendarEventPayload(params, false)));
+			}
+			case 'delete_event': {
+				const { calendarId, eventId } = readEventLookupParams(params);
+				return calendar.deleteEvent(calendarId, eventId);
+			}
+			default:
+				throw new Error(`Unsupported Google Calendar tool: ${name}`);
+		}
+	}
+
+	private async callGoogleDriveTool(
+		connector: ConnectorConfig,
+		name: string,
+		args: unknown
+	): Promise<unknown> {
+		const accessToken = await this.getGoogleAccessToken(connector);
+		const drive = new GoogleDriveApiClient(accessToken, this.fetchImpl());
+		const params = paramsRecord(args);
+		switch (name) {
+			case 'get_profile':
+				return new GoogleProfileClient(accessToken, this.fetchImpl()).getUserInfo();
+			case 'list_drives':
+				return drive.listDrives({
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+				});
+			case 'search_files':
+			case 'search': {
+				const listed = await drive.searchFiles({
+					query: readString(params, 'query') ?? readString(params, 'q'),
+					driveQuery: readString(params, 'driveQuery'),
+					mimeType: readString(params, 'mimeType'),
+					driveId: readString(params, 'driveId'),
+					corpora: readString(params, 'corpora'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					orderBy: readString(params, 'orderBy'),
+				});
+				return {
+					...listed,
+					files: (listed.files ?? []).map(projectGoogleDriveFile),
+				};
+			}
+			case 'list_recent_files':
+			case 'recent_documents': {
+				const listed = await drive.searchFiles({
+					mimeType: readString(params, 'mimeType'),
+					driveId: readString(params, 'driveId'),
+					corpora: readString(params, 'corpora'),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+					orderBy: 'modifiedTime desc',
+				});
+				return {
+					...listed,
+					files: (listed.files ?? []).map(projectGoogleDriveFile),
+				};
+			}
+			case 'get_file_metadata':
+				return projectGoogleDriveFile(await drive.getFile(readDriveFileId(params)));
+			case 'get_file_permissions': {
+				const listed = await drive.listPermissions({
+					fileId: readDriveFileId(params),
+					maxResults: readNumber(params, 'maxResults'),
+					pageToken: readString(params, 'pageToken'),
+				});
+				return {
+					...listed,
+					permissions: (listed.permissions ?? []).map(projectGoogleDrivePermission),
+				};
+			}
+			case 'read_file_content':
+			case 'download_file_content':
+			case 'fetch': {
+				const file = await drive.getFile(readDriveFileId(params));
+				const content = await drive.getFileContent(
+					file,
+					readString(params, 'exportMimeType') ?? readString(params, 'mimeType')
+				);
+				return {
+					...projectGoogleDriveFile(file),
+					content: content.slice(0, 64 * 1024),
+				};
+			}
+			case 'create_file':
+				return projectGoogleDriveFile(await drive.createFile(readDriveCreateFileParams(params)));
+			default:
+				throw new Error(`Unsupported Google Drive tool: ${name}`);
+		}
 	}
 
 	private async getGoogleAccessToken(connector: ConnectorConfig): Promise<string> {
@@ -567,9 +725,7 @@ export class ConnectorsService {
 		}
 		if (!oauth.refreshToken) {
 			if (oauth.accessToken) return oauth.accessToken;
-			throw new Error(
-				`Google connector ${connector.name} is missing a refresh token. Reconnect it.`
-			);
+			throw new Error(`Google connector ${connector.name} is missing a refresh token. Reconnect it.`);
 		}
 		const token = await refreshGoogleAccessToken({
 			clientId: oauth.clientId,
@@ -593,9 +749,12 @@ export class ConnectorsService {
 
 	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthRuntimeCredential {
 		const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
-		const clientId = this.options.googleOAuthClientId || process.env.GOOGLE_OAUTH_CLIENT_ID;
+		const clientId =
+			this.options.googleOAuthClientId ||
+			process.env.GOOGLE_OAUTH_CLIENT_ID;
 		const clientSecret =
-			this.options.googleOAuthClientSecret || process.env.GOOGLE_OAUTH_CLIENT_SECRET;
+			this.options.googleOAuthClientSecret ||
+			process.env.GOOGLE_OAUTH_CLIENT_SECRET;
 		if (!clientId || !clientSecret) {
 			throw new Error(
 				'Google OAuth client is not configured. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET in the app environment.'
@@ -737,17 +896,14 @@ function buildOAuthConfig(
 	};
 }
 
-function stripGoogleOAuthClientCredentials(
-	oauth: GoogleOAuthCredential | undefined
-): GoogleOAuthCredential | undefined {
+function stripGoogleOAuthClientCredentials(oauth: GoogleOAuthCredential | undefined): GoogleOAuthCredential | undefined {
 	if (!oauth) return undefined;
 	const { clientId: _clientId, clientSecret: _clientSecret, ...safeOAuth } = oauth;
 	return safeOAuth;
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
-	const redacted = { ...connector, authorization: '' };
-	if (!connector.oauth) return redacted;
+	if (!connector.oauth) return { ...connector };
 	const {
 		accessToken: _accessToken,
 		refreshToken: _refreshToken,
@@ -756,7 +912,7 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 		...oauth
 	} = connector.oauth;
 	return {
-		...redacted,
+		...connector,
 		oauth,
 	};
 }
@@ -764,10 +920,7 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 function requiresApprovalForTool(connector: ConnectorConfig, toolName: string): boolean {
 	if (connector.connectorId !== 'connector_googledrive' || toolName !== 'create_file') return false;
 	if (connector.requireApproval === 'never') return false;
-	if (
-		connector.requireApproval === 'never_for_allowed_tools' &&
-		connector.allowedTools.includes(toolName)
-	) {
+	if (connector.requireApproval === 'never_for_allowed_tools' && connector.allowedTools.includes(toolName)) {
 		return false;
 	}
 	return true;
@@ -778,6 +931,166 @@ function agentToolNameFor(connector: ConnectorConfig, toolName: string): string 
 		.toLowerCase()
 		.replace(/[^a-z0-9_]+/g, '_')
 		.replace(/^_+|_+$/g, '');
+}
+
+function paramsRecord(value: unknown): Record<string, unknown> {
+	if (typeof value === 'object' && value !== null && !Array.isArray(value)) return value as Record<string, unknown>;
+	return {};
+}
+
+function readString(params: Record<string, unknown>, key: string): string | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
+	const trimmed = value.trim();
+	return trimmed || undefined;
+}
+
+function readText(params: Record<string, unknown>, key: string): string | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
+	return value;
+}
+
+function readNumber(params: Record<string, unknown>, key: string): number | undefined {
+	const value = params[key];
+	if (value === undefined || value === null || value === '') return undefined;
+	const numberValue = typeof value === 'number' ? value : Number(value);
+	if (!Number.isFinite(numberValue)) throw new Error(`${key} must be a number.`);
+	return numberValue;
+}
+
+function readBoolean(params: Record<string, unknown>, key: string): boolean | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (typeof value === 'boolean') return value;
+	if (typeof value === 'string' && ['true', 'false'].includes(value.toLowerCase())) {
+		return value.toLowerCase() === 'true';
+	}
+	throw new Error(`${key} must be a boolean.`);
+}
+
+function readStringList(params: Record<string, unknown>, key: string): string[] | undefined {
+	const value = params[key];
+	if (value === undefined || value === null) return undefined;
+	if (Array.isArray(value)) {
+		const values = value.map((entry) => String(entry).trim()).filter(Boolean);
+		return values.length > 0 ? values : undefined;
+	}
+	if (typeof value === 'string') {
+		const values = value.split(/[;,]/).map((entry) => entry.trim()).filter(Boolean);
+		return values.length > 0 ? values : undefined;
+	}
+	throw new Error(`${key} must be an array of strings or a comma-separated string.`);
+}
+
+function readRequiredMessageId(params: Record<string, unknown>): string {
+	const id = readString(params, 'id') ?? readString(params, 'messageId');
+	if (!id) throw new Error('A message id is required.');
+	return id;
+}
+
+function readCalendarId(params: Record<string, unknown>): string {
+	return readString(params, 'calendarId') ?? 'primary';
+}
+
+function readEventLookupParams(params: Record<string, unknown>): { calendarId: string; eventId: string } {
+	const eventId = readString(params, 'eventId') ?? readString(params, 'id');
+	if (!eventId) throw new Error('An event id is required.');
+	return { calendarId: readCalendarId(params), eventId };
+}
+
+function readDriveFileId(params: Record<string, unknown>): string {
+	const id = readString(params, 'fileId') ?? readString(params, 'id');
+	if (!id) throw new Error('A Google Drive file id is required.');
+	return id;
+}
+
+function readDriveCreateFileParams(params: Record<string, unknown>): {
+	name: string;
+	mimeType?: string;
+	content?: string;
+	contentMimeType?: string;
+	parents?: string[];
+	description?: string;
+} {
+	const name = readString(params, 'name') ?? readString(params, 'fileName');
+	if (!name) throw new Error('name is required.');
+	const parentId = readString(params, 'parentId');
+	return {
+		name,
+		mimeType: readString(params, 'mimeType'),
+		content: readText(params, 'content') ?? readText(params, 'text'),
+		contentMimeType: readString(params, 'contentMimeType'),
+		parents: readStringList(params, 'parents') ?? (parentId ? [parentId] : undefined),
+		description: readString(params, 'description'),
+	};
+}
+
+function readCalendarDateTime(
+	params: Record<string, unknown>,
+	key: string,
+	timeZone?: string
+): GoogleCalendarEvent['start'] | undefined {
+	const value = readString(params, key);
+	if (!value) return undefined;
+	const dateTime: GoogleCalendarEvent['start'] = /^\d{4}-\d{2}-\d{2}$/.test(value)
+		? { date: value }
+		: { dateTime: value };
+	if (dateTime.dateTime && timeZone) dateTime.timeZone = timeZone;
+	return dateTime;
+}
+
+function readCalendarEventPayload(
+	params: Record<string, unknown>,
+	requireCoreFields: boolean
+): GoogleCalendarEvent {
+	const timeZone = readString(params, 'timeZone');
+	const summary = readString(params, 'summary') ?? readString(params, 'title');
+	const start = readCalendarDateTime(params, 'start', timeZone);
+	const end = readCalendarDateTime(params, 'end', timeZone);
+	if (requireCoreFields && !summary) throw new Error('summary is required.');
+	if (requireCoreFields && !start) throw new Error('start is required.');
+	if (requireCoreFields && !end) throw new Error('end is required.');
+	const payload: GoogleCalendarEvent = {};
+	if (summary) payload.summary = summary;
+	const description = readString(params, 'description');
+	if (description) payload.description = description;
+	const location = readString(params, 'location');
+	if (location) payload.location = location;
+	if (start) payload.start = start;
+	if (end) payload.end = end;
+	const attendees = readStringList(params, 'attendees');
+	if (attendees) payload.attendees = attendees.map((email) => ({ email }));
+	const recurrence = readStringList(params, 'recurrence');
+	if (recurrence) payload.recurrence = recurrence;
+	if (Object.keys(payload).length === 0) throw new Error('At least one event field is required.');
+	return payload;
+}
+
+function readEmailDraftParams(params: Record<string, unknown>): {
+	to: string[];
+	subject: string;
+	body: string;
+	cc?: string[];
+	bcc?: string[];
+	isHtml?: boolean;
+} {
+	const to = readStringList(params, 'to') ?? [];
+	const subject = readString(params, 'subject');
+	const body = readString(params, 'body');
+	if (to.length === 0) throw new Error('to must include at least one recipient.');
+	if (!subject) throw new Error('subject is required.');
+	if (!body) throw new Error('body is required.');
+	return {
+		to,
+		subject,
+		body,
+		cc: readStringList(params, 'cc'),
+		bcc: readStringList(params, 'bcc'),
+		isHtml: readBoolean(params, 'isHtml') ?? false,
+	};
 }
 
 function descriptionForTool(connector: ConnectorConfig, toolName: string): string {
@@ -792,8 +1105,7 @@ function descriptionForTool(connector: ConnectorConfig, toolName: string): strin
 		create_file: 'Create a Google Drive file.',
 		list_drives: 'List shared drives available to the connected account.',
 		search: 'Search Google Drive files by name or content. Legacy alias for search_files.',
-		recent_documents:
-			'List recently modified Google Drive files. Legacy alias for list_recent_files.',
+		recent_documents: 'List recently modified Google Drive files. Legacy alias for list_recent_files.',
 		fetch: 'Fetch Google Drive file metadata and text content. Legacy alias for read_file_content.',
 	};
 	const calendarDescriptions: Record<string, string> = {
@@ -818,12 +1130,11 @@ function descriptionForTool(connector: ConnectorConfig, toolName: string): strin
 		send_email: 'Send a Gmail email.',
 		trash_email: 'Move a Gmail message to trash.',
 	};
-	const descriptions =
-		connector.connectorId === 'connector_googlecalendar'
-			? calendarDescriptions
-			: connector.connectorId === 'connector_googledrive'
-				? driveDescriptions
-				: gmailDescriptions;
+	const descriptions = connector.connectorId === 'connector_googlecalendar'
+		? calendarDescriptions
+		: connector.connectorId === 'connector_googledrive'
+			? driveDescriptions
+			: gmailDescriptions;
 	return descriptions[toolName] ?? `Run ${toolName}.`;
 }
 
@@ -899,10 +1210,7 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 		return {
 			type: 'object',
 			properties: {
-				maxResults: {
-					type: 'integer',
-					description: 'Maximum shared drives to return, capped at 100.',
-				},
+				maxResults: { type: 'integer', description: 'Maximum shared drives to return, capped at 100.' },
 				pageToken: { type: 'string' },
 			},
 			additionalProperties: false,
@@ -914,14 +1222,8 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 			properties: {
 				id: { type: 'string', description: 'Google Drive file id.' },
 				fileId: { type: 'string', description: 'Google Drive file id.' },
-				exportMimeType: {
-					type: 'string',
-					description: 'Export MIME type for Google Workspace files.',
-				},
-				mimeType: {
-					type: 'string',
-					description: 'Alias for exportMimeType on Google Workspace files.',
-				},
+				exportMimeType: { type: 'string', description: 'Export MIME type for Google Workspace files.' },
+				mimeType: { type: 'string', description: 'Alias for exportMimeType on Google Workspace files.' },
 			},
 			additionalProperties: false,
 		};
@@ -942,10 +1244,7 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 			properties: {
 				id: { type: 'string', description: 'Google Drive file or shared drive id.' },
 				fileId: { type: 'string', description: 'Google Drive file or shared drive id.' },
-				maxResults: {
-					type: 'integer',
-					description: 'Maximum permissions to return, capped at 100.',
-				},
+				maxResults: { type: 'integer', description: 'Maximum permissions to return, capped at 100.' },
 				pageToken: { type: 'string' },
 			},
 			additionalProperties: false,
@@ -971,21 +1270,12 @@ function schemaForGoogleDriveTool(toolName: string): AgentTool['schema'] {
 	return {
 		type: 'object',
 		properties: {
-			query: {
-				type: 'string',
-				description: 'Search text matched against Drive file names and content.',
-			},
+			query: { type: 'string', description: 'Search text matched against Drive file names and content.' },
 			q: { type: 'string', description: 'Alias for query.' },
-			driveQuery: {
-				type: 'string',
-				description: 'Raw Google Drive q expression for advanced searches.',
-			},
+			driveQuery: { type: 'string', description: 'Raw Google Drive q expression for advanced searches.' },
 			mimeType: { type: 'string', description: 'Restrict results to one MIME type.' },
 			driveId: { type: 'string', description: 'Shared drive id to search.' },
-			corpora: {
-				type: 'string',
-				description: 'Drive corpora value such as user, drive, domain, or allDrives.',
-			},
+			corpora: { type: 'string', description: 'Drive corpora value such as user, drive, domain, or allDrives.' },
 			maxResults: { type: 'integer', description: 'Maximum files to return, capped at 20.' },
 			pageToken: { type: 'string' },
 			orderBy: { type: 'string', description: 'Google Drive orderBy expression.' },
@@ -1011,14 +1301,8 @@ function schemaForGoogleCalendarTool(toolName: string): AgentTool['schema'] {
 			properties: {
 				calendarId: { type: 'string', description: 'Google Calendar id. Defaults to primary.' },
 				query: { type: 'string', description: 'Free-text event search query.' },
-				timeMin: {
-					type: 'string',
-					description: 'Lower event start bound as an RFC3339 timestamp.',
-				},
-				timeMax: {
-					type: 'string',
-					description: 'Upper event start bound as an RFC3339 timestamp.',
-				},
+				timeMin: { type: 'string', description: 'Lower event start bound as an RFC3339 timestamp.' },
+				timeMax: { type: 'string', description: 'Upper event start bound as an RFC3339 timestamp.' },
 				maxResults: { type: 'integer', description: 'Maximum events to return, capped at 20.' },
 				pageToken: { type: 'string' },
 				showDeleted: { type: 'boolean' },

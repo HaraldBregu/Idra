@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, ArrowUp, FileAudio, Paperclip, Plus, Square, X } from 'lucide-react';
+import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,6 @@ import {
 	PromptInputAction,
 	PromptInputActions,
 	PromptInputTextarea,
-	PromptInputVoiceActions,
 	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
@@ -26,7 +25,7 @@ import { cn } from '@/lib/utils';
 import { AgentTextMessage } from './components/AgentTextMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
-import { useHomeAgent, useRealtimeDictation, useVoiceButtonMode } from './hooks';
+import { useHomeAgent, useRealtimeDictation } from './hooks';
 
 type PromptAttachment = {
 	readonly id: string;
@@ -223,6 +222,30 @@ function AttachmentButton(): ReactElement {
 	);
 }
 
+function VoiceButton({
+	onVoiceModeRequest,
+	disabled,
+}: {
+	readonly onVoiceModeRequest: () => void;
+	readonly disabled?: boolean;
+}): ReactElement {
+	return (
+		<PromptInputAction tooltip="Dictate">
+			<Button
+				type="button"
+				variant="ghost"
+				size="icon"
+				className="size-8 rounded-full text-foreground hover:bg-muted"
+				aria-label="Dictate"
+				disabled={disabled}
+				onClick={onVoiceModeRequest}
+			>
+				<Mic className="size-4" />
+			</Button>
+		</PromptInputAction>
+	);
+}
+
 function SubmitButton({
 	isLoading,
 	canSubmit,
@@ -233,15 +256,15 @@ function SubmitButton({
 	readonly canSubmit: boolean;
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
-}): ReactElement | null {
-	if (!isLoading && !canSubmit) return null;
-
-	const label = isLoading ? 'Stop generation' : 'Send message';
-	const iconKey = isLoading ? 'stop' : 'send';
+}): ReactElement {
+	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
-	) : (
+	) : canSubmit ? (
 		<ArrowUp className="size-4" />
+	) : (
+		<AudioLines className="size-4" />
 	);
 
 	return (
@@ -279,7 +302,6 @@ function PageContent(): ReactElement {
 		value: agent.input,
 		onValueChange: agent.setInput,
 	});
-	const voiceButtonMode = useVoiceButtonMode();
 	const [voiceMode, setVoiceMode] = useState<PromptInputVoiceMode | null>(null);
 	const [attachments, setAttachments] = useState<PromptAttachment[]>([]);
 	const visibleMessages = agent.chatState.messages.filter(
@@ -291,7 +313,6 @@ function PageContent(): ReactElement {
 		!agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0;
-	const showVoiceConversation = !canSubmit && !agent.isLoading;
 	const dictationStatus = dictation.status;
 	const cancelDictationSession = dictation.cancel;
 	const dictationBusy =
@@ -333,15 +354,13 @@ function PageContent(): ReactElement {
 		setMode('voice');
 	};
 
-	const startSpeechToText = async (): Promise<void> => {
-		const nextVoiceMode: PromptInputVoiceMode =
-			voiceButtonMode === 'record' ? 'recording' : 'dictation';
+	const startDictation = async (): Promise<void> => {
 		const started = await dictation.start();
 		if (!started) {
 			setMode('chat');
 			return;
 		}
-		setVoiceMode(nextVoiceMode);
+		setVoiceMode('dictation');
 		setMode('voice');
 	};
 
@@ -353,6 +372,14 @@ function PageContent(): ReactElement {
 	const confirmDictation = async (): Promise<void> => {
 		await dictation.finish();
 		returnToChat();
+	};
+
+	const handlePrimaryAction = (): void => {
+		if (agent.isLoading || canSubmit) {
+			agent.handleSubmit();
+			return;
+		}
+		startVoiceConversation();
 	};
 
 	return (
@@ -432,26 +459,10 @@ function PageContent(): ReactElement {
 							textareaRef={agent.inputRef}
 							leadingAction={<AttachmentButton />}
 							voiceMode={voiceMode}
-							voiceElapsedMs={
-								voiceMode === 'dictation' || voiceMode === 'recording'
-									? dictation.elapsedMs
-									: undefined
-							}
-							voiceMuted={
-								voiceMode === 'dictation' || voiceMode === 'recording'
-									? dictation.isMuted
-									: undefined
-							}
-							voiceMediaStream={
-								voiceMode === 'dictation' || voiceMode === 'recording'
-									? dictation.stream
-									: null
-							}
-							onVoiceMutedChange={
-								voiceMode === 'dictation' || voiceMode === 'recording'
-									? dictation.setMuted
-									: undefined
-							}
+							voiceElapsedMs={voiceMode === 'dictation' ? dictation.elapsedMs : undefined}
+							voiceMuted={voiceMode === 'dictation' ? dictation.isMuted : undefined}
+							voiceMediaStream={voiceMode === 'dictation' ? dictation.stream : null}
+							onVoiceMutedChange={voiceMode === 'dictation' ? dictation.setMuted : undefined}
 							onVoiceEnd={returnToChat}
 							onVoiceCancel={() => void cancelDictation()}
 							onVoiceConfirm={() => void confirmDictation()}
@@ -462,19 +473,15 @@ function PageContent(): ReactElement {
 							className="w-full"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
-									<PromptInputVoiceActions
-										speechToTextMode={voiceButtonMode}
-										onSpeechToText={startSpeechToText}
-										speechToTextDisabled={dictationBusy || agent.isLoading}
-										onVoiceConversation={startVoiceConversation}
-										voiceConversationDisabled
-										showVoiceConversation={showVoiceConversation}
+									<VoiceButton
+										onVoiceModeRequest={() => void startDictation()}
+										disabled={dictationBusy || agent.isLoading}
 									/>
 									<SubmitButton
 										isLoading={agent.isLoading}
 										canSubmit={canSubmit}
 										disabled={dictationBusy}
-										onAction={agent.handleSubmit}
+										onAction={handlePrimaryAction}
 									/>
 								</PromptInputActions>
 							}

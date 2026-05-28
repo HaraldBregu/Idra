@@ -69,13 +69,6 @@ export interface TasksApi {
 	onEvent: (callback: (event: TaskEvent) => void) => () => void;
 }
 
-export interface MonitorApi {
-	snapshot: (filter?: MonitorEventFilter) => Promise<MonitorSnapshot>;
-	list: (filter?: MonitorEventFilter) => Promise<MonitorEventRecord[]>;
-	get: (id: string) => Promise<MonitorEventRecord | undefined>;
-	onEvent: (callback: (record: MonitorEventRecord) => void) => () => void;
-}
-
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
@@ -124,24 +117,6 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
-export interface ChatMemoryApi {
-	list: (request?: ChatMemoryListRequest) => Promise<MemoryFileSummary[]>;
-	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
-	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
-}
-
-export interface RagApi {
-	list: () => Promise<MemoryFileSummary[]>;
-	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
-	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
-}
-
-export interface WikiApi {
-	list: () => Promise<MemoryFileSummary[]>;
-	read: (request: MemoryReadRequest) => Promise<MemoryReadResult>;
-	search: (request: MemorySearchRequest) => Promise<MemorySearchResult[]>;
-}
-
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type {
 	CronExecutionRecord,
@@ -168,7 +143,6 @@ import type {
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
-import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
 	Agent,
 	ConfiguredModelOperator,
@@ -183,14 +157,6 @@ import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/ch
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../shared/skills';
-import type {
-	ChatMemoryListRequest,
-	MemoryFileSummary,
-	MemoryReadRequest,
-	MemoryReadResult,
-	MemorySearchRequest,
-	MemorySearchResult,
-} from '../shared/memory';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
@@ -274,10 +240,6 @@ declare global {
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
 		tasks: TasksApi;
-		monitor: MonitorApi;
-		chatMemory: ChatMemoryApi;
-		rag: RagApi;
-		wiki: WikiApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;

@@ -148,12 +148,10 @@
 			"searchTitle": "Usa la ricerca come livello rapido",
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
 			"groups": {
-				"app": "App",
-				"ai": "AI",
-				"knowledge": "Conoscenza",
-				"channels": "Canali",
-				"automation": "Automazione",
-				"monitoring": "Monitoraggio"
+				"general": "Configurazione generale",
+				"aiAgents": "Agenti AI",
+				"aiFeatures": "Funzionalita AI",
+				"automations": "Automazioni"
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
@@ -162,14 +160,10 @@
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
-				"memory": "File di memoria salvati",
-				"rag": "Memoria retrieval",
-				"wiki": "Wiki workspace",
 				"providers": "Chiavi API AI",
 				"cron": "Pianificatore attivita",
 				"taskManager": "Attivita in background",
-				"heartbeat": "Controlli periodici agenti",
-				"monitoring": "Diagnostica runtime"
+				"heartbeat": "Controlli periodici agenti"
 			}
 		},
 		"tabs": {
@@ -188,10 +182,6 @@
 			"taskScheduler": "Pianificatore attivita",
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
-			"monitoring": "Monitoraggio",
-			"memory": "Memory",
-			"rag": "RAG",
-			"wiki": "Wiki",
 			"developer": "Sviluppatore",
 			"skills": "Abilità"
 		},
@@ -223,7 +213,6 @@
 			"taskScheduler": "Attivita programmate",
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
-			"monitoring": "Monitoraggio",
 			"developer": "Sviluppatore"
 		},
 		"profile": {
@@ -478,38 +467,6 @@
 			"notFoundTitle": "Connettore non trovato",
 			"notFoundDescription": "Il connettore potrebbe essere stato rimosso."
 		},
-		"memory": {
-			"sectionTitle": "Memory",
-			"description": "File salvati di memoria workspace e chat.",
-			"ragDescription": "Documenti retrieval usati per il grounding degli agenti.",
-			"wikiDescription": "Documenti wiki del workspace disponibili a Friday.",
-			"detailsTitle": "File memoria",
-			"fileCount": "{{count}} file",
-			"updatedAt": "Aggiornato {{time}} · {{size}}",
-			"readWindow": "{{lines}} di {{total}} righe caricate",
-			"emptyFile": "Questo file e vuoto.",
-			"emptyTitle": "Nessun file memoria",
-			"emptyDescription": "I file memoria appariranno qui dopo che Friday salva memoria workspace o chat.",
-			"ragEmptyTitle": "Nessun file RAG",
-			"ragEmptyDescription": "I file RAG appariranno qui dopo l'aggiunta di documenti retrieval.",
-			"wikiEmptyTitle": "Nessun file wiki",
-			"wikiEmptyDescription": "I file wiki appariranno qui dopo l'aggiunta di documenti wiki.",
-			"notFoundTitle": "File memoria non trovato",
-			"notFoundDescription": "Il file memoria potrebbe essere stato rimosso.",
-			"scope": {
-				"global": "Globale",
-				"chat": "Chat {{scopeId}}"
-			},
-			"actions": {
-				"refresh": "Aggiorna",
-				"loadMore": "Carica altro"
-			},
-			"errors": {
-				"load": "Impossibile caricare i file memoria.",
-				"read": "Impossibile leggere il file memoria.",
-				"missingPath": "Nessun file memoria selezionato."
-			}
-		},
 		"cron": {
 			"columns": {
 				"id": "Id",
@@ -729,60 +686,6 @@
 				"emptyEvent": "Inserisci il testo dell'evento prima di inviare.",
 				"invalidEvery": "Inserisci una durata valida come 5m, 30m, 1h o 0m.",
 				"activeHoursRange": "Imposta sia inizio che fine attiva, oppure lascia entrambi vuoti."
-			}
-		},
-		"monitoring": {
-			"description": "Timeline eventi runtime, payload sanificati e diagnostica errori.",
-			"actions": {
-				"refresh": "Aggiorna",
-				"clearFilters": "Cancella filtri"
-			},
-			"summary": {
-				"title": "Riepilogo runtime",
-				"description": "Record monitor correnti filtrati.",
-				"records": "Record",
-				"errors": "Errori",
-				"warnings": "Avvisi",
-				"categories": "Categorie"
-			},
-			"filters": {
-				"title": "Filtri",
-				"description": "Filtra la timeline monitor in memoria.",
-				"source": "Origine",
-				"severity": "Severita",
-				"category": "Categoria",
-				"eventType": "Tipo evento",
-				"timeRange": "Intervallo",
-				"limit": "Limite",
-				"allSources": "Tutte le origini",
-				"allSeverities": "Tutte le severita",
-				"allTime": "Tutto",
-				"last15m": "Ultimi 15 minuti",
-				"lastHour": "Ultima ora",
-				"lastDay": "Ultime 24 ore",
-				"categoryPlaceholder": "task, heartbeat, channel",
-				"eventTypePlaceholder": "task:failed"
-			},
-			"events": {
-				"title": "Timeline eventi",
-				"description": "Record sanificati dal monitor main-process fidato.",
-				"emptyTitle": "Nessun evento monitor",
-				"emptyDescription": "Gli eventi appariranno quando Friday registra attivita runtime.",
-				"generatedAt": "Aggiornato {{time}}",
-				"payload": "Payload",
-				"payloadEmpty": "Nessun payload"
-			},
-			"fields": {
-				"id": "Id",
-				"eventTimestamp": "Ora evento"
-			},
-			"severity": {
-				"info": "Info",
-				"warn": "Avviso",
-				"error": "Errore"
-			},
-			"values": {
-				"unknown": "Sconosciuto"
 			}
 		},
 		"permissions": {
@@ -1026,10 +929,6 @@
 				"open": "Aperto",
 				"deny": "Nega"
 			},
-			"heartbeat": "Visibilita heartbeat",
-			"heartbeatShowOk": "Mostra controlli sani",
-			"heartbeatShowAlerts": "Mostra avvisi",
-			"heartbeatUseIndicator": "Usa indicatore di stato",
 			"runtimeUnavailable": "La configurazione puo essere salvata; il runtime di questo provider non e ancora incluso.",
 			"phoneNumber": "Numero di telefono",
 			"phoneNumberDescription": "Solo cifre, con prefisso internazionale (senza + né spazi).",

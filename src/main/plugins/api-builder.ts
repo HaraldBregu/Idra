@@ -1,8 +1,6 @@
 import path from 'node:path';
 import type { ConnectorManifestRecord } from './discovery';
-import { registerAgentHarnessHookHandler } from '../agent/harness/hook-runner';
 import { registerAgentHarness as registerGlobalAgentHarness } from '../agent/harness/registry';
-import { registerAgentToolResultMiddleware as registerGlobalAgentToolResultMiddleware } from '../agent/harness/tool-result-middleware';
 import type { AgentHarness } from '../agent/harness/types';
 import {
 	FridayConnectorRegistry,
@@ -115,13 +113,6 @@ export function buildFridayConnectorApi(
 	const registerValue = (surface: ConnectorRegistrySurface, value: unknown, key?: string): void => {
 		registry.registerValue(surface, value, attribution, key);
 	};
-	const registerRuntimeHook = (name: string, handler: unknown): void => {
-		if (typeof handler !== 'function') {
-			throw new Error(`Connector hook "${name}" registration requires a function handler.`);
-		}
-		registerValue('hooks', { name, handler }, name);
-		registerAgentHarnessHookHandler(name, handler as (payload: unknown) => unknown);
-	};
 	const allowed = (policy: SurfacePolicy): boolean => modeAllows(registrationMode, policy);
 	const noop = (): void => undefined;
 
@@ -142,8 +133,8 @@ export function buildFridayConnectorApi(
 		registerToolMetadata: allowed('metadata')
 			? (registration) => registry.registerToolMetadata(registration, record.manifest, attribution)
 			: noop,
-		registerHook: allowed('runtime') ? registerRuntimeHook : noop,
-		on: allowed('runtime') ? registerRuntimeHook : noop,
+		registerHook: allowed('runtime') ? (name, handler) => registerValue('hooks', { name, handler }, name) : noop,
+		on: allowed('runtime') ? (name, handler) => registerValue('hooks', { name, handler }, name) : noop,
 		registerHttpRoute: allowed('runtime') ? (registration) => registerValue('httpRoutes', registration) : noop,
 		registerGatewayMethod: allowed('runtime') ? (registration) => registerValue('gatewayMethods', registration) : noop,
 		registerCli: allowed('cli') ? (registration) => registerValue('cli', registration) : noop,
@@ -202,10 +193,7 @@ export function buildFridayConnectorApi(
 				}
 			: noop,
 		registerAgentToolResultMiddleware: allowed('runtime')
-			? (registration) => {
-					registerGlobalAgentToolResultMiddleware(registration);
-					registerValue('agentToolResultMiddleware', registration);
-				}
+			? (registration) => registerValue('agentToolResultMiddleware', registration)
 			: noop,
 		registerContextEngine: allowed('runtime') ? (registration) => registerValue('contextEngines', registration) : noop,
 		registerCompactionProvider: allowed('runtime')

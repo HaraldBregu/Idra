@@ -30,7 +30,7 @@ export function AgentTextMessage({
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
 
 	return (
-		<Message className={cn('min-w-0 w-full flex-col gap-4', className)}>
+		<Message className={cn('min-w-0 w-full flex-col', className)}>
 			{showHeader && (
 				<AssistantMessageHeader avatarState={isStreaming ? 'active' : 'stopped'} />
 			)}
@@ -60,7 +60,7 @@ export function AgentTextMessage({
 					) : null}
 				</>
 			)}
-			<AgentSkillUsage skills={skillUsages} />
+			<AgentSkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
 		</Message>
 	);
 }

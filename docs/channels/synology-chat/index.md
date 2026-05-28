@@ -24,40 +24,6 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
-## Platform Integration Notes
-
-- Synology Chat supports custom integrations with incoming webhooks, outgoing
-  webhooks, bots, and slash commands.
-- A bidirectional Friday runtime should use the bot/outgoing surfaces for
-  inbound dispatch and incoming/bot posting for outbound delivery, depending on
-  the target server version.
-- Synology documents channels, conversations, threads, reactions, file uploads,
-  and encrypted conversations; preserve those ids and encryption state in
-  provenance.
-- Synology Chat Server limits ChatBots per server, so setup should surface
-  server-side capacity errors clearly.
-
-## Configuration Reference
-
-- `serverUrl`: Synology DSM or Chat Server base URL.
-- `token`: Chat bot token or incoming webhook token.
-- `secret`: outgoing webhook or integration verification token, if configured.
-- `webhookUrl`: incoming webhook URL for outbound posts, or Friday callback URL
-  for outgoing webhooks.
-- `username`: bot or integration display name.
-- `defaultTarget`: Synology Chat channel, conversation, or thread id.
-- `allowFrom`: allowed user ids.
-- `groupAllowFrom`: allowed channel or conversation ids.
-
-Required platform setup:
-
-- Create the relevant Chat integration in Synology Chat: incoming webhook,
-  outgoing webhook, bot, or slash command.
-- Prefer bot/outgoing webhook surfaces for inbound dispatch and keep incoming
-  webhooks for posting-only flows.
-- Preserve server URL and channel ids because self-hosted deployments do not
-  share a global id namespace.
-
 ## Official Documentation
 
 - [Synology Chat technical specs](https://www.synology.com/en-global/dsm/7.2/software_spec/chat)

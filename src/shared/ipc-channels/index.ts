@@ -122,37 +122,12 @@ export const HeartbeatChannels = {
 	event: 'heartbeat:event',
 } as const;
 
-export const MonitorChannels = {
-	snapshot: 'monitor:snapshot',
-	list: 'monitor:list',
-	get: 'monitor:get',
-	event: 'monitor:event',
-} as const;
-
 export const SkillsChannels = {
 	list: 'skills:list',
 	import: 'skills:import',
 	download: 'skills:download',
 	delete: 'skills:delete',
 	getRoot: 'skills:get-root',
-} as const;
-
-export const ChatMemoryChannels = {
-	list: 'chat-memory:list',
-	read: 'chat-memory:read',
-	search: 'chat-memory:search',
-} as const;
-
-export const RagChannels = {
-	list: 'rag:list',
-	read: 'rag:read',
-	search: 'rag:search',
-} as const;
-
-export const WikiChannels = {
-	list: 'wiki:list',
-	read: 'wiki:read',
-	search: 'wiki:search',
 } as const;
 
 export const ConnectorsChannels = {
@@ -277,10 +252,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[ProviderChannels.getSpeechTranscriberService]: {
@@ -288,10 +260,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveSpeechTranscriberService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getAssistant]: {
@@ -299,10 +268,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.saveAssistant]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getSpeechToText]: {
@@ -314,10 +280,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveSpeechToText]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToSpeech]: {
@@ -329,10 +292,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToSpeech]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getImageCreator]: {
@@ -344,10 +304,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveImageCreator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToVideo]: {
@@ -359,10 +316,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToVideo]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[OperatorChannels.getMusicCreator]: {
@@ -374,10 +328,7 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveMusicCreator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
+		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
 		result: boolean;
 	};
 	[RealtimeTranscriptionChannels.start]: {
@@ -454,10 +405,7 @@ interface CronInvokeChannelMap {
 		args: [filter?: import('../cron').CronScheduleFilter];
 		result: import('../cron').CronSchedule[];
 	};
-	[CronChannels.getSchedule]: {
-		args: [scheduleId: string];
-		result: import('../cron').CronSchedule;
-	};
+	[CronChannels.getSchedule]: { args: [scheduleId: string]; result: import('../cron').CronSchedule };
 	[CronChannels.getScheduleEvents]: {
 		args: [scheduleId: string];
 		result: import('../cron').CronScheduleEvent[];
@@ -530,21 +478,6 @@ interface TaskInvokeChannelMap {
 	};
 }
 
-interface MonitorInvokeChannelMap {
-	[MonitorChannels.snapshot]: {
-		args: [filter?: import('../monitor').MonitorEventFilter];
-		result: import('../monitor').MonitorSnapshot;
-	};
-	[MonitorChannels.list]: {
-		args: [filter?: import('../monitor').MonitorEventFilter];
-		result: import('../monitor').MonitorEventRecord[];
-	};
-	[MonitorChannels.get]: {
-		args: [id: string];
-		result: import('../monitor').MonitorEventRecord | undefined;
-	};
-}
-
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('../skills').SkillInfo[] };
 	[SkillsChannels.import]: { args: []; result: import('../skills').SkillImportResult | undefined };
@@ -554,51 +487,6 @@ interface SkillsInvokeChannelMap {
 	};
 	[SkillsChannels.delete]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
-}
-
-interface ChatMemoryInvokeChannelMap {
-	[ChatMemoryChannels.list]: {
-		args: [request?: import('../memory').ChatMemoryListRequest];
-		result: import('../memory').MemoryFileSummary[];
-	};
-	[ChatMemoryChannels.read]: {
-		args: [request: import('../memory').MemoryReadRequest];
-		result: import('../memory').MemoryReadResult;
-	};
-	[ChatMemoryChannels.search]: {
-		args: [request: import('../memory').MemorySearchRequest];
-		result: import('../memory').MemorySearchResult[];
-	};
-}
-
-interface RagInvokeChannelMap {
-	[RagChannels.list]: {
-		args: [];
-		result: import('../memory').MemoryFileSummary[];
-	};
-	[RagChannels.read]: {
-		args: [request: import('../memory').MemoryReadRequest];
-		result: import('../memory').MemoryReadResult;
-	};
-	[RagChannels.search]: {
-		args: [request: import('../memory').MemorySearchRequest];
-		result: import('../memory').MemorySearchResult[];
-	};
-}
-
-interface WikiInvokeChannelMap {
-	[WikiChannels.list]: {
-		args: [];
-		result: import('../memory').MemoryFileSummary[];
-	};
-	[WikiChannels.read]: {
-		args: [request: import('../memory').MemoryReadRequest];
-		result: import('../memory').MemoryReadResult;
-	};
-	[WikiChannels.search]: {
-		args: [request: import('../memory').MemorySearchRequest];
-		result: import('../memory').MemorySearchResult[];
-	};
 }
 
 interface ConnectorsInvokeChannelMap {
@@ -717,11 +605,7 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
 		TaskInvokeChannelMap,
-		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
-		ChatMemoryInvokeChannelMap,
-		RagInvokeChannelMap,
-		WikiInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap {}
 
@@ -766,10 +650,6 @@ interface TaskEventChannelMap {
 	[TaskChannels.event]: { data: import('../tasks').TaskEvent };
 }
 
-interface MonitorEventChannelMap {
-	[MonitorChannels.event]: { data: import('../monitor').MonitorEventRecord };
-}
-
 export interface EventChannelMap
 	extends
 		AppEventChannelMap,
@@ -778,5 +658,4 @@ export interface EventChannelMap
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
 		HeartbeatEventChannelMap,
-		TaskEventChannelMap,
-		MonitorEventChannelMap {}
+		TaskEventChannelMap {}

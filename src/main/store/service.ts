@@ -33,8 +33,6 @@ import {
 } from '../../shared/channels';
 import type { ConnectorConfig } from '../../shared/connector';
 import type {
-	AgentConfig,
-	AgentRoutingSettings,
 	BackgroundTaskSettings,
 	ModelProviderSettings,
 	ModelModuleSettings,
@@ -43,7 +41,6 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
-import { normalizeAgentRoutingSettings } from '../agent/routing';
 import type { CronStoreState } from '../cron/core/cron.types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
@@ -499,26 +496,6 @@ export class StoreService {
 		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
 	}
 
-	getAgentRoutingSettings(): AgentRoutingSettings {
-		return normalizeAgentRoutingSettings(this.store.get('agents'));
-	}
-
-	getConfiguredAgents(): AgentConfig[] {
-		return this.getAgentRoutingSettings().agents;
-	}
-
-	getAgentConfig(id: string): AgentConfig | undefined {
-		const agentId = id.trim();
-		if (!agentId) return undefined;
-		return this.getConfiguredAgents().find((agent) => agent.id === agentId);
-	}
-
-	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings {
-		const next = normalizeAgentRoutingSettings(settings);
-		this.store.set('agents', next);
-		return next;
-	}
-
 	setAssistantOperator(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
@@ -859,8 +836,7 @@ function compactChannelRoot(channel: Partial<Channel>): Partial<Channel> {
 	for (const channelId of CHANNEL_PROVIDER_IDS) {
 		const config = channel[channelId];
 		if (readRecord(config)) {
-			(next as Partial<Record<ChannelType, unknown>>)[channelId] =
-				removeUndefinedProperties(config);
+			(next as Partial<Record<ChannelType, unknown>>)[channelId] = removeUndefinedProperties(config);
 		}
 	}
 	return next;
@@ -959,10 +935,7 @@ function createDefaultAccountConfig(channelId: ChannelType): ChannelAccountPrope
 	};
 }
 
-function getStoredChannelConfig(
-	channel: Partial<Channel> | undefined,
-	channelId: ChannelType
-): unknown {
+function getStoredChannelConfig(channel: Partial<Channel> | undefined, channelId: ChannelType): unknown {
 	if (!channel || typeof channel !== 'object') return undefined;
 	return channel[channelId];
 }

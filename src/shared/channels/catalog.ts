@@ -1,30 +1,5 @@
 import { CHANNEL_PROVIDER_IDS, type ChannelType } from './definitions';
 
-export const CHANNEL_RUNTIME_SUPPORT_VALUES = ['bundled', 'catalog-only'] as const;
-export const CHANNEL_CATALOG_EXPOSURES = ['stable', 'preview', 'hidden'] as const;
-export const CHANNEL_SETUP_FIELDS = [
-	'enabled',
-	'token',
-	'secret',
-	'serverUrl',
-	'webhookUrl',
-	'appId',
-	'clientId',
-	'clientSecret',
-	'username',
-	'phoneNumber',
-	'botUserId',
-	'allowFrom',
-	'groupAllowFrom',
-	'defaultTarget',
-	'dmPolicy',
-	'heartbeat',
-] as const;
-
-export type ChannelRuntimeSupport = (typeof CHANNEL_RUNTIME_SUPPORT_VALUES)[number];
-export type ChannelCatalogExposure = (typeof CHANNEL_CATALOG_EXPOSURES)[number];
-export type ChannelSetupField = (typeof CHANNEL_SETUP_FIELDS)[number];
-
 export interface ChannelCatalogEntry {
 	id: ChannelType;
 	label: string;
@@ -35,240 +10,15 @@ export interface ChannelCatalogEntry {
 	aliases: readonly string[];
 	order: number;
 	markdownCapable: boolean;
-	exposure: ChannelCatalogExposure;
-	runtime: ChannelRuntimeSupport;
+	exposure: 'stable' | 'preview' | 'hidden';
 	setupVisible: boolean;
 	catalogVisible: boolean;
-	setupFields: readonly ChannelSetupField[];
 	cliHints: readonly string[];
 	setupHints: readonly string[];
 }
 
-type ChannelCatalogInput = Omit<
-	ChannelCatalogEntry,
-	'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'
-> &
-	Partial<Pick<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'>>;
-
-const SETUP_FIELDS_BY_CHANNEL_ID: Readonly<Record<ChannelType, readonly ChannelSetupField[]>> = {
-	clickclack: [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'allowFrom',
-		'groupAllowFrom',
-		'defaultTarget',
-	],
-	discord: [
-		'token',
-		'appId',
-		'clientId',
-		'clientSecret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	feishu: [
-		'appId',
-		'clientSecret',
-		'token',
-		'secret',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	googlechat: [
-		'appId',
-		'clientId',
-		'clientSecret',
-		'secret',
-		'webhookUrl',
-		'serverUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	imessage: [
-		'serverUrl',
-		'username',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-		'appId',
-		'clientId',
-		'clientSecret',
-		'webhookUrl',
-	],
-	irc: [
-		'serverUrl',
-		'username',
-		'token',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	line: [
-		'token',
-		'secret',
-		'appId',
-		'botUserId',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	matrix: [
-		'serverUrl',
-		'username',
-		'token',
-		'secret',
-		'appId',
-		'clientSecret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	mattermost: [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'username',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	msteams: [
-		'appId',
-		'clientId',
-		'clientSecret',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	'nextcloud-talk': [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'username',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	nostr: ['serverUrl', 'secret', 'botUserId', 'defaultTarget', 'allowFrom', 'groupAllowFrom'],
-	'qa-channel': ['enabled', 'defaultTarget', 'allowFrom', 'groupAllowFrom', 'heartbeat'],
-	qqbot: [
-		'appId',
-		'token',
-		'clientSecret',
-		'secret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	signal: [
-		'phoneNumber',
-		'username',
-		'serverUrl',
-		'token',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	slack: [
-		'token',
-		'secret',
-		'appId',
-		'clientId',
-		'clientSecret',
-		'webhookUrl',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	'synology-chat': [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'username',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	telegram: [
-		'token',
-		'secret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-		'dmPolicy',
-	],
-	tlon: [
-		'serverUrl',
-		'username',
-		'token',
-		'secret',
-		'appId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	twitch: [
-		'clientId',
-		'clientSecret',
-		'token',
-		'secret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	whatsapp: [
-		'token',
-		'phoneNumber',
-		'appId',
-		'clientSecret',
-		'secret',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	zalo: [
-		'appId',
-		'clientSecret',
-		'token',
-		'secret',
-		'webhookUrl',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	zalouser: [
-		'phoneNumber',
-		'username',
-		'serverUrl',
-		'token',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-};
+type ChannelCatalogInput = Omit<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible'> &
+	Partial<Pick<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible'>>;
 
 const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	entry('clickclack', 'ClickClack', 'Connect ClickClack conversations.', [], 10, false),
@@ -321,10 +71,7 @@ const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 	entry('signal', 'Signal', 'Connect Signal local-device messages.', [], 150, false),
 	entry('slack', 'Slack', 'Connect Slack channels, DMs, and threads.', [], 160, true, 'preview', 'slack'),
 	entry('synology-chat', 'Synology Chat', 'Connect Synology Chat channels.', [], 170, true),
-	{
-		...entry('telegram', 'Telegram', 'Receive Telegram bot messages and send agent replies.', [], 180, true),
-		runtime: 'bundled',
-	},
+	entry('telegram', 'Telegram', 'Receive Telegram bot messages and send agent replies.', [], 180, true),
 	entry('tlon', 'Tlon', 'Connect Tlon groups and conversations.', [], 190, true),
 	entry('twitch', 'Twitch', 'Connect Twitch chat channels.', ['twitch-chat'], 200, false),
 	entry('whatsapp', 'WhatsApp', 'Connect WhatsApp web or device sessions.', [], 210, false),
@@ -335,39 +82,16 @@ const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
 export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = CHANNEL_CATALOG_INPUT.map((item) => ({
 	...item,
 	docsLabel: item.docsLabel ?? `${item.label} setup`,
-	runtime: item.runtime ?? 'catalog-only',
 	setupVisible: item.setupVisible ?? item.exposure !== 'hidden',
 	catalogVisible: item.catalogVisible ?? item.exposure !== 'hidden',
 })).sort((left, right) => left.order - right.order);
-
-export const CHANNEL_CATALOG_BY_ID = indexCatalogById((entry) => entry);
-
-export const CHANNEL_ALIASES_BY_ID = indexCatalogById((entry) => entry.aliases);
-
-export const CHANNEL_DOCS_PATH_BY_ID = indexCatalogById((entry) => entry.docsPath);
-
-export const CHANNEL_RUNTIME_BY_ID = indexCatalogById((entry) => entry.runtime);
-
-export const CHANNEL_SETUP_FIELDS_BY_ID = indexCatalogById((entry) => entry.setupFields);
-
-export const CHANNEL_BUNDLED_RUNTIME_IDS = listChannelIdsWhere(
-	(entry) => entry.runtime === 'bundled'
-);
-
-export const CHANNEL_CATALOG_ONLY_RUNTIME_IDS = listChannelIdsWhere(
-	(entry) => entry.runtime === 'catalog-only'
-);
-
-export const CHANNEL_VISIBLE_CATALOG_IDS = listChannelIdsWhere((entry) => entry.catalogVisible);
-
-export const CHANNEL_HIDDEN_CATALOG_IDS = listChannelIdsWhere((entry) => !entry.catalogVisible);
 
 const CHANNEL_IDS = new Set<string>(CHANNEL_PROVIDER_IDS);
 const CHANNEL_ALIAS_TO_ID = new Map<string, ChannelType>();
 
 for (const entry of CHANNEL_CATALOG) {
 	CHANNEL_ALIAS_TO_ID.set(entry.id, entry.id);
-	for (const alias of CHANNEL_ALIASES_BY_ID[entry.id]) {
+	for (const alias of entry.aliases) {
 		CHANNEL_ALIAS_TO_ID.set(normalizeChannelKey(alias), entry.id);
 	}
 }
@@ -378,7 +102,7 @@ export function listChannelCatalog(): readonly ChannelCatalogEntry[] {
 
 export function getChannelCatalogEntry(idOrAlias: string): ChannelCatalogEntry | undefined {
 	const id = normalizeChannelId(idOrAlias);
-	return id ? CHANNEL_CATALOG_BY_ID[id] : undefined;
+	return id ? CHANNEL_CATALOG.find((entry) => entry.id === id) : undefined;
 }
 
 export function getChannelBrandIconId(idOrAlias: string): string | undefined {
@@ -438,7 +162,6 @@ function entry(
 		order,
 		markdownCapable,
 		exposure,
-		setupFields: SETUP_FIELDS_BY_CHANNEL_ID[id],
 		cliHints: [`friday channels setup ${id}`],
 		setupHints: [`Configure ${label} accounts from Settings > Channels.`],
 	};
@@ -475,35 +198,7 @@ function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {
 		Array.isArray(item.aliases) &&
 		typeof item.order === 'number' &&
 		typeof item.markdownCapable === 'boolean' &&
-		isChannelRuntimeSupport(item.runtime) &&
 		typeof item.setupVisible === 'boolean' &&
-		typeof item.catalogVisible === 'boolean' &&
-		Array.isArray(item.setupFields) &&
-		item.setupFields.every(isChannelSetupField)
+		typeof item.catalogVisible === 'boolean'
 	);
-}
-
-function isChannelRuntimeSupport(value: unknown): value is ChannelRuntimeSupport {
-	return value === 'bundled' || value === 'catalog-only';
-}
-
-function isChannelSetupField(value: unknown): value is ChannelSetupField {
-	return typeof value === 'string' && CHANNEL_SETUP_FIELDS.includes(value as ChannelSetupField);
-}
-
-function indexCatalogById<TValue>(
-	resolve: (entry: ChannelCatalogEntry) => TValue
-): Readonly<Record<ChannelType, TValue>> {
-	return Object.freeze(
-		Object.fromEntries(CHANNEL_CATALOG.map((entry) => [entry.id, resolve(entry)])) as Record<
-			ChannelType,
-			TValue
-		>
-	);
-}
-
-function listChannelIdsWhere(
-	predicate: (entry: ChannelCatalogEntry) => boolean
-): readonly ChannelType[] {
-	return Object.freeze(CHANNEL_CATALOG.filter(predicate).map((entry) => entry.id));
 }

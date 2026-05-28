@@ -15,7 +15,6 @@ export function createPiAgentHarness(): AgentHarness {
 				provider: params.providerAdapter,
 				providerId: params.provider,
 				model: params.model,
-				agentHarnessId: 'pi',
 				requestedRuntime: params.requestedRuntime,
 				storedRuntime: params.storedRuntime,
 				effort: params.effort,

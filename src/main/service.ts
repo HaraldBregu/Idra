@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import path from 'node:path';
 import type { EventBus } from './core/event-bus';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
@@ -22,8 +21,6 @@ import type { UserDataDirectoryServicePort } from './user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './agent/before-agent-run';
 import { buildSystemPrompt } from './agent/system-prompt';
 import { type AgentRunHooks, type AgentRunStreamEvent } from './agent/run';
-import { buildAgentHookContext } from './agent/harness/hook-context';
-import { fireBeforePromptBuildHook } from './agent/harness/prompt-compaction-hook-helpers';
 import { runAgentHarnessAttempt } from './agent/harness/selection';
 import { resetRegisteredAgentHarnesses } from './agent/harness/registry';
 import { DEFAULT_AGENT_ID } from './constants';
@@ -31,12 +28,6 @@ import { makeProvider, type ProviderSpec } from './provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';
 import { loadSession, saveSession, clearSession, type SessionFile } from './session/store';
 import { createTools } from './tools/registry';
-import { createAgentTools } from './tools/create-agent-tools';
-import {
-	legacyToolToRuntimeTool,
-	prepareLegacyToolsForProvider,
-	runtimeToolToLegacyTool,
-} from './tools/runtime/legacy-tool-adapter';
 import { startupFilesTool } from './tools/startup';
 import {
 	selectAgentToolsForTurn,
@@ -50,11 +41,6 @@ import { resolveDefaultUserDataPath } from './user-data';
 import type { SkillsService } from './skills';
 import type { SkillPromptChoice } from './skills/core/types';
 import {
-	createSkillRuntimePlan,
-	selectToolsForSkillRuntime,
-	type SkillRuntimePlan,
-} from './skills/runtime/provider-plan';
-import {
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
 	type OperatorStoreState,
@@ -62,12 +48,6 @@ import {
 import type { FridayCronActor } from './cron';
 import { createHeartbeatResponseTool, type HeartbeatToolResponse } from './heartbeat/response';
 import { isHeartbeatSystemPromptEnabled } from './heartbeat/config';
-import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from './store/types';
-import {
-	createSessionsSpawnTool,
-	createSubagentsControlTool,
-	type SubagentSpawnPort,
-} from './agent/subagents';
 
 const BOOTSTRAP_TOOL_NAMES = new Set(['startup_files']);
 const DEFAULT_LOCAL_TOOL_DENY = ['startup_files'];
@@ -81,45 +61,12 @@ function toolAllowPatternMatches(pattern: string, name: string): boolean {
 	return re.test(name);
 }
 
-function toolAllowGroupMatches(pattern: string, name: string): boolean {
-	switch (pattern) {
-		case 'group:file':
-			return [
-				'read',
-				'write',
-				'edit',
-				'apply_patch',
-				'delete',
-				'copy',
-				'move',
-				'inspect_file',
-				'find',
-				'startup_files',
-			].includes(name);
-		case 'group:shell':
-			return name === 'exec' || name === 'process';
-		case 'group:web':
-			return name === 'web_fetch' || name === 'browser' || name === 'open_browser';
-		case 'group:mcp':
-			return name.startsWith('mcp_');
-		case 'group:lsp':
-			return name.startsWith('lsp_');
-		case 'group:plugins':
-			return name.startsWith('plugin_') || name.startsWith('plugin:');
-		default:
-			return false;
-	}
-}
-
 function filterToolsByAllowlist(tools: AgentTool[], allowlist?: string[]): AgentTool[] {
 	if (!allowlist) return tools;
 	const patterns = allowlist.map((entry) => entry.trim()).filter(Boolean);
 	if (patterns.length === 0) return [];
 	return tools.filter((tool) =>
-		patterns.some(
-			(pattern) =>
-				toolAllowPatternMatches(pattern, tool.name) || toolAllowGroupMatches(pattern, tool.name)
-		)
+		patterns.some((pattern) => toolAllowPatternMatches(pattern, tool.name))
 	);
 }
 
@@ -135,7 +82,6 @@ export interface AgentServiceDependencies {
 	mcpRegistry?: McpRegistry;
 	skills?: SkillsService;
 	taskManager?: TaskManager;
-	subagents?: SubagentSpawnPort;
 }
 
 export interface AgentToolsFactoryContext {
@@ -147,10 +93,6 @@ export interface AgentToolsFactoryContext {
 	session: SessionFile;
 	signal: AbortSignal;
 	services: AgentServiceDependencies;
-	toolContext: ToolContext;
-	toolPolicy?: AgentToolPolicy;
-	toolsAllow?: string[];
-	toolsDeny?: string[];
 }
 
 export type AgentToolsFactory = (
@@ -176,8 +118,6 @@ export interface AgentSendOptions {
 	agentHarnessId?: string;
 	lightContext?: boolean;
 	toolsAllow?: string[];
-	toolsDeny?: string[];
-	sessionMetadata?: Partial<AgentSessionMetadata>;
 	heartbeat?: {
 		model?: string;
 		timeoutSeconds?: number;
@@ -238,7 +178,6 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
-	private readonly usesDefaultToolsFactory: boolean;
 	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
@@ -250,62 +189,16 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.usesDefaultToolsFactory = !options.toolsFactory;
-		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
+		this.toolsFactory =
+			options.toolsFactory ??
+			(() => [
+				...createTools({ profile: 'full', allow: [], deny: DEFAULT_LOCAL_TOOL_DENY }),
+				...(this.dependencies.connectors?.createAgentTools() ?? []),
+			]);
 		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
-	}
-
-	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
-		const toolPolicy = context.toolPolicy;
-		const legacyHostTools: AgentTool[] = [
-			...createTools({
-				profile: toolPolicy?.profile ?? 'full',
-				allow: toolPolicy?.allow ?? [],
-				alsoAllow: toolPolicy?.alsoAllow,
-				deny: [
-					...DEFAULT_LOCAL_TOOL_DENY,
-					...(toolPolicy?.deny ?? []),
-					...(context.toolsDeny ?? []),
-				],
-				fs: toolPolicy?.fs,
-				exec: toolPolicy?.exec,
-			}),
-			...(this.dependencies.connectors?.createAgentTools() ?? []),
-			...(this.dependencies.subagents
-				? [
-						createSessionsSpawnTool(this.dependencies.subagents),
-						createSubagentsControlTool(this.dependencies.subagents),
-					]
-				: []),
-		];
-		const toolRuntimeConfig =
-			toolPolicy?.fs || toolPolicy?.exec
-				? {
-						toolSearch: { enabled: false },
-						tools: {
-							fs: toolPolicy.fs,
-							exec: toolPolicy.exec,
-						},
-					}
-				: { toolSearch: { enabled: false } };
-		const runtime = await createAgentTools({
-			workspaceDir: context.workspace,
-			agentId: context.agentId,
-			sessionId: context.session.id,
-			runId: context.runId,
-			provider: context.providerId,
-			modelId: context.model,
-			abortSignal: context.signal,
-			toolsAllow: context.toolsAllow,
-			toolsDeny: [...(toolPolicy?.deny ?? []), ...(context.toolsDeny ?? [])],
-			includeCoreTools: false,
-			hostTools: legacyHostTools.map((tool) => legacyToolToRuntimeTool(tool, context.toolContext)),
-			config: toolRuntimeConfig,
-		});
-		return runtime.tools.map(runtimeToolToLegacyTool);
 	}
 
 	async send(
@@ -339,7 +232,6 @@ export class AgentService {
 			if (runTimeout) clearTimeout(runTimeout);
 		};
 		const runId = randomUUID();
-		const agentConfig = this.getConfiguredAgent(agentId);
 		const streamEvent = (event: AgentRunStreamEvent): void => {
 			if (heartbeatOptions?.suppressAgentEvents) return;
 			this.dependencies.eventBus.broadcast('agent:response', {
@@ -354,10 +246,9 @@ export class AgentService {
 		try {
 			const providerConfig = recordPhase(phaseDurationsMs, 'resolve_provider_model', () =>
 				this.resolveProviderAndModel({
-					providerId: options.providerId ?? agentConfig?.model?.providerId,
-					model:
-						options.model?.trim() || heartbeatOptions?.model?.trim() || agentConfig?.model?.modelId,
-					effort: options.effort ?? agentConfig?.model?.effort,
+					providerId: options.providerId,
+					model: options.model?.trim() || heartbeatOptions?.model?.trim(),
+					effort: options.effort,
 				})
 			);
 			const providerId = providerConfig.providerId;
@@ -366,15 +257,15 @@ export class AgentService {
 			const effort = providerConfig.effort;
 			const baseURL = providerConfig.baseURL;
 			const requestedRuntime = (options.agentRuntime || options.agentHarnessId || '').trim();
-			const storedRuntime = this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
+			const storedRuntime =
+				this.dependencies.store.getAgentRuntimePreference?.() ?? undefined;
 			runtime.session = await recordAsyncPhase(phaseDurationsMs, 'load_session', () =>
 				loadSession(runtimeAgentId, model, providerId, {
 					baseDir: this.sessionBaseDir,
 				})
 			);
-			this.applyAgentSessionMetadata(runtime.session, agentId, options.sessionMetadata);
 			const workspaceRoot = recordPhase(phaseDurationsMs, 'resolve_workspace', () =>
-				this.workspaceRoot(agentConfig?.workspace)
+				this.workspaceRoot()
 			);
 			const provider = recordPhase(phaseDurationsMs, 'create_provider', () =>
 				this.providerFactory({ id: providerId, apiKey, baseURL })
@@ -414,8 +305,6 @@ export class AgentService {
 			let selectedTools: AgentTool[] = [];
 			let baseTools: AgentTool[] = [];
 			let skillChoices: SkillPromptChoice[] = [];
-			let skillRuntimePlan: SkillRuntimePlan | undefined;
-			const skillConnectors = this.dependencies.connectors?.createSkillConnectors?.() ?? [];
 
 			if (
 				bootstrapPending ||
@@ -434,10 +323,6 @@ export class AgentService {
 							session: runtime.session!,
 							signal: abort.signal,
 							services: this.dependencies,
-							toolContext: ctx,
-							toolPolicy: agentConfig?.tools,
-							toolsAllow: options.toolsAllow,
-							toolsDeny: options.toolsDeny,
 						})
 					)
 				);
@@ -454,13 +339,7 @@ export class AgentService {
 				) {
 					baseTools = [...baseTools, startupFilesTool as unknown as AgentTool];
 				}
-				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
-					baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
-				}
-				baseTools = prepareLegacyToolsForProvider(baseTools, ctx, {
-					provider: providerId,
-					modelId: model,
-				});
+				baseTools = filterToolsByAllowlist(baseTools, options.toolsAllow);
 
 				if (!bootstrapPending && this.dependencies.skills) {
 					skillChoices = await recordAsyncPhase(phaseDurationsMs, 'discover_skills', () =>
@@ -469,16 +348,9 @@ export class AgentService {
 							sessionId: runtime.session!.id,
 							tools: baseTools,
 							toolContext: ctx,
-							connectors: skillConnectors,
 							signal: abort.signal,
 						})
 					);
-					if (skillChoices.length > 0) {
-						skillRuntimePlan = createSkillRuntimePlan({
-							providerId,
-							skills: skillChoices,
-						});
-					}
 				}
 			}
 
@@ -527,20 +399,32 @@ export class AgentService {
 					}
 				}
 
-				if (skillRuntimePlan && this.dependencies.skills) {
-					selectedTools = selectToolsForSkillRuntime({
-						baseTools,
-						selectedTools,
-						plan: skillRuntimePlan,
-					});
+				if (skillChoices.length > 0 && this.dependencies.skills) {
+					const selectedNames = new Set(selectedTools.map((tool) => tool.name));
+					const skillToolNames = new Set(
+						skillChoices.flatMap((skill) => [...skill.requiredTools, ...(skill.allowedTools ?? [])])
+					);
+					for (const tool of baseTools) {
+						if (skillToolNames.has(tool.name) && !selectedNames.has(tool.name)) {
+							selectedTools.push(tool);
+							selectedNames.add(tool.name);
+						}
+					}
+					if (skillChoices.some((skill) => skill.path) && !selectedNames.has('read')) {
+						const readTool = baseTools.find((tool) => tool.name === 'read');
+						if (readTool) {
+							selectedTools.push(readTool);
+							selectedNames.add(readTool.name);
+						}
+					}
 					selectedTools = selectedTools.filter((tool) => tool.name !== 'execute_skill');
-					if (skillRuntimePlan.needsExecutionTool) {
+					if (skillChoices.some((skill) => !skill.path)) {
 						selectedTools.push(
 							this.dependencies.skills.createExecutionTool({
 								userId: agentId,
 								sessionId: runtime.session.id,
 								tools: selectedTools,
-								connectors: skillConnectors,
+								connectors: [],
 								signal: abort.signal,
 							})
 						);
@@ -557,18 +441,6 @@ export class AgentService {
 				runKind,
 			});
 			startupFiles = this.filterStartupFilesForBootstrapMode(startupFiles, bootstrapMode);
-			await recordAsyncPhase(phaseDurationsMs, 'before_prompt_build_hooks', () =>
-				fireBeforePromptBuildHook({
-					...buildAgentHookContext({
-						runId,
-						agentId,
-						sessionId: runtime.session!.id,
-						sessionKey: runtime.session!.id,
-						provider: providerId,
-						modelId: model,
-					}),
-				})
-			);
 			const systemPrompt = await recordAsyncPhase(phaseDurationsMs, 'build_system_prompt', () =>
 				buildSystemPrompt({
 					workspace: workspaceRoot,
@@ -729,6 +601,7 @@ export class AgentService {
 		return [...runtime.session.transcript];
 	}
 
+
 	cancel(agentId = this.defaultAgentId): void {
 		const runtime = this.ensureRuntime(agentId);
 		if (runtime.currentAbort) {
@@ -741,6 +614,7 @@ export class AgentService {
 		return Boolean(this.runtimes.get(agentId)?.currentAbort);
 	}
 
+
 	private ensureRuntime(agentId: string): Runtime {
 		const existing = this.runtimes.get(agentId);
 		if (existing) return existing;
@@ -752,26 +626,6 @@ export class AgentService {
 		};
 		this.runtimes.set(agentId, runtime);
 		return runtime;
-	}
-
-	private getConfiguredAgent(agentId: string): AgentConfig | undefined {
-		const store = this.dependencies.store as StoreService & {
-			getAgentConfig?: (id: string) => AgentConfig | undefined;
-		};
-		return typeof store.getAgentConfig === 'function' ? store.getAgentConfig(agentId) : undefined;
-	}
-
-	private applyAgentSessionMetadata(
-		session: SessionFile,
-		agentId: string,
-		metadata?: Partial<AgentSessionMetadata>
-	): void {
-		session.agentId = agentId;
-		session.agentMetadata = {
-			...session.agentMetadata,
-			...metadata,
-			agentId,
-		};
 	}
 
 	private resolveProviderAndModel(
@@ -800,9 +654,9 @@ export class AgentService {
 		if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 		const savedEffort = providerId === configuredProviderId ? assistant?.model.effort : undefined;
 		let effort: ModelReasoningEffort | undefined;
-		if (providerId === 'openai') {
-			effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
-		}
+			if (providerId === 'openai') {
+				effort = requireModelReasoningEffort(model, overrides.effort ?? savedEffort, providerId);
+			}
 		return { providerId, apiKey, model, effort, baseURL: provider.baseUrl };
 	}
 
@@ -815,11 +669,7 @@ export class AgentService {
 		}
 	}
 
-	private workspaceRoot(workspaceOverride?: string): string {
-		const override = workspaceOverride?.trim();
-		if (override) {
-			return path.isAbsolute(override) ? override : path.resolve(this.workspaceRoot(), override);
-		}
+	private workspaceRoot(): string {
 		try {
 			return this.dependencies.workspace.getRootPath();
 		} catch {

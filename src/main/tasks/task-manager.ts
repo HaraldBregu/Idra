@@ -11,12 +11,10 @@ import type {
 	TaskStatus,
 } from '../../shared/tasks';
 import type { TaskRegistry } from './task-registry';
-import { isTaskCancelledError } from './task-errors';
 
 interface InternalTaskState {
 	record: TaskRecord;
 	input: unknown;
-	handler: TaskHandler;
 	controller: AbortController;
 	promise?: Promise<void>;
 }
@@ -51,7 +49,6 @@ const MAX_PROGRESS_MESSAGE_LENGTH = 500;
 const MAX_OBJECT_KEYS = 50;
 const MAX_ARRAY_ITEMS = 50;
 const MAX_DEPTH = 4;
-const UNBOUNDED_CONCURRENCY = Number.MAX_SAFE_INTEGER;
 
 function truncate(value: string, maxLength = MAX_STRING_LENGTH): string {
 	const redacted = SECRET_VALUE_PATTERNS.reduce(
@@ -136,6 +133,10 @@ function errorMessage(error: unknown): string {
 	return truncate(String(error || 'Task failed.'));
 }
 
+function isAbortError(error: unknown): boolean {
+	return error instanceof Error && error.name === 'AbortError';
+}
+
 function cloneTaskRecord<TResult = unknown>(record: TaskRecord<TResult>): TaskRecord<TResult> {
 	return JSON.parse(JSON.stringify(record)) as TaskRecord<TResult>;
 }
@@ -149,15 +150,12 @@ function requireString(value: unknown, name: string): string {
 
 export class TaskManager {
 	private readonly tasks = new Map<string, InternalTaskState>();
-	private readonly queuedTaskIds: string[] = [];
-	private readonly activeTaskIds = new Set<string>();
 	private readonly registry: TaskRegistry;
 	private readonly eventBus: EventBus;
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 	private readonly idFactory: () => string;
 	private readonly now: () => string;
 	private readonly policy?: () => BackgroundTaskSettings;
-	private pumpScheduled = false;
 
 	constructor(options: TaskManagerOptions) {
 		this.registry = options.registry;
@@ -210,13 +208,11 @@ export class TaskManager {
 		const state: InternalTaskState = {
 			record,
 			input,
-			handler,
 			controller: new AbortController(),
 		};
 		this.tasks.set(id, state);
-		this.queuedTaskIds.push(id);
 		this.emitEvent({ type: 'task:created', task: cloneTaskRecord(record) });
-		this.schedulePump();
+		state.promise = Promise.resolve().then(() => this.startTask(id, handler));
 		return cloneTaskRecord(record) as TaskRecord<TResult>;
 	}
 
@@ -238,7 +234,6 @@ export class TaskManager {
 			state.controller.abort();
 			this.transition(state, 'cancelled', { finishedAt: this.now() });
 			this.emitEvent({ type: 'task:cancelled', task: cloneTaskRecord(state.record) });
-			this.schedulePump();
 			return cloneTaskRecord(state.record);
 		}
 
@@ -250,41 +245,9 @@ export class TaskManager {
 		return cloneTaskRecord(state.record);
 	}
 
-	private schedulePump(): void {
-		if (this.pumpScheduled) return;
-		this.pumpScheduled = true;
-		void Promise.resolve().then(() => {
-			this.pumpScheduled = false;
-			this.pumpQueue();
-		});
-	}
-
-	private pumpQueue(): void {
-		const maxActiveTasks = this.maxActiveTasks();
-		while (this.activeTaskIds.size < maxActiveTasks) {
-			const taskId = this.queuedTaskIds.shift();
-			if (!taskId) return;
-			const state = this.tasks.get(taskId);
-			if (!state || !this.hasStatus(state, 'queued')) continue;
-			this.activeTaskIds.add(taskId);
-			state.promise = this.startTask(taskId);
-		}
-	}
-
-	private maxActiveTasks(): number {
-		const configured = this.policy?.()?.defaultConcurrency;
-		return typeof configured === 'number' && Number.isSafeInteger(configured) && configured > 0
-			? configured
-			: UNBOUNDED_CONCURRENCY;
-	}
-
-	private async startTask(taskId: string): Promise<void> {
+	private async startTask(taskId: string, handler: TaskHandler): Promise<void> {
 		const state = this.tasks.get(taskId);
-		if (!state || !this.hasStatus(state, 'queued')) {
-			this.activeTaskIds.delete(taskId);
-			this.schedulePump();
-			return;
-		}
+		if (!state || !this.hasStatus(state, 'queued')) return;
 
 		this.transition(state, 'running', { startedAt: this.now() });
 		this.emitEvent({ type: 'task:started', task: cloneTaskRecord(state.record) });
@@ -294,7 +257,7 @@ export class TaskManager {
 				this.completeCancelled(state);
 				return;
 			}
-			const result = await state.handler.run({
+			const result = await handler.run({
 				taskId,
 				input: state.input,
 				signal: state.controller.signal,
@@ -311,7 +274,7 @@ export class TaskManager {
 			});
 			this.emitEvent({ type: 'task:succeeded', task: cloneTaskRecord(state.record) });
 		} catch (error) {
-			if (state.record.status === 'cancelling' && isTaskCancelledError(error)) {
+			if (state.record.status === 'cancelling' && isAbortError(error)) {
 				this.completeCancelled(state);
 				return;
 			}
@@ -324,9 +287,6 @@ export class TaskManager {
 				},
 			});
 			this.emitEvent({ type: 'task:failed', task: cloneTaskRecord(state.record) });
-		} finally {
-			this.activeTaskIds.delete(taskId);
-			this.schedulePump();
 		}
 	}
 

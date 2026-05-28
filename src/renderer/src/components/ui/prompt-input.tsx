@@ -10,9 +10,8 @@ import {
 import { BarWaveAnimation } from "./bar-wave-animation"
 import { WaveAnimation } from "./wave-animation"
 import { TypingLoader } from "./loader"
-import { Button } from "./button"
 import { cn } from "@/lib/utils"
-import { AudioLines, Check, Mic, MicOff, X } from "lucide-react"
+import { Check, Mic, MicOff, X } from "lucide-react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import React, {
   createContext,
@@ -82,14 +81,7 @@ export type PromptInputProps = {
   onFilesChange?: (files: File[]) => void
 } & React.ComponentProps<"div">
 
-export type PromptInputVoiceMode = "conversation" | "dictation" | "recording"
-export type PromptInputSpeechToTextMode = "dictate" | "record" | "disabled"
-
-const SPEECH_TO_TEXT_ACTION_LABELS: Record<PromptInputSpeechToTextMode, string> = {
-  dictate: "Start dictation",
-  record: "Record speech to text",
-  disabled: "No speech-to-text model configured",
-}
+export type PromptInputVoiceMode = "conversation" | "dictation"
 
 function usePromptInputTransition() {
   const prefersReducedMotion = useReducedMotion()
@@ -155,8 +147,6 @@ function PromptInputVoiceWaveform({
   mode: PromptInputVoiceMode
   mediaStream?: MediaStream | null
 }) {
-  const isSpeechToText = mode === "dictation" || mode === "recording"
-
   return (
     <div
       className={cn(
@@ -165,7 +155,7 @@ function PromptInputVoiceWaveform({
       )}
       aria-hidden="true"
     >
-      {isSpeechToText ? (
+      {mode === "dictation" ? (
         <BarWaveAnimation active={!muted} height={28} mediaStream={mediaStream} />
       ) : (
         <WaveAnimation active={!muted} height={28} />
@@ -206,9 +196,8 @@ function PromptInputVoicePanel({
 }) {
   const promptInputContext = usePromptInput()
   const [localMuted, setLocalMuted] = useState(false)
-  const isSpeechToText = mode === "dictation" || mode === "recording"
-  const isRecording = mode === "recording"
-  const isMuted = !isSpeechToText && (muted ?? localMuted)
+  const isDictation = mode === "dictation"
+  const isMuted = !isDictation && (muted ?? localMuted)
 
   const handleButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -242,7 +231,7 @@ function PromptInputVoicePanel({
       <div
         className={cn(
           "flex size-8 shrink-0 items-center justify-center rounded-full",
-          isSpeechToText
+          isDictation
             ? "bg-destructive/10 text-destructive"
             : isMuted
             ? "bg-muted text-muted-foreground"
@@ -253,7 +242,7 @@ function PromptInputVoicePanel({
         <span
           className={cn(
             "block rounded-full",
-            isSpeechToText
+            isDictation
               ? "size-2.5 bg-current"
               : isMuted
               ? "size-5 bg-current opacity-60"
@@ -272,11 +261,11 @@ function PromptInputVoicePanel({
         ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
-        {isSpeechToText ? (
+        {isDictation ? (
           <>
             <button
               type="button"
-              aria-label={isRecording ? "Cancel recording" : "Cancel dictation"}
+              aria-label="Cancel dictation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onCancel)}
               className="flex size-8 items-center justify-center rounded-full border border-border bg-background/70 text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
@@ -285,7 +274,7 @@ function PromptInputVoicePanel({
             </button>
             <button
               type="button"
-              aria-label={isRecording ? "Confirm recording" : "Confirm dictation"}
+              aria-label="Confirm dictation"
               disabled={disabled}
               onClick={(event) => handleButtonClick(event, onConfirm)}
               className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/55 disabled:pointer-events-none disabled:opacity-50"
@@ -378,8 +367,6 @@ function PromptInput({
   })
   const isConversationMode = voiceMode === "conversation"
   const isDictationMode = voiceMode === "dictation"
-  const isRecordingMode = voiceMode === "recording"
-  const isVoicePanelOnlyMode = isConversationMode || isRecordingMode
   const isPromptExpanded = isExpanded || isDictationMode
 
   const handleChange = (newValue: string) => {
@@ -420,12 +407,12 @@ function PromptInput({
             <motion.div
               layout
               transition={transition}
-              onClick={isVoicePanelOnlyMode ? onClick : handleClick}
+              onClick={isConversationMode ? onClick : handleClick}
               data-expanded={isPromptExpanded}
               data-voice-mode={voiceMode ?? undefined}
               className={cn(
                 "cursor-text border border-border/60 bg-card/95 text-foreground shadow-sm shadow-foreground/5 focus-within:ring-1 focus-within:ring-ring/25",
-                isVoicePanelOnlyMode
+                isConversationMode
                   ? "flex min-h-10 items-center gap-2 rounded-full p-1.5 focus-within:ring-0"
                   : isPromptExpanded
                   ? "flex max-h-[min(48vh,30rem)] min-h-24 flex-col rounded-xl px-4 py-3"
@@ -435,7 +422,7 @@ function PromptInput({
               )}
               {...(props as React.ComponentProps<typeof motion.div>)}
             >
-              {isVoicePanelOnlyMode ? (
+              {isConversationMode ? (
                 <PromptInputVoicePanel
                   mode={voiceMode}
                   disabled={disabled}
@@ -634,72 +621,6 @@ function PromptInputActions({
   )
 }
 
-export type PromptInputVoiceActionsProps = {
-  speechToTextMode: PromptInputSpeechToTextMode
-  onSpeechToText: () => void | Promise<void>
-  speechToTextDisabled?: boolean
-  onVoiceConversation?: () => void | Promise<void>
-  voiceConversationDisabled?: boolean
-  showVoiceConversation?: boolean
-}
-
-function PromptInputVoiceActions({
-  speechToTextMode,
-  onSpeechToText,
-  speechToTextDisabled,
-  onVoiceConversation,
-  voiceConversationDisabled = true,
-  showVoiceConversation = true,
-}: PromptInputVoiceActionsProps) {
-  const speechToTextLabel = SPEECH_TO_TEXT_ACTION_LABELS[speechToTextMode]
-  const isSpeechToTextDisabled =
-    speechToTextDisabled || speechToTextMode === "disabled"
-  const voiceConversationLabel = "Start voice conversation"
-
-  const handleSpeechToText = () => {
-    if (isSpeechToTextDisabled) return
-    void onSpeechToText()
-  }
-
-  const handleVoiceConversation = () => {
-    if (voiceConversationDisabled || !onVoiceConversation) return
-    void onVoiceConversation()
-  }
-
-  return (
-    <>
-      <PromptInputAction tooltip={speechToTextLabel}>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-8 rounded-full text-foreground hover:bg-muted"
-          aria-label={speechToTextLabel}
-          disabled={isSpeechToTextDisabled}
-          onClick={handleSpeechToText}
-        >
-          <Mic className="size-4" />
-        </Button>
-      </PromptInputAction>
-      {showVoiceConversation ? (
-        <PromptInputAction tooltip={voiceConversationLabel}>
-          <Button
-            type="button"
-            variant="default"
-            size="icon"
-            className="size-9 overflow-hidden rounded-full bg-foreground text-background hover:bg-foreground/90"
-            aria-label={voiceConversationLabel}
-            disabled={voiceConversationDisabled}
-            onClick={handleVoiceConversation}
-          >
-            <AudioLines className="size-4" />
-          </Button>
-        </PromptInputAction>
-      ) : null}
-    </>
-  )
-}
-
 export type PromptInputActionProps = {
   className?: string
   tooltip: React.ReactNode
@@ -768,7 +689,6 @@ export {
   PromptInput,
   PromptInputTextarea,
   PromptInputActions,
-  PromptInputVoiceActions,
   PromptInputAction,
   PromptInputCharCount,
   usePromptInput,

@@ -1,18 +1,14 @@
 import {
 	Activity,
 	Bot,
-	BookOpenText,
-	Brain,
 	CalendarClock,
 	ClipboardList,
-	DatabaseSearch,
 	ImageIcon,
 	Info,
 	Mic,
 	MonitorCog,
 	Music,
 	Plug,
-	Radar,
 	RadioTower,
 	Server,
 	Sparkles,
@@ -131,9 +127,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
-	{ path: '/settings/memory', labelKey: 'settings.tabs.memory', descriptionKey: 'settings.memory.description', keywords: 'memory markdown files chat workspace', icon: Brain },
-	{ path: '/settings/rag', labelKey: 'settings.tabs.rag', descriptionKey: 'settings.memory.ragDescription', keywords: 'rag retrieval augmented generation knowledge markdown files', icon: DatabaseSearch },
-	{ path: '/settings/wiki', labelKey: 'settings.tabs.wiki', descriptionKey: 'settings.memory.wikiDescription', keywords: 'wiki knowledge markdown files', icon: BookOpenText },
 	// Operators
 	...SETTINGS_OPERATOR_ITEMS,
 	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
@@ -143,7 +136,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/task-manager', labelKey: 'settings.tabs.backgroundTasks', descriptionKey: 'settings.taskManager.description', keywords: 'tasks running queued succeeded failed background' },
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
-	{ path: '/settings/monitoring', labelKey: 'settings.tabs.monitoring', descriptionKey: 'settings.monitoring.description', keywords: 'runtime monitoring diagnostics events errors warnings timeline payload' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
@@ -178,24 +170,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Plug,
 	},
 	{
-		path: '/settings/memory',
-		labelKey: 'settings.tabs.memory',
-		descriptionKey: 'settings.overview.descriptions.memory',
-		icon: Brain,
-	},
-	{
-		path: '/settings/rag',
-		labelKey: 'settings.tabs.rag',
-		descriptionKey: 'settings.overview.descriptions.rag',
-		icon: DatabaseSearch,
-	},
-	{
-		path: '/settings/wiki',
-		labelKey: 'settings.tabs.wiki',
-		descriptionKey: 'settings.overview.descriptions.wiki',
-		icon: BookOpenText,
-	},
-	{
 		path: '/settings/channels',
 		labelKey: 'settings.tabs.channels',
 		descriptionKey: 'settings.overview.descriptions.channels',
@@ -218,11 +192,5 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.backgroundTasks',
 		descriptionKey: 'settings.overview.descriptions.taskManager',
 		icon: ClipboardList,
-	},
-	{
-		path: '/settings/monitoring',
-		labelKey: 'settings.tabs.monitoring',
-		descriptionKey: 'settings.overview.descriptions.monitoring',
-		icon: Radar,
 	},
 ] satisfies readonly SettingsNavigationItem[];

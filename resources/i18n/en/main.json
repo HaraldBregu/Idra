@@ -148,12 +148,10 @@
 			"searchTitle": "Use search as a power layer",
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
 			"groups": {
-				"app": "App",
-				"ai": "AI",
-				"knowledge": "Knowledge",
-				"channels": "Channels",
-				"automation": "Automation",
-				"monitoring": "Monitoring"
+				"general": "General setup",
+				"aiAgents": "AI agents",
+				"aiFeatures": "AI Features",
+				"automations": "Automations"
 			},
 			"descriptions": {
 				"general": "App info, appearance, folders",
@@ -162,14 +160,10 @@
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
-				"memory": "Saved memory files",
-				"rag": "Retrieval memory",
-				"wiki": "Workspace wiki",
 				"providers": "AI API keys",
 				"cron": "Task scheduler",
 				"taskManager": "Background tasks",
-				"heartbeat": "Periodic agent checks",
-				"monitoring": "Runtime diagnostics"
+				"heartbeat": "Periodic agent checks"
 			}
 		},
 		"tabs": {
@@ -188,10 +182,6 @@
 			"taskScheduler": "Task scheduler",
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
-			"monitoring": "Monitoring",
-			"memory": "Memory",
-			"rag": "RAG",
-			"wiki": "Wiki",
 			"developer": "Developer",
 			"skills": "Skills"
 		},
@@ -223,7 +213,6 @@
 			"taskScheduler": "Scheduled tasks",
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
-			"monitoring": "Monitoring",
 			"developer": "Developer"
 		},
 		"profile": {
@@ -478,38 +467,6 @@
 			"notFoundTitle": "Connector not found",
 			"notFoundDescription": "The connector may have been removed."
 		},
-		"memory": {
-			"sectionTitle": "Memory",
-			"description": "Saved workspace and chat memory files.",
-			"ragDescription": "Retrieval documents used for agent grounding.",
-			"wikiDescription": "Workspace wiki documents available to Friday.",
-			"detailsTitle": "Memory file",
-			"fileCount": "{{count}} files",
-			"updatedAt": "Updated {{time}} · {{size}}",
-			"readWindow": "{{lines}} of {{total}} lines loaded",
-			"emptyFile": "This file is empty.",
-			"emptyTitle": "No memory files",
-			"emptyDescription": "Memory files will appear here after Friday stores workspace or chat memory.",
-			"ragEmptyTitle": "No RAG files",
-			"ragEmptyDescription": "RAG files will appear here after retrieval documents are added.",
-			"wikiEmptyTitle": "No wiki files",
-			"wikiEmptyDescription": "Wiki files will appear here after wiki documents are added.",
-			"notFoundTitle": "Memory file not found",
-			"notFoundDescription": "The memory file may have been removed.",
-			"scope": {
-				"global": "Global",
-				"chat": "Chat {{scopeId}}"
-			},
-			"actions": {
-				"refresh": "Refresh",
-				"loadMore": "Load more"
-			},
-			"errors": {
-				"load": "Could not load memory files.",
-				"read": "Could not read memory file.",
-				"missingPath": "No memory file was selected."
-			}
-		},
 		"cron": {
 			"columns": {
 				"id": "Id",
@@ -729,60 +686,6 @@
 				"emptyEvent": "Enter event text before sending.",
 				"invalidEvery": "Enter a valid duration such as 5m, 30m, 1h, or 0m.",
 				"activeHoursRange": "Set both active start and active end, or leave both empty."
-			}
-		},
-		"monitoring": {
-			"description": "Runtime event timeline, sanitized payloads, and failure diagnostics.",
-			"actions": {
-				"refresh": "Refresh",
-				"clearFilters": "Clear filters"
-			},
-			"summary": {
-				"title": "Runtime summary",
-				"description": "Current filtered monitor records.",
-				"records": "Records",
-				"errors": "Errors",
-				"warnings": "Warnings",
-				"categories": "Categories"
-			},
-			"filters": {
-				"title": "Filters",
-				"description": "Filter the bounded in-memory monitor timeline.",
-				"source": "Source",
-				"severity": "Severity",
-				"category": "Category",
-				"eventType": "Event type",
-				"timeRange": "Time range",
-				"limit": "Limit",
-				"allSources": "All sources",
-				"allSeverities": "All severities",
-				"allTime": "All time",
-				"last15m": "Last 15 minutes",
-				"lastHour": "Last hour",
-				"lastDay": "Last 24 hours",
-				"categoryPlaceholder": "task, heartbeat, channel",
-				"eventTypePlaceholder": "task:failed"
-			},
-			"events": {
-				"title": "Event timeline",
-				"description": "Sanitized records from the trusted main-process monitor.",
-				"emptyTitle": "No monitor events",
-				"emptyDescription": "Events will appear as Friday records runtime activity.",
-				"generatedAt": "Updated {{time}}",
-				"payload": "Payload",
-				"payloadEmpty": "No payload"
-			},
-			"fields": {
-				"id": "Id",
-				"eventTimestamp": "Event time"
-			},
-			"severity": {
-				"info": "Info",
-				"warn": "Warn",
-				"error": "Error"
-			},
-			"values": {
-				"unknown": "Unknown"
 			}
 		},
 		"permissions": {
@@ -1026,10 +929,6 @@
 				"open": "Open",
 				"deny": "Deny"
 			},
-			"heartbeat": "Heartbeat visibility",
-			"heartbeatShowOk": "Show healthy checks",
-			"heartbeatShowAlerts": "Show alerts",
-			"heartbeatUseIndicator": "Use status indicator",
 			"runtimeUnavailable": "Configuration can be saved; this provider runtime is not bundled yet.",
 			"phoneNumber": "Phone number",
 			"phoneNumberDescription": "Digits only, including country code (no +, no spaces).",

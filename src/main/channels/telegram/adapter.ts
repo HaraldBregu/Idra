@@ -102,9 +102,7 @@ export class TelegramAdapter implements ChannelAdapter {
 			this.seenMessages.add(normalized.idempotencyKey);
 			const message: ChannelInboundMessage = {
 				type: 'telegram',
-				accountId: normalized.accountId,
 				from: normalized.senderId,
-				fromName: normalized.senderName,
 				chatId: normalized.targetId,
 				text: normalized.text,
 				messageId: normalized.messageId,

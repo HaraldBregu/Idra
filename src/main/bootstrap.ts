@@ -18,10 +18,8 @@ import { collectConfiguredAgentHarnessRuntimes } from './agent/harness-runtimes'
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { McpRegistry } from './mcp';
-import { MonitorService } from './monitor';
 import { SkillsService } from './skills';
 import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
-import { SubagentRegistry, SubagentRunTaskHandler, SubagentSpawnService } from './agent/subagents';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 
@@ -30,16 +28,12 @@ import {
 	AppIpc,
 	AgentIpc,
 	ChannelsIpc,
-	ChatMemoryIpc,
 	ConnectorsIpc,
 	CronIpc,
 	HeartbeatIpc,
-	MonitorIpc,
-	RagIpc,
 	RealtimeTranscriptionIpc,
 	SkillsIpc,
 	TasksIpc,
-	WikiIpc,
 	WindowIpc,
 } from './ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
@@ -68,8 +62,6 @@ export function bootstrapServices(): BootstrapResult {
 	const logger = new LoggerService(eventBus);
 	registerAgentHarnessRuntimePluginActivation(logger);
 	container.register('logger', logger);
-	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
-	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
@@ -94,14 +86,12 @@ export function bootstrapServices(): BootstrapResult {
 			},
 		},
 	})) {
-		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch(
-			(error) => {
-				logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
-					runtime,
-					error: error instanceof Error ? error.message : String(error),
-				});
-			}
-		);
+		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch((error) => {
+			logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
+				runtime,
+				error: error instanceof Error ? error.message : String(error),
+			});
+		});
 	}
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(store, logger));
@@ -129,9 +119,7 @@ export function bootstrapServices(): BootstrapResult {
 	};
 	const agentService = container.register('agentService', new AgentService(agentDependencies));
 	const taskRegistry = new TaskRegistry();
-	const subagentRegistry = new SubagentRegistry();
 	taskRegistry.register(new AgentTaskHandler(agentService, store), { userFacing: true });
-	taskRegistry.register(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
 	const taskManager = container.register(
 		'taskManager',
 		new TaskManager({
@@ -142,17 +130,10 @@ export function bootstrapServices(): BootstrapResult {
 		})
 	);
 	agentDependencies.taskManager = taskManager;
-	agentDependencies.subagents = new SubagentSpawnService({
-		store,
-		taskManager,
-		registry: subagentRegistry,
-		eventBus,
-		logger,
-	});
 	cron.configureTaskRuntime({ taskManager });
 	const channelRegistry = container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService, store })
+		new ChannelRegistry({ logger, eventBus, agentService })
 	);
 	const heartbeat = container.register(
 		'heartbeat',
@@ -214,16 +195,12 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new AppIpc(),
 		new AgentIpc(),
 		new ChannelsIpc(),
-		new ChatMemoryIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),
 		new HeartbeatIpc(),
-		new MonitorIpc(),
-		new RagIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SkillsIpc(),
 		new TasksIpc(),
-		new WikiIpc(),
 		new WindowIpc(),
 	];
 

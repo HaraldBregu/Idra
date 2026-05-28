@@ -1,5 +1,5 @@
 import type { TaskRecord, TaskRunRequest } from '../../../shared/tasks';
-import { AGENT_TASK_TYPE, parseTaskRunRequest } from '../../tasks';
+import { AGENT_TASK_TYPE } from '../../tasks';
 import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 
@@ -17,6 +17,14 @@ function assertRecord(value: unknown, name: string): asserts value is Record<str
 	}
 }
 
+function requiredString(input: Record<string, unknown>, key: string): string {
+	const value = input[key];
+	if (typeof value !== 'string') throw new Error(`${key} must be a string.`);
+	const trimmed = value.trim();
+	if (!trimmed) throw new Error(`${key} is required.`);
+	return trimmed;
+}
+
 function optionalString(input: Record<string, unknown>, key: string): string | undefined {
 	const value = input[key];
 	if (value === undefined || value === null) return undefined;
@@ -25,21 +33,28 @@ function optionalString(input: Record<string, unknown>, key: string): string | u
 	return trimmed || undefined;
 }
 
+function optionalMetadata(value: unknown): Record<string, unknown> | undefined {
+	if (value === undefined || value === null) return undefined;
+	assertRecord(value, 'metadata');
+	return value;
+}
+
 function taskRequest(args: unknown): TaskRunRequest {
 	assertRecord(args, 'task arguments');
 	const type = optionalString(args, 'type');
 	if (type && type !== AGENT_TASK_TYPE) {
 		throw new Error(`Only ${AGENT_TASK_TYPE} background tasks are supported.`);
 	}
-	const request: Record<string, unknown> = {
+	const request: TaskRunRequest = {
 		type: AGENT_TASK_TYPE,
-		title: args.title,
+		title: requiredString(args, 'title'),
 		input: Object.prototype.hasOwnProperty.call(args, 'input') ? args.input : {},
 	};
 	const id = optionalString(args, 'id');
+	const metadata = optionalMetadata(args.metadata);
 	if (id) request.id = id;
-	if (Object.prototype.hasOwnProperty.call(args, 'metadata')) request.metadata = args.metadata;
-	return parseTaskRunRequest(request);
+	if (metadata) request.metadata = metadata;
+	return request;
 }
 
 function taskRecordResult(task: TaskRecord): AgentToolResult<TaskRecord> {

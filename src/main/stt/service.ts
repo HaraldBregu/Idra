@@ -14,7 +14,6 @@ import type {
 } from '../../shared/realtime-transcription';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type { Provider } from '../../shared/providers';
-import { createDeepgramSpeechToTextAdapter } from './deepgram-realtime-adapter';
 import { createElevenLabsSpeechToTextAdapter } from './elevenlabs-realtime-adapter';
 import { createMistralRealtimeSpeechToTextAdapter } from './mistral-realtime-adapter';
 import { createOpenAIRealtimeSpeechToTextAdapter } from './openai-realtime-adapter';
@@ -40,7 +39,6 @@ export class SpeechToTextService {
 	constructor(private readonly dependencies: SpeechToTextServiceDependencies) {
 		this.adapters = dependencies.adapters ?? [
 			createOpenAIRealtimeSpeechToTextAdapter(),
-			createDeepgramSpeechToTextAdapter(),
 			createElevenLabsSpeechToTextAdapter(),
 			createMistralRealtimeSpeechToTextAdapter(),
 			createXaiSpeechToTextAdapter(),

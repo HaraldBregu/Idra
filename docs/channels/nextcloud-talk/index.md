@@ -24,37 +24,6 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
-## Platform Integration Notes
-
-- Nextcloud Talk bots use the Talk bot API and require the `bots-v1`
-  capability.
-- Inbound bot webhooks are signed with a shared secret; verify the random header
-  and HMAC signature before dispatch.
-- Outbound bot sends use `/bot/{token}/message` through the OCS API with
-  `OCS-APIRequest: true`.
-- Preserve conversation token, actor id, message id, reply id, and backend URL
-  in provenance. Talk documents a 32,000 character message limit on modern
-  versions, with older deployments potentially lower.
-
-## Configuration Reference
-
-- `serverUrl`: Nextcloud base URL.
-- `token`: Talk conversation token or bot token used in `/bot/{token}/...`
-  endpoints.
-- `secret`: shared Talk bot secret used for HMAC-SHA256 request signing.
-- `webhookUrl`: Friday callback URL installed with the Talk bot.
-- `username`: bot display name.
-- `defaultTarget`: Talk conversation token.
-- `allowFrom`: allowed actor ids.
-- `groupAllowFrom`: allowed conversation tokens.
-
-Required platform setup:
-
-- Confirm the server advertises the `bots-v1` Talk capability.
-- Install the bot with `occ talk:bot:install`, including a shared secret and the
-  Friday webhook URL.
-- Send OCS requests with `OCS-APIRequest: true` and Talk bot signature headers.
-
 ## Official Documentation
 
 - [Nextcloud Talk API documentation](https://nextcloud-talk.readthedocs.io/en/latest/)

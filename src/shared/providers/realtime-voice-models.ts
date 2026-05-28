@@ -1,4 +1,4 @@
-import { model, normalizeProviderId, type ModelCatalog } from './models';
+import { model, type ModelCatalog } from './models';
 
 export const REALTIME_VOICE_MODELS_BY_PROVIDER = {
 	google: [model('gemini-3.1-flash-live-preview', 'Gemini 3.1 Flash Live Preview')],
@@ -10,8 +10,3 @@ export const REALTIME_VOICE_MODELS_BY_PROVIDER = {
 	],
 	xai: [model('grok-voice-latest', 'Grok Voice Latest')],
 } as const satisfies ModelCatalog;
-
-export function isRealtimeVoiceModel(providerId: string, modelId: string): boolean {
-	const catalog = REALTIME_VOICE_MODELS_BY_PROVIDER as Readonly<Record<string, readonly { readonly id: string }[]>>;
-	return (catalog[normalizeProviderId(providerId)] ?? []).some((m) => m.id === modelId);
-}

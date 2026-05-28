@@ -11,9 +11,6 @@ export async function sendDurableMessageBatch(
 	sendPart: (text: string) => Promise<ChannelDeliveryPart>,
 	options: { maxLength: number }
 ): Promise<ChannelMessageReceipt> {
-	if (!Number.isInteger(options.maxLength) || options.maxLength < 1) {
-		throw new Error('Channel message maxLength must be a positive integer.');
-	}
 	const parts = splitText(message.text, options.maxLength);
 	const delivered: ChannelDeliveryPart[] = [];
 

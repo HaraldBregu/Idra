@@ -5,7 +5,6 @@ import type {
 } from '../../../shared/channels';
 import { createChatChannelPlugin, createScopedDmSecurityAdapter, defineChannelPluginEntry } from '../plugin';
 import { normalizeTelegramTextMessage } from './receive';
-import type { TelegramAdapterOptions } from './types';
 import type {
 	ChannelAccountSnapshot,
 	ChannelActionsAdapter,
@@ -199,7 +198,6 @@ const messaging: ChannelMessagingAdapter = {
 		return normalizeTelegramTextMessage({
 			accountId,
 			from: message.from,
-			fromName: message.fromName,
 			chatId: message.chatId,
 			text: message.text,
 			messageId: message.messageId,
@@ -286,27 +284,9 @@ export const telegramChannelPlugin: ChannelPlugin<TelegramChannelProperties, Tel
 		})
 	);
 
-export function resolveTelegramAdapterOptions(
-	channelConfig: TelegramChannelProperties
-): TelegramAdapterOptions | null {
-	const account = config.getDefaultAccount(channelConfig);
-	if (!account || !account.enabled || !account.configured) return null;
-
-	const token = resolveTelegramAccountToken(channelConfig, account.id);
-	if (!token) return null;
-
-	const options: TelegramAdapterOptions = {
-		token,
-		allowFrom: account.allowFrom,
-	};
-	if (account.id !== 'default') options.accountId = account.id;
-	if (account.defaultTargetId) options.defaultTarget = account.defaultTargetId;
-	return options;
-}
-
 function toAccount(channelConfig: TelegramChannelProperties, accountId: string): ChannelAccountSnapshot {
 	const accountConfig = channelConfig.accounts?.[accountId];
-	const token = resolveTelegramAccountToken(channelConfig, accountId);
+	const token = (accountConfig?.token ?? (accountId === 'default' ? channelConfig.token : '')).trim();
 	const enabled = channelConfig.enabled !== false && accountConfig?.enabled !== false;
 	const configured = Boolean(token);
 	const allowFrom = normalizeAllowFrom(accountConfig?.allowFrom ?? channelConfig.allowFrom);
@@ -370,14 +350,6 @@ function normalizeAccounts(
 function hasConfiguredToken(channelConfig: TelegramChannelProperties): boolean {
 	if (channelConfig.token.trim()) return true;
 	return Object.values(channelConfig.accounts ?? {}).some((account) => Boolean(account.token?.trim()));
-}
-
-function resolveTelegramAccountToken(
-	channelConfig: TelegramChannelProperties,
-	accountId: string
-): string {
-	const accountConfig = channelConfig.accounts?.[accountId];
-	return (accountConfig?.token ?? (accountId === 'default' ? channelConfig.token : '')).trim();
 }
 
 function resolveDmPolicy(

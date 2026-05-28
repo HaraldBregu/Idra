@@ -24,36 +24,6 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
-## Platform Integration Notes
-
-- Signal does not publish a general first-party bot HTTP API.
-- A local runtime would need to act as a linked device for a user-controlled
-  Signal account and should make that operational model explicit in setup.
-- Linked devices are paired by QR/device-link flow and do not automatically mean
-  all previous history is available.
-- Preserve Signal recipient ids, group ids, timestamps, and local device/account
-  provenance. Never imply that Signal message contents are available without
-  the linked-device cryptographic state.
-
-## Configuration Reference
-
-Signal has no official bot API configuration for this use case. If a local
-linked-device runtime is added, document it explicitly:
-
-- `phoneNumber`: primary Signal account phone number, when needed for pairing.
-- `username`: local linked-device name.
-- `serverUrl`: local helper endpoint, if a separate Signal helper process is
-  used.
-- `token`: local helper access token, not a Signal first-party API token.
-- `secret`: local device-store encryption secret or helper credential.
-- `defaultTarget`: Signal recipient UUID, phone number, or group id supported by
-  the helper.
-- `allowFrom`: allowed Signal recipient UUIDs or phone numbers.
-- `groupAllowFrom`: allowed Signal group ids.
-
-Pairing should surface `pairing_code` or QR status through channel runtime
-status and should respect Signal linked-device limits and inactivity unlinking.
-
 ## Official Documentation
 
 Signal does not publish an official bot API for this use case.

@@ -7,5 +7,3 @@ export type {
 export { useHomeAgent } from './useHomeAgent';
 export { useRealtimeDictation } from './useRealtimeDictation';
 export type { RealtimeDictationStatus } from './useRealtimeDictation';
-export { useVoiceButtonMode } from './useVoiceButtonMode';
-export type { VoiceButtonMode } from './useVoiceButtonMode';

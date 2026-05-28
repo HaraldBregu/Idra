@@ -24,28 +24,6 @@ convert message-in fixtures to `ChannelInboundMessage`, accept message-out
 assertions as `ChannelOutboundMessage`, and assert `ChannelMessageReceipt`
 delivery results. The synthetic runtime must not call the agent directly.
 
-## Local QA Notes
-
-- This channel is for synthetic channel-contract tests and should not require
-  external credentials.
-- Test fixtures should exercise normalization, admission decisions,
-  idempotency, threading, outbound receipts, and runtime status transitions.
-- Keep fixture payloads provider-neutral unless a test is explicitly validating
-  how a real provider payload maps into the unified gateway contract.
-- Do not expose this channel in user-facing setup surfaces unless a test mode
-  requires it.
-
-## Configuration Reference
-
-- `enabled`: test-only switch for local QA accounts.
-- `defaultTarget`: synthetic conversation target, such as `qa:default`.
-- `allowFrom`: synthetic sender ids accepted by direct-message tests.
-- `groupAllowFrom`: synthetic room or group ids accepted by group tests.
-- `heartbeat`: optional heartbeat visibility overrides for status tests.
-
-This channel must not require external credentials. Tests should inject fixture
-payloads and expected receipts directly through the channel contract.
-
 ## Official Documentation
 
 Internal synthetic test channel. There is no external official documentation.

@@ -26,35 +26,25 @@ import {
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
-		id: 'app',
-		titleKey: 'settings.overview.groups.app',
-		paths: ['/settings/general', '/settings/system'],
+		id: 'general',
+		titleKey: 'settings.overview.groups.general',
+		paths: ['/settings/general', '/settings/system', '/settings/providers', '/settings/channels'],
 	},
 	{
-		id: 'ai',
-		titleKey: 'settings.overview.groups.ai',
+		id: 'aiAgents',
+		titleKey: 'settings.overview.groups.aiAgents',
 		agents: true,
-		paths: ['/settings/providers', '/settings/skills', '/settings/connectors'],
+		paths: [],
 	},
 	{
-		id: 'knowledge',
-		titleKey: 'settings.overview.groups.knowledge',
-		paths: ['/settings/memory', '/settings/rag', '/settings/wiki'],
+		id: 'aiFeatures',
+		titleKey: 'settings.overview.groups.aiFeatures',
+		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
-		id: 'channels',
-		titleKey: 'settings.overview.groups.channels',
-		paths: ['/settings/channels'],
-	},
-	{
-		id: 'automation',
-		titleKey: 'settings.overview.groups.automation',
-		paths: ['/settings/heartbeat', '/settings/cron'],
-	},
-	{
-		id: 'monitoring',
-		titleKey: 'settings.overview.groups.monitoring',
-		paths: ['/settings/task-manager', '/settings/monitoring'],
+		id: 'automations',
+		titleKey: 'settings.overview.groups.automations',
+		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager'],
 	},
 ] satisfies readonly {
 	readonly id: string;
@@ -130,11 +120,6 @@ function SettingsOverviewCard({
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
 				</ItemTitle>
-				{'descriptionKey' in item && item.descriptionKey && (
-					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-						{t(item.descriptionKey)}
-					</p>
-				)}
 			</ItemContent>
 			<ItemActions className="ml-0 flex-none justify-end">
 				{comingSoon ? (

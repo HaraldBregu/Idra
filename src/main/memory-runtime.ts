@@ -1,40 +1,22 @@
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import {
-	describeChatMemoryFile,
-	resolveChatDailyMemoryTarget,
-	validateChatDailyMemoryRelativePath,
-	type ChatMemoryScope,
-	type ChatMemoryScopeInput,
-	type ChatMemoryScopeKind,
-} from './memory/chat';
 import type { TranscriptEntry } from './provider/types';
-import { describeRagFile } from './rag';
 import { acquireWriteLock } from './session/lock';
 import { listSessions, type SessionFile } from './session/store';
-import { describeWikiFile } from './wiki';
 
 export type MemorySource = 'memory' | 'sessions';
-export type MemoryCorpus = 'memory' | 'sessions' | 'rag' | 'wiki' | 'all';
-export type MemoryFileCorpus = Exclude<MemoryCorpus, 'sessions' | 'all'>;
-export type MemoryResultCorpus = Exclude<MemoryCorpus, 'all'>;
-export type MemoryScopeKind = ChatMemoryScopeKind;
-export type MemoryScope = ChatMemoryScope;
-export type MemoryScopeInput = ChatMemoryScopeInput;
+export type MemoryCorpus = 'memory' | 'wiki' | 'all' | 'sessions';
 export type SessionVisibility = 'self' | 'tree' | 'agent' | 'all';
 
 export interface MemorySearchResult {
 	source: MemorySource;
-	corpus: MemoryResultCorpus;
 	path: string;
 	chunkId: string;
 	text: string;
 	score: number;
 	lineStart?: number;
 	lineEnd?: number;
-	scopeKind?: MemoryScopeKind;
-	scopeId?: string;
 	sessionId?: string;
 	metadata?: Record<string, unknown>;
 }
@@ -56,10 +38,6 @@ export interface MemorySearchManager {
 		minScore?: number;
 		source?: MemorySource;
 		sources?: MemorySource[];
-		corpus?: MemoryCorpus;
-		corpora?: MemoryCorpus[];
-		scopeKind?: MemoryScopeKind;
-		scopeId?: string;
 		sessionKey?: string;
 	}): Promise<MemorySearchResult[]>;
 
@@ -88,21 +66,15 @@ export interface MemoryFlushPlan {
 	targetPath: string;
 	relativePath: string;
 	prompt: string;
-	workspaceDir?: string;
-	corpus?: MemoryFileCorpus;
-	scope?: MemoryScope;
 }
 
 type IndexedChunk = {
 	source: MemorySource;
-	corpus: MemoryResultCorpus;
 	path: string;
 	chunkId: string;
 	text: string;
 	lineStart?: number;
 	lineEnd?: number;
-	scopeKind?: MemoryScopeKind;
-	scopeId?: string;
 	sessionId?: string;
 	metadata?: Record<string, unknown>;
 };
@@ -168,19 +140,15 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 		if (!trimmed) return [];
 
 		const sources = this.resolveSources(options);
-		const corpora = resolveRequestedCorpora(options);
 		const chunks: IndexedChunk[] = [];
-		if (sources.includes('memory') && corpora.some((corpus) => corpus !== 'sessions')) {
-			chunks.push(...(await this.indexMemoryFiles()));
-		}
-		if (sources.includes('sessions') && corpora.includes('sessions') && this.includeSessions) {
+		if (sources.includes('memory')) chunks.push(...(await this.indexMemoryFiles()));
+		if (sources.includes('sessions') && this.includeSessions) {
 			chunks.push(...(await this.indexSessionFiles(options.sessionKey)));
 		}
 
 		const minScore = options.minScore ?? DEFAULT_MIN_SCORE;
 		const maxResults = Math.min(Math.max(options.maxResults ?? DEFAULT_MAX_RESULTS, 1), MAX_RESULTS);
 		return chunks
-			.filter((chunk) => matchesMemorySearchFilter(chunk, corpora, options.scopeKind, options.scopeId))
 			.map((chunk) => ({ chunk, score: keywordScore(trimmed, chunk.text) }))
 			.filter(({ score }) => score >= minScore)
 			.sort((a, b) => b.score - a.score)
@@ -263,7 +231,6 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 			for (const message of messages) {
 				chunks.push({
 					source: 'sessions',
-					corpus: 'sessions',
 					path: session.sessionFile ?? session.id,
 					chunkId: `session:${session.id}:${message.index}`,
 					text: message.text,
@@ -307,33 +274,27 @@ export function sanitizeTranscriptForMemory(transcript: TranscriptEntry[]): Arra
 	}));
 }
 
-export function resolveMemoryFlushPlan(
-	workspaceDir: string,
-	clock: () => Date = () => new Date(),
-	scope?: MemoryScopeInput
-): MemoryFlushPlan {
+export function resolveMemoryFlushPlan(workspaceDir: string, clock: () => Date = () => new Date()): MemoryFlushPlan {
 	const date = toLocalDate(clock());
-	const target = resolveChatDailyMemoryTarget(workspaceDir, scope, date);
+	const relativePath = path.join(MEMORY_DIRNAME, `${date}.md`);
+	const targetPath = path.resolve(workspaceDir, relativePath);
 	return {
-		targetPath: target.targetPath,
-		relativePath: target.relativePath,
-		workspaceDir: path.resolve(workspaceDir),
-		corpus: 'memory',
-		scope: target.scope,
-		prompt: `Append durable facts, decisions, TODOs, and user preferences from the current session to ${target.relativePath}.`,
+		targetPath,
+		relativePath,
+		prompt: `Append durable facts, decisions, TODOs, and user preferences from the current session to ${relativePath}.`,
 	};
 }
 
 export async function appendOnlyMemoryFlush(plan: MemoryFlushPlan, content: string): Promise<void> {
 	const target = path.resolve(plan.targetPath);
-	validateChatDailyMemoryRelativePath(plan.relativePath);
-	const workspace = path.resolve(plan.workspaceDir ?? deriveWorkspaceFromRelativeTarget(target, plan.relativePath));
+	const fileName = path.basename(target);
+	const workspace = path.dirname(path.dirname(target));
+	const expectedRelativePath = path.join(MEMORY_DIRNAME, fileName);
+	if (!/^\d{4}-\d{2}-\d{2}\.md$/.test(fileName) || plan.relativePath !== expectedRelativePath) {
+		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md inside the workspace.');
+	}
 	if (path.resolve(workspace, plan.relativePath) !== target) {
 		throw new Error('Memory flush target must match the planned daily memory file.');
-	}
-	const descriptor = describeWorkspaceMemoryFile(workspace, target);
-	if (!descriptor || descriptor.corpus !== 'memory') {
-		throw new Error('Memory flush target must be memory/YYYY-MM-DD.md or memory/chats/<chatScope>/YYYY-MM-DD.md.');
 	}
 	const memoryDir = path.dirname(target);
 	await fs.mkdir(memoryDir, { recursive: true, mode: 0o700 });
@@ -353,7 +314,6 @@ export async function flushSessionMemoryBeforeCompaction(
 	options: {
 		clock?: () => Date;
 		minTranscriptBytes?: number;
-		scope?: MemoryScopeInput;
 	} = {}
 ): Promise<{ status: 'skipped' | 'flushed'; targetPath?: string; reason?: string }> {
 	const rendered = sanitizeTranscriptForMemory(session.transcript)
@@ -365,7 +325,7 @@ export async function flushSessionMemoryBeforeCompaction(
 	const contextHash = createHash('sha1').update(rendered).digest('hex').slice(0, 12);
 	if (session.memoryFlushContextHash === contextHash) return { status: 'skipped', reason: 'already_flushed' };
 
-	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock, options.scope);
+	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock);
 	const now = (options.clock ?? (() => new Date()))().toISOString();
 	const content = [
 		`## Session ${session.id} pre-compaction ${now}`,
@@ -445,19 +405,14 @@ async function resolveAllowedMemoryFile(workspaceDir: string, requestedPath: str
 	if (path.extname(absolute).toLowerCase() !== '.md') throw new Error('Memory path must be Markdown.');
 
 	const workspaceReal = await fs.realpath(workspace).catch(() => workspace);
-	const memoryRootReal = await fs.realpath(path.join(workspace, MEMORY_DIRNAME)).catch(() =>
-		path.join(workspaceReal, MEMORY_DIRNAME)
-	);
 	const real = await fs.realpath(absolute);
 	const rootMemory = absolute === path.join(workspace, MEMORY_FILENAME);
 	const memoryRelative = path.relative(path.join(workspace, MEMORY_DIRNAME), absolute);
 	const underMemoryDir = memoryRelative !== '' && !memoryRelative.startsWith('..') && !path.isAbsolute(memoryRelative);
 	const underWorkspaceReal = isInside(workspaceReal, real);
-	const underMemoryReal = isInside(memoryRootReal, real);
 	const extraAllowed = await isAllowedExtraPath(real, workspace, extraPaths);
 
-	if (rootMemory && underWorkspaceReal) return absolute;
-	if (underMemoryDir && underMemoryReal) return absolute;
+	if ((rootMemory || underMemoryDir) && underWorkspaceReal) return real;
 	if (extraAllowed) return real;
 	throw new Error('Memory path is outside allowed memory roots.');
 }
@@ -474,12 +429,6 @@ async function isAllowedExtraPath(real: string, workspace: string, extraPaths: s
 function chunkMarkdown(file: string, raw: string, workspaceDir: string): IndexedChunk[] {
 	const lines = raw.split(/\r?\n/);
 	const chunks: IndexedChunk[] = [];
-	const descriptor = describeWorkspaceMemoryFile(workspaceDir, file) ?? {
-		corpus: 'memory' as const,
-		scopeKind: 'global' as const,
-		scopeId: 'global',
-		relativePath: path.relative(workspaceDir, file),
-	};
 	for (let start = 0; start < lines.length; start += MEMORY_CHUNK_LINES - MEMORY_CHUNK_OVERLAP) {
 		const slice = lines.slice(start, start + MEMORY_CHUNK_LINES);
 		const text = slice.join('\n').trim();
@@ -488,77 +437,19 @@ function chunkMarkdown(file: string, raw: string, workspaceDir: string): Indexed
 		const lineEnd = start + slice.length;
 		chunks.push({
 			source: 'memory',
-			corpus: descriptor.corpus,
 			path: file,
-			chunkId: `${descriptor.corpus}:${descriptor.relativePath}:${lineStart}`,
+			chunkId: `memory:${path.relative(workspaceDir, file)}:${lineStart}`,
 			text,
 			lineStart,
 			lineEnd,
-			scopeKind: descriptor.scopeKind,
-			scopeId: descriptor.scopeId,
 			metadata: {
-				relativePath: descriptor.relativePath,
-				corpus: descriptor.corpus,
-				scopeKind: descriptor.scopeKind,
-				scopeId: descriptor.scopeId,
+				relativePath: path.relative(workspaceDir, file),
 				hash: createHash('sha1').update(text).digest('hex').slice(0, 12),
 			},
 		});
 		if (start + MEMORY_CHUNK_LINES >= lines.length) break;
 	}
 	return chunks;
-}
-
-type WorkspaceMemoryFileDescriptor = {
-	corpus: MemoryFileCorpus;
-	scopeKind: MemoryScopeKind;
-	scopeId: string;
-	relativePath: string;
-};
-
-function describeWorkspaceMemoryFile(
-	workspaceDir: string,
-	filePath: string
-): WorkspaceMemoryFileDescriptor | undefined {
-	return (
-		describeRagFile(workspaceDir, filePath) ??
-		describeWikiFile(workspaceDir, filePath) ??
-		describeChatMemoryFile(workspaceDir, filePath)
-	);
-}
-
-function matchesMemorySearchFilter(
-	result: { corpus: MemoryResultCorpus; scopeKind?: MemoryScopeKind; scopeId?: string },
-	corpora: MemoryResultCorpus[],
-	scopeKind?: MemoryScopeKind,
-	scopeId?: string
-): boolean {
-	if (!corpora.includes(result.corpus)) return false;
-	if (scopeKind && result.scopeKind !== scopeKind) return false;
-	if (scopeId && result.scopeId !== normalizeMemoryScopeFilter(scopeId)) return false;
-	return true;
-}
-
-function normalizeMemoryScopeFilter(scopeId: string): string {
-	return scopeId.trim();
-}
-
-function resolveRequestedCorpora(options: Parameters<MemorySearchManager['search']>[1] = {}): MemoryResultCorpus[] {
-	const requested = options.corpora ?? (options.corpus ? [options.corpus] : (['memory', 'sessions'] as MemoryCorpus[]));
-	if (requested.includes('all')) return ['memory', 'sessions', 'rag', 'wiki'];
-	const allowed = new Set<MemoryResultCorpus>(['memory', 'sessions', 'rag', 'wiki']);
-	const unique = [...new Set(requested)].filter((corpus): corpus is MemoryResultCorpus =>
-		allowed.has(corpus as MemoryResultCorpus)
-	);
-	return unique.length > 0 ? unique : ['memory', 'sessions'];
-}
-
-function deriveWorkspaceFromRelativeTarget(target: string, relativePath: string): string {
-	let workspace = path.resolve(target);
-	for (const _segment of relativePath.split(/[\\/]+/).filter(Boolean)) {
-		workspace = path.dirname(workspace);
-	}
-	return workspace;
 }
 
 function renderTranscriptEntry(entry: TranscriptEntry): string {

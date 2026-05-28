@@ -5,7 +5,6 @@ import type {
 	ProviderEvent,
 	ProviderStreamRequest,
 } from '../../../../src/main/provider/types';
-import { ConnectorsService } from '../../../../src/main/connectors';
 import { AgentService } from '../../../../src/main/service';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import { SkillsService } from '../../../../src/main/skills';
@@ -514,43 +513,6 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('uses provider-safe aliases in service-built tool prompts and definitions', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const service = new AgentService(deps, {
-			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-			providerFactory: () => ({
-				async *stream(req) {
-					requests.push(req);
-					yield { type: 'text_delta' as const, text: 'done' };
-					yield {
-						type: 'message_end' as const,
-						stopReason: 'end_turn',
-						usage: { inputTokens: 1, outputTokens: 1 },
-					};
-				},
-			}),
-			toolsFactory: () => [
-				{
-					name: 'Bad Tool!',
-					description: 'Read workspace files with an unsafe source name.',
-					schema: { type: 'object', properties: {}, additionalProperties: false },
-					execute: jest.fn(),
-				},
-			],
-		});
-
-		await expect(service.send('read a workspace file with the bad tool')).resolves.toBe('done');
-		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['bad_tool']);
-		expect(requests[0]!.system).toContain('**bad_tool**');
-		expect(requests[0]!.system).toContain('Tool: bad_tool');
-		expect(requests[0]!.system).not.toContain('**Bad Tool!**');
-		expect(requests[0]!.system).not.toContain('Tool: Bad Tool!');
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
 	it('filters the tool surface with an explicit allowlist', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
@@ -597,52 +559,6 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('applies group allowlists to the default canonical tool assembly', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const service = new AgentService(deps, {
-			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-			providerFactory: () => ({
-				async *stream(req) {
-					requests.push(req);
-					yield { type: 'text_delta' as const, text: 'file tools only' };
-					yield {
-						type: 'message_end' as const,
-						stopReason: 'end_turn',
-						usage: { inputTokens: 1, outputTokens: 1 },
-					};
-				},
-			}),
-		});
-
-		await expect(
-			service.send('What file tools can you use?', 'main', {
-				toolsAllow: ['group:file'],
-			})
-		).resolves.toBe('file tools only');
-		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toContain('read');
-		expect(toolNames).not.toEqual(expect.arrayContaining(['exec', 'process', 'web_fetch']));
-		expect(
-			toolNames.every((name) =>
-				[
-					'read',
-					'write',
-					'edit',
-					'apply_patch',
-					'delete',
-					'copy',
-					'move',
-					'inspect_file',
-					'find',
-				].includes(name)
-			)
-		).toBe(true);
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
 	it('exposes connected Google connector tools for Gmail profile requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
@@ -679,94 +595,6 @@ describe('AgentService', () => {
 		expect(connectors.createAgentTools).toHaveBeenCalled();
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('passes real connector tools through provider-neutral model overrides', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
-		const deps = makeDeps();
-		deps.store.getProviderById.mockImplementation((id: string) => {
-			if (id === 'anthropic') {
-				return {
-					id: 'anthropic',
-					name: 'Anthropic',
-					apiKey: 'sk-ant-test',
-					baseUrl: 'https://api.anthropic.com',
-				};
-			}
-			return {
-				id: 'openai',
-				name: 'OpenAI',
-				apiKey: 'sk-test',
-				baseUrl: 'https://api.openai.com/v1',
-			};
-		});
-		let connectorRecords: unknown[] = [];
-		const connectorStore = {
-			getConnectors: jest.fn(() => connectorRecords),
-			setConnectors: jest.fn((next: unknown[]) => { connectorRecords = next; }),
-		};
-		const connectors = new ConnectorsService(connectorStore as never, makeLogger() as never);
-		await connectors.add({
-			name: 'My Gmail',
-			connectorId: 'connector_gmail',
-			authorization: 'google-token',
-			allowedTools: ['get_profile'],
-		});
-		const requests: ProviderStreamRequest[] = [];
-		const providerFactory = jest.fn(() => ({
-			async *stream(req) {
-				requests.push(req);
-				yield { type: 'text_delta' as const, text: 'profile ready' };
-				yield {
-					type: 'message_end' as const,
-					stopReason: 'end_turn',
-					usage: { inputTokens: 1, outputTokens: 1 },
-				};
-			},
-		}));
-		const service = new AgentService(
-			{ ...deps, connectors },
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
-				providerFactory,
-			}
-		);
-
-		await expect(
-			service.send('get my gmail profile', 'main', {
-				providerId: 'anthropic',
-				model: 'claude-test',
-			})
-		).resolves.toBe('profile ready');
-		await expect(
-			service.send('get my gmail profile again', 'main', {
-				providerId: 'openai',
-				model: 'gpt-test',
-			})
-		).resolves.toBe('profile ready');
-		expect(providerFactory).toHaveBeenNthCalledWith(1, {
-			id: 'anthropic',
-			apiKey: 'sk-ant-test',
-			baseURL: 'https://api.anthropic.com',
-		});
-		expect(providerFactory).toHaveBeenNthCalledWith(2, {
-			id: 'openai',
-			apiKey: 'sk-test',
-			baseURL: 'https://api.openai.com/v1',
-		});
-		expect(requests.map((request) => request.model)).toEqual(['claude-test', 'gpt-test']);
-		for (const request of requests) {
-			expect(request.tools).toEqual(expect.arrayContaining([
-				expect.objectContaining({
-					name: 'my_gmail_get_profile',
-					schema: expect.objectContaining({ type: 'object' }),
-				}),
-			]));
-		}
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('defaults to outside-readable local tools for file-backed requests', async () => {
@@ -1144,79 +972,6 @@ describe('AgentService', () => {
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
 		expect(requests[0]!.system).toContain('## Skills');
 		expect(requests[0]!.system).toContain('summarize-document@1.0.0');
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('passes skill connectors through discovery and execute_skill setup', async () => {
-		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps();
-		const requests: ProviderStreamRequest[] = [];
-		const skillConnector = {
-			id: 'connector_gmail',
-			name: 'Gmail',
-			tools: new Set(['search_emails']),
-			call: jest.fn(),
-		};
-		const skillChoice: SkillPromptChoice = {
-			id: 'gmail-summary',
-			version: '1.0.0',
-			name: 'gmail-summary',
-			description: 'Summarize Gmail messages through a scoped connector.',
-			category: 'communication',
-			tags: [],
-			requiredTools: [],
-			requiredConnectors: ['connector_gmail'],
-			permissionsRequired: [],
-			safetyLevel: 'low',
-			score: 0.95,
-		};
-		const skills = {
-			discoverForPrompt: jest.fn(async () => [skillChoice]),
-			createExecutionTool: jest.fn(() => ({
-				name: 'execute_skill',
-				description: 'Execute skill',
-				schema: { type: 'object', properties: {}, additionalProperties: false },
-				execute: jest.fn(),
-			})),
-		};
-		const connectors = {
-			createSkillConnectors: jest.fn(() => [skillConnector]),
-		};
-		const service = new AgentService(
-			{
-				...deps,
-				connectors: connectors as never,
-				skills: skills as unknown as SkillsService,
-			},
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-				providerFactory: () => ({
-					async *stream(req) {
-						requests.push(req);
-						yield { type: 'text_delta' as const, text: 'done' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-				toolsFactory: () => [],
-			}
-		);
-
-		await expect(service.send('Use the Gmail summary skill')).resolves.toBe('done');
-		expect(connectors.createSkillConnectors).toHaveBeenCalled();
-		expect(skills.discoverForPrompt.mock.calls[0]![1]).toMatchObject({
-			connectors: [skillConnector],
-		});
-		expect(skills.createExecutionTool).toHaveBeenCalledWith(
-			expect.objectContaining({
-				connectors: [skillConnector],
-			})
-		);
-		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('execute_skill');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 

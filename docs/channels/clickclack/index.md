@@ -24,33 +24,6 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
-## Platform Integration Notes
-
-- Treat ClickClack as a third-party OpenClaw plugin surface, not a first-party
-  public chat API.
-- A runtime should document the exact OpenClaw plugin URL, token, and callback
-  shape it supports before exposing setup fields.
-- Normalize plugin conversation ids, sender ids, and delivery ids into Friday's
-  gateway fields so OpenClaw payloads do not leak into agent turns.
-- Keep this channel catalog-only until an OpenClaw-compatible runtime exists and
-  its event authentication and retry behavior are verified.
-
-## Configuration Reference
-
-- `serverUrl`: OpenClaw or gateway base URL, if the chosen ClickClack plugin
-  exposes one.
-- `token`: plugin access token or bearer credential, only after the runtime
-  documents how the plugin authenticates.
-- `secret`: callback signing secret, if the plugin signs inbound events.
-- `webhookUrl`: Friday callback URL registered with the plugin.
-- `allowFrom`: allowed plugin sender or account ids for direct messages.
-- `groupAllowFrom`: allowed conversation, workspace, or room ids.
-- `defaultTarget`: plugin conversation id for proactive outbound sends.
-
-Because no verified vendor-official public API docs were found, do not expose
-setup as a supported first-party channel until the exact plugin contract is
-documented in this page.
-
 ## Official Documentation
 
 No verified vendor-official public API docs found.

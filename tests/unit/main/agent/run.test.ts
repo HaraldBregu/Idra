@@ -1,10 +1,5 @@
-import { ContextOverflowError, type ProviderAdapter, type ProviderEvent, type ToolResultBlock } from '../../../../src/main/provider/types';
+import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/provider/types';
 import { runAgent } from '../../../../src/main/agent/run';
-import { clearAgentHarnessHookProviders, registerAgentHarnessHookHandler } from '../../../../src/main/agent/harness/hook-runner';
-import {
-	clearAgentToolResultMiddlewareRegistrations,
-	registerAgentToolResultMiddleware,
-} from '../../../../src/main/agent/harness/tool-result-middleware';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import type { SessionFile } from '../../../../src/main/session/store';
 import { makeToolContext } from '../test-helpers';
@@ -40,11 +35,6 @@ const end = (usage = { inputTokens: 1, outputTokens: 1 }): ProviderEvent => ({
 });
 
 describe('agent/run', () => {
-	beforeEach(() => {
-		clearAgentHarnessHookProviders();
-		clearAgentToolResultMiddlewareRegistrations();
-	});
-
 	it('streams text, appends transcript entries, and returns usage', async () => {
 		const chunks: string[] = [];
 		const result = await runAgent({
@@ -156,172 +146,6 @@ describe('agent/run', () => {
 		]);
 	});
 
-	it('fires harness lifecycle hooks and applies tool result middleware', async () => {
-		const hookEvents: string[] = [];
-		const afterToolCall = jest.fn();
-		for (const hookName of ['before_message_write', 'llm_input', 'llm_output', 'agent_end']) {
-			registerAgentHarnessHookHandler(hookName, () => {
-				hookEvents.push(hookName);
-			});
-		}
-		registerAgentHarnessHookHandler('after_tool_call', (payload) => {
-			afterToolCall(payload);
-			hookEvents.push('after_tool_call');
-		});
-		registerAgentToolResultMiddleware({
-			name: 'tag-ping',
-			runtime: 'pi',
-			handler: (blocks: ToolResultBlock[]) =>
-				blocks.map((block) =>
-					block.type === 'text' ? { ...block, text: `${block.text} [middleware]` } : block
-				),
-		});
-
-		const tool: AgentTool = {
-			name: 'ping',
-			description: 'Ping',
-			schema: { type: 'object' },
-			execute: jest.fn(async () => ({
-				status: 'ok' as const,
-				content: [{ type: 'text' as const, text: 'pong' }],
-			})),
-		};
-
-		const result = await runAgent({
-			runId: 'r1',
-			userMessage: 'do it',
-			systemPrompt: 'sys',
-			session: session(),
-			agentHarnessId: 'pi',
-			provider: provider([
-				[
-					{ type: 'tool_call_start', id: 'tc1', name: 'ping' },
-					{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{}' },
-					{ type: 'tool_call_end', id: 'tc1' },
-					end(),
-				],
-				[{ type: 'text_delta', text: 'done' }, end()],
-			]),
-			model: 'gpt-test',
-			tools: [tool],
-			ctx: makeToolContext(),
-		});
-
-		expect(result.session.transcript[2]).toMatchObject({
-			role: 'tool',
-			content: [{ type: 'text', text: 'pong [middleware]' }],
-		});
-		expect(afterToolCall).toHaveBeenCalledWith(
-			expect.objectContaining({
-				toolName: 'ping',
-				toolUseId: 'tc1',
-				result: [{ type: 'text', text: 'pong [middleware]' }],
-				isError: false,
-			})
-		);
-		expect(hookEvents).toEqual(
-			expect.arrayContaining([
-				'before_message_write',
-				'llm_input',
-				'llm_output',
-				'after_tool_call',
-				'agent_end',
-			])
-		);
-	});
-
-	it('normalizes provider-facing tool names and schemas while executing the original tool', async () => {
-		const providerTools: unknown[] = [];
-		const execute = jest.fn(async () => ({
-			status: 'ok' as const,
-			content: [{ type: 'text' as const, text: 'normalized pong' }],
-		}));
-		const tool: AgentTool = {
-			name: 'Bad Tool!',
-			description: 'Uses a schema with provider-unsupported keywords.',
-			schema: {
-				$schema: 'https://json-schema.org/draft/2020-12/schema',
-				type: 'object',
-				properties: { value: { type: 'string' } },
-				patternProperties: { '^x-': { type: 'string' } },
-			},
-			execute,
-		};
-
-		const result = await runAgent({
-			runId: 'r1',
-			userMessage: 'use it',
-			systemPrompt: 'sys',
-			session: session(),
-			provider: {
-				async *stream(req) {
-					providerTools.push(...req.tools);
-					if (req.messages.length === 1) {
-						yield { type: 'tool_call_start' as const, id: 'tc1', name: 'bad_tool' };
-						yield {
-							type: 'tool_call_args_delta' as const,
-							id: 'tc1',
-							jsonDelta: '{"value":"ok"}',
-						};
-						yield { type: 'tool_call_end' as const, id: 'tc1' };
-						yield end();
-						return;
-					}
-					yield { type: 'text_delta' as const, text: 'done' };
-					yield end();
-				},
-			},
-			providerId: 'openai',
-			model: 'gpt-test',
-			tools: [tool],
-			ctx: makeToolContext(),
-		});
-
-		expect(providerTools[0]).toEqual({
-			name: 'bad_tool',
-			description: expect.stringContaining('Provider-safe alias for Bad Tool!'),
-			schema: {
-				type: 'object',
-				properties: { value: { type: 'string' } },
-				required: [],
-			},
-		});
-		expect(execute).toHaveBeenCalledWith({ value: 'ok' }, expect.any(Object));
-		expect(result.finalText).toBe('done');
-	});
-
-	it('uses provider-safe aliases in tool-selection prompt guidance', async () => {
-		const systems: string[] = [];
-		const tool: AgentTool = {
-			name: 'Bad Tool!',
-			description: 'Read workspace files with an unsafe source name.',
-			schema: { type: 'object', properties: {}, additionalProperties: false },
-			execute: jest.fn(),
-		};
-
-		await runAgent({
-			runId: 'r1',
-			userMessage: 'read a workspace file with the bad tool',
-			systemPrompt: 'sys',
-			session: session(),
-			provider: {
-				async *stream(req) {
-					systems.push(req.system);
-					yield { type: 'text_delta' as const, text: 'done' };
-					yield end();
-				},
-			},
-			providerId: 'openai',
-			model: 'gpt-test',
-			tools: [tool],
-			ctx: makeToolContext(),
-			toolManagement: { forceSelection: true, maxPromptTools: 1 },
-		});
-
-		expect(systems[0]).toContain('Tool: bad_tool');
-		expect(systems[0]).not.toContain('Tool: Bad Tool!');
-	});
-
 	it('rejects malformed tool arguments without executing the tool', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
@@ -378,7 +202,6 @@ describe('agent/run', () => {
 
 	it('stores multiple tool calls and auto-allowed legacy approval tools with stable call ids', async () => {
 		const events: ProviderEvent[] = [];
-		const ctx = makeToolContext();
 		const safeTool: AgentTool = {
 			name: 'safe_tool',
 			description: 'Safe',
@@ -418,7 +241,7 @@ describe('agent/run', () => {
 			]),
 			model: 'gpt-test',
 			tools: [safeTool, approvalTool],
-			ctx,
+			ctx: makeToolContext(),
 			streamEvent: (event) => events.push(event as ProviderEvent),
 		});
 
@@ -448,24 +271,23 @@ describe('agent/run', () => {
 				status: 'ok',
 				content: [{ type: 'text', text: 'safe ok' }],
 			},
-			{
-				role: 'tool',
-				toolUseId: 'tc-denied',
-				isError: false,
-				status: 'ok',
-				content: [{ type: 'text', text: 'should not run' }],
-			},
+				{
+					role: 'tool',
+					toolUseId: 'tc-denied',
+					isError: false,
+					status: 'ok',
+					content: [{ type: 'text', text: 'should not run' }],
+				},
 			{ role: 'assistant', content: [{ type: 'text', text: 'done' }] },
 		]);
-		expect(ctx.approvalCache.has('approval_tool::{"b":2}')).toBe(true);
 		expect(events).toContainEqual(
 			expect.objectContaining({
-				type: 'tool_call_result',
-				toolCallId: 'tc-denied',
-				status: 'ok',
-				outputText: 'should not run',
-			})
-		);
+					type: 'tool_call_result',
+					toolCallId: 'tc-denied',
+					status: 'ok',
+					outputText: 'should not run',
+				})
+			);
 	});
 
 	it('compacts once on context overflow and retries', async () => {

@@ -24,41 +24,6 @@ provider-specific message shapes or be called directly by the runtime.
 
 Catalog-only status should remain until that gateway contract is implemented.
 
-## Platform Integration Notes
-
-- Slack adapters should use a Slack app with bot OAuth scopes and either Events
-  API over HTTPS or Socket Mode for inbound events.
-- Event subscriptions are scope-backed, and Slack only sends events visible to
-  the installing user or bot.
-- Outbound sends use `chat.postMessage`; keep `channel`, `ts`, and `thread_ts`
-  in normalized ids so replies remain threaded.
-- Slack recommends keeping the `text` field under 4,000 characters and may
-  truncate very long messages, so long Friday replies should be split or
-  uploaded through a more suitable Slack surface.
-
-## Configuration Reference
-
-- `token`: Slack bot user OAuth token (`xoxb-...`) for Web API calls.
-- `secret`: Slack signing secret for HTTP Events API requests.
-- `appId`: Slack app id.
-- `clientId`: Slack OAuth client id.
-- `clientSecret`: Slack OAuth client secret.
-- `webhookUrl`: Events API request URL, or incoming webhook URL if the runtime
-  only posts outbound messages.
-- `botUserId`: Slack bot user id.
-- `defaultTarget`: Slack channel, DM, or App Home channel id.
-- `allowFrom`: allowed Slack user ids.
-- `groupAllowFrom`: allowed Slack channel ids.
-
-Required platform setup:
-
-- Add bot scopes for the selected surfaces, at minimum `chat:write` for sends
-  and the relevant event/history scopes for channels, groups, IMs, and MPIMs.
-- Choose Events API over HTTPS or Socket Mode. Socket Mode also requires an
-  app-level token with `connections:write`, which needs a dedicated secret slot
-  before a runtime can support it cleanly.
-- Store Slack `channel`, `ts`, and `thread_ts` values for threaded replies.
-
 ## Official Documentation
 
 - [Slack API docs](https://docs.slack.dev/apis/)

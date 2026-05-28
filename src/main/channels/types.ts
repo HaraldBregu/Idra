@@ -153,7 +153,6 @@ export interface ChannelInboundMessage {
 	type: ChannelType;
 	accountId?: string;
 	from: string;
-	fromName?: string;
 	chatId: string;
 	text: string;
 	messageId?: string;

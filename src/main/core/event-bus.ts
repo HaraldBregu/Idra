@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import type { SubagentRunRecord } from '../agent/subagents';
 import type { TaskEvent } from '../../shared/tasks';
 
 type TaskEventOf<TType extends TaskEvent['type']> = Extract<TaskEvent, { type: TType }>;
@@ -29,9 +28,6 @@ export interface AppEvents {
 	'task:succeeded': TaskEventOf<'task:succeeded'>;
 	'task:failed': TaskEventOf<'task:failed'>;
 	'task:cancelled': TaskEventOf<'task:cancelled'>;
-	'subagent:created': SubagentRunRecord;
-	'subagent:started': SubagentRunRecord;
-	'subagent:completed': SubagentRunRecord;
 	'tray:set-enabled': { enabled: boolean };
 	'channel:status': import('../../shared/channels').ChannelStatusEvent;
 	'channel:route': {
@@ -42,8 +38,6 @@ export interface AppEvents {
 		replyToMessageId?: string;
 		chatType?: import('../channels/types').ChannelChatType;
 		sessionKey?: string;
-		legacySessionKey?: string;
-		agentId?: string;
 	};
 	'heartbeat:event': import('../../shared/heartbeat').HeartbeatEventPayload;
 }
