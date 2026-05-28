@@ -968,7 +968,13 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map((tool) => tool.name) as read
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'write_file',
+	'append_file',
 	'edit_file',
+	'create_dir',
+	'copy_path',
+	'move_path',
+	'apply_patch',
+	'delete_path',
 	'run_shell',
 	'undo_last_operation',
 	'connect_mcp_server',
