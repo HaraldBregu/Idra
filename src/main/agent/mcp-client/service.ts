@@ -1,11 +1,11 @@
-import type { ConnectorTool } from '../../connectors';
+import type { ConnectorTestResult, ConnectorTool } from '../../../shared/connector';
 import type { AgentMcpClientServicePort } from './types';
 
 export class AgentMcpClientService implements AgentMcpClientServicePort {
 	private readonly tools = new Map<string, ConnectorTool[]>();
-	constructor(private readonly logger?: { warn(source: string, message: string, data?: unknown): void }, private readonly connectors?: unknown) {}
-	async test(): Promise<{ ok: boolean; message?: string }> { return { ok: true }; }
-	async reconnect(): Promise<{ ok: boolean; message?: string }> { return { ok: true }; }
+	constructor(_logger?: { warn(source: string, message: string, data?: unknown): void }, _connectors?: unknown) {}
+	async test(): Promise<ConnectorTestResult> { return { status: 'connected' }; }
+	async reconnect(): Promise<ConnectorTestResult> { return { status: 'connected' }; }
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const tools: ConnectorTool[] = [];
 		this.tools.set(id, tools);

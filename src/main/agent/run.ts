@@ -61,7 +61,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 		})) {
 			if (event.type === 'text_delta') {
 				finalText += event.text;
-				input.hooks?.streamEvent?.({ type: 'text_delta', text: event.text } as AgentResponseEvent);
+				input.hooks?.streamEvent?.({ type: 'text_delta', delta: event.text, agentId: input.ctx.agentId ?? 'main', runId: input.runId } as AgentResponseEvent);
 			} else if (event.type === 'tool_call_start') {
 				pending.set(event.id, { name: event.name, argsText: '' });
 			} else if (event.type === 'tool_call_args_delta') {
@@ -74,7 +74,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 			}
 		}
 
-		const assistantBlocks = finalText ? [{ type: 'text' as const, text: finalText }] : [];
+		const assistantBlocks: import('../provider/types').AgentContentBlock[] = finalText ? [{ type: 'text', text: finalText }] : [];
 		for (const [id, call] of pending) {
 			toolCalls++;
 			const args = parseArgs(call.argsText);

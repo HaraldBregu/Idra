@@ -22,7 +22,7 @@ export interface SubagentSpawnPort {
 }
 export interface SubagentSpawnServiceDependencies {
 	agentSettings: Pick<AgentSettingsStorePort, 'getAgentConfig'>;
-	taskManager: Pick<TasksService, 'createBackgroundTask' | 'cancelTask'>;
+	taskManager: Pick<TasksService, 'run' | 'cancel'>;
 	registry: SubagentRegistry;
 	eventBus?: { emit(type: string, payload: unknown): void };
 	logger?: { info(source: string, message: string, data?: unknown): void; warn(source: string, message: string, data?: unknown): void };

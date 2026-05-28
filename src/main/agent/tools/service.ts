@@ -58,7 +58,7 @@ export interface ToolServicePort {
 }
 
 export class ToolService implements ToolServicePort {
-	constructor(private readonly options: ToolServiceOptions = {}) {}
+	constructor(_options: ToolServiceOptions = {}) {}
 
 	getToolRegistry(): ReturnType<typeof localToolCatalogByName> {
 		return localToolCatalogByName();

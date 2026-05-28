@@ -7,7 +7,7 @@ export const SUBAGENT_RUN_TASK_TYPE = 'agent.subagent.run';
 
 export class SubagentRunTaskHandler implements TaskHandler<SubagentRunTaskInput, SubagentRunTaskResult> {
 	readonly type = SUBAGENT_RUN_TASK_TYPE;
-	constructor(private readonly agentService: Pick<AgentService, 'send' | 'cancel'>, private readonly registry: SubagentRegistry) {}
+	constructor(private readonly agentService: Pick<AgentService, 'send' | 'cancel'>, private readonly registry: SubagentRegistry, _eventBus?: unknown) {}
 	validateInput(input: unknown): SubagentRunTaskInput {
 		if (!input || typeof input !== 'object') throw new Error('Subagent task input must be an object.');
 		return input as SubagentRunTaskInput;

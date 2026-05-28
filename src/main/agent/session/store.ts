@@ -32,7 +32,7 @@ function sessionPath(id: string, options: SessionStoreOptions = {}): string {
 }
 
 export async function loadSession(
-	id = randomUUID(),
+	id: string = randomUUID(),
 	model = 'unknown',
 	provider?: string,
 	options: SessionStoreOptions = {}

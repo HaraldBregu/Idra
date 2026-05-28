@@ -4,7 +4,7 @@ import { AgentHarnessEmitter, AgentHarnessEventQueue } from './events';
 import { validateAgentHarnessConfig, DefaultAgentHarnessSecretRedactor } from './config';
 import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
 import { BudgetedAgentHarnessContextManager } from './context';
-import { AgentHarnessError, toHarnessErrorShape } from './errors';
+import { toHarnessErrorShape } from './errors';
 import { validateJsonSchemaValue } from './schema';
 import { DefaultAgentHarnessToolRegistry, filterToolsByPermissions, requiresPolicyApproval } from './tools';
 import type { AgentHarnessConfig, AgentHarnessEvent, AgentHarnessExecuteInput, AgentHarnessHookName, AgentHarnessRunResult, AgentHarnessSession, AgentHarnessSnapshot, AgentHarnessSubagentInput, AgentHarnessTool } from './types';
@@ -99,7 +99,7 @@ export class DefaultAgentHarness {
 		}
 	}
 
-	private async runLoop(input: { runId: string; session: AgentHarnessSession; task: string; systemPrompt: string; tools: AgentHarnessTool[]; context: Record<string, unknown>; memory: never[]; maxIterations: number; maxTokens: number; signal: AbortSignal }): Promise<AgentHarnessRunResult> {
+	private async runLoop(input: { runId: string; session: AgentHarnessSession; task: string; systemPrompt: string; tools: AgentHarnessTool[]; context: Record<string, unknown>; memory: unknown[]; maxIterations: number; maxTokens: number; signal: AbortSignal }): Promise<AgentHarnessRunResult> {
 		let session = input.session;
 		let finalText = '';
 		let toolCalls = 0;

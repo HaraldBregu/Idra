@@ -10,7 +10,7 @@ export class SubagentRegistry {
 		return [...this.runs.values()].filter((run) => run.requesterSessionKey === requesterSessionKey).map((run) => ({ ...run }));
 	}
 	startSubagentRun(runId: string, startedAt = Date.now()): SubagentRunRecord {
-		const run = this.require(runId);
+		this.require(runId);
 		return this.update(runId, { status: 'running', startedAt });
 	}
 	completeSubagentRun(runId: string, outcome: SubagentOutcome, patch: Partial<SubagentRunRecord> = {}): SubagentRunRecord {

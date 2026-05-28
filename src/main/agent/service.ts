@@ -11,7 +11,7 @@ import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { Model, ModelReasoningEffort, OperatorStoreState, AgentRunState } from '../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
-import type { AgentConfig, AgentSessionMetadata } from '../../shared/store';
+import type { AgentSessionMetadata } from '../../shared/store';
 import type { PublicProvider } from '../../shared/providers';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
@@ -30,7 +30,7 @@ import type { AgentMcpClientServicePort } from './mcp-client';
 import type { McpRegistry } from './mcp';
 import type { SubagentSpawnPort } from './subagents';
 import { ToolService, type AgentTool, type CronToolContext, type ToolContext, type ToolServicePort } from './tools';
-import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
+import type { AgentCapabilityServicePort } from './capabilities';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 
 export interface AgentServiceDependencies {
@@ -126,7 +126,6 @@ export class AgentService {
 	private readonly toolService: ToolServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly toolsFactory: AgentToolsFactory;
-	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private readonly aborts = new Map<string, AbortController>();
@@ -140,7 +139,8 @@ export class AgentService {
 		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService({ cron: dependencies.cron, logger: dependencies.logger });
 		this.executionService = options.executionService ?? new AgentExecutionService(this.toolService);
 		this.toolsFactory = options.toolsFactory ?? ((ctx) => this.toolService.createDefaultTools({ denylist: ctx.toolsDeny }));
-		this.runLoggerFactory = options.runLoggerFactory ?? ((agentId) => new AgentRunLogger(agentId));
+		const runLoggerFactory = options.runLoggerFactory ?? ((agentId: string) => new AgentRunLogger(agentId));
+		runLoggerFactory(this.defaultAgentId);
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 	}

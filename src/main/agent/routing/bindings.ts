@@ -2,7 +2,7 @@ import { DEFAULT_AGENT_ID } from '../constants';
 import type { AgentConfig, AgentRouteBinding, AgentRoutingSettings } from '../../../shared/store';
 
 export function resolveDefaultAgentId(settings?: Partial<AgentRoutingSettings>, fallbackAgentId = DEFAULT_AGENT_ID): string {
-	return settings?.defaultAgentId ?? settings?.agents?.[0]?.id ?? fallbackAgentId;
+	return settings?.agents?.find((agent) => agent.default)?.id ?? settings?.agents?.[0]?.id ?? fallbackAgentId;
 }
 
 export function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
@@ -10,7 +10,7 @@ export function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 	const record = value as Record<string, unknown>;
 	const id = typeof record.id === 'string' ? record.id.trim() : '';
 	if (!id) return undefined;
-	return { ...(record as AgentConfig), id };
+	return { ...(record as unknown as AgentConfig), id };
 }
 
 export function normalizeAgentRouteBinding(value: unknown): AgentRouteBinding | undefined {
@@ -23,5 +23,5 @@ export function normalizeAgentRoutingSettings(value: unknown): AgentRoutingSetti
 	const record = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 	const agents = Array.isArray(record.agents) ? record.agents.flatMap((entry) => normalizeAgentConfig(entry) ?? []) : [];
 	const bindings = Array.isArray(record.bindings) ? record.bindings.flatMap((entry) => normalizeAgentRouteBinding(entry) ?? []) : [];
-	return { agents, bindings, defaultAgentId: typeof record.defaultAgentId === 'string' ? record.defaultAgentId : agents[0]?.id ?? DEFAULT_AGENT_ID };
+	return { agents, bindings };
 }

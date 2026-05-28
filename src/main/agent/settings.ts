@@ -10,7 +10,6 @@ export interface AgentSettingsStoreLogger {
 interface AgentSettingsStoreSchema {
 	agents?: AgentConfig[];
 	bindings?: AgentRouteBinding[];
-	defaultAgentId?: string;
 }
 
 interface AgentSettingsStoreAccessor {
@@ -33,12 +32,12 @@ export interface AgentSettingsStorePort {
 export class AgentSettingsStore implements AgentSettingsStorePort {
 	private readonly store: AgentSettingsStoreAccessor;
 
-	constructor(private readonly options: AgentSettingsStoreOptions = {}) {
+	constructor(options: AgentSettingsStoreOptions = {}) {
 		this.store = options.store ?? new Store<AgentSettingsStoreSchema>({ name: 'agent', cwd: resolveDefaultAgentDataPath(), accessPropertiesByDotNotation: false }) as unknown as AgentSettingsStoreAccessor;
 	}
 
 	getAgentRoutingSettings(): AgentRoutingSettings {
-		return normalizeAgentRoutingSettings({ agents: this.store.get('agents'), bindings: this.store.get('bindings'), defaultAgentId: this.store.get('defaultAgentId') });
+		return normalizeAgentRoutingSettings({ agents: this.store.get('agents'), bindings: this.store.get('bindings') });
 	}
 
 	getConfiguredAgents(): AgentConfig[] {
@@ -53,7 +52,6 @@ export class AgentSettingsStore implements AgentSettingsStorePort {
 		const next = normalizeAgentRoutingSettings(settings);
 		this.store.set('agents', next.agents);
 		this.store.set('bindings', next.bindings);
-		this.store.set('defaultAgentId', next.defaultAgentId);
 		return next;
 	}
 }

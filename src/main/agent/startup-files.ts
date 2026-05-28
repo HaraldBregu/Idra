@@ -70,7 +70,7 @@ export function resolveBootstrapMode(files: WorkspaceContextFile[]): BootstrapMo
 export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly rootPath: string;
 
-	constructor(options: { rootPath?: string } = {}) {
+	constructor(options: { rootPath?: string; logger?: unknown } = {}) {
 		this.rootPath = options.rootPath ?? resolveDefaultUserDataPath('agent', 'workspaces');
 	}
 

@@ -2,7 +2,7 @@ import type { AgentCapability, AgentCapabilityServicePort } from './types';
 
 export class AgentCapabilityService implements AgentCapabilityServicePort {
 	private capabilities: AgentCapability[] = [];
-	constructor(private readonly dependencies: { logger?: { warn(source: string, message: string, data?: unknown): void } } = {}) {}
+	constructor(_dependencies: { logger?: { warn(source: string, message: string, data?: unknown): void } } = {}) {}
 	list(): AgentCapability[] {
 		return [...this.capabilities];
 	}
