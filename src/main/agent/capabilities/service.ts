@@ -75,7 +75,7 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	private async refreshMissingConnectorTools(connectors: ConnectorToolServicePort): Promise<void> {
 		const missingTools = connectors.list().filter((connector) =>
 			connector.enabled !== false &&
-			connector.status === 'configured' &&
+			(connector.status === 'configured' || connector.hasToken === true) &&
 			connector.id &&
 			(connector.toolsCount ?? connector.tools.length) === 0
 		);

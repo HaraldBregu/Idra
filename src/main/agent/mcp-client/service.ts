@@ -9,6 +9,7 @@ import type {
 } from '../../../shared/connector';
 import {
 	connectorAuthKindFor,
+	connectorCanUseTools,
 	connectorHasAuthorization,
 	connectorStatusFor,
 	isOAuthConnector,
@@ -105,7 +106,7 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 		const nextArgs = readConnectorToolArguments(args);
 		const connector = this.connectors.getConnectorForMcp(connectorId);
 		const tool = connector.tools.find((item) => item.name === toolName);
-		if (connectorStatusFor(connector) !== 'configured') {
+		if (!connectorCanUseTools(connector)) {
 			throw new Error('Connector is not configured: ' + connectorName(connector));
 		}
 		if (!tool) {
