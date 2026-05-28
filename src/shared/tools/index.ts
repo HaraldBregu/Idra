@@ -8,8 +8,7 @@ import {
 } from './base';
 import { AGENT_TOOL_CRON_TOOLS } from './cron';
 import { AGENT_TOOL_TASK_TOOLS } from './task';
-
-export const AGENT_DEFAULT_TOOL_GROUPS = {
+    export const AGENT_DEFAULT_TOOL_GROUPS = {
 	'filesystem:read': AGENT_TOOL_FILESYSTEM_READ_TOOLS,
 	'filesystem:write': AGENT_TOOL_FILESYSTEM_WRITE_TOOLS,
 	'filesystem:delete': AGENT_TOOL_FILESYSTEM_DELETE_TOOLS,
