@@ -110,7 +110,7 @@ export function bootstrapServices(): BootstrapResult {
 	const policy = container.register(
 		'policy',
 		new PolicyService({
-			workspaceRoot: workspace.getRootPath(),
+			workspaceRoot,
 			agentRoot: agentDataDirectory.getRootPath(),
 			userDataRoot: userDataDirectory.getRootPath(),
 			logger,
