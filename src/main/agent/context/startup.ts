@@ -344,6 +344,7 @@ const defaults: Record<WorkspaceFileName, string> = {
 };
 const STATE_DIR = '.friday';
 const STATE_FILENAME = 'startup-state.json';
+const TEMPLATE_DIR = path.join('resources', 'agent', 'startup-templates');
 type StartupState = { bootstrapSeededAt?: string; setupCompletedAt?: string };
 
 export function assertWorkspaceFileName(name: string): asserts name is WorkspaceFileName {
@@ -357,9 +358,11 @@ export function resolveBootstrapMode(files: WorkspaceContextFile[]): BootstrapMo
 
 export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly rootPath: string;
+	private readonly templateRootPath?: string;
 
-	constructor(options: { rootPath?: string; logger?: unknown } = {}) {
+	constructor(options: { rootPath?: string; templateRootPath?: string; logger?: unknown } = {}) {
 		this.rootPath = options.rootPath ?? resolveDefaultAgentDataPath('workspaces');
+		this.templateRootPath = options.templateRootPath;
 	}
 
 	getRootPath(agentId: string): string {
@@ -459,7 +462,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	}
 
 	private async seedFile(root: string, name: WorkspaceFileName): Promise<void> {
-		await fs.writeFile(path.join(root, name), defaults[name], { flag: 'wx' }).catch((error: NodeJS.ErrnoException) => {
+		await fs.writeFile(path.join(root, name), await this.defaultContent(name), { flag: 'wx' }).catch((error: NodeJS.ErrnoException) => {
 			if (error.code !== 'EEXIST') throw error;
 		});
 	}
@@ -475,9 +478,13 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private async hasCustomizedProfile(root: string): Promise<boolean> {
 		for (const name of [DEFAULT_AGENTS_FILENAME, DEFAULT_SOUL_FILENAME, DEFAULT_IDENTITY_FILENAME, DEFAULT_USER_FILENAME, DEFAULT_HEARTBEAT_FILENAME, DEFAULT_TOOLS_FILENAME] as const) {
 			const content = await fs.readFile(path.join(root, name), 'utf8').catch(() => undefined);
-			if (content !== undefined && content !== defaults[name]) return true;
+			if (content !== undefined && content !== await this.defaultContent(name)) return true;
 		}
 		return false;
+	}
+
+	private async defaultContent(name: WorkspaceFileName): Promise<string> {
+		return loadTemplateFile(name, this.templateRootPath) ?? defaults[name];
 	}
 
 	private async readState(root: string): Promise<StartupState> {
