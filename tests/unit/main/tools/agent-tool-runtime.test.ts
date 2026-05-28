@@ -104,7 +104,7 @@ describe('canonical agent tool runtime', () => {
 		}).tools.map((entry) => entry.name)).toEqual(['read_file']);
 		expect(applyToolPolicyPipeline(tools, {
 			stages: {
-				global: { profile: 'minimal', alsoAllow: ['read_file'], deny: ['read_file'] },
+				global: { allow: ['read_file'], deny: ['read_file'] },
 			},
 		}).tools.map((entry) => entry.name)).toEqual([]);
 	});
