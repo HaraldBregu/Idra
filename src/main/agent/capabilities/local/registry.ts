@@ -16,7 +16,11 @@ function withAssistantMetadata(tool: AgentTool): AgentTool {
 
 function assistantTools(entries: AgentTool[]): AgentTool[] {
 	const byName = new Map(entries.map((tool) => [tool.name, withAssistantMetadata(tool)]));
-	return assistant.tools.map((tool) => byName.get(tool.name)).filter((tool): tool is AgentTool => Boolean(tool));
+	return assistant.tools.map((tool) => {
+		const implementation = byName.get(tool.name);
+		if (!implementation) throw new Error(`Missing implementation for assistant tool: ${tool.name}`);
+		return implementation;
+	});
 }
 
 export function createDefaultToolRegistry(): Map<string, AgentTool> {
