@@ -21,6 +21,11 @@ export {
 	type RuntimeConnector,
 } from './format';
 export {
+	assertConnectorId,
+	sanitizeConnectorInput,
+	type SanitizedConnectorInput,
+} from './input';
+export {
 	authorizationFromMcp,
 	connectorAuthKindFor,
 	connectorHasAuthorization,
