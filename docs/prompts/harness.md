@@ -1,12 +1,14 @@
 # Agent Module Prompt
 
+This module implements a general-purpose personal assistant agent. It is not specialized for any domain. Its role is to understand what the user wants, figure out how to do it, and do it — independently, correctly, and without requiring the user to manage steps manually.
+
 An agent is not just a model. It is the model plus every piece of code, configuration, and execution logic that surrounds it. The model provides probabilistic reasoning; the control layer provides deterministic enforcement. Neither is sufficient alone.
 
 Agent engineering is the discipline that encompasses prompt engineering and context engineering, then goes further: it adds constraint enforcement and iterative refinement. A system that only crafts good prompts or delivers relevant context is still at the mercy of the model's stochastic output. A properly engineered agent governs what the model is allowed to do, validates what it produces, and converges toward a correct state regardless of how the model behaves in any single turn.
 
 Implement and maintain the agent runtime as the deterministic software layer that wraps the probabilistic model. It is UI-independent, model-agnostic, and provider-neutral: the model does not need to know what provider powers it, what transport delivers its tools, or what enforcement layer surrounds it.
 
-This module owns: context shaping, task decomposition support, deterministic gating, durable state management, bounded self-repair, human-in-the-loop checkpoints, tool lifecycle hooks, intent-driven capability selection, skill loading, MCP integration, and result middleware. It does not own session persistence, provider streaming, or system prompt assembly — those belong to the agent module.
+This module owns: intent understanding, context shaping, task decomposition, autonomous and background execution, task scheduling, system integration (machine drivers, OS services), deterministic gating, durable state management, bounded self-repair, human-in-the-loop checkpoints, tool lifecycle hooks, intent-driven capability selection, skill loading, MCP integration, parallel subagent coordination, and result middleware. It does not own session persistence, provider streaming, or system prompt assembly — those belong to the agent module.
 
 Use the existing layer model defined in `AGENT_HARNESS_LAYERS`. Do not introduce new layers unless a new durable responsibility emerges. Do not duplicate responsibilities across layers.
 
