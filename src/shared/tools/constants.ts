@@ -543,7 +543,7 @@ const OPTIONAL_SCRIPT_TOOLS = [
 	}),
 ] as const;
 
-const OPTIONAL_CRON_TOOLS = [
+const DEFAULT_CRON_TOOLS = [
 	tool({
 		name: 'cron_create',
 		group: 'cron',
@@ -551,8 +551,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Create a scheduled job through CronService.',
 		permissions: ['cron:createSchedule'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_read',
@@ -561,8 +561,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Read a scheduled job through CronService.',
 		permissions: ['cron:scheduleReadPrivateData'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_update',
@@ -571,8 +571,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Update a scheduled job through CronService.',
 		permissions: ['cron:updateSchedule'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_delete',
@@ -581,8 +581,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Delete a scheduled job through CronService.',
 		permissions: ['cron:deleteSchedule'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_list',
@@ -591,8 +591,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'List scheduled jobs through CronService.',
 		permissions: ['cron:listSchedules'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_start',
@@ -601,8 +601,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Start a paused scheduled job through CronService.',
 		permissions: ['cron:resumeSchedule'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_stop',
@@ -611,8 +611,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Stop a scheduled job through CronService.',
 		permissions: ['cron:pauseSchedule'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 	tool({
 		name: 'cron_run',
@@ -621,8 +621,8 @@ const OPTIONAL_CRON_TOOLS = [
 		description: 'Run a scheduled job immediately through CronService.',
 		permissions: ['cron:runScheduleNow'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
 	}),
 ] as const;
 
