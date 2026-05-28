@@ -1191,6 +1191,124 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
+	it('waits for approval before executing approval-marked tools', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'approved result' }],
+		}));
+		const tool: AgentTool = {
+			name: 'approval_tool',
+			description: 'Needs approval',
+			schema: { type: 'object', properties: { ok: { type: 'boolean' } } },
+			needsApproval: true,
+			execute,
+		};
+		const service = new AgentService(deps, {
+			sessionBaseDir,
+			providerFactory: () =>
+				providerTurns([
+					[
+						{ type: 'tool_call_start', id: 'tc1', name: 'approval_tool' },
+						{ type: 'tool_call_args_delta', id: 'tc1', jsonDelta: '{"ok":true}' },
+						{ type: 'tool_call_end', id: 'tc1' },
+						{
+							type: 'message_end',
+							stopReason: 'tool_use',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					],
+					[
+						{ type: 'text_delta', text: 'finished' },
+						{
+							type: 'message_end',
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						},
+					],
+				]),
+			toolsFactory: () => [tool],
+		});
+
+		(deps.eventBus.broadcast as jest.Mock).mockImplementation((_channel, payload) => {
+			if (payload?.type === 'approval_requested') {
+				service.resolveToolApproval({ approvalId: payload.approvalId, approved: true });
+			}
+		});
+
+		await expect(service.send('use the approval tool')).resolves.toBe('finished');
+		expect(execute).toHaveBeenCalledWith({ ok: true }, expect.any(Object));
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
+			'agent:response',
+			expect.objectContaining({ type: 'approval_resolved', approved: true })
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
+	it('refreshes connector tools before exposing connector-backed capabilities', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const connectors = {
+			list: jest.fn(() => [
+				{
+					id: 'gmail',
+					connectorId: 'google.gmail',
+					name: 'Gmail',
+					enabled: true,
+					status: 'configured',
+					hasTools: false,
+					tools: [],
+				},
+			]),
+			refreshTools: jest.fn(async () => []),
+			searchTools: jest.fn(() => [
+				{
+					id: 'gmail:get_profile',
+					name: 'gmail_get_profile',
+					displayName: 'Gmail profile',
+					description: 'Read Gmail profile.',
+					connectorId: 'gmail',
+					connectorName: 'Gmail',
+					connectorProviderId: 'google.gmail',
+					toolName: 'get_profile',
+					inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+					permission: 'always-allow',
+					requiresApproval: false,
+					score: 10,
+				},
+			]),
+			execTool: jest.fn(async () => ({ emailAddress: 'user@example.com' })),
+		};
+		const requests: ProviderStreamRequest[] = [];
+		const service = new AgentService(
+			{ ...deps, connectors: connectors as never },
+			{
+				sessionBaseDir,
+				providerFactory: () => ({
+					async *stream(req) {
+						requests.push(req);
+						yield { type: 'text_delta' as const, text: 'ready' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+			}
+		);
+
+		await expect(service.send('get gmail profile')).resolves.toBe('ready');
+		expect(connectors.refreshTools).toHaveBeenCalledWith('gmail');
+		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('gmail_get_profile');
+		expect(deps.eventBus.broadcast).toHaveBeenCalledWith(
+			'agent:response',
+			expect.objectContaining({ type: 'connector_status', connectorId: 'gmail', status: 'refreshed' })
+		);
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('resets persisted session and cancels pending requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
