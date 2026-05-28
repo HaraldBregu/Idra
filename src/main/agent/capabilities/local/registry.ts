@@ -6,7 +6,7 @@ import { assistant } from '../../../../shared/agents/assistant';
 
 export type LocalToolGroup = 'filesystem:read' | 'filesystem:write' | 'filesystem:delete' | 'todo' | 'cron';
 
-const toolMetadata = new Map(assistant.tools.map((tool) => [tool.name, tool]));
+const toolMetadata: Map<string, (typeof assistant.tools)[number]> = new Map(assistant.tools.map((tool) => [tool.name, tool]));
 
 function withAssistantMetadata(tool: AgentTool): AgentTool {
 	const metadata = toolMetadata.get(tool.name);

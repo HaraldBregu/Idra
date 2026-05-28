@@ -1,5 +1,6 @@
 import type {
 	CronJsonValue,
+	CronJsonObject,
 	CronSchedule,
 	CronScheduleCreateRequest,
 	CronScheduleFilter,
@@ -8,6 +9,7 @@ import type {
 	CronScheduledTask,
 } from '../../../../shared/cron';
 import type { CronActorContext } from '../../../cron/core/cron.types';
+import type { JSONSchema } from '../../../provider/types';
 import type { AgentTool, ToolContext } from './types';
 import { jsonResult } from './types';
 
@@ -98,11 +100,11 @@ function createRequest(args: Record<string, unknown>, ctx: ToolContext): CronSch
 		taskInput: jsonValue(args.taskInput, {}),
 		taskPriority: 'normal',
 		taskTags: Array.isArray(args.taskTags) ? args.taskTags.filter((tag): tag is string => typeof tag === 'string') : [],
-		taskMetadata: jsonValue(args.taskMetadata, {}) as Record<string, CronJsonValue>,
+		taskMetadata: jsonValue(args.taskMetadata, {}) as CronJsonObject,
 		requiredPermissions: [],
 		requiresConfirmation: false,
 		enabled: boolValue(args.enabled, true),
-		metadata: jsonValue(args.metadata, {}) as Record<string, CronJsonValue>,
+		metadata: jsonValue(args.metadata, {}) as CronJsonObject,
 		confirmed: true,
 	};
 }
@@ -111,7 +113,6 @@ function updateRequest(args: Record<string, unknown>): CronScheduleUpdateRequest
 	return {
 		name: optionalString(args.name),
 		description: optionalString(args.description),
-		type: optionalString(args.type) as CronScheduleUpdateRequest['type'],
 		status: optionalString(args.status) as CronScheduleUpdateRequest['status'],
 		timezone: optionalString(args.timezone),
 		cronExpression: optionalString(args.cronExpression),
@@ -124,12 +125,12 @@ function updateRequest(args: Record<string, unknown>): CronScheduleUpdateRequest
 		taskType: optionalString(args.taskType),
 		taskInput: args.taskInput === undefined ? undefined : jsonValue(args.taskInput, {}),
 		enabled: typeof args.enabled === 'boolean' ? args.enabled : undefined,
-		metadata: args.metadata === undefined ? undefined : jsonValue(args.metadata, {}) as Record<string, CronJsonValue>,
+		metadata: args.metadata === undefined ? undefined : jsonValue(args.metadata, {}) as CronJsonObject,
 		confirmed: true,
 	};
 }
 
-const scheduleSchema = {
+const scheduleSchema: JSONSchema = {
 	type: 'object',
 	required: ['name'],
 	properties: {
@@ -144,13 +145,13 @@ const scheduleSchema = {
 		taskInput: { type: 'object' },
 		enabled: { type: 'boolean' },
 	},
-} as const;
+};
 
-const idSchema = {
+const idSchema: JSONSchema = {
 	type: 'object',
 	required: ['scheduleId'],
 	properties: { scheduleId: { type: 'string' } },
-} as const;
+};
 
 export const cronCreateTool: AgentTool = {
 	name: 'cron_create',
