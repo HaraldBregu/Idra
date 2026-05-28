@@ -254,7 +254,7 @@ export function createStartupFilesTool(service: AgentStartupFilesServicePort, ag
 					? args.files as Record<string, unknown>
 					: undefined;
 				if (files) {
-					const written = [];
+					const written: WorkspaceContextFile[] = [];
 					for (const [name, content] of Object.entries(files)) {
 						if (typeof content !== 'string') throw new Error(`content for ${name} must be a string.`);
 						written.push(await service.writeFile(agentId, name, content));
