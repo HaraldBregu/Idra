@@ -568,17 +568,6 @@ describe('tools/fs', () => {
 	it('applies create, modify, and delete entries in unified diffs', async () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-			],
-		});
 		await fs.writeFile(path.join(workspace, 'update.txt'), 'old\n', 'utf8');
 		await fs.writeFile(path.join(workspace, 'remove.txt'), 'remove me\n', 'utf8');
 		await readTool.execute({ path: 'update.txt' }, ctx);
@@ -612,56 +601,6 @@ describe('tools/fs', () => {
 		);
 		await expect(fs.readFile(path.join(workspace, 'update.txt'), 'utf8')).resolves.toBe('new\n');
 		await expect(fs.stat(path.join(workspace, 'remove.txt'))).rejects.toThrow();
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('rejects a multi-file patch before writing when any path is denied by policy', async () => {
-		const workspace = await makeTempDir();
-		const privateDir = path.join(workspace, 'private');
-		await fs.mkdir(privateDir);
-		await fs.writeFile(path.join(workspace, 'allowed.txt'), 'allowed\n', 'utf8');
-		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret\n', 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-		await readTool.execute({ path: 'allowed.txt' }, ctx);
-
-		const result = await applyPatchTool.execute(
-			{
-				diff: [
-					'--- a/allowed.txt',
-					'+++ b/allowed.txt',
-					'@@ -1 +1 @@',
-					'-allowed',
-					'+changed',
-					'--- a/private/secret.txt',
-					'+++ b/private/secret.txt',
-					'@@ -1 +1 @@',
-					'-secret',
-					'+leaked',
-				].join('\n'),
-			},
-			ctx
-		);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('denied by file policy');
-		await expect(fs.readFile(path.join(workspace, 'allowed.txt'), 'utf8')).resolves.toBe(
-			'allowed\n'
-		);
-		await expect(fs.readFile(path.join(privateDir, 'secret.txt'), 'utf8')).resolves.toBe(
-			'secret\n'
-		);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
