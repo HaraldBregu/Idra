@@ -4,7 +4,7 @@ import type { AgentToolResultStatus } from '../../../shared/agents/constants';
 import { AgentHarnessEmitter, AgentHarnessEventQueue } from './events';
 import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
 import { DefaultAgentHarnessSecretRedactor, validateAgentHarnessConfig } from './config';
-import { compactTranscriptToBudget } from './context';
+import { BudgetedAgentHarnessContextManager, compactTranscriptToBudget } from './context';
 import { AgentHarnessError, isRecoverableError, toHarnessErrorShape } from './errors';
 import { estimateUsageCost } from './model';
 import { validateJsonSchemaValue } from './schema';
@@ -50,6 +50,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 	private readonly loadedSkills = new Map<string, AgentHarnessSkill>();
 	private readonly redactor;
 	private readonly toolRegistry;
+	private readonly contextManager;
 
 	constructor(private readonly config: AgentHarnessConfig) {
 		validateAgentHarnessConfig(config);
@@ -59,6 +60,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		this.logs = config.logs ?? new InMemoryAgentHarnessOperationLogger();
 		this.redactor = config.secrets ?? new DefaultAgentHarnessSecretRedactor();
 		this.toolRegistry = config.toolRegistry ?? new DefaultAgentHarnessToolRegistry(config.tools ?? []);
+		this.contextManager = config.context ?? new BudgetedAgentHarnessContextManager();
 	}
 
 	on(type: AgentHarnessEvent['type'], handler: (event: AgentHarnessEvent) => void): () => void {
@@ -635,6 +637,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 				});
 			}
 			const args = this.updatedArgs(input.args, approval.updatedArgs);
+			let args = input.args;
 			const result = await this.withToolTimeout(tool.execute(args, toolContext), toolController.signal, input.toolName);
 			const content = await this.config.resultOptimizer?.optimize({
 				toolName: input.toolName,
