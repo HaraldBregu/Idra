@@ -27,7 +27,7 @@ describe('AgentService agent storage wiring', () => {
 		};
 		const agentSettings = {
 			getAgentConfig: jest.fn(() => ({
-				id: 'main',
+				id: DEFAULT_AGENT_ID,
 				model: { providerId: 'anthropic', modelId: 'claude-test' },
 			})),
 		};
