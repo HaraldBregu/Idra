@@ -271,7 +271,7 @@ describe('tools/before-call', () => {
 		expect(result.proceed).toBe(true);
 	});
 
-	it('allows run_shell outside the .friday root', async () => {
+	it('does not require approval for run_shell but rejects cwd outside the .friday root', async () => {
 		const home = await makeTempDir();
 		const fridayRoot = path.join(home, '.friday');
 		const workspace = path.join(fridayRoot, 'workspace');
@@ -286,6 +286,9 @@ describe('tools/before-call', () => {
 		await expect(
 			beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
 		).resolves.toMatchObject({ proceed: true });
+		await expect(runShellTool.execute({ command: 'pwd', cwd: outside }, ctx)).resolves.toMatchObject({
+			status: 'error',
+		});
 
 		await fs.rm(home, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
@@ -322,7 +325,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('does not enforce workspace-only boundaries but still honors read-only mode', async () => {
+	it('isolates reads to the Friday root and still honors read-only mode', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
@@ -331,7 +334,7 @@ describe('tools/fs', () => {
 
 		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
 		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
-			'ok'
+			'error'
 		);
 		await expect(
 			writeTool.execute(
@@ -344,7 +347,7 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('allows outside paths without approval or stored file policy', async () => {
+	it('keeps outside paths approval-free but blocked at execution', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const outsideFile = path.join(outside, 'allowed.txt');
@@ -360,9 +363,8 @@ describe('tools/fs', () => {
 			)
 		).resolves.toMatchObject({ proceed: true });
 		await expect(writeTool.execute(writeArgs, ctx)).resolves.toMatchObject({
-			status: 'ok',
+			status: 'error',
 		});
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('created');
 
 		const editArgs = { path: outsideFile, old: 'created', new: 'updated' };
 		await expect(
@@ -373,8 +375,7 @@ describe('tools/fs', () => {
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(editTool.execute(editArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('updated');
+		await expect(editTool.execute(editArgs, ctx)).resolves.toMatchObject({ status: 'error' });
 
 		const outsideCopy = path.join(outside, 'copy.txt');
 		const copyArgs = { source: outsideFile, destination: outsideCopy };
@@ -386,8 +387,7 @@ describe('tools/fs', () => {
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(copyTool.execute(copyArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideCopy, 'utf8')).resolves.toBe('updated');
+		await expect(copyTool.execute(copyArgs, ctx)).resolves.toMatchObject({ status: 'error' });
 
 		const outsideMoved = path.join(outside, 'moved.txt');
 		const moveArgs = { source: outsideCopy, destination: outsideMoved };
@@ -399,8 +399,7 @@ describe('tools/fs', () => {
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(moveTool.execute(moveArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('updated');
+		await expect(moveTool.execute(moveArgs, ctx)).resolves.toMatchObject({ status: 'error' });
 
 		const patchArgs = {
 			diff: [
@@ -419,17 +418,15 @@ describe('tools/fs', () => {
 				newCallTracker()
 			)
 		).resolves.toMatchObject({ proceed: true });
-		await expect(applyPatchTool.execute(patchArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('patched');
+		await expect(applyPatchTool.execute(patchArgs, ctx)).resolves.toMatchObject({ status: 'error' });
 
 		const deleteArgs = { path: outsideMoved };
 		await expect(
 			beforeToolCall(deleteTool, deleteArgs, ctx, newCallTracker())
 		).resolves.toMatchObject({ proceed: true });
 		await expect(deleteTool.execute(deleteArgs, ctx)).resolves.toMatchObject({
-			status: 'ok',
+			status: 'error',
 		});
-		await expect(fs.stat(outsideMoved)).rejects.toThrow();
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
@@ -455,7 +452,7 @@ describe('tools/fs', () => {
 		await fs.rm(home, { recursive: true, force: true });
 	});
 
-	it('does not confine mutating file targets when writeWorkspaceOnly is enabled', async () => {
+	it('confines mutating file targets to the Friday root when writeWorkspaceOnly is enabled', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
@@ -463,16 +460,14 @@ describe('tools/fs', () => {
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
-		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
+		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
-		).toBe('ok');
-		await expect(fs.readFile(path.join(outside, 'new.txt'), 'utf8')).resolves.toBe('x');
+		).toBe('error');
 
 		expect(
 			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
-		).toBe('ok');
-		await expect(fs.readFile(path.join(workspace, 'copied.txt'), 'utf8')).resolves.toBe('outside');
+		).toBe('error');
 
 		expect(
 			(
@@ -481,34 +476,31 @@ describe('tools/fs', () => {
 					ctx
 				)
 			).status
-		).toBe('ok');
-		await expect(fs.readFile(path.join(outside, 'copy.txt'), 'utf8')).resolves.toBe('inside');
+		).toBe('error');
 
 		expect(
 			(await editTool.execute({ path: outsideFile, old: 'outside', new: 'changed' }, ctx)).status
-		).toBe('ok');
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('changed');
+		).toBe('error');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('does not confine mutating file targets by default', async () => {
+	it('confines file targets to the Friday root by default', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
 		const outsideFile = path.join(outside, 'outside.txt');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
-		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
+		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
-		).toBe('ok');
-		await expect(fs.readFile(path.join(outside, 'new.txt'), 'utf8')).resolves.toBe('x');
+		).toBe('error');
 
 		expect(
 			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
-		).toBe('ok');
+		).toBe('error');
 		expect(
 			(
 				await copyTool.execute(
@@ -519,8 +511,7 @@ describe('tools/fs', () => {
 					ctx
 				)
 			).status
-		).toBe('ok');
-		await expect(fs.readFile(path.join(outside, 'copy.txt'), 'utf8')).resolves.toBe('outside');
+		).toBe('error');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
@@ -664,7 +655,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('runs script files without workspace-boundary path checks', async () => {
+	it('runs script files only inside the Friday root', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(
@@ -689,7 +680,7 @@ describe('tools/fs', () => {
 					makeToolContext({ workspace })
 				)
 			).status
-		).toBe('ok');
+		).toBe('error');
 		await expect(
 			scriptRunTool.execute(
 				{ path: 'hello.js' },
