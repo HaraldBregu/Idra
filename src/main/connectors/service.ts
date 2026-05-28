@@ -788,7 +788,7 @@ export class ConnectorsService {
 			...connector,
 			...runtime,
 			mcp: connector.mcp ?? runtime.mcp,
-		authorization: connector.authorization || runtime.authorization,
+			authorization: connector.authorization || runtime.authorization,
 			token: connector.token ?? runtime.token,
 			tools: connector.tools.length > 0 ? connector.tools : runtime.tools,
 		};
