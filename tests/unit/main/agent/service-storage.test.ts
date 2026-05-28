@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { AgentService } from '../../../../src/main/agent';
+import { DEFAULT_AGENT_ID } from '../../../../src/main/agent/constants';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {
@@ -63,7 +64,7 @@ describe('AgentService agent storage wiring', () => {
 
 		await expect(service.send('hello')).resolves.toBe('done');
 
-		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith('main');
+		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith(DEFAULT_AGENT_ID);
 		expect(agentDataDirectory.ensureRoot).toHaveBeenCalled();
 		expect(providerFactory).toHaveBeenCalledWith({
 			id: 'anthropic',
