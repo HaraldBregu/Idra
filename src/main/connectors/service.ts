@@ -905,15 +905,14 @@ function isStoredConnectorValid(connector: ConnectorConfig, storageKey?: string)
 }
 
 function normalizeStoredConnector(connector: ConnectorConfig, storageKey?: string): RuntimeConnector {
-	const metadata = connectorMetadataFromStorage(connector, storageKey);
-	const name = connector.name ?? metadata?.name ?? titleFromStorageKey(storageKey) ?? 'MCP Connector';
-	const connectorId = connector.connectorId ?? metadata?.connectorId ?? storageKey ?? serverLabelFromName(name);
+	const name = connector.name ?? titleFromStorageKey(storageKey) ?? 'MCP Connector';
+	const connectorId = connector.connectorId ?? storageKey ?? serverLabelFromName(name);
 	const serverLabel = connector.serverLabel ?? storageKey ?? serverLabelFromName(name);
 	const createdAt = typeof connector.createdAt === 'string' ? connector.createdAt : '';
 	const updatedAt = typeof connector.updatedAt === 'string' ? connector.updatedAt : createdAt;
 	return {
 		...connector,
-		id: typeof connector.id === 'string' ? connector.id : metadata?.id ?? storageKey ?? connectorId,
+		id: typeof connector.id === 'string' ? connector.id : storageKey ?? connectorId,
 		name,
 		connectorId,
 		serverLabel,
@@ -945,7 +944,7 @@ function toStoredConnectorRecords(connectors: readonly RuntimeConnector[]): Reco
 			key = baseKey + '_' + suffix;
 			suffix += 1;
 		}
-		records[key] = toStoredConnectorRecord(normalized);
+		records[key] = toStoredConnectorRecord(normalized, key);
 	}
 	return records;
 }
@@ -966,14 +965,26 @@ function uniqueConnectorStorageKey(value: string, connectors: readonly RuntimeCo
 	return key;
 }
 
-function toStoredConnectorRecord(connector: RuntimeConnector): ConnectorConfig {
+function toStoredConnectorRecord(connector: RuntimeConnector, storageKey: string): ConnectorConfig {
 	const mcp = connector.mcp ? compactMcpConfig(mcpWithoutAuthorization(connector.mcp)) : undefined;
 	const token = tokenForStorage(connector);
 	const authorization = token ? '' : connectorAuthorization(connector);
+	const authKind = connectorAuthKindFor(connector);
 	return {
+		...(connector.id && connector.id !== storageKey ? { id: connector.id } : {}),
+		...(connector.name && connector.name !== titleFromStorageKey(storageKey) ? { name: connector.name } : {}),
+		...(connector.connectorId && connector.connectorId !== storageKey ? { connectorId: connector.connectorId } : {}),
+		...(authKind === 'oauth' ? { authKind } : {}),
+		...(connector.serverDescription ? { serverDescription: connector.serverDescription } : {}),
+		...(connector.enabled === false ? { enabled: false } : {}),
+		...(connector.requireApproval !== 'always' ? { requireApproval: connector.requireApproval } : {}),
+		...(connector.allowedTools.length > 0 ? { allowedTools: connector.allowedTools } : {}),
+		...(connector.deferLoading ? { deferLoading: true } : {}),
 		...(mcp ? { mcp: compactMcpConfig(mcp) } : {}),
 		...(token ? { token } : {}),
 		...(authorization ? { authorization } : {}),
+		...(connector.lastRefreshedAt ? { lastRefreshedAt: connector.lastRefreshedAt } : {}),
+		...(connector.lastError ? { lastError: connector.lastError } : {}),
 		tools: connector.tools,
 	};
 }
@@ -999,26 +1010,6 @@ function titleFromStorageKey(storageKey?: string): string | undefined {
 		if (lower === 'mcp') return 'MCP';
 		return word.charAt(0).toUpperCase() + word.slice(1);
 	}).join(' ');
-}
-
-function connectorMetadataFromStorage(
-	connector: ConnectorConfig,
-	storageKey?: string
-): { id: string; connectorId: ConnectorProviderId; name: string } | undefined {
-	const key = storageKey?.trim().toLowerCase();
-	if (key === 'gmail') return { id: 'google.gmail', connectorId: 'google.gmail', name: 'Gmail' };
-	if (key === 'google_calendar') return { id: 'google.calendar', connectorId: 'google.calendar', name: 'Google Calendar' };
-	if (key === 'google_drive') return { id: 'google.drive', connectorId: 'google.drive', name: 'Google Drive' };
-	if (connector.mcp?.transport !== 'http') return undefined;
-	const url = connector.mcp.url;
-	if (url === 'https://gmailmcp.googleapis.com/mcp/v1') return { id: 'google.gmail', connectorId: 'google.gmail', name: 'Gmail' };
-	if (url === 'https://calendarmcp.googleapis.com/mcp/v1') {
-		return { id: 'google.calendar', connectorId: 'google.calendar', name: 'Google Calendar' };
-	}
-	if (url === 'https://drivemcp.googleapis.com/mcp/v1') {
-		return { id: 'google.drive', connectorId: 'google.drive', name: 'Google Drive' };
-	}
-	return undefined;
 }
 
 function isConnectorToolRecord(value: unknown): value is ConnectorTool {
