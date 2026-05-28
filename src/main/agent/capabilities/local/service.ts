@@ -73,7 +73,7 @@ export class ToolService implements ToolServicePort {
 		const tools = [...createDefaultToolRegistry().values()];
 		const allow = this.expandAllowlist(input.toolPolicy?.allow);
 		const alsoAllow = this.expandAllowlist(input.toolPolicy?.alsoAllow);
-		const baseAllow = allow.length ? allow : this.minimalToolNames();
+		const baseAllow = allow.length ? allow : tools.map((tool) => tool.name);
 		return this.filterToolsByDenylist(
 			this.filterToolsByAllowlist(tools, [...new Set([...baseAllow, ...alsoAllow])]),
 			[...(input.toolPolicy?.deny ?? []), ...(input.denylist ?? [])]
@@ -122,12 +122,6 @@ export class ToolService implements ToolServicePort {
 
 	async executeToolWithManagement(tool: AgentTool, args: Record<string, unknown>, ctx: ToolContext): Promise<AgentToolResult> {
 		return tool.execute(args, ctx);
-	}
-
-	private minimalToolNames(): string[] {
-		return [...localToolCatalogByName().entries()]
-			.filter(([, entry]) => entry.group === 'filesystem:read')
-			.map(([name]) => name);
 	}
 
 	private expandAllowlist(allowlist: string[] | undefined): string[] {
