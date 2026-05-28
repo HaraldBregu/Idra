@@ -3,18 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorCatalogEntry, ConnectorConfig } from '../../../../../../shared/connector';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
-import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { ConnectorIcon } from './components/ConnectorIcon';
 import { useConnectors } from './hooks/useConnectors';
 
-type HardcodedOAuthConnector = ConnectorCatalogEntry;
+type ConnectorConfig = Awaited<ReturnType<Window['connectors']['list']>>[number];
+type HardcodedOAuthConnector = Exclude<Parameters<Window['connectors']['authorizeOAuth']>[0], string>;
 
 const GOOGLE_GMAIL_CONNECTORS: readonly HardcodedOAuthConnector[] = [
 	{
@@ -69,12 +68,11 @@ const ConnectorsPage = () => {
 	const [oauthError, setOauthError] = useState<string | null>(null);
 	const [refreshedToolIds, setRefreshedToolIds] = useState<ReadonlySet<string>>(new Set());
 	const {
-		catalog, connectors,
+		connectors,
 		error,
 		statusMessage,
 		refreshTools,
 	} = useConnectors();
-	const mcpCatalog = catalog.filter((connector) => connector.authKind !== 'oauth' && !connector.oauth);
 	const mcpConnectors = connectors.filter((connector) => connector.authKind !== 'oauth');
 	const oauthConnectorByProviderId = new Map(
 		connectors.filter((c) => c.authKind === 'oauth').map((c) => [c.connectorId, c])
@@ -91,10 +89,6 @@ const ConnectorsPage = () => {
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
-	};
-
-	const configureCatalogConnector = (id: string): void => {
-		navigate(`/settings/connectors/configure/${encodeURIComponent(id)}`);
 	};
 
 	const authorizeOAuthConnector = async (connector: HardcodedOAuthConnector): Promise<void> => {
