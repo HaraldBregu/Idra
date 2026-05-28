@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { TasksIpc } from '../../../../src/main/ipc/tasks-ipc';
-import type { MainServiceContainer } from '../../../../src/main/service-registry';
+import type { MainServiceContainer } from '../../../../src/main/app/service-registry';
 import { TaskChannels } from '../../../../src/shared/ipc-channels';
 import type { TaskEvent, TaskRecord } from '../../../../src/shared/tasks';
 

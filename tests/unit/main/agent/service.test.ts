@@ -6,7 +6,7 @@ import type {
 	ProviderStreamRequest,
 } from '../../../../src/main/provider/types';
 import { AgentService } from '../../../../src/main/agent';
-import { AgentRunLogger } from '../../../../src/main/run-logger';
+import { AgentRunLogger } from '../../../../src/main/agent/run-logger';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
 import { PolicyService } from '../../../../src/main/agent/policy';
 import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';

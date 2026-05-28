@@ -2,7 +2,7 @@ jest.mock('@electron-toolkit/utils', () => ({
 	is: { dev: true },
 }));
 
-jest.mock('../../../src/main/i18n', () => ({
+jest.mock('../../../src/main/shell/i18n', () => ({
 	loadTranslations: jest.fn(() => ({
 		showFriday: 'Show Friday',
 		hideFriday: 'Hide Friday',
@@ -55,7 +55,7 @@ jest.mock('electron', () => {
 });
 
 import { Menu } from 'electron';
-import { Tray } from '../../../src/main/tray';
+import { Tray } from '../../../src/main/shell/tray';
 
 const originalPlatform = process.platform;
 

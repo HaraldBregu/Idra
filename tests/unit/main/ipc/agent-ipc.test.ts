@@ -3,7 +3,7 @@ import type { TranscriptEntry } from '../../../../src/main/provider/types';
 import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { AgentIpc } from '../../../../src/main/ipc/agent-ipc';
-import type { MainServiceContainer } from '../../../../src/main/service-registry';
+import type { MainServiceContainer } from '../../../../src/main/app/service-registry';
 import { AgentChannels } from '../../../../src/shared/ipc-channels';
 
 function registeredHandler(channel: string) {

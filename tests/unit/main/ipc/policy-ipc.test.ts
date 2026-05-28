@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { PolicyIpc } from '../../../../src/main/ipc/policy-ipc';
-import type { MainServiceContainer } from '../../../../src/main/service-registry';
+import type { MainServiceContainer } from '../../../../src/main/app/service-registry';
 import { PolicyChannels } from '../../../../src/shared/ipc-channels';
 import type { PolicyConfig } from '../../../../../shared/policy';
 

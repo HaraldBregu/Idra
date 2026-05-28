@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../../../../src/main/constants';
+import { DEFAULT_AGENT_ID } from '../../../../src/main/agent/constants';
 import { AGENT_TASK_TYPE, TasksService, type TaskPersistencePort } from '../../../../src/main/tasks';
 import type { TaskStoreState } from '../../../../src/shared/tasks';
 

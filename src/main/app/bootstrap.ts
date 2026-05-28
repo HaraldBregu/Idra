@@ -2,14 +2,14 @@ import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
+import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from '../core';
 
-import { AppPermissionsService } from './app-permissions';
-import { LoggerService } from './logger';
-import { StoreService } from './store';
+import { AppPermissionsService } from './permissions';
+import { LoggerService } from '../logger';
+import { StoreService } from '../store';
 import { PolicyService } from './agent/policy';
 import { CronService } from './cron';
-import { ChannelRegistry, ChannelsService } from './channels';
+import { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	AgentService,
 	AgentStartupFilesService,
@@ -17,24 +17,24 @@ import {
 	SubagentRegistry,
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
-} from './agent';
-import { AgentDataDirectoryService, resolveDefaultAppDataPath } from './agent/storage';
-import { AgentSettingsStore } from './agent/settings';
-import { WorkspaceService } from './workspace';
-import { ConnectorsService } from './connectors';
-import { AgentMcpClientService } from './agent/mcp-client';
-import { McpRegistry } from './agent/mcp';
-import { MonitorService } from './monitor';
-import { TasksService } from './tasks';
-import { UserDataDirectoryService } from './user-data';
+} from '../agent';
+import { AgentDataDirectoryService, resolveDefaultAppDataPath } from '../agent/storage';
+import { AgentSettingsStore } from '../agent/settings';
+import { WorkspaceService } from '../workspace';
+import { ConnectorsService } from '../connectors';
+import { AgentMcpClientService } from '../agent/mcp-client';
+import { McpRegistry } from '../agent/mcp';
+import { MonitorService } from '../monitor';
+import { TasksService } from '../tasks';
+import { UserDataDirectoryService } from '../user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
-import { ToolService } from './agent/tools';
-import { SkillsService } from './skills';
-import { SpeechToTextService } from './stt';
-import { AgentRunLogger } from './run-logger';
-import { DEFAULT_AGENT_ID } from './constants';
+import { ToolService } from '../agent/tools';
+import { SkillsService } from '../skills';
+import { SpeechToTextService } from '../stt';
+import { AgentRunLogger } from '../agent/run-logger';
+import { DEFAULT_AGENT_ID } from '../agent/constants';
 
-import type { IpcModule } from './ipc';
+import type { IpcModule } from '../ipc';
 import {
 	AppIpc,
 	AgentIpc,
@@ -50,9 +50,9 @@ import {
 	StoreIpc,
 	TasksIpc,
 	WindowIpc,
-} from './ipc';
+} from '../ipc';
 import type { MainServiceContainer, MainServices } from './service-registry';
-import { HeartbeatService } from './heartbeat';
+import { HeartbeatService } from '../heartbeat';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;

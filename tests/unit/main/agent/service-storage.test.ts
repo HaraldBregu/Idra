@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { AgentService } from '../../../../src/main/agent';
-import { AgentRunLogger } from '../../../../src/main/run-logger';
+import { AgentRunLogger } from '../../../../src/main/agent/run-logger';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {

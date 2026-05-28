@@ -9,7 +9,7 @@ import {
 } from './tools';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
-import { flushSessionMemoryBeforeCompaction } from '../memory-runtime';
+import { flushSessionMemoryBeforeCompaction } from './memory/runtime';
 import type { SessionFile } from './session/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../provider/factory';

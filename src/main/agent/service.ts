@@ -31,7 +31,7 @@ import {
 } from './run';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
-import { DEFAULT_AGENT_ID } from '../constants';
+import { DEFAULT_AGENT_ID } from './constants';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
 import {
 	PolicyService,
@@ -47,7 +47,7 @@ import {
 	type SessionFile,
 	type SessionStatus,
 } from './session/store';
-import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logger';
+import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './run-logger';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
 import {
 	AgentStartupFilesService,

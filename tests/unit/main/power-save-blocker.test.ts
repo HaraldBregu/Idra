@@ -2,7 +2,7 @@ import {
 	KEEP_AWAKE_POWER_SAVE_BLOCKER_TYPE,
 	PowerSaveBlockerService,
 	type PowerSaveBlockerAdapter,
-} from '../../../src/main/power-save-blocker';
+} from '../../../src/main/app/power-save-blocker';
 
 function createAdapter(): PowerSaveBlockerAdapter & {
 	readonly active: Set<number>;

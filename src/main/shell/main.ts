@@ -1,9 +1,9 @@
 import { screen } from 'electron';
 import type { BrowserWindow, BrowserWindowConstructorOptions, Rectangle } from 'electron';
-import type { AppState } from './core/app-state';
-import type { RendererContentOptions, WindowFactory } from './core/window-factory';
-import type { WindowContextManager } from './core/window-context';
-import type { MainServices } from './service-registry';
+import type { AppState } from '../core/app-state';
+import type { RendererContentOptions, WindowFactory } from '../core/window-factory';
+import type { WindowContextManager } from '../core/window-context';
+import type { MainServices } from '../app/service-registry';
 
 const DEFAULT_WINDOW_WIDTH = 440;
 const DEFAULT_WINDOW_HEIGHT = 600;

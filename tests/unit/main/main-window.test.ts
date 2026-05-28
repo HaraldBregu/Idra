@@ -1,9 +1,9 @@
 import { BrowserWindow, screen } from 'electron';
 import { AppState } from '../../../src/main/core/app-state';
-import { Main } from '../../../src/main/main';
+import { Main } from '../../../src/main/shell/main';
 import type { WindowFactory } from '../../../src/main/core/window-factory';
 import type { WindowContextManager } from '../../../src/main/core/window-context';
-import type { MainServices } from '../../../src/main/service-registry';
+import type { MainServices } from '../../../src/main/app/service-registry';
 
 type Listener = (...args: unknown[]) => void;
 

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { DEFAULT_AGENT_ID } from '../../constants';
+import { DEFAULT_AGENT_ID } from '../constants';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
 import { loadExistingSession } from '../session/store';

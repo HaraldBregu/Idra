@@ -2,11 +2,11 @@ import { app, BrowserWindow, protocol, net, crashReporter, session } from 'elect
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { Main } from './main';
-import { Tray } from './tray';
-import { Menu } from './menu';
-import { ShortcutManager } from './shortcuts';
-import type { AppPermissionsService } from './app-permissions';
+import { Main } from './shell/main';
+import { Tray } from './shell/tray';
+import { Menu } from './shell/menu';
+import { ShortcutManager } from './shell/shortcuts';
+import type { AppPermissionsService } from './app/permissions';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -148,7 +148,7 @@ import {
 	setupMemoryMonitor,
 	cleanup,
 	writeCrashLine,
-} from './bootstrap';
+} from './app/bootstrap';
 
 // Install process-level safety net BEFORE anything else so we can see silent exits.
 setupProcessSafetyNet();

@@ -12,7 +12,7 @@ import {
 	type ChannelChatType,
 	type ChannelOutboundMessage,
 } from '../channels';
-import { DEFAULT_AGENT_ID } from '../constants';
+import { DEFAULT_AGENT_ID } from '../agent/constants';
 import type {
 	AgentHeartbeatConfig,
 	HeartbeatEventPayload,

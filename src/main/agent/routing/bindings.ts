@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../../constants';
+import { DEFAULT_AGENT_ID } from '../constants';
 import type {
 	AgentConfig,
 	AgentRouteBinding,
