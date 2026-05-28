@@ -328,6 +328,7 @@ export interface AgentHarnessConfig {
 	systemPrompt?: string;
 	model: AgentHarnessModel;
 	models?: { registry?: AgentHarnessModelRegistry; fallbacks?: AgentHarnessModelCandidate[]; retry?: { maxAttempts?: number; baseDelayMs?: number; maxDelayMs?: number } };
+	planner?: { plan(input: { task: string; session: AgentHarnessSession; context: Record<string, unknown> }): Promise<Array<{ task: string; status: 'pending' | 'in_progress' | 'done' }>> };
 	tools?: AgentHarnessTool[];
 	toolRegistry?: AgentHarnessToolRegistry;
 	context?: AgentHarnessContextManager;

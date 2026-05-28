@@ -70,9 +70,10 @@ export class DefaultAgentHarness {
 			const contextBuild = await this.context.build({ task: input.task, session, memory, context, budgetTokens: this.config.runtime?.maxInputTokens });
 			if (contextBuild.trace) this.emit({ type: 'context.assembled', runId, sessionId: session.id, trace: contextBuild.trace });
 			const tools = await this.resolveTools(input, session, context);
+			const plan = await this.config.planner?.plan({ task: input.task, session, context }) ?? [];
 			const result = await this.runLoop({
 				runId,
-				session: { ...session, transcript: [...(contextBuild.messages ?? session.transcript), { role: 'user', content: input.task }], updatedAt: new Date().toISOString() },
+				session: { ...session, plan, transcript: [...(contextBuild.messages ?? session.transcript), { role: 'user', content: input.task }], updatedAt: new Date().toISOString() },
 				task: input.task,
 				systemPrompt: [this.config.systemPrompt, ...(contextBuild.systemPromptAdditions ?? [])].filter(Boolean).join('\n\n'),
 				tools,
@@ -228,7 +229,7 @@ export class DefaultAgentHarness {
 	private emit(event: AgentHarnessEvent): void { this.config.events?.emit(event); this.emitter.emit(event); }
 	private async runHooks(name: AgentHarnessHookName, payload: unknown): Promise<void> {
 		for (const hook of this.config.hooks ?? []) {
-			try { await hook.handle({ name, payload }); } catch (error) { await this.logs.append({ type: 'hook.error', timestamp: new Date().toISOString(), data: { name, hook: hook.name, error: error instanceof Error ? error.message : String(error) } }); }
+			try { await hook.handle({ name, payload }); } catch (error) { await this.logs.append({ type: 'hook.error', timestamp: new Date().toISOString(), data: { lifecycle: name, hook: hook.name, error: error instanceof Error ? error.message : String(error) } }); }
 		}
 	}
 }

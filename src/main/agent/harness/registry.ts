@@ -21,7 +21,13 @@ export function selectAgentHarness(input: { provider: string; modelId: string; r
 	return selected;
 }
 export async function resetRegisteredAgentHarnesses(input: { reason: string }): Promise<void> {
-	await Promise.all([...harnesses.values()].map((harness) => Promise.resolve(harness.reset?.(input)).catch(() => undefined)));
+	await Promise.all([...harnesses.values()].map(async (harness) => {
+		try {
+			await harness.reset?.(input);
+		} catch {
+			return;
+		}
+	}));
 }
 export function adaptAgentHarnessToV2(harness: AgentHarness): AgentHarness { return harness; }
 export async function runAgentHarnessV2LifecycleAttempt(harness: AgentHarness, params: AgentHarnessAttemptParams): Promise<AgentHarnessAttemptResult> {
@@ -47,15 +53,20 @@ export async function maybeCompactAgentHarnessSession(params: { requestedRuntime
 }
 export function collectConfiguredAgentHarnessRuntimes(config: unknown, env: Record<string, string | undefined> = process.env): string[] {
 	const found = new Set<string>();
-	const visit = (value: unknown): void => {
+	const visitRuntimeOptions = (value: unknown): void => {
 		if (!value || typeof value !== 'object') return;
-		if (Array.isArray(value)) return value.forEach(visit);
-		for (const [key, entry] of Object.entries(value)) {
-			if ((key === 'agentRuntime' || key === 'agentHarnessId') && typeof entry === 'string' && entry.trim()) found.add(entry.trim());
-			visit(entry);
+		for (const key of ['agentRuntime', 'agentHarnessId']) {
+			const entry = (value as Record<string, unknown>)[key];
+			if (typeof entry === 'string' && entry.trim()) found.add(entry.trim());
 		}
 	};
-	visit(config);
+	const record = config && typeof config === 'object' && !Array.isArray(config) ? config as Record<string, unknown> : {};
+	visitRuntimeOptions((record.assistant as Record<string, unknown> | undefined)?.options);
+	if (Array.isArray(record.agents)) {
+		for (const agent of record.agents) {
+			visitRuntimeOptions((agent as Record<string, unknown> | undefined)?.options);
+		}
+	}
 	if (env.FRIDAY_AGENT_RUNTIME?.trim()) found.add(env.FRIDAY_AGENT_RUNTIME.trim());
 	return [...found];
 }
