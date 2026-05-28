@@ -583,6 +583,9 @@ export class AgentService {
 			const workspaceRoot = recordPhase(phaseDurationsMs, 'resolve_workspace', () =>
 				this.workspaceRoot(agentConfig?.workspace)
 			);
+			await recordAsyncPhase(phaseDurationsMs, 'ensure_workspace', () =>
+				fs.mkdir(workspaceRoot, { recursive: true })
+			);
 			const provider = recordPhase(phaseDurationsMs, 'create_provider', () =>
 				this.providerFactory({ id: providerId, apiKey, baseURL })
 			);
