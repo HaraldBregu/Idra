@@ -120,6 +120,53 @@ const ToolsPage: React.FC = () => {
 		setPermissions(normalizeToolPermissions(agent.tools?.permissions));
 	}
 
+	function renderTool(tool: AgentToolMetadata): React.JSX.Element {
+		return (
+			<Item
+				key={tool.name}
+				variant="outline"
+				size="md"
+				className="border-b border-border/60 last:border-b-0"
+			>
+				<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
+					<div className="flex w-full min-w-0 items-center gap-2">
+						<ItemTitle className="min-w-0 truncate">
+							{tool.label}
+						</ItemTitle>
+						<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
+							{tool.name}
+						</Badge>
+					</div>
+					<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground/60">
+						{tool.description}
+					</p>
+				</ItemContent>
+				<Select
+					value={permissions[tool.name] ?? 'allow'}
+					disabled={savingTool === tool.name}
+					onValueChange={(value) => { if (value) void savePermission(tool.name, value as AgentToolPermissionMode); }}
+				>
+					<SelectTrigger size="sm" className="w-44 shrink-0">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{PERMISSION_OPTIONS.map((option) => {
+							const Icon = option.icon;
+							return (
+								<SelectItem key={option.value} value={option.value}>
+									<span className="inline-flex items-center gap-2">
+										<Icon className="size-3" />
+										{option.label}
+									</span>
+								</SelectItem>
+							);
+						})}
+					</SelectContent>
+				</Select>
+			</Item>
+		);
+	}
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
@@ -154,70 +201,13 @@ const ToolsPage: React.FC = () => {
 							{error}
 						</div>
 					) : null}
-					{AGENT_TOOLS.map((tool) => (
-						<Item
-							key={tool.name}
-							variant="outline"
-							size="md"
-							className="border-b border-border/60 last:border-b-0"
-						>
-							<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-								<div className="flex w-full min-w-0 items-center gap-2">
-									<ItemTitle className="min-w-0 truncate">
-										{tool.title}
-									</ItemTitle>
-									<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
-										{tool.name}
-									</Badge>
-									{optionalStringField(tool, 'availability') && optionalStringField(tool, 'availability') !== 'default' ? (
-										<Badge variant="outline" className="h-5 rounded-md px-1.5 text-[10px]">
-											{optionalStringField(tool, 'availability')}
-										</Badge>
-									) : null}
-								</div>
-								<p className="line-clamp-2 max-w-full text-[11px] leading-4 text-muted-foreground/60">
-									{tool.description}
-								</p>
-								<div className="flex flex-wrap gap-1">
-									{optionalStringListField(tool, 'permissions').map((permission) => (
-										<Badge
-											key={permission}
-											variant="outline"
-											className="h-5 rounded-md px-1.5 text-[10px]"
-										>
-											{permission}
-										</Badge>
-									))}
-									{approvalMode(tool) !== 'none' ? (
-										<Badge variant="secondary" className="h-5 rounded-md px-1.5 text-[10px]">
-											approval: {approvalMode(tool)}
-										</Badge>
-									) : null}
-								</div>
-							</ItemContent>
-							<Select
-								value={permissions[tool.name] ?? 'allow'}
-								disabled={savingTool === tool.name}
-								onValueChange={(value) => { if (value) void savePermission(tool.name, value as AgentToolPermissionMode); }}
-							>
-								<SelectTrigger size="sm" className="w-32 shrink-0">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{PERMISSION_OPTIONS.map((option) => {
-										const Icon = option.icon;
-										return (
-											<SelectItem key={option.value} value={option.value}>
-												<span className="inline-flex items-center gap-2">
-													<Icon className="size-3" />
-													{option.label}
-												</span>
-											</SelectItem>
-										);
-									})}
-								</SelectContent>
-							</Select>
-						</Item>
+					{TOOL_GROUPS.filter((group) => group.tools.length > 0).map((group) => (
+						<div key={group.title} className="border-b border-border/60 last:border-b-0">
+							<div className="bg-muted/30 px-3 py-2 text-[11px] font-medium uppercase tracking-normal text-muted-foreground">
+								{group.title}
+							</div>
+							{group.tools.map((tool) => renderTool(tool))}
+						</div>
 					))}
 				</SettingsPanel>
 			</SettingsSection>
