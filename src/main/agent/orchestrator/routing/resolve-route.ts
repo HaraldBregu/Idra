@@ -1,4 +1,4 @@
-import type { ChannelNormalizedInboundMessage, ChannelChatType } from '../../channels';
+import type { ChannelNormalizedInboundMessage, ChannelChatType } from '../../../channels';
 import { resolveDefaultAgentId } from './bindings';
 import { buildAgentSessionKey } from './session-key';
 import type { AgentRouteInput, ResolvedAgentRoute } from './types';

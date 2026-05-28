@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { resolveDefaultUserDataPath } from '../user-data';
+import { resolveDefaultUserDataPath } from '../../user-data';
 
 export const DEFAULT_AGENTS_FILENAME = 'AGENTS.md';
 export const DEFAULT_SOUL_FILENAME = 'SOUL.md';

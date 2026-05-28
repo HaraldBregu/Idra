@@ -1,1 +1,1 @@
-export { resolveMcpConfig } from '../../connectors/config';
+export { resolveMcpConfig } from '../../../connectors/config';

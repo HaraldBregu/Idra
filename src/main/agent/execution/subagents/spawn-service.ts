@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import type { TasksService } from '../../tasks';
-import type { AgentSettingsStorePort } from '../settings';
+import type { TasksService } from '../../../tasks';
+import type { AgentSettingsStorePort } from '../../settings';
 import { SubagentRegistry } from './registry';
 import type { SessionsSpawnResult, SubagentsControlResult, SubagentRunRecord } from './types';
 

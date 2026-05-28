@@ -1,4 +1,4 @@
-import type { AgentTool, ToolContext } from './types';
+import type { AgentTool, ToolContext } from '../capabilities/local/types';
 
 export type ToolProfile = 'minimal' | 'standard' | 'full';
 export interface ToolAccessSubject {

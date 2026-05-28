@@ -74,7 +74,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 			}
 		}
 
-		const assistantBlocks: import('../provider/types').AgentContentBlock[] = finalText ? [{ type: 'text', text: finalText }] : [];
+		const assistantBlocks: import('../../provider/types').AgentContentBlock[] = finalText ? [{ type: 'text', text: finalText }] : [];
 		for (const [id, call] of pending) {
 			toolCalls++;
 			const args = parseArgs(call.argsText);
