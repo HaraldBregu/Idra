@@ -13,16 +13,14 @@ import type { Model, ModelReasoningEffort, OperatorStoreState, AgentRunState } f
 import type { AgentToolApprovalDecision } from '../../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../../shared/agents/models';
 import type { AgentSessionMetadata } from '../../../shared/store';
-import type { AgentConfig, AgentToolPermissionMode } from '../../../shared/store';
 import type { PublicProvider } from '../../../shared/providers';
-import { requireModelReasoningEffort } from '../../../shared/agents/service';
-import { makeProvider, type ProviderSpec } from '../../provider/factory';
+import type { ProviderSpec } from '../../provider/factory';
 import type { ProviderAdapter, TranscriptEntry } from '../../provider/types';
 import { HeartbeatFileStore } from '../../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../../shared/heartbeat';
 import type { ChannelType } from '../../../shared/channels';
 import { DEFAULT_AGENT_ID } from '../constants';
-import { AgentStartupFilesService, createStartupFilesTool, DEFAULT_BOOTSTRAP_FILENAME, DEFAULT_MEMORY_FILENAME, type AgentStartupFilesServicePort, type WorkspaceContextFile } from '../context/startup';
+import { AgentStartupFilesService, createStartupFilesTool, type AgentStartupFilesServicePort } from '../context/startup';
 import { buildSystemPrompt } from '../context/prompt';
 import { AgentExecutionService, type AgentExecutionServicePort } from '../execution/service';
 import { loadExistingSession, loadSession, saveSession, clearSession, listSessions, type SessionFile, type SessionStatus } from '../context/session/store';
@@ -34,7 +32,10 @@ import { ToolService, type AgentTool, type CronToolContext, type ToolContext, ty
 import type { AgentCapabilityServicePort } from '../capabilities';
 import { AgentCapabilityService } from '../capabilities';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-run';
-import { shouldExposeStartupFilesTool } from './routing/intent';
+import { resolveAgentModelSelection } from './model-selection';
+import { resolveAgentStartupContext } from './startup-context';
+import { createAgentToolContext } from './tool-context';
+import { resolveAgentAllowedTools } from './tool-permissions';
 
 export interface AgentServiceDependencies {
 	store: StoreService;
@@ -217,7 +218,7 @@ export class AgentService {
 		this.aborts.set(sessionId, abort);
 		const runId = options.runId ?? randomUUID();
 		try {
-			const selection = this.resolveProviderAndModel(options);
+			const selection = resolveAgentModelSelection(options, { store: this.dependencies.store, providerFactory: this.providerFactory });
 			const session = await loadSession(sessionId, selection.modelId, selection.providerId, { baseDir: this.sessionBaseDir });
 			const workspace = await this.dependencies.userDataDirectory.ensureRoot();
 			this.emitAgentEvent({ type: 'run_state', state: 'thinking', label: 'started' }, sessionId, runId, options);
@@ -225,11 +226,8 @@ export class AgentService {
 			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
 			const agentConfig = this.dependencies.agentSettings?.getAgentConfig(agentId);
 			const startup = this.getStartupFilesService();
-			const primarySession = sessionId === agentId;
-			const rawStartupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
-			const bootstrapPending = !options.lightContext && primarySession && await startup.isBootstrapPending(agentId).catch(() => false);
-			const startupFiles = this.startupFilesForSession(rawStartupFiles, primarySession);
-			const ctx = this.toolContext(agentId, sessionId, session, abort.signal, options, workspace);
+			const startupContext = await resolveAgentStartupContext({ agentId, sessionId, lightContext: options.lightContext, startup });
+			const ctx = createAgentToolContext({ agentId, sessionId, session, signal: abort.signal, workspace, sessionBaseDir: this.sessionBaseDir, cronContext: options.cronContext, services: this.dependencies });
 			const localTools = await this.toolsFactory({ agentId, runId, providerId: selection.providerId, model: selection.modelId, workspace: ctx.workspace, session, signal: abort.signal, services: this.dependencies, toolContext: ctx, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny });
 			this.emitAgentEvent({ type: 'capability_resolution_start' }, sessionId, runId, options);
 			const capabilities = await this.capabilityService.resolveForPrompt({
@@ -243,26 +241,17 @@ export class AgentService {
 				this.emitAgentEvent({ type: 'connector_status', ...status }, sessionId, runId, options);
 			}
 			const startupTool = createStartupFilesTool(startup, agentId);
-			const configuredTools = this.applyAgentToolPermissions(
-				this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow),
-				agentConfig
-			);
-			const startupToolAllowed = bootstrapPending || shouldExposeStartupFilesTool(message);
-			const allowedTools = bootstrapPending
-				? [startupTool]
-				: startupToolAllowed
-					? [...configuredTools, startupTool]
-					: configuredTools;
-			ctx.approvalRequired = this.agentToolApprovals(agentConfig, allowedTools);
+			const allowed = resolveAgentAllowedTools({ message, capabilityTools: capabilities.tools, startupTool, bootstrapPending: startupContext.bootstrapPending, agentConfig, toolsAllow: options.toolsAllow, toolsDeny: options.toolsDeny, toolService: this.toolService });
+			ctx.approvalRequired = allowed.approvalRequired;
 			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
 			const result = await this.executionService.run({
 				runId,
 				providerAdapter: selection.adapter,
 				model: selection.modelId,
 				effort: selection.effort,
-				systemPrompt: buildSystemPrompt({ startupFiles, bootstrapPending, skills: capabilities.selectedSkills, tools: allowedTools }),
+				systemPrompt: buildSystemPrompt({ startupFiles: startupContext.startupFiles, bootstrapPending: startupContext.bootstrapPending, skills: capabilities.selectedSkills, tools: allowed.tools }),
 				session,
-				tools: allowedTools,
+				tools: allowed.tools,
 				ctx,
 				message,
 				signal: abort.signal,
@@ -296,32 +285,6 @@ export class AgentService {
 
 	private getStartupFilesService(): AgentStartupFilesServicePort {
 		return this.dependencies.startupFiles ?? (this.startupFiles ??= new AgentStartupFilesService());
-	}
-	private startupFilesForSession(files: WorkspaceContextFile[], primarySession: boolean): WorkspaceContextFile[] {
-		if (primarySession) return files;
-		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME && file.name !== DEFAULT_MEMORY_FILENAME);
-	}
-	private applyAgentToolPermissions(tools: AgentTool[], config: AgentConfig | undefined): AgentTool[] {
-		const permissions = config?.tools?.permissions;
-		if (!permissions) return tools;
-		return tools.filter((tool) => permissions[tool.name] !== 'deny');
-	}
-	private agentToolApprovals(config: AgentConfig | undefined, tools: AgentTool[]): Set<string> {
-		const permissions = config?.tools?.permissions;
-		const available = new Set(tools.map((tool) => tool.name));
-		return new Set(Object.entries(permissions ?? {}).flatMap(([name, mode]: [string, AgentToolPermissionMode]) => mode === 'ask' && available.has(name) ? [name] : []));
-	}
-	private resolveProviderAndModel(options: AgentSendOptions): { providerId: string; modelId: string; effort?: ModelReasoningEffort; adapter: ProviderAdapter } {
-		const configured = this.dependencies.store.getAgentService?.();
-		const providerId = (options.providerId ?? configured?.provider.id ?? 'openai').trim().toLowerCase();
-		const modelId = (options.model ?? configured?.model.id ?? configured?.model.name ?? 'gpt-5.4-mini').trim();
-		const effort = options.effort ?? configured?.model.effort;
-		const resolvedEffort = effort ? requireModelReasoningEffort(modelId, effort, providerId) : undefined;
-		const provider = this.dependencies.store.getProviderById(providerId) ?? { id: providerId, apiKey: '', baseUrl: undefined };
-		return { providerId, modelId, effort: resolvedEffort, adapter: this.providerFactory({ id: provider.id, apiKey: provider.apiKey, baseURL: provider.baseUrl }) };
-	}
-	private toolContext(agentId: string, sessionId: string, session: SessionFile, signal: AbortSignal, options: AgentSendOptions, workspace: string): ToolContext {
-		return { workspace, agentId, sessionId, sessionBaseDir: this.sessionBaseDir, cronContext: options.cronContext, readState: new Map(), plan: { entries: session.plan }, signal, services: this.dependencies as never };
 	}
 	private emitAgentEvent(event: Omit<AgentResponseEvent, 'agentId' | 'runId'> | AgentResponseEvent, agentId: string, runId: string, options: AgentSendOptions): void {
 		const payload = { ...event, agentId, runId } as AgentResponseEvent;
