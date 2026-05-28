@@ -9,7 +9,6 @@ import type { TasksService } from '../../../tasks';
 import type { McpRegistry } from '../../mcp';
 import type { SkillsService } from '../../../skills';
 import type { UserDataDirectoryServicePort } from '../../../user-data';
-import type { WorkspaceService } from '../../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../../provider/types';
 import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../../shared/agents/constants';
 
@@ -23,7 +22,6 @@ export interface FridayServices {
 	eventBus: EventBus;
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
-	workspace: WorkspaceService;
 	cron?: CronService;
 	policy?: PolicyServicePort;
 	taskManager?: TasksService;
