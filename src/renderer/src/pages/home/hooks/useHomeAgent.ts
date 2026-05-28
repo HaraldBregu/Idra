@@ -111,6 +111,14 @@ export function useHomeAgent({
 		void getAgentApi()?.cancel();
 	}, [dispatchChat]);
 
+	const resolveApproval = useCallback(
+		async (approvalId: string, approved: boolean, reason?: string): Promise<void> => {
+			dispatchChat({ type: 'clear_approval', approvalId });
+			await getAgentApi()?.resolveToolApproval({ approvalId, approved, reason });
+		},
+		[dispatchChat]
+	);
+
 	const sendPrompt = useCallback(
 		async (prompt: string): Promise<void> => {
 			const trimmed = prompt.trim();
@@ -224,6 +232,7 @@ export function useHomeAgent({
 		inputRef,
 		isLoading,
 		resetChat,
+		resolveApproval,
 		setInput,
 		switchToTyping,
 		useSuggestion,

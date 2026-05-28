@@ -220,6 +220,35 @@ function applyResponseEvent(
 		}));
 	}
 
+	if (event.type === 'approval_requested') {
+		return {
+			...ensured.state,
+			pendingApproval: {
+				approvalId: event.approvalId,
+				runId: event.runId,
+				toolCallId: event.toolCallId,
+				toolName: event.toolName,
+				displayName: event.displayName,
+				reason: event.reason,
+				input: event.input,
+			},
+		};
+	}
+
+	if (event.type === 'approval_resolved') {
+		return {
+			...ensured.state,
+			pendingApproval:
+				ensured.state.pendingApproval?.approvalId === event.approvalId
+					? undefined
+					: ensured.state.pendingApproval,
+		};
+	}
+
+	if (event.type === 'connector_status') {
+		return ensured.state;
+	}
+
 	if (event.type === 'text_delta') {
 		if (!event.delta) return ensured.state;
 		return updateAgentMessage(
@@ -394,6 +423,14 @@ export function agentChatReducer(
 			}));
 			return { ...nextState, activeAgentId: undefined, activeRunId: undefined };
 		}
+		case 'clear_approval':
+			return {
+				...state,
+				pendingApproval:
+					state.pendingApproval?.approvalId === action.approvalId
+						? undefined
+						: state.pendingApproval,
+			};
 		case 'cancel_active': {
 			const current = activeAgent(state);
 			if (!current) return state;

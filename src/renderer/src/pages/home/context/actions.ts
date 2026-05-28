@@ -17,6 +17,7 @@ export type AgentChatAction =
 	| { type: 'append_user_message'; messageId: string; content: string }
 	| { type: 'apply_response_event'; event: AgentResponseEvent; receivedAtMs: number }
 	| { type: 'complete_active'; response: string; completedAtMs?: number }
+	| { type: 'clear_approval'; approvalId: string }
 	| { type: 'cancel_active'; completedAtMs?: number }
 	| { type: 'error_active'; errorText: string; completedAtMs?: number }
 	| { type: 'restore_history'; history: AgentHistoryMessage[] }

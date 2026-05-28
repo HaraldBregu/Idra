@@ -64,6 +64,9 @@ export function applyAgentResponseEventToTools(
 		case 'model_selected':
 		case 'capability_resolution_start':
 		case 'capability_resolution_result':
+		case 'approval_requested':
+		case 'approval_resolved':
+		case 'connector_status':
 		case 'run_finished':
 			return undefined;
 		case 'tool_call_start':

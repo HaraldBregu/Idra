@@ -35,6 +35,16 @@ export interface AgentMessage {
 	readonly completedAtMs?: number;
 }
 
+export interface PendingToolApproval {
+	readonly approvalId: string;
+	readonly runId: string;
+	readonly toolCallId: string;
+	readonly toolName: string;
+	readonly displayName?: string;
+	readonly reason: string;
+	readonly input: unknown;
+}
+
 export interface AgentModelSelection {
 	readonly providerId: string;
 	readonly model: string;
@@ -54,6 +64,7 @@ export interface AgentChatState {
 	readonly messages: readonly HomeChatMessage[];
 	readonly activeAgentId?: string;
 	readonly activeRunId?: string;
+	readonly pendingApproval?: PendingToolApproval;
 }
 
 export const welcomeMessage: AgentMessage = {

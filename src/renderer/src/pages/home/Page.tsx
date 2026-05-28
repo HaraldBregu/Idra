@@ -13,6 +13,14 @@ import {
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
 import { ScrollButton } from '@/components/ui/scroll-button';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
 import { AgentTextMessage } from './components/AgentTextMessage';
@@ -104,6 +112,16 @@ function PageContent(): ReactElement {
 		returnToChat();
 	};
 
+	const approval = agent.chatState.pendingApproval;
+	const resolveApproval = (approved: boolean): void => {
+		if (!approval) return;
+		void agent.resolveApproval(
+			approval.approvalId,
+			approved,
+			approved ? undefined : 'Rejected by user.'
+		);
+	};
+
 	const confirmDictation = async (): Promise<void> => {
 		await dictation.finish();
 		returnToChat();
@@ -112,6 +130,29 @@ function PageContent(): ReactElement {
 	return (
 		<PageContainer className="overflow-hidden text-foreground">
 			<div className="relative flex min-h-0 flex-1 flex-col bg-background text-foreground">
+				<Dialog open={Boolean(approval)}>
+					<DialogContent showCloseButton={false} className="sm:max-w-lg">
+						<DialogHeader>
+							<DialogTitle>Approve tool call</DialogTitle>
+							<DialogDescription>
+								{approval?.displayName ?? approval?.toolName}
+							</DialogDescription>
+						</DialogHeader>
+						<div className="max-h-72 overflow-auto rounded-lg border bg-muted/30 p-3 text-xs">
+							<pre className="whitespace-pre-wrap break-words">
+								{JSON.stringify(approval?.input ?? {}, null, 2)}
+							</pre>
+						</div>
+						<DialogFooter>
+							<Button type="button" variant="outline" onClick={() => resolveApproval(false)}>
+								Reject
+							</Button>
+							<Button type="button" onClick={() => resolveApproval(true)}>
+								Approve
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
 				<ChatContainerRoot className="min-h-0 p-0 [scrollbar-gutter:auto]" aria-live="polite">
 					<ChatContainerContent
 						className={cn(
