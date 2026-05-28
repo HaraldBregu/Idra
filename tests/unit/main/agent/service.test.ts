@@ -787,11 +787,11 @@ describe('AgentService', () => {
 			schema: { type: 'object', properties: {}, additionalProperties: false },
 			execute: jest.fn(),
 		};
-		const connectors = {
+		const mcpClient = {
 			createAgentTools: jest.fn(() => [gmailProfileTool]),
 		};
 		const service = new AgentService(
-			{ ...deps, connectors: connectors as never },
+			{ ...deps, mcpClient: mcpClient as never },
 			{
 				sessionBaseDir,
 				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
@@ -810,7 +810,7 @@ describe('AgentService', () => {
 		);
 
 		await expect(service.send('get my gmail profile')).resolves.toBe('profile ready');
-		expect(connectors.createAgentTools).toHaveBeenCalled();
+		expect(mcpClient.createAgentTools).toHaveBeenCalled();
 		expect(requests[0]!.tools.map((tool) => tool.name)).toContain('my_gmail_get_profile');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
