@@ -12,6 +12,28 @@ This module owns: intent understanding, context shaping, task decomposition, aut
 
 Use the existing layer model defined in `AGENT_HARNESS_LAYERS`. Do not introduce new layers unless a new durable responsibility emerges. Do not duplicate responsibilities across layers.
 
+## Intent Understanding
+
+The most important thing the agent does before any tool is selected or any task is started is understand what the user actually wants. A user who says "turn off the music" is not asking for a shell command — they are expressing a goal. The agent must map that goal to available capabilities, not expect the user to know what tools exist.
+
+Intent understanding is the first step in every run, before context shaping, before tool selection, and before any action.
+
+**Classify the request type first.** Not every user message is a task to execute. Some are questions, some are preferences, some are instructions to remember, some are requests to schedule something for later. The agent must distinguish:
+
+- **Immediate tasks** — do this now (search, write, send, change a setting).
+- **Background tasks** — do this while I continue doing other things (download, monitor, process).
+- **Scheduled tasks** — do this later or repeatedly (remind me, run every morning).
+- **Questions** — answer this without taking action.
+- **Preferences** — remember this about me or adjust behavior going forward.
+
+**Resolve ambiguity before acting.** If the intent is unclear and the action would be hard to reverse (delete, send, configure hardware), ask a clarifying question before proceeding. Keep clarifying questions short and specific — one question at a time. Do not ask for information the agent can infer from context or from prior memory.
+
+**Use memory to avoid redundant questions.** If the user has expressed a preference before, use it. If the agent knows which Bluetooth device the user prefers, do not ask again. Memory-informed intent resolution is what makes the agent feel like it knows the user.
+
+**Map intent to the minimal capable tool set.** Once intent is understood, select only the tools likely needed. A request to "check the weather" does not need filesystem tools. A request to "turn off Bluetooth" does not need web search. Exposing irrelevant tools increases the chance of the model using them incorrectly.
+
+**Never silently reinterpret intent.** If the agent proceeds with an interpretation that differs from what was said, state the interpretation explicitly before acting: "I'll turn off Bluetooth now." This gives the user a chance to correct before any action is taken.
+
 ## Three Dimensions of Agent Architecture
 
 Every design decision maps to one of three dimensions. Use these as the primary lens when evaluating what a new feature, gate, or interface belongs to.
