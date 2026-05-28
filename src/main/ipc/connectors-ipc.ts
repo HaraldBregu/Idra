@@ -31,7 +31,7 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.update,
-			wrapSimpleHandler(async (id, input) => {
+			wrapSimpleHandler(async (id: string, input) => {
 				const connector = await connectors.update(id, input);
 				await mcpClient.closeConnector(id);
 				return connector;
