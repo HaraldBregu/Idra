@@ -853,19 +853,24 @@ const ALIAS_CORE_WORKSPACE_TOOLS = [
 ] as const;
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
-	coreWorkspace: DEFAULT_CORE_WORKSPACE_TOOLS,
+	'filesystem:read': DEFAULT_FILESYSTEM_READ_TOOLS,
+	'filesystem:write': DEFAULT_FILESYSTEM_WRITE_TOOLS,
+	'filesystem:delete': DEFAULT_FILESYSTEM_DELETE_TOOLS,
+	coreWorkspace: [],
 	stateTask: DEFAULT_STATE_TASK_TOOLS,
 	humanDecision: DEFAULT_HUMAN_DECISION_TOOLS,
 	subagent: DEFAULT_SUBAGENT_TOOLS,
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
 	script: [],
-	cron: [],
+	cron: DEFAULT_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_TOOL_GROUPS = {
+	'filesystem:read': DEFAULT_FILESYSTEM_READ_TOOLS,
+	'filesystem:write': DEFAULT_FILESYSTEM_WRITE_TOOLS,
+	'filesystem:delete': DEFAULT_FILESYSTEM_DELETE_TOOLS,
 	coreWorkspace: [
-		...DEFAULT_CORE_WORKSPACE_TOOLS,
 		...LEGACY_CORE_WORKSPACE_TOOLS,
 		...ALIAS_CORE_WORKSPACE_TOOLS,
 	],
@@ -875,19 +880,26 @@ export const AGENT_TOOL_GROUPS = {
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
 	script: OPTIONAL_SCRIPT_TOOLS,
-	cron: OPTIONAL_CRON_TOOLS,
+	cron: DEFAULT_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_DEFAULT_TOOLS = [
+	...AGENT_DEFAULT_TOOL_GROUPS['filesystem:read'],
+	...AGENT_DEFAULT_TOOL_GROUPS['filesystem:write'],
+	...AGENT_DEFAULT_TOOL_GROUPS['filesystem:delete'],
 	...AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace,
 	...AGENT_DEFAULT_TOOL_GROUPS.stateTask,
 	...AGENT_DEFAULT_TOOL_GROUPS.humanDecision,
 	...AGENT_DEFAULT_TOOL_GROUPS.subagent,
 	...AGENT_DEFAULT_TOOL_GROUPS.skill,
 	...AGENT_DEFAULT_TOOL_GROUPS.mcpConnector,
+	...AGENT_DEFAULT_TOOL_GROUPS.cron,
 ] as const;
 
 export const AGENT_TOOLS = [
+	...AGENT_TOOL_GROUPS['filesystem:read'],
+	...AGENT_TOOL_GROUPS['filesystem:write'],
+	...AGENT_TOOL_GROUPS['filesystem:delete'],
 	...AGENT_TOOL_GROUPS.coreWorkspace,
 	...AGENT_TOOL_GROUPS.stateTask,
 	...AGENT_TOOL_GROUPS.humanDecision,
