@@ -460,7 +460,6 @@ describe('ConnectorsService MCP persistence', () => {
 
 		expect(Object.fromEntries(store.data)).toEqual({
 			gmail: {
-				authKind: 'oauth',
 				mcp: {
 					transport: 'http',
 					url: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -478,6 +477,30 @@ describe('ConnectorsService MCP persistence', () => {
 			},
 		});
 		expect(service.list()[0]).toMatchObject({ status: 'configured', hasToken: true });
+	});
+
+	it('does not infer OAuth from a custom MCP bearer token alone', () => {
+		const { service, store } = createService();
+		store.data.set('custom_mcp', {
+			authKind: 'mcp_env',
+			mcp: {
+				transport: 'http',
+				url: 'https://mcp.example.test/mcp',
+			},
+			token: {
+				accessToken: 'custom-access-token',
+				tokenType: 'Bearer',
+			},
+			tools: [],
+		});
+
+		expect(service.list()[0]).toMatchObject({
+			id: 'custom_mcp',
+			connectorId: 'custom_mcp',
+			authKind: 'mcp_env',
+			status: 'configured',
+			hasToken: true,
+		});
 	});
 
 	it('stores dynamic connector records without discovering MCP tools on add', async () => {

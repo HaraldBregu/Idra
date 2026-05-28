@@ -37,7 +37,8 @@ export function connectorAuthKindFor(connector: ConnectorConfig): ConnectorAuthK
 }
 
 export function isOAuthConnector(connector: ConnectorConfig): boolean {
-	return connector.authKind === 'oauth' || Boolean(connector.oauth || connector.token?.accessToken);
+	if (connector.authKind) return connector.authKind === 'oauth';
+	return Boolean(connector.oauth);
 }
 
 export function connectorHasAuthorization(connector: ConnectorConfig): boolean {
