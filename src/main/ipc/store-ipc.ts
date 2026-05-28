@@ -263,6 +263,13 @@ export class StoreIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			StoreChannels.setAgentRoutingSettings,
+			wrapSimpleHandler((settings: unknown): ReturnType<typeof agentSettings.setAgentRoutingSettings> => {
+				return agentSettings.setAgentRoutingSettings(settings);
+			}, StoreChannels.setAgentRoutingSettings)
+		);
+
+		ipcMain.handle(
 			StoreChannels.getConnectorSettings,
 			wrapSimpleHandler((): ReturnType<typeof connectors.getConnectorSettings> => {
 				return connectors.getConnectorSettings();
