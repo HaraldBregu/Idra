@@ -4,7 +4,6 @@ import type { CronService } from '../../cron';
 import type { LoggerService } from '../../logger';
 import type { StoreService } from '../../store';
 import type { TasksService } from '../../tasks';
-import type { UserDataDirectoryServicePort } from '../../user-data';
 import type { ConnectorsService } from '../../connectors';
 import type { SkillsService } from '../../skills';
 import type { ChannelRegistry, ChannelsService } from '../../channels';
@@ -42,7 +41,6 @@ export interface AgentServiceDependencies {
 	cron: CronService;
 	logger: LoggerService;
 	eventBus: EventBus;
-	userDataDirectory: UserDataDirectoryServicePort;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;

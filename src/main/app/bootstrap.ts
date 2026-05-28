@@ -135,7 +135,6 @@ export function bootstrapServices(): BootstrapResult {
 		cron,
 		logger,
 		eventBus,
-		userDataDirectory,
 		agentDataDirectory,
 		agentSettings,
 		connectors,

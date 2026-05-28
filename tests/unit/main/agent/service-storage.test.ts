@@ -25,12 +25,6 @@ describe('AgentService agent storage wiring', () => {
 			resolve: jest.fn((...segments: string[]) => path.join(agentRoot, ...segments)),
 			resolveExisting: jest.fn(async (...segments: string[]) => path.join(agentRoot, ...segments)),
 		};
-		const userDataDirectory = {
-			getRootPath: jest.fn(() => userDataRoot),
-			ensureRoot: jest.fn(async () => userDataRoot),
-			resolve: jest.fn((...segments: string[]) => path.join(userDataRoot, ...segments)),
-			resolveExisting: jest.fn(async (...segments: string[]) => path.join(userDataRoot, ...segments)),
-		};
 		const agentSettings = {
 			getAgentConfig: jest.fn(() => ({
 				id: 'main',
@@ -55,7 +49,6 @@ describe('AgentService agent storage wiring', () => {
 				logger: makeLogger() as never,
 				eventBus: { broadcast: jest.fn(), emit: jest.fn(), on: jest.fn() } as never,
 				workspace: { getRootPath: jest.fn(() => { throw new Error('workspace unavailable'); }) } as never,
-				userDataDirectory: userDataDirectory as never,
 				agentDataDirectory,
 				agentSettings: agentSettings as never,
 				policy: {
@@ -73,7 +66,6 @@ describe('AgentService agent storage wiring', () => {
 
 		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith('main');
 		expect(agentDataDirectory.ensureRoot).toHaveBeenCalled();
-		expect(userDataDirectory.ensureRoot).not.toHaveBeenCalled();
 		expect(providerFactory).toHaveBeenCalledWith({
 			id: 'anthropic',
 			apiKey: 'sk-test',
