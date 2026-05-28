@@ -7,6 +7,18 @@ import type {
 } from '../core/types';
 import { legacyToolToCanonical } from '../runtime/bridge';
 import {
+	editFileTool,
+	gitDiffTool,
+	gitStatusTool,
+	grepTool,
+	listDirectoryTool,
+	readFileTool,
+	runShellTool,
+	searchFilesTool,
+	undoLastOperationTool,
+	writeFileTool,
+} from '../workspace/tools';
+import {
 	applyPatchTool,
 	copyTool,
 	deleteTool,
@@ -24,17 +36,7 @@ import {
 	moveTool,
 	readTool,
 	writeTool,
-	editFileTool,
-	gitDiffTool,
-	gitStatusTool,
-	grepTool,
-	listDirectoryTool,
-	readFileTool,
-	runShellTool,
-	searchFilesTool,
-	undoLastOperationTool,
-	writeFileTool,
-} from '../workspace/tools';
+} from './tools';
 import {
 	completeTaskTool,
 	listTodosTool,
