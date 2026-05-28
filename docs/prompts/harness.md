@@ -101,9 +101,15 @@ Do not add conditionals that branch on provider name, model family, or capabilit
 This module owns these responsibilities:
 
 - `createAgentHarness` factory and `DefaultAgentHarness` implementation.
+- Intent understanding: classifying request type and resolving ambiguity before tool selection.
 - Context shaping: retrieving and assembling only the context relevant to the task.
 - Tool registry, external tool discovery, and MCP tool provider integration.
-- Intent classification for capability selection — local tools, skills, and remote MCP tools.
+- Intent-driven capability selection — local tools, skills, system tools, and remote MCP tools.
+- Autonomous multi-step execution without user intervention mid-task.
+- Background task execution through detached subagents.
+- Task scheduling through `CronService` integration.
+- System integration: OS-level tools for network, bluetooth, volume, display, power, and applications.
+- Parallel subagent coordination for independent workstreams.
 - Deterministic gating: schema validation, safety checks, and approval checkpoints before tool execution.
 - Durable state management through the persistence and operation log interfaces.
 - Bounded self-repair: retry and fallback behavior with hard iteration and cost ceilings.
