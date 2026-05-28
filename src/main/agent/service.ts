@@ -1141,7 +1141,7 @@ export class AgentService {
 					tool: info.tool,
 					arguments: JSON.stringify(info.args ?? {}),
 					durationMs: info.durationMs,
-					status: info.status,
+					status: info.status === 'rejected' ? 'blocked' : info.status,
 					outputChars: info.outputChars,
 					outputText: info.outputText,
 				});
