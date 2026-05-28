@@ -158,6 +158,7 @@ export interface ConnectorConfig {
 	enabled?: boolean;
 	status?: ConnectorStatus;
 	authorization?: string;
+	token?: ConnectorOAuthTokenSet;
 	mcp?: ConnectorMcpConfig;
 	oauth?: ConnectorOAuthConfig;
 	requireApproval?: ConnectorApprovalMode;
