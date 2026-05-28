@@ -9,10 +9,10 @@ import type {
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/agent/run-logger';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import { AGENT_ALL_TOOL_NAMES, AGENT_DEFAULT_TOOL_GROUPS } from '../../../../src/shared/tools';
+import { AGENT_ALL_TOOL_NAMES, AGENT_TOOL_GROUPS } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
-const CORE_WORKSPACE_TOOL_NAMES = AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name);
+const CORE_WORKSPACE_TOOL_NAMES = AGENT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name);
 
 function provider(events: ProviderEvent[]): ProviderAdapter {
 	return {
