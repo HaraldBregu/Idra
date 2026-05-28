@@ -28,6 +28,7 @@ export class DefaultAgentHarness {
 	private readonly context;
 	private readonly emitter = new AgentHarnessEmitter();
 	private readonly controllers = new Map<string, AbortController>();
+	private readonly loadedSkills = new Map<string, { instructions?: string; tools?: AgentHarnessTool[] }>();
 
 	constructor(private readonly config: AgentHarnessConfig) {
 		validateAgentHarnessConfig(config);
@@ -67,6 +68,7 @@ export class DefaultAgentHarness {
 			await this.logs.append({ runId, sessionId: session.id, type: 'run.started', timestamp: new Date().toISOString(), data: { task: input.task } });
 			const memory = await this.config.memory?.retrieve({ task: input.task, session, context }) ?? [];
 			this.emit({ type: 'memory.read', runId, sessionId: session.id, count: memory.length });
+			await this.ensureSkills(input.task, input.requiredSkills ?? [], session, context);
 			const contextBuild = await this.context.build({ task: input.task, session, memory, context, budgetTokens: this.config.runtime?.maxInputTokens });
 			if (contextBuild.trace) this.emit({ type: 'context.assembled', runId, sessionId: session.id, trace: contextBuild.trace });
 			const tools = await this.resolveTools(input, session, context);
@@ -75,7 +77,12 @@ export class DefaultAgentHarness {
 				runId,
 				session: { ...session, plan, transcript: [...(contextBuild.messages ?? session.transcript), { role: 'user', content: input.task }], updatedAt: new Date().toISOString() },
 				task: input.task,
-				systemPrompt: [this.config.systemPrompt, ...(contextBuild.systemPromptAdditions ?? [])].filter(Boolean).join('\n\n'),
+				systemPrompt: [
+					this.config.systemPrompt,
+					...(contextBuild.systemPromptAdditions ?? []),
+					...[...this.loadedSkills.values()].flatMap((skill) => skill.instructions ? [skill.instructions] : []),
+					memory.length ? ['Relevant memory:', ...memory.map((record) => `- ${record.text}`)].join('\n') : '',
+				].filter(Boolean).join('\n\n'),
 				tools,
 				context,
 				memory,
@@ -191,7 +198,8 @@ export class DefaultAgentHarness {
 
 	private async resolveTools(input: AgentHarnessExecuteInput, session: AgentHarnessSession, context: Record<string, unknown>): Promise<AgentHarnessTool[]> {
 		const external = (await Promise.all((this.config.externalTools ?? []).map((provider) => provider.discover({ task: input.task, session, context }).catch(() => [])))).flat();
-		const tools = [...this.tools.list(), ...external];
+		const skillTools = [...this.loadedSkills.values()].flatMap((skill) => skill.tools ?? []);
+		const tools = [...this.tools.list(), ...skillTools, ...external];
 		const unique = tools.filter((tool, index) => tools.findIndex((entry) => entry.name === tool.name) === index);
 		return filterToolsByPermissions(unique, { permissions: this.config.permissions, enabledTools: input.enabledTools, disabledTools: input.disabledTools, toolGroups: input.toolGroups });
 	}
@@ -203,6 +211,20 @@ export class DefaultAgentHarness {
 		const session: AgentHarnessSession = { id, createdAt: now, updatedAt: now, status: 'active', model: this.config.modelId, provider: this.config.provider, parentSessionId, metadata, transcript: [], plan: [], compactionMarkers: [] };
 		await this.persistence.saveSession(session);
 		return session;
+	}
+
+	private async ensureSkills(task: string, names: string[], session: AgentHarnessSession, context: Record<string, unknown>): Promise<void> {
+		if (!this.config.skills) return;
+		const candidates = await this.config.skills.list?.({ session, context }) ?? [];
+		const selected = await this.config.skills.select?.({ task, session, context, candidates }) ?? [];
+		const denied = new Set(this.config.permissions?.denySkills ?? []);
+		const allowed = this.config.permissions?.allowSkills ? new Set(this.config.permissions.allowSkills) : undefined;
+		for (const name of [...new Set([...names, ...selected])]) {
+			if (denied.has(name) || (allowed && !allowed.has(name)) || this.loadedSkills.has(name)) continue;
+			const skill = await this.config.skills.load(name, { session, context });
+			this.loadedSkills.set(skill.name, skill);
+			this.emit({ type: 'skill.loaded', name: skill.name });
+		}
 	}
 
 	getSession(sessionId: string) { return this.persistence.loadSession(sessionId); }
