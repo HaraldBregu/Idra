@@ -24,6 +24,7 @@ import {
 	connectorHasAuthorization,
 	connectorStatusFor,
 } from './config';
+import { textResult, type AgentTool } from '../tools';
 import {
 	connectorAuthorization,
 	isConnectorToolRecord,
@@ -472,6 +473,30 @@ export class ConnectorsService {
 			command.args ?? {},
 			command.options
 		);
+	}
+
+	createAgentTools(): AgentTool[] {
+		return this.searchTools().map((tool) => ({
+			name: tool.name,
+			displayName: tool.displayName,
+			description: tool.description,
+			schema: tool.inputSchema ?? { type: 'object', properties: {}, additionalProperties: true },
+			serviceKind: 'connector',
+			serviceId: tool.connectorId,
+			needsApproval: tool.requiresApproval,
+			execute: async (args: Record<string, unknown>) => {
+				try {
+					const payload = await this.execTool({
+						connectorId: tool.connectorId,
+						toolName: tool.toolName,
+						args,
+					});
+					return textResult(JSON.stringify(payload, null, 2));
+				} catch (error) {
+					return textResult(error instanceof Error ? error.message : String(error), true);
+				}
+			},
+		}));
 	}
 
 	listConnectorsForMcp(): ConnectorConfig[] {
