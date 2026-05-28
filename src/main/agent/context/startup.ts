@@ -471,14 +471,6 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		return out;
 	}
 
-	private async hasCustomizedProfile(root: string): Promise<boolean> {
-		for (const name of [DEFAULT_AGENTS_FILENAME, DEFAULT_SOUL_FILENAME, DEFAULT_IDENTITY_FILENAME, DEFAULT_USER_FILENAME, DEFAULT_HEARTBEAT_FILENAME, DEFAULT_TOOLS_FILENAME] as const) {
-			const content = await fs.readFile(path.join(root, name), 'utf8').catch(() => undefined);
-			if (content !== undefined && content !== await this.defaultContent(name)) return true;
-		}
-		return false;
-	}
-
 	private async defaultContent(name: WorkspaceFileName): Promise<string> {
 		return (await loadTemplateFile(name, this.templateRootPath)) ?? defaults[name];
 	}
