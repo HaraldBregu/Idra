@@ -1,5 +1,5 @@
-import type { AgentTool } from '../tools';
-import { textResult } from '../tools';
+import type { AgentTool } from '../../capabilities/local';
+import { textResult } from '../../capabilities/local';
 import type { SubagentSpawnPort } from './spawn-service';
 
 export function createSessionsSpawnTool(spawnService: SubagentSpawnPort): AgentTool {
