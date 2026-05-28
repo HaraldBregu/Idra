@@ -152,6 +152,13 @@ export class AgentIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AgentChannels.resolveToolApproval,
+			wrapSimpleHandler((decision) => {
+				agent.resolveToolApproval(decision);
+			}, AgentChannels.resolveToolApproval)
+		);
+
+		ipcMain.handle(
 			AgentChannels.reset,
 			wrapSimpleHandler(() => agent.reset(), AgentChannels.reset)
 		);

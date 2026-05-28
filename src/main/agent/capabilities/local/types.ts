@@ -44,6 +44,7 @@ export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> 
 	serviceKind?: 'tool' | 'connector' | 'mcp';
 	serviceId?: string;
 	ownerOnly?: boolean;
+	timeoutMs?: number;
 	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }

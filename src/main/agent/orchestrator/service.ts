@@ -10,6 +10,7 @@ import type { SkillsService } from '../../skills';
 import type { ChannelRegistry, ChannelsService } from '../../channels';
 import type { AgentResponseEvent } from '../../../shared/agents/events';
 import type { Model, ModelReasoningEffort, OperatorStoreState, AgentRunState } from '../../../shared/agents/service';
+import type { AgentToolApprovalDecision } from '../../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../../shared/agents/models';
 import type { AgentSessionMetadata } from '../../../shared/store';
 import type { PublicProvider } from '../../../shared/providers';
@@ -129,6 +130,7 @@ export class AgentService {
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private readonly aborts = new Map<string, AbortController>();
 	private readonly runRecords = new Map<string, AgentRunRecord>();
+	private readonly pendingApprovals = new Map<string, (decision: AgentToolApprovalDecision) => void>();
 	private heartbeatStore: HeartbeatFileStore | null = null;
 	private startupFiles: AgentStartupFilesServicePort | null = null;
 
@@ -197,6 +199,13 @@ export class AgentService {
 		return text;
 	}
 
+	resolveToolApproval(decision: AgentToolApprovalDecision): void {
+		const resolve = this.pendingApprovals.get(decision.approvalId);
+		if (!resolve) return;
+		this.pendingApprovals.delete(decision.approvalId);
+		resolve(decision);
+	}
+
 	async send(message: string, agentId = this.defaultAgentId, options: AgentSendOptions = {}): Promise<string> {
 		const sessionId = options.sessionId ?? agentId;
 		this.cancel(sessionId);
@@ -237,6 +246,10 @@ export class AgentService {
 				message,
 				signal: abort.signal,
 				hooks: { streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options) },
+				hooks: {
+					streamEvent: (event) => this.emitAgentEvent(event, event.agentId, event.runId, options),
+					requestApproval: (request) => this.waitForToolApproval(request.approvalId, abort.signal),
+				},
 			});
 			await saveSession({ ...result.session, status: this.sessionStatusForStop(result.stopReason) }, { baseDir: this.sessionBaseDir });
 			this.emitAgentEvent({ type: 'run_finished', stopReason: result.stopReason, outputChars: result.finalText.length }, sessionId, runId, options);
@@ -280,6 +293,29 @@ export class AgentService {
 		const payload = { ...event, agentId, runId } as AgentResponseEvent;
 		this.dependencies.eventBus.broadcast('agent:response', payload);
 		options.streamEvent?.(payload);
+	}
+	private waitForToolApproval(approvalId: string, signal: AbortSignal): Promise<AgentToolApprovalDecision> {
+		return new Promise((resolve) => {
+			if (signal.aborted) {
+				resolve({ approvalId, approved: false, reason: 'Run was cancelled.' });
+				return;
+			}
+			const timeout = setTimeout(() => {
+				this.pendingApprovals.delete(approvalId);
+				resolve({ approvalId, approved: false, reason: 'Approval timed out.' });
+			}, 120_000);
+			const finish = (decision: AgentToolApprovalDecision) => {
+				clearTimeout(timeout);
+				signal.removeEventListener('abort', abort);
+				resolve(decision);
+			};
+			const abort = () => {
+				this.pendingApprovals.delete(approvalId);
+				finish({ approvalId, approved: false, reason: 'Run was cancelled.' });
+			};
+			signal.addEventListener('abort', abort, { once: true });
+			this.pendingApprovals.set(approvalId, finish);
+		});
 	}
 	private upsertRun(run: AgentRunRecord): AgentRunRecord { this.runRecords.set(run.id, run); return { ...run }; }
 	private requireRun(runId: string): AgentRunRecord { const run = this.runRecords.get(runId); if (!run) throw new Error(`Agent run not found: ${runId}`); return run; }
