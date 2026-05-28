@@ -4,7 +4,7 @@ import { assistant } from '../../../shared/agents/assistant';
 export class AgentCapabilityService implements AgentCapabilityServicePort {
 	private capabilities: AgentCapability[] = assistant.tools.map((tool) => ({
 		id: tool.name,
-		name: tool.title,
+		name: tool.label,
 		kind: 'tool',
 		description: tool.description,
 	}));
