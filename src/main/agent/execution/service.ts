@@ -1,5 +1,5 @@
 import type { AgentContentBlock, ProviderAdapter, TranscriptEntry, ToolResultBlock, Usage } from '../../provider/types';
-import type { AgentResponseEvent, AgentRunStreamEvent } from '../../../shared/agents/events';
+import type { AgentResponseEvent, AgentRunStreamEvent as SharedAgentRunStreamEvent } from '../../../shared/agents/events';
 import type { AgentRunStopReason } from '../../../shared/agents/constants';
 import type { AgentTool, ToolContext, ToolServicePort } from '../capabilities/local';
 import { ToolService } from '../capabilities/local';
@@ -140,7 +140,7 @@ export class AgentExecutionService implements AgentExecutionServicePort {
 		}
 	}
 
-	private emit(input: AgentRunInput, event: AgentRunStreamEvent): void {
+	private emit(input: AgentRunInput, event: SharedAgentRunStreamEvent): void {
 		input.hooks?.streamEvent?.({ ...event, agentId: input.ctx.sessionId, runId: input.runId } as AgentResponseEvent);
 	}
 }
@@ -174,8 +174,8 @@ function bindTools(tools: AgentTool[]) {
 	return { definitions, byProviderName };
 }
 
-function toolEvent<TType extends 'tool_call_start' | 'tool_call_result'>(type: TType, iteration: number, toolCallId: string, toolName: string, tool?: AgentTool): Extract<AgentRunStreamEvent, { type: TType }> {
-	return { type, iteration, toolCallId, toolName, name: toolName, serviceKind: tool?.serviceKind ?? 'tool', displayName: tool?.displayName, serviceId: tool?.serviceId } as Extract<AgentRunStreamEvent, { type: TType }>;
+function toolEvent<TType extends 'tool_call_start' | 'tool_call_result'>(type: TType, iteration: number, toolCallId: string, toolName: string, tool?: AgentTool): Extract<SharedAgentRunStreamEvent, { type: TType }> {
+	return { type, iteration, toolCallId, toolName, name: toolName, serviceKind: tool?.serviceKind ?? 'tool', displayName: tool?.displayName, serviceId: tool?.serviceId } as Extract<SharedAgentRunStreamEvent, { type: TType }>;
 }
 
 function outputText(content: ToolResultBlock[]): string {
