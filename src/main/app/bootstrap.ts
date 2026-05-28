@@ -7,25 +7,24 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { AppPermissionsService } from './permissions';
 import { LoggerService } from '../logger';
 import { StoreService } from '../store';
+import { PolicyService } from '../policy';
 import { CronService } from '../cron';
 import { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	AgentService,
-	AgentStartupFilesService,
 	type AgentServiceDependencies,
 	SubagentRegistry,
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
 } from '../agent';
-import { AgentDataDirectoryService, resolveDefaultAppDataPath } from '../agent/storage';
-import { AgentSettingsStore } from '../agent/settings';
+import { WorkspaceService } from '../workspace';
 import { ConnectorsService } from '../connectors';
-import { AgentMcpClientService, McpRegistry } from '../agent/capabilities/mcp';
+import { McpRegistry } from '../mcp';
 import { MonitorService } from '../monitor';
 import { TasksService } from '../tasks';
 import { UserDataDirectoryService } from '../user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
-import { ToolService } from '../agent/capabilities/local';
+import { ToolService } from '../tools';
 import { SkillsService } from '../skills';
 import { SpeechToTextService } from '../stt';
 
@@ -55,8 +54,7 @@ export interface BootstrapResult {
 	appState: AppState;
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryService;
-	agentDataDirectory: AgentDataDirectoryService;
-	workspaceRoot: string;
+	workspace: WorkspaceService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -79,30 +77,25 @@ export function bootstrapServices(): BootstrapResult {
 		logger.error('UserDataDirectoryService', 'Failed to create user data directory', error);
 	});
 
-	const agentDataDirectory = container.register('agentDataDirectory', new AgentDataDirectoryService());
-	void agentDataDirectory.ensureRoot().catch((error) => {
-		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
-	});
-
 	const skills = container.register(
 		'skills',
 		new SkillsService(logger)
 	);
 
-	const workspaceRoot = userDataDirectory.resolve('workspace');
-	void fs.promises.mkdir(workspaceRoot, { recursive: true }).catch((error) => {
-		logger.error('Workspace', 'Failed to create workspace directory', error);
-	});
-	container.register(
-		'startupFiles',
-		new AgentStartupFilesService({
-			rootPath: agentDataDirectory.resolve('workspaces'),
+	const workspace = container.register(
+		'workspace',
+		new WorkspaceService(logger, { userDataDirectory })
+	);
+	const store = container.register('store', new StoreService(logger));
+	const channels = container.register('channels', new ChannelsService(logger));
+	const policy = container.register(
+		'policy',
+		new PolicyService({
+			workspaceRoot: workspace.getRootPath(),
+			agentRoot: userDataDirectory.resolve('agent'),
 			logger,
 		})
 	);
-	const store = container.register('store', new StoreService(logger));
-	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
-	const channels = container.register('channels', new ChannelsService(logger));
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
@@ -111,14 +104,10 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
-	const connectors = container.register('connectors', new ConnectorsService(logger, {
-		storeCwd: resolveDefaultAppDataPath(),
-	}));
-	const mcpClient = container.register('mcpClient', new AgentMcpClientService(logger, connectors));
-	connectors.setToolRuntime(mcpClient);
+	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
-	const toolService = container.register('toolService', new ToolService({ cron, logger }));
+	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
 	const taskManager = container.register(
@@ -135,26 +124,24 @@ export function bootstrapServices(): BootstrapResult {
 		cron,
 		logger,
 		eventBus,
-		agentDataDirectory,
-		agentSettings,
+		workspace,
+		userDataDirectory,
 		connectors,
-		mcpClient,
 		skills,
 		mcpRegistry,
+		policy,
 		toolService,
 		taskManager,
 		channels,
 	};
 	const agentService = container.register(
 		'agentService',
-		new AgentService(agentDependencies, {
-			sessionBaseDir: agentDataDirectory.resolve('sessions'),
-		})
+		new AgentService(agentDependencies)
 	);
 	taskManager.configureAgentRuntime(agentService);
 	taskManager.registerHandler(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
 	agentDependencies.subagents = new SubagentSpawnService({
-		agentSettings,
+		store,
 		taskManager,
 		registry: subagentRegistry,
 		eventBus,
@@ -162,7 +149,7 @@ export function bootstrapServices(): BootstrapResult {
 	});
 	const channelRegistry = container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService, agentSettings })
+		new ChannelRegistry({ logger, eventBus, agentService, store })
 	);
 	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(
@@ -189,8 +176,7 @@ export function bootstrapServices(): BootstrapResult {
 		appState,
 		logger,
 		userDataDirectory,
-		agentDataDirectory,
-		workspaceRoot,
+		workspace,
 		windowContextManager,
 	};
 }
