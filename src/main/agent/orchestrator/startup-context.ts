@@ -28,11 +28,14 @@ export async function resolveAgentStartupContext(input: AgentStartupContextInput
 	return {
 		primarySession,
 		bootstrapPending,
-		startupFiles: startupFilesForSession(rawStartupFiles, primarySession),
+		startupFiles: startupFilesForSession(rawStartupFiles, primarySession, bootstrapPending),
 	};
 }
 
-function startupFilesForSession(files: WorkspaceContextFile[], primarySession: boolean): WorkspaceContextFile[] {
-	if (primarySession) return files;
-	return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME && file.name !== DEFAULT_MEMORY_FILENAME);
+function startupFilesForSession(files: WorkspaceContextFile[], primarySession: boolean, bootstrapPending: boolean): WorkspaceContextFile[] {
+	return files.filter((file) => {
+		if (file.name === DEFAULT_BOOTSTRAP_FILENAME) return primarySession && bootstrapPending;
+		if (file.name === DEFAULT_MEMORY_FILENAME) return primarySession;
+		return true;
+	});
 }
