@@ -1,4 +1,5 @@
 import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import type {
 	ProviderAdapter,
@@ -31,7 +32,7 @@ function providerTurns(turns: ProviderEvent[][]): ProviderAdapter {
 	};
 }
 
-function makeDeps(workspace = '/workspace') {
+function makeDeps(workspace = path.join(os.tmpdir(), `friday-agent-service-test-${process.pid}`)) {
 	const providerRecord = {
 		id: 'openai',
 		name: 'OpenAI',
@@ -430,7 +431,7 @@ describe('AgentService', () => {
 			agentId: 'main',
 			providerId: 'openai',
 			model: 'gpt-test',
-			workspace: '/workspace',
+			workspace: expect.any(String),
 			session: expect.objectContaining({ id: 'main' }),
 			runId: expect.any(String),
 			signal: expect.any(AbortSignal),
@@ -977,18 +978,19 @@ describe('AgentService', () => {
 
 	it('keeps bootstrap turns tool-free when bootstrap file access is unavailable', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps('/workspace');
+		const deps = makeDeps();
+		const startupRoot = deps.startupFiles.getRootPath();
 		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
 		(deps.startupFiles.loadContextFiles as jest.Mock).mockResolvedValue([
 			{
 				name: 'AGENTS.md',
-				path: '/workspace/agent/workspaces/main/AGENTS.md',
+				path: `${startupRoot}/AGENTS.md`,
 				content: 'rules',
 				missing: false,
 			},
 			{
 				name: 'BOOTSTRAP.md',
-				path: '/workspace/agent/workspaces/main/BOOTSTRAP.md',
+				path: `${startupRoot}/BOOTSTRAP.md`,
 				content: 'bootstrap ritual',
 				missing: false,
 			},
@@ -1019,24 +1021,25 @@ describe('AgentService', () => {
 
 	it('strips BOOTSTRAP.md from secondary session context', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const deps = makeDeps('/workspace');
+		const deps = makeDeps();
+		const startupRoot = deps.startupFiles.getRootPath();
 		(deps.startupFiles.isBootstrapPending as jest.Mock).mockResolvedValue(true);
 		(deps.startupFiles.loadContextFiles as jest.Mock).mockResolvedValue([
 			{
 				name: 'AGENTS.md',
-				path: '/workspace/agent/workspaces/main/AGENTS.md',
+				path: `${startupRoot}/AGENTS.md`,
 				content: 'rules',
 				missing: false,
 			},
 			{
 				name: 'MEMORY.md',
-				path: '/workspace/agent/workspaces/main/MEMORY.md',
+				path: `${startupRoot}/MEMORY.md`,
 				content: 'memory',
 				missing: false,
 			},
 			{
 				name: 'BOOTSTRAP.md',
-				path: '/workspace/agent/workspaces/main/BOOTSTRAP.md',
+				path: `${startupRoot}/BOOTSTRAP.md`,
 				content: 'bootstrap ritual',
 				missing: false,
 			},
