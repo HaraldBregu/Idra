@@ -31,6 +31,7 @@ import {
 } from '../../shared/providers';
 import type {
 	AgentConfig,
+	type AgentToolPermissionMode,
 	AgentModuleOptions,
 	AgentRouteBinding,
 	AgentRoutePeer,
@@ -306,6 +307,18 @@ function normalizeAgentStringList(value: unknown): string[] | undefined {
 	return list.length > 0 ? list : undefined;
 }
 
+function normalizeAgentToolPermissions(value: unknown): Record<string, AgentToolPermissionMode> | undefined {
+	const record = readRecord(value);
+	if (!record) return undefined;
+	const out: Record<string, AgentToolPermissionMode> = {};
+	for (const [toolName, mode] of Object.entries(record)) {
+		const name = toolName.trim();
+		if (!name || mode !== 'allow' && mode !== 'deny' && mode !== 'ask') continue;
+		out[name] = mode;
+	}
+	return Object.keys(out).length > 0 ? out : undefined;
+}
+
 function normalizePositiveInteger(value: unknown): number | undefined {
 	return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 ? value : undefined;
 }
@@ -354,6 +367,7 @@ function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 		const allow = normalizeAgentStringList(tools.allow);
 		const alsoAllow = normalizeAgentStringList(tools.alsoAllow);
 		const deny = normalizeAgentStringList(tools.deny);
+		const permissions = normalizeAgentToolPermissions(tools.permissions);
 		config.tools = {
 			...(tools.profile === 'minimal' ||
 			tools.profile === 'coding' ||
@@ -364,6 +378,7 @@ function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 			...(allow ? { allow } : {}),
 			...(alsoAllow ? { alsoAllow } : {}),
 			...(deny ? { deny } : {}),
+			...(permissions ? { permissions } : {}),
 			...(readRecord(tools.fs) ? { fs: tools.fs as NonNullable<AgentConfig['tools']>['fs'] } : {}),
 			...(readRecord(tools.exec) ? { exec: tools.exec as Record<string, unknown> } : {}),
 		};
