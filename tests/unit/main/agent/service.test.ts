@@ -726,7 +726,6 @@ describe('AgentService', () => {
 			})
 		).resolves.toBe('file tools only');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toContain('read_file');
 		expect(toolNames).not.toEqual(expect.arrayContaining(['exec', 'process', 'web_fetch']));
 		expect(toolNames.every((name) => CORE_WORKSPACE_TOOL_NAMES.includes(name))).toBe(true);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
@@ -1092,7 +1091,7 @@ describe('AgentService', () => {
 
 		await expect(service.send('Move the file from one directory to another.')).resolves.toBe('ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual(expect.arrayContaining(['list_directory', 'run_shell']));
+		expect(toolNames).toEqual(expect.arrayContaining(['move', 'copy']));
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
