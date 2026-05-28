@@ -122,7 +122,7 @@ export const STEP_COPY: Record<'presentation' | 'providers', { title: string; de
 		presentation: {
 			title: 'Welcome to Friday',
 			description:
-				'Connect your AI providers and pick a model for each capability. It only takes a minute.',
+				'Friday is a personal AI assistant that can learn how to work with you, then connect to the providers and tools you choose.',
 		},
 		providers: {
 			title: 'Connect a provider',

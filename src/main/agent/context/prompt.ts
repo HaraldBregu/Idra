@@ -10,8 +10,8 @@ export function buildSystemPrompt(input: { base?: string; startupFiles?: Workspa
 		input.bootstrapPending ? [
 			'## Bootstrap',
 			'BOOTSTRAP.md is pending for this agent workspace.',
-			'Start with a brief presentation, then ask the user what to call the agent and what to call them.',
-			'When the presentation details are clear, use `startup_files` to update IDENTITY.md, USER.md, and SOUL.md, then complete the bootstrap.',
+			'Follow the first-run ritual in BOOTSTRAP.md: start with a short conversational introduction, then learn who you are and who the user is one question at a time.',
+			'When the identity, user, and SOUL.md details are clear, use `startup_files` to update IDENTITY.md, USER.md, and SOUL.md, then complete the bootstrap.',
 		].join('\n') : '',
 		...(input.startupFiles ?? []).flatMap((file) => !file.missing && file.content ? [`# ${file.name}\n${file.content}`] : []),
 		input.skills?.length ? `## Skills\n${input.skills.map((skill) => `### ${skill.name}\n${skill.instructions}`).join('\n\n')}` : '',

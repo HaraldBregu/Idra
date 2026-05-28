@@ -247,7 +247,7 @@ describe('agent startup files service', () => {
 			'startup context'
 		);
 		await expect(fs.readFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'utf8')).resolves.toContain(
-			'First Run'
+			'Hello, World'
 		);
 
 		await service.writeFile('main', 'SOUL.md', 'custom soul');
