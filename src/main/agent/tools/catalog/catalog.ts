@@ -174,10 +174,8 @@ export const LOCAL_TOOL_CATALOG = AGENT_ALL_TOOL_NAMES.map((name) =>
 	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
 ) as readonly LocalToolCatalogEntry[];
 
-export function localToolNamesForProfile(profile: LocalToolProfile): string[] {
-	return LOCAL_TOOL_CATALOG.filter((entry) => entry.profiles.includes(profile)).map(
-		(entry) => entry.name
-	);
+export function localToolNamesForProfile(_profile: LocalToolProfile): string[] {
+	return LOCAL_TOOL_CATALOG.map((entry) => entry.name);
 }
 
 export function localToolNamesForGroup(group: LocalToolGroup): string[] {
