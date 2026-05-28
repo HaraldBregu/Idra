@@ -1,45 +1,9 @@
-import type { CronSchedulePermissionLevel } from '../cron';
-import type { Permission } from '../policy';
-
-export type AgentToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
-export type AgentToolAvailability = 'default' | 'optional' | 'legacy' | 'alias';
-export type AgentCronToolPermission = `cron:${CronSchedulePermissionLevel}`;
-
-export type AgentToolPermission =
-	| Permission
-	| 'execute'
-	| 'state'
-	| 'human'
-	| 'delegate'
-	| 'skill'
-	| 'mcp:read'
-	| 'mcp:connect'
-	| 'mcp:call'
-	| AgentCronToolPermission;
-
-export type AgentToolApprovalPolicy =
-	| { mode: 'none' }
-	| { mode: 'workspace-boundary'; target: 'write-target' | 'workdir' }
-	| { mode: 'action'; actions: readonly string[] }
-	| { mode: 'always' };
-
-export const AGENT_TOOL_APPROVAL_NONE = { mode: 'none' } as const;
-export const AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY = {
-	mode: 'workspace-boundary',
-	target: 'write-target',
-} as const;
-export const AGENT_TOOL_APPROVAL_WORKDIR_BOUNDARY = {
-	mode: 'workspace-boundary',
-	target: 'workdir',
-} as const;
-export const AGENT_TOOL_APPROVAL_ALWAYS = { mode: 'always' } as const;
-
-export const AGENT_TOOL_PROFILES = ['minimal', 'coding', 'messaging', 'standard', 'full'] as const;
-export const AGENT_TOOL_STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
-
 export interface AgentToolMetadata {
 	name: string;
-	group: string;
 	title: string;
 	description: string;
+}
+
+export function defineAgentTools<const TTools extends readonly AgentToolMetadata[]>(tools: TTools) {
+	return tools;
 }
