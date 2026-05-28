@@ -32,6 +32,15 @@ export function connectorStatusFor(connector: ConnectorConfig): ConnectorStatus 
 	return 'configured';
 }
 
+export function connectorCanUseTools(connector: ConnectorConfig): boolean {
+	return (
+		connector.enabled !== false &&
+		Boolean(connector.mcp) &&
+		(!isOAuthConnector(connector) || connectorHasAuthorization(connector)) &&
+		missingMcpSecretNames(connector).length === 0
+	);
+}
+
 export function connectorAuthKindFor(connector: ConnectorConfig): ConnectorAuthKind {
 	return isOAuthConnector(connector) ? 'oauth' : 'mcp_env';
 }

@@ -1,6 +1,7 @@
 export { createSdkConnectorMcpClient, SdkConnectorMcpClient } from './client';
 export {
 	authorizationFromMcp,
+	connectorCanUseTools,
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,

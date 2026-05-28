@@ -27,6 +27,7 @@ export {
 } from './input';
 export {
 	authorizationFromMcp,
+	connectorCanUseTools,
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,

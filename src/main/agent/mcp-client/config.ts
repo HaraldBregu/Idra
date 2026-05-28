@@ -1,5 +1,6 @@
 export {
 	authorizationFromMcp,
+	connectorCanUseTools,
 	connectorAuthKindFor,
 	connectorHasAuthorization,
 	connectorStatusFor,
