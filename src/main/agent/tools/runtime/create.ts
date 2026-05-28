@@ -160,7 +160,6 @@ export async function createAgentTools(
 		sender: options.sender,
 		stages: buildPolicyStages(options),
 		diagnostics,
-		policy: options.services?.policy,
 	});
 	const tools = prepareRuntimeTools(policyResult.tools, options, diagnostics);
 
@@ -278,7 +277,7 @@ function prepareRuntimeTools(
 	effective = effective.map((tool) =>
 		wrapToolWithBeforeToolCall(tool, {
 			...options.beforeToolCall,
-			policy: options.beforeToolCall?.policy ?? options.services?.policy,
+			policy: options.beforeToolCall?.policy,
 			signal: options.abortSignal,
 			loopDetector: tracker,
 			diagnostics,
