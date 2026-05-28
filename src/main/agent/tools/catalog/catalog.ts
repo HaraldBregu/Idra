@@ -1,11 +1,11 @@
 import type { AgentTool } from '../core/types';
 import {
 	AGENT_TOOL_METADATA_BY_NAME,
-	AGENT_TOOL_NAMES,
 	type AgentToolApprovalPolicy,
-	type AgentDefaultToolName,
+	type AgentToolName,
 	type AgentToolGroupName,
 	type AgentToolProfile,
+	AGENT_ALL_TOOL_NAMES,
 } from '../../../../shared/tools';
 import {
 	editFileTool,
@@ -19,6 +19,36 @@ import {
 	undoLastOperationTool,
 	writeFileTool,
 } from '../workspace/tools';
+import {
+	applyPatchTool,
+	copyTool,
+	deleteTool,
+	editTool,
+	filesystemCopyTool,
+	filesystemCreateTool,
+	filesystemDeleteTool,
+	filesystemListTool,
+	filesystemMoveTool,
+	filesystemReadTool,
+	filesystemSearchTool,
+	filesystemUpdateTool,
+	findTool,
+	inspectFileTool,
+	moveTool,
+	readTool,
+	writeTool,
+} from '../files/tools';
+import { scriptRunTool } from '../scripts/tools';
+import {
+	cronCreateTool,
+	cronDeleteTool,
+	cronListTool,
+	cronReadTool,
+	cronRunTool,
+	cronStartTool,
+	cronStopTool,
+	cronUpdateTool,
+} from '../cron/tools';
 import {
 	completeTaskTool,
 	listTodosTool,
@@ -56,7 +86,7 @@ export type LocalToolApprovalPolicy = AgentToolApprovalPolicy;
 type LocalToolImplementation = AgentTool<any, any>;
 
 export interface LocalToolCatalogEntry {
-	name: AgentDefaultToolName;
+	name: AgentToolName;
 	tool: LocalToolImplementation;
 	group: LocalToolGroup;
 	profiles: readonly LocalToolProfile[];
@@ -64,7 +94,7 @@ export interface LocalToolCatalogEntry {
 	ownerOnly?: boolean;
 }
 
-function localTool(name: AgentDefaultToolName, tool: LocalToolImplementation): LocalToolCatalogEntry {
+function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToolCatalogEntry {
 	const metadata = AGENT_TOOL_METADATA_BY_NAME[name];
 	const entry = {
 		name,
@@ -112,9 +142,35 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	read_mcp_resource: readMcpResourceTool,
 	list_mcp_prompts: listMcpPromptsTool,
 	load_mcp_prompt: loadMcpPromptTool,
-} as const satisfies Record<AgentDefaultToolName, LocalToolImplementation>;
+	read: readTool,
+	write: writeTool,
+	edit: editTool,
+	apply_patch: applyPatchTool,
+	delete: deleteTool,
+	copy: copyTool,
+	move: moveTool,
+	inspect_file: inspectFileTool,
+	find: findTool,
+	filesystem_create: filesystemCreateTool,
+	filesystem_list: filesystemListTool,
+	filesystem_read: filesystemReadTool,
+	filesystem_update: filesystemUpdateTool,
+	filesystem_delete: filesystemDeleteTool,
+	filesystem_move: filesystemMoveTool,
+	filesystem_copy: filesystemCopyTool,
+	filesystem_search: filesystemSearchTool,
+	script_run: scriptRunTool,
+	cron_create: cronCreateTool,
+	cron_read: cronReadTool,
+	cron_update: cronUpdateTool,
+	cron_delete: cronDeleteTool,
+	cron_list: cronListTool,
+	cron_start: cronStartTool,
+	cron_stop: cronStopTool,
+	cron_run: cronRunTool,
+} as const satisfies Record<AgentToolName, LocalToolImplementation>;
 
-export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
+export const LOCAL_TOOL_CATALOG = AGENT_ALL_TOOL_NAMES.map((name) =>
 	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
 ) as readonly LocalToolCatalogEntry[];
 
