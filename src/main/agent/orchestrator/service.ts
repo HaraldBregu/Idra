@@ -13,6 +13,7 @@ import type { Model, ModelReasoningEffort, OperatorStoreState, AgentRunState } f
 import type { AgentToolApprovalDecision } from '../../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../../shared/agents/models';
 import type { AgentSessionMetadata } from '../../../shared/store';
+import type { AgentConfig, AgentToolPermissionMode } from '../../../shared/store';
 import type { PublicProvider } from '../../../shared/providers';
 import { requireModelReasoningEffort } from '../../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../../provider/factory';
@@ -219,6 +220,7 @@ export class AgentService {
 			this.emitAgentEvent({ type: 'run_state', state: 'thinking', label: 'started' }, sessionId, runId, options);
 			this.emitAgentEvent({ type: 'model_selected', providerId: selection.providerId, model: selection.modelId, effort: selection.effort }, sessionId, runId, options);
 			await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, { message, agentId, sessionId });
+			const agentConfig = this.dependencies.agentSettings?.getAgentConfig(agentId);
 			const startup = this.getStartupFilesService();
 			const primarySession = sessionId === agentId;
 			const rawStartupFiles = options.lightContext ? [] : await startup.loadContextFiles(agentId).catch(() => []);
@@ -232,7 +234,7 @@ export class AgentService {
 				localTools,
 				connectors: this.dependencies.connectors,
 				skills: this.dependencies.skills,
-				configuredSkillNames: this.dependencies.agentSettings?.getAgentConfig(agentId)?.skills,
+				configuredSkillNames: agentConfig?.skills,
 				toolsAllow: options.toolsAllow,
 				toolsDeny: options.toolsDeny,
 			});
@@ -240,9 +242,14 @@ export class AgentService {
 				this.emitAgentEvent({ type: 'connector_status', ...status }, sessionId, runId, options);
 			}
 			const startupTool = createStartupFilesTool(startup, agentId);
+			const configuredTools = this.applyAgentToolPermissions(
+				this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow),
+				agentConfig
+			);
 			const allowedTools = bootstrapPending
 				? [startupTool]
-				: [...this.toolService.filterToolsByAllowlist(this.toolService.filterToolsByDenylist(capabilities.tools, options.toolsDeny), options.toolsAllow), startupTool];
+				: [...configuredTools, startupTool];
+			ctx.approvalRequired = this.agentToolApprovals(agentConfig, allowedTools);
 			this.emitAgentEvent({ type: 'capability_resolution_result', ...capabilities.summary }, sessionId, runId, options);
 			const result = await this.executionService.run({
 				runId,
@@ -289,6 +296,16 @@ export class AgentService {
 	private startupFilesForSession(files: WorkspaceContextFile[], primarySession: boolean): WorkspaceContextFile[] {
 		if (primarySession) return files;
 		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME && file.name !== DEFAULT_MEMORY_FILENAME);
+	}
+	private applyAgentToolPermissions(tools: AgentTool[], config: AgentConfig | undefined): AgentTool[] {
+		const permissions = config?.tools?.permissions;
+		if (!permissions) return tools;
+		return tools.filter((tool) => permissions[tool.name] !== 'deny');
+	}
+	private agentToolApprovals(config: AgentConfig | undefined, tools: AgentTool[]): Set<string> {
+		const permissions = config?.tools?.permissions;
+		const available = new Set(tools.map((tool) => tool.name));
+		return new Set(Object.entries(permissions ?? {}).flatMap(([name, mode]: [string, AgentToolPermissionMode]) => mode === 'ask' && available.has(name) ? [name] : []));
 	}
 	private resolveProviderAndModel(options: AgentSendOptions): { providerId: string; modelId: string; effort?: ModelReasoningEffort; adapter: ProviderAdapter } {
 		const configured = this.dependencies.store.getAgentService?.();
