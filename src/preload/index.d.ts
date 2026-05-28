@@ -152,6 +152,7 @@ export interface StoreApi {
 	getCronSettings: () => Promise<CronSettings>;
 	getTaskSettings: () => Promise<TaskSettings>;
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
+	setAgentRoutingSettings: (settings: AgentRoutingSettings) => Promise<AgentRoutingSettings>;
 	getConnectorSettings: () => Promise<ConnectorConfig[]>;
 	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
 	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
