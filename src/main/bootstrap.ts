@@ -18,10 +18,11 @@ import {
 	SubagentRunTaskHandler,
 	SubagentSpawnService,
 } from './agent';
-import { AgentDataDirectoryService } from './agent/storage';
+import { AgentDataDirectoryService, resolveDefaultAppDataPath } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
+import { AgentMcpClientService } from './agent/mcp-client';
 import { McpRegistry } from './agent/mcp';
 import { MonitorService } from './monitor';
 import { TasksService } from './tasks';
@@ -127,8 +128,10 @@ export function bootstrapServices(): BootstrapResult {
 
 	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
 
-	const connectors = container.register('connectors', new ConnectorsService(logger));
-	const mcpClient = container.register('mcpClient', connectors.getMcpClientService());
+	const connectors = container.register('connectors', new ConnectorsService(logger, {
+		storeCwd: resolveDefaultAppDataPath(),
+	}));
+	const mcpClient = container.register('mcpClient', new AgentMcpClientService(logger, connectors));
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
