@@ -265,6 +265,7 @@ function createService(client = createFakeMcpClient(), options: {
 	const mcpClient = new AgentMcpClientService(logger as never, service, {
 		mcpClientFactory: factory,
 	});
+	service.setToolRuntime(mcpClient);
 	const stores = MockStore.mock.results.slice(-1).map((result) => result.value as {
 		data: Map<string, unknown>;
 		get: jest.Mock;
