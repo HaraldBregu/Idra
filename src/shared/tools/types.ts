@@ -50,7 +50,7 @@ export const AGENT_TOOL_GROUP_METADATA = {
 		title: 'Filesystem delete tools',
 		description: 'Delete workspace files and directories.',
 	},
-	stateTask: {
+	task: {
 		title: 'State / task tools',
 		description: 'Track run-local todos, task completion, and scratch notes.',
 	},
