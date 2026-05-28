@@ -7,6 +7,20 @@ export {
 	type ConnectorToolServicePort,
 } from './service';
 export {
+	connectorAuthorization,
+	isConnectorToolRecord,
+	isStoredConnectorValid,
+	normalizeConnectorTool,
+	normalizeConnectorTools,
+	normalizeStoredConnector,
+	oauthAuthorizationHeader,
+	serverLabelFromName,
+	toStoredConnectorRecords,
+	tokenFromAuthorization,
+	uniqueConnectorStorageKey,
+	type RuntimeConnector,
+} from './format';
+export {
 	authorizationFromMcp,
 	connectorAuthKindFor,
 	connectorHasAuthorization,
