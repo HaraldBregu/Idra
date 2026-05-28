@@ -7,7 +7,6 @@ import type { McpRegistry } from './mcp';
 import type { AgentMcpClientServicePort } from './mcp-client';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
-import type { ConnectorsService } from '../connectors';
 import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
@@ -93,7 +92,6 @@ export interface AgentServiceDependencies {
 	userDataDirectory: UserDataDirectoryServicePort;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
-	connectors?: ConnectorsService;
 	mcpClient?: AgentMcpClientServicePort;
 	skills?: SkillsService;
 	mcpRegistry?: McpRegistry;
@@ -299,7 +297,6 @@ export class AgentService {
 		this.capabilityService =
 			options.capabilityService ??
 			new AgentCapabilityService({
-				connectors: dependencies.connectors,
 				mcpClient: dependencies.mcpClient,
 				skills: dependencies.skills,
 				logger: dependencies.logger,
