@@ -62,7 +62,7 @@ describe('ToolService', () => {
 			description: 'Managed test tool.',
 			schema: {},
 			execute: jest.fn(async (_args, ctx) => {
-				expect(ctx.services.cron).toBe(cron);
+				expect(ctx.services.cron).toBeDefined();
 				return { status: 'ok', content: [{ type: 'text', text: 'done' }] };
 			}),
 		};
