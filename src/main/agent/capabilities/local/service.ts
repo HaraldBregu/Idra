@@ -82,7 +82,7 @@ export class ToolService implements ToolServicePort {
 
 	filterToolsByAllowlist(tools: AgentTool[], allowlist: string[] | undefined): AgentTool[] {
 		if (!allowlist?.length) return tools;
-		const allowed = new Set(allowlist);
+		const allowed = new Set(this.expandAllowlist(allowlist));
 		return tools.filter((tool) => allowed.has(tool.name));
 	}
 

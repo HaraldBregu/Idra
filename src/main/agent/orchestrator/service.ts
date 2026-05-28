@@ -137,7 +137,7 @@ export class AgentService {
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.toolService = options.toolService ?? dependencies.toolService ?? new ToolService({ cron: dependencies.cron, logger: dependencies.logger });
 		this.executionService = options.executionService ?? new AgentExecutionService(this.toolService);
-		this.toolsFactory = options.toolsFactory ?? ((ctx) => this.toolService.createDefaultTools({ denylist: ctx.toolsDeny }));
+		this.toolsFactory = options.toolsFactory ?? ((ctx) => this.toolService.createDefaultTools({ toolPolicy: { allow: ctx.toolsAllow }, denylist: ctx.toolsDeny }));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 	}

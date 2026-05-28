@@ -88,5 +88,5 @@ function connectorToolToAgentTool(tool: ConnectorExecutableTool, connectors: Pic
 function filterTools(tools: AgentTool[], allow: readonly string[] | undefined, deny: readonly string[] | undefined): AgentTool[] {
 	const denied = new Set(deny ?? []);
 	const allowed = allow?.length ? new Set(allow) : undefined;
-	return tools.filter((tool) => !denied.has(tool.name) && (!allowed || allowed.has(tool.name) || allow?.some((entry) => entry.startsWith('group:'))));
+	return tools.filter((tool) => !denied.has(tool.name) && (!allowed || allowed.has(tool.name) || allow?.some((entry) => entry.startsWith('group:') && tool.serviceKind !== 'connector')));
 }
