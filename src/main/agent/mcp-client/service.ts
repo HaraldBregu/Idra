@@ -7,9 +7,6 @@ import type {
 	ConnectorTool,
 	ConnectorToolPermission,
 } from '../../../shared/connector';
-import type { JSONSchema } from '../../provider/types';
-import type { AgentTool } from '../tools/core/types';
-import { textResult } from '../tools/core/types';
 import {
 	connectorAuthKindFor,
 	connectorHasAuthorization,
@@ -152,34 +149,6 @@ export class AgentMcpClientService implements AgentMcpClientServicePort {
 			readConnectorToolArguments(args),
 			readConnectorCallToolOptions(options)
 		);
-	}
-
-	createAgentTools(): AgentTool[] {
-		return this.connectors.listConnectorsForMcp()
-			.filter((connector) => connector.enabled !== false && connectorStatusFor(connector) === 'configured')
-			.flatMap((connector) =>
-				connector.tools.filter((tool) => tool.permission !== 'blocked').map((tool) => {
-					const connectorId = connector.id ?? connector.connectorId ?? connector.serverLabel ?? connectorName(connector);
-					const rawToolName = tool.name;
-					return {
-						name: agentToolNameFor(connector, rawToolName),
-						displayName: connectorName(connector) + ': ' + rawToolName,
-						description: connectorName(connector) + ': ' + (tool.description ?? 'Run ' + rawToolName + '.'),
-						schema: schemaForTool(tool),
-						serviceKind: 'connector',
-						serviceId: connectorId,
-						needsApproval: tool.permission === 'needs-approval' ? () => true : false,
-						execute: async (toolArgs: unknown) => {
-							try {
-								const payload = await this.callTool(connectorId, rawToolName, toolArgs);
-								return textResult(JSON.stringify(payload, null, 2));
-							} catch (error) {
-								return textResult(error instanceof Error ? error.message : String(error), true);
-							}
-						},
-					} satisfies AgentTool;
-				})
-			);
 	}
 
 	async refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig> {
@@ -346,19 +315,6 @@ function permissionForTool(connector: ConnectorConfig, toolName: string): Connec
 	if (connector.requireApproval === 'never') return 'always-allow';
 	if (connector.requireApproval === 'never_for_allowed_tools' && allowedTools.includes(toolName)) return 'always-allow';
 	return 'needs-approval';
-}
-
-function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
-	return ((connector.serverLabel ?? connector.id ?? connector.connectorId ?? connectorName(connector)) + '_' + toolName)
-		.toLowerCase()
-		.replace(/[^a-z0-9_]+/g, '_')
-		.replace(/^_+|_+$/g, '');
-}
-
-function schemaForTool(tool: ConnectorTool): AgentTool['schema'] {
-	const schema = tool.inputSchema;
-	if (schema && typeof schema === 'object' && !Array.isArray(schema)) return schema as JSONSchema;
-	return { type: 'object', properties: {}, additionalProperties: true };
 }
 
 function connectorName(connector: ConnectorConfig): string {
