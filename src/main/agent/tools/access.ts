@@ -161,10 +161,12 @@ export function evaluateToolAccess(
 		const allow = expandToolEntries(rule.allow, index, warnings, stage);
 		const alsoAllow = expandToolEntries(rule.alsoAllow, index, warnings, stage);
 		const deny = expandToolEntries(rule.deny, index, warnings, stage);
-		const grant = unionSets(allow, alsoAllow);
 
-		if (grant !== undefined) {
+		if (allow !== undefined) {
+			const grant = unionSets(allow, alsoAllow) ?? new Set<string>();
 			current = new Set([...current].filter((name) => grant.has(name)));
+		} else if (alsoAllow !== undefined) {
+			current = unionSets(current, alsoAllow) ?? current;
 		}
 		if (deny && deny.size > 0) {
 			current = new Set([...current].filter((name) => !deny.has(name)));
