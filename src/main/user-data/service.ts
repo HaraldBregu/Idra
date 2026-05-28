@@ -73,6 +73,16 @@ export function resolveDefaultUserDataPath(...segments: string[]): string {
 	return new UserDataDirectoryService().resolve(...segments);
 }
 
+export function resolveAppDataPath(...segments: string[]): string {
+	let base: string;
+	try {
+		base = app.getPath('userData');
+	} catch {
+		base = path.join(process.env.HOME ?? process.cwd(), '.friday');
+	}
+	return path.join(base, ...segments);
+}
+
 function resolveHomePath(): string {
 	try {
 		return app.getPath('home');
