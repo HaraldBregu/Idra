@@ -37,34 +37,9 @@ export const AGENT_TOOL_APPROVAL_ALWAYS = { mode: 'always' } as const;
 export const AGENT_TOOL_PROFILES = ['minimal', 'coding', 'messaging', 'standard', 'full'] as const;
 export const AGENT_TOOL_STANDARD_PROFILES = ['coding', 'standard', 'full'] as const;
 
-export const AGENT_TOOL_GROUP_METADATA = {
-	'filesystem:read': {
-		title: 'Filesystem read tools',
-		description: 'List, read, inspect, search, diff, and resolve workspace paths.',
-	},
-	'filesystem:write': {
-		title: 'Filesystem write tools',
-		description: 'Create, overwrite, append, edit, copy, move, and patch workspace paths.',
-	},
-	'filesystem:delete': {
-		title: 'Filesystem delete tools',
-		description: 'Delete workspace files and directories.',
-	},
-	task: {
-		title: 'State / task tools',
-		description: 'Track run-local todos, task completion, and scratch notes.',
-	},
-	cron: {
-		title: 'Cron tools',
-		description: 'Create, read, update, delete, pause, resume, and run scheduled jobs.',
-	},
-} as const;
-
-export type AgentToolGroupName = keyof typeof AGENT_TOOL_GROUP_METADATA;
-
 export interface AgentToolMetadata {
 	name: string;
-	group: AgentToolGroupName;
+	group: string;
 	title: string;
 	description: string;
 	permissions: readonly AgentToolPermission[];
