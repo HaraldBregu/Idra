@@ -4,7 +4,6 @@ import type {
 	ConnectorTestResult,
 	ConnectorTool,
 } from '../../../shared/connector';
-import type { AgentTool } from '../tools/core/types';
 
 export interface ConnectorMcpClient {
 	listTools(options?: ConnectorCallToolOptions): Promise<ConnectorTool[]>;
@@ -39,7 +38,6 @@ export interface AgentMcpClientServicePort {
 	readResource(id: unknown, uri: unknown, options?: unknown): Promise<unknown>;
 	listPrompts(id: unknown, options?: unknown): Promise<unknown>;
 	getPrompt(id: unknown, name: unknown, args?: unknown, options?: unknown): Promise<unknown>;
-	createAgentTools(): AgentTool[];
 	refreshConnectorToolsIfConfigured(connector: ConnectorConfig): Promise<ConnectorConfig>;
 	closeConnector(id: string): Promise<void>;
 	close(): Promise<void>;
