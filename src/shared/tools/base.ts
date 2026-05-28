@@ -1,34 +1,7 @@
 import type { AgentToolMetadata } from './types';
-import {
-	AGENT_TOOL_APPROVAL_NONE,
-	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-	AGENT_TOOL_STANDARD_PROFILES,
-} from './types';
 
-const DEFAULT_TOOL_PROFILES = AGENT_TOOL_STANDARD_PROFILES;
-
-type ToolMetadataInput = Omit<AgentToolMetadata, 'permissions' | 'approval' | 'profiles' | 'availability'> & {
-	permissions?: AgentToolMetadata['permissions'];
-	approval?: AgentToolMetadata['approval'];
-	profiles?: AgentToolMetadata['profiles'];
-	availability?: AgentToolMetadata['availability'];
-};
-
-const DEFAULT_WRITE_TOOL_METADATA: Pick<
-	AgentToolMetadata,
-	'permissions' | 'approval' | 'profiles' | 'availability'
-> = {
-	permissions: ['create', 'write'],
-	approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-	profiles: DEFAULT_TOOL_PROFILES,
-	availability: 'default',
-};
-
-function tool<TName extends string>(metadata: ToolMetadataInput & { name: TName }) {
-	return {
-		...DEFAULT_WRITE_TOOL_METADATA,
-		...metadata,
-	} as AgentToolMetadata;
+function tool<TName extends string>(metadata: AgentToolMetadata & { name: TName }) {
+	return metadata;
 }
 
 export const AGENT_TOOL_FILESYSTEM_READ_TOOLS = [
@@ -37,80 +10,48 @@ export const AGENT_TOOL_FILESYSTEM_READ_TOOLS = [
 		group: 'filesystem:read',
 		title: 'List directory',
 		description: 'List files and directories under a workspace path.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'read_file',
 		group: 'filesystem:read',
 		title: 'Read file',
 		description: 'Read a UTF-8 workspace file with optional line offset and limit.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'stat_path',
 		group: 'filesystem:read',
 		title: 'Stat path',
 		description: 'Return metadata for a workspace path.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'search_files',
 		group: 'filesystem:read',
 		title: 'Search files',
 		description: 'Find workspace paths by name, substring, or wildcard pattern.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'grep_files',
 		group: 'filesystem:read',
 		title: 'Grep files',
 		description: 'Search UTF-8 workspace file contents.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'read_diff',
 		group: 'filesystem:read',
 		title: 'Read diff',
 		description: 'Read Git diff output for workspace changes.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'get_workspace_root',
 		group: 'filesystem:read',
 		title: 'Get workspace root',
 		description: 'Return the absolute workspace root.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 	tool({
 		name: 'resolve_path',
 		group: 'filesystem:read',
 		title: 'Resolve path',
 		description: 'Resolve a workspace-relative path and report whether it exists.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 ] as const;
 
@@ -165,10 +106,6 @@ export const AGENT_TOOL_FILESYSTEM_DELETE_TOOLS = [
 		group: 'filesystem:delete',
 		title: 'Delete path',
 		description: 'Delete a workspace file or directory.',
-		permissions: ['delete'],
-		approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
 	}),
 ] as const;
 
