@@ -13,6 +13,7 @@ const LOCAL_WRITE_RE = /\b(create|write|update|edit|change|modify|delete|remove|
 const LOCAL_CONTEXT_RE = /\b(file|files|folder|folders|directory|directories|path|workspace|repo|repository|project|code|implementation|diff|todo|task|cron|schedule|reminder)\b/i;
 const CONNECTOR_RE = /\b(mcp|connector|github|gitlab|jira|linear|slack|discord|notion|calendar|gmail|email|drive|figma|database|issue|issues|pull request|pr)\b/i;
 const CONNECTOR_ACTION_RE = /\b(read|list|show|find|search|get|fetch|create|write|update|edit|comment|post|send|open|close|assign|schedule)\b/i;
+const STARTUP_FILES_RE = /\b(call me|my name|your name|remember|forget|identity|soul|bootstrap|startup|system prompt|memory)\b/i;
 
 export function resolveAgentIntentRoute(message: string): AgentIntentRoute {
 	const text = message.trim();
@@ -41,4 +42,8 @@ export function resolveAgentIntentRoute(message: string): AgentIntentRoute {
 export function selectLocalToolsForIntent(tools: AgentTool[], route: AgentIntentRoute): AgentTool[] {
 	if (!route.useLocalTools) return [];
 	return tools;
+}
+
+export function shouldExposeStartupFilesTool(message: string): boolean {
+	return STARTUP_FILES_RE.test(message);
 }
