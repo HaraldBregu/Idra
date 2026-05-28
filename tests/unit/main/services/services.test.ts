@@ -2,6 +2,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app } from 'electron';
 import { ConnectorsService } from '../../../../src/main/connectors';
+import { AgentMcpClientService } from '../../../../src/main/agent/mcp-client';
 import { LoggerService, LogLevel } from '../../../../src/main/logger';
 import { WorkspaceService } from '../../../../src/main/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent';
@@ -49,6 +50,10 @@ describe('connectors service', () => {
 				},
 			]),
 			callTool: jest.fn(async (name: string, args: Record<string, unknown>) => ({ name, args })),
+			listResources: jest.fn(async () => []),
+			readResource: jest.fn(async () => ({})),
+			listPrompts: jest.fn(async () => []),
+			getPrompt: jest.fn(async () => ({})),
 			close: jest.fn(async () => undefined),
 		};
 	}
@@ -64,6 +69,8 @@ describe('connectors service', () => {
 		const client = fakeMcpClient();
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
+		});
+		const mcpClient = new AgentMcpClientService(makeLogger() as never, service, {
 			mcpClientFactory: jest.fn(() => client),
 		});
 		const added = await service.add({
@@ -74,6 +81,7 @@ describe('connectors service', () => {
 			requireApproval: 'never_for_allowed_tools',
 			mcp: { transport: 'http', url: 'https://mcp.example.test/mcp' },
 		});
+		await mcpClient.refreshTools(added.id);
 
 		expect(added.serverLabel).toBe('remote_gmail');
 		expect(added.authorization).toBe('');
@@ -91,14 +99,14 @@ describe('connectors service', () => {
 			toolsCount: 2,
 			authKind: 'mcp_env',
 		});
-		expect(await service.test(added.id)).toMatchObject({ status: 'configured' });
-		await expect(service.callTool(added.id, 'search', { query: 'report' })).resolves.toEqual({
+		expect(await mcpClient.test(added.id)).toMatchObject({ status: 'configured' });
+		await expect(mcpClient.callTool(added.id, 'search', { query: 'report' })).resolves.toEqual({
 			name: 'search',
 			args: { query: 'report' },
 		});
 		const updated = await service.disable(added.id);
 		expect(updated.enabled).toBe(false);
-		expect(await service.test(added.id)).toMatchObject({ status: 'disabled' });
+		expect(await mcpClient.test(added.id)).toMatchObject({ status: 'disabled' });
 		await service.remove(added.id);
 		expect(service.list()).toEqual([]);
 	});
@@ -113,7 +121,6 @@ describe('connectors service', () => {
 		);
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
-			mcpClientFactory: jest.fn(() => fakeMcpClient()),
 		});
 
 		await service.add({
@@ -176,6 +183,8 @@ describe('connectors service', () => {
 		const client = fakeMcpClient();
 		const service = new ConnectorsService(makeLogger() as never, {
 			store: store as never,
+		});
+		const mcpClient = new AgentMcpClientService(makeLogger() as never, service, {
 			mcpClientFactory: jest.fn(() => client),
 		});
 		const added = await service.add({
@@ -191,7 +200,7 @@ describe('connectors service', () => {
 
 		expect(client.listTools).not.toHaveBeenCalled();
 		expect(service.list()[0]).toMatchObject({ status: 'missing_auth' });
-		await expect(service.refreshTools(added.id)).rejects.toThrow('REMOTE_MCP_API_KEY');
+		await expect(mcpClient.refreshTools(added.id)).rejects.toThrow('REMOTE_MCP_API_KEY');
 	});
 });
 
