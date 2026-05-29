@@ -358,7 +358,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 			let text = '';
 			const blocks: AgentContentBlock[] = [];
 			const reasoningBlocks: AgentContentBlock[] = [];
-			const pending = new Map<string, { name: string; argsStr: string }>();
+			const pending = new Map<string, { name: string; argsStr: string; tool?: AgentTool }>();
 			let turnStop = 'end_turn';
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 			let reasoningStarted = false;
@@ -414,8 +414,8 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 							streamEvent?.({ type: 'text_delta', delta: event.text });
 							break;
 						case 'tool_call_start': {
-							pending.set(event.id, { name: event.name, argsStr: '' });
 							const tool = toolsForPrompt.find((entry) => entry.name === event.name) ?? tools.find((entry) => entry.name === event.name);
+							pending.set(event.id, { name: event.name, argsStr: '', tool });
 							streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
 							streamEvent?.({
 								type: 'tool_call_start',
@@ -438,6 +438,10 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 									iteration: iter,
 									toolCallId: event.id,
 									toolName: t.name,
+									name: t.name,
+									displayName: t.tool ? toolDisplayName(t.tool) : undefined,
+									serviceKind: t.tool ? toolServiceKind(t.tool) : 'tool',
+									serviceId: t.tool?.serviceId,
 									jsonDelta: event.jsonDelta,
 									argsText: t.argsStr,
 								});
@@ -452,6 +456,10 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 									iteration: iter,
 									toolCallId: event.id,
 									toolName: t.name,
+									name: t.name,
+									displayName: t.tool ? toolDisplayName(t.tool) : undefined,
+									serviceKind: t.tool ? toolServiceKind(t.tool) : 'tool',
+									serviceId: t.tool?.serviceId,
 									input: parseToolArgs(t.argsStr, { __unparsed: t.argsStr }),
 									argsText: t.argsStr,
 								});
