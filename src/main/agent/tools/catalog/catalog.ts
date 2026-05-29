@@ -3,10 +3,23 @@ import {
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_NAMES,
 	type AgentToolApprovalPolicy,
-	type AgentDefaultToolName,
+	type AgentToolName,
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../../shared/tools';
+import {
+	applyPatchTool,
+	copyTool,
+	deleteTool,
+	editTool,
+	filesystemCreateTool,
+	filesystemListTool,
+	findTool,
+	inspectFileTool,
+	moveTool,
+	readTool,
+	writeTool,
+} from '../files/tools';
 import {
 	editFileTool,
 	gitDiffTool,
@@ -49,6 +62,10 @@ import {
 } from '../mcp/tools';
 import { webFetchTool } from '../web/tools';
 import { openBrowserTool } from '../app/tools';
+import { browserTool } from '../../../browser';
+import { execTool, processTool } from '../exec/tools';
+import { cronTool } from '../cron/tools';
+import { taskTool } from '../task/tools';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
@@ -58,7 +75,7 @@ export type LocalToolApprovalPolicy = AgentToolApprovalPolicy;
 type LocalToolImplementation = AgentTool<any, any>;
 
 export interface LocalToolCatalogEntry {
-	name: AgentDefaultToolName;
+	name: AgentToolName;
 	tool: LocalToolImplementation;
 	group: LocalToolGroup;
 	profiles: readonly LocalToolProfile[];
@@ -66,7 +83,7 @@ export interface LocalToolCatalogEntry {
 	ownerOnly?: boolean;
 }
 
-function localTool(name: AgentDefaultToolName, tool: LocalToolImplementation): LocalToolCatalogEntry {
+function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToolCatalogEntry {
 	const metadata = AGENT_TOOL_METADATA_BY_NAME[name];
 	const entry = {
 		name,
@@ -87,6 +104,19 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	search_files: searchFilesTool,
 	grep: grepTool,
 	run_shell: runShellTool,
+	read: readTool,
+	write: writeTool,
+	edit: editTool,
+	apply_patch: applyPatchTool,
+	delete: deleteTool,
+	copy: copyTool,
+	move: moveTool,
+	inspect_file: inspectFileTool,
+	find: findTool,
+	exec: execTool,
+	process: processTool,
+	filesystem_create: filesystemCreateTool,
+	filesystem_list: filesystemListTool,
 	git_status: gitStatusTool,
 	git_diff: gitDiffTool,
 	undo_last_operation: undoLastOperationTool,
@@ -94,6 +124,7 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	update_todo: updateTodoTool,
 	list_todos: listTodosTool,
 	complete_task: completeTaskTool,
+	task: taskTool,
 	write_scratch: writeScratchTool,
 	read_scratch: readScratchTool,
 	request_approval: requestApprovalTool,
@@ -116,7 +147,9 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	load_mcp_prompt: loadMcpPromptTool,
 	web_fetch: webFetchTool,
 	open_browser: openBrowserTool,
-} as const satisfies Record<AgentDefaultToolName, LocalToolImplementation>;
+	browser: browserTool,
+	cron: cronTool,
+} as const satisfies Record<(typeof AGENT_TOOL_NAMES)[number], LocalToolImplementation>;
 
 export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
 	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
