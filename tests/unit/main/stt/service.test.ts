@@ -216,6 +216,34 @@ describe('SpeechToTextService', () => {
 		expect(getProvider).toHaveBeenCalledWith('openai');
 	});
 
+	it('stores and reads the selected provider/model through StoreService', () => {
+		const store = new StoreService();
+		storeFor(store).set('providers', [openaiProvider]);
+		const service = new SpeechToTextService({ store, adapters: [] });
+
+		expect(
+			service.setOperator(openaiProvider.id, {
+				id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+				name: 'Ignored local name',
+			})
+		).toBe(true);
+
+		expect(service.getSettings()).toEqual({
+			providerId: openaiProvider.id,
+			modelId: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+		});
+		expect(service.getOperator()).toMatchObject({
+			model: {
+				id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
+				name: 'GPT-4o Mini Transcribe',
+			},
+			provider: {
+				id: openaiProvider.id,
+				name: openaiProvider.name,
+			},
+		});
+	});
+
 	it('closes active sessions when the owner is destroyed or the service is destroyed', async () => {
 		const store = new StoreService();
 		configureSpeechToText(store);
