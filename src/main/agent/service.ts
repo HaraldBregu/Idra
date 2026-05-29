@@ -19,7 +19,6 @@ import {
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
 } from '../workspace';
-import { assertWorkspaceFileName, type WorkspaceFileName } from '../workspace/files';
 import type { UserDataDirectoryServicePort } from '../user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
@@ -76,6 +75,7 @@ import {
 	type ToolContext,
 	type ToolServicePort,
 } from './tools';
+import { createStartupFilesTool } from './tools/startup/tools';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
@@ -216,32 +216,6 @@ function recordPhase<T>(durations: Record<string, number>, name: string, work: (
 	} finally {
 		durations[name] = Date.now() - start;
 	}
-}
-
-function startupToolText(text: string, isError = false): ReturnType<AgentTool['execute']> {
-	return Promise.resolve({
-		status: isError ? 'error' : 'ok',
-		content: [{ type: 'text', text }],
-	});
-}
-
-function requireStartupFileName(value: unknown): WorkspaceFileName {
-	if (typeof value !== 'string') throw new Error('name is required.');
-	assertWorkspaceFileName(value);
-	return value;
-}
-
-function startupFileWrites(args: Record<string, unknown>): Array<[WorkspaceFileName, string]> {
-	if (args.files && typeof args.files === 'object' && !Array.isArray(args.files)) {
-		return Object.entries(args.files).map(([name, content]) => {
-			assertWorkspaceFileName(name);
-			if (typeof content !== 'string') throw new Error(`${name} content must be a string.`);
-			return [name, content];
-		});
-	}
-	const name = requireStartupFileName(args.name);
-	if (typeof args.content !== 'string') throw new Error('content is required.');
-	return [[name, args.content]];
 }
 
 async function recordAsyncPhase<T>(
