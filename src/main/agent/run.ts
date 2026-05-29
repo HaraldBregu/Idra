@@ -702,6 +702,10 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 	};
 }
 
+export function runAgent(input: AgentRunInput): Promise<AgentRunResult> {
+	return executeAgentRun(input);
+}
+
 function unknownTool(name: string): AgentTool {
 	return {
 		name,
