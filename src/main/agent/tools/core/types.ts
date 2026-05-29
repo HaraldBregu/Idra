@@ -27,7 +27,6 @@ export interface FridayServices {
 	taskManager?: TasksService;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
-	mcpRegistry?: McpRegistry;
 }
 
 export type CronToolContext =
