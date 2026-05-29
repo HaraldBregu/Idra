@@ -1103,55 +1103,7 @@ export class AgentService {
 	}
 
 	private createStartupFilesTool(agentId: string): AgentTool {
-		const startupFiles = this.getStartupFilesService();
-		return {
-			name: 'startup_files',
-			description:
-				'Read, update, or complete Friday startup files during first-run bootstrap. Use complete_bootstrap only after the needed startup files are written.',
-			schema: {
-				type: 'object',
-				properties: {
-					operation: {
-						type: 'string',
-						enum: ['read', 'write', 'complete_bootstrap'],
-					},
-					name: { type: 'string' },
-					content: { type: 'string' },
-					files: {
-						type: 'object',
-						additionalProperties: { type: 'string' },
-					},
-				},
-				required: ['operation'],
-				additionalProperties: false,
-			},
-			execute: async (args) => {
-				try {
-					const operation = typeof args.operation === 'string' ? args.operation : '';
-					if (operation === 'read') {
-						const name = requireStartupFileName(args.name);
-						const file = await startupFiles.readFile(agentId, name);
-						return startupToolText(file.content ?? '');
-					}
-					if (operation === 'write') {
-						const writes = startupFileWrites(args);
-						const written: WorkspaceFileName[] = [];
-						for (const [name, content] of writes) {
-							await startupFiles.writeFile(agentId, name, content);
-							written.push(name);
-						}
-						return startupToolText(`updated ${written.join(', ')}`);
-					}
-					if (operation === 'complete_bootstrap') {
-						await startupFiles.completeBootstrap(agentId);
-						return startupToolText('bootstrap completed');
-					}
-					return startupToolText('startup_files: unsupported operation', true);
-				} catch (error) {
-					return startupToolText(`startup_files: ${(error as Error).message}`, true);
-				}
-			},
-		};
+		return createStartupFilesTool(agentId, this.getStartupFilesService());
 	}
 
 	private filterStartupFilesForRun(
