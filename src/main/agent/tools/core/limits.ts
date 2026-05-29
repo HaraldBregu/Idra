@@ -27,6 +27,11 @@ export const TOOL_LIMITS = {
 		defaultLimit: 1_000,
 		maxLimit: 10_000,
 	},
+	webFetch: {
+		maxResponseBytes: 1024 * 1024,
+		rateLimitCalls: 20,
+		rateLimitWindowMs: 60_000,
+	},
 	workspaceList: {
 		defaultDepth: 2,
 		maxDepth: 8,
