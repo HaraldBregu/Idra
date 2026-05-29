@@ -23,6 +23,7 @@ Before implementing:
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
 - Use established design patterns when they prevent tangled control flow or repeated ad hoc logic; don't add patterns preemptively.
+- Default to a module-based file structure. Split code into separate files when responsibilities diverge, and move any function or component reused by multiple modules into its own shared file.
 - Implement one function per file maximum.
 - Use a one-word filename in 99% of cases; use longer names only when existing conventions or clarity require it.
 - If you write 200 lines and it could be 50, rewrite it.
