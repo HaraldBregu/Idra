@@ -3,7 +3,7 @@ import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
 import { toolDescription } from '../metadata';
 
-export const webFetchTool: AgentTool<{ url: string }, { status: number; url: string }> = {
+export const webFetchTool: AgentTool<{ url: string }> = {
 	name: 'web_fetch',
 	description: toolDescription('web_fetch'),
 	schema: {
