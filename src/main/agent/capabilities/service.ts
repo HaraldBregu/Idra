@@ -38,6 +38,15 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			type: 'capability_resolution_result',
 			tools: input.localTools.map((tool) => tool.name),
 			connectorTools: connectorTools.map((tool) => tool.name),
+			mcpTools: connectorTools
+				.filter((tool) => tool.serviceKind === 'mcp')
+				.map((tool) => tool.name),
+			services: tools.map((tool) => ({
+				name: tool.name,
+				displayName: tool.displayName,
+				serviceKind: tool.serviceKind ?? 'tool',
+				serviceId: tool.serviceId,
+			})),
 			skills: skills.map(({ name, reason }) => ({ name, reason })),
 			directAnswer,
 			decision,
@@ -58,7 +67,7 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 		try {
 			const tools = this.options.connectors.createAgentTools().map((tool) => ({
 				...tool,
-				serviceKind: 'connector' as const,
+				serviceKind: tool.serviceKind ?? ('connector' as const),
 			}));
 			return tools.filter((tool) => matchesPrompt(input.userMessage, [tool.name, tool.description]));
 		} catch (error) {
