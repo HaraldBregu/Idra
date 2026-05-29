@@ -124,8 +124,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
-	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
-
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
