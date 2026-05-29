@@ -456,6 +456,29 @@ const DEFAULT_MCP_CONNECTOR_TOOLS = [
 	}),
 ] as const;
 
+const DEFAULT_WEB_TOOLS = [
+	tool({
+		name: 'web_fetch',
+		group: 'web',
+		title: 'Fetch web page',
+		description: 'Fetch an HTTP or HTTPS URL and return readable text capped at 1 MB.',
+		permissions: ['read'],
+		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	}),
+	tool({
+		name: 'open_browser',
+		group: 'web',
+		title: 'Open browser',
+		description: "Open an HTTP or HTTPS URL in the user's default browser.",
+		permissions: ['read'],
+		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	}),
+] as const;
+
 const OPTIONAL_SCRIPT_TOOLS = [
 	tool({
 		name: 'script_run',
