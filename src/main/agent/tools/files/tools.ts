@@ -194,6 +194,54 @@ export const writeTool: AgentTool<WriteArgs> = {
 	},
 };
 
+export const filesystemCreateTool: AgentTool<{
+	path: string;
+	content?: string;
+	directory?: boolean;
+}> = {
+	name: 'filesystem_create',
+	description: 'Create a UTF-8 file or directory.',
+	schema: {
+		type: 'object',
+		properties: {
+			path: { type: 'string' },
+			content: { type: 'string' },
+			directory: { type: 'boolean' },
+		},
+		required: ['path'],
+		additionalProperties: false,
+	},
+	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['create']),
+	async execute(args, ctx) {
+		if (ctx.fsPolicy?.readOnly) {
+			return textResult('filesystem_create: disabled by read-only filesystem policy.', true);
+		}
+		let abs: string;
+		try {
+			abs = resolveAbs(ctx.workspace, args.path);
+		} catch (err) {
+			return textResult(`filesystem_create: ${(err as Error).message}`, true);
+		}
+		const restricted = checkFsRestriction(ctx, abs, 'filesystem_create', true);
+		if (restricted) return textResult(restricted, true);
+		const denied = checkFilePolicy(ctx, 'filesystem_create', [{ path: abs, permission: 'create' }]);
+		if (denied) return textResult(denied, true);
+		try {
+			if (args.directory) {
+				await fs.mkdir(abs, { recursive: true });
+				return textResult(`created directory ${abs}`);
+			}
+			await fs.mkdir(path.dirname(abs), { recursive: true });
+			await fs.writeFile(abs, args.content ?? '', { encoding: 'utf8', flag: 'wx' });
+			const after = await fs.stat(abs);
+			ctx.readState.set(abs, snapshot(after));
+			return textResult(`created ${abs} (${after.size} bytes)`);
+		} catch (err) {
+			return textResult(`filesystem_create: ${(err as Error).message}`, true);
+		}
+	},
+};
+
 interface EditArgs {
 	path: string;
 	old: string;
