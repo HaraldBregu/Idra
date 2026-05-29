@@ -47,9 +47,9 @@ import {
 import { AgentRunLogger, type RunLogFinish, type TokenUsage } from '../run-logger';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
 import {
-	AgentStartupFilesService,
+	AgentWorkspaceService,
 	type AgentStartupFilesServicePort,
-} from './startup-files';
+} from './workspace';
 import type { AgentSettingsStorePort } from './settings';
 import {
 	type AgentRunState,
