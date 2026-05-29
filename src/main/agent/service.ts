@@ -348,6 +348,25 @@ export class AgentService {
 		return this.getWorkspaceService().readFile(agentId, name);
 	}
 
+	listStartupFiles(agentId: string): ReturnType<AgentStartupFilesServicePort['listFiles']> {
+		return this.getWorkspaceService().listFiles(agentId);
+	}
+
+	readStartupFile(
+		agentId: string,
+		name: string
+	): ReturnType<AgentStartupFilesServicePort['readFile']> {
+		return this.getWorkspaceService().readFile(agentId, name);
+	}
+
+	writeStartupFile(
+		agentId: string,
+		name: string,
+		content: string
+	): ReturnType<AgentStartupFilesServicePort['writeFile']> {
+		return this.getWorkspaceService().writeFile(agentId, name, content);
+	}
+
 	getHeartbeatChannel(): ReturnType<ChannelsService['getChannel']> | undefined {
 		return this.dependencies.channels?.getChannel();
 	}
