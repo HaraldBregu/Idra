@@ -605,10 +605,10 @@ export class AgentService {
 			};
 			let selectedTools: AgentTool[] = [];
 			let baseTools: AgentTool[] = [];
-			if (bootstrapPending || toolPolicy.shouldUseTools) {
-				baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
-					Promise.resolve(
-						this.toolsFactory({
+				if (bootstrapPending || toolPolicy.shouldUseTools || heartbeatOptions?.enableHeartbeatTool) {
+					baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
+						Promise.resolve(
+							this.toolsFactory({
 							agentId,
 							runId,
 							providerId,
@@ -621,12 +621,18 @@ export class AgentService {
 							toolPolicy: agentConfig?.tools,
 							toolsAllow: options.toolsAllow,
 							toolsDeny: options.toolsDeny,
-						})
-					)
-				);
-				if (!this.usesDefaultToolsFactory || options.toolsAllow) {
-					baseTools = this.toolService.filterToolsByAllowlist(
-						baseTools,
+							})
+						)
+					);
+					if (heartbeatOptions?.enableHeartbeatTool) {
+						baseTools = [
+							...baseTools,
+							createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
+						];
+					}
+					if (!this.usesDefaultToolsFactory || options.toolsAllow) {
+						baseTools = this.toolService.filterToolsByAllowlist(
+							baseTools,
 						options.toolsAllow,
 						this.dependencies.policy
 					);
@@ -682,9 +688,15 @@ export class AgentService {
 										maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
 									})
 								)
-				);
-				selectedTools = toolSelection.toolsForPrompt;
-			}
+					);
+					selectedTools = toolSelection.toolsForPrompt;
+					if (heartbeatOptions?.forceHeartbeatTool) {
+						const heartbeatTool = baseTools.find((tool) => tool.name === 'heartbeat_respond');
+						if (heartbeatTool && !selectedTools.some((tool) => tool.name === heartbeatTool.name)) {
+							selectedTools = [...selectedTools, heartbeatTool];
+						}
+					}
+				}
 			selectedTools = this.toolService.prepareToolsForProvider(selectedTools, ctx, {
 				provider: providerId,
 				modelId: model,
