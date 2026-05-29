@@ -1,4 +1,4 @@
-import type { HeartbeatWakeIntent, HeartbeatWakeSource } from '../../shared/heartbeat';
+import type { HeartbeatWakeIntent, HeartbeatWakeSource } from '../../../shared/heartbeat';
 
 export const DEFAULT_MIN_WAKE_SPACING_MS = 30_000;
 export const DEFAULT_FLOOD_WINDOW_MS = 60_000;

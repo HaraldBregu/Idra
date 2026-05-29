@@ -3,7 +3,7 @@ import type {
 	AgentHeartbeatConfig,
 	AgentsHeartbeatConfig,
 	HeartbeatStoreState,
-} from '../../shared/heartbeat';
+} from '../../../shared/heartbeat';
 
 const HEARTBEAT_STORE_VERSION = 1;
 const CLEARABLE_HEARTBEAT_CONFIG_KEYS = [

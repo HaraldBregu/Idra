@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import os from 'node:os';
 import { isWithinActiveHours } from './active-hours';
-import type { AgentHeartbeatConfig } from '../../shared/heartbeat';
+import type { AgentHeartbeatConfig } from '../../../shared/heartbeat';
 
 const MAX_TIMEOUT_MS = 2_147_483_647;
 const MAX_SEEK_HORIZON_MS = 7 * 24 * 60 * 60_000;

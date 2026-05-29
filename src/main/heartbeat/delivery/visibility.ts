@@ -2,7 +2,7 @@ import type {
 	Channel,
 	ChannelHeartbeatVisibilityConfig,
 	ChannelType,
-} from '../../shared/channels';
+} from '../../../shared/channels';
 
 export interface ResolvedHeartbeatVisibility {
 	showOk: boolean;

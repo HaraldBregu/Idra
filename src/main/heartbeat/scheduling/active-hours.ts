@@ -1,4 +1,4 @@
-import type { AgentHeartbeatConfig } from '../../shared/heartbeat';
+import type { AgentHeartbeatConfig } from '../../../shared/heartbeat';
 
 const ACTIVE_HOURS_TIME_RE = /^(?:([01]\d|2[0-3]):([0-5]\d)|24:00)$/;
 

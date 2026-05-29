@@ -4,7 +4,7 @@ import type {
 	HeartbeatWakeOverride,
 	HeartbeatWakeRequest,
 	HeartbeatWakeSource,
-} from '../../shared/heartbeat';
+} from '../../../shared/heartbeat';
 
 export const HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT = 'requests-in-flight';
 export const HEARTBEAT_SKIP_CRON_IN_PROGRESS = 'cron-in-progress';

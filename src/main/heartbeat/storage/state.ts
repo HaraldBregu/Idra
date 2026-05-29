@@ -1,4 +1,4 @@
-import type { HeartbeatStoreState } from '../../shared/heartbeat';
+import type { HeartbeatStoreState } from '../../../shared/heartbeat';
 
 const DUPLICATE_ALERT_WINDOW_MS = 24 * 60 * 60_000;
 
