@@ -96,7 +96,7 @@ export function bootstrapServices(): BootstrapResult {
 	const workspace = container.register(
 		'workspace',
 		new WorkspaceService(logger, {
-			rootPath: agentDataDirectory.resolve('workspaces', DEFAULT_AGENT_ID),
+			rootPath: agentDataDirectory.resolve(DEFAULT_AGENT_ID),
 		})
 	);
 	container.register(
