@@ -43,27 +43,6 @@ for await (const event of harness.stream({ task: 'Research and summarize.' })) {
 
 Secrets are loaded by adapters/connectors, redacted before logs, and never required in harness config files.
 
-## MCP
-
-```ts
-new McpAgentHarnessToolProvider([
-	{ name: 'filesystem', transport: 'stdio', command: 'node', args: ['server.js'] },
-	{ name: 'remote', transport: 'http', url: 'https://example.com/mcp' },
-]);
-```
-
-Discovered MCP tools are exposed as `server__tool` names and execute through the same validation, permission, timeout, approval, and event path as native tools.
-
-## Example
-
-`example.ts` creates an in-process MCP server, native tools, memory, an approval gate, a scripted model, and streams events:
-
-```bash
-node src/main/agent/harness/example-runner.mjs
-```
-
-The runner uses Node's built-in TypeScript transform hooks, so it does not need a new package script or dev dependency.
-
 ## Evals
 
 Use `runAgentHarnessEvals(harness, fixtures)` for deterministic scenario tests. Fixtures can match expected text or provide a custom scorer over the final result and emitted events.
