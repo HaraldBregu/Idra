@@ -1,5 +1,5 @@
-import { HEARTBEAT_OK } from '../../shared/heartbeat';
-import { parseHeartbeatDurationMs } from './duration';
+import { HEARTBEAT_OK } from '../../../shared/heartbeat';
+import { parseHeartbeatDurationMs } from '../scheduling/duration';
 
 export interface HeartbeatTask {
 	name: string;
