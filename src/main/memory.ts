@@ -45,7 +45,7 @@ export class MemoryManager {
 	readonly workspace: string;
 
 	constructor(agentId: string, options: MemoryManagerOptions = {}) {
-		const baseDir = options.baseDir ?? resolveDefaultAgentDataPath('workspaces');
+		const baseDir = options.baseDir ?? resolveDefaultAgentDataPath();
 		this.workspace = path.join(baseDir, agentId);
 		console.log(`MemoryManager initialized with workspace: ${this.workspace}`);
 	}
