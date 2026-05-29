@@ -32,22 +32,22 @@ export type AgentRunStreamEvent =
 			toolCallId: string;
 			toolName: string;
 	  } & AgentToolCapabilitySummary)
-	| {
+	| ({
 			type: 'tool_call_args_delta';
 			iteration: number;
 			toolCallId: string;
 			toolName: string;
 			jsonDelta: string;
 			argsText: string;
-	  }
-	| {
+	  } & Partial<AgentToolCapabilitySummary>)
+	| ({
 			type: 'tool_call_input';
 			iteration: number;
 			toolCallId: string;
 			toolName: string;
 			input: unknown;
 			argsText: string;
-	  }
+	  } & Partial<AgentToolCapabilitySummary>)
 	| ({
 			type: 'tool_call_result';
 			iteration: number;
