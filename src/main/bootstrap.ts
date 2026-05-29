@@ -150,7 +150,6 @@ export function bootstrapServices(): BootstrapResult {
 		agentSettings,
 		connectors,
 		skills,
-		mcpRegistry,
 		policy,
 		toolService,
 		taskManager,
