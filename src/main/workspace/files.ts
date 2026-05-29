@@ -105,6 +105,7 @@ export async function loadWorkspaceTemplate(name: WorkspaceFileName): Promise<st
 		try {
 			return stripFrontMatter(await fs.readFile(path.join(dir, name), 'utf8'));
 		} catch {
+			continue;
 		}
 	}
 	throw new Error(`Missing workspace template: ${name}`);
