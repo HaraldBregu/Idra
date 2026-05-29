@@ -1,7 +1,7 @@
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import type { Readable } from 'node:stream';
 import path from 'node:path';
-import type { AgentTool } from '../core/types';
+import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
 
@@ -262,7 +262,7 @@ function formatResult(
 	durationMs: number,
 	output: { text: string; truncated: boolean },
 	forceError = false
-) {
+): AgentToolResult<ExecDetails> {
 	const status = forceError || exitCode !== 0 ? 'error' : 'ok';
 	const suffix = output.truncated ? '\n[truncated]' : '';
 	return {
