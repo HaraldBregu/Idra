@@ -94,7 +94,6 @@ export interface AgentServiceDependencies {
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
-	mcpRegistry?: McpRegistry;
 	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
 	policy?: PolicyServicePort;
