@@ -27,8 +27,12 @@ const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> & Record<string, str
 	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
 	find: 'Glob-search the workspace for files.',
 	exec: 'Run commands only when this tool is available. Use `python3` for Python scripts.',
+	process: 'Inspect or stop long-running background commands started by exec.',
 	cron: 'Use this for later or repeating work. Before add/remove, make sure timing is clear. Do not use host schedulers such as crontab.',
 	task: 'Start immediate in-memory background agent work. Use cron for future, delayed, or recurring work.',
+	open_browser: "Open an http/https URL in the user's default browser.",
+	browser:
+		'Control a managed browser. Use snapshot before act when targeting page elements; preserve targetId across calls.',
 	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
 	read_file: 'Read a file before editing or overwriting it.',
 	write_file: 'Create or overwrite files. Read existing files first.',
