@@ -398,7 +398,7 @@ function cronCreateRequest(args: CronCompatArgs, ctx: ToolContext): CronSchedule
 		sourceId: ctx.sessionId,
 		sessionId: ctx.sessionId,
 		createdBy: ctx.agentId ?? ctx.sessionId,
-		timezone: args.timezone,
+		timezone: args.timezone ?? cronActor(ctx, args).timezone,
 		cronExpression: args.cronExpression ?? args.expr ?? args.cron,
 		intervalMs: args.intervalMs,
 		runAt: args.runAt,
