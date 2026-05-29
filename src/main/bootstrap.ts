@@ -22,7 +22,6 @@ import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
-import { McpRegistry } from './agent/mcp';
 import { MonitorService } from './monitor';
 import { TasksService } from './tasks';
 import { UserDataDirectoryService } from './user-data';

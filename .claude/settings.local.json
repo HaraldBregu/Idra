@@ -224,7 +224,9 @@
       "Read(//Users/haraldbregu/Downloads/friday-dev/src/main/**)",
       "Read(//Users/haraldbregu/Downloads/friday-dev/src/main/tools/**)",
       "Bash(ls -la src/shared/tools*)",
-      "Bash(ls -la src/shared/tools/)"
+      "Bash(ls -la src/shared/tools/)",
+      "Bash(sed -n '6p;96,100p' src/main/agent/service.ts)",
+      "Bash(sed -n '1,15p' src/main/agent/tools/core/types.ts)"
     ],
     "deny": [
       "Bash(git push --force:*)",
