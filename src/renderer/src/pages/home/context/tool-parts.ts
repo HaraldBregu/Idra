@@ -79,6 +79,9 @@ export function applyAgentResponseEventToTools(
 		case 'tool_call_args_delta':
 			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
+				displayName: event.displayName,
+				serviceKind: event.serviceKind,
+				serviceId: event.serviceId,
 				state: 'input-streaming',
 				iteration: event.iteration,
 				inputText: event.argsText,
@@ -86,6 +89,9 @@ export function applyAgentResponseEventToTools(
 		case 'tool_call_input':
 			return updateAgentToolPart(tools, event.toolCallId, {
 				type: event.toolName,
+				displayName: event.displayName,
+				serviceKind: event.serviceKind,
+				serviceId: event.serviceId,
 				state: 'input-available',
 				iteration: event.iteration,
 				input: event.input,
