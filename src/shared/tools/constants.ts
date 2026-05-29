@@ -786,6 +786,7 @@ export const AGENT_DEFAULT_TOOLS = [
 	...AGENT_DEFAULT_TOOL_GROUPS.subagent,
 	...AGENT_DEFAULT_TOOL_GROUPS.skill,
 	...AGENT_DEFAULT_TOOL_GROUPS.mcpConnector,
+	...AGENT_DEFAULT_TOOL_GROUPS.web,
 ] as const;
 
 export const AGENT_TOOLS = [
