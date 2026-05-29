@@ -400,15 +400,20 @@ export function expandToolPolicyEntries(
 			continue;
 		}
 
-		const aliases = TOOL_POLICY_ALIASES[entry];
-		if (aliases) {
-			aliases.filter((name) => index.names.has(name)).forEach((name) => expanded.add(name));
-			continue;
-		}
-
 		const pluginNames = index.pluginIds.get(entry);
 		if (pluginNames) {
 			pluginNames.forEach((name) => expanded.add(name));
+			continue;
+		}
+
+		if (index.names.has(entry)) {
+			expanded.add(entry);
+			continue;
+		}
+
+		const aliases = TOOL_POLICY_ALIASES[entry];
+		if (aliases) {
+			aliases.filter((name) => index.names.has(name)).forEach((name) => expanded.add(name));
 			continue;
 		}
 
@@ -418,11 +423,6 @@ export function expandToolPolicyEntries(
 				warnings?.push(`${stage}: allow/deny entry '${rawEntry}' matched no tools`);
 			}
 			matches.forEach((name) => expanded.add(name));
-			continue;
-		}
-
-		if (index.names.has(entry)) {
-			expanded.add(entry);
 			continue;
 		}
 
