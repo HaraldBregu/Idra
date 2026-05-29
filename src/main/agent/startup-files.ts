@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { LoggerService } from '../logger';
+import type { LoggerService } from '../../logger';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
