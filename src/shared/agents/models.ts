@@ -1,13 +1,17 @@
 import type { Model, ModelReasoningEffort } from './reasoning';
 import {
-	DEFAULT_PROVIDERS,
+	DEFAULT_AGENT_MODELS_BY_PROVIDER,
+	filterSelectableAgentModels,
+	getDefaultAgentModels,
+	hasDefaultAgentModels,
+	isAllowedAgentModel,
+} from '../providers/agent-models';
+import {
 	hasDefaultProviderCapability,
-	normalizeProviderId,
 	providerHasImageCapability,
 	type Provider,
 } from '../providers';
 import {
-	CHAT_MODELS_BY_PROVIDER,
 	EMBEDDING_MODELS_BY_PROVIDER,
 	LLM_MODELS_BY_PROVIDER,
 	MODEL_CATALOGS_BY_CAPABILITY,
@@ -35,6 +39,7 @@ import {
 
 export type { Model, ModelReasoningEffort };
 export {
+	DEFAULT_AGENT_MODELS_BY_PROVIDER,
 	LLM_MODELS_BY_PROVIDER,
 	MODEL_CATALOGS_BY_CAPABILITY,
 	EMBEDDING_MODELS_BY_PROVIDER,
@@ -44,56 +49,13 @@ export {
 	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_MODELS,
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	filterSelectableAgentModels,
+	getDefaultAgentModels,
+	hasDefaultAgentModels,
+	isAllowedAgentModel,
 };
 
 export type { ModelCapability, ModelCatalog };
-
-export const DEFAULT_AGENT_MODELS_BY_PROVIDER: ModelCatalog = CHAT_MODELS_BY_PROVIDER;
-
-function isDefaultProvider(providerId: string): boolean {
-	const normalizedProviderId = normalizeProviderId(providerId);
-	return DEFAULT_PROVIDERS.some(
-		(provider) => normalizeProviderId(provider.id) === normalizedProviderId
-	);
-}
-
-export function getDefaultAgentModels(providerId: string): Model[] {
-	return (DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] ?? []).map((model) => ({
-		...model,
-	}));
-}
-
-export function hasDefaultAgentModels(providerId: string): boolean {
-	return DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)] !== undefined;
-}
-
-function defaultModelsForProvider(providerId: string): readonly Model[] | undefined {
-	return DEFAULT_AGENT_MODELS_BY_PROVIDER[normalizeProviderId(providerId)];
-}
-
-export function isAllowedAgentModel(providerId: string, modelId: string): boolean {
-	const normalizedModelId = modelId.trim();
-	const defaultModels = defaultModelsForProvider(providerId);
-
-	if (defaultModels) {
-		return defaultModels.some((model) => model.id === normalizedModelId);
-	}
-
-	return !isDefaultProvider(providerId);
-}
-
-export function filterSelectableAgentModels(providerId: string, models: Model[]): Model[] {
-	const defaultModels = defaultModelsForProvider(providerId);
-	if (!defaultModels) {
-		return isDefaultProvider(providerId) ? [] : models;
-	}
-
-	const byId = new Map(models.map((model) => [model.id.trim(), model]));
-	return defaultModels.flatMap((defaultModel) => {
-		const model = byId.get(defaultModel.id);
-		return model ? [model] : [];
-	});
-}
 
 export function getLlmModels(providerId: string): Model[] {
 	return getLlmModelsByProvider(providerId);
