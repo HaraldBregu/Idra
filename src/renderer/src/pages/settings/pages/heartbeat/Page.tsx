@@ -357,8 +357,65 @@ const HeartbeatPage: React.FC = () => {
 		}
 	}, [applyTiming, loadHeartbeat, t, timingDraft]);
 
+	const handleProviderChange = useCallback((nextValue: string | null): void => {
+		const nextProviderId = nextValue ?? '';
+		const nextModels = nextProviderId ? heartbeatModelsForProvider(nextProviderId, settings) : [];
+		const nextModelId = nextModels[0]?.id ?? '';
+		setProviderId(nextProviderId);
+		setModels(nextModels);
+		setModelId(nextModelId);
+		setReasoningEffort(DEFAULT_MODEL_REASONING_EFFORT);
+		setNotice(null);
+		setError(null);
+	}, [settings]);
+
+	const handleModelChange = useCallback((nextValue: string | null): void => {
+		const nextModelId = nextValue ?? '';
+		const efforts = getModelReasoningEfforts(nextModelId, providerId);
+		setModelId(nextModelId);
+		setReasoningEffort((current) =>
+			efforts.includes(current) ? current : DEFAULT_MODEL_REASONING_EFFORT
+		);
+		setNotice(null);
+		setError(null);
+	}, [providerId]);
+
+	const handleSaveModel = useCallback(async (): Promise<void> => {
+		if (!providerId || !modelId) return;
+		const effortOptions = getModelReasoningEfforts(modelId, providerId);
+		setOperation('model');
+		setNotice(null);
+		setError(null);
+		try {
+			const nextSettings = await window.heartbeat.saveSettings({
+				providerId,
+				modelId,
+				reasoningEffort: effortOptions.includes(reasoningEffort)
+					? reasoningEffort
+					: undefined,
+			});
+			applySettings(nextSettings, providers);
+			setNotice(t('settings.heartbeat.notices.modelSaved'));
+			await loadHeartbeat();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setOperation(null);
+		}
+	}, [applySettings, loadHeartbeat, modelId, providerId, providers, reasoningEffort, t]);
+
 	const runtimeEnabled = Boolean(status?.enabled);
 	const isBusy = operation !== null;
+	const selectedProvider = providers.find((provider) => provider.id === providerId);
+	const selectedModel = models.find((model) => model.id === modelId);
+	const effortOptions = useMemo(
+		() =>
+			supportsModelReasoningEffortProvider(providerId)
+				? getModelReasoningEfforts(modelId, providerId)
+				: [],
+		[modelId, providerId]
+	);
+	const showEffort = effortOptions.length > 0;
 	const nextDue = formatTimestamp(status?.nextDueMs);
 	const lastTimestamp = formatTimestamp(lastHeartbeat?.timestamp);
 	const lastDuration = formatDuration(lastHeartbeat?.durationMs);
@@ -376,6 +433,12 @@ const HeartbeatPage: React.FC = () => {
 	const timingValid = isValidEvery(timingDraft.every) &&
 		((timingDraft.start.trim() && timingDraft.end.trim()) ||
 			(!timingDraft.start.trim() && !timingDraft.end.trim()));
+	const settingsDirty = settings
+		? providerId !== (settings.providerId ?? '') ||
+			modelId !== (settings.modelId ?? '') ||
+			(showEffort && reasoningEffort !== settings.reasoningEffort)
+		: Boolean(providerId && modelId);
+	const canSaveModel = Boolean(selectedProvider && selectedModel && settingsDirty && !loading && !isBusy);
 
 	return (
 		<SettingsPageShell>
