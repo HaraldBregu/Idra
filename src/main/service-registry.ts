@@ -35,7 +35,6 @@ export interface MainServices {
 	eventBus: EventBus;
 	heartbeat: HeartbeatService;
 	logger: LoggerService;
-	mcpRegistry: McpRegistry;
 	monitor: MonitorService;
 	policy: PolicyService;
 	powerSaveBlocker: PowerSaveBlockerService;
