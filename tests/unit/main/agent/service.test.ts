@@ -1,3 +1,16 @@
+jest.mock('electron-store', () => {
+	return jest.fn().mockImplementation(() => {
+		const data = new Map<string, unknown>();
+		return {
+			get: (key: string) => data.get(key),
+			set: (key: string, value: unknown) => {
+				data.set(key, value);
+			},
+			has: (key: string) => data.has(key),
+		};
+	});
+});
+
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type {
