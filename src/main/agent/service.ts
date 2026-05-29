@@ -3,7 +3,6 @@ import path from 'node:path';
 import type { EventBus } from '../core/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../logger';
-import type { McpRegistry } from './mcp';
 import type { StoreService } from '../store';
 import type { TasksService } from '../tasks';
 import type { ConnectorsService } from '../connectors';
