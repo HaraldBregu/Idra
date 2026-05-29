@@ -24,6 +24,7 @@ const MAX_FRONTMATTER_BYTES = 64 * 1024;
 const SUPPORT_DIRECTORIES = new Set(['scripts', 'references', 'assets']);
 const DEFAULT_SKILL_SEARCH_LIMIT = 3;
 const MAX_SKILL_SEARCH_LIMIT = 12;
+const MIN_SKILL_SEARCH_SCORE = 8;
 const SKILL_SEARCH_STOP_WORDS = new Set(['the', 'and', 'for', 'with', 'from', 'that', 'this', 'into', 'about']);
 
 export interface SkillsServiceOptions {
@@ -647,7 +648,7 @@ function scoreSkill(
 			matchedDescription++;
 		}
 	}
-	if (score === 0) return null;
+	if (score < MIN_SKILL_SEARCH_SCORE) return null;
 	const reason = matchedName > 0
 		? 'matched skill name'
 		: matchedDescription > 0
