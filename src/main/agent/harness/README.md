@@ -8,14 +8,12 @@ Production-grade, UI-independent runtime for LLM agents in `src/main/agent/harne
 import {
 	createAgentHarness,
 	InMemoryAgentHarnessMemory,
-	McpAgentHarnessToolProvider,
 } from './harness';
 
 const harness = await createAgentHarness({
 	modelId: 'gpt-5.4-mini',
 	model: providerAdapter,
 	tools: nativeTools,
-	externalTools: [new McpAgentHarnessToolProvider(mcpServers)],
 	memory: new InMemoryAgentHarnessMemory(),
 	runtime: {
 		maxIterations: 25,
