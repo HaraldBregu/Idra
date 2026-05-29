@@ -45,6 +45,10 @@ export {
 	writeScratchTool,
 	writeTodosTool,
 } from './state/tools';
+export { execTool, processTool } from './exec/tools';
+export { cronTool } from './cron/tools';
+export { taskTool } from './task/tools';
+export { createStartupFilesTool } from './startup/tools';
 export {
 	presentPlanTool,
 	requestApprovalTool,
