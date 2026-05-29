@@ -300,7 +300,6 @@ interface CronCompatArgs {
 
 export const cronTool: AgentTool<CronCompatArgs> = {
 	name: 'cron',
-	ownerOnly: true,
 	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
 	description:
 		'Manage scheduled jobs through CronService. Use this only for future, delayed, recurring, reminder, wake, or manual-run scheduling. Do not use this to start immediate in-memory task execution.',
