@@ -683,6 +683,134 @@ const HeartbeatPage: React.FC = () => {
 			</SettingsSection>
 
 			<SettingsSection
+				title={t('settings.heartbeat.model.title')}
+			>
+				<SettingsPanel>
+					{loading && !settings ? (
+						<SettingsLoadingRows rows={2} />
+					) : (
+						<>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Activity className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.model.provider')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
+										{t('settings.heartbeat.model.providerDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[520px] sm:justify-end">
+									<Select
+										value={providerId || undefined}
+										onValueChange={handleProviderChange}
+										disabled={loading || isBusy || providers.length === 0}
+									>
+										<SelectTrigger
+											size="sm"
+											className="h-7 w-full text-xs sm:w-[240px]"
+											aria-label={t('settings.heartbeat.model.provider')}
+										>
+											<SelectValue placeholder={t('settings.heartbeat.model.providerPlaceholder')} />
+										</SelectTrigger>
+										<SelectContent>
+											{providers.map((provider) => (
+												<SelectItem key={provider.id} value={provider.id}>
+													{provider.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</ItemActions>
+							</Item>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Zap className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.model.model')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
+										{t('settings.heartbeat.model.modelDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[620px] sm:justify-end">
+									<div className="grid w-full gap-2">
+										<div className="grid gap-1.5 sm:grid-cols-[minmax(0,1fr)_160px]">
+											<Select
+												value={modelId || undefined}
+												onValueChange={handleModelChange}
+												disabled={loading || isBusy || models.length === 0}
+											>
+												<SelectTrigger
+													size="sm"
+													className="h-7 w-full text-xs"
+													aria-label={t('settings.heartbeat.model.model')}
+												>
+													<SelectValue placeholder={t('settings.heartbeat.model.modelPlaceholder')} />
+												</SelectTrigger>
+												<SelectContent>
+													{models.map((model) => (
+														<SelectItem key={model.id} value={model.id}>
+															{model.name}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<Select
+												value={reasoningEffort}
+												onValueChange={(nextValue) =>
+													setReasoningEffort(nextValue as ModelReasoningEffort)
+												}
+												disabled={loading || isBusy || !showEffort}
+											>
+												<SelectTrigger
+													size="sm"
+													className="h-7 w-full text-xs"
+													aria-label={t('settings.heartbeat.model.reasoningEffort')}
+												>
+													<SelectValue placeholder={t('settings.heartbeat.model.reasoningEffort')} />
+												</SelectTrigger>
+												<SelectContent>
+													{effortOptions.map((option) => (
+														<SelectItem key={option} value={option}>
+															{t(`settings.heartbeat.model.effort.${option}`)}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</div>
+										<div className="flex justify-end">
+											<Button
+												type="button"
+												size="xs"
+												onClick={handleSaveModel}
+												disabled={!canSaveModel}
+											>
+												<TimerReset className="size-3" />
+												{t('settings.heartbeat.actions.saveModel')}
+											</Button>
+										</div>
+									</div>
+								</ItemActions>
+							</Item>
+						</>
+					)}
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
 				title={t('settings.heartbeat.last.title')}
 			>
 				<SettingsPanel>
