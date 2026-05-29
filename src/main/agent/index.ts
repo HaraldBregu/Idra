@@ -23,6 +23,7 @@ export * from './capabilities';
 export * from './subagents';
 export * from './routing';
 export * from './settings';
+export * from './permissions';
 export * from './storage';
 export * from './startup-files';
 export * from './before-agent-run';
