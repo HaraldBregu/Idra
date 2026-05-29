@@ -61,6 +61,7 @@ import {
 } from '../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
 import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
+import { createHeartbeatResponseTool, type HeartbeatToolResponse } from '../heartbeat/response';
 import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
@@ -153,6 +154,9 @@ export interface AgentSendOptions {
 		lightContext?: boolean;
 		suppressToolErrorWarnings?: boolean;
 		suppressAgentEvents?: boolean;
+		enableHeartbeatTool?: boolean;
+		forceHeartbeatTool?: boolean;
+		onToolResponse?: (response: HeartbeatToolResponse) => void;
 	};
 }
 
