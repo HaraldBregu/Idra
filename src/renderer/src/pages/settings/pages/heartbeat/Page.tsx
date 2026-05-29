@@ -157,6 +157,14 @@ const HeartbeatPage: React.FC = () => {
 	const [status, setStatus] = useState<HeartbeatStatus | null>(null);
 	const [lastHeartbeat, setLastHeartbeat] = useState<HeartbeatEventPayload | null>(null);
 	const [timing, setTiming] = useState<HeartbeatTimingSettings | null>(null);
+	const [settings, setSettings] = useState<HeartbeatSettings | null>(null);
+	const [providers, setProviders] = useState<PublicProvider[]>([]);
+	const [models, setModels] = useState<Model[]>([]);
+	const [providerId, setProviderId] = useState('');
+	const [modelId, setModelId] = useState('');
+	const [reasoningEffort, setReasoningEffort] = useState<ModelReasoningEffort>(
+		DEFAULT_MODEL_REASONING_EFFORT
+	);
 	const [timingDraft, setTimingDraft] = useState<TimingDraft>({
 		every: '30m',
 		start: '',
@@ -179,24 +187,51 @@ const HeartbeatPage: React.FC = () => {
 		setTimingDraft(timingToDraft(nextTiming));
 	}, []);
 
+	const applySettings = useCallback((nextSettings: HeartbeatSettings, nextProviders: PublicProvider[]): void => {
+		const provider =
+			nextProviders.find((entry) => entry.id === nextSettings.providerId) ??
+			nextProviders.find((entry) => getDefaultAgentModels(entry.id).length > 0) ??
+			nextProviders[0];
+		const nextProviderId = provider?.id ?? '';
+		const nextModels = nextProviderId ? heartbeatModelsForProvider(nextProviderId, nextSettings) : [];
+		const nextModelId =
+			nextProviderId === nextSettings.providerId && nextSettings.modelId
+				? nextSettings.modelId
+				: (nextModels[0]?.id ?? '');
+		const effortOptions = getModelReasoningEfforts(nextModelId, nextProviderId);
+		setSettings(nextSettings);
+		setProviders(nextProviders);
+		setProviderId(nextProviderId);
+		setModels(nextModels);
+		setModelId(nextModelId);
+		setReasoningEffort(
+			nextSettings.reasoningEffort && effortOptions.includes(nextSettings.reasoningEffort)
+				? nextSettings.reasoningEffort
+				: DEFAULT_MODEL_REASONING_EFFORT
+		);
+	}, []);
+
 	const loadHeartbeat = useCallback(
 		async (showLoading = false): Promise<void> => {
 			if (showLoading) setLoading(true);
 			setError(null);
 			try {
-				const [nextStatus, nextTiming] = await Promise.all([
+				const [nextStatus, nextTiming, nextSettings, nextProviders] = await Promise.all([
 					window.heartbeat.status(),
 					window.heartbeat.getTiming(),
+					window.heartbeat.settings(),
+					window.store.getProviders(),
 				]);
 				applyStatus(nextStatus);
 				applyTiming(nextTiming);
+				applySettings(nextSettings, nextProviders);
 			} catch (caught) {
 				setError(caught instanceof Error ? caught.message : String(caught));
 			} finally {
 				if (showLoading) setLoading(false);
 			}
 		},
-		[applyStatus, applyTiming]
+		[applySettings, applyStatus, applyTiming]
 	);
 
 	useEffect(() => {
