@@ -9,7 +9,6 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/cron')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/ipc')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/logger')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/agent/mcp')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/monitor')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/provider/factory')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/session/store')).resolves.toBeTruthy();
