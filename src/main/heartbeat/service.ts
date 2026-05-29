@@ -28,7 +28,7 @@ import type {
 } from '../../shared/heartbeat';
 import { HEARTBEAT_OK } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
-import { activeHoursIdentity, isWithinActiveHours } from './active-hours';
+import { activeHoursIdentity, isWithinActiveHours } from './scheduling/active-hours';
 import {
 	DEFAULT_HEARTBEAT_EVERY,
 	resolveDefaultHeartbeatAgentId,
@@ -36,7 +36,7 @@ import {
 	resolveHeartbeatSummaryForAgent,
 	type HeartbeatSummary,
 } from './config';
-import { recordRunStart, shouldDeferWake } from './cooldown';
+import { recordRunStart, shouldDeferWake } from './scheduling/cooldown';
 import {
 	buildHeartbeatPrompt,
 	isCronSystemEvent,
@@ -44,7 +44,7 @@ import {
 	isHeartbeatContentEffectivelyEmpty,
 	isHeartbeatTaskDue,
 	parseHeartbeatTasks,
-} from './prompt';
+} from './prompt/build';
 import {
 	computeNextHeartbeatPhaseDueMs,
 	resolveHeartbeatPhaseMs,
@@ -52,17 +52,17 @@ import {
 	resolveNextHeartbeatDueMs,
 	safeHeartbeatTimeoutDelay,
 	seekNextActivePhaseDueMs,
-} from './schedule';
+} from './scheduling/schedule';
 import {
 	areHeartbeatsEnabled,
 	HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
 	requestHeartbeat,
 	setHeartbeatsEnabled,
 	setHeartbeatWakeHandler,
-} from './wake';
-import { normalizeHeartbeatReply, type HeartbeatToolResponse } from './response';
-import { HeartbeatRuntimeState } from './state';
-import { resolveHeartbeatVisibility } from './visibility';
+} from './scheduling/wake';
+import { normalizeHeartbeatReply, type HeartbeatToolResponse } from './prompt/response';
+import { HeartbeatRuntimeState } from './storage/state';
+import { resolveHeartbeatVisibility } from './delivery/visibility';
 
 interface AgentSchedule {
 	agentId: string;

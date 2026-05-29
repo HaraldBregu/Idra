@@ -1,7 +1,7 @@
 import { DEFAULT_AGENT_ID } from '../constants';
 import { isModelReasoningEffort, type OperatorStoreState } from '../../shared/agents/service';
 import type { AgentHeartbeatConfig, AgentsHeartbeatConfig } from '../../shared/heartbeat';
-import { parseHeartbeatDurationMs } from './duration';
+import { parseHeartbeatDurationMs } from './scheduling/duration';
 
 export const DEFAULT_HEARTBEAT_EVERY = '30m';
 export const DEFAULT_HEARTBEAT_TARGET = 'none';
