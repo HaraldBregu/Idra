@@ -24,7 +24,7 @@ import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextSessionCallbacks,
-} from './types';
+} from '../../shared/speech-to-text-runtime';
 
 interface SpeechToTextServiceDependencies {
 	store: StoreService;

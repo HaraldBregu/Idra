@@ -17,7 +17,7 @@ import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../types';
+} from '../../../../shared/speech-to-text-runtime';
 
 type XaiRealtimeEvent = Record<string, unknown> & { type?: string };
 

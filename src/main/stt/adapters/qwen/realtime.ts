@@ -16,7 +16,7 @@ import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../types';
+} from '../../../../shared/speech-to-text-runtime';
 
 type QwenRealtimeEvent = Record<string, unknown> & { type?: string };
 

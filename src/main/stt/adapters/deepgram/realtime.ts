@@ -18,7 +18,7 @@ import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../types';
+} from '../../../../shared/speech-to-text-runtime';
 
 type DeepgramEvent = Record<string, unknown> & { type?: string };
 

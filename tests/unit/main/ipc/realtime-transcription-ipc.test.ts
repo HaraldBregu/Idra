@@ -50,7 +50,7 @@ import { SpeechToTextService } from '../../../../src/main/stt';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRuntimeConfig,
-} from '../../../../src/main/stt/types';
+} from '../../../../src/shared/speech-to-text-runtime';
 import { RealtimeTranscriptionChannels } from '../../../../src/shared/ipc-channels';
 import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,

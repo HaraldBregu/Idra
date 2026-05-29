@@ -17,7 +17,7 @@ import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../types';
+} from '../../../../shared/speech-to-text-runtime';
 
 const MISTRAL_PROVIDER_ID = 'mistral';
 const CONNECT_TIMEOUT_MS = 10_000;
