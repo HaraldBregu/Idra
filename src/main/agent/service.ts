@@ -345,7 +345,7 @@ export class AgentService {
 		agentId: string,
 		name: string
 	): ReturnType<AgentStartupFilesServicePort['readFile']> {
-		return this.getStartupFilesService().readFile(agentId, name);
+		return this.getWorkspaceService().readFile(agentId, name);
 	}
 
 	getHeartbeatChannel(): ReturnType<ChannelsService['getChannel']> | undefined {
@@ -1060,7 +1060,7 @@ export class AgentService {
 
 	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
-			return await this.getStartupFilesService().isBootstrapPending(agentId);
+			return await this.getWorkspaceService().isBootstrapPending(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Bootstrap status unavailable', {
 				error: (error as Error).message,
@@ -1071,7 +1071,7 @@ export class AgentService {
 
 	private async loadStartupFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		try {
-			return await this.getStartupFilesService().loadContextFiles(agentId);
+			return await this.getWorkspaceService().loadContextFiles(agentId);
 		} catch (error) {
 			this.dependencies.logger.warn('AgentService', 'Startup context unavailable', {
 				error: (error as Error).message,
@@ -1098,7 +1098,7 @@ export class AgentService {
 		if (toolPolicy?.fs?.readOnly) return false;
 		try {
 			return (
-				path.resolve(this.getStartupFilesService().getRootPath(agentId)) ===
+				path.resolve(this.getWorkspaceService().getRootPath(agentId)) ===
 				path.resolve(workspaceRoot)
 			);
 		} catch {
@@ -1118,7 +1118,7 @@ export class AgentService {
 	}
 
 	private createStartupFilesTool(agentId: string): AgentTool {
-		return createStartupFilesTool(agentId, this.getStartupFilesService());
+		return createStartupFilesTool(agentId, this.getWorkspaceService());
 	}
 
 	private filterStartupFilesForRun(
