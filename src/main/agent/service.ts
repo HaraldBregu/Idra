@@ -1045,8 +1045,8 @@ export class AgentService {
 			return this.dependencies.workspace.getRootPath();
 		} catch {
 			return (
-				this.dependencies.agentDataDirectory?.resolve('workspaces', this.defaultAgentId) ??
-				resolveDefaultAgentDataPath('workspaces', this.defaultAgentId)
+				this.dependencies.agentDataDirectory?.resolve(this.defaultAgentId) ??
+				resolveDefaultAgentDataPath(this.defaultAgentId)
 			);
 		}
 	}
