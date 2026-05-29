@@ -1080,16 +1080,14 @@ export class AgentService {
 		return [];
 	}
 
-	private getStartupFilesService(): AgentStartupFilesServicePort {
-		if (this.dependencies.startupFiles) return this.dependencies.startupFiles;
-		if (this.startupFilesService) return this.startupFilesService;
-		this.startupFilesService = new AgentStartupFilesService({
-			rootPath:
-				this.dependencies.agentDataDirectory?.resolve() ??
-				resolveDefaultAgentDataPath(),
+	private getWorkspaceService(): AgentWorkspaceService {
+		if (this.workspaceService) return this.workspaceService;
+		this.workspaceService = new AgentWorkspaceService({
+			agentDataDirectory: this.dependencies.agentDataDirectory,
+			startupFiles: this.dependencies.startupFiles,
 			logger: this.dependencies.logger,
 		});
-		return this.startupFilesService;
+		return this.workspaceService;
 	}
 
 	private hasBootstrapFileAccess(
