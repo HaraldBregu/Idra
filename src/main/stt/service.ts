@@ -19,12 +19,7 @@ import type {
 import type { ModelModuleSettings } from '../../shared/store';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type { Provider } from '../../shared/providers';
-import { createDeepgramSpeechToTextAdapter } from './deepgram-realtime-adapter';
-import { createElevenLabsSpeechToTextAdapter } from './elevenlabs-realtime-adapter';
-import { createMistralRealtimeSpeechToTextAdapter } from './mistral-realtime-adapter';
-import { createOpenAIRealtimeSpeechToTextAdapter } from './openai-realtime-adapter';
-import { createQwenRealtimeSpeechToTextAdapter } from './qwen-realtime-adapter';
-import { createXaiSpeechToTextAdapter } from './xai-realtime-adapter';
+import { createDefaultSpeechToTextAdapters } from './adapters';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
@@ -58,18 +53,23 @@ export class SpeechToTextService {
 	private readonly sessions = new Map<string, OwnedSpeechToTextSession>();
 
 	constructor(private readonly dependencies: SpeechToTextServiceDependencies) {
-		this.adapters = dependencies.adapters ?? [
-			createOpenAIRealtimeSpeechToTextAdapter(),
-			createDeepgramSpeechToTextAdapter(),
-			createElevenLabsSpeechToTextAdapter(),
-			createMistralRealtimeSpeechToTextAdapter(),
-			createXaiSpeechToTextAdapter(),
-			createQwenRealtimeSpeechToTextAdapter(),
-		];
+		this.adapters = dependencies.adapters ?? createDefaultSpeechToTextAdapters();
 	}
 
 	getModels(providerId: string): Model[] {
 		return getSpeechToTextModels(providerId);
+	}
+
+	getOperator(): ConfiguredModelOperator | undefined {
+		return this.dependencies.store.getSpeechToTextOperator();
+	}
+
+	getSettings(): ModelModuleSettings | undefined {
+		return this.dependencies.store.getSpeechToTextSettings();
+	}
+
+	setOperator(providerId: string, model: Model): boolean {
+		return this.dependencies.store.setSpeechToTextOperator(providerId, model);
 	}
 
 	async start(
