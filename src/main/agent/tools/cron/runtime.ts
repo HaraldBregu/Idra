@@ -14,6 +14,7 @@ import {
 	cronRunTool,
 	cronStartTool,
 	cronStopTool,
+	cronTool,
 	cronUpdateTool,
 } from './tools';
 
@@ -28,6 +29,7 @@ export type CronToolOptions = {
 type LegacyCronTool = LegacyAgentTool<any, any>;
 
 const CRON_TOOLS: readonly LegacyCronTool[] = [
+	cronTool,
 	cronCreateTool,
 	cronReadTool,
 	cronUpdateTool,
