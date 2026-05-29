@@ -114,6 +114,8 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	read_mcp_resource: readMcpResourceTool,
 	list_mcp_prompts: listMcpPromptsTool,
 	load_mcp_prompt: loadMcpPromptTool,
+	web_fetch: webFetchTool,
+	open_browser: openBrowserTool,
 } as const satisfies Record<AgentDefaultToolName, LocalToolImplementation>;
 
 export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
