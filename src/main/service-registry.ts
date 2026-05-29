@@ -25,9 +25,7 @@ export interface MainServices {
 	appPermissions: AppPermissionsService;
 	agentDataDirectory: AgentDataDirectoryService;
 	agentSettings: AgentSettingsStore;
-	agentPermissions: AgentPermissionsStore;
 	agentService: AgentService;
-	startupFiles: AgentStartupFilesService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
