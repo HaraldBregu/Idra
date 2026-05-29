@@ -98,16 +98,8 @@ export function bootstrapServices(): BootstrapResult {
 			rootPath: agentDataDirectory.resolve(DEFAULT_AGENT_ID),
 		})
 	);
-	container.register(
-		'startupFiles',
-		new AgentStartupFilesService({
-			rootPath: agentDataDirectory.resolve(),
-			logger,
-		})
-	);
 	const store = container.register('store', new StoreService(logger));
 	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
-	container.register('agentPermissions', new AgentPermissionsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
 	const policy = container.register(
 		'policy',
