@@ -839,6 +839,8 @@ export const AGENT_TOOL_NAMES = [
 	'read_mcp_resource',
 	'list_mcp_prompts',
 	'load_mcp_prompt',
+	'web_fetch',
+	'open_browser',
 ] as const satisfies readonly AgentDefaultToolName[];
 
 export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map((tool) => tool.name) as readonly AgentToolName[];
