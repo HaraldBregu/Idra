@@ -55,11 +55,6 @@ export function Layout(): React.JSX.Element {
 					<Outlet />
 				</div>
 			</main>
-			<footer className="shrink-0 border-t border-border/50 px-4 py-2 sm:px-6 lg:px-8">
-				<div className="mx-auto flex max-w-4xl items-center justify-end">
-					<span className="text-[10px] text-muted-foreground/40">macOS</span>
-				</div>
-			</footer>
 		</PageContainer>
 	);
 }
