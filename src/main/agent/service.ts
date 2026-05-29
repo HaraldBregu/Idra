@@ -248,7 +248,7 @@ export class AgentService {
 	private heartbeatStore: HeartbeatFileStore | null = null;
 	private readonly runtimes = new Map<string, Runtime>();
 	private readonly runRecords = new Map<string, AgentRunRecord>();
-	private startupFilesService: AgentStartupFilesServicePort | null = null;
+	private workspaceService: AgentWorkspaceService | null = null;
 
 	constructor(
 		private readonly dependencies: AgentServiceDependencies,
