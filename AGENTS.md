@@ -72,6 +72,8 @@ For multi-step tasks, state a brief plan:
 3. [Step] → verify: [check]
 ```
 
+- Use subagents for independent parallel tasks, such as separate research, implementation, review, or verification tracks. Keep tightly coupled decisions in the main thread.
+
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
 ---
