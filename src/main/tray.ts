@@ -1,9 +1,7 @@
 import { Tray as ElectronTray, Menu, nativeImage } from 'electron';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { is } from '@electron-toolkit/utils';
 
-const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 import { loadTranslations } from './i18n';
 
 interface TrayManagerCallbacks {
@@ -25,7 +23,7 @@ export class Tray {
 	create(): void {
 		const icon = nativeImage.createFromPath(
 			is.dev
-				? path.join(moduleDir, '../../resources/icons/icon.png')
+				? path.join(process.cwd(), 'resources/icons/icon.png')
 				: path.join(process.resourcesPath, 'resources/icons/icon.png')
 		);
 
