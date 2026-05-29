@@ -232,7 +232,13 @@
       "Bash(npx jest *)",
       "Bash(echo \"jest exit: $?\")",
       "Bash(git stash *)",
-      "Bash(echo \"baseline jest exit: $?\")"
+      "Bash(echo \"baseline jest exit: $?\")",
+      "Bash(sed -n '1,40p' src/main/agent/templates/SOUL.md)",
+      "Bash(sed -n '1,40p' src/main/agent/templates/AGENTS.md)",
+      "Bash(echo \"=== node/yarn ===\")",
+      "Bash(echo)",
+      "Bash(echo \"=== remaining templates ===\")",
+      "Bash(echo '----- __TRACKED_VAR__.md -----')"
     ],
     "deny": [
       "Bash(git push --force:*)",

@@ -58,7 +58,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly logger?: Pick<LoggerService, 'debug' | 'warn'>;
 
 	constructor(options: AgentStartupFilesServiceOptions = {}) {
-		this.rootPath = options.rootPath ?? resolveDefaultAgentDataPath('workspaces');
+		this.rootPath = options.rootPath ?? resolveDefaultAgentDataPath();
 		this.logger = options.logger;
 	}
 
