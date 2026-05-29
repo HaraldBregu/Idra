@@ -123,6 +123,22 @@ describe('SkillsService', () => {
 		]);
 	});
 
+	it('ignores weak single-token description matches when selecting skills', async () => {
+		const root = await makeTempDir();
+		await writeSkill(root, 'claude-code-executor', {
+			description: 'Run Claude Code non-interactively from the shell against a local project path.',
+		});
+		await writeSkill(root, 'codex-project-executor', {
+			description: 'Run OpenAI Codex CLI non-interactive tasks against a local project path.',
+		});
+		const service = new SkillsService(makeLogger() as never, { rootPath: root });
+
+		await expect(service.search('show me the path of the current workspace')).resolves.toEqual([]);
+		await expect(service.search('run codex against this project path')).resolves.toEqual([
+			expect.objectContaining({ name: 'codex-project-executor', reason: 'matched skill name' }),
+		]);
+	});
+
 	it('loads full instructions and support files only when a skill is selected', async () => {
 		const root = await makeTempDir();
 		await writeSkill(root, 'research-brief', {
