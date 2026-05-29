@@ -785,13 +785,13 @@ export class HeartbeatService implements Disposable {
 		return agents ? { ...baseOperator, agents } : baseOperator;
 	}
 
-	private async readHeartbeatFile(_agentId: string): Promise<{
+	private async readHeartbeatFile(agentId: string): Promise<{
 		exists: boolean;
 		path?: string;
 		content?: string;
 	}> {
 		try {
-			const file = await this.agentService.readHeartbeatWorkspaceFile('HEARTBEAT.md');
+			const file = await this.agentService.readHeartbeatStartupFile(agentId, 'HEARTBEAT.md');
 			return {
 				exists: !file.missing,
 				path: file.path,
