@@ -9,7 +9,6 @@ import type { AppPermissionsService } from './app-permissions';
 import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
-import type { McpRegistry } from './agent/mcp';
 import type { MonitorService } from './monitor';
 import type { PolicyService } from './agent/policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
