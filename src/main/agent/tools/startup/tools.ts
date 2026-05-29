@@ -1,4 +1,4 @@
-import type { AgentStartupFilesServicePort } from '../../startup-files';
+import type { AgentStartupFilesServicePort } from '../../workspace';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { assertWorkspaceFileName, type WorkspaceFileName } from '../../../workspace/files';
