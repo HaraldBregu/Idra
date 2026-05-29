@@ -269,6 +269,148 @@ export const cronRunTool: AgentTool<CronReadArgs> = {
 	},
 };
 
+type CronCompatAction = 'status' | 'list' | 'get' | 'add' | 'update' | 'remove' | 'run' | 'runs';
+
+interface CronCompatArgs {
+	action: CronCompatAction;
+	jobId?: string;
+	id?: string;
+	includeDisabled?: boolean;
+	filter?: CronScheduleFilter;
+	job?: CronScheduleCreateRequest;
+	patch?: CronScheduleUpdateRequest;
+	name?: string;
+	description?: string;
+	enabled?: boolean;
+	deleteAfterRun?: boolean;
+	type?: CronScheduleType;
+	timezone?: string;
+	cronExpression?: string;
+	cron?: string;
+	expr?: string;
+	intervalMs?: number;
+	runAt?: string;
+	startAt?: string;
+	endAt?: string;
+	maxRuns?: number;
+	taskType?: string;
+	taskInput?: CronJsonValue;
+	confirmed?: boolean;
+}
+
+export const cronTool: AgentTool<CronCompatArgs> = {
+	name: 'cron',
+	ownerOnly: true,
+	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
+	description:
+		'Manage scheduled jobs through CronService. Use this only for future, delayed, recurring, reminder, wake, or manual-run scheduling. Do not use this to start immediate in-memory task execution.',
+	schema: {
+		type: 'object',
+		properties: {
+			action: {
+				type: 'string',
+				enum: ['status', 'list', 'get', 'add', 'update', 'remove', 'run', 'runs'],
+			},
+			jobId: { type: 'string', description: 'Canonical cron job id.' },
+			id: { type: 'string', description: 'Compatibility alias for jobId.' },
+			includeDisabled: { type: 'boolean' },
+			filter: { type: 'object', additionalProperties: true },
+			job: { type: 'object', additionalProperties: true },
+			patch: { type: 'object', additionalProperties: true },
+			name: { type: 'string' },
+			description: { type: 'string' },
+			enabled: { type: 'boolean' },
+			deleteAfterRun: { type: 'boolean' },
+			type: {
+				type: 'string',
+				enum: ['cron', 'interval', 'fixedRate', 'fixedDelay', 'oneTime', 'calendar', 'manual'],
+			},
+			timezone: { type: 'string' },
+			cronExpression: { type: 'string' },
+			cron: { type: 'string' },
+			expr: { type: 'string' },
+			intervalMs: { type: 'number' },
+			runAt: { type: 'string' },
+			startAt: { type: 'string' },
+			endAt: { type: 'string' },
+			maxRuns: { type: 'number' },
+			taskType: { type: 'string' },
+			taskInput: {},
+			confirmed: { type: 'boolean' },
+		},
+		required: ['action'],
+		additionalProperties: false,
+	},
+	needsApproval: (args) => ['add', 'update', 'remove', 'run'].includes(args.action),
+	async execute(args, ctx) {
+		const service = cronService(ctx);
+		if (!service) return textResult('cron: CronService is unavailable.', true);
+		try {
+			const actor = cronActor(ctx, args);
+			if (args.action === 'status') {
+				return jsonText({ ok: true, service: 'CronService' });
+			}
+			if (args.action === 'list') {
+				return jsonText(await service.listSchedules(args.filter ?? {}, actor));
+			}
+			if (args.action === 'get') {
+				return jsonText(await service.getSchedule(requireCronId(args), actor));
+			}
+			if (args.action === 'add') {
+				return jsonText(await service.createSchedule(cronCreateRequest(args, ctx), actor));
+			}
+			if (args.action === 'update') {
+				return jsonText(await service.updateSchedule(requireCronId(args), args.patch ?? {}, actor));
+			}
+			if (args.action === 'remove') {
+				await service.deleteSchedule(requireCronId(args), actor);
+				return textResult(`removed cron schedule ${requireCronId(args)}`);
+			}
+			if (args.action === 'run') {
+				return jsonText(await service.runScheduleNow(requireCronId(args), actor));
+			}
+			if (args.action === 'runs') {
+				return jsonText(await service.getScheduleExecutions(requireCronId(args)));
+			}
+			return textResult(`cron: unsupported action ${String(args.action)}`, true);
+		} catch (err) {
+			return textResult(`cron: ${(err as Error).message}`, true);
+		}
+	},
+};
+
+function requireCronId(args: CronCompatArgs): string {
+	const id = (args.jobId ?? args.id ?? '').trim();
+	if (!id) throw new Error('jobId is required.');
+	return id;
+}
+
+function cronCreateRequest(args: CronCompatArgs, ctx: ToolContext): CronScheduleCreateRequest {
+	if (args.job) return args.job;
+	if (!args.taskType) throw new Error('taskType is required for cron add.');
+	if (args.taskInput === undefined) throw new Error('taskInput is required for cron add.');
+	const type = args.type ?? (args.runAt ? 'oneTime' : args.intervalMs ? 'interval' : 'cron');
+	return {
+		name: args.name ?? args.jobId ?? args.id ?? 'Scheduled job',
+		description: args.description,
+		type,
+		source: 'tool',
+		sourceId: ctx.sessionId,
+		sessionId: ctx.sessionId,
+		createdBy: ctx.agentId ?? ctx.sessionId,
+		timezone: args.timezone,
+		cronExpression: args.cronExpression ?? args.expr ?? args.cron,
+		intervalMs: args.intervalMs,
+		runAt: args.runAt,
+		startAt: args.startAt,
+		endAt: args.endAt,
+		maxRuns: args.maxRuns,
+		taskType: args.taskType,
+		taskInput: args.taskInput,
+		enabled: args.enabled,
+	};
+}
+
 function checkCronPolicy(ctx: ToolContext, toolName: string, params: unknown): string | null {
 	const policy = ctx.services.policy;
 	if (!policy) return null;
