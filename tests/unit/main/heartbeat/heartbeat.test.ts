@@ -98,8 +98,8 @@ function makeHeartbeatHarness(options: {
 			defaultTarget: '123',
 		})),
 	};
-	const workspace = {
-		readWorkspaceFile: jest.fn(async () => ({
+	const startupFiles = {
+		readFile: jest.fn(async () => ({
 			name: 'HEARTBEAT.md',
 			path: options.heartbeatFile?.path ?? '/workspace/HEARTBEAT.md',
 			missing: options.heartbeatFile?.missing ?? true,
@@ -150,13 +150,13 @@ function makeHeartbeatHarness(options: {
 		errorHeartbeat: jest.fn((message: string, error?: unknown) => {
 			logger.error('HeartbeatService', message, error);
 		}),
-		readHeartbeatWorkspaceFile: workspace.readWorkspaceFile,
+		readHeartbeatStartupFile: startupFiles.readFile,
 		getHeartbeatChannel: channels.getChannel,
 		getHeartbeatChannelConfig: channels.getChannelConfig,
 		getHeartbeatChannelRegistry: jest.fn(() => undefined),
 	};
 	const heartbeat = new HeartbeatService(agentService as never);
-	return { heartbeat, heartbeatStore, channels, workspace, eventBus, agentService, getHeartbeatState: () => heartbeatState };
+	return { heartbeat, heartbeatStore, channels, startupFiles, eventBus, agentService, getHeartbeatState: () => heartbeatState };
 }
 
 describe('heartbeat helpers', () => {
