@@ -5,7 +5,7 @@ import { AgentRunLogger } from '../../../../src/main/run-logger';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {
-	it('uses agent app-data workspaces and agent.json settings for agent config', async () => {
+	it('uses the agent app-data per-agent directory and agent.json settings for agent config', async () => {
 		const root = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
