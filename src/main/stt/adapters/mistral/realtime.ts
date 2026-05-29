@@ -3,21 +3,21 @@ import type {
 	RealtimeConnection,
 	RealtimeEvent,
 } from '@mistralai/mistralai/extra/realtime';
-import type { RealtimeTranscriptionSession } from '../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
+import type { RealtimeTranscriptionSession } from '../../../../shared/realtime-transcription';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../../shared/agents/service';
 import {
 	MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 	MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../shared/providers';
+} from '../../../../shared/providers';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
-} from './audio';
+} from '../../audio';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from './types';
+} from '../../types';
 
 const MISTRAL_PROVIDER_ID = 'mistral';
 const CONNECT_TIMEOUT_MS = 10_000;

@@ -3,21 +3,21 @@ import WebSocket from 'ws';
 import {
 	ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../shared/providers';
+} from '../../../../shared/providers';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
-} from '../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../shared/agents/service';
+} from '../../../../shared/realtime-transcription';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../../shared/agents/service';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
-} from './audio';
+} from '../../audio';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from './types';
+} from '../../types';
 
 type ElevenLabsRealtimeEvent = Record<string, unknown> & {
 	message_type?: string;
