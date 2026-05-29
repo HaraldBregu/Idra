@@ -67,7 +67,7 @@ describe('AgentService agent storage wiring', () => {
 		await expect(service.send('hello')).resolves.toBe('done');
 
 		expect(agentSettings.getAgentConfig).toHaveBeenCalledWith('main');
-		expect(agentDataDirectory.resolve).toHaveBeenCalledWith('workspaces', 'main');
+		expect(agentDataDirectory.resolve).toHaveBeenCalledWith();
 		expect(providerFactory).toHaveBeenCalledWith({
 			id: 'anthropic',
 			apiKey: 'sk-test',
