@@ -102,7 +102,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.register(
 		'startupFiles',
 		new AgentStartupFilesService({
-			rootPath: agentDataDirectory.resolve('workspaces'),
+			rootPath: agentDataDirectory.resolve(),
 			logger,
 		})
 	);
