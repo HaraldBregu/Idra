@@ -129,6 +129,78 @@ describe('AgentService', () => {
 		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
+	it('adds and forces heartbeat_respond for heartbeat runs that request tool reporting', async () => {
+		const sessionBaseDir = await makeTempDir();
+		const deps = makeDeps();
+		const requests: ProviderStreamRequest[] = [];
+		const toolService: any = {
+			createDefaultTools: jest.fn(() => []),
+			filterToolsByAllowlist: jest.fn((tools) => tools),
+			filterToolsByDenylist: jest.fn((tools) => tools),
+			createCallTracker: jest.fn(() => ({})),
+			createManagementOptions: jest.fn((options) => options ?? {}),
+			prepareToolsForProvider: jest.fn((tools) => tools),
+			selectToolsForTurn: jest.fn((tools) => ({
+				toolsForPrompt: [],
+				systemPromptSuffix: '',
+				rankedTools: tools,
+			})),
+			prepareToolsForRun: jest.fn(({ tools, management }) => ({
+				toolsForPrompt: tools,
+				systemPromptSuffix: '',
+				rankedTools: tools,
+				management: management ?? {},
+			})),
+			beforeCall: jest.fn(async () => ({ proceed: true })),
+			executeToolWithManagement: jest.fn((toolToRun, args, ctx) =>
+				toolToRun.execute(args, ctx)
+			),
+			getToolRegistry: jest.fn(() => new Map()),
+			getToolsByGroup: jest.fn(() => []),
+		};
+		const policy: any = {
+			evaluateToolRequest: jest.fn(() => ({ shouldUseTools: false, reason: 'no tools' })),
+		};
+		const service = new AgentService(
+			{ ...deps, policy: policy as never, toolService: toolService as never },
+			{
+				sessionBaseDir,
+				providerFactory: () => ({
+					async *stream(request) {
+						requests.push(request);
+						yield { type: 'text_delta' as const, text: 'HEARTBEAT_OK' };
+						yield {
+							type: 'message_end' as const,
+							stopReason: 'end_turn',
+							usage: { inputTokens: 1, outputTokens: 1 },
+						};
+					},
+				}),
+				toolsFactory: () => [],
+				toolService: toolService as never,
+			}
+		);
+
+		await expect(
+			service.send('heartbeat', 'main', {
+				heartbeat: {
+					enableHeartbeatTool: true,
+					forceHeartbeatTool: true,
+					onToolResponse: jest.fn(),
+				},
+			})
+		).resolves.toBe('HEARTBEAT_OK');
+
+		expect(toolService.selectToolsForTurn).toHaveBeenCalledWith(
+			expect.arrayContaining([expect.objectContaining({ name: 'heartbeat_respond' })]),
+			'heartbeat',
+			expect.any(Object),
+			expect.any(Object)
+		);
+		expect(requests[0]?.tools.map((tool) => tool.name)).toContain('heartbeat_respond');
+		await fs.rm(sessionBaseDir, { recursive: true, force: true });
+	});
+
 	it('creates, reads, updates, lists, and deletes agent runs through the service', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
