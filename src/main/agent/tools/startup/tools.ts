@@ -73,7 +73,6 @@ export function createStartupFilesTool(
 			},
 			additionalProperties: false,
 		},
-		needsApproval: (args) => ['write', 'complete_bootstrap'].includes(actionFromArgs(args)),
 		async execute(args) {
 			try {
 				const action = actionFromArgs(args);
