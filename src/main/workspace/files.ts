@@ -62,14 +62,28 @@ export type WorkspaceFileSummary = {
 };
 
 const BUNDLED_TEMPLATES: Record<string, string> = Object.fromEntries(
-	Object.entries(
-		import.meta.glob('../agent/templates/*.md', {
-			query: '?raw',
-			eager: true,
-			import: 'default',
-		}) as Record<string, string>
-	).map(([templatePath, content]) => [path.basename(templatePath), stripFrontMatter(content)])
+	[
+		...Object.entries(
+			import.meta.glob('../agent/templates/*.md', {
+				query: '?raw',
+				eager: true,
+				import: 'default',
+			}) as Record<string, string>
+		),
+		...Object.entries(
+			import.meta.glob('../templates/*.md', {
+				query: '?raw',
+				eager: true,
+				import: 'default',
+			}) as Record<string, string>
+		),
+	].map(([templatePath, content]) => [path.basename(templatePath), stripFrontMatter(content)])
 );
+
+const FALLBACK_TEMPLATE_DIRS = [
+	path.resolve(process.cwd(), 'src', 'main', 'templates'),
+	path.resolve(process.cwd(), 'src', 'main', 'agent', 'templates'),
+];
 
 const workspaceFileNames = new Set<string>(WORKSPACE_CONTEXT_FILE_NAMES);
 
@@ -87,12 +101,14 @@ export async function loadWorkspaceTemplate(name: WorkspaceFileName): Promise<st
 	const bundled = BUNDLED_TEMPLATES[name];
 	if (bundled !== undefined) return bundled;
 
-	const sourcePath = path.resolve(process.cwd(), 'src', 'main', 'agent', 'templates', name);
-	try {
-		return stripFrontMatter(await fs.readFile(sourcePath, 'utf8'));
-	} catch {
-		throw new Error(`Missing workspace template: ${name}`);
+	for (const dir of FALLBACK_TEMPLATE_DIRS) {
+		try {
+			return stripFrontMatter(await fs.readFile(path.join(dir, name), 'utf8'));
+		} catch {
+			// try next template directory
+		}
 	}
+	throw new Error(`Missing workspace template: ${name}`);
 }
 
 export async function writeFileIfMissing(filePath: string, content: string): Promise<boolean> {
