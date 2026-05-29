@@ -8,10 +8,12 @@ import {
 	buildExecEventPrompt,
 	buildHeartbeatPrompt,
 	computeNextHeartbeatPhaseDueMs,
+	createHeartbeatResponseTool,
 	emptyHeartbeatStoreState,
 	isHeartbeatContentEffectivelyEmpty,
 	isHeartbeatTaskDue,
 	normalizeHeartbeatReply,
+	normalizeHeartbeatToolResponse,
 	parseHeartbeatDurationMs,
 	parseHeartbeatTasks,
 	requestHeartbeat,
@@ -457,14 +459,35 @@ describe('heartbeat helpers', () => {
 			heartbeatContent: 'tasks:\n  - name: inbox\n    interval: 30m\n    prompt: "Check inbox."\n\nUse short alerts.',
 			dueTasks: [{ name: 'inbox', interval: '30m', prompt: 'Check inbox.' }],
 			deliverToUser: true,
+			useResponseTool: true,
 			now: new Date('2026-05-18T12:00:00.000Z'),
 		});
 		expect(prompt).toContain('Only these HEARTBEAT.md tasks are due now');
 		expect(prompt).toContain('Use short alerts.');
 		expect(prompt).toContain('/workspace/HEARTBEAT.md');
+		expect(prompt).toContain('Use heartbeat_respond to report the outcome.');
 	});
 
-	it('normalizes structured and text heartbeat replies', () => {
+	it('normalizes structured and text heartbeat replies', async () => {
+		const onResponse = jest.fn();
+		const tool = createHeartbeatResponseTool(onResponse);
+		await expect(
+			tool.execute({
+				outcome: 'needs_attention',
+				notify: true,
+				summary: 'summary',
+				notificationText: 'alert',
+				priority: 'high',
+			}, {} as never)
+		).resolves.toMatchObject({ status: 'ok' });
+		expect(onResponse).toHaveBeenCalledWith({
+			outcome: 'needs_attention',
+			notify: true,
+			summary: 'summary',
+			notificationText: 'alert',
+			priority: 'high',
+		});
+		expect(normalizeHeartbeatToolResponse({ outcome: 'bad', notify: false, summary: 'x' })).toBeUndefined();
 		expect(normalizeHeartbeatReply({
 			toolResponse: { outcome: 'no_change', notify: false, summary: 'nothing' },
 			ackMaxChars: 300,
@@ -606,6 +629,11 @@ describe('HeartbeatService', () => {
 				providerId: 'openai',
 				model: 'gpt-5.4',
 				effort: 'high',
+				heartbeat: expect.objectContaining({
+					enableHeartbeatTool: true,
+					forceHeartbeatTool: true,
+					onToolResponse: expect.any(Function),
+				}),
 			})
 		);
 	});
