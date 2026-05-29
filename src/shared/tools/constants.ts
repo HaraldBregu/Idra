@@ -92,7 +92,7 @@ export interface AgentToolMetadata {
 
 const DEFAULT_TOOL_PROFILES = AGENT_TOOL_STANDARD_PROFILES;
 const OPTIONAL_TOOL_PROFILES = ['full'] as const satisfies readonly AgentToolProfile[];
-const LEGACY_TOOL_PROFILES = [] as const satisfies readonly AgentToolProfile[];
+const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
 
 function tool<TName extends string>(metadata: AgentToolMetadata & { name: TName }) {
 	return metadata;
@@ -239,6 +239,16 @@ const DEFAULT_STATE_TASK_TOOLS = [
 		description: 'Mark the current task or a todo item as complete.',
 		permissions: ['state'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	}),
+	tool({
+		name: 'task',
+		group: 'stateTask',
+		title: 'Background task',
+		description: 'Start an immediate in-memory agent background task.',
+		permissions: ['state'],
+		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	}),
@@ -477,6 +487,29 @@ const DEFAULT_WEB_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	}),
+	tool({
+		name: 'browser',
+		group: 'web',
+		title: 'Managed browser',
+		description: 'Control the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions.',
+		permissions: ['read'],
+		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	}),
+] as const;
+
+const DEFAULT_CRON_TOOLS = [
+	tool({
+		name: 'cron',
+		group: 'cron',
+		title: 'Cron',
+		description: 'Create, list, update, remove, inspect, or run scheduled jobs.',
+		permissions: ['cron:createSchedule', 'cron:listSchedules', 'cron:updateSchedule', 'cron:deleteSchedule', 'cron:runScheduleNow'],
+		approval: AGENT_TOOL_APPROVAL_ALWAYS,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	}),
 ] as const;
 
 const OPTIONAL_SCRIPT_TOOLS = [
@@ -667,6 +700,26 @@ const LEGACY_CORE_WORKSPACE_TOOLS = [
 		availability: 'legacy',
 	}),
 	tool({
+		name: 'exec',
+		group: 'coreWorkspace',
+		title: 'Exec',
+		description: 'Run a shell command in the workspace with capped output and optional background mode.',
+		permissions: ['read', 'write', 'execute'],
+		approval: AGENT_TOOL_APPROVAL_ALWAYS,
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
+	}),
+	tool({
+		name: 'process',
+		group: 'coreWorkspace',
+		title: 'Process',
+		description: 'List, inspect logs for, or kill background processes started by exec.',
+		permissions: ['execute'],
+		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
+	}),
+	tool({
 		name: 'filesystem_create',
 		group: 'coreWorkspace',
 		title: 'Filesystem create',
@@ -752,7 +805,7 @@ const ALIAS_CORE_WORKSPACE_TOOLS = [
 ] as const;
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
-	coreWorkspace: DEFAULT_CORE_WORKSPACE_TOOLS,
+	coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
 	stateTask: DEFAULT_STATE_TASK_TOOLS,
 	humanDecision: DEFAULT_HUMAN_DECISION_TOOLS,
 	subagent: DEFAULT_SUBAGENT_TOOLS,
@@ -760,7 +813,7 @@ export const AGENT_DEFAULT_TOOL_GROUPS = {
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
 	web: DEFAULT_WEB_TOOLS,
 	script: [],
-	cron: [],
+	cron: DEFAULT_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_TOOL_GROUPS = {
@@ -776,7 +829,7 @@ export const AGENT_TOOL_GROUPS = {
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
 	web: DEFAULT_WEB_TOOLS,
 	script: OPTIONAL_SCRIPT_TOOLS,
-	cron: OPTIONAL_CRON_TOOLS,
+	cron: [...DEFAULT_CRON_TOOLS, ...OPTIONAL_CRON_TOOLS],
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_DEFAULT_TOOLS = [
@@ -787,6 +840,7 @@ export const AGENT_DEFAULT_TOOLS = [
 	...AGENT_DEFAULT_TOOL_GROUPS.skill,
 	...AGENT_DEFAULT_TOOL_GROUPS.mcpConnector,
 	...AGENT_DEFAULT_TOOL_GROUPS.web,
+	...AGENT_DEFAULT_TOOL_GROUPS.cron,
 ] as const;
 
 export const AGENT_TOOLS = [
@@ -815,10 +869,24 @@ export const AGENT_TOOL_NAMES = [
 	'git_status',
 	'git_diff',
 	'undo_last_operation',
+	'read',
+	'write',
+	'edit',
+	'apply_patch',
+	'delete',
+	'copy',
+	'move',
+	'inspect_file',
+	'find',
+	'exec',
+	'process',
+	'filesystem_create',
+	'filesystem_list',
 	'write_todos',
 	'update_todo',
 	'list_todos',
 	'complete_task',
+	'task',
 	'write_scratch',
 	'read_scratch',
 	'request_approval',
@@ -841,6 +909,8 @@ export const AGENT_TOOL_NAMES = [
 	'load_mcp_prompt',
 	'web_fetch',
 	'open_browser',
+	'browser',
+	'cron',
 ] as const satisfies readonly AgentDefaultToolName[];
 
 export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map((tool) => tool.name) as readonly AgentToolName[];
