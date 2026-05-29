@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Activity,
@@ -15,14 +15,31 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import {
+	DEFAULT_MODEL_REASONING_EFFORT,
+	getModelReasoningEfforts,
+	supportsModelReasoningEffortProvider,
+	type Model,
+	type ModelReasoningEffort,
+} from '../../../../../../shared/agents/service';
+import { getDefaultAgentModels } from '../../../../../../shared/agents/models';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatEventStatus,
+	HeartbeatSettings,
 	HeartbeatStatus,
 	HeartbeatTimingSettings,
 } from '../../../../../../shared/heartbeat';
+import type { PublicProvider } from '../../../../../../shared/providers';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -33,7 +50,15 @@ import {
 	SettingsSection,
 } from '../../components';
 
-type Operation = 'refresh' | 'toggle' | 'timing' | 'wake' | 'event-now' | 'event-next' | null;
+type Operation =
+	| 'refresh'
+	| 'toggle'
+	| 'timing'
+	| 'model'
+	| 'wake'
+	| 'event-now'
+	| 'event-next'
+	| null;
 
 interface TimingDraft {
 	every: string;
@@ -59,6 +84,13 @@ function timingToDraft(timing: HeartbeatTimingSettings): TimingDraft {
 		end: timing.activeHours?.end ?? '',
 		timezone: timing.activeHours?.timezone ?? '',
 	};
+}
+
+function heartbeatModelsForProvider(providerId: string, settings?: HeartbeatSettings | null): Model[] {
+	const models = getDefaultAgentModels(providerId);
+	if (!settings?.modelId || settings.providerId !== providerId) return models;
+	if (models.some((model) => model.id === settings.modelId)) return models;
+	return [...models, { id: settings.modelId, name: settings.modelId }];
 }
 
 function parseDurationMs(raw: string): number | null {
