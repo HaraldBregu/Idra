@@ -48,7 +48,7 @@ describe('AgentService agent storage wiring', () => {
 				cron: {} as never,
 				logger: makeLogger() as never,
 				eventBus: { broadcast: jest.fn(), emit: jest.fn(), on: jest.fn() } as never,
-				workspace: { getRootPath: jest.fn(() => path.join(root, 'workspaces', 'main')) } as never,
+				workspace: { getRootPath: jest.fn(() => path.join(root, 'main')) } as never,
 				userDataDirectory: {} as never,
 				agentDataDirectory,
 				agentSettings: agentSettings as never,
