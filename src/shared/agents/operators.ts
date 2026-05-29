@@ -1,6 +1,6 @@
 import type { AgentsHeartbeatConfig } from '../heartbeat';
 import type { Provider } from '../providers';
-import { SPEECH_TO_TEXT_MODELS, TEXT_TO_VIDEO_MODELS } from '../providers';
+import { IMAGE_CREATOR_MODELS, SPEECH_TO_TEXT_MODELS, TEXT_TO_VIDEO_MODELS } from '../providers';
 import type { Model } from './reasoning';
 
 export type OperatorStatus = 'implemented' | 'placeholder' | 'pending-runtime';
@@ -155,6 +155,8 @@ export const SPEECH_TRANSCRIBER_MODELS = SPEECH_TO_TEXT_MODELS;
 export const TEXT_TO_SPEECH_AGENT_ID = TEXT_TO_SPEECH_OPERATOR_ID;
 /** @deprecated Use IMAGE_CREATOR_OPERATOR_ID. */
 export const IMAGE_ASSISTANT_AGENT_ID = IMAGE_CREATOR_OPERATOR_ID;
+/** @deprecated Use IMAGE_CREATOR_MODELS. */
+export const IMAGE_ASSISTANT_MODELS = IMAGE_CREATOR_MODELS;
 /** @deprecated Use TEXT_TO_VIDEO_OPERATOR_ID. */
 export const VIDEO_CREATOR_AGENT_ID = TEXT_TO_VIDEO_OPERATOR_ID;
 /** @deprecated Use MUSIC_CREATOR_OPERATOR_ID. */
