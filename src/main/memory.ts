@@ -37,7 +37,7 @@ export interface MemoryManagerOptions {
 }
 
 /**
- * Per-agent markdown memory. Lives in the agent app-data workspaces directory.
+ * Per-agent markdown memory. Lives in the agent app-data directory under the agent id.
  * Templates are bundled into the main process build and seeded on first init;
  * BOOTSTRAP.md is re-seeded only when the workspace is fresh (no SOUL.md yet).
  */
