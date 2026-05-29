@@ -796,6 +796,7 @@ export const AGENT_TOOLS = [
 	...AGENT_TOOL_GROUPS.subagent,
 	...AGENT_TOOL_GROUPS.skill,
 	...AGENT_TOOL_GROUPS.mcpConnector,
+	...AGENT_TOOL_GROUPS.web,
 	...AGENT_TOOL_GROUPS.script,
 	...AGENT_TOOL_GROUPS.cron,
 ] as const;
