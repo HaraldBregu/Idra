@@ -1,6 +1,6 @@
-import { HEARTBEAT_OK } from '../../shared/heartbeat';
-import type { AgentTool } from '../agent/tools/core/types';
-import { textResult } from '../agent/tools/core/types';
+import { HEARTBEAT_OK } from '../../../shared/heartbeat';
+import type { AgentTool } from '../../agent/tools/core/types';
+import { textResult } from '../../agent/tools/core/types';
 
 export const HEARTBEAT_RESPONSE_TOOL_NAME = 'heartbeat_respond';
 
