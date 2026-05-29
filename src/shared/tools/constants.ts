@@ -774,6 +774,7 @@ export const AGENT_TOOL_GROUPS = {
 	subagent: DEFAULT_SUBAGENT_TOOLS,
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
+	web: DEFAULT_WEB_TOOLS,
 	script: OPTIONAL_SCRIPT_TOOLS,
 	cron: OPTIONAL_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
