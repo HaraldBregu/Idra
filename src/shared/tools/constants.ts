@@ -70,6 +70,10 @@ export const AGENT_TOOL_GROUP_METADATA = {
 		title: 'Cron tools',
 		description: 'Create, read, update, delete, pause, resume, and run scheduled jobs.',
 	},
+	web: {
+		title: 'Web tools',
+		description: 'Fetch web content and open URLs in the default browser.',
+	},
 } as const;
 
 export type AgentToolGroupName = keyof typeof AGENT_TOOL_GROUP_METADATA;
