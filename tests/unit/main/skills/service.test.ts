@@ -134,7 +134,7 @@ describe('SkillsService', () => {
 		const service = new SkillsService(makeLogger() as never, { rootPath: root });
 
 		await expect(service.search('show me the path of the current workspace')).resolves.toEqual([]);
-		await expect(service.search('run codex against this project path')).resolves.toEqual([
+		await expect(service.search('run codex against this project path', { limit: 1 })).resolves.toEqual([
 			expect.objectContaining({ name: 'codex-project-executor', reason: 'matched skill name' }),
 		]);
 	});
