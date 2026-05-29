@@ -595,12 +595,13 @@ describe('heartbeat wake queue', () => {
 
 describe('HeartbeatService', () => {
 	it('runs when HEARTBEAT.md is missing and suppresses OK-only replies', async () => {
-		const { heartbeat, agentService, eventBus } = makeHeartbeatHarness({
+		const { heartbeat, agentService, eventBus, startupFiles } = makeHeartbeatHarness({
 			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: { missing: true },
 		});
 
 		await expect(heartbeat.runHeartbeatOnce({ source: 'manual', intent: 'manual' })).resolves.toMatchObject({ status: 'ran' });
+		expect(startupFiles.readFile).toHaveBeenCalledWith('main', 'HEARTBEAT.md');
 		expect(agentService.send).toHaveBeenCalled();
 		expect(eventBus.emit).toHaveBeenCalledWith('heartbeat:event', expect.objectContaining({ status: 'ok-token', silent: true }));
 	});
