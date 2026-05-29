@@ -12,3 +12,15 @@ export const AGENT_RUN_STOP_REASONS = [
 	'cancelled',
 ] as const;
 export type AgentRunStopReason = (typeof AGENT_RUN_STOP_REASONS)[number];
+
+export function isAgentCapabilityServiceKind(value: unknown): value is AgentCapabilityServiceKind {
+	return AGENT_CAPABILITY_SERVICE_KINDS.includes(value as AgentCapabilityServiceKind);
+}
+
+export function isAgentToolResultStatus(value: unknown): value is AgentToolResultStatus {
+	return AGENT_TOOL_RESULT_STATUSES.includes(value as AgentToolResultStatus);
+}
+
+export function isAgentRunStopReason(value: unknown): value is AgentRunStopReason {
+	return AGENT_RUN_STOP_REASONS.includes(value as AgentRunStopReason);
+}
