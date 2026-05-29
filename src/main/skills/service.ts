@@ -640,7 +640,7 @@ function scoreSkill(
 	let matchedName = 0;
 	let matchedDescription = 0;
 	for (const token of queryTokens) {
-		if (nameTokens.some((nameToken) => nameToken === token || nameToken.includes(token) || token.includes(nameToken))) {
+		if (nameTokens.some((nameToken) => nameToken === token || nameToken.includes(token))) {
 			score += 12;
 			matchedName++;
 		} else if (descriptionTokens.some((descriptionToken) => descriptionToken === token || descriptionToken.includes(token))) {
