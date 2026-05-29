@@ -20,6 +20,7 @@ import {
 } from './agent';
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
+import { AgentPermissionsStore } from './agent/permissions';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { MonitorService } from './monitor';
