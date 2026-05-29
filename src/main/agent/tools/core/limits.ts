@@ -14,6 +14,14 @@ export const TOOL_LIMITS = {
 		backoffMs: 100,
 		maxCallsPerTurn: 16,
 	},
+	exec: {
+		timeoutMs: 120_000,
+		maxTimeoutMs: 600_000,
+		maxOutputBytes: 16 * 1024,
+		maxOutputLines: 200,
+		rateLimitCalls: 10,
+		rateLimitWindowMs: 60_000,
+	},
 	read: {
 		defaultLines: 2_000,
 		maxLines: 50_000,
