@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import { resolveDefaultAgentDataPath } from './storage';
+import { resolveDefaultAgentDataPath } from '../storage';
 
 export interface AgentPermissions {
 	allow: string[];
