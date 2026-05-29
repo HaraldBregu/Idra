@@ -1085,8 +1085,8 @@ export class AgentService {
 		if (this.startupFilesService) return this.startupFilesService;
 		this.startupFilesService = new AgentStartupFilesService({
 			rootPath:
-				this.dependencies.agentDataDirectory?.resolve('workspaces') ??
-				resolveDefaultAgentDataPath('workspaces'),
+				this.dependencies.agentDataDirectory?.resolve() ??
+				resolveDefaultAgentDataPath(),
 			logger: this.dependencies.logger,
 		});
 		return this.startupFilesService;
