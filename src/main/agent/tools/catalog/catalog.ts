@@ -47,6 +47,8 @@ import {
 	readMcpResourceTool,
 	refreshMcpServerTool,
 } from '../mcp/tools';
+import { webFetchTool } from '../web/tools';
+import { openBrowserTool } from '../app/tools';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
