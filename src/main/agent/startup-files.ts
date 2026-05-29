@@ -18,8 +18,8 @@ import {
 	type WorkspaceContextFile,
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
-} from '../workspace/files';
-import { resolveDefaultAgentDataPath } from './storage';
+} from '../../workspace/files';
+import { resolveDefaultAgentDataPath } from '../storage';
 
 export interface AgentStartupFilesServiceOptions {
 	rootPath?: string;
