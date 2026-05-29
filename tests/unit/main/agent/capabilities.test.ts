@@ -3,12 +3,13 @@ import type { AgentTool } from '../../../../src/main/agent/tools';
 import type { SkillDetails, SkillSearchResult } from '../../../../src/shared/skills';
 import { makeToolContext } from '../test-helpers';
 
-function tool(name: string, description: string): AgentTool {
+function tool(name: string, description: string, overrides: Partial<AgentTool> = {}): AgentTool {
 	return {
 		name,
 		description,
 		schema: { type: 'object', properties: {}, additionalProperties: false },
 		execute: jest.fn(),
+		...overrides,
 	};
 }
 
@@ -100,5 +101,43 @@ describe('AgentCapabilityService', () => {
 			decision: { mode: 'use_tools_and_skills' },
 			directAnswer: false,
 		});
+	});
+
+	it('preserves MCP service kind metadata from connector tools', async () => {
+		const streamEvent = jest.fn();
+		const service = new AgentCapabilityService({
+			connectors: {
+				createAgentTools: jest.fn(() => [
+					tool('search_docs', 'Search docs connector.'),
+					tool('mcp_read_repo', 'Read repository through MCP.', {
+						serviceKind: 'mcp',
+						serviceId: 'github',
+						displayName: 'GitHub MCP',
+					}),
+				]),
+			} as never,
+		});
+
+		const result = await service.resolveForPrompt(baseInput({
+			userMessage: 'read repository docs',
+			streamEvent,
+		}));
+
+		expect(result.connectorTools).toEqual([
+			expect.objectContaining({ name: 'search_docs', serviceKind: 'connector' }),
+			expect.objectContaining({
+				name: 'mcp_read_repo',
+				serviceKind: 'mcp',
+				serviceId: 'github',
+			}),
+		]);
+		expect(streamEvent).toHaveBeenCalledWith(expect.objectContaining({
+			type: 'capability_resolution_result',
+			connectorTools: ['search_docs', 'mcp_read_repo'],
+			mcpTools: ['mcp_read_repo'],
+			services: expect.arrayContaining([
+				expect.objectContaining({ name: 'mcp_read_repo', serviceKind: 'mcp', serviceId: 'github' }),
+			]),
+		}));
 	});
 });
