@@ -2,7 +2,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app } from 'electron';
 
-import { SkillsService, SkillsServiceError } from '../../../../src/main/agent/skills';
+import { SkillsService, SkillsServiceError } from '../../../../src/main/skills';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 async function writeSkill(
