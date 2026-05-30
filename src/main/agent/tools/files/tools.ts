@@ -6,7 +6,18 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
-import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from './path-policy';
+
+function expandUser(p: string): string {
+	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
+	return p;
+}
+
+function resolveAbs(workspace: string, target: string): string {
+	const expanded = expandUser(target);
+	return path.isAbsolute(expanded)
+		? path.resolve(expanded)
+		: path.resolve(workspace, expanded);
+}
 
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
 	return { mtimeMs: stat.mtimeMs, size: stat.size };
