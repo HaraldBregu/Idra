@@ -125,8 +125,6 @@ export const writeTool: AgentTool<WriteArgs> = {
 		required: ['path', 'content'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) =>
-		outsidePathNeedsApproval(ctx, args.path, ['write', 'create'], 'any'),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('write: disabled by read-only filesystem policy.', true);
@@ -137,8 +135,6 @@ export const writeTool: AgentTool<WriteArgs> = {
 		} catch (err) {
 			return textResult(`write: ${(err as Error).message}`, true);
 		}
-		const writeRestricted = checkFsRestriction(ctx, abs, 'write', true);
-		if (writeRestricted) return textResult(writeRestricted, true);
 		let exists = false;
 		let stat: { mtimeMs: number; size: number } | null = null;
 		try {
