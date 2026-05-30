@@ -1,9 +1,21 @@
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
-import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from '../files/path-policy';
+
+function expandUser(p: string): string {
+	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
+	return p;
+}
+
+function resolveAbs(workspace: string, target: string): string {
+	const expanded = expandUser(target);
+	return path.isAbsolute(expanded)
+		? path.resolve(expanded)
+		: path.resolve(workspace, expanded);
+}
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MAX_TIMEOUT_MS = 120_000;
