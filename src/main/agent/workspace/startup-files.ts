@@ -168,37 +168,6 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		return false;
 	}
 
-	private async readState(root: string): Promise<StartupState> {
-		try {
-			const raw = await fs.readFile(this.statePath(root), 'utf8');
-			const parsed = JSON.parse(raw) as Partial<StartupState>;
-			return {
-				version: STATE_VERSION,
-				bootstrapSeededAt:
-					typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
-				setupCompletedAt:
-					typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
-			};
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code === 'ENOENT' || error instanceof SyntaxError) {
-				return { version: STATE_VERSION };
-			}
-			throw error;
-		}
-	}
-
-	private async writeState(root: string, state: StartupState): Promise<void> {
-		const statePath = this.statePath(root);
-		await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
-		await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
-			encoding: 'utf8',
-			mode: 0o600,
-		});
-	}
-
-	private statePath(root: string): string {
-		return path.join(root, STATE_DIRNAME, STATE_FILENAME);
-	}
 }
 
 async function fileContentDiffersFromTemplate(filePath: string, template: string): Promise<boolean> {
