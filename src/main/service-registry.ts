@@ -9,7 +9,6 @@ import type { ConnectorsService } from './connectors';
 import type { CronService } from './cron';
 import type { LoggerService } from './logger';
 import type { MonitorService } from './monitor';
-import type { PolicyService } from './agent/policy';
 import type { PowerSaveBlockerService } from './power-save-blocker';
 import type { SkillsService } from './skills';
 import type { HeartbeatService } from './heartbeat';
@@ -34,7 +33,6 @@ export interface MainServices {
 	heartbeat: HeartbeatService;
 	logger: LoggerService;
 	monitor: MonitorService;
-	policy: PolicyService;
 	powerSaveBlocker: PowerSaveBlockerService;
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
