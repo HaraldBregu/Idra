@@ -434,7 +434,7 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('confines mutating file targets to the workspace by default', async () => {
+	it('allows mutating file targets outside the workspace by default', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
@@ -444,12 +444,9 @@ describe('tools/fs', () => {
 		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
-		).toBe('error');
-		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
-
-		expect(
-			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
 		).toBe('ok');
+		await expect(fs.readFile(path.join(outside, 'new.txt'), 'utf8')).resolves.toBe('x');
+
 		expect(
 			(
 				await copyTool.execute(
@@ -460,7 +457,8 @@ describe('tools/fs', () => {
 					ctx
 				)
 			).status
-		).toBe('error');
+		).toBe('ok');
+		await expect(fs.readFile(path.join(outside, 'copy.txt'), 'utf8')).resolves.toBe('outside');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
