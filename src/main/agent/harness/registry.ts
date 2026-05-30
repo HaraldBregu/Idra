@@ -1,4 +1,4 @@
-import type { AgentHarness, AgentHarnessSupportDecision } from './types';
+import type { AgentHarness } from './types';
 
 const AGENT_HARNESS_REGISTRY_STATE = Symbol.for('friday.agentHarnessRegistryState');
 
@@ -20,10 +20,6 @@ export function registerAgentHarness(harness: AgentHarness): () => void {
 	};
 }
 
-export function getAgentHarness(id: string): AgentHarness | undefined {
-	return getRegistryState().harnesses.get(id);
-}
-
 export function getRegisteredHarnesses(): AgentHarness[] {
 	return Array.from(getRegistryState().harnesses.values());
 }
@@ -43,16 +39,3 @@ export async function resetRegisteredAgentHarnesses(input: { reason: string }): 
 		})
 	);
 }
-
-export function adaptAgentHarnessToV2(harness: AgentHarness): AgentHarness {
-	return harness;
-}
-
-function getSupport(
-	harness: AgentHarness,
-	input: { provider: string; modelId: string }
-): AgentHarnessSupportDecision {
-	return harness.supports?.(input) ?? { supported: true };
-}
-
-export { getSupport as getAgentHarnessSupport };
