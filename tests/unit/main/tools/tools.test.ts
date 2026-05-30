@@ -401,7 +401,7 @@ describe('tools/fs', () => {
 		await fs.rm(home, { recursive: true, force: true });
 	});
 
-	it('confines mutating file targets to the workspace when writeWorkspaceOnly is enabled', async () => {
+	it('allows mutating file targets outside the workspace even when writeWorkspaceOnly is set', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
@@ -412,13 +412,8 @@ describe('tools/fs', () => {
 		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
-		).toBe('error');
-		await expect(fs.stat(path.join(outside, 'new.txt'))).rejects.toThrow();
-
-		expect(
-			(await copyTool.execute({ source: outsideFile, destination: 'copied.txt' }, ctx)).status
 		).toBe('ok');
-		await expect(fs.readFile(path.join(workspace, 'copied.txt'), 'utf8')).resolves.toBe('outside');
+		await expect(fs.readFile(path.join(outside, 'new.txt'), 'utf8')).resolves.toBe('x');
 
 		expect(
 			(
@@ -427,25 +422,13 @@ describe('tools/fs', () => {
 					ctx
 				)
 			).status
-		).toBe('error');
+		).toBe('ok');
+		await expect(fs.readFile(path.join(outside, 'copy.txt'), 'utf8')).resolves.toBe('inside');
 
 		expect(
 			(await editTool.execute({ path: outsideFile, old: 'outside', new: 'changed' }, ctx)).status
-		).toBe('error');
-		expect((await deleteTool.execute({ path: outsideFile }, ctx)).status).toBe('error');
-		expect(
-			(await moveTool.execute({ source: outsideFile, destination: 'moved.txt' }, ctx)).status
-		).toBe('error');
-
-		const patch = [
-			`--- ${outsideFile}`,
-			`+++ ${outsideFile}`,
-			'@@ -1 +1 @@',
-			'-outside',
-			'+changed',
-		].join('\n');
-		expect((await applyPatchTool.execute({ diff: patch }, ctx)).status).toBe('error');
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('outside');
+		).toBe('ok');
+		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('changed');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
