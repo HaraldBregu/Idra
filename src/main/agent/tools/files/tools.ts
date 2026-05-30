@@ -193,7 +193,6 @@ export const editTool: AgentTool<EditArgs> = {
 		required: ['path', 'old', 'new'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['write']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('edit: disabled by read-only filesystem policy.', true);
@@ -203,8 +202,6 @@ export const editTool: AgentTool<EditArgs> = {
 		} catch (err) {
 			return textResult(`edit: ${(err as Error).message}`, true);
 		}
-		const editRestricted = checkFsRestriction(ctx, abs, 'edit', true);
-		if (editRestricted) return textResult(editRestricted, true);
 		if (args.old === args.new) return textResult('edit: old and new are identical', true);
 		let stat;
 		try {
