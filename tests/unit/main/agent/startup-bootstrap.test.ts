@@ -84,7 +84,7 @@ describe('AgentService first-run startup bootstrap', () => {
 		await expect(service.send('hi')).resolves.toBe('Hi, I am Friday.');
 
 		expect(requests[0]!.system).toContain('BOOTSTRAP.md is pending');
-		expect(requests[0]!.system).toContain('Start with a brief presentation');
+		expect(requests[0]!.system).toContain("Start a real conversation");
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['startup_files']);
 		await expect(startupFiles.isBootstrapPending('main')).resolves.toBe(true);
 	});
