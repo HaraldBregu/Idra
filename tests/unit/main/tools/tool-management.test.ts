@@ -715,7 +715,7 @@ describe('tool management layer', () => {
 		expect(execute).toHaveBeenCalled();
 	});
 
-	it('runs workspace-local write tools without confirmation and rejects outside writes', async () => {
+	it('runs workspace-local write tools without confirmation and allows outside writes', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		const insideCtx = makeToolContext({ workspace });
@@ -726,20 +726,14 @@ describe('tool management layer', () => {
 		);
 		expect(inside.status).toBe('ok');
 
-		const outsideCtx = makeToolContext({
-			workspace,
-			fsPolicy: { writeWorkspaceOnly: false },
-		});
+		const outsideCtx = makeToolContext({ workspace });
 		const outsideWrite = await executeAgentToolWithManagement(
 			writeTool,
-			{ path: `${outside}/outside.txt`, content: 'no' },
+			{ path: `${outside}/outside.txt`, content: 'yes' },
 			outsideCtx
 		);
-		expect(outsideWrite.status).toBe('rejected');
-		expect(outsideWrite.content[0]).toEqual({
-			type: 'text',
-			text: 'tool write requires approval before execution.',
-		});
+		expect(outsideWrite.status).toBe('ok');
+		await expect(fs.readFile(`${outside}/outside.txt`, 'utf8')).resolves.toBe('yes');
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
