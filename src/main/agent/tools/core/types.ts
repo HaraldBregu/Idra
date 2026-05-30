@@ -2,7 +2,7 @@ import type { EventBus } from '../../../core/event-bus';
 import type { LoggerService } from '../../../logger';
 import type { CronService } from '../../../cron';
 import type { ConnectorsService } from '../../../connectors';
-import type { ToolPolicyServicePort } from '../policy';
+import type { ToolPolicyServicePort } from '../tool-types';
 import type { StoreService } from '../../../store';
 import type { TasksService } from '../../../tasks';
 import type { SkillsService } from '../../../skills';
