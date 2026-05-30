@@ -32,7 +32,7 @@ import { DEFAULT_AGENT_ID } from '../constants';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
 import {
 	ToolPolicyService,
-	type ToolToolPolicyServicePort,
+	type ToolPolicyServicePort,
 } from './tools/policy';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import {
@@ -96,7 +96,7 @@ export interface AgentServiceDependencies {
 	skills?: SkillsService;
 	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
-	policy?: ToolToolPolicyServicePort;
+	policy?: ToolPolicyServicePort;
 	toolService?: ToolServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
@@ -238,7 +238,7 @@ export class AgentService {
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly toolService: ToolServicePort;
-	private readonly policyService: ToolToolPolicyServicePort;
+	private readonly policyService: ToolPolicyServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;

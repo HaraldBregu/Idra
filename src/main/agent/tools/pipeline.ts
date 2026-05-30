@@ -2,7 +2,7 @@ import type { AgentTool, FilteredToolDiagnostic, ToolDiagnostics } from './core/
 import { getToolMetadata, normalizeToolName } from './core/common';
 import {
 	ToolPolicyService,
-	type ToolToolPolicyServicePort,
+	type ToolPolicyServicePort,
 	type ToolPolicy,
 	type ToolPolicyStageName,
 	type ToolPolicySubject,
@@ -19,7 +19,7 @@ export type ToolPolicyPipelineContext = {
 	trustedOwnerToolGrants?: string[];
 	stages?: Partial<Record<PolicyStageName, ToolPolicy | undefined>>;
 	diagnostics?: ToolDiagnostics;
-	policy?: Pick<ToolToolPolicyServicePort, 'evaluateTools'>;
+	policy?: Pick<ToolPolicyServicePort, 'evaluateTools'>;
 };
 
 export type ToolPolicyPipelineResult = {

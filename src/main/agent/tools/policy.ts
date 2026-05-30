@@ -366,7 +366,7 @@ export function createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): T
 	return { names, pluginIds, ownerGroups };
 }
 
-export type ToolToolToolPolicyServicePort = {
+export type ToolToolPolicyServicePort = {
 	createToolUseKey(toolName: string, params: unknown): string;
 	evaluateTools(
 		subjects: readonly ToolPolicySubject[],
@@ -394,7 +394,7 @@ export type ToolToolToolPolicyServicePort = {
 	getCoreToolGroups(): Record<string, readonly string[]>;
 };
 
-export class ToolToolPolicyService implements ToolToolToolPolicyServicePort {
+export class ToolToolPolicyService implements ToolToolPolicyServicePort {
 	createToolUseKey(toolName: string, params: unknown): string {
 		return toolUsePolicyKey(toolName, params);
 	}

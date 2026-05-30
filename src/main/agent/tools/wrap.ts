@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
-import { ToolPolicyService, type ToolToolPolicyServicePort } from './policy';
+import { ToolPolicyService, type ToolPolicyServicePort } from './policy';
 import {
 	copyToolMetadata,
 	getToolMetadata,
@@ -59,7 +59,7 @@ export type BeforeToolCallContext = {
 	loopWarnAt?: number;
 	loopStopAt?: number;
 	policy?: Pick<
-		ToolToolPolicyServicePort,
+		ToolPolicyServicePort,
 		'createToolUseKey' | 'evaluateToolUse' | 'evaluateToolHook' | 'evaluateToolApproval'
 	>;
 	signal?: AbortSignal;

@@ -1,6 +1,6 @@
 import {
 	ToolPolicyService,
-	type ToolToolPolicyServicePort,
+	type ToolPolicyServicePort,
 	type ToolPolicySubject,
 } from './policy';
 import type { CronService } from '../../cron';
@@ -36,7 +36,7 @@ export type {
 } from './management';
 
 export interface ToolServiceOptions {
-	policy?: ToolToolPolicyServicePort;
+	policy?: ToolPolicyServicePort;
 	cron?: CronService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -63,12 +63,12 @@ export interface ToolServicePort {
 	filterToolsByAllowlist(
 		tools: AgentTool[],
 		allowlist: string[] | undefined,
-		policy?: ToolToolPolicyServicePort
+		policy?: ToolPolicyServicePort
 	): AgentTool[];
 	filterToolsByDenylist(
 		tools: AgentTool[],
 		denylist: string[] | undefined,
-		policy?: ToolToolPolicyServicePort
+		policy?: ToolPolicyServicePort
 	): AgentTool[];
 	createCallTracker(): CallTracker;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
@@ -155,7 +155,7 @@ export class ToolService implements ToolServicePort {
 	filterToolsByAllowlist(
 		tools: AgentTool[],
 		allowlist: string[] | undefined,
-		policy?: ToolToolPolicyServicePort
+		policy?: ToolPolicyServicePort
 	): AgentTool[] {
 		if (!allowlist) return tools;
 		const filtered = filterTools(tools, { allow: allowlist }, policy ?? this.policy);
@@ -170,7 +170,7 @@ export class ToolService implements ToolServicePort {
 	filterToolsByDenylist(
 		tools: AgentTool[],
 		denylist: string[] | undefined,
-		policy?: ToolToolPolicyServicePort
+		policy?: ToolPolicyServicePort
 	): AgentTool[] {
 		if (!denylist?.length) return tools;
 		const filtered = filterTools(tools, { deny: denylist }, policy ?? this.policy);
@@ -339,7 +339,7 @@ export class ToolService implements ToolServicePort {
 function filterTools(
 	tools: AgentTool[],
 	runtime: { allow?: string[]; deny?: string[] },
-	policy?: ToolToolPolicyServicePort
+	policy?: ToolPolicyServicePort
 ): AgentTool[] {
 	const catalog = localToolCatalogByName();
 	const subjects: ToolPolicySubject[] = tools.map((tool) => {

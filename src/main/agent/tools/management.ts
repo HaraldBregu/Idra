@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
-import { ToolPolicyService, type ToolToolPolicyServicePort } from './policy';
+import { ToolPolicyService, type ToolPolicyServicePort } from './policy';
 
 const defaultToolPolicyService = new ToolPolicyService();
 const GENERIC_TOOL_ACTION_TOKENS = new Set([
@@ -162,7 +162,7 @@ export async function executeAgentToolWithManagement(
 
 export class ToolUsePolicy {
 	constructor(
-		private readonly policy: Pick<ToolToolPolicyServicePort, 'evaluateToolRequest'> = defaultToolPolicyService
+		private readonly policy: Pick<ToolPolicyServicePort, 'evaluateToolRequest'> = defaultToolPolicyService
 	) {}
 
 	evaluate(_options: { userRequest: string }): { shouldUseTools: boolean; reason: string } {

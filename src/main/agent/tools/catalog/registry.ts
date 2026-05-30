@@ -1,4 +1,4 @@
-import { ToolPolicyService, type ToolToolPolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../policy';
+import { ToolPolicyService, type ToolPolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../policy';
 import type { AgentTool } from '../core/types';
 import { normalizeToolName } from '../core/common';
 import { LOCAL_TOOL_CATALOG, localToolCatalogByName } from './catalog';
@@ -33,7 +33,7 @@ const defaultToolPolicyService = new ToolPolicyService();
 
 export function createTools(
 	cfg: PolicyConfig,
-	policy: Pick<ToolToolPolicyServicePort, 'evaluateTools'> = defaultToolPolicyService
+	policy: Pick<ToolPolicyServicePort, 'evaluateTools'> = defaultToolPolicyService
 ): AgentTool[] {
 	const tools = PRELOADED_LOCAL_TOOLS as unknown as AgentTool[];
 	const catalog = localToolCatalogByName();
