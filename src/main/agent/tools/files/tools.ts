@@ -270,21 +270,6 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 		required: ['diff'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => {
-		try {
-			return parseUnifiedDiff(String(args.diff ?? '')).some((patch) => {
-				const permission =
-					patch.operation === 'create'
-						? 'create'
-						: patch.operation === 'delete'
-							? 'delete'
-							: 'write';
-				return outsidePathNeedsApproval(ctx, patch.path, [permission]);
-			});
-		} catch {
-			return false;
-		}
-	},
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('apply_patch: disabled by read-only filesystem policy.', true);
