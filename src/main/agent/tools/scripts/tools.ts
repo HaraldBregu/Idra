@@ -3,7 +3,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
-import { checkFilePolicy } from '../files/policy';
 import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from '../files/path-policy';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -105,11 +104,6 @@ export const scriptRunTool: AgentTool<ScriptRunArgs> = {
 		if (scriptRestricted) return textResult(scriptRestricted, true);
 		const cwdRestricted = checkFsRestriction(ctx, cwdAbs, 'script_run', true);
 		if (cwdRestricted) return textResult(cwdRestricted, true);
-		const denied = checkFilePolicy(ctx, 'script_run', [
-			{ path: scriptAbs, permission: 'read' },
-			{ path: cwdAbs, permission: 'write' },
-		]);
-		if (denied) return textResult(denied, true);
 
 		try {
 			const scriptStat = await fs.stat(scriptAbs);
