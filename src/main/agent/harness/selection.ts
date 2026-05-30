@@ -1,12 +1,7 @@
-import { agentLogger } from '../logger';
 import { createPiAgentHarness } from './builtin-pi';
-import { ensureAgentHarnessRuntimeActivated } from './activation';
-import { runAgentHarnessV2LifecycleAttempt } from './v2';
 import { getRegisteredHarnesses } from './registry';
 import type {
 	AgentHarness,
-	AgentHarnessAttemptParams,
-	AgentHarnessAttemptResult,
 	AgentHarnessCompactParams,
 	AgentHarnessSupportDecision,
 } from './types';
@@ -71,33 +66,6 @@ export function selectAgentHarness(input: {
 		});
 
 	return supported[0]?.harness ?? createPiAgentHarness();
-}
-
-export async function runAgentHarnessAttempt(
-	params: AgentHarnessAttemptParams & { requestedRuntime?: string; storedRuntime?: string }
-): Promise<AgentHarnessAttemptResult> {
-	const policy = resolveAgentHarnessPolicy({
-		requestedRuntime: params.requestedRuntime,
-		storedRuntime: params.storedRuntime,
-	});
-	await ensureAgentHarnessRuntimeActivated({
-		runtime: policy.runtime,
-		provider: params.provider,
-		modelId: params.model,
-	});
-	const harness = selectAgentHarness({
-		provider: params.provider,
-		modelId: params.model,
-		requestedRuntime: params.requestedRuntime,
-		storedRuntime: params.storedRuntime,
-	});
-	agentLogger.debug('agents/harness', 'agent harness selected', {
-		runtime: policy.runtime,
-		harnessId: harness.id,
-		provider: params.provider,
-		model: params.model,
-	});
-	return runAgentHarnessV2LifecycleAttempt(harness, params);
 }
 
 export async function maybeCompactAgentHarnessSession(params: AgentHarnessCompactParams): Promise<unknown> {
