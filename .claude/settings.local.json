@@ -239,7 +239,8 @@
       "Bash(echo)",
       "Bash(echo \"=== remaining templates ===\")",
       "Bash(echo '----- __TRACKED_VAR__.md -----')",
-      "Bash(echo '==================== __TRACKED_VAR__.ts ====================')"
+      "Bash(echo '==================== __TRACKED_VAR__.ts ====================')",
+      "Bash(echo \"TSC_EXIT=$?\")"
     ],
     "deny": [
       "Bash(git push --force:*)",

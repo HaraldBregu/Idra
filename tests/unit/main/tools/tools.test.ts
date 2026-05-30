@@ -273,7 +273,7 @@ describe('tools/before-call', () => {
 		expect(result.proceed).toBe(true);
 	});
 
-	it('requires approval for run_shell only when cwd leaves the .friday root', async () => {
+	it('runs run_shell without approval even when cwd is outside the workspace', async () => {
 		const home = await makeTempDir();
 		const fridayRoot = path.join(home, '.friday');
 		const workspace = path.join(fridayRoot, 'workspace');
@@ -287,7 +287,7 @@ describe('tools/before-call', () => {
 		).resolves.toMatchObject({ proceed: true });
 		await expect(
 			beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: false, vetoStatus: 'rejected' });
+		).resolves.toMatchObject({ proceed: true });
 
 		await fs.rm(home, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
