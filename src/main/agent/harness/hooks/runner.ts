@@ -8,10 +8,6 @@ export type AgentHarnessHookContext = {
 	channelId?: string;
 };
 
-export function buildAgentHookContext(params: AgentHarnessHookContext): AgentHarnessHookContext {
-	return { ...params };
-}
-
 export type AgentHarnessLifecycleHookName =
 	| 'before_agent_start'
 	| 'before_prompt_build'
