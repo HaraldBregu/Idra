@@ -25,7 +25,7 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from './runtime/adapt';
-import type { ToolProfile } from './policy';
+import type { ToolProfile } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();
 const TOOL_SERVICE_LOG_SOURCE = 'ToolService';
