@@ -238,7 +238,8 @@
       "Bash(echo \"=== node/yarn ===\")",
       "Bash(echo)",
       "Bash(echo \"=== remaining templates ===\")",
-      "Bash(echo '----- __TRACKED_VAR__.md -----')"
+      "Bash(echo '----- __TRACKED_VAR__.md -----')",
+      "Bash(echo '==================== __TRACKED_VAR__.ts ====================')"
     ],
     "deny": [
       "Bash(git push --force:*)",

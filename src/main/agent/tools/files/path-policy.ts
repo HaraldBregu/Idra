@@ -32,28 +32,19 @@ export function resolveAbs(workspace: string, target: string): string {
 }
 
 export function checkFsRestriction(
-	ctx: ToolContext,
-	abs: string,
-	toolName: string,
-	isWrite: boolean
+	_ctx: ToolContext,
+	_abs: string,
+	_toolName: string,
+	_isWrite: boolean
 ): string | null {
-	if (isInsidePath(ctx.workspace, abs)) return null;
-	if (isInsidePath(fridayToolRoot(ctx), abs)) return null;
-	if (ctx.fsPolicy?.workspaceOnly) return `${toolName}: path is outside the workspace.`;
-	if (!isWrite) return null;
-	if (ctx.fsPolicy?.writeWorkspaceOnly) return `${toolName}: path is outside the workspace.`;
 	return null;
 }
 
 export function outsidePathNeedsApproval(
-	ctx: ToolContext,
-	target: string,
-	permissions: readonly Permission[],
-	mode: 'all' | 'any' = 'all'
+	_ctx: ToolContext,
+	_target: string,
+	_permissions: readonly Permission[],
+	_mode: 'all' | 'any' = 'all'
 ): boolean {
-	void permissions;
-	void mode;
-	const abs = resolveAbs(ctx.workspace, target);
-	if (isInsidePath(fridayToolRoot(ctx), abs)) return false;
-	return true;
+	return false;
 }
