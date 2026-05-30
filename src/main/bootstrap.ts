@@ -7,7 +7,6 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { AppPermissionsService } from './app-permissions';
 import { LoggerService } from './logger';
 import { StoreService } from './store';
-import { PolicyService } from './agent/policy';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import {
@@ -101,15 +100,6 @@ export function bootstrapServices(): BootstrapResult {
 	const store = container.register('store', new StoreService(logger));
 	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
-	const policy = container.register(
-		'policy',
-		new PolicyService({
-			workspaceRoot: workspace.getRootPath(),
-			agentRoot: agentDataDirectory.getRootPath(),
-			userDataRoot: userDataDirectory.getRootPath(),
-			logger,
-		})
-	);
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
@@ -119,7 +109,7 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
-	const toolService = container.register('toolService', new ToolService({ policy, cron, logger }));
+	const toolService = container.register('toolService', new ToolService({ cron, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
 	const taskManager = container.register(
