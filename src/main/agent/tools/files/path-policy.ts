@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
-import type { Permission } from '../../../../shared/policy';
 import type { ToolContext } from '../core/types';
+import type { Permission } from './policy';
 import { filePolicyAllows, hasFilePolicy } from './policy';
 
 export function expandUser(p: string): string {
