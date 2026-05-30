@@ -265,8 +265,6 @@ export const undoLastOperationTool: AgentTool = {
 		}
 			const entry = undoStacks.get(ctx)?.pop();
 			if (!entry) return textResult('undo_last_operation: no reversible operation recorded.', true);
-			const restricted = checkFsRestriction(ctx, entry.abs, 'undo_last_operation', true);
-			if (restricted) return textResult(restricted, true);
 			try {
 			if (entry.before.kind === 'missing') {
 				await fs.rm(entry.abs, { force: true });
