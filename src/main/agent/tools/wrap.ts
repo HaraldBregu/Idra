@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
-import { ToolPolicyService, type ToolPolicyServicePort } from './policy';
+import { ToolPolicyService, type ToolPolicyServicePort } from './tool-types';
 import {
 	copyToolMetadata,
 	getToolMetadata,
