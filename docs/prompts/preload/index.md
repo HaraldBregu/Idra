@@ -16,7 +16,6 @@ Expose small APIs that delegate to the relevant main-process service through typ
 - Channels API: expose channel configuration and lifecycle operations through `window.channels`.
 - Connectors API: expose connector configuration, OAuth, tools, and tool calls through `window.connectors`.
 - Skills API: expose skill management through `window.skills`.
-- Policy API: expose policy configuration through `window.policy`.
 - Store API: expose store-backed settings through `window.store`.
 
 ## Shared Rules

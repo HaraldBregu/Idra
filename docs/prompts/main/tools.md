@@ -6,17 +6,17 @@ The tools module provides application tools that can be used by other processes.
 
 Use appropriate design patterns and follow the project's software standards when implementing or refactoring the tools module. Patterns should solve real service-boundary, lifecycle, dependency, authorization, integration, or validation problems; do not add decorative abstractions.
 
-The tools module can depend on `PolicyService`, `CronService`, `SkillsService`, and `ConnectorService`:
+The tools module can depend on its internal `ToolPolicyService`, `CronService`, `SkillsService`, and `ConnectorService`:
 
-- Use `PolicyService` to evaluate whether a tool action is allowed.
+- Use `ToolPolicyService` to evaluate tool availability, request-level tool decisions, execution gating, approvals, loop detection, and hook decisions.
 - Use `CronService` when a tool needs scheduled execution.
 - Use `SkillsService` when a tool needs to use skills.
 - Use `ConnectorService` when a tool needs to call connector-based services or integrations.
-- Do not reimplement policy checks or cron scheduling inside individual tools.
+- Do not reimplement tool policy checks or cron scheduling inside individual tools.
 
 ## Dependencies
 
-- `PolicyService`: evaluate whether tool actions are allowed.
+- `ToolPolicyService`: evaluate whether tool actions are allowed.
 - `CronService`: run scheduling behavior for cron tools.
 - `SkillsService`: provide skill access for tools that use skills.
 - `ConnectorService`: access and coordinate connector-backed integrations.
@@ -48,7 +48,7 @@ Add filesystem tools as a dedicated group:
 - Copy filesystem tool.
 - Search filesystem tool.
 
-Filesystem tools should use `PolicyService` before reading, writing, moving, copying, searching, or deleting files.
+Filesystem tools should use the tools module workspace-boundary helpers before writing, moving, copying, or deleting files. Persisted shared path policy is not part of the tools module.
 
 ## Cron Tools
 
@@ -63,7 +63,7 @@ Add cron tools as a dedicated group:
 - Stop cron tool.
 - Run cron tool.
 
-Cron tools should use `PolicyService` before creating, reading, updating, deleting, listing, starting, stopping, or running cron jobs.
+Cron tools should use the tools module policy pipeline before creating, reading, updating, deleting, listing, starting, stopping, or running cron jobs.
 
 Cron tools should use `CronService` for all scheduling behavior. They must not start schedules directly or duplicate cron logic.
 
@@ -76,7 +76,7 @@ Use the application's logger for all operational reporting, including lifecycle 
 When implementing or changing this module:
 
 - Always implement logging for new or changed operational behavior using the application logger. Do not use console logging for module behavior.
-- Respect the declared dependencies. Do not add service dependencies, bypass `PolicyService`, bypass `CronService`, or bypass `SkillsService` unless the existing project requirements explicitly require it.
+- Respect the declared dependencies. Do not add service dependencies, bypass `ToolPolicyService`, bypass `CronService`, or bypass `SkillsService` unless the existing project requirements explicitly require it.
 - Use appropriate design patterns when they solve real service-boundary, lifecycle, dependency, authorization, integration, or validation problems. Prefer the smallest existing project pattern that fits, and do not add decorative abstractions.
 - Follow the project's software standards for code quality, security, reliability, performance, maintainability, logging, error handling, and testing.
 - Refactor the owning service directly instead of layering patch-style fixes. Keep public behavior centralized in the service.
@@ -87,6 +87,6 @@ When implementing or changing this module:
 
 ## Testing
 
-Test each filesystem tool and cron tool through the exported tools service. Tests should cover policy checks, cron delegation, successful execution, failure handling, logging, and removal or refactoring of duplicate tool implementations.
+Test each filesystem tool and cron tool through the exported tools service. Tests should cover tool policy checks, cron delegation, successful execution, failure handling, logging, and removal or refactoring of duplicate tool implementations.
 
 When implementing the module, keep the structure minimal and service-focused. Do not add abstractions, configuration layers, or extra files unless they are required by the existing project conventions.
