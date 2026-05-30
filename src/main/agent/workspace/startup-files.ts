@@ -62,63 +62,27 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		const root = this.getRootPath(agentId);
 		await fs.mkdir(root, { recursive: true, mode: 0o700 });
 
-		let state = await this.readState(root);
-		let stateDirty = false;
-		const markState = (patch: Partial<StartupState>): void => {
-			state = { ...state, ...patch };
-			stateDirty = true;
-		};
-		const now = (): string => new Date().toISOString();
-		const bootstrapPath = path.join(root, DEFAULT_BOOTSTRAP_FILENAME);
-		let bootstrapExists = await pathExists(bootstrapPath);
-
 		for (const fileName of SEEDED_WORKSPACE_FILE_NAMES) {
 			await writeFileIfMissing(path.join(root, fileName), await loadWorkspaceTemplate(fileName));
 		}
 
-		if (!state.bootstrapSeededAt && bootstrapExists) {
-			markState({ bootstrapSeededAt: now() });
-		}
+		const bootstrapPath = path.join(root, DEFAULT_BOOTSTRAP_FILENAME);
+		let bootstrapExists = await pathExists(bootstrapPath);
 
-		if (!state.setupCompletedAt && state.bootstrapSeededAt && !bootstrapExists) {
-			markState({ setupCompletedAt: now() });
-		}
-
-		if (
-			!state.setupCompletedAt &&
-			bootstrapExists &&
-			(await this.profileLooksConfigured(root))
-		) {
+		if (bootstrapExists && (await this.profileLooksConfigured(root))) {
 			await fs.rm(bootstrapPath, { force: true });
 			bootstrapExists = false;
-			markState({
-				bootstrapSeededAt: state.bootstrapSeededAt ?? now(),
-				setupCompletedAt: now(),
-			});
 		}
 
-		if (!state.bootstrapSeededAt && !state.setupCompletedAt && !bootstrapExists) {
-			if (await this.profileLooksConfigured(root)) {
-				markState({ setupCompletedAt: now() });
-			} else {
-				const wroteBootstrap = await writeFileIfMissing(
-					bootstrapPath,
-					await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
-				);
-				bootstrapExists = wroteBootstrap || (await pathExists(bootstrapPath));
-				if (bootstrapExists) {
-					markState({ bootstrapSeededAt: now() });
-				}
-			}
+		if (!bootstrapExists && !(await this.profileLooksConfigured(root))) {
+			const wrote = await writeFileIfMissing(bootstrapPath, await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME));
+			bootstrapExists = wrote || (await pathExists(bootstrapPath));
 		}
 
-		if (stateDirty) {
-			await this.writeState(root, state);
-		}
 		this.logger?.debug?.('AgentStartupFilesService', 'Startup files ready', {
 			agentId,
 			root,
-			bootstrapPending: bootstrapExists && !state.setupCompletedAt,
+			bootstrapPending: bootstrapExists,
 		});
 	}
 
