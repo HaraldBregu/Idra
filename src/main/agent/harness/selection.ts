@@ -1,6 +1,5 @@
 import { agentLogger } from '../logger';
 import { createPiAgentHarness } from './builtin-pi';
-import { resolveAgentHarnessPolicy } from './policy';
 import { ensureAgentHarnessRuntimeActivated } from './activation';
 import { runAgentHarnessV2LifecycleAttempt } from './v2';
 import { getRegisteredHarnesses } from './registry';
