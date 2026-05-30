@@ -86,9 +86,6 @@ export const scriptRunTool: AgentTool<ScriptRunArgs> = {
 		required: ['path'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) =>
-		outsidePathNeedsApproval(ctx, args.path, ['read']) ||
-		(typeof args.cwd === 'string' && outsidePathNeedsApproval(ctx, args.cwd, ['write'])),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('script_run: disabled by read-only filesystem policy.', true);
@@ -111,11 +108,6 @@ export const scriptRunTool: AgentTool<ScriptRunArgs> = {
 		} catch (err) {
 			return textResult(`script_run: ${(err as Error).message}`, true);
 		}
-
-		const scriptRestricted = checkFsRestriction(ctx, scriptAbs, 'script_run', true);
-		if (scriptRestricted) return textResult(scriptRestricted, true);
-		const cwdRestricted = checkFsRestriction(ctx, cwdAbs, 'script_run', true);
-		if (cwdRestricted) return textResult(cwdRestricted, true);
 
 		try {
 			const scriptStat = await fs.stat(scriptAbs);
