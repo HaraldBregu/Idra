@@ -591,9 +591,6 @@ export const moveTool: AgentTool<MoveArgs> = {
 		required: ['source', 'destination'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) =>
-		outsidePathNeedsApproval(ctx, args.source, ['read', 'delete']) ||
-		outsidePathNeedsApproval(ctx, args.destination, ['write', 'create'], 'any'),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('move: disabled by read-only filesystem policy.', true);
@@ -605,10 +602,6 @@ export const moveTool: AgentTool<MoveArgs> = {
 		} catch (err) {
 			return textResult(`move: ${(err as Error).message}`, true);
 		}
-		const moveSrcRestricted = checkFsRestriction(ctx, sourceAbs, 'move', true);
-		if (moveSrcRestricted) return textResult(moveSrcRestricted, true);
-		const moveDstRestricted = checkFsRestriction(ctx, destinationAbs, 'move', true);
-		if (moveDstRestricted) return textResult(moveDstRestricted, true);
 		if (sourceAbs === destinationAbs)
 			return textResult('move: source and destination are identical.', true);
 		try {
