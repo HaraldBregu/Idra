@@ -200,8 +200,6 @@ export const gitStatusTool: AgentTool<{ path?: string }> = {
 	},
 	async execute(args, ctx) {
 		const cwd = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
-		const restricted = checkFsRestriction(ctx, cwd, 'git_status', false);
-		if (restricted) return textResult(restricted, true);
 		return commandResult(
 			'git_status',
 			await runProcess({
