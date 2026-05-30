@@ -1,6 +1,6 @@
 import {
-	PolicyService,
-	type PolicyServicePort,
+	ToolPolicyService,
+	type ToolToolPolicyServicePort,
 	type ToolPolicySubject,
 } from './policy';
 import type { CronService } from '../../cron';
@@ -27,7 +27,7 @@ import {
 } from './runtime/adapt';
 import type { ToolProfile } from './policy';
 
-const defaultPolicyService = new PolicyService();
+const defaultToolPolicyService = new ToolPolicyService();
 const TOOL_SERVICE_LOG_SOURCE = 'ToolService';
 
 export type {
@@ -36,7 +36,7 @@ export type {
 } from './management';
 
 export interface ToolServiceOptions {
-	policy?: PolicyServicePort;
+	policy?: ToolToolPolicyServicePort;
 	cron?: CronService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -63,12 +63,12 @@ export interface ToolServicePort {
 	filterToolsByAllowlist(
 		tools: AgentTool[],
 		allowlist: string[] | undefined,
-		policy?: PolicyServicePort
+		policy?: ToolToolPolicyServicePort
 	): AgentTool[];
 	filterToolsByDenylist(
 		tools: AgentTool[],
 		denylist: string[] | undefined,
-		policy?: PolicyServicePort
+		policy?: ToolToolPolicyServicePort
 	): AgentTool[];
 	createCallTracker(): CallTracker;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
@@ -111,7 +111,7 @@ export class ToolService implements ToolServicePort {
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 
 	constructor(options: ToolServiceOptions = {}) {
-		this.policy = options.policy ?? defaultPolicyService;
+		this.policy = options.policy ?? defaultToolPolicyService;
 		this.cron = options.cron;
 		this.logger = options.logger;
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Initialized tools service');
@@ -155,7 +155,7 @@ export class ToolService implements ToolServicePort {
 	filterToolsByAllowlist(
 		tools: AgentTool[],
 		allowlist: string[] | undefined,
-		policy?: PolicyServicePort
+		policy?: ToolToolPolicyServicePort
 	): AgentTool[] {
 		if (!allowlist) return tools;
 		const filtered = filterTools(tools, { allow: allowlist }, policy ?? this.policy);
@@ -170,7 +170,7 @@ export class ToolService implements ToolServicePort {
 	filterToolsByDenylist(
 		tools: AgentTool[],
 		denylist: string[] | undefined,
-		policy?: PolicyServicePort
+		policy?: ToolToolPolicyServicePort
 	): AgentTool[] {
 		if (!denylist?.length) return tools;
 		const filtered = filterTools(tools, { deny: denylist }, policy ?? this.policy);
@@ -339,7 +339,7 @@ export class ToolService implements ToolServicePort {
 function filterTools(
 	tools: AgentTool[],
 	runtime: { allow?: string[]; deny?: string[] },
-	policy?: PolicyServicePort
+	policy?: ToolToolPolicyServicePort
 ): AgentTool[] {
 	const catalog = localToolCatalogByName();
 	const subjects: ToolPolicySubject[] = tools.map((tool) => {
@@ -354,7 +354,7 @@ function filterTools(
 			groups: entry ? [`group:${entry.group}`] : undefined,
 		};
 	});
-	const policyService = policy ?? defaultPolicyService;
+	const policyService = policy ?? defaultToolPolicyService;
 	const result = policyService.evaluateTools(subjects, {
 		stages: { runtime },
 	});

@@ -1,14 +1,14 @@
 import type { AgentTool, ToolDiagnostics } from './core/common';
 import { getToolMetadata } from './core/common';
 import {
-	PolicyService,
+	ToolPolicyService,
 	type ToolPolicy,
 	type ToolPolicyIndex,
 	type ToolPolicyProfile,
 	type ToolPolicySubject,
 } from './policy';
 
-const policyService = new PolicyService();
+const policyService = new ToolPolicyService();
 
 export type ToolProfile = ToolPolicyProfile;
 export type { ToolPolicy };

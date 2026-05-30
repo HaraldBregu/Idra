@@ -1,4 +1,4 @@
-import type { PolicyServicePort } from '../policy';
+import type { ToolToolPolicyServicePort } from '../policy';
 import type { Permission, PolicyDecision } from '../../../../shared/policy';
 import type { ToolContext } from '../core/types';
 
@@ -7,8 +7,8 @@ export interface FilePolicyCheck {
 	permission: Permission;
 }
 
-function filePolicy(ctx: ToolContext): PolicyServicePort | undefined {
-	return (ctx.services as { policy?: PolicyServicePort } | undefined)?.policy;
+function filePolicy(ctx: ToolContext): ToolToolPolicyServicePort | undefined {
+	return (ctx.services as { policy?: ToolToolPolicyServicePort } | undefined)?.policy;
 }
 
 export function hasFilePolicy(ctx: ToolContext): boolean {

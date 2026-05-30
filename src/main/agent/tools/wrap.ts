@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
-import { PolicyService, type PolicyServicePort } from './policy';
+import { ToolPolicyService, type ToolToolPolicyServicePort } from './policy';
 import {
 	copyToolMetadata,
 	getToolMetadata,
@@ -59,7 +59,7 @@ export type BeforeToolCallContext = {
 	loopWarnAt?: number;
 	loopStopAt?: number;
 	policy?: Pick<
-		PolicyServicePort,
+		ToolToolPolicyServicePort,
 		'createToolUseKey' | 'evaluateToolUse' | 'evaluateToolHook' | 'evaluateToolApproval'
 	>;
 	signal?: AbortSignal;
@@ -75,7 +75,7 @@ export function newCallTracker(): CallTracker {
 
 const DEFAULT_LOOP_WARN_AT = 3;
 const DEFAULT_LOOP_STOP_AT = 5;
-const defaultPolicyService = new PolicyService();
+const defaultToolPolicyService = new ToolPolicyService();
 
 export function wrapToolWithBeforeToolCall(
 	tool: AgentTool,
@@ -89,7 +89,7 @@ export function wrapToolWithBeforeToolCall(
 			const diagnostics = context.diagnostics;
 			const effectiveSignal = signal ?? context.signal;
 			let params = tool.prepareArguments ? tool.prepareArguments(rawParams) : rawParams;
-			const policy = context.policy ?? defaultPolicyService;
+			const policy = context.policy ?? defaultToolPolicyService;
 			const key = policy.createToolUseKey(tool.name, params);
 			const count = (tracker.counts.get(key) ?? 0) + 1;
 			tracker.counts.set(key, count);
