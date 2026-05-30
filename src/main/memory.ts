@@ -1,11 +1,10 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { resolveDefaultUserDataPath } from './user-data';
+import { resolveDefaultAgentDataPath } from './agent/storage';
 
 const TEMPLATE_FILES = [
 	'AGENTS.md',
 	'SOUL.md',
-	'TOOLS.md',
 	'IDENTITY.md',
 	'USER.md',
 	'HEARTBEAT.md',
@@ -15,13 +14,22 @@ const TEMPLATE_FILES = [
 
 // Bundled at build time by Vite — keys are template filenames, values are file contents.
 const TEMPLATES: Record<string, string> = Object.fromEntries(
-	Object.entries(
-		import.meta.glob('./templates/*.md', {
-			query: '?raw',
-			eager: true,
-			import: 'default',
-		}) as Record<string, string>
-	).map(([p, content]) => [path.basename(p), content])
+	[
+		...Object.entries(
+			import.meta.glob('./agent/templates/*.md', {
+				query: '?raw',
+				eager: true,
+				import: 'default',
+			}) as Record<string, string>
+		),
+		...Object.entries(
+			import.meta.glob('./templates/*.md', {
+				query: '?raw',
+				eager: true,
+				import: 'default',
+			}) as Record<string, string>
+		),
+	].map(([p, content]) => [path.basename(p), content])
 );
 
 export interface MemoryManagerOptions {
@@ -29,7 +37,7 @@ export interface MemoryManagerOptions {
 }
 
 /**
- * Per-agent markdown memory. Lives in .friday/agent/workspaces/<id>/.
+ * Per-agent markdown memory. Lives in the agent app-data directory under the agent id.
  * Templates are bundled into the main process build and seeded on first init;
  * BOOTSTRAP.md is re-seeded only when the workspace is fresh (no SOUL.md yet).
  */
@@ -37,7 +45,7 @@ export class MemoryManager {
 	readonly workspace: string;
 
 	constructor(agentId: string, options: MemoryManagerOptions = {}) {
-		const baseDir = options.baseDir ?? resolveDefaultUserDataPath('agent', 'workspaces');
+		const baseDir = options.baseDir ?? resolveDefaultAgentDataPath();
 		this.workspace = path.join(baseDir, agentId);
 		console.log(`MemoryManager initialized with workspace: ${this.workspace}`);
 	}

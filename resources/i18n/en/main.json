@@ -630,6 +630,23 @@
 				"timezone": "Timezone",
 				"timezonePlaceholder": "Local timezone"
 			},
+			"model": {
+				"title": "Model",
+				"description": "Provider and model used for heartbeat runs.",
+				"provider": "Provider",
+				"providerDescription": "Configured provider for heartbeat checks.",
+				"providerPlaceholder": "Select provider",
+				"model": "Model",
+				"modelDescription": "Agent model used when heartbeat runs call the assistant.",
+				"modelPlaceholder": "Select model",
+				"reasoningEffort": "Effort",
+				"effort": {
+					"minimal": "Minimal",
+					"low": "Low",
+					"medium": "Medium",
+					"high": "High"
+				}
+			},
 			"last": {
 				"title": "Last Event",
 				"description": "Latest heartbeat status emitted by the gateway.",
@@ -655,6 +672,7 @@
 			"actions": {
 				"refresh": "Refresh",
 				"saveTiming": "Save timing",
+				"saveModel": "Save model",
 				"wakeNow": "Wake now",
 				"sendNow": "Send now",
 				"sendNext": "Send next"
@@ -679,6 +697,7 @@
 				"enabled": "Heartbeats resumed.",
 				"disabled": "Heartbeats paused.",
 				"timingSaved": "Heartbeat timing saved.",
+				"modelSaved": "Heartbeat model saved.",
 				"wakeQueued": "Manual heartbeat queued.",
 				"eventQueued": "System event queued for {{session}}."
 			},

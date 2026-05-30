@@ -18,6 +18,9 @@ export const AgentChannels = {
 	openHistoryFolder: 'agent:open-history-folder',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
+	listStartupFiles: 'agent:list-startup-files',
+	readStartupFile: 'agent:read-startup-file',
+	writeStartupFile: 'agent:write-startup-file',
 	listWorkspaceFiles: 'agent:list-workspace-files',
 	readWorkspaceFile: 'agent:read-workspace-file',
 	writeWorkspaceFile: 'agent:write-workspace-file',
@@ -63,6 +66,15 @@ export const RealtimeTranscriptionChannels = {
 	event: 'realtime-transcription:event',
 } as const;
 
+export const SpeechToTextChannels = {
+	transcribe: 'speech-to-text:transcribe',
+	startDictation: 'speech-to-text:start-dictation',
+	appendAudio: 'speech-to-text:append-audio',
+	finishDictation: 'speech-to-text:finish-dictation',
+	cancelDictation: 'speech-to-text:cancel-dictation',
+	event: 'speech-to-text:event',
+} as const;
+
 export const TaskChannels = {
 	start: 'tasks:start',
 	list: 'tasks:list',
@@ -105,7 +117,6 @@ export const CronChannels = {
 	getScheduleExecutions: 'cron:getScheduleExecutions',
 	getNextRuns: 'cron:getNextRuns',
 	runNow: 'cron:runNow',
-	action: 'cron:action',
 	subscribe: 'cron:subscribe',
 	unsubscribe: 'cron:unsubscribe',
 	event: 'cron:event',
@@ -114,16 +125,29 @@ export const CronChannels = {
 export const HeartbeatChannels = {
 	status: 'heartbeat:status',
 	last: 'heartbeat:last',
+	settings: 'heartbeat:settings',
+	saveSettings: 'heartbeat:save-settings',
 	setEnabled: 'heartbeat:set-enabled',
 	getTiming: 'heartbeat:get-timing',
 	updateTiming: 'heartbeat:update-timing',
+	setProviderId: 'heartbeat:set-provider-id',
+	setModelId: 'heartbeat:set-model-id',
+	setReasoningEffort: 'heartbeat:set-reasoning-effort',
 	systemEvent: 'heartbeat:system-event',
 	request: 'heartbeat:request',
 	event: 'heartbeat:event',
 } as const;
 
+export const MonitorChannels = {
+	snapshot: 'monitor:snapshot',
+	list: 'monitor:list',
+	get: 'monitor:get',
+	event: 'monitor:event',
+} as const;
+
 export const SkillsChannels = {
 	list: 'skills:list',
+	load: 'skills:load',
 	import: 'skills:import',
 	download: 'skills:download',
 	delete: 'skills:delete',
@@ -143,7 +167,7 @@ export const ConnectorsChannels = {
 	refreshTools: 'connectors:refreshTools',
 	listTools: 'connectors:listTools',
 	callTool: 'connectors:callTool',
-	connectOAuth: 'connectors:connectOAuth',
+	authorizeOAuth: 'connectors:authorizeOAuth',
 	get: 'connectors:get',
 } as const;
 
@@ -160,6 +184,41 @@ export const ChannelsChannels = {
 	stopTelegram: 'channels:telegram:stop',
 	restartTelegram: 'channels:telegram:restart',
 	statusChanged: 'channels:status-changed',
+} as const;
+
+export const StoreChannels = {
+	getProviders: 'store:get-providers',
+	setProviderApiKey: 'store:set-provider-api-key',
+	isProviderApiKeySaved: 'store:is-provider-api-key-saved',
+	addProvider: 'store:add-provider',
+	getKeepAwakeEnabled: 'store:get-keep-awake-enabled',
+	setKeepAwakeEnabled: 'store:set-keep-awake-enabled',
+	getAssistantSettings: 'store:get-assistant-settings',
+	getSpeechToTextSettings: 'store:get-speech-to-text-settings',
+	getTextToSpeechSettings: 'store:get-text-to-speech-settings',
+	getImageCreatorSettings: 'store:get-image-creator-settings',
+	getTextToVideoSettings: 'store:get-text-to-video-settings',
+	getTextToSoundSettings: 'store:get-text-to-sound-settings',
+	getCronSettings: 'store:get-cron-settings',
+	getTaskSettings: 'store:get-task-settings',
+	getAgentRoutingSettings: 'store:get-agent-routing-settings',
+	getConnectorSettings: 'store:get-connector-settings',
+	getAssistantOperator: 'store:get-assistant-operator',
+	saveAssistantOperator: 'store:save-assistant-operator',
+	getSpeechToTextOperator: 'store:get-speech-to-text-operator',
+	saveSpeechToTextOperator: 'store:save-speech-to-text-operator',
+	getTextToSpeechOperator: 'store:get-text-to-speech-operator',
+	saveTextToSpeechOperator: 'store:save-text-to-speech-operator',
+	getImageCreatorOperator: 'store:get-image-creator-operator',
+	saveImageCreatorOperator: 'store:save-image-creator-operator',
+	getTextToVideoOperator: 'store:get-text-to-video-operator',
+	saveTextToVideoOperator: 'store:save-text-to-video-operator',
+	getMusicCreatorOperator: 'store:get-music-creator-operator',
+	saveMusicCreatorOperator: 'store:save-music-creator-operator',
+	getAgentService: 'store:get-agent-service',
+	saveAgentService: 'store:save-agent-service',
+	getSpeechTranscriberService: 'store:get-speech-transcriber-service',
+	saveSpeechTranscriberService: 'store:save-speech-transcriber-service',
 } as const;
 
 interface AppInvokeChannelMap {
@@ -252,7 +311,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[ProviderChannels.getSpeechTranscriberService]: {
@@ -260,7 +322,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Agent | undefined;
 	};
 	[ProviderChannels.saveSpeechTranscriberService]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getAssistant]: {
@@ -268,7 +333,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').ConfiguredModelOperator | undefined;
 	};
 	[OperatorChannels.saveAssistant]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getSpeechToText]: {
@@ -280,7 +348,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveSpeechToText]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToSpeech]: {
@@ -292,7 +363,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToSpeech]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getImageCreator]: {
@@ -304,7 +378,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveImageCreator]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getTextToVideo]: {
@@ -316,7 +393,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveTextToVideo]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[OperatorChannels.getMusicCreator]: {
@@ -328,7 +408,10 @@ interface AppInvokeChannelMap {
 		result: import('../agents/service').Model[];
 	};
 	[OperatorChannels.saveMusicCreator]: {
-		args: [provider: import('../providers').PublicProvider, model: import('../agents/service').Model];
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
 		result: boolean;
 	};
 	[RealtimeTranscriptionChannels.start]: {
@@ -340,6 +423,25 @@ interface AppInvokeChannelMap {
 		result: void;
 	};
 	[RealtimeTranscriptionChannels.cancel]: {
+		args: [sessionId: string];
+		result: void;
+	};
+}
+
+interface SpeechToTextInvokeChannelMap {
+	[SpeechToTextChannels.transcribe]: {
+		args: [request: import('../speech-to-text').SpeechToTextTranscribeRequest];
+		result: import('../speech-to-text').SpeechToTextTranscription;
+	};
+	[SpeechToTextChannels.startDictation]: {
+		args: [request?: import('../speech-to-text').SpeechToTextDictationStartRequest];
+		result: import('../speech-to-text').SpeechToTextDictationSession;
+	};
+	[SpeechToTextChannels.finishDictation]: {
+		args: [sessionId: string];
+		result: void;
+	};
+	[SpeechToTextChannels.cancelDictation]: {
 		args: [sessionId: string];
 		result: void;
 	};
@@ -360,6 +462,18 @@ interface AgentInvokeChannelMap {
 		result: void;
 	};
 	[AgentChannels.cancel]: { args: []; result: void };
+	[AgentChannels.listStartupFiles]: {
+		args: [];
+		result: import('../agents/service').AgentStartupFileSummary[];
+	};
+	[AgentChannels.readStartupFile]: {
+		args: [name: string];
+		result: import('../agents/service').AgentStartupFileContent;
+	};
+	[AgentChannels.writeStartupFile]: {
+		args: [name: string, content: string];
+		result: import('../agents/service').AgentStartupFileContent;
+	};
 	[AgentChannels.listWorkspaceFiles]: {
 		args: [];
 		result: import('../agents/service').WorkspaceFileSummary[];
@@ -405,7 +519,10 @@ interface CronInvokeChannelMap {
 		args: [filter?: import('../cron').CronScheduleFilter];
 		result: import('../cron').CronSchedule[];
 	};
-	[CronChannels.getSchedule]: { args: [scheduleId: string]; result: import('../cron').CronSchedule };
+	[CronChannels.getSchedule]: {
+		args: [scheduleId: string];
+		result: import('../cron').CronSchedule;
+	};
 	[CronChannels.getScheduleEvents]: {
 		args: [scheduleId: string];
 		result: import('../cron').CronScheduleEvent[];
@@ -422,10 +539,6 @@ interface CronInvokeChannelMap {
 		args: [scheduleId: string];
 		result: import('../cron').CronScheduledTask;
 	};
-	[CronChannels.action]: {
-		args: [request: import('../cron').FridayCronToolRequest];
-		result: import('../cron').FridayCronToolResponse;
-	};
 }
 
 interface HeartbeatInvokeChannelMap {
@@ -436,6 +549,14 @@ interface HeartbeatInvokeChannelMap {
 	[HeartbeatChannels.last]: {
 		args: [];
 		result: import('../heartbeat').HeartbeatEventPayload | null;
+	};
+	[HeartbeatChannels.settings]: {
+		args: [];
+		result: import('../heartbeat').HeartbeatSettings;
+	};
+	[HeartbeatChannels.saveSettings]: {
+		args: [request: import('../heartbeat').HeartbeatSettingsUpdate];
+		result: import('../heartbeat').HeartbeatSettings;
 	};
 	[HeartbeatChannels.setEnabled]: {
 		args: [request: import('../heartbeat').HeartbeatSetEnabledRequest];
@@ -448,6 +569,18 @@ interface HeartbeatInvokeChannelMap {
 	[HeartbeatChannels.updateTiming]: {
 		args: [request: import('../heartbeat').HeartbeatTimingSettings];
 		result: import('../heartbeat').HeartbeatTimingSettings;
+	};
+	[HeartbeatChannels.setProviderId]: {
+		args: [request: import('../heartbeat').HeartbeatSetProviderRequest];
+		result: import('../heartbeat').HeartbeatSettings;
+	};
+	[HeartbeatChannels.setModelId]: {
+		args: [request: import('../heartbeat').HeartbeatSetModelRequest];
+		result: import('../heartbeat').HeartbeatSettings;
+	};
+	[HeartbeatChannels.setReasoningEffort]: {
+		args: [request: import('../heartbeat').HeartbeatSetReasoningEffortRequest];
+		result: import('../heartbeat').HeartbeatSettings;
 	};
 	[HeartbeatChannels.systemEvent]: {
 		args: [request: import('../heartbeat').HeartbeatSystemEventRequest];
@@ -478,21 +611,37 @@ interface TaskInvokeChannelMap {
 	};
 }
 
+interface MonitorInvokeChannelMap {
+	[MonitorChannels.snapshot]: {
+		args: [filter?: import('../monitor').MonitorEventFilter];
+		result: import('../monitor').MonitorSnapshot;
+	};
+	[MonitorChannels.list]: {
+		args: [filter?: import('../monitor').MonitorEventFilter];
+		result: import('../monitor').MonitorEventRecord[];
+	};
+	[MonitorChannels.get]: {
+		args: [id: string];
+		result: import('../monitor').MonitorEventRecord | undefined;
+	};
+}
+
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('../skills').SkillInfo[] };
+	[SkillsChannels.load]: { args: [name: string]; result: import('../skills').SkillDetails };
 	[SkillsChannels.import]: { args: []; result: import('../skills').SkillImportResult | undefined };
 	[SkillsChannels.download]: {
-		args: [id: string];
+		args: [name: string];
 		result: import('../skills').SkillDownloadResult | undefined;
 	};
-	[SkillsChannels.delete]: { args: [id: string]; result: void };
+	[SkillsChannels.delete]: { args: [name: string]; result: import('../skills').SkillDeleteResult };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
 
 interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.catalog]: {
 		args: [];
-		result: typeof import('../connector').OPENAI_CONNECTOR_CATALOG;
+		result: import('../connector').ConnectorCatalogEntry[];
 	};
 	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorView[] };
 	[ConnectorsChannels.get]: {
@@ -536,14 +685,14 @@ interface ConnectorsInvokeChannelMap {
 		args: [
 			id: string,
 			name: string,
-			args: unknown,
+			args: Record<string, unknown>,
 			options?: import('../connector').ConnectorCallToolOptions,
 		];
 		result: unknown;
 	};
-	[ConnectorsChannels.connectOAuth]: {
-		args: [id: string];
-		result: import('../connector').ConnectorOAuthConnectResult;
+	[ConnectorsChannels.authorizeOAuth]: {
+		args: [input: import('../connector').ConnectorOAuthAuthorizeRequest];
+		result: import('../connector').ConnectorOAuthAuthorizeResult;
 	};
 }
 
@@ -597,17 +746,175 @@ interface ChannelsInvokeChannelMap {
 	};
 }
 
+interface StoreInvokeChannelMap {
+	[StoreChannels.getProviders]: {
+		args: [];
+		result: import('../providers').PublicProvider[];
+	};
+	[StoreChannels.setProviderApiKey]: {
+		args: [providerId: string, apiKey: string];
+		result: void;
+	};
+	[StoreChannels.isProviderApiKeySaved]: {
+		args: [providerId: string];
+		result: boolean;
+	};
+	[StoreChannels.addProvider]: {
+		args: [input: import('../providers').ProviderInput];
+		result: import('../providers').PublicProvider;
+	};
+	[StoreChannels.getKeepAwakeEnabled]: {
+		args: [];
+		result: boolean;
+	};
+	[StoreChannels.setKeepAwakeEnabled]: {
+		args: [enabled: boolean];
+		result: boolean;
+	};
+	[StoreChannels.getAssistantSettings]: {
+		args: [];
+		result: import('../store').AssistantSettings | undefined;
+	};
+	[StoreChannels.getSpeechToTextSettings]: {
+		args: [];
+		result: import('../store').SpeechToTextSettings | undefined;
+	};
+	[StoreChannels.getTextToSpeechSettings]: {
+		args: [];
+		result: import('../store').TextToSpeechSettings | undefined;
+	};
+	[StoreChannels.getImageCreatorSettings]: {
+		args: [];
+		result: import('../store').ImageCreatorSettings | undefined;
+	};
+	[StoreChannels.getTextToVideoSettings]: {
+		args: [];
+		result: import('../store').TextToVideoSettings | undefined;
+	};
+	[StoreChannels.getTextToSoundSettings]: {
+		args: [];
+		result: import('../store').TextToSoundSettings | undefined;
+	};
+	[StoreChannels.getCronSettings]: {
+		args: [];
+		result: import('../store').CronSettings;
+	};
+	[StoreChannels.getTaskSettings]: {
+		args: [];
+		result: import('../store').TaskSettings;
+	};
+	[StoreChannels.getAgentRoutingSettings]: {
+		args: [];
+		result: import('../store').AgentRoutingSettings;
+	};
+	[StoreChannels.getConnectorSettings]: {
+		args: [];
+		result: import('../connector').ConnectorConfig[];
+	};
+	[StoreChannels.getAssistantOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveAssistantOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getSpeechToTextOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveSpeechToTextOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToSpeechOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveTextToSpeechOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getImageCreatorOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveImageCreatorOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToVideoOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveTextToVideoOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getMusicCreatorOperator]: {
+		args: [];
+		result: import('../agents/service').ConfiguredModelOperator | undefined;
+	};
+	[StoreChannels.saveMusicCreatorOperator]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getAgentService]: {
+		args: [];
+		result: import('../agents/service').Agent | undefined;
+	};
+	[StoreChannels.saveAgentService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getSpeechTranscriberService]: {
+		args: [];
+		result: import('../agents/service').Agent | undefined;
+	};
+	[StoreChannels.saveSpeechTranscriberService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+}
+
 export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
+		SpeechToTextInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
 		TaskInvokeChannelMap,
+		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
-		ChannelsInvokeChannelMap {}
+		ChannelsInvokeChannelMap,
+		StoreInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
@@ -617,11 +924,20 @@ export interface SendChannelMap {
 	[RealtimeTranscriptionChannels.appendAudio]: {
 		args: [sessionId: string, audio: string];
 	};
+	[SpeechToTextChannels.appendAudio]: {
+		args: [sessionId: string, audio: string];
+	};
 }
 
 interface AppEventChannelMap {
 	[RealtimeTranscriptionChannels.event]: {
 		data: import('../realtime-transcription').RealtimeTranscriptionEvent;
+	};
+}
+
+interface SpeechToTextEventChannelMap {
+	[SpeechToTextChannels.event]: {
+		data: import('../speech-to-text').SpeechToTextEvent;
 	};
 }
 
@@ -650,12 +966,18 @@ interface TaskEventChannelMap {
 	[TaskChannels.event]: { data: import('../tasks').TaskEvent };
 }
 
+interface MonitorEventChannelMap {
+	[MonitorChannels.event]: { data: import('../monitor').MonitorEventRecord };
+}
+
 export interface EventChannelMap
 	extends
 		AppEventChannelMap,
+		SpeechToTextEventChannelMap,
 		AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
 		HeartbeatEventChannelMap,
-		TaskEventChannelMap {}
+		TaskEventChannelMap,
+		MonitorEventChannelMap {}

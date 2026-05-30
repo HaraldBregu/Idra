@@ -9,11 +9,13 @@ import {
 	MonitorCog,
 	Music,
 	Plug,
+	Radar,
 	RadioTower,
 	Server,
 	Sparkles,
 	Video,
 	Volume2,
+	Wrench,
 	type LucideIcon,
 } from 'lucide-react';
 import {
@@ -82,6 +84,7 @@ export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
 		descriptionKey: 'settings.operators.imageAssistantDescription',
 		keywords: 'image generation image assistant editing creative model',
 		icon: ImageIcon,
+		comingSoon: true,
 	},
 	{
 		id: TEXT_TO_VIDEO_OPERATOR_ID,
@@ -126,6 +129,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.allowFrom', descriptionKey: 'settings.channels.allowFromDescription', keywords: 'whitelist users allowed senders' },
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
+	{ path: '/settings/tools', labelKey: 'settings.tabs.tools', descriptionKey: 'settings.overview.descriptions.tools', keywords: 'tools capabilities permissions approval mcp workspace skill' },
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
 	// Operators
 	...SETTINGS_OPERATOR_ITEMS,
@@ -136,6 +140,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/task-manager', labelKey: 'settings.tabs.backgroundTasks', descriptionKey: 'settings.taskManager.description', keywords: 'tasks running queued succeeded failed background' },
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
+	{ path: '/settings/monitoring', labelKey: 'settings.tabs.monitoring', descriptionKey: 'settings.monitoring.description', keywords: 'runtime monitoring diagnostics events errors warnings timeline payload' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
@@ -156,6 +161,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.providers',
 		descriptionKey: 'settings.overview.descriptions.providers',
 		icon: Server,
+	},
+	{
+		path: '/settings/tools',
+		labelKey: 'settings.tabs.tools',
+		descriptionKey: 'settings.overview.descriptions.tools',
+		icon: Wrench,
 	},
 	{
 		path: '/settings/skills',
@@ -192,5 +203,11 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.backgroundTasks',
 		descriptionKey: 'settings.overview.descriptions.taskManager',
 		icon: ClipboardList,
+	},
+	{
+		path: '/settings/monitoring',
+		labelKey: 'settings.tabs.monitoring',
+		descriptionKey: 'settings.overview.descriptions.monitoring',
+		icon: Radar,
 	},
 ] satisfies readonly SettingsNavigationItem[];

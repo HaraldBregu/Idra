@@ -68,9 +68,6 @@ function mockPlatform(platform: NodeJS.Platform): void {
 
 function createCallbacks() {
 	return {
-		onShowApp: jest.fn(),
-		onHideApp: jest.fn(),
-		onShowTrayWindow: jest.fn(),
 		onToggleApp: jest.fn(),
 		onQuit: jest.fn(),
 		isAppVisible: jest.fn(() => false),
@@ -78,7 +75,7 @@ function createCallbacks() {
 }
 
 function getCreatedTray() {
-	const electron = jest.requireMock('electron') as { __mockTrayInstances: Array<{ emit: (event: string) => void; setContextMenu: jest.Mock; popUpContextMenu: jest.Mock; getBounds: jest.Mock }> };
+	const electron = jest.requireMock('electron') as { __mockTrayInstances: Array<{ listeners: Map<string, unknown[]>; emit: (event: string) => void; setContextMenu: jest.Mock; popUpContextMenu: jest.Mock }> };
 	return electron.__mockTrayInstances.at(-1);
 }
 
@@ -88,38 +85,24 @@ describe('Tray', () => {
 		mockPlatform(originalPlatform);
 	});
 
-	it('opens the tray window with icon bounds on macOS tray click', () => {
-		mockPlatform('darwin');
+	it('shows the tray menu on click', () => {
 		const callbacks = createCallbacks();
 		new Tray(callbacks).create();
 
 		const tray = getCreatedTray();
 		tray?.emit('click');
 
-		expect(callbacks.onShowTrayWindow).toHaveBeenCalledTimes(1);
-		expect(callbacks.onShowTrayWindow).toHaveBeenCalledWith({
-			x: 100,
-			y: 0,
-			width: 18,
-			height: 22,
-		});
-		expect(callbacks.onShowApp).not.toHaveBeenCalled();
+		const contextMenu = (Menu.buildFromTemplate as jest.Mock).mock.results.at(-1)?.value;
 		expect(callbacks.onToggleApp).not.toHaveBeenCalled();
+		expect(tray?.popUpContextMenu).toHaveBeenCalledWith(contextMenu);
 		expect(tray?.setContextMenu).not.toHaveBeenCalled();
-		expect(tray?.popUpContextMenu).not.toHaveBeenCalled();
 	});
 
-	it('shows the tray menu on right click', () => {
+	it('does not register a right-click handler', () => {
 		const callbacks = createCallbacks();
 		new Tray(callbacks).create();
 		const tray = getCreatedTray();
 
-		tray?.emit('right-click');
-
-		const contextMenu = (Menu.buildFromTemplate as jest.Mock).mock.results.at(-1)?.value;
-		expect(callbacks.onShowApp).not.toHaveBeenCalled();
-		expect(callbacks.onShowTrayWindow).not.toHaveBeenCalled();
-		expect(tray?.popUpContextMenu).toHaveBeenCalledWith(contextMenu);
-		expect(tray?.setContextMenu).not.toHaveBeenCalled();
+		expect(tray?.listeners.has('right-click')).toBe(false);
 	});
 });

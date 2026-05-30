@@ -54,6 +54,13 @@ describe('HeartbeatPage', () => {
 			request: jest.fn(async () => undefined),
 			onEvent: jest.fn(() => jest.fn()),
 		};
+		window.store = {
+			...window.store,
+			getProviders: jest.fn(async () => [
+				{ id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
+				{ id: 'deepseek', name: 'DeepSeek', baseUrl: 'https://api.deepseek.com' },
+			]),
+		};
 	});
 
 	it('renders heartbeat runtime status and the latest event', async () => {
@@ -78,6 +85,24 @@ describe('HeartbeatPage', () => {
 				every: '15m',
 				activeHours: { start: '09:00', end: '18:00', timezone: 'Europe/Rome' },
 			});
+		});
+	});
+
+	it('saves heartbeat model settings through the heartbeat IPC API', async () => {
+		const user = userEvent.setup();
+		window.heartbeat.settings = jest.fn(async () => ({ every: '30m' }));
+		render(<HeartbeatPage />);
+
+		await screen.findByText('settings.heartbeat.values.enabled');
+		await user.click(screen.getByRole('button', { name: 'settings.heartbeat.actions.saveModel' }));
+
+		await waitFor(() => {
+			expect(window.heartbeat.saveSettings).toHaveBeenCalledWith(
+				expect.objectContaining({
+					providerId: 'openai',
+					modelId: expect.any(String),
+				})
+			);
 		});
 	});
 

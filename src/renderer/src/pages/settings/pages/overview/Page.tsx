@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
@@ -26,30 +26,47 @@ import {
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
-		id: 'general',
-		titleKey: 'settings.overview.groups.general',
-		paths: ['/settings/general', '/settings/system', '/settings/providers', '/settings/channels'],
+		id: 'app',
+		titleKey: 'settings.overview.groups.app',
+		paths: ['/settings/general', '/settings/system', '/settings/providers'],
 	},
 	{
-		id: 'aiAgents',
-		titleKey: 'settings.overview.groups.aiAgents',
-		agents: true,
+		id: 'agent',
+		titleKey: 'settings.overview.groups.agent',
+		agentIds: [AGENTS.assistant],
+		paths: ['/settings/tools', '/settings/skills', '/settings/connectors'],
+	},
+	{
+		id: 'modelServices',
+		titleKey: 'settings.overview.groups.modelServices',
+		agentIds: [
+			AGENTS.speechToText,
+			AGENTS.textToSpeech,
+			AGENTS.textToImage,
+			AGENTS.textToVideo,
+			AGENTS.textToAudio,
+		],
 		paths: [],
 	},
 	{
-		id: 'aiFeatures',
-		titleKey: 'settings.overview.groups.aiFeatures',
-		paths: ['/settings/skills', '/settings/connectors'],
+		id: 'channels',
+		titleKey: 'settings.overview.groups.channels',
+		paths: ['/settings/channels'],
 	},
 	{
-		id: 'automations',
-		titleKey: 'settings.overview.groups.automations',
-		paths: ['/settings/heartbeat', '/settings/cron', '/settings/task-manager'],
+		id: 'automation',
+		titleKey: 'settings.overview.groups.automation',
+		paths: ['/settings/heartbeat', '/settings/cron'],
+	},
+	{
+		id: 'monitoring',
+		titleKey: 'settings.overview.groups.monitoring',
+		paths: ['/settings/task-manager', '/settings/monitoring'],
 	},
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
-	readonly agents?: boolean;
+	readonly agentIds?: readonly SettingsOverviewAgentId[];
 	readonly paths: readonly string[];
 }[];
 
@@ -88,14 +105,13 @@ function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): Setting
 	return { ...item, id: agentId };
 }
 
-const SETTINGS_OVERVIEW_AGENT_ITEMS = SETTINGS_OVERVIEW_AGENT_IDS.map(
-	getSettingsOverviewAgentItem
-);
 
 function SettingsOverviewCard({
 	item,
+	badge,
 }: {
 	readonly item: SettingsNavigationItem | SettingsOperatorItem;
+	readonly badge?: React.ReactNode;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
@@ -113,22 +129,28 @@ function SettingsOverviewCard({
 			variant="outline"
 			size="md"
 			disabled={comingSoon}
-			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/60 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
+			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
-			<ItemIcon icon={item.icon} />
+			<ItemIcon icon={item.icon} className="size-7 [&_svg]:size-3.5" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal text-muted-foreground">
 					{t(item.labelKey)}
 				</ItemTitle>
+				{'descriptionKey' in item && item.descriptionKey && (
+					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground/50">
+						{t(item.descriptionKey)}
+					</p>
+				)}
 			</ItemContent>
 			<ItemActions className="ml-0 flex-none justify-end">
+				{badge}
 				{comingSoon ? (
 					<Badge variant="secondary" className="text-[10px] leading-none">
 						Soon
 					</Badge>
 				) : (
 					<ChevronRight
-						className="size-3 shrink-0 text-muted-foreground"
+						className="size-3 shrink-0 text-muted-foreground/40"
 						strokeWidth={1.8}
 					/>
 				)}
@@ -139,6 +161,14 @@ function SettingsOverviewCard({
 
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
+	const [heartbeatEnabled, setHeartbeatEnabled] = useState<boolean | null>(null);
+
+	useEffect(() => {
+		void window.heartbeat.status().then((s) => setHeartbeatEnabled(s.enabled));
+		return window.heartbeat.onEvent(() => {
+			void window.heartbeat.status().then((s) => setHeartbeatEnabled(s.enabled));
+		});
+	}, []);
 
 	return (
 		<SettingsPageShell>
@@ -149,12 +179,26 @@ const OverviewPage: React.FC = () => {
 				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
 					const panel = (
 						<SettingsPanel>
-							{group.agents && SETTINGS_OVERVIEW_AGENT_ITEMS.map((item) => (
-								<SettingsOverviewCard key={item.path} item={item} />
-							))}
+							{group.agentIds?.map((agentId) => {
+								const item = getSettingsOverviewAgentItem(agentId);
+								return <SettingsOverviewCard key={item.path} item={item} />;
+							})}
 							{group.paths.map((path) => {
 								const item = getSettingsNavigationItem(path);
-								return <SettingsOverviewCard key={item.path} item={item} />;
+								const badge =
+									path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
+										<Badge
+											variant={heartbeatEnabled ? 'outline' : 'secondary'}
+											className="h-5 rounded-md px-1.5 text-[10px]"
+										>
+											{t(
+												heartbeatEnabled
+													? 'settings.heartbeat.values.enabled'
+													: 'settings.heartbeat.values.paused'
+											)}
+										</Badge>
+									) : undefined;
+								return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
 							})}
 						</SettingsPanel>
 					);
@@ -168,7 +212,7 @@ const OverviewPage: React.FC = () => {
 					}
 
 					return (
-						<SettingsSection key={group.id} title={t(group.titleKey)}>
+						<SettingsSection key={group.id} hideTitle={group.id === 'app'} title={t(group.titleKey)}>
 							{panel}
 						</SettingsSection>
 					);

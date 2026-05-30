@@ -1,16 +1,19 @@
 import type { OperatorStoreState } from '../../../../src/shared/service';
 import {
 	HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
+	HeartbeatFileStore,
 	HeartbeatRuntimeState,
 	HeartbeatService,
 	buildCronEventPrompt,
 	buildExecEventPrompt,
 	buildHeartbeatPrompt,
 	computeNextHeartbeatPhaseDueMs,
+	createHeartbeatResponseTool,
 	emptyHeartbeatStoreState,
 	isHeartbeatContentEffectivelyEmpty,
 	isHeartbeatTaskDue,
 	normalizeHeartbeatReply,
+	normalizeHeartbeatToolResponse,
 	parseHeartbeatDurationMs,
 	parseHeartbeatTasks,
 	requestHeartbeat,
@@ -22,9 +25,12 @@ import {
 	seekNextActivePhaseDueMs,
 	setHeartbeatWakeHandler,
 	shouldDeferWake,
-	StoreServiceHeartbeatStateStorage,
 } from '../../../../src/main/heartbeat';
-import type { HeartbeatStoreState } from '../../../../src/shared/heartbeat';
+import type {
+	AgentHeartbeatConfig,
+	AgentsHeartbeatConfig,
+	HeartbeatStoreState,
+} from '../../../../src/shared/heartbeat';
 import { makeLogger } from '../test-helpers';
 
 function operatorConfig(overrides: Partial<OperatorStoreState> = {}): OperatorStoreState {
@@ -39,32 +45,31 @@ function makeHeartbeatHarness(options: {
 	service?: OperatorStoreState;
 	heartbeatFile?: { missing: boolean; content?: string; path?: string };
 	send?: jest.Mock<Promise<string>, [string, string?, unknown?]>;
+	agents?: AgentsHeartbeatConfig;
 }) {
 	let heartbeatState: HeartbeatStoreState = emptyHeartbeatStoreState();
-	let service = options.service ?? operatorConfig();
+	const service = options.service ?? operatorConfig();
+	let agents = options.agents;
 	const eventBus = {
 		emit: jest.fn(),
 		broadcast: jest.fn(),
 		on: jest.fn(() => jest.fn()),
 	};
-	const store = {
-		getOperator: jest.fn(() => service),
+	const heartbeatStore = {
+		getAgentsConfig: jest.fn(() => agents),
 		setDefaultHeartbeatConfig: jest.fn((config) => {
-			const currentAgents = service.agents ?? {};
+			const currentAgents = agents ?? {};
 			const currentDefaults = currentAgents.defaults ?? {};
 			const currentHeartbeat = currentDefaults.heartbeat ?? {};
 			const nextHeartbeat = { ...currentHeartbeat, ...config };
 			if ('activeHours' in config && config.activeHours === undefined) {
 				delete nextHeartbeat.activeHours;
 			}
-			service = {
-				...service,
-				agents: {
-					...currentAgents,
-					defaults: {
-						...currentDefaults,
-						heartbeat: nextHeartbeat,
-					},
+			agents = {
+				...currentAgents,
+				defaults: {
+					...currentDefaults,
+					heartbeat: nextHeartbeat,
 				},
 			};
 			return nextHeartbeat;
@@ -73,6 +78,8 @@ function makeHeartbeatHarness(options: {
 		setHeartbeatState: jest.fn((next: HeartbeatStoreState) => {
 			heartbeatState = next;
 		}),
+	};
+	const channels = {
 		getChannel: jest.fn(() => ({
 			defaults: {},
 			telegram: {
@@ -82,6 +89,13 @@ function makeHeartbeatHarness(options: {
 				defaultAccountId: 'default',
 				defaultTarget: '123',
 			},
+		})),
+		getChannelConfig: jest.fn(() => ({
+			token: '',
+			allowFrom: [],
+			enabled: true,
+			defaultAccountId: 'default',
+			defaultTarget: '123',
 		})),
 	};
 	const startupFiles = {
@@ -93,18 +107,56 @@ function makeHeartbeatHarness(options: {
 		})),
 	};
 	const send = options.send ?? jest.fn(async () => 'HEARTBEAT_OK');
+	const logger = makeLogger();
 	const agentService = {
 		isBusy: jest.fn(() => false),
 		send,
+		getHeartbeatStore: jest.fn(() => heartbeatStore),
+		getHeartbeatOperatorConfig: jest.fn(() => service),
+		getHeartbeatProvider: jest.fn((providerId: string) => {
+			const id = providerId.trim().toLowerCase();
+			if (id === 'openai') {
+				return { id, name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' };
+			}
+			if (id === 'deepseek') {
+				return { id, name: 'DeepSeek', baseUrl: 'https://api.deepseek.com' };
+			}
+			return undefined;
+		}),
+		getHeartbeatModel: jest.fn((providerId: string, modelId: string) => {
+			const id = modelId.trim();
+			const models = {
+				openai: [
+					{ id: 'gpt-5.4', name: 'GPT-5.4' },
+					{ id: 'gpt-5.4-mini', name: 'GPT-5.4 Mini' },
+				],
+				deepseek: [{ id: 'deepseek-v4-pro', name: 'DeepSeek V4-Pro' }],
+			} as const;
+			return models[providerId.trim().toLowerCase() as keyof typeof models]?.find(
+				(model) => model.id === id
+			);
+		}),
+		onHeartbeatRoute: jest.fn((listener: (payload: unknown) => void) => eventBus.on('channel:route', { listener })),
+		broadcastHeartbeatSystemEvent: jest.fn((payload: unknown) => {
+			eventBus.broadcast('heartbeat:system-event', payload);
+		}),
+		emitHeartbeatEvent: jest.fn((payload: unknown) => {
+			eventBus.emit('heartbeat:event', payload);
+			eventBus.broadcast('heartbeat:event', payload);
+		}),
+		warnHeartbeat: jest.fn((message: string, data?: unknown) => {
+			logger.warn('HeartbeatService', message, data);
+		}),
+		errorHeartbeat: jest.fn((message: string, error?: unknown) => {
+			logger.error('HeartbeatService', message, error);
+		}),
+		readHeartbeatStartupFile: startupFiles.readFile,
+		getHeartbeatChannel: channels.getChannel,
+		getHeartbeatChannelConfig: channels.getChannelConfig,
+		getHeartbeatChannelRegistry: jest.fn(() => undefined),
 	};
-	const heartbeat = new HeartbeatService({
-		store: store as never,
-		logger: makeLogger() as never,
-		eventBus: eventBus as never,
-		startupFiles: startupFiles as never,
-		agentService: agentService as never,
-	});
-	return { heartbeat, store, startupFiles, eventBus, agentService, getHeartbeatState: () => heartbeatState };
+	const heartbeat = new HeartbeatService(agentService as never);
+	return { heartbeat, heartbeatStore, channels, startupFiles, eventBus, agentService, getHeartbeatState: () => heartbeatState };
 }
 
 describe('heartbeat helpers', () => {
@@ -134,10 +186,8 @@ describe('heartbeat helpers', () => {
 	});
 
 	it('updates default heartbeat timing and recomputes schedules', () => {
-		const { heartbeat, store } = makeHeartbeatHarness({
-			service: operatorConfig({
-				agents: { defaults: { heartbeat: { every: '30m', target: 'none' } } },
-			}),
+		const { heartbeat, heartbeatStore } = makeHeartbeatHarness({
+			agents: { defaults: { heartbeat: { every: '30m', target: 'none' } } },
 		});
 
 		const timing = heartbeat.updateTiming({
@@ -149,14 +199,119 @@ describe('heartbeat helpers', () => {
 			every: '10m',
 			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
 		});
-		expect(store.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+		expect(heartbeatStore.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
 			every: '10m',
 			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
 		});
 		expect(heartbeat.getStatus().agentCount).toBe(1);
 	});
 
-	it('stores heartbeat runtime state through the store service adapter', () => {
+	it('saves heartbeat settings as partial default heartbeat config', () => {
+		const { heartbeat, heartbeatStore } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						target: 'none',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+						reasoningEffort: 'medium',
+					},
+				},
+			},
+		});
+
+		const settings = heartbeat.saveSettings({ modelId: 'gpt-5.4-mini' });
+
+		expect(settings).toEqual({
+			every: '30m',
+			providerId: 'openai',
+			modelId: 'gpt-5.4-mini',
+			reasoningEffort: 'medium',
+		});
+		expect(heartbeatStore.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+			modelId: 'gpt-5.4-mini',
+			reasoningEffort: 'medium',
+			model: undefined,
+		});
+	});
+
+	it('stores heartbeat reasoning effort only for supported provider and model selections', () => {
+		const { heartbeat } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+					},
+				},
+			},
+		});
+
+		expect(heartbeat.setReasoningEffort('high')).toEqual({
+			every: '30m',
+			providerId: 'openai',
+			modelId: 'gpt-5.4',
+			reasoningEffort: 'high',
+		});
+		expect(() =>
+			heartbeat.saveSettings({
+				providerId: 'deepseek',
+				modelId: 'deepseek-v4-pro',
+				reasoningEffort: 'high',
+			})
+		).toThrow('Reasoning effort is not supported for provider "deepseek".');
+	});
+
+	it('drops saved reasoning effort when the selected provider and model do not support it', () => {
+		const { heartbeat, heartbeatStore } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+						reasoningEffort: 'high',
+					},
+				},
+			},
+		});
+
+		expect(
+			heartbeat.saveSettings({ providerId: 'deepseek', modelId: 'deepseek-v4-pro' })
+		).toEqual({
+			every: '30m',
+			providerId: 'deepseek',
+			modelId: 'deepseek-v4-pro',
+		});
+		expect(heartbeatStore.setDefaultHeartbeatConfig).toHaveBeenCalledWith({
+			providerId: 'deepseek',
+			modelId: 'deepseek-v4-pro',
+			reasoningEffort: undefined,
+			model: undefined,
+		});
+	});
+
+	it('rejects provider-only settings updates when the existing model is unsupported', () => {
+		const { heartbeat } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '30m',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+					},
+				},
+			},
+		});
+
+		expect(() => heartbeat.setProviderId('deepseek')).toThrow(
+			'Model is not supported for heartbeat: gpt-5.4'
+		);
+	});
+
+	it('stores heartbeat runtime state through the heartbeat storage adapter', () => {
 		let state: HeartbeatStoreState = emptyHeartbeatStoreState();
 		const store = {
 			getHeartbeatState: jest.fn(() => state),
@@ -164,9 +319,7 @@ describe('heartbeat helpers', () => {
 				state = next;
 			}),
 		};
-		const runtimeState = new HeartbeatRuntimeState(
-			new StoreServiceHeartbeatStateStorage(store)
-		);
+		const runtimeState = new HeartbeatRuntimeState(store);
 
 		runtimeState.markTasksRun('main', 'main', [{ name: 'inbox' }], 100);
 		expect(store.getHeartbeatState).toHaveBeenCalled();
@@ -180,6 +333,36 @@ describe('heartbeat helpers', () => {
 		runtimeState.recordDeliveredText('main', 'alert', 200);
 		expect(runtimeState.isDuplicateAlert('main', 'alert', 201)).toBe(true);
 		expect(state.lastDelivered.main).toEqual({ text: 'alert', atMs: 200 });
+	});
+
+	it('persists heartbeat config and runtime state in heartbeat.json storage shape', () => {
+		const data = new Map<string, unknown>();
+		const store = new HeartbeatFileStore({
+			store: {
+				get: (key) => data.get(key),
+				set: (key, value) => data.set(key, value),
+			},
+		});
+
+		expect(store.getAgentsConfig()).toBeUndefined();
+		const nextConfig: AgentHeartbeatConfig = {
+			every: '15m',
+			activeHours: { start: '09:00', end: '17:00', timezone: 'Europe/Rome' },
+		};
+		store.setDefaultHeartbeatConfig(nextConfig);
+
+		expect(data.get('version')).toBe(1);
+		expect(data.get('agents')).toEqual({ defaults: { heartbeat: nextConfig } });
+		expect(store.getAgentsConfig()).toEqual({ defaults: { heartbeat: nextConfig } });
+
+		const nextState: HeartbeatStoreState = {
+			version: 1,
+			taskState: { 'main:main:inbox': { lastRunMs: 100 } },
+			lastDelivered: { main: { text: 'alert', atMs: 200 } },
+		};
+		store.setHeartbeatState(nextState);
+		expect(data.get('state')).toEqual(nextState);
+		expect(store.getHeartbeatState()).toEqual(nextState);
 	});
 
 	it('computes stable phase scheduling and preserves nextDueMs only when identity is unchanged', () => {
@@ -282,9 +465,29 @@ describe('heartbeat helpers', () => {
 		expect(prompt).toContain('Only these HEARTBEAT.md tasks are due now');
 		expect(prompt).toContain('Use short alerts.');
 		expect(prompt).toContain('/workspace/HEARTBEAT.md');
+		expect(prompt).toContain('Use heartbeat_respond to report the outcome.');
 	});
 
-	it('normalizes structured and text heartbeat replies', () => {
+	it('normalizes structured and text heartbeat replies', async () => {
+		const onResponse = jest.fn();
+		const tool = createHeartbeatResponseTool(onResponse);
+		await expect(
+			tool.execute({
+				outcome: 'needs_attention',
+				notify: true,
+				summary: 'summary',
+				notificationText: 'alert',
+				priority: 'high',
+			}, {} as never)
+		).resolves.toMatchObject({ status: 'ok' });
+		expect(onResponse).toHaveBeenCalledWith({
+			outcome: 'needs_attention',
+			notify: true,
+			summary: 'summary',
+			notificationText: 'alert',
+			priority: 'high',
+		});
+		expect(normalizeHeartbeatToolResponse({ outcome: 'bad', notify: false, summary: 'x' })).toBeUndefined();
 		expect(normalizeHeartbeatReply({
 			toolResponse: { outcome: 'no_change', notify: false, summary: 'nothing' },
 			ackMaxChars: 300,
@@ -392,19 +595,53 @@ describe('heartbeat wake queue', () => {
 
 describe('HeartbeatService', () => {
 	it('runs when HEARTBEAT.md is missing and suppresses OK-only replies', async () => {
-		const { heartbeat, agentService, eventBus } = makeHeartbeatHarness({
-			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+		const { heartbeat, agentService, eventBus, startupFiles } = makeHeartbeatHarness({
+			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: { missing: true },
 		});
 
 		await expect(heartbeat.runHeartbeatOnce({ source: 'manual', intent: 'manual' })).resolves.toMatchObject({ status: 'ran' });
+		expect(startupFiles.readFile).toHaveBeenCalledWith('main', 'HEARTBEAT.md');
 		expect(agentService.send).toHaveBeenCalled();
 		expect(eventBus.emit).toHaveBeenCalledWith('heartbeat:event', expect.objectContaining({ status: 'ok-token', silent: true }));
 	});
 
+	it('passes configured heartbeat provider, model, and reasoning effort to agent runs', async () => {
+		const { heartbeat, agentService } = makeHeartbeatHarness({
+			agents: {
+				defaults: {
+					heartbeat: {
+						every: '1m',
+						target: 'none',
+						providerId: 'openai',
+						modelId: 'gpt-5.4',
+						reasoningEffort: 'high',
+					},
+				},
+			},
+			heartbeatFile: { missing: true },
+		});
+
+		await expect(heartbeat.runHeartbeatOnce({ source: 'manual', intent: 'manual' })).resolves.toMatchObject({ status: 'ran' });
+		expect(agentService.send).toHaveBeenCalledWith(
+			expect.any(String),
+			'main',
+			expect.objectContaining({
+				providerId: 'openai',
+				model: 'gpt-5.4',
+				effort: 'high',
+				heartbeat: expect.objectContaining({
+					enableHeartbeatTool: true,
+					forceHeartbeatTool: true,
+					onToolResponse: expect.any(Function),
+				}),
+			})
+		);
+	});
+
 	it('skips effectively empty HEARTBEAT.md files before model calls', async () => {
 		const { heartbeat, agentService } = makeHeartbeatHarness({
-			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: { missing: false, content: '# HEARTBEAT.md\n\n- [ ]' },
 		});
 
@@ -417,7 +654,7 @@ describe('HeartbeatService', () => {
 
 	it('updates due task timestamps after successful heartbeat runs', async () => {
 		const { heartbeat, getHeartbeatState } = makeHeartbeatHarness({
-			service: operatorConfig({ agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } } }),
+			agents: { defaults: { heartbeat: { every: '1m', target: 'none' } } },
 			heartbeatFile: {
 				missing: false,
 				content: 'tasks:\n  - name: inbox\n    interval: 30m\n    prompt: "Check inbox."',

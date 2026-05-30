@@ -1,3 +1,4 @@
+import { promises as fs } from 'node:fs';
 import {
 	createToolRegistry,
 	createToolResult,
@@ -18,11 +19,10 @@ import {
 	type SessionContext,
 	type Tool,
 	type ToolExecutionContext,
-} from '../../../../src/main/tools/management';
-import { execTool } from '../../../../src/main/tools/exec';
-import { TOOL_LIMITS } from '../../../../src/main/tools/limits';
-import type { AgentTool } from '../../../../src/main/tools/types';
-import { makeToolContext } from '../test-helpers';
+} from '../../../../src/main/agent/tools/management';
+import { writeTool } from '../../../../src/main/agent/tools/fs';
+import type { AgentTool } from '../../../../src/main/agent/tools/types';
+import { makeTempDir, makeToolContext } from '../test-helpers';
 
 function sessionContext(permissions: string[] = ['*']): SessionContext {
 	return {
@@ -292,12 +292,6 @@ describe('tool management layer', () => {
 		expect(aborted).toBe(true);
 	});
 
-	it('marks exec with the extended managed execution timeout', () => {
-		const managed = agentToolToManagedTool(execTool);
-
-		expect(managed.metadata.executionTimeoutMs).toBe(TOOL_LIMITS.exec.timeoutMs);
-	});
-
 	it('plans fallback tools without circular tool chains', () => {
 		const primary = makeTool({ id: 'primary-search', category: 'search' });
 		const fallback = makeTool({ id: 'fallback-search', category: 'search' });
@@ -321,6 +315,41 @@ describe('tool management layer', () => {
 		).toEqual({
 			shouldUseTools: false,
 			reason: 'request can be handled from provided context or general reasoning',
+		});
+	});
+
+	it('uses tools for scheduled work even when the payload is creative text', () => {
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Schedule a task that writes a short poem every 5 minutes.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Every 5 minutes create a file with lorem ipsum data.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Every day at 9pm create a short report.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
+		});
+		expect(
+			new ToolUsePolicy().evaluate({
+				userRequest: 'Notify me tomorrow to check the release notes.',
+			})
+		).toEqual({
+			shouldUseTools: true,
+			reason: 'request needs the Friday scheduler',
 		});
 	});
 
@@ -357,22 +386,22 @@ describe('tool management layer', () => {
 		});
 	});
 
-	it('treats task record actions as tool-backed mutable state access', () => {
+	it('does not route immediate background task requests to local tools', () => {
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'List active tasks.' })).toEqual({
-			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			shouldUseTools: false,
+			reason: 'no tool is required to answer safely',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Run a task in background.' })).toEqual({
-			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			shouldUseTools: false,
+			reason: 'background task tool is not available',
 		});
 		expect(new ToolUsePolicy().evaluate({ userRequest: 'Cancel task task-1.' })).toEqual({
-			shouldUseTools: true,
-			reason: 'request depends on external, private, current, or mutable data',
+			shouldUseTools: false,
+			reason: 'no tool is required to answer safely',
 		});
 	});
 
-	it('selects the task tool for immediate background task requests', () => {
+	it('does not select a task substitute for immediate background task requests', () => {
 		const makeAgentTool = (name: string, description: string): AgentTool => ({
 			name,
 			description,
@@ -393,7 +422,80 @@ describe('tool management layer', () => {
 			{ forceSelection: true, maxPromptTools: 1 }
 		);
 
-		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['task']);
+		expect(selected.toolsForPrompt).toEqual([]);
+		expect(selected.rankedTools).toEqual([]);
+	});
+
+	it('isolates scheduled task requests to cron instead of immediate file tools', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('exec', 'Run a shell command in the workspace.'),
+				makeAgentTool('write', 'Create or overwrite workspace files.'),
+				makeAgentTool(
+					'cron',
+					'Manage scheduled jobs through the Gateway-owned scheduler. Use this for future, delayed, recurring, reminder, wake, or manual-run scheduling.'
+				),
+				makeAgentTool('task', 'Start an immediate in-memory background task.'),
+			],
+			'every 5 minutes create a file with lorem ipsum data',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['cron']);
+		expect(selected.rankedTools.map((entry) => entry.tool.name)).toEqual(['cron']);
+		expect(selected.systemPromptSuffix).toContain('cron');
+	});
+
+	it('selects cron for natural scheduled-work phrasing', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('write', 'Create or overwrite workspace files.'),
+				makeAgentTool(
+					'cron',
+					'Manage scheduled jobs through the Gateway-owned scheduler. Use this for future, delayed, recurring, reminder, wake, or manual-run scheduling.'
+				),
+			],
+			'every day at 9pm create a file with the latest status',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt.map((tool) => tool.name)).toEqual(['cron']);
+		expect(selected.rankedTools.map((entry) => entry.tool.name)).toEqual(['cron']);
+	});
+
+	it('does not force cron for immediate background task requests', () => {
+		const makeAgentTool = (name: string, description: string): AgentTool => ({
+			name,
+			description,
+			schema: { type: 'object', properties: {}, additionalProperties: false },
+			execute: jest.fn(),
+		});
+		const selected = selectAgentToolsForTurn(
+			[
+				makeAgentTool('cron', 'Manage scheduled jobs through the Gateway-owned scheduler.'),
+				makeAgentTool('task', 'Start an immediate in-memory background task.'),
+			],
+			'run a task in background now',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 1 }
+		);
+
+		expect(selected.toolsForPrompt).toEqual([]);
+		expect(selected.rankedTools).toEqual([]);
 	});
 
 	it('selects connector Gmail tools from their descriptions even with custom labels', () => {
@@ -481,7 +583,7 @@ describe('tool management layer', () => {
 		expect(selected.systemPromptSuffix).toContain('Tool: read');
 	});
 
-	it('runs sensitive actions directly', async () => {
+	it('rejects sensitive managed actions without confirmation', async () => {
 		const tool = makeTool({
 			id: 'calendar-create',
 			category: 'calendar',
@@ -494,10 +596,35 @@ describe('tool management layer', () => {
 			{ query: 'meeting' },
 			executionContext(['calendar:write'])
 		);
-		expect(result.success).toBe(true);
+		expect(result.success).toBe(false);
+		expect(result.error?.code).toBe('TOOL_CONFIRMATION_REQUIRED');
 	});
 
-	it('executes sensitive legacy agent tools without confirmation', async () => {
+	it('runs sensitive managed actions with explicit confirmation', async () => {
+		const requestConfirmation = jest.fn(async () => true);
+		const tool = makeTool({
+			id: 'calendar-create',
+			category: 'calendar',
+			permissionsRequired: ['calendar:write'],
+			safetyLevel: 'high',
+			metadata: { privacyLevel: 'private', readOnly: false, requiresConfirmation: true },
+		});
+		const result = await new ToolExecutor().execute(tool, { query: 'meeting' }, {
+			...executionContext(['calendar:write']),
+			requestConfirmation,
+		});
+		expect(result.success).toBe(true);
+		expect(requestConfirmation).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolId: 'calendar-create',
+				toolName: 'calendar-create',
+				permissions: ['calendar:write'],
+				safetyLevel: 'high',
+			})
+		);
+	});
+
+	it('rejects approval-required legacy agent tools without confirmation', async () => {
 		const execute = jest.fn(async () => ({
 			status: 'ok' as const,
 			content: [{ type: 'text' as const, text: 'wrote' }],
@@ -511,6 +638,7 @@ describe('tool management layer', () => {
 				required: ['path', 'content'],
 				additionalProperties: false,
 			},
+			needsApproval: true,
 			execute,
 		};
 		const result = await executeAgentToolWithManagement(
@@ -518,8 +646,49 @@ describe('tool management layer', () => {
 			{ path: 'a.txt', content: 'x' },
 			makeToolContext()
 		);
+		expect(result.status).toBe('rejected');
+		expect(result.content[0]).toEqual({
+			type: 'text',
+			text: 'tool write requires approval before execution.',
+		});
+		expect(execute).not.toHaveBeenCalled();
+	});
+
+	it('executes approval-required legacy agent tools with explicit confirmation', async () => {
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'wrote' }],
+		}));
+		const requestConfirmation = jest.fn(async () => true);
+		const tool: AgentTool = {
+			name: 'write',
+			description: 'Write a file',
+			schema: {
+				type: 'object',
+				properties: { path: { type: 'string' }, content: { type: 'string' } },
+				required: ['path', 'content'],
+				additionalProperties: false,
+			},
+			needsApproval: true,
+			execute,
+		};
+		const ctx = makeToolContext();
+		const result = await executeAgentToolWithManagement(
+			tool,
+			{ path: 'a.txt', content: 'x' },
+			ctx,
+			{ requestConfirmation }
+		);
 		expect(result.status).toBe('ok');
 		expect(execute).toHaveBeenCalledWith({ path: 'a.txt', content: 'x' }, expect.any(Object));
+		expect(ctx.approvalCache.has('write::{"path":"a.txt","content":"x"}')).toBe(true);
+		expect(requestConfirmation).toHaveBeenCalledWith(
+			expect.objectContaining({
+				toolId: 'write',
+				toolName: 'write',
+				safetyLevel: 'high',
+			})
+		);
 	});
 
 	it('reuses existing legacy approval instead of asking for duplicate confirmation', async () => {
@@ -536,6 +705,7 @@ describe('tool management layer', () => {
 				required: ['path', 'content'],
 				additionalProperties: false,
 			},
+			needsApproval: true,
 			execute,
 		};
 		const ctx = makeToolContext();
@@ -543,6 +713,30 @@ describe('tool management layer', () => {
 		const result = await executeAgentToolWithManagement(tool, { path: 'a.txt', content: 'x' }, ctx);
 		expect(result.status).toBe('ok');
 		expect(execute).toHaveBeenCalled();
+	});
+
+	it('runs workspace-local write tools without confirmation and allows outside writes', async () => {
+		const workspace = await makeTempDir();
+		const outside = await makeTempDir();
+		const insideCtx = makeToolContext({ workspace });
+		const inside = await executeAgentToolWithManagement(
+			writeTool,
+			{ path: 'inside.txt', content: 'ok' },
+			insideCtx
+		);
+		expect(inside.status).toBe('ok');
+
+		const outsideCtx = makeToolContext({ workspace });
+		const outsideWrite = await executeAgentToolWithManagement(
+			writeTool,
+			{ path: `${outside}/outside.txt`, content: 'yes' },
+			outsideCtx
+		);
+		expect(outsideWrite.status).toBe('ok');
+		await expect(fs.readFile(`${outside}/outside.txt`, 'utf8')).resolves.toBe('yes');
+
+		await fs.rm(workspace, { recursive: true, force: true });
+		await fs.rm(outside, { recursive: true, force: true });
 	});
 
 	it('limits max tool calls per turn', async () => {

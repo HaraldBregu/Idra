@@ -630,6 +630,23 @@
 				"timezone": "Fuso Orario",
 				"timezonePlaceholder": "Fuso orario locale"
 			},
+			"model": {
+				"title": "Modello",
+				"description": "Provider e modello usati per le esecuzioni heartbeat.",
+				"provider": "Provider",
+				"providerDescription": "Provider configurato per i controlli heartbeat.",
+				"providerPlaceholder": "Seleziona provider",
+				"model": "Modello",
+				"modelDescription": "Modello agente usato quando heartbeat chiama l'assistente.",
+				"modelPlaceholder": "Seleziona modello",
+				"reasoningEffort": "Sforzo",
+				"effort": {
+					"minimal": "Minimo",
+					"low": "Basso",
+					"medium": "Medio",
+					"high": "Alto"
+				}
+			},
 			"last": {
 				"title": "Ultimo Evento",
 				"description": "Ultimo stato heartbeat emesso dal gateway.",
@@ -655,6 +672,7 @@
 			"actions": {
 				"refresh": "Aggiorna",
 				"saveTiming": "Salva orario",
+				"saveModel": "Salva modello",
 				"wakeNow": "Sveglia ora",
 				"sendNow": "Invia ora",
 				"sendNext": "Invia dopo"
@@ -679,6 +697,7 @@
 				"enabled": "Heartbeat ripresi.",
 				"disabled": "Heartbeat sospesi.",
 				"timingSaved": "Orario heartbeat salvato.",
+				"modelSaved": "Modello heartbeat salvato.",
 				"wakeQueued": "Heartbeat manuale accodato.",
 				"eventQueued": "Evento di sistema accodato per {{session}}."
 			},

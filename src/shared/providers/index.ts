@@ -1,4 +1,5 @@
 export * from './models';
+export * from './agent-models';
 export * from './definitions';
 export * from './llm-models';
 export * from './speech-to-text-models';

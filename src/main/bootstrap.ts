@@ -8,20 +8,27 @@ import { AppPermissionsService } from './app-permissions';
 import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
-import { AgentService, type AgentServiceDependencies } from './service';
-import { AgentStartupFilesService } from './agent/startup-files';
-import { ChannelRegistry } from './channels';
-import { ensureAgentHarnessRuntimeActivated } from './agent/harness/activation';
-import { disposeRegisteredAgentHarnesses } from './agent/harness/registry';
-import { registerAgentHarnessRuntimePluginActivation } from './agent/harness/runtime-plugin';
-import { collectConfiguredAgentHarnessRuntimes } from './agent/harness-runtimes';
+import { ChannelRegistry, ChannelsService } from './channels';
+import {
+	AgentService,
+	type AgentServiceDependencies,
+	SubagentRegistry,
+	SubagentRunTaskHandler,
+	SubagentSpawnService,
+} from './agent';
+import { AgentDataDirectoryService } from './agent/storage';
+import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
-import { McpRegistry } from './mcp';
-import { SkillsService } from './skills';
-import { AgentTaskHandler, TaskManager, TaskRegistry } from './tasks';
+import { MonitorService } from './monitor';
+import { TasksService } from './tasks';
 import { UserDataDirectoryService } from './user-data';
 import { createElectronPowerSaveBlockerService } from './power-save-blocker';
+import { ToolService } from './agent/tools';
+import { SkillsService } from './skills';
+import { SpeechToTextService } from './stt';
+import { AgentRunLogger } from './run-logger';
+import { DEFAULT_AGENT_ID } from './constants';
 
 import type { IpcModule } from './ipc';
 import {
@@ -31,8 +38,11 @@ import {
 	ConnectorsIpc,
 	CronIpc,
 	HeartbeatIpc,
+	MonitorIpc,
 	RealtimeTranscriptionIpc,
+	SpeechToTextIpc,
 	SkillsIpc,
+	StoreIpc,
 	TasksIpc,
 	WindowIpc,
 } from './ipc';
@@ -46,8 +56,8 @@ export interface BootstrapResult {
 	appState: AppState;
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryService;
+	agentDataDirectory: AgentDataDirectoryService;
 	workspace: WorkspaceService;
-	startupFiles: AgentStartupFilesService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -60,8 +70,9 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('eventBus', eventBus);
 
 	const logger = new LoggerService(eventBus);
-	registerAgentHarnessRuntimePluginActivation(logger);
 	container.register('logger', logger);
+	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
+	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
@@ -69,41 +80,45 @@ export function bootstrapServices(): BootstrapResult {
 		logger.error('UserDataDirectoryService', 'Failed to create user data directory', error);
 	});
 
-	const workspace = container.register(
-		'workspace',
-		new WorkspaceService(logger, { rootPath: userDataDirectory.getRootPath() })
-	);
-	const startupFiles = container.register(
-		'startupFiles',
-		new AgentStartupFilesService()
+	const agentDataDirectory = container.register('agentDataDirectory', new AgentDataDirectoryService());
+	void agentDataDirectory.ensureRoot().catch((error) => {
+		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
+	});
+
+	const skills = container.register(
+		'skills',
+		new SkillsService(logger)
 	);
 
-	const store = container.register('store', new StoreService());
-	for (const runtime of collectConfiguredAgentHarnessRuntimes({
-		llmAgent: {
-			options: {
-				agentRuntime: store.getAgentRuntimePreference(),
-			},
-		},
-	})) {
-		void ensureAgentHarnessRuntimeActivated({ runtime, provider: '', modelId: undefined }).catch((error) => {
-			logger.warn('Bootstrap', 'Failed to activate configured agent harness runtime', {
-				runtime,
-				error: error instanceof Error ? error.message : String(error),
-			});
-		});
-	}
+	const workspace = container.register(
+		'workspace',
+		new WorkspaceService(logger, {
+			rootPath: agentDataDirectory.resolve(DEFAULT_AGENT_ID),
+		})
+	);
+	const store = container.register('store', new StoreService(logger));
+	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
+	const channels = container.register('channels', new ChannelsService(logger));
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
-	const cron = container.register('cron', new CronService(store, logger));
+	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
-	const mcpRegistry = container.register('mcpRegistry', new McpRegistry());
-
-	const skills = container.register('skills', new SkillsService(logger, { userDataDirectory }));
-	const connectors = container.register('connectors', new ConnectorsService(store, logger));
+	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
+	container.register('speechToText', new SpeechToTextService({ store, logger }));
+	const toolService = container.register('toolService', new ToolService({ cron, logger }));
+
+	const subagentRegistry = new SubagentRegistry();
+	const taskManager = container.register(
+		'taskManager',
+		new TasksService({
+			store,
+			eventBus,
+			logger,
+		})
+	);
 
 	const agentDependencies: AgentServiceDependencies = {
 		store,
@@ -111,43 +126,42 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		eventBus,
 		workspace,
-		startupFiles,
 		userDataDirectory,
+		agentDataDirectory,
+		agentSettings,
 		connectors,
-		mcpRegistry,
 		skills,
+		toolService,
+		taskManager,
+		channels,
 	};
-	const agentService = container.register('agentService', new AgentService(agentDependencies));
-	const taskRegistry = new TaskRegistry();
-	taskRegistry.register(new AgentTaskHandler(agentService, store), { userFacing: true });
-	const taskManager = container.register(
-		'taskManager',
-		new TaskManager({
-			registry: taskRegistry,
-			eventBus,
-			logger,
-			policy: () => store.getBackgroundTaskSettings(),
+	const agentService = container.register(
+		'agentService',
+		new AgentService(agentDependencies, {
+			sessionBaseDir: agentDataDirectory.resolve('sessions'),
+			runLoggerFactory: (agentId) =>
+				new AgentRunLogger(agentId, { baseDir: agentDataDirectory.resolve('runs') }),
 		})
 	);
-	agentDependencies.taskManager = taskManager;
-	cron.configureTaskRuntime({ taskManager });
+	taskManager.configureAgentRuntime(agentService);
+	taskManager.registerHandler(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
+	agentDependencies.subagents = new SubagentSpawnService({
+		agentSettings,
+		taskManager,
+		registry: subagentRegistry,
+		eventBus,
+		logger,
+	});
 	const channelRegistry = container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService })
+		new ChannelRegistry({ logger, eventBus, agentService, agentSettings })
 	);
+	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(
 		'heartbeat',
-		new HeartbeatService({
-			store,
-			logger,
-			eventBus,
-			startupFiles,
-			agentService,
-			channelRegistry,
-		})
+		new HeartbeatService(agentService)
 	);
 	heartbeat.start();
-	cron.configureFridayRuntime({ agentService, eventBus, channelRegistry, heartbeat });
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
@@ -167,8 +181,8 @@ export function bootstrapServices(): BootstrapResult {
 		appState,
 		logger,
 		userDataDirectory,
+		agentDataDirectory,
 		workspace,
-		startupFiles,
 		windowContextManager,
 	};
 }
@@ -198,8 +212,11 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new ConnectorsIpc(),
 		new CronIpc(),
 		new HeartbeatIpc(),
+		new MonitorIpc(),
 		new RealtimeTranscriptionIpc(),
+		new SpeechToTextIpc(),
 		new SkillsIpc(),
+		new StoreIpc(),
 		new TasksIpc(),
 		new WindowIpc(),
 	];
@@ -496,7 +513,6 @@ export function setupEventLogging(logger: LoggerService): void {
 export async function cleanup(container: MainServiceContainer): Promise<void> {
 	const logger = container.get('logger');
 	logger.info('Bootstrap', 'Starting cleanup');
-	await disposeRegisteredAgentHarnesses();
 	await container.shutdown();
 	logger.info('Bootstrap', 'Cleanup complete');
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Activity,
@@ -15,14 +15,31 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import {
+	DEFAULT_MODEL_REASONING_EFFORT,
+	getModelReasoningEfforts,
+	supportsModelReasoningEffortProvider,
+	type Model,
+	type ModelReasoningEffort,
+} from '../../../../../../shared/agents/service';
+import { getDefaultAgentModels } from '../../../../../../shared/agents/models';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatEventStatus,
+	HeartbeatSettings,
 	HeartbeatStatus,
 	HeartbeatTimingSettings,
 } from '../../../../../../shared/heartbeat';
+import type { PublicProvider } from '../../../../../../shared/providers';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -33,7 +50,15 @@ import {
 	SettingsSection,
 } from '../../components';
 
-type Operation = 'refresh' | 'toggle' | 'timing' | 'wake' | 'event-now' | 'event-next' | null;
+type Operation =
+	| 'refresh'
+	| 'toggle'
+	| 'timing'
+	| 'model'
+	| 'wake'
+	| 'event-now'
+	| 'event-next'
+	| null;
 
 interface TimingDraft {
 	every: string;
@@ -59,6 +84,13 @@ function timingToDraft(timing: HeartbeatTimingSettings): TimingDraft {
 		end: timing.activeHours?.end ?? '',
 		timezone: timing.activeHours?.timezone ?? '',
 	};
+}
+
+function heartbeatModelsForProvider(providerId: string, settings?: HeartbeatSettings | null): Model[] {
+	const models = getDefaultAgentModels(providerId);
+	if (!settings?.modelId || settings.providerId !== providerId) return models;
+	if (models.some((model) => model.id === settings.modelId)) return models;
+	return [...models, { id: settings.modelId, name: settings.modelId }];
 }
 
 function parseDurationMs(raw: string): number | null {
@@ -125,6 +157,14 @@ const HeartbeatPage: React.FC = () => {
 	const [status, setStatus] = useState<HeartbeatStatus | null>(null);
 	const [lastHeartbeat, setLastHeartbeat] = useState<HeartbeatEventPayload | null>(null);
 	const [timing, setTiming] = useState<HeartbeatTimingSettings | null>(null);
+	const [settings, setSettings] = useState<HeartbeatSettings | null>(null);
+	const [providers, setProviders] = useState<PublicProvider[]>([]);
+	const [models, setModels] = useState<Model[]>([]);
+	const [providerId, setProviderId] = useState('');
+	const [modelId, setModelId] = useState('');
+	const [reasoningEffort, setReasoningEffort] = useState<ModelReasoningEffort>(
+		DEFAULT_MODEL_REASONING_EFFORT
+	);
 	const [timingDraft, setTimingDraft] = useState<TimingDraft>({
 		every: '30m',
 		start: '',
@@ -147,24 +187,51 @@ const HeartbeatPage: React.FC = () => {
 		setTimingDraft(timingToDraft(nextTiming));
 	}, []);
 
+	const applySettings = useCallback((nextSettings: HeartbeatSettings, nextProviders: PublicProvider[]): void => {
+		const provider =
+			nextProviders.find((entry) => entry.id === nextSettings.providerId) ??
+			nextProviders.find((entry) => getDefaultAgentModels(entry.id).length > 0) ??
+			nextProviders[0];
+		const nextProviderId = provider?.id ?? '';
+		const nextModels = nextProviderId ? heartbeatModelsForProvider(nextProviderId, nextSettings) : [];
+		const nextModelId =
+			nextProviderId === nextSettings.providerId && nextSettings.modelId
+				? nextSettings.modelId
+				: (nextModels[0]?.id ?? '');
+		const effortOptions = getModelReasoningEfforts(nextModelId, nextProviderId);
+		setSettings(nextSettings);
+		setProviders(nextProviders);
+		setProviderId(nextProviderId);
+		setModels(nextModels);
+		setModelId(nextModelId);
+		setReasoningEffort(
+			nextSettings.reasoningEffort && effortOptions.includes(nextSettings.reasoningEffort)
+				? nextSettings.reasoningEffort
+				: DEFAULT_MODEL_REASONING_EFFORT
+		);
+	}, []);
+
 	const loadHeartbeat = useCallback(
 		async (showLoading = false): Promise<void> => {
 			if (showLoading) setLoading(true);
 			setError(null);
 			try {
-				const [nextStatus, nextTiming] = await Promise.all([
+				const [nextStatus, nextTiming, nextSettings, nextProviders] = await Promise.all([
 					window.heartbeat.status(),
 					window.heartbeat.getTiming(),
+					window.heartbeat.settings(),
+					window.store.getProviders(),
 				]);
 				applyStatus(nextStatus);
 				applyTiming(nextTiming);
+				applySettings(nextSettings, nextProviders);
 			} catch (caught) {
 				setError(caught instanceof Error ? caught.message : String(caught));
 			} finally {
 				if (showLoading) setLoading(false);
 			}
 		},
-		[applyStatus, applyTiming]
+		[applySettings, applyStatus, applyTiming]
 	);
 
 	useEffect(() => {
@@ -311,8 +378,65 @@ const HeartbeatPage: React.FC = () => {
 		}
 	}, [applyTiming, loadHeartbeat, t, timingDraft]);
 
+	const handleProviderChange = useCallback((nextValue: string | null): void => {
+		const nextProviderId = nextValue ?? '';
+		const nextModels = nextProviderId ? heartbeatModelsForProvider(nextProviderId, settings) : [];
+		const nextModelId = nextModels[0]?.id ?? '';
+		setProviderId(nextProviderId);
+		setModels(nextModels);
+		setModelId(nextModelId);
+		setReasoningEffort(DEFAULT_MODEL_REASONING_EFFORT);
+		setNotice(null);
+		setError(null);
+	}, [settings]);
+
+	const handleModelChange = useCallback((nextValue: string | null): void => {
+		const nextModelId = nextValue ?? '';
+		const efforts = getModelReasoningEfforts(nextModelId, providerId);
+		setModelId(nextModelId);
+		setReasoningEffort((current) =>
+			efforts.includes(current) ? current : DEFAULT_MODEL_REASONING_EFFORT
+		);
+		setNotice(null);
+		setError(null);
+	}, [providerId]);
+
+	const handleSaveModel = useCallback(async (): Promise<void> => {
+		if (!providerId || !modelId) return;
+		const effortOptions = getModelReasoningEfforts(modelId, providerId);
+		setOperation('model');
+		setNotice(null);
+		setError(null);
+		try {
+			const nextSettings = await window.heartbeat.saveSettings({
+				providerId,
+				modelId,
+				reasoningEffort: effortOptions.includes(reasoningEffort)
+					? reasoningEffort
+					: undefined,
+			});
+			applySettings(nextSettings, providers);
+			setNotice(t('settings.heartbeat.notices.modelSaved'));
+			await loadHeartbeat();
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setOperation(null);
+		}
+	}, [applySettings, loadHeartbeat, modelId, providerId, providers, reasoningEffort, t]);
+
 	const runtimeEnabled = Boolean(status?.enabled);
 	const isBusy = operation !== null;
+	const selectedProvider = providers.find((provider) => provider.id === providerId);
+	const selectedModel = models.find((model) => model.id === modelId);
+	const effortOptions = useMemo(
+		() =>
+			supportsModelReasoningEffortProvider(providerId)
+				? getModelReasoningEfforts(modelId, providerId)
+				: [],
+		[modelId, providerId]
+	);
+	const showEffort = effortOptions.length > 0;
 	const nextDue = formatTimestamp(status?.nextDueMs);
 	const lastTimestamp = formatTimestamp(lastHeartbeat?.timestamp);
 	const lastDuration = formatDuration(lastHeartbeat?.durationMs);
@@ -330,6 +454,12 @@ const HeartbeatPage: React.FC = () => {
 	const timingValid = isValidEvery(timingDraft.every) &&
 		((timingDraft.start.trim() && timingDraft.end.trim()) ||
 			(!timingDraft.start.trim() && !timingDraft.end.trim()));
+	const settingsDirty = settings
+		? providerId !== (settings.providerId ?? '') ||
+			modelId !== (settings.modelId ?? '') ||
+			(showEffort && reasoningEffort !== settings.reasoningEffort)
+		: Boolean(providerId && modelId);
+	const canSaveModel = Boolean(selectedProvider && selectedModel && settingsDirty && !loading && !isBusy);
 
 	return (
 		<SettingsPageShell>
@@ -563,6 +693,134 @@ const HeartbeatPage: React.FC = () => {
 											>
 												<TimerReset className="size-3" />
 												{t('settings.heartbeat.actions.saveTiming')}
+											</Button>
+										</div>
+									</div>
+								</ItemActions>
+							</Item>
+						</>
+					)}
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
+				title={t('settings.heartbeat.model.title')}
+			>
+				<SettingsPanel>
+					{loading && !settings ? (
+						<SettingsLoadingRows rows={2} />
+					) : (
+						<>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Activity className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.model.provider')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
+										{t('settings.heartbeat.model.providerDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[520px] sm:justify-end">
+									<Select
+										value={providerId || undefined}
+										onValueChange={handleProviderChange}
+										disabled={loading || isBusy || providers.length === 0}
+									>
+										<SelectTrigger
+											size="sm"
+											className="h-7 w-full text-xs sm:w-[240px]"
+											aria-label={t('settings.heartbeat.model.provider')}
+										>
+											<SelectValue placeholder={t('settings.heartbeat.model.providerPlaceholder')} />
+										</SelectTrigger>
+										<SelectContent>
+											{providers.map((provider) => (
+												<SelectItem key={provider.id} value={provider.id}>
+													{provider.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</ItemActions>
+							</Item>
+							<Item
+								variant="outline"
+								size="md"
+								className="border-b border-border/60 px-3 py-2 last:border-b-0"
+							>
+								<ItemMedia variant="icon" className="size-6">
+									<Zap className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.heartbeat.model.model')}
+									</ItemTitle>
+									<p className="mt-0.5 max-w-full truncate text-[11px] leading-4 text-muted-foreground/60">
+										{t('settings.heartbeat.model.modelDescription')}
+									</p>
+								</ItemContent>
+								<ItemActions className="w-full min-w-0 flex-none flex-wrap justify-start gap-1.5 sm:w-[620px] sm:justify-end">
+									<div className="grid w-full gap-2">
+										<div className="grid gap-1.5 sm:grid-cols-[minmax(0,1fr)_160px]">
+											<Select
+												value={modelId || undefined}
+												onValueChange={handleModelChange}
+												disabled={loading || isBusy || models.length === 0}
+											>
+												<SelectTrigger
+													size="sm"
+													className="h-7 w-full text-xs"
+													aria-label={t('settings.heartbeat.model.model')}
+												>
+													<SelectValue placeholder={t('settings.heartbeat.model.modelPlaceholder')} />
+												</SelectTrigger>
+												<SelectContent>
+													{models.map((model) => (
+														<SelectItem key={model.id} value={model.id}>
+															{model.name}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<Select
+												value={reasoningEffort}
+												onValueChange={(nextValue) =>
+													setReasoningEffort(nextValue as ModelReasoningEffort)
+												}
+												disabled={loading || isBusy || !showEffort}
+											>
+												<SelectTrigger
+													size="sm"
+													className="h-7 w-full text-xs"
+													aria-label={t('settings.heartbeat.model.reasoningEffort')}
+												>
+													<SelectValue placeholder={t('settings.heartbeat.model.reasoningEffort')} />
+												</SelectTrigger>
+												<SelectContent>
+													{effortOptions.map((option) => (
+														<SelectItem key={option} value={option}>
+															{t(`settings.heartbeat.model.effort.${option}`)}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+										</div>
+										<div className="flex justify-end">
+											<Button
+												type="button"
+												size="xs"
+												onClick={handleSaveModel}
+												disabled={!canSaveModel}
+											>
+												<TimerReset className="size-3" />
+												{t('settings.heartbeat.actions.saveModel')}
 											</Button>
 										</div>
 									</div>

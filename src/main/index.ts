@@ -207,9 +207,6 @@ app.on('browser-window-created', (_event, win) => {
 const mainWindow = new Main(appState, windowFactory, windowContextManager);
 
 const trayManager = new Tray({
-	onShowApp: () => mainWindow.showOrCreate(),
-	onHideApp: () => mainWindow.hide(),
-	onShowTrayWindow: (bounds) => mainWindow.showTrayWindow(bounds),
 	onToggleApp: () => mainWindow.toggleVisibility(),
 	onQuit: () => {
 		appState.setQuitting();

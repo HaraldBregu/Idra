@@ -1,5 +1,4 @@
-import { screen } from 'electron';
-import type { BrowserWindow, BrowserWindowConstructorOptions, Rectangle } from 'electron';
+import type { BrowserWindow, BrowserWindowConstructorOptions } from 'electron';
 import type { AppState } from './core/app-state';
 import type { RendererContentOptions, WindowFactory } from './core/window-factory';
 import type { WindowContextManager } from './core/window-context';
@@ -9,11 +8,7 @@ const DEFAULT_WINDOW_WIDTH = 440;
 const DEFAULT_WINDOW_HEIGHT = 600;
 const STARTUP_WINDOW_WIDTH = 440;
 const STARTUP_WINDOW_HEIGHT = 600;
-const TRAY_WINDOW_WIDTH = 600;
-const TRAY_WINDOW_HEIGHT = 160;
-
 const TRANSPARENT_WINDOW_BACKGROUND = '#00000000';
-const TRAY_WINDOW_BACKGROUND = 'rgba(10, 12, 18, 0.78)';
 
 function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptions> {
 	if (process.platform === 'darwin') {
@@ -28,7 +23,6 @@ function getPlatformTranslucencyOptions(): Partial<BrowserWindowConstructorOptio
 
 export class Main {
 	private window: BrowserWindow | null = null;
-	private trayWindow: BrowserWindow | null = null;
 	private readonly appWindows = new Set<BrowserWindow>();
 	private onWindowVisibilityChange?: () => void;
 
@@ -228,79 +222,6 @@ export class Main {
 
 	createAdditionalWindow(): BrowserWindow {
 		return this.createLauncherWindow();
-	}
-
-	showTrayWindow(trayBounds?: Rectangle): void {
-		const win = this.getTrayWindow();
-		win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-		this.positionTrayWindowUnderIcon(win, trayBounds);
-		win.show();
-		win.focus();
-	}
-
-	private positionTrayWindowUnderIcon(win: BrowserWindow, trayBounds?: Rectangle): void {
-		const referencePoint = trayBounds
-			? { x: Math.round(trayBounds.x + trayBounds.width / 2), y: Math.round(trayBounds.y) }
-			: screen.getCursorScreenPoint();
-		const { workArea } = screen.getDisplayNearestPoint(referencePoint);
-
-		const x = Math.round(workArea.x + (workArea.width - TRAY_WINDOW_WIDTH) / 2);
-		const y = workArea.y;
-
-		win.setPosition(x, y, false);
-	}
-
-	private getTrayWindow(): BrowserWindow {
-		if (this.trayWindow && !this.trayWindow.isDestroyed()) {
-			return this.trayWindow;
-		}
-
-		const options: BrowserWindowConstructorOptions = {
-			width: TRAY_WINDOW_WIDTH,
-			height: TRAY_WINDOW_HEIGHT,
-			show: false,
-			transparent: true,
-			frame: false,
-			resizable: false,
-			alwaysOnTop: true,
-			skipTaskbar: true,
-			maximizable: false,
-			fullscreenable: false,
-			autoHideMenuBar: true,
-			title: 'Friday',
-			backgroundColor: TRAY_WINDOW_BACKGROUND,
-			webPreferences: {
-				sandbox: true,
-				nodeIntegration: false,
-				contextIsolation: true,
-				devTools: false,
-				webSecurity: true,
-				allowRunningInsecureContent: false,
-				spellcheck: false,
-			},
-		};
-		const win = this.windowFactory.create(options, { html: 'tray.html' });
-		win.setBackgroundColor(TRAY_WINDOW_BACKGROUND);
-		win.setAlwaysOnTop(true, 'floating');
-		win.webContents.on('before-input-event', (event, input) => {
-			if (input.type === 'keyDown' && input.key === 'Escape') {
-				event.preventDefault();
-				win.hide();
-			}
-		});
-		win.on('blur', () => {
-			win.hide();
-		});
-		win.on('hide', () => {
-			win.setVisibleOnAllWorkspaces(false);
-		});
-		win.on('closed', () => {
-			if (this.trayWindow?.id === win.id) {
-				this.trayWindow = null;
-			}
-		});
-		this.trayWindow = win;
-		return win;
 	}
 
 	createWindowForFile(filePath: string): BrowserWindow {
