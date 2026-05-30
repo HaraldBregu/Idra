@@ -76,7 +76,7 @@ export {
 	localToolCatalogByName,
 	localToolNamesForGroup,
 	localToolNamesForProfile,
-	type PolicyConfig,
+	type ToolRegistryConfig,
 	type LocalToolApprovalPolicy,
 	type LocalToolCatalogEntry,
 	type LocalToolGroup,

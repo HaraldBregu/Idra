@@ -21,7 +21,7 @@ export const PRELOADED_LOCAL_TOOLS: AgentTool<any, any>[] = LOCAL_TOOL_CATALOG.m
 
 export const ALL_TOOLS = PRELOADED_LOCAL_TOOLS;
 
-export interface PolicyConfig {
+export interface ToolRegistryConfig {
 	profile: ToolProfile;
 	allow: string[];
 	alsoAllow?: string[];
@@ -32,7 +32,7 @@ export interface PolicyConfig {
 const defaultToolPolicyService = new ToolPolicyService();
 
 export function createTools(
-	cfg: PolicyConfig,
+	cfg: ToolRegistryConfig,
 	policy: Pick<ToolPolicyServicePort, 'evaluateTools'> = defaultToolPolicyService
 ): AgentTool[] {
 	const tools = PRELOADED_LOCAL_TOOLS as unknown as AgentTool[];
