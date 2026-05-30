@@ -648,11 +648,9 @@ function scoreSkill(
 			matchedDescription++;
 		}
 	}
+	// Require at least one name-token match; description-only matches are too broad
+	// and cause false positives (e.g. "run python file" matching a Claude Code executor skill).
+	if (matchedName === 0) return null;
 	if (score < MIN_SKILL_SEARCH_SCORE) return null;
-	const reason = matchedName > 0
-		? 'matched skill name'
-		: matchedDescription > 0
-			? 'matched skill description'
-			: 'matched skill metadata';
-	return { ...skill, score, reason };
+	return { ...skill, score, reason: 'matched skill name' };
 }
