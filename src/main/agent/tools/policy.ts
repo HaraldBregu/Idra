@@ -366,6 +366,107 @@ export function createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): T
 	return { names, pluginIds, ownerGroups };
 }
 
+export type ToolPolicyServicePort = {
+	createToolUseKey(toolName: string, params: unknown): string;
+	evaluateTools(
+		subjects: readonly ToolPolicySubject[],
+		context?: ToolPolicyEvaluationContext
+	): ToolPolicyEvaluation;
+	evaluateToolUse(input: ToolUsePolicyInput): ToolUsePolicyDecision;
+	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision;
+	evaluateToolHook(input: ToolHookPolicyInput): ToolHookPolicyDecision;
+	evaluateToolApproval(input: ToolApprovalPolicyDecisionInput): ToolApprovalPolicyDecision;
+	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): ToolPolicyIndex;
+	globMatchToolPolicyEntry(pattern: string, name: string): boolean;
+	expandToolPolicyEntries(
+		entries: readonly string[] | undefined,
+		subjects: readonly ToolPolicySubject[],
+		warnings?: string[],
+		stage?: string
+	): Set<string> | undefined;
+	expandToolPolicyProfile(
+		profile: ToolPolicyProfile | undefined,
+		subjects: readonly ToolPolicySubject[],
+		warnings?: string[],
+		stage?: string
+	): Set<string> | undefined;
+	getToolPolicyStageOrder(): readonly ToolPolicyStageName[];
+	getCoreToolGroups(): Record<string, readonly string[]>;
+};
+
+export class ToolPolicyService implements ToolPolicyServicePort {
+	createToolUseKey(toolName: string, params: unknown): string {
+		return toolUsePolicyKey(toolName, params);
+	}
+
+	evaluateTools(
+		subjects: readonly ToolPolicySubject[],
+		context: ToolPolicyEvaluationContext = {}
+	): ToolPolicyEvaluation {
+		return evaluateToolPolicy(subjects, context);
+	}
+
+	evaluateToolUse(input: ToolUsePolicyInput): ToolUsePolicyDecision {
+		return evaluateToolUsePolicy(input);
+	}
+
+	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision {
+		return evaluateToolRequestPolicy(input);
+	}
+
+	evaluateToolHook(input: ToolHookPolicyInput): ToolHookPolicyDecision {
+		return evaluateToolHookPolicy(input);
+	}
+
+	evaluateToolApproval(input: ToolApprovalPolicyDecisionInput): ToolApprovalPolicyDecision {
+		return evaluateToolApprovalPolicy(input);
+	}
+
+	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): ToolPolicyIndex {
+		return createToolPolicyIndex(subjects);
+	}
+
+	globMatchToolPolicyEntry(pattern: string, name: string): boolean {
+		return globMatchToolPolicyEntry(pattern, name);
+	}
+
+	expandToolPolicyEntries(
+		entries: readonly string[] | undefined,
+		subjects: readonly ToolPolicySubject[],
+		warnings?: string[],
+		stage = 'policy'
+	): Set<string> | undefined {
+		return expandToolPolicyEntries(
+			entries,
+			this.createToolPolicyIndex(subjects),
+			warnings,
+			stage
+		);
+	}
+
+	expandToolPolicyProfile(
+		profile: ToolPolicyProfile | undefined,
+		subjects: readonly ToolPolicySubject[],
+		warnings?: string[],
+		stage = 'profile'
+	): Set<string> | undefined {
+		return expandToolPolicyProfile(
+			profile,
+			this.createToolPolicyIndex(subjects),
+			warnings,
+			stage
+		);
+	}
+
+	getToolPolicyStageOrder(): readonly ToolPolicyStageName[] {
+		return TOOL_POLICY_STAGE_ORDER;
+	}
+
+	getCoreToolGroups(): Record<string, readonly string[]> {
+		return TOOL_POLICY_CORE_GROUPS;
+	}
+}
+
 export function normalizeToolPolicyName(name: string): string {
 	return name.trim().toLowerCase();
 }
