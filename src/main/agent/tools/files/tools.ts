@@ -683,8 +683,6 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 		} catch (err) {
 			return textResult(`inspect_file: ${(err as Error).message}`, true);
 		}
-		const inspectRestricted = checkFsRestriction(ctx, abs, 'inspect_file', false);
-		if (inspectRestricted) return textResult(inspectRestricted, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`inspect_file: ${args.path} is not a file`, true);
