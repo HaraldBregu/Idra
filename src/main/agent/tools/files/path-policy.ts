@@ -51,6 +51,8 @@ export function outsidePathNeedsApproval(
 	permissions: readonly Permission[],
 	mode: 'all' | 'any' = 'all'
 ): boolean {
+	void permissions;
+	void mode;
 	const abs = resolveAbs(ctx.workspace, target);
 	if (isInsidePath(fridayToolRoot(ctx), abs)) return false;
 	return true;
