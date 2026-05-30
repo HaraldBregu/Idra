@@ -468,7 +468,6 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		required: ['path'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['delete']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('delete: disabled by read-only filesystem policy.', true);
@@ -478,8 +477,6 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		} catch (err) {
 			return textResult(`delete: ${(err as Error).message}`, true);
 		}
-		const deleteRestricted = checkFsRestriction(ctx, abs, 'delete', true);
-		if (deleteRestricted) return textResult(deleteRestricted, true);
 		const guard = guardedRootMessage(ctx.workspace, abs);
 		if (guard) return textResult(`delete: ${guard}.`, true);
 		try {
