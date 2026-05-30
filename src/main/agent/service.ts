@@ -31,9 +31,9 @@ import { AgentCapabilityService, type AgentCapabilityServicePort } from './capab
 import { DEFAULT_AGENT_ID } from '../constants';
 import { makeProvider, type ProviderSpec } from '../provider/factory';
 import {
-	PolicyService,
-	type PolicyServicePort,
-} from './policy';
+	ToolPolicyService,
+	type ToolToolPolicyServicePort,
+} from './tools/policy';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import {
 	loadSession,
@@ -96,7 +96,7 @@ export interface AgentServiceDependencies {
 	skills?: SkillsService;
 	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
-	policy?: PolicyServicePort;
+	policy?: ToolToolPolicyServicePort;
 	toolService?: ToolServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
@@ -238,7 +238,7 @@ export class AgentService {
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly toolService: ToolServicePort;
-	private readonly policyService: PolicyServicePort;
+	private readonly policyService: ToolToolPolicyServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
@@ -258,7 +258,7 @@ export class AgentService {
 		this.providerFactory = options.providerFactory ?? makeProvider;
 		this.policyService =
 			dependencies.policy ??
-			new PolicyService({
+			new ToolPolicyService({
 				logger: dependencies.logger,
 				userDataRoot: dependencies.userDataDirectory.getRootPath(),
 			});
