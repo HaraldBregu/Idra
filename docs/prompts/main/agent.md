@@ -59,7 +59,7 @@ Do not import private implementation modules from outside the agent boundary whe
 - Load and save session state through the session store.
 - Resolve the workspace root from configured agent workspace settings.
 - Construct `ToolContext` with workspace, session, run signal, filesystem policy, cron context, and main-process services.
-- Evaluate request-level tool policy through `PolicyService`.
+- Evaluate request-level tool policy through the tools policy service.
 - Check bootstrap state and load startup context through `WorkspaceService`.
 - Build local tools through the configured `toolsFactory`.
 - Filter, select, and provider-normalize tools through `ToolService`.
@@ -164,10 +164,10 @@ From the agent side:
 - Use per-agent tool policy and send-time allow and deny lists.
 - Keep connector tools out of the default local tool surface. Let capability resolution add matching connector tools.
 - Do not call individual tool implementation modules from `AgentService` or the execution loop.
-- Do not bypass `ToolService.beforeCall`, loop detection, approval checks, policy checks, provider-safe name conversion, schema normalization, or execution management.
-- Keep read-before-write and filesystem policy behavior inside the tools module.
+- Do not bypass `ToolService.beforeCall`, loop detection, approval checks, tool policy checks, provider-safe name conversion, schema normalization, or execution management.
+- Keep read-before-write and workspace-boundary behavior inside the tools module.
 - Keep cron behavior in cron tools and `CronService`, not host schedulers or ad hoc scheduling.
-- Keep script execution behind the centralized script tool and shared file policy checks.
+- Keep script execution behind the centralized script tool and workspace-boundary checks.
 
 When a tool policy changes, cover both prompt selection and execution gating in tests.
 
@@ -183,8 +183,8 @@ The script tool must:
 - Support only the approved interpreter set.
 - Infer the interpreter only from trusted script metadata or recognized script type.
 - Respect read-only filesystem policy.
-- Use the shared path policy helper for workspace and outside-workspace decisions.
-- Use file policy checks for script read access and working-directory write access.
+- Use the tools module path helpers for workspace and outside-workspace decisions.
+- Use workspace-boundary checks for script read access and working-directory write access.
 - Use the same approval pipeline as other tools when a path crosses a restricted boundary.
 - Bound runtime with a timeout.
 - Bound output size and report truncation.
@@ -286,12 +286,12 @@ Do not hardcode heartbeat scheduling in the agent module. Scheduling belongs to 
 
 ## Policy And Safety
 
-Use `PolicyService` for request-level tool-use decisions, tool availability, tool execution gating, path policy, hook decisions, and approval decisions.
+Use the tools policy service for request-level tool-use decisions, tool availability, tool execution gating, hook decisions, and approval decisions.
 
 The agent module must not:
 
-- Reimplement policy matching.
-- Bypass policy service methods.
+- Reimplement tool policy matching.
+- Bypass tool policy service methods.
 - Execute mutating tools before policy and approval checks.
 - Persist sensitive blocked prompt data.
 - Send unavailable tools to the model.
@@ -323,7 +323,7 @@ Use dependencies through existing constructors and service ports:
 
 - `StoreService` for provider, model, agent, operator, routing, and connector configuration.
 - `WorkspaceService` for workspace roots and startup context files.
-- `PolicyService` for policy and safety decisions.
+- `ToolService` and the tools policy service for tool policy and safety decisions.
 - `ToolService` for tool creation, filtering, selection, provider preparation, preflight, and execution.
 - `CronService` only through cron tools or explicitly injected cron contexts.
 - `ConnectorsService` through capability resolution and connector tooling.
