@@ -302,13 +302,6 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 				if (seen.has(abs)) return textResult(`apply_patch: duplicate file patch: ${patch.path}`, true);
 				seen.add(abs);
 
-				const permission =
-					patch.operation === 'create'
-						? 'create'
-						: patch.operation === 'delete'
-							? 'delete'
-							: 'write';
-
 				if (patch.operation === 'create') {
 					const existing = await fs.stat(abs).catch(() => null);
 					if (existing) return textResult(`apply_patch: file already exists: ${patch.path}`, true);
