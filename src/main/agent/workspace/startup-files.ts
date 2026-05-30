@@ -145,11 +145,6 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
 		await fs.rm(path.join(root, DEFAULT_BOOTSTRAP_FILENAME), { force: true });
-		const state = await this.readState(root);
-		await this.writeState(root, {
-			...state,
-			setupCompletedAt: state.setupCompletedAt ?? new Date().toISOString(),
-		});
 		return safeReadWorkspaceFile(root, DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
