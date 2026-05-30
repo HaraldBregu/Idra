@@ -723,8 +723,6 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 		}
 		const inspectRestricted = checkFsRestriction(ctx, abs, 'inspect_file', false);
 		if (inspectRestricted) return textResult(inspectRestricted, true);
-		const denied = checkFilePolicy(ctx, 'inspect_file', [{ path: abs, permission: 'read' }]);
-		if (denied) return textResult(denied, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`inspect_file: ${args.path} is not a file`, true);
@@ -948,15 +946,12 @@ export const findTool: AgentTool<FindArgs> = {
 			const dir = args.path
 				? resolveAbs(ctx.workspace, args.path)
 				: ctx.workspace;
-			const denied = checkFilePolicy(ctx, 'find', [{ path: dir, permission: 'read' }]);
-			if (denied) return textResult(denied, true);
 			const stat = await fs.stat(dir).catch(() => null);
 			if (!stat || !stat.isDirectory()) return textResult(`find: not a directory: ${dir}`, true);
 			const results: string[] = [];
 			const iter = fs.glob(pattern, { cwd: dir, exclude: FIND_EXCLUDES, withFileTypes: true });
 			for await (const dirent of iter) {
 				const full = path.join(dirent.parentPath, dirent.name);
-				if (checkFilePolicy(ctx, 'find', [{ path: full, permission: 'read' }])) continue;
 				let rel = path.relative(dir, full) || dirent.name;
 				if (dirent.isDirectory() && !rel.endsWith('/')) rel += '/';
 				results.push(rel.split(path.sep).join('/'));
@@ -999,8 +994,6 @@ export const filesystemCreateTool: AgentTool<FilesystemCreateArgs> = {
 		}
 		const restricted = checkFsRestriction(ctx, abs, 'filesystem_create', true);
 		if (restricted) return textResult(restricted, true);
-		const denied = checkFilePolicy(ctx, 'filesystem_create', [{ path: abs, permission: 'create' }]);
-		if (denied) return textResult(denied, true);
 		try {
 			await fs.mkdir(path.dirname(abs), { recursive: true });
 			await fs.writeFile(abs, args.content, { encoding: 'utf8', flag: 'wx' });
@@ -1042,8 +1035,6 @@ export const filesystemListTool: AgentTool<FilesystemListArgs> = {
 		}
 		const restricted = checkFsRestriction(ctx, abs, 'filesystem_list', false);
 		if (restricted) return textResult(restricted, true);
-		const denied = checkFilePolicy(ctx, 'filesystem_list', [{ path: abs, permission: 'read' }]);
-		if (denied) return textResult(denied, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isDirectory()) return textResult(`filesystem_list: not a directory: ${abs}`, true);
@@ -1055,7 +1046,6 @@ export const filesystemListTool: AgentTool<FilesystemListArgs> = {
 			const visible: string[] = [];
 			for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
 				const full = path.join(abs, entry.name);
-				if (checkFilePolicy(ctx, 'filesystem_list', [{ path: full, permission: 'read' }])) continue;
 				visible.push(`${entry.name}${entry.isDirectory() ? '/' : ''}`);
 				if (visible.length >= limit) break;
 			}
