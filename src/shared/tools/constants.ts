@@ -1,12 +1,12 @@
 import type { CronSchedulePermissionLevel } from '../cron';
-import type { Permission } from '../policy';
 
 export type AgentToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 export type AgentToolAvailability = 'default' | 'optional' | 'legacy' | 'alias';
+export type AgentFileToolPermission = 'read' | 'write' | 'create' | 'delete';
 export type AgentCronToolPermission = `cron:${CronSchedulePermissionLevel}`;
 
 export type AgentToolPermission =
-	| Permission
+	| AgentFileToolPermission
 	| 'execute'
 	| 'state'
 	| 'human'
