@@ -1,5 +1,5 @@
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
-import { ToolPolicyService, type ToolPolicyServicePort } from './policy';
+import { ToolPolicyService, type ToolPolicyServicePort } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();
 const GENERIC_TOOL_ACTION_TOKENS = new Set([
