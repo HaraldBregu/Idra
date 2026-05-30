@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before applying, the policy module resolves every path in the patch and checks the required permission for each change: `write` for modified files, `create` for new files, `delete` for removed files. If any path in the patch is denied, the entire patch is rejected and no files are changed.
+Depends on the tools module path helpers. Before applying, the tool resolves every path in the patch and applies workspace-boundary checks. If any path is blocked, the entire patch is rejected and no files are changed.
 
 ## Tool Selection Description
 

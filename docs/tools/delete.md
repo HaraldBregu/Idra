@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before deleting, the policy module resolves the target path and checks whether `delete` is permitted. If `delete` is not granted, the tool stops and nothing is removed.
+Depends on the tools module path helpers. Before deleting, the tool resolves the target path and applies workspace-boundary checks. Blocked targets are not removed.
 
 ## Tool Selection Description
 

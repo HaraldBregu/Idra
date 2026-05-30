@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before copying, the policy module resolves both paths and checks `read` on the source and `create` on a new destination. Replacing an existing destination file requires `write` on the destination and an explicit overwrite request. Directory copies require a new destination and policy access for nested paths. If any check is denied, the tool stops and no copy is created.
+Depends on the tools module path helpers. Before copying, the tool resolves both paths, applies workspace-boundary checks, and requires an explicit overwrite request before replacing an existing destination. Blocked paths are not copied.
 
 ## Tool Selection Description
 

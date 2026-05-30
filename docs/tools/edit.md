@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before editing, the policy module resolves the target path and checks whether `write` is permitted. If `write` is not granted, the tool stops and the file is not modified.
+Depends on the tools module path helpers. Before editing, the tool resolves the target path and applies workspace-boundary checks. Blocked targets are not modified.
 
 ## Tool Selection Description
 

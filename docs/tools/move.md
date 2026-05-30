@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before moving, the policy module resolves both paths and checks `read` and `delete` on the source. Moving to a new destination requires `create`; replacing an existing destination file requires `write` and an explicit overwrite request. If any check is denied, the tool stops and the file remains in its original location.
+Depends on the tools module path helpers. Before moving, the tool resolves both paths, applies workspace-boundary checks, and requires an explicit overwrite request before replacing an existing destination. Blocked paths are not moved.
 
 ## Tool Selection Description
 

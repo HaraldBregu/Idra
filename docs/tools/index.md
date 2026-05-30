@@ -4,7 +4,7 @@ Tools let an agent do work outside plain text. In this section, the documented t
 
 An agent should use tools when they make the result more accurate, current, verified, or executable. It should avoid tools when the user needs a direct answer and the available context is already enough.
 
-This section documents file and script tools. File path policy is a separate system module.
+This section documents file and script tools. Workspace-boundary checks live inside the tools module.
 
 ## How Agents Should Use Tools
 
@@ -18,7 +18,7 @@ This section documents file and script tools. File path policy is a separate sys
 
 - Use file tools when the answer depends on workspace content or a specific readable file path.
 - Use `script_run` only for an existing script file, not arbitrary shell command text.
-- Local tools must ask [file tool policy](../policy/index.md) before reading, writing, editing, moving, copying, deleting, finding, inspecting, or executing against a path.
+- Local tools must use the tools module workspace-boundary helpers before reading, writing, editing, moving, copying, deleting, finding, inspecting, or executing against a path.
 - Keep mutating file operations inside allowed directories.
 - Read or inspect files before changing them.
 - Ask before irreversible, external, or high-impact actions.
@@ -33,14 +33,14 @@ The file tools documented here are not loaded through a model-callable search co
 ### How It Works
 
 1. The runtime builds the candidate file tool set.
-2. The policy module filters candidates by profile, allow/deny rules, sender context, sandbox context, and runtime allow/deny options.
+2. The tools policy service filters candidates by profile, allow/deny rules, sender context, sandbox context, and runtime allow/deny options.
 3. Provider schema normalization adapts the remaining tool schemas for the selected model.
 4. The active turn receives the selected tool schemas.
-5. During execution, each local file or script tool asks file policy before operating on a path.
+5. During execution, each local file or script tool applies workspace-boundary checks before operating on a path.
 
 ## Local Tool Areas
 
-Local tools can keep filesystem or process capability in their implementation, but execution is gated by the [policy module](../policy/index.md).
+Local tools can keep filesystem or process capability in their implementation, but execution is gated by the tools module policy and workspace-boundary helpers.
 
 | Area | Current tools | Docs |
 | --- | --- | --- |
@@ -49,6 +49,5 @@ Local tools can keep filesystem or process capability in their implementation, b
 
 ## Related Docs
 
-- [File tool policy](../policy/index.md)
 - [How an agent works](../agent/index.md)
 - [Agent acceptance criteria](../agent/acceptance-criteria.md)

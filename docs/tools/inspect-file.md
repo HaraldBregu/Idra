@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before inspecting, the policy module resolves the target path and checks whether `read` is permitted. If `read` is not granted, the tool stops and no metadata or preview is returned.
+Depends on the tools module path helpers. Before inspecting, the tool resolves the target path and applies the active workspace filesystem settings. Blocked targets return no metadata or preview.
 
 ## Tool Selection Description
 

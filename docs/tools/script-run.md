@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-Depends on the [policy module](../policy/index.md). Before execution, the tool resolves the script path and working directory, then checks whether policy allows reading the script and writing in the working directory. Read-only filesystem policy disables the tool.
+Depends on the tools module path helpers. Before execution, the tool resolves the script path and working directory, then applies workspace-boundary checks. Read-only filesystem policy disables the tool.
 
 The tool shares the same path resolution and workspace-boundary policy helpers used by the file tools.
 
@@ -22,8 +22,8 @@ Use `script_run` when the user asks to run an existing script, Python file, Node
 
 - Running arbitrary command strings.
 - Running host schedulers such as `crontab`.
-- Installing dependencies or changing system state unless the user clearly requested it and policy allows the paths involved.
-- Bypassing file policy by invoking another executable directly.
+- Installing dependencies or changing system state unless the user clearly requested it and workspace-boundary checks allow the paths involved.
+- Bypassing workspace-boundary checks by invoking another executable directly.
 
 ## Inputs
 
@@ -36,6 +36,6 @@ Use `script_run` when the user asks to run an existing script, Python file, Node
 
 ## When It Fails
 
-The tool fails when policy denies the script path or working directory, read-only filesystem policy is active, the path is not a file, the working directory is not a directory, the interpreter cannot be inferred, the process times out, or the process exits with a non-zero code.
+The tool fails when workspace-boundary checks deny the script path or working directory, read-only filesystem policy is active, the path is not a file, the working directory is not a directory, the interpreter cannot be inferred, the process times out, or the process exits with a non-zero code.
 
 Report the exit code, stderr, and timeout state. Do not treat partial output as a successful run.
