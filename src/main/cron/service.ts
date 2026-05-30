@@ -22,7 +22,6 @@ import {
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext, CronPersistenceStore } from './core/cron.types';
 import { StoreCronScheduleStore } from './store/cron-schedule-store';
-import { DefaultCronScheduleAccessPolicy } from './security/cron-access-policy';
 import { CronSchedulerService, DEFAULT_CRON_RUN_POLICY } from './scheduler/cron-scheduler';
 import { InMemoryCronScheduleRunner } from './scheduler/cron-runner';
 
