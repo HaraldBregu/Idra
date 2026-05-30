@@ -88,10 +88,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 
 	async isBootstrapPending(agentId: string): Promise<boolean> {
 		await this.ensureReady(agentId);
-		const root = this.getRootPath(agentId);
-		const state = await this.readState(root);
-		if (state.setupCompletedAt) return false;
-		return pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME));
+		return pathExists(path.join(this.getRootPath(agentId), DEFAULT_BOOTSTRAP_FILENAME));
 	}
 
 	async loadContextFiles(agentId: string): Promise<WorkspaceContextFile[]> {
