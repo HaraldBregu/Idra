@@ -359,7 +359,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('enforces workspace-only and read-only filesystem policy', async () => {
+	it('reads anywhere and still enforces read-only filesystem policy', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
@@ -368,7 +368,7 @@ describe('tools/fs', () => {
 
 		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
 		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
-			'error'
+			'ok'
 		);
 		await expect(
 			writeTool.execute(
