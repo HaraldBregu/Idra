@@ -261,12 +261,11 @@ export const undoLastOperationTool: AgentTool = {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('undo_last_operation: disabled by read-only filesystem policy.', true);
 		}
-		const entry = undoStacks.get(ctx)?.pop();
-		if (!entry) return textResult('undo_last_operation: no reversible operation recorded.', true);
-		const restricted = checkFsRestriction(ctx, entry.abs, 'undo_last_operation', true);
-		if (restricted) return textResult(restricted, true);
-		const permission = entry.before.kind === 'missing' ? 'delete' : 'write';
-		try {
+			const entry = undoStacks.get(ctx)?.pop();
+			if (!entry) return textResult('undo_last_operation: no reversible operation recorded.', true);
+			const restricted = checkFsRestriction(ctx, entry.abs, 'undo_last_operation', true);
+			if (restricted) return textResult(restricted, true);
+			try {
 			if (entry.before.kind === 'missing') {
 				await fs.rm(entry.abs, { force: true });
 				ctx.readState.delete(entry.abs);
