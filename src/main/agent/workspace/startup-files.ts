@@ -37,16 +37,6 @@ export interface AgentStartupFilesServicePort {
 	completeBootstrap(agentId: string): Promise<WorkspaceContextFile>;
 }
 
-const STATE_DIRNAME = '.friday';
-const STATE_FILENAME = 'startup-state.json';
-const STATE_VERSION = 1;
-
-type StartupState = {
-	version: typeof STATE_VERSION;
-	bootstrapSeededAt?: string;
-	setupCompletedAt?: string;
-};
-
 const PROFILE_FILE_NAMES = [
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_IDENTITY_FILENAME,
