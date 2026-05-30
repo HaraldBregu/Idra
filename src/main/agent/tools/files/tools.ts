@@ -284,8 +284,6 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 			const seen = new Set<string>();
 			for (const patch of patches) {
 				const abs = resolveAbs(ctx.workspace, patch.path);
-				const patchRestricted = checkFsRestriction(ctx, abs, 'apply_patch', true);
-				if (patchRestricted) return textResult(patchRestricted, true);
 				if (seen.has(abs)) return textResult(`apply_patch: duplicate file patch: ${patch.path}`, true);
 				seen.add(abs);
 
