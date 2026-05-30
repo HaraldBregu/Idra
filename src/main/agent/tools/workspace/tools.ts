@@ -118,8 +118,6 @@ export const grepTool: AgentTool<{
 
 		try {
 			const root = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
-			const restricted = checkFsRestriction(ctx, root, 'grep', false);
-			if (restricted) return textResult(restricted, true);
 			const stat = await fs.stat(root);
 			const files = stat.isFile() ? [root] : await collectFiles(root, limit * 20);
 			const matches: string[] = [];
