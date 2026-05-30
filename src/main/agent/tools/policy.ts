@@ -6,6 +6,7 @@ import {
 } from '../../../shared/tools';
 
 export type ToolPolicyProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
+export type ToolProfile = ToolPolicyProfile;
 
 export type ToolPolicy = {
 	profile?: ToolPolicyProfile;
