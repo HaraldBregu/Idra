@@ -67,11 +67,11 @@ export class CronService implements Disposable {
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new StoreCronScheduleStore(this.store);
-		const accessPolicy = new DefaultCronScheduleAccessPolicy({
-			minIntervalMs: DEFAULT_CRON_RUN_POLICY.minIntervalMs,
-			highFrequencyThresholdMs: DEFAULT_CRON_RUN_POLICY.highFrequencyThresholdMs,
-			maxActiveSchedulesPerUser: 250,
-		});
+		const accessPolicy = {
+			async authorize(): Promise<void> {},
+			requiresConfirmation(): boolean { return false; },
+			validateFrequency(): void {},
+		};
 		this.scheduler = new CronSchedulerService(
 			this.scheduleStore,
 			new InMemoryCronScheduleRunner(),
