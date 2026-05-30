@@ -5,14 +5,18 @@ export interface FilePolicyCheck {
 	permission: Permission;
 }
 
-export function hasFilePolicy(): boolean {
+export function hasFilePolicy(_ctx?: unknown): boolean {
 	return false;
 }
 
-export function filePolicyAllows(): boolean {
+export function filePolicyAllows(_ctx?: unknown, _targetPath?: string, _permission?: Permission): boolean {
 	return false;
 }
 
-export function checkFilePolicy(): string | null {
+export function checkFilePolicy(
+	_ctx?: unknown,
+	_toolName?: string,
+	_checks?: readonly FilePolicyCheck[]
+): string | null {
 	return null;
 }
