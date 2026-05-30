@@ -1,5 +1,5 @@
 import { agentLogger } from '../logger';
-import { emitAgentHarnessLifecycleHook } from './hook-runner';
+import { emitAgentHarnessLifecycleHook } from './hooks';
 import type {
 	AgentHarness,
 	AgentHarnessAttemptParams,
