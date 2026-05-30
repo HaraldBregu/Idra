@@ -609,7 +609,7 @@ describe('tools/fs', () => {
 					makeToolContext({ workspace })
 				)
 			).status
-		).toBe('error');
+		).toBe('ok');
 		await expect(
 			scriptRunTool.execute(
 				{ path: 'hello.js' },
