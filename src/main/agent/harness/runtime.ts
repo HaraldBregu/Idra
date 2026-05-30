@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { AgentContentBlock, ToolResultBlock, Usage } from '../../provider/types';
 import type { AgentToolResultStatus } from '../../../shared/agents/constants';
 import { AgentHarnessEmitter, AgentHarnessEventQueue } from './events';
-import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './memory';
+import { InMemoryAgentHarnessOperationLogger, InMemoryAgentHarnessPersistence } from './persistence';
 import { DefaultAgentHarnessSecretRedactor, validateAgentHarnessConfig } from './config';
 import { compactTranscriptToBudget } from './context';
 import { AgentHarnessError, isRecoverableError, toHarnessErrorShape } from './errors';
