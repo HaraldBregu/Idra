@@ -584,7 +584,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('runs script files and applies workspace path checks', async () => {
+	it('runs script files anywhere and still enforces read-only policy', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(
