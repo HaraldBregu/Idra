@@ -37,8 +37,8 @@ export class FileAgentHarnessSkillLoader implements AgentHarnessSkillLoader {
 		const task = input.task.toLowerCase();
 		return input.candidates
 			.filter((skill) => {
-				const haystack = `${skill.name} ${skill.description ?? ''}`.toLowerCase();
-				return haystack.split(/\W+/).some((word) => word.length > 3 && task.includes(word));
+				const nameWords = skill.name.toLowerCase().split(/\W+/).filter((w) => w.length > 3);
+				return nameWords.some((word) => task.includes(word));
 			})
 			.map((skill) => skill.name);
 	}
