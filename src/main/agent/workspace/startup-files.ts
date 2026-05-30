@@ -94,14 +94,15 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	async loadContextFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
-		const state = await this.readState(root);
-		let files = await Promise.all(
+		const bootstrapPending = await pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME));
+		const files = await Promise.all(
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(root, name))
 		);
-		if (state.setupCompletedAt) {
-			files = files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
-		}
-		return files.filter((file) => file.name !== DEFAULT_MEMORY_FILENAME || !file.missing);
+		return files.filter((file) => {
+			if (file.name === DEFAULT_BOOTSTRAP_FILENAME && !bootstrapPending) return false;
+			if (file.name === DEFAULT_MEMORY_FILENAME && file.missing) return false;
+			return true;
+		});
 	}
 
 	async listFiles(agentId: string): Promise<WorkspaceFileSummary[]> {
