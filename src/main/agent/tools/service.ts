@@ -2,7 +2,7 @@ import {
 	ToolPolicyService,
 	type ToolPolicyServicePort,
 	type ToolPolicySubject,
-} from './policy';
+} from './tool-types';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../logger';
 import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
