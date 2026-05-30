@@ -519,8 +519,6 @@ export const copyTool: AgentTool<CopyArgs> = {
 		required: ['source', 'destination'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) =>
-		outsidePathNeedsApproval(ctx, args.destination, ['write', 'create'], 'any'),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('copy: disabled by read-only filesystem policy.', true);
@@ -532,10 +530,6 @@ export const copyTool: AgentTool<CopyArgs> = {
 		} catch (err) {
 			return textResult(`copy: ${(err as Error).message}`, true);
 		}
-		const copyReadRestricted = checkFsRestriction(ctx, sourceAbs, 'copy', false);
-		if (copyReadRestricted) return textResult(copyReadRestricted, true);
-		const copyWriteRestricted = checkFsRestriction(ctx, destinationAbs, 'copy', true);
-		if (copyWriteRestricted) return textResult(copyWriteRestricted, true);
 		if (sourceAbs === destinationAbs)
 			return textResult('copy: source and destination are identical.', true);
 		try {
