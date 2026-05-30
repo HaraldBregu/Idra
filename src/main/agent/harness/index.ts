@@ -6,7 +6,6 @@ export * from './hook-runner';
 export * from './hook-helpers';
 export * from './lifecycle-hook-helpers';
 export * from './prompt-compaction-hook-helpers';
-export * from './policy';
 export * from './activation';
 export * from './tool-result-middleware';
 export * from './v2';
