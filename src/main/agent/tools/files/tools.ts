@@ -6,7 +6,6 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
-import { checkFilePolicy, type FilePolicyCheck } from './policy';
 import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from './path-policy';
 
 function snapshot(stat: Stats): { mtimeMs: number; size: number } {
@@ -35,27 +34,6 @@ function guardedRootMessage(workspace: string, abs: string): string | null {
 	if (resolved === path.resolve(workspace)) return 'refusing to operate on workspace root';
 	if (resolved === path.resolve(os.homedir())) return 'refusing to operate on home directory';
 	return null;
-}
-
-async function collectDirectoryCopyPolicyChecks(
-	sourceAbs: string,
-	destinationAbs: string
-): Promise<FilePolicyCheck[]> {
-	const checks: FilePolicyCheck[] = [
-		{ path: sourceAbs, permission: 'read' },
-		{ path: destinationAbs, permission: 'create' },
-	];
-	const entries = await fs.readdir(sourceAbs, { withFileTypes: true });
-	for (const entry of entries) {
-		const sourcePath = path.join(sourceAbs, entry.name);
-		const destinationPath = path.join(destinationAbs, entry.name);
-		checks.push({ path: sourcePath, permission: 'read' });
-		checks.push({ path: destinationPath, permission: 'create' });
-		if (entry.isDirectory()) {
-			checks.push(...(await collectDirectoryCopyPolicyChecks(sourcePath, destinationPath)));
-		}
-	}
-	return checks;
 }
 
 interface ReadArgs {
