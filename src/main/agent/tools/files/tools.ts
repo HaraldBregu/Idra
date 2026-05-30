@@ -1038,7 +1038,6 @@ export const filesystemListTool: AgentTool<FilesystemListArgs> = {
 			const entries = await fs.readdir(abs, { withFileTypes: true });
 			const visible: string[] = [];
 			for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-				const full = path.join(abs, entry.name);
 				visible.push(`${entry.name}${entry.isDirectory() ? '/' : ''}`);
 				if (visible.length >= limit) break;
 			}
