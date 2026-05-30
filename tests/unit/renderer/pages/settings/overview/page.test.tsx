@@ -78,15 +78,11 @@ describe('OverviewPage', () => {
 			'settings.sections.taskScheduler',
 			'settings.tabs.backgroundTasks',
 			'settings.tabs.monitoring',
-			'settings.tabs.policies',
 		]);
 		expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
 			'settings.tabs.backgroundTasks',
 			'settings.tabs.monitoring',
-			'settings.tabs.policies',
 		]);
-
-		expect(buttonTitles().at(-1)).toBe('settings.tabs.policies');
 	});
 
 	it('navigates to the selected settings route when clicked', async () => {

@@ -13,7 +13,6 @@ import {
 } from '../../../../src/main/agent/tools/params';
 import { createReadTool } from '../../../../src/main/agent/tools/files/read-tool';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/agent/tools/create-agent-tools';
-import { PolicyService } from '../../../../src/main/agent/policy';
 import { applyToolPolicyPipeline } from '../../../../src/main/agent/tools/tool-policy-pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/agent/tools/schema-normalization';
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/agent/tools/before-tool-call';
@@ -448,36 +447,9 @@ describe('canonical agent tool runtime', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('passes the policy service dependency to built-in file tools', async () => {
-		const workspace = await makeTempDir();
-		await fs.writeFile(path.join(workspace, 'secret.txt'), 'secret', 'utf8');
-		const policy = new PolicyService({
-			storeAccessor: {
-				read: jest.fn(() => ({
-					version: 1,
-					defaultPolicy: 'deny',
-					paths: [],
-				})),
-				write: jest.fn(),
-			},
-		});
-		const result = await createAgentTools({
-			workspaceDir: workspace,
-			toolsAllow: ['read_file'],
-			services: { policy },
-		});
-		const read = result.tools.find((entry) => entry.name === 'read_file')!;
-
-		await expect(read.execute('tc-policy', { path: 'secret.txt' })).resolves.toMatchObject({
-			details: expect.objectContaining({ status: 'error' }),
-		});
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
 	it('uses the injected policy service for built-in tool availability', async () => {
 		const workspace = await makeTempDir();
 		const policy = {
-			evaluate: jest.fn(),
 			evaluateTools: jest.fn(() => ({
 				allowed: new Set<string>(),
 				filtered: [{ toolName: 'read_file', stage: 'runtime', reason: 'blocked by policy' }],

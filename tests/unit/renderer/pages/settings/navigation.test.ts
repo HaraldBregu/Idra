@@ -17,7 +17,6 @@ describe('settings navigation', () => {
 			'settings.sections.taskScheduler',
 			'settings.tabs.backgroundTasks',
 			'settings.tabs.monitoring',
-			'settings.tabs.policies',
 		]);
 	});
 

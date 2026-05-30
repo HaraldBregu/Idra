@@ -115,7 +115,7 @@ describe('ToolService', () => {
 		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
 	});
 
-	it('uses PolicyService before executing service-managed tools', async () => {
+	it('uses the tool policy service before executing service-managed tools', async () => {
 		const service = new ToolService();
 		const runShell = service.getToolsByGroup('coreWorkspace').find((tool) => tool.name === 'run_shell');
 		const ctx = makeToolContext();

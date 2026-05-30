@@ -1,7 +1,6 @@
 import { ipcRenderer } from 'electron';
-import { policy, store } from '../../../../src/preload';
-import { PolicyChannels, StoreChannels } from '../../../../src/shared/ipc-channels';
-import type { PolicyConfig } from '../../../../../shared/policy';
+import { store } from '../../../../src/preload';
+import { StoreChannels } from '../../../../src/shared/ipc-channels';
 import type { PublicProvider } from '../../../../src/shared/providers';
 import type { Model } from '../../../../src/shared/agents/service';
 
@@ -44,21 +43,4 @@ describe('store preload API', () => {
 		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(7, StoreChannels.saveSpeechTranscriberService, providers[0], model);
 	});
 
-	it('invokes policy API methods through typed IPC channels', async () => {
-		const config: PolicyConfig = {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [{ path: '/workspace', permissions: ['read'], recursive: true }],
-		};
-
-		mockedIpcRenderer.invoke
-			.mockResolvedValueOnce({ success: true, data: config })
-			.mockResolvedValueOnce({ success: true, data: config });
-
-		await expect(policy.get()).resolves.toEqual(config);
-		await expect(policy.set(config)).resolves.toEqual(config);
-
-		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(1, PolicyChannels.get);
-		expect(mockedIpcRenderer.invoke).toHaveBeenNthCalledWith(2, PolicyChannels.set, config);
-	});
 });

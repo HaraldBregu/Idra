@@ -21,7 +21,6 @@ import type {
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/run-logger';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import { PolicyService } from '../../../../src/main/agent/policy';
 import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
@@ -946,75 +945,6 @@ describe('AgentService', () => {
 		const history = await service.getHistory();
 		expect(JSON.stringify(history)).toContain(outsideFile);
 		expect(JSON.stringify(history)).toContain('outside readable');
-		await fs.rm(workspace, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-	});
-
-	it('uses file policy grants for outside writes in agent tool execution', async () => {
-		const workspace = await makeTempDir();
-		const outside = await makeTempDir();
-		const sessionBaseDir = await makeTempDir();
-		const outsideFile = path.join(outside, 'policy-write.txt');
-		const deps = makeDeps(workspace);
-		const policy = new PolicyService({
-			storeAccessor: {
-				read: jest.fn(() => ({
-					version: 1,
-					defaultPolicy: 'deny',
-					paths: [
-						{
-							path: outside,
-							permissions: ['read', 'write', 'create', 'delete'],
-							recursive: true,
-						},
-					],
-				})),
-				write: jest.fn(),
-			},
-		});
-		let turn = 0;
-		const service = new AgentService(
-			{ ...deps, policy },
-			{
-				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
-				providerFactory: () => ({
-					async *stream() {
-						if (turn++ === 0) {
-							yield { type: 'tool_call_start' as const, id: 'write-outside', name: 'write_file' };
-							yield {
-								type: 'tool_call_args_delta' as const,
-								id: 'write-outside',
-								jsonDelta: JSON.stringify({
-									path: outsideFile,
-									content: 'from policy',
-								}),
-							};
-							yield { type: 'tool_call_end' as const, id: 'write-outside' };
-							yield {
-								type: 'message_end' as const,
-								stopReason: 'tool_use',
-								usage: { inputTokens: 1, outputTokens: 1 },
-							};
-							return;
-						}
-						yield { type: 'text_delta' as const, text: 'write complete' };
-						yield {
-							type: 'message_end' as const,
-							stopReason: 'end_turn',
-							usage: { inputTokens: 1, outputTokens: 1 },
-						};
-					},
-				}),
-			}
-		);
-
-		await expect(service.send(`write ${outsideFile}`)).resolves.toBe('write complete');
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('from policy');
-		const history = await service.getHistory();
-		expect(JSON.stringify(history)).toContain(`wrote ${outsideFile}`);
-
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });

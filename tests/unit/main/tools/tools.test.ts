@@ -52,9 +52,8 @@ import {
 	AGENT_TOOLS,
 } from '../../../../src/shared/tools';
 import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
-import { PolicyService } from '../../../../src/main/agent/policy';
+import { ToolPolicyService } from '../../../../src/main/agent/tools/policy';
 import { makeTempDir, makeToolContext } from '../test-helpers';
-import type { PolicyConfig } from '../../../../../shared/policy';
 
 type ToolFilterPolicy = {
 	profile: 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
@@ -64,7 +63,7 @@ type ToolFilterPolicy = {
 };
 
 function filterTools(all: AgentTool[], cfg: ToolFilterPolicy): AgentTool[] {
-	const service = new PolicyService();
+	const service = new ToolPolicyService();
 	const result = service.evaluateTools(
 		all.map((tool) => ({ name: tool.name })),
 		{
@@ -332,15 +331,6 @@ describe('tools/before-call', () => {
 });
 
 describe('tools/fs', () => {
-	function useFilePolicy(ctx: ReturnType<typeof makeToolContext>, policy: PolicyConfig): void {
-		ctx.services.policy = new PolicyService({
-			storeAccessor: {
-				read: jest.fn(() => policy),
-				write: jest.fn(),
-			},
-		});
-	}
-
 	it('reads, writes new files, edits read files, and finds matches', async () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
@@ -386,152 +376,6 @@ describe('tools/fs', () => {
 				makeToolContext({ workspace, fsPolicy: { readOnly: true } })
 			)
 		).resolves.toMatchObject({ status: 'error' });
-
-		await fs.rm(workspace, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-	});
-
-	it('enforces stored file policy before filesystem operations', async () => {
-		const workspace = await makeTempDir();
-		const privateDir = path.join(workspace, 'private');
-		await fs.mkdir(privateDir);
-		await fs.writeFile(path.join(workspace, 'allowed.txt'), 'allowed', 'utf8');
-		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{ path: workspace, permissions: ['read', 'write'], recursive: true },
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-
-		expect((await readTool.execute({ path: 'allowed.txt' }, ctx)).status).toBe('ok');
-		expect((await readTool.execute({ path: 'private/secret.txt' }, ctx)).status).toBe('error');
-		expect((await writeTool.execute({ path: 'allowed.txt', content: 'updated' }, ctx)).status).toBe(
-			'ok'
-		);
-		expect((await writeTool.execute({ path: 'new.txt', content: 'new' }, ctx)).content[0]?.text).toContain(
-			"'create'"
-		);
-		expect((await deleteTool.execute({ path: 'allowed.txt' }, ctx)).content[0]?.text).toContain(
-			"'delete'"
-		);
-
-		const found = await findTool.execute({ pattern: '**/*.txt' }, ctx);
-		expect(found.content[0]?.text).toContain('allowed.txt');
-		expect(found.content[0]?.text).not.toContain('private/secret.txt');
-
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('allows policy-granted outside paths through approval and file execution', async () => {
-		const workspace = await makeTempDir();
-		const outside = await makeTempDir();
-		const outsideFile = path.join(outside, 'allowed.txt');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: outside,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-			],
-		});
-		const approve = (toolName: string, args: Record<string, unknown>): void => {
-			ctx.approvalCache.add(ctx.services.policy!.createToolUseKey(toolName, args));
-		};
-
-		const writeArgs = { path: outsideFile, content: 'created' };
-		approve('write', writeArgs);
-		await expect(
-			beforeToolCall(
-				writeTool,
-				writeArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(writeTool.execute(writeArgs, ctx)).resolves.toMatchObject({
-			status: 'ok',
-		});
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('created');
-
-		const editArgs = { path: outsideFile, old: 'created', new: 'updated' };
-		approve('edit', editArgs);
-		await expect(
-			beforeToolCall(
-				editTool,
-				editArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(editTool.execute(editArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('updated');
-
-		const outsideCopy = path.join(outside, 'copy.txt');
-		const copyArgs = { source: outsideFile, destination: outsideCopy };
-		approve('copy', copyArgs);
-		await expect(
-			beforeToolCall(
-				copyTool,
-				copyArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(copyTool.execute(copyArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideCopy, 'utf8')).resolves.toBe('updated');
-
-		const outsideMoved = path.join(outside, 'moved.txt');
-		const moveArgs = { source: outsideCopy, destination: outsideMoved };
-		approve('move', moveArgs);
-		await expect(
-			beforeToolCall(
-				moveTool,
-				moveArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(moveTool.execute(moveArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('updated');
-
-		const patchArgs = {
-			diff: [
-				`--- ${outsideMoved}`,
-				`+++ ${outsideMoved}`,
-				'@@ -1 +1 @@',
-				'-updated',
-				'+patched',
-			].join('\n'),
-		};
-		approve('apply_patch', patchArgs);
-		await expect(
-			beforeToolCall(
-				applyPatchTool,
-				patchArgs,
-				ctx,
-				newCallTracker()
-			)
-		).resolves.toMatchObject({ proceed: true });
-		await expect(applyPatchTool.execute(patchArgs, ctx)).resolves.toMatchObject({ status: 'ok' });
-		await expect(fs.readFile(outsideMoved, 'utf8')).resolves.toBe('patched');
-
-		const deleteArgs = { path: outsideMoved };
-		approve('delete', deleteArgs);
-		await expect(
-			beforeToolCall(deleteTool, deleteArgs, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
-		await expect(deleteTool.execute(deleteArgs, ctx)).resolves.toMatchObject({
-			status: 'ok',
-		});
-		await expect(fs.stat(outsideMoved)).rejects.toThrow();
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
@@ -669,17 +513,6 @@ describe('tools/fs', () => {
 	it('applies create, modify, and delete entries in unified diffs', async () => {
 		const workspace = await makeTempDir();
 		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-			],
-		});
 		await fs.writeFile(path.join(workspace, 'update.txt'), 'old\n', 'utf8');
 		await fs.writeFile(path.join(workspace, 'remove.txt'), 'remove me\n', 'utf8');
 		await readTool.execute({ path: 'update.txt' }, ctx);
@@ -713,56 +546,6 @@ describe('tools/fs', () => {
 		);
 		await expect(fs.readFile(path.join(workspace, 'update.txt'), 'utf8')).resolves.toBe('new\n');
 		await expect(fs.stat(path.join(workspace, 'remove.txt'))).rejects.toThrow();
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('rejects a multi-file patch before writing when any path is denied by policy', async () => {
-		const workspace = await makeTempDir();
-		const privateDir = path.join(workspace, 'private');
-		await fs.mkdir(privateDir);
-		await fs.writeFile(path.join(workspace, 'allowed.txt'), 'allowed\n', 'utf8');
-		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret\n', 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-		await readTool.execute({ path: 'allowed.txt' }, ctx);
-
-		const result = await applyPatchTool.execute(
-			{
-				diff: [
-					'--- a/allowed.txt',
-					'+++ b/allowed.txt',
-					'@@ -1 +1 @@',
-					'-allowed',
-					'+changed',
-					'--- a/private/secret.txt',
-					'+++ b/private/secret.txt',
-					'@@ -1 +1 @@',
-					'-secret',
-					'+leaked',
-				].join('\n'),
-			},
-			ctx
-		);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('denied by file policy');
-		await expect(fs.readFile(path.join(workspace, 'allowed.txt'), 'utf8')).resolves.toBe(
-			'allowed\n'
-		);
-		await expect(fs.readFile(path.join(privateDir, 'secret.txt'), 'utf8')).resolves.toBe(
-			'secret\n'
-		);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
@@ -820,36 +603,7 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('checks policy for nested files before copying a directory', async () => {
-		const workspace = await makeTempDir();
-		const sourceDir = path.join(workspace, 'source-dir');
-		const privateDir = path.join(sourceDir, 'private');
-		await fs.mkdir(privateDir, { recursive: true });
-		await fs.writeFile(path.join(sourceDir, 'public.txt'), 'public', 'utf8');
-		await fs.writeFile(path.join(privateDir, 'secret.txt'), 'secret', 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-
-		const result = await copyTool.execute({ source: 'source-dir', destination: 'copied-dir' }, ctx);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('denied by file policy');
-		await expect(fs.stat(path.join(workspace, 'copied-dir'))).rejects.toThrow();
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
-
-	it('runs script files and applies shared path policy checks', async () => {
+	it('runs script files and applies workspace path checks', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(
@@ -886,29 +640,4 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('denies script execution when the file policy denies the script path', async () => {
-		const workspace = await makeTempDir();
-		const privateDir = path.join(workspace, 'private');
-		await fs.mkdir(privateDir);
-		await fs.writeFile(path.join(privateDir, 'secret.js'), "console.log('secret');\n", 'utf8');
-		const ctx = makeToolContext({ workspace });
-		useFilePolicy(ctx, {
-			version: 1,
-			defaultPolicy: 'deny',
-			paths: [
-				{
-					path: workspace,
-					permissions: ['read', 'write', 'create', 'delete'],
-					recursive: true,
-				},
-				{ path: privateDir, permissions: [], recursive: true },
-			],
-		});
-
-		const result = await scriptRunTool.execute({ path: 'private/secret.js' }, ctx);
-
-		expect(result.status).toBe('error');
-		expect(result.content[0]?.text).toContain('denied by file policy');
-		await fs.rm(workspace, { recursive: true, force: true });
-	});
 });
