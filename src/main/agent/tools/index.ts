@@ -82,6 +82,6 @@ export {
 	type LocalToolGroup,
 	type LocalToolProfile,
 } from './catalog/registry';
-export type { ToolProfile } from '../policy';
+export type { ToolProfile } from './policy';
 export { beforeToolCall, newCallTracker, type CallTracker } from './guard';
 export { selectAgentToolsForTurn } from './management';

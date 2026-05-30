@@ -9,7 +9,7 @@ import { createFileTools } from '../files/runtime';
 import { createCronTools } from '../cron/runtime';
 import { createScriptTools } from '../scripts/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
-import type { ToolPolicy, ToolPolicyStageName } from '../../policy';
+import type { ToolPolicy, ToolPolicyStageName } from '../policy';
 import { applyToolPolicyPipeline } from '../pipeline';
 import {
 	wrapToolWithBeforeToolCall,
