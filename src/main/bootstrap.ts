@@ -132,7 +132,6 @@ export function bootstrapServices(): BootstrapResult {
 		agentSettings,
 		connectors,
 		skills,
-		policy,
 		toolService,
 		taskManager,
 		channels,
