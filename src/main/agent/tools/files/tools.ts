@@ -502,8 +502,6 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 		}
 		const deleteRestricted = checkFsRestriction(ctx, abs, 'delete', true);
 		if (deleteRestricted) return textResult(deleteRestricted, true);
-		const denied = checkFilePolicy(ctx, 'delete', [{ path: abs, permission: 'delete' }]);
-		if (denied) return textResult(denied, true);
 		const guard = guardedRootMessage(ctx.workspace, abs);
 		if (guard) return textResult(`delete: ${guard}.`, true);
 		try {
@@ -569,9 +567,6 @@ export const copyTool: AgentTool<CopyArgs> = {
 			const sourceStat = await fs.stat(sourceAbs);
 			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
 			if (sourceStat.isDirectory()) {
-				const policyChecks = await collectDirectoryCopyPolicyChecks(sourceAbs, destinationAbs);
-				const denied = checkFilePolicy(ctx, 'copy', policyChecks);
-				if (denied) return textResult(denied, true);
 				if (destinationStat)
 					return textResult(`copy: destination exists: ${args.destination}`, true);
 				await fs.cp(sourceAbs, destinationAbs, {
@@ -582,12 +577,6 @@ export const copyTool: AgentTool<CopyArgs> = {
 				return textResult(`copied directory ${sourceAbs} to ${destinationAbs}`);
 			}
 			if (!sourceStat.isFile()) return textResult(`copy: unsupported source type: ${args.source}`, true);
-			const policyChecks: FilePolicyCheck[] = [
-				{ path: sourceAbs, permission: 'read' },
-				{ path: destinationAbs, permission: destinationStat ? 'write' : 'create' },
-			];
-			const denied = checkFilePolicy(ctx, 'copy', policyChecks);
-			if (denied) return textResult(denied, true);
 			if (destinationStat) {
 				if (!args.overwrite)
 					return textResult(`copy: destination exists: ${args.destination}`, true);
@@ -660,13 +649,6 @@ export const moveTool: AgentTool<MoveArgs> = {
 			const sourceBlocked = requireReadSnapshot(ctx, sourceAbs, sourceStat, args.source, 'move');
 			if (sourceBlocked) return textResult(sourceBlocked, true);
 			const destinationStat = await fs.stat(destinationAbs).catch(() => null);
-			const policyChecks: FilePolicyCheck[] = [
-				{ path: sourceAbs, permission: 'read' },
-				{ path: sourceAbs, permission: 'delete' },
-				{ path: destinationAbs, permission: destinationStat ? 'write' : 'create' },
-			];
-			const denied = checkFilePolicy(ctx, 'move', policyChecks);
-			if (denied) return textResult(denied, true);
 			if (destinationStat) {
 				if (!args.overwrite)
 					return textResult(`move: destination exists: ${args.destination}`, true);
