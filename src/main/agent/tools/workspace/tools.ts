@@ -230,8 +230,6 @@ export const gitDiffTool: AgentTool<{ path?: string; staged?: boolean; stat?: bo
 	},
 	async execute(args, ctx) {
 		const target = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
-		const restricted = checkFsRestriction(ctx, target, 'git_diff', false);
-		if (restricted) return textResult(restricted, true);
 		const commandArgs = ['diff'];
 		if (args.staged) commandArgs.push('--staged');
 		if (args.stat) commandArgs.push('--stat');
