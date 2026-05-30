@@ -941,7 +941,6 @@ export const filesystemCreateTool: AgentTool<FilesystemCreateArgs> = {
 		required: ['path', 'content'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) => outsidePathNeedsApproval(ctx, args.path, ['create']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('filesystem_create: disabled by read-only filesystem policy.', true);
@@ -952,8 +951,6 @@ export const filesystemCreateTool: AgentTool<FilesystemCreateArgs> = {
 		} catch (err) {
 			return textResult(`filesystem_create: ${(err as Error).message}`, true);
 		}
-		const restricted = checkFsRestriction(ctx, abs, 'filesystem_create', true);
-		if (restricted) return textResult(restricted, true);
 		try {
 			await fs.mkdir(path.dirname(abs), { recursive: true });
 			await fs.writeFile(abs, args.content, { encoding: 'utf8', flag: 'wx' });
