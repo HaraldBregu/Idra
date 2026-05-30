@@ -3,7 +3,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/types';
 import { textResult } from '../core/types';
-import { checkFilePolicy } from '../files/policy';
 import { checkFsRestriction, outsidePathNeedsApproval, resolveAbs } from '../files/path-policy';
 import { editTool, findTool, readTool, writeTool, filesystemListTool } from '../files/tools';
 import { toolDescription } from '../metadata';
@@ -109,13 +108,10 @@ export const grepTool: AgentTool<{
 			const root = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
 			const restricted = checkFsRestriction(ctx, root, 'grep', false);
 			if (restricted) return textResult(restricted, true);
-			const denied = checkFilePolicy(ctx, 'grep', [{ path: root, permission: 'read' }]);
-			if (denied) return textResult(denied, true);
 			const stat = await fs.stat(root);
 			const files = stat.isFile() ? [root] : await collectFiles(root, limit * 20);
 			const matches: string[] = [];
 			for (const file of files) {
-				if (checkFilePolicy(ctx, 'grep', [{ path: file, permission: 'read' }])) continue;
 				const fileStat = await fs.stat(file).catch(() => null);
 				if (!fileStat?.isFile()) continue;
 				const text = await fs.readFile(file, 'utf8').catch(() => null);
@@ -170,8 +166,6 @@ export const runShellTool: AgentTool<{
 		}
 		const restricted = checkFsRestriction(ctx, cwd, 'run_shell', true);
 		if (restricted) return textResult(restricted, true);
-		const denied = checkFilePolicy(ctx, 'run_shell', [{ path: cwd, permission: 'write' }]);
-		if (denied) return textResult(denied, true);
 		return commandResult(
 			'run_shell',
 			await runProcess({
@@ -272,8 +266,6 @@ export const undoLastOperationTool: AgentTool = {
 		const restricted = checkFsRestriction(ctx, entry.abs, 'undo_last_operation', true);
 		if (restricted) return textResult(restricted, true);
 		const permission = entry.before.kind === 'missing' ? 'delete' : 'write';
-		const denied = checkFilePolicy(ctx, 'undo_last_operation', [{ path: entry.abs, permission }]);
-		if (denied) return textResult(denied, true);
 		try {
 			if (entry.before.kind === 'missing') {
 				await fs.rm(entry.abs, { force: true });
