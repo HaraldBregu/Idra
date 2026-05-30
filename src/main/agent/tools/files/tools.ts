@@ -990,8 +990,6 @@ export const filesystemListTool: AgentTool<FilesystemListArgs> = {
 		} catch (err) {
 			return textResult(`filesystem_list: ${(err as Error).message}`, true);
 		}
-		const restricted = checkFsRestriction(ctx, abs, 'filesystem_list', false);
-		if (restricted) return textResult(restricted, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (!stat.isDirectory()) return textResult(`filesystem_list: not a directory: ${abs}`, true);
