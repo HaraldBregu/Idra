@@ -72,8 +72,6 @@ export const readTool: AgentTool<ReadArgs> = {
 	async execute(args, ctx) {
 		try {
 			const abs = resolveAbs(ctx.workspace, args.path);
-			const restricted = checkFsRestriction(ctx, abs, 'read', false);
-			if (restricted) return textResult(restricted, true);
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
 			const raw = await fs.readFile(abs, 'utf8');
