@@ -160,8 +160,6 @@ export const runShellTool: AgentTool<{
 		required: ['command'],
 		additionalProperties: false,
 	},
-	needsApproval: (args, ctx) =>
-		outsidePathNeedsApproval(ctx, args.cwd ?? ctx.workspace, ['write']),
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('run_shell: disabled by read-only filesystem policy.', true);
@@ -174,8 +172,6 @@ export const runShellTool: AgentTool<{
 		} catch (error) {
 			return textResult(`run_shell: ${(error as Error).message}`, true);
 		}
-		const restricted = checkFsRestriction(ctx, cwd, 'run_shell', true);
-		if (restricted) return textResult(restricted, true);
 		return commandResult(
 			'run_shell',
 			await runProcess({
