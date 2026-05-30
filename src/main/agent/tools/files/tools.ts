@@ -63,8 +63,6 @@ export const readTool: AgentTool<ReadArgs> = {
 			const abs = resolveAbs(ctx.workspace, args.path);
 			const restricted = checkFsRestriction(ctx, abs, 'read', false);
 			if (restricted) return textResult(restricted, true);
-			const denied = checkFilePolicy(ctx, 'read', [{ path: abs, permission: 'read' }]);
-			if (denied) return textResult(denied, true);
 			const stat = await fs.stat(abs);
 			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
 			const raw = await fs.readFile(abs, 'utf8');
@@ -141,10 +139,6 @@ export const writeTool: AgentTool<WriteArgs> = {
 		} catch {
 			/* new file */
 		}
-		const denied = checkFilePolicy(ctx, 'write', [
-			{ path: abs, permission: exists ? 'write' : 'create' },
-		]);
-		if (denied) return textResult(denied, true);
 		if (exists) {
 			const last = ctx.readState.get(abs);
 			if (!last) {
@@ -206,8 +200,6 @@ export const editTool: AgentTool<EditArgs> = {
 		}
 		const editRestricted = checkFsRestriction(ctx, abs, 'edit', true);
 		if (editRestricted) return textResult(editRestricted, true);
-		const denied = checkFilePolicy(ctx, 'edit', [{ path: abs, permission: 'write' }]);
-		if (denied) return textResult(denied, true);
 		if (args.old === args.new) return textResult('edit: old and new are identical', true);
 		let stat;
 		try {
@@ -316,8 +308,6 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 						: patch.operation === 'delete'
 							? 'delete'
 							: 'write';
-				const denied = checkFilePolicy(ctx, 'apply_patch', [{ path: abs, permission }]);
-				if (denied) return textResult(denied, true);
 
 				if (patch.operation === 'create') {
 					const existing = await fs.stat(abs).catch(() => null);
