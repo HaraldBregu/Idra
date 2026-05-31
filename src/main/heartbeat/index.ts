@@ -1,4 +1,4 @@
-export * from './app/config' ;
+export * from './config';
 export * from './delivery/visibility';
 export * from './prompt/build';
 export * from './prompt/response';

@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { shell } from 'electron';
-import type { LoggerService } from '../logger';
-import type { AppInfo } from '../../shared/apps';
-import type { UserDataDirectoryServicePort } from '../app/user-data' ;
+import type { LoggerService } from '../../logger';
+import type { AppInfo } from '../../../shared/apps';
+import type { UserDataDirectoryServicePort } from '../user-data';
 
 const APP_ID = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 

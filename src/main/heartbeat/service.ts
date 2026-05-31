@@ -35,7 +35,7 @@ import {
 	resolveHeartbeatAgentSummaries,
 	resolveHeartbeatSummaryForAgent,
 	type HeartbeatSummary,
-} from './app/config' ;
+} from './config';
 import { recordRunStart, shouldDeferWake } from './scheduling/cooldown';
 import {
 	buildHeartbeatPrompt,
