@@ -80,7 +80,9 @@ function serverLabelFromName(name: string): string {
 }
 
 function knownTools(connector: ConnectorConfig): ConnectorTool[] {
-	const catalog = getConnectorCatalogItem(connector.connectorId);
+	const catalog = isOpenAiConnectorId(connector.connectorId)
+		? getConnectorCatalogItem(connector.connectorId)
+		: undefined;
 	const allowed = new Set(connector.allowedTools);
 	const names = catalog?.tools.filter((tool) => allowed.size === 0 || allowed.has(tool)) ?? [];
 
@@ -119,7 +121,9 @@ function toView(connector: ConnectorConfig): ConnectorView {
 		id: connector.id,
 		name: connector.name,
 		connectorId: connector.connectorId,
-		authKind: getConnectorAuthKind(connector.connectorId),
+		authKind: isOpenAiConnectorId(connector.connectorId)
+			? getConnectorAuthKind(connector.connectorId)
+			: 'manual_oauth_access_token',
 		serverLabel: connector.serverLabel,
 		enabled: connector.enabled,
 		status: statusFor(connector),

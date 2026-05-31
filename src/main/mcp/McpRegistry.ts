@@ -15,7 +15,7 @@ export class McpRegistry {
 				const tool: McpTool = {
 					type: 'mcp',
 					server_label: connector.serverLabel,
-					connector_id: connector.connectorId,
+					connector_id: connector.connectorId as McpTool['connector_id'],
 					authorization: connector.authorization,
 					require_approval: approvalPolicy(connector),
 				};

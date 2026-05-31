@@ -252,6 +252,7 @@ export interface GoogleOAuthCredential {
 	tokenType?: string;
 	scope?: string;
 	email?: string;
+	connectedAt?: string;
 }
 
 export interface ConnectorCallToolOptions {

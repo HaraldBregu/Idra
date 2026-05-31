@@ -191,8 +191,8 @@ function resolveHttpConfig(
 		headers[header] = header.toLowerCase() === 'authorization' && scheme === 'bearer'
 			? 'Bearer ' + secret
 			: secret;
-	} else if (connector.oauth?.token?.accessToken) {
-		headers.Authorization = 'Bearer ' + connector.oauth.token.accessToken;
+	} else if (connector.oauth?.accessToken) {
+		headers.Authorization = 'Bearer ' + connector.oauth.accessToken;
 	}
 	return {
 		transport: 'http',
