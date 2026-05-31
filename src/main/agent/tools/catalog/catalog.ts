@@ -9,7 +9,7 @@ import {
 } from '../../../../shared/tools';
 import { applyPatchTool } from '../files/apply-patch';
 import { copyTool } from '../files/copy';
-import { deleteTool } from '../files/delete-file';
+import { deleteFileTool } from '../files/delete-file';
 import { editTool } from '../files/edit';
 import { editFileTool } from '../files/edit_file';
 import { findTool } from '../files/find';
@@ -99,7 +99,7 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	write: writeTool,
 	edit: editTool,
 	apply_patch: applyPatchTool,
-	delete_file: deleteTool,
+	delete_file: deleteFileTool,
 	copy: copyTool,
 	move: moveTool,
 	inspect_file: inspectFileTool,

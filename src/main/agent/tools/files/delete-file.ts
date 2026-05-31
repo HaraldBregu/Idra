@@ -8,7 +8,7 @@ interface DeleteArgs {
 	recursive?: boolean;
 }
 
-export const deleteTool: AgentTool<DeleteArgs> = {
+export const deleteFileTool: AgentTool<DeleteArgs> = {
 	name: 'delete_file',
 	description:
 		'Delete a file. Files must be read earlier in this run before deletion. Directories require recursive=true and cannot target root paths.',

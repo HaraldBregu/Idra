@@ -4,7 +4,7 @@ import { beforeToolCall, newCallTracker } from '../../../../src/main/agent/tools
 import {
 	applyPatchTool,
 	copyTool,
-	deleteTool,
+	deleteFileTool,
 	editTool,
 	findTool,
 	inspectFileTool,
@@ -192,7 +192,7 @@ describe('tools/policy and registry', () => {
 			writeTool.name,
 			editTool.name,
 			applyPatchTool.name,
-			deleteTool.name,
+			deleteFileTool.name,
 			copyTool.name,
 			moveTool.name,
 			inspectFileTool.name,
@@ -546,10 +546,10 @@ describe('tools/fs', () => {
 		await expect(fs.stat(path.join(workspace, 'copy.txt'))).rejects.toThrow();
 
 		expect(
-			(await deleteTool.execute({ path: 'delete-me.txt' }, makeToolContext({ workspace }))).status
+			(await deleteFileTool.execute({ path: 'delete-me.txt' }, makeToolContext({ workspace }))).status
 		).toBe('error');
 		await readTool.execute({ path: 'delete-me.txt' }, ctx);
-		expect((await deleteTool.execute({ path: 'delete-me.txt' }, ctx)).status).toBe('ok');
+		expect((await deleteFileTool.execute({ path: 'delete-me.txt' }, ctx)).status).toBe('ok');
 		await expect(fs.stat(path.join(workspace, 'delete-me.txt'))).rejects.toThrow();
 
 		const inspected = await inspectFileTool.execute({ path: 'pixel.png' }, ctx);
