@@ -10,7 +10,6 @@ export * from './store';
 export * from './connector';
 export * from './cron';
 export * from './heartbeat';
-export * from './monitor';
 export * from './tasks';
 export * from './tools';
 export * from './tts';

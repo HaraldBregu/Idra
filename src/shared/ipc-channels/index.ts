@@ -868,7 +868,6 @@ export interface InvokeChannelMap
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
 		TaskInvokeChannelMap,
-		MonitorInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
@@ -924,10 +923,6 @@ interface TaskEventChannelMap {
 	[TaskChannels.event]: { data: import('../tasks').TaskEvent };
 }
 
-interface MonitorEventChannelMap {
-	[MonitorChannels.event]: { data: import('../monitor').MonitorEventRecord };
-}
-
 export interface EventChannelMap
 	extends
 		AppEventChannelMap,
@@ -937,5 +932,4 @@ export interface EventChannelMap
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
 		HeartbeatEventChannelMap,
-		TaskEventChannelMap,
-		MonitorEventChannelMap {}
+		TaskEventChannelMap {}
