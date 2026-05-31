@@ -2,6 +2,7 @@ import { promises as fs } from 'node:fs';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { resolveAbs, snapshot } from './common';
+import { pushUndo, snapshotTarget } from './undo';
 
 interface EditArgs {
 	path: string;
@@ -28,6 +29,7 @@ export const editTool: AgentTool<EditArgs> = {
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
 			return textResult('edit: disabled by read-only filesystem policy.', true);
+		const before = await snapshotTarget(ctx, args.path).catch(() => null);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
@@ -72,6 +74,7 @@ export const editTool: AgentTool<EditArgs> = {
 		await fs.writeFile(abs, next, 'utf8');
 		const after = await fs.stat(abs);
 		ctx.readState.set(abs, snapshot(after));
+		if (before && before.before.kind === 'file') pushUndo(ctx, before);
 		return textResult(`edited ${abs} (${count} replacement${count === 1 ? '' : 's'})`);
 	},
 };

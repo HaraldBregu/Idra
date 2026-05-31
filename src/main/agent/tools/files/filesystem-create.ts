@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { resolveAbs, snapshot } from './common';
+import { pushUndo, snapshotTarget } from './undo';
 
 interface FilesystemCreateArgs {
 	path: string;
@@ -25,6 +26,7 @@ export const filesystemCreateTool: AgentTool<FilesystemCreateArgs> = {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('filesystem_create: disabled by read-only filesystem policy.', true);
 		}
+		const before = await snapshotTarget(ctx, args.path).catch(() => null);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
@@ -36,6 +38,7 @@ export const filesystemCreateTool: AgentTool<FilesystemCreateArgs> = {
 			await fs.writeFile(abs, args.content, { encoding: 'utf8', flag: 'wx' });
 			const after = await fs.stat(abs);
 			ctx.readState.set(abs, snapshot(after));
+			if (before && before.before.kind === 'missing') pushUndo(ctx, before);
 			return textResult(`created ${abs} (${after.size} bytes)`);
 		} catch (err) {
 			return textResult(`filesystem_create: ${(err as Error).message}`, true);

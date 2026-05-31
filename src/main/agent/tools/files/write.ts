@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { resolveAbs, snapshot } from './common';
+import { pushUndo, snapshotTarget } from './undo';
 
 interface WriteArgs {
 	path: string;
@@ -26,6 +27,7 @@ export const writeTool: AgentTool<WriteArgs> = {
 		if (ctx.fsPolicy?.readOnly) {
 			return textResult('write: disabled by read-only filesystem policy.', true);
 		}
+		const before = await snapshotTarget(ctx, args.path).catch(() => null);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
@@ -61,6 +63,7 @@ export const writeTool: AgentTool<WriteArgs> = {
 			await fs.writeFile(abs, args.content, 'utf8');
 			const after = await fs.stat(abs);
 			ctx.readState.set(abs, snapshot(after));
+			if (before && before.before.kind !== 'other') pushUndo(ctx, before);
 			return textResult(`wrote ${abs} (${after.size} bytes)`);
 		} catch (err) {
 			return textResult(`write: ${(err as Error).message}`, true);
