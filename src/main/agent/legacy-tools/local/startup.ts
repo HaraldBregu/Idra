@@ -1,5 +1,5 @@
-import { DEFAULT_AGENT_ID } from '../../constants';
-import type { AgentStartupFileName } from '../../../shared/agents/startup';
+import { DEFAULT_AGENT_ID } from '../../../constants';
+import type { AgentStartupFileName } from '../../../../../shared/agents/startup';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 

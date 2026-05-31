@@ -1,7 +1,7 @@
 import { shell } from 'electron';
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
-import { toolDescription } from '../../agent/tools/metadata';
+import { toolDescription } from '../../tools/metadata';
 
 export const openBrowserTool: AgentTool<{ url: string }> = {
 	name: 'open_browser',

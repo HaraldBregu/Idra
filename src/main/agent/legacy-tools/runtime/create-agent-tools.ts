@@ -5,9 +5,9 @@ import {
 	createToolDiagnostics,
 	normalizeToolName,
 } from '../core/common';
-import { createFileTools } from '../../agent/tools/files/runtime';
-import { createCronTools } from '../../agent/tools/cron/runtime';
-import { createScriptTools } from '../../agent/tools/scripts/runtime';
+import { createFileTools } from '../../tools/files/runtime';
+import { createCronTools } from '../../tools/cron/runtime';
+import { createScriptTools } from '../../tools/scripts/runtime';
 import { normalizeToolSchemas } from '../core/schema-normalization';
 import type { ToolPolicy, ToolPolicyStageName } from '../tool-types';
 import { applyToolPolicyPipeline } from '../policy/tool-policy-pipeline';
@@ -20,7 +20,7 @@ import {
 	AGENT_TOOL_LEGACY_ALIASES,
 	AGENT_TOOL_NAMES,
 	AGENT_TOOL_READ_ONLY_DENY_NAMES,
-} from '../../../shared/tools';
+} from '../../../../../shared/tools';
 
 type AppConfig = Record<string, unknown>;
 type AuthContext = Record<string, unknown>;

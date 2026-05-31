@@ -1,5 +1,5 @@
-import type { TaskRecord, TaskRunRequest } from '../../../shared/tasks';
-import { AGENT_TASK_TYPE } from '../../tasks';
+import type { TaskRecord, TaskRunRequest } from '../../../../../shared/tasks';
+import { AGENT_TASK_TYPE } from '../../../../tasks';
 import type { AgentTool, AgentToolResult } from '../core/types';
 import { textResult } from '../core/types';
 

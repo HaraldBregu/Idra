@@ -15,7 +15,7 @@ import { filterTools, type PolicyConfig } from '../policy/policy';
 import { taskTool } from './task';
 import { webFetchTool } from './web';
 import { openBrowserTool } from './app';
-import { browserTool } from '../../browser';
+import { browserTool } from '../../../browser';
 import type { AgentTool } from '../core/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
