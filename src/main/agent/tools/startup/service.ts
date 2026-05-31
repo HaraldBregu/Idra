@@ -26,7 +26,12 @@ import {
 	assertSafeWritableStartupFile,
 	fileContentDiffersFromTemplate,
 	pathExists,
+	readStartupSetupState,
+	writeStartupSetupState,
 } from './utils';
+
+const STARTUP_STATE_DIRNAME = '.friday';
+const STARTUP_STATE_FILENAME = 'startup-state.json';
 
 const PROFILE_FILE_NAMES = [
 	DEFAULT_SOUL_FILENAME,
@@ -59,18 +64,25 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 
 		const bootstrapPath = path.join(root, DEFAULT_BOOTSTRAP_FILENAME);
 		let bootstrapExists = await pathExists(bootstrapPath);
+		const state = await readStartupSetupState(this.statePath(root));
+		const profileConfigured = await this.profileLooksConfigured(root);
 
-		if (bootstrapExists && (await this.profileLooksConfigured(root))) {
+		if (state.setupCompletedAt) {
 			await fs.rm(bootstrapPath, { force: true });
 			bootstrapExists = false;
-		}
-
-		if (!bootstrapExists && !(await this.profileLooksConfigured(root))) {
+		} else if (bootstrapExists && profileConfigured) {
+			await fs.rm(bootstrapPath, { force: true });
+			await this.markSetupCompleted(root);
+			bootstrapExists = false;
+		} else if (!bootstrapExists && (profileConfigured || state.bootstrapSeededAt)) {
+			await this.markSetupCompleted(root);
+		} else if (!bootstrapExists) {
 			const wrote = await writeFileIfMissing(
 				bootstrapPath,
 				await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
 			);
 			bootstrapExists = wrote || (await pathExists(bootstrapPath));
+			if (bootstrapExists) await this.markBootstrapSeeded(root);
 		}
 
 		this.logger?.debug?.('AgentStartupFilesService', 'Startup files ready', {
@@ -82,13 +94,18 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 
 	async isBootstrapPending(agentId: string): Promise<boolean> {
 		await this.ensureReady(agentId);
-		return pathExists(path.join(this.getRootPath(agentId), DEFAULT_BOOTSTRAP_FILENAME));
+		const root = this.getRootPath(agentId);
+		const state = await readStartupSetupState(this.statePath(root));
+		if (state.setupCompletedAt) return false;
+		return pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME));
 	}
 
 	async loadContextFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
-		const bootstrapPending = await pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME));
+		const state = await readStartupSetupState(this.statePath(root));
+		const bootstrapPending =
+			!state.setupCompletedAt && (await pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME)));
 		const files = await Promise.all(
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(root, name))
 		);
@@ -139,6 +156,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
 		await fs.rm(path.join(root, DEFAULT_BOOTSTRAP_FILENAME), { force: true });
+		await this.markSetupCompleted(root);
 		return safeReadWorkspaceFile(root, DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
@@ -160,5 +178,27 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 			if (await pathExists(candidate)) return true;
 		}
 		return false;
+	}
+
+	private async markBootstrapSeeded(root: string): Promise<void> {
+		const statePath = this.statePath(root);
+		const state = await readStartupSetupState(statePath);
+		await writeStartupSetupState(statePath, {
+			...state,
+			bootstrapSeededAt: state.bootstrapSeededAt ?? new Date().toISOString(),
+		});
+	}
+
+	private async markSetupCompleted(root: string): Promise<void> {
+		const statePath = this.statePath(root);
+		const state = await readStartupSetupState(statePath);
+		await writeStartupSetupState(statePath, {
+			...state,
+			setupCompletedAt: state.setupCompletedAt ?? new Date().toISOString(),
+		});
+	}
+
+	private statePath(root: string): string {
+		return path.join(root, STARTUP_STATE_DIRNAME, STARTUP_STATE_FILENAME);
 	}
 }

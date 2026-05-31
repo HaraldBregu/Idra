@@ -1,6 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { isPathInside, type WorkspaceFileName } from '../../../workspace/files';
+import type { StartupSetupState } from './types';
+
+const STARTUP_STATE_VERSION = 1;
 
 export async function fileContentDiffersFromTemplate(
 	filePath: string,
@@ -47,4 +50,37 @@ export async function assertSafeWritableStartupFile(
 	} catch (error) {
 		if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
 	}
+}
+
+export async function readStartupSetupState(statePath: string): Promise<StartupSetupState> {
+	try {
+		const raw = await fs.readFile(statePath, 'utf8');
+		const parsed = JSON.parse(raw) as Partial<StartupSetupState>;
+		return {
+			version: STARTUP_STATE_VERSION,
+			bootstrapSeededAt:
+				typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
+			setupCompletedAt:
+				typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
+		};
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return { version: STARTUP_STATE_VERSION };
+		}
+		if (error instanceof SyntaxError) {
+			return { version: STARTUP_STATE_VERSION };
+		}
+		throw error;
+	}
+}
+
+export async function writeStartupSetupState(
+	statePath: string,
+	state: StartupSetupState
+): Promise<void> {
+	await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
+	await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
+		encoding: 'utf8',
+		mode: 0o600,
+	});
 }
