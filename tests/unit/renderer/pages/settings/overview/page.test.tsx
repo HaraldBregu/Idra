@@ -74,15 +74,13 @@ describe('OverviewPage', () => {
 			'settings.operators.videoCreatorName',
 			'settings.operators.musicCreatorName',
 			'settings.tabs.channels',
-			'settings.tabs.heartbeat',
-			'settings.sections.taskScheduler',
-			'settings.tabs.backgroundTasks',
-			'settings.tabs.monitoring',
-		]);
-		expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
-			'settings.tabs.backgroundTasks',
-			'settings.tabs.monitoring',
-		]);
+				'settings.tabs.heartbeat',
+				'settings.sections.taskScheduler',
+				'settings.tabs.backgroundTasks',
+			]);
+			expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
+				'settings.tabs.backgroundTasks',
+			]);
 	});
 
 	it('navigates to the selected settings route when clicked', async () => {

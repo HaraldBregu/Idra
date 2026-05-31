@@ -16,7 +16,6 @@ describe('settings navigation', () => {
 			'settings.tabs.heartbeat',
 			'settings.sections.taskScheduler',
 			'settings.tabs.backgroundTasks',
-			'settings.tabs.monitoring',
 		]);
 	});
 
