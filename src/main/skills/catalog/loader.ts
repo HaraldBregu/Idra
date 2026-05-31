@@ -149,10 +149,9 @@ function normalizeSkillToolName(value: string): string {
 			return 'exec';
 		case 'webfetch':
 			return 'web_fetch';
-		case 'openbrowser':
-			return 'open_browser';
-		case 'browser':
-			return 'browser';
+			case 'openbrowser':
+			case 'browser':
+				return 'open_browser';
 		default:
 			return trimmed;
 	}
