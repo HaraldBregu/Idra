@@ -6,7 +6,7 @@ import type { ToolPolicyServicePort } from '../tool-types';
 import type { StoreService } from '../../../store';
 import type { TasksService } from '../../../tasks';
 import type { SkillsService } from '../../../skills';
-import type { AgentStartupFilesServicePort } from '../../../workspace/startup-files';
+import type { AgentStartupFilesServicePort } from '../../workspace/startup-files';
 import type { UserDataDirectoryServicePort } from '../../../user-data';
 import type { WorkspaceService } from '../../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
