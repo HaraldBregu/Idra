@@ -218,6 +218,7 @@ export interface ConnectorOAuthAuthorizeResult {
 	connectorId: ConnectorProviderId;
 	authorizationUrl: string;
 	connector: ConnectorConfig;
+	message?: string;
 }
 
 export interface ConnectorOAuthCompleteInput {

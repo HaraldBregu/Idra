@@ -25,7 +25,7 @@ const directConnectorIdByOpenAiConnectorId = Object.freeze(
 			connector.directConnectorId,
 		])
 	)
-) as Readonly<Record<OpenAiConnectorId, DirectConnectorCatalogId>>;
+) as Readonly<Record<string, DirectConnectorCatalogId>>;
 
 function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 	const partialAssets: Record<string, Partial<ConnectorIconAsset>> = {};
@@ -51,7 +51,7 @@ function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 export const DIRECT_CONNECTOR_ICON_ASSETS = buildIconAssets();
 
 export function getDirectConnectorIdForOpenAiConnector(
-	connectorId: OpenAiConnectorId
+	connectorId: string
 ): DirectConnectorCatalogId {
 	return directConnectorIdByOpenAiConnectorId[connectorId];
 }
@@ -64,7 +64,7 @@ export function ConnectorIcon({
 	imageClassName,
 	fallbackClassName,
 }: {
-	readonly connectorId?: OpenAiConnectorId;
+	readonly connectorId?: string;
 	readonly directConnectorId?: DirectConnectorCatalogId;
 	readonly name: string;
 	readonly className?: string;

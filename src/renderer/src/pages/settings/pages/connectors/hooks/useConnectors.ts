@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type {
 	ConnectorTool,
 	ConnectorView,
-	type ConnectorCatalogEntry,
+	ConnectorCatalogEntry,
 } from '../../../../../../../shared/connector';
 
 export type ConnectorCatalog = ReadonlyArray<ConnectorCatalogEntry>;
