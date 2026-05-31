@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
 import { agentLogger } from './logger';
-import { buildAgentHookContext } from './harness/hook-context';
 import {
+	buildAgentHookContext,
 	fireAfterCompactionHook,
 	fireBeforeCompactionHook,
-} from './harness/prompt-compaction-hook-helpers';
+} from './runtime';
 import type { ProviderAdapter, TranscriptEntry } from '../provider/types';
 import type { CompactionMarker } from '../session/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
@@ -32,10 +32,6 @@ type NativeCompactionResult = {
  * Replace older transcript turns with a one-paragraph summary. Used when
  * the provider rejects the request with a ContextOverflowError. The most
  * recent {@link KEEP_RECENT} turns are kept verbatim.
- *
- * Plugin harnesses that implement `compact()` can override this via
- * `maybeCompactAgentHarnessSession` from `harness/selection`. Wire that call
- * here once the harness compact API carries typed transcript params.
  */
 export async function compact(
 	sessionId: string,
@@ -70,21 +66,6 @@ export async function compact(
 			transcriptLength: transcript.length,
 		});
 
-		const harnessResult = await compactWithAgentHarness({
-			sessionId,
-			transcript,
-			model,
-			options,
-		});
-		if (harnessResult) {
-			await fireAfterCompactionHook({
-				...hookContext,
-				transcriptLength: harnessResult.transcript.length,
-				summaryHash: harnessResult.marker?.summaryHash,
-			});
-			return harnessResult;
-		}
-
 		const toDrop = transcript.slice(0, transcript.length - KEEP_RECENT);
 		const keep = transcript.slice(transcript.length - KEEP_RECENT);
 
@@ -113,37 +94,6 @@ export async function compact(
 		release();
 		compactionMutex.delete(sessionId);
 	}
-}
-
-async function compactWithAgentHarness(params: {
-	sessionId: string;
-	transcript: TranscriptEntry[];
-	model: string;
-	options: AgentCompactionOptions;
-}): Promise<NativeCompactionResult | undefined> {
-	const { options } = params;
-	if (!options.requestedRuntime && !options.storedRuntime) {
-		return undefined;
-	}
-
-	const { maybeCompactAgentHarnessSession } = await import('./harness/selection');
-	const result = await maybeCompactAgentHarnessSession({
-		sessionKey: options.sessionKey ?? params.sessionId,
-		provider: options.providerId ?? '',
-		modelId: params.model,
-		requestedRuntime: options.requestedRuntime ?? options.storedRuntime ?? '',
-	});
-
-	if (isNativeCompactionResult(result)) {
-		return result;
-	}
-	return undefined;
-}
-
-function isNativeCompactionResult(value: unknown): value is NativeCompactionResult {
-	if (!value || typeof value !== 'object') return false;
-	const candidate = value as Partial<NativeCompactionResult>;
-	return Array.isArray(candidate.transcript) && 'marker' in candidate;
 }
 
 function renderForSummary(entries: TranscriptEntry[]): string {

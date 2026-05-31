@@ -1,7 +1,5 @@
 import path from 'node:path';
 import type { ConnectorManifestRecord } from './discovery';
-import { registerAgentHarness as registerGlobalAgentHarness } from '../agent/harness/registry';
-import type { AgentHarness } from '../agent/harness/types';
 import {
 	FridayConnectorRegistry,
 	type ConnectorModelCatalogProviderRegistration,
@@ -64,7 +62,7 @@ export interface FridayConnectorApi {
 	registerMemoryCorpusSupplement(registration: unknown): void;
 	registerChannel(registration: unknown): void;
 	registerMigrationProvider(registration: unknown): void;
-	registerAgentHarness(registration: AgentHarness): void;
+	registerAgentHarness(registration: unknown): void;
 	registerAgentToolResultMiddleware(registration: unknown): void;
 	registerContextEngine(registration: unknown): void;
 	registerCompactionProvider(registration: unknown): void;
@@ -187,10 +185,7 @@ export function buildFridayConnectorApi(
 			? (registration) => registerValue('migrationProviders', registration)
 			: noop,
 		registerAgentHarness: allowed('runtime')
-			? (registration) => {
-					registerValue('agentHarnesses', registration);
-						registerGlobalAgentHarness(registration);
-				}
+			? (registration) => registerValue('agentHarnesses', registration)
 			: noop,
 		registerAgentToolResultMiddleware: allowed('runtime')
 			? (registration) => registerValue('agentToolResultMiddleware', registration)

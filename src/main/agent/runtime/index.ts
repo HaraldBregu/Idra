@@ -1,6 +1,7 @@
 export * from './context';
 export * from './execution';
 export * from './file-tools';
+export * from './hooks';
 export * from './model';
 export * from './permissions';
 export * from './query';

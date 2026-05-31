@@ -20,7 +20,7 @@ import type {
 import {
 	applyAgentToolResultMiddleware,
 	emitAgentHarnessLifecycleHook,
-} from './harness';
+} from './runtime';
 
 export type { AgentRunStreamEvent } from '../../shared/agents/events';
 
