@@ -27,7 +27,6 @@ import {
 	runShellTool,
 	searchFilesTool,
 	undoLastOperationTool,
-	writeFileTool,
 	writeTool,
 } from '../files/tools';
 import {
@@ -95,7 +94,6 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
 	read_file: readFileTool,
-	write_file: writeFileTool,
 	edit_file: editFileTool,
 	list_directory: listDirectoryTool,
 	search_files: searchFilesTool,

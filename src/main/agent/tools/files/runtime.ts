@@ -26,7 +26,6 @@ import {
 	runShellTool,
 	searchFilesTool,
 	undoLastOperationTool,
-	writeFileTool,
 	writeTool,
 } from './tools';
 import {
@@ -76,7 +75,6 @@ type LegacyFileTool = LegacyAgentTool<any, any>;
 
 const FILE_TOOLS: readonly LegacyFileTool[] = [
 	readFileTool,
-	writeFileTool,
 	editFileTool,
 	listDirectoryTool,
 	searchFilesTool,

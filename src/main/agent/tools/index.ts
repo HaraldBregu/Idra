@@ -35,7 +35,6 @@ export {
 	runShellTool,
 	searchFilesTool,
 	undoLastOperationTool,
-	writeFileTool,
 } from './files/tools';
 export {
 	completeTaskTool,

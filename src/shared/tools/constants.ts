@@ -100,18 +100,8 @@ const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	}),
-	tool({
-		name: 'write_file',
-		group: 'coreWorkspace',
-		title: 'Write file',
-		description: 'Create or overwrite a UTF-8 workspace file.',
-		permissions: ['create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	}),
-	tool({
-		name: 'edit_file',
+		tool({
+			name: 'edit_file',
 		group: 'coreWorkspace',
 		title: 'Edit file',
 		description: 'Replace exact text in a UTF-8 workspace file.',
@@ -601,14 +591,14 @@ const LEGACY_CORE_WORKSPACE_TOOLS = [
 		availability: 'legacy',
 	}),
 	tool({
-		name: 'write',
-		group: 'coreWorkspace',
-		title: 'Write',
-		description: 'Legacy file writer alias for write_file.',
-		permissions: ['create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
+			name: 'write',
+			group: 'coreWorkspace',
+			title: 'Write',
+			description: 'Create or overwrite a UTF-8 workspace file.',
+			permissions: ['create', 'write'],
+			approval: AGENT_TOOL_APPROVAL_NONE,
+			profiles: DEFAULT_TOOL_PROFILES,
+			availability: 'default',
 	}),
 	tool({
 		name: 'edit',
@@ -841,7 +831,6 @@ export type AgentDefaultToolName = (typeof AGENT_DEFAULT_TOOLS)[number]['name'];
 
 export const AGENT_TOOL_NAMES = [
 	'read_file',
-	'write_file',
 	'edit_file',
 	'list_directory',
 	'search_files',
@@ -896,7 +885,6 @@ export const AGENT_TOOL_NAMES = [
 export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map((tool) => tool.name) as readonly AgentToolName[];
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
-	'write_file',
 	'edit_file',
 	'run_shell',
 	'exec',
@@ -929,11 +917,10 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
 	read: ['read_file'],
-	write: ['write_file'],
 	edit: ['edit_file'],
 	find: ['search_files'],
 	filesystem_read: ['read_file'],
-	filesystem_update: ['write_file'],
+	filesystem_update: ['write'],
 	filesystem_list: ['list_directory'],
 	filesystem_search: ['search_files'],
 	script_run: ['run_shell'],

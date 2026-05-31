@@ -26,7 +26,6 @@ export { readFileTool } from './read_file';
 export { runShellTool } from './run_shell';
 export { searchFilesTool } from './search_files';
 export { undoLastOperationTool } from './undo_last_operation';
-export { writeFileTool } from './write_file';
 
 export const filesystemReadTool = aliasFileTool(
 	'filesystem_read',
