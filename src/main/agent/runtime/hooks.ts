@@ -79,5 +79,5 @@ export async function applyAgentToolResultMiddleware(
 }
 
 function isToolResultBlock(block: ToolResultBlock): boolean {
-	return block.type === 'text' || block.type === 'image' || block.type === 'file';
+	return block.type === 'text' || block.type === 'image';
 }
