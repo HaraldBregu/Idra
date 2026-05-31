@@ -9,14 +9,14 @@ import { writeTool } from './write';
 export { readTool } from './read';
 export { writeTool } from './write';
 export { editTool } from './edit';
-export { applyPatchTool } from './apply_patch';
+export { applyPatchTool } from './apply-patch';
 export { deleteTool } from './delete';
 export { copyTool } from './copy';
 export { moveTool } from './move';
-export { inspectFileTool } from './inspect_file';
+export { inspectFileTool } from './inspect-file';
 export { findTool } from './find';
-export { filesystemCreateTool } from './create';
-export { filesystemListTool } from './list';
+export { filesystemCreateTool } from './filesystem-create';
+export { filesystemListTool } from './filesystem-list';
 
 export const filesystemReadTool = aliasFileTool(
 	'filesystem_read',
