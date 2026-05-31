@@ -33,7 +33,9 @@ import {
 	requestClarificationTool,
 } from '../human/tools';
 import { spawnSubagentTool } from '../subagent/spawn-subagent';
-import { listSkillsTool, loadSkillTool, useSkillTool } from '../skills/tools';
+import { listSkillsTool } from '../skills/list-skills';
+import { loadSkillTool } from '../skills/load-skill';
+import { useSkillTool } from '../skills/use-skill';
 import {
 	callMcpToolTool,
 	connectMcpServerTool,

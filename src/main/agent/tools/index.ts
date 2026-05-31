@@ -49,7 +49,9 @@ export {
 	requestClarificationTool,
 } from './human/tools';
 export { spawnSubagentTool } from './subagent/spawn-subagent';
-export { listSkillsTool, loadSkillTool, useSkillTool } from './skills/tools';
+export { listSkillsTool } from './skills/list-skills';
+export { loadSkillTool } from './skills/load-skill';
+export { useSkillTool } from './skills/use-skill';
 export {
 	callMcpToolTool,
 	connectMcpServerTool,
