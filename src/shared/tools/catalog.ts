@@ -1,11 +1,8 @@
 import { AGENT_TOOL_APPROVAL_ALWAYS, AGENT_TOOL_APPROVAL_NONE } from './policy';
 import { DEFAULT_TOOL_PROFILES, LEGACY_TOOL_PROFILES, OPTIONAL_TOOL_PROFILES } from './profiles';
 import type { AgentToolMetadata } from './types';
-import { tool } from './tool';
-
-
 export const DEFAULT_CORE_WORKSPACE_TOOLS = [
-	tool({
+	{
 		name: 'read_file',
 		group: 'coreWorkspace',
 		title: 'Read file',
@@ -14,8 +11,8 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-		tool({
+},
+		{
 			name: 'edit_file',
 		group: 'coreWorkspace',
 		title: 'Edit file',
@@ -24,8 +21,8 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'list_directory',
 		group: 'coreWorkspace',
 		title: 'List directory',
@@ -34,8 +31,8 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'search_files',
 		group: 'coreWorkspace',
 		title: 'Search files',
@@ -44,8 +41,8 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'grep',
 		group: 'coreWorkspace',
 		title: 'Grep',
@@ -54,8 +51,8 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'run_shell',
 		group: 'coreWorkspace',
 		title: 'Run shell',
@@ -64,8 +61,8 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-		tool({
+},
+		{
 			name: 'undo_last_operation',
 		group: 'coreWorkspace',
 		title: 'Undo last operation',
@@ -74,11 +71,11 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_STATE_TASK_TOOLS = [
-	tool({
+	{
 		name: 'write_todos',
 		group: 'stateTask',
 		title: 'Write todos',
@@ -87,8 +84,8 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'update_todo',
 		group: 'stateTask',
 		title: 'Update todo',
@@ -97,8 +94,8 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'list_todos',
 		group: 'stateTask',
 		title: 'List todos',
@@ -107,8 +104,8 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'complete_task',
 		group: 'stateTask',
 		title: 'Complete task',
@@ -117,8 +114,8 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'start_task',
 		group: 'stateTask',
 		title: 'Start task',
@@ -127,8 +124,8 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'write_scratch',
 		group: 'stateTask',
 		title: 'Write scratch',
@@ -137,8 +134,8 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'read_scratch',
 		group: 'stateTask',
 		title: 'Read scratch',
@@ -147,11 +144,11 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_HUMAN_DECISION_TOOLS = [
-	tool({
+	{
 		name: 'request_approval',
 		group: 'humanDecision',
 		title: 'Request approval',
@@ -160,8 +157,8 @@ export const DEFAULT_HUMAN_DECISION_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'request_clarification',
 		group: 'humanDecision',
 		title: 'Request clarification',
@@ -170,8 +167,8 @@ export const DEFAULT_HUMAN_DECISION_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'present_plan',
 		group: 'humanDecision',
 		title: 'Present plan',
@@ -180,8 +177,8 @@ export const DEFAULT_HUMAN_DECISION_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'request_authorization',
 		group: 'humanDecision',
 		title: 'Request authorization',
@@ -190,11 +187,11 @@ export const DEFAULT_HUMAN_DECISION_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_SUBAGENT_TOOLS = [
-	tool({
+	{
 		name: 'spawn_subagent',
 		group: 'subagent',
 		title: 'Spawn subagent',
@@ -203,11 +200,11 @@ export const DEFAULT_SUBAGENT_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_SKILL_TOOLS = [
-	tool({
+	{
 		name: 'list_skills',
 		group: 'skill',
 		title: 'List skills',
@@ -216,8 +213,8 @@ export const DEFAULT_SKILL_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'load_skill',
 		group: 'skill',
 		title: 'Load skill',
@@ -226,8 +223,8 @@ export const DEFAULT_SKILL_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'use_skill',
 		group: 'skill',
 		title: 'Use skill',
@@ -236,11 +233,11 @@ export const DEFAULT_SKILL_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_MCP_CONNECTOR_TOOLS = [
-	tool({
+	{
 		name: 'list_mcp_servers',
 		group: 'mcpConnector',
 		title: 'List MCP servers',
@@ -249,8 +246,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'connect_mcp_server',
 		group: 'mcpConnector',
 		title: 'Connect MCP server',
@@ -259,8 +256,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'refresh_mcp_server',
 		group: 'mcpConnector',
 		title: 'Refresh MCP server',
@@ -269,8 +266,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'list_mcp_tools',
 		group: 'mcpConnector',
 		title: 'List MCP tools',
@@ -279,8 +276,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'load_mcp_tool',
 		group: 'mcpConnector',
 		title: 'Load MCP tool',
@@ -289,8 +286,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'call_mcp_tool',
 		group: 'mcpConnector',
 		title: 'Call MCP tool',
@@ -299,8 +296,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'list_mcp_resources',
 		group: 'mcpConnector',
 		title: 'List MCP resources',
@@ -309,8 +306,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'read_mcp_resource',
 		group: 'mcpConnector',
 		title: 'Read MCP resource',
@@ -319,8 +316,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'list_mcp_prompts',
 		group: 'mcpConnector',
 		title: 'List MCP prompts',
@@ -329,8 +326,8 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'load_mcp_prompt',
 		group: 'mcpConnector',
 		title: 'Load MCP prompt',
@@ -339,11 +336,11 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_WEB_TOOLS = [
-	tool({
+	{
 		name: 'web_fetch',
 		group: 'web',
 		title: 'Fetch web page',
@@ -352,8 +349,8 @@ export const DEFAULT_WEB_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'open_browser',
 		group: 'web',
 		title: 'Open browser',
@@ -362,11 +359,11 @@ export const DEFAULT_WEB_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-	] as const;
+},
+	] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_CRON_TOOLS = [
-	tool({
+	{
 		name: 'cron',
 		group: 'cron',
 		title: 'Cron',
@@ -375,11 +372,11 @@ export const DEFAULT_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const OPTIONAL_SCRIPT_TOOLS = [
-	tool({
+	{
 		name: 'script_run',
 		group: 'script',
 		title: 'Run script',
@@ -388,11 +385,11 @@ export const OPTIONAL_SCRIPT_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const OPTIONAL_CRON_TOOLS = [
-	tool({
+	{
 		name: 'cron_create',
 		group: 'cron',
 		title: 'Create cron schedule',
@@ -401,8 +398,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_read',
 		group: 'cron',
 		title: 'Read cron schedule',
@@ -411,8 +408,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_update',
 		group: 'cron',
 		title: 'Update cron schedule',
@@ -421,8 +418,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_delete',
 		group: 'cron',
 		title: 'Delete cron schedule',
@@ -431,8 +428,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_list',
 		group: 'cron',
 		title: 'List cron schedules',
@@ -441,8 +438,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_start',
 		group: 'cron',
 		title: 'Start cron schedule',
@@ -451,8 +448,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_stop',
 		group: 'cron',
 		title: 'Stop cron schedule',
@@ -461,8 +458,8 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-	tool({
+},
+	{
 		name: 'cron_run',
 		group: 'cron',
 		title: 'Run cron schedule now',
@@ -471,11 +468,11 @@ export const OPTIONAL_CRON_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
 
 export const LEGACY_CORE_WORKSPACE_TOOLS = [
-	tool({
+	{
 		name: 'write',
 			group: 'coreWorkspace',
 			title: 'Write',
@@ -484,8 +481,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 			approval: AGENT_TOOL_APPROVAL_NONE,
 			profiles: DEFAULT_TOOL_PROFILES,
 			availability: 'default',
-	}),
-	tool({
+},
+	{
 		name: 'apply_patch',
 		group: 'coreWorkspace',
 		title: 'Apply patch',
@@ -494,8 +491,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-	tool({
+},
+	{
 		name: 'delete_file',
 		group: 'coreWorkspace',
 		title: 'Delete file',
@@ -504,8 +501,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-	tool({
+},
+	{
 		name: 'copy',
 		group: 'coreWorkspace',
 		title: 'Copy',
@@ -514,8 +511,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-	tool({
+},
+	{
 		name: 'move',
 		group: 'coreWorkspace',
 		title: 'Move',
@@ -524,8 +521,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-	tool({
+},
+	{
 		name: 'inspect_file',
 		group: 'coreWorkspace',
 		title: 'Inspect file',
@@ -534,8 +531,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-	tool({
+},
+	{
 		name: 'exec',
 		group: 'coreWorkspace',
 		title: 'Exec',
@@ -544,8 +541,8 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-	tool({
+},
+	{
 		name: 'process',
 		group: 'coreWorkspace',
 		title: 'Process',
@@ -554,5 +551,5 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-] as const;
+},
+] as const satisfies readonly AgentToolMetadata[];
