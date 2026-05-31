@@ -1,10 +1,6 @@
 import type { AgentTool } from '../core/common';
 import { markCoreTool } from '../core/common';
-import type {
-	AgentTool as LegacyAgentTool,
-	FridayServices,
-	ToolContext,
-} from '../core/types';
+import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '../core/types';
 import { legacyToolToCanonical } from '../runtime/bridge';
 import { editFileTool } from './edit-file';
 import { grepTool } from './grep';
