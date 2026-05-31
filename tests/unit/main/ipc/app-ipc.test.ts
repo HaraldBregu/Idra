@@ -34,10 +34,7 @@ function createContainer(
 				cameraEnabled: enabled,
 			})),
 		},
-		powerSaveBlocker: {
-			setEnabled: jest.fn(),
-		},
-		store: {
+			store: {
 			getProviderById: jest.fn(() => provider),
 			setAgentService: jest.fn(() => true),
 			...storeOverrides,
