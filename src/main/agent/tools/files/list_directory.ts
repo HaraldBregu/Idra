@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/types';
-import { filesystemListTool } from '../files/tools';
 import { toolDescription } from '../metadata';
+import { filesystemListTool } from './filesystem-list';
 
 type ListDirectoryArgs = Parameters<typeof filesystemListTool.execute>[0];
 

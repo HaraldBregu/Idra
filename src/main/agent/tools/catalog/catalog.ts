@@ -11,27 +11,25 @@ import {
 	applyPatchTool,
 	copyTool,
 	deleteTool,
+	editFileTool,
 	editTool,
 	filesystemCreateTool,
 	filesystemListTool,
 	findTool,
-	inspectFileTool,
-	moveTool,
-	readTool,
-	writeTool,
-} from '../files/tools';
-import {
-	editFileTool,
 	gitDiffTool,
 	gitStatusTool,
 	grepTool,
+	inspectFileTool,
 	listDirectoryTool,
+	moveTool,
 	readFileTool,
+	readTool,
 	runShellTool,
 	searchFilesTool,
 	undoLastOperationTool,
 	writeFileTool,
-} from '../workspace/tools';
+	writeTool,
+} from '../files/tools';
 import {
 	completeTaskTool,
 	listTodosTool,

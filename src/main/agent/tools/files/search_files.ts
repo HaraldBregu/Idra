@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/types';
-import { findTool } from '../files/tools';
 import { toolDescription } from '../metadata';
+import { findTool } from './find';
 
 type SearchFilesArgs = Parameters<typeof findTool.execute>[0];
 

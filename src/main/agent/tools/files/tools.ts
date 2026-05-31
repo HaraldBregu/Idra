@@ -9,6 +9,7 @@ import { writeTool } from './write';
 export { readTool } from './read';
 export { writeTool } from './write';
 export { editTool } from './edit';
+export { editFileTool } from './edit_file';
 export { applyPatchTool } from './apply-patch';
 export { deleteTool } from './delete';
 export { copyTool } from './copy';
@@ -17,6 +18,15 @@ export { inspectFileTool } from './inspect-file';
 export { findTool } from './find';
 export { filesystemCreateTool } from './filesystem-create';
 export { filesystemListTool } from './filesystem-list';
+export { gitDiffTool } from './git_diff';
+export { gitStatusTool } from './git_status';
+export { grepTool } from './grep';
+export { listDirectoryTool } from './list_directory';
+export { readFileTool } from './read_file';
+export { runShellTool } from './run_shell';
+export { searchFilesTool } from './search_files';
+export { undoLastOperationTool } from './undo_last_operation';
+export { writeFileTool } from './write_file';
 
 export const filesystemReadTool = aliasFileTool(
 	'filesystem_read',

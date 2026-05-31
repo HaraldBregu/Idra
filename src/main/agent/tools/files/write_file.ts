@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/types';
-import { writeTool } from '../files/tools';
 import { toolDescription } from '../metadata';
+import { writeTool } from './write';
 
 type WriteFileArgs = Parameters<typeof writeTool.execute>[0];
 

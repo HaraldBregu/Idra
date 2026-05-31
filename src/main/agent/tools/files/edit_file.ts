@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/types';
-import { editTool } from '../files/tools';
 import { toolDescription } from '../metadata';
+import { editTool } from './edit';
 
 type EditFileArgs = Parameters<typeof editTool.execute>[0];
 

@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/types';
-import { readTool } from '../files/tools';
 import { toolDescription } from '../metadata';
+import { readTool } from './read';
 
 type ReadFileArgs = Parameters<typeof readTool.execute>[0];
 

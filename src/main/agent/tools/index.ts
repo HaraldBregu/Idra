@@ -36,7 +36,7 @@ export {
 	searchFilesTool,
 	undoLastOperationTool,
 	writeFileTool,
-} from './workspace/tools';
+} from './files/tools';
 export {
 	completeTaskTool,
 	listTodosTool,
