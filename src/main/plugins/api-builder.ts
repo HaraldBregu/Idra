@@ -62,7 +62,7 @@ export interface FridayConnectorApi {
 	registerMemoryCorpusSupplement(registration: unknown): void;
 	registerChannel(registration: unknown): void;
 	registerMigrationProvider(registration: unknown): void;
-	registerAgentHarness(registration: unknown): void;
+	registerAgentRuntime(registration: unknown): void;
 	registerAgentToolResultMiddleware(registration: unknown): void;
 	registerContextEngine(registration: unknown): void;
 	registerCompactionProvider(registration: unknown): void;
@@ -184,8 +184,8 @@ export function buildFridayConnectorApi(
 		registerMigrationProvider: allowed('runtime')
 			? (registration) => registerValue('migrationProviders', registration)
 			: noop,
-		registerAgentHarness: allowed('runtime')
-			? (registration) => registerValue('agentHarnesses', registration)
+		registerAgentRuntime: allowed('runtime')
+			? (registration) => registerValue('agentRuntimes', registration)
 			: noop,
 		registerAgentToolResultMiddleware: allowed('runtime')
 			? (registration) => registerValue('agentToolResultMiddleware', registration)

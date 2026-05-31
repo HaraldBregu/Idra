@@ -96,7 +96,7 @@ export type ConnectorRegistrySurface =
 	| 'memoryCorpusSupplements'
 	| 'channels'
 	| 'migrationProviders'
-	| 'agentHarnesses'
+	| 'agentRuntimes'
 	| 'agentToolResultMiddleware'
 	| 'contextEngines'
 	| 'compactionProviders'

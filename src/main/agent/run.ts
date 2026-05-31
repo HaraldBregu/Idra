@@ -81,7 +81,7 @@ export interface AgentRunInput {
 	toolService?: ToolServicePort;
 	store?: AgentProviderLookup;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
-	agentHarnessId?: string;
+	agentRuntimeId?: string;
 }
 
 export interface AgentRunResult {
@@ -280,7 +280,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 		const isError = params.isError ?? params.status !== 'ok';
 		const toolResult = await prepareToolResultForRun({
 			content: await applyAgentToolResultMiddleware(params.toolResult.content, {
-				runtime: input.agentHarnessId,
+				runtime: input.agentRuntimeId,
 				runId,
 				iteration: params.iteration,
 				toolName: params.tool.name,
