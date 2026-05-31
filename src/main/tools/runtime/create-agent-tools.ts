@@ -149,7 +149,7 @@ export async function createAgentTools(
 	const candidates = await buildToolCandidates(options, plan, diagnostics);
 	const policyResult = applyToolPolicyPipeline(candidates, {
 		sender: options.sender,
-		stages: buildPolicyStages(options),
+		stages: buildPolicyStages(options) as Parameters<typeof applyToolPolicyPipeline>[1]['stages'],
 		diagnostics,
 		policy: options.services?.policy,
 	});

@@ -17,6 +17,9 @@ export interface HeartbeatSummary {
 	prompt: string;
 	target: string;
 	model?: string;
+	modelId?: string;
+	providerId?: string;
+	reasoningEffort?: AgentHeartbeatConfig['reasoningEffort'];
 	session?: string;
 	directPolicy: 'allow' | 'block';
 	to?: string;

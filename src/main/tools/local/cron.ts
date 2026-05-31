@@ -151,19 +151,23 @@ export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> 
 		additionalProperties: false,
 	},
 	needsApproval: (args) => ['add', 'update', 'remove', 'run', 'wake'].includes(args.action),
-	async execute(args, ctx) {
-		const capturedContext = await recentContext(args, ctx);
-		const delivery = inferredDelivery(ctx);
-		const actor = cronActor(ctx);
-		const response =
-			capturedContext || delivery
-				? await ctx.services.cron.fridayAction(args, actor, {
-						recentContext: capturedContext,
-						delivery,
-					})
-				: await ctx.services.cron.fridayAction(args, actor);
-		return jsonResult(response);
-	},
+		async execute(args, ctx) {
+			const cron = ctx.services.cron as
+				| { fridayAction?: (args: FridayCronToolRequest, actor: ReturnType<typeof cronActor>, context?: Record<string, unknown>) => Promise<FridayCronToolResponse> }
+				| undefined;
+			if (!cron?.fridayAction) return textResult('cron: CronService is unavailable.', true);
+			const capturedContext = await recentContext(args, ctx);
+			const delivery = inferredDelivery(ctx);
+			const actor = cronActor(ctx);
+			const response =
+				capturedContext || delivery
+					? await cron.fridayAction(args, actor, {
+							recentContext: capturedContext,
+							delivery,
+						})
+					: await cron.fridayAction(args, actor);
+			return jsonResult(response);
+		},
 };
 
 interface CronAddArgs {
@@ -200,7 +204,8 @@ export const cronAddTool: AgentTool<CronAddArgs> = {
 		}
 		const typed = args.data as CronTaskData;
 		const id = args.id ? String(args.id) : randomUUID();
-		ctx.services.cron.schedule(id, args.expression, typed, () => {}, {
+			if (!ctx.services.cron) return textResult('cron_add: CronService is unavailable.', true);
+			ctx.services.cron.schedule(id, args.expression, typed, () => {}, {
 			timezone: args.timezone,
 		});
 		return textResult(`Scheduled job ${id}: '${args.expression}' — [${typed.type}]`);
@@ -212,7 +217,8 @@ export const cronListTool: AgentTool = {
 	description: 'List all scheduled cron jobs.',
 	schema: { type: 'object', properties: {}, required: [], additionalProperties: false },
 	async execute(_args, ctx) {
-		const jobs = ctx.services.cron.listJobs();
+			if (!ctx.services.cron) return textResult('cron_list: CronService is unavailable.', true);
+			const jobs = ctx.services.cron.listJobs();
 		if (jobs.length === 0) return textResult('No jobs scheduled.');
 		return textResult(jobs.map((j) => `[${j.id}] '${j.expression}'`).join('\n'));
 	},
@@ -234,7 +240,8 @@ export const cronRemoveTool: AgentTool<CronRemoveArgs> = {
 	needsApproval: true,
 	async execute(args, ctx) {
 		const id = String(args.job_id ?? '');
-		if (!ctx.services.cron.has(id)) return textResult(`No job found with ID ${id}.`, true);
+			if (!ctx.services.cron) return textResult('cron_remove: CronService is unavailable.', true);
+			if (!ctx.services.cron.has(id)) return textResult(`No job found with ID ${id}.`, true);
 		ctx.services.cron.unschedule(id);
 		return textResult(`Removed job ${id}.`);
 	},
