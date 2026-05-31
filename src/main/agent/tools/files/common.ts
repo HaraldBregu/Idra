@@ -42,17 +42,3 @@ export function guardedRootMessage(workspace: string, abs: string): string | nul
 	if (resolved === path.resolve(os.homedir())) return 'refusing to operate on home directory';
 	return null;
 }
-
-export function aliasFileTool<TArgs>(
-	name: string,
-	description: string,
-	tool: AgentTool<TArgs>
-): AgentTool<TArgs> {
-	return {
-		name,
-		description,
-		schema: tool.schema,
-		needsApproval: tool.needsApproval,
-		execute: (args, ctx) => tool.execute(args, ctx),
-	};
-}
