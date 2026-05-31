@@ -1,12 +1,10 @@
 import {
 	DEFAULT_CORE_WORKSPACE_TOOLS,
-	DEFAULT_CRON_TOOLS,
 	DEFAULT_HUMAN_DECISION_TOOLS,
 	DEFAULT_MCP_CONNECTOR_TOOLS,
 	DEFAULT_SKILL_TOOLS,
 	DEFAULT_STATE_TASK_TOOLS,
 	DEFAULT_SUBAGENT_TOOLS,
-	DEFAULT_WEB_TOOLS,
 	LEGACY_CORE_WORKSPACE_TOOLS,
 	OPTIONAL_CRON_TOOLS,
 	OPTIONAL_SCRIPT_TOOLS,
@@ -39,9 +37,9 @@ export const AGENT_TOOL_GROUPS = {
 	subagent: DEFAULT_SUBAGENT_TOOLS,
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
-	web: DEFAULT_WEB_TOOLS,
+	web: [],
 	script: OPTIONAL_SCRIPT_TOOLS,
-	cron: [...DEFAULT_CRON_TOOLS, ...OPTIONAL_CRON_TOOLS],
+	cron: OPTIONAL_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_DEFAULT_TOOLS = [
@@ -111,8 +109,6 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'edit_file',
 	'run_shell',
-	'exec',
-	'process',
 	'undo_last_operation',
 	'start_task',
 	'connect_mcp_server',
@@ -125,7 +121,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_start',
 	'cron_stop',
 	'cron_run',
-	'cron',
 	'write',
 	'apply_patch',
 	'delete_file',
