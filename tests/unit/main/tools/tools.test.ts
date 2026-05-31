@@ -29,7 +29,7 @@ import {
 	cronStartTool,
 	cronStopTool,
 	cronUpdateTool,
-} from '../../../../src/main/agent/tools/cron/tools';
+} from '../../../../src/main/agent/tools/cron';
 import { scriptRunTool } from '../../../../src/main/agent/tools/scripts/tools';
 import { runShellTool } from '../../../../src/main/agent/tools/files/tools';
 import {
