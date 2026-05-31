@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { JSONSchema } from '../agent/provider/types';
-import type { AgentTool, AgentToolResult, ToolContext } from '../agent/legacy-tools/types';
+import type { AgentTool, AgentToolResult, ToolContext } from '../agent/tools/types';
 
 export type ConnectorType = 'mcp' | 'oauth' | 'apiKey' | 'internal' | 'local';
 export type ConnectorAuthStatus = 'notConfigured' | 'authorized' | 'expired' | 'revoked' | 'missingScopes' | 'error';

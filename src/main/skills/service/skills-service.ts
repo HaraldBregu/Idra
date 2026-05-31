@@ -3,8 +3,8 @@ import path from 'node:path';
 import type { LoggerService } from '../../logger';
 import type { UserDataDirectoryServicePort } from '../../app/user-data';
 import { resolveDefaultUserDataPath } from '../../app/user-data';
-import type { AgentTool, ToolContext } from '../../agent/legacy-tools/types';
-import { textResult } from '../../agent/legacy-tools/types';
+import type { AgentTool, ToolContext } from '../../agent/tools/types';
+import { textResult } from '../../agent/tools/types';
 import type {
 	SkillDetails,
 	SkillDownloadResult,

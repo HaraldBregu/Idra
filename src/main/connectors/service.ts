@@ -3,8 +3,8 @@ import { createServer, type Server } from 'node:http';
 import { shell } from 'electron';
 import type { StoreService } from '../store';
 import type { LoggerService } from '../logger';
-import type { AgentTool, ToolContext } from '../agent/legacy-tools/types';
-import { textResult } from '../agent/legacy-tools/types';
+import type { AgentTool, ToolContext } from '../agent/tools/types';
+import { textResult } from '../agent/tools/types';
 import {
 	OPENAI_CONNECTOR_CATALOG,
 	getConnectorAuthKind,

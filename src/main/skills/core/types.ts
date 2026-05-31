@@ -1,5 +1,5 @@
 import type { JSONSchema } from '../../agent/provider/types';
-import type { AgentTool, AgentToolResult } from '../../agent/legacy-tools/types';
+import type { AgentTool, AgentToolResult } from '../../agent/tools/types';
 import type {
 	SkillCategory,
 	SkillDependencyManifest,
@@ -333,7 +333,7 @@ export interface SkillExecutionRequestContext {
 	skillDepth: number;
 	parentSkillId?: string;
 	provenanceChain: SkillProvenance[];
-	toolContext: import('../../agent/legacy-tools/types').ToolContext;
+	toolContext: import('../../agent/tools/types').ToolContext;
 	timeoutMs?: number | null;
 	maxRetries?: number;
 	maxDepth?: number;
