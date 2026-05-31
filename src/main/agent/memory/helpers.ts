@@ -1,4 +1,12 @@
-import type { AgentMessage, Clock, MemoryImportance, MemoryItem, MemoryPrivacyLevel, MemoryUpdateAction, MemoryUpdateDecision } from './types';
+import type {
+	AgentMessage,
+	Clock,
+	MemoryImportance,
+	MemoryItem,
+	MemoryPrivacyLevel,
+	MemoryUpdateAction,
+	MemoryUpdateDecision,
+} from './types';
 
 export const DEFAULT_MEMORY_POLICY_REMINDER = [
 	'Memory is not chat history.',
@@ -82,7 +90,9 @@ export function tokenize(value: string): string[] {
 		.replace(/[^a-z0-9]+/g, ' ')
 		.split(' ')
 		.map((token) => token.trim())
-		.map((token) => (token.length > 3 && token.endsWith('s') && !token.endsWith('ss') ? token.slice(0, -1) : token))
+		.map((token) =>
+			token.length > 3 && token.endsWith('s') && !token.endsWith('ss') ? token.slice(0, -1) : token
+		)
 		.filter((token) => token.length > 1 && !STOP_WORDS.has(token));
 }
 

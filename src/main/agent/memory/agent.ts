@@ -1,4 +1,17 @@
-import type { AgentSession, BuiltPrompt, Clock, IdGenerator, LlmProvider, MemoryItem, MemoryPrivacyLevel, MemoryStore, MemoryUpdateDecision, UserMemory, WorkingMemory, WorkingMemorySessionManager } from './types';
+import type {
+	AgentSession,
+	BuiltPrompt,
+	Clock,
+	IdGenerator,
+	LlmProvider,
+	MemoryItem,
+	MemoryPrivacyLevel,
+	MemoryStore,
+	MemoryUpdateDecision,
+	UserMemory,
+	WorkingMemory,
+	WorkingMemorySessionManager,
+} from './types';
 import { AgentExecutionError, CryptoIdGenerator, MemoryAgentError } from './types';
 import { addDays, summarizeText } from './helpers';
 import { MemoryExtractor } from './extractor';
@@ -70,7 +83,8 @@ export class MemoryManagedAgent {
 		const extractor = new MemoryExtractor(policy, idGenerator, clock);
 		const agent = new MemoryManagedAgent({
 			model: input.model,
-			systemInstructions: input.systemInstructions ?? 'You are a helpful, privacy-preserving AI agent.',
+			systemInstructions:
+				input.systemInstructions ?? 'You are a helpful, privacy-preserving AI agent.',
 			llmProvider: input.llmProvider,
 			memoryStore,
 			sessionManager,
@@ -91,7 +105,9 @@ export class MemoryManagedAgent {
 				? await this.options.sessionManager.loadSession(input.sessionId)
 				: await this.options.sessionManager.createSession(input.userId);
 			if (session.userId !== input.userId) {
-				throw new AgentExecutionError(`Session ${session.id} does not belong to user ${input.userId}`);
+				throw new AgentExecutionError(
+					`Session ${session.id} does not belong to user ${input.userId}`
+				);
 			}
 
 			const relevantMemory = await this.options.memoryRetriever.retrieve({
@@ -168,7 +184,10 @@ export class MemoryManagedAgent {
 		await this.options.memoryStore.deleteAllMemory(userId);
 	}
 
-	private async applyDecision(userId: string, decision: MemoryUpdateDecision): Promise<MemoryUpdateDecision | undefined> {
+	private async applyDecision(
+		userId: string,
+		decision: MemoryUpdateDecision
+	): Promise<MemoryUpdateDecision | undefined> {
 		if (decision.shouldStore && decision.candidateMemory) {
 			await this.options.memoryStore.addMemory(userId, decision.candidateMemory);
 			return decision;
@@ -184,7 +203,11 @@ export class MemoryManagedAgent {
 		return undefined;
 	}
 
-	private createWorkingMemory(session: AgentSession, userInput: string, relevantMemory: MemoryItem[]): WorkingMemory {
+	private createWorkingMemory(
+		session: AgentSession,
+		userInput: string,
+		relevantMemory: MemoryItem[]
+	): WorkingMemory {
 		const now = this.clock();
 		return {
 			turnId: this.idGenerator.createId('turn'),

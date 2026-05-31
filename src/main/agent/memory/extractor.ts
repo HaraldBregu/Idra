@@ -1,6 +1,24 @@
-import type { Clock, IdGenerator, MemoryItem, MemoryKind, MemoryUpdateDecision, UserMemory } from './types';
+import type {
+	Clock,
+	IdGenerator,
+	MemoryItem,
+	MemoryKind,
+	MemoryUpdateDecision,
+	UserMemory,
+} from './types';
 import { CryptoIdGenerator } from './types';
-import { isArchived, isExpired, keywordScore, memorySearchText, nowIso, stripCommandContent, summarizeText, toDecision, tokenize, unique } from './helpers';
+import {
+	isArchived,
+	isExpired,
+	keywordScore,
+	memorySearchText,
+	nowIso,
+	stripCommandContent,
+	summarizeText,
+	toDecision,
+	tokenize,
+	unique,
+} from './helpers';
 import { MemoryPolicy } from './policy-engine';
 
 export interface MemoryExtractionInput {
@@ -29,13 +47,21 @@ export class MemoryExtractor {
 
 		const candidate = this.extractCandidate(input, sessionOnly);
 		if (candidate) {
-			const updateTarget = this.findUpdateTarget(candidate, input.existingMemory, this.isCorrection(text));
+			const updateTarget = this.findUpdateTarget(
+				candidate,
+				input.existingMemory,
+				this.isCorrection(text)
+			);
 			const rawDecision = updateTarget
-				? toDecision('update', 'Updated an existing memory instead of creating a conflicting duplicate.', {
-						candidateMemory: candidate,
-						targetMemoryId: updateTarget.id,
-						patch: this.policy.mergeMemory(updateTarget, candidate),
-					})
+				? toDecision(
+						'update',
+						'Updated an existing memory instead of creating a conflicting duplicate.',
+						{
+							candidateMemory: candidate,
+							targetMemoryId: updateTarget.id,
+							patch: this.policy.mergeMemory(updateTarget, candidate),
+						}
+					)
 				: toDecision('store', 'Stored useful long-term context for future conversations.', {
 						candidateMemory: candidate,
 					});
@@ -47,7 +73,9 @@ export class MemoryExtractor {
 				})
 			);
 		} else if (sessionOnly) {
-			decisions.push(toDecision('session_only', 'The user asked not to persist this outside the current chat.'));
+			decisions.push(
+				toDecision('session_only', 'The user asked not to persist this outside the current chat.')
+			);
 		}
 
 		if (decisions.length === 0) {
@@ -72,7 +100,10 @@ export class MemoryExtractor {
 		});
 	}
 
-	private extractCandidate(input: MemoryExtractionInput, sessionOnly: boolean): MemoryItem | undefined {
+	private extractCandidate(
+		input: MemoryExtractionInput,
+		sessionOnly: boolean
+	): MemoryItem | undefined {
 		const message = input.userMessage.trim();
 		const explicitRemember = message.match(/\bremember(?:\s+(?:that|this))?\s*:?\s+(.+)$/i);
 		if (explicitRemember?.[1]) {
@@ -120,7 +151,8 @@ export class MemoryExtractor {
 			content,
 			summary: summarizeText(content),
 			tags,
-			importance: explicit || kind === 'preference' || kind === 'workflow_instruction' ? 'high' : 'medium',
+			importance:
+				explicit || kind === 'preference' || kind === 'workflow_instruction' ? 'high' : 'medium',
 			confidence: explicit ? 0.95 : 0.72,
 			privacyLevel: 'personal',
 			source: {
@@ -142,8 +174,10 @@ export class MemoryExtractor {
 	private inferKind(content: string): MemoryKind {
 		const lower = content.toLowerCase();
 		if (/\b(prefer|preference|like|dislike|favorite|default)\b/.test(lower)) return 'preference';
-		if (/\b(always|usually|workflow|process|review|test|strict typing|examples)\b/.test(lower)) return 'workflow_instruction';
-		if (/\b(project|repo|codebase|stack|architecture|client)\b/.test(lower)) return 'project_context';
+		if (/\b(always|usually|workflow|process|review|test|strict typing|examples)\b/.test(lower))
+			return 'workflow_instruction';
+		if (/\b(project|repo|codebase|stack|architecture|client)\b/.test(lower))
+			return 'project_context';
 		if (/\b(last time|yesterday|meeting|call|interaction|session)\b/.test(lower)) return 'episodic';
 		return 'semantic';
 	}
@@ -165,7 +199,12 @@ export class MemoryExtractor {
 
 	private looksDurable(content: string): boolean {
 		const lower = content.toLowerCase();
-		if (/\b(do not remember|don't remember|dont remember|only for this chat|for this chat)\b/.test(lower)) return false;
+		if (
+			/\b(do not remember|don't remember|dont remember|only for this chat|for this chat)\b/.test(
+				lower
+			)
+		)
+			return false;
 		return /\b(i prefer|my preference|i like|i dislike|please always|always use|i usually|my default|my project|i work on|my workflow|my stack|i use)\b/.test(
 			lower
 		);
@@ -185,8 +224,14 @@ export class MemoryExtractor {
 		return /\b(that.?s wrong|that is wrong|actually|correction|no,)\b/i.test(content);
 	}
 
-	private findUpdateTarget(candidate: MemoryItem, memory: UserMemory, forceCorrection: boolean): MemoryItem | undefined {
-		const active = memory.longTerm.items.filter((item) => !isArchived(item) && !isExpired(item, this.clock));
+	private findUpdateTarget(
+		candidate: MemoryItem,
+		memory: UserMemory,
+		forceCorrection: boolean
+	): MemoryItem | undefined {
+		const active = memory.longTerm.items.filter(
+			(item) => !isArchived(item) && !isExpired(item, this.clock)
+		);
 		const sameKind = active.filter((item) => item.kind === candidate.kind);
 		const pool = sameKind.length > 0 ? sameKind : active;
 		const best = this.findBestExistingMemory(candidate.content, pool);

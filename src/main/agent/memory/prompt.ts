@@ -1,4 +1,10 @@
-import type { AgentMessage, AgentSession, BuiltPrompt, LlmPromptMessage, MemoryItem } from './types';
+import type {
+	AgentMessage,
+	AgentSession,
+	BuiltPrompt,
+	LlmPromptMessage,
+	MemoryItem,
+} from './types';
 import { DEFAULT_MEMORY_POLICY_REMINDER, formatMessage, summarizeText } from './helpers';
 
 export interface PromptBuilderInput {
@@ -12,7 +18,9 @@ export interface PromptBuilderInput {
 
 export class PromptBuilder {
 	build(input: PromptBuilderInput): BuiltPrompt {
-		const historyMessages = input.session.shortTermMemory.messages.slice(-(input.maxHistoryMessages ?? 12));
+		const historyMessages = input.session.shortTermMemory.messages.slice(
+			-(input.maxHistoryMessages ?? 12)
+		);
 		const memorySection = this.formatMemorySection(input.relevantMemories);
 		const historySection = this.formatHistorySection(input.session, historyMessages);
 		const policyReminder = input.memoryPolicyReminder ?? DEFAULT_MEMORY_POLICY_REMINDER;
@@ -73,7 +81,9 @@ export class PromptBuilder {
 			parts.push(`Session summary: ${session.shortTermMemory.summary}`);
 		}
 		if (session.workingMemory?.notes.length) {
-			parts.push(`Session-only notes: ${session.workingMemory.notes.map((note) => summarizeText(note, 180)).join(' | ')}`);
+			parts.push(
+				`Session-only notes: ${session.workingMemory.notes.map((note) => summarizeText(note, 180)).join(' | ')}`
+			);
 		}
 		if (messages.length === 0) {
 			parts.push('No prior messages in this session.');

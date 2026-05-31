@@ -7,7 +7,10 @@ import { MEMORY_DIRNAME } from './constants';
 import type { MemoryFlushPlan } from './contracts';
 import { sanitizeTranscriptForMemory } from './transcript';
 
-export function resolveMemoryFlushPlan(workspaceDir: string, clock: () => Date = () => new Date()): MemoryFlushPlan {
+export function resolveMemoryFlushPlan(
+	workspaceDir: string,
+	clock: () => Date = () => new Date()
+): MemoryFlushPlan {
 	const date = toLocalDate(clock());
 	const relativePath = path.join(MEMORY_DIRNAME, `${date}.md`);
 	const targetPath = path.resolve(workspaceDir, relativePath);
@@ -53,10 +56,12 @@ export async function flushSessionMemoryBeforeCompaction(
 		.map((entry) => `${entry.role.toUpperCase()}: ${entry.text}`)
 		.join('\n');
 	const bytes = Buffer.byteLength(rendered, 'utf8');
-	if (bytes < (options.minTranscriptBytes ?? 0)) return { status: 'skipped', reason: 'below_threshold' };
+	if (bytes < (options.minTranscriptBytes ?? 0))
+		return { status: 'skipped', reason: 'below_threshold' };
 
 	const contextHash = createHash('sha1').update(rendered).digest('hex').slice(0, 12);
-	if (session.memoryFlushContextHash === contextHash) return { status: 'skipped', reason: 'already_flushed' };
+	if (session.memoryFlushContextHash === contextHash)
+		return { status: 'skipped', reason: 'already_flushed' };
 
 	const plan = resolveMemoryFlushPlan(workspaceDir, options.clock);
 	const now = (options.clock ?? (() => new Date()))().toISOString();

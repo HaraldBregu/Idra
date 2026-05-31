@@ -1,4 +1,12 @@
-import type { AgentMessage, AgentSession, Clock, IdGenerator, NewAgentMessage, SessionManager, WorkingMemory } from './types';
+import type {
+	AgentMessage,
+	AgentSession,
+	Clock,
+	IdGenerator,
+	NewAgentMessage,
+	SessionManager,
+	WorkingMemory,
+} from './types';
 import { CryptoIdGenerator, MemoryAgentError, SessionNotFoundError } from './types';
 import { deepClone, formatMessage, nowIso, summarizeText } from './helpers';
 

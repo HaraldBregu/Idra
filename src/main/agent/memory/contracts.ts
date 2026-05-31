@@ -26,19 +26,25 @@ export interface MemoryReadResult {
 }
 
 export interface MemorySearchManager {
-	search(query: string, options?: {
-		maxResults?: number;
-		minScore?: number;
-		source?: MemorySource;
-		sources?: MemorySource[];
-		sessionKey?: string;
-	}): Promise<MemorySearchResult[]>;
+	search(
+		query: string,
+		options?: {
+			maxResults?: number;
+			minScore?: number;
+			source?: MemorySource;
+			sources?: MemorySource[];
+			sessionKey?: string;
+		}
+	): Promise<MemorySearchResult[]>;
 
-	readFile(path: string, options?: {
-		from?: number;
-		lines?: number;
-		maxChars?: number;
-	}): Promise<MemoryReadResult>;
+	readFile(
+		path: string,
+		options?: {
+			from?: number;
+			lines?: number;
+			maxChars?: number;
+		}
+	): Promise<MemoryReadResult>;
 
 	status(): Promise<Record<string, unknown>>;
 	warmSession?(): Promise<void>;

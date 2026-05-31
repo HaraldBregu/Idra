@@ -2,18 +2,28 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { MEMORY_DIRNAME, MEMORY_FILENAME } from './constants';
 
-export async function listMemoryFiles(workspaceDir: string, extraPaths: string[]): Promise<string[]> {
+export async function listMemoryFiles(
+	workspaceDir: string,
+	extraPaths: string[]
+): Promise<string[]> {
 	const files: string[] = [];
 	await pushIfAllowed(files, path.join(workspaceDir, MEMORY_FILENAME), workspaceDir, extraPaths);
 	await walkMemoryDir(files, path.join(workspaceDir, MEMORY_DIRNAME), workspaceDir, extraPaths);
 	for (const extraPath of extraPaths) {
-		const absolute = path.isAbsolute(extraPath) ? path.resolve(extraPath) : path.resolve(workspaceDir, extraPath);
+		const absolute = path.isAbsolute(extraPath)
+			? path.resolve(extraPath)
+			: path.resolve(workspaceDir, extraPath);
 		await walkExtraPath(files, absolute, workspaceDir, extraPaths);
 	}
 	return [...new Set(files)];
 }
 
-async function walkMemoryDir(files: string[], dir: string, workspaceDir: string, extraPaths: string[]): Promise<void> {
+async function walkMemoryDir(
+	files: string[],
+	dir: string,
+	workspaceDir: string,
+	extraPaths: string[]
+): Promise<void> {
 	let entries: string[];
 	try {
 		entries = await fs.readdir(dir);
@@ -32,7 +42,12 @@ async function walkMemoryDir(files: string[], dir: string, workspaceDir: string,
 	}
 }
 
-async function walkExtraPath(files: string[], absolute: string, workspaceDir: string, extraPaths: string[]): Promise<void> {
+async function walkExtraPath(
+	files: string[],
+	absolute: string,
+	workspaceDir: string,
+	extraPaths: string[]
+): Promise<void> {
 	let stat;
 	try {
 		stat = await fs.lstat(absolute);
@@ -50,7 +65,12 @@ async function walkExtraPath(files: string[], absolute: string, workspaceDir: st
 	await pushIfAllowed(files, absolute, workspaceDir, extraPaths);
 }
 
-async function pushIfAllowed(files: string[], absolute: string, workspaceDir: string, extraPaths: string[]): Promise<void> {
+async function pushIfAllowed(
+	files: string[],
+	absolute: string,
+	workspaceDir: string,
+	extraPaths: string[]
+): Promise<void> {
 	try {
 		const allowed = await resolveAllowedMemoryFile(workspaceDir, absolute, extraPaths);
 		files.push(allowed);
@@ -59,18 +79,26 @@ async function pushIfAllowed(files: string[], absolute: string, workspaceDir: st
 	}
 }
 
-export async function resolveAllowedMemoryFile(workspaceDir: string, requestedPath: string, extraPaths: string[]): Promise<string> {
+export async function resolveAllowedMemoryFile(
+	workspaceDir: string,
+	requestedPath: string,
+	extraPaths: string[]
+): Promise<string> {
 	const workspace = path.resolve(workspaceDir);
-	const absolute = path.isAbsolute(requestedPath) ? path.resolve(requestedPath) : path.resolve(workspace, requestedPath);
+	const absolute = path.isAbsolute(requestedPath)
+		? path.resolve(requestedPath)
+		: path.resolve(workspace, requestedPath);
 	const stat = await fs.stat(absolute);
 	if (!stat.isFile()) throw new Error('Memory path is not a file.');
-	if (path.extname(absolute).toLowerCase() !== '.md') throw new Error('Memory path must be Markdown.');
+	if (path.extname(absolute).toLowerCase() !== '.md')
+		throw new Error('Memory path must be Markdown.');
 
 	const workspaceReal = await fs.realpath(workspace).catch(() => workspace);
 	const real = await fs.realpath(absolute);
 	const rootMemory = absolute === path.join(workspace, MEMORY_FILENAME);
 	const memoryRelative = path.relative(path.join(workspace, MEMORY_DIRNAME), absolute);
-	const underMemoryDir = memoryRelative !== '' && !memoryRelative.startsWith('..') && !path.isAbsolute(memoryRelative);
+	const underMemoryDir =
+		memoryRelative !== '' && !memoryRelative.startsWith('..') && !path.isAbsolute(memoryRelative);
 	const underWorkspaceReal = isInside(workspaceReal, real);
 	const extraAllowed = await isAllowedExtraPath(real, workspace, extraPaths);
 
@@ -79,9 +107,15 @@ export async function resolveAllowedMemoryFile(workspaceDir: string, requestedPa
 	throw new Error('Memory path is outside allowed memory roots.');
 }
 
-async function isAllowedExtraPath(real: string, workspace: string, extraPaths: string[]): Promise<boolean> {
+async function isAllowedExtraPath(
+	real: string,
+	workspace: string,
+	extraPaths: string[]
+): Promise<boolean> {
 	for (const extraPath of extraPaths) {
-		const absolute = path.isAbsolute(extraPath) ? path.resolve(extraPath) : path.resolve(workspace, extraPath);
+		const absolute = path.isAbsolute(extraPath)
+			? path.resolve(extraPath)
+			: path.resolve(workspace, extraPath);
 		const extraReal = await fs.realpath(absolute).catch(() => absolute);
 		if (real === extraReal || isInside(extraReal, real)) return true;
 	}

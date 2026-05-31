@@ -2,8 +2,27 @@ import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { listSessions, type SessionFile } from '../session/store';
-import { DEFAULT_MAX_CHARS, DEFAULT_MAX_RESULTS, DEFAULT_MIN_SCORE, DEFAULT_READ_LINES, MAX_READ_CHARS, MAX_READ_LINES, MAX_RESULTS, MEMORY_CHUNK_LINES, MEMORY_CHUNK_OVERLAP, STOP_WORDS } from './constants';
-import type { IndexedChunk, MemoryReadResult, MemorySearchManager, MemorySearchResult, MemorySource, SessionVisibility, WorkspaceMemorySearchManagerOptions } from './contracts';
+import {
+	DEFAULT_MAX_CHARS,
+	DEFAULT_MAX_RESULTS,
+	DEFAULT_MIN_SCORE,
+	DEFAULT_READ_LINES,
+	MAX_READ_CHARS,
+	MAX_READ_LINES,
+	MAX_RESULTS,
+	MEMORY_CHUNK_LINES,
+	MEMORY_CHUNK_OVERLAP,
+	STOP_WORDS,
+} from './constants';
+import type {
+	IndexedChunk,
+	MemoryReadResult,
+	MemorySearchManager,
+	MemorySearchResult,
+	MemorySource,
+	SessionVisibility,
+	WorkspaceMemorySearchManagerOptions,
+} from './contracts';
 import { listMemoryFiles, resolveAllowedMemoryFile } from './paths';
 import { sanitizeTranscriptForMemory } from './transcript';
 
@@ -26,7 +45,10 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 		this.currentSessionId = options.currentSessionId;
 	}
 
-	async search(query: string, options: Parameters<MemorySearchManager['search']>[1] = {}): Promise<MemorySearchResult[]> {
+	async search(
+		query: string,
+		options: Parameters<MemorySearchManager['search']>[1] = {}
+	): Promise<MemorySearchResult[]> {
 		if (!this.enabled) return [];
 		const trimmed = query.trim();
 		if (!trimmed) return [];
@@ -39,7 +61,10 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 		}
 
 		const minScore = options.minScore ?? DEFAULT_MIN_SCORE;
-		const maxResults = Math.min(Math.max(options.maxResults ?? DEFAULT_MAX_RESULTS, 1), MAX_RESULTS);
+		const maxResults = Math.min(
+			Math.max(options.maxResults ?? DEFAULT_MAX_RESULTS, 1),
+			MAX_RESULTS
+		);
 		return chunks
 			.map((chunk) => ({ chunk, score: keywordScore(trimmed, chunk.text) }))
 			.filter(({ score }) => score >= minScore)
@@ -48,14 +73,27 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 			.map(({ chunk, score }) => ({ ...chunk, score }));
 	}
 
-	async readFile(requestedPath: string, options: Parameters<MemorySearchManager['readFile']>[1] = {}): Promise<MemoryReadResult> {
+	async readFile(
+		requestedPath: string,
+		options: Parameters<MemorySearchManager['readFile']>[1] = {}
+	): Promise<MemoryReadResult> {
 		if (!this.enabled) throw new Error('Memory search is disabled.');
-		const absolutePath = await resolveAllowedMemoryFile(this.workspaceDir, requestedPath, this.extraPaths);
+		const absolutePath = await resolveAllowedMemoryFile(
+			this.workspaceDir,
+			requestedPath,
+			this.extraPaths
+		);
 		const raw = await fs.readFile(absolutePath, 'utf8');
 		const allLines = raw.split(/\r?\n/);
 		const from = Math.max(1, Math.floor(options.from ?? 1));
-		const lines = Math.min(Math.max(Math.floor(options.lines ?? DEFAULT_READ_LINES), 1), MAX_READ_LINES);
-		const maxChars = Math.min(Math.max(Math.floor(options.maxChars ?? DEFAULT_MAX_CHARS), 1), MAX_READ_CHARS);
+		const lines = Math.min(
+			Math.max(Math.floor(options.lines ?? DEFAULT_READ_LINES), 1),
+			MAX_READ_LINES
+		);
+		const maxChars = Math.min(
+			Math.max(Math.floor(options.maxChars ?? DEFAULT_MAX_CHARS), 1),
+			MAX_READ_CHARS
+		);
 		const selected = allLines.slice(from - 1, from - 1 + lines);
 		const output: string[] = [];
 		let usedChars = 0;
@@ -97,8 +135,12 @@ export class WorkspaceMemorySearchManager implements MemorySearchManager {
 		};
 	}
 
-	private resolveSources(options: Parameters<MemorySearchManager['search']>[1] = {}): MemorySource[] {
-		const requested = options.sources ?? (options.source ? [options.source] : (['memory', 'sessions'] as MemorySource[]));
+	private resolveSources(
+		options: Parameters<MemorySearchManager['search']>[1] = {}
+	): MemorySource[] {
+		const requested =
+			options.sources ??
+			(options.source ? [options.source] : (['memory', 'sessions'] as MemorySource[]));
 		const unique = [...new Set(requested)];
 		return unique.filter((source) => source === 'memory' || source === 'sessions');
 	}
@@ -149,7 +191,10 @@ export function canAccessSession(
 	if (!requesterSessionId || target.id === requesterSessionId) return true;
 	if (visibility === 'self') return false;
 	if (visibility === 'tree') {
-		return target.parentSessionId === requesterSessionId || target.spawnedBySessionId === requesterSessionId;
+		return (
+			target.parentSessionId === requesterSessionId ||
+			target.spawnedBySessionId === requesterSessionId
+		);
 	}
 	return visibility === 'agent' || visibility === 'all';
 }

@@ -1,5 +1,13 @@
 import type { Clock, MemoryItem, MemoryPrivacyLevel, MemoryUpdateDecision } from './types';
-import { addDays, clampConfidence, IMPORTANCE_RANK, PRIVACY_RANK, summarizeText, toDecision, unique } from './helpers';
+import {
+	addDays,
+	clampConfidence,
+	IMPORTANCE_RANK,
+	PRIVACY_RANK,
+	summarizeText,
+	toDecision,
+	unique,
+} from './helpers';
 
 export interface MemoryPolicyReviewContext {
 	explicitUserRequest: boolean;
@@ -19,7 +27,10 @@ export class MemoryPolicy {
 		} = {}
 	) {}
 
-	reviewDecision(decision: MemoryUpdateDecision, context: MemoryPolicyReviewContext): MemoryUpdateDecision {
+	reviewDecision(
+		decision: MemoryUpdateDecision,
+		context: MemoryPolicyReviewContext
+	): MemoryUpdateDecision {
 		if (decision.shouldDelete || decision.action === 'ignore') return decision;
 		if (context.sessionOnly) {
 			return toDecision('session_only', 'The user asked to keep this only in the current chat.', {
@@ -33,15 +44,23 @@ export class MemoryPolicy {
 
 		const redaction = this.redactSecrets(candidate.content);
 		if (redaction.foundSecret) {
-			return toDecision('ignore', 'Rejected persistent storage because the content appears to contain a secret.', {
-				redactedContent: redaction.content,
-			});
+			return toDecision(
+				'ignore',
+				'Rejected persistent storage because the content appears to contain a secret.',
+				{
+					redactedContent: redaction.content,
+				}
+			);
 		}
 
 		if (this.isTemporary(candidate.content) && !context.explicitUserRequest) {
-			return toDecision('ignore', 'Ignored one-time or temporary context that is not useful long term.', {
-				candidateMemory: candidate,
-			});
+			return toDecision(
+				'ignore',
+				'Ignored one-time or temporary context that is not useful long term.',
+				{
+					candidateMemory: candidate,
+				}
+			);
 		}
 
 		const privacyLevel = this.inferPrivacyLevel(redaction.content);
@@ -67,12 +86,16 @@ export class MemoryPolicy {
 							},
 						}
 					: decision.patch,
-			redactedContent: redaction.content !== candidate.content ? redaction.content : decision.redactedContent,
+			redactedContent:
+				redaction.content !== candidate.content ? redaction.content : decision.redactedContent,
 		};
 	}
 
 	mergeMemory(existing: MemoryItem, incoming: MemoryItem): Partial<MemoryItem> {
-		const strongestPrivacy = PRIVACY_RANK[incoming.privacyLevel] > PRIVACY_RANK[existing.privacyLevel] ? incoming.privacyLevel : existing.privacyLevel;
+		const strongestPrivacy =
+			PRIVACY_RANK[incoming.privacyLevel] > PRIVACY_RANK[existing.privacyLevel]
+				? incoming.privacyLevel
+				: existing.privacyLevel;
 		const strongestImportance =
 			IMPORTANCE_RANK[incoming.importance] > IMPORTANCE_RANK[existing.importance]
 				? incoming.importance
@@ -134,7 +157,11 @@ export class MemoryPolicy {
 
 	inferPrivacyLevel(content: string): MemoryPrivacyLevel {
 		const lower = content.toLowerCase();
-		if (/\b(medical|diagnosis|diagnosed|medication|religion|religious|political|sexual|biometric|fingerprint|ssn|social security)\b/.test(lower)) {
+		if (
+			/\b(medical|diagnosis|diagnosed|medication|religion|religious|political|sexual|biometric|fingerprint|ssn|social security)\b/.test(
+				lower
+			)
+		) {
 			return 'sensitive';
 		}
 		if (/\b(email|phone|address|passport|legal name|date of birth|dob)\b/.test(lower)) {

@@ -1,12 +1,28 @@
 import { randomUUID } from 'node:crypto';
 
-export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+	| string
+	| number
+	| boolean
+	| null
+	| JsonValue[]
+	| { [key: string]: JsonValue };
 
-export type MemoryKind = 'semantic' | 'episodic' | 'preference' | 'workflow_instruction' | 'project_context';
+export type MemoryKind =
+	| 'semantic'
+	| 'episodic'
+	| 'preference'
+	| 'workflow_instruction'
+	| 'project_context';
 
 export type MemoryImportance = 'low' | 'medium' | 'high' | 'critical';
 
-export type MemorySourceType = 'user_explicit' | 'user_implicit' | 'agent_inferred' | 'system' | 'imported';
+export type MemorySourceType =
+	| 'user_explicit'
+	| 'user_implicit'
+	| 'agent_inferred'
+	| 'system'
+	| 'imported';
 
 export interface MemorySource {
 	type: MemorySourceType;

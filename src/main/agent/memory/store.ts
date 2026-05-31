@@ -1,6 +1,13 @@
 import type { Clock, MemoryItem, MemoryStore, UserMemory } from './types';
 import { MemoryItemNotFoundError, MemoryStoreError } from './types';
-import { deepClone, isArchived, isExpired, keywordScore, memorySearchText, nowIso } from './helpers';
+import {
+	deepClone,
+	isArchived,
+	isExpired,
+	keywordScore,
+	memorySearchText,
+	nowIso,
+} from './helpers';
 
 export class InMemoryMemoryStore implements MemoryStore {
 	private readonly memoryByUser = new Map<string, UserMemory>();

@@ -1,5 +1,12 @@
 import type { Clock, MemoryItem, MemoryPrivacyLevel, MemoryStore } from './types';
-import { IMPORTANCE_RANK, isArchived, isExpired, keywordScore, memorySearchText, PRIVACY_RANK } from './helpers';
+import {
+	IMPORTANCE_RANK,
+	isArchived,
+	isExpired,
+	keywordScore,
+	memorySearchText,
+	PRIVACY_RANK,
+} from './helpers';
 
 export interface MemorySearchStrategy {
 	search(store: MemoryStore, userId: string, query: string): Promise<MemoryItem[]>;
@@ -43,7 +50,10 @@ export class MemoryRetriever {
 			.filter((item) => PRIVACY_RANK[item.privacyLevel] <= PRIVACY_RANK[maxPrivacyLevel])
 			.map((item) => ({ item, relevance: keywordScore(input.query, memorySearchText(item)) }))
 			.filter(({ item, relevance }) => this.isUsefulForQuery(item, relevance))
-			.map(({ item, relevance }) => ({ item, score: this.rankMemory(item, input.query, relevance) }))
+			.map(({ item, relevance }) => ({
+				item,
+				score: this.rankMemory(item, input.query, relevance),
+			}))
 			.sort((a, b) => b.score - a.score);
 
 		const selected: MemoryItem[] = [];
@@ -58,11 +68,23 @@ export class MemoryRetriever {
 		return selected;
 	}
 
-	private rankMemory(item: MemoryItem, query: string, relevance = keywordScore(query, memorySearchText(item))): number {
+	private rankMemory(
+		item: MemoryItem,
+		query: string,
+		relevance = keywordScore(query, memorySearchText(item))
+	): number {
 		const recency = this.recencyScore(item);
-		const stablePreferenceBonus = relevance > 0 && ['preference', 'workflow_instruction'].includes(item.kind) ? 0.35 : 0;
+		const stablePreferenceBonus =
+			relevance > 0 && ['preference', 'workflow_instruction'].includes(item.kind) ? 0.35 : 0;
 		const globalWorkflowBonus = relevance === 0 && this.isGlobalWorkflowMemory(item) ? 0.5 : 0;
-		return relevance * 2.5 + IMPORTANCE_RANK[item.importance] + item.confidence + recency + stablePreferenceBonus + globalWorkflowBonus;
+		return (
+			relevance * 2.5 +
+			IMPORTANCE_RANK[item.importance] +
+			item.confidence +
+			recency +
+			stablePreferenceBonus +
+			globalWorkflowBonus
+		);
 	}
 
 	private isUsefulForQuery(item: MemoryItem, relevance: number): boolean {
