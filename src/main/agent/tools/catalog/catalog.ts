@@ -13,12 +13,12 @@ import { deleteFileTool } from '../files/delete-file';
 import { editFileTool } from '../files/edit-file';
 import { grepTool } from '../files/grep';
 import { inspectFileTool } from '../files/inspect-file';
-import { listDirectoryTool } from '../files/list_directory';
+import { listDirectoryTool } from '../files/list-directory';
 import { moveTool } from '../files/move';
 import { readFileTool } from '../files/read-file';
-import { runShellTool } from '../files/run_shell';
+import { runShellTool } from '../files/run-shell';
 import { searchFilesTool } from '../files/search-files';
-import { undoLastOperationTool } from '../files/undo_last_operation';
+import { undoLastOperationTool } from '../files/undo-last-operation';
 import { writeTool } from '../files/write';
 import {
 	completeTaskTool,

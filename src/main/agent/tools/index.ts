@@ -27,11 +27,11 @@ export {
 export { createReadTool } from './files/runtime';
 export { editFileTool } from './files/edit-file';
 export { grepTool } from './files/grep';
-export { listDirectoryTool } from './files/list_directory';
+export { listDirectoryTool } from './files/list-directory';
 export { readFileTool } from './files/read-file';
-export { runShellTool } from './files/run_shell';
+export { runShellTool } from './files/run-shell';
 export { searchFilesTool } from './files/search-files';
-export { undoLastOperationTool } from './files/undo_last_operation';
+export { undoLastOperationTool } from './files/undo-last-operation';
 export {
 	completeTaskTool,
 	listTodosTool,

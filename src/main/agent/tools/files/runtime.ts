@@ -12,12 +12,12 @@ import { deleteFileTool } from './delete-file';
 import { editFileTool } from './edit-file';
 import { grepTool } from './grep';
 import { inspectFileTool } from './inspect-file';
-import { listDirectoryTool } from './list_directory';
+import { listDirectoryTool } from './list-directory';
 import { moveTool } from './move';
 import { readFileTool } from './read-file';
-import { runShellTool } from './run_shell';
+import { runShellTool } from './run-shell';
 import { searchFilesTool } from './search-files';
-import { undoLastOperationTool } from './undo_last_operation';
+import { undoLastOperationTool } from './undo-last-operation';
 import { writeTool } from './write';
 import {
 	completeTaskTool,
