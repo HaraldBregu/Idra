@@ -82,13 +82,6 @@ export interface TasksApi {
 	onEvent: (callback: (event: TaskEvent) => void) => () => void;
 }
 
-export interface MonitorApi {
-	snapshot: (filter?: MonitorEventFilter) => Promise<MonitorSnapshot>;
-	list: (filter?: MonitorEventFilter) => Promise<MonitorEventRecord[]>;
-	get: (id: string) => Promise<MonitorEventRecord | undefined>;
-	onEvent: (callback: (record: MonitorEventRecord) => void) => () => void;
-}
-
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
@@ -205,7 +198,6 @@ import type {
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
-import type { MonitorEventFilter, MonitorEventRecord, MonitorSnapshot } from '../shared/monitor';
 import type {
 	AssistantSettings,
 	AgentRoutingSettings,
@@ -341,7 +333,6 @@ declare global {
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
 		tasks: TasksApi;
-		monitor: MonitorApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;

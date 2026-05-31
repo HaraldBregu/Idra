@@ -39,7 +39,6 @@ const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/P
 const TaskManagerPage = lazy(() => import('./pages/settings/pages/task-manager/Page'));
 const TaskDetailsPage = lazy(() => import('./pages/settings/pages/task-manager/details/Page'));
 const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
-const MonitoringPage = lazy(() => import('./pages/settings/pages/monitoring/Page'));
 
 function RouteWrapper({
 	children,
@@ -323,15 +322,7 @@ const routes: RouteObject[] = [
 							</SettingsRouteWrapper>
 						),
 					},
-					{
-						path: 'monitoring',
-						element: (
-							<SettingsRouteWrapper>
-								<MonitoringPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
+						{
 						path: '*',
 						loader: () => {
 							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });

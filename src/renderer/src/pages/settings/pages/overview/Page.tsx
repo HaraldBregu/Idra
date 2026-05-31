@@ -61,7 +61,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'monitoring',
 		titleKey: 'settings.overview.groups.monitoring',
-		paths: ['/settings/task-manager', '/settings/monitoring'],
+		paths: ['/settings/task-manager'],
 	},
 ] satisfies readonly {
 	readonly id: string;
