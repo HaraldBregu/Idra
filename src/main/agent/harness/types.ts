@@ -124,6 +124,15 @@ export interface AgentHarnessToolContext {
 	runSubagent(input: AgentHarnessSubagentInput): Promise<AgentHarnessRunResult>;
 }
 
+export type AgentHarnessToolValidationResult =
+	| { ok: true }
+	| { ok: false; message: string };
+
+export type AgentHarnessPermissionDecision =
+	| { behavior: 'allow'; input?: unknown }
+	| { behavior: 'deny'; message: string }
+	| { behavior: 'ask'; message: string; input?: unknown };
+
 export interface AgentHarnessTool<TArgs = Record<string, unknown>, TDetails = unknown> {
 	name: string;
 	description: string;
@@ -136,6 +145,8 @@ export interface AgentHarnessTool<TArgs = Record<string, unknown>, TDetails = un
 	destructive?: boolean;
 	externalWrite?: boolean;
 	requiresApproval?: boolean | ((args: TArgs, ctx: AgentHarnessToolContext) => boolean | Promise<boolean>);
+	validateInput?(args: TArgs, ctx: AgentHarnessToolContext): Promise<AgentHarnessToolValidationResult> | AgentHarnessToolValidationResult;
+	checkPermissions?(args: TArgs, ctx: AgentHarnessToolContext): Promise<AgentHarnessPermissionDecision> | AgentHarnessPermissionDecision;
 	execute(args: TArgs, ctx: AgentHarnessToolContext): Promise<AgentHarnessToolResult<TDetails>>;
 }
 
