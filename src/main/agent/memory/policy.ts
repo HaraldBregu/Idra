@@ -239,14 +239,6 @@ export class AgentExecutionError extends MemoryAgentError {
 	}
 }
 
-AgentMessage,
-	Clock,
-	MemoryImportance,
-	MemoryItem,
-	MemoryPrivacyLevel,
-	MemoryUpdateAction,
-	MemoryUpdateDecision,
-} from './types';
 
 export const DEFAULT_MEMORY_POLICY_REMINDER = [
 	'Memory is not chat history.',
@@ -394,13 +386,6 @@ export function toDecision(
 	};
 }
 
-deepClone,
-	isArchived,
-	isExpired,
-	keywordScore,
-	memorySearchText,
-	nowIso,
-} from './helpers';
 
 export class InMemoryMemoryStore implements MemoryStore {
 	private readonly memoryByUser = new Map<string, UserMemory>();
@@ -551,14 +536,6 @@ export class InMemoryMemoryStore implements MemoryStore {
 	}
 }
 
-addDays,
-	clampConfidence,
-	IMPORTANCE_RANK,
-	PRIVACY_RANK,
-	summarizeText,
-	toDecision,
-	unique,
-} from './helpers';
 
 export interface MemoryPolicyReviewContext {
 	explicitUserRequest: boolean;
@@ -759,24 +736,6 @@ export class MemoryPolicy {
 	}
 }
 
-Clock,
-	IdGenerator,
-	MemoryItem,
-	MemoryKind,
-	MemoryUpdateDecision,
-	UserMemory,
-} from './types';
-	isArchived,
-	isExpired,
-	keywordScore,
-	memorySearchText,
-	nowIso,
-	stripCommandContent,
-	summarizeText,
-	toDecision,
-	tokenize,
-	unique,
-} from './helpers';
 
 export interface MemoryExtractionInput {
 	userId: string;
@@ -1010,13 +969,6 @@ export class MemoryExtractor {
 	}
 }
 
-IMPORTANCE_RANK,
-	isArchived,
-	isExpired,
-	keywordScore,
-	memorySearchText,
-	PRIVACY_RANK,
-} from './helpers';
 
 export interface MemorySearchStrategy {
 	search(store: MemoryStore, userId: string, query: string): Promise<MemoryItem[]>;
@@ -1125,12 +1077,6 @@ export class MemoryRetriever {
 	}
 }
 
-AgentMessage,
-	AgentSession,
-	BuiltPrompt,
-	LlmPromptMessage,
-	MemoryItem,
-} from './types';
 
 export interface PromptBuilderInput {
 	systemInstructions: string;
@@ -1219,14 +1165,6 @@ export class PromptBuilder {
 	}
 }
 
-AgentMessage,
-	AgentSession,
-	Clock,
-	IdGenerator,
-	NewAgentMessage,
-	SessionManager,
-	WorkingMemory,
-} from './types';
 
 export interface InMemorySessionManagerOptions {
 	maxMessages?: number;
@@ -1336,19 +1274,6 @@ export class InMemorySessionManager implements SessionManager {
 	}
 }
 
-AgentSession,
-	BuiltPrompt,
-	Clock,
-	IdGenerator,
-	LlmProvider,
-	MemoryItem,
-	MemoryPrivacyLevel,
-	MemoryStore,
-	MemoryUpdateDecision,
-	UserMemory,
-	WorkingMemory,
-	WorkingMemorySessionManager,
-} from './types';
 
 export interface MemoryManagedAgentOptions {
 	model: string;

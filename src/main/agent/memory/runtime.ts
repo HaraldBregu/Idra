@@ -121,25 +121,6 @@ export const STOP_WORDS = new Set([
 	'with',
 ]);
 
-DEFAULT_MAX_CHARS,
-	DEFAULT_MAX_RESULTS,
-	DEFAULT_MIN_SCORE,
-	DEFAULT_READ_LINES,
-	MAX_READ_CHARS,
-	MAX_READ_LINES,
-	MAX_RESULTS,
-	MEMORY_CHUNK_LINES,
-	MEMORY_CHUNK_OVERLAP,
-	STOP_WORDS,
-} from './constants';
-	IndexedChunk,
-	MemoryReadResult,
-	MemorySearchManager,
-	MemorySearchResult,
-	MemorySource,
-	SessionVisibility,
-	WorkspaceMemorySearchManagerOptions,
-} from './contracts';
 
 export class WorkspaceMemorySearchManager implements MemorySearchManager {
 	private readonly workspaceDir: string;
