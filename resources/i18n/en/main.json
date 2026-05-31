@@ -148,6 +148,12 @@
 			"searchTitle": "Use search as a power layer",
 			"searchDescription": "Keep sections simple. Put obscure pages in the command palette.",
 			"groups": {
+				"app": "App",
+				"agent": "Agent",
+				"modelServices": "Model services",
+				"channels": "Channels",
+				"automation": "Automation",
+				"monitoring": "Monitoring",
 				"general": "General setup",
 				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",

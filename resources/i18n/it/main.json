@@ -148,6 +148,12 @@
 			"searchTitle": "Usa la ricerca come livello rapido",
 			"searchDescription": "Mantieni le sezioni semplici. Metti le pagine meno comuni nella palette comandi.",
 			"groups": {
+				"app": "App",
+				"agent": "Agente",
+				"modelServices": "Servizi modello",
+				"channels": "Canali",
+				"automation": "Automazione",
+				"monitoring": "Monitoraggio",
 				"general": "Configurazione generale",
 				"aiAgents": "Agenti AI",
 				"aiFeatures": "Funzionalita AI",

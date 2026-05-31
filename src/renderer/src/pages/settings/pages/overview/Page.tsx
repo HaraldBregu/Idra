@@ -34,7 +34,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'agent',
 		titleKey: 'settings.overview.groups.agent',
 		agentIds: [AGENTS.assistant],
-		paths: ['/settings/tools', '/settings/skills', '/settings/connectors'],
+		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
 		id: 'modelServices',
