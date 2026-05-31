@@ -737,6 +737,16 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		toolCallId: string,
 		reason?: string
 	): Promise<AgentHarnessApprovalDecision> {
+		if (reason) {
+			return this.requestApproval({
+				runId: ctx.runId,
+				sessionId: ctx.sessionId,
+				toolName: tool.name,
+				toolCallId,
+				args,
+				reason,
+			});
+		}
 		const requires =
 			typeof tool.requiresApproval === 'function'
 				? await tool.requiresApproval(args, ctx)
