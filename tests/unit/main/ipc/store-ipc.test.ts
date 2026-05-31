@@ -31,9 +31,7 @@ describe('StoreIpc', () => {
 			getProviders: jest.fn(() => providers),
 			upsertProvider: jest.fn(),
 			getProviderById: jest.fn(() => providers[0]),
-			getKeepAwakeEnabled: jest.fn(() => false),
-			setKeepAwakeEnabled: jest.fn((enabled: boolean) => ({ keepAwakeEnabled: enabled })),
-			getAssistantOperator: jest.fn(() => undefined),
+				getAssistantOperator: jest.fn(() => undefined),
 			setAssistantOperator: jest.fn(() => true),
 			getAgentService: jest.fn(() => undefined),
 			setAgentService: jest.fn(() => true),
@@ -44,22 +42,17 @@ describe('StoreIpc', () => {
 		const agentSettings = {
 			getAgentRoutingSettings: jest.fn(() => ({ agents: [], bindings: [] })),
 		};
-		const powerSaveBlocker = {
-			setEnabled: jest.fn((enabled: boolean) => enabled),
-		};
-		const container = {
-			get: jest.fn((key: 'store' | 'agentSettings' | 'connectors' | 'logger' | 'powerSaveBlocker') =>
-				key === 'store'
-					? store
-					: key === 'agentSettings'
-						? agentSettings
-					: key === 'connectors'
-						? connectors
-						: key === 'powerSaveBlocker'
-							? powerSaveBlocker
+			const container = {
+				get: jest.fn((key: 'store' | 'agentSettings' | 'connectors' | 'logger') =>
+					key === 'store'
+						? store
+						: key === 'agentSettings'
+							? agentSettings
+						: key === 'connectors'
+							? connectors
 							: { info: jest.fn() }
-			),
-		} as unknown as MainServiceContainer;
+				),
+			} as unknown as MainServiceContainer;
 
 		new StoreIpc().register(container, new EventBus());
 
@@ -84,13 +77,7 @@ describe('StoreIpc', () => {
 			apiConfiguration: expect.any(Object),
 			apiKey: 'new-key',
 		});
-		await expect(registeredHandler(StoreChannels.setKeepAwakeEnabled)({}, true)).resolves.toEqual({
-			success: true,
-			data: true,
-		});
-		expect(powerSaveBlocker.setEnabled).toHaveBeenCalledWith(true);
-		expect(store.setKeepAwakeEnabled).toHaveBeenCalledWith(true);
-		await expect(registeredHandler(StoreChannels.getConnectorSettings)({})).resolves.toEqual({
+			await expect(registeredHandler(StoreChannels.getConnectorSettings)({})).resolves.toEqual({
 			success: true,
 			data: [],
 		});
