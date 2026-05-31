@@ -6,14 +6,9 @@ import type {
 	ToolContext,
 } from '../core/types';
 import { legacyToolToCanonical } from '../runtime/bridge';
-import { applyPatchTool } from './apply-patch';
-import { copyTool } from './copy';
-import { deleteFileTool } from './delete-file';
 import { editFileTool } from './edit-file';
 import { grepTool } from './grep';
-import { inspectFileTool } from './inspect-file';
 import { listDirectoryTool } from './list-directory';
-import { moveTool } from './move';
 import { readFileTool } from './read-file';
 import { runShellTool } from './run-shell';
 import { searchFilesTool } from './search-files';
@@ -65,11 +60,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	runShellTool,
 	undoLastOperationTool,
 	writeTool,
-	applyPatchTool,
-	deleteFileTool,
-	copyTool,
-	moveTool,
-	inspectFileTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
