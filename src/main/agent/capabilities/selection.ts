@@ -48,18 +48,16 @@ export function renderSkillPrompt(skills: AgentResolvedSkill[]): string {
 	return [
 		'Selected skills for this run:',
 		...skills.map((skill) =>
-			[
-				`Skill: ${skill.name}`,
-				`Reason: ${skill.reason}`,
-				'Instructions:',
-				skill.prompt,
-			].join('\n')
+			[`Skill: ${skill.name}`, `Reason: ${skill.reason}`, 'Instructions:', skill.prompt].join('\n')
 		),
 	].join('\n\n');
 }
 
 function normalizeForMatch(value: string): string {
-	return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+	return value
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, ' ')
+		.trim();
 }
 
 function trimPrompt(value: string): string {

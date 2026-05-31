@@ -1,5 +1,8 @@
 import type { AgentRunStreamEvent } from '../../../shared/agents/events';
-import type { AgentCapabilityDecisionSummary, AgentSelectedSkillSummary } from '../../../shared/agents/capabilities';
+import type {
+	AgentCapabilityDecisionSummary,
+	AgentSelectedSkillSummary,
+} from '../../../shared/agents/capabilities';
 import type { AgentTool, AgentToolSelectionForTurn, ToolContext } from '../tools';
 
 export interface AgentResolvedSkill extends AgentSelectedSkillSummary {

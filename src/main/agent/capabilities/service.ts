@@ -2,12 +2,7 @@ import type { LoggerService } from '../../logger';
 import type { ConnectorsService } from '../../connectors';
 import type { SkillsService } from '../../skills';
 import type { AgentTool } from '../tools';
-import {
-	decideCapabilities,
-	matchesPrompt,
-	renderSkillPrompt,
-	toResolvedSkill,
-} from './selection';
+import { decideCapabilities, matchesPrompt, renderSkillPrompt, toResolvedSkill } from './selection';
 import type {
 	AgentCapabilityBundle,
 	AgentCapabilityResolveInput,
@@ -34,7 +29,11 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			this.resolveSkills(input),
 		]);
 		const tools = [...input.localTools, ...connectorTools];
-		const decision = decideCapabilities({ tools, skills, bootstrapPending: input.bootstrapPending });
+		const decision = decideCapabilities({
+			tools,
+			skills,
+			bootstrapPending: input.bootstrapPending,
+		});
 		const directAnswer = decision.mode === 'direct_answer';
 		const promptAdditions = renderSkillPrompt(skills);
 
@@ -73,7 +72,9 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 				...tool,
 				serviceKind: tool.serviceKind ?? ('connector' as const),
 			}));
-			return tools.filter((tool) => matchesPrompt(input.userMessage, [tool.name, tool.description]));
+			return tools.filter((tool) =>
+				matchesPrompt(input.userMessage, [tool.name, tool.description])
+			);
 		} catch (error) {
 			this.options.logger?.warn('AgentCapabilityService', 'Failed to resolve connector tools', {
 				error: error instanceof Error ? error.message : String(error),
@@ -90,7 +91,9 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 				limit: MAX_SKILLS_PER_RUN,
 			});
 			const loaded = await Promise.all(
-				selected.map(async (skill) => toResolvedSkill(await this.options.skills!.load(skill.name), skill.reason))
+				selected.map(async (skill) =>
+					toResolvedSkill(await this.options.skills!.load(skill.name), skill.reason)
+				)
 			);
 			return loaded;
 		} catch (error) {
