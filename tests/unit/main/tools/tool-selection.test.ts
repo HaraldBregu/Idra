@@ -34,14 +34,19 @@ describe('agent tool selection', () => {
 			[
 				tool('read', 'Read workspace files.'),
 				tool('write', 'Create or overwrite workspace files.'),
-				tool('google_calendar_search_events', 'Google Calendar: Search Google Calendar events by text and time range.'),
+				tool(
+					'google_calendar_search_events',
+					'Google Calendar: Search Google Calendar events by text and time range.'
+				),
 			],
 			'show my calendar events tomorrow',
 			makeToolContext(),
 			{ maxPromptTools: 2 }
 		);
 
-		expect(selection.toolsForPrompt.map((entry) => entry.name)).toEqual(['google_calendar_search_events']);
+		expect(selection.toolsForPrompt.map((entry) => entry.name)).toEqual([
+			'google_calendar_search_events',
+		]);
 	});
 
 	it('selects the subagent tool for delegation prompts', () => {
