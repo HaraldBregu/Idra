@@ -33,7 +33,7 @@ export function clearRuntimeHooks(): void {
 	hookHandlers.clear();
 }
 
-export async function emitAgentHarnessLifecycleHook(
+export async function emitRuntimeLifecycleHook(
 	name: string,
 	payload: Record<string, unknown>
 ): Promise<void> {
@@ -43,11 +43,11 @@ export async function emitAgentHarnessLifecycleHook(
 }
 
 export async function fireBeforeCompactionHook(payload: Record<string, unknown>): Promise<void> {
-	await emitAgentHarnessLifecycleHook('before_compaction', payload);
+	await emitRuntimeLifecycleHook('before_compaction', payload);
 }
 
 export async function fireAfterCompactionHook(payload: Record<string, unknown>): Promise<void> {
-	await emitAgentHarnessLifecycleHook('after_compaction', payload);
+	await emitRuntimeLifecycleHook('after_compaction', payload);
 }
 
 export type ToolResultMiddleware = (

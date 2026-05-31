@@ -19,7 +19,7 @@ import type {
 } from '../../shared/agents/events';
 import {
 	applyAgentToolResultMiddleware,
-	emitAgentHarnessLifecycleHook,
+	emitRuntimeLifecycleHook,
 } from './runtime';
 
 export type { AgentRunStreamEvent } from '../../shared/agents/events';
@@ -300,7 +300,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 			outputChars: toolResult.outputText.length,
 			outputText: toolResult.outputText,
 		});
-		await emitAgentHarnessLifecycleHook('after_tool_call', {
+		await emitRuntimeLifecycleHook('after_tool_call', {
 			runId,
 			iteration: params.iteration,
 			toolName: params.tool.name,
@@ -336,7 +336,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 		});
 	};
 
-	await emitAgentHarnessLifecycleHook('before_message_write', {
+	await emitRuntimeLifecycleHook('before_message_write', {
 		runId,
 		userMessage,
 		sessionId: session.id,
@@ -378,7 +378,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 					maxTokens,
 					signal,
 				};
-				await emitAgentHarnessLifecycleHook('llm_input', {
+				await emitRuntimeLifecycleHook('llm_input', {
 					runId,
 					iteration: iter,
 					request,
@@ -544,7 +544,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
 			if (!blocks.some(isVisibleAssistantBlock)) blocks.push({ type: 'text', text: '' });
-			await emitAgentHarnessLifecycleHook('llm_output', {
+			await emitRuntimeLifecycleHook('llm_output', {
 				runId,
 				iteration: iter,
 				text,
@@ -692,7 +692,7 @@ async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 		firstTokenLatencyMs,
 	});
 	streamEvent?.({ type: 'run_finished', stopReason, outputChars: finalText.length });
-	await emitAgentHarnessLifecycleHook('agent_end', {
+	await emitRuntimeLifecycleHook('agent_end', {
 		runId,
 		stopReason,
 		usage: totalUsage,
