@@ -6,7 +6,7 @@ import {
 	ToolAuthorizationError,
 	type AgentTool,
 	type ToolDiagnostics,
-} from '../tools/common';
+} from '../agent/legacy-tools/common';
 import type { PluginToolContext, PluginToolFactory, PluginToolManifest } from './tool-types';
 
 export type RegisteredPluginTools = {

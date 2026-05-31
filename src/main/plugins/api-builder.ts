@@ -9,7 +9,7 @@ import {
 	type ConnectorToolMetadataRegistration,
 	type ConnectorToolRegistration,
 } from './registry';
-import type { AgentTool } from '../tools/common';
+import type { AgentTool } from '../agent/legacy-tools/common';
 import type { PluginToolFactory } from './tool-types';
 
 export interface ConnectorNextTurnInjection {

@@ -1,6 +1,6 @@
-import type { AgentTool } from '../tools/common';
-import { createAgentTools, type CreateAgentToolsOptions, type CreateAgentToolsResult } from '../tools/create-agent-tools';
-import { toToolDefinitions, type ModelToolDefinition } from '../tools/tool-definition-adapter';
+import type { AgentTool } from '../agent/legacy-tools/common';
+import { createAgentTools, type CreateAgentToolsOptions, type CreateAgentToolsResult } from '../agent/legacy-tools/create-agent-tools';
+import { toToolDefinitions, type ModelToolDefinition } from '../agent/legacy-tools/tool-definition-adapter';
 
 export type RunAttemptToolAssembly = CreateAgentToolsResult & {
 	definitions: ModelToolDefinition[];

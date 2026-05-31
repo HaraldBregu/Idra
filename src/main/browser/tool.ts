@@ -1,5 +1,5 @@
-import type { AgentTool } from '../tools/types';
-import { textResult } from '../tools/types';
+import type { AgentTool } from '../agent/legacy-tools/types';
+import { textResult } from '../agent/legacy-tools/types';
 import type { BrowserService } from './service';
 
 const DEFAULT_PROFILE = 'default';

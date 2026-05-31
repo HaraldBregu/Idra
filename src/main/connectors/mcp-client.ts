@@ -9,7 +9,7 @@ import type {
 	ConnectorTool,
 } from '../../shared/connector';
 import { DEFAULT_CONNECTOR_TOOL_PERMISSION } from '../../shared/connector';
-import type { JSONSchema } from '../provider/types';
+import type { JSONSchema } from '../agent/provider/types';
 
 export interface ConnectorMcpClient {
 	listTools(options?: ConnectorCallToolOptions): Promise<ConnectorTool[]>;

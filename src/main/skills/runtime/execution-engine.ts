@@ -1,5 +1,5 @@
-import { beforeToolCall, newCallTracker } from '../../tools/before-call';
-import type { AgentTool, AgentToolResult } from '../../tools/types';
+import { beforeToolCall, newCallTracker } from '../../agent/legacy-tools/before-call';
+import type { AgentTool, AgentToolResult } from '../../agent/legacy-tools/types';
 import type { SkillAuditLog } from './audit-log';
 import type { SkillPreferenceStore } from '../state/preferences';
 import type { SkillRegistry } from '../registry/registry';

@@ -1,5 +1,5 @@
-import type { JSONSchema } from '../../provider/types';
-import type { AgentTool, AgentToolResult } from '../../tools/types';
+import type { JSONSchema } from '../../agent/provider/types';
+import type { AgentTool, AgentToolResult } from '../../agent/legacy-tools/types';
 import type {
 	SkillCategory,
 	SkillDependencyManifest,

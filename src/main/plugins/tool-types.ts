@@ -1,4 +1,4 @@
-import type { AgentTool } from '../tools/common';
+import type { AgentTool } from '../agent/legacy-tools/common';
 
 export type AppConfig = Record<string, unknown>;
 export type AuthContext = Record<string, unknown>;

@@ -6,7 +6,7 @@ import {
 	normalizeToolName,
 	ToolAuthorizationError,
 	type AgentTool,
-} from '../tools/common';
+} from '../agent/legacy-tools/common';
 import {
 	normalizeManifestToolNames,
 	type ConnectorDiagnostic,

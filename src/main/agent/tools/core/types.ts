@@ -8,7 +8,7 @@ import type { TasksService } from '../../../tasks';
 import type { SkillsService } from '../../../skills';
 import type { UserDataDirectoryServicePort } from '../../../user-data';
 import type { WorkspaceService } from '../../../workspace';
-import type { JSONSchema, ToolResultBlock } from '../../../provider/types';
+import type { JSONSchema, ToolResultBlock } from '../../provider/types';
 import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../../shared/agents/constants';
 
 export interface PlanEntry {

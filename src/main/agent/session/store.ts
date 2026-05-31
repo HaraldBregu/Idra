@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { TranscriptEntry } from '../../provider/types';
+import type { TranscriptEntry } from '../provider/types';
 import type { AgentSessionMetadata } from '../../../shared/store';
 import { resolveDefaultAgentDataPath } from '../storage';
 import { acquireWriteLock } from './lock';
