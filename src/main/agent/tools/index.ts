@@ -32,14 +32,12 @@ export { readFileTool } from './files/read-file';
 export { runShellTool } from './files/run-shell';
 export { searchFilesTool } from './files/search-files';
 export { undoLastOperationTool } from './files/undo-last-operation';
-export {
-	completeTaskTool,
-	listTodosTool,
-	readScratchTool,
-	updateTodoTool,
-	writeScratchTool,
-	writeTodosTool,
-} from './state/tools';
+export { completeTaskTool } from './state/complete-task';
+export { listTodosTool } from './state/list-todos';
+export { readScratchTool } from './state/read-scratch';
+export { updateTodoTool } from './state/update-todo';
+export { writeScratchTool } from './state/write-scratch';
+export { writeTodosTool } from './state/write-todos';
 export { execTool, processTool } from './exec';
 export { cronTool } from './cron';
 export { taskTool } from './task/tools';

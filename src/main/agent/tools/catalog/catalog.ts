@@ -20,14 +20,12 @@ import { runShellTool } from '../files/run-shell';
 import { searchFilesTool } from '../files/search-files';
 import { undoLastOperationTool } from '../files/undo-last-operation';
 import { writeTool } from '../files/write';
-import {
-	completeTaskTool,
-	listTodosTool,
-	readScratchTool,
-	updateTodoTool,
-	writeScratchTool,
-	writeTodosTool,
-} from '../state/tools';
+import { completeTaskTool } from '../state/complete-task';
+import { listTodosTool } from '../state/list-todos';
+import { readScratchTool } from '../state/read-scratch';
+import { updateTodoTool } from '../state/update-todo';
+import { writeScratchTool } from '../state/write-scratch';
+import { writeTodosTool } from '../state/write-todos';
 import {
 	presentPlanTool,
 	requestApprovalTool,
