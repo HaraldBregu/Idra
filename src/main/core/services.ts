@@ -8,8 +8,6 @@ import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
 import type { HeartbeatService } from '../heartbeat';
 import type { LoggerService } from '../logger';
-import type { MonitorService } from '../monitor';
-import type { PowerSaveBlockerService } from '../power-save-blocker';
 import type { SkillsService } from '../skills';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../store';
@@ -31,8 +29,6 @@ export interface MainServices {
 	eventBus: EventBus;
 	heartbeat: HeartbeatService;
 	logger: LoggerService;
-	monitor: MonitorService;
-	powerSaveBlocker: PowerSaveBlockerService;
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
 	store: StoreService;

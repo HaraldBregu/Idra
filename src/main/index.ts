@@ -141,7 +141,6 @@ function setupMediaPermissionHandlers(
 import {
 	bootstrapServices,
 	bootstrapIpcModules,
-	restorePowerSaveBlocker,
 	setupAppLifecycle,
 	setupEventLogging,
 	setupProcessSafetyNet,
@@ -247,7 +246,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	restorePowerSaveBlocker(container);
 	setupMediaPermissionHandlers(container.get('appPermissions'));
 	menuManager.create();
 	trayManager.create();

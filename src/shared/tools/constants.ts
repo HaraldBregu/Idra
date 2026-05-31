@@ -487,17 +487,7 @@ const DEFAULT_WEB_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	}),
-	tool({
-		name: 'browser',
-		group: 'web',
-		title: 'Managed browser',
-		description: 'Control the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	}),
-] as const;
+	] as const;
 
 const DEFAULT_CRON_TOOLS = [
 	tool({
@@ -909,7 +899,6 @@ export const AGENT_TOOL_NAMES = [
 	'load_mcp_prompt',
 	'web_fetch',
 	'open_browser',
-	'browser',
 	'cron',
 ] as const satisfies readonly AgentDefaultToolName[];
 

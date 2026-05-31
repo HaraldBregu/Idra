@@ -62,7 +62,6 @@ import {
 } from '../mcp/tools';
 import { webFetchTool } from '../web/tools';
 import { openBrowserTool } from '../app/tools';
-import { browserTool } from '../../../browser';
 import { execTool, processTool } from '../exec/tools';
 import { cronTool } from '../cron/tools';
 import { taskTool } from '../task/tools';
@@ -147,7 +146,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	load_mcp_prompt: loadMcpPromptTool,
 	web_fetch: webFetchTool,
 	open_browser: openBrowserTool,
-	browser: browserTool,
 	cron: cronTool,
 } as const satisfies Record<(typeof AGENT_TOOL_NAMES)[number], LocalToolImplementation>;
 

@@ -61,7 +61,6 @@ import {
 } from '../mcp/tools';
 import { webFetchTool } from '../web/tools';
 import { openBrowserTool } from '../app/tools';
-import { browserTool } from '../../../browser';
 import { execTool, processTool } from '../exec/tools';
 import { cronTool } from '../cron/tools';
 import { taskTool } from '../task/tools';
@@ -125,7 +124,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	loadMcpPromptTool,
 	webFetchTool,
 	openBrowserTool,
-	browserTool,
 	execTool,
 	processTool,
 	cronTool,

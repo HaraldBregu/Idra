@@ -145,10 +145,9 @@ export class StoreIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
-		const agentSettings = container.get('agentSettings');
-		const connectors = container.get('connectors');
-		const logger = container.get('logger');
-		const powerSaveBlocker = container.get('powerSaveBlocker');
+			const agentSettings = container.get('agentSettings');
+			const connectors = container.get('connectors');
+			const logger = container.get('logger');
 
 		ipcMain.handle(
 			StoreChannels.getProviders,
@@ -191,13 +190,12 @@ export class StoreIpc implements IpcModule {
 			)
 		);
 
-		ipcMain.handle(
-			StoreChannels.setKeepAwakeEnabled,
-			wrapSimpleHandler((enabled: boolean): boolean => {
-				const nextEnabled = powerSaveBlocker.setEnabled(enabled);
-				return store.setKeepAwakeEnabled(nextEnabled).keepAwakeEnabled;
-			}, StoreChannels.setKeepAwakeEnabled)
-		);
+			ipcMain.handle(
+				StoreChannels.setKeepAwakeEnabled,
+				wrapSimpleHandler((enabled: boolean): boolean => {
+					return store.setKeepAwakeEnabled(enabled).keepAwakeEnabled;
+				}, StoreChannels.setKeepAwakeEnabled)
+			);
 
 		ipcMain.handle(
 			StoreChannels.getAssistantSettings,

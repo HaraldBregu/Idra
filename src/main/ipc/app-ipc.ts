@@ -141,7 +141,6 @@ export class AppIpc implements IpcModule {
 		const logger = container.get('logger');
 		const store = container.get('store');
 		const appPermissions = container.get('appPermissions');
-		const powerSaveBlocker = container.get('powerSaveBlocker');
 		const userDataDirectory = container.get('userDataDirectory');
 
 		// Language handler
@@ -227,10 +226,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.setKeepAwakeEnabled,
 			wrapSimpleHandler((enabled: boolean) => {
-				const nextEnabled = powerSaveBlocker.setEnabled(
-					requireBoolean(enabled, 'Keep awake enabled')
-				);
-				return store.setKeepAwakeEnabled(nextEnabled).keepAwakeEnabled;
+				return store.setKeepAwakeEnabled(requireBoolean(enabled, 'Keep awake enabled')).keepAwakeEnabled;
 			}, AppChannels.setKeepAwakeEnabled)
 		);
 

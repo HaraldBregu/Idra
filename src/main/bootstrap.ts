@@ -20,10 +20,8 @@ import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
-import { MonitorService } from './monitor';
 import { TasksService } from './tasks';
 import { UserDataDirectoryService } from './user-data';
-import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './agent/tools';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
@@ -38,7 +36,6 @@ import {
 	ConnectorsIpc,
 	CronIpc,
 	HeartbeatIpc,
-	MonitorIpc,
 	RealtimeTranscriptionIpc,
 	SpeechToTextIpc,
 	SkillsIpc,
@@ -71,8 +68,6 @@ export function bootstrapServices(): BootstrapResult {
 
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
-	const monitor = container.register('monitor', new MonitorService({ eventBus, logger }));
-	monitor.start();
 	container.register('appPermissions', new AppPermissionsService());
 
 	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
@@ -99,7 +94,6 @@ export function bootstrapServices(): BootstrapResult {
 	const store = container.register('store', new StoreService());
 	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
-	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
@@ -187,21 +181,6 @@ export function bootstrapServices(): BootstrapResult {
 	};
 }
 
-export function restorePowerSaveBlocker(container: MainServiceContainer): void {
-	const store = container.get('store');
-	if (!store.getKeepAwakeEnabled()) return;
-
-	const logger = container.get('logger');
-	const powerSaveBlocker = container.get('powerSaveBlocker');
-	try {
-		const enabled = powerSaveBlocker.setEnabled(true);
-		store.setKeepAwakeEnabled(enabled);
-	} catch (error) {
-		store.setKeepAwakeEnabled(false);
-		logger.error('PowerSaveBlocker', 'Failed to restore keep-awake setting', error);
-	}
-}
-
 export function bootstrapIpcModules(container: MainServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger');
 
@@ -212,7 +191,6 @@ export function bootstrapIpcModules(container: MainServiceContainer, eventBus: E
 		new ConnectorsIpc(),
 		new CronIpc(),
 		new HeartbeatIpc(),
-		new MonitorIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SpeechToTextIpc(),
 		new SkillsIpc(),
