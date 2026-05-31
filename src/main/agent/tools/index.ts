@@ -26,8 +26,6 @@ export {
 } from './create';
 export { createReadTool } from './files/runtime';
 export { editFileTool } from './files/edit-file';
-export { gitDiffTool } from './files/git_diff';
-export { gitStatusTool } from './files/git_status';
 export { grepTool } from './files/grep';
 export { listDirectoryTool } from './files/list_directory';
 export { readFileTool } from './files/read-file';

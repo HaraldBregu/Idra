@@ -10,8 +10,6 @@ import { applyPatchTool } from './apply-patch';
 import { copyTool } from './copy';
 import { deleteFileTool } from './delete-file';
 import { editFileTool } from './edit-file';
-import { gitDiffTool } from './git_diff';
-import { gitStatusTool } from './git_status';
 import { grepTool } from './grep';
 import { inspectFileTool } from './inspect-file';
 import { listDirectoryTool } from './list_directory';
@@ -79,8 +77,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	copyTool,
 	moveTool,
 	inspectFileTool,
-	gitStatusTool,
-	gitDiffTool,
 	undoLastOperationTool,
 	writeTodosTool,
 	updateTodoTool,

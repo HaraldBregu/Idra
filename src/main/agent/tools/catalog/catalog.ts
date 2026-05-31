@@ -11,8 +11,6 @@ import { applyPatchTool } from '../files/apply-patch';
 import { copyTool } from '../files/copy';
 import { deleteFileTool } from '../files/delete-file';
 import { editFileTool } from '../files/edit-file';
-import { gitDiffTool } from '../files/git_diff';
-import { gitStatusTool } from '../files/git_status';
 import { grepTool } from '../files/grep';
 import { inspectFileTool } from '../files/inspect-file';
 import { listDirectoryTool } from '../files/list_directory';
@@ -100,8 +98,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	inspect_file: inspectFileTool,
 	exec: execTool,
 	process: processTool,
-	git_status: gitStatusTool,
-	git_diff: gitDiffTool,
 	undo_last_operation: undoLastOperationTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
