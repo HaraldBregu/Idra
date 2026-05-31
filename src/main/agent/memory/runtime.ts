@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { TranscriptEntry } from '../provider/types';
-import { acquireWriteLock } from '../legacy-session/lock';
-import { listSessions, type SessionFile } from '../legacy-session/store';
+import { acquireWriteLock } from '../session/lock';
+import { listSessions, type SessionFile } from '../session/store';
 
 export type MemorySource = 'memory' | 'sessions';
 export type MemoryCorpus = 'memory' | 'wiki' | 'all' | 'sessions';
