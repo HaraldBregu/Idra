@@ -6,6 +6,7 @@ import {
 	createAgentContext,
 	createReadFileTool,
 	createWriteFileTool,
+	QueryEngine,
 	query,
 	runToolUse,
 	type ModelClient,
@@ -13,6 +14,30 @@ import {
 } from '../../../../src/main/agent/runtime';
 
 describe('layered agent runtime', () => {
+	it('exposes QueryEngine as the runtime entrypoint facade', async () => {
+		const model: ModelClient = {
+			async *stream() {
+				yield { type: 'text_delta', text: 'ready' };
+				yield { type: 'message_end' };
+			},
+		};
+		const context = createAgentContext({ tools: [] });
+		const engine = new QueryEngine(model);
+		const events = [];
+
+		for await (const event of engine.run({
+			context,
+			messages: [{ role: 'user', content: 'hello' }],
+			systemPrompt: 'system',
+		})) {
+			events.push(event);
+		}
+
+		expect(events).toEqual([
+			{ type: 'assistant_message', message: { role: 'assistant', content: 'ready', toolCalls: [] } },
+		]);
+	});
+
 	it('continues the model loop after tool results', async () => {
 		const lookup: Tool<{ q: string }, string> = {
 			name: 'Lookup',
