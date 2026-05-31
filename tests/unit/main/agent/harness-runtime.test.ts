@@ -132,4 +132,125 @@ describe('createAgentHarness', () => {
 		expect(child.session.parentSessionId).toBe('main');
 		expect(child.session.id).not.toBe('main');
 	});
+
+	it('runs semantic validation before permission checks and tool side effects', async () => {
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'should not run' }],
+		}));
+		const checkPermissions = jest.fn();
+		const harness = await createAgentHarness({
+			modelId: 'gpt-test',
+			model: {
+				async *stream() {
+					yield { type: 'tool_call_start' as const, id: 'tc1', name: 'write_record' };
+					yield { type: 'tool_call_args_delta' as const, id: 'tc1', jsonDelta: '{"value":""}' };
+					yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+				},
+			},
+			tools: [
+				{
+					name: 'write_record',
+					description: 'Write a record',
+					schema: { type: 'object', properties: { value: { type: 'string' } } },
+					validateInput: jest.fn(() => ({ ok: false as const, message: 'value is required' })),
+					checkPermissions,
+					execute,
+				},
+			],
+		});
+
+		const result = await harness.execute({ task: 'write', sessionId: 'validation' });
+
+		expect(result.session.transcript[2]).toMatchObject({
+			role: 'tool',
+			status: 'error',
+			content: [{ type: 'text', text: 'value is required' }],
+		});
+		expect(checkPermissions).not.toHaveBeenCalled();
+		expect(execute).not.toHaveBeenCalled();
+	});
+
+	it('denies tool-specific permission decisions before execution', async () => {
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'should not run' }],
+		}));
+		const harness = await createAgentHarness({
+			modelId: 'gpt-test',
+			model: {
+				async *stream() {
+					yield { type: 'tool_call_start' as const, id: 'tc1', name: 'send_email' };
+					yield { type: 'tool_call_args_delta' as const, id: 'tc1', jsonDelta: '{"to":"user@example.com"}' };
+					yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+				},
+			},
+			tools: [
+				{
+					name: 'send_email',
+					description: 'Send email',
+					schema: { type: 'object', properties: { to: { type: 'string' } } },
+					checkPermissions: jest.fn(() => ({ behavior: 'deny' as const, message: 'external email disabled' })),
+					execute,
+				},
+			],
+		});
+
+		const result = await harness.execute({ task: 'email', sessionId: 'permission-deny' });
+
+		expect(result.session.transcript[2]).toMatchObject({
+			role: 'tool',
+			status: 'rejected',
+			content: [{ type: 'text', text: 'external email disabled' }],
+		});
+		expect(execute).not.toHaveBeenCalled();
+	});
+
+	it('supports ask permission decisions with rewritten tool input', async () => {
+		const approval = jest.fn(async () => ({
+			approved: true,
+			updatedArgs: { path: 'approved.txt' },
+		}));
+		const execute = jest.fn(async () => ({
+			status: 'ok' as const,
+			content: [{ type: 'text' as const, text: 'written' }],
+		}));
+		const harness = await createAgentHarness({
+			modelId: 'gpt-test',
+			model: {
+				async *stream(req) {
+					if (!req.messages.some((entry) => entry.role === 'tool')) {
+						yield { type: 'tool_call_start' as const, id: 'tc1', name: 'write_file' };
+						yield { type: 'tool_call_args_delta' as const, id: 'tc1', jsonDelta: '{"path":"draft.txt"}' };
+						yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+						return;
+					}
+					yield { type: 'text_delta' as const, text: 'done' };
+					yield { type: 'message_end' as const, stopReason: 'end_turn', usage: { inputTokens: 1, outputTokens: 1 } };
+				},
+			},
+			approvals: { checkpoint: approval },
+			tools: [
+				{
+					name: 'write_file',
+					description: 'Write file',
+					schema: { type: 'object', properties: { path: { type: 'string' } } },
+					checkPermissions: jest.fn(() => ({
+						behavior: 'ask' as const,
+						message: 'approve file write',
+						input: { path: 'reviewed.txt' },
+					})),
+					execute,
+				},
+			],
+		});
+
+		await harness.execute({ task: 'write', sessionId: 'permission-ask' });
+
+		expect(approval).toHaveBeenCalledWith(expect.objectContaining({
+			args: { path: 'reviewed.txt' },
+			reason: 'approve file write',
+		}));
+		expect(execute).toHaveBeenCalledWith({ path: 'approved.txt' }, expect.any(Object));
+	});
 });
