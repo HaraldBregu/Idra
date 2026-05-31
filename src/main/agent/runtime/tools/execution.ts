@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import type { AgentContext } from '../agent/AgentContext';
+import type { AgentContext } from '../agent/agent-context';
 import type { Message, ToolCall } from '../agent/messages';
 import { resolvePermission } from '../permissions/permissions';
-import type { ToolResult } from './Tool';
+import type { ToolResult } from './tool';
 
 export async function runToolUse(toolCall: ToolCall, context: AgentContext): Promise<Message> {
 	const tool = context.tools.find((entry) => entry.name === toolCall.name);

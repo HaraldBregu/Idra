@@ -1,2 +1,2 @@
-export { createReadFileTool, filePathSchema } from './FileReadTool';
-export { createWriteFileTool } from './FileWriteTool';
+export { createReadFileTool, filePathSchema } from './file-read-tool';
+export { createWriteFileTool } from './file-write-tool';

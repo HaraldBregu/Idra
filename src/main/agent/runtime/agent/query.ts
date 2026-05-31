@@ -1,6 +1,6 @@
-import type { ModelClient, ModelToolSchema } from '../model/ModelClient';
+import type { ModelClient, ModelToolSchema } from '../model/model-client';
 import { runToolUse } from '../tools/execution';
-import type { AgentContext } from './AgentContext';
+import type { AgentContext } from './agent-context';
 import type { Message, ToolCall } from './messages';
 
 export type QueryParams = {

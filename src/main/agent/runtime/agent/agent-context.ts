@@ -1,8 +1,8 @@
-import type { MemoryStore } from '../memory/MemoryStore';
-import type { PermissionContext } from '../permissions/PermissionContext';
+import type { MemoryStore } from '../memory/memory-store';
+import type { PermissionContext } from '../permissions/permission-context';
 import type { Logger } from '../telemetry/logger';
 import type { Metrics } from '../telemetry/metrics';
-import type { Tool } from '../tools/Tool';
+import type { Tool } from '../tools/tool';
 import type { Message } from './messages';
 import type { AppState } from './state';
 

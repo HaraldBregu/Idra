@@ -1,6 +1,6 @@
-import type { AgentContext } from '../agent/AgentContext';
-import type { Tool } from '../tools/Tool';
-import type { PermissionDecision } from './PermissionContext';
+import type { AgentContext } from '../agent/agent-context';
+import type { Tool } from '../tools/tool';
+import type { PermissionDecision } from './permission-context';
 
 export async function resolvePermission<Input>(
 	tool: Tool<Input, unknown>,

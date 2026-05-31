@@ -1,6 +1,6 @@
 import type { ZodSchema } from 'zod';
-import type { AgentContext } from '../agent/AgentContext';
-import type { PermissionDecision } from '../permissions/PermissionContext';
+import type { AgentContext } from '../agent/agent-context';
+import type { PermissionDecision } from '../permissions/permission-context';
 
 export type ToolProgress = {
 	message: string;
