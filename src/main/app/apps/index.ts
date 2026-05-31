@@ -1,1 +1,0 @@
-export { AppsService } from './service';
