@@ -33,7 +33,6 @@ const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> & Record<string, str
 	open_browser: "Open an http/https URL in the user's default browser.",
 	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
 	read_file: 'Read a file before editing or overwriting it.',
-	write: 'Create or overwrite files. Read existing files first.',
 	edit_file: 'Surgical string-replacement edit. Provide enough context to make the old text unique.',
 	search_files: 'Glob-search the workspace for files.',
 	run_shell: 'Run shell commands only when necessary and within the available permission model.',
