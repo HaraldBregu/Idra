@@ -130,9 +130,9 @@ async function compactWithAgentHarness(params: {
 	const result = await maybeCompactAgentHarnessSession({
 		sessionId: params.sessionId,
 		sessionKey: options.sessionKey,
-		provider: options.providerId,
+		provider: options.providerId ?? '',
 		modelId: params.model,
-		requestedRuntime: options.requestedRuntime,
+		requestedRuntime: options.requestedRuntime ?? options.storedRuntime ?? '',
 		storedRuntime: options.storedRuntime,
 		transcript: params.transcript,
 	});

@@ -6,6 +6,7 @@ import type { ToolPolicyServicePort } from '../tool-types';
 import type { StoreService } from '../../store';
 import type { TasksService } from '../../tasks';
 import type { SkillsService } from '../../skills';
+import type { AgentStartupFilesServicePort } from '../../agent/workspace/startup-files';
 import type { UserDataDirectoryServicePort } from '../../user-data';
 import type { WorkspaceService } from '../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../provider/types';
@@ -22,6 +23,7 @@ export interface FridayServices {
 	logger: LoggerService;
 	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
+	startupFiles?: AgentStartupFilesServicePort;
 	cron?: CronService;
 	policy?: ToolPolicyServicePort;
 	taskManager?: TasksService;
@@ -29,11 +31,13 @@ export interface FridayServices {
 	skills?: SkillsService;
 }
 
-export type CronToolContext =
-	| { role: 'owner'; agentId?: string }
-	| { role: 'subagent'; agentId?: string }
-	| { role: 'http'; userId?: string }
-	| { role: 'cron-self'; jobId?: string; agentId?: string; sessionKey?: string | null };
+export type CronToolContext = {
+	role: 'owner' | 'subagent' | 'http' | 'cron-self';
+	agentId?: string;
+	userId?: string;
+	jobId?: string;
+	sessionKey?: string | null;
+};
 
 export interface ToolContext {
 	/** Workspace root (absolute path). */
@@ -58,8 +62,8 @@ export interface ToolContext {
 	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	/** Abort signal for the current tool call or agent run. */
 	signal?: AbortSignal;
-	approvalRequired?: Set<string>;
-	approvalCache?: Set<string>;
+	approvalRequired: Set<string>;
+	approvalCache: Set<string>;
 	/** Friday-side services (store, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }
