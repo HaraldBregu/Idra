@@ -48,7 +48,7 @@ export {
 export { execTool, processTool } from './exec/tools';
 export { cronTool } from './cron/tools';
 export { taskTool } from './task/tools';
-export { createStartupFilesTool } from './startup/startup-files';
+export { createStartupFilesTool } from './startup';
 export {
 	presentPlanTool,
 	requestApprovalTool,
