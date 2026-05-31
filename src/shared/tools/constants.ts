@@ -116,7 +116,9 @@ export const AGENT_TOOL_NAMES = [
 	'cron',
 ] as const satisfies readonly AgentDefaultToolName[];
 
-export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map((tool) => tool.name) as readonly AgentToolName[];
+export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
+	(tool) => tool.name
+) as readonly AgentToolName[];
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'edit_file',
