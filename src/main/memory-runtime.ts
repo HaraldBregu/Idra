@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { TranscriptEntry } from './provider/types';
+import type { TranscriptEntry } from './agent/provider/types';
 import { acquireWriteLock } from './session/lock';
 import { listSessions, type SessionFile } from './session/store';
 
