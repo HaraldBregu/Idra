@@ -43,7 +43,7 @@ import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
 import { loadMcpToolTool } from '../mcp/load-mcp-tool';
 import { readMcpResourceTool } from '../mcp/read-mcp-resource';
 import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
-import { openBrowserTool, taskTool, webFetchTool } from '../app';
+import { openBrowserTool, startTaskTool, webFetchTool } from '../app';
 import { execTool, processTool } from '../exec';
 import { cronTool } from '../cron';
 
@@ -78,7 +78,7 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	updateTodoTool,
 	listTodosTool,
 	completeTaskTool,
-	taskTool,
+	startTaskTool,
 	writeScratchTool,
 	readScratchTool,
 	requestApprovalTool,

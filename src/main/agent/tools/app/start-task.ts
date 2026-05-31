@@ -65,8 +65,8 @@ function taskRecordResult(task: TaskRecord): AgentToolResult<TaskRecord> {
 	};
 }
 
-export const taskTool: AgentTool<TaskToolArgs> = {
-	name: 'task',
+export const startTaskTool: AgentTool<TaskToolArgs> = {
+	name: 'start_task',
 	displaySummary: 'Start an immediate background task.',
 	description:
 		'Start an immediate in-memory agent background task. Use this tool when the user asks to run agent work in the background now. It creates one task record and returns that record; it does not schedule future work, run shell background processes, or emulate timers. Use cron for future, delayed, or recurring jobs, and use exec/process only for shell commands.',
@@ -96,13 +96,13 @@ export const taskTool: AgentTool<TaskToolArgs> = {
 	needsApproval: true,
 	async execute(args, ctx) {
 		const taskManager = ctx.services.taskManager;
-		if (!taskManager) return textResult('task: TasksService is not available.', true);
+		if (!taskManager) return textResult('start_task: TasksService is not available.', true);
 
 		try {
 			const task = taskManager.startUserTask(taskRequest(args));
 			return taskRecordResult(task);
 		} catch (error) {
-			return textResult(`task: ${error instanceof Error ? error.message : String(error)}`, true);
+			return textResult(`start_task: ${error instanceof Error ? error.message : String(error)}`, true);
 		}
 	},
 };

@@ -40,7 +40,7 @@ export { writeScratchTool } from './state/write-scratch';
 export { writeTodosTool } from './state/write-todos';
 export { execTool, processTool } from './exec';
 export { cronTool } from './cron';
-export { taskTool, webFetchTool } from './app';
+export { startTaskTool, webFetchTool } from './app';
 export { createStartupFilesTool } from './startup';
 export { presentPlanTool } from './human/present-plan';
 export { requestApprovalTool } from './human/request-approval';

@@ -1,3 +1,3 @@
 export { openBrowserTool } from './open-browser';
-export { taskTool } from './task';
+export { startTaskTool } from './start-task';
 export { webFetchTool } from './web-fetch';
