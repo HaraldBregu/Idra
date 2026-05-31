@@ -99,7 +99,7 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	write: writeTool,
 	edit: editTool,
 	apply_patch: applyPatchTool,
-	delete: deleteTool,
+	delete_file: deleteTool,
 	copy: copyTool,
 	move: moveTool,
 	inspect_file: inspectFileTool,

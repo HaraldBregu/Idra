@@ -569,7 +569,7 @@ describe('tool management layer', () => {
 			[
 				makeAgentTool('read', 'Read files before moving or deleting them.'),
 				makeAgentTool('move', 'Move or rename one file from source to destination.'),
-				makeAgentTool('delete', 'Delete a file.'),
+				makeAgentTool('delete_file', 'Delete a file.'),
 				makeAgentTool('copy', 'Copy a file.'),
 				makeAgentTool('find', 'Find files.'),
 			],

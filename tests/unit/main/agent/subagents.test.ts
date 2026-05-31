@@ -35,7 +35,7 @@ describe('subagent orchestration', () => {
 				main: {
 					id: 'main',
 					subagents: { maxSpawnDepth: 2, runTimeoutSeconds: 30 },
-					tools: { deny: ['delete'] },
+					tools: { deny: ['delete_file'] },
 				},
 			},
 			loadParentMetadata: jest.fn(async () => ({
@@ -81,7 +81,7 @@ describe('subagent orchestration', () => {
 					runId: 'run-1',
 					providerId: 'openai',
 					modelId: 'gpt-test',
-					toolsDeny: ['exec', 'delete'],
+					toolsDeny: ['exec', 'delete_file'],
 					runTimeoutSeconds: 30,
 					sessionMetadata: expect.objectContaining({
 						spawnDepth: 1,

@@ -9,7 +9,7 @@ interface DeleteArgs {
 }
 
 export const deleteTool: AgentTool<DeleteArgs> = {
-	name: 'delete',
+	name: 'delete_file',
 	description:
 		'Delete a file. Files must be read earlier in this run before deletion. Directories require recursive=true and cannot target root paths.',
 	schema: {
@@ -23,31 +23,31 @@ export const deleteTool: AgentTool<DeleteArgs> = {
 	},
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
-			return textResult('delete: disabled by read-only filesystem policy.', true);
+			return textResult('delete_file: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
-			return textResult(`delete: ${(err as Error).message}`, true);
+			return textResult(`delete_file: ${(err as Error).message}`, true);
 		}
 		const guard = guardedRootMessage(ctx.workspace, abs);
-		if (guard) return textResult(`delete: ${guard}.`, true);
+		if (guard) return textResult(`delete_file: ${guard}.`, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (stat.isDirectory()) {
 				if (!args.recursive)
-					return textResult('delete: recursive=true is required for directories.', true);
+					return textResult('delete_file: recursive=true is required for directories.', true);
 				await fs.rm(abs, { recursive: true });
 				return textResult(`deleted directory ${abs}`);
 			}
-			if (!stat.isFile()) return textResult(`delete: unsupported file type: ${args.path}`, true);
-			const blocked = requireReadSnapshot(ctx, abs, stat, args.path, 'delete');
+			if (!stat.isFile()) return textResult(`delete_file: unsupported file type: ${args.path}`, true);
+			const blocked = requireReadSnapshot(ctx, abs, stat, args.path, 'delete_file');
 			if (blocked) return textResult(blocked, true);
 			await fs.rm(abs);
 			ctx.readState.delete(abs);
 			return textResult(`deleted ${abs}`);
 		} catch (err) {
-			return textResult(`delete: ${(err as Error).message}`, true);
+			return textResult(`delete_file: ${(err as Error).message}`, true);
 		}
 	},
 };

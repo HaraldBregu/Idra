@@ -816,7 +816,7 @@ describe('AgentService', () => {
 				makeAgentTool('read_file', 'Read files'),
 				makeAgentTool('write_file', 'Write files'),
 				makeAgentTool('find', 'Find files'),
-				makeAgentTool('delete', 'Delete files'),
+				makeAgentTool('delete_file', 'Delete files'),
 			],
 		});
 
