@@ -11,7 +11,7 @@ The agent first evaluates the user message with a tool-use policy.
 - Tool inventory questions expose the available tool surface so the model can
   answer from the current registry.
 - URLs, current information, private account data, workspace files, codebase
-  work, shell execution, tests, builds, debugging, mutation, browser actions,
+  work, shell execution, tests, builds, debugging, mutation, opening browser URLs,
   email, calendar, Drive, cron jobs, and similar external or mutable work
   require tools.
 - Creative writing, rewriting, translation, summarization, and brainstorming
@@ -50,7 +50,6 @@ policy, ranking, and run context before it is exposed to the provider.
 | `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
 | `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs. |
 | `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
-| `browser` | Controls the managed browser: lifecycle, tabs, navigation, snapshots, screenshots, and element actions. |
 
 `cron_add`, `cron_list`, and `cron_remove` exist as legacy helper exports, but
 they are not part of the current default local tool registry exposed by

@@ -74,7 +74,6 @@ type OperatorDefinitionKey =
 	| 'videoCreator'
 	| 'musicCreator';
 type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
-type KeepAwakeSettings = { readonly keepAwakeEnabled: boolean };
 
 const MODEL_MODULE_ROOT_KEYS = {
 	assistant: 'llmAgent',
@@ -307,7 +306,6 @@ function configuredModelOperator(
 
 export class StoreService {
 	private store: SettingsStoreAccessor;
-	private keepAwakeEnabled = false;
 
 	constructor() {
 		this.store = new Store<StoreSchema>({
@@ -325,15 +323,6 @@ export class StoreService {
 
 	getProviders(): Provider[] {
 		return this.getStoredModelProviders();
-	}
-
-	getKeepAwakeEnabled(): boolean {
-		return this.keepAwakeEnabled;
-	}
-
-	setKeepAwakeEnabled(enabled: boolean): KeepAwakeSettings {
-		this.keepAwakeEnabled = enabled;
-		return { keepAwakeEnabled: enabled };
 	}
 
 	addProvider(input: Provider): Provider {
