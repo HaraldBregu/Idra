@@ -689,81 +689,8 @@ const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-	}),
-		tool({
-			name: 'filesystem_list',
-		group: 'coreWorkspace',
-		title: 'Filesystem list',
-		description: 'List directory entries through the legacy filesystem API.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	}),
-] as const;
-
-const ALIAS_CORE_WORKSPACE_TOOLS = [
-	tool({
-		name: 'filesystem_read',
-		group: 'coreWorkspace',
-		title: 'Filesystem read',
-		description: 'Alias for the legacy read tool.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'alias',
-	}),
-	tool({
-		name: 'filesystem_update',
-		group: 'coreWorkspace',
-		title: 'Filesystem update',
-		description: 'Alias for the legacy write tool.',
-		permissions: ['create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'alias',
-	}),
-	tool({
-		name: 'filesystem_delete',
-		group: 'coreWorkspace',
-		title: 'Filesystem delete',
-		description: 'Alias for the legacy delete tool.',
-		permissions: ['delete'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'alias',
-	}),
-	tool({
-		name: 'filesystem_move',
-		group: 'coreWorkspace',
-		title: 'Filesystem move',
-		description: 'Alias for the legacy move tool.',
-		permissions: ['read', 'delete', 'create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'alias',
-	}),
-	tool({
-		name: 'filesystem_copy',
-		group: 'coreWorkspace',
-		title: 'Filesystem copy',
-		description: 'Alias for the legacy copy tool.',
-		permissions: ['read', 'create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'alias',
-	}),
-	tool({
-		name: 'filesystem_search',
-		group: 'coreWorkspace',
-		title: 'Filesystem search',
-		description: 'Alias for the legacy find tool.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'alias',
-	}),
-] as const;
+		}),
+	] as const;
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
 	coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
@@ -777,12 +704,8 @@ export const AGENT_DEFAULT_TOOL_GROUPS = {
 	cron: DEFAULT_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
-export const AGENT_TOOL_GROUPS = {
-	coreWorkspace: [
-		...DEFAULT_CORE_WORKSPACE_TOOLS,
-		...LEGACY_CORE_WORKSPACE_TOOLS,
-		...ALIAS_CORE_WORKSPACE_TOOLS,
-	],
+	export const AGENT_TOOL_GROUPS = {
+		coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
 	stateTask: DEFAULT_STATE_TASK_TOOLS,
 	humanDecision: DEFAULT_HUMAN_DECISION_TOOLS,
 	subagent: DEFAULT_SUBAGENT_TOOLS,
@@ -840,7 +763,6 @@ export const AGENT_TOOL_NAMES = [
 	'find',
 	'exec',
 	'process',
-	'filesystem_list',
 	'write_todos',
 	'update_todo',
 	'list_todos',
@@ -897,20 +819,12 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'delete',
 	'copy',
 	'move',
-	'filesystem_update',
-	'filesystem_delete',
-	'filesystem_move',
-	'filesystem_copy',
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
 	read: ['read_file'],
 	edit: ['edit_file'],
 	find: ['search_files'],
-	filesystem_read: ['read_file'],
-	filesystem_update: ['write'],
-	filesystem_list: ['list_directory'],
-	filesystem_search: ['search_files'],
 	script_run: ['run_shell'],
 	sessions_spawn: ['spawn_subagent'],
 } as const satisfies Record<string, readonly AgentDefaultToolName[]>;

@@ -11,7 +11,6 @@ import { copyTool } from './copy';
 import { deleteTool } from './delete';
 import { editTool } from './edit';
 import { editFileTool } from './edit_file';
-import { filesystemListTool } from './filesystem-list';
 import { findTool } from './find';
 import { gitDiffTool } from './git_diff';
 import { gitStatusTool } from './git_status';
@@ -86,7 +85,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	moveTool,
 	inspectFileTool,
 	findTool,
-	filesystemListTool,
 	gitStatusTool,
 	gitDiffTool,
 	undoLastOperationTool,

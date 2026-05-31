@@ -12,7 +12,6 @@ import { copyTool } from '../files/copy';
 import { deleteTool } from '../files/delete';
 import { editTool } from '../files/edit';
 import { editFileTool } from '../files/edit_file';
-import { filesystemListTool } from '../files/filesystem-list';
 import { findTool } from '../files/find';
 import { gitDiffTool } from '../files/git_diff';
 import { gitStatusTool } from '../files/git_status';
@@ -107,7 +106,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	find: findTool,
 	exec: execTool,
 	process: processTool,
-	filesystem_list: filesystemListTool,
 	git_status: gitStatusTool,
 	git_diff: gitDiffTool,
 	undo_last_operation: undoLastOperationTool,
