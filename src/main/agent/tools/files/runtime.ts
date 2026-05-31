@@ -45,11 +45,9 @@ import {
 	readMcpResourceTool,
 	refreshMcpServerTool,
 } from '../mcp/tools';
-import { webFetchTool } from '../web/tools';
-import { openBrowserTool } from '../app';
+import { openBrowserTool, taskTool, webFetchTool } from '../app';
 import { execTool, processTool } from '../exec';
 import { cronTool } from '../cron';
-import { taskTool } from '../task/tools';
 
 export type FileToolOptions = {
 	workspaceDir: string;
