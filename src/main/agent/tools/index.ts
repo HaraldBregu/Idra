@@ -48,7 +48,7 @@ export {
 	requestAuthorizationTool,
 	requestClarificationTool,
 } from './human/tools';
-export { spawnSubagentTool } from './subagent/tools';
+export { spawnSubagentTool } from './subagent/spawn-subagent';
 export { listSkillsTool, loadSkillTool, useSkillTool } from './skills/tools';
 export {
 	callMcpToolTool,

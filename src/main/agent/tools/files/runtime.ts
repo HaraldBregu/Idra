@@ -31,7 +31,7 @@ import {
 	requestAuthorizationTool,
 	requestClarificationTool,
 } from '../human/tools';
-import { spawnSubagentTool } from '../subagent/tools';
+import { spawnSubagentTool } from '../subagent/spawn-subagent';
 import { listSkillsTool, loadSkillTool, useSkillTool } from '../skills/tools';
 import {
 	callMcpToolTool,
