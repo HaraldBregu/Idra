@@ -83,6 +83,7 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 	if (intent === 'drive' && hasAny(toolTokens, ['drive', 'file', 'files', 'document', 'documents'])) score += 50;
 	if (intent === 'web' && hasAny(toolTokens, ['web', 'fetch', 'weather', 'current', 'latest'])) score += 50;
 	if (intent === 'run_shell' && hasAny(toolTokens, ['shell', 'script', 'command', 'python', 'node', 'bash', 'execute', 'run', 'terminal'])) score += 80;
+	if (intent === 'subagent' && hasAny(toolTokens, ['spawn', 'subagent', 'child', 'delegate'])) score += 90;
 	if (intent === 'file_read' && hasAny(toolTokens, ['read', 'find', 'grep', 'list', 'search'])) score += 40;
 	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'create', 'save', 'update'])) score += 40;
 	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
@@ -101,6 +102,7 @@ type ToolIntent =
 	| 'drive'
 	| 'web'
 	| 'run_shell'
+	| 'subagent'
 	| 'file_read'
 	| 'file_write'
 	| 'file_move';
@@ -113,6 +115,7 @@ function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolInte
 	if (/\b(calendar|agenda|meeting|event|events)\b/.test(normalized)) return 'calendar';
 	if (/\b(google drive|drive|document|documents)\b/.test(normalized)) return 'drive';
 	if (/\b(weather|latest|current|web|url|http|fetch)\b/.test(normalized)) return 'web';
+	if (/\b(subagent|subagents|child agent|delegate|delegation|sessions spawn|sessions_spawn|spawn_subagent)\b/.test(normalized)) return 'subagent';
 	if (/\b(shell|script|scripts|python|node|bash|terminal|command)\b/.test(normalized) && hasAny(tokens, ['run', 'execute', 'start', 'open'])) return 'run_shell';
 	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
 	if (fileContext && hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])) return 'file_write';
