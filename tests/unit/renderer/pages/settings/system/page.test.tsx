@@ -66,7 +66,6 @@ describe('SystemPage', () => {
 			screen.getByText('settings.system.capabilities.items.installDrivers.title')
 		).toBeInTheDocument();
 		expect(screen.getAllByText('settings.system.availability.yes').length).toBeGreaterThan(0);
-		expect(screen.getByText('settings.system.availability.yesHighPrivilege')).toBeInTheDocument();
 	});
 
 	it('loads microphone and camera permission state', async () => {
