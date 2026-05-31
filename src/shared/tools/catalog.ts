@@ -538,25 +538,4 @@ export const LEGACY_CORE_WORKSPACE_TOOLS = [
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
 	},
-	{
-		name: 'exec',
-		group: 'coreWorkspace',
-		title: 'Exec',
-		description:
-			'Run a shell command in the workspace with capped output and optional background mode.',
-		permissions: ['read', 'write', 'execute'],
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	},
-	{
-		name: 'process',
-		group: 'coreWorkspace',
-		title: 'Process',
-		description: 'List, inspect logs for, or kill background processes started by exec.',
-		permissions: ['execute'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	},
 ] as const satisfies readonly AgentToolMetadata[];
