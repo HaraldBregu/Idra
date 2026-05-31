@@ -132,7 +132,6 @@ async function compactWithAgentHarness(params: {
 		provider: options.providerId ?? '',
 		modelId: params.model,
 		requestedRuntime: options.requestedRuntime ?? options.storedRuntime ?? '',
-		transcript: params.transcript,
 	});
 
 	if (isNativeCompactionResult(result)) {
