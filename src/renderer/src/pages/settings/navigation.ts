@@ -9,7 +9,6 @@ import {
 	MonitorCog,
 	Music,
 	Plug,
-	Radar,
 	RadioTower,
 	Server,
 	Sparkles,
