@@ -5,7 +5,7 @@ import {
 	TELEGRAM_HEALTH_CHECK_INTERVAL_MS,
 	TELEGRAM_RECONNECT_INITIAL_DELAY_MS,
 	TELEGRAM_RECONNECT_MAX_DELAY_MS,
-} from './config';
+} from './constants';
 import type { TelegramAdapterOptions } from './types';
 import type {
 	ChannelAdapter,

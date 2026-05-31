@@ -1,7 +1,7 @@
 import type { ChannelRegistry } from '../../channels';
 import type { EventBus } from '../../core/event-bus';
 import type { LoggerService } from '../../logger';
-import type { AgentSendOptions, AgentService } from '../../service';
+import type { AgentSendOptions, AgentService } from '../../agent';
 import type { HeartbeatService } from '../../heartbeat';
 import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
 import type { HeartbeatWakeOverride } from '../../../shared/heartbeat';
