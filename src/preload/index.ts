@@ -45,6 +45,8 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
@@ -431,7 +433,15 @@ export const speechToText: SpeechToTextApi = {
 };
 
 export const cron: CronApi = {
+	action: async (_request: FridayCronToolRequest): Promise<FridayCronToolResponse> => ({
+		status: 'error',
+		enabled: false,
+		error: 'Friday cron action IPC is unavailable.',
+	}),
 	list: (): Promise<CronTaskView[]> => {
+		return typedInvokeUnwrap(CronChannels.list);
+	},
+	listJobs: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
 	},
 	add: <TData extends CronTaskData>(
@@ -444,6 +454,9 @@ export const cron: CronApi = {
 		>;
 	},
 	remove: (id: string): Promise<void> => {
+		return typedInvokeUnwrap(CronChannels.remove, id);
+	},
+	removeJob: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
 	},
 	createSchedule: (request: CronScheduleCreateRequest): Promise<CronSchedule> => {
@@ -783,6 +796,9 @@ export const connectors: ConnectorsApi = {
 		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
 	},
 	authorizeOAuth: (connectorId: string): Promise<ConnectorOAuthAuthorizeResult> => {
+		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, { connectorId });
+	},
+	connectOAuth: (connectorId: string): Promise<ConnectorOAuthAuthorizeResult> => {
 		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, { connectorId });
 	},
 };

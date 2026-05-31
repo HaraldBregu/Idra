@@ -28,13 +28,16 @@ export interface AgentApi {
 }
 
 export interface CronApi {
+	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
 	list: () => Promise<CronTaskView[]>;
+	listJobs: () => Promise<CronTaskView[]>;
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
 		options?: { id?: string; timezone?: string }
 	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
+	removeJob: (id: string) => Promise<void>;
 	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
 	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest) => Promise<CronSchedule>;
 	pauseSchedule: (scheduleId: string) => Promise<void>;
@@ -124,6 +127,7 @@ export interface ConnectorsApi {
 		options?: ConnectorCallToolOptions
 	) => Promise<unknown>;
 	authorizeOAuth: (connectorId: string) => Promise<ConnectorOAuthAuthorizeResult>;
+	connectOAuth: (connectorId: string) => Promise<ConnectorOAuthAuthorizeResult>;
 }
 
 export interface SkillsApi {
@@ -183,6 +187,8 @@ import type {
 	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
+	FridayCronToolRequest,
+	FridayCronToolResponse,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
