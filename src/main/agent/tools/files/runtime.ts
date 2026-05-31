@@ -60,7 +60,7 @@ import {
 	refreshMcpServerTool,
 } from '../mcp/tools';
 import { webFetchTool } from '../web/tools';
-import { openBrowserTool } from '../app/tools';
+import { openBrowserTool } from '../app';
 import { execTool, processTool } from '../exec/tools';
 import { cronTool } from '../cron/tools';
 import { taskTool } from '../task/tools';
