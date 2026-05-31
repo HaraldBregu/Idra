@@ -25,17 +25,15 @@ export {
 	type ToolConstructionPlan,
 } from './create';
 export { createReadTool } from './files/runtime';
-export {
-	editFileTool,
-	gitDiffTool,
-	gitStatusTool,
-	grepTool,
-	listDirectoryTool,
-	readFileTool,
-	runShellTool,
-	searchFilesTool,
-	undoLastOperationTool,
-} from './files/tools';
+export { editFileTool } from './files/edit_file';
+export { gitDiffTool } from './files/git_diff';
+export { gitStatusTool } from './files/git_status';
+export { grepTool } from './files/grep';
+export { listDirectoryTool } from './files/list_directory';
+export { readFileTool } from './files/read_file';
+export { runShellTool } from './files/run_shell';
+export { searchFilesTool } from './files/search_files';
+export { undoLastOperationTool } from './files/undo_last_operation';
 export {
 	completeTaskTool,
 	listTodosTool,

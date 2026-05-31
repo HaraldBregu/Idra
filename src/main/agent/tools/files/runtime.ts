@@ -8,25 +8,25 @@ import type {
 import { legacyToolToCanonical } from '../runtime/bridge';
 import {
 	applyPatchTool,
-	copyTool,
-	deleteTool,
-	editTool,
-	editFileTool,
-	filesystemListTool,
-	findTool,
-	gitDiffTool,
-	gitStatusTool,
-	grepTool,
-	inspectFileTool,
-	listDirectoryTool,
-	moveTool,
-	readFileTool,
-	readTool,
-	runShellTool,
-	searchFilesTool,
-	undoLastOperationTool,
-	writeTool,
-} from './tools';
+} from './apply-patch';
+import { copyTool } from './copy';
+import { deleteTool } from './delete';
+import { editTool } from './edit';
+import { editFileTool } from './edit_file';
+import { filesystemListTool } from './filesystem-list';
+import { findTool } from './find';
+import { gitDiffTool } from './git_diff';
+import { gitStatusTool } from './git_status';
+import { grepTool } from './grep';
+import { inspectFileTool } from './inspect-file';
+import { listDirectoryTool } from './list_directory';
+import { moveTool } from './move';
+import { readTool } from './read';
+import { readFileTool } from './read_file';
+import { runShellTool } from './run_shell';
+import { searchFilesTool } from './search_files';
+import { undoLastOperationTool } from './undo_last_operation';
+import { writeTool } from './write';
 import {
 	completeTaskTool,
 	listTodosTool,

@@ -7,27 +7,25 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../../shared/tools';
-import {
-	applyPatchTool,
-	copyTool,
-	deleteTool,
-	editFileTool,
-	editTool,
-	filesystemListTool,
-	findTool,
-	gitDiffTool,
-	gitStatusTool,
-	grepTool,
-	inspectFileTool,
-	listDirectoryTool,
-	moveTool,
-	readFileTool,
-	readTool,
-	runShellTool,
-	searchFilesTool,
-	undoLastOperationTool,
-	writeTool,
-} from '../files/tools';
+import { applyPatchTool } from '../files/apply-patch';
+import { copyTool } from '../files/copy';
+import { deleteTool } from '../files/delete';
+import { editTool } from '../files/edit';
+import { editFileTool } from '../files/edit_file';
+import { filesystemListTool } from '../files/filesystem-list';
+import { findTool } from '../files/find';
+import { gitDiffTool } from '../files/git_diff';
+import { gitStatusTool } from '../files/git_status';
+import { grepTool } from '../files/grep';
+import { inspectFileTool } from '../files/inspect-file';
+import { listDirectoryTool } from '../files/list_directory';
+import { moveTool } from '../files/move';
+import { readTool } from '../files/read';
+import { readFileTool } from '../files/read_file';
+import { runShellTool } from '../files/run_shell';
+import { searchFilesTool } from '../files/search_files';
+import { undoLastOperationTool } from '../files/undo_last_operation';
+import { writeTool } from '../files/write';
 import {
 	completeTaskTool,
 	listTodosTool,
