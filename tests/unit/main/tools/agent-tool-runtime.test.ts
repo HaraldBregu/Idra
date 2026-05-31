@@ -11,7 +11,7 @@ import {
 	readStringArrayParam,
 	readStringParam,
 } from '../../../../src/main/agent/tools/params';
-import { createReadTool } from '../../../../src/main/agent/tools/files/runtime';
+import { createReadTool } from '../../../../src/main/agent/tools/base/runtime';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/agent/tools/create-agent-tools';
 import { applyToolPolicyPipeline } from '../../../../src/main/agent/tools/pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/agent/tools/schema-normalization';

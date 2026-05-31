@@ -7,19 +7,19 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../../shared/tools';
-import { applyPatchTool } from '../files/apply-patch';
-import { copyTool } from '../files/copy';
-import { deleteFileTool } from '../files/delete-file';
-import { editFileTool } from '../files/edit-file';
-import { grepTool } from '../files/grep';
-import { inspectFileTool } from '../files/inspect-file';
-import { listDirectoryTool } from '../files/list-directory';
-import { moveTool } from '../files/move';
-import { readFileTool } from '../files/read-file';
-import { runShellTool } from '../files/run-shell';
-import { searchFilesTool } from '../files/search-files';
-import { undoLastOperationTool } from '../files/undo-last-operation';
-import { writeTool } from '../files/write';
+import { applyPatchTool } from '../base/apply-patch';
+import { copyTool } from '../base/copy';
+import { deleteFileTool } from '../base/delete-file';
+import { editFileTool } from '../base/edit-file';
+import { grepTool } from '../base/grep';
+import { inspectFileTool } from '../base/inspect-file';
+import { listDirectoryTool } from '../base/list-directory';
+import { moveTool } from '../base/move';
+import { readFileTool } from '../base/read-file';
+import { runShellTool } from '../base/run-shell';
+import { searchFilesTool } from '../base/search-files';
+import { undoLastOperationTool } from '../base/undo-last-operation';
+import { writeTool } from '../base/write';
 import { completeTaskTool } from '../state/complete-task';
 import { listTodosTool } from '../state/list-todos';
 import { readScratchTool } from '../state/read-scratch';

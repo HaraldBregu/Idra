@@ -23,7 +23,7 @@ import {
 	cronUpdateTool,
 } from '../../../../src/main/agent/tools/cron';
 import { scriptRunTool } from '../../../../src/main/agent/tools/scripts/tools';
-import { runShellTool } from '../../../../src/main/agent/tools/files/run-shell';
+import { runShellTool } from '../../../../src/main/agent/tools/base/run-shell';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,

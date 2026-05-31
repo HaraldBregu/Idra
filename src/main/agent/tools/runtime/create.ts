@@ -5,7 +5,7 @@ import {
 	createToolDiagnostics,
 	normalizeToolName,
 } from '../core/common';
-import { createFileTools } from '../files/runtime';
+import { createFileTools } from '../base/runtime';
 import { createCronTools } from '../cron/runtime';
 import { createScriptTools } from '../scripts/runtime';
 import { normalizeToolSchemas } from '../core/normalize';
