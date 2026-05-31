@@ -43,4 +43,19 @@ describe('agent tool selection', () => {
 
 		expect(selection.toolsForPrompt.map((entry) => entry.name)).toEqual(['google_calendar_search_events']);
 	});
+
+	it('selects the subagent tool for delegation prompts', () => {
+		const selection = selectAgentToolsForTurn(
+			[
+				tool('read_file', 'Read workspace files.'),
+				tool('start_task', 'Start a tracked local task.'),
+				tool('spawn_subagent', 'Start a child agent run for a clearly scoped task.'),
+			],
+			'split the work and delegate the session storage review to a subagent',
+			makeToolContext(),
+			{ maxPromptTools: 1 }
+		);
+
+		expect(selection.toolsForPrompt.map((entry) => entry.name)).toEqual(['spawn_subagent']);
+	});
 });
