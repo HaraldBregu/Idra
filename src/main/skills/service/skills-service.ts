@@ -258,7 +258,7 @@ export class SkillsService {
 				metadata: loaded.manifest.metadata,
 				allowedTools: loaded.manifest.allowedTools,
 			},
-			instructions: loaded.instructions,
+			instructions: await fs.promises.readFile(loaded.skillPath, 'utf8'),
 			supportFiles: [],
 		};
 	}

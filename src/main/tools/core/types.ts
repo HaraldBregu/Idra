@@ -62,8 +62,8 @@ export interface ToolContext {
 	fsPolicy?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
 	/** Abort signal for the current tool call or agent run. */
 	signal?: AbortSignal;
-	approvalRequired: Set<string>;
-	approvalCache: Set<string>;
+	approvalRequired?: Set<string>;
+	approvalCache?: Set<string>;
 	/** Friday-side services (store, event-bus, logger, user data, workspace). */
 	services: FridayServices;
 }

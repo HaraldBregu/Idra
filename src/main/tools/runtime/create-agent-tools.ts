@@ -149,9 +149,8 @@ export async function createAgentTools(
 	const candidates = await buildToolCandidates(options, plan, diagnostics);
 	const policyResult = applyToolPolicyPipeline(candidates, {
 		sender: options.sender,
-		stages: buildPolicyStages(options) as Parameters<typeof applyToolPolicyPipeline>[1]['stages'],
+		stages: buildPolicyStages(options) as NonNullable<Parameters<typeof applyToolPolicyPipeline>[1]>['stages'],
 		diagnostics,
-		policy: options.services?.policy,
 	});
 	const tools = prepareRuntimeTools(policyResult.tools, options, diagnostics);
 

@@ -311,7 +311,7 @@ function createExecutionContext(
 ): ToolExecutionContext {
 	const confirmedActionIds = new Set(options.sessionContext?.confirmedActionIds ?? []);
 	const legacyApprovalKey = `${toolName}::${JSON.stringify(input ?? {})}`;
-	if (ctx.approvalCache.has(legacyApprovalKey)) {
+	if (ctx.approvalCache?.has(legacyApprovalKey)) {
 		confirmedActionIds.add(`${managedToolId}:${JSON.stringify(redactSensitive(input))}`);
 	}
 	return {

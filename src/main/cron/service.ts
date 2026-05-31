@@ -66,7 +66,7 @@ export class CronService implements Disposable {
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
-		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store);
+		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store as StoreService);
 		const accessPolicy = {
 			async authorize(): Promise<void> {},
 			requiresConfirmation(): boolean { return false; },

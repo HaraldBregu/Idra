@@ -58,8 +58,8 @@ export async function beforeToolCall(
 	else if (typeof tool.needsApproval === 'function') {
 		requires = await tool.needsApproval(args as Record<string, unknown>, ctx);
 	}
-	if (requires || ctx.approvalRequired.has(tool.name)) {
-		ctx.approvalCache.add(key);
+	if (requires || ctx.approvalRequired?.has(tool.name)) {
+		ctx.approvalCache?.add(key);
 	}
 
 	const warning =

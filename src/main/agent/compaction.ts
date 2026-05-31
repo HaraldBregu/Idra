@@ -129,7 +129,7 @@ async function compactWithAgentHarness(params: {
 	const { maybeCompactAgentHarnessSession } = await import('./harness/selection');
 	const result = await maybeCompactAgentHarnessSession({
 		sessionId: params.sessionId,
-		sessionKey: options.sessionKey,
+		sessionKey: options.sessionKey ?? sessionId,
 		provider: options.providerId ?? '',
 		modelId: params.model,
 		requestedRuntime: options.requestedRuntime ?? options.storedRuntime ?? '',
