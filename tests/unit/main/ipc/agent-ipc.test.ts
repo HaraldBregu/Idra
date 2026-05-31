@@ -1,5 +1,5 @@
 import { transcriptToHistory } from '../../../../src/main/ipc/agent-ipc';
-import type { TranscriptEntry } from '../../../../src/main/provider/types';
+import type { TranscriptEntry } from '../../../../src/main/agent/provider/types';
 
 describe('agent/ipc history conversion', () => {
 	it('preserves agent content blocks and tool result metadata for renderer history', () => {

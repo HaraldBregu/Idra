@@ -12,8 +12,8 @@ import {
 	resolveConnectorActivationPlan,
 	type ConnectorManifestRecord,
 } from '../../../../src/main/plugins';
-import { markCoreTool, type AgentTool } from '../../../../src/main/tools/common';
-import { textResult } from '../../../../src/main/tools/results';
+import { markCoreTool, type AgentTool } from '../../../../src/main/agent/legacy-tools/common';
+import { textResult } from '../../../../src/main/agent/legacy-tools/results';
 import { makeTempDir } from '../test-helpers';
 
 function tool(name: string): AgentTool {

@@ -29,9 +29,9 @@ import type {
 	SkillExecutionRequestContext,
 } from '../../../../src/main/skills/types';
 import { SkillVersionManager } from '../../../../src/main/skills/version-manager';
-import type { AgentTool } from '../../../../src/main/tools/types';
-import { textResult } from '../../../../src/main/tools/types';
-import { executeAgentToolWithManagement } from '../../../../src/main/tools/management';
+import type { AgentTool } from '../../../../src/main/agent/legacy-tools/types';
+import { textResult } from '../../../../src/main/agent/legacy-tools/types';
+import { executeAgentToolWithManagement } from '../../../../src/main/agent/legacy-tools/management';
 import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
 
 function webFetchTool(): AgentTool {
