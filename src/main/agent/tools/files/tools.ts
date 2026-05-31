@@ -16,7 +16,6 @@ export { copyTool } from './copy';
 export { moveTool } from './move';
 export { inspectFileTool } from './inspect-file';
 export { findTool } from './find';
-export { filesystemCreateTool } from './filesystem-create';
 export { filesystemListTool } from './filesystem-list';
 export { gitDiffTool } from './git_diff';
 export { gitStatusTool } from './git_status';
