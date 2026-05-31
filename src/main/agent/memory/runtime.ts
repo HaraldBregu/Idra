@@ -121,7 +121,6 @@ export const STOP_WORDS = new Set([
 	'with',
 ]);
 
-
 export class WorkspaceMemorySearchManager implements MemorySearchManager {
 	private readonly workspaceDir: string;
 	private readonly sessionBaseDir?: string;
@@ -459,10 +458,7 @@ function toLocalDate(date: Date): string {
 	return `${year}-${month}-${day}`;
 }
 
-async function listMemoryFiles(
-	workspaceDir: string,
-	extraPaths: string[]
-): Promise<string[]> {
+async function listMemoryFiles(workspaceDir: string, extraPaths: string[]): Promise<string[]> {
 	const files: string[] = [];
 	await pushIfAllowed(files, path.join(workspaceDir, MEMORY_FILENAME), workspaceDir, extraPaths);
 	await walkMemoryDir(files, path.join(workspaceDir, MEMORY_DIRNAME), workspaceDir, extraPaths);

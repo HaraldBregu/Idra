@@ -239,7 +239,6 @@ export class AgentExecutionError extends MemoryAgentError {
 	}
 }
 
-
 export const DEFAULT_MEMORY_POLICY_REMINDER = [
 	'Memory is not chat history.',
 	'Use persistent memory only when it is relevant to the current turn.',
@@ -385,7 +384,6 @@ export function toDecision(
 		...options,
 	};
 }
-
 
 export class InMemoryMemoryStore implements MemoryStore {
 	private readonly memoryByUser = new Map<string, UserMemory>();
@@ -535,7 +533,6 @@ export class InMemoryMemoryStore implements MemoryStore {
 		memory.longTerm.items = active;
 	}
 }
-
 
 export interface MemoryPolicyReviewContext {
 	explicitUserRequest: boolean;
@@ -735,7 +732,6 @@ export class MemoryPolicy {
 		return (this.options.clock ?? (() => new Date()))();
 	}
 }
-
 
 export interface MemoryExtractionInput {
 	userId: string;
@@ -969,7 +965,6 @@ export class MemoryExtractor {
 	}
 }
 
-
 export interface MemorySearchStrategy {
 	search(store: MemoryStore, userId: string, query: string): Promise<MemoryItem[]>;
 }
@@ -1077,7 +1072,6 @@ export class MemoryRetriever {
 	}
 }
 
-
 export interface PromptBuilderInput {
 	systemInstructions: string;
 	relevantMemories: MemoryItem[];
@@ -1164,7 +1158,6 @@ export class PromptBuilder {
 		return parts.join('\n');
 	}
 }
-
 
 export interface InMemorySessionManagerOptions {
 	maxMessages?: number;
@@ -1273,7 +1266,6 @@ export class InMemorySessionManager implements SessionManager {
 		return summarizeText(messages.map(formatMessage).join(' | '), 2000);
 	}
 }
-
 
 export interface MemoryManagedAgentOptions {
 	model: string;
