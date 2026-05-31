@@ -5,9 +5,10 @@ import { acquireWriteLock } from './lock';
 import { defaultBaseDir, isSessionDataFile, sessionPath } from './paths';
 import { sanitizeToolUseResultPairing } from './repair';
 import { normalizeLoadedSession, sanitizeTranscriptForStorage } from './transcript';
+import type { SessionFile, SessionStoreOptions } from './types';
+
 export * from './transcript';
 export * from './types';
-import type { SessionFile, SessionStoreOptions } from './types';
 
 export async function loadSession(
 	id: string,
