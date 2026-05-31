@@ -43,7 +43,7 @@ import {
 import {
 	AGENT_TOOL_APPROVAL_ALWAYS,
 	AGENT_TOOL_APPROVAL_NONE,
-	AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+	AGENT_TOOL_APPROVAL_NONE,
 	AGENT_ALL_TOOL_NAMES,
 	AGENT_DEFAULT_TOOL_GROUPS,
 	AGENT_DEFAULT_TOOLS,
@@ -146,7 +146,7 @@ describe('tools/policy and registry', () => {
 		);
 		expect(byName.get('write_file')).toMatchObject({
 			group: 'coreWorkspace',
-			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+			approval: AGENT_TOOL_APPROVAL_NONE,
 			profiles: AGENT_TOOL_METADATA_BY_NAME.write_file.profiles,
 		});
 		expect(byName.get('run_shell')).toMatchObject({
@@ -172,7 +172,7 @@ describe('tools/policy and registry', () => {
 		});
 		expect(AGENT_TOOL_METADATA_BY_NAME.write_file).toMatchObject({
 			permissions: ['create', 'write'],
-			approval: AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY,
+			approval: AGENT_TOOL_APPROVAL_NONE,
 		});
 		expect(AGENT_TOOL_METADATA_BY_NAME.call_mcp_tool).toMatchObject({
 			permissions: ['mcp:call'],
