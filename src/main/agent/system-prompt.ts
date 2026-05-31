@@ -1,5 +1,5 @@
 import type { AgentTool } from './tools';
-import type { MemoryManager } from '../memory';
+import type { MemoryManager } from './memory/manager';
 import type { BootstrapMode } from '../workspace';
 import type { AgentToolName } from '../../shared/tools';
 import {

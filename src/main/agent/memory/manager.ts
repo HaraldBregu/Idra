@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { resolveDefaultAgentDataPath } from './agent/storage';
+import { resolveDefaultAgentDataPath } from '../storage';
 
 const TEMPLATE_FILES = [
 	'AGENTS.md',
@@ -16,14 +16,14 @@ const TEMPLATE_FILES = [
 const TEMPLATES: Record<string, string> = Object.fromEntries(
 	[
 		...Object.entries(
-			import.meta.glob('./agent/templates/*.md', {
+			import.meta.glob('../templates/*.md', {
 				query: '?raw',
 				eager: true,
 				import: 'default',
 			}) as Record<string, string>
 		),
 		...Object.entries(
-			import.meta.glob('./templates/*.md', {
+			import.meta.glob('../../templates/*.md', {
 				query: '?raw',
 				eager: true,
 				import: 'default',
