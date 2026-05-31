@@ -1,6 +1,5 @@
 import type { AgentTool } from '../core/types';
 import {
-	AGENT_ALL_TOOL_NAMES,
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_NAMES,
 	type AgentToolApprovalPolicy,
@@ -106,8 +105,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	list_mcp_prompts: listMcpPromptsTool,
 	load_mcp_prompt: loadMcpPromptTool,
 } as const satisfies Record<(typeof AGENT_TOOL_NAMES)[number], LocalToolImplementation>;
-
-AGENT_ALL_TOOL_NAMES;
 
 export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
 	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
