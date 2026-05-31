@@ -1,9 +1,9 @@
-import { AGENT_TOOL_METADATA_BY_NAME, type AgentToolName } from '../../../shared/tools';
+import { AGENT_TOOL_METADATA_BY_NAME } from '../../../shared/tools';
 
-export function toolDescription(name: AgentToolName): string {
+export function toolDescription(name: string): string {
 	return AGENT_TOOL_METADATA_BY_NAME[name]?.description ?? name;
 }
 
-export function toolTitle(name: AgentToolName): string {
+export function toolTitle(name: string): string {
 	return AGENT_TOOL_METADATA_BY_NAME[name]?.title ?? name;
 }
