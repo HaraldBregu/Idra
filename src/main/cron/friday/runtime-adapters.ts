@@ -17,7 +17,7 @@ import type {
 	FridayCronExecutionOutcome,
 	FridayCronExecutor,
 } from './scheduler';
-import { DEFAULT_AGENT_ID } from '../../app/config' ;
+import { DEFAULT_AGENT_ID } from '../../app/config';
 
 type TerminalTaskRecord = TaskRecord & {
 	status: 'succeeded' | 'failed' | 'cancelled';

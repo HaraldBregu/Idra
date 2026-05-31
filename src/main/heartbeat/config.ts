@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../app/config' ;
+import { DEFAULT_AGENT_ID } from '../app/config';
 import type { OperatorStoreState } from '../../shared/agents/service';
 import type { AgentHeartbeatConfig, AgentsHeartbeatConfig } from '../../shared/heartbeat';
 import { parseHeartbeatDurationMs } from './scheduling/duration';

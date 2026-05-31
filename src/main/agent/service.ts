@@ -18,7 +18,7 @@ import {
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
 } from '../workspace';
-import type { UserDataDirectoryServicePort } from '../app/user-data' ;
+import type { UserDataDirectoryServicePort } from '../app/user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
 import {
@@ -28,7 +28,7 @@ import {
 } from './run';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
-import { DEFAULT_AGENT_ID } from '../app/config' ;
+import { DEFAULT_AGENT_ID } from '../app/config';
 import { makeProvider, type ProviderSpec } from './provider/factory';
 import { ToolPolicyService, type ToolPolicyServicePort } from './tools/tool-types';
 import type { ProviderAdapter, TranscriptEntry } from './provider/types';

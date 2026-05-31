@@ -1,4 +1,4 @@
-import type { UserDataDirectoryServicePort } from '../app/user-data' ;
+import type { UserDataDirectoryServicePort } from '../app/user-data';
 import type { WorkspaceContextFile } from './files';
 
 export interface WorkspaceServiceOptions {

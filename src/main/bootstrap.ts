@@ -4,7 +4,7 @@ import path from 'node:path';
 
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
 
-import { AppPermissionsService } from './app/permissions' ;
+import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './logger';
 import { StoreService } from './store';
 import { CronService } from './cron';
@@ -21,12 +21,12 @@ import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { TasksService } from './tasks';
-import { UserDataDirectoryService } from './app/user-data' ;
+import { UserDataDirectoryService } from './app/user-data';
 import { ToolService } from './agent/tools';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
 import { AgentRunLogger } from './agent/logging';
-import { DEFAULT_AGENT_ID } from './app/config' ;
+import { DEFAULT_AGENT_ID } from './app/config';
 
 import type { IpcModule } from './ipc';
 import {
@@ -43,7 +43,7 @@ import {
 	TasksIpc,
 	WindowIpc,
 } from './ipc';
-import type { MainServiceContainer, MainServices } from './app/services' ;
+import type { MainServiceContainer, MainServices } from './app/services';
 import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {

@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { TranscriptEntry } from '../provider/types';
 import type { PlanEntry } from '../legacy-tools/types';
-import { resolveAppDataPath } from '../../app/user-data' ;
+import { resolveAppDataPath } from '../../app/user-data';
 import { acquireWriteLock } from './lock';
 import { sanitizeToolUseResultPairing } from './repair';
 
