@@ -30,7 +30,7 @@ export interface AgentApi {
 export interface CronApi {
 	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
 	list: () => Promise<CronTaskView[]>;
-	listJobs: () => Promise<CronTaskView[]>;
+	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<FridayCronJob[]>;
 	add: <TData extends CronTaskData>(
 		expression: string,
 		data: TData,
@@ -189,6 +189,7 @@ import type {
 	CronScheduledTask,
 	FridayCronToolRequest,
 	FridayCronToolResponse,
+	FridayCronJob,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,

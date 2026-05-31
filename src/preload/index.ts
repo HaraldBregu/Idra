@@ -47,6 +47,7 @@ import type {
 	CronScheduledTask,
 	FridayCronToolRequest,
 	FridayCronToolResponse,
+	FridayCronJob,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
@@ -441,8 +442,9 @@ export const cron: CronApi = {
 	list: (): Promise<CronTaskView[]> => {
 		return typedInvokeUnwrap(CronChannels.list);
 	},
-	listJobs: (): Promise<CronTaskView[]> => {
-		return typedInvokeUnwrap(CronChannels.list);
+	listJobs: async (include: 'enabled' | 'disabled' | 'all' = 'enabled'): Promise<FridayCronJob[]> => {
+		const response = await cron.action({ action: 'list', include });
+		return Array.isArray(response.result) ? (response.result as FridayCronJob[]) : [];
 	},
 	add: <TData extends CronTaskData>(
 		expression: string,
