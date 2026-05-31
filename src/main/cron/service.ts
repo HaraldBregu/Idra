@@ -20,7 +20,8 @@ import {
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/cron.types';
+import type { CronActorContext, CronPersistenceStore } from './core/cron.types';
+import { StoreCronScheduleStore } from './store/cron-schedule-store';
 import { CronSchedulerService } from './scheduler/cron-scheduler';
 import { InMemoryCronScheduleRunner } from './scheduler/cron-runner';
 
@@ -55,7 +56,7 @@ export class CronService implements Disposable {
 	private readonly store: CronPersistenceStore;
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
-	private readonly scheduleStore: CronScheduleStore;
+	private readonly scheduleStore: StoreCronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
 	private readonly automaticEnabled: boolean;
 
@@ -65,7 +66,7 @@ export class CronService implements Disposable {
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
-		this.scheduleStore = this.store as unknown as CronScheduleStore;
+		this.scheduleStore = new StoreCronScheduleStore(this.store);
 		const accessPolicy = {
 			async authorize(): Promise<void> {},
 			requiresConfirmation(): boolean { return false; },
