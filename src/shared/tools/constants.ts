@@ -21,15 +21,15 @@ export * from './profiles';
 export * from './types';
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
-	coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
+	coreWorkspace: DEFAULT_CORE_WORKSPACE_TOOLS,
 	stateTask: DEFAULT_STATE_TASK_TOOLS,
 	humanDecision: DEFAULT_HUMAN_DECISION_TOOLS,
 	subagent: DEFAULT_SUBAGENT_TOOLS,
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
-	web: DEFAULT_WEB_TOOLS,
+	web: [],
 	script: [],
-	cron: DEFAULT_CRON_TOOLS,
+	cron: [],
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
 export const AGENT_TOOL_GROUPS = {
@@ -51,8 +51,6 @@ export const AGENT_DEFAULT_TOOLS = [
 	...AGENT_DEFAULT_TOOL_GROUPS.subagent,
 	...AGENT_DEFAULT_TOOL_GROUPS.skill,
 	...AGENT_DEFAULT_TOOL_GROUPS.mcpConnector,
-	...AGENT_DEFAULT_TOOL_GROUPS.web,
-	...AGENT_DEFAULT_TOOL_GROUPS.cron,
 ] as const;
 
 export const AGENT_TOOLS = [
@@ -79,13 +77,6 @@ export const AGENT_TOOL_NAMES = [
 	'run_shell',
 	'undo_last_operation',
 	'write',
-	'apply_patch',
-	'delete_file',
-	'copy',
-	'move',
-	'inspect_file',
-	'exec',
-	'process',
 	'write_todos',
 	'update_todo',
 	'list_todos',
@@ -111,9 +102,6 @@ export const AGENT_TOOL_NAMES = [
 	'read_mcp_resource',
 	'list_mcp_prompts',
 	'load_mcp_prompt',
-	'web_fetch',
-	'open_browser',
-	'cron',
 ] as const satisfies readonly AgentDefaultToolName[];
 
 export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
