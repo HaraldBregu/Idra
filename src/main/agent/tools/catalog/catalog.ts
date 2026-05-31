@@ -10,8 +10,7 @@ import {
 import { applyPatchTool } from '../files/apply-patch';
 import { copyTool } from '../files/copy';
 import { deleteFileTool } from '../files/delete-file';
-import { editTool } from '../files/edit';
-import { editFileTool } from '../files/edit_file';
+import { editFileTool } from '../files/edit-file';
 import { findTool } from '../files/find';
 import { gitDiffTool } from '../files/git_diff';
 import { gitStatusTool } from '../files/git_status';
@@ -97,7 +96,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	run_shell: runShellTool,
 	read: readTool,
 	write: writeTool,
-	edit: editTool,
 	apply_patch: applyPatchTool,
 	delete_file: deleteFileTool,
 	copy: copyTool,

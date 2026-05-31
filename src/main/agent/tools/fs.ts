@@ -1,7 +1,7 @@
 export { applyPatchTool } from './files/apply-patch';
 export { copyTool } from './files/copy';
 export { deleteFileTool } from './files/delete-file';
-export { editTool } from './files/edit';
+export { editFileTool } from './files/edit-file';
 export { findTool } from './files/find';
 export { inspectFileTool } from './files/inspect-file';
 export { moveTool } from './files/move';

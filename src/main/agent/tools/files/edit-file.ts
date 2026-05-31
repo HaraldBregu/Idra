@@ -11,8 +11,8 @@ interface EditArgs {
 	replaceAll?: boolean;
 }
 
-export const editTool: AgentTool<EditArgs> = {
-	name: 'edit',
+export const editFileTool: AgentTool<EditArgs> = {
+	name: 'edit_file',
 	description:
 		'Exact-string replacement in a UTF-8 file. Fails if `old` is not unique unless replaceAll=true. Read the file first.',
 	schema: {
@@ -28,25 +28,25 @@ export const editTool: AgentTool<EditArgs> = {
 	},
 	async execute(args, ctx) {
 		if (ctx.fsPolicy?.readOnly)
-			return textResult('edit: disabled by read-only filesystem policy.', true);
+			return textResult('edit_file: disabled by read-only filesystem policy.', true);
 		const before = await snapshotTarget(ctx, args.path).catch(() => null);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
-			return textResult(`edit: ${(err as Error).message}`, true);
+			return textResult(`edit_file: ${(err as Error).message}`, true);
 		}
-		if (args.old === args.new) return textResult('edit: old and new are identical', true);
+		if (args.old === args.new) return textResult('edit_file: old and new are identical', true);
 		let stat;
 		try {
 			stat = await fs.stat(abs);
 		} catch {
-			return textResult(`edit: file does not exist: ${args.path}`, true);
+			return textResult(`edit_file: file does not exist: ${args.path}`, true);
 		}
 		const last = ctx.readState.get(abs);
-		if (!last) return textResult(`edit: must read ${args.path} before editing.`, true);
+		if (!last) return textResult(`edit_file: must read ${args.path} before editing.`, true);
 		if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
-			return textResult(`edit: ${args.path} changed on disk since last read. Re-read first.`, true);
+			return textResult(`edit_file: ${args.path} changed on disk since last read. Re-read first.`, true);
 		}
 		const original = await fs.readFile(abs, 'utf8');
 		let next: string;
@@ -57,14 +57,14 @@ export const editTool: AgentTool<EditArgs> = {
 				count++;
 				scan += args.old.length;
 			}
-			if (count === 0) return textResult('edit: old string not found', true);
+			if (count === 0) return textResult('edit_file: old string not found', true);
 			next = original.split(args.old).join(args.new);
 		} else {
 			const idx = original.indexOf(args.old);
-			if (idx === -1) return textResult('edit: old string not found', true);
+			if (idx === -1) return textResult('edit_file: old string not found', true);
 			if (original.indexOf(args.old, idx + args.old.length) !== -1) {
 				return textResult(
-					'edit: old string not unique. Provide more surrounding context or set replaceAll.',
+					'edit_file: old string not unique. Provide more surrounding context or set replaceAll.',
 					true
 				);
 			}

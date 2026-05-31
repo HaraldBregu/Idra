@@ -9,8 +9,7 @@ import { legacyToolToCanonical } from '../runtime/bridge';
 import { applyPatchTool } from './apply-patch';
 import { copyTool } from './copy';
 import { deleteFileTool } from './delete-file';
-import { editTool } from './edit';
-import { editFileTool } from './edit_file';
+import { editFileTool } from './edit-file';
 import { findTool } from './find';
 import { gitDiffTool } from './git_diff';
 import { gitStatusTool } from './git_status';
@@ -78,7 +77,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	runShellTool,
 	readTool,
 	writeTool,
-	editTool,
 	applyPatchTool,
 	deleteFileTool,
 	copyTool,

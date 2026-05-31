@@ -5,7 +5,7 @@ import {
 	applyPatchTool,
 	copyTool,
 	deleteFileTool,
-	editTool,
+	editFileTool,
 	findTool,
 	inspectFileTool,
 	moveTool,
@@ -190,7 +190,7 @@ describe('tools/policy and registry', () => {
 			...LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name),
 			readTool.name,
 			writeTool.name,
-			editTool.name,
+			editFileTool.name,
 			applyPatchTool.name,
 			deleteFileTool.name,
 			copyTool.name,
@@ -328,7 +328,7 @@ describe('tools/fs', () => {
 		);
 		expect(blocked.status).toBe('error');
 
-		const edit = await editTool.execute(
+		const edit = await editFileTool.execute(
 			{ path: 'a.txt', old: 'one', new: 'ONE', replaceAll: true },
 			ctx
 		);
@@ -409,7 +409,7 @@ describe('tools/fs', () => {
 		await expect(fs.readFile(path.join(outside, 'copy.txt'), 'utf8')).resolves.toBe('inside');
 
 		expect(
-			(await editTool.execute({ path: outsideFile, old: 'outside', new: 'changed' }, ctx)).status
+			(await editFileTool.execute({ path: outsideFile, old: 'outside', new: 'changed' }, ctx)).status
 		).toBe('ok');
 		await expect(fs.readFile(outsideFile, 'utf8')).resolves.toBe('changed');
 

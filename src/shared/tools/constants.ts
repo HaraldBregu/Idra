@@ -601,16 +601,6 @@ const LEGACY_CORE_WORKSPACE_TOOLS = [
 			availability: 'default',
 	}),
 	tool({
-		name: 'edit',
-		group: 'coreWorkspace',
-		title: 'Edit',
-		description: 'Legacy exact-string file edit alias for edit_file.',
-		permissions: ['write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	}),
-	tool({
 		name: 'apply_patch',
 		group: 'coreWorkspace',
 		title: 'Apply patch',
@@ -754,7 +744,6 @@ export const AGENT_TOOL_NAMES = [
 	'undo_last_operation',
 	'read',
 	'write',
-	'edit',
 	'apply_patch',
 	'delete_file',
 	'copy',
@@ -814,7 +803,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_run',
 	'cron',
 	'write',
-	'edit',
 	'apply_patch',
 	'delete_file',
 	'copy',
@@ -823,7 +811,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
 	read: ['read_file'],
-	edit: ['edit_file'],
 	find: ['search_files'],
 	script_run: ['run_shell'],
 	sessions_spawn: ['spawn_subagent'],

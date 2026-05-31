@@ -38,7 +38,7 @@ policy, ranking, and run context before it is exposed to the provider.
 | --- | --- |
 | `read` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
 | `write` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
-| `edit` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
+| `edit_file` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
 | `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
 | `delete_file` | Deletes a file after it has been read. Directory deletion requires `recursive=true` and root paths are guarded. |
 | `copy` | Copies one file to another path. Overwriting requires prior read state for the destination. |
@@ -97,7 +97,7 @@ The default service path narrows the candidate list for each turn.
   and safety.
 - Google Calendar, Google Drive, and Gmail requests force matching connector
   tools into the prompt even when ranking would omit them.
-- File mutation tools `write`, `edit`, `apply_patch`, `delete_file`, `copy`, and
+- File mutation tools `write`, `edit_file`, `apply_patch`, `delete_file`, `copy`, and
   `move` automatically keep `read` available when it exists.
 - Skill selection can force a skill's required or allowed tools into the prompt.
   File-backed skills also force `read` when needed.
