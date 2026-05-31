@@ -689,8 +689,8 @@ const LEGACY_CORE_WORKSPACE_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
-		}),
-	] as const;
+	}),
+] as const;
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
 	coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
@@ -704,8 +704,8 @@ export const AGENT_DEFAULT_TOOL_GROUPS = {
 	cron: DEFAULT_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
 
-	export const AGENT_TOOL_GROUPS = {
-		coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
+export const AGENT_TOOL_GROUPS = {
+	coreWorkspace: [...DEFAULT_CORE_WORKSPACE_TOOLS, ...LEGACY_CORE_WORKSPACE_TOOLS],
 	stateTask: DEFAULT_STATE_TASK_TOOLS,
 	humanDecision: DEFAULT_HUMAN_DECISION_TOOLS,
 	subagent: DEFAULT_SUBAGENT_TOOLS,
