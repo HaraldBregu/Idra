@@ -183,21 +183,6 @@ export class StoreIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			StoreChannels.getKeepAwakeEnabled,
-			wrapSimpleHandler(
-				(): boolean => store.getKeepAwakeEnabled(),
-				StoreChannels.getKeepAwakeEnabled
-			)
-		);
-
-			ipcMain.handle(
-				StoreChannels.setKeepAwakeEnabled,
-				wrapSimpleHandler((enabled: boolean): boolean => {
-					return store.setKeepAwakeEnabled(enabled).keepAwakeEnabled;
-				}, StoreChannels.setKeepAwakeEnabled)
-			);
-
-		ipcMain.handle(
 			StoreChannels.getAssistantSettings,
 			wrapSimpleHandler((): ReturnType<typeof store.getAssistantSettings> => {
 				return store.getAssistantSettings();
