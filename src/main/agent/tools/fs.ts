@@ -5,5 +5,5 @@ export { editFileTool } from './files/edit-file';
 export { findTool } from './files/find';
 export { inspectFileTool } from './files/inspect-file';
 export { moveTool } from './files/move';
-export { readTool } from './files/read';
+export { readFileTool } from './files/read-file';
 export { writeTool } from './files/write';

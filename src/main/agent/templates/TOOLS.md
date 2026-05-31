@@ -36,7 +36,7 @@ policy, ranking, and run context before it is exposed to the provider.
 
 | Tool | How it is used |
 | --- | --- |
-| `read` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
+| `read_file` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
 | `write` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
 | `edit_file` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
 | `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
@@ -98,9 +98,9 @@ The default service path narrows the candidate list for each turn.
 - Google Calendar, Google Drive, and Gmail requests force matching connector
   tools into the prompt even when ranking would omit them.
 - File mutation tools `write`, `edit_file`, `apply_patch`, `delete_file`, `copy`, and
-  `move` automatically keep `read` available when it exists.
+  `move` automatically keep `read_file` available when it exists.
 - Skill selection can force a skill's required or allowed tools into the prompt.
-  File-backed skills also force `read` when needed.
+  File-backed skills also force `read_file` when needed.
 - Heartbeat runs can force `heartbeat_respond` into the prompt.
 
 The system prompt lists only the selected tools for the turn. When narrowing

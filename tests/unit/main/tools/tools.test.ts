@@ -9,7 +9,7 @@ import {
 	findTool,
 	inspectFileTool,
 	moveTool,
-	readTool,
+	readFileTool,
 	writeTool,
 } from '../../../../src/main/agent/tools/fs';
 import {
@@ -188,7 +188,7 @@ describe('tools/policy and registry', () => {
 	it('covers every native tool implementation with shared UI metadata', () => {
 		const implementedToolNames = [
 			...LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name),
-			readTool.name,
+			readFileTool.name,
 			writeTool.name,
 			editFileTool.name,
 			applyPatchTool.name,
@@ -319,7 +319,7 @@ describe('tools/fs', () => {
 		const ctx = makeToolContext({ workspace });
 		await fs.writeFile(path.join(workspace, 'a.txt'), 'one\ntwo\none\n', 'utf8');
 
-		const read = await readTool.execute({ path: 'a.txt', limit: 2 }, ctx);
+		const read = await readFileTool.execute({ path: 'a.txt', limit: 2 }, ctx);
 		expect(read.content[0]?.text).toContain('1\tone');
 
 		const blocked = await writeTool.execute(
@@ -349,8 +349,8 @@ describe('tools/fs', () => {
 		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
 		const ctx = makeToolContext({ workspace, fsPolicy: { workspaceOnly: true } });
 
-		expect((await readTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
-		expect((await readTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
+		expect((await readFileTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
+		expect((await readFileTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
 			'ok'
 		);
 		await expect(
@@ -392,7 +392,7 @@ describe('tools/fs', () => {
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
-		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
+		expect((await readFileTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
 		).toBe('ok');
@@ -424,7 +424,7 @@ describe('tools/fs', () => {
 		const outsideFile = path.join(outside, 'outside.txt');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
 
-		expect((await readTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
+		expect((await readFileTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
 			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
 		).toBe('ok');
@@ -452,7 +452,7 @@ describe('tools/fs', () => {
 		const file = path.join(workspace, 'patch.txt');
 		await fs.writeFile(file, 'one\ntwo\nthree\n', 'utf8');
 		const ctx = makeToolContext({ workspace });
-		await readTool.execute({ path: 'patch.txt' }, ctx);
+		await readFileTool.execute({ path: 'patch.txt' }, ctx);
 
 		const result = await applyPatchTool.execute(
 			{
@@ -479,8 +479,8 @@ describe('tools/fs', () => {
 		const ctx = makeToolContext({ workspace });
 		await fs.writeFile(path.join(workspace, 'update.txt'), 'old\n', 'utf8');
 		await fs.writeFile(path.join(workspace, 'remove.txt'), 'remove me\n', 'utf8');
-		await readTool.execute({ path: 'update.txt' }, ctx);
-		await readTool.execute({ path: 'remove.txt' }, ctx);
+		await readFileTool.execute({ path: 'update.txt' }, ctx);
+		await readFileTool.execute({ path: 'remove.txt' }, ctx);
 
 		const result = await applyPatchTool.execute(
 			{
@@ -538,7 +538,7 @@ describe('tools/fs', () => {
 			fs.readFile(path.join(workspace, 'copied-dir', 'nested', 'item.txt'), 'utf8')
 		).resolves.toBe('nested');
 
-		await readTool.execute({ path: 'copy.txt' }, ctx);
+		await readFileTool.execute({ path: 'copy.txt' }, ctx);
 		expect(
 			(await moveTool.execute({ source: 'copy.txt', destination: 'moved.txt' }, ctx)).status
 		).toBe('ok');
@@ -548,7 +548,7 @@ describe('tools/fs', () => {
 		expect(
 			(await deleteFileTool.execute({ path: 'delete-me.txt' }, makeToolContext({ workspace }))).status
 		).toBe('error');
-		await readTool.execute({ path: 'delete-me.txt' }, ctx);
+		await readFileTool.execute({ path: 'delete-me.txt' }, ctx);
 		expect((await deleteFileTool.execute({ path: 'delete-me.txt' }, ctx)).status).toBe('ok');
 		await expect(fs.stat(path.join(workspace, 'delete-me.txt'))).rejects.toThrow();
 

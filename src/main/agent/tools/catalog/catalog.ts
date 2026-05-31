@@ -18,8 +18,7 @@ import { grepTool } from '../files/grep';
 import { inspectFileTool } from '../files/inspect-file';
 import { listDirectoryTool } from '../files/list_directory';
 import { moveTool } from '../files/move';
-import { readTool } from '../files/read';
-import { readFileTool } from '../files/read_file';
+import { readFileTool } from '../files/read-file';
 import { runShellTool } from '../files/run_shell';
 import { searchFilesTool } from '../files/search_files';
 import { undoLastOperationTool } from '../files/undo_last_operation';
@@ -94,7 +93,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	search_files: searchFilesTool,
 	grep: grepTool,
 	run_shell: runShellTool,
-	read: readTool,
 	write: writeTool,
 	apply_patch: applyPatchTool,
 	delete_file: deleteFileTool,

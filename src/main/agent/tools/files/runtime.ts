@@ -17,8 +17,7 @@ import { grepTool } from './grep';
 import { inspectFileTool } from './inspect-file';
 import { listDirectoryTool } from './list_directory';
 import { moveTool } from './move';
-import { readTool } from './read';
-import { readFileTool } from './read_file';
+import { readFileTool } from './read-file';
 import { runShellTool } from './run_shell';
 import { searchFilesTool } from './search_files';
 import { undoLastOperationTool } from './undo_last_operation';
@@ -75,7 +74,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	searchFilesTool,
 	grepTool,
 	runShellTool,
-	readTool,
 	writeTool,
 	applyPatchTool,
 	deleteFileTool,
@@ -125,7 +123,7 @@ export function createFileTools(options: FileToolOptions): AgentTool[] {
 
 export function createReadTool(options: FileToolOptions): AgentTool {
 	const read = createFileTools(options).find((tool) => tool.name === 'read_file');
-	if (!read) throw new Error('read tool is not registered');
+	if (!read) throw new Error('read_file tool is not registered');
 	return read;
 }
 

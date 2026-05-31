@@ -12,8 +12,8 @@ interface ReadArgs {
 
 const DEFAULT_READ_LIMIT = TOOL_LIMITS.read.defaultLines;
 
-export const readTool: AgentTool<ReadArgs> = {
-	name: 'read',
+export const readFileTool: AgentTool<ReadArgs> = {
+	name: 'read_file',
 	description:
 		'Read a UTF-8 file. Returns content with 1-indexed line-number prefixes. Default cap 2000 lines.',
 	schema: {
@@ -30,7 +30,7 @@ export const readTool: AgentTool<ReadArgs> = {
 		try {
 			const abs = resolveAbs(ctx.workspace, args.path);
 			const stat = await fs.stat(abs);
-			if (!stat.isFile()) return textResult(`read: ${args.path} is not a file`, true);
+			if (!stat.isFile()) return textResult(`read_file: ${args.path} is not a file`, true);
 			const raw = await fs.readFile(abs, 'utf8');
 			ctx.readState.set(abs, { mtimeMs: stat.mtimeMs, size: stat.size });
 			const lines = raw.split('\n');
@@ -59,7 +59,7 @@ export const readTool: AgentTool<ReadArgs> = {
 				},
 			};
 		} catch (err) {
-			return textResult(`read: ${(err as Error).message}`, true);
+			return textResult(`read_file: ${(err as Error).message}`, true);
 		}
 	},
 };

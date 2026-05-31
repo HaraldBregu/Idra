@@ -581,17 +581,7 @@ const OPTIONAL_CRON_TOOLS = [
 
 const LEGACY_CORE_WORKSPACE_TOOLS = [
 	tool({
-		name: 'read',
-		group: 'coreWorkspace',
-		title: 'Read',
-		description: 'Legacy file reader alias for read_file.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	}),
-	tool({
-			name: 'write',
+		name: 'write',
 			group: 'coreWorkspace',
 			title: 'Write',
 			description: 'Create or overwrite a UTF-8 workspace file.',
@@ -742,7 +732,6 @@ export const AGENT_TOOL_NAMES = [
 	'git_status',
 	'git_diff',
 	'undo_last_operation',
-	'read',
 	'write',
 	'apply_patch',
 	'delete_file',
@@ -810,7 +799,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
-	read: ['read_file'],
 	find: ['search_files'],
 	script_run: ['run_shell'],
 	sessions_spawn: ['spawn_subagent'],
