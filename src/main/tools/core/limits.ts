@@ -46,11 +46,6 @@ export const TOOL_LIMITS = {
 		defaultLimit: 200,
 		maxLimit: 1_000,
 	},
-	webFetch: {
-		maxResponseBytes: 1024 * 1024,
-		rateLimitCalls: 20,
-		rateLimitWindowMs: 60_000,
-	},
 	toolSearch: {
 		compactionThreshold: 24,
 		defaultLimit: 8,

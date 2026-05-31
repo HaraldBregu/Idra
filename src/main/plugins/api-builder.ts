@@ -189,7 +189,7 @@ export function buildFridayConnectorApi(
 		registerAgentHarness: allowed('runtime')
 			? (registration) => {
 					registerValue('agentHarnesses', registration);
-					registerGlobalAgentHarness(registration, { ownerPluginId: record.id });
+						registerGlobalAgentHarness(registration);
 				}
 			: noop,
 		registerAgentToolResultMiddleware: allowed('runtime')

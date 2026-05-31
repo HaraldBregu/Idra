@@ -96,7 +96,7 @@ export function bootstrapServices(): BootstrapResult {
 			rootPath: agentDataDirectory.resolve(DEFAULT_AGENT_ID),
 		})
 	);
-	const store = container.register('store', new StoreService(logger));
+	const store = container.register('store', new StoreService());
 	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
 	container.register('powerSaveBlocker', createElectronPowerSaveBlockerService());
@@ -154,7 +154,7 @@ export function bootstrapServices(): BootstrapResult {
 	});
 	const channelRegistry = container.register(
 		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService, agentSettings })
+			new ChannelRegistry({ logger, eventBus, agentService })
 	);
 	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(

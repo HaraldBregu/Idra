@@ -23,6 +23,8 @@ export interface TaskSchedulerSettings {
 	managed?: unknown;
 	friday?: unknown;
 	legacyTasks?: unknown[];
+	allowedTaskTypes?: string[];
+	defaultConcurrency?: number;
 }
 
 export interface BackgroundTaskSettings {
