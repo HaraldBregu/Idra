@@ -72,6 +72,16 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
+	{
+		name: 'write',
+		group: 'coreWorkspace',
+		title: 'Write',
+		description: 'Create or overwrite a UTF-8 workspace file.',
+		permissions: ['create', 'write'],
+		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	},
 ] as const satisfies readonly AgentToolMetadata[];
 
 export const DEFAULT_STATE_TASK_TOOLS = [
@@ -478,16 +488,6 @@ export const OPTIONAL_CRON_TOOLS = [
 ] as const satisfies readonly AgentToolMetadata[];
 
 export const LEGACY_CORE_WORKSPACE_TOOLS = [
-	{
-		name: 'write',
-		group: 'coreWorkspace',
-		title: 'Write',
-		description: 'Create or overwrite a UTF-8 workspace file.',
-		permissions: ['create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
 	{
 		name: 'apply_patch',
 		group: 'coreWorkspace',
