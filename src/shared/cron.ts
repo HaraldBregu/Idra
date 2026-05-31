@@ -234,7 +234,7 @@ export interface CronScheduleAuditEntry {
 	auditId: string;
 	scheduleId: CronScheduleId;
 	action: string;
-	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc';
+	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'agent-cron-service';
 	message: string;
 	createdAt: string;
 	metadata: CronJsonObject;
@@ -244,7 +244,7 @@ export interface CronScheduleDefinition {
 	id: CronScheduleId;
 	name: string;
 	description?: string;
-	schedule: CronStoredSchedule;
+	schedule?: CronStoredSchedule;
 	type: CronScheduleType;
 	status: CronScheduleStatus;
 	source: CronScheduleSource;
@@ -268,7 +268,7 @@ export interface CronScheduleDefinition {
 	lastSuccessfulRunAt?: string;
 	lastFailedRunAt?: string;
 	lastEvaluatedAt?: string;
-	failureCount: number;
+	failureCount?: number;
 	missedRunPolicy: CronMissedRunPolicy;
 	maxCatchUpRuns?: number;
 	catchUpWindowMs?: number;
@@ -276,8 +276,8 @@ export interface CronScheduleDefinition {
 	retryPolicy: CronRetryPolicy;
 	providerId?: string;
 	modelId?: string;
-	target: CronStoredTarget;
-	payload: CronJsonValue;
+	target?: CronStoredTarget;
+	payload?: CronJsonValue;
 	taskType: string;
 	taskInput: CronJsonValue;
 	taskPriority: CronTaskPriority;
