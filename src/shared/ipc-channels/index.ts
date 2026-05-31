@@ -239,14 +239,6 @@ interface AppInvokeChannelMap {
 		args: [];
 		result: boolean;
 	};
-	[AppChannels.getKeepAwakeEnabled]: {
-		args: [];
-		result: boolean;
-	};
-	[AppChannels.setKeepAwakeEnabled]: {
-		args: [enabled: boolean];
-		result: boolean;
-	};
 	[AppChannels.getMicrophonePermission]: {
 		args: [];
 		result: import('../app-permissions').MicrophonePermissionSettings;
@@ -600,21 +592,6 @@ interface TaskInvokeChannelMap {
 	};
 }
 
-interface MonitorInvokeChannelMap {
-	[MonitorChannels.snapshot]: {
-		args: [filter?: import('../monitor').MonitorEventFilter];
-		result: import('../monitor').MonitorSnapshot;
-	};
-	[MonitorChannels.list]: {
-		args: [filter?: import('../monitor').MonitorEventFilter];
-		result: import('../monitor').MonitorEventRecord[];
-	};
-	[MonitorChannels.get]: {
-		args: [id: string];
-		result: import('../monitor').MonitorEventRecord | undefined;
-	};
-}
-
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('../skills').SkillInfo[] };
 	[SkillsChannels.load]: { args: [name: string]; result: import('../skills').SkillDetails };
@@ -751,14 +728,6 @@ interface StoreInvokeChannelMap {
 	[StoreChannels.addProvider]: {
 		args: [input: import('../providers').ProviderInput];
 		result: import('../providers').PublicProvider;
-	};
-	[StoreChannels.getKeepAwakeEnabled]: {
-		args: [];
-		result: boolean;
-	};
-	[StoreChannels.setKeepAwakeEnabled]: {
-		args: [enabled: boolean];
-		result: boolean;
 	};
 	[StoreChannels.getAssistantSettings]: {
 		args: [];
