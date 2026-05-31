@@ -1,5 +1,6 @@
 import type { AgentTool } from '../core/types';
 import {
+	AGENT_ALL_TOOL_NAMES,
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_NAMES,
 	type AgentToolApprovalPolicy,
@@ -7,14 +8,9 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../../shared/tools';
-import { applyPatchTool } from '../base/apply-patch';
-import { copyTool } from '../base/copy';
-import { deleteFileTool } from '../base/delete-file';
 import { editFileTool } from '../base/edit-file';
 import { grepTool } from '../base/grep';
-import { inspectFileTool } from '../base/inspect-file';
 import { listDirectoryTool } from '../base/list-directory';
-import { moveTool } from '../base/move';
 import { readFileTool } from '../base/read-file';
 import { runShellTool } from '../base/run-shell';
 import { searchFilesTool } from '../base/search-files';
@@ -44,9 +40,7 @@ import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
 import { loadMcpToolTool } from '../mcp/load-mcp-tool';
 import { readMcpResourceTool } from '../mcp/read-mcp-resource';
 import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
-import { openBrowserTool, startTaskTool, webFetchTool } from '../app';
-import { execTool, processTool } from '../exec';
-import { cronTool } from '../cron';
+import { startTaskTool } from '../app';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
@@ -85,13 +79,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	grep: grepTool,
 	run_shell: runShellTool,
 	write: writeTool,
-	apply_patch: applyPatchTool,
-	delete_file: deleteFileTool,
-	copy: copyTool,
-	move: moveTool,
-	inspect_file: inspectFileTool,
-	exec: execTool,
-	process: processTool,
 	undo_last_operation: undoLastOperationTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
@@ -118,10 +105,9 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	read_mcp_resource: readMcpResourceTool,
 	list_mcp_prompts: listMcpPromptsTool,
 	load_mcp_prompt: loadMcpPromptTool,
-	web_fetch: webFetchTool,
-	open_browser: openBrowserTool,
-	cron: cronTool,
 } as const satisfies Record<(typeof AGENT_TOOL_NAMES)[number], LocalToolImplementation>;
+
+AGENT_ALL_TOOL_NAMES;
 
 export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
 	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
