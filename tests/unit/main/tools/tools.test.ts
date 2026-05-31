@@ -78,7 +78,7 @@ describe('tools/types', () => {
 });
 
 describe('tools/policy and registry', () => {
-	const all: AgentTool[] = ['read_file', 'write_file', 'search_files', 'exec'].map((name) => ({
+	const all: AgentTool[] = ['read_file', 'write', 'search_files', 'exec'].map((name) => ({
 		name,
 		description: name,
 		schema: {},
@@ -96,7 +96,7 @@ describe('tools/policy and registry', () => {
 		).toEqual(['read_file']);
 		expect(
 			filterTools(all, { profile: 'full', allow: ['w*'], deny: ['write_file_backup'] }).map((t) => t.name)
-		).toEqual(['write_file']);
+		).toEqual(['write']);
 		expect(
 			createTools({ profile: 'standard', allow: [], deny: ['exec'] }).some((t) => t.name === 'exec')
 		).toBe(false);
@@ -135,10 +135,10 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForGroup('mcpConnector')).toEqual(
 			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
 		);
-		expect(byName.get('write_file')).toMatchObject({
+		expect(byName.get('write')).toMatchObject({
 			group: 'coreWorkspace',
 			approval: AGENT_TOOL_APPROVAL_NONE,
-			profiles: AGENT_TOOL_METADATA_BY_NAME.write_file.profiles,
+			profiles: AGENT_TOOL_METADATA_BY_NAME.write.profiles,
 		});
 		expect(byName.get('run_shell')).toMatchObject({
 			group: 'coreWorkspace',
@@ -161,7 +161,7 @@ describe('tools/policy and registry', () => {
 			profiles: ['coding', 'standard', 'full'],
 			availability: 'default',
 		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.write_file).toMatchObject({
+		expect(AGENT_TOOL_METADATA_BY_NAME.write).toMatchObject({
 			permissions: ['create', 'write'],
 			approval: AGENT_TOOL_APPROVAL_NONE,
 		});
