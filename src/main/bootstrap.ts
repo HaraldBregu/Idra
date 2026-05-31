@@ -27,7 +27,7 @@ import { createElectronPowerSaveBlockerService } from './power-save-blocker';
 import { ToolService } from './agent/tools';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
-import { AgentRunLogger } from './run-logger';
+import { AgentRunLogger } from './agent/logging';
 import { DEFAULT_AGENT_ID } from './config';
 
 import type { IpcModule } from './ipc';
