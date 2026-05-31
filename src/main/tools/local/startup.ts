@@ -38,18 +38,20 @@ export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 	needsApproval: (args) => args.action === 'write' || args.action === 'complete_bootstrap',
 	async execute(args, ctx) {
 		const agentId = ctx.agentId ?? DEFAULT_AGENT_ID;
+		const startupFiles = ctx.services.startupFiles;
+		if (!startupFiles) return textResult('startup_files: Startup files service is unavailable.', true);
 		try {
 			if (args.action === 'list') {
-				const files = await ctx.services.startupFiles.listFiles(agentId);
+				const files = await startupFiles.listFiles(agentId);
 				return textResult(JSON.stringify({
-					rootPath: ctx.services.startupFiles.getRootPath(agentId),
+					rootPath: startupFiles.getRootPath(agentId),
 					files,
 				}, null, 2));
 			}
 
 			if (args.action === 'read') {
 				if (!args.name) return textResult('startup_files: name is required for read.', true);
-				const file = await ctx.services.startupFiles.readFile(agentId, args.name);
+				const file = await startupFiles.readFile(agentId, args.name);
 				if (file.missing) {
 					return textResult(`startup_files: ${args.name} is missing at ${file.path}`, true);
 				}
@@ -61,12 +63,12 @@ export const startupFilesTool: AgentTool<StartupFilesArgs> = {
 				if (typeof args.content !== 'string') {
 					return textResult('startup_files: content is required for write.', true);
 				}
-				const file = await ctx.services.startupFiles.writeFile(agentId, args.name, args.content);
+				const file = await startupFiles.writeFile(agentId, args.name, args.content);
 				return textResult(`wrote ${file.path} (${Buffer.byteLength(file.content ?? '', 'utf8')} bytes)`);
 			}
 
 			if (args.action === 'complete_bootstrap') {
-				await ctx.services.startupFiles.completeBootstrap(agentId);
+				await startupFiles.completeBootstrap(agentId);
 				return textResult('completed startup bootstrap');
 			}
 

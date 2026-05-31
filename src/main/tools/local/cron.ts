@@ -75,7 +75,7 @@ function inferredDelivery(ctx: ToolContext): Record<string, unknown> | undefined
 	return Object.keys(delivery).length > 1 ? delivery : undefined;
 }
 
-export const cronTool: AgentTool<FridayCronToolRequest, FridayCronToolResponse> = {
+export const cronTool: AgentTool<FridayCronToolRequest> = {
 	name: 'cron',
 	ownerOnly: true,
 	displaySummary: 'Schedule cron jobs, reminders, and wake events.',
