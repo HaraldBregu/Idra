@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import {
 	OPENAI_CONNECTOR_CATALOG,
 	type DirectConnectorCatalogId,
-	type OpenAiConnectorId,
 } from '../../../../../../../shared/connector';
 
 type ConnectorIconAsset = {

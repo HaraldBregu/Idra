@@ -62,18 +62,20 @@ export function ConnectorDocumentationRows({
 				</div>
 			</div>
 
-			<div className="grid gap-1.5">
-				<div className="flex items-center gap-1.5 text-[11px] font-medium leading-4 text-foreground">
-					<Terminal className="size-3 text-muted-foreground" strokeWidth={1.8} />
-					Example
-				</div>
-				<div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
-					<Badge variant="secondary" className="h-5 max-w-full px-1.5 font-mono text-[10px]">
-						<span className="truncate">{connector.example.tool}</span>
-					</Badge>
-					<span className="min-w-0 break-all font-mono">{JSON.stringify(connector.example.input)}</span>
-				</div>
-			</div>
+				{connector.example && (
+					<div className="grid gap-1.5">
+						<div className="flex items-center gap-1.5 text-[11px] font-medium leading-4 text-foreground">
+							<Terminal className="size-3 text-muted-foreground" strokeWidth={1.8} />
+							Example
+						</div>
+						<div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] leading-4 text-muted-foreground">
+							<Badge variant="secondary" className="h-5 max-w-full px-1.5 font-mono text-[10px]">
+								<span className="truncate">{connector.example.tool}</span>
+							</Badge>
+							<span className="min-w-0 break-all font-mono">{JSON.stringify(connector.example.input)}</span>
+						</div>
+					</div>
+				)}
 		</div>
 	);
 }
