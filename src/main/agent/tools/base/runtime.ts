@@ -43,9 +43,7 @@ import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
 import { loadMcpToolTool } from '../mcp/load-mcp-tool';
 import { readMcpResourceTool } from '../mcp/read-mcp-resource';
 import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
-import { openBrowserTool, startTaskTool, webFetchTool } from '../app';
-import { execTool, processTool } from '../exec';
-import { cronTool } from '../cron';
+import { startTaskTool } from '../app';
 
 export type FileToolOptions = {
 	workspaceDir: string;
@@ -72,8 +70,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	copyTool,
 	moveTool,
 	inspectFileTool,
-	execTool,
-	processTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
@@ -99,9 +95,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	readMcpResourceTool,
 	listMcpPromptsTool,
 	loadMcpPromptTool,
-	webFetchTool,
-	openBrowserTool,
-	cronTool,
 ] as const;
 
 export function createFileTools(options: FileToolOptions): AgentTool[] {
