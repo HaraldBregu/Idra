@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../../../config';
+import { DEFAULT_AGENT_ID } from '../../../app/config' ;
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { toolDescription } from '../metadata';

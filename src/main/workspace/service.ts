@@ -4,7 +4,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 import type { LoggerService } from '../logger';
-import { resolveDefaultUserDataPath } from '../user-data';
+import { resolveDefaultUserDataPath } from '../app/user-data' ;
 import type { ReadFileOptions, WorkspaceServiceOptions, WriteFileOptions } from './types';
 import {
 	DEFAULT_AGENTS_FILENAME,

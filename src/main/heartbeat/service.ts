@@ -12,7 +12,7 @@ import {
 	type ChannelChatType,
 	type ChannelOutboundMessage,
 } from '../channels';
-import { DEFAULT_AGENT_ID } from '../config';
+import { DEFAULT_AGENT_ID } from '../app/config' ;
 import type {
 	AgentHeartbeatConfig,
 	HeartbeatEventPayload,
@@ -35,7 +35,7 @@ import {
 	resolveHeartbeatAgentSummaries,
 	resolveHeartbeatSummaryForAgent,
 	type HeartbeatSummary,
-} from './config';
+} from './app/config' ;
 import { recordRunStart, shouldDeferWake } from './scheduling/cooldown';
 import {
 	buildHeartbeatPrompt,

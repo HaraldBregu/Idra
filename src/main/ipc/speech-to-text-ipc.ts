@@ -1,7 +1,7 @@
 import { ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../core/services';
+import type { MainServiceContainer } from '../app/services' ;
 import { wrapIpcHandler } from './ipc-error-handler';
 import { SpeechToTextChannels } from '../../shared/ipc-channels';
 import {

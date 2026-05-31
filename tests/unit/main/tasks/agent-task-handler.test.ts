@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../../../../src/main/config';
+import { DEFAULT_AGENT_ID } from '../../../../src/main/app/config';
 import { AgentTaskHandler } from '../../../../src/main/tasks/handlers/agent-task-handler';
 
 describe('AgentTaskHandler', () => {

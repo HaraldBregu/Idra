@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { LoggerService } from '../../logger';
-import type { UserDataDirectoryServicePort } from '../../user-data';
-import { resolveDefaultUserDataPath } from '../../user-data';
+import type { UserDataDirectoryServicePort } from '../../app/user-data' ;
+import { resolveDefaultUserDataPath } from '../../app/user-data' ;
 import type { AgentTool, ToolContext } from '../../agent/legacy-tools/types';
 import { textResult } from '../../agent/legacy-tools/types';
 import type {

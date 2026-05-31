@@ -6,7 +6,7 @@ import { Main } from './main';
 import { Tray } from './tray';
 import { Menu } from './menu';
 import { ShortcutManager } from './shortcuts';
-import type { AppPermissionsService } from './app-permissions';
+import type { AppPermissionsService } from './app/permissions' ;
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++

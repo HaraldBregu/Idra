@@ -2,7 +2,7 @@ jest.mock('@electron-toolkit/utils', () => ({
 	is: { dev: true },
 }));
 
-jest.mock('../../../src/main/i18n', () => ({
+jest.mock('../../../src/main/app/i18n', () => ({
 	loadTranslations: jest.fn(() => ({
 		showFriday: 'Show Friday',
 		hideFriday: 'Hide Friday',

@@ -3,7 +3,7 @@ import Store from 'electron-store';
 import type { EventBus } from '../core/event-bus';
 import type { LoggerService } from '../logger';
 import type { StoreService } from '../store';
-import { DEFAULT_AGENT_ID } from '../config';
+import { DEFAULT_AGENT_ID } from '../app/config' ;
 import type {
 	TaskEvent,
 	TaskHandler,
