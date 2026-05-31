@@ -1,4 +1,4 @@
-import type { LoggerService } from '../../logger';
+import type { LoggerService } from '../../../logger';
 import type {
 	WorkspaceContextFile,
 	WorkspaceFileSummary,
