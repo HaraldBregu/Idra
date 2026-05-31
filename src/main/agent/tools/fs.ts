@@ -1,6 +1,6 @@
 export { applyPatchTool } from './files/apply-patch';
 export { copyTool } from './files/copy';
-export { deleteTool } from './files/delete';
+export { deleteTool } from './files/delete-file';
 export { editTool } from './files/edit';
 export { findTool } from './files/find';
 export { inspectFileTool } from './files/inspect-file';

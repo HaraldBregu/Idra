@@ -9,7 +9,7 @@ import {
 } from '../../../../shared/tools';
 import { applyPatchTool } from '../files/apply-patch';
 import { copyTool } from '../files/copy';
-import { deleteTool } from '../files/delete';
+import { deleteTool } from '../files/delete-file';
 import { editTool } from '../files/edit';
 import { editFileTool } from '../files/edit_file';
 import { findTool } from '../files/find';

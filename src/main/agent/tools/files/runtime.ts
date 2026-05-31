@@ -8,7 +8,7 @@ import type {
 import { legacyToolToCanonical } from '../runtime/bridge';
 import { applyPatchTool } from './apply-patch';
 import { copyTool } from './copy';
-import { deleteTool } from './delete';
+import { deleteTool } from './delete-file';
 import { editTool } from './edit';
 import { editFileTool } from './edit_file';
 import { findTool } from './find';
