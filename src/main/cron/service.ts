@@ -1,6 +1,7 @@
 import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
+import type { StoreService } from '../store';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
