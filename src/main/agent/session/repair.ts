@@ -30,9 +30,7 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 	for (let i = 0; i < transcript.length; i++) {
 		const entry = transcript[i]!;
 		if (entry.role === 'assistant') {
-			const toolUseIds = entry.content
-				.filter((b) => b.type === 'tool_use')
-				.map((b) => b.toolUseId);
+			const toolUseIds = entry.content.filter((b) => b.type === 'tool_use').map((b) => b.toolUseId);
 			if (toolUseIds.length === 0) {
 				out.push(entry);
 				continue;
@@ -61,7 +59,10 @@ export function sanitizeToolUseResultPairing(transcript: TranscriptEntry[]): Tra
 						role: 'tool',
 						toolUseId: id,
 						content: [
-							{ type: 'text', text: '(missing result — synthesized stub during transcript repair)' },
+							{
+								type: 'text',
+								text: '(missing result — synthesized stub during transcript repair)',
+							},
 						],
 						isError: true,
 						status: 'error',

@@ -36,7 +36,10 @@ export async function loadSessionIndex(baseDir: string): Promise<SessionIndexEnt
 	}
 }
 
-export async function saveSessionIndex(baseDir: string, sessions: SessionIndexEntry[]): Promise<void> {
+export async function saveSessionIndex(
+	baseDir: string,
+	sessions: SessionIndexEntry[]
+): Promise<void> {
 	const target = sessionIndexPath(baseDir);
 	const tmp = target + '.tmp';
 	const ordered = [...sessions].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
