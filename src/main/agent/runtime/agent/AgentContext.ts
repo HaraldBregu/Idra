@@ -1,4 +1,23 @@
-import type { AgentContext, AppState, Logger, Metrics, PermissionContext, Tool } from './types';
+import type { MemoryStore } from '../memory/MemoryStore';
+import type { PermissionContext } from '../permissions/PermissionContext';
+import type { Logger } from '../telemetry/logger';
+import type { Metrics } from '../telemetry/metrics';
+import type { Tool } from '../tools/Tool';
+import type { Message } from './messages';
+import type { AppState } from './state';
+
+export type AgentContext = {
+	messages: Message[];
+	tools: Tool<unknown, unknown>[];
+	abortSignal: AbortSignal;
+	permissionContext: PermissionContext;
+	getState(): AppState;
+	setState(update: (prev: AppState) => AppState): void;
+	memory?: MemoryStore;
+	logger: Logger;
+	metrics: Metrics;
+	user?: { id: string; name?: string };
+};
 
 export type CreateAgentContextInput = {
 	tools: Tool<unknown, unknown>[];

@@ -1,4 +1,5 @@
-import type { PermissionContext, Tool } from './types';
+import type { PermissionContext } from '../permissions/PermissionContext';
+import type { Tool } from './Tool';
 
 export class ToolRegistry {
 	private readonly tools = new Map<string, Tool<unknown, unknown>>();

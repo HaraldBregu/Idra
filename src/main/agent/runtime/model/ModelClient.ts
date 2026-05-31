@@ -1,4 +1,4 @@
-import type { Message, ToolCall } from './types';
+import type { Message, ToolCall } from '../agent/messages';
 
 export type ModelToolSchema = {
 	name: string;
