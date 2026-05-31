@@ -34,7 +34,7 @@ export type ConnectorActivationCapability = 'provider' | 'channel' | 'tool' | 'h
 export interface ConnectorManifestActivation {
 	onStartup?: boolean;
 	onProviders?: string[];
-	onAgentHarnesses?: string[];
+	onAgentRuntimes?: string[];
 	onCommands?: string[];
 	onChannels?: string[];
 	onRoutes?: string[];
@@ -316,7 +316,7 @@ function normalizeActivation(value: unknown): ConnectorManifestActivation | unde
 	return compactRecord({
 		onStartup: typeof value.onStartup === 'boolean' ? value.onStartup : undefined,
 		onProviders: normalizeStringList(value.onProviders),
-		onAgentHarnesses: normalizeStringList(value.onAgentHarnesses),
+		onAgentRuntimes: normalizeStringList(value.onAgentRuntimes),
 		onCommands: normalizeStringList(value.onCommands),
 		onChannels: normalizeStringList(value.onChannels),
 		onRoutes: normalizeStringList(value.onRoutes),

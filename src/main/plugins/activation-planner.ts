@@ -10,12 +10,12 @@ export type ConnectorActivationTrigger =
 	| { kind: 'channel'; channel: string }
 	| { kind: 'command'; command: string }
 	| { kind: 'route'; route: string }
-	| { kind: 'agentHarness'; runtime: string }
+	| { kind: 'agentRuntime'; runtime: string }
 	| { kind: 'tool'; tool: string }
 	| { kind: 'capability'; capability: ConnectorActivationCapability };
 
 export type ConnectorActivationReason =
-	| 'activation-agent-harness-hint'
+	| 'activation-agent-runtime-hint'
 	| 'activation-capability-hint'
 	| 'activation-channel-hint'
 	| 'activation-command-hint'
@@ -102,9 +102,9 @@ function listActivationReasons(
 			return hasNormalized(manifest.activation?.onRoutes, trigger.route)
 				? ['activation-route-hint']
 				: [];
-		case 'agentHarness':
-			return hasNormalized(manifest.activation?.onAgentHarnesses, trigger.runtime)
-				? ['activation-agent-harness-hint']
+		case 'agentRuntime':
+			return hasNormalized(manifest.activation?.onAgentRuntimes, trigger.runtime)
+				? ['activation-agent-runtime-hint']
 				: [];
 		case 'tool':
 			return hasNormalized(manifest.contracts.tools, trigger.tool) ? ['manifest-tool-contract'] : [];

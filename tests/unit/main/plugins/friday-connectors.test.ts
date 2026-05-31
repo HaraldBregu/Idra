@@ -101,7 +101,7 @@ describe('Friday-style connector runtime', () => {
 				commandAliases: ['demo'],
 				activation: {
 					onRoutes: ['webhook'],
-					onAgentHarnesses: ['assistant-runtime'],
+					onAgentRuntimes: ['assistant-runtime'],
 					onCapabilities: ['hook'],
 				},
 				setup: { providers: [{ id: 'setup-ai', envVars: ['SETUP_API_KEY'] }] },
