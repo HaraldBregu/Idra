@@ -6,9 +6,7 @@ import type {
 	ToolContext,
 } from '../core/types';
 import { legacyToolToCanonical } from '../runtime/bridge';
-import {
-	applyPatchTool,
-} from './apply-patch';
+import { applyPatchTool } from './apply-patch';
 import { copyTool } from './copy';
 import { deleteTool } from './delete';
 import { editTool } from './edit';
