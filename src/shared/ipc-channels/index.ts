@@ -92,8 +92,6 @@ export const AppChannels = {
 	openSystemPreference: 'app:open-system-preference',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
-	getKeepAwakeEnabled: 'app:get-keep-awake-enabled',
-	setKeepAwakeEnabled: 'app:set-keep-awake-enabled',
 	getMicrophonePermission: 'app:get-microphone-permission',
 	setMicrophoneEnabled: 'app:set-microphone-enabled',
 	requestMicrophonePermission: 'app:request-microphone-permission',
@@ -136,13 +134,6 @@ export const HeartbeatChannels = {
 	systemEvent: 'heartbeat:system-event',
 	request: 'heartbeat:request',
 	event: 'heartbeat:event',
-} as const;
-
-export const MonitorChannels = {
-	snapshot: 'monitor:snapshot',
-	list: 'monitor:list',
-	get: 'monitor:get',
-	event: 'monitor:event',
 } as const;
 
 export const SkillsChannels = {
@@ -191,8 +182,6 @@ export const StoreChannels = {
 	setProviderApiKey: 'store:set-provider-api-key',
 	isProviderApiKeySaved: 'store:is-provider-api-key-saved',
 	addProvider: 'store:add-provider',
-	getKeepAwakeEnabled: 'store:get-keep-awake-enabled',
-	setKeepAwakeEnabled: 'store:set-keep-awake-enabled',
 	getAssistantSettings: 'store:get-assistant-settings',
 	getSpeechToTextSettings: 'store:get-speech-to-text-settings',
 	getTextToSpeechSettings: 'store:get-text-to-speech-settings',
