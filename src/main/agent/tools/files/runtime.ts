@@ -35,18 +35,16 @@ import { spawnSubagentTool } from '../subagent/spawn-subagent';
 import { listSkillsTool } from '../skills/list-skills';
 import { loadSkillTool } from '../skills/load-skill';
 import { useSkillTool } from '../skills/use-skill';
-import {
-	callMcpToolTool,
-	connectMcpServerTool,
-	listMcpPromptsTool,
-	listMcpResourcesTool,
-	listMcpServersTool,
-	listMcpToolsTool,
-	loadMcpPromptTool,
-	loadMcpToolTool,
-	readMcpResourceTool,
-	refreshMcpServerTool,
-} from '../mcp/tools';
+import { callMcpToolTool } from '../mcp/call-mcp-tool';
+import { connectMcpServerTool } from '../mcp/connect-mcp-server';
+import { listMcpPromptsTool } from '../mcp/list-mcp-prompts';
+import { listMcpResourcesTool } from '../mcp/list-mcp-resources';
+import { listMcpServersTool } from '../mcp/list-mcp-servers';
+import { listMcpToolsTool } from '../mcp/list-mcp-tools';
+import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
+import { loadMcpToolTool } from '../mcp/load-mcp-tool';
+import { readMcpResourceTool } from '../mcp/read-mcp-resource';
+import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
 import { openBrowserTool, taskTool, webFetchTool } from '../app';
 import { execTool, processTool } from '../exec';
 import { cronTool } from '../cron';

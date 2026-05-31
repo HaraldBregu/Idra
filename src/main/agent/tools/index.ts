@@ -52,18 +52,16 @@ export { spawnSubagentTool } from './subagent/spawn-subagent';
 export { listSkillsTool } from './skills/list-skills';
 export { loadSkillTool } from './skills/load-skill';
 export { useSkillTool } from './skills/use-skill';
-export {
-	callMcpToolTool,
-	connectMcpServerTool,
-	listMcpPromptsTool,
-	listMcpResourcesTool,
-	listMcpServersTool,
-	listMcpToolsTool,
-	loadMcpPromptTool,
-	loadMcpToolTool,
-	readMcpResourceTool,
-	refreshMcpServerTool,
-} from './mcp/tools';
+export { callMcpToolTool } from './mcp/call-mcp-tool';
+export { connectMcpServerTool } from './mcp/connect-mcp-server';
+export { listMcpPromptsTool } from './mcp/list-mcp-prompts';
+export { listMcpResourcesTool } from './mcp/list-mcp-resources';
+export { listMcpServersTool } from './mcp/list-mcp-servers';
+export { listMcpToolsTool } from './mcp/list-mcp-tools';
+export { loadMcpPromptTool } from './mcp/load-mcp-prompt';
+export { loadMcpToolTool } from './mcp/load-mcp-tool';
+export { readMcpResourceTool } from './mcp/read-mcp-resource';
+export { refreshMcpServerTool } from './mcp/refresh-mcp-server';
 export {
 	ALL_TOOLS,
 	createTools,
