@@ -233,26 +233,6 @@ describe('StoreService', () => {
 		});
 	});
 
-	describe('keep-awake runtime setting', () => {
-		it('defaults keep-awake off', () => {
-			const service = new StoreService();
-
-			expect(service.getKeepAwakeEnabled()).toBe(false);
-		});
-
-		it('does not persist keep-awake state in the settings store', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-
-			expect(service.setKeepAwakeEnabled(true)).toEqual({ keepAwakeEnabled: true });
-			expect(service.getKeepAwakeEnabled()).toBe(true);
-			expect(store.get('appSettings')).toBeUndefined();
-
-			expect(service.setKeepAwakeEnabled(false)).toEqual({ keepAwakeEnabled: false });
-			expect(service.getKeepAwakeEnabled()).toBe(false);
-		});
-	});
-
 	describe('background task settings', () => {
 		it('normalizes allowed task policy from the backgroundTask root', () => {
 			const service = new StoreService();

@@ -21,10 +21,8 @@ function renderSystemPage(): void {
 describe('SystemPage', () => {
 	beforeEach(() => {
 		window.app = {
-			...window.app,
-			getKeepAwakeEnabled: jest.fn(async () => false),
-			setKeepAwakeEnabled: jest.fn(async (enabled: boolean) => enabled),
-			getMicrophonePermission: jest.fn(async () => ({
+				...window.app,
+				getMicrophonePermission: jest.fn(async () => ({
 				enabled: true,
 				systemStatus: 'not-determined',
 				canRequest: true,
@@ -69,31 +67,6 @@ describe('SystemPage', () => {
 		).toBeInTheDocument();
 		expect(screen.getAllByText('settings.system.availability.yes').length).toBeGreaterThan(0);
 		expect(screen.getByText('settings.system.availability.yesHighPrivilege')).toBeInTheDocument();
-	});
-
-	it('loads and reflects the initial keep-awake state', async () => {
-		(window.app.getKeepAwakeEnabled as jest.Mock).mockResolvedValue(true);
-		renderSystemPage();
-
-		const toggle = await screen.findByRole('switch', { name: 'settings.application.keepAwake' });
-		await waitFor(() => {
-			expect(toggle).toHaveAttribute('aria-checked', 'true');
-		});
-	});
-
-	it('calls setKeepAwakeEnabled when the keep-awake switch is toggled', async () => {
-		const user = userEvent.setup();
-		renderSystemPage();
-
-		const toggle = await screen.findByRole('switch', { name: 'settings.application.keepAwake' });
-		await waitFor(() => {
-			expect(toggle).not.toBeDisabled();
-		});
-		await user.click(toggle);
-
-		await waitFor(() => {
-			expect(window.app.setKeepAwakeEnabled).toHaveBeenCalledWith(true);
-		});
 	});
 
 	it('loads microphone and camera permission state', async () => {
