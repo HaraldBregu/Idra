@@ -19,19 +19,10 @@ export type AgentToolPermission =
 
 export type AgentToolApprovalPolicy =
 	| { mode: 'none' }
-	| { mode: 'workspace-boundary'; target: 'write-target' | 'workdir' }
 	| { mode: 'action'; actions: readonly string[] }
 	| { mode: 'always' };
 
 export const AGENT_TOOL_APPROVAL_NONE = { mode: 'none' } as const;
-export const AGENT_TOOL_APPROVAL_WRITE_WORKSPACE_BOUNDARY = {
-	mode: 'workspace-boundary',
-	target: 'write-target',
-} as const;
-export const AGENT_TOOL_APPROVAL_WORKDIR_BOUNDARY = {
-	mode: 'workspace-boundary',
-	target: 'workdir',
-} as const;
 export const AGENT_TOOL_APPROVAL_ALWAYS = { mode: 'always' } as const;
 
 export const AGENT_TOOL_PROFILES = ['minimal', 'coding', 'messaging', 'standard', 'full'] as const;
