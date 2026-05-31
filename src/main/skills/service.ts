@@ -368,7 +368,7 @@ export class SkillsService {
 			return null;
 		}
 
-		return validation.skill;
+		return validation.skill ?? null;
 	}
 
 	private async validateCandidate(
@@ -437,6 +437,8 @@ export class SkillsService {
 					name,
 					description,
 					location: candidate.folderPath,
+					folderPath: candidate.folderPath,
+					manifest: { name, description },
 				},
 				frontmatter,
 				...(includeInstructions ? { instructions: parsed.content } : {}),

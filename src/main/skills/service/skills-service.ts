@@ -5,7 +5,14 @@ import type { UserDataDirectoryServicePort } from '../../user-data';
 import { resolveDefaultUserDataPath } from '../../user-data';
 import type { AgentTool, ToolContext } from '../../tools/types';
 import { textResult } from '../../tools/types';
-import type { SkillDownloadResult, SkillImportResult, SkillInfo } from '../../../shared/skills';
+import type {
+	SkillDetails,
+	SkillDownloadResult,
+	SkillImportResult,
+	SkillInfo,
+	SkillSearchOptions,
+	SkillSearchResult,
+} from '../../../shared/skills';
 import type { SkillPackage } from '../catalog/loader';
 import { SkillAuditLog } from '../runtime/audit-log';
 import { SkillDependencyResolver } from '../registry/dependency-resolver';
@@ -196,6 +203,64 @@ export class SkillsService {
 
 		skills.sort((a, b) => a.manifest.name.localeCompare(b.manifest.name));
 		return skills;
+	}
+
+	async search(query: string, options: SkillSearchOptions = {}): Promise<SkillSearchResult[]> {
+		const terms = query
+			.toLowerCase()
+			.split(/[^a-z0-9]+/)
+			.filter(Boolean);
+		const names = new Set((options.names ?? []).map((name) => name.toLowerCase()));
+		const limit = Math.max(1, Math.min(options.limit ?? 3, 12));
+
+		return (await this.list())
+			.map((skill) => {
+				const haystack = [
+					skill.id,
+					skill.name,
+					skill.description,
+					...(skill.manifest.tags ?? []),
+					skill.manifest.category ?? '',
+				]
+					.join(' ')
+					.toLowerCase();
+				const configuredBoost = names.has(skill.id.toLowerCase()) || names.has(skill.name.toLowerCase()) ? 20 : 0;
+				const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 10 : 0), configuredBoost);
+				return score > 0
+					? {
+							id: skill.id,
+							name: skill.name,
+							description: skill.description,
+							score,
+							reason: configuredBoost > 0 ? 'configured skill match' : 'matched skill metadata',
+						}
+					: null;
+			})
+			.filter((result): result is SkillSearchResult => result !== null)
+			.sort((left, right) => right.score - left.score || left.name.localeCompare(right.name))
+			.slice(0, limit);
+	}
+
+	async load(name: string): Promise<SkillDetails> {
+		const id = toSkillId(name);
+		const skill = (await this.list()).find(
+			(candidate) => candidate.id === id || candidate.name.toLowerCase() === name.trim().toLowerCase()
+		);
+		if (!skill) throw new Error(`Skill not found: ${name}`);
+		const loaded = await this.loader.loadPackage(skill.folderPath, { trusted: true });
+		return {
+			...skill,
+			frontmatter: {
+				name: loaded.manifest.name,
+				description: loaded.manifest.description ?? '',
+				license: loaded.manifest.license,
+				compatibility: loaded.manifest.compatibility,
+				metadata: loaded.manifest.metadata,
+				allowedTools: loaded.manifest.allowedTools,
+			},
+			instructions: loaded.instructions,
+			supportFiles: [],
+		};
 	}
 
 	async discoverForPrompt(
@@ -455,6 +520,9 @@ export class SkillsService {
 	private toSkillInfo(loaded: SkillPackage, id: string, folderPath: string): SkillInfo {
 		return {
 			id,
+			name: loaded.manifest.name,
+			description: loaded.manifest.description ?? '',
+			location: folderPath,
 			folderPath,
 			skillPath: loaded.skillPath,
 			manifest: loaded.manifest,
