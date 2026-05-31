@@ -5,7 +5,7 @@ import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
 import { resolveAbs } from './common';
 
-interface FindArgs {
+interface SearchFilesArgs {
 	pattern: string;
 	path?: string;
 	limit?: number;
@@ -14,8 +14,8 @@ interface FindArgs {
 const DEFAULT_FIND_LIMIT = TOOL_LIMITS.find.defaultLimit;
 const FIND_EXCLUDES = ['**/node_modules/**', '**/.git/**'];
 
-export const findTool: AgentTool<FindArgs> = {
-	name: 'find',
+export const searchFilesTool: AgentTool<SearchFilesArgs> = {
+	name: 'search_files',
 	description:
 		'Find files by glob pattern (e.g. "**/*.ts"). Returns matching paths relative to the search directory.',
 	schema: {
@@ -30,7 +30,7 @@ export const findTool: AgentTool<FindArgs> = {
 	},
 	async execute(args, ctx) {
 		const pattern = String(args.pattern ?? '').trim();
-		if (!pattern) return textResult('find: pattern required', true);
+		if (!pattern) return textResult('search_files: pattern required', true);
 		const limit =
 			typeof args.limit === 'number' && args.limit > 0
 				? Math.min(Math.floor(args.limit), TOOL_LIMITS.find.maxLimit)
@@ -40,7 +40,7 @@ export const findTool: AgentTool<FindArgs> = {
 				? resolveAbs(ctx.workspace, args.path)
 				: ctx.workspace;
 			const stat = await fs.stat(dir).catch(() => null);
-			if (!stat || !stat.isDirectory()) return textResult(`find: not a directory: ${dir}`, true);
+			if (!stat || !stat.isDirectory()) return textResult(`search_files: not a directory: ${dir}`, true);
 			const results: string[] = [];
 			const iter = fs.glob(pattern, { cwd: dir, exclude: FIND_EXCLUDES, withFileTypes: true });
 			for await (const dirent of iter) {
@@ -52,7 +52,7 @@ export const findTool: AgentTool<FindArgs> = {
 			}
 			return textResult(results.length === 0 ? 'No matches.' : results.join('\n'));
 		} catch (err) {
-			return textResult(`find: ${(err as Error).message}`, true);
+			return textResult(`search_files: ${(err as Error).message}`, true);
 		}
 	},
 };

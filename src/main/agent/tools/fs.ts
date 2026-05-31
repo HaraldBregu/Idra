@@ -2,7 +2,7 @@ export { applyPatchTool } from './files/apply-patch';
 export { copyTool } from './files/copy';
 export { deleteFileTool } from './files/delete-file';
 export { editFileTool } from './files/edit-file';
-export { findTool } from './files/find';
+export { searchFilesTool } from './files/search-files';
 export { inspectFileTool } from './files/inspect-file';
 export { moveTool } from './files/move';
 export { readFileTool } from './files/read-file';

@@ -641,16 +641,6 @@ const LEGACY_CORE_WORKSPACE_TOOLS = [
 		availability: 'legacy',
 	}),
 	tool({
-		name: 'find',
-		group: 'coreWorkspace',
-		title: 'Find',
-		description: 'Find files by glob pattern.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	}),
-	tool({
 		name: 'exec',
 		group: 'coreWorkspace',
 		title: 'Exec',
@@ -738,7 +728,6 @@ export const AGENT_TOOL_NAMES = [
 	'copy',
 	'move',
 	'inspect_file',
-	'find',
 	'exec',
 	'process',
 	'write_todos',
@@ -799,7 +788,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
-	find: ['search_files'],
 	script_run: ['run_shell'],
 	sessions_spawn: ['spawn_subagent'],
 } as const satisfies Record<string, readonly AgentDefaultToolName[]>;

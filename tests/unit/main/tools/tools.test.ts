@@ -6,7 +6,7 @@ import {
 	copyTool,
 	deleteFileTool,
 	editFileTool,
-	findTool,
+	searchFilesTool,
 	inspectFileTool,
 	moveTool,
 	readFileTool,
@@ -196,7 +196,7 @@ describe('tools/policy and registry', () => {
 			copyTool.name,
 			moveTool.name,
 			inspectFileTool.name,
-			findTool.name,
+			searchFilesTool.name,
 			scriptRunTool.name,
 			cronCreateTool.name,
 			cronReadTool.name,
@@ -337,7 +337,7 @@ describe('tools/fs', () => {
 
 		const write = await writeTool.execute({ path: 'nested/b.txt', content: 'new' }, ctx);
 		expect(write.status).toBe('ok');
-		const found = await findTool.execute({ pattern: '**/*.txt' }, ctx);
+		const found = await searchFilesTool.execute({ pattern: '**/*.txt' }, ctx);
 		expect(found.content[0]?.text).toContain('nested/b.txt');
 		await fs.rm(workspace, { recursive: true, force: true });
 	});

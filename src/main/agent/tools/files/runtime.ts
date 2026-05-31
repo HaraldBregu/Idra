@@ -10,7 +10,6 @@ import { applyPatchTool } from './apply-patch';
 import { copyTool } from './copy';
 import { deleteFileTool } from './delete-file';
 import { editFileTool } from './edit-file';
-import { findTool } from './find';
 import { gitDiffTool } from './git_diff';
 import { gitStatusTool } from './git_status';
 import { grepTool } from './grep';
@@ -19,7 +18,7 @@ import { listDirectoryTool } from './list_directory';
 import { moveTool } from './move';
 import { readFileTool } from './read-file';
 import { runShellTool } from './run_shell';
-import { searchFilesTool } from './search_files';
+import { searchFilesTool } from './search-files';
 import { undoLastOperationTool } from './undo_last_operation';
 import { writeTool } from './write';
 import {
@@ -80,7 +79,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	copyTool,
 	moveTool,
 	inspectFileTool,
-	findTool,
 	gitStatusTool,
 	gitDiffTool,
 	undoLastOperationTool,

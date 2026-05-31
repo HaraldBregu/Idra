@@ -11,7 +11,6 @@ import { applyPatchTool } from '../files/apply-patch';
 import { copyTool } from '../files/copy';
 import { deleteFileTool } from '../files/delete-file';
 import { editFileTool } from '../files/edit-file';
-import { findTool } from '../files/find';
 import { gitDiffTool } from '../files/git_diff';
 import { gitStatusTool } from '../files/git_status';
 import { grepTool } from '../files/grep';
@@ -20,7 +19,7 @@ import { listDirectoryTool } from '../files/list_directory';
 import { moveTool } from '../files/move';
 import { readFileTool } from '../files/read-file';
 import { runShellTool } from '../files/run_shell';
-import { searchFilesTool } from '../files/search_files';
+import { searchFilesTool } from '../files/search-files';
 import { undoLastOperationTool } from '../files/undo_last_operation';
 import { writeTool } from '../files/write';
 import {
@@ -99,7 +98,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	copy: copyTool,
 	move: moveTool,
 	inspect_file: inspectFileTool,
-	find: findTool,
 	exec: execTool,
 	process: processTool,
 	git_status: gitStatusTool,

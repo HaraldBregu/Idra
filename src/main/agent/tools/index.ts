@@ -32,7 +32,7 @@ export { grepTool } from './files/grep';
 export { listDirectoryTool } from './files/list_directory';
 export { readFileTool } from './files/read-file';
 export { runShellTool } from './files/run_shell';
-export { searchFilesTool } from './files/search_files';
+export { searchFilesTool } from './files/search-files';
 export { undoLastOperationTool } from './files/undo_last_operation';
 export {
 	completeTaskTool,

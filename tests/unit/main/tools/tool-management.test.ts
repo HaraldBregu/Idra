@@ -571,7 +571,7 @@ describe('tool management layer', () => {
 				makeAgentTool('move', 'Move or rename one file from source to destination.'),
 				makeAgentTool('delete_file', 'Delete a file.'),
 				makeAgentTool('copy', 'Copy a file.'),
-				makeAgentTool('find', 'Find files.'),
+				makeAgentTool('search_files', 'Find files.'),
 			],
 			'move the file from one directory to another',
 			makeToolContext(),
