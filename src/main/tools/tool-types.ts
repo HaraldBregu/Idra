@@ -3,7 +3,7 @@ import {
 	AGENT_TOOL_LEGACY_ALIASES,
 	AGENT_TOOL_NAMES,
 	type AgentToolGroupName,
-} from '../../../shared/tools';
+} from '../../shared/tools';
 
 export type ToolPolicyProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
 export type ToolProfile = ToolPolicyProfile;

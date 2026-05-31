@@ -12,4 +12,3 @@ export interface AppInfo {
 	manifest: AppManifest;
 	iconDataUrl?: string;
 }
-

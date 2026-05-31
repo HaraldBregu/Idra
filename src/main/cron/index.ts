@@ -1,5 +1,5 @@
 export { CronService } from './service';
-export type { CronServiceOptions } from './service';
+export type { CronServiceOptions, CronServiceActor } from './service';
 export type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 export type * from './core/cron.types';
 export * from './core/cron.errors';
@@ -20,7 +20,7 @@ export * from './friday/scheduler';
 export * from './friday/validation';
 export * from './events/cron-event-bus';
 export * from './events/cron-audit-log';
-export * from './security/cron-access-policy';
+export type { CronScheduleAccessPolicy } from './core/cron.types';
 export * from './security/cron-redaction';
 export * from './security/cron-confirmation-manager';
 export * from './agent/agent-cron-service';

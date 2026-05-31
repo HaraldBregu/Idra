@@ -1,7 +1,10 @@
 import { createPiAgentHarness } from './builtin-pi';
 import { getRegisteredHarnesses } from './registry';
+import { runAgentHarnessV2LifecycleAttempt } from './v2';
 import type {
 	AgentHarness,
+	AgentHarnessAttemptParams,
+	AgentHarnessAttemptResult,
 	AgentHarnessCompactParams,
 	AgentHarnessSupportDecision,
 } from './types';
@@ -83,4 +86,16 @@ function getSupport(
 	input: { provider: string; modelId: string }
 ): AgentHarnessSupportDecision {
 	return harness.supports?.(input) ?? { supported: true };
+}
+
+export async function runAgentHarnessAttempt(
+	params: AgentHarnessAttemptParams
+): Promise<AgentHarnessAttemptResult> {
+	const harness = selectAgentHarness({
+		provider: params.provider,
+		modelId: params.model,
+		requestedRuntime: (params as { requestedRuntime?: string }).requestedRuntime,
+		storedRuntime: (params as { storedRuntime?: string }).storedRuntime,
+	});
+	return runAgentHarnessV2LifecycleAttempt(harness, params);
 }

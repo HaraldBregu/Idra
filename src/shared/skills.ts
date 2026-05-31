@@ -65,6 +65,9 @@ export interface SkillManifest {
 
 export interface SkillInfo {
 	id: string;
+	name: string;
+	description: string;
+	location: string;
 	folderPath: string;
 	skillPath?: string;
 	manifest: SkillManifest;
@@ -75,6 +78,62 @@ export interface SkillInfo {
 export interface SkillDownloadResult {
 	id: string;
 	destinationPath: string;
+	name?: string;
+}
+
+export interface SkillFrontmatter {
+	name: string;
+	description: string;
+	license?: string;
+	compatibility?: string;
+	metadata?: Record<string, unknown>;
+	allowedTools?: string[];
+}
+
+export interface SkillSearchOptions {
+	names?: string[];
+	limit?: number;
+}
+
+export interface SkillSearchResult {
+	id: string;
+	name: string;
+	description: string;
+	score: number;
+	reason: string;
+}
+
+export interface SkillSupportFile {
+	relativePath: string;
+	kind: 'script' | 'reference' | 'asset' | 'file';
+	size: number;
+}
+
+export interface SkillValidationIssue {
+	code: string;
+	message: string;
+}
+
+export interface SkillValidationResult {
+	valid: boolean;
+	issues: SkillValidationIssue[];
+	skill?: {
+		info: SkillInfo;
+		frontmatter: SkillFrontmatter;
+		instructions?: string;
+	};
+}
+
+export interface SkillDetails extends SkillInfo {
+	frontmatter: SkillFrontmatter;
+	instructions: string;
+	supportFiles: SkillSupportFile[];
+}
+
+export interface SkillDeleteResult {
+	id: string;
+	name: string;
+	deleted: boolean;
 }
 
 export interface SkillDiagnostic {

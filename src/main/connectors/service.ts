@@ -88,6 +88,7 @@ function knownTools(connector: ConnectorConfig): ConnectorTool[] {
 		name,
 		description: descriptionForTool(connector, name),
 		inputSchema: schemaForTool(connector, name),
+		permission: 'always-allow' as const,
 		requiresApproval: requiresApprovalForTool(connector, name),
 	}));
 }
@@ -428,6 +429,10 @@ export class ConnectorsService {
 
 	listTools(id: string): ConnectorTool[] {
 		return this.getStored(id).tools;
+	}
+
+	getConnectorSettings(): ConnectorConfig[] {
+		return this.store.getConnectors();
 	}
 
 	async callTool(

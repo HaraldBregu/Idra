@@ -1,13 +1,13 @@
-import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
-import { ToolPolicyService, type ToolPolicyServicePort } from './tool-types';
+import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from '../core/common';
+import { ToolPolicyService, type ToolPolicyServicePort } from '../tool-types';
 import {
 	copyToolMetadata,
 	getToolMetadata,
 	sanitizeParamPreview,
 	setToolMetadata,
 	ToolInputError,
-} from './core/common';
-import { blockedToolResult, errorToolResult } from './core/results';
+} from '../core/common';
+import { blockedToolResult, errorToolResult } from '../core/results';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';

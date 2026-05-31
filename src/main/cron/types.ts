@@ -4,6 +4,12 @@ import type { CronTask } from '../../shared/cron';
 export interface CronJobOptions {
 	timezone?: string;
 	runOnStart?: boolean;
+	enabled?: boolean;
+	name?: string;
+	description?: string;
+	providerId?: string;
+	modelId?: string;
+	target?: string;
 }
 
 export interface RegisteredJob {

@@ -467,6 +467,34 @@ export class StoreService {
 		return this.getModelModuleSettings('imageCreator');
 	}
 
+	getAssistantSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('llmAgent');
+	}
+
+	getSpeechToTextSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('speechToText');
+	}
+
+	getTextToSpeechSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('textToSpeech');
+	}
+
+	getTextToVideoSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('textToVideo');
+	}
+
+	getTextToSoundSettings(): ModelModuleSettings | undefined {
+		return this.getModelModuleSettings('textToSound');
+	}
+
+	getCronSettings(): TaskSchedulerSettings {
+		return this.getTaskSchedulerSettings();
+	}
+
+	getTaskSettings(): TaskSchedulerSettings {
+		return this.getTaskSchedulerSettings();
+	}
+
 	getAgentRuntimePreference(): string | undefined {
 		const settings = this.getModelModuleSettings('llmAgent');
 		return settings ? readAgentModuleOptions(settings.options)?.agentRuntime : undefined;

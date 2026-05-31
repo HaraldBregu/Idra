@@ -1,4 +1,5 @@
 export { ChannelRegistry } from './registry';
+export { ChannelsService } from './service';
 export {
 	createChannelPluginBase,
 	createChatChannelPlugin,
@@ -25,6 +26,7 @@ export {
 export type {
 	ChannelAdapter,
 	ChannelAccountSnapshot,
+	ChannelChatType,
 	ChannelActionsAdapter,
 	ChannelAdmissionOutcome,
 	ChannelAckPolicy,

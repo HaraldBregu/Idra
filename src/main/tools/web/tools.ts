@@ -1,7 +1,7 @@
 import type { AgentTool } from '../core/types';
 import { textResult } from '../core/types';
 import { TOOL_LIMITS } from '../core/limits';
-import { toolDescription } from '../metadata';
+import { toolDescription } from '../../agent/tools/metadata';
 
 export const webFetchTool: AgentTool<{ url: string }> = {
 	name: 'web_fetch',

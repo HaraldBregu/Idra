@@ -1,13 +1,23 @@
 import type {
 	ConnectorDocumentationStatus,
-	ConnectorImplementationPattern,
 	ConnectorPriorityTier,
-	ConnectorRecommendedInitialMode,
 	ConnectorWriteRisk,
 	DirectConnectorCatalogId,
 	OpenAiConnectorId,
 } from './connectors';
 
+export type { ConnectorDocumentationStatus, ConnectorPriorityTier, ConnectorWriteRisk, DirectConnectorCatalogId, OpenAiConnectorId };
+
+export type ConnectorImplementationPattern =
+	| 'direct_api_or_connector_provider_tool'
+	| 'custom_mcp_or_tool_wrapper_over_openapi'
+	| 'custom_mcp_or_tool_wrapper_over_graphql'
+	| 'controlled_query_gateway_with_read_only_roles'
+	| 'event_trigger_into_agent_or_workflow_orchestrator';
+
+export type ConnectorRecommendedInitialMode = 'read_only_then_draft_write_actions';
+
+export type ConnectorProviderId = string;
 export type ConnectorDocumentationType = 'official_docs';
 
 export interface ConnectorDocumentationPage {
@@ -30,72 +40,131 @@ export interface ConnectorCatalogExample {
 export interface DirectConnectorCatalogEntry {
 	readonly id: string;
 	readonly name: string;
-	readonly vendor: string;
-	readonly category: string;
-	readonly priorityTier: ConnectorPriorityTier;
-	readonly usefulnessScore0To100: number;
-	readonly implementationPattern: ConnectorImplementationPattern;
-	readonly recommendedProviderStrategy: string;
-	readonly documentationPages: readonly ConnectorDocumentationPage[];
-	readonly authModels: readonly string[];
-	readonly coreAgentActions: readonly string[];
-	readonly writeRisk: ConnectorWriteRisk;
-	readonly humanApprovalRequiredFor: readonly string[];
-	readonly recommendedInitialMode: ConnectorRecommendedInitialMode;
-	readonly notes: string;
+	readonly vendor?: string;
+	readonly category?: string;
+	readonly priorityTier?: ConnectorPriorityTier;
+	readonly usefulnessScore0To100?: number;
+	readonly implementationPattern?: ConnectorImplementationPattern;
+	readonly recommendedProviderStrategy?: string;
+	readonly documentationPages?: readonly ConnectorDocumentationPage[];
+	readonly authModels?: readonly string[];
+	readonly coreAgentActions?: readonly string[];
+	readonly writeRisk?: ConnectorWriteRisk;
+	readonly humanApprovalRequiredFor?: readonly string[];
+	readonly recommendedInitialMode?: ConnectorRecommendedInitialMode;
+	readonly notes?: string;
 }
 
-export interface OpenAiConnectorCatalogEntry {
-	readonly id: string;
-	readonly directConnectorId: DirectConnectorCatalogId;
+export interface ConnectorCatalogEntry {
+	readonly id: ConnectorProviderId;
+	readonly directConnectorId?: DirectConnectorCatalogId;
 	readonly name: string;
 	readonly description: string;
-	readonly docsPath: string;
-	readonly docsLabel: string;
+	readonly docsPath?: string;
+	readonly docsLabel?: string;
 	readonly environmentSecretNames: readonly string[];
 	readonly platformDocumentationPages: readonly ConnectorPlatformDocumentationPage[];
-	readonly example: ConnectorCatalogExample;
+	readonly example?: ConnectorCatalogExample;
 	readonly tools: readonly string[];
 	readonly scopes: readonly string[];
-	readonly setupUrl: string;
+	readonly setupUrl?: string;
 	readonly setupInstructions: readonly string[];
-	readonly authKind?: 'google_oauth';
+	readonly authKind?: ConnectorAuthKind;
 	readonly redirectUri?: string;
+	readonly runtimeKind?: ConnectorRuntimeKind;
+	readonly allowMultipleInstances?: boolean;
+	readonly mcp?: ConnectorMcpConfig;
+	readonly oauth?: ConnectorCatalogOAuthConfig;
 }
+
+export type OpenAiConnectorCatalogEntry = ConnectorCatalogEntry;
 
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
 export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth';
+export type ConnectorRuntimeKind = 'mcp' | 'oauth';
+export type ConnectorMcpTransport = 'http' | 'stdio';
+export type ConnectorMcpHeaderAuthScheme = 'bearer' | 'raw';
+export const CONNECTOR_TOOL_PERMISSIONS = ['always-allow', 'needs-approval', 'blocked'] as const;
+export type ConnectorToolPermission = typeof CONNECTOR_TOOL_PERMISSIONS[number];
+export const DEFAULT_CONNECTOR_TOOL_PERMISSION: ConnectorToolPermission = 'always-allow';
 
-export interface GoogleOAuthCredential {
-	provider: 'google';
-	clientId?: string;
-	clientSecret?: string;
+export interface ConnectorMcpHeaderSecret {
+	env: string;
+	header?: string;
+	scheme?: ConnectorMcpHeaderAuthScheme;
+}
+
+export interface ConnectorMcpEnvSecret {
+	env: string;
+	target: string;
+}
+
+export interface ConnectorMcpHttpConfig {
+	transport: 'http';
+	url: string;
+	method?: 'POST';
+	headers?: Record<string, string>;
+	sessionId?: string;
+	auth?: ConnectorMcpHeaderSecret;
+}
+
+export interface ConnectorMcpStdioConfig {
+	transport: 'stdio';
+	command: string;
+	args?: string[];
+	cwd?: string;
+	env?: Record<string, string>;
+	envSecrets?: ConnectorMcpEnvSecret[];
+}
+
+export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
+
+export interface ConnectorCatalogOAuthConfig {
+	providerId: string;
+	clientIdEnv: string;
+	authorizationUrl: string;
 	redirectUri: string;
-	accessToken?: string;
+	authorizationParams: Record<string, string>;
+}
+
+export interface ConnectorOAuthTokenSet {
+	accessToken: string;
 	refreshToken?: string;
-	expiresAt?: number;
 	tokenType?: string;
 	scope?: string;
-	email?: string;
-	connectedAt?: string;
+	expiresAt?: string;
 }
+
+export interface ConnectorOAuthConfig {
+	providerId: string;
+	authorizationUrl: string;
+	clientId: string;
+	redirectUri: string;
+	scopes: readonly string[];
+	state: string;
+	accountEmail?: string;
+	token?: ConnectorOAuthTokenSet;
+}
+
 
 export interface ConnectorTool {
 	name: string;
 	description?: string;
 	inputSchema?: Record<string, unknown>;
+	permission: ConnectorToolPermission;
 	requiresApproval: boolean;
 }
 
 export interface ConnectorConfig {
 	id: string;
 	name: string;
-	connectorId: OpenAiConnectorId;
+	connectorId: ConnectorProviderId;
 	serverLabel: string;
 	serverDescription?: string;
 	enabled: boolean;
 	authorization: string;
+	mcp?: ConnectorMcpConfig;
 	oauth?: GoogleOAuthCredential;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
@@ -112,7 +181,7 @@ export type Connector = ConnectorConfig;
 export interface ConnectorView {
 	id: string;
 	name: string;
-	connectorId: OpenAiConnectorId;
+	connectorId: ConnectorProviderId;
 	authKind: ConnectorAuthKind;
 	serverLabel: string;
 	enabled: boolean;
@@ -128,7 +197,7 @@ export interface ConnectorView {
 
 export interface ConnectorInput {
 	name: string;
-	connectorId: OpenAiConnectorId;
+	connectorId: ConnectorProviderId;
 	serverLabel?: string;
 	serverDescription?: string;
 	authorization?: string;
@@ -136,9 +205,30 @@ export interface ConnectorInput {
 	allowedTools?: string[];
 	deferLoading?: boolean;
 	enabled?: boolean;
+	mcp?: ConnectorMcpConfig;
 }
 
 export type ConnectorUpdateInput = Partial<ConnectorInput>;
+
+export interface ConnectorOAuthAuthorizeRequest {
+	connectorId: ConnectorProviderId;
+}
+
+export interface ConnectorOAuthAuthorizeResult {
+	connectorId: ConnectorProviderId;
+	authorizationUrl: string;
+	connector: ConnectorConfig;
+}
+
+export interface ConnectorOAuthCompleteInput {
+	state: string;
+	accessToken: string;
+	refreshToken?: string;
+	tokenType?: string;
+	scope?: string;
+	expiresIn?: number;
+	accountEmail?: string;
+}
 
 export interface ConnectorTestResult {
 	status: ConnectorStatus;
@@ -149,6 +239,19 @@ export interface ConnectorOAuthConnectResult {
 	status: ConnectorStatus;
 	message?: string;
 	connectedAccount?: string;
+}
+
+export interface GoogleOAuthCredential {
+	provider: 'google';
+	clientId?: string;
+	clientSecret?: string;
+	redirectUri: string;
+	accessToken?: string;
+	refreshToken?: string;
+	expiresAt?: number;
+	tokenType?: string;
+	scope?: string;
+	email?: string;
 }
 
 export interface ConnectorCallToolOptions {

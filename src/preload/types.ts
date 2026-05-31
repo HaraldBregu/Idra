@@ -1,1 +1,9 @@
-export type { WindowApi, AppApi, AgentApi, CronApi, SkillsApi } from './index.d';
+export type {
+	WindowApi,
+	AppApi,
+	AgentApi,
+	CronApi,
+	MonitorApi,
+	SkillsApi,
+	SpeechToTextApi,
+} from './index.d';
