@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 set -u
 
-exec 3>&1
 log_file="${TMPDIR:-/tmp}/codex-auto-commit.log"
+lock_dir=""
 
 finish() {
-	printf '{}\n' >&3
+	if [ -n "$lock_dir" ] && [ -d "$lock_dir" ]; then
+		rmdir "$lock_dir" 2>/dev/null || true
+	fi
 	exit 0
 }
+
+trap finish EXIT INT TERM
 
 log() {
 	printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*" >>"$log_file"
@@ -24,6 +28,12 @@ cd "$repo_root" || {
 	log "skip: could not cd to repo root: $repo_root"
 	finish
 }
+
+lock_dir="${TMPDIR:-/tmp}/codex-auto-commit-$(basename "$repo_root").lock"
+if ! mkdir "$lock_dir" 2>/dev/null; then
+	log "skip: auto-commit already running"
+	finish
+fi
 
 if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
 	log "skip: no changes"
