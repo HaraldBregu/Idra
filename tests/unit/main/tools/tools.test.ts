@@ -51,7 +51,7 @@ import {
 	AGENT_TOOLS,
 } from '../../../../src/shared/tools';
 import { textResult, type AgentTool } from '../../../../src/main/agent/tools/types';
-import { ToolPolicyService } from '../../../../src/main/agent/tools/policy';
+import { ToolPolicyService } from '../../../../src/main/agent/tools/tool-types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
 type ToolFilterPolicy = {

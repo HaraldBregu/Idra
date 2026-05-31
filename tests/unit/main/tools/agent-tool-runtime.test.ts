@@ -13,7 +13,7 @@ import {
 } from '../../../../src/main/agent/tools/params';
 import { createReadTool } from '../../../../src/main/agent/tools/files/runtime';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/agent/tools/create-agent-tools';
-import { applyToolPolicyPipeline } from '../../../../src/main/agent/tools/tool-policy-pipeline';
+import { applyToolPolicyPipeline } from '../../../../src/main/agent/tools/pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/agent/tools/schema-normalization';
 import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/agent/tools/before-tool-call';
 import { toToolDefinitions } from '../../../../src/main/agent/tools/tool-definition-adapter';
