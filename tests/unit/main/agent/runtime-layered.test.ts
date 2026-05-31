@@ -128,6 +128,6 @@ describe('layered agent runtime', () => {
 			input: { path: file, content: 'after' },
 		}, context);
 		await expect(readFile(file, 'utf8')).resolves.toBe('after');
-		expect(written).toMatchObject({ isError: undefined });
+		expect(written).not.toHaveProperty('isError');
 	});
 });
