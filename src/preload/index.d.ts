@@ -137,8 +137,6 @@ export interface StoreApi {
 	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
-	getKeepAwakeEnabled: () => Promise<boolean>;
-	setKeepAwakeEnabled: (enabled: boolean) => Promise<boolean>;
 	getAssistantSettings: () => Promise<AssistantSettings | undefined>;
 	getSpeechToTextSettings: () => Promise<SpeechToTextSettings | undefined>;
 	getTextToSpeechSettings: () => Promise<TextToSpeechSettings | undefined>;
@@ -267,8 +265,6 @@ export interface AppApi {
 	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
-	getKeepAwakeEnabled: () => Promise<boolean>;
-	setKeepAwakeEnabled: (enabled: boolean) => Promise<boolean>;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
 	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;

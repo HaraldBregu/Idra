@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Accessibility,
-	BatteryCharging,
 	Camera,
 	Mic,
 	MonitorCog,
@@ -322,9 +321,6 @@ function SystemCapabilityGroupPanel({
 
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [keepAwakeEnabled, setKeepAwakeEnabled] = useState(false);
-	const [keepAwakeLoading, setKeepAwakeLoading] = useState(true);
-	const [keepAwakeError, setKeepAwakeError] = useState('');
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
 	const [microphonePermission, setMicrophonePermission] =
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
@@ -334,25 +330,6 @@ const SystemPage: React.FC = () => {
 		useState<CameraPermissionSettings>(DEFAULT_CAMERA_PERMISSION);
 	const [cameraLoading, setCameraLoading] = useState(true);
 	const [cameraError, setCameraError] = useState('');
-
-	useEffect(() => {
-		let mounted = true;
-		void window.app.getKeepAwakeEnabled()
-			.then((enabled) => {
-				if (mounted) setKeepAwakeEnabled(enabled);
-			})
-			.catch((error: unknown) => {
-				if (!mounted) return;
-				setKeepAwakeEnabled(false);
-				setKeepAwakeError(errorMessage(error, t('settings.system.errors.keepAwakeLoad')));
-			})
-			.finally(() => {
-				if (mounted) setKeepAwakeLoading(false);
-			});
-		return () => {
-			mounted = false;
-		};
-	}, [t]);
 
 	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
 		setMicrophoneLoading(true);
@@ -382,22 +359,6 @@ const SystemPage: React.FC = () => {
 		void refreshMicrophonePermission();
 		void refreshCameraPermission();
 	}, [refreshCameraPermission, refreshMicrophonePermission]);
-
-	const handleKeepAwakeToggle = useCallback((checked: boolean) => {
-		setKeepAwakeEnabled(checked);
-		setKeepAwakeLoading(true);
-		setKeepAwakeError('');
-		void window.app.setKeepAwakeEnabled(checked)
-			.then(setKeepAwakeEnabled)
-			.catch((error: unknown) => {
-				setKeepAwakeEnabled(!checked);
-				setKeepAwakeError(errorMessage(error, t('settings.system.errors.keepAwakeSave')));
-				void window.app.getKeepAwakeEnabled()
-					.then(setKeepAwakeEnabled)
-					.catch(() => undefined);
-			})
-			.finally(() => setKeepAwakeLoading(false));
-	}, [t]);
 
 	const handleMicrophoneToggle = useCallback((checked: boolean) => {
 		setMicrophoneLoading(true);
@@ -502,10 +463,6 @@ const SystemPage: React.FC = () => {
 			{systemPreferenceError && (
 				<SettingsNotice variant="destructive">{systemPreferenceError}</SettingsNotice>
 			)}
-			{keepAwakeError && (
-				<SettingsNotice variant="destructive">{keepAwakeError}</SettingsNotice>
-			)}
-
 			<SettingsSection
 				title={t('settings.system.mediaPermissions.title')}
 				description={t('settings.system.mediaPermissions.description')}
@@ -557,19 +514,6 @@ const SystemPage: React.FC = () => {
 							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording}>
 								{t('settings.application.openScreenRecording')}
 							</Button>
-						}
-					/>
-					<SystemSettingsItem
-						title={t('settings.application.keepAwake')}
-						description={t('settings.application.keepAwakeDescription')}
-						icon={BatteryCharging}
-						actions={
-							<Switch
-								checked={keepAwakeEnabled}
-								disabled={keepAwakeLoading}
-								onCheckedChange={handleKeepAwakeToggle}
-								aria-label={t('settings.application.keepAwake')}
-							/>
 						}
 					/>
 				</SettingsPanel>

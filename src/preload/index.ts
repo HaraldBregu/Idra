@@ -251,12 +251,6 @@ export const app: AppApi = {
 	getTrayEnabled: (): Promise<boolean> => {
 		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
 	},
-	getKeepAwakeEnabled: (): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.getKeepAwakeEnabled);
-	},
-	setKeepAwakeEnabled: (enabled: boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.setKeepAwakeEnabled, enabled);
-	},
 	getMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
 	},
@@ -603,12 +597,6 @@ export const store: StoreApi = {
 	},
 	addProvider: (input: ProviderInput): Promise<PublicProvider> => {
 		return typedInvokeUnwrap(StoreChannels.addProvider, input);
-	},
-	getKeepAwakeEnabled: (): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.getKeepAwakeEnabled);
-	},
-	setKeepAwakeEnabled: (enabled: boolean): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.setKeepAwakeEnabled, enabled);
 	},
 	getAssistantSettings: (): Promise<AssistantSettings | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAssistantSettings);
