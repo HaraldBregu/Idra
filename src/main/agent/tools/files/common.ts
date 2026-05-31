@@ -1,6 +1,7 @@
 import type { Stats } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import type { AgentTool } from '../core/types';
 
 function expandUser(p: string): string {
 	if (p.startsWith('~')) return path.join(os.homedir(), p.slice(1));
@@ -40,4 +41,18 @@ export function guardedRootMessage(workspace: string, abs: string): string | nul
 	if (resolved === path.resolve(workspace)) return 'refusing to operate on workspace root';
 	if (resolved === path.resolve(os.homedir())) return 'refusing to operate on home directory';
 	return null;
+}
+
+export function aliasFileTool<TArgs>(
+	name: string,
+	description: string,
+	tool: AgentTool<TArgs>
+): AgentTool<TArgs> {
+	return {
+		name,
+		description,
+		schema: tool.schema,
+		needsApproval: tool.needsApproval,
+		execute: (args, ctx) => tool.execute(args, ctx),
+	};
 }
