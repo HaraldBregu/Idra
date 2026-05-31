@@ -1,5 +1,5 @@
 import type { Bot } from 'grammy';
-import { TELEGRAM_MAX_MESSAGE_LENGTH } from './constants';
+import { TELEGRAM_MAX_MESSAGE_LENGTH } from './config';
 import { sendDurableMessageBatch } from '../message';
 import type { ChannelDeliveryPart, ChannelMessageReceipt, ChannelOutboundMessage } from '../types';
 

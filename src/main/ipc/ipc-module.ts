@@ -1,5 +1,5 @@
 import type { EventBus } from '../core/event-bus';
-import type { MainServiceContainer } from '../service-registry';
+import type { MainServiceContainer } from '../core/services';
 
 /**
  * Interface for self-contained IPC handler modules.

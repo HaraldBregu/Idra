@@ -1,4 +1,4 @@
-import { DEFAULT_AGENT_ID } from '../../constants';
+import { DEFAULT_AGENT_ID } from '../../config';
 import type { AgentService } from '../../service';
 import type { StoreService } from '../../store';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';

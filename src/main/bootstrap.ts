@@ -28,7 +28,7 @@ import { ToolService } from './agent/tools';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
 import { AgentRunLogger } from './run-logger';
-import { DEFAULT_AGENT_ID } from './constants';
+import { DEFAULT_AGENT_ID } from './config';
 
 import type { IpcModule } from './ipc';
 import {
@@ -46,7 +46,7 @@ import {
 	TasksIpc,
 	WindowIpc,
 } from './ipc';
-import type { MainServiceContainer, MainServices } from './service-registry';
+import type { MainServiceContainer, MainServices } from './core/services';
 import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {

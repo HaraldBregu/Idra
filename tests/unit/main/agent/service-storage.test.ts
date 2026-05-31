@@ -14,7 +14,7 @@ jest.mock('electron-store', () => {
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { AgentService } from '../../../../src/main/agent';
-import { AgentRunLogger } from '../../../../src/main/run-logger';
+import { AgentRunLogger } from '../../../../src/main/agent/logging';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {

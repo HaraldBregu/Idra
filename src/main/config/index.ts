@@ -1,1 +1,1 @@
-export { DEFAULT_AGENT_ID, MAX_ITERATIONS } from './constants';
+export { DEFAULT_AGENT_ID, MAX_ITERATIONS } from './config';
