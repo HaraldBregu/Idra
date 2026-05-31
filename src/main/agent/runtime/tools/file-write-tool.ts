@@ -2,7 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import { checkFilePath } from '../permissions/filesystem';
-import type { Tool } from './Tool';
+import type { Tool } from './tool';
 import { filePathSchema } from './file-read-tool';
 import { hash } from './hash';
 
