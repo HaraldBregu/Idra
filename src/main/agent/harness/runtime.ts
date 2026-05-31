@@ -20,6 +20,7 @@ import type {
 	AgentHarnessModelCandidate,
 	AgentHarnessModelDescriptor,
 	AgentHarnessMemoryRecord,
+	AgentHarnessPermissionDecision,
 	AgentHarnessRunResult,
 	AgentHarnessSession,
 	AgentHarnessSkill,
@@ -613,6 +614,14 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 					durationMs: Date.now() - startedAt,
 				});
 			}
+			const semanticValidation = await tool.validateInput?.(input.args, toolContext);
+			if (semanticValidation?.ok === false) {
+				return this.finishToolCall(input, {
+					status: 'error',
+					content: [{ type: 'text', text: semanticValidation.message }],
+					durationMs: Date.now() - startedAt,
+				});
+			}
 			const safety = await this.config.safety?.reviewToolCall?.({
 				toolName: input.toolName,
 				args: input.args,
@@ -626,7 +635,22 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 					durationMs: Date.now() - startedAt,
 				});
 			}
-			const approval = await this.resolveApproval(tool, input.args, toolContext, input.toolCallId);
+			const permission = await this.resolveToolPermission(tool, input.args, toolContext);
+			if (permission.behavior === 'deny') {
+				return this.finishToolCall(input, {
+					status: 'rejected',
+					content: [{ type: 'text', text: permission.message }],
+					durationMs: Date.now() - startedAt,
+				});
+			}
+			const permissionArgs = this.updatedArgs(input.args, permission.input);
+			const approval = await this.resolveApproval(
+				tool,
+				permissionArgs,
+				toolContext,
+				input.toolCallId,
+				permission.behavior === 'ask' ? permission.message : undefined
+			);
 			if (!approval.approved) {
 				return this.finishToolCall(input, {
 					status: 'rejected',
@@ -634,7 +658,7 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 					durationMs: Date.now() - startedAt,
 				});
 			}
-			const args = this.updatedArgs(input.args, approval.updatedArgs);
+			const args = this.updatedArgs(permissionArgs, approval.updatedArgs);
 			const result = await this.withToolTimeout(tool.execute(args, toolContext), toolController.signal, input.toolName);
 			const content = await this.config.resultOptimizer?.optimize({
 				toolName: input.toolName,
@@ -710,7 +734,8 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 		tool: AgentHarnessTool,
 		args: Record<string, unknown>,
 		ctx: AgentHarnessToolContext,
-		toolCallId: string
+		toolCallId: string,
+		reason?: string
 	): Promise<AgentHarnessApprovalDecision> {
 		const requires =
 			typeof tool.requiresApproval === 'function'
@@ -723,8 +748,16 @@ export class DefaultAgentHarness implements ExecutableAgentHarness {
 			toolName: tool.name,
 			toolCallId,
 			args,
-			reason: `tool ${tool.name} requires approval before execution.`,
+			reason: reason ?? `tool ${tool.name} requires approval before execution.`,
 		});
+	}
+
+	private async resolveToolPermission(
+		tool: AgentHarnessTool,
+		args: Record<string, unknown>,
+		ctx: AgentHarnessToolContext
+	): Promise<AgentHarnessPermissionDecision> {
+		return tool.checkPermissions?.(args, ctx) ?? { behavior: 'allow' };
 	}
 
 	private async requestApproval(request: AgentHarnessApprovalRequest): Promise<AgentHarnessApprovalDecision> {
