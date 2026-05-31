@@ -16,7 +16,7 @@ import {
 	cronStopTool,
 	cronTool,
 	cronUpdateTool,
-} from './tools';
+} from './';
 
 export type CronToolOptions = {
 	workspaceDir: string;

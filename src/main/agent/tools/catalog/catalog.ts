@@ -60,8 +60,8 @@ import {
 } from '../mcp/tools';
 import { webFetchTool } from '../web/tools';
 import { openBrowserTool } from '../app';
-import { execTool, processTool } from '../exec/tools';
-import { cronTool } from '../cron/tools';
+import { execTool, processTool } from '../exec';
+import { cronTool } from '../cron';
 import { taskTool } from '../task/tools';
 
 export type LocalToolProfile = AgentToolProfile;
