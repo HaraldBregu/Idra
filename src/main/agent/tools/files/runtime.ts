@@ -25,12 +25,10 @@ import { readScratchTool } from '../state/read-scratch';
 import { updateTodoTool } from '../state/update-todo';
 import { writeScratchTool } from '../state/write-scratch';
 import { writeTodosTool } from '../state/write-todos';
-import {
-	presentPlanTool,
-	requestApprovalTool,
-	requestAuthorizationTool,
-	requestClarificationTool,
-} from '../human/tools';
+import { presentPlanTool } from '../human/present-plan';
+import { requestApprovalTool } from '../human/request-approval';
+import { requestAuthorizationTool } from '../human/request-authorization';
+import { requestClarificationTool } from '../human/request-clarification';
 import { spawnSubagentTool } from '../subagent/spawn-subagent';
 import { listSkillsTool } from '../skills/list-skills';
 import { loadSkillTool } from '../skills/load-skill';

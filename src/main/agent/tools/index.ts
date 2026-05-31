@@ -42,12 +42,10 @@ export { execTool, processTool } from './exec';
 export { cronTool } from './cron';
 export { taskTool, webFetchTool } from './app';
 export { createStartupFilesTool } from './startup';
-export {
-	presentPlanTool,
-	requestApprovalTool,
-	requestAuthorizationTool,
-	requestClarificationTool,
-} from './human/tools';
+export { presentPlanTool } from './human/present-plan';
+export { requestApprovalTool } from './human/request-approval';
+export { requestAuthorizationTool } from './human/request-authorization';
+export { requestClarificationTool } from './human/request-clarification';
 export { spawnSubagentTool } from './subagent/spawn-subagent';
 export { listSkillsTool } from './skills/list-skills';
 export { loadSkillTool } from './skills/load-skill';
