@@ -31,7 +31,6 @@ import type {
 import { SkillVersionManager } from '../../../../src/main/skills/version-manager';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
 import { textResult } from '../../../../src/main/agent/tools/types';
-import { executeAgentToolWithManagement } from '../../../../src/main/agent/legacy-tools/management';
 import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
 
 function webFetchTool(): AgentTool {
@@ -907,8 +906,7 @@ describe('skill system', () => {
 			signal: undefined,
 		});
 
-		const result = await executeAgentToolWithManagement(
-			tool,
+		const result = await tool.execute(
 			{
 				skillId: 'support-replies@1.0.0',
 				path: '/tmp/source.md',
@@ -925,8 +923,7 @@ describe('skill system', () => {
 			directory: dir,
 		});
 
-		const nestedResult = await executeAgentToolWithManagement(
-			tool,
+		const nestedResult = await tool.execute(
 			{
 				input: {
 					skillId: 'support-replies@1.0.0',
