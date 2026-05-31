@@ -43,7 +43,7 @@ import {
 	TasksIpc,
 	WindowIpc,
 } from './ipc';
-import type { MainServiceContainer, MainServices } from './app/services';
+import type { MainServiceContainer, MainServices } from './core/services';
 import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {

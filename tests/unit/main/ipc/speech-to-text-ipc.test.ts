@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import { EventBus } from '../../../../src/main/core/event-bus';
 import { RealtimeTranscriptionIpc } from '../../../../src/main/ipc/realtime-transcription-ipc';
 import { SpeechToTextIpc } from '../../../../src/main/ipc/speech-to-text-ipc';
-import type { MainServiceContainer } from '../../../../src/main/app/services';
+import type { MainServiceContainer } from '../../../../src/main/core/services';
 import {
 	RealtimeTranscriptionChannels,
 	SpeechToTextChannels,
