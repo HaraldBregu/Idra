@@ -1758,11 +1758,11 @@ export const OPENAI_CONNECTOR_CATALOG = [
 
 export type OpenAiConnectorId = (typeof OPENAI_CONNECTOR_CATALOG)[number]['id'];
 
-export function getConnectorCatalogItem(id: OpenAiConnectorId) {
+export function getConnectorCatalogItem(id: string) {
 	return OPENAI_CONNECTOR_CATALOG.find((connector) => connector.id === id);
 }
 
-export function getConnectorAuthKind(id: OpenAiConnectorId): ConnectorAuthKind {
+export function getConnectorAuthKind(id: string): ConnectorAuthKind {
 	const connector = getConnectorCatalogItem(id);
 	return connector && 'authKind' in connector && connector.authKind === 'google_oauth'
 		? 'google_oauth'

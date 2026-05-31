@@ -100,6 +100,8 @@ export function applyAgentResponseEventToTools(
 				status: event.status,
 			});
 		}
+		default:
+			return undefined;
 	}
 }
 

@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import type {
 	ConnectorTool,
 	ConnectorView,
-	OPENAI_CONNECTOR_CATALOG,
+	type ConnectorCatalogEntry,
 } from '../../../../../../../shared/connector';
 
-export type ConnectorCatalog = ReadonlyArray<(typeof OPENAI_CONNECTOR_CATALOG)[number]>;
+export type ConnectorCatalog = ReadonlyArray<ConnectorCatalogEntry>;
 
 function dedupeByConnectorId(connectors: ConnectorView[]): ConnectorView[] {
 	const seen = new Set<string>();
