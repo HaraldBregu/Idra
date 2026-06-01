@@ -147,7 +147,6 @@ export class SpeechToTextService {
 		return adapter.startSession({
 			sessionId,
 			provider: resolved.provider,
-			operator: resolved.operator,
 			model: resolved.model,
 			request,
 			callbacks,
