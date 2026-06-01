@@ -167,7 +167,7 @@
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
 				"providers": "AI API keys",
-				"cron": "Task scheduler",
+				"cron": "Tasks",
 				"taskManager": "Background tasks",
 				"heartbeat": "Periodic agent checks"
 			}
@@ -185,7 +185,7 @@
 			"system": "System",
 			"themes": "Themes",
 			"editor": "Editor",
-			"taskScheduler": "Task scheduler",
+			"taskScheduler": "Tasks",
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer",
@@ -216,7 +216,7 @@
 			"application": "Application",
 			"profile": "Profile",
 			"editor": "Editor",
-			"taskScheduler": "Scheduled tasks",
+			"taskScheduler": "Tasks",
 			"backgroundTasks": "Background tasks",
 			"heartbeat": "Heartbeat",
 			"developer": "Developer"
