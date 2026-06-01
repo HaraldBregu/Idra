@@ -7,7 +7,6 @@ import {
 	LoaderCircle,
 	Pause,
 	Play,
-	RefreshCw,
 	Trash2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -61,13 +60,11 @@ const CronPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [schedules, setSchedules] = useState<readonly CronSchedule[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [refreshing, setRefreshing] = useState(false);
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	const loadSchedules = useCallback(async (showLoading = false): Promise<void> => {
 		if (showLoading) setLoading(true);
-		setRefreshing(!showLoading);
 		try {
 			const nextSchedules = await window.cron.listSchedules({ includeDeleted: false });
 			setSchedules(sortSchedules(nextSchedules));
@@ -76,7 +73,6 @@ const CronPage: React.FC = () => {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
 			setLoading(false);
-			setRefreshing(false);
 		}
 	}, []);
 
@@ -171,25 +167,7 @@ const CronPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
-				title={t('settings.tabs.taskScheduler')}
-				action={
-					<Button
-						type="button"
-						size="sm"
-						variant="outline"
-						disabled={loading || refreshing}
-						onClick={() => void loadSchedules(false)}
-					>
-						{refreshing ? (
-							<LoaderCircle className="size-3 animate-spin" />
-						) : (
-							<RefreshCw className="size-3" />
-						)}
-						{t('settings.cron.actions.refresh')}
-					</Button>
-				}
-			/>
+			<SettingsPageHeader title={t('settings.tabs.taskScheduler')} />
 
 			<SettingsSection title={t('settings.sections.taskScheduler')}>
 				{error && (
