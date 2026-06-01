@@ -23,7 +23,7 @@ const DOC_STATUS: ConnectorDocumentationStatus = 'official_public_web_checked_20
 const DOC_STATUS_UNVERIFIED: ConnectorDocumentationStatus =
 	'official_public_url_not_reverified_in_this_run';
 
-const DIRECT_CONNECTOR_CATALOG = [
+export const DIRECT_CONNECTOR_CATALOG = [
 	{
 		id: 'gmail',
 		name: 'Gmail',
