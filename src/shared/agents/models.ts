@@ -38,6 +38,11 @@ import {
 } from '../providers';
 
 export type { Model, ModelReasoningEffort };
+
+export interface ModelSelection {
+	provider: Omit<Provider, 'apiKey'>;
+	model: Model;
+}
 export {
 	DEFAULT_AGENT_MODELS_BY_PROVIDER,
 	LLM_MODELS_BY_PROVIDER,
