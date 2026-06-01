@@ -1,5 +1,3 @@
-import { beforeToolCall, newCallTracker } from '../agent/tools/before-call';
-import type { AgentTool, AgentToolResult } from '../agent/tools/types';
 import type { SkillRegistry } from './catalog';
 import { validateJsonSchema } from './schema';
 import type {
@@ -19,6 +17,8 @@ import type {
 	SkillResult,
 	SkillSafetyCheck,
 	SkillSafetyPolicyPort,
+	SkillTool,
+	SkillToolResult,
 	SkillUserPreferences,
 } from './types';
 import { createProvenance, emptyPreferences, skillKey } from './types';
@@ -155,10 +155,10 @@ function asSkillError(error: unknown): SkillError {
 
 function scopedTools(
 	skill: SkillDefinition,
-	available: ReadonlyMap<string, AgentTool>
-): Map<string, AgentTool> {
+	available: ReadonlyMap<string, SkillTool>
+): Map<string, SkillTool> {
 	const allowed = new Set([...skill.requiredTools, ...skill.contract.allowedTools]);
-	const out = new Map<string, AgentTool>();
+	const out = new Map<string, SkillTool>();
 	for (const name of allowed) {
 		const tool = available.get(name);
 		if (tool) out.set(name, tool);
@@ -546,7 +546,6 @@ export class SkillExecutionEngine {
 		retryCount: number
 	): SkillExecutionContext {
 		const tools = scopedTools(skill, base.allowedTools);
-		const tracker = newCallTracker();
 		const memory = this.createMemoryGateway(base.memory, base, state);
 		const executionContext: SkillExecutionContext = {
 			userId: base.userId,
@@ -566,26 +565,16 @@ export class SkillExecutionEngine {
 			callTool: async <TDetails = unknown>(
 				name: string,
 				args: Record<string, unknown>
-			): Promise<AgentToolResult<TDetails>> => {
+			): Promise<SkillToolResult<TDetails>> => {
 				const tool = tools.get(name);
 				if (!tool) throw new Error(`Skill ${skill.id} cannot use tool: ${name}`);
 				const safety = await base.safetyPolicy.checkToolUse(skill, name, args, base);
 				state.warnings.push(...safety.warnings);
 				if (!safety.allowed) throw new Error(safety.reasons.join('; '));
-				const before = await beforeToolCall(tool, args, base.toolContext, tracker);
-				if (!before.proceed && before.vetoResult) {
-					state.warnings.push(
-						before.vetoResult.content
-							.map((item) => (item.type === 'text' ? item.text : ''))
-							.join(' ')
-					);
-					return before.vetoResult as AgentToolResult<TDetails>;
-				}
-				if (before.warning) state.warnings.push(before.warning);
 				const result = await tool.execute(args, base.toolContext);
 				state.usedTools.push(name);
 				state.provenance.toolsUsed.push(name);
-				return result as AgentToolResult<TDetails>;
+				return result as SkillToolResult<TDetails>;
 			},
 			callConnector: async (
 				connectorId: string,
