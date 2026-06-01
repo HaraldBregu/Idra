@@ -41,7 +41,6 @@ interface SpeechToTextStartOptions {
 }
 
 interface ResolvedSpeechToTextRuntime {
-	operator: ConfiguredModelOperator;
 	provider: Provider;
 	model: Model;
 	settings: ModelModuleSettings;
