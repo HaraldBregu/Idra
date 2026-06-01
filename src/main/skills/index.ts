@@ -10,7 +10,6 @@ export {
 	SkillExecutionEngine,
 	SkillSafetyPolicy,
 } from './runtime';
-export { SkillLoader } from './loader';
-export * from './provider-support';
+export { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from './loader';
 export { createExampleSkills } from './example-skills';
 export * from './types';
