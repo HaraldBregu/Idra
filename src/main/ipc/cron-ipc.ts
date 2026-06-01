@@ -7,17 +7,7 @@ import { CronChannels } from '../../shared/ipc-channels';
 import {
 	type CronSchedulePermissionLevel,
 	type CronScheduleFilter,
-	type CronScheduleUpdateRequest,
-	type CronTaskView,
 } from '../../shared/cron';
-
-function isObject(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function assertPatch(value: unknown): asserts value is CronScheduleUpdateRequest {
-	if (!isObject(value)) throw new Error('Invalid cron schedule update.');
-}
 
 function uiActor(userId?: string) {
 	return {
@@ -25,7 +15,6 @@ function uiActor(userId?: string) {
 		userId,
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
 		permissions: [
-			'updateSchedule',
 			'deleteSchedule',
 			'pauseSchedule',
 			'resumeSchedule',
@@ -42,29 +31,6 @@ export class CronIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const cron = container.get('cron');
-
-		ipcMain.handle(
-			CronChannels.list,
-			wrapSimpleHandler((): CronTaskView[] => {
-				return cron.getTasks();
-			}, CronChannels.list)
-		);
-
-		ipcMain.handle(
-			CronChannels.remove,
-			wrapSimpleHandler((id: string): void => {
-				cron.unschedule(id);
-			}, CronChannels.remove)
-		);
-
-		ipcMain.handle(
-			CronChannels.updateSchedule,
-			wrapSimpleHandler((scheduleId: string, patch: CronScheduleUpdateRequest) => {
-				if (typeof scheduleId !== 'string' || !scheduleId.trim()) throw new Error('scheduleId is required.');
-				assertPatch(patch);
-				return cron.updateSchedule(scheduleId, patch, uiActor());
-			}, CronChannels.updateSchedule)
-		);
 
 		ipcMain.handle(
 			CronChannels.pauseSchedule,
@@ -89,21 +55,6 @@ export class CronIpc implements IpcModule {
 		ipcMain.handle(
 			CronChannels.getSchedule,
 			wrapSimpleHandler((scheduleId: string) => cron.getSchedule(scheduleId, uiActor()), CronChannels.getSchedule)
-		);
-
-		ipcMain.handle(
-			CronChannels.getScheduleEvents,
-			wrapSimpleHandler((scheduleId: string) => cron.getScheduleEvents(scheduleId), CronChannels.getScheduleEvents)
-		);
-
-		ipcMain.handle(
-			CronChannels.getScheduleExecutions,
-			wrapSimpleHandler((scheduleId: string) => cron.getScheduleExecutions(scheduleId), CronChannels.getScheduleExecutions)
-		);
-
-		ipcMain.handle(
-			CronChannels.getNextRuns,
-			wrapSimpleHandler((scheduleId: string, count: number) => cron.getNextRuns(scheduleId, count, uiActor()), CronChannels.getNextRuns)
 		);
 
 		ipcMain.handle(
