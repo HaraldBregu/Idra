@@ -313,6 +313,53 @@ describe('tools/before-call', () => {
 
 });
 
+describe('tools/cron', () => {
+	it('uses CronService for create, update, and delete actions', async () => {
+		const cron = {
+			createSchedule: jest.fn(async () => ({ id: 'schedule-1' })),
+			updateSchedule: jest.fn(async () => ({ id: 'schedule-1', name: 'Updated' })),
+			deleteSchedule: jest.fn(async () => undefined),
+		};
+		const ctx = makeToolContext({
+			services: {
+				...makeToolContext().services,
+				cron: cron as never,
+			},
+		});
+
+		await cronCreateTool.execute(
+			{
+				name: 'Morning reminder',
+				type: 'cron',
+				cronExpression: '0 9 * * *',
+				taskType: 'agent.run',
+				taskInput: { message: 'Review invoices' },
+			},
+			ctx
+		);
+		await cronUpdateTool.execute({ id: 'schedule-1', patch: { name: 'Updated' } }, ctx);
+		await cronDeleteTool.execute({ id: 'schedule-1' }, ctx);
+
+		expect(cron.createSchedule).toHaveBeenCalledWith(
+			expect.objectContaining({
+				name: 'Morning reminder',
+				source: 'tool',
+				taskType: 'agent.run',
+			}),
+			expect.objectContaining({ source: 'tool' })
+		);
+		expect(cron.updateSchedule).toHaveBeenCalledWith(
+			'schedule-1',
+			{ name: 'Updated' },
+			expect.objectContaining({ source: 'tool' })
+		);
+		expect(cron.deleteSchedule).toHaveBeenCalledWith(
+			'schedule-1',
+			expect.objectContaining({ source: 'tool' })
+		);
+	});
+});
+
 describe('tools/fs', () => {
 	it('reads, writes new files, edits read files, and finds matches', async () => {
 		const workspace = await makeTempDir();
