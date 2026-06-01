@@ -197,17 +197,14 @@ export class SpeechToTextService {
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for speech-to-text provider: ${providerId}`);
 
-		const operator = this.dependencies.store.getSpeechToTextOperator();
-		if (!operator) {
-			throw new Error('Speech-to-text settings are invalid. Select a supported provider and model.');
-		}
+		const modelName =
+			getSpeechToTextModels(providerId).find((entry) => entry.id === modelId)?.name ?? modelId;
 
 		return {
-			operator,
 			provider,
 			model: {
 				id: modelId,
-				name: operator.model.name,
+				name: modelName,
 			},
 			settings,
 		};
