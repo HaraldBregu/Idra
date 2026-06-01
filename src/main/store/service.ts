@@ -347,27 +347,6 @@ export class StoreService {
 		this.setStoredModelProviders(providers);
 	}
 
-	getOperator(): OperatorStoreState | undefined {
-		const next: OperatorStoreState = {};
-		const assistant = this.getConfiguredModelOperator('assistant');
-		if (assistant) next.assistant = assistant;
-		const speechToText = this.getConfiguredModelOperator('speechToText');
-		if (speechToText) next.speechToText = speechToText;
-		const textToSpeech = this.getConfiguredModelOperator('textToSpeech');
-		if (textToSpeech) next.textToSpeech = textToSpeech;
-		const imageCreator = this.getConfiguredModelOperator('imageCreator');
-		if (imageCreator) next.imageCreator = imageCreator;
-		const textToVideo = this.getConfiguredModelOperator('textToVideo');
-		if (textToVideo) next.videoCreator = textToVideo;
-		const textToSound = this.getConfiguredModelOperator('textToSound');
-		if (textToSound) next.musicCreator = textToSound;
-		return Object.keys(next).length > 0 ? next : undefined;
-	}
-
-	getService(): OperatorStoreState | undefined {
-		return this.getOperator();
-	}
-
 	getAssistantOperator(): ConfiguredModelOperator | undefined {
 		return this.getConfiguredModelOperator('assistant');
 	}
