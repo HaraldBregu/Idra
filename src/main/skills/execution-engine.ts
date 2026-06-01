@@ -1,9 +1,9 @@
-import { beforeToolCall, newCallTracker } from '../../agent/tools/before-call';
-import type { AgentTool, AgentToolResult } from '../../agent/tools/types';
+import { beforeToolCall, newCallTracker } from '../agent/tools/before-call';
+import type { AgentTool, AgentToolResult } from '../agent/tools/types';
 import type { SkillAuditLog } from './audit-log';
-import type { SkillPreferenceStore } from '../state/preferences';
-import type { SkillRegistry } from '../registry/registry';
-import { validateJsonSchema } from '../core/schema';
+import type { SkillPreferenceStore } from './preferences';
+import type { SkillRegistry } from './registry';
+import { validateJsonSchema } from './schema';
 import type {
 	MemoryRetriever,
 	SkillDefinition,
@@ -15,8 +15,8 @@ import type {
 	SkillMemoryWrite,
 	SkillProvenance,
 	SkillResult,
-} from '../core/types';
-import { createProvenance, skillKey } from '../core/types';
+} from './types';
+import { createProvenance, skillKey } from './types';
 
 interface ExecutionState {
 	usedSkills: string[];

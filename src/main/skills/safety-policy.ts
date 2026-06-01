@@ -3,7 +3,7 @@ import type {
 	SkillExecutionRequestContext,
 	SkillSafetyCheck,
 	SkillSafetyPolicyPort,
-} from '../core/types';
+} from './types';
 
 const INJECTION_PATTERN = /ignore (all )?(previous|system) instructions|developer message|reveal.*(prompt|secret)|bypass safety/i;
 

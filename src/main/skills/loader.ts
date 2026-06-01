@@ -6,9 +6,9 @@ import type {
 	SkillImportSkipped,
 	SkillManifest,
 	SkillStructureInfo,
-} from '../../../shared/skills';
-import { AGENT_SKILL_RESOURCE_DIRECTORIES } from '../core/provider-support';
-import type { SkillDefinition, SkillExecutionContext, SkillResult } from '../core/types';
+} from '../../shared/skills';
+import { AGENT_SKILL_RESOURCE_DIRECTORIES } from './provider-support';
+import type { SkillDefinition, SkillExecutionContext, SkillResult } from './types';
 
 const MAX_SKILL_FILES = 500;
 const MAX_SKILL_DIRECTORIES = 500;

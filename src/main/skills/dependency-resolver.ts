@@ -1,4 +1,4 @@
-import type { SkillDefinition } from '../core/types';
+import type { SkillDefinition } from './types';
 import type { SkillRegistry } from './registry';
 import { SkillVersionManager } from './version-manager';
 

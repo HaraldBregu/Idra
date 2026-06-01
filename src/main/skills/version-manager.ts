@@ -1,4 +1,4 @@
-import type { SkillDefinition } from '../core/types';
+import type { SkillDefinition } from './types';
 
 function parts(version: string): number[] {
 	return version

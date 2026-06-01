@@ -2,7 +2,7 @@ import type {
 	SkillCapabilityResult,
 	SkillContext,
 	SkillDefinition,
-} from '../core/types';
+} from './types';
 
 function keywords(context: SkillContext, words: string[]): SkillCapabilityResult {
 	const text = context.intent.toLowerCase();

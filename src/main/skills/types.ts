@@ -1,12 +1,12 @@
-import type { JSONSchema } from '../../agent/provider/types';
-import type { AgentTool, AgentToolResult } from '../../agent/tools/types';
+import type { JSONSchema } from '../agent/provider/types';
+import type { AgentTool, AgentToolResult } from '../agent/tools/types';
 import type {
 	SkillCategory,
 	SkillDependencyManifest,
 	SkillExampleManifest,
 	SkillSafetyLevel,
 	SkillVisibility,
-} from '../../../shared/skills';
+} from '../../shared/skills';
 
 export type JsonSchema = JSONSchema;
 export type SkillPermission = string;
@@ -333,7 +333,7 @@ export interface SkillExecutionRequestContext {
 	skillDepth: number;
 	parentSkillId?: string;
 	provenanceChain: SkillProvenance[];
-	toolContext: import('../../agent/tools/types').ToolContext;
+	toolContext: import('../agent/tools/types').ToolContext;
 	timeoutMs?: number | null;
 	maxRetries?: number;
 	maxDepth?: number;

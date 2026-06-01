@@ -1,5 +1,5 @@
-import type { SkillResult, SkillUserPreferences } from '../core/types';
-import { emptyPreferences } from '../core/types';
+import type { SkillResult, SkillUserPreferences } from './types';
+import { emptyPreferences } from './types';
 
 export interface SkillPreferenceStore {
 	getPreferences(userId: string): Promise<SkillUserPreferences>;

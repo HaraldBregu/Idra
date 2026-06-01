@@ -4,10 +4,10 @@ import type {
 	SkillDiscoveryResult,
 	SkillExecutionRequestContext,
 	SkillUserPreferences,
-} from '../core/types';
-import type { SkillRegistry } from '../registry/registry';
+} from './types';
+import type { SkillRegistry } from './registry';
 import type { SkillRanker } from './ranker';
-import type { SkillSafetyPolicy } from '../runtime/safety-policy';
+import type { SkillSafetyPolicy } from './safety-policy';
 
 export interface SkillDiscoveryOptions {
 	maxResults?: number;

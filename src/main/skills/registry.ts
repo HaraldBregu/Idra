@@ -1,5 +1,5 @@
-import type { SkillCategory } from '../../../shared/skills';
-import type { SkillDefinition } from '../core/types';
+import type { SkillCategory } from '../../shared/skills';
+import type { SkillDefinition } from './types';
 import { SkillVersionManager } from './version-manager';
 
 function normalizeSkillId(id: string): string {

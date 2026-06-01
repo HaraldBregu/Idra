@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { LoggerService } from '../../logger';
-import type { UserDataDirectoryServicePort } from '../../app/user-data';
-import { resolveDefaultUserDataPath } from '../../app/user-data';
-import type { AgentTool, ToolContext } from '../../agent/tools/types';
-import { textResult } from '../../agent/tools/types';
+import type { LoggerService } from '../logger';
+import type { UserDataDirectoryServicePort } from '../app/user-data';
+import { resolveDefaultUserDataPath } from '../app/user-data';
+import type { AgentTool, ToolContext } from '../agent/tools/types';
+import { textResult } from '../agent/tools/types';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -12,21 +12,21 @@ import type {
 	SkillInfo,
 	SkillSearchOptions,
 	SkillSearchResult,
-} from '../../../shared/skills';
-import type { SkillPackage } from '../catalog/loader';
-import { SkillAuditLog } from '../runtime/audit-log';
-import { SkillDependencyResolver } from '../registry/dependency-resolver';
-import { SkillDiscovery, makeDiscoveryContext } from '../discovery/discovery';
-import { SkillExecutionEngine } from '../runtime/execution-engine';
-import { createExampleSkills } from '../catalog/example-skills';
-import { SkillLoader, isIgnoredSkillDirectoryName } from '../catalog/loader';
-import { DefaultSkillMemoryPolicy, NoopSkillMemoryRetriever } from '../state/memory-policy';
-import { InMemorySkillPreferenceStore, type SkillPreferenceStore } from '../state/preferences';
-import { SkillPlanner } from '../discovery/planner';
-import { SkillRanker } from '../discovery/ranker';
-import { SkillRegistry } from '../registry/registry';
-import { SkillSafetyPolicy } from '../runtime/safety-policy';
-import { SkillSelector } from '../discovery/selector';
+} from '../../shared/skills';
+import type { SkillPackage } from './loader';
+import { SkillAuditLog } from './audit-log';
+import { SkillDependencyResolver } from './dependency-resolver';
+import { SkillDiscovery, makeDiscoveryContext } from './discovery';
+import { SkillExecutionEngine } from './execution-engine';
+import { createExampleSkills } from './example-skills';
+import { SkillLoader, isIgnoredSkillDirectoryName } from './loader';
+import { DefaultSkillMemoryPolicy, NoopSkillMemoryRetriever } from './memory-policy';
+import { InMemorySkillPreferenceStore, type SkillPreferenceStore } from './preferences';
+import { SkillPlanner } from './planner';
+import { SkillRanker } from './ranker';
+import { SkillRegistry } from './registry';
+import { SkillSafetyPolicy } from './safety-policy';
+import { SkillSelector } from './selector';
 import type {
 	MemoryPolicy,
 	MemoryRetriever,
@@ -35,7 +35,7 @@ import type {
 	SkillExecutionRequestContext,
 	SkillPromptChoice,
 	SkillUserPreferences,
-} from '../core/types';
+} from './types';
 
 function toSkillId(value: string): string {
 	const id = value

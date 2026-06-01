@@ -1,4 +1,4 @@
-import type { SkillContext, SkillDefinition, SkillRanking } from '../core/types';
+import type { SkillContext, SkillDefinition, SkillRanking } from './types';
 
 function tokenize(value: string): Set<string> {
 	return new Set(

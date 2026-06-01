@@ -1,4 +1,4 @@
-import type { SkillDiscoveryResult, SkillSelectionDecision } from '../core/types';
+import type { SkillDiscoveryResult, SkillSelectionDecision } from './types';
 
 const UNSAFE_INTENT = /\b(steal|exfiltrate|bypass|malware|credential theft|phishing)\b/i;
 

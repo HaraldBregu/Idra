@@ -1,4 +1,4 @@
-import type { SkillDefinition, SkillLogger, SkillResult } from '../core/types';
+import type { SkillDefinition, SkillLogger, SkillResult } from './types';
 
 export interface SkillAuditRecord {
 	skillId: string;

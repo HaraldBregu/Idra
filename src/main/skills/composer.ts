@@ -1,5 +1,5 @@
 import type { SkillExecutionEngine } from './execution-engine';
-import type { SkillExecutionRequestContext, SkillResult } from '../core/types';
+import type { SkillExecutionRequestContext, SkillResult } from './types';
 
 export interface SkillWorkflowStep {
 	id: string;

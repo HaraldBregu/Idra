@@ -5,7 +5,7 @@ import type {
 	SkillLatencyEstimate,
 	SkillPlanStep,
 	SkillSelectionDecision,
-} from '../core/types';
+} from './types';
 
 function addCost(left: SkillCostEstimate, right: SkillCostEstimate): SkillCostEstimate {
 	return { amount: left.amount + right.amount, unit: left.unit };

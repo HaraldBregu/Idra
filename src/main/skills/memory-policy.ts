@@ -6,7 +6,7 @@ import type {
 	SkillMemoryRead,
 	SkillMemoryWrite,
 	SkillMemoryWriteDecision,
-} from '../core/types';
+} from './types';
 import type { SkillPreferenceStore } from './preferences';
 
 const SECRET_MEMORY_KIND = /secret|credential|token|password|oauth/i;
