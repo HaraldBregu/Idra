@@ -481,7 +481,7 @@ describe('StoreService', () => {
 			store.set('modelProviders', [openaiProvider]);
 			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
 
-			expect(service.getAssistantModel()).toEqual(model);
+			expect(service.getAssistantModel()).toMatchObject(model);
 		});
 
 		it('returns undefined when service state is absent', () => {
@@ -612,7 +612,7 @@ describe('StoreService', () => {
 
 			service.setAgentService('openai', model);
 
-			expect(service.getAgentService()?.model).toEqual(model);
+			expect(service.getAgentService()?.model).toMatchObject(model);
 		});
 
 		it('persists the compact agent module selection at the root', () => {

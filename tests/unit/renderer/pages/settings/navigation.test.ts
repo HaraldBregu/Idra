@@ -9,7 +9,6 @@ describe('settings navigation', () => {
 			'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
-			'settings.tabs.tools',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.channels',

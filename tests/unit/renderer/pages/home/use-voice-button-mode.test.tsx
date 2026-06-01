@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useVoiceButtonMode } from '../../../../../src/renderer/src/pages/home/hooks';
+import { useVoiceButtonMode } from '../../../../../src/renderer/src/pages/home/hooks/useVoiceButtonMode';
 import {
 	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
 	XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,

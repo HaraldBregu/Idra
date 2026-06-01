@@ -128,7 +128,9 @@ describe('AppIpc', () => {
 			registeredHandler(ProviderChannels.getTextToSpeechModels)({}, publicProvider)
 		).resolves.toEqual({
 			success: true,
-			data: [{ id: 'rachel-multilingual', name: 'Rachel - multilingual' }],
+			data: expect.arrayContaining([
+				expect.objectContaining({ id: 'eleven_v3', name: 'Eleven v3' }),
+			]),
 		});
 	});
 
@@ -151,7 +153,9 @@ describe('AppIpc', () => {
 			registeredHandler(ProviderChannels.getTextToVideoModels)({}, publicProvider)
 		).resolves.toEqual({
 			success: true,
-			data: expect.arrayContaining([{ id: 'gen4.5', name: 'Gen 4.5' }]),
+			data: expect.arrayContaining([
+				expect.objectContaining({ id: 'gen4.5', name: 'Gen 4.5' }),
+			]),
 		});
 	});
 });

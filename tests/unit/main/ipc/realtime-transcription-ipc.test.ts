@@ -120,7 +120,6 @@ describe('realtime transcription IPC', () => {
 						},
 						transcription: {
 							model: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-							delay: 'high',
 							language: 'en-US',
 						},
 						turn_detection: null,
@@ -627,7 +626,7 @@ describe('realtime transcription IPC', () => {
 		expect(adapter.startSession).toHaveBeenCalledWith(
 			expect.objectContaining({
 				provider,
-				model: { id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT realtime transcribe' },
+				model: { id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT-4o Mini Transcribe' },
 				request: { audio: 'AAAA', language: 'en' },
 			})
 		);

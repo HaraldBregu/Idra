@@ -65,7 +65,6 @@ describe('OverviewPage', () => {
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'Agent',
-			'settings.tabs.tools',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.modelServices.speechTranscriberName',
