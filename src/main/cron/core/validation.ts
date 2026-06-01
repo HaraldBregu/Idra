@@ -1,9 +1,12 @@
 import type {
+	CronActorContext,
 	CronConcurrencyPolicy,
 	CronMissedRunPolicy,
 	CronRunPolicy,
 	CronSchedule,
+	CronScheduleAccessPolicy,
 	CronScheduleCreateRequest,
+	CronSchedulePermissionLevel,
 	CronScheduleSource,
 	CronScheduleStatus,
 	CronScheduleType,
@@ -247,5 +250,43 @@ export function assertScheduleCanRun(schedule: CronSchedule): void {
 		throw new CronScheduleValidationError(`Schedule has reached maxRuns: ${schedule.id}`, {
 			scheduleId: schedule.id,
 		});
+	}
+}
+
+export interface DefaultCronScheduleAccessPolicyOptions {
+	minIntervalMs?: number;
+	highFrequencyThresholdMs?: number;
+	maxActiveSchedulesPerUser?: number;
+}
+
+export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy {
+	constructor(private readonly options: DefaultCronScheduleAccessPolicyOptions = {}) {}
+
+	async authorize(input: {
+		action: CronSchedulePermissionLevel;
+		actor: CronActorContext;
+	}): Promise<void> {
+		if (input.actor.permissions.includes('adminScheduleManagement')) return;
+		if (!input.actor.permissions.includes(input.action)) {
+			throw new CronScheduleValidationError(`Missing cron permission: ${input.action}`, {
+				action: input.action,
+			});
+		}
+	}
+
+	requiresConfirmation(): boolean {
+		return false;
+	}
+
+	validateFrequency(input: {
+		request: CronScheduleCreateRequest | CronScheduleUpdateRequest;
+	}): void {
+		const minIntervalMs = this.options.minIntervalMs;
+		if (minIntervalMs && input.request.intervalMs !== undefined && input.request.intervalMs < minIntervalMs) {
+			throw new CronScheduleValidationError(`intervalMs must be at least ${minIntervalMs}ms.`, {
+				intervalMs: input.request.intervalMs,
+				minIntervalMs,
+			});
+		}
 	}
 }
