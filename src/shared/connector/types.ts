@@ -81,8 +81,14 @@ export type OpenAiConnectorCatalogEntry = ConnectorCatalogEntry;
 
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
-export type ConnectorAuthKind = 'manual_oauth_access_token' | 'google_oauth';
-export type ConnectorRuntimeKind = 'mcp' | 'oauth';
+export type ConnectorAuthKind =
+	| 'manual_oauth_access_token'
+	| 'google_oauth'
+	| 'oauth'
+	| 'mcp_env'
+	| 'api_key'
+	| 'none';
+export type ConnectorRuntimeKind = 'mcp' | 'oauth' | 'apiKey' | 'internal' | 'local';
 export type ConnectorMcpTransport = 'http' | 'stdio';
 export type ConnectorMcpHeaderAuthScheme = 'bearer' | 'raw';
 export const CONNECTOR_TOOL_PERMISSIONS = ['always-allow', 'needs-approval', 'blocked'] as const;
@@ -244,15 +250,21 @@ export interface ConnectorOAuthConnectResult {
 
 export interface GoogleOAuthCredential {
 	provider: 'google';
+	providerId?: string;
+	authorizationUrl?: string;
 	clientId?: string;
 	clientSecret?: string;
 	redirectUri: string;
+	scopes?: readonly string[];
+	state?: string;
 	accessToken?: string;
 	refreshToken?: string;
 	expiresAt?: number;
 	tokenType?: string;
 	scope?: string;
 	email?: string;
+	accountEmail?: string;
+	token?: ConnectorOAuthTokenSet;
 	connectedAt?: string;
 }
 

@@ -99,7 +99,7 @@ export function bootstrapServices(): BootstrapResult {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
-	const connectors = container.register('connectors', new ConnectorsService(store, logger));
+	const connectors = container.register('connectors', new ConnectorsService(logger));
 	connectors.restoreEnabledConnectors();
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ cron, logger }));

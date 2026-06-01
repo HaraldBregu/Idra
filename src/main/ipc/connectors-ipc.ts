@@ -69,7 +69,7 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		ipcMain.handle(
 			ConnectorsChannels.authorizeOAuth,
-			wrapSimpleHandler((id: string) => connectors.connectOAuth(id), ConnectorsChannels.authorizeOAuth)
+			wrapSimpleHandler((input) => connectors.authorizeOAuth(input), ConnectorsChannels.authorizeOAuth)
 		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);
