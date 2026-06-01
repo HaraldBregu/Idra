@@ -7,7 +7,9 @@ import type { LoggerService } from '../logger';
 import type { AgentTool, ToolContext } from '../agent/tools/types';
 import { textResult } from '../agent/tools/types';
 import {
+	MCP_CONNECTOR_CATALOG,
 	OPENAI_CONNECTOR_CATALOG,
+	getMcpConnectorCatalogItem,
 	type ConnectorApprovalMode,
 	type ConnectorCallToolOptions,
 	type ConnectorCatalogEntry,
@@ -48,134 +50,6 @@ interface ConnectorsServiceOptions {
 
 const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
-const GOOGLE_OAUTH_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const GOOGLE_OAUTH_REDIRECT_URI = 'http://127.0.0.1';
-
-const CONNECTOR_CATALOG: readonly ConnectorCatalogEntry[] = [
-	{
-		id: 'google.gmail',
-		name: 'Gmail',
-		description: 'Authorize the official Gmail MCP server.',
-		directConnectorId: 'gmail',
-		environmentSecretNames: [],
-		platformDocumentationPages: [],
-		tools: [],
-		scopes: [
-			'https://www.googleapis.com/auth/userinfo.email',
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/gmail.readonly',
-			'https://www.googleapis.com/auth/gmail.compose',
-			'https://www.googleapis.com/auth/gmail.send',
-			'https://www.googleapis.com/auth/gmail.modify',
-		],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: false,
-		mcp: {
-			transport: 'http',
-			url: 'https://gmailmcp.googleapis.com/mcp/v1',
-			method: 'POST',
-			headers: {
-				accept: 'application/json, text/event-stream',
-				'content-type': 'application/json',
-			},
-		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: GOOGLE_OAUTH_AUTHORIZE_URL,
-			redirectUri: GOOGLE_OAUTH_REDIRECT_URI,
-			authorizationParams: {
-				response_type: 'code',
-				access_type: 'offline',
-				include_granted_scopes: 'true',
-				prompt: 'consent',
-			},
-		},
-	},
-	{
-		id: 'google.calendar',
-		name: 'Google Calendar',
-		description: 'Authorize the official Calendar MCP server.',
-		directConnectorId: 'google_calendar',
-		environmentSecretNames: [],
-		platformDocumentationPages: [],
-		tools: [],
-		scopes: [
-			'https://www.googleapis.com/auth/userinfo.email',
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/calendar.readonly',
-			'https://www.googleapis.com/auth/calendar.events.readonly',
-			'https://www.googleapis.com/auth/calendar.events',
-		],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: false,
-		mcp: {
-			transport: 'http',
-			url: 'https://calendarmcp.googleapis.com/mcp/v1',
-			method: 'POST',
-			headers: {
-				accept: 'application/json, text/event-stream',
-				'content-type': 'application/json',
-			},
-		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: GOOGLE_OAUTH_AUTHORIZE_URL,
-			redirectUri: GOOGLE_OAUTH_REDIRECT_URI,
-			authorizationParams: {
-				response_type: 'code',
-				access_type: 'offline',
-				include_granted_scopes: 'true',
-				prompt: 'consent',
-			},
-		},
-	},
-	{
-		id: 'google.drive',
-		name: 'Google Drive',
-		description: 'Authorize the official Drive MCP server.',
-		directConnectorId: 'google_drive',
-		environmentSecretNames: [],
-		platformDocumentationPages: [],
-		tools: [],
-		scopes: [
-			'https://www.googleapis.com/auth/userinfo.email',
-			'https://www.googleapis.com/auth/userinfo.profile',
-			'https://www.googleapis.com/auth/drive.readonly',
-			'https://www.googleapis.com/auth/drive.file',
-		],
-		setupInstructions: [],
-		authKind: 'oauth',
-		runtimeKind: 'mcp',
-		allowMultipleInstances: false,
-		mcp: {
-			transport: 'http',
-			url: 'https://drivemcp.googleapis.com/mcp/v1',
-			method: 'POST',
-			headers: {
-				accept: 'application/json, text/event-stream',
-				'content-type': 'application/json',
-			},
-		},
-		oauth: {
-			providerId: 'google',
-			clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID',
-			authorizationUrl: GOOGLE_OAUTH_AUTHORIZE_URL,
-			redirectUri: GOOGLE_OAUTH_REDIRECT_URI,
-			authorizationParams: {
-				response_type: 'code',
-				access_type: 'offline',
-				include_granted_scopes: 'true',
-				prompt: 'consent',
-			},
-		},
-	},
-];
 
 export class ConnectorsService {
 	private readonly legacy?: LegacyConnectorsService;
