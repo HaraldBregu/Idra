@@ -310,8 +310,7 @@ export class HeartbeatService implements Disposable {
 	async systemEvent(request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> {
 		const text = request.text?.trim();
 		if (!text) throw new Error('system-event text is required.');
-		const operator = this.getHeartbeatOperator();
-		const agentId = request.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
+		const agentId = request.agentId?.trim() || resolveDefaultHeartbeatAgentId(this.getHeartbeatAgents());
 		const sessionKey = request.sessionKey?.trim() || agentId;
 		const mode = request.mode ?? 'next-heartbeat';
 		this.enqueueSystemEvent(sessionKey, {
