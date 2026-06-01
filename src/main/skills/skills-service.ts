@@ -120,7 +120,7 @@ function isPathInside(rootPath: string, targetPath: string): boolean {
 	return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 }
 
-export interface AgentSkillRuntimeInput {
+export interface SkillRuntimeInput {
 	userId: string;
 	sessionId: string;
 	tools: AgentTool[];
@@ -281,7 +281,7 @@ export class SkillsService {
 
 	async discoverForPrompt(
 		query: string,
-		input: AgentSkillRuntimeInput
+		input: SkillRuntimeInput
 	): Promise<SkillPromptChoice[]> {
 		await this.registerManagedDynamicSkills();
 		const userPreferences = await this.preferences.getPreferences(input.userId);
@@ -326,7 +326,7 @@ export class SkillsService {
 		}));
 	}
 
-	createExecutionTool(input: Omit<AgentSkillRuntimeInput, 'toolContext'>): AgentTool {
+	createExecutionTool(input: Omit<SkillRuntimeInput, 'toolContext'>): AgentTool {
 		return {
 			name: 'execute_skill',
 			description:
@@ -581,7 +581,7 @@ export class SkillsService {
 	}
 
 	private async createExecutionContext(
-		input: AgentSkillRuntimeInput,
+		input: SkillRuntimeInput,
 		userPreferences?: SkillUserPreferences
 	): Promise<SkillExecutionRequestContext> {
 		const preferences = userPreferences ?? (await this.preferences.getPreferences(input.userId));
