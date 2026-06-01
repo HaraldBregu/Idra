@@ -38,26 +38,6 @@ export const ProviderChannels = {
 	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
 } as const;
 
-export const OperatorChannels = {
-	getAssistant: 'operator:get-assistant',
-	saveAssistant: 'operator:save-assistant',
-	getSpeechToText: 'operator:get-speech-to-text',
-	getSpeechToTextModels: 'operator:get-speech-to-text-models',
-	saveSpeechToText: 'operator:save-speech-to-text',
-	getTextToSpeech: 'operator:get-text-to-speech',
-	getTextToSpeechModels: 'operator:get-text-to-speech-models',
-	saveTextToSpeech: 'operator:save-text-to-speech',
-	getImageCreator: 'operator:get-image-creator',
-	getImageCreatorModels: 'operator:get-image-creator-models',
-	saveImageCreator: 'operator:save-image-creator',
-	getTextToVideo: 'operator:get-text-to-video',
-	getTextToVideoModels: 'operator:get-text-to-video-models',
-	saveTextToVideo: 'operator:save-text-to-video',
-	getMusicCreator: 'operator:get-music-creator',
-	getMusicCreatorModels: 'operator:get-music-creator-models',
-	saveMusicCreator: 'operator:save-music-creator',
-} as const;
-
 export const RealtimeTranscriptionChannels = {
 	start: 'realtime-transcription:start',
 	appendAudio: 'realtime-transcription:append-audio',
