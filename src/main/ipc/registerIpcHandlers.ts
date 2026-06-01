@@ -1,18 +1,16 @@
-import {
-	AgentIpc,
-	AppIpc,
-	ChannelsIpc,
-	ConnectorsIpc,
-	CronIpc,
-	HeartbeatIpc,
-	RealtimeTranscriptionIpc,
-	SkillsIpc,
-	SpeechToTextIpc,
-	StoreIpc,
-	TasksIpc,
-	WindowIpc,
-	type IpcModule,
-} from './index';
+import { AgentIpc } from './agent.ipc';
+import { AppIpc } from './app.ipc';
+import { ChannelsIpc } from './channels.ipc';
+import { ConnectorsIpc } from './connectors.ipc';
+import { CronIpc } from './cron.ipc';
+import { HeartbeatIpc } from './heartbeat.ipc';
+import { RealtimeTranscriptionIpc } from './realtime-transcription.ipc';
+import { SkillsIpc } from './skills.ipc';
+import { SpeechToTextIpc } from './speech-to-text.ipc';
+import { StoreIpc } from './store.ipc';
+import { TasksIpc } from './tasks.ipc';
+import { WindowIpc } from './window.ipc';
+import type { IpcModule } from './module';
 import type { EventBus } from '../services';
 import type { MainServiceContainer } from '../services/services';
 

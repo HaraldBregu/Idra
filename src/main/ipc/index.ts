@@ -16,3 +16,4 @@ export { SkillsIpc } from './skills.ipc';
 export { StoreIpc } from './store.ipc';
 export { TasksIpc } from './tasks.ipc';
 export { WindowIpc } from './window.ipc';
+export { registerIpcHandlers } from './registerIpcHandlers';
