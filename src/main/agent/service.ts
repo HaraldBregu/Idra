@@ -57,8 +57,8 @@ import {
 } from '../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
 import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
-import { createHeartbeatResponseTool, type HeartbeatToolResponse } from '../heartbeat/prompt/response';
-import { HeartbeatFileStore } from '../heartbeat/storage/store';
+import { createHeartbeatResponseTool, type HeartbeatToolResponse } from '../heartbeat/prompt';
+import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
 import type { PublicProvider } from '../../shared/providers';
