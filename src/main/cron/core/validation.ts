@@ -266,12 +266,7 @@ export class DefaultCronScheduleAccessPolicy implements CronScheduleAccessPolicy
 		action: CronSchedulePermissionLevel;
 		actor: CronActorContext;
 	}): Promise<void> {
-		if (input.actor.permissions.includes('adminScheduleManagement')) return;
-		if (!input.actor.permissions.includes(input.action)) {
-			throw new CronScheduleValidationError(`Missing cron permission: ${input.action}`, {
-				action: input.action,
-			});
-		}
+		void input;
 	}
 
 	requiresConfirmation(): boolean {
