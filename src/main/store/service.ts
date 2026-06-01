@@ -37,7 +37,7 @@ import type {
 import type { CronJobStoreState } from '../cron/state';
 import { emptyCronJobStoreState, migrateCronJobStoreState } from '../cron/state';
 
-type ConfiguredModelOperatorKey =
+type ModelModuleKey =
 	| 'assistant'
 	| 'speechToText'
 	| 'textToSpeech'
@@ -51,13 +51,6 @@ type ModelModuleRootKey =
 	| 'imageCreator'
 	| 'textToVideo'
 	| 'textToSound';
-type OperatorDefinitionKey =
-	| 'assistant'
-	| 'speechToText'
-	| 'textToSpeech'
-	| 'imageCreator'
-	| 'videoCreator'
-	| 'musicCreator';
 type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
 
 const MODEL_MODULE_ROOT_KEYS = {
@@ -67,16 +60,7 @@ const MODEL_MODULE_ROOT_KEYS = {
 	imageCreator: 'imageCreator',
 	textToVideo: 'textToVideo',
 	textToSound: 'textToSound',
-} satisfies Record<ConfiguredModelOperatorKey, ModelModuleRootKey>;
-
-const OPERATOR_DEFINITION_KEYS = {
-	assistant: 'assistant',
-	speechToText: 'speechToText',
-	textToSpeech: 'textToSpeech',
-	imageCreator: 'imageCreator',
-	textToVideo: 'videoCreator',
-	textToSound: 'musicCreator',
-} satisfies Record<ConfiguredModelOperatorKey, OperatorDefinitionKey>;
+} satisfies Record<ModelModuleKey, ModelModuleRootKey>;
 
 const CONNECTOR_STORE_KEY_BY_ID = {
 	connector_gmail: 'google_gmail',
