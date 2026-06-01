@@ -2,7 +2,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from '../../../../src/main/skills/catalog';
 import { SkillDiscovery, SkillRanker, SkillSelector, makeDiscoveryContext } from '../../../../src/main/skills/selection';
-import { createExampleSkills } from '../../../../src/main/skills/example-skills';
 import { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from '../../../../src/main/skills/loader';
 import {
 	DefaultSkillMemoryPolicy,
@@ -20,11 +19,17 @@ import type {
 	SkillExecutionContext,
 	SkillExecutionRequestContext,
 } from '../../../../src/main/skills/types';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
-import { textResult } from '../../../../src/main/agent/tools/types';
+import type { SkillTool } from '../../../../src/main/skills/types';
 import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
 
-function webFetchTool(): AgentTool {
+function textResult(text: string, isError = false) {
+	return {
+		content: [{ type: 'text' as const, text }],
+		isError,
+	};
+}
+
+function webFetchTool(): SkillTool {
 	return {
 		name: 'web_fetch',
 		description: 'Fetch',
@@ -89,10 +94,54 @@ function basicSkill(
 	};
 }
 
+function createTestSkills(): SkillDefinition[] {
+	return [
+		basicSkill('summarize-document', async (input, context) => {
+			const text = String(input.documentText ?? '');
+			const summary = text.split(/(?<=[.!?])\s+/).filter(Boolean).slice(0, 2).join(' ') || text;
+			return context.complete({ summary, bullets: summary ? [summary] : [] });
+		}),
+		basicSkill(
+			'research-topic',
+			async (input, context) =>
+				context.complete({
+					topic: String(input.topic ?? ''),
+					summary: `Research summary for ${String(input.topic ?? '')}`,
+					findings: [`Finding for ${String(input.topic ?? '')}`],
+					sources: [],
+				}),
+			{
+				requiredTools: ['web_fetch'],
+				permissionsRequired: ['tool:web_fetch'],
+				tags: ['research', 'topic', 'sources'],
+				description: 'Research a topic and produce findings with source provenance.',
+			}
+		),
+		basicSkill('draft-professional-email', async (input, context) =>
+			context.complete({
+				subject: String(input.subject ?? ''),
+				body: String(input.brief ?? ''),
+				requiresReview: true,
+			})
+		),
+		basicSkill('multi-step-research-and-email', async (input, context) => {
+			const research = await context.executeSkill('research-topic', { topic: input.topic });
+			const summary = await context.executeSkill('summarize-document', {
+				documentText: research.success ? research.data : '',
+			});
+			const email = await context.executeSkill('draft-professional-email', {
+				subject: `Executive summary: ${String(input.topic ?? '')}`,
+				brief: summary.success ? JSON.stringify(summary.data) : '',
+			});
+			return context.complete({ research: research.success ? research.data : undefined, summary, email: email.success ? email.data : undefined });
+		}),
+	];
+}
+
 function setupRegistry(includeExamples = true): SkillRegistry {
 	const registry = new SkillRegistry();
 	if (includeExamples) {
-		for (const skill of createExampleSkills()) registry.registerSkill(skill);
+		for (const skill of createTestSkills()) registry.registerSkill(skill);
 	}
 	return registry;
 }
@@ -115,7 +164,7 @@ function userDataDirectory(root: string) {
 
 function executionContext(
 	input: {
-		tools?: AgentTool[];
+		tools?: SkillTool[];
 		connectors?: SkillConnector[];
 		permissions?: string[];
 		grantToolPermissions?: boolean;
