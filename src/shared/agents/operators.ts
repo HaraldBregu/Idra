@@ -1,4 +1,3 @@
-import type { AgentsHeartbeatConfig } from '../heartbeat';
 import type { Provider } from '../providers';
 import { IMAGE_CREATOR_MODELS, SPEECH_TO_TEXT_MODELS, TEXT_TO_VIDEO_MODELS } from '../providers';
 import type { Model } from './reasoning';
