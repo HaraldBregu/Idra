@@ -59,7 +59,7 @@ export interface SkillPackageDiscovery {
 	skipped: SkillImportSkipped[];
 }
 
-interface AgentSkillFrontMatter {
+interface SkillPackageFrontMatter {
 	name?: unknown;
 	description?: unknown;
 	license?: unknown;
@@ -98,7 +98,7 @@ interface ParsedSkillMarkdown {
 	diagnostics: SkillDiagnostic[];
 }
 
-interface AgentSkillActivationOutput {
+interface SkillActivationOutput {
 	name: string;
 	description: string;
 	path: string;
@@ -198,7 +198,7 @@ function skillDiagnostic(
 	return { level, code, message };
 }
 
-function normalizeAgentSkillId(value: string): string {
+function normalizeSkillPackageId(value: string): string {
 	const id = value
 		.trim()
 		.toLowerCase()
@@ -214,7 +214,7 @@ function normalizeAgentSkillId(value: string): string {
 	return id;
 }
 
-function validateAgentSkillName(name: string): void {
+function validateSkillPackageName(name: string): void {
 	if (name.length < 1 || name.length > 128) {
 		throw new Error('Skill name must be 1-128 characters.');
 	}
@@ -224,7 +224,7 @@ function validateAgentSkillName(name: string): void {
 }
 
 function collectStandardDiagnostics(input: {
-	frontmatter: AgentSkillFrontMatter;
+	frontmatter: SkillPackageFrontMatter;
 	name: string;
 	nameProvided: boolean;
 	description: string;
@@ -236,7 +236,7 @@ function collectStandardDiagnostics(input: {
 		diagnostics.push(
 			skillDiagnostic(
 				'name_fallback',
-				'Agent Skills standard requires frontmatter.name; Friday used the folder name.'
+				'Skill package standard requires frontmatter.name; Friday used the folder name.'
 			)
 		);
 	}
@@ -244,7 +244,7 @@ function collectStandardDiagnostics(input: {
 		diagnostics.push(
 			skillDiagnostic(
 				'name_not_standard',
-				'Agent Skills standard names should use lowercase letters, numbers, and single hyphens only.'
+				'Skill package standard names should use lowercase letters, numbers, and single hyphens only.'
 			)
 		);
 	}
@@ -252,7 +252,7 @@ function collectStandardDiagnostics(input: {
 		diagnostics.push(
 			skillDiagnostic(
 				'name_too_long',
-				'Agent Skills standard names should be 64 characters or less.'
+				'Skill package standard names should be 64 characters or less.'
 			)
 		);
 	}
@@ -260,7 +260,7 @@ function collectStandardDiagnostics(input: {
 		diagnostics.push(
 			skillDiagnostic(
 				'name_folder_mismatch',
-				'Agent Skills standard names should match the parent folder name.'
+				'Skill package standard names should match the parent folder name.'
 			)
 		);
 	}
@@ -281,7 +281,7 @@ function collectStandardDiagnostics(input: {
 					diagnostics.push(
 						skillDiagnostic(
 							'metadata_value_not_string',
-							`metadata.${key} should be a string for maximum Agent Skills compatibility.`
+							`metadata.${key} should be a string for maximum skill package compatibility.`
 						)
 					);
 				}
@@ -313,20 +313,20 @@ function parseSkillMarkdown(raw: string, parentDirectoryName: string, trusted: b
 	}
 
 	const parsed = matter(raw);
-	const data = (isRecord(parsed.data) ? parsed.data : {}) as AgentSkillFrontMatter;
+	const data = (isRecord(parsed.data) ? parsed.data : {}) as SkillPackageFrontMatter;
 	const parsedContent = parsed.content.trim();
 	const parsedName = asString(data.name);
 	const name = parsedName ?? parentDirectoryName.trim();
 	const description = asString(data.description);
 	if (!description) throw new Error('Skill front matter requires a non-empty description.');
 	if (!name) throw new Error('Skill front matter requires a non-empty name.');
-	validateAgentSkillName(name);
+	validateSkillPackageName(name);
 	if (description.length > 1024) throw new Error('Skill description must be 1024 characters or less.');
 	const compatibility = asString(data.compatibility);
 	if (compatibility && compatibility.length > 500) {
 		throw new Error('Skill compatibility must be 500 characters or less.');
 	}
-	const id = normalizeAgentSkillId(name);
+	const id = normalizeSkillPackageId(name);
 	const diagnostics = collectStandardDiagnostics({
 		frontmatter: data,
 		name,
@@ -599,7 +599,7 @@ function manifestOnlySkill(
 	skillPath: string,
 	instructions: string,
 	trusted: boolean
-): SkillDefinition<unknown, AgentSkillActivationOutput> {
+): SkillDefinition<unknown, SkillActivationOutput> {
 	const id = manifest.id ?? manifest.name;
 	return {
 		id,
@@ -683,7 +683,7 @@ function manifestOnlySkill(
 		async execute(
 			_input: unknown,
 			context: SkillExecutionContext
-		): Promise<SkillResult<AgentSkillActivationOutput>> {
+		): Promise<SkillResult<SkillActivationOutput>> {
 			const resources = await listSkillResources(sourcePath);
 			return context.complete({
 				name: manifest.name,

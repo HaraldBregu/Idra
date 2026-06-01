@@ -561,7 +561,7 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('keeps disable-model-invocation Agent Skills out of discovery', async () => {
+	it('keeps disable-model-invocation skill packages out of discovery', async () => {
 		const root = await makeTempDir();
 		const dir = path.join(root, 'hidden-skill');
 		await fs.mkdir(dir);
@@ -708,7 +708,7 @@ describe('skill system', () => {
 		await fs.rm(destinationRoot, { recursive: true, force: true });
 	});
 
-	it('imports standard Agent Skills from a container folder', async () => {
+	it('imports standard skill packages from a container folder', async () => {
 		const root = await makeTempDir();
 		const source = await makeTempDir();
 		const first = path.join(source, 'agent-skills', 'first-skill');
@@ -763,7 +763,7 @@ describe('skill system', () => {
 		await fs.rm(source, { recursive: true, force: true });
 	});
 
-	it('loads bundled demo Agent Skills from resources', async () => {
+	it('loads bundled demo skill packages from resources', async () => {
 		const discovery = await new SkillLoader().loadPackages(
 			path.resolve('resources', 'demo-skills'),
 			{ trusted: true }
@@ -783,7 +783,7 @@ describe('skill system', () => {
 		expect(discovery.packages.every((item) => item.diagnostics.length === 0)).toBe(true);
 	});
 
-	it('imports standard Agent Skills from a project .agents skills folder', async () => {
+	it('imports standard skill packages from a project .agents skills folder', async () => {
 		const root = await makeTempDir();
 		const source = await makeTempDir();
 		const skillDir = path.join(source, '.agents', 'skills', 'project-skill');
