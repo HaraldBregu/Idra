@@ -1,31 +1,31 @@
 import type {
-	FridayCronJobDefinition,
-	FridayCronJobState,
-	FridayCronRunRecord,
+	CronJobJobDefinition,
+	CronJobJobState,
+	CronJobRunRecord,
 } from '../../shared/cron';
-import { assertSafeCronId, fridayScheduleIdentity } from './validate';
-import { FRIDAY_CRON_STORE_SCHEMA_VERSION } from './constants';
+import { assertSafeCronId, cronJobScheduleIdentity } from './validate';
+import { CRON_JOB_STORE_SCHEMA_VERSION } from './constants';
 
-export interface FridayCronSnapshot {
-	jobs: FridayCronJobDefinition[];
-	states: Record<string, FridayCronJobState>;
+export interface CronJobSnapshot {
+	jobs: CronJobJobDefinition[];
+	states: Record<string, CronJobJobState>;
 }
 
-export interface FridayCronStoreState extends FridayCronSnapshot {
+export interface CronJobStoreState extends CronJobSnapshot {
 	schemaVersion: number;
-	runs: Record<string, FridayCronRunRecord[]>;
+	runs: Record<string, CronJobRunRecord[]>;
 }
 
-export interface FridayCronStore {
-	load(): Promise<FridayCronSnapshot>;
-	save(snapshot: FridayCronSnapshot): Promise<void>;
-	appendRun(record: FridayCronRunRecord): Promise<void>;
-	listRuns(jobId: string, limit?: number): Promise<FridayCronRunRecord[]>;
+export interface CronJobStore {
+	load(): Promise<CronJobSnapshot>;
+	save(snapshot: CronJobSnapshot): Promise<void>;
+	appendRun(record: CronJobRunRecord): Promise<void>;
+	listRuns(jobId: string, limit?: number): Promise<CronJobRunRecord[]>;
 }
 
-interface FridayCronSettingsStore {
-	getFridayCronState(): FridayCronStoreState;
-	setFridayCronState(state: FridayCronStoreState): void;
+interface CronJobSettingsStore {
+	getCronJobState(): CronJobStoreState;
+	setCronJobState(state: CronJobStoreState): void;
 }
 
 function clone<T>(value: T): T {
@@ -36,25 +36,25 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
 }
 
-function defaultState(job: FridayCronJobDefinition): FridayCronJobState {
+function defaultState(job: CronJobJobDefinition): CronJobJobState {
 	return {
 		consecutiveErrors: 0,
 		consecutiveSkipped: 0,
 		consecutiveScheduleErrors: 0,
 		attempts: 0,
-		scheduleIdentity: fridayScheduleIdentity(job.schedule),
+		scheduleIdentity: cronJobScheduleIdentity(job.schedule),
 	};
 }
 
 function normalizeState(
-	job: FridayCronJobDefinition,
-	state: Partial<FridayCronJobState> | undefined
-): FridayCronJobState {
-	const next: FridayCronJobState = {
+	job: CronJobJobDefinition,
+	state: Partial<CronJobJobState> | undefined
+): CronJobJobState {
+	const next: CronJobJobState = {
 		...defaultState(job),
 		...(state ?? {}),
 	};
-	const identity = fridayScheduleIdentity(job.schedule);
+	const identity = cronJobScheduleIdentity(job.schedule);
 	if (next.scheduleIdentity && next.scheduleIdentity !== identity) {
 		next.nextRunAtMs = undefined;
 		next.runningAtMs = undefined;
@@ -67,14 +67,14 @@ function normalizeState(
 	return next;
 }
 
-function normalizeJobs(value: unknown): FridayCronJobDefinition[] {
+function normalizeJobs(value: unknown): CronJobJobDefinition[] {
 	if (!Array.isArray(value)) return [];
-	const jobs: FridayCronJobDefinition[] = [];
+	const jobs: CronJobJobDefinition[] = [];
 	for (const entry of value) {
 		if (!isRecord(entry) || typeof entry.id !== 'string') continue;
 		try {
 			assertSafeCronId(entry.id);
-			const job = clone(entry as unknown as FridayCronJobDefinition);
+			const job = clone(entry as unknown as CronJobJobDefinition);
 			if (job.payload?.kind === 'agentTurn') {
 				delete (job.payload as Record<string, unknown>).providerId;
 				delete (job.payload as Record<string, unknown>).model;
@@ -87,7 +87,7 @@ function normalizeJobs(value: unknown): FridayCronJobDefinition[] {
 	return jobs;
 }
 
-function isRunRecord(value: unknown, jobId: string): value is FridayCronRunRecord {
+function isRunRecord(value: unknown, jobId: string): value is CronJobRunRecord {
 	return (
 		isRecord(value) &&
 		typeof value.runId === 'string' &&
@@ -100,9 +100,9 @@ function isRunRecord(value: unknown, jobId: string): value is FridayCronRunRecor
 	);
 }
 
-function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
+function normalizeRuns(value: unknown): Record<string, CronJobRunRecord[]> {
 	if (!isRecord(value)) return {};
-	const runs: Record<string, FridayCronRunRecord[]> = {};
+	const runs: Record<string, CronJobRunRecord[]> = {};
 	for (const [jobId, entries] of Object.entries(value)) {
 		try {
 			assertSafeCronId(jobId, 'jobId');
@@ -110,7 +110,7 @@ function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
 			continue;
 		}
 		if (!Array.isArray(entries)) continue;
-		const records = entries.filter((entry): entry is FridayCronRunRecord =>
+		const records = entries.filter((entry): entry is CronJobRunRecord =>
 			isRunRecord(entry, jobId)
 		);
 		if (records.length > 0) runs[jobId] = clone(records);
@@ -118,39 +118,39 @@ function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
 	return runs;
 }
 
-export function emptyFridayCronStoreState(): FridayCronStoreState {
+export function emptyCronJobStoreState(): CronJobStoreState {
 	return {
-		schemaVersion: FRIDAY_CRON_STORE_SCHEMA_VERSION,
+		schemaVersion: CRON_JOB_STORE_SCHEMA_VERSION,
 		jobs: [],
 		states: {},
 		runs: {},
 	};
 }
 
-export function migrateFridayCronStoreState(value: unknown): FridayCronStoreState {
+export function migrateCronJobStoreState(value: unknown): CronJobStoreState {
 	const source = isRecord(value) ? value : {};
 	const jobs = normalizeJobs(source.jobs);
 	const stateSource = isRecord(source.states) ? source.states : {};
-	const states: Record<string, FridayCronJobState> = {};
+	const states: Record<string, CronJobJobState> = {};
 	for (const job of jobs) {
 		const current = stateSource[job.id];
 		states[job.id] = normalizeState(
 			job,
-			isRecord(current) ? (current as Partial<FridayCronJobState>) : undefined
+			isRecord(current) ? (current as Partial<CronJobJobState>) : undefined
 		);
 	}
 	return {
-		schemaVersion: FRIDAY_CRON_STORE_SCHEMA_VERSION,
+		schemaVersion: CRON_JOB_STORE_SCHEMA_VERSION,
 		jobs,
 		states,
 		runs: normalizeRuns(source.runs),
 	};
 }
 
-export class ElectronStoreFridayCronStore implements FridayCronStore {
-	constructor(private readonly store: FridayCronSettingsStore) {}
+export class ElectronStoreCronJobStore implements CronJobStore {
+	constructor(private readonly store: CronJobSettingsStore) {}
 
-	async load(): Promise<FridayCronSnapshot> {
+	async load(): Promise<CronJobSnapshot> {
 		const state = this.read();
 		return {
 			jobs: clone(state.jobs),
@@ -158,10 +158,10 @@ export class ElectronStoreFridayCronStore implements FridayCronStore {
 		};
 	}
 
-	async save(snapshot: FridayCronSnapshot): Promise<void> {
+	async save(snapshot: CronJobSnapshot): Promise<void> {
 		const state = this.read();
 		const jobs = clone(snapshot.jobs);
-		const states: Record<string, FridayCronJobState> = {};
+		const states: Record<string, CronJobJobState> = {};
 		for (const job of jobs) {
 			assertSafeCronId(job.id);
 			states[job.id] = normalizeState(job, snapshot.states[job.id]);
@@ -173,7 +173,7 @@ export class ElectronStoreFridayCronStore implements FridayCronStore {
 		});
 	}
 
-	async appendRun(record: FridayCronRunRecord): Promise<void> {
+	async appendRun(record: CronJobRunRecord): Promise<void> {
 		assertSafeCronId(record.jobId, 'jobId');
 		const state = this.read();
 		const runs = state.runs[record.jobId] ?? [];
@@ -186,19 +186,19 @@ export class ElectronStoreFridayCronStore implements FridayCronStore {
 		});
 	}
 
-	async listRuns(jobId: string, limit = 50): Promise<FridayCronRunRecord[]> {
+	async listRuns(jobId: string, limit = 50): Promise<CronJobRunRecord[]> {
 		assertSafeCronId(jobId, 'jobId');
 		const runs = this.read().runs[jobId] ?? [];
 		return clone(runs.slice(Math.max(0, runs.length - Math.max(1, limit))));
 	}
 
-	private read(): FridayCronStoreState {
-		return migrateFridayCronStoreState(this.store.getFridayCronState());
+	private read(): CronJobStoreState {
+		return migrateCronJobStoreState(this.store.getCronJobState());
 	}
 
-	private write(state: FridayCronStoreState): void {
-		this.store.setFridayCronState(migrateFridayCronStoreState(state));
+	private write(state: CronJobStoreState): void {
+		this.store.setCronJobState(migrateCronJobStoreState(state));
 	}
 }
 
-export { defaultState as defaultFridayCronJobState };
+export { defaultState as defaultCronJobState };

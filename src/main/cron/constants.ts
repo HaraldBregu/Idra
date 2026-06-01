@@ -14,7 +14,7 @@ import type {
 export const CRON_AGENT_TASK_TYPE = 'agent.run';
 export const DEFAULT_CRON_AGENT_ID = 'main';
 export const CRON_STORE_SCHEMA_VERSION = 1;
-export const FRIDAY_CRON_STORE_SCHEMA_VERSION = 1;
+export const CRON_JOB_STORE_SCHEMA_VERSION = 1;
 
 export const CRON_MINUTE_MS = 60_000;
 export const MAX_CRON_SCAN_MINUTES = 366 * 24 * 60;
@@ -108,7 +108,7 @@ export const CRON_SECRET_VALUE_PATTERNS: readonly RegExp[] = [
 export const CRON_AGENT_TASK_INPUT_KEYS = new Set(['message']);
 export const CRON_PATH_SEPARATOR_PATTERN = /[\\/]/;
 
-export const FRIDAY_CRON_CONTROL_FIELDS = new Set([
+export const CRON_JOB_CONTROL_FIELDS = new Set([
 	'action',
 	'id',
 	'jobId',
@@ -125,7 +125,7 @@ export const FRIDAY_CRON_CONTROL_FIELDS = new Set([
 	'limit',
 ]);
 
-export const FRIDAY_CRON_AGENT_TURN_FIELDS = [
+export const CRON_JOB_AGENT_TURN_FIELDS = [
 	'fallbacks',
 	'thinking',
 	'timeoutSeconds',
@@ -165,7 +165,7 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 	defaultTimezone: 'UTC',
 };
 
-export const DEFAULT_FRIDAY_CRON_OPTIONS = {
+export const DEFAULT_CRON_JOB_OPTIONS = {
 	enabled: process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false',
 	maintenanceIntervalMs: 60_000,
 	minRefireGapMs: 1_000,

@@ -25,7 +25,7 @@ jest.mock('electron-store', () => {
 
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
-import { emptyFridayCronStoreState } from '../../../../src/main/cron';
+import { emptyCronJobStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';
 import type { Provider } from '../../../../src/shared/providers';
@@ -291,7 +291,7 @@ describe('StoreService', () => {
 		it('persists Friday cron jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();
 			const state = {
-				...emptyFridayCronStoreState(),
+				...emptyCronJobStoreState(),
 				jobs: [
 					{
 						id: 'job-1',
@@ -331,10 +331,10 @@ describe('StoreService', () => {
 				},
 			};
 
-			expect(service.getFridayCronState()).toEqual(emptyFridayCronStoreState());
-			service.setFridayCronState(state);
+			expect(service.getCronJobState()).toEqual(emptyCronJobStoreState());
+			service.setCronJobState(state);
 
-			expect(service.getFridayCronState()).toMatchObject({
+			expect(service.getCronJobState()).toMatchObject({
 				jobs: [{ id: 'job-1' }],
 				states: {
 					'job-1': expect.objectContaining({

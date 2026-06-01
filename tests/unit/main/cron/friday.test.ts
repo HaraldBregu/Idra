@@ -1,28 +1,28 @@
 import type {
-	FridayCronAddRequest,
-	FridayCronJobDefinition,
-	FridayCronRunRecord,
+	CronJobAddRequest,
+	CronJobJobDefinition,
+	CronJobRunRecord,
 } from '../../../../src/shared/cron';
 import {
-	ElectronStoreFridayCronStore,
-	emptyFridayCronStoreState,
-	AgentFridayCronExecutor,
-	FridayCronScheduler,
-	type FridayCronStoreState,
-	type FridayCronDeliveryPort,
-	type FridayCronExecutionOutcome,
-	type FridayCronExecutor,
+	ElectronStoreCronJobStore,
+	emptyCronJobStoreState,
+	AgentCronJobExecutor,
+	CronJobScheduler,
+	type CronJobStoreState,
+	type CronJobDeliveryPort,
+	type CronJobExecutionOutcome,
+	type CronJobExecutor,
 } from '../../../../src/main/cron';
 import type { StoreService } from '../../../../src/main/store';
 
-class RecordingExecutor implements FridayCronExecutor {
-	calls: Array<{ job: FridayCronJobDefinition; runId: string }> = [];
-	outcomes: Array<FridayCronExecutionOutcome | Error> = [];
+class RecordingExecutor implements CronJobExecutor {
+	calls: Array<{ job: CronJobJobDefinition; runId: string }> = [];
+	outcomes: Array<CronJobExecutionOutcome | Error> = [];
 	onExecute?: () => Promise<void>;
 
 	async execute(
-		input: Parameters<FridayCronExecutor['execute']>[0]
-	): Promise<FridayCronExecutionOutcome> {
+		input: Parameters<CronJobExecutor['execute']>[0]
+	): Promise<CronJobExecutionOutcome> {
 		this.calls.push({ job: input.job, runId: input.runId });
 		await this.onExecute?.();
 		const outcome = this.outcomes.shift();
@@ -31,10 +31,10 @@ class RecordingExecutor implements FridayCronExecutor {
 	}
 }
 
-class RecordingDelivery implements FridayCronDeliveryPort {
-	calls: Parameters<FridayCronDeliveryPort['deliver']>[0][] = [];
+class RecordingDelivery implements CronJobDeliveryPort {
+	calls: Parameters<CronJobDeliveryPort['deliver']>[0][] = [];
 
-	async deliver(input: Parameters<FridayCronDeliveryPort['deliver']>[0]) {
+	async deliver(input: Parameters<CronJobDeliveryPort['deliver']>[0]) {
 		this.calls.push(input);
 		return {
 			mode: input.delivery.mode,
@@ -50,15 +50,15 @@ class RecordingDelivery implements FridayCronDeliveryPort {
 	}
 }
 
-function createFridayStoreService(): {
+function createCronJobStoreService(): {
 	service: StoreService;
-	readState: () => FridayCronStoreState;
+	readState: () => CronJobStoreState;
 } {
-	let state = emptyFridayCronStoreState();
+	let state = emptyCronJobStoreState();
 	return {
 		service: {
-			getFridayCronState: jest.fn(() => state),
-			setFridayCronState: jest.fn((next: FridayCronStoreState) => {
+			getCronJobState: jest.fn(() => state),
+			setCronJobState: jest.fn((next: CronJobStoreState) => {
 				state = next;
 			}),
 		} as unknown as StoreService,
@@ -67,11 +67,11 @@ function createFridayStoreService(): {
 }
 
 async function makeHarness(options: { enabled?: boolean } = {}) {
-	const storeService = createFridayStoreService();
-	const store = new ElectronStoreFridayCronStore(storeService.service);
+	const storeService = createCronJobStoreService();
+	const store = new ElectronStoreCronJobStore(storeService.service);
 	const executor = new RecordingExecutor();
 	const delivery = new RecordingDelivery();
-	const scheduler = new FridayCronScheduler(store, executor, delivery, {
+	const scheduler = new CronJobScheduler(store, executor, delivery, {
 		enabled: options.enabled ?? true,
 		maintenanceIntervalMs: 60_000,
 		minRefireGapMs: 1,
@@ -82,7 +82,7 @@ async function makeHarness(options: { enabled?: boolean } = {}) {
 	return { store, storeService, executor, delivery, scheduler };
 }
 
-function agentJob(overrides: Partial<FridayCronAddRequest> = {}): FridayCronAddRequest {
+function agentJob(overrides: Partial<CronJobAddRequest> = {}): CronJobAddRequest {
 	return {
 		id: `job-${Math.random().toString(16).slice(2)}`,
 		name: 'Cron agent turn',
@@ -94,7 +94,7 @@ function agentJob(overrides: Partial<FridayCronAddRequest> = {}): FridayCronAddR
 	};
 }
 
-function systemJob(overrides: Partial<FridayCronAddRequest> = {}): FridayCronAddRequest {
+function systemJob(overrides: Partial<CronJobAddRequest> = {}): CronJobAddRequest {
 	return {
 		id: `job-${Math.random().toString(16).slice(2)}`,
 		name: 'Cron system event',
@@ -105,7 +105,7 @@ function systemJob(overrides: Partial<FridayCronAddRequest> = {}): FridayCronAdd
 	};
 }
 
-describe('FridayCronScheduler', () => {
+describe('CronJobScheduler', () => {
 	it('keeps CRUD working while globally disabled and does not arm or run timers', async () => {
 		const { scheduler, executor, storeService } = await makeHarness({ enabled: false });
 		await scheduler.start();
@@ -376,7 +376,7 @@ describe('FridayCronScheduler', () => {
 	it('auto-disables jobs after repeated schedule computation errors', async () => {
 		const { scheduler, store } = await makeHarness();
 		const now = Date.now();
-		const badJob: FridayCronJobDefinition = {
+		const badJob: CronJobJobDefinition = {
 			id: 'bad-cron',
 			name: 'Bad cron',
 			description: '',
@@ -412,7 +412,7 @@ describe('FridayCronScheduler', () => {
 
 	it('appends and reads run logs', async () => {
 		const { store } = await makeHarness();
-		const run: FridayCronRunRecord = {
+		const run: CronJobRunRecord = {
 			runId: 'run-1',
 			jobId: 'log-job',
 			status: 'ok',
@@ -438,10 +438,10 @@ describe('FridayCronScheduler', () => {
 	});
 });
 
-describe('AgentFridayCronExecutor', () => {
+describe('AgentCronJobExecutor', () => {
 	function executableJob(
-		overrides: Partial<FridayCronJobDefinition> = {}
-	): FridayCronJobDefinition {
+		overrides: Partial<CronJobJobDefinition> = {}
+	): CronJobJobDefinition {
 		return {
 			id: 'job-1',
 			name: 'Cron agent turn',
@@ -459,7 +459,7 @@ describe('AgentFridayCronExecutor', () => {
 		};
 	}
 
-	function runInput(job: FridayCronJobDefinition): Parameters<FridayCronExecutor['execute']>[0] {
+	function runInput(job: CronJobJobDefinition): Parameters<CronJobExecutor['execute']>[0] {
 		return {
 			job,
 			runId: 'run-1',
@@ -470,7 +470,7 @@ describe('AgentFridayCronExecutor', () => {
 
 	it('uses one stable isolated session per cron job instead of the main session', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentFridayCronExecutor({ send } as never);
+		const executor = new AgentCronJobExecutor({ send } as never);
 
 		await executor.execute(runInput(executableJob({ id: 'job-a' })));
 		await executor.execute(runInput(executableJob({ id: 'job-b' })));
@@ -498,7 +498,7 @@ describe('AgentFridayCronExecutor', () => {
 
 	it('honors explicit and main session targets', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentFridayCronExecutor({ send } as never);
+		const executor = new AgentCronJobExecutor({ send } as never);
 
 		await executor.execute(
 			runInput(
@@ -534,7 +534,7 @@ describe('AgentFridayCronExecutor', () => {
 
 	it('passes safe agent-turn runtime options into AgentService.send', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentFridayCronExecutor({ send } as never);
+		const executor = new AgentCronJobExecutor({ send } as never);
 
 		await executor.execute(
 			runInput(
@@ -563,7 +563,7 @@ describe('AgentFridayCronExecutor', () => {
 
 	it('sends main-session system events through the agent port', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentFridayCronExecutor({ send } as never);
+		const executor = new AgentCronJobExecutor({ send } as never);
 
 		await expect(
 			executor.execute(

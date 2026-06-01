@@ -1,13 +1,13 @@
 import type {
-	FridayCronDelivery,
-	FridayCronDeliveryState,
-	FridayCronJobDefinition,
-	FridayCronRunRecord,
+	CronJobDelivery,
+	CronJobDeliveryState,
+	CronJobJobDefinition,
+	CronJobRunRecord,
 } from '../../shared/cron';
 import type {
-	FridayCronDeliveryPort,
-	FridayCronExecutionOutcome,
-	FridayCronExecutor,
+	CronJobDeliveryPort,
+	CronJobExecutionOutcome,
+	CronJobExecutor,
 } from './jobs';
 import { DEFAULT_CRON_AGENT_ID } from './constants';
 
@@ -47,13 +47,13 @@ export interface CronLoggerPort {
 	warn(scope: string, message: string, metadata?: unknown): void;
 }
 
-export class AgentFridayCronExecutor implements FridayCronExecutor {
+export class AgentCronJobExecutor implements CronJobExecutor {
 	constructor(private readonly agent: CronAgentPort) {}
 
 	async execute(input: {
-		job: FridayCronJobDefinition;
+		job: CronJobJobDefinition;
 		signal: AbortSignal;
-	}): Promise<FridayCronExecutionOutcome> {
+	}): Promise<CronJobExecutionOutcome> {
 		if (input.signal.aborted) {
 			return { status: 'skipped', skippedReason: 'aborted_before_start' };
 		}
@@ -81,11 +81,11 @@ export class AgentFridayCronExecutor implements FridayCronExecutor {
 		return { status: 'ok', output };
 	}
 
-	private resolveAgentId(job: FridayCronJobDefinition): string {
+	private resolveAgentId(job: CronJobJobDefinition): string {
 		return job.agentId ?? DEFAULT_CRON_AGENT_ID;
 	}
 
-	private resolveSessionId(job: FridayCronJobDefinition): string {
+	private resolveSessionId(job: CronJobJobDefinition): string {
 		if (job.sessionTarget === 'main') return this.resolveAgentId(job);
 		if (job.sessionTarget === 'isolated') return `cron:${job.id}`;
 		if (job.sessionTarget.startsWith('session:')) return job.sessionTarget.slice('session:'.length);
@@ -94,7 +94,7 @@ export class AgentFridayCronExecutor implements FridayCronExecutor {
 
 }
 
-export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
+export class GatewayCronJobDelivery implements CronJobDeliveryPort {
 	constructor(
 		private readonly dependencies: {
 			eventBus?: CronEventBusPort;
@@ -104,12 +104,12 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 	) {}
 
 	async deliver(input: {
-		job: FridayCronJobDefinition;
-		run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
+		job: CronJobJobDefinition;
+		run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 		output: string;
-		delivery: FridayCronDelivery;
+		delivery: CronJobDelivery;
 		failure: boolean;
-	}): Promise<FridayCronDeliveryState> {
+	}): Promise<CronJobDeliveryState> {
 		const attemptedAtMs = Date.now();
 		if (input.delivery.mode === 'none') {
 			return { mode: 'none', status: 'skipped', attemptedAtMs };
@@ -122,14 +122,14 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 
 	private async deliverWebhook(
 		input: {
-			job: FridayCronJobDefinition;
-			run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
+			job: CronJobJobDefinition;
+			run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 			output: string;
-			delivery: FridayCronDelivery;
+			delivery: CronJobDelivery;
 			failure: boolean;
 		},
 		attemptedAtMs: number
-	): Promise<FridayCronDeliveryState> {
+	): Promise<CronJobDeliveryState> {
 		if (!input.delivery.to) {
 			return {
 				mode: 'webhook',
@@ -163,14 +163,14 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 
 	private async deliverAnnounce(
 		input: {
-			job: FridayCronJobDefinition;
-			run: Pick<FridayCronRunRecord, 'runId' | 'status' | 'error'>;
+			job: CronJobJobDefinition;
+			run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 			output: string;
-			delivery: FridayCronDelivery;
+			delivery: CronJobDelivery;
 			failure: boolean;
 		},
 		attemptedAtMs: number
-	): Promise<FridayCronDeliveryState> {
+	): Promise<CronJobDeliveryState> {
 		const target = {
 			channel: input.delivery.channel,
 			to: input.delivery.to,
@@ -189,7 +189,7 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 				});
 				return { mode: 'announce', status: 'sent', attemptedAtMs, target };
 			} catch (error) {
-				this.dependencies.logger?.warn('FridayCronDelivery', 'Channel announce failed.', {
+				this.dependencies.logger?.warn('CronJobDelivery', 'Channel announce failed.', {
 					jobId: input.job.id,
 					error: error instanceof Error ? error.message : String(error),
 				});

@@ -1,23 +1,23 @@
-import { FRIDAY_CRON_DEFERRED_WAKE_MODE } from '../../shared/cron';
+import { CRON_DEFERRED_WAKE_MODE } from '../../shared/cron';
 import type {
-	FridayCronAddRequest,
-	FridayCronCanonicalToolRequest,
-	FridayCronDelivery,
-	FridayCronFailureAlert,
-	FridayCronPayload,
-	FridayCronSchedule,
-	FridayCronSessionTarget,
-	FridayCronToolRequest,
-	FridayCronUpdateRequest,
-	FridayCronWakeMode,
+	CronJobAddRequest,
+	CronJobCanonicalToolRequest,
+	CronJobDelivery,
+	CronJobFailureAlert,
+	CronJobPayload,
+	CronJobSchedule,
+	CronJobSessionTarget,
+	CronJobToolRequest,
+	CronJobUpdateRequest,
+	CronJobWakeMode,
 } from '../../shared/cron';
-import type { FridayCronActor } from './jobs';
-import { FRIDAY_CRON_AGENT_TURN_FIELDS, FRIDAY_CRON_CONTROL_FIELDS } from './constants';
+import type { CronJobActor } from './jobs';
+import { CRON_JOB_AGENT_TURN_FIELDS, CRON_JOB_CONTROL_FIELDS } from './constants';
 
-export interface FridayCronNormalizeContext {
-	actor?: FridayCronActor;
+export interface CronJobNormalizeContext {
+	actor?: CronJobActor;
 	recentContext?: string;
-	delivery?: Partial<FridayCronDelivery>;
+	delivery?: Partial<CronJobDelivery>;
 }
 
 function record(value: unknown): Record<string, unknown> {
@@ -82,7 +82,7 @@ function normalizeAtTimestamp(value: string): string {
 	return trimmed;
 }
 
-function scheduleFrom(input: Record<string, unknown>): FridayCronSchedule | undefined {
+function scheduleFrom(input: Record<string, unknown>): CronJobSchedule | undefined {
 	const explicit = record(input.schedule);
 	const source = Object.keys(explicit).length > 0 ? explicit : input;
 	const kind = stringValue(source.kind);
@@ -107,7 +107,7 @@ function scheduleFrom(input: Record<string, unknown>): FridayCronSchedule | unde
 	if (kind === 'cron' || hasOwn(source, 'expr') || hasOwn(source, 'cron')) {
 		const expr = stringValue(source.expr) ?? stringValue(source.cron);
 		if (expr) {
-			const schedule: FridayCronSchedule = {
+			const schedule: CronJobSchedule = {
 				kind: 'cron',
 				expr,
 			};
@@ -123,7 +123,7 @@ function scheduleFrom(input: Record<string, unknown>): FridayCronSchedule | unde
 }
 
 function copyAgentTurnFields(
-	target: Extract<FridayCronPayload, { kind: 'agentTurn' }>,
+	target: Extract<CronJobPayload, { kind: 'agentTurn' }>,
 	source: Record<string, unknown>
 ): void {
 	const fallbacks = stringArray(source.fallbacks);
@@ -147,7 +147,7 @@ function copyAgentTurnFields(
 function payloadFrom(
 	input: Record<string, unknown>,
 	recentContext?: string
-): FridayCronPayload | undefined {
+): CronJobPayload | undefined {
 	const explicit = record(input.payload);
 	if (Object.keys(explicit).length > 0) {
 		if (explicit.kind === 'systemEvent') {
@@ -161,7 +161,7 @@ function payloadFrom(
 		if (explicit.kind === 'agentTurn') {
 			const message = stringValue(explicit.message);
 			if (!message) return undefined;
-			const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+			const payload: Extract<CronJobPayload, { kind: 'agentTurn' }> = {
 				kind: 'agentTurn',
 				message,
 			};
@@ -171,7 +171,7 @@ function payloadFrom(
 
 		const message = stringValue(explicit.message);
 		if (message) {
-			const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+			const payload: Extract<CronJobPayload, { kind: 'agentTurn' }> = {
 				kind: 'agentTurn',
 				message,
 			};
@@ -181,9 +181,9 @@ function payloadFrom(
 
 		const text = stringValue(explicit.text);
 		if (text) {
-			const hasAgentTurnField = FRIDAY_CRON_AGENT_TURN_FIELDS.some((field) => hasOwn(explicit, field));
+			const hasAgentTurnField = CRON_JOB_AGENT_TURN_FIELDS.some((field) => hasOwn(explicit, field));
 			if (hasAgentTurnField) {
-				const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+				const payload: Extract<CronJobPayload, { kind: 'agentTurn' }> = {
 					kind: 'agentTurn',
 					message: text,
 				};
@@ -199,7 +199,7 @@ function payloadFrom(
 
 	const message = stringValue(input.message);
 	if (message) {
-		const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+		const payload: Extract<CronJobPayload, { kind: 'agentTurn' }> = {
 			kind: 'agentTurn',
 			message,
 		};
@@ -209,9 +209,9 @@ function payloadFrom(
 
 	const text = stringValue(input.text);
 	if (!text) return undefined;
-	const hasAgentTurnField = FRIDAY_CRON_AGENT_TURN_FIELDS.some((field) => hasOwn(input, field));
+	const hasAgentTurnField = CRON_JOB_AGENT_TURN_FIELDS.some((field) => hasOwn(input, field));
 	if (hasAgentTurnField) {
-		const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
+		const payload: Extract<CronJobPayload, { kind: 'agentTurn' }> = {
 			kind: 'agentTurn',
 			message: text,
 		};
@@ -229,7 +229,7 @@ function appendRecentContext(text: string, recentContext?: string): string {
 	return `${text}\n\nRecent context:\n${recentContext.trim()}`;
 }
 
-function deliveryMode(value: unknown): FridayCronDelivery['mode'] | undefined {
+function deliveryMode(value: unknown): CronJobDelivery['mode'] | undefined {
 	if (value === 'announce' || value === 'webhook' || value === 'none') return value;
 	if (value === true) return 'announce';
 	if (value === false) return 'none';
@@ -238,8 +238,8 @@ function deliveryMode(value: unknown): FridayCronDelivery['mode'] | undefined {
 
 function deliveryFrom(
 	input: Record<string, unknown>,
-	inferred?: Partial<FridayCronDelivery>
-): Partial<FridayCronDelivery> | undefined {
+	inferred?: Partial<CronJobDelivery>
+): Partial<CronJobDelivery> | undefined {
 	const explicit = record(input.delivery);
 	const hasTopLevelTarget = [
 		'deliver',
@@ -258,7 +258,7 @@ function deliveryFrom(
 	const source = Object.keys(explicit).length > 0 ? explicit : input;
 	const mode = deliveryMode(source.mode) ?? deliveryMode(input.deliver);
 	const bestEffort = booleanValue(source.bestEffort) ?? booleanValue(input.bestEffortDeliver);
-	const delivery: Partial<FridayCronDelivery> = {};
+	const delivery: Partial<CronJobDelivery> = {};
 	if (mode) delivery.mode = mode;
 	const channel = stringValue(source.channel);
 	const to = stringValue(source.to);
@@ -282,12 +282,12 @@ function deliveryFrom(
 
 function failureAlertFrom(
 	input: Record<string, unknown>
-): FridayCronFailureAlert | false | undefined {
+): CronJobFailureAlert | false | undefined {
 	if (!hasOwn(input, 'failureAlert')) return undefined;
 	if (input.failureAlert === false) return false;
 	const source = record(input.failureAlert);
 	if (Object.keys(source).length === 0) return undefined;
-	const alert: FridayCronFailureAlert = {};
+	const alert: CronJobFailureAlert = {};
 	const after = numberValue(source.after);
 	const cooldownMs = numberValue(source.cooldownMs);
 	const includeSkipped = booleanValue(source.includeSkipped);
@@ -307,7 +307,7 @@ function failureAlertFrom(
 	return alert;
 }
 
-function sessionTargetFrom(input: Record<string, unknown>): FridayCronSessionTarget | undefined {
+function sessionTargetFrom(input: Record<string, unknown>): CronJobSessionTarget | undefined {
 	const target = stringValue(input.sessionTarget) ?? stringValue(input.session);
 	if (!target) return undefined;
 	if (
@@ -316,20 +316,20 @@ function sessionTargetFrom(input: Record<string, unknown>): FridayCronSessionTar
 		target === 'current' ||
 		target.startsWith('session:')
 	) {
-		return target as FridayCronSessionTarget;
+		return target as CronJobSessionTarget;
 	}
 	return undefined;
 }
 
-function wakeModeFrom(input: Record<string, unknown>): FridayCronWakeMode | undefined {
+function wakeModeFrom(input: Record<string, unknown>): CronJobWakeMode | undefined {
 	const mode = stringValue(input.wakeMode);
-	return mode === 'now' || mode === FRIDAY_CRON_DEFERRED_WAKE_MODE ? mode : undefined;
+	return mode === 'now' || mode === CRON_DEFERRED_WAKE_MODE ? mode : undefined;
 }
 
 function inferName(
 	input: Record<string, unknown>,
-	payload: FridayCronPayload,
-	schedule: FridayCronSchedule
+	payload: CronJobPayload,
+	schedule: CronJobSchedule
 ): string {
 	const explicit = stringValue(input.name);
 	if (explicit) return explicit;
@@ -342,15 +342,15 @@ function inferName(
 function baseJob(input: Record<string, unknown>): Record<string, unknown> {
 	const output: Record<string, unknown> = {};
 	for (const [key, value] of Object.entries(input)) {
-		if (!FRIDAY_CRON_CONTROL_FIELDS.has(key)) output[key] = value;
+		if (!CRON_JOB_CONTROL_FIELDS.has(key)) output[key] = value;
 	}
 	return output;
 }
 
 export function normalizeCronJobCreate(
 	input: unknown,
-	context: FridayCronNormalizeContext = {}
-): FridayCronAddRequest {
+	context: CronJobNormalizeContext = {}
+): CronJobAddRequest {
 	const source = unwrapJob(input);
 	const schedule = scheduleFrom(source);
 	if (!schedule) throw new Error('Cron add requires a schedule.');
@@ -359,7 +359,7 @@ export function normalizeCronJobCreate(
 	const sessionTarget =
 		sessionTargetFrom(source) ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
 	const delivery = deliveryFrom(source, context.delivery);
-	const request: FridayCronAddRequest = {
+	const request: CronJobAddRequest = {
 		name: inferName(source, payload, schedule),
 		description: stringValue(source.description) ?? '',
 		enabled: booleanValue(source.enabled) ?? true,
@@ -386,9 +386,9 @@ export function normalizeCronJobCreate(
 	return request;
 }
 
-export function normalizeCronJobPatch(input: unknown): FridayCronUpdateRequest {
+export function normalizeCronJobPatch(input: unknown): CronJobUpdateRequest {
 	const source = unwrapJob(input);
-	const patch: FridayCronUpdateRequest = {};
+	const patch: CronJobUpdateRequest = {};
 	const schedule = scheduleFrom(source);
 	const payload = payloadFrom(source);
 	const delivery = deliveryFrom(source);
@@ -432,10 +432,10 @@ function includeMode(input: Record<string, unknown>): 'enabled' | 'disabled' | '
 	return 'enabled';
 }
 
-export function normalizeFridayCronToolRequest(
-	request: FridayCronToolRequest | unknown,
-	context: FridayCronNormalizeContext = {}
-): FridayCronCanonicalToolRequest {
+export function normalizeCronJobToolRequest(
+	request: CronJobToolRequest | unknown,
+	context: CronJobNormalizeContext = {}
+): CronJobCanonicalToolRequest {
 	const input = record(request);
 	const action = stringValue(input.action);
 	switch (action) {
@@ -477,7 +477,7 @@ export function normalizeFridayCronToolRequest(
 			return {
 				action,
 				text: stringValue(input.text) ?? '',
-				mode: mode === 'now' ? 'now' : FRIDAY_CRON_DEFERRED_WAKE_MODE,
+				mode: mode === 'now' ? 'now' : CRON_DEFERRED_WAKE_MODE,
 			};
 		}
 		default:

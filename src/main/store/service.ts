@@ -41,8 +41,8 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
-import type { FridayCronStoreState } from '../cron/state';
-import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/state';
+import type { CronJobStoreState } from '../cron/state';
+import { emptyCronJobStoreState, migrateCronJobStoreState } from '../cron/state';
 import type {
 	AgentHeartbeatConfig,
 	AgentsHeartbeatConfig,
@@ -668,13 +668,13 @@ export class StoreService {
 		this.setTaskSchedulerSettings({ legacyTasks: tasks });
 	}
 
-	getFridayCronState(): FridayCronStoreState {
+	getCronJobState(): CronJobStoreState {
 		const friday = this.getTaskSchedulerSettings().friday;
-		return migrateFridayCronStoreState(friday ?? emptyFridayCronStoreState());
+		return migrateCronJobStoreState(friday ?? emptyCronJobStoreState());
 	}
 
-	setFridayCronState(state: FridayCronStoreState): void {
-		this.setTaskSchedulerSettings({ friday: migrateFridayCronStoreState(state) });
+	setCronJobState(state: CronJobStoreState): void {
+		this.setTaskSchedulerSettings({ friday: migrateCronJobStoreState(state) });
 	}
 
 	getHeartbeatState(): HeartbeatStoreState {
