@@ -35,12 +35,8 @@ export interface HeartbeatSummary {
 	raw: AgentHeartbeatConfig;
 }
 
-function operatorAgents(operator?: OperatorStoreState): AgentsHeartbeatConfig {
-	return operator?.agents ?? {};
-}
-
-export function resolveDefaultHeartbeatAgentId(operator?: OperatorStoreState): string {
-	return operatorAgents(operator).defaultAgentId?.trim() || DEFAULT_AGENT_ID;
+export function resolveDefaultHeartbeatAgentId(agents?: AgentsHeartbeatConfig): string {
+	return agents?.defaultAgentId?.trim() || DEFAULT_AGENT_ID;
 }
 
 function hasExplicitHeartbeatAgents(agents: AgentsHeartbeatConfig): boolean {
