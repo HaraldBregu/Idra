@@ -81,7 +81,7 @@ export class ConnectorsService {
 
 	catalog(): readonly ConnectorCatalogEntry[] {
 		if (this.legacy) return OPENAI_CONNECTOR_CATALOG;
-		return CONNECTOR_CATALOG;
+		return MCP_CONNECTOR_CATALOG;
 	}
 
 	list(): ConnectorView[] {
@@ -208,7 +208,7 @@ export class ConnectorsService {
 
 		const connectorId = typeof input === 'string' ? input : input.connectorId;
 		const existing = this.validConnectors().find((connector) => connector.id === connectorId);
-		const catalogItem = catalogItemFor(existing?.connectorId ?? connectorId);
+		const catalogItem = getMcpConnectorCatalogItem(existing?.connectorId ?? connectorId);
 		if (!catalogItem?.oauth || !catalogItem.mcp) {
 			throw new Error(`OAuth connector is not available: ${connectorId}`);
 		}
@@ -229,7 +229,7 @@ export class ConnectorsService {
 			authorization: '',
 			mcp: cloneValue(catalogItem.mcp),
 			oauth: {
-				provider: 'google',
+				provider: catalogItem.oauth.providerId,
 				providerId: catalogItem.oauth.providerId,
 				clientId,
 				authorizationUrl,
@@ -264,13 +264,13 @@ export class ConnectorsService {
 		const state = typeof input.state === 'string' ? input.state : '';
 		const connector = this.validConnectors().find((item) => item.oauth?.state === state);
 		if (!connector) throw new Error('OAuth state was not found.');
+		if (!connector.oauth) throw new Error('OAuth state was not found.');
 		const expiresAt = input.expiresIn ? new Date(Date.now() + input.expiresIn * 1000).toISOString() : undefined;
 		const next: ConnectorConfig = {
 			...connector,
 			oauth: {
 				...connector.oauth,
-				provider: 'google',
-				redirectUri: connector.oauth?.redirectUri ?? GOOGLE_OAUTH_REDIRECT_URI,
+				redirectUri: connector.oauth.redirectUri,
 				accountEmail: input.accountEmail,
 				token: {
 					accessToken: input.accessToken,
