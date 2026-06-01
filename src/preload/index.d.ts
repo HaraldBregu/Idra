@@ -128,22 +128,18 @@ export interface StoreApi {
 	getTaskSettings: () => Promise<TaskSettings>;
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
 	getConnectorSettings: () => Promise<ConnectorConfig[]>;
-	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSpeechOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveTextToSpeechOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getImageCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveImageCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToVideoOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveTextToVideoOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getMusicCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveMusicCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getAgentService: () => Promise<Agent | undefined>;
+	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechTranscriberService: () => Promise<Agent | undefined>;
+	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToSpeechService: () => Promise<ModelSelection | undefined>;
+	saveTextToSpeechService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getImageCreatorService: () => Promise<ModelSelection | undefined>;
+	saveImageCreatorService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToVideoService: () => Promise<ModelSelection | undefined>;
+	saveTextToVideoService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToSoundService: () => Promise<ModelSelection | undefined>;
+	saveTextToSoundService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 }
 
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -179,11 +175,10 @@ import type {
 	TaskSettings,
 } from '../shared/store';
 import type {
-	Agent,
-	ConfiguredModelOperator,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
+	ModelSelection,
 	AgentStartupFileContent,
 	AgentStartupFileSummary,
 	WorkspaceFileContent,
@@ -248,27 +243,23 @@ export interface AppApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
-	getAssistantOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	saveAssistantOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechToTextOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	getSpeechToTextModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveSpeechToTextOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSpeechOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	getTextToSpeechModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveTextToSpeechOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getImageCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	getImageCreatorModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveImageCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToVideoOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	getTextToVideoModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveTextToVideoOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getMusicCreatorOperator: () => Promise<ConfiguredModelOperator | undefined>;
-	getMusicCreatorModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveMusicCreatorOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getAgentService: () => Promise<Agent | undefined>;
+	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechTranscriberService: () => Promise<Agent | undefined>;
+	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
+	getSpeechToTextModels: (provider: PublicProvider) => Promise<Model[]>;
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToSpeechService: () => Promise<ModelSelection | undefined>;
+	getTextToSpeechModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveTextToSpeechService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getImageCreatorService: () => Promise<ModelSelection | undefined>;
+	getImageCreatorModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveImageCreatorService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToVideoService: () => Promise<ModelSelection | undefined>;
+	getTextToVideoModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveTextToVideoService: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getTextToSoundService: () => Promise<ModelSelection | undefined>;
+	getTextToSoundModels: (provider: PublicProvider) => Promise<Model[]>;
+	saveTextToSoundService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 }
 
 export interface RealtimeTranscriptionApi {

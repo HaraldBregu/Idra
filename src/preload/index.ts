@@ -6,7 +6,6 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
-	OperatorChannels,
 	ProviderChannels,
 	RealtimeTranscriptionChannels,
 	SpeechToTextChannels,
@@ -63,11 +62,10 @@ import type {
 	TaskSettings,
 } from '../shared/store';
 import type {
-	Agent,
-	ConfiguredModelOperator,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
+	ModelSelection,
 	AgentStartupFileContent,
 	AgentStartupFileSummary,
 	WorkspaceFileContent,
@@ -277,68 +275,56 @@ export const app: AppApi = {
 	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
-	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAssistantOperator);
-	},
-	saveAssistantOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAssistantOperator, provider, model);
-	},
-	getSpeechToTextOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechToTextOperator);
-	},
-	getSpeechToTextModels: (provider: PublicProvider): Promise<Model[]> => {
-		return typedInvokeUnwrap(OperatorChannels.getSpeechToTextModels, provider);
-	},
-	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechToTextOperator, provider, model);
-	},
-	getTextToSpeechOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechOperator);
-	},
-	getTextToSpeechModels: (provider: PublicProvider): Promise<Model[]> => {
-		return typedInvokeUnwrap(OperatorChannels.getTextToSpeechModels, provider);
-	},
-	saveTextToSpeechOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechOperator, provider, model);
-	},
-	getImageCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorOperator);
-	},
-	getImageCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
-		return typedInvokeUnwrap(OperatorChannels.getImageCreatorModels, provider);
-	},
-	saveImageCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveImageCreatorOperator, provider, model);
-	},
-	getTextToVideoOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoOperator);
-	},
-	getTextToVideoModels: (provider: PublicProvider): Promise<Model[]> => {
-		return typedInvokeUnwrap(OperatorChannels.getTextToVideoModels, provider);
-	},
-	saveTextToVideoOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToVideoOperator, provider, model);
-	},
-	getMusicCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getMusicCreatorOperator);
-	},
-	getMusicCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
-		return typedInvokeUnwrap(OperatorChannels.getMusicCreatorModels, provider);
-	},
-	saveMusicCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveMusicCreatorOperator, provider, model);
-	},
-	getAgentService: (): Promise<Agent | undefined> => {
+	getAgentService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentService);
 	},
 	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.saveAgentService, provider, model);
 	},
-	getSpeechTranscriberService: (): Promise<Agent | undefined> => {
+	getSpeechTranscriberService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getSpeechTranscriberService);
+	},
+	getSpeechToTextModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getSpeechToTextModels, provider);
 	},
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.saveSpeechTranscriberService, provider, model);
+	},
+	getTextToSpeechService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToSpeechService);
+	},
+	getTextToSpeechModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getTextToSpeechModels, provider);
+	},
+	saveTextToSpeechService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechService, provider, model);
+	},
+	getImageCreatorService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getImageCreatorService);
+	},
+	getImageCreatorModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getImageCreatorModels, provider);
+	},
+	saveImageCreatorService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveImageCreatorService, provider, model);
+	},
+	getTextToVideoService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToVideoService);
+	},
+	getTextToVideoModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getTextToVideoModels, provider);
+	},
+	saveTextToVideoService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveTextToVideoService, provider, model);
+	},
+	getTextToSoundService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToSoundService);
+	},
+	getTextToSoundModels: (provider: PublicProvider): Promise<Model[]> => {
+		return typedInvokeUnwrap(ProviderChannels.getTextToSoundModels, provider);
+	},
+	saveTextToSoundService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveTextToSoundService, provider, model);
 	},
 };
 
@@ -568,53 +554,41 @@ export const store: StoreApi = {
 	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
 	},
-	getAssistantOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAssistantOperator);
-	},
-	saveAssistantOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAssistantOperator, provider, model);
-	},
-	getSpeechToTextOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechToTextOperator);
-	},
-	saveSpeechToTextOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechToTextOperator, provider, model);
-	},
-	getTextToSpeechOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechOperator);
-	},
-	saveTextToSpeechOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechOperator, provider, model);
-	},
-	getImageCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorOperator);
-	},
-	saveImageCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveImageCreatorOperator, provider, model);
-	},
-	getTextToVideoOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoOperator);
-	},
-	saveTextToVideoOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToVideoOperator, provider, model);
-	},
-	getMusicCreatorOperator: (): Promise<ConfiguredModelOperator | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getMusicCreatorOperator);
-	},
-	saveMusicCreatorOperator: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveMusicCreatorOperator, provider, model);
-	},
-	getAgentService: (): Promise<Agent | undefined> => {
+	getAgentService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentService);
 	},
 	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.saveAgentService, provider, model);
 	},
-	getSpeechTranscriberService: (): Promise<Agent | undefined> => {
+	getSpeechTranscriberService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getSpeechTranscriberService);
 	},
 	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.saveSpeechTranscriberService, provider, model);
+	},
+	getTextToSpeechService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToSpeechService);
+	},
+	saveTextToSpeechService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechService, provider, model);
+	},
+	getImageCreatorService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getImageCreatorService);
+	},
+	saveImageCreatorService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveImageCreatorService, provider, model);
+	},
+	getTextToVideoService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToVideoService);
+	},
+	saveTextToVideoService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveTextToVideoService, provider, model);
+	},
+	getTextToSoundService: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(StoreChannels.getTextToSoundService);
+	},
+	saveTextToSoundService: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(StoreChannels.saveTextToSoundService, provider, model);
 	},
 };
 
