@@ -1,14 +1,18 @@
-import type { FridayCronJob, FridayCronPayload, FridayCronSchedule } from '../../../../../../shared/cron';
+import type {
+	CronJsonValue,
+	CronSchedule,
+	CronScheduleStatus,
+} from '../../../../../../shared/cron';
 
 export function formatTimestamp(value: number | string | undefined): string {
-	if (value === undefined || value === '') return '—';
+	if (value === undefined || value === '') return '-';
 	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) return '—';
+	if (Number.isNaN(date.getTime())) return '-';
 	return date.toLocaleString();
 }
 
 export function formatDuration(ms: number): string {
-	if (!Number.isFinite(ms) || ms <= 0) return '—';
+	if (!Number.isFinite(ms) || ms <= 0) return '-';
 	const seconds = Math.floor(ms / 1000);
 	if (seconds < 60) return `${seconds}s`;
 	const minutes = Math.floor(seconds / 60);
@@ -19,58 +23,75 @@ export function formatDuration(ms: number): string {
 	return `${days}d`;
 }
 
-function formatDetailValue(value: unknown): string {
-	if (value === undefined || value === null || value === '') return '—';
+function formatValue(value: CronJsonValue | undefined): string {
+	if (value === undefined || value === null || value === '') return '-';
 	if (typeof value === 'string') return value;
 	if (typeof value === 'number' || typeof value === 'boolean') return String(value);
 	return JSON.stringify(value);
 }
 
-export function formatSchedule(schedule: FridayCronSchedule): string {
-	switch (schedule.kind) {
-		case 'at':
-			return formatTimestamp(schedule.at);
-		case 'every':
-			return `Every ${formatDuration(schedule.everyMs)}`;
-		case 'cron': {
-			const timezone = schedule.tz ? ` ${schedule.tz}` : '';
-			const stagger = schedule.staggerMs ? ` +${formatDuration(schedule.staggerMs)}` : '';
-			return `${schedule.expr}${timezone}${stagger}`;
-		}
+export function formatSchedule(schedule: CronSchedule): string {
+	if (schedule.type === 'cron' && schedule.cronExpression) {
+		return `${schedule.cronExpression} ${schedule.timezone}`;
+	}
+	if (['interval', 'fixedRate', 'fixedDelay'].includes(schedule.type) && schedule.intervalMs) {
+		return `Every ${formatDuration(schedule.intervalMs)}`;
+	}
+	if (schedule.type === 'oneTime' && schedule.runAt) {
+		return formatTimestamp(schedule.runAt);
+	}
+	if (schedule.type === 'manual') return 'Manual';
+	return schedule.type;
+}
+
+export function inputSummary(schedule: CronSchedule): string {
+	return formatValue(schedule.taskInput);
+}
+
+export function inputEntries(schedule: CronSchedule): readonly (readonly [string, string])[] {
+	const input = schedule.taskInput;
+	if (!input || typeof input !== 'object' || Array.isArray(input)) return [];
+	return Object.entries(input)
+		.map(([key, value]) => [key, formatValue(value)] as const)
+		.filter(([, value]) => value !== '-');
+}
+
+export function statusLabelKey(status: CronScheduleStatus): string {
+	return `settings.cron.status.${status}`;
+}
+
+export function statusVariant(status: CronScheduleStatus): 'outline' | 'secondary' | 'destructive' {
+	switch (status) {
+		case 'failed':
+		case 'deleted':
+			return 'destructive';
+		case 'paused':
+		case 'disabled':
+		case 'expired':
+		case 'completed':
+			return 'secondary';
+		case 'active':
+			return 'outline';
 	}
 }
 
-export function payloadSummary(payload: FridayCronPayload): string {
-	return payload.kind === 'systemEvent' ? payload.text : payload.message;
-}
-
-export function deliverySummary(job: FridayCronJob): string {
-	if (job.delivery.mode === 'none') return 'none';
-	const target = [job.delivery.channel, job.delivery.to, job.delivery.threadId]
-		.filter(Boolean)
-		.join(' ');
-	return target ? `${job.delivery.mode}: ${target}` : job.delivery.mode;
-}
-
-export function payloadEntries(payload: FridayCronPayload): readonly (readonly [string, string])[] {
-	return Object.entries(payload)
-		.filter(([key]) => !['kind', 'message', 'text'].includes(key))
-		.map(([key, value]) => [key, formatDetailValue(value)] as const)
-		.filter(([, value]) => value !== '—');
-}
-
-export function isFridayCronJob(value: unknown): value is FridayCronJob {
+export function isCronSchedule(value: unknown): value is CronSchedule {
 	return (
 		typeof value === 'object' &&
 		value !== null &&
 		typeof (value as { id?: unknown }).id === 'string' &&
 		typeof (value as { name?: unknown }).name === 'string' &&
-		typeof (value as { enabled?: unknown }).enabled === 'boolean' &&
-		typeof (value as { payload?: unknown }).payload === 'object' &&
-		(value as { payload?: unknown }).payload !== null &&
-		typeof (value as { schedule?: unknown }).schedule === 'object' &&
-		(value as { schedule?: unknown }).schedule !== null &&
-		typeof (value as { state?: unknown }).state === 'object' &&
-		(value as { state?: unknown }).state !== null
+		typeof (value as { type?: unknown }).type === 'string' &&
+		typeof (value as { status?: unknown }).status === 'string' &&
+		typeof (value as { taskType?: unknown }).taskType === 'string'
 	);
+}
+
+export function sortSchedules(schedules: readonly CronSchedule[]): CronSchedule[] {
+	return [...schedules].sort((left, right) => {
+		const leftTime = Date.parse(left.nextRunAt ?? left.updatedAt);
+		const rightTime = Date.parse(right.nextRunAt ?? right.updatedAt);
+		return (Number.isNaN(leftTime) ? Number.MAX_SAFE_INTEGER : leftTime) -
+			(Number.isNaN(rightTime) ? Number.MAX_SAFE_INTEGER : rightTime);
+	});
 }
