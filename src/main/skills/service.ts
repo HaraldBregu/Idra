@@ -3,8 +3,6 @@ import path from 'node:path';
 import type { LoggerService } from '../logger';
 import type { UserDataDirectoryServicePort } from '../app/user-data';
 import { resolveDefaultUserDataPath } from '../app/user-data';
-import type { AgentTool, ToolContext } from '../agent/tools/types';
-import { textResult } from '../agent/tools/types';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -16,7 +14,6 @@ import type {
 import type { SkillPackage } from './loader';
 import { SkillDependencyResolver, SkillRegistry } from './catalog';
 import { SkillDiscovery, makeDiscoveryContext, SkillPlanner, SkillRanker, SkillSelector } from './selection';
-import { createExampleSkills } from './example-skills';
 import { SkillLoader, isIgnoredSkillDirectoryName } from './loader';
 import {
 	DefaultSkillMemoryPolicy,
@@ -34,8 +31,17 @@ import type {
 	SkillDefinition,
 	SkillExecutionRequestContext,
 	SkillPromptChoice,
+	SkillTool,
+	SkillToolContext,
 	SkillUserPreferences,
 } from './types';
+
+function textResult(text: string, isError = false) {
+	return {
+		content: [{ type: 'text' as const, text }],
+		isError,
+	};
+}
 
 function toSkillId(value: string): string {
 	const id = value
@@ -123,8 +129,8 @@ function isPathInside(rootPath: string, targetPath: string): boolean {
 export interface SkillRuntimeInput {
 	userId: string;
 	sessionId: string;
-	tools: AgentTool[];
-	toolContext: ToolContext;
+	tools: SkillTool[];
+	toolContext: SkillToolContext;
 	connectors?: SkillConnector[];
 	permissions?: string[];
 	memory?: MemoryRetriever;
@@ -171,9 +177,6 @@ export class SkillsService {
 		this.dependencyResolver = new SkillDependencyResolver(this.registry);
 		this.userDataDirectory = options.userDataDirectory;
 
-		for (const skill of createExampleSkills()) {
-			this.registerSkill(skill);
-		}
 	}
 
 	registerSkill(skill: SkillDefinition): SkillDefinition {
@@ -326,7 +329,7 @@ export class SkillsService {
 		}));
 	}
 
-	createExecutionTool(input: Omit<SkillRuntimeInput, 'toolContext'>): AgentTool {
+	createExecutionTool(input: Omit<SkillRuntimeInput, 'toolContext'>): SkillTool {
 		return {
 			name: 'execute_skill',
 			description:
