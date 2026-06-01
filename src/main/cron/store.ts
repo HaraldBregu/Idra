@@ -16,8 +16,7 @@ import {
 	CronScheduleStoreError,
 } from './core/errors';
 import { isActiveSchedule } from './core/validation';
-
-export const CRON_STORE_SCHEMA_VERSION = 1;
+import { CRON_STORE_SCHEMA_VERSION } from './constants';
 
 function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;

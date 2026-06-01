@@ -29,6 +29,7 @@ import {
 	fridayScheduleIdentity,
 } from './validate';
 import { normalizeFridayCronToolRequest, type FridayCronNormalizeContext } from './normalize';
+import { DEFAULT_FRIDAY_CRON_OPTIONS } from './constants';
 
 export interface FridayCronLogger {
 	info(scope: string, message: string, metadata?: unknown): void;
@@ -86,19 +87,6 @@ export interface FridayCronSchedulerOptions {
 	failureDestination?: FridayCronDelivery;
 }
 
-const DEFAULT_OPTIONS: Required<Omit<FridayCronSchedulerOptions, 'failureDestination'>> = {
-	enabled: process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false',
-	maintenanceIntervalMs: 60_000,
-	minRefireGapMs: 1_000,
-	stuckRunThresholdMs: 30 * 60_000,
-	maxConcurrentRuns: 1,
-	scheduleErrorDisableThreshold: 3,
-	defaultOneShotMaxAttempts: 3,
-	defaultBackoffMs: 60_000,
-	defaultMaxBackoffMs: 15 * 60_000,
-	defaultTimezone: 'UTC',
-};
-
 export class NoopFridayCronExecutor implements FridayCronExecutor {
 	async execute(input: { job: FridayCronJobDefinition }): Promise<FridayCronExecutionOutcome> {
 		return {
@@ -140,7 +128,7 @@ export class FridayCronScheduler {
 		options: FridayCronSchedulerOptions = {},
 		private readonly logger?: FridayCronLogger
 	) {
-		this.options = { ...DEFAULT_OPTIONS, ...options };
+		this.options = { ...DEFAULT_FRIDAY_CRON_OPTIONS, ...options };
 	}
 
 	setExecutor(executor: FridayCronExecutor): void {

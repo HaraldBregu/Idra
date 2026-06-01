@@ -4,8 +4,7 @@ import type {
 	FridayCronRunRecord,
 } from '../../shared/cron';
 import { assertSafeCronId, fridayScheduleIdentity } from './validate';
-
-const SCHEMA_VERSION = 1;
+import { FRIDAY_CRON_STORE_SCHEMA_VERSION } from './constants';
 
 export interface FridayCronSnapshot {
 	jobs: FridayCronJobDefinition[];
@@ -121,7 +120,7 @@ function normalizeRuns(value: unknown): Record<string, FridayCronRunRecord[]> {
 
 export function emptyFridayCronStoreState(): FridayCronStoreState {
 	return {
-		schemaVersion: SCHEMA_VERSION,
+		schemaVersion: FRIDAY_CRON_STORE_SCHEMA_VERSION,
 		jobs: [],
 		states: {},
 		runs: {},
@@ -141,7 +140,7 @@ export function migrateFridayCronStoreState(value: unknown): FridayCronStoreStat
 		);
 	}
 	return {
-		schemaVersion: SCHEMA_VERSION,
+		schemaVersion: FRIDAY_CRON_STORE_SCHEMA_VERSION,
 		jobs,
 		states,
 		runs: normalizeRuns(source.runs),

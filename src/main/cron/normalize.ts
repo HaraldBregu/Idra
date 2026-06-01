@@ -11,38 +11,13 @@ import type {
 	FridayCronWakeMode,
 } from '../../shared/cron';
 import type { FridayCronActor } from './jobs';
+import { FRIDAY_CRON_AGENT_TURN_FIELDS, FRIDAY_CRON_CONTROL_FIELDS } from './constants';
 
 export interface FridayCronNormalizeContext {
 	actor?: FridayCronActor;
 	recentContext?: string;
 	delivery?: Partial<FridayCronDelivery>;
 }
-
-const CONTROL_FIELDS = new Set([
-	'action',
-	'id',
-	'jobId',
-	'job',
-	'patch',
-	'contextMessages',
-	'timeoutMs',
-	'includeDisabled',
-	'include',
-	'agentId',
-	'runMode',
-	'mode',
-	'force',
-	'limit',
-]);
-
-const AGENT_TURN_FIELDS = [
-	'fallbacks',
-	'thinking',
-	'timeoutSeconds',
-	'lightContext',
-	'allowUnsafeExternalContent',
-	'toolsAllow',
-] as const;
 
 function record(value: unknown): Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -205,7 +180,7 @@ function payloadFrom(
 
 		const text = stringValue(explicit.text);
 		if (text) {
-			const hasAgentTurnField = AGENT_TURN_FIELDS.some((field) => hasOwn(explicit, field));
+			const hasAgentTurnField = FRIDAY_CRON_AGENT_TURN_FIELDS.some((field) => hasOwn(explicit, field));
 			if (hasAgentTurnField) {
 				const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
 					kind: 'agentTurn',
@@ -233,7 +208,7 @@ function payloadFrom(
 
 	const text = stringValue(input.text);
 	if (!text) return undefined;
-	const hasAgentTurnField = AGENT_TURN_FIELDS.some((field) => hasOwn(input, field));
+	const hasAgentTurnField = FRIDAY_CRON_AGENT_TURN_FIELDS.some((field) => hasOwn(input, field));
 	if (hasAgentTurnField) {
 		const payload: Extract<FridayCronPayload, { kind: 'agentTurn' }> = {
 			kind: 'agentTurn',
@@ -366,7 +341,7 @@ function inferName(
 function baseJob(input: Record<string, unknown>): Record<string, unknown> {
 	const output: Record<string, unknown> = {};
 	for (const [key, value] of Object.entries(input)) {
-		if (!CONTROL_FIELDS.has(key)) output[key] = value;
+		if (!FRIDAY_CRON_CONTROL_FIELDS.has(key)) output[key] = value;
 	}
 	return output;
 }

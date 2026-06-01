@@ -10,14 +10,13 @@ import {
 	CronScheduleValidationError,
 } from './core/errors';
 import { isValidTimezone, validateCronExpression } from './core/validation';
-
-const PATH_SEPARATOR_PATTERN = /[\\/]/;
+import { CRON_PATH_SEPARATOR_PATTERN } from './constants';
 
 export function assertSafeCronId(id: string, field = 'id'): void {
 	if (!id.trim()) {
 		throw new CronScheduleValidationError(`${field} must not be empty.`, { field });
 	}
-	if (id.includes('\0') || PATH_SEPARATOR_PATTERN.test(id)) {
+	if (id.includes('\0') || CRON_PATH_SEPARATOR_PATTERN.test(id)) {
 		throw new CronScheduleValidationError(`${field} must not contain path separators or null bytes.`, {
 			field,
 		});
