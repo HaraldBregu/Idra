@@ -34,7 +34,7 @@ function makeDeps(workspace: string, startupFiles: AgentStartupFilesService) {
 	};
 	return {
 		store: {
-			getAssistantOperator: jest.fn(() => ({
+			getAgentService: jest.fn(() => ({
 				provider: { id: 'openai', name: 'OpenAI', baseUrl: providerRecord.baseUrl },
 				model: { id: 'gpt-test', name: 'GPT Test' },
 			})),

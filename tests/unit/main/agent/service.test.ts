@@ -52,7 +52,7 @@ function makeDeps(workspace = '/workspace') {
 		baseUrl: 'https://api.openai.com/v1',
 	};
 	const store = {
-		getAssistantOperator: jest.fn(() => ({
+		getAgentService: jest.fn(() => ({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: providerRecord.baseUrl },
 			model: { id: 'gpt-test', name: 'GPT Test' },
 		})),
@@ -339,7 +339,7 @@ describe('AgentService', () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
-		deps.store.getAssistantOperator.mockReturnValue({
+		deps.store.getAgentService.mockReturnValue({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 			model: { id: 'gpt-5.5', name: 'GPT-5.5', effort: 'xhigh' },
 		});
@@ -435,7 +435,7 @@ describe('AgentService', () => {
 		const sessionBaseDir = await makeTempDir();
 		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
-		deps.store.getAssistantOperator.mockReturnValue({
+		deps.store.getAgentService.mockReturnValue({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 			model: { id: 'gpt-5.4-mini', name: 'GPT-5.4 mini', effort: 'minimal' },
 		});

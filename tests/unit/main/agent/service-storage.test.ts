@@ -47,7 +47,7 @@ describe('AgentService agent storage wiring', () => {
 		const service = new AgentService(
 			{
 				store: {
-					getAssistantOperator: jest.fn(() => ({
+					getAgentService: jest.fn(() => ({
 						provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 						model: { id: 'gpt-test', name: 'GPT Test' },
 					})),
