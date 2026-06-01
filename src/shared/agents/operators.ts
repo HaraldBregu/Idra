@@ -34,7 +34,7 @@ export interface TaskOperator extends OperatorBase {
 	registeredTaskTypes: string[];
 }
 
-export interface Operator {
+export interface OperatorStoreState {
 	assistant?: ModelOperator;
 	speechToText?: ModelOperator;
 	textToSpeech?: ModelOperator;
@@ -44,9 +44,6 @@ export interface Operator {
 	documentReaderOcr?: ModelOperator | EndpointOperator;
 	cronTaskScheduler?: SchedulerOperator;
 	backgroundTask?: TaskOperator;
-}
-
-export interface OperatorStoreState extends Operator {
 	agents?: AgentsHeartbeatConfig;
 	rag?: string;
 	ocr?: string;
