@@ -28,9 +28,9 @@ export function useModelServices(
 			dispatch({ type: 'SET_LOADING_MODELS', loading: true });
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
-				const [storedProviders, ...configuredOperators] = await Promise.all([
+				const [storedProviders, ...configuredSelections] = await Promise.all([
 					window.store.getProviders(),
-					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getOperator()),
+					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getSelection()),
 				]);
 				if (cancelled) return;
 
@@ -43,11 +43,11 @@ export function useModelServices(
 				if (selectableProviders.length > 0) {
 					for (let i = 0; i < MODEL_SERVICE_DEFINITIONS.length; i += 1) {
 						const service = MODEL_SERVICE_DEFINITIONS[i];
-						const operator = configuredOperators[i];
+						const selection = configuredSelections[i];
 
 						const preferredProvider =
-							(operator
-								? selectableProviders.find((p) => p.id === operator.provider.id)
+							(selection
+								? selectableProviders.find((p) => p.id === selection.provider.id)
 								: undefined) ??
 							selectableProviders.find((p) => connectedProviderIds.has(p.id)) ??
 							selectableProviders[0];
@@ -68,7 +68,7 @@ export function useModelServices(
 						const preferredGroup =
 							modelGroups.find((g) => g.provider.id === preferredProvider?.id) ?? modelGroups[0];
 						const providerId = preferredGroup?.provider.id ?? '';
-						const preferredModelId = operator?.model.id;
+						const preferredModelId = selection?.model.id;
 						const modelId =
 							preferredGroup?.models.find((m) => m.id === preferredModelId)?.id ??
 							preferredGroup?.models[0]?.id ??
@@ -135,10 +135,10 @@ export function useModelServices(
 
 		const selected = getSelectedServiceModel(serviceStates[service.id]);
 		dispatch({ type: 'SET_SAVING_CONFIG', saving: true });
-		dispatch({ type: 'CLEAR_ERROR' });
-		try {
-			if (selected) {
-				const saved = await service.saveOperator(selected.provider, selected.model);
+			dispatch({ type: 'CLEAR_ERROR' });
+			try {
+				if (selected) {
+				const saved = await service.saveSelection(selected.provider, selected.model);
 				if (!saved) {
 					throw new Error(`Could not save the selected ${service.stepTitle} model.`);
 				}
@@ -150,7 +150,7 @@ export function useModelServices(
 			}
 			dispatch({ type: 'GO_TO_STEP', step: nextStep });
 		} catch (error) {
-			console.error('[useModelServices] Failed to save operator config:', error);
+			console.error('[useModelServices] Failed to save model service config:', error);
 			dispatch({
 				type: 'SET_ERROR',
 				message: getErrorMessage(error, `Could not save the selected ${service.stepTitle} model.`),
