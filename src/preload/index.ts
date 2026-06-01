@@ -35,12 +35,9 @@ import type {
 	CronExecutionRecord,
 	CronNextRunPreview,
 	CronSchedule,
-	CronScheduleCreateRequest,
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduleUpdateRequest,
-	CronTask,
-	CronTaskData,
 	CronTaskView,
 	CronScheduledTask,
 	FridayCronToolRequest,
@@ -437,23 +434,11 @@ export const cron: CronApi = {
 		const response = await cron.action({ action: 'list', include });
 		return Array.isArray(response.result) ? (response.result as FridayCronJob[]) : [];
 	},
-	add: <TData extends CronTaskData>(
-		expression: string,
-		data: TData,
-		options?: { id?: string; timezone?: string }
-	): Promise<CronTask<TData>> => {
-		return typedInvokeUnwrap(CronChannels.add, expression, data, options) as Promise<
-			CronTask<TData>
-		>;
-	},
 	remove: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
 	},
 	removeJob: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.remove, id);
-	},
-	createSchedule: (request: CronScheduleCreateRequest): Promise<CronSchedule> => {
-		return typedInvokeUnwrap(CronChannels.createSchedule, request);
 	},
 	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.updateSchedule, scheduleId, patch);
