@@ -778,9 +778,8 @@ export class HeartbeatService implements Disposable {
 		};
 	}
 
-	private getHeartbeatOperator(): OperatorStoreState | undefined {
-		const agents = this.agentService.getHeartbeatStore().getAgentsConfig();
-		return agents ? { agents } : undefined;
+	private getHeartbeatAgents(): AgentsHeartbeatConfig | undefined {
+		return this.agentService.getHeartbeatStore().getAgentsConfig();
 	}
 
 	private async readHeartbeatFile(agentId: string): Promise<{
