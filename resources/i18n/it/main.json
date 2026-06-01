@@ -167,7 +167,7 @@
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
 				"providers": "Chiavi API AI",
-				"cron": "Pianificatore attivita",
+				"cron": "Attivita",
 				"taskManager": "Attivita in background",
 				"heartbeat": "Controlli periodici agenti"
 			}
@@ -185,7 +185,7 @@
 			"system": "Sistema",
 			"themes": "Temi",
 			"editor": "Editor",
-			"taskScheduler": "Pianificatore attivita",
+			"taskScheduler": "Attivita",
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore",
@@ -216,7 +216,7 @@
 			"application": "Applicazione",
 			"profile": "Profilo",
 			"editor": "Editor",
-			"taskScheduler": "Attivita programmate",
+			"taskScheduler": "Attivita",
 			"backgroundTasks": "Attivita in background",
 			"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore"
