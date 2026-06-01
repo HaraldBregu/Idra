@@ -10,7 +10,6 @@ import type {
 	CronScheduleType,
 	CronScheduleVisibility,
 } from './core/types';
-import type { FridayCronSchedulerOptions } from './jobs';
 
 export const CRON_AGENT_TASK_TYPE = 'agent.run';
 export const DEFAULT_CRON_AGENT_ID = 'main';
@@ -166,9 +165,7 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 	defaultTimezone: 'UTC',
 };
 
-export const DEFAULT_FRIDAY_CRON_OPTIONS: Required<
-	Omit<FridayCronSchedulerOptions, 'failureDestination'>
-> = {
+export const DEFAULT_FRIDAY_CRON_OPTIONS = {
 	enabled: process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false',
 	maintenanceIntervalMs: 60_000,
 	minRefireGapMs: 1_000,
