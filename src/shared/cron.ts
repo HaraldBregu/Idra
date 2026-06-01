@@ -467,7 +467,8 @@ export type FridayCronSchedule =
 export type FridayCronSessionTarget = 'main' | 'isolated' | 'current' | `session:${string}`;
 
 export type FridayCronWakeMode = 'now' | 'next-heartbeat';
-export const FRIDAY_CRON_DEFERRED_WAKE_MODE: FridayCronWakeMode = 'next-heartbeat';
+export const CRON_DEFERRED_WAKE_MODE: FridayCronWakeMode = 'next-heartbeat';
+export const FRIDAY_CRON_DEFERRED_WAKE_MODE = CRON_DEFERRED_WAKE_MODE;
 
 export type FridayCronPayload =
 	| { kind: 'systemEvent'; text: string }
@@ -675,3 +676,25 @@ export interface FridayCronToolResponse {
 		| { woken: true; status: FridayCronStatus };
 	error?: string;
 }
+
+export type CronJobSchedule = FridayCronSchedule;
+export type CronJobSessionTarget = FridayCronSessionTarget;
+export type CronJobWakeMode = FridayCronWakeMode;
+export type CronJobPayload = FridayCronPayload;
+export type CronJobDeliveryTarget = FridayCronDeliveryTarget;
+export type CronJobDelivery = FridayCronDelivery;
+export type CronJobFailureAlert = FridayCronFailureAlert;
+export type CronJobDeliveryState = FridayCronDeliveryState;
+export type CronJobRunError = FridayCronRunError;
+export type CronJobRunStatus = FridayCronRunStatus;
+export type CronJobState = FridayCronJobState;
+export type CronJobDefinition = FridayCronJobDefinition;
+export type CronJob = FridayCronJob;
+export type CronJobRunRecord = FridayCronRunRecord;
+export type CronJobAddRequest = FridayCronAddRequest;
+export type CronJobUpdateRequest = FridayCronUpdateRequest;
+export type CronJobToolAction = FridayCronToolAction;
+export type CronJobToolRequest = FridayCronToolRequest;
+export type CronJobCanonicalToolRequest = FridayCronCanonicalToolRequest;
+export type CronJobStatus = FridayCronStatus;
+export type CronJobToolResponse = FridayCronToolResponse;
