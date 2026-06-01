@@ -17,5 +17,4 @@ export * from './adapters';
 export * from './jobs';
 export * from './validate';
 export type { CronScheduleAccessPolicy } from './core/types';
-export * from './agent';
 export type * from './client';

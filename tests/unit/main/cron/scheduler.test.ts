@@ -1,6 +1,5 @@
 import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
-	AgentCronService,
 	CronSchedulerService,
 	CRON_AGENT_TASK_TYPE,
 	DefaultCronScheduleAccessPolicy,
@@ -325,36 +324,6 @@ describe('CronSchedulerService', () => {
 				actor
 			)
 		).rejects.toThrow(/agent\.run/);
-	});
-
-	it('allows agents to create inspectable schedules through AgentCronService', async () => {
-		const { scheduler } = makeScheduler();
-		const agentCron = new AgentCronService(scheduler);
-
-		const schedule = await agentCron.createScheduleFromAgent(
-			{
-				name: 'Agent reminder',
-				type: 'cron',
-				cronExpression: '0 9 * * 1',
-				taskInput: { message: 'Review invoices' },
-			},
-			{
-				agentId: 'agent-1',
-				userId: 'user-1',
-				timezone: 'Europe/Rome',
-				permissions: actor.permissions,
-			}
-		);
-
-		expect(schedule.source).toBe('agent');
-		await expect(
-			agentCron.explainSchedule(schedule.id, {
-				agentId: 'agent-1',
-				userId: 'user-1',
-				timezone: 'Europe/Rome',
-				permissions: actor.permissions,
-			})
-		).resolves.toContain('Monday');
 	});
 
 	it('redacts audit/log payloads', () => {
