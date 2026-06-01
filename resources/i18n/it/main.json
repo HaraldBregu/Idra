@@ -488,7 +488,6 @@
 				"expandLabel": "Espandi attivita programmata {{id}}",
 				"collapse": "Comprimi",
 				"collapseLabel": "Comprimi attivita programmata {{id}}",
-				"refresh": "Aggiorna",
 				"pause": "Pausa",
 				"resume": "Riprendi",
 				"run": "Esegui ora",
