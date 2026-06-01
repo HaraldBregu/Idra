@@ -41,8 +41,6 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
-import type { CronStoreState } from '../cron/core/types';
-import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/store';
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
 import type {
@@ -668,15 +666,6 @@ export class StoreService {
 
 	setCronTasks(tasks: CronTask[]): void {
 		this.setTaskSchedulerSettings({ legacyTasks: tasks });
-	}
-
-	getCronSchedulerState(): CronStoreState {
-		const managed = this.getTaskSchedulerSettings().managed;
-		return migrateCronStoreState(managed ?? emptyCronStoreState());
-	}
-
-	setCronSchedulerState(state: CronStoreState): void {
-		this.setTaskSchedulerSettings({ managed: migrateCronStoreState(state) });
 	}
 
 	getFridayCronState(): FridayCronStoreState {
