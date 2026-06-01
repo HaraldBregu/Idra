@@ -153,36 +153,6 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'operators',
-						children: [
-							{
-								index: true,
-								element: <Navigate to="/settings" replace />,
-							},
-							{
-								path: ':operatorId/details',
-								children: [
-									{
-										index: true,
-										element: (
-											<SettingsRouteWrapper>
-												<OperatorDetailsPage />
-											</SettingsRouteWrapper>
-										),
-									},
-									{
-										path: 'chathistory',
-										element: (
-											<SettingsRouteWrapper>
-												<ChatHistoryPage />
-											</SettingsRouteWrapper>
-										),
-									},
-								],
-							},
-						],
-					},
-					{
 						path: 'channels',
 						children: [
 							{
