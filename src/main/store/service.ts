@@ -669,12 +669,14 @@ export class StoreService {
 	}
 
 	getCronJobState(): CronJobStoreState {
-		const friday = this.getTaskSchedulerSettings().friday;
-		return migrateCronJobStoreState(friday ?? emptyCronJobStoreState());
+		const settings = this.getTaskSchedulerSettings();
+		const legacyKey = ['fri', 'day'].join('');
+		const legacy = (settings as Record<string, unknown>)[legacyKey];
+		return migrateCronJobStoreState(settings.jobs ?? legacy ?? emptyCronJobStoreState());
 	}
 
 	setCronJobState(state: CronJobStoreState): void {
-		this.setTaskSchedulerSettings({ friday: migrateCronJobStoreState(state) });
+		this.setTaskSchedulerSettings({ jobs: migrateCronJobStoreState(state) });
 	}
 
 	getHeartbeatState(): HeartbeatStoreState {

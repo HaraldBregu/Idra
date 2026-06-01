@@ -268,7 +268,7 @@ describe('StoreService', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			const managed = { schedules: [{ id: 'schedule-1' }] };
-			const friday = { jobs: [{ id: 'job-1' }] };
+			const jobs = { jobs: [{ id: 'job-1' }] };
 			const legacyTasks = [
 				{
 					id: 'legacy-1',
@@ -277,18 +277,18 @@ describe('StoreService', () => {
 					createdAt: '2026-05-22T00:00:00.000Z',
 				},
 			];
-			store.set('taskScheduler', { managed, friday });
+			store.set('taskScheduler', { managed, jobs });
 
 			service.setCronTasks(legacyTasks);
 
 			expect(store.get('taskScheduler')).toEqual({
 				managed,
-				friday,
+				jobs,
 				legacyTasks,
 			});
 		});
 
-		it('persists Cron job jobs, states, and runs through the settings store', () => {
+		it('persists cron jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();
 			const state = {
 				...emptyCronJobStoreState(),
@@ -348,7 +348,7 @@ describe('StoreService', () => {
 					'taskScheduler'
 				)
 			).toMatchObject({
-				friday: {
+				jobs: {
 					jobs: [{ id: 'job-1' }],
 				},
 			});

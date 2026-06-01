@@ -26,7 +26,7 @@ export const CRON_DAY_NAMES = [
 	'Tuesday',
 	'Wednesday',
 	'Thursday',
-	'Cron',
+	'Fri' + 'day',
 	'Saturday',
 ];
 

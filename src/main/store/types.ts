@@ -21,7 +21,7 @@ export interface AgentModuleOptions {
 export interface TaskSchedulerSettings {
 	enabled?: boolean;
 	managed?: unknown;
-	friday?: unknown;
+	jobs?: unknown;
 	legacyTasks?: unknown[];
 	allowedTaskTypes?: string[];
 	defaultConcurrency?: number;
