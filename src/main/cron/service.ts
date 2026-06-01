@@ -21,7 +21,7 @@ import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/types';
 import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store';
 import { InMemoryCronScheduleRunner } from './runner';
-import { CronSchedulerService } from './scheduler';
+import { CronSchedulerEngine } from './scheduler';
 
 interface Disposable {
 	destroy(): void | Promise<void>;
@@ -67,7 +67,7 @@ export class CronService implements Disposable {
 	private readonly logger: CronLogger;
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: CronScheduleStore;
-	private readonly scheduler: CronSchedulerService;
+	private readonly scheduler: CronSchedulerEngine;
 	private readonly automaticEnabled: boolean;
 
 	constructor(logger: CronLogger, options: CronServiceOptions);
@@ -91,7 +91,7 @@ export class CronService implements Disposable {
 			requiresConfirmation(): boolean { return false; },
 			validateFrequency(): void { return undefined; },
 		};
-		this.scheduler = new CronSchedulerService(
+		this.scheduler = new CronSchedulerEngine(
 			this.scheduleStore,
 			new InMemoryCronScheduleRunner(),
 			accessPolicy,

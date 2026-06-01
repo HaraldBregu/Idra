@@ -168,7 +168,7 @@ function normalizeAgentScheduleTask(
 	};
 }
 
-export class CronSchedulerService implements CronScheduler {
+export class CronSchedulerEngine implements CronScheduler {
 	private readonly options: CronSchedulerOptions;
 	private readonly calculator: CronNextRunCalculator;
 	private readonly describer: ScheduleDescriber;

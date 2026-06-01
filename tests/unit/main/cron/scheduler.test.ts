@@ -1,6 +1,6 @@
 import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
-	CronSchedulerService,
+	CronSchedulerEngine,
 	CRON_AGENT_TASK_TYPE,
 	DefaultCronScheduleAccessPolicy,
 	InMemoryCronScheduleStore,
@@ -84,7 +84,7 @@ function makeScheduler(runner = new RecordingRunner()) {
 		highFrequencyThresholdMs: 5 * 60_000,
 		maxActiveSchedulesPerUser: 50,
 	});
-	const scheduler = new CronSchedulerService(store, runner, policy, {
+	const scheduler = new CronSchedulerEngine(store, runner, policy, {
 		runnerId: 'test-runner',
 		pollIntervalMs: 60_000,
 		lockTtlMs: 60_000,
@@ -136,7 +136,7 @@ async function due(
 	return store.updateSchedule(schedule.id, { nextRunAt: when, status: 'active', enabled: true });
 }
 
-describe('CronSchedulerService', () => {
+describe('CronSchedulerEngine', () => {
 	it('creates and persists a cron schedule with explicit timezone and next run', async () => {
 		const { scheduler, store } = makeScheduler();
 
