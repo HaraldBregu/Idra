@@ -18,6 +18,7 @@ export type SkillToolResultBlock =
 export interface SkillToolResult<TDetails = unknown> {
 	content: SkillToolResultBlock[];
 	isError?: boolean;
+	status?: 'ok' | 'error' | 'blocked' | 'rejected';
 	details?: TDetails;
 }
 
