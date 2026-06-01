@@ -5,7 +5,11 @@ import type { MainServiceContainer } from '../core/services';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { HeartbeatChannels } from '../../shared/ipc-channels';
 import type {
+	HeartbeatSetModelRequest,
+	HeartbeatSetProviderRequest,
+	HeartbeatSetReasoningEffortRequest,
 	HeartbeatSetEnabledRequest,
+	HeartbeatSettingsUpdate,
 	HeartbeatSystemEventRequest,
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
@@ -34,6 +38,19 @@ export class HeartbeatIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			HeartbeatChannels.settings,
+			wrapSimpleHandler(() => heartbeat.getSettings(), HeartbeatChannels.settings)
+		);
+
+		ipcMain.handle(
+			HeartbeatChannels.saveSettings,
+			wrapSimpleHandler((request: HeartbeatSettingsUpdate) => {
+				assertObject(request);
+				return heartbeat.saveSettings(request);
+			}, HeartbeatChannels.saveSettings)
+		);
+
+		ipcMain.handle(
 			HeartbeatChannels.setEnabled,
 			wrapSimpleHandler((request: HeartbeatSetEnabledRequest) => {
 				assertObject(request);
@@ -53,6 +70,33 @@ export class HeartbeatIpc implements IpcModule {
 				assertObject(request);
 				return heartbeat.updateTiming(request);
 			}, HeartbeatChannels.updateTiming)
+		);
+
+		ipcMain.handle(
+			HeartbeatChannels.setProviderId,
+			wrapSimpleHandler((request: HeartbeatSetProviderRequest) => {
+				assertObject(request);
+				if (typeof request.providerId !== 'string') throw new Error('providerId must be string.');
+				return heartbeat.setProviderId(request.providerId);
+			}, HeartbeatChannels.setProviderId)
+		);
+
+		ipcMain.handle(
+			HeartbeatChannels.setModelId,
+			wrapSimpleHandler((request: HeartbeatSetModelRequest) => {
+				assertObject(request);
+				if (typeof request.modelId !== 'string') throw new Error('modelId must be string.');
+				return heartbeat.setModelId(request.modelId);
+			}, HeartbeatChannels.setModelId)
+		);
+
+		ipcMain.handle(
+			HeartbeatChannels.setReasoningEffort,
+			wrapSimpleHandler((request: HeartbeatSetReasoningEffortRequest) => {
+				assertObject(request);
+				if (typeof request.reasoningEffort !== 'string') throw new Error('reasoningEffort must be string.');
+				return heartbeat.setReasoningEffort(request.reasoningEffort);
+			}, HeartbeatChannels.setReasoningEffort)
 		);
 
 		ipcMain.handle(
