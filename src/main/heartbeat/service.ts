@@ -148,8 +148,7 @@ export class HeartbeatService implements Disposable {
 
 	updateConfig(): void {
 		const now = Date.now();
-		const operator = this.getHeartbeatOperator();
-		const summaries = resolveHeartbeatAgentSummaries(operator);
+		const summaries = resolveHeartbeatAgentSummaries(this.getHeartbeatAgents());
 		const next = new Map<string, AgentSchedule>();
 		for (const summary of summaries) {
 			if (!summary.enabled || !summary.everyMs) continue;
