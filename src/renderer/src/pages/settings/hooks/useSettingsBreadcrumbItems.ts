@@ -2,14 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channels';
-import {
-	IMAGE_CREATOR_OPERATOR_ID,
-	MUSIC_CREATOR_OPERATOR_ID,
-	SPEECH_TO_TEXT_OPERATOR_ID,
-	TEXT_TO_SPEECH_OPERATOR_ID,
-	TEXT_TO_VIDEO_OPERATOR_ID,
-} from '../../../../../shared/agents/service';
-import { SETTINGS_NAVIGATION } from '../navigation';
+import { AGENTS } from '../../../../../shared/agents';
+import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_NAVIGATION } from '../navigation';
 
 interface SettingsBreadcrumbItem {
 	readonly label: string;
@@ -48,29 +42,23 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname === '/settings') return [];
 
-	if (location.pathname.startsWith('/settings/operators/')) {
+	if (location.pathname.startsWith('/settings/model-services/')) {
 		const parts = location.pathname.split('/');
-		const operatorId = decodeURIComponent(parts[3] ?? '');
+		const serviceId = decodeURIComponent(parts[3] ?? '');
 		const isChatHistoryPage = parts[5] === 'chathistory';
-		const label = operatorId === 'friday' || operatorId === 'main'
-			? t('settings.operators.fridayBreadcrumb')
-			: operatorId === SPEECH_TO_TEXT_OPERATOR_ID
-				? t('settings.operators.speechTranscriberName')
-				: operatorId === TEXT_TO_SPEECH_OPERATOR_ID
-					? t('settings.operators.textToSpeechName')
-					: operatorId === IMAGE_CREATOR_OPERATOR_ID
-						? t('settings.operators.imageAssistantName')
-						: operatorId === TEXT_TO_VIDEO_OPERATOR_ID
-							? t('settings.operators.videoCreatorName')
-							: operatorId === MUSIC_CREATOR_OPERATOR_ID
-								? t('settings.operators.musicCreatorName')
-								: operatorId;
+		const normalizedServiceId = serviceId === 'friday' || serviceId === 'main'
+			? AGENTS.assistant
+			: serviceId;
+		const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find(
+			(item) => item.id === normalizedServiceId
+		);
+		const label = serviceItem ? t(serviceItem.labelKey) : serviceId;
 		const items: SettingsBreadcrumbItem[] = [{
 			label,
-			path: isChatHistoryPage ? `/settings/operators/${encodeURIComponent(operatorId)}/details` : undefined,
+			path: isChatHistoryPage ? `/settings/model-services/${encodeURIComponent(serviceId)}/details` : undefined,
 		}];
 		if (isChatHistoryPage) {
-			items.push({ label: t('settings.operators.history') });
+			items.push({ label: t('settings.modelServices.history') });
 		}
 		return items;
 	}
