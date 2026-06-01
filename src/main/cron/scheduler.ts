@@ -221,15 +221,19 @@ export class CronSchedulerService implements CronScheduler {
 		await this.recoverSchedulesOnStartup();
 	}
 
-	async createSchedule(
+async createSchedule(
 		request: CronScheduleCreateRequest,
 		actor = this.systemActor(request.ownerUserId)
 	): Promise<CronSchedule> {
+		const requestWithDefaults: CronScheduleCreateRequest = {
+			...request,
+			taskType: request.taskType ?? CRON_AGENT_TASK_TYPE,
+		};
 		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
 		this.accessPolicy.validateFrequency({ request, actor });
-		validateScheduleShape(request, this.options.runPolicy);
+		validateScheduleShape(requestWithDefaults, this.options.runPolicy);
 		assertSafeStoredSchedulePayload(request);
-		const normalizedTask = normalizeAgentScheduleTask(request);
+		const normalizedTask = normalizeAgentScheduleTask(requestWithDefaults);
 
 		const now = new Date();
 		const nowIso = now.toISOString();

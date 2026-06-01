@@ -10,8 +10,7 @@ import type {
 	FridayCronExecutionOutcome,
 	FridayCronExecutor,
 } from './jobs';
-
-const DEFAULT_CRON_AGENT_ID = 'main';
+import { DEFAULT_CRON_AGENT_ID } from './constants';
 
 export interface CronAgentSendOptions {
 	sessionId?: string;

@@ -6,7 +6,7 @@ import type {
 	CronScheduledTask,
 } from './core/types';
 import { redactCronValue } from './support';
-import { CRON_AGENT_TASK_TYPE } from './types';
+import { CRON_AGENT_TASK_TYPE } from './constants';
 
 function terminal(status: CronScheduledTask['status']): boolean {
 	return ['completed', 'failed', 'cancelled'].includes(status);

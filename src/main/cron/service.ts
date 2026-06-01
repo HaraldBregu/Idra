@@ -24,10 +24,11 @@ import { InMemoryCronScheduleRunner } from './runner';
 import { CronSchedulerService } from './scheduler';
 
 interface Disposable {
-	dispose(): void | Promise<void>;
+	destroy(): void | Promise<void>;
 }
 
 interface CronLogger {
+	debug?(scope: string, message: string, metadata?: unknown): void;
 	info(scope: string, message: string, metadata?: unknown): void;
 	warn(scope: string, message: string, metadata?: unknown): void;
 	error(scope: string, message: string, metadata?: unknown): void;
