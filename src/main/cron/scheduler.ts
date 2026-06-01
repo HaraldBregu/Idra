@@ -34,57 +34,30 @@ import { assertScheduleCanRun, validateScheduleShape } from './core/validation';
 import { CronNextRunCalculator } from './calculator';
 import { CronScheduleEventBus } from './support';
 import { redactCronValue, summarizeCronValue } from './support';
-import { CRON_AGENT_TASK_TYPE } from './types';
+import {
+	CRON_AGENT_TASK_INPUT_KEYS,
+	CRON_AGENT_TASK_TYPE,
+	CRON_RUNTIME_CONFIG_KEY_PATTERN,
+	CRON_SECRET_KEY_PATTERN,
+	CRON_SECRET_VALUE_PATTERNS,
+	DEFAULT_CRON_RETRY_POLICY,
+	DEFAULT_CRON_RUN_POLICY,
+	DEFAULT_CRON_SCHEDULER_OPTIONS,
+	MAX_AGENT_INSTRUCTION_LENGTH,
+} from './constants';
+
+export {
+	DEFAULT_CRON_RETRY_POLICY,
+	DEFAULT_CRON_RUN_POLICY,
+	DEFAULT_CRON_SCHEDULER_OPTIONS,
+} from './constants';
 
 interface CronLogger {
-	debug(scope: string, message: string, metadata?: unknown): void;
+	debug?(scope: string, message: string, metadata?: unknown): void;
 	info(scope: string, message: string, metadata?: unknown): void;
 	warn(scope: string, message: string, metadata?: unknown): void;
 	error(scope: string, message: string, metadata?: unknown): void;
 }
-
-export const DEFAULT_CRON_RETRY_POLICY: CronRetryPolicy = {
-	maxAttempts: 1,
-	initialDelayMs: 500,
-	maxDelayMs: 15_000,
-	backoffMultiplier: 2,
-	jitter: true,
-	retryableErrorCodes: ['CRON_SCHEDULE_EXECUTION_TRANSIENT', 'CRON_SCHEDULE_LOCK_FAILED'],
-	nonRetryableErrorCodes: ['CRON_SCHEDULE_VALIDATION_FAILED', 'CRON_PERMISSION_DENIED'],
-};
-
-export const DEFAULT_CRON_RUN_POLICY: CronRunPolicy = {
-	maxCatchUpRuns: 5,
-	catchUpWindowMs: 24 * 60 * 60_000,
-	minIntervalMs: 60_000,
-	maxRunsPerTurn: 20,
-	highFrequencyThresholdMs: 5 * 60_000,
-	dstPolicy: 'skipNonexistentTime',
-};
-
-export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
-	runnerId: `cron-${process.pid}-${randomUUID()}`,
-	pollIntervalMs: 30_000,
-	lockTtlMs: 2 * 60_000,
-	maxToolCallsPerTurn: 20,
-	maxPlanningDepth: 10,
-	totalTurnTimeoutMs: 5 * 60_000,
-	runPolicy: DEFAULT_CRON_RUN_POLICY,
-	defaultRetryPolicy: DEFAULT_CRON_RETRY_POLICY,
-	defaultTimezone: 'UTC',
-};
-
-const SECRET_KEY_PATTERN =
-	/(api[-_]?key|token|secret|password|credential|authorization|oauth|private[-_]?key)/i;
-const RUNTIME_CONFIG_KEY_PATTERN =
-	/^(provider|providerId|providerConfig|model|modelId|modelConfig|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
-const SECRET_VALUE_PATTERNS: readonly RegExp[] = [
-	/-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
-	/authorization\s*:\s*bearer\s+\S+/i,
-	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
-];
-const AGENT_TASK_INPUT_KEYS = new Set(['message']);
-const MAX_AGENT_INSTRUCTION_LENGTH = 200_000;
 
 function delay(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -108,7 +81,7 @@ function assertSafeStoredScheduleValue(value: CronJsonValue, path = 'taskInput')
 		return;
 	}
 	if (typeof value === 'string') {
-		if (SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value))) {
+		if (CRON_SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value))) {
 			throw new CronScheduleExecutionError(
 				`Sensitive value cannot be stored in cron schedule: ${path}`,
 				{
@@ -120,7 +93,7 @@ function assertSafeStoredScheduleValue(value: CronJsonValue, path = 'taskInput')
 	}
 	if (!value || typeof value !== 'object') return;
 	for (const [key, child] of Object.entries(value)) {
-		if (SECRET_KEY_PATTERN.test(key)) {
+		if (CRON_SECRET_KEY_PATTERN.test(key)) {
 			throw new CronScheduleExecutionError(
 				`Sensitive field cannot be stored in cron schedule: ${path}.${key}`,
 				{
@@ -128,7 +101,7 @@ function assertSafeStoredScheduleValue(value: CronJsonValue, path = 'taskInput')
 				}
 			);
 		}
-		if (RUNTIME_CONFIG_KEY_PATTERN.test(key)) {
+		if (CRON_RUNTIME_CONFIG_KEY_PATTERN.test(key)) {
 			throw new CronScheduleExecutionError(
 				`Runtime configuration cannot be stored in cron schedule: ${path}.${key}`,
 				{
@@ -152,7 +125,7 @@ function assertSafeStoredSchedulePayload(
 
 function assertOnlyAgentInstruction(input: Record<string, unknown>): void {
 	for (const key of Object.keys(input)) {
-		if (!AGENT_TASK_INPUT_KEYS.has(key)) {
+		if (!CRON_AGENT_TASK_INPUT_KEYS.has(key)) {
 			throw new CronScheduleValidationError(
 				`Scheduled agent input only supports message; ${key} is not allowed.`,
 				{ field: `taskInput.${key}` }
@@ -174,7 +147,7 @@ function normalizeAgentTaskInput(value: CronJsonValue | undefined): CronJsonObje
 	if (message.length > MAX_AGENT_INSTRUCTION_LENGTH) {
 		throw new CronScheduleValidationError('taskInput.message is too long.');
 	}
-	if (SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(message))) {
+	if (CRON_SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(message))) {
 		throw new CronScheduleValidationError('taskInput.message contains secret-looking content.');
 	}
 	return { message };
