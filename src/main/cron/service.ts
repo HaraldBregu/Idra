@@ -61,7 +61,14 @@ export class CronService implements Disposable {
 	private readonly scheduler: CronSchedulerService;
 	private readonly automaticEnabled: boolean;
 
-	constructor(logger: LoggerService, options: CronServiceOptions) {
+	constructor(logger: LoggerService, options: CronServiceOptions);
+	constructor(store: CronServiceStore, logger: LoggerService);
+	constructor(loggerOrStore: LoggerService | CronServiceStore, optionsOrLogger: CronServiceOptions | LoggerService) {
+		const legacySignature = 'getCronTasks' in loggerOrStore;
+		const logger = legacySignature ? optionsOrLogger as LoggerService : loggerOrStore as LoggerService;
+		const options = legacySignature
+			? { store: loggerOrStore as CronServiceStore }
+			: optionsOrLogger as CronServiceOptions;
 		if (!options.store) throw new Error('CronService requires a store persistence service.');
 		this.store = options.store;
 		this.logger = logger;
@@ -69,9 +76,9 @@ export class CronService implements Disposable {
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
 		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store as StoreService);
 		const accessPolicy = {
-			async authorize(): Promise<void> {},
+			authorize(): Promise<void> { return Promise.resolve(); },
 			requiresConfirmation(): boolean { return false; },
-			validateFrequency(): void {},
+			validateFrequency(): void { return undefined; },
 		};
 		this.scheduler = new CronSchedulerService(
 			this.scheduleStore,
