@@ -64,13 +64,12 @@ export function resolveHeartbeatPrompt(raw?: string): string {
 }
 
 export function resolveHeartbeatSummaryForAgent(
-	operator: OperatorStoreState | undefined,
-	agentId = resolveDefaultHeartbeatAgentId(operator)
+	agents: AgentsHeartbeatConfig | undefined,
+	agentId = resolveDefaultHeartbeatAgentId(agents)
 ): HeartbeatSummary {
-	const agents = operatorAgents(operator);
-	const defaults = agents.defaults?.heartbeat;
-	const listEntry = (agents.list ?? []).find((entry) => entry.id === agentId);
-	const explicit = hasExplicitHeartbeatAgents(agents);
+	const defaults = agents?.defaults?.heartbeat;
+	const listEntry = (agents?.list ?? []).find((entry) => entry.id === agentId);
+	const explicit = hasExplicitHeartbeatAgents(agents ?? {});
 	const enabled = explicit ? Boolean(listEntry?.heartbeat) : true;
 	const merged = mergeHeartbeatConfig(defaults, listEntry?.heartbeat);
 	const every = normalizeOptionalString(merged.every) ?? DEFAULT_HEARTBEAT_EVERY;
