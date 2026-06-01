@@ -1,4 +1,3 @@
-import type { OperatorStoreState } from '../../../../src/shared/service';
 import {
 	HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
 	HeartbeatFileStore,
@@ -33,22 +32,16 @@ import type {
 } from '../../../../src/shared/heartbeat';
 import { makeLogger } from '../test-helpers';
 
-function operatorConfig(overrides: Partial<OperatorStoreState> = {}): OperatorStoreState {
-	return {
-		rag: '',
-		ocr: '',
-		...overrides,
-	};
+function agentsConfig(overrides: Partial<AgentsHeartbeatConfig> = {}): AgentsHeartbeatConfig {
+	return { ...overrides };
 }
 
 function makeHeartbeatHarness(options: {
-	service?: OperatorStoreState;
 	heartbeatFile?: { missing: boolean; content?: string; path?: string };
 	send?: jest.Mock<Promise<string>, [string, string?, unknown?]>;
 	agents?: AgentsHeartbeatConfig;
 }) {
 	let heartbeatState: HeartbeatStoreState = emptyHeartbeatStoreState();
-	const service = options.service ?? operatorConfig();
 	let agents = options.agents;
 	const eventBus = {
 		emit: jest.fn(),
@@ -112,7 +105,6 @@ function makeHeartbeatHarness(options: {
 		isBusy: jest.fn(() => false),
 		send,
 		getHeartbeatStore: jest.fn(() => heartbeatStore),
-		getHeartbeatOperatorConfig: jest.fn(() => service),
 		getHeartbeatProvider: jest.fn((providerId: string) => {
 			const id = providerId.trim().toLowerCase();
 			if (id === 'openai') {
@@ -170,7 +162,7 @@ describe('heartbeat helpers', () => {
 
 	it('selects only explicit per-agent heartbeat blocks when any are present', () => {
 		const summaries = resolveHeartbeatAgentSummaries(
-			operatorConfig({
+			agentsConfig({
 				agents: {
 					defaults: { heartbeat: { every: '15m' } },
 					list: [
