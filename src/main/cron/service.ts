@@ -57,7 +57,7 @@ export class CronService implements Disposable {
 	private readonly store: CronPersistenceStore;
 	private readonly logger: LoggerService;
 	private readonly jobs = new Map<string, RegisteredJob>();
-	private readonly scheduleStore: ElectronStoreCronScheduleStore;
+	private readonly scheduleStore: CronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
 	private readonly automaticEnabled: boolean;
 
