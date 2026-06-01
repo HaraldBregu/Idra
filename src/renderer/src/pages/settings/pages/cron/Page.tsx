@@ -167,7 +167,10 @@ const CronPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={t('settings.tabs.taskScheduler')} />
+			<SettingsPageHeader
+				title={t('settings.tabs.taskScheduler')}
+				description={t('settings.cron.description')}
+			/>
 
 			<SettingsSection title={t('settings.sections.taskScheduler')}>
 				{error && (
