@@ -1,4 +1,3 @@
-import type { JSONSchema } from '../agent/provider/types';
 import type { AgentTool, AgentToolResult } from '../agent/tools/types';
 import type {
 	SkillCategory,
@@ -11,6 +10,17 @@ import type {
 export type JsonSchema = JSONSchema;
 export type SkillPermission = string;
 export type SkillMemoryKind = string;
+
+export interface JSONSchema {
+	type?: string;
+	properties?: Record<string, unknown>;
+	required?: string[];
+	items?: unknown;
+	description?: string;
+	enum?: unknown[];
+	additionalProperties?: boolean | unknown;
+	[k: string]: unknown;
+}
 
 export interface SkillCostEstimate {
 	amount: number;
