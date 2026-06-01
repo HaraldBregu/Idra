@@ -1,15 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
+import { AGENTS } from '../../../../shared/agents';
 import type { PublicProvider } from '../../../../shared/providers';
-import type {
-	ASSISTANT_OPERATOR_ID,
-	ConfiguredModelOperator,
-	IMAGE_CREATOR_OPERATOR_ID,
-	Model,
-	MUSIC_CREATOR_OPERATOR_ID,
-	SPEECH_TO_TEXT_OPERATOR_ID,
-	TEXT_TO_SPEECH_OPERATOR_ID,
-	TEXT_TO_VIDEO_OPERATOR_ID,
-} from '../../../../shared/agents/service';
+import type { Model, ModelSelection } from '../../../../shared/agents/service';
 
 export type ProviderOption = {
 	label: string;
@@ -37,12 +29,12 @@ export type ProviderModelGroup = {
 };
 
 export type ModelServiceId =
-	| typeof ASSISTANT_OPERATOR_ID
-	| typeof SPEECH_TO_TEXT_OPERATOR_ID
-	| typeof TEXT_TO_SPEECH_OPERATOR_ID
-	| typeof IMAGE_CREATOR_OPERATOR_ID
-	| typeof TEXT_TO_VIDEO_OPERATOR_ID
-	| typeof MUSIC_CREATOR_OPERATOR_ID;
+	| typeof AGENTS.assistant
+	| typeof AGENTS.speechToText
+	| typeof AGENTS.textToSpeech
+	| typeof AGENTS.textToImage
+	| typeof AGENTS.textToVideo
+	| typeof AGENTS.textToAudio;
 
 export type ModelServiceDefinition = {
 	id: ModelServiceId;
@@ -52,9 +44,9 @@ export type ModelServiceDefinition = {
 	stepDescription: string;
 	icon: LucideIcon;
 	required: boolean;
-	getOperator: () => Promise<ConfiguredModelOperator | undefined>;
+	getSelection: () => Promise<ModelSelection | undefined>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveOperator: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	saveSelection: (provider: PublicProvider, model: Model) => Promise<boolean>;
 };
 
 export type ModelServiceState = {
