@@ -1,6 +1,6 @@
 import { EventBus } from '../../../../src/main/core/event-bus';
-import { TaskManager } from '../../../../src/main/tasks/task-manager';
-import { TaskRegistry } from '../../../../src/main/tasks/task-registry';
+import { TaskManager } from '../../../../src/main/tasks/manager';
+import { TaskRegistry } from '../../../../src/main/tasks/registry';
 import {
 	TASK_EVENT_TYPES,
 	type TaskContext,

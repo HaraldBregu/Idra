@@ -10,7 +10,7 @@ import type {
 	TaskRunRequest,
 	TaskStatus,
 } from '../../shared/tasks';
-import type { TaskRegistry } from './task-registry';
+import type { TaskRegistry } from './registry';
 
 interface InternalTaskState {
 	record: TaskRecord;

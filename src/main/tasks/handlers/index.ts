@@ -1,1 +1,1 @@
-export * from './agent-task-handler';
+export * from './agent';

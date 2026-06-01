@@ -1,5 +1,5 @@
 import { DEFAULT_AGENT_ID } from '../../../../src/main/app/config';
-import { AgentTaskHandler } from '../../../../src/main/tasks/handlers/agent-task-handler';
+import { AgentTaskHandler } from '../../../../src/main/tasks/handlers/agent';
 
 describe('AgentTaskHandler', () => {
 	function storeWithAgentService(selection = {
