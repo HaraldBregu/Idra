@@ -6,7 +6,7 @@ import OverviewPage from '../../../../../../src/renderer/src/pages/settings/page
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
-			if (key === 'settings.operators.assistantName') return 'Agent';
+			if (key === 'settings.modelServices.assistantName') return 'Agent';
 			return key;
 		},
 	}),
@@ -68,11 +68,11 @@ describe('OverviewPage', () => {
 			'settings.tabs.tools',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
-			'settings.operators.speechTranscriberName',
-			'settings.operators.textToSpeechName',
-			'settings.operators.imageAssistantName',
-			'settings.operators.videoCreatorName',
-			'settings.operators.musicCreatorName',
+			'settings.modelServices.speechTranscriberName',
+			'settings.modelServices.textToSpeechName',
+			'settings.modelServices.imageAssistantName',
+			'settings.modelServices.videoCreatorName',
+			'settings.modelServices.musicCreatorName',
 			'settings.tabs.channels',
 				'settings.tabs.heartbeat',
 				'settings.sections.taskScheduler',
@@ -89,6 +89,6 @@ describe('OverviewPage', () => {
 
 		await user.click(screen.getByRole('button', { name: /Agent/ }));
 
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/model-services/assistant/details');
 	});
 });

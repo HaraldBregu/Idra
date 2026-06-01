@@ -106,11 +106,11 @@ describe('GeneralPage', () => {
 		});
 	});
 
-	it('does not render the operators list in General settings', async () => {
+	it('does not render the model services list in General settings', async () => {
 		renderGeneralPage();
 
 		await screen.findByText('Friday');
 
-		expect(screen.queryByText('settings.operators.assistantName')).not.toBeInTheDocument();
+		expect(screen.queryByText('settings.modelServices.assistantName')).not.toBeInTheDocument();
 	});
 });
