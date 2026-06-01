@@ -1,5 +1,5 @@
 /**
- * Unit tests for StoreService (src/main/store/service.ts).
+ * Unit tests for StoreService (src/main/storage/service.ts).
  *
  * electron-store is mocked with an in-memory Map so that the real
  * StoreService logic (case-insensitive lookups, provider upserts,
