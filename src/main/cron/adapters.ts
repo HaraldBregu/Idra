@@ -10,106 +10,59 @@ import type {
 	FridayCronExecutionOutcome,
 	FridayCronExecutor,
 } from './jobs';
-import { DEFAULT_CRON_AGENT_ID } from './adapters';
 
-type TerminalTaskRecord = TaskRecord & {
-	status: 'succeeded' | 'failed' | 'cancelled';
-};
+const DEFAULT_CRON_AGENT_ID = 'main';
 
-function isTerminalTask(record: TaskRecord | undefined): record is TerminalTaskRecord {
-	return (
-		record?.status === 'succeeded' || record?.status === 'failed' || record?.status === 'cancelled'
-	);
+export interface CronAgentSendOptions {
+	sessionId?: string;
+	cronContext?: {
+		role: 'cron-self';
+		jobId?: string;
+		agentId?: string | null;
+		sessionKey?: string | null;
+	};
+	effort?: string;
+	lightContext?: boolean;
+	toolsAllow?: string[];
 }
 
-function taskOutput(record: TerminalTaskRecord): string {
-	const result = record.result;
-	if (result && typeof result === 'object' && 'text' in result) {
-		const text = (result as { text?: unknown }).text;
-		return typeof text === 'string' ? text : '';
-	}
-	return '';
+export interface CronAgentPort {
+	send(message: string, agentId?: string, options?: CronAgentSendOptions): Promise<string>;
 }
 
-function errorFromTask(record: TerminalTaskRecord): Error {
-	const message = record.error?.message || 'Scheduled background task failed.';
-	const error = new Error(message);
-	error.name = record.error?.code || 'ScheduledBackgroundTaskError';
-	return error;
+export interface CronHeartbeatPort {
+	systemEvent(input: {
+		text: string;
+		agentId: string;
+		sessionKey: string;
+		mode: string;
+		heartbeat: HeartbeatWakeOverride;
+	}): Promise<void>;
 }
 
-export class TaskManagerFridayCronExecutor implements FridayCronExecutor {
-	constructor(
-		private readonly taskManager: TaskManager,
-		private readonly eventBus: EventBus,
-		private readonly fallback: FridayCronExecutor
-	) {}
+export interface CronChannelRegistryPort {
+	send(input: {
+		type: string;
+		accountId?: string;
+		to: string;
+		threadId?: string;
+		text: string;
+		idempotencyKey: string;
+	}): Promise<void>;
+}
 
-	async execute(input: {
-		job: FridayCronJobDefinition;
-		runId: string;
-		scheduledForMs: number;
-		signal: AbortSignal;
-	}): Promise<FridayCronExecutionOutcome> {
-		if (input.job.payload.kind !== 'agentTurn') return this.fallback.execute(input);
-		if (input.signal.aborted) return { status: 'skipped', skippedReason: 'aborted_before_start' };
+export interface CronEventBusPort {
+	broadcast(channel: string, ...args: unknown[]): void;
+}
 
-		const record = this.taskManager.startUserTask({
-			type: AGENT_TASK_TYPE,
-			title: input.job.name,
-			input: { message: input.job.payload.message },
-			metadata: {
-				cronJobId: input.job.id,
-				cronRunId: input.runId,
-				scheduledForMs: input.scheduledForMs,
-				cronSessionTarget: input.job.sessionTarget,
-				cronAgentId: input.job.agentId ?? DEFAULT_AGENT_ID,
-			},
-		});
-		const completed = await this.waitForTask(record.id, input.signal);
-		if (completed.status === 'cancelled') {
-			return { status: 'skipped', skippedReason: 'background_task_cancelled' };
-		}
-		if (completed.status === 'failed') throw errorFromTask(completed);
-		return { status: 'ok', output: taskOutput(completed) };
-	}
-
-	private waitForTask(taskId: string, signal: AbortSignal): Promise<TerminalTaskRecord> {
-		const current = this.taskManager.get(taskId);
-		if (isTerminalTask(current)) return Promise.resolve(current);
-
-		return new Promise((resolve) => {
-			let done = false;
-			const finish = (record: TerminalTaskRecord): void => {
-				if (done) return;
-				done = true;
-				unsubscribeSucceeded();
-				unsubscribeFailed();
-				unsubscribeCancelled();
-				signal.removeEventListener('abort', abort);
-				resolve(record);
-			};
-			const maybeFinish = (event: { payload: unknown }): void => {
-				const payload = event.payload as { task?: TaskRecord };
-				if (payload.task?.id === taskId && isTerminalTask(payload.task)) finish(payload.task);
-			};
-			const abort = (): void => {
-				const cancelled = this.taskManager.cancel(taskId);
-				if (isTerminalTask(cancelled)) finish(cancelled);
-			};
-			const unsubscribeSucceeded = this.eventBus.on('task:succeeded', maybeFinish);
-			const unsubscribeFailed = this.eventBus.on('task:failed', maybeFinish);
-			const unsubscribeCancelled = this.eventBus.on('task:cancelled', maybeFinish);
-			signal.addEventListener('abort', abort, { once: true });
-			if (signal.aborted) abort();
-		});
-	}
+export interface CronLoggerPort {
+	warn(scope: string, message: string, metadata?: unknown): void;
 }
 
 export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 	constructor(
-		private readonly agentService: AgentService,
-		private readonly heartbeat?: HeartbeatService
+		private readonly agentService: CronAgentPort,
+		private readonly heartbeat?: CronHeartbeatPort
 	) {}
 
 	async execute(input: {
@@ -137,7 +90,7 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			});
 			return { status: 'ok', output: '', alreadyDelivered: true };
 		}
-		const sendOptions: AgentSendOptions = {
+		const sendOptions: CronAgentSendOptions = {
 			sessionId,
 			cronContext: {
 				role: 'cron-self',
@@ -158,7 +111,7 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 	}
 
 	private resolveAgentId(job: FridayCronJobDefinition): string {
-		return job.agentId ?? DEFAULT_AGENT_ID;
+		return job.agentId ?? DEFAULT_CRON_AGENT_ID;
 	}
 
 	private resolveSessionId(job: FridayCronJobDefinition): string {
@@ -184,9 +137,9 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 	constructor(
 		private readonly dependencies: {
-			eventBus?: EventBus;
-			channelRegistry?: ChannelRegistry;
-			logger?: LoggerService;
+			eventBus?: CronEventBusPort;
+			channelRegistry?: CronChannelRegistryPort;
+			logger?: CronLoggerPort;
 		}
 	) {}
 
