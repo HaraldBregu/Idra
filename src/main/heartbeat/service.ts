@@ -340,9 +340,9 @@ export class HeartbeatService implements Disposable {
 
 	async runHeartbeatOnce(wake: HeartbeatWakeRequest): Promise<HeartbeatRunResult> {
 		const startedAt = Date.now();
-		const operator = this.getHeartbeatOperator();
-		const agentId = wake.agentId?.trim() || resolveDefaultHeartbeatAgentId(operator);
-		const summary = this.mergeWakeOverride(resolveHeartbeatSummaryForAgent(operator, agentId), wake.heartbeat);
+		const agents = this.getHeartbeatAgents();
+		const agentId = wake.agentId?.trim() || resolveDefaultHeartbeatAgentId(agents);
+		const summary = this.mergeWakeOverride(resolveHeartbeatSummaryForAgent(agents, agentId), wake.heartbeat);
 		const schedule = this.ensureSchedule(summary);
 		const baseSessionKey = this.resolveBaseSessionKey(summary, wake.sessionKey);
 		const actualSessionKey = summary.isolatedSession
