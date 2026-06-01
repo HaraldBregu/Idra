@@ -19,6 +19,7 @@ Before implementing:
 **Minimum code that solves the problem. Nothing speculative.**
 
 - No features beyond what was asked.
+- Do not over-engineer the solution; actively look for the simplest solution that satisfies the request.
 - No abstractions for single-use code.
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
