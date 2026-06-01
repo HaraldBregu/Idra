@@ -291,6 +291,13 @@ export class CronService implements Disposable {
 		}
 
 		const tasks = this.migrateTasks(raw);
+		const rawById = new Map(
+			raw.flatMap((entry) => {
+				if (!entry || typeof entry !== 'object') return [];
+				const id = (entry as { id?: unknown }).id;
+				return typeof id === 'string' ? [[id, entry as CronTask]] : [];
+			})
+		);
 
 		let restored = 0;
 		for (const task of tasks) {
@@ -306,7 +313,7 @@ export class CronService implements Disposable {
 				task.expression,
 				async () => {
 					try {
-						await dispatcher(task);
+						await dispatcher(rawById.get(task.id) ?? task);
 						this.recordRunResult(task.id, 'success');
 						this.logger.info('CronService', `Restored job "${task.id}" completed`);
 					} catch (err) {
