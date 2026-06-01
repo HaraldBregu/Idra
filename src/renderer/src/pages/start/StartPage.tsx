@@ -26,12 +26,7 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '../../../../shared/agents';
-import {
-	DOCUMENT_READER_OCR_MODELS,
-	OPERATOR_DEFINITIONS,
-	type ConfiguredModelOperator,
-	type Model,
-} from '../../../../shared/agents/service';
+import type { Model, ModelSelection } from '../../../../shared/agents/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -285,29 +280,29 @@ const StartPage: React.FC = () => {
 	const [savedSpeechModelId, setSavedSpeechModelId] = useState('');
 	const [speechModelGroups, setSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState('');
-	const [savedTextToSpeechOperator, setSavedTextToSpeechOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedTextToSpeechService, setSavedTextToSpeechService] =
+		useState<ModelSelection>();
 	const [textToSpeechModelGroups, setTextToSpeechModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
 	const [textToSpeechProviderId, setTextToSpeechProviderId] = useState('');
 	const [selectedTextToSpeechModel, setSelectedTextToSpeechModel] = useState('');
-	const [savedImageCreatorOperator, setSavedImageCreatorOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedImageCreatorService, setSavedImageCreatorService] =
+		useState<ModelSelection>();
 	const [imageCreatorModelGroups, setImageCreatorModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
 	const [imageCreatorProviderId, setImageCreatorProviderId] = useState('');
 	const [selectedImageCreatorModel, setSelectedImageCreatorModel] = useState('');
-	const [savedTextToVideoOperator, setSavedTextToVideoOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedTextToVideoService, setSavedTextToVideoService] =
+		useState<ModelSelection>();
 	const [textToVideoModelGroups, setTextToVideoModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
 	const [textToVideoProviderId, setTextToVideoProviderId] = useState('');
 	const [selectedTextToVideoModel, setSelectedTextToVideoModel] = useState('');
-	const [savedMusicCreatorOperator, setSavedMusicCreatorOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedMusicCreatorService, setSavedMusicCreatorService] =
+		useState<ModelSelection>();
 	const [musicCreatorModelGroups, setMusicCreatorModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
