@@ -41,8 +41,8 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
-import type { FridayCronStoreState } from '../cron/friday/store';
-import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';
+import type { FridayCronStoreState } from '../cron/state';
+import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/state';
 import type {
 	AgentHeartbeatConfig,
 	AgentsHeartbeatConfig,

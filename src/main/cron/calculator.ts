@@ -1,5 +1,5 @@
-import type { CronSchedule } from '../core/types';
-import { parseCronExpression } from '../core/validation';
+import type { CronSchedule } from './core/types';
+import { parseCronExpression } from './core/validation';
 
 interface TimeParts {
 	minute: number;

@@ -4,12 +4,12 @@ import type {
 	FridayCronPayload,
 	FridayCronSchedule,
 	FridayCronSessionTarget,
-} from '../../../shared/cron';
+} from '../../shared/cron';
 import {
 	CronExpressionError,
 	CronScheduleValidationError,
-} from '../core/errors';
-import { isValidTimezone, validateCronExpression } from '../core/validation';
+} from './core/errors';
+import { isValidTimezone, validateCronExpression } from './core/validation';
 
 const PATH_SEPARATOR_PATTERN = /[\\/]/;
 

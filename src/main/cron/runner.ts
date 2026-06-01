@@ -4,10 +4,10 @@ import type {
 	CronScheduleId,
 	CronScheduleRunner,
 	CronScheduledTask,
-} from '../core/types';
-import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
-import type { TaskRecord } from '../../../shared/tasks';
-import { redactCronValue } from '../support';
+} from './core/types';
+import { AGENT_TASK_TYPE, type TaskManager } from '../tasks';
+import type { TaskRecord } from '../../shared/tasks';
+import { redactCronValue } from './support';
 
 function terminal(status: CronScheduledTask['status']): boolean {
 	return ['completed', 'failed', 'cancelled'].includes(status);

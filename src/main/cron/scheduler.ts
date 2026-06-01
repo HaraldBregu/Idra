@@ -21,20 +21,20 @@ import type {
 	CronScheduleUpdateRequest,
 	CronScheduleStore,
 	CronScheduledTask,
-} from '../core/types';
-import { ScheduleDescriber } from '../core/describer';
+} from './core/types';
+import { ScheduleDescriber } from './core/describer';
 import {
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
 	CronScheduleValidationError,
 	CronSchedulerError,
 	toCronRecordError,
-} from '../core/errors';
-import { assertScheduleCanRun, validateScheduleShape } from '../core/validation';
+} from './core/errors';
+import { assertScheduleCanRun, validateScheduleShape } from './core/validation';
 import { CronNextRunCalculator } from './calculator';
-import { CronScheduleEventBus } from '../support';
-import { redactCronValue, summarizeCronValue } from '../support';
-import { AGENT_TASK_TYPE } from '../../tasks';
+import { CronScheduleEventBus } from './support';
+import { redactCronValue, summarizeCronValue } from './support';
+import { AGENT_TASK_TYPE } from '../tasks';
 
 interface CronLogger {
 	debug(scope: string, message: string, metadata?: unknown): void;

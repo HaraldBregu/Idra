@@ -9,8 +9,8 @@ import type {
 	FridayCronToolRequest,
 	FridayCronUpdateRequest,
 	FridayCronWakeMode,
-} from '../../../shared/cron';
-import type { FridayCronActor } from './scheduler';
+} from '../../shared/cron';
+import type { FridayCronActor } from './jobs';
 
 export interface FridayCronNormalizeContext {
 	actor?: FridayCronActor;

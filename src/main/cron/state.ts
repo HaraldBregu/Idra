@@ -2,8 +2,8 @@ import type {
 	FridayCronJobDefinition,
 	FridayCronJobState,
 	FridayCronRunRecord,
-} from '../../../shared/cron';
-import { assertSafeCronId, fridayScheduleIdentity } from './validation';
+} from '../../shared/cron';
+import { assertSafeCronId, fridayScheduleIdentity } from './validate';
 
 const SCHEMA_VERSION = 1;
 

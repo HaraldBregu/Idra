@@ -1,23 +1,23 @@
-import type { ChannelRegistry } from '../../channels';
-import type { EventBus } from '../../core/event-bus';
-import type { LoggerService } from '../../logger';
-import type { AgentSendOptions, AgentService } from '../../agent';
-import type { HeartbeatService } from '../../heartbeat';
-import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
-import type { HeartbeatWakeOverride } from '../../../shared/heartbeat';
+import type { ChannelRegistry } from '../channels';
+import type { EventBus } from '../core/event-bus';
+import type { LoggerService } from '../logger';
+import type { AgentSendOptions, AgentService } from '../agent';
+import type { HeartbeatService } from '../heartbeat';
+import { AGENT_TASK_TYPE, type TaskManager } from '../tasks';
+import type { HeartbeatWakeOverride } from '../../shared/heartbeat';
 import type {
 	FridayCronDelivery,
 	FridayCronDeliveryState,
 	FridayCronJobDefinition,
 	FridayCronRunRecord,
-} from '../../../shared/cron';
-import type { TaskRecord } from '../../../shared/tasks';
+} from '../../shared/cron';
+import type { TaskRecord } from '../../shared/tasks';
 import type {
 	FridayCronDeliveryPort,
 	FridayCronExecutionOutcome,
 	FridayCronExecutor,
-} from './scheduler';
-import { DEFAULT_AGENT_ID } from '../../app/config';
+} from './jobs';
+import { DEFAULT_AGENT_ID } from '../app/config';
 
 type TerminalTaskRecord = TaskRecord & {
 	status: 'succeeded' | 'failed' | 'cancelled';

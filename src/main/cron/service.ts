@@ -22,8 +22,8 @@ import {
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/types';
 import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store';
-import { CronSchedulerService } from './scheduler/scheduler';
-import { InMemoryCronScheduleRunner } from './scheduler/runner';
+import { InMemoryCronScheduleRunner } from './runner';
+import { CronSchedulerService } from './scheduler';
 
 export type CronServiceEventListener = (event: CronScheduleEvent) => void;
 
