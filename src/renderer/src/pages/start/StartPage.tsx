@@ -1203,7 +1203,7 @@ const StartPage: React.FC = () => {
 			(group) => group.provider.id === musicCreatorProviderId
 		);
 		const selectedMusicCreatorModels = selectedMusicCreatorGroup?.models ?? [];
-		const ocrModelName = DOCUMENT_READER_OCR_MODELS[0]?.name ?? 'Not available yet';
+		const ocrModelName = 'Not available yet';
 		const toggleModelArea = (areaId: ModelAreaId): void => {
 			setExpandedModelAreaId((current) => (current === areaId ? AGENTS.assistant : areaId));
 		};
