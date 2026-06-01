@@ -63,7 +63,7 @@ export interface CronServiceOptions {
  */
 export class CronService implements Disposable {
 	private readonly store: CronPersistenceStore;
-	private readonly logger: LoggerService;
+	private readonly logger: CronLogger;
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: CronScheduleStore;
 	private readonly scheduler: CronSchedulerService;
