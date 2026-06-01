@@ -309,13 +309,13 @@ export class ConnectorsService {
 			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
 			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
 		});
-		const next = this.withKnownTools({
-			...current,
-			...merged,
-			oauth: buildOAuthConfig(merged, current.oauth, this.oauthRedirectUri()),
-			lastError: undefined,
-			updatedAt: new Date().toISOString(),
-		});
+			const next = this.withKnownTools({
+				...current,
+				...merged,
+				oauth: buildOAuthConfig(merged, googleOAuthCredential(current.oauth), this.oauthRedirectUri()),
+				lastError: undefined,
+				updatedAt: new Date().toISOString(),
+			});
 		this.replace(next);
 		return redactConnectorSecrets(next);
 	}
@@ -757,7 +757,7 @@ export class ConnectorsService {
 	}
 
 	private requireGoogleOAuthConfig(connector: ConnectorConfig): GoogleOAuthRuntimeCredential {
-		const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
+		const oauth = stripGoogleOAuthClientCredentials(googleOAuthCredential(connector.oauth));
 		const clientId =
 			this.options.googleOAuthClientId ||
 			process.env.GOOGLE_OAUTH_CLIENT_ID;
@@ -887,7 +887,7 @@ function isStoredConnectorValid(connector: ConnectorConfig): boolean {
 
 function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 	if (!isGoogleConnector(connector.connectorId) || !connector.oauth) return connector;
-	const oauth = stripGoogleOAuthClientCredentials(connector.oauth);
+	const oauth = stripGoogleOAuthClientCredentials(googleOAuthCredential(connector.oauth));
 	return oauth === connector.oauth ? connector : { ...connector, oauth };
 }
 
@@ -909,6 +909,10 @@ function stripGoogleOAuthClientCredentials(oauth: GoogleOAuthCredential | undefi
 	if (!oauth) return undefined;
 	const { clientId: _clientId, clientSecret: _clientSecret, ...safeOAuth } = oauth;
 	return safeOAuth;
+}
+
+function googleOAuthCredential(oauth: ConnectorConfig['oauth']): GoogleOAuthCredential | undefined {
+	return oauth?.provider === 'google' ? oauth : undefined;
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
