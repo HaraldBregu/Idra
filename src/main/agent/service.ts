@@ -1059,13 +1059,6 @@ export class AgentService {
 		}
 	}
 
-	private getOperatorConfig(): OperatorStoreState | undefined {
-		const maybeStore = this.dependencies.store as {
-			getOperator?: () => OperatorStoreState | undefined;
-		};
-		return typeof maybeStore.getOperator === 'function' ? maybeStore.getOperator() : undefined;
-	}
-
 	private async isBootstrapPending(agentId: string): Promise<boolean> {
 		try {
 			return await this.getWorkspaceService().isBootstrapPending(agentId);
