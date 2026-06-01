@@ -32,17 +32,10 @@ import type {
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type {
-	CronExecutionRecord,
-	CronNextRunPreview,
 	CronSchedule,
 	CronScheduleEvent,
 	CronScheduleFilter,
-	CronScheduleUpdateRequest,
-	CronTaskView,
 	CronScheduledTask,
-	FridayCronToolRequest,
-	FridayCronToolResponse,
-	FridayCronJob,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
@@ -422,27 +415,6 @@ export const speechToText: SpeechToTextApi = {
 };
 
 export const cron: CronApi = {
-	action: async (_request: FridayCronToolRequest): Promise<FridayCronToolResponse> => ({
-		status: 'error',
-		enabled: false,
-		error: 'Friday cron action IPC is unavailable.',
-	}),
-	list: (): Promise<CronTaskView[]> => {
-		return typedInvokeUnwrap(CronChannels.list);
-	},
-	listJobs: async (include: 'enabled' | 'disabled' | 'all' = 'enabled'): Promise<FridayCronJob[]> => {
-		const response = await cron.action({ action: 'list', include });
-		return Array.isArray(response.result) ? (response.result as FridayCronJob[]) : [];
-	},
-	remove: (id: string): Promise<void> => {
-		return typedInvokeUnwrap(CronChannels.remove, id);
-	},
-	removeJob: (id: string): Promise<void> => {
-		return typedInvokeUnwrap(CronChannels.remove, id);
-	},
-	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest): Promise<CronSchedule> => {
-		return typedInvokeUnwrap(CronChannels.updateSchedule, scheduleId, patch);
-	},
 	pauseSchedule: (scheduleId: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.pauseSchedule, scheduleId);
 	},
@@ -458,28 +430,11 @@ export const cron: CronApi = {
 	getSchedule: (scheduleId: string): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.getSchedule, scheduleId);
 	},
-	getScheduleEvents: (scheduleId: string): Promise<CronScheduleEvent[]> => {
-		return typedInvokeUnwrap(CronChannels.getScheduleEvents, scheduleId);
-	},
-	getScheduleExecutions: (scheduleId: string): Promise<CronExecutionRecord[]> => {
-		return typedInvokeUnwrap(CronChannels.getScheduleExecutions, scheduleId);
-	},
-	getNextRuns: (scheduleId: string, count: number): Promise<CronNextRunPreview> => {
-		return typedInvokeUnwrap(CronChannels.getNextRuns, scheduleId, count);
-	},
 	runNow: (scheduleId: string): Promise<CronScheduledTask> => {
 		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
 	},
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void): (() => void) => {
 		return typedOn(CronChannels.event, listener);
-	},
-	subscribeToSchedule: (
-		scheduleId: string,
-		listener: (event: CronScheduleEvent) => void
-	): (() => void) => {
-		return typedOn(CronChannels.event, (event) => {
-			if (event.scheduleId === scheduleId) listener(event);
-		});
 	},
 };
 
