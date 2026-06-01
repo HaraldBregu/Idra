@@ -289,7 +289,10 @@ export class AgentService {
 	}
 
 	getHeartbeatOperatorConfig(): OperatorStoreState | undefined {
-		return this.getOperatorConfig();
+		const operator = this.getOperatorConfig();
+		const agents = this.getHeartbeatStore().getAgentsConfig();
+		if (!operator) return agents ? { agents } : undefined;
+		return agents ? { ...operator, agents } : operator;
 	}
 
 	getHeartbeatProvider(providerId: string): PublicProvider | undefined {
@@ -668,7 +671,7 @@ export class AgentService {
 						runKind,
 						lightContext: heartbeatOptions?.lightContext === true || options.lightContext === true,
 						includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
-							this.getOperatorConfig(),
+							this.getHeartbeatOperatorConfig(),
 							agentId
 						),
 						isPrimaryRun,
@@ -743,7 +746,7 @@ export class AgentService {
 					heartbeat: {
 						includeSection:
 							runKind === 'default' &&
-							isHeartbeatSystemPromptEnabled(this.getOperatorConfig(), agentId),
+							isHeartbeatSystemPromptEnabled(this.getHeartbeatOperatorConfig(), agentId),
 					},
 				})
 			);
