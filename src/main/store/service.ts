@@ -254,18 +254,6 @@ function modelForModule(
 	return modelFromCatalog(catalog, settings);
 }
 
-function configuredModelOperator(
-	key: ConfiguredModelOperatorKey,
-	provider: Omit<Provider, 'apiKey'>,
-	model: Model
-): ConfiguredModelOperator {
-	return {
-		...OPERATOR_DEFINITIONS[OPERATOR_DEFINITION_KEYS[key]],
-		provider,
-		model,
-	};
-}
-
 export class StoreService {
 	private store: SettingsStoreAccessor;
 
