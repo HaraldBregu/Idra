@@ -53,7 +53,6 @@ import {
 	type Model,
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
-	type OperatorStoreState,
 } from '../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
 import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
