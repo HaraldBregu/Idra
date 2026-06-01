@@ -507,10 +507,6 @@ function resolveAppDataPath(): string {
 	}
 }
 
-function catalogItemFor(id: string): ConnectorCatalogEntry | undefined {
-	return CONNECTOR_CATALOG.find((connector) => connector.id === id);
-}
-
 function buildOAuthUrl(catalogItem: ConnectorCatalogEntry, clientId: string, state: string): string {
 	if (!catalogItem.oauth) throw new Error(`OAuth is not configured for ${catalogItem.id}.`);
 	const url = new URL(catalogItem.oauth.authorizationUrl);
@@ -528,7 +524,7 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
 	const name = readOptionalString(raw, 'name')?.trim() ?? '';
 	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? '';
-	const catalogItem = catalogItemFor(connectorId);
+	const catalogItem = getMcpConnectorCatalogItem(connectorId);
 	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || serverLabelFromName(name);
 	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim() || catalogItem?.description;
 	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
