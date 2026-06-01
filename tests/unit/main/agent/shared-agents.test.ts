@@ -34,7 +34,7 @@ describe('shared agent contracts', () => {
 		expect(isAgentRunStopReason('rate_limited')).toBe(false);
 	});
 
-	it('preserves service barrel exports for model and operator helpers', () => {
+	it('preserves service barrel exports for model service helpers', () => {
 		expect(getModelReasoningEfforts('gpt-5.5', 'openai')).toEqual(MODEL_REASONING_EFFORTS);
 		expect(isAllowedSpeechToTextModel('openai', 'gpt-4o-transcribe')).toBe(true);
 	});
