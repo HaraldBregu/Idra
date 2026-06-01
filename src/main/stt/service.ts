@@ -58,16 +58,8 @@ export class SpeechToTextService {
 		return getSpeechToTextModels(providerId);
 	}
 
-	getOperator(): ConfiguredModelOperator | undefined {
-		return this.dependencies.store.getSpeechToTextOperator();
-	}
-
 	getSettings(): ModelModuleSettings | undefined {
 		return this.dependencies.store.getSpeechToTextSettings();
-	}
-
-	setOperator(providerId: string, model: Model): boolean {
-		return this.dependencies.store.setSpeechToTextOperator(providerId, model);
 	}
 
 	async start(
