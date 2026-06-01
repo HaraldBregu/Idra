@@ -1,4 +1,4 @@
-import type { CronSchedule } from './cron.types';
+import type { CronSchedule } from './types';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 

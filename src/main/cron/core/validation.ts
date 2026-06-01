@@ -10,11 +10,11 @@ import type {
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
 	CronValidationResult,
-} from './cron.types';
+} from './types';
 import {
 	CronExpressionError,
 	CronScheduleValidationError,
-} from './cron.errors';
+} from './errors';
 
 const CRON_FIELD_RANGES: readonly [min: number, max: number][] = [
 	[0, 59],

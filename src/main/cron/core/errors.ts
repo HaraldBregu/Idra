@@ -1,4 +1,4 @@
-import type { CronJsonObject } from './cron.types';
+import type { CronJsonObject } from './types';
 
 export class CronSchedulerError extends Error {
 	readonly code: string;
