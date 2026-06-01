@@ -102,9 +102,7 @@ export const AppChannels = {
 
 export const CronChannels = {
 	list: 'cron:list',
-	add: 'cron:add',
 	remove: 'cron:remove',
-	createSchedule: 'cron:createSchedule',
 	updateSchedule: 'cron:updateSchedule',
 	pauseSchedule: 'cron:pauseSchedule',
 	resumeSchedule: 'cron:resumeSchedule',
@@ -476,19 +474,7 @@ interface WindowInvokeChannelMap {
 
 interface CronInvokeChannelMap {
 	[CronChannels.list]: { args: []; result: import('../cron').CronTaskView[] };
-	[CronChannels.add]: {
-		args: [
-			expression: string,
-			data: import('../cron').CronTaskData,
-			options?: { id?: string; timezone?: string },
-		];
-		result: import('../cron').CronTask;
-	};
 	[CronChannels.remove]: { args: [id: string]; result: void };
-	[CronChannels.createSchedule]: {
-		args: [request: import('../cron').CronScheduleCreateRequest];
-		result: import('../cron').CronSchedule;
-	};
 	[CronChannels.updateSchedule]: {
 		args: [scheduleId: string, patch: import('../cron').CronScheduleUpdateRequest];
 		result: import('../cron').CronSchedule;
