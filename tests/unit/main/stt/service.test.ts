@@ -16,7 +16,7 @@ jest.mock('electron-store', () => {
 import Store from 'electron-store';
 import { StoreService } from '../../../../src/main/store';
 import { SpeechToTextService } from '../../../../src/main/stt';
-import type { ConfiguredModelOperator, Model } from '../../../../src/shared/agents/service';
+import type { Model } from '../../../../src/shared/agents/service';
 import type {
 	RealtimeTranscriptionEvent,
 	RealtimeTranscriptionSession,
@@ -38,7 +38,6 @@ const openaiProvider: Provider = {
 interface FakeRuntimeConfig {
 	sessionId: string;
 	provider: Provider;
-	operator: ConfiguredModelOperator;
 	model: Model;
 	request?: RealtimeTranscriptionStartRequest;
 	callbacks: {
@@ -64,7 +63,7 @@ function configureSpeechToText(
 	modelId = REALTIME_SPEECH_TRANSCRIBER_MODEL_ID
 ): void {
 	const settings = storeFor(store);
-	settings.set('providers', [provider]);
+	settings.set('modelProviders', [provider]);
 	settings.set('speechToText', {
 		providerId: provider.id,
 		modelId,
@@ -174,7 +173,6 @@ describe('SpeechToTextService', () => {
 		const store = new StoreService();
 		configureSpeechToText(store);
 		const getSettings = jest.spyOn(store, 'getSpeechToTextSettings');
-		const getOperator = jest.spyOn(store, 'getSpeechToTextOperator');
 		const getProvider = jest.spyOn(store, 'getProviderById');
 		const fake = createAdapter();
 		const service = new SpeechToTextService({
@@ -212,27 +210,26 @@ describe('SpeechToTextService', () => {
 			'Realtime transcription session was not found.'
 		);
 		expect(getSettings).toHaveBeenCalled();
-		expect(getOperator).toHaveBeenCalled();
 		expect(getProvider).toHaveBeenCalledWith('openai');
 	});
 
 	it('stores and reads the selected provider/model through StoreService', () => {
 		const store = new StoreService();
-		storeFor(store).set('providers', [openaiProvider]);
-		const service = new SpeechToTextService({ store, adapters: [] });
+		storeFor(store).set('modelProviders', [openaiProvider]);
 
 		expect(
-			service.setOperator(openaiProvider.id, {
+			store.setSpeechTranscriberService(openaiProvider.id, {
 				id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 				name: 'Ignored local name',
 			})
 		).toBe(true);
 
+		const service = new SpeechToTextService({ store, adapters: [] });
 		expect(service.getSettings()).toEqual({
 			providerId: openaiProvider.id,
 			modelId: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 		});
-		expect(service.getOperator()).toMatchObject({
+		expect(store.getSpeechTranscriberService()).toMatchObject({
 			model: {
 				id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 				name: 'GPT-4o Mini Transcribe',
