@@ -1,4 +1,4 @@
-import type { StoreService } from '../../store';
+import Store from 'electron-store';
 import type {
 	CronExecutionRecord,
 	CronSchedule,
@@ -194,7 +194,16 @@ export class InMemoryCronScheduleStore implements CronScheduleStore {
 }
 
 export class ElectronStoreCronScheduleStore implements CronScheduleStore {
-	constructor(private readonly store: StoreService) {}
+	private readonly store: Store<CronStoreState>;
+
+	constructor(store?: Store<CronStoreState>) {
+		this.store =
+			store ??
+			new Store<CronStoreState>({
+				name: 'cron',
+				accessPropertiesByDotNotation: false,
+			});
+	}
 
 	async createSchedule(schedule: CronSchedule): Promise<CronSchedule> {
 		return this.write((state) => {
@@ -333,8 +342,7 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 
 	private read(): CronStoreState {
 		try {
-			const current = this.store.getCronSchedulerState?.() ?? emptyCronStoreState();
-			return migrateCronStoreState(current);
+			return migrateCronStoreState(this.store.store);
 		} catch (error) {
 			throw new CronScheduleStoreError('Failed to read cron store state.', {
 				error: error instanceof Error ? error.message : String(error),
@@ -346,7 +354,7 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 		try {
 			const state = this.read();
 			const result = mutate(state);
-			this.store.setCronSchedulerState?.(state);
+			this.store.store = migrateCronStoreState(state);
 			return clone(result);
 		} catch (error) {
 			if (error instanceof CronScheduleConflictError || error instanceof CronScheduleNotFoundError) throw error;
