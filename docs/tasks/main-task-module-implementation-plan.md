@@ -21,8 +21,8 @@ References:
 
 - `src/shared/store.ts`
 - `src/main/store/service.ts:166`
-- `src/main/tasks/task-manager.ts:178`
-- `src/main/tasks/task-manager.ts:215`
+- `src/main/tasks/manager.ts:178`
+- `src/main/tasks/manager.ts:215`
 
 Risk: renderer actions, tool calls, managed schedules, and Friday cron jobs can start unbounded agent work. This can overload the selected provider, make cancellation less predictable, and create confusing queued state because `queued` currently means "created but about to start", not "waiting for capacity".
 
@@ -34,8 +34,8 @@ Design direction: make `TaskManager` own a small execution queue. Use `defaultCo
 
 References:
 
-- `src/main/tasks/task-manager.ts:152`
-- `src/main/tasks/task-manager.ts:219`
+- `src/main/tasks/manager.ts:152`
+- `src/main/tasks/manager.ts:219`
 - `src/main/cron/scheduler/cron-runner.ts:192`
 - `src/main/cron/scheduler/cron-runner.ts:208`
 
@@ -49,12 +49,12 @@ Design direction: add explicit retention rules before adding cleanup. Keep activ
 
 References:
 
-- `src/main/tasks/task-manager.ts:62`
-- `src/main/tasks/task-manager.ts:114`
-- `src/main/tasks/task-manager.ts:187`
-- `src/main/tasks/task-manager.ts:248`
-- `src/main/tasks/task-manager.ts:319`
-- `src/main/tasks/task-manager.ts:339`
+- `src/main/tasks/manager.ts:62`
+- `src/main/tasks/manager.ts:114`
+- `src/main/tasks/manager.ts:187`
+- `src/main/tasks/manager.ts:248`
+- `src/main/tasks/manager.ts:319`
+- `src/main/tasks/manager.ts:339`
 
 Risk: the class is still readable, but new concerns such as concurrency, retention, timeout, or persistence would make it harder to test and reason about. The sanitizer is already exported, which suggests it is a reusable policy but still lives inside the manager.
 
@@ -74,8 +74,8 @@ References:
 
 - `src/main/ipc/tasks-ipc.ts:14`
 - `src/main/ipc/tasks-ipc.ts:26`
-- `src/main/tasks/task-manager.ts:191`
-- `src/main/tasks/handlers/agent-task-handler.ts:50`
+- `src/main/tasks/manager.ts:191`
+- `src/main/tasks/handlers/agent.ts:50`
 
 Risk: boundary errors stay stringly typed, and future task types could accidentally rely on handler-level validation only. Tool and cron paths also construct `TaskRunRequest` manually, which can drift from IPC behavior.
 
@@ -87,10 +87,10 @@ Cancellation is represented by an `AbortError` name check, and failures are redu
 
 References:
 
-- `src/main/tasks/task-manager.ts:136`
-- `src/main/tasks/task-manager.ts:276`
-- `src/main/tasks/handlers/agent-task-handler.ts:22`
-- `src/main/tasks/handlers/agent-task-handler.ts:90`
+- `src/main/tasks/manager.ts:136`
+- `src/main/tasks/manager.ts:276`
+- `src/main/tasks/handlers/agent.ts:22`
+- `src/main/tasks/handlers/agent.ts:90`
 
 Risk: future handlers can accidentally convert expected cancellation into task failure. Renderer and tool callers also get inconsistent validation and runtime errors through generic `Error` messages.
 
@@ -102,7 +102,7 @@ Task execution waits for handler resolution. Cron's task executor waits on lifec
 
 References:
 
-- `src/main/tasks/task-manager.ts:260`
+- `src/main/tasks/manager.ts:260`
 - `src/main/cron/friday/runtime-adapters.ts:76`
 - `src/main/cron/friday/runtime-adapters.ts:84`
 
