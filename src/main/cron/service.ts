@@ -20,8 +20,8 @@ import {
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext, CronPersistenceStore } from './core/types';
-import { ElectronStoreCronScheduleStore } from './store/store';
+import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/types';
+import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store/store';
 import { CronSchedulerService } from './scheduler/scheduler';
 import { InMemoryCronScheduleRunner } from './scheduler/runner';
 
@@ -43,6 +43,7 @@ interface NextRunCapable {
 export interface CronServiceOptions {
 	enabled?: boolean;
 	store: CronServiceStore;
+	scheduleStore?: CronScheduleStore;
 }
 
 /**
@@ -73,7 +74,9 @@ export class CronService implements Disposable {
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
-		this.scheduleStore = new ElectronStoreCronScheduleStore();
+		this.scheduleStore =
+			options.scheduleStore ??
+			(legacySignature ? new InMemoryCronScheduleStore() : new ElectronStoreCronScheduleStore());
 		const accessPolicy = {
 			authorize(): Promise<void> { return Promise.resolve(); },
 			requiresConfirmation(): boolean { return false; },
