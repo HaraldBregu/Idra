@@ -611,75 +611,9 @@ interface StoreInvokeChannelMap {
 		args: [];
 		result: import('../connector').ConnectorConfig[];
 	};
-	[StoreChannels.getAssistantOperator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[StoreChannels.saveAssistantOperator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getSpeechToTextOperator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[StoreChannels.saveSpeechToTextOperator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getTextToSpeechOperator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[StoreChannels.saveTextToSpeechOperator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getImageCreatorOperator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[StoreChannels.saveImageCreatorOperator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getTextToVideoOperator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[StoreChannels.saveTextToVideoOperator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getMusicCreatorOperator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[StoreChannels.saveMusicCreatorOperator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
 	[StoreChannels.getAgentService]: {
 		args: [];
-		result: import('../agents/service').Agent | undefined;
+		result: import('../agents/service').ModelSelection | undefined;
 	};
 	[StoreChannels.saveAgentService]: {
 		args: [
@@ -690,7 +624,7 @@ interface StoreInvokeChannelMap {
 	};
 	[StoreChannels.getSpeechTranscriberService]: {
 		args: [];
-		result: import('../agents/service').Agent | undefined;
+		result: import('../agents/service').ModelSelection | undefined;
 	};
 	[StoreChannels.saveSpeechTranscriberService]: {
 		args: [
