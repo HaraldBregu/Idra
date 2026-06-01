@@ -144,13 +144,13 @@ export interface ConnectorOAuthTokenSet {
 
 export interface ConnectorOAuthCredential {
 	provider: string;
-	providerId: string;
-	authorizationUrl: string;
-	clientId: string;
+	providerId?: string;
+	authorizationUrl?: string;
+	clientId?: string;
 	clientSecret?: string;
 	redirectUri: string;
-	scopes: readonly string[];
-	state: string;
+	scopes?: readonly string[];
+	state?: string;
 	accessToken?: string;
 	refreshToken?: string;
 	expiresAt?: number;
@@ -259,22 +259,6 @@ export interface ConnectorOAuthConnectResult {
 
 export interface GoogleOAuthCredential extends ConnectorOAuthCredential {
 	provider: 'google';
-	providerId?: string;
-	authorizationUrl?: string;
-	clientId?: string;
-	clientSecret?: string;
-	redirectUri: string;
-	scopes?: readonly string[];
-	state?: string;
-	accessToken?: string;
-	refreshToken?: string;
-	expiresAt?: number;
-	tokenType?: string;
-	scope?: string;
-	email?: string;
-	accountEmail?: string;
-	token?: ConnectorOAuthTokenSet;
-	connectedAt?: string;
 }
 
 export interface ConnectorCallToolOptions {
