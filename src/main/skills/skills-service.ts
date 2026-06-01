@@ -72,7 +72,17 @@ function splitSkillIdAndVersion(
 }
 
 function normalizeSkillToolInput(args: Record<string, unknown>): Record<string, unknown> {
-	const nestedInput = isRecord(args.input) ? args.input : {};
+	const nestedInput = isRecord(args.input)
+		? Object.fromEntries(
+				Object.entries(args.input).filter(
+					([key]) =>
+						key !== 'skillId' &&
+						key !== 'version' &&
+						key !== 'timeoutMs' &&
+						key !== 'noTimeout'
+				)
+			)
+		: {};
 	const passthroughInput = Object.fromEntries(
 		Object.entries(args).filter(
 			([key]) =>
@@ -91,6 +101,12 @@ function normalizeSkillExecutionTimeout(args: Record<string, unknown>): number |
 	if (typeof args.timeoutMs !== 'number' || !Number.isFinite(args.timeoutMs)) return undefined;
 	const timeoutMs = Math.floor(args.timeoutMs);
 	return timeoutMs > 0 ? timeoutMs : null;
+}
+
+function getSkillToolString(args: Record<string, unknown>, key: 'skillId' | 'version'): string | undefined {
+	if (typeof args[key] === 'string') return args[key];
+	if (isRecord(args.input) && typeof args.input[key] === 'string') return args.input[key];
+	return undefined;
 }
 
 function shouldCopySkillPath(root: string, sourcePath: string): boolean {
@@ -336,8 +352,8 @@ export class SkillsService {
 			},
 			execute: async (args, toolContext) => {
 				const parsedSkill = splitSkillIdAndVersion(
-					typeof args.skillId === 'string' ? args.skillId : '',
-					typeof args.version === 'string' ? args.version : undefined
+					getSkillToolString(args, 'skillId') ?? '',
+					getSkillToolString(args, 'version')
 				);
 				const skillId = parsedSkill.skillId;
 				const version = parsedSkill.version;
