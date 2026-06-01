@@ -488,7 +488,6 @@
 				"expandLabel": "Expand scheduled task {{id}}",
 				"collapse": "Collapse",
 				"collapseLabel": "Collapse scheduled task {{id}}",
-				"refresh": "Refresh",
 				"pause": "Pause",
 				"resume": "Resume",
 				"run": "Run now",
