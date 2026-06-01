@@ -467,19 +467,16 @@ export class StoreService {
 		this.setTaskSchedulerSettings({ jobs: migrateCronJobStoreState(state) });
 	}
 
-	private getConfiguredModelOperator(
-		key: ConfiguredModelOperatorKey
-	): ConfiguredModelOperator | undefined {
+	private getModelSelection(key: ModelModuleKey): ModelSelection | undefined {
 		const rootKey = MODEL_MODULE_ROOT_KEYS[key];
 		const settings = this.getModelModuleSettings(rootKey);
 		if (settings) {
 			const provider = this.getProviderById(settings.providerId);
 			if (provider) {
-				return configuredModelOperator(
-					key,
-					publicProvider(provider),
-					modelForModule(key, settings, provider)
-				);
+				return {
+					provider: publicProvider(provider),
+					model: modelForModule(key, settings, provider),
+				};
 			}
 		}
 
