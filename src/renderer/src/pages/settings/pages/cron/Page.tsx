@@ -186,7 +186,7 @@ const CronPage: React.FC = () => {
 						) : (
 							<RefreshCw className="size-3" />
 						)}
-						{t('settings.actions.refresh')}
+						{t('settings.cron.actions.refresh')}
 					</Button>
 				}
 			/>
