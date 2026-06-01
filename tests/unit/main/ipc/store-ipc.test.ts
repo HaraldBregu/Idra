@@ -31,8 +31,6 @@ describe('StoreIpc', () => {
 			getProviders: jest.fn(() => providers),
 			upsertProvider: jest.fn(),
 			getProviderById: jest.fn(() => providers[0]),
-				getAssistantOperator: jest.fn(() => undefined),
-			setAssistantOperator: jest.fn(() => true),
 			getAgentService: jest.fn(() => undefined),
 			setAgentService: jest.fn(() => true),
 		};
@@ -42,17 +40,17 @@ describe('StoreIpc', () => {
 		const agentSettings = {
 			getAgentRoutingSettings: jest.fn(() => ({ agents: [], bindings: [] })),
 		};
-			const container = {
-				get: jest.fn((key: 'store' | 'agentSettings' | 'connectors' | 'logger') =>
-					key === 'store'
-						? store
-						: key === 'agentSettings'
-							? agentSettings
+		const container = {
+			get: jest.fn((key: 'store' | 'agentSettings' | 'connectors' | 'logger') =>
+				key === 'store'
+					? store
+					: key === 'agentSettings'
+						? agentSettings
 						: key === 'connectors'
 							? connectors
 							: { info: jest.fn() }
-				),
-			} as unknown as MainServiceContainer;
+			),
+		} as unknown as MainServiceContainer;
 
 		new StoreIpc().register(container, new EventBus());
 
@@ -77,7 +75,7 @@ describe('StoreIpc', () => {
 			apiConfiguration: expect.any(Object),
 			apiKey: 'new-key',
 		});
-			await expect(registeredHandler(StoreChannels.getConnectorSettings)({})).resolves.toEqual({
+		await expect(registeredHandler(StoreChannels.getConnectorSettings)({})).resolves.toEqual({
 			success: true,
 			data: [],
 		});
@@ -87,20 +85,6 @@ describe('StoreIpc', () => {
 			data: { agents: [], bindings: [] },
 		});
 		expect(agentSettings.getAgentRoutingSettings).toHaveBeenCalled();
-		await expect(
-			registeredHandler(StoreChannels.saveAssistantOperator)(
-				{},
-				publicProvider(providers[0]),
-				model
-			)
-		).resolves.toEqual({
-			success: true,
-			data: true,
-		});
-		expect(store.setAssistantOperator).toHaveBeenCalledWith('openai', {
-			...model,
-			effort: expect.any(String),
-		});
 		await expect(
 			registeredHandler(StoreChannels.saveAgentService)({}, publicProvider(providers[0]), model)
 		).resolves.toEqual({
