@@ -10,7 +10,7 @@ import type {
 } from './core/types';
 import type { CronScheduledTask } from '../../shared/cron';
 import { ScheduleDescriber } from './core/describer';
-import { AGENT_TASK_TYPE } from '../tasks';
+import { CRON_AGENT_TASK_TYPE } from './types';
 
 export interface AgentCronContext {
 	agentId: string;
@@ -39,7 +39,7 @@ export class AgentCronService {
 		return this.scheduler.createSchedule(
 			{
 				...request,
-				taskType: request.taskType ?? AGENT_TASK_TYPE,
+				taskType: request.taskType ?? CRON_AGENT_TASK_TYPE,
 				source: 'agent',
 				sourceId: agentContext.agentId,
 				createdBy: agentContext.agentId,

@@ -34,7 +34,7 @@ import { assertScheduleCanRun, validateScheduleShape } from './core/validation';
 import { CronNextRunCalculator } from './calculator';
 import { CronScheduleEventBus } from './support';
 import { redactCronValue, summarizeCronValue } from './support';
-import { AGENT_TASK_TYPE } from '../tasks';
+import { CRON_AGENT_TASK_TYPE } from './types';
 
 interface CronLogger {
 	debug(scope: string, message: string, metadata?: unknown): void;
@@ -185,13 +185,13 @@ function normalizeAgentScheduleTask(
 	existing?: CronSchedule
 ): { taskType: string; taskInput: CronJsonObject } {
 	const taskType = request.taskType ?? existing?.taskType;
-	if (taskType !== AGENT_TASK_TYPE) {
+	if (taskType !== CRON_AGENT_TASK_TYPE) {
 		throw new CronScheduleValidationError(
-			`Scheduled tasks must create ${AGENT_TASK_TYPE} background tasks.`
+			`Scheduled tasks must create ${CRON_AGENT_TASK_TYPE} background tasks.`
 		);
 	}
 	return {
-		taskType: AGENT_TASK_TYPE,
+		taskType: CRON_AGENT_TASK_TYPE,
 		taskInput: normalizeAgentTaskInput(request.taskInput ?? existing?.taskInput),
 	};
 }

@@ -1,6 +1,4 @@
 import cron from 'node-cron';
-import type { Disposable } from '../core/service-container';
-import type { LoggerService } from '../logger';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
@@ -24,6 +22,16 @@ import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from '
 import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store';
 import { InMemoryCronScheduleRunner } from './runner';
 import { CronSchedulerService } from './scheduler';
+
+interface Disposable {
+	dispose(): void | Promise<void>;
+}
+
+interface CronLogger {
+	info(scope: string, message: string, metadata?: unknown): void;
+	warn(scope: string, message: string, metadata?: unknown): void;
+	error(scope: string, message: string, metadata?: unknown): void;
+}
 
 export type CronServiceEventListener = (event: CronScheduleEvent) => void;
 
@@ -61,11 +69,11 @@ export class CronService implements Disposable {
 	private readonly scheduler: CronSchedulerService;
 	private readonly automaticEnabled: boolean;
 
-	constructor(logger: LoggerService, options: CronServiceOptions);
-	constructor(store: CronServiceStore, logger: LoggerService);
-	constructor(loggerOrStore: LoggerService | CronServiceStore, optionsOrLogger: CronServiceOptions | LoggerService) {
+	constructor(logger: CronLogger, options: CronServiceOptions);
+	constructor(store: CronServiceStore, logger: CronLogger);
+	constructor(loggerOrStore: CronLogger | CronServiceStore, optionsOrLogger: CronServiceOptions | CronLogger) {
 		const legacySignature = 'getCronTasks' in loggerOrStore;
-		const logger = legacySignature ? optionsOrLogger as LoggerService : loggerOrStore as LoggerService;
+		const logger = legacySignature ? optionsOrLogger as CronLogger : loggerOrStore as CronLogger;
 		const options = legacySignature
 			? { store: loggerOrStore as CronServiceStore }
 			: optionsOrLogger as CronServiceOptions;

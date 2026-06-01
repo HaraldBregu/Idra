@@ -1,6 +1,8 @@
 import type { ScheduledTask } from 'node-cron';
 import type { CronTask } from '../../shared/cron';
 
+export const CRON_AGENT_TASK_TYPE = 'agent.run';
+
 export interface CronJobOptions {
 	timezone?: string;
 	runOnStart?: boolean;
