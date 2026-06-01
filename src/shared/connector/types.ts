@@ -142,15 +142,24 @@ export interface ConnectorOAuthTokenSet {
 	expiresAt?: string;
 }
 
-export interface ConnectorOAuthConfig {
+export interface ConnectorOAuthCredential {
+	provider: string;
 	providerId: string;
 	authorizationUrl: string;
 	clientId: string;
+	clientSecret?: string;
 	redirectUri: string;
 	scopes: readonly string[];
 	state: string;
+	accessToken?: string;
+	refreshToken?: string;
+	expiresAt?: number;
+	tokenType?: string;
+	scope?: string;
+	email?: string;
 	accountEmail?: string;
 	token?: ConnectorOAuthTokenSet;
+	connectedAt?: string;
 }
 
 
@@ -171,7 +180,7 @@ export interface ConnectorConfig {
 	enabled: boolean;
 	authorization: string;
 	mcp?: ConnectorMcpConfig;
-	oauth?: GoogleOAuthCredential;
+	oauth?: ConnectorOAuthCredential;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
 	deferLoading: boolean;
@@ -248,7 +257,7 @@ export interface ConnectorOAuthConnectResult {
 	connectedAccount?: string;
 }
 
-export interface GoogleOAuthCredential {
+export interface GoogleOAuthCredential extends ConnectorOAuthCredential {
 	provider: 'google';
 	providerId?: string;
 	authorizationUrl?: string;
