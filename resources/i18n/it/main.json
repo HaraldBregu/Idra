@@ -542,11 +542,11 @@
 				"failed": "Errore",
 				"deleted": "Eliminata"
 			},
-			"detailsTitle": "Dettagli pianificatore attivita",
+			"detailsTitle": "Dettagli attivita",
 			"notFoundTitle": "Attivita programmata non trovata",
 			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
-			"emptyTitle": "Nessuna attivita programmata",
-			"emptyDescription": "Le attivita programmate appariranno qui dopo la configurazione."
+			"emptyTitle": "Nessuna attivita",
+			"emptyDescription": "Le attivita appariranno qui dopo la configurazione."
 		},
 		"taskManager": {
 			"description": "Esecuzioni in background e stato corrente.",
