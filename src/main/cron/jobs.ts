@@ -15,6 +15,8 @@ import type {
 	FridayCronToolRequest,
 	FridayCronToolResponse,
 	FridayCronUpdateRequest,
+	FridayCronWakeMode,
+	FRIDAY_CRON_DEFERRED_WAKE_MODE,
 } from '../../shared/cron';
 import type { CronSchedule } from './core/types';
 import { CronPermissionError, CronScheduleNotFoundError } from './core/errors';
@@ -346,7 +348,7 @@ export class FridayCronScheduler {
 
 	async wake(
 		actor: FridayCronActor = { role: 'owner' },
-		mode: 'now' | 'next-heartbeat' = 'next-heartbeat'
+		mode: FridayCronWakeMode = FRIDAY_CRON_DEFERRED_WAKE_MODE
 	): Promise<FridayCronStatus> {
 		this.authorize(actor, 'wake');
 		if (this.options.enabled && mode === 'now') {

@@ -1,4 +1,3 @@
-import type { HeartbeatWakeOverride } from '../../shared/heartbeat';
 import type {
 	FridayCronDelivery,
 	FridayCronDeliveryState,
@@ -29,16 +28,6 @@ export interface CronAgentPort {
 	send(message: string, agentId?: string, options?: CronAgentSendOptions): Promise<string>;
 }
 
-export interface CronHeartbeatPort {
-	systemEvent(input: {
-		text: string;
-		agentId: string;
-		sessionKey: string;
-		mode: string;
-		heartbeat: HeartbeatWakeOverride;
-	}): Promise<void>;
-}
-
 export interface CronChannelPort {
 	send(input: {
 		type: string;
@@ -59,10 +48,7 @@ export interface CronLoggerPort {
 }
 
 export class AgentFridayCronExecutor implements FridayCronExecutor {
-	constructor(
-		private readonly agent: CronAgentPort,
-		private readonly heartbeat?: CronHeartbeatPort
-	) {}
+	constructor(private readonly agent: CronAgentPort) {}
 
 	async execute(input: {
 		job: FridayCronJobDefinition;
@@ -75,20 +61,6 @@ export class AgentFridayCronExecutor implements FridayCronExecutor {
 		const sessionId = this.resolveSessionId(input.job);
 		const message =
 			input.job.payload.kind === 'systemEvent' ? input.job.payload.text : input.job.payload.message;
-		if (
-			input.job.payload.kind === 'systemEvent' &&
-			input.job.sessionTarget === 'main' &&
-			this.heartbeat
-		) {
-			await this.heartbeat.systemEvent({
-				text: message,
-				agentId,
-				sessionKey: input.job.sessionKey ?? agentId,
-				mode: input.job.wakeMode,
-				heartbeat: this.resolveHeartbeatOverride(input.job),
-			});
-			return { status: 'ok', output: '', alreadyDelivered: true };
-		}
 		const sendOptions: CronAgentSendOptions = {
 			sessionId,
 			cronContext: {
@@ -120,17 +92,6 @@ export class AgentFridayCronExecutor implements FridayCronExecutor {
 		return this.resolveAgentId(job);
 	}
 
-	private resolveHeartbeatOverride(job: FridayCronJobDefinition): HeartbeatWakeOverride {
-		if (job.delivery.mode === 'none') return { target: 'none' };
-		if (job.delivery.mode === 'announce') {
-			return {
-				target: job.delivery.channel ?? 'last',
-				to: job.delivery.to,
-				accountId: job.delivery.accountId,
-			};
-		}
-		return { target: 'last' };
-	}
 }
 
 export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {

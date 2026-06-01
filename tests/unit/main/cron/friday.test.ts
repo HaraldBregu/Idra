@@ -561,12 +561,9 @@ describe('AgentFridayCronExecutor', () => {
 		);
 	});
 
-	it('hands main-session system events to heartbeat when available', async () => {
+	it('sends main-session system events through the agent port', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const heartbeat = {
-			systemEvent: jest.fn(async () => ({ queued: true, sessionKey: 'main', mode: 'now' })),
-		};
-		const executor = new AgentFridayCronExecutor({ send } as never, heartbeat as never);
+		const executor = new AgentFridayCronExecutor({ send } as never);
 
 		await expect(
 			executor.execute(
@@ -580,15 +577,12 @@ describe('AgentFridayCronExecutor', () => {
 					})
 				)
 			)
-		).resolves.toEqual({ status: 'ok', output: '', alreadyDelivered: true });
+		).resolves.toEqual({ status: 'ok', output: 'agent output' });
 
-		expect(send).not.toHaveBeenCalled();
-		expect(heartbeat.systemEvent).toHaveBeenCalledWith({
-			text: 'Review the draft',
-			agentId: 'main',
-			sessionKey: 'main',
-			mode: 'now',
-			heartbeat: { target: 'telegram', to: '123', accountId: undefined },
-		});
+		expect(send).toHaveBeenCalledWith(
+			'Review the draft',
+			'main',
+			expect.objectContaining({ sessionId: 'main' })
+		);
 	});
 });

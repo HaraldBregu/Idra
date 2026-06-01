@@ -9,6 +9,7 @@ import type {
 	FridayCronToolRequest,
 	FridayCronUpdateRequest,
 	FridayCronWakeMode,
+	FRIDAY_CRON_DEFERRED_WAKE_MODE,
 } from '../../shared/cron';
 import type { FridayCronActor } from './jobs';
 import { FRIDAY_CRON_AGENT_TURN_FIELDS, FRIDAY_CRON_CONTROL_FIELDS } from './constants';
@@ -322,7 +323,7 @@ function sessionTargetFrom(input: Record<string, unknown>): FridayCronSessionTar
 
 function wakeModeFrom(input: Record<string, unknown>): FridayCronWakeMode | undefined {
 	const mode = stringValue(input.wakeMode);
-	return mode === 'now' || mode === 'next-heartbeat' ? mode : undefined;
+	return mode === 'now' || mode === FRIDAY_CRON_DEFERRED_WAKE_MODE ? mode : undefined;
 }
 
 function inferName(
@@ -476,7 +477,7 @@ export function normalizeFridayCronToolRequest(
 			return {
 				action,
 				text: stringValue(input.text) ?? '',
-				mode: mode === 'now' ? 'now' : 'next-heartbeat',
+				mode: mode === 'now' ? 'now' : FRIDAY_CRON_DEFERRED_WAKE_MODE,
 			};
 		}
 		default:

@@ -467,6 +467,7 @@ export type FridayCronSchedule =
 export type FridayCronSessionTarget = 'main' | 'isolated' | 'current' | `session:${string}`;
 
 export type FridayCronWakeMode = 'now' | 'next-heartbeat';
+export const FRIDAY_CRON_DEFERRED_WAKE_MODE: FridayCronWakeMode = 'next-heartbeat';
 
 export type FridayCronPayload =
 	| { kind: 'systemEvent'; text: string }
