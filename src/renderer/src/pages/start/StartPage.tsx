@@ -580,7 +580,7 @@ const StartPage: React.FC = () => {
 					}
 
 					try {
-						const musicCreatorModels = await window.app.getMusicCreatorModels(provider);
+						const musicCreatorModels = await window.app.getTextToSoundModels(provider);
 						if (musicCreatorModels.length > 0) {
 							nextMusicCreatorGroups.push({ provider, models: musicCreatorModels });
 						}
