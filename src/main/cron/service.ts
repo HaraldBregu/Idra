@@ -1,7 +1,6 @@
 import cron from 'node-cron';
 import type { Disposable } from '../core/service-container';
 import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
 import {
 	isCronTaskData,
 	type CronExecutionRecord,
@@ -74,7 +73,7 @@ export class CronService implements Disposable {
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
-		this.scheduleStore = new ElectronStoreCronScheduleStore(this.store as StoreService);
+		this.scheduleStore = new ElectronStoreCronScheduleStore();
 		const accessPolicy = {
 			authorize(): Promise<void> { return Promise.resolve(); },
 			requiresConfirmation(): boolean { return false; },
