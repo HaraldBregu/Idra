@@ -912,7 +912,11 @@ function stripGoogleOAuthClientCredentials(oauth: GoogleOAuthCredential | undefi
 }
 
 function googleOAuthCredential(oauth: ConnectorConfig['oauth']): GoogleOAuthCredential | undefined {
-	return oauth?.provider === 'google' ? oauth : undefined;
+	return isGoogleOAuthCredential(oauth) ? oauth : undefined;
+}
+
+function isGoogleOAuthCredential(oauth: ConnectorConfig['oauth']): oauth is GoogleOAuthCredential {
+	return oauth?.provider === 'google';
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
