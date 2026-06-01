@@ -658,7 +658,7 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
 	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? false;
 	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
-	const mcp = readOptionalMcp(raw, 'mcp') ?? catalogItem?.mcp;
+	const mcp = readOptionalMcp(raw, 'mcp');
 
 	if (!name) throw new Error('Connector name is required.');
 	if (!connectorId) throw new Error('Connector id is required.');
