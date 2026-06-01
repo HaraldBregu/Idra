@@ -1,16 +1,16 @@
 export { SkillsService } from './skills-service';
-export { SkillRegistry } from './registry';
-export { SkillDiscovery } from './discovery';
-export { SkillSelector } from './selector';
-export { SkillComposer } from './composer';
-export { SkillPlanner } from './planner';
-export { SkillExecutionEngine } from './execution-engine';
-export { SkillSafetyPolicy } from './safety-policy';
-export { SkillRanker } from './ranker';
+export { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from './catalog';
+export { SkillDiscovery, SkillPlanner, SkillRanker, SkillSelector } from './selection';
+export {
+	DefaultSkillMemoryPolicy,
+	InMemorySkillPreferenceStore,
+	NoopSkillMemoryRetriever,
+	SkillAuditLog,
+	SkillComposer,
+	SkillExecutionEngine,
+	SkillSafetyPolicy,
+} from './runtime';
 export { SkillLoader } from './loader';
-export { SkillDependencyResolver } from './dependency-resolver';
-export { SkillAuditLog } from './audit-log';
-export { SkillVersionManager } from './version-manager';
 export * from './provider-support';
 export { createExampleSkills } from './example-skills';
 export * from './types';
