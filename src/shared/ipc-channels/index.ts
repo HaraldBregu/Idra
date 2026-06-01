@@ -101,20 +101,12 @@ export const AppChannels = {
 } as const;
 
 export const CronChannels = {
-	list: 'cron:list',
-	remove: 'cron:remove',
-	updateSchedule: 'cron:updateSchedule',
 	pauseSchedule: 'cron:pauseSchedule',
 	resumeSchedule: 'cron:resumeSchedule',
 	deleteSchedule: 'cron:deleteSchedule',
 	listSchedules: 'cron:listSchedules',
 	getSchedule: 'cron:getSchedule',
-	getScheduleEvents: 'cron:getScheduleEvents',
-	getScheduleExecutions: 'cron:getScheduleExecutions',
-	getNextRuns: 'cron:getNextRuns',
 	runNow: 'cron:runNow',
-	subscribe: 'cron:subscribe',
-	unsubscribe: 'cron:unsubscribe',
 	event: 'cron:event',
 } as const;
 
@@ -473,12 +465,6 @@ interface WindowInvokeChannelMap {
 }
 
 interface CronInvokeChannelMap {
-	[CronChannels.list]: { args: []; result: import('../cron').CronTaskView[] };
-	[CronChannels.remove]: { args: [id: string]; result: void };
-	[CronChannels.updateSchedule]: {
-		args: [scheduleId: string, patch: import('../cron').CronScheduleUpdateRequest];
-		result: import('../cron').CronSchedule;
-	};
 	[CronChannels.pauseSchedule]: { args: [scheduleId: string]; result: void };
 	[CronChannels.resumeSchedule]: { args: [scheduleId: string]; result: void };
 	[CronChannels.deleteSchedule]: { args: [scheduleId: string]; result: void };
@@ -489,18 +475,6 @@ interface CronInvokeChannelMap {
 	[CronChannels.getSchedule]: {
 		args: [scheduleId: string];
 		result: import('../cron').CronSchedule;
-	};
-	[CronChannels.getScheduleEvents]: {
-		args: [scheduleId: string];
-		result: import('../cron').CronScheduleEvent[];
-	};
-	[CronChannels.getScheduleExecutions]: {
-		args: [scheduleId: string];
-		result: import('../cron').CronExecutionRecord[];
-	};
-	[CronChannels.getNextRuns]: {
-		args: [scheduleId: string, count: number];
-		result: import('../cron').CronNextRunPreview;
 	};
 	[CronChannels.runNow]: {
 		args: [scheduleId: string];
