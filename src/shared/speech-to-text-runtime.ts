@@ -15,7 +15,6 @@ export interface SpeechToTextSessionCallbacks {
 export interface SpeechToTextRuntimeConfig {
 	sessionId: string;
 	provider: Provider;
-	operator: ConfiguredModelOperator;
 	model: Model;
 	request?: RealtimeTranscriptionStartRequest;
 	callbacks: SpeechToTextSessionCallbacks;
