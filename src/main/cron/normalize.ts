@@ -1,4 +1,4 @@
-import type {
+import { FRIDAY_CRON_DEFERRED_WAKE_MODE, type
 	FridayCronAddRequest,
 	FridayCronCanonicalToolRequest,
 	FridayCronDelivery,
@@ -9,7 +9,6 @@ import type {
 	FridayCronToolRequest,
 	FridayCronUpdateRequest,
 	FridayCronWakeMode,
-	FRIDAY_CRON_DEFERRED_WAKE_MODE,
 } from '../../shared/cron';
 import type { FridayCronActor } from './jobs';
 import { FRIDAY_CRON_AGENT_TURN_FIELDS, FRIDAY_CRON_CONTROL_FIELDS } from './constants';

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type {
+import { FRIDAY_CRON_DEFERRED_WAKE_MODE, type
 	CronJsonObject,
 	FridayCronAddRequest,
 	FridayCronDelivery,
@@ -16,7 +16,6 @@ import type {
 	FridayCronToolResponse,
 	FridayCronUpdateRequest,
 	FridayCronWakeMode,
-	FRIDAY_CRON_DEFERRED_WAKE_MODE,
 } from '../../shared/cron';
 import type { CronSchedule } from './core/types';
 import { CronPermissionError, CronScheduleNotFoundError } from './core/errors';
