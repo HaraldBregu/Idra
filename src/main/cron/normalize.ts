@@ -1,4 +1,5 @@
-import { FRIDAY_CRON_DEFERRED_WAKE_MODE, type
+import { FRIDAY_CRON_DEFERRED_WAKE_MODE } from '../../shared/cron';
+import type {
 	FridayCronAddRequest,
 	FridayCronCanonicalToolRequest,
 	FridayCronDelivery,
