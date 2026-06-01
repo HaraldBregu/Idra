@@ -12,7 +12,7 @@ import {
 	SkillExecutionEngine,
 	SkillSafetyPolicy,
 } from '../../../../src/main/skills/runtime';
-import { SkillsService } from '../../../../src/main/skills/skills-service';
+import { SkillsService } from '../../../../src/main/skills/service';
 import type {
 	SkillConnector,
 	SkillDefinition,
