@@ -71,6 +71,20 @@ export const PROVIDER_CONNECTOR_DOCS = {
 		providerDocsLabel: 'SharePoint connector guide',
 		runtimeStatus: 'settings_catalog_only',
 	},
+	connector_remote_mcp: {
+		providerId: 'mcp',
+		providerName: 'Model Context Protocol',
+		providerDocsPath: 'docs/providers/mcp/remote/index.md',
+		providerDocsLabel: 'Remote MCP Server connector guide',
+		runtimeStatus: 'settings_catalog_only',
+	},
+	connector_stdio_mcp: {
+		providerId: 'mcp',
+		providerName: 'Model Context Protocol',
+		providerDocsPath: 'docs/providers/mcp/stdio/index.md',
+		providerDocsLabel: 'Local MCP Server connector guide',
+		runtimeStatus: 'settings_catalog_only',
+	},
 } as const satisfies Record<string, ProviderConnectorDocsMetadata>;
 
 export type ProviderConnectorDocsId = keyof typeof PROVIDER_CONNECTOR_DOCS;

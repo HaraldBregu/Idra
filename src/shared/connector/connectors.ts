@@ -1754,6 +1754,58 @@ export const OPENAI_CONNECTOR_CATALOG = [
 			'Complete OAuth for the account and paste the resulting access token here.',
 		],
 	},
+	{
+		id: 'connector_remote_mcp',
+		directConnectorId: 'custom_rest_openapi',
+		name: 'Remote MCP Server',
+		description: 'Connect to a remote MCP server and discover its tools at runtime.',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_remote_mcp.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_remote_mcp.providerDocsLabel,
+		environmentSecretNames: ['REMOTE_MCP_API_KEY'],
+		platformDocumentationPages: [
+			{
+				label: 'MCP client guide',
+				url: 'https://modelcontextprotocol.io/docs/develop/build-client',
+			},
+		],
+		example: { tool: 'discovered_tool', input: {} },
+		tools: ['discovered_tool'],
+		scopes: [],
+		authKind: 'mcp_env',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+		setupUrl: 'https://modelcontextprotocol.io/docs/develop/build-client',
+		setupInstructions: [
+			'Configure the remote MCP endpoint and map required headers to environment variables.',
+			'Refresh tools after saving the connector so Friday can discover the server tool list.',
+		],
+	},
+	{
+		id: 'connector_stdio_mcp',
+		directConnectorId: 'custom_rest_openapi',
+		name: 'Local MCP Server',
+		description: 'Launch a local stdio MCP server and discover its tools at runtime.',
+		docsPath: PROVIDER_CONNECTOR_DOCS.connector_stdio_mcp.providerDocsPath,
+		docsLabel: PROVIDER_CONNECTOR_DOCS.connector_stdio_mcp.providerDocsLabel,
+		environmentSecretNames: [],
+		platformDocumentationPages: [
+			{
+				label: 'MCP client guide',
+				url: 'https://modelcontextprotocol.io/docs/develop/build-client',
+			},
+		],
+		example: { tool: 'discovered_tool', input: {} },
+		tools: ['discovered_tool'],
+		scopes: [],
+		authKind: 'none',
+		runtimeKind: 'mcp',
+		allowMultipleInstances: true,
+		setupUrl: 'https://modelcontextprotocol.io/docs/develop/build-client',
+		setupInstructions: [
+			'Configure the absolute local MCP server command and any arguments.',
+			'Refresh tools after saving the connector so Friday can discover the server tool list.',
+		],
+	},
 ] as const satisfies readonly OpenAiConnectorCatalogEntry[];
 
 export type OpenAiConnectorId = (typeof OPENAI_CONNECTOR_CATALOG)[number]['id'];
