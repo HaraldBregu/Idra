@@ -738,7 +738,7 @@ export class AgentService {
 					heartbeat: {
 						includeSection:
 							runKind === 'default' &&
-							isHeartbeatSystemPromptEnabled(this.getHeartbeatOperatorConfig(), agentId),
+							isHeartbeatSystemPromptEnabled({ agents: this.getHeartbeatStore().getAgentsConfig() }, agentId),
 					},
 				})
 			);
