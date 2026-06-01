@@ -211,7 +211,7 @@ No async logic inside the reducer. Side effects belong in `useProviderSetup` and
 - Exposes: `updateProviderEntry`, `handleProviderApiKeyChange`, `saveProviderEntry`, `handleContinueProviders`, `handleOpenProviderLink`.
 
 **`useModelServices(state, dispatch, connectedProviderIds, navigate)`**
-- On entering any model service step (or when `connectedProviderIds` changes): load providers and all operator configs in parallel, then fetch model lists per service, and dispatch `LOAD_SERVICE_STATES`.
+- On entering any model service step (or when `connectedProviderIds` changes): load providers and all service selections in parallel, then fetch model lists per service, and dispatch `LOAD_SERVICE_STATES`.
 - Exposes: `handleServiceProviderChange`, `handleServiceModelChange`, `handleSaveModelStep`.
 
 ---
@@ -250,7 +250,7 @@ Follow the renderer React design patterns in the renderer conventions. Start-pag
 
 Follow the type placement rules in the renderer conventions.
 
-- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, operator records returned by `window.store`) belong in the shared types directory.
+- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, service records returned by `window.store`) belong in the shared types directory.
 - Types consumed by multiple renderer pages belong in the renderer-level types directory.
 - Types scoped to the start page alone — `SetupState`, `SetupStep`, `ProviderSetupEntry`, `ModelServiceStateMap`, reducer actions — stay inside the start page folder.
 
@@ -279,4 +279,4 @@ Display a single error message in the footer banner. Clear it on the next user a
 
 ## Testing
 
-Test step transitions, provider entry validation, `isProviderApiKeySaved` check on step entry, API key save and error path, model loading (including partial provider failure), provider/model pre-selection logic, service operator save, Skip navigation, Back button visibility, primary button labels, and navigation to `/home` on completion. Tests call exported hooks and components; they do not import internal reducer or state files directly.
+Test step transitions, provider entry validation, `isProviderApiKeySaved` check on step entry, API key save and error path, model loading (including partial provider failure), provider/model pre-selection logic, service selection save, Skip navigation, Back button visibility, primary button labels, and navigation to `/home` on completion. Tests call exported hooks and components; they do not import internal reducer or state files directly.
