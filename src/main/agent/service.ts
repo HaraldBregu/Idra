@@ -663,7 +663,7 @@ export class AgentService {
 						runKind,
 						lightContext: heartbeatOptions?.lightContext === true || options.lightContext === true,
 						includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
-							{ agents: this.getHeartbeatStore().getAgentsConfig() },
+							this.getHeartbeatStore().getAgentsConfig(),
 							agentId
 						),
 						isPrimaryRun,
@@ -738,7 +738,7 @@ export class AgentService {
 					heartbeat: {
 						includeSection:
 							runKind === 'default' &&
-							isHeartbeatSystemPromptEnabled({ agents: this.getHeartbeatStore().getAgentsConfig() }, agentId),
+							isHeartbeatSystemPromptEnabled(this.getHeartbeatStore().getAgentsConfig(), agentId),
 					},
 				})
 			);
