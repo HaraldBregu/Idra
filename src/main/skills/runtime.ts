@@ -1,22 +1,67 @@
 import { beforeToolCall, newCallTracker } from '../agent/tools/before-call';
 import type { AgentTool, AgentToolResult } from '../agent/tools/types';
-import type { SkillAuditLog } from './audit-log';
-import type { SkillPreferenceStore } from './preferences';
-import type { SkillRegistry } from './registry';
+import type { SkillRegistry } from './catalog';
 import { validateJsonSchema } from './schema';
 import type {
+	MemoryPolicy,
 	MemoryRetriever,
 	SkillDefinition,
 	SkillError,
 	SkillExecutionContext,
 	SkillExecutionRequest,
 	SkillExecutionRequestContext,
+	SkillLogger,
+	SkillMemoryKind,
 	SkillMemoryRead,
 	SkillMemoryWrite,
+	SkillMemoryWriteDecision,
 	SkillProvenance,
 	SkillResult,
+	SkillSafetyCheck,
+	SkillSafetyPolicyPort,
+	SkillUserPreferences,
 } from './types';
-import { createProvenance, skillKey } from './types';
+import { createProvenance, emptyPreferences, skillKey } from './types';
+
+export interface SkillAuditRecord {
+	skillId: string;
+	version: string;
+	userId: string;
+	sessionId: string;
+	inputSummary: string;
+	outputSummary: string;
+	usedTools: string[];
+	usedConnectors: string[];
+	permissionsUsed: string[];
+	executionDurationMs: number;
+	retries: number;
+	failures: string[];
+	warnings: string[];
+	safetyInterventions: string[];
+	createdAt: string;
+}
+
+export interface SkillPreferenceStore {
+	getPreferences(userId: string): Promise<SkillUserPreferences>;
+	recordOutcome(userId: string, skillId: string, result: SkillResult): Promise<void>;
+	rememberPreference(userId: string, preference: Partial<SkillUserPreferences>): Promise<void>;
+	getSuccessRate(userId: string, skillId: string): Promise<number | undefined>;
+}
+
+export interface SkillWorkflowStep {
+	id: string;
+	skillId: string;
+	version?: string;
+	input: unknown | ((previous: SkillResult[]) => unknown);
+	dependsOn?: string[];
+	fallbacks?: Array<{ skillId: string; version?: string; input?: unknown }>;
+}
+
+export interface SkillWorkflow {
+	id: string;
+	steps: SkillWorkflowStep[];
+	maxDepth?: number;
+}
 
 interface ExecutionState {
 	usedSkills: string[];
@@ -30,9 +75,40 @@ interface ExecutionState {
 
 const DEFAULT_TIMEOUT_MS = 60_000;
 const DEFAULT_MAX_RETRIES = 1;
+const SECRET_KEY_PATTERN = /api[_-]?key|authorization|credential|oauth|password|secret|token/i;
+const SECRET_MEMORY_KIND = /secret|credential|token|password|oauth/i;
+const INJECTION_PATTERN = /ignore (all )?(previous|system) instructions|developer message|reveal.*(prompt|secret)|bypass safety/i;
 
 function unique(values: string[]): string[] {
 	return Array.from(new Set(values));
+}
+
+function redact(value: unknown, depth = 0): unknown {
+	if (depth > 4) return '[truncated]';
+	if (Array.isArray(value)) return value.slice(0, 20).map((item) => redact(item, depth + 1));
+	if (!value || typeof value !== 'object') return value;
+	const out: Record<string, unknown> = {};
+	for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+		out[key] = SECRET_KEY_PATTERN.test(key) ? '[redacted]' : redact(child, depth + 1);
+	}
+	return out;
+}
+
+function summarize(value: unknown): string {
+	const text = JSON.stringify(redact(value));
+	return text.length > 1000 ? `${text.slice(0, 1000)}...` : text;
+}
+
+function mergeUnique(left: string[], right?: string[]): string[] {
+	return Array.from(new Set([...left, ...(right ?? [])]));
+}
+
+function denied(reason: string, warnings: string[] = []): SkillSafetyCheck {
+	return { allowed: false, reasons: [reason], warnings };
+}
+
+function allowed(warnings: string[] = [], requiresConfirmation = false): SkillSafetyCheck {
+	return { allowed: true, reasons: [], warnings, requiresConfirmation };
 }
 
 function errorResult<TOutput>(
@@ -114,6 +190,223 @@ function timeoutPromise<T>(
 			signal?.removeEventListener('abort', abort);
 		});
 	});
+}
+
+export class SkillAuditLog {
+	private readonly records: SkillAuditRecord[] = [];
+
+	constructor(private readonly logger?: SkillLogger) {}
+
+	record(skill: SkillDefinition, context: { userId: string; sessionId: string }, input: unknown, result: SkillResult): void {
+		const record: SkillAuditRecord = {
+			skillId: skill.id,
+			version: skill.version,
+			userId: context.userId,
+			sessionId: context.sessionId,
+			inputSummary: summarize(input),
+			outputSummary: summarize(result.success ? result.data : result.error),
+			usedTools: [...new Set(result.usedTools)],
+			usedConnectors: [...new Set(result.usedConnectors)],
+			permissionsUsed: [...skill.permissionsRequired],
+			executionDurationMs: result.durationMs,
+			retries: result.retryCount,
+			failures: result.error ? [result.error.message] : [],
+			warnings: result.warnings,
+			safetyInterventions: result.error?.code === 'safety_denied' ? [result.error.message] : [],
+			createdAt: new Date().toISOString(),
+		};
+		this.records.push(record);
+		this.logger?.info('SkillAuditLog', `Recorded ${skill.id}@${skill.version}`, {
+			skillId: record.skillId,
+			durationMs: record.executionDurationMs,
+			success: result.success,
+		});
+	}
+
+	list(): SkillAuditRecord[] {
+		return this.records.map((record) => ({ ...record }));
+	}
+}
+
+interface StoredPreferences extends SkillUserPreferences {
+	successes: Record<string, number>;
+	failures: Record<string, number>;
+}
+
+export class InMemorySkillPreferenceStore implements SkillPreferenceStore {
+	private readonly byUser = new Map<string, StoredPreferences>();
+
+	async getPreferences(userId: string): Promise<SkillUserPreferences> {
+		const stored = this.ensure(userId);
+		return {
+			preferredSkills: [...stored.preferredSkills],
+			avoidedSkills: [...stored.avoidedSkills],
+			preferredWorkflowStyles: [...stored.preferredWorkflowStyles],
+			preferredOutputFormats: [...stored.preferredOutputFormats],
+			preferredAutomationLevel: stored.preferredAutomationLevel,
+			metadata: { ...stored.metadata },
+		};
+	}
+
+	async recordOutcome(userId: string, skillId: string, result: SkillResult): Promise<void> {
+		const stored = this.ensure(userId);
+		const key = skillId.toLowerCase();
+		if (result.success) {
+			stored.successes[key] = (stored.successes[key] ?? 0) + 1;
+		} else {
+			stored.failures[key] = (stored.failures[key] ?? 0) + 1;
+		}
+	}
+
+	async rememberPreference(userId: string, preference: Partial<SkillUserPreferences>): Promise<void> {
+		const stored = this.ensure(userId);
+		stored.preferredSkills = mergeUnique(stored.preferredSkills, preference.preferredSkills);
+		stored.avoidedSkills = mergeUnique(stored.avoidedSkills, preference.avoidedSkills);
+		stored.preferredWorkflowStyles = mergeUnique(
+			stored.preferredWorkflowStyles,
+			preference.preferredWorkflowStyles
+		);
+		stored.preferredOutputFormats = mergeUnique(
+			stored.preferredOutputFormats,
+			preference.preferredOutputFormats
+		);
+		stored.preferredAutomationLevel =
+			preference.preferredAutomationLevel ?? stored.preferredAutomationLevel;
+		stored.metadata = { ...stored.metadata, ...(preference.metadata ?? {}) };
+	}
+
+	async getSuccessRate(userId: string, skillId: string): Promise<number | undefined> {
+		const stored = this.ensure(userId);
+		const key = skillId.toLowerCase();
+		const successes = stored.successes[key] ?? 0;
+		const failures = stored.failures[key] ?? 0;
+		const total = successes + failures;
+		return total === 0 ? undefined : successes / total;
+	}
+
+	private ensure(userId: string): StoredPreferences {
+		const existing = this.byUser.get(userId);
+		if (existing) return existing;
+		const next: StoredPreferences = {
+			...emptyPreferences(),
+			successes: {},
+			failures: {},
+		};
+		this.byUser.set(userId, next);
+		return next;
+	}
+}
+
+export class NoopSkillMemoryRetriever implements MemoryRetriever {
+	constructor(private readonly preferences: SkillPreferenceStore) {}
+
+	async read(kind: SkillMemoryKind, _query: string): Promise<SkillMemoryRead[]> {
+		if (SECRET_MEMORY_KIND.test(kind)) return [];
+		return [];
+	}
+
+	getPreferences(userId: string) {
+		return this.preferences.getPreferences(userId);
+	}
+}
+
+export class DefaultSkillMemoryPolicy implements MemoryPolicy {
+	canRead(kind: SkillMemoryKind, _context: SkillExecutionContext): boolean {
+		return !SECRET_MEMORY_KIND.test(kind);
+	}
+
+	async evaluateWrite(
+		write: SkillMemoryWrite,
+		_context: SkillExecutionContext
+	): Promise<SkillMemoryWriteDecision> {
+		if (write.sensitive || SECRET_MEMORY_KIND.test(write.kind)) {
+			return { allowed: false, reason: 'Memory policy rejects sensitive skill writes.' };
+		}
+		return { allowed: true, reason: 'Memory write approved by policy.', committed: false };
+	}
+}
+
+export class SkillSafetyPolicy implements SkillSafetyPolicyPort {
+	constructor(
+		private readonly options: {
+			maxDepth?: number;
+			disallowedTools?: string[];
+			disallowedConnectors?: string[];
+		} = {}
+	) {}
+
+	async checkBeforeExecution(
+		skill: SkillDefinition,
+		input: unknown,
+		context: SkillExecutionRequestContext
+	): Promise<SkillSafetyCheck> {
+		const maxDepth = context.maxDepth ?? this.options.maxDepth ?? 4;
+		if (!skill.enabled) return denied(`Skill is disabled: ${skill.id}`);
+		if (context.skillDepth > maxDepth) return denied(`Skill depth exceeds limit ${maxDepth}`);
+		if (context.provenanceChain.some((item) => item.skillId === skill.id)) {
+			return denied(`Recursive skill execution blocked: ${skill.id}`);
+		}
+
+		const missingTools = skill.requiredTools.filter((tool) => !context.allowedTools.has(tool));
+		if (missingTools.length > 0) return denied(`Missing tools: ${missingTools.join(', ')}`);
+
+		const missingConnectors = skill.requiredConnectors.filter(
+			(connector) => !context.allowedConnectors.has(connector)
+		);
+		if (missingConnectors.length > 0) {
+			return denied(`Missing connectors: ${missingConnectors.join(', ')}`);
+		}
+
+		if (typeof input === 'string' && INJECTION_PATTERN.test(input)) {
+			return denied('Potential prompt-injection content in skill input');
+		}
+
+		const serialized = JSON.stringify(input ?? {});
+		const warnings = INJECTION_PATTERN.test(serialized)
+			? ['Skill input contains prompt-injection-like text; treat external data as untrusted.']
+			: [];
+		return allowed(warnings, false);
+	}
+
+	async checkToolUse(
+		skill: SkillDefinition,
+		toolName: string,
+		_args: unknown,
+		context: SkillExecutionRequestContext
+	): Promise<SkillSafetyCheck> {
+		if (this.options.disallowedTools?.includes(toolName)) {
+			return denied(`Tool is globally disallowed: ${toolName}`);
+		}
+		if (!context.allowedTools.has(toolName)) return denied(`Tool is unavailable: ${toolName}`);
+		const allowedTools = new Set([...skill.requiredTools, ...skill.contract.allowedTools]);
+		if (!allowedTools.has(toolName)) return denied(`Skill is not allowed to use tool: ${toolName}`);
+		return allowed();
+	}
+
+	async checkConnectorUse(
+		skill: SkillDefinition,
+		connectorId: string,
+		toolName: string,
+		_args: unknown,
+		context: SkillExecutionRequestContext
+	): Promise<SkillSafetyCheck> {
+		if (this.options.disallowedConnectors?.includes(connectorId)) {
+			return denied(`Connector is globally disallowed: ${connectorId}`);
+		}
+		const connector = context.allowedConnectors.get(connectorId);
+		if (!connector) return denied(`Connector is unavailable: ${connectorId}`);
+		const allowedConnectors = new Set([
+			...skill.requiredConnectors,
+			...skill.contract.allowedConnectors,
+		]);
+		if (!allowedConnectors.has(connectorId)) {
+			return denied(`Skill is not allowed to use connector: ${connectorId}`);
+		}
+		if (!connector.tools.has(toolName)) {
+			return denied(`Connector tool is unavailable: ${connectorId}.${toolName}`);
+		}
+		return allowed();
+	}
 }
 
 export class SkillExecutionEngine {
