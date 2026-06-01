@@ -1,4 +1,3 @@
-import type { AgentTool, AgentToolResult } from '../agent/tools/types';
 import type {
 	SkillCategory,
 	SkillDependencyManifest,
@@ -10,6 +9,24 @@ import type {
 export type JsonSchema = JSONSchema;
 export type SkillPermission = string;
 export type SkillMemoryKind = string;
+export type SkillToolContext = unknown;
+
+export type SkillToolResultBlock =
+	| { type: 'text'; text: string }
+	| { type: 'image'; mimeType?: string; base64?: string };
+
+export interface SkillToolResult<TDetails = unknown> {
+	content: SkillToolResultBlock[];
+	isError?: boolean;
+	details?: TDetails;
+}
+
+export interface SkillTool {
+	name: string;
+	description: string;
+	schema: JsonSchema;
+	execute(args: Record<string, unknown>, context: SkillToolContext): Promise<SkillToolResult>;
+}
 
 export interface JSONSchema {
 	type?: string;
@@ -298,7 +315,7 @@ export interface SkillExecutionContext {
 	userId: string;
 	sessionId: string;
 	memory: MemoryRetriever;
-	allowedTools: ReadonlyMap<string, AgentTool>;
+	allowedTools: ReadonlyMap<string, SkillTool>;
 	allowedConnectors: ReadonlyMap<string, SkillConnector>;
 	permissions: ReadonlySet<SkillPermission>;
 	userPreferences: SkillUserPreferences;
@@ -312,7 +329,7 @@ export interface SkillExecutionContext {
 	callTool<TDetails = unknown>(
 		name: string,
 		args: Record<string, unknown>
-	): Promise<AgentToolResult<TDetails>>;
+	): Promise<SkillToolResult<TDetails>>;
 	callConnector(connectorId: string, toolName: string, args: unknown): Promise<unknown>;
 	executeSkill<TInput = unknown, TOutput = unknown>(
 		skillId: string,
@@ -330,7 +347,7 @@ export interface SkillExecutionContext {
 export interface SkillExecutionRequestContext {
 	userId: string;
 	sessionId: string;
-	allowedTools: ReadonlyMap<string, AgentTool>;
+	allowedTools: ReadonlyMap<string, SkillTool>;
 	allowedConnectors: ReadonlyMap<string, SkillConnector>;
 	permissions: ReadonlySet<SkillPermission>;
 	memory: MemoryRetriever;
@@ -343,7 +360,7 @@ export interface SkillExecutionRequestContext {
 	skillDepth: number;
 	parentSkillId?: string;
 	provenanceChain: SkillProvenance[];
-	toolContext: import('../agent/tools/types').ToolContext;
+	toolContext: SkillToolContext;
 	timeoutMs?: number | null;
 	maxRetries?: number;
 	maxDepth?: number;
