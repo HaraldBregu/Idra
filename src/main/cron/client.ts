@@ -9,7 +9,7 @@ import type {
 	FridayCronToolRequest,
 	FridayCronToolResponse,
 	CronScheduledTask,
-} from '../../../shared/cron';
+} from '../../shared/cron';
 
 export interface CronClient {
 	createSchedule(request: CronScheduleCreateRequest): Promise<CronSchedule>;

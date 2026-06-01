@@ -7,10 +7,10 @@ import type {
 	CronScheduleId,
 	CronScheduler,
 	CronScheduleUpdateRequest,
-} from '../core/types';
-import type { CronScheduledTask } from '../../../shared/cron';
-import { ScheduleDescriber } from '../core/describer';
-import { AGENT_TASK_TYPE } from '../../tasks';
+} from './core/types';
+import type { CronScheduledTask } from '../../shared/cron';
+import { ScheduleDescriber } from './core/describer';
+import { AGENT_TASK_TYPE } from '../tasks';
 
 export interface AgentCronContext {
 	agentId: string;
