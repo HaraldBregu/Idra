@@ -163,13 +163,11 @@ describe('heartbeat helpers', () => {
 	it('selects only explicit per-agent heartbeat blocks when any are present', () => {
 		const summaries = resolveHeartbeatAgentSummaries(
 			agentsConfig({
-				agents: {
-					defaults: { heartbeat: { every: '15m' } },
-					list: [
-						{ id: 'main' },
-						{ id: 'ops', heartbeat: { every: '5m', target: 'none' } },
-					],
-				},
+				defaults: { heartbeat: { every: '15m' } },
+				list: [
+					{ id: 'main' },
+					{ id: 'ops', heartbeat: { every: '5m', target: 'none' } },
+				],
 			})
 		);
 
