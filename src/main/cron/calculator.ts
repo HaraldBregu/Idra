@@ -1,5 +1,6 @@
 import type { CronSchedule } from './core/types';
 import { parseCronExpression } from './core/validation';
+import { CRON_MINUTE_MS, MAX_CRON_SCAN_MINUTES } from './constants';
 
 interface TimeParts {
 	minute: number;
@@ -8,9 +9,6 @@ interface TimeParts {
 	month: number;
 	dayOfWeek: number;
 }
-
-const MINUTE_MS = 60_000;
-const MAX_CRON_SCAN_MINUTES = 366 * 24 * 60;
 
 function getTimeParts(date: Date, timezone: string): TimeParts {
 	const parts = new Intl.DateTimeFormat('en-US', {
@@ -82,7 +80,7 @@ function withinBounds(schedule: CronSchedule, date: Date): boolean {
 
 function minuteCeil(date: Date): Date {
 	const time = date.getTime();
-	return new Date(Math.floor(time / MINUTE_MS) * MINUTE_MS + MINUTE_MS);
+	return new Date(Math.floor(time / CRON_MINUTE_MS) * CRON_MINUTE_MS + CRON_MINUTE_MS);
 }
 
 export class CronNextRunCalculator {
@@ -137,7 +135,7 @@ export class CronNextRunCalculator {
 		let cursor = minuteCeil(from);
 		for (let index = 0; index < MAX_CRON_SCAN_MINUTES; index++) {
 			if (withinBounds(schedule, cursor) && matchesCron(schedule, cursor)) return cursor;
-			cursor = new Date(cursor.getTime() + MINUTE_MS);
+			cursor = new Date(cursor.getTime() + CRON_MINUTE_MS);
 		}
 		return null;
 	}

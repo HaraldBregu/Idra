@@ -18,56 +18,15 @@ import {
 	CronExpressionError,
 	CronScheduleValidationError,
 } from './errors';
-
-const CRON_FIELD_RANGES: readonly [min: number, max: number][] = [
-	[0, 59],
-	[0, 23],
-	[1, 31],
-	[1, 12],
-	[0, 7],
-];
-
-const SCHEDULE_TYPES: readonly CronScheduleType[] = [
-	'cron',
-	'interval',
-	'fixedRate',
-	'fixedDelay',
-	'oneTime',
-	'calendar',
-	'manual',
-];
-
-const SOURCES: readonly CronScheduleSource[] = [
-	'agent',
-	'skill',
-	'tool',
-	'connector',
-	'api',
-	'ui',
-	'system',
-	'migration',
-	'maintenance',
-];
-
-const STATUSES: readonly CronScheduleStatus[] = [
-	'active',
-	'paused',
-	'disabled',
-	'expired',
-	'completed',
-	'failed',
-	'deleted',
-];
-
-const VISIBILITIES: readonly CronScheduleVisibility[] = ['private', 'user', 'workspace', 'system'];
-const MISSED_POLICIES: readonly CronMissedRunPolicy[] = ['skip', 'runOnce', 'catchUp', 'fail', 'askUser'];
-const CONCURRENCY_POLICIES: readonly CronConcurrencyPolicy[] = [
-	'allowOverlap',
-	'skipIfRunning',
-	'queueIfRunning',
-	'cancelPrevious',
-	'replacePrevious',
-];
+import {
+	CRON_CONCURRENCY_POLICIES,
+	CRON_FIELD_RANGES,
+	CRON_MISSED_POLICIES,
+	CRON_SCHEDULE_TYPES,
+	CRON_SOURCES,
+	CRON_STATUSES,
+	CRON_VISIBILITIES,
+} from '../constants';
 
 function parseCronPart(part: string, min: number, max: number): number[] | null {
 	const values = new Set<number>();
@@ -166,13 +125,13 @@ export function validateScheduleShape(
 ): void {
 	const nextType = 'type' in request && request.type ? request.type : existing?.type;
 	if (!nextType) throw new CronScheduleValidationError('Schedule type is required.');
-	assertInList(nextType, SCHEDULE_TYPES, 'type');
+	assertInList(nextType, CRON_SCHEDULE_TYPES, 'type');
 
-	if ('source' in request && request.source) assertInList(request.source, SOURCES, 'source');
-	if ('status' in request && request.status) assertInList(request.status, STATUSES, 'status');
-	if (request.visibility) assertInList(request.visibility, VISIBILITIES, 'visibility');
-	if (request.missedRunPolicy) assertInList(request.missedRunPolicy, MISSED_POLICIES, 'missedRunPolicy');
-	if (request.concurrencyPolicy) assertInList(request.concurrencyPolicy, CONCURRENCY_POLICIES, 'concurrencyPolicy');
+	if ('source' in request && request.source) assertInList(request.source, CRON_SOURCES, 'source');
+	if ('status' in request && request.status) assertInList(request.status, CRON_STATUSES, 'status');
+	if (request.visibility) assertInList(request.visibility, CRON_VISIBILITIES, 'visibility');
+	if (request.missedRunPolicy) assertInList(request.missedRunPolicy, CRON_MISSED_POLICIES, 'missedRunPolicy');
+	if (request.concurrencyPolicy) assertInList(request.concurrencyPolicy, CRON_CONCURRENCY_POLICIES, 'concurrencyPolicy');
 
 	const timezone = request.timezone ?? existing?.timezone;
 	if (!timezone) throw new CronScheduleValidationError('Timezone is required.');

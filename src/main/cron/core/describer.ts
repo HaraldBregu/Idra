@@ -1,6 +1,5 @@
 import type { CronSchedule } from './types';
-
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+import { CRON_DAY_NAMES } from '../constants';
 
 function formatDateTime(iso: string, timezone: string): string {
 	return new Intl.DateTimeFormat('en-US', {
@@ -21,7 +20,7 @@ function cronDescription(expression: string, timezone: string): string {
 	}
 	if (dayOfMonth === '*' && month === '*' && dayOfWeek && /^\d$/.test(dayOfWeek)) {
 		const day = Number(dayOfWeek) === 7 ? 0 : Number(dayOfWeek);
-		return `Every ${DAY_NAMES[day] ?? `day ${dayOfWeek}`} at ${time} ${timezone}`;
+		return `Every ${CRON_DAY_NAMES[day] ?? `day ${dayOfWeek}`} at ${time} ${timezone}`;
 	}
 	if (dayOfMonth === '*' && month === '*' && dayOfWeek === '1-5') {
 		return `Every weekday at ${time} ${timezone}`;

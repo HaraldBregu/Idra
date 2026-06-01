@@ -12,9 +12,7 @@ import type {
 	CronScheduleStore,
 } from './core/types';
 import { ScheduleDescriber } from './core/describer';
-
-const SENSITIVE_KEY_PATTERN =
-	/(api[-_]?key|token|secret|password|credential|authorization|cookie|oauth|private[-_]?key|payment|card|body|content)/i;
+import { CRON_REDACT_SENSITIVE_KEY_PATTERN } from './constants';
 
 export function redactCronValue(value: CronJsonValue, depth = 0): CronJsonValue {
 	if (depth > 6) return '[redacted-depth-limit]';
@@ -22,7 +20,7 @@ export function redactCronValue(value: CronJsonValue, depth = 0): CronJsonValue 
 	if (value && typeof value === 'object') {
 		const redacted: CronJsonObject = {};
 		for (const [key, child] of Object.entries(value)) {
-			redacted[key] = SENSITIVE_KEY_PATTERN.test(key) ? '[redacted]' : redactCronValue(child, depth + 1);
+			redacted[key] = CRON_REDACT_SENSITIVE_KEY_PATTERN.test(key) ? '[redacted]' : redactCronValue(child, depth + 1);
 		}
 		return redacted;
 	}
