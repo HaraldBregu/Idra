@@ -1,4 +1,4 @@
-import type { CronScheduleId, CronScheduleStore } from '../core/cron.types';
+import type { CronScheduleId, CronScheduleStore } from '../core/types';
 
 export class ScheduleLockManager {
 	constructor(

@@ -1,4 +1,4 @@
-import type { CronScheduleEvent, CronScheduleEventType } from '../core/cron.types';
+import type { CronScheduleEvent, CronScheduleEventType } from '../core/types';
 
 export type CronEventListener = (event: CronScheduleEvent) => void;
 

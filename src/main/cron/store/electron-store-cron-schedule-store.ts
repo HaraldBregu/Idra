@@ -9,13 +9,13 @@ import type {
 	CronScheduleStatus,
 	CronScheduleVisibility,
 	CronStoreState,
-} from '../core/cron.types';
+} from '../core/types';
 import {
 	CronScheduleConflictError,
 	CronScheduleNotFoundError,
 	CronScheduleStoreError,
-} from '../core/cron.errors';
-import { isActiveSchedule } from '../core/cron.validation';
+} from '../core/errors';
+import { isActiveSchedule } from '../core/validation';
 import { emptyCronStoreState, migrateCronStoreState } from './cron-store-migrations';
 
 function clone<T>(value: T): T {

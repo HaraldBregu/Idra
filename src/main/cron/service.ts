@@ -21,10 +21,10 @@ import {
 	type CronTaskView,
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext, CronPersistenceStore } from './core/cron.types';
+import type { CronActorContext, CronPersistenceStore } from './core/types';
 import { ElectronStoreCronScheduleStore } from './store/electron-store-cron-schedule-store';
-import { CronSchedulerService } from './scheduler/cron-scheduler';
-import { InMemoryCronScheduleRunner } from './scheduler/cron-runner';
+import { CronSchedulerService } from './scheduler/scheduler';
+import { InMemoryCronScheduleRunner } from './scheduler/runner';
 
 export type CronServiceEventListener = (event: CronScheduleEvent) => void;
 

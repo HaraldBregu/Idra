@@ -1,4 +1,4 @@
-import type { CronJsonObject, CronJsonValue } from '../core/cron.types';
+import type { CronJsonObject, CronJsonValue } from '../core/types';
 
 const SENSITIVE_KEY_PATTERN =
 	/(api[-_]?key|token|secret|password|credential|authorization|cookie|oauth|private[-_]?key|payment|card|body|content)/i;

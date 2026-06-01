@@ -21,17 +21,17 @@ import type {
 	CronScheduleUpdateRequest,
 	CronScheduleStore,
 	CronScheduledTask,
-} from '../core/cron.types';
-import { ScheduleDescriber } from '../core/cron.describer';
+} from '../core/types';
+import { ScheduleDescriber } from '../core/describer';
 import {
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
 	CronScheduleValidationError,
 	CronSchedulerError,
 	toCronRecordError,
-} from '../core/cron.errors';
-import { assertScheduleCanRun, validateScheduleShape } from '../core/cron.validation';
-import { CronNextRunCalculator } from './cron-next-run-calculator';
+} from '../core/errors';
+import { assertScheduleCanRun, validateScheduleShape } from '../core/validation';
+import { CronNextRunCalculator } from './calculator';
 import { CronScheduleEventBus } from '../events/cron-event-bus';
 import { redactCronValue, summarizeCronValue } from '../security/cron-redaction';
 import { AGENT_TASK_TYPE } from '../../tasks';

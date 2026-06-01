@@ -3,7 +3,7 @@ import type {
 	CronScheduleAuditEntry,
 	CronScheduleId,
 	CronScheduleStore,
-} from '../core/cron.types';
+} from '../core/types';
 
 export class CronScheduleAuditLog implements CronAuditLog {
 	constructor(private readonly store: CronScheduleStore) {}

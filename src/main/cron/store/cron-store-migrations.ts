@@ -1,4 +1,4 @@
-import type { CronStoreState } from '../core/cron.types';
+import type { CronStoreState } from '../core/types';
 
 export const CRON_STORE_SCHEMA_VERSION = 1;
 

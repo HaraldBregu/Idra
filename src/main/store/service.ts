@@ -41,7 +41,7 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
-import type { CronStoreState } from '../cron/core/cron.types';
+import type { CronStoreState } from '../cron/core/types';
 import { emptyCronStoreState, migrateCronStoreState } from '../cron/store/cron-store-migrations';
 import type { FridayCronStoreState } from '../cron/friday/store';
 import { emptyFridayCronStoreState, migrateFridayCronStoreState } from '../cron/friday/store';

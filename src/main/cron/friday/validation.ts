@@ -8,8 +8,8 @@ import type {
 import {
 	CronExpressionError,
 	CronScheduleValidationError,
-} from '../core/cron.errors';
-import { isValidTimezone, validateCronExpression } from '../core/cron.validation';
+} from '../core/errors';
+import { isValidTimezone, validateCronExpression } from '../core/validation';
 
 const PATH_SEPARATOR_PATTERN = /[\\/]/;
 

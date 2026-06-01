@@ -16,9 +16,9 @@ import type {
 	FridayCronToolResponse,
 	FridayCronUpdateRequest,
 } from '../../../shared/cron';
-import type { CronSchedule } from '../core/cron.types';
-import { CronPermissionError, CronScheduleNotFoundError } from '../core/cron.errors';
-import { CronNextRunCalculator } from '../scheduler/cron-next-run-calculator';
+import type { CronSchedule } from '../core/types';
+import { CronPermissionError, CronScheduleNotFoundError } from '../core/errors';
+import { CronNextRunCalculator } from '../scheduler/calculator';
 import type { FridayCronSnapshot, FridayCronStore } from './store';
 import { defaultFridayCronJobState } from './store';
 import {

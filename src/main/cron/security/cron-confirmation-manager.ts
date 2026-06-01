@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 import type {
 	CronScheduleConfirmation,
 	CronScheduleCreateRequest,
-} from '../core/cron.types';
-import { ScheduleDescriber } from '../core/cron.describer';
+} from '../core/types';
+import { ScheduleDescriber } from '../core/describer';
 
 export class CronConfirmationManager {
 	private readonly confirmations = new Map<string, CronScheduleConfirmation>();

@@ -7,12 +7,12 @@ import type {
 	CronScheduleStore,
 	CronScheduleStatus,
 	CronScheduleVisibility,
-} from '../core/cron.types';
+} from '../core/types';
 import {
 	CronScheduleConflictError,
 	CronScheduleNotFoundError,
-} from '../core/cron.errors';
-import { isActiveSchedule } from '../core/cron.validation';
+} from '../core/errors';
+import { isActiveSchedule } from '../core/validation';
 
 function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;

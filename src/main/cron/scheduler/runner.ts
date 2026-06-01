@@ -4,7 +4,7 @@ import type {
 	CronScheduleId,
 	CronScheduleRunner,
 	CronScheduledTask,
-} from '../core/cron.types';
+} from '../core/types';
 import { AGENT_TASK_TYPE, type TaskManager } from '../../tasks';
 import type { TaskRecord } from '../../../shared/tasks';
 import { redactCronValue } from '../security/cron-redaction';
