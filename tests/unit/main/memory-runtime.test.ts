@@ -6,7 +6,7 @@ import {
 	flushSessionMemoryBeforeCompaction,
 	resolveMemoryFlushPlan,
 	sanitizeTranscriptForMemory,
-} from '../../../src/main/agent/memory/runtime';
+} from '../../../src/main/memory/runtime';
 import { saveSession, type SessionFile } from '../../../src/main/agent/session/store';
 import { makeTempDir } from './test-helpers';
 

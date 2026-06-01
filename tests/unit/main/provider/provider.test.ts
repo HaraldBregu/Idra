@@ -1,10 +1,10 @@
-import { AnthropicAdapter } from '../../../../src/main/agent/provider/anthropic';
-import { DeepSeekAdapter } from '../../../../src/main/agent/provider/deepseek';
-import { MistralAdapter } from '../../../../src/main/agent/provider/mistral';
-import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/agent/provider/openai';
-import { QwenAdapter } from '../../../../src/main/agent/provider/qwen';
-import { makeProvider } from '../../../../src/main/agent/provider/factory';
-import { ProviderAuthError } from '../../../../src/main/agent/provider/types';
+import { AnthropicAdapter } from '../../../../src/main/llm/providers/anthropic';
+import { DeepSeekAdapter } from '../../../../src/main/llm/providers/deepseek';
+import { MistralAdapter } from '../../../../src/main/llm/providers/mistral';
+import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/llm/providers/openai';
+import { QwenAdapter } from '../../../../src/main/llm/providers/qwen';
+import { makeProvider } from '../../../../src/main/llm/providers/factory';
+import { ProviderAuthError } from '../../../../src/main/llm/providers/types';
 import { collectAsync } from '../test-helpers';
 
 describe('provider/factory', () => {

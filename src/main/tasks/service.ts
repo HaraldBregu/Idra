@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
-import type { EventBus } from '../core/event-bus';
-import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
-import { DEFAULT_AGENT_ID } from '../app/config';
+import type { EventBus } from '../services/event-bus';
+import type { LoggerService } from '../observability';
+import type { StoreService } from '../storage';
+import { DEFAULT_AGENT_ID } from '../config';
 import type {
 	TaskEvent,
 	TaskHandler,

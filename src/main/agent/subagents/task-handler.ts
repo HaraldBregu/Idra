@@ -1,4 +1,4 @@
-import type { EventBus } from '../../core/event-bus';
+import type { EventBus } from '../../services/event-bus';
 import type { AgentService } from '../service';
 import type { TaskContext, TaskHandler } from '../../../shared/tasks';
 import { isModelReasoningEffort } from '../../../shared/agents/service';

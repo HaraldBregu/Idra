@@ -4,7 +4,7 @@ import { app } from 'electron';
 import {
 	USER_DATA_DIRECTORY_NAME,
 	UserDataDirectoryService,
-} from '../../../src/main/app/user-data';
+} from '../../../src/main/storage/user-data';
 import { loadSession, saveSession } from '../../../src/main/agent/session/store';
 import { makeTempDir } from './test-helpers';
 

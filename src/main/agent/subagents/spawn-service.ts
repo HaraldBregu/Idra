@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { DEFAULT_AGENT_ID } from '../../app/config';
-import type { EventBus } from '../../core/event-bus';
-import type { LoggerService } from '../../logger';
+import { DEFAULT_AGENT_ID } from '../../config';
+import type { EventBus } from '../../services/event-bus';
+import type { LoggerService } from '../../observability';
 import { loadExistingSession } from '../session/store';
 import type { AgentConfig, AgentSessionMetadata } from '../../../shared/store';
 import type { TasksService } from '../../tasks';

@@ -17,10 +17,10 @@ import type {
 	ProviderAdapter,
 	ProviderEvent,
 	ProviderStreamRequest,
-} from '../../../../src/main/agent/provider/types';
+} from '../../../../src/main/llm/providers/types';
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/agent/logging';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
+import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 

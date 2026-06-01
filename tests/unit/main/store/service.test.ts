@@ -24,7 +24,7 @@ jest.mock('electron-store', () => {
 });
 
 import Store from 'electron-store';
-import { StoreService } from '../../../../src/main/store';
+import { StoreService } from '../../../../src/main/storage';
 import { emptyCronJobStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';

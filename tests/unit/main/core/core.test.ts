@@ -1,11 +1,11 @@
 import { BrowserWindow } from 'electron';
-import { AppState } from '../../../../src/main/core/app-state';
-import { EventBus } from '../../../../src/main/core/event-bus';
-import { Observable } from '../../../../src/main/core/observable';
-import { ServiceContainer } from '../../../../src/main/core/service-container';
-import { WindowScopedServiceFactory } from '../../../../src/main/core/window-scoped-service-factory';
-import { WindowContextManager } from '../../../../src/main/core/window-context';
-import { WindowFactory } from '../../../../src/main/core/window-factory';
+import { AppState } from '../../../../src/main/services/app-state';
+import { EventBus } from '../../../../src/main/services/event-bus';
+import { Observable } from '../../../../src/main/services/observable';
+import { ServiceContainer } from '../../../../src/main/services/service-container';
+import { WindowScopedServiceFactory } from '../../../../src/main/services/window-scoped-service-factory';
+import { WindowContextManager } from '../../../../src/main/services/window-context';
+import { WindowFactory } from '../../../../src/main/services/window-factory';
 
 class PublicObservable<T> extends Observable<T> {
 	onEvent(cb: (event: T) => void) {

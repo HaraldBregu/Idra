@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from '../provider/types';
+import type { TranscriptEntry } from '../../llm/providers/types';
 import { sanitizeToolUseResultPairing } from './repair';
 import type { SessionFile } from './types';
 

@@ -2,10 +2,10 @@ import { app, BrowserWindow, protocol, net, crashReporter, session } from 'elect
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { Main } from './main';
-import { Tray } from './tray';
-import { Menu } from './menu';
-import { ShortcutManager } from './shortcuts';
+import { Main } from './app/createWindow';
+import { Tray } from './app/tray';
+import { Menu } from './app/menu';
+import { ShortcutManager } from './app/shortcuts';
 import type { AppPermissionsService } from './app/permissions';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,

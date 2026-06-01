@@ -1,12 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { EventBus } from '../core/event-bus';
+import type { EventBus } from '../services/event-bus';
 import type { CronService } from '../cron';
-import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
+import type { LoggerService } from '../observability';
+import type { StoreService } from '../storage';
 import type { TasksService } from '../tasks';
-import type { ConnectorsService } from '../connectors';
-import type { SkillsService } from '../skills';
+import type { ConnectorsService } from '../capabilities/connectors';
+import type { SkillsService } from '../capabilities/skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
@@ -17,8 +17,8 @@ import {
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
-} from '../workspace';
-import type { UserDataDirectoryServicePort } from '../app/user-data';
+} from '../modules/workspace';
+import type { UserDataDirectoryServicePort } from '../storage/user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
 import { buildSystemPrompt } from './system-prompt';
 import {
@@ -27,11 +27,11 @@ import {
 	type AgentRunHooks,
 } from './run';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
-import { AgentCapabilityService, type AgentCapabilityServicePort } from './capabilities';
-import { DEFAULT_AGENT_ID } from '../app/config';
-import { makeProvider, type ProviderSpec } from './provider/factory';
-import { ToolPolicyService, type ToolPolicyServicePort } from './tools/tool-types';
-import type { ProviderAdapter, TranscriptEntry } from './provider/types';
+import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
+import { DEFAULT_AGENT_ID } from '../config';
+import { makeProvider, type ProviderSpec } from '../llm/providers/factory';
+import { ToolPolicyService, type ToolPolicyServicePort } from '../capabilities/tools/tool-types';
+import type { ProviderAdapter, TranscriptEntry } from '../llm/providers/types';
 import {
 	loadSession,
 	loadExistingSession,
@@ -70,8 +70,8 @@ import {
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 	type ToolServicePort,
-} from './tools';
-import { createStartupFilesTool } from './tools/startup/startup-files';
+} from '../capabilities/tools';
+import { createStartupFilesTool } from '../capabilities/tools/startup/startup-files';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,

@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from '../../../../src/main/skills/catalog';
-import { SkillDiscovery, SkillRanker, SkillSelector, makeDiscoveryContext } from '../../../../src/main/skills/selection';
-import { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from '../../../../src/main/skills/loader';
+import { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from '../../../../src/main/capabilities/skills/catalog';
+import { SkillDiscovery, SkillRanker, SkillSelector, makeDiscoveryContext } from '../../../../src/main/capabilities/skills/selection';
+import { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from '../../../../src/main/capabilities/skills/loader';
 import {
 	DefaultSkillMemoryPolicy,
 	InMemorySkillPreferenceStore,
@@ -11,15 +11,15 @@ import {
 	SkillComposer,
 	SkillExecutionEngine,
 	SkillSafetyPolicy,
-} from '../../../../src/main/skills/runtime';
-import { SkillsService } from '../../../../src/main/skills/service';
+} from '../../../../src/main/capabilities/skills/runtime';
+import { SkillsService } from '../../../../src/main/capabilities/skills/service';
 import type {
 	SkillConnector,
 	SkillDefinition,
 	SkillExecutionContext,
 	SkillExecutionRequestContext,
-} from '../../../../src/main/skills/types';
-import type { SkillTool } from '../../../../src/main/skills/types';
+} from '../../../../src/main/capabilities/skills/types';
+import type { SkillTool } from '../../../../src/main/capabilities/skills/types';
 import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
 
 function textResult(text: string, isError = false) {

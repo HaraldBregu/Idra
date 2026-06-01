@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import type { EventBus } from '../core/event-bus';
-import type { LoggerService } from '../logger';
-import type { BackgroundTaskSettings } from '../store/types';
+import type { EventBus } from '../services/event-bus';
+import type { LoggerService } from '../observability';
+import type { BackgroundTaskSettings } from '../storage/types';
 import type {
 	TaskEvent,
 	TaskHandler,

@@ -1,18 +1,18 @@
-import type { Usage } from './provider/types';
-import { ContextOverflowError } from './provider/types';
-import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from './provider/types';
-import type { AgentTool, ToolContext } from './tools';
+import type { Usage } from '../llm/providers/types';
+import { ContextOverflowError } from '../llm/providers/types';
+import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../llm/providers/types';
+import type { AgentTool, ToolContext } from '../capabilities/tools';
 import {
 	type AgentToolManagementOptions,
 	ToolService,
 	type ToolServicePort,
-} from './tools';
+} from '../capabilities/tools';
 import { compact } from './compaction';
 import { agentLogger } from './logger';
-import { flushSessionMemoryBeforeCompaction } from './memory/runtime';
+import { flushSessionMemoryBeforeCompaction } from '../memory/runtime';
 import type { SessionFile } from './session/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
-import { makeProvider, type ProviderSpec } from './provider/factory';
+import { makeProvider, type ProviderSpec } from '../llm/providers/factory';
 import type {
 	AgentRunStreamEvent,
 	AgentToolResultStatus,

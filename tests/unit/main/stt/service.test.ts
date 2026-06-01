@@ -14,7 +14,7 @@ jest.mock('electron-store', () => {
 });
 
 import Store from 'electron-store';
-import { StoreService } from '../../../../src/main/store';
+import { StoreService } from '../../../../src/main/storage';
 import { SpeechToTextService } from '../../../../src/main/stt';
 import type { Model } from '../../../../src/shared/agents/service';
 import type {

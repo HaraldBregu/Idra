@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { EventBus } from '../../../../src/main/core/event-bus';
-import { ConnectorsIpc } from '../../../../src/main/ipc/connectors-ipc';
-import type { MainServiceContainer } from '../../../../src/main/core/services';
+import { EventBus } from '../../../../src/main/services/event-bus';
+import { ConnectorsIpc } from '../../../../src/main/ipc/connectors.ipc';
+import type { MainServiceContainer } from '../../../../src/main/services/services';
 import type {
 	ConnectorCatalogEntry,
 	ConnectorConfig,

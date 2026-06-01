@@ -1,4 +1,4 @@
-import type { Disposable } from '../core/service-container';
+import type { Disposable } from '../services/service-container';
 import type { AgentService } from '../agent';
 import {
 	getModelReasoningEfforts,
@@ -11,7 +11,7 @@ import {
 	type ChannelChatType,
 	type ChannelOutboundMessage,
 } from '../channels';
-import { DEFAULT_AGENT_ID } from '../app/config';
+import { DEFAULT_AGENT_ID } from '../config';
 import type {
 	AgentHeartbeatConfig,
 	AgentsHeartbeatConfig,

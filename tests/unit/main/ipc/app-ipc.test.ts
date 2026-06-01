@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { EventBus } from '../../../../src/main/core/event-bus';
-import { AppIpc } from '../../../../src/main/ipc/app-ipc';
-import type { MainServiceContainer } from '../../../../src/main/core/services';
+import { EventBus } from '../../../../src/main/services/event-bus';
+import { AppIpc } from '../../../../src/main/ipc/app.ipc';
+import type { MainServiceContainer } from '../../../../src/main/services/services';
 import { ProviderChannels } from '../../../../src/shared/ipc-channels';
 import type { Provider, PublicProvider } from '../../../../src/shared/providers';
 

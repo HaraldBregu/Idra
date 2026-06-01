@@ -1,4 +1,4 @@
-import { EventBus } from '../../../../src/main/core/event-bus';
+import { EventBus } from '../../../../src/main/services/event-bus';
 import { TaskManager } from '../../../../src/main/tasks/manager';
 import { TaskRegistry } from '../../../../src/main/tasks/registry';
 import {

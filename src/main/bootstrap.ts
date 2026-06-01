@@ -2,11 +2,11 @@ import { app } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './core';
+import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './app/permissions';
-import { LoggerService } from './logger';
-import { StoreService } from './store';
+import { LoggerService } from './observability';
+import { StoreService } from './storage';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import {
@@ -18,15 +18,15 @@ import {
 } from './agent';
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
-import { WorkspaceService } from './workspace';
-import { ConnectorsService } from './connectors';
+import { WorkspaceService } from './modules/workspace';
+import { ConnectorsService } from './capabilities/connectors';
 import { TasksService } from './tasks';
-import { UserDataDirectoryService } from './app/user-data';
-import { ToolService } from './agent/tools';
-import { SkillsService } from './skills';
+import { UserDataDirectoryService } from './storage/user-data';
+import { ToolService } from './capabilities/tools';
+import { SkillsService } from './capabilities/skills';
 import { SpeechToTextService } from './stt';
 import { AgentRunLogger } from './agent/logging';
-import { DEFAULT_AGENT_ID } from './app/config';
+import { DEFAULT_AGENT_ID } from './config';
 
 import type { IpcModule } from './ipc';
 import {
@@ -43,7 +43,7 @@ import {
 	TasksIpc,
 	WindowIpc,
 } from './ipc';
-import type { MainServiceContainer, MainServices } from './core/services';
+import type { MainServiceContainer, MainServices } from './services/services';
 import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {
