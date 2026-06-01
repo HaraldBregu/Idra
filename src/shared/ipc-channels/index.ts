@@ -247,7 +247,7 @@ interface AppInvokeChannelMap {
 	};
 	[ProviderChannels.getAgentService]: {
 		args: [];
-		result: import('../agents/service').Agent | undefined;
+		result: import('../agents/service').ModelSelection | undefined;
 	};
 	[ProviderChannels.saveAgentService]: {
 		args: [
@@ -258,95 +258,9 @@ interface AppInvokeChannelMap {
 	};
 	[ProviderChannels.getSpeechTranscriberService]: {
 		args: [];
-		result: import('../agents/service').Agent | undefined;
+		result: import('../agents/service').ModelSelection | undefined;
 	};
 	[ProviderChannels.saveSpeechTranscriberService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[OperatorChannels.getAssistant]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[OperatorChannels.saveAssistant]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[OperatorChannels.getSpeechToText]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[OperatorChannels.getSpeechToTextModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[OperatorChannels.saveSpeechToText]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[OperatorChannels.getTextToSpeech]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[OperatorChannels.getTextToSpeechModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[OperatorChannels.saveTextToSpeech]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[OperatorChannels.getImageCreator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[OperatorChannels.getImageCreatorModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[OperatorChannels.saveImageCreator]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[OperatorChannels.getTextToVideo]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[OperatorChannels.getTextToVideoModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[OperatorChannels.saveTextToVideo]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[OperatorChannels.getMusicCreator]: {
-		args: [];
-		result: import('../agents/service').ConfiguredModelOperator | undefined;
-	};
-	[OperatorChannels.getMusicCreatorModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[OperatorChannels.saveMusicCreator]: {
 		args: [
 			provider: import('../providers').PublicProvider,
 			model: import('../agents/service').Model,
