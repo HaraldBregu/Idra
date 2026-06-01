@@ -15,7 +15,6 @@ import {
 	type ConfiguredModelOperator,
 	type Model,
 	type ModelOperatorSelection,
-	type OperatorStoreState,
 } from '../../shared/agents/service';
 import {
 	getMusicModelsByProvider,
