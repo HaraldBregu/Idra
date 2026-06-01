@@ -231,7 +231,7 @@ function modelFromCatalog(catalog: readonly Model[], settings: ModelModuleSettin
 }
 
 function modelForModule(
-	key: ConfiguredModelOperatorKey,
+	key: ModelModuleKey,
 	settings: ModelModuleSettings,
 	provider?: Provider
 ): Model {
