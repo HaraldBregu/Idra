@@ -294,8 +294,11 @@ export class CronService implements Disposable {
 		const rawById = new Map(
 			raw.flatMap((entry) => {
 				if (!entry || typeof entry !== 'object') return [];
-				const id = (entry as { id?: unknown }).id;
-				return typeof id === 'string' ? [[id, entry as CronTask]] : [];
+				const record = entry as { id?: unknown; data?: unknown; payload?: unknown };
+				if (typeof record.id !== 'string') return [];
+				return isCronTaskData(record.data) || isCronTaskData(record.payload)
+					? [[record.id, entry as CronTask]]
+					: [];
 			})
 		);
 
