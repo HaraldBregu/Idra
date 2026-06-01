@@ -32,8 +32,8 @@ import {
 } from '../core/errors';
 import { assertScheduleCanRun, validateScheduleShape } from '../core/validation';
 import { CronNextRunCalculator } from './calculator';
-import { CronScheduleEventBus } from '../events/cron-event-bus';
-import { redactCronValue, summarizeCronValue } from '../security/cron-redaction';
+import { CronScheduleEventBus } from '../support';
+import { redactCronValue, summarizeCronValue } from '../support';
 import { AGENT_TASK_TYPE } from '../../tasks';
 
 interface CronLogger {
