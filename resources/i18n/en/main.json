@@ -542,11 +542,11 @@
 				"failed": "Failed",
 				"deleted": "Deleted"
 			},
-			"detailsTitle": "Task scheduler details",
+			"detailsTitle": "Task details",
 			"notFoundTitle": "Scheduled task not found",
 			"notFoundDescription": "The scheduled task may have been removed.",
-			"emptyTitle": "No scheduled tasks",
-			"emptyDescription": "Scheduled tasks will appear here once they are configured."
+			"emptyTitle": "No tasks",
+			"emptyDescription": "Tasks will appear here once they are configured."
 		},
 		"taskManager": {
 			"description": "Background task runs and their current state.",
