@@ -2,10 +2,10 @@ import { OPENAI_CONNECTOR_CATALOG } from './connectors';
 import mcpConnectorCatalog from './catalog.json';
 import { PROVIDER_CONNECTOR_DOCS } from './provider-docs';
 import type {
-	ConnectorCatalogEntry,
 	ProviderConnectorCatalogEntry,
 	ProviderConnectorId,
 } from './models';
+import type { ConnectorCatalogEntry } from './types';
 
 export const MCP_CONNECTOR_CATALOG = mcpConnectorCatalog as readonly ConnectorCatalogEntry[];
 
