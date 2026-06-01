@@ -395,6 +395,8 @@ export class ConnectorsService {
 			...connector,
 			oauth: {
 				...connector.oauth,
+				provider: 'google',
+				redirectUri: connector.oauth?.redirectUri ?? GOOGLE_OAUTH_REDIRECT_URI,
 				accountEmail: input.accountEmail,
 				token: {
 					accessToken: input.accessToken,
@@ -731,7 +733,7 @@ function readOptionalApprovalMode(
 function readOptionalMcp(params: Record<string, unknown>, key: string): ConnectorInput['mcp'] | undefined {
 	const value = params[key];
 	if (value === undefined || value === null) return undefined;
-	return cloneValue(requireObject(value, key)) as ConnectorInput['mcp'];
+	return cloneValue(requireObject(value, key)) as unknown as ConnectorInput['mcp'];
 }
 
 function validateMcpConfig(mcp: ConnectorInput['mcp']): void {
