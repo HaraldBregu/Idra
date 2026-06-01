@@ -1,9 +1,25 @@
 import { OPENAI_CONNECTOR_CATALOG } from './connectors';
+import mcpConnectorCatalog from './catalog.json';
 import { PROVIDER_CONNECTOR_DOCS } from './provider-docs';
 import type {
+	ConnectorCatalogEntry,
 	ProviderConnectorCatalogEntry,
 	ProviderConnectorId,
 } from './models';
+
+export const MCP_CONNECTOR_CATALOG = mcpConnectorCatalog as readonly ConnectorCatalogEntry[];
+
+const MCP_CONNECTOR_BY_ID = new Map<string, ConnectorCatalogEntry>(
+	MCP_CONNECTOR_CATALOG.map((connector) => [connector.id, connector])
+);
+
+export const MCP_CONNECTOR_CATALOG_COUNTS = {
+	mcpConnectors: MCP_CONNECTOR_CATALOG.length,
+} as const;
+
+export function getMcpConnectorCatalogItem(id: string): ConnectorCatalogEntry | undefined {
+	return MCP_CONNECTOR_BY_ID.get(id);
+}
 
 export const PROVIDER_CONNECTOR_CATALOG = OPENAI_CONNECTOR_CATALOG.map((connector) => {
 	const docs = PROVIDER_CONNECTOR_DOCS[connector.id];
