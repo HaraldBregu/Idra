@@ -2,19 +2,13 @@ import Store from 'electron-store';
 import { DEFAULT_PROVIDERS, type Provider } from '../../shared/providers';
 import { getDefaultAgentModels } from '../../shared/agents/models';
 import {
-	OPERATOR_DEFINITIONS,
 	getImageCreatorModels,
 	getImageCreatorModelsForProvider,
 	getSpeechToTextModels,
 	isAllowedSpeechToTextModel,
-	isAllowedImageCreatorModelForProvider,
-	isAllowedMusicCreatorModel,
-	isAllowedTextToSpeechModel,
-	isAllowedTextToVideoModel,
 	isModelReasoningEffort,
-	type ConfiguredModelOperator,
 	type Model,
-	type ModelOperatorSelection,
+	type ModelSelection,
 } from '../../shared/agents/service';
 import {
 	getMusicModelsByProvider,
