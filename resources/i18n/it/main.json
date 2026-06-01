@@ -167,7 +167,7 @@
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
 				"providers": "Chiavi API AI",
-				"cron": "Attivita",
+				"cron": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate",
 				"taskManager": "Attivita in background",
 				"heartbeat": "Controlli periodici agenti"
 			}
@@ -474,6 +474,7 @@
 			"notFoundDescription": "Il connettore potrebbe essere stato rimosso."
 		},
 		"cron": {
+			"description": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate.",
 			"columns": {
 				"id": "Id",
 				"message": "Messaggio",
@@ -546,7 +547,7 @@
 			"notFoundTitle": "Attivita programmata non trovata",
 			"notFoundDescription": "L'attivita programmata potrebbe essere stata rimossa.",
 			"emptyTitle": "Nessuna attivita",
-			"emptyDescription": "Le attivita appariranno qui dopo la configurazione."
+			"emptyDescription": "Le attivita agente pianificate per dopo o ricorrenti appariranno qui."
 		},
 		"taskManager": {
 			"description": "Esecuzioni in background e stato corrente.",
