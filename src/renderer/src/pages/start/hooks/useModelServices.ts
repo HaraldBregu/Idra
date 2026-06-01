@@ -135,9 +135,9 @@ export function useModelServices(
 
 		const selected = getSelectedServiceModel(serviceStates[service.id]);
 		dispatch({ type: 'SET_SAVING_CONFIG', saving: true });
-			dispatch({ type: 'CLEAR_ERROR' });
-			try {
-				if (selected) {
+		dispatch({ type: 'CLEAR_ERROR' });
+		try {
+			if (selected) {
 				const saved = await service.saveSelection(selected.provider, selected.model);
 				if (!saved) {
 					throw new Error(`Could not save the selected ${service.stepTitle} model.`);
