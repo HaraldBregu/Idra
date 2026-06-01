@@ -1,10 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { SkillAuditLog } from '../../../../src/main/skills/audit-log';
-import { SkillComposer } from '../../../../src/main/skills/composer';
-import { SkillDependencyResolver } from '../../../../src/main/skills/dependency-resolver';
-import { SkillDiscovery, makeDiscoveryContext } from '../../../../src/main/skills/discovery';
-import { SkillExecutionEngine } from '../../../../src/main/skills/execution-engine';
+import { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from '../../../../src/main/skills/catalog';
+import { SkillDiscovery, SkillRanker, SkillSelector, makeDiscoveryContext } from '../../../../src/main/skills/selection';
 import { createExampleSkills } from '../../../../src/main/skills/example-skills';
 import { SkillLoader } from '../../../../src/main/skills/loader';
 import {
@@ -14,13 +11,13 @@ import {
 } from '../../../../src/main/skills/provider-support';
 import {
 	DefaultSkillMemoryPolicy,
+	InMemorySkillPreferenceStore,
 	NoopSkillMemoryRetriever,
-} from '../../../../src/main/skills/memory-policy';
-import { InMemorySkillPreferenceStore } from '../../../../src/main/skills/preferences';
-import { SkillRanker } from '../../../../src/main/skills/ranker';
-import { SkillRegistry } from '../../../../src/main/skills/registry';
-import { SkillSafetyPolicy } from '../../../../src/main/skills/safety-policy';
-import { SkillSelector } from '../../../../src/main/skills/selector';
+	SkillAuditLog,
+	SkillComposer,
+	SkillExecutionEngine,
+	SkillSafetyPolicy,
+} from '../../../../src/main/skills/runtime';
 import { SkillsService } from '../../../../src/main/skills/skills-service';
 import type {
 	SkillConnector,
@@ -28,7 +25,6 @@ import type {
 	SkillExecutionContext,
 	SkillExecutionRequestContext,
 } from '../../../../src/main/skills/types';
-import { SkillVersionManager } from '../../../../src/main/skills/version-manager';
 import type { AgentTool } from '../../../../src/main/agent/tools/types';
 import { textResult } from '../../../../src/main/agent/tools/types';
 import { makeLogger, makeTempDir, makeToolContext } from '../test-helpers';
