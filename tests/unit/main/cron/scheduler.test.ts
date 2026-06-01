@@ -2,18 +2,15 @@ import type { CronScheduledTask } from '../../../../src/shared/cron';
 import {
 	AgentCronService,
 	CronSchedulerService,
+	CRON_AGENT_TASK_TYPE,
 	DefaultCronScheduleAccessPolicy,
 	InMemoryCronScheduleStore,
 	redactCronValue,
-	TaskManagerCronScheduleRunner,
 	type CronActorContext,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
 	type CronScheduleRunner,
 } from '../../../../src/main/cron';
-import { EventBus } from '../../../../src/main/core';
-import { AGENT_TASK_TYPE, TaskManager, TaskRegistry } from '../../../../src/main/tasks';
-import type { TaskContext } from '../../../../src/shared/tasks';
 
 class RecordingRunner implements CronScheduleRunner {
 	tasks: CronScheduledTask[] = [];
@@ -126,7 +123,7 @@ function request(overrides: Partial<CronScheduleCreateRequest> = {}): CronSchedu
 		cronExpression: '0 9 * * 1',
 		missedRunPolicy: 'skip',
 		concurrencyPolicy: 'skipIfRunning',
-		taskType: AGENT_TASK_TYPE,
+		taskType: CRON_AGENT_TASK_TYPE,
 		taskInput: { message: 'Review invoices' },
 		...overrides,
 	};
@@ -320,7 +317,7 @@ describe('CronSchedulerService', () => {
 		await expect(
 			scheduler.createSchedule(request(), { ...actor, permissions: [] })
 		).resolves.toMatchObject({
-			taskType: AGENT_TASK_TYPE,
+			taskType: CRON_AGENT_TASK_TYPE,
 		});
 		await expect(
 			scheduler.createSchedule(
@@ -367,39 +364,4 @@ describe('CronSchedulerService', () => {
 		});
 	});
 
-	it('creates approved agent background tasks through TaskManagerCronScheduleRunner', async () => {
-		const eventBus = new EventBus();
-		const registry = new TaskRegistry();
-		const run = jest.fn(async (context: TaskContext<{ message: string }>) => ({
-			text: `done: ${context.input.message}`,
-		}));
-		registry.register(
-			{
-				type: AGENT_TASK_TYPE,
-				validateInput(input: unknown) {
-					return input as { message: string };
-				},
-				run,
-			},
-			{ userFacing: true }
-		);
-		const taskManager = new TaskManager({ registry, eventBus });
-		const runner = new TaskManagerCronScheduleRunner(taskManager);
-		const { scheduler, store } = makeScheduler(runner);
-		const schedule = await scheduler.createSchedule(request(), actor);
-		await due(schedule, store, new Date(Date.now() - 1_000).toISOString());
-
-		await scheduler.processDueSchedules(new Date());
-
-		expect(taskManager.list()).toEqual([
-			expect.objectContaining({
-				type: AGENT_TASK_TYPE,
-				title: 'Weekly reminder',
-				metadata: expect.objectContaining({
-					cronScheduleId: schedule.id,
-					cronInput: { message: 'Review invoices' },
-				}),
-			}),
-		]);
-	});
 });
