@@ -26,6 +26,7 @@ function textResult(text: string, isError = false) {
 	return {
 		content: [{ type: 'text' as const, text }],
 		isError,
+		status: isError ? ('error' as const) : ('ok' as const),
 	};
 }
 
