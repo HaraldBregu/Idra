@@ -1,6 +1,6 @@
 export * from './history';
 export * from './models';
-export * from './operators';
+export * from './realtime';
 export * from './reasoning';
 export * from './runtime';
 export * from './startup';
