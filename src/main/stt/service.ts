@@ -5,7 +5,6 @@ import type { StoreService } from '../store';
 import {
 	getSpeechToTextModels,
 	isAllowedSpeechToTextModel,
-	type ConfiguredModelOperator,
 	type Model,
 } from '../../shared/agents/service';
 import type {
