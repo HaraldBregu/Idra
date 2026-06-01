@@ -39,7 +39,7 @@ export interface CronHeartbeatPort {
 	}): Promise<void>;
 }
 
-export interface CronChannelRegistryPort {
+export interface CronChannelPort {
 	send(input: {
 		type: string;
 		accountId?: string;
@@ -58,9 +58,9 @@ export interface CronLoggerPort {
 	warn(scope: string, message: string, metadata?: unknown): void;
 }
 
-export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
+export class AgentFridayCronExecutor implements FridayCronExecutor {
 	constructor(
-		private readonly agentService: CronAgentPort,
+		private readonly agent: CronAgentPort,
 		private readonly heartbeat?: CronHeartbeatPort
 	) {}
 
@@ -105,7 +105,7 @@ export class AgentServiceFridayCronExecutor implements FridayCronExecutor {
 			}
 			if (input.job.payload.toolsAllow) sendOptions.toolsAllow = input.job.payload.toolsAllow;
 		}
-		const output = await this.agentService.send(message, agentId, sendOptions);
+		const output = await this.agent.send(message, agentId, sendOptions);
 		return { status: 'ok', output };
 	}
 
@@ -137,7 +137,7 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 	constructor(
 		private readonly dependencies: {
 			eventBus?: CronEventBusPort;
-			channelRegistry?: CronChannelRegistryPort;
+			channel?: CronChannelPort;
 			logger?: CronLoggerPort;
 		}
 	) {}
@@ -218,7 +218,7 @@ export class GatewayFridayCronDelivery implements FridayCronDeliveryPort {
 		};
 		if (input.delivery.channel === 'telegram' && input.delivery.to) {
 			try {
-				await this.dependencies.channelRegistry?.send({
+				await this.dependencies.channel?.send({
 					type: input.delivery.channel,
 					accountId: input.delivery.accountId,
 					to: input.delivery.to,

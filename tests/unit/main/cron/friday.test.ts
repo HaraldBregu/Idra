@@ -6,7 +6,7 @@ import type {
 import {
 	ElectronStoreFridayCronStore,
 	emptyFridayCronStoreState,
-	AgentServiceFridayCronExecutor,
+	AgentFridayCronExecutor,
 	FridayCronScheduler,
 	type FridayCronStoreState,
 	type FridayCronDeliveryPort,
@@ -438,7 +438,7 @@ describe('FridayCronScheduler', () => {
 	});
 });
 
-describe('AgentServiceFridayCronExecutor', () => {
+describe('AgentFridayCronExecutor', () => {
 	function executableJob(
 		overrides: Partial<FridayCronJobDefinition> = {}
 	): FridayCronJobDefinition {
@@ -470,7 +470,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 
 	it('uses one stable isolated session per cron job instead of the main session', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentServiceFridayCronExecutor({ send } as never);
+		const executor = new AgentFridayCronExecutor({ send } as never);
 
 		await executor.execute(runInput(executableJob({ id: 'job-a' })));
 		await executor.execute(runInput(executableJob({ id: 'job-b' })));
@@ -498,7 +498,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 
 	it('honors explicit and main session targets', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentServiceFridayCronExecutor({ send } as never);
+		const executor = new AgentFridayCronExecutor({ send } as never);
 
 		await executor.execute(
 			runInput(
@@ -534,7 +534,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 
 	it('passes safe agent-turn runtime options into AgentService.send', async () => {
 		const send = jest.fn(async () => 'agent output');
-		const executor = new AgentServiceFridayCronExecutor({ send } as never);
+		const executor = new AgentFridayCronExecutor({ send } as never);
 
 		await executor.execute(
 			runInput(
@@ -566,7 +566,7 @@ describe('AgentServiceFridayCronExecutor', () => {
 		const heartbeat = {
 			systemEvent: jest.fn(async () => ({ queued: true, sessionKey: 'main', mode: 'now' })),
 		};
-		const executor = new AgentServiceFridayCronExecutor({ send } as never, heartbeat as never);
+		const executor = new AgentFridayCronExecutor({ send } as never, heartbeat as never);
 
 		await expect(
 			executor.execute(
