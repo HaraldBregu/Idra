@@ -382,18 +382,33 @@ export class StoreService {
 		return readBackgroundTaskSettings(this.store.get('backgroundTask'));
 	}
 
-	setAssistantOperator(providerId: string, model: Model): boolean {
+	getAgentModel(): Model | undefined {
+		return this.getAssistantModel();
+	}
+
+	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
+		return this.getAssistantProvider();
+	}
+
+	getAgentService(): ModelSelection | undefined {
+		return this.getModelSelection('assistant');
+	}
+
+	getSpeechTranscriberService(): ModelSelection | undefined {
+		return this.getModelSelection('speechToText');
+	}
+
+	setAgentService(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
 			return false;
 		}
 		const current = this.getModelModuleSettings('llmAgent');
-		const settings = modelModuleSettings(provider.id, model, current?.options);
-		this.store.set('llmAgent', settings);
+		this.store.set('llmAgent', modelModuleSettings(provider.id, model, current?.options));
 		return true;
 	}
 
-	setSpeechToTextOperator(providerId: string, model: Model): boolean {
+	setSpeechTranscriberService(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
 			return false;
@@ -408,104 +423,6 @@ export class StoreService {
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
 		);
 		return true;
-	}
-
-	setTextToSpeechOperator(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedTextToSpeechModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('textToSpeech');
-		const catalogModel = getTextToSpeechModelsByProvider(provider.id).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set(
-			'textToSpeech',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	setImageCreatorOperator(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedImageCreatorModelForProvider(provider, model.id)) {
-			return false;
-		}
-		const catalogModel = getImageCreatorModelsForProvider(provider).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set('imageCreator', modelModuleSettings(provider.id, catalogModel ?? model));
-		return true;
-	}
-
-	setTextToVideoOperator(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedTextToVideoModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('textToVideo');
-		const catalogModel = getTextToVideoModelsByProvider(provider.id).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set(
-			'textToVideo',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	setMusicCreatorOperator(providerId: string, model: Model): boolean {
-		const provider = this.getProviderById(providerId);
-		if (!provider) {
-			return false;
-		}
-		if (!isAllowedMusicCreatorModel(provider.id, model.id)) {
-			return false;
-		}
-		const current = this.getModelModuleSettings('textToSound');
-		const catalogModel = getMusicModelsByProvider(provider.id).find(
-			(entry) => entry.id === model.id
-		);
-		this.store.set(
-			'textToSound',
-			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
-		);
-		return true;
-	}
-
-	getAgentModel(): Model | undefined {
-		return this.getAssistantModel();
-	}
-
-	getAgentProvider(): Omit<Provider, 'apiKey'> | undefined {
-		return this.getAssistantProvider();
-	}
-
-	getAgentService(): ModelOperatorSelection | undefined {
-		const operator = this.getAssistantOperator();
-		return operator ? { provider: operator.provider, model: operator.model } : undefined;
-	}
-
-	getSpeechTranscriberService(): ModelOperatorSelection | undefined {
-		const operator = this.getSpeechToTextOperator();
-		return operator ? { provider: operator.provider, model: operator.model } : undefined;
-	}
-
-	setAgentService(providerId: string, model: Model): boolean {
-		return this.setAssistantOperator(providerId, model);
-	}
-
-	setSpeechTranscriberService(providerId: string, model: Model): boolean {
-		return this.setSpeechToTextOperator(providerId, model);
 	}
 
 	setOpenAiApiKey(key: string): void {
