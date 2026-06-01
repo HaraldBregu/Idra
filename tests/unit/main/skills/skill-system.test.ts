@@ -3,12 +3,7 @@ import path from 'node:path';
 import { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from '../../../../src/main/skills/catalog';
 import { SkillDiscovery, SkillRanker, SkillSelector, makeDiscoveryContext } from '../../../../src/main/skills/selection';
 import { createExampleSkills } from '../../../../src/main/skills/example-skills';
-import { SkillLoader } from '../../../../src/main/skills/loader';
-import {
-	AGENT_SKILL_RESOURCE_DIRECTORIES,
-	MULTI_PROVIDER_SKILL_SUPPORT,
-	SKILL_PROVIDER_SUPPORT,
-} from '../../../../src/main/skills/provider-support';
+import { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from '../../../../src/main/skills/loader';
 import {
 	DefaultSkillMemoryPolicy,
 	InMemorySkillPreferenceStore,
@@ -479,49 +474,8 @@ describe('skill system', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('exposes provider-specific skill support from the docs/skills guidance', () => {
-		expect(AGENT_SKILL_RESOURCE_DIRECTORIES).toEqual([
-			'scripts',
-			'references',
-			'templates',
-			'assets',
-		]);
-		expect(SKILL_PROVIDER_SUPPORT.openai).toMatchObject({
-			docsPath: 'docs/skills/openai.md',
-			runtimeModes: ['hosted-shell-skill-reference', 'local-shell-skill-path'],
-			packageLimits: {
-				maxFiles: 500,
-				maxFileBytes: 25 * 1024 * 1024,
-				maxHostedZipBytes: 50 * 1024 * 1024,
-			},
-		});
-		expect(SKILL_PROVIDER_SUPPORT.anthropic).toMatchObject({
-			docsPath: 'docs/skills/anthropic.md',
-			runtimeModes: ['api-container-skills', 'claude-code-local-directory'],
-			packageLimits: {
-				maxUploadBytes: 30 * 1024 * 1024,
-				maxSkillsPerRequest: 8,
-				maxManifestNameChars: 64,
-			},
-		});
-		expect(MULTI_PROVIDER_SKILL_SUPPORT).toMatchObject({
-			docsPath: 'docs/skills/multi-provider.md',
-			adapterPath: 'src/shared/skill-adapters.ts',
-			sharedManifestFile: 'SKILL.md',
-			versionManifestFile: 'versions.json',
-		});
-		expect(MULTI_PROVIDER_SKILL_SUPPORT.routingRules).toEqual(
-			expect.arrayContaining([
-				expect.objectContaining({
-					workflowNeed: 'more-than-eight-skills',
-					route: 'openai-hosted',
-				}),
-				expect.objectContaining({
-					workflowNeed: 'no-provider-specific-constraint',
-					route: 'current-provider',
-				}),
-			])
-		);
+	it('exposes service-owned skill resource directories', () => {
+		expect(SKILL_RESOURCE_DIRECTORIES).toEqual(['scripts', 'references', 'templates', 'assets']);
 	});
 
 	it('reports template folders as Agent Skill resources', async () => {
