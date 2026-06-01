@@ -287,13 +287,6 @@ export class AgentService {
 		return this.heartbeatStore;
 	}
 
-	getHeartbeatOperatorConfig(): OperatorStoreState | undefined {
-		const operator = this.getOperatorConfig();
-		const agents = this.getHeartbeatStore().getAgentsConfig();
-		if (!operator) return agents ? { agents } : undefined;
-		return agents ? { ...operator, agents } : operator;
-	}
-
 	getHeartbeatProvider(providerId: string): PublicProvider | undefined {
 		const provider = this.dependencies.store.getProviderById(providerId);
 		if (!provider) return undefined;
