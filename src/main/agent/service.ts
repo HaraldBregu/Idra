@@ -663,7 +663,7 @@ export class AgentService {
 						runKind,
 						lightContext: heartbeatOptions?.lightContext === true || options.lightContext === true,
 						includeHeartbeatContext: isHeartbeatSystemPromptEnabled(
-							this.getHeartbeatOperatorConfig(),
+							{ agents: this.getHeartbeatStore().getAgentsConfig() },
 							agentId
 						),
 						isPrimaryRun,
