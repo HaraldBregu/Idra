@@ -5,7 +5,6 @@ import {
 	isModelReasoningEffort,
 	requireModelReasoningEffort,
 	type ModelReasoningEffort,
-	type OperatorStoreState,
 } from '../../shared/agents/service';
 import {
 	normalizeChannelId,
