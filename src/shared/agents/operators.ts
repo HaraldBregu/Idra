@@ -34,26 +34,6 @@ export interface TaskOperator extends OperatorBase {
 	registeredTaskTypes: string[];
 }
 
-export interface OperatorStoreState {
-	assistant?: ModelOperator;
-	speechToText?: ModelOperator;
-	textToSpeech?: ModelOperator;
-	imageCreator?: ModelOperator;
-	videoCreator?: ModelOperator;
-	musicCreator?: ModelOperator;
-	documentReaderOcr?: ModelOperator | EndpointOperator;
-	cronTaskScheduler?: SchedulerOperator;
-	backgroundTask?: TaskOperator;
-	agents?: AgentsHeartbeatConfig;
-	rag?: string;
-	ocr?: string;
-	agent?: ModelOperatorSelection;
-	speechTranscriber?: ModelOperatorSelection;
-}
-
-/** @deprecated Use OperatorStoreState. Persisted storage may still use the `service` key. */
-export type Service = OperatorStoreState;
-
 /** @deprecated Use ConfiguredModelOperator for operator settings selections. */
 export type Agent = ModelOperatorSelection;
 
