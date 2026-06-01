@@ -7,7 +7,6 @@ import type {
 	SkillManifest,
 	SkillStructureInfo,
 } from '../../shared/skills';
-import { AGENT_SKILL_RESOURCE_DIRECTORIES } from './provider-support';
 import type { SkillDefinition, SkillExecutionContext, SkillResult } from './types';
 
 const MAX_SKILL_FILES = 500;
@@ -17,7 +16,13 @@ const MAX_SKILL_BUNDLE_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_LISTED_RESOURCES = 100;
 const MAX_LISTED_RESOURCE_DIRECTORIES = 100;
 const MAX_RESOURCE_DEPTH = 4;
-const RESOURCE_DIRS = AGENT_SKILL_RESOURCE_DIRECTORIES;
+export const SKILL_RESOURCE_DIRECTORIES = [
+	'scripts',
+	'references',
+	'templates',
+	'assets',
+] as const;
+const RESOURCE_DIRS = SKILL_RESOURCE_DIRECTORIES;
 const SKILL_MARKDOWN_NAME = 'skill.md';
 const MAX_SKILL_IMPORT_CANDIDATES = 300;
 const IGNORED_SKILL_DIRECTORY_NAMES = new Set([
