@@ -628,32 +628,32 @@ const StartPage: React.FC = () => {
 
 				const preferredTextToSpeechOption = getPreferredProviderModelOption(
 					nextTextToSpeechGroups,
-					savedTextToSpeechOperator?.provider.id ?? '',
-					savedTextToSpeechOperator?.model.id ?? ''
+					savedTextToSpeechService?.provider.id ?? '',
+					savedTextToSpeechService?.model.id ?? ''
 				);
 				setTextToSpeechProviderId(preferredTextToSpeechOption?.provider.id ?? '');
 				setSelectedTextToSpeechModel(preferredTextToSpeechOption?.model.id ?? '');
 
 				const preferredImageCreatorOption = getPreferredProviderModelOption(
 					nextImageCreatorGroups,
-					savedImageCreatorOperator?.provider.id ?? '',
-					savedImageCreatorOperator?.model.id ?? ''
+					savedImageCreatorService?.provider.id ?? '',
+					savedImageCreatorService?.model.id ?? ''
 				);
 				setImageCreatorProviderId(preferredImageCreatorOption?.provider.id ?? '');
 				setSelectedImageCreatorModel(preferredImageCreatorOption?.model.id ?? '');
 
 				const preferredTextToVideoOption = getPreferredProviderModelOption(
 					nextTextToVideoGroups,
-					savedTextToVideoOperator?.provider.id ?? '',
-					savedTextToVideoOperator?.model.id ?? ''
+					savedTextToVideoService?.provider.id ?? '',
+					savedTextToVideoService?.model.id ?? ''
 				);
 				setTextToVideoProviderId(preferredTextToVideoOption?.provider.id ?? '');
 				setSelectedTextToVideoModel(preferredTextToVideoOption?.model.id ?? '');
 
 				const preferredMusicCreatorOption = getPreferredProviderModelOption(
 					nextMusicCreatorGroups,
-					savedMusicCreatorOperator?.provider.id ?? '',
-					savedMusicCreatorOperator?.model.id ?? ''
+					savedMusicCreatorService?.provider.id ?? '',
+					savedMusicCreatorService?.model.id ?? ''
 				);
 				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
 				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
@@ -696,13 +696,13 @@ const StartPage: React.FC = () => {
 	}, [
 		configProvider,
 		providers,
-		savedImageCreatorOperator,
+		savedImageCreatorService,
 		savedModelId,
-		savedMusicCreatorOperator,
+		savedMusicCreatorService,
 		savedSpeechModelId,
 		savedSpeechProviderId,
-		savedTextToSpeechOperator,
-		savedTextToVideoOperator,
+		savedTextToSpeechService,
+		savedTextToVideoService,
 		step,
 	]);
 
