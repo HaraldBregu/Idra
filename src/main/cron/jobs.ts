@@ -6,9 +6,9 @@ import type {
 	CronJobDelivery,
 	CronJobDeliveryState,
 	CronJobCanonicalToolRequest,
-	CronJobJob,
-	CronJobJobDefinition,
-	CronJobJobState,
+	CronJob,
+	CronJobDefinition,
+	CronJobState,
 	CronJobRunError,
 	CronJobRunRecord,
 	CronJobSessionTarget,
@@ -57,17 +57,17 @@ export interface CronJobExecutionOutcome {
 
 export interface CronJobExecutor {
 	execute(input: {
-		job: CronJobJobDefinition;
+		job: CronJobDefinition;
 		runId: string;
 		scheduledForMs: number;
 		signal: AbortSignal;
 	}): Promise<CronJobExecutionOutcome>;
-	cleanup?(job: CronJobJobDefinition, run: CronJobRunRecord): Promise<void>;
+	cleanup?(job: CronJobDefinition, run: CronJobRunRecord): Promise<void>;
 }
 
 export interface CronJobDeliveryPort {
 	deliver(input: {
-		job: CronJobJobDefinition;
+		job: CronJobDefinition;
 		run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 		output: string;
 		delivery: CronJobDelivery;
@@ -90,7 +90,7 @@ export interface CronJobSchedulerOptions {
 }
 
 export class NoopCronJobExecutor implements CronJobExecutor {
-	async execute(input: { job: CronJobJobDefinition }): Promise<CronJobExecutionOutcome> {
+	async execute(input: { job: CronJobDefinition }): Promise<CronJobExecutionOutcome> {
 		return {
 			status: 'ok',
 			output: input.job.payload.kind === 'agentTurn' ? '' : input.job.payload.text,
@@ -186,7 +186,7 @@ export class CronJobScheduler {
 		include: 'enabled' | 'disabled' | 'all' = 'enabled',
 		actor: CronJobActor = { role: 'owner' },
 		agentId?: string | null
-	): Promise<CronJobJob[]> {
+	): Promise<CronJob[]> {
 		this.authorize(actor, 'list');
 		const snapshot = await this.store.load();
 		const effectiveAgentId = agentId === undefined ? actor.agentId : agentId;
@@ -199,7 +199,7 @@ export class CronJobScheduler {
 			.map((job) => this.join(job, snapshot.states[job.id]));
 	}
 
-	async get(jobId: string, actor: CronJobActor = { role: 'owner' }): Promise<CronJobJob> {
+	async get(jobId: string, actor: CronJobActor = { role: 'owner' }): Promise<CronJob> {
 		this.authorize(actor, 'get', jobId);
 		const snapshot = await this.store.load();
 		const job = this.requireJob(snapshot, jobId);
@@ -209,7 +209,7 @@ export class CronJobScheduler {
 	async add(
 		request: CronJobAddRequest,
 		actor: CronJobActor = { role: 'owner' }
-	): Promise<CronJobJob> {
+	): Promise<CronJob> {
 		this.authorize(actor, 'add');
 		const snapshot = await this.store.load();
 		const now = Date.now();
@@ -223,7 +223,7 @@ export class CronJobScheduler {
 			request.payload,
 			actor.sessionId
 		);
-		const job: CronJobJobDefinition = {
+		const job: CronJobDefinition = {
 			id,
 			name: request.name.trim(),
 			description: request.description?.trim() ?? '',
@@ -262,7 +262,7 @@ export class CronJobScheduler {
 		jobId: string,
 		patch: CronJobUpdateRequest,
 		actor: CronJobActor = { role: 'owner' }
-	): Promise<CronJobJob> {
+	): Promise<CronJob> {
 		this.authorize(actor, 'update', jobId);
 		const snapshot = await this.store.load();
 		const index = snapshot.jobs.findIndex((job) => job.id === jobId);
@@ -274,7 +274,7 @@ export class CronJobScheduler {
 			payload,
 			actor.sessionId
 		);
-		const job: CronJobJobDefinition = {
+		const job: CronJobDefinition = {
 			...current,
 			...patch,
 			description: patch.description ?? current.description,
@@ -536,7 +536,7 @@ export class CronJobScheduler {
 	}
 
 	private async completeRun(
-		job: CronJobJobDefinition,
+		job: CronJobDefinition,
 		scheduledForMs: number,
 		mode: CronJobRunRecord['mode'],
 		runId: string,
@@ -576,7 +576,7 @@ export class CronJobScheduler {
 	}
 
 	private async failRun(
-		job: CronJobJobDefinition,
+		job: CronJobDefinition,
 		scheduledForMs: number,
 		mode: CronJobRunRecord['mode'],
 		runId: string,
@@ -599,7 +599,7 @@ export class CronJobScheduler {
 	}
 
 	private async applyRunResult(
-		job: CronJobJobDefinition,
+		job: CronJobDefinition,
 		run: CronJobRunRecord
 	): Promise<void> {
 		const snapshot = await this.store.load();
@@ -661,7 +661,7 @@ export class CronJobScheduler {
 	}
 
 	private async resolveDelivery(
-		job: CronJobJobDefinition,
+		job: CronJobDefinition,
 		run: CronJobRunRecord,
 		outcome: CronJobExecutionOutcome
 	): Promise<CronJobDeliveryState | undefined> {
@@ -695,8 +695,8 @@ export class CronJobScheduler {
 	}
 
 	private async maybeAlertFailure(
-		job: CronJobJobDefinition,
-		state: CronJobJobState,
+		job: CronJobDefinition,
+		state: CronJobState,
 		run: CronJobRunRecord
 	): Promise<void> {
 		if (job.failureAlert === false) return;
@@ -725,7 +725,7 @@ export class CronJobScheduler {
 		}
 	}
 
-	private failureDelivery(job: CronJobJobDefinition): CronJobDelivery | undefined {
+	private failureDelivery(job: CronJobDefinition): CronJobDelivery | undefined {
 		if (job.failureAlert && job.failureAlert.to) {
 			return {
 				mode: job.failureAlert.mode ?? 'announce',
@@ -753,7 +753,7 @@ export class CronJobScheduler {
 	}
 
 	private skippedRun(
-		job: CronJobJobDefinition,
+		job: CronJobDefinition,
 		scheduledForMs: number,
 		mode: CronJobRunRecord['mode'],
 		reason: string,
@@ -774,8 +774,8 @@ export class CronJobScheduler {
 	}
 
 	private computeNextAfterSuccess(
-		job: CronJobJobDefinition,
-		state: CronJobJobState,
+		job: CronJobDefinition,
+		state: CronJobState,
 		fromMs: number
 	): number | undefined {
 		const next = this.computeNextRun(job, state, fromMs, false);
@@ -784,8 +784,8 @@ export class CronJobScheduler {
 	}
 
 	private nextAfterError(
-		job: CronJobJobDefinition,
-		state: CronJobJobState,
+		job: CronJobDefinition,
+		state: CronJobState,
 		now: number
 	): number {
 		const base = Math.max(0, job.backoffMs ?? this.options.defaultBackoffMs);
@@ -795,8 +795,8 @@ export class CronJobScheduler {
 	}
 
 	private refreshNextRun(
-		job: CronJobJobDefinition,
-		state: CronJobJobState,
+		job: CronJobDefinition,
+		state: CronJobState,
 		now: number
 	): void {
 		try {
@@ -815,8 +815,8 @@ export class CronJobScheduler {
 	}
 
 	private computeNextRun(
-		job: CronJobJobDefinition,
-		state: CronJobJobState,
+		job: CronJobDefinition,
+		state: CronJobState,
 		fromMs: number,
 		allowPastAt: boolean
 	): number | undefined {
@@ -924,21 +924,21 @@ export class CronJobScheduler {
 	private visibleJobs(
 		snapshot: CronJobSnapshot,
 		actor: CronJobActor
-	): CronJobJobDefinition[] {
+	): CronJobDefinition[] {
 		if (actor.role === 'cron-self') {
 			return snapshot.jobs.filter((job) => job.id === actor.jobId);
 		}
 		return snapshot.jobs;
 	}
 
-	private requireJob(snapshot: CronJobSnapshot, jobId: string): CronJobJobDefinition {
+	private requireJob(snapshot: CronJobSnapshot, jobId: string): CronJobDefinition {
 		assertSafeCronId(jobId, 'jobId');
 		const job = snapshot.jobs.find((entry) => entry.id === jobId);
 		if (!job) throw new CronScheduleNotFoundError(jobId);
 		return job;
 	}
 
-	private join(job: CronJobJobDefinition, state?: CronJobJobState): CronJobJob {
+	private join(job: CronJobDefinition, state?: CronJobState): CronJob {
 		return { ...job, state: state ?? defaultCronJobState(job) };
 	}
 
@@ -966,7 +966,7 @@ export class CronJobScheduler {
 
 	private resolveSessionTarget(
 		target: CronJobSessionTarget | undefined,
-		payload: CronJobJobDefinition['payload'],
+		payload: CronJobDefinition['payload'],
 		currentSessionId?: string
 	): CronJobSessionTarget {
 		const inferred = target ?? (payload.kind === 'systemEvent' ? 'main' : 'isolated');
@@ -980,7 +980,7 @@ export class CronJobScheduler {
 		return resolved;
 	}
 
-	private maxAttempts(job: CronJobJobDefinition): number {
+	private maxAttempts(job: CronJobDefinition): number {
 		return job.maxAttempts ?? this.options.defaultOneShotMaxAttempts;
 	}
 

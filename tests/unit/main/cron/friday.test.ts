@@ -1,6 +1,6 @@
 import type {
 	CronJobAddRequest,
-	CronJobJobDefinition,
+	CronJobDefinition,
 	CronJobRunRecord,
 } from '../../../../src/shared/cron';
 import {
@@ -16,7 +16,7 @@ import {
 import type { StoreService } from '../../../../src/main/store';
 
 class RecordingExecutor implements CronJobExecutor {
-	calls: Array<{ job: CronJobJobDefinition; runId: string }> = [];
+	calls: Array<{ job: CronJobDefinition; runId: string }> = [];
 	outcomes: Array<CronJobExecutionOutcome | Error> = [];
 	onExecute?: () => Promise<void>;
 
@@ -376,7 +376,7 @@ describe('CronJobScheduler', () => {
 	it('auto-disables jobs after repeated schedule computation errors', async () => {
 		const { scheduler, store } = await makeHarness();
 		const now = Date.now();
-		const badJob: CronJobJobDefinition = {
+		const badJob: CronJobDefinition = {
 			id: 'bad-cron',
 			name: 'Bad cron',
 			description: '',
@@ -440,8 +440,8 @@ describe('CronJobScheduler', () => {
 
 describe('AgentCronJobExecutor', () => {
 	function executableJob(
-		overrides: Partial<CronJobJobDefinition> = {}
-	): CronJobJobDefinition {
+		overrides: Partial<CronJobDefinition> = {}
+	): CronJobDefinition {
 		return {
 			id: 'job-1',
 			name: 'Cron agent turn',
@@ -459,7 +459,7 @@ describe('AgentCronJobExecutor', () => {
 		};
 	}
 
-	function runInput(job: CronJobJobDefinition): Parameters<CronJobExecutor['execute']>[0] {
+	function runInput(job: CronJobDefinition): Parameters<CronJobExecutor['execute']>[0] {
 		return {
 			job,
 			runId: 'run-1',

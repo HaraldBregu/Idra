@@ -263,7 +263,7 @@ describe('StoreService', () => {
 		});
 	});
 
-	describe('Friday cron state', () => {
+	describe('Cron job state', () => {
 		it('patches legacy cron tasks without replacing sibling scheduler state', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
@@ -288,7 +288,7 @@ describe('StoreService', () => {
 			});
 		});
 
-		it('persists Friday cron jobs, states, and runs through the settings store', () => {
+		it('persists Cron job jobs, states, and runs through the settings store', () => {
 			const service = new StoreService();
 			const state = {
 				...emptyCronJobStoreState(),

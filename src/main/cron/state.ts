@@ -1,14 +1,14 @@
 import type {
-	CronJobJobDefinition,
-	CronJobJobState,
+	CronJobDefinition,
+	CronJobState,
 	CronJobRunRecord,
 } from '../../shared/cron';
 import { assertSafeCronId, cronJobScheduleIdentity } from './validate';
 import { CRON_JOB_STORE_SCHEMA_VERSION } from './constants';
 
 export interface CronJobSnapshot {
-	jobs: CronJobJobDefinition[];
-	states: Record<string, CronJobJobState>;
+	jobs: CronJobDefinition[];
+	states: Record<string, CronJobState>;
 }
 
 export interface CronJobStoreState extends CronJobSnapshot {
@@ -36,7 +36,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
 }
 
-function defaultState(job: CronJobJobDefinition): CronJobJobState {
+function defaultState(job: CronJobDefinition): CronJobState {
 	return {
 		consecutiveErrors: 0,
 		consecutiveSkipped: 0,
@@ -47,10 +47,10 @@ function defaultState(job: CronJobJobDefinition): CronJobJobState {
 }
 
 function normalizeState(
-	job: CronJobJobDefinition,
-	state: Partial<CronJobJobState> | undefined
-): CronJobJobState {
-	const next: CronJobJobState = {
+	job: CronJobDefinition,
+	state: Partial<CronJobState> | undefined
+): CronJobState {
+	const next: CronJobState = {
 		...defaultState(job),
 		...(state ?? {}),
 	};
@@ -67,14 +67,14 @@ function normalizeState(
 	return next;
 }
 
-function normalizeJobs(value: unknown): CronJobJobDefinition[] {
+function normalizeJobs(value: unknown): CronJobDefinition[] {
 	if (!Array.isArray(value)) return [];
-	const jobs: CronJobJobDefinition[] = [];
+	const jobs: CronJobDefinition[] = [];
 	for (const entry of value) {
 		if (!isRecord(entry) || typeof entry.id !== 'string') continue;
 		try {
 			assertSafeCronId(entry.id);
-			const job = clone(entry as unknown as CronJobJobDefinition);
+			const job = clone(entry as unknown as CronJobDefinition);
 			if (job.payload?.kind === 'agentTurn') {
 				delete (job.payload as Record<string, unknown>).providerId;
 				delete (job.payload as Record<string, unknown>).model;
@@ -131,12 +131,12 @@ export function migrateCronJobStoreState(value: unknown): CronJobStoreState {
 	const source = isRecord(value) ? value : {};
 	const jobs = normalizeJobs(source.jobs);
 	const stateSource = isRecord(source.states) ? source.states : {};
-	const states: Record<string, CronJobJobState> = {};
+	const states: Record<string, CronJobState> = {};
 	for (const job of jobs) {
 		const current = stateSource[job.id];
 		states[job.id] = normalizeState(
 			job,
-			isRecord(current) ? (current as Partial<CronJobJobState>) : undefined
+			isRecord(current) ? (current as Partial<CronJobState>) : undefined
 		);
 	}
 	return {
@@ -161,7 +161,7 @@ export class ElectronStoreCronJobStore implements CronJobStore {
 	async save(snapshot: CronJobSnapshot): Promise<void> {
 		const state = this.read();
 		const jobs = clone(snapshot.jobs);
-		const states: Record<string, CronJobJobState> = {};
+		const states: Record<string, CronJobState> = {};
 		for (const job of jobs) {
 			assertSafeCronId(job.id);
 			states[job.id] = normalizeState(job, snapshot.states[job.id]);

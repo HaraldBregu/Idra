@@ -1,6 +1,6 @@
 import type {
 	CronJobDelivery,
-	CronJobJobDefinition,
+	CronJobDefinition,
 	CronJobPayload,
 	CronJobSchedule,
 	CronJobSessionTarget,
@@ -142,7 +142,7 @@ export function normalizeDelivery(
 	};
 }
 
-export function assertValidCronJob(job: CronJobJobDefinition): void {
+export function assertValidCronJob(job: CronJobDefinition): void {
 	assertSafeCronId(job.id);
 	if (!job.name.trim()) throw new CronScheduleValidationError('Cron job name is required.');
 	assertValidSchedule(job.schedule);

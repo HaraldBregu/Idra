@@ -1,7 +1,7 @@
 import type {
 	CronJobDelivery,
 	CronJobDeliveryState,
-	CronJobJobDefinition,
+	CronJobDefinition,
 	CronJobRunRecord,
 } from '../../shared/cron';
 import type {
@@ -51,7 +51,7 @@ export class AgentCronJobExecutor implements CronJobExecutor {
 	constructor(private readonly agent: CronAgentPort) {}
 
 	async execute(input: {
-		job: CronJobJobDefinition;
+		job: CronJobDefinition;
 		signal: AbortSignal;
 	}): Promise<CronJobExecutionOutcome> {
 		if (input.signal.aborted) {
@@ -81,11 +81,11 @@ export class AgentCronJobExecutor implements CronJobExecutor {
 		return { status: 'ok', output };
 	}
 
-	private resolveAgentId(job: CronJobJobDefinition): string {
+	private resolveAgentId(job: CronJobDefinition): string {
 		return job.agentId ?? DEFAULT_CRON_AGENT_ID;
 	}
 
-	private resolveSessionId(job: CronJobJobDefinition): string {
+	private resolveSessionId(job: CronJobDefinition): string {
 		if (job.sessionTarget === 'main') return this.resolveAgentId(job);
 		if (job.sessionTarget === 'isolated') return `cron:${job.id}`;
 		if (job.sessionTarget.startsWith('session:')) return job.sessionTarget.slice('session:'.length);
@@ -104,7 +104,7 @@ export class GatewayCronJobDelivery implements CronJobDeliveryPort {
 	) {}
 
 	async deliver(input: {
-		job: CronJobJobDefinition;
+		job: CronJobDefinition;
 		run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 		output: string;
 		delivery: CronJobDelivery;
@@ -122,7 +122,7 @@ export class GatewayCronJobDelivery implements CronJobDeliveryPort {
 
 	private async deliverWebhook(
 		input: {
-			job: CronJobJobDefinition;
+			job: CronJobDefinition;
 			run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 			output: string;
 			delivery: CronJobDelivery;
@@ -163,7 +163,7 @@ export class GatewayCronJobDelivery implements CronJobDeliveryPort {
 
 	private async deliverAnnounce(
 		input: {
-			job: CronJobJobDefinition;
+			job: CronJobDefinition;
 			run: Pick<CronJobRunRecord, 'runId' | 'status' | 'error'>;
 			output: string;
 			delivery: CronJobDelivery;
