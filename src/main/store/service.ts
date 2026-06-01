@@ -43,12 +43,6 @@ import type {
 } from './types';
 import type { CronJobStoreState } from '../cron/state';
 import { emptyCronJobStoreState, migrateCronJobStoreState } from '../cron/state';
-import type {
-	AgentHeartbeatConfig,
-	AgentsHeartbeatConfig,
-	HeartbeatStoreState,
-} from '../../shared/heartbeat';
-import { emptyHeartbeatStoreState, migrateHeartbeatStoreState } from '../heartbeat/store';
 
 type ConfiguredModelOperatorKey =
 	| 'assistant'
@@ -283,13 +277,6 @@ function modelForModule(
 	return modelFromCatalog(catalog, settings);
 }
 
-function readAgentsHeartbeatConfig(
-	settings: ModelModuleSettings | undefined
-): AgentsHeartbeatConfig | undefined {
-	const agents = readRecord(settings?.options?.agents);
-	return agents as AgentsHeartbeatConfig | undefined;
-}
-
 function configuredModelOperator(
 	key: ConfiguredModelOperatorKey,
 	provider: Omit<Provider, 'apiKey'>,
@@ -375,47 +362,11 @@ export class StoreService {
 		if (textToVideo) next.videoCreator = textToVideo;
 		const textToSound = this.getConfiguredModelOperator('textToSound');
 		if (textToSound) next.musicCreator = textToSound;
-		const agentSettings = this.getModelModuleSettings('llmAgent');
-		const agents = readAgentsHeartbeatConfig(agentSettings);
-		if (agents) next.agents = agents;
 		return Object.keys(next).length > 0 ? next : undefined;
 	}
 
 	getService(): OperatorStoreState | undefined {
 		return this.getOperator();
-	}
-
-	setDefaultHeartbeatConfig(config: AgentHeartbeatConfig): AgentHeartbeatConfig {
-		const currentAgentSettings = this.getModelModuleSettings('llmAgent');
-		const currentAgents = readAgentsHeartbeatConfig(currentAgentSettings) ?? {};
-		const currentDefaults = currentAgents.defaults ?? {};
-		const currentHeartbeat = currentDefaults.heartbeat ?? {};
-		const nextHeartbeat: AgentHeartbeatConfig = {
-			...currentHeartbeat,
-			...config,
-		};
-		if ('activeHours' in config && config.activeHours === undefined) {
-			delete nextHeartbeat.activeHours;
-		}
-		const next: OperatorStoreState = {
-			agents: {
-				...currentAgents,
-				defaults: {
-					...currentDefaults,
-					heartbeat: nextHeartbeat,
-				},
-			},
-		};
-		if (currentAgentSettings) {
-			this.store.set('llmAgent', {
-				...currentAgentSettings,
-				options: {
-					...(currentAgentSettings.options ?? {}),
-					agents: next.agents,
-				},
-			});
-		}
-		return nextHeartbeat;
 	}
 
 	getAssistantOperator(): ConfiguredModelOperator | undefined {
@@ -677,14 +628,6 @@ export class StoreService {
 
 	setCronJobState(state: CronJobStoreState): void {
 		this.setTaskSchedulerSettings({ jobs: migrateCronJobStoreState(state) });
-	}
-
-	getHeartbeatState(): HeartbeatStoreState {
-		return migrateHeartbeatStoreState(this.store.get('heartbeat') ?? emptyHeartbeatStoreState());
-	}
-
-	setHeartbeatState(state: HeartbeatStoreState): void {
-		this.store.set('heartbeat', migrateHeartbeatStoreState(state));
 	}
 
 	private getConfiguredModelOperator(
