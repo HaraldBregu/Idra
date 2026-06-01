@@ -14,6 +14,7 @@ import {
 import { DEFAULT_AGENT_ID } from '../app/config';
 import type {
 	AgentHeartbeatConfig,
+	AgentsHeartbeatConfig,
 	HeartbeatEventPayload,
 	HeartbeatRunResult,
 	HeartbeatSettings,
