@@ -427,161 +427,46 @@ describe('StoreService', () => {
 	});
 
 	// -------------------------------------------------------------------------
-	// getOperator
+	// getAgentService
 	// -------------------------------------------------------------------------
 
-	describe('getOperator()', () => {
-		it('builds operator state from documented module roots', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-			store.set('modelProviders', [openaiProvider]);
-			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
-			store.set('ocr', { mode: 'endpoint', endpoint: 'ocr-url' });
-
-			expect(service.getOperator()).toMatchObject({
-				assistant: {
-					id: 'friday',
-					name: 'Assistant',
-					docsPath: 'models/large-language-model.md',
-					status: 'implemented',
-					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
-					model: expect.objectContaining({ id: model.id }),
-				},
-			});
-			expect(service.getOperator()).not.toHaveProperty('documentReaderOcr');
-			expect(service.getOperator()).not.toHaveProperty('rag');
-			expect(service.getOperator()).not.toHaveProperty('ocr');
-		});
-
-		it('hydrates documented pending media module roots without exposing provider keys', () => {
-			const service = new StoreService();
-			const store = storeFor(service);
-			store.set('modelProviders', [
-				{
-					id: 'elevenlabs',
-					name: 'ElevenLabs',
-					apiKey: 'elevenlabs-key',
-					baseUrl: 'https://api.elevenlabs.io/v1',
-				},
-				{
-					id: 'runway',
-					name: 'Runway',
-					apiKey: 'runway-key',
-					baseUrl: 'https://api.dev.runwayml.com/v1',
-				},
-				{
-					id: 'suno',
-					name: 'Suno',
-					apiKey: 'suno-key',
-					baseUrl: 'https://api.suno.ai/v1',
-				},
-			]);
-			store.set('textToSpeech', {
-				providerId: ' elevenlabs ',
-				modelId: ' eleven_v3 ',
-			});
-			store.set('textToVideo', {
-				providerId: ' runway ',
-				modelId: ' gen4.5 ',
-			});
-			store.set('textToSound', {
-				providerId: ' suno ',
-				modelId: ' suno-v5.5 ',
-			});
-
-			const operator = service.getOperator();
-
-				expect(operator).toMatchObject({
-					textToSpeech: {
-					id: 'text-to-speech',
-					docsPath: 'models/text-to-speech.md',
-					status: 'pending-runtime',
-					provider: {
-						id: 'elevenlabs',
-						name: 'ElevenLabs',
-						baseUrl: 'https://api.elevenlabs.io/v1',
-					},
-					model: { id: 'eleven_v3', name: 'Eleven v3' },
-				},
-				videoCreator: {
-					id: 'text-to-video',
-					docsPath: 'models/text-to-video.md',
-					status: 'pending-runtime',
-					provider: {
-						id: 'runway',
-						name: 'Runway',
-						baseUrl: 'https://api.dev.runwayml.com/v1',
-					},
-					model: { id: 'gen4.5', name: 'Gen 4.5' },
-				},
-				musicCreator: {
-					id: 'music-creator',
-					docsPath: 'models/music-creator.md',
-					status: 'pending-runtime',
-					provider: {
-						id: 'suno',
-						name: 'Suno',
-						baseUrl: 'https://api.suno.ai/v1',
-					},
-					model: { id: 'suno-v5.5', name: 'Suno v5.5' },
-				},
-			});
-			expect(operator?.textToSpeech?.provider).not.toHaveProperty('apiKey');
-			expect(operator?.videoCreator?.provider).not.toHaveProperty('apiKey');
-			expect(operator?.musicCreator?.provider).not.toHaveProperty('apiKey');
-		});
-
-		it('returns undefined when operator state is absent', () => {
-			const service = new StoreService();
-
-			expect(service.getOperator()).toBeUndefined();
-		});
-	});
-
-	// -------------------------------------------------------------------------
-	// getAssistantOperator
-	// -------------------------------------------------------------------------
-
-	describe('getAssistantOperator()', () => {
-		it('returns the assistant block when llmAgent is set', () => {
+	describe('getAgentService()', () => {
+		it('returns the agent service selection when llmAgent is set', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			store.set('modelProviders', [openaiProvider]);
 			store.set('llmAgent', { providerId: 'openai', modelId: model.id });
 
-			expect(service.getAssistantOperator()).toMatchObject({
-				id: 'friday',
-				name: 'Assistant',
-				docsPath: 'models/large-language-model.md',
-				status: 'implemented',
+			expect(service.getAgentService()).toMatchObject({
 				provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 				model,
 			});
+			expect(service.getAgentService()?.provider).not.toHaveProperty('apiKey');
 		});
 
 		it('ignores legacy service agent selections', () => {
-			const legacyOperator = {
+			const legacyService = {
 				agent: {
 					provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
 					model,
 				},
 			};
 			const service = new StoreService();
-			storeFor(service).set('service', legacyOperator);
+			storeFor(service).set('service', legacyService);
 
-			expect(service.getAssistantOperator()).toBeUndefined();
+			expect(service.getAgentService()).toBeUndefined();
 		});
 
-		it('returns undefined when operator state is absent', () => {
+		it('returns undefined when service state is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAssistantOperator()).toBeUndefined();
+			expect(service.getAgentService()).toBeUndefined();
 		});
 
 		it('returns undefined when llmAgent is absent', () => {
 			const service = new StoreService();
 
-			expect(service.getAssistantOperator()).toBeUndefined();
+			expect(service.getAgentService()).toBeUndefined();
 		});
 	});
 
@@ -599,7 +484,7 @@ describe('StoreService', () => {
 			expect(service.getAssistantModel()).toEqual(model);
 		});
 
-		it('returns undefined when operator state is absent', () => {
+		it('returns undefined when service state is absent', () => {
 			const service = new StoreService();
 
 			expect(service.getAssistantModel()).toBeUndefined();
@@ -627,7 +512,7 @@ describe('StoreService', () => {
 			expect(service.getAssistantProvider()).toEqual(providerRef);
 		});
 
-		it('returns undefined when operator state is absent', () => {
+		it('returns undefined when service state is absent', () => {
 			const service = new StoreService();
 
 			expect(service.getAssistantProvider()).toBeUndefined();
@@ -641,30 +526,30 @@ describe('StoreService', () => {
 	});
 
 	// -------------------------------------------------------------------------
-	// setAssistantOperator
+	// setAgentService
 	// -------------------------------------------------------------------------
 
-	describe('setAssistantOperator()', () => {
+	describe('setAgentService()', () => {
 		it('returns false and does not write when the provider id is not found', () => {
 			const service = new StoreService();
 
-			const result = service.setAssistantOperator('unknown', model);
+			const result = service.setAgentService('unknown', model);
 
 			expect(result).toBe(false);
-			expect(service.getOperator()).toBeUndefined();
+			expect(service.getAgentService()).toBeUndefined();
 		});
 
-		it('returns true and writes the assistant operator when the provider is found', () => {
+		it('returns true and writes the agent service when the provider is found', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
 				'modelProviders',
 				[openaiProvider]
 			);
 
-			const result = service.setAssistantOperator('openai', model);
+			const result = service.setAgentService('openai', model);
 
 			expect(result).toBe(true);
-			expect(service.getOperator()?.assistant).toBeDefined();
+			expect(service.getAgentService()).toBeDefined();
 		});
 
 		it('preserves safe llmAgent options when changing the assistant model', () => {
@@ -677,7 +562,7 @@ describe('StoreService', () => {
 				options: { agents: { defaultAgentId: 'main' } },
 			});
 
-			service.setAssistantOperator('openai', model);
+			service.setAgentService('openai', model);
 
 			expect(store.get('llmAgent')).toEqual({
 				providerId: 'openai',
@@ -686,18 +571,18 @@ describe('StoreService', () => {
 			});
 		});
 
-		it('does not create legacy rag and ocr fields when no current operator state exists', () => {
+		it('does not create legacy rag and ocr fields when no current service state exists', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
 				'modelProviders',
 				[openaiProvider]
 			);
 
-			service.setAssistantOperator('openai', model);
+			service.setAgentService('openai', model);
 
-			const written = service.getOperator();
-			expect(written?.rag).toBeUndefined();
-			expect(written?.ocr).toBeUndefined();
+			const store = storeFor(service);
+			expect(store.get('rag')).toBeUndefined();
+			expect(store.get('ocr')).toBeUndefined();
 		});
 
 		it('writes the provider without the apiKey field', () => {
@@ -707,11 +592,11 @@ describe('StoreService', () => {
 				[openaiProvider]
 			);
 
-			service.setAssistantOperator('openai', model);
+			service.setAgentService('openai', model);
 
-			const written = service.getOperator();
-			expect(written?.assistant?.provider).not.toHaveProperty('apiKey');
-			expect(written?.assistant?.provider).toEqual({
+			const written = service.getAgentService();
+			expect(written?.provider).not.toHaveProperty('apiKey');
+			expect(written?.provider).toEqual({
 				id: 'openai',
 				name: 'OpenAI',
 				baseUrl: 'https://api.openai.com/v1',
@@ -725,9 +610,9 @@ describe('StoreService', () => {
 				[openaiProvider]
 			);
 
-			service.setAssistantOperator('openai', model);
+			service.setAgentService('openai', model);
 
-			expect(service.getOperator()?.assistant?.model).toEqual(model);
+			expect(service.getAgentService()?.model).toEqual(model);
 		});
 
 		it('persists the compact agent module selection at the root', () => {
@@ -739,7 +624,7 @@ describe('StoreService', () => {
 			).store;
 			store.set('modelProviders', [openaiProvider]);
 
-			service.setAssistantOperator('openai', { ...model, effort: 'high' });
+			service.setAgentService('openai', { ...model, effort: 'high' });
 
 			expect(store.get('llmAgent')).toEqual({
 				providerId: 'openai',
@@ -751,7 +636,7 @@ describe('StoreService', () => {
 		});
 	});
 
-	describe('setImageCreatorOperator()', () => {
+	describe('setImageCreatorService()', () => {
 		it('persists the compact imageCreator module selection at the root', () => {
 			const service = new StoreService();
 			const store = (
@@ -761,7 +646,7 @@ describe('StoreService', () => {
 			).store;
 			store.set('modelProviders', [imageProvider]);
 
-			const result = service.setImageCreatorOperator('black-forest-labs', imageModel);
+			const result = service.setImageCreatorService('black-forest-labs', imageModel);
 
 			expect(result).toBe(true);
 			expect(store.get('imageCreator')).toEqual({
@@ -771,17 +656,16 @@ describe('StoreService', () => {
 			expect(store.get('service')).toBeUndefined();
 		});
 
-		it('returns the image creator operator without exposing the provider api key', () => {
+		it('returns the image creator service without exposing the provider api key', () => {
 			const service = new StoreService();
 			(service as unknown as { store: { set: (k: string, v: unknown) => void } }).store.set(
 				'modelProviders',
 				[imageProvider]
 			);
 
-			service.setImageCreatorOperator('black-forest-labs', imageModel);
+			service.setImageCreatorService('black-forest-labs', imageModel);
 
-			expect(service.getImageCreatorOperator()).toMatchObject({
-				id: 'image-assistant',
+			expect(service.getImageCreatorService()).toMatchObject({
 				provider: {
 					id: 'black-forest-labs',
 					name: 'Black Forest Labs',
@@ -789,7 +673,7 @@ describe('StoreService', () => {
 				},
 				model: imageModel,
 			});
-			expect(service.getImageCreatorOperator()?.provider).not.toHaveProperty('apiKey');
+			expect(service.getImageCreatorService()?.provider).not.toHaveProperty('apiKey');
 		});
 
 		it('rejects providers without image capability', () => {
@@ -799,8 +683,8 @@ describe('StoreService', () => {
 				[anthropicProvider]
 			);
 
-			expect(service.setImageCreatorOperator('anthropic', imageModel)).toBe(false);
-			expect(service.getImageCreatorOperator()).toBeUndefined();
+			expect(service.setImageCreatorService('anthropic', imageModel)).toBe(false);
+			expect(service.getImageCreatorService()).toBeUndefined();
 		});
 
 		it('rejects unsupported image model ids', () => {
@@ -810,20 +694,20 @@ describe('StoreService', () => {
 				[imageProvider]
 			);
 
-			expect(service.setImageCreatorOperator('black-forest-labs', model)).toBe(false);
-			expect(service.getImageCreatorOperator()).toBeUndefined();
+			expect(service.setImageCreatorService('black-forest-labs', model)).toBe(false);
+			expect(service.getImageCreatorService()).toBeUndefined();
 		});
 	});
 
-	describe('pending runtime model operators', () => {
+	describe('pending runtime model services', () => {
 		it('persists compact text-to-speech, video, and music selections', () => {
 			const service = new StoreService();
 			const store = storeFor(service);
 			store.set('modelProviders', [textToSpeechProvider, videoProvider, musicProvider]);
 
-			expect(service.setTextToSpeechOperator('elevenlabs', textToSpeechModel)).toBe(true);
-			expect(service.setTextToVideoOperator('runway', videoModel)).toBe(true);
-			expect(service.setMusicCreatorOperator('suno', musicModel)).toBe(true);
+			expect(service.setTextToSpeechService('elevenlabs', textToSpeechModel)).toBe(true);
+			expect(service.setTextToVideoService('runway', videoModel)).toBe(true);
+			expect(service.setTextToSoundService('suno', musicModel)).toBe(true);
 
 			expect(store.get('textToSpeech')).toEqual({
 				providerId: 'elevenlabs',
@@ -837,22 +721,19 @@ describe('StoreService', () => {
 				providerId: 'suno',
 				modelId: 'suno-v5.5',
 			});
-			expect(service.getTextToSpeechOperator()).toMatchObject({
-				id: 'text-to-speech',
+			expect(service.getTextToSpeechService()).toMatchObject({
 				provider: { id: 'elevenlabs', name: 'ElevenLabs' },
 				model: textToSpeechModel,
 			});
-			expect(service.getTextToVideoOperator()).toMatchObject({
-				id: 'text-to-video',
+			expect(service.getTextToVideoService()).toMatchObject({
 				provider: { id: 'runway', name: 'Runway' },
 				model: videoModel,
 			});
-			expect(service.getMusicCreatorOperator()).toMatchObject({
-				id: 'music-creator',
+			expect(service.getTextToSoundService()).toMatchObject({
 				provider: { id: 'suno', name: 'Suno' },
 				model: musicModel,
 			});
-			expect(service.getMusicCreatorOperator()?.provider).not.toHaveProperty('apiKey');
+			expect(service.getTextToSoundService()?.provider).not.toHaveProperty('apiKey');
 		});
 
 		it('rejects unsupported pending-runtime model selections', () => {
@@ -860,12 +741,12 @@ describe('StoreService', () => {
 			const store = storeFor(service);
 			store.set('modelProviders', [textToSpeechProvider, videoProvider, anthropicProvider]);
 
-			expect(service.setTextToSpeechOperator('elevenlabs', model)).toBe(false);
-			expect(service.setTextToVideoOperator('runway', model)).toBe(false);
-			expect(service.setMusicCreatorOperator('anthropic', musicModel)).toBe(false);
-			expect(service.getTextToSpeechOperator()).toBeUndefined();
-			expect(service.getTextToVideoOperator()).toBeUndefined();
-			expect(service.getMusicCreatorOperator()).toBeUndefined();
+			expect(service.setTextToSpeechService('elevenlabs', model)).toBe(false);
+			expect(service.setTextToVideoService('runway', model)).toBe(false);
+			expect(service.setTextToSoundService('anthropic', musicModel)).toBe(false);
+			expect(service.getTextToSpeechService()).toBeUndefined();
+			expect(service.getTextToVideoService()).toBeUndefined();
+			expect(service.getTextToSoundService()).toBeUndefined();
 		});
 	});
 
