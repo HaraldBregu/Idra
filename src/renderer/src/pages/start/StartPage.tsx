@@ -875,7 +875,7 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAssistantOperator(
+			await window.app.saveAgentService(
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
@@ -890,7 +890,7 @@ const StartPage: React.FC = () => {
 					id: selectedSpeechOption.id,
 					name: selectedSpeechOption.name,
 				};
-				const saved = await window.app.saveSpeechToTextOperator(
+				const saved = await window.app.saveSpeechTranscriberService(
 					selectedSpeechGroup.provider,
 					modelToSave
 				);
@@ -901,13 +901,12 @@ const StartPage: React.FC = () => {
 					id: selectedTextToSpeechOption.model.id,
 					name: selectedTextToSpeechOption.model.name,
 				};
-				const saved = await window.app.saveTextToSpeechOperator(
+				const saved = await window.app.saveTextToSpeechService(
 					selectedTextToSpeechOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected text-to-speech model.');
-				setSavedTextToSpeechOperator({
-					...OPERATOR_DEFINITIONS.textToSpeech,
+				setSavedTextToSpeechService({
 					provider: selectedTextToSpeechOption.provider,
 					model: modelToSave,
 				});
@@ -917,13 +916,12 @@ const StartPage: React.FC = () => {
 					id: selectedImageCreatorOption.model.id,
 					name: selectedImageCreatorOption.model.name,
 				};
-				const saved = await window.app.saveImageCreatorOperator(
+				const saved = await window.app.saveImageCreatorService(
 					selectedImageCreatorOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected image model.');
-				setSavedImageCreatorOperator({
-					...OPERATOR_DEFINITIONS.imageCreator,
+				setSavedImageCreatorService({
 					provider: selectedImageCreatorOption.provider,
 					model: modelToSave,
 				});
@@ -933,13 +931,12 @@ const StartPage: React.FC = () => {
 					id: selectedTextToVideoOption.model.id,
 					name: selectedTextToVideoOption.model.name,
 				};
-				const saved = await window.app.saveTextToVideoOperator(
+				const saved = await window.app.saveTextToVideoService(
 					selectedTextToVideoOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected video model.');
-				setSavedTextToVideoOperator({
-					...OPERATOR_DEFINITIONS.videoCreator,
+				setSavedTextToVideoService({
 					provider: selectedTextToVideoOption.provider,
 					model: modelToSave,
 				});
@@ -949,13 +946,12 @@ const StartPage: React.FC = () => {
 					id: selectedMusicCreatorOption.model.id,
 					name: selectedMusicCreatorOption.model.name,
 				};
-				const saved = await window.app.saveMusicCreatorOperator(
+				const saved = await window.app.saveTextToSoundService(
 					selectedMusicCreatorOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected audio model.');
-				setSavedMusicCreatorOperator({
-					...OPERATOR_DEFINITIONS.musicCreator,
+				setSavedMusicCreatorService({
 					provider: selectedMusicCreatorOption.provider,
 					model: modelToSave,
 				});
