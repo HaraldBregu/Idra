@@ -28,26 +28,13 @@ export interface AgentApi {
 }
 
 export interface CronApi {
-	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
-	list: () => Promise<CronTaskView[]>;
-	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<FridayCronJob[]>;
-	remove: (id: string) => Promise<void>;
-	removeJob: (id: string) => Promise<void>;
-	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest) => Promise<CronSchedule>;
 	pauseSchedule: (scheduleId: string) => Promise<void>;
 	resumeSchedule: (scheduleId: string) => Promise<void>;
 	deleteSchedule: (scheduleId: string) => Promise<void>;
 	listSchedules: (filter?: CronScheduleFilter) => Promise<CronSchedule[]>;
 	getSchedule: (scheduleId: string) => Promise<CronSchedule>;
-	getScheduleEvents: (scheduleId: string) => Promise<CronScheduleEvent[]>;
-	getScheduleExecutions: (scheduleId: string) => Promise<CronExecutionRecord[]>;
-	getNextRuns: (scheduleId: string, count: number) => Promise<CronNextRunPreview>;
 	runNow: (scheduleId: string) => Promise<CronScheduledTask>;
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
-	subscribeToSchedule: (
-		scheduleId: string,
-		listener: (event: CronScheduleEvent) => void
-	) => () => void;
 }
 
 export interface HeartbeatApi {
@@ -161,17 +148,10 @@ export interface StoreApi {
 
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type {
-	CronExecutionRecord,
-	CronNextRunPreview,
 	CronSchedule,
 	CronScheduleEvent,
 	CronScheduleFilter,
-	CronScheduleUpdateRequest,
-	CronTaskView,
 	CronScheduledTask,
-	FridayCronToolRequest,
-	FridayCronToolResponse,
-	FridayCronJob,
 } from '../shared/cron';
 import type {
 	HeartbeatEventPayload,
