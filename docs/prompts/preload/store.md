@@ -22,22 +22,22 @@ Expose store-backed settings through `window.store`. This API is the renderer-sa
 - Check whether a provider API key is saved.
 - Add a valid provider.
 - Read and update keep-awake state.
-- Read and save assistant operator selection.
-- Read and save speech-to-text operator selection.
-- Read and save text-to-speech operator selection.
-- Read and save image creator operator selection.
-- Read and save text-to-video operator selection.
-- Read and save music creator operator selection.
+- Read and save assistant model service selection.
+- Read and save speech-to-text model service selection.
+- Read and save text-to-speech model service selection.
+- Read and save image creator model service selection.
+- Read and save text-to-video model service selection.
+- Read and save text-to-sound model service selection.
 - Read and save agent-service selection.
 - Read and save speech-transcriber selection.
 
 ## Dependencies
 
-- Shared provider, model, operator, and service-selection types.
+- Shared provider, model, and service-selection types.
 - Typed store invoke channels.
 - A main-process handler that delegates to `StoreService`.
 - Main-process power-save behavior for keep-awake settings.
-- Main-process validation for providers, models, and operator selections.
+- Main-process validation for providers, models, and service selections.
 
 ## Rules
 
@@ -46,7 +46,7 @@ Expose store-backed settings through `window.store`. This API is the renderer-sa
 - Treat the store documentation as the canonical list of store-backed properties to expose.
 - Add a typed read path for each documented property before renderer code depends on it.
 - Keep property-specific writes scoped to the owning property.
-- Keep provider id, URL, API key, model, and operator validation outside preload.
+- Keep provider id, URL, API key, model, and service validation outside preload.
 - Keep power-save side effects in the main process.
 - Do not expose generic get/set methods for arbitrary store keys.
 
