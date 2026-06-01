@@ -167,7 +167,7 @@
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
 				"providers": "AI API keys",
-				"cron": "Tasks",
+				"cron": "View, run, pause, and delete scheduled agent tasks",
 				"taskManager": "Background tasks",
 				"heartbeat": "Periodic agent checks"
 			}
@@ -474,6 +474,7 @@
 			"notFoundDescription": "The connector may have been removed."
 		},
 		"cron": {
+			"description": "View, run, pause, and delete scheduled agent tasks.",
 			"columns": {
 				"id": "Id",
 				"message": "Message",
@@ -546,7 +547,7 @@
 			"notFoundTitle": "Scheduled task not found",
 			"notFoundDescription": "The scheduled task may have been removed.",
 			"emptyTitle": "No tasks",
-			"emptyDescription": "Tasks will appear here once they are configured."
+			"emptyDescription": "Agent tasks scheduled for later or recurring work will appear here."
 		},
 		"taskManager": {
 			"description": "Background task runs and their current state.",
