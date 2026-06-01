@@ -25,7 +25,7 @@ import {
 export type { AgentRunStreamEvent } from '../../shared/agents/events';
 
 export interface AgentProviderLookup {
-	getAssistantOperator(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
+	getAgentService(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
 	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
 }
 
@@ -194,10 +194,10 @@ function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdap
 	if (!store) {
 		throw new Error('provider and model are required when no store is provided.');
 	}
-	const operator = store.getAssistantOperator();
-	if (!operator) throw new Error('Agent provider not configured.');
-	const providerId = operator.provider.id.trim().toLowerCase();
-	const model = input.model?.trim() || operator.model.id.trim() || operator.model.name.trim();
+	const selection = store.getAgentService();
+	if (!selection) throw new Error('Agent provider not configured.');
+	const providerId = selection.provider.id.trim().toLowerCase();
+	const model = input.model?.trim() || selection.model.id.trim() || selection.model.name.trim();
 	if (!model) throw new Error('Agent model not configured.');
 	const providerConfig = store.getProviderById(providerId);
 	if (!providerConfig) throw new Error(`Provider not configured: ${providerId}`);
@@ -205,7 +205,7 @@ function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdap
 	if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 	const factory = input.providerFactory ?? makeProvider;
 	const provider = input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
-	const effort = input.effort ?? operator.model.effort;
+	const effort = input.effort ?? selection.model.effort;
 	return { provider, model, effort };
 }
 

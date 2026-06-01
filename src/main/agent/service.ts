@@ -1014,7 +1014,7 @@ export class AgentService {
 		effort?: ModelReasoningEffort;
 		baseURL?: string;
 	} {
-		const assistant = this.dependencies.store.getAssistantOperator();
+		const assistant = this.dependencies.store.getAgentService();
 		const configuredProviderId = assistant?.provider.id.trim().toLowerCase() ?? '';
 		const configuredModel = assistant?.model.id.trim() || assistant?.model.name.trim() || '';
 		const providerId = overrides.providerId?.trim().toLowerCase() || configuredProviderId;
