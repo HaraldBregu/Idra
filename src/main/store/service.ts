@@ -313,36 +313,12 @@ export class StoreService {
 		this.setStoredModelProviders(providers);
 	}
 
-	getAssistantOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('assistant');
-	}
-
 	getAssistantModel(): Model | undefined {
-		return this.getAssistantOperator()?.model;
+		return this.getModelSelection('assistant')?.model;
 	}
 
 	getAssistantProvider(): Omit<Provider, 'apiKey'> | undefined {
-		return this.getAssistantOperator()?.provider;
-	}
-
-	getSpeechToTextOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('speechToText');
-	}
-
-	getTextToSpeechOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToSpeech');
-	}
-
-	getImageCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('imageCreator');
-	}
-
-	getTextToVideoOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToVideo');
-	}
-
-	getMusicCreatorOperator(): ConfiguredModelOperator | undefined {
-		return this.getConfiguredModelOperator('textToSound');
+		return this.getModelSelection('assistant')?.provider;
 	}
 
 	getImageCreatorSettings(): ModelModuleSettings | undefined {
