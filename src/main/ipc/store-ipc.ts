@@ -11,8 +11,7 @@ import {
 	isAllowedTextToVideoModel,
 	requireModelReasoningEffort,
 	supportsModelReasoningEffortProvider,
-	type Agent,
-	type ConfiguredModelOperator,
+	type ModelSelection,
 	type Model,
 } from '../../shared/agents/service';
 import { isAllowedAgentModel } from '../../shared/agents/models';
@@ -145,9 +144,9 @@ export class StoreIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
-			const agentSettings = container.get('agentSettings');
-			const connectors = container.get('connectors');
-			const logger = container.get('logger');
+		const agentSettings = container.get('agentSettings');
+		const connectors = container.get('connectors');
+		const logger = container.get('logger');
 
 		ipcMain.handle(
 			StoreChannels.getProviders,
@@ -253,140 +252,9 @@ export class StoreIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			StoreChannels.getAssistantOperator,
-			wrapSimpleHandler(
-				(): ConfiguredModelOperator | undefined => store.getAssistantOperator(),
-				StoreChannels.getAssistantOperator
-			)
-		);
-
-		ipcMain.handle(
-			StoreChannels.saveAssistantOperator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
-				return store.setAssistantOperator(provider.id, agentModelOrThrow(provider.id, model));
-			}, StoreChannels.saveAssistantOperator)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getSpeechToTextOperator,
-			wrapSimpleHandler(
-				(): ConfiguredModelOperator | undefined => store.getSpeechToTextOperator(),
-				StoreChannels.getSpeechToTextOperator
-			)
-		);
-
-		ipcMain.handle(
-			StoreChannels.saveSpeechToTextOperator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
-				const storedProvider = getStoredProvider(store, provider);
-				return store.setSpeechToTextOperator(
-					storedProvider.id,
-					speechToTextModelOrThrow(storedProvider.id, model)
-				);
-			}, StoreChannels.saveSpeechToTextOperator)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getTextToSpeechOperator,
-			wrapSimpleHandler(
-				(): ConfiguredModelOperator | undefined => store.getTextToSpeechOperator(),
-				StoreChannels.getTextToSpeechOperator
-			)
-		);
-
-		ipcMain.handle(
-			StoreChannels.saveTextToSpeechOperator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
-				const storedProvider = getStoredProvider(store, provider);
-				return store.setTextToSpeechOperator(
-					storedProvider.id,
-					catalogModelOrThrow(
-						storedProvider.id,
-						model,
-						getTextToSpeechModels,
-						isAllowedTextToSpeechModel,
-						'text-to-speech work'
-					)
-				);
-			}, StoreChannels.saveTextToSpeechOperator)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getImageCreatorOperator,
-			wrapSimpleHandler(
-				(): ConfiguredModelOperator | undefined => store.getImageCreatorOperator(),
-				StoreChannels.getImageCreatorOperator
-			)
-		);
-
-		ipcMain.handle(
-			StoreChannels.saveImageCreatorOperator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
-				const storedProvider = getStoredProvider(store, provider);
-				if (!isAllowedImageCreatorModelForProvider(storedProvider, model.id)) {
-					throw new Error(`Model is not supported for text-to-image work: ${model.id}`);
-				}
-				return store.setImageCreatorOperator(storedProvider.id, {
-					id: model.id,
-					name: model.name,
-				});
-			}, StoreChannels.saveImageCreatorOperator)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getTextToVideoOperator,
-			wrapSimpleHandler(
-				(): ConfiguredModelOperator | undefined => store.getTextToVideoOperator(),
-				StoreChannels.getTextToVideoOperator
-			)
-		);
-
-		ipcMain.handle(
-			StoreChannels.saveTextToVideoOperator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
-				const storedProvider = getStoredProvider(store, provider);
-				return store.setTextToVideoOperator(
-					storedProvider.id,
-					catalogModelOrThrow(
-						storedProvider.id,
-						model,
-						getTextToVideoModels,
-						isAllowedTextToVideoModel,
-						'text-to-video work'
-					)
-				);
-			}, StoreChannels.saveTextToVideoOperator)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getMusicCreatorOperator,
-			wrapSimpleHandler(
-				(): ConfiguredModelOperator | undefined => store.getMusicCreatorOperator(),
-				StoreChannels.getMusicCreatorOperator
-			)
-		);
-
-		ipcMain.handle(
-			StoreChannels.saveMusicCreatorOperator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
-				const storedProvider = getStoredProvider(store, provider);
-				return store.setMusicCreatorOperator(
-					storedProvider.id,
-					catalogModelOrThrow(
-						storedProvider.id,
-						model,
-						getMusicCreatorModels,
-						isAllowedMusicCreatorModel,
-						'music creation work'
-					)
-				);
-			}, StoreChannels.saveMusicCreatorOperator)
-		);
-
-		ipcMain.handle(
 			StoreChannels.getAgentService,
 			wrapSimpleHandler(
-				(): Agent | undefined => store.getAgentService(),
+				(): ModelSelection | undefined => store.getAgentService(),
 				StoreChannels.getAgentService
 			)
 		);
@@ -401,7 +269,7 @@ export class StoreIpc implements IpcModule {
 		ipcMain.handle(
 			StoreChannels.getSpeechTranscriberService,
 			wrapSimpleHandler(
-				(): Agent | undefined => store.getSpeechTranscriberService(),
+				(): ModelSelection | undefined => store.getSpeechTranscriberService(),
 				StoreChannels.getSpeechTranscriberService
 			)
 		);
@@ -415,6 +283,103 @@ export class StoreIpc implements IpcModule {
 					speechToTextModelOrThrow(storedProvider.id, model)
 				);
 			}, StoreChannels.saveSpeechTranscriberService)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTextToSpeechService,
+			wrapSimpleHandler(
+				(): ModelSelection | undefined => store.getTextToSpeechService(),
+				StoreChannels.getTextToSpeechService
+			)
+		);
+
+		ipcMain.handle(
+			StoreChannels.saveTextToSpeechService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
+				const storedProvider = getStoredProvider(store, provider);
+				return store.setTextToSpeechService(
+					storedProvider.id,
+					catalogModelOrThrow(
+						storedProvider.id,
+						model,
+						getTextToSpeechModels,
+						isAllowedTextToSpeechModel,
+						'text-to-speech work'
+					)
+				);
+			}, StoreChannels.saveTextToSpeechService)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getImageCreatorService,
+			wrapSimpleHandler(
+				(): ModelSelection | undefined => store.getImageCreatorService(),
+				StoreChannels.getImageCreatorService
+			)
+		);
+
+		ipcMain.handle(
+			StoreChannels.saveImageCreatorService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
+				const storedProvider = getStoredProvider(store, provider);
+				if (!isAllowedImageCreatorModelForProvider(storedProvider, model.id)) {
+					throw new Error(`Model is not supported for text-to-image work: ${model.id}`);
+				}
+				return store.setImageCreatorService(storedProvider.id, {
+					id: model.id,
+					name: model.name,
+				});
+			}, StoreChannels.saveImageCreatorService)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTextToVideoService,
+			wrapSimpleHandler(
+				(): ModelSelection | undefined => store.getTextToVideoService(),
+				StoreChannels.getTextToVideoService
+			)
+		);
+
+		ipcMain.handle(
+			StoreChannels.saveTextToVideoService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
+				const storedProvider = getStoredProvider(store, provider);
+				return store.setTextToVideoService(
+					storedProvider.id,
+					catalogModelOrThrow(
+						storedProvider.id,
+						model,
+						getTextToVideoModels,
+						isAllowedTextToVideoModel,
+						'text-to-video work'
+					)
+				);
+			}, StoreChannels.saveTextToVideoService)
+		);
+
+		ipcMain.handle(
+			StoreChannels.getTextToSoundService,
+			wrapSimpleHandler(
+				(): ModelSelection | undefined => store.getTextToSoundService(),
+				StoreChannels.getTextToSoundService
+			)
+		);
+
+		ipcMain.handle(
+			StoreChannels.saveTextToSoundService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model): boolean => {
+				const storedProvider = getStoredProvider(store, provider);
+				return store.setTextToSoundService(
+					storedProvider.id,
+					catalogModelOrThrow(
+						storedProvider.id,
+						model,
+						getMusicCreatorModels,
+						isAllowedMusicCreatorModel,
+						'music creation work'
+					)
+				);
+			}, StoreChannels.saveTextToSoundService)
 		);
 
 		logger.info('StoreIpc', `Registered ${this.name} module`);

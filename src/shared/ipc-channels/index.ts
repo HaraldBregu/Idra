@@ -32,6 +32,11 @@ export const ProviderChannels = {
 	getAll: 'provider:get-all',
 	add: 'provider:add',
 	getModels: 'provider:get-models',
+	getSpeechToTextModels: 'provider:get-speech-to-text-models',
+	getTextToSpeechModels: 'provider:get-text-to-speech-models',
+	getImageCreatorModels: 'provider:get-image-creator-models',
+	getTextToVideoModels: 'provider:get-text-to-video-models',
+	getTextToSoundModels: 'provider:get-text-to-sound-models',
 	getAgentService: 'provider:get-agent-service',
 	saveAgentService: 'provider:save-agent-service',
 	getSpeechTranscriberService: 'provider:get-speech-transcriber-service',
@@ -166,6 +171,14 @@ export const StoreChannels = {
 	saveAgentService: 'store:save-agent-service',
 	getSpeechTranscriberService: 'store:get-speech-transcriber-service',
 	saveSpeechTranscriberService: 'store:save-speech-transcriber-service',
+	getTextToSpeechService: 'store:get-text-to-speech-service',
+	saveTextToSpeechService: 'store:save-text-to-speech-service',
+	getImageCreatorService: 'store:get-image-creator-service',
+	saveImageCreatorService: 'store:save-image-creator-service',
+	getTextToVideoService: 'store:get-text-to-video-service',
+	saveTextToVideoService: 'store:save-text-to-video-service',
+	getTextToSoundService: 'store:get-text-to-sound-service',
+	saveTextToSoundService: 'store:save-text-to-sound-service',
 } as const;
 
 interface AppInvokeChannelMap {
@@ -242,6 +255,26 @@ interface AppInvokeChannelMap {
 		result: import('../providers').PublicProvider;
 	};
 	[ProviderChannels.getModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[ProviderChannels.getSpeechToTextModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[ProviderChannels.getTextToSpeechModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[ProviderChannels.getImageCreatorModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[ProviderChannels.getTextToVideoModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[ProviderChannels.getTextToSoundModels]: {
 		args: [provider: import('../providers').PublicProvider];
 		result: import('../agents/service').Model[];
 	};
@@ -627,6 +660,50 @@ interface StoreInvokeChannelMap {
 		result: import('../agents/service').ModelSelection | undefined;
 	};
 	[StoreChannels.saveSpeechTranscriberService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToSpeechService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[StoreChannels.saveTextToSpeechService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getImageCreatorService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[StoreChannels.saveImageCreatorService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToVideoService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[StoreChannels.saveTextToVideoService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[StoreChannels.getTextToSoundService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[StoreChannels.saveTextToSoundService]: {
 		args: [
 			provider: import('../providers').PublicProvider,
 			model: import('../agents/service').Model,

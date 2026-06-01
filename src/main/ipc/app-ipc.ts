@@ -15,8 +15,7 @@ import {
 	isAllowedTextToVideoModel,
 	requireModelReasoningEffort,
 	supportsModelReasoningEffortProvider,
-	type Agent,
-	type ConfiguredModelOperator,
+	type ModelSelection,
 	type Model,
 } from '../../shared/agents/service';
 import type {
@@ -33,7 +32,7 @@ import {
 	isAllowedAgentModel,
 } from '../../shared/agents/models';
 import { wrapSimpleHandler } from './ipc-error-handler';
-import { AppChannels, OperatorChannels, ProviderChannels } from '../../shared/ipc-channels';
+import { AppChannels, ProviderChannels } from '../../shared/ipc-channels';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
@@ -393,213 +392,63 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			OperatorChannels.getAssistant,
-			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
-				return store.getAssistantOperator();
-			}, OperatorChannels.getAssistant)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.saveAssistant,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				if (!isAllowedAgentModel(provider.id, model.id)) {
-					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
-				}
-				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave = supportsModelReasoningEffortProvider(normalizedProviderId)
-					? {
-							...model,
-							effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
-						}
-					: { id: model.id, name: model.name };
-				return store.setAssistantOperator(provider.id, modelToSave);
-			}, OperatorChannels.saveAssistant)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getSpeechToText,
-			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
-				return store.getSpeechToTextOperator();
-			}, OperatorChannels.getSpeechToText)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getSpeechToTextModels,
+			ProviderChannels.getSpeechToTextModels,
 			wrapSimpleHandler((provider: PublicProvider): Model[] => {
 				const storedProvider = store.getProviderById(provider.id);
 				if (!storedProvider) {
 					throw new Error(`Provider not found: ${provider.id}`);
 				}
 				return getSpeechToTextModels(storedProvider.id);
-			}, OperatorChannels.getSpeechToTextModels)
+			}, ProviderChannels.getSpeechToTextModels)
 		);
 
 		ipcMain.handle(
-			OperatorChannels.saveSpeechToText,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = store.getProviderById(provider.id);
-				if (!storedProvider) {
-					throw new Error(`Provider not found: ${provider.id}`);
-				}
-				return store.setSpeechToTextOperator(
-					storedProvider.id,
-					speechToTextModelOrThrow(storedProvider.id, model)
-				);
-			}, OperatorChannels.saveSpeechToText)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getTextToSpeech,
-			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
-				return store.getTextToSpeechOperator();
-			}, OperatorChannels.getTextToSpeech)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getTextToSpeechModels,
+			ProviderChannels.getTextToSpeechModels,
 			wrapSimpleHandler((provider: PublicProvider): Model[] => {
 				const storedProvider = store.getProviderById(provider.id);
 				if (!storedProvider) {
 					throw new Error(`Provider not found: ${provider.id}`);
 				}
 				return getTextToSpeechModels(storedProvider.id);
-			}, OperatorChannels.getTextToSpeechModels)
+			}, ProviderChannels.getTextToSpeechModels)
 		);
 
 		ipcMain.handle(
-			OperatorChannels.saveTextToSpeech,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = store.getProviderById(provider.id);
-				if (!storedProvider) {
-					throw new Error(`Provider not found: ${provider.id}`);
-				}
-				return store.setTextToSpeechOperator(
-					storedProvider.id,
-					catalogModelOrThrow(
-						storedProvider.id,
-						model,
-						getTextToSpeechModels,
-						isAllowedTextToSpeechModel,
-						'text-to-speech work'
-					)
-				);
-			}, OperatorChannels.saveTextToSpeech)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getImageCreator,
-			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
-				return store.getImageCreatorOperator();
-			}, OperatorChannels.getImageCreator)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getImageCreatorModels,
+			ProviderChannels.getImageCreatorModels,
 			wrapSimpleHandler((provider: PublicProvider): Model[] => {
 				const storedProvider = store.getProviderById(provider.id);
 				if (!storedProvider) {
 					throw new Error(`Provider not found: ${provider.id}`);
 				}
 				return getImageCreatorModelsForProvider(storedProvider);
-			}, OperatorChannels.getImageCreatorModels)
+			}, ProviderChannels.getImageCreatorModels)
 		);
 
 		ipcMain.handle(
-			OperatorChannels.saveImageCreator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = store.getProviderById(provider.id);
-				if (!storedProvider) {
-					throw new Error(`Provider not found: ${provider.id}`);
-				}
-				if (!isAllowedImageCreatorModelForProvider(storedProvider, model.id)) {
-					throw new Error(`Model is not supported for text-to-image work: ${model.id}`);
-				}
-				return store.setImageCreatorOperator(storedProvider.id, {
-					id: model.id,
-					name: model.name,
-				});
-			}, OperatorChannels.saveImageCreator)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getTextToVideo,
-			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
-				return store.getTextToVideoOperator();
-			}, OperatorChannels.getTextToVideo)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getTextToVideoModels,
+			ProviderChannels.getTextToVideoModels,
 			wrapSimpleHandler((provider: PublicProvider): Model[] => {
 				const storedProvider = store.getProviderById(provider.id);
 				if (!storedProvider) {
 					throw new Error(`Provider not found: ${provider.id}`);
 				}
 				return getTextToVideoModels(storedProvider.id);
-			}, OperatorChannels.getTextToVideoModels)
+			}, ProviderChannels.getTextToVideoModels)
 		);
 
 		ipcMain.handle(
-			OperatorChannels.saveTextToVideo,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = store.getProviderById(provider.id);
-				if (!storedProvider) {
-					throw new Error(`Provider not found: ${provider.id}`);
-				}
-				return store.setTextToVideoOperator(
-					storedProvider.id,
-					catalogModelOrThrow(
-						storedProvider.id,
-						model,
-						getTextToVideoModels,
-						isAllowedTextToVideoModel,
-						'text-to-video work'
-					)
-				);
-			}, OperatorChannels.saveTextToVideo)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getMusicCreator,
-			wrapSimpleHandler((): ConfiguredModelOperator | undefined => {
-				return store.getMusicCreatorOperator();
-			}, OperatorChannels.getMusicCreator)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.getMusicCreatorModels,
+			ProviderChannels.getTextToSoundModels,
 			wrapSimpleHandler((provider: PublicProvider): Model[] => {
 				const storedProvider = store.getProviderById(provider.id);
 				if (!storedProvider) {
 					throw new Error(`Provider not found: ${provider.id}`);
 				}
 				return getMusicCreatorModels(storedProvider.id);
-			}, OperatorChannels.getMusicCreatorModels)
-		);
-
-		ipcMain.handle(
-			OperatorChannels.saveMusicCreator,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = store.getProviderById(provider.id);
-				if (!storedProvider) {
-					throw new Error(`Provider not found: ${provider.id}`);
-				}
-				return store.setMusicCreatorOperator(
-					storedProvider.id,
-					catalogModelOrThrow(
-						storedProvider.id,
-						model,
-						getMusicCreatorModels,
-						isAllowedMusicCreatorModel,
-						'music creation work'
-					)
-				);
-			}, OperatorChannels.saveMusicCreator)
+			}, ProviderChannels.getTextToSoundModels)
 		);
 
 		ipcMain.handle(
 			ProviderChannels.getAgentService,
-			wrapSimpleHandler((): Agent | undefined => {
+			wrapSimpleHandler((): ModelSelection | undefined => {
 				return store.getAgentService();
 			}, ProviderChannels.getAgentService)
 		);
@@ -623,7 +472,7 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			ProviderChannels.getSpeechTranscriberService,
-			wrapSimpleHandler((): Agent | undefined => {
+			wrapSimpleHandler((): ModelSelection | undefined => {
 				return store.getSpeechTranscriberService();
 			}, ProviderChannels.getSpeechTranscriberService)
 		);

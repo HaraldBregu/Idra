@@ -398,6 +398,22 @@ export class StoreService {
 		return this.getModelSelection('speechToText');
 	}
 
+	getTextToSpeechService(): ModelSelection | undefined {
+		return this.getModelSelection('textToSpeech');
+	}
+
+	getImageCreatorService(): ModelSelection | undefined {
+		return this.getModelSelection('imageCreator');
+	}
+
+	getTextToVideoService(): ModelSelection | undefined {
+		return this.getModelSelection('textToVideo');
+	}
+
+	getTextToSoundService(): ModelSelection | undefined {
+		return this.getModelSelection('textToSound');
+	}
+
 	setAgentService(providerId: string, model: Model): boolean {
 		const provider = this.getProviderById(providerId);
 		if (!provider) {
@@ -421,6 +437,82 @@ export class StoreService {
 		this.store.set(
 			'speechToText',
 			modelModuleSettings(provider.id, catalogModel ?? model, current?.options)
+		);
+		return true;
+	}
+
+	setTextToSpeechService(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const catalogModel = getTextToSpeechModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
+		if (!catalogModel) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('textToSpeech');
+		this.store.set(
+			'textToSpeech',
+			modelModuleSettings(provider.id, catalogModel, current?.options)
+		);
+		return true;
+	}
+
+	setImageCreatorService(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const catalogModel = getImageCreatorModelsForProvider(provider).find(
+			(entry) => entry.id === model.id
+		);
+		if (!catalogModel) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('imageCreator');
+		this.store.set(
+			'imageCreator',
+			modelModuleSettings(provider.id, catalogModel, current?.options)
+		);
+		return true;
+	}
+
+	setTextToVideoService(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const catalogModel = getTextToVideoModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
+		if (!catalogModel) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('textToVideo');
+		this.store.set(
+			'textToVideo',
+			modelModuleSettings(provider.id, catalogModel, current?.options)
+		);
+		return true;
+	}
+
+	setTextToSoundService(providerId: string, model: Model): boolean {
+		const provider = this.getProviderById(providerId);
+		if (!provider) {
+			return false;
+		}
+		const catalogModel = getMusicModelsByProvider(provider.id).find(
+			(entry) => entry.id === model.id
+		);
+		if (!catalogModel) {
+			return false;
+		}
+		const current = this.getModelModuleSettings('textToSound');
+		this.store.set(
+			'textToSound',
+			modelModuleSettings(provider.id, catalogModel, current?.options)
 		);
 		return true;
 	}
