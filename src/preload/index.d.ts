@@ -31,14 +31,8 @@ export interface CronApi {
 	action: (request: FridayCronToolRequest) => Promise<FridayCronToolResponse>;
 	list: () => Promise<CronTaskView[]>;
 	listJobs: (include?: 'enabled' | 'disabled' | 'all') => Promise<FridayCronJob[]>;
-	add: <TData extends CronTaskData>(
-		expression: string,
-		data: TData,
-		options?: { id?: string; timezone?: string }
-	) => Promise<CronTask<TData>>;
 	remove: (id: string) => Promise<void>;
 	removeJob: (id: string) => Promise<void>;
-	createSchedule: (request: CronScheduleCreateRequest) => Promise<CronSchedule>;
 	updateSchedule: (scheduleId: string, patch: CronScheduleUpdateRequest) => Promise<CronSchedule>;
 	pauseSchedule: (scheduleId: string) => Promise<void>;
 	resumeSchedule: (scheduleId: string) => Promise<void>;
