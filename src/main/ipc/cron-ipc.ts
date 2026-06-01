@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { ipcMain } from 'electron';
 import type { IpcModule } from './ipc-module';
 import type { EventBus } from '../core/event-bus';
@@ -6,26 +5,14 @@ import type { MainServiceContainer } from '../core/services';
 import { wrapSimpleHandler } from './ipc-error-handler';
 import { CronChannels } from '../../shared/ipc-channels';
 import {
-	isCronTaskData,
 	type CronSchedulePermissionLevel,
-	type CronScheduleCreateRequest,
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
-	type CronTask,
-	type CronTaskData,
 	type CronTaskView,
 } from '../../shared/cron';
 
 function isObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function assertCreateRequest(value: unknown): asserts value is CronScheduleCreateRequest {
-	if (!isObject(value)) throw new Error('Invalid cron schedule request.');
-	if (typeof value.name !== 'string') throw new Error('Cron schedule name is required.');
-	if (typeof value.type !== 'string') throw new Error('Cron schedule type is required.');
-	if (typeof value.taskType !== 'string') throw new Error('Cron schedule taskType is required.');
-	if (typeof value.timezone !== 'string') throw new Error('Cron schedule timezone is required.');
 }
 
 function assertPatch(value: unknown): asserts value is CronScheduleUpdateRequest {
@@ -38,7 +25,6 @@ function uiActor(userId?: string) {
 		userId,
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
 		permissions: [
-			'createSchedule',
 			'updateSchedule',
 			'deleteSchedule',
 			'pauseSchedule',
@@ -65,44 +51,10 @@ export class CronIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			CronChannels.add,
-			wrapSimpleHandler(
-				(
-					expression: string,
-					data: CronTaskData,
-					options?: { id?: string; timezone?: string }
-				): CronTask => {
-					if (!isCronTaskData(data)) {
-						throw new Error('Invalid cron task data: missing string "type" discriminator');
-					}
-					const id = options?.id ?? randomUUID();
-					return cron.schedule(
-						id,
-						expression,
-						data,
-						() => {
-							logger.info('CronService', `Tick: ${id} '${expression}' — [${data.type}]`);
-						},
-						{ timezone: options?.timezone }
-					);
-				},
-				CronChannels.add
-			)
-		);
-
-		ipcMain.handle(
 			CronChannels.remove,
 			wrapSimpleHandler((id: string): void => {
 				cron.unschedule(id);
 			}, CronChannels.remove)
-		);
-
-		ipcMain.handle(
-			CronChannels.createSchedule,
-			wrapSimpleHandler((request: CronScheduleCreateRequest) => {
-				assertCreateRequest(request);
-				return cron.createSchedule({ ...request, source: request.source ?? 'ui' }, uiActor(request.ownerUserId));
-			}, CronChannels.createSchedule)
 		);
 
 		ipcMain.handle(
