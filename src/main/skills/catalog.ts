@@ -1,6 +1,68 @@
 import type { SkillCategory } from '../../shared/skills';
 import type { SkillDefinition } from './types';
-import { SkillVersionManager } from './version-manager';
+
+function versionParts(version: string): number[] {
+	return version
+		.split(/[+-]/)[0]
+		.split('.')
+		.map((part) => Number.parseInt(part, 10))
+		.map((part) => (Number.isFinite(part) ? part : 0));
+}
+
+export function compareSkillVersions(a: string, b: string): number {
+	const left = versionParts(a);
+	const right = versionParts(b);
+	const length = Math.max(left.length, right.length);
+	for (let index = 0; index < length; index++) {
+		const diff = (left[index] ?? 0) - (right[index] ?? 0);
+		if (diff !== 0) return diff;
+	}
+	return a.localeCompare(b);
+}
+
+export class SkillVersionManager {
+	latest<TSkill extends Pick<SkillDefinition, 'version'>>(skills: TSkill[]): TSkill | undefined {
+		return [...skills].sort((a, b) => compareSkillVersions(b.version, a.version))[0];
+	}
+
+	satisfies(version: string, range?: string): boolean {
+		const trimmed = range?.trim();
+		if (!trimmed || trimmed === '*') return true;
+		if (trimmed === version) return true;
+
+		if (trimmed.startsWith('>=')) {
+			return compareSkillVersions(version, trimmed.slice(2).trim()) >= 0;
+		}
+
+		if (trimmed.startsWith('^')) {
+			const base = trimmed.slice(1).trim();
+			const [major] = versionParts(base);
+			return versionParts(version)[0] === major && compareSkillVersions(version, base) >= 0;
+		}
+
+		if (trimmed.startsWith('~')) {
+			const base = trimmed.slice(1).trim();
+			const [major, minor] = versionParts(base);
+			const [actualMajor, actualMinor] = versionParts(version);
+			return actualMajor === major && actualMinor === minor && compareSkillVersions(version, base) >= 0;
+		}
+
+		if (trimmed.endsWith('.x') || trimmed.endsWith('.*')) {
+			const wanted = trimmed.slice(0, -2).split('.');
+			const actual = version.split('.');
+			return wanted.every((part, index) => actual[index] === part);
+		}
+
+		return false;
+	}
+
+	compatible<TSkill extends Pick<SkillDefinition, 'version'>>(
+		skills: TSkill[],
+		range?: string
+	): TSkill | undefined {
+		return this.latest(skills.filter((skill) => this.satisfies(skill.version, range)));
+	}
+}
 
 function normalizeSkillId(id: string): string {
 	const normalized = id.trim().toLowerCase();
@@ -110,5 +172,35 @@ export class SkillRegistry {
 	private compareVersions(a: string, b: string): number {
 		const left = this.versions.latest([{ version: a }, { version: b }]);
 		return left?.version === a ? 1 : -1;
+	}
+}
+
+export interface SkillDependencyResolution {
+	ok: boolean;
+	missing: string[];
+	warnings: string[];
+}
+
+export class SkillDependencyResolver {
+	private readonly versions = new SkillVersionManager();
+
+	constructor(private readonly registry: SkillRegistry) {}
+
+	resolve(skill: SkillDefinition): SkillDependencyResolution {
+		const missing: string[] = [];
+		const warnings: string[] = [];
+
+		for (const dependency of skill.dependencies) {
+			const versions = this.registry.getSkillVersions(dependency.id);
+			const compatible = this.versions.compatible(versions, dependency.version);
+			if (!compatible && !dependency.optional) {
+				missing.push(`${dependency.id}${dependency.version ? `@${dependency.version}` : ''}`);
+			}
+			if (!compatible && dependency.optional) {
+				warnings.push(`Optional skill dependency not available: ${dependency.id}`);
+			}
+		}
+
+		return { ok: missing.length === 0, missing, warnings };
 	}
 }
