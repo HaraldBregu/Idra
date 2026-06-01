@@ -21,7 +21,7 @@ import {
 } from '../../shared/cron';
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/types';
-import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store/store';
+import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store';
 import { CronSchedulerService } from './scheduler/scheduler';
 import { InMemoryCronScheduleRunner } from './scheduler/runner';
 
