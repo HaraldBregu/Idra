@@ -18,7 +18,7 @@ import type {
 import type { ModelModuleSettings } from '../../shared/store';
 import { RealtimeTranscriptionChannels } from '../../shared/ipc-channels';
 import type { Provider } from '../../shared/providers';
-import { createDefaultSpeechToTextAdapters } from './adapters';
+import { createDefaultSpeechToTextAdapters } from './router';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,

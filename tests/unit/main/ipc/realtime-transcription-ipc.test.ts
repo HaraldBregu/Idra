@@ -10,12 +10,12 @@ import {
 	createDeepgramRealtimeTranscriptionUrl,
 	createDeepgramSpeechToTextAdapter,
 	createDeepgramSpeechToTextUrl,
-} from '../../../../src/main/stt/adapters/deepgram/realtime';
+} from '../../../../src/main/stt/providers/deepgram';
 import {
 	createElevenLabsRealtimeTranscriptionUrl,
 	createElevenLabsSpeechToTextAdapter,
 	createElevenLabsSpeechToTextUrl,
-} from '../../../../src/main/stt/adapters/elevenlabs/realtime';
+} from '../../../../src/main/stt/providers/elevenlabs';
 import {
 	createOpenAIRealtimeSpeechToTextAdapter,
 	createRealtimeTranscriptionSessionUpdate,
@@ -23,22 +23,22 @@ import {
 	isInputAudioBufferTooSmallError,
 	resolveOpenAIRealtimeTranscriptionModel,
 	useRealtimeTranscriptionIntent,
-} from '../../../../src/main/stt/adapters/openai/realtime';
+} from '../../../../src/main/stt/providers/openai';
 import {
 	createMistralHttpServerUrl,
 	createMistralRealtimeServerUrl,
 	createMistralRealtimeSpeechToTextAdapter,
-} from '../../../../src/main/stt/adapters/mistral/realtime';
+} from '../../../../src/main/stt/providers/mistral';
 import {
 	createQwenRealtimeTranscriptionResponseCreate,
 	createQwenRealtimeTranscriptionSessionUpdate,
 	createQwenRealtimeTranscriptionUrl,
-} from '../../../../src/main/stt/adapters/qwen/realtime';
+} from '../../../../src/main/stt/providers/qwen';
 import {
 	createXaiRealtimeTranscriptionUrl,
 	createXaiSpeechToTextAdapter,
 	createXaiSpeechToTextUrl,
-} from '../../../../src/main/stt/adapters/xai/realtime';
+} from '../../../../src/main/stt/providers/xai';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,

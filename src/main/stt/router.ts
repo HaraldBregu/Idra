@@ -1,17 +1,17 @@
 import type { SpeechToTextRealtimeAdapter } from '../../../shared/speech-to-text-runtime';
-import { createDeepgramSpeechToTextAdapter } from './deepgram/realtime';
-import { createElevenLabsSpeechToTextAdapter } from './elevenlabs/realtime';
-import { createMistralRealtimeSpeechToTextAdapter } from './mistral/realtime';
-import { createOpenAIRealtimeSpeechToTextAdapter } from './openai/realtime';
-import { createQwenRealtimeSpeechToTextAdapter } from './qwen/realtime';
-import { createXaiSpeechToTextAdapter } from './xai/realtime';
+import { createDeepgramSpeechToTextAdapter } from './providers/deepgram';
+import { createElevenLabsSpeechToTextAdapter } from './providers/elevenlabs';
+import { createMistralRealtimeSpeechToTextAdapter } from './providers/mistral';
+import { createOpenAIRealtimeSpeechToTextAdapter } from './providers/openai';
+import { createQwenRealtimeSpeechToTextAdapter } from './providers/qwen';
+import { createXaiSpeechToTextAdapter } from './providers/xai';
 
-export * from './deepgram/realtime';
-export * from './elevenlabs/realtime';
-export * from './mistral/realtime';
-export * from './openai/realtime';
-export * from './qwen/realtime';
-export * from './xai/realtime';
+export * from './providers/deepgram';
+export * from './providers/elevenlabs';
+export * from './providers/mistral';
+export * from './providers/openai';
+export * from './providers/qwen';
+export * from './providers/xai';
 
 export function createDefaultSpeechToTextAdapters(): readonly SpeechToTextRealtimeAdapter[] {
 	return [
