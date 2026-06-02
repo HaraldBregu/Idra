@@ -35,14 +35,6 @@ export type EnsureWorkspaceOptions = {
 
 export type BootstrapMode = 'none' | 'limited' | 'full';
 
-const WORKSPACE_STATE_FILENAME = 'workspace-state.json';
-const WORKSPACE_STATE_VERSION = 1;
-
-type WorkspaceSetupState = {
-	version: typeof WORKSPACE_STATE_VERSION;
-	setupCompletedAt?: string;
-};
-
 const CONTEXT_FILE_PROMPT_ORDER = new Map<WorkspaceFileName, number>([
 	[DEFAULT_AGENTS_FILENAME, 10],
 	[DEFAULT_SOUL_FILENAME, 20],
@@ -140,10 +132,6 @@ export class WorkspaceService {
 		let files = await Promise.all(
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(this.rootPath, name))
 		);
-		const state = await this.readSetupState();
-		if (state.setupCompletedAt) {
-			files = files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
-		}
 		files = files.filter((file) => file.name !== DEFAULT_MEMORY_FILENAME || !file.missing);
 		for (const hook of this.contextHooks) {
 			files = await hook({ workspaceRoot: this.rootPath, files });
@@ -188,15 +176,12 @@ export class WorkspaceService {
 
 	async isBootstrapPending(): Promise<boolean> {
 		await this.ensureReady();
-		const state = await this.readSetupState();
-		if (state.setupCompletedAt) return false;
 		return this.exists(DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
 	async completeBootstrap(): Promise<WorkspaceContextFile> {
 		await this.ensureReady();
 		await fs.rm(path.join(this.rootPath, DEFAULT_BOOTSTRAP_FILENAME), { force: true });
-		await this.markSetupCompleted();
 		return this.readWorkspaceFile(DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
@@ -221,58 +206,6 @@ export class WorkspaceService {
 				rootPath: this.rootPath,
 			});
 		}
-	}
-
-	private async markSetupCompleted(): Promise<void> {
-		const state = await this.readSetupState();
-		await this.writeSetupState({
-			...state,
-			setupCompletedAt: state.setupCompletedAt ?? new Date().toISOString(),
-		});
-	}
-
-	private async readSetupState(): Promise<WorkspaceSetupState> {
-		const current = await this.readSetupStateFile(this.statePath());
-		if (current.found) return current.state;
-		return { version: WORKSPACE_STATE_VERSION };
-	}
-
-	private async readSetupStateFile(
-		statePath: string
-	): Promise<{ found: true; state: WorkspaceSetupState } | { found: false }> {
-		try {
-			const raw = await fs.readFile(statePath, 'utf8');
-			const parsed = JSON.parse(raw) as Partial<WorkspaceSetupState>;
-			return {
-					found: true,
-					state: {
-						version: WORKSPACE_STATE_VERSION,
-						setupCompletedAt:
-							typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
-					},
-			};
-		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-				return { found: false };
-			}
-			if (error instanceof SyntaxError) {
-				return { found: true, state: { version: WORKSPACE_STATE_VERSION } };
-			}
-			throw error;
-		}
-	}
-
-	private async writeSetupState(state: WorkspaceSetupState): Promise<void> {
-		const statePath = this.statePath();
-		await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
-		await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
-			encoding: 'utf8',
-				mode: 0o600,
-			});
-	}
-
-	private statePath(): string {
-		return path.join(this.rootPath, WORKSPACE_STATE_FILENAME);
 	}
 
 	private async assertSafeWritableWorkspaceFile(

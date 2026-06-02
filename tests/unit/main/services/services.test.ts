@@ -7,9 +7,6 @@ import { AgentStartupFilesService } from '../../../../src/main/agent/workspace';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('workspace service', () => {
-	const workspaceSetupStatePath = (workspaceRoot: string): string =>
-		path.join(workspaceRoot, 'workspace-state.json');
-
 	it('confines reads and writes to the configured root', async () => {
 		const root = await makeTempDir();
 		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
@@ -31,7 +28,7 @@ describe('workspace service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('stores completed workspace bootstrap state', async () => {
+	it('completes workspace bootstrap without writing state', async () => {
 		const root = await makeTempDir();
 		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
 		await service.ensureReady({ initializeGit: false });
@@ -41,9 +38,7 @@ describe('workspace service', () => {
 		await service.completeBootstrap();
 
 		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
-		await expect(fs.readFile(workspaceSetupStatePath(root), 'utf8')).resolves.toContain(
-			'setupCompletedAt'
-		);
+		await expect(fs.access(path.join(root, 'workspace-state.json'))).rejects.toThrow();
 		await expect(service.loadContextFiles()).resolves.toEqual(
 			expect.not.arrayContaining([expect.objectContaining({ name: 'BOOTSTRAP.md' })])
 		);
