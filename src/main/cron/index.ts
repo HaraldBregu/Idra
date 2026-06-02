@@ -1,5 +1,5 @@
-export { CronService } from './service';
-export type { CronServiceOptions, CronServiceActor } from './service';
+export { CronService } from './kernel';
+export type { CronServiceOptions, CronServiceActor } from './kernel';
 export type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 export * from './constants';
 export type * from './core/types';
@@ -8,7 +8,7 @@ export * from './core/validation';
 export * from './core/describer';
 export * from './store';
 export * from './calculator';
-export * from './runner';
+export * from './execution/loopner';
 export * from './scheduler';
 export * from './support';
 export * from './state';

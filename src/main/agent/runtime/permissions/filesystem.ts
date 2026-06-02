@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
-import type { AgentContext } from '../agent/agent-context';
-import type { PermissionDecision } from './permission-context';
+import type { AgentContext } from '../agent/context';
+import type { PermissionDecision } from './context';
 
 export function checkFilePath(path: string, context: AgentContext): PermissionDecision {
 	const resolved = resolve(path);

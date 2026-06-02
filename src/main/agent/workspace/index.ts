@@ -1,3 +1,3 @@
-export * from './startup-files';
+export * from './startup';
 export * from './permissions';
-export * from './service';
+export * from './kernel';

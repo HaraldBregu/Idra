@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './module';
-import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
+import type { EventBus } from '../kernels/event-bus';
+import type { MainServiceContainer } from '../kernels/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import {

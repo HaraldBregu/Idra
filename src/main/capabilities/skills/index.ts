@@ -1,4 +1,4 @@
-export { SkillsService } from './service';
+export { SkillsService } from './kernel';
 export { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from './catalog';
 export { SkillDiscovery, SkillPlanner, SkillRanker, SkillSelector } from './selection';
 export {
@@ -9,6 +9,6 @@ export {
 	SkillComposer,
 	SkillExecutionEngine,
 	SkillSafetyPolicy,
-} from './runtime';
+} from './execution/looptime';
 export { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from './loader';
 export * from './types';

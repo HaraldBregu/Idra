@@ -1,6 +1,6 @@
 import Store from 'electron-store';
 import type { AgentConfig, AgentRouteBinding, AgentRoutingSettings } from '../../shared/store';
-import { normalizeAgentRoutingSettings } from './routing';
+import { normalizeAgentRoutingSettings } from './planning';
 import { resolveDefaultAgentDataPath } from './storage';
 
 export interface AgentSettingsStoreLogger {

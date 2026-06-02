@@ -1,2 +1,2 @@
-export { ConnectorsService } from './service';
+export { ConnectorsService } from './kernel';
 export * from './integration';

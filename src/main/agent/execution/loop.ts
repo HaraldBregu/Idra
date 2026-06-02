@@ -20,7 +20,7 @@ import type {
 import {
 	applyAgentToolResultMiddleware,
 	emitRuntimeLifecycleHook,
-} from './runtime';
+} from './execution/looptime';
 
 export type { AgentRunStreamEvent } from '../../shared/agents/events';
 

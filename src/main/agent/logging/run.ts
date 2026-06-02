@@ -114,7 +114,7 @@ export interface RunLoggerOptions {
 
 /**
  * Append-only JSONL audit trail of every agent run.
- * One file per agent id under `.friday/agent/runs/<id>.jsonl`.
+ * One file per agent id under `.friday/agent/execution/loops/<id>.jsonl`.
  * Each line is a typed RunLogRecord — start, iteration, tool_call,
  * approval_request, approval_resolution, finish.
  */

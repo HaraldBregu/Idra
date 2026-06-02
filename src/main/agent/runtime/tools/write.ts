@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import { checkFilePath } from '../permissions/filesystem';
 import type { Tool } from './tool';
-import { filePathSchema } from './file-read-tool';
+import { filePathSchema } from './read';
 import { hash } from './hash';
 
 const writeFileSchema = filePathSchema.extend({

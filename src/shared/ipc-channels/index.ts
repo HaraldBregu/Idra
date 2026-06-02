@@ -18,7 +18,7 @@ export const AgentChannels = {
 	openHistoryFolder: 'agent:open-history-folder',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
-	listStartupFiles: 'agent:list-startup-files',
+	listStartupFiles: 'agent:list-startup',
 	readStartupFile: 'agent:read-startup-file',
 	writeStartupFile: 'agent:write-startup-file',
 	listWorkspaceFiles: 'agent:list-workspace-files',

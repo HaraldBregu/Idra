@@ -1,7 +1,7 @@
 export { SubagentRegistry } from './registry';
-export { SubagentSpawnService, type SubagentSpawnPort } from './spawn-service';
-export { createSubagentsControlTool } from './control-tool';
-export { createSessionsSpawnTool } from './spawn-tool';
+export { SubagentSpawnService, type SubagentSpawnPort } from './service';
+export { createSubagentsControlTool } from './control';
+export { createSessionsSpawnTool } from './tool';
 export type {
 	SessionsSpawnInput,
 	SessionsSpawnResult,

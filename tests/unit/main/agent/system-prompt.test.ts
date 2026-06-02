@@ -1,9 +1,9 @@
 import os from 'node:os';
 import path from 'node:path';
-import { buildSystemPrompt } from '../../../../src/main/agent/system-prompt';
+import { buildSystemPrompt } from '../../../../src/main/agent/context/prompt';
 import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 
-describe('agent/system-prompt', () => {
+describe('agent/context/prompt', () => {
 	it('builds deterministic prompts with sorted tool guidance and memory blocks', async () => {
 		const tools: AgentTool[] = [
 			{ name: 'exec', description: 'Run commands', schema: {}, execute: jest.fn() },

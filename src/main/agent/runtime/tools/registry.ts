@@ -1,4 +1,4 @@
-import type { PermissionContext } from '../permissions/permission-context';
+import type { PermissionContext } from '../permissions/context';
 import type { Tool } from './tool';
 
 export class ToolRegistry {

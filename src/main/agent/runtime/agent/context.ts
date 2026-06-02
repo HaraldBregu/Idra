@@ -1,5 +1,5 @@
-import type { MemoryStore } from '../memory/memory-store';
-import type { PermissionContext } from '../permissions/permission-context';
+import type { MemoryStore } from '../memory/store';
+import type { PermissionContext } from '../permissions/context';
 import type { Logger } from '../telemetry/logger';
 import type { Metrics } from '../telemetry/metrics';
 import type { Tool } from '../tools/tool';

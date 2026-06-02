@@ -1,7 +1,7 @@
 import type { AgentTool, AgentToolResult, ToolContext } from '../../capabilities/tools';
 import { textResult } from '../../capabilities/tools';
 import { DEFAULT_AGENT_ID } from '../../config';
-import type { SubagentSpawnPort } from './spawn-service';
+import type { SubagentSpawnPort } from './service';
 import type { SessionsSpawnResult } from './types';
 
 function spawnResult(result: SessionsSpawnResult): AgentToolResult<SessionsSpawnResult> {

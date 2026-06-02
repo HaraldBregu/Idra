@@ -6,7 +6,7 @@ import type {
 	AgentRouteSessionScope,
 } from '../../../shared/store';
 import { resolveDefaultAgentId } from './bindings';
-import { buildAgentSessionKey } from './session-key';
+import { buildAgentSessionKey } from './session';
 import type { AgentRouteInput, ResolvedAgentRoute } from './types';
 
 function normalize(value: string | undefined): string | undefined {

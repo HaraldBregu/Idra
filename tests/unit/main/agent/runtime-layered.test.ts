@@ -11,7 +11,7 @@ import {
 	runToolUse,
 	type ModelClient,
 	type Tool,
-} from '../../../../src/main/agent/runtime';
+} from '../../../../src/main/agent/execution/looptime';
 
 describe('layered agent runtime', () => {
 	it('exposes QueryEngine as the runtime entrypoint facade', async () => {

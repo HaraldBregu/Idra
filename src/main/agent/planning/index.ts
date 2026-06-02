@@ -4,8 +4,8 @@ export {
 	normalizeAgentRoutingSettings,
 	resolveDefaultAgentId,
 } from './bindings';
-export { channelMessageRouteInput, resolveAgentRoute } from './resolve-route';
-export { buildAgentSessionKey } from './session-key';
+export { channelMessageRouteInput, resolveAgentRoute } from './router';
+export { buildAgentSessionKey } from './session';
 export type {
 	AgentConfig,
 	AgentRouteBinding,

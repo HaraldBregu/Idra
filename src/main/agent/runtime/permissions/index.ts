@@ -1,3 +1,3 @@
 export * from './filesystem';
-export * from './permission-context';
+export * from './context';
 export * from './permissions';

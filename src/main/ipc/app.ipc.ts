@@ -1,7 +1,7 @@
 import { app, ipcMain, BrowserWindow, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './module';
-import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
+import type { EventBus } from '../kernels/event-bus';
+import type { MainServiceContainer } from '../kernels/services';
 import {
 	getSpeechToTextModels,
 	getImageCreatorModelsForProvider,

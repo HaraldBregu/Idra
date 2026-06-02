@@ -1,5 +1,5 @@
-import type { ModelClient } from '../model/model-client';
-import type { AgentContext } from './agent-context';
+import type { ModelClient } from '../model/client';
+import type { AgentContext } from './context';
 import type { Message } from './messages';
 import { query, type QueryEvent } from './query';
 

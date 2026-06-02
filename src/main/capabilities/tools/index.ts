@@ -15,7 +15,7 @@ export {
 	type ToolServicePort,
 	type AgentToolManagementOptions,
 	type AgentToolSelectionForTurn,
-} from './service';
+} from './kernel';
 export {
 	clientToolNames,
 	createAgentTools,

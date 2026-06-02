@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { DEFAULT_AGENT_ID } from '../../config';
-import type { EventBus } from '../../services/event-bus';
+import type { EventBus } from '../../kernels/event-bus';
 import type { LoggerService } from '../../observability';
 import { loadExistingSession } from '../session/store';
 import type { AgentConfig, AgentSessionMetadata } from '../../../shared/store';
-import type { AgentService } from '../service';
-import { buildAgentSessionKey } from '../routing';
+import type { AgentService } from '../kernel';
+import { buildAgentSessionKey } from '../planning';
 import type { AgentSettingsStorePort } from '../settings';
 import { SubagentRegistry } from './registry';
 import type {

@@ -1,5 +1,5 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/llm/types';
-import { runAgent } from '../../../../src/main/agent/run';
+import { runAgent } from '../../../../src/main/agent/execution/loop';
 import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 import type { SessionFile } from '../../../../src/main/agent/session/store';
 import { makeToolContext } from '../test-helpers';
@@ -34,7 +34,7 @@ const end = (usage = { inputTokens: 1, outputTokens: 1 }): ProviderEvent => ({
 	usage,
 });
 
-describe('agent/run', () => {
+describe('agent/execution/loop', () => {
 	it('streams text, appends transcript entries, and returns usage', async () => {
 		const chunks: string[] = [];
 		const result = await runAgent({

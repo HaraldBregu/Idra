@@ -9,7 +9,7 @@ export {
 	type AgentServiceOptions,
 	type AgentToolsFactory,
 	type AgentToolsFactoryContext,
-} from './service';
+} from './kernel';
 export {
 	AgentExecutionService,
 	type AgentExecutionServicePort,
@@ -18,13 +18,13 @@ export {
 	type AgentRunInput,
 	type AgentRunResult,
 	type AgentRunStreamEvent,
-} from './run';
+} from './execution/loop';
 export * from '../capabilities';
 export * from './subagents';
-export * from './routing';
+export * from './planning';
 export * from './settings';
 export * from './storage';
 export * from './workspace';
-export * from './before-agent-run';
-export * from './system-prompt';
-export * from './runtime';
+export * from './guardrails/input';
+export * from './context/prompt';
+export * from './execution/looptime';

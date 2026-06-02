@@ -1,4 +1,4 @@
-import type { Disposable } from '../services/service-container';
+import type { Disposable } from '../kernels/service-container';
 import type { AgentService } from '../agent';
 import {
 	getModelReasoningEfforts,

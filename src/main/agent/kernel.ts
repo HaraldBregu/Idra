@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { EventBus } from '../services/event-bus';
+import type { EventBus } from '../kernels/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../storage';
@@ -18,13 +18,13 @@ import {
 	DEFAULT_USER_FILENAME,
 } from '../modules/workspace';
 import type { UserDataDirectoryServicePort } from '../storage/user-data';
-import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './before-agent-run';
-import { buildSystemPrompt } from './system-prompt';
+import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './guardrails/input';
+import { buildSystemPrompt } from './context/prompt';
 import {
 	AgentExecutionService,
 	type AgentExecutionServicePort,
 	type AgentRunHooks,
-} from './run';
+} from './execution/loop';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
@@ -70,7 +70,7 @@ import {
 	type ToolContext,
 	type ToolServicePort,
 } from '../capabilities/tools';
-import { createStartupFilesTool } from '../capabilities/tools/startup/startup-files';
+import { createStartupFilesTool } from '../capabilities/tools/startup/startup';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,

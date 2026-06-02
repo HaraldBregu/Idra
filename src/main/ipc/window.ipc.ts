@@ -1,7 +1,7 @@
 import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import type { IpcModule } from './module';
-import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
+import type { EventBus } from '../kernels/event-bus';
+import type { MainServiceContainer } from '../kernels/services';
 import { wrapIpcHandler } from './errorHandler';
 import { WindowChannels } from '../../shared/ipc-channels';
 

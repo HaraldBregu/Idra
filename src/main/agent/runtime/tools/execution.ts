@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AgentContext } from '../agent/agent-context';
+import type { AgentContext } from '../agent/context';
 import type { Message, ToolCall } from '../agent/messages';
 import { resolvePermission } from '../permissions/permissions';
 import type { ToolResult } from './tool';

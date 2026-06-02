@@ -1,7 +1,7 @@
 import {
 	evaluateBeforeAgentRunHooks,
 	type BeforeAgentRunEvent,
-} from '../../../../src/main/agent/before-agent-run';
+} from '../../../../src/main/agent/guardrails/input';
 
 const event: BeforeAgentRunEvent = {
 	prompt: 'raw secret prompt',

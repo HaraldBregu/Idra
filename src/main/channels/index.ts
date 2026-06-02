@@ -1,5 +1,5 @@
 export { ChannelRegistry } from './registry';
-export { ChannelsService } from './service';
+export { ChannelsService } from './kernel';
 export {
 	createChannelPluginBase,
 	createChatChannelPlugin,

@@ -1,4 +1,4 @@
-import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
+import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './kernels';
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
@@ -22,7 +22,7 @@ import { SpeechToTextService } from './stt';
 import { AgentRunLogger } from './agent/logging';
 import { DEFAULT_AGENT_ID } from './config';
 
-import type { MainServiceContainer, MainServices } from './services/services';
+import type { MainServiceContainer, MainServices } from './kernels/services';
 import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {

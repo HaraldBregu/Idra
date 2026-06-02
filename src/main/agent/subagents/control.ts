@@ -1,6 +1,6 @@
 import type { AgentTool, AgentToolResult, ToolContext } from '../../capabilities/tools';
 import { textResult } from '../../capabilities/tools';
-import type { SubagentSpawnPort } from './spawn-service';
+import type { SubagentSpawnPort } from './service';
 import type { SubagentsControlResult } from './types';
 
 function controlResult(result: SubagentsControlResult): AgentToolResult<SubagentsControlResult> {
