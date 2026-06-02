@@ -7,7 +7,7 @@ import {
 	cronService,
 	jsonText,
 	requireCronId,
-} from './cron_utils';
+} from './cron-utils';
 
 export const cronTool: AgentTool<CronCompatArgs> = {
 	name: 'cron',
