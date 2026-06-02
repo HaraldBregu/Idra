@@ -10,14 +10,11 @@ import {
 	OPTIONAL_CRON_TOOLS,
 	OPTIONAL_SCRIPT_TOOLS,
 } from './catalog';
-import type { AgentToolMetadata } from './types';
-import type { AgentToolGroupName } from './groups';
+import type { AgentToolGroupName, AgentToolMetadata, AgentToolProfile } from './types';
 
 export * from './catalog';
-export * from './groups';
 export * from './policy';
-export * from './profiles';
-export * from './types';
+export type { AgentToolGroupName, AgentToolProfile };
 
 export const AGENT_DEFAULT_TOOL_GROUPS = {
 	coreWorkspace: DEFAULT_CORE_WORKSPACE_TOOLS,

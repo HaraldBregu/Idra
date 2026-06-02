@@ -1,6 +1,9 @@
 import { AGENT_TOOL_APPROVAL_ALWAYS, AGENT_TOOL_APPROVAL_NONE } from './policy';
-import { DEFAULT_TOOL_PROFILES, LEGACY_TOOL_PROFILES, OPTIONAL_TOOL_PROFILES } from './profiles';
-import type { AgentToolMetadata } from './types';
+import type { AgentToolMetadata, AgentToolProfile } from './types';
+
+const DEFAULT_TOOL_PROFILES = ['coding', 'standard', 'full'] as const satisfies readonly AgentToolProfile[];
+const OPTIONAL_TOOL_PROFILES = ['full'] as const satisfies readonly AgentToolProfile[];
+const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
 export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 	{
 		name: 'read_file',
@@ -357,25 +360,6 @@ export const DEFAULT_WEB_TOOLS = [
 		description: "Open an HTTP or HTTPS URL in the user's default browser.",
 		permissions: ['read'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_CRON_TOOLS = [
-	{
-		name: 'cron',
-		group: 'cron',
-		title: 'Cron',
-		description: 'Create, list, update, remove, inspect, or run scheduled jobs.',
-		permissions: [
-			'cron:createSchedule',
-			'cron:listSchedules',
-			'cron:updateSchedule',
-			'cron:deleteSchedule',
-			'cron:runScheduleNow',
-		],
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},

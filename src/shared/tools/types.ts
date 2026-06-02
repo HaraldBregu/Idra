@@ -1,13 +1,23 @@
 import type { CronSchedulePermissionLevel } from '../cron';
 import type { AgentToolApprovalPolicy } from './policy';
-import type { AgentToolGroupName } from './groups';
 
 export type AgentToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
-export type AgentToolAvailability = 'default' | 'optional' | 'legacy' | 'alias';
-export type AgentFileToolPermission = 'read' | 'write' | 'create' | 'delete';
-export type AgentCronToolPermission = `cron:${CronSchedulePermissionLevel}`;
+export type AgentToolGroupName =
+	| 'coreWorkspace'
+	| 'stateTask'
+	| 'humanDecision'
+	| 'subagent'
+	| 'skill'
+	| 'mcpConnector'
+	| 'script'
+	| 'cron'
+	| 'web';
 
-export type AgentToolPermission =
+type AgentToolAvailability = 'default' | 'optional' | 'legacy' | 'alias';
+type AgentFileToolPermission = 'read' | 'write' | 'create' | 'delete';
+type AgentCronToolPermission = `cron:${CronSchedulePermissionLevel}`;
+
+type AgentToolPermission =
 	| AgentFileToolPermission
 	| 'execute'
 	| 'state'
