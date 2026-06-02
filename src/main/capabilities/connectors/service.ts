@@ -348,7 +348,7 @@ export class ConnectorsService {
 
 	private validConnectors(): ConnectorConfig[] {
 		try {
-			const raw = this.store?.get(CONNECTOR_STORE_KEY);
+			const raw = this.store.get(CONNECTOR_STORE_KEY);
 			if (raw === undefined) return [];
 			if (!Array.isArray(raw)) {
 				this.warn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY });
