@@ -34,7 +34,6 @@ import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
 import { loadMcpToolTool } from '../mcp/load-mcp-tool';
 import { readMcpResourceTool } from '../mcp/read-mcp-resource';
 import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
-import { startTaskTool } from '../app';
 
 export type FileToolOptions = {
 	workspaceDir: string;
@@ -60,7 +59,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	updateTodoTool,
 	listTodosTool,
 	completeTaskTool,
-	startTaskTool,
 	writeScratchTool,
 	readScratchTool,
 	requestApprovalTool,

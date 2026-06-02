@@ -1,4 +1,4 @@
-import type { ModelReasoningEffort } from '../../../shared/agents/service';
+import type { ModelReasoningEffort } from '../../shared/agents/service';
 
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.
