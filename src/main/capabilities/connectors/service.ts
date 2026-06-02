@@ -438,7 +438,7 @@ export class ConnectorsService {
 	}
 
 	private error(message: string, details?: Record<string, unknown>): void {
-		this.logger?.error('ConnectorsService', message, details);
+		this.logger.error('ConnectorsService', message, details);
 	}
 }
 
