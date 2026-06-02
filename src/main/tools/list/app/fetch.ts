@@ -1,7 +1,7 @@
-import { TOOL_LIMITS } from '../base/limits';
-import type { AgentTool } from '../base/tool';
-import { textResult } from '../base/tool';
-import { toolDescription } from '../base/metadata';
+import { TOOL_LIMITS } from '../../base/limits';
+import type { AgentTool } from '../../base/tool';
+import { textResult } from '../../base/tool';
+import { toolDescription } from '../../base/metadata';
 
 export const webFetchTool: AgentTool<{ url: string }> = {
 	name: 'web_fetch',

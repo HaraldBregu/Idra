@@ -1,6 +1,6 @@
-import type { AgentTool } from '../base/tool';
-import { textResult } from '../base/tool';
-import { toolDescription } from '../base/metadata';
+import type { AgentTool } from '../../base/tool';
+import { textResult } from '../../base/tool';
+import { toolDescription } from '../../base/metadata';
 
 export const presentPlanTool: AgentTool<{ title?: string; steps: string[] }> = {
 	name: 'present_plan',

@@ -1,5 +1,5 @@
-import type { AgentTool } from '../base/tool';
-import { textResult } from '../base/tool';
+import type { AgentTool } from '../../base/tool';
+import { textResult } from '../../base/tool';
 import {
 	cronActor,
 	type CronCompatArgs,

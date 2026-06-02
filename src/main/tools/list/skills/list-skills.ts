@@ -1,6 +1,6 @@
-import type { AgentTool } from '../base/tool';
-import { textResult } from '../base/tool';
-import { toolDescription } from '../base/metadata';
+import type { AgentTool } from '../../base/tool';
+import { textResult } from '../../base/tool';
+import { toolDescription } from '../../base/metadata';
 import { jsonText } from './json-text';
 
 export const listSkillsTool: AgentTool = {
