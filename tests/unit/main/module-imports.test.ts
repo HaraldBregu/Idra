@@ -13,6 +13,6 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/agent/session/store')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/storage')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/capabilities/tools')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/modules/workspace')).resolves.toBeTruthy();
+		await expect(import('../../../src/main/agent/workspace')).resolves.toBeTruthy();
 	});
 });

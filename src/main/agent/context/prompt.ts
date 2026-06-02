@@ -1,11 +1,11 @@
 import type { AgentTool } from '../../capabilities/tools';
 import type { MemoryManager } from '../../memory/manager';
-import type { BootstrapMode } from '../../modules/workspace';
+import type { BootstrapMode } from '../workspace';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	renderWorkspaceContextFiles,
 	type WorkspaceContextFile,
-} from '../../modules/workspace';
+} from '../workspace';
 
 export interface SystemPromptCtx {
 	workspace: string;

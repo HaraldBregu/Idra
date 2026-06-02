@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { isPathInside, type WorkspaceFileName } from '../../../modules/workspace/files';
+import { isPathInside, type WorkspaceFileName } from '../../../agent/workspace/files';
 import type { StartupSetupState } from './types';
 
 const STARTUP_STATE_VERSION = 1;

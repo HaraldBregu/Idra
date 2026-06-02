@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { app } from 'electron';
 import { LoggerService, LogLevel } from '../../../../src/main/observability';
 import { UserDataDirectoryService } from '../../../../src/main/storage/user-data';
-import { WorkspaceService } from '../../../../src/main/modules/workspace';
+import { WorkspaceService } from '../../../../src/main/agent/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent/workspace';
 import { makeLogger, makeTempDir } from '../test-helpers';
 

@@ -16,7 +16,9 @@ import {
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
-} from '../modules/workspace';
+	AgentWorkspaceService,
+	type AgentStartupFilesServicePort,
+} from './workspace';
 import type { UserDataDirectoryServicePort } from '../storage/user-data';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './guardrails/input';
 import { buildSystemPrompt } from './context/prompt';
@@ -40,10 +42,6 @@ import {
 	type SessionStatus,
 } from './session/store';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
-import {
-	AgentWorkspaceService,
-	type AgentStartupFilesServicePort,
-} from './workspace';
 import type { AgentSettingsStorePort } from './settings';
 import {
 	type AgentRunState,

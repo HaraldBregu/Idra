@@ -13,7 +13,7 @@ import {
 } from './agent';
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
-import { WorkspaceService } from './modules/workspace';
+import { WorkspaceService } from './agent/workspace';
 import { ConnectorsService } from './capabilities/connectors';
 import { UserDataDirectoryService } from './storage/user-data';
 import { ToolService } from './capabilities/tools';
