@@ -1,4 +1,4 @@
-import type { CronService, CronServiceActor } from '../cron';
+import type { CronService, CronServiceActor } from '../../../cron';
 import type {
 	CronJsonValue,
 	CronScheduleCreateRequest,

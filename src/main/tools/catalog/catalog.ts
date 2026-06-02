@@ -7,7 +7,7 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../shared/tools';
-import { openBrowserTool, webFetchTool } from '../app';
+import { openBrowserTool, webFetchTool } from '../list/app';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -17,40 +17,40 @@ import {
 	cronStartTool,
 	cronStopTool,
 	cronUpdateTool,
-} from '../../cron';
+} from '../list/cron';
 import { editFileTool } from '../list/edit';
 import { grepTool } from '../list/grep';
 import { listDirectoryTool } from '../list/list';
 import { readFileTool } from '../list/read';
-import { runShellTool } from '../exec/shell';
-import { scriptRunTool } from '../script';
+import { runShellTool } from '../list/exec/shell';
+import { scriptRunTool } from '../list/script';
 import { searchFilesTool } from '../list/search';
 import { undoLastOperationTool } from '../list/undo';
 import { writeTool } from '../list/write';
-import { completeTaskTool } from '../state/complete-task';
-import { listTodosTool } from '../state/list-todos';
-import { readScratchTool } from '../state/read-scratch';
-import { updateTodoTool } from '../state/update-todo';
-import { writeScratchTool } from '../state/write-scratch';
-import { writeTodosTool } from '../state/write-todos';
-import { presentPlanTool } from '../human/present';
-import { requestApprovalTool } from '../human/confirm';
-import { requestAuthorizationTool } from '../human/authorize';
-import { requestClarificationTool } from '../human/ask';
-import { spawnSubagentTool } from '../subagent/spawn-subagent';
-import { listSkillsTool } from '../skills/list-skills';
-import { loadSkillTool } from '../skills/load-skill';
-import { useSkillTool } from '../skills/use-skill';
-import { callMcpToolTool } from '../mcp/call-mcp-tool';
-import { connectMcpServerTool } from '../mcp/connect-mcp-server';
-import { listMcpPromptsTool } from '../mcp/list-mcp-prompts';
-import { listMcpResourcesTool } from '../mcp/list-mcp-resources';
-import { listMcpServersTool } from '../mcp/list-mcp-servers';
-import { listMcpToolsTool } from '../mcp/list-mcp-tools';
-import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
-import { loadMcpToolTool } from '../mcp/load-mcp-tool';
-import { readMcpResourceTool } from '../mcp/read-mcp-resource';
-import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
+import { completeTaskTool } from '../list/state/complete-task';
+import { listTodosTool } from '../list/state/list-todos';
+import { readScratchTool } from '../list/state/read-scratch';
+import { updateTodoTool } from '../list/state/update-todo';
+import { writeScratchTool } from '../list/state/write-scratch';
+import { writeTodosTool } from '../list/state/write-todos';
+import { presentPlanTool } from '../list/human/present';
+import { requestApprovalTool } from '../list/human/confirm';
+import { requestAuthorizationTool } from '../list/human/authorize';
+import { requestClarificationTool } from '../list/human/ask';
+import { spawnSubagentTool } from '../list/subagent/spawn-subagent';
+import { listSkillsTool } from '../list/skills/list-skills';
+import { loadSkillTool } from '../list/skills/load-skill';
+import { useSkillTool } from '../list/skills/use-skill';
+import { callMcpToolTool } from '../list/mcp/call-mcp-tool';
+import { connectMcpServerTool } from '../list/mcp/connect-mcp-server';
+import { listMcpPromptsTool } from '../list/mcp/list-mcp-prompts';
+import { listMcpResourcesTool } from '../list/mcp/list-mcp-resources';
+import { listMcpServersTool } from '../list/mcp/list-mcp-servers';
+import { listMcpToolsTool } from '../list/mcp/list-mcp-tools';
+import { loadMcpPromptTool } from '../list/mcp/load-mcp-prompt';
+import { loadMcpToolTool } from '../list/mcp/load-mcp-tool';
+import { readMcpResourceTool } from '../list/mcp/read-mcp-resource';
+import { refreshMcpServerTool } from '../list/mcp/refresh-mcp-server';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
