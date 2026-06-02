@@ -9,7 +9,6 @@ import {
 	ProviderChannels,
 	RealtimeTranscriptionChannels,
 	SpeechToTextChannels,
-	TaskChannels,
 	CronChannels,
 	HeartbeatChannels,
 	SkillsChannels,
@@ -26,7 +25,6 @@ import type {
 	SpeechToTextApi,
 	SkillsApi,
 	StoreApi,
-	TasksApi,
 	WindowApi,
 } from './index.d';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
@@ -472,24 +470,6 @@ export const heartbeat: HeartbeatApi = {
 	},
 };
 
-export const tasks: TasksApi = {
-	start: (request) => {
-		return typedInvokeUnwrap(TaskChannels.start, request);
-	},
-	list: () => {
-		return typedInvokeUnwrap(TaskChannels.list);
-	},
-	get: (id: string) => {
-		return typedInvokeUnwrap(TaskChannels.get, id);
-	},
-	cancel: (id: string) => {
-		return typedInvokeUnwrap(TaskChannels.cancel, id);
-	},
-	onEvent: (callback) => {
-		return typedOn(TaskChannels.event, callback);
-	},
-};
-
 export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
@@ -698,7 +678,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('speechToText', speechToText);
 		contextBridge.exposeInMainWorld('cron', cron);
 			contextBridge.exposeInMainWorld('heartbeat', heartbeat);
-			contextBridge.exposeInMainWorld('tasks', tasks);
 			contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
@@ -721,8 +700,6 @@ if (process.contextIsolated) {
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)
 	globalThis.heartbeat = heartbeat;
-	// @ts-ignore (define in dts)
-	globalThis.tasks = tasks;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
