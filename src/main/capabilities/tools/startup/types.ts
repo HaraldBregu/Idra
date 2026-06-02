@@ -19,9 +19,3 @@ export interface AgentStartupFilesServicePort {
 	writeFile(agentId: string, name: string, content: string): Promise<WorkspaceContextFile>;
 	completeBootstrap(agentId: string): Promise<WorkspaceContextFile>;
 }
-
-export interface StartupSetupState {
-	version: 1;
-	bootstrapSeededAt?: string;
-	setupCompletedAt?: string;
-}

@@ -36,12 +36,10 @@ export type EnsureWorkspaceOptions = {
 export type BootstrapMode = 'none' | 'limited' | 'full';
 
 const WORKSPACE_STATE_FILENAME = 'workspace-state.json';
-const LEGACY_WORKSPACE_STATE_DIRNAME = '.friday';
 const WORKSPACE_STATE_VERSION = 1;
 
 type WorkspaceSetupState = {
 	version: typeof WORKSPACE_STATE_VERSION;
-	bootstrapSeededAt?: string;
 	setupCompletedAt?: string;
 };
 
@@ -64,11 +62,11 @@ export class WorkspaceService {
 		private readonly logger: LoggerService,
 		options: WorkspaceServiceOptions = {}
 	) {
-			this.rootPath =
-				options.rootPath ??
-				options.agentDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
-				resolveDefaultAgentDataPath(options.workspaceName ?? 'workspace');
-			this.contextHooks = options.contextHooks ?? [];
+		this.rootPath =
+			options.rootPath ??
+			options.agentDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
+			resolveDefaultAgentDataPath(options.workspaceName ?? 'workspace');
+		this.contextHooks = options.contextHooks ?? [];
 	}
 
 	getRootPath(): string {
@@ -236,12 +234,7 @@ export class WorkspaceService {
 	private async readSetupState(): Promise<WorkspaceSetupState> {
 		const current = await this.readSetupStateFile(this.statePath());
 		if (current.found) return current.state;
-
-		const legacy = await this.readSetupStateFile(this.legacyStatePath());
-		if (!legacy.found) return { version: WORKSPACE_STATE_VERSION };
-
-		await this.writeSetupState(legacy.state);
-		return legacy.state;
+		return { version: WORKSPACE_STATE_VERSION };
 	}
 
 	private async readSetupStateFile(
@@ -251,14 +244,12 @@ export class WorkspaceService {
 			const raw = await fs.readFile(statePath, 'utf8');
 			const parsed = JSON.parse(raw) as Partial<WorkspaceSetupState>;
 			return {
-				found: true,
-				state: {
-					version: WORKSPACE_STATE_VERSION,
-					bootstrapSeededAt:
-						typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
-					setupCompletedAt:
-						typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
-				},
+					found: true,
+					state: {
+						version: WORKSPACE_STATE_VERSION,
+						setupCompletedAt:
+							typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
+					},
 			};
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -276,32 +267,12 @@ export class WorkspaceService {
 		await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
 		await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
 			encoding: 'utf8',
-			mode: 0o600,
-		});
-		await this.removeLegacySetupState();
+				mode: 0o600,
+			});
 	}
 
 	private statePath(): string {
 		return path.join(this.rootPath, WORKSPACE_STATE_FILENAME);
-	}
-
-	private legacyStatePath(): string {
-		return path.join(
-			this.rootPath,
-			LEGACY_WORKSPACE_STATE_DIRNAME,
-			WORKSPACE_STATE_FILENAME
-		);
-	}
-
-	private async removeLegacySetupState(): Promise<void> {
-		const legacyStatePath = this.legacyStatePath();
-		await fs.rm(legacyStatePath, { force: true });
-		try {
-			await fs.rmdir(path.dirname(legacyStatePath));
-		} catch (error) {
-			const code = (error as NodeJS.ErrnoException).code;
-			if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error;
-		}
 	}
 
 	private async assertSafeWritableWorkspaceFile(

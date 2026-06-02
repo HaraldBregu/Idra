@@ -26,11 +26,7 @@ import {
 	assertSafeWritableStartupFile,
 	fileContentDiffersFromTemplate,
 	pathExists,
-	readStartupSetupState,
 } from './utils';
-
-const STARTUP_STATE_DIRNAME = '.friday';
-const STARTUP_STATE_FILENAME = 'startup-state.json';
 
 const PROFILE_FILE_NAMES = [
 	DEFAULT_SOUL_FILENAME,
@@ -56,7 +52,6 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	async ensureReady(agentId: string): Promise<void> {
 		const root = this.getRootPath(agentId);
 		const hadStartupFiles = await this.hasAnyStartupFile(root);
-		const legacyState = await readStartupSetupState(this.statePath(root));
 		await fs.mkdir(root, { recursive: true, mode: 0o700 });
 
 		for (const fileName of SEEDED_WORKSPACE_FILE_NAMES) {
@@ -67,24 +62,20 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		let bootstrapExists = await pathExists(bootstrapPath);
 		const profileConfigured = await this.profileLooksConfigured(root);
 
-		if (legacyState.setupCompletedAt) {
+		if (bootstrapExists && profileConfigured) {
 			await fs.rm(bootstrapPath, { force: true });
 			bootstrapExists = false;
-		} else if (bootstrapExists && profileConfigured) {
-			await fs.rm(bootstrapPath, { force: true });
-			bootstrapExists = false;
-		} else if (!bootstrapExists && (profileConfigured || legacyState.bootstrapSeededAt)) {
+		} else if (!bootstrapExists && profileConfigured) {
 			bootstrapExists = false;
 		} else if (!bootstrapExists && !hadStartupFiles) {
 			const wrote = await writeFileIfMissing(
 				bootstrapPath,
 				await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
 			);
-			bootstrapExists = wrote || (await pathExists(bootstrapPath));
-		}
-		await this.removeLegacyStartupState(root);
+				bootstrapExists = wrote || (await pathExists(bootstrapPath));
+			}
 
-		this.logger?.debug?.('AgentStartupFilesService', 'Startup files ready', {
+			this.logger?.debug?.('AgentStartupFilesService', 'Startup files ready', {
 			agentId,
 			root,
 			bootstrapPending: bootstrapExists,
@@ -179,20 +170,5 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 			if (await pathExists(path.join(root, fileName))) return true;
 		}
 		return false;
-	}
-
-	private async removeLegacyStartupState(root: string): Promise<void> {
-		const statePath = this.statePath(root);
-		await fs.rm(statePath, { force: true });
-		try {
-			await fs.rmdir(path.dirname(statePath));
-		} catch (error) {
-			const code = (error as NodeJS.ErrnoException).code;
-			if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error;
-		}
-	}
-
-	private statePath(root: string): string {
-		return path.join(root, STARTUP_STATE_DIRNAME, STARTUP_STATE_FILENAME);
 	}
 }
