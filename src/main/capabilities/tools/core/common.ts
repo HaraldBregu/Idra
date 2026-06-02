@@ -1,4 +1,4 @@
-import type { JSONSchema } from '../../../llm/LlmTypes';
+import type { JSONSchema } from '../../../llm/llmTypes';
 
 export type ToolContent =
 	| { type: 'text'; text: string }

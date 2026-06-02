@@ -1,4 +1,4 @@
-export { makeProvider, type ProviderSpec } from './ModelRouter';
+export { makeProvider, type ProviderSpec } from './modelRouter';
 export type {
 	AgentContentBlock,
 	JSONSchema,
@@ -10,4 +10,4 @@ export type {
 	ToolResultStatus,
 	TranscriptEntry,
 	Usage,
-} from './LlmTypes';
+} from './llmTypes';

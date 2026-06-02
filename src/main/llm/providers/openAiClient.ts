@@ -15,8 +15,8 @@ import type {
 	ProviderStreamRequest,
 	TranscriptEntry,
 	Usage,
-} from '../LlmTypes';
-import { ContextOverflowError, ProviderAuthError } from '../LlmTypes';
+} from '../llmTypes';
+import { ContextOverflowError, ProviderAuthError } from '../llmTypes';
 
 // ---------------------------------------------------------------------------
 // OpenAIChatAdapter — Chat Completions API for OpenAI-compatible providers

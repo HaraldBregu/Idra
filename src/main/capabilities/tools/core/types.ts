@@ -7,7 +7,7 @@ import type { StoreService } from '../../../storage';
 import type { SkillsService } from '../../skills';
 import type { UserDataDirectoryServicePort } from '../../../storage/user-data';
 import type { WorkspaceService } from '../../../modules/workspace';
-import type { JSONSchema, ToolResultBlock } from '../../../llm/LlmTypes';
+import type { JSONSchema, ToolResultBlock } from '../../../llm/llmTypes';
 import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../../shared/agents/constants';
 
 export interface PlanEntry {

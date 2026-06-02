@@ -1,4 +1,4 @@
-import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/llm/LlmTypes';
+import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/llm/llmTypes';
 import { runAgent } from '../../../../src/main/agent/run';
 import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 import type { SessionFile } from '../../../../src/main/agent/session/store';

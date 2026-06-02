@@ -4,8 +4,8 @@ import type {
 	ProviderEvent,
 	ProviderStreamRequest,
 	TranscriptEntry,
-} from '../LlmTypes';
-import { ContextOverflowError, ProviderAuthError } from '../LlmTypes';
+} from '../llmTypes';
+import { ContextOverflowError, ProviderAuthError } from '../llmTypes';
 
 function buildAnthropicMessages(transcript: TranscriptEntry[]): Anthropic.Messages.MessageParam[] {
 	const msgs: Anthropic.Messages.MessageParam[] = [];
