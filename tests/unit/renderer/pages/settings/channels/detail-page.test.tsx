@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { Channel } from '../../../../../../src/shared/channels';
-import { listChannelCatalog } from '../../../../../../src/shared/channel-catalog';
+import { listChannelCatalog } from '../../../../../../src/shared/channels';
 import ChannelDetailPage from '../../../../../../src/renderer/src/pages/settings/pages/channels/detail/Page';
 
 jest.mock('../../../../../../src/renderer/src/pages/settings/pages/channels/ChannelIcon', () => ({
