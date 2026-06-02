@@ -214,7 +214,6 @@ export class ConnectorsService {
 	}
 
 	async connectOAuth(id: string): Promise<ConnectorOAuthAuthorizeResult | ConnectorOAuthConnectResult> {
-		if (this.legacy) return this.legacy.connectOAuth(id);
 		return this.authorizeOAuth({ connectorId: id });
 	}
 
