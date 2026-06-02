@@ -1,10 +1,10 @@
-import { AnthropicAdapter } from '../../../../src/main/llm/providers/anthropic';
-import { DeepSeekAdapter } from '../../../../src/main/llm/providers/deepseek';
-import { MistralAdapter } from '../../../../src/main/llm/providers/mistral';
-import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/llm/providers/openai';
-import { QwenAdapter } from '../../../../src/main/llm/providers/qwen';
-import { makeProvider } from '../../../../src/main/llm/providers/factory';
-import { ProviderAuthError } from '../../../../src/main/llm/providers/types';
+import { AnthropicAdapter } from '../../../../src/main/llm/providers/AnthropicClient';
+import { DeepSeekAdapter } from '../../../../src/main/llm/providers/CustomSdkClient';
+import { MistralAdapter } from '../../../../src/main/llm/providers/CustomSdkClient';
+import { OpenAIAdapter, OpenAIChatAdapter } from '../../../../src/main/llm/providers/OpenAIClient';
+import { QwenAdapter } from '../../../../src/main/llm/providers/CustomSdkClient';
+import { makeProvider } from '../../../../src/main/llm/ModelRouter';
+import { ProviderAuthError } from '../../../../src/main/llm/LlmTypes';
 import { collectAsync } from '../test-helpers';
 
 describe('provider/factory', () => {

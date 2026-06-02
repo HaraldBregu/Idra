@@ -1,4 +1,4 @@
-import type { ToolResultBlock } from '../../../llm/providers/types';
+import type { ToolResultBlock } from '../../../llm/LlmTypes';
 
 export type RuntimeHookContext = {
 	runId?: string;

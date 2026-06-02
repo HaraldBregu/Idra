@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from '../llm/providers/types';
+import type { TranscriptEntry } from '../llm/LlmTypes';
 import { agentLogger } from './logger';
 
 export interface BeforeAgentRunEvent {

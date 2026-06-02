@@ -1,5 +1,5 @@
 import type { AgentSessionMetadata } from '../../../shared/store';
-import type { TranscriptEntry } from '../../llm/providers/types';
+import type { TranscriptEntry } from '../../llm/LlmTypes';
 
 export interface PlanEntry {
 	task: string;

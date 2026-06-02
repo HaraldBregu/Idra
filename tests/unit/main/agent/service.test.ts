@@ -17,7 +17,7 @@ import type {
 	ProviderAdapter,
 	ProviderEvent,
 	ProviderStreamRequest,
-} from '../../../../src/main/llm/providers/types';
+} from '../../../../src/main/llm/LlmTypes';
 import { AgentService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/agent/logging';
 import type { AgentTool } from '../../../../src/main/capabilities/tools/types';

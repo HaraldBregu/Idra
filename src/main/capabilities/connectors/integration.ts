@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { JSONSchema } from '../../llm/providers/types';
+import type { JSONSchema } from '../../llm/LlmTypes';
 import type { AgentTool, AgentToolResult, ToolContext } from '../tools/types';
 
 export type ConnectorType = 'mcp' | 'oauth' | 'apiKey' | 'internal' | 'local';

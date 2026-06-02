@@ -5,7 +5,7 @@ import {
 	fireAfterCompactionHook,
 	fireBeforeCompactionHook,
 } from './runtime';
-import type { ProviderAdapter, TranscriptEntry } from '../llm/providers/types';
+import type { ProviderAdapter, TranscriptEntry } from '../llm/LlmTypes';
 import type { CompactionMarker } from './session/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 
