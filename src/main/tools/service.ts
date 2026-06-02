@@ -138,7 +138,7 @@ export class ToolService implements ToolServicePort {
 	}): AgentTool[] {
 		const policy = input.toolPolicy;
 		const tools = createTools({
-			profile: policy?.profile ?? 'standard',
+			profile: policy?.profile ?? 'full',
 			allow: policy?.allow ?? [],
 			alsoAllow: policy?.alsoAllow,
 			deny: [...(policy?.deny ?? []), ...(input.denylist ?? [])],
@@ -146,7 +146,7 @@ export class ToolService implements ToolServicePort {
 		}, this.policy);
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Created default tools', {
 			count: tools.length,
-			profile: policy?.profile ?? 'standard',
+			profile: policy?.profile ?? 'full',
 			denyCount: (policy?.deny?.length ?? 0) + (input.denylist?.length ?? 0),
 		});
 		return tools;
