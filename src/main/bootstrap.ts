@@ -8,15 +8,13 @@ import { ChannelRegistry, ChannelsService } from './channels';
 import {
 	AgentService,
 	type AgentServiceDependencies,
-	SubagentRegistry,
-	SubagentRunTaskHandler,
 	SubagentSpawnService,
+	SubagentRegistry,
 } from './agent';
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './modules/workspace';
 import { ConnectorsService } from './capabilities/connectors';
-import { TasksService } from './tasks';
 import { UserDataDirectoryService } from './storage/user-data';
 import { ToolService } from './capabilities/tools';
 import { SkillsService } from './capabilities/skills';
@@ -86,14 +84,6 @@ export function bootstrapServices(): BootstrapResult {
 	const toolService = container.register('toolService', new ToolService({ cron, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
-	const taskManager = container.register(
-		'taskManager',
-		new TasksService({
-			store,
-			eventBus,
-			logger,
-		})
-	);
 
 	const agentDependencies: AgentServiceDependencies = {
 		store,
@@ -107,7 +97,6 @@ export function bootstrapServices(): BootstrapResult {
 		connectors,
 		skills,
 		toolService,
-		taskManager,
 		channels,
 	};
 	const agentService = container.register(
@@ -118,11 +107,9 @@ export function bootstrapServices(): BootstrapResult {
 				new AgentRunLogger(agentId, { baseDir: agentDataDirectory.resolve('runs') }),
 		})
 	);
-	taskManager.configureAgentRuntime(agentService);
-	taskManager.registerHandler(new SubagentRunTaskHandler(agentService, subagentRegistry, eventBus));
 	agentDependencies.subagents = new SubagentSpawnService({
 		agentSettings,
-		taskManager,
+		agentService,
 		registry: subagentRegistry,
 		eventBus,
 		logger,
