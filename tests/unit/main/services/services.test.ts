@@ -8,11 +8,18 @@ import { AgentStartupFilesService } from '../../../../src/main/agent/workspace';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('workspace service', () => {
+	const workspaceSetupStatePath = (workspaceRoot: string): string =>
+		path.join(workspaceRoot, 'workspace-state.json');
+	const legacyWorkspaceStatePath = (workspaceRoot: string): string =>
+		path.join(workspaceRoot, '.friday', 'workspace-state.json');
 	const legacyStartupStatePath = (agentRoot: string): string =>
 		path.join(agentRoot, '.friday', 'startup-state.json');
+	const expectNoStateDirectory = async (root: string): Promise<void> => {
+		await expect(fs.access(path.join(root, '.friday'))).rejects.toThrow();
+	};
 	const expectNoStartupState = async (agentRoot: string): Promise<void> => {
 		await expect(fs.access(legacyStartupStatePath(agentRoot))).rejects.toThrow();
-		await expect(fs.access(path.dirname(legacyStartupStatePath(agentRoot)))).rejects.toThrow();
+		await expectNoStateDirectory(agentRoot);
 	};
 
 	it('confines reads and writes to the configured root', async () => {
@@ -36,7 +43,48 @@ describe('workspace service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('seeds agent startup files under .friday/agent without overwriting user edits', async () => {
+	it('stores completed workspace bootstrap state without creating .friday', async () => {
+		const root = await makeTempDir();
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+		await service.ensureReady({ initializeGit: false });
+		await fs.writeFile(path.join(root, 'BOOTSTRAP.md'), 'First Run', 'utf8');
+
+		await expect(service.isBootstrapPending()).resolves.toBe(true);
+		await service.completeBootstrap();
+
+		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
+		await expect(fs.readFile(workspaceSetupStatePath(root), 'utf8')).resolves.toContain(
+			'setupCompletedAt'
+		);
+		await expectNoStateDirectory(root);
+		await expect(service.loadContextFiles()).resolves.toEqual(
+			expect.not.arrayContaining([expect.objectContaining({ name: 'BOOTSTRAP.md' })])
+		);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('migrates legacy workspace bootstrap state without keeping .friday', async () => {
+		const root = await makeTempDir();
+		const statePath = legacyWorkspaceStatePath(root);
+		await fs.mkdir(path.dirname(statePath), { recursive: true });
+		await fs.writeFile(
+			statePath,
+			JSON.stringify({ version: 1, setupCompletedAt: new Date().toISOString() }),
+			'utf8'
+		);
+		await fs.writeFile(path.join(root, 'BOOTSTRAP.md'), 'stale bootstrap', 'utf8');
+		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
+
+		await expect(service.isBootstrapPending()).resolves.toBe(false);
+
+		await expect(fs.readFile(workspaceSetupStatePath(root), 'utf8')).resolves.toContain(
+			'setupCompletedAt'
+		);
+		await expectNoStateDirectory(root);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('seeds agent startup files under agent workspace data without overwriting user edits', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({ rootPath: path.join(root, 'agent', 'workspaces') });
 
