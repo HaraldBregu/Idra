@@ -313,12 +313,8 @@
 					"startOtherPrograms": {
 						"title": "Avviare altri programmi",
 						"note": "Soggetto a permessi."
-					},
-					"runBackgroundTasks": {
-						"title": "Eseguire attivita in background",
-						"note": "Piu limitato su alcuni sistemi."
-					},
-					"accessSystemInformation": {
+						},
+						"accessSystemInformation": {
 						"title": "Accedere alle informazioni di sistema",
 						"note": "CPU, RAM, versione OS, info dispositivo, ecc."
 					},
