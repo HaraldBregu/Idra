@@ -12,7 +12,6 @@ import type { LoggerService } from '../observability';
 import type { SkillsService } from '../capabilities/skills';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../storage';
-import type { TasksService } from '../tasks';
 import type { WorkspaceService } from '../modules/workspace';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 
@@ -32,7 +31,6 @@ export interface MainServices {
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
 	store: StoreService;
-	taskManager: TasksService;
 	toolService: ToolService;
 	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
