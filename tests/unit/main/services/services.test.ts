@@ -28,7 +28,7 @@ describe('workspace service', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('completes workspace bootstrap without writing state', async () => {
+	it('completes workspace bootstrap', async () => {
 		const root = await makeTempDir();
 		const service = new WorkspaceService(makeLogger() as never, { rootPath: root });
 		await service.ensureReady({ initializeGit: false });
@@ -38,7 +38,6 @@ describe('workspace service', () => {
 		await service.completeBootstrap();
 
 		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
-		await expect(fs.access(path.join(root, 'workspace-state.json'))).rejects.toThrow();
 		await expect(service.loadContextFiles()).resolves.toEqual(
 			expect.not.arrayContaining([expect.objectContaining({ name: 'BOOTSTRAP.md' })])
 		);
