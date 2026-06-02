@@ -14,7 +14,6 @@ describe('settings navigation', () => {
 			'settings.tabs.channels',
 			'settings.tabs.heartbeat',
 			'settings.sections.taskScheduler',
-			'settings.tabs.backgroundTasks',
 		]);
 	});
 
