@@ -10,7 +10,7 @@ import {
 	type AgentHistoryMessage,
 	type AgentSendRuntimeOptions,
 } from '../../shared/agents/service';
-import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/llmTypes';
+import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/types';
 import type { AgentSendOptions } from '../agent';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;

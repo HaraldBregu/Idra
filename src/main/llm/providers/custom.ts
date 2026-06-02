@@ -5,9 +5,9 @@ import type {
 	ProviderStreamRequest,
 	TranscriptEntry,
 	Usage,
-} from '../llmTypes';
-import { ContextOverflowError, ProviderAuthError } from '../llmTypes';
-import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openAiClient';
+} from '../types';
+import { ContextOverflowError, ProviderAuthError } from '../types';
+import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openai';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 const QWEN_BASE_URL = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';

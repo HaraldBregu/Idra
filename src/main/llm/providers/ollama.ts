@@ -1,4 +1,4 @@
-import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openAiClient';
+import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openai';
 
 const OLLAMA_BASE_URL = 'http://localhost:11434/v1';
 

@@ -1,4 +1,4 @@
-import type { JSONSchema } from '../../../llm/llmTypes';
+import type { JSONSchema } from '../../../llm/types';
 import type { AgentTool, ToolDiagnostics } from './common';
 import { copyToolMetadata } from './common';
 

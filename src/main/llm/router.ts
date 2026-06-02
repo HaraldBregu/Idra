@@ -1,13 +1,13 @@
-import { AnthropicAdapter } from './providers/anthropicClient';
-import { OpenAIAdapter, OpenAIChatAdapter } from './providers/openAiClient';
+import { AnthropicAdapter } from './providers/anthropic';
+import { OpenAIAdapter, OpenAIChatAdapter } from './providers/openai';
 import {
 	DeepSeekAdapter,
 	MistralAdapter,
 	QwenAdapter,
-} from './providers/customSdkClient';
-import { LMStudioAdapter } from './providers/lmStudioClient';
-import { OllamaAdapter } from './providers/ollamaClient';
-import type { ProviderAdapter } from './llmTypes';
+} from './providers/custom';
+import { LMStudioAdapter } from './providers/lmstudio';
+import { OllamaAdapter } from './providers/ollama';
+import type { ProviderAdapter } from './types';
 
 export interface ProviderSpec {
 	id: string;

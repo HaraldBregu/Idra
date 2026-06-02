@@ -1,4 +1,4 @@
-import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openAiClient';
+import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './openai';
 
 const LM_STUDIO_BASE_URL = 'http://localhost:1234/v1';
 

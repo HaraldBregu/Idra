@@ -12,7 +12,7 @@ jest.mock('electron-store', () => {
 });
 
 import path from 'node:path';
-import type { ProviderStreamRequest } from '../../../../src/main/llm/llmTypes';
+import type { ProviderStreamRequest } from '../../../../src/main/llm/types';
 import { AgentService, AgentStartupFilesService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/agent/logging';
 import { makeLogger, makeTempDir } from '../test-helpers';

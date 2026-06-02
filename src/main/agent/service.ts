@@ -28,9 +28,9 @@ import {
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
-import { makeProvider, type ProviderSpec } from '../llm/modelRouter';
+import { makeProvider, type ProviderSpec } from '../llm/router';
 import { ToolPolicyService, type ToolPolicyServicePort } from '../capabilities/tools/tool-types';
-import type { ProviderAdapter, TranscriptEntry } from '../llm/llmTypes';
+import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
 	loadExistingSession,

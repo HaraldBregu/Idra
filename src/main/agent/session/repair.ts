@@ -1,4 +1,4 @@
-import type { ToolResultStatus, TranscriptEntry } from '../../llm/llmTypes';
+import type { ToolResultStatus, TranscriptEntry } from '../../llm/types';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
