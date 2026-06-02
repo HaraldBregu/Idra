@@ -7,7 +7,6 @@ import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
 import {
 	MCP_CONNECTOR_CATALOG,
-	OPENAI_CONNECTOR_CATALOG,
 	getMcpConnectorCatalogItem,
 	type ConnectorApprovalMode,
 	type ConnectorCallToolOptions,
