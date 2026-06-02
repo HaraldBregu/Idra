@@ -37,7 +37,7 @@ const end = (usage = { inputTokens: 1, outputTokens: 1 }): ProviderEvent => ({
 describe('agent/execution/loop', () => {
 	it('streams text, appends transcript entries, and returns usage', async () => {
 		const chunks: string[] = [];
-		const result = await runAgent({
+		const result = await executeAgentRun({
 			runId: 'r1',
 			userMessage: 'hello',
 			systemPrompt: 'sys',
@@ -68,7 +68,7 @@ describe('agent/execution/loop', () => {
 			execute,
 		};
 
-		const result = await runAgent({
+		const result = await executeAgentRun({
 			runId: 'r1',
 			userMessage: 'do it',
 			systemPrompt: 'sys',
@@ -158,7 +158,7 @@ describe('agent/execution/loop', () => {
 			execute,
 		};
 
-		const result = await runAgent({
+		const result = await executeAgentRun({
 			runId: 'r1',
 			userMessage: 'do it',
 			systemPrompt: 'sys',
@@ -222,7 +222,7 @@ describe('agent/execution/loop', () => {
 			})),
 		};
 
-		const result = await runAgent({
+		const result = await executeAgentRun({
 			runId: 'r1',
 			userMessage: 'use tools',
 			systemPrompt: 'sys',
@@ -293,7 +293,7 @@ describe('agent/execution/loop', () => {
 	it('compacts once on context overflow and retries', async () => {
 		const existing = session();
 		existing.transcript = Array.from({ length: 9 }, (_, i) => ({ role: 'user' as const, content: `old ${i}` }));
-		const result = await runAgent({
+		const result = await executeAgentRun({
 			runId: 'r1',
 			userMessage: 'new',
 			systemPrompt: 'sys',
