@@ -49,26 +49,13 @@ const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
 
 export class ConnectorsService {
-	private readonly legacy?: LegacyConnectorsService;
-	private readonly store?: ConnectorsStore;
-	private readonly logger?: LoggerService;
+	private readonly store: ConnectorsStore;
+	private readonly logger: LoggerService;
 	private readonly options: ConnectorsServiceOptions;
 
-	constructor(store: StoreService, logger: LoggerService, options?: ConstructorParameters<typeof LegacyConnectorsService>[2]);
-	constructor(logger: LoggerService, options?: ConnectorsServiceOptions);
-	constructor(
-		first: StoreService | LoggerService,
-		second?: LoggerService | ConnectorsServiceOptions,
-		third?: ConstructorParameters<typeof LegacyConnectorsService>[2]
-	) {
-		if (isLegacyStore(first)) {
-			this.legacy = new LegacyConnectorsService(first, second as LoggerService, third);
-			this.options = {};
-			return;
-		}
-
-		this.logger = first as LoggerService;
-		this.options = (second as ConnectorsServiceOptions | undefined) ?? {};
+	constructor(logger: LoggerService, options?: ConnectorsServiceOptions) {
+		this.logger = logger;
+		this.options = options ?? {};
 		this.store = new Store<ConnectorsStoreSchema>({
 			name: 'connectors',
 			cwd: path.join(resolveAppDataPath(), DEFAULT_CONNECTOR_STORE_DIR),
