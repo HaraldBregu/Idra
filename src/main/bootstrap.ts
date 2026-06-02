@@ -19,7 +19,6 @@ import { UserDataDirectoryService } from './storage/user-data';
 import { ToolService } from './capabilities/tools';
 import { SkillsService } from './capabilities/skills';
 import { SpeechToTextService } from './stt';
-import { AgentRunLogger } from './agent/logging';
 import { DEFAULT_AGENT_ID } from './config';
 
 import type { MainServiceContainer, MainServices } from './services/services';
@@ -102,8 +101,6 @@ export function bootstrapServices(): BootstrapResult {
 		'agentService',
 		new AgentService(agentDependencies, {
 			sessionBaseDir: agentDataDirectory.resolve('sessions'),
-			runLoggerFactory: (agentId) =>
-				new AgentRunLogger(agentId, { baseDir: agentDataDirectory.resolve('runs') }),
 		})
 	);
 	agentDependencies.subagents = new SubagentSpawnService({

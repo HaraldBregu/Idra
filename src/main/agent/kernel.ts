@@ -23,7 +23,6 @@ import { buildSystemPrompt } from './context/prompt';
 import {
 	AgentExecutionService,
 	type AgentExecutionServicePort,
-	type AgentRunHooks,
 } from './execution/loop';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
@@ -40,7 +39,6 @@ import {
 	type SessionFile,
 	type SessionStatus,
 } from './session/store';
-import { AgentRunLogger, type RunLogFinish, type TokenUsage } from './logging';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
 import {
 	AgentWorkspaceService,
@@ -123,7 +121,6 @@ export interface AgentServiceOptions {
 	toolService?: ToolServicePort;
 	capabilityService?: AgentCapabilityServicePort;
 	executionService?: AgentExecutionServicePort;
-	runLoggerFactory?: (agentId: string) => AgentRunLogger;
 	sessionBaseDir?: string;
 	beforeAgentRunHooks?: BeforeAgentRunHook[];
 }
@@ -185,17 +182,8 @@ export type AgentExecuteRunOptions = Omit<AgentSendOptions, 'runId' | 'sessionId
 };
 
 interface Runtime {
-	runLogger: AgentRunLogger;
 	session: SessionFile | null;
 	currentAbort: AbortController | null;
-}
-
-function emptyUsage(): TokenUsage {
-	return { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
-}
-
-function startupContextChars(files: WorkspaceContextFile[]): number {
-	return files.reduce((total, file) => total + (file.content?.length ?? 0), 0);
 }
 
 const SECONDARY_SESSION_CONTEXT_ALLOWLIST = new Set([
@@ -236,7 +224,6 @@ export class AgentService {
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
-	private readonly runLoggerFactory: (agentId: string) => AgentRunLogger;
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private heartbeatStore: HeartbeatFileStore | null = null;
@@ -272,7 +259,6 @@ export class AgentService {
 			options.executionService ?? new AgentExecutionService(this.toolService);
 		this.usesDefaultToolsFactory = !options.toolsFactory;
 		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
-		this.runLoggerFactory = options.runLoggerFactory ?? ((id) => new AgentRunLogger(id));
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
@@ -537,7 +523,6 @@ export class AgentService {
 				this.dependencies.eventBus.broadcast('agent:response', responseEvent);
 			}
 		};
-		const runStartedAt = Date.now();
 		const phaseDurationsMs: Record<string, number> = {};
 
 		try {
@@ -747,21 +732,6 @@ export class AgentService {
 				? `${systemPromptWithCapabilities}\n\n${toolSelection.systemPromptSuffix}`
 				: systemPromptWithCapabilities;
 
-			const hooks = this.buildHooks(runtimeAgentId, {
-				runId,
-				providerId,
-				model,
-				tools: selectedTools.map((tool) => tool.name),
-				runLogger: runtime.runLogger,
-				systemPromptChars: systemPromptForTurn.length,
-				userMessageChars: message.length,
-				directAnswer,
-				bootstrapPending,
-				toolPolicyReason: toolPolicy.reason,
-				workspaceContextChars: startupContextChars(startupFiles),
-				prepStartedAt: runStartedAt,
-				phaseDurationsMs,
-			});
 			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
 				prompt: message,
 				messages: [...runtime.session.transcript, { role: 'user', content: message }],
@@ -770,7 +740,6 @@ export class AgentService {
 				senderIsOwner: agentId === this.defaultAgentId,
 			});
 			if (beforeRun.outcome === 'block') {
-				await hooks.onStart?.({ runId });
 				runtime.session.transcript.push({
 					role: 'assistant',
 					content: [{ type: 'text', text: beforeRun.message }],
@@ -791,14 +760,6 @@ export class AgentService {
 					type: 'run_state',
 					state: 'completed',
 					label: 'beforeAgentRunBlocked',
-				});
-				await hooks.onFinish?.({
-					runId,
-					stopReason: 'end_turn',
-					usage: emptyUsage(),
-					iterations: 0,
-					durationMs: Date.now() - runStartedAt,
-					outputChars: beforeRun.message.length,
 				});
 				return beforeRun.message;
 			}
@@ -821,7 +782,6 @@ export class AgentService {
 				streamEvent,
 				maxTokens: AGENT_TOOL_LIMITS.maxTokens,
 				maxIterations: AGENT_TOOL_LIMITS.maxIterations,
-				hooks,
 				signal: abort.signal,
 				toolManagement: { enabled: false },
 				toolService: this.toolService,
@@ -859,18 +819,6 @@ export class AgentService {
 			this.dependencies.logger.error('AgentService', 'send failed', {
 				message: (err as Error).message,
 				stack: (err as Error).stack,
-			});
-			await runtime.runLogger.logFinish({
-				runId,
-				agentId: runtimeAgentId,
-				provider: 'unknown',
-				model: 'unknown',
-				status: 'error',
-				iterations: 0,
-				durationMs: Date.now() - runStartedAt,
-				usage: emptyUsage(),
-				outputChars: 0,
-				error: { message: (err as Error).message, stack: (err as Error).stack },
 			});
 			throw err;
 		}
@@ -974,7 +922,6 @@ export class AgentService {
 		if (existing) return existing;
 		this.dependencies.logger.info('AgentService', `Creating agent runtime "${agentId}"`);
 		const runtime: Runtime = {
-			runLogger: this.runLoggerFactory(agentId),
 			session: null,
 			currentAbort: null,
 		};
@@ -1151,100 +1098,4 @@ export class AgentService {
 		return files.filter((file) => file.name !== DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
-	private buildHooks(
-		agentId: string,
-		meta: {
-			runId: string;
-			providerId: string;
-			model: string;
-			tools: string[];
-			runLogger: AgentRunLogger;
-			systemPromptChars: number;
-			userMessageChars: number;
-			directAnswer: boolean;
-			bootstrapPending: boolean;
-			toolPolicyReason: string;
-			workspaceContextChars: number;
-			prepStartedAt: number;
-			phaseDurationsMs: Record<string, number>;
-		}
-	): AgentRunHooks {
-		return {
-			onStart: async () => {
-				await meta.runLogger.logStart({
-					runId: meta.runId,
-					agentId,
-					provider: meta.providerId,
-					model: meta.model,
-					systemPromptChars: meta.systemPromptChars,
-					userMessageChars: meta.userMessageChars,
-					tools: meta.tools,
-					mcpToolCount: 0,
-					directAnswer: meta.directAnswer,
-					bootstrapPending: meta.bootstrapPending,
-					toolPolicyReason: meta.toolPolicyReason,
-					workspaceContextChars: meta.workspaceContextChars,
-					prepDurationMs: Date.now() - meta.prepStartedAt,
-					phaseDurationsMs: { ...meta.phaseDurationsMs },
-				});
-			},
-			onIteration: async (info) => {
-				await meta.runLogger.logIteration({
-					runId: meta.runId,
-					agentId,
-					iteration: info.iteration,
-					usage: {
-						inputTokens: info.usage.inputTokens,
-						outputTokens: info.usage.outputTokens,
-						totalTokens: info.usage.inputTokens + info.usage.outputTokens,
-					},
-					durationMs: info.durationMs,
-				});
-			},
-			onToolCall: async (info) => {
-				await meta.runLogger.logToolCall({
-					runId: meta.runId,
-					agentId,
-					iteration: info.iteration,
-					callId: info.callId,
-					tool: info.tool,
-					arguments: JSON.stringify(info.args ?? {}),
-					durationMs: info.durationMs,
-					status: info.status,
-					outputChars: info.outputChars,
-					outputText: info.outputText,
-				});
-			},
-			onFinish: async (info) => {
-				const status: RunLogFinish['status'] =
-					info.stopReason === 'cancelled'
-						? 'cancelled'
-						: info.stopReason === 'end_turn'
-							? 'completed'
-							: info.stopReason === 'max_iterations'
-								? 'max_iterations'
-								: info.stopReason === 'error'
-									? 'error'
-									: 'completed';
-				const usage: TokenUsage = {
-					inputTokens: info.usage.inputTokens,
-					outputTokens: info.usage.outputTokens,
-					totalTokens: info.usage.inputTokens + info.usage.outputTokens,
-				};
-				await meta.runLogger.logFinish({
-					runId: meta.runId,
-					agentId,
-					provider: meta.providerId,
-					model: meta.model,
-					status,
-					iterations: info.iterations,
-					durationMs: info.durationMs,
-					usage,
-					outputChars: info.outputChars,
-					firstTokenLatencyMs: info.firstTokenLatencyMs,
-					error: info.error ? { message: info.error.message, stack: info.error.stack } : undefined,
-				});
-			},
-		};
-	}
 }

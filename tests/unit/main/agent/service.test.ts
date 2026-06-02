@@ -19,7 +19,6 @@ import type {
 	ProviderStreamRequest,
 } from '../../../../src/main/llm/types';
 import { AgentService } from '../../../../src/main/agent';
-import { AgentRunLogger } from '../../../../src/main/agent/logging';
 import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
@@ -102,11 +101,9 @@ function makeDeps(workspace = '/workspace') {
 describe('AgentService', () => {
 	it('drives the new agent loop directly from the IPC-facing service', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory: jest.fn(() =>
 				provider([
 					{ type: 'message_start' },
@@ -133,12 +130,7 @@ describe('AgentService', () => {
 			])
 		);
 
-		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
-		expect(records.map((record) => record.event)).toEqual(
-			expect.arrayContaining(['start', 'finish'])
-		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('adds and forces heartbeat_respond for heartbeat runs that request tool reporting', async () => {
@@ -242,7 +234,6 @@ describe('AgentService', () => {
 
 	it('executes created runs and routes tool calls through ToolService', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const tool: AgentTool = {
 			name: 'ping',
@@ -286,7 +277,6 @@ describe('AgentService', () => {
 			{ ...deps, policy: policy as never, toolService: toolService as never },
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 				providerFactory: () => ({
 					async *stream() {
 						turn++;
@@ -332,12 +322,10 @@ describe('AgentService', () => {
 		);
 		await expect(service.getRunState(run.id)).resolves.toBe('completed');
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('passes saved OpenAI model effort into provider requests', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		deps.store.getAgentService.mockReturnValue({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
@@ -346,7 +334,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -364,12 +351,10 @@ describe('AgentService', () => {
 		await expect(service.send('hi')).resolves.toBe('done');
 		expect(requests[0]).toMatchObject({ model: 'gpt-5.5', effort: 'xhigh' });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('uses per-run provider and model overrides', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		deps.store.getProviderById.mockImplementation((id: string) => {
 			if (id === 'anthropic') {
@@ -402,7 +387,6 @@ describe('AgentService', () => {
 		}));
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory,
 			toolsFactory: (context) => {
 				contexts.push(context);
@@ -428,12 +412,10 @@ describe('AgentService', () => {
 			model: 'claude-test',
 		});
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('rejects unsupported OpenAI model effort before calling the provider', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		deps.store.getAgentService.mockReturnValue({
 			provider: { id: 'openai', name: 'OpenAI', baseUrl: 'https://api.openai.com/v1' },
@@ -447,7 +429,6 @@ describe('AgentService', () => {
 		);
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 			providerFactory,
 			toolsFactory: () => [],
 		});
@@ -457,7 +438,6 @@ describe('AgentService', () => {
 		);
 		expect(providerFactory).not.toHaveBeenCalled();
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('blocks before model inference without persisting the raw prompt', async () => {
@@ -469,7 +449,6 @@ describe('AgentService', () => {
 		const providerFactory = jest.fn(() => ({ stream }));
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory,
 			toolsFactory: () => [],
 			beforeAgentRunHooks: [
@@ -504,7 +483,6 @@ describe('AgentService', () => {
 		const contexts: unknown[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				provider([
 					{ type: 'message_start' },
@@ -542,7 +520,6 @@ describe('AgentService', () => {
 		const contexts: unknown[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				provider([
 					{ type: 'message_start' },
@@ -593,7 +570,6 @@ describe('AgentService', () => {
 			deps,
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -625,7 +601,6 @@ describe('AgentService', () => {
 
 	it('loads file tools and startup context for ordinary prompts', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
 		const startupFiles = {
@@ -650,7 +625,6 @@ describe('AgentService', () => {
 			{ ...deps, startupFiles: startupFiles as never },
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -672,21 +646,11 @@ describe('AgentService', () => {
 		expect(requests[0]!.tools.map((tool) => tool.name)).toEqual(['read']);
 		expect(requests[0]!.system).toContain('**read**');
 
-		const records = await new AgentRunLogger('main', { baseDir: runLogDir }).readAll();
-		expect(records).toContainEqual(
-			expect.objectContaining({
-				event: 'start',
-				directAnswer: false,
-				tools: ['read'],
-			})
-		);
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('uses the injected policy service for request-level tool use', async () => {
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const deps = makeDeps();
 		const toolsFactory = jest.fn(() => []);
 		const policy = {
@@ -696,7 +660,6 @@ describe('AgentService', () => {
 			{ ...deps, policy: policy as never },
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 				providerFactory: () =>
 					provider([
 						{ type: 'text_delta', text: 'hello' },
@@ -714,7 +677,6 @@ describe('AgentService', () => {
 		expect(policy.evaluateToolRequest).toHaveBeenCalledWith({ userRequest: 'hello there' });
 		expect(toolsFactory).not.toHaveBeenCalled();
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 
 	it('exposes available tools when the user asks about tool capabilities', async () => {
@@ -723,7 +685,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -758,7 +719,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -800,7 +760,6 @@ describe('AgentService', () => {
 		});
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -835,7 +794,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -878,7 +836,6 @@ describe('AgentService', () => {
 			{ ...deps, connectors: connectors as never },
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 				providerFactory: () => ({
 					async *stream(req) {
 						requests.push(req);
@@ -910,7 +867,6 @@ describe('AgentService', () => {
 		let turn = 0;
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -956,7 +912,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -988,7 +943,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1016,7 +970,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1058,7 +1011,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1106,7 +1058,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1133,7 +1084,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1159,7 +1109,6 @@ describe('AgentService', () => {
 		const requests: ProviderStreamRequest[] = [];
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () => ({
 				async *stream(req) {
 					requests.push(req);
@@ -1194,7 +1143,6 @@ describe('AgentService', () => {
 		};
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				providerTurns([
 					[
@@ -1249,7 +1197,6 @@ describe('AgentService', () => {
 		};
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				providerTurns([
 					[
@@ -1305,7 +1252,6 @@ describe('AgentService', () => {
 		const deps = makeDeps();
 		const service = new AgentService(deps, {
 			sessionBaseDir,
-			runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: sessionBaseDir }),
 			providerFactory: () =>
 				provider([
 					{ type: 'message_start' },

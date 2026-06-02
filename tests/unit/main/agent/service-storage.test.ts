@@ -14,14 +14,12 @@ jest.mock('electron-store', () => {
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { AgentService } from '../../../../src/main/agent';
-import { AgentRunLogger } from '../../../../src/main/agent/logging';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 describe('AgentService agent storage wiring', () => {
 	it('uses the agent app-data per-agent directory and agent.json settings for agent config', async () => {
 		const root = await makeTempDir();
 		const sessionBaseDir = await makeTempDir();
-		const runLogDir = await makeTempDir();
 		const providerFactory = jest.fn(() => ({
 			async *stream() {
 				yield { type: 'text_delta' as const, text: 'done' };
@@ -71,7 +69,6 @@ describe('AgentService agent storage wiring', () => {
 			},
 			{
 				sessionBaseDir,
-				runLoggerFactory: (id) => new AgentRunLogger(id, { baseDir: runLogDir }),
 				providerFactory,
 				toolsFactory: () => [],
 			}
@@ -88,6 +85,5 @@ describe('AgentService agent storage wiring', () => {
 		});
 		await fs.rm(root, { recursive: true, force: true });
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
-		await fs.rm(runLogDir, { recursive: true, force: true });
 	});
 });
