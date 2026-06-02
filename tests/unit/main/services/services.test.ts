@@ -38,9 +38,7 @@ describe('workspace service', () => {
 		await service.completeBootstrap();
 
 		await expect(fs.access(path.join(root, 'BOOTSTRAP.md'))).rejects.toThrow();
-		await expect(service.loadContextFiles()).resolves.toEqual(
-			expect.not.arrayContaining([expect.objectContaining({ name: 'BOOTSTRAP.md' })])
-		);
+		await expect(service.isBootstrapPending()).resolves.toBe(false);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
