@@ -4,7 +4,6 @@ import type { EventBus } from '../services/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../storage';
-import type { TasksService } from '../tasks';
 import type { ConnectorsService } from '../capabilities/connectors';
 import type { SkillsService } from '../capabilities/skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
@@ -90,7 +89,6 @@ export interface AgentServiceDependencies {
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
-	taskManager?: TasksService;
 	subagents?: SubagentSpawnPort;
 	policy?: ToolPolicyServicePort;
 	toolService?: ToolServicePort;
