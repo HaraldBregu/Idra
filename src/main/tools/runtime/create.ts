@@ -250,7 +250,7 @@ function addCoreToolCandidates(
 				sessionId: options.sessionId,
 				signal: options.abortSignal,
 				services: options.services,
-			})
+			}).filter((tool) => tool.name !== 'cron')
 		);
 	}
 	if (plan.includeShellTools) {
