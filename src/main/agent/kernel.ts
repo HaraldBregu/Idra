@@ -65,7 +65,7 @@ import {
 	type ToolContext,
 	type ToolServicePort,
 } from '../tools';
-import { createStartupFilesTool } from '../tools/list/startup-files';
+import { createStartupFilesTool } from '../tools/startup-files';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,

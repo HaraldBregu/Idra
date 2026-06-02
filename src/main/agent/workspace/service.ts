@@ -1,7 +1,7 @@
 import type { LoggerService } from '../../observability';
 import type { WorkspaceContextFile, WorkspaceFileSummary } from './files';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from '../storage';
-import { AgentStartupFilesService, type AgentStartupFilesServicePort } from '../../tools/list';
+import { AgentStartupFilesService, type AgentStartupFilesServicePort } from '../../tools';
 import {
 	AgentPermissionsStore,
 	type AgentPermissions,

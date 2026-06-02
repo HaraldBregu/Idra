@@ -11,7 +11,7 @@ import {
 	moveTool,
 	readFileTool,
 	writeTool,
-} from '../../../../src/main/tools/list';
+} from '../../../../src/main/tools';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -21,9 +21,9 @@ import {
 	cronStartTool,
 	cronStopTool,
 	cronUpdateTool,
-} from '../../../../src/main/tools/list';
-import { scriptRunTool } from '../../../../src/main/tools/list/script-run';
-import { runShellTool } from '../../../../src/main/tools/list/run-shell';
+} from '../../../../src/main/tools';
+import { scriptRunTool } from '../../../../src/main/tools/script-run';
+import { runShellTool } from '../../../../src/main/tools/run-shell';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
