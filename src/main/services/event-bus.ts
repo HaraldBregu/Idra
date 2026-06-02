@@ -1,8 +1,5 @@
 import { BrowserWindow } from 'electron';
-import type { TaskEvent } from '../../shared/tasks';
 import type { SubagentRunRecord } from '../agent/subagents/types';
-
-type TaskEventOf<TType extends TaskEvent['type']> = Extract<TaskEvent, { type: TType }>;
 
 /**
  * Base event structure for main process events
@@ -23,12 +20,6 @@ export interface AppEvents {
 	'error:critical': { error: Error; context: string };
 	'window:created': { windowId: number; type: string };
 	'window:closed': { windowId: number };
-	'task:created': TaskEventOf<'task:created'>;
-	'task:started': TaskEventOf<'task:started'>;
-	'task:updated': TaskEventOf<'task:updated'>;
-	'task:succeeded': TaskEventOf<'task:succeeded'>;
-	'task:failed': TaskEventOf<'task:failed'>;
-	'task:cancelled': TaskEventOf<'task:cancelled'>;
 	'subagent:created': SubagentRunRecord;
 	'subagent:started': SubagentRunRecord;
 	'subagent:completed': SubagentRunRecord;
