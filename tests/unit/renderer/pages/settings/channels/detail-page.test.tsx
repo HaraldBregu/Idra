@@ -130,7 +130,7 @@ describe('ChannelDetailPage', () => {
 
 		await waitFor(() => {
 			expect(window.app.openExternalUrl).toHaveBeenCalledWith(
-				'https://github.com/HaraldBregu/friday/blob/main/docs/channels/slack.md'
+				'https://github.com/HaraldBregu/friday/blob/main/docs/channels/slack/index.md'
 			);
 		});
 	});
