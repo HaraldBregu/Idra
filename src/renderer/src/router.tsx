@@ -31,6 +31,7 @@ const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connector
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
+const ModelServicePage = lazy(() => import('./pages/settings/pages/model-services/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
 const TaskManagerPage = lazy(() => import('./pages/settings/pages/task-manager/Page'));
@@ -232,6 +233,27 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'model-services',
+						children: [
+							{
+								path: ':serviceId/details',
+								element: (
+									<SettingsRouteWrapper>
+										<ModelServicePage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: ':serviceId/details/chathistory',
+								element: (
+									<SettingsRouteWrapper>
+										<ModelServicePage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
+					},
+					{
 						path: 'cron',
 						children: [
 							{
@@ -281,7 +303,7 @@ const routes: RouteObject[] = [
 							</SettingsRouteWrapper>
 						),
 					},
-						{
+					{
 						path: '*',
 						loader: () => {
 							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
