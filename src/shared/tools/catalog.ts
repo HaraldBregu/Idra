@@ -126,16 +126,6 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'start_task',
-		group: 'stateTask',
-		title: 'Start task',
-		description: 'Start an immediate in-memory agent background task.',
-		permissions: ['state'],
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'write_scratch',
 		group: 'stateTask',
 		title: 'Write scratch',
