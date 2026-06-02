@@ -19,6 +19,7 @@ import type {
 	ProviderStreamRequest,
 } from '../../../../src/main/llm/types';
 import { AgentService } from '../../../../src/main/agent';
+import { LOCAL_TOOL_CATALOG } from '../../../../src/main/tools';
 import type { AgentTool } from '../../../../src/main/tools/types';
 import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
@@ -919,10 +920,13 @@ describe('AgentService', () => {
 
 		await expect(service.send('Do you have any internal tools?')).resolves.toBe('tool inventory ready');
 		const toolNames = requests[0]!.tools.map((tool) => tool.name);
-		expect(toolNames).toEqual([...AGENT_TOOL_NAMES]);
+		expect(toolNames).toEqual(LOCAL_TOOL_CATALOG.map((entry) => entry.name));
 		expect(toolNames).not.toContain('exec');
 		expect(toolNames).not.toContain('process');
-		expect(toolNames).not.toContain('web_fetch');
+		expect(toolNames).toContain('web_fetch');
+		expect(toolNames).toContain('open_browser');
+		expect(toolNames).toContain('script_run');
+		expect(toolNames).toContain('cron_create');
 		expect(toolNames).not.toContain('cron');
 		expect(toolNames).not.toContain('startup_files');
 		expect(toolNames).not.toContain('bootstrap');
