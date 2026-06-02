@@ -1,28 +1,29 @@
-import type { Usage } from '../llm/types';
-import { ContextOverflowError } from '../llm/types';
-import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../llm/types';
-import type { AgentTool, ToolContext } from '../capabilities/tools';
+import type { Usage } from '../../llm/types';
+import { ContextOverflowError } from '../../llm/types';
+import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../../llm/types';
+import type { AgentTool, ToolContext } from '../../capabilities/tools';
 import {
 	type AgentToolManagementOptions,
 	ToolService,
 	type ToolServicePort,
 } from '../capabilities/tools';
-import { compact } from './compaction';
-import { agentLogger } from './logger';
-import { flushSessionMemoryBeforeCompaction } from '../memory/runtime';
-import type { SessionFile } from './session/store';
-import type { ModelReasoningEffort } from '../../shared/agents/service';
-import { makeProvider, type ProviderSpec } from '../llm/router';
+} from '../../capabilities/tools';
+import { compact } from '../context/compaction';
+import { agentLogger } from '../logger';
+import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
+import type { SessionFile } from '../session/store';
+import type { ModelReasoningEffort } from '../../../shared/agents/service';
+import { makeProvider, type ProviderSpec } from '../../llm/router';
 import type {
 	AgentRunStreamEvent,
 	AgentToolResultStatus,
-} from '../../shared/agents/events';
+} from '../../../shared/agents/events';
 import {
 	applyAgentToolResultMiddleware,
 	emitRuntimeLifecycleHook,
-} from './runtime';
+} from '../runtime';
 
-export type { AgentRunStreamEvent } from '../../shared/agents/events';
+export type { AgentRunStreamEvent } from '../../../shared/agents/events';
 
 export interface AgentProviderLookup {
 	getAgentService(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;

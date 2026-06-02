@@ -1,13 +1,13 @@
 import { createHash } from 'node:crypto';
-import { agentLogger } from './logger';
+import { agentLogger } from '../logger';
 import {
 	buildAgentHookContext,
 	fireAfterCompactionHook,
 	fireBeforeCompactionHook,
-} from './runtime';
-import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
-import type { CompactionMarker } from './session/store';
-import type { ModelReasoningEffort } from '../../shared/agents/service';
+} from '../runtime';
+import type { ProviderAdapter, TranscriptEntry } from '../../llm/types';
+import type { CompactionMarker } from '../session/store';
+import type { ModelReasoningEffort } from '../../../shared/agents/service';
 
 const KEEP_RECENT = 6;
 

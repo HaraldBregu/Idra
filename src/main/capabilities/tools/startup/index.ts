@@ -1,3 +1,3 @@
 export * from './service';
-export * from './startup';
+export * from './startup-files';
 export * from './types';
