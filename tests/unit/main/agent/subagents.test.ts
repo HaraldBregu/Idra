@@ -72,7 +72,7 @@ describe('subagent orchestration', () => {
 			modelId: 'gpt-test',
 			providerId: 'openai',
 		});
-		expect(registry.getSubagentRun('run-1')?.outcome).toBeUndefined();
+		expect(registry.getSubagentRun('run-1')?.outcome).toBe('ok');
 		expect(agentService.send).toHaveBeenCalledWith('Research the release notes', 'main', {
 			sessionId: 'agent:main:subagent:run-1',
 			providerId: 'openai',
