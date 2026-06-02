@@ -1,4 +1,9 @@
-export { WorkspaceService } from './root';
+export {
+	WorkspaceService,
+	renderWorkspaceContextFiles,
+	resolveBootstrapMode,
+	type BootstrapMode,
+} from './root';
 export {
 	DEFAULT_AGENTS_FILENAME,
 	DEFAULT_BOOTSTRAP_FILENAME,
