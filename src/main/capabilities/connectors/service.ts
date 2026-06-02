@@ -318,7 +318,6 @@ export class ConnectorsService {
 	}
 
 	createAgentTools(): AgentTool[] {
-		if (this.legacy) return this.legacy.createAgentTools();
 		return this.validConnectors()
 			.filter((connector) => connector.enabled && toStatus(connector, this.env()) === 'configured')
 			.flatMap((connector) =>
