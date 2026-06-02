@@ -60,14 +60,6 @@ export const SpeechToTextChannels = {
 	event: 'speech-to-text:event',
 } as const;
 
-export const TaskChannels = {
-	start: 'tasks:start',
-	list: 'tasks:list',
-	get: 'tasks:get',
-	cancel: 'tasks:cancel',
-	event: 'tasks:event',
-} as const;
-
 export const AppChannels = {
 	getLogs: 'app:get-logs',
 	openLogsFolder: 'app:open-logs-folder',
@@ -448,25 +440,6 @@ interface HeartbeatInvokeChannelMap {
 	};
 }
 
-interface TaskInvokeChannelMap {
-	[TaskChannels.start]: {
-		args: [request: import('../tasks').TaskRunRequest];
-		result: import('../tasks').TaskRecord;
-	};
-	[TaskChannels.list]: {
-		args: [];
-		result: import('../tasks').TaskRecord[];
-	};
-	[TaskChannels.get]: {
-		args: [id: string];
-		result: import('../tasks').TaskRecord | undefined;
-	};
-	[TaskChannels.cancel]: {
-		args: [id: string];
-		result: import('../tasks').TaskRecord;
-	};
-}
-
 interface SkillsInvokeChannelMap {
 	[SkillsChannels.list]: { args: []; result: import('../skills').SkillInfo[] };
 	[SkillsChannels.load]: { args: [name: string]; result: import('../skills').SkillDetails };
@@ -720,7 +693,6 @@ export interface InvokeChannelMap
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
-		TaskInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
@@ -772,10 +744,6 @@ interface HeartbeatEventChannelMap {
 	[HeartbeatChannels.event]: { data: import('../heartbeat').HeartbeatEventPayload };
 }
 
-interface TaskEventChannelMap {
-	[TaskChannels.event]: { data: import('../tasks').TaskEvent };
-}
-
 export interface EventChannelMap
 	extends
 		AppEventChannelMap,
@@ -784,5 +752,4 @@ export interface EventChannelMap
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
-		HeartbeatEventChannelMap,
-		TaskEventChannelMap {}
+		HeartbeatEventChannelMap {}
