@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
-import { guardedRootMessage, requireReadSnapshot, resolveAbs } from './common';
+import { guardedRootMessage, requireReadSnapshot, resolveAbs } from './internal/common';
 
 interface DeleteArgs {
 	path: string;

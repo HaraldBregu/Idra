@@ -1,7 +1,7 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { toolDescription } from '../base/metadata';
-import { scratchByContext } from './scratch-store';
+import { scratchByContext } from './internal/scratch-store';
 
 export const readScratchTool: AgentTool = {
 	name: 'read_scratch',

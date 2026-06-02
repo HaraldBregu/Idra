@@ -10,7 +10,7 @@ export { editFileTool } from './edit-file';
 export { applyPatchTool } from './apply-patch';
 export { inspectFileTool } from './inspect-file';
 export { undoLastOperationTool } from './undo-last-operation';
-export { createFileTools, createReadTool, type FileToolOptions } from './file-runtime';
+export { createFileTools, createReadTool, type FileToolOptions } from './internal/file-runtime';
 export { runShellTool } from './run-shell';
 export { execTool } from './exec';
 export { processTool } from './process';
@@ -25,9 +25,9 @@ export { cronListTool } from './cron-list';
 export { cronStartTool } from './cron-start';
 export { cronStopTool } from './cron-stop';
 export { cronRunTool } from './cron-run';
-export { createCronTools, type CronToolOptions } from './cron-runtime';
+export { createCronTools, type CronToolOptions } from './internal/cron-runtime';
 export { scriptRunTool } from './script-run';
-export { createScriptTools, type ScriptToolOptions } from './script-runtime';
+export { createScriptTools, type ScriptToolOptions } from './internal/script-runtime';
 export { completeTaskTool } from './complete-task';
 export { listTodosTool } from './list-todos';
 export { readScratchTool } from './read-scratch';
@@ -53,8 +53,8 @@ export { loadMcpToolTool } from './load-mcp-tool';
 export { readMcpResourceTool } from './read-mcp-resource';
 export { refreshMcpServerTool } from './refresh-mcp-server';
 export { createStartupFilesTool } from './startup-files';
-export { AgentStartupFilesService } from './startup-service';
+export { AgentStartupFilesService } from './internal/startup-service';
 export type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
-} from './startup-types';
+} from './internal/startup-types';

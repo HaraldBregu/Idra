@@ -1,9 +1,9 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { toolDescription } from '../base/metadata';
-import { renderTodos } from './render-todos';
-import { todoIndex } from './todo-index';
-import type { TodoStatus } from './state-types';
+import { renderTodos } from './internal/render-todos';
+import { todoIndex } from './internal/todo-index';
+import type { TodoStatus } from './internal/state-types';
 
 export const updateTodoTool: AgentTool<{
 	index?: number;

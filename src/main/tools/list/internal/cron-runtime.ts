@@ -1,11 +1,11 @@
-import type { AgentTool } from '../base/common';
-import { markCoreTool } from '../base/common';
+import type { AgentTool } from '../../base/common';
+import { markCoreTool } from '../../base/common';
 import type {
 	AgentTool as LegacyAgentTool,
 	FridayServices,
 	ToolContext,
-} from '../base/tool';
-import { legacyToolToCanonical } from '../runtime/bridge';
+} from '../../base/tool';
+import { legacyToolToCanonical } from '../../runtime/bridge';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -16,7 +16,7 @@ import {
 	cronStopTool,
 	cronTool,
 	cronUpdateTool,
-} from './';
+} from '..';
 
 export type CronToolOptions = {
 	workspaceDir: string;

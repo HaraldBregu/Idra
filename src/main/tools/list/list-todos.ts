@@ -1,7 +1,7 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { toolDescription } from '../base/metadata';
-import { renderTodos } from './render-todos';
+import { renderTodos } from './internal/render-todos';
 
 export const listTodosTool: AgentTool = {
 	name: 'list_todos',

@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { toolDescription } from '../base/metadata';
-import { resolveAbs } from './common';
+import { resolveAbs } from './internal/common';
 
 interface ListDirectoryArgs {
 	path?: string;
