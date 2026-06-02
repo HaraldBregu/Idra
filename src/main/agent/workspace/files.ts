@@ -64,7 +64,7 @@ export type WorkspaceFileSummary = {
 const BUNDLED_TEMPLATES: Record<string, string> = Object.fromEntries(
 	[
 		...Object.entries(
-			import.meta.glob('../../agent/templates/*.md', {
+			import.meta.glob('../templates/*.md', {
 				query: '?raw',
 				eager: true,
 				import: 'default',
