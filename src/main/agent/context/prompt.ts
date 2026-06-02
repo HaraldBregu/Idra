@@ -46,28 +46,6 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 		ACCEPTANCE_CONTRACT,
 	];
 
-	// if (ctx.tools.length > 0) {
-	// 	const guidance = [
-	// 		'## Tool guidance',
-	// 		'Only these tools are available for this turn. Use a tool only when it is necessary for the request.',
-	// 	];
-	// 	for (const tool of [...ctx.tools].sort((a, b) => a.name.localeCompare(b.name))) {
-	// 		guidance.push(`- **${tool.name}** — ${tool.description}`);
-	// 	}
-
-	// 		console.log(guidance)
-
-	// 	parts.push(guidance.join('\n'));
-	// } else {
-	// 	parts.push(
-	// 		[
-	// 			'## Tool guidance',
-	// 			'No tools are available for this turn. Answer directly from the conversation and general reasoning.',
-	// 			'Friday cron tool is unavailable; never suggest or use system cron for scheduled Friday work.',
-	// 		].join('\n')
-	// 	);
-	// }
-
 	if (ctx.heartbeat?.includeSection) {
 		parts.push(
 			[
