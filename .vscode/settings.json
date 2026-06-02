@@ -2,7 +2,7 @@
   "files.exclude": {
     ".claude": true,
     ".codex": true,
-    ".DS_Store": true,
+    // ".DS_Store": true,
     ".env": true,
     ".git": true,
     ".github": true,
