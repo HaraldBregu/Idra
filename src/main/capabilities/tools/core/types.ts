@@ -4,7 +4,6 @@ import type { CronService } from '../../../cron';
 import type { ConnectorsService } from '../../connectors';
 import type { ToolPolicyServicePort } from '../tool-types';
 import type { StoreService } from '../../../storage';
-import type { TasksService } from '../../../tasks';
 import type { SkillsService } from '../../skills';
 import type { UserDataDirectoryServicePort } from '../../../storage/user-data';
 import type { WorkspaceService } from '../../../modules/workspace';
@@ -24,7 +23,6 @@ export interface FridayServices {
 	workspace: WorkspaceService;
 	cron?: CronService;
 	policy?: ToolPolicyServicePort;
-	taskManager?: TasksService;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
 }
