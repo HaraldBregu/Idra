@@ -1,4 +1,4 @@
-import type { AgentTool } from '../core/types';
+import type { AgentTool } from '../base/tool';
 import { toolDescription } from '../metadata';
 import { emptySchema } from './empty-schema';
 import { jsonText } from './json-text';

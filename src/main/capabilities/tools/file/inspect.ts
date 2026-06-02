@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { AgentTool, AgentToolResult } from '../core/types';
-import { textResult } from '../core/types';
-import { TOOL_LIMITS } from '../core/limits';
+import type { AgentTool, AgentToolResult } from '../base/tool';
+import { textResult } from '../base/tool';
+import { TOOL_LIMITS } from '../base/limits';
 import { resolveAbs, snapshot } from './common';
 
 interface InspectFileArgs {

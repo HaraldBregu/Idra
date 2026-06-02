@@ -1,7 +1,7 @@
-import type { AgentTool } from '../core/types';
-import { textResult } from '../core/types';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
 import { toolDescription } from '../metadata';
-import { restoreLastUndo } from './undo';
+import { restoreLastUndo } from './undo-store';
 
 export const undoLastOperationTool: AgentTool = {
 	name: 'undo_last_operation',

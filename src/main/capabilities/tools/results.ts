@@ -1,1 +1,1 @@
-export * from './core/results';
+export * from './result';

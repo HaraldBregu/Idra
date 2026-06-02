@@ -2,12 +2,12 @@ import type {
 	AgentTool as CanonicalAgentTool,
 	AgentToolResult as CanonicalAgentToolResult,
 	ToolContent,
-} from '../core/common';
+} from '../base/common';
 import type {
 	AgentTool as LegacyAgentTool,
 	AgentToolResult as LegacyAgentToolResult,
 	ToolContext,
-} from '../core/types';
+} from '../base/tool';
 import type { ToolResultBlock } from '../../../llm/types';
 
 type CanonicalToolWithLegacyApproval = CanonicalAgentTool & {

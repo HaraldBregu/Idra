@@ -240,7 +240,21 @@
       "Bash(echo \"=== remaining templates ===\")",
       "Bash(echo '----- __TRACKED_VAR__.md -----')",
       "Bash(echo '==================== __TRACKED_VAR__.ts ====================')",
-      "Bash(echo \"TSC_EXIT=$?\")"
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(echo \"=== Who imports each shim/top-level file \\(by basename, internal+external\\) ===\")",
+      "Bash(node -e \"const s=require\\('./package.json'\\).scripts||{}; for\\(const k of Object.keys\\(s\\)\\) if\\(/type|tsc|check|build|lint/i.test\\(k\\)\\) console.log\\(k+': '+s[k]\\)\")",
+      "Bash(ls tsconfig*.json)",
+      "Bash(echo \"node exit: $?\")",
+      "Bash(echo \"web exit: $?\")",
+      "Bash(perl -0pi -e 's{'\\\\''\\\\./path'\\\\''}{'\\\\''../system/path'\\\\''}g; s{'\\\\''\\\\./process'\\\\''}{'\\\\''./spawn'\\\\''}g' /Users/haraldbregu/Documents/friday/src/main/capabilities/tools/exec/shell.ts)",
+      "Bash(perl -0pi -e 's{'\\\\''\\\\./path'\\\\''}{'\\\\''../system/path'\\\\''}g' /Users/haraldbregu/Documents/friday/src/main/capabilities/tools/file/grep.ts)",
+      "Bash(perl -0pi -e 's{'\\\\''\\\\./undo'\\\\''}{'\\\\''./undo-store'\\\\''}g' /Users/haraldbregu/Documents/friday/src/main/capabilities/tools/file/edit.ts /Users/haraldbregu/Documents/friday/src/main/capabilities/tools/file/write.ts /Users/haraldbregu/Documents/friday/src/main/capabilities/tools/file/undo.ts)",
+      "Bash(perl -0pi -e ' *)",
+      "Bash(echo \"stragglers fixed\")",
+      "Bash(echo \"=== result.ts imports ===\")",
+      "Bash(echo \"=== base/ contents now ===\")",
+      "Bash(echo \"=== top-level *.ts now ===\")",
+      "Bash(xargs -n1 basename)"
     ],
     "deny": [
       "Bash(git push --force:*)",

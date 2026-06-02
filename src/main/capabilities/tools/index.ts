@@ -5,8 +5,8 @@ export type {
 	FridayServices,
 	PlanEntry,
 	ToolContext,
-} from './core/types';
-export { textResult } from './core/types';
+} from './base/tool';
+export { textResult } from './base/tool';
 export {
 	ToolService,
 	type DefaultToolPolicy,
@@ -24,14 +24,14 @@ export {
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './create';
-export { createReadTool } from './base/runtime';
-export { editFileTool } from './base/edit-file';
-export { grepTool } from './base/grep';
-export { listDirectoryTool } from './base/list-directory';
-export { readFileTool } from './base/read-file';
-export { runShellTool } from './base/run-shell';
-export { searchFilesTool } from './base/search-files';
-export { undoLastOperationTool } from './base/undo-last-operation';
+export { createReadTool } from './file/runtime';
+export { editFileTool } from './file/edit';
+export { grepTool } from './file/grep';
+export { listDirectoryTool } from './file/list';
+export { readFileTool } from './file/read';
+export { runShellTool } from './exec/shell';
+export { searchFilesTool } from './file/search';
+export { undoLastOperationTool } from './file/undo';
 export { completeTaskTool } from './state/complete-task';
 export { listTodosTool } from './state/list-todos';
 export { readScratchTool } from './state/read-scratch';

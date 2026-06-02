@@ -1,14 +1,14 @@
-import type { AgentTool, ToolDiagnostics } from '../core/common';
-import type { FridayServices } from '../core/types';
+import type { AgentTool, ToolDiagnostics } from '../base/common';
+import type { FridayServices } from '../base/tool';
 import {
 	assertUniqueToolNames,
 	createToolDiagnostics,
 	normalizeToolName,
-} from '../core/common';
-import { createFileTools } from '../base/runtime';
+} from '../base/common';
+import { createFileTools } from '../file/runtime';
 import { createCronTools } from '../cron/runtime';
 import { createScriptTools } from '../scripts/runtime';
-import { normalizeToolSchemas } from '../core/normalize';
+import { normalizeToolSchemas } from '../base/schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../tool-types';
 import { applyToolPolicyPipeline } from '../pipeline';
 import {

@@ -1,6 +1,6 @@
 import { ToolPolicyService, type ToolPolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../tool-types';
-import type { AgentTool } from '../core/types';
-import { normalizeToolName } from '../core/common';
+import type { AgentTool } from '../base/tool';
+import { normalizeToolName } from '../base/common';
 import { LOCAL_TOOL_CATALOG, localToolCatalogByName } from './catalog';
 
 export {

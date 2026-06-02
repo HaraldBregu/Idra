@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import type { AgentToolResult } from '../core/types';
+import type { AgentToolResult } from '../base/tool';
 
 export type ProcessOutput = {
 	exitCode: number | null;

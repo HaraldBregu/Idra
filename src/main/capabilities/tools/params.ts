@@ -1,1 +1,1 @@
-export * from './core/params';
+export * from './base/params';

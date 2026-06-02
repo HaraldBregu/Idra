@@ -1,1 +1,1 @@
-export * from './core/common';
+export * from './base/common';

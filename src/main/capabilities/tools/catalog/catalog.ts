@@ -1,4 +1,4 @@
-import type { AgentTool } from '../core/types';
+import type { AgentTool } from '../base/tool';
 import {
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_NAMES,
@@ -7,14 +7,14 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../../shared/tools';
-import { editFileTool } from '../base/edit-file';
-import { grepTool } from '../base/grep';
-import { listDirectoryTool } from '../base/list-directory';
-import { readFileTool } from '../base/read-file';
-import { runShellTool } from '../base/run-shell';
-import { searchFilesTool } from '../base/search-files';
-import { undoLastOperationTool } from '../base/undo-last-operation';
-import { writeTool } from '../base/write';
+import { editFileTool } from '../file/edit';
+import { grepTool } from '../file/grep';
+import { listDirectoryTool } from '../file/list';
+import { readFileTool } from '../file/read';
+import { runShellTool } from '../exec/shell';
+import { searchFilesTool } from '../file/search';
+import { undoLastOperationTool } from '../file/undo';
+import { writeTool } from '../file/write';
 import { completeTaskTool } from '../state/complete-task';
 import { listTodosTool } from '../state/list-todos';
 import { readScratchTool } from '../state/read-scratch';

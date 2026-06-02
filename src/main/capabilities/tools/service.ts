@@ -5,8 +5,8 @@ import {
 } from './tool-types';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
-import type { AgentTool, AgentToolResult, ToolContext } from './core/types';
-import { getToolMetadata, normalizeToolName } from './core/common';
+import type { AgentTool, AgentToolResult, ToolContext } from './base/tool';
+import { getToolMetadata, normalizeToolName } from './base/common';
 import { createTools, localToolCatalogByName } from './catalog/registry';
 import {
 	executeAgentToolWithManagement,

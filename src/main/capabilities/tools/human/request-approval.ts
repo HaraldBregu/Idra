@@ -1,5 +1,5 @@
-import type { AgentTool } from '../core/types';
-import { textResult } from '../core/types';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
 import { toolDescription } from '../metadata';
 
 export const requestApprovalTool: AgentTool<{ action: string; reason?: string }> = {

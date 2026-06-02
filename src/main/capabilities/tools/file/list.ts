@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
-import type { AgentTool } from '../core/types';
-import { textResult } from '../core/types';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
 import { toolDescription } from '../metadata';
 import { resolveAbs } from './common';
 

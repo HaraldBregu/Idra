@@ -1,4 +1,4 @@
-import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './core/common';
+import type { AgentTool, AgentToolResult, AgentToolUpdate, ToolDiagnostics } from './base/common';
 import { ToolPolicyService, type ToolPolicyServicePort } from './tool-types';
 import {
 	copyToolMetadata,
@@ -6,8 +6,8 @@ import {
 	sanitizeParamPreview,
 	setToolMetadata,
 	ToolInputError,
-} from './core/common';
-import { blockedToolResult, errorToolResult } from './core/results';
+} from './base/common';
+import { blockedToolResult, errorToolResult } from './result';
 
 export type ToolApprovalDecision = 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 export type ToolApprovalResolution = 'allow-once' | 'allow-always' | 'deny' | 'timeout' | 'cancelled';
