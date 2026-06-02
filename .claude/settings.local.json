@@ -254,7 +254,12 @@
       "Bash(echo \"=== result.ts imports ===\")",
       "Bash(echo \"=== base/ contents now ===\")",
       "Bash(echo \"=== top-level *.ts now ===\")",
-      "Bash(xargs -n1 basename)"
+      "Bash(xargs -n1 basename)",
+      "Bash(echo \"=== importers of top-level metadata.ts \\(precise\\) ===\")",
+      "Bash(xargs -0 perl -0pi -e ' *)",
+      "Bash(perl -0pi -e \"s{'\\\\./exec'}{'./run'}g\" exec/*.ts)",
+      "Bash(perl -0pi -e \"s{'\\\\./open-browser'}{'./open'}g; s{'\\\\./web-fetch'}{'./fetch'}g\" app/*.ts)",
+      "Bash(perl -0pi -e \"s{'\\\\./tools'}{'./run'}g\" script/*.ts)"
     ],
     "deny": [
       "Bash(git push --force:*)",

@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
-import { toolDescription } from '../metadata';
+import { toolDescription } from '../base/metadata';
 import { resolveAbs } from '../system/path';
 
 export const grepTool: AgentTool<{

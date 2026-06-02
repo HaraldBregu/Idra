@@ -1,6 +1,6 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
-import { toolDescription } from '../metadata';
+import { toolDescription } from '../base/metadata';
 import { jsonText } from './json-text';
 import { mcpConnectors } from './mcp-connectors';
 import { missing } from './missing';

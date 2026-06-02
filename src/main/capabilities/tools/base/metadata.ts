@@ -1,4 +1,4 @@
-import { AGENT_TOOL_METADATA_BY_NAME } from '../../../shared/tools';
+import { AGENT_TOOL_METADATA_BY_NAME } from '../../../../shared/tools';
 
 export function toolDescription(name: string): string {
 	return (

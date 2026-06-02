@@ -7,7 +7,7 @@ import {
 } from '../base/common';
 import { createFileTools } from '../file/runtime';
 import { createCronTools } from '../cron/runtime';
-import { createScriptTools } from '../scripts/runtime';
+import { createScriptTools } from '../script/runtime';
 import { normalizeToolSchemas } from '../base/schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../tool-types';
 import { applyToolPolicyPipeline } from '../pipeline';

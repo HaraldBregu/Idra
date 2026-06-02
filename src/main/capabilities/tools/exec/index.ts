@@ -1,2 +1,2 @@
-export { execTool } from './exec';
+export { execTool } from './run';
 export { processTool } from './process';

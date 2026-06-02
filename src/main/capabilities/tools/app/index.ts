@@ -1,2 +1,2 @@
-export { openBrowserTool } from './open-browser';
-export { webFetchTool } from './web-fetch';
+export { openBrowserTool } from './open';
+export { webFetchTool } from './fetch';

@@ -1,6 +1,6 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
-import { toolDescription } from '../metadata';
+import { toolDescription } from '../base/metadata';
 
 export const requestClarificationTool: AgentTool<{ question: string }> = {
 	name: 'request_clarification',

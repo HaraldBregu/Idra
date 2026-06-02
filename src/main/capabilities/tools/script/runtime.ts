@@ -6,7 +6,7 @@ import type {
 	ToolContext,
 } from '../base/tool';
 import { legacyToolToCanonical } from '../runtime/bridge';
-import { scriptRunTool } from './tools';
+import { scriptRunTool } from './run';
 
 export type ScriptToolOptions = {
 	workspaceDir: string;
