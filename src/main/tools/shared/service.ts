@@ -3,11 +3,11 @@ import {
 	type ToolPolicyServicePort,
 	type ToolPolicySubject,
 } from './tool-types';
-import type { CronService } from '../cron';
-import type { LoggerService } from '../observability';
-import type { AgentTool, AgentToolResult, ToolContext } from './base/tool';
-import { getToolMetadata, normalizeToolName } from './base/common';
-import { createTools, localToolCatalogByName } from './catalog/registry';
+import type { CronService } from '../../cron';
+import type { LoggerService } from '../../observability';
+import type { AgentTool, AgentToolResult, ToolContext } from '../base/tool';
+import { getToolMetadata, normalizeToolName } from '../base/common';
+import { createTools, localToolCatalogByName } from '../catalog/registry';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
@@ -24,7 +24,7 @@ import {
 import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
-} from './runtime/adapt';
+} from '../runtime/adapt';
 import type { ToolProfile } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();

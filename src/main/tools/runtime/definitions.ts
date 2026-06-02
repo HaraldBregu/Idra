@@ -5,9 +5,9 @@ import {
 	ToolInputError,
 	type ToolContent,
 } from '../base/common';
-import { wrapToolWithBeforeToolCall, type BeforeToolCallContext } from '../wrap';
+import { wrapToolWithBeforeToolCall, type BeforeToolCallContext } from '../shared/wrap';
 import { coerceJsonObject } from '../base/params';
-import { errorToolResult } from '../result';
+import { errorToolResult } from '../shared/result';
 
 export type ModelToolDefinition = {
 	name: string;

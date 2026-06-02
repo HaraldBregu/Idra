@@ -20,7 +20,7 @@ import type {
 } from '../../../../src/main/llm/types';
 import { AgentService } from '../../../../src/main/agent';
 import { LOCAL_TOOL_CATALOG } from '../../../../src/main/tools';
-import type { AgentTool } from '../../../../src/main/tools/types';
+import type { AgentTool } from '../../../../src/main/tools/shared/types';
 import { AGENT_DEFAULT_TOOL_GROUPS } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 

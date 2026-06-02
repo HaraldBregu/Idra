@@ -3,8 +3,8 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app, shell } from 'electron';
 import type { LoggerService } from '../observability';
-import type { AgentTool, ToolContext } from '../tools/types';
-import { textResult } from '../tools/types';
+import type { AgentTool, ToolContext } from '../tools/shared/types';
+import { textResult } from '../tools/shared/types';
 import {
 	MCP_CONNECTOR_CATALOG,
 	getMcpConnectorCatalogItem,

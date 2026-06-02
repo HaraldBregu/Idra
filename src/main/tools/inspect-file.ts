@@ -4,7 +4,7 @@ import path from 'node:path';
 import type { AgentTool, AgentToolResult } from './base/tool';
 import { textResult } from './base/tool';
 import { TOOL_LIMITS } from './base/limits';
-import { resolveAbs, snapshot } from './common';
+import { resolveAbs, snapshot } from './shared/common';
 
 interface InspectFileArgs {
 	path: string;

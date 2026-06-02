@@ -9,7 +9,7 @@ import {
 	isInsidePath,
 	runBackground,
 	runForeground,
-} from './exec-utils';
+} from './shared/exec-utils';
 
 interface ExecArgs {
 	command: string;

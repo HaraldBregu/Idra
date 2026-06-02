@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import type { AgentToolResult, ToolContent } from './base/common';
+import type { AgentToolResult, ToolContent } from '../base/common';
 
 export function textResult<TDetails = undefined>(
 	text: string,

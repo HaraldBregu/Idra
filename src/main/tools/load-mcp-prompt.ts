@@ -1,9 +1,9 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
 import { toolDescription } from './base/metadata';
-import { jsonText } from './mcp-json-text';
-import { mcpConnectors } from './mcp-connectors';
-import { missing } from './mcp-missing';
+import { jsonText } from './shared/mcp-json-text';
+import { mcpConnectors } from './shared/mcp-connectors';
+import { missing } from './shared/mcp-missing';
 
 export const loadMcpPromptTool: AgentTool<{
 	id: string;

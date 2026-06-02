@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs';
-import type { ToolContext } from './base/tool';
+import type { ToolContext } from '../base/tool';
 import { resolveAbs } from './common';
 
 type Snapshot =

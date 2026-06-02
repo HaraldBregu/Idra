@@ -1,10 +1,10 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
 import { toolDescription } from './base/metadata';
-import { idSchema } from './mcp-id-schema';
-import { jsonText } from './mcp-json-text';
-import { mcpConnectors } from './mcp-connectors';
-import { missing } from './mcp-missing';
+import { idSchema } from './shared/mcp-id-schema';
+import { jsonText } from './shared/mcp-json-text';
+import { mcpConnectors } from './shared/mcp-connectors';
+import { missing } from './shared/mcp-missing';
 
 export const connectMcpServerTool: AgentTool<{ id: string }> = {
 	name: 'connect_mcp_server',

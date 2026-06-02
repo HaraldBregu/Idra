@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/guard';
+import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/shared/guard';
 import {
 	applyPatchTool,
 	copyTool,
@@ -42,8 +42,8 @@ import {
 	AGENT_TOOL_NAMES,
 	AGENT_TOOLS,
 } from '../../../../src/shared/tools';
-import { textResult, type AgentTool } from '../../../../src/main/tools/types';
-import { ToolPolicyService } from '../../../../src/main/tools/tool-types';
+import { textResult, type AgentTool } from '../../../../src/main/tools/shared/types';
+import { ToolPolicyService } from '../../../../src/main/tools/shared/tool-types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
 type ToolFilterPolicy = {
@@ -70,7 +70,7 @@ function filterTools(all: AgentTool[], cfg: ToolFilterPolicy): AgentTool[] {
 	return all.filter((tool) => result.allowed.has(tool.name.trim().toLowerCase()));
 }
 
-describe('tools/types', () => {
+describe('tools/shared/types', () => {
 	it('creates text results with ok and error status', () => {
 		expect(textResult('ok')).toEqual({ status: 'ok', content: [{ type: 'text', text: 'ok' }] });
 		expect(textResult('bad', true).status).toBe('error');

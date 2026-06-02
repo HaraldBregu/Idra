@@ -29,7 +29,7 @@ import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agent
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
 import { makeProvider, type ProviderSpec } from '../llm/router';
-import { ToolPolicyService, type ToolPolicyServicePort } from '../tools/tool-types';
+import { ToolPolicyService, type ToolPolicyServicePort } from '../tools/shared/tool-types';
 import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
