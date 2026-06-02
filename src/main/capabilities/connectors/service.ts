@@ -64,7 +64,6 @@ export class ConnectorsService {
 	}
 
 	catalog(): readonly ConnectorCatalogEntry[] {
-		if (this.legacy) return OPENAI_CONNECTOR_CATALOG;
 		return MCP_CONNECTOR_CATALOG;
 	}
 
