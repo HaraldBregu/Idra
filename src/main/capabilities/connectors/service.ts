@@ -135,26 +135,22 @@ export class ConnectorsService {
 	}
 
 	async remove(id: string): Promise<void> {
-		if (this.legacy) return this.legacy.remove(id);
 		this.writeConnectors(this.validConnectors().filter((connector) => connector.id !== id));
 	}
 
 	async enable(id: string): Promise<ConnectorConfig> {
-		if (this.legacy) return this.legacy.enable(id);
 		const connector = { ...this.getStored(id), enabled: true, updatedAt: new Date().toISOString() };
 		this.replace(connector);
 		return redactConnectorSecrets(connector);
 	}
 
 	async disable(id: string): Promise<ConnectorConfig> {
-		if (this.legacy) return this.legacy.disable(id);
 		const connector = { ...this.getStored(id), enabled: false, updatedAt: new Date().toISOString() };
 		this.replace(connector);
 		return redactConnectorSecrets(connector);
 	}
 
 	async test(id: string): Promise<ConnectorTestResult> {
-		if (this.legacy) return this.legacy.test(id);
 		const connector = this.getStored(id);
 		const status = toStatus(connector, this.env());
 		if (status === 'configured') return { status, message: 'Connector is configured.' };
@@ -164,7 +160,6 @@ export class ConnectorsService {
 	}
 
 	async reconnect(id: string): Promise<ConnectorTestResult> {
-		if (this.legacy) return this.legacy.reconnect(id);
 		await this.refreshTools(id);
 		return this.test(id);
 	}
