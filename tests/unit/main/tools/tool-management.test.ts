@@ -20,7 +20,7 @@ import {
 	type Tool,
 	type ToolExecutionContext,
 } from '../../../../src/main/capabilities/tools/management';
-import { writeTool } from '../../../../src/main/capabilities/tools/fs';
+import { writeTool } from '../../../../src/main/capabilities/tools/file';
 import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 

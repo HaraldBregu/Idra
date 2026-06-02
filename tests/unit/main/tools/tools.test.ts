@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { beforeToolCall, newCallTracker } from '../../../../src/main/capabilities/tools/before-call';
+import { beforeToolCall, newCallTracker } from '../../../../src/main/capabilities/tools/guard';
 import {
 	applyPatchTool,
 	copyTool,
@@ -11,7 +11,7 @@ import {
 	moveTool,
 	readFileTool,
 	writeTool,
-} from '../../../../src/main/capabilities/tools/fs';
+} from '../../../../src/main/capabilities/tools/file';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -22,8 +22,8 @@ import {
 	cronStopTool,
 	cronUpdateTool,
 } from '../../../../src/main/capabilities/tools/cron';
-import { scriptRunTool } from '../../../../src/main/capabilities/tools/scripts/tools';
-import { runShellTool } from '../../../../src/main/capabilities/tools/base/run-shell';
+import { scriptRunTool } from '../../../../src/main/capabilities/tools/script/run';
+import { runShellTool } from '../../../../src/main/capabilities/tools/exec/shell';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -31,7 +31,7 @@ import {
 	localToolNamesForGroup,
 	localToolNamesForProfile,
 	PRELOADED_LOCAL_TOOLS,
-} from '../../../../src/main/capabilities/tools/registry';
+} from '../../../../src/main/capabilities/tools/catalog/registry';
 import {
 	AGENT_TOOL_APPROVAL_ALWAYS,
 	AGENT_TOOL_APPROVAL_NONE,
