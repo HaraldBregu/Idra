@@ -5,7 +5,7 @@ import type {
 	FridayServices,
 	ToolContext,
 } from '../../base/tool';
-import { legacyToolToCanonical } from '../../runtime/bridge';
+import { legacyToolToCanonical } from '../../file_runtime/bridge';
 import { openBrowserTool } from './open';
 import { webFetchTool } from './fetch';
 

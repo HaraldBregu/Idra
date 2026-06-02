@@ -3,7 +3,7 @@ import { textResult } from '../../base/tool';
 import { toolDescription } from '../../base/metadata';
 import { idSchema } from './id-schema';
 import { jsonText } from './json-text';
-import { mcpConnectors } from './mcp-connectors';
+import { mcpConnectors } from './mcp_connectors';
 import { missing } from './missing';
 
 export const connectMcpServerTool: AgentTool<{ id: string }> = {

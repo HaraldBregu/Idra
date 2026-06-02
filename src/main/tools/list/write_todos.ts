@@ -1,7 +1,7 @@
 import type { AgentTool } from '../../base/tool';
 import { textResult } from '../../base/tool';
 import { toolDescription } from '../../base/metadata';
-import { readTodoEntry } from './read-todo-entry';
+import { readTodoEntry } from './read_file_todo_entry';
 import { renderTodos } from './render-todos';
 import type { TodoInput } from './types';
 

@@ -22,8 +22,8 @@ import {
 	cronStopTool,
 	cronUpdateTool,
 } from '../../../../src/main/tools/list/cron';
-import { scriptRunTool } from '../../../../src/main/tools/list/script/run';
-import { runShellTool } from '../../../../src/main/tools/list/exec/shell';
+import { scriptRunTool } from '../../../../src/main/tools/list/script_run';
+import { runShellTool } from '../../../../src/main/tools/list/run_shell';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,

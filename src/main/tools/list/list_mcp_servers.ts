@@ -2,7 +2,7 @@ import type { AgentTool } from '../../base/tool';
 import { toolDescription } from '../../base/metadata';
 import { emptySchema } from './empty-schema';
 import { jsonText } from './json-text';
-import { mcpConnectors } from './mcp-connectors';
+import { mcpConnectors } from './mcp_connectors';
 import { missing } from './missing';
 
 export const listMcpServersTool: AgentTool = {

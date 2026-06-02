@@ -2,7 +2,7 @@ import { promises as fs } from 'node:fs';
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { resolveAbs, snapshot } from './common';
-import { pushUndo, snapshotTarget } from './undo-store';
+import { pushUndo, snapshotTarget } from './undo_last_operation_store';
 
 interface EditArgs {
 	path: string;

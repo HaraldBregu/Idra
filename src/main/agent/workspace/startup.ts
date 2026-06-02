@@ -1,5 +1,5 @@
-export { AgentStartupFilesService } from '../../tools/list/startup/service';
+export { AgentStartupFilesService } from '../../tools/list_service';
 export type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
-} from '../../tools/list/startup/types';
+} from '../../tools/list_types';
