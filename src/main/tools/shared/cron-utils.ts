@@ -8,7 +8,7 @@ import type {
 	CronScheduleType,
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
-} from '../../shared/cron';
+} from '../../../shared/cron';
 import type { ToolContext } from '../base/tool';
 import { textResult } from '../base/tool';
 
