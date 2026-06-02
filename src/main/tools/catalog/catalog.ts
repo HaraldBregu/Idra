@@ -7,11 +7,23 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../shared/tools';
+import { openBrowserTool, webFetchTool } from '../app';
+import {
+	cronCreateTool,
+	cronDeleteTool,
+	cronListTool,
+	cronReadTool,
+	cronRunTool,
+	cronStartTool,
+	cronStopTool,
+	cronUpdateTool,
+} from '../cron';
 import { editFileTool } from '../file/edit';
 import { grepTool } from '../file/grep';
 import { listDirectoryTool } from '../file/list';
 import { readFileTool } from '../file/read';
 import { runShellTool } from '../exec/shell';
+import { scriptRunTool } from '../script';
 import { searchFilesTool } from '../file/search';
 import { undoLastOperationTool } from '../file/undo';
 import { writeTool } from '../file/write';
@@ -46,6 +58,19 @@ export type LocalToolApprovalPolicy = AgentToolApprovalPolicy;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LocalToolImplementation = AgentTool<any, any>;
+
+const LOCAL_TOOL_NAMES = [
+	...AGENT_TOOL_NAMES,
+	'script_run',
+	'cron_create',
+	'cron_read',
+	'cron_update',
+	'cron_delete',
+	'cron_list',
+	'cron_start',
+	'cron_stop',
+	'cron_run',
+] as const satisfies readonly AgentToolName[];
 
 export interface LocalToolCatalogEntry {
 	name: AgentToolName;
@@ -102,9 +127,20 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	read_mcp_resource: readMcpResourceTool,
 	list_mcp_prompts: listMcpPromptsTool,
 	load_mcp_prompt: loadMcpPromptTool,
-} as const satisfies Record<(typeof AGENT_TOOL_NAMES)[number], LocalToolImplementation>;
+	web_fetch: webFetchTool,
+	open_browser: openBrowserTool,
+	script_run: scriptRunTool,
+	cron_create: cronCreateTool,
+	cron_read: cronReadTool,
+	cron_update: cronUpdateTool,
+	cron_delete: cronDeleteTool,
+	cron_list: cronListTool,
+	cron_start: cronStartTool,
+	cron_stop: cronStopTool,
+	cron_run: cronRunTool,
+} as const satisfies Record<(typeof LOCAL_TOOL_NAMES)[number], LocalToolImplementation>;
 
-export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) =>
+export const LOCAL_TOOL_CATALOG = LOCAL_TOOL_NAMES.map((name) =>
 	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
 ) as readonly LocalToolCatalogEntry[];
 
