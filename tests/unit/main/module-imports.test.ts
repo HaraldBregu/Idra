@@ -4,7 +4,7 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/agent')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/channels')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/capabilities/connectors')).resolves.toBeTruthy();
+		await expect(import('../../../src/main/connectors')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/services')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/cron')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/ipc')).resolves.toBeTruthy();
@@ -12,7 +12,7 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/llm/router')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/session/store')).resolves.toBeTruthy();
 			await expect(import('../../../src/main/store')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/capabilities/tools')).resolves.toBeTruthy();
+		await expect(import('../../../src/main/tools')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/workspace')).resolves.toBeTruthy();
 	});
 });

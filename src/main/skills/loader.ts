@@ -6,7 +6,7 @@ import type {
 	SkillImportSkipped,
 	SkillManifest,
 	SkillStructureInfo,
-} from '../../../shared/skills';
+} from '../../shared/skills';
 import type { SkillDefinition, SkillExecutionContext, SkillResult } from './types';
 
 const MAX_SKILL_FILES = 500;

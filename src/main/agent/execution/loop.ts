@@ -7,7 +7,7 @@ import {
 	type ToolContext,
 	ToolService,
 	type ToolServicePort,
-} from '../../capabilities/tools';
+} from '../../tools';
 import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';
 import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';

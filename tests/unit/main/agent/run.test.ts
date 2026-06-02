@@ -1,6 +1,6 @@
 import { ContextOverflowError, type ProviderAdapter, type ProviderEvent } from '../../../../src/main/llm/types';
 import { executeAgentRun } from '../../../../src/main/agent/execution/loop';
-import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
+import type { AgentTool } from '../../../../src/main/tools/types';
 import type { SessionFile } from '../../../../src/main/agent/session/store';
 import { makeToolContext } from '../test-helpers';
 

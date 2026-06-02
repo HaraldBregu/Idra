@@ -3,8 +3,8 @@ import {
 	type ToolPolicyServicePort,
 	type ToolPolicySubject,
 } from './tool-types';
-import type { CronService } from '../../cron';
-import type { LoggerService } from '../../observability';
+import type { CronService } from '../cron';
+import type { LoggerService } from '../observability';
 import type { AgentTool, AgentToolResult, ToolContext } from './base/tool';
 import { getToolMetadata, normalizeToolName } from './base/common';
 import { createTools, localToolCatalogByName } from './catalog/registry';

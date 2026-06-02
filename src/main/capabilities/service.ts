@@ -1,7 +1,7 @@
 import type { LoggerService } from '../observability';
-import type { ConnectorsService } from './connectors';
-import type { SkillsService } from './skills';
-import type { AgentTool } from './tools';
+import type { ConnectorsService } from '../connectors';
+import type { SkillsService } from '../skills';
+import type { AgentTool } from '../tools';
 import { decideCapabilities, matchesPrompt, renderSkillPrompt, toResolvedSkill } from './selection';
 import type {
 	AgentCapabilityBundle,

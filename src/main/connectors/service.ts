@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import Store from 'electron-store';
 import { app, shell } from 'electron';
-import type { LoggerService } from '../../observability';
+import type { LoggerService } from '../observability';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
 import {
@@ -21,7 +21,7 @@ import {
 	type ConnectorTestResult,
 	type ConnectorTool,
 	type ConnectorView,
-} from '../../../shared/connector';
+} from '../../shared/connector';
 
 type ConnectorsStoreSchema = { connectors?: ConnectorConfig[] };
 type ConnectorsStore = {

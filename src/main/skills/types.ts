@@ -4,7 +4,7 @@ import type {
 	SkillExampleManifest,
 	SkillSafetyLevel,
 	SkillVisibility,
-} from '../../../shared/skills';
+} from '../../shared/skills';
 
 export type JsonSchema = JSONSchema;
 export type SkillPermission = string;

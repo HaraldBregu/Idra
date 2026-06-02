@@ -1,4 +1,4 @@
-import type { CronService, CronServiceActor } from '../../../cron';
+import type { CronService, CronServiceActor } from '../../cron';
 import type {
 	CronJsonValue,
 	CronScheduleCreateRequest,
@@ -8,7 +8,7 @@ import type {
 	CronScheduleType,
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
-} from '../../../../shared/cron';
+} from '../../../shared/cron';
 import type { ToolContext } from '../base/tool';
 import { textResult } from '../base/tool';
 

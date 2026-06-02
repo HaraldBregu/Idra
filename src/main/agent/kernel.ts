@@ -4,8 +4,8 @@ import type { EventBus } from '../services/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../store';
-import type { ConnectorsService } from '../capabilities/connectors';
-import type { SkillsService } from '../capabilities/skills';
+import type { ConnectorsService } from '../connectors';
+import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
@@ -29,7 +29,7 @@ import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agent
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
 import { makeProvider, type ProviderSpec } from '../llm/router';
-import { ToolPolicyService, type ToolPolicyServicePort } from '../capabilities/tools/tool-types';
+import { ToolPolicyService, type ToolPolicyServicePort } from '../tools/tool-types';
 import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
@@ -64,8 +64,8 @@ import {
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 	type ToolServicePort,
-} from '../capabilities/tools';
-import { createStartupFilesTool } from '../capabilities/tools/startup/startup-files';
+} from '../tools';
+import { createStartupFilesTool } from '../tools/startup/startup-files';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,

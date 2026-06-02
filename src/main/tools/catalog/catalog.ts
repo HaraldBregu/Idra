@@ -6,7 +6,7 @@ import {
 	type AgentToolName,
 	type AgentToolGroupName,
 	type AgentToolProfile,
-} from '../../../../shared/tools';
+} from '../../../shared/tools';
 import { editFileTool } from '../file/edit';
 import { grepTool } from '../file/grep';
 import { listDirectoryTool } from '../file/list';

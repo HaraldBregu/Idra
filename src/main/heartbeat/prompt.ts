@@ -1,6 +1,6 @@
 import { HEARTBEAT_OK } from '../../shared/heartbeat';
-import type { AgentTool } from '../capabilities/tools/base/tool';
-import { textResult } from '../capabilities/tools/base/tool';
+import type { AgentTool } from '../tools/base/tool';
+import { textResult } from '../tools/base/tool';
 import { parseHeartbeatDurationMs } from './scheduling';
 
 export interface HeartbeatTask {

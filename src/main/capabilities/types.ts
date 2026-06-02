@@ -3,7 +3,7 @@ import type {
 	AgentCapabilityDecisionSummary,
 	AgentSelectedSkillSummary,
 } from '../../shared/agents/capabilities';
-import type { AgentTool, AgentToolSelectionForTurn, ToolContext } from './tools';
+import type { AgentTool, AgentToolSelectionForTurn, ToolContext } from '../tools';
 
 export interface AgentResolvedSkill extends AgentSelectedSkillSummary {
 	prompt: string;

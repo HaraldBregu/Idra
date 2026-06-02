@@ -1,4 +1,4 @@
-import { selectAgentToolsForTurn, type AgentTool } from '../../../../src/main/capabilities/tools';
+import { selectAgentToolsForTurn, type AgentTool } from '../../../../src/main/tools';
 import { makeToolContext } from '../test-helpers';
 
 function tool(name: string, description: string): AgentTool {

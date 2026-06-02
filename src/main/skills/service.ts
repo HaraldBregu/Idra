@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { LoggerService } from '../../observability';
-import { resolveDefaultAppDataPath } from '../../agent/storage';
+import type { LoggerService } from '../observability';
+import { resolveDefaultAppDataPath } from '../agent/storage';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -9,7 +9,7 @@ import type {
 	SkillInfo,
 	SkillSearchOptions,
 	SkillSearchResult,
-} from '../../../shared/skills';
+} from '../../shared/skills';
 import type { SkillPackage } from './loader';
 import { SkillDependencyResolver, SkillRegistry } from './catalog';
 import { SkillDiscovery, makeDiscoveryContext, SkillPlanner, SkillRanker, SkillSelector } from './selection';

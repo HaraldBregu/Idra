@@ -14,9 +14,9 @@ import {
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './agent/workspace';
-import { ConnectorsService } from './capabilities/connectors';
-import { ToolService } from './capabilities/tools';
-import { SkillsService } from './capabilities/skills';
+import { ConnectorsService } from './connectors';
+import { ToolService } from './tools';
+import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
 import { DEFAULT_AGENT_ID } from './config';
 

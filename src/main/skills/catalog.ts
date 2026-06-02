@@ -1,4 +1,4 @@
-import type { SkillCategory } from '../../../shared/skills';
+import type { SkillCategory } from '../../shared/skills';
 import type { SkillDefinition } from './types';
 
 function versionParts(version: string): number[] {

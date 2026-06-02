@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { beforeToolCall, newCallTracker } from '../../../../src/main/capabilities/tools/guard';
+import { beforeToolCall, newCallTracker } from '../../../../src/main/tools/guard';
 import {
 	applyPatchTool,
 	copyTool,
@@ -11,7 +11,7 @@ import {
 	moveTool,
 	readFileTool,
 	writeTool,
-} from '../../../../src/main/capabilities/tools/file';
+} from '../../../../src/main/tools/file';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -21,9 +21,9 @@ import {
 	cronStartTool,
 	cronStopTool,
 	cronUpdateTool,
-} from '../../../../src/main/capabilities/tools/cron';
-import { scriptRunTool } from '../../../../src/main/capabilities/tools/script/run';
-import { runShellTool } from '../../../../src/main/capabilities/tools/exec/shell';
+} from '../../../../src/main/tools/cron';
+import { scriptRunTool } from '../../../../src/main/tools/script/run';
+import { runShellTool } from '../../../../src/main/tools/exec/shell';
 import {
 	createTools,
 	LOCAL_TOOL_CATALOG,
@@ -31,7 +31,7 @@ import {
 	localToolNamesForGroup,
 	localToolNamesForProfile,
 	PRELOADED_LOCAL_TOOLS,
-} from '../../../../src/main/capabilities/tools/catalog/registry';
+} from '../../../../src/main/tools/catalog/registry';
 import {
 	AGENT_TOOL_APPROVAL_ALWAYS,
 	AGENT_TOOL_APPROVAL_NONE,
@@ -42,8 +42,8 @@ import {
 	AGENT_TOOL_NAMES,
 	AGENT_TOOLS,
 } from '../../../../src/shared/tools';
-import { textResult, type AgentTool } from '../../../../src/main/capabilities/tools/types';
-import { ToolPolicyService } from '../../../../src/main/capabilities/tools/tool-types';
+import { textResult, type AgentTool } from '../../../../src/main/tools/types';
+import { ToolPolicyService } from '../../../../src/main/tools/tool-types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
 type ToolFilterPolicy = {

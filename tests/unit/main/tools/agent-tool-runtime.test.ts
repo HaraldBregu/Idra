@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { createToolDiagnostics, getToolMetadata, markClientTool, markCoreTool, setToolMetadata, type AgentTool } from '../../../../src/main/capabilities/tools/base/common';
-import { textResult, jsonResult, blockedToolResult } from '../../../../src/main/capabilities/tools/result';
+import { createToolDiagnostics, getToolMetadata, markClientTool, markCoreTool, setToolMetadata, type AgentTool } from '../../../../src/main/tools/base/common';
+import { textResult, jsonResult, blockedToolResult } from '../../../../src/main/tools/result';
 import {
 	asParamsRecord,
 	coerceJsonObject,
@@ -10,16 +10,16 @@ import {
 	readNumberParam,
 	readStringArrayParam,
 	readStringParam,
-} from '../../../../src/main/capabilities/tools/base/params';
-import { createReadTool } from '../../../../src/main/capabilities/tools/file/runtime';
-import { planToolConstruction, createAgentTools } from '../../../../src/main/capabilities/tools/create';
-import { applyToolPolicyPipeline } from '../../../../src/main/capabilities/tools/pipeline';
-import { normalizeToolSchemas } from '../../../../src/main/capabilities/tools/base/schema';
-import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/capabilities/tools/wrap';
-import { toToolDefinitions } from '../../../../src/main/capabilities/tools/runtime/definitions';
-import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/capabilities/tools/runtime/legacy-tool-adapter';
-import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/capabilities/tools/runtime/legacy-bridge';
-import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/capabilities/tools/types';
+} from '../../../../src/main/tools/base/params';
+import { createReadTool } from '../../../../src/main/tools/file/runtime';
+import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create';
+import { applyToolPolicyPipeline } from '../../../../src/main/tools/pipeline';
+import { normalizeToolSchemas } from '../../../../src/main/tools/base/schema';
+import { wrapToolWithBeforeToolCall, newCallTracker } from '../../../../src/main/tools/wrap';
+import { toToolDefinitions } from '../../../../src/main/tools/runtime/definitions';
+import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/tools/runtime/legacy-tool-adapter';
+import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
+import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
 import { AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeTempDir } from '../test-helpers';
 
