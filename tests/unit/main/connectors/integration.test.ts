@@ -25,7 +25,7 @@ import {
 	createMockConnectorRuntimeMap,
 	type ConnectorDefinition,
 	type ConnectorToolProvider,
-} from '../../../../src/main/connectors/integration';
+} from '../../../../src/main/capabilities/connectors/integration';
 
 function buildHarness(runtimes = [new GmailConnector(), new GitHubConnector()]) {
 	const runtimeMap = createMockConnectorRuntimeMap(runtimes);

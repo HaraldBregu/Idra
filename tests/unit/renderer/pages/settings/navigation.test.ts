@@ -1,6 +1,6 @@
 import {
 	SETTINGS_NAVIGATION,
-	SETTINGS_OPERATOR_ITEMS,
+	SETTINGS_MODEL_SERVICE_ITEMS,
 } from '../../../../../src/renderer/src/pages/settings/navigation';
 
 describe('settings navigation', () => {
@@ -9,24 +9,22 @@ describe('settings navigation', () => {
 			'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
-			'settings.tabs.tools',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
 			'settings.tabs.channels',
 			'settings.tabs.heartbeat',
 			'settings.sections.taskScheduler',
-			'settings.tabs.backgroundTasks',
 		]);
 	});
 
-	it('keeps operator rows available for the settings overview', () => {
-		expect(SETTINGS_OPERATOR_ITEMS.map((item) => item.labelKey)).toEqual([
-			'settings.operators.assistantName',
-			'settings.operators.speechTranscriberName',
-			'settings.operators.textToSpeechName',
-			'settings.operators.imageAssistantName',
-			'settings.operators.videoCreatorName',
-			'settings.operators.musicCreatorName',
+	it('keeps model service rows available for the settings overview', () => {
+		expect(SETTINGS_MODEL_SERVICE_ITEMS.map((item) => item.labelKey)).toEqual([
+			'settings.modelServices.assistantName',
+			'settings.modelServices.speechTranscriberName',
+			'settings.modelServices.textToSpeechName',
+			'settings.modelServices.imageAssistantName',
+			'settings.modelServices.videoCreatorName',
+			'settings.modelServices.musicCreatorName',
 		]);
 	});
 });

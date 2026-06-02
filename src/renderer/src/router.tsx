@@ -28,15 +28,12 @@ const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
 const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
 const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
-const OperatorDetailsPage = lazy(() => import('./pages/settings/pages/operators/details/Page'));
-const ChatHistoryPage = lazy(() => import('./pages/settings/pages/operators/details/chathistory/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
+const ModelServicePage = lazy(() => import('./pages/settings/pages/model-services/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
-const TaskManagerPage = lazy(() => import('./pages/settings/pages/task-manager/Page'));
-const TaskDetailsPage = lazy(() => import('./pages/settings/pages/task-manager/details/Page'));
 const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
 
 function RouteWrapper({
@@ -155,36 +152,6 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'operators',
-						children: [
-							{
-								index: true,
-								element: <Navigate to="/settings" replace />,
-							},
-							{
-								path: ':operatorId/details',
-								children: [
-									{
-										index: true,
-										element: (
-											<SettingsRouteWrapper>
-												<OperatorDetailsPage />
-											</SettingsRouteWrapper>
-										),
-									},
-									{
-										path: 'chathistory',
-										element: (
-											<SettingsRouteWrapper>
-												<ChatHistoryPage />
-											</SettingsRouteWrapper>
-										),
-									},
-								],
-							},
-						],
-					},
-					{
 						path: 'channels',
 						children: [
 							{
@@ -264,6 +231,27 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'model-services',
+						children: [
+							{
+								path: ':serviceId/details',
+								element: (
+									<SettingsRouteWrapper>
+										<ModelServicePage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: ':serviceId/details/chathistory',
+								element: (
+									<SettingsRouteWrapper>
+										<ModelServicePage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
+					},
+					{
 						path: 'cron',
 						children: [
 							{
@@ -285,27 +273,6 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'task-manager',
-						children: [
-							{
-								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<TaskManagerPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'taskdetails/:taskId',
-								element: (
-									<SettingsRouteWrapper>
-										<TaskDetailsPage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
-					},
-					{
 						path: 'heartbeat',
 						element: (
 							<SettingsRouteWrapper>
@@ -313,7 +280,7 @@ const routes: RouteObject[] = [
 							</SettingsRouteWrapper>
 						),
 					},
-						{
+					{
 						path: '*',
 						loader: () => {
 							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });

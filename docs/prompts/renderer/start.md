@@ -101,19 +101,19 @@ Each model service step follows the same pattern. The step is driven by the curr
 - Show a loading indicator ("Loading compatible models...") while `loadingModels` is true.
 - When `serviceState.modelGroups` is empty and loading is false, show placeholder text "No providers" / "No models" in the selects.
 
-### Store API — loading operators and providers
+### Store API — loading model services and providers
 
 When entering any model service step (and whenever `connectedProviderIds` changes), load all service data in parallel:
 
 ```ts
-const [storedProviders, ...configuredOperators] = await Promise.all([
+const [storedProviders, ...configuredSelections] = await Promise.all([
   window.store.getProviders(),          // PublicProvider[] — all saved providers
-  window.store.getAssistantOperator(),   // { provider, model } | null
-  window.store.getSpeechToTextOperator(),
-  window.store.getTextToSpeechOperator(),
-  window.store.getImageCreatorOperator(),
-  window.store.getTextToVideoOperator(),
-  window.store.getMusicCreatorOperator(),
+  window.store.getAgentService(),        // { provider, model } | null
+  window.store.getSpeechTranscriberService(),
+  window.store.getTextToSpeechService(),
+  window.store.getImageCreatorService(),
+  window.store.getTextToVideoService(),
+  window.store.getTextToSoundService(),
 ]);
 ```
 
@@ -128,7 +128,7 @@ window.app.getSpeechToTextModels(provider)   // speech-to-text models
 window.app.getTextToSpeechModels(provider)   // text-to-speech models
 window.app.getImageCreatorModels(provider)   // image generation models
 window.app.getTextToVideoModels(provider)    // video generation models
-window.app.getMusicCreatorModels(provider)   // music generation models
+window.app.getTextToSoundModels(provider)    // music generation models
 ```
 
 Each call returns a `Model[]`. Collect results into `ProviderModelGroup[]` (skip providers that return zero models or throw). Swallow per-provider errors but surface the first one after all providers are tried.
@@ -137,13 +137,13 @@ Each call returns a `Model[]`. Collect results into `ProviderModelGroup[]` (skip
 
 For each service, pick the preferred provider in this order:
 
-1. The provider that matches the stored operator's `provider.id` (already configured).
+1. The provider that matches the stored service selection's `provider.id` (already configured).
 2. The first provider whose `id` is in `connectedProviderIds` (just connected in this session).
 3. The first available provider.
 
 Pick the model:
 
-1. The model that matches the stored operator's `model.id` if it exists in the fetched list.
+1. The model that matches the stored service selection's `model.id` if it exists in the fetched list.
 2. The first model in the preferred group.
 
 ### Store API — saving a model service
@@ -151,13 +151,13 @@ Pick the model:
 When the user clicks Continue on a model service step:
 
 ```ts
-// Each service exposes a saveOperator function in MODEL_SERVICE_DEFINITIONS:
-await window.store.saveAssistantOperator(provider, model)
-await window.store.saveSpeechToTextOperator(provider, model)
-await window.store.saveTextToSpeechOperator(provider, model)
-await window.store.saveImageCreatorOperator(provider, model)
-await window.store.saveTextToVideoOperator(provider, model)
-await window.store.saveMusicCreatorOperator(provider, model)
+// Each service exposes a saveSelection function in MODEL_SERVICE_DEFINITIONS:
+await window.store.saveAgentService(provider, model)
+await window.store.saveSpeechTranscriberService(provider, model)
+await window.store.saveTextToSpeechService(provider, model)
+await window.store.saveImageCreatorService(provider, model)
+await window.store.saveTextToVideoService(provider, model)
+await window.store.saveTextToSoundService(provider, model)
 // All return Promise<boolean>. Throw if false.
 ```
 
@@ -211,7 +211,7 @@ No async logic inside the reducer. Side effects belong in `useProviderSetup` and
 - Exposes: `updateProviderEntry`, `handleProviderApiKeyChange`, `saveProviderEntry`, `handleContinueProviders`, `handleOpenProviderLink`.
 
 **`useModelServices(state, dispatch, connectedProviderIds, navigate)`**
-- On entering any model service step (or when `connectedProviderIds` changes): load providers and all operator configs in parallel, then fetch model lists per service, and dispatch `LOAD_SERVICE_STATES`.
+- On entering any model service step (or when `connectedProviderIds` changes): load providers and all service selections in parallel, then fetch model lists per service, and dispatch `LOAD_SERVICE_STATES`.
 - Exposes: `handleServiceProviderChange`, `handleServiceModelChange`, `handleSaveModelStep`.
 
 ---
@@ -250,7 +250,7 @@ Follow the renderer React design patterns in the renderer conventions. Start-pag
 
 Follow the type placement rules in the renderer conventions.
 
-- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, operator records returned by `window.store`) belong in the shared types directory.
+- Types that cross the IPC boundary (e.g. `PublicProvider`, `Model`, service records returned by `window.store`) belong in the shared types directory.
 - Types consumed by multiple renderer pages belong in the renderer-level types directory.
 - Types scoped to the start page alone — `SetupState`, `SetupStep`, `ProviderSetupEntry`, `ModelServiceStateMap`, reducer actions — stay inside the start page folder.
 
@@ -265,9 +265,9 @@ Log these failure cases:
 | `useProviderSetup` | `isProviderApiKeySaved` check fails | `console.error('[useProviderSetup] Failed to check saved provider status:', error)` |
 | `useProviderSetup` | `setProviderApiKey` throws | `console.error('[useProviderSetup] Failed to save API key:', error)` |
 | `useProviderSetup` | Bulk continue save throws | `console.error('[useProviderSetup] Failed to save provider API keys:', error)` |
-| `useModelServices` | `getProviders` or operator load throws | `console.error('[useModelServices] Failed to load service configuration:', error)` |
+| `useModelServices` | `getProviders` or service load throws | `console.error('[useModelServices] Failed to load service configuration:', error)` |
 | `useModelServices` | Per-provider model fetch throws | `console.warn('[useModelServices] Failed to load models for provider:', providerId, error)` |
-| `useModelServices` | `saveOperator` returns false or throws | `console.error('[useModelServices] Failed to save operator config:', error)` |
+| `useModelServices` | `saveSelection` returns false or throws | `console.error('[useModelServices] Failed to save model service config:', error)` |
 
 Per-provider model fetch failures are warnings (recoverable — other providers may succeed). All other failures are errors.
 
@@ -279,4 +279,4 @@ Display a single error message in the footer banner. Clear it on the next user a
 
 ## Testing
 
-Test step transitions, provider entry validation, `isProviderApiKeySaved` check on step entry, API key save and error path, model loading (including partial provider failure), provider/model pre-selection logic, service operator save, Skip navigation, Back button visibility, primary button labels, and navigation to `/home` on completion. Tests call exported hooks and components; they do not import internal reducer or state files directly.
+Test step transitions, provider entry validation, `isProviderApiKeySaved` check on step entry, API key save and error path, model loading (including partial provider failure), provider/model pre-selection logic, service selection save, Skip navigation, Back button visibility, primary button labels, and navigation to `/home` on completion. Tests call exported hooks and components; they do not import internal reducer or state files directly.

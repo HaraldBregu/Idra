@@ -10,7 +10,7 @@ The heartbeat module depends on `AgentService`.
 
 ## Dependencies
 
-- `AgentService`: owns the heartbeat-facing runtime facade. Through it, heartbeat reads and writes `heartbeat.json`, reads non-heartbeat operator context, checks whether target agents or sessions are busy, reads workspace heartbeat context, listens for channel routes, emits heartbeat events, resolves channel delivery, and executes heartbeat agent runs.
+- `AgentService`: owns the heartbeat-facing runtime facade. Through it, heartbeat reads and writes `heartbeat.json`, reads non-heartbeat service context, checks whether target agents or sessions are busy, reads workspace heartbeat context, listens for channel routes, emits heartbeat events, resolves channel delivery, and executes heartbeat agent runs.
 
 The heartbeat module must use the application logger like the other services.
 

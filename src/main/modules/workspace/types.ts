@@ -1,0 +1,22 @@
+import type { UserDataDirectoryServicePort } from '../../storage/user-data';
+import type { WorkspaceContextFile } from './files';
+
+export interface WorkspaceServiceOptions {
+	workspaceName?: string;
+	rootPath?: string;
+	userDataDirectory?: UserDataDirectoryServicePort;
+	contextHooks?: WorkspaceContextHook[];
+}
+
+export interface WriteFileOptions {
+	encoding?: BufferEncoding;
+}
+
+export interface ReadFileOptions {
+	encoding?: BufferEncoding;
+}
+
+export type WorkspaceContextHook = (input: {
+	workspaceRoot: string;
+	files: WorkspaceContextFile[];
+}) => WorkspaceContextFile[] | Promise<WorkspaceContextFile[]>;

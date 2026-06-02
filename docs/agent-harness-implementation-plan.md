@@ -74,7 +74,7 @@ Implement a plugin-selectable agent execution harness layer in Friday’s `src/m
 - Add a new `runAgentHarnessAttempt` path that runs selected harness; default flow remains functionally unchanged.
 
 10. Integrate in `src/main/service.ts`
-- Resolve operator/provider/model as today.
+- Resolve service/provider/model as today.
 - Resolve harness policy and select harness before execution.
 - Replace direct `runAgent(...)` call with `runAgentHarnessAttempt(...)`.
 - Preserve `hooks`, tool selection, stream events, session persistence, and logging behavior.

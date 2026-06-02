@@ -19,9 +19,9 @@ import {
 	type SessionContext,
 	type Tool,
 	type ToolExecutionContext,
-} from '../../../../src/main/agent/tools/management';
-import { writeTool } from '../../../../src/main/agent/tools/fs';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
+} from '../../../../src/main/capabilities/tools/management';
+import { writeTool } from '../../../../src/main/capabilities/tools/fs';
+import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 import { makeTempDir, makeToolContext } from '../test-helpers';
 
 function sessionContext(permissions: string[] = ['*']): SessionContext {
@@ -412,8 +412,8 @@ describe('tool management layer', () => {
 			[
 				makeAgentTool('exec', 'Run a shell command in the workspace.'),
 				makeAgentTool(
-					'task',
-					'Start an immediate in-memory background task by calling TaskManager.run from src/main/tasks. Use this tool when the user asks to "run a task in background".'
+					'background_job',
+					'Start an unsupported background job that is not part of the local tool surface.'
 				),
 				makeAgentTool('process', 'List background processes started by exec.'),
 			],

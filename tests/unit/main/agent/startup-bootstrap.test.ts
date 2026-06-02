@@ -12,7 +12,7 @@ jest.mock('electron-store', () => {
 });
 
 import path from 'node:path';
-import type { ProviderStreamRequest } from '../../../../src/main/agent/provider/types';
+import type { ProviderStreamRequest } from '../../../../src/main/llm/llmTypes';
 import { AgentService, AgentStartupFilesService } from '../../../../src/main/agent';
 import { AgentRunLogger } from '../../../../src/main/agent/logging';
 import { makeLogger, makeTempDir } from '../test-helpers';
@@ -34,7 +34,7 @@ function makeDeps(workspace: string, startupFiles: AgentStartupFilesService) {
 	};
 	return {
 		store: {
-			getAssistantOperator: jest.fn(() => ({
+			getAgentService: jest.fn(() => ({
 				provider: { id: 'openai', name: 'OpenAI', baseUrl: providerRecord.baseUrl },
 				model: { id: 'gpt-test', name: 'GPT Test' },
 			})),

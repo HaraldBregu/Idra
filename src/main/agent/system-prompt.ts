@@ -1,12 +1,12 @@
-import type { AgentTool } from './tools';
-import type { MemoryManager } from './memory/manager';
-import type { BootstrapMode } from '../workspace';
+import type { AgentTool } from '../capabilities/tools';
+import type { MemoryManager } from '../memory/manager';
+import type { BootstrapMode } from '../modules/workspace';
 import type { AgentToolName } from '../../shared/tools';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	renderWorkspaceContextFiles,
 	type WorkspaceContextFile,
-} from '../workspace';
+} from '../modules/workspace';
 
 export interface SystemPromptCtx {
 	workspace: string;
@@ -29,7 +29,6 @@ const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> & Record<string, str
 	exec: 'Run commands only when this tool is available. Use `python3` for Python scripts.',
 	process: 'Inspect or stop long-running background commands started by exec.',
 	cron: 'Use this for later or repeating work. Before add/remove, make sure timing is clear. Do not use host schedulers such as crontab.',
-	start_task: 'Start immediate in-memory background agent work. Use cron for future, delayed, or recurring work.',
 	open_browser: "Open an http/https URL in the user's default browser.",
 	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
 	read_file: 'Read a file before editing or overwriting it.',

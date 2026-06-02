@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { listChannelCatalog } from '../../../../../../src/shared/channel-catalog';
+import { listChannelCatalog } from '../../../../../../src/shared/channels';
 import ChannelsPage from '../../../../../../src/renderer/src/pages/settings/pages/channels/Page';
 
 jest.mock('../../../../../../src/renderer/src/pages/settings/pages/channels/ChannelIcon', () => ({

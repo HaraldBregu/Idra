@@ -1,0 +1,83 @@
+import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
+import type { IpcModule } from './module';
+import type { EventBus } from '../services/event-bus';
+import type { MainServiceContainer } from '../services/services';
+import { wrapIpcHandler } from './errorHandler';
+import { WindowChannels } from '../../shared/ipc-channels';
+
+/**
+ * IPC handlers for window management operations.
+ *
+ * Channels (send/on):
+ *  - window:minimize   (send) -- Minimize the window
+ *  - window:maximize   (send) -- Toggle maximize state
+ *  - window:close      (send) -- Close the window
+ *  - window:popup-menu (send) -- Show application menu as popup (Windows/Linux)
+ *
+ * Channels (invoke/handle):
+ *  - window:is-maximized  (query) -- Check if window is maximized
+ *  - window:is-fullscreen (query) -- Check if window is in fullscreen
+ * Event channels (push):
+ *  - window:maximize-change  -- Window maximize state changed
+ *  - window:fullscreen-change -- Window fullscreen state changed
+ */
+export class WindowIpc implements IpcModule {
+	readonly name = 'window';
+
+	register(container: MainServiceContainer, _eventBus: EventBus): void {
+		const logger = container.get('logger');
+		// --- Send handlers (fire-and-forget) ---
+
+		ipcMain.on(WindowChannels.minimize, (event) => {
+			const win = BrowserWindow.fromWebContents(event.sender);
+			if (win) win.minimize();
+		});
+
+		ipcMain.on(WindowChannels.maximize, (event) => {
+			const win = BrowserWindow.fromWebContents(event.sender);
+			if (win) {
+				if (!win.isMaximizable()) return;
+				if (win.isMaximized()) {
+					win.unmaximize();
+				} else {
+					win.maximize();
+				}
+			}
+		});
+
+		ipcMain.on(WindowChannels.close, (event) => {
+			const win = BrowserWindow.fromWebContents(event.sender);
+			if (win) win.close();
+		});
+
+		ipcMain.on(WindowChannels.popupMenu, (event) => {
+			const win = BrowserWindow.fromWebContents(event.sender);
+			if (win) {
+				const menu = ElectronMenu.getApplicationMenu();
+				if (menu) {
+					menu.popup({ window: win });
+				}
+			}
+		});
+
+		// --- Query handlers (invoke/handle) ---
+
+		ipcMain.handle(
+			WindowChannels.isMaximized,
+			wrapIpcHandler((event) => {
+				const win = BrowserWindow.fromWebContents(event.sender);
+				return win ? win.isMaximized() : false;
+			}, 'window:is-maximized')
+		);
+
+		ipcMain.handle(
+			WindowChannels.isFullScreen,
+			wrapIpcHandler((event) => {
+				const win = BrowserWindow.fromWebContents(event.sender);
+				return win ? win.isFullScreen() : false;
+			}, 'window:is-fullscreen')
+		);
+
+		logger.info('WindowIpc', `Registered ${this.name} module`);
+	}
+}

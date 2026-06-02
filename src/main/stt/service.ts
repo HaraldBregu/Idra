@@ -1,11 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import type { WebContents } from 'electron';
-import type { LoggerService } from '../logger';
-import type { StoreService } from '../store';
+import type { LoggerService } from '../observability';
+import type { StoreService } from '../storage';
 import {
 	getSpeechToTextModels,
 	isAllowedSpeechToTextModel,
-	type ConfiguredModelOperator,
 	type Model,
 } from '../../shared/agents/service';
 import type {
@@ -42,7 +41,6 @@ interface SpeechToTextStartOptions {
 }
 
 interface ResolvedSpeechToTextRuntime {
-	operator: ConfiguredModelOperator;
 	provider: Provider;
 	model: Model;
 	settings: ModelModuleSettings;
@@ -60,16 +58,8 @@ export class SpeechToTextService {
 		return getSpeechToTextModels(providerId);
 	}
 
-	getOperator(): ConfiguredModelOperator | undefined {
-		return this.dependencies.store.getSpeechToTextOperator();
-	}
-
 	getSettings(): ModelModuleSettings | undefined {
 		return this.dependencies.store.getSpeechToTextSettings();
-	}
-
-	setOperator(providerId: string, model: Model): boolean {
-		return this.dependencies.store.setSpeechToTextOperator(providerId, model);
 	}
 
 	async start(
@@ -157,7 +147,6 @@ export class SpeechToTextService {
 		return adapter.startSession({
 			sessionId,
 			provider: resolved.provider,
-			operator: resolved.operator,
 			model: resolved.model,
 			request,
 			callbacks,
@@ -208,17 +197,14 @@ export class SpeechToTextService {
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) throw new Error(`API key missing for speech-to-text provider: ${providerId}`);
 
-		const operator = this.dependencies.store.getSpeechToTextOperator();
-		if (!operator) {
-			throw new Error('Speech-to-text settings are invalid. Select a supported provider and model.');
-		}
+		const modelName =
+			getSpeechToTextModels(providerId).find((entry) => entry.id === modelId)?.name ?? modelId;
 
 		return {
-			operator,
 			provider,
 			model: {
 				id: modelId,
-				name: operator.model.name,
+				name: modelName,
 			},
 			settings,
 		};

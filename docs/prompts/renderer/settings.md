@@ -21,7 +21,7 @@ Groups:
 | Group | Label key | Contents |
 |---|---|---|
 | `app` | `settings.overview.groups.app` | General, System |
-| `ai` | `settings.overview.groups.ai` | Agent operator items (Assistant, Speech-to-text, Text-to-speech, Text-to-image, Text-to-video, Text-to-audio) + Providers, Skills, Connectors |
+| `ai` | `settings.overview.groups.ai` | Model service items (Assistant, Speech-to-text, Text-to-speech, Text-to-image, Text-to-video, Text-to-audio) + Providers, Skills, Connectors |
 | `channels` | `settings.overview.groups.channels` | Channels |
 | `automation` | `settings.overview.groups.automation` | Heartbeat, Cron |
 | `monitoring` | `settings.overview.groups.monitoring` | Task Manager, Monitoring, Policies |
@@ -39,7 +39,7 @@ Settings sub-pages use a set of shared layout components:
 
 ## Navigation
 
-All settings routes are defined in `SETTINGS_NAVIGATION`. Agent operator routes are defined in `SETTINGS_OPERATOR_ITEMS`. Both lists drive the overview cards and breadcrumb resolution.
+All settings routes are defined in `SETTINGS_NAVIGATION`. Model service routes are defined in `SETTINGS_MODEL_SERVICE_ITEMS`. Both lists drive the overview cards and breadcrumb resolution.
 
 ## Sub-pages
 
@@ -58,14 +58,14 @@ Follow the renderer React design patterns in the renderer conventions. Settings-
 - The settings layout is a compound-component system: `SettingsPageShell`, `SettingsSection`, and `SettingsPanel` compose to build any sub-page. Never reproduce this structure inline — always assemble from these parts.
 - Each sub-page is a self-contained unit. It fetches its own data via IPC in a `useEffect`, owns its loading and error state locally, and commits changes on explicit user action. Sub-pages do not share state with each other.
 - Breadcrumb state is derived from the route — it is not stored. `useSettingsBreadcrumbItems` reads the current route and returns the label chain. Components render what the hook returns; they do not manage breadcrumb state themselves.
-- Navigation constants (`SETTINGS_NAVIGATION`, `SETTINGS_OPERATOR_ITEMS`) are the single source of truth for routes and labels. Components read from these constants; they never hardcode paths or display text.
+- Navigation constants (`SETTINGS_NAVIGATION`, `SETTINGS_MODEL_SERVICE_ITEMS`) are the single source of truth for routes and labels. Components read from these constants; they never hardcode paths or display text.
 - Use `useTranslation` for every user-visible string. All label keys live in the translation resource, not in JSX.
 
 ## Types
 
 Follow the type placement rules in the renderer conventions.
 
-- Types that cross the IPC boundary (e.g. provider config shapes, operator records) belong in the shared types directory.
+- Types that cross the IPC boundary (e.g. provider config shapes, service records) belong in the shared types directory.
 - Types consumed by multiple renderer pages belong in the renderer-level types directory.
 - Types scoped to the settings page alone — navigation item shapes, breadcrumb state, overview group definitions — stay inside the settings page folder.
 

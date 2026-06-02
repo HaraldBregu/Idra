@@ -6,7 +6,7 @@ import OverviewPage from '../../../../../../src/renderer/src/pages/settings/page
 jest.mock('react-i18next', () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
-			if (key === 'settings.operators.assistantName') return 'Agent';
+			if (key === 'settings.modelServices.assistantName') return 'Agent';
 			return key;
 		},
 	}),
@@ -55,32 +55,26 @@ describe('OverviewPage', () => {
 		expect(screen.getByRole('heading', {
 			name: 'settings.overview.groups.modelServices',
 		})).toBeInTheDocument();
-		const monitoringSection = screen.getByRole('heading', {
+		expect(screen.queryByRole('heading', {
 			name: 'settings.overview.groups.monitoring',
-		}).closest('section');
-		expect(monitoringSection).not.toBeNull();
+		})).not.toBeInTheDocument();
 
 		expect(buttonTitles()).toEqual([
 			'settings.tabs.general',
 			'settings.tabs.system',
 			'settings.tabs.providers',
 			'Agent',
-			'settings.tabs.tools',
 			'settings.tabs.skills',
 			'settings.tabs.connectors',
-			'settings.operators.speechTranscriberName',
-			'settings.operators.textToSpeechName',
-			'settings.operators.imageAssistantName',
-			'settings.operators.videoCreatorName',
-			'settings.operators.musicCreatorName',
+			'settings.modelServices.speechTranscriberName',
+			'settings.modelServices.textToSpeechName',
+			'settings.modelServices.imageAssistantName',
+			'settings.modelServices.videoCreatorName',
+			'settings.modelServices.musicCreatorName',
 			'settings.tabs.channels',
-				'settings.tabs.heartbeat',
-				'settings.sections.taskScheduler',
-				'settings.tabs.backgroundTasks',
-			]);
-			expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
-				'settings.tabs.backgroundTasks',
-			]);
+			'settings.tabs.heartbeat',
+			'settings.sections.taskScheduler',
+		]);
 	});
 
 	it('navigates to the selected settings route when clicked', async () => {
@@ -89,6 +83,6 @@ describe('OverviewPage', () => {
 
 		await user.click(screen.getByRole('button', { name: /Agent/ }));
 
-		expect(screen.getByTestId('location')).toHaveTextContent('/settings/operators/friday/details');
+		expect(screen.getByTestId('location')).toHaveTextContent('/settings/model-services/assistant/details');
 	});
 });

@@ -13,7 +13,7 @@ import {
 	type CronJobExecutionOutcome,
 	type CronJobExecutor,
 } from '../../../../src/main/cron';
-import type { StoreService } from '../../../../src/main/store';
+import type { StoreService } from '../../../../src/main/storage';
 
 class RecordingExecutor implements CronJobExecutor {
 	calls: Array<{ job: CronJobDefinition; runId: string }> = [];

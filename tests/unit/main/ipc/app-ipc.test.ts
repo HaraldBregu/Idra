@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron';
-import { EventBus } from '../../../../src/main/core/event-bus';
-import { AppIpc } from '../../../../src/main/ipc/app-ipc';
-import type { MainServiceContainer } from '../../../../src/main/core/services';
-import { OperatorChannels, ProviderChannels } from '../../../../src/shared/ipc-channels';
+import { EventBus } from '../../../../src/main/services/event-bus';
+import { AppIpc } from '../../../../src/main/ipc/app.ipc';
+import type { MainServiceContainer } from '../../../../src/main/services/services';
+import { ProviderChannels } from '../../../../src/shared/ipc-channels';
 import type { Provider, PublicProvider } from '../../../../src/shared/providers';
 
 function registeredHandler(channel: string) {
@@ -125,41 +125,37 @@ describe('AppIpc', () => {
 		new AppIpc().register(createContainer(provider), new EventBus());
 
 		await expect(
-			registeredHandler(OperatorChannels.getTextToSpeechModels)({}, publicProvider)
+			registeredHandler(ProviderChannels.getTextToSpeechModels)({}, publicProvider)
 		).resolves.toEqual({
 			success: true,
-			data: [{ id: 'rachel-multilingual', name: 'Rachel - multilingual' }],
+			data: expect.arrayContaining([
+				expect.objectContaining({ id: 'eleven_v3', name: 'Eleven v3' }),
+			]),
 		});
 	});
 
-	it('normalizes text-to-video model saves through the catalog', async () => {
+	it('returns text-to-video models for configured providers', async () => {
 		const provider: Provider = {
 			id: 'runway',
 			name: 'Runway',
 			baseUrl: 'https://api.dev.runwayml.com/v1',
 			apiKey: 'test-key',
 		};
-		const setTextToVideoOperator = jest.fn(() => true);
 		const publicProvider: PublicProvider = {
 			id: provider.id,
 			name: provider.name,
 			baseUrl: provider.baseUrl,
 		};
 
-		new AppIpc().register(createContainer(provider, { setTextToVideoOperator }), new EventBus());
+		new AppIpc().register(createContainer(provider), new EventBus());
 
 		await expect(
-			registeredHandler(OperatorChannels.saveTextToVideo)({}, publicProvider, {
-				id: 'gen4.5',
-				name: 'Submitted',
-			})
+			registeredHandler(ProviderChannels.getTextToVideoModels)({}, publicProvider)
 		).resolves.toEqual({
 			success: true,
-			data: true,
-		});
-		expect(setTextToVideoOperator).toHaveBeenCalledWith('runway', {
-			id: 'gen4.5',
-			name: 'Gen 4.5',
+			data: expect.arrayContaining([
+				expect.objectContaining({ id: 'gen4.5', name: 'Gen 4.5' }),
+			]),
 		});
 	});
 });

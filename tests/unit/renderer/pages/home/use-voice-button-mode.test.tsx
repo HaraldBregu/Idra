@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useVoiceButtonMode } from '../../../../../src/renderer/src/pages/home/hooks';
+import { useVoiceButtonMode } from '../../../../../src/renderer/src/pages/home/hooks/useVoiceButtonMode';
 import {
 	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
 	XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
@@ -14,14 +14,10 @@ function defineApp(value: Partial<Window['app']> | undefined): void {
 	});
 }
 
-function speechToTextOperator(providerId: string, modelId: string): Awaited<
-	ReturnType<Window['app']['getSpeechToTextOperator']>
+function speechTranscriberService(providerId: string, modelId: string): Awaited<
+	ReturnType<Window['app']['getSpeechTranscriberService']>
 > {
 	return {
-		id: 'speech-to-text',
-		name: 'Speech to text',
-		docsPath: 'models/speech-to-text.md',
-		status: 'implemented',
 		provider: {
 			id: providerId,
 			name: providerId,
@@ -41,8 +37,8 @@ describe('useVoiceButtonMode', () => {
 
 	it('uses dictation mode for realtime speech-to-text models', async () => {
 		defineApp({
-			getSpeechToTextOperator: jest.fn(async () =>
-				speechToTextOperator('deepgram', DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID)
+			getSpeechTranscriberService: jest.fn(async () =>
+				speechTranscriberService('deepgram', DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID)
 			),
 		});
 
@@ -53,8 +49,8 @@ describe('useVoiceButtonMode', () => {
 
 	it('uses recording mode for batch speech-to-text models', async () => {
 		defineApp({
-			getSpeechToTextOperator: jest.fn(async () =>
-				speechToTextOperator('xai', XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID)
+			getSpeechTranscriberService: jest.fn(async () =>
+				speechTranscriberService('xai', XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID)
 			),
 		});
 

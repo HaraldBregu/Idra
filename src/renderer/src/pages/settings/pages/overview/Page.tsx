@@ -6,11 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS, type AgentId } from '../../../../../../shared/agents';
 import {
-	ASSISTANT_OPERATOR_ID,
-	IMAGE_CREATOR_OPERATOR_ID,
-	MUSIC_CREATOR_OPERATOR_ID,
-} from '../../../../../../shared/agents/service';
-import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
@@ -18,9 +13,9 @@ import {
 } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
-	SETTINGS_OPERATOR_ITEMS,
+	SETTINGS_MODEL_SERVICE_ITEMS,
 	type SettingsNavigationItem,
-	type SettingsOperatorItem,
+	type SettingsModelServiceItem,
 } from '../../navigation';
 
 
@@ -58,11 +53,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		titleKey: 'settings.overview.groups.automation',
 		paths: ['/settings/heartbeat', '/settings/cron'],
 	},
-	{
-		id: 'monitoring',
-		titleKey: 'settings.overview.groups.monitoring',
-		paths: ['/settings/task-manager'],
-	},
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
@@ -84,23 +74,23 @@ const SETTINGS_OVERVIEW_AGENT_IDS = [
 ] as const satisfies readonly AgentId[];
 
 type SettingsOverviewAgentId = (typeof SETTINGS_OVERVIEW_AGENT_IDS)[number];
-type SettingsOverviewAgentItem = Omit<SettingsOperatorItem, 'id'> & {
+type SettingsOverviewAgentItem = Omit<SettingsModelServiceItem, 'id'> & {
 	readonly id: SettingsOverviewAgentId;
 };
 
-const OPERATOR_ROUTE_IDS_BY_AGENT_ID = {
-	[AGENTS.assistant]: ASSISTANT_OPERATOR_ID,
+const MODEL_SERVICE_ROUTE_IDS_BY_AGENT_ID = {
+	[AGENTS.assistant]: AGENTS.assistant,
 	[AGENTS.speechToText]: AGENTS.speechToText,
 	[AGENTS.textToSpeech]: AGENTS.textToSpeech,
-	[AGENTS.textToImage]: IMAGE_CREATOR_OPERATOR_ID,
+	[AGENTS.textToImage]: AGENTS.textToImage,
 	[AGENTS.textToVideo]: AGENTS.textToVideo,
-	[AGENTS.textToAudio]: MUSIC_CREATOR_OPERATOR_ID,
+	[AGENTS.textToAudio]: AGENTS.textToAudio,
 } as const satisfies Record<SettingsOverviewAgentId, string>;
 
 function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): SettingsOverviewAgentItem {
-	const routeId = OPERATOR_ROUTE_IDS_BY_AGENT_ID[agentId];
-	const path = `/settings/operators/${routeId}/details`;
-	const item = SETTINGS_OPERATOR_ITEMS.find((operatorItem) => operatorItem.path === path);
+	const routeId = MODEL_SERVICE_ROUTE_IDS_BY_AGENT_ID[agentId];
+	const path = `/settings/model-services/${routeId}/details`;
+	const item = SETTINGS_MODEL_SERVICE_ITEMS.find((serviceItem) => serviceItem.path === path);
 	if (!item) throw new Error(`Missing settings overview agent route: ${path}`);
 	return { ...item, id: agentId };
 }
@@ -110,7 +100,7 @@ function SettingsOverviewCard({
 	item,
 	badge,
 }: {
-	readonly item: SettingsNavigationItem | SettingsOperatorItem;
+	readonly item: SettingsNavigationItem | SettingsModelServiceItem;
 	readonly badge?: React.ReactNode;
 }): React.JSX.Element {
 	const { t } = useTranslation();

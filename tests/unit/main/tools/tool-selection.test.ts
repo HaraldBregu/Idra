@@ -1,4 +1,4 @@
-import { selectAgentToolsForTurn, type AgentTool } from '../../../../src/main/agent/tools';
+import { selectAgentToolsForTurn, type AgentTool } from '../../../../src/main/capabilities/tools';
 import { makeToolContext } from '../test-helpers';
 
 function tool(name: string, description: string): AgentTool {
@@ -53,7 +53,6 @@ describe('agent tool selection', () => {
 		const selection = selectAgentToolsForTurn(
 			[
 				tool('read_file', 'Read workspace files.'),
-				tool('start_task', 'Start a tracked local task.'),
 				tool('spawn_subagent', 'Start a child agent run for a clearly scoped task.'),
 			],
 			'split the work and delegate the session storage review to a subagent',

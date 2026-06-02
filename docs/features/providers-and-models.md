@@ -44,7 +44,7 @@ The shared model catalogs currently cover these capabilities:
 - `3d`
 - `embedding`
 
-Text-to-speech, image, video, music/audio, realtime voice, 3D, and OCR operators have settings surfaces or catalogs, but not all of them have a local execution runtime yet. The settings metadata marks some of these operators as `pending-runtime` or coming soon.
+Text-to-speech, image, video, music/audio, realtime voice, 3D, and OCR model services have settings surfaces or catalogs, but not all of them have a local execution runtime yet. The settings metadata marks some of these services as `pending-runtime` or coming soon.
 
 ## Source
 
@@ -55,4 +55,3 @@ Text-to-speech, image, video, music/audio, realtime voice, 3D, and OCR operators
 - `src/renderer/src/pages/settings/pages/providers`
 - `src/renderer/src/pages/settings/navigation.ts`
 - Existing docs: `docs/providers/index.md`
-

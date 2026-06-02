@@ -23,8 +23,8 @@ jest.mock('node-cron', () => {
 
 import cron from 'node-cron';
 import { CronService } from '../../../../src/main/cron';
-import type { StoreService } from '../../../../src/main/store';
-import type { LoggerService } from '../../../../src/main/logger';
+import type { StoreService } from '../../../../src/main/storage';
+import type { LoggerService } from '../../../../src/main/observability';
 import type { CronTask, CronTaskMessageData } from '../../../../src/shared/cron';
 
 // ---------------------------------------------------------------------------

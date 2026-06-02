@@ -1,12 +1,24 @@
-import { app, BrowserWindow, protocol, net, crashReporter, session } from 'electron';
+import { app, BrowserWindow, crashReporter } from 'electron';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { Main } from './main';
-import { Tray } from './tray';
-import { Menu } from './menu';
-import { ShortcutManager } from './shortcuts';
-import type { AppPermissionsService } from './app/permissions';
+import { Main } from './app/createWindow';
+import { Tray } from './app/tray';
+import { Menu } from './app/menu';
+import { ShortcutManager } from './app/shortcuts';
+import { setupAppLifecycle } from './app/lifecycle';
+import {
+	registerLocalResourceProtocolHandler,
+	registerLocalResourceProtocolScheme,
+	setupMediaPermissionHandlers,
+} from './app/protocol';
+import { registerIpcHandlers } from './ipc/registerIpcHandlers';
+import {
+	setupEventLogging,
+	setupProcessSafetyNet,
+	writeCrashLine,
+} from './observability/errorReporter';
+import { setupMemoryMonitor } from './observability/metrics';
+import { bootstrapServices, cleanup } from './bootstrap';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -39,115 +51,7 @@ function loadLocalEnv(): void {
 }
 
 loadLocalEnv();
-
-// Register custom scheme before app is ready so the renderer can load local files.
-protocol.registerSchemesAsPrivileged([
-	{
-		scheme: 'local-resource',
-		privileges: { standard: true, secure: true, bypassCSP: true, supportFetchAPI: true },
-	},
-]);
-
-function rendererDevOrigin(): string | null {
-	const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
-	if (!rendererUrl) return null;
-
-	try {
-		return new URL(rendererUrl).origin;
-	} catch {
-		return null;
-	}
-}
-
-function isTrustedRendererOrigin(origin?: string): boolean {
-	if (!origin) return false;
-	if (origin === 'file://') return true;
-	const devOrigin = rendererDevOrigin();
-	return Boolean(devOrigin && origin === devOrigin);
-}
-
-function isTrustedRendererUrl(url?: string): boolean {
-	if (!url) return false;
-	if (url.startsWith('file://')) return true;
-
-	try {
-		return isTrustedRendererOrigin(new URL(url).origin);
-	} catch {
-		return false;
-	}
-}
-
-function isAppWindowWebContents(webContents: Electron.WebContents | null): boolean {
-	return Boolean(webContents && BrowserWindow.fromWebContents(webContents));
-}
-
-function isTrustedMediaRequestSource(
-	requestingOrigin: string | undefined,
-	requestingUrl: string | undefined,
-	securityOrigin: string | undefined
-): boolean {
-	return (
-		isTrustedRendererOrigin(requestingOrigin) ||
-		isTrustedRendererOrigin(securityOrigin) ||
-		isTrustedRendererUrl(requestingUrl)
-	);
-}
-
-function setupMediaPermissionHandlers(
-	appPermissions: Pick<AppPermissionsService, 'getMicrophoneEnabled'>
-): void {
-	session.defaultSession.setPermissionCheckHandler(
-		(webContents, permission, requestingOrigin, details) => {
-			if (permission !== 'media') return false;
-			if (!appPermissions.getMicrophoneEnabled()) return false;
-			if (details.mediaType !== 'audio') return false;
-			if (!details.isMainFrame) return false;
-			if (!isAppWindowWebContents(webContents)) return false;
-			return isTrustedMediaRequestSource(
-				requestingOrigin,
-				details.requestingUrl,
-				details.securityOrigin
-			);
-		}
-	);
-
-	session.defaultSession.setPermissionRequestHandler(
-		(webContents, permission, callback, details) => {
-			if (permission !== 'media') {
-				callback(false);
-				return;
-			}
-
-			const mediaDetails = details as Electron.MediaAccessPermissionRequest;
-			const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
-			const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
-			const allowed =
-				appPermissions.getMicrophoneEnabled() &&
-				requestsAudio &&
-				!requestsVideo &&
-				mediaDetails.isMainFrame &&
-				isAppWindowWebContents(webContents) &&
-				isTrustedMediaRequestSource(
-					undefined,
-					mediaDetails.requestingUrl,
-					mediaDetails.securityOrigin
-				);
-
-			callback(allowed);
-		}
-	);
-}
-
-import {
-	bootstrapServices,
-	bootstrapIpcModules,
-	setupAppLifecycle,
-	setupEventLogging,
-	setupProcessSafetyNet,
-	setupMemoryMonitor,
-	cleanup,
-	writeCrashLine,
-} from './bootstrap';
+registerLocalResourceProtocolScheme();
 
 // Install process-level safety net BEFORE anything else so we can see silent exits.
 setupProcessSafetyNet();
@@ -193,7 +97,7 @@ setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-bootstrapIpcModules(container, eventBus);
+registerIpcHandlers(container, eventBus);
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
@@ -228,24 +132,7 @@ const menuManager = new Menu({
 });
 
 app.whenReady().then(async () => {
-	// Serve local files via the local-resource:// protocol so the renderer
-	// can display images stored in document folders regardless of its origin.
-	protocol.handle('local-resource', (request) => {
-		try {
-			const url = new URL(request.url);
-			let pathname = decodeURIComponent(url.pathname);
-			// On Windows, URL pathname is "/C:/foo"; strip the leading slash so
-			// pathToFileURL produces a canonical "file:///C:/foo".
-			if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(pathname)) {
-				pathname = pathname.slice(1);
-			}
-			return net.fetch(pathToFileURL(pathname).toString());
-		} catch (err) {
-			logger.error('App', `local-resource fetch failed for ${request.url}`, err);
-			return new Response(null, { status: 500 });
-		}
-	});
-
+	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers(container.get('appPermissions'));
 	menuManager.create();
 	trayManager.create();

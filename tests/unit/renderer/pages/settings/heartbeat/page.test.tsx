@@ -1,6 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { HeartbeatEventPayload, HeartbeatStatus } from '../../../../../../src/shared/heartbeat';
+import type {
+	HeartbeatEventPayload,
+	HeartbeatSettings,
+	HeartbeatStatus,
+} from '../../../../../../src/shared/heartbeat';
 import HeartbeatPage from '../../../../../../src/renderer/src/pages/settings/pages/heartbeat/Page';
 
 jest.mock('react-i18next', () => ({
@@ -35,11 +39,20 @@ function makeStatus(overrides: Partial<HeartbeatStatus> = {}): HeartbeatStatus {
 	};
 }
 
+function makeSettings(overrides: Partial<HeartbeatSettings> = {}): HeartbeatSettings {
+	return {
+		every: '30m',
+		...overrides,
+	};
+}
+
 describe('HeartbeatPage', () => {
 	beforeEach(() => {
 		window.heartbeat = {
 			status: jest.fn(async () => makeStatus()),
 			last: jest.fn(async () => makeLastHeartbeat()),
+			settings: jest.fn(async () => makeSettings()),
+			saveSettings: jest.fn(async (request) => makeSettings(request)),
 			setEnabled: jest.fn(async (request) => makeStatus({ enabled: request.enabled })),
 			getTiming: jest.fn(async () => ({
 				every: '30m',
@@ -90,7 +103,6 @@ describe('HeartbeatPage', () => {
 
 	it('saves heartbeat model settings through the heartbeat IPC API', async () => {
 		const user = userEvent.setup();
-		window.heartbeat.settings = jest.fn(async () => ({ every: '30m' }));
 		render(<HeartbeatPage />);
 
 		await screen.findByText('settings.heartbeat.values.enabled');

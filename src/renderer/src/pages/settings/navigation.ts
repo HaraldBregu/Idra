@@ -2,7 +2,6 @@ import {
 	Activity,
 	Bot,
 	CalendarClock,
-	ClipboardList,
 	ImageIcon,
 	Info,
 	Mic,
@@ -16,13 +15,7 @@ import {
 	Volume2,
 	type LucideIcon,
 } from 'lucide-react';
-import {
-	IMAGE_CREATOR_OPERATOR_ID,
-	MUSIC_CREATOR_OPERATOR_ID,
-	SPEECH_TO_TEXT_OPERATOR_ID,
-	TEXT_TO_SPEECH_OPERATOR_ID,
-	TEXT_TO_VIDEO_OPERATOR_ID,
-} from '../../../../shared/agents/service';
+import { AGENTS, type AgentId } from '../../../../shared/agents';
 
 export interface SettingsNavigationItem {
 	readonly path: string;
@@ -39,8 +32,8 @@ export interface SettingsDetailItem {
 	readonly icon?: LucideIcon;
 }
 
-export interface SettingsOperatorItem {
-	readonly id: string;
+export interface SettingsModelServiceItem {
+	readonly id: AgentId;
 	readonly path: string;
 	readonly labelKey: string;
 	readonly descriptionKey: string;
@@ -49,55 +42,55 @@ export interface SettingsOperatorItem {
 	readonly comingSoon?: boolean;
 }
 
-export const SETTINGS_OPERATOR_ITEMS: readonly SettingsOperatorItem[] = [
+export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] = [
 	{
-		id: 'friday',
-		path: '/settings/operators/friday/details',
-		labelKey: 'settings.operators.assistantName',
-		descriptionKey: 'settings.operators.fridayDescription',
-		keywords: 'friday operator default provider model',
+		id: AGENTS.assistant,
+		path: '/settings/model-services/assistant/details',
+		labelKey: 'settings.modelServices.assistantName',
+		descriptionKey: 'settings.modelServices.fridayDescription',
+		keywords: 'friday service default provider model',
 		icon: Bot,
 	},
 	{
-		id: SPEECH_TO_TEXT_OPERATOR_ID,
-		path: `/settings/operators/${SPEECH_TO_TEXT_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.speechTranscriberName',
-		descriptionKey: 'settings.operators.speechTranscriberDescription',
+		id: AGENTS.speechToText,
+		path: `/settings/model-services/${AGENTS.speechToText}/details`,
+		labelKey: 'settings.modelServices.speechTranscriberName',
+		descriptionKey: 'settings.modelServices.speechTranscriberDescription',
 		keywords: 'speech transcription transcribe audio voice microphone model',
 		icon: Mic,
 	},
 	{
-		id: TEXT_TO_SPEECH_OPERATOR_ID,
-		path: `/settings/operators/${TEXT_TO_SPEECH_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.textToSpeechName',
-		descriptionKey: 'settings.operators.textToSpeechDescription',
+		id: AGENTS.textToSpeech,
+		path: `/settings/model-services/${AGENTS.textToSpeech}/details`,
+		labelKey: 'settings.modelServices.textToSpeechName',
+		descriptionKey: 'settings.modelServices.textToSpeechDescription',
 		keywords: 'text to speech tts voice output speaking audio model',
 		icon: Volume2,
 		comingSoon: true,
 	},
 	{
-		id: IMAGE_CREATOR_OPERATOR_ID,
-		path: `/settings/operators/${IMAGE_CREATOR_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.imageAssistantName',
-		descriptionKey: 'settings.operators.imageAssistantDescription',
+		id: AGENTS.textToImage,
+		path: `/settings/model-services/${AGENTS.textToImage}/details`,
+		labelKey: 'settings.modelServices.imageAssistantName',
+		descriptionKey: 'settings.modelServices.imageAssistantDescription',
 		keywords: 'image generation image assistant editing creative model',
 		icon: ImageIcon,
 		comingSoon: true,
 	},
 	{
-		id: TEXT_TO_VIDEO_OPERATOR_ID,
-		path: `/settings/operators/${TEXT_TO_VIDEO_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.videoCreatorName',
-		descriptionKey: 'settings.operators.videoCreatorDescription',
+		id: AGENTS.textToVideo,
+		path: `/settings/model-services/${AGENTS.textToVideo}/details`,
+		labelKey: 'settings.modelServices.videoCreatorName',
+		descriptionKey: 'settings.modelServices.videoCreatorDescription',
 		keywords: 'text to video generation model',
 		icon: Video,
 		comingSoon: true,
 	},
 	{
-		id: MUSIC_CREATOR_OPERATOR_ID,
-		path: `/settings/operators/${MUSIC_CREATOR_OPERATOR_ID}/details`,
-		labelKey: 'settings.operators.musicCreatorName',
-		descriptionKey: 'settings.operators.musicCreatorDescription',
+		id: AGENTS.textToAudio,
+		path: `/settings/model-services/${AGENTS.textToAudio}/details`,
+		labelKey: 'settings.modelServices.musicCreatorName',
+		descriptionKey: 'settings.modelServices.musicCreatorDescription',
 		keywords: 'music audio generation creator model',
 		icon: Music,
 		comingSoon: true,
@@ -127,13 +120,11 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
-	// Operators
-	...SETTINGS_OPERATOR_ITEMS,
-	{ path: '/settings/operators/friday/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
+	// Model services
+	...SETTINGS_MODEL_SERVICE_ITEMS,
+	{ path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.taskScheduler', keywords: 'cron schedule recurring task expression timezone' },
-	// Task manager
-	{ path: '/settings/task-manager', labelKey: 'settings.tabs.backgroundTasks', descriptionKey: 'settings.taskManager.description', keywords: 'tasks running queued succeeded failed background' },
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
 ] as const;
@@ -186,11 +177,5 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.sections.taskScheduler',
 		descriptionKey: 'settings.overview.descriptions.cron',
 		icon: CalendarClock,
-	},
-	{
-		path: '/settings/task-manager',
-		labelKey: 'settings.tabs.backgroundTasks',
-		descriptionKey: 'settings.overview.descriptions.taskManager',
-		icon: ClipboardList,
 	},
 ] satisfies readonly SettingsNavigationItem[];

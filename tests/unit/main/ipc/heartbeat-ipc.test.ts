@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { EventBus } from '../../../../src/main/core/event-bus';
-import { HeartbeatIpc } from '../../../../src/main/ipc/heartbeat-ipc';
-import type { MainServiceContainer } from '../../../../src/main/core/services';
+import { EventBus } from '../../../../src/main/services/event-bus';
+import { HeartbeatIpc } from '../../../../src/main/ipc/heartbeat.ipc';
+import type { MainServiceContainer } from '../../../../src/main/services/services';
 import { HeartbeatChannels } from '../../../../src/shared/ipc-channels';
 import type { HeartbeatEventPayload, HeartbeatStatus } from '../../../../src/shared/heartbeat';
 

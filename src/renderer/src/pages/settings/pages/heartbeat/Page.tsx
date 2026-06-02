@@ -239,13 +239,16 @@ const HeartbeatPage: React.FC = () => {
 
 		const loadInitialStatus = async (): Promise<void> => {
 			try {
-				const [nextStatus, nextTiming] = await Promise.all([
+				const [nextStatus, nextTiming, nextSettings, nextProviders] = await Promise.all([
 					window.heartbeat.status(),
 					window.heartbeat.getTiming(),
+					window.heartbeat.settings(),
+					window.store.getProviders(),
 				]);
 				if (!mounted) return;
 				applyStatus(nextStatus);
 				applyTiming(nextTiming);
+				applySettings(nextSettings, nextProviders);
 				setError(null);
 			} catch (caught) {
 				if (mounted) setError(caught instanceof Error ? caught.message : String(caught));
@@ -264,7 +267,7 @@ const HeartbeatPage: React.FC = () => {
 			mounted = false;
 			unsubscribe();
 		};
-	}, [applyStatus, applyTiming]);
+	}, [applySettings, applyStatus, applyTiming]);
 
 	const handleRefresh = useCallback(async (): Promise<void> => {
 		setOperation('refresh');

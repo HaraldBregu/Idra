@@ -8,14 +8,14 @@ export function useVoiceButtonMode(): VoiceButtonMode {
 
 	useEffect(() => {
 		void window.app
-			.getSpeechToTextOperator()
-			.then((operator) => {
-				if (!operator?.model?.id) {
+			.getSpeechTranscriberService()
+			.then((selection) => {
+				if (!selection?.model?.id) {
 					setMode('disabled');
 					return;
 				}
 				setMode(
-					isRealtimeSpeechToTextModel(operator.provider.id, operator.model.id)
+					isRealtimeSpeechToTextModel(selection.provider.id, selection.model.id)
 						? 'dictate'
 						: 'record'
 				);

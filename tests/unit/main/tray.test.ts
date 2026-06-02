@@ -55,7 +55,7 @@ jest.mock('electron', () => {
 });
 
 import { Menu } from 'electron';
-import { Tray } from '../../../src/main/tray';
+import { Tray } from '../../../src/main/app/tray';
 
 const originalPlatform = process.platform;
 

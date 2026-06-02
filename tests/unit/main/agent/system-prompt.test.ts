@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import { buildSystemPrompt } from '../../../../src/main/agent/system-prompt';
-import type { AgentTool } from '../../../../src/main/agent/tools/types';
+import type { AgentTool } from '../../../../src/main/capabilities/tools/types';
 
 describe('agent/system-prompt', () => {
 	it('builds deterministic prompts with sorted tool guidance and memory blocks', async () => {

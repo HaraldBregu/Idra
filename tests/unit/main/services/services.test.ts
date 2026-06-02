@@ -1,16 +1,16 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { app } from 'electron';
-import { ConnectorsService } from '../../../../src/main/connectors';
+import { ConnectorsService } from '../../../../src/main/capabilities/connectors';
 import {
 	buildGoogleAuthorizationUrl,
 	scopesForGoogleDriveTools,
 	scopesForGmailTools,
 	scopesForGoogleCalendarTools,
-} from '../../../../src/main/connectors/google';
-import { LoggerService, LogLevel } from '../../../../src/main/logger';
-import { UserDataDirectoryService } from '../../../../src/main/app/user-data';
-import { WorkspaceService } from '../../../../src/main/workspace';
+} from '../../../../src/main/capabilities/connectors/google';
+import { LoggerService, LogLevel } from '../../../../src/main/observability';
+import { UserDataDirectoryService } from '../../../../src/main/storage/user-data';
+import { WorkspaceService } from '../../../../src/main/modules/workspace';
 import { AgentStartupFilesService } from '../../../../src/main/agent/workspace';
 import { makeLogger, makeTempDir } from '../test-helpers';
 

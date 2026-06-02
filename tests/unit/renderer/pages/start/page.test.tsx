@@ -50,23 +50,23 @@ function installAppApi(): void {
 		isProviderApiKeySaved: jest.fn(async (providerId: string) => providerId === 'openai'),
 		setProviderApiKey: jest.fn(async () => undefined),
 		getProviders: jest.fn(async () => [openAiProvider]),
-		getAssistantOperator: jest.fn(async () => undefined),
-		saveAssistantOperator: jest.fn(async () => true),
-		getSpeechToTextOperator: jest.fn(async () => undefined),
+		getAgentService: jest.fn(async () => undefined),
+		saveAgentService: jest.fn(async () => true),
+		getSpeechTranscriberService: jest.fn(async () => undefined),
 		getSpeechToTextModels: jest.fn(async () => [speechModel]),
-		saveSpeechToTextOperator: jest.fn(async () => true),
-		getTextToSpeechOperator: jest.fn(async () => undefined),
+		saveSpeechTranscriberService: jest.fn(async () => true),
+		getTextToSpeechService: jest.fn(async () => undefined),
 		getTextToSpeechModels: jest.fn(async () => [textToSpeechModel]),
-		saveTextToSpeechOperator: jest.fn(async () => true),
-		getImageCreatorOperator: jest.fn(async () => undefined),
+		saveTextToSpeechService: jest.fn(async () => true),
+		getImageCreatorService: jest.fn(async () => undefined),
 		getImageCreatorModels: jest.fn(async () => [imageModel]),
-		saveImageCreatorOperator: jest.fn(async () => true),
-		getTextToVideoOperator: jest.fn(async () => undefined),
+		saveImageCreatorService: jest.fn(async () => true),
+		getTextToVideoService: jest.fn(async () => undefined),
 		getTextToVideoModels: jest.fn(async () => [videoModel]),
-		saveTextToVideoOperator: jest.fn(async () => true),
-		getMusicCreatorOperator: jest.fn(async () => undefined),
-		getMusicCreatorModels: jest.fn(async () => [audioModel]),
-		saveMusicCreatorOperator: jest.fn(async () => true),
+		saveTextToVideoService: jest.fn(async () => true),
+		getTextToSoundService: jest.fn(async () => undefined),
+		getTextToSoundModels: jest.fn(async () => [audioModel]),
+		saveTextToSoundService: jest.fn(async () => true),
 		getModels: jest.fn(async () => [assistantModel]),
 		openExternalUrl: jest.fn(async () => undefined),
 	} as unknown as typeof window.app;
@@ -98,7 +98,6 @@ describe('StartPage', () => {
 		await user.click(continueButton);
 
 		expect(await screen.findByRole('heading', { name: 'Configure models' })).toBeInTheDocument();
-		expect(screen.queryByRole('heading', { name: 'Configure operators' })).not.toBeInTheDocument();
 		expect(screen.getAllByText('Configure models').length).toBeGreaterThan(0);
 	});
 
@@ -145,21 +144,21 @@ describe('StartPage', () => {
 		await user.click(modelContinueButton);
 
 		await waitFor(() => {
-			expect(window.app.saveAssistantOperator).toHaveBeenCalledWith(openAiProvider, assistantModel);
-			expect(window.app.saveSpeechToTextOperator).toHaveBeenCalledWith(
+			expect(window.app.saveAgentService).toHaveBeenCalledWith(openAiProvider, assistantModel);
+			expect(window.app.saveSpeechTranscriberService).toHaveBeenCalledWith(
 				openAiProvider,
 				speechModel
 			);
-			expect(window.app.saveTextToSpeechOperator).toHaveBeenCalledWith(
+			expect(window.app.saveTextToSpeechService).toHaveBeenCalledWith(
 				openAiProvider,
 				textToSpeechModel
 			);
-			expect(window.app.saveImageCreatorOperator).toHaveBeenCalledWith(
+			expect(window.app.saveImageCreatorService).toHaveBeenCalledWith(
 				openAiProvider,
 				imageModel
 			);
-			expect(window.app.saveTextToVideoOperator).toHaveBeenCalledWith(openAiProvider, videoModel);
-			expect(window.app.saveMusicCreatorOperator).toHaveBeenCalledWith(openAiProvider, audioModel);
+			expect(window.app.saveTextToVideoService).toHaveBeenCalledWith(openAiProvider, videoModel);
+			expect(window.app.saveTextToSoundService).toHaveBeenCalledWith(openAiProvider, audioModel);
 		});
 	});
 

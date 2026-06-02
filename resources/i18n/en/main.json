@@ -150,31 +150,29 @@
 			"groups": {
 				"app": "App",
 				"agent": "Agent",
-				"modelServices": "Model services",
-				"channels": "Channels",
-				"automation": "Automation",
-				"monitoring": "Monitoring",
-				"general": "General setup",
+					"modelServices": "Model services",
+					"channels": "Channels",
+					"automation": "Automation",
+					"general": "General setup",
 				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",
 				"automations": "Automations"
 			},
 			"descriptions": {
 				"general": "App info, appearance, folders",
-				"operators": "Operator configuration",
+				"modelServices": "Model service configuration",
 				"system": "Permissions, keep-awake controls, and desktop capabilities",
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
-				"connectors": "Connected apps",
-				"providers": "AI API keys",
-				"cron": "View, run, pause, and delete scheduled agent tasks",
-				"taskManager": "Background tasks",
-				"heartbeat": "Periodic agent checks"
+					"connectors": "Connected apps",
+					"providers": "AI API keys",
+					"cron": "View, run, pause, and delete scheduled agent tasks",
+					"heartbeat": "Periodic agent checks"
 			}
 		},
 		"tabs": {
 			"general": "General",
-			"operators": "Operators",
+			"modelServices": "Model services",
 			"channels": "Channels",
 			"connectors": "Connectors",
 			"workspace": "Workspace",
@@ -184,10 +182,9 @@
 			"tools": "Tools",
 			"system": "System",
 			"themes": "Themes",
-			"editor": "Editor",
-			"taskScheduler": "Tasks",
-			"backgroundTasks": "Background tasks",
-			"heartbeat": "Heartbeat",
+				"editor": "Editor",
+				"taskScheduler": "Tasks",
+				"heartbeat": "Heartbeat",
 			"developer": "Developer",
 			"skills": "Skills"
 		},
@@ -214,11 +211,10 @@
 			"dialogs": "Dialogs",
 			"clipboard": "Clipboard",
 			"application": "Application",
-			"profile": "Profile",
-			"editor": "Editor",
-			"taskScheduler": "Tasks",
-			"backgroundTasks": "Background tasks",
-			"heartbeat": "Heartbeat",
+				"profile": "Profile",
+				"editor": "Editor",
+				"taskScheduler": "Tasks",
+				"heartbeat": "Heartbeat",
 			"developer": "Developer"
 		},
 		"profile": {
@@ -317,12 +313,8 @@
 					"startOtherPrograms": {
 						"title": "Start other programs",
 						"note": "Subject to permissions."
-					},
-					"runBackgroundTasks": {
-						"title": "Run background tasks",
-						"note": "More restricted on some systems."
-					},
-					"accessSystemInformation": {
+						},
+						"accessSystemInformation": {
 						"title": "Access system information",
 						"note": "CPU, RAM, OS version, device info, etc."
 					},
@@ -549,80 +541,7 @@
 			"emptyTitle": "No tasks",
 			"emptyDescription": "Agent tasks scheduled for later or recurring work will appear here."
 		},
-		"taskManager": {
-			"description": "Background task runs and their current state.",
-			"runtime": {
-				"title": "Agent runtime",
-				"description": "Provider and model used by background agent runs.",
-				"provider": "Provider",
-				"model": "Model",
-				"providerPlaceholder": "Select provider",
-				"modelPlaceholder": "Select model",
-				"modelsLoading": "Loading models...",
-				"noProviders": "No providers are configured.",
-				"noModels": "No models are available for this provider.",
-				"save": "Save runtime",
-				"saving": "Saving...",
-				"saved": "Runtime saved.",
-				"errors": {
-					"saveFailed": "Runtime settings were not saved."
-				}
-			},
-			"detailsTitle": "Task Details",
-			"details": "Details",
-			"progress": "Progress",
-			"metadata": "Metadata",
-			"result": "Result",
-			"error": "Error",
-			"emptyTitle": "No tasks",
-			"emptyDescription": "Tasks will appear here once they are started.",
-			"notFoundTitle": "Task not found",
-			"notFoundDescription": "The task may have been removed.",
-			"create": {
-				"title": "Create Task",
-				"type": "Type",
-				"typeAgent": "Agent run",
-				"typeOcr": "OCR run",
-				"taskTitle": "Title",
-				"taskTitlePlaceholder": "Optional task title",
-				"message": "Message",
-				"messagePlaceholder": "Ask Friday to do something",
-				"imageBase64": "Image Base64",
-				"imageBase64Placeholder": "Paste the base64 image payload",
-				"mimeType": "MIME type",
-				"mimeTypePlaceholder": "image/png",
-				"language": "Language",
-				"languagePlaceholder": "Optional language code",
-				"start": "Start Task",
-				"starting": "Starting...",
-				"defaultAgentTitle": "Agent task",
-				"defaultOcrTitle": "OCR task",
-				"errors": {
-					"messageRequired": "Message is required.",
-					"imageRequired": "Image Base64 is required."
-				}
-			},
-			"fields": {
-				"id": "Id",
-				"type": "Type",
-				"createdAt": "Created",
-				"startedAt": "Started",
-				"finishedAt": "Finished",
-				"current": "Current",
-				"total": "Total",
-				"message": "Message",
-				"code": "Code"
-			},
-			"status": {
-				"queued": "Queued",
-				"running": "Running",
-				"cancelling": "Cancelling",
-				"cancelled": "Cancelled",
-				"succeeded": "Succeeded",
-				"failed": "Failed"
-			}
-		},
-		"heartbeat": {
+			"heartbeat": {
 			"description": "Heartbeat runner and manual checks.",
 			"runtime": {
 				"title": "Runtime",
@@ -791,13 +710,13 @@
 			"keySaved": "API key saved",
 			"keyMissing": "API key missing"
 		},
-		"operators": {
-			"title": "Operators",
-			"description": "Review the job-specific operators available to Friday.",
-			"subtitle": "Configure the model assignments each operator uses for its job.",
-			"detailsTitle": "Operator Details",
+		"modelServices": {
+			"title": "Model services",
+			"description": "Review the job-specific model services available to Friday.",
+			"subtitle": "Configure the model assignments each service uses for its job.",
+			"detailsTitle": "Model Service Details",
 			"history": "History",
-			"allOperators": "All operators",
+			"allModelServices": "All model services",
 			"identity": "Identity",
 			"configuration": "Configuration",
 			"fridayBreadcrumb": "Friday",
@@ -834,19 +753,19 @@
 			"musicProviderDescription": "Provider used for music.",
 			"musicModel": "Music model",
 			"musicModelDescription": "Model used to create music.",
-			"configurationPending": "This operator is available in the setup list, but its model settings are not saved from Settings yet.",
+			"configurationPending": "This service is available in the setup list, but its model settings are not saved from Settings yet.",
 			"modelUnavailable": "Not available yet",
 			"provider": "Provider",
-			"providerDescription": "AI service provider this operator uses.",
+			"providerDescription": "AI provider this service uses.",
 			"providerPlaceholder": "Select provider",
 			"model": "Model",
-			"modelDescription": "Model this operator uses for text responses.",
+			"modelDescription": "Model this service uses for text responses.",
 			"modelPlaceholder": "Select model",
 			"modelsLoading": "Loading…",
 			"modelsLoadError": "Unable to load models for this provider.",
 			"noModels": "No models are available for this provider.",
 			"textModel": "Text generation",
-			"textModelDescription": "Used by the operator for writing, chat, reasoning, and document edits.",
+			"textModelDescription": "Used by the service for writing, chat, reasoning, and document edits.",
 			"temperature": "Temperature",
 			"thinkingMode": "Thinking Mode",
 			"thinkingModeDescription": "Enable extended reasoning for complex tasks",
@@ -862,10 +781,10 @@
 			},
 			"saving": "Saving...",
 			"saved": "Saved",
-			"notFoundTitle": "Operator not found",
-			"notFoundDescription": "The requested operator is not available.",
-			"loadError": "Unable to load operator settings.",
-			"saveError": "Unable to save operator settings."
+			"notFoundTitle": "Model service not found",
+			"notFoundDescription": "The requested model service is not available.",
+			"loadError": "Unable to load model service settings.",
+			"saveError": "Unable to save model service settings."
 		},
 		"skills": {
 			"title": "Installed skills",
@@ -1260,11 +1179,10 @@
 		"tools": "Tools",
 		"filesDescription": "Manage imported files",
 		"contentDescription": "Browse content library",
-		"dataDescription": "Inspect structured data",
-		"searchDescription": "Find across your workspace",
-		"settingsDescription": "Configure preferences",
-		"tasksDescription": "View background tasks",
-		"reduxDescription": "Inspect application state",
+			"dataDescription": "Inspect structured data",
+			"searchDescription": "Find across your workspace",
+			"settingsDescription": "Configure preferences",
+			"reduxDescription": "Inspect application state",
 		"logs": "Logs",
 		"logsDescription": "Browse application logs"
 	},

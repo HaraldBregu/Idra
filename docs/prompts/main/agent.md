@@ -279,7 +279,7 @@ Keep heartbeat behavior separate from ordinary chat:
 - Heartbeat runs may suppress agent events.
 - Heartbeat runs may request light context.
 - Overlapping heartbeat runs should fail instead of aborting the current run.
-- Heartbeat system prompt content is included only when the operator config enables it.
+- Heartbeat system prompt content is included only when the service config enables it.
 - Heartbeat events are emitted through the event bus using the heartbeat event channels.
 
 Do not hardcode heartbeat scheduling in the agent module. Scheduling belongs to heartbeat and cron services.
@@ -321,7 +321,7 @@ Operational logging belongs in `AgentRunLogger`, `agentLogger`, or injected `Log
 
 Use dependencies through existing constructors and service ports:
 
-- `StoreService` for provider, model, agent, operator, routing, and connector configuration.
+- `StoreService` for provider, model, agent, service, routing, and connector configuration.
 - `WorkspaceService` for workspace roots and startup context files.
 - `ToolService` and the tools policy service for tool policy and safety decisions.
 - `ToolService` for tool creation, filtering, selection, provider preparation, preflight, and execution.

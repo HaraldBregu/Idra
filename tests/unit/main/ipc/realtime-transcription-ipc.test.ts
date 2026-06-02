@@ -120,7 +120,6 @@ describe('realtime transcription IPC', () => {
 						},
 						transcription: {
 							model: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
-							delay: 'high',
 							language: 'en-US',
 						},
 						turn_detection: null,
@@ -382,7 +381,7 @@ describe('realtime transcription IPC', () => {
 					providerId: provider.id,
 					modelId: MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID,
 				})),
-				getSpeechToTextOperator: jest.fn(() => ({
+				getSpeechTranscriberService: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
 					docsPath: 'models/speech-to-text.md',
@@ -429,7 +428,7 @@ describe('realtime transcription IPC', () => {
 					providerId: provider.id,
 					modelId: DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
 				})),
-				getSpeechToTextOperator: jest.fn(() => ({
+				getSpeechTranscriberService: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
 					docsPath: 'models/speech-to-text.md',
@@ -476,7 +475,7 @@ describe('realtime transcription IPC', () => {
 					providerId: provider.id,
 					modelId: ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID,
 				})),
-				getSpeechToTextOperator: jest.fn(() => ({
+				getSpeechTranscriberService: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
 					docsPath: 'models/speech-to-text.md',
@@ -523,7 +522,7 @@ describe('realtime transcription IPC', () => {
 					providerId: provider.id,
 					modelId: XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
 				})),
-				getSpeechToTextOperator: jest.fn(() => ({
+				getSpeechTranscriberService: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
 					docsPath: 'models/speech-to-text.md',
@@ -603,7 +602,7 @@ describe('realtime transcription IPC', () => {
 					providerId: provider.id,
 					modelId: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID,
 				})),
-				getSpeechToTextOperator: jest.fn(() => ({
+				getSpeechTranscriberService: jest.fn(() => ({
 					id: 'speech-to-text',
 					name: 'Speech to text',
 					docsPath: 'models/speech-to-text.md',
@@ -627,7 +626,7 @@ describe('realtime transcription IPC', () => {
 		expect(adapter.startSession).toHaveBeenCalledWith(
 			expect.objectContaining({
 				provider,
-				model: { id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT realtime transcribe' },
+				model: { id: REALTIME_SPEECH_TRANSCRIBER_MODEL_ID, name: 'GPT-4o Mini Transcribe' },
 				request: { audio: 'AAAA', language: 'en' },
 			})
 		);

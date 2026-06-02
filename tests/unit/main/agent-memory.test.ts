@@ -9,7 +9,7 @@ import {
 	type LlmProvider,
 	type LlmRequest,
 	type MemoryItem,
-} from '../../../src/main/agent/memory/policy';
+} from '../../../src/main/memory/policy';
 
 class FakeProvider implements LlmProvider {
 	readonly requests: LlmRequest[] = [];

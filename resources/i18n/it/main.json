@@ -150,31 +150,29 @@
 			"groups": {
 				"app": "App",
 				"agent": "Agente",
-				"modelServices": "Servizi modello",
-				"channels": "Canali",
-				"automation": "Automazione",
-				"monitoring": "Monitoraggio",
-				"general": "Configurazione generale",
+					"modelServices": "Servizi modello",
+					"channels": "Canali",
+					"automation": "Automazione",
+					"general": "Configurazione generale",
 				"aiAgents": "Agenti AI",
 				"aiFeatures": "Funzionalita AI",
 				"automations": "Automazioni"
 			},
 			"descriptions": {
 				"general": "Info, aspetto e cartelle app",
-				"operators": "Configurazione operatori",
+				"modelServices": "Configurazione servizi modello",
 				"system": "Permessi, mantieni attivo e capacita desktop",
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
-				"connectors": "App collegate",
-				"providers": "Chiavi API AI",
-				"cron": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate",
-				"taskManager": "Attivita in background",
-				"heartbeat": "Controlli periodici agenti"
+					"connectors": "App collegate",
+					"providers": "Chiavi API AI",
+					"cron": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate",
+					"heartbeat": "Controlli periodici agenti"
 			}
 		},
 		"tabs": {
 			"general": "Generale",
-			"operators": "Operatori",
+			"modelServices": "Servizi modello",
 			"channels": "Canali",
 			"connectors": "Connettori",
 			"workspace": "Area di Lavoro",
@@ -184,10 +182,9 @@
 			"tools": "Strumenti",
 			"system": "Sistema",
 			"themes": "Temi",
-			"editor": "Editor",
-			"taskScheduler": "Attivita",
-			"backgroundTasks": "Attivita in background",
-			"heartbeat": "Heartbeat",
+				"editor": "Editor",
+				"taskScheduler": "Attivita",
+				"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore",
 			"skills": "Abilità"
 		},
@@ -214,11 +211,10 @@
 			"dialogs": "Dialoghi",
 			"clipboard": "Appunti",
 			"application": "Applicazione",
-			"profile": "Profilo",
-			"editor": "Editor",
-			"taskScheduler": "Attivita",
-			"backgroundTasks": "Attivita in background",
-			"heartbeat": "Heartbeat",
+				"profile": "Profilo",
+				"editor": "Editor",
+				"taskScheduler": "Attivita",
+				"heartbeat": "Heartbeat",
 			"developer": "Sviluppatore"
 		},
 		"profile": {
@@ -317,12 +313,8 @@
 					"startOtherPrograms": {
 						"title": "Avviare altri programmi",
 						"note": "Soggetto a permessi."
-					},
-					"runBackgroundTasks": {
-						"title": "Eseguire attivita in background",
-						"note": "Piu limitato su alcuni sistemi."
-					},
-					"accessSystemInformation": {
+						},
+						"accessSystemInformation": {
 						"title": "Accedere alle informazioni di sistema",
 						"note": "CPU, RAM, versione OS, info dispositivo, ecc."
 					},
@@ -549,80 +541,7 @@
 			"emptyTitle": "Nessuna attivita",
 			"emptyDescription": "Le attivita agente pianificate per dopo o ricorrenti appariranno qui."
 		},
-		"taskManager": {
-			"description": "Esecuzioni in background e stato corrente.",
-			"runtime": {
-				"title": "Runtime agente",
-				"description": "Provider e modello usati dalle esecuzioni agente in background.",
-				"provider": "Provider",
-				"model": "Modello",
-				"providerPlaceholder": "Seleziona provider",
-				"modelPlaceholder": "Seleziona modello",
-				"modelsLoading": "Caricamento modelli...",
-				"noProviders": "Nessun provider configurato.",
-				"noModels": "Nessun modello disponibile per questo provider.",
-				"save": "Salva runtime",
-				"saving": "Salvataggio...",
-				"saved": "Runtime salvato.",
-				"errors": {
-					"saveFailed": "Le impostazioni runtime non sono state salvate."
-				}
-			},
-			"detailsTitle": "Dettagli attivita",
-			"details": "Dettagli",
-			"progress": "Avanzamento",
-			"metadata": "Metadati",
-			"result": "Risultato",
-			"error": "Errore",
-			"emptyTitle": "Nessuna attivita",
-			"emptyDescription": "Le attivita appariranno qui una volta avviate.",
-			"notFoundTitle": "Attivita non trovata",
-			"notFoundDescription": "L'attivita potrebbe essere stata rimossa.",
-			"create": {
-				"title": "Crea attivita",
-				"type": "Tipo",
-				"typeAgent": "Esecuzione agente",
-				"typeOcr": "Esecuzione OCR",
-				"taskTitle": "Titolo",
-				"taskTitlePlaceholder": "Titolo attivita opzionale",
-				"message": "Messaggio",
-				"messagePlaceholder": "Chiedi a Friday di fare qualcosa",
-				"imageBase64": "Immagine Base64",
-				"imageBase64Placeholder": "Incolla il payload base64 dell'immagine",
-				"mimeType": "Tipo MIME",
-				"mimeTypePlaceholder": "image/png",
-				"language": "Lingua",
-				"languagePlaceholder": "Codice lingua opzionale",
-				"start": "Avvia attivita",
-				"starting": "Avvio...",
-				"defaultAgentTitle": "Attivita agente",
-				"defaultOcrTitle": "Attivita OCR",
-				"errors": {
-					"messageRequired": "Il messaggio e obbligatorio.",
-					"imageRequired": "L'immagine Base64 e obbligatoria."
-				}
-			},
-			"fields": {
-				"id": "Id",
-				"type": "Tipo",
-				"createdAt": "Creata",
-				"startedAt": "Avviata",
-				"finishedAt": "Terminata",
-				"current": "Corrente",
-				"total": "Totale",
-				"message": "Messaggio",
-				"code": "Codice"
-			},
-			"status": {
-				"queued": "In coda",
-				"running": "In esecuzione",
-				"cancelling": "Annullamento",
-				"cancelled": "Annullata",
-				"succeeded": "Completata",
-				"failed": "Fallita"
-			}
-		},
-		"heartbeat": {
+			"heartbeat": {
 			"description": "Runner heartbeat e controlli manuali.",
 			"runtime": {
 				"title": "Runtime",
@@ -791,13 +710,13 @@
 			"keySaved": "Chiave API salvata",
 			"keyMissing": "Chiave API mancante"
 		},
-		"operators": {
-			"title": "Operatori",
-			"description": "Rivedi gli operatori con incarichi specifici disponibili in Friday.",
-			"subtitle": "Configura le assegnazioni dei modelli che ogni operatore usa per il suo incarico.",
-			"detailsTitle": "Dettagli Operatore",
+		"modelServices": {
+			"title": "Servizi modello",
+			"description": "Rivedi i servizi modello con incarichi specifici disponibili in Friday.",
+			"subtitle": "Configura le assegnazioni dei modelli che ogni servizio usa per il suo incarico.",
+			"detailsTitle": "Dettagli servizio modello",
 			"history": "Cronologia",
-			"allOperators": "Tutti gli operatori",
+			"allModelServices": "Tutti i servizi modello",
 			"identity": "Identita",
 			"configuration": "Configurazione",
 			"fridayBreadcrumb": "Friday",
@@ -834,19 +753,19 @@
 			"musicProviderDescription": "Provider usato per la musica.",
 			"musicModel": "Modello musica",
 			"musicModelDescription": "Modello usato per creare musica.",
-			"configurationPending": "Questo operatore e disponibile nella configurazione iniziale, ma le impostazioni modello non vengono ancora salvate dalle Impostazioni.",
+			"configurationPending": "Questo servizio e disponibile nella configurazione iniziale, ma le impostazioni modello non vengono ancora salvate dalle Impostazioni.",
 			"modelUnavailable": "Non ancora disponibile",
 			"provider": "Provider",
-			"providerDescription": "Provider AI usato da questo operatore.",
+			"providerDescription": "Provider AI usato da questo servizio.",
 			"providerPlaceholder": "Seleziona provider",
 			"model": "Modello",
-			"modelDescription": "Modello usato da questo operatore per le risposte testuali.",
+			"modelDescription": "Modello usato da questo servizio per le risposte testuali.",
 			"modelPlaceholder": "Seleziona modello",
 			"modelsLoading": "Caricamento…",
 			"modelsLoadError": "Impossibile caricare i modelli per questo provider.",
 			"noModels": "Nessun modello disponibile per questo provider.",
 			"textModel": "Generazione testo",
-			"textModelDescription": "Usato dall'operatore per scrittura, chat, ragionamento e modifiche ai documenti.",
+			"textModelDescription": "Usato dal servizio per scrittura, chat, ragionamento e modifiche ai documenti.",
 			"temperature": "Temperatura",
 			"thinkingMode": "Modalità Ragionamento",
 			"thinkingModeDescription": "Abilita il ragionamento esteso per attività complesse",
@@ -862,10 +781,10 @@
 			},
 			"saving": "Salvataggio...",
 			"saved": "Salvato",
-			"notFoundTitle": "Operatore non trovato",
-			"notFoundDescription": "L'operatore richiesto non e disponibile.",
-			"loadError": "Impossibile caricare le impostazioni degli operatori.",
-			"saveError": "Impossibile salvare le impostazioni degli operatori."
+			"notFoundTitle": "Servizio modello non trovato",
+			"notFoundDescription": "Il servizio modello richiesto non e disponibile.",
+			"loadError": "Impossibile caricare le impostazioni dei servizi modello.",
+			"saveError": "Impossibile salvare le impostazioni dei servizi modello."
 		},
 		"skills": {
 			"title": "Abilità installate",
@@ -1260,11 +1179,10 @@
 		"tools": "Strumenti",
 		"filesDescription": "Gestisci i file importati",
 		"contentDescription": "Sfoglia la libreria dei contenuti",
-		"dataDescription": "Ispeziona dati strutturati",
-		"searchDescription": "Cerca nel tuo workspace",
-		"settingsDescription": "Configura le preferenze",
-		"tasksDescription": "Visualizza i task in background",
-		"reduxDescription": "Ispeziona lo stato dell'applicazione",
+			"dataDescription": "Ispeziona dati strutturati",
+			"searchDescription": "Cerca nel tuo workspace",
+			"settingsDescription": "Configura le preferenze",
+			"reduxDescription": "Ispeziona lo stato dell'applicazione",
 		"logs": "Log",
 		"logsDescription": "Sfoglia i log dell'applicazione"
 	},

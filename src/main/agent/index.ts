@@ -19,7 +19,7 @@ export {
 	type AgentRunResult,
 	type AgentRunStreamEvent,
 } from './run';
-export * from './capabilities';
+export * from '../capabilities';
 export * from './subagents';
 export * from './routing';
 export * from './settings';

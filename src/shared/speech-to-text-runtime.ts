@@ -5,7 +5,7 @@ import type {
 	RealtimeTranscriptionStartRequest,
 } from './realtime-transcription';
 import type { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from './agents/service';
-import type { ConfiguredModelOperator, Model } from './agents/service';
+import type { Model } from './agents/service';
 
 export interface SpeechToTextSessionCallbacks {
 	emit: (event: RealtimeTranscriptionEvent) => void;
@@ -15,7 +15,6 @@ export interface SpeechToTextSessionCallbacks {
 export interface SpeechToTextRuntimeConfig {
 	sessionId: string;
 	provider: Provider;
-	operator: ConfiguredModelOperator;
 	model: Model;
 	request?: RealtimeTranscriptionStartRequest;
 	callbacks: SpeechToTextSessionCallbacks;

@@ -26,12 +26,7 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '../../../../shared/agents';
-import {
-	DOCUMENT_READER_OCR_MODELS,
-	OPERATOR_DEFINITIONS,
-	type ConfiguredModelOperator,
-	type Model,
-} from '../../../../shared/agents/service';
+import type { Model, ModelSelection } from '../../../../shared/agents/service';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -285,29 +280,29 @@ const StartPage: React.FC = () => {
 	const [savedSpeechModelId, setSavedSpeechModelId] = useState('');
 	const [speechModelGroups, setSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState('');
-	const [savedTextToSpeechOperator, setSavedTextToSpeechOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedTextToSpeechService, setSavedTextToSpeechService] =
+		useState<ModelSelection>();
 	const [textToSpeechModelGroups, setTextToSpeechModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
 	const [textToSpeechProviderId, setTextToSpeechProviderId] = useState('');
 	const [selectedTextToSpeechModel, setSelectedTextToSpeechModel] = useState('');
-	const [savedImageCreatorOperator, setSavedImageCreatorOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedImageCreatorService, setSavedImageCreatorService] =
+		useState<ModelSelection>();
 	const [imageCreatorModelGroups, setImageCreatorModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
 	const [imageCreatorProviderId, setImageCreatorProviderId] = useState('');
 	const [selectedImageCreatorModel, setSelectedImageCreatorModel] = useState('');
-	const [savedTextToVideoOperator, setSavedTextToVideoOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedTextToVideoService, setSavedTextToVideoService] =
+		useState<ModelSelection>();
 	const [textToVideoModelGroups, setTextToVideoModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
 	const [textToVideoProviderId, setTextToVideoProviderId] = useState('');
 	const [selectedTextToVideoModel, setSelectedTextToVideoModel] = useState('');
-	const [savedMusicCreatorOperator, setSavedMusicCreatorOperator] =
-		useState<ConfiguredModelOperator>();
+	const [savedMusicCreatorService, setSavedMusicCreatorService] =
+		useState<ModelSelection>();
 	const [musicCreatorModelGroups, setMusicCreatorModelGroups] = useState<ProviderModelGroup[]>(
 		[]
 	);
@@ -434,20 +429,20 @@ const StartPage: React.FC = () => {
 			try {
 				const [
 					storedProviders,
-					assistantOperator,
-					speechToTextOperator,
-					textToSpeechOperator,
-					imageCreatorOperator,
-					textToVideoOperator,
-					musicCreatorOperator,
+					agentService,
+					speechTranscriberService,
+					textToSpeechService,
+					imageCreatorService,
+					textToVideoService,
+					textToSoundService,
 				] = await Promise.all([
 					window.app.getProviders(),
-					window.app.getAssistantOperator(),
-					window.app.getSpeechToTextOperator(),
-					window.app.getTextToSpeechOperator(),
-					window.app.getImageCreatorOperator(),
-					window.app.getTextToVideoOperator(),
-					window.app.getMusicCreatorOperator(),
+					window.app.getAgentService(),
+					window.app.getSpeechTranscriberService(),
+					window.app.getTextToSpeechService(),
+					window.app.getImageCreatorService(),
+					window.app.getTextToVideoService(),
+					window.app.getTextToSoundService(),
 				]);
 				if (cancelled) return;
 
@@ -455,24 +450,24 @@ const StartPage: React.FC = () => {
 					supportedProviderIds.has(provider.id)
 				);
 				const preferredProvider =
-					selectableProviders.find((provider) => provider.id === assistantOperator?.provider.id) ??
+					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
 					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
 					selectableProviders[0];
 
 				setProviders(selectableProviders);
 				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId(assistantOperator?.model.id ?? '');
-				setSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
-				setSavedSpeechProviderId(speechToTextOperator?.provider?.id ?? '');
-				setSavedSpeechModelId(speechToTextOperator?.model?.id ?? '');
-				setSavedTextToSpeechOperator(textToSpeechOperator);
-				setTextToSpeechProviderId(textToSpeechOperator?.provider.id ?? '');
-				setSavedImageCreatorOperator(imageCreatorOperator);
-				setImageCreatorProviderId(imageCreatorOperator?.provider.id ?? '');
-				setSavedTextToVideoOperator(textToVideoOperator);
-				setTextToVideoProviderId(textToVideoOperator?.provider.id ?? '');
-				setSavedMusicCreatorOperator(musicCreatorOperator);
-				setMusicCreatorProviderId(musicCreatorOperator?.provider.id ?? '');
+				setSavedModelId(agentService?.model.id ?? '');
+				setSpeechProviderId(speechTranscriberService?.provider?.id ?? '');
+				setSavedSpeechProviderId(speechTranscriberService?.provider?.id ?? '');
+				setSavedSpeechModelId(speechTranscriberService?.model?.id ?? '');
+				setSavedTextToSpeechService(textToSpeechService);
+				setTextToSpeechProviderId(textToSpeechService?.provider.id ?? '');
+				setSavedImageCreatorService(imageCreatorService);
+				setImageCreatorProviderId(imageCreatorService?.provider.id ?? '');
+				setSavedTextToVideoService(textToVideoService);
+				setTextToVideoProviderId(textToVideoService?.provider.id ?? '');
+				setSavedMusicCreatorService(textToSoundService);
+				setMusicCreatorProviderId(textToSoundService?.provider.id ?? '');
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
@@ -481,13 +476,13 @@ const StartPage: React.FC = () => {
 				setSpeechProviderId('');
 				setSavedSpeechProviderId('');
 				setSavedSpeechModelId('');
-				setSavedTextToSpeechOperator(undefined);
+				setSavedTextToSpeechService(undefined);
 				setTextToSpeechProviderId('');
-				setSavedImageCreatorOperator(undefined);
+				setSavedImageCreatorService(undefined);
 				setImageCreatorProviderId('');
-				setSavedTextToVideoOperator(undefined);
+				setSavedTextToVideoService(undefined);
 				setTextToVideoProviderId('');
-				setSavedMusicCreatorOperator(undefined);
+				setSavedMusicCreatorService(undefined);
 				setMusicCreatorProviderId('');
 				setErrorMessage(getErrorMessage(error, 'Could not load models.'));
 			}
@@ -585,7 +580,7 @@ const StartPage: React.FC = () => {
 					}
 
 					try {
-						const musicCreatorModels = await window.app.getMusicCreatorModels(provider);
+						const musicCreatorModels = await window.app.getTextToSoundModels(provider);
 						if (musicCreatorModels.length > 0) {
 							nextMusicCreatorGroups.push({ provider, models: musicCreatorModels });
 						}
@@ -633,32 +628,32 @@ const StartPage: React.FC = () => {
 
 				const preferredTextToSpeechOption = getPreferredProviderModelOption(
 					nextTextToSpeechGroups,
-					savedTextToSpeechOperator?.provider.id ?? '',
-					savedTextToSpeechOperator?.model.id ?? ''
+					savedTextToSpeechService?.provider.id ?? '',
+					savedTextToSpeechService?.model.id ?? ''
 				);
 				setTextToSpeechProviderId(preferredTextToSpeechOption?.provider.id ?? '');
 				setSelectedTextToSpeechModel(preferredTextToSpeechOption?.model.id ?? '');
 
 				const preferredImageCreatorOption = getPreferredProviderModelOption(
 					nextImageCreatorGroups,
-					savedImageCreatorOperator?.provider.id ?? '',
-					savedImageCreatorOperator?.model.id ?? ''
+					savedImageCreatorService?.provider.id ?? '',
+					savedImageCreatorService?.model.id ?? ''
 				);
 				setImageCreatorProviderId(preferredImageCreatorOption?.provider.id ?? '');
 				setSelectedImageCreatorModel(preferredImageCreatorOption?.model.id ?? '');
 
 				const preferredTextToVideoOption = getPreferredProviderModelOption(
 					nextTextToVideoGroups,
-					savedTextToVideoOperator?.provider.id ?? '',
-					savedTextToVideoOperator?.model.id ?? ''
+					savedTextToVideoService?.provider.id ?? '',
+					savedTextToVideoService?.model.id ?? ''
 				);
 				setTextToVideoProviderId(preferredTextToVideoOption?.provider.id ?? '');
 				setSelectedTextToVideoModel(preferredTextToVideoOption?.model.id ?? '');
 
 				const preferredMusicCreatorOption = getPreferredProviderModelOption(
 					nextMusicCreatorGroups,
-					savedMusicCreatorOperator?.provider.id ?? '',
-					savedMusicCreatorOperator?.model.id ?? ''
+					savedMusicCreatorService?.provider.id ?? '',
+					savedMusicCreatorService?.model.id ?? ''
 				);
 				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
 				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
@@ -701,13 +696,13 @@ const StartPage: React.FC = () => {
 	}, [
 		configProvider,
 		providers,
-		savedImageCreatorOperator,
+		savedImageCreatorService,
 		savedModelId,
-		savedMusicCreatorOperator,
+		savedMusicCreatorService,
 		savedSpeechModelId,
 		savedSpeechProviderId,
-		savedTextToSpeechOperator,
-		savedTextToVideoOperator,
+		savedTextToSpeechService,
+		savedTextToVideoService,
 		step,
 	]);
 
@@ -880,7 +875,7 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAssistantOperator(
+			await window.app.saveAgentService(
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
@@ -895,7 +890,7 @@ const StartPage: React.FC = () => {
 					id: selectedSpeechOption.id,
 					name: selectedSpeechOption.name,
 				};
-				const saved = await window.app.saveSpeechToTextOperator(
+				const saved = await window.app.saveSpeechTranscriberService(
 					selectedSpeechGroup.provider,
 					modelToSave
 				);
@@ -906,13 +901,12 @@ const StartPage: React.FC = () => {
 					id: selectedTextToSpeechOption.model.id,
 					name: selectedTextToSpeechOption.model.name,
 				};
-				const saved = await window.app.saveTextToSpeechOperator(
+				const saved = await window.app.saveTextToSpeechService(
 					selectedTextToSpeechOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected text-to-speech model.');
-				setSavedTextToSpeechOperator({
-					...OPERATOR_DEFINITIONS.textToSpeech,
+				setSavedTextToSpeechService({
 					provider: selectedTextToSpeechOption.provider,
 					model: modelToSave,
 				});
@@ -922,13 +916,12 @@ const StartPage: React.FC = () => {
 					id: selectedImageCreatorOption.model.id,
 					name: selectedImageCreatorOption.model.name,
 				};
-				const saved = await window.app.saveImageCreatorOperator(
+				const saved = await window.app.saveImageCreatorService(
 					selectedImageCreatorOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected image model.');
-				setSavedImageCreatorOperator({
-					...OPERATOR_DEFINITIONS.imageCreator,
+				setSavedImageCreatorService({
 					provider: selectedImageCreatorOption.provider,
 					model: modelToSave,
 				});
@@ -938,13 +931,12 @@ const StartPage: React.FC = () => {
 					id: selectedTextToVideoOption.model.id,
 					name: selectedTextToVideoOption.model.name,
 				};
-				const saved = await window.app.saveTextToVideoOperator(
+				const saved = await window.app.saveTextToVideoService(
 					selectedTextToVideoOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected video model.');
-				setSavedTextToVideoOperator({
-					...OPERATOR_DEFINITIONS.videoCreator,
+				setSavedTextToVideoService({
 					provider: selectedTextToVideoOption.provider,
 					model: modelToSave,
 				});
@@ -954,13 +946,12 @@ const StartPage: React.FC = () => {
 					id: selectedMusicCreatorOption.model.id,
 					name: selectedMusicCreatorOption.model.name,
 				};
-				const saved = await window.app.saveMusicCreatorOperator(
+				const saved = await window.app.saveTextToSoundService(
 					selectedMusicCreatorOption.provider,
 					modelToSave
 				);
 				if (!saved) throw new Error('Could not save the selected audio model.');
-				setSavedMusicCreatorOperator({
-					...OPERATOR_DEFINITIONS.musicCreator,
+				setSavedMusicCreatorService({
 					provider: selectedMusicCreatorOption.provider,
 					model: modelToSave,
 				});
@@ -1212,7 +1203,7 @@ const StartPage: React.FC = () => {
 			(group) => group.provider.id === musicCreatorProviderId
 		);
 		const selectedMusicCreatorModels = selectedMusicCreatorGroup?.models ?? [];
-		const ocrModelName = DOCUMENT_READER_OCR_MODELS[0]?.name ?? 'Not available yet';
+		const ocrModelName = 'Not available yet';
 		const toggleModelArea = (areaId: ModelAreaId): void => {
 			setExpandedModelAreaId((current) => (current === areaId ? AGENTS.assistant : areaId));
 		};
