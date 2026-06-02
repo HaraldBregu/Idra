@@ -13,12 +13,6 @@ export {
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
 } from './files';
-export type {
-	ReadFileOptions,
-	WorkspaceContextHook,
-	WorkspaceServiceOptions,
-	WriteFileOptions,
-} from './types';
 export * from './startup';
 export * from './permissions';
 export * from './service';
