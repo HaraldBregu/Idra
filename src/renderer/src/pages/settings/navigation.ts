@@ -2,7 +2,6 @@ import {
 	Activity,
 	Bot,
 	CalendarClock,
-	ClipboardList,
 	ImageIcon,
 	Info,
 	Mic,
@@ -126,8 +125,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.taskScheduler', keywords: 'cron schedule recurring task expression timezone' },
-	// Task manager
-	{ path: '/settings/task-manager', labelKey: 'settings.tabs.backgroundTasks', descriptionKey: 'settings.taskManager.description', keywords: 'tasks running queued succeeded failed background' },
 	// Heartbeat
 	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
 ] as const;
@@ -180,11 +177,5 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.sections.taskScheduler',
 		descriptionKey: 'settings.overview.descriptions.cron',
 		icon: CalendarClock,
-	},
-	{
-		path: '/settings/task-manager',
-		labelKey: 'settings.tabs.backgroundTasks',
-		descriptionKey: 'settings.overview.descriptions.taskManager',
-		icon: ClipboardList,
 	},
 ] satisfies readonly SettingsNavigationItem[];
