@@ -26,7 +26,7 @@ import {
 	type ProviderInput,
 	type PublicProvider,
 } from '../../shared/providers';
-import type { StoreService } from '../storage';
+import type { StoreService } from '../store';
 
 function publicProvider(provider: Provider): PublicProvider {
 	const { apiKey: _apiKey, ...rest } = provider;

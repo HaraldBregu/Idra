@@ -10,7 +10,7 @@ import type { HeartbeatService } from '../heartbeat';
 import type { LoggerService } from '../observability';
 import type { SkillsService } from '../capabilities/skills';
 import type { SpeechToTextService } from '../stt';
-import type { StoreService } from '../storage';
+import type { StoreService } from '../store';
 import type { WorkspaceService } from '../agent/workspace';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 

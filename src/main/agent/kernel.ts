@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { EventBus } from '../services/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
-import type { StoreService } from '../storage';
+import type { StoreService } from '../store';
 import type { ConnectorsService } from '../capabilities/connectors';
 import type { SkillsService } from '../capabilities/skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';

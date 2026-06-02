@@ -1,5 +1,5 @@
 /**
- * Unit tests for StoreService (src/main/storage/service.ts).
+ * Unit tests for StoreService (src/main/store/service.ts).
  *
  * electron-store is mocked with an in-memory Map so that the real
  * StoreService logic (case-insensitive lookups, provider upserts,
@@ -24,7 +24,7 @@ jest.mock('electron-store', () => {
 });
 
 import Store from 'electron-store';
-import { StoreService } from '../../../../src/main/storage';
+import { StoreService } from '../../../../src/main/store';
 import { emptyCronJobStoreState } from '../../../../src/main/cron';
 import { CHANNEL_PROVIDER_IDS } from '../../../../src/shared/channels';
 import type { ConnectorConfig } from '../../../../src/shared/connectors';

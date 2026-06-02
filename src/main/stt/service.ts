@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { WebContents } from 'electron';
 import type { LoggerService } from '../observability';
-import type { StoreService } from '../storage';
+import type { StoreService } from '../store';
 import {
 	getSpeechToTextModels,
 	isAllowedSpeechToTextModel,

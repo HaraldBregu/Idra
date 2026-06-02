@@ -2,7 +2,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
-import { StoreService } from './storage';
+import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import {

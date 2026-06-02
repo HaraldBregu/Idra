@@ -11,7 +11,7 @@ describe('main module imports', () => {
 		await expect(import('../../../src/main/observability')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/llm/router')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/session/store')).resolves.toBeTruthy();
-		await expect(import('../../../src/main/storage')).resolves.toBeTruthy();
+			await expect(import('../../../src/main/store')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/capabilities/tools')).resolves.toBeTruthy();
 		await expect(import('../../../src/main/agent/workspace')).resolves.toBeTruthy();
 	});
