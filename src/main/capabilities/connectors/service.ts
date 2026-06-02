@@ -261,7 +261,6 @@ export class ConnectorsService {
 	}
 
 	async callTool(id?: unknown, name?: unknown, args?: unknown, options?: unknown): Promise<unknown> {
-		if (this.legacy) return this.legacy.callTool(id as string, name as string, args, options);
 		const connectorId = requireString(id, 'Connector id');
 		const toolName = requireString(name, 'Connector tool name');
 		const toolArgs = readToolArgs(args);
