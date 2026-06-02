@@ -1,7 +1,6 @@
 import type { AgentTool } from '../../capabilities/tools';
 import type { MemoryManager } from '../../memory/manager';
 import type { BootstrapMode } from '../../modules/workspace';
-import type { AgentToolName } from '../../../shared/tools';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	renderWorkspaceContextFiles,
@@ -20,24 +19,6 @@ export interface SystemPromptCtx {
 		includeSection: boolean;
 	};
 }
-
-const TOOL_GUIDANCE: Partial<Record<AgentToolName, string>> & Record<string, string> = {
-	read: 'Read a file before editing or overwriting it.',
-	write: 'Create or overwrite files. Read existing files first.',
-	edit: 'Surgical string-replacement edit. Provide enough context to make `old` unique.',
-	find: 'Glob-search the workspace for files.',
-	exec: 'Run commands only when this tool is available. Use `python3` for Python scripts.',
-	process: 'Inspect or stop long-running background commands started by exec.',
-	cron: 'Use this for later or repeating work. Before add/remove, make sure timing is clear. Do not use host schedulers such as crontab.',
-	open_browser: "Open an http/https URL in the user's default browser.",
-	script_run: 'Run existing scripts only. Pass args as an array; use `python3` for Python scripts.',
-	read_file: 'Read a file before editing or overwriting it.',
-	edit_file: 'Surgical string-replacement edit. Provide enough context to make the old text unique.',
-	search_files: 'Glob-search the workspace for files.',
-	run_shell: 'Run shell commands only when necessary and within the available permission model.',
-	startup_files:
-		'Read or update Friday startup files and mark BOOTSTRAP.md complete after first-run setup.',
-};
 
 const ACCEPTANCE_CONTRACT = [
 	'## Agent acceptance contract',
@@ -73,8 +54,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 			'Only these tools are available for this turn. Use a tool only when it is necessary for the request.',
 		];
 		for (const tool of [...ctx.tools].sort((a, b) => a.name.localeCompare(b.name))) {
-			const line = TOOL_GUIDANCE[tool.name as AgentToolName] ?? tool.description;
-			guidance.push(`- **${tool.name}** — ${line}`);
+			guidance.push(`- **${tool.name}** — ${tool.description}`);
 		}
 		parts.push(guidance.join('\n'));
 	} else {
