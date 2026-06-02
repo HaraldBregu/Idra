@@ -264,7 +264,8 @@
       "Bash(echo \"node: $?\")",
       "Bash(echo \"web: $?\")",
       "Bash(echo \"typecheck:web exit=$?\")",
-      "Bash(echo \"scoped eslint src/main/llm exit: $?\")"
+      "Bash(echo \"scoped eslint src/main/llm exit: $?\")",
+      "Bash(echo \"ESLINT_DONE exit=$?\")"
     ],
     "deny": [
       "Bash(git push --force:*)",
