@@ -24,7 +24,8 @@ describe('agent/context/prompt', () => {
 
 		expect(prompt).toContain('Today is 2026-05-14');
 		expect(prompt.indexOf('**read**')).toBeLessThan(prompt.indexOf('**write**'));
-		expect(prompt).toContain('Use `python3` for Python scripts');
+		expect(prompt).toContain('**exec** — Run commands');
+		expect(prompt).not.toContain('Use `python3` for Python scripts');
 		expect(prompt).toContain('<MEMORY>\nremember this\n</MEMORY>');
 		expect(prompt).toBe(await buildSystemPrompt({ workspace: '/repo', date: '2026-05-14', model: 'gpt-test', tools, memory: memory as never }));
 	});
