@@ -713,7 +713,6 @@ export class AgentService {
 					workspace: workspaceRoot,
 					date: new Date().toISOString().slice(0, 10),
 					model,
-					tools: selectedTools,
 					startupFiles,
 					bootstrapMode,
 					heartbeat: {
