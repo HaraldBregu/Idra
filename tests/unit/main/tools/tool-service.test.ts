@@ -4,7 +4,7 @@ import {
 	localToolNamesForGroup,
 	type AgentTool,
 } from '../../../../src/main/tools';
-import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
+import { AGENT_DEFAULT_TOOL_GROUPS } from '../../../../src/shared/tools';
 import { makeLogger, makeToolContext } from '../test-helpers';
 
 describe('ToolService', () => {
