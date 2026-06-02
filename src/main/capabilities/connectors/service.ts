@@ -434,7 +434,7 @@ export class ConnectorsService {
 	}
 
 	private warn(message: string, details?: Record<string, unknown>): void {
-		this.logger?.warn('ConnectorsService', message, details);
+		this.logger.warn('ConnectorsService', message, details);
 	}
 
 	private error(message: string, details?: Record<string, unknown>): void {
