@@ -1,9 +1,7 @@
 import {
 	SubagentRegistry,
-	SubagentRunTaskHandler,
 	SubagentSpawnService,
 } from '../../../../src/main/agent';
-import { SUBAGENT_RUN_TASK_TYPE } from '../../../../src/main/agent';
 
 describe('subagent orchestration', () => {
 	function createSpawnService(options: {
@@ -12,25 +10,28 @@ describe('subagent orchestration', () => {
 		idFactory?: () => string;
 	}) {
 		const registry = new SubagentRegistry();
-		const taskManager = { run: jest.fn(), cancel: jest.fn() };
+		const agentService = {
+			send: jest.fn(async () => 'child output'),
+			cancel: jest.fn(),
+		};
 		const eventBus = { emit: jest.fn() };
 		const agents = options.agents ?? {};
 		const service = new SubagentSpawnService({
 			agentSettings: {
 				getAgentConfig: jest.fn((id: string) => agents[id]),
 			} as never,
-			taskManager: taskManager as never,
+			agentService: agentService as never,
 			registry,
 			eventBus: eventBus as never,
 			idFactory: options.idFactory ?? (() => 'run-1'),
 			now: () => 1000,
 			loadParentMetadata: options.loadParentMetadata ?? jest.fn(async () => undefined),
 		});
-		return { service, registry, taskManager, eventBus };
+		return { service, registry, agentService, eventBus };
 	}
 
 	it('registers a same-agent child run and starts an internal task', async () => {
-		const { service, registry, taskManager, eventBus } = createSpawnService({
+		const { service, registry, agentService, eventBus } = createSpawnService({
 			agents: {
 				main: {
 					id: 'main',
@@ -72,24 +73,18 @@ describe('subagent orchestration', () => {
 			providerId: 'openai',
 		});
 		expect(registry.getSubagentRun('run-1')?.outcome).toBeUndefined();
-		expect(taskManager.run).toHaveBeenCalledWith(
-			expect.objectContaining({
-				id: 'subagent:run-1',
-				type: SUBAGENT_RUN_TASK_TYPE,
-				title: 'Release research',
-				input: expect.objectContaining({
-					runId: 'run-1',
-					providerId: 'openai',
-					modelId: 'gpt-test',
-					toolsDeny: ['exec', 'delete_file'],
-					runTimeoutSeconds: 30,
-					sessionMetadata: expect.objectContaining({
-						spawnDepth: 1,
-						subagentRole: 'orchestrator',
-					}),
-				}),
-			})
-		);
+		expect(agentService.send).toHaveBeenCalledWith('Research the release notes', 'main', {
+			sessionId: 'agent:main:subagent:run-1',
+			providerId: 'openai',
+			model: 'gpt-test',
+			effort: undefined,
+			toolsAllow: undefined,
+			toolsDeny: ['exec', 'delete_file'],
+			sessionMetadata: expect.objectContaining({
+				spawnDepth: 1,
+				subagentRole: 'orchestrator',
+			}),
+		});
 		expect(eventBus.emit).toHaveBeenCalledWith(
 			'subagent:created',
 			expect.objectContaining({ runId: 'run-1' })
@@ -97,7 +92,7 @@ describe('subagent orchestration', () => {
 	});
 
 	it('snapshots target agent model defaults for child runs', async () => {
-		const { service, registry, taskManager } = createSpawnService({
+		const { service, registry, agentService } = createSpawnService({
 			agents: {
 				main: { id: 'main', subagents: { allowAgents: ['research'] } },
 				research: {
@@ -121,19 +116,18 @@ describe('subagent orchestration', () => {
 			providerId: 'anthropic',
 			modelId: 'claude-sonnet-4-6',
 		});
-		expect(taskManager.run).toHaveBeenCalledWith(
+		expect(agentService.send).toHaveBeenCalledWith(
+			'Research the release notes',
+			'research',
 			expect.objectContaining({
-				input: expect.objectContaining({
-					agentId: 'research',
-					providerId: 'anthropic',
-					modelId: 'claude-sonnet-4-6',
-				}),
+				providerId: 'anthropic',
+				model: 'claude-sonnet-4-6',
 			})
 		);
 	});
 
 	it('uses configured subagent model defaults including OpenAI effort', async () => {
-		const { service, registry, taskManager } = createSpawnService({
+		const { service, registry, agentService } = createSpawnService({
 			agents: {
 				main: {
 					id: 'main',
@@ -155,13 +149,13 @@ describe('subagent orchestration', () => {
 			modelId: 'gpt-5.4',
 			effort: 'high',
 		});
-		expect(taskManager.run).toHaveBeenCalledWith(
+		expect(agentService.send).toHaveBeenCalledWith(
+			'Research the release notes',
+			'main',
 			expect.objectContaining({
-				input: expect.objectContaining({
-					providerId: 'openai',
-					modelId: 'gpt-5.4',
-					effort: 'high',
-				}),
+				providerId: 'openai',
+				model: 'gpt-5.4',
+				effort: 'high',
 			})
 		);
 	});
@@ -184,7 +178,7 @@ describe('subagent orchestration', () => {
 	});
 
 	it('rejects invalid spawn enum values before launching a task', async () => {
-		const { service, taskManager } = createSpawnService({
+		const { service, agentService } = createSpawnService({
 			agents: { main: { id: 'main' } },
 		});
 
@@ -195,7 +189,7 @@ describe('subagent orchestration', () => {
 				input: { task: 'Research', mode: 'invalid' },
 			})
 		).rejects.toThrow('mode must be run or session.');
-		expect(taskManager.run).not.toHaveBeenCalled();
+		expect(agentService.send).not.toHaveBeenCalled();
 	});
 
 	it('enforces max depth and active child limits before launching', async () => {
