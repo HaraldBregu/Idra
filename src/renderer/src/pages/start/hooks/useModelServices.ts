@@ -10,7 +10,7 @@ import {
 } from '../constants';
 import type { ModelServiceDefinition, ModelServiceId, ProviderModelGroup } from '../types';
 import type { SetupAction } from '../state/actions';
-import type { SetupState } from '../state_types';
+import type { SetupState } from '../state/types';
 
 export function useModelServices(
 	state: SetupState,

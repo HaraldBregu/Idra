@@ -8,7 +8,7 @@ import {
 } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 import type { SetupAction } from '../state/actions';
-import type { SetupState } from '../state_types';
+import type { SetupState } from '../state/types';
 
 export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupAction>) {
 	const { step, providerEntries, savingProviderId } = state;
