@@ -103,6 +103,7 @@ const ModelServicePage: React.FC = () => {
 
 	useEffect(() => {
 		if (!service) return;
+		const activeService = service;
 		let mounted = true;
 
 		async function loadService(): Promise<void> {
@@ -117,7 +118,7 @@ const ModelServicePage: React.FC = () => {
 			try {
 				const [storedProviders, selection] = await Promise.all([
 					window.store.getProviders(),
-					service.getSelection(),
+					activeService.getSelection(),
 				]);
 				if (!mounted) return;
 
@@ -127,7 +128,7 @@ const ModelServicePage: React.FC = () => {
 
 				for (const provider of providers) {
 					try {
-						const models = await service.getModels(provider);
+						const models = await activeService.getModels(provider);
 						const nextModels =
 							selection?.provider.id === provider.id
 								? mergeModels(models, selection.model)
