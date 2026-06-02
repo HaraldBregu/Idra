@@ -369,7 +369,7 @@ export class ConnectorsService {
 	}
 
 	private writeConnectors(connectors: ConnectorConfig[]): void {
-		this.store?.set(CONNECTOR_STORE_KEY, connectors);
+		this.store.set(CONNECTOR_STORE_KEY, connectors);
 	}
 
 	private replace(connector: ConnectorConfig): void {
