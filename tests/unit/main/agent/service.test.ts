@@ -933,7 +933,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('does not expose cron for scheduled task requests', async () => {
+	it('does not expose the legacy cron compatibility tool for scheduled task requests', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
@@ -960,7 +960,7 @@ describe('AgentService', () => {
 		await fs.rm(sessionBaseDir, { recursive: true, force: true });
 	});
 
-	it('keeps owner-only cron hidden from subagent default turns', async () => {
+	it('keeps the legacy cron compatibility tool hidden from subagent default turns', async () => {
 		const sessionBaseDir = await makeTempDir();
 		const deps = makeDeps();
 		const requests: ProviderStreamRequest[] = [];
