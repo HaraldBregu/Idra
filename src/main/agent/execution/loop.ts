@@ -1,12 +1,12 @@
 import type { Usage } from '../../llm/types';
 import { ContextOverflowError } from '../../llm/types';
 import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../../llm/types';
-import type { AgentTool, ToolContext } from '../../capabilities/tools';
 import {
+	type AgentTool,
 	type AgentToolManagementOptions,
+	type ToolContext,
 	ToolService,
 	type ToolServicePort,
-} from '../capabilities/tools';
 } from '../../capabilities/tools';
 import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';

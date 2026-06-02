@@ -70,7 +70,7 @@ import {
 	type ToolContext,
 	type ToolServicePort,
 } from '../capabilities/tools';
-import { createStartupFilesTool } from '../capabilities/tools/startup/startup';
+import { createStartupFilesTool } from '../capabilities/tools/startup/startup-files';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
