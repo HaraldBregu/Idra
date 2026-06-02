@@ -3,27 +3,9 @@ import type {
 	AgentRouteBinding,
 	AgentRoutePeer,
 	AgentRouteSessionScope,
-	AgentRoutingSettings,
 } from '../../../shared/store';
 
 export type { AgentConfig, AgentRouteBinding, AgentRoutePeer, AgentRouteSessionScope };
-
-export interface AgentRouteInput {
-	settings?: Partial<AgentRoutingSettings>;
-	channel?: string;
-	accountId?: string;
-	peer?: AgentRoutePeer;
-	parentPeer?: AgentRoutePeer;
-	roleIds?: string[];
-	fallbackAgentId?: string;
-}
-
-export interface ResolvedAgentRoute {
-	agentId: string;
-	sessionKey: string;
-	sessionScope: AgentRouteSessionScope;
-	binding?: AgentRouteBinding;
-}
 
 export interface AgentSessionKeyInput {
 	agentId: string;
