@@ -35,8 +35,8 @@ export type EnsureWorkspaceOptions = {
 
 export type BootstrapMode = 'none' | 'limited' | 'full';
 
-const WORKSPACE_STATE_DIRNAME = '.friday';
 const WORKSPACE_STATE_FILENAME = 'workspace-state.json';
+const LEGACY_WORKSPACE_STATE_DIRNAME = '.friday';
 const WORKSPACE_STATE_VERSION = 1;
 
 type WorkspaceSetupState = {
@@ -234,22 +234,38 @@ export class WorkspaceService {
 	}
 
 	private async readSetupState(): Promise<WorkspaceSetupState> {
+		const current = await this.readSetupStateFile(this.statePath());
+		if (current.found) return current.state;
+
+		const legacy = await this.readSetupStateFile(this.legacyStatePath());
+		if (!legacy.found) return { version: WORKSPACE_STATE_VERSION };
+
+		await this.writeSetupState(legacy.state);
+		return legacy.state;
+	}
+
+	private async readSetupStateFile(
+		statePath: string
+	): Promise<{ found: true; state: WorkspaceSetupState } | { found: false }> {
 		try {
-			const raw = await fs.readFile(this.statePath(), 'utf8');
+			const raw = await fs.readFile(statePath, 'utf8');
 			const parsed = JSON.parse(raw) as Partial<WorkspaceSetupState>;
 			return {
-				version: WORKSPACE_STATE_VERSION,
-				bootstrapSeededAt:
-					typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
-				setupCompletedAt:
-					typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
+				found: true,
+				state: {
+					version: WORKSPACE_STATE_VERSION,
+					bootstrapSeededAt:
+						typeof parsed.bootstrapSeededAt === 'string' ? parsed.bootstrapSeededAt : undefined,
+					setupCompletedAt:
+						typeof parsed.setupCompletedAt === 'string' ? parsed.setupCompletedAt : undefined,
+				},
 			};
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-				return { version: WORKSPACE_STATE_VERSION };
+				return { found: false };
 			}
 			if (error instanceof SyntaxError) {
-				return { version: WORKSPACE_STATE_VERSION };
+				return { found: true, state: { version: WORKSPACE_STATE_VERSION } };
 			}
 			throw error;
 		}
@@ -262,10 +278,30 @@ export class WorkspaceService {
 			encoding: 'utf8',
 			mode: 0o600,
 		});
+		await this.removeLegacySetupState();
 	}
 
 	private statePath(): string {
-		return path.join(this.rootPath, WORKSPACE_STATE_DIRNAME, WORKSPACE_STATE_FILENAME);
+		return path.join(this.rootPath, WORKSPACE_STATE_FILENAME);
+	}
+
+	private legacyStatePath(): string {
+		return path.join(
+			this.rootPath,
+			LEGACY_WORKSPACE_STATE_DIRNAME,
+			WORKSPACE_STATE_FILENAME
+		);
+	}
+
+	private async removeLegacySetupState(): Promise<void> {
+		const legacyStatePath = this.legacyStatePath();
+		await fs.rm(legacyStatePath, { force: true });
+		try {
+			await fs.rmdir(path.dirname(legacyStatePath));
+		} catch (error) {
+			const code = (error as NodeJS.ErrnoException).code;
+			if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error;
+		}
 	}
 
 	private async assertSafeWritableWorkspaceFile(
