@@ -7,25 +7,25 @@ import type {
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
-} from '../../../../shared/realtime-transcription';
+} from '../../../shared/realtime-transcription';
 import {
 	REALTIME_TRANSCRIPTION_SAMPLE_RATE,
 	isRealtimeSpeechTranscriberModel,
-} from '../../../../shared/agents/service';
+} from '../../../shared/agents/service';
 import {
 	SPEECH_TRANSCRIBER_MODEL_IDS,
 	SPEECH_TRANSCRIBER_PROVIDER_ID,
-} from '../../../../shared/providers';
+} from '../../../shared/providers';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
 	hasStreamingRealtimeTranscriptionAudio,
-} from '../../audio';
+} from '../audio';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../../../shared/speech-to-text-runtime';
+} from '../../../shared/speech-to-text-runtime';
 
 type WebSocketLike = {
 	readyState: number;

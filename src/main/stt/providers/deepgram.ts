@@ -4,21 +4,21 @@ import {
 	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
 	DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID,
 	DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID,
-} from '../../../../shared/providers';
+} from '../../../shared/providers';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
-} from '../../../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../../shared/agents/service';
+} from '../../../shared/realtime-transcription';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../shared/agents/service';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
-} from '../../audio';
+} from '../audio';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../../../shared/speech-to-text-runtime';
+} from '../../../shared/speech-to-text-runtime';
 
 type DeepgramEvent = Record<string, unknown> & { type?: string };
 

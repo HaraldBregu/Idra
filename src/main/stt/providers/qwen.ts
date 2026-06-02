@@ -2,21 +2,21 @@ import WebSocket from 'ws';
 import {
 	QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../../../shared/providers';
+} from '../../../shared/providers';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
-} from '../../../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../../shared/agents/service';
+} from '../../../shared/realtime-transcription';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../shared/agents/service';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
-} from '../../audio';
+} from '../audio';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../../../shared/speech-to-text-runtime';
+} from '../../../shared/speech-to-text-runtime';
 
 type QwenRealtimeEvent = Record<string, unknown> & { type?: string };
 

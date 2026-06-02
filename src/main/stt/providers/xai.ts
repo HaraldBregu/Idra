@@ -3,21 +3,21 @@ import WebSocket from 'ws';
 import {
 	XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID,
 	XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID,
-} from '../../../../shared/providers';
+} from '../../../shared/providers';
 import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
-} from '../../../../shared/realtime-transcription';
-import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../../shared/agents/service';
+} from '../../../shared/realtime-transcription';
+import { REALTIME_TRANSCRIPTION_SAMPLE_RATE } from '../../../shared/agents/service';
 import {
 	decodedRealtimeTranscriptionAudioByteLength,
 	hasMinimumRealtimeTranscriptionAudio,
-} from '../../audio';
+} from '../audio';
 import type {
 	SpeechToTextRealtimeAdapter,
 	SpeechToTextRealtimeSession,
 	SpeechToTextRuntimeConfig,
-} from '../../../../shared/speech-to-text-runtime';
+} from '../../../shared/speech-to-text-runtime';
 
 type XaiRealtimeEvent = Record<string, unknown> & { type?: string };
 
