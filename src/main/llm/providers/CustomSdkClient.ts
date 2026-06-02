@@ -11,8 +11,6 @@ import { OpenAIChatAdapter, type OpenAIChatAdapterOptions } from './OpenAIClient
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 const QWEN_BASE_URL = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';
-const OLLAMA_BASE_URL = 'http://localhost:11434/v1';
-const LM_STUDIO_BASE_URL = 'http://localhost:1234/v1';
 
 export class DeepSeekAdapter extends OpenAIChatAdapter {
 	constructor(
@@ -36,24 +34,6 @@ export class QwenAdapter extends OpenAIChatAdapter {
 		super({
 			...opts,
 			baseURL: opts.baseURL ?? QWEN_BASE_URL,
-		});
-	}
-}
-
-export class OllamaAdapter extends OpenAIChatAdapter {
-	constructor(opts: OpenAIChatAdapterOptions) {
-		super({
-			...opts,
-			baseURL: opts.baseURL ?? OLLAMA_BASE_URL,
-		});
-	}
-}
-
-export class LMStudioAdapter extends OpenAIChatAdapter {
-	constructor(opts: OpenAIChatAdapterOptions) {
-		super({
-			...opts,
-			baseURL: opts.baseURL ?? LM_STUDIO_BASE_URL,
 		});
 	}
 }
