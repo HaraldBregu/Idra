@@ -29,7 +29,7 @@
     "postcss.config.cjs": true,
     "README.md": true,
     "resources": true,
-    "SECURITY.md": true,
+    // "SECURITY.md": true,
     "tailwind.config.cjs": true,
     "tests": true,
     "tsconfig.json": true,
