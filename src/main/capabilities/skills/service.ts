@@ -173,15 +173,15 @@ export class SkillsService {
 		this.ranker = new SkillRanker();
 		this.discovery = new SkillDiscovery(this.registry, this.ranker, this.safetyPolicy);
 		this.selector = new SkillSelector();
-			this.planner = new SkillPlanner();
-			this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
-			this.dependencyResolver = new SkillDependencyResolver(this.registry);
-			this.skillsRoot =
-				options.rootPath ??
-				options.agentDataDirectory?.resolve('skills') ??
-				resolveDefaultAgentDataPath('skills');
+		this.planner = new SkillPlanner();
+		this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
+		this.dependencyResolver = new SkillDependencyResolver(this.registry);
+		this.skillsRoot =
+			options.rootPath ??
+			options.agentDataDirectory?.resolve('skills') ??
+			resolveDefaultAgentDataPath('skills');
 
-		}
+	}
 
 	registerSkill(skill: SkillDefinition): SkillDefinition {
 		const registered = this.registry.registerSkill(skill);
@@ -202,8 +202,8 @@ export class SkillsService {
 	}
 
 	getSkillsRoot(): string {
-			fs.mkdirSync(this.skillsRoot, { recursive: true });
-			return this.skillsRoot;
+		fs.mkdirSync(this.skillsRoot, { recursive: true });
+		return this.skillsRoot;
 	}
 
 	async list(): Promise<SkillInfo[]> {
