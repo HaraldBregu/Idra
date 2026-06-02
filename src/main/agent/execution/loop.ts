@@ -21,7 +21,7 @@ import type {
 import {
 	applyAgentToolResultMiddleware,
 	emitRuntimeLifecycleHook,
-} from '../runtime';
+} from '../lifecycle';
 
 export type { AgentRunStreamEvent } from '../../../shared/agents/events';
 
