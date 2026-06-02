@@ -1,5 +1,6 @@
 import {
 	ToolService,
+	LOCAL_TOOL_CATALOG,
 	localToolNamesForGroup,
 	type AgentTool,
 } from '../../../../src/main/tools';
@@ -112,7 +113,9 @@ describe('ToolService', () => {
 		expect(service.getToolsByGroup('mcpConnector').map((tool) => tool.name)).toEqual(
 			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
 		);
-		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual([...AGENT_TOOL_NAMES]);
+		expect(service.createDefaultTools({}).map((tool) => tool.name)).toEqual(
+			LOCAL_TOOL_CATALOG.map((entry) => entry.name)
+		);
 	});
 
 	it('uses the tool policy service before executing service-managed tools', async () => {
