@@ -19,20 +19,6 @@ export function buildAgentHookContext(params: RuntimeHookContext): RuntimeHookCo
 	return params;
 }
 
-export function registerRuntimeHook(name: string, handler: RuntimeHookHandler): () => void {
-	const handlers = hookHandlers.get(name) ?? new Set<RuntimeHookHandler>();
-	handlers.add(handler);
-	hookHandlers.set(name, handlers);
-	return () => {
-		handlers.delete(handler);
-		if (handlers.size === 0) hookHandlers.delete(name);
-	};
-}
-
-export function clearRuntimeHooks(): void {
-	hookHandlers.clear();
-}
-
 export async function emitRuntimeLifecycleHook(
 	name: string,
 	payload: Record<string, unknown>
