@@ -76,7 +76,6 @@ export class ConnectorsService {
 	}
 
 	async add(input: unknown): Promise<ConnectorConfig> {
-		if (this.legacy) return this.legacy.add(input);
 		try {
 			const now = new Date().toISOString();
 			const sanitized = sanitizeInput(input);
