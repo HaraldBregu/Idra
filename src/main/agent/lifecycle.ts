@@ -43,15 +43,6 @@ export type ToolResultMiddleware = (
 
 const toolResultMiddleware = new Set<ToolResultMiddleware>();
 
-export function registerToolResultMiddleware(middleware: ToolResultMiddleware): () => void {
-	toolResultMiddleware.add(middleware);
-	return () => toolResultMiddleware.delete(middleware);
-}
-
-export function clearToolResultMiddleware(): void {
-	toolResultMiddleware.clear();
-}
-
 export async function applyAgentToolResultMiddleware(
 	blocks: ToolResultBlock[],
 	context: Record<string, unknown>
