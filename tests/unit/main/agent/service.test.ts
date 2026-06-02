@@ -21,7 +21,7 @@ import type {
 import { AgentService } from '../../../../src/main/agent';
 import { LOCAL_TOOL_CATALOG } from '../../../../src/main/tools';
 import type { AgentTool } from '../../../../src/main/tools/types';
-import { AGENT_DEFAULT_TOOL_GROUPS, AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
+import { AGENT_DEFAULT_TOOL_GROUPS } from '../../../../src/shared/tools';
 import { makeLogger, makeTempDir } from '../test-helpers';
 
 const CORE_WORKSPACE_TOOL_NAMES = AGENT_DEFAULT_TOOL_GROUPS.coreWorkspace.map((tool) => tool.name);
