@@ -108,7 +108,6 @@ export class ConnectorsService {
 	}
 
 	async update(id: string, input: unknown): Promise<ConnectorConfig> {
-		if (this.legacy) return this.legacy.update(id, input);
 		const current = this.getStored(id);
 		const patch = requireObject(input, 'Connector update');
 		const merged = sanitizeInput({
