@@ -165,17 +165,6 @@ export class ConnectorsService {
 	}
 
 	async authorizeOAuth(input: ConnectorOAuthAuthorizeRequest | string): Promise<ConnectorOAuthAuthorizeResult> {
-		if (this.legacy) {
-			const id = typeof input === 'string' ? input : input.connectorId;
-			const result = await this.legacy.connectOAuth(id);
-			return {
-				connectorId: id,
-				authorizationUrl: '',
-				connector: this.legacy.get(id),
-				message: result.message,
-			};
-		}
-
 		const connectorId = typeof input === 'string' ? input : input.connectorId;
 		const existing = this.validConnectors().find((connector) => connector.id === connectorId);
 		const catalogItem = getMcpConnectorCatalogItem(existing?.connectorId ?? connectorId);
