@@ -119,6 +119,7 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'create', 'save', 'update']))
 		score += 40;
 	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
+	if (intent === 'file_move' && hasAny(toolTokens, ['shell', 'command'])) score += 60;
 	return score;
 }
 
