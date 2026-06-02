@@ -5,6 +5,7 @@ import {
 	DEFAULT_SKILL_TOOLS,
 	DEFAULT_STATE_TASK_TOOLS,
 	DEFAULT_SUBAGENT_TOOLS,
+	DEFAULT_WEB_TOOLS,
 	LEGACY_CORE_WORKSPACE_TOOLS,
 	OPTIONAL_CRON_TOOLS,
 	OPTIONAL_SCRIPT_TOOLS,
@@ -25,7 +26,7 @@ export const AGENT_DEFAULT_TOOL_GROUPS = {
 	subagent: DEFAULT_SUBAGENT_TOOLS,
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
-	web: [],
+	web: DEFAULT_WEB_TOOLS,
 	script: [],
 	cron: [],
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
@@ -37,7 +38,7 @@ export const AGENT_TOOL_GROUPS = {
 	subagent: DEFAULT_SUBAGENT_TOOLS,
 	skill: DEFAULT_SKILL_TOOLS,
 	mcpConnector: DEFAULT_MCP_CONNECTOR_TOOLS,
-	web: [],
+	web: DEFAULT_WEB_TOOLS,
 	script: OPTIONAL_SCRIPT_TOOLS,
 	cron: OPTIONAL_CRON_TOOLS,
 } as const satisfies Record<AgentToolGroupName, readonly AgentToolMetadata[]>;
@@ -49,6 +50,7 @@ export const AGENT_DEFAULT_TOOLS = [
 	...AGENT_DEFAULT_TOOL_GROUPS.subagent,
 	...AGENT_DEFAULT_TOOL_GROUPS.skill,
 	...AGENT_DEFAULT_TOOL_GROUPS.mcpConnector,
+	...AGENT_DEFAULT_TOOL_GROUPS.web,
 ] as const;
 
 export const AGENT_TOOLS = [
@@ -99,6 +101,8 @@ export const AGENT_TOOL_NAMES = [
 	'read_mcp_resource',
 	'list_mcp_prompts',
 	'load_mcp_prompt',
+	'web_fetch',
+	'open_browser',
 ] as const satisfies readonly AgentDefaultToolName[];
 
 export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
