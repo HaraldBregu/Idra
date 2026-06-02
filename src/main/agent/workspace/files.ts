@@ -35,8 +35,6 @@ export const DEFAULT_WORKSPACE_CONTEXT_TOTAL_MAX_CHARS = 60_000;
 export const MAX_WORKSPACE_CONTEXT_FILE_BYTES = 2 * 1024 * 1024;
 
 export type WorkspaceFileName = (typeof WORKSPACE_CONTEXT_FILE_NAMES)[number];
-export type OptionalWorkspaceTemplateFileName =
-	(typeof OPTIONAL_WORKSPACE_TEMPLATE_FILE_NAMES)[number];
 
 export type WorkspaceContextFile = {
 	name: WorkspaceFileName;
