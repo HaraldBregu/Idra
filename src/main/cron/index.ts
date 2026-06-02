@@ -8,7 +8,7 @@ export * from './core/validation';
 export * from './core/describer';
 export * from './store';
 export * from './calculator';
-export * from './execution/loopner';
+export * from './runner';
 export * from './scheduler';
 export * from './support';
 export * from './state';

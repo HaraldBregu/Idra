@@ -20,7 +20,7 @@ import {
 import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/types';
 import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store';
-import { InMemoryCronScheduleRunner } from './execution/loopner';
+import { InMemoryCronScheduleRunner } from './runner';
 import { CronSchedulerEngine } from './scheduler';
 
 interface Disposable {

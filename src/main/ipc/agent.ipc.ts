@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import { ipcMain, shell } from 'electron';
 import type { IpcModule } from './module';
-import type { EventBus } from '../kernels/event-bus';
-import type { MainServiceContainer } from '../kernels/services';
+import type { EventBus } from '../services/event-bus';
+import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { AgentChannels } from '../../shared/ipc-channels';
 import {

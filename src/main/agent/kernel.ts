@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { EventBus } from '../kernels/event-bus';
+import type { EventBus } from '../services/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../storage';

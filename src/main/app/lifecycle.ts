@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import type { AppState } from '../kernels/app-state';
+import type { AppState } from '../services/app-state';
 import type { LoggerService } from '../observability';
 import { writeCrashLine } from '../observability/errorReporter';
 

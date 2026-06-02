@@ -14,7 +14,7 @@ import type {
 	SkillUserPreferences,
 } from './types';
 import type { SkillRegistry } from './catalog';
-import type { SkillSafetyPolicy } from './execution/looptime';
+import type { SkillSafetyPolicy } from './runtime';
 
 export interface SkillDiscoveryOptions {
 	maxResults?: number;

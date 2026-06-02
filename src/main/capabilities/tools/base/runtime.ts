@@ -1,12 +1,12 @@
 import type { AgentTool } from '../core/common';
 import { markCoreTool } from '../core/common';
 import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '../core/types';
-import { legacyToolToCanonical } from '../execution/looptime/bridge';
+import { legacyToolToCanonical } from '../runtime/bridge';
 import { editFileTool } from './edit-file';
 import { grepTool } from './grep';
 import { listDirectoryTool } from './list-directory';
 import { readFileTool } from './read-file';
-import { runShellTool } from './execution/loop-shell';
+import { runShellTool } from './run-shell';
 import { searchFilesTool } from './search-files';
 import { undoLastOperationTool } from './undo-last-operation';
 import { writeTool } from './write';

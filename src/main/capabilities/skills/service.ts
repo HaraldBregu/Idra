@@ -23,7 +23,7 @@ import {
 	SkillExecutionEngine,
 	SkillSafetyPolicy,
 	type SkillPreferenceStore,
-} from './execution/looptime';
+} from './runtime';
 import type {
 	MemoryPolicy,
 	MemoryRetriever,

@@ -1,4 +1,4 @@
-import type { EventBus } from '../../../kernels/event-bus';
+import type { EventBus } from '../../../services/event-bus';
 import type { LoggerService } from '../../../observability';
 import type { CronService } from '../../../cron';
 import type { ConnectorsService } from '../../connectors';

@@ -10,8 +10,8 @@ import { SpeechToTextIpc } from './speech-to-text.ipc';
 import { StoreIpc } from './store.ipc';
 import { WindowIpc } from './window.ipc';
 import type { IpcModule } from './module';
-import type { EventBus } from '../kernels';
-import type { MainServiceContainer } from '../kernels/services';
+import type { EventBus } from '../services';
+import type { MainServiceContainer } from '../services/services';
 
 export function registerIpcHandlers(container: MainServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger');

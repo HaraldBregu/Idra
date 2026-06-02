@@ -2,7 +2,7 @@ export * from './history';
 export * from './models';
 export * from './realtime';
 export * from './reasoning';
-export * from './execution/looptime';
+export * from './runtime';
 export * from './startup';
 
 export type { AgentResponseEvent } from './events';
