@@ -78,6 +78,10 @@ export function resolveDefaultAgentDataPath(...segments: string[]): string {
 	return new AgentDataDirectoryService().resolve(...segments);
 }
 
+export function resolveDefaultAppDataPath(...segments: string[]): string {
+	return path.join(path.resolve(resolveAppDataPath()), AGENT_APP_DATA_DIRECTORY_NAME, ...segments);
+}
+
 function resolveAppDataPath(): string {
 	try {
 		return app.getPath('appData');

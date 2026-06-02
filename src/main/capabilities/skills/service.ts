@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { LoggerService } from '../../observability';
-import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from '../../agent/storage';
+import { resolveDefaultAppDataPath } from '../../agent/storage';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -144,7 +144,6 @@ export interface SkillsServiceOptions {
 	preferences?: SkillPreferenceStore;
 	loader?: SkillLoader;
 	safetyPolicy?: SkillSafetyPolicy;
-	agentDataDirectory?: AgentDataDirectoryServicePort;
 }
 
 export class SkillsService {
@@ -176,10 +175,7 @@ export class SkillsService {
 		this.planner = new SkillPlanner();
 		this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
 		this.dependencyResolver = new SkillDependencyResolver(this.registry);
-		this.skillsRoot =
-			options.rootPath ??
-			options.agentDataDirectory?.resolve('skills') ??
-			resolveDefaultAgentDataPath('skills');
+		this.skillsRoot = options.rootPath ?? resolveDefaultAppDataPath('skills');
 
 	}
 
@@ -199,6 +195,10 @@ export class SkillsService {
 
 	getRegistry(): SkillRegistry {
 		return this.registry;
+	}
+
+	getRootPath(): string {
+		return this.skillsRoot;
 	}
 
 	getSkillsRoot(): string {

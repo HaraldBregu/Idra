@@ -53,7 +53,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const skills = container.register(
 		'skills',
-		new SkillsService(logger, { agentDataDirectory })
+		new SkillsService(logger)
 	);
 
 	const workspace = container.register(
