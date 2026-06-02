@@ -1,9 +1,13 @@
-import { AnthropicAdapter } from './anthropic';
-import { DeepSeekAdapter } from './deepseek';
-import { MistralAdapter } from './mistral';
-import { OpenAIAdapter, OpenAIChatAdapter } from './openai';
-import { QwenAdapter } from './qwen';
-import type { ProviderAdapter } from './types';
+import { AnthropicAdapter } from './providers/AnthropicClient';
+import { OpenAIAdapter, OpenAIChatAdapter } from './providers/OpenAIClient';
+import {
+	DeepSeekAdapter,
+	LMStudioAdapter,
+	MistralAdapter,
+	OllamaAdapter,
+	QwenAdapter,
+} from './providers/CustomSdkClient';
+import type { ProviderAdapter } from './LlmTypes';
 
 export interface ProviderSpec {
 	id: string;
@@ -35,6 +39,12 @@ export function makeProvider(provider: ProviderSpec): ProviderAdapter {
 	}
 	if (id === 'qwen') {
 		return new QwenAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
+	}
+	if (id === 'ollama') {
+		return new OllamaAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
+	}
+	if (id === 'lmstudio' || id === 'lm-studio') {
+		return new LMStudioAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 	}
 	return new OpenAIChatAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 }
