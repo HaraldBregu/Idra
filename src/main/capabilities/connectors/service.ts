@@ -218,7 +218,6 @@ export class ConnectorsService {
 	}
 
 	completeOAuth(input: ConnectorOAuthCompleteInput): ConnectorConfig {
-		if (this.legacy) throw new Error('OAuth completion is not supported by the legacy connector service.');
 		const state = typeof input.state === 'string' ? input.state : '';
 		const connector = this.validConnectors().find((item) => item.oauth?.state === state);
 		if (!connector) throw new Error('OAuth state was not found.');
