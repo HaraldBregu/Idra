@@ -39,7 +39,6 @@ import { loadMcpPromptTool } from '../mcp/load-mcp-prompt';
 import { loadMcpToolTool } from '../mcp/load-mcp-tool';
 import { readMcpResourceTool } from '../mcp/read-mcp-resource';
 import { refreshMcpServerTool } from '../mcp/refresh-mcp-server';
-import { startTaskTool } from '../app';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
@@ -83,7 +82,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	update_todo: updateTodoTool,
 	list_todos: listTodosTool,
 	complete_task: completeTaskTool,
-	start_task: startTaskTool,
 	write_scratch: writeScratchTool,
 	read_scratch: readScratchTool,
 	request_approval: requestApprovalTool,
