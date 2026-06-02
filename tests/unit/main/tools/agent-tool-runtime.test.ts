@@ -21,7 +21,6 @@ import { toToolDefinitions } from '../../../../src/main/tools/runtime/definition
 import { applyProviderSafeToolNames, prepareLegacyToolsForProvider } from '../../../../src/main/tools/runtime/legacy-tool-adapter';
 import { canonicalResultToLegacy, canonicalToolToLegacy, legacyResultToCanonical, legacyToolToCanonical } from '../../../../src/main/tools/runtime/legacy-bridge';
 import type { AgentTool as LegacyAgentTool, ToolContext } from '../../../../src/main/tools/types';
-import { AGENT_TOOL_NAMES } from '../../../../src/shared/tools';
 import { makeTempDir } from '../test-helpers';
 
 function tool(name: string, overrides: Partial<AgentTool> = {}): AgentTool {
