@@ -245,7 +245,6 @@ export class ConnectorsService {
 	}
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
-		if (this.legacy) return this.legacy.refreshTools(id);
 		const connector = this.getStored(id);
 		assertMcpSecrets(connector, this.env());
 		const next = await this.withDiscoveredTools(connector, false);
@@ -254,12 +253,10 @@ export class ConnectorsService {
 	}
 
 	listTools(id: string): ConnectorTool[] {
-		if (this.legacy) return this.legacy.listTools(id);
 		return this.getStored(id).tools;
 	}
 
 	getConnectorSettings(): ConnectorConfig[] {
-		if (this.legacy) return this.legacy.getConnectorSettings();
 		return this.validConnectors();
 	}
 
