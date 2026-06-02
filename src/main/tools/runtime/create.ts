@@ -243,16 +243,6 @@ function addCoreToolCandidates(
 			})
 		);
 	}
-	if (plan.includeCronTools) {
-		candidates.push(
-			...createCronTools({
-				workspaceDir: options.workspaceDir,
-				sessionId: options.sessionId,
-				signal: options.abortSignal,
-				services: options.services,
-			}).filter((tool) => tool.name !== 'cron')
-		);
-	}
 	if (plan.includeShellTools) {
 		candidates.push(
 			...createScriptTools({
@@ -262,6 +252,16 @@ function addCoreToolCandidates(
 				signal: options.abortSignal,
 				services: options.services,
 			})
+		);
+	}
+	if (plan.includeCronTools) {
+		candidates.push(
+			...createCronTools({
+				workspaceDir: options.workspaceDir,
+				sessionId: options.sessionId,
+				signal: options.abortSignal,
+				services: options.services,
+			}).filter((tool) => tool.name !== 'cron')
 		);
 	}
 }
