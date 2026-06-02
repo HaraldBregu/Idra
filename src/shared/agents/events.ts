@@ -1,5 +1,5 @@
 import type { ModelReasoningEffort } from './reasoning';
-import type { AgentRunState, ReasoningSummaryState } from './file_runtime';
+import type { AgentRunState, ReasoningSummaryState } from './runtime';
 import type {
 	AgentCapabilityResolutionSummary,
 	AgentToolCapabilitySummary,

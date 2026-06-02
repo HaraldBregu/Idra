@@ -9,6 +9,6 @@ export {
 	SkillComposer,
 	SkillExecutionEngine,
 	SkillSafetyPolicy,
-} from './file_runtime';
+} from './runtime';
 export { SKILL_RESOURCE_DIRECTORIES, SkillLoader } from './loader';
 export * from './types';
