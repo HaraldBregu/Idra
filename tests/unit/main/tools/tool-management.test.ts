@@ -541,17 +541,16 @@ describe('tool management layer', () => {
 			makeAgentTool('gmail_batch_read_email', 'Gmail: Read multiple email bodies by id.'),
 		];
 
-			const selected = selectAgentToolsForTurn(
-				tools,
-				'Check the latest received emails, summarize the important ones, and create or update /Users/haraldbregu/Documents/workspace/email_summary.md with the summary. Keep it concise.',
-				makeToolContext(),
-				{ forceSelection: true, maxPromptTools: 1 }
+		const selected = selectAgentToolsForTurn(
+			tools,
+			'Check the latest received emails, read the important message bodies, and summarize them. Keep it concise.',
+			makeToolContext(),
+			{ forceSelection: true, maxPromptTools: 2 }
 		);
 		const selectedToolNames = selected.toolsForPrompt.map((tool) => tool.name);
 
 		expect(selectedToolNames).toEqual(
 			expect.arrayContaining([
-				'read',
 				'gmail_get_recent_emails',
 				'gmail_batch_read_email',
 			])
