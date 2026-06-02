@@ -259,7 +259,11 @@
       "Bash(xargs -0 perl -0pi -e ' *)",
       "Bash(perl -0pi -e \"s{'\\\\./exec'}{'./run'}g\" exec/*.ts)",
       "Bash(perl -0pi -e \"s{'\\\\./open-browser'}{'./open'}g; s{'\\\\./web-fetch'}{'./fetch'}g\" app/*.ts)",
-      "Bash(perl -0pi -e \"s{'\\\\./tools'}{'./run'}g\" script/*.ts)"
+      "Bash(perl -0pi -e \"s{'\\\\./tools'}{'./run'}g\" script/*.ts)",
+      "Bash(echo \"typecheck:node exit=$?\")",
+      "Bash(echo \"node: $?\")",
+      "Bash(echo \"web: $?\")",
+      "Bash(echo \"typecheck:web exit=$?\")"
     ],
     "deny": [
       "Bash(git push --force:*)",
