@@ -55,14 +55,6 @@ export interface HeartbeatApi {
 	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
 }
 
-export interface TasksApi {
-	start: <TInput = unknown>(request: TaskRunRequest<TInput>) => Promise<TaskRecord>;
-	list: () => Promise<TaskRecord[]>;
-	get: (id: string) => Promise<TaskRecord | undefined>;
-	cancel: (id: string) => Promise<TaskRecord>;
-	onEvent: (callback: (event: TaskEvent) => void) => () => void;
-}
-
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
@@ -212,7 +204,6 @@ import type {
 	SpeechToTextTranscribeRequest,
 	SpeechToTextTranscription,
 } from '../shared/speech-to-text';
-import type { TaskEvent, TaskRecord, TaskRunRequest } from '../shared/tasks';
 import type {
 	ConnectorCatalogEntry,
 	ConnectorConfig,
@@ -290,7 +281,6 @@ declare global {
 		speechToText: SpeechToTextApi;
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
-		tasks: TasksApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
