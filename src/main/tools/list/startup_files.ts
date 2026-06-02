@@ -1,7 +1,7 @@
-import type { AgentStartupFilesServicePort } from './types';
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
-import { assertWorkspaceFileName, type WorkspaceFileName } from '../../../agent/workspace/files';
+import type { AgentStartupFilesServicePort } from './startup_types';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { assertWorkspaceFileName, type WorkspaceFileName } from '../../agent/workspace/files';
 
 type StartupFilesAction = 'list' | 'read' | 'write' | 'complete_bootstrap';
 

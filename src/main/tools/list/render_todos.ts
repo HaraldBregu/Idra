@@ -1,4 +1,4 @@
-import type { PlanEntry } from '../../base/tool';
+import type { PlanEntry } from '../base/tool';
 
 export function renderTodos(entries: PlanEntry[]): string {
 	if (entries.length === 0) return 'No todos.';

@@ -1,7 +1,7 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
-import { toolDescription } from '../../base/metadata';
-import { scratchByContext } from './scratch-store';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { toolDescription } from '../base/metadata';
+import { scratchByContext } from './scratch_store';
 
 export const writeScratchTool: AgentTool<{ content: string; append?: boolean }> = {
 	name: 'write_scratch',

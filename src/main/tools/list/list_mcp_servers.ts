@@ -1,9 +1,9 @@
-import type { AgentTool } from '../../base/tool';
-import { toolDescription } from '../../base/metadata';
-import { emptySchema } from './empty-schema';
-import { jsonText } from './json-text';
+import type { AgentTool } from '../base/tool';
+import { toolDescription } from '../base/metadata';
+import { emptySchema } from './mcp_empty_schema';
+import { jsonText } from './mcp_json_text';
 import { mcpConnectors } from './mcp_connectors';
-import { missing } from './missing';
+import { missing } from './mcp_missing';
 
 export const listMcpServersTool: AgentTool = {
 	name: 'list_mcp_servers',

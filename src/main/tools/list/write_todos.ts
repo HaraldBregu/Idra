@@ -1,9 +1,9 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
-import { toolDescription } from '../../base/metadata';
-import { readTodoEntry } from './read_file_todo_entry';
-import { renderTodos } from './render-todos';
-import type { TodoInput } from './types';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { toolDescription } from '../base/metadata';
+import { readTodoEntry } from './read_todo_entry';
+import { renderTodos } from './render_todos';
+import type { TodoInput } from './state_types';
 
 export const writeTodosTool: AgentTool<{ todos: TodoInput[] }> = {
 	name: 'write_todos',

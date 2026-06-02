@@ -1,10 +1,10 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
-import { toolDescription } from '../../base/metadata';
-import { jsonText } from './json-text';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { toolDescription } from '../base/metadata';
+import { jsonText } from './mcp_json_text';
 import { mcpConnectors } from './mcp_connectors';
-import { missing } from './missing';
-import { namedSchema } from './named-schema';
+import { missing } from './mcp_missing';
+import { namedSchema } from './mcp_named_schema';
 
 export const loadMcpToolTool: AgentTool<{ id: string; name: string }> = {
 	name: 'load_mcp_tool',

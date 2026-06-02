@@ -1,4 +1,4 @@
-import type { McpConnectors } from './types';
+import type { McpConnectors } from './mcp_types';
 
 export function mcpConnectors(ctx: { services: unknown }): McpConnectors | undefined {
 	const connectors = (ctx.services as { connectors?: Partial<McpConnectors> }).connectors;

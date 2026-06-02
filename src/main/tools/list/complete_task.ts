@@ -1,8 +1,8 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
-import { toolDescription } from '../../base/metadata';
-import { renderTodos } from './render-todos';
-import { todoIndex } from './todo-index';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { toolDescription } from '../base/metadata';
+import { renderTodos } from './render_todos';
+import { todoIndex } from './todo_index';
 
 export const completeTaskTool: AgentTool<{ index?: number; task?: string; summary?: string }> = {
 	name: 'complete_task',

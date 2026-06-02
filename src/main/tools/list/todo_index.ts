@@ -1,4 +1,4 @@
-import type { PlanEntry } from '../../base/tool';
+import type { PlanEntry } from '../base/tool';
 
 export function todoIndex(entries: PlanEntry[], index?: number, task?: string): number {
 	if (typeof index === 'number' && Number.isFinite(index)) {

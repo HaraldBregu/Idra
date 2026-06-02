@@ -16,17 +16,17 @@ import {
 	type WorkspaceContextFile,
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
-} from '../../../agent/workspace/files';
-import { resolveDefaultAgentDataPath } from '../../../agent/storage';
+} from '../../agent/workspace/files';
+import { resolveDefaultAgentDataPath } from '../../agent/storage';
 import type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
-} from './types';
+} from './startup_types';
 import {
 	assertSafeWritableStartupFile,
 	fileContentDiffersFromTemplate,
 	pathExists,
-} from './utils';
+} from './startup_utils';
 
 const PROFILE_FILE_NAMES = [
 	DEFAULT_SOUL_FILENAME,

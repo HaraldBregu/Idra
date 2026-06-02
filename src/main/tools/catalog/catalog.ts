@@ -7,7 +7,7 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../shared/tools';
-import { openBrowserTool, webFetchTool } from '../list_directory/app';
+import { openBrowserTool, webFetchTool } from '../list/web_fetch';
 import {
 	cronCreateTool,
 	cronDeleteTool,
@@ -17,40 +17,40 @@ import {
 	cronStartTool,
 	cronStopTool,
 	cronUpdateTool,
-} from '../list_directory/cron';
-import { editFileTool } from '../list_directory/edit';
-import { grepTool } from '../list_directory/grep';
-import { listDirectoryTool } from '../list_directory/list';
-import { readFileTool } from '../list_directory/read';
-import { runShellTool } from '../list_directory/exec/shell';
-import { scriptRunTool } from '../list_directory/script';
-import { searchFilesTool } from '../list_directory/search';
-import { undoLastOperationTool } from '../list_directory/undo';
-import { writeTool } from '../list_directory/write';
-import { completeTaskTool } from '../list_directory/state/complete-task';
-import { listTodosTool } from '../list_directory/state/list-todos';
-import { readScratchTool } from '../list_directory/state/read-scratch';
-import { updateTodoTool } from '../list_directory/state/update-todo';
-import { writeScratchTool } from '../list_directory/state/write-scratch';
-import { writeTodosTool } from '../list_directory/state/write-todos';
-import { presentPlanTool } from '../list_directory/human/present';
-import { requestApprovalTool } from '../list_directory/human/confirm';
-import { requestAuthorizationTool } from '../list_directory/human/authorize';
-import { requestClarificationTool } from '../list_directory/human/ask';
-import { spawnSubagentTool } from '../list_directory/subagent/spawn-subagent';
-import { listSkillsTool } from '../list_directory/skills/list-skills';
-import { loadSkillTool } from '../list_directory/skills/load-skill';
-import { useSkillTool } from '../list_directory/skills/use-skill';
-import { callMcpToolTool } from '../list_directory/mcp/call-mcp-tool';
-import { connectMcpServerTool } from '../list_directory/mcp/connect-mcp-server';
-import { listMcpPromptsTool } from '../list_directory/mcp/list-mcp-prompts';
-import { listMcpResourcesTool } from '../list_directory/mcp/list-mcp-resources';
-import { listMcpServersTool } from '../list_directory/mcp/list-mcp-servers';
-import { listMcpToolsTool } from '../list_directory/mcp/list-mcp-tools';
-import { loadMcpPromptTool } from '../list_directory/mcp/load-mcp-prompt';
-import { loadMcpToolTool } from '../list_directory/mcp/load-mcp-tool';
-import { readMcpResourceTool } from '../list_directory/mcp/read-mcp-resource';
-import { refreshMcpServerTool } from '../list_directory/mcp/refresh-mcp-server';
+} from '../list/cron';
+import { editFileTool } from '../list/edit_file';
+import { grepTool } from '../list/grep';
+import { listDirectoryTool } from '../list/list_directory';
+import { readFileTool } from '../list/read_file';
+import { runShellTool } from '../list/run_shell';
+import { scriptRunTool } from '../list/script_run';
+import { searchFilesTool } from '../list/search_files';
+import { undoLastOperationTool } from '../list/undo_last_operation';
+import { writeTool } from '../list/write';
+import { completeTaskTool } from '../list/complete_task';
+import { listTodosTool } from '../list/list_todos';
+import { readScratchTool } from '../list/read_scratch';
+import { updateTodoTool } from '../list/update_todo';
+import { writeScratchTool } from '../list/write_scratch';
+import { writeTodosTool } from '../list/write_todos';
+import { presentPlanTool } from '../list/present_plan';
+import { requestApprovalTool } from '../list/request_approval';
+import { requestAuthorizationTool } from '../list/request_authorization';
+import { requestClarificationTool } from '../list/request_clarification';
+import { spawnSubagentTool } from '../list/spawn_subagent';
+import { listSkillsTool } from '../list/list_skills';
+import { loadSkillTool } from '../list/load_skill';
+import { useSkillTool } from '../list/use_skill';
+import { callMcpToolTool } from '../list/call_mcp_tool';
+import { connectMcpServerTool } from '../list/connect_mcp_server';
+import { listMcpPromptsTool } from '../list/list_mcp_prompts';
+import { listMcpResourcesTool } from '../list/list_mcp_resources';
+import { listMcpServersTool } from '../list/list_mcp_servers';
+import { listMcpToolsTool } from '../list/list_mcp_tools';
+import { loadMcpPromptTool } from '../list/load_mcp_prompt';
+import { loadMcpToolTool } from '../list/load_mcp_tool';
+import { readMcpResourceTool } from '../list/read_mcp_resource';
+import { refreshMcpServerTool } from '../list/refresh_mcp_server';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;

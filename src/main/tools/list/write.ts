@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { resolveAbs, snapshot } from './common';
-import { pushUndo, snapshotTarget } from './undo_last_operation_store';
+import { pushUndo, snapshotTarget } from './undo_store';
 
 interface WriteArgs {
 	path: string;
