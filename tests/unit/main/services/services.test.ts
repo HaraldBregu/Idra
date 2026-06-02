@@ -541,15 +541,12 @@ function textResponse(payload: string, status = 200): Response {
 }
 
 describe('workspace service', () => {
-	const startupStatePath = (agentRoot: string): string =>
+	const legacyStartupStatePath = (agentRoot: string): string =>
 		path.join(agentRoot, '.friday', 'startup-state.json');
-	const readStartupState = async (
-		agentRoot: string
-	): Promise<{ bootstrapSeededAt?: string; setupCompletedAt?: string }> =>
-		JSON.parse(await fs.readFile(startupStatePath(agentRoot), 'utf8')) as {
-			bootstrapSeededAt?: string;
-			setupCompletedAt?: string;
-		};
+	const expectNoStartupState = async (agentRoot: string): Promise<void> => {
+		await expect(fs.access(legacyStartupStatePath(agentRoot))).rejects.toThrow();
+		await expect(fs.access(path.dirname(legacyStartupStatePath(agentRoot)))).rejects.toThrow();
+	};
 
 	it('confines reads and writes to the configured root', async () => {
 		const root = await makeTempDir();
@@ -595,6 +592,7 @@ describe('workspace service', () => {
 		await service.ensureReady('main');
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
 		await expect(service.isBootstrapPending('main')).resolves.toBe(false);
+		await expectNoStartupState(agentRoot);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
@@ -608,13 +606,11 @@ describe('workspace service', () => {
 		await service.ensureReady('main');
 
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
-		const state = await readStartupState(agentRoot);
-		expect(state.bootstrapSeededAt).toBeUndefined();
-		expect(state.setupCompletedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
+		await expectNoStartupState(agentRoot);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('records agent setup completion when seeded BOOTSTRAP.md is deleted', async () => {
+	it('does not recreate seeded agent BOOTSTRAP.md when it is deleted', async () => {
 		const root = await makeTempDir();
 		const service = new AgentStartupFilesService({ rootPath: path.join(root, 'agent', 'workspaces') });
 		const agentRoot = service.getRootPath('main');
@@ -624,8 +620,8 @@ describe('workspace service', () => {
 		await service.ensureReady('main');
 
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
-		expect((await readStartupState(agentRoot)).setupCompletedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
 		await expect(service.isBootstrapPending('main')).resolves.toBe(false);
+		await expectNoStartupState(agentRoot);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
@@ -639,9 +635,27 @@ describe('workspace service', () => {
 		await service.ensureReady('main');
 
 		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
-		const state = await readStartupState(agentRoot);
-		expect(state.bootstrapSeededAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
-		expect(state.setupCompletedAt).toMatch(/\d{4}-\d{2}-\d{2}T/);
+		await expectNoStartupState(agentRoot);
+		await fs.rm(root, { recursive: true, force: true });
+	});
+
+	it('removes legacy agent startup state without recreating it', async () => {
+		const root = await makeTempDir();
+		const service = new AgentStartupFilesService({ rootPath: path.join(root, 'agent', 'workspaces') });
+		const agentRoot = service.getRootPath('main');
+		const statePath = legacyStartupStatePath(agentRoot);
+		await fs.mkdir(path.dirname(statePath), { recursive: true });
+		await fs.writeFile(
+			statePath,
+			JSON.stringify({ version: 1, setupCompletedAt: new Date().toISOString() }),
+			'utf8'
+		);
+		await fs.writeFile(path.join(agentRoot, 'BOOTSTRAP.md'), 'stale bootstrap', 'utf8');
+
+		await service.ensureReady('main');
+
+		await expect(fs.access(path.join(agentRoot, 'BOOTSTRAP.md'))).rejects.toThrow();
+		await expectNoStartupState(agentRoot);
 		await fs.rm(root, { recursive: true, force: true });
 	});
 

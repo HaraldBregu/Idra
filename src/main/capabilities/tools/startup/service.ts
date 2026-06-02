@@ -27,7 +27,6 @@ import {
 	fileContentDiffersFromTemplate,
 	pathExists,
 	readStartupSetupState,
-	writeStartupSetupState,
 } from './utils';
 
 const STARTUP_STATE_DIRNAME = '.friday';
@@ -56,6 +55,8 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 
 	async ensureReady(agentId: string): Promise<void> {
 		const root = this.getRootPath(agentId);
+		const hadStartupFiles = await this.hasAnyStartupFile(root);
+		const legacyState = await readStartupSetupState(this.statePath(root));
 		await fs.mkdir(root, { recursive: true, mode: 0o700 });
 
 		for (const fileName of SEEDED_WORKSPACE_FILE_NAMES) {
@@ -64,26 +65,24 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 
 		const bootstrapPath = path.join(root, DEFAULT_BOOTSTRAP_FILENAME);
 		let bootstrapExists = await pathExists(bootstrapPath);
-		const state = await readStartupSetupState(this.statePath(root));
 		const profileConfigured = await this.profileLooksConfigured(root);
 
-		if (state.setupCompletedAt) {
+		if (legacyState.setupCompletedAt) {
 			await fs.rm(bootstrapPath, { force: true });
 			bootstrapExists = false;
 		} else if (bootstrapExists && profileConfigured) {
 			await fs.rm(bootstrapPath, { force: true });
-			await this.markSetupCompleted(root);
 			bootstrapExists = false;
-		} else if (!bootstrapExists && (profileConfigured || state.bootstrapSeededAt)) {
-			await this.markSetupCompleted(root);
-		} else if (!bootstrapExists) {
+		} else if (!bootstrapExists && (profileConfigured || legacyState.bootstrapSeededAt)) {
+			bootstrapExists = false;
+		} else if (!bootstrapExists && !hadStartupFiles) {
 			const wrote = await writeFileIfMissing(
 				bootstrapPath,
 				await loadWorkspaceTemplate(DEFAULT_BOOTSTRAP_FILENAME)
 			);
 			bootstrapExists = wrote || (await pathExists(bootstrapPath));
-			if (bootstrapExists) await this.markBootstrapSeeded(root);
 		}
+		await this.removeLegacyStartupState(root);
 
 		this.logger?.debug?.('AgentStartupFilesService', 'Startup files ready', {
 			agentId,
@@ -95,17 +94,13 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	async isBootstrapPending(agentId: string): Promise<boolean> {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
-		const state = await readStartupSetupState(this.statePath(root));
-		if (state.setupCompletedAt) return false;
 		return pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME));
 	}
 
 	async loadContextFiles(agentId: string): Promise<WorkspaceContextFile[]> {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
-		const state = await readStartupSetupState(this.statePath(root));
-		const bootstrapPending =
-			!state.setupCompletedAt && (await pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME)));
+		const bootstrapPending = await pathExists(path.join(root, DEFAULT_BOOTSTRAP_FILENAME));
 		const files = await Promise.all(
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(root, name))
 		);
@@ -156,7 +151,6 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		await this.ensureReady(agentId);
 		const root = this.getRootPath(agentId);
 		await fs.rm(path.join(root, DEFAULT_BOOTSTRAP_FILENAME), { force: true });
-		await this.markSetupCompleted(root);
 		return safeReadWorkspaceFile(root, DEFAULT_BOOTSTRAP_FILENAME);
 	}
 
@@ -180,22 +174,22 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 		return false;
 	}
 
-	private async markBootstrapSeeded(root: string): Promise<void> {
-		const statePath = this.statePath(root);
-		const state = await readStartupSetupState(statePath);
-		await writeStartupSetupState(statePath, {
-			...state,
-			bootstrapSeededAt: state.bootstrapSeededAt ?? new Date().toISOString(),
-		});
+	private async hasAnyStartupFile(root: string): Promise<boolean> {
+		for (const fileName of WORKSPACE_CONTEXT_FILE_NAMES) {
+			if (await pathExists(path.join(root, fileName))) return true;
+		}
+		return false;
 	}
 
-	private async markSetupCompleted(root: string): Promise<void> {
+	private async removeLegacyStartupState(root: string): Promise<void> {
 		const statePath = this.statePath(root);
-		const state = await readStartupSetupState(statePath);
-		await writeStartupSetupState(statePath, {
-			...state,
-			setupCompletedAt: state.setupCompletedAt ?? new Date().toISOString(),
-		});
+		await fs.rm(statePath, { force: true });
+		try {
+			await fs.rmdir(path.dirname(statePath));
+		} catch (error) {
+			const code = (error as NodeJS.ErrnoException).code;
+			if (code !== 'ENOENT' && code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error;
+		}
 	}
 
 	private statePath(root: string): string {

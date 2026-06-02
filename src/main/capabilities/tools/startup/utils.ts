@@ -73,14 +73,3 @@ export async function readStartupSetupState(statePath: string): Promise<StartupS
 		throw error;
 	}
 }
-
-export async function writeStartupSetupState(
-	statePath: string,
-	state: StartupSetupState
-): Promise<void> {
-	await fs.mkdir(path.dirname(statePath), { recursive: true, mode: 0o700 });
-	await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, {
-		encoding: 'utf8',
-		mode: 0o600,
-	});
-}
