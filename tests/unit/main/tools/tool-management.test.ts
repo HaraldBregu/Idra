@@ -412,8 +412,8 @@ describe('tool management layer', () => {
 			[
 				makeAgentTool('exec', 'Run a shell command in the workspace.'),
 				makeAgentTool(
-					'task',
-					'Start an immediate in-memory background task by calling TaskManager.run from src/main/tasks. Use this tool when the user asks to "run a task in background".'
+					'background_job',
+					'Start an unsupported background job that is not part of the local tool surface.'
 				),
 				makeAgentTool('process', 'List background processes started by exec.'),
 			],
