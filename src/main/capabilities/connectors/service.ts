@@ -68,17 +68,11 @@ export class ConnectorsService {
 	}
 
 	list(): ConnectorView[] {
-		if (this.legacy) return this.legacy.list();
 		return this.validConnectors().map((connector) => toView(connector, this.env()));
 	}
 
 	get(id: string): ConnectorConfig {
-		if (this.legacy) return this.legacy.get(id);
 		return redactConnectorSecrets(this.getStored(id));
-	}
-
-	restoreEnabledConnectors(): void {
-		if (this.legacy) this.legacy.restoreEnabledConnectors();
 	}
 
 	async add(input: unknown): Promise<ConnectorConfig> {
