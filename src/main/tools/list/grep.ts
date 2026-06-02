@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { toolDescription } from '../base/metadata';
-import { resolveAbs } from './internal/system-path';
+import { resolveAbs } from './system-path';
 
 export const grepTool: AgentTool<{
 	pattern: string;

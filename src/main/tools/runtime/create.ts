@@ -5,10 +5,10 @@ import {
 	createToolDiagnostics,
 	normalizeToolName,
 } from '../base/common';
-import { createAppTools } from '../list/internal/app-runtime';
-import { createFileTools } from '../list/internal/file-runtime';
-import { createCronTools } from '../list/internal/cron-runtime';
-import { createScriptTools } from '../list/internal/script-runtime';
+import { createAppTools } from '../list/app-runtime';
+import { createFileTools } from '../list/file-runtime';
+import { createCronTools } from '../list/cron-runtime';
+import { createScriptTools } from '../list/script-runtime';
 import { normalizeToolSchemas } from '../base/schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../tool-types';
 import { applyToolPolicyPipeline } from '../pipeline';

@@ -1,10 +1,10 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
 import { toolDescription } from '../base/metadata';
-import { jsonText } from './internal/mcp-json-text';
-import { mcpConnectors } from './internal/mcp-connectors';
-import { missing } from './internal/mcp-missing';
-import { optionsSchema } from './internal/mcp-options-schema';
+import { jsonText } from './mcp-json-text';
+import { mcpConnectors } from './mcp-connectors';
+import { missing } from './mcp-missing';
+import { optionsSchema } from './mcp-options-schema';
 
 export const listMcpResourcesTool: AgentTool<{ id: string; options?: Record<string, unknown> }> = {
 	name: 'list_mcp_resources',

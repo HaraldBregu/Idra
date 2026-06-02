@@ -1,13 +1,13 @@
-import type { AgentTool } from '../../base/common';
-import { markCoreTool } from '../../base/common';
+import type { AgentTool } from '../base/common';
+import { markCoreTool } from '../base/common';
 import type {
 	AgentTool as LegacyAgentTool,
 	FridayServices,
 	ToolContext,
-} from '../../base/tool';
-import { legacyToolToCanonical } from '../../runtime/bridge';
-import { openBrowserTool } from '../open-browser';
-import { webFetchTool } from '../web-fetch';
+} from '../base/tool';
+import { legacyToolToCanonical } from '../runtime/bridge';
+import { openBrowserTool } from './open-browser';
+import { webFetchTool } from './web-fetch';
 
 export type AppToolOptions = {
 	workspaceDir: string;
