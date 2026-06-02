@@ -2,7 +2,6 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import Store from 'electron-store';
 import { app, shell } from 'electron';
-import type { StoreService } from '../../storage';
 import type { LoggerService } from '../../observability';
 import type { AgentTool, ToolContext } from '../tools/types';
 import { textResult } from '../tools/types';
