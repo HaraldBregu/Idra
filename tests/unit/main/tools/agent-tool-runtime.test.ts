@@ -12,6 +12,7 @@ import {
 	readStringParam,
 } from '../../../../src/main/tools/base/params';
 import { createReadTool } from '../../../../src/main/tools/file/runtime';
+import { LOCAL_TOOL_CATALOG } from '../../../../src/main/tools';
 import { planToolConstruction, createAgentTools } from '../../../../src/main/tools/create';
 import { applyToolPolicyPipeline } from '../../../../src/main/tools/pipeline';
 import { normalizeToolSchemas } from '../../../../src/main/tools/base/schema';
@@ -60,11 +61,19 @@ describe('canonical agent tool runtime', () => {
 	});
 
 	it('plans construction for file and script tools by default', () => {
-		expect(planToolConstruction()).toMatchObject({ includeFileTools: true, includeShellTools: false });
+		expect(planToolConstruction()).toMatchObject({
+			includeFileTools: true,
+			includeWebTools: true,
+			includeShellTools: false,
+			includeCronTools: false,
+		});
 		expect(planToolConstruction([])).toEqual(expect.objectContaining({ includeFileTools: false }));
-		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeShellTools: false, includeMcpTools: false, includeLspTools: false }));
+		expect(planToolConstruction(['*'])).toEqual(expect.objectContaining({ includeFileTools: true, includeWebTools: true, includeShellTools: true, includeCronTools: true, includeMcpTools: false, includeLspTools: false }));
 		expect(planToolConstruction(['group:file']).includeFileTools).toBe(true);
 		expect(planToolConstruction(['group:shell']).includeFileTools).toBe(true);
+		expect(planToolConstruction(['group:web']).includeWebTools).toBe(true);
+		expect(planToolConstruction(['group:script']).includeShellTools).toBe(true);
+		expect(planToolConstruction(['group:cron']).includeCronTools).toBe(true);
 		expect(planToolConstruction(['custom_tool']).includeFileTools).toBe(false);
 		expect(planToolConstruction(['group:mcp']).includeMcpTools).toBe(false);
 		expect(planToolConstruction(['lsp_hover']).includeLspTools).toBe(false);
@@ -366,7 +375,9 @@ describe('canonical agent tool runtime', () => {
 			toolsAllow: ['*'],
 		});
 
-		expect(result.tools.map((entry) => entry.name)).toEqual([...AGENT_TOOL_NAMES]);
+		expect(result.tools.map((entry) => entry.name)).toEqual(
+			LOCAL_TOOL_CATALOG.map((entry) => entry.name)
+		);
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
