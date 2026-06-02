@@ -10,7 +10,6 @@ export interface SystemPromptCtx {
 	workspace: string;
 	date: string;
 	model: string;
-	tools: AgentTool[];
 	memory?: MemoryManager;
 	startupFiles?: WorkspaceContextFile[];
 	bootstrapMode?: BootstrapMode;
