@@ -12,7 +12,6 @@ import {
 	Microchip,
 	Network,
 	Printer,
-	RadioTower,
 	ServerCog,
 	Settings2,
 	Usb,
@@ -75,13 +74,6 @@ export const SYSTEM_CAPABILITY_GROUPS = [
 				noteKey: 'settings.system.capabilities.items.startOtherPrograms.note',
 				availability: 'yes',
 				icon: ExternalLink,
-			},
-			{
-				id: 'run-background-tasks',
-				titleKey: 'settings.system.capabilities.items.runBackgroundTasks.title',
-				noteKey: 'settings.system.capabilities.items.runBackgroundTasks.note',
-				availability: 'yes',
-				icon: RadioTower,
 			},
 			{
 				id: 'access-system-information',
