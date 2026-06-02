@@ -24,14 +24,14 @@ export {
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './create';
-export { createReadTool } from './file/runtime';
-export { editFileTool } from './file/edit';
-export { grepTool } from './file/grep';
-export { listDirectoryTool } from './file/list';
-export { readFileTool } from './file/read';
+export { createReadTool } from './list/runtime';
+export { editFileTool } from './list/edit';
+export { grepTool } from './list/grep';
+export { listDirectoryTool } from './list/list';
+export { readFileTool } from './list/read';
 export { runShellTool } from './exec/shell';
-export { searchFilesTool } from './file/search';
-export { undoLastOperationTool } from './file/undo';
+export { searchFilesTool } from './list/search';
+export { undoLastOperationTool } from './list/undo';
 export { completeTaskTool } from './state/complete-task';
 export { listTodosTool } from './state/list-todos';
 export { readScratchTool } from './state/read-scratch';

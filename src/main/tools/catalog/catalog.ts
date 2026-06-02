@@ -18,15 +18,15 @@ import {
 	cronStopTool,
 	cronUpdateTool,
 } from '../cron';
-import { editFileTool } from '../file/edit';
-import { grepTool } from '../file/grep';
-import { listDirectoryTool } from '../file/list';
-import { readFileTool } from '../file/read';
+import { editFileTool } from '../list/edit';
+import { grepTool } from '../list/grep';
+import { listDirectoryTool } from '../list/list';
+import { readFileTool } from '../list/read';
 import { runShellTool } from '../exec/shell';
 import { scriptRunTool } from '../script';
-import { searchFilesTool } from '../file/search';
-import { undoLastOperationTool } from '../file/undo';
-import { writeTool } from '../file/write';
+import { searchFilesTool } from '../list/search';
+import { undoLastOperationTool } from '../list/undo';
+import { writeTool } from '../list/write';
 import { completeTaskTool } from '../state/complete-task';
 import { listTodosTool } from '../state/list-todos';
 import { readScratchTool } from '../state/read-scratch';
