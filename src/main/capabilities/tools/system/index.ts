@@ -1,0 +1,1 @@
+export { resolveAbs } from './path';
