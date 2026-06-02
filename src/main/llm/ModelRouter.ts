@@ -2,11 +2,11 @@ import { AnthropicAdapter } from './providers/AnthropicClient';
 import { OpenAIAdapter, OpenAIChatAdapter } from './providers/OpenAIClient';
 import {
 	DeepSeekAdapter,
-	LMStudioAdapter,
 	MistralAdapter,
-	OllamaAdapter,
 	QwenAdapter,
 } from './providers/CustomSdkClient';
+import { LMStudioAdapter } from './providers/LMStudioClient';
+import { OllamaAdapter } from './providers/OllamaClient';
 import type { ProviderAdapter } from './LlmTypes';
 
 export interface ProviderSpec {
