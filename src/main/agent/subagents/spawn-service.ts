@@ -4,11 +4,10 @@ import type { EventBus } from '../../services/event-bus';
 import type { LoggerService } from '../../observability';
 import { loadExistingSession } from '../session/store';
 import type { AgentConfig, AgentSessionMetadata } from '../../../shared/store';
-import type { TasksService } from '../../tasks';
+import type { AgentService } from '../service';
 import { buildAgentSessionKey } from '../routing';
 import type { AgentSettingsStorePort } from '../settings';
 import { SubagentRegistry } from './registry';
-import { SUBAGENT_RUN_TASK_TYPE } from './task-handler';
 import type {
 	SessionsSpawnResult,
 	SubagentsControlInput,
@@ -38,9 +37,11 @@ export interface SubagentsControlRequest {
 	sessionBaseDir?: string;
 }
 
+type SubagentAgentService = Pick<AgentService, 'send' | 'cancel'>;
+
 export interface SubagentSpawnServiceDependencies {
 	agentSettings: Pick<AgentSettingsStorePort, 'getAgentConfig'>;
-	taskManager: Pick<TasksService, 'run' | 'cancel'>;
+	agentService: SubagentAgentService;
 	registry: SubagentRegistry;
 	eventBus?: EventBus;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
@@ -330,19 +331,8 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 			toolsDeny: inheritedToolDeny,
 			sessionMetadata,
 		};
-		this.dependencies.taskManager.run({
-			id: taskId,
-			type: SUBAGENT_RUN_TASK_TYPE,
-			title: input.taskName ?? input.label ?? 'Subagent run',
-			input: taskInput,
-			metadata: {
-				subagentRunId: runId,
-				childSessionKey,
-				requesterSessionKey,
-				agentId: targetAgentId,
-			},
-		});
 		this.dependencies.eventBus?.emit('subagent:created', record);
+		void this.runSubagent(taskInput);
 		this.dependencies.logger?.info?.('SubagentSpawnService', `Spawned subagent ${runId}`);
 
 		return {
@@ -383,19 +373,57 @@ export class SubagentSpawnService implements SubagentSpawnPort {
 			return { action: 'cancel', run: record };
 		}
 
-		if (record.taskId) {
-			try {
-				this.dependencies.taskManager.cancel(record.taskId);
-			} catch (error) {
-				this.dependencies.logger?.warn?.('SubagentSpawnService', 'Subagent task cancel failed', {
-					runId: record.runId,
-					error: error instanceof Error ? error.message : String(error),
-				});
-			}
+		try {
+			this.dependencies.agentService.cancel(record.childSessionKey);
+		} catch (error) {
+			this.dependencies.logger?.warn?.('SubagentSpawnService', 'Subagent cancel failed', {
+				runId: record.runId,
+				error: error instanceof Error ? error.message : String(error),
+			});
 		}
 		const cancelled = this.dependencies.registry.cancelSubagentRun(record.runId);
 		this.dependencies.eventBus?.emit('subagent:completed', cancelled);
 		return { action: 'cancel', run: cancelled };
+	}
+
+	private async runSubagent(input: SubagentRunTaskInput): Promise<void> {
+		const started = this.dependencies.registry.startSubagentRun(input.runId, this.now());
+		this.dependencies.eventBus?.emit('subagent:started', started);
+		let timedOut = false;
+		const timeout =
+			input.runTimeoutSeconds && input.runTimeoutSeconds > 0
+				? setTimeout(() => {
+						timedOut = true;
+						this.dependencies.agentService.cancel(input.childSessionKey);
+					}, input.runTimeoutSeconds * 1000)
+				: undefined;
+
+		try {
+			await this.dependencies.agentService.send(input.task, input.agentId, {
+				sessionId: input.childSessionKey,
+				providerId: input.providerId,
+				model: input.modelId,
+				effort: input.effort,
+				toolsAllow: input.toolsAllow,
+				toolsDeny: input.toolsDeny,
+				sessionMetadata: input.sessionMetadata,
+			});
+			const completed = this.dependencies.registry.completeSubagentRun(input.runId, 'ok');
+			if (completed.outcome === 'ok') {
+				this.dependencies.eventBus?.emit('subagent:completed', completed);
+			}
+		} catch (error) {
+			if (this.dependencies.registry.getSubagentRun(input.runId)?.outcome) return;
+			const message = error instanceof Error ? error.message : String(error);
+			const completed = this.dependencies.registry.completeSubagentRun(
+				input.runId,
+				timedOut ? 'timeout' : 'error',
+				{ error: message }
+			);
+			this.dependencies.eventBus?.emit('subagent:completed', completed);
+		} finally {
+			if (timeout) clearTimeout(timeout);
+		}
 	}
 
 	private requireControlledRun(requesterSessionKey: string, runId: string): SubagentRunRecord {
