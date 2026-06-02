@@ -442,15 +442,6 @@ export class ConnectorsService {
 	}
 }
 
-function isLegacyStore(value: unknown): value is StoreService {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		typeof (value as { getConnectors?: unknown }).getConnectors === 'function' &&
-		typeof (value as { setConnectors?: unknown }).setConnectors === 'function'
-	);
-}
-
 function resolveAppDataPath(): string {
 	try {
 		return app.getPath('appData');
