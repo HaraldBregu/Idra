@@ -5,6 +5,7 @@ import {
 	createToolDiagnostics,
 	normalizeToolName,
 } from '../base/common';
+import { createAppTools } from '../app/runtime';
 import { createFileTools } from '../file/runtime';
 import { createCronTools } from '../cron/runtime';
 import { createScriptTools } from '../script/runtime';
@@ -17,8 +18,9 @@ import {
 	newCallTracker,
 } from '../wrap';
 import {
+	AGENT_ALL_TOOL_NAMES,
 	AGENT_TOOL_LEGACY_ALIASES,
-	AGENT_TOOL_NAMES,
+	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_READ_ONLY_DENY_NAMES,
 } from '../../../shared/tools';
 
@@ -85,14 +87,33 @@ export type CreateAgentToolsResult = {
 	dispose: () => Promise<void>;
 };
 
+const TOOL_PLAN_BY_GROUP = {
+	coreWorkspace: 'includeFileTools',
+	stateTask: 'includeFileTools',
+	humanDecision: 'includeFileTools',
+	subagent: 'includeFileTools',
+	skill: 'includeFileTools',
+	mcpConnector: 'includeFileTools',
+	web: 'includeWebTools',
+	script: 'includeShellTools',
+	cron: 'includeCronTools',
+} as const satisfies Record<string, keyof ToolConstructionPlan>;
+
 const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = Object.fromEntries(
-	[...AGENT_TOOL_NAMES, ...Object.keys(AGENT_TOOL_LEGACY_ALIASES)].map((name) => [
-		name,
-		'includeFileTools',
-	])
+	[...AGENT_ALL_TOOL_NAMES, ...Object.keys(AGENT_TOOL_LEGACY_ALIASES)].map((name) => {
+		const alias = AGENT_TOOL_LEGACY_ALIASES[name as keyof typeof AGENT_TOOL_LEGACY_ALIASES]?.[0];
+		const metadata =
+			AGENT_TOOL_METADATA_BY_NAME[name as keyof typeof AGENT_TOOL_METADATA_BY_NAME] ??
+			AGENT_TOOL_METADATA_BY_NAME[alias as keyof typeof AGENT_TOOL_METADATA_BY_NAME];
+		return [name, metadata ? TOOL_PLAN_BY_GROUP[metadata.group] : 'includeFileTools'];
+	})
 ) as Record<string, keyof ToolConstructionPlan>;
 
-const FILE_TOOL_NAMES = new Set(Object.keys(CORE_TOOL_FAMILIES));
+const FILE_TOOL_NAMES = new Set(
+	Object.entries(CORE_TOOL_FAMILIES)
+		.filter(([, family]) => family === 'includeFileTools')
+		.map(([name]) => name)
+);
 
 export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPlan {
 	const empty: ToolConstructionPlan = {
@@ -110,11 +131,18 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		return {
 			...empty,
 			includeFileTools: true,
+			includeWebTools: true,
 		};
 	}
 	const normalized = toolsAllow.map(normalizeToolName);
 	if (normalized.includes('*')) {
-		return { ...empty, includeFileTools: true };
+		return {
+			...empty,
+			includeFileTools: true,
+			includeCronTools: true,
+			includeShellTools: true,
+			includeWebTools: true,
+		};
 	}
 	const plan = { ...empty };
 	for (const name of normalized) {
@@ -129,10 +157,14 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 			name.startsWith('group:mcp')
 		) {
 			plan.includeFileTools = true;
-		} else if (name.startsWith('group:script') || name.startsWith('group:shell')) {
+		} else if (name.startsWith('group:shell')) {
 			plan.includeFileTools = true;
+		} else if (name.startsWith('group:script')) {
+			plan.includeShellTools = true;
 		} else if (name.startsWith('group:cron')) {
-			plan.includeFileTools = true;
+			plan.includeCronTools = true;
+		} else if (name.startsWith('group:web')) {
+			plan.includeWebTools = true;
 		} else if (!name.startsWith('group:')) {
 			const family = CORE_TOOL_FAMILIES[name];
 			if (family) plan[family] = true;
@@ -196,6 +228,16 @@ function addCoreToolCandidates(
 				workspaceDir: options.workspaceDir,
 				sessionId: options.sessionId,
 				fsPolicy,
+				signal: options.abortSignal,
+				services: options.services,
+			})
+		);
+	}
+	if (plan.includeWebTools) {
+		candidates.push(
+			...createAppTools({
+				workspaceDir: options.workspaceDir,
+				sessionId: options.sessionId,
 				signal: options.abortSignal,
 				services: options.services,
 			})
