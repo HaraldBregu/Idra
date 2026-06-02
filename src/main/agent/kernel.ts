@@ -18,8 +18,7 @@ import {
 	DEFAULT_USER_FILENAME,
 	AgentWorkspaceService,
 	type AgentStartupFilesServicePort,
-} from './workspace';
-import type { UserDataDirectoryServicePort } from '../storage/user-data';
+	} from './workspace';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './guardrails/input';
 import { buildSystemPrompt } from './context/prompt';
 import {
@@ -80,7 +79,6 @@ export interface AgentServiceDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
 	workspace: WorkspaceService;
-	userDataDirectory: UserDataDirectoryServicePort;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;

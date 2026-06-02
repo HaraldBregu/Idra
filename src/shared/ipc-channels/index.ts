@@ -64,7 +64,6 @@ export const AppChannels = {
 	getLogs: 'app:get-logs',
 	openLogsFolder: 'app:open-logs-folder',
 	openAppDataFolder: 'app:open-app-data-folder',
-	openUserDataFolder: 'app:open-user-data-folder',
 	openExternalUrl: 'app:open-external-url',
 	openSystemPreference: 'app:open-system-preference',
 	setTrayEnabled: 'app:set-tray-enabled',
@@ -183,10 +182,6 @@ interface AppInvokeChannelMap {
 		result: void;
 	};
 	[AppChannels.openAppDataFolder]: {
-		args: [];
-		result: void;
-	};
-	[AppChannels.openUserDataFolder]: {
 		args: [];
 		result: void;
 	};

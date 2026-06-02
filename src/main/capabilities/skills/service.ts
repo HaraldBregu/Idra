@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { LoggerService } from '../../observability';
-import type { UserDataDirectoryServicePort } from '../../storage/user-data';
-import { resolveDefaultUserDataPath } from '../../storage/user-data';
+import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from '../../agent/storage';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -140,11 +139,12 @@ export interface SkillRuntimeInput {
 }
 
 export interface SkillsServiceOptions {
+	rootPath?: string;
 	registry?: SkillRegistry;
 	preferences?: SkillPreferenceStore;
 	loader?: SkillLoader;
 	safetyPolicy?: SkillSafetyPolicy;
-	userDataDirectory?: UserDataDirectoryServicePort;
+	agentDataDirectory?: AgentDataDirectoryServicePort;
 }
 
 export class SkillsService {
@@ -159,7 +159,7 @@ export class SkillsService {
 	private readonly planner: SkillPlanner;
 	private readonly engine: SkillExecutionEngine;
 	private readonly dependencyResolver: SkillDependencyResolver;
-	private readonly userDataDirectory?: UserDataDirectoryServicePort;
+	private readonly skillsRoot: string;
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -173,12 +173,15 @@ export class SkillsService {
 		this.ranker = new SkillRanker();
 		this.discovery = new SkillDiscovery(this.registry, this.ranker, this.safetyPolicy);
 		this.selector = new SkillSelector();
-		this.planner = new SkillPlanner();
-		this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
-		this.dependencyResolver = new SkillDependencyResolver(this.registry);
-		this.userDataDirectory = options.userDataDirectory;
+			this.planner = new SkillPlanner();
+			this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
+			this.dependencyResolver = new SkillDependencyResolver(this.registry);
+			this.skillsRoot =
+				options.rootPath ??
+				options.agentDataDirectory?.resolve('skills') ??
+				resolveDefaultAgentDataPath('skills');
 
-	}
+		}
 
 	registerSkill(skill: SkillDefinition): SkillDefinition {
 		const registered = this.registry.registerSkill(skill);
@@ -199,9 +202,8 @@ export class SkillsService {
 	}
 
 	getSkillsRoot(): string {
-		const root = this.userDataDirectory?.resolve('skills') ?? resolveDefaultUserDataPath('skills');
-		fs.mkdirSync(root, { recursive: true });
-		return root;
+			fs.mkdirSync(this.skillsRoot, { recursive: true });
+			return this.skillsRoot;
 	}
 
 	async list(): Promise<SkillInfo[]> {

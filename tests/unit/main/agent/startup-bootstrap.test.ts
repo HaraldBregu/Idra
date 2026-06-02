@@ -52,15 +52,9 @@ function makeDeps(workspace: string, startupFiles: AgentStartupFilesService) {
 			getRootPath: jest.fn(() => workspace),
 			readWorkspaceFile: jest.fn(),
 		} as never,
-		userDataDirectory: {
-			getRootPath: jest.fn(() => workspace),
-			ensureRoot: jest.fn(async () => workspace),
-			resolve: jest.fn((...segments: string[]) => path.join(workspace, ...segments)),
-			resolveExisting: jest.fn(async (...segments: string[]) => path.join(workspace, ...segments)),
-		} as never,
-		startupFiles,
-	};
-}
+			startupFiles,
+		};
+	}
 
 describe('AgentService first-run startup bootstrap', () => {
 	it('injects BOOTSTRAP.md and exposes startup_files for a fresh primary workspace', async () => {

@@ -27,16 +27,10 @@ export function makeToolContext(overrides: Partial<ToolContext> = {}): ToolConte
 		approvalCache: new Set(),
 		services: {
 			store: {} as ToolContext['services']['store'],
-			cron: {} as ToolContext['services']['cron'],
-			eventBus: { emit: jest.fn(), broadcast: jest.fn(), on: jest.fn(), off: jest.fn(), sendTo: jest.fn(), clearAllListeners: jest.fn() } as unknown as ToolContext['services']['eventBus'],
-			logger: makeLogger() as unknown as ToolContext['services']['logger'],
-			userDataDirectory: {
-				getRootPath: jest.fn(() => workspace),
-				ensureRoot: jest.fn(async () => workspace),
-				resolve: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
-				resolveExisting: jest.fn(async (...segments: string[]) => path.resolve(workspace, ...segments)),
-			} as unknown as ToolContext['services']['userDataDirectory'],
-				workspace: {
+				cron: {} as ToolContext['services']['cron'],
+				eventBus: { emit: jest.fn(), broadcast: jest.fn(), on: jest.fn(), off: jest.fn(), sendTo: jest.fn(), clearAllListeners: jest.fn() } as unknown as ToolContext['services']['eventBus'],
+				logger: makeLogger() as unknown as ToolContext['services']['logger'],
+					workspace: {
 					getRootPath: jest.fn(() => workspace),
 					resolvePath: jest.fn((...segments: string[]) => path.resolve(workspace, ...segments)),
 					ensureReady: jest.fn(async () => undefined),

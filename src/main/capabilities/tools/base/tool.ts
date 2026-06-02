@@ -5,7 +5,6 @@ import type { ConnectorsService } from '../../connectors';
 import type { ToolPolicyServicePort } from '../tool-types';
 import type { StoreService } from '../../../storage';
 import type { SkillsService } from '../../skills';
-import type { UserDataDirectoryServicePort } from '../../../storage/user-data';
 import type { WorkspaceService } from '../../../agent/workspace';
 import type { JSONSchema, ToolResultBlock } from '../../../llm/types';
 import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../../shared/agents/constants';
@@ -19,7 +18,6 @@ export interface FridayServices {
 	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
-	userDataDirectory: UserDataDirectoryServicePort;
 	workspace: WorkspaceService;
 	cron?: CronService;
 	policy?: ToolPolicyServicePort;
@@ -58,7 +56,7 @@ export interface ToolContext {
 	signal?: AbortSignal;
 	approvalRequired?: Set<string>;
 	approvalCache?: Set<string>;
-	/** Friday-side services (store, event-bus, logger, user data, workspace). */
+	/** Friday-side services (store, event-bus, logger, workspace). */
 	services: FridayServices;
 }
 

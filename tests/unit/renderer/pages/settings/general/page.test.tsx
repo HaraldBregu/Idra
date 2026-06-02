@@ -55,12 +55,11 @@ describe('GeneralPage', () => {
 	beforeEach(() => {
 		window.app = {
 			...window.app,
-			getTrayEnabled: jest.fn(async () => true),
-			setTrayEnabled: jest.fn(async () => undefined),
-			openAppDataFolder: jest.fn(async () => undefined),
-			openUserDataFolder: jest.fn(async () => undefined),
-		};
-	});
+				getTrayEnabled: jest.fn(async () => true),
+				setTrayEnabled: jest.fn(async () => undefined),
+				openAppDataFolder: jest.fn(async () => undefined),
+			};
+		});
 
 	it('renders application information from build-time constants', async () => {
 		renderGeneralPage();

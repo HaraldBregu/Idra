@@ -247,14 +247,11 @@
 			"menuBar": "Barra dei Menu",
 			"menuBarDescription": "Mostra o nascondi l'icona dell'app nella barra dei menu",
 			"keepAwake": "Mantieni il computer attivo",
-			"keepAwakeDescription": "Impedisci a Friday di essere sospeso mentre lavora in background",
-			"appData": "Dati Applicazione",
-			"appDataDescription": "Cartella in cui Friday salva impostazioni e log dell'applicazione",
-			"openAppData": "Apri Cartella",
-			"userData": "Dati Utente",
-			"userDataDescription": "Cartella in cui Friday salva file, workspace, abilita e dati assistente dell'utente",
-			"openUserData": "Apri Cartella"
-		},
+				"keepAwakeDescription": "Impedisci a Friday di essere sospeso mentre lavora in background",
+				"appData": "Dati Applicazione",
+				"appDataDescription": "Cartella in cui Friday salva impostazioni e log dell'applicazione",
+				"openAppData": "Apri Cartella"
+			},
 		"system": {
 			"description": "Gestisci permessi del sistema operativo, comportamento in background e limiti delle capacita desktop.",
 			"actionsDescription": "Apri i pannelli richiesti del sistema operativo e controlla il comportamento energetico in background.",

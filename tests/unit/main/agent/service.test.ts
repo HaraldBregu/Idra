@@ -68,15 +68,7 @@ function makeDeps(workspace = '/workspace') {
 			off: jest.fn(),
 			sendTo: jest.fn(),
 		} as never,
-		userDataDirectory: {
-			getRootPath: jest.fn(() => workspace),
-			ensureRoot: jest.fn(async () => workspace),
-			resolve: jest.fn((...segments: string[]) => [workspace, ...segments].join('/')),
-			resolveExisting: jest.fn(async (...segments: string[]) =>
-				[workspace, ...segments].join('/')
-			),
-		} as never,
-		workspace: {
+			workspace: {
 			getRootPath: jest.fn(() => workspace),
 			isBootstrapPending: jest.fn(async () => false),
 			loadContextFiles: jest.fn(async () => []),

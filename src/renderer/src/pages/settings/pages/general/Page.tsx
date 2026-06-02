@@ -47,10 +47,6 @@ const GeneralPage: React.FC = () => {
 		void window.app.openAppDataFolder();
 	}, []);
 
-	const handleOpenUserDataFolder = useCallback(() => {
-		void window.app.openUserDataFolder();
-	}, []);
-
 	const handleLanguageChange = (next: string | null): void => {
 		if (next === null) return;
 		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);
@@ -116,21 +112,8 @@ const GeneralPage: React.FC = () => {
 							</Button>
 						</ItemActions>
 					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<FolderOpen className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent>
-							<ItemTitle>{t('settings.application.userData')}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Button variant="outline" size="xs" onClick={handleOpenUserDataFolder}>
-								{t('settings.application.openUserData')}
-							</Button>
-						</ItemActions>
-					</Item>
-				</Card>
-			</SettingsSection>
+					</Card>
+				</SettingsSection>
 
 			<SettingsSection title={t('settings.sections.layout')}>
 				<Card size="sm" className="gap-0! p-0!">

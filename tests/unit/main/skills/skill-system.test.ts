@@ -154,15 +154,6 @@ function setupEngine(registry = setupRegistry()) {
 	return { registry, preferences, audit, engine };
 }
 
-function userDataDirectory(root: string) {
-	return {
-		getRootPath: jest.fn(() => root),
-		ensureRoot: jest.fn(async () => root),
-		resolve: jest.fn((...segments: string[]) => path.join(root, ...segments)),
-		resolveExisting: jest.fn(async (...segments: string[]) => path.join(root, ...segments)),
-	};
-}
-
 function executionContext(
 	input: {
 		tools?: SkillTool[];
@@ -642,10 +633,10 @@ describe('skill system', () => {
 				'---',
 				'Use before instructions.',
 			].join('\n')
-		);
-		const service = new SkillsService(makeLogger() as never, {
-			userDataDirectory: userDataDirectory(root) as never,
-		});
+			);
+			const service = new SkillsService(makeLogger() as never, {
+				rootPath: skillsRoot,
+			});
 		const runtimeInput = {
 			userId: 'u1',
 			sessionId: 's1',
@@ -691,10 +682,10 @@ describe('skill system', () => {
 				'Use download instructions.',
 			].join('\n')
 		);
-		await fs.writeFile(path.join(dir, 'node_modules', 'pkg', 'ignored.txt'), 'ignored');
-		const service = new SkillsService(makeLogger() as never, {
-			userDataDirectory: userDataDirectory(root) as never,
-		});
+			await fs.writeFile(path.join(dir, 'node_modules', 'pkg', 'ignored.txt'), 'ignored');
+			const service = new SkillsService(makeLogger() as never, {
+				rootPath: path.join(root, 'skills'),
+			});
 		const destinationRealPath = await fs.realpath(destinationRoot);
 
 		const result = await service.downloadToPath('download-skill', destinationRoot);
@@ -739,9 +730,7 @@ describe('skill system', () => {
 				'Use this for beta import details.',
 			].join('\n')
 		);
-		const service = new SkillsService(makeLogger() as never, {
-			userDataDirectory: userDataDirectory(root) as never,
-		});
+			const service = new SkillsService(makeLogger() as never, { rootPath: path.join(root, 'skills') });
 
 		const result = await service.importFromPath(source);
 
@@ -779,9 +768,7 @@ describe('skill system', () => {
 				'Use this skill for project-scoped agent workflows.',
 			].join('\n')
 		);
-		const service = new SkillsService(makeLogger() as never, {
-			userDataDirectory: userDataDirectory(root) as never,
-		});
+			const service = new SkillsService(makeLogger() as never, { rootPath: path.join(root, 'skills') });
 
 		const result = await service.importFromPath(source);
 
@@ -810,9 +797,7 @@ describe('skill system', () => {
 			].join('\n')
 		);
 		await fs.symlink(outside, path.join(source, 'skills'), 'dir');
-		const service = new SkillsService(makeLogger() as never, {
-			userDataDirectory: userDataDirectory(root) as never,
-		});
+			const service = new SkillsService(makeLogger() as never, { rootPath: path.join(root, 'skills') });
 
 		await expect(service.importFromPath(source)).rejects.toThrow(
 			'Selected folder must contain SKILL.md or skill subfolders with SKILL.md.'

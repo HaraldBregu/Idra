@@ -1,10 +1,10 @@
-import type { UserDataDirectoryServicePort } from '../../storage/user-data';
+import type { AgentDataDirectoryServicePort } from '../storage';
 import type { WorkspaceContextFile } from './files';
 
 export interface WorkspaceServiceOptions {
 	workspaceName?: string;
 	rootPath?: string;
-	userDataDirectory?: UserDataDirectoryServicePort;
+	agentDataDirectory?: AgentDataDirectoryServicePort;
 	contextHooks?: WorkspaceContextHook[];
 }
 

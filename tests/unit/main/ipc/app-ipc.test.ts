@@ -35,14 +35,11 @@ function createContainer(
 			})),
 		},
 			store: {
-			getProviderById: jest.fn(() => provider),
-			setAgentService: jest.fn(() => true),
-			...storeOverrides,
-		},
-		userDataDirectory: {
-			ensureRoot: jest.fn(),
-		},
-	};
+				getProviderById: jest.fn(() => provider),
+				setAgentService: jest.fn(() => true),
+				...storeOverrides,
+			},
+		};
 
 	return {
 		get: jest.fn((key: keyof typeof services) => services[key]),

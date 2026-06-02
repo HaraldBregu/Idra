@@ -257,24 +257,20 @@ describe('tools/before-call', () => {
 	});
 
 	it('runs run_shell without approval even when cwd is outside the workspace', async () => {
-		const home = await makeTempDir();
-		const fridayRoot = path.join(home, '.friday');
-		const workspace = path.join(fridayRoot, 'workspace');
-		const outside = await makeTempDir();
-		await fs.mkdir(workspace, { recursive: true });
-		const ctx = makeToolContext({ workspace });
-		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
+			const workspace = await makeTempDir();
+			const outside = await makeTempDir();
+			const ctx = makeToolContext({ workspace });
 
-		await expect(
-			beforeToolCall(runShellTool, { command: 'pwd' }, ctx, newCallTracker())
+			await expect(
+				beforeToolCall(runShellTool, { command: 'pwd' }, ctx, newCallTracker())
 		).resolves.toMatchObject({ proceed: true });
 		await expect(
-			beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
+				beforeToolCall(runShellTool, { command: 'pwd', cwd: outside }, ctx, newCallTracker())
+			).resolves.toMatchObject({ proceed: true });
 
-		await fs.rm(home, { recursive: true, force: true });
-		await fs.rm(outside, { recursive: true, force: true });
-	});
+			await fs.rm(workspace, { recursive: true, force: true });
+			await fs.rm(outside, { recursive: true, force: true });
+		});
 
 	it('delegates execution gating to the policy service when available', async () => {
 		const tool: AgentTool = {
@@ -409,26 +405,6 @@ describe('tools/fs', () => {
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
-	});
-
-	it('allows mutating file targets under .friday even when they are outside the workspace', async () => {
-		const home = await makeTempDir();
-		const fridayRoot = path.join(home, '.friday');
-		const workspace = path.join(fridayRoot, 'workspace');
-		const notesFile = path.join(fridayRoot, 'notes', 'a.txt');
-		await fs.mkdir(workspace, { recursive: true });
-		const ctx = makeToolContext({ workspace });
-		(ctx.services.userDataDirectory.getRootPath as jest.Mock).mockReturnValue(fridayRoot);
-
-		await expect(
-			beforeToolCall(writeTool, { path: notesFile, content: 'ok' }, ctx, newCallTracker())
-		).resolves.toMatchObject({ proceed: true });
-		await expect(writeTool.execute({ path: notesFile, content: 'ok' }, ctx)).resolves.toMatchObject({
-			status: 'ok',
-		});
-		await expect(fs.readFile(notesFile, 'utf8')).resolves.toBe('ok');
-
-		await fs.rm(home, { recursive: true, force: true });
 	});
 
 	it('allows mutating file targets outside the workspace even when writeWorkspaceOnly is set', async () => {

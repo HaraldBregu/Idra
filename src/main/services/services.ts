@@ -4,7 +4,6 @@ import type { AgentDataDirectoryService } from '../agent/storage';
 import type { AgentSettingsStore } from '../agent/settings';
 import type { ToolService } from '../capabilities/tools';
 import type { AppPermissionsService } from '../app/permissions';
-import type { UserDataDirectoryService } from '../storage/user-data';
 import type { ConnectorsService } from '../capabilities/connectors';
 import type { CronService } from '../cron';
 import type { HeartbeatService } from '../heartbeat';
@@ -32,7 +31,6 @@ export interface MainServices {
 	speechToText: SpeechToTextService;
 	store: StoreService;
 	toolService: ToolService;
-	userDataDirectory: UserDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
 	workspace: WorkspaceService;

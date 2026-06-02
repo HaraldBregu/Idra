@@ -225,9 +225,6 @@ export const app: AppApi = {
 	openAppDataFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openAppDataFolder);
 	},
-	openUserDataFolder: (): Promise<void> => {
-		return typedInvokeUnwrap(AppChannels.openUserDataFolder);
-	},
 	openExternalUrl: (url: string): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
 	},

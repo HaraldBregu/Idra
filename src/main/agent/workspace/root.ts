@@ -4,7 +4,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 import type { LoggerService } from '../../observability';
-import { resolveDefaultUserDataPath } from '../../storage/user-data';
+import { resolveDefaultAgentDataPath } from '../storage';
 import type { ReadFileOptions, WorkspaceServiceOptions, WriteFileOptions } from './types';
 import {
 	DEFAULT_AGENTS_FILENAME,
@@ -64,11 +64,11 @@ export class WorkspaceService {
 		private readonly logger: LoggerService,
 		options: WorkspaceServiceOptions = {}
 	) {
-		this.rootPath =
-			options.rootPath ??
-			options.userDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
-			resolveDefaultUserDataPath(options.workspaceName ?? 'workspace');
-		this.contextHooks = options.contextHooks ?? [];
+			this.rootPath =
+				options.rootPath ??
+				options.agentDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
+				resolveDefaultAgentDataPath(options.workspaceName ?? 'workspace');
+			this.contextHooks = options.contextHooks ?? [];
 	}
 
 	getRootPath(): string {

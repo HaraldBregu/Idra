@@ -126,10 +126,9 @@ export class AppIpc implements IpcModule {
 	private trayEnabled = true;
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
-		const logger = container.get('logger');
-		const store = container.get('store');
-		const appPermissions = container.get('appPermissions');
-		const userDataDirectory = container.get('userDataDirectory');
+			const logger = container.get('logger');
+			const store = container.get('store');
+			const appPermissions = container.get('appPermissions');
 
 		// Language handler
 		ipcMain.on('set-language', (event, language: string) => {
@@ -170,17 +169,9 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.openAppDataFolder)
 		);
 
-		ipcMain.handle(
-			AppChannels.openUserDataFolder,
-			wrapSimpleHandler(async () => {
-				const target = await userDataDirectory.ensureRoot();
-				await openPathOrThrow(target);
-			}, AppChannels.openUserDataFolder)
-		);
-
-		ipcMain.handle(
-			AppChannels.openExternalUrl,
-			wrapSimpleHandler(async (url: string) => {
+			ipcMain.handle(
+				AppChannels.openExternalUrl,
+				wrapSimpleHandler(async (url: string) => {
 				const externalUrl = normalizeExternalUrl(url);
 				if (!externalUrl) {
 					throw new Error('External URL must use HTTP or HTTPS.');

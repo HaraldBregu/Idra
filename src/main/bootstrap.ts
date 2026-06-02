@@ -15,7 +15,6 @@ import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './agent/workspace';
 import { ConnectorsService } from './capabilities/connectors';
-import { UserDataDirectoryService } from './storage/user-data';
 import { ToolService } from './capabilities/tools';
 import { SkillsService } from './capabilities/skills';
 import { SpeechToTextService } from './stt';
@@ -30,7 +29,6 @@ export interface BootstrapResult {
 	windowFactory: WindowFactory;
 	appState: AppState;
 	logger: LoggerService;
-	userDataDirectory: UserDataDirectoryService;
 	agentDataDirectory: AgentDataDirectoryService;
 	workspace: WorkspaceService;
 	windowContextManager: WindowContextManager<MainServices>;
@@ -48,11 +46,6 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('logger', logger);
 	container.register('appPermissions', new AppPermissionsService());
 
-	const userDataDirectory = container.register('userDataDirectory', new UserDataDirectoryService());
-	void userDataDirectory.ensureRoot().catch((error) => {
-		logger.error('UserDataDirectoryService', 'Failed to create user data directory', error);
-	});
-
 	const agentDataDirectory = container.register('agentDataDirectory', new AgentDataDirectoryService());
 	void agentDataDirectory.ensureRoot().catch((error) => {
 		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
@@ -60,7 +53,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const skills = container.register(
 		'skills',
-		new SkillsService(logger)
+		new SkillsService(logger, { agentDataDirectory })
 	);
 
 	const workspace = container.register(
@@ -86,13 +79,12 @@ export function bootstrapServices(): BootstrapResult {
 	const agentDependencies: AgentServiceDependencies = {
 		store,
 		cron,
-		logger,
-		eventBus,
-		workspace,
-		userDataDirectory,
-		agentDataDirectory,
-		agentSettings,
-		connectors,
+			logger,
+			eventBus,
+			workspace,
+			agentDataDirectory,
+			agentSettings,
+			connectors,
 		skills,
 		toolService,
 		channels,
@@ -138,7 +130,6 @@ export function bootstrapServices(): BootstrapResult {
 		windowFactory,
 		appState,
 		logger,
-		userDataDirectory,
 		agentDataDirectory,
 		workspace,
 		windowContextManager,
