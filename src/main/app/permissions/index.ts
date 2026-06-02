@@ -1,1 +1,1 @@
-export { AppPermissionsService } from './kernel';
+export { AppPermissionsService } from './service';

@@ -1,2 +1,2 @@
 export * from './router';
-export { SpeechToTextService } from './kernel';
+export { SpeechToTextService } from './service';

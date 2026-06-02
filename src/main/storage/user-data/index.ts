@@ -3,8 +3,8 @@ export {
 	UserDataDirectoryService,
 	resolveDefaultUserDataPath,
 	resolveAppDataPath,
-} from './kernel';
+} from './service';
 export type {
 	UserDataDirectoryServiceOptions,
 	UserDataDirectoryServicePort,
-} from './kernel';
+} from './service';

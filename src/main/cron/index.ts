@@ -1,5 +1,5 @@
-export { CronService } from './kernel';
-export type { CronServiceOptions, CronServiceActor } from './kernel';
+export { CronService } from './service';
+export type { CronServiceOptions, CronServiceActor } from './service';
 export type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 export * from './constants';
 export type * from './core/types';

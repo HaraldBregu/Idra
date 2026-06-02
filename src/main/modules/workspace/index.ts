@@ -4,7 +4,7 @@ export {
 	resolveBootstrapMode,
 	type BootstrapMode,
 	type EnsureWorkspaceOptions,
-} from './kernel';
+} from './service';
 export {
 	DEFAULT_AGENTS_FILENAME,
 	DEFAULT_BOOTSTRAP_FILENAME,

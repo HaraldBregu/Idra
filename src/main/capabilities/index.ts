@@ -1,4 +1,4 @@
-export { AgentCapabilityService, type AgentCapabilityServiceOptions } from './kernel';
+export { AgentCapabilityService, type AgentCapabilityServiceOptions } from './service';
 export type {
 	AgentCapabilityBundle,
 	AgentCapabilityResolveInput,

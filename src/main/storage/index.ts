@@ -1,1 +1,1 @@
-export { StoreService } from './kernel';
+export { StoreService } from './service';

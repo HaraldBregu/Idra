@@ -1,1 +1,1 @@
-export { loadTranslations, type Translations } from './kernel';
+export { loadTranslations, type Translations } from './service';

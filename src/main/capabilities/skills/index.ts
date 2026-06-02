@@ -1,4 +1,4 @@
-export { SkillsService } from './kernel';
+export { SkillsService } from './service';
 export { SkillDependencyResolver, SkillRegistry, SkillVersionManager } from './catalog';
 export { SkillDiscovery, SkillPlanner, SkillRanker, SkillSelector } from './selection';
 export {
