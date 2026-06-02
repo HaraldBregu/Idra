@@ -1,4 +1,4 @@
-import type { SpeechToTextRealtimeAdapter } from '../../../shared/speech-to-text-runtime';
+import type { SpeechToTextRealtimeAdapter } from '../../shared/speech-to-text-runtime';
 import { createDeepgramSpeechToTextAdapter } from './providers/deepgram';
 import { createElevenLabsSpeechToTextAdapter } from './providers/elevenlabs';
 import { createMistralRealtimeSpeechToTextAdapter } from './providers/mistral';

@@ -13,7 +13,7 @@ export * from './scheduler';
 export * from './support';
 export * from './state';
 export * from './normalize';
-export * from './router';
+export * from './adapters';
 export * from './jobs';
 export * from './validate';
 export type { CronScheduleAccessPolicy } from './core/types';
