@@ -78,8 +78,8 @@ describe('ModelServicePage', () => {
 		renderModelService();
 
 		expect(await screen.findByText('settings.modelServices.assistantName')).toBeInTheDocument();
-		expect(screen.getByText('OpenAI')).toBeInTheDocument();
-		expect(screen.getAllByText('GPT Test').length).toBeGreaterThan(0);
+		expect(await screen.findByText('OpenAI')).toBeInTheDocument();
+		expect((await screen.findAllByText('GPT Test')).length).toBeGreaterThan(0);
 		expect(window.store.getAgentService).toHaveBeenCalledTimes(1);
 		expect(window.app.getModels).toHaveBeenCalledWith(openAiProvider);
 	});
