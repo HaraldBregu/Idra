@@ -225,7 +225,7 @@ function normalizeToolStatus(status: unknown): AgentToolResultStatus {
 	return 'error';
 }
 
-async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
+export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 	const { provider, model, effort } = resolveProviderAndModel(input);
 	const {
 		runId,
