@@ -22,7 +22,6 @@ import {
 	type ConnectorTool,
 	type ConnectorView,
 } from '../../../shared/connector';
-import { ConnectorsService as LegacyConnectorsService } from './legacy';
 
 type ConnectorsStoreSchema = { connectors?: ConnectorConfig[] };
 type ConnectorsStore = {
