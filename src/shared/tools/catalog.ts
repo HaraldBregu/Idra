@@ -4,7 +4,8 @@ import type { AgentToolMetadata, AgentToolProfile } from './types';
 const DEFAULT_TOOL_PROFILES = ['coding', 'standard', 'full'] as const satisfies readonly AgentToolProfile[];
 const OPTIONAL_TOOL_PROFILES = ['full'] as const satisfies readonly AgentToolProfile[];
 const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
-export const DEFAULT_CORE_WORKSPACE_TOOLS = [
+
+export const AGENT_TOOLS = [
 	{
 		name: 'read_file',
 		group: 'coreWorkspace',
@@ -85,9 +86,6 @@ export const DEFAULT_CORE_WORKSPACE_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_STATE_TASK_TOOLS = [
 	{
 		name: 'write_todos',
 		group: 'stateTask',
@@ -148,9 +146,6 @@ export const DEFAULT_STATE_TASK_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_HUMAN_DECISION_TOOLS = [
 	{
 		name: 'request_approval',
 		group: 'humanDecision',
@@ -191,9 +186,6 @@ export const DEFAULT_HUMAN_DECISION_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_SUBAGENT_TOOLS = [
 	{
 		name: 'spawn_subagent',
 		group: 'subagent',
@@ -204,9 +196,6 @@ export const DEFAULT_SUBAGENT_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_SKILL_TOOLS = [
 	{
 		name: 'list_skills',
 		group: 'skill',
@@ -237,9 +226,6 @@ export const DEFAULT_SKILL_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 	{
 		name: 'list_mcp_servers',
 		group: 'mcpConnector',
@@ -340,9 +326,6 @@ export const DEFAULT_MCP_CONNECTOR_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const DEFAULT_WEB_TOOLS = [
 	{
 		name: 'web_fetch',
 		group: 'web',
@@ -363,9 +346,6 @@ export const DEFAULT_WEB_TOOLS = [
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const OPTIONAL_SCRIPT_TOOLS = [
 	{
 		name: 'script_run',
 		group: 'script',
@@ -376,9 +356,6 @@ export const OPTIONAL_SCRIPT_TOOLS = [
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const OPTIONAL_CRON_TOOLS = [
 	{
 		name: 'cron_create',
 		group: 'cron',
@@ -459,9 +436,6 @@ export const OPTIONAL_CRON_TOOLS = [
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
 	},
-] as const satisfies readonly AgentToolMetadata[];
-
-export const LEGACY_CORE_WORKSPACE_TOOLS = [
 	{
 		name: 'apply_patch',
 		group: 'coreWorkspace',
