@@ -55,10 +55,9 @@ describe('OverviewPage', () => {
 		expect(screen.getByRole('heading', {
 			name: 'settings.overview.groups.modelServices',
 		})).toBeInTheDocument();
-		const monitoringSection = screen.getByRole('heading', {
+		expect(screen.queryByRole('heading', {
 			name: 'settings.overview.groups.monitoring',
-		}).closest('section');
-		expect(monitoringSection).not.toBeNull();
+		})).not.toBeInTheDocument();
 
 		expect(buttonTitles()).toEqual([
 			'settings.tabs.general',
@@ -73,13 +72,9 @@ describe('OverviewPage', () => {
 			'settings.modelServices.videoCreatorName',
 			'settings.modelServices.musicCreatorName',
 			'settings.tabs.channels',
-				'settings.tabs.heartbeat',
-				'settings.sections.taskScheduler',
-				'settings.tabs.backgroundTasks',
-			]);
-			expect(buttonTitles(monitoringSection as HTMLElement)).toEqual([
-				'settings.tabs.backgroundTasks',
-			]);
+			'settings.tabs.heartbeat',
+			'settings.sections.taskScheduler',
+		]);
 	});
 
 	it('navigates to the selected settings route when clicked', async () => {
