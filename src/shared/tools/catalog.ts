@@ -5,7 +5,7 @@ const DEFAULT_TOOL_PROFILES = ['coding', 'standard', 'full'] as const satisfies 
 const OPTIONAL_TOOL_PROFILES = ['full'] as const satisfies readonly AgentToolProfile[];
 export const AGENT_TOOLS = [
 	{
-		name: 'file_read',
+		name: 'read',
 		group: 'coreWorkspace',
 		title: 'Read file',
 		description: 'Read a UTF-8 workspace file with optional line offset and limit.',
@@ -15,7 +15,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'file_edit',
+		name: 'edit',
 		group: 'coreWorkspace',
 		title: 'Edit file',
 		description: 'Replace exact text in a UTF-8 workspace file.',
@@ -25,7 +25,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'search_files',
+		name: 'find',
 		group: 'coreWorkspace',
 		title: 'Search files',
 		description: 'Find workspace paths by glob pattern.',
@@ -35,7 +35,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'bash',
+		name: 'exec',
 		group: 'coreWorkspace',
 		title: 'Run shell',
 		description:
@@ -46,7 +46,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'file_write',
+		name: 'write',
 		group: 'coreWorkspace',
 		title: 'Write file',
 		description: 'Create or overwrite a UTF-8 workspace file.',
@@ -266,7 +266,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'script_run',
+		name: 'run_script',
 		group: 'script',
 		title: 'Run script',
 		description: 'Run an existing script file with explicit args and output limits.',
