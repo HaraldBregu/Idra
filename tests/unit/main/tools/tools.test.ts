@@ -189,7 +189,7 @@ describe('tools/policy and registry', () => {
 		const implementedToolNames = [
 			...LOCAL_TOOL_CATALOG.map((entry) => entry.tool.name),
 			readFileTool.name,
-			writeTool.name,
+			writeFileTool.name,
 			editFileTool.name,
 			applyPatchTool.name,
 			deleteFileTool.name,
