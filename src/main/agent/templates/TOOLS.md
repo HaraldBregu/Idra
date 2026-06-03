@@ -1,171 +1,35 @@
 # Tools
 
-This document describes how Friday currently assembles, selects, and executes
-agent tools. The source of truth is the local tool registry and runtime helpers
-under `src/main/tools`, with shared tool metadata under `src/shared/tools`.
-
-## Assembly
-
-The default `AgentService` tool factory calls `ToolService.createDefaultTools`.
-That factory builds tools from `LOCAL_TOOL_CATALOG`, applies the agent tool
-profile, then applies runtime allow and deny lists.
-
-- The default profile is `full`, which allows every tool in the local catalog.
-- The `coding` and `standard` profiles allow the default metadata set and omit
-  optional script and cron tools.
-- The `minimal` and `messaging` profiles allow no local tools unless policy also
-  allows specific names or groups.
-- Policy entries can name tools directly, use `*`, use glob patterns, or use
-  groups such as `group:file`, `group:shell`, `group:state_task`,
-  `group:human_decision`, `group:subagent`, `group:skill`, `group:mcp`,
-  `group:web`, `group:script`, and `group:cron`.
-
-There is also a run-scoped assembler exported as `createAgentTools`. It builds
-tool families from `toolsAllow`:
-
-- `undefined` includes the filesystem/control family and web tools.
-- `[]` includes no tools.
-- `*` includes filesystem/control, script, cron, and web tools.
-- Group or tool-specific allow entries include only the matching families.
-
-In the run-scoped cron family, the compatibility `cron` tool is filtered out and
-the split cron tools are used instead.
+Friday exposes only the explicitly requested tool registry. The source of truth
+is `src/shared/tools/catalog.ts`, and runtime schemas live in
+`src/main/tools/requested/tools.ts`.
 
 ## Local Catalog
 
-These tools are in the local catalog. A tool still has to pass profile policy,
-allow or deny policy, turn ranking, and runtime context before it is exposed to
-the provider.
+| Tool | Purpose |
+| --- | --- |
+| `web.run` | Web search, page reading, live data, finance, weather, sports, time, and image search. |
+| `image_gen.imagegen` | Image generation and uploaded image editing. |
+| `functions.exec_command` | Shell command execution. |
+| `functions.write_stdin` | Input and polling for an existing shell command session. |
+| `functions.apply_patch` | Structured source patching. |
+| `functions.view_image` | Local image inspection. |
+| `functions.update_plan` | Visible task-plan updates. |
+| `functions.get_goal` | Thread goal status reading. |
+| `functions.create_goal` | Thread goal creation. |
+| `functions.update_goal` | Thread goal completion or blocked-state update. |
+| `functions.list_mcp_resources` | MCP resource listing. |
+| `functions.list_mcp_resource_templates` | MCP resource template listing. |
+| `functions.read_mcp_resource` | MCP resource reading. |
+| `functions.request_user_input` | Structured user input in Plan mode. |
+| `multi_tool_use.parallel` | Parallel developer-tool execution. |
+| `tool_search.tool_search_tool` | Deferred tool discovery. |
+| `multi_agent_v1.spawn_agent` | Sub-agent creation. |
+| `multi_agent_v1.resume_agent` | Closed sub-agent resumption. |
+| `multi_agent_v1.send_input` | Sub-agent input delivery. |
+| `multi_agent_v1.wait_agent` | Waiting on sub-agent completion. |
+| `multi_agent_v1.close_agent` | Sub-agent closure. |
 
-| Tool                    | Group          | How it is used                                                                                                                                         |
-| ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `workspace`             | Core workspace | Runs structured filesystem actions: read, list, search, write, edit, delete, apply_patch, copy, and move. Preserves guarded writes.                   |
-| `exec`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
-| `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `exec background=true`.                                                                |
-| `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
-| `update_todo`           | State/task     | Updates one item in the current run todo list.                                                                                                         |
-| `list_todos`            | State/task     | Lists the current run todo items and statuses.                                                                                                         |
-| `complete_task`         | State/task     | Marks the current task or a todo item as complete.                                                                                                     |
-| `write_scratch`         | State/task     | Writes run-local scratch notes for later tool calls.                                                                                                   |
-| `read_scratch`          | State/task     | Reads run-local scratch notes.                                                                                                                         |
-| `request_approval`      | Human decision | Asks a human to approve or deny a proposed action. The tool itself is approval-gated.                                                                  |
-| `request_clarification` | Human decision | Asks a focused clarification question before continuing.                                                                                               |
-| `present_plan`          | Human decision | Presents a plan for human review before taking action.                                                                                                 |
-| `request_authorization` | Human decision | Requests explicit authorization for sensitive or external actions. The tool itself is approval-gated.                                                  |
-| `spawn_subagent`        | Subagent       | Starts a child agent run for a clearly scoped task.                                                                                                    |
-| `skill_list`            | Skill          | Lists installed skills available to the agent.                                                                                                         |
-| `skill_load`            | Skill          | Loads instructions and support file metadata for an installed skill.                                                                                   |
-| `skill_use`             | Skill          | Selects and loads a skill for the current task.                                                                                                        |
-| `mcp_list_servers`      | MCP connector  | Lists configured MCP connector servers.                                                                                                                |
-| `mcp_connect_server`    | MCP connector  | Connects to or tests a configured MCP server.                                                                                                          |
-| `mcp_refresh_server`    | MCP connector  | Refreshes a configured MCP server and its discovered capabilities.                                                                                     |
-| `mcp_list_tools`        | MCP connector  | Lists tools exposed by a configured MCP server.                                                                                                        |
-| `mcp_load_tool`         | MCP connector  | Loads schema and metadata for one MCP tool.                                                                                                            |
-| `mcp_call_tool`         | MCP connector  | Calls a tool on a configured MCP server. This tool is approval-gated.                                                                                  |
-| `mcp_list_resources`    | MCP connector  | Lists resources exposed by a configured MCP server.                                                                                                    |
-| `mcp_read_resource`     | MCP connector  | Reads a resource from a configured MCP server.                                                                                                         |
-| `mcp_list_prompts`      | MCP connector  | Lists prompts exposed by a configured MCP server.                                                                                                      |
-| `mcp_load_prompt`       | MCP connector  | Loads a prompt from a configured MCP server.                                                                                                           |
-| `web_fetch`             | Web            | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB.                                                                                 |
-| `open_browser`          | Web            | Opens an HTTP or HTTPS URL in the user's default browser.                                                                                              |
-| `script_run`            | Script         | Runs an existing script file with explicit arguments, interpreter selection, timeout, and output limits. It does not run arbitrary shell command text. |
-| `cron_create`           | Cron           | Creates a scheduled job through `CronService`.                                                                                                         |
-| `cron_read`             | Cron           | Reads one scheduled job through `CronService`.                                                                                                         |
-| `cron_update`           | Cron           | Updates a scheduled job through `CronService`.                                                                                                         |
-| `cron_delete`           | Cron           | Deletes a scheduled job through `CronService`.                                                                                                         |
-| `cron_list`             | Cron           | Lists scheduled jobs through `CronService`.                                                                                                            |
-| `cron_start`            | Cron           | Starts a paused scheduled job through `CronService`.                                                                                                   |
-| `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
-| `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
-
-The normal model-facing filesystem surface is `workspace`. Standalone
-filesystem implementations remain internal action handlers for `workspace`.
-Compatibility implementations for `cron` exist in source, but the split cron
-tools should be used for scheduling.
-
-## Dynamic Additions
-
-Some tools or capabilities are added outside the local catalog.
-
-| Tool or capability    | When it appears                                                                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `startup_files`       | Added only for full primary bootstrap mode. During that bootstrap mode, it is the only local tool exposed.                                                          |
-| `heartbeat_respond`   | Added for heartbeat runs when heartbeat tool reporting is enabled. It can be forced into the prompt for heartbeat reporting.                                        |
-| Connector tools       | Added for enabled, configured connectors whose names or descriptions match the user message. Connector tool names are derived from the connector and raw tool name. |
-| Selected skills       | Matching skill instructions are appended to the system prompt. The default capability resolver does not expose `execute_skill` as a provider tool.                  |
-| Run-scoped core tools | Available through `createAgentTools` when a caller uses run-scoped construction instead of the default `AgentService` factory.                                      |
-
-## Turn Selection
-
-For the default `AgentService` path, the request-level tool policy currently
-allows a tool-capable run. The per-turn selector decides which tools, if any, are
-actually exposed.
-
-- If there are no candidate tools, or the user explicitly says not to use tools,
-  no tools are exposed.
-- Requests that match the immediate background-task phrase expose no prompt
-  tools.
-- Tool inventory questions expose all current candidate tools.
-- Otherwise, tools are ranked by matches across tool name, display name,
-  display summary, and description.
-- Ranking adds intent boosts for scheduling, email, calendar, Drive, web,
-  shell/script execution, subagents, file reads, file writes, file deletion, and
-  file moves.
-- Only tools with a positive score are selected.
-- The default `AgentService` cap is 9 prompt tools.
-- Workspace mutation actions depend on prior reads when overwriting existing
-  files.
-- After local selection, capability resolution can append matching connector
-  tools and selected skill instructions.
-
-The provider receives only the selected tools for the turn. Each provider tool
-definition contains the exposed tool name, description, and JSON schema after
-provider-safe name and schema normalization.
-
-## Execution
-
-The model may call any tool exposed for the turn. The runtime does not force a
-tool call.
-
-When a provider streams a tool call, the runtime collects the call id, tool name,
-and JSON argument deltas. The tool is not executed when arguments are invalid
-JSON, when arguments are not a JSON object, or when the requested tool was not
-available for the run.
-
-Before execution, the legacy managed path runs preflight checks:
-
-- Identical calls are tracked per turn. The third identical call and later add a
-  warning. After more than 5 identical calls, execution is blocked.
-- Tools marked with `needsApproval` are rejected unless approval has already
-  been cached for that exact call key.
-- Tool-specific guards still run inside each tool. Examples include
-  read-before-write checks for file writes and denied command patterns for
-  shell execution.
-
-The selected tool then executes with the current workspace, session id, run plan,
-read-state map, abort signal, and Friday services. Tool results are appended to
-the transcript as tool messages, and the agent loop calls the provider again
-with the updated transcript. This repeats until the provider stops calling
-tools, the run is cancelled, the context is compacted after one overflow retry,
-or the max iteration limit is reached.
-
-Tool lifecycle events are streamed to the renderer: call start, argument deltas,
-parsed input, result, status, duration, and displayable output text. Run logs
-record selected tool names, phase durations, iterations, and tool-call outcomes.
-
-## Cron Scheduling
-
-Use the split cron tools for future, delayed, recurring, reminder, wake, and
-manual-run scheduling:
-
-- `cron_create`
-- `cron_read`
-- `cron_update`
-- `cron_delete`
-- `cron_list`
-- `cron_start`
-- `cron_stop`
-- `cron_run`
-
-The agent should not emulate scheduling with sleep loops, shell loops,
-long-running polling, or model-side timers.
+Connector tools, old filesystem/workspace tools, cron tools, state tools, skill
+tools, shell wrapper tools, and bootstrap-only tool definitions are not added to
+the model-facing tool registry.

@@ -65,7 +65,6 @@ import {
 	type ToolContext,
 	type ToolServicePort,
 } from '../tools';
-import { createStartupFilesTool } from '../tools/startup/files';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
@@ -452,11 +451,11 @@ export class AgentService {
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
 		const toolPolicy = context.toolPolicy;
-			return this.toolService.createDefaultTools({
-				toolPolicy,
-				explicitAllow: context.toolsAllow,
-				denylist: context.toolsDeny,
-			});
+		return this.toolService.createDefaultTools({
+			toolPolicy,
+			explicitAllow: context.toolsAllow,
+			denylist: context.toolsDeny,
+		});
 	}
 
 	async send(
@@ -1044,18 +1043,11 @@ export class AgentService {
 	}
 
 	private selectBootstrapTools(
-		agentId: string,
+		_agentId: string,
 		bootstrapMode: 'none' | 'limited' | 'full'
 	): AgentToolSelectionForTurn {
-		if (bootstrapMode !== 'full') {
-			return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
-		}
-		const tool = this.createStartupFilesTool(agentId);
-		return { toolsForPrompt: [tool], systemPromptSuffix: '', rankedTools: [tool] };
-	}
-
-	private createStartupFilesTool(agentId: string): AgentTool {
-		return createStartupFilesTool(agentId, this.getWorkspaceService());
+		void bootstrapMode;
+		return { toolsForPrompt: [], systemPromptSuffix: '', rankedTools: [] };
 	}
 
 	private filterStartupFilesForRun(
