@@ -92,14 +92,8 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
 	workspace: workspaceTool,
-	file_read: fileReadTool,
-	file_edit: fileEditTool,
-	directory_list: directoryListTool,
-	search_files: searchFilesTool,
 	exec: execTool,
 	process: processTool,
-	file_write: fileWriteTool,
-	file_delete: fileDeleteTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
 	list_todos: listTodosTool,
