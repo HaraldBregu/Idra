@@ -133,7 +133,6 @@ export type ToolApprovalPolicyDecision =
 	| { outcome: 'allow'; resolution: 'allow-once' | 'allow-always' }
 	| { outcome: 'deny'; resolution: 'deny'; reason: string; deniedReason: string };
 
-const CORE_WORKSPACE_TOOL_NAMES = toolNamesForSharedGroup('coreWorkspace');
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:web': toolNamesForSharedGroup('web'),
 	'group:image': toolNamesForSharedGroup('image'),

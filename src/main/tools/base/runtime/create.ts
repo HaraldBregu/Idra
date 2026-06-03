@@ -1,29 +1,16 @@
 import type { AgentTool, ToolDiagnostics } from '../common';
 import type { FridayServices } from '../tool';
-import {
-	assertUniqueToolNames,
-	createToolDiagnostics,
-	normalizeToolName,
-} from '../common';
-import { createAppTools } from '../../web/runtime';
-import { createCoreTools } from '../../filesystem/runtime';
-import { createCronTools } from '../../cron/runtime';
-import { createScriptTools } from '../../script/runtime';
+import { assertUniqueToolNames, createToolDiagnostics, normalizeToolName } from '../common';
+import { createRequestedTools } from '../../requested/runtime';
 import { normalizeToolSchemas } from '../schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../../shared/tool-types';
 import { applyToolPolicyPipeline } from '../../shared/pipeline';
-import { collapseWorkspaceToolSurface } from '../../workspace/surface';
 import {
+	newCallTracker,
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
-	newCallTracker,
 } from '../../shared/wrap';
-import {
-	AGENT_ALL_TOOL_NAMES,
-	AGENT_TOOL_LEGACY_ALIASES,
-	AGENT_TOOL_METADATA_BY_NAME,
-	AGENT_TOOL_READ_ONLY_DENY_NAMES,
-} from '../../../../shared/tools';
+import { AGENT_TOOL_NAMES, AGENT_TOOL_READ_ONLY_DENY_NAMES } from '../../../../shared/tools';
 
 type AppConfig = Record<string, unknown>;
 type AuthContext = Record<string, unknown>;
@@ -70,14 +57,7 @@ export type CreateAgentToolsOptions = {
 };
 
 export type ToolConstructionPlan = {
-	includeFileTools: boolean;
-	includeCronTools: boolean;
-	includeShellTools: boolean;
-	includeWebTools: boolean;
-	includeMessagingTools: boolean;
-	includeMcpTools: boolean;
-	includeLspTools: boolean;
-	includeToolSearchControls: boolean;
+	includeRequestedTools: boolean;
 };
 
 export type CreateAgentToolsResult = {
@@ -88,90 +68,10 @@ export type CreateAgentToolsResult = {
 	dispose: () => Promise<void>;
 };
 
-const TOOL_PLAN_BY_GROUP = {
-	coreWorkspace: 'includeFileTools',
-	stateTask: 'includeFileTools',
-	humanDecision: 'includeFileTools',
-	subagent: 'includeFileTools',
-	skill: 'includeFileTools',
-	mcpConnector: 'includeFileTools',
-	web: 'includeWebTools',
-	script: 'includeShellTools',
-	cron: 'includeCronTools',
-} as const satisfies Record<string, keyof ToolConstructionPlan>;
-
-const CORE_TOOL_FAMILIES: Record<string, keyof ToolConstructionPlan> = Object.fromEntries(
-	[...AGENT_ALL_TOOL_NAMES, ...Object.keys(AGENT_TOOL_LEGACY_ALIASES)].map((name) => {
-		const alias = AGENT_TOOL_LEGACY_ALIASES[name as keyof typeof AGENT_TOOL_LEGACY_ALIASES]?.[0];
-		const metadata =
-			AGENT_TOOL_METADATA_BY_NAME[name as keyof typeof AGENT_TOOL_METADATA_BY_NAME] ??
-			AGENT_TOOL_METADATA_BY_NAME[alias as keyof typeof AGENT_TOOL_METADATA_BY_NAME];
-		return [name, metadata ? TOOL_PLAN_BY_GROUP[metadata.group] : 'includeFileTools'];
-	})
-) as Record<string, keyof ToolConstructionPlan>;
-
-const FILE_TOOL_NAMES = new Set(
-	Object.entries(CORE_TOOL_FAMILIES)
-		.filter(([, family]) => family === 'includeFileTools')
-		.map(([name]) => name)
-);
+const REQUESTED_TOOL_NAMES = new Set(AGENT_TOOL_NAMES.map(normalizeToolName));
 
 export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPlan {
-	const empty: ToolConstructionPlan = {
-		includeFileTools: false,
-		includeCronTools: false,
-		includeShellTools: false,
-		includeWebTools: false,
-		includeMessagingTools: false,
-		includeMcpTools: false,
-		includeLspTools: false,
-		includeToolSearchControls: false,
-	};
-	if (toolsAllow !== undefined && toolsAllow.length === 0) return empty;
-	if (toolsAllow === undefined) {
-		return {
-			...empty,
-			includeFileTools: true,
-			includeWebTools: true,
-		};
-	}
-	const normalized = toolsAllow.map(normalizeToolName);
-	if (normalized.includes('*')) {
-		return {
-			...empty,
-			includeFileTools: true,
-			includeCronTools: true,
-			includeShellTools: true,
-			includeWebTools: true,
-		};
-	}
-	const plan = { ...empty };
-	for (const name of normalized) {
-		if (
-			name.startsWith('group:file') ||
-			name.startsWith('group:filesystem') ||
-			name.startsWith('group:core') ||
-			name.startsWith('group:state') ||
-			name.startsWith('group:human') ||
-			name.startsWith('group:subagent') ||
-			name.startsWith('group:skill') ||
-			name.startsWith('group:mcp')
-		) {
-			plan.includeFileTools = true;
-		} else if (name.startsWith('group:shell')) {
-			plan.includeFileTools = true;
-		} else if (name.startsWith('group:script')) {
-			plan.includeShellTools = true;
-		} else if (name.startsWith('group:cron')) {
-			plan.includeCronTools = true;
-		} else if (name.startsWith('group:web')) {
-			plan.includeWebTools = true;
-		} else if (!name.startsWith('group:')) {
-			const family = CORE_TOOL_FAMILIES[name];
-			if (family) plan[family] = true;
-		}
-	}
-	return plan;
+	return { includeRequestedTools: toolsAllow === undefined || toolsAllow.length > 0 };
 }
 
 export async function createAgentTools(
@@ -186,14 +86,7 @@ export async function createAgentTools(
 		diagnostics,
 		policy: options.services?.policy,
 	});
-	const tools = prepareRuntimeTools(
-		collapseWorkspaceToolSurface(policyResult.tools, {
-			explicitAllow: options.toolsAllow,
-			readOnly: Boolean(options.sandbox?.readOnly || options.config?.tools?.fs?.readOnly),
-		}),
-		options,
-		diagnostics
-	);
+	const tools = prepareRuntimeTools(policyResult.tools, options, diagnostics);
 
 	return {
 		tools,
@@ -213,8 +106,15 @@ async function buildToolCandidates(
 ): Promise<AgentTool[]> {
 	const candidates: AgentTool[] = [];
 
-	if (options.includeCoreTools !== false) {
-		addCoreToolCandidates(candidates, options, plan);
+	if (options.includeCoreTools !== false && plan.includeRequestedTools) {
+		candidates.push(
+			...createRequestedTools({
+				workspaceDir: options.workspaceDir,
+				sessionId: options.sessionId,
+				signal: options.abortSignal,
+				services: options.services,
+			})
+		);
 	}
 	addHostToolCandidates(candidates, options);
 
@@ -224,61 +124,11 @@ async function buildToolCandidates(
 	return candidates;
 }
 
-function addCoreToolCandidates(
-	candidates: AgentTool[],
-	options: CreateAgentToolsOptions,
-	plan: ToolConstructionPlan
-): void {
-	if (plan.includeFileTools) {
-		candidates.push(
-			...createCoreTools({
-				workspaceDir: options.workspaceDir,
-				sessionId: options.sessionId,
-				signal: options.abortSignal,
-				services: options.services,
-			})
-		);
-	}
-	if (plan.includeWebTools) {
-		candidates.push(
-			...createAppTools({
-				workspaceDir: options.workspaceDir,
-				sessionId: options.sessionId,
-				signal: options.abortSignal,
-				services: options.services,
-			})
-		);
-	}
-	if (plan.includeShellTools) {
-		candidates.push(
-			...createScriptTools({
-				workspaceDir: options.workspaceDir,
-				sessionId: options.sessionId,
-				signal: options.abortSignal,
-				services: options.services,
-			})
-		);
-	}
-	if (plan.includeCronTools) {
-		candidates.push(
-			...createCronTools({
-				workspaceDir: options.workspaceDir,
-				sessionId: options.sessionId,
-				signal: options.abortSignal,
-				services: options.services,
-			}).filter((tool) => tool.name !== 'cron')
-		);
-	}
-}
-
-function addHostToolCandidates(
-	candidates: AgentTool[],
-	options: CreateAgentToolsOptions
-): void {
+function addHostToolCandidates(candidates: AgentTool[], options: CreateAgentToolsOptions): void {
 	const existingNames = new Set(candidates.map((tool) => normalizeToolName(tool.name)));
 	for (const tool of options.hostTools ?? []) {
 		const name = normalizeToolName(tool.name);
-		if (!FILE_TOOL_NAMES.has(name) || existingNames.has(name)) continue;
+		if (!REQUESTED_TOOL_NAMES.has(name) || existingNames.has(name)) continue;
 		candidates.push(tool);
 		existingNames.add(name);
 	}
@@ -364,6 +214,6 @@ function hasToolControlsWithoutGrants(
 
 export function clientToolNames(tools: AgentTool[]): string[] {
 	return tools
-		.filter((tool) => FILE_TOOL_NAMES.has(normalizeToolName(tool.name)))
+		.filter((tool) => REQUESTED_TOOL_NAMES.has(normalizeToolName(tool.name)))
 		.map((tool) => tool.name);
 }

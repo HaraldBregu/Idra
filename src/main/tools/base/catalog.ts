@@ -1,52 +1,16 @@
-import { ToolPolicyService, type ToolPolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../shared/tool-types';
-import type { AgentTool } from './tool';
-import { normalizeToolName } from './common';
 import {
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_NAMES,
 	type AgentToolApprovalPolicy,
-	type AgentToolName,
 	type AgentToolGroupName,
+	type AgentToolName,
 	type AgentToolProfile,
 } from '../../../shared/tools';
-import { openBrowserTool } from '../web/browser';
-import { webFetchTool } from '../web/fetch';
-import { cronCreateTool } from '../cron/create';
-import { cronDeleteTool } from '../cron/delete';
-import { cronListTool } from '../cron/list';
-import { cronReadTool } from '../cron/read';
-import { cronRunTool } from '../cron/run';
-import { cronStartTool } from '../cron/start';
-import { cronStopTool } from '../cron/stop';
-import { cronUpdateTool } from '../cron/update';
-import { workspaceTool } from '../workspace/tool';
-import { execTool } from '../shell/exec';
-import { processTool } from '../shell/process';
-import { scriptRunTool } from '../script/run';
-import { completeTaskTool } from '../state/todo/complete';
-import { listTodosTool } from '../state/todo/list';
-import { readScratchTool } from '../state/scratch/read';
-import { updateTodoTool } from '../state/todo/update';
-import { writeScratchTool } from '../state/scratch/write';
-import { writeTodosTool } from '../state/todo/write';
-import { presentPlanTool } from '../human/present-plan';
-import { requestApprovalTool } from '../human/request-approval';
-import { requestAuthorizationTool } from '../human/request-authorization';
-import { requestClarificationTool } from '../human/request-clarification';
-import { spawnSubagentTool } from '../subagent/spawn';
-import { skillListTool } from '../skill/list';
-import { skillLoadTool } from '../skill/load';
-import { skillUseTool } from '../skill/use';
-import { mcpCallToolTool } from '../mcp/tool/call';
-import { mcpConnectServerTool } from '../mcp/server/connect';
-import { mcpListPromptsTool } from '../mcp/prompt/list';
-import { mcpListResourcesTool } from '../mcp/resource/list';
-import { mcpListServersTool } from '../mcp/server/list';
-import { mcpListToolsTool } from '../mcp/tool/list';
-import { mcpLoadPromptTool } from '../mcp/prompt/load';
-import { mcpLoadToolTool } from '../mcp/tool/load';
-import { mcpReadResourceTool } from '../mcp/resource/read';
-import { mcpRefreshServerTool } from '../mcp/server/refresh';
+import { requestedTools } from '../requested/tools';
+import type { ToolProfile, ToolPolicyServicePort, ToolPolicySubject } from '../shared/tool-types';
+import { ToolPolicyService } from '../shared/tool-types';
+import { normalizeToolName } from './common';
+import type { AgentTool } from './tool';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
@@ -54,19 +18,6 @@ export type LocalToolApprovalPolicy = AgentToolApprovalPolicy;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type LocalToolImplementation = AgentTool<any, any>;
-
-const LOCAL_TOOL_NAMES = [
-	...AGENT_TOOL_NAMES,
-	'script_run',
-	'cron_create',
-	'cron_read',
-	'cron_update',
-	'cron_delete',
-	'cron_list',
-	'cron_start',
-	'cron_stop',
-	'cron_run',
-] as const satisfies readonly AgentToolName[];
 
 export interface LocalToolCatalogEntry {
 	name: AgentToolName;
@@ -90,50 +41,13 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 	return ownerOnly === undefined ? entry : { ...entry, ownerOnly };
 }
 
-const LOCAL_TOOL_IMPLEMENTATIONS = {
-	workspace: workspaceTool,
-	exec: execTool,
-	process: processTool,
-	write_todos: writeTodosTool,
-	update_todo: updateTodoTool,
-	list_todos: listTodosTool,
-	complete_task: completeTaskTool,
-	write_scratch: writeScratchTool,
-	read_scratch: readScratchTool,
-	request_approval: requestApprovalTool,
-	request_clarification: requestClarificationTool,
-	present_plan: presentPlanTool,
-	request_authorization: requestAuthorizationTool,
-	spawn_subagent: spawnSubagentTool,
-	skill_list: skillListTool,
-	skill_load: skillLoadTool,
-	skill_use: skillUseTool,
-	mcp_list_servers: mcpListServersTool,
-	mcp_connect_server: mcpConnectServerTool,
-	mcp_refresh_server: mcpRefreshServerTool,
-	mcp_list_tools: mcpListToolsTool,
-	mcp_load_tool: mcpLoadToolTool,
-	mcp_call_tool: mcpCallToolTool,
-	mcp_list_resources: mcpListResourcesTool,
-	mcp_read_resource: mcpReadResourceTool,
-	mcp_list_prompts: mcpListPromptsTool,
-	mcp_load_prompt: mcpLoadPromptTool,
-	web_fetch: webFetchTool,
-	open_browser: openBrowserTool,
-	script_run: scriptRunTool,
-	cron_create: cronCreateTool,
-	cron_read: cronReadTool,
-	cron_update: cronUpdateTool,
-	cron_delete: cronDeleteTool,
-	cron_list: cronListTool,
-	cron_start: cronStartTool,
-	cron_stop: cronStopTool,
-	cron_run: cronRunTool,
-} as const satisfies Record<(typeof LOCAL_TOOL_NAMES)[number], LocalToolImplementation>;
+const REQUESTED_TOOL_BY_NAME = new Map(requestedTools.map((tool) => [tool.name, tool]));
 
-export const LOCAL_TOOL_CATALOG = LOCAL_TOOL_NAMES.map((name) =>
-	localTool(name, LOCAL_TOOL_IMPLEMENTATIONS[name])
-) as readonly LocalToolCatalogEntry[];
+export const LOCAL_TOOL_CATALOG = AGENT_TOOL_NAMES.map((name) => {
+	const tool = REQUESTED_TOOL_BY_NAME.get(name);
+	if (!tool) throw new Error(`requested tool is missing an implementation: ${name}`);
+	return localTool(name, tool);
+}) as readonly LocalToolCatalogEntry[];
 
 export function localToolNamesForProfile(profile: LocalToolProfile): string[] {
 	return LOCAL_TOOL_CATALOG.filter((entry) => entry.profiles.includes(profile)).map(

@@ -66,21 +66,8 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	}
 
 	private async resolveConnectorTools(input: AgentCapabilityResolveInput): Promise<AgentTool[]> {
-		if (!this.options.connectors || (!input.shouldUseTools && !input.bootstrapPending)) return [];
-		try {
-			const tools = this.options.connectors.createAgentTools().map((tool) => ({
-				...tool,
-				serviceKind: tool.serviceKind ?? ('connector' as const),
-			}));
-			return tools.filter((tool) =>
-				matchesPrompt(input.userMessage, [tool.name, tool.description])
-			);
-		} catch (error) {
-			this.options.logger?.warn('AgentCapabilityService', 'Failed to resolve connector tools', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-			return [];
-		}
+		void input;
+		return [];
 	}
 
 	private async resolveSkills(input: AgentCapabilityResolveInput): Promise<AgentResolvedSkill[]> {
