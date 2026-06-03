@@ -104,7 +104,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	process: processTool,
 	file_write: fileWriteTool,
 	file_delete: fileDeleteTool,
-	undo_last_operation: undoLastOperationTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
 	list_todos: listTodosTool,
