@@ -18,10 +18,10 @@ const GENERIC_TOOL_ACTION_TOKENS = new Set([
 	'run',
 	'execute',
 ]);
-const READ_TOOL_NAME = 'read_file';
+const READ_TOOL_NAME = 'file_read';
 const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
-	'write_file',
-	'edit_file',
+	'file_write',
+	'file_edit',
 	'apply_patch',
 	'copy',
 	'move',

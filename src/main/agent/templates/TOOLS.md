@@ -36,14 +36,14 @@ policy, ranking, and run context before it is exposed to the provider.
 
 | Tool | How it is used |
 | --- | --- |
-| `read_file` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
-| `write_file` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
-| `edit_file` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
+| `file_read` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
+| `file_write` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
+| `file_edit` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
 | `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
-| `delete_file` | Deletes a file directly. Directory deletion requires `recursive=true` and root paths are guarded. |
+| `file_delete` | Deletes a file directly. Directory deletion requires `recursive=true` and root paths are guarded. |
 | `copy` | Copies one file to another path. Overwriting requires prior read state for the destination. |
 | `move` | Moves or renames one file. The source must be read first; overwriting requires prior destination read state. |
-| `inspect_file` | Inspects bytes, size, MIME type, previews, hashes, and direct PNG/JPEG/GIF/WebP image content when practical. |
+| `file_inspect` | Inspects bytes, size, MIME type, previews, hashes, and direct PNG/JPEG/GIF/WebP image content when practical. |
 | `search_files` | Finds files by glob pattern, excluding common generated directories such as `node_modules` and `.git`. |
 | `exec` | Runs a shell command in the workspace with capped output, denied dangerous command patterns, abort support, and an execution timeout. |
 | `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
@@ -97,10 +97,10 @@ The default service path narrows the candidate list for each turn.
   and safety.
 - Google Calendar, Google Drive, and Gmail requests force matching connector
   tools into the prompt even when ranking would omit them.
-- File mutation tools `write_file`, `edit_file`, `apply_patch`, `delete_file`, `copy`, and
-  `move` automatically keep `read_file` available when it exists.
+- File mutation tools `file_write`, `file_edit`, `apply_patch`, `file_delete`, `copy`, and
+  `move` automatically keep `file_read` available when it exists.
 - Skill selection can force a skill's required or allowed tools into the prompt.
-  File-backed skills also force `read_file` when needed.
+  File-backed skills also force `file_read` when needed.
 - Heartbeat runs can force `heartbeat_respond` into the prompt.
 
 The system prompt lists only the selected tools for the turn. When narrowing

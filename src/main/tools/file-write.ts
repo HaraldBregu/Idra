@@ -10,10 +10,10 @@ interface WriteArgs {
 	content: string;
 }
 
-export const writeFileTool: AgentTool<WriteArgs> = {
-	name: 'write_file',
+export const fileWriteTool: AgentTool<WriteArgs> = {
+	name: 'file_write',
 	description:
-		'Create or write a UTF-8 file (overwrites existing). If the file already exists you must have called `read` on it earlier in this run. Creates parent dirs.',
+		'Create or write a UTF-8 file (overwrites existing). If the file already exists you must have called `file_read` on it earlier in this run. Creates parent dirs.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -29,7 +29,7 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
-			return textResult(`write_file: ${(err as Error).message}`, true);
+			return textResult(`file_write: ${(err as Error).message}`, true);
 		}
 		let exists = false;
 		let stat: { mtimeMs: number; size: number } | null = null;
@@ -44,13 +44,13 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 			const last = ctx.readState.get(abs);
 			if (!last) {
 				return textResult(
-					`write_file: must read ${args.path} before overwriting (read-before-write rule).`,
+					`file_write: must read ${args.path} before overwriting (read-before-write rule).`,
 					true
 				);
 			}
 			if (stat && (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size)) {
 				return textResult(
-					`write_file: ${args.path} changed on disk since last read. Re-read first.`,
+					`file_write: ${args.path} changed on disk since last read. Re-read first.`,
 					true
 				);
 			}
@@ -63,7 +63,7 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 			if (before && before.before.kind !== 'other') pushUndo(ctx, before);
 			return textResult(`wrote ${abs} (${after.size} bytes)`);
 		} catch (err) {
-			return textResult(`write_file: ${(err as Error).message}`, true);
+			return textResult(`file_write: ${(err as Error).message}`, true);
 		}
 	},
 };

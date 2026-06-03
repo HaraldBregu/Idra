@@ -7,7 +7,7 @@ const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
 
 export const AGENT_TOOLS = [
 	{
-		name: 'read_file',
+		name: 'file_read',
 		group: 'coreWorkspace',
 		title: 'Read file',
 		description: 'Read a UTF-8 workspace file with optional line offset and limit.',
@@ -17,7 +17,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'edit_file',
+		name: 'file_edit',
 		group: 'coreWorkspace',
 		title: 'Edit file',
 		description: 'Replace exact text in a UTF-8 workspace file.',
@@ -77,7 +77,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'write_file',
+		name: 'file_write',
 		group: 'coreWorkspace',
 		title: 'Write file',
 		description: 'Create or overwrite a UTF-8 workspace file.',
@@ -447,7 +447,7 @@ export const AGENT_TOOLS = [
 		availability: 'legacy',
 	},
 	{
-		name: 'delete_file',
+		name: 'file_delete',
 		group: 'coreWorkspace',
 		title: 'Delete file',
 		description: 'Delete a file directly, or a directory when recursive deletion is requested.',
@@ -477,7 +477,7 @@ export const AGENT_TOOLS = [
 		availability: 'legacy',
 	},
 	{
-		name: 'inspect_file',
+		name: 'file_inspect',
 		group: 'coreWorkspace',
 		title: 'Inspect file',
 		description: 'Inspect any file as bytes, including size, type, hash, and previews.',

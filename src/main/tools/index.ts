@@ -24,17 +24,17 @@ export {
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './shared/create';
-export { readFileTool } from './read-file';
-export { writeFileTool } from './write-file';
+export { fileReadTool } from './file-read';
+export { fileWriteTool } from './file-write';
 export { listDirectoryTool } from './list-directory';
 export { searchFilesTool } from './search-files';
 export { copyTool } from './copy';
 export { moveTool } from './move';
-export { deleteFileTool } from './delete-file';
+export { fileDeleteTool } from './file-delete';
 export { grepTool } from './grep';
-export { editFileTool } from './edit-file';
+export { fileEditTool } from './file-edit';
 export { applyPatchTool } from './apply-patch';
-export { inspectFileTool } from './inspect-file';
+export { fileInspectTool } from './file-inspect';
 export { undoLastOperationTool } from './undo-last-operation';
 export { createFileTools, createReadTool, type FileToolOptions } from './shared/file-runtime';
 export { runShellTool } from './run-shell';

@@ -17,8 +17,8 @@ const MAX_INSPECT_BYTES = TOOL_LIMITS.inspectFile.maxBytes;
 const PREVIEW_BYTES = TOOL_LIMITS.inspectFile.previewBytes;
 const DIRECT_IMAGE_MIME_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp']);
 
-export const inspectFileTool: AgentTool<InspectFileArgs> = {
-	name: 'inspect_file',
+export const fileInspectTool: AgentTool<InspectFileArgs> = {
+	name: 'file_inspect',
 	description:
 		'Inspect any file as bytes. Returns size, type, hash when practical, hex/text previews, and direct image content for PNG/JPEG/GIF/WebP files.',
 	schema: {
@@ -43,11 +43,11 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
-			return textResult(`inspect_file: ${(err as Error).message}`, true);
+			return textResult(`file_inspect: ${(err as Error).message}`, true);
 		}
 		try {
 			const stat = await fs.stat(abs);
-			if (!stat.isFile()) return textResult(`inspect_file: ${args.path} is not a file`, true);
+			if (!stat.isFile()) return textResult(`file_inspect: ${args.path} is not a file`, true);
 			const maxBytes = Math.floor(
 				Math.max(1, Math.min(args.maxBytes ?? DEFAULT_INSPECT_BYTES, MAX_INSPECT_BYTES))
 			);
@@ -104,7 +104,7 @@ export const inspectFileTool: AgentTool<InspectFileArgs> = {
 				},
 			};
 		} catch (err) {
-			return textResult(`inspect_file: ${(err as Error).message}`, true);
+			return textResult(`file_inspect: ${(err as Error).message}`, true);
 		}
 	},
 };

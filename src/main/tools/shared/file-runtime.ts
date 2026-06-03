@@ -2,14 +2,14 @@ import type { AgentTool } from '../base/common';
 import { markCoreTool } from '../base/common';
 import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '../base/tool';
 import { legacyToolToCanonical } from '../runtime/bridge';
-import { editFileTool } from '../edit-file';
+import { fileEditTool } from '../file-edit';
 import { grepTool } from '../grep';
 import { listDirectoryTool } from '../list-directory';
-import { readFileTool } from '../read-file';
+import { fileReadTool } from '../file-read';
 import { runShellTool } from '../run-shell';
 import { searchFilesTool } from '../search-files';
 import { undoLastOperationTool } from '../undo-last-operation';
-import { writeFileTool } from '../write-file';
+import { fileWriteTool } from '../file-write';
 import { completeTaskTool } from '../complete-task';
 import { listTodosTool } from '../list-todos';
 import { readScratchTool } from '../read-scratch';
@@ -26,7 +26,7 @@ import { loadSkillTool } from '../load-skill';
 import { useSkillTool } from '../use-skill';
 import { callMcpToolTool } from '../call-mcp-tool';
 import { connectMcpServerTool } from '../connect-mcp-server';
-import { deleteFileTool } from '../delete-file';
+import { fileDeleteTool } from '../file-delete';
 import { listMcpPromptsTool } from '../list-mcp-prompts';
 import { listMcpResourcesTool } from '../list-mcp-resources';
 import { listMcpServersTool } from '../list-mcp-servers';
@@ -47,15 +47,15 @@ export type FileToolOptions = {
 type LegacyFileTool = LegacyAgentTool<any, any>;
 
 const FILE_TOOLS: readonly LegacyFileTool[] = [
-	readFileTool,
-	editFileTool,
+	fileReadTool,
+	fileEditTool,
 	listDirectoryTool,
 	searchFilesTool,
 	grepTool,
 	runShellTool,
 	undoLastOperationTool,
-	writeFileTool,
-	deleteFileTool,
+	fileWriteTool,
+	fileDeleteTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
@@ -88,8 +88,8 @@ export function createFileTools(options: FileToolOptions): AgentTool[] {
 }
 
 export function createReadTool(options: FileToolOptions): AgentTool {
-	const read = createFileTools(options).find((tool) => tool.name === 'read_file');
-	if (!read) throw new Error('read_file tool is not registered');
+	const read = createFileTools(options).find((tool) => tool.name === 'file_read');
+	if (!read) throw new Error('file_read tool is not registered');
 	return read;
 }
 

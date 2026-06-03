@@ -17,16 +17,16 @@ import { cronRunTool } from '../cron-run';
 import { cronStartTool } from '../cron-start';
 import { cronStopTool } from '../cron-stop';
 import { cronUpdateTool } from '../cron-update';
-import { deleteFileTool } from '../delete-file';
-import { editFileTool } from '../edit-file';
+import { fileDeleteTool } from '../file-delete';
+import { fileEditTool } from '../file-edit';
 import { grepTool } from '../grep';
 import { listDirectoryTool } from '../list-directory';
-import { readFileTool } from '../read-file';
+import { fileReadTool } from '../file-read';
 import { runShellTool } from '../run-shell';
 import { scriptRunTool } from '../script-run';
 import { searchFilesTool } from '../search-files';
 import { undoLastOperationTool } from '../undo-last-operation';
-import { writeFileTool } from '../write-file';
+import { fileWriteTool } from '../file-write';
 import { completeTaskTool } from '../complete-task';
 import { listTodosTool } from '../list-todos';
 import { readScratchTool } from '../read-scratch';
@@ -95,14 +95,14 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 }
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
-	read_file: readFileTool,
-	edit_file: editFileTool,
+	file_read: fileReadTool,
+	file_edit: fileEditTool,
 	list_directory: listDirectoryTool,
 	search_files: searchFilesTool,
 	grep: grepTool,
 	run_shell: runShellTool,
-	write_file: writeFileTool,
-	delete_file: deleteFileTool,
+	file_write: fileWriteTool,
+	file_delete: fileDeleteTool,
 	undo_last_operation: undoLastOperationTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,

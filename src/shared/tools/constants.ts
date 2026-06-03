@@ -63,7 +63,7 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 ) as readonly AgentToolName[];
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
-	'edit_file',
+	'file_edit',
 	'run_shell',
 	'undo_last_operation',
 	'connect_mcp_server',
@@ -76,9 +76,9 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_start',
 	'cron_stop',
 	'cron_run',
-	'write_file',
+	'file_write',
 	'apply_patch',
-	'delete_file',
+	'file_delete',
 	'copy',
 	'move',
 ] as const satisfies readonly AgentToolName[];
