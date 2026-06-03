@@ -10,8 +10,8 @@ interface WriteArgs {
 	content: string;
 }
 
-export const writeTool: AgentTool<WriteArgs> = {
-	name: 'write',
+export const writeFileTool: AgentTool<WriteArgs> = {
+	name: 'write_file',
 	description:
 		'Create or write a UTF-8 file (overwrites existing). If the file already exists you must have called `read` on it earlier in this run. Creates parent dirs.',
 	schema: {
