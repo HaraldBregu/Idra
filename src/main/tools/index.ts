@@ -30,7 +30,7 @@ export { searchFilesTool } from './base/find';
 export { fileDeleteTool } from './base/delete';
 export { fileEditTool } from './base/edit';
 export { createFileTools, createReadTool, type FileToolOptions } from './core/runtime/files';
-export { bashTool } from './base/exec';
+export { execTool } from './base/exec';
 export { webFetchTool } from './web/web-fetch';
 export { openBrowserTool } from './web/open-browser';
 export { cronTool } from './cron/cron';

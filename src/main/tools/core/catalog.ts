@@ -22,7 +22,7 @@ import { cronUpdateTool } from '../cron/update';
 import { fileDeleteTool } from '../base/delete';
 import { fileEditTool } from '../base/edit';
 import { fileReadTool } from '../base/read';
-import { bashTool } from '../base/exec';
+import { execTool } from '../base/exec';
 import { scriptRunTool } from '../base/run_script';
 import { searchFilesTool } from '../base/find';
 import { fileWriteTool } from '../base/write';
@@ -55,7 +55,6 @@ type LocalToolImplementation = AgentTool<any, any>;
 
 const LOCAL_TOOL_NAMES = [
 	...AGENT_TOOL_NAMES,
-	'script_run',
 	'cron_create',
 	'cron_read',
 	'cron_update',
@@ -89,11 +88,11 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 }
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
-	file_read: fileReadTool,
-	file_edit: fileEditTool,
-	search_files: searchFilesTool,
-	bash: bashTool,
-	file_write: fileWriteTool,
+	read: fileReadTool,
+	edit: fileEditTool,
+	find: searchFilesTool,
+	exec: execTool,
+	write: fileWriteTool,
 	file_delete: fileDeleteTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
@@ -116,7 +115,7 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	mcp_load_prompt: mcpLoadPromptTool,
 	web_fetch: webFetchTool,
 	open_browser: openBrowserTool,
-	script_run: scriptRunTool,
+	run_script: scriptRunTool,
 	cron_create: cronCreateTool,
 	cron_read: cronReadTool,
 	cron_update: cronUpdateTool,

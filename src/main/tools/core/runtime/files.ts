@@ -4,7 +4,7 @@ import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '
 import { legacyToolToCanonical } from './bridge';
 import { fileEditTool } from '../../base/edit';
 import { fileReadTool } from '../../base/read';
-import { bashTool } from '../../base/exec';
+import { execTool } from '../../base/exec';
 import { searchFilesTool } from '../../base/find';
 import { fileWriteTool } from '../../base/write';
 import { completeTaskTool } from '../../state/todo/complete';
@@ -42,7 +42,7 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	fileReadTool,
 	fileEditTool,
 	searchFilesTool,
-	bashTool,
+	execTool,
 	fileWriteTool,
 	fileDeleteTool,
 	writeTodosTool,
