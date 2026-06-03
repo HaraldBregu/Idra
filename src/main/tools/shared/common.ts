@@ -33,11 +33,3 @@ export function requireReadSnapshot(
 	}
 	return null;
 }
-
-export function guardedRootMessage(workspace: string, abs: string): string | null {
-	const resolved = path.resolve(abs);
-	if (resolved === path.parse(resolved).root) return 'refusing to operate on filesystem root';
-	if (resolved === path.resolve(workspace)) return 'refusing to operate on workspace root';
-	if (resolved === path.resolve(os.homedir())) return 'refusing to operate on home directory';
-	return null;
-}
