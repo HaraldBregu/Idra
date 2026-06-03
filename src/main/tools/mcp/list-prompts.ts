@@ -1,9 +1,9 @@
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
-import { jsonText } from './shared/mcp-json-text';
-import { mcpConnectors } from './shared/mcp-connectors';
-import { missing } from './shared/mcp-missing';
-import { optionsSchema } from './shared/mcp-options-schema';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { jsonText } from '../shared/mcp-json-text';
+import { mcpConnectors } from '../shared/mcp-connectors';
+import { missing } from '../shared/mcp-missing';
+import { optionsSchema } from '../shared/mcp-options-schema';
 
 export const mcpListPromptsTool: AgentTool<{ id: string; options?: Record<string, unknown> }> = {
 	name: 'mcp_list_prompts',

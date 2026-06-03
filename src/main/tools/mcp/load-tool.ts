@@ -1,9 +1,9 @@
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
-import { jsonText } from './shared/mcp-json-text';
-import { mcpConnectors } from './shared/mcp-connectors';
-import { missing } from './shared/mcp-missing';
-import { namedSchema } from './shared/mcp-named-schema';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { jsonText } from '../shared/mcp-json-text';
+import { mcpConnectors } from '../shared/mcp-connectors';
+import { missing } from '../shared/mcp-missing';
+import { namedSchema } from '../shared/mcp-named-schema';
 
 export const mcpLoadToolTool: AgentTool<{ id: string; name: string }> = {
 	name: 'mcp_load_tool',
