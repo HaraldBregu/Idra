@@ -3,7 +3,7 @@ import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
 import { resolveAbs } from './shared/common';
 
-interface ListDirectoryArgs {
+interface DirectoryListArgs {
 	path?: string;
 	limit?: number;
 }
@@ -11,8 +11,8 @@ interface ListDirectoryArgs {
 const DEFAULT_LIST_LIMIT = 200;
 const MAX_LIST_LIMIT = 2000;
 
-export const listDirectoryTool: AgentTool<ListDirectoryArgs> = {
-	name: 'list_directory',
+export const directoryListTool: AgentTool<DirectoryListArgs> = {
+	name: 'directory_list',
 	description: 'List files and folders in a workspace directory.',
 	schema: {
 		type: 'object',
@@ -28,11 +28,11 @@ export const listDirectoryTool: AgentTool<ListDirectoryArgs> = {
 		try {
 			abs = args.path ? resolveAbs(ctx.workspace, args.path) : ctx.workspace;
 		} catch (err) {
-			return textResult(`list_directory: ${(err as Error).message}`, true);
+			return textResult(`directory_list: ${(err as Error).message}`, true);
 		}
 		try {
 			const stat = await fs.stat(abs);
-			if (!stat.isDirectory()) return textResult(`list_directory: not a directory: ${abs}`, true);
+			if (!stat.isDirectory()) return textResult(`directory_list: not a directory: ${abs}`, true);
 			const limit =
 				typeof args.limit === 'number' && args.limit > 0
 					? Math.min(Math.floor(args.limit), MAX_LIST_LIMIT)
@@ -45,7 +45,7 @@ export const listDirectoryTool: AgentTool<ListDirectoryArgs> = {
 			}
 			return textResult(visible.length === 0 ? 'No entries.' : visible.join('\n'));
 		} catch (err) {
-			return textResult(`list_directory: ${(err as Error).message}`, true);
+			return textResult(`directory_list: ${(err as Error).message}`, true);
 		}
 	},
 };

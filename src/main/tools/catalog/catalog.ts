@@ -17,9 +17,9 @@ import { cronRunTool } from '../cron-run';
 import { cronStartTool } from '../cron-start';
 import { cronStopTool } from '../cron-stop';
 import { cronUpdateTool } from '../cron-update';
+import { directoryListTool } from '../directory-list';
 import { fileDeleteTool } from '../file-delete';
 import { fileEditTool } from '../file-edit';
-import { listDirectoryTool } from '../list-directory';
 import { fileReadTool } from '../file-read';
 import { runShellTool } from '../run-shell';
 import { scriptRunTool } from '../script-run';
@@ -96,7 +96,7 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 const LOCAL_TOOL_IMPLEMENTATIONS = {
 	file_read: fileReadTool,
 	file_edit: fileEditTool,
-	list_directory: listDirectoryTool,
+	directory_list: directoryListTool,
 	search_files: searchFilesTool,
 	run_shell: runShellTool,
 	file_write: fileWriteTool,

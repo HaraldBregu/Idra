@@ -27,9 +27,9 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'list_directory',
+		name: 'directory_list',
 		group: 'coreWorkspace',
-		title: 'List directory',
+		title: 'Directory list',
 		description: 'List files and folders in a workspace directory.',
 		permissions: ['read'],
 		approval: AGENT_TOOL_APPROVAL_NONE,

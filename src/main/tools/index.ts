@@ -26,7 +26,7 @@ export {
 } from './shared/create';
 export { fileReadTool } from './file-read';
 export { fileWriteTool } from './file-write';
-export { listDirectoryTool } from './list-directory';
+export { directoryListTool } from './directory-list';
 export { searchFilesTool } from './search-files';
 export { copyTool } from './copy';
 export { moveTool } from './move';
