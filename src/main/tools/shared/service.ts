@@ -8,7 +8,6 @@ import type { LoggerService } from '../../observability';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
 import { getToolMetadata, normalizeToolName } from '../core/common';
 import { createTools, localToolCatalogByName } from '../core/catalog';
-import { collapseWorkspaceToolSurface } from '../workspace/surface';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
@@ -140,23 +139,13 @@ export class ToolService implements ToolServicePort {
 		denylist?: string[];
 	}): AgentTool[] {
 		const policy = input.toolPolicy;
-		const tools = collapseWorkspaceToolSurface(
-			createTools({
-				profile: policy?.profile ?? 'full',
-				allow: policy?.allow ?? [],
-				alsoAllow: policy?.alsoAllow,
-				deny: [...(policy?.deny ?? []), ...(input.denylist ?? [])],
-				fs: policy?.fs,
-			}, this.policy),
-			{
-				explicitAllow: [
-					...(policy?.allow ?? []),
-					...(policy?.alsoAllow ?? []),
-					...(input.explicitAllow ?? []),
-				],
-				readOnly: policy?.fs?.readOnly,
-			}
-		);
+		const tools = createTools({
+			profile: policy?.profile ?? 'full',
+			allow: policy?.allow ?? [],
+			alsoAllow: policy?.alsoAllow,
+			deny: [...(policy?.deny ?? []), ...(input.denylist ?? [])],
+			fs: policy?.fs,
+		}, this.policy);
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Created default tools', {
 			count: tools.length,
 			profile: policy?.profile ?? 'full',

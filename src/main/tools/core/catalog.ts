@@ -23,7 +23,6 @@ import { directoryListTool } from '../base/list';
 import { fileDeleteTool } from '../base/delete';
 import { fileEditTool } from '../base/edit';
 import { fileReadTool } from '../base/read';
-import { workspaceTool } from '../workspace/tool';
 import { bashTool } from '../base/bash';
 import { processTool } from '../base/process';
 import { scriptRunTool } from '../base/run';
@@ -35,7 +34,6 @@ import { readScratchTool } from '../state/scratch/read';
 import { updateTodoTool } from '../state/todo/update';
 import { writeScratchTool } from '../state/scratch/write';
 import { writeTodosTool } from '../state/todo/write';
-import { spawnSubagentTool } from '../base/spawn-subagent';
 import { skillListTool } from '../skills/skill-list';
 import { skillLoadTool } from '../skills/load-skill';
 import { skillUseTool } from '../skills/use-skill';
@@ -93,7 +91,6 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 }
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
-	workspace: workspaceTool,
 	file_read: fileReadTool,
 	file_edit: fileEditTool,
 	directory_list: directoryListTool,
@@ -108,7 +105,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	complete_task: completeTaskTool,
 	write_scratch: writeScratchTool,
 	read_scratch: readScratchTool,
-	spawn_subagent: spawnSubagentTool,
 	skill_list: skillListTool,
 	skill_load: skillLoadTool,
 	skill_use: skillUseTool,

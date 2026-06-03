@@ -7,16 +7,6 @@ const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
 
 export const AGENT_TOOLS = [
 	{
-		name: 'workspace',
-		group: 'coreWorkspace',
-		title: 'Workspace',
-		description: 'Run structured workspace filesystem actions through one tool.',
-		permissions: ['read', 'create', 'write', 'delete'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'file_read',
 		group: 'coreWorkspace',
 		title: 'Read file',
@@ -143,16 +133,6 @@ export const AGENT_TOOLS = [
 		title: 'Read scratch',
 		description: 'Read run-local scratch notes.',
 		permissions: ['state'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
-		name: 'spawn_subagent',
-		group: 'subagent',
-		title: 'Spawn subagent',
-		description: 'Start a child agent run for a clearly scoped task.',
-		permissions: ['delegate'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
@@ -396,16 +376,6 @@ export const AGENT_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
-	},
-	{
-		name: 'apply_patch',
-		group: 'coreWorkspace',
-		title: 'Apply patch',
-		description: 'Apply a unified diff to workspace files.',
-		permissions: ['create', 'write', 'delete'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
 	},
 	{
 		name: 'file_delete',

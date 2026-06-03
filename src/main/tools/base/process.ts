@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/tool';
 import { textResult } from '../core/tool';
-import { BACKGROUND_PROCESSES, truncate } from './utils';
+import { BACKGROUND_PROCESSES, truncate } from '../shared/shell';
 
 export const processTool: AgentTool<{ action: 'list' | 'log' | 'kill'; id?: string }> = {
 	name: 'process',

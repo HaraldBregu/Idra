@@ -22,7 +22,6 @@ const READ_TOOL_NAME = 'file_read';
 const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
 	'file_write',
 	'file_edit',
-	'apply_patch',
 	'move',
 ]);
 
@@ -184,11 +183,7 @@ function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolInte
 	if (/\b(calendar|agenda|meeting|event|events)\b/.test(normalized)) return 'calendar';
 	if (/\b(google drive|drive|document|documents)\b/.test(normalized)) return 'drive';
 	if (/\b(weather|latest|current|web|url|http|fetch)\b/.test(normalized)) return 'web';
-	if (
-		/\b(subagent|subagents|child agent|delegate|delegation|sessions spawn|sessions_spawn|spawn_subagent)\b/.test(
-			normalized
-		)
-	)
+	if (/\b(subagent|subagents|child agent|delegate|delegation)\b/.test(normalized))
 		return 'subagent';
 	if (
 		/\b(shell|script|scripts|python|node|bash|terminal|command)\b/.test(normalized) &&

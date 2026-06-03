@@ -1,12 +1,12 @@
-import type { AgentTool } from '../core/common';
-import { markCoreTool } from '../core/common';
+import type { AgentTool } from '../common';
+import { markCoreTool } from '../common';
 import type {
 	AgentTool as LegacyAgentTool,
 	FridayServices,
 	ToolContext,
-} from '../core/tool';
-import { legacyToolToCanonical } from '../core/runtime/bridge';
-import { scriptRunTool } from './run';
+} from '../tool';
+import { legacyToolToCanonical } from './bridge';
+import { scriptRunTool } from '../../base/run';
 
 export type ScriptToolOptions = {
 	workspaceDir: string;

@@ -39,7 +39,13 @@ the provider.
 
 | Tool                    | Group          | How it is used                                                                                                                                         |
 | ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `workspace`             | Core workspace | Runs structured filesystem actions: read, list, search, write, edit, delete, apply_patch, and move. Preserves guarded writes.                         |
+| `file_read`             | Core workspace | Reads a UTF-8 workspace file with optional line offset and limit.                                                                                      |
+| `file_edit`             | Core workspace | Replaces exact text in a UTF-8 workspace file while preserving guarded writes.                                                                         |
+| `directory_list`        | Core workspace | Lists files and folders in a workspace directory.                                                                                                      |
+| `search_files`          | Core workspace | Finds workspace paths by glob pattern.                                                                                                                 |
+| `file_write`            | Core workspace | Creates or overwrites a UTF-8 workspace file while preserving guarded writes.                                                                          |
+| `file_delete`           | Core workspace | Deletes a file directly, or a directory when recursive deletion is requested.                                                                          |
+| `move`                  | Core workspace | Moves or renames one file after policy and read-before-write checks.                                                                                   |
 | `bash`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
 | `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `bash background=true`.                                                                |
 | `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
@@ -48,7 +54,6 @@ the provider.
 | `complete_task`         | State/task     | Marks the current task or a todo item as complete.                                                                                                     |
 | `write_scratch`         | State/task     | Writes run-local scratch notes for later tool calls.                                                                                                   |
 | `read_scratch`          | State/task     | Reads run-local scratch notes.                                                                                                                         |
-| `spawn_subagent`        | Subagent       | Starts a child agent run for a clearly scoped task.                                                                                                    |
 | `skill_list`            | Skill          | Lists installed skills available to the agent.                                                                                                         |
 | `skill_load`            | Skill          | Loads instructions and support file metadata for an installed skill.                                                                                   |
 | `skill_use`             | Skill          | Selects and loads a skill for the current task.                                                                                                        |
@@ -74,10 +79,8 @@ the provider.
 | `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
 | `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
 
-Compatibility implementations for the standalone filesystem tools still exist
-in source for explicit allowlists and tests. The normal model-facing filesystem
-surface is `workspace`. Compatibility implementations for `cron` exist in
-source, but the split cron tools should be used for scheduling.
+Compatibility implementations for `cron` exist in source, but the split cron
+tools should be used for scheduling.
 
 ## Dynamic Additions
 

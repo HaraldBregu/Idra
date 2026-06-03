@@ -6,13 +6,12 @@ import {
 	normalizeToolName,
 } from '../common';
 import { createAppTools } from '../../web/runtime';
-import { createFileTools } from '../../base/runtime';
+import { createFileTools } from './files';
 import { createCronTools } from '../../cron/runtime';
-import { createScriptTools } from '../../base/script';
+import { createScriptTools } from './script';
 import { normalizeToolSchemas } from '../schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../../shared/tool-types';
 import { applyToolPolicyPipeline } from '../../shared/pipeline';
-import { collapseWorkspaceToolSurface } from '../../workspace/surface';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
@@ -185,14 +184,7 @@ export async function createAgentTools(
 		diagnostics,
 		policy: options.services?.policy,
 	});
-	const tools = prepareRuntimeTools(
-		collapseWorkspaceToolSurface(policyResult.tools, {
-			explicitAllow: options.toolsAllow,
-			readOnly: Boolean(options.sandbox?.readOnly || options.config?.tools?.fs?.readOnly),
-		}),
-		options,
-		diagnostics
-	);
+	const tools = prepareRuntimeTools(policyResult.tools, options, diagnostics);
 
 	return {
 		tools,
