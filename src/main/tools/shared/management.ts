@@ -18,15 +18,6 @@ const GENERIC_TOOL_ACTION_TOKENS = new Set([
 	'run',
 	'execute',
 ]);
-const READ_TOOL_NAME = 'file_read';
-const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
-	'file_write',
-	'file_edit',
-	'apply_patch',
-	'copy',
-	'move',
-]);
-
 export interface AgentToolSelectionForTurn {
 	toolsForPrompt: AgentTool[];
 	systemPromptSuffix: string;
@@ -66,8 +57,7 @@ export function selectAgentToolsForTurn(
 	const matched = ranked.filter((entry) => entry.score > 0).map((entry) => entry.tool);
 	const maxTools = options?.maxPromptTools;
 	const capped = maxTools !== undefined ? matched.slice(0, maxTools) : matched;
-	const toolsForPrompt = keepReadToolForMutation(capped, tools, maxTools);
-	return { toolsForPrompt, systemPromptSuffix: '', rankedTools: matched };
+	return { toolsForPrompt: capped, systemPromptSuffix: '', rankedTools: matched };
 }
 
 function rankToolsForPrompt(
@@ -123,33 +113,15 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 		score += 80;
 	if (intent === 'subagent' && hasAny(toolTokens, ['spawn', 'subagent', 'child', 'delegate']))
 		score += 90;
-	if (intent === 'file_read' && hasAny(toolTokens, ['read', 'find', 'list', 'search']))
+	if (intent === 'workspace_read' && hasAny(toolTokens, ['read', 'find', 'list', 'search']))
 		score += 40;
-	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'create', 'save', 'update']))
+	if (intent === 'workspace_write' && hasAny(toolTokens, ['write', 'edit', 'create', 'save', 'update']))
 		score += 40;
-	if (intent === 'file_delete' && hasAny(toolTokens, ['delete', 'remove', 'trash', 'unlink']))
+	if (intent === 'workspace_delete' && hasAny(toolTokens, ['delete', 'remove', 'trash', 'unlink']))
 		score += 80;
-	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
-	if (intent === 'file_move' && hasAny(toolTokens, ['shell', 'command'])) score += 60;
+	if (intent === 'workspace_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
+	if (intent === 'workspace_move' && hasAny(toolTokens, ['shell', 'command'])) score += 60;
 	return score;
-}
-
-function keepReadToolForMutation(
-	selected: AgentTool[],
-	allTools: readonly AgentTool[],
-	maxTools: number | undefined
-): AgentTool[] {
-	if (!selected.some((tool) => READ_DEPENDENT_MUTATION_TOOL_NAMES.has(tool.name))) {
-		return selected;
-	}
-	const readTool = allTools.find((tool) => tool.name === READ_TOOL_NAME);
-	if (!readTool) return selected;
-	const withoutRead = selected.filter((tool) => tool.name !== READ_TOOL_NAME);
-	const ordered = [readTool, ...withoutRead];
-	if (maxTools === undefined || ordered.length <= maxTools) return ordered;
-	if (maxTools <= 1) return ordered.slice(0, maxTools);
-
-	return ordered.slice(0, maxTools);
 }
 
 function toolText(tool: AgentTool): string {
@@ -167,10 +139,10 @@ type ToolIntent =
 	| 'web'
 	| 'run_shell'
 	| 'subagent'
-	| 'file_read'
-	| 'file_write'
-	| 'file_delete'
-	| 'file_move';
+	| 'workspace_read'
+	| 'workspace_write'
+	| 'workspace_delete'
+	| 'workspace_move';
 
 function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolIntent {
 	const normalized = normalizeForCapabilityMatch(message);
@@ -196,15 +168,16 @@ function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolInte
 		hasAny(tokens, ['run', 'execute', 'start', 'open'])
 	)
 		return 'run_shell';
-	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
-	if (fileContext && hasAny(tokens, ['delete', 'remove', 'trash', 'unlink'])) return 'file_delete';
+	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'workspace_move';
+	if (fileContext && hasAny(tokens, ['delete', 'remove', 'trash', 'unlink']))
+		return 'workspace_delete';
 	if (
 		fileContext &&
 		hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])
 	)
-		return 'file_write';
+		return 'workspace_write';
 	if (fileContext && hasAny(tokens, ['read', 'find', 'inspect', 'search', 'show', 'list', 'open']))
-		return 'file_read';
+		return 'workspace_read';
 	return 'none';
 }
 

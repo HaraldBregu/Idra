@@ -6,7 +6,7 @@ import {
 	normalizeToolName,
 } from '../common';
 import { createAppTools } from '../../web/runtime';
-import { createFileTools } from '../../filesystem/runtime';
+import { createCoreTools } from '../../filesystem/runtime';
 import { createCronTools } from '../../cron/runtime';
 import { createScriptTools } from '../../script/runtime';
 import { normalizeToolSchemas } from '../schema';
@@ -231,7 +231,7 @@ function addCoreToolCandidates(
 ): void {
 	if (plan.includeFileTools) {
 		candidates.push(
-			...createFileTools({
+			...createCoreTools({
 				workspaceDir: options.workspaceDir,
 				sessionId: options.sessionId,
 				signal: options.abortSignal,

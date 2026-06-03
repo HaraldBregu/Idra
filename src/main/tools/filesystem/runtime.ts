@@ -30,7 +30,7 @@ import { mcpLoadToolTool } from '../mcp/tool/load';
 import { mcpReadResourceTool } from '../mcp/resource/read';
 import { mcpRefreshServerTool } from '../mcp/server/refresh';
 
-export type FileToolOptions = {
+export type CoreToolOptions = {
 	workspaceDir: string;
 	sessionId?: string;
 	signal?: AbortSignal;
@@ -38,9 +38,9 @@ export type FileToolOptions = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LegacyFileTool = LegacyAgentTool<any, any>;
+type LegacyCoreTool = LegacyAgentTool<any, any>;
 
-const FILE_TOOLS: readonly LegacyFileTool[] = [
+const CORE_TOOLS: readonly LegacyCoreTool[] = [
 	workspaceTool,
 	execTool,
 	processTool,
@@ -70,12 +70,12 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	mcpLoadPromptTool,
 ] as const;
 
-export function createFileTools(options: FileToolOptions): AgentTool[] {
-	const context = createFileToolContext(options);
-	return FILE_TOOLS.map((tool) => markCoreTool(legacyToolToCanonical(tool, context)));
+export function createCoreTools(options: CoreToolOptions): AgentTool[] {
+	const context = createCoreToolContext(options);
+	return CORE_TOOLS.map((tool) => markCoreTool(legacyToolToCanonical(tool, context)));
 }
 
-function createFileToolContext(options: FileToolOptions): ToolContext {
+function createCoreToolContext(options: CoreToolOptions): ToolContext {
 	return {
 		workspace: options.workspaceDir,
 		sessionId: options.sessionId ?? 'tool-run',
