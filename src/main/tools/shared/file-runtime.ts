@@ -9,7 +9,7 @@ import { runShellTool } from '../run-shell';
 import { searchFilesTool } from '../file/search';
 import { undoLastOperationTool } from '../undo-last-operation';
 import { fileWriteTool } from '../file/write';
-import { completeTaskTool } from '../complete-task';
+import { completeTaskTool } from '../todo/complete';
 import { listTodosTool } from '../todo/list';
 import { readScratchTool } from '../scratch/read';
 import { updateTodoTool } from '../todo/update';
