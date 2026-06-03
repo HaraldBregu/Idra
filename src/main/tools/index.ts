@@ -76,7 +76,7 @@ export { mcpLoadPromptTool } from './mcp/load-prompt';
 export { mcpLoadToolTool } from './mcp/load-tool';
 export { mcpReadResourceTool } from './mcp/read-resource';
 export { mcpRefreshServerTool } from './mcp/refresh-server';
-export { createStartupFilesTool } from './startup-files';
+export { createStartupFilesTool } from './startup/files';
 export { AgentStartupFilesService } from './shared/startup-service';
 export type {
 	AgentStartupFilesServiceOptions,
