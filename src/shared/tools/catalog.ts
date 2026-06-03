@@ -68,16 +68,6 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'undo_last_operation',
-		group: 'coreWorkspace',
-		title: 'Undo last operation',
-		description: 'Undo the most recent reversible workspace tool operation.',
-		permissions: ['write', 'delete'],
-		approval: AGENT_TOOL_APPROVAL_ALWAYS,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'file_write',
 		group: 'coreWorkspace',
 		title: 'Write file',
