@@ -1,9 +1,9 @@
 import { spawn } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
-import { resolveAbs } from './shared/common';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { resolveAbs } from '../shared/common';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MAX_TIMEOUT_MS = 120_000;
