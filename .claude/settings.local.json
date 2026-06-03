@@ -270,7 +270,9 @@
       "Bash(sed -n '258,280p' tests/unit/main/cron/jobs.test.ts)",
       "Bash(sed -n '25,45p' tests/unit/main/session/session.test.ts)",
       "Bash(sed -i '' -e \"s|from '\\\\./mcp-|from './mcp/|g\" src/main/tools/index.ts)",
-      "Bash(sed -i '' -e \"s|from '\\\\.\\\\./\\\\.\\\\./mcp-|from '../../mcp/|g\" src/main/tools/base/catalog/catalog.ts)"
+      "Bash(sed -i '' -e \"s|from '\\\\.\\\\./\\\\.\\\\./mcp-|from '../../mcp/|g\" src/main/tools/base/catalog/catalog.ts)",
+      "Bash(sed -i '' -e \"s|from '\\\\./file-|from './file/|g\" src/main/tools/index.ts)",
+      "Bash(sed -i '' -e \"s|from '\\\\.\\\\./file-|from '../file/|g\" src/main/tools/base/catalog.ts src/main/tools/shared/file-runtime.ts)"
     ],
     "deny": [
       "Bash(git push --force:*)",
