@@ -47,7 +47,7 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 			const last = ctx.readState.get(abs);
 			if (!last) {
 				return textResult(
-					`write: must read ${args.path} before overwriting (read-before-write rule).`,
+					`write_file: must read ${args.path} before overwriting (read-before-write rule).`,
 					true
 				);
 			}
