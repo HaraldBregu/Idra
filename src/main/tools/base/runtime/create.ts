@@ -6,7 +6,7 @@ import {
 	normalizeToolName,
 } from '../common';
 import { createAppTools } from '../../web/runtime';
-import { createFileTools } from '../../filesystem/runtime';
+import { createFileTools } from './bundle';
 import { createCronTools } from '../../cron/runtime';
 import { createScriptTools } from '../../script/runtime';
 import { normalizeToolSchemas } from '../schema';
