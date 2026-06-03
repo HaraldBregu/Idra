@@ -20,9 +20,9 @@ import { requestApprovalTool } from '../request-approval';
 import { requestAuthorizationTool } from '../request-authorization';
 import { requestClarificationTool } from '../request-clarification';
 import { spawnSubagentTool } from '../spawn-subagent';
-import { listSkillsTool } from '../list-skills';
-import { loadSkillTool } from '../load-skill';
-import { useSkillTool } from '../use-skill';
+import { skillListTool } from '../skill-list';
+import { skillLoadTool } from '../skill-load';
+import { skillUseTool } from '../skill-use';
 import { callMcpToolTool } from '../call-mcp-tool';
 import { connectMcpServerTool } from '../connect-mcp-server';
 import { fileDeleteTool } from '../file-delete';
@@ -65,9 +65,9 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	presentPlanTool,
 	requestAuthorizationTool,
 	spawnSubagentTool,
-	listSkillsTool,
-	loadSkillTool,
-	useSkillTool,
+	skillListTool,
+	skillLoadTool,
+	skillUseTool,
 	listMcpServersTool,
 	connectMcpServerTool,
 	refreshMcpServerTool,

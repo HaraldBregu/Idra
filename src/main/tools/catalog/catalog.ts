@@ -37,9 +37,9 @@ import { requestApprovalTool } from '../request-approval';
 import { requestAuthorizationTool } from '../request-authorization';
 import { requestClarificationTool } from '../request-clarification';
 import { spawnSubagentTool } from '../spawn-subagent';
-import { listSkillsTool } from '../list-skills';
-import { loadSkillTool } from '../load-skill';
-import { useSkillTool } from '../use-skill';
+import { skillListTool } from '../skill-list';
+import { skillLoadTool } from '../skill-load';
+import { skillUseTool } from '../skill-use';
 import { callMcpToolTool } from '../call-mcp-tool';
 import { connectMcpServerTool } from '../connect-mcp-server';
 import { listMcpPromptsTool } from '../list-mcp-prompts';
@@ -113,9 +113,9 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	present_plan: presentPlanTool,
 	request_authorization: requestAuthorizationTool,
 	spawn_subagent: spawnSubagentTool,
-	list_skills: listSkillsTool,
-	load_skill: loadSkillTool,
-	use_skill: useSkillTool,
+	skill_list: skillListTool,
+	skill_load: skillLoadTool,
+	skill_use: skillUseTool,
 	list_mcp_servers: listMcpServersTool,
 	connect_mcp_server: connectMcpServerTool,
 	refresh_mcp_server: refreshMcpServerTool,
