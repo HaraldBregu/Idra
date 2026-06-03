@@ -1,5 +1,4 @@
 import type { AgentTool } from '../common';
-import { markCoreTool } from '../common';
 import type { FridayServices, ToolContext } from '../tool';
 
 export type ScriptToolOptions = {
