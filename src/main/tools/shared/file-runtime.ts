@@ -6,7 +6,7 @@ import { directoryListTool } from '../directory-list';
 import { fileEditTool } from '../file/edit';
 import { fileReadTool } from '../file/read';
 import { runShellTool } from '../run-shell';
-import { searchFilesTool } from '../search-files';
+import { searchFilesTool } from '../file/search-files';
 import { undoLastOperationTool } from '../undo-last-operation';
 import { fileWriteTool } from '../file/write';
 import { completeTaskTool } from '../complete-task';
