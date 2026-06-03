@@ -25,7 +25,7 @@ import { runShellTool } from '../run-shell';
 import { scriptRunTool } from '../script-run';
 import { searchFilesTool } from '../search-files';
 import { undoLastOperationTool } from '../undo-last-operation';
-import { writeTool } from '../write';
+import { writeFileTool } from '../write-file';
 import { completeTaskTool } from '../complete-task';
 import { listTodosTool } from '../list-todos';
 import { readScratchTool } from '../read-scratch';
