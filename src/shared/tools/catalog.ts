@@ -38,16 +38,6 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'file_write',
-		group: 'coreWorkspace',
-		title: 'Write file',
-		description: 'Create or overwrite a UTF-8 workspace file.',
-		permissions: ['create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'write_todos',
 		group: 'stateTask',
 		title: 'Write todos',
