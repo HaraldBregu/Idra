@@ -23,7 +23,6 @@ const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
 	'write_file',
 	'edit_file',
 	'apply_patch',
-	'delete_file',
 	'copy',
 	'move',
 ]);

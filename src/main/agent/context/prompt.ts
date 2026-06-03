@@ -38,7 +38,7 @@ export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
 		`You are a personal AI assistant. Today is ${ctx.date}. Your workspace is \`${ctx.workspace}\`.`,
 		[
 			'## Workspace contract',
-			'- Read a file in the same run before editing, overwriting, deleting, or moving it; previous conversation reads do not satisfy file mutation guards.',
+			'- Read a file in the same run before editing, overwriting, or moving it; previous conversation reads do not satisfy file mutation guards.',
 			'- When a required value is ambiguous, use the available workspace context and proceed with a reasonable, reversible choice.',
 			'- Do not pause for permission prompts before using low-risk available tools.',
 			'- Keep responses concise.',

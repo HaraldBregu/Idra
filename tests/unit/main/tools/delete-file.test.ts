@@ -24,7 +24,7 @@ describe('delete_file', () => {
 		expect(result.tools.map((tool) => tool.name)).toContain('delete_file');
 	});
 
-	it('is selected with read_file for absolute path delete requests', () => {
+	it('is selected directly for absolute path delete requests', () => {
 		const tools = [
 			readFileTool,
 			{
@@ -43,10 +43,10 @@ describe('delete_file', () => {
 			{ maxPromptTools: 2 }
 		);
 
-		expect(selection.toolsForPrompt.map((tool) => tool.name)).toEqual(['read_file', 'delete_file']);
+		expect(selection.toolsForPrompt.map((tool) => tool.name)).toEqual(['delete_file']);
 	});
 
-	it('deletes an absolute path outside the workspace after it has been read', async () => {
+	it('deletes an absolute path outside the workspace directly', async () => {
 		const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-delete-file-'));
 		const workspace = path.join(tempRoot, 'workspace');
 		const outside = path.join(tempRoot, 'outside.txt');
@@ -55,15 +55,6 @@ describe('delete_file', () => {
 		const ctx = toolContext(workspace);
 
 		try {
-			const blocked = await deleteFileTool.execute({ path: outside }, ctx);
-			expect(blocked.status).toBe('error');
-			expect(blocked.content[0]?.type === 'text' ? blocked.content[0].text : '').toContain(
-				'must read'
-			);
-
-			const read = await readFileTool.execute({ path: outside }, ctx);
-			expect(read.status).toBe('ok');
-
 			const deleted = await deleteFileTool.execute({ path: outside }, ctx);
 			expect(deleted.status).toBe('ok');
 			await expect(fs.stat(outside)).rejects.toMatchObject({ code: 'ENOENT' });

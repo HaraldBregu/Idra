@@ -450,7 +450,7 @@ export const AGENT_TOOLS = [
 		name: 'delete_file',
 		group: 'coreWorkspace',
 		title: 'Delete file',
-		description: 'Delete a file or directory after policy and read-before-delete checks.',
+		description: 'Delete a file directly, or a directory when recursive deletion is requested.',
 		permissions: ['delete'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
