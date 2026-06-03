@@ -49,7 +49,7 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	fileEditTool,
 	directoryListTool,
 	searchFilesTool,
-	runShellTool,
+	execTool,
 	fileWriteTool,
 	fileDeleteTool,
 	writeTodosTool,
