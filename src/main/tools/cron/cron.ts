@@ -1,5 +1,5 @@
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
 import {
 	cronActor,
 	type CronCompatArgs,
@@ -7,7 +7,7 @@ import {
 	cronService,
 	jsonText,
 	requireCronId,
-} from './shared/cron-utils';
+} from '../shared/cron-utils';
 
 export const cronTool: AgentTool<CronCompatArgs> = {
 	name: 'cron',

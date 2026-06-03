@@ -1,5 +1,5 @@
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
 import {
 	checkCronPolicy,
 	cronActor,
@@ -7,8 +7,8 @@ import {
 	cronCreateSchema,
 	cronService,
 	jsonText,
-} from './shared/cron-utils';
-import type { CronScheduleCreateRequest } from '../../shared/cron';
+} from '../shared/cron-utils';
+import type { CronScheduleCreateRequest } from '../../../shared/cron';
 
 export const cronCreateTool: AgentTool<CronCreateArgs> = {
 	name: 'cron_create',
