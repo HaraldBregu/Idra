@@ -24,9 +24,6 @@ export const runShellTool: AgentTool<{
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) {
-			return textResult('run_shell: disabled by read-only filesystem policy.', true);
-		}
 		const command = String(args.command ?? '').trim();
 		if (!command) return textResult('run_shell: command is required.', true);
 		let cwd: string;
