@@ -43,9 +43,9 @@ describe('workspace', () => {
 			'must read'
 		);
 
-		await expect(workspaceTool.execute({ action: 'read', path: 'note.txt' }, ctx)).resolves.toMatchObject({
-			status: 'ok',
-		});
+		await expect(
+			workspaceTool.execute({ action: 'read', path: 'note.txt' }, ctx)
+		).resolves.toMatchObject({ status: 'ok' });
 		await expect(
 			workspaceTool.execute({ action: 'write', path: 'note.txt', content: 'second' }, ctx)
 		).resolves.toMatchObject({ status: 'ok' });
@@ -73,29 +73,40 @@ describe('workspace', () => {
 		await fs.writeFile(path.join(workspace, 'source.txt'), 'source', 'utf8');
 
 		await expect(
-			workspaceTool.execute({
-				action: 'copy',
-				source: 'source.txt',
-				destination: 'copy.txt',
-			}, ctx)
+			workspaceTool.execute(
+				{
+					action: 'copy',
+					source: 'source.txt',
+					destination: 'copy.txt',
+				},
+				ctx
+			)
 		).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(path.join(workspace, 'copy.txt'), 'utf8')).resolves.toBe('source');
 
 		await workspaceTool.execute({ action: 'read', path: 'copy.txt' }, ctx);
 		await expect(
-			workspaceTool.execute({
-				action: 'move',
-				source: 'copy.txt',
-				destination: 'moved.txt',
-			}, ctx)
+			workspaceTool.execute(
+				{
+					action: 'move',
+					source: 'copy.txt',
+					destination: 'moved.txt',
+				},
+				ctx
+			)
 		).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(path.join(workspace, 'moved.txt'), 'utf8')).resolves.toBe('source');
 
 		await expect(
-			workspaceTool.execute({
-				action: 'apply_patch',
-				diff: ['--- /dev/null', '+++ b/patched.txt', '@@ -0,0 +1 @@', '+patched'].join('\n'),
-			}, ctx)
+			workspaceTool.execute(
+				{
+					action: 'apply_patch',
+					diff: ['--- /dev/null', '+++ b/patched.txt', '@@ -0,0 +1 @@', '+patched'].join(
+						'\n'
+					),
+				},
+				ctx
+			)
 		).resolves.toMatchObject({ status: 'ok' });
 		await expect(fs.readFile(path.join(workspace, 'patched.txt'), 'utf8')).resolves.toBe(
 			'patched\n'

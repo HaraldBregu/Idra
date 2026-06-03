@@ -1,5 +1,4 @@
-import { createAgentTools } from '../../../../src/main/tools';
-import { ToolService } from '../../../../src/main/tools';
+import { createAgentTools, ToolService } from '../../../../src/main/tools';
 
 describe('tool registry organization', () => {
 	it('uses workspace as the default run-scoped filesystem surface', async () => {

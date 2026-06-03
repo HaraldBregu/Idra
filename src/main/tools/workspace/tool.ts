@@ -47,7 +47,17 @@ export const workspaceTool: AgentTool<WorkspaceArgs> = {
 		properties: {
 			action: {
 				type: 'string',
-				enum: ['read', 'list', 'search', 'write', 'edit', 'delete', 'apply_patch', 'copy', 'move'],
+				enum: [
+					'read',
+					'list',
+					'search',
+					'write',
+					'edit',
+					'delete',
+					'apply_patch',
+					'copy',
+					'move',
+				],
 				description: 'Workspace filesystem action to perform.',
 			},
 			path: {
