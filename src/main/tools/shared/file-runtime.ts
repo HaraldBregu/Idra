@@ -50,7 +50,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	directoryListTool,
 	searchFilesTool,
 	runShellTool,
-	undoLastOperationTool,
 	fileWriteTool,
 	fileDeleteTool,
 	writeTodosTool,
