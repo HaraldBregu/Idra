@@ -3,8 +3,6 @@ import type { AgentToolMetadata, AgentToolProfile } from './types';
 
 const DEFAULT_TOOL_PROFILES = ['coding', 'standard', 'full'] as const satisfies readonly AgentToolProfile[];
 const OPTIONAL_TOOL_PROFILES = ['full'] as const satisfies readonly AgentToolProfile[];
-const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
-
 export const AGENT_TOOLS = [
 	{
 		name: 'file_read',
@@ -22,16 +20,6 @@ export const AGENT_TOOLS = [
 		title: 'Edit file',
 		description: 'Replace exact text in a UTF-8 workspace file.',
 		permissions: ['write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
-		name: 'directory_list',
-		group: 'coreWorkspace',
-		title: 'Directory list',
-		description: 'List files and folders in a workspace directory.',
-		permissions: ['read'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: DEFAULT_TOOL_PROFILES,
 		availability: 'default',
@@ -376,15 +364,5 @@ export const AGENT_TOOLS = [
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'default',
-	},
-	{
-		name: 'move',
-		group: 'coreWorkspace',
-		title: 'Move',
-		description: 'Move or rename one file after policy and read-before-write checks.',
-		permissions: ['read', 'delete', 'create', 'write'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
 	},
 ] as const satisfies readonly AgentToolMetadata[];

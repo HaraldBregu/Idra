@@ -43,7 +43,6 @@ the provider.
 | ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `file_read`             | Core workspace | Reads a UTF-8 workspace file with optional line offset and limit.                                                                                      |
 | `file_edit`             | Core workspace | Replaces exact text in a UTF-8 workspace file while preserving guarded writes.                                                                         |
-| `directory_list`        | Core workspace | Lists files and folders in a workspace directory.                                                                                                      |
 | `search_files`          | Core workspace | Finds workspace paths by glob pattern.                                                                                                                 |
 | `file_write`            | Core workspace | Creates or overwrites a UTF-8 workspace file while preserving guarded writes.                                                                          |
 | `file_delete`           | Core workspace | Deletes a file directly, or a directory when recursive deletion is requested.                                                                          |
@@ -79,9 +78,8 @@ the provider.
 | `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
 | `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
 
-Legacy implementations for `move` and the compatibility `cron` tool exist in
-source, but they are not part of `LOCAL_TOOL_CATALOG`. Use the split cron tools
-for scheduling.
+The compatibility `cron` tool exists in source, but it is not part of
+`LOCAL_TOOL_CATALOG`. Use the split cron tools for scheduling.
 
 ## Source Layout
 

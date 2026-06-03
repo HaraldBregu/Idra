@@ -2,7 +2,6 @@ import type { AgentTool } from '../common';
 import { markCoreTool } from '../common';
 import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '../tool';
 import { legacyToolToCanonical } from './bridge';
-import { directoryListTool } from '../../base/list';
 import { fileEditTool } from '../../base/edit';
 import { fileReadTool } from '../../base/read';
 import { bashTool } from '../../base/exec';
@@ -42,7 +41,6 @@ type LegacyFileTool = LegacyAgentTool<any, any>;
 const FILE_TOOLS: readonly LegacyFileTool[] = [
 	fileReadTool,
 	fileEditTool,
-	directoryListTool,
 	searchFilesTool,
 	bashTool,
 	fileWriteTool,

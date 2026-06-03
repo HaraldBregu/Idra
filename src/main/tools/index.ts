@@ -26,9 +26,7 @@ export {
 } from './shared/create';
 export { fileReadTool } from './base/read';
 export { fileWriteTool } from './base/write';
-export { directoryListTool } from './base/list';
 export { searchFilesTool } from './base/find';
-export { moveTool } from './base/move';
 export { fileDeleteTool } from './base/delete';
 export { fileEditTool } from './base/edit';
 export { createFileTools, createReadTool, type FileToolOptions } from './core/runtime/files';
