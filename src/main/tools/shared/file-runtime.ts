@@ -5,7 +5,7 @@ import { legacyToolToCanonical } from '../base/runtime/bridge';
 import { directoryListTool } from '../directory/list';
 import { fileEditTool } from '../file/edit';
 import { fileReadTool } from '../file/read';
-import { runShellTool } from '../run-shell';
+import { execTool } from '../exec';
 import { searchFilesTool } from '../file/search';
 import { fileWriteTool } from '../file/write';
 import { completeTaskTool } from '../todo/complete';
