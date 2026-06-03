@@ -24,14 +24,14 @@ export {
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './shared/create';
-export { fileReadTool } from './file-read';
-export { fileWriteTool } from './file-write';
+export { fileReadTool } from './file/read';
+export { fileWriteTool } from './file/write';
 export { directoryListTool } from './directory-list';
 export { searchFilesTool } from './search-files';
 export { copyTool } from './copy';
 export { moveTool } from './move';
-export { fileDeleteTool } from './file-delete';
-export { fileEditTool } from './file-edit';
+export { fileDeleteTool } from './file/delete';
+export { fileEditTool } from './file/edit';
 export { applyPatchTool } from './apply-patch';
 export { undoLastOperationTool } from './undo-last-operation';
 export { createFileTools, createReadTool, type FileToolOptions } from './shared/file-runtime';
