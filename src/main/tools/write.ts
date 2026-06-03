@@ -32,7 +32,7 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
 		} catch (err) {
-			return textResult(`write: ${(err as Error).message}`, true);
+			return textResult(`write_file: ${(err as Error).message}`, true);
 		}
 		let exists = false;
 		let stat: { mtimeMs: number; size: number } | null = null;
@@ -66,7 +66,7 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 			if (before && before.before.kind !== 'other') pushUndo(ctx, before);
 			return textResult(`wrote ${abs} (${after.size} bytes)`);
 		} catch (err) {
-			return textResult(`write: ${(err as Error).message}`, true);
+			return textResult(`write_file: ${(err as Error).message}`, true);
 		}
 	},
 };
