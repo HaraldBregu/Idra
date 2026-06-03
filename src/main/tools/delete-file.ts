@@ -28,8 +28,6 @@ export const deleteFileTool: AgentTool<DeleteArgs> = {
 		} catch (err) {
 			return textResult(`delete_file: ${(err as Error).message}`, true);
 		}
-		const guard = guardedRootMessage(ctx.workspace, abs);
-		if (guard) return textResult(`delete_file: ${guard}.`, true);
 		try {
 			const stat = await fs.stat(abs);
 			if (stat.isDirectory()) {
