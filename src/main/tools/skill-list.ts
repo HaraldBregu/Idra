@@ -2,8 +2,8 @@ import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
 import { jsonText } from './shared/skills-json-text';
 
-export const listSkillsTool: AgentTool = {
-	name: 'list_skills',
+export const skillListTool: AgentTool = {
+	name: 'skill_list',
 	description: 'List installed skills available to the agent.',
 	schema: {
 		type: 'object',
@@ -13,11 +13,11 @@ export const listSkillsTool: AgentTool = {
 	},
 	async execute(_args, ctx) {
 		const skills = ctx.services.skills;
-		if (!skills) return textResult('list_skills: SkillsService is unavailable.', true);
+		if (!skills) return textResult('skill_list: SkillsService is unavailable.', true);
 		try {
 			return jsonText(await skills.list());
 		} catch (error) {
-			return textResult(`list_skills: ${(error as Error).message}`, true);
+			return textResult(`skill_list: ${(error as Error).message}`, true);
 		}
 	},
 };
