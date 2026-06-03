@@ -62,15 +62,6 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 				? args.workdir
 				: path.resolve(ctx.workspace, args.workdir)
 			: ctx.workspace;
-		if (
-			(ctx.fsPolicy?.workspaceOnly === true || ctx.fsPolicy?.writeWorkspaceOnly === true) &&
-			!isInsidePath(ctx.workspace, cwd)
-		) {
-			return {
-				...textResult('exec: workdir is outside the workspace.', true),
-				details: { exitCode: -1, durationMs: 0, truncated: false },
-			};
-		}
 		if (args.background) return runBackground(command, cwd, args.env);
 		const timeoutMs =
 			typeof args.timeoutMs === 'number' && Number.isFinite(args.timeoutMs)
