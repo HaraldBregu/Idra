@@ -58,7 +58,6 @@ export const fileWriteTool: AgentTool<WriteArgs> = {
 			await fs.writeFile(abs, args.content, 'utf8');
 			const after = await fs.stat(abs);
 			ctx.readState.set(abs, snapshot(after));
-			if (before && before.before.kind !== 'other') pushUndo(ctx, before);
 			return textResult(`wrote ${abs} (${after.size} bytes)`);
 		} catch (err) {
 			return textResult(`file_write: ${(err as Error).message}`, true);
