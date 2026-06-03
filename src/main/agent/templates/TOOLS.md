@@ -40,7 +40,7 @@ policy, ranking, and run context before it is exposed to the provider.
 | `write_file` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
 | `edit_file` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
 | `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
-| `delete_file` | Deletes a file after it has been read. Directory deletion requires `recursive=true` and root paths are guarded. |
+| `delete_file` | Deletes a file after it has been read in the same run. Directory deletion requires `recursive=true` and root paths are guarded. |
 | `copy` | Copies one file to another path. Overwriting requires prior read state for the destination. |
 | `move` | Moves or renames one file. The source must be read first; overwriting requires prior destination read state. |
 | `inspect_file` | Inspects bytes, size, MIME type, previews, hashes, and direct PNG/JPEG/GIF/WebP image content when practical. |

@@ -12,7 +12,7 @@ interface DeleteArgs {
 export const deleteFileTool: AgentTool<DeleteArgs> = {
 	name: 'delete_file',
 	description:
-		'Delete a file by absolute or workspace-relative path. Files must be read earlier in this run before deletion. Directories require recursive=true and cannot target root paths.',
+		'Delete a file by absolute or workspace-relative path. Files must be read with read_file earlier in the same run before deletion; prior conversation reads do not count. Directories require recursive=true and cannot target root paths.',
 	schema: {
 		type: 'object',
 		properties: {

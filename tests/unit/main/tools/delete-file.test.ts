@@ -43,10 +43,7 @@ describe('delete_file', () => {
 			{ maxPromptTools: 2 }
 		);
 
-		expect(selection.toolsForPrompt.map((tool) => tool.name)).toEqual([
-			'delete_file',
-			'read_file',
-		]);
+		expect(selection.toolsForPrompt.map((tool) => tool.name)).toEqual(['read_file', 'delete_file']);
 	});
 
 	it('deletes an absolute path outside the workspace after it has been read', async () => {

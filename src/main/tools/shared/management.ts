@@ -143,21 +143,14 @@ function keepReadToolForMutation(
 	if (!selected.some((tool) => READ_DEPENDENT_MUTATION_TOOL_NAMES.has(tool.name))) {
 		return selected;
 	}
-	if (selected.some((tool) => tool.name === READ_TOOL_NAME)) return selected;
 	const readTool = allTools.find((tool) => tool.name === READ_TOOL_NAME);
 	if (!readTool) return selected;
-	if (maxTools === undefined || selected.length < maxTools) return [...selected, readTool];
-	if (selected.length <= 1) return selected;
+	const withoutRead = selected.filter((tool) => tool.name !== READ_TOOL_NAME);
+	const ordered = [readTool, ...withoutRead];
+	if (maxTools === undefined || ordered.length <= maxTools) return ordered;
+	if (maxTools <= 1) return ordered.slice(0, maxTools);
 
-	const next = [...selected];
-	for (let index = next.length - 1; index >= 0; index--) {
-		if (!READ_DEPENDENT_MUTATION_TOOL_NAMES.has(next[index]?.name ?? '')) {
-			next[index] = readTool;
-			return next;
-		}
-	}
-	next[next.length - 1] = readTool;
-	return next;
+	return ordered.slice(0, maxTools);
 }
 
 function toolText(tool: AgentTool): string {
