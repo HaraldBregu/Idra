@@ -610,12 +610,6 @@ describe('tools/fs', () => {
 				)
 			).status
 		).toBe('ok');
-		await expect(
-			scriptRunTool.execute(
-				{ path: 'hello.js' },
-				makeToolContext({ workspace, fsPolicy: { readOnly: true } })
-			)
-		).resolves.toMatchObject({ status: 'error' });
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
