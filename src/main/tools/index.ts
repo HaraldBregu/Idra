@@ -33,7 +33,6 @@ export { moveTool } from './move';
 export { fileDeleteTool } from './file/delete';
 export { fileEditTool } from './file/edit';
 export { applyPatchTool } from './file/apply-patch';
-export { undoLastOperationTool } from './undo-last-operation';
 export { createFileTools, createReadTool, type FileToolOptions } from './shared/file-runtime';
 export { execTool } from './exec';
 export { processTool } from './process';
