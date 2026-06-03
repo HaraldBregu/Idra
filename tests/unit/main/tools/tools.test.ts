@@ -365,7 +365,7 @@ describe('tools/fs', () => {
 		const read = await readFileTool.execute({ path: 'a.txt', limit: 2 }, ctx);
 		expect(read.content[0]?.text).toContain('1\tone');
 
-		const blocked = await writeTool.execute(
+		const blocked = await writeFileTool.execute(
 			{ path: 'a.txt', content: 'x' },
 			makeToolContext({ workspace })
 		);
@@ -378,7 +378,7 @@ describe('tools/fs', () => {
 		expect(edit.status).toBe('ok');
 		await expect(fs.readFile(path.join(workspace, 'a.txt'), 'utf8')).resolves.toContain('ONE');
 
-		const write = await writeTool.execute({ path: 'nested/b.txt', content: 'new' }, ctx);
+		const write = await writeFileTool.execute({ path: 'nested/b.txt', content: 'new' }, ctx);
 		expect(write.status).toBe('ok');
 		const found = await searchFilesTool.execute({ pattern: '**/*.txt' }, ctx);
 		expect(found.content[0]?.text).toContain('nested/b.txt');
@@ -411,7 +411,7 @@ describe('tools/fs', () => {
 
 		expect((await readFileTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
-			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
+			(await writeFileTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
 		).toBe('ok');
 		await expect(fs.readFile(path.join(outside, 'new.txt'), 'utf8')).resolves.toBe('x');
 
@@ -443,7 +443,7 @@ describe('tools/fs', () => {
 
 		expect((await readFileTool.execute({ path: outsideFile }, ctx)).status).toBe('ok');
 		expect(
-			(await writeTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
+			(await writeFileTool.execute({ path: path.join(outside, 'new.txt'), content: 'x' }, ctx)).status
 		).toBe('ok');
 		await expect(fs.readFile(path.join(outside, 'new.txt'), 'utf8')).resolves.toBe('x');
 
