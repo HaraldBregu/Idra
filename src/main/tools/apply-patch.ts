@@ -31,9 +31,6 @@ export const applyPatchTool: AgentTool<ApplyPatchArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) {
-			return textResult('apply_patch: disabled by read-only filesystem policy.', true);
-		}
 		try {
 			const patches = parseUnifiedDiff(String(args.diff ?? ''));
 			if (patches.length === 0) return textResult('apply_patch: no file patches found', true);
