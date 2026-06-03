@@ -97,7 +97,7 @@ The default service path narrows the candidate list for each turn.
   and safety.
 - Google Calendar, Google Drive, and Gmail requests force matching connector
   tools into the prompt even when ranking would omit them.
-- File mutation tools `write`, `edit_file`, `apply_patch`, `delete_file`, `copy`, and
+- File mutation tools `write_file`, `edit_file`, `apply_patch`, `delete_file`, `copy`, and
   `move` automatically keep `read_file` available when it exists.
 - Skill selection can force a skill's required or allowed tools into the prompt.
   File-backed skills also force `read_file` when needed.
