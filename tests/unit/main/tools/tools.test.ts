@@ -161,7 +161,7 @@ describe('tools/policy and registry', () => {
 			profiles: ['coding', 'standard', 'full'],
 			availability: 'default',
 		});
-		expect(AGENT_TOOL_METADATA_BY_NAME.write).toMatchObject({
+		expect(AGENT_TOOL_METADATA_BY_NAME.write_file).toMatchObject({
 			permissions: ['create', 'write'],
 			approval: AGENT_TOOL_APPROVAL_NONE,
 		});
