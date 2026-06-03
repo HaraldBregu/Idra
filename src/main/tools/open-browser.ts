@@ -1,11 +1,10 @@
 import { shell } from 'electron';
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 
 export const openBrowserTool: AgentTool<{ url: string }> = {
 	name: 'open_browser',
-	description: toolDescription('open_browser'),
+	description: "Open an HTTP or HTTPS URL in the user's default browser.",
 	schema: {
 		type: 'object',
 		properties: { url: { type: 'string', description: 'The http or https URL to open.' } },

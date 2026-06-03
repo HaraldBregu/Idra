@@ -1,10 +1,9 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 
 export const requestAuthorizationTool: AgentTool<{ action: string; scope?: string; reason?: string }> = {
 	name: 'request_authorization',
-	description: toolDescription('request_authorization'),
+	description: 'Request explicit authorization for sensitive or external actions.',
 	schema: {
 		type: 'object',
 		properties: {

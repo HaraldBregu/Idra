@@ -1,13 +1,12 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
 
 export const readMcpResourceTool: AgentTool<{ id: string; uri: string; options?: Record<string, unknown> }> = {
 	name: 'read_mcp_resource',
-	description: toolDescription('read_mcp_resource'),
+	description: 'Read a resource from a configured MCP server.',
 	schema: {
 		type: 'object',
 		properties: {

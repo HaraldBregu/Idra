@@ -1,12 +1,11 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { renderTodos } from './shared/render-todos';
 import { todoIndex } from './shared/todo-index';
 
 export const completeTaskTool: AgentTool<{ index?: number; task?: string; summary?: string }> = {
 	name: 'complete_task',
-	description: toolDescription('complete_task'),
+	description: 'Mark the current task or a todo item as complete.',
 	schema: {
 		type: 'object',
 		properties: {

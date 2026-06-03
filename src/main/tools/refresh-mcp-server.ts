@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { idSchema } from './shared/mcp-id-schema';
 import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
@@ -8,7 +7,7 @@ import { missing } from './shared/mcp-missing';
 
 export const refreshMcpServerTool: AgentTool<{ id: string }> = {
 	name: 'refresh_mcp_server',
-	description: toolDescription('refresh_mcp_server'),
+	description: 'Refresh a configured MCP server and its discovered capabilities.',
 	schema: idSchema,
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);

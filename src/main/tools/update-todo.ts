@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { renderTodos } from './shared/render-todos';
 import { todoIndex } from './shared/todo-index';
 import type { TodoStatus } from './shared/state-types';
@@ -12,7 +11,7 @@ export const updateTodoTool: AgentTool<{
 	status?: TodoStatus;
 }> = {
 	name: 'update_todo',
-	description: toolDescription('update_todo'),
+	description: 'Update one item in the current run todo list.',
 	schema: {
 		type: 'object',
 		properties: {

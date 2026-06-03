@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { resolveAbs } from './shared/system-path';
 import { commandResult, limitNumber, runProcess } from './shared/exec-spawn';
 
@@ -11,7 +10,7 @@ export const runShellTool: AgentTool<{
 	maxOutputBytes?: number;
 }> = {
 	name: 'run_shell',
-	description: toolDescription('run_shell'),
+	description: 'Run a shell command in the workspace with captured output.',
 	schema: {
 		type: 'object',
 		properties: {

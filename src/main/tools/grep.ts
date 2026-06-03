@@ -2,7 +2,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { resolveAbs } from './shared/system-path';
 
 export const grepTool: AgentTool<{
@@ -13,7 +12,7 @@ export const grepTool: AgentTool<{
 	limit?: number;
 }> = {
 	name: 'grep',
-	description: toolDescription('grep'),
+	description: 'Search workspace file contents for text or regular expression matches.',
 	schema: {
 		type: 'object',
 		properties: {

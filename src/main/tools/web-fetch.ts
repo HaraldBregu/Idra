@@ -1,11 +1,10 @@
 import { TOOL_LIMITS } from './base/limits';
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 
 export const webFetchTool: AgentTool<{ url: string }> = {
 	name: 'web_fetch',
-	description: toolDescription('web_fetch'),
+	description: 'Fetch an HTTP or HTTPS URL and return readable text capped at 1 MB.',
 	schema: {
 		type: 'object',
 		properties: {

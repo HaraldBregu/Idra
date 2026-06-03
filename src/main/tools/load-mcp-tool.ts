@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
@@ -8,7 +7,7 @@ import { namedSchema } from './shared/mcp-named-schema';
 
 export const loadMcpToolTool: AgentTool<{ id: string; name: string }> = {
 	name: 'load_mcp_tool',
-	description: toolDescription('load_mcp_tool'),
+	description: 'Load schema and metadata for one MCP tool.',
 	schema: namedSchema('MCP tool name.'),
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);

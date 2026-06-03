@@ -1,11 +1,10 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { scratchByContext } from './shared/scratch-store';
 
 export const writeScratchTool: AgentTool<{ content: string; append?: boolean }> = {
 	name: 'write_scratch',
-	description: toolDescription('write_scratch'),
+	description: 'Write run-local scratch notes for later tool calls.',
 	schema: {
 		type: 'object',
 		properties: {

@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
@@ -8,7 +7,7 @@ import { optionsSchema } from './shared/mcp-options-schema';
 
 export const listMcpPromptsTool: AgentTool<{ id: string; options?: Record<string, unknown> }> = {
 	name: 'list_mcp_prompts',
-	description: toolDescription('list_mcp_prompts'),
+	description: 'List prompts exposed by a configured MCP server.',
 	schema: optionsSchema,
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);

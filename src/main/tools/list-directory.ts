@@ -1,7 +1,6 @@
 import { promises as fs } from 'node:fs';
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { resolveAbs } from './shared/common';
 
 interface ListDirectoryArgs {
@@ -14,7 +13,7 @@ const MAX_LIST_LIMIT = 2000;
 
 export const listDirectoryTool: AgentTool<ListDirectoryArgs> = {
 	name: 'list_directory',
-	description: toolDescription('list_directory'),
+	description: 'List files and folders in a workspace directory.',
 	schema: {
 		type: 'object',
 		properties: {

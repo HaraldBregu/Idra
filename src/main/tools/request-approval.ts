@@ -1,10 +1,9 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 
 export const requestApprovalTool: AgentTool<{ action: string; reason?: string }> = {
 	name: 'request_approval',
-	description: toolDescription('request_approval'),
+	description: 'Ask a human to approve or deny a proposed action.',
 	schema: {
 		type: 'object',
 		properties: {

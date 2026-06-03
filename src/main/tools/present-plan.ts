@@ -1,10 +1,9 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 
 export const presentPlanTool: AgentTool<{ title?: string; steps: string[] }> = {
 	name: 'present_plan',
-	description: toolDescription('present_plan'),
+	description: 'Present a plan for human review before taking action.',
 	schema: {
 		type: 'object',
 		properties: {

@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
@@ -12,7 +11,7 @@ export const loadMcpPromptTool: AgentTool<{
 	options?: Record<string, unknown>;
 }> = {
 	name: 'load_mcp_prompt',
-	description: toolDescription('load_mcp_prompt'),
+	description: 'Load a prompt from a configured MCP server.',
 	schema: {
 		type: 'object',
 		properties: {

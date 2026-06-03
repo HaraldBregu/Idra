@@ -1,7 +1,6 @@
 import { DEFAULT_AGENT_ID } from '../config';
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 
 type SpawnPort = {
 	spawn(request: {
@@ -15,7 +14,7 @@ type SpawnPort = {
 
 export const spawnSubagentTool: AgentTool = {
 	name: 'spawn_subagent',
-	description: toolDescription('spawn_subagent'),
+	description: 'Start a child agent run for a clearly scoped task.',
 	schema: {
 		type: 'object',
 		properties: {

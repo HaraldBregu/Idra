@@ -1,6 +1,5 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
@@ -12,7 +11,7 @@ export const callMcpToolTool: AgentTool<{
 	options?: Record<string, unknown>;
 }> = {
 	name: 'call_mcp_tool',
-	description: toolDescription('call_mcp_tool'),
+	description: 'Call a tool on a configured MCP server.',
 	schema: {
 		type: 'object',
 		properties: {

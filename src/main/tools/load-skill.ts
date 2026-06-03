@@ -1,11 +1,10 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { toolDescription } from './base/metadata';
 import { jsonText } from './shared/skills-json-text';
 
 export const loadSkillTool: AgentTool<{ name: string }> = {
 	name: 'load_skill',
-	description: toolDescription('load_skill'),
+	description: 'Load instructions and support file metadata for an installed skill.',
 	schema: {
 		type: 'object',
 		properties: {
