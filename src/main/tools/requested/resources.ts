@@ -1,6 +1,6 @@
 import { objectSchema, type RequestedTool } from './shared';
 
-export const listMcpResourcesTool = {
+export const resourcesTool = {
 	name: 'functions.list_mcp_resources',
 	description: 'Lists resources exposed by configured MCP servers.',
 	schema: objectSchema({
