@@ -561,11 +561,6 @@ export class AgentService {
 				sessionVisibility: 'agent',
 				readState: new Map(),
 				plan: { entries: runtime.session.plan },
-				fsPolicy: {
-					workspaceOnly: agentConfig?.tools?.fs?.workspaceOnly ?? false,
-					writeWorkspaceOnly: agentConfig?.tools?.fs?.writeWorkspaceOnly,
-					readOnly: agentConfig?.tools?.fs?.readOnly ?? false,
-				},
 				signal: abort.signal,
 				services: this.dependencies,
 			};
