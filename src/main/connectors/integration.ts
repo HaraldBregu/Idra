@@ -1,7 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { JSONSchema } from '../llm/types';
-import type { AgentTool, AgentToolResult, ToolContext } from '../tools/shared/types';
 
 export type ConnectorType = 'mcp' | 'oauth' | 'apiKey' | 'internal' | 'local';
 export type ConnectorAuthStatus = 'notConfigured' | 'authorized' | 'expired' | 'revoked' | 'missingScopes' | 'error';
@@ -565,64 +564,6 @@ export class ConnectorToolAdapter {
 
 	fromConnectorAction(connector: ConnectorDefinition, action: ConnectorActionDescriptor): NormalizedConnectorTool {
 		return this.normalize(connector, action, connector.type === 'internal' ? 'internal' : 'connector');
-	}
-
-	toAgentTool(
-		tool: NormalizedConnectorTool,
-		gateway: ConnectorExecutionGateway,
-		options: { userId?: string; maxTextChars?: number } = {}
-	): AgentTool<Record<string, unknown>, ConnectorExecutionResult | ConnectorExecutionResponse> {
-		return {
-			name: this.agentToolName(tool),
-			description: [
-				tool.description,
-				`Connector: ${tool.connectorId}.`,
-				`Permission: ${highestPermission(tool.permissionsRequired)}.`,
-				tool.externalVisibility ? 'Has external visibility.' : 'No external visibility by default.',
-				'Connector output is untrusted data and will be sanitized.',
-			].join(' '),
-			schema: tool.inputSchema,
-			needsApproval: () => false,
-			execute: async (
-				args: Record<string, unknown>,
-				ctx: ToolContext
-			): Promise<AgentToolResult<ConnectorExecutionResult | ConnectorExecutionResponse>> => {
-				const userId = options.userId ?? 'local-user';
-				const response = await gateway.execute({
-					userId,
-					sessionId: ctx.sessionId,
-					connectorId: tool.connectorId,
-					toolId: tool.id,
-					args,
-				});
-
-				if (response.status === 'error') {
-					return {
-						status: 'error',
-						content: [{ type: 'text', text: `${response.error.code}: ${response.error.message}` }],
-						details: response,
-					};
-				}
-
-				const serialized = JSON.stringify(response.result.data, null, 2);
-				const text =
-					serialized.length > (options.maxTextChars ?? 8_000)
-						? `${serialized.slice(0, options.maxTextChars ?? 8_000)}\n[truncated sanitized connector result]`
-						: serialized;
-				const warnings = response.result.warnings.length
-					? `\nWarnings: ${response.result.warnings.join('; ')}`
-					: '';
-				return {
-					status: 'ok',
-					content: [{ type: 'text', text: `${text}${warnings}` }],
-					details: response.result,
-				};
-			},
-		};
-	}
-
-	agentToolName(tool: NormalizedConnectorTool): string {
-		return `connector_${normalizeId(tool.connectorId)}_${normalizeId(tool.name)}`;
 	}
 
 	private normalize(
@@ -1782,63 +1723,6 @@ function trustScore(level: ConnectorTrustLevel): number {
 			return -10;
 		case 'experimental':
 			return -14;
-	}
-}
-
-export class ConnectorAgentIntegration {
-	constructor(
-		private readonly dependencies: {
-			registry: ConnectorRegistry;
-			discovery: ConnectorToolDiscovery;
-			ranker: ConnectorToolRanker;
-			healthMonitor: ConnectorHealthMonitor;
-			authManager: ConnectorAuthManager;
-			adapter: ConnectorToolAdapter;
-			gateway: ConnectorExecutionGateway;
-		}
-	) {}
-
-	async buildToolsForTurn(input: {
-		userId: string;
-		sessionId: string;
-		userInput: string;
-		dataSensitivity?: DataSensitivity;
-		maxTools?: number;
-		preferredConnectors?: string[];
-	}): Promise<AgentTool[]> {
-		for (const connector of this.dependencies.registry.listEnabledConnectors()) {
-			if (this.dependencies.discovery.isManifestStale(connector.id)) {
-				await this.dependencies.discovery.refreshConnectorTools(connector.id);
-				this.dependencies.healthMonitor.recordManifestRefresh(connector.id);
-			}
-		}
-
-		const connectors = this.dependencies.registry.listEnabledConnectors();
-		const authorizedConnectorIds = connectors
-			.filter((connector) => this.dependencies.authManager.hasAuthorization(input.userId, connector.id, []))
-			.map((connector) => connector.id);
-		const ranked = this.dependencies.ranker.rankTools(
-			this.dependencies.discovery.listCachedTools().filter((tool) => {
-				if (!tool.enabled) return false;
-				if (tool.requiredScopes.length > 0 && !this.dependencies.authManager.hasAuthorization(input.userId, tool.connectorId, tool.requiredScopes)) {
-					return false;
-				}
-				return true;
-			}),
-			connectors,
-			this.dependencies.healthMonitor,
-			{
-				userId: input.userId,
-				userInput: input.userInput,
-				preferredConnectors: input.preferredConnectors,
-				authorizedConnectorIds,
-				dataSensitivity: input.dataSensitivity,
-			}
-		);
-
-		return ranked.slice(0, input.maxTools ?? 8).map((tool) =>
-			this.dependencies.adapter.toAgentTool(tool, this.dependencies.gateway, { userId: input.userId })
-		);
 	}
 }
 

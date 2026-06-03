@@ -3,8 +3,6 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app, shell } from 'electron';
 import type { LoggerService } from '../observability';
-import type { AgentTool, ToolContext } from '../tools/shared/types';
-import { textResult } from '../tools/shared/types';
 import {
 	MCP_CONNECTOR_CATALOG,
 	getMcpConnectorCatalogItem,
@@ -315,29 +313,6 @@ export class ConnectorsService {
 		} finally {
 			await client.close?.();
 		}
-	}
-
-	createAgentTools(): AgentTool[] {
-		return this.validConnectors()
-			.filter((connector) => connector.enabled && toStatus(connector, this.env()) === 'configured')
-			.flatMap((connector) =>
-				connector.tools
-					.filter((tool) => tool.permission !== 'blocked')
-					.map((tool) => ({
-						name: agentToolNameFor(connector, tool.name),
-						description: `${connector.name}: ${tool.description ?? tool.name}`,
-						schema: (tool.inputSchema ?? { type: 'object' }) as AgentTool['schema'],
-						needsApproval: (_args: unknown, _ctx: ToolContext) => tool.requiresApproval,
-						execute: async (args: Record<string, unknown>) => {
-							try {
-								const payload = await this.callTool(connector.id, tool.name, args);
-								return textResult(JSON.stringify(payload, null, 2));
-							} catch (error) {
-								return textResult(errorMessage(error), true);
-							}
-						},
-					}))
-			);
 	}
 
 	private getStored(id: string): ConnectorConfig {
@@ -732,13 +707,6 @@ function serverLabelFromName(name: string): string {
 		.trim()
 		.toLowerCase()
 		.replace(/[^a-z0-9_-]+/g, '_')
-		.replace(/^_+|_+$/g, '');
-}
-
-function agentToolNameFor(connector: ConnectorConfig, toolName: string): string {
-	return `${connector.serverLabel}_${toolName}`
-		.toLowerCase()
-		.replace(/[^a-z0-9_]+/g, '_')
 		.replace(/^_+|_+$/g, '');
 }
 
