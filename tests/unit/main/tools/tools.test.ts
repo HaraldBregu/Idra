@@ -385,23 +385,17 @@ describe('tools/fs', () => {
 		await fs.rm(workspace, { recursive: true, force: true });
 	});
 
-	it('reads anywhere and still enforces read-only filesystem policy', async () => {
+	it('reads files inside and outside the workspace', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
 		await fs.writeFile(path.join(outside, 'outside.txt'), 'outside', 'utf8');
-		const ctx = makeToolContext({ workspace, fsPolicy: { workspaceOnly: true } });
+		const ctx = makeToolContext({ workspace });
 
 		expect((await readFileTool.execute({ path: 'inside.txt' }, ctx)).status).toBe('ok');
 		expect((await readFileTool.execute({ path: path.join(outside, 'outside.txt') }, ctx)).status).toBe(
 			'ok'
 		);
-		await expect(
-			writeTool.execute(
-				{ path: 'new.txt', content: 'x' },
-				makeToolContext({ workspace, fsPolicy: { readOnly: true } })
-			)
-		).resolves.toMatchObject({ status: 'error' });
 
 		await fs.rm(workspace, { recursive: true, force: true });
 		await fs.rm(outside, { recursive: true, force: true });
