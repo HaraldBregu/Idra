@@ -6,7 +6,6 @@ import {
 	DEFAULT_TIMEOUT_MS,
 	deniedPattern,
 	type ExecDetails,
-	isInsidePath,
 	runBackground,
 	runForeground,
 } from './shared/exec-utils';
