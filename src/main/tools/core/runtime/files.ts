@@ -6,7 +6,6 @@ import { directoryListTool } from '../../base/list';
 import { fileEditTool } from '../../base/edit';
 import { fileReadTool } from '../../base/read';
 import { bashTool } from '../../base/exec';
-import { processTool } from '../../base/process';
 import { searchFilesTool } from '../../base/search';
 import { fileWriteTool } from '../../base/write';
 import { completeTaskTool } from '../../state/todo/complete';
@@ -46,7 +45,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	directoryListTool,
 	searchFilesTool,
 	bashTool,
-	processTool,
 	fileWriteTool,
 	fileDeleteTool,
 	writeTodosTool,

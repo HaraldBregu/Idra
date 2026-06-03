@@ -47,7 +47,6 @@ the provider.
 | `file_delete`           | Core workspace | Deletes a file directly, or a directory when recursive deletion is requested.                                                                          |
 | `move`                  | Core workspace | Moves or renames one file after policy and read-before-write checks.                                                                                   |
 | `bash`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
-| `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `bash background=true`.                                                                |
 | `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
 | `update_todo`           | State/task     | Updates one item in the current run todo list.                                                                                                         |
 | `list_todos`            | State/task     | Lists the current run todo items and statuses.                                                                                                         |

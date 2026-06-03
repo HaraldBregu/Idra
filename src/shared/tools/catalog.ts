@@ -58,16 +58,6 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'process',
-		group: 'coreWorkspace',
-		title: 'Manage background processes',
-		description: 'List, inspect logs for, or kill background processes started by bash.',
-		permissions: ['read', 'execute'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'file_write',
 		group: 'coreWorkspace',
 		title: 'Write file',

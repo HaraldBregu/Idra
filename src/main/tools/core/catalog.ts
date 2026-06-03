@@ -24,7 +24,6 @@ import { fileDeleteTool } from '../base/delete';
 import { fileEditTool } from '../base/edit';
 import { fileReadTool } from '../base/read';
 import { bashTool } from '../base/exec';
-import { processTool } from '../base/process';
 import { scriptRunTool } from '../base/run';
 import { searchFilesTool } from '../base/search';
 import { fileWriteTool } from '../base/write';
@@ -96,7 +95,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	directory_list: directoryListTool,
 	search_files: searchFilesTool,
 	bash: bashTool,
-	process: processTool,
 	file_write: fileWriteTool,
 	file_delete: fileDeleteTool,
 	write_todos: writeTodosTool,
