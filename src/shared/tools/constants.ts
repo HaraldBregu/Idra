@@ -12,17 +12,9 @@ type AgentToolByAvailability<TAvailability extends AgentToolAvailability> = Extr
 	{ availability: TAvailability }
 >;
 
-const AGENT_TOOL_GROUP_NAMES = [
-	'coreWorkspace',
-	'stateTask',
-	'humanDecision',
-	'subagent',
-	'skill',
-	'mcpConnector',
-	'web',
-	'script',
-	'cron',
-] as const satisfies readonly AgentToolGroupName[];
+const AGENT_TOOL_GROUP_NAMES = Array.from(
+	new Set(AGENT_TOOLS.map((tool) => tool.group))
+) as readonly AgentToolGroupName[];
 
 function toolsByAvailability<TAvailability extends AgentToolAvailability>(
 	availability: TAvailability
@@ -63,30 +55,25 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 ) as readonly AgentToolName[];
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
-	'workspace',
-	'file_edit',
-	'exec',
-	'mcp_connect_server',
-	'mcp_refresh_server',
-	'mcp_call_tool',
-	'script_run',
-	'cron_create',
-	'cron_update',
-	'cron_delete',
-	'cron_start',
-	'cron_stop',
-	'cron_run',
-	'file_write',
-	'apply_patch',
-	'file_delete',
-	'copy',
-	'move',
+	'image_gen.imagegen',
+	'functions.exec_command',
+	'functions.write_stdin',
+	'functions.apply_patch',
+	'functions.update_plan',
+	'functions.create_goal',
+	'functions.update_goal',
+	'functions.request_user_input',
+	'multi_tool_use.parallel',
+	'multi_agent_v1.spawn_agent',
+	'multi_agent_v1.resume_agent',
+	'multi_agent_v1.send_input',
+	'multi_agent_v1.close_agent',
 ] as const satisfies readonly AgentToolName[];
 
-export const AGENT_TOOL_LEGACY_ALIASES = {
-	run_shell: ['exec'],
-	sessions_spawn: ['spawn_subagent'],
-} as const satisfies Record<string, readonly AgentDefaultToolName[]>;
+export const AGENT_TOOL_LEGACY_ALIASES = {} as const satisfies Record<
+	string,
+	readonly AgentDefaultToolName[]
+>;
 
 export const AGENT_TOOL_METADATA_BY_NAME = Object.fromEntries(
 	AGENT_TOOLS.map((tool) => [tool.name, tool])
