@@ -25,8 +25,6 @@ export const copyTool: AgentTool<CopyArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly)
-			return textResult('copy: disabled by read-only filesystem policy.', true);
 		let sourceAbs: string;
 		let destinationAbs: string;
 		try {
