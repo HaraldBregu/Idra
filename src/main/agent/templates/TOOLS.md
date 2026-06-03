@@ -1,155 +1,176 @@
 # Tools
 
 This document describes how Friday currently assembles, selects, and executes
-agent tools. Source file paths are intentionally omitted.
+agent tools. The source of truth is the local tool registry and runtime helpers
+under `src/main/tools`, with shared tool metadata under `src/shared/tools`.
 
-## Selection
+## Assembly
 
-The agent first evaluates the user message with a tool-use policy.
+The default `AgentService` tool factory calls `ToolService.createDefaultTools`.
+That factory builds tools from `LOCAL_TOOL_CATALOG`, applies the agent tool
+profile, then applies runtime allow and deny lists.
 
-- If the user explicitly says not to use tools, no tools are exposed.
-- Tool inventory questions expose the available tool surface so the model can
-  answer from the current registry.
-- URLs, current information, private account data, workspace files, codebase
-  work, shell execution, tests, builds, debugging, mutation, opening browser URLs,
-  email, calendar, Drive, cron jobs, and similar external or mutable work
-  require tools.
-- Creative writing, rewriting, translation, summarization, and brainstorming
-  are answered without tools unless the request also needs external access.
-- If no rule requires tools and no skill is selected, the run is a direct
-  answer: startup context is not loaded for tool use, and the provider receives
-  no tools.
+- The default profile is `full`, which allows every tool in the local catalog.
+- The `coding` and `standard` profiles allow the default metadata set and omit
+  optional script and cron tools.
+- The `minimal` and `messaging` profiles allow no local tools unless policy also
+  allows specific names or groups.
+- Policy entries can name tools directly, use `*`, use glob patterns, or use
+  groups such as `group:file`, `group:shell`, `group:state_task`,
+  `group:human_decision`, `group:subagent`, `group:skill`, `group:mcp`,
+  `group:web`, `group:script`, and `group:cron`.
 
-The default `AgentService` path builds the local tool set from the full local
-registry, denies `startup_files` by default, and adds enabled configured
-connector tools. It can then add dynamic tools for bootstrap, heartbeat, and
-skills.
+There is also a run-scoped assembler exported as `createAgentTools`. It builds
+tool families from `toolsAllow`:
 
-There is also a run-scoped tool assembler for plugin, MCP, LSP, client-hosted,
-and tool-search catalog workflows. That path is available in the codebase, but
-it is separate from the default `AgentService` tool factory.
+- `undefined` includes the filesystem/control family and web tools.
+- `[]` includes no tools.
+- `*` includes filesystem/control, script, cron, and web tools.
+- Group or tool-specific allow entries include only the matching families.
 
-## Default Local Tools
+In the run-scoped cron family, the compatibility `cron` tool is filtered out and
+the split cron tools are used instead.
 
-These are the local tools in the default registry. A tool still has to pass
-policy, ranking, and run context before it is exposed to the provider.
+## Local Catalog
 
-| Tool | How it is used |
+These tools are in the local catalog. A tool still has to pass profile policy,
+allow or deny policy, turn ranking, and runtime context before it is exposed to
+the provider.
+
+| Tool | Group | How it is used |
+| --- | --- | --- |
+| `file_read` | Core workspace | Reads a UTF-8 workspace file with optional line offset and limit. Records read state for later guarded writes. |
+| `file_edit` | Core workspace | Replaces exact text in a UTF-8 workspace file after the file has been read. |
+| `directory_list` | Core workspace | Lists files and folders in a workspace directory. |
+| `search_files` | Core workspace | Finds workspace paths by glob pattern. |
+| `exec` | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating. |
+| `process` | Core workspace | Lists, reads logs for, or kills background processes started by `exec background=true`. |
+| `file_write` | Core workspace | Creates or overwrites a UTF-8 workspace file. Existing files must be read earlier in the run. |
+| `file_delete` | Core workspace | Deletes a file directly, or deletes a directory when recursive deletion is requested. |
+| `write_todos` | State/task | Replaces the current run todo list. |
+| `update_todo` | State/task | Updates one item in the current run todo list. |
+| `list_todos` | State/task | Lists the current run todo items and statuses. |
+| `complete_task` | State/task | Marks the current task or a todo item as complete. |
+| `write_scratch` | State/task | Writes run-local scratch notes for later tool calls. |
+| `read_scratch` | State/task | Reads run-local scratch notes. |
+| `request_approval` | Human decision | Asks a human to approve or deny a proposed action. The tool itself is approval-gated. |
+| `request_clarification` | Human decision | Asks a focused clarification question before continuing. |
+| `present_plan` | Human decision | Presents a plan for human review before taking action. |
+| `request_authorization` | Human decision | Requests explicit authorization for sensitive or external actions. The tool itself is approval-gated. |
+| `spawn_subagent` | Subagent | Starts a child agent run for a clearly scoped task. |
+| `skill_list` | Skill | Lists installed skills available to the agent. |
+| `skill_load` | Skill | Loads instructions and support file metadata for an installed skill. |
+| `skill_use` | Skill | Selects and loads a skill for the current task. |
+| `mcp_list_servers` | MCP connector | Lists configured MCP connector servers. |
+| `mcp_connect_server` | MCP connector | Connects to or tests a configured MCP server. |
+| `mcp_refresh_server` | MCP connector | Refreshes a configured MCP server and its discovered capabilities. |
+| `mcp_list_tools` | MCP connector | Lists tools exposed by a configured MCP server. |
+| `mcp_load_tool` | MCP connector | Loads schema and metadata for one MCP tool. |
+| `mcp_call_tool` | MCP connector | Calls a tool on a configured MCP server. This tool is approval-gated. |
+| `mcp_list_resources` | MCP connector | Lists resources exposed by a configured MCP server. |
+| `mcp_read_resource` | MCP connector | Reads a resource from a configured MCP server. |
+| `mcp_list_prompts` | MCP connector | Lists prompts exposed by a configured MCP server. |
+| `mcp_load_prompt` | MCP connector | Loads a prompt from a configured MCP server. |
+| `web_fetch` | Web | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
+| `open_browser` | Web | Opens an HTTP or HTTPS URL in the user's default browser. |
+| `script_run` | Script | Runs an existing script file with explicit arguments, interpreter selection, timeout, and output limits. It does not run arbitrary shell command text. |
+| `cron_create` | Cron | Creates a scheduled job through `CronService`. |
+| `cron_read` | Cron | Reads one scheduled job through `CronService`. |
+| `cron_update` | Cron | Updates a scheduled job through `CronService`. |
+| `cron_delete` | Cron | Deletes a scheduled job through `CronService`. |
+| `cron_list` | Cron | Lists scheduled jobs through `CronService`. |
+| `cron_start` | Cron | Starts a paused scheduled job through `CronService`. |
+| `cron_stop` | Cron | Stops or pauses a scheduled job through `CronService`. |
+| `cron_run` | Cron | Runs a scheduled job immediately through `CronService`. |
+
+Compatibility implementations for `cron`, `apply_patch`, `copy`, and `move`
+exist in source, but they are not part of the current local catalog. Use the
+split cron tools for scheduling. File writes and edits use `file_read`,
+`file_write`, `file_edit`, and `file_delete`.
+
+## Dynamic Additions
+
+Some tools or capabilities are added outside the local catalog.
+
+| Tool or capability | When it appears |
 | --- | --- |
-| `file_read` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
-| `file_write` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
-| `file_edit` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
-| `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
-| `file_delete` | Deletes a file directly. Directory deletion requires `recursive=true` and root paths are guarded. |
-| `copy` | Copies one file to another path. Overwriting requires prior read state for the destination. |
-| `move` | Moves or renames one file. The source must be read first; overwriting requires prior destination read state. |
-| `search_files` | Finds files by glob pattern, excluding common generated directories such as `node_modules` and `.git`. |
-| `exec` | Runs a shell command in the workspace with capped output, denied dangerous command patterns, abort support, and an execution timeout. |
-| `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |
-| `web_fetch` | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
-| `cron` | Schedules, lists, updates, removes, manually runs, inspects runs for, or wakes Gateway-owned cron jobs. |
-| `open_browser` | Opens an HTTP or HTTPS URL in the user's default browser. |
+| `startup_files` | Added only for full primary bootstrap mode. During that bootstrap mode, it is the only local tool exposed. |
+| `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. It can be forced into the prompt for heartbeat reporting. |
+| Connector tools | Added for enabled, configured connectors whose names or descriptions match the user message. Connector tool names are derived from the connector and raw tool name. |
+| Selected skills | Matching skill instructions are appended to the system prompt. The default capability resolver does not expose `execute_skill` as a provider tool. |
+| Run-scoped core tools | Available through `createAgentTools` when a caller uses run-scoped construction instead of the default `AgentService` factory. |
 
-`cron_add`, `cron_list`, and `cron_remove` exist as legacy helper exports, but
-they are not part of the current default local tool registry exposed by
-`AgentService`.
+## Turn Selection
 
-## Dynamic Tools
+For the default `AgentService` path, the request-level tool policy currently
+allows a tool-capable run. The per-turn selector decides which tools, if any, are
+actually exposed.
 
-These tools are added only when the corresponding runtime condition applies.
-
-| Tool or family | When it appears |
-| --- | --- |
-| `startup_files` | Added only for pending primary bootstrap runs. During bootstrap, it is the only local tool exposed. |
-| `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. |
-| `execute_skill` | Added when skill discovery selects an executable skill that is not read from a file-backed location. |
-| Connector tools | Added for enabled, configured connectors. Names are derived from the connector server label and raw tool name. |
-| Plugin tools | Available through the run-scoped assembler when plugin tools are included by policy. |
-| MCP tools | Available through the run-scoped assembler when MCP tools are explicitly included. |
-| LSP tools | Available through the run-scoped assembler when an LSP runtime supplies capabilities. |
-| Client tools | Available through the run-scoped assembler when the client provides hosted tool definitions. |
-| `tool_search` | Searches hidden tools when run-scoped tool-search compaction is enabled. |
-| `tool_describe` | Returns schema and metadata for a hidden tool when tool-search compaction is enabled. |
-| `tool_call` | Executes a hidden tool through the same wrapped execution path when tool-search compaction is enabled. |
-
-## Cron Scheduling
-
-`cron` is the agent-facing tool for future, delayed, recurring, reminder, wake,
-and manual-run scheduling. The agent should not emulate scheduling with sleep
-loops, shell loops, long-running polling, or model-side timers.
-
-Use `cron` only when the request is actually scheduled.
-
-## Prompt Narrowing
-
-The default service path narrows the candidate list for each turn.
-
-- Explicit no-tool requests return no prompt tools.
-- Tool inventory requests skip narrowing and expose all currently available
+- If there are no candidate tools, or the user explicitly says not to use tools,
+  no tools are exposed.
+- Requests that match the immediate background-task phrase expose no prompt
   tools.
-- Bootstrap runs expose only `startup_files`.
-- Otherwise, tool selection is forced and capped at 8 prompt tools by default.
-- Discovery filters disabled tools, tools without required permissions, tools
-  above the current safety level, and tools outside privacy constraints.
-- Ranking scores tools by request term matches, inferred category, memory
-  preferences, recent success, schema specificity, reliability, cost, latency,
-  and safety.
-- Google Calendar, Google Drive, and Gmail requests force matching connector
-  tools into the prompt even when ranking would omit them.
-- File mutation tools `file_write`, `file_edit`, `apply_patch`, `file_delete`, `copy`, and
-  `move` automatically keep `file_read` available when it exists.
-- Skill selection can force a skill's required or allowed tools into the prompt.
-  File-backed skills also force `file_read` when needed.
-- Heartbeat runs can force `heartbeat_respond` into the prompt.
+- Tool inventory questions expose all current candidate tools.
+- Otherwise, tools are ranked by matches across tool name, display name,
+  display summary, and description.
+- Ranking adds intent boosts for scheduling, email, calendar, Drive, web,
+  shell/script execution, subagents, file reads, file writes, file deletion, and
+  file moves.
+- Only tools with a positive score are selected.
+- The default `AgentService` cap is 9 prompt tools.
+- When selected file mutation tools depend on prior reads, `file_read` is kept
+  available when it exists.
+- After local selection, capability resolution can append matching connector
+  tools and selected skill instructions.
 
-The system prompt lists only the selected tools for the turn. When narrowing
-selects ranked tools, a compact tool-card section is added with purpose,
-when-to-use guidance, when-not-to-use guidance, required inputs, safety notes,
-and an example call. The provider receives only each selected tool's name,
-description, and JSON schema.
+The provider receives only the selected tools for the turn. Each provider tool
+definition contains the exposed tool name, description, and JSON schema after
+provider-safe name and schema normalization.
 
-## Use
+## Execution
 
-The model chooses whether to call one of the tools that were exposed for the
-turn. The runtime does not force a tool call.
+The model may call any tool exposed for the turn. The runtime does not force a
+tool call.
 
 When a provider streams a tool call, the runtime collects the call id, tool name,
-and JSON argument deltas. Invalid JSON is returned to the model as a tool error
-and the tool is not executed. A call to a tool name that was not exposed for the
-turn is also returned as a tool error.
+and JSON argument deltas. The tool is not executed when arguments are invalid
+JSON, when arguments are not a JSON object, or when the requested tool was not
+available for the run.
 
-Before execution, identical calls are tracked per turn. The third identical call
-and later receive a warning. After more than 5 identical calls, execution is
-vetoed and the model receives a loop-detector error. Legacy approval markers are
-recorded for tools that require approval, but the current path does not pause the
-agent loop for an approval prompt.
+Before execution, the legacy managed path runs preflight checks:
 
-Execution then goes through the managed tool path.
+- Identical calls are tracked per turn. The third identical call and later add a
+  warning. After more than 5 identical calls, execution is blocked.
+- Tools marked with `needsApproval` are rejected unless approval has already
+  been cached for that exact call key.
+- Tool-specific guards still run inside each tool. Examples include
+  read-before-write checks for file writes and denied command patterns for
+  shell execution.
 
-- Arguments are extracted from the raw call, sanitized against the input schema,
-  normalized, and validated.
-- Unknown fields or missing required fields produce a clarification-style tool
-  error instead of executing.
-- Common values are normalized where supported, such as numeric strings, email
-  casing, currency casing, units, and relative dates like `today` or `tomorrow`
-  in the session timezone.
-- Input schema validation runs before the tool executes.
-- Per-tool rate limits and the per-turn tool-call limit are enforced.
-- Tools run with an abort signal. Managed execution has a default timeout and
-  transient failures can retry with backoff.
-- Tool outputs are validated against the output schema.
-- Prompt-injection-like tool output is treated as untrusted and normalized
-  before it is returned to the model.
-- Empty, partial, stale, contradictory, or otherwise suspicious output can add
-  warnings.
-- Tool calls are audited with sensitive values redacted.
-
-Tool results are appended to the transcript as tool messages. The agent loop
-then calls the provider again with the updated transcript. This repeats until the
-provider stops calling tools, the run is cancelled, the context is compacted
-after one overflow retry, or the max iteration limit is reached.
+The selected tool then executes with the current workspace, session id, run plan,
+read-state map, abort signal, and Friday services. Tool results are appended to
+the transcript as tool messages, and the agent loop calls the provider again
+with the updated transcript. This repeats until the provider stops calling
+tools, the run is cancelled, the context is compacted after one overflow retry,
+or the max iteration limit is reached.
 
 Tool lifecycle events are streamed to the renderer: call start, argument deltas,
 parsed input, result, status, duration, and displayable output text. Run logs
-record selected tool names, the tool-policy reason, phase durations, iterations,
-and tool-call outcomes.
+record selected tool names, phase durations, iterations, and tool-call outcomes.
+
+## Cron Scheduling
+
+Use the split cron tools for future, delayed, recurring, reminder, wake, and
+manual-run scheduling:
+
+- `cron_create`
+- `cron_read`
+- `cron_update`
+- `cron_delete`
+- `cron_list`
+- `cron_start`
+- `cron_stop`
+- `cron_run`
+
+The agent should not emulate scheduling with sleep loops, shell loops,
+long-running polling, or model-side timers.
