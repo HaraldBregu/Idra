@@ -77,9 +77,9 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'write',
+		name: 'write_file',
 		group: 'coreWorkspace',
-		title: 'Write',
+		title: 'Write file',
 		description: 'Create or overwrite a UTF-8 workspace file.',
 		permissions: ['create', 'write'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
