@@ -123,7 +123,7 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 		score += 80;
 	if (intent === 'subagent' && hasAny(toolTokens, ['spawn', 'subagent', 'child', 'delegate']))
 		score += 90;
-	if (intent === 'file_read' && hasAny(toolTokens, ['read', 'find', 'grep', 'list', 'search']))
+	if (intent === 'file_read' && hasAny(toolTokens, ['read', 'find', 'list', 'search']))
 		score += 40;
 	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'create', 'save', 'update']))
 		score += 40;
