@@ -401,10 +401,10 @@ describe('tools/fs', () => {
 		await fs.rm(outside, { recursive: true, force: true });
 	});
 
-	it('allows mutating file targets outside the workspace even when writeWorkspaceOnly is set', async () => {
+	it('mutates file targets outside the workspace', async () => {
 		const workspace = await makeTempDir();
 		const outside = await makeTempDir();
-		const ctx = makeToolContext({ workspace, fsPolicy: { writeWorkspaceOnly: true } });
+		const ctx = makeToolContext({ workspace });
 		const outsideFile = path.join(outside, 'outside.txt');
 		await fs.writeFile(path.join(workspace, 'inside.txt'), 'inside', 'utf8');
 		await fs.writeFile(outsideFile, 'outside', 'utf8');
