@@ -28,8 +28,8 @@ export { fileReadTool } from './filesystem/read';
 export { fileWriteTool } from './filesystem/write';
 export { directoryListTool } from './filesystem/list';
 export { searchFilesTool } from './filesystem/search';
-export { copyTool } from './copy';
-export { moveTool } from './move';
+export { copyTool } from './filesystem/copy';
+export { moveTool } from './filesystem/move';
 export { fileDeleteTool } from './filesystem/delete';
 export { fileEditTool } from './filesystem/edit';
 export { applyPatchTool } from './filesystem/apply-patch';
@@ -75,11 +75,11 @@ export { mcpLoadToolTool } from './mcp/tool/load';
 export { mcpReadResourceTool } from './mcp/resource/read';
 export { mcpRefreshServerTool } from './mcp/server/refresh';
 export { createStartupFilesTool } from './startup/files';
-export { AgentStartupFilesService } from './shared/startup-service';
+export { AgentStartupFilesService } from './startup/service';
 export type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
-} from './shared/startup-types';
+} from './startup/types';
 export {
 	ALL_TOOLS,
 	createTools,

@@ -6,8 +6,8 @@ import type {
 	ToolContext,
 } from '../base/tool';
 import { legacyToolToCanonical } from '../base/runtime/bridge';
-import { openBrowserTool } from '../web/browser';
-import { webFetchTool } from '../web/fetch';
+import { openBrowserTool } from './browser';
+import { webFetchTool } from './fetch';
 
 export type AppToolOptions = {
 	workspaceDir: string;

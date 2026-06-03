@@ -21,12 +21,12 @@ import { resolveDefaultAgentDataPath } from '../../agent/storage';
 import type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
-} from './startup-types';
+} from './types';
 import {
 	assertSafeWritableStartupFile,
 	fileContentDiffersFromTemplate,
 	pathExists,
-} from './startup-utils';
+} from './utils';
 
 const PROFILE_FILE_NAMES = [
 	DEFAULT_SOUL_FILENAME,
