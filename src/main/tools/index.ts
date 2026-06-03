@@ -24,16 +24,6 @@ export {
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './shared/create';
-export { fileReadTool } from './filesystem/read';
-export { fileWriteTool } from './filesystem/write';
-export { directoryListTool } from './filesystem/list';
-export { searchFilesTool } from './filesystem/search';
-export { copyTool } from './filesystem/copy';
-export { moveTool } from './filesystem/move';
-export { fileDeleteTool } from './filesystem/delete';
-export { fileEditTool } from './filesystem/edit';
-export { applyPatchTool } from './filesystem/apply-patch';
-export { createFileTools, createReadTool, type FileToolOptions } from './filesystem/runtime';
 export { workspaceTool } from './workspace/tool';
 export { collapseWorkspaceToolSurface } from './workspace/surface';
 export { execTool } from './shell/exec';

@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createAgentTools, fileDeleteTool, fileReadTool, selectAgentToolsForTurn } from '../../../../src/main/tools';
+import { selectAgentToolsForTurn, workspaceTool } from '../../../../src/main/tools';
 import type { AgentTool, ToolContext } from '../../../../src/main/tools';
 
 function toolContext(workspace: string): ToolContext {
@@ -14,27 +14,9 @@ function toolContext(workspace: string): ToolContext {
 	};
 }
 
-describe('file_delete', () => {
-	it('is available in the run-scoped file tool assembly', async () => {
-		const result = await createAgentTools({
-			workspaceDir: process.cwd(),
-			toolsAllow: ['file_delete'],
-		});
-
-		expect(result.tools.map((tool) => tool.name)).toContain('file_delete');
-	});
-
-	it('is selected directly for absolute path delete requests', () => {
-		const tools = [
-			fileReadTool,
-			{
-				name: 'file_write',
-				description: 'Create or overwrite a UTF-8 file.',
-				schema: { type: 'object', properties: {} },
-				execute: jest.fn(),
-			},
-			fileDeleteTool,
-		] as AgentTool[];
+describe('workspace delete', () => {
+	it('selects workspace for absolute path delete requests', () => {
+		const tools = [workspaceTool] as AgentTool[];
 
 		const selection = selectAgentToolsForTurn(
 			tools,
@@ -43,10 +25,10 @@ describe('file_delete', () => {
 			{ maxPromptTools: 2 }
 		);
 
-		expect(selection.toolsForPrompt.map((tool) => tool.name)).toEqual(['file_delete']);
+		expect(selection.toolsForPrompt.map((tool) => tool.name)).toEqual(['workspace']);
 	});
 
-	it('deletes an absolute path outside the workspace directly', async () => {
+	it('deletes an absolute path outside the workspace through workspace', async () => {
 		const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-file-delete-'));
 		const workspace = path.join(tempRoot, 'workspace');
 		const outside = path.join(tempRoot, 'outside.txt');
@@ -55,7 +37,7 @@ describe('file_delete', () => {
 		const ctx = toolContext(workspace);
 
 		try {
-			const deleted = await fileDeleteTool.execute({ path: outside }, ctx);
+			const deleted = await workspaceTool.execute({ action: 'delete', path: outside }, ctx);
 			expect(deleted.status).toBe('ok');
 			await expect(fs.stat(outside)).rejects.toMatchObject({ code: 'ENOENT' });
 		} finally {

@@ -11,6 +11,8 @@ describe('tool registry organization', () => {
 			expect(names).toContain('workspace');
 			expect(names).not.toContain('file_read');
 			expect(names).not.toContain('file_edit');
+			expect(names).not.toContain('directory_list');
+			expect(names).not.toContain('search_files');
 			expect(names).not.toContain('file_write');
 			expect(names).not.toContain('file_delete');
 		} finally {
@@ -24,6 +26,8 @@ describe('tool registry organization', () => {
 		expect(names).toContain('workspace');
 		expect(names).not.toContain('file_read');
 		expect(names).not.toContain('file_edit');
+		expect(names).not.toContain('directory_list');
+		expect(names).not.toContain('search_files');
 		expect(names).not.toContain('file_write');
 		expect(names).not.toContain('file_delete');
 	});
@@ -41,7 +45,7 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it.each(['file_delete', 'exec', 'mcp_list_servers', 'script_run', 'cron_create'])(
+	it.each(['exec', 'mcp_list_servers', 'script_run', 'cron_create'])(
 		'resolves %s by allowlist',
 		async (toolName) => {
 			const result = await createAgentTools({
@@ -56,4 +60,24 @@ describe('tool registry organization', () => {
 			}
 		}
 	);
+
+	it.each([
+		'file_read',
+		'file_edit',
+		'directory_list',
+		'search_files',
+		'file_write',
+		'file_delete',
+	])('does not resolve removed standalone filesystem tool %s by allowlist', async (toolName) => {
+		const result = await createAgentTools({
+			workspaceDir: process.cwd(),
+			toolsAllow: [toolName],
+		});
+
+		try {
+			expect(result.tools.map((tool) => tool.name)).not.toContain(toolName);
+		} finally {
+			await result.dispose();
+		}
+	});
 });

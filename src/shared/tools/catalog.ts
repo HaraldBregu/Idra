@@ -23,8 +23,8 @@ export const AGENT_TOOLS = [
 		description: 'Read a UTF-8 workspace file with optional line offset and limit.',
 		permissions: ['read'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
 	},
 	{
 		name: 'file_edit',
@@ -33,8 +33,8 @@ export const AGENT_TOOLS = [
 		description: 'Replace exact text in a UTF-8 workspace file.',
 		permissions: ['write'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
 	},
 	{
 		name: 'directory_list',
@@ -43,8 +43,8 @@ export const AGENT_TOOLS = [
 		description: 'List files and folders in a workspace directory.',
 		permissions: ['read'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
 	},
 	{
 		name: 'search_files',
@@ -53,8 +53,8 @@ export const AGENT_TOOLS = [
 		description: 'Find workspace paths by glob pattern.',
 		permissions: ['read'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
 	},
 	{
 		name: 'exec',
@@ -84,8 +84,8 @@ export const AGENT_TOOLS = [
 		description: 'Create or overwrite a UTF-8 workspace file.',
 		permissions: ['create', 'write'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
+		profiles: LEGACY_TOOL_PROFILES,
+		availability: 'legacy',
 	},
 	{
 		name: 'write_todos',
@@ -455,7 +455,7 @@ export const AGENT_TOOLS = [
 		permissions: ['delete'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'default',
+		availability: 'legacy',
 	},
 	{
 		name: 'copy',

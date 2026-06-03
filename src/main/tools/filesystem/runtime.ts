@@ -2,13 +2,8 @@ import type { AgentTool } from '../base/common';
 import { markCoreTool } from '../base/common';
 import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '../base/tool';
 import { legacyToolToCanonical } from '../base/runtime/bridge';
-import { directoryListTool } from './list';
-import { fileEditTool } from './edit';
-import { fileReadTool } from './read';
 import { execTool } from '../shell/exec';
 import { processTool } from '../shell/process';
-import { searchFilesTool } from './search';
-import { fileWriteTool } from './write';
 import { workspaceTool } from '../workspace/tool';
 import { completeTaskTool } from '../state/todo/complete';
 import { listTodosTool } from '../state/todo/list';
@@ -24,7 +19,6 @@ import { spawnSubagentTool } from '../subagent/spawn';
 import { skillListTool } from '../skill/list';
 import { skillLoadTool } from '../skill/load';
 import { skillUseTool } from '../skill/use';
-import { fileDeleteTool } from './delete';
 import { mcpCallToolTool } from '../mcp/tool/call';
 import { mcpConnectServerTool } from '../mcp/server/connect';
 import { mcpListPromptsTool } from '../mcp/prompt/list';
@@ -48,14 +42,8 @@ type LegacyFileTool = LegacyAgentTool<any, any>;
 
 const FILE_TOOLS: readonly LegacyFileTool[] = [
 	workspaceTool,
-	fileReadTool,
-	fileEditTool,
-	directoryListTool,
-	searchFilesTool,
 	execTool,
 	processTool,
-	fileWriteTool,
-	fileDeleteTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
@@ -85,12 +73,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 export function createFileTools(options: FileToolOptions): AgentTool[] {
 	const context = createFileToolContext(options);
 	return FILE_TOOLS.map((tool) => markCoreTool(legacyToolToCanonical(tool, context)));
-}
-
-export function createReadTool(options: FileToolOptions): AgentTool {
-	const read = createFileTools(options).find((tool) => tool.name === 'file_read');
-	if (!read) throw new Error('file_read tool is not registered');
-	return read;
 }
 
 function createFileToolContext(options: FileToolOptions): ToolContext {

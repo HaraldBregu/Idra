@@ -78,10 +78,10 @@ the provider.
 | `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
 | `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
 
-Compatibility implementations for the standalone filesystem tools still exist
-in source for explicit allowlists and tests. The normal model-facing filesystem
-surface is `workspace`. Compatibility implementations for `cron` exist in
-source, but the split cron tools should be used for scheduling.
+The normal model-facing filesystem surface is `workspace`. Standalone
+filesystem implementations remain internal action handlers for `workspace`.
+Compatibility implementations for `cron` exist in source, but the split cron
+tools should be used for scheduling.
 
 ## Dynamic Additions
 
@@ -113,8 +113,8 @@ actually exposed.
   file moves.
 - Only tools with a positive score are selected.
 - The default `AgentService` cap is 9 prompt tools.
-- When selected file mutation tools depend on prior reads, `file_read` is kept
-  available when it exists.
+- Workspace mutation actions depend on prior reads when overwriting existing
+  files.
 - After local selection, capability resolution can append matching connector
   tools and selected skill instructions.
 
