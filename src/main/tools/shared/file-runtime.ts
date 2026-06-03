@@ -53,7 +53,7 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	grepTool,
 	runShellTool,
 	undoLastOperationTool,
-	writeTool,
+	writeFileTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
