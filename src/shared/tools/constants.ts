@@ -76,7 +76,7 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_start',
 	'cron_stop',
 	'cron_run',
-	'write',
+	'write_file',
 	'apply_patch',
 	'delete_file',
 	'copy',
