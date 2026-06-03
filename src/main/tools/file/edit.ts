@@ -70,7 +70,6 @@ export const fileEditTool: AgentTool<EditArgs> = {
 		await fs.writeFile(abs, next, 'utf8');
 		const after = await fs.stat(abs);
 		ctx.readState.set(abs, snapshot(after));
-		if (before && before.before.kind === 'file') pushUndo(ctx, before);
 		return textResult(`edited ${abs} (${count} replacement${count === 1 ? '' : 's'})`);
 	},
 };
