@@ -17,6 +17,7 @@ import { cronRunTool } from '../cron-run';
 import { cronStartTool } from '../cron-start';
 import { cronStopTool } from '../cron-stop';
 import { cronUpdateTool } from '../cron-update';
+import { deleteFileTool } from '../delete-file';
 import { editFileTool } from '../edit-file';
 import { grepTool } from '../grep';
 import { listDirectoryTool } from '../list-directory';
