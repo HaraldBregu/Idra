@@ -65,7 +65,6 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'file_edit',
 	'exec',
-	'undo_last_operation',
 	'mcp_connect_server',
 	'mcp_refresh_server',
 	'mcp_call_tool',
