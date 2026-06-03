@@ -1,5 +1,4 @@
 import { promises as fs } from 'node:fs';
-import path from 'node:path';
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
 import { resolveAbs } from './shared/common';
@@ -12,7 +11,7 @@ interface DeleteArgs {
 export const deleteFileTool: AgentTool<DeleteArgs> = {
 	name: 'delete_file',
 	description:
-		'Delete a file directly by absolute or workspace-relative path. Directories require recursive=true and cannot target root paths.',
+		'Delete a file directly by absolute or workspace-relative path. Directories require recursive=true.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -34,9 +33,6 @@ export const deleteFileTool: AgentTool<DeleteArgs> = {
 			if (stat.isDirectory()) {
 				if (!args.recursive)
 					return textResult('delete_file: recursive=true is required for directories.', true);
-				if (isProtectedDirectory(abs, ctx.workspace)) {
-					return textResult('delete_file: refusing to delete a root directory.', true);
-				}
 				await fs.rm(abs, { recursive: true });
 				return textResult(`deleted directory ${abs}`);
 			}
@@ -49,8 +45,3 @@ export const deleteFileTool: AgentTool<DeleteArgs> = {
 		}
 	},
 };
-
-function isProtectedDirectory(abs: string, workspace: string): boolean {
-	const normalized = path.resolve(abs);
-	return normalized === path.parse(normalized).root || normalized === path.resolve(workspace);
-}
