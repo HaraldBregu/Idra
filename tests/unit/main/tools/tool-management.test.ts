@@ -719,7 +719,7 @@ describe('tool management layer', () => {
 		const outside = await makeTempDir();
 		const insideCtx = makeToolContext({ workspace });
 		const inside = await executeAgentToolWithManagement(
-			writeTool,
+			writeFileTool,
 			{ path: 'inside.txt', content: 'ok' },
 			insideCtx
 		);
