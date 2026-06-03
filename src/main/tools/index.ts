@@ -25,11 +25,6 @@ export {
 	type ToolConstructionPlan,
 } from './shared/create';
 export { requestedTools } from './requested/tools';
-export { AgentStartupFilesService } from './startup/service';
-export type {
-	AgentStartupFilesServiceOptions,
-	AgentStartupFilesServicePort,
-} from './startup/types';
 export {
 	ALL_TOOLS,
 	createTools,
