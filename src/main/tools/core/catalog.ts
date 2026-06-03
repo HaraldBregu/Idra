@@ -19,7 +19,6 @@ import { cronRunTool } from '../cron/run';
 import { cronStartTool } from '../cron/start';
 import { cronStopTool } from '../cron/stop';
 import { cronUpdateTool } from '../cron/update';
-import { fileDeleteTool } from '../base/delete';
 import { fileEditTool } from '../base/edit';
 import { fileReadTool } from '../base/read';
 import { execTool } from '../base/exec';
@@ -92,7 +91,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	find: searchFilesTool,
 	exec: execTool,
 	write: fileWriteTool,
-	file_delete: fileDeleteTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
 	list_todos: listTodosTool,

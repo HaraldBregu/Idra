@@ -16,7 +16,6 @@ import { writeTodosTool } from '../../state/todo/write';
 import { skillListTool } from '../../skills/skill-list';
 import { skillLoadTool } from '../../skills/load-skill';
 import { skillUseTool } from '../../skills/use-skill';
-import { fileDeleteTool } from '../../base/delete';
 import { mcpCallToolTool } from '../../mcp/tool/call';
 import { mcpConnectServerTool } from '../../mcp/server/connect';
 import { mcpListPromptsTool } from '../../mcp/prompt/list';
@@ -44,7 +43,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	searchFilesTool,
 	execTool,
 	fileWriteTool,
-	fileDeleteTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
