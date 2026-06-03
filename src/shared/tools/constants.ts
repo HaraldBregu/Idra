@@ -84,7 +84,7 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
-	script_run: ['run_shell'],
+	run_shell: ['exec'],
 	sessions_spawn: ['spawn_subagent'],
 } as const satisfies Record<string, readonly AgentDefaultToolName[]>;
 
