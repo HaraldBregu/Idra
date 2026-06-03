@@ -27,7 +27,6 @@ import { execTool } from '../exec';
 import { processTool } from '../process';
 import { scriptRunTool } from '../script-run';
 import { searchFilesTool } from '../file/search';
-import { undoLastOperationTool } from '../undo-last-operation';
 import { fileWriteTool } from '../file/write';
 import { completeTaskTool } from '../todo/complete';
 import { listTodosTool } from '../todo/list';
