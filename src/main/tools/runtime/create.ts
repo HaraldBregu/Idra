@@ -246,7 +246,6 @@ function addCoreToolCandidates(
 			...createScriptTools({
 				workspaceDir: options.workspaceDir,
 				sessionId: options.sessionId,
-				fsPolicy,
 				signal: options.abortSignal,
 				services: options.services,
 			})

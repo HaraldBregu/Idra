@@ -37,7 +37,7 @@ policy, ranking, and run context before it is exposed to the provider.
 | Tool | How it is used |
 | --- | --- |
 | `read_file` | Reads a UTF-8 file and returns line-numbered text. Records read state for later guarded writes. |
-| `write` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
+| `write_file` | Creates or overwrites a UTF-8 file. Existing files must be read earlier in the run. |
 | `edit_file` | Applies an exact string replacement to a UTF-8 file after the file has been read. |
 | `apply_patch` | Applies a unified diff to existing workspace files after affected files have been read. |
 | `delete_file` | Deletes a file after it has been read. Directory deletion requires `recursive=true` and root paths are guarded. |
