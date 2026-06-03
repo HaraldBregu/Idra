@@ -727,7 +727,7 @@ describe('tool management layer', () => {
 
 		const outsideCtx = makeToolContext({ workspace });
 		const outsideWrite = await executeAgentToolWithManagement(
-			writeTool,
+			writeFileTool,
 			{ path: `${outside}/outside.txt`, content: 'yes' },
 			outsideCtx
 		);
