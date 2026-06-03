@@ -1,6 +1,6 @@
 import type { AgentTool } from '../base/tool';
 import { textResult } from '../base/tool';
-import { checkCronPolicy, cronActor, type CronUpdateArgs, cronService } from '../shared/cron-utils';
+import { checkCronPolicy, cronActor, type CronUpdateArgs, cronService } from './utils';
 import { jsonText } from '../shared/json-text';
 
 export const cronUpdateTool: AgentTool<CronUpdateArgs> = {

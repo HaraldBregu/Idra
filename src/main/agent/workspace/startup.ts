@@ -1,5 +1,5 @@
-export { AgentStartupFilesService } from '../../tools/shared/startup-service';
+export { AgentStartupFilesService } from '../../tools/startup/service';
 export type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
-} from '../../tools/shared/startup-types';
+} from '../../tools/startup/types';

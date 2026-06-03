@@ -6,7 +6,7 @@ import {
 	type CronCreateArgs,
 	cronCreateSchema,
 	cronService,
-} from '../shared/cron-utils';
+} from './utils';
 import { jsonText } from '../shared/json-text';
 import type { CronScheduleCreateRequest } from '../../../shared/cron';
 
