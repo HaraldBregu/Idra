@@ -62,24 +62,24 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 ) as readonly AgentToolName[];
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
-	'file_edit',
-	'bash',
+	'edit',
+	'exec',
 	'mcp_connect_server',
 	'mcp_refresh_server',
 	'mcp_call_tool',
-	'script_run',
+	'run_script',
 	'cron_create',
 	'cron_update',
 	'cron_delete',
 	'cron_start',
 	'cron_stop',
 	'cron_run',
-	'file_write',
+	'write',
 	'file_delete',
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
-	run_shell: ['bash'],
+	run_shell: ['exec'],
 } as const satisfies Record<string, readonly AgentDefaultToolName[]>;
 
 export const AGENT_TOOL_METADATA_BY_NAME = Object.fromEntries(
