@@ -94,7 +94,7 @@ export {
 	type LocalToolCatalogEntry,
 	type LocalToolGroup,
 	type LocalToolProfile,
-} from './base/catalog/registry';
+} from './base/catalog';
 export type { ToolProfile } from './shared/tool-types';
 export { beforeToolCall, newCallTracker, type CallTracker } from './shared/guard';
 export { selectAgentToolsForTurn } from './shared/management';
