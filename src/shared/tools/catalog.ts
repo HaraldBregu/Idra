@@ -476,14 +476,4 @@ export const AGENT_TOOLS = [
 		profiles: LEGACY_TOOL_PROFILES,
 		availability: 'legacy',
 	},
-	{
-		name: 'file_inspect',
-		group: 'coreWorkspace',
-		title: 'Inspect file',
-		description: 'Inspect any file as bytes, including size, type, hash, and previews.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
-	},
 ] as const satisfies readonly AgentToolMetadata[];

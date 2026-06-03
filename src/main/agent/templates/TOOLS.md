@@ -43,7 +43,6 @@ policy, ranking, and run context before it is exposed to the provider.
 | `file_delete` | Deletes a file directly. Directory deletion requires `recursive=true` and root paths are guarded. |
 | `copy` | Copies one file to another path. Overwriting requires prior read state for the destination. |
 | `move` | Moves or renames one file. The source must be read first; overwriting requires prior destination read state. |
-| `file_inspect` | Inspects bytes, size, MIME type, previews, hashes, and direct PNG/JPEG/GIF/WebP image content when practical. |
 | `search_files` | Finds files by glob pattern, excluding common generated directories such as `node_modules` and `.git`. |
 | `exec` | Runs a shell command in the workspace with capped output, denied dangerous command patterns, abort support, and an execution timeout. |
 | `process` | Lists, reads logs for, or kills background processes started by `exec background=true`. |

@@ -34,7 +34,6 @@ export { fileDeleteTool } from './file-delete';
 export { grepTool } from './grep';
 export { fileEditTool } from './file-edit';
 export { applyPatchTool } from './apply-patch';
-export { fileInspectTool } from './file-inspect';
 export { undoLastOperationTool } from './undo-last-operation';
 export { createFileTools, createReadTool, type FileToolOptions } from './shared/file-runtime';
 export { runShellTool } from './run-shell';
