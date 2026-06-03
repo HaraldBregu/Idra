@@ -345,14 +345,4 @@ export const AGENT_TOOLS = [
 		profiles: OPTIONAL_TOOL_PROFILES,
 		availability: 'optional',
 	},
-	{
-		name: 'file_delete',
-		group: 'coreWorkspace',
-		title: 'Delete file',
-		description: 'Delete a file directly, or a directory when recursive deletion is requested.',
-		permissions: ['delete'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'default',
-	},
 ] as const satisfies readonly AgentToolMetadata[];

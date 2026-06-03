@@ -74,7 +74,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_stop',
 	'cron_run',
 	'write',
-	'file_delete',
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {

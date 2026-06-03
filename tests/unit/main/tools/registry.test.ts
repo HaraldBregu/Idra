@@ -11,7 +11,6 @@ describe('tool registry organization', () => {
 			expect(names).toContain('read');
 			expect(names).toContain('edit');
 			expect(names).toContain('write');
-			expect(names).toContain('file_delete');
 		} finally {
 			await result.dispose();
 		}
@@ -23,7 +22,6 @@ describe('tool registry organization', () => {
 		expect(names).toContain('read');
 		expect(names).toContain('edit');
 		expect(names).toContain('write');
-		expect(names).toContain('file_delete');
 	});
 
 	it('can expose only read by allowlist', async () => {
@@ -39,7 +37,7 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it.each(['file_delete', 'exec', 'mcp_list_servers', 'cron_create'])(
+	it.each(['exec', 'mcp_list_servers', 'cron_create'])(
 		'resolves %s by allowlist',
 		async (toolName) => {
 			const result = await createAgentTools({
