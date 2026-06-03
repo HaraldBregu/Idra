@@ -454,7 +454,7 @@ export const AGENT_TOOLS = [
 		permissions: ['delete'],
 		approval: AGENT_TOOL_APPROVAL_NONE,
 		profiles: LEGACY_TOOL_PROFILES,
-		availability: 'legacy',
+		availability: 'default',
 	},
 	{
 		name: 'copy',
