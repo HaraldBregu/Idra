@@ -24,16 +24,16 @@ import { skillListTool } from '../skill-list';
 import { skillLoadTool } from '../skill-load';
 import { skillUseTool } from '../skill-use';
 import { fileDeleteTool } from '../file-delete';
-import { mcpCallToolTool } from '../mcp-call-tool';
-import { mcpConnectServerTool } from '../mcp-connect-server';
-import { mcpListPromptsTool } from '../mcp-list-prompts';
-import { mcpListResourcesTool } from '../mcp-list-resources';
-import { mcpListServersTool } from '../mcp-list-servers';
-import { mcpListToolsTool } from '../mcp-list-tools';
-import { mcpLoadPromptTool } from '../mcp-load-prompt';
-import { mcpLoadToolTool } from '../mcp-load-tool';
-import { mcpReadResourceTool } from '../mcp-read-resource';
-import { mcpRefreshServerTool } from '../mcp-refresh-server';
+import { mcpCallToolTool } from '../mcp/call-tool';
+import { mcpConnectServerTool } from '../mcp/connect-server';
+import { mcpListPromptsTool } from '../mcp/list-prompts';
+import { mcpListResourcesTool } from '../mcp/list-resources';
+import { mcpListServersTool } from '../mcp/list-servers';
+import { mcpListToolsTool } from '../mcp/list-tools';
+import { mcpLoadPromptTool } from '../mcp/load-prompt';
+import { mcpLoadToolTool } from '../mcp/load-tool';
+import { mcpReadResourceTool } from '../mcp/read-resource';
+import { mcpRefreshServerTool } from '../mcp/refresh-server';
 
 export type FileToolOptions = {
 	workspaceDir: string;
