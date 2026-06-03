@@ -26,7 +26,6 @@ export const fileEditTool: AgentTool<EditArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		const before = await snapshotTarget(ctx, args.path).catch(() => null);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
