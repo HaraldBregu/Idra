@@ -52,7 +52,7 @@ export { cronRunTool } from './cron/run';
 export { createCronTools, type CronToolOptions } from './shared/cron-runtime';
 export { scriptRunTool } from './script-run';
 export { createScriptTools, type ScriptToolOptions } from './shared/script-runtime';
-export { completeTaskTool } from './complete-task';
+export { completeTaskTool } from './todo/complete';
 export { listTodosTool } from './todo/list';
 export { readScratchTool } from './scratch/read';
 export { updateTodoTool } from './todo/update';
