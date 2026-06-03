@@ -9,8 +9,8 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../shared/tools';
-import { openBrowserTool } from '../open-browser';
-import { webFetchTool } from '../web-fetch';
+import { openBrowserTool } from '../web/browser';
+import { webFetchTool } from '../web/fetch';
 import { cronCreateTool } from '../cron/create';
 import { cronDeleteTool } from '../cron/delete';
 import { cronListTool } from '../cron/list';
