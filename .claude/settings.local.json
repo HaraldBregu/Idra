@@ -272,7 +272,11 @@
       "Bash(sed -i '' -e \"s|from '\\\\./mcp-|from './mcp/|g\" src/main/tools/index.ts)",
       "Bash(sed -i '' -e \"s|from '\\\\.\\\\./\\\\.\\\\./mcp-|from '../../mcp/|g\" src/main/tools/base/catalog/catalog.ts)",
       "Bash(sed -i '' -e \"s|from '\\\\./file-|from './file/|g\" src/main/tools/index.ts)",
-      "Bash(sed -i '' -e \"s|from '\\\\.\\\\./file-|from '../file/|g\" src/main/tools/base/catalog.ts src/main/tools/shared/file-runtime.ts)"
+      "Bash(sed -i '' -e \"s|from '\\\\.\\\\./file-|from '../file/|g\" src/main/tools/base/catalog.ts src/main/tools/shared/file-runtime.ts)",
+      "Bash(echo \"=== internal imports ===\")",
+      "Bash(echo '--- __TRACKED_VAR__ ---')",
+      "Bash(echo '=== __TRACKED_VAR__ ===')",
+      "Bash(echo \"\")"
     ],
     "deny": [
       "Bash(git push --force:*)",

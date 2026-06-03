@@ -1,5 +1,5 @@
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
 
 export const requestAuthorizationTool: AgentTool<{ action: string; scope?: string; reason?: string }> = {
 	name: 'request_authorization',

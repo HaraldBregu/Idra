@@ -1,8 +1,8 @@
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
-import { renderTodos } from './shared/render-todos';
-import { todoIndex } from './shared/todo-index';
-import type { TodoStatus } from './shared/state-types';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { renderTodos } from '../shared/render-todos';
+import { todoIndex } from '../shared/todo-index';
+import type { TodoStatus } from '../shared/state-types';
 
 export const updateTodoTool: AgentTool<{
 	index?: number;
