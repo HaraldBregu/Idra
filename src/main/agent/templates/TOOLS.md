@@ -3,15 +3,15 @@
 This document describes the local tools implemented under
 `src/main/tools/base`. Tools outside that directory are intentionally omitted.
 
-## Base Tool Files
+## Current Base Tools
 
 | Source file | Exposed tool | How it is used |
 | --- | --- | --- |
-| `edit.ts` | `edit` | Applies targeted text replacements to an existing UTF-8 file. The file must have been read earlier in the run. |
-| `exec.ts` | `exec` | Runs a shell command in the workspace with capped output, denied-pattern checks, optional background mode, and approval gating. |
-| `find.ts` | `find` | Finds files by glob pattern from the workspace or a provided search directory, excluding common dependency and Git directories. |
-| `read.ts` | `read` | Reads a UTF-8 file and returns content with 1-indexed line-number prefixes. |
-| `write.ts` | `write` | Creates or overwrites a UTF-8 file. Existing files must have been read earlier in the run. Parent directories are created as needed. |
+| `edit.ts` | `edit` | Applies targeted text replacements to an existing UTF-8 file. The file must have been read earlier in the run, and unchanged files are guarded by the read snapshot. |
+| `exec.ts` | `exec` | Runs a shell command in the workspace with approval gating, denied-pattern checks, optional background mode, and capped foreground output. |
+| `find.ts` | `find` | Finds files by glob pattern from the workspace or a provided search directory, excluding `node_modules` and `.git` paths. |
+| `read.ts` | `read` | Reads a UTF-8 file and returns content with 1-indexed line-number prefixes. The default cap is 2000 lines. |
+| `write.ts` | `write` | Creates or overwrites a UTF-8 file. Existing files must have been read earlier in the run, and parent directories are created as needed. |
 
 ## Runtime Bucket
 
@@ -31,8 +31,3 @@ The base tools rely on shared workspace and execution guards:
 - `write` and `edit` enforce read-before-write checks for existing files.
 - `exec` requires approval and blocks denied command patterns before execution.
 - `exec` caps foreground command output and supports background process startup.
-
-## Removed Base Tools
-
-`delete.ts`, `list.ts`, `move.ts`, and `run_script.ts` are not part of
-`src/main/tools/base`.
