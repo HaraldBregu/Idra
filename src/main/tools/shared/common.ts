@@ -27,7 +27,7 @@ export function requireReadSnapshot(
 ): string | null {
 	const last = ctx.readState.get(abs);
 	if (!last)
-		return `${action}: must read ${label} before ${action === 'delete_file' ? 'deleting' : 'overwriting'}.`;
+		return `${action}: must read ${label} before mutating it.`;
 	if (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size) {
 		return `${action}: ${label} changed on disk since last read. Re-read first.`;
 	}
