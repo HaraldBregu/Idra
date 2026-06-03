@@ -64,7 +64,6 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'workspace',
-	'file_edit',
 	'exec',
 	'mcp_connect_server',
 	'mcp_refresh_server',
@@ -76,11 +75,7 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_start',
 	'cron_stop',
 	'cron_run',
-	'file_write',
 	'apply_patch',
-	'file_delete',
-	'copy',
-	'move',
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
