@@ -1,28 +1,28 @@
-import type { AgentTool, ToolDiagnostics } from '../base/common';
-import type { FridayServices } from '../base/tool';
+import type { AgentTool, ToolDiagnostics } from '../common';
+import type { FridayServices } from '../tool';
 import {
 	assertUniqueToolNames,
 	createToolDiagnostics,
 	normalizeToolName,
-} from '../base/common';
-import { createAppTools } from '../shared/app-runtime';
-import { createFileTools } from '../shared/file-runtime';
-import { createCronTools } from '../shared/cron-runtime';
-import { createScriptTools } from '../shared/script-runtime';
-import { normalizeToolSchemas } from '../base/schema';
-import type { ToolPolicy, ToolPolicyStageName } from '../shared/tool-types';
-import { applyToolPolicyPipeline } from '../shared/pipeline';
+} from '../common';
+import { createAppTools } from '../../shared/app-runtime';
+import { createFileTools } from '../../shared/file-runtime';
+import { createCronTools } from '../../shared/cron-runtime';
+import { createScriptTools } from '../../shared/script-runtime';
+import { normalizeToolSchemas } from '../schema';
+import type { ToolPolicy, ToolPolicyStageName } from '../../shared/tool-types';
+import { applyToolPolicyPipeline } from '../../shared/pipeline';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
 	newCallTracker,
-} from '../shared/wrap';
+} from '../../shared/wrap';
 import {
 	AGENT_ALL_TOOL_NAMES,
 	AGENT_TOOL_LEGACY_ALIASES,
 	AGENT_TOOL_METADATA_BY_NAME,
 	AGENT_TOOL_READ_ONLY_DENY_NAMES,
-} from '../../../shared/tools';
+} from '../../../../shared/tools';
 
 type AppConfig = Record<string, unknown>;
 type AuthContext = Record<string, unknown>;

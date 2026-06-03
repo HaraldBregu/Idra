@@ -1,11 +1,11 @@
-import type { JSONSchema } from '../../llm/types';
-import type { AgentTool as LegacyAgentTool, ToolContext } from '../base/tool';
+import type { JSONSchema } from '../../../llm/types';
+import type { AgentTool as LegacyAgentTool, ToolContext } from '../tool';
 import type {
 	AgentTool as RuntimeAgentTool,
 	ToolDiagnostics,
-} from '../base/common';
-import { copyToolMetadata, toProviderSafeName } from '../base/common';
-import { normalizeToolSchemas } from '../base/schema';
+} from '../common';
+import { copyToolMetadata, toProviderSafeName } from '../common';
+import { normalizeToolSchemas } from '../schema';
 import { canonicalToolToLegacy, legacyToolToCanonical } from './bridge';
 
 export type PrepareLegacyToolsForProviderOptions = {

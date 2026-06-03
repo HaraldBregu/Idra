@@ -5,7 +5,7 @@ import type {
 	FridayServices,
 	ToolContext,
 } from '../base/tool';
-import { legacyToolToCanonical } from '../runtime/bridge';
+import { legacyToolToCanonical } from '../base/runtime/bridge';
 import { scriptRunTool } from '../script-run';
 
 export type ScriptToolOptions = {

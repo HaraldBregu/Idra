@@ -1,13 +1,13 @@
-import type { AgentTool, AgentToolResult, ToolDiagnostics } from '../base/common';
+import type { AgentTool, AgentToolResult, ToolDiagnostics } from '../common';
 import {
 	getToolMetadata,
 	sanitizeParamPreview,
 	ToolInputError,
 	type ToolContent,
-} from '../base/common';
-import { wrapToolWithBeforeToolCall, type BeforeToolCallContext } from '../shared/wrap';
-import { coerceJsonObject } from '../base/params';
-import { errorToolResult } from '../shared/result';
+} from '../common';
+import { wrapToolWithBeforeToolCall, type BeforeToolCallContext } from '../../shared/wrap';
+import { coerceJsonObject } from '../params';
+import { errorToolResult } from '../../shared/result';
 
 export type ModelToolDefinition = {
 	name: string;

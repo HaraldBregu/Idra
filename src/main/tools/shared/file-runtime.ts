@@ -1,7 +1,7 @@
 import type { AgentTool } from '../base/common';
 import { markCoreTool } from '../base/common';
 import type { AgentTool as LegacyAgentTool, FridayServices, ToolContext } from '../base/tool';
-import { legacyToolToCanonical } from '../runtime/bridge';
+import { legacyToolToCanonical } from '../base/runtime/bridge';
 import { directoryListTool } from '../directory-list';
 import { fileEditTool } from '../file-edit';
 import { fileReadTool } from '../file-read';
