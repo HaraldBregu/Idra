@@ -135,10 +135,10 @@ describe('tools/policy and registry', () => {
 		expect(localToolNamesForGroup('mcpConnector')).toEqual(
 			AGENT_DEFAULT_TOOL_GROUPS.mcpConnector.map((tool) => tool.name)
 		);
-		expect(byName.get('write')).toMatchObject({
+		expect(byName.get('write_file')).toMatchObject({
 			group: 'coreWorkspace',
 			approval: AGENT_TOOL_APPROVAL_NONE,
-			profiles: AGENT_TOOL_METADATA_BY_NAME.write.profiles,
+			profiles: AGENT_TOOL_METADATA_BY_NAME.write_file.profiles,
 		});
 		expect(byName.get('run_shell')).toMatchObject({
 			group: 'coreWorkspace',
