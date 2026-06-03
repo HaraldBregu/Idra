@@ -38,8 +38,8 @@ export { createFileTools, createReadTool, type FileToolOptions } from './shared/
 export { runShellTool } from './run-shell';
 export { execTool } from './exec';
 export { processTool } from './process';
-export { webFetchTool } from './web-fetch';
-export { openBrowserTool } from './open-browser';
+export { webFetchTool } from './web/fetch';
+export { openBrowserTool } from './web/browser';
 export { cronTool } from './cron/cron';
 export { cronCreateTool } from './cron/create';
 export { cronReadTool } from './cron/read';
