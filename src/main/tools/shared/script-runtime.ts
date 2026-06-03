@@ -11,7 +11,6 @@ import { scriptRunTool } from '../script-run';
 export type ScriptToolOptions = {
 	workspaceDir: string;
 	sessionId?: string;
-	fsPolicy?: ToolContext['fsPolicy'];
 	signal?: AbortSignal;
 	services?: Partial<FridayServices>;
 };
