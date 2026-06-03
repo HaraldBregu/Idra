@@ -17,19 +17,21 @@ profile, then applies runtime allow and deny lists.
   allows specific names or groups.
 - Policy entries can name tools directly, use `*`, use glob patterns, or use
   groups such as `group:file`, `group:shell`, `group:state_task`,
-  `group:subagent`, `group:skill`, `group:mcp`, `group:web`, `group:script`,
-  and `group:cron`.
+  `group:skill`, and `group:mcp`. Run-scoped construction also recognizes
+  `group:web`, `group:script`, and `group:cron`.
 
 There is also a run-scoped assembler exported as `createAgentTools`. It builds
 tool families from `toolsAllow`:
 
-- `undefined` includes the filesystem/control family and web tools.
+- `undefined` includes the file-family runtime bucket and web tools.
 - `[]` includes no tools.
-- `*` includes filesystem/control, script, cron, and web tools.
+- `*` includes the file-family runtime bucket, script, cron, and web tools.
 - Group or tool-specific allow entries include only the matching families.
 
-In the run-scoped cron family, the compatibility `cron` tool is filtered out and
-the split cron tools are used instead.
+The file-family runtime bucket is assembled by `createFileTools`. Despite the
+name, it currently contains workspace, state/task, skill, MCP connector, and
+`bash` tools. In the run-scoped cron family, the compatibility `cron` tool is
+filtered out and the split cron tools are used instead.
 
 ## Local Catalog
 
@@ -45,7 +47,6 @@ the provider.
 | `search_files`          | Core workspace | Finds workspace paths by glob pattern.                                                                                                                 |
 | `file_write`            | Core workspace | Creates or overwrites a UTF-8 workspace file while preserving guarded writes.                                                                          |
 | `file_delete`           | Core workspace | Deletes a file directly, or a directory when recursive deletion is requested.                                                                          |
-| `move`                  | Core workspace | Moves or renames one file after policy and read-before-write checks.                                                                                   |
 | `bash`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
 | `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
 | `update_todo`           | State/task     | Updates one item in the current run todo list.                                                                                                         |
@@ -78,8 +79,25 @@ the provider.
 | `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
 | `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
 
-Compatibility implementations for `cron` exist in source, but the split cron
-tools should be used for scheduling.
+Legacy implementations for `move` and the compatibility `cron` tool exist in
+source, but they are not part of `LOCAL_TOOL_CATALOG`. Use the split cron tools
+for scheduling.
+
+## Source Layout
+
+`src/main/tools` groups the current tool implementations by runtime area:
+
+| Path                         | Contents                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| `base/`                      | Workspace file tools, `exec.ts` for `bash`, and `run.ts` for scripts.    |
+| `core/`                      | Catalog, schema normalization, canonical runtime wrappers, and limits.   |
+| `cron/`                      | Split cron scheduling tools and the compatibility `cron` implementation. |
+| `mcp/`                       | MCP server, tool, prompt, and resource helpers.                          |
+| `skills/`                    | Skill list, load, and use tools.                                         |
+| `startup/`                   | Bootstrap-only startup file support.                                     |
+| `state/`                     | Todo and scratch-state tools.                                            |
+| `web/`                       | HTTP fetch and browser-opening tools.                                    |
+| `shared/`                    | Tool service, policy pipeline, selection, guards, and shared helpers.    |
 
 ## Dynamic Additions
 
