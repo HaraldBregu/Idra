@@ -22,8 +22,6 @@ export const deleteFileTool: AgentTool<DeleteArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly)
-			return textResult('delete_file: disabled by read-only filesystem policy.', true);
 		let abs: string;
 		try {
 			abs = resolveAbs(ctx.workspace, args.path);
