@@ -23,7 +23,7 @@ import { directoryListTool } from '../base/list';
 import { fileDeleteTool } from '../base/delete';
 import { fileEditTool } from '../base/edit';
 import { fileReadTool } from '../base/read';
-import { bashTool } from '../base/bash';
+import { bashTool } from '../base/exec';
 import { processTool } from '../base/process';
 import { scriptRunTool } from '../base/run';
 import { searchFilesTool } from '../base/search';

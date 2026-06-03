@@ -5,7 +5,7 @@ import { legacyToolToCanonical } from './bridge';
 import { directoryListTool } from '../../base/list';
 import { fileEditTool } from '../../base/edit';
 import { fileReadTool } from '../../base/read';
-import { bashTool } from '../../base/bash';
+import { bashTool } from '../../base/exec';
 import { processTool } from '../../base/process';
 import { searchFilesTool } from '../../base/search';
 import { fileWriteTool } from '../../base/write';

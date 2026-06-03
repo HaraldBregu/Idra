@@ -32,7 +32,7 @@ export { moveTool } from './base/move';
 export { fileDeleteTool } from './base/delete';
 export { fileEditTool } from './base/edit';
 export { createFileTools, createReadTool, type FileToolOptions } from './core/runtime/files';
-export { bashTool } from './base/bash';
+export { bashTool } from './base/exec';
 export { processTool } from './base/process';
 export { webFetchTool } from './web/web-fetch';
 export { openBrowserTool } from './web/open-browser';
