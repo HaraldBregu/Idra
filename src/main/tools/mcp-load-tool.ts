@@ -5,20 +5,20 @@ import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
 import { namedSchema } from './shared/mcp-named-schema';
 
-export const loadMcpToolTool: AgentTool<{ id: string; name: string }> = {
-	name: 'load_mcp_tool',
+export const mcpLoadToolTool: AgentTool<{ id: string; name: string }> = {
+	name: 'mcp_load_tool',
 	description: 'Load schema and metadata for one MCP tool.',
 	schema: namedSchema('MCP tool name.'),
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);
-		if (!connectors) return missing('load_mcp_tool');
+		if (!connectors) return missing('mcp_load_tool');
 		try {
 			const tools = connectors.listTools(args.id);
-			if (!Array.isArray(tools)) return textResult('load_mcp_tool: tool list is unavailable.', true);
+			if (!Array.isArray(tools)) return textResult('mcp_load_tool: tool list is unavailable.', true);
 			const tool = tools.find((entry) => entry && typeof entry === 'object' && (entry as { name?: unknown }).name === args.name);
-			return tool ? jsonText(tool) : textResult(`load_mcp_tool: tool not found: ${args.name}`, true);
+			return tool ? jsonText(tool) : textResult(`mcp_load_tool: tool not found: ${args.name}`, true);
 		} catch (error) {
-			return textResult(`load_mcp_tool: ${(error as Error).message}`, true);
+			return textResult(`mcp_load_tool: ${(error as Error).message}`, true);
 		}
 	},
 };

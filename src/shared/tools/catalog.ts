@@ -217,7 +217,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'list_mcp_servers',
+		name: 'mcp_list_servers',
 		group: 'mcpConnector',
 		title: 'List MCP servers',
 		description: 'List configured MCP connector servers.',
@@ -227,7 +227,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'connect_mcp_server',
+		name: 'mcp_connect_server',
 		group: 'mcpConnector',
 		title: 'Connect MCP server',
 		description: 'Connect to or test a configured MCP server.',
@@ -237,7 +237,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'refresh_mcp_server',
+		name: 'mcp_refresh_server',
 		group: 'mcpConnector',
 		title: 'Refresh MCP server',
 		description: 'Refresh a configured MCP server and its discovered capabilities.',
@@ -247,7 +247,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'list_mcp_tools',
+		name: 'mcp_list_tools',
 		group: 'mcpConnector',
 		title: 'List MCP tools',
 		description: 'List tools exposed by a configured MCP server.',
@@ -257,7 +257,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'load_mcp_tool',
+		name: 'mcp_load_tool',
 		group: 'mcpConnector',
 		title: 'Load MCP tool',
 		description: 'Load schema and metadata for one MCP tool.',
@@ -267,7 +267,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'call_mcp_tool',
+		name: 'mcp_call_tool',
 		group: 'mcpConnector',
 		title: 'Call MCP tool',
 		description: 'Call a tool on a configured MCP server.',
@@ -277,7 +277,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'list_mcp_resources',
+		name: 'mcp_list_resources',
 		group: 'mcpConnector',
 		title: 'List MCP resources',
 		description: 'List resources exposed by a configured MCP server.',
@@ -287,7 +287,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'read_mcp_resource',
+		name: 'mcp_read_resource',
 		group: 'mcpConnector',
 		title: 'Read MCP resource',
 		description: 'Read a resource from a configured MCP server.',
@@ -297,7 +297,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'list_mcp_prompts',
+		name: 'mcp_list_prompts',
 		group: 'mcpConnector',
 		title: 'List MCP prompts',
 		description: 'List prompts exposed by a configured MCP server.',
@@ -307,7 +307,7 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'load_mcp_prompt',
+		name: 'mcp_load_prompt',
 		group: 'mcpConnector',
 		title: 'Load MCP prompt',
 		description: 'Load a prompt from a configured MCP server.',

@@ -23,17 +23,17 @@ import { spawnSubagentTool } from '../spawn-subagent';
 import { skillListTool } from '../skill-list';
 import { skillLoadTool } from '../skill-load';
 import { skillUseTool } from '../skill-use';
-import { callMcpToolTool } from '../call-mcp-tool';
-import { connectMcpServerTool } from '../connect-mcp-server';
 import { fileDeleteTool } from '../file-delete';
-import { listMcpPromptsTool } from '../list-mcp-prompts';
-import { listMcpResourcesTool } from '../list-mcp-resources';
-import { listMcpServersTool } from '../list-mcp-servers';
-import { listMcpToolsTool } from '../list-mcp-tools';
-import { loadMcpPromptTool } from '../load-mcp-prompt';
-import { loadMcpToolTool } from '../load-mcp-tool';
-import { readMcpResourceTool } from '../read-mcp-resource';
-import { refreshMcpServerTool } from '../refresh-mcp-server';
+import { mcpCallToolTool } from '../mcp-call-tool';
+import { mcpConnectServerTool } from '../mcp-connect-server';
+import { mcpListPromptsTool } from '../mcp-list-prompts';
+import { mcpListResourcesTool } from '../mcp-list-resources';
+import { mcpListServersTool } from '../mcp-list-servers';
+import { mcpListToolsTool } from '../mcp-list-tools';
+import { mcpLoadPromptTool } from '../mcp-load-prompt';
+import { mcpLoadToolTool } from '../mcp-load-tool';
+import { mcpReadResourceTool } from '../mcp-read-resource';
+import { mcpRefreshServerTool } from '../mcp-refresh-server';
 
 export type FileToolOptions = {
 	workspaceDir: string;
@@ -68,16 +68,16 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	skillListTool,
 	skillLoadTool,
 	skillUseTool,
-	listMcpServersTool,
-	connectMcpServerTool,
-	refreshMcpServerTool,
-	listMcpToolsTool,
-	loadMcpToolTool,
-	callMcpToolTool,
-	listMcpResourcesTool,
-	readMcpResourceTool,
-	listMcpPromptsTool,
-	loadMcpPromptTool,
+	mcpListServersTool,
+	mcpConnectServerTool,
+	mcpRefreshServerTool,
+	mcpListToolsTool,
+	mcpLoadToolTool,
+	mcpCallToolTool,
+	mcpListResourcesTool,
+	mcpReadResourceTool,
+	mcpListPromptsTool,
+	mcpLoadPromptTool,
 ] as const;
 
 export function createFileTools(options: FileToolOptions): AgentTool[] {

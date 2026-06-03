@@ -40,16 +40,16 @@ import { spawnSubagentTool } from '../spawn-subagent';
 import { skillListTool } from '../skill-list';
 import { skillLoadTool } from '../skill-load';
 import { skillUseTool } from '../skill-use';
-import { callMcpToolTool } from '../call-mcp-tool';
-import { connectMcpServerTool } from '../connect-mcp-server';
-import { listMcpPromptsTool } from '../list-mcp-prompts';
-import { listMcpResourcesTool } from '../list-mcp-resources';
-import { listMcpServersTool } from '../list-mcp-servers';
-import { listMcpToolsTool } from '../list-mcp-tools';
-import { loadMcpPromptTool } from '../load-mcp-prompt';
-import { loadMcpToolTool } from '../load-mcp-tool';
-import { readMcpResourceTool } from '../read-mcp-resource';
-import { refreshMcpServerTool } from '../refresh-mcp-server';
+import { mcpCallToolTool } from '../mcp-call-tool';
+import { mcpConnectServerTool } from '../mcp-connect-server';
+import { mcpListPromptsTool } from '../mcp-list-prompts';
+import { mcpListResourcesTool } from '../mcp-list-resources';
+import { mcpListServersTool } from '../mcp-list-servers';
+import { mcpListToolsTool } from '../mcp-list-tools';
+import { mcpLoadPromptTool } from '../mcp-load-prompt';
+import { mcpLoadToolTool } from '../mcp-load-tool';
+import { mcpReadResourceTool } from '../mcp-read-resource';
+import { mcpRefreshServerTool } from '../mcp-refresh-server';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
@@ -116,16 +116,16 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	skill_list: skillListTool,
 	skill_load: skillLoadTool,
 	skill_use: skillUseTool,
-	list_mcp_servers: listMcpServersTool,
-	connect_mcp_server: connectMcpServerTool,
-	refresh_mcp_server: refreshMcpServerTool,
-	list_mcp_tools: listMcpToolsTool,
-	load_mcp_tool: loadMcpToolTool,
-	call_mcp_tool: callMcpToolTool,
-	list_mcp_resources: listMcpResourcesTool,
-	read_mcp_resource: readMcpResourceTool,
-	list_mcp_prompts: listMcpPromptsTool,
-	load_mcp_prompt: loadMcpPromptTool,
+	mcp_list_servers: mcpListServersTool,
+	mcp_connect_server: mcpConnectServerTool,
+	mcp_refresh_server: mcpRefreshServerTool,
+	mcp_list_tools: mcpListToolsTool,
+	mcp_load_tool: mcpLoadToolTool,
+	mcp_call_tool: mcpCallToolTool,
+	mcp_list_resources: mcpListResourcesTool,
+	mcp_read_resource: mcpReadResourceTool,
+	mcp_list_prompts: mcpListPromptsTool,
+	mcp_load_prompt: mcpLoadPromptTool,
 	web_fetch: webFetchTool,
 	open_browser: openBrowserTool,
 	script_run: scriptRunTool,

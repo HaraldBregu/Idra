@@ -4,8 +4,8 @@ import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
 
-export const readMcpResourceTool: AgentTool<{ id: string; uri: string; options?: Record<string, unknown> }> = {
-	name: 'read_mcp_resource',
+export const mcpReadResourceTool: AgentTool<{ id: string; uri: string; options?: Record<string, unknown> }> = {
+	name: 'mcp_read_resource',
 	description: 'Read a resource from a configured MCP server.',
 	schema: {
 		type: 'object',
@@ -19,11 +19,11 @@ export const readMcpResourceTool: AgentTool<{ id: string; uri: string; options?:
 	},
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);
-		if (!connectors) return missing('read_mcp_resource');
+		if (!connectors) return missing('mcp_read_resource');
 		try {
 			return jsonText(await connectors.readResource(args.id, args.uri, args.options));
 		} catch (error) {
-			return textResult(`read_mcp_resource: ${(error as Error).message}`, true);
+			return textResult(`mcp_read_resource: ${(error as Error).message}`, true);
 		}
 	},
 };

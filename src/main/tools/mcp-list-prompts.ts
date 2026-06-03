@@ -5,17 +5,17 @@ import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
 import { optionsSchema } from './shared/mcp-options-schema';
 
-export const listMcpResourcesTool: AgentTool<{ id: string; options?: Record<string, unknown> }> = {
-	name: 'list_mcp_resources',
-	description: 'List resources exposed by a configured MCP server.',
+export const mcpListPromptsTool: AgentTool<{ id: string; options?: Record<string, unknown> }> = {
+	name: 'mcp_list_prompts',
+	description: 'List prompts exposed by a configured MCP server.',
 	schema: optionsSchema,
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);
-		if (!connectors) return missing('list_mcp_resources');
+		if (!connectors) return missing('mcp_list_prompts');
 		try {
-			return jsonText(await connectors.listResources(args.id, args.options));
+			return jsonText(await connectors.listPrompts(args.id, args.options));
 		} catch (error) {
-			return textResult(`list_mcp_resources: ${(error as Error).message}`, true);
+			return textResult(`mcp_list_prompts: ${(error as Error).message}`, true);
 		}
 	},
 };

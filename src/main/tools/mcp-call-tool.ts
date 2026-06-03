@@ -4,14 +4,14 @@ import { jsonText } from './shared/mcp-json-text';
 import { mcpConnectors } from './shared/mcp-connectors';
 import { missing } from './shared/mcp-missing';
 
-export const loadMcpPromptTool: AgentTool<{
+export const mcpCallToolTool: AgentTool<{
 	id: string;
 	name: string;
 	args?: Record<string, unknown>;
 	options?: Record<string, unknown>;
 }> = {
-	name: 'load_mcp_prompt',
-	description: 'Load a prompt from a configured MCP server.',
+	name: 'mcp_call_tool',
+	description: 'Call a tool on a configured MCP server.',
 	schema: {
 		type: 'object',
 		properties: {
@@ -23,13 +23,14 @@ export const loadMcpPromptTool: AgentTool<{
 		required: ['id', 'name'],
 		additionalProperties: false,
 	},
+	needsApproval: true,
 	async execute(args, ctx) {
 		const connectors = mcpConnectors(ctx);
-		if (!connectors) return missing('load_mcp_prompt');
+		if (!connectors) return missing('mcp_call_tool');
 		try {
-			return jsonText(await connectors.getPrompt(args.id, args.name, args.args ?? {}, args.options));
+			return jsonText(await connectors.callTool(args.id, args.name, args.args ?? {}, args.options));
 		} catch (error) {
-			return textResult(`load_mcp_prompt: ${(error as Error).message}`, true);
+			return textResult(`mcp_call_tool: ${(error as Error).message}`, true);
 		}
 	},
 };
