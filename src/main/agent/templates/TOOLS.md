@@ -125,8 +125,8 @@ actually exposed.
 - Otherwise, tools are ranked by matches across tool name, display name,
   display summary, and description.
 - Ranking adds intent boosts for scheduling, email, calendar, Drive, web,
-  shell/script execution, subagents, file reads, file writes, file deletion, and
-  file moves.
+  shell/script execution, file reads, file writes, file deletion, and file
+  moves.
 - Only tools with a positive score are selected.
 - The default `AgentService` cap is 9 prompt tools.
 - When selected file mutation tools depend on prior reads, `file_read` is kept
