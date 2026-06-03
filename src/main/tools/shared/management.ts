@@ -18,6 +18,15 @@ const GENERIC_TOOL_ACTION_TOKENS = new Set([
 	'run',
 	'execute',
 ]);
+const READ_TOOL_NAME = 'read_file';
+const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
+	'write_file',
+	'edit_file',
+	'apply_patch',
+	'delete_file',
+	'copy',
+	'move',
+]);
 
 export interface AgentToolSelectionForTurn {
 	toolsForPrompt: AgentTool[];
@@ -57,7 +66,8 @@ export function selectAgentToolsForTurn(
 	const ranked = rankToolsForPrompt(tools, message);
 	const matched = ranked.filter((entry) => entry.score > 0).map((entry) => entry.tool);
 	const maxTools = options?.maxPromptTools;
-	const toolsForPrompt = maxTools !== undefined ? matched.slice(0, maxTools) : matched;
+	const capped = maxTools !== undefined ? matched.slice(0, maxTools) : matched;
+	const toolsForPrompt = keepReadToolForMutation(capped, tools, maxTools);
 	return { toolsForPrompt, systemPromptSuffix: '', rankedTools: matched };
 }
 
@@ -118,9 +128,36 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 		score += 40;
 	if (intent === 'file_write' && hasAny(toolTokens, ['write', 'edit', 'create', 'save', 'update']))
 		score += 40;
+	if (intent === 'file_delete' && hasAny(toolTokens, ['delete', 'remove', 'trash', 'unlink']))
+		score += 80;
 	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
 	if (intent === 'file_move' && hasAny(toolTokens, ['shell', 'command'])) score += 60;
 	return score;
+}
+
+function keepReadToolForMutation(
+	selected: AgentTool[],
+	allTools: readonly AgentTool[],
+	maxTools: number | undefined
+): AgentTool[] {
+	if (!selected.some((tool) => READ_DEPENDENT_MUTATION_TOOL_NAMES.has(tool.name))) {
+		return selected;
+	}
+	if (selected.some((tool) => tool.name === READ_TOOL_NAME)) return selected;
+	const readTool = allTools.find((tool) => tool.name === READ_TOOL_NAME);
+	if (!readTool) return selected;
+	if (maxTools === undefined || selected.length < maxTools) return [...selected, readTool];
+	if (selected.length <= 1) return selected;
+
+	const next = [...selected];
+	for (let index = next.length - 1; index >= 0; index--) {
+		if (!READ_DEPENDENT_MUTATION_TOOL_NAMES.has(next[index]?.name ?? '')) {
+			next[index] = readTool;
+			return next;
+		}
+	}
+	next[next.length - 1] = readTool;
+	return next;
 }
 
 function toolText(tool: AgentTool): string {
@@ -140,6 +177,7 @@ type ToolIntent =
 	| 'subagent'
 	| 'file_read'
 	| 'file_write'
+	| 'file_delete'
 	| 'file_move';
 
 function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolIntent {
@@ -167,6 +205,7 @@ function inferToolIntent(message: string, tokens: ReadonlySet<string>): ToolInte
 	)
 		return 'run_shell';
 	if (fileContext && hasAny(tokens, ['move', 'rename', 'copy'])) return 'file_move';
+	if (fileContext && hasAny(tokens, ['delete', 'remove', 'trash', 'unlink'])) return 'file_delete';
 	if (
 		fileContext &&
 		hasAny(tokens, ['write', 'edit', 'patch', 'create', 'delete', 'save', 'update'])

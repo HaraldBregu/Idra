@@ -26,6 +26,7 @@ import { loadSkillTool } from '../load-skill';
 import { useSkillTool } from '../use-skill';
 import { callMcpToolTool } from '../call-mcp-tool';
 import { connectMcpServerTool } from '../connect-mcp-server';
+import { deleteFileTool } from '../delete-file';
 import { listMcpPromptsTool } from '../list-mcp-prompts';
 import { listMcpResourcesTool } from '../list-mcp-resources';
 import { listMcpServersTool } from '../list-mcp-servers';
@@ -54,6 +55,7 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	runShellTool,
 	undoLastOperationTool,
 	writeFileTool,
+	deleteFileTool,
 	writeTodosTool,
 	updateTodoTool,
 	listTodosTool,
