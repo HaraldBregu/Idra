@@ -37,51 +37,51 @@ These tools are in the local catalog. A tool still has to pass profile policy,
 allow or deny policy, turn ranking, and runtime context before it is exposed to
 the provider.
 
-| Tool | Group | How it is used |
-| --- | --- | --- |
-| `file_read` | Core workspace | Reads a UTF-8 workspace file with optional line offset and limit. Records read state for later guarded writes. |
-| `file_edit` | Core workspace | Replaces exact text in a UTF-8 workspace file after the file has been read. |
-| `directory_list` | Core workspace | Lists files and folders in a workspace directory. |
-| `search_files` | Core workspace | Finds workspace paths by glob pattern. |
-| `exec` | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating. |
-| `process` | Core workspace | Lists, reads logs for, or kills background processes started by `exec background=true`. |
-| `file_write` | Core workspace | Creates or overwrites a UTF-8 workspace file. Existing files must be read earlier in the run. |
-| `file_delete` | Core workspace | Deletes a file directly, or deletes a directory when recursive deletion is requested. |
-| `write_todos` | State/task | Replaces the current run todo list. |
-| `update_todo` | State/task | Updates one item in the current run todo list. |
-| `list_todos` | State/task | Lists the current run todo items and statuses. |
-| `complete_task` | State/task | Marks the current task or a todo item as complete. |
-| `write_scratch` | State/task | Writes run-local scratch notes for later tool calls. |
-| `read_scratch` | State/task | Reads run-local scratch notes. |
-| `request_approval` | Human decision | Asks a human to approve or deny a proposed action. The tool itself is approval-gated. |
-| `request_clarification` | Human decision | Asks a focused clarification question before continuing. |
-| `present_plan` | Human decision | Presents a plan for human review before taking action. |
-| `request_authorization` | Human decision | Requests explicit authorization for sensitive or external actions. The tool itself is approval-gated. |
-| `spawn_subagent` | Subagent | Starts a child agent run for a clearly scoped task. |
-| `skill_list` | Skill | Lists installed skills available to the agent. |
-| `skill_load` | Skill | Loads instructions and support file metadata for an installed skill. |
-| `skill_use` | Skill | Selects and loads a skill for the current task. |
-| `mcp_list_servers` | MCP connector | Lists configured MCP connector servers. |
-| `mcp_connect_server` | MCP connector | Connects to or tests a configured MCP server. |
-| `mcp_refresh_server` | MCP connector | Refreshes a configured MCP server and its discovered capabilities. |
-| `mcp_list_tools` | MCP connector | Lists tools exposed by a configured MCP server. |
-| `mcp_load_tool` | MCP connector | Loads schema and metadata for one MCP tool. |
-| `mcp_call_tool` | MCP connector | Calls a tool on a configured MCP server. This tool is approval-gated. |
-| `mcp_list_resources` | MCP connector | Lists resources exposed by a configured MCP server. |
-| `mcp_read_resource` | MCP connector | Reads a resource from a configured MCP server. |
-| `mcp_list_prompts` | MCP connector | Lists prompts exposed by a configured MCP server. |
-| `mcp_load_prompt` | MCP connector | Loads a prompt from a configured MCP server. |
-| `web_fetch` | Web | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB. |
-| `open_browser` | Web | Opens an HTTP or HTTPS URL in the user's default browser. |
-| `script_run` | Script | Runs an existing script file with explicit arguments, interpreter selection, timeout, and output limits. It does not run arbitrary shell command text. |
-| `cron_create` | Cron | Creates a scheduled job through `CronService`. |
-| `cron_read` | Cron | Reads one scheduled job through `CronService`. |
-| `cron_update` | Cron | Updates a scheduled job through `CronService`. |
-| `cron_delete` | Cron | Deletes a scheduled job through `CronService`. |
-| `cron_list` | Cron | Lists scheduled jobs through `CronService`. |
-| `cron_start` | Cron | Starts a paused scheduled job through `CronService`. |
-| `cron_stop` | Cron | Stops or pauses a scheduled job through `CronService`. |
-| `cron_run` | Cron | Runs a scheduled job immediately through `CronService`. |
+| Tool                    | Group          | How it is used                                                                                                                                         |
+| ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `file_read`             | Core workspace | Reads a UTF-8 workspace file with optional line offset and limit. Records read state for later guarded writes.                                         |
+| `file_edit`             | Core workspace | Replaces exact text in a UTF-8 workspace file after the file has been read.                                                                            |
+| `directory_list`        | Core workspace | Lists files and folders in a workspace directory.                                                                                                      |
+| `search_files`          | Core workspace | Finds workspace paths by glob pattern.                                                                                                                 |
+| `exec`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
+| `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `exec background=true`.                                                                |
+| `file_write`            | Core workspace | Creates or overwrites a UTF-8 workspace file. Existing files must be read earlier in the run.                                                          |
+| `file_delete`           | Core workspace | Deletes a file directly, or deletes a directory when recursive deletion is requested.                                                                  |
+| `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
+| `update_todo`           | State/task     | Updates one item in the current run todo list.                                                                                                         |
+| `list_todos`            | State/task     | Lists the current run todo items and statuses.                                                                                                         |
+| `complete_task`         | State/task     | Marks the current task or a todo item as complete.                                                                                                     |
+| `write_scratch`         | State/task     | Writes run-local scratch notes for later tool calls.                                                                                                   |
+| `read_scratch`          | State/task     | Reads run-local scratch notes.                                                                                                                         |
+| `request_approval`      | Human decision | Asks a human to approve or deny a proposed action. The tool itself is approval-gated.                                                                  |
+| `request_clarification` | Human decision | Asks a focused clarification question before continuing.                                                                                               |
+| `present_plan`          | Human decision | Presents a plan for human review before taking action.                                                                                                 |
+| `request_authorization` | Human decision | Requests explicit authorization for sensitive or external actions. The tool itself is approval-gated.                                                  |
+| `spawn_subagent`        | Subagent       | Starts a child agent run for a clearly scoped task.                                                                                                    |
+| `skill_list`            | Skill          | Lists installed skills available to the agent.                                                                                                         |
+| `skill_load`            | Skill          | Loads instructions and support file metadata for an installed skill.                                                                                   |
+| `skill_use`             | Skill          | Selects and loads a skill for the current task.                                                                                                        |
+| `mcp_list_servers`      | MCP connector  | Lists configured MCP connector servers.                                                                                                                |
+| `mcp_connect_server`    | MCP connector  | Connects to or tests a configured MCP server.                                                                                                          |
+| `mcp_refresh_server`    | MCP connector  | Refreshes a configured MCP server and its discovered capabilities.                                                                                     |
+| `mcp_list_tools`        | MCP connector  | Lists tools exposed by a configured MCP server.                                                                                                        |
+| `mcp_load_tool`         | MCP connector  | Loads schema and metadata for one MCP tool.                                                                                                            |
+| `mcp_call_tool`         | MCP connector  | Calls a tool on a configured MCP server. This tool is approval-gated.                                                                                  |
+| `mcp_list_resources`    | MCP connector  | Lists resources exposed by a configured MCP server.                                                                                                    |
+| `mcp_read_resource`     | MCP connector  | Reads a resource from a configured MCP server.                                                                                                         |
+| `mcp_list_prompts`      | MCP connector  | Lists prompts exposed by a configured MCP server.                                                                                                      |
+| `mcp_load_prompt`       | MCP connector  | Loads a prompt from a configured MCP server.                                                                                                           |
+| `web_fetch`             | Web            | Fetches an HTTP or HTTPS URL and returns readable text capped at 1 MB.                                                                                 |
+| `open_browser`          | Web            | Opens an HTTP or HTTPS URL in the user's default browser.                                                                                              |
+| `script_run`            | Script         | Runs an existing script file with explicit arguments, interpreter selection, timeout, and output limits. It does not run arbitrary shell command text. |
+| `cron_create`           | Cron           | Creates a scheduled job through `CronService`.                                                                                                         |
+| `cron_read`             | Cron           | Reads one scheduled job through `CronService`.                                                                                                         |
+| `cron_update`           | Cron           | Updates a scheduled job through `CronService`.                                                                                                         |
+| `cron_delete`           | Cron           | Deletes a scheduled job through `CronService`.                                                                                                         |
+| `cron_list`             | Cron           | Lists scheduled jobs through `CronService`.                                                                                                            |
+| `cron_start`            | Cron           | Starts a paused scheduled job through `CronService`.                                                                                                   |
+| `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
+| `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
 
 Compatibility implementations for `cron`, `apply_patch`, `copy`, and `move`
 exist in source, but they are not part of the current local catalog. Use the
@@ -92,13 +92,13 @@ split cron tools for scheduling. File writes and edits use `file_read`,
 
 Some tools or capabilities are added outside the local catalog.
 
-| Tool or capability | When it appears |
-| --- | --- |
-| `startup_files` | Added only for full primary bootstrap mode. During that bootstrap mode, it is the only local tool exposed. |
-| `heartbeat_respond` | Added for heartbeat runs when heartbeat tool reporting is enabled. It can be forced into the prompt for heartbeat reporting. |
-| Connector tools | Added for enabled, configured connectors whose names or descriptions match the user message. Connector tool names are derived from the connector and raw tool name. |
-| Selected skills | Matching skill instructions are appended to the system prompt. The default capability resolver does not expose `execute_skill` as a provider tool. |
-| Run-scoped core tools | Available through `createAgentTools` when a caller uses run-scoped construction instead of the default `AgentService` factory. |
+| Tool or capability    | When it appears                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `startup_files`       | Added only for full primary bootstrap mode. During that bootstrap mode, it is the only local tool exposed.                                                          |
+| `heartbeat_respond`   | Added for heartbeat runs when heartbeat tool reporting is enabled. It can be forced into the prompt for heartbeat reporting.                                        |
+| Connector tools       | Added for enabled, configured connectors whose names or descriptions match the user message. Connector tool names are derived from the connector and raw tool name. |
+| Selected skills       | Matching skill instructions are appended to the system prompt. The default capability resolver does not expose `execute_skill` as a provider tool.                  |
+| Run-scoped core tools | Available through `createAgentTools` when a caller uses run-scoped construction instead of the default `AgentService` factory.                                      |
 
 ## Turn Selection
 
