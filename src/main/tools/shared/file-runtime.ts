@@ -38,7 +38,6 @@ import { refreshMcpServerTool } from '../refresh-mcp-server';
 export type FileToolOptions = {
 	workspaceDir: string;
 	sessionId?: string;
-	fsPolicy?: ToolContext['fsPolicy'];
 	signal?: AbortSignal;
 	services?: Partial<FridayServices>;
 };

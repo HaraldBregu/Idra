@@ -25,7 +25,7 @@ export {
 	type ToolConstructionPlan,
 } from './shared/create';
 export { readFileTool } from './read-file';
-export { writeTool } from './write';
+export { writeFileTool } from './write-file';
 export { listDirectoryTool } from './list-directory';
 export { searchFilesTool } from './search-files';
 export { copyTool } from './copy';
