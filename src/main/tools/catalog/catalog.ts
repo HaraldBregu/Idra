@@ -102,6 +102,7 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	grep: grepTool,
 	run_shell: runShellTool,
 	write_file: writeFileTool,
+	delete_file: deleteFileTool,
 	undo_last_operation: undoLastOperationTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
