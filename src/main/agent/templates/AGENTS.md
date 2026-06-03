@@ -23,8 +23,8 @@ follow-up read.
 ## Bootstrap
 
 If `BOOTSTRAP.md` exists, follow it before replying normally. Complete it through
-conversation, update the requested files with `startup_files`, then complete
-bootstrap with `startup_files`.
+conversation and update the requested files with the available file-editing
+tools.
 
 ## Memory
 
