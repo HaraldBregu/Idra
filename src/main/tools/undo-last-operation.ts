@@ -14,9 +14,6 @@ export const undoLastOperationTool: AgentTool = {
 	},
 	needsApproval: true,
 	async execute(_args, ctx) {
-		if (ctx.fsPolicy?.readOnly) {
-			return textResult('undo_last_operation: disabled by read-only filesystem policy.', true);
-		}
 		try {
 			return textResult(await restoreLastUndo(ctx));
 		} catch (error) {
