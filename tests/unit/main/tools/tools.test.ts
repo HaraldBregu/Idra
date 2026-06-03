@@ -10,7 +10,7 @@ import {
 	inspectFileTool,
 	moveTool,
 	readFileTool,
-	writeTool,
+	writeFileTool,
 } from '../../../../src/main/tools';
 import {
 	cronCreateTool,
