@@ -23,7 +23,6 @@ import { fileDeleteTool } from '../base/delete';
 import { fileEditTool } from '../base/edit';
 import { fileReadTool } from '../base/read';
 import { execTool } from '../base/exec';
-import { scriptRunTool } from '../base/run_script';
 import { searchFilesTool } from '../base/find';
 import { fileWriteTool } from '../base/write';
 import { completeTaskTool } from '../state/todo/complete';
@@ -115,7 +114,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	mcp_load_prompt: mcpLoadPromptTool,
 	web_fetch: webFetchTool,
 	open_browser: openBrowserTool,
-	run_script: scriptRunTool,
 	cron_create: cronCreateTool,
 	cron_read: cronReadTool,
 	cron_update: cronUpdateTool,

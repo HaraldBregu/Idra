@@ -266,16 +266,6 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'run_script',
-		group: 'script',
-		title: 'Run script',
-		description: 'Run an existing script file with explicit args and output limits.',
-		permissions: ['read', 'write', 'execute'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: OPTIONAL_TOOL_PROFILES,
-		availability: 'optional',
-	},
-	{
 		name: 'cron_create',
 		group: 'cron',
 		title: 'Create cron schedule',

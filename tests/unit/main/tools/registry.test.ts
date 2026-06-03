@@ -39,7 +39,7 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it.each(['file_delete', 'exec', 'mcp_list_servers', 'run_script', 'cron_create'])(
+	it.each(['file_delete', 'exec', 'mcp_list_servers', 'cron_create'])(
 		'resolves %s by allowlist',
 		async (toolName) => {
 			const result = await createAgentTools({

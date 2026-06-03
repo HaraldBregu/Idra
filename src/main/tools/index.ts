@@ -43,7 +43,6 @@ export { cronStartTool } from './cron/start';
 export { cronStopTool } from './cron/stop';
 export { cronRunTool } from './cron/run';
 export { createCronTools, type CronToolOptions } from './cron/runtime';
-export { scriptRunTool } from './base/run_script';
 export { createScriptTools, type ScriptToolOptions } from './core/runtime/script';
 export { completeTaskTool } from './state/todo/complete';
 export { listTodosTool } from './state/todo/list';

@@ -67,7 +67,6 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'mcp_connect_server',
 	'mcp_refresh_server',
 	'mcp_call_tool',
-	'run_script',
 	'cron_create',
 	'cron_update',
 	'cron_delete',

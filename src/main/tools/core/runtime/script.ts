@@ -1,12 +1,6 @@
 import type { AgentTool } from '../common';
 import { markCoreTool } from '../common';
-import type {
-	AgentTool as LegacyAgentTool,
-	FridayServices,
-	ToolContext,
-} from '../tool';
-import { legacyToolToCanonical } from './bridge';
-import { scriptRunTool } from '../../base/run_script';
+import type { FridayServices, ToolContext } from '../tool';
 
 export type ScriptToolOptions = {
 	workspaceDir: string;
@@ -15,14 +9,9 @@ export type ScriptToolOptions = {
 	services?: Partial<FridayServices>;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type LegacyScriptTool = LegacyAgentTool<any, any>;
-
-const SCRIPT_TOOLS: readonly LegacyScriptTool[] = [scriptRunTool] as const;
-
 export function createScriptTools(options: ScriptToolOptions): AgentTool[] {
-	const context = createScriptToolContext(options);
-	return SCRIPT_TOOLS.map((tool) => markCoreTool(legacyToolToCanonical(tool, context)));
+	createScriptToolContext(options);
+	return [];
 }
 
 function createScriptToolContext(options: ScriptToolOptions): ToolContext {
