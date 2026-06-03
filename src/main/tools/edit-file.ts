@@ -27,8 +27,6 @@ export const editFileTool: AgentTool<EditArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly)
-			return textResult('edit_file: disabled by read-only filesystem policy.', true);
 		const before = await snapshotTarget(ctx, args.path).catch(() => null);
 		let abs: string;
 		try {
