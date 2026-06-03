@@ -6,7 +6,7 @@ import { directoryListTool } from '../../base/list';
 import { fileEditTool } from '../../base/edit';
 import { fileReadTool } from '../../base/read';
 import { bashTool } from '../../base/exec';
-import { searchFilesTool } from '../../base/search';
+import { searchFilesTool } from '../../base/find';
 import { fileWriteTool } from '../../base/write';
 import { completeTaskTool } from '../../state/todo/complete';
 import { listTodosTool } from '../../state/todo/list';

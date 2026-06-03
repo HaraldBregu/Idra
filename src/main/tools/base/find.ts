@@ -15,7 +15,7 @@ const DEFAULT_FIND_LIMIT = TOOL_LIMITS.find.defaultLimit;
 const FIND_EXCLUDES = ['**/node_modules/**', '**/.git/**'];
 
 export const searchFilesTool: AgentTool<SearchFilesArgs> = {
-	name: 'search_files',
+	name: 'find',
 	description:
 		'Find files by glob pattern (e.g. "**/*.ts"). Returns matching paths relative to the search directory.',
 	schema: {

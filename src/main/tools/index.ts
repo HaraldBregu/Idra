@@ -27,7 +27,7 @@ export {
 export { fileReadTool } from './base/read';
 export { fileWriteTool } from './base/write';
 export { directoryListTool } from './base/list';
-export { searchFilesTool } from './base/search';
+export { searchFilesTool } from './base/find';
 export { moveTool } from './base/move';
 export { fileDeleteTool } from './base/delete';
 export { fileEditTool } from './base/edit';
@@ -45,7 +45,7 @@ export { cronStartTool } from './cron/start';
 export { cronStopTool } from './cron/stop';
 export { cronRunTool } from './cron/run';
 export { createCronTools, type CronToolOptions } from './cron/runtime';
-export { scriptRunTool } from './base/run';
+export { scriptRunTool } from './base/run_script';
 export { createScriptTools, type ScriptToolOptions } from './core/runtime/script';
 export { completeTaskTool } from './state/todo/complete';
 export { listTodosTool } from './state/todo/list';

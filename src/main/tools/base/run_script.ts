@@ -41,7 +41,7 @@ type ProcessResult = {
 };
 
 export const scriptRunTool: AgentTool<ScriptRunArgs> = {
-	name: 'script_run',
+	name: 'run_script',
 	description:
 		'Run an existing script file with optional string args. Uses policy checks for the script path and working directory; does not run arbitrary shell command text.',
 	schema: {

@@ -18,8 +18,8 @@ interface ExecArgs {
 	background?: boolean;
 }
 
-export const bashTool: AgentTool<ExecArgs, ExecDetails> = {
-	name: 'bash',
+export const execTool: AgentTool<ExecArgs, ExecDetails> = {
+	name: 'exec',
 	description:
 		'Run a shell command in the workspace. Output is capped at 200 lines / 16KB. Use for ls, git, build, tests. Use python3 for Python scripts unless the project specifies another command.',
 	schema: {
