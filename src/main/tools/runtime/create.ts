@@ -221,13 +221,11 @@ function addCoreToolCandidates(
 	options: CreateAgentToolsOptions,
 	plan: ToolConstructionPlan
 ): void {
-	const fsPolicy = options.config?.tools?.fs;
 	if (plan.includeFileTools) {
 		candidates.push(
 			...createFileTools({
 				workspaceDir: options.workspaceDir,
 				sessionId: options.sessionId,
-				fsPolicy,
 				signal: options.abortSignal,
 				services: options.services,
 			})
