@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
-import { resolveAbs } from './shared/common';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { resolveAbs } from '../shared/common';
 
 interface DeleteArgs {
 	path: string;

@@ -1,6 +1,6 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { jsonText } from './shared/skills-json-text';
+import { jsonText } from './shared/json-text';
 
 export const skillUseTool: AgentTool<{ name?: string; query?: string }> = {
 	name: 'skill_use',

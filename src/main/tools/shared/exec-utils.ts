@@ -1,6 +1,5 @@
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import type { Readable } from 'node:stream';
-import path from 'node:path';
 import type { AgentToolResult } from '../base/tool';
 import { TOOL_LIMITS } from '../base/limits';
 
@@ -43,11 +42,6 @@ export function deniedPattern(command: string): string | null {
 		if (pattern.test(command)) return pattern.source;
 	}
 	return null;
-}
-
-export function isInsidePath(root: string, target: string): boolean {
-	const relative = path.relative(path.resolve(root), path.resolve(target));
-	return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 export function truncate(text: string): { text: string; truncated: boolean } {

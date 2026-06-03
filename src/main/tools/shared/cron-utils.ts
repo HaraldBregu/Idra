@@ -10,7 +10,6 @@ import type {
 	CronScheduleVisibility,
 } from '../../../shared/cron';
 import type { ToolContext } from '../base/tool';
-import { textResult } from '../base/tool';
 
 const CRON_TOOL_PERMISSIONS: CronSchedulePermissionLevel[] = [
 	'createSchedule',
@@ -206,8 +205,4 @@ export function cronActor(
 		confirmed: input?.confirmed,
 		metadata: { toolSessionId: ctx.sessionId },
 	};
-}
-
-export function jsonText(value: unknown) {
-	return textResult(JSON.stringify(value, null, 2));
 }

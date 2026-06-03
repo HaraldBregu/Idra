@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { AgentTool } from './base/tool';
-import { textResult } from './base/tool';
-import { resolveAbs, snapshot } from './shared/common';
-import { pushUndo, snapshotTarget } from './shared/undo-store';
+import type { AgentTool } from '../base/tool';
+import { textResult } from '../base/tool';
+import { resolveAbs, snapshot } from '../shared/common';
+import { pushUndo, snapshotTarget } from '../shared/undo-store';
 
 interface WriteArgs {
 	path: string;

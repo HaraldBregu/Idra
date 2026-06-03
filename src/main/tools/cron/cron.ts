@@ -5,9 +5,9 @@ import {
 	type CronCompatArgs,
 	cronCreateRequest,
 	cronService,
-	jsonText,
 	requireCronId,
 } from '../shared/cron-utils';
+import { jsonText } from '../shared/json-text';
 
 export const cronTool: AgentTool<CronCompatArgs> = {
 	name: 'cron',

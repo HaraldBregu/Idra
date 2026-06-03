@@ -1,6 +1,6 @@
 import type { AgentTool } from './base/tool';
 import { textResult } from './base/tool';
-import { resolveAbs } from './shared/system-path';
+import { resolveAbs } from './shared/common';
 import { commandResult, limitNumber, runProcess } from './shared/exec-spawn';
 
 export const runShellTool: AgentTool<{
