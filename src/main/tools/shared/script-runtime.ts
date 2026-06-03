@@ -33,7 +33,6 @@ function createScriptToolContext(options: ScriptToolOptions): ToolContext {
 		plan: { entries: [] },
 		approvalRequired: new Set(),
 		approvalCache: new Set(),
-		fsPolicy: options.fsPolicy,
 		signal: options.signal,
 		services: (options.services ?? {}) as FridayServices,
 	};
