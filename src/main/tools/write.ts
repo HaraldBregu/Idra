@@ -53,7 +53,7 @@ export const writeFileTool: AgentTool<WriteArgs> = {
 			}
 			if (stat && (stat.mtimeMs !== last.mtimeMs || stat.size !== last.size)) {
 				return textResult(
-					`write: ${args.path} changed on disk since last read. Re-read first.`,
+					`write_file: ${args.path} changed on disk since last read. Re-read first.`,
 					true
 				);
 			}
