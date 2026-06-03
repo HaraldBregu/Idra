@@ -5,8 +5,8 @@ export type {
 	FridayServices,
 	PlanEntry,
 	ToolContext,
-} from './base/tool';
-export { textResult } from './base/tool';
+} from './core/tool';
+export { textResult } from './core/tool';
 export {
 	ToolService,
 	type DefaultToolPolicy,
@@ -24,14 +24,21 @@ export {
 	type CreateAgentToolsResult,
 	type ToolConstructionPlan,
 } from './shared/create';
-export { applyPatchTool } from './filesystem/apply-patch';
-export { createFileTools, type FileToolOptions } from './base/runtime/bundle';
+export { fileReadTool } from './base/read';
+export { fileWriteTool } from './base/write';
+export { directoryListTool } from './base/list';
+export { searchFilesTool } from './base/search';
+export { moveTool } from './base/move';
+export { fileDeleteTool } from './base/delete';
+export { fileEditTool } from './base/edit';
+export { applyPatchTool } from './base/apply-patch';
+export { createFileTools, createReadTool, type FileToolOptions } from './base/runtime';
 export { workspaceTool } from './workspace/tool';
 export { collapseWorkspaceToolSurface } from './workspace/surface';
-export { execTool } from './shell/exec';
-export { processTool } from './shell/process';
-export { webFetchTool } from './web/fetch';
-export { openBrowserTool } from './web/browser';
+export { bashTool } from './base/bash';
+export { processTool } from './base/process';
+export { webFetchTool } from './web/web-fetch';
+export { openBrowserTool } from './web/open-browser';
 export { cronTool } from './cron/cron';
 export { cronCreateTool } from './cron/create';
 export { cronReadTool } from './cron/read';
@@ -42,22 +49,18 @@ export { cronStartTool } from './cron/start';
 export { cronStopTool } from './cron/stop';
 export { cronRunTool } from './cron/run';
 export { createCronTools, type CronToolOptions } from './cron/runtime';
-export { scriptRunTool } from './script/run';
-export { createScriptTools, type ScriptToolOptions } from './script/runtime';
+export { scriptRunTool } from './base/run';
+export { createScriptTools, type ScriptToolOptions } from './base/script';
 export { completeTaskTool } from './state/todo/complete';
 export { listTodosTool } from './state/todo/list';
 export { readScratchTool } from './state/scratch/read';
 export { updateTodoTool } from './state/todo/update';
 export { writeScratchTool } from './state/scratch/write';
 export { writeTodosTool } from './state/todo/write';
-export { presentPlanTool } from './human/present-plan';
-export { requestApprovalTool } from './human/request-approval';
-export { requestAuthorizationTool } from './human/request-authorization';
-export { requestClarificationTool } from './human/request-clarification';
-export { spawnSubagentTool } from './subagent/spawn';
-export { skillListTool } from './skill/list';
-export { skillLoadTool } from './skill/load';
-export { skillUseTool } from './skill/use';
+export { spawnSubagentTool } from './base/spawn-subagent';
+export { skillListTool } from './skills/skill-list';
+export { skillLoadTool } from './skills/load-skill';
+export { skillUseTool } from './skills/use-skill';
 export { mcpCallToolTool } from './mcp/tool/call';
 export { mcpConnectServerTool } from './mcp/server/connect';
 export { mcpListPromptsTool } from './mcp/prompt/list';
@@ -86,7 +89,7 @@ export {
 	type LocalToolCatalogEntry,
 	type LocalToolGroup,
 	type LocalToolProfile,
-} from './base/catalog';
+} from './core/catalog';
 export type { ToolProfile } from './shared/tool-types';
 export { beforeToolCall, newCallTracker, type CallTracker } from './shared/guard';
 export { selectAgentToolsForTurn } from './shared/management';

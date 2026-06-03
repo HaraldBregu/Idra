@@ -135,7 +135,6 @@ export type ToolApprovalPolicyDecision =
 
 const CORE_WORKSPACE_TOOL_NAMES = toolNamesForSharedGroup('coreWorkspace');
 const STATE_TASK_TOOL_NAMES = toolNamesForSharedGroup('stateTask');
-const HUMAN_DECISION_TOOL_NAMES = toolNamesForSharedGroup('humanDecision');
 const SUBAGENT_TOOL_NAMES = toolNamesForSharedGroup('subagent');
 const SKILL_TOOL_NAMES = toolNamesForSharedGroup('skill');
 const MCP_CONNECTOR_TOOL_NAMES = toolNamesForSharedGroup('mcpConnector');
@@ -145,11 +144,9 @@ export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:core_workspace': CORE_WORKSPACE_TOOL_NAMES,
 	'group:file': CORE_WORKSPACE_TOOL_NAMES,
 	'group:filesystem': CORE_WORKSPACE_TOOL_NAMES,
-	'group:shell': ['exec', 'process'],
+	'group:shell': ['bash', 'process'],
 	'group:statetask': STATE_TASK_TOOL_NAMES,
 	'group:state_task': STATE_TASK_TOOL_NAMES,
-	'group:humandecision': HUMAN_DECISION_TOOL_NAMES,
-	'group:human_decision': HUMAN_DECISION_TOOL_NAMES,
 	'group:subagent': SUBAGENT_TOOL_NAMES,
 	'group:skill': SKILL_TOOL_NAMES,
 	'group:mcpconnector': MCP_CONNECTOR_TOOL_NAMES,

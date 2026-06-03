@@ -5,9 +5,9 @@ import {
 } from './tool-types';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
-import type { AgentTool, AgentToolResult, ToolContext } from '../base/tool';
-import { getToolMetadata, normalizeToolName } from '../base/common';
-import { createTools, localToolCatalogByName } from '../base/catalog';
+import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
+import { getToolMetadata, normalizeToolName } from '../core/common';
+import { createTools, localToolCatalogByName } from '../core/catalog';
 import { collapseWorkspaceToolSurface } from '../workspace/surface';
 import {
 	executeAgentToolWithManagement,
@@ -25,7 +25,7 @@ import {
 import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
-} from '../base/runtime/adapt';
+} from '../core/runtime/adapt';
 import type { ToolProfile } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();

@@ -1,11 +1,11 @@
-import type { AgentTool } from '../base/common';
-import { markCoreTool } from '../base/common';
+import type { AgentTool } from '../core/common';
+import { markCoreTool } from '../core/common';
 import type {
 	AgentTool as LegacyAgentTool,
 	FridayServices,
 	ToolContext,
-} from '../base/tool';
-import { legacyToolToCanonical } from '../base/runtime/bridge';
+} from '../core/tool';
+import { legacyToolToCanonical } from '../core/runtime/bridge';
 import { cronTool } from './cron';
 import { cronCreateTool } from './create';
 import { cronReadTool } from './read';

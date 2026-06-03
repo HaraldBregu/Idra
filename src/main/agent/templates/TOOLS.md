@@ -17,8 +17,8 @@ profile, then applies runtime allow and deny lists.
   allows specific names or groups.
 - Policy entries can name tools directly, use `*`, use glob patterns, or use
   groups such as `group:file`, `group:shell`, `group:state_task`,
-  `group:human_decision`, `group:subagent`, `group:skill`, `group:mcp`,
-  `group:web`, `group:script`, and `group:cron`.
+  `group:subagent`, `group:skill`, `group:mcp`, `group:web`, `group:script`,
+  and `group:cron`.
 
 There is also a run-scoped assembler exported as `createAgentTools`. It builds
 tool families from `toolsAllow`:
@@ -39,19 +39,15 @@ the provider.
 
 | Tool                    | Group          | How it is used                                                                                                                                         |
 | ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `workspace`             | Core workspace | Runs structured filesystem actions: read, list, search, write, edit, delete, apply_patch, copy, and move. Preserves guarded writes.                   |
-| `exec`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
-| `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `exec background=true`.                                                                |
+| `workspace`             | Core workspace | Runs structured filesystem actions: read, list, search, write, edit, delete, apply_patch, and move. Preserves guarded writes.                         |
+| `bash`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
+| `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `bash background=true`.                                                                |
 | `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
 | `update_todo`           | State/task     | Updates one item in the current run todo list.                                                                                                         |
 | `list_todos`            | State/task     | Lists the current run todo items and statuses.                                                                                                         |
 | `complete_task`         | State/task     | Marks the current task or a todo item as complete.                                                                                                     |
 | `write_scratch`         | State/task     | Writes run-local scratch notes for later tool calls.                                                                                                   |
 | `read_scratch`          | State/task     | Reads run-local scratch notes.                                                                                                                         |
-| `request_approval`      | Human decision | Asks a human to approve or deny a proposed action. The tool itself is approval-gated.                                                                  |
-| `request_clarification` | Human decision | Asks a focused clarification question before continuing.                                                                                               |
-| `present_plan`          | Human decision | Presents a plan for human review before taking action.                                                                                                 |
-| `request_authorization` | Human decision | Requests explicit authorization for sensitive or external actions. The tool itself is approval-gated.                                                  |
 | `spawn_subagent`        | Subagent       | Starts a child agent run for a clearly scoped task.                                                                                                    |
 | `skill_list`            | Skill          | Lists installed skills available to the agent.                                                                                                         |
 | `skill_load`            | Skill          | Loads instructions and support file metadata for an installed skill.                                                                                   |

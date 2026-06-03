@@ -1,4 +1,4 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../base/tool';
+import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
 import { ToolPolicyService, type ToolPolicyServicePort } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();
@@ -23,7 +23,6 @@ const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
 	'file_write',
 	'file_edit',
 	'apply_patch',
-	'copy',
 	'move',
 ]);
 

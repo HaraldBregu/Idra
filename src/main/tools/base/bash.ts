@@ -1,7 +1,7 @@
 import path from 'node:path';
-import type { AgentTool } from '../base/tool';
-import { textResult } from '../base/tool';
-import { TOOL_LIMITS } from '../base/limits';
+import type { AgentTool } from '../core/tool';
+import { textResult } from '../core/tool';
+import { TOOL_LIMITS } from '../core/limits';
 import {
 	DEFAULT_TIMEOUT_MS,
 	deniedPattern,
@@ -18,8 +18,8 @@ interface ExecArgs {
 	background?: boolean;
 }
 
-export const execTool: AgentTool<ExecArgs, ExecDetails> = {
-	name: 'exec',
+export const bashTool: AgentTool<ExecArgs, ExecDetails> = {
+	name: 'bash',
 	description:
 		'Run a shell command in the workspace. Output is capped at 200 lines / 16KB. Use for ls, git, build, tests. Use python3 for Python scripts unless the project specifies another command.',
 	schema: {
@@ -45,14 +45,14 @@ export const execTool: AgentTool<ExecArgs, ExecDetails> = {
 		const command = String(args.command ?? '').trim();
 		if (!command) {
 			return {
-				...textResult('exec: empty command', true),
+				...textResult('bash: empty command', true),
 				details: { exitCode: -1, durationMs: 0, truncated: false },
 			};
 		}
 		const denied = deniedPattern(command);
 		if (denied) {
 			return {
-				...textResult(`exec: denied by safety policy (pattern: ${denied})`, true),
+				...textResult(`bash: denied by safety policy (pattern: ${denied})`, true),
 				details: { exitCode: -1, durationMs: 0, truncated: false },
 			};
 		}

@@ -1,4 +1,4 @@
-import type { AgentTool } from '../../base/tool';
+import type { AgentTool } from '../../core/tool';
 import { emptySchema } from '../shared/empty-schema';
 import { jsonText } from '../../shared/json-text';
 import { mcpConnectors } from '../shared/connectors';

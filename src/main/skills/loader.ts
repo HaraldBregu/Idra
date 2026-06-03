@@ -134,7 +134,7 @@ function asStringArray(value: unknown): string[] | undefined {
 
 function normalizeSkillToolName(value: string): string {
 	const trimmed = value.trim();
-	if (/^bash(?:\(.*\))?$/i.test(trimmed)) return 'exec';
+	if (/^bash(?:\(.*\))?$/i.test(trimmed)) return 'bash';
 	const key = trimmed.toLowerCase().replace(/[-_\s]/g, '');
 	switch (key) {
 		case 'read':
@@ -151,7 +151,7 @@ function normalizeSkillToolName(value: string): string {
 			return 'find';
 		case 'shell':
 		case 'exec':
-			return 'exec';
+			return 'bash';
 		case 'webfetch':
 			return 'web_fetch';
 			case 'openbrowser':

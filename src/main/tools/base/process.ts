@@ -1,11 +1,11 @@
-import type { AgentTool } from '../base/tool';
-import { textResult } from '../base/tool';
+import type { AgentTool } from '../core/tool';
+import { textResult } from '../core/tool';
 import { BACKGROUND_PROCESSES, truncate } from './utils';
 
 export const processTool: AgentTool<{ action: 'list' | 'log' | 'kill'; id?: string }> = {
 	name: 'process',
 	description:
-		'List, inspect logs for, or kill background processes started with exec background=true.',
+		'List, inspect logs for, or kill background processes started with bash background=true.',
 	schema: {
 		type: 'object',
 		properties: {

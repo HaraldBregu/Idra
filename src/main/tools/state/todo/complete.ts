@@ -1,5 +1,5 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
+import type { AgentTool } from '../../core/tool';
+import { textResult } from '../../core/tool';
 import { renderTodos } from '../shared/render-todos';
 import { todoIndex } from '../shared/todo-index';
 

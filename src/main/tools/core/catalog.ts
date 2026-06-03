@@ -9,8 +9,8 @@ import {
 	type AgentToolGroupName,
 	type AgentToolProfile,
 } from '../../../shared/tools';
-import { openBrowserTool } from '../web/browser';
-import { webFetchTool } from '../web/fetch';
+import { openBrowserTool } from '../web/open-browser';
+import { webFetchTool } from '../web/web-fetch';
 import { cronCreateTool } from '../cron/create';
 import { cronDeleteTool } from '../cron/delete';
 import { cronListTool } from '../cron/list';
@@ -19,24 +19,26 @@ import { cronRunTool } from '../cron/run';
 import { cronStartTool } from '../cron/start';
 import { cronStopTool } from '../cron/stop';
 import { cronUpdateTool } from '../cron/update';
+import { directoryListTool } from '../base/list';
+import { fileDeleteTool } from '../base/delete';
+import { fileEditTool } from '../base/edit';
+import { fileReadTool } from '../base/read';
 import { workspaceTool } from '../workspace/tool';
-import { execTool } from '../shell/exec';
-import { processTool } from '../shell/process';
-import { scriptRunTool } from '../script/run';
+import { bashTool } from '../base/bash';
+import { processTool } from '../base/process';
+import { scriptRunTool } from '../base/run';
+import { searchFilesTool } from '../base/search';
+import { fileWriteTool } from '../base/write';
 import { completeTaskTool } from '../state/todo/complete';
 import { listTodosTool } from '../state/todo/list';
 import { readScratchTool } from '../state/scratch/read';
 import { updateTodoTool } from '../state/todo/update';
 import { writeScratchTool } from '../state/scratch/write';
 import { writeTodosTool } from '../state/todo/write';
-import { presentPlanTool } from '../human/present-plan';
-import { requestApprovalTool } from '../human/request-approval';
-import { requestAuthorizationTool } from '../human/request-authorization';
-import { requestClarificationTool } from '../human/request-clarification';
-import { spawnSubagentTool } from '../subagent/spawn';
-import { skillListTool } from '../skill/list';
-import { skillLoadTool } from '../skill/load';
-import { skillUseTool } from '../skill/use';
+import { spawnSubagentTool } from '../base/spawn-subagent';
+import { skillListTool } from '../skills/skill-list';
+import { skillLoadTool } from '../skills/load-skill';
+import { skillUseTool } from '../skills/use-skill';
 import { mcpCallToolTool } from '../mcp/tool/call';
 import { mcpConnectServerTool } from '../mcp/server/connect';
 import { mcpListPromptsTool } from '../mcp/prompt/list';
@@ -92,18 +94,20 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
 	workspace: workspaceTool,
-	exec: execTool,
+	file_read: fileReadTool,
+	file_edit: fileEditTool,
+	directory_list: directoryListTool,
+	search_files: searchFilesTool,
+	bash: bashTool,
 	process: processTool,
+	file_write: fileWriteTool,
+	file_delete: fileDeleteTool,
 	write_todos: writeTodosTool,
 	update_todo: updateTodoTool,
 	list_todos: listTodosTool,
 	complete_task: completeTaskTool,
 	write_scratch: writeScratchTool,
 	read_scratch: readScratchTool,
-	request_approval: requestApprovalTool,
-	request_clarification: requestClarificationTool,
-	present_plan: presentPlanTool,
-	request_authorization: requestAuthorizationTool,
 	spawn_subagent: spawnSubagentTool,
 	skill_list: skillListTool,
 	skill_load: skillLoadTool,

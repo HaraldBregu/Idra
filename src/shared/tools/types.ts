@@ -5,7 +5,6 @@ export type AgentToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' |
 export type AgentToolGroupName =
 	| 'coreWorkspace'
 	| 'stateTask'
-	| 'humanDecision'
 	| 'subagent'
 	| 'skill'
 	| 'mcpConnector'
@@ -25,7 +24,6 @@ export interface AgentToolMetadata {
 		| 'delete'
 		| 'execute'
 		| 'state'
-		| 'human'
 		| 'delegate'
 		| 'skill'
 		| 'mcp:read'

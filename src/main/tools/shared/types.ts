@@ -1,1 +1,1 @@
-export * from '../base/tool';
+export * from '../core/tool';

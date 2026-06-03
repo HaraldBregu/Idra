@@ -1,5 +1,5 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
+import type { AgentTool } from '../../core/tool';
+import { textResult } from '../../core/tool';
 import { readTodoEntry } from '../shared/read-todo-entry';
 import { renderTodos } from '../shared/render-todos';
 import type { TodoInput } from '../shared/state-types';

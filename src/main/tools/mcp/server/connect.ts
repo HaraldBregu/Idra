@@ -1,5 +1,5 @@
-import type { AgentTool } from '../../base/tool';
-import { textResult } from '../../base/tool';
+import type { AgentTool } from '../../core/tool';
+import { textResult } from '../../core/tool';
 import { idSchema } from '../shared/id-schema';
 import { jsonText } from '../../shared/json-text';
 import { mcpConnectors } from '../shared/connectors';

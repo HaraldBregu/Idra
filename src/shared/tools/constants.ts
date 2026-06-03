@@ -15,7 +15,6 @@ type AgentToolByAvailability<TAvailability extends AgentToolAvailability> = Extr
 const AGENT_TOOL_GROUP_NAMES = [
 	'coreWorkspace',
 	'stateTask',
-	'humanDecision',
 	'subagent',
 	'skill',
 	'mcpConnector',
@@ -64,7 +63,8 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'workspace',
-	'exec',
+	'file_edit',
+	'bash',
 	'mcp_connect_server',
 	'mcp_refresh_server',
 	'mcp_call_tool',
@@ -75,11 +75,14 @@ export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'cron_start',
 	'cron_stop',
 	'cron_run',
+	'file_write',
 	'apply_patch',
+	'file_delete',
+	'move',
 ] as const satisfies readonly AgentToolName[];
 
 export const AGENT_TOOL_LEGACY_ALIASES = {
-	run_shell: ['exec'],
+	run_shell: ['bash'],
 	sessions_spawn: ['spawn_subagent'],
 } as const satisfies Record<string, readonly AgentDefaultToolName[]>;
 

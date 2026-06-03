@@ -6,9 +6,9 @@ import {
 	normalizeToolName,
 } from '../common';
 import { createAppTools } from '../../web/runtime';
-import { createFileTools } from './bundle';
+import { createFileTools } from '../../base/runtime';
 import { createCronTools } from '../../cron/runtime';
-import { createScriptTools } from '../../script/runtime';
+import { createScriptTools } from '../../base/script';
 import { normalizeToolSchemas } from '../schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../../shared/tool-types';
 import { applyToolPolicyPipeline } from '../../shared/pipeline';
@@ -91,7 +91,6 @@ export type CreateAgentToolsResult = {
 const TOOL_PLAN_BY_GROUP = {
 	coreWorkspace: 'includeFileTools',
 	stateTask: 'includeFileTools',
-	humanDecision: 'includeFileTools',
 	subagent: 'includeFileTools',
 	skill: 'includeFileTools',
 	mcpConnector: 'includeFileTools',
