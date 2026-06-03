@@ -18,12 +18,8 @@ const GENERIC_TOOL_ACTION_TOKENS = new Set([
 	'run',
 	'execute',
 ]);
-const READ_TOOL_NAME = 'file_read';
-const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set([
-	'file_write',
-	'file_edit',
-	'move',
-]);
+const READ_TOOL_NAME = 'read';
+const READ_DEPENDENT_MUTATION_TOOL_NAMES = new Set(['write', 'edit']);
 
 export interface AgentToolSelectionForTurn {
 	toolsForPrompt: AgentTool[];
@@ -127,7 +123,6 @@ function scoreTool(tool: AgentTool, queryTokens: ReadonlySet<string>, intent: To
 		score += 40;
 	if (intent === 'file_delete' && hasAny(toolTokens, ['delete', 'remove', 'trash', 'unlink']))
 		score += 80;
-	if (intent === 'file_move' && hasAny(toolTokens, ['move', 'rename', 'copy'])) score += 70;
 	if (intent === 'file_move' && hasAny(toolTokens, ['shell', 'command'])) score += 60;
 	return score;
 }

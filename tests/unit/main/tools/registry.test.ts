@@ -8,9 +8,9 @@ describe('tool registry organization', () => {
 
 		try {
 			const names = result.tools.map((tool) => tool.name);
-			expect(names).toContain('file_read');
-			expect(names).toContain('file_edit');
-			expect(names).toContain('file_write');
+			expect(names).toContain('read');
+			expect(names).toContain('edit');
+			expect(names).toContain('write');
 			expect(names).toContain('file_delete');
 		} finally {
 			await result.dispose();
@@ -20,26 +20,26 @@ describe('tool registry organization', () => {
 	it('exposes filesystem tools in the default local catalog', () => {
 		const names = new ToolService().createDefaultTools({}).map((tool) => tool.name);
 
-		expect(names).toContain('file_read');
-		expect(names).toContain('file_edit');
-		expect(names).toContain('file_write');
+		expect(names).toContain('read');
+		expect(names).toContain('edit');
+		expect(names).toContain('write');
 		expect(names).toContain('file_delete');
 	});
 
-	it('can expose only file_read by allowlist', async () => {
+	it('can expose only read by allowlist', async () => {
 		const result = await createAgentTools({
 			workspaceDir: process.cwd(),
-			toolsAllow: ['file_read'],
+			toolsAllow: ['read'],
 		});
 
 		try {
-			expect(result.tools.map((tool) => tool.name)).toEqual(['file_read']);
+			expect(result.tools.map((tool) => tool.name)).toEqual(['read']);
 		} finally {
 			await result.dispose();
 		}
 	});
 
-	it.each(['file_delete', 'bash', 'mcp_list_servers', 'script_run', 'cron_create'])(
+	it.each(['file_delete', 'exec', 'mcp_list_servers', 'run_script', 'cron_create'])(
 		'resolves %s by allowlist',
 		async (toolName) => {
 			const result = await createAgentTools({

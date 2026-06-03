@@ -72,8 +72,8 @@ export function createFileTools(options: FileToolOptions): AgentTool[] {
 }
 
 export function createReadTool(options: FileToolOptions): AgentTool {
-	const read = createFileTools(options).find((tool) => tool.name === 'file_read');
-	if (!read) throw new Error('file_read tool is not registered');
+	const read = createFileTools(options).find((tool) => tool.name === 'read');
+	if (!read) throw new Error('read tool is not registered');
 	return read;
 }
 
