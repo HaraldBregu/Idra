@@ -265,7 +265,10 @@
       "Bash(echo \"web: $?\")",
       "Bash(echo \"typecheck:web exit=$?\")",
       "Bash(echo \"scoped eslint src/main/llm exit: $?\")",
-      "Bash(echo \"ESLINT_DONE exit=$?\")"
+      "Bash(echo \"ESLINT_DONE exit=$?\")",
+      "Bash(sed -n '45,58p' tests/unit/main/tools/tool-service.test.ts)",
+      "Bash(sed -n '258,280p' tests/unit/main/cron/jobs.test.ts)",
+      "Bash(sed -n '25,45p' tests/unit/main/session/session.test.ts)"
     ],
     "deny": [
       "Bash(git push --force:*)",

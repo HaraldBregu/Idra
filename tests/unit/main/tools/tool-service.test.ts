@@ -47,11 +47,11 @@ describe('ToolService', () => {
 		const service = new ToolService();
 
 		const tools = service.createDefaultTools({
-			denylist: ['write'],
+			denylist: ['write_file'],
 		});
 
 		expect(tools.map((tool) => tool.name)).toContain('read_file');
-		expect(tools.map((tool) => tool.name)).not.toContain('write');
+		expect(tools.map((tool) => tool.name)).not.toContain('write_file');
 	});
 
 	it('uses injected policy and logger for service-managed tools', async () => {
