@@ -19,7 +19,6 @@ import { cronStopTool } from '../cron-stop';
 import { cronUpdateTool } from '../cron-update';
 import { fileDeleteTool } from '../file-delete';
 import { fileEditTool } from '../file-edit';
-import { grepTool } from '../grep';
 import { listDirectoryTool } from '../list-directory';
 import { fileReadTool } from '../file-read';
 import { runShellTool } from '../run-shell';
@@ -99,7 +98,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	file_edit: fileEditTool,
 	list_directory: listDirectoryTool,
 	search_files: searchFilesTool,
-	grep: grepTool,
 	run_shell: runShellTool,
 	file_write: fileWriteTool,
 	file_delete: fileDeleteTool,

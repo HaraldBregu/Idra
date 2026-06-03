@@ -31,7 +31,6 @@ export { searchFilesTool } from './search-files';
 export { copyTool } from './copy';
 export { moveTool } from './move';
 export { fileDeleteTool } from './file-delete';
-export { grepTool } from './grep';
 export { fileEditTool } from './file-edit';
 export { applyPatchTool } from './apply-patch';
 export { undoLastOperationTool } from './undo-last-operation';

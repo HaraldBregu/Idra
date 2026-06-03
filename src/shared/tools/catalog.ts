@@ -47,16 +47,6 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'grep',
-		group: 'coreWorkspace',
-		title: 'Grep',
-		description: 'Search workspace file contents for text or regular expression matches.',
-		permissions: ['read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'run_shell',
 		group: 'coreWorkspace',
 		title: 'Run shell',
