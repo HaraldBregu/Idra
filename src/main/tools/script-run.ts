@@ -87,9 +87,6 @@ export const scriptRunTool: AgentTool<ScriptRunArgs> = {
 		additionalProperties: false,
 	},
 	async execute(args, ctx) {
-		if (ctx.fsPolicy?.readOnly) {
-			return textResult('script_run: disabled by read-only filesystem policy.', true);
-		}
 		if (typeof args.path !== 'string' || args.path.trim() === '') {
 			return textResult('script_run: path is required.', true);
 		}
