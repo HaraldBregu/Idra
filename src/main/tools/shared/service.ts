@@ -8,6 +8,7 @@ import type { LoggerService } from '../../observability';
 import type { AgentTool, AgentToolResult, ToolContext } from '../base/tool';
 import { getToolMetadata, normalizeToolName } from '../base/common';
 import { createTools, localToolCatalogByName } from '../base/catalog';
+import { collapseWorkspaceToolSurface } from '../workspace/surface';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
@@ -58,6 +59,7 @@ export interface ToolServicePort {
 	getToolsByGroup(group: string): AgentTool[];
 	createDefaultTools(input: {
 		toolPolicy?: DefaultToolPolicy;
+		explicitAllow?: string[];
 		denylist?: string[];
 	}): AgentTool[];
 	filterToolsByAllowlist(
@@ -134,16 +136,27 @@ export class ToolService implements ToolServicePort {
 
 	createDefaultTools(input: {
 		toolPolicy?: DefaultToolPolicy;
+		explicitAllow?: string[];
 		denylist?: string[];
 	}): AgentTool[] {
 		const policy = input.toolPolicy;
-		const tools = createTools({
-			profile: policy?.profile ?? 'full',
-			allow: policy?.allow ?? [],
-			alsoAllow: policy?.alsoAllow,
-			deny: [...(policy?.deny ?? []), ...(input.denylist ?? [])],
-			fs: policy?.fs,
-		}, this.policy);
+		const tools = collapseWorkspaceToolSurface(
+			createTools({
+				profile: policy?.profile ?? 'full',
+				allow: policy?.allow ?? [],
+				alsoAllow: policy?.alsoAllow,
+				deny: [...(policy?.deny ?? []), ...(input.denylist ?? [])],
+				fs: policy?.fs,
+			}, this.policy),
+			{
+				explicitAllow: [
+					...(policy?.allow ?? []),
+					...(policy?.alsoAllow ?? []),
+					...(input.explicitAllow ?? []),
+				],
+				readOnly: policy?.fs?.readOnly,
+			}
+		);
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Created default tools', {
 			count: tools.length,
 			profile: policy?.profile ?? 'full',

@@ -6,8 +6,10 @@ import { directoryListTool } from './list';
 import { fileEditTool } from './edit';
 import { fileReadTool } from './read';
 import { execTool } from '../shell/exec';
+import { processTool } from '../shell/process';
 import { searchFilesTool } from './search';
 import { fileWriteTool } from './write';
+import { workspaceTool } from '../workspace/tool';
 import { completeTaskTool } from '../state/todo/complete';
 import { listTodosTool } from '../state/todo/list';
 import { readScratchTool } from '../state/scratch/read';
@@ -45,11 +47,13 @@ export type FileToolOptions = {
 type LegacyFileTool = LegacyAgentTool<any, any>;
 
 const FILE_TOOLS: readonly LegacyFileTool[] = [
+	workspaceTool,
 	fileReadTool,
 	fileEditTool,
 	directoryListTool,
 	searchFilesTool,
 	execTool,
+	processTool,
 	fileWriteTool,
 	fileDeleteTool,
 	writeTodosTool,

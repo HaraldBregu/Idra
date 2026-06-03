@@ -12,6 +12,7 @@ import { createScriptTools } from '../../script/runtime';
 import { normalizeToolSchemas } from '../schema';
 import type { ToolPolicy, ToolPolicyStageName } from '../../shared/tool-types';
 import { applyToolPolicyPipeline } from '../../shared/pipeline';
+import { collapseWorkspaceToolSurface } from '../../workspace/surface';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
@@ -185,7 +186,14 @@ export async function createAgentTools(
 		diagnostics,
 		policy: options.services?.policy,
 	});
-	const tools = prepareRuntimeTools(policyResult.tools, options, diagnostics);
+	const tools = prepareRuntimeTools(
+		collapseWorkspaceToolSurface(policyResult.tools, {
+			explicitAllow: options.toolsAllow,
+			readOnly: Boolean(options.sandbox?.readOnly || options.config?.tools?.fs?.readOnly),
+		}),
+		options,
+		diagnostics
+	);
 
 	return {
 		tools,

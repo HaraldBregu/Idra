@@ -63,6 +63,7 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 ) as readonly AgentToolName[];
 
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
+	'workspace',
 	'file_edit',
 	'exec',
 	'mcp_connect_server',

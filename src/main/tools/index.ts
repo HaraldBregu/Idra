@@ -34,6 +34,8 @@ export { fileDeleteTool } from './filesystem/delete';
 export { fileEditTool } from './filesystem/edit';
 export { applyPatchTool } from './filesystem/apply-patch';
 export { createFileTools, createReadTool, type FileToolOptions } from './filesystem/runtime';
+export { workspaceTool } from './workspace/tool';
+export { collapseWorkspaceToolSurface } from './workspace/surface';
 export { execTool } from './shell/exec';
 export { processTool } from './shell/process';
 export { webFetchTool } from './web/fetch';

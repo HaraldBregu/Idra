@@ -39,14 +39,9 @@ the provider.
 
 | Tool                    | Group          | How it is used                                                                                                                                         |
 | ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `file_read`             | Core workspace | Reads a UTF-8 workspace file with optional line offset and limit. Records read state for later guarded writes.                                         |
-| `file_edit`             | Core workspace | Replaces exact text in a UTF-8 workspace file after the file has been read.                                                                            |
-| `directory_list`        | Core workspace | Lists files and folders in a workspace directory.                                                                                                      |
-| `search_files`          | Core workspace | Finds workspace paths by glob pattern.                                                                                                                 |
+| `workspace`             | Core workspace | Runs structured filesystem actions: read, list, search, write, edit, delete, apply_patch, copy, and move. Preserves guarded writes.                   |
 | `exec`                  | Core workspace | Runs a shell command in the workspace with capped output, a denied-pattern safety check, optional background mode, and approval gating.                |
 | `process`               | Core workspace | Lists, reads logs for, or kills background processes started by `exec background=true`.                                                                |
-| `file_write`            | Core workspace | Creates or overwrites a UTF-8 workspace file. Existing files must be read earlier in the run.                                                          |
-| `file_delete`           | Core workspace | Deletes a file directly, or deletes a directory when recursive deletion is requested.                                                                  |
 | `write_todos`           | State/task     | Replaces the current run todo list.                                                                                                                    |
 | `update_todo`           | State/task     | Updates one item in the current run todo list.                                                                                                         |
 | `list_todos`            | State/task     | Lists the current run todo items and statuses.                                                                                                         |
@@ -83,10 +78,10 @@ the provider.
 | `cron_stop`             | Cron           | Stops or pauses a scheduled job through `CronService`.                                                                                                 |
 | `cron_run`              | Cron           | Runs a scheduled job immediately through `CronService`.                                                                                                |
 
-Compatibility implementations for `cron`, `apply_patch`, `copy`, and `move`
-exist in source, but they are not part of the current local catalog. Use the
-split cron tools for scheduling. File writes and edits use `file_read`,
-`file_write`, `file_edit`, and `file_delete`.
+Compatibility implementations for the standalone filesystem tools still exist
+in source for explicit allowlists and tests. The normal model-facing filesystem
+surface is `workspace`. Compatibility implementations for `cron` exist in
+source, but the split cron tools should be used for scheduling.
 
 ## Dynamic Additions
 

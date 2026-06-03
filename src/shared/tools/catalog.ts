@@ -7,6 +7,16 @@ const LEGACY_TOOL_PROFILES = DEFAULT_TOOL_PROFILES;
 
 export const AGENT_TOOLS = [
 	{
+		name: 'workspace',
+		group: 'coreWorkspace',
+		title: 'Workspace',
+		description: 'Run structured workspace filesystem actions through one tool.',
+		permissions: ['read', 'create', 'write', 'delete'],
+		approval: AGENT_TOOL_APPROVAL_NONE,
+		profiles: DEFAULT_TOOL_PROFILES,
+		availability: 'default',
+	},
+	{
 		name: 'file_read',
 		group: 'coreWorkspace',
 		title: 'Read file',

@@ -452,10 +452,11 @@ export class AgentService {
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
 		const toolPolicy = context.toolPolicy;
-		return this.toolService.createDefaultTools({
-			toolPolicy,
-			denylist: context.toolsDeny,
-		});
+			return this.toolService.createDefaultTools({
+				toolPolicy,
+				explicitAllow: context.toolsAllow,
+				denylist: context.toolsDeny,
+			});
 	}
 
 	async send(

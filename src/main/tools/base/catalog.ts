@@ -23,6 +23,7 @@ import { directoryListTool } from '../filesystem/list';
 import { fileDeleteTool } from '../filesystem/delete';
 import { fileEditTool } from '../filesystem/edit';
 import { fileReadTool } from '../filesystem/read';
+import { workspaceTool } from '../workspace/tool';
 import { execTool } from '../shell/exec';
 import { processTool } from '../shell/process';
 import { scriptRunTool } from '../script/run';
@@ -96,6 +97,7 @@ function localTool(name: AgentToolName, tool: LocalToolImplementation): LocalToo
 }
 
 const LOCAL_TOOL_IMPLEMENTATIONS = {
+	workspace: workspaceTool,
 	file_read: fileReadTool,
 	file_edit: fileEditTool,
 	directory_list: directoryListTool,
