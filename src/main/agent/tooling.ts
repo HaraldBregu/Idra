@@ -68,7 +68,7 @@ export interface ToolPolicyServicePort {
 		loopStopAt?: number;
 		requiresApproval?: boolean;
 		approvalCached?: boolean;
-	}): unknown;
+	}): any;
 	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
 	evaluateToolHook(input: {
 		toolName: string;
@@ -77,15 +77,15 @@ export interface ToolPolicyServicePort {
 		reason?: string;
 		blockReason?: string;
 		deniedReason?: string;
-	}): unknown;
+	}): any;
 	evaluateToolApproval(input: {
 		toolName: string;
 		approvalAvailable: boolean;
 		approvalDecision?: 'allow-once' | 'allow-always' | 'deny' | boolean | null;
 		requiredReason?: string;
 		deniedReason?: string;
-	}): unknown;
-	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): unknown;
+	}): any;
+	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): any;
 	globMatchToolPolicyEntry(pattern: string, name: string): boolean;
 	expandToolPolicyEntries(
 		entries: readonly string[] | undefined,
@@ -220,7 +220,13 @@ export interface ToolsServicePort {
 		args: unknown,
 		ctx: ToolContext,
 		tracker: unknown
-	): Promise<{ proceed: boolean; warning?: string; vetoStatus?: AgentToolResultStatus; reason?: string }>;
+	): Promise<{
+		proceed: boolean;
+		warning?: string;
+		vetoStatus?: AgentToolResultStatus;
+		vetoResult?: AgentToolResult;
+		reason?: string;
+	}>;
 	executeToolWithManagement(
 		tool: AgentTool,
 		args: Record<string, unknown>,
