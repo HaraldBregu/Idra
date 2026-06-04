@@ -74,10 +74,10 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	list: () => Promise<ConnectorView[]>;
-	get: (id: string) => Promise<Connector>;
-	save: (input: ConnectorInput[]) => Promise<Connector[]>;
-	connect: (input: ConnectorConnectInput) => Promise<ConnectorView>;
+	list: () => Promise<ConnectorSummary[]>;
+	get: (id: string) => Promise<ConnectorConfig>;
+	save: (input: ConnectorInput[]) => Promise<ConnectorConfig[]>;
+	connect: (input: ConnectorConnectInput) => Promise<ConnectorSummary>;
 }
 
 export interface SkillsApi {
@@ -103,7 +103,7 @@ export interface StoreApi {
 	getCronSettings: () => Promise<CronSettings>;
 	getTaskSettings: () => Promise<TaskSettings>;
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
-	getConnectorSettings: () => Promise<Connector[]>;
+	getConnectorSettings: () => Promise<ConnectorConfig[]>;
 	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
