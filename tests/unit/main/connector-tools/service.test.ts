@@ -40,6 +40,7 @@ describe('ConnectorToolsService provider adapters', () => {
 			connectorId: 'connector_acme_mail',
 			serverLabel: 'acme_mail',
 			serverDescription: 'Acme mail connector.',
+			serverUrl: 'https://mcp.example.com/mail',
 			authorization: 'token-123',
 			allowedTools: ['search_emails'],
 			requireApproval: 'never_for_allowed_tools',
@@ -49,11 +50,10 @@ describe('ConnectorToolsService provider adapters', () => {
 			{
 				type: 'mcp',
 				server_label: 'acme_mail',
-				connector_id: 'connector_acme_mail',
+				server_url: 'https://mcp.example.com/mail',
 				authorization: 'token-123',
-				require_approval: { never: { tool_names: ['search_emails'] } },
+				require_approval: 'never',
 				allowed_tools: ['search_emails'],
-				server_description: 'Acme mail connector.',
 			},
 		]);
 		expect(connectors.getConnectorSettings()[0].authorization).toBe('');
@@ -80,12 +80,14 @@ describe('ConnectorToolsService provider adapters', () => {
 			name: 'Acme Drive',
 			connectorId: 'connector_acme_drive',
 			serverLabel: 'acme_drive',
+			serverUrl: 'https://mcp.example.com/drive',
 			authorization: 'acme-drive-token',
 			requireApproval: 'always',
 		}, {
 			name: 'Acme Calendar',
 			connectorId: 'connector_acme_calendar',
 			serverLabel: 'acme_calendar',
+			serverUrl: 'https://mcp.example.com/calendar',
 			authorization: 'calendar-token',
 			requireApproval: 'never',
 		}]);
@@ -134,6 +136,7 @@ describe('ConnectorToolsService provider adapters', () => {
 			name: 'Gmail',
 			connectorId: 'connector_gmail',
 			serverLabel: 'gmail',
+			serverUrl: 'https://mcp.example.com/gmail',
 			authorization: 'gmail-token',
 			requireApproval: 'always',
 			allowedTools: [],
@@ -162,7 +165,7 @@ describe('ConnectorToolsService provider adapters', () => {
 		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'create_draft')).toBe(false);
 	});
 
-	it('migrates the legacy Google Gmail MCP record to the OpenAI connector id', async () => {
+	it('omits legacy connector records that do not match the MCP store URL shape', async () => {
 		const connectors = new ConnectorsService(logger as never, { env: {} });
 		const connectorTools = new ConnectorToolsService(connectors, { env: {} });
 
@@ -175,21 +178,8 @@ describe('ConnectorToolsService provider adapters', () => {
 			allowedTools: ['search_threads'],
 		}]);
 
-		expect(connectors.list()[0]).toMatchObject({
-			connectorId: 'connector_gmail',
-			serverUrl: undefined,
-			status: 'configured',
-		});
-		expect(connectorTools.createOpenAIConnectorTools()).toEqual([
-			{
-				type: 'mcp',
-				server_label: 'gmail',
-				connector_id: 'connector_gmail',
-				authorization: 'gmail-token',
-				require_approval: 'always',
-				server_description: 'Read and search Gmail messages through the OpenAI Gmail connector.',
-			},
-		]);
+		expect(connectors.list()).toEqual([]);
+		expect(connectorTools.createOpenAIConnectorTools()).toEqual([]);
 	});
 
 	it('keeps Anthropic connector tools separate from OpenAI built-ins', async () => {
@@ -200,6 +190,7 @@ describe('ConnectorToolsService provider adapters', () => {
 			name: 'Acme Mail',
 			connectorId: 'connector_acme_mail',
 			serverLabel: 'acme_mail',
+			serverUrl: 'https://mcp.example.com/mail',
 			authorization: 'token-123',
 		}]);
 
