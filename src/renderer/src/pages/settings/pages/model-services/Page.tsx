@@ -399,6 +399,7 @@ const ModelServicePage: React.FC = () => {
 						<SettingsRow
 							title={t('settings.modelServices.history')}
 							description={t('settings.chatHistory.description')}
+							actionClassName="ml-auto w-auto justify-end"
 						>
 							<Button
 								type="button"
