@@ -32,15 +32,15 @@ describe('executeAgentRun MCP approval continuation', () => {
 							id: 'list_1',
 							type: 'mcp_list_tools',
 							server_label: 'gmail',
-							tools: [{ name: 'search_threads', description: 'Search Gmail threads.' }],
+							tools: [{ name: 'search_emails', description: 'Search Gmail messages.' }],
 						},
-						tools: [{ name: 'search_threads', description: 'Search Gmail threads.' }],
+						tools: [{ name: 'search_emails', description: 'Search Gmail messages.' }],
 					};
 					yield {
 						type: 'mcp_approval_request',
 						id: 'approval_1',
 						serverLabel: 'gmail',
-						name: 'search_threads',
+						name: 'search_emails',
 						arguments: '{"query":"from:openai"}',
 					};
 					return;
@@ -50,7 +50,7 @@ describe('executeAgentRun MCP approval continuation', () => {
 					type: 'mcp_call',
 					id: 'mcp_1',
 					serverLabel: 'gmail',
-					name: 'search_threads',
+					name: 'search_emails',
 					arguments: '{"query":"from:openai"}',
 					output: '{"threads":[{"id":"thread_1"}]}',
 					status: 'completed',
@@ -58,7 +58,7 @@ describe('executeAgentRun MCP approval continuation', () => {
 						id: 'mcp_1',
 						type: 'mcp_call',
 						server_label: 'gmail',
-						name: 'search_threads',
+						name: 'search_emails',
 						arguments: '{"query":"from:openai"}',
 						output: '{"threads":[{"id":"thread_1"}]}',
 						status: 'completed',
@@ -90,7 +90,7 @@ describe('executeAgentRun MCP approval continuation', () => {
 				{
 					type: 'mcp',
 					server_label: 'gmail',
-					server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					connector_id: 'connector_gmail',
 					authorization: 'gmail-token',
 					require_approval: 'always',
 				},
@@ -108,8 +108,8 @@ describe('executeAgentRun MCP approval continuation', () => {
 
 		expect(connectorTools.updateOpenAiConnectorTools).toHaveBeenCalledWith('gmail', [
 			{
-				name: 'search_threads',
-				description: 'Search Gmail threads.',
+				name: 'search_emails',
+				description: 'Search Gmail messages.',
 				inputSchema: undefined,
 				permission: 'always-allow',
 				requiresApproval: false,
@@ -117,7 +117,7 @@ describe('executeAgentRun MCP approval continuation', () => {
 		]);
 		expect(connectorTools.canApproveOpenAiConnectorTool).toHaveBeenCalledWith(
 			'gmail',
-			'search_threads'
+			'search_emails'
 		);
 		expect(requests[1]).toMatchObject({
 			previousResponseId: 'resp_1',
@@ -132,7 +132,7 @@ describe('executeAgentRun MCP approval continuation', () => {
 				{
 					type: 'mcp',
 					server_label: 'gmail',
-					server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					connector_id: 'connector_gmail',
 					authorization: 'gmail-token',
 					require_approval: 'always',
 				},

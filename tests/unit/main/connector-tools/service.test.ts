@@ -132,19 +132,18 @@ describe('ConnectorToolsService provider adapters', () => {
 
 		const [connector] = await connectors.save([{
 			name: 'Gmail',
-			connectorId: 'google.gmail',
+			connectorId: 'connector_gmail',
 			serverLabel: 'gmail',
-			serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
 			authorization: 'gmail-token',
 			requireApproval: 'always',
 			allowedTools: [],
 		}]);
 
-		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'search_threads')).toBe(false);
+		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'search_emails')).toBe(false);
 
 		connectorTools.updateOpenAiConnectorTools('gmail', [{
-			name: 'search_threads',
-			description: 'Search Gmail threads.',
+			name: 'search_emails',
+			description: 'Search Gmail messages.',
 			inputSchema: { type: 'object', properties: {} },
 			permission: 'always-allow',
 			requiresApproval: false,
@@ -152,15 +151,45 @@ describe('ConnectorToolsService provider adapters', () => {
 
 		expect(connectorTools.listTools(connector.id)).toEqual([
 			{
-				name: 'search_threads',
-				description: 'Search Gmail threads.',
+				name: 'search_emails',
+				description: 'Search Gmail messages.',
 				inputSchema: { type: 'object', properties: {} },
 				permission: 'always-allow',
 				requiresApproval: false,
 			},
 		]);
-		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'search_threads')).toBe(true);
+		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'search_emails')).toBe(true);
 		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'create_draft')).toBe(false);
+	});
+
+	it('migrates the legacy Google Gmail MCP record to the OpenAI connector id', async () => {
+		const connectors = new ConnectorsService(logger as never, { env: {} });
+		const connectorTools = new ConnectorToolsService(connectors, { env: {} });
+
+		await connectors.save([{
+			name: 'Gmail',
+			connectorId: 'google.gmail',
+			serverLabel: 'gmail',
+			serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
+			authorization: 'gmail-token',
+			allowedTools: ['search_threads'],
+		}]);
+
+		expect(connectors.list()[0]).toMatchObject({
+			connectorId: 'connector_gmail',
+			serverUrl: undefined,
+			status: 'configured',
+		});
+		expect(connectorTools.createOpenAIConnectorTools()).toEqual([
+			{
+				type: 'mcp',
+				server_label: 'gmail',
+				connector_id: 'connector_gmail',
+				authorization: 'gmail-token',
+				require_approval: 'always',
+				server_description: 'Read and search Gmail messages through the OpenAI Gmail connector.',
+			},
+		]);
 	});
 
 	it('keeps Anthropic connector tools separate from OpenAI built-ins', async () => {
