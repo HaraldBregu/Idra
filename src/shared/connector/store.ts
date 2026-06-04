@@ -118,7 +118,7 @@ function toStoredRequireApproval(
 ): ConnectorStoreEntry['require_approval'] {
 	if (mode === 'never') return 'never';
 	if (mode === 'never_for_allowed_tools' && allowedTools.length > 0) return 'never';
-	return 'always';
+	return undefined;
 }
 
 function toConnectorApprovalMode(value: ConnectorStoreEntry['require_approval']): ConnectorApprovalMode {
