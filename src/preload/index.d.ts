@@ -163,6 +163,7 @@ import type {
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
+import type { ConnectorRecord } from '../shared/connectors';
 import type {
 	SkillDeleteResult,
 	SkillDetails,
