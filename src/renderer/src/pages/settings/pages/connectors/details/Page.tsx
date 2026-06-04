@@ -123,9 +123,9 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const googleOAuth = connector.oauth?.service === 'google' || connector.oauth?.serviceId === 'google';
-	const authLabel = googleOAuth
-		? 'Google OAuth'
+	const oauthConnected = Boolean(connector.oauth);
+	const authLabel = oauthConnected
+		? 'OAuth'
 		: connector.mcp
 			? 'MCP environment'
 			: connector.serverUrl
@@ -154,7 +154,7 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.requireApproval)} />
 					<DetailRow label="Allowed tools" value={connector.allowedTools.length || 'All'} />
 					<DetailRow label="Auth" value={authLabel} />
-					{googleOAuth && <DetailRow label="OAuth client" value="Environment variables" />}
+					{oauthConnected && <DetailRow label="OAuth client" value="Environment variables" />}
 					<DetailRow
 						label="Connected account"
 						value={connector.oauth?.accountEmail ?? connector.oauth?.email ?? 'Not connected'}
