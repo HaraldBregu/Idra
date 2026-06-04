@@ -1,4 +1,4 @@
-import type { ConnectorRecord } from '../../shared/connectors';
+import type { ConnectorInput, ConnectorRecord } from '../../shared/connectors';
 import type { LoggerService } from '../observability';
 import { ConnectorRepository } from './repository';
 
@@ -19,7 +19,7 @@ export class ConnectorsService {
 		return this.repository.get(id);
 	}
 
-	save(input: unknown): ConnectorRecord {
+	save(input: ConnectorInput[]): ConnectorRecord {
 		if (!Array.isArray(input)) throw new Error('Connector settings must be an array.');
 		const next: ConnectorRecord = {};
 		for (const item of input) {
@@ -30,7 +30,7 @@ export class ConnectorsService {
 		return this.list();
 	}
 
-	upsert(input: unknown): ConnectorRecord {
+	upsert(input: ConnectorInput): ConnectorRecord {
 		const current = this.repository.list();
 		const connector = connectorFromInput(input);
 		if (!connector) throw new Error('Connector serverUrl is required.');
