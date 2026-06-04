@@ -79,10 +79,28 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it('returns no provider built-in tools', () => {
-		const service = new ToolService();
+	it('returns OpenAI MCP built-in tools from the MCP service', () => {
+		const service = new ToolService({
+			mcp: {
+				createOpenAITools: () => [
+					{
+						type: 'mcp',
+						server_label: 'stripe',
+						server_url: 'https://mcp.stripe.com',
+						authorization: '$STRIPE_OAUTH_ACCESS_TOKEN',
+					},
+				],
+			},
+		});
 
-		expect(service.createBuiltInToolsForProvider('openai')).toEqual([]);
+		expect(service.createBuiltInToolsForProvider('openai')).toEqual([
+			{
+				type: 'mcp',
+				server_label: 'stripe',
+				server_url: 'https://mcp.stripe.com',
+				authorization: '$STRIPE_OAUTH_ACCESS_TOKEN',
+			},
+		]);
 		expect(service.createBuiltInToolsForProvider('anthropic')).toEqual([]);
 	});
 });
