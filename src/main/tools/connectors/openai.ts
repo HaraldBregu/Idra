@@ -10,9 +10,14 @@ export const openAiConnectorToolsTool: AgentTool = {
 		properties: {},
 		additionalProperties: false,
 	},
-	execute(_args, ctx) {
+	async execute(_args, ctx) {
 		const connectorTools = ctx.services.connectorTools;
-		if (!connectorTools) return Promise.resolve(textResult('openai_connector_tools: connector tools service is not configured.', true));
-		return Promise.resolve(jsonText(connectorTools.createOpenAIConnectorTools()));
+		if (!connectorTools) {
+			return textResult(
+				'openai_connector_tools: connector tools service is not configured.',
+				true
+			);
+		}
+		return jsonText(connectorTools.createOpenAIConnectorTools());
 	},
 };
