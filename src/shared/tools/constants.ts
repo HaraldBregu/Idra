@@ -17,7 +17,6 @@ const AGENT_TOOL_GROUP_NAMES = [
 	'stateTask',
 	'subagent',
 	'skill',
-	'mcpConnector',
 	'web',
 	'script',
 	'cron',
@@ -64,9 +63,6 @@ export const AGENT_ALL_TOOL_NAMES = AGENT_TOOLS.map(
 export const AGENT_TOOL_READ_ONLY_DENY_NAMES = [
 	'edit',
 	'exec',
-	'mcp_connect_server',
-	'mcp_refresh_server',
-	'mcp_call_tool',
 	'cron_create',
 	'cron_update',
 	'cron_delete',
