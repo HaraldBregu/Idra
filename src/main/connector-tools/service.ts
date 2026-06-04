@@ -54,6 +54,25 @@ export class ConnectorToolsService {
 		return this.effectiveTools(this.connectors.getStored(id));
 	}
 
+	updateOpenAiConnectorTools(serverLabel: string, tools: ConnectorTool[]): void {
+		const connector = this.findOpenAiConnectorByServerLabel(serverLabel);
+		if (!connector) return;
+		this.connectors.replaceStored({
+			...connector,
+			tools: tools.map(normalizeTool),
+			lastError: undefined,
+			lastRefreshedAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		});
+	}
+
+	canApproveOpenAiConnectorTool(serverLabel: string, toolName: string): boolean {
+		const connector = this.findOpenAiConnectorByServerLabel(serverLabel);
+		if (!connector) return false;
+		const tool = this.effectiveTools(connector).find((item) => item.name === toolName);
+		return Boolean(tool && tool.permission === 'always-allow' && !tool.requiresApproval);
+	}
+
 	async callTool(id?: unknown, name?: unknown, args?: unknown, options?: unknown): Promise<unknown> {
 		const connectorId = requireString(id, 'Connector id');
 		const toolName = requireString(name, 'Connector tool name');
@@ -158,6 +177,13 @@ export class ConnectorToolsService {
 
 	private effectiveTools(connector: ConnectorConfig): ConnectorTool[] {
 		return applyToolPolicy(connector.tools, connector.allowedTools, connector.requireApproval);
+	}
+
+	private findOpenAiConnectorByServerLabel(serverLabel: string): ConnectorConfig | undefined {
+		const label = serverLabel.trim();
+		return this.connectors.listStored()
+			.filter(isOpenAiResponsesConnector)
+			.find((connector) => connector.serverLabel === label);
 	}
 
 	private mcpClient(connector: ConnectorConfig): ConnectorMcpClient {
