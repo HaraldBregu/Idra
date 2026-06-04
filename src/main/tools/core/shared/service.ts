@@ -5,10 +5,10 @@ import {
 	type ToolRequestPolicyDecision,
 	type ToolRequestPolicyInput,
 } from './tool-types';
-import type { LoggerService } from '../../observability';
-import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
-import { getToolMetadata, normalizeToolName } from '../core/common';
-import { createTools, localToolCatalogByName } from '../core/catalog';
+import type { LoggerService } from '../../../observability';
+import type { AgentTool, AgentToolResult, ToolContext } from '../tool';
+import { getToolMetadata, normalizeToolName } from '../common';
+import { createTools, localToolCatalogByName } from '../catalog';
 import {
 	executeAgentToolWithManagement,
 	selectAgentToolsForTurn,
@@ -22,13 +22,13 @@ import {
 	type BeforeCallOutcome,
 	type CallTracker,
 } from './guard';
-import { createStartupFilesTool } from '../startup/files';
+import { createStartupFilesTool } from '../../startup/files';
 import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
-} from '../core/runtime/adapt';
+} from '../runtime/adapt';
 import type { ToolProfile } from './tool-types';
-import type { AgentStartupFilesServicePort } from '../../agent/workspace/startup';
+import type { AgentStartupFilesServicePort } from '../../../agent/workspace/startup';
 
 const defaultToolPolicyService = new ToolPolicyService();
 const TOOL_SERVICE_LOG_SOURCE = 'ToolService';

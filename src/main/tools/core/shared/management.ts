@@ -1,4 +1,4 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
+import type { AgentTool, AgentToolResult, ToolContext } from '../tool';
 import { ToolPolicyService, type ToolPolicyServicePort } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();

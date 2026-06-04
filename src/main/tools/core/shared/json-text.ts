@@ -1,4 +1,4 @@
-import { textResult } from '../core/tool';
+import { textResult } from '../tool';
 
 export function jsonText(value: unknown) {
 	return textResult(JSON.stringify(value, null, 2));

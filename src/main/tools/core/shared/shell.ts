@@ -1,7 +1,7 @@
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
 import type { Readable } from 'node:stream';
-import type { AgentToolResult } from '../core/tool';
-import { TOOL_LIMITS } from '../core/limits';
+import type { AgentToolResult } from '../tool';
+import { TOOL_LIMITS } from '../limits';
 
 const DENY_PATTERNS: RegExp[] = [
 	/\brm\s+-rf\s+\/(?:\s|$)/,

@@ -1,4 +1,4 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
+import type { AgentTool, AgentToolResult, ToolContext } from '../tool';
 import { ToolPolicyService } from './tool-types';
 
 const LOOP_WARN_AT = 3;

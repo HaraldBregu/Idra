@@ -1,4 +1,4 @@
-import type { AgentToolResult } from '../core/common';
+import type { AgentToolResult } from '../common';
 
 export function blockedToolResult(input: {
 	reason: string;

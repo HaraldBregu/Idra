@@ -1,5 +1,5 @@
-import type { AgentTool, FilteredToolDiagnostic, ToolDiagnostics } from '../core/common';
-import { getToolMetadata, normalizeToolName } from '../core/common';
+import type { AgentTool, FilteredToolDiagnostic, ToolDiagnostics } from '../common';
+import { getToolMetadata, normalizeToolName } from '../common';
 import {
 	ToolPolicyService,
 	type ToolPolicyServicePort,
