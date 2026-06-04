@@ -403,7 +403,7 @@ const ModelServicePage: React.FC = () => {
 						>
 							<Button
 								type="button"
-								variant="outline"
+								variant="ghost"
 								size="icon-sm"
 								aria-label={t('settings.chatHistory.openFolder')}
 								title={t('settings.chatHistory.openFolder')}
@@ -413,7 +413,7 @@ const ModelServicePage: React.FC = () => {
 							</Button>
 							<Button
 								type="button"
-								variant="outline"
+								variant="ghost"
 								size="icon-sm"
 								disabled={deletingHistory}
 								aria-label={t('settings.chatHistory.delete')}
