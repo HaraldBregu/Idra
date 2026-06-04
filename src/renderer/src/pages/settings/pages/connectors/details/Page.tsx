@@ -151,7 +151,6 @@ const ConnectorDetailsPage: React.FC = () => {
 					{connector.serverUrl && <DetailRow label="Server URL" value={connector.serverUrl} mono />}
 					<DetailRow label="Enabled" value={connector.enabled ? 'Enabled' : 'Disabled'} />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.requireApproval)} />
-					<DetailRow label="Allowed tools" value={connector.allowedTools.length || 'All'} />
 					<DetailRow label="Auth" value={authLabel} />
 					{oauthConnected && <DetailRow label="OAuth client" value="Environment variables" />}
 					<DetailRow
