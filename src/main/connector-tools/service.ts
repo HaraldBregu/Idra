@@ -27,6 +27,8 @@ import {
 } from './adapters/openai';
 
 export class ConnectorToolsService {
+	private readonly runtimeTools = new Map<string, ConnectorTool[]>();
+
 	constructor(
 		private readonly connectors: ConnectorsService,
 		private readonly options: ConnectorToolsServiceOptions = {}
@@ -46,20 +48,23 @@ export class ConnectorToolsService {
 		const next = isOpenAiResponsesConnector(connector)
 			? { ...withOpenAiResponsesConnectorTools(connector), lastRefreshedAt: new Date().toISOString() }
 			: await this.withDiscoveredTools(connector);
+		this.rememberTools(next, next.tools);
 		this.connectors.replaceStored(next);
 		return this.effectiveTools(next);
 	}
 
 	listTools(id: string): ConnectorTool[] {
-		return this.effectiveTools(this.connectors.getStored(id));
+		const connector = this.connectors.getStored(id);
+		return this.effectiveTools(this.withRuntimeTools(connector));
 	}
 
 	updateOpenAiConnectorTools(serverLabel: string, tools: ConnectorTool[]): void {
 		const connector = this.findOpenAiConnectorByServerLabel(serverLabel);
 		if (!connector) return;
+		const normalized = tools.map(normalizeTool);
+		this.rememberTools(connector, normalized);
 		this.connectors.replaceStored({
 			...connector,
-			tools: tools.map(normalizeTool),
 			lastError: undefined,
 			lastRefreshedAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
@@ -69,7 +74,7 @@ export class ConnectorToolsService {
 	canApproveOpenAiConnectorTool(serverLabel: string, toolName: string): boolean {
 		const connector = this.findOpenAiConnectorByServerLabel(serverLabel);
 		if (!connector) return false;
-		const tool = this.effectiveTools(connector).find((item) => item.name === toolName);
+		const tool = this.effectiveTools(this.withRuntimeTools(connector)).find((item) => item.name === toolName);
 		return Boolean(tool && tool.permission === 'always-allow' && !tool.requiresApproval);
 	}
 
@@ -177,6 +182,18 @@ export class ConnectorToolsService {
 
 	private effectiveTools(connector: ConnectorConfig): ConnectorTool[] {
 		return applyToolPolicy(connector.tools, connector.allowedTools, connector.requireApproval);
+	}
+
+	private rememberTools(connector: ConnectorConfig, tools: ConnectorTool[]): void {
+		this.runtimeTools.set(connector.id, tools);
+		this.runtimeTools.set(connector.serverLabel, tools);
+	}
+
+	private withRuntimeTools(connector: ConnectorConfig): ConnectorConfig {
+		return {
+			...connector,
+			tools: this.runtimeTools.get(connector.id) ?? this.runtimeTools.get(connector.serverLabel) ?? connector.tools,
+		};
 	}
 
 	private findOpenAiConnectorByServerLabel(serverLabel: string): ConnectorConfig | undefined {
