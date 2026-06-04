@@ -1,1 +1,1 @@
-export { createMcpRemoteTools } from './service';
+export { McpService } from './service';
