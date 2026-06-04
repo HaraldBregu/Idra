@@ -438,19 +438,10 @@ interface SkillsInvokeChannelMap {
 }
 
 interface ConnectorsInvokeChannelMap {
-	[ConnectorsChannels.list]: { args: []; result: import('../connectors').ConnectorView[] };
-	[ConnectorsChannels.get]: {
-		args: [id: string];
-		result: import('../connectors').Connector;
-	};
-	[ConnectorsChannels.save]: {
-		args: [input: import('../connectors').ConnectorInput[]];
-		result: import('../connectors').Connector[];
-	};
-	[ConnectorsChannels.connect]: {
-		args: [input: import('../connectors').ConnectorConnectInput];
-		result: import('../connectors').ConnectorView;
-	};
+	[ConnectorsChannels.list]: { args: []; result: unknown[] };
+	[ConnectorsChannels.get]: { args: [id: string]; result: unknown };
+	[ConnectorsChannels.save]: { args: [input: unknown]; result: unknown[] };
+	[ConnectorsChannels.connect]: { args: [input: unknown]; result: unknown };
 }
 
 interface ChannelsInvokeChannelMap {
@@ -558,7 +549,7 @@ interface StoreInvokeChannelMap {
 	};
 	[StoreChannels.getConnectorSettings]: {
 		args: [];
-		result: import('../connectors').Connector[];
+		result: unknown[];
 	};
 	[StoreChannels.getAgentService]: {
 		args: [];
