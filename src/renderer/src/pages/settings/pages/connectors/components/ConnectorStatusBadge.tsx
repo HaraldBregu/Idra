@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 
-type ConnectorStatus = Awaited<ReturnType<typeof window.connectors.list>>[number]['status'];
+export type ConnectorStatus = 'configured' | 'disabled' | 'error';
 
 export function ConnectorStatusBadge({
 	status,
@@ -12,11 +12,9 @@ export function ConnectorStatusBadge({
 	const label =
 		status === 'configured'
 			? 'Connected'
-			: status === 'missing_auth'
-				? 'Needs OAuth'
-				: status === 'disabled'
-					? 'Disabled'
-					: 'Error';
+			: status === 'disabled'
+				? 'Disabled'
+				: 'Error';
 
 	return (
 		<Badge variant={variant} className="h-4 px-1.5 text-[10px]">
