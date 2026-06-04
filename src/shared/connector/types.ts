@@ -193,7 +193,22 @@ export interface ConnectorConfig {
 	lastError?: string;
 }
 
-export type ConnectorStore = Record<string, ConnectorConfig>;
+export interface ConnectorStoreEntry {
+	type: 'mcp';
+	server_label: string;
+	server_url?: string;
+	connector_id?: ConnectorServiceId;
+	authorization?: string;
+	require_approval?: OpenAiConnectorRequireApproval;
+	allowed_tools?: string[];
+	defer_loading?: boolean;
+	server_description?: string;
+	tools?: ConnectorTool[];
+	last_refreshed_at?: string;
+	last_error?: string;
+}
+
+export type ConnectorStore = Record<string, ConnectorStoreEntry>;
 
 export type Connector = ConnectorConfig;
 
