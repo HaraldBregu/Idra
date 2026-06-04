@@ -34,7 +34,7 @@ export async function compact(
 	provider: ProviderAdapter,
 	model: string,
 	effort?: ModelReasoningEffort,
-	options: AgentCompactionOptions = {}
+	_options: AgentCompactionOptions = {}
 ): Promise<NativeCompactionResult> {
 	if (compactionMutex.has(sessionId)) {
 		await compactionMutex.get(sessionId);

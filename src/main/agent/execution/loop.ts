@@ -327,7 +327,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 			const reasoningBlocks: AgentContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsStr: string; tool?: AgentTool }>();
 			let turnStop = 'end_turn';
-			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 			let reasoningStarted = false;
 			let approvalBlocked = false;
 			const reasoningSummaryId = `${runId}:${iter}:reasoning`;
@@ -552,7 +551,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 							}
 							case 'message_end':
 								turnStop = event.stopReason;
-								iterUsage = event.usage;
 								totalUsage.inputTokens += event.usage.inputTokens;
 								totalUsage.outputTokens += event.usage.outputTokens;
 								break;
