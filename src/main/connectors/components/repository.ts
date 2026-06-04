@@ -21,7 +21,7 @@ export class ConnectorRepository {
 	private readonly store: ConnectorsStore;
 
 	constructor(private readonly logger: LoggerService) {
-		this.store = new Store<ConnectorsStoreSchema>({
+		this.store = new Store<ConnectorStore>({
 			name: 'connectors',
 			cwd: path.join(resolveAppDataPath(), DEFAULT_CONNECTOR_STORE_DIR),
 			accessPropertiesByDotNotation: false,
