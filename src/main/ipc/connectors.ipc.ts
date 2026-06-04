@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron';
+import { shell } from 'electron';
 import type { IpcModule } from './module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
@@ -23,6 +24,13 @@ export class ConnectorsIpc implements IpcModule {
 		ipcMain.handle(
 			ConnectorsChannels.save,
 			wrapSimpleHandler((input) => connectors.save(input), ConnectorsChannels.save)
+		);
+		ipcMain.handle(
+			ConnectorsChannels.connect,
+			wrapSimpleHandler(
+				(input) => connectors.connect(input, (url) => shell.openExternal(url)),
+				ConnectorsChannels.connect
+			)
 		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);
