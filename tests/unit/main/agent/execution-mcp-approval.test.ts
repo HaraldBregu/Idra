@@ -1,0 +1,106 @@
+import { executeAgentRun } from '../../../../src/main/agent/execution';
+import type { ProviderAdapter, ProviderStreamRequest } from '../../../../src/main/llm/types';
+import type { SessionFile } from '../../../../src/main/agent/session';
+
+function session(): SessionFile {
+	const now = new Date().toISOString();
+	return {
+		id: 'session-1',
+		createdAt: now,
+		updatedAt: now,
+		model: 'gpt-5.4',
+		provider: 'openai',
+		transcript: [],
+		plan: [],
+		compactionMarkers: [],
+	};
+}
+
+describe('executeAgentRun MCP approval continuation', () => {
+	it('records runtime connector tools and continues approved OpenAI MCP calls', async () => {
+		const requests: ProviderStreamRequest[] = [];
+		const provider: ProviderAdapter = {
+			async *stream(request) {
+				requests.push(request);
+				if (requests.length === 1) {
+					yield { type: 'message_start' };
+					yield { type: 'response_created', id: 'resp_1' };
+					yield {
+						type: 'mcp_list_tools',
+						serverLabel: 'gmail',
+						tools: [{ name: 'search_threads', description: 'Search Gmail threads.' }],
+					};
+					yield {
+						type: 'mcp_approval_request',
+						id: 'approval_1',
+						serverLabel: 'gmail',
+						name: 'search_threads',
+						arguments: '{"query":"from:openai"}',
+					};
+					return;
+				}
+				yield { type: 'message_start' };
+				yield { type: 'text_delta', text: 'Found matching threads.' };
+				yield {
+					type: 'message_end',
+					stopReason: 'end_turn',
+					usage: { inputTokens: 7, outputTokens: 3 },
+				};
+			},
+		};
+		const connectorTools = {
+			updateOpenAiConnectorTools: jest.fn(),
+			canApproveOpenAiConnectorTool: jest.fn(() => true),
+		};
+
+		const result = await executeAgentRun({
+			runId: 'run-1',
+			userMessage: 'Search Gmail',
+			systemPrompt: '',
+			session: session(),
+			provider,
+			providerId: 'openai',
+			model: 'gpt-5.4',
+			tools: [],
+			builtInTools: [{
+				type: 'mcp',
+				server_label: 'gmail',
+				server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
+				authorization: 'gmail-token',
+				require_approval: 'always',
+			}],
+			ctx: {
+				workspace: process.cwd(),
+				sessionId: 'session-1',
+				readState: new Map(),
+				plan: { entries: [] },
+				services: { connectorTools },
+			} as never,
+			maxTokens: 100,
+			maxIterations: 3,
+		});
+
+		expect(connectorTools.updateOpenAiConnectorTools).toHaveBeenCalledWith('gmail', [
+			{
+				name: 'search_threads',
+				description: 'Search Gmail threads.',
+				inputSchema: undefined,
+				permission: 'always-allow',
+				requiresApproval: false,
+			},
+		]);
+		expect(connectorTools.canApproveOpenAiConnectorTool).toHaveBeenCalledWith(
+			'gmail',
+			'search_threads'
+		);
+		expect(requests[1]).toMatchObject({
+			previousResponseId: 'resp_1',
+			inputItems: [{
+				type: 'mcp_approval_response',
+				approve: true,
+				approval_request_id: 'approval_1',
+			}],
+		});
+		expect(result.finalText).toBe('Found matching threads.');
+	});
+});

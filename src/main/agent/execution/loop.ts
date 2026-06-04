@@ -548,7 +548,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 									};
 									break providerEvents;
 								}
-								const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but approval continuation is not implemented yet.`;
+							const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but connector policy did not allow automatic approval.`;
 								firstTokenLatencyMs ??= Date.now() - runStart;
 							if (!didStartAnswering) {
 								didStartAnswering = true;

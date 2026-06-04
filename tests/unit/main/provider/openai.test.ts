@@ -69,6 +69,10 @@ describe('OpenAIAdapter Responses request construction', () => {
 		const create = jest.fn(() =>
 			(async function* (): AsyncIterable<unknown> {
 				yield {
+					type: 'response.created',
+					response: { id: 'resp_1' },
+				};
+				yield {
 					type: 'response.output_item.done',
 					output_index: 0,
 					item: {
@@ -98,11 +102,101 @@ describe('OpenAIAdapter Responses request construction', () => {
 		}
 
 		expect(events).toContainEqual({
+			type: 'response_created',
+			id: 'resp_1',
+		});
+		expect(events).toContainEqual({
 			type: 'mcp_approval_request',
 			id: 'approval_1',
 			serverLabel: 'acme_mail',
 			name: 'send_email',
 			arguments: '{"to":"a@example.com"}',
 		});
+	});
+
+	it('surfaces runtime MCP tool lists from OpenAI connector responses', async () => {
+		const create = jest.fn(() =>
+			(async function* (): AsyncIterable<unknown> {
+				yield {
+					type: 'response.output_item.done',
+					output_index: 0,
+					item: {
+						id: 'list_1',
+						type: 'mcp_list_tools',
+						server_label: 'gmail',
+						tools: [
+							{
+								name: 'search_threads',
+								description: 'Search Gmail threads.',
+								input_schema: { type: 'object', properties: {} },
+							},
+						],
+					},
+				};
+			})()
+		);
+		const adapter = new OpenAIAdapter({
+			apiKey: 'openai-key',
+			clientFactory: () => ({ responses: { create } }) as never,
+		});
+
+		const events = [];
+		for await (const event of adapter.stream({
+			model: 'gpt-5.4',
+			system: '',
+			messages: [{ role: 'user', content: 'search gmail' }],
+			tools: [],
+			maxTokens: 100,
+		})) {
+			events.push(event);
+		}
+
+		expect(events).toContainEqual({
+			type: 'mcp_list_tools',
+			serverLabel: 'gmail',
+			tools: [
+				{
+					name: 'search_threads',
+					description: 'Search Gmail threads.',
+					inputSchema: { type: 'object', properties: {} },
+				},
+			],
+		});
+	});
+
+	it('can create an OpenAI MCP approval continuation request', async () => {
+		const create = jest.fn(() => completedStream());
+		const adapter = new OpenAIAdapter({
+			apiKey: 'openai-key',
+			clientFactory: () => ({ responses: { create } }) as never,
+		});
+
+		for await (const _event of adapter.stream({
+			model: 'gpt-5.4',
+			system: '',
+			messages: [],
+			inputItems: [{
+				type: 'mcp_approval_response',
+				approve: true,
+				approval_request_id: 'approval_1',
+			}],
+			previousResponseId: 'resp_1',
+			tools: [],
+			maxTokens: 100,
+		})) {
+			// consume stream
+		}
+
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				previous_response_id: 'resp_1',
+				input: [{
+					type: 'mcp_approval_response',
+					approve: true,
+					approval_request_id: 'approval_1',
+				}],
+			}),
+			{ signal: undefined }
+		);
 	});
 });
