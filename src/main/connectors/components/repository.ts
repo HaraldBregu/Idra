@@ -51,7 +51,7 @@ export class ConnectorRepository {
 	}
 
 	write(connectors: ConnectorConfig[]): void {
-		this.store.set(CONNECTOR_STORE_KEY, connectorsToStore(connectors));
+		this.store.store = connectorsToStore(connectors);
 	}
 
 	replace(connector: ConnectorConfig): void {
