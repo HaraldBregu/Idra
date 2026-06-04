@@ -99,7 +99,7 @@ export interface ToolPolicyServicePort {
 		warnings?: string[],
 		stage?: string
 	): Set<string> | undefined;
-	getToolPolicyStageOrder(): readonly string[];
+	getToolPolicyStageOrder(): any;
 	getCoreToolGroups(): Record<string, readonly string[]>;
 }
 
