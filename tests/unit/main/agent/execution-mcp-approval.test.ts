@@ -84,12 +84,12 @@ describe('executeAgentRun MCP approval requests', () => {
 				{ type: 'provider_item', provider: 'openai' },
 				{
 					type: 'text',
-					text: 'OpenAI connector "gmail" requested approval to run "search_emails", but connector policy did not allow automatic approval.',
+					text: 'OpenAI connector "gmail" requested approval to run "search_emails", but this loop does not handle connector approval prompts.',
 				},
 			],
 		});
 		expect(result.finalText).toBe(
-			'OpenAI connector "gmail" requested approval to run "search_emails", but connector policy did not allow automatic approval.'
+			'OpenAI connector "gmail" requested approval to run "search_emails", but this loop does not handle connector approval prompts.'
 		);
 	});
 });
