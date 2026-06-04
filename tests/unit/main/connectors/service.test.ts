@@ -40,20 +40,17 @@ describe('ConnectorsService storage', () => {
 			serverDescription: 'Acme mail connector.',
 			serverUrl: 'https://mcp.example.com/mail',
 			authorization: 'token-123',
-			allowedTools: ['search_emails'],
-			requireApproval: 'never_for_allowed_tools',
+			requireApproval: 'never',
 		}]);
 
 		expect(saved.authorization).toBe('');
-		expect(saved.tools).toEqual([]);
 		expect((mockStoreData as ConnectorRecord).acme_mail).toEqual({
 			type: 'mcp',
 			server_label: 'acme_mail',
 			server_url: 'https://mcp.example.com/mail',
 			server_description: 'Acme mail connector.',
 			authorization: 'token-123',
-			require_approval: { never: { tool_names: ['search_emails'] } },
-			allowed_tools: ['search_emails'],
+			require_approval: 'never',
 		});
 		expect(service.get(saved.id).authorization).toBe('');
 		expect(service.getConnectorSettings()[0].authorization).toBe('');
@@ -139,7 +136,7 @@ describe('ConnectorsService storage', () => {
 				server_label: 'my-server',
 				server_url: 'https://example.com/mcp',
 				authorization: 'Bearer token-123',
-				require_approval: 'never',
+				require_approval: { never: { tool_names: ['search', 'fetch'] } },
 				allowed_tools: ['search', 'fetch'],
 			},
 			google_calendar: {
@@ -156,8 +153,7 @@ describe('ConnectorsService storage', () => {
 				serverLabel: 'my-server',
 				serverUrl: 'https://example.com/mcp',
 				status: 'configured',
-				requireApproval: 'never',
-				allowedToolsCount: 2,
+				requireApproval: 'always',
 			}),
 			expect.objectContaining({
 				id: 'google_calendar',
