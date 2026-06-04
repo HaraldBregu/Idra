@@ -126,11 +126,9 @@ const ConnectorDetailsPage: React.FC = () => {
 	const oauthConnected = Boolean(connector.oauth);
 	const authLabel = oauthConnected
 		? 'OAuth'
-		: connector.mcp
-			? 'MCP environment'
-			: connector.serverUrl
-				? 'Remote MCP'
-				: 'Access token';
+		: connector.serverUrl
+			? 'Remote MCP'
+			: 'Access token';
 
 	return (
 		<SettingsPageShell>
