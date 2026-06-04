@@ -9,7 +9,7 @@ export type { AgentConfig, AgentRouteBinding, AgentRoutePeer, AgentRouteSessionS
 
 export interface AgentSessionKeyInput {
 	agentId: string;
-	kind: 'main' | 'channel' | 'subagent' | 'task';
+	kind: 'main' | 'channel' | 'task';
 	channelId?: string;
 	accountId?: string;
 	peerId?: string;

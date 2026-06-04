@@ -545,7 +545,7 @@ export class AgentService {
 				workspace: workspaceRoot,
 				agentId,
 				cronContext: options.cronContext ?? {
-					role: agentId === this.defaultAgentId ? 'owner' : 'subagent',
+					role: 'owner',
 					agentId,
 				},
 				sessionId: runtime.session.id,

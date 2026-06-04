@@ -34,10 +34,6 @@ function normalizeStringList(value: unknown): string[] | undefined {
 	return list.length > 0 ? list : undefined;
 }
 
-function normalizePositiveInteger(value: unknown): number | undefined {
-	return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 ? value : undefined;
-}
-
 function readRecord(value: unknown): Record<string, unknown> | undefined {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
 	return value as Record<string, unknown>;
@@ -64,8 +60,6 @@ export function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 	if (!id) return undefined;
 	const model = readRecord(record.model);
 	const tools = readRecord(record.tools);
-	const subagents = readRecord(record.subagents);
-	const childModel = readRecord(subagents?.model);
 	const config: AgentConfig = { id };
 	if (record.default === true) config.default = true;
 	const name = normalizeId(record.name);
@@ -101,35 +95,6 @@ export function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 			...(deny ? { deny } : {}),
 			...(readRecord(tools.fs) ? { fs: tools.fs as NonNullable<AgentConfig['tools']>['fs'] } : {}),
 			...(readRecord(tools.exec) ? { exec: tools.exec as Record<string, unknown> } : {}),
-		};
-	}
-	if (subagents) {
-		const allowAgents = normalizeStringList(subagents.allowAgents);
-		const childProviderId = normalizeLowerId(childModel?.providerId);
-		const childModelId = normalizeId(childModel?.modelId);
-		config.subagents = {
-			...(allowAgents ? { allowAgents } : {}),
-			...(normalizePositiveInteger(subagents.maxSpawnDepth)
-				? { maxSpawnDepth: normalizePositiveInteger(subagents.maxSpawnDepth) }
-				: {}),
-			...(normalizePositiveInteger(subagents.maxChildrenPerAgent)
-				? { maxChildrenPerAgent: normalizePositiveInteger(subagents.maxChildrenPerAgent) }
-				: {}),
-			...(subagents.requireAgentId === true ? { requireAgentId: true } : {}),
-			...(childProviderId || childModelId || typeof childModel?.effort === 'string'
-				? {
-						model: {
-							...(childProviderId ? { providerId: childProviderId } : {}),
-							...(childModelId ? { modelId: childModelId } : {}),
-							...(typeof childModel?.effort === 'string'
-								? { effort: childModel.effort as NonNullable<AgentConfig['model']>['effort'] }
-								: {}),
-						},
-					}
-				: {}),
-			...(normalizePositiveInteger(subagents.runTimeoutSeconds)
-				? { runTimeoutSeconds: normalizePositiveInteger(subagents.runTimeoutSeconds) }
-				: {}),
 		};
 	}
 	return config;

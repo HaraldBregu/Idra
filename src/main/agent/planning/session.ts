@@ -14,7 +14,6 @@ function requirePart(value: string | undefined, name: string): string {
 export function buildAgentSessionKey(input: AgentSessionKeyInput): string {
 	const agentId = requirePart(input.agentId, 'agentId');
 	if (input.kind === 'main') return `agent:${agentId}:main`;
-	if (input.kind === 'subagent') return `agent:${agentId}:subagent:${requirePart(input.id, 'id')}`;
 	if (input.kind === 'task') return `agent:${agentId}:task:${requirePart(input.id, 'id')}`;
 
 	const scope: AgentRouteSessionScope = input.scope ?? 'per-account-channel-peer';
