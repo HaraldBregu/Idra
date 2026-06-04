@@ -441,11 +441,11 @@ interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorView[] };
 	[ConnectorsChannels.get]: {
 		args: [id: string];
-		result: import('../connector').ConnectorConfig;
+		result: import('../connector').ConnectorRecord;
 	};
 	[ConnectorsChannels.save]: {
 		args: [input: import('../connector').ConnectorInput[]];
-		result: import('../connector').ConnectorConfig[];
+		result: import('../connector').ConnectorRecord[];
 	};
 	[ConnectorsChannels.connect]: {
 		args: [input: import('../connector').ConnectorConnectInput];
@@ -558,7 +558,7 @@ interface StoreInvokeChannelMap {
 	};
 	[StoreChannels.getConnectorSettings]: {
 		args: [];
-		result: import('../connector').ConnectorConfig[];
+		result: import('../connector').ConnectorRecord[];
 	};
 	[StoreChannels.getAgentService]: {
 		args: [];
