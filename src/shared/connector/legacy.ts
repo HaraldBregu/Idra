@@ -1,4 +1,4 @@
-import type { ConnectorConfig } from './types';
+import type { ConnectorRecord } from './types';
 
 const LEGACY_OPENAI_CONNECTOR_MIGRATIONS = [{
 	connectorId: 'google.gmail',
@@ -7,7 +7,7 @@ const LEGACY_OPENAI_CONNECTOR_MIGRATIONS = [{
 	nextServerDescription: 'Read and search Gmail messages through the OpenAI Gmail connector.',
 }];
 
-export function migrateLegacyOpenAiConnector(connector: ConnectorConfig): ConnectorConfig {
+export function migrateLegacyOpenAiConnector(connector: ConnectorRecord): ConnectorRecord {
 	const migration = LEGACY_OPENAI_CONNECTOR_MIGRATIONS.find((entry) => {
 		return connector.connectorId === entry.connectorId || connector.serverUrl === entry.serverUrl;
 	});
