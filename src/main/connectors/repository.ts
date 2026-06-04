@@ -32,7 +32,7 @@ export class ConnectorRepository {
 			}
 			return connectors;
 		} catch (error) {
-			this.logger.error('ConnectorsService', 'Failed to read connector settings', {
+			this.logger.error('ConnectorRepository', 'Failed to read connector settings', {
 				error: errorMessage(error),
 			});
 			throw error;
@@ -55,7 +55,7 @@ export class ConnectorRepository {
 	}
 
 	private warn(message: string, details?: Record<string, unknown>): void {
-		this.logger.warn('ConnectorsService', message, details);
+		this.logger.warn('ConnectorRepository', message, details);
 	}
 }
 
