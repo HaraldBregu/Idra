@@ -1,4 +1,4 @@
-import type { ConnectorApprovalMode, ConnectorInput } from '../../shared/connector';
+import type { ConnectorApprovalMode, ConnectorInput } from '../../shared/connectors';
 import { uniqueStrings } from './runtime';
 
 export function sanitizeInput(input: unknown): ConnectorInput {

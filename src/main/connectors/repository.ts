@@ -17,14 +17,14 @@ export class ConnectorRepository {
 	private readonly store: ConnectorsStore;
 
 	constructor(private readonly logger: LoggerService) {
-		this.store = new Store<ConnectorConfig>({
+		this.store = new Store<ConnectorRecord>({
 			name: 'connectors',
 			cwd: path.join(resolveAppDataPath(), DEFAULT_CONNECTOR_STORE_DIR),
 			accessPropertiesByDotNotation: false,
 		}) as unknown as ConnectorsStore;
 	}
 
-	list(): ConnectorRecord[] {
+	list(): Connector[] {
 		try {
 			const raw = this.store.store;
 			const connectors = connectorsFromStore(raw);
@@ -40,17 +40,17 @@ export class ConnectorRepository {
 		}
 	}
 
-	get(id: string): ConnectorRecord {
+	get(id: string): Connector {
 		const connector = this.list().find((item) => item.id === id);
 		if (!connector) throw new Error(`Connector not found: ${id}`);
 		return connector;
 	}
 
-	write(connectors: ConnectorRecord[]): void {
+	write(connectors: Connector[]): void {
 		this.store.store = connectorsToStore(connectors);
 	}
 
-	replace(connector: ConnectorRecord): void {
+	replace(connector: Connector): void {
 		this.write(this.list().map((item) => (item.id === connector.id ? connector : item)));
 	}
 

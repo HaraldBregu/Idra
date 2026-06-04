@@ -103,7 +103,7 @@ export interface StoreApi {
 	getCronSettings: () => Promise<CronSettings>;
 	getTaskSettings: () => Promise<TaskSettings>;
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
-	getConnectorSettings: () => Promise<ConnectorRecord[]>;
+	getConnectorSettings: () => Promise<Connector[]>;
 	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;

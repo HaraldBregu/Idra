@@ -523,7 +523,7 @@ export const store: StoreApi = {
 	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
 	},
-	getConnectorSettings: (): Promise<ConnectorRecord[]> => {
+	getConnectorSettings: (): Promise<Connector[]> => {
 		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
 	},
 	getAgentService: (): Promise<ModelSelection | undefined> => {
