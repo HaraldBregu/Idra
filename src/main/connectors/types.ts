@@ -1,6 +1,6 @@
 export type ConnectorServiceId = string;
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
-export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
+export type ConnectorApprovalMode = 'always' | 'never';
 export type ConnectorAuthKind =
 	| 'manual_oauth_access_token'
 	| 'oauth'
@@ -43,15 +43,7 @@ export type ConnectorConfig = {
 		connectedAt?: string;
 	};
 	requireApproval: ConnectorApprovalMode;
-	allowedTools: string[];
 	deferLoading: boolean;
-	tools: Array<{
-		name: string;
-		description?: string;
-		inputSchema?: Record<string, unknown>;
-		permission: 'always-allow' | 'needs-approval' | 'blocked';
-		requiresApproval: boolean;
-	}>;
 	lastRefreshedAt?: string;
 	createdAt: string;
 	updatedAt: string;
@@ -68,8 +60,6 @@ export type ConnectorSummary = {
 	enabled: boolean;
 	status: ConnectorStatus;
 	requireApproval: ConnectorApprovalMode;
-	allowedToolsCount: number;
-	toolsCount: number;
 	deferLoading: boolean;
 	lastRefreshedAt?: string;
 	lastError?: string;
@@ -84,7 +74,6 @@ export type ConnectorInput = {
 	serverUrl?: string;
 	authorization?: string;
 	requireApproval?: ConnectorApprovalMode;
-	allowedTools?: string[];
 	deferLoading?: boolean;
 	enabled?: boolean;
 };
