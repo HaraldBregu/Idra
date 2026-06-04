@@ -91,7 +91,7 @@ import {
 } from '../shared/speech-to-text';
 
 type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
-type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
+type ConnectorApprovalMode = 'always' | 'never';
 type ConnectorAuthKind =
 	| 'manual_oauth_access_token'
 	| 'oauth'
@@ -134,15 +134,7 @@ type ConnectorConfig = {
 		connectedAt?: string;
 	};
 	requireApproval: ConnectorApprovalMode;
-	allowedTools: string[];
 	deferLoading: boolean;
-	tools: Array<{
-		name: string;
-		description?: string;
-		inputSchema?: Record<string, unknown>;
-		permission: 'always-allow' | 'needs-approval' | 'blocked';
-		requiresApproval: boolean;
-	}>;
 	lastRefreshedAt?: string;
 	createdAt: string;
 	updatedAt: string;
@@ -159,8 +151,6 @@ type ConnectorSummary = {
 	enabled: boolean;
 	status: ConnectorStatus;
 	requireApproval: ConnectorApprovalMode;
-	allowedToolsCount: number;
-	toolsCount: number;
 	deferLoading: boolean;
 	lastRefreshedAt?: string;
 	lastError?: string;
@@ -175,7 +165,6 @@ type ConnectorInput = {
 	serverUrl?: string;
 	authorization?: string;
 	requireApproval?: ConnectorApprovalMode;
-	allowedTools?: string[];
 	deferLoading?: boolean;
 	enabled?: boolean;
 };
