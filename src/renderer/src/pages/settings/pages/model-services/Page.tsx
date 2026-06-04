@@ -228,6 +228,19 @@ const ModelServicePage: React.FC = () => {
 		}
 	};
 
+	const deleteHistory = async (): Promise<void> => {
+		if (!window.confirm(t('settings.chatHistory.confirmDelete'))) return;
+		setHistoryError(null);
+		setDeletingHistory(true);
+		try {
+			await window.agent.reset();
+		} catch (error) {
+			setHistoryError(firstErrorMessage(error, t('settings.chatHistory.errors.delete')));
+		} finally {
+			setDeletingHistory(false);
+		}
+	};
+
 	if (!service || !navigationItem) {
 		return (
 			<SettingsPageShell>
