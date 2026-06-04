@@ -1,20 +1,6 @@
 import type { McpConnectors } from './types';
 
 export function mcpConnectors(ctx: { services: unknown }): McpConnectors | undefined {
-	const connectors = (ctx.services as { connectorTools?: Partial<McpConnectors> }).connectorTools;
-	if (!connectors) return undefined;
-	if (
-		typeof connectors.list !== 'function' ||
-		typeof connectors.reconnect !== 'function' ||
-		typeof connectors.refreshTools !== 'function' ||
-		typeof connectors.listTools !== 'function' ||
-		typeof connectors.callTool !== 'function' ||
-		typeof connectors.listResources !== 'function' ||
-		typeof connectors.readResource !== 'function' ||
-		typeof connectors.listPrompts !== 'function' ||
-		typeof connectors.getPrompt !== 'function'
-	) {
-		return undefined;
-	}
-	return connectors as McpConnectors;
+	void ctx;
+	return undefined;
 }
