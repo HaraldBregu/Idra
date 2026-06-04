@@ -60,8 +60,6 @@ function connectorToStoreEntry(
 		...(connector.defer_loading ? { defer_loading: true } : {}),
 		...(connector.enabled === false ? { enabled: false } : {}),
 		...(connector.last_refreshed_at ? { last_refreshed_at: connector.last_refreshed_at } : {}),
-		...(connector.created_at ? { created_at: connector.created_at } : {}),
-		...(connector.updated_at ? { updated_at: connector.updated_at } : {}),
 		...(connector.last_error ? { last_error: connector.last_error } : {}),
 	};
 }
