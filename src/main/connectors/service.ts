@@ -9,6 +9,7 @@ import type {
 	ConnectorView,
 } from '../../shared/connector';
 import {
+	readOptionalStringArray,
 	readOptionalString,
 	requireObject,
 	sanitizeInput,
@@ -21,6 +22,24 @@ import {
 } from './components/runtime';
 import { ConnectorRepository } from './components/repository';
 import type { ConnectorsServiceOptions } from './types';
+
+type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;
+
+type OAuthConnectRuntimeConfig = ConnectorConnectInput['oauth'];
+
+type OAuthTokenResponse = {
+	readonly access_token?: string;
+	readonly refresh_token?: string;
+	readonly token_type?: string;
+	readonly scope?: string;
+	readonly expires_in?: number;
+	readonly error?: string;
+	readonly error_description?: string;
+};
+
+type OAuthUserInfoResponse = {
+	readonly email?: string;
+};
 
 export class ConnectorsService {
 	private readonly repository: ConnectorRepository;
