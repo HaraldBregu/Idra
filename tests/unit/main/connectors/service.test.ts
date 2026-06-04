@@ -114,6 +114,17 @@ describe('ConnectorsService storage', () => {
 		expect(mockStoreData.connectors).toEqual({});
 	});
 
+	it('rejects authorized connector settings without serverUrl', async () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+
+		await expect(service.save([{
+			name: 'Acme Mail',
+			connectorId: 'connector_acme_mail',
+			serverLabel: 'acme_mail',
+			authorization: 'token-123',
+		}])).rejects.toThrow('Connector serverUrl is required before storing Acme Mail.');
+	});
+
 	it('reads MCP connector entries from the Electron connectors store', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 		mockStoreData.connectors = {
