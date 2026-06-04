@@ -1,3 +1,3 @@
-export interface ConnectorsServiceOptions {
+export type ConnectorsServiceOptions = {
 	env?: NodeJS.ProcessEnv;
-}
+};
