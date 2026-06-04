@@ -23,11 +23,13 @@ import {
 	type BeforeCallOutcome,
 	type CallTracker,
 } from './guard';
+import { createStartupFilesTool } from '../startup/files';
 import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from '../core/runtime/adapt';
 import type { ToolProfile } from './tool-types';
+import type { AgentStartupFilesServicePort } from '../../agent/workspace/startup';
 
 const defaultToolPolicyService = new ToolPolicyService();
 const TOOL_SERVICE_LOG_SOURCE = 'ToolService';
@@ -77,6 +79,8 @@ export interface ToolServicePort {
 	createCallTracker(): CallTracker;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
 	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[];
+	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision;
+	createStartupFilesTool(agentId: string, startupFiles: AgentStartupFilesServicePort): AgentTool;
 	prepareToolsForProvider(
 		tools: AgentTool[],
 		ctx: ToolContext,
@@ -110,7 +114,7 @@ export interface ToolServicePort {
 	): Promise<AgentToolResult>;
 }
 
-export class ToolService implements ToolServicePort {
+export class ToolsService implements ToolServicePort {
 	private readonly policy: NonNullable<ToolServiceOptions['policy']>;
 	private readonly cron?: CronService;
 	private readonly mcp?: Pick<McpService, 'createOpenAITools'>;
@@ -212,6 +216,14 @@ export class ToolService implements ToolServicePort {
 			count: tools.length,
 		});
 		return tools;
+	}
+
+	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision {
+		return this.policy.evaluateToolRequest(input);
+	}
+
+	createStartupFilesTool(agentId: string, startupFiles: AgentStartupFilesServicePort): AgentTool {
+		return createStartupFilesTool(agentId, startupFiles);
 	}
 
 	prepareToolsForProvider(
