@@ -1,4 +1,3 @@
-import { migrateLegacyOpenAiConnector } from './legacy';
 import type {
 	ConnectorApprovalMode,
 	ConnectorConfig,
@@ -10,14 +9,13 @@ import type {
 export function connectorsToStore(connectors: readonly ConnectorRecord[]): ConnectorConfig {
 	const store: ConnectorConfig = {};
 	for (const connector of connectors) {
-		const migrated = migrateLegacyOpenAiConnector(connector);
-		const authorization = connectorAuthorization(migrated);
-		const serverUrl = migrated.serverUrl?.trim();
+		const authorization = connectorAuthorization(connector);
+		const serverUrl = connector.serverUrl?.trim();
 		if (!authorization) continue;
-		if (!serverUrl) throw new Error(`Connector serverUrl is required before storing ${migrated.name}.`);
-		const baseKey = connectorStoreKey(migrated);
+		if (!serverUrl) throw new Error(`Connector serverUrl is required before storing ${connector.name}.`);
+		const baseKey = connectorStoreKey(connector);
 		const key = store[baseKey] ? `${baseKey}_${connector.id}` : baseKey;
-		store[key] = connectorToStoreEntry(migrated, authorization, serverUrl);
+		store[key] = connectorToStoreEntry(connector, authorization, serverUrl);
 	}
 	return store;
 }
@@ -78,15 +76,15 @@ function normalizeStoredConnector(connector: ConnectorRecord): ConnectorRecord {
 		typeof connector.serverUrl === 'string' && connector.serverUrl.trim()
 			? connector.serverUrl.trim()
 			: undefined;
-	const migrated = migrateLegacyOpenAiConnector({ ...connector, serverUrl });
 	return {
-		...migrated,
-		authorization: typeof migrated.authorization === 'string' ? migrated.authorization : '',
-		allowedTools: Array.isArray(migrated.allowedTools) ? uniqueStrings(migrated.allowedTools) : [],
-		requireApproval: migrated.requireApproval ?? 'always',
-		deferLoading: migrated.deferLoading ?? false,
-		enabled: migrated.enabled ?? true,
-		tools: Array.isArray(migrated.tools) ? migrated.tools.map(normalizeStoredTool) : [],
+		...connector,
+		serverUrl,
+		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
+		allowedTools: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
+		requireApproval: connector.requireApproval ?? 'always',
+		deferLoading: connector.deferLoading ?? false,
+		enabled: connector.enabled ?? true,
+		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeStoredTool) : [],
 	};
 }
 
