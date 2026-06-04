@@ -2,11 +2,6 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { LoggerService } from '../observability';
-import type {
-	ConnectorConnectInput,
-	ConnectorConfig,
-	ConnectorSummary,
-} from './types';
 import {
 	readOptionalStringArray,
 	readOptionalString,
@@ -16,7 +11,6 @@ import {
 } from './validation';
 import {
 	redactConnectorSecrets,
-	toConnectorView,
 } from './runtime';
 import { ConnectorRepository } from './repository';
 import type { ConnectorsServiceOptions } from './types';
