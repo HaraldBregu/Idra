@@ -14,6 +14,7 @@ export const SETTINGS_CONNECTOR_CATALOG: readonly SettingsConnectorCatalogEntry[
 		directConnectorId: 'gmail',
 		name: 'Gmail',
 		serverLabel: 'gmail',
+		serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
 		serverDescription: 'Read and search Gmail messages through the OpenAI Gmail connector.',
 		description: 'Read and search Gmail messages.',
 		requireApproval: 'always',

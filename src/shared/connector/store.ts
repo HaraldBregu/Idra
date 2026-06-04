@@ -13,7 +13,8 @@ export function connectorsToStore(connectors: readonly ConnectorConfig[]): Conne
 		const migrated = migrateLegacyOpenAiConnector(connector);
 		const authorization = connectorAuthorization(migrated);
 		const serverUrl = migrated.serverUrl?.trim();
-		if (!authorization || !serverUrl) continue;
+		if (!authorization) continue;
+		if (!serverUrl) throw new Error(`Connector serverUrl is required before storing ${migrated.name}.`);
 		const baseKey = connectorStoreKey(migrated);
 		const key = store[baseKey] ? `${baseKey}_${connector.id}` : baseKey;
 		store[key] = connectorToStoreEntry(migrated, authorization, serverUrl);
