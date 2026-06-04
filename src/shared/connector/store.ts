@@ -13,10 +13,11 @@ export function connectorsToStore(connectors: readonly ConnectorConfig[]): Conne
 	for (const connector of connectors) {
 		const migrated = migrateLegacyOpenAiConnector(connector);
 		const authorization = connectorAuthorization(migrated);
-		if (!authorization) continue;
+		const serverUrl = migrated.serverUrl?.trim();
+		if (!authorization || !serverUrl) continue;
 		const baseKey = connectorStoreKey(migrated);
 		const key = store[baseKey] ? `${baseKey}_${connector.id}` : baseKey;
-		store[key] = connectorToStoreEntry(migrated, authorization);
+		store[key] = connectorToStoreEntry(migrated, authorization, serverUrl);
 	}
 	return store;
 }
@@ -35,44 +36,39 @@ function connectorFromStoreValue(key: string, value: unknown): ConnectorConfig[]
 	return [];
 }
 
-function connectorToStoreEntry(connector: ConnectorConfig, authorization: string): ConnectorStoreEntry {
+function connectorToStoreEntry(
+	connector: ConnectorConfig,
+	authorization: string,
+	serverUrl: string
+): ConnectorStoreEntry {
 	const requireApproval = toStoredRequireApproval(connector.requireApproval, connector.allowedTools);
 	return {
 		type: 'mcp',
 		server_label: connector.serverLabel,
-		...(connector.serverUrl ? { server_url: connector.serverUrl } : { connector_id: connector.connectorId }),
+		server_url: serverUrl,
 		authorization,
 		...(requireApproval === 'always' ? {} : { require_approval: requireApproval }),
 		...(connector.allowedTools.length > 0 ? { allowed_tools: [...connector.allowedTools] } : {}),
-		...(connector.deferLoading ? { defer_loading: true } : {}),
-		...(connector.serverDescription ? { server_description: connector.serverDescription } : {}),
-		...(connector.tools.length > 0 ? { tools: connector.tools.map(normalizeStoredTool) } : {}),
-		...(connector.lastRefreshedAt ? { last_refreshed_at: connector.lastRefreshedAt } : {}),
-		...(connector.lastError ? { last_error: connector.lastError } : {}),
 	};
 }
 
 function connectorFromStoreEntry(key: string, entry: ConnectorStoreEntry): ConnectorConfig {
 	const now = new Date().toISOString();
 	const serverLabel = entry.server_label.trim() || key;
-	const connectorId = entry.connector_id?.trim() || key;
 	return {
 		id: key,
 		name: nameFromStoreKey(key),
-		connectorId,
+		connectorId: key,
 		serverLabel,
-		serverDescription: entry.server_description?.trim() || undefined,
-		serverUrl: entry.server_url?.trim() || undefined,
+		serverUrl: entry.server_url.trim(),
 		enabled: true,
 		authorization: entry.authorization?.trim() ?? '',
 		mcp: undefined,
 		oauth: undefined,
 		requireApproval: toConnectorApprovalMode(entry.require_approval),
 		allowedTools: uniqueStrings(entry.allowed_tools ?? []),
-		deferLoading: entry.defer_loading ?? false,
-		tools: Array.isArray(entry.tools) ? entry.tools.map(normalizeStoredTool) : [],
-		lastRefreshedAt: entry.last_refreshed_at,
-		lastError: entry.last_error,
+		deferLoading: false,
+		tools: [],
 		createdAt: now,
 		updatedAt: now,
 	};
@@ -135,7 +131,7 @@ function toConnectorApprovalMode(value: ConnectorStoreEntry['require_approval'])
 function isConnectorStoreEntry(value: unknown): value is ConnectorStoreEntry {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
 	const entry = value as ConnectorStoreEntry;
-	return entry.type === 'mcp' && typeof entry.server_label === 'string';
+	return entry.type === 'mcp' && typeof entry.server_label === 'string' && typeof entry.server_url === 'string';
 }
 
 function isStoredConnectorConfig(value: unknown): value is ConnectorConfig {
