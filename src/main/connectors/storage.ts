@@ -39,7 +39,7 @@ function connectorToStoreEntry(
 	authorization: string,
 	serverUrl: string
 ): ConnectorConfigValue {
-	const requireApproval = toStoredRequireApproval(connector.requireApproval, connector.allowedTools);
+	const requireApproval = toStoredRequireApproval(connector.requireApproval);
 	return {
 		type: 'mcp',
 		server_label: connector.serverLabel,
@@ -47,10 +47,8 @@ function connectorToStoreEntry(
 		...(connector.serverDescription ? { server_description: connector.serverDescription } : {}),
 		...(authorization ? { authorization } : {}),
 		...(requireApproval ? { require_approval: requireApproval } : {}),
-		...(connector.allowedTools.length > 0 ? { allowed_tools: [...connector.allowedTools] } : {}),
 		...(connector.deferLoading ? { defer_loading: true } : {}),
 		...(connector.enabled === false ? { enabled: false } : {}),
-		...(connector.tools.length > 0 ? { tools: connector.tools.map(toolToStoreEntry) } : {}),
 		...(connector.lastRefreshedAt ? { last_refreshed_at: connector.lastRefreshedAt } : {}),
 		...(connector.lastError ? { last_error: connector.lastError } : {}),
 	};
@@ -70,9 +68,7 @@ function connectorFromStoreEntry(key: string, entry: ConnectorConfigValue): Conn
 		authorization: entry.authorization?.trim() ?? '',
 		oauth: undefined,
 		requireApproval: toConnectorApprovalMode(entry.require_approval),
-		allowedTools: uniqueStrings(entry.allowed_tools ?? []),
 		deferLoading: entry.defer_loading ?? false,
-		tools: (entry.tools ?? []).map(toolFromStoreEntry),
 		lastRefreshedAt: entry.last_refreshed_at,
 		createdAt: entry.created_at ?? now,
 		updatedAt: entry.updated_at ?? now,
@@ -89,11 +85,9 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		...connector,
 		serverUrl,
 		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
-		allowedTools: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
 		requireApproval: connector.requireApproval ?? 'always',
 		deferLoading: connector.deferLoading ?? false,
 		enabled: connector.enabled ?? true,
-		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeStoredTool) : [],
 	};
 }
 
@@ -119,20 +113,13 @@ function connectorAuthorization(connector: ConnectorConfig): string {
 	);
 }
 
-function toStoredRequireApproval(
-	mode: ConnectorApprovalMode,
-	allowedTools: readonly string[]
-): ConnectorConfigValue['require_approval'] {
+function toStoredRequireApproval(mode: ConnectorApprovalMode): ConnectorConfigValue['require_approval'] {
 	if (mode === 'never') return 'never';
-	if (mode === 'never_for_allowed_tools' && allowedTools.length > 0) {
-		return { never: { tool_names: [...allowedTools] } };
-	}
 	return undefined;
 }
 
 function toConnectorApprovalMode(value: ConnectorConfigValue['require_approval']): ConnectorApprovalMode {
 	if (value === 'never') return 'never';
-	if (value && typeof value === 'object') return 'never_for_allowed_tools';
 	return 'always';
 }
 
@@ -152,36 +139,6 @@ function isStoredConnector(value: unknown): value is ConnectorConfig {
 		typeof connector.connectorId === 'string' &&
 		typeof connector.serverLabel === 'string'
 	);
-}
-
-function normalizeStoredTool(tool: ConnectorConfig['tools'][number]): ConnectorConfig['tools'][number] {
-	return {
-		name: tool.name,
-		description: tool.description,
-		inputSchema: tool.inputSchema,
-		permission: tool.permission ?? 'always-allow',
-		requiresApproval: tool.requiresApproval ?? false,
-	};
-}
-
-function toolToStoreEntry(tool: ConnectorConfig['tools'][number]): NonNullable<ConnectorConfigValue['tools']>[number] {
-	return {
-		name: tool.name,
-		description: tool.description,
-		input_schema: tool.inputSchema,
-		permission: tool.permission,
-		requires_approval: tool.requiresApproval,
-	};
-}
-
-function toolFromStoreEntry(tool: NonNullable<ConnectorConfigValue['tools']>[number]): ConnectorConfig['tools'][number] {
-	return normalizeStoredTool({
-		name: tool.name,
-		description: tool.description,
-		inputSchema: tool.input_schema,
-		permission: tool.permission ?? 'always-allow',
-		requiresApproval: tool.requires_approval ?? false,
-	});
 }
 
 function nameFromStoreKey(key: string): string {
