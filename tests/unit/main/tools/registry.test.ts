@@ -37,7 +37,7 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it.each(['exec', 'mcp_list_servers', 'cron_create'])(
+	it.each(['exec', 'cron_create'])(
 		'resolves %s by allowlist',
 		async (toolName) => {
 			const result = await createAgentTools({
@@ -52,6 +52,19 @@ describe('tool registry organization', () => {
 			}
 		}
 	);
+
+	it('does not expose local MCP tools by allowlist', async () => {
+		const result = await createAgentTools({
+			workspaceDir: process.cwd(),
+			toolsAllow: ['mcp_list_servers'],
+		});
+
+		try {
+			expect(result.tools.map((tool) => tool.name)).toEqual([]);
+		} finally {
+			await result.dispose();
+		}
+	});
 
 	it('does not expose provider connector specs as local tools', async () => {
 		const result = await createAgentTools({
