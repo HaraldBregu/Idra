@@ -15,37 +15,6 @@ export type ConnectorAuthKind =
 	| 'none';
 export type ConnectorToolPermission = 'always-allow' | 'needs-approval' | 'blocked';
 
-export type ConnectorMcpHeaderSecret = {
-	env: string;
-	header?: string;
-	scheme?: 'bearer' | 'raw';
-};
-
-export type ConnectorMcpEnvSecret = {
-	env: string;
-	target: string;
-};
-
-export type ConnectorMcpHttpConfig = {
-	transport: 'http';
-	url: string;
-	method?: 'POST';
-	headers?: Record<string, string>;
-	sessionId?: string;
-	auth?: ConnectorMcpHeaderSecret;
-};
-
-export type ConnectorMcpStdioConfig = {
-	transport: 'stdio';
-	command: string;
-	args?: string[];
-	cwd?: string;
-	env?: Record<string, string>;
-	envSecrets?: ConnectorMcpEnvSecret[];
-};
-
-export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
-
 export type ConnectorOAuthTokenSet = {
 	accessToken: string;
 	refreshToken?: string;
