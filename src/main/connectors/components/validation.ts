@@ -81,34 +81,9 @@ export function requireObject(value: unknown, label: string): Record<string, unk
 	throw new Error(`${label} is required.`);
 }
 
-function validateMcpConfig(mcp: ConnectorInput['mcp']): void {
-	if (!mcp || typeof mcp !== 'object') throw new Error('MCP transport configuration is required.');
-	if (mcp.transport === 'http') {
-		const url = new URL(mcp.url);
-		if (url.protocol !== 'https:' && url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
-			throw new Error('Remote MCP servers must use HTTPS unless local.');
-		}
-		for (const [key, value] of Object.entries(mcp.headers ?? {})) {
-			if (isSecretHeader(key) && value.trim()) {
-				throw new Error('MCP secret headers must be provided through environment variables.');
-			}
-		}
-		return;
-	}
-	if (mcp.transport === 'stdio') {
-		if (!path.isAbsolute(mcp.command)) throw new Error(`MCP command must be absolute: ${mcp.command}`);
-		return;
-	}
-	throw new Error('Unsupported MCP transport configuration.');
-}
-
 function validateOpenAiServerUrl(serverUrl: string): void {
 	const url = new URL(serverUrl);
 	if (url.protocol !== 'https:' && url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
 		throw new Error('Remote MCP servers must use HTTPS unless local.');
 	}
-}
-
-function isSecretHeader(key: string): boolean {
-	return /(authorization|api[-_]?key|token|secret)/i.test(key);
 }
