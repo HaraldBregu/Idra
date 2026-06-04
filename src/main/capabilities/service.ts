@@ -1,8 +1,6 @@
 import type { LoggerService } from '../observability';
-import type { ConnectorToolsService } from '../connector-tools';
 import type { SkillsService } from '../skills';
-import type { AgentTool } from '../tools';
-import { decideCapabilities, matchesPrompt, renderSkillPrompt, toResolvedSkill } from './selection';
+import { decideCapabilities, renderSkillPrompt, toResolvedSkill } from './selection';
 import type {
 	AgentCapabilityBundle,
 	AgentCapabilityResolveInput,
@@ -13,7 +11,6 @@ import type {
 const MAX_SKILLS_PER_RUN = 3;
 
 export interface AgentCapabilityServiceOptions {
-	connectorTools?: ConnectorToolsService;
 	skills?: SkillsService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -24,11 +21,9 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	async resolveForPrompt(input: AgentCapabilityResolveInput): Promise<AgentCapabilityBundle> {
 		input.streamEvent?.({ type: 'capability_resolution_start' });
 
-		const [connectorTools, skills] = await Promise.all([
-			this.resolveConnectorTools(input),
-			this.resolveSkills(input),
-		]);
-		const tools = [...input.localTools, ...connectorTools];
+		const skills = await this.resolveSkills(input);
+		const connectorTools: AgentCapabilityBundle['connectorTools'] = [];
+		const tools = [...input.localTools];
 		const decision = decideCapabilities({
 			tools,
 			skills,
@@ -63,24 +58,6 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 			directAnswer,
 			decision,
 		};
-	}
-
-	private async resolveConnectorTools(input: AgentCapabilityResolveInput): Promise<AgentTool[]> {
-		if (!this.options.connectorTools || (!input.shouldUseTools && !input.bootstrapPending)) return [];
-		try {
-			const tools = this.options.connectorTools.createAgentTools().map((tool) => ({
-				...tool,
-				serviceKind: tool.serviceKind ?? ('connector' as const),
-			}));
-			return tools.filter((tool) =>
-				matchesPrompt(input.userMessage, [tool.name, tool.description])
-			);
-		} catch (error) {
-			this.options.logger?.warn('AgentCapabilityService', 'Failed to resolve connector tools', {
-				error: error instanceof Error ? error.message : String(error),
-			});
-			return [];
-		}
 	}
 
 	private async resolveSkills(input: AgentCapabilityResolveInput): Promise<AgentResolvedSkill[]> {

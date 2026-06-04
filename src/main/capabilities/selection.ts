@@ -32,17 +32,6 @@ export function decideCapabilities(input: {
 	};
 }
 
-export function matchesPrompt(prompt: string, values: string[]): boolean {
-	const normalizedPrompt = normalizeForMatch(prompt);
-	if (!normalizedPrompt) return false;
-	return values.some((value) => {
-		const words = normalizeForMatch(value)
-			.split(' ')
-			.filter((word) => word.length >= 4);
-		return words.some((word) => normalizedPrompt.includes(word));
-	});
-}
-
 export function renderSkillPrompt(skills: AgentResolvedSkill[]): string {
 	if (skills.length === 0) return '';
 	return [
@@ -51,13 +40,6 @@ export function renderSkillPrompt(skills: AgentResolvedSkill[]): string {
 			[`Skill: ${skill.name}`, `Reason: ${skill.reason}`, 'Instructions:', skill.prompt].join('\n')
 		),
 	].join('\n\n');
-}
-
-function normalizeForMatch(value: string): string {
-	return value
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, ' ')
-		.trim();
 }
 
 function trimPrompt(value: string): string {

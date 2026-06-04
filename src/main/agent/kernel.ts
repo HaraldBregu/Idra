@@ -5,7 +5,6 @@ import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../store';
 import type { ConnectorsService } from '../connectors';
-import type { ConnectorToolsService } from '../connector-tools';
 import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
@@ -83,7 +82,6 @@ export interface AgentServiceDependencies {
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
-	connectorTools?: ConnectorToolsService;
 	skills?: SkillsService;
 	subagents?: SubagentSpawnPort;
 	policy?: ToolPolicyServicePort;
@@ -244,13 +242,11 @@ export class AgentService {
 			new ToolService({
 				policy: this.policyService,
 				cron: dependencies.cron,
-				connectorTools: dependencies.connectorTools,
 				logger: dependencies.logger,
 			});
 		this.capabilityService =
 			options.capabilityService ??
 			new AgentCapabilityService({
-				connectorTools: dependencies.connectorTools,
 				skills: dependencies.skills,
 				logger: dependencies.logger,
 			});

@@ -549,56 +549,9 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 										item: event.item,
 									});
 								}
-								ctx.services.connectorTools?.updateOpenAiConnectorTools(
-									event.serverLabel,
-									event.tools.map((tool) => ({
-										name: tool.name,
-										description: tool.description,
-										inputSchema: tool.inputSchema,
-										permission: 'always-allow',
-										requiresApproval: false,
-									}))
-								);
 								break;
 							case 'mcp_approval_request': {
 								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
-								const canApprove = Boolean(
-									providerResponseId &&
-									ctx.services.connectorTools?.canApproveOpenAiConnectorTool(
-										event.serverLabel,
-										event.name
-									)
-								);
-								if (canApprove && providerResponseId) {
-									streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
-									streamEvent?.({
-										type: 'tool_call_start',
-										iteration: iter,
-										toolCallId: event.id,
-										toolName: event.name,
-										name: event.name,
-										displayName: `${event.serverLabel}.${event.name}`,
-										serviceKind: 'mcp',
-										serviceId: event.serverLabel,
-									});
-									streamEvent?.({
-										type: 'tool_call_input',
-										iteration: iter,
-										toolCallId: event.id,
-										toolName: event.name,
-										name: event.name,
-										displayName: `${event.serverLabel}.${event.name}`,
-										serviceKind: 'mcp',
-										serviceId: event.serverLabel,
-										input: args,
-										argsText: event.arguments,
-									});
-									approvalContinuation = {
-										previousResponseId: providerResponseId,
-										approvalRequestId: event.id,
-									};
-									break providerEvents;
-								}
 								const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but connector policy did not allow automatic approval.`;
 								firstTokenLatencyMs ??= Date.now() - runStart;
 								if (!didStartAnswering) {

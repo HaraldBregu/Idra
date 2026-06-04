@@ -5,7 +5,6 @@ import type { AgentSettingsStore } from '../agent/settings';
 import type { ToolService } from '../tools';
 import type { AppPermissionsService } from '../app/permissions';
 import type { ConnectorsService } from '../connectors';
-import type { ConnectorToolsService } from '../connector-tools';
 import type { CronService } from '../cron';
 import type { HeartbeatService } from '../heartbeat';
 import type { LoggerService } from '../observability';
@@ -24,7 +23,6 @@ export interface MainServices {
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
-	connectorTools: ConnectorToolsService;
 	cron: CronService;
 	eventBus: EventBus;
 	heartbeat: HeartbeatService;

@@ -16,8 +16,8 @@ function session(): SessionFile {
 	};
 }
 
-describe('executeAgentRun MCP approval continuation', () => {
-	it('records runtime connector tools and continues approved OpenAI MCP calls', async () => {
+describe('executeAgentRun MCP approval requests', () => {
+	it('blocks OpenAI MCP approval requests without connector tool policy', async () => {
 		const requests: ProviderStreamRequest[] = [];
 		const provider: ProviderAdapter = {
 			async *stream(request) {
@@ -45,36 +45,7 @@ describe('executeAgentRun MCP approval continuation', () => {
 					};
 					return;
 				}
-				yield { type: 'message_start' };
-				yield {
-					type: 'mcp_call',
-					id: 'mcp_1',
-					serverLabel: 'gmail',
-					name: 'search_emails',
-					arguments: '{"query":"from:openai"}',
-					output: '{"threads":[{"id":"thread_1"}]}',
-					status: 'completed',
-					item: {
-						id: 'mcp_1',
-						type: 'mcp_call',
-						server_label: 'gmail',
-						name: 'search_emails',
-						arguments: '{"query":"from:openai"}',
-						output: '{"threads":[{"id":"thread_1"}]}',
-						status: 'completed',
-					},
-				};
-				yield { type: 'text_delta', text: 'Found matching threads.' };
-				yield {
-					type: 'message_end',
-					stopReason: 'end_turn',
-					usage: { inputTokens: 7, outputTokens: 3 },
-				};
 			},
-		};
-		const connectorTools = {
-			updateOpenAiConnectorTools: jest.fn(),
-			canApproveOpenAiConnectorTool: jest.fn(() => true),
 		};
 
 		const result = await executeAgentRun({
@@ -100,52 +71,25 @@ describe('executeAgentRun MCP approval continuation', () => {
 				sessionId: 'session-1',
 				readState: new Map(),
 				plan: { entries: [] },
-				services: { connectorTools },
+				services: {},
 			} as never,
 			maxTokens: 100,
 			maxIterations: 3,
 		});
 
-		expect(connectorTools.updateOpenAiConnectorTools).toHaveBeenCalledWith('gmail', [
-			{
-				name: 'search_emails',
-				description: 'Search Gmail messages.',
-				inputSchema: undefined,
-				permission: 'always-allow',
-				requiresApproval: false,
-			},
-		]);
-		expect(connectorTools.canApproveOpenAiConnectorTool).toHaveBeenCalledWith(
-			'gmail',
-			'search_emails'
-		);
-		expect(requests[1]).toMatchObject({
-			previousResponseId: 'resp_1',
-			inputItems: [
-				{
-					type: 'mcp_approval_response',
-					approve: true,
-					approval_request_id: 'approval_1',
-				},
-			],
-			builtInTools: [
-				{
-					type: 'mcp',
-					server_label: 'gmail',
-					connector_id: 'connector_gmail',
-					authorization: 'gmail-token',
-					require_approval: 'always',
-				},
-			],
-		});
+		expect(requests).toHaveLength(1);
 		expect(result.session.transcript[1]).toMatchObject({
 			role: 'assistant',
 			content: [
 				{ type: 'provider_item', provider: 'openai' },
-				{ type: 'provider_item', provider: 'openai' },
-				{ type: 'text', text: 'Found matching threads.' },
+				{
+					type: 'text',
+					text: 'OpenAI connector "gmail" requested approval to run "search_emails", but connector policy did not allow automatic approval.',
+				},
 			],
 		});
-		expect(result.finalText).toBe('Found matching threads.');
+		expect(result.finalText).toBe(
+			'OpenAI connector "gmail" requested approval to run "search_emails", but connector policy did not allow automatic approval.'
+		);
 	});
 });
