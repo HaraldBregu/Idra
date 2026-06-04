@@ -5,7 +5,7 @@ export type DirectConnectorCatalogId = string;
 export type OpenAiConnectorId = string;
 
 export type ConnectorImplementationPattern =
-	| 'direct_api_or_connector_provider_tool'
+	| 'direct_api_or_connector_tool'
 	| 'custom_mcp_or_tool_wrapper_over_openapi'
 	| 'custom_mcp_or_tool_wrapper_over_graphql'
 	| 'controlled_query_gateway_with_read_only_roles'
@@ -13,7 +13,7 @@ export type ConnectorImplementationPattern =
 
 export type ConnectorRecommendedInitialMode = 'read_only_then_draft_write_actions';
 
-export type ConnectorProviderId = string;
+export type ConnectorServiceId = string;
 export type ConnectorDocumentationType = 'official_docs';
 
 export interface ConnectorDocumentationPage {
@@ -41,7 +41,7 @@ export interface DirectConnectorCatalogEntry {
 	readonly priorityTier?: ConnectorPriorityTier;
 	readonly usefulnessScore0To100?: number;
 	readonly implementationPattern?: ConnectorImplementationPattern;
-	readonly recommendedProviderStrategy?: string;
+	readonly recommendedConnectionStrategy?: string;
 	readonly documentationPages?: readonly ConnectorDocumentationPage[];
 	readonly authModels?: readonly string[];
 	readonly coreAgentActions?: readonly string[];
@@ -52,7 +52,7 @@ export interface DirectConnectorCatalogEntry {
 }
 
 export interface ConnectorCatalogEntry {
-	readonly id: ConnectorProviderId;
+	readonly id: ConnectorServiceId;
 	readonly directConnectorId?: DirectConnectorCatalogId;
 	readonly name: string;
 	readonly description: string;
@@ -127,9 +127,11 @@ export interface ConnectorMcpStdioConfig {
 export type ConnectorMcpConfig = ConnectorMcpHttpConfig | ConnectorMcpStdioConfig;
 
 export interface ConnectorCatalogOAuthConfig {
-	providerId: string;
+	serviceId: string;
 	clientIdEnv: string;
+	clientSecretEnv?: string;
 	authorizationUrl: string;
+	tokenUrl?: string;
 	redirectUri: string;
 	authorizationParams: Record<string, string>;
 }
@@ -143,8 +145,8 @@ export interface ConnectorOAuthTokenSet {
 }
 
 export interface ConnectorOAuthCredential {
-	provider: string;
-	providerId?: string;
+	service: string;
+	serviceId?: string;
 	authorizationUrl?: string;
 	clientId?: string;
 	clientSecret?: string;
@@ -174,7 +176,7 @@ export interface ConnectorTool {
 export interface ConnectorConfig {
 	id: string;
 	name: string;
-	connectorId: ConnectorProviderId;
+	connectorId: ConnectorServiceId;
 	serverLabel: string;
 	serverDescription?: string;
 	serverUrl?: string;
@@ -197,7 +199,7 @@ export type Connector = ConnectorConfig;
 export interface ConnectorView {
 	id: string;
 	name: string;
-	connectorId: ConnectorProviderId;
+	connectorId: ConnectorServiceId;
 	authKind: ConnectorAuthKind;
 	serverLabel: string;
 	serverUrl?: string;
@@ -214,7 +216,7 @@ export interface ConnectorView {
 
 export interface ConnectorInput {
 	name: string;
-	connectorId: ConnectorProviderId;
+	connectorId: ConnectorServiceId;
 	serverLabel?: string;
 	serverDescription?: string;
 	serverUrl?: string;
@@ -229,11 +231,11 @@ export interface ConnectorInput {
 export type ConnectorUpdateInput = Partial<ConnectorInput>;
 
 export interface ConnectorOAuthAuthorizeRequest {
-	connectorId: ConnectorProviderId;
+	connectorId: ConnectorServiceId;
 }
 
 export interface ConnectorOAuthAuthorizeResult {
-	connectorId: ConnectorProviderId;
+	connectorId: ConnectorServiceId;
 	authorizationUrl: string;
 	connector: ConnectorConfig;
 	message?: string;
@@ -261,7 +263,7 @@ export interface ConnectorOAuthConnectResult {
 }
 
 export interface GoogleOAuthCredential extends ConnectorOAuthCredential {
-	provider: 'google';
+	service: 'google';
 }
 
 export interface ConnectorCallToolOptions {
