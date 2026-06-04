@@ -104,7 +104,6 @@ const ModelServicePage: React.FC = () => {
 	);
 	const selectedProvider = selectedGroup?.provider;
 	const selectedModel = selectedGroup?.models.find((model) => model.id === state.modelId);
-	const ServiceIcon = service?.icon;
 
 	useEffect(() => {
 		if (!service) return;
