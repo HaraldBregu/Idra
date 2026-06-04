@@ -5,7 +5,6 @@ import {
 	type ToolRequestPolicyDecision,
 	type ToolRequestPolicyInput,
 } from './tool-types';
-import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
 import { getToolMetadata, normalizeToolName } from '../core/common';
