@@ -128,6 +128,15 @@ describe('executeAgentRun MCP approval continuation', () => {
 					approval_request_id: 'approval_1',
 				},
 			],
+			builtInTools: [
+				{
+					type: 'mcp',
+					server_label: 'gmail',
+					server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					authorization: 'gmail-token',
+					require_approval: 'always',
+				},
+			],
 		});
 		expect(result.session.transcript[1]).toMatchObject({
 			role: 'assistant',
