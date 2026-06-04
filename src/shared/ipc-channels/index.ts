@@ -114,6 +114,7 @@ export const SkillsChannels = {
 export const ConnectorsChannels = {
 	list: 'connectors:list',
 	save: 'connectors:save',
+	connect: 'connectors:connect',
 	get: 'connectors:get',
 } as const;
 
@@ -445,6 +446,10 @@ interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.save]: {
 		args: [input: import('../connector').ConnectorInput[]];
 		result: import('../connector').ConnectorConfig[];
+	};
+	[ConnectorsChannels.connect]: {
+		args: [input: import('../connector').ConnectorConnectInput];
+		result: import('../connector').ConnectorView;
 	};
 }
 
