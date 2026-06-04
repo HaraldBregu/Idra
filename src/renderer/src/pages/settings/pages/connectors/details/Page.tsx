@@ -5,7 +5,7 @@ import { AlertTriangle, Plug } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorConfig } from '../../../../../../../shared/connector';
+import type { ConnectorRecord } from '../../../../../../../shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -21,7 +21,7 @@ function formatTimestamp(value?: string): string {
 	return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 
-function formatApprovalPolicy(value: ConnectorConfig['requireApproval']): string {
+function formatApprovalPolicy(value: ConnectorRecord['requireApproval']): string {
 	return value.replaceAll('_', ' ');
 }
 
@@ -57,7 +57,7 @@ function DetailRow({
 const ConnectorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { connectorId } = useParams<{ connectorId: string }>();
-	const [connector, setConnector] = useState<ConnectorConfig | null>(null);
+	const [connector, setConnector] = useState<ConnectorRecord | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
