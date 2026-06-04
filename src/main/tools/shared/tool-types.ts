@@ -137,7 +137,6 @@ const CORE_WORKSPACE_TOOL_NAMES = toolNamesForSharedGroup('coreWorkspace');
 const STATE_TASK_TOOL_NAMES = toolNamesForSharedGroup('stateTask');
 const SUBAGENT_TOOL_NAMES = toolNamesForSharedGroup('subagent');
 const SKILL_TOOL_NAMES = toolNamesForSharedGroup('skill');
-const MCP_CONNECTOR_TOOL_NAMES = toolNamesForSharedGroup('mcpConnector');
 
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:coreworkspace': CORE_WORKSPACE_TOOL_NAMES,
@@ -149,9 +148,6 @@ export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:state_task': STATE_TASK_TOOL_NAMES,
 	'group:subagent': SUBAGENT_TOOL_NAMES,
 	'group:skill': SKILL_TOOL_NAMES,
-	'group:mcpconnector': MCP_CONNECTOR_TOOL_NAMES,
-	'group:mcp_connector': MCP_CONNECTOR_TOOL_NAMES,
-	'group:mcp': MCP_CONNECTOR_TOOL_NAMES,
 };
 
 const PROFILE_ALLOW: Record<ToolPolicyProfile, readonly string[] | '*'> = {
