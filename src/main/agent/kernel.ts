@@ -30,7 +30,7 @@ import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agent
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
 import { makeProvider, type ProviderSpec } from '../llm/router';
-import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
+import type { ProviderAdapter, ProviderBuiltInToolSpec, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
 	loadExistingSession,
@@ -218,6 +218,7 @@ export class AgentService {
 	private readonly toolService: ToolsServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
+	private readonly mcpService?: Pick<McpService, 'createToolsForProvider'>;
 	private readonly usesDefaultToolsFactory: boolean;
 	private readonly sessionBaseDir?: string;
 	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
@@ -238,9 +239,9 @@ export class AgentService {
 			new ToolsService({
 				policy: dependencies.policy,
 				cron: dependencies.cron,
-				mcp: dependencies.connectors ? new McpService(dependencies.connectors) : undefined,
 				logger: dependencies.logger,
 			});
+		this.mcpService = dependencies.connectors ? new McpService(dependencies.connectors) : undefined;
 		this.capabilityService =
 			options.capabilityService ??
 			new AgentCapabilityService({
@@ -764,7 +765,7 @@ export class AgentService {
 				model,
 				effort,
 				tools: selectedTools,
-				builtInTools: this.toolService.createBuiltInToolsForProvider(providerId),
+				builtInTools: this.createBuiltInToolsForProvider(providerId),
 				ctx,
 				streamEvent,
 				maxTokens: AGENT_TOOL_LIMITS.maxTokens,
