@@ -2,7 +2,6 @@ import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AgentService } from '../agent';
 import type { AgentDataDirectoryService } from '../agent/storage';
 import type { AgentSettingsStore } from '../agent/settings';
-import type { ToolsService } from '../tools';
 import type { AppPermissionsService } from '../app/permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
@@ -30,7 +29,6 @@ export interface MainServices {
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
 	store: StoreService;
-	toolService: ToolsService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
 	workspace: WorkspaceService;
