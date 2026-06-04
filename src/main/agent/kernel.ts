@@ -20,7 +20,6 @@ import {
 	AgentWorkspaceService,
 	type AgentStartupFilesServicePort,
 } from './workspace';
-import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './guardrails/input';
 import { buildSystemPrompt } from './context/prompt';
 import {
 	AgentExecutionService,
@@ -56,14 +55,12 @@ import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
 import type { PublicProvider } from '../../shared/providers';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../../shared/store';
-import type { SubagentSpawnPort } from './subagents';
 import {
 	type AgentTool,
 	type CronToolContext,
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 	type ToolsServicePort,
-	type ToolPolicyServicePort,
 } from './tooling';
 import { ToolsService } from '../tools';
 
@@ -83,8 +80,6 @@ export interface AgentServiceDependencies {
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
-	subagents?: SubagentSpawnPort;
-	policy?: ToolPolicyServicePort;
 	toolService?: ToolsServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
@@ -118,7 +113,6 @@ export interface AgentServiceOptions {
 	capabilityService?: AgentCapabilityServicePort;
 	executionService?: AgentExecutionServicePort;
 	sessionBaseDir?: string;
-	beforeAgentRunHooks?: BeforeAgentRunHook[];
 }
 
 export interface AgentSendOptions {
@@ -221,7 +215,6 @@ export class AgentService {
 	private readonly mcpService?: Pick<McpService, 'createToolsForProvider'>;
 	private readonly usesDefaultToolsFactory: boolean;
 	private readonly sessionBaseDir?: string;
-	private readonly beforeAgentRunHooks: BeforeAgentRunHook[];
 	private heartbeatStore: HeartbeatFileStore | null = null;
 	private readonly runtimes = new Map<string, Runtime>();
 	private readonly runRecords = new Map<string, AgentRunRecord>();
@@ -237,7 +230,6 @@ export class AgentService {
 			options.toolService ??
 			dependencies.toolService ??
 			new ToolsService({
-				policy: dependencies.policy,
 				cron: dependencies.cron,
 				logger: dependencies.logger,
 			});
@@ -253,7 +245,6 @@ export class AgentService {
 		this.usesDefaultToolsFactory = !options.toolsFactory;
 		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
 		this.sessionBaseDir = options.sessionBaseDir;
-		this.beforeAgentRunHooks = options.beforeAgentRunHooks ?? [];
 		this.ensureRuntime(this.defaultAgentId);
 	}
 
@@ -727,38 +718,6 @@ export class AgentService {
 			const systemPromptForTurn = toolSelection.systemPromptSuffix
 				? `${systemPromptWithCapabilities}\n\n${toolSelection.systemPromptSuffix}`
 				: systemPromptWithCapabilities;
-
-			const beforeRun = await evaluateBeforeAgentRunHooks(this.beforeAgentRunHooks, {
-				prompt: message,
-				messages: [...runtime.session.transcript, { role: 'user', content: message }],
-				systemPrompt: systemPromptForTurn,
-				senderId: agentId,
-				senderIsOwner: agentId === this.defaultAgentId,
-			});
-			if (beforeRun.outcome === 'block') {
-				runtime.session.transcript.push({
-					role: 'assistant',
-					content: [{ type: 'text', text: beforeRun.message }],
-				});
-				runtime.session = {
-					...runtime.session,
-					status: 'completed',
-				};
-				await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
-				this.updateRunRecordSync(runId, {
-					state: 'completed',
-					output: beforeRun.message,
-				});
-				runtime.currentAbort = null;
-				clearRunTimeout();
-				streamEvent({ type: 'text_delta', delta: beforeRun.message });
-				streamEvent({
-					type: 'run_state',
-					state: 'completed',
-					label: 'beforeAgentRunBlocked',
-				});
-				return beforeRun.message;
-			}
 
 			const activeSession = runtime.session;
 			if (!activeSession) {

@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import type { SubagentRunRecord } from '../agent/subagents/types';
 
 /**
  * Base event structure for main process events
@@ -20,9 +19,6 @@ export interface AppEvents {
 	'error:critical': { error: Error; context: string };
 	'window:created': { windowId: number; type: string };
 	'window:closed': { windowId: number };
-	'subagent:created': SubagentRunRecord;
-	'subagent:started': SubagentRunRecord;
-	'subagent:completed': SubagentRunRecord;
 	'tray:set-enabled': { enabled: boolean };
 	'channel:status': import('../../shared/channels').ChannelStatusEvent;
 	'channel:route': {

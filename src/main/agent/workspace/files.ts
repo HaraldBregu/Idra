@@ -55,14 +55,7 @@ export type WorkspaceFileSummary = {
 const BUNDLED_TEMPLATES: Record<string, string> = Object.fromEntries(
 	[
 		...Object.entries(
-			import.meta.glob('../templates/*.md', {
-				query: '?raw',
-				eager: true,
-				import: 'default',
-			}) as Record<string, string>
-		),
-		...Object.entries(
-			import.meta.glob('../../templates/*.md', {
+			import.meta.glob('../../../../resources/agent/templates/*.md', {
 				query: '?raw',
 				eager: true,
 				import: 'default',
@@ -72,8 +65,7 @@ const BUNDLED_TEMPLATES: Record<string, string> = Object.fromEntries(
 );
 
 const FALLBACK_TEMPLATE_DIRS = [
-	path.resolve(process.cwd(), 'src', 'main', 'templates'),
-	path.resolve(process.cwd(), 'src', 'main', 'agent', 'templates'),
+	path.resolve(process.cwd(), 'resources', 'agent', 'templates'),
 ];
 
 const workspaceFileNames = new Set<string>(WORKSPACE_CONTEXT_FILE_NAMES);

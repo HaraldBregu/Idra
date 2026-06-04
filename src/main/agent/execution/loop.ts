@@ -15,7 +15,6 @@ import type { SessionFile } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../../llm/router';
 import type { AgentRunStreamEvent, AgentToolResultStatus } from '../../../shared/agents/events';
-import { applyAgentToolResultMiddleware, emitRuntimeLifecycleHook } from '../lifecycle';
 
 export type { AgentRunStreamEvent } from '../../../shared/agents/events';
 
@@ -27,37 +26,6 @@ export interface AgentProviderLookup {
 		  }
 		| undefined;
 	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
-}
-
-export interface AgentRunHooks {
-	onStart?: (info: { runId: string }) => void | Promise<void>;
-	onIteration?: (info: {
-		runId: string;
-		iteration: number;
-		usage: Usage;
-		durationMs: number;
-	}) => void | Promise<void>;
-	onToolCall?: (info: {
-		runId: string;
-		iteration: number;
-		callId: string;
-		tool: string;
-		args: unknown;
-		status: AgentToolResultStatus;
-		durationMs: number;
-		outputChars: number;
-		outputText?: string;
-	}) => void | Promise<void>;
-	onFinish?: (info: {
-		runId: string;
-		stopReason: AgentRunResult['stopReason'];
-		usage: Usage;
-		iterations: number;
-		durationMs: number;
-		outputChars: number;
-		firstTokenLatencyMs?: number;
-		error?: Error;
-	}) => void | Promise<void>;
 }
 
 export interface AgentRunInput {
@@ -76,7 +44,6 @@ export interface AgentRunInput {
 	maxIterations?: number;
 	streamOutput?: (chunk: string) => void;
 	streamEvent?: (event: AgentRunStreamEvent) => void;
-	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
 	toolService?: ToolsServicePort;
@@ -282,7 +249,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 		maxIterations = 25,
 		streamOutput,
 		streamEvent,
-		hooks,
 		signal,
 	} = input;
 
@@ -324,37 +290,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 	}): Promise<void> => {
 		const isError = params.isError ?? params.status !== 'ok';
 		const toolResult = await prepareToolResultForRun({
-			content: await applyAgentToolResultMiddleware(params.toolResult.content, {
-				runtime: input.agentRuntimeId,
-				runId,
-				iteration: params.iteration,
-				toolName: params.tool.name,
-				toolUseId: params.toolUseId,
-				args: params.args,
-				isError,
-			}),
-		});
-		await hooks?.onToolCall?.({
-			runId,
-			iteration: params.iteration,
-			callId: params.toolUseId,
-			tool: params.tool.name,
-			args: params.args,
-			status: params.status,
-			durationMs: params.durationMs,
-			outputChars: toolResult.outputText.length,
-			outputText: toolResult.outputText,
-		});
-		await emitRuntimeLifecycleHook('after_tool_call', {
-			runId,
-			iteration: params.iteration,
-			toolName: params.tool.name,
-			toolUseId: params.toolUseId,
-			args: params.args,
-			result: toolResult.content,
-			isError,
-			status: params.status,
-			outputText: toolResult.outputText,
+			content: params.toolResult.content,
 		});
 		streamEvent?.({
 			type: 'tool_call_result',
@@ -381,14 +317,8 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 		});
 	};
 
-	await emitRuntimeLifecycleHook('before_message_write', {
-		runId,
-		userMessage,
-		sessionId: session.id,
-	});
 	session.transcript.push({ role: 'user', content: userMessage });
 
-	await hooks?.onStart?.({ runId });
 	agentLogger.info('agent:run', 'run started', {
 		runId,
 		model,
@@ -432,11 +362,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 					maxTokens,
 					signal,
 				};
-				await emitRuntimeLifecycleHook('llm_input', {
-					runId,
-					iteration: iter,
-					request: redactProviderRequest(request),
-				});
 				providerEvents: for await (const event of provider.stream(request)) {
 						switch (event.type) {
 							case 'reasoning_item':
@@ -683,16 +608,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 					iter,
 					error: (err as Error).message,
 				});
-				await hooks?.onFinish?.({
-					runId,
-					stopReason,
-					usage: totalUsage,
-					iterations: Math.max(completedIterations, iter + 1),
-					durationMs: Date.now() - runStart,
-					outputChars: finalText.length,
-					firstTokenLatencyMs,
-					error: err as Error,
-				});
 				streamEvent?.({ type: 'run_finished', stopReason, outputChars: finalText.length });
 				throw err;
 			}
@@ -708,12 +623,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 			}
 
 			completedIterations = iter + 1;
-			await hooks?.onIteration?.({
-				runId,
-				iteration: iter,
-				usage: iterUsage,
-				durationMs: Date.now() - iterStart,
-			});
 
 			if (!text && mcpOutputFallbacks.length > 0) {
 				text = mcpOutputFallbacks.join('\n');
@@ -734,14 +643,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 				blocks.push({ type: 'tool_use', toolUseId: id, toolName: t.name, toolArgs: parsed });
 			}
 			if (!blocks.some(isVisibleAssistantBlock)) blocks.push({ type: 'text', text: '' });
-			await emitRuntimeLifecycleHook('llm_output', {
-				runId,
-				iteration: iter,
-				text,
-				blocks,
-				stopReason: turnStop,
-				usage: iterUsage,
-			});
 			session.transcript.push({ role: 'assistant', content: blocks });
 			finalText += text;
 
@@ -885,23 +786,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 
 	session.plan = ctx.plan.entries;
 
-	await hooks?.onFinish?.({
-		runId,
-		stopReason,
-		usage: totalUsage,
-		iterations: completedIterations,
-		durationMs: Date.now() - runStart,
-		outputChars: finalText.length,
-		firstTokenLatencyMs,
-	});
 	streamEvent?.({ type: 'run_finished', stopReason, outputChars: finalText.length });
-	await emitRuntimeLifecycleHook('agent_end', {
-		runId,
-		stopReason,
-		usage: totalUsage,
-		iterations: completedIterations,
-		outputChars: finalText.length,
-	});
 	agentLogger.info('agent:run', 'run finished', {
 		runId,
 		stopReason,

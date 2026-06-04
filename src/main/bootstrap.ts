@@ -7,7 +7,6 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { AgentService } from './agent';
 import type { AgentServiceDependencies } from './agent/kernel';
-import { SubagentSpawnService, SubagentRegistry } from './agent/subagents';
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './agent/workspace';
@@ -69,8 +68,6 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 
-	const subagentRegistry = new SubagentRegistry();
-
 	const agentDependencies: AgentServiceDependencies = {
 		store,
 		cron,
@@ -89,13 +86,6 @@ export function bootstrapServices(): BootstrapResult {
 			sessionBaseDir: agentDataDirectory.resolve('sessions'),
 		})
 	);
-	agentDependencies.subagents = new SubagentSpawnService({
-		agentSettings,
-		agentService,
-		registry: subagentRegistry,
-		eventBus,
-		logger,
-	});
 	const channelRegistry = container.register(
 		'channelRegistry',
 			new ChannelRegistry({ logger, eventBus, agentService })

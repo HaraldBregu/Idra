@@ -16,14 +16,7 @@ const TEMPLATE_FILES = [
 const TEMPLATES: Record<string, string> = Object.fromEntries(
 	[
 		...Object.entries(
-			import.meta.glob('../agent/templates/*.md', {
-				query: '?raw',
-				eager: true,
-				import: 'default',
-			}) as Record<string, string>
-		),
-		...Object.entries(
-			import.meta.glob('../templates/*.md', {
+			import.meta.glob('../../../resources/agent/templates/*.md', {
 				query: '?raw',
 				eager: true,
 				import: 'default',
