@@ -1,4 +1,16 @@
-import type { ConnectorApprovalMode, ConnectorInput } from './types';
+export type ConnectorApprovalMode = 'always' | 'never';
+
+export type ConnectorInput = {
+	name: string;
+	connectorId: string;
+	serverLabel?: string;
+	serverDescription?: string;
+	serverUrl?: string;
+	authorization?: string;
+	requireApproval?: ConnectorApprovalMode;
+	deferLoading?: boolean;
+	enabled?: boolean;
+};
 
 export function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
