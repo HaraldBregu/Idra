@@ -26,10 +26,8 @@ export class ConnectorsIpc implements IpcModule {
 			wrapSimpleHandler((input) => redactConnectorSecrets(connectors.save(input)), ConnectorsChannels.save)
 		);
 		ipcMain.handle(
-			ConnectorsChannels.connect,
-			wrapSimpleHandler(() => {
-				throw new Error('Connector connection is not available from connector storage.');
-			}, ConnectorsChannels.connect)
+			ConnectorsChannels.upsert,
+			wrapSimpleHandler((input) => redactConnectorSecrets(connectors.upsert(input)), ConnectorsChannels.upsert)
 		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);
