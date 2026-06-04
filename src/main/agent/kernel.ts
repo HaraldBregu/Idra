@@ -54,7 +54,7 @@ import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
 import type { PublicProvider } from '../../shared/providers';
-import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../../shared/store';
+import type { AgentConfig, AgentSessionMetadata } from '../../shared/store';
 import {
 	type AgentTool,
 	type CronToolContext,
@@ -96,7 +96,6 @@ export interface AgentToolsFactoryContext {
 	signal: AbortSignal;
 	services: AgentServiceDependencies;
 	toolContext: ToolContext;
-	toolPolicy?: AgentToolPolicy;
 	toolsAllow?: string[];
 	toolsDeny?: string[];
 }
@@ -439,9 +438,7 @@ export class AgentService {
 	}
 
 	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
-		const toolPolicy = context.toolPolicy;
 			return this.toolService.createDefaultTools({
-				toolPolicy,
 				explicitAllow: context.toolsAllow,
 				denylist: context.toolsDeny,
 			});
@@ -562,9 +559,6 @@ export class AgentService {
 				signal: abort.signal,
 				services: this.dependencies,
 			};
-			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-				this.toolService.evaluateToolRequest({ userRequest: message })
-			);
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
@@ -575,7 +569,7 @@ export class AgentService {
 				isInteractiveUserFacing: true,
 				isPrimaryRun,
 				isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
-				hasBootstrapFileAccess: this.hasBootstrapFileAccess(agentId, workspaceRoot, agentConfig?.tools),
+				hasBootstrapFileAccess: this.hasBootstrapFileAccess(agentId, workspaceRoot),
 				runKind,
 			});
 			let startupFiles: WorkspaceContextFile[] = [];
@@ -586,10 +580,9 @@ export class AgentService {
 			};
 			let selectedTools: AgentTool[] = [];
 			let baseTools: AgentTool[] = [];
-				if (bootstrapPending || toolPolicy.shouldUseTools || heartbeatOptions?.enableHeartbeatTool) {
-					baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
-						Promise.resolve(
-							this.toolsFactory({
+			baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
+				Promise.resolve(
+					this.toolsFactory({
 							agentId,
 							runId,
 							providerId,
@@ -599,30 +592,28 @@ export class AgentService {
 							signal: abort.signal,
 							services: this.dependencies,
 							toolContext: ctx,
-							toolPolicy: agentConfig?.tools,
 							toolsAllow: options.toolsAllow,
 							toolsDeny: options.toolsDeny,
-							})
-						)
-					);
-					if (heartbeatOptions?.enableHeartbeatTool) {
-						baseTools = [
-							...baseTools,
-							createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
-						];
-					}
-					if (!this.usesDefaultToolsFactory || options.toolsAllow) {
-						baseTools = this.toolService.filterToolsByAllowlist(
-							baseTools,
+						})
+					)
+				);
+			if (heartbeatOptions?.enableHeartbeatTool) {
+				baseTools = [
+					...baseTools,
+					createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
+				];
+			}
+			if (!this.usesDefaultToolsFactory || options.toolsAllow) {
+				baseTools = this.toolService.filterToolsByAllowlist(
+					baseTools,
 						options.toolsAllow
 					);
-				}
 			}
 
 			let directAnswer =
 				!heartbeatOptions &&
 				!bootstrapPending &&
-				!toolPolicy.shouldUseTools;
+				baseTools.length === 0;
 			let capabilityPromptAdditions = '';
 
 			if (!directAnswer) {
@@ -650,8 +641,7 @@ export class AgentService {
 					isCanonicalWorkspace: workspaceRoot === this.workspaceRoot(),
 					hasBootstrapFileAccess: this.hasBootstrapFileAccess(
 						agentId,
-						workspaceRoot,
-						agentConfig?.tools
+						workspaceRoot
 					),
 					runKind,
 				});
@@ -688,7 +678,7 @@ export class AgentService {
 					ctx,
 					providerId,
 					model,
-					shouldUseTools: toolPolicy.shouldUseTools,
+					shouldUseTools: selectedTools.length > 0,
 					bootstrapPending,
 					directAnswer,
 					configuredSkillNames: agentConfig?.skills,
@@ -994,10 +984,8 @@ export class AgentService {
 
 	private hasBootstrapFileAccess(
 		agentId: string,
-		workspaceRoot: string,
-		toolPolicy?: AgentToolPolicy
+		workspaceRoot: string
 	): boolean {
-		if (toolPolicy?.fs?.readOnly) return false;
 		try {
 			return (
 				path.resolve(this.getWorkspaceService().getRootPath(agentId)) ===
