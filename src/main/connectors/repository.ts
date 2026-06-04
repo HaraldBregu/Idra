@@ -6,13 +6,13 @@ import {
 	connectorsFromStore,
 	connectorsToStore,
 	type ConnectorConfig,
-	type ConnectorStore,
+	type ConnectorRecord,
 } from '../../shared/connector';
 import { errorMessage } from './runtime';
 
 type ConnectorsStore = {
 	get store(): unknown;
-	set store(value: ConnectorStore);
+	set store(value: ConnectorConfig);
 };
 
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
@@ -21,14 +21,14 @@ export class ConnectorRepository {
 	private readonly store: ConnectorsStore;
 
 	constructor(private readonly logger: LoggerService) {
-		this.store = new Store<ConnectorStore>({
+		this.store = new Store<ConnectorConfig>({
 			name: 'connectors',
 			cwd: path.join(resolveAppDataPath(), DEFAULT_CONNECTOR_STORE_DIR),
 			accessPropertiesByDotNotation: false,
 		}) as unknown as ConnectorsStore;
 	}
 
-	list(): ConnectorConfig[] {
+	list(): ConnectorRecord[] {
 		try {
 			const raw = this.store.store;
 			const connectors = connectorsFromStore(raw);
@@ -44,17 +44,17 @@ export class ConnectorRepository {
 		}
 	}
 
-	get(id: string): ConnectorConfig {
+	get(id: string): ConnectorRecord {
 		const connector = this.list().find((item) => item.id === id);
 		if (!connector) throw new Error(`Connector not found: ${id}`);
 		return connector;
 	}
 
-	write(connectors: ConnectorConfig[]): void {
+	write(connectors: ConnectorRecord[]): void {
 		this.store.store = connectorsToStore(connectors);
 	}
 
-	replace(connector: ConnectorConfig): void {
+	replace(connector: ConnectorRecord): void {
 		this.write(this.list().map((item) => (item.id === connector.id ? connector : item)));
 	}
 
