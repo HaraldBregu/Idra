@@ -74,7 +74,6 @@ export class ConnectorsService {
 			serverUrl: sanitized.serverUrl,
 			enabled: sanitized.enabled ?? true,
 			authorization: credential.token?.accessToken ?? '',
-			mcp: undefined,
 			oauth: credential,
 			requireApproval: sanitized.requireApproval ?? 'always',
 			allowedTools: sanitized.allowedTools ?? [],
