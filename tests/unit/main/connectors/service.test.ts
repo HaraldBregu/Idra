@@ -65,6 +65,7 @@ describe('ConnectorsService OpenAI connectors', () => {
 				authorization: 'token-123',
 				require_approval: { never: { tool_names: ['search_emails'] } },
 				allowed_tools: ['search_emails'],
+				server_description: 'Search, read, draft, send, and manage Gmail messages.',
 			},
 		]);
 	});

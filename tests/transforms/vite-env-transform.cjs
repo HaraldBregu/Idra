@@ -9,7 +9,9 @@ const transformer = createTransformer({
 module.exports = {
 	process(sourceText, sourcePath, jestConfig, transformOptions) {
 		return transformer.process(
-			sourceText.replace(/import\.meta\.env/g, 'globalThis.__VITE_ENV__'),
+			sourceText
+				.replace(/import\.meta\.env/g, 'globalThis.__VITE_ENV__')
+				.replace(/import\.meta\.glob/g, 'globalThis.__VITE_GLOB__'),
 			sourcePath,
 			jestConfig,
 			transformOptions

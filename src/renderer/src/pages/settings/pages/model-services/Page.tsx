@@ -268,10 +268,7 @@ const ModelServicePage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection
-				title={t('settings.modelServices.configuration')}
-				description={t('settings.modelServices.subtitle')}
-			>
+			<SettingsSection title={t('settings.modelServices.configuration')}>
 				<Collapsible className="rounded-lg border border-border/70 bg-card">
 					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 						<div className="min-w-0 flex-1">
