@@ -1,2 +1,1 @@
-export { ConnectorRepository } from './repository';
-export { connectorsFromStore, connectorsToStore } from './storage';
+export { ConnectorsService } from './service';

@@ -4,7 +4,7 @@ import type { EventBus } from '../services/event-bus';
 import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../store';
-import type { ConnectorsService } from '../connector';
+import type { ConnectorsService } from '../connectors';
 import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {

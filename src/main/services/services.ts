@@ -4,7 +4,7 @@ import type { AgentDataDirectoryService } from '../agent/storage';
 import type { AgentSettingsStore } from '../agent/settings';
 import type { ToolService } from '../tools';
 import type { AppPermissionsService } from '../app/permissions';
-import type { ConnectorsService } from '../connector';
+import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
 import type { HeartbeatService } from '../heartbeat';
 import type { LoggerService } from '../observability';
