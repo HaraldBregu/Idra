@@ -163,7 +163,12 @@ import type {
 import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { ConnectorRecord } from '../shared/connectors';
+import type {
+	ConnectorInput,
+	ConnectorRecord,
+	OAuthAuthorizeInput,
+	OAuthAuthorizeResult,
+} from '../shared/connectors';
 import type {
 	SkillDeleteResult,
 	SkillDetails,
@@ -188,38 +193,11 @@ import type {
 	SpeechToTextTranscribeRequest,
 	SpeechToTextTranscription,
 } from '../shared/speech-to-text';
-type ConnectorApprovalMode = 'always' | 'never';
-
-type ConnectorInput = {
-	name: string;
-	connectorId: string;
-	serverLabel?: string;
-	serverDescription?: string;
-	serverUrl?: string;
-	authorization?: string;
-	requireApproval?: ConnectorApprovalMode;
-	deferLoading?: boolean;
-	enabled?: boolean;
-};
-
-type ConnectorConnectInput = ConnectorInput & {
-	oauth: {
-		service: string;
-		serviceId?: string;
-		clientIdEnv: string;
-		clientSecretEnv?: string;
-		authorizationUrl: string;
-		tokenUrl: string;
-		userInfoUrl?: string;
-		scopes: readonly string[];
-		accessType?: string;
-		prompt?: string;
-	};
-};
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
+	authorizeOAuth: (input: OAuthAuthorizeInput) => Promise<OAuthAuthorizeResult>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
