@@ -244,6 +244,7 @@ export class AgentService {
 			new ToolService({
 				policy: this.policyService,
 				cron: dependencies.cron,
+				connectorTools: dependencies.connectorTools,
 				logger: dependencies.logger,
 			});
 		this.capabilityService =
@@ -771,7 +772,7 @@ export class AgentService {
 				model,
 				effort,
 				tools: selectedTools,
-				builtInTools: this.dependencies.connectorTools?.createBuiltInConnectorTools(providerId) ?? [],
+				builtInTools: this.toolService.createBuiltInToolsForProvider(providerId),
 				ctx,
 				streamEvent,
 				maxTokens: AGENT_TOOL_LIMITS.maxTokens,

@@ -65,4 +65,22 @@ describe('tool registry organization', () => {
 			await result.dispose();
 		}
 	});
+
+	it('passes stored connector MCP specs as provider built-in tools', () => {
+		const builtInTools = [{
+			type: 'mcp' as const,
+			server_label: 'dmcp',
+			server_description: 'A Dungeons and Dragons MCP server to assist with dice rolling.',
+			server_url: 'https://dmcp-server.deno.dev/sse',
+			require_approval: 'never' as const,
+			allowed_tools: ['roll'],
+		}];
+		const connectorTools = {
+			createBuiltInConnectorTools: jest.fn(() => builtInTools),
+		};
+		const service = new ToolService({ connectorTools: connectorTools as never });
+
+		expect(service.createBuiltInToolsForProvider('openai')).toEqual(builtInTools);
+		expect(connectorTools.createBuiltInConnectorTools).toHaveBeenCalledWith('openai');
+	});
 });
