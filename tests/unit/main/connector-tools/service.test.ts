@@ -126,6 +126,43 @@ describe('ConnectorToolsService provider adapters', () => {
 		]);
 	});
 
+	it('uses runtime-discovered OpenAI connector tools for approval decisions', async () => {
+		const connectors = new ConnectorsService(logger as never, { env: {} });
+		const connectorTools = new ConnectorToolsService(connectors, { env: {} });
+
+		const [connector] = await connectors.save([{
+			name: 'Gmail',
+			connectorId: 'google.gmail',
+			serverLabel: 'gmail',
+			serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
+			authorization: 'gmail-token',
+			requireApproval: 'always',
+			allowedTools: [],
+		}]);
+
+		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'search_threads')).toBe(false);
+
+		connectorTools.updateOpenAiConnectorTools('gmail', [{
+			name: 'search_threads',
+			description: 'Search Gmail threads.',
+			inputSchema: { type: 'object', properties: {} },
+			permission: 'always-allow',
+			requiresApproval: false,
+		}]);
+
+		expect(connectorTools.listTools(connector.id)).toEqual([
+			{
+				name: 'search_threads',
+				description: 'Search Gmail threads.',
+				inputSchema: { type: 'object', properties: {} },
+				permission: 'always-allow',
+				requiresApproval: false,
+			},
+		]);
+		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'search_threads')).toBe(true);
+		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'create_draft')).toBe(false);
+	});
+
 	it('keeps Anthropic connector tools separate from OpenAI built-ins', async () => {
 		const connectors = new ConnectorsService(logger as never, { env: {} });
 		const connectorTools = new ConnectorToolsService(connectors, { env: {} });
