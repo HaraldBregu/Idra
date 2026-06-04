@@ -246,4 +246,46 @@ describe('OpenAIAdapter Responses request construction', () => {
 			{ signal: undefined }
 		);
 	});
+
+	it('replays provider-native MCP list items in Responses input context', async () => {
+		const create = jest.fn(() => completedStream());
+		const adapter = new OpenAIAdapter({
+			apiKey: 'openai-key',
+			clientFactory: () => ({ responses: { create } }) as never,
+		});
+		const mcpListToolsItem = {
+			id: 'list_1',
+			type: 'mcp_list_tools',
+			server_label: 'gmail',
+			tools: [{
+				name: 'search_threads',
+				description: 'Search Gmail threads.',
+				input_schema: { type: 'object', properties: {} },
+			}],
+		};
+
+		for await (const _event of adapter.stream({
+			model: 'gpt-5.4',
+			system: '',
+			messages: [{
+				role: 'assistant',
+				content: [{
+					type: 'provider_item',
+					provider: 'openai',
+					item: mcpListToolsItem,
+				}],
+			}],
+			tools: [],
+			maxTokens: 100,
+		})) {
+			// consume stream
+		}
+
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				input: [mcpListToolsItem],
+			}),
+			{ signal: undefined }
+		);
+	});
 });

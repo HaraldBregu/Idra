@@ -110,6 +110,14 @@ describe('executeAgentRun MCP approval continuation', () => {
 				approval_request_id: 'approval_1',
 			}],
 		});
-		expect(result.finalText).toBe('{"threads":[{"id":"thread_1"}]}\nFound matching threads.');
+		expect(result.session.transcript[1]).toMatchObject({
+			role: 'assistant',
+			content: [
+				{ type: 'provider_item', provider: 'openai' },
+				{ type: 'provider_item', provider: 'openai' },
+				{ type: 'text', text: 'Found matching threads.' },
+			],
+		});
+		expect(result.finalText).toBe('Found matching threads.');
 	});
 });
