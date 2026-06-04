@@ -6,7 +6,7 @@ import {
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
 import type { ProviderBuiltInToolSpec } from '../../llm/types';
-import { McpRemoteService } from '../../mcp';
+import { createMcpRemoteTools } from '../../mcp';
 import type { ConnectorsService } from '../../connectors';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
 import { getToolMetadata, normalizeToolName } from '../core/common';
@@ -114,13 +114,13 @@ export interface ToolServicePort {
 export class ToolService implements ToolServicePort {
 	private readonly policy: NonNullable<ToolServiceOptions['policy']>;
 	private readonly cron?: CronService;
-	private readonly mcp?: McpRemoteService;
+	private readonly connectors?: ConnectorsService;
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 
 	constructor(options: ToolServiceOptions = {}) {
 		this.policy = options.policy ?? defaultToolPolicyService;
 		this.cron = options.cron;
-		this.mcp = options.connectors ? new McpRemoteService(options.connectors) : undefined;
+		this.connectors = options.connectors;
 		this.logger = options.logger;
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Initialized tools service');
 	}
@@ -205,7 +205,7 @@ export class ToolService implements ToolServicePort {
 	}
 
 	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
-		const tools = this.mcp?.createToolsForProvider(providerId) ?? [];
+		const tools = this.connectors ? createMcpRemoteTools(this.connectors, providerId) : [];
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Resolved provider built-in tools', {
 			providerId,
 			count: tools.length,

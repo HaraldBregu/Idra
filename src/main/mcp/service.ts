@@ -4,20 +4,15 @@ import type { ConnectorsService } from '../connectors';
 
 type ConnectorEntry = ConnectorRecord[string];
 
-export class McpRemoteService {
-	constructor(private readonly connectors: Pick<ConnectorsService, 'getConnectorSettings'>) {}
-
-	createToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
-		const provider = providerId.trim().toLowerCase();
-		const connectors = Object.entries(this.connectors.getConnectorSettings());
-		if (provider === 'anthropic') return connectors.flatMap(([id, connector]) => this.toAnthropic(id, connector));
-		if (provider === 'openai') return connectors.flatMap(([id, connector]) => this.toOpenAI(id, connector));
-		return [];
-	}
-
-	private toOpenAI(id: string, connector: ConnectorEntry): ProviderBuiltInToolSpec[] {
-		if (!this.isEnabled(connector)) return [];
-		return [{
+export function createMcpRemoteTools(
+	connectorsService: Pick<ConnectorsService, 'getConnectorSettings'>,
+	providerId: string
+): ProviderBuiltInToolSpec[] {
+	const connectors = Object.entries(connectorsService.getConnectorSettings())
+		.filter((entry): entry is [string, ConnectorEntry] => isEnabled(entry[1]));
+	const provider = providerId.trim().toLowerCase();
+	if (provider === 'openai') {
+		return connectors.map(([id, connector]) => ({
 			type: 'mcp',
 			server_label: connector.server_label,
 			connector_id: id,
@@ -26,12 +21,10 @@ export class McpRemoteService {
 			require_approval: connector.require_approval ?? 'always',
 			...(connector.defer_loading ? { defer_loading: true } : {}),
 			...(connector.server_description ? { server_description: connector.server_description } : {}),
-		}];
+		}));
 	}
-
-	private toAnthropic(_id: string, connector: ConnectorEntry): ProviderBuiltInToolSpec[] {
-		if (!this.isEnabled(connector)) return [];
-		return [{
+	if (provider === 'anthropic') {
+		return connectors.map(([, connector]) => ({
 			type: 'mcp_toolset',
 			mcp_server_name: connector.server_label,
 			...(connector.defer_loading ? { defer_loading: true } : {}),
@@ -41,10 +34,11 @@ export class McpRemoteService {
 				url: connector.server_url,
 				...(connector.authorization ? { authorization_token: connector.authorization } : {}),
 			},
-		}];
+		}));
 	}
+	return [];
+}
 
-	private isEnabled(connector: ConnectorEntry): boolean {
-		return connector.type === 'mcp' && connector.enabled !== false;
-	}
+function isEnabled(connector: ConnectorEntry): boolean {
+	return connector.type === 'mcp' && connector.enabled !== false;
 }
