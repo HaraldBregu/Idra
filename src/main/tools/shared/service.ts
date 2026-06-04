@@ -7,8 +7,6 @@ import {
 } from './tool-types';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
-import type { ProviderBuiltInToolSpec } from '../../llm/types';
-import type { McpService } from '../../mcp';
 import type { AgentTool, AgentToolResult, ToolContext } from '../core/tool';
 import { getToolMetadata, normalizeToolName } from '../core/common';
 import { createTools, localToolCatalogByName } from '../core/catalog';
@@ -44,7 +42,6 @@ export type {
 export interface ToolServiceOptions {
 	policy?: ToolPolicyServicePort;
 	cron?: CronService;
-	mcp?: Pick<McpService, 'createOpenAITools'>;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
 
@@ -80,7 +77,6 @@ export interface ToolServicePort {
 	): AgentTool[];
 	createCallTracker(): CallTracker;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
-	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[];
 	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision;
 	createStartupFilesTool(agentId: string, startupFiles: AgentStartupFilesServicePort): AgentTool;
 	prepareToolsForProvider(
@@ -119,13 +115,11 @@ export interface ToolServicePort {
 export class ToolsService implements ToolServicePort {
 	private readonly policy: NonNullable<ToolServiceOptions['policy']>;
 	private readonly cron?: CronService;
-	private readonly mcp?: Pick<McpService, 'createOpenAITools'>;
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 
 	constructor(options: ToolServiceOptions = {}) {
 		this.policy = options.policy ?? defaultToolPolicyService;
 		this.cron = options.cron;
-		this.mcp = options.mcp;
 		this.logger = options.logger;
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Initialized tools service');
 	}
@@ -207,17 +201,6 @@ export class ToolsService implements ToolServicePort {
 				options?.executor ??
 				new ToolExecutor({ maxToolCallsPerTurn: options?.maxToolCallsPerTurn }),
 		};
-	}
-
-	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
-		const tools = providerId.trim().toLowerCase() === 'openai'
-			? this.mcp?.createOpenAITools() ?? []
-			: [];
-		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Resolved provider built-in tools', {
-			providerId,
-			count: tools.length,
-		});
-		return tools;
 	}
 
 	evaluateToolRequest(input: ToolRequestPolicyInput): ToolRequestPolicyDecision {
