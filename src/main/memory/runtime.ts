@@ -358,12 +358,12 @@ function renderTranscriptEntry(entry: TranscriptEntry): string {
 	if (entry.role === 'user') return truncate(entry.content, DEFAULT_MAX_CHARS);
 	if (entry.role === 'assistant') {
 		return entry.content
-				.map((block) => {
-					if (block.type === 'text') return block.text;
-					if (block.type === 'reasoning') return '';
-					if (block.type === 'provider_item') return '';
-					return `[tool_call ${block.toolName} ${truncate(JSON.stringify(block.toolArgs ?? {}), 500)}]`;
-				})
+			.map((block) => {
+				if (block.type === 'text') return block.text;
+				if (block.type === 'reasoning') return '';
+				if (block.type === 'provider_item') return '';
+				return `[tool_call ${block.toolName} ${truncate(JSON.stringify(block.toolArgs ?? {}), 500)}]`;
+			})
 			.join('\n')
 			.trim();
 	}

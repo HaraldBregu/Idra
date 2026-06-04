@@ -151,17 +151,19 @@ describe('OpenAIAdapter Responses request construction', () => {
 			events.push(event);
 		}
 
-		expect(events).toContainEqual(expect.objectContaining({
-			type: 'mcp_list_tools',
-			serverLabel: 'gmail',
-			tools: [
-				{
-					name: 'search_threads',
-					description: 'Search Gmail threads.',
-					inputSchema: { type: 'object', properties: {} },
-				},
-			],
-		}));
+		expect(events).toContainEqual(
+			expect.objectContaining({
+				type: 'mcp_list_tools',
+				serverLabel: 'gmail',
+				tools: [
+					{
+						name: 'search_threads',
+						description: 'Search Gmail threads.',
+						inputSchema: { type: 'object', properties: {} },
+					},
+				],
+			})
+		);
 	});
 
 	it('surfaces OpenAI MCP call output items', async () => {
@@ -199,16 +201,18 @@ describe('OpenAIAdapter Responses request construction', () => {
 			events.push(event);
 		}
 
-		expect(events).toContainEqual(expect.objectContaining({
-			type: 'mcp_call',
-			id: 'mcp_1',
-			serverLabel: 'dmcp',
-			name: 'roll',
-			arguments: '{"diceRollExpression":"2d4+1"}',
-			output: '5',
-			error: undefined,
-			status: 'completed',
-		}));
+		expect(events).toContainEqual(
+			expect.objectContaining({
+				type: 'mcp_call',
+				id: 'mcp_1',
+				serverLabel: 'dmcp',
+				name: 'roll',
+				arguments: '{"diceRollExpression":"2d4+1"}',
+				output: '5',
+				error: undefined,
+				status: 'completed',
+			})
+		);
 	});
 
 	it('can create an OpenAI MCP approval continuation request', async () => {

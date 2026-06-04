@@ -46,24 +46,24 @@ describe('executeAgentRun MCP approval continuation', () => {
 					return;
 				}
 				yield { type: 'message_start' };
-					yield {
-						type: 'mcp_call',
+				yield {
+					type: 'mcp_call',
+					id: 'mcp_1',
+					serverLabel: 'gmail',
+					name: 'search_threads',
+					arguments: '{"query":"from:openai"}',
+					output: '{"threads":[{"id":"thread_1"}]}',
+					status: 'completed',
+					item: {
 						id: 'mcp_1',
-						serverLabel: 'gmail',
+						type: 'mcp_call',
+						server_label: 'gmail',
 						name: 'search_threads',
 						arguments: '{"query":"from:openai"}',
 						output: '{"threads":[{"id":"thread_1"}]}',
 						status: 'completed',
-						item: {
-							id: 'mcp_1',
-							type: 'mcp_call',
-							server_label: 'gmail',
-							name: 'search_threads',
-							arguments: '{"query":"from:openai"}',
-							output: '{"threads":[{"id":"thread_1"}]}',
-							status: 'completed',
-						},
-					};
+					},
+				};
 				yield { type: 'text_delta', text: 'Found matching threads.' };
 				yield {
 					type: 'message_end',
