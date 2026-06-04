@@ -59,14 +59,14 @@ import type { PublicProvider } from '../../shared/providers';
 import type { AgentConfig, AgentSessionMetadata, AgentToolPolicy } from '../../shared/store';
 import type { SubagentSpawnPort } from './subagents';
 import {
-	ToolService,
 	type AgentTool,
 	type CronToolContext,
 	type AgentToolSelectionForTurn,
 	type ToolContext,
-	type ToolServicePort,
-} from '../tools';
-import { createStartupFilesTool } from '../tools/startup/files';
+	type ToolsServicePort,
+	type ToolPolicyServicePort,
+} from './tooling';
+import { ToolsService } from '../tools';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
@@ -217,7 +217,6 @@ export class AgentService {
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
 	private readonly toolService: ToolServicePort;
-	private readonly policyService: ToolPolicyServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
@@ -234,14 +233,11 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.policyService =
-			dependencies.policy ??
-			new ToolPolicyService();
 		this.toolService =
 			options.toolService ??
 			dependencies.toolService ??
-			new ToolService({
-				policy: this.policyService,
+			new ToolsService({
+				policy: dependencies.policy,
 				cron: dependencies.cron,
 				mcp: dependencies.connectors ? new McpService(dependencies.connectors) : undefined,
 				logger: dependencies.logger,
@@ -567,7 +563,7 @@ export class AgentService {
 				services: this.dependencies,
 			};
 			const toolPolicy = recordPhase(phaseDurationsMs, 'evaluate_tool_policy', () =>
-				this.policyService.evaluateToolRequest({ userRequest: message })
+				this.toolService.evaluateToolRequest({ userRequest: message })
 			);
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
@@ -618,8 +614,7 @@ export class AgentService {
 					if (!this.usesDefaultToolsFactory || options.toolsAllow) {
 						baseTools = this.toolService.filterToolsByAllowlist(
 							baseTools,
-						options.toolsAllow,
-						this.dependencies.policy
+						options.toolsAllow
 					);
 				}
 			}
@@ -1057,7 +1052,7 @@ export class AgentService {
 	}
 
 	private createStartupFilesTool(agentId: string): AgentTool {
-		return createStartupFilesTool(agentId, this.getWorkspaceService());
+		return this.toolService.createStartupFilesTool(agentId, this.getWorkspaceService());
 	}
 
 	private filterStartupFilesForRun(
