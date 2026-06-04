@@ -30,16 +30,14 @@ export class ConnectorRepository {
 
 	list(): ConnectorConfig[] {
 		try {
-			const raw = this.store.get(CONNECTOR_STORE_KEY);
-			if (raw === undefined) return [];
+			const raw = this.store.store;
 			const connectors = connectorsFromStore(raw);
 			if (connectors.length === 0 && !isEmptyConnectorStore(raw)) {
-				this.warn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY });
+				this.warn('Dropped invalid connector settings');
 			}
 			return connectors;
 		} catch (error) {
 			this.logger.error('ConnectorsService', 'Failed to read connector settings', {
-				key: CONNECTOR_STORE_KEY,
 				error: errorMessage(error),
 			});
 			throw error;
