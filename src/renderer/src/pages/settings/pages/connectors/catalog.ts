@@ -1,9 +1,11 @@
-type ConnectorConnectInput = Parameters<typeof window.connectors.connect>[0];
+import type { ConnectorInput, OAuthAuthorizeInput } from '../../../../../shared/connectors';
+
 type DirectConnectorCatalogId = string;
 
-export type SettingsConnectorCatalogEntry = ConnectorConnectInput & {
+export type SettingsConnectorCatalogEntry = ConnectorInput & {
 	readonly directConnectorId: DirectConnectorCatalogId;
 	readonly description: string;
+	readonly oauth: OAuthAuthorizeInput;
 };
 
 export const SETTINGS_CONNECTOR_CATALOG: readonly SettingsConnectorCatalogEntry[] = [
