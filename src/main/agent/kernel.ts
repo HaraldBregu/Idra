@@ -456,6 +456,15 @@ export class AgentService {
 			});
 	}
 
+	private createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
+		const tools = this.mcpService?.createToolsForProvider(providerId) ?? [];
+		this.dependencies.logger.info('AgentService', 'Resolved provider built-in tools', {
+			providerId,
+			count: tools.length,
+		});
+		return tools;
+	}
+
 	async send(
 		message: string,
 		agentId = this.defaultAgentId,
