@@ -52,16 +52,6 @@ export { writeTodosTool } from './state/todo/write';
 export { skillListTool } from './skills/skill-list';
 export { skillLoadTool } from './skills/load-skill';
 export { skillUseTool } from './skills/use-skill';
-export { mcpCallToolTool } from './mcp/tool/call';
-export { mcpConnectServerTool } from './mcp/server/connect';
-export { mcpListPromptsTool } from './mcp/prompt/list';
-export { mcpListResourcesTool } from './mcp/resource/list';
-export { mcpListServersTool } from './mcp/server/list';
-export { mcpListToolsTool } from './mcp/tool/list';
-export { mcpLoadPromptTool } from './mcp/prompt/load';
-export { mcpLoadToolTool } from './mcp/tool/load';
-export { mcpReadResourceTool } from './mcp/resource/read';
-export { mcpRefreshServerTool } from './mcp/server/refresh';
 export { createStartupFilesTool } from './startup/files';
 export { AgentStartupFilesService } from './startup/service';
 export type {
