@@ -6,7 +6,6 @@ import type { LoggerService } from '../observability';
 import type { AgentTool, ToolContext } from '../tools/shared/types';
 import { textResult } from '../tools/shared/types';
 import {
-	MCP_CONNECTOR_CATALOG,
 	PROVIDER_CONNECTOR_CATALOG,
 	getMcpConnectorCatalogItem,
 	getProviderConnectorCatalogItem,
