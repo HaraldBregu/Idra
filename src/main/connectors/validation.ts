@@ -1,5 +1,4 @@
 import type { ConnectorApprovalMode, ConnectorInput } from './types';
-import { uniqueStrings } from './runtime';
 
 export function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
@@ -10,7 +9,6 @@ export function sanitizeInput(input: unknown): ConnectorInput {
 	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim();
 	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
 	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? 'always';
-	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
 	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? false;
 	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
 
@@ -30,7 +28,6 @@ export function sanitizeInput(input: unknown): ConnectorInput {
 		serverUrl,
 		authorization,
 		requireApproval,
-		allowedTools: uniqueStrings(allowedTools),
 		deferLoading,
 		enabled,
 	};
@@ -70,8 +67,8 @@ export function readOptionalStringArray(params: Record<string, unknown>, key: st
 export function readOptionalApprovalMode(params: Record<string, unknown>, key: string): ConnectorApprovalMode | undefined {
 	const value = readOptionalString(params, key);
 	if (value === undefined) return undefined;
-	if (value === 'always' || value === 'never' || value === 'never_for_allowed_tools') return value;
-	throw new Error(`${key} must be one of: always, never, never_for_allowed_tools.`);
+	if (value === 'always' || value === 'never') return value;
+	throw new Error(`${key} must be one of: always, never.`);
 }
 
 export function requireObject(value: unknown, label: string): Record<string, unknown> {
