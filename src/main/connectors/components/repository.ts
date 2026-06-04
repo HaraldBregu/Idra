@@ -10,13 +10,11 @@ import {
 } from '../../../shared/connector';
 import { errorMessage } from './runtime';
 
-type ConnectorsStoreSchema = { connectors?: ConnectorStore };
 type ConnectorsStore = {
-	get(key: 'connectors'): unknown;
-	set(key: 'connectors', value: ConnectorStore): void;
+	get store(): unknown;
+	set store(value: ConnectorStore);
 };
 
-const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
 
 export class ConnectorRepository {
