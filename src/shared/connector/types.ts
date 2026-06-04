@@ -76,7 +76,7 @@ export type ConnectorStoreEntry = {
 	server_label: string;
 	server_url: string;
 	authorization?: string;
-	require_approval?: 'always' | 'never';
+	require_approval?: 'never';
 	allowed_tools?: string[];
 };
 
