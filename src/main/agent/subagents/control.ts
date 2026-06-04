@@ -1,5 +1,5 @@
-import type { AgentTool, AgentToolResult, ToolContext } from '../../tools';
-import { textResult } from '../../tools';
+import type { AgentTool, AgentToolResult, ToolContext } from '../tooling';
+import { textResult } from '../tooling';
 import type { SubagentSpawnPort } from './service';
 import type { SubagentsControlResult } from './types';
 
