@@ -354,7 +354,8 @@ export class OpenAIAdapter implements ProviderAdapter {
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
 			instructions: req.system || undefined,
-			input: buildResponseInput(req.messages),
+			input: (req.inputItems as ResponseCreateParamsStreaming['input']) ?? buildResponseInput(req.messages),
+			previous_response_id: req.previousResponseId,
 			tools: tools.length > 0 ? tools : undefined,
 			reasoning: req.effort ? { effort: req.effort } : undefined,
 			max_output_tokens: req.maxTokens,
@@ -454,6 +455,9 @@ export class OpenAIAdapter implements ProviderAdapter {
 		setStopReason: (stopReason: string) => void
 	): Iterable<ProviderEvent> {
 		switch (event.type) {
+			case 'response.created':
+				yield { type: 'response_created', id: event.response.id };
+				break;
 			case 'response.output_item.added': {
 				if (event.item.type !== 'function_call') break;
 				const item = event.item as ResponseFunctionToolCall;
@@ -504,6 +508,18 @@ export class OpenAIAdapter implements ProviderAdapter {
 					setStopReason('end_turn');
 					break;
 				}
+				if (event.item.type === 'mcp_list_tools') {
+					yield {
+						type: 'mcp_list_tools',
+						serverLabel: event.item.server_label,
+						tools: event.item.tools.map((tool) => ({
+							name: tool.name,
+							description: tool.description ?? undefined,
+							inputSchema: isRecord(tool.input_schema) ? tool.input_schema : undefined,
+						})),
+					};
+					break;
+				}
 				if (event.item.type !== 'function_call') break;
 				const item = event.item as ResponseFunctionToolCall;
 				const state = stateFor(event.output_index, item.call_id, item.name, true);
@@ -551,4 +567,8 @@ export class OpenAIAdapter implements ProviderAdapter {
 				throw new Error(event.message);
 		}
 	}
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }

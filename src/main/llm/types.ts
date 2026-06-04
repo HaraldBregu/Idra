@@ -16,6 +16,7 @@ export interface Usage {
 
 export type ProviderEvent =
 	| { type: 'message_start' }
+	| { type: 'response_created'; id: string }
 	| { type: 'reasoning_item'; provider?: 'openai' | 'deepseek'; item: unknown }
 	| { type: 'text_delta'; text: string }
 	| { type: 'tool_call_start'; id: string; name: string }
@@ -27,6 +28,15 @@ export type ProviderEvent =
 			serverLabel: string;
 			name: string;
 			arguments: string;
+	  }
+	| {
+			type: 'mcp_list_tools';
+			serverLabel: string;
+			tools: Array<{
+				name: string;
+				description?: string;
+				inputSchema?: Record<string, unknown>;
+			}>;
 	  }
 	| { type: 'message_end'; stopReason: string; usage: Usage };
 
@@ -81,6 +91,8 @@ export interface ProviderStreamRequest {
 	effort?: ModelReasoningEffort;
 	system: string;
 	messages: TranscriptEntry[];
+	inputItems?: unknown[];
+	previousResponseId?: string;
 	tools: ProviderToolSpec[];
 	builtInTools?: ProviderBuiltInToolSpec[];
 	maxTokens: number;
