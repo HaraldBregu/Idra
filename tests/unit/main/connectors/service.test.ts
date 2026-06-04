@@ -38,6 +38,7 @@ describe('ConnectorsService storage', () => {
 			connectorId: 'connector_acme_mail',
 			serverLabel: 'acme_mail',
 			serverDescription: 'Acme mail connector.',
+			serverUrl: 'https://mcp.example.com/mail',
 			authorization: 'token-123',
 			allowedTools: ['search_emails'],
 			requireApproval: 'never_for_allowed_tools',
@@ -48,11 +49,10 @@ describe('ConnectorsService storage', () => {
 		expect((mockStoreData.connectors as ConnectorStore).acme_mail).toEqual({
 			type: 'mcp',
 			server_label: 'acme_mail',
-			connector_id: 'connector_acme_mail',
+			server_url: 'https://mcp.example.com/mail',
 			authorization: 'token-123',
-			require_approval: { never: { tool_names: ['search_emails'] } },
+			require_approval: 'never',
 			allowed_tools: ['search_emails'],
-			server_description: 'Acme mail connector.',
 		});
 		expect(service.get(saved.id).authorization).toBe('');
 		expect(service.getConnectorSettings()[0].authorization).toBe('');
@@ -70,6 +70,7 @@ describe('ConnectorsService storage', () => {
 				name: 'Acme Mail',
 				connectorId: 'connector_acme_mail',
 				serverLabel: 'acme_mail',
+				serverUrl: 'https://mcp.example.com/mail',
 				authorization: 'token-123',
 			},
 			{
@@ -86,7 +87,7 @@ describe('ConnectorsService storage', () => {
 			acme_mail: {
 				type: 'mcp',
 				server_label: 'acme_mail',
-				connector_id: 'connector_acme_mail',
+				server_url: 'https://mcp.example.com/mail',
 				authorization: 'token-123',
 			},
 		});
