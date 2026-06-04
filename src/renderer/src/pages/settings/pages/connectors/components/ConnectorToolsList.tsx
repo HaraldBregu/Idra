@@ -4,12 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { SettingsEmptyState } from '../../../components';
 
-type ConnectorTool = Awaited<ReturnType<typeof window.connectors.get>>['tools'][number];
-
 export function ConnectorToolsList({
 	tools,
 }: {
-	readonly tools: readonly ConnectorTool[];
+	readonly tools: Awaited<ReturnType<typeof window.connectors.get>>['tools'];
 }): React.JSX.Element {
 	if (tools.length === 0) {
 		return (

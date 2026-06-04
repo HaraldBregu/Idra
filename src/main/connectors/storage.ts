@@ -4,8 +4,6 @@ import type {
 } from '../../shared/connectors';
 import type { ConnectorApprovalMode, ConnectorConfig } from './types';
 
-type ConnectorTool = ConnectorConfig['tools'][number];
-
 export function connectorsToStore(connectors: readonly ConnectorConfig[]): ConnectorRecord {
 	const store: ConnectorRecord = {};
 	for (const connector of connectors) {
@@ -142,7 +140,7 @@ function isStoredConnector(value: unknown): value is ConnectorConfig {
 	);
 }
 
-function normalizeStoredTool(tool: ConnectorTool): ConnectorTool {
+function normalizeStoredTool(tool: ConnectorConfig['tools'][number]): ConnectorConfig['tools'][number] {
 	return {
 		name: tool.name,
 		description: tool.description,
