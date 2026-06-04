@@ -32,7 +32,7 @@ function dependencies(providerId: string, connectors: unknown): AgentServiceDepe
 
 function service(providerId: string, connectors: unknown, execute: jest.Mock) {
 	return new AgentService(dependencies(providerId, connectors), {
-		sessionBaseDir: path.join('C:\\tmp', `friday-agent-test-${providerId}-${Date.now()}`),
+		sessionBaseDir: path.join(process.cwd(), 'tests', '.tmp', `agent-${providerId}-${Date.now()}`),
 		providerFactory: () => ({ stream: async function* () {} }) as ProviderAdapter,
 		policy: undefined,
 		toolsFactory: () => [],
