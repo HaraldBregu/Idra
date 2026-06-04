@@ -27,7 +27,7 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from '../core/runtime/adapt';
-import { createRemoteMcpProviderTools } from '../mcp/shared/provider';
+import { createRemoteMcpProviderTools } from '../../connectors/provider-tools';
 import type { ToolProfile } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();
