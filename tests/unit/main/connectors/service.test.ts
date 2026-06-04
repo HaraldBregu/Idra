@@ -46,7 +46,7 @@ describe('ConnectorsService storage', () => {
 
 		expect(saved.authorization).toBe('');
 		expect(saved.tools).toEqual([]);
-		expect((mockStoreData.connectors as ConnectorStore).acme_mail).toEqual({
+		expect((mockStoreData as ConnectorStore).acme_mail).toEqual({
 			type: 'mcp',
 			server_label: 'acme_mail',
 			server_url: 'https://mcp.example.com/mail',
@@ -83,7 +83,7 @@ describe('ConnectorsService storage', () => {
 
 		expect(saved).toHaveLength(1);
 		expect(saved.every((connector) => connector.authorization === '')).toBe(true);
-		expect(mockStoreData.connectors).toEqual({
+		expect(mockStoreData).toEqual({
 			acme_mail: {
 				type: 'mcp',
 				server_label: 'acme_mail',
@@ -111,7 +111,7 @@ describe('ConnectorsService storage', () => {
 		}]);
 
 		expect(service.list()).toEqual([]);
-		expect(mockStoreData.connectors).toEqual({});
+		expect(mockStoreData).toEqual({});
 	});
 
 	it('rejects authorized connector settings without serverUrl', async () => {
@@ -127,7 +127,7 @@ describe('ConnectorsService storage', () => {
 
 	it('reads MCP connector entries from the Electron connectors store', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
-		mockStoreData.connectors = {
+		mockStoreData = {
 			gmail: {
 				type: 'mcp',
 				server_label: 'my-server',
@@ -166,7 +166,7 @@ describe('ConnectorsService storage', () => {
 	it('reports missing_auth for migrated Gmail OAuth tokens without the OpenAI connector scope', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 		const now = new Date().toISOString();
-		mockStoreData.connectors = [{
+		mockStoreData = [{
 			id: 'gmail-1',
 			name: 'Gmail',
 			connectorId: 'google.gmail',
