@@ -1,9 +1,8 @@
-import type {
+import { requiredOpenAiConnectorScopes, type {
 	ConnectorConfig,
 	ConnectorOAuthCredential,
 	ConnectorStatus,
 	ConnectorView,
-	requiredOpenAiConnectorScopes,
 } from '../../../shared/connector';
 
 export function cloneValue<T>(value: T): T {
