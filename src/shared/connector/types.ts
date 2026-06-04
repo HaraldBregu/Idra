@@ -230,6 +230,24 @@ export interface ConnectorInput {
 
 export type ConnectorUpdateInput = Partial<ConnectorInput>;
 
+export interface ConnectorOAuthConnectConfig {
+	service: string;
+	serviceId?: string;
+	clientIdEnv: string;
+	clientSecretEnv?: string;
+	authorizationUrl: string;
+	tokenUrl: string;
+	userInfoUrl?: string;
+	scopes: readonly string[];
+	accessType?: string;
+	prompt?: string;
+}
+
+export interface ConnectorConnectInput extends ConnectorInput {
+	serverUrl: string;
+	oauth: ConnectorOAuthConnectConfig;
+}
+
 export interface ConnectorOAuthAuthorizeRequest {
 	connectorId: ConnectorServiceId;
 }
