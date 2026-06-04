@@ -90,7 +90,7 @@ describe('ConnectorsService OpenAI connectors', () => {
 			name: 'Acme Drive',
 			connectorId: 'connector_acme_drive',
 			serverLabel: 'acme_drive',
-			authorization: 'dropbox-token',
+			authorization: 'acme-drive-token',
 			requireApproval: 'always',
 		});
 		await service.add({

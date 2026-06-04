@@ -1,12 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import Store from 'electron-store';
-import { app, shell } from 'electron';
+import { app } from 'electron';
 import type { LoggerService } from '../observability';
 import type { AgentTool, ToolContext } from '../tools/shared/types';
 import { textResult } from '../tools/shared/types';
 import {
-	getMcpConnectorCatalogItem,
 	type ConnectorApprovalMode,
 	type ConnectorCallToolOptions,
 	type ConnectorCatalogEntry,
@@ -43,7 +42,6 @@ type ConnectorMcpClient = {
 interface ConnectorsServiceOptions {
 	mcpClientFactory?: (connector: ConnectorConfig, secrets: Record<string, string>) => ConnectorMcpClient;
 	env?: NodeJS.ProcessEnv;
-	openExternalUrl?: (url: string) => Promise<void>;
 }
 
 const CONNECTOR_STORE_KEY = 'connectors';
@@ -179,51 +177,7 @@ export class ConnectorsService {
 
 	async authorizeOAuth(input: ConnectorOAuthAuthorizeRequest | string): Promise<ConnectorOAuthAuthorizeResult> {
 		const connectorId = typeof input === 'string' ? input : input.connectorId;
-		const existing = this.validConnectors().find((connector) => connector.id === connectorId);
-		const catalogItem = getMcpConnectorCatalogItem(existing?.connectorId ?? connectorId);
-		if (!catalogItem?.oauth || !catalogItem.mcp) {
-			throw new Error(`OAuth connector is not available: ${connectorId}`);
-		}
-
-		const clientId = this.env()[catalogItem.oauth.clientIdEnv];
-		if (!clientId) throw new Error(`${catalogItem.oauth.clientIdEnv} is required to authorize ${catalogItem.name}.`);
-
-		const state = randomUUID();
-		const authorizationUrl = buildOAuthUrl(catalogItem, clientId, state);
-		const now = new Date().toISOString();
-		const connector: ConnectorConfig = {
-			id: existing?.id ?? randomUUID(),
-			name: existing?.name ?? catalogItem.name,
-			connectorId: catalogItem.id,
-			serverLabel: existing?.serverLabel ?? serverLabelFromName(catalogItem.name),
-			serverDescription: existing?.serverDescription ?? catalogItem.description,
-			enabled: existing?.enabled ?? true,
-			authorization: '',
-			mcp: cloneValue(catalogItem.mcp),
-			oauth: {
-				provider: catalogItem.oauth.providerId,
-				providerId: catalogItem.oauth.providerId,
-				clientId,
-				authorizationUrl,
-				redirectUri: catalogItem.oauth.redirectUri,
-				scopes: [...catalogItem.scopes],
-				state,
-			},
-			requireApproval: existing?.requireApproval ?? 'never',
-			allowedTools: existing?.allowedTools ?? [],
-			deferLoading: existing?.deferLoading ?? false,
-			tools: existing?.tools ?? [],
-			createdAt: existing?.createdAt ?? now,
-			updatedAt: now,
-		};
-		const next = await this.withDiscoveredTools(connector, true);
-		this.upsert(next);
-		await this.openExternal(authorizationUrl);
-		return {
-			connectorId: catalogItem.id,
-			authorizationUrl,
-			connector: redactConnectorSecrets(next),
-		};
+		throw new Error(`OAuth connector catalog authorization is not available: ${connectorId}`);
 	}
 
 	async connectOAuth(id: string): Promise<ConnectorOAuthAuthorizeResult | ConnectorOAuthConnectResult> {
@@ -410,16 +364,6 @@ export class ConnectorsService {
 		);
 	}
 
-	private upsert(connector: ConnectorConfig): void {
-		const connectors = this.validConnectors();
-		const exists = connectors.some((item) => item.id === connector.id);
-		this.writeConnectors(
-			exists
-				? connectors.map((item) => (item.id === connector.id ? connector : item))
-				: [...connectors, connector]
-		);
-	}
-
 	private async withDiscoveredTools(connector: ConnectorConfig, containFailure: boolean): Promise<ConnectorConfig> {
 		try {
 			const client = this.mcpClient(connector);
@@ -458,14 +402,6 @@ export class ConnectorsService {
 		return this.options.env ?? process.env;
 	}
 
-	private async openExternal(url: string): Promise<void> {
-		if (this.options.openExternalUrl) {
-			await this.options.openExternalUrl(url);
-			return;
-		}
-		await shell.openExternal(url);
-	}
-
 	private warn(message: string, details?: Record<string, unknown>): void {
 		this.logger.warn('ConnectorsService', message, details);
 	}
@@ -483,29 +419,13 @@ function resolveAppDataPath(): string {
 	}
 }
 
-function buildOAuthUrl(catalogItem: ConnectorCatalogEntry, clientId: string, state: string): string {
-	if (!catalogItem.oauth) throw new Error(`OAuth is not configured for ${catalogItem.id}.`);
-	const url = new URL(catalogItem.oauth.authorizationUrl);
-	for (const [key, value] of Object.entries(catalogItem.oauth.authorizationParams)) {
-		url.searchParams.set(key, value);
-	}
-	url.searchParams.set('client_id', clientId);
-	url.searchParams.set('redirect_uri', catalogItem.oauth.redirectUri);
-	url.searchParams.set('scope', catalogItem.scopes.join(' '));
-	url.searchParams.set('state', state);
-	return url.toString();
-}
-
 function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
 	const name = readOptionalString(raw, 'name')?.trim() ?? '';
 	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? '';
-	const mcpCatalogItem = getMcpConnectorCatalogItem(connectorId);
 	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || serverLabelFromName(name);
 	const serverUrl = readOptionalString(raw, 'serverUrl')?.trim() || undefined;
-	const serverDescription =
-		readOptionalString(raw, 'serverDescription')?.trim() ||
-		mcpCatalogItem?.description;
+	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim();
 	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
 	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? 'always';
 	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
@@ -679,7 +599,6 @@ function toView(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorVi
 }
 
 function authKindFor(connector: ConnectorConfig): ConnectorView['authKind'] {
-	if (connector.oauth?.provider === 'google' || connector.oauth?.providerId === 'google') return 'google_oauth';
 	if (connector.oauth) return 'oauth';
 	if (isOpenAiResponsesConnector(connector)) {
 		return connector.serverUrl && !connectorAuthorization(connector) ? 'none' : 'manual_oauth_access_token';
