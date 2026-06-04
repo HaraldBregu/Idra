@@ -136,8 +136,7 @@ describe('ConnectorsService storage', () => {
 				server_label: 'my-server',
 				server_url: 'https://example.com/mcp',
 				authorization: 'Bearer token-123',
-				require_approval: { never: { tool_names: ['search', 'fetch'] } },
-				allowed_tools: ['search', 'fetch'],
+				require_approval: 'never',
 			},
 			google_calendar: {
 				type: 'mcp',
@@ -153,7 +152,7 @@ describe('ConnectorsService storage', () => {
 				serverLabel: 'my-server',
 				serverUrl: 'https://example.com/mcp',
 				status: 'configured',
-				requireApproval: 'always',
+				requireApproval: 'never',
 			}),
 			expect.objectContaining({
 				id: 'google_calendar',
