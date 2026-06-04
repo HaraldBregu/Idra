@@ -5,7 +5,6 @@ import type { LoggerService } from '../observability';
 import type { ConnectorRecord } from '../../shared/connectors';
 import { errorMessage } from './runtime';
 import { connectorsFromStore, connectorsToStore } from './storage';
-import type { ConnectorConfig } from './types';
 
 type ConnectorsStore = {
 	get store(): unknown;
@@ -25,11 +24,11 @@ export class ConnectorRepository {
 		}) as unknown as ConnectorsStore;
 	}
 
-	list(): ConnectorConfig[] {
+	list(): ConnectorRecord {
 		try {
 			const raw = this.store.store;
 			const connectors = connectorsFromStore(raw);
-			if (connectors.length === 0 && !isEmptyConnectorStore(raw)) {
+			if (Object.keys(connectors).length === 0 && !isEmptyConnectorStore(raw)) {
 				this.warn('Dropped invalid connector settings');
 			}
 			return connectors;
@@ -41,18 +40,19 @@ export class ConnectorRepository {
 		}
 	}
 
-	get(id: string): ConnectorConfig {
-		const connector = this.list().find((item) => item.id === id);
+	get(id: string): ConnectorRecord {
+		const connectors = this.list();
+		const connector = connectors[id];
 		if (!connector) throw new Error(`Connector not found: ${id}`);
-		return connector;
+		return { [id]: connector };
 	}
 
-	write(connectors: ConnectorConfig[]): void {
+	write(connectors: ConnectorRecord): void {
 		this.store.store = connectorsToStore(connectors);
 	}
 
-	replace(connector: ConnectorConfig): void {
-		this.write(this.list().map((item) => (item.id === connector.id ? connector : item)));
+	replace(connector: ConnectorRecord): void {
+		this.write({ ...this.list(), ...connector });
 	}
 
 	private warn(message: string, details?: Record<string, unknown>): void {
