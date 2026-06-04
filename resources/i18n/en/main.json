@@ -376,7 +376,7 @@
 			}
 		},
 		"chatHistory": {
-			"title": "Chat history",
+			"title": "Chat",
 			"description": "Stored context and cleanup.",
 			"messages": "Stored messages",
 			"breakdown": "{{user}} user / {{assistant}} assistant / {{tool}} tool",
