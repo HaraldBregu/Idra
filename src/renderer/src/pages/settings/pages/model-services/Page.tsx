@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AlertTriangle, FolderOpen, LoaderCircle, Save } from 'lucide-react';
+import { AlertTriangle, ChevronDown, FolderOpen, LoaderCircle, Save, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
