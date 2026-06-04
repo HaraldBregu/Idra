@@ -1,4 +1,8 @@
-import type { ConnectorConfig } from '../../../../src/shared/connector';
+import {
+	GMAIL_MCP_SERVER_URL,
+	GMAIL_TOOLS_WITHOUT_APPROVAL,
+	type ConnectorConfig,
+} from '../../../../src/shared/connector';
 
 const mockStoreData: { connectors?: unknown } = {};
 const mockStore = {
@@ -123,6 +127,34 @@ describe('ConnectorToolsService provider adapters', () => {
 				require_approval: 'never',
 				allowed_tools: ['search'],
 			},
+		]);
+	});
+
+	it('normalizes legacy Gmail connectors so read tools do not require OpenAI approval continuation', async () => {
+		const connectors = new ConnectorsService(logger as never, { env: {} });
+		const connectorTools = new ConnectorToolsService(connectors, { env: {} });
+
+		await connectors.save([{
+			name: 'Gmail',
+			connectorId: 'google.gmail',
+			serverLabel: 'gmail',
+			serverUrl: GMAIL_MCP_SERVER_URL,
+			authorization: 'gmail-token',
+			requireApproval: 'always',
+			allowedTools: [],
+		}]);
+
+		expect(connectorTools.createOpenAIConnectorTools()).toEqual([
+			expect.objectContaining({
+				type: 'mcp',
+				server_label: 'gmail',
+				server_url: GMAIL_MCP_SERVER_URL,
+				authorization: 'gmail-token',
+				require_approval: {
+					never: { tool_names: [...GMAIL_TOOLS_WITHOUT_APPROVAL] },
+				},
+				allowed_tools: [...GMAIL_TOOLS_WITHOUT_APPROVAL],
+			}),
 		]);
 	});
 

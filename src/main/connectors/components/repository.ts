@@ -2,7 +2,13 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
 import type { LoggerService } from '../../observability';
-import type { ConnectorConfig, ConnectorTool } from '../../../shared/connector';
+import {
+	GMAIL_CONNECTOR_ID,
+	GMAIL_MCP_SERVER_URL,
+	GMAIL_TOOLS_WITHOUT_APPROVAL,
+	type ConnectorConfig,
+	type ConnectorTool,
+} from '../../../shared/connector';
 import { errorMessage, uniqueStrings } from './runtime';
 
 type ConnectorsStoreSchema = { connectors?: ConnectorConfig[] };
@@ -87,12 +93,22 @@ function isStoredConnectorValid(value: unknown): value is ConnectorConfig {
 }
 
 function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
+	const serverUrl = typeof connector.serverUrl === 'string' && connector.serverUrl.trim() ? connector.serverUrl.trim() : undefined;
+	const legacyGmailNeedsReadDefaults =
+		connector.connectorId === GMAIL_CONNECTOR_ID &&
+		serverUrl === GMAIL_MCP_SERVER_URL &&
+		(connector.requireApproval ?? 'always') === 'always' &&
+		(!Array.isArray(connector.allowedTools) || connector.allowedTools.length === 0);
 	return {
 		...connector,
-		serverUrl: typeof connector.serverUrl === 'string' && connector.serverUrl.trim() ? connector.serverUrl.trim() : undefined,
+		serverUrl,
 		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
-		allowedTools: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
-		requireApproval: connector.requireApproval ?? 'always',
+		allowedTools: legacyGmailNeedsReadDefaults
+			? [...GMAIL_TOOLS_WITHOUT_APPROVAL]
+			: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
+		requireApproval: legacyGmailNeedsReadDefaults
+			? 'never_for_allowed_tools'
+			: connector.requireApproval ?? 'always',
 		deferLoading: connector.deferLoading ?? false,
 		enabled: connector.enabled ?? true,
 		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeStoredTool) : [],

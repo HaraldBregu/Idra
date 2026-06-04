@@ -2,6 +2,11 @@ import type {
 	ConnectorConnectInput,
 	DirectConnectorCatalogId,
 } from '../../../../../../shared/connector';
+import {
+	GMAIL_CONNECTOR_ID,
+	GMAIL_MCP_SERVER_URL,
+	GMAIL_TOOLS_WITHOUT_APPROVAL,
+} from '../../../../../../shared/connector';
 
 export type SettingsConnectorCatalogEntry = ConnectorConnectInput & {
 	readonly directConnectorId: DirectConnectorCatalogId;
@@ -10,15 +15,15 @@ export type SettingsConnectorCatalogEntry = ConnectorConnectInput & {
 
 export const SETTINGS_CONNECTOR_CATALOG: readonly SettingsConnectorCatalogEntry[] = [
 	{
-		connectorId: 'google.gmail',
+		connectorId: GMAIL_CONNECTOR_ID,
 		directConnectorId: 'gmail',
 		name: 'Gmail',
 		serverLabel: 'gmail',
 		serverDescription: 'Read, search, draft, and send Gmail messages through Google hosted MCP.',
-		serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
+		serverUrl: GMAIL_MCP_SERVER_URL,
 		description: 'Read, search, draft, and send Gmail messages.',
-		requireApproval: 'always',
-		allowedTools: [],
+		requireApproval: 'never_for_allowed_tools',
+		allowedTools: [...GMAIL_TOOLS_WITHOUT_APPROVAL],
 		deferLoading: false,
 		enabled: true,
 		oauth: {
