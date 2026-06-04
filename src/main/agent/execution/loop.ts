@@ -416,48 +416,29 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 			let reasoningStarted = false;
 			let approvalBlocked = false;
 			const reasoningSummaryId = `${runId}:${iter}:reasoning`;
-			let providerResponseId: string | undefined;
-			let approvalContinuation:
-				| { previousResponseId: string; approvalRequestId: string }
-				| undefined;
 
 			try {
-				do {
-					const request = {
-						model,
-						effort,
-						system: systemPromptForTurn,
-						messages: session.transcript,
-						inputItems: approvalContinuation
-							? [
-									{
-										type: 'mcp_approval_response',
-										approve: true,
-										approval_request_id: approvalContinuation.approvalRequestId,
-									},
-								]
-							: undefined,
-						previousResponseId: approvalContinuation?.previousResponseId,
-						tools: toolsForPrompt.map((t) => ({
-							name: t.name,
-							description: t.description,
-							schema: t.schema,
-						})),
-						builtInTools: input.builtInTools ?? [],
-						maxTokens,
-						signal,
-					};
-					approvalContinuation = undefined;
-					await emitRuntimeLifecycleHook('llm_input', {
-						runId,
-						iteration: iter,
-						request: redactProviderRequest(request),
-					});
-					providerEvents: for await (const event of provider.stream(request)) {
+				const request = {
+					model,
+					effort,
+					system: systemPromptForTurn,
+					messages: session.transcript,
+					tools: toolsForPrompt.map((t) => ({
+						name: t.name,
+						description: t.description,
+						schema: t.schema,
+					})),
+					builtInTools: input.builtInTools ?? [],
+					maxTokens,
+					signal,
+				};
+				await emitRuntimeLifecycleHook('llm_input', {
+					runId,
+					iteration: iter,
+					request: redactProviderRequest(request),
+				});
+				providerEvents: for await (const event of provider.stream(request)) {
 						switch (event.type) {
-							case 'response_created':
-								providerResponseId = event.id;
-								break;
 							case 'reasoning_item':
 								reasoningBlocks.push({
 									type: 'reasoning',
@@ -667,7 +648,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								break;
 						}
 					}
-				} while (approvalContinuation);
 			} catch (err) {
 				if (err instanceof ContextOverflowError && !didCompact) {
 					didCompact = true;
