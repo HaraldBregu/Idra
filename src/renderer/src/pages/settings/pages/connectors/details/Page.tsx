@@ -39,13 +39,14 @@ function connectorRecordEntry(
 }
 
 function connectorName(id: string, connector: ConnectorEntry): string {
+	const serverLabel = connector.server_label
+		.split(/[_-]+/u)
+		.map((part) => part ? part[0].toUpperCase() + part.slice(1) : '')
+		.join(' ')
+		.trim();
 	return (
 		SETTINGS_CONNECTOR_CATALOG.find((entry) => entry.directConnectorId === id)?.name ??
-		connector.server_label
-			.split(/[_-]+/u)
-			.map((part) => part ? part[0].toUpperCase() + part.slice(1) : '')
-			.join(' ')
-			.trim() ||
+		serverLabel ||
 		id
 	);
 }
