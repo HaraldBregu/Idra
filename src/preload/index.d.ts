@@ -75,8 +75,8 @@ export interface ChannelsApi {
 
 export interface ConnectorsApi {
 	list: () => Promise<ConnectorView[]>;
-	get: (id: string) => Promise<ConnectorRecord>;
-	save: (input: ConnectorInput[]) => Promise<ConnectorRecord[]>;
+	get: (id: string) => Promise<Connector>;
+	save: (input: ConnectorInput[]) => Promise<Connector[]>;
 	connect: (input: ConnectorConnectInput) => Promise<ConnectorView>;
 }
 
@@ -191,9 +191,9 @@ import type {
 import type {
 	ConnectorConnectInput,
 	ConnectorInput,
-	ConnectorRecord,
+	Connector,
 	ConnectorView,
-} from '../shared/connector';
+} from '../shared/connectors';
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

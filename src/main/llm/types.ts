@@ -1,5 +1,5 @@
 import type { ModelReasoningEffort } from '../../shared/agents/service';
-import type { OpenAiMcpConnectorToolSpec } from '../../shared/connector';
+import type { OpenAiMcpConnectorToolSpec } from '../../shared/connectors';
 
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.

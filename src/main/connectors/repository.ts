@@ -2,17 +2,13 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
 import type { LoggerService } from '../observability';
-import {
-	connectorsFromStore,
-	connectorsToStore,
-	type ConnectorConfig,
-	type ConnectorRecord,
-} from '../../shared/connector';
+import type { Connector, ConnectorRecord } from '../../shared/connectors';
 import { errorMessage } from './runtime';
+import { connectorsFromStore, connectorsToStore } from './storage';
 
 type ConnectorsStore = {
 	get store(): unknown;
-	set store(value: ConnectorConfig);
+	set store(value: ConnectorRecord);
 };
 
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';

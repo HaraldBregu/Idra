@@ -81,9 +81,9 @@ import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
 	ConnectorConnectInput,
 	ConnectorInput,
-	ConnectorRecord,
+	Connector,
 	ConnectorView,
-} from '../shared/connector';
+} from '../shared/connectors';
 import {
 	isRealtimeTranscriptionAudioChunk,
 	isRealtimeTranscriptionSessionId,
@@ -612,10 +612,10 @@ export const connectors: ConnectorsApi = {
 	list: (): Promise<ConnectorView[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.list);
 	},
-	get: (id: string): Promise<ConnectorRecord> => {
+	get: (id: string): Promise<Connector> => {
 		return typedInvokeUnwrap(ConnectorsChannels.get, id);
 	},
-	save: (input: ConnectorInput[]): Promise<ConnectorRecord[]> => {
+	save: (input: ConnectorInput[]): Promise<Connector[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.save, input);
 	},
 	connect: (input: ConnectorConnectInput): Promise<ConnectorView> => {
