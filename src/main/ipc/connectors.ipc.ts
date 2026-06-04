@@ -1,9 +1,10 @@
-import { ipcMain, shell } from 'electron';
+import { ipcMain } from 'electron';
 import type { IpcModule } from './module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { ConnectorsChannels } from '../../shared/ipc-channels';
+import type { ConnectorRecord } from '../../shared/connectors';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
@@ -14,24 +15,35 @@ export class ConnectorsIpc implements IpcModule {
 
 		ipcMain.handle(
 			ConnectorsChannels.list,
-			wrapSimpleHandler(() => connectors.list(), ConnectorsChannels.list)
+			wrapSimpleHandler(() => redactConnectorSecrets(connectors.list()), ConnectorsChannels.list)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.get,
-			wrapSimpleHandler((id: string) => connectors.get(id), ConnectorsChannels.get)
+			wrapSimpleHandler((id: string) => redactConnectorSecrets(connectors.get(id)), ConnectorsChannels.get)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.save,
-			wrapSimpleHandler((input) => connectors.save(input), ConnectorsChannels.save)
+			wrapSimpleHandler((input) => redactConnectorSecrets(connectors.save(input)), ConnectorsChannels.save)
 		);
 		ipcMain.handle(
 			ConnectorsChannels.connect,
-			wrapSimpleHandler(
-				(input) => connectors.connect(input, (url) => shell.openExternal(url)),
-				ConnectorsChannels.connect
-			)
+			wrapSimpleHandler(() => {
+				throw new Error('Connector connection is not available from connector storage.');
+			}, ConnectorsChannels.connect)
 		);
 
 		logger.info('ConnectorsIpc', `Registered ${this.name} module`);
 	}
+}
+
+function redactConnectorSecrets(connectors: ConnectorRecord): ConnectorRecord {
+	return Object.fromEntries(
+		Object.entries(connectors).map(([key, connector]) => [
+			key,
+			{
+				...connector,
+				authorization: connector.authorization ? '' : undefined,
+			},
+		])
+	);
 }
