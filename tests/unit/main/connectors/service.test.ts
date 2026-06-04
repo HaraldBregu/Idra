@@ -30,7 +30,7 @@ describe('ConnectorsService storage', () => {
 		logger.error.mockClear();
 	});
 
-	it('stores and redacts authorization without MCP transport', async () => {
+	it('stores authorized connectors as MCP store entries', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		const [saved] = await service.save([{
@@ -45,8 +45,15 @@ describe('ConnectorsService storage', () => {
 
 		expect(saved.authorization).toBe('');
 		expect(saved.tools).toEqual([]);
-		expect((mockStoreData.connectors as ConnectorStore).acme_mail.authorization).toBe('token-123');
-		expect((mockStoreData.connectors as ConnectorStore).acme_mail.tools).toEqual([]);
+		expect((mockStoreData.connectors as ConnectorStore).acme_mail).toEqual({
+			type: 'mcp',
+			server_label: 'acme_mail',
+			connector_id: 'connector_acme_mail',
+			authorization: 'token-123',
+			require_approval: { never: { tool_names: ['search_emails'] } },
+			allowed_tools: ['search_emails'],
+			server_description: 'Acme mail connector.',
+		});
 		expect(service.get(saved.id).authorization).toBe('');
 		expect(service.getConnectorSettings()[0].authorization).toBe('');
 		expect(service.list()[0]).toMatchObject({
@@ -55,7 +62,7 @@ describe('ConnectorsService storage', () => {
 		});
 	});
 
-	it('saves connector records in bulk through the connectors store', async () => {
+	it('only stores authorized connector records in bulk', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		const saved = await service.save([
@@ -73,12 +80,16 @@ describe('ConnectorsService storage', () => {
 			},
 		]);
 
-		expect(saved).toHaveLength(2);
+		expect(saved).toHaveLength(1);
 		expect(saved.every((connector) => connector.authorization === '')).toBe(true);
-		expect(Object.values(mockStoreData.connectors as ConnectorStore).map((connector) => connector.authorization)).toEqual([
-			'token-123',
-			'',
-		]);
+		expect(mockStoreData.connectors).toEqual({
+			acme_mail: {
+				type: 'mcp',
+				server_label: 'acme_mail',
+				connector_id: 'connector_acme_mail',
+				authorization: 'token-123',
+			},
+		});
 	});
 
 	it('rejects non-array bulk connector saves', async () => {
@@ -89,7 +100,7 @@ describe('ConnectorsService storage', () => {
 		);
 	});
 
-	it('reports missing_auth when authorization is absent', async () => {
+	it('does not store connector settings without authorization', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		await service.save([{
@@ -98,7 +109,8 @@ describe('ConnectorsService storage', () => {
 			serverLabel: 'acme_drive',
 		}]);
 
-		expect(service.list()[0].status).toBe('missing_auth');
+		expect(service.list()).toEqual([]);
+		expect(mockStoreData.connectors).toEqual({});
 	});
 
 	it('reports missing_auth for migrated Gmail OAuth tokens without the OpenAI connector scope', () => {

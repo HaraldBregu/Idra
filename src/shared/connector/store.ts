@@ -16,7 +16,7 @@ export function connectorsToStore(connectors: readonly ConnectorConfig[]): Conne
 		const authorization = connectorAuthorization(migrated);
 		if (!authorization) continue;
 		const baseKey = connectorStoreKey(migrated);
-		const key = store[baseKey] && store[baseKey].id !== connector.id ? `${baseKey}_${connector.id}` : baseKey;
+		const key = store[baseKey] ? `${baseKey}_${connector.id}` : baseKey;
 		store[key] = connectorToStoreEntry(migrated, authorization);
 	}
 	return store;
@@ -116,14 +116,6 @@ function connectorAuthorization(connector: ConnectorConfig): string {
 		connector.oauth?.accessToken?.trim() ||
 		''
 	);
-}
-
-function oauthScopes(oauth: ConnectorOAuthCredential): Set<string> {
-	return new Set([
-		...(oauth.scope?.split(/\s+/u) ?? []),
-		...(oauth.token?.scope?.split(/\s+/u) ?? []),
-		...(oauth.scopes ?? []),
-	].map((scope) => scope.trim()).filter(Boolean));
 }
 
 function toStoredRequireApproval(
