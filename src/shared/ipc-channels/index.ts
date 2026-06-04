@@ -147,7 +147,6 @@ export const StoreChannels = {
 	getCronSettings: 'store:get-cron-settings',
 	getTaskSettings: 'store:get-task-settings',
 	getAgentRoutingSettings: 'store:get-agent-routing-settings',
-	getConnectorSettings: 'store:get-connector-settings',
 	getAgentService: 'store:get-agent-service',
 	saveAgentService: 'store:save-agent-service',
 	getSpeechTranscriberService: 'store:get-speech-transcriber-service',
@@ -546,10 +545,6 @@ interface StoreInvokeChannelMap {
 	[StoreChannels.getAgentRoutingSettings]: {
 		args: [];
 		result: import('../store').AgentRoutingSettings;
-	};
-	[StoreChannels.getConnectorSettings]: {
-		args: [];
-		result: unknown[];
 	};
 	[StoreChannels.getAgentService]: {
 		args: [];

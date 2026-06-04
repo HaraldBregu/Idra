@@ -90,100 +90,6 @@ import {
 	normalizeSpeechToTextTranscribeRequest,
 } from '../shared/speech-to-text';
 
-type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
-type ConnectorApprovalMode = 'always' | 'never';
-type ConnectorAuthKind =
-	| 'manual_oauth_access_token'
-	| 'oauth'
-	| 'mcp_env'
-	| 'api_key'
-	| 'none';
-
-type ConnectorConfig = {
-	id: string;
-	name: string;
-	connectorId: string;
-	serverLabel: string;
-	serverDescription?: string;
-	serverUrl?: string;
-	enabled: boolean;
-	authorization: string;
-	oauth?: {
-		service: string;
-		serviceId?: string;
-		authorizationUrl?: string;
-		clientId?: string;
-		clientSecret?: string;
-		redirectUri: string;
-		scopes?: readonly string[];
-		state?: string;
-		accessToken?: string;
-		refreshToken?: string;
-		expiresAt?: number;
-		tokenType?: string;
-		scope?: string;
-		email?: string;
-		accountEmail?: string;
-		token?: {
-			accessToken: string;
-			refreshToken?: string;
-			tokenType?: string;
-			scope?: string;
-			expiresAt?: string;
-		};
-		connectedAt?: string;
-	};
-	requireApproval: ConnectorApprovalMode;
-	deferLoading: boolean;
-	lastRefreshedAt?: string;
-	createdAt: string;
-	updatedAt: string;
-	lastError?: string;
-};
-
-type ConnectorSummary = {
-	id: string;
-	name: string;
-	connectorId: string;
-	authKind: ConnectorAuthKind;
-	serverLabel: string;
-	serverUrl?: string;
-	enabled: boolean;
-	status: ConnectorStatus;
-	requireApproval: ConnectorApprovalMode;
-	deferLoading: boolean;
-	lastRefreshedAt?: string;
-	lastError?: string;
-	connectedAccount?: string;
-};
-
-type ConnectorInput = {
-	name: string;
-	connectorId: string;
-	serverLabel?: string;
-	serverDescription?: string;
-	serverUrl?: string;
-	authorization?: string;
-	requireApproval?: ConnectorApprovalMode;
-	deferLoading?: boolean;
-	enabled?: boolean;
-};
-
-type ConnectorConnectInput = ConnectorInput & {
-	oauth: {
-		service: string;
-		serviceId?: string;
-		clientIdEnv: string;
-		clientSecretEnv?: string;
-		authorizationUrl: string;
-		tokenUrl: string;
-		userInfoUrl?: string;
-		scopes: readonly string[];
-		accessType?: string;
-		prompt?: string;
-	};
-};
-
 function assertHeartbeatObject<T>(request: T): T {
 	if (!request || typeof request !== 'object' || Array.isArray(request)) {
 		throw new Error('Invalid heartbeat request.');
@@ -611,9 +517,6 @@ export const store: StoreApi = {
 	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
 	},
-	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
-		return typedInvokeUnwrap<ConnectorConfig[]>(StoreChannels.getConnectorSettings);
-	},
 	getAgentService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentService);
 	},
@@ -697,7 +600,7 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	list: (): Promise<ConnectorSummary[]> => {
+	list: (): Promise<ConnectorRecord[]> => {
 		return typedInvokeUnwrap<ConnectorSummary[]>(ConnectorsChannels.list);
 	},
 	get: (id: string): Promise<ConnectorConfig> => {
