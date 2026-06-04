@@ -37,7 +37,6 @@ describe('ToolService connector built-ins', () => {
 			dmcp: {
 				type: 'mcp',
 				server_label: 'dmcp',
-				server_description: 'A Dungeons and Dragons MCP server to assist with dice rolling.',
 				server_url: 'https://dmcp-server.deno.dev/sse',
 				authorization: 'Bearer token-123',
 				require_approval: 'never',
@@ -52,7 +51,6 @@ describe('ToolService connector built-ins', () => {
 			{
 				type: 'mcp',
 				server_label: 'dmcp',
-				server_description: 'A Dungeons and Dragons MCP server to assist with dice rolling.',
 				server_url: 'https://dmcp-server.deno.dev/sse',
 				authorization: 'Bearer token-123',
 				require_approval: 'never',
