@@ -79,6 +79,7 @@ import type {
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
+	ConnectorConnectInput,
 	ConnectorConfig,
 	ConnectorInput,
 	ConnectorView,
@@ -616,6 +617,9 @@ export const connectors: ConnectorsApi = {
 	},
 	save: (input: ConnectorInput[]): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.save, input);
+	},
+	connect: (input: ConnectorConnectInput): Promise<ConnectorView> => {
+		return typedInvokeUnwrap(ConnectorsChannels.connect, input);
 	},
 };
 
