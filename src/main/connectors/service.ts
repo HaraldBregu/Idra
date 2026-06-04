@@ -14,12 +14,12 @@ import {
 	requireObject,
 	sanitizeInput,
 	serverLabelFromName,
-} from './components/validation';
+} from './validation';
 import {
 	redactConnectorSecrets,
 	toConnectorView,
-} from './components/runtime';
-import { ConnectorRepository } from './components/repository';
+} from './runtime';
+import { ConnectorRepository } from './repository';
 import type { ConnectorsServiceOptions } from './types';
 
 type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;

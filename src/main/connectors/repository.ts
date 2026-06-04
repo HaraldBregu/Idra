@@ -1,13 +1,13 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { LoggerService } from '../../observability';
+import type { LoggerService } from '../observability';
 import {
 	connectorsFromStore,
 	connectorsToStore,
 	type ConnectorConfig,
 	type ConnectorStore,
-} from '../../../shared/connector';
+} from '../../shared/connector';
 import { errorMessage } from './runtime';
 
 type ConnectorsStore = {

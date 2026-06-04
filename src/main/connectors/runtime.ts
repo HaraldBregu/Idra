@@ -4,7 +4,7 @@ import {
 	type ConnectorOAuthCredential,
 	type ConnectorStatus,
 	type ConnectorView,
-} from '../../../shared/connector';
+} from '../../shared/connector';
 
 export function errorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
