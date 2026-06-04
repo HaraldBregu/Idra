@@ -607,10 +607,10 @@ export const connectors: ConnectorsApi = {
 	get: (id: string): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.get, id);
 	},
-	save: (input: ConnectorInput[]): Promise<ConnectorRecord> => {
+	save: (input: Parameters<ConnectorsApi['save']>[0]): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.save, input);
 	},
-	connect: (input: ConnectorConnectInput): Promise<ConnectorRecord> => {
+	connect: (input: Parameters<ConnectorsApi['connect']>[0]): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.connect, input);
 	},
 };
