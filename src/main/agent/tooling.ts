@@ -5,7 +5,7 @@ import type { ConnectorsService } from '../connectors';
 import type { StoreService } from '../store';
 import type { SkillsService } from '../skills';
 import type { WorkspaceService } from './workspace';
-import type { JSONSchema, ProviderBuiltInToolSpec, ToolResultBlock } from '../llm/types';
+import type { JSONSchema, ToolResultBlock } from '../llm/types';
 import type {
 	AgentCapabilityServiceKind,
 	AgentToolResultStatus,
@@ -190,7 +190,6 @@ export interface ToolsServicePort {
 	): AgentTool[];
 	createCallTracker(): any;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
-	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[];
 	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
 	createStartupFilesTool(
 		agentId: string,
