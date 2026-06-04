@@ -78,6 +78,7 @@ import type {
 	TelegramChannelProperties,
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
+import type { ConnectorRecord } from '../shared/connectors';
 import {
 	isRealtimeTranscriptionAudioChunk,
 	isRealtimeTranscriptionSessionId,
