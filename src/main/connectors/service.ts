@@ -100,7 +100,7 @@ export class ConnectorsService {
 			next.push(await this.connectorFromInput(item));
 		}
 		this.repository.write(next);
-		return next.map(redactConnectorSecrets);
+		return this.connectors().map(redactConnectorSecrets);
 	}
 
 	getConnectorSettings(): ConnectorConfig[] {

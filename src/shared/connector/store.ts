@@ -2,7 +2,6 @@ import { migrateLegacyOpenAiConnector } from './legacy';
 import type {
 	ConnectorApprovalMode,
 	ConnectorConfig,
-	ConnectorOAuthCredential,
 	ConnectorStore,
 	ConnectorStoreEntry,
 	ConnectorTool,
