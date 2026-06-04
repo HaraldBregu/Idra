@@ -262,20 +262,6 @@ const ModelServicePage: React.FC = () => {
 				icon={ServiceIcon}
 				title={t(navigationItem.labelKey)}
 				description={t(navigationItem.descriptionKey)}
-				action={
-					service.id === AGENTS.assistant ? (
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={() =>
-								navigate(`/settings/model-services/${encodeURIComponent(service.id)}/details/chathistory`)
-							}
-						>
-							{t('settings.modelServices.history')}
-						</Button>
-					) : undefined
-				}
 			/>
 
 			{state.error && (
