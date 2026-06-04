@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channels';
 import { AGENTS } from '../../../../../shared/agents';
 import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_NAVIGATION } from '../navigation';
+import { SETTINGS_CONNECTOR_CATALOG } from '../pages/connectors/catalog';
 
 interface SettingsBreadcrumbItem {
 	readonly label: string;
@@ -27,8 +28,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		let mounted = true;
 		setConnectorDetailName(null);
 		void window.connectors.get(connectorDetailId).then(
-			(connector) => {
-				if (mounted) setConnectorDetailName(connector.name);
+			(record) => {
+				const connector = record[connectorDetailId] ?? Object.values(record)[0];
+				const name = SETTINGS_CONNECTOR_CATALOG.find((entry) => entry.directConnectorId === connectorDetailId)?.name ??
+					connector?.server_label;
+				if (mounted) setConnectorDetailName(name ?? null);
 			},
 			() => {
 				if (mounted) setConnectorDetailName(null);
