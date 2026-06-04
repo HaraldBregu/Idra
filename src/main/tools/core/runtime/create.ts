@@ -10,13 +10,13 @@ import { createFileTools } from './files';
 import { createCronTools } from '../../cron/runtime';
 import { createScriptTools } from './script';
 import { normalizeToolSchemas } from '../schema';
-import type { ToolPolicy, ToolPolicyStageName } from '../../shared/tool-types';
-import { applyToolPolicyPipeline } from '../../shared/pipeline';
+import type { ToolPolicy, ToolPolicyStageName } from '../shared/tool-types';
+import { applyToolPolicyPipeline } from '../shared/pipeline';
 import {
 	wrapToolWithBeforeToolCall,
 	type BeforeToolCallContext,
 	newCallTracker,
-} from '../../shared/wrap';
+} from '../shared/wrap';
 import {
 	AGENT_ALL_TOOL_NAMES,
 	AGENT_TOOL_LEGACY_ALIASES,

@@ -1,1 +1,1 @@
-export { ToolsService } from './shared/service';
+export { ToolsService } from './core/shared/service';

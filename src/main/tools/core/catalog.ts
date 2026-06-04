@@ -1,4 +1,4 @@
-import { ToolPolicyService, type ToolPolicyServicePort, type ToolPolicySubject, type ToolProfile } from '../shared/tool-types';
+import { ToolPolicyService, type ToolPolicyServicePort, type ToolPolicySubject, type ToolProfile } from './shared/tool-types';
 import type { AgentTool } from './tool';
 import { normalizeToolName } from './common';
 import {
