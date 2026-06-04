@@ -27,7 +27,7 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from '../core/runtime/adapt';
-import { createRemoteMcpProviderTools } from '../../connectors/provider-tools';
+import { createRemoteMcpTools } from '../../connectors/tools';
 import type { ToolProfile } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();
@@ -206,7 +206,7 @@ export class ToolService implements ToolServicePort {
 
 	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
 		const tools = providerId.toLowerCase() === 'openai'
-			? createRemoteMcpProviderTools(this.connectors)
+			? createRemoteMcpTools(this.connectors)
 			: [];
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Resolved provider built-in tools', {
 			providerId,
