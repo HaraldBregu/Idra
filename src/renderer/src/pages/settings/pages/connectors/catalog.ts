@@ -1,4 +1,4 @@
-import type { ConnectorInput, OAuthAuthorizeInput } from '../../../../../shared/connectors';
+import type { ConnectorInput, OAuthAuthorizeInput } from '../../../../../../shared/connectors';
 
 type DirectConnectorCatalogId = string;
 
