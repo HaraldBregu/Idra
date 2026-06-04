@@ -110,7 +110,10 @@ describe('ConnectorToolsService provider adapters', () => {
 			allowedTools: ['search'],
 		}]);
 
-		expect(connectors.list()[0]).toMatchObject({ status: 'configured', authKind: 'manual_oauth_access_token' });
+		expect(connectors.list()[0]).toMatchObject({
+			status: 'configured',
+			authKind: 'manual_oauth_access_token',
+		});
 		expect(connectorTools.createOpenAIConnectorTools()).toEqual([
 			{
 				type: 'mcp',
