@@ -32,6 +32,7 @@ export type ProviderEvent =
 	| {
 			type: 'mcp_list_tools';
 			serverLabel: string;
+			item?: unknown;
 			tools: Array<{
 				name: string;
 				description?: string;
@@ -47,12 +48,14 @@ export type ProviderEvent =
 			output?: string;
 			error?: string;
 			status?: string;
+			item?: unknown;
 	  }
 	| { type: 'message_end'; stopReason: string; usage: Usage };
 
 export type AgentContentBlock =
 	| { type: 'text'; text: string }
 	| { type: 'reasoning'; provider: 'openai' | 'deepseek'; item: unknown }
+	| { type: 'provider_item'; provider: 'openai'; item: unknown }
 	| {
 			type: 'tool_use';
 			toolUseId: string;

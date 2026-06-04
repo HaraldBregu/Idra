@@ -250,7 +250,13 @@ function isOpenAIReasoningBlock(
 function asResponseInputItem(value: unknown): ResponseInputItem | null {
 	if (typeof value !== 'object' || value === null) return null;
 	const type = (value as { type?: unknown }).type;
-	return type === 'reasoning' ? value as ResponseInputItem : null;
+	return type === 'reasoning' ||
+		type === 'mcp_list_tools' ||
+		type === 'mcp_call' ||
+		type === 'mcp_approval_request' ||
+		type === 'mcp_approval_response'
+		? value as ResponseInputItem
+		: null;
 }
 
 function buildResponseInput(transcript: TranscriptEntry[]): ResponseInput {
@@ -270,8 +276,10 @@ function buildResponseInput(transcript: TranscriptEntry[]): ResponseInput {
 			const hasToolUse = entry.content.some((block) => block.type === 'tool_use');
 
 			for (const block of entry.content) {
-				if (!isOpenAIReasoningBlock(block)) continue;
-				const item = asResponseInputItem(block.item);
+				const item =
+					isOpenAIReasoningBlock(block) || block.type === 'provider_item'
+						? asResponseInputItem(block.item)
+						: null;
 				if (item) input.push(item);
 			}
 
@@ -512,6 +520,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 					yield {
 						type: 'mcp_list_tools',
 						serverLabel: event.item.server_label,
+						item: event.item,
 						tools: event.item.tools.map((tool) => ({
 							name: tool.name,
 							description: tool.description ?? undefined,
@@ -530,6 +539,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 						output: event.item.output ?? undefined,
 						error: event.item.error ?? undefined,
 						status: event.item.status,
+						item: event.item,
 					};
 					break;
 				}
