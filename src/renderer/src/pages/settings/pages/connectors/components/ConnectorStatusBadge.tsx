@@ -10,7 +10,7 @@ export function ConnectorStatusBadge({
 	const variant = status === 'configured' ? 'default' : status === 'error' ? 'destructive' : 'outline';
 	const label =
 		status === 'configured'
-			? 'Configured'
+			? 'Connected'
 			: status === 'missing_auth'
 				? 'Needs OAuth'
 				: status === 'disabled'
