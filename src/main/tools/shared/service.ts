@@ -3,6 +3,7 @@ import {
 	type ToolPolicyServicePort,
 	type ToolPolicySubject,
 } from './tool-types';
+import type { ConnectorsService } from '../../connectors';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
 import type { ProviderBuiltInToolSpec } from '../../llm/types';
@@ -26,6 +27,7 @@ import {
 	prepareLegacyToolsForProvider,
 	type PrepareLegacyToolsForProviderOptions,
 } from '../core/runtime/adapt';
+import { createRemoteMcpProviderTools } from '../mcp/shared/provider';
 import type { ToolProfile } from './tool-types';
 
 const defaultToolPolicyService = new ToolPolicyService();
@@ -38,6 +40,7 @@ export type {
 
 export interface ToolServiceOptions {
 	policy?: ToolPolicyServicePort;
+	connectors?: ConnectorsService;
 	cron?: CronService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -110,11 +113,13 @@ export interface ToolServicePort {
 
 export class ToolService implements ToolServicePort {
 	private readonly policy: NonNullable<ToolServiceOptions['policy']>;
+	private readonly connectors?: ConnectorsService;
 	private readonly cron?: CronService;
 	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 
 	constructor(options: ToolServiceOptions = {}) {
 		this.policy = options.policy ?? defaultToolPolicyService;
+		this.connectors = options.connectors;
 		this.cron = options.cron;
 		this.logger = options.logger;
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Initialized tools service');
@@ -200,7 +205,9 @@ export class ToolService implements ToolServicePort {
 	}
 
 	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
-		const tools: ProviderBuiltInToolSpec[] = [];
+		const tools = providerId.toLowerCase() === 'openai'
+			? createRemoteMcpProviderTools(this.connectors)
+			: [];
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Resolved provider built-in tools', {
 			providerId,
 			count: tools.length,
