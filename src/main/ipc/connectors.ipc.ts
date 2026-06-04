@@ -1,5 +1,4 @@
-import { ipcMain } from 'electron';
-import { shell } from 'electron';
+import { ipcMain, shell } from 'electron';
 import type { IpcModule } from './module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
