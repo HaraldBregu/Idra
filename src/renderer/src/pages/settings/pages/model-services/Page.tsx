@@ -404,11 +404,27 @@ const ModelServicePage: React.FC = () => {
 							<Button
 								type="button"
 								variant="outline"
-								size="sm"
+								size="icon-sm"
+								aria-label={t('settings.chatHistory.openFolder')}
+								title={t('settings.chatHistory.openFolder')}
 								onClick={() => void openHistoryFolder()}
 							>
-								<FolderOpen className="size-3" />
-								{t('settings.chatHistory.openFolder')}
+								<FolderOpen className="size-3.5" />
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								size="icon-sm"
+								disabled={deletingHistory}
+								aria-label={t('settings.chatHistory.delete')}
+								title={t('settings.chatHistory.delete')}
+								onClick={() => void deleteHistory()}
+							>
+								{deletingHistory ? (
+									<LoaderCircle className="size-3.5 animate-spin" />
+								) : (
+									<Trash2 className="size-3.5 text-destructive" />
+								)}
 							</Button>
 						</SettingsRow>
 					</SettingsPanel>
