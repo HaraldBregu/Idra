@@ -123,7 +123,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const googleOAuth = connector.oauth?.provider === 'google' || connector.oauth?.providerId === 'google';
+	const googleOAuth = connector.oauth?.service === 'google' || connector.oauth?.serviceId === 'google';
 	const authLabel = googleOAuth
 		? 'Google OAuth'
 		: connector.mcp
