@@ -87,7 +87,6 @@ function firstErrorMessage(error: unknown, fallback: string): string {
 
 const ModelServicePage: React.FC = () => {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { serviceId: routeServiceId } = useParams();
 	const serviceId = normalizeServiceId(routeServiceId);
 	const service = MODEL_SERVICE_DEFINITIONS.find(
