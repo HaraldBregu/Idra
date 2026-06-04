@@ -96,7 +96,7 @@ export interface ProviderToolSpec {
 	schema: JSONSchema;
 }
 
-export type ProviderBuiltInToolSpec = {
+export type ProviderOpenAIMcpToolSpec = {
 	type: 'mcp';
 	server_label: string;
 	connector_id?: string;
@@ -107,6 +107,20 @@ export type ProviderBuiltInToolSpec = {
 	defer_loading?: boolean;
 	server_description?: string;
 };
+
+export type ProviderAnthropicMcpToolsetSpec = {
+	type: 'mcp_toolset';
+	mcp_server_name: string;
+	defer_loading?: boolean;
+	server: {
+		type: 'url';
+		name: string;
+		url: string;
+		authorization_token?: string;
+	};
+};
+
+export type ProviderBuiltInToolSpec = ProviderOpenAIMcpToolSpec | ProviderAnthropicMcpToolsetSpec;
 
 export interface ProviderStreamRequest {
 	model: string;

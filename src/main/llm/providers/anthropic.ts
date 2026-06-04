@@ -82,11 +82,20 @@ export class AnthropicAdapter implements ProviderAdapter {
 	}
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
-		const tools: Anthropic.Messages.Tool[] = req.tools.map((t) => ({
+		const mcpTools = (req.builtInTools ?? []).filter((tool) => tool.type === 'mcp_toolset');
+		const tools: Anthropic.Messages.BetaToolUnion[] = req.tools.map((t) => ({
 			name: t.name,
 			description: t.description,
 			input_schema: t.schema as Anthropic.Messages.Tool.InputSchema,
 		}));
+		for (const tool of mcpTools) {
+			tools.push({
+				type: 'mcp_toolset',
+				mcp_server_name: tool.mcp_server_name,
+				...(tool.defer_loading ? { defer_loading: true } : {}),
+			});
+		}
+		const mcpServers = mcpTools.map((tool) => tool.server);
 
 		yield { type: 'message_start' };
 
@@ -101,8 +110,12 @@ export class AnthropicAdapter implements ProviderAdapter {
 					system: req.system,
 					max_tokens: req.maxTokens,
 					tools: tools.length > 0 ? tools : undefined,
+					...(mcpServers.length > 0 ? {
+						mcp_servers: mcpServers,
+						betas: ['mcp-client-2025-11-20'],
+					} : {}),
 					messages: buildAnthropicMessages(req.messages),
-				},
+				} as Anthropic.Messages.MessageCreateParamsStreaming,
 				{ signal: req.signal }
 			);
 

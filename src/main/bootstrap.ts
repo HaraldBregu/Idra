@@ -72,7 +72,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
-	const toolService = container.register('toolService', new ToolService({ cron, logger }));
+	const toolService = container.register('toolService', new ToolService({ cron, connectors, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
 

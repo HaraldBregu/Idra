@@ -362,7 +362,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 		}));
 		const tools: ResponseTool[] = [
 			...functionTools,
-			...(req.builtInTools ?? []).map(toOpenAIResponseTool),
+			...(req.builtInTools ?? []).filter((tool) => tool.type === 'mcp').map(toOpenAIResponseTool),
 		];
 
 		const params: ResponseCreateParamsStreaming = {

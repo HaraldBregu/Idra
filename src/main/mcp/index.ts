@@ -1,0 +1,1 @@
+export { McpRemoteService } from './service';
