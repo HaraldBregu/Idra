@@ -14,24 +14,8 @@ export function uniqueStrings(values: readonly string[]): string[] {
 	return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
-export function isOpenAiResponsesConnector(connector: Pick<ConnectorConfig, 'mcp' | 'serverUrl'>): boolean {
-	return !connector.mcp || Boolean(connector.serverUrl);
-}
-
-export function isOpenAiConnectorIdConfig(connector: Pick<ConnectorConfig, 'mcp' | 'serverUrl'>): boolean {
-	return isOpenAiResponsesConnector(connector) && !connector.serverUrl;
-}
-
-export function requiredMcpSecretNames(connector: ConnectorConfig): string[] {
-	const mcp = connector.mcp;
-	if (!mcp) return [];
-	if (mcp.transport === 'http') return mcp.auth?.env ? [mcp.auth.env] : [];
-	if (mcp.transport === 'stdio') return (mcp.envSecrets ?? []).map((secret) => secret.env);
-	return [];
-}
-
-export function hasMissingMcpSecrets(connector: ConnectorConfig, env: NodeJS.ProcessEnv): boolean {
-	return requiredMcpSecretNames(connector).some((name) => !env[name]);
+export function isOpenAiConnectorIdConfig(connector: Pick<ConnectorConfig, 'serverUrl'>): boolean {
+	return !connector.serverUrl;
 }
 
 export function connectorAuthorization(connector: ConnectorConfig): string {
