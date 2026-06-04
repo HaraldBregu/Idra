@@ -597,10 +597,66 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								errorText: message,
 							});
 							approvalBlocked = true;
-							turnStop = 'end_turn';
-							break providerEvents;
-						}
-						case 'message_end':
+								turnStop = 'end_turn';
+								break providerEvents;
+							}
+							case 'mcp_call': {
+								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
+								const outputText = event.error
+									? `OpenAI MCP connector "${event.serverLabel}" failed to run "${event.name}": ${event.error}`
+									: event.output ?? '';
+								streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
+								streamEvent?.({
+									type: 'tool_call_start',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: event.name,
+									name: event.name,
+									displayName: `${event.serverLabel}.${event.name}`,
+									serviceKind: 'mcp',
+									serviceId: event.serverLabel,
+								});
+								streamEvent?.({
+									type: 'tool_call_input',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: event.name,
+									name: event.name,
+									displayName: `${event.serverLabel}.${event.name}`,
+									serviceKind: 'mcp',
+									serviceId: event.serverLabel,
+									input: args,
+									argsText: event.arguments,
+								});
+								streamEvent?.({
+									type: 'tool_call_result',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: event.name,
+									name: event.name,
+									displayName: `${event.serverLabel}.${event.name}`,
+									serviceKind: 'mcp',
+									serviceId: event.serverLabel,
+									input: args,
+									output: event.output ?? event.error ?? '',
+									outputText,
+									status: event.error ? 'error' : 'ok',
+									durationMs: 0,
+									errorText: event.error ? outputText : undefined,
+								});
+								if (outputText) {
+									firstTokenLatencyMs ??= Date.now() - runStart;
+									if (!didStartAnswering) {
+										didStartAnswering = true;
+										streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+									}
+									text += outputText;
+									streamOutput?.(outputText);
+									streamEvent?.({ type: 'text_delta', delta: outputText });
+								}
+								break;
+							}
+							case 'message_end':
 							turnStop = event.stopReason;
 							iterUsage = event.usage;
 							totalUsage.inputTokens += event.usage.inputTokens;
