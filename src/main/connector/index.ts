@@ -1,1 +1,0 @@
-export { ConnectorsService } from './service';
