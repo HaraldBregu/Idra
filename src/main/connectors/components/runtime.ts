@@ -49,7 +49,7 @@ export function redactConnectorSecrets(connector: ConnectorConfig): ConnectorCon
 	};
 }
 
-export function toConnectorView(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorView {
+export function toConnectorView(connector: ConnectorConfig): ConnectorView {
 	return {
 		id: connector.id,
 		name: connector.name,
@@ -58,7 +58,7 @@ export function toConnectorView(connector: ConnectorConfig, env: NodeJS.ProcessE
 		serverLabel: connector.serverLabel,
 		serverUrl: connector.serverUrl,
 		enabled: connector.enabled,
-		status: toConnectorStatus(connector, env),
+		status: toConnectorStatus(connector),
 		requireApproval: connector.requireApproval,
 		allowedToolsCount: connector.allowedTools.length,
 		toolsCount: connector.tools.length,
