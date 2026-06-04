@@ -33,7 +33,7 @@ describe('ConnectorsService storage', () => {
 	it('stores remote MCP connectors as MCP store entries', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
-		const [saved] = await service.save([{
+		const saved = await service.save([{
 			name: 'Acme Mail',
 			connectorId: 'connector_acme_mail',
 			serverLabel: 'acme_mail',
@@ -43,7 +43,7 @@ describe('ConnectorsService storage', () => {
 			requireApproval: 'never',
 		}]);
 
-		expect(saved.authorization).toBe('');
+		expect(saved.acme_mail?.authorization).toBe('');
 		expect((mockStoreData as ConnectorRecord).acme_mail).toEqual({
 			type: 'mcp',
 			server_label: 'acme_mail',
@@ -52,11 +52,12 @@ describe('ConnectorsService storage', () => {
 			authorization: 'token-123',
 			require_approval: 'never',
 		});
-		expect(service.get(saved.id).authorization).toBe('');
-		expect(service.getConnectorSettings()[0].authorization).toBe('');
-		expect(service.list()[0]).toMatchObject({
-			status: 'configured',
-			authKind: 'manual_oauth_access_token',
+		expect(service.get('acme_mail').acme_mail?.authorization).toBe('');
+		expect(service.getConnectorSettings().acme_mail?.authorization).toBe('');
+		expect(service.list().acme_mail).toMatchObject({
+			type: 'mcp',
+			server_label: 'acme_mail',
+			require_approval: 'never',
 		});
 	});
 
@@ -79,8 +80,8 @@ describe('ConnectorsService storage', () => {
 			},
 		]);
 
-		expect(saved).toHaveLength(2);
-		expect(saved.every((connector) => connector.authorization === '')).toBe(true);
+		expect(Object.keys(saved)).toHaveLength(2);
+		expect(saved.acme_mail?.authorization).toBe('');
 		expect(mockStoreData).toEqual({
 			acme_mail: {
 				type: 'mcp',
@@ -113,7 +114,7 @@ describe('ConnectorsService storage', () => {
 			serverLabel: 'acme_drive',
 		}]);
 
-		expect(service.list()).toEqual([]);
+		expect(service.list()).toEqual({});
 		expect(mockStoreData).toEqual({});
 	});
 
@@ -146,22 +147,21 @@ describe('ConnectorsService storage', () => {
 			},
 		};
 
-		expect(service.list()).toEqual([
-			expect.objectContaining({
-				id: 'gmail',
-				serverLabel: 'my-server',
-				serverUrl: 'https://example.com/mcp',
-				status: 'configured',
-				requireApproval: 'never',
+		expect(service.list()).toEqual({
+			gmail: expect.objectContaining({
+				type: 'mcp',
+				server_label: 'my-server',
+				server_url: 'https://example.com/mcp',
+				authorization: '',
+				require_approval: 'never',
 			}),
-			expect.objectContaining({
-				id: 'google_calendar',
-				serverLabel: 'calendar',
-				serverUrl: 'https://calendar.example.com/mcp',
-				status: 'configured',
-				requireApproval: 'always',
+			google_calendar: expect.objectContaining({
+				type: 'mcp',
+				server_label: 'calendar',
+				server_url: 'https://calendar.example.com/mcp',
+				authorization: '',
 			}),
-		]);
+		});
 	});
 
 });
