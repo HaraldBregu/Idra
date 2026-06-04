@@ -16,7 +16,6 @@ import {
 	serverLabelFromName,
 } from './components/validation';
 import {
-	cloneValue,
 	redactConnectorSecrets,
 	toConnectorView,
 } from './components/runtime';
