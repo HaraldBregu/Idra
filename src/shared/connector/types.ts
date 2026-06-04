@@ -83,7 +83,6 @@ export type OpenAiConnectorRequireApproval =
 	| { never: { tool_names: string[] } };
 export type ConnectorAuthKind =
 	| 'manual_oauth_access_token'
-	| 'google_oauth'
 	| 'oauth'
 	| 'mcp_env'
 	| 'api_key'
@@ -278,10 +277,6 @@ export interface ConnectorOAuthConnectResult {
 	status: ConnectorStatus;
 	message?: string;
 	connectedAccount?: string;
-}
-
-export interface GoogleOAuthCredential extends ConnectorOAuthCredential {
-	service: 'google';
 }
 
 export interface ConnectorCallToolOptions {
