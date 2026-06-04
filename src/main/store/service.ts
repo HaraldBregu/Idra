@@ -24,8 +24,8 @@ import {
 	type GenericChannelProperties,
 	type TelegramChannelProperties,
 } from '../../shared/channels';
-import type { Connector } from '../../shared/connectors';
 import { connectorsFromStore, connectorsToStore } from '../connectors/storage';
+import type { ConnectorConfig } from '../connectors/types';
 import type {
 	BackgroundTaskSettings,
 	ModelProviderSettings,
@@ -158,7 +158,7 @@ function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] 
 	});
 }
 
-function readConnectorSettingsList(value: unknown): Connector[] {
+function readConnectorSettingsList(value: unknown): ConnectorConfig[] {
 	return connectorsFromStore(value);
 }
 
@@ -569,15 +569,15 @@ export class StoreService {
 		});
 	}
 
-	getConnectors(): Connector[] {
+	getConnectors(): ConnectorConfig[] {
 		return readConnectorSettingsList(this.store.get('connectors'));
 	}
 
-	getConnectorById(id: string): Connector | undefined {
+	getConnectorById(id: string): ConnectorConfig | undefined {
 		return this.getConnectors().find((connector) => connector.id === id);
 	}
 
-	setConnectors(connectors: Connector[]): void {
+	setConnectors(connectors: ConnectorConfig[]): void {
 		this.store.set('connectors', connectorsToStore(connectors));
 	}
 

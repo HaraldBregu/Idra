@@ -1,5 +1,4 @@
 import type { ModelReasoningEffort } from '../../shared/agents/service';
-import type { OpenAiMcpConnectorToolSpec } from '../../shared/connectors';
 
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.
@@ -97,7 +96,17 @@ export interface ProviderToolSpec {
 	schema: JSONSchema;
 }
 
-export type ProviderBuiltInToolSpec = OpenAiMcpConnectorToolSpec;
+export type ProviderBuiltInToolSpec = {
+	type: 'mcp';
+	server_label: string;
+	connector_id?: string;
+	server_url?: string;
+	authorization?: string;
+	require_approval: 'always' | 'never' | { never: { tool_names: string[] } };
+	allowed_tools?: string[];
+	defer_loading?: boolean;
+	server_description?: string;
+};
 
 export interface ProviderStreamRequest {
 	model: string;

@@ -1,8 +1,8 @@
 import {
-	type Connector,
+	type ConnectorConfig,
+	type ConnectorSummary,
 	type ConnectorStatus,
-	type ConnectorView,
-} from '../../shared/connectors';
+} from './types';
 
 export function errorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
@@ -12,11 +12,11 @@ export function uniqueStrings(values: readonly string[]): string[] {
 	return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 }
 
-export function isOpenAiConnectorIdConfig(connector: Pick<Connector, 'serverUrl'>): boolean {
+export function isOpenAiConnectorIdConfig(connector: Pick<ConnectorConfig, 'serverUrl'>): boolean {
 	return !connector.serverUrl;
 }
 
-export function connectorAuthorization(connector: Connector): string {
+export function connectorAuthorization(connector: ConnectorConfig): string {
 	return (
 		connector.authorization?.trim() ||
 		connector.oauth?.token?.accessToken?.trim() ||
@@ -25,7 +25,7 @@ export function connectorAuthorization(connector: Connector): string {
 	);
 }
 
-export function redactConnectorSecrets(connector: Connector): Connector {
+export function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	if (!connector.oauth) return { ...connector, authorization: '' };
 	const token = connector.oauth.token;
 	return {
@@ -47,7 +47,7 @@ export function redactConnectorSecrets(connector: Connector): Connector {
 	};
 }
 
-export function toConnectorView(connector: Connector): ConnectorView {
+export function toConnectorView(connector: ConnectorConfig): ConnectorSummary {
 	return {
 		id: connector.id,
 		name: connector.name,
@@ -67,7 +67,7 @@ export function toConnectorView(connector: Connector): ConnectorView {
 	};
 }
 
-export function toConnectorStatus(connector: Connector): ConnectorStatus {
+export function toConnectorStatus(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
 	if (isOpenAiConnectorIdConfig(connector) && !connectorAuthorization(connector)) return 'missing_auth';
@@ -77,7 +77,7 @@ export function toConnectorStatus(connector: Connector): ConnectorStatus {
 	return 'configured';
 }
 
-function authKindFor(connector: Connector): ConnectorView['authKind'] {
+function authKindFor(connector: ConnectorConfig): ConnectorSummary['authKind'] {
 	if (connector.oauth) return 'oauth';
 	return connector.serverUrl && !connectorAuthorization(connector) ? 'none' : 'manual_oauth_access_token';
 }

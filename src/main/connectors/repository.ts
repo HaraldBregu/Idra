@@ -2,9 +2,10 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
 import type { LoggerService } from '../observability';
-import type { Connector, ConnectorRecord } from '../../shared/connectors';
+import type { ConnectorRecord } from '../../shared/connectors';
 import { errorMessage } from './runtime';
 import { connectorsFromStore, connectorsToStore } from './storage';
+import type { ConnectorConfig } from './types';
 
 type ConnectorsStore = {
 	get store(): unknown;
@@ -24,7 +25,7 @@ export class ConnectorRepository {
 		}) as unknown as ConnectorsStore;
 	}
 
-	list(): Connector[] {
+	list(): ConnectorConfig[] {
 		try {
 			const raw = this.store.store;
 			const connectors = connectorsFromStore(raw);
@@ -40,17 +41,17 @@ export class ConnectorRepository {
 		}
 	}
 
-	get(id: string): Connector {
+	get(id: string): ConnectorConfig {
 		const connector = this.list().find((item) => item.id === id);
 		if (!connector) throw new Error(`Connector not found: ${id}`);
 		return connector;
 	}
 
-	write(connectors: Connector[]): void {
+	write(connectors: ConnectorConfig[]): void {
 		this.store.store = connectorsToStore(connectors);
 	}
 
-	replace(connector: Connector): void {
+	replace(connector: ConnectorConfig): void {
 		this.write(this.list().map((item) => (item.id === connector.id ? connector : item)));
 	}
 

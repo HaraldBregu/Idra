@@ -1,12 +1,12 @@
 import type {
-	Connector,
-	ConnectorApprovalMode,
 	ConnectorConfigValue,
 	ConnectorRecord,
-	ConnectorTool,
 } from '../../shared/connectors';
+import type { ConnectorApprovalMode, ConnectorConfig } from './types';
 
-export function connectorsToStore(connectors: readonly Connector[]): ConnectorRecord {
+type ConnectorTool = ConnectorConfig['tools'][number];
+
+export function connectorsToStore(connectors: readonly ConnectorConfig[]): ConnectorRecord {
 	const store: ConnectorRecord = {};
 	for (const connector of connectors) {
 		const authorization = connectorAuthorization(connector);
@@ -20,7 +20,7 @@ export function connectorsToStore(connectors: readonly Connector[]): ConnectorRe
 	return store;
 }
 
-export function connectorsFromStore(value: unknown): Connector[] {
+export function connectorsFromStore(value: unknown): ConnectorConfig[] {
 	if (Array.isArray(value)) {
 		return value.flatMap((entry, index) => connectorFromStoreValue(String(index), entry));
 	}
@@ -28,14 +28,14 @@ export function connectorsFromStore(value: unknown): Connector[] {
 	return Object.entries(value).flatMap(([key, entry]) => connectorFromStoreValue(key, entry));
 }
 
-function connectorFromStoreValue(key: string, value: unknown): Connector[] {
+function connectorFromStoreValue(key: string, value: unknown): ConnectorConfig[] {
 	if (isConnectorConfigValue(value)) return [connectorFromStoreEntry(key, value)];
 	if (isStoredConnector(value)) return [normalizeStoredConnector(value)];
 	return [];
 }
 
 function connectorToStoreEntry(
-	connector: Connector,
+	connector: ConnectorConfig,
 	authorization: string,
 	serverUrl: string
 ): ConnectorConfigValue {
@@ -50,7 +50,7 @@ function connectorToStoreEntry(
 	};
 }
 
-function connectorFromStoreEntry(key: string, entry: ConnectorConfigValue): Connector {
+function connectorFromStoreEntry(key: string, entry: ConnectorConfigValue): ConnectorConfig {
 	const now = new Date().toISOString();
 	const serverLabel = entry.server_label.trim() || key;
 	return {
@@ -71,7 +71,7 @@ function connectorFromStoreEntry(key: string, entry: ConnectorConfigValue): Conn
 	};
 }
 
-function normalizeStoredConnector(connector: Connector): Connector {
+function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 	const serverUrl =
 		typeof connector.serverUrl === 'string' && connector.serverUrl.trim()
 			? connector.serverUrl.trim()
@@ -88,7 +88,7 @@ function normalizeStoredConnector(connector: Connector): Connector {
 	};
 }
 
-function connectorStoreKey(connector: Connector): string {
+function connectorStoreKey(connector: ConnectorConfig): string {
 	return (
 		storeKeyPart(connector.oauth?.serviceId) ||
 		storeKeyPart(connector.serverLabel) ||
@@ -101,7 +101,7 @@ function storeKeyPart(value?: string): string {
 	return value?.trim().toLowerCase().replace(/[^a-z0-9]+/gu, '_').replace(/^_+|_+$/gu, '') ?? '';
 }
 
-function connectorAuthorization(connector: Connector): string {
+function connectorAuthorization(connector: ConnectorConfig): string {
 	return (
 		connector.authorization?.trim() ||
 		connector.oauth?.token?.accessToken?.trim() ||
@@ -130,8 +130,8 @@ function isConnectorConfigValue(value: unknown): value is ConnectorConfigValue {
 	return entry.type === 'mcp' && typeof entry.server_label === 'string' && typeof entry.server_url === 'string';
 }
 
-function isStoredConnector(value: unknown): value is Connector {
-	const connector = value as Connector;
+function isStoredConnector(value: unknown): value is ConnectorConfig {
+	const connector = value as ConnectorConfig;
 	return (
 		typeof connector === 'object' &&
 		connector !== null &&

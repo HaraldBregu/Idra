@@ -4,10 +4,9 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { LoggerService } from '../observability';
 import type {
 	ConnectorConnectInput,
-	Connector,
-	ConnectorOAuthCredential,
-	ConnectorView,
-} from '../../shared/connectors';
+	ConnectorConfig,
+	ConnectorSummary,
+} from './types';
 import {
 	readOptionalStringArray,
 	readOptionalString,
@@ -25,6 +24,7 @@ import type { ConnectorsServiceOptions } from './types';
 type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;
 
 type OAuthConnectRuntimeConfig = ConnectorConnectInput['oauth'];
+type OAuthCredential = NonNullable<ConnectorConfig['oauth']>;
 
 type OAuthTokenResponse = {
 	readonly access_token?: string;
@@ -49,15 +49,15 @@ export class ConnectorsService {
 		this.repository = new ConnectorRepository(logger);
 	}
 
-	list(): ConnectorView[] {
+	list(): ConnectorSummary[] {
 		return this.connectors().map((connector) => toConnectorView(connector));
 	}
 
-	get(id: string): Connector {
+	get(id: string): ConnectorConfig {
 		return redactConnectorSecrets(this.repository.get(id));
 	}
 
-	async connect(input: unknown, openExternalUrl: OpenExternalUrl): Promise<ConnectorView> {
+	async connect(input: unknown, openExternalUrl: OpenExternalUrl): Promise<ConnectorSummary> {
 		const raw = requireObject(input, 'Connector connection');
 		const sanitized = sanitizeInput(input);
 		const oauth = readOAuthConnectConfig(raw);
@@ -65,7 +65,7 @@ export class ConnectorsService {
 		const now = new Date().toISOString();
 		const connectors = this.connectors();
 		const existing = connectors.find((connector) => connector.connectorId === sanitized.connectorId);
-		const connector: Connector = {
+		const connector: ConnectorConfig = {
 			id: existing?.id ?? randomUUID(),
 			name: sanitized.name,
 			connectorId: sanitized.connectorId,
@@ -91,9 +91,9 @@ export class ConnectorsService {
 		return toConnectorView(connector);
 	}
 
-	async save(input: unknown): Promise<Connector[]> {
+	async save(input: unknown): Promise<ConnectorConfig[]> {
 		if (!Array.isArray(input)) throw new Error('Connector settings must be an array.');
-		const next: Connector[] = [];
+		const next: ConnectorConfig[] = [];
 		for (const item of input) {
 			next.push(await this.connectorFromInput(item));
 		}
@@ -101,26 +101,26 @@ export class ConnectorsService {
 		return this.connectors().map(redactConnectorSecrets);
 	}
 
-	getConnectorSettings(): Connector[] {
+	getConnectorSettings(): ConnectorConfig[] {
 		return this.connectors().map(redactConnectorSecrets);
 	}
 
-	listStored(): Connector[] {
+	listStored(): ConnectorConfig[] {
 		return this.connectors();
 	}
 
-	getStored(id: string): Connector {
+	getStored(id: string): ConnectorConfig {
 		return this.repository.get(id);
 	}
 
-	replaceStored(connector: Connector): void {
+	replaceStored(connector: ConnectorConfig): void {
 		this.repository.replace(connector);
 	}
 
 	private async authorize(
 		oauth: OAuthConnectRuntimeConfig,
 		openExternalUrl: OpenExternalUrl
-	): Promise<ConnectorOAuthCredential> {
+	): Promise<OAuthCredential> {
 		const clientId = requiredEnv(this.env(), oauth.clientIdEnv);
 		const clientSecret = oauth.clientSecretEnv ? requiredEnv(this.env(), oauth.clientSecretEnv) : undefined;
 		const state = base64Url(randomBytes(24));
@@ -182,7 +182,7 @@ export class ConnectorsService {
 		}
 	}
 
-	private connectors(): Connector[] {
+	private connectors(): ConnectorConfig[] {
 		return this.repository.list();
 	}
 
@@ -190,13 +190,13 @@ export class ConnectorsService {
 		return this.options.env ?? process.env;
 	}
 
-	private async connectorFromInput(input: unknown): Promise<Connector> {
+	private async connectorFromInput(input: unknown): Promise<ConnectorConfig> {
 		const raw = requireObject(input, 'Connector configuration');
 		const now = new Date().toISOString();
 		const id = readOptionalString(raw, 'id')?.trim() || randomUUID();
 		const createdAt = readOptionalString(raw, 'createdAt')?.trim() || now;
 		const sanitized = sanitizeInput(input);
-		const connector: Connector = {
+		const connector: ConnectorConfig = {
 			id,
 			name: sanitized.name,
 			connectorId: sanitized.connectorId,
