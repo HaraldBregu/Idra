@@ -1,11 +1,13 @@
 import type { ConnectorConfig, ConnectorStore } from '../../../../src/shared/connector';
 
-const mockStoreData: { connectors?: unknown } = {};
+let mockStoreData: unknown = {};
 const mockStore = {
-	get: jest.fn((key: 'connectors') => mockStoreData[key]),
-	set: jest.fn((key: 'connectors', value: ConnectorStore) => {
-		mockStoreData[key] = value;
-	}),
+	get store(): unknown {
+		return mockStoreData;
+	},
+	set store(value: ConnectorStore) {
+		mockStoreData = value;
+	},
 };
 
 jest.mock('electron-store', () => {
