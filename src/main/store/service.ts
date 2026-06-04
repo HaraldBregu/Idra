@@ -24,7 +24,7 @@ import {
 	type GenericChannelProperties,
 	type TelegramChannelProperties,
 } from '../../shared/channels';
-import type { ConnectorConfig } from '../../shared/connector';
+import { connectorsToStore, type ConnectorConfig } from '../../shared/connector';
 import type {
 	BackgroundTaskSettings,
 	ModelProviderSettings,
@@ -584,7 +584,7 @@ export class StoreService {
 	}
 
 	setConnectors(connectors: ConnectorConfig[]): void {
-		this.store.set('connectors', connectors);
+		this.store.set('connectors', connectorsToStore(connectors));
 	}
 
 	getChannel(): Channel {

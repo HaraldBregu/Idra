@@ -3,11 +3,8 @@ import type {
 	ConnectorOAuthCredential,
 	ConnectorStatus,
 	ConnectorView,
+	requiredOpenAiConnectorScopes,
 } from '../../../shared/connector';
-
-const REQUIRED_OPENAI_CONNECTOR_SCOPES: Record<string, readonly string[]> = {
-	connector_gmail: ['https://www.googleapis.com/auth/gmail.modify'],
-};
 
 export function cloneValue<T>(value: T): T {
 	if (value === undefined || value === null) return value;
@@ -108,7 +105,7 @@ export function toConnectorStatus(connector: ConnectorConfig, env: NodeJS.Proces
 }
 
 function hasRequiredOpenAiConnectorScopes(connector: ConnectorConfig): boolean {
-	const required = REQUIRED_OPENAI_CONNECTOR_SCOPES[connector.connectorId] ?? [];
+	const required = requiredOpenAiConnectorScopes(connector.connectorId);
 	if (required.length === 0 || !connector.oauth) return true;
 	const scopes = oauthScopes(connector.oauth);
 	if (scopes.size === 0) return true;

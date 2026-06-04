@@ -193,6 +193,8 @@ export interface ConnectorConfig {
 	lastError?: string;
 }
 
+export type ConnectorStore = Record<string, ConnectorConfig>;
+
 export type Connector = ConnectorConfig;
 
 export interface ConnectorView {

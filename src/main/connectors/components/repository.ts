@@ -2,20 +2,23 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
 import type { LoggerService } from '../../observability';
-import type { ConnectorConfig, ConnectorTool } from '../../../shared/connector';
+import {
+	connectorsToStore,
+	migrateLegacyOpenAiConnector,
+	type ConnectorConfig,
+	type ConnectorStore,
+	type ConnectorTool,
+} from '../../../shared/connector';
 import { errorMessage, uniqueStrings } from './runtime';
 
-type ConnectorsStoreSchema = { connectors?: ConnectorConfig[] };
+type ConnectorsStoreSchema = { connectors?: ConnectorStore };
 type ConnectorsStore = {
 	get(key: 'connectors'): unknown;
-	set(key: 'connectors', value: ConnectorConfig[]): void;
+	set(key: 'connectors', value: ConnectorStore): void;
 };
 
 const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
-const LEGACY_GMAIL_CONNECTOR_ID = 'google.gmail';
-const OPENAI_GMAIL_CONNECTOR_ID = 'connector_gmail';
-const LEGACY_GMAIL_SERVER_URL = 'https://gmailmcp.googleapis.com/mcp/v1';
 
 export class ConnectorRepository {
 	private readonly store: ConnectorsStore;
@@ -32,12 +35,17 @@ export class ConnectorRepository {
 		try {
 			const raw = this.store.get(CONNECTOR_STORE_KEY);
 			if (raw === undefined) return [];
-			if (!Array.isArray(raw)) {
+			const entries = Array.isArray(raw)
+				? raw
+				: raw && typeof raw === 'object'
+					? Object.values(raw)
+					: undefined;
+			if (!entries) {
 				this.warn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY });
 				return [];
 			}
-			const valid = raw.filter(isStoredConnectorValid).map(normalizeStoredConnector);
-			if (valid.length !== raw.length) {
+			const valid = entries.filter(isStoredConnectorValid).map(normalizeStoredConnector);
+			if (valid.length !== entries.length) {
 				this.warn('Dropped invalid connector settings', { key: CONNECTOR_STORE_KEY });
 			}
 			return valid;
@@ -57,7 +65,7 @@ export class ConnectorRepository {
 	}
 
 	write(connectors: ConnectorConfig[]): void {
-		this.store.set(CONNECTOR_STORE_KEY, connectors);
+		this.store.set(CONNECTOR_STORE_KEY, connectorsToStore(connectors));
 	}
 
 	replace(connector: ConnectorConfig): void {
@@ -103,24 +111,6 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		deferLoading: migrated.deferLoading ?? false,
 		enabled: migrated.enabled ?? true,
 		tools: Array.isArray(migrated.tools) ? migrated.tools.map(normalizeStoredTool) : [],
-	};
-}
-
-function migrateLegacyOpenAiConnector(connector: ConnectorConfig): ConnectorConfig {
-	if (
-		connector.connectorId !== LEGACY_GMAIL_CONNECTOR_ID &&
-		connector.serverUrl !== LEGACY_GMAIL_SERVER_URL
-	) {
-		return connector;
-	}
-
-	return {
-		...connector,
-		connectorId: OPENAI_GMAIL_CONNECTOR_ID,
-		serverDescription: 'Read and search Gmail messages through the OpenAI Gmail connector.',
-		serverUrl: undefined,
-		allowedTools: [],
-		tools: [],
 	};
 }
 

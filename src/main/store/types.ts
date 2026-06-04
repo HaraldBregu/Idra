@@ -1,7 +1,7 @@
 import type { Provider } from '../../shared/providers';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { Channel } from '../../shared/channels';
-import type { ConnectorConfig } from '../../shared/connector';
+import type { ConnectorStore } from '../../shared/connector';
 
 export type ModelProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 
@@ -43,7 +43,7 @@ export interface SettingsStore {
 	textToSound?: ModelModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
-	connectors?: ConnectorConfig[];
+	connectors?: ConnectorStore;
 	channels?: Channels;
 }
 
