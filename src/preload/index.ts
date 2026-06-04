@@ -80,8 +80,8 @@ import type {
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
 	ConnectorConnectInput,
-	ConnectorConfig,
 	ConnectorInput,
+	ConnectorRecord,
 	ConnectorView,
 } from '../shared/connector';
 import {
@@ -523,7 +523,7 @@ export const store: StoreApi = {
 	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
 	},
-	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
+	getConnectorSettings: (): Promise<ConnectorRecord[]> => {
 		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
 	},
 	getAgentService: (): Promise<ModelSelection | undefined> => {
@@ -612,10 +612,10 @@ export const connectors: ConnectorsApi = {
 	list: (): Promise<ConnectorView[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.list);
 	},
-	get: (id: string): Promise<ConnectorConfig> => {
+	get: (id: string): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap(ConnectorsChannels.get, id);
 	},
-	save: (input: ConnectorInput[]): Promise<ConnectorConfig[]> => {
+	save: (input: ConnectorInput[]): Promise<ConnectorRecord[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.save, input);
 	},
 	connect: (input: ConnectorConnectInput): Promise<ConnectorView> => {
