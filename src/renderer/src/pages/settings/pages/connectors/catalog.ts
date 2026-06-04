@@ -1,7 +1,7 @@
 import type {
 	ConnectorConnectInput,
 	DirectConnectorCatalogId,
-} from '../../../../../../shared/connector';
+} from '../../../../../../shared/connectors';
 
 export type SettingsConnectorCatalogEntry = ConnectorConnectInput & {
 	readonly directConnectorId: DirectConnectorCatalogId;

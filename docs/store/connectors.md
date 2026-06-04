@@ -6,7 +6,7 @@ The dedicated Electron Store named `connector` stores connector configuration re
 
 | Property | Type | Owns |
 | --- | --- | --- |
-| `connectors` | `ConnectorConfig[]` | Connector ids, labels, MCP transport config, approval policy, discovered tool metadata, and timestamps. |
+| `connectors` | `ConnectorRecord` | Connector ids, labels, MCP transport config, approval policy, discovered tool metadata, and timestamps. |
 
 ## Initial Value
 

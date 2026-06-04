@@ -23,6 +23,6 @@ The MCP registry can also translate enabled connector records into harness MCP s
 - `src/main/agent/connectors`
 - `src/main/agent/mcp`
 - `src/main/agent/harness/mcp.ts`
-- `src/shared/connector`
+- `src/shared/connectors`
 - `src/renderer/src/pages/settings/pages/connectors`
 - Provider docs: `docs/providers/google/index.md`, `docs/providers/microsoft/index.md`, `docs/providers/dropbox/index.md`, `docs/providers/mcp/remote/index.md`, `docs/providers/mcp/stdio/index.md`

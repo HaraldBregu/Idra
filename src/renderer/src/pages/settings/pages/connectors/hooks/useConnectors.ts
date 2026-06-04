@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { ConnectorView } from '../../../../../../../shared/connector';
+import type { ConnectorView } from '../../../../../../../shared/connectors';
 
 export function useConnectors() {
 	const [connectors, setConnectors] = useState<ConnectorView[]>([]);

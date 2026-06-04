@@ -43,7 +43,7 @@ This folder documents Friday's current feature surface from the source tree and 
 - Cron: `src/main/cron`, `src/shared/cron.ts`
 - Heartbeat: `src/main/heartbeat`, `src/shared/heartbeat.ts`
 - Providers and models: `src/main/provider`, `src/main/stt`, `src/shared/providers`
-- Connectors and MCP: `src/main/agent/connectors`, `src/main/agent/mcp`, `src/shared/connector`
+- Connectors and MCP: `src/main/agent/connectors`, `src/main/agent/mcp`, `src/shared/connectors`
 - Desktop shell and UI: `src/main`, `src/preload`, `src/renderer/src`
 - Browser automation: `src/main/browser`
 - Plugins and agent harnesses: `src/main/plugins`, `src/main/agent/harness`
