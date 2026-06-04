@@ -222,11 +222,13 @@ describe('OpenAIAdapter Responses request construction', () => {
 			model: 'gpt-5.4',
 			system: '',
 			messages: [],
-			inputItems: [{
-				type: 'mcp_approval_response',
-				approve: true,
-				approval_request_id: 'approval_1',
-			}],
+			inputItems: [
+				{
+					type: 'mcp_approval_response',
+					approve: true,
+					approval_request_id: 'approval_1',
+				},
+			],
 			previousResponseId: 'resp_1',
 			tools: [],
 			maxTokens: 100,
@@ -237,11 +239,13 @@ describe('OpenAIAdapter Responses request construction', () => {
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
 				previous_response_id: 'resp_1',
-				input: [{
-					type: 'mcp_approval_response',
-					approve: true,
-					approval_request_id: 'approval_1',
-				}],
+				input: [
+					{
+						type: 'mcp_approval_response',
+						approve: true,
+						approval_request_id: 'approval_1',
+					},
+				],
 			}),
 			{ signal: undefined }
 		);
@@ -257,24 +261,30 @@ describe('OpenAIAdapter Responses request construction', () => {
 			id: 'list_1',
 			type: 'mcp_list_tools',
 			server_label: 'gmail',
-			tools: [{
-				name: 'search_threads',
-				description: 'Search Gmail threads.',
-				input_schema: { type: 'object', properties: {} },
-			}],
+			tools: [
+				{
+					name: 'search_threads',
+					description: 'Search Gmail threads.',
+					input_schema: { type: 'object', properties: {} },
+				},
+			],
 		};
 
 		for await (const _event of adapter.stream({
 			model: 'gpt-5.4',
 			system: '',
-			messages: [{
-				role: 'assistant',
-				content: [{
-					type: 'provider_item',
-					provider: 'openai',
-					item: mcpListToolsItem,
-				}],
-			}],
+			messages: [
+				{
+					role: 'assistant',
+					content: [
+						{
+							type: 'provider_item',
+							provider: 'openai',
+							item: mcpListToolsItem,
+						},
+					],
+				},
+			],
 			tools: [],
 			maxTokens: 100,
 		})) {

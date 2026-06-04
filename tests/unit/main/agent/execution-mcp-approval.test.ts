@@ -71,13 +71,15 @@ describe('executeAgentRun MCP approval continuation', () => {
 			providerId: 'openai',
 			model: 'gpt-5.4',
 			tools: [],
-			builtInTools: [{
-				type: 'mcp',
-				server_label: 'gmail',
-				server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
-				authorization: 'gmail-token',
-				require_approval: 'always',
-			}],
+			builtInTools: [
+				{
+					type: 'mcp',
+					server_label: 'gmail',
+					server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
+					authorization: 'gmail-token',
+					require_approval: 'always',
+				},
+			],
 			ctx: {
 				workspace: process.cwd(),
 				sessionId: 'session-1',
@@ -104,11 +106,13 @@ describe('executeAgentRun MCP approval continuation', () => {
 		);
 		expect(requests[1]).toMatchObject({
 			previousResponseId: 'resp_1',
-			inputItems: [{
-				type: 'mcp_approval_response',
-				approve: true,
-				approval_request_id: 'approval_1',
-			}],
+			inputItems: [
+				{
+					type: 'mcp_approval_response',
+					approve: true,
+					approval_request_id: 'approval_1',
+				},
+			],
 		});
 		expect(result.session.transcript[1]).toMatchObject({
 			role: 'assistant',

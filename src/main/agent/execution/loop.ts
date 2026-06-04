@@ -14,19 +14,18 @@ import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
 import type { SessionFile } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../../llm/router';
-import type {
-	AgentRunStreamEvent,
-	AgentToolResultStatus,
-} from '../../../shared/agents/events';
-import {
-	applyAgentToolResultMiddleware,
-	emitRuntimeLifecycleHook,
-} from '../lifecycle';
+import type { AgentRunStreamEvent, AgentToolResultStatus } from '../../../shared/agents/events';
+import { applyAgentToolResultMiddleware, emitRuntimeLifecycleHook } from '../lifecycle';
 
 export type { AgentRunStreamEvent } from '../../../shared/agents/events';
 
 export interface AgentProviderLookup {
-	getAgentService(): { provider: { id: string }; model: { id: string; name: string; effort?: ModelReasoningEffort } } | undefined;
+	getAgentService():
+		| {
+				provider: { id: string };
+				model: { id: string; name: string; effort?: ModelReasoningEffort };
+		  }
+		| undefined;
 	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
 }
 
@@ -121,7 +120,9 @@ function parseToolArgs(argsStr: string, fallback: unknown): unknown {
 function parseToolArgsForExecution(
 	toolName: string,
 	argsStr: string
-): { ok: true; args: Record<string, unknown> } | { ok: false; args: Record<string, unknown>; message: string } {
+):
+	| { ok: true; args: Record<string, unknown> }
+	| { ok: false; args: Record<string, unknown>; message: string } {
 	if (!argsStr.trim()) return { ok: true, args: {} };
 	try {
 		const parsed = JSON.parse(argsStr);
@@ -176,12 +177,16 @@ function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknow
 	return details === undefined ? resultBlocksToOutput(content) : details;
 }
 
-function redactProviderRequest<T extends { builtInTools?: ProviderBuiltInToolSpec[] }>(request: T): T {
+function redactProviderRequest<T extends { builtInTools?: ProviderBuiltInToolSpec[] }>(
+	request: T
+): T {
 	if (!request.builtInTools?.length) return request;
 	return {
 		...request,
 		builtInTools: request.builtInTools.map((tool) =>
-			tool.type === 'mcp' ? { ...tool, authorization: tool.authorization ? '' : tool.authorization } : tool
+			tool.type === 'mcp'
+				? { ...tool, authorization: tool.authorization ? '' : tool.authorization }
+				: tool
 		),
 	};
 }
@@ -198,7 +203,11 @@ async function prepareToolResultForRun(params: {
 	};
 }
 
-function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdapter; model: string; effort: ModelReasoningEffort | undefined } {
+function resolveProviderAndModel(input: AgentRunInput): {
+	provider: ProviderAdapter;
+	model: string;
+	effort: ModelReasoningEffort | undefined;
+} {
 	if (input.provider && input.model) {
 		return { provider: input.provider, model: input.model, effort: input.effort };
 	}
@@ -216,7 +225,8 @@ function resolveProviderAndModel(input: AgentRunInput): { provider: ProviderAdap
 	const apiKey = providerConfig.apiKey.trim();
 	if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 	const factory = input.providerFactory ?? makeProvider;
-	const provider = input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
+	const provider =
+		input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
 	const effort = input.effort ?? selection.model.effort;
 	return { provider, model, effort };
 }
@@ -356,7 +366,12 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 	session.transcript.push({ role: 'user', content: userMessage });
 
 	await hooks?.onStart?.({ runId });
-	agentLogger.info('agent:run', 'run started', { runId, model, tools: tools.map((t) => t.name), userMessageLen: userMessage.length });
+	agentLogger.info('agent:run', 'run started', {
+		runId,
+		model,
+		tools: tools.map((t) => t.name),
+		userMessageLen: userMessage.length,
+	});
 	streamEvent?.({ type: 'run_state', state: 'thinking', label: 'Thinking' });
 
 	try {
@@ -391,11 +406,13 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 						system: systemPromptForTurn,
 						messages: session.transcript,
 						inputItems: approvalContinuation
-							? [{
-									type: 'mcp_approval_response',
-									approve: true,
-									approval_request_id: approvalContinuation.approvalRequestId,
-								}]
+							? [
+									{
+										type: 'mcp_approval_response',
+										approve: true,
+										approval_request_id: approvalContinuation.approvalRequestId,
+									},
+								]
 							: undefined,
 						previousResponseId: approvalContinuation?.previousResponseId,
 						tools: toolsForPrompt.map((t) => ({
@@ -421,81 +438,83 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 							case 'reasoning_item':
 								reasoningBlocks.push({
 									type: 'reasoning',
-								provider: event.provider ?? 'openai',
-								item: event.item,
-							});
-							if (!reasoningStarted) {
-								reasoningStarted = true;
-								streamEvent?.({ type: 'run_state', state: 'reasoning', label: 'Reasoning' });
-								streamEvent?.({
-									type: 'reasoning_summary',
-									id: reasoningSummaryId,
-									title: 'Reasoning',
-									summary: 'The model is using reasoning for this turn.',
-									state: 'running',
+									provider: event.provider ?? 'openai',
+									item: event.item,
 								});
-							}
-							break;
-						case 'text_delta':
-							firstTokenLatencyMs ??= Date.now() - runStart;
-							if (!didStartAnswering) {
-								didStartAnswering = true;
-								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
-							}
-							text += event.text;
-							streamOutput?.(event.text);
-							streamEvent?.({ type: 'text_delta', delta: event.text });
-							break;
-						case 'tool_call_start': {
-							const tool = toolsForPrompt.find((entry) => entry.name === event.name) ?? tools.find((entry) => entry.name === event.name);
-							pending.set(event.id, { name: event.name, argsStr: '', tool });
-							streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
-							streamEvent?.({
-								type: 'tool_call_start',
-								iteration: iter,
-								toolCallId: event.id,
-								toolName: event.name,
-								name: event.name,
-								displayName: tool ? toolDisplayName(tool) : undefined,
-								serviceKind: tool ? toolServiceKind(tool) : 'tool',
-								serviceId: tool?.serviceId,
-							});
-							break;
-						}
-						case 'tool_call_args_delta': {
-							const t = pending.get(event.id);
-							if (t) {
-								t.argsStr += event.jsonDelta;
+								if (!reasoningStarted) {
+									reasoningStarted = true;
+									streamEvent?.({ type: 'run_state', state: 'reasoning', label: 'Reasoning' });
+									streamEvent?.({
+										type: 'reasoning_summary',
+										id: reasoningSummaryId,
+										title: 'Reasoning',
+										summary: 'The model is using reasoning for this turn.',
+										state: 'running',
+									});
+								}
+								break;
+							case 'text_delta':
+								firstTokenLatencyMs ??= Date.now() - runStart;
+								if (!didStartAnswering) {
+									didStartAnswering = true;
+									streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+								}
+								text += event.text;
+								streamOutput?.(event.text);
+								streamEvent?.({ type: 'text_delta', delta: event.text });
+								break;
+							case 'tool_call_start': {
+								const tool =
+									toolsForPrompt.find((entry) => entry.name === event.name) ??
+									tools.find((entry) => entry.name === event.name);
+								pending.set(event.id, { name: event.name, argsStr: '', tool });
+								streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
 								streamEvent?.({
-									type: 'tool_call_args_delta',
+									type: 'tool_call_start',
 									iteration: iter,
 									toolCallId: event.id,
-									toolName: t.name,
-									name: t.name,
-									displayName: t.tool ? toolDisplayName(t.tool) : undefined,
-									serviceKind: t.tool ? toolServiceKind(t.tool) : 'tool',
-									serviceId: t.tool?.serviceId,
-									jsonDelta: event.jsonDelta,
-									argsText: t.argsStr,
+									toolName: event.name,
+									name: event.name,
+									displayName: tool ? toolDisplayName(tool) : undefined,
+									serviceKind: tool ? toolServiceKind(tool) : 'tool',
+									serviceId: tool?.serviceId,
 								});
+								break;
 							}
-							break;
-						}
-						case 'tool_call_end': {
-							const t = pending.get(event.id);
-							if (t) {
-								streamEvent?.({
-									type: 'tool_call_input',
-									iteration: iter,
-									toolCallId: event.id,
-									toolName: t.name,
-									name: t.name,
-									displayName: t.tool ? toolDisplayName(t.tool) : undefined,
-									serviceKind: t.tool ? toolServiceKind(t.tool) : 'tool',
-									serviceId: t.tool?.serviceId,
-									input: parseToolArgs(t.argsStr, { __unparsed: t.argsStr }),
-									argsText: t.argsStr,
-								});
+							case 'tool_call_args_delta': {
+								const t = pending.get(event.id);
+								if (t) {
+									t.argsStr += event.jsonDelta;
+									streamEvent?.({
+										type: 'tool_call_args_delta',
+										iteration: iter,
+										toolCallId: event.id,
+										toolName: t.name,
+										name: t.name,
+										displayName: t.tool ? toolDisplayName(t.tool) : undefined,
+										serviceKind: t.tool ? toolServiceKind(t.tool) : 'tool',
+										serviceId: t.tool?.serviceId,
+										jsonDelta: event.jsonDelta,
+										argsText: t.argsStr,
+									});
+								}
+								break;
+							}
+							case 'tool_call_end': {
+								const t = pending.get(event.id);
+								if (t) {
+									streamEvent?.({
+										type: 'tool_call_input',
+										iteration: iter,
+										toolCallId: event.id,
+										toolName: t.name,
+										name: t.name,
+										displayName: t.tool ? toolDisplayName(t.tool) : undefined,
+										serviceKind: t.tool ? toolServiceKind(t.tool) : 'tool',
+										serviceId: t.tool?.serviceId,
+										input: parseToolArgs(t.argsStr, { __unparsed: t.argsStr }),
+										argsText: t.argsStr,
+									});
 								}
 								break;
 							}
@@ -557,55 +576,55 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 									};
 									break providerEvents;
 								}
-							const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but connector policy did not allow automatic approval.`;
+								const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but connector policy did not allow automatic approval.`;
 								firstTokenLatencyMs ??= Date.now() - runStart;
-							if (!didStartAnswering) {
-								didStartAnswering = true;
-								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
-							}
-							text += message;
-							streamOutput?.(message);
-							streamEvent?.({ type: 'text_delta', delta: message });
-							streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
-							streamEvent?.({
-								type: 'tool_call_start',
-								iteration: iter,
-								toolCallId: event.id,
-								toolName: event.name,
-								name: event.name,
-								displayName: `${event.serverLabel}.${event.name}`,
-								serviceKind: 'mcp',
-								serviceId: event.serverLabel,
-							});
-							streamEvent?.({
-								type: 'tool_call_input',
-								iteration: iter,
-								toolCallId: event.id,
-								toolName: event.name,
-								name: event.name,
-								displayName: `${event.serverLabel}.${event.name}`,
-								serviceKind: 'mcp',
-								serviceId: event.serverLabel,
-								input: args,
-								argsText: event.arguments,
-							});
-							streamEvent?.({
-								type: 'tool_call_result',
-								iteration: iter,
-								toolCallId: event.id,
-								toolName: event.name,
-								name: event.name,
-								displayName: `${event.serverLabel}.${event.name}`,
-								serviceKind: 'mcp',
-								serviceId: event.serverLabel,
-								input: args,
-								output: message,
-								outputText: message,
-								status: 'blocked',
-								durationMs: 0,
-								errorText: message,
-							});
-							approvalBlocked = true;
+								if (!didStartAnswering) {
+									didStartAnswering = true;
+									streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+								}
+								text += message;
+								streamOutput?.(message);
+								streamEvent?.({ type: 'text_delta', delta: message });
+								streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
+								streamEvent?.({
+									type: 'tool_call_start',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: event.name,
+									name: event.name,
+									displayName: `${event.serverLabel}.${event.name}`,
+									serviceKind: 'mcp',
+									serviceId: event.serverLabel,
+								});
+								streamEvent?.({
+									type: 'tool_call_input',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: event.name,
+									name: event.name,
+									displayName: `${event.serverLabel}.${event.name}`,
+									serviceKind: 'mcp',
+									serviceId: event.serverLabel,
+									input: args,
+									argsText: event.arguments,
+								});
+								streamEvent?.({
+									type: 'tool_call_result',
+									iteration: iter,
+									toolCallId: event.id,
+									toolName: event.name,
+									name: event.name,
+									displayName: `${event.serverLabel}.${event.name}`,
+									serviceKind: 'mcp',
+									serviceId: event.serverLabel,
+									input: args,
+									output: message,
+									outputText: message,
+									status: 'blocked',
+									durationMs: 0,
+									errorText: message,
+								});
+								approvalBlocked = true;
 								turnStop = 'end_turn';
 								break providerEvents;
 							}
@@ -620,7 +639,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
 								const outputText = event.error
 									? `OpenAI MCP connector "${event.serverLabel}" failed to run "${event.name}": ${event.error}`
-									: event.output ?? '';
+									: (event.output ?? '');
 								streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
 								streamEvent?.({
 									type: 'tool_call_start',
@@ -664,9 +683,9 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								break;
 							}
 							case 'message_end':
-							turnStop = event.stopReason;
-							iterUsage = event.usage;
-							totalUsage.inputTokens += event.usage.inputTokens;
+								turnStop = event.stopReason;
+								iterUsage = event.usage;
+								totalUsage.inputTokens += event.usage.inputTokens;
 								totalUsage.outputTokens += event.usage.outputTokens;
 								break;
 						}
@@ -702,7 +721,11 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 				}
 				stopReason = 'error';
 				finalText += `\n[error: ${(err as Error).message}]`;
-				agentLogger.error('agent:run', 'stream error', { runId, iter, error: (err as Error).message });
+				agentLogger.error('agent:run', 'stream error', {
+					runId,
+					iter,
+					error: (err as Error).message,
+				});
 				await hooks?.onFinish?.({
 					runId,
 					stopReason,
@@ -777,7 +800,8 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 					break;
 				}
 				toolCalls++;
-				const tool = toolsForPrompt.find((x) => x.name === t.name) ?? tools.find((x) => x.name === t.name);
+				const tool =
+					toolsForPrompt.find((x) => x.name === t.name) ?? tools.find((x) => x.name === t.name);
 				const parsedArgs = parseToolArgsForExecution(t.name, t.argsStr);
 				const args = parsedArgs.args;
 				streamEvent?.({
@@ -853,7 +877,12 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 						toolManagement
 					);
 				} catch (err) {
-					agentLogger.error('agent:run', 'tool threw', { runId, tool: t.name, iter, error: (err as Error).message });
+					agentLogger.error('agent:run', 'tool threw', {
+						runId,
+						tool: t.name,
+						iter,
+						error: (err as Error).message,
+					});
 					res = {
 						status: 'error' as const,
 						content: [
@@ -878,7 +907,13 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 					durationMs: Date.now() - toolStart,
 					toolResult,
 				});
-				agentLogger.info('agent:run', 'tool call', { runId, tool: t.name, iter, status, outputChars: toolResult.outputText.length });
+				agentLogger.info('agent:run', 'tool call', {
+					runId,
+					tool: t.name,
+					iter,
+					status,
+					outputChars: toolResult.outputText.length,
+				});
 			}
 
 			if (iter === maxIterations - 1) stopReason = 'max_iterations';
@@ -910,7 +945,14 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 		iterations: completedIterations,
 		outputChars: finalText.length,
 	});
-	agentLogger.info('agent:run', 'run finished', { runId, stopReason, iterations: completedIterations, inputTokens: totalUsage.inputTokens, outputTokens: totalUsage.outputTokens, durationMs: Date.now() - runStart });
+	agentLogger.info('agent:run', 'run finished', {
+		runId,
+		stopReason,
+		iterations: completedIterations,
+		inputTokens: totalUsage.inputTokens,
+		outputTokens: totalUsage.outputTokens,
+		durationMs: Date.now() - runStart,
+	});
 
 	return {
 		finalText,
@@ -927,6 +969,9 @@ function unknownTool(name: string): AgentTool {
 		description: 'Unavailable tool placeholder.',
 		schema: { type: 'object', properties: {} },
 		serviceKind: 'tool',
-		execute: async () => ({ status: 'error', content: [{ type: 'text', text: 'tool is unavailable' }] }),
+		execute: async () => ({
+			status: 'error',
+			content: [{ type: 'text', text: 'tool is unavailable' }],
+		}),
 	};
 }

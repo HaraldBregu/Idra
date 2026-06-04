@@ -49,9 +49,7 @@ function buildChatMessages(
 				.map((b) => b.text)
 				.join('');
 			const toolCalls: OpenAI.ChatCompletionMessageToolCall[] = entry.content
-				.filter(
-					(b): b is Extract<AgentContentBlock, { type: 'tool_use' }> => b.type === 'tool_use'
-				)
+				.filter((b): b is Extract<AgentContentBlock, { type: 'tool_use' }> => b.type === 'tool_use')
 				.map((b) => ({
 					id: b.toolUseId,
 					type: 'function' as const,
@@ -67,8 +65,9 @@ function buildChatMessages(
 					.map((b) => (typeof b.item === 'string' ? b.item : ''))
 					.join('');
 				if (reasoningContent) {
-					(msg as OpenAI.ChatCompletionAssistantMessageParam & { reasoning_content?: string })
-						.reasoning_content = reasoningContent;
+					(
+						msg as OpenAI.ChatCompletionAssistantMessageParam & { reasoning_content?: string }
+					).reasoning_content = reasoningContent;
 				}
 			}
 			if (toolCalls.length > 0) msg.tool_calls = toolCalls;
@@ -186,7 +185,12 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 					for (const tc of delta.tool_calls) {
 						let state = pending.get(tc.index);
 						if (!state) {
-							state = { id: tc.id ?? '', name: tc.function?.name ?? '', argsStr: '', emittedStart: false };
+							state = {
+								id: tc.id ?? '',
+								name: tc.function?.name ?? '',
+								argsStr: '',
+								emittedStart: false,
+							};
 							pending.set(tc.index, state);
 						}
 						if (tc.id) state.id = tc.id;
@@ -197,7 +201,11 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 						}
 						if (tc.function?.arguments) {
 							state.argsStr += tc.function.arguments;
-							yield { type: 'tool_call_args_delta', id: state.id, jsonDelta: tc.function.arguments };
+							yield {
+								type: 'tool_call_args_delta',
+								id: state.id,
+								jsonDelta: tc.function.arguments,
+							};
 						}
 					}
 				}
@@ -236,9 +244,7 @@ function toDeepSeekReasoningEffort(
 }
 
 function toolResultText(entry: Extract<TranscriptEntry, { role: 'tool' }>): string {
-	return entry.content
-		.map((c) => (c.type === 'text' ? c.text : '[binary content]'))
-		.join('\n');
+	return entry.content.map((c) => (c.type === 'text' ? c.text : '[binary content]')).join('\n');
 }
 
 function isOpenAIReasoningBlock(
@@ -255,7 +261,7 @@ function asResponseInputItem(value: unknown): ResponseInputItem | null {
 		type === 'mcp_call' ||
 		type === 'mcp_approval_request' ||
 		type === 'mcp_approval_response'
-		? value as ResponseInputItem
+		? (value as ResponseInputItem)
 		: null;
 }
 
@@ -362,7 +368,9 @@ export class OpenAIAdapter implements ProviderAdapter {
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
 			instructions: req.system || undefined,
-			input: (req.inputItems as ResponseCreateParamsStreaming['input']) ?? buildResponseInput(req.messages),
+			input:
+				(req.inputItems as ResponseCreateParamsStreaming['input']) ??
+				buildResponseInput(req.messages),
 			previous_response_id: req.previousResponseId,
 			tools: tools.length > 0 ? tools : undefined,
 			reasoning: req.effort ? { effort: req.effort } : undefined,
@@ -377,18 +385,14 @@ export class OpenAIAdapter implements ProviderAdapter {
 		let stopReason = 'end_turn';
 		const callsByOutputIndex = new Map<number, ResponseToolCallState>();
 
-		const emitToolStart = function* (
-			state: ResponseToolCallState
-		): Iterable<ProviderEvent> {
+		const emitToolStart = function* (state: ResponseToolCallState): Iterable<ProviderEvent> {
 			if (state.emittedStart) return;
 			if (!state.id || !state.name) return;
 			state.emittedStart = true;
 			yield { type: 'tool_call_start', id: state.id, name: state.name };
 		};
 
-		const emitToolEnd = function* (
-			state: ResponseToolCallState
-		): Iterable<ProviderEvent> {
+		const emitToolEnd = function* (state: ResponseToolCallState): Iterable<ProviderEvent> {
 			if (state.emittedEnd || !state.emittedStart) return;
 			state.emittedEnd = true;
 			yield { type: 'tool_call_end', id: state.id };
