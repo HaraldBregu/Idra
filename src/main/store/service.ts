@@ -51,7 +51,6 @@ type ModelModuleRootKey =
 	| 'imageCreator'
 	| 'textToVideo'
 	| 'textToSound';
-type ConnectorStoreKey = keyof NonNullable<StoreSchema['connectors']>;
 
 const MODEL_MODULE_ROOT_KEYS = {
 	assistant: 'llmAgent',
@@ -61,19 +60,6 @@ const MODEL_MODULE_ROOT_KEYS = {
 	textToVideo: 'textToVideo',
 	textToSound: 'textToSound',
 } satisfies Record<ModelModuleKey, ModelModuleRootKey>;
-
-const CONNECTOR_STORE_KEY_BY_ID = {
-	connector_gmail: 'google_gmail',
-	connector_googlecalendar: 'google_calendar',
-	connector_googledrive: 'google_drive',
-	connector_microsoftteams: 'microsoft_teams',
-	connector_outlookcalendar: 'outlook_calendar',
-	connector_outlookemail: 'outlook_email',
-	connector_sharepoint: 'sharepoint',
-	connector_dropbox: 'dropbox',
-} satisfies Record<ConnectorConfig['connectorId'], ConnectorStoreKey>;
-
-const CONNECTOR_STORE_KEYS = Object.values(CONNECTOR_STORE_KEY_BY_ID) as ConnectorStoreKey[];
 
 function publicProvider(provider: Provider): Omit<Provider, 'apiKey'> {
 	return {
@@ -177,20 +163,9 @@ function readConnectorSettingsList(value: unknown): ConnectorConfig[] {
 	}
 	const record = readRecord(value);
 	if (!record) return [];
-	return CONNECTOR_STORE_KEYS.flatMap((key) => {
-		const connector = record[key];
+	return Object.values(record).flatMap((connector) => {
 		return readRecord(connector) ? [connector as ConnectorConfig] : [];
 	});
-}
-
-function connectorSettingsByKey(
-	connectors: ConnectorConfig[]
-): NonNullable<StoreSchema['connectors']> {
-	const next: NonNullable<StoreSchema['connectors']> = {};
-	for (const connector of connectors) {
-		next[CONNECTOR_STORE_KEY_BY_ID[connector.connectorId]] = connector;
-	}
-	return next;
 }
 
 function defaultProviderForId(id: string): Provider | undefined {
@@ -609,7 +584,7 @@ export class StoreService {
 	}
 
 	setConnectors(connectors: ConnectorConfig[]): void {
-		this.store.set('connectors', connectorSettingsByKey(connectors));
+		this.store.set('connectors', connectors);
 	}
 
 	getChannel(): Channel {

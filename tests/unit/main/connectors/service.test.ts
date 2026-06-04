@@ -30,23 +30,20 @@ describe('ConnectorsService OpenAI connectors', () => {
 		logger.error.mockClear();
 	});
 
-	it('uses the OpenAI provider connector catalog', () => {
+	it('does not expose a hard-coded OpenAI provider connector catalog', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
-		const ids = service.catalog().map((connector) => connector.id);
 
-		expect(ids).toContain('connector_gmail');
-		expect(ids).toContain('connector_dropbox');
-		expect(ids).toContain('connector_googlecalendar');
-		expect(ids).not.toContain('google.gmail');
+		expect(service.catalog()).toEqual([]);
 	});
 
 	it('stores and redacts authorization for OpenAI connector configs without MCP transport', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		const saved = await service.add({
-			name: 'Gmail',
-			connectorId: 'connector_gmail',
-			serverLabel: 'gmail',
+			name: 'Acme Mail',
+			connectorId: 'connector_acme_mail',
+			serverLabel: 'acme_mail',
+			serverDescription: 'Acme mail connector.',
 			authorization: 'token-123',
 			allowedTools: ['search_emails'],
 			requireApproval: 'never_for_allowed_tools',
@@ -56,16 +53,19 @@ describe('ConnectorsService OpenAI connectors', () => {
 		expect((mockStoreData.connectors as ConnectorConfig[])[0].authorization).toBe('token-123');
 		expect(service.get(saved.id).authorization).toBe('');
 		expect(service.getConnectorSettings()[0].authorization).toBe('');
-		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'google_oauth' });
+		expect(service.list()[0]).toMatchObject({
+			status: 'configured',
+			authKind: 'manual_oauth_access_token',
+		});
 		expect(service.createOpenAIConnectorTools()).toEqual([
 			{
 				type: 'mcp',
-				server_label: 'gmail',
-				connector_id: 'connector_gmail',
+				server_label: 'acme_mail',
+				connector_id: 'connector_acme_mail',
 				authorization: 'token-123',
 				require_approval: { never: { tool_names: ['search_emails'] } },
 				allowed_tools: ['search_emails'],
-				server_description: 'Search, read, draft, send, and manage Gmail messages.',
+				server_description: 'Acme mail connector.',
 			},
 		]);
 	});
@@ -74,9 +74,9 @@ describe('ConnectorsService OpenAI connectors', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		await service.add({
-			name: 'Dropbox',
-			connectorId: 'connector_dropbox',
-			serverLabel: 'dropbox',
+			name: 'Acme Drive',
+			connectorId: 'connector_acme_drive',
+			serverLabel: 'acme_drive',
 		});
 
 		expect(service.list()[0].status).toBe('missing_auth');
@@ -87,16 +87,16 @@ describe('ConnectorsService OpenAI connectors', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		await service.add({
-			name: 'Dropbox',
-			connectorId: 'connector_dropbox',
-			serverLabel: 'dropbox',
+			name: 'Acme Drive',
+			connectorId: 'connector_acme_drive',
+			serverLabel: 'acme_drive',
 			authorization: 'dropbox-token',
 			requireApproval: 'always',
 		});
 		await service.add({
-			name: 'Calendar',
-			connectorId: 'connector_googlecalendar',
-			serverLabel: 'calendar',
+			name: 'Acme Calendar',
+			connectorId: 'connector_acme_calendar',
+			serverLabel: 'acme_calendar',
 			authorization: 'calendar-token',
 			requireApproval: 'never',
 		});
@@ -104,6 +104,30 @@ describe('ConnectorsService OpenAI connectors', () => {
 		expect(service.createOpenAIConnectorTools().map((tool) => tool.require_approval)).toEqual([
 			'always',
 			'never',
+		]);
+	});
+
+	it('builds OpenAI remote MCP tool specs from connector records with serverUrl', async () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+
+		await service.add({
+			name: 'Acme MCP',
+			connectorId: 'acme_remote_mcp',
+			serverLabel: 'acme',
+			serverUrl: 'https://mcp.example.com/sse',
+			requireApproval: 'never',
+			allowedTools: ['search'],
+		});
+
+		expect(service.list()[0]).toMatchObject({ status: 'configured', authKind: 'none' });
+		expect(service.createOpenAIConnectorTools()).toEqual([
+			{
+				type: 'mcp',
+				server_label: 'acme',
+				server_url: 'https://mcp.example.com/sse',
+				require_approval: 'never',
+				allowed_tools: ['search'],
+			},
 		]);
 	});
 });

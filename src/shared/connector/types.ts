@@ -1,12 +1,8 @@
-import type {
-	ConnectorDocumentationStatus,
-	ConnectorPriorityTier,
-	ConnectorWriteRisk,
-	DirectConnectorCatalogId,
-	OpenAiConnectorId,
-} from './connectors';
-
-export type { ConnectorDocumentationStatus, ConnectorPriorityTier, ConnectorWriteRisk, DirectConnectorCatalogId, OpenAiConnectorId };
+export type ConnectorDocumentationStatus = 'complete' | 'partial' | 'missing';
+export type ConnectorPriorityTier = 'P0' | 'P1' | 'P2' | 'P3';
+export type ConnectorWriteRisk = 'low' | 'medium' | 'high';
+export type DirectConnectorCatalogId = string;
+export type OpenAiConnectorId = string;
 
 export type ConnectorImplementationPattern =
 	| 'direct_api_or_connector_provider_tool'
@@ -181,6 +177,7 @@ export interface ConnectorConfig {
 	connectorId: ConnectorProviderId;
 	serverLabel: string;
 	serverDescription?: string;
+	serverUrl?: string;
 	enabled: boolean;
 	authorization: string;
 	mcp?: ConnectorMcpConfig;
@@ -203,6 +200,7 @@ export interface ConnectorView {
 	connectorId: ConnectorProviderId;
 	authKind: ConnectorAuthKind;
 	serverLabel: string;
+	serverUrl?: string;
 	enabled: boolean;
 	status: ConnectorStatus;
 	requireApproval: ConnectorApprovalMode;
@@ -219,6 +217,7 @@ export interface ConnectorInput {
 	connectorId: ConnectorProviderId;
 	serverLabel?: string;
 	serverDescription?: string;
+	serverUrl?: string;
 	authorization?: string;
 	requireApproval?: ConnectorApprovalMode;
 	allowedTools?: string[];
@@ -273,8 +272,9 @@ export interface ConnectorCallToolOptions {
 export interface OpenAiMcpConnectorToolSpec {
 	type: 'mcp';
 	server_label: string;
-	connector_id: string;
-	authorization: string;
+	connector_id?: string;
+	server_url?: string;
+	authorization?: string;
 	require_approval: OpenAiConnectorRequireApproval;
 	allowed_tools?: string[];
 	defer_loading?: boolean;

@@ -33,9 +33,9 @@ describe('OpenAIAdapter Responses request construction', () => {
 			builtInTools: [
 				{
 					type: 'mcp',
-					server_label: 'gmail',
-					connector_id: 'connector_gmail',
-					authorization: 'gmail-token',
+					server_label: 'acme_mail',
+					connector_id: 'connector_acme_mail',
+					authorization: 'acme-token',
 					require_approval: 'always',
 				},
 			],
@@ -50,9 +50,9 @@ describe('OpenAIAdapter Responses request construction', () => {
 					expect.objectContaining({ type: 'function', name: 'local_tool' }),
 					expect.objectContaining({
 						type: 'mcp',
-						server_label: 'gmail',
-						connector_id: 'connector_gmail',
-						authorization: 'gmail-token',
+						server_label: 'acme_mail',
+						connector_id: 'connector_acme_mail',
+						authorization: 'acme-token',
 					}),
 				],
 			}),
@@ -74,7 +74,7 @@ describe('OpenAIAdapter Responses request construction', () => {
 					item: {
 						id: 'approval_1',
 						type: 'mcp_approval_request',
-						server_label: 'gmail',
+						server_label: 'acme_mail',
 						name: 'send_email',
 						arguments: '{"to":"a@example.com"}',
 					},
@@ -100,7 +100,7 @@ describe('OpenAIAdapter Responses request construction', () => {
 		expect(events).toContainEqual({
 			type: 'mcp_approval_request',
 			id: 'approval_1',
-			serverLabel: 'gmail',
+			serverLabel: 'acme_mail',
 			name: 'send_email',
 			arguments: '{"to":"a@example.com"}',
 		});

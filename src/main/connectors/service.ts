@@ -6,9 +6,7 @@ import type { LoggerService } from '../observability';
 import type { AgentTool, ToolContext } from '../tools/shared/types';
 import { textResult } from '../tools/shared/types';
 import {
-	PROVIDER_CONNECTOR_CATALOG,
 	getMcpConnectorCatalogItem,
-	getProviderConnectorCatalogItem,
 	type ConnectorApprovalMode,
 	type ConnectorCallToolOptions,
 	type ConnectorCatalogEntry,
@@ -50,12 +48,6 @@ interface ConnectorsServiceOptions {
 
 const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
-const OPENAI_PROVIDER_CONNECTOR_CATALOG = PROVIDER_CONNECTOR_CATALOG.filter(
-	(connector) => connector.runtimeKind !== 'mcp'
-);
-const OPENAI_BUILT_IN_CONNECTOR_IDS = new Set(
-	OPENAI_PROVIDER_CONNECTOR_CATALOG.map((connector) => connector.id)
-);
 
 export class ConnectorsService {
 	private readonly store: ConnectorsStore;
@@ -73,7 +65,7 @@ export class ConnectorsService {
 	}
 
 	catalog(): readonly ConnectorCatalogEntry[] {
-		return OPENAI_PROVIDER_CONNECTOR_CATALOG;
+		return [];
 	}
 
 	list(): ConnectorView[] {
@@ -95,6 +87,7 @@ export class ConnectorsService {
 				serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
 				serverDescription: sanitized.serverDescription,
 				enabled: sanitized.enabled ?? true,
+				serverUrl: sanitized.serverUrl,
 				authorization: sanitized.authorization ?? '',
 				mcp: cloneValue(sanitized.mcp),
 				oauth: undefined,
@@ -105,8 +98,8 @@ export class ConnectorsService {
 				createdAt: now,
 				updatedAt: now,
 			};
-			const next = isOpenAiBuiltInConnector(connector)
-				? withProviderConnectorTools(connector)
+			const next = isOpenAiResponsesConnector(connector)
+				? withOpenAiResponsesConnectorTools(connector)
 				: hasMissingMcpSecrets(connector, this.env())
 					? connector
 					: await this.withDiscoveredTools(connector, true);
@@ -126,6 +119,7 @@ export class ConnectorsService {
 			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
 			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
 			serverDescription: readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+			serverUrl: readOptionalString(patch, 'serverUrl') ?? current.serverUrl,
 			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
 			requireApproval: readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
 			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
@@ -136,6 +130,7 @@ export class ConnectorsService {
 		const base: ConnectorConfig = {
 			...current,
 			...merged,
+			serverUrl: merged.serverUrl,
 			authorization: merged.authorization ?? '',
 			mcp: cloneValue(merged.mcp),
 			tools: [],
@@ -144,8 +139,8 @@ export class ConnectorsService {
 		};
 		const next: ConnectorConfig = {
 			...base,
-			tools: isOpenAiBuiltInConnector(base)
-				? providerConnectorTools(base)
+			tools: isOpenAiResponsesConnector(base)
+				? openAiResponsesConnectorTools(base)
 				: applyToolPolicy(current.tools, base.allowedTools, base.requireApproval),
 		};
 		this.replace(next);
@@ -264,9 +259,9 @@ export class ConnectorsService {
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.getStored(id);
-		if (isOpenAiBuiltInConnector(connector)) {
+		if (isOpenAiResponsesConnector(connector)) {
 			const next = {
-				...withProviderConnectorTools(connector),
+				...withOpenAiResponsesConnectorTools(connector),
 				lastRefreshedAt: new Date().toISOString(),
 			};
 			this.replace(next);
@@ -294,7 +289,7 @@ export class ConnectorsService {
 		const connector = this.getStored(connectorId);
 		const status = toStatus(connector, this.env());
 		if (status !== 'configured') throw new Error(`Connector is not configured: ${connector.name}`);
-		if (isOpenAiBuiltInConnector(connector)) {
+		if (isOpenAiResponsesConnector(connector)) {
 			throw new Error('OpenAI connector tools are executed by OpenAI Responses API.');
 		}
 		const tool = connector.tools.find((item) => item.name === toolName);
@@ -349,7 +344,7 @@ export class ConnectorsService {
 	createAgentTools(): AgentTool[] {
 		return this.validConnectors()
 			.filter((connector) => connector.enabled && toStatus(connector, this.env()) === 'configured')
-			.filter((connector) => !isOpenAiBuiltInConnector(connector))
+			.filter((connector) => !isOpenAiResponsesConnector(connector))
 			.flatMap((connector) =>
 				connector.tools
 					.filter((tool) => tool.permission !== 'blocked')
@@ -373,7 +368,7 @@ export class ConnectorsService {
 	createOpenAIConnectorTools(): OpenAiMcpConnectorToolSpec[] {
 		return this.validConnectors()
 			.filter((connector) => connector.enabled && toStatus(connector, this.env()) === 'configured')
-			.filter(isOpenAiBuiltInConnector)
+			.filter(isOpenAiResponsesConnector)
 			.map(toOpenAiMcpTool);
 	}
 
@@ -506,12 +501,10 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const name = readOptionalString(raw, 'name')?.trim() ?? '';
 	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? '';
 	const mcpCatalogItem = getMcpConnectorCatalogItem(connectorId);
-	const providerCatalogItem = getProviderConnectorCatalogItem(connectorId);
-	const isProviderConnector = isOpenAiBuiltInConnectorId(connectorId);
 	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || serverLabelFromName(name);
+	const serverUrl = readOptionalString(raw, 'serverUrl')?.trim() || undefined;
 	const serverDescription =
 		readOptionalString(raw, 'serverDescription')?.trim() ||
-		providerCatalogItem?.description ||
 		mcpCatalogItem?.description;
 	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
 	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? 'always';
@@ -519,17 +512,20 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? false;
 	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
 	const mcp = readOptionalMcp(raw, 'mcp');
+	const openAiResponsesConnector = !mcp || Boolean(serverUrl);
 
 	if (!name) throw new Error('Connector name is required.');
 	if (!connectorId) throw new Error('Connector id is required.');
+	if (serverUrl) validateOpenAiServerUrl(serverUrl);
+	if (serverUrl && mcp) throw new Error('Connector cannot define both serverUrl and local MCP configuration.');
 	if (!serverLabel) throw new Error('Server label is required.');
 	if (!/^[a-zA-Z0-9_-]+$/.test(serverLabel)) {
 		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
 	}
-	if (authorization && !isProviderConnector) {
+	if (authorization && !openAiResponsesConnector) {
 		throw new Error('Connector authorization secrets must be referenced from environment variables.');
 	}
-	if (!isProviderConnector) {
+	if (!openAiResponsesConnector) {
 		if (!mcp) throw new Error('MCP transport configuration is required.');
 		validateMcpConfig(mcp);
 	}
@@ -539,12 +535,13 @@ function sanitizeInput(input: unknown): ConnectorInput {
 		connectorId,
 		serverLabel,
 		serverDescription,
-		authorization: isProviderConnector ? authorization : '',
+		serverUrl,
+		authorization: openAiResponsesConnector ? authorization : '',
 		requireApproval,
 		allowedTools: uniqueStrings(allowedTools),
 		deferLoading,
 		enabled,
-		mcp: isProviderConnector ? undefined : mcp,
+		mcp: openAiResponsesConnector ? undefined : mcp,
 	};
 }
 
@@ -615,6 +612,13 @@ function validateMcpConfig(mcp: ConnectorInput['mcp']): void {
 	throw new Error('Unsupported MCP transport configuration.');
 }
 
+function validateOpenAiServerUrl(serverUrl: string): void {
+	const url = new URL(serverUrl);
+	if (url.protocol !== 'https:' && url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+		throw new Error('Remote MCP servers must use HTTPS unless local.');
+	}
+}
+
 function isSecretHeader(key: string): boolean {
 	return /(authorization|api[-_]?key|token|secret)/i.test(key);
 }
@@ -634,8 +638,12 @@ function isStoredConnectorValid(value: unknown): value is ConnectorConfig {
 function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
+		serverUrl: typeof connector.serverUrl === 'string' && connector.serverUrl.trim() ? connector.serverUrl.trim() : undefined,
 		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
 		allowedTools: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
+		requireApproval: connector.requireApproval ?? 'always',
+		deferLoading: connector.deferLoading ?? false,
+		enabled: connector.enabled ?? true,
 		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeTool) : [],
 	};
 }
@@ -657,6 +665,7 @@ function toView(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorVi
 		connectorId: connector.connectorId,
 		authKind: authKindFor(connector),
 		serverLabel: connector.serverLabel,
+		serverUrl: connector.serverUrl,
 		enabled: connector.enabled,
 		status: toStatus(connector, env),
 		requireApproval: connector.requireApproval,
@@ -670,11 +679,11 @@ function toView(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorVi
 }
 
 function authKindFor(connector: ConnectorConfig): ConnectorView['authKind'] {
-	const providerConnector = getProviderConnectorCatalogItem(connector.connectorId);
-	if (providerConnector && providerConnector.runtimeKind !== 'mcp') {
-		return providerConnector.authKind ?? 'manual_oauth_access_token';
-	}
+	if (connector.oauth?.provider === 'google' || connector.oauth?.providerId === 'google') return 'google_oauth';
 	if (connector.oauth) return 'oauth';
+	if (isOpenAiResponsesConnector(connector)) {
+		return connector.serverUrl && !connectorAuthorization(connector) ? 'none' : 'manual_oauth_access_token';
+	}
 	if (requiredMcpSecretNames(connector).length > 0) return 'mcp_env';
 	return 'mcp_env';
 }
@@ -682,7 +691,7 @@ function authKindFor(connector: ConnectorConfig): ConnectorView['authKind'] {
 function toStatus(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
-	if (isOpenAiBuiltInConnector(connector) && !connectorAuthorization(connector)) return 'missing_auth';
+	if (isOpenAiConnectorIdTool(connector) && !connectorAuthorization(connector)) return 'missing_auth';
 	if (hasMissingMcpSecrets(connector, env)) return 'missing_auth';
 	if (connector.oauth && !connector.oauth.token?.accessToken && !connector.oauth.token?.refreshToken) {
 		return 'missing_auth';
@@ -756,17 +765,19 @@ function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
 	};
 }
 
-function isOpenAiBuiltInConnectorId(connectorId: string): boolean {
-	return OPENAI_BUILT_IN_CONNECTOR_IDS.has(connectorId as never);
+function isOpenAiResponsesConnector(connector: Pick<ConnectorConfig, 'mcp' | 'serverUrl'>): boolean {
+	return !connector.mcp || Boolean(connector.serverUrl);
 }
 
-function isOpenAiBuiltInConnector(connector: Pick<ConnectorConfig, 'connectorId'>): boolean {
-	return isOpenAiBuiltInConnectorId(connector.connectorId);
+function isOpenAiConnectorIdTool(connector: Pick<ConnectorConfig, 'mcp' | 'serverUrl'>): boolean {
+	return isOpenAiResponsesConnector(connector) && !connector.serverUrl;
 }
 
-function providerConnectorTools(connector: ConnectorConfig): ConnectorTool[] {
-	const catalogItem = getProviderConnectorCatalogItem(connector.connectorId);
-	const tools = (catalogItem?.tools ?? []).map((name) => ({
+function openAiResponsesConnectorTools(connector: ConnectorConfig): ConnectorTool[] {
+	const names = connector.tools.length > 0
+		? connector.tools.map((tool) => tool.name)
+		: connector.allowedTools;
+	const tools = uniqueStrings(names).map((name) => ({
 		name,
 		description: name,
 		inputSchema: { type: 'object' },
@@ -776,10 +787,10 @@ function providerConnectorTools(connector: ConnectorConfig): ConnectorTool[] {
 	return applyToolPolicy(tools, connector.allowedTools, connector.requireApproval);
 }
 
-function withProviderConnectorTools(connector: ConnectorConfig): ConnectorConfig {
+function withOpenAiResponsesConnectorTools(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
-		tools: providerConnectorTools(connector),
+		tools: openAiResponsesConnectorTools(connector),
 		lastError: undefined,
 		updatedAt: new Date().toISOString(),
 	};
@@ -795,13 +806,19 @@ function connectorAuthorization(connector: ConnectorConfig): string {
 }
 
 function toOpenAiMcpTool(connector: ConnectorConfig): OpenAiMcpConnectorToolSpec {
+	const authorization = connectorAuthorization(connector);
 	const tool: OpenAiMcpConnectorToolSpec = {
 		type: 'mcp',
 		server_label: connector.serverLabel,
-		connector_id: connector.connectorId,
-		authorization: connectorAuthorization(connector),
 		require_approval: toOpenAiRequireApproval(connector.requireApproval, connector.allowedTools),
 	};
+	if (connector.serverUrl) {
+		tool.server_url = connector.serverUrl;
+		if (authorization) tool.authorization = authorization;
+	} else {
+		tool.connector_id = connector.connectorId;
+		tool.authorization = authorization;
+	}
 	if (connector.allowedTools.length > 0) tool.allowed_tools = [...connector.allowedTools];
 	if (connector.deferLoading) tool.defer_loading = true;
 	if (connector.serverDescription) tool.server_description = connector.serverDescription;

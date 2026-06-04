@@ -2,10 +2,7 @@ import React from 'react';
 import openaiIconDark from '@resources/icons/brands/openai/fallback_lobehub/png_dark/openai.png';
 import openaiIconLight from '@resources/icons/brands/openai/fallback_lobehub/png_light/openai.png';
 import { cn } from '@/lib/utils';
-import {
-	OPENAI_CONNECTOR_CATALOG,
-	type DirectConnectorCatalogId,
-} from '../../../../../../../shared/connector';
+import type { DirectConnectorCatalogId } from '../../../../../../../shared/connector';
 
 type ConnectorIconAsset = {
 	readonly light: string;
@@ -16,15 +13,6 @@ const directConnectorIconModules = import.meta.glob<string>(
 	'@resources/icons/brands/*/*.png',
 	{ eager: true, import: 'default' }
 );
-
-const directConnectorIdByOpenAiConnectorId = Object.freeze(
-	Object.fromEntries(
-		OPENAI_CONNECTOR_CATALOG.map((connector) => [
-			connector.id,
-			connector.directConnectorId,
-		])
-	)
-) as Readonly<Record<string, DirectConnectorCatalogId>>;
 
 function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 	const partialAssets: Record<string, Partial<ConnectorIconAsset>> = {};
@@ -49,12 +37,6 @@ function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 
 export const DIRECT_CONNECTOR_ICON_ASSETS = buildIconAssets();
 
-export function getDirectConnectorIdForOpenAiConnector(
-	connectorId: string
-): DirectConnectorCatalogId {
-	return directConnectorIdByOpenAiConnectorId[connectorId];
-}
-
 export function ConnectorIcon({
 	connectorId,
 	directConnectorId,
@@ -70,7 +52,7 @@ export function ConnectorIcon({
 	readonly imageClassName?: string;
 	readonly fallbackClassName?: string;
 }): React.JSX.Element {
-	const iconId = directConnectorId ?? (connectorId ? getDirectConnectorIdForOpenAiConnector(connectorId) : undefined);
+	const iconId = directConnectorId ?? connectorId;
 	const asset = iconId ? DIRECT_CONNECTOR_ICON_ASSETS[iconId] : undefined;
 
 	return (

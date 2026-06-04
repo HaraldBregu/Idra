@@ -57,9 +57,9 @@ describe('AgentService OpenAI connector plumbing', () => {
 		const builtInTools = [
 			{
 				type: 'mcp' as const,
-				server_label: 'gmail',
-				connector_id: 'connector_gmail',
-				authorization: 'gmail-token',
+				server_label: 'acme_mail',
+				connector_id: 'connector_acme_mail',
+				authorization: 'acme-token',
 				require_approval: 'always' as const,
 			},
 		];

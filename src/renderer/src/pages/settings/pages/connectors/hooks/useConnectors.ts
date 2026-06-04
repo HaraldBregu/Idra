@@ -2,22 +2,9 @@ import { useEffect, useState } from 'react';
 import type {
 	ConnectorTool,
 	ConnectorView,
-	ConnectorCatalogEntry,
 } from '../../../../../../../shared/connector';
 
-export type ConnectorCatalog = ReadonlyArray<ConnectorCatalogEntry>;
-
-function dedupeByConnectorId(connectors: ConnectorView[]): ConnectorView[] {
-	const seen = new Set<string>();
-	return connectors.filter((connector) => {
-		if (seen.has(connector.connectorId)) return false;
-		seen.add(connector.connectorId);
-		return true;
-	});
-}
-
 export function useConnectors() {
-	const [catalog, setCatalog] = useState<ConnectorCatalog>([]);
 	const [connectors, setConnectors] = useState<ConnectorView[]>([]);
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [connectingId, setConnectingId] = useState<string | null>(null);
@@ -28,12 +15,8 @@ export function useConnectors() {
 
 	const load = async (): Promise<void> => {
 		try {
-			const [nextCatalog, nextConnectors] = await Promise.all([
-				window.connectors.catalog(),
-				window.connectors.list(),
-			]);
-			setCatalog(nextCatalog);
-			setConnectors(dedupeByConnectorId(nextConnectors));
+			const nextConnectors = await window.connectors.list();
+			setConnectors(nextConnectors);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
@@ -113,7 +96,6 @@ export function useConnectors() {
 	};
 
 	return {
-		catalog,
 		connectors,
 		busyId,
 		connectingId,

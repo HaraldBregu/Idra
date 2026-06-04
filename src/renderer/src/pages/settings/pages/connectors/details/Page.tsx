@@ -8,8 +8,6 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	getConnectorCatalogItem,
-	getConnectorAuthKind,
 	type ConnectorConfig,
 	type ConnectorTool,
 } from '../../../../../../../shared/connector';
@@ -20,7 +18,6 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
-import { ConnectorDocumentationRows } from '../components/ConnectorDocumentationRows';
 import { ConnectorToolsList } from '../components/ConnectorToolsList';
 
 function formatTimestamp(value?: string): string {
@@ -195,9 +192,14 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const authKind = getConnectorAuthKind(connector.connectorId);
-	const googleOAuth = authKind === 'google_oauth';
-	const catalogItem = getConnectorCatalogItem(connector.connectorId);
+	const googleOAuth = connector.oauth?.provider === 'google' || connector.oauth?.providerId === 'google';
+	const authLabel = googleOAuth
+		? 'Google OAuth'
+		: connector.mcp
+			? 'MCP environment'
+			: connector.serverUrl
+				? 'Remote MCP'
+				: 'Access token';
 
 	return (
 		<SettingsPageShell>
@@ -231,28 +233,24 @@ const ConnectorDetailsPage: React.FC = () => {
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={connector.connectorId} mono />
 					<DetailRow label="Server label" value={connector.serverLabel} mono />
+					{connector.serverUrl && <DetailRow label="Server URL" value={connector.serverUrl} mono />}
 					<DetailRow label="Enabled" value={connector.enabled ? 'Enabled' : 'Disabled'} />
 					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.requireApproval)} />
-					<DetailRow label="Auth" value={googleOAuth ? 'Google OAuth' : 'Access token'} />
+					<DetailRow label="Auth" value={authLabel} />
 					{googleOAuth && (
 						<DetailRow
 							label="OAuth client"
 							value="Environment variables"
 						/>
 					)}
-					<DetailRow label="Connected account" value={connector.oauth?.email ?? 'Not connected'} />
+					<DetailRow
+						label="Connected account"
+						value={connector.oauth?.accountEmail ?? connector.oauth?.email ?? 'Not connected'}
+					/>
 					<DetailRow label="Last refreshed" value={formatTimestamp(connector.lastRefreshedAt)} />
 					<DetailRow label="Updated" value={formatTimestamp(connector.updatedAt)} />
 				</Card>
 			</SettingsSection>
-
-			{catalogItem && (
-				<SettingsSection title="Documentation">
-					<Card size="sm" className="gap-0! p-0!">
-						<ConnectorDocumentationRows connector={catalogItem} />
-					</Card>
-				</SettingsSection>
-			)}
 
 			{connector.lastError && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>

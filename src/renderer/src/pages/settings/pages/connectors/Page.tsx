@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Plug } from 'lucide-react';
-import type { ConnectorInput } from '@shared/connector';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -9,36 +8,18 @@ import {
 	SettingsPanel,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
-import { ConnectorCatalogItem } from './components/ConnectorCatalogItem';
 import { useConnectors } from './hooks/useConnectors';
 
 const ConnectorsPage = () => {
 	const navigate = useNavigate();
 	const {
-		catalog, connectors, busyId,
+		connectors, busyId,
 		connectingId,
-		error, setError,
+		error,
 		statusMessage,
-		load,
 		connectOAuth,
 		toggleConnector,
 	} = useConnectors();
-	const configuredConnectorIds = new Set(connectors.map((connector) => connector.connectorId));
-
-	const addConnector = async (input: ConnectorInput): Promise<void> => {
-		setError(null);
-		try {
-			const alreadyConfigured = configuredConnectorIds.has(input.connectorId);
-			if (alreadyConfigured) {
-				setError(`Connector ${input.connectorId} is already configured.`);
-				return;
-			}
-			await window.connectors.add(input);
-			await load();
-		} catch (err) {
-			setError(err instanceof Error ? err.message : String(err));
-		}
-	};
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
@@ -48,7 +29,7 @@ const ConnectorsPage = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="Connectors"
-				description="Configure OpenAI-maintained connectors for Responses API tool use."
+				description="Configured connector records from connectors.json."
 			/>
 
 			{error && (
@@ -64,7 +45,7 @@ const ConnectorsPage = () => {
 						<SettingsEmptyState
 							icon={Plug}
 							title="No connectors configured yet."
-							description="Add a connector to make external tools available to agent runs."
+							description="Add connector records to connectors.json to make them available to agent runs."
 						/>
 					</SettingsPanel>
 				) : (
@@ -80,14 +61,6 @@ const ConnectorsPage = () => {
 						/>
 					))
 				)}
-				{catalog.filter((item) => !configuredConnectorIds.has(item.id)).map((item) => (
-					<ConnectorCatalogItem
-						key={item.id}
-						item={item}
-						onAdd={addConnector}
-						alreadyConfigured={configuredConnectorIds.has(item.id)}
-					/>
-				))}
 			</div>
 		</SettingsPageShell>
 	);

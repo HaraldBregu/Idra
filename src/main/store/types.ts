@@ -31,17 +31,6 @@ export interface BackgroundTaskSettings {
 	defaultConcurrency?: number;
 }
 
-export interface Connectors {
-	google_gmail?: ConnectorConfig;
-	google_calendar?: ConnectorConfig;
-	google_drive?: ConnectorConfig;
-	microsoft_teams?: ConnectorConfig;
-	outlook_calendar?: ConnectorConfig;
-	outlook_email?: ConnectorConfig;
-	sharepoint?: ConnectorConfig;
-	dropbox?: ConnectorConfig;
-}
-
 export type Channels = Partial<Channel>;
 
 export interface SettingsStore {
@@ -54,7 +43,7 @@ export interface SettingsStore {
 	textToSound?: ModelModuleSettings;
 	taskScheduler?: TaskSchedulerSettings;
 	backgroundTask?: BackgroundTaskSettings;
-	connectors?: Connectors;
+	connectors?: ConnectorConfig[];
 	channels?: Channels;
 }
 
