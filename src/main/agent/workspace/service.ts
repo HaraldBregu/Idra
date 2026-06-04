@@ -11,9 +11,8 @@ export interface AgentWorkspaceServiceOptions {
 }
 
 /**
- * Per-agent workspace subsystem: the workspace folder path, the startup files,
- * and the settings.json permissions store. Owned and initialized by AgentService
- * (not registered or bootstrapped on its own).
+ * Per-agent workspace subsystem: the workspace folder path and startup files.
+ * Owned and initialized by AgentService (not registered or bootstrapped on its own).
  */
 export class AgentWorkspaceService {
 	private readonly startupFiles: AgentStartupFilesServicePort;

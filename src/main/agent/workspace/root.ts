@@ -48,7 +48,6 @@ const CONTEXT_FILE_PROMPT_ORDER = new Map<WorkspaceFileName, number>([
 
 export class WorkspaceService {
 	private readonly rootPath: string;
-	private readonly contextHooks: NonNullable<WorkspaceServiceOptions['contextHooks']>;
 
 	constructor(
 		private readonly logger: LoggerService,
@@ -58,7 +57,6 @@ export class WorkspaceService {
 			options.rootPath ??
 			options.agentDataDirectory?.resolve(options.workspaceName ?? 'workspace') ??
 			resolveDefaultAgentDataPath(options.workspaceName ?? 'workspace');
-		this.contextHooks = options.contextHooks ?? [];
 	}
 
 	getRootPath(): string {
@@ -133,9 +131,6 @@ export class WorkspaceService {
 			WORKSPACE_CONTEXT_FILE_NAMES.map((name) => safeReadWorkspaceFile(this.rootPath, name))
 		);
 		files = files.filter((file) => file.name !== DEFAULT_MEMORY_FILENAME || !file.missing);
-		for (const hook of this.contextHooks) {
-			files = await hook({ workspaceRoot: this.rootPath, files });
-		}
 		return files;
 	}
 
