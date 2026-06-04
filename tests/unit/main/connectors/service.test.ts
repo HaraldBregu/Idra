@@ -130,4 +130,19 @@ describe('ConnectorsService OpenAI connectors', () => {
 			},
 		]);
 	});
+
+	it('does not expose OpenAI MCP built-ins through the Anthropic adapter', async () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+
+		await service.add({
+			name: 'Acme Mail',
+			connectorId: 'connector_acme_mail',
+			serverLabel: 'acme_mail',
+			authorization: 'token-123',
+		});
+
+		expect(service.createAnthropicConnectorTools()).toEqual([]);
+		expect(service.createBuiltInConnectorTools('anthropic')).toEqual([]);
+		expect(service.createBuiltInConnectorTools('openai')).toHaveLength(1);
+	});
 });

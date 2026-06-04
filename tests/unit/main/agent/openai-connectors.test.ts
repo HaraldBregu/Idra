@@ -53,7 +53,7 @@ function service(providerId: string, connectors: unknown, execute: jest.Mock) {
 }
 
 describe('AgentService OpenAI connector plumbing', () => {
-	it('passes OpenAI connector built-ins to OpenAI runs only', async () => {
+	it('passes connector built-ins through the provider adapter', async () => {
 		const builtInTools = [
 			{
 				type: 'mcp' as const,
@@ -64,7 +64,9 @@ describe('AgentService OpenAI connector plumbing', () => {
 			},
 		];
 		const connectors = {
-			createOpenAIConnectorTools: jest.fn(() => builtInTools),
+			createBuiltInConnectorTools: jest.fn((providerId: string) =>
+				providerId === 'openai' ? builtInTools : []
+			),
 		};
 		const execute = jest.fn(async (input: AgentRunInput) => ({
 			finalText: 'ok',
@@ -76,15 +78,15 @@ describe('AgentService OpenAI connector plumbing', () => {
 
 		await service('openai', connectors, execute).send('hello');
 
-		expect(connectors.createOpenAIConnectorTools).toHaveBeenCalledTimes(1);
+		expect(connectors.createBuiltInConnectorTools).toHaveBeenCalledWith('openai');
 		expect(execute.mock.calls[0][0].builtInTools).toEqual(builtInTools);
 
 		execute.mockClear();
-		connectors.createOpenAIConnectorTools.mockClear();
+		connectors.createBuiltInConnectorTools.mockClear();
 
 		await service('anthropic', connectors, execute).send('hello');
 
-		expect(connectors.createOpenAIConnectorTools).not.toHaveBeenCalled();
+		expect(connectors.createBuiltInConnectorTools).toHaveBeenCalledWith('anthropic');
 		expect(execute.mock.calls[0][0].builtInTools).toEqual([]);
 	});
 });
