@@ -5,9 +5,9 @@ import {
 	type AgentTool,
 	type AgentToolManagementOptions,
 	type ToolContext,
-	ToolService,
-	type ToolServicePort,
-} from '../../tools';
+	type ToolsServicePort,
+} from '../tooling';
+import { ToolsService } from '../../tools';
 import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';
 import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
@@ -98,7 +98,7 @@ export interface AgentExecutionServicePort {
 }
 
 export class AgentExecutionService implements AgentExecutionServicePort {
-	constructor(private readonly toolService: ToolServicePort = new ToolService()) {}
+	constructor(private readonly toolService: ToolsServicePort = new ToolsService()) {}
 
 	execute(input: AgentRunInput): Promise<AgentRunResult> {
 		return executeAgentRun({
@@ -286,7 +286,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 		signal,
 	} = input;
 
-	const toolService = input.toolService ?? new ToolService();
+	const toolService = input.toolService ?? new ToolsService();
 	const tracker = toolService.createCallTracker();
 	const executionCtx = ctx;
 	const toolPreparation = toolService.prepareToolsForRun({
