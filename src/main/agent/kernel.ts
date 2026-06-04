@@ -114,7 +114,7 @@ export interface AgentServiceOptions {
 	defaultAgentId?: string;
 	providerFactory?: (provider: ProviderSpec) => ProviderAdapter;
 	toolsFactory?: AgentToolsFactory;
-	toolService?: ToolServicePort;
+	toolService?: ToolsServicePort;
 	capabilityService?: AgentCapabilityServicePort;
 	executionService?: AgentExecutionServicePort;
 	sessionBaseDir?: string;
