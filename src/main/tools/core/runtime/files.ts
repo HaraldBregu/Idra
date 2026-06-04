@@ -16,16 +16,6 @@ import { writeTodosTool } from '../../state/todo/write';
 import { skillListTool } from '../../skills/skill-list';
 import { skillLoadTool } from '../../skills/load-skill';
 import { skillUseTool } from '../../skills/use-skill';
-import { mcpCallToolTool } from '../../mcp/tool/call';
-import { mcpConnectServerTool } from '../../mcp/server/connect';
-import { mcpListPromptsTool } from '../../mcp/prompt/list';
-import { mcpListResourcesTool } from '../../mcp/resource/list';
-import { mcpListServersTool } from '../../mcp/server/list';
-import { mcpListToolsTool } from '../../mcp/tool/list';
-import { mcpLoadPromptTool } from '../../mcp/prompt/load';
-import { mcpLoadToolTool } from '../../mcp/tool/load';
-import { mcpReadResourceTool } from '../../mcp/resource/read';
-import { mcpRefreshServerTool } from '../../mcp/server/refresh';
 
 export type FileToolOptions = {
 	workspaceDir: string;
@@ -52,16 +42,6 @@ const FILE_TOOLS: readonly LegacyFileTool[] = [
 	skillListTool,
 	skillLoadTool,
 	skillUseTool,
-	mcpListServersTool,
-	mcpConnectServerTool,
-	mcpRefreshServerTool,
-	mcpListToolsTool,
-	mcpLoadToolTool,
-	mcpCallToolTool,
-	mcpListResourcesTool,
-	mcpReadResourceTool,
-	mcpListPromptsTool,
-	mcpLoadPromptTool,
 ] as const;
 
 export function createFileTools(options: FileToolOptions): AgentTool[] {
