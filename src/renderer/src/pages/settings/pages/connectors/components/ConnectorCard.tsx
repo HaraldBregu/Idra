@@ -1,44 +1,78 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, PlugZap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { ConnectorView } from '../../../../../../../shared/connector';
+import type { SettingsConnectorCatalogEntry } from '../catalog';
 import { ConnectorIcon } from './ConnectorIcon';
+import { ConnectorStatusBadge } from './ConnectorStatusBadge';
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a'));
 }
 
 export function ConnectorCard({
+	catalogEntry,
 	connector,
+	onConnect,
 	onViewDetails,
 }: {
-	readonly connector: ConnectorView;
-	readonly onViewDetails: () => void;
+	readonly catalogEntry: SettingsConnectorCatalogEntry;
+	readonly connector?: ConnectorView;
+	readonly onConnect: () => void;
+	readonly onViewDetails?: () => void;
 }): React.JSX.Element {
+	const connected = connector?.status === 'configured';
+	const disabled = connector?.status === 'disabled';
+	const hasDetails = typeof onViewDetails === 'function';
+	const title = connector?.name ?? catalogEntry.name;
+
 	return (
 		<Item
 			variant="outline"
 			size="md"
 			onClick={(event) => {
 				if (isInteractiveTarget(event.target)) return;
-				onViewDetails();
+				if (hasDetails) onViewDetails();
 			}}
 			className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
 		>
-			<ConnectorIcon connectorId={connector.connectorId} name={connector.name} />
-			<ItemContent className="min-w-0">
-				<ItemTitle className="min-w-0 truncate">{connector.name}</ItemTitle>
+			<ConnectorIcon
+				connectorId={connector?.connectorId ?? catalogEntry.connectorId}
+				directConnectorId={catalogEntry.directConnectorId}
+				name={title}
+			/>
+			<ItemContent className="min-w-0 flex-col items-start gap-1">
+				<div className="flex max-w-full items-center gap-2">
+					<ItemTitle className="min-w-0 truncate">{title}</ItemTitle>
+					{connector && <ConnectorStatusBadge status={connector.status} />}
+				</div>
+				<div className="line-clamp-1 max-w-full text-[12px] text-muted-foreground">
+					{connector?.connectedAccount ?? catalogEntry.description}
+				</div>
 			</ItemContent>
-			<ItemActions className="ml-auto flex-none justify-end gap-1">
-				<Button
-					variant="ghost"
-					size="icon-xs"
-					onClick={onViewDetails}
-					aria-label={`View ${connector.name} details`}
-				>
-					<ChevronRight className="size-3" />
-				</Button>
+			<ItemActions className="ml-auto flex-none justify-end gap-1.5">
+				{!connected && !disabled && (
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={onConnect}
+						aria-label={`Connect ${title}`}
+					>
+						<PlugZap className="size-3.5" />
+						Connect
+					</Button>
+				)}
+				{hasDetails && (
+					<Button
+						variant="ghost"
+						size="icon-xs"
+						onClick={onViewDetails}
+						aria-label={`View ${title} details`}
+					>
+						<ChevronRight className="size-3" />
+					</Button>
+				)}
 			</ItemActions>
 		</Item>
 	);
