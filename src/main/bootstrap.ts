@@ -5,12 +5,9 @@ import { LoggerService } from './observability';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
-import {
-	AgentService,
-	type AgentServiceDependencies,
-	SubagentSpawnService,
-	SubagentRegistry,
-} from './agent';
+import { AgentService } from './agent';
+import type { AgentServiceDependencies } from './agent/kernel';
+import { SubagentSpawnService, SubagentRegistry } from './agent/subagents';
 import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './agent/workspace';

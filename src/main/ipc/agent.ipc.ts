@@ -11,7 +11,7 @@ import {
 	type AgentSendRuntimeOptions,
 } from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/types';
-import type { AgentSendOptions } from '../agent';
+import type { AgentSendOptions } from '../agent/kernel';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
