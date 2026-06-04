@@ -42,7 +42,7 @@ const ConnectorsPage = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="Connectors"
-				description="Connect external services for agent tools."
+				description="Connect external services."
 			/>
 
 			{error && (
