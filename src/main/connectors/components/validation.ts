@@ -74,12 +74,6 @@ export function readOptionalApprovalMode(params: Record<string, unknown>, key: s
 	throw new Error(`${key} must be one of: always, never, never_for_allowed_tools.`);
 }
 
-export function readOptionalMcp(params: Record<string, unknown>, key: string): ConnectorInput['mcp'] | undefined {
-	const value = params[key];
-	if (value === undefined || value === null) return undefined;
-	return cloneValue(requireObject(value, key)) as unknown as ConnectorInput['mcp'];
-}
-
 export function requireObject(value: unknown, label: string): Record<string, unknown> {
 	if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
 		return value as Record<string, unknown>;
