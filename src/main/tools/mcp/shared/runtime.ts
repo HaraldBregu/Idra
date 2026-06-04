@@ -1,4 +1,3 @@
-import type { Client } from '@modelcontextprotocol/sdk/client';
 import type { ConnectorsService } from '../../../connectors';
 import type { McpConnectors } from './types';
 import { withRemoteMcpClient } from './client';
@@ -91,7 +90,7 @@ export class RemoteMcpConnectors implements McpConnectors {
 		if (typeof name !== 'string') throw new Error('MCP prompt name must be a string.');
 		const connector = this.remoteConnector(id);
 		return withRemoteMcpClient(connector, (client, requestOptions) =>
-			client.getPrompt({ name, arguments: isRecord(args) ? args : {} }, requestOptions), options);
+			client.getPrompt({ name, arguments: stringRecord(args) }, requestOptions), options);
 	}
 
 	private async fetchTools(connector: StoredConnector, options?: unknown): Promise<StoredConnector['tools']> {
@@ -145,6 +144,13 @@ export class RemoteMcpConnectors implements McpConnectors {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function stringRecord(value: unknown): Record<string, string> {
+	if (!isRecord(value)) return {};
+	const entries = Object.entries(value)
+		.filter((entry): entry is [string, string] => typeof entry[1] === 'string');
+	return Object.fromEntries(entries);
 }
 
 function errorMessage(error: unknown): string {
