@@ -100,4 +100,43 @@ describe('ConnectorsService storage', () => {
 
 		expect(service.list()[0].status).toBe('missing_auth');
 	});
+
+	it('reports missing_auth for migrated Gmail OAuth tokens without the OpenAI connector scope', () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+		const now = new Date().toISOString();
+		mockStoreData.connectors = [{
+			id: 'gmail-1',
+			name: 'Gmail',
+			connectorId: 'google.gmail',
+			serverLabel: 'gmail',
+			serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
+			enabled: true,
+			authorization: 'token-123',
+			oauth: {
+				service: 'google',
+				scopes: [
+					'openid',
+					'email',
+					'https://www.googleapis.com/auth/gmail.readonly',
+					'https://www.googleapis.com/auth/gmail.compose',
+				],
+				token: {
+					accessToken: 'token-123',
+					scope: 'openid email https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.compose',
+				},
+			},
+			requireApproval: 'always',
+			allowedTools: [],
+			deferLoading: false,
+			tools: [],
+			createdAt: now,
+			updatedAt: now,
+		}];
+
+		expect(service.list()[0]).toMatchObject({
+			connectorId: 'connector_gmail',
+			serverUrl: undefined,
+			status: 'missing_auth',
+		});
+	});
 });
