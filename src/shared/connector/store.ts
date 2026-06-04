@@ -5,7 +5,6 @@ import type {
 	ConnectorStore,
 	ConnectorStoreEntry,
 	ConnectorTool,
-	OpenAiConnectorRequireApproval,
 } from './types';
 
 export function connectorsToStore(connectors: readonly ConnectorConfig[]): ConnectorStore {
@@ -116,15 +115,14 @@ function connectorAuthorization(connector: ConnectorConfig): string {
 function toStoredRequireApproval(
 	mode: ConnectorApprovalMode,
 	allowedTools: readonly string[]
-): OpenAiConnectorRequireApproval {
+): ConnectorStoreEntry['require_approval'] {
 	if (mode === 'never') return 'never';
-	if (mode === 'never_for_allowed_tools') return { never: { tool_names: [...allowedTools] } };
+	if (mode === 'never_for_allowed_tools' && allowedTools.length > 0) return 'never';
 	return 'always';
 }
 
 function toConnectorApprovalMode(value: ConnectorStoreEntry['require_approval']): ConnectorApprovalMode {
 	if (value === 'never') return 'never';
-	if (value && typeof value === 'object') return 'never_for_allowed_tools';
 	return 'always';
 }
 

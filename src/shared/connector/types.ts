@@ -198,7 +198,7 @@ export interface ConnectorStoreEntry {
 	server_label: string;
 	server_url: string;
 	authorization?: string;
-	require_approval?: OpenAiConnectorRequireApproval;
+	require_approval?: 'always' | 'never';
 	allowed_tools?: string[];
 }
 
