@@ -220,3 +220,136 @@ export class ConnectorsService {
 		return connector;
 	}
 }
+
+function readOAuthConnectConfig(raw: Record<string, unknown>): OAuthConnectRuntimeConfig {
+	const oauth = requireObject(raw.oauth, 'Connector OAuth configuration');
+	const service = readOptionalString(oauth, 'service')?.trim() ?? '';
+	const clientIdEnv = readOptionalString(oauth, 'clientIdEnv')?.trim() ?? '';
+	const authorizationUrl = readOptionalString(oauth, 'authorizationUrl')?.trim() ?? '';
+	const tokenUrl = readOptionalString(oauth, 'tokenUrl')?.trim() ?? '';
+	const scopes = readOptionalStringArray(oauth, 'scopes') ?? [];
+	if (!service) throw new Error('OAuth service is required.');
+	if (!clientIdEnv) throw new Error('OAuth client id environment variable is required.');
+	if (!authorizationUrl) throw new Error('OAuth authorization URL is required.');
+	if (!tokenUrl) throw new Error('OAuth token URL is required.');
+	if (scopes.length === 0) throw new Error('At least one OAuth scope is required.');
+	return {
+		service,
+		serviceId: readOptionalString(oauth, 'serviceId')?.trim(),
+		clientIdEnv,
+		clientSecretEnv: readOptionalString(oauth, 'clientSecretEnv')?.trim(),
+		authorizationUrl,
+		tokenUrl,
+		userInfoUrl: readOptionalString(oauth, 'userInfoUrl')?.trim(),
+		scopes,
+		accessType: readOptionalString(oauth, 'accessType')?.trim(),
+		prompt: readOptionalString(oauth, 'prompt')?.trim(),
+	};
+}
+
+function requiredEnv(env: NodeJS.ProcessEnv, name: string): string {
+	const value = env[name]?.trim();
+	if (!value) throw new Error(`${name} is required to connect this connector.`);
+	return value;
+}
+
+function requiredToken(value?: string): string {
+	if (!value) throw new Error('OAuth token response did not include an access token.');
+	return value;
+}
+
+function base64Url(value: Buffer): string {
+	return value
+		.toString('base64')
+		.replaceAll('+', '-')
+		.replaceAll('/', '_')
+		.replace(/=+$/u, '');
+}
+
+async function waitForOAuthCallback(expectedState: string): Promise<{
+	readonly redirectUri: string;
+	readonly code: Promise<string>;
+	readonly close: () => void;
+}> {
+	let server: http.Server | undefined;
+	const code = new Promise<string>((resolve, reject) => {
+		server = http.createServer((request, response) => {
+			try {
+				const url = new URL(request.url ?? '/', `http://${request.headers.host ?? '127.0.0.1'}`);
+				if (url.pathname !== '/oauth/callback') {
+					response.writeHead(404);
+					response.end('Not found');
+					return;
+				}
+				const error = url.searchParams.get('error');
+				if (error) throw new Error(url.searchParams.get('error_description') ?? error);
+				if (url.searchParams.get('state') !== expectedState) throw new Error('OAuth state mismatch.');
+				const nextCode = url.searchParams.get('code');
+				if (!nextCode) throw new Error('OAuth authorization code is missing.');
+				response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+				response.end('<!doctype html><title>Friday</title><p>Gmail connected. You can close this window.</p>');
+				resolve(nextCode);
+				server?.close();
+			} catch (error) {
+				response.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
+				response.end('<!doctype html><title>Friday</title><p>Gmail connection failed. You can close this window.</p>');
+				reject(error);
+				server?.close();
+			}
+		});
+		server.on('error', reject);
+	});
+
+	await new Promise<void>((resolve, reject) => {
+		if (!server) {
+			reject(new Error('OAuth callback server failed to start.'));
+			return;
+		}
+		server.listen(0, '127.0.0.1', () => resolve());
+	});
+
+	const address = server.address() as AddressInfo;
+	return {
+		redirectUri: `http://127.0.0.1:${address.port}/oauth/callback`,
+		code,
+		close: () => server?.close(),
+	};
+}
+
+async function exchangeOAuthCode(input: {
+	readonly clientId: string;
+	readonly clientSecret?: string;
+	readonly code: string;
+	readonly codeVerifier: string;
+	readonly redirectUri: string;
+	readonly tokenUrl: string;
+}): Promise<OAuthTokenResponse> {
+	const body = new URLSearchParams({
+		client_id: input.clientId,
+		code: input.code,
+		code_verifier: input.codeVerifier,
+		redirect_uri: input.redirectUri,
+		grant_type: 'authorization_code',
+	});
+	if (input.clientSecret) body.set('client_secret', input.clientSecret);
+	const response = await fetch(input.tokenUrl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+		body,
+	});
+	const payload = (await response.json()) as OAuthTokenResponse;
+	if (!response.ok || payload.error) {
+		throw new Error(payload.error_description ?? payload.error ?? 'OAuth token exchange failed.');
+	}
+	requiredToken(payload.access_token);
+	return payload;
+}
+
+async function readOAuthAccountEmail(userInfoUrl: string, accessToken: string): Promise<string | undefined> {
+	const response = await fetch(userInfoUrl, {
+		headers: { Authorization: `Bearer ${accessToken}` },
+	});
+	if (!response.ok) return undefined;
+	const payload = (await response.json()) as OAuthUserInfoResponse;
+	return payload.email;
+}
