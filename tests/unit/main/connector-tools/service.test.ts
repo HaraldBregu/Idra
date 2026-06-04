@@ -165,18 +165,18 @@ describe('ConnectorToolsService provider adapters', () => {
 		expect(connectorTools.canApproveOpenAiConnectorTool('gmail', 'create_draft')).toBe(false);
 	});
 
-	it('omits legacy connector records that do not match the MCP store URL shape', async () => {
+	it('rejects authorized connector records that cannot be stored with server_url', async () => {
 		const connectors = new ConnectorsService(logger as never, { env: {} });
 		const connectorTools = new ConnectorToolsService(connectors, { env: {} });
 
-		await connectors.save([{
+		await expect(connectors.save([{
 			name: 'Gmail',
 			connectorId: 'google.gmail',
 			serverLabel: 'gmail',
 			serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
 			authorization: 'gmail-token',
 			allowedTools: ['search_threads'],
-		}]);
+		}])).rejects.toThrow('Connector serverUrl is required before storing Gmail.');
 
 		expect(connectors.list()).toEqual([]);
 		expect(connectorTools.createOpenAIConnectorTools()).toEqual([]);
