@@ -28,7 +28,19 @@ const ConnectorsPage = () => {
 		setConnectingId(entry.connectorId);
 		setError(null);
 		try {
-			await window.connectors.connect(entry);
+			const authorization = await window.app.authorizeOAuth(entry.oauth);
+			await window.connectors.upsert({
+				id: entry.directConnectorId,
+				name: entry.name,
+				connectorId: entry.connectorId,
+				serverLabel: entry.serverLabel,
+				serverDescription: entry.serverDescription,
+				serverUrl: entry.serverUrl,
+				authorization: authorization.accessToken,
+				requireApproval: entry.requireApproval,
+				deferLoading: entry.deferLoading,
+				enabled: entry.enabled,
+			});
 			await load();
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
