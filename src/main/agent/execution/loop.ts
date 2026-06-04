@@ -79,7 +79,7 @@ export interface AgentRunInput {
 	hooks?: AgentRunHooks;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
-	toolService?: ToolServicePort;
+	toolService?: ToolsServicePort;
 	store?: AgentProviderLookup;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
 	agentRuntimeId?: string;
