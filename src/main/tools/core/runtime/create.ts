@@ -90,7 +90,6 @@ export type CreateAgentToolsResult = {
 const TOOL_PLAN_BY_GROUP = {
 	coreWorkspace: 'includeFileTools',
 	stateTask: 'includeFileTools',
-	subagent: 'includeFileTools',
 	skill: 'includeFileTools',
 	web: 'includeWebTools',
 	script: 'includeShellTools',
@@ -147,11 +146,10 @@ export function planToolConstruction(toolsAllow?: string[]): ToolConstructionPla
 		if (
 			name.startsWith('group:file') ||
 			name.startsWith('group:filesystem') ||
-			name.startsWith('group:core') ||
-			name.startsWith('group:state') ||
-			name.startsWith('group:human') ||
-			name.startsWith('group:subagent') ||
-			name.startsWith('group:skill')
+				name.startsWith('group:core') ||
+				name.startsWith('group:state') ||
+				name.startsWith('group:human') ||
+				name.startsWith('group:skill')
 		) {
 			plan.includeFileTools = true;
 		} else if (name.startsWith('group:shell')) {

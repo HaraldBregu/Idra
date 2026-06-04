@@ -355,7 +355,7 @@ export class HeartbeatService implements Disposable {
 		}
 		if (!summary.enabled) return this.skipAndAdvance(schedule, 'agent-disabled');
 		if (!summary.everyMs) return this.skipAndAdvance(schedule, 'interval-disabled');
-		if (!this.isSafeSessionKey(agentId, baseSessionKey)) return this.skipAndAdvance(schedule, 'subagent-session');
+		if (!this.isSafeSessionKey(agentId, baseSessionKey)) return this.skipAndAdvance(schedule, 'unsafe-session');
 		if (!isWithinActiveHours(summary.activeHours, startedAt)) {
 			return this.skipAndAdvance(schedule, 'outside-active-hours');
 		}
@@ -673,7 +673,6 @@ export class HeartbeatService implements Disposable {
 	private isSafeSessionKey(agentId: string, sessionKey: string): boolean {
 		if (!sessionKey.trim()) return false;
 		if (sessionKey.includes('/') || sessionKey.includes('\\')) return false;
-		if (sessionKey.startsWith('subagent:') || sessionKey.includes(':subagent:')) return false;
 		if (sessionKey.startsWith('cron:')) return false;
 		return sessionKey === agentId || !sessionKey.startsWith('agent:') || sessionKey.startsWith(`agent:${agentId}:`);
 	}

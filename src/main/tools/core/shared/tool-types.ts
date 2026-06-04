@@ -26,7 +26,6 @@ export type ToolPolicyStageName =
 	| 'channelGroup'
 	| 'sender'
 	| 'sandbox'
-	| 'subagent'
 	| 'inheritedParent'
 	| 'runtime';
 
@@ -40,7 +39,6 @@ export const TOOL_POLICY_STAGE_ORDER: ToolPolicyStageName[] = [
 	'channelGroup',
 	'sender',
 	'sandbox',
-	'subagent',
 	'inheritedParent',
 	'runtime',
 ];
@@ -135,7 +133,6 @@ export type ToolApprovalPolicyDecision =
 
 const CORE_WORKSPACE_TOOL_NAMES = toolNamesForSharedGroup('coreWorkspace');
 const STATE_TASK_TOOL_NAMES = toolNamesForSharedGroup('stateTask');
-const SUBAGENT_TOOL_NAMES = toolNamesForSharedGroup('subagent');
 const SKILL_TOOL_NAMES = toolNamesForSharedGroup('skill');
 
 export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
@@ -146,7 +143,6 @@ export const TOOL_POLICY_CORE_GROUPS: Record<string, readonly string[]> = {
 	'group:shell': ['exec'],
 	'group:statetask': STATE_TASK_TOOL_NAMES,
 	'group:state_task': STATE_TASK_TOOL_NAMES,
-	'group:subagent': SUBAGENT_TOOL_NAMES,
 	'group:skill': SKILL_TOOL_NAMES,
 };
 
