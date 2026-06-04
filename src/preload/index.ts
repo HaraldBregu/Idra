@@ -601,17 +601,17 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	list: (): Promise<ConnectorRecord[]> => {
-		return typedInvokeUnwrap<ConnectorSummary[]>(ConnectorsChannels.list);
+	list: (): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.list);
 	},
-	get: (id: string): Promise<ConnectorConfig> => {
-		return typedInvokeUnwrap<ConnectorConfig>(ConnectorsChannels.get, id);
+	get: (id: string): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.get, id);
 	},
-	save: (input: ConnectorInput[]): Promise<ConnectorConfig[]> => {
-		return typedInvokeUnwrap<ConnectorConfig[]>(ConnectorsChannels.save, input);
+	save: (input: ConnectorInput[]): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.save, input);
 	},
-	connect: (input: ConnectorConnectInput): Promise<ConnectorSummary> => {
-		return typedInvokeUnwrap<ConnectorSummary>(ConnectorsChannels.connect, input);
+	connect: (input: ConnectorConnectInput): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.connect, input);
 	},
 };
 
