@@ -39,12 +39,6 @@ export type {
 	AgentToolSelectionForTurn,
 } from './management';
 
-export interface ToolServiceOptions {
-	policy?: ToolPolicyServicePort;
-	cron?: CronService;
-	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
-}
-
 export interface ToolRunPreparation extends AgentToolSelectionForTurn {
 	management: AgentToolManagementOptions;
 }
@@ -113,14 +107,13 @@ export interface ToolServicePort {
 }
 
 export class ToolsService implements ToolServicePort {
-	private readonly policy: NonNullable<ToolServiceOptions['policy']>;
-	private readonly cron?: CronService;
-	private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
+	private readonly policy: ToolPolicyServicePort;
 
-	constructor(options: ToolServiceOptions = {}) {
-		this.policy = options.policy ?? defaultToolPolicyService;
-		this.cron = options.cron;
-		this.logger = options.logger;
+	constructor(
+		private readonly logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>,
+		policy: ToolPolicyServicePort = defaultToolPolicyService
+	) {
+		this.policy = policy;
 		this.logger?.info(TOOL_SERVICE_LOG_SOURCE, 'Initialized tools service');
 	}
 
@@ -345,7 +338,6 @@ export class ToolsService implements ToolServicePort {
 		const services = {
 			...ctx.services,
 			policy: ctx.services.policy ?? this.policy,
-			cron: ctx.services.cron ?? this.cron,
 		};
 		if (services === ctx.services) return ctx;
 		return { ...ctx, services };
