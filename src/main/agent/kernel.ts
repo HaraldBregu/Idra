@@ -19,7 +19,7 @@ import {
 	DEFAULT_USER_FILENAME,
 	AgentWorkspaceService,
 	type AgentStartupFilesServicePort,
-	} from './workspace';
+} from './workspace';
 import { evaluateBeforeAgentRunHooks, type BeforeAgentRunHook } from './guardrails/input';
 import { buildSystemPrompt } from './context/prompt';
 import {
@@ -30,7 +30,6 @@ import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agent
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
 import { makeProvider, type ProviderSpec } from '../llm/router';
-import { ToolPolicyService, type ToolPolicyServicePort } from '../tools/shared/tool-types';
 import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
@@ -86,7 +85,7 @@ export interface AgentServiceDependencies {
 	skills?: SkillsService;
 	subagents?: SubagentSpawnPort;
 	policy?: ToolPolicyServicePort;
-	toolService?: ToolServicePort;
+	toolService?: ToolsServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
 	startupFiles?: AgentStartupFilesServicePort;
