@@ -11,7 +11,6 @@ export interface AgentResolvedSkill extends AgentSelectedSkillSummary {
 
 export interface AgentCapabilityBundle {
 	tools: AgentTool[];
-	connectorTools: AgentTool[];
 	skills: AgentResolvedSkill[];
 	promptAdditions: string;
 	directAnswer: boolean;

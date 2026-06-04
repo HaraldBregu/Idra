@@ -60,8 +60,6 @@ export interface AgentRouteResolutionSummary {
 
 export interface AgentCapabilityResolutionSummary {
 	tools: string[];
-	connectorTools: string[];
-	mcpTools?: string[];
 	services?: AgentCapabilityServiceSummary[];
 	skills: AgentSelectedSkillSummary[];
 	directAnswer: boolean;

@@ -22,7 +22,6 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 		input.streamEvent?.({ type: 'capability_resolution_start' });
 
 		const skills = await this.resolveSkills(input);
-		const connectorTools: AgentCapabilityBundle['connectorTools'] = [];
 		const tools = [...input.localTools];
 		const decision = decideCapabilities({
 			tools,
@@ -35,10 +34,6 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 		input.streamEvent?.({
 			type: 'capability_resolution_result',
 			tools: input.localTools.map((tool) => tool.name),
-			connectorTools: connectorTools.map((tool) => tool.name),
-			mcpTools: connectorTools
-				.filter((tool) => tool.serviceKind === 'mcp')
-				.map((tool) => tool.name),
 			services: tools.map((tool) => ({
 				name: tool.name,
 				displayName: tool.displayName,
@@ -52,7 +47,6 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 
 		return {
 			tools,
-			connectorTools,
 			skills,
 			promptAdditions,
 			directAnswer,
