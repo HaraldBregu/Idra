@@ -58,8 +58,6 @@ export function toConnectorView(connector: ConnectorConfig): ConnectorSummary {
 		enabled: connector.enabled,
 		status: toConnectorStatus(connector),
 		requireApproval: connector.requireApproval,
-		allowedToolsCount: connector.allowedTools.length,
-		toolsCount: connector.tools.length,
 		deferLoading: connector.deferLoading,
 		lastRefreshedAt: connector.lastRefreshedAt,
 		lastError: connector.lastError,
