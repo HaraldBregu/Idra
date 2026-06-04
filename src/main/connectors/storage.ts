@@ -1,7 +1,6 @@
-import type {
-	ConnectorConfigValue,
-	ConnectorRecord,
-} from '../../shared/connectors';
+import type { ConnectorRecord } from '../../shared/connectors';
+
+type ConnectorEntry = ConnectorRecord[string];
 
 export function connectorsToStore(connectors: ConnectorRecord): ConnectorRecord {
 	const store: ConnectorRecord = {};
@@ -31,13 +30,13 @@ export function connectorsFromStore(value: unknown): ConnectorRecord {
 	);
 }
 
-function connectorFromStoreValue(key: string, value: unknown): Array<[string, ConnectorConfigValue]> {
+function connectorFromStoreValue(key: string, value: unknown): Array<[string, ConnectorEntry]> {
 	if (isConnectorConfigValue(value)) return [[key, normalizeStoreEntry(key, value)]];
 	const legacy = legacyConnectorToStoreEntry(value);
 	return legacy ? [[legacy.key, legacy.connector]] : [];
 }
 
-function mergeConnectorEntries(entries: Array<[string, ConnectorConfigValue]>): ConnectorRecord {
+function mergeConnectorEntries(entries: Array<[string, ConnectorEntry]>): ConnectorRecord {
 	const record: ConnectorRecord = {};
 	for (const [key, connector] of entries) {
 		record[record[key] ? `${key}_${Object.keys(record).length}` : key] = connector;
@@ -46,10 +45,10 @@ function mergeConnectorEntries(entries: Array<[string, ConnectorConfigValue]>): 
 }
 
 function connectorToStoreEntry(
-	connector: ConnectorConfigValue,
+	connector: ConnectorEntry,
 	authorization: string,
 	serverUrl: string
-): ConnectorConfigValue {
+): ConnectorEntry {
 	const requireApproval = toStoredRequireApproval(connector.require_approval);
 	return {
 		type: 'mcp',
@@ -67,7 +66,7 @@ function connectorToStoreEntry(
 	};
 }
 
-function normalizeStoreEntry(key: string, entry: ConnectorConfigValue): ConnectorConfigValue {
+function normalizeStoreEntry(key: string, entry: ConnectorEntry): ConnectorEntry {
 	const now = new Date().toISOString();
 	return {
 		type: 'mcp',
@@ -85,7 +84,7 @@ function normalizeStoreEntry(key: string, entry: ConnectorConfigValue): Connecto
 	};
 }
 
-function legacyConnectorToStoreEntry(value: unknown): { key: string; connector: ConnectorConfigValue } | undefined {
+function legacyConnectorToStoreEntry(value: unknown): { key: string; connector: ConnectorEntry } | undefined {
 	if (!value || typeof value !== 'object') return undefined;
 	const connector = value as Record<string, unknown>;
 	const id = readString(connector.id);
@@ -118,11 +117,11 @@ function legacyConnectorToStoreEntry(value: unknown): { key: string; connector: 
 	};
 }
 
-function connectorStoreKey(key: string, connector: ConnectorConfigValue): string {
+function connectorStoreKey(key: string, connector: ConnectorEntry): string {
 	return storeKeyPart(connector.server_label) || storeKeyPart(key) || key;
 }
 
-function connectorName(key: string, connector: ConnectorConfigValue): string {
+function connectorName(key: string, connector: ConnectorEntry): string {
 	return connector.server_label?.trim() || key;
 }
 
@@ -132,13 +131,13 @@ function storeKeyPart(value?: unknown): string {
 		: '';
 }
 
-function toStoredRequireApproval(value: unknown): ConnectorConfigValue['require_approval'] {
+function toStoredRequireApproval(value: unknown): ConnectorEntry['require_approval'] {
 	return value === 'never' ? 'never' : undefined;
 }
 
-function isConnectorConfigValue(value: unknown): value is ConnectorConfigValue {
+function isConnectorConfigValue(value: unknown): value is ConnectorEntry {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-	const entry = value as ConnectorConfigValue;
+	const entry = value as ConnectorEntry;
 	return entry.type === 'mcp' && typeof entry.server_label === 'string' && typeof entry.server_url === 'string';
 }
 
