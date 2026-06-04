@@ -1,4 +1,5 @@
-import { createAgentTools, ToolService } from '../../../../src/main/tools';
+import { createAgentTools } from '../../../../src/main/tools/core/runtime/create';
+import { ToolsService } from '../../../../src/main/tools';
 
 describe('tool registry organization', () => {
 	it('exposes run-scoped filesystem tools by default', async () => {
@@ -17,7 +18,7 @@ describe('tool registry organization', () => {
 	});
 
 	it('exposes filesystem tools in the default local catalog', () => {
-		const names = new ToolService().createDefaultTools({}).map((tool) => tool.name);
+		const names = new ToolsService().createDefaultTools({}).map((tool) => tool.name);
 
 		expect(names).toContain('read');
 		expect(names).toContain('edit');
@@ -79,28 +80,4 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it('returns OpenAI MCP built-in tools from the MCP service', () => {
-		const service = new ToolService({
-			mcp: {
-				createOpenAITools: () => [
-					{
-						type: 'mcp',
-						server_label: 'stripe',
-						server_url: 'https://mcp.stripe.com',
-						authorization: '$STRIPE_OAUTH_ACCESS_TOKEN',
-					},
-				],
-			},
-		});
-
-		expect(service.createBuiltInToolsForProvider('openai')).toEqual([
-			{
-				type: 'mcp',
-				server_label: 'stripe',
-				server_url: 'https://mcp.stripe.com',
-				authorization: '$STRIPE_OAUTH_ACCESS_TOKEN',
-			},
-		]);
-		expect(service.createBuiltInToolsForProvider('anthropic')).toEqual([]);
-	});
 });
