@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-type ConnectorSummary = Awaited<ReturnType<typeof window.connectors.list>>[number];
+type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.list>>;
 
 export function useConnectors() {
-	const [connectors, setConnectors] = useState<ConnectorSummary[]>([]);
+	const [connectors, setConnectors] = useState<ConnectorRecord>({});
 	const [error, setError] = useState<string | null>(null);
 
 	const load = async (): Promise<void> => {
