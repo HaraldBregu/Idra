@@ -259,7 +259,6 @@ const ModelServicePage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				icon={ServiceIcon}
 				title={t(navigationItem.labelKey)}
 				description={t(navigationItem.descriptionKey)}
 			/>
