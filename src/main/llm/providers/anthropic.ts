@@ -123,8 +123,8 @@ export class AnthropicAdapter implements ProviderAdapter {
 					messages: buildAnthropicMessages(req.messages),
 				}, { signal: req.signal });
 
-			for await (const event of stream) {
-				if (!event || typeof event !== 'object') continue;
+			for await (const rawEvent of stream) {
+				if (!rawEvent || typeof rawEvent !== 'object') continue;
 				const event = rawEvent as Anthropic.Messages.RawMessageStreamEvent;
 				if (event.type === 'content_block_start') {
 					if (event.content_block.type === 'tool_use') {
