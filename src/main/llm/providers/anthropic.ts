@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { Messages as BetaMessages } from '@anthropic-ai/sdk/resources/beta/messages/messages';
 import type {
 	ProviderAdapter,
 	ProviderEvent,
@@ -83,7 +84,7 @@ export class AnthropicAdapter implements ProviderAdapter {
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
 		const mcpTools = (req.builtInTools ?? []).filter((tool) => tool.type === 'mcp_toolset');
-		const tools: Anthropic.Messages.BetaToolUnion[] = req.tools.map((t) => ({
+		const tools: Array<Anthropic.Messages.Tool | BetaMessages.BetaToolUnion> = req.tools.map((t) => ({
 			name: t.name,
 			description: t.description,
 			input_schema: t.schema as Anthropic.Messages.Tool.InputSchema,
@@ -104,22 +105,27 @@ export class AnthropicAdapter implements ProviderAdapter {
 		const blockIndexToToolUseId = new Map<number, string>();
 
 		try {
-			const stream = this.client.messages.stream(
-				{
+			const stream: AsyncIterable<unknown> = mcpServers.length > 0
+				? this.client.beta.messages.stream({
 					model: req.model,
 					system: req.system,
 					max_tokens: req.maxTokens,
-					tools: tools.length > 0 ? tools : undefined,
-					...(mcpServers.length > 0 ? {
-						mcp_servers: mcpServers,
-						betas: ['mcp-client-2025-11-20'],
-					} : {}),
+					tools: tools.length > 0 ? tools as BetaMessages.BetaToolUnion[] : undefined,
+					mcp_servers: mcpServers,
+					betas: ['mcp-client-2025-11-20'],
 					messages: buildAnthropicMessages(req.messages),
-				} as Anthropic.Messages.MessageCreateParamsStreaming,
-				{ signal: req.signal }
-			);
+				} as BetaMessages.MessageCreateParamsStreaming, { signal: req.signal })
+				: this.client.messages.stream({
+					model: req.model,
+					system: req.system,
+					max_tokens: req.maxTokens,
+					tools: tools.length > 0 ? tools as Anthropic.Messages.Tool[] : undefined,
+					messages: buildAnthropicMessages(req.messages),
+				}, { signal: req.signal });
 
 			for await (const event of stream) {
+				if (!event || typeof event !== 'object') continue;
+				const event = rawEvent as Anthropic.Messages.RawMessageStreamEvent;
 				if (event.type === 'content_block_start') {
 					if (event.content_block.type === 'tool_use') {
 						blockIndexToToolUseId.set(event.index, event.content_block.id);
