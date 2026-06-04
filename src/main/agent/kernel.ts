@@ -5,6 +5,7 @@ import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../store';
 import type { ConnectorsService } from '../connectors';
+import { McpService } from '../mcp';
 import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
@@ -242,6 +243,7 @@ export class AgentService {
 			new ToolService({
 				policy: this.policyService,
 				cron: dependencies.cron,
+				mcp: dependencies.connectors ? new McpService(dependencies.connectors) : undefined,
 				logger: dependencies.logger,
 			});
 		this.capabilityService =
