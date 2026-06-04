@@ -74,10 +74,10 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	list: () => Promise<ConnectorSummary[]>;
-	get: (id: string) => Promise<ConnectorConfig>;
-	save: (input: ConnectorInput[]) => Promise<ConnectorConfig[]>;
-	connect: (input: ConnectorConnectInput) => Promise<ConnectorSummary>;
+	list: () => Promise<ConnectorRecord>;
+	get: (id: string) => Promise<ConnectorRecord>;
+	save: (input: ConnectorInput[]) => Promise<ConnectorRecord>;
+	connect: (input: ConnectorConnectInput) => Promise<ConnectorRecord>;
 }
 
 export interface SkillsApi {
