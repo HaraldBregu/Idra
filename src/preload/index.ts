@@ -218,6 +218,9 @@ export const app: AppApi = {
 	openExternalUrl: (url: string): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
 	},
+	authorizeOAuth: (input: Parameters<AppApi['authorizeOAuth']>[0]) => {
+		return typedInvokeUnwrap(AppChannels.authorizeOAuth, input);
+	},
 	setTrayEnabled: (enabled: boolean): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
 	},
@@ -610,8 +613,8 @@ export const connectors: ConnectorsApi = {
 	save: (input: Parameters<ConnectorsApi['save']>[0]): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.save, input);
 	},
-	connect: (input: Parameters<ConnectorsApi['connect']>[0]): Promise<ConnectorRecord> => {
-		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.connect, input);
+	upsert: (input: Parameters<ConnectorsApi['upsert']>[0]): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.upsert, input);
 	},
 };
 
