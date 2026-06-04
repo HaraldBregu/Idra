@@ -2,7 +2,6 @@ import type {
 	ConnectorConfigValue,
 	ConnectorRecord,
 } from '../../shared/connectors';
-import type { ConnectorApprovalMode } from './types';
 
 export function connectorsToStore(connectors: ConnectorRecord): ConnectorRecord {
 	const store: ConnectorRecord = {};
