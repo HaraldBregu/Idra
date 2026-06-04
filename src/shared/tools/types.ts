@@ -7,7 +7,6 @@ export type AgentToolGroupName =
 	| 'stateTask'
 	| 'subagent'
 	| 'skill'
-	| 'mcpConnector'
 	| 'script'
 	| 'cron'
 	| 'web';
@@ -26,9 +25,6 @@ export interface AgentToolMetadata {
 		| 'state'
 		| 'delegate'
 		| 'skill'
-		| 'mcp:read'
-		| 'mcp:connect'
-		| 'mcp:call'
 		| `cron:${CronSchedulePermissionLevel}`
 	)[];
 	approval: AgentToolApprovalPolicy;
