@@ -19,4 +19,7 @@ export const ipcMain = {
 	handle(): void {
 		return undefined;
 	},
+	on(): void {
+		return undefined;
+	},
 };
