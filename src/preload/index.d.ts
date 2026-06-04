@@ -75,8 +75,8 @@ export interface ChannelsApi {
 
 export interface ConnectorsApi {
 	list: () => Promise<ConnectorView[]>;
-	get: (id: string) => Promise<ConnectorConfig>;
-	save: (input: ConnectorInput[]) => Promise<ConnectorConfig[]>;
+	get: (id: string) => Promise<ConnectorRecord>;
+	save: (input: ConnectorInput[]) => Promise<ConnectorRecord[]>;
 	connect: (input: ConnectorConnectInput) => Promise<ConnectorView>;
 }
 
@@ -103,7 +103,7 @@ export interface StoreApi {
 	getCronSettings: () => Promise<CronSettings>;
 	getTaskSettings: () => Promise<TaskSettings>;
 	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
-	getConnectorSettings: () => Promise<ConnectorConfig[]>;
+	getConnectorSettings: () => Promise<ConnectorRecord[]>;
 	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
@@ -190,8 +190,8 @@ import type {
 } from '../shared/speech-to-text';
 import type {
 	ConnectorConnectInput,
-	ConnectorConfig,
 	ConnectorInput,
+	ConnectorRecord,
 	ConnectorView,
 } from '../shared/connector';
 
