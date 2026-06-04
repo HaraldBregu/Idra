@@ -342,7 +342,6 @@ export class ToolService implements ToolServicePort {
 			...ctx.services,
 			policy: ctx.services.policy ?? this.policy,
 			cron: ctx.services.cron ?? this.cron,
-			connectors: ctx.services.connectors ?? this.connectors,
 		};
 		if (services === ctx.services) return ctx;
 		return { ...ctx, services };
