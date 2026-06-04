@@ -24,8 +24,6 @@ import {
 	type GenericChannelProperties,
 	type TelegramChannelProperties,
 } from '../../shared/channels';
-import { connectorsFromStore, connectorsToStore } from '../connectors/storage';
-import type { ConnectorRecord } from '../../shared/connectors';
 import type {
 	BackgroundTaskSettings,
 	ModelProviderSettings,
@@ -156,10 +154,6 @@ function readModelProviderSettingsList(value: unknown): ModelProviderSettings[] 
 		const provider = readModelProviderSettings(entry);
 		return provider ? [provider] : [];
 	});
-}
-
-function readConnectorSettingsList(value: unknown): ConnectorRecord {
-	return connectorsFromStore(value);
 }
 
 function defaultProviderForId(id: string): Provider | undefined {
@@ -567,19 +561,6 @@ export class StoreService {
 			...this.getTaskSchedulerSettings(),
 			...patch,
 		});
-	}
-
-	getConnectors(): ConnectorRecord {
-		return readConnectorSettingsList(this.store.get('connectors'));
-	}
-
-	getConnectorById(id: string): ConnectorRecord | undefined {
-		const connector = this.getConnectors()[id];
-		return connector ? { [id]: connector } : undefined;
-	}
-
-	setConnectors(connectors: ConnectorRecord): void {
-		this.store.set('connectors', connectorsToStore(connectors));
 	}
 
 	getChannel(): Channel {
