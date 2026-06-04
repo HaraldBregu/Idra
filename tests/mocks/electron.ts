@@ -4,6 +4,9 @@ export const app = {
 	getPath(name: string): string {
 		return path.join(process.cwd(), '.test-electron', name);
 	},
+	getVersion(): string {
+		return '0.0.0';
+	},
 };
 
 export const shell = {
