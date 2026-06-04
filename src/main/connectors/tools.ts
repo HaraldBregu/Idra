@@ -1,7 +1,17 @@
-import type { ProviderBuiltInToolSpec } from '../llm/types';
 import type { ConnectorsService } from './service';
 
 type StoredConnector = ReturnType<ConnectorsService['listStored']>[number];
+type RemoteMcpToolSpec = {
+	type: 'mcp';
+	server_label: string;
+	connector_id?: string;
+	server_url?: string;
+	authorization?: string;
+	require_approval: 'always' | 'never' | { never: { tool_names: string[] } };
+	allowed_tools?: string[];
+	defer_loading?: boolean;
+	server_description?: string;
+};
 
 const GMAIL_READ_TOOLS = [
 	'get_profile',
@@ -15,12 +25,12 @@ const GMAIL_READ_TOOLS = [
 	'batch_read_email',
 ];
 
-export function createRemoteMcpProviderTools(
+export function createRemoteMcpTools(
 	connectors: Pick<ConnectorsService, 'listStored'> | undefined
-): ProviderBuiltInToolSpec[] {
+): RemoteMcpToolSpec[] {
 	if (!connectors) return [];
 	const labels = new Set<string>();
-	const tools: ProviderBuiltInToolSpec[] = [];
+	const tools: RemoteMcpToolSpec[] = [];
 	for (const connector of connectors.listStored()) {
 		const serverUrl = connector.serverUrl?.trim();
 		if (!connector.enabled || !serverUrl || labels.has(connector.serverLabel)) continue;
@@ -45,7 +55,7 @@ export function createRemoteMcpProviderTools(
 function approvalPolicy(
 	connector: StoredConnector,
 	allowedTools: string[]
-): ProviderBuiltInToolSpec['require_approval'] {
+): RemoteMcpToolSpec['require_approval'] {
 	if (connector.requireApproval === 'never') return 'never';
 	if (
 		(connector.requireApproval === 'never_for_allowed_tools' || isGmailRemoteMcp(connector)) &&
