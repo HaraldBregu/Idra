@@ -14,16 +14,15 @@ const ConnectorsPage = () => {
 	const navigate = useNavigate();
 	const { connectors, error, load, setError } = useConnectors();
 	const [connectingId, setConnectingId] = useState<string | null>(null);
-	const connectorByCatalogId = new Map(connectors.map((connector) => [connector.connectorId, connector]));
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
 	};
 
 	const connect = async (entry: SettingsConnectorCatalogEntry): Promise<void> => {
-		const connector = connectorByCatalogId.get(entry.connectorId);
-		if (connector?.status === 'configured') {
-			openConnectorDetails(connector.id);
+		const connector = connectors[entry.directConnectorId];
+		if (connector && connector.enabled !== false && !connector.last_error) {
+			openConnectorDetails(entry.directConnectorId);
 			return;
 		}
 		setConnectingId(entry.connectorId);
@@ -52,15 +51,15 @@ const ConnectorsPage = () => {
 			)}
 			<div className="grid gap-2">
 				{SETTINGS_CONNECTOR_CATALOG.map((entry) => {
-					const connector = connectorByCatalogId.get(entry.connectorId);
+					const connector = connectors[entry.directConnectorId];
 					return (
 						<ConnectorCard
 							key={entry.connectorId}
 							catalogEntry={entry}
 							connecting={connectingId === entry.connectorId}
-							connector={connector}
+							connector={connector ? { id: entry.directConnectorId, entry: connector } : undefined}
 							onConnect={() => connect(entry)}
-							onViewDetails={connector ? () => openConnectorDetails(connector.id) : undefined}
+							onViewDetails={connector ? () => openConnectorDetails(entry.directConnectorId) : undefined}
 						/>
 					);
 				})}
