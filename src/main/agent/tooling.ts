@@ -17,106 +17,18 @@ export interface PlanEntry {
 	status: 'pending' | 'in_progress' | 'done';
 }
 
-export type ToolPolicyProfile = 'minimal' | 'coding' | 'messaging' | 'standard' | 'full';
-
-export type ToolPolicy = {
-	profile?: ToolPolicyProfile;
-	allow?: string[];
-	alsoAllow?: string[];
-	deny?: string[];
-	fs?: { workspaceOnly?: boolean; writeWorkspaceOnly?: boolean; readOnly?: boolean };
-};
-
-export type ToolRequestPolicyDecision = {
-	shouldUseTools: boolean;
-	reason: string;
-};
-
-export type ToolPolicySubject = {
-	name: string;
-	ownerOnly?: boolean;
-	optional?: boolean;
-	ownerKind?: string;
-	pluginId?: string;
-	groups?: string[];
-};
-
-export type ToolPolicyEvaluationContext = {
-	sender?: { id?: string; isOwner?: boolean; trustedOwnerGrant?: boolean };
-	trustedOwnerToolGrants?: string[];
-	stages?: Record<string, ToolPolicy | undefined>;
-	warnings?: string[];
-};
-
-export type ToolPolicyEvaluation = {
-	allowed: Set<string>;
-	filtered: Array<{ toolName: string; stage: string; reason: string }>;
-	warnings: string[];
-};
-
-export interface ToolPolicyServicePort {
-	createToolUseKey(toolName: string, params: unknown): string;
-	evaluateTools(
-		subjects: readonly ToolPolicySubject[],
-		context?: ToolPolicyEvaluationContext
-	): ToolPolicyEvaluation;
-	evaluateToolUse(input: {
-		toolName: string;
-		params?: unknown;
-		callCount: number;
-		loopWarnAt?: number;
-		loopStopAt?: number;
-		requiresApproval?: boolean;
-		approvalCached?: boolean;
-	}): any;
-	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
-	evaluateToolHook(input: {
-		toolName: string;
-		allow?: boolean;
-		block?: boolean;
-		reason?: string;
-		blockReason?: string;
-		deniedReason?: string;
-	}): any;
-	evaluateToolApproval(input: {
-		toolName: string;
-		approvalAvailable: boolean;
-		approvalDecision?: 'allow-once' | 'allow-always' | 'deny' | boolean | null;
-		requiredReason?: string;
-		deniedReason?: string;
-	}): any;
-	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): any;
-	globMatchToolPolicyEntry(pattern: string, name: string): boolean;
-	expandToolPolicyEntries(
-		entries: readonly string[] | undefined,
-		subjects: readonly ToolPolicySubject[],
-		warnings?: string[],
-		stage?: string
-	): Set<string> | undefined;
-	expandToolPolicyProfile(
-		profile: ToolPolicyProfile | undefined,
-		subjects: readonly ToolPolicySubject[],
-		warnings?: string[],
-		stage?: string
-	): Set<string> | undefined;
-	getToolPolicyStageOrder(): any;
-	getCoreToolGroups(): Record<string, readonly string[]>;
-}
-
 export interface FridayServices {
 	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
 	workspace: WorkspaceService;
 	cron?: CronService;
-	policy?: ToolPolicyServicePort;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
 }
 
 export type CronToolContext =
 	| { role: 'owner'; agentId?: string }
-	| { role: 'subagent'; agentId?: string }
 	| { role: 'http'; userId?: string }
 	| { role: 'cron-self'; jobId?: string; agentId?: string; sessionKey?: string | null };
 
@@ -131,8 +43,6 @@ export interface ToolContext {
 	readState: Map<string, { mtimeMs: number; size: number }>;
 	plan: { entries: PlanEntry[] };
 	signal?: AbortSignal;
-	approvalRequired?: Set<string>;
-	approvalCache?: Set<string>;
 	services: FridayServices;
 }
 
@@ -151,7 +61,6 @@ export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> 
 	serviceKind?: AgentCapabilityServiceKind;
 	serviceId?: string;
 	ownerOnly?: boolean;
-	needsApproval?: boolean | ((args: TArgs, ctx: ToolContext) => boolean | Promise<boolean>);
 	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
 }
 
@@ -174,23 +83,19 @@ export interface ToolRunPreparation extends AgentToolSelectionForTurn {
 
 export interface ToolsServicePort {
 	createDefaultTools(input: {
-		toolPolicy?: ToolPolicy;
 		explicitAllow?: string[];
 		denylist?: string[];
 	}): AgentTool[];
 	filterToolsByAllowlist(
 		tools: AgentTool[],
-		allowlist: string[] | undefined,
-		policy?: ToolPolicyServicePort
+		allowlist: string[] | undefined
 	): AgentTool[];
 	filterToolsByDenylist(
 		tools: AgentTool[],
-		denylist: string[] | undefined,
-		policy?: ToolPolicyServicePort
+		denylist: string[] | undefined
 	): AgentTool[];
 	createCallTracker(): any;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
-	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
 	createStartupFilesTool(
 		agentId: string,
 		startupFiles: AgentStartupFilesServicePort
