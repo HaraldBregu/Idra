@@ -188,12 +188,110 @@ import type {
 	SpeechToTextTranscribeRequest,
 	SpeechToTextTranscription,
 } from '../shared/speech-to-text';
-import type {
-	ConnectorConnectInput,
-	ConnectorInput,
-	Connector,
-	ConnectorView,
-} from '../shared/connectors';
+type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
+type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
+type ConnectorAuthKind =
+	| 'manual_oauth_access_token'
+	| 'oauth'
+	| 'mcp_env'
+	| 'api_key'
+	| 'none';
+
+type ConnectorConfig = {
+	id: string;
+	name: string;
+	connectorId: string;
+	serverLabel: string;
+	serverDescription?: string;
+	serverUrl?: string;
+	enabled: boolean;
+	authorization: string;
+	oauth?: {
+		service: string;
+		serviceId?: string;
+		authorizationUrl?: string;
+		clientId?: string;
+		clientSecret?: string;
+		redirectUri: string;
+		scopes?: readonly string[];
+		state?: string;
+		accessToken?: string;
+		refreshToken?: string;
+		expiresAt?: number;
+		tokenType?: string;
+		scope?: string;
+		email?: string;
+		accountEmail?: string;
+		token?: {
+			accessToken: string;
+			refreshToken?: string;
+			tokenType?: string;
+			scope?: string;
+			expiresAt?: string;
+		};
+		connectedAt?: string;
+	};
+	requireApproval: ConnectorApprovalMode;
+	allowedTools: string[];
+	deferLoading: boolean;
+	tools: Array<{
+		name: string;
+		description?: string;
+		inputSchema?: Record<string, unknown>;
+		permission: 'always-allow' | 'needs-approval' | 'blocked';
+		requiresApproval: boolean;
+	}>;
+	lastRefreshedAt?: string;
+	createdAt: string;
+	updatedAt: string;
+	lastError?: string;
+};
+
+type ConnectorSummary = {
+	id: string;
+	name: string;
+	connectorId: string;
+	authKind: ConnectorAuthKind;
+	serverLabel: string;
+	serverUrl?: string;
+	enabled: boolean;
+	status: ConnectorStatus;
+	requireApproval: ConnectorApprovalMode;
+	allowedToolsCount: number;
+	toolsCount: number;
+	deferLoading: boolean;
+	lastRefreshedAt?: string;
+	lastError?: string;
+	connectedAccount?: string;
+};
+
+type ConnectorInput = {
+	name: string;
+	connectorId: string;
+	serverLabel?: string;
+	serverDescription?: string;
+	serverUrl?: string;
+	authorization?: string;
+	requireApproval?: ConnectorApprovalMode;
+	allowedTools?: string[];
+	deferLoading?: boolean;
+	enabled?: boolean;
+};
+
+type ConnectorConnectInput = ConnectorInput & {
+	oauth: {
+		service: string;
+		serviceId?: string;
+		clientIdEnv: string;
+		clientSecretEnv?: string;
+		authorizationUrl: string;
+		tokenUrl: string;
+		userInfoUrl?: string;
+		scopes: readonly string[];
+		accessType?: string;
+		prompt?: string;
+	};
+};
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
