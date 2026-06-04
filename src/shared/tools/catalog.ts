@@ -146,16 +146,6 @@ export const AGENT_TOOLS = [
 		availability: 'default',
 	},
 	{
-		name: 'openai_connector_tools',
-		group: 'mcpConnector',
-		title: 'OpenAI connector tools',
-		description: 'List configured OpenAI Responses API MCP connector tool specs.',
-		permissions: ['mcp:read'],
-		approval: AGENT_TOOL_APPROVAL_NONE,
-		profiles: DEFAULT_TOOL_PROFILES,
-		availability: 'default',
-	},
-	{
 		name: 'mcp_list_servers',
 		group: 'mcpConnector',
 		title: 'List MCP servers',
