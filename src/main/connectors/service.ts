@@ -71,33 +71,23 @@ export class ConnectorsService {
 
 	async add(input: unknown): Promise<ConnectorConfig> {
 		try {
-			const now = new Date().toISOString();
-			const sanitized = sanitizeInput(input);
-			const connector: ConnectorConfig = {
-				id: randomUUID(),
-				name: sanitized.name,
-				connectorId: sanitized.connectorId,
-				serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
-				serverDescription: sanitized.serverDescription,
-				serverUrl: sanitized.serverUrl,
-				enabled: sanitized.enabled ?? true,
-				authorization: sanitized.authorization ?? '',
-				mcp: cloneValue(sanitized.mcp),
-				oauth: undefined,
-				requireApproval: sanitized.requireApproval ?? 'always',
-				allowedTools: sanitized.allowedTools ?? [],
-				deferLoading: sanitized.deferLoading ?? false,
-				tools: [],
-				createdAt: now,
-				updatedAt: now,
-			};
-			const next = await this.prepareConnector(connector, true);
+			const next = await this.connectorFromInput(input);
 			this.repository.write([...this.connectors(), next]);
 			return redactConnectorSecrets(next);
 		} catch (error) {
 			this.warn('Connector validation failed', { action: 'add', error: errorMessage(error) });
 			throw error;
 		}
+	}
+
+	async save(input: unknown): Promise<ConnectorConfig[]> {
+		if (!Array.isArray(input)) throw new Error('Connector settings must be an array.');
+		const next: ConnectorConfig[] = [];
+		for (const item of input) {
+			next.push(await this.connectorFromInput(item));
+		}
+		this.repository.write(next);
+		return next.map(redactConnectorSecrets);
 	}
 
 	async update(id: string, input: unknown): Promise<ConnectorConfig> {
@@ -355,5 +345,32 @@ export class ConnectorsService {
 
 	private warn(message: string, details?: Record<string, unknown>): void {
 		this.logger.warn('ConnectorsService', message, details);
+	}
+
+	private async connectorFromInput(input: unknown): Promise<ConnectorConfig> {
+		const raw = requireObject(input, 'Connector configuration');
+		const now = new Date().toISOString();
+		const id = readOptionalString(raw, 'id')?.trim() || randomUUID();
+		const createdAt = readOptionalString(raw, 'createdAt')?.trim() || now;
+		const sanitized = sanitizeInput(input);
+		const connector: ConnectorConfig = {
+			id,
+			name: sanitized.name,
+			connectorId: sanitized.connectorId,
+			serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
+			serverDescription: sanitized.serverDescription,
+			serverUrl: sanitized.serverUrl,
+			enabled: sanitized.enabled ?? true,
+			authorization: sanitized.authorization ?? '',
+			mcp: cloneValue(sanitized.mcp),
+			oauth: undefined,
+			requireApproval: sanitized.requireApproval ?? 'always',
+			allowedTools: sanitized.allowedTools ?? [],
+			deferLoading: sanitized.deferLoading ?? false,
+			tools: [],
+			createdAt,
+			updatedAt: now,
+		};
+		return this.prepareConnector(connector, true);
 	}
 }

@@ -29,6 +29,10 @@ export class ConnectorsIpc implements IpcModule {
 			wrapSimpleHandler((input) => connectors.add(input), ConnectorsChannels.add)
 		);
 		ipcMain.handle(
+			ConnectorsChannels.save,
+			wrapSimpleHandler((input) => connectors.save(input), ConnectorsChannels.save)
+		);
+		ipcMain.handle(
 			ConnectorsChannels.update,
 			wrapSimpleHandler((id, input) => connectors.update(id, input), ConnectorsChannels.update)
 		);

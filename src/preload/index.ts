@@ -626,6 +626,9 @@ export const connectors: ConnectorsApi = {
 	add: (input: ConnectorInput): Promise<ConnectorConfig> => {
 		return typedInvokeUnwrap(ConnectorsChannels.add, input);
 	},
+	save: (input: ConnectorInput[]): Promise<ConnectorConfig[]> => {
+		return typedInvokeUnwrap(ConnectorsChannels.save, input);
+	},
 	update: (id: string, input: ConnectorUpdateInput): Promise<ConnectorConfig> => {
 		return typedInvokeUnwrap(ConnectorsChannels.update, id, input);
 	},

@@ -70,6 +70,41 @@ describe('ConnectorsService OpenAI connectors', () => {
 		]);
 	});
 
+	it('saves connector records in bulk through the connectors store', async () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+
+		const saved = await service.save([
+			{
+				name: 'Acme Mail',
+				connectorId: 'connector_acme_mail',
+				serverLabel: 'acme_mail',
+				authorization: 'token-123',
+			},
+			{
+				name: 'Acme MCP',
+				connectorId: 'acme_remote_mcp',
+				serverLabel: 'acme',
+				serverUrl: 'https://mcp.example.com/sse',
+			},
+		]);
+
+		expect(saved).toHaveLength(2);
+		expect(saved.every((connector) => connector.authorization === '')).toBe(true);
+		expect((mockStoreData.connectors as ConnectorConfig[]).map((connector) => connector.authorization)).toEqual([
+			'token-123',
+			'',
+		]);
+		expect(service.createOpenAIConnectorTools()).toHaveLength(2);
+	});
+
+	it('rejects non-array bulk connector saves', async () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+
+		await expect(service.save({ connectors: [] })).rejects.toThrow(
+			'Connector settings must be an array.'
+		);
+	});
+
 	it('reports missing_auth and omits OpenAI built-ins when authorization is absent', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 

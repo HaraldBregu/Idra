@@ -115,6 +115,7 @@ export const ConnectorsChannels = {
 	catalog: 'connectors:catalog',
 	list: 'connectors:list',
 	add: 'connectors:add',
+	save: 'connectors:save',
 	update: 'connectors:update',
 	remove: 'connectors:remove',
 	enable: 'connectors:enable',
@@ -460,6 +461,10 @@ interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.add]: {
 		args: [input: import('../connector').ConnectorInput];
 		result: import('../connector').ConnectorConfig;
+	};
+	[ConnectorsChannels.save]: {
+		args: [input: import('../connector').ConnectorInput[]];
+		result: import('../connector').ConnectorConfig[];
 	};
 	[ConnectorsChannels.update]: {
 		args: [id: string, input: import('../connector').ConnectorUpdateInput];
