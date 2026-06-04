@@ -113,6 +113,44 @@ describe('ConnectorsService storage', () => {
 		expect(mockStoreData.connectors).toEqual({});
 	});
 
+	it('reads MCP connector entries from the Electron connectors store', () => {
+		const service = new ConnectorsService(logger as never, { env: {} });
+		mockStoreData.connectors = {
+			gmail: {
+				type: 'mcp',
+				server_label: 'my-server',
+				server_url: 'https://example.com/mcp',
+				authorization: 'Bearer token-123',
+				require_approval: 'never',
+				allowed_tools: ['search', 'fetch'],
+			},
+			google_calendar: {
+				type: 'mcp',
+				server_label: 'calendar',
+				server_url: 'https://calendar.example.com/mcp',
+				authorization: 'Bearer calendar-token',
+			},
+		};
+
+		expect(service.list()).toEqual([
+			expect.objectContaining({
+				id: 'gmail',
+				serverLabel: 'my-server',
+				serverUrl: 'https://example.com/mcp',
+				status: 'configured',
+				requireApproval: 'never',
+				allowedToolsCount: 2,
+			}),
+			expect.objectContaining({
+				id: 'google_calendar',
+				serverLabel: 'calendar',
+				serverUrl: 'https://calendar.example.com/mcp',
+				status: 'configured',
+				requireApproval: 'always',
+			}),
+		]);
+	});
+
 	it('reports missing_auth for migrated Gmail OAuth tokens without the OpenAI connector scope', () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 		const now = new Date().toISOString();
