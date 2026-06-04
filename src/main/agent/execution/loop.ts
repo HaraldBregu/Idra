@@ -369,6 +369,8 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 			const iterStart = Date.now();
 			let text = '';
 			const blocks: AgentContentBlock[] = [];
+			const providerBlocks: AgentContentBlock[] = [];
+			const mcpOutputFallbacks: string[] = [];
 			const reasoningBlocks: AgentContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsStr: string; tool?: AgentTool }>();
 			let turnStop = 'end_turn';
@@ -498,6 +500,13 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								break;
 							}
 							case 'mcp_list_tools':
+								if (event.item) {
+									providerBlocks.push({
+										type: 'provider_item',
+										provider: 'openai',
+										item: event.item,
+									});
+								}
 								ctx.services.connectorTools?.updateOpenAiConnectorTools(
 									event.serverLabel,
 									event.tools.map((tool) => ({
@@ -601,6 +610,13 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								break providerEvents;
 							}
 							case 'mcp_call': {
+								if (event.item) {
+									providerBlocks.push({
+										type: 'provider_item',
+										provider: 'openai',
+										item: event.item,
+									});
+								}
 								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
 								const outputText = event.error
 									? `OpenAI MCP connector "${event.serverLabel}" failed to run "${event.name}": ${event.error}`
@@ -644,17 +660,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 									durationMs: 0,
 									errorText: event.error ? outputText : undefined,
 								});
-								if (outputText) {
-									firstTokenLatencyMs ??= Date.now() - runStart;
-									if (!didStartAnswering) {
-										didStartAnswering = true;
-										streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
-									}
-									const delta = `${text ? '\n' : ''}${outputText}\n`;
-									text += delta;
-									streamOutput?.(delta);
-									streamEvent?.({ type: 'text_delta', delta });
-								}
+								if (outputText) mcpOutputFallbacks.push(outputText);
 								break;
 							}
 							case 'message_end':
@@ -729,6 +735,18 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 				durationMs: Date.now() - iterStart,
 			});
 
+			if (!text && mcpOutputFallbacks.length > 0) {
+				text = mcpOutputFallbacks.join('\n');
+				firstTokenLatencyMs ??= Date.now() - runStart;
+				if (!didStartAnswering) {
+					didStartAnswering = true;
+					streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+				}
+				streamOutput?.(text);
+				streamEvent?.({ type: 'text_delta', delta: text });
+			}
+
+			blocks.push(...providerBlocks);
 			blocks.push(...reasoningBlocks);
 			if (text) blocks.push({ type: 'text', text });
 			for (const [id, t] of pending) {
