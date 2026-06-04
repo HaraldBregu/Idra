@@ -1,5 +1,6 @@
 import React from 'react';
 import { ChevronRight, PlugZap } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { ConnectorView } from '../../../../../../../shared/connector';
@@ -45,7 +46,13 @@ export function ConnectorCard({
 			<ItemContent className="min-w-0 flex-col items-start gap-1">
 				<div className="flex max-w-full items-center gap-2">
 					<ItemTitle className="min-w-0 truncate">{title}</ItemTitle>
-					{connector && <ConnectorStatusBadge status={connector.status} />}
+					{connector ? (
+						<ConnectorStatusBadge status={connector.status} />
+					) : (
+						<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+							Not connected
+						</Badge>
+					)}
 				</div>
 				<div className="line-clamp-1 max-w-full text-[12px] text-muted-foreground">
 					{connector?.connectedAccount ?? catalogEntry.description}
