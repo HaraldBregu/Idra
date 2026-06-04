@@ -93,7 +93,10 @@ function isStoredConnectorValid(value: unknown): value is ConnectorConfig {
 }
 
 function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
-	const serverUrl = typeof connector.serverUrl === 'string' && connector.serverUrl.trim() ? connector.serverUrl.trim() : undefined;
+	const serverUrl =
+		typeof connector.serverUrl === 'string' && connector.serverUrl.trim()
+			? connector.serverUrl.trim()
+			: undefined;
 	const legacyGmailNeedsReadDefaults =
 		connector.connectorId === GMAIL_CONNECTOR_ID &&
 		serverUrl === GMAIL_MCP_SERVER_URL &&
@@ -105,7 +108,9 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
 		allowedTools: legacyGmailNeedsReadDefaults
 			? [...GMAIL_TOOLS_WITHOUT_APPROVAL]
-			: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
+			: Array.isArray(connector.allowedTools)
+				? uniqueStrings(connector.allowedTools)
+				: [],
 		requireApproval: legacyGmailNeedsReadDefaults
 			? 'never_for_allowed_tools'
 			: connector.requireApproval ?? 'always',
