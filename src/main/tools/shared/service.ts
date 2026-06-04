@@ -2,6 +2,8 @@ import {
 	ToolPolicyService,
 	type ToolPolicyServicePort,
 	type ToolPolicySubject,
+	type ToolRequestPolicyDecision,
+	type ToolRequestPolicyInput,
 } from './tool-types';
 import type { CronService } from '../../cron';
 import type { LoggerService } from '../../observability';
