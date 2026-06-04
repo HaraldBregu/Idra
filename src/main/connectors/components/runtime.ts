@@ -69,14 +69,13 @@ export function toConnectorView(connector: ConnectorConfig): ConnectorView {
 	};
 }
 
-export function toConnectorStatus(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorStatus {
+export function toConnectorStatus(connector: ConnectorConfig): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
 	if (isOpenAiConnectorIdConfig(connector) && !connectorAuthorization(connector)) return 'missing_auth';
 	if (isOpenAiConnectorIdConfig(connector) && !hasRequiredOpenAiConnectorScopes(connector)) {
 		return 'missing_auth';
 	}
-	if (hasMissingMcpSecrets(connector, env)) return 'missing_auth';
 	if (connector.oauth && !connector.oauth.token?.accessToken && !connector.oauth.token?.refreshToken) {
 		return 'missing_auth';
 	}
