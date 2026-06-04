@@ -13,8 +13,7 @@ export class McpService {
 			server_label: connector.server_label,
 			server_url: connector.server_url,
 			...(connector.authorization ? { authorization: connector.authorization } : {}),
-			// ...(connector.require_approval ? { require_approval: connector.require_approval } : {}),
-			      require_approval: "never",
+			...(connector.require_approval ? { require_approval: connector.require_approval } : {}),
 			...(connector.defer_loading ? { defer_loading: true } : {}),
 			...(connector.server_description ? { server_description: connector.server_description } : {}),
 		}));
