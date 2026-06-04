@@ -52,8 +52,6 @@ function connectorToStoreEntry(
 		...(connector.enabled === false ? { enabled: false } : {}),
 		...(connector.tools.length > 0 ? { tools: connector.tools.map(toolToStoreEntry) } : {}),
 		...(connector.lastRefreshedAt ? { last_refreshed_at: connector.lastRefreshedAt } : {}),
-		...(connector.createdAt ? { created_at: connector.createdAt } : {}),
-		...(connector.updatedAt ? { updated_at: connector.updatedAt } : {}),
 		...(connector.lastError ? { last_error: connector.lastError } : {}),
 	};
 }
