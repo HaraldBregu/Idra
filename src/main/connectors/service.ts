@@ -58,6 +58,42 @@ export class ConnectorsService {
 		return redactConnectorSecrets(this.repository.get(id));
 	}
 
+	async connect(input: unknown, openExternalUrl: OpenExternalUrl): Promise<ConnectorView> {
+		const raw = requireObject(input, 'Connector connection');
+		const sanitized = sanitizeInput(input);
+		if (!sanitized.serverUrl) throw new Error('Connector MCP server URL is required.');
+		const oauth = readOAuthConnectConfig(raw);
+		const credential = await this.authorize(oauth, openExternalUrl);
+		const now = new Date().toISOString();
+		const connectors = this.connectors();
+		const existing = connectors.find((connector) => connector.connectorId === sanitized.connectorId);
+		const connector: ConnectorConfig = {
+			id: existing?.id ?? randomUUID(),
+			name: sanitized.name,
+			connectorId: sanitized.connectorId,
+			serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
+			serverDescription: sanitized.serverDescription,
+			serverUrl: sanitized.serverUrl,
+			enabled: sanitized.enabled ?? true,
+			authorization: credential.token?.accessToken ?? '',
+			mcp: undefined,
+			oauth: credential,
+			requireApproval: sanitized.requireApproval ?? 'always',
+			allowedTools: sanitized.allowedTools ?? [],
+			deferLoading: sanitized.deferLoading ?? false,
+			tools: existing?.tools ?? [],
+			lastRefreshedAt: existing?.lastRefreshedAt,
+			createdAt: existing?.createdAt ?? now,
+			updatedAt: now,
+		};
+		this.repository.write(
+			existing
+				? connectors.map((item) => (item.id === existing.id ? connector : item))
+				: [...connectors, connector]
+		);
+		return toConnectorView(connector, this.env());
+	}
+
 	async save(input: unknown): Promise<ConnectorConfig[]> {
 		if (!Array.isArray(input)) throw new Error('Connector settings must be an array.');
 		const next: ConnectorConfig[] = [];
