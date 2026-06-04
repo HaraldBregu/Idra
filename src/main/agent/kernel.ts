@@ -241,6 +241,7 @@ export class AgentService {
 			dependencies.toolService ??
 			new ToolService({
 				policy: this.policyService,
+				connectors: dependencies.connectors,
 				cron: dependencies.cron,
 				logger: dependencies.logger,
 			});
