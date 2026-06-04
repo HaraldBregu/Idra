@@ -5,12 +5,12 @@ import type { ConnectorsService } from '../connectors';
 import type { StoreService } from '../store';
 import type { SkillsService } from '../skills';
 import type { WorkspaceService } from './workspace';
-import type { JSONSchema, ToolResultBlock } from '../llm/types';
+import type { JSONSchema, ProviderBuiltInToolSpec, ToolResultBlock } from '../llm/types';
 import type {
 	AgentCapabilityServiceKind,
 	AgentToolResultStatus,
 } from '../../shared/agents/constants';
-import type { ToolsService } from '../tools';
+import type { AgentStartupFilesServicePort } from './workspace/startup';
 
 export interface PlanEntry {
 	task: string;
@@ -32,8 +32,75 @@ export type ToolRequestPolicyDecision = {
 	reason: string;
 };
 
+export type ToolPolicySubject = {
+	name: string;
+	ownerOnly?: boolean;
+	optional?: boolean;
+	ownerKind?: string;
+	pluginId?: string;
+	groups?: string[];
+};
+
+export type ToolPolicyEvaluationContext = {
+	sender?: { id?: string; isOwner?: boolean; trustedOwnerGrant?: boolean };
+	trustedOwnerToolGrants?: string[];
+	stages?: Record<string, ToolPolicy | undefined>;
+	warnings?: string[];
+};
+
+export type ToolPolicyEvaluation = {
+	allowed: Set<string>;
+	filtered: Array<{ toolName: string; stage: string; reason: string }>;
+	warnings: string[];
+};
+
 export interface ToolPolicyServicePort {
+	createToolUseKey(toolName: string, params: unknown): string;
+	evaluateTools(
+		subjects: readonly ToolPolicySubject[],
+		context?: ToolPolicyEvaluationContext
+	): ToolPolicyEvaluation;
+	evaluateToolUse(input: {
+		toolName: string;
+		params?: unknown;
+		callCount: number;
+		loopWarnAt?: number;
+		loopStopAt?: number;
+		requiresApproval?: boolean;
+		approvalCached?: boolean;
+	}): unknown;
 	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
+	evaluateToolHook(input: {
+		toolName: string;
+		allow?: boolean;
+		block?: boolean;
+		reason?: string;
+		blockReason?: string;
+		deniedReason?: string;
+	}): unknown;
+	evaluateToolApproval(input: {
+		toolName: string;
+		approvalAvailable: boolean;
+		approvalDecision?: 'allow-once' | 'allow-always' | 'deny' | boolean | null;
+		requiredReason?: string;
+		deniedReason?: string;
+	}): unknown;
+	createToolPolicyIndex(subjects: readonly ToolPolicySubject[]): unknown;
+	globMatchToolPolicyEntry(pattern: string, name: string): boolean;
+	expandToolPolicyEntries(
+		entries: readonly string[] | undefined,
+		subjects: readonly ToolPolicySubject[],
+		warnings?: string[],
+		stage?: string
+	): Set<string> | undefined;
+	expandToolPolicyProfile(
+		profile: ToolPolicyProfile | undefined,
+		subjects: readonly ToolPolicySubject[],
+		warnings?: string[],
+		stage?: string
+	): Set<string> | undefined;
+	getToolPolicyStageOrder(): readonly string[];
+	getCoreToolGroups(): Record<string, readonly string[]>;
 }
 
 export interface FridayServices {
@@ -101,22 +168,66 @@ export interface AgentToolManagementOptions {
 	forceSelection?: boolean;
 }
 
-export type ToolsServicePort = Pick<
-	ToolsService,
-	| 'createDefaultTools'
-	| 'filterToolsByAllowlist'
-	| 'filterToolsByDenylist'
-	| 'createCallTracker'
-	| 'createManagementOptions'
-	| 'createBuiltInToolsForProvider'
-	| 'evaluateToolRequest'
-	| 'createStartupFilesTool'
-	| 'prepareToolsForProvider'
-	| 'selectToolsForTurn'
-	| 'prepareToolsForRun'
-	| 'beforeCall'
-	| 'executeToolWithManagement'
->;
+export interface ToolRunPreparation extends AgentToolSelectionForTurn {
+	management: AgentToolManagementOptions;
+}
+
+export interface ToolsServicePort {
+	createDefaultTools(input: {
+		toolPolicy?: ToolPolicy;
+		explicitAllow?: string[];
+		denylist?: string[];
+	}): AgentTool[];
+	filterToolsByAllowlist(
+		tools: AgentTool[],
+		allowlist: string[] | undefined,
+		policy?: ToolPolicyServicePort
+	): AgentTool[];
+	filterToolsByDenylist(
+		tools: AgentTool[],
+		denylist: string[] | undefined,
+		policy?: ToolPolicyServicePort
+	): AgentTool[];
+	createCallTracker(): unknown;
+	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
+	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[];
+	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
+	createStartupFilesTool(
+		agentId: string,
+		startupFiles: AgentStartupFilesServicePort
+	): AgentTool;
+	prepareToolsForProvider(
+		tools: AgentTool[],
+		ctx: ToolContext,
+		options?: { provider?: string; modelId?: string }
+	): AgentTool[];
+	selectToolsForTurn(
+		tools: AgentTool[],
+		message: string,
+		ctx: ToolContext,
+		options?: AgentToolManagementOptions
+	): AgentToolSelectionForTurn;
+	prepareToolsForRun(input: {
+		tools: AgentTool[];
+		ctx: ToolContext;
+		userMessage: string;
+		provider?: string;
+		modelId?: string;
+		management?: AgentToolManagementOptions;
+	}): ToolRunPreparation;
+	beforeCall(
+		tool: AgentTool,
+		args: unknown,
+		ctx: ToolContext,
+		tracker: unknown
+	): Promise<{ proceed: boolean; warning?: string; vetoStatus?: AgentToolResultStatus; reason?: string }>;
+	executeToolWithManagement(
+		tool: AgentTool,
+		args: Record<string, unknown>,
+		ctx: ToolContext,
+		management: AgentToolManagementOptions
+	): Promise<AgentToolResult>;
+}
 
 export function textResult(text: string, isError = false): AgentToolResult {
 	return { status: isError ? 'error' : 'ok', content: [{ type: 'text', text }] };
