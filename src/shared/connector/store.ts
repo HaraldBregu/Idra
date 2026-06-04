@@ -47,7 +47,7 @@ function connectorToStoreEntry(
 		server_label: connector.serverLabel,
 		server_url: serverUrl,
 		authorization,
-		...(requireApproval === 'always' ? {} : { require_approval: requireApproval }),
+		...(requireApproval ? { require_approval: requireApproval } : {}),
 		...(connector.allowedTools.length > 0 ? { allowed_tools: [...connector.allowedTools] } : {}),
 	};
 }
