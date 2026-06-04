@@ -13,12 +13,9 @@ import {
 	redactConnectorSecrets,
 } from './runtime';
 import { ConnectorRepository } from './repository';
-import type { ConnectorsServiceOptions } from './types';
 
 type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;
 
-type OAuthConnectRuntimeConfig = ConnectorConnectInput['oauth'];
-type OAuthCredential = NonNullable<ConnectorConfig['oauth']>;
 
 type OAuthTokenResponse = {
 	readonly access_token?: string;
