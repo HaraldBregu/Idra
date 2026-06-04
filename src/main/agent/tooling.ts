@@ -188,7 +188,7 @@ export interface ToolsServicePort {
 		denylist: string[] | undefined,
 		policy?: ToolPolicyServicePort
 	): AgentTool[];
-	createCallTracker(): unknown;
+	createCallTracker(): any;
 	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
 	createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[];
 	evaluateToolRequest(input: { userRequest: string }): ToolRequestPolicyDecision;
@@ -219,7 +219,7 @@ export interface ToolsServicePort {
 		tool: AgentTool,
 		args: unknown,
 		ctx: ToolContext,
-		tracker: unknown
+		tracker: any
 	): Promise<{
 		proceed: boolean;
 		warning?: string;
