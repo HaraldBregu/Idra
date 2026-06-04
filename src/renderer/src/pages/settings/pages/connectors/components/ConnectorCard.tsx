@@ -14,11 +14,13 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
 
 export function ConnectorCard({
 	catalogEntry,
+	connecting,
 	connector,
 	onConnect,
 	onViewDetails,
 }: {
 	readonly catalogEntry: SettingsConnectorCatalogEntry;
+	readonly connecting?: boolean;
 	readonly connector?: ConnectorView;
 	readonly onConnect: () => void;
 	readonly onViewDetails?: () => void;
@@ -63,11 +65,12 @@ export function ConnectorCard({
 					<Button
 						variant="outline"
 						size="sm"
+						disabled={connecting}
 						onClick={onConnect}
 						aria-label={`Connect ${title}`}
 					>
 						<PlugZap className="size-3.5" />
-						Connect
+						{connecting ? 'Connecting' : 'Connect'}
 					</Button>
 				)}
 				{hasDetails && (
