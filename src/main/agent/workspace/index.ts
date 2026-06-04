@@ -19,5 +19,4 @@ export {
 	type WorkspaceFileSummary,
 } from './files';
 export * from './startup';
-export * from './permissions';
 export * from './service';

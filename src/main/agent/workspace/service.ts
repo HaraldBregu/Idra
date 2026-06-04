@@ -2,18 +2,12 @@ import type { LoggerService } from '../../observability';
 import type { WorkspaceContextFile, WorkspaceFileSummary } from './files';
 import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from '../storage';
 import { AgentStartupFilesService, type AgentStartupFilesServicePort } from './startup';
-import {
-	AgentPermissionsStore,
-	type AgentPermissions,
-	type AgentPermissionsStorePort,
-} from './permissions';
 
 export interface AgentWorkspaceServiceOptions {
 	rootPath?: string;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	logger?: LoggerService;
 	startupFiles?: AgentStartupFilesServicePort;
-	permissions?: AgentPermissionsStorePort;
 }
 
 /**
@@ -23,15 +17,12 @@ export interface AgentWorkspaceServiceOptions {
  */
 export class AgentWorkspaceService {
 	private readonly startupFiles: AgentStartupFilesServicePort;
-	private readonly permissionsStore: AgentPermissionsStorePort;
 
 	constructor(options: AgentWorkspaceServiceOptions = {}) {
 		const rootPath =
 			options.rootPath ?? options.agentDataDirectory?.resolve() ?? resolveDefaultAgentDataPath();
 		this.startupFiles =
 			options.startupFiles ?? new AgentStartupFilesService({ rootPath, logger: options.logger });
-		this.permissionsStore =
-			options.permissions ?? new AgentPermissionsStore({ logger: options.logger });
 	}
 
 	getRootPath(agentId: string): string {
@@ -64,9 +55,5 @@ export class AgentWorkspaceService {
 
 	completeBootstrap(agentId: string): Promise<WorkspaceContextFile> {
 		return this.startupFiles.completeBootstrap(agentId);
-	}
-
-	getPermissions(): AgentPermissions {
-		return this.permissionsStore.getPermissions();
 	}
 }

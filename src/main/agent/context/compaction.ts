@@ -1,10 +1,5 @@
 import { createHash } from 'node:crypto';
 import { agentLogger } from '../logger';
-import {
-	buildAgentHookContext,
-	fireAfterCompactionHook,
-	fireBeforeCompactionHook,
-} from '../lifecycle';
 import type { ProviderAdapter, TranscriptEntry } from '../../llm/types';
 import type { CompactionMarker } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
@@ -52,20 +47,6 @@ export async function compact(
 		if (transcript.length <= KEEP_RECENT + 2) {
 			return { transcript, marker: null };
 		}
-		const hookContext = buildAgentHookContext({
-			runId: options.runId ?? sessionId,
-			agentId: options.agentId,
-			sessionId,
-			sessionKey: options.sessionKey,
-			provider: options.providerId,
-			modelId: model,
-			channelId: options.channelId,
-		});
-		await fireBeforeCompactionHook({
-			...hookContext,
-			transcriptLength: transcript.length,
-		});
-
 		const toDrop = transcript.slice(0, transcript.length - KEEP_RECENT);
 		const keep = transcript.slice(transcript.length - KEEP_RECENT);
 
@@ -84,11 +65,6 @@ export async function compact(
 			transcript: next,
 			marker: { atTurn: transcript.length, droppedCount: toDrop.length, summaryHash: hash },
 		};
-		await fireAfterCompactionHook({
-			...hookContext,
-			transcriptLength: result.transcript.length,
-			summaryHash: result.marker.summaryHash,
-		});
 		return result;
 	} finally {
 		release();
