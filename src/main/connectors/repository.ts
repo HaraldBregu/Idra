@@ -3,7 +3,6 @@ import Store from 'electron-store';
 import { app } from 'electron';
 import type { LoggerService } from '../observability';
 import type { ConnectorRecord } from '../../shared/connectors';
-import { errorMessage } from './runtime';
 import { connectorsFromStore, connectorsToStore } from './storage';
 
 type ConnectorsStore = {
@@ -70,4 +69,8 @@ function resolveAppDataPath(): string {
 
 function isEmptyConnectorStore(value: unknown): boolean {
 	return Boolean(value && typeof value === 'object' && Object.keys(value).length === 0);
+}
+
+function errorMessage(error: unknown): string {
+	return error instanceof Error ? error.message : String(error);
 }
