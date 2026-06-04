@@ -12,8 +12,10 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
+import { SETTINGS_CONNECTOR_CATALOG } from '../catalog';
 
-type ConnectorConfig = Awaited<ReturnType<typeof window.connectors.get>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
+type ConnectorEntry = ConnectorRecord[string];
 
 function formatTimestamp(value?: string): string {
 	if (!value) return 'Never';
@@ -22,8 +24,30 @@ function formatTimestamp(value?: string): string {
 	return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 
-function formatApprovalPolicy(value: ConnectorConfig['requireApproval']): string {
-	return value.replaceAll('_', ' ');
+function formatApprovalPolicy(value: ConnectorEntry['require_approval']): string {
+	return value ?? 'always';
+}
+
+function connectorRecordEntry(
+	record: ConnectorRecord,
+	preferredId?: string
+): { id: string; connector: ConnectorEntry } | undefined {
+	const entry = preferredId ? record[preferredId] : undefined;
+	if (preferredId && entry) return { id: preferredId, connector: entry };
+	const [id, connector] = Object.entries(record)[0] ?? [];
+	return id && connector ? { id, connector } : undefined;
+}
+
+function connectorName(id: string, connector: ConnectorEntry): string {
+	return (
+		SETTINGS_CONNECTOR_CATALOG.find((entry) => entry.directConnectorId === id)?.name ??
+		connector.server_label
+			.split(/[_-]+/u)
+			.map((part) => part ? part[0].toUpperCase() + part.slice(1) : '')
+			.join(' ')
+			.trim() ||
+		id
+	);
 }
 
 function DetailRow({
@@ -58,7 +82,7 @@ function DetailRow({
 const ConnectorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { connectorId } = useParams<{ connectorId: string }>();
-	const [connector, setConnector] = useState<ConnectorConfig | null>(null);
+	const [connectorRecord, setConnectorRecord] = useState<ConnectorRecord | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -79,13 +103,13 @@ const ConnectorDetailsPage: React.FC = () => {
 		void window.connectors.get(connectorId).then(
 			(nextConnector) => {
 				if (!mounted) return;
-				setConnector(nextConnector);
+				setConnectorRecord(nextConnector);
 				setError(null);
 				setLoading(false);
 			},
 			(caught) => {
 				if (!mounted) return;
-				setConnector(null);
+				setConnectorRecord(null);
 				setError(caught instanceof Error ? caught.message : String(caught));
 				setLoading(false);
 			}
@@ -108,7 +132,8 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	if (!connector) {
+	const selected = connectorRecordEntry(connectorRecord ?? {}, connectorId);
+	if (!selected) {
 		return (
 			<SettingsPageShell>
 				<SettingsPageHeader title={t('settings.connectors.detailsTitle')} />
@@ -124,18 +149,15 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const oauthConnected = Boolean(connector.oauth);
-	const authLabel = oauthConnected
-		? 'OAuth'
-		: connector.serverUrl
-			? 'Remote MCP'
-			: 'Access token';
+	const { id, connector } = selected;
+	const authLabel = connector.authorization ? 'Access token' : 'Remote MCP';
+	const displayName = connectorName(id, connector);
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={connector.name}
-				description={connector.serverDescription}
+				title={displayName}
+				description={connector.server_description}
 			/>
 
 			{error && (
@@ -146,25 +168,20 @@ const ConnectorDetailsPage: React.FC = () => {
 
 			<SettingsSection title="Configuration">
 				<Card size="sm" className="gap-0! p-0!">
-					<DetailRow label="Connector" value={connector.connectorId} mono />
-					<DetailRow label="Server label" value={connector.serverLabel} mono />
-					{connector.serverUrl && <DetailRow label="Server URL" value={connector.serverUrl} mono />}
-					<DetailRow label="Enabled" value={connector.enabled ? 'Enabled' : 'Disabled'} />
-					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.requireApproval)} />
+					<DetailRow label="Connector" value={id} mono />
+					<DetailRow label="Server label" value={connector.server_label} mono />
+					<DetailRow label="Server URL" value={connector.server_url} mono />
+					<DetailRow label="Enabled" value={connector.enabled === false ? 'Disabled' : 'Enabled'} />
+					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.require_approval)} />
 					<DetailRow label="Auth" value={authLabel} />
-					{oauthConnected && <DetailRow label="OAuth client" value="Environment variables" />}
-					<DetailRow
-						label="Connected account"
-						value={connector.oauth?.accountEmail ?? connector.oauth?.email ?? 'Not connected'}
-					/>
-					<DetailRow label="Last refreshed" value={formatTimestamp(connector.lastRefreshedAt)} />
-					<DetailRow label="Updated" value={formatTimestamp(connector.updatedAt)} />
+					<DetailRow label="Last refreshed" value={formatTimestamp(connector.last_refreshed_at)} />
+					<DetailRow label="Updated" value={formatTimestamp(connector.updated_at)} />
 				</Card>
 			</SettingsSection>
 
-			{connector.lastError && (
+			{connector.last_error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
-					{connector.lastError}
+					{connector.last_error}
 				</SettingsNotice>
 			)}
 		</SettingsPageShell>
