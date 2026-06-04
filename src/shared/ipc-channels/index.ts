@@ -180,8 +180,8 @@ interface AppInvokeChannelMap {
 		result: void;
 	};
 	[AppChannels.authorizeOAuth]: {
-		args: [input: unknown];
-		result: unknown;
+		args: [input: import('../connectors').OAuthAuthorizeInput];
+		result: import('../connectors').OAuthAuthorizeResult;
 	};
 	[AppChannels.setTrayEnabled]: {
 		args: [enabled: boolean];
@@ -442,10 +442,16 @@ interface SkillsInvokeChannelMap {
 }
 
 interface ConnectorsInvokeChannelMap {
-	[ConnectorsChannels.list]: { args: []; result: unknown[] };
-	[ConnectorsChannels.get]: { args: [id: string]; result: unknown };
-	[ConnectorsChannels.save]: { args: [input: unknown]; result: unknown[] };
-	[ConnectorsChannels.upsert]: { args: [input: unknown]; result: unknown };
+	[ConnectorsChannels.list]: { args: []; result: import('../connectors').ConnectorRecord };
+	[ConnectorsChannels.get]: { args: [id: string]; result: import('../connectors').ConnectorRecord };
+	[ConnectorsChannels.save]: {
+		args: [input: import('../connectors').ConnectorInput[]];
+		result: import('../connectors').ConnectorRecord;
+	};
+	[ConnectorsChannels.upsert]: {
+		args: [input: import('../connectors').ConnectorInput];
+		result: import('../connectors').ConnectorRecord;
+	};
 }
 
 interface ChannelsInvokeChannelMap {
