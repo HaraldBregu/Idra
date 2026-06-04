@@ -110,6 +110,6 @@ describe('executeAgentRun MCP approval continuation', () => {
 				approval_request_id: 'approval_1',
 			}],
 		});
-		expect(result.finalText).toBe('{"threads":[{"id":"thread_1"}]}Found matching threads.');
+		expect(result.finalText).toBe('{"threads":[{"id":"thread_1"}]}\nFound matching threads.');
 	});
 });

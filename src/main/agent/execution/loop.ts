@@ -650,7 +650,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 										didStartAnswering = true;
 										streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
 									}
-									const delta = text ? `\n${outputText}` : outputText;
+									const delta = `${text ? '\n' : ''}${outputText}\n`;
 									text += delta;
 									streamOutput?.(delta);
 									streamEvent?.({ type: 'text_delta', delta });
