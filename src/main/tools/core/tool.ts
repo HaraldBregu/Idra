@@ -27,7 +27,6 @@ export interface FridayServices {
 
 export type CronToolContext =
 	| { role: 'owner'; agentId?: string }
-	| { role: 'subagent'; agentId?: string }
 	| { role: 'http'; userId?: string }
 	| { role: 'cron-self'; jobId?: string; agentId?: string; sessionKey?: string | null };
 

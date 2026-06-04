@@ -40,7 +40,7 @@ export interface CronJobLogger {
 }
 
 export interface CronJobActor {
-	role: 'owner' | 'subagent' | 'http' | 'cron-self';
+	role: 'owner' | 'http' | 'cron-self';
 	jobId?: string;
 	sessionId?: string;
 	sessionKey?: string | null;

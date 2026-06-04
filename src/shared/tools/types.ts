@@ -5,7 +5,6 @@ export type AgentToolProfile = 'minimal' | 'coding' | 'messaging' | 'standard' |
 export type AgentToolGroupName =
 	| 'coreWorkspace'
 	| 'stateTask'
-	| 'subagent'
 	| 'skill'
 	| 'script'
 	| 'cron'
@@ -23,7 +22,6 @@ export interface AgentToolMetadata {
 		| 'delete'
 		| 'execute'
 		| 'state'
-		| 'delegate'
 		| 'skill'
 		| `cron:${CronSchedulePermissionLevel}`
 	)[];

@@ -56,18 +56,6 @@ export interface AgentConfig {
 	};
 	skills?: string[];
 	tools?: AgentToolPolicy;
-	subagents?: {
-		allowAgents?: string[];
-		maxSpawnDepth?: number;
-		maxChildrenPerAgent?: number;
-		requireAgentId?: boolean;
-		model?: {
-			providerId?: string;
-			modelId?: string;
-			effort?: ModelReasoningEffort;
-		};
-		runTimeoutSeconds?: number;
-	};
 }
 
 export type AgentRoutePeerKind = 'direct' | 'group' | 'channel' | 'thread';
@@ -111,11 +99,6 @@ export type AgentRoutingSettings = AgentsSettings;
 
 export interface AgentSessionMetadata {
 	agentId: string;
-	spawnedBy?: string;
-	spawnDepth?: number;
-	subagentRole?: 'main' | 'orchestrator' | 'leaf';
-	subagentControlScope?: 'children' | 'none';
-	spawnedWorkspace?: string;
 	inheritedToolAllow?: string[];
 	inheritedToolDeny?: string[];
 }

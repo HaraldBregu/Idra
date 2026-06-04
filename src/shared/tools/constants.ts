@@ -15,7 +15,6 @@ type AgentToolByAvailability<TAvailability extends AgentToolAvailability> = Extr
 const AGENT_TOOL_GROUP_NAMES = [
 	'coreWorkspace',
 	'stateTask',
-	'subagent',
 	'skill',
 	'web',
 	'script',
