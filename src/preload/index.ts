@@ -622,8 +622,8 @@ export const store: StoreApi = {
 	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
 	},
-	getConnectorSettings: (): Promise<Connector[]> => {
-		return typedInvokeUnwrap(StoreChannels.getConnectorSettings);
+	getConnectorSettings: (): Promise<ConnectorConfig[]> => {
+		return typedInvokeUnwrap<ConnectorConfig[]>(StoreChannels.getConnectorSettings);
 	},
 	getAgentService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentService);
@@ -708,17 +708,17 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	list: (): Promise<ConnectorView[]> => {
-		return typedInvokeUnwrap(ConnectorsChannels.list);
+	list: (): Promise<ConnectorSummary[]> => {
+		return typedInvokeUnwrap<ConnectorSummary[]>(ConnectorsChannels.list);
 	},
-	get: (id: string): Promise<Connector> => {
-		return typedInvokeUnwrap(ConnectorsChannels.get, id);
+	get: (id: string): Promise<ConnectorConfig> => {
+		return typedInvokeUnwrap<ConnectorConfig>(ConnectorsChannels.get, id);
 	},
-	save: (input: ConnectorInput[]): Promise<Connector[]> => {
-		return typedInvokeUnwrap(ConnectorsChannels.save, input);
+	save: (input: ConnectorInput[]): Promise<ConnectorConfig[]> => {
+		return typedInvokeUnwrap<ConnectorConfig[]>(ConnectorsChannels.save, input);
 	},
-	connect: (input: ConnectorConnectInput): Promise<ConnectorView> => {
-		return typedInvokeUnwrap(ConnectorsChannels.connect, input);
+	connect: (input: ConnectorConnectInput): Promise<ConnectorSummary> => {
+		return typedInvokeUnwrap<ConnectorSummary>(ConnectorsChannels.connect, input);
 	},
 };
 
