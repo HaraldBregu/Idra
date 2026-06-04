@@ -15,6 +15,7 @@ import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './agent/workspace';
 import { ConnectorsService } from './connectors';
+import { ConnectorToolsService } from './connector-tools';
 import { ToolService } from './tools';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
@@ -71,6 +72,7 @@ export function bootstrapServices(): BootstrapResult {
 	});
 
 	const connectors = container.register('connectors', new ConnectorsService(logger));
+	const connectorTools = container.register('connectorTools', new ConnectorToolsService(connectors));
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	const toolService = container.register('toolService', new ToolService({ cron, logger }));
 
@@ -85,6 +87,7 @@ export function bootstrapServices(): BootstrapResult {
 			agentDataDirectory,
 			agentSettings,
 			connectors,
+			connectorTools,
 		skills,
 		toolService,
 		channels,

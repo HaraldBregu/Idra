@@ -74,27 +74,9 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	catalog: () => Promise<ConnectorCatalogEntry[]>;
 	list: () => Promise<ConnectorView[]>;
 	get: (id: string) => Promise<ConnectorConfig>;
-	add: (input: ConnectorInput) => Promise<ConnectorConfig>;
 	save: (input: ConnectorInput[]) => Promise<ConnectorConfig[]>;
-	update: (id: string, input: ConnectorUpdateInput) => Promise<ConnectorConfig>;
-	remove: (id: string) => Promise<void>;
-	enable: (id: string) => Promise<ConnectorConfig>;
-	disable: (id: string) => Promise<ConnectorConfig>;
-	test: (id: string) => Promise<ConnectorTestResult>;
-	reconnect: (id: string) => Promise<ConnectorTestResult>;
-	refreshTools: (id: string) => Promise<ConnectorTool[]>;
-	listTools: (id: string) => Promise<ConnectorTool[]>;
-	callTool: (
-		id: string,
-		name: string,
-		args: Record<string, unknown>,
-		options?: ConnectorCallToolOptions
-	) => Promise<unknown>;
-	authorizeOAuth: (connectorId: string) => Promise<ConnectorOAuthAuthorizeResult>;
-	connectOAuth: (connectorId: string) => Promise<ConnectorOAuthAuthorizeResult>;
 }
 
 export interface SkillsApi {
@@ -206,14 +188,8 @@ import type {
 	SpeechToTextTranscription,
 } from '../shared/speech-to-text';
 import type {
-	ConnectorCatalogEntry,
 	ConnectorConfig,
-	ConnectorCallToolOptions,
 	ConnectorInput,
-	ConnectorOAuthAuthorizeResult,
-	ConnectorTestResult,
-	ConnectorTool,
-	ConnectorUpdateInput,
 	ConnectorView,
 } from '../shared/connector';
 
@@ -274,7 +250,7 @@ export interface SpeechToTextApi {
 
 declare global {
 	interface Window {
-		win?: WindowApi;
+		win: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
 		realtimeTranscription: RealtimeTranscriptionApi;

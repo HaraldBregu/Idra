@@ -26,7 +26,7 @@ import type {
 	SkillsApi,
 	StoreApi,
 	WindowApi,
-} from './index.d';
+} from './types';
 import type { ProviderInput, PublicProvider } from '../shared/providers';
 import type {
 	CronSchedule,
@@ -79,14 +79,8 @@ import type {
 } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
-	ConnectorCatalogEntry,
 	ConnectorConfig,
-	ConnectorCallToolOptions,
 	ConnectorInput,
-	ConnectorOAuthAuthorizeResult,
-	ConnectorTestResult,
-	ConnectorTool,
-	ConnectorUpdateInput,
 	ConnectorView,
 } from '../shared/connector';
 import {
@@ -614,58 +608,14 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	catalog: (): Promise<ConnectorCatalogEntry[]> => {
-		return typedInvokeUnwrap(ConnectorsChannels.catalog);
-	},
 	list: (): Promise<ConnectorView[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.list);
 	},
 	get: (id: string): Promise<ConnectorConfig> => {
 		return typedInvokeUnwrap(ConnectorsChannels.get, id);
 	},
-	add: (input: ConnectorInput): Promise<ConnectorConfig> => {
-		return typedInvokeUnwrap(ConnectorsChannels.add, input);
-	},
 	save: (input: ConnectorInput[]): Promise<ConnectorConfig[]> => {
 		return typedInvokeUnwrap(ConnectorsChannels.save, input);
-	},
-	update: (id: string, input: ConnectorUpdateInput): Promise<ConnectorConfig> => {
-		return typedInvokeUnwrap(ConnectorsChannels.update, id, input);
-	},
-	remove: (id: string): Promise<void> => {
-		return typedInvokeUnwrap(ConnectorsChannels.remove, id);
-	},
-	enable: (id: string): Promise<ConnectorConfig> => {
-		return typedInvokeUnwrap(ConnectorsChannels.enable, id);
-	},
-	disable: (id: string): Promise<ConnectorConfig> => {
-		return typedInvokeUnwrap(ConnectorsChannels.disable, id);
-	},
-	test: (id: string): Promise<ConnectorTestResult> => {
-		return typedInvokeUnwrap(ConnectorsChannels.test, id);
-	},
-	reconnect: (id: string): Promise<ConnectorTestResult> => {
-		return typedInvokeUnwrap(ConnectorsChannels.reconnect, id);
-	},
-	refreshTools: (id: string): Promise<ConnectorTool[]> => {
-		return typedInvokeUnwrap(ConnectorsChannels.refreshTools, id);
-	},
-	listTools: (id: string): Promise<ConnectorTool[]> => {
-		return typedInvokeUnwrap(ConnectorsChannels.listTools, id);
-	},
-	callTool: (
-		id: string,
-		name: string,
-		args: Record<string, unknown>,
-		options?: ConnectorCallToolOptions
-	): Promise<unknown> => {
-		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args, options);
-	},
-	authorizeOAuth: (connectorId: string): Promise<ConnectorOAuthAuthorizeResult> => {
-		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, { connectorId });
-	},
-	connectOAuth: (connectorId: string): Promise<ConnectorOAuthAuthorizeResult> => {
-		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, { connectorId });
 	},
 };
 
@@ -677,8 +627,8 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
 		contextBridge.exposeInMainWorld('speechToText', speechToText);
 		contextBridge.exposeInMainWorld('cron', cron);
-			contextBridge.exposeInMainWorld('heartbeat', heartbeat);
-			contextBridge.exposeInMainWorld('channels', channels);
+		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
+		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('store', store);

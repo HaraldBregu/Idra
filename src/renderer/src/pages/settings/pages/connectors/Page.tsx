@@ -12,14 +12,7 @@ import { useConnectors } from './hooks/useConnectors';
 
 const ConnectorsPage = () => {
 	const navigate = useNavigate();
-	const {
-		connectors, busyId,
-		connectingId,
-		error,
-		statusMessage,
-		connectOAuth,
-		toggleConnector,
-	} = useConnectors();
+	const { connectors, error } = useConnectors();
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
@@ -37,8 +30,6 @@ const ConnectorsPage = () => {
 					{error}
 				</SettingsNotice>
 			)}
-			{statusMessage && <SettingsNotice variant="default">{statusMessage}</SettingsNotice>}
-
 			<div className="grid gap-2">
 				{connectors.length === 0 ? (
 					<SettingsPanel>
@@ -53,10 +44,6 @@ const ConnectorsPage = () => {
 						<ConnectorCard
 							key={connector.id}
 							connector={connector}
-							busy={busyId === connector.id}
-							connecting={connectingId === connector.id}
-							onConnectOAuth={() => void connectOAuth(connector)}
-							onToggle={() => void toggleConnector(connector)}
 							onViewDetails={() => openConnectorDetails(connector.id)}
 						/>
 					))

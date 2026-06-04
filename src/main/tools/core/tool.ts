@@ -2,6 +2,7 @@ import type { EventBus } from '../../services/event-bus';
 import type { LoggerService } from '../../observability';
 import type { CronService } from '../../cron';
 import type { ConnectorsService } from '../../connectors';
+import type { ConnectorToolsService } from '../../connector-tools';
 import type { ToolPolicyServicePort } from '../shared/tool-types';
 import type { StoreService } from '../../store';
 import type { SkillsService } from '../../skills';
@@ -22,6 +23,7 @@ export interface FridayServices {
 	cron?: CronService;
 	policy?: ToolPolicyServicePort;
 	connectors?: ConnectorsService;
+	connectorTools?: ConnectorToolsService;
 	skills?: SkillsService;
 }
 

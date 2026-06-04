@@ -6,12 +6,12 @@ import type {
 	OpenAiMcpConnectorToolSpec,
 } from '../../../shared/connector';
 import {
-	applyToolPolicy,
 	connectorAuthorization,
 	isOpenAiResponsesConnector,
 	toConnectorStatus,
 	uniqueStrings,
-} from '../components/runtime';
+} from '../../connectors/components/runtime';
+import { applyToolPolicy } from '../runtime';
 
 export function openAiResponsesConnectorTools(connector: ConnectorConfig): ConnectorTool[] {
 	const names = connector.tools.length > 0

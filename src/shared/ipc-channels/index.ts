@@ -112,20 +112,8 @@ export const SkillsChannels = {
 } as const;
 
 export const ConnectorsChannels = {
-	catalog: 'connectors:catalog',
 	list: 'connectors:list',
-	add: 'connectors:add',
 	save: 'connectors:save',
-	update: 'connectors:update',
-	remove: 'connectors:remove',
-	enable: 'connectors:enable',
-	disable: 'connectors:disable',
-	test: 'connectors:test',
-	reconnect: 'connectors:reconnect',
-	refreshTools: 'connectors:refreshTools',
-	listTools: 'connectors:listTools',
-	callTool: 'connectors:callTool',
-	authorizeOAuth: 'connectors:authorizeOAuth',
 	get: 'connectors:get',
 } as const;
 
@@ -449,64 +437,14 @@ interface SkillsInvokeChannelMap {
 }
 
 interface ConnectorsInvokeChannelMap {
-	[ConnectorsChannels.catalog]: {
-		args: [];
-		result: import('../connector').ConnectorCatalogEntry[];
-	};
 	[ConnectorsChannels.list]: { args: []; result: import('../connector').ConnectorView[] };
 	[ConnectorsChannels.get]: {
 		args: [id: string];
 		result: import('../connector').ConnectorConfig;
 	};
-	[ConnectorsChannels.add]: {
-		args: [input: import('../connector').ConnectorInput];
-		result: import('../connector').ConnectorConfig;
-	};
 	[ConnectorsChannels.save]: {
 		args: [input: import('../connector').ConnectorInput[]];
 		result: import('../connector').ConnectorConfig[];
-	};
-	[ConnectorsChannels.update]: {
-		args: [id: string, input: import('../connector').ConnectorUpdateInput];
-		result: import('../connector').ConnectorConfig;
-	};
-	[ConnectorsChannels.remove]: { args: [id: string]; result: void };
-	[ConnectorsChannels.enable]: {
-		args: [id: string];
-		result: import('../connector').ConnectorConfig;
-	};
-	[ConnectorsChannels.disable]: {
-		args: [id: string];
-		result: import('../connector').ConnectorConfig;
-	};
-	[ConnectorsChannels.test]: {
-		args: [id: string];
-		result: import('../connector').ConnectorTestResult;
-	};
-	[ConnectorsChannels.reconnect]: {
-		args: [id: string];
-		result: import('../connector').ConnectorTestResult;
-	};
-	[ConnectorsChannels.refreshTools]: {
-		args: [id: string];
-		result: import('../connector').ConnectorTool[];
-	};
-	[ConnectorsChannels.listTools]: {
-		args: [id: string];
-		result: import('../connector').ConnectorTool[];
-	};
-	[ConnectorsChannels.callTool]: {
-		args: [
-			id: string,
-			name: string,
-			args: Record<string, unknown>,
-			options?: import('../connector').ConnectorCallToolOptions,
-		];
-		result: unknown;
-	};
-	[ConnectorsChannels.authorizeOAuth]: {
-		args: [input: import('../connector').ConnectorOAuthAuthorizeRequest];
-		result: import('../connector').ConnectorOAuthAuthorizeResult;
 	};
 }
 

@@ -1,5 +1,5 @@
 import type { LoggerService } from '../observability';
-import type { ConnectorsService } from '../connectors';
+import type { ConnectorToolsService } from '../connector-tools';
 import type { SkillsService } from '../skills';
 import type { AgentTool } from '../tools';
 import { decideCapabilities, matchesPrompt, renderSkillPrompt, toResolvedSkill } from './selection';
@@ -13,7 +13,7 @@ import type {
 const MAX_SKILLS_PER_RUN = 3;
 
 export interface AgentCapabilityServiceOptions {
-	connectors?: ConnectorsService;
+	connectorTools?: ConnectorToolsService;
 	skills?: SkillsService;
 	logger?: Pick<LoggerService, 'info' | 'warn' | 'error'>;
 }
@@ -66,9 +66,9 @@ export class AgentCapabilityService implements AgentCapabilityServicePort {
 	}
 
 	private async resolveConnectorTools(input: AgentCapabilityResolveInput): Promise<AgentTool[]> {
-		if (!this.options.connectors || (!input.shouldUseTools && !input.bootstrapPending)) return [];
+		if (!this.options.connectorTools || (!input.shouldUseTools && !input.bootstrapPending)) return [];
 		try {
-			const tools = this.options.connectors.createAgentTools().map((tool) => ({
+			const tools = this.options.connectorTools.createAgentTools().map((tool) => ({
 				...tool,
 				serviceKind: tool.serviceKind ?? ('connector' as const),
 			}));

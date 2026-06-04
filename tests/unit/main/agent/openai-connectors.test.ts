@@ -3,7 +3,7 @@ import { AgentService, type AgentServiceDependencies } from '../../../../src/mai
 import type { AgentRunInput } from '../../../../src/main/agent/execution';
 import type { ProviderAdapter } from '../../../../src/main/llm/types';
 
-function dependencies(providerId: string, connectors: unknown): AgentServiceDependencies {
+function dependencies(providerId: string, connectorTools: unknown): AgentServiceDependencies {
 	return {
 		store: {
 			getAgentService: () => ({
@@ -26,12 +26,12 @@ function dependencies(providerId: string, connectors: unknown): AgentServiceDepe
 		workspace: {
 			getRootPath: () => process.cwd(),
 		} as never,
-		connectors: connectors as never,
+		connectorTools: connectorTools as never,
 	};
 }
 
-function service(providerId: string, connectors: unknown, execute: jest.Mock) {
-	return new AgentService(dependencies(providerId, connectors), {
+function service(providerId: string, connectorTools: unknown, execute: jest.Mock) {
+	return new AgentService(dependencies(providerId, connectorTools), {
 		sessionBaseDir: path.join(process.cwd(), 'tests', '.tmp', `agent-${providerId}-${Date.now()}`),
 		providerFactory: () => ({ stream: async function* () {} }) as ProviderAdapter,
 		policy: undefined,
@@ -63,7 +63,7 @@ describe('AgentService OpenAI connector plumbing', () => {
 				require_approval: 'always' as const,
 			},
 		];
-		const connectors = {
+		const connectorTools = {
 			createBuiltInConnectorTools: jest.fn((providerId: string) =>
 				providerId === 'openai' ? builtInTools : []
 			),
@@ -76,17 +76,17 @@ describe('AgentService OpenAI connector plumbing', () => {
 			session: input.session,
 		}));
 
-		await service('openai', connectors, execute).send('hello');
+		await service('openai', connectorTools, execute).send('hello');
 
-		expect(connectors.createBuiltInConnectorTools).toHaveBeenCalledWith('openai');
+		expect(connectorTools.createBuiltInConnectorTools).toHaveBeenCalledWith('openai');
 		expect(execute.mock.calls[0][0].builtInTools).toEqual(builtInTools);
 
 		execute.mockClear();
-		connectors.createBuiltInConnectorTools.mockClear();
+		connectorTools.createBuiltInConnectorTools.mockClear();
 
-		await service('anthropic', connectors, execute).send('hello');
+		await service('anthropic', connectorTools, execute).send('hello');
 
-		expect(connectors.createBuiltInConnectorTools).toHaveBeenCalledWith('anthropic');
+		expect(connectorTools.createBuiltInConnectorTools).toHaveBeenCalledWith('anthropic');
 		expect(execute.mock.calls[0][0].builtInTools).toEqual([]);
 	});
 });

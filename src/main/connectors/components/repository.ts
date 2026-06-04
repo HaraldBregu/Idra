@@ -2,8 +2,8 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
 import type { LoggerService } from '../../observability';
-import type { ConnectorConfig } from '../../../shared/connector';
-import { errorMessage, normalizeTool, uniqueStrings } from './runtime';
+import type { ConnectorConfig, ConnectorTool } from '../../../shared/connector';
+import { errorMessage, uniqueStrings } from './runtime';
 
 type ConnectorsStoreSchema = { connectors?: ConnectorConfig[] };
 type ConnectorsStore = {
@@ -95,6 +95,16 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		requireApproval: connector.requireApproval ?? 'always',
 		deferLoading: connector.deferLoading ?? false,
 		enabled: connector.enabled ?? true,
-		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeTool) : [],
+		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeStoredTool) : [],
+	};
+}
+
+function normalizeStoredTool(tool: ConnectorTool): ConnectorTool {
+	return {
+		name: tool.name,
+		description: tool.description,
+		inputSchema: tool.inputSchema,
+		permission: tool.permission ?? 'always-allow',
+		requiresApproval: tool.requiresApproval ?? false,
 	};
 }
