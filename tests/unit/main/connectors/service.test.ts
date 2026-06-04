@@ -24,9 +24,7 @@ const logger = {
 
 describe('ConnectorsService storage', () => {
 	beforeEach(() => {
-		mockStoreData.connectors = undefined;
-		mockStore.get.mockClear();
-		mockStore.set.mockClear();
+		mockStoreData = {};
 		logger.info.mockClear();
 		logger.warn.mockClear();
 		logger.error.mockClear();
