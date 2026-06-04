@@ -13,7 +13,7 @@ export const mcpLoadToolTool: AgentTool<{ id: string; name: string }> = {
 		const connectors = mcpConnectors(ctx);
 		if (!connectors) return missing('mcp_load_tool');
 		try {
-			const tools = connectors.listTools(args.id);
+			const tools = await connectors.listTools(args.id);
 			if (!Array.isArray(tools)) return textResult('mcp_load_tool: tool list is unavailable.', true);
 			const tool = tools.find((entry) => entry && typeof entry === 'object' && (entry as { name?: unknown }).name === args.name);
 			return tool ? jsonText(tool) : textResult(`mcp_load_tool: tool not found: ${args.name}`, true);
