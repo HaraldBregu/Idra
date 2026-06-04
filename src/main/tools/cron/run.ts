@@ -1,7 +1,7 @@
 import type { AgentTool } from '../core/tool';
 import { textResult } from '../core/tool';
 import { checkCronPolicy, cronActor, cronIdSchema, type CronReadArgs, cronService } from './utils';
-import { jsonText } from '../shared/json-text';
+import { jsonText } from '../core/shared/json-text';
 
 export const cronRunTool: AgentTool<CronReadArgs> = {
 	name: 'cron_run',

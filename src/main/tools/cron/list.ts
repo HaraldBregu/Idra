@@ -1,7 +1,7 @@
 import type { AgentTool } from '../core/tool';
 import { textResult } from '../core/tool';
 import { checkCronPolicy, cronActor, type CronListArgs, cronService } from './utils';
-import { jsonText } from '../shared/json-text';
+import { jsonText } from '../core/shared/json-text';
 
 export const cronListTool: AgentTool<CronListArgs> = {
 	name: 'cron_list',

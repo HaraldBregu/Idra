@@ -1,6 +1,6 @@
 import type { AgentTool } from '../core/tool';
 import { textResult } from '../core/tool';
-import { jsonText } from '../shared/json-text';
+import { jsonText } from '../core/shared/json-text';
 
 export const skillListTool: AgentTool = {
 	name: 'skill_list',
