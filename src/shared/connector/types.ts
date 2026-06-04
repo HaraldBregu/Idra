@@ -113,7 +113,6 @@ export type ConnectorInput = {
 	allowedTools?: string[];
 	deferLoading?: boolean;
 	enabled?: boolean;
-	mcp?: ConnectorMcpConfig;
 };
 
 export type ConnectorOAuthConnectConfig = {
