@@ -33,7 +33,6 @@ import {
 	SettingsPanel,
 	SettingsRow,
 	SettingsSection,
-	SettingsValue,
 } from '../../components';
 import { SETTINGS_MODEL_SERVICE_ITEMS } from '../../navigation';
 
