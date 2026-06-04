@@ -308,11 +308,13 @@ async function waitForOAuthCallback(expectedState: string): Promise<{
 		server.listen(0, '127.0.0.1', () => resolve());
 	});
 
-	const address = server.address() as AddressInfo;
+	const startedServer = server;
+	if (!startedServer) throw new Error('OAuth callback server failed to start.');
+	const address = startedServer.address() as AddressInfo;
 	return {
 		redirectUri: `http://127.0.0.1:${address.port}/oauth/callback`,
 		code,
-		close: () => server?.close(),
+		close: () => startedServer.close(),
 	};
 }
 
