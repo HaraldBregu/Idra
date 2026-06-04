@@ -199,15 +199,23 @@ export class AppIpc implements IpcModule {
 			}, AppChannels.openAppDataFolder)
 		);
 
-			ipcMain.handle(
-				AppChannels.openExternalUrl,
-				wrapSimpleHandler(async (url: string) => {
+		ipcMain.handle(
+			AppChannels.openExternalUrl,
+			wrapSimpleHandler(async (url: string) => {
 				const externalUrl = normalizeExternalUrl(url);
 				if (!externalUrl) {
 					throw new Error('External URL must use HTTP or HTTPS.');
 				}
 				await shell.openExternal(externalUrl);
 			}, AppChannels.openExternalUrl)
+		);
+
+		ipcMain.handle(
+			AppChannels.authorizeOAuth,
+			wrapSimpleHandler(async (input: unknown) => {
+				const oauth = readOAuthAuthorizeInput(input);
+				return authorizeOAuth(oauth);
+			}, AppChannels.authorizeOAuth)
 		);
 
 		ipcMain.handle(
