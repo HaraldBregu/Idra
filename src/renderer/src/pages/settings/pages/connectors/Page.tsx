@@ -1,28 +1,40 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Plug } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { openExternalUrl } from '@/lib/external-links';
 import {
-	SettingsEmptyState,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsPanel,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
+import { SETTINGS_CONNECTOR_CATALOG, type SettingsConnectorCatalogEntry } from './catalog';
 import { useConnectors } from './hooks/useConnectors';
 
 const ConnectorsPage = () => {
 	const navigate = useNavigate();
 	const { connectors, error } = useConnectors();
+	const connectorByCatalogId = new Map(connectors.map((connector) => [connector.connectorId, connector]));
+	const catalogIds = new Set(SETTINGS_CONNECTOR_CATALOG.map((connector) => connector.connectorId));
+	const customConnectors = connectors.filter((connector) => !catalogIds.has(connector.connectorId));
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
+	};
+
+	const connect = (entry: SettingsConnectorCatalogEntry): void => {
+		const connector = connectorByCatalogId.get(entry.connectorId);
+		if (connector) {
+			openConnectorDetails(connector.id);
+			return;
+		}
+		openExternalUrl(entry.setupUrl);
 	};
 
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title="Connectors"
-				description="Configured connector records from connectors.json."
+				description="Connect external services for agent tools."
 			/>
 
 			{error && (
@@ -31,23 +43,33 @@ const ConnectorsPage = () => {
 				</SettingsNotice>
 			)}
 			<div className="grid gap-2">
-				{connectors.length === 0 ? (
-					<SettingsPanel>
-						<SettingsEmptyState
-							icon={Plug}
-							title="No connectors configured yet."
-							description="Add connector records to connectors.json to make them available to agent runs."
-						/>
-					</SettingsPanel>
-				) : (
-					connectors.map((connector) => (
+				{SETTINGS_CONNECTOR_CATALOG.map((entry) => {
+					const connector = connectorByCatalogId.get(entry.connectorId);
+					return (
 						<ConnectorCard
-							key={connector.id}
+							key={entry.connectorId}
+							catalogEntry={entry}
 							connector={connector}
-							onViewDetails={() => openConnectorDetails(connector.id)}
+							onConnect={() => connect(entry)}
+							onViewDetails={connector ? () => openConnectorDetails(connector.id) : undefined}
 						/>
-					))
-				)}
+					);
+				})}
+				{customConnectors.map((connector) => (
+					<ConnectorCard
+						key={connector.id}
+						catalogEntry={{
+							connectorId: connector.connectorId,
+							directConnectorId: connector.connectorId,
+							name: connector.name,
+							description: connector.serverUrl ?? connector.serverLabel,
+							setupUrl: connector.serverUrl ?? 'https://platform.openai.com/docs/guides/tools-connectors-mcp',
+						}}
+						connector={connector}
+						onConnect={() => openConnectorDetails(connector.id)}
+						onViewDetails={() => openConnectorDetails(connector.id)}
+					/>
+				))}
 			</div>
 		</SettingsPageShell>
 	);
