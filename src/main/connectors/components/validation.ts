@@ -1,6 +1,5 @@
-import path from 'node:path';
 import type { ConnectorApprovalMode, ConnectorInput } from '../../../shared/connector';
-import { cloneValue, uniqueStrings } from './runtime';
+import { uniqueStrings } from './runtime';
 
 export function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
@@ -14,23 +13,13 @@ export function sanitizeInput(input: unknown): ConnectorInput {
 	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
 	const deferLoading = readOptionalBoolean(raw, 'deferLoading') ?? false;
 	const enabled = readOptionalBoolean(raw, 'enabled') ?? true;
-	const mcp = readOptionalMcp(raw, 'mcp');
-	const openAiResponsesConnector = !mcp || Boolean(serverUrl);
 
 	if (!name) throw new Error('Connector name is required.');
 	if (!connectorId) throw new Error('Connector id is required.');
 	if (serverUrl) validateOpenAiServerUrl(serverUrl);
-	if (serverUrl && mcp) throw new Error('Connector cannot define both serverUrl and local MCP configuration.');
 	if (!serverLabel) throw new Error('Server label is required.');
 	if (!/^[a-zA-Z0-9_-]+$/.test(serverLabel)) {
 		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
-	}
-	if (authorization && !openAiResponsesConnector) {
-		throw new Error('Connector authorization secrets must be referenced from environment variables.');
-	}
-	if (!openAiResponsesConnector) {
-		if (!mcp) throw new Error('MCP transport configuration is required.');
-		validateMcpConfig(mcp);
 	}
 
 	return {
@@ -39,12 +28,11 @@ export function sanitizeInput(input: unknown): ConnectorInput {
 		serverLabel,
 		serverDescription,
 		serverUrl,
-		authorization: openAiResponsesConnector ? authorization : '',
+		authorization,
 		requireApproval,
 		allowedTools: uniqueStrings(allowedTools),
 		deferLoading,
 		enabled,
-		mcp: openAiResponsesConnector ? undefined : mcp,
 	};
 }
 
