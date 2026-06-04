@@ -105,6 +105,7 @@ describe('ConnectorToolsService provider adapters', () => {
 			connectorId: 'acme_remote_mcp',
 			serverLabel: 'acme',
 			serverUrl: 'https://mcp.example.com/sse',
+			authorization: 'mcp-token',
 			requireApproval: 'never',
 			allowedTools: ['search'],
 		}]);
@@ -115,6 +116,7 @@ describe('ConnectorToolsService provider adapters', () => {
 				type: 'mcp',
 				server_label: 'acme',
 				server_url: 'https://mcp.example.com/sse',
+				authorization: 'mcp-token',
 				require_approval: 'never',
 				allowed_tools: ['search'],
 			},

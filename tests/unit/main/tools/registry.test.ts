@@ -37,7 +37,7 @@ describe('tool registry organization', () => {
 		}
 	});
 
-	it.each(['exec', 'mcp_list_servers', 'cron_create'])(
+	it.each(['exec', 'openai_connector_tools', 'mcp_list_servers', 'cron_create'])(
 		'resolves %s by allowlist',
 		async (toolName) => {
 			const result = await createAgentTools({

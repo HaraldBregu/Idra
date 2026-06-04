@@ -52,6 +52,7 @@ export { writeTodosTool } from './state/todo/write';
 export { skillListTool } from './skills/skill-list';
 export { skillLoadTool } from './skills/load-skill';
 export { skillUseTool } from './skills/use-skill';
+export { openAiConnectorToolsTool } from './connectors/openai';
 export { mcpCallToolTool } from './mcp/tool/call';
 export { mcpConnectServerTool } from './mcp/server/connect';
 export { mcpListPromptsTool } from './mcp/prompt/list';
