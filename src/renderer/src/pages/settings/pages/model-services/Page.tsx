@@ -274,7 +274,21 @@ const ModelServicePage: React.FC = () => {
 				title={t('settings.modelServices.configuration')}
 				description={t('settings.modelServices.subtitle')}
 			>
-				<SettingsPanel>
+				<Collapsible defaultOpen className="rounded-lg border border-border/70 bg-card">
+					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="min-w-0 flex-1">
+							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+								{selectedProvider
+									? getProviderCatalogItem(selectedProvider.id).name
+									: t('settings.modelServices.providerPlaceholder')}
+							</div>
+							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+								{selectedModel?.name ?? selectedModel?.id ?? t('settings.modelServices.modelUnavailable')}
+							</p>
+						</div>
+						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+					</CollapsibleTrigger>
+					<CollapsibleContent className="border-t border-border/60">
 					{state.loading ? (
 						<SettingsLoadingRows rows={2} />
 					) : (
