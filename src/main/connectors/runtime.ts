@@ -1,6 +1,4 @@
 import {
-	requiredOpenAiConnectorScopes,
-	type ConnectorOAuthCredential,
 	type ConnectorRecord,
 	type ConnectorStatus,
 	type ConnectorView,
@@ -73,29 +71,10 @@ export function toConnectorStatus(connector: ConnectorRecord): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
 	if (isOpenAiConnectorIdConfig(connector) && !connectorAuthorization(connector)) return 'missing_auth';
-	if (isOpenAiConnectorIdConfig(connector) && !hasRequiredOpenAiConnectorScopes(connector)) {
-		return 'missing_auth';
-	}
 	if (connector.oauth && !connector.oauth.token?.accessToken && !connector.oauth.token?.refreshToken) {
 		return 'missing_auth';
 	}
 	return 'configured';
-}
-
-function hasRequiredOpenAiConnectorScopes(connector: ConnectorRecord): boolean {
-	const required = requiredOpenAiConnectorScopes(connector.connectorId);
-	if (required.length === 0 || !connector.oauth) return true;
-	const scopes = oauthScopes(connector.oauth);
-	if (scopes.size === 0) return true;
-	return required.every((scope) => scopes.has(scope));
-}
-
-function oauthScopes(oauth: ConnectorOAuthCredential): Set<string> {
-	return new Set([
-		...(oauth.scope?.split(/\s+/u) ?? []),
-		...(oauth.token?.scope?.split(/\s+/u) ?? []),
-		...(oauth.scopes ?? []),
-	].map((scope) => scope.trim()).filter(Boolean));
 }
 
 function authKindFor(connector: ConnectorRecord): ConnectorView['authKind'] {
