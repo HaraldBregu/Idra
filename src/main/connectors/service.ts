@@ -1,7 +1,12 @@
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
 import type { LoggerService } from '../observability';
 import type {
+	ConnectorConnectInput,
 	ConnectorConfig,
+	ConnectorOAuthCredential,
 	ConnectorView,
 } from '../../shared/connector';
 import {
