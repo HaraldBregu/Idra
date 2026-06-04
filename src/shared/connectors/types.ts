@@ -4,17 +4,9 @@ export type ConnectorConfigValue = {
 	server_url: string;
 	server_description?: string;
 	authorization?: string;
-	require_approval?: 'always' | 'never' | { never: { tool_names: string[] } };
-	allowed_tools?: string[];
+	require_approval?: 'always' | 'never';
 	defer_loading?: boolean;
 	enabled?: boolean;
-	tools?: Array<{
-		name: string;
-		description?: string;
-		input_schema?: Record<string, unknown>;
-		permission?: 'always-allow' | 'needs-approval' | 'blocked';
-		requires_approval?: boolean;
-	}>;
 	last_refreshed_at?: string;
 	created_at?: string;
 	updated_at?: string;
