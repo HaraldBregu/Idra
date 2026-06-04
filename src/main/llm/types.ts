@@ -38,6 +38,16 @@ export type ProviderEvent =
 				inputSchema?: Record<string, unknown>;
 			}>;
 	  }
+	| {
+			type: 'mcp_call';
+			id: string;
+			serverLabel: string;
+			name: string;
+			arguments: string;
+			output?: string;
+			error?: string;
+			status?: string;
+	  }
 	| { type: 'message_end'; stopReason: string; usage: Usage };
 
 export type AgentContentBlock =

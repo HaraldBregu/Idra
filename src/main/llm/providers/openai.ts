@@ -520,6 +520,19 @@ export class OpenAIAdapter implements ProviderAdapter {
 					};
 					break;
 				}
+				if (event.item.type === 'mcp_call') {
+					yield {
+						type: 'mcp_call',
+						id: event.item.id,
+						serverLabel: event.item.server_label,
+						name: event.item.name,
+						arguments: event.item.arguments,
+						output: event.item.output ?? undefined,
+						error: event.item.error ?? undefined,
+						status: event.item.status,
+					};
+					break;
+				}
 				if (event.item.type !== 'function_call') break;
 				const item = event.item as ResponseFunctionToolCall;
 				const state = stateFor(event.output_index, item.call_id, item.name, true);
