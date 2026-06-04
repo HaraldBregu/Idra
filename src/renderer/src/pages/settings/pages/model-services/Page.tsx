@@ -387,22 +387,8 @@ const ModelServicePage: React.FC = () => {
 							</div>
 						</div>
 					)}
-				</SettingsPanel>
-			</SettingsSection>
-
-			<SettingsSection title={t('settings.modelServices.identity')}>
-				<SettingsPanel>
-					<SettingsRow title={t('settings.modelServices.provider')}>
-						<SettingsValue>
-							{selectedProvider
-								? getProviderCatalogItem(selectedProvider.id).name
-								: t('settings.modelServices.modelUnavailable')}
-						</SettingsValue>
-					</SettingsRow>
-					<SettingsRow title={t('settings.modelServices.model')}>
-						<SettingsValue mono>{selectedModel?.name ?? selectedModel?.id ?? '-'}</SettingsValue>
-					</SettingsRow>
-				</SettingsPanel>
+					</CollapsibleContent>
+				</Collapsible>
 			</SettingsSection>
 
 			{service.id === AGENTS.assistant && (
