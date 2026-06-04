@@ -32,6 +32,7 @@ import {
 } from '../../shared/agents/models';
 import { wrapSimpleHandler } from './errorHandler';
 import { AppChannels, ProviderChannels } from '../../shared/ipc-channels';
+import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
@@ -42,19 +43,6 @@ const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 import { normalizeExternalUrl } from '../../shared/external-links';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
-
-type OAuthAuthorizeInput = {
-	service: string;
-	serviceId?: string;
-	clientIdEnv: string;
-	clientSecretEnv?: string;
-	authorizationUrl: string;
-	tokenUrl: string;
-	userInfoUrl?: string;
-	scopes: readonly string[];
-	accessType?: string;
-	prompt?: string;
-};
 
 type OAuthTokenResponse = {
 	readonly access_token?: string;
@@ -149,20 +137,7 @@ async function openPathOrThrow(target: string): Promise<void> {
 	}
 }
 
-async function authorizeOAuth(oauth: OAuthAuthorizeInput): Promise<{
-	service: string;
-	serviceId?: string;
-	authorizationUrl: string;
-	redirectUri: string;
-	scopes: readonly string[];
-	accessToken: string;
-	refreshToken?: string;
-	tokenType?: string;
-	scope?: string;
-	expiresAt?: string;
-	accountEmail?: string;
-	connectedAt: string;
-}> {
+async function authorizeOAuth(oauth: OAuthAuthorizeInput): Promise<OAuthAuthorizeResult> {
 	const clientId = requiredEnv(oauth.clientIdEnv);
 	const clientSecret = oauth.clientSecretEnv ? requiredEnv(oauth.clientSecretEnv) : undefined;
 	const state = base64Url(randomBytes(24));
