@@ -71,4 +71,93 @@ describe('tool registry organization', () => {
 
 		expect(service.createBuiltInToolsForProvider('openai')).toEqual([]);
 	});
+
+	it('converts configured remote MCP connectors into OpenAI MCP built-in tools', () => {
+		const service = new ToolService({
+			connectors: {
+				listStored: () => [
+					{
+						id: 'stripe',
+						name: 'Stripe',
+						connectorId: 'stripe',
+						serverLabel: 'stripe',
+						serverDescription: 'Stripe remote MCP server.',
+						serverUrl: 'https://mcp.stripe.com',
+						enabled: true,
+						authorization: 'stripe-token',
+						requireApproval: 'always',
+						allowedTools: [],
+						deferLoading: false,
+						tools: [],
+						createdAt: '2026-01-01T00:00:00.000Z',
+						updatedAt: '2026-01-01T00:00:00.000Z',
+					},
+					{
+						id: 'public',
+						name: 'Public MCP',
+						connectorId: 'public',
+						serverLabel: 'public',
+						serverUrl: 'https://mcp.example.com/mcp',
+						enabled: true,
+						authorization: '',
+						requireApproval: 'never_for_allowed_tools',
+						allowedTools: ['search'],
+						deferLoading: true,
+						tools: [],
+						createdAt: '2026-01-01T00:00:00.000Z',
+						updatedAt: '2026-01-01T00:00:00.000Z',
+					},
+					{
+						id: 'disabled',
+						name: 'Disabled',
+						connectorId: 'disabled',
+						serverLabel: 'disabled',
+						serverUrl: 'https://mcp.disabled.example.com/mcp',
+						enabled: false,
+						authorization: '',
+						requireApproval: 'never',
+						allowedTools: [],
+						deferLoading: false,
+						tools: [],
+						createdAt: '2026-01-01T00:00:00.000Z',
+						updatedAt: '2026-01-01T00:00:00.000Z',
+					},
+					{
+						id: 'openai-connector',
+						name: 'Gmail',
+						connectorId: 'connector_gmail',
+						serverLabel: 'gmail',
+						enabled: true,
+						authorization: 'gmail-token',
+						requireApproval: 'never',
+						allowedTools: [],
+						deferLoading: false,
+						tools: [],
+						createdAt: '2026-01-01T00:00:00.000Z',
+						updatedAt: '2026-01-01T00:00:00.000Z',
+					},
+				],
+			} as never,
+		});
+
+		expect(service.createBuiltInToolsForProvider('openai')).toEqual([
+			{
+				type: 'mcp',
+				server_label: 'stripe',
+				server_url: 'https://mcp.stripe.com',
+				require_approval: 'always',
+				server_description: 'Stripe remote MCP server.',
+				authorization: 'stripe-token',
+			},
+			{
+				type: 'mcp',
+				server_label: 'public',
+				server_url: 'https://mcp.example.com/mcp',
+				require_approval: { never: { tool_names: ['search'] } },
+				allowed_tools: ['search'],
+				defer_loading: true,
+			},
+		]);
+		expect(service.createBuiltInToolsForProvider('anthropic')).toEqual([]);
+	});
 });
