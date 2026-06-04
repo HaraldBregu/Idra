@@ -13,7 +13,7 @@ export const mcpListToolsTool: AgentTool<{ id: string }> = {
 		const connectors = mcpConnectors(ctx);
 		if (!connectors) return missing('mcp_list_tools');
 		try {
-			return jsonText(connectors.listTools(args.id));
+			return jsonText(await connectors.listTools(args.id));
 		} catch (error) {
 			return textResult(`mcp_list_tools: ${(error as Error).message}`, true);
 		}
