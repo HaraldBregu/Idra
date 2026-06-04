@@ -65,6 +65,7 @@ export const AppChannels = {
 	openLogsFolder: 'app:open-logs-folder',
 	openAppDataFolder: 'app:open-app-data-folder',
 	openExternalUrl: 'app:open-external-url',
+	authorizeOAuth: 'app:authorize-oauth',
 	openSystemPreference: 'app:open-system-preference',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
@@ -114,7 +115,7 @@ export const SkillsChannels = {
 export const ConnectorsChannels = {
 	list: 'connectors:list',
 	save: 'connectors:save',
-	connect: 'connectors:connect',
+	upsert: 'connectors:upsert',
 	get: 'connectors:get',
 } as const;
 
@@ -177,6 +178,10 @@ interface AppInvokeChannelMap {
 	[AppChannels.openExternalUrl]: {
 		args: [url: string];
 		result: void;
+	};
+	[AppChannels.authorizeOAuth]: {
+		args: [input: unknown];
+		result: unknown;
 	};
 	[AppChannels.setTrayEnabled]: {
 		args: [enabled: boolean];
@@ -440,7 +445,7 @@ interface ConnectorsInvokeChannelMap {
 	[ConnectorsChannels.list]: { args: []; result: unknown[] };
 	[ConnectorsChannels.get]: { args: [id: string]; result: unknown };
 	[ConnectorsChannels.save]: { args: [input: unknown]; result: unknown[] };
-	[ConnectorsChannels.connect]: { args: [input: unknown]; result: unknown };
+	[ConnectorsChannels.upsert]: { args: [input: unknown]; result: unknown };
 }
 
 interface ChannelsInvokeChannelMap {
