@@ -46,8 +46,7 @@ function connectorName(id: string, connector: ConnectorEntry): string {
 		.trim();
 	return (
 		SETTINGS_CONNECTOR_CATALOG.find((entry) => entry.directConnectorId === id)?.name ??
-		serverLabel ||
-		id
+		(serverLabel || id)
 	);
 }
 
