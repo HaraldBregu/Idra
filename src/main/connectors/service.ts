@@ -50,7 +50,7 @@ export class ConnectorsService {
 	}
 
 	list(): ConnectorView[] {
-		return this.connectors().map((connector) => toConnectorView(connector, this.env()));
+		return this.connectors().map((connector) => toConnectorView(connector));
 	}
 
 	get(id: string): ConnectorConfig {
@@ -88,7 +88,7 @@ export class ConnectorsService {
 				? connectors.map((item) => (item.id === existing.id ? connector : item))
 				: [...connectors, connector]
 		);
-		return toConnectorView(connector, this.env());
+		return toConnectorView(connector);
 	}
 
 	async save(input: unknown): Promise<ConnectorConfig[]> {
