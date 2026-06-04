@@ -15,7 +15,6 @@ import { AgentDataDirectoryService } from './agent/storage';
 import { AgentSettingsStore } from './agent/settings';
 import { WorkspaceService } from './agent/workspace';
 import { ConnectorsService } from './connectors';
-import { McpService } from './mcp';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
 import { DEFAULT_AGENT_ID } from './config';
@@ -71,7 +70,6 @@ export function bootstrapServices(): BootstrapResult {
 	});
 
 	const connectors = container.register('connectors', new ConnectorsService(logger));
-	const mcp = new McpService(connectors);
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 
 	const subagentRegistry = new SubagentRegistry();
