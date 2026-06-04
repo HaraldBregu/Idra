@@ -3,26 +3,36 @@ import type { AddressInfo } from 'node:net';
 import { createHash, randomBytes } from 'node:crypto';
 import type { ConnectorRecord } from '../../shared/connectors';
 import type { LoggerService } from '../observability';
-import type {
-	ConnectorConnectInput,
-	ConnectorInput,
-	ConnectorOAuthConnectConfig,
-	ConnectorsServiceOptions,
-} from './types';
 import {
 	readOptionalStringArray,
 	readOptionalString,
 	requireObject,
 	sanitizeInput,
 	serverLabelFromName,
+	type ConnectorInput,
 } from './validation';
 import { redactConnectorSecrets } from './runtime';
 import { ConnectorRepository } from './repository';
 
 type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;
 type ConnectorEntry = ConnectorRecord[string];
+type ConnectorsServiceOptions = {
+	env?: NodeJS.ProcessEnv;
+};
+type ConnectorOAuthConnectConfig = {
+	service: string;
+	serviceId?: string;
+	clientIdEnv: string;
+	clientSecretEnv?: string;
+	authorizationUrl: string;
+	tokenUrl: string;
+	userInfoUrl?: string;
+	scopes: readonly string[];
+	accessType?: string;
+	prompt?: string;
+};
 
-type OAuthConnectRuntimeConfig = ConnectorConnectInput['oauth'];
+type OAuthConnectRuntimeConfig = ConnectorOAuthConnectConfig;
 type OAuthCredential = {
 	service: string;
 	serviceId?: string;
