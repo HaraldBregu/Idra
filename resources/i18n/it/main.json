@@ -376,7 +376,7 @@
 			}
 		},
 		"chatHistory": {
-			"title": "Cronologia chat",
+			"title": "Chat",
 			"description": "Contesto salvato e pulizia.",
 			"messages": "Messaggi salvati",
 			"breakdown": "{{user}} utente / {{assistant}} assistente / {{tool}} strumenti",
