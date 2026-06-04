@@ -167,20 +167,6 @@ function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknow
 	return details === undefined ? resultBlocksToOutput(content) : details;
 }
 
-function redactProviderRequest<T extends { builtInTools?: ProviderBuiltInToolSpec[] }>(
-	request: T
-): T {
-	if (!request.builtInTools?.length) return request;
-	return {
-		...request,
-		builtInTools: request.builtInTools.map((tool) =>
-			tool.type === 'mcp'
-				? { ...tool, authorization: tool.authorization ? '' : tool.authorization }
-				: tool
-		),
-	};
-}
-
 async function prepareToolResultForRun(params: {
 	content: ToolResultBlock[];
 	details?: unknown;
@@ -334,7 +320,6 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 				break;
 			}
 
-			const iterStart = Date.now();
 			let text = '';
 			const blocks: AgentContentBlock[] = [];
 			const providerBlocks: AgentContentBlock[] = [];
