@@ -61,7 +61,6 @@ export class ConnectorsService {
 	async connect(input: unknown, openExternalUrl: OpenExternalUrl): Promise<ConnectorView> {
 		const raw = requireObject(input, 'Connector connection');
 		const sanitized = sanitizeInput(input);
-		if (!sanitized.serverUrl) throw new Error('Connector MCP server URL is required.');
 		const oauth = readOAuthConnectConfig(raw);
 		const credential = await this.authorize(oauth, openExternalUrl);
 		const now = new Date().toISOString();

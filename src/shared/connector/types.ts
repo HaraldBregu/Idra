@@ -243,7 +243,6 @@ export interface ConnectorOAuthConnectConfig {
 }
 
 export interface ConnectorConnectInput extends ConnectorInput {
-	serverUrl: string;
 	oauth: ConnectorOAuthConnectConfig;
 }
 

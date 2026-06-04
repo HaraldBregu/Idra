@@ -46,7 +46,7 @@ export type ProviderEvent =
 			name: string;
 			arguments: string;
 			output?: string;
-			error?: string;
+			error?: unknown;
 			status?: string;
 			item?: unknown;
 	  }

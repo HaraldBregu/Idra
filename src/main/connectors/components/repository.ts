@@ -13,6 +13,9 @@ type ConnectorsStore = {
 
 const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
+const LEGACY_GMAIL_CONNECTOR_ID = 'google.gmail';
+const OPENAI_GMAIL_CONNECTOR_ID = 'connector_gmail';
+const LEGACY_GMAIL_SERVER_URL = 'https://gmailmcp.googleapis.com/mcp/v1';
 
 export class ConnectorRepository {
 	private readonly store: ConnectorsStore;
@@ -91,15 +94,33 @@ function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 		typeof connector.serverUrl === 'string' && connector.serverUrl.trim()
 			? connector.serverUrl.trim()
 			: undefined;
+	const migrated = migrateLegacyOpenAiConnector({ ...connector, serverUrl });
+	return {
+		...migrated,
+		authorization: typeof migrated.authorization === 'string' ? migrated.authorization : '',
+		allowedTools: Array.isArray(migrated.allowedTools) ? uniqueStrings(migrated.allowedTools) : [],
+		requireApproval: migrated.requireApproval ?? 'always',
+		deferLoading: migrated.deferLoading ?? false,
+		enabled: migrated.enabled ?? true,
+		tools: Array.isArray(migrated.tools) ? migrated.tools.map(normalizeStoredTool) : [],
+	};
+}
+
+function migrateLegacyOpenAiConnector(connector: ConnectorConfig): ConnectorConfig {
+	if (
+		connector.connectorId !== LEGACY_GMAIL_CONNECTOR_ID &&
+		connector.serverUrl !== LEGACY_GMAIL_SERVER_URL
+	) {
+		return connector;
+	}
+
 	return {
 		...connector,
-		serverUrl,
-		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
-		allowedTools: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
-		requireApproval: connector.requireApproval ?? 'always',
-		deferLoading: connector.deferLoading ?? false,
-		enabled: connector.enabled ?? true,
-		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeStoredTool) : [],
+		connectorId: OPENAI_GMAIL_CONNECTOR_ID,
+		serverDescription: 'Read and search Gmail messages through the OpenAI Gmail connector.',
+		serverUrl: undefined,
+		allowedTools: [],
+		tools: [],
 	};
 }
 

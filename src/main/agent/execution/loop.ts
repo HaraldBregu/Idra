@@ -173,6 +173,29 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 	});
 }
 
+function formatProviderToolError(error: unknown): string {
+	if (error === undefined || error === null) return '';
+	if (typeof error === 'string') return error;
+	if (error instanceof Error) return error.message;
+	if (typeof error !== 'object') return String(error);
+
+	const record = error as Record<string, unknown>;
+	const message = typeof record.message === 'string' ? record.message : '';
+	const type = typeof record.type === 'string' ? record.type : '';
+	const code =
+		typeof record.code === 'string' || typeof record.code === 'number'
+			? String(record.code)
+			: '';
+	const prefix = [type, code].filter(Boolean).join(' ');
+	if (message) return prefix ? `${prefix}: ${message}` : message;
+
+	try {
+		return JSON.stringify(error);
+	} catch {
+		return String(error);
+	}
+}
+
 function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknown {
 	return details === undefined ? resultBlocksToOutput(content) : details;
 }
@@ -637,8 +660,9 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 									});
 								}
 								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
+								const errorText = formatProviderToolError(event.error);
 								const outputText = event.error
-									? `OpenAI MCP connector "${event.serverLabel}" failed to run "${event.name}": ${event.error}`
+									? `OpenAI MCP connector "${event.serverLabel}" failed to run "${event.name}": ${errorText}`
 									: (event.output ?? '');
 								streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
 								streamEvent?.({

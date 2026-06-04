@@ -10,13 +10,12 @@ export type SettingsConnectorCatalogEntry = ConnectorConnectInput & {
 
 export const SETTINGS_CONNECTOR_CATALOG: readonly SettingsConnectorCatalogEntry[] = [
 	{
-		connectorId: 'google.gmail',
+		connectorId: 'connector_gmail',
 		directConnectorId: 'gmail',
 		name: 'Gmail',
 		serverLabel: 'gmail',
-		serverDescription: 'Read, search, draft, and send Gmail messages through Google hosted MCP.',
-		serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
-		description: 'Read, search, draft, and send Gmail messages.',
+		serverDescription: 'Read and search Gmail messages through the OpenAI Gmail connector.',
+		description: 'Read and search Gmail messages.',
 		requireApproval: 'always',
 		allowedTools: [],
 		deferLoading: false,
@@ -32,8 +31,8 @@ export const SETTINGS_CONNECTOR_CATALOG: readonly SettingsConnectorCatalogEntry[
 			scopes: [
 				'openid',
 				'email',
-				'https://www.googleapis.com/auth/gmail.readonly',
-				'https://www.googleapis.com/auth/gmail.compose',
+				'profile',
+				'https://www.googleapis.com/auth/gmail.modify',
 			],
 			accessType: 'offline',
 			prompt: 'consent',
