@@ -228,10 +228,7 @@ export class AgentService {
 		this.toolService =
 			options.toolService ??
 			dependencies.toolService ??
-			new ToolsService({
-				cron: dependencies.cron,
-				logger: dependencies.logger,
-			});
+			new ToolsService(dependencies.logger);
 		this.mcpService = dependencies.connectors ? new McpService(dependencies.connectors) : undefined;
 		this.capabilityService =
 			options.capabilityService ??
