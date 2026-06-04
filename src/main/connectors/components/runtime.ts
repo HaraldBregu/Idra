@@ -6,11 +6,6 @@ import {
 	type ConnectorView,
 } from '../../../shared/connector';
 
-export function cloneValue<T>(value: T): T {
-	if (value === undefined || value === null) return value;
-	return JSON.parse(JSON.stringify(value)) as T;
-}
-
 export function errorMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
 }
