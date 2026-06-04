@@ -443,7 +443,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								break;
 							case 'mcp_approval_request': {
 								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
-								const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but connector policy did not allow automatic approval.`;
+								const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but this loop does not handle connector approval prompts.`;
 								firstTokenLatencyMs ??= Date.now() - runStart;
 								if (!didStartAnswering) {
 									didStartAnswering = true;
