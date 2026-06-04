@@ -60,7 +60,6 @@ export type ConnectorConfig = {
 	serverUrl?: string;
 	enabled: boolean;
 	authorization: string;
-	mcp?: ConnectorMcpConfig;
 	oauth?: ConnectorOAuthCredential;
 	requireApproval: ConnectorApprovalMode;
 	allowedTools: string[];
