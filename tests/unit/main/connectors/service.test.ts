@@ -1,11 +1,11 @@
-import type { ConnectorConfig, ConnectorStore } from '../../../../src/shared/connector';
+import type { ConnectorConfig } from '../../../../src/shared/connector';
 
 let mockStoreData: unknown = {};
 const mockStore = {
 	get store(): unknown {
 		return mockStoreData;
 	},
-	set store(value: ConnectorStore) {
+	set store(value: ConnectorConfig) {
 		mockStoreData = value;
 	},
 };
@@ -46,7 +46,7 @@ describe('ConnectorsService storage', () => {
 
 		expect(saved.authorization).toBe('');
 		expect(saved.tools).toEqual([]);
-		expect((mockStoreData as ConnectorStore).acme_mail).toEqual({
+		expect((mockStoreData as ConnectorConfig).acme_mail).toEqual({
 			type: 'mcp',
 			server_label: 'acme_mail',
 			server_url: 'https://mcp.example.com/mail',
