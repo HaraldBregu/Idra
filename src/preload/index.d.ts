@@ -77,7 +77,7 @@ export interface ConnectorsApi {
 	list: () => Promise<ConnectorRecord>;
 	get: (id: string) => Promise<ConnectorRecord>;
 	save: (input: ConnectorInput[]) => Promise<ConnectorRecord>;
-	connect: (input: ConnectorConnectInput) => Promise<ConnectorRecord>;
+	upsert: (input: ConnectorInput) => Promise<ConnectorRecord>;
 }
 
 export interface SkillsApi {
