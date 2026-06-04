@@ -31,7 +31,7 @@ export function connectorsFromStore(value: unknown): ConnectorRecord {
 }
 
 function connectorFromStoreValue(key: string, value: unknown): Array<[string, ConnectorEntry]> {
-	if (isConnectorConfigValue(value)) return [[key, normalizeStoreEntry(key, value)]];
+	if (isConnectorRecordEntry(value)) return [[key, normalizeStoreEntry(key, value)]];
 	const legacy = legacyConnectorToStoreEntry(value);
 	return legacy ? [[legacy.key, legacy.connector]] : [];
 }
@@ -135,7 +135,7 @@ function toStoredRequireApproval(value: unknown): ConnectorEntry['require_approv
 	return value === 'never' ? 'never' : undefined;
 }
 
-function isConnectorConfigValue(value: unknown): value is ConnectorEntry {
+function isConnectorRecordEntry(value: unknown): value is ConnectorEntry {
 	if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
 	const entry = value as ConnectorEntry;
 	return entry.type === 'mcp' && typeof entry.server_label === 'string' && typeof entry.server_url === 'string';
