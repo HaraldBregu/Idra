@@ -5,7 +5,6 @@ import { AlertTriangle, Plug } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { Connector } from '../../../../../../../shared/connectors';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -14,6 +13,8 @@ import {
 	SettingsSection,
 } from '../../../components';
 
+type ConnectorConfig = Awaited<ReturnType<typeof window.connectors.get>>;
+
 function formatTimestamp(value?: string): string {
 	if (!value) return 'Never';
 	const date = new Date(value);
@@ -21,7 +22,7 @@ function formatTimestamp(value?: string): string {
 	return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }
 
-function formatApprovalPolicy(value: Connector['requireApproval']): string {
+function formatApprovalPolicy(value: ConnectorConfig['requireApproval']): string {
 	return value.replaceAll('_', ' ');
 }
 
@@ -57,7 +58,7 @@ function DetailRow({
 const ConnectorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { connectorId } = useParams<{ connectorId: string }>();
-	const [connector, setConnector] = useState<Connector | null>(null);
+	const [connector, setConnector] = useState<ConnectorConfig | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 

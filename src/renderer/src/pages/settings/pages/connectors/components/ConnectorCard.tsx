@@ -3,10 +3,11 @@ import { ChevronRight, PlugZap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { ConnectorView } from '../../../../../../../shared/connectors';
 import type { SettingsConnectorCatalogEntry } from '../catalog';
 import { ConnectorIcon } from './ConnectorIcon';
 import { ConnectorStatusBadge } from './ConnectorStatusBadge';
+
+type ConnectorSummary = Awaited<ReturnType<typeof window.connectors.list>>[number];
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a'));
@@ -21,7 +22,7 @@ export function ConnectorCard({
 }: {
 	readonly catalogEntry: SettingsConnectorCatalogEntry;
 	readonly connecting?: boolean;
-	readonly connector?: ConnectorView;
+	readonly connector?: ConnectorSummary;
 	readonly onConnect: () => void;
 	readonly onViewDetails?: () => void;
 }): React.JSX.Element {

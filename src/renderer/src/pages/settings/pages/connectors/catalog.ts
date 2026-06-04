@@ -1,7 +1,5 @@
-import type {
-	ConnectorConnectInput,
-	DirectConnectorCatalogId,
-} from '../../../../../../shared/connectors';
+type ConnectorConnectInput = Parameters<typeof window.connectors.connect>[0];
+type DirectConnectorCatalogId = string;
 
 export type SettingsConnectorCatalogEntry = ConnectorConnectInput & {
 	readonly directConnectorId: DirectConnectorCatalogId;

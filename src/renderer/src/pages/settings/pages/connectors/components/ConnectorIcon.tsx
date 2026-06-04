@@ -2,7 +2,8 @@ import React from 'react';
 import openaiIconDark from '@resources/icons/brands/openai/fallback_lobehub/png_dark/openai.png';
 import openaiIconLight from '@resources/icons/brands/openai/fallback_lobehub/png_light/openai.png';
 import { cn } from '@/lib/utils';
-import type { DirectConnectorCatalogId } from '../../../../../../../shared/connectors';
+
+type DirectConnectorCatalogId = string;
 
 type ConnectorIconAsset = {
 	readonly light: string;

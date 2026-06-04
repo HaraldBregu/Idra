@@ -1,6 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import type { ConnectorStatus } from '../../../../../../../shared/connectors';
+
+type ConnectorStatus = Awaited<ReturnType<typeof window.connectors.list>>[number]['status'];
 
 export function ConnectorStatusBadge({
 	status,
