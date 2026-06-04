@@ -376,32 +376,49 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 			let reasoningStarted = false;
 			let approvalBlocked = false;
 			const reasoningSummaryId = `${runId}:${iter}:reasoning`;
+			let providerResponseId: string | undefined;
+			let approvalContinuation:
+				| { previousResponseId: string; approvalRequestId: string }
+				| undefined;
 
 			try {
-				const request = {
-					model,
-					effort,
-					system: systemPromptForTurn,
-					messages: session.transcript,
-					tools: toolsForPrompt.map((t) => ({
-						name: t.name,
-						description: t.description,
-						schema: t.schema,
-					})),
-					builtInTools: input.builtInTools ?? [],
-					maxTokens,
-					signal,
-				};
-				await emitRuntimeLifecycleHook('llm_input', {
-					runId,
-					iteration: iter,
-					request: redactProviderRequest(request),
-				});
-				providerEvents: for await (const event of provider.stream(request)) {
-					switch (event.type) {
-						case 'reasoning_item':
-							reasoningBlocks.push({
-								type: 'reasoning',
+				do {
+					const request = {
+						model,
+						effort,
+						system: systemPromptForTurn,
+						messages: session.transcript,
+						inputItems: approvalContinuation
+							? [{
+									type: 'mcp_approval_response',
+									approve: true,
+									approval_request_id: approvalContinuation.approvalRequestId,
+								}]
+							: undefined,
+						previousResponseId: approvalContinuation?.previousResponseId,
+						tools: toolsForPrompt.map((t) => ({
+							name: t.name,
+							description: t.description,
+							schema: t.schema,
+						})),
+						builtInTools: input.builtInTools ?? [],
+						maxTokens,
+						signal,
+					};
+					approvalContinuation = undefined;
+					await emitRuntimeLifecycleHook('llm_input', {
+						runId,
+						iteration: iter,
+						request: redactProviderRequest(request),
+					});
+					providerEvents: for await (const event of provider.stream(request)) {
+						switch (event.type) {
+							case 'response_created':
+								providerResponseId = event.id;
+								break;
+							case 'reasoning_item':
+								reasoningBlocks.push({
+									type: 'reasoning',
 								provider: event.provider ?? 'openai',
 								item: event.item,
 							});
@@ -477,13 +494,62 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 									input: parseToolArgs(t.argsStr, { __unparsed: t.argsStr }),
 									argsText: t.argsStr,
 								});
+								}
+								break;
 							}
-							break;
-						}
-						case 'mcp_approval_request': {
-							const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
-							const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but approval continuation is not implemented yet.`;
-							firstTokenLatencyMs ??= Date.now() - runStart;
+							case 'mcp_list_tools':
+								ctx.services.connectorTools?.updateOpenAiConnectorTools(
+									event.serverLabel,
+									event.tools.map((tool) => ({
+										name: tool.name,
+										description: tool.description,
+										inputSchema: tool.inputSchema,
+										permission: 'always-allow',
+										requiresApproval: false,
+									}))
+								);
+								break;
+							case 'mcp_approval_request': {
+								const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
+								const canApprove = Boolean(
+									providerResponseId &&
+									ctx.services.connectorTools?.canApproveOpenAiConnectorTool(
+										event.serverLabel,
+										event.name
+									)
+								);
+								if (canApprove && providerResponseId) {
+									streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
+									streamEvent?.({
+										type: 'tool_call_start',
+										iteration: iter,
+										toolCallId: event.id,
+										toolName: event.name,
+										name: event.name,
+										displayName: `${event.serverLabel}.${event.name}`,
+										serviceKind: 'mcp',
+										serviceId: event.serverLabel,
+									});
+									streamEvent?.({
+										type: 'tool_call_input',
+										iteration: iter,
+										toolCallId: event.id,
+										toolName: event.name,
+										name: event.name,
+										displayName: `${event.serverLabel}.${event.name}`,
+										serviceKind: 'mcp',
+										serviceId: event.serverLabel,
+										input: args,
+										argsText: event.arguments,
+									});
+									approvalContinuation = {
+										previousResponseId: providerResponseId,
+										approvalRequestId: event.id,
+									};
+									break providerEvents;
+								}
+								const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but approval continuation is not implemented yet.`;
+								firstTokenLatencyMs ??= Date.now() - runStart;
 							if (!didStartAnswering) {
 								didStartAnswering = true;
 								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
@@ -538,10 +604,11 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 							turnStop = event.stopReason;
 							iterUsage = event.usage;
 							totalUsage.inputTokens += event.usage.inputTokens;
-							totalUsage.outputTokens += event.usage.outputTokens;
-							break;
+								totalUsage.outputTokens += event.usage.outputTokens;
+								break;
+						}
 					}
-				}
+				} while (approvalContinuation);
 			} catch (err) {
 				if (err instanceof ContextOverflowError && !didCompact) {
 					didCompact = true;
