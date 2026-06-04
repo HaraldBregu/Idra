@@ -4,8 +4,8 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import type { LoggerService } from '../observability';
 import type {
 	ConnectorConnectInput,
-	ConnectorConfig,
 	ConnectorOAuthCredential,
+	ConnectorRecord,
 	ConnectorView,
 } from '../../shared/connector';
 import {
@@ -53,7 +53,7 @@ export class ConnectorsService {
 		return this.connectors().map((connector) => toConnectorView(connector));
 	}
 
-	get(id: string): ConnectorConfig {
+	get(id: string): ConnectorRecord {
 		return redactConnectorSecrets(this.repository.get(id));
 	}
 
@@ -65,7 +65,7 @@ export class ConnectorsService {
 		const now = new Date().toISOString();
 		const connectors = this.connectors();
 		const existing = connectors.find((connector) => connector.connectorId === sanitized.connectorId);
-		const connector: ConnectorConfig = {
+		const connector: ConnectorRecord = {
 			id: existing?.id ?? randomUUID(),
 			name: sanitized.name,
 			connectorId: sanitized.connectorId,
@@ -91,9 +91,9 @@ export class ConnectorsService {
 		return toConnectorView(connector);
 	}
 
-	async save(input: unknown): Promise<ConnectorConfig[]> {
+	async save(input: unknown): Promise<ConnectorRecord[]> {
 		if (!Array.isArray(input)) throw new Error('Connector settings must be an array.');
-		const next: ConnectorConfig[] = [];
+		const next: ConnectorRecord[] = [];
 		for (const item of input) {
 			next.push(await this.connectorFromInput(item));
 		}
@@ -101,19 +101,19 @@ export class ConnectorsService {
 		return this.connectors().map(redactConnectorSecrets);
 	}
 
-	getConnectorSettings(): ConnectorConfig[] {
+	getConnectorSettings(): ConnectorRecord[] {
 		return this.connectors().map(redactConnectorSecrets);
 	}
 
-	listStored(): ConnectorConfig[] {
+	listStored(): ConnectorRecord[] {
 		return this.connectors();
 	}
 
-	getStored(id: string): ConnectorConfig {
+	getStored(id: string): ConnectorRecord {
 		return this.repository.get(id);
 	}
 
-	replaceStored(connector: ConnectorConfig): void {
+	replaceStored(connector: ConnectorRecord): void {
 		this.repository.replace(connector);
 	}
 
@@ -182,7 +182,7 @@ export class ConnectorsService {
 		}
 	}
 
-	private connectors(): ConnectorConfig[] {
+	private connectors(): ConnectorRecord[] {
 		return this.repository.list();
 	}
 
@@ -190,13 +190,13 @@ export class ConnectorsService {
 		return this.options.env ?? process.env;
 	}
 
-	private async connectorFromInput(input: unknown): Promise<ConnectorConfig> {
+	private async connectorFromInput(input: unknown): Promise<ConnectorRecord> {
 		const raw = requireObject(input, 'Connector configuration');
 		const now = new Date().toISOString();
 		const id = readOptionalString(raw, 'id')?.trim() || randomUUID();
 		const createdAt = readOptionalString(raw, 'createdAt')?.trim() || now;
 		const sanitized = sanitizeInput(input);
-		const connector: ConnectorConfig = {
+		const connector: ConnectorRecord = {
 			id,
 			name: sanitized.name,
 			connectorId: sanitized.connectorId,
