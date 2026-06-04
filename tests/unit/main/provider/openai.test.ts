@@ -164,6 +164,53 @@ describe('OpenAIAdapter Responses request construction', () => {
 		});
 	});
 
+	it('surfaces OpenAI MCP call output items', async () => {
+		const create = jest.fn(() =>
+			(async function* (): AsyncIterable<unknown> {
+				yield {
+					type: 'response.output_item.done',
+					output_index: 0,
+					item: {
+						id: 'mcp_1',
+						type: 'mcp_call',
+						server_label: 'dmcp',
+						name: 'roll',
+						arguments: '{"diceRollExpression":"2d4+1"}',
+						output: '5',
+						error: null,
+						status: 'completed',
+					},
+				};
+			})()
+		);
+		const adapter = new OpenAIAdapter({
+			apiKey: 'openai-key',
+			clientFactory: () => ({ responses: { create } }) as never,
+		});
+
+		const events = [];
+		for await (const event of adapter.stream({
+			model: 'gpt-5.4',
+			system: '',
+			messages: [{ role: 'user', content: 'roll dice' }],
+			tools: [],
+			maxTokens: 100,
+		})) {
+			events.push(event);
+		}
+
+		expect(events).toContainEqual({
+			type: 'mcp_call',
+			id: 'mcp_1',
+			serverLabel: 'dmcp',
+			name: 'roll',
+			arguments: '{"diceRollExpression":"2d4+1"}',
+			output: '5',
+			error: undefined,
+			status: 'completed',
+		});
+	});
+
 	it('can create an OpenAI MCP approval continuation request', async () => {
 		const create = jest.fn(() => completedStream());
 		const adapter = new OpenAIAdapter({
