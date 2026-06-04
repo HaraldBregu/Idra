@@ -1,3 +1,6 @@
+import { createHash, randomBytes } from 'node:crypto';
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { app, ipcMain, BrowserWindow, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './module';
 import type { EventBus } from '../services/event-bus';
@@ -39,6 +42,33 @@ const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 import { normalizeExternalUrl } from '../../shared/external-links';
 
 const VALID_LANGUAGES = ['en', 'it'] as const;
+
+type OAuthAuthorizeInput = {
+	service: string;
+	serviceId?: string;
+	clientIdEnv: string;
+	clientSecretEnv?: string;
+	authorizationUrl: string;
+	tokenUrl: string;
+	userInfoUrl?: string;
+	scopes: readonly string[];
+	accessType?: string;
+	prompt?: string;
+};
+
+type OAuthTokenResponse = {
+	readonly access_token?: string;
+	readonly refresh_token?: string;
+	readonly token_type?: string;
+	readonly scope?: string;
+	readonly expires_in?: number;
+	readonly error?: string;
+	readonly error_description?: string;
+};
+
+type OAuthUserInfoResponse = {
+	readonly email?: string;
+};
 
 function speechToTextModelOrThrow(providerId: string, model: Model): Model {
 	return catalogModelOrThrow(
