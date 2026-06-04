@@ -33,16 +33,6 @@ import { writeTodosTool } from '../state/todo/write';
 import { skillListTool } from '../skills/skill-list';
 import { skillLoadTool } from '../skills/load-skill';
 import { skillUseTool } from '../skills/use-skill';
-import { mcpCallToolTool } from '../mcp/tool/call';
-import { mcpConnectServerTool } from '../mcp/server/connect';
-import { mcpListPromptsTool } from '../mcp/prompt/list';
-import { mcpListResourcesTool } from '../mcp/resource/list';
-import { mcpListServersTool } from '../mcp/server/list';
-import { mcpListToolsTool } from '../mcp/tool/list';
-import { mcpLoadPromptTool } from '../mcp/prompt/load';
-import { mcpLoadToolTool } from '../mcp/tool/load';
-import { mcpReadResourceTool } from '../mcp/resource/read';
-import { mcpRefreshServerTool } from '../mcp/server/refresh';
 
 export type LocalToolProfile = AgentToolProfile;
 export type LocalToolGroup = AgentToolGroupName;
@@ -100,16 +90,6 @@ const LOCAL_TOOL_IMPLEMENTATIONS = {
 	skill_list: skillListTool,
 	skill_load: skillLoadTool,
 	skill_use: skillUseTool,
-	mcp_list_servers: mcpListServersTool,
-	mcp_connect_server: mcpConnectServerTool,
-	mcp_refresh_server: mcpRefreshServerTool,
-	mcp_list_tools: mcpListToolsTool,
-	mcp_load_tool: mcpLoadToolTool,
-	mcp_call_tool: mcpCallToolTool,
-	mcp_list_resources: mcpListResourcesTool,
-	mcp_read_resource: mcpReadResourceTool,
-	mcp_list_prompts: mcpListPromptsTool,
-	mcp_load_prompt: mcpLoadPromptTool,
 	web_fetch: webFetchTool,
 	open_browser: openBrowserTool,
 	cron_create: cronCreateTool,
