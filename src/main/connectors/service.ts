@@ -1,7 +1,7 @@
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createHash, randomBytes } from 'node:crypto';
-import type { ConnectorConfigValue, ConnectorRecord } from '../../shared/connectors';
+import type { ConnectorRecord } from '../../shared/connectors';
 import type { LoggerService } from '../observability';
 import type {
 	ConnectorConnectInput,
@@ -20,6 +20,7 @@ import { redactConnectorSecrets } from './runtime';
 import { ConnectorRepository } from './repository';
 
 type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;
+type ConnectorEntry = ConnectorRecord[string];
 
 type OAuthConnectRuntimeConfig = ConnectorConnectInput['oauth'];
 type OAuthCredential = {
@@ -178,7 +179,7 @@ export class ConnectorsService {
 	}
 }
 
-function connectorFromInput(input: unknown): { id: string; entry: ConnectorConfigValue } | undefined {
+function connectorFromInput(input: unknown): { id: string; entry: ConnectorEntry } | undefined {
 	const raw = requireObject(input, 'Connector configuration');
 	const now = new Date().toISOString();
 	const sanitized = sanitizeInput(input);
@@ -206,7 +207,7 @@ function connectorEntryFromInput(
 		createdAt: string;
 		updatedAt: string;
 	}
-): ConnectorConfigValue {
+): ConnectorEntry {
 	const serverLabel = input.serverLabel ?? serverLabelFromName(input.name);
 	return {
 		type: 'mcp',
