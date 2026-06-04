@@ -28,6 +28,12 @@ describe('executeAgentRun MCP approval continuation', () => {
 					yield {
 						type: 'mcp_list_tools',
 						serverLabel: 'gmail',
+						item: {
+							id: 'list_1',
+							type: 'mcp_list_tools',
+							server_label: 'gmail',
+							tools: [{ name: 'search_threads', description: 'Search Gmail threads.' }],
+						},
 						tools: [{ name: 'search_threads', description: 'Search Gmail threads.' }],
 					};
 					yield {
@@ -40,15 +46,24 @@ describe('executeAgentRun MCP approval continuation', () => {
 					return;
 				}
 				yield { type: 'message_start' };
-				yield {
-					type: 'mcp_call',
-					id: 'mcp_1',
-					serverLabel: 'gmail',
-					name: 'search_threads',
-					arguments: '{"query":"from:openai"}',
-					output: '{"threads":[{"id":"thread_1"}]}',
-					status: 'completed',
-				};
+					yield {
+						type: 'mcp_call',
+						id: 'mcp_1',
+						serverLabel: 'gmail',
+						name: 'search_threads',
+						arguments: '{"query":"from:openai"}',
+						output: '{"threads":[{"id":"thread_1"}]}',
+						status: 'completed',
+						item: {
+							id: 'mcp_1',
+							type: 'mcp_call',
+							server_label: 'gmail',
+							name: 'search_threads',
+							arguments: '{"query":"from:openai"}',
+							output: '{"threads":[{"id":"thread_1"}]}',
+							status: 'completed',
+						},
+					};
 				yield { type: 'text_delta', text: 'Found matching threads.' };
 				yield {
 					type: 'message_end',

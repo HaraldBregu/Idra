@@ -151,7 +151,7 @@ describe('OpenAIAdapter Responses request construction', () => {
 			events.push(event);
 		}
 
-		expect(events).toContainEqual({
+		expect(events).toContainEqual(expect.objectContaining({
 			type: 'mcp_list_tools',
 			serverLabel: 'gmail',
 			tools: [
@@ -161,7 +161,7 @@ describe('OpenAIAdapter Responses request construction', () => {
 					inputSchema: { type: 'object', properties: {} },
 				},
 			],
-		});
+		}));
 	});
 
 	it('surfaces OpenAI MCP call output items', async () => {
@@ -199,7 +199,7 @@ describe('OpenAIAdapter Responses request construction', () => {
 			events.push(event);
 		}
 
-		expect(events).toContainEqual({
+		expect(events).toContainEqual(expect.objectContaining({
 			type: 'mcp_call',
 			id: 'mcp_1',
 			serverLabel: 'dmcp',
@@ -208,7 +208,7 @@ describe('OpenAIAdapter Responses request construction', () => {
 			output: '5',
 			error: undefined,
 			status: 'completed',
-		});
+		}));
 	});
 
 	it('can create an OpenAI MCP approval continuation request', async () => {
