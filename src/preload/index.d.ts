@@ -77,6 +77,7 @@ export interface ConnectorsApi {
 	list: () => Promise<ConnectorView[]>;
 	get: (id: string) => Promise<ConnectorConfig>;
 	save: (input: ConnectorInput[]) => Promise<ConnectorConfig[]>;
+	connect: (input: ConnectorConnectInput) => Promise<ConnectorView>;
 }
 
 export interface SkillsApi {
@@ -188,6 +189,7 @@ import type {
 	SpeechToTextTranscription,
 } from '../shared/speech-to-text';
 import type {
+	ConnectorConnectInput,
 	ConnectorConfig,
 	ConnectorInput,
 	ConnectorView,
