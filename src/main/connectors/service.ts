@@ -120,6 +120,71 @@ export class ConnectorsService {
 		this.repository.replace(connector);
 	}
 
+	private async authorize(
+		oauth: OAuthConnectRuntimeConfig,
+		openExternalUrl: OpenExternalUrl
+	): Promise<ConnectorOAuthCredential> {
+		const clientId = requiredEnv(this.env(), oauth.clientIdEnv);
+		const clientSecret = oauth.clientSecretEnv ? requiredEnv(this.env(), oauth.clientSecretEnv) : undefined;
+		const state = base64Url(randomBytes(24));
+		const codeVerifier = base64Url(randomBytes(32));
+		const codeChallenge = base64Url(createHash('sha256').update(codeVerifier).digest());
+		const callback = await waitForOAuthCallback(state);
+		const redirectUri = callback.redirectUri;
+		const authorizationUrl = new URL(oauth.authorizationUrl);
+		authorizationUrl.searchParams.set('client_id', clientId);
+		authorizationUrl.searchParams.set('redirect_uri', redirectUri);
+		authorizationUrl.searchParams.set('response_type', 'code');
+		authorizationUrl.searchParams.set('scope', oauth.scopes.join(' '));
+		authorizationUrl.searchParams.set('state', state);
+		authorizationUrl.searchParams.set('code_challenge', codeChallenge);
+		authorizationUrl.searchParams.set('code_challenge_method', 'S256');
+		authorizationUrl.searchParams.set('include_granted_scopes', 'true');
+		if (oauth.accessType) authorizationUrl.searchParams.set('access_type', oauth.accessType);
+		if (oauth.prompt) authorizationUrl.searchParams.set('prompt', oauth.prompt);
+
+		try {
+			await openExternalUrl(authorizationUrl.toString());
+			const code = await callback.code;
+			const token = await exchangeOAuthCode({
+				clientId,
+				clientSecret,
+				code,
+				codeVerifier,
+				redirectUri,
+				tokenUrl: oauth.tokenUrl,
+			});
+			const accountEmail = oauth.userInfoUrl && token.access_token
+				? await readOAuthAccountEmail(oauth.userInfoUrl, token.access_token)
+				: undefined;
+			const expiresAt = token.expires_in ? new Date(Date.now() + token.expires_in * 1000).toISOString() : undefined;
+			return {
+				service: oauth.service,
+				serviceId: oauth.serviceId,
+				authorizationUrl: oauth.authorizationUrl,
+				redirectUri,
+				scopes: oauth.scopes,
+				accessToken: token.access_token,
+				refreshToken: token.refresh_token,
+				tokenType: token.token_type,
+				scope: token.scope,
+				expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
+				accountEmail,
+				token: {
+					accessToken: requiredToken(token.access_token),
+					refreshToken: token.refresh_token,
+					tokenType: token.token_type,
+					scope: token.scope,
+					expiresAt,
+				},
+				connectedAt: new Date().toISOString(),
+			};
+		} catch (error) {
+			callback.close();
+			throw error;
+		}
+	}
+
 	private connectors(): ConnectorConfig[] {
 		return this.repository.list();
 	}
