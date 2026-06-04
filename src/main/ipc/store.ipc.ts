@@ -145,7 +145,6 @@ export class StoreIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const store = container.get('store');
 		const agentSettings = container.get('agentSettings');
-		const connectors = container.get('connectors');
 		const logger = container.get('logger');
 
 		ipcMain.handle(
@@ -242,13 +241,6 @@ export class StoreIpc implements IpcModule {
 			wrapSimpleHandler((): ReturnType<typeof agentSettings.getAgentRoutingSettings> => {
 				return agentSettings.getAgentRoutingSettings();
 			}, StoreChannels.getAgentRoutingSettings)
-		);
-
-		ipcMain.handle(
-			StoreChannels.getConnectorSettings,
-			wrapSimpleHandler((): ReturnType<typeof connectors.getConnectorSettings> => {
-				return connectors.getConnectorSettings();
-			}, StoreChannels.getConnectorSettings)
 		);
 
 		ipcMain.handle(
