@@ -1,9 +1,9 @@
-import type { ConnectorConfig } from '../../../../src/shared/connector';
+import type { ConnectorStore } from '../../../../src/shared/connector';
 
 const mockStoreData: { connectors?: unknown } = {};
 const mockStore = {
 	get: jest.fn((key: 'connectors') => mockStoreData[key]),
-	set: jest.fn((key: 'connectors', value: ConnectorConfig[]) => {
+	set: jest.fn((key: 'connectors', value: ConnectorStore) => {
 		mockStoreData[key] = value;
 	}),
 };

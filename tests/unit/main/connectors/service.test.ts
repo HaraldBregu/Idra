@@ -1,9 +1,9 @@
-import type { ConnectorConfig } from '../../../../src/shared/connector';
+import type { ConnectorConfig, ConnectorStore } from '../../../../src/shared/connector';
 
 const mockStoreData: { connectors?: unknown } = {};
 const mockStore = {
 	get: jest.fn((key: 'connectors') => mockStoreData[key]),
-	set: jest.fn((key: 'connectors', value: ConnectorConfig[]) => {
+	set: jest.fn((key: 'connectors', value: ConnectorStore) => {
 		mockStoreData[key] = value;
 	}),
 };
@@ -45,8 +45,8 @@ describe('ConnectorsService storage', () => {
 
 		expect(saved.authorization).toBe('');
 		expect(saved.tools).toEqual([]);
-		expect((mockStoreData.connectors as ConnectorConfig[])[0].authorization).toBe('token-123');
-		expect((mockStoreData.connectors as ConnectorConfig[])[0].tools).toEqual([]);
+		expect((mockStoreData.connectors as ConnectorStore).acme_mail.authorization).toBe('token-123');
+		expect((mockStoreData.connectors as ConnectorStore).acme_mail.tools).toEqual([]);
 		expect(service.get(saved.id).authorization).toBe('');
 		expect(service.getConnectorSettings()[0].authorization).toBe('');
 		expect(service.list()[0]).toMatchObject({
@@ -75,7 +75,7 @@ describe('ConnectorsService storage', () => {
 
 		expect(saved).toHaveLength(2);
 		expect(saved.every((connector) => connector.authorization === '')).toBe(true);
-		expect((mockStoreData.connectors as ConnectorConfig[]).map((connector) => connector.authorization)).toEqual([
+		expect(Object.values(mockStoreData.connectors as ConnectorStore).map((connector) => connector.authorization)).toEqual([
 			'token-123',
 			'',
 		]);
