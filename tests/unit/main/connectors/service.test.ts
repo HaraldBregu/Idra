@@ -30,7 +30,7 @@ describe('ConnectorsService storage', () => {
 		logger.error.mockClear();
 	});
 
-	it('stores authorized connectors as MCP store entries', async () => {
+	it('stores remote MCP connectors as MCP store entries', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		const [saved] = await service.save([{
@@ -50,8 +50,9 @@ describe('ConnectorsService storage', () => {
 			type: 'mcp',
 			server_label: 'acme_mail',
 			server_url: 'https://mcp.example.com/mail',
+			server_description: 'Acme mail connector.',
 			authorization: 'token-123',
-			require_approval: 'never',
+			require_approval: { never: { tool_names: ['search_emails'] } },
 			allowed_tools: ['search_emails'],
 		});
 		expect(service.get(saved.id).authorization).toBe('');
@@ -62,7 +63,7 @@ describe('ConnectorsService storage', () => {
 		});
 	});
 
-	it('only stores authorized connector records in bulk', async () => {
+	it('stores public remote MCP connector records in bulk', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		const saved = await service.save([
@@ -81,7 +82,7 @@ describe('ConnectorsService storage', () => {
 			},
 		]);
 
-		expect(saved).toHaveLength(1);
+		expect(saved).toHaveLength(2);
 		expect(saved.every((connector) => connector.authorization === '')).toBe(true);
 		expect(mockStoreData).toEqual({
 			acme_mail: {
@@ -89,6 +90,11 @@ describe('ConnectorsService storage', () => {
 				server_label: 'acme_mail',
 				server_url: 'https://mcp.example.com/mail',
 				authorization: 'token-123',
+			},
+			acme: {
+				type: 'mcp',
+				server_label: 'acme',
+				server_url: 'https://mcp.example.com/sse',
 			},
 		});
 	});
@@ -101,7 +107,7 @@ describe('ConnectorsService storage', () => {
 		);
 	});
 
-	it('does not store connector settings without authorization', async () => {
+	it('does not store connector settings without server URL or authorization', async () => {
 		const service = new ConnectorsService(logger as never, { env: {} });
 
 		await service.save([{
