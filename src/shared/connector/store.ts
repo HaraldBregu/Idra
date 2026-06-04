@@ -63,7 +63,6 @@ function connectorFromStoreEntry(key: string, entry: ConnectorStoreEntry): Conne
 		serverUrl: entry.server_url.trim(),
 		enabled: true,
 		authorization: entry.authorization?.trim() ?? '',
-		mcp: undefined,
 		oauth: undefined,
 		requireApproval: toConnectorApprovalMode(entry.require_approval),
 		allowedTools: uniqueStrings(entry.allowed_tools ?? []),
