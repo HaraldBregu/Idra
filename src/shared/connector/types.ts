@@ -51,7 +51,7 @@ export type ConnectorTool = {
 	requiresApproval: boolean;
 };
 
-export type ConnectorConfig = {
+export type ConnectorRecord = {
 	id: string;
 	name: string;
 	connectorId: ConnectorServiceId;
@@ -71,7 +71,7 @@ export type ConnectorConfig = {
 	lastError?: string;
 };
 
-export type ConnectorStoreEntry = {
+export type ConnectorConfigValue = {
 	type: 'mcp';
 	server_label: string;
 	server_url: string;
@@ -80,9 +80,11 @@ export type ConnectorStoreEntry = {
 	allowed_tools?: string[];
 };
 
-export type ConnectorStore = Record<string, ConnectorStoreEntry>;
+export type ConnectorConfig = Record<string, ConnectorConfigValue>;
 
-export type Connector = ConnectorConfig;
+export type ConnectorStoreEntry = ConnectorConfigValue;
+export type ConnectorStore = ConnectorConfig;
+export type Connector = ConnectorRecord;
 
 export type ConnectorView = {
 	id: string;
