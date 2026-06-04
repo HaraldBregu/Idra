@@ -100,8 +100,5 @@ function oauthScopes(oauth: ConnectorOAuthCredential): Set<string> {
 
 function authKindFor(connector: ConnectorConfig): ConnectorView['authKind'] {
 	if (connector.oauth) return 'oauth';
-	if (isOpenAiResponsesConnector(connector)) {
-		return connector.serverUrl && !connectorAuthorization(connector) ? 'none' : 'manual_oauth_access_token';
-	}
-	return 'mcp_env';
+	return connector.serverUrl && !connectorAuthorization(connector) ? 'none' : 'manual_oauth_access_token';
 }
