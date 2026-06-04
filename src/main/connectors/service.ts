@@ -30,6 +30,21 @@ export class ConnectorsService {
 		return this.list();
 	}
 
+	upsert(input: unknown): ConnectorRecord {
+		const current = this.repository.list();
+		const connector = connectorFromInput(input);
+		if (!connector) throw new Error('Connector serverUrl is required.');
+		const existing = current[connector.id];
+		this.repository.write({
+			...current,
+			[connector.id]: {
+				...connector.entry,
+				created_at: existing?.created_at ?? connector.entry.created_at,
+			},
+		});
+		return this.get(connector.id);
+	}
+
 	getConnectorSettings(): ConnectorRecord {
 		return this.list();
 	}
