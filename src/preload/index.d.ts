@@ -188,72 +188,7 @@ import type {
 	SpeechToTextTranscribeRequest,
 	SpeechToTextTranscription,
 } from '../shared/speech-to-text';
-type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 type ConnectorApprovalMode = 'always' | 'never';
-type ConnectorAuthKind =
-	| 'manual_oauth_access_token'
-	| 'oauth'
-	| 'mcp_env'
-	| 'api_key'
-	| 'none';
-
-type ConnectorConfig = {
-	id: string;
-	name: string;
-	connectorId: string;
-	serverLabel: string;
-	serverDescription?: string;
-	serverUrl?: string;
-	enabled: boolean;
-	authorization: string;
-	oauth?: {
-		service: string;
-		serviceId?: string;
-		authorizationUrl?: string;
-		clientId?: string;
-		clientSecret?: string;
-		redirectUri: string;
-		scopes?: readonly string[];
-		state?: string;
-		accessToken?: string;
-		refreshToken?: string;
-		expiresAt?: number;
-		tokenType?: string;
-		scope?: string;
-		email?: string;
-		accountEmail?: string;
-		token?: {
-			accessToken: string;
-			refreshToken?: string;
-			tokenType?: string;
-			scope?: string;
-			expiresAt?: string;
-		};
-		connectedAt?: string;
-	};
-	requireApproval: ConnectorApprovalMode;
-	deferLoading: boolean;
-	lastRefreshedAt?: string;
-	createdAt: string;
-	updatedAt: string;
-	lastError?: string;
-};
-
-type ConnectorSummary = {
-	id: string;
-	name: string;
-	connectorId: string;
-	authKind: ConnectorAuthKind;
-	serverLabel: string;
-	serverUrl?: string;
-	enabled: boolean;
-	status: ConnectorStatus;
-	requireApproval: ConnectorApprovalMode;
-	deferLoading: boolean;
-	lastRefreshedAt?: string;
-	lastError?: string;
-	connectedAccount?: string;
-};
 
 type ConnectorInput = {
 	name: string;
