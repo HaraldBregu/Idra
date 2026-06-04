@@ -769,6 +769,10 @@ export class AgentService {
 				model,
 				effort,
 				tools: selectedTools,
+				builtInTools:
+					providerId === 'openai'
+						? this.dependencies.connectors?.createOpenAIConnectorTools() ?? []
+						: [],
 				ctx,
 				streamEvent,
 				maxTokens: AGENT_TOOL_LIMITS.maxTokens,

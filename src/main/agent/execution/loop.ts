@@ -1,4 +1,4 @@
-import type { Usage } from '../../llm/types';
+import type { ProviderBuiltInToolSpec, Usage } from '../../llm/types';
 import { ContextOverflowError } from '../../llm/types';
 import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../../llm/types';
 import {
@@ -71,6 +71,7 @@ export interface AgentRunInput {
 	model?: string;
 	effort?: ModelReasoningEffort;
 	tools: AgentTool[];
+	builtInTools?: ProviderBuiltInToolSpec[];
 	ctx: ToolContext;
 	maxTokens?: number;
 	maxIterations?: number;
@@ -173,6 +174,16 @@ function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
 
 function toolResultOutput(content: ToolResultBlock[], details?: unknown): unknown {
 	return details === undefined ? resultBlocksToOutput(content) : details;
+}
+
+function redactProviderRequest<T extends { builtInTools?: ProviderBuiltInToolSpec[] }>(request: T): T {
+	if (!request.builtInTools?.length) return request;
+	return {
+		...request,
+		builtInTools: request.builtInTools.map((tool) =>
+			tool.type === 'mcp' ? { ...tool, authorization: tool.authorization ? '' : tool.authorization } : tool
+		),
+	};
 }
 
 async function prepareToolResultForRun(params: {
@@ -363,6 +374,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 			let turnStop = 'end_turn';
 			let iterUsage: Usage = { inputTokens: 0, outputTokens: 0 };
 			let reasoningStarted = false;
+			let approvalBlocked = false;
 			const reasoningSummaryId = `${runId}:${iter}:reasoning`;
 
 			try {
@@ -376,15 +388,16 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 						description: t.description,
 						schema: t.schema,
 					})),
+					builtInTools: input.builtInTools ?? [],
 					maxTokens,
 					signal,
 				};
 				await emitRuntimeLifecycleHook('llm_input', {
 					runId,
 					iteration: iter,
-					request,
+					request: redactProviderRequest(request),
 				});
-				for await (const event of provider.stream(request)) {
+				providerEvents: for await (const event of provider.stream(request)) {
 					switch (event.type) {
 						case 'reasoning_item':
 							reasoningBlocks.push({
@@ -466,6 +479,60 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 								});
 							}
 							break;
+						}
+						case 'mcp_approval_request': {
+							const args = parseToolArgs(event.arguments, { __unparsed: event.arguments });
+							const message = `OpenAI connector "${event.serverLabel}" requested approval to run "${event.name}", but approval continuation is not implemented yet.`;
+							firstTokenLatencyMs ??= Date.now() - runStart;
+							if (!didStartAnswering) {
+								didStartAnswering = true;
+								streamEvent?.({ type: 'run_state', state: 'answering', label: 'Answering' });
+							}
+							text += message;
+							streamOutput?.(message);
+							streamEvent?.({ type: 'text_delta', delta: message });
+							streamEvent?.({ type: 'run_state', state: 'using_tools', label: 'Using tools' });
+							streamEvent?.({
+								type: 'tool_call_start',
+								iteration: iter,
+								toolCallId: event.id,
+								toolName: event.name,
+								name: event.name,
+								displayName: `${event.serverLabel}.${event.name}`,
+								serviceKind: 'mcp',
+								serviceId: event.serverLabel,
+							});
+							streamEvent?.({
+								type: 'tool_call_input',
+								iteration: iter,
+								toolCallId: event.id,
+								toolName: event.name,
+								name: event.name,
+								displayName: `${event.serverLabel}.${event.name}`,
+								serviceKind: 'mcp',
+								serviceId: event.serverLabel,
+								input: args,
+								argsText: event.arguments,
+							});
+							streamEvent?.({
+								type: 'tool_call_result',
+								iteration: iter,
+								toolCallId: event.id,
+								toolName: event.name,
+								name: event.name,
+								displayName: `${event.serverLabel}.${event.name}`,
+								serviceKind: 'mcp',
+								serviceId: event.serverLabel,
+								input: args,
+								output: message,
+								outputText: message,
+								status: 'blocked',
+								durationMs: 0,
+								errorText: message,
+							});
+							approvalBlocked = true;
+							turnStop = 'end_turn';
+							break providerEvents;
 						}
 						case 'message_end':
 							turnStop = event.stopReason;
@@ -558,6 +625,7 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 
 			if (pending.size === 0) {
 				stopReason = turnStop === 'max_tokens' ? 'max_tokens' : 'end_turn';
+				if (approvalBlocked) stopReason = 'end_turn';
 				break;
 			}
 

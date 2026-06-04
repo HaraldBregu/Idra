@@ -7,9 +7,11 @@ import type {
 	ResponseInputItem,
 	ResponseOutputItem,
 	ResponseStreamEvent,
+	Tool as ResponseTool,
 } from 'openai/resources/responses/responses';
 import type {
 	AgentContentBlock,
+	ProviderBuiltInToolSpec,
 	ProviderAdapter,
 	ProviderEvent,
 	ProviderStreamRequest,
@@ -308,6 +310,10 @@ function hasFunctionCall(output: ResponseOutputItem[] | undefined): boolean {
 	return output?.some((item) => item.type === 'function_call') ?? false;
 }
 
+function toOpenAIResponseTool(tool: ProviderBuiltInToolSpec): ResponseTool {
+	return tool as unknown as ResponseTool;
+}
+
 export interface OpenAIAdapterOptions {
 	apiKey: string;
 	baseURL?: string;
@@ -333,13 +339,17 @@ export class OpenAIAdapter implements ProviderAdapter {
 	}
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
-		const tools: FunctionTool[] = req.tools.map((tool) => ({
+		const functionTools: FunctionTool[] = req.tools.map((tool) => ({
 			type: 'function',
 			name: tool.name,
 			description: tool.description,
 			parameters: tool.schema as Record<string, unknown>,
 			strict: false,
 		}));
+		const tools: ResponseTool[] = [
+			...functionTools,
+			...(req.builtInTools ?? []).map(toOpenAIResponseTool),
+		];
 
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
@@ -483,6 +493,17 @@ export class OpenAIAdapter implements ProviderAdapter {
 					yield { type: 'reasoning_item', item: event.item };
 					break;
 				}
+				if (event.item.type === 'mcp_approval_request') {
+					yield {
+						type: 'mcp_approval_request',
+						id: event.item.id,
+						serverLabel: event.item.server_label,
+						name: event.item.name,
+						arguments: event.item.arguments,
+					};
+					setStopReason('end_turn');
+					break;
+				}
 				if (event.item.type !== 'function_call') break;
 				const item = event.item as ResponseFunctionToolCall;
 				const state = stateFor(event.output_index, item.call_id, item.name, true);
@@ -500,6 +521,15 @@ export class OpenAIAdapter implements ProviderAdapter {
 			}
 			case 'response.output_text.delta':
 				yield { type: 'text_delta', text: event.delta };
+				break;
+			case 'response.mcp_call_arguments.delta':
+			case 'response.mcp_call_arguments.done':
+			case 'response.mcp_call.completed':
+			case 'response.mcp_call.failed':
+			case 'response.mcp_call.in_progress':
+			case 'response.mcp_list_tools.completed':
+			case 'response.mcp_list_tools.failed':
+			case 'response.mcp_list_tools.in_progress':
 				break;
 			case 'response.completed':
 				usage.inputTokens = event.response.usage?.input_tokens ?? usage.inputTokens;

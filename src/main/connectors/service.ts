@@ -7,7 +7,9 @@ import type { AgentTool, ToolContext } from '../tools/shared/types';
 import { textResult } from '../tools/shared/types';
 import {
 	MCP_CONNECTOR_CATALOG,
+	PROVIDER_CONNECTOR_CATALOG,
 	getMcpConnectorCatalogItem,
+	getProviderConnectorCatalogItem,
 	type ConnectorApprovalMode,
 	type ConnectorCallToolOptions,
 	type ConnectorCatalogEntry,
@@ -21,6 +23,8 @@ import {
 	type ConnectorTestResult,
 	type ConnectorTool,
 	type ConnectorView,
+	type OpenAiConnectorRequireApproval,
+	type OpenAiMcpConnectorToolSpec,
 } from '../../shared/connector';
 
 type ConnectorsStoreSchema = { connectors?: ConnectorConfig[] };
@@ -47,6 +51,12 @@ interface ConnectorsServiceOptions {
 
 const CONNECTOR_STORE_KEY = 'connectors';
 const DEFAULT_CONNECTOR_STORE_DIR = 'friday';
+const OPENAI_PROVIDER_CONNECTOR_CATALOG = PROVIDER_CONNECTOR_CATALOG.filter(
+	(connector) => connector.runtimeKind !== 'mcp'
+);
+const OPENAI_BUILT_IN_CONNECTOR_IDS = new Set(
+	OPENAI_PROVIDER_CONNECTOR_CATALOG.map((connector) => connector.id)
+);
 
 export class ConnectorsService {
 	private readonly store: ConnectorsStore;
@@ -64,7 +74,7 @@ export class ConnectorsService {
 	}
 
 	catalog(): readonly ConnectorCatalogEntry[] {
-		return MCP_CONNECTOR_CATALOG;
+		return OPENAI_PROVIDER_CONNECTOR_CATALOG;
 	}
 
 	list(): ConnectorView[] {
@@ -86,7 +96,7 @@ export class ConnectorsService {
 				serverLabel: sanitized.serverLabel ?? serverLabelFromName(sanitized.name),
 				serverDescription: sanitized.serverDescription,
 				enabled: sanitized.enabled ?? true,
-				authorization: '',
+				authorization: sanitized.authorization ?? '',
 				mcp: cloneValue(sanitized.mcp),
 				oauth: undefined,
 				requireApproval: sanitized.requireApproval ?? 'always',
@@ -96,9 +106,11 @@ export class ConnectorsService {
 				createdAt: now,
 				updatedAt: now,
 			};
-			const next = hasMissingMcpSecrets(connector, this.env())
-				? connector
-				: await this.withDiscoveredTools(connector, true);
+			const next = isOpenAiBuiltInConnector(connector)
+				? withProviderConnectorTools(connector)
+				: hasMissingMcpSecrets(connector, this.env())
+					? connector
+					: await this.withDiscoveredTools(connector, true);
 			this.writeConnectors([...this.validConnectors(), next]);
 			return redactConnectorSecrets(next);
 		} catch (error) {
@@ -115,20 +127,27 @@ export class ConnectorsService {
 			connectorId: readOptionalString(patch, 'connectorId') ?? current.connectorId,
 			serverLabel: readOptionalString(patch, 'serverLabel') ?? current.serverLabel,
 			serverDescription: readOptionalString(patch, 'serverDescription') ?? current.serverDescription,
+			authorization: readOptionalString(patch, 'authorization') ?? current.authorization,
 			requireApproval: readOptionalApprovalMode(patch, 'requireApproval') ?? current.requireApproval,
 			allowedTools: readOptionalStringArray(patch, 'allowedTools') ?? current.allowedTools,
 			deferLoading: readOptionalBoolean(patch, 'deferLoading') ?? current.deferLoading,
 			enabled: readOptionalBoolean(patch, 'enabled') ?? current.enabled,
 			mcp: readOptionalMcp(patch, 'mcp') ?? current.mcp,
 		});
-		const next: ConnectorConfig = {
+		const base: ConnectorConfig = {
 			...current,
 			...merged,
-			authorization: '',
+			authorization: merged.authorization ?? '',
 			mcp: cloneValue(merged.mcp),
-			tools: applyToolPolicy(current.tools, merged.allowedTools ?? [], merged.requireApproval ?? 'always'),
+			tools: [],
 			lastError: undefined,
 			updatedAt: new Date().toISOString(),
+		};
+		const next: ConnectorConfig = {
+			...base,
+			tools: isOpenAiBuiltInConnector(base)
+				? providerConnectorTools(base)
+				: applyToolPolicy(current.tools, base.allowedTools, base.requireApproval),
 		};
 		this.replace(next);
 		return redactConnectorSecrets(next);
@@ -246,6 +265,14 @@ export class ConnectorsService {
 
 	async refreshTools(id: string): Promise<ConnectorTool[]> {
 		const connector = this.getStored(id);
+		if (isOpenAiBuiltInConnector(connector)) {
+			const next = {
+				...withProviderConnectorTools(connector),
+				lastRefreshedAt: new Date().toISOString(),
+			};
+			this.replace(next);
+			return next.tools;
+		}
 		assertMcpSecrets(connector, this.env());
 		const next = await this.withDiscoveredTools(connector, false);
 		this.replace(next);
@@ -257,7 +284,7 @@ export class ConnectorsService {
 	}
 
 	getConnectorSettings(): ConnectorConfig[] {
-		return this.validConnectors();
+		return this.validConnectors().map(redactConnectorSecrets);
 	}
 
 	async callTool(id?: unknown, name?: unknown, args?: unknown, options?: unknown): Promise<unknown> {
@@ -268,6 +295,9 @@ export class ConnectorsService {
 		const connector = this.getStored(connectorId);
 		const status = toStatus(connector, this.env());
 		if (status !== 'configured') throw new Error(`Connector is not configured: ${connector.name}`);
+		if (isOpenAiBuiltInConnector(connector)) {
+			throw new Error('OpenAI connector tools are executed by OpenAI Responses API.');
+		}
 		const tool = connector.tools.find((item) => item.name === toolName);
 		if (!tool) throw new Error(`Tool ${toolName} is not enabled for ${connector.name}.`);
 		if (tool.permission === 'blocked') throw new Error(`Tool ${toolName} is blocked for ${connector.name}.`);
@@ -320,6 +350,7 @@ export class ConnectorsService {
 	createAgentTools(): AgentTool[] {
 		return this.validConnectors()
 			.filter((connector) => connector.enabled && toStatus(connector, this.env()) === 'configured')
+			.filter((connector) => !isOpenAiBuiltInConnector(connector))
 			.flatMap((connector) =>
 				connector.tools
 					.filter((tool) => tool.permission !== 'blocked')
@@ -338,6 +369,13 @@ export class ConnectorsService {
 						},
 					}))
 			);
+	}
+
+	createOpenAIConnectorTools(): OpenAiMcpConnectorToolSpec[] {
+		return this.validConnectors()
+			.filter((connector) => connector.enabled && toStatus(connector, this.env()) === 'configured')
+			.filter(isOpenAiBuiltInConnector)
+			.map(toOpenAiMcpTool);
 	}
 
 	private getStored(id: string): ConnectorConfig {
@@ -414,6 +452,7 @@ export class ConnectorsService {
 	}
 
 	private mcpClient(connector: ConnectorConfig): ConnectorMcpClient {
+		if (!connector.mcp) throw new Error('MCP transport configuration is required.');
 		assertMcpSecrets(connector, this.env());
 		if (this.options.mcpClientFactory) {
 			return this.options.mcpClientFactory(connector, resolveMcpSecrets(connector, this.env()));
@@ -467,9 +506,14 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	const raw = requireObject(input, 'Connector configuration');
 	const name = readOptionalString(raw, 'name')?.trim() ?? '';
 	const connectorId = readOptionalString(raw, 'connectorId')?.trim() ?? '';
-	const catalogItem = getMcpConnectorCatalogItem(connectorId);
+	const mcpCatalogItem = getMcpConnectorCatalogItem(connectorId);
+	const providerCatalogItem = getProviderConnectorCatalogItem(connectorId);
+	const isProviderConnector = isOpenAiBuiltInConnectorId(connectorId);
 	const serverLabel = readOptionalString(raw, 'serverLabel')?.trim() || serverLabelFromName(name);
-	const serverDescription = readOptionalString(raw, 'serverDescription')?.trim() || catalogItem?.description;
+	const serverDescription =
+		readOptionalString(raw, 'serverDescription')?.trim() ||
+		providerCatalogItem?.description ||
+		mcpCatalogItem?.description;
 	const authorization = readOptionalString(raw, 'authorization')?.trim() ?? '';
 	const requireApproval = readOptionalApprovalMode(raw, 'requireApproval') ?? 'always';
 	const allowedTools = readOptionalStringArray(raw, 'allowedTools') ?? [];
@@ -483,23 +527,25 @@ function sanitizeInput(input: unknown): ConnectorInput {
 	if (!/^[a-zA-Z0-9_-]+$/.test(serverLabel)) {
 		throw new Error('Server label can contain only letters, numbers, underscores, and hyphens.');
 	}
-	if (authorization) {
+	if (authorization && !isProviderConnector) {
 		throw new Error('Connector authorization secrets must be referenced from environment variables.');
 	}
-	if (!mcp) throw new Error('MCP transport configuration is required.');
-	validateMcpConfig(mcp);
+	if (!isProviderConnector) {
+		if (!mcp) throw new Error('MCP transport configuration is required.');
+		validateMcpConfig(mcp);
+	}
 
 	return {
 		name,
 		connectorId,
 		serverLabel,
 		serverDescription,
-		authorization: '',
+		authorization: isProviderConnector ? authorization : '',
 		requireApproval,
 		allowedTools: uniqueStrings(allowedTools),
 		deferLoading,
 		enabled,
-		mcp,
+		mcp: isProviderConnector ? undefined : mcp,
 	};
 }
 
@@ -589,7 +635,7 @@ function isStoredConnectorValid(value: unknown): value is ConnectorConfig {
 function normalizeStoredConnector(connector: ConnectorConfig): ConnectorConfig {
 	return {
 		...connector,
-		authorization: '',
+		authorization: typeof connector.authorization === 'string' ? connector.authorization : '',
 		allowedTools: Array.isArray(connector.allowedTools) ? uniqueStrings(connector.allowedTools) : [],
 		tools: Array.isArray(connector.tools) ? connector.tools.map(normalizeTool) : [],
 	};
@@ -625,6 +671,10 @@ function toView(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorVi
 }
 
 function authKindFor(connector: ConnectorConfig): ConnectorView['authKind'] {
+	const providerConnector = getProviderConnectorCatalogItem(connector.connectorId);
+	if (providerConnector && providerConnector.runtimeKind !== 'mcp') {
+		return providerConnector.authKind ?? 'manual_oauth_access_token';
+	}
 	if (connector.oauth) return 'oauth';
 	if (requiredMcpSecretNames(connector).length > 0) return 'mcp_env';
 	return 'mcp_env';
@@ -633,6 +683,7 @@ function authKindFor(connector: ConnectorConfig): ConnectorView['authKind'] {
 function toStatus(connector: ConnectorConfig, env: NodeJS.ProcessEnv): ConnectorStatus {
 	if (!connector.enabled) return 'disabled';
 	if (connector.lastError) return 'error';
+	if (isOpenAiBuiltInConnector(connector) && !connectorAuthorization(connector)) return 'missing_auth';
 	if (hasMissingMcpSecrets(connector, env)) return 'missing_auth';
 	if (connector.oauth && !connector.oauth.token?.accessToken && !connector.oauth.token?.refreshToken) {
 		return 'missing_auth';
@@ -685,18 +736,86 @@ function resolveMcpSecrets(connector: ConnectorConfig, env: NodeJS.ProcessEnv): 
 }
 
 function redactConnectorSecrets(connector: ConnectorConfig): ConnectorConfig {
-	if (!connector.oauth?.token) return { ...connector };
+	if (!connector.oauth) return { ...connector, authorization: '' };
+	const token = connector.oauth.token;
 	return {
 		...connector,
+		authorization: '',
 		oauth: {
 			...connector.oauth,
-			token: {
-				...connector.oauth.token,
-				accessToken: '',
-				refreshToken: connector.oauth.token.refreshToken ? '' : undefined,
-			},
+			accessToken: connector.oauth.accessToken ? '' : undefined,
+			refreshToken: connector.oauth.refreshToken ? '' : undefined,
+			clientSecret: connector.oauth.clientSecret ? '' : undefined,
+			token: token
+				? {
+						...token,
+						accessToken: '',
+						refreshToken: token.refreshToken ? '' : undefined,
+					}
+				: undefined,
 		},
 	};
+}
+
+function isOpenAiBuiltInConnectorId(connectorId: string): boolean {
+	return OPENAI_BUILT_IN_CONNECTOR_IDS.has(connectorId as never);
+}
+
+function isOpenAiBuiltInConnector(connector: Pick<ConnectorConfig, 'connectorId'>): boolean {
+	return isOpenAiBuiltInConnectorId(connector.connectorId);
+}
+
+function providerConnectorTools(connector: ConnectorConfig): ConnectorTool[] {
+	const catalogItem = getProviderConnectorCatalogItem(connector.connectorId);
+	const tools = (catalogItem?.tools ?? []).map((name) => ({
+		name,
+		description: name,
+		inputSchema: { type: 'object' },
+		permission: 'always-allow' as const,
+		requiresApproval: false,
+	}));
+	return applyToolPolicy(tools, connector.allowedTools, connector.requireApproval);
+}
+
+function withProviderConnectorTools(connector: ConnectorConfig): ConnectorConfig {
+	return {
+		...connector,
+		tools: providerConnectorTools(connector),
+		lastError: undefined,
+		updatedAt: new Date().toISOString(),
+	};
+}
+
+function connectorAuthorization(connector: ConnectorConfig): string {
+	return (
+		connector.authorization?.trim() ||
+		connector.oauth?.token?.accessToken?.trim() ||
+		connector.oauth?.accessToken?.trim() ||
+		''
+	);
+}
+
+function toOpenAiMcpTool(connector: ConnectorConfig): OpenAiMcpConnectorToolSpec {
+	const tool: OpenAiMcpConnectorToolSpec = {
+		type: 'mcp',
+		server_label: connector.serverLabel,
+		connector_id: connector.connectorId,
+		authorization: connectorAuthorization(connector),
+		require_approval: toOpenAiRequireApproval(connector.requireApproval, connector.allowedTools),
+	};
+	if (connector.allowedTools.length > 0) tool.allowed_tools = [...connector.allowedTools];
+	if (connector.deferLoading) tool.defer_loading = true;
+	if (connector.serverDescription) tool.server_description = connector.serverDescription;
+	return tool;
+}
+
+function toOpenAiRequireApproval(
+	mode: ConnectorApprovalMode,
+	allowedTools: readonly string[]
+): OpenAiConnectorRequireApproval {
+	if (mode === 'always') return 'always';
+	if (mode === 'never') return 'never';
+	return { never: { tool_names: [...allowedTools] } };
 }
 
 function readToolArgs(value: unknown): Record<string, unknown> {

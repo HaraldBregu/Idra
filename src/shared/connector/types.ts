@@ -81,6 +81,10 @@ export type OpenAiConnectorCatalogEntry = ConnectorCatalogEntry;
 
 export type ConnectorStatus = 'configured' | 'missing_auth' | 'disabled' | 'error';
 export type ConnectorApprovalMode = 'always' | 'never' | 'never_for_allowed_tools';
+export type OpenAiConnectorRequireApproval =
+	| 'always'
+	| 'never'
+	| { never: { tool_names: string[] } };
 export type ConnectorAuthKind =
 	| 'manual_oauth_access_token'
 	| 'google_oauth'
@@ -264,4 +268,15 @@ export interface GoogleOAuthCredential extends ConnectorOAuthCredential {
 export interface ConnectorCallToolOptions {
 	timeoutMs?: number;
 	retries?: number;
+}
+
+export interface OpenAiMcpConnectorToolSpec {
+	type: 'mcp';
+	server_label: string;
+	connector_id: string;
+	authorization: string;
+	require_approval: OpenAiConnectorRequireApproval;
+	allowed_tools?: string[];
+	defer_loading?: boolean;
+	server_description?: string;
 }

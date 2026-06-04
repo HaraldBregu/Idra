@@ -1,4 +1,5 @@
 import type { ModelReasoningEffort } from '../../shared/agents/service';
+import type { OpenAiMcpConnectorToolSpec } from '../../shared/connector';
 
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.
@@ -20,6 +21,13 @@ export type ProviderEvent =
 	| { type: 'tool_call_start'; id: string; name: string }
 	| { type: 'tool_call_args_delta'; id: string; jsonDelta: string }
 	| { type: 'tool_call_end'; id: string }
+	| {
+			type: 'mcp_approval_request';
+			id: string;
+			serverLabel: string;
+			name: string;
+			arguments: string;
+	  }
 	| { type: 'message_end'; stopReason: string; usage: Usage };
 
 export type AgentContentBlock =
@@ -66,12 +74,15 @@ export interface ProviderToolSpec {
 	schema: JSONSchema;
 }
 
+export type ProviderBuiltInToolSpec = OpenAiMcpConnectorToolSpec;
+
 export interface ProviderStreamRequest {
 	model: string;
 	effort?: ModelReasoningEffort;
 	system: string;
 	messages: TranscriptEntry[];
 	tools: ProviderToolSpec[];
+	builtInTools?: ProviderBuiltInToolSpec[];
 	maxTokens: number;
 	signal?: AbortSignal;
 }
