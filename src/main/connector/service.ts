@@ -12,7 +12,7 @@ import {
 	type ConnectorInput,
 } from './validation';
 import { redactConnectorSecrets } from './runtime';
-import { ConnectorRepository } from './repository';
+import { ConnectorRepository } from '../connectors';
 
 type OpenExternalUrl = (url: string) => Promise<unknown> | unknown;
 type ConnectorEntry = ConnectorRecord[string];
