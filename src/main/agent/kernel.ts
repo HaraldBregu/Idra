@@ -215,7 +215,7 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory: AgentToolsFactory;
-	private readonly toolService: ToolServicePort;
+	private readonly toolService: ToolsServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly usesDefaultToolsFactory: boolean;
