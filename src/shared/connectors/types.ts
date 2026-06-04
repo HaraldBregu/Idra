@@ -1,4 +1,4 @@
-export type ConnectorConfigValue = {
+export type ConnectorRecord = Record<string, {
 	type: 'mcp';
 	server_label: string;
 	server_url: string;
@@ -11,6 +11,4 @@ export type ConnectorConfigValue = {
 	created_at?: string;
 	updated_at?: string;
 	last_error?: string;
-};
-
-export type ConnectorRecord = Record<string, ConnectorConfigValue>;
+}>;
