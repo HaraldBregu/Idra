@@ -126,7 +126,6 @@ function toStoredRequireApproval(
 	allowedTools: readonly string[]
 ): ConnectorConfigValue['require_approval'] {
 	if (mode === 'never') return 'never';
-	if (mode === 'always') return 'always';
 	if (mode === 'never_for_allowed_tools' && allowedTools.length > 0) {
 		return { never: { tool_names: [...allowedTools] } };
 	}
