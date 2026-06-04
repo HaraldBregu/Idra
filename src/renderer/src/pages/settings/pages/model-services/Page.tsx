@@ -387,10 +387,7 @@ const ModelServicePage: React.FC = () => {
 			</SettingsSection>
 
 			{service.id === AGENTS.assistant && (
-				<SettingsSection
-					title={t('settings.chatHistory.title')}
-					description={t('settings.chatHistory.description')}
-				>
+				<SettingsSection title={t('settings.chatHistory.title')}>
 					<Card size="sm" className="gap-0! p-0!">
 						<Item variant="outline" size="md">
 							<ItemMedia variant="icon">
