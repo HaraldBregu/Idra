@@ -1,4 +1,4 @@
-import type { RuntimeInput, RuntimePrompt } from './types';
+import type { RuntimeInput, RuntimePrompt } from '../types';
 
 export function composePrompt(input: RuntimeInput): RuntimePrompt {
 	const system = input.system ?? 'You are Friday. Complete the task directly.';

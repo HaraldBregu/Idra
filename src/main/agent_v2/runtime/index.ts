@@ -1,10 +1,10 @@
-export { act } from './act';
 export { AgentRuntime } from './loop';
-export { observe } from './observe';
+export { act } from './loop/act';
+export { observe } from './loop/observe';
+export { perceive } from './loop/perceive';
 export { composePrompt } from './prompt';
-export { perceive } from './perceive';
 export { parseOutput } from './parser';
-export { retry } from './retry';
+export { retry } from './error';
 export { routeModel } from './routing';
 export type {
 	RuntimeInput,

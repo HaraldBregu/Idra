@@ -1,4 +1,4 @@
-import type { RuntimeInput } from './types';
+import type { RuntimeInput } from '../types';
 
 export function routeModel(input: RuntimeInput): string {
 	if (input.model) return input.model;
