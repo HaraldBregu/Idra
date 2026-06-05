@@ -5,9 +5,11 @@ import {
 	type AgentTool,
 	type AgentToolManagementOptions,
 	type ToolContext,
-	type ToolsServicePort,
 } from '../tooling';
-import { ToolsService } from '../../tools';
+import {
+	createAgentToolController,
+	type AgentToolControllerPort,
+} from '../tools';
 import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';
 import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
@@ -46,7 +48,7 @@ export interface AgentRunInput {
 	streamEvent?: (event: AgentRunStreamEvent) => void;
 	signal?: AbortSignal;
 	toolManagement?: AgentToolManagementOptions;
-	toolService?: ToolsServicePort;
+	toolController?: AgentToolControllerPort;
 	store?: AgentProviderLookup;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
 	agentRuntimeId?: string;
@@ -65,12 +67,14 @@ export interface AgentExecutionServicePort {
 }
 
 export class AgentExecutionService implements AgentExecutionServicePort {
-	constructor(private readonly toolService: ToolsServicePort = new ToolsService()) {}
+	constructor(
+		private readonly toolController: AgentToolControllerPort = createAgentToolController()
+	) {}
 
 	execute(input: AgentRunInput): Promise<AgentRunResult> {
 		return executeAgentRun({
 			...input,
-			toolService: input.toolService ?? this.toolService,
+			toolController: input.toolController ?? this.toolController,
 		});
 	}
 }
@@ -238,18 +242,18 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 		signal,
 	} = input;
 
-	const toolService = input.toolService ?? new ToolsService();
-	const tracker = toolService.createCallTracker();
+	const toolController = input.toolController ?? createAgentToolController();
 	const executionCtx = ctx;
-	const toolPreparation = toolService.prepareToolsForRun({
+	const toolPreparation = toolController.prepareRun({
 		tools,
 		ctx: executionCtx,
 		userMessage,
-		provider: input.providerId,
-		modelId: model,
+		providerId: input.providerId,
+		model,
 		management: input.toolManagement,
 	});
 	const toolManagement = toolPreparation.management;
+	const tracker = toolPreparation.tracker;
 	const toolsForPrompt = toolPreparation.toolsForPrompt;
 	const systemPromptForTurn = toolPreparation.systemPromptSuffix
 		? `${systemPrompt}\n\n${toolPreparation.systemPromptSuffix}`
@@ -690,33 +694,18 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 					agentLogger.warn('agent:run', 'tool not found', { runId, tool: t.name, iter });
 					continue;
 				}
-				const before = await toolService.beforeCall(tool, args, executionCtx, tracker);
-				if (!before.proceed && before.vetoResult) {
-					const status: AgentToolResultStatus = before.vetoStatus ?? 'error';
-					const toolResult = await prepareToolResultForRun({
-						content: before.vetoResult.content,
-						details: before.vetoResult.details,
-					});
-					await recordToolResult({
-						iteration: iter,
-						toolUseId: id,
-						tool,
-						args,
-						status,
-						durationMs: Date.now() - toolStart,
-						toolResult,
-						isError: true,
-					});
-					continue;
-				}
 				let res;
+				let status: AgentToolResultStatus;
 				try {
-					res = await toolService.executeToolWithManagement(
+					const executed = await toolController.execute({
 						tool,
 						args,
-						executionCtx,
-						toolManagement
-					);
+						ctx: executionCtx,
+						tracker,
+						management: toolManagement,
+					});
+					res = executed.result;
+					status = executed.status;
 				} catch (err) {
 					agentLogger.error('agent:run', 'tool threw', {
 						runId,
@@ -730,15 +719,12 @@ export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunRes
 							{ type: 'text' as const, text: `tool ${t.name} threw: ${(err as Error).message}` },
 						],
 					};
+					status = 'error';
 				}
-				const rawContent = before.warning
-					? [...res.content, { type: 'text' as const, text: before.warning }]
-					: res.content;
 				const toolResult = await prepareToolResultForRun({
-					content: rawContent,
+					content: res.content,
 					details: res.details,
 				});
-				const status = normalizeToolStatus(res.status);
 				await recordToolResult({
 					iteration: iter,
 					toolUseId: id,
