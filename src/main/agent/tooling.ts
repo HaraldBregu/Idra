@@ -10,6 +10,7 @@ export type {
 	PlanEntry,
 	ToolContext,
 	ToolRunPreparation,
+	ToolsServicePort,
 } from './types';
 
 export function textResult(text: string, isError = false): AgentToolResult {

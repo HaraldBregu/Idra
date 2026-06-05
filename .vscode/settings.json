@@ -15,7 +15,7 @@
     // "CLAUDE.md": true,
     "components.json": true,
     "dist": true,
-    "docs": true,
+    // "docs": true,
     "electron-builder.json": true,
     "electron.vite.config.ts": true,
     "eslint.config.mjs": true,

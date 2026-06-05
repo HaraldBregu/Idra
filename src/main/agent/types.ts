@@ -302,6 +302,11 @@ export interface BuildAgentToolsInput<TServices = unknown> {
 	additionalTools?: AgentTool[];
 }
 
+export interface CreateAgentToolsInput<TServices = unknown>
+	extends BuildAgentToolsInput<TServices> {
+	toolService?: ToolsServicePort;
+}
+
 export interface BuiltAgentTools {
 	tools: AgentTool[];
 	builtInTools: ProviderBuiltInToolSpec[];

@@ -8,6 +8,7 @@ import type {
 	AgentToolsFactoryContext,
 	BuildAgentToolsInput,
 	BuiltAgentTools,
+	CreateAgentToolsInput,
 	ExecuteAgentToolInput,
 	ExecuteAgentToolResult,
 	PrepareAgentToolRunInput,
@@ -24,6 +25,7 @@ export type {
 	AgentToolsFactoryContext,
 	BuildAgentToolsInput,
 	BuiltAgentTools,
+	CreateAgentToolsInput,
 	ExecuteAgentToolInput,
 	ExecuteAgentToolResult,
 	PrepareAgentToolRunInput,
@@ -36,6 +38,12 @@ export function createAgentToolController(
 	options: AgentToolControllerOptions = {}
 ): AgentToolControllerPort {
 	return new AgentToolController(options.toolService ?? new ToolsService(options.logger));
+}
+
+export function createAgentTools<TServices = unknown>(
+	input: CreateAgentToolsInput<TServices>
+): Promise<BuiltAgentTools> {
+	return createAgentToolController({ toolService: input.toolService }).buildTools(input);
 }
 
 class AgentToolController implements AgentToolControllerPort {
