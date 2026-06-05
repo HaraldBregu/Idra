@@ -1,4 +1,4 @@
-import type { RuntimeToolCall } from '../types';
+import type { RuntimeToolCall } from './types';
 
 export function parseOutput(text: string): { text: string; toolCalls: RuntimeToolCall[] } {
 	const match = text.match(/\{[\s\S]*"toolCalls"[\s\S]*\}/);

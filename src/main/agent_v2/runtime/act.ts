@@ -1,5 +1,5 @@
-import { retry } from '../error';
-import type { RuntimeModel, RuntimeModelResponse, RuntimePerception } from '../types';
+import { retry } from './recovery';
+import type { RuntimeModel, RuntimeModelResponse, RuntimePerception } from './types';
 
 export function act(
 	model: RuntimeModel,

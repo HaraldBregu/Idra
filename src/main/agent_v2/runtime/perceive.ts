@@ -1,6 +1,6 @@
-import { composePrompt } from '../prompt';
-import { routeModel } from '../routing';
-import type { RuntimeInput, RuntimePerception } from '../types';
+import { composePrompt } from './composer';
+import { routeModel } from './routing';
+import type { RuntimeInput, RuntimePerception } from './types';
 
 export function perceive(input: RuntimeInput): RuntimePerception {
 	return {
