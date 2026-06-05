@@ -5,7 +5,6 @@ import type { CronService } from '../cron';
 import type { LoggerService } from '../observability';
 import type { StoreService } from '../store';
 import type { ConnectorsService } from '../connectors';
-import { McpService } from '../mcp';
 import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
@@ -29,7 +28,7 @@ import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agent
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
 import { makeProvider, type ProviderSpec } from '../llm/router';
-import type { ProviderAdapter, ProviderBuiltInToolSpec, TranscriptEntry } from '../llm/types';
+import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
 	loadExistingSession,
@@ -62,6 +61,11 @@ import {
 	type ToolContext,
 	type ToolsServicePort,
 } from './tooling';
+import {
+	createAgentTools,
+	type AgentToolsFactory as AgentToolsFactoryFor,
+	type AgentToolsFactoryContext as AgentToolsFactoryContextFor,
+} from './tools';
 import { ToolsService } from '../tools';
 
 const AGENT_TOOL_LIMITS = {
@@ -86,23 +90,8 @@ export interface AgentServiceDependencies {
 	startupFiles?: AgentStartupFilesServicePort;
 }
 
-export interface AgentToolsFactoryContext {
-	agentId: string;
-	runId: string;
-	providerId: string;
-	model: string;
-	workspace: string;
-	session: SessionFile;
-	signal: AbortSignal;
-	services: AgentServiceDependencies;
-	toolContext: ToolContext;
-	toolsAllow?: string[];
-	toolsDeny?: string[];
-}
-
-export type AgentToolsFactory = (
-	context: AgentToolsFactoryContext
-) => AgentTool[] | Promise<AgentTool[]>;
+export type AgentToolsFactoryContext = AgentToolsFactoryContextFor<AgentServiceDependencies>;
+export type AgentToolsFactory = AgentToolsFactoryFor<AgentServiceDependencies>;
 
 export interface AgentServiceOptions {
 	defaultAgentId?: string;
@@ -207,12 +196,10 @@ async function recordAsyncPhase<T>(
 export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
-	private readonly toolsFactory: AgentToolsFactory;
+	private readonly toolsFactory?: AgentToolsFactory;
 	private readonly toolService: ToolsServicePort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
-	private readonly mcpService?: Pick<McpService, 'createToolsForProvider'>;
-	private readonly usesDefaultToolsFactory: boolean;
 	private readonly sessionBaseDir?: string;
 	private heartbeatStore: HeartbeatFileStore | null = null;
 	private readonly runtimes = new Map<string, Runtime>();
@@ -229,7 +216,6 @@ export class AgentService {
 			options.toolService ??
 			dependencies.toolService ??
 			new ToolsService(dependencies.logger);
-		this.mcpService = dependencies.connectors ? new McpService(dependencies.connectors) : undefined;
 		this.capabilityService =
 			options.capabilityService ??
 			new AgentCapabilityService({
@@ -238,8 +224,7 @@ export class AgentService {
 			});
 		this.executionService =
 			options.executionService ?? new AgentExecutionService(this.toolService);
-		this.usesDefaultToolsFactory = !options.toolsFactory;
-		this.toolsFactory = options.toolsFactory ?? ((context) => this.createDefaultTools(context));
+		this.toolsFactory = options.toolsFactory;
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.ensureRuntime(this.defaultAgentId);
 	}
@@ -434,22 +419,6 @@ export class AgentService {
 		}
 	}
 
-	private async createDefaultTools(context: AgentToolsFactoryContext): Promise<AgentTool[]> {
-			return this.toolService.createDefaultTools({
-				explicitAllow: context.toolsAllow,
-				denylist: context.toolsDeny,
-			});
-	}
-
-	private createBuiltInToolsForProvider(providerId: string): ProviderBuiltInToolSpec[] {
-		const tools = this.mcpService?.createToolsForProvider(providerId) ?? [];
-		this.dependencies.logger.info('AgentService', 'Resolved provider built-in tools', {
-			providerId,
-			count: tools.length,
-		});
-		return tools;
-	}
-
 	async send(
 		message: string,
 		agentId = this.defaultAgentId,
@@ -558,6 +527,9 @@ export class AgentService {
 			};
 			const isPrimaryRun =
 				runKind === 'default' && agentId === this.defaultAgentId && runtimeAgentId === agentId;
+			const additionalTools = heartbeatOptions?.enableHeartbeatTool
+				? [createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response))]
+				: undefined;
 			let bootstrapPending = await recordAsyncPhase(phaseDurationsMs, 'check_bootstrap', () =>
 				this.isBootstrapPending(agentId)
 			);
@@ -576,36 +548,29 @@ export class AgentService {
 				rankedTools: [],
 			};
 			let selectedTools: AgentTool[] = [];
-			let baseTools: AgentTool[] = [];
-			baseTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
-				Promise.resolve(
-					this.toolsFactory({
-							agentId,
-							runId,
-							providerId,
-							model,
-							workspace: workspaceRoot,
-							session: runtime.session!,
-							signal: abort.signal,
-							services: this.dependencies,
-							toolContext: ctx,
-							toolsAllow: options.toolsAllow,
-							toolsDeny: options.toolsDeny,
-						})
-					)
-				);
-			if (heartbeatOptions?.enableHeartbeatTool) {
-				baseTools = [
-					...baseTools,
-					createHeartbeatResponseTool((response) => heartbeatOptions.onToolResponse?.(response)),
-				];
-			}
-			if (!this.usesDefaultToolsFactory || options.toolsAllow) {
-				baseTools = this.toolService.filterToolsByAllowlist(
-					baseTools,
-						options.toolsAllow
-					);
-			}
+			const agentTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
+				createAgentTools({
+					context: {
+						agentId,
+						runId,
+						providerId,
+						model,
+						workspace: workspaceRoot,
+						session: runtime.session!,
+						signal: abort.signal,
+						services: this.dependencies,
+						toolContext: ctx,
+						toolsAllow: options.toolsAllow,
+						toolsDeny: options.toolsDeny,
+					},
+					toolService: this.toolService,
+					toolsFactory: this.toolsFactory,
+					additionalTools,
+					connectors: this.dependencies.connectors,
+					logger: this.dependencies.logger,
+				})
+			);
+			let baseTools = agentTools.tools;
 
 			let directAnswer =
 				!heartbeatOptions &&
@@ -720,7 +685,7 @@ export class AgentService {
 				model,
 				effort,
 				tools: selectedTools,
-				builtInTools: this.createBuiltInToolsForProvider(providerId),
+				builtInTools: agentTools.builtInTools,
 				ctx,
 				streamEvent,
 				maxTokens: AGENT_TOOL_LIMITS.maxTokens,
