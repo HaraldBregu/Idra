@@ -60,3 +60,9 @@ export interface SessionIndexEntry {
 export interface SessionStoreOptions {
 	baseDir?: string;
 }
+
+export interface LockHandle {
+	release(): Promise<void>;
+}
+
+export type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;

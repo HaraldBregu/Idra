@@ -1,8 +1,7 @@
 import type { TranscriptEntry } from '../../llm/types';
 import { sanitizeToolUseResultPairing } from './repair';
 import type { SessionFile } from './types';
-
-const MAX_TOOL_RESULT_CHARS = 16_000;
+import { MAX_TOOL_RESULT_CHARS } from './common';
 
 function truncateText(value: string, maxChars: number): string {
 	if (value.length <= maxChars) return value;

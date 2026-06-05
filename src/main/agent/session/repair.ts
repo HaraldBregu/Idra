@@ -1,6 +1,5 @@
 import type { ToolResultStatus, TranscriptEntry } from '../../llm/types';
-
-type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
+import type { ToolTranscriptEntry } from './types';
 
 function toolResultStatus(entry: ToolTranscriptEntry): ToolResultStatus {
 	return entry.status ?? (entry.isError ? 'error' : 'ok');

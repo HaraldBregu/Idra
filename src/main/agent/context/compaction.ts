@@ -1,27 +1,11 @@
 import { createHash } from 'node:crypto';
 import { agentLogger } from '../logger';
 import type { ProviderAdapter, TranscriptEntry } from '../../llm/types';
-import type { CompactionMarker } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
+import { KEEP_RECENT, compactionMutex } from './common';
+import type { AgentCompactionOptions, NativeCompactionResult } from './types';
 
-const KEEP_RECENT = 6;
-
-const compactionMutex = new Map<string, Promise<void>>();
-
-export interface AgentCompactionOptions {
-	runId?: string;
-	agentId?: string;
-	sessionKey?: string;
-	providerId?: string;
-	requestedRuntime?: string;
-	storedRuntime?: string;
-	channelId?: string;
-}
-
-type NativeCompactionResult = {
-	transcript: TranscriptEntry[];
-	marker: CompactionMarker | null;
-};
+export type { AgentCompactionOptions, NativeCompactionResult } from './types';
 
 /**
  * Replace older transcript turns with a one-paragraph summary. Used when

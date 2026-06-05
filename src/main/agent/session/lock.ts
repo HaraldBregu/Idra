@@ -1,9 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import type { LockHandle } from './types';
 
-export interface LockHandle {
-	release(): Promise<void>;
-}
+export type { LockHandle } from './types';
 
 export async function acquireWriteLock(
 	filePath: string,

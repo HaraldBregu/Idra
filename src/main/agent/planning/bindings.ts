@@ -6,13 +6,7 @@ import type {
 	AgentRouteSessionScope,
 	AgentRoutingSettings,
 } from '../../../shared/store';
-
-const SESSION_SCOPES = new Set<AgentRouteSessionScope>([
-	'main',
-	'per-peer',
-	'per-channel-peer',
-	'per-account-channel-peer',
-]);
+import { SESSION_SCOPES } from './common';
 
 function normalizeId(value: unknown): string | undefined {
 	if (typeof value !== 'string') return undefined;
