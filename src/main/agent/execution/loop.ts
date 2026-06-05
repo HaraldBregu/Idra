@@ -1,15 +1,7 @@
-import type { ProviderBuiltInToolSpec, Usage } from '../../llm/types';
 import { ContextOverflowError } from '../../llm/types';
 import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../../llm/types';
-import {
-	type AgentTool,
-	type AgentToolManagementOptions,
-	type ToolContext,
-} from '../tooling';
-import {
-	createAgentToolController,
-	type AgentToolControllerPort,
-} from '../tools';
+import type { AgentTool, ToolContext } from '../tooling';
+import { createAgentToolController } from '../tools';
 import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';
 import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
@@ -17,54 +9,19 @@ import type { SessionFile } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
 import { makeProvider, type ProviderSpec } from '../../llm/router';
 import type { AgentRunStreamEvent, AgentToolResultStatus } from '../../../shared/agents/events';
+import type {
+	AgentExecutionServicePort,
+	AgentRunInput,
+	AgentRunResult,
+} from './types';
 
-export type { AgentRunStreamEvent } from '../../../shared/agents/events';
-
-export interface AgentProviderLookup {
-	getAgentService():
-		| {
-				provider: { id: string };
-				model: { id: string; name: string; effort?: ModelReasoningEffort };
-		  }
-		| undefined;
-	getProviderById(id: string): { apiKey: string; baseUrl?: string } | undefined;
-}
-
-export interface AgentRunInput {
-	runId: string;
-	userMessage: string;
-	systemPrompt: string;
-	session: SessionFile;
-	provider?: ProviderAdapter;
-	providerId?: string;
-	model?: string;
-	effort?: ModelReasoningEffort;
-	tools: AgentTool[];
-	builtInTools?: ProviderBuiltInToolSpec[];
-	ctx: ToolContext;
-	maxTokens?: number;
-	maxIterations?: number;
-	streamOutput?: (chunk: string) => void;
-	streamEvent?: (event: AgentRunStreamEvent) => void;
-	signal?: AbortSignal;
-	toolManagement?: AgentToolManagementOptions;
-	toolController?: AgentToolControllerPort;
-	store?: AgentProviderLookup;
-	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
-	agentRuntimeId?: string;
-}
-
-export interface AgentRunResult {
-	finalText: string;
-	toolCalls: number;
-	usage: Usage;
-	stopReason: 'end_turn' | 'max_tokens' | 'max_iterations' | 'error' | 'cancelled';
-	session: SessionFile;
-}
-
-export interface AgentExecutionServicePort {
-	execute(input: AgentRunInput): Promise<AgentRunResult>;
-}
+export type {
+	AgentExecutionServicePort,
+	AgentProviderLookup,
+	AgentRunInput,
+	AgentRunResult,
+	AgentRunStreamEvent,
+} from './types';
 
 export class AgentExecutionService implements AgentExecutionServicePort {
 	constructor(

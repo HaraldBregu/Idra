@@ -13,17 +13,12 @@ import {
 	type WorkspaceContextFile,
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
-	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
-	DEFAULT_USER_FILENAME,
 	AgentWorkspaceService,
 	type AgentStartupFilesServicePort,
 } from './workspace';
 import { buildSystemPrompt } from './context/prompt';
-import {
-	AgentExecutionService,
-	type AgentExecutionServicePort,
-} from './execution/loop';
+import { AgentExecutionService } from './execution/loop';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
@@ -60,114 +55,32 @@ import {
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 } from './tooling';
-import {
-	createAgentToolController,
-	type AgentToolControllerPort,
-	type AgentToolsFactory as AgentToolsFactoryFor,
-	type AgentToolsFactoryContext as AgentToolsFactoryContextFor,
-} from './tools';
+import { createAgentToolController } from './tools';
+import { AGENT_TOOL_LIMITS, SECONDARY_SESSION_CONTEXT_ALLOWLIST } from './common';
+import type {
+	AgentCreateRunOptions,
+	AgentExecuteRunOptions,
+	AgentRunRecord,
+	AgentRunStatePatch,
+	AgentSendOptions,
+	AgentServiceDependencies,
+	AgentServiceOptions,
+	AgentToolControllerPort,
+	AgentToolsFactory,
+	Runtime,
+} from './types';
 
-const AGENT_TOOL_LIMITS = {
-	maxTokens: 4096,
-	maxIterations: 25,
-	defaultMaxPromptTools: 9,
-} as const;
-
-export interface AgentServiceDependencies {
-	store: StoreService;
-	cron: CronService;
-	logger: LoggerService;
-	eventBus: EventBus;
-	workspace: WorkspaceService;
-	agentDataDirectory?: AgentDataDirectoryServicePort;
-	agentSettings?: AgentSettingsStorePort;
-	connectors?: ConnectorsService;
-	skills?: SkillsService;
-	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
-	channelRegistry?: ChannelRegistry;
-	startupFiles?: AgentStartupFilesServicePort;
-}
-
-export type AgentToolsFactoryContext = AgentToolsFactoryContextFor<AgentServiceDependencies>;
-export type AgentToolsFactory = AgentToolsFactoryFor<AgentServiceDependencies>;
-
-export interface AgentServiceOptions {
-	defaultAgentId?: string;
-	providerFactory?: (provider: ProviderSpec) => ProviderAdapter;
-	toolsFactory?: AgentToolsFactory;
-	toolController?: AgentToolControllerPort;
-	capabilityService?: AgentCapabilityServicePort;
-	executionService?: AgentExecutionServicePort;
-	sessionBaseDir?: string;
-}
-
-export interface AgentSendOptions {
-	runId?: string;
-	cronContext?: CronToolContext;
-	sessionId?: string;
-	providerId?: string;
-	model?: string;
-	effort?: ModelReasoningEffort;
-	lightContext?: boolean;
-	streamEvent?: (event: AgentResponseEvent) => void;
-	toolsAllow?: string[];
-	toolsDeny?: string[];
-	sessionMetadata?: Partial<AgentSessionMetadata>;
-	heartbeat?: {
-		model?: string;
-		timeoutSeconds?: number;
-		lightContext?: boolean;
-		suppressToolErrorWarnings?: boolean;
-		suppressAgentEvents?: boolean;
-		enableHeartbeatTool?: boolean;
-		forceHeartbeatTool?: boolean;
-		onToolResponse?: (response: HeartbeatToolResponse) => void;
-	};
-}
-
-export interface AgentRunRecord {
-	id: string;
-	agentId: string;
-	sessionId: string;
-	state: AgentRunState;
-	createdAt: string;
-	updatedAt: string;
-	providerId?: string;
-	model?: string;
-	label?: string;
-	output?: string;
-	error?: string;
-}
-
-export interface AgentCreateRunOptions {
-	runId?: string;
-	agentId?: string;
-	sessionId?: string;
-	providerId?: string;
-	model?: string;
-	state?: AgentRunState;
-	sessionMetadata?: Partial<AgentSessionMetadata>;
-}
-
-export type AgentRunStatePatch = Partial<
-	Pick<AgentRunRecord, 'state' | 'label' | 'output' | 'error' | 'providerId' | 'model'>
->;
-
-export type AgentExecuteRunOptions = Omit<AgentSendOptions, 'runId' | 'sessionId'> & {
-	deleteWhenDone?: boolean;
-};
-
-interface Runtime {
-	session: SessionFile | null;
-	currentAbort: AbortController | null;
-}
-
-const SECONDARY_SESSION_CONTEXT_ALLOWLIST = new Set([
-	'AGENTS.md',
-	DEFAULT_SOUL_FILENAME,
-	DEFAULT_IDENTITY_FILENAME,
-	DEFAULT_USER_FILENAME,
-]);
+export type {
+	AgentCreateRunOptions,
+	AgentExecuteRunOptions,
+	AgentRunRecord,
+	AgentRunStatePatch,
+	AgentSendOptions,
+	AgentServiceDependencies,
+	AgentServiceOptions,
+	AgentToolsFactory,
+	AgentToolsFactoryContext,
+} from './types';
 
 function recordPhase<T>(durations: Record<string, number>, name: string, work: () => T): T {
 	const start = Date.now();
