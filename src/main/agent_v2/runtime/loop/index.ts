@@ -1,7 +1,7 @@
 import { act } from './act';
 import { observe } from './observe';
 import { perceive } from './perceive';
-import type { RuntimeInput, RuntimeModel, RuntimeOutput } from './types';
+import type { RuntimeInput, RuntimeModel, RuntimeOutput } from '../types';
 
 export class AgentRuntime {
 	constructor(private readonly model: RuntimeModel) {}

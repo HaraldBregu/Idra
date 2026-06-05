@@ -1,5 +1,5 @@
-import { parseOutput } from './parser';
-import type { RuntimeModelResponse, RuntimeOutput } from './types';
+import { parseOutput } from '../parser';
+import type { RuntimeModelResponse, RuntimeOutput } from '../types';
 
 export function observe(response: RuntimeModelResponse): RuntimeOutput {
 	const output = parseOutput(response.text);
