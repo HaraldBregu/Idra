@@ -10,7 +10,6 @@ import type {
 	AgentCapabilityServiceKind,
 	AgentToolResultStatus,
 } from '../../shared/agents/constants';
-import type { AgentStartupFilesServicePort } from './workspace/startup';
 
 export interface PlanEntry {
 	task: string;
@@ -79,64 +78,6 @@ export interface AgentToolManagementOptions {
 
 export interface ToolRunPreparation extends AgentToolSelectionForTurn {
 	management: AgentToolManagementOptions;
-}
-
-export interface ToolsServicePort {
-	createDefaultTools(input: {
-		explicitAllow?: string[];
-		denylist?: string[];
-	}): AgentTool[];
-	filterToolsByAllowlist(
-		tools: AgentTool[],
-		allowlist: string[] | undefined
-	): AgentTool[];
-	filterToolsByDenylist(
-		tools: AgentTool[],
-		denylist: string[] | undefined
-	): AgentTool[];
-	createCallTracker(): any;
-	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
-	createStartupFilesTool(
-		agentId: string,
-		startupFiles: AgentStartupFilesServicePort
-	): AgentTool;
-	prepareToolsForProvider(
-		tools: AgentTool[],
-		ctx: ToolContext,
-		options?: { provider?: string; modelId?: string }
-	): AgentTool[];
-	selectToolsForTurn(
-		tools: AgentTool[],
-		message: string,
-		ctx: ToolContext,
-		options?: AgentToolManagementOptions
-	): AgentToolSelectionForTurn;
-	prepareToolsForRun(input: {
-		tools: AgentTool[];
-		ctx: ToolContext;
-		userMessage: string;
-		provider?: string;
-		modelId?: string;
-		management?: AgentToolManagementOptions;
-	}): ToolRunPreparation;
-	beforeCall(
-		tool: AgentTool,
-		args: unknown,
-		ctx: ToolContext,
-		tracker: any
-	): Promise<{
-		proceed: boolean;
-		warning?: string;
-		vetoStatus?: AgentToolResultStatus;
-		vetoResult?: AgentToolResult;
-		reason?: string;
-	}>;
-	executeToolWithManagement(
-		tool: AgentTool,
-		args: Record<string, unknown>,
-		ctx: ToolContext,
-		management: AgentToolManagementOptions
-	): Promise<AgentToolResult>;
 }
 
 export function textResult(text: string, isError = false): AgentToolResult {
