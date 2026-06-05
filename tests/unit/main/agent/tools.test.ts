@@ -1,5 +1,5 @@
-import { createAgentToolController } from '../../../../src/main/agent/tools';
-import type { AgentTool } from '../../../../src/main/agent/tooling';
+import { createAgentTools } from '../../../../src/main/agent/tools';
+import type { AgentTool, ToolsServicePort } from '../../../../src/main/agent/tooling';
 
 function tool(name: string): AgentTool {
 	return {
@@ -10,7 +10,7 @@ function tool(name: string): AgentTool {
 	};
 }
 
-describe('AgentToolController', () => {
+describe('createAgentTools', () => {
 	it('adds and filters local tools for an agent run', async () => {
 		const readTool = tool('read');
 		const writeTool = tool('write');
@@ -21,10 +21,9 @@ describe('AgentToolController', () => {
 		const toolService = {
 			createDefaultTools,
 			filterToolsByAllowlist,
-		};
-		const controller = createAgentToolController({ toolService: toolService as never });
+		} as unknown as ToolsServicePort;
 
-		const result = await controller.buildTools({
+		const result = await createAgentTools({
 			context: {
 				agentId: 'agent-1',
 				runId: 'run-1',
