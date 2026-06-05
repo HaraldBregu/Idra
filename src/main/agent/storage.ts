@@ -1,21 +1,14 @@
 import { app } from 'electron';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { AGENT_APP_DATA_DIRECTORY_NAME, AGENT_DATA_DIRECTORY_NAME } from './common';
+import type {
+	AgentDataDirectoryServiceOptions,
+	AgentDataDirectoryServicePort,
+} from './types';
 
-export const AGENT_APP_DATA_DIRECTORY_NAME = 'friday';
-export const AGENT_DATA_DIRECTORY_NAME = 'agent';
-
-export interface AgentDataDirectoryServiceOptions {
-	appDataPath?: string;
-	appDirectoryName?: string;
-}
-
-export interface AgentDataDirectoryServicePort {
-	getRootPath(): string;
-	ensureRoot(): Promise<string>;
-	resolve(...segments: string[]): string;
-	resolveExisting(...segments: string[]): Promise<string>;
-}
+export { AGENT_APP_DATA_DIRECTORY_NAME, AGENT_DATA_DIRECTORY_NAME } from './common';
+export type { AgentDataDirectoryServiceOptions, AgentDataDirectoryServicePort } from './types';
 
 export class AgentDataDirectoryService implements AgentDataDirectoryServicePort {
 	private readonly rootPath: string;

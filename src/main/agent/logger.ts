@@ -1,6 +1,5 @@
-type Level = 'debug' | 'info' | 'warn' | 'error';
-const RANK: Record<Level, number> = { debug: 0, info: 1, warn: 2, error: 3 };
-const MIN_RANK = RANK[(process.env['LOG_LEVEL']?.toLowerCase() as Level | undefined) ?? 'info'] ?? 1;
+import { MIN_RANK, RANK } from './common';
+import type { Level } from './types';
 
 function emit(level: Level, ctx: string, msg: string, data?: Record<string, unknown>): void {
 	if (RANK[level] < MIN_RANK) return;

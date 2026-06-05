@@ -7,26 +7,136 @@ import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AgentCapabilityServicePort } from '../capabilities';
 import type { ProviderSpec } from '../llm/router';
-import type { ProviderAdapter } from '../llm/types';
+import type { JSONSchema, ProviderAdapter, ToolResultBlock } from '../llm/types';
 import type { AgentRunState, ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent, AgentToolResultStatus } from '../../shared/agents/events';
-import type { AgentSessionMetadata } from '../../shared/store';
+import type {
+	AgentConfig,
+	AgentRouteBinding,
+	AgentRoutingSettings,
+	AgentSessionMetadata,
+} from '../../shared/store';
+import type { AgentCapabilityServiceKind } from '../../shared/agents/constants';
 import type { HeartbeatToolResponse } from '../heartbeat/prompt';
 import type { SessionFile } from './session/store';
-import type { AgentDataDirectoryServicePort } from './storage';
-import type { AgentSettingsStorePort } from './settings';
 import type { AgentExecutionServicePort } from './execution/types';
 import type { AgentStartupFilesServicePort, WorkspaceService } from './workspace';
-import type {
-	AgentTool,
-	AgentToolManagementOptions,
-	AgentToolSelectionForTurn,
-	ToolContext,
-	ToolRunPreparation,
-	CronToolContext,
-	AgentToolResult,
-} from './tooling';
 import type { ProviderBuiltInToolSpec } from '../llm/types';
+
+export type Level = 'debug' | 'info' | 'warn' | 'error';
+
+export interface PlanEntry {
+	task: string;
+	status: 'pending' | 'in_progress' | 'done';
+}
+
+export interface FridayServices {
+	store: StoreService;
+	eventBus: EventBus;
+	logger: LoggerService;
+	workspace: WorkspaceService;
+	cron?: CronService;
+	connectors?: ConnectorsService;
+	skills?: SkillsService;
+}
+
+export type CronToolContext =
+	| { role: 'owner'; agentId?: string }
+	| { role: 'http'; userId?: string }
+	| { role: 'cron-self'; jobId?: string; agentId?: string; sessionKey?: string | null };
+
+export interface ToolContext {
+	workspace: string;
+	agentId?: string;
+	cronContext?: CronToolContext;
+	deliveryContext?: Record<string, unknown>;
+	sessionId: string;
+	sessionBaseDir?: string;
+	sessionVisibility?: 'self' | 'tree' | 'agent' | 'all';
+	readState: Map<string, { mtimeMs: number; size: number }>;
+	plan: { entries: PlanEntry[] };
+	signal?: AbortSignal;
+	services: FridayServices;
+}
+
+export interface AgentToolResult<TDetails = unknown> {
+	status: AgentToolResultStatus;
+	content: ToolResultBlock[];
+	details?: TDetails;
+}
+
+export interface AgentTool<TArgs = Record<string, unknown>, TDetails = unknown> {
+	name: string;
+	displayName?: string;
+	displaySummary?: string;
+	description: string;
+	schema: JSONSchema;
+	serviceKind?: AgentCapabilityServiceKind;
+	serviceId?: string;
+	ownerOnly?: boolean;
+	execute(args: TArgs, ctx: ToolContext): Promise<AgentToolResult<TDetails>>;
+}
+
+export interface AgentToolSelectionForTurn {
+	toolsForPrompt: AgentTool[];
+	systemPromptSuffix: string;
+	rankedTools: AgentTool[];
+}
+
+export interface AgentToolManagementOptions {
+	enabled?: boolean;
+	maxPromptTools?: number;
+	maxToolCallsPerTurn?: number;
+	forceSelection?: boolean;
+}
+
+export interface ToolRunPreparation extends AgentToolSelectionForTurn {
+	management: AgentToolManagementOptions;
+}
+
+export interface AgentDataDirectoryServiceOptions {
+	appDataPath?: string;
+	appDirectoryName?: string;
+}
+
+export interface AgentDataDirectoryServicePort {
+	getRootPath(): string;
+	ensureRoot(): Promise<string>;
+	resolve(...segments: string[]): string;
+	resolveExisting(...segments: string[]): Promise<string>;
+}
+
+export interface AgentSettingsStoreLogger {
+	debug(source: string, message: string, data?: unknown): void;
+	info(source: string, message: string, data?: unknown): void;
+	warn(source: string, message: string, data?: unknown): void;
+	error(source: string, message: string, data?: unknown): void;
+}
+
+export interface AgentSettingsStoreSchema {
+	agents?: AgentConfig[];
+	bindings?: AgentRouteBinding[];
+}
+
+export interface AgentSettingsStoreAccessor {
+	get<TKey extends keyof AgentSettingsStoreSchema>(key: TKey): AgentSettingsStoreSchema[TKey];
+	set<TKey extends keyof AgentSettingsStoreSchema>(
+		key: TKey,
+		value: AgentSettingsStoreSchema[TKey]
+	): void;
+}
+
+export interface AgentSettingsStoreOptions {
+	logger?: AgentSettingsStoreLogger;
+	store?: AgentSettingsStoreAccessor;
+}
+
+export interface AgentSettingsStorePort {
+	getAgentRoutingSettings(): AgentRoutingSettings;
+	getConfiguredAgents(): AgentConfig[];
+	getAgentConfig(id: string): AgentConfig | undefined;
+	setAgentRoutingSettings(settings: unknown): AgentRoutingSettings;
+}
 
 export interface AgentServiceDependencies {
 	store: StoreService;
