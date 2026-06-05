@@ -546,7 +546,7 @@ export class AgentService {
 			};
 			let selectedTools: AgentTool[] = [];
 			const agentTools = await recordAsyncPhase(phaseDurationsMs, 'build_tools', () =>
-				createAgentTools({
+				this.toolController.buildTools({
 					context: {
 						agentId,
 						runId,
@@ -560,7 +560,6 @@ export class AgentService {
 						toolsAllow: options.toolsAllow,
 						toolsDeny: options.toolsDeny,
 					},
-					toolService: this.toolService,
 					toolsFactory: this.toolsFactory,
 					additionalTools,
 				})
@@ -607,14 +606,12 @@ export class AgentService {
 					bootstrapPending && isPrimaryRun
 						? this.selectBootstrapTools(agentId, bootstrapMode)
 						: recordPhase(phaseDurationsMs, 'select_tools', () =>
-								this.toolService.selectToolsForTurn(
-									baseTools,
+								this.toolController.selectForTurn({
+									tools: baseTools,
 									message,
 									ctx,
-									this.toolService.createManagementOptions({
-										maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
-									})
-								)
+									maxPromptTools: AGENT_TOOL_LIMITS.defaultMaxPromptTools,
+								})
 					);
 					selectedTools = toolSelection.toolsForPrompt;
 					if (heartbeatOptions?.forceHeartbeatTool) {
@@ -624,9 +621,11 @@ export class AgentService {
 						}
 					}
 				}
-			selectedTools = this.toolService.prepareToolsForProvider(selectedTools, ctx, {
-				provider: providerId,
-				modelId: model,
+			selectedTools = this.toolController.prepareForProvider({
+				tools: selectedTools,
+				ctx,
+				providerId,
+				model,
 			});
 			const capabilities = await recordAsyncPhase(phaseDurationsMs, 'resolve_capabilities', () =>
 				this.capabilityService.resolveForPrompt({
@@ -687,7 +686,7 @@ export class AgentService {
 				maxIterations: AGENT_TOOL_LIMITS.maxIterations,
 				signal: abort.signal,
 				toolManagement: { enabled: false },
-				toolService: this.toolService,
+				toolController: this.toolController,
 			});
 
 			runtime.session = {
@@ -965,7 +964,7 @@ export class AgentService {
 	}
 
 	private createStartupFilesTool(agentId: string): AgentTool {
-		return this.toolService.createStartupFilesTool(agentId, this.getWorkspaceService());
+		return this.toolController.createStartupFilesTool(agentId, this.getWorkspaceService());
 	}
 
 	private filterStartupFilesForRun(
