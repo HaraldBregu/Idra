@@ -6,12 +6,66 @@ import type {
 	AgentToolManagementOptions,
 	AgentToolResult,
 	AgentToolSelectionForTurn,
+	ToolRunPreparation,
 	ToolContext,
-	ToolsServicePort,
 } from './tooling';
 import type { AgentToolResultStatus } from '../../shared/agents/events';
 import type { SessionFile } from './session/store';
 import type { AgentStartupFilesServicePort } from './workspace/startup';
+
+interface ToolsServicePort {
+	createDefaultTools(input: {
+		explicitAllow?: string[];
+		denylist?: string[];
+	}): AgentTool[];
+	filterToolsByAllowlist(
+		tools: AgentTool[],
+		allowlist: string[] | undefined
+	): AgentTool[];
+	createManagementOptions(options?: AgentToolManagementOptions): AgentToolManagementOptions;
+	createStartupFilesTool(
+		agentId: string,
+		startupFiles: AgentStartupFilesServicePort
+	): AgentTool;
+	prepareToolsForProvider(
+		tools: AgentTool[],
+		ctx: ToolContext,
+		options?: { provider?: string; modelId?: string }
+	): AgentTool[];
+	selectToolsForTurn(
+		tools: AgentTool[],
+		message: string,
+		ctx: ToolContext,
+		options?: AgentToolManagementOptions
+	): AgentToolSelectionForTurn;
+	prepareToolsForRun(input: {
+		tools: AgentTool[];
+		ctx: ToolContext;
+		userMessage: string;
+		provider?: string;
+		modelId?: string;
+		management?: AgentToolManagementOptions;
+	}): ToolRunPreparation;
+	createCallTracker(): unknown;
+	beforeCall(
+		tool: AgentTool,
+		args: unknown,
+		ctx: ToolContext,
+		tracker: unknown
+	): Promise<{
+		proceed: boolean;
+		warning?: string;
+		vetoStatus?: AgentToolResultStatus;
+		vetoResult?: AgentToolResult;
+		reason?: string;
+	}>;
+	executeToolWithManagement(
+		tool: AgentTool,
+		args: Record<string, unknown>,
+		ctx: ToolContext,
+		management: AgentToolManagementOptions
+	): Promise<AgentToolResult>;
+}
 
 export interface AgentToolsFactoryContext<TServices = unknown> {
 	agentId: string;
