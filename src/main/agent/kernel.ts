@@ -593,9 +593,11 @@ export class AgentService {
 				toolController: this.toolController,
 			});
 
-			const completedSession = {
+			const completedStatus: SessionStatus =
+				result.stopReason === 'cancelled' ? 'cancelled' : 'completed';
+			const completedSession: SessionFile = {
 				...result.session,
-				status: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
+				status: completedStatus,
 			};
 			runtime.session = completedSession;
 			await saveSession(completedSession, { baseDir: this.sessionBaseDir });
