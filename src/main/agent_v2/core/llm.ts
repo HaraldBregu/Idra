@@ -8,7 +8,12 @@ export class LlmServiceCore implements StatelessLlm {
 		let content = '';
 		let stopReason: string | undefined;
 		let usage: Usage | undefined;
-		const system = [request.system, ...request.messages.filter((message) => message.role === 'system').map((message) => message.content)]
+		const system = [
+			request.system,
+			...request.messages
+				.filter((message) => message.role === 'system')
+				.map((message) => message.content),
+		]
 			.filter(Boolean)
 			.join('\n\n');
 		const messages = request.messages.filter((message) => message.role !== 'system');
