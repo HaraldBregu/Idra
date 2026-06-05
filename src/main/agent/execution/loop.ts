@@ -219,13 +219,6 @@ function toolDisplayName(tool: AgentTool): string | undefined {
 	return tool.displayName ?? tool.displaySummary;
 }
 
-function normalizeToolStatus(status: unknown): AgentToolResultStatus {
-	if (status === 'ok') return 'ok';
-	if (status === 'blocked') return 'blocked';
-	if (status === 'rejected') return 'rejected';
-	return 'error';
-}
-
 export async function executeAgentRun(input: AgentRunInput): Promise<AgentRunResult> {
 	const { provider, model, effort } = resolveProviderAndModel(input);
 	const {
