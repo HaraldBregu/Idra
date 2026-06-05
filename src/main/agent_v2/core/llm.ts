@@ -8,11 +8,15 @@ export class LlmServiceCore implements StatelessLlm {
 		let content = '';
 		let stopReason: string | undefined;
 		let usage: Usage | undefined;
+		const system = [request.system, ...request.messages.filter((message) => message.role === 'system').map((message) => message.content)]
+			.filter(Boolean)
+			.join('\n\n');
+		const messages = request.messages.filter((message) => message.role !== 'system');
 
 		for await (const event of this.provider.stream({
 			model: request.model,
-			system: request.system ?? '',
-			messages: request.messages.map(toTranscriptEntry),
+			system,
+			messages: messages.map(toTranscriptEntry),
 			tools: [],
 			maxTokens: request.maxTokens,
 			signal: request.signal,
