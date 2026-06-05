@@ -4,7 +4,7 @@ export { observe } from './loop/observe';
 export { perceive } from './loop/perceive';
 export { composePrompt } from './prompt';
 export { parseOutput } from './parser';
-export { retry } from './recovery';
+export { retry } from './error';
 export { routeModel } from './routing';
 export type {
 	RuntimeInput,
