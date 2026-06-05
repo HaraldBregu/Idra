@@ -59,14 +59,13 @@ import {
 	type CronToolContext,
 	type AgentToolSelectionForTurn,
 	type ToolContext,
-	type ToolsServicePort,
 } from './tooling';
 import {
-	createAgentTools,
+	createAgentToolController,
+	type AgentToolControllerPort,
 	type AgentToolsFactory as AgentToolsFactoryFor,
 	type AgentToolsFactoryContext as AgentToolsFactoryContextFor,
 } from './tools';
-import { ToolsService } from '../tools';
 
 const AGENT_TOOL_LIMITS = {
 	maxTokens: 4096,
@@ -84,7 +83,6 @@ export interface AgentServiceDependencies {
 	agentSettings?: AgentSettingsStorePort;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
-	toolService?: ToolsServicePort;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
 	channelRegistry?: ChannelRegistry;
 	startupFiles?: AgentStartupFilesServicePort;
@@ -97,7 +95,7 @@ export interface AgentServiceOptions {
 	defaultAgentId?: string;
 	providerFactory?: (provider: ProviderSpec) => ProviderAdapter;
 	toolsFactory?: AgentToolsFactory;
-	toolService?: ToolsServicePort;
+	toolController?: AgentToolControllerPort;
 	capabilityService?: AgentCapabilityServicePort;
 	executionService?: AgentExecutionServicePort;
 	sessionBaseDir?: string;
@@ -197,7 +195,7 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
 	private readonly toolsFactory?: AgentToolsFactory;
-	private readonly toolService: ToolsServicePort;
+	private readonly toolController: AgentToolControllerPort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
 	private readonly sessionBaseDir?: string;
@@ -212,10 +210,9 @@ export class AgentService {
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory = options.providerFactory ?? makeProvider;
-		this.toolService =
-			options.toolService ??
-			dependencies.toolService ??
-			new ToolsService(dependencies.logger);
+		this.toolController =
+			options.toolController ??
+			createAgentToolController({ logger: dependencies.logger });
 		this.capabilityService =
 			options.capabilityService ??
 			new AgentCapabilityService({
@@ -223,7 +220,7 @@ export class AgentService {
 				logger: dependencies.logger,
 			});
 		this.executionService =
-			options.executionService ?? new AgentExecutionService(this.toolService);
+			options.executionService ?? new AgentExecutionService(this.toolController);
 		this.toolsFactory = options.toolsFactory;
 		this.sessionBaseDir = options.sessionBaseDir;
 		this.ensureRuntime(this.defaultAgentId);
