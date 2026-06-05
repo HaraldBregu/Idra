@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
+import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
 	type WorkspaceContextFile,
@@ -54,11 +55,11 @@ import type {
 	AgentSendOptions,
 	AgentServiceDependencies,
 	AgentServiceOptions,
-	AgentExecutionServicePort,
 	AgentToolControllerPort,
 	AgentToolsFactory,
 	Runtime,
 } from './types';
+import type { AgentExecutionServicePort } from './execution/types';
 
 export type {
 	AgentCreateRunOptions,

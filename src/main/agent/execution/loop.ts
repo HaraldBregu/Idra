@@ -12,8 +12,8 @@ import type {
 	AgentExecutionServicePort,
 	AgentRunInput,
 	AgentRunResult,
-	AgentToolControllerPort,
 } from './types';
+import type { AgentToolControllerPort } from '../types';
 
 export type {
 	AgentExecutionServicePort,
