@@ -163,8 +163,8 @@ function resolveProviderAndModel(input: AgentRunInput): {
 	if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
 	const factory =
 		input.providerFactory ??
-		input.llm?.createProvider.bind(input.llm) ??
-		new LlmService().createProvider;
+		input.llm?.build.bind(input.llm) ??
+		new LlmService().build;
 	const provider =
 		input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
 	const effort = input.effort ?? selection.model.effort;

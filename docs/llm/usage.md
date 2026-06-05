@@ -6,7 +6,7 @@
 import { LlmService } from '../llm';
 
 const llm = new LlmService();
-const provider = llm.createProvider({
+const provider = llm.build({
 	id: 'openai',
 	apiKey: process.env.OPENAI_API_KEY ?? '',
 });
@@ -26,17 +26,6 @@ for await (const event of provider.stream({
 }
 
 console.log(text);
-```
-
-In bootstrapped main-process code, prefer the registered service:
-
-```ts
-const llm = container.get('llm');
-const provider = llm.createProvider({
-	id: providerId,
-	apiKey,
-	baseURL,
-});
 ```
 
 Provider-specific adapter files stay internal to `src/main/llm`; callers should use `LlmService` instead of importing adapters directly.

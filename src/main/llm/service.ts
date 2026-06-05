@@ -10,7 +10,7 @@ import { OpenAIAdapter, OpenAIChatAdapter } from './providers/openai';
 import type { ProviderAdapter, ProviderSpec } from './types';
 
 export class LlmService {
-	createProvider(provider: ProviderSpec): ProviderAdapter {
+	build(provider: ProviderSpec): ProviderAdapter {
 		const id = provider.id.toLowerCase();
 		if (id === 'anthropic') {
 			return new AnthropicAdapter({ apiKey: provider.apiKey, baseURL: provider.baseURL });

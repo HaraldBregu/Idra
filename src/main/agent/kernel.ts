@@ -116,8 +116,8 @@ export class AgentService {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
 		this.providerFactory =
 			options.providerFactory ??
-			this.dependencies.llm?.createProvider.bind(this.dependencies.llm) ??
-			new LlmService().createProvider;
+			this.dependencies.llm?.build.bind(this.dependencies.llm) ??
+			new LlmService().build;
 		this.toolController =
 			options.toolController ??
 			createAgentToolController({ logger: dependencies.logger });
