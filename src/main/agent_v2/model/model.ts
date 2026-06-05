@@ -7,7 +7,7 @@ type ModelTranscriptEntry =
 	| { role: 'tool'; toolUseId: string; content: Array<{ type: 'text'; text: string }> };
 
 export class AgentModel implements ModelModule {
-	constructor(private readonly llm: LlmService) {}
+	private readonly llm = new LlmService();
 
 	async generate(request: ModelRequest): Promise<ModelResponse> {
 		let content = '';

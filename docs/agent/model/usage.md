@@ -5,9 +5,8 @@ Import it from the package barrel, not from internal files.
 
 ```ts
 import { AgentModel } from '../../../src/main/agent_v2/model';
-import { LlmService } from '../../../src/main/llm';
 
-const model = new AgentModel(new LlmService());
+const model = new AgentModel();
 
 const response = await model.generate({
 	provider: {
@@ -28,5 +27,6 @@ console.log(response.content);
 
 Do not import provider adapters, transcript entries, usage types, or other
 low-level exports from `src/main/llm/types` inside `agent_v2/model` callers.
-`AgentModel` owns the translation from simple model messages to the LLM service
-stream request.
+Do not construct `LlmService` when using `AgentModel`; `AgentModel` owns the LLM
+service and the translation from simple model messages to the service stream
+request.
