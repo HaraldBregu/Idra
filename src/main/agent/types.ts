@@ -7,8 +7,8 @@ import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AgentCapabilityServicePort } from '../capabilities';
 import type { LlmService } from '../llm';
-import type { ProviderSpec } from '../llm/router';
 import type { JSONSchema, ProviderAdapter, ToolResultBlock } from '../llm/types';
+import type { ProviderSpec } from '../llm/types';
 import type { AgentRunState, ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent, AgentToolResultStatus } from '../../shared/agents/events';
 import type {

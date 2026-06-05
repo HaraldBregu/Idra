@@ -1,5 +1,11 @@
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 
+export interface ProviderSpec {
+	id: string;
+	apiKey: string;
+	baseURL?: string;
+}
+
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.
  *

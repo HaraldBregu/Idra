@@ -4,8 +4,8 @@ import type { AgentToolControllerPort } from '../types';
 import type { SessionFile } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
 import type { AgentRunStreamEvent } from '../../../shared/agents/events';
-import type { ProviderSpec } from '../../llm/router';
 import type { LlmService } from '../../llm';
+import type { ProviderSpec } from '../../llm/types';
 
 export type { AgentRunStreamEvent } from '../../../shared/agents/events';
 
