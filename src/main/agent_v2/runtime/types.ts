@@ -65,3 +65,11 @@ export interface RuntimePrompt {
 	prompt: string;
 	messages: RuntimeMessage[];
 }
+
+export interface RuntimePerception {
+	prompt: RuntimePrompt;
+	model: string;
+	maxTokens: number;
+	maxRetries: number;
+	signal?: AbortSignal;
+}
