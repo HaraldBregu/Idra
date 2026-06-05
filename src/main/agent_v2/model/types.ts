@@ -24,7 +24,7 @@ export interface ModelResponse {
 	};
 }
 
-export interface StatelessLlm {
+export interface StatelessModel {
 	generate(request: ModelRequest): Promise<ModelResponse>;
 }
 

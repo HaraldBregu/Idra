@@ -1,7 +1,7 @@
 import type { ProviderAdapter, TranscriptEntry, Usage } from '../../llm/types';
-import type { ModelMessage, ModelRequest, ModelResponse, StatelessLlm } from './types';
+import type { ModelMessage, ModelRequest, ModelResponse, StatelessModel } from './types';
 
-export class LlmModelModule implements StatelessLlm {
+export class ProviderModelModule implements StatelessModel {
 	constructor(private readonly provider: ProviderAdapter) {}
 
 	async generate(request: ModelRequest): Promise<ModelResponse> {
