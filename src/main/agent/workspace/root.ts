@@ -1,11 +1,15 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 
 import type { LoggerService } from '../../observability';
 import { resolveDefaultAgentDataPath } from '../storage';
-import type { ReadFileOptions, WorkspaceServiceOptions, WriteFileOptions } from './types';
+import type {
+	BootstrapMode,
+	EnsureWorkspaceOptions,
+	ReadFileOptions,
+	WorkspaceServiceOptions,
+	WriteFileOptions,
+} from './types';
 import {
 	DEFAULT_AGENTS_FILENAME,
 	DEFAULT_BOOTSTRAP_FILENAME,
@@ -23,28 +27,11 @@ import {
 	isPathInside,
 	safeReadWorkspaceFile,
 	type WorkspaceContextFile,
-	type WorkspaceFileName,
 	type WorkspaceFileSummary,
 } from './files';
+import { CONTEXT_FILE_PROMPT_ORDER, execFileAsync } from './common';
 
-const execFileAsync = promisify(execFile);
-
-export type EnsureWorkspaceOptions = {
-	initializeGit?: boolean;
-};
-
-export type BootstrapMode = 'none' | 'limited' | 'full';
-
-const CONTEXT_FILE_PROMPT_ORDER = new Map<WorkspaceFileName, number>([
-	[DEFAULT_AGENTS_FILENAME, 10],
-	[DEFAULT_SOUL_FILENAME, 20],
-	[DEFAULT_IDENTITY_FILENAME, 30],
-	[DEFAULT_USER_FILENAME, 40],
-	[DEFAULT_TOOLS_FILENAME, 50],
-	[DEFAULT_BOOTSTRAP_FILENAME, 60],
-	[DEFAULT_MEMORY_FILENAME, 70],
-	[DEFAULT_HEARTBEAT_FILENAME, 80],
-]);
+export type { BootstrapMode, EnsureWorkspaceOptions } from './types';
 
 export class WorkspaceService {
 	private readonly rootPath: string;

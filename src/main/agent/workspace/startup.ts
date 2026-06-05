@@ -1,13 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { LoggerService } from '../../observability';
 import { resolveDefaultAgentDataPath } from '../storage';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
-	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_MEMORY_FILENAME,
-	DEFAULT_SOUL_FILENAME,
-	DEFAULT_USER_FILENAME,
 	MAX_WORKSPACE_CONTEXT_FILE_BYTES,
 	SEEDED_WORKSPACE_FILE_NAMES,
 	WORKSPACE_CONTEXT_FILE_NAMES,
@@ -19,28 +15,13 @@ import {
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
 } from './files';
+import { PROFILE_FILE_NAMES } from './common';
+import type {
+	AgentStartupFilesServiceOptions,
+	AgentStartupFilesServicePort,
+} from './types';
 
-export interface AgentStartupFilesServiceOptions {
-	rootPath?: string;
-	logger?: Pick<LoggerService, 'debug' | 'warn'>;
-}
-
-export interface AgentStartupFilesServicePort {
-	getRootPath(agentId: string): string;
-	ensureReady(agentId: string): Promise<void>;
-	isBootstrapPending(agentId: string): Promise<boolean>;
-	loadContextFiles(agentId: string): Promise<WorkspaceContextFile[]>;
-	listFiles(agentId: string): Promise<WorkspaceFileSummary[]>;
-	readFile(agentId: string, name: string): Promise<WorkspaceContextFile>;
-	writeFile(agentId: string, name: string, content: string): Promise<WorkspaceContextFile>;
-	completeBootstrap(agentId: string): Promise<WorkspaceContextFile>;
-}
-
-const PROFILE_FILE_NAMES = [
-	DEFAULT_SOUL_FILENAME,
-	DEFAULT_IDENTITY_FILENAME,
-	DEFAULT_USER_FILENAME,
-] as const satisfies readonly WorkspaceFileName[];
+export type { AgentStartupFilesServiceOptions, AgentStartupFilesServicePort } from './types';
 
 export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly rootPath: string;

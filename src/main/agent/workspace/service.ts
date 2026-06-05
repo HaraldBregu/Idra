@@ -1,14 +1,9 @@
-import type { LoggerService } from '../../observability';
 import type { WorkspaceContextFile, WorkspaceFileSummary } from './files';
-import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from '../storage';
+import { resolveDefaultAgentDataPath } from '../storage';
 import { AgentStartupFilesService, type AgentStartupFilesServicePort } from './startup';
+import type { AgentWorkspaceServiceOptions } from './types';
 
-export interface AgentWorkspaceServiceOptions {
-	rootPath?: string;
-	agentDataDirectory?: AgentDataDirectoryServicePort;
-	logger?: LoggerService;
-	startupFiles?: AgentStartupFilesServicePort;
-}
+export type { AgentWorkspaceServiceOptions } from './types';
 
 /**
  * Per-agent workspace subsystem: the workspace folder path and startup files.

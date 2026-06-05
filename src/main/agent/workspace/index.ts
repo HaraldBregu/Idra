@@ -2,8 +2,8 @@ export {
 	WorkspaceService,
 	renderWorkspaceContextFiles,
 	resolveBootstrapMode,
-	type BootstrapMode,
 } from './root';
+export type { BootstrapMode, EnsureWorkspaceOptions } from './types';
 export {
 	DEFAULT_AGENTS_FILENAME,
 	DEFAULT_BOOTSTRAP_FILENAME,
@@ -14,9 +14,7 @@ export {
 	DEFAULT_TOOLS_FILENAME,
 	DEFAULT_USER_FILENAME,
 	WORKSPACE_CONTEXT_FILE_NAMES,
-	type WorkspaceContextFile,
-	type WorkspaceFileName,
-	type WorkspaceFileSummary,
 } from './files';
+export type { WorkspaceContextFile, WorkspaceFileName, WorkspaceFileSummary } from './types';
 export * from './startup';
 export * from './service';
