@@ -1,7 +1,7 @@
 import { LlmService } from '../../llm';
 import type { ModelMessage, ModelModule, ModelRequest, ModelResponse } from './types';
 
-type TranscriptEntry =
+type ModelTranscriptEntry =
 	| { role: 'user'; content: string }
 	| { role: 'assistant'; content: Array<{ type: 'text'; text: string }> }
 	| { role: 'tool'; toolUseId: string; content: Array<{ type: 'text'; text: string }> };
@@ -49,7 +49,7 @@ export class AgentModel implements ModelModule {
 	}
 }
 
-function toTranscriptEntry(message: ModelMessage): TranscriptEntry {
+function toTranscriptEntry(message: ModelMessage): ModelTranscriptEntry {
 	if (message.role === 'assistant') {
 		return { role: 'assistant', content: [{ type: 'text', text: message.content }] };
 	}
