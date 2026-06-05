@@ -1,19 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
-import type { EventBus } from '../services/event-bus';
-import type { CronService } from '../cron';
-import type { LoggerService } from '../observability';
-import type { StoreService } from '../store';
-import type { ConnectorsService } from '../connectors';
-import type { SkillsService } from '../skills';
-import type { ChannelRegistry, ChannelsService } from '../channels';
 import {
 	resolveBootstrapMode,
-	WorkspaceService,
 	type WorkspaceContextFile,
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_HEARTBEAT_FILENAME,
-	DEFAULT_SOUL_FILENAME,
 	AgentWorkspaceService,
 	type AgentStartupFilesServicePort,
 } from './workspace';
@@ -33,8 +24,7 @@ import {
 	type SessionFile,
 	type SessionStatus,
 } from './session/store';
-import { resolveDefaultAgentDataPath, type AgentDataDirectoryServicePort } from './storage';
-import type { AgentSettingsStorePort } from './settings';
+import { resolveDefaultAgentDataPath } from './storage';
 import {
 	type AgentRunState,
 	type Model,
@@ -43,7 +33,7 @@ import {
 } from '../../shared/agents/service';
 import { getDefaultAgentModels, isAllowedAgentModel } from '../../shared/agents/models';
 import { isHeartbeatSystemPromptEnabled } from '../heartbeat/config';
-import { createHeartbeatResponseTool, type HeartbeatToolResponse } from '../heartbeat/prompt';
+import { createHeartbeatResponseTool } from '../heartbeat/prompt';
 import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { ChannelType } from '../../shared/channels';
@@ -51,7 +41,6 @@ import type { PublicProvider } from '../../shared/providers';
 import type { AgentConfig, AgentSessionMetadata } from '../../shared/store';
 import {
 	type AgentTool,
-	type CronToolContext,
 	type AgentToolSelectionForTurn,
 	type ToolContext,
 } from './tooling';
@@ -65,6 +54,7 @@ import type {
 	AgentSendOptions,
 	AgentServiceDependencies,
 	AgentServiceOptions,
+	AgentExecutionServicePort,
 	AgentToolControllerPort,
 	AgentToolsFactory,
 	Runtime,
@@ -107,7 +97,7 @@ async function recordAsyncPhase<T>(
 export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly providerFactory: (provider: ProviderSpec) => ProviderAdapter;
-	private readonly toolsFactory?: AgentToolsFactory;
+	private readonly toolsFactory?: AgentToolsFactory<AgentServiceDependencies>;
 	private readonly toolController: AgentToolControllerPort;
 	private readonly capabilityService: AgentCapabilityServicePort;
 	private readonly executionService: AgentExecutionServicePort;
@@ -602,11 +592,12 @@ export class AgentService {
 				toolController: this.toolController,
 			});
 
-			runtime.session = {
+			const completedSession = {
 				...result.session,
 				status: result.stopReason === 'cancelled' ? 'cancelled' : 'completed',
 			};
-			await saveSession(runtime.session, { baseDir: this.sessionBaseDir });
+			runtime.session = completedSession;
+			await saveSession(completedSession, { baseDir: this.sessionBaseDir });
 			runtime.currentAbort = null;
 			clearRunTimeout();
 			this.updateRunRecordSync(runId, {

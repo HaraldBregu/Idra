@@ -1,10 +1,6 @@
-import type { ProviderBuiltInToolSpec } from '../llm/types';
 import { ToolsService } from '../tools';
-import type {
-	AgentTool,
-	AgentToolSelectionForTurn,
-	ToolContext,
-} from './tooling';
+import type { AgentTool, AgentToolSelectionForTurn } from './tooling';
+import type { AgentToolResultStatus } from '../../shared/agents/events';
 import type { AgentStartupFilesServicePort } from './workspace/startup';
 import type {
 	AgentToolControllerOptions,

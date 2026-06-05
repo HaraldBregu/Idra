@@ -1,18 +1,18 @@
 import { ContextOverflowError } from '../../llm/types';
-import type { AgentContentBlock, ProviderAdapter, ToolResultBlock } from '../../llm/types';
-import type { AgentTool, ToolContext } from '../tooling';
+import type { AgentContentBlock, ProviderAdapter, ToolResultBlock, Usage } from '../../llm/types';
+import type { AgentTool } from '../tooling';
 import { createAgentToolController } from '../tools';
 import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';
 import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
-import type { SessionFile } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
-import { makeProvider, type ProviderSpec } from '../../llm/router';
-import type { AgentRunStreamEvent, AgentToolResultStatus } from '../../../shared/agents/events';
+import { makeProvider } from '../../llm/router';
+import type { AgentToolResultStatus } from '../../../shared/agents/events';
 import type {
 	AgentExecutionServicePort,
 	AgentRunInput,
 	AgentRunResult,
+	AgentToolControllerPort,
 } from './types';
 
 export type {
