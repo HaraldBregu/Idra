@@ -17,6 +17,7 @@ import { DEFAULT_AGENT_ID } from './config';
 
 import type { MainServiceContainer, MainServices } from './services/services';
 import { HeartbeatService } from './heartbeat';
+import { LlmService } from './llm';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -66,6 +67,7 @@ export function bootstrapServices(): BootstrapResult {
 	});
 
 	const connectors = container.register('connectors', new ConnectorsService(logger));
+	const llm = container.register('llm', new LlmService());
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 
 	const agentDependencies: AgentServiceDependencies = {
@@ -76,6 +78,7 @@ export function bootstrapServices(): BootstrapResult {
 			workspace,
 			agentDataDirectory,
 			agentSettings,
+			llm,
 		connectors,
 		skills,
 		channels,

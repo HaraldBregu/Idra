@@ -6,6 +6,7 @@ import type { ConnectorsService } from '../connectors';
 import type { SkillsService } from '../skills';
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AgentCapabilityServicePort } from '../capabilities';
+import type { LlmService } from '../llm';
 import type { ProviderSpec } from '../llm/router';
 import type { JSONSchema, ProviderAdapter, ToolResultBlock } from '../llm/types';
 import type { AgentRunState, ModelReasoningEffort } from '../../shared/agents/service';
@@ -38,6 +39,7 @@ export interface FridayServices {
 	cron?: CronService;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
+	llm?: LlmService;
 }
 
 export type CronToolContext =
@@ -146,6 +148,7 @@ export interface AgentServiceDependencies {
 	workspace: WorkspaceService;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	agentSettings?: AgentSettingsStorePort;
+	llm?: LlmService;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;
 	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;

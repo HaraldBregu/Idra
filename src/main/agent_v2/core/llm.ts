@@ -1,4 +1,4 @@
-import type { ProviderAdapter, TranscriptEntry, Usage } from '../../llm/client';
+import type { ProviderAdapter, TranscriptEntry, Usage } from '../../llm/types';
 import type { CoreMessage, CoreRequest, CoreResponse, StatelessLlm } from './types';
 
 export class LlmServiceCore implements StatelessLlm {

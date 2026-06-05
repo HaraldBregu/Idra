@@ -6,7 +6,7 @@ import { compact } from '../context/compaction';
 import { agentLogger } from '../logger';
 import { flushSessionMemoryBeforeCompaction } from '../../memory/runtime';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
-import { makeProvider } from '../../llm/router';
+import { LlmService } from '../../llm';
 import type { AgentToolResultStatus } from '../../../shared/agents/events';
 import type {
 	AgentExecutionServicePort,
@@ -161,7 +161,10 @@ function resolveProviderAndModel(input: AgentRunInput): {
 	if (!providerConfig) throw new Error(`Provider not configured: ${providerId}`);
 	const apiKey = providerConfig.apiKey.trim();
 	if (!apiKey) throw new Error(`API key missing for provider: ${providerId}`);
-	const factory = input.providerFactory ?? makeProvider;
+	const factory =
+		input.providerFactory ??
+		input.llm?.createProvider.bind(input.llm) ??
+		new LlmService().createProvider;
 	const provider =
 		input.provider ?? factory({ id: providerId, apiKey, baseURL: providerConfig.baseUrl });
 	const effort = input.effort ?? selection.model.effort;

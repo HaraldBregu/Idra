@@ -5,6 +5,7 @@ import type { SessionFile } from '../session/store';
 import type { ModelReasoningEffort } from '../../../shared/agents/service';
 import type { AgentRunStreamEvent } from '../../../shared/agents/events';
 import type { ProviderSpec } from '../../llm/router';
+import type { LlmService } from '../../llm';
 
 export type { AgentRunStreamEvent } from '../../../shared/agents/events';
 
@@ -38,6 +39,7 @@ export interface AgentRunInput {
 	toolManagement?: AgentToolManagementOptions;
 	toolController?: AgentToolControllerPort;
 	store?: AgentProviderLookup;
+	llm?: LlmService;
 	providerFactory?: (spec: ProviderSpec) => ProviderAdapter;
 	agentRuntimeId?: string;
 }

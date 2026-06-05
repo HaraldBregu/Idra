@@ -14,7 +14,8 @@ import { AgentExecutionService } from './execution/loop';
 import type { AgentResponseEvent, AgentRunStreamEvent } from '../../shared/agents/events';
 import { AgentCapabilityService, type AgentCapabilityServicePort } from '../capabilities';
 import { DEFAULT_AGENT_ID } from '../config';
-import { makeProvider, type ProviderSpec } from '../llm/router';
+import { LlmService } from '../llm';
+import type { ProviderSpec } from '../llm/router';
 import type { ProviderAdapter, TranscriptEntry } from '../llm/types';
 import {
 	loadSession,
@@ -113,7 +114,10 @@ export class AgentService {
 		options: AgentServiceOptions = {}
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? DEFAULT_AGENT_ID;
-		this.providerFactory = options.providerFactory ?? makeProvider;
+		this.providerFactory =
+			options.providerFactory ??
+			this.dependencies.llm?.createProvider.bind(this.dependencies.llm) ??
+			new LlmService().createProvider;
 		this.toolController =
 			options.toolController ??
 			createAgentToolController({ logger: dependencies.logger });
