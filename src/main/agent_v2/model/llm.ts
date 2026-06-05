@@ -1,10 +1,10 @@
 import type { ProviderAdapter, TranscriptEntry, Usage } from '../../llm/types';
-import type { CoreMessage, CoreRequest, CoreResponse, StatelessLlm } from './types';
+import type { ModelMessage, ModelRequest, ModelResponse, StatelessLlm } from './types';
 
-export class LlmServiceCore implements StatelessLlm {
+export class LlmServiceModel implements StatelessLlm {
 	constructor(private readonly provider: ProviderAdapter) {}
 
-	async generate(request: CoreRequest): Promise<CoreResponse> {
+	async generate(request: ModelRequest): Promise<ModelResponse> {
 		let content = '';
 		let stopReason: string | undefined;
 		let usage: Usage | undefined;
@@ -44,7 +44,7 @@ export class LlmServiceCore implements StatelessLlm {
 	}
 }
 
-function toTranscriptEntry(message: CoreMessage): TranscriptEntry {
+function toTranscriptEntry(message: ModelMessage): TranscriptEntry {
 	if (message.role === 'assistant') {
 		return { role: 'assistant', content: [{ type: 'text', text: message.content }] };
 	}

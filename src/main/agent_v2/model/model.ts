@@ -1,9 +1,9 @@
-import type { CoreModule, CoreRequest, CoreResponse, StatelessLlm } from './types';
+import type { ModelModule, ModelRequest, ModelResponse, StatelessLlm } from './types';
 
-export class AgentCore implements CoreModule {
+export class AgentModel implements ModelModule {
 	constructor(private readonly llm: StatelessLlm) {}
 
-	generate(request: CoreRequest): Promise<CoreResponse> {
+	generate(request: ModelRequest): Promise<ModelResponse> {
 		return this.llm.generate(request);
 	}
 }

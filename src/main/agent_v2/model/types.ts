@@ -1,20 +1,20 @@
-export type CoreMessageRole = 'system' | 'user' | 'assistant' | 'tool';
+export type ModelMessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
-export interface CoreMessage {
-	role: CoreMessageRole;
+export interface ModelMessage {
+	role: ModelMessageRole;
 	content: string;
 	toolUseId?: string;
 }
 
-export interface CoreRequest {
-	messages: CoreMessage[];
+export interface ModelRequest {
+	messages: ModelMessage[];
 	system?: string;
 	model: string;
 	maxTokens: number;
 	signal?: AbortSignal;
 }
 
-export interface CoreResponse {
+export interface ModelResponse {
 	content: string;
 	model?: string;
 	stopReason?: string;
@@ -25,9 +25,9 @@ export interface CoreResponse {
 }
 
 export interface StatelessLlm {
-	generate(request: CoreRequest): Promise<CoreResponse>;
+	generate(request: ModelRequest): Promise<ModelResponse>;
 }
 
-export interface CoreModule {
-	generate(request: CoreRequest): Promise<CoreResponse>;
+export interface ModelModule {
+	generate(request: ModelRequest): Promise<ModelResponse>;
 }
