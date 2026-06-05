@@ -3,13 +3,14 @@ export type CoreMessageRole = 'system' | 'user' | 'assistant' | 'tool';
 export interface CoreMessage {
 	role: CoreMessageRole;
 	content: string;
+	toolUseId?: string;
 }
 
 export interface CoreRequest {
 	messages: CoreMessage[];
-	model?: string;
-	temperature?: number;
-	maxTokens?: number;
+	system?: string;
+	model: string;
+	maxTokens: number;
 	signal?: AbortSignal;
 }
 
