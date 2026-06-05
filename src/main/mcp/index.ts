@@ -1,1 +1,0 @@
-export { McpService } from './service';

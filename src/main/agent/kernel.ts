@@ -566,8 +566,6 @@ export class AgentService {
 					toolService: this.toolService,
 					toolsFactory: this.toolsFactory,
 					additionalTools,
-					connectors: this.dependencies.connectors,
-					logger: this.dependencies.logger,
 				})
 			);
 			let baseTools = agentTools.tools;

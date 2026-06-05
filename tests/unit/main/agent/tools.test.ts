@@ -11,7 +11,7 @@ function tool(name: string): AgentTool {
 }
 
 describe('createAgentTools', () => {
-	it('adds local tools and provider MCP tools for an agent run', async () => {
+	it('adds and filters local tools for an agent run', async () => {
 		const readTool = tool('read');
 		const writeTool = tool('write');
 		const createDefaultTools = jest.fn(() => [readTool, writeTool]);
@@ -22,16 +22,6 @@ describe('createAgentTools', () => {
 			createDefaultTools,
 			filterToolsByAllowlist,
 		} as unknown as ToolsServicePort;
-		const connectors = {
-			getConnectorSettings: () => ({
-				gmail: {
-					type: 'mcp',
-					enabled: true,
-					server_label: 'gmail',
-					server_url: 'https://mcp.example.test',
-				},
-			}),
-		} as never;
 
 		const result = await createAgentTools({
 			context: {
@@ -48,7 +38,6 @@ describe('createAgentTools', () => {
 				toolsDeny: ['write'],
 			},
 			toolService,
-			connectors,
 		});
 
 		expect(createDefaultTools).toHaveBeenCalledWith({
@@ -57,12 +46,6 @@ describe('createAgentTools', () => {
 		});
 		expect(filterToolsByAllowlist).toHaveBeenCalledWith([readTool, writeTool], ['read']);
 		expect(result.tools).toEqual([readTool]);
-		expect(result.builtInTools).toEqual([
-			{
-				type: 'mcp',
-				server_label: 'gmail',
-				server_url: 'https://mcp.example.test',
-			},
-		]);
+		expect(result.builtInTools).toEqual([]);
 	});
 });

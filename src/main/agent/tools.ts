@@ -1,7 +1,4 @@
-import type { ConnectorsService } from '../connectors';
 import type { ProviderBuiltInToolSpec } from '../llm/types';
-import { McpService } from '../mcp';
-import type { LoggerService } from '../observability';
 import type { AgentTool, ToolContext, ToolsServicePort } from './tooling';
 import type { SessionFile } from './session/store';
 
@@ -28,8 +25,6 @@ export interface CreateAgentToolsInput<TServices = unknown> {
 	toolService: ToolsServicePort;
 	toolsFactory?: AgentToolsFactory<TServices>;
 	additionalTools?: AgentTool[];
-	connectors?: ConnectorsService;
-	logger?: Pick<LoggerService, 'info'>;
 }
 
 export interface CreatedAgentTools {
@@ -55,11 +50,5 @@ export async function createAgentTools<TServices = unknown>(
 	if (!usesDefaultFactory || input.context.toolsAllow) {
 		tools = input.toolService.filterToolsByAllowlist(tools, input.context.toolsAllow);
 	}
-	const builtInTools =
-		input.connectors ? new McpService(input.connectors).createToolsForProvider(input.context.providerId) : [];
-	input.logger?.info('AgentTools', 'Resolved provider built-in tools', {
-		providerId: input.context.providerId,
-		count: builtInTools.length,
-	});
-	return { tools, builtInTools };
+	return { tools, builtInTools: [] };
 }
