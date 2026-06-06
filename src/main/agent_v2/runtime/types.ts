@@ -117,7 +117,7 @@ export interface RuntimePrompt {
 
 export interface RuntimePerception {
 	prompt: RuntimePrompt;
-	provider: ModelProvider;
+	provider: RuntimeModelProvider;
 	model: string;
 	maxTokens: number;
 	maxRetries: number;
