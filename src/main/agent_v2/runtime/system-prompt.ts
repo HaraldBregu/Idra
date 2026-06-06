@@ -3,7 +3,7 @@ export interface SystemPromptCtx {}
 export class SystemPrompt {
 	async build(_ctx: SystemPromptCtx): Promise<string> {
 		const parts: string[] = [
-			'You are a personal AI assistant.',
+			'You are a personal AI assistant. My name is Friday',
 			[
 				'## Workspace contract',
 				'- Read a file in the same run before editing, overwriting, or moving it; previous conversation reads do not satisfy file mutation guards.',

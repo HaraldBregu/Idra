@@ -189,6 +189,9 @@ export class AgentV2Service {
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
 		const system = await this.systemPrompt.build({});
+
+		console.log("system: ", system)
+
 		const run = this.runtime.run({
 			task: 'chat',
 			message,
