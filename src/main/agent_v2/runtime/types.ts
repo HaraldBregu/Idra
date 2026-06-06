@@ -1,21 +1,39 @@
-import type {
-	ModelEvent,
-	ModelMessage,
-	ModelMessageRole,
-	ModelModule,
-	ModelProvider,
-	ModelRequest,
-	ModelResponse,
-	ModelTool,
-} from '../model/types';
+export interface RuntimeToolSchema {
+	type?: string;
+	properties?: Record<string, unknown>;
+	required?: string[];
+	items?: unknown;
+	description?: string;
+	enum?: unknown[];
+	additionalProperties?: boolean | unknown;
+	[k: string]: unknown;
+}
 
-export type RuntimeRole = ModelMessageRole;
-export type RuntimeMessage = ModelMessage;
+export type RuntimeRole = 'system' | 'user' | 'assistant' | 'tool';
+
+export interface RuntimeToolCall {
+	id?: string;
+	name: string;
+	args: Record<string, unknown>;
+}
+
+export interface RuntimeMessage {
+	role: RuntimeRole;
+	content: string;
+	toolUseId?: string;
+	toolCalls?: RuntimeToolCall[];
+}
+
+export interface RuntimeModelProvider {
+	id: string;
+	apiKey: string;
+	baseURL?: string;
+}
 
 export interface RuntimeTool {
 	name: string;
 	description?: string;
-	schema?: ModelTool['schema'];
+	schema?: RuntimeToolSchema;
 	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
 }
 
@@ -24,9 +42,44 @@ export interface RuntimeSkill {
 	run: (input: string) => Promise<unknown> | unknown;
 }
 
-export type RuntimeModelRequest = ModelRequest;
-export type RuntimeModelResponse = ModelResponse;
-export type RuntimeModel = ModelModule;
+export interface RuntimeModelRequest {
+	messages: RuntimeMessage[];
+	system?: string;
+	provider: RuntimeModelProvider;
+	model: string;
+	maxTokens: number;
+	tools?: RuntimeTool[];
+	signal?: AbortSignal;
+}
+
+export interface RuntimeModelResponse {
+	content: string;
+	toolCalls?: RuntimeToolCall[];
+	model?: string;
+	stopReason?: string;
+	usage?: {
+		inputTokens?: number;
+		outputTokens?: number;
+	};
+}
+
+export type RuntimeModelEvent =
+	| { type: 'model_call_start'; model: string }
+	| { type: 'model_call_delta'; delta: string }
+	| { type: 'model_tool_call_start'; id: string; name: string }
+	| { type: 'model_tool_call_args_delta'; id: string; jsonDelta: string }
+	| { type: 'model_tool_call_end'; id: string }
+	| {
+			type: 'model_call_end';
+			model: string;
+			stopReason?: string;
+			usage?: RuntimeModelResponse['usage'];
+	  };
+
+export interface RuntimeModel {
+	generate(request: RuntimeModelRequest): Promise<RuntimeModelResponse>;
+	stream(request: RuntimeModelRequest): AsyncIterable<RuntimeModelEvent>;
+}
 
 export interface RuntimeModelRoute {
 	task: string;
@@ -36,7 +89,7 @@ export interface RuntimeModelRoute {
 export interface RuntimeInput {
 	task: string;
 	message: string;
-	provider: ModelProvider;
+	provider: RuntimeModelProvider;
 	system?: string;
 	messages?: RuntimeMessage[];
 	tools?: RuntimeTool[];
@@ -47,12 +100,6 @@ export interface RuntimeInput {
 	maxRetries?: number;
 	maxIterations?: number;
 	signal?: AbortSignal;
-}
-
-export interface RuntimeToolCall {
-	id?: string;
-	name: string;
-	args: Record<string, unknown>;
 }
 
 export interface RuntimeOutput {
@@ -81,7 +128,7 @@ export interface RuntimePerception {
 }
 
 export type RuntimeEvent =
-	| ModelEvent
+	| RuntimeModelEvent
 	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
 	| { type: 'tool_call_end'; toolName: string; output: unknown }
 	| { type: 'skill_call_start'; skillName: string; input: string }
