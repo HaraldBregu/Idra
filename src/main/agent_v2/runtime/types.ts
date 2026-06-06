@@ -1,39 +1,22 @@
-export interface RuntimeToolSchema {
-	type?: string;
-	properties?: Record<string, unknown>;
-	required?: string[];
-	items?: unknown;
-	description?: string;
-	enum?: unknown[];
-	additionalProperties?: boolean | unknown;
-	[k: string]: unknown;
-}
+import type {
+	ModelEvent,
+	ModelMessage,
+	ModelMessageRole,
+	ModelModule,
+	ModelProvider,
+	ModelRequest,
+	ModelResponse,
+	ModelTool,
+	ModelToolCall,
+} from '../model/types';
 
-export type RuntimeRole = 'system' | 'user' | 'assistant' | 'tool';
+export type RuntimeRole = ModelMessageRole;
 
-export interface RuntimeToolCall {
-	id?: string;
-	name: string;
-	args: Record<string, unknown>;
-}
+export type RuntimeToolCall = ModelToolCall;
+export type RuntimeMessage = ModelMessage;
+export type RuntimeModelProvider = ModelProvider;
 
-export interface RuntimeMessage {
-	role: RuntimeRole;
-	content: string;
-	toolUseId?: string;
-	toolCalls?: RuntimeToolCall[];
-}
-
-export interface RuntimeModelProvider {
-	id: string;
-	apiKey: string;
-	baseURL?: string;
-}
-
-export interface RuntimeTool {
-	name: string;
-	description?: string;
-	schema?: RuntimeToolSchema;
+export interface RuntimeTool extends ModelTool {
 	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
 }
 
@@ -42,44 +25,10 @@ export interface RuntimeSkill {
 	run: (input: string) => Promise<unknown> | unknown;
 }
 
-export interface RuntimeModelRequest {
-	messages: RuntimeMessage[];
-	system?: string;
-	provider: RuntimeModelProvider;
-	model: string;
-	maxTokens: number;
-	tools?: RuntimeTool[];
-	signal?: AbortSignal;
-}
-
-export interface RuntimeModelResponse {
-	content: string;
-	toolCalls?: RuntimeToolCall[];
-	model?: string;
-	stopReason?: string;
-	usage?: {
-		inputTokens?: number;
-		outputTokens?: number;
-	};
-}
-
-export type RuntimeModelEvent =
-	| { type: 'model_call_start'; model: string }
-	| { type: 'model_call_delta'; delta: string }
-	| { type: 'model_tool_call_start'; id: string; name: string }
-	| { type: 'model_tool_call_args_delta'; id: string; jsonDelta: string }
-	| { type: 'model_tool_call_end'; id: string }
-	| {
-			type: 'model_call_end';
-			model: string;
-			stopReason?: string;
-			usage?: RuntimeModelResponse['usage'];
-	  };
-
-export interface RuntimeModel {
-	generate(request: RuntimeModelRequest): Promise<RuntimeModelResponse>;
-	stream(request: RuntimeModelRequest): AsyncIterable<RuntimeModelEvent>;
-}
+export type RuntimeModelRequest = ModelRequest;
+export type RuntimeModelResponse = ModelResponse;
+export type RuntimeModelEvent = ModelEvent;
+export type RuntimeModel = ModelModule;
 
 export interface RuntimeModelRoute {
 	task: string;
