@@ -1,5 +1,5 @@
 import { LlmService } from '../../llm';
-import type { ModelMessage, ModelModule, ModelRequest, ModelResponse } from './types';
+import type { ModelEvent, ModelMessage, ModelModule, ModelRequest, ModelResponse } from './types';
 
 type ModelTranscriptEntry =
 	| { role: 'user'; content: string }
@@ -13,28 +13,12 @@ export class AgentModel implements ModelModule {
 		let content = '';
 		let stopReason: string | undefined;
 		let usage: ModelResponse['usage'];
-		const system = [
-			request.system,
-			...request.messages
-				.filter((message) => message.role === 'system')
-				.map((message) => message.content),
-		]
-			.filter(Boolean)
-			.join('\n\n');
-		const messages = request.messages.filter((message) => message.role !== 'system');
 
-		for await (const event of this.llm.build(request.provider).stream({
-			model: request.model,
-			system,
-			messages: messages.map(toTranscriptEntry),
-			tools: [],
-			maxTokens: request.maxTokens,
-			signal: request.signal,
-		})) {
-			if (event.type === 'text_delta') {
-				content += event.text;
+		for await (const event of this.stream(request)) {
+			if (event.type === 'model_call_delta') {
+				content += event.delta;
 			}
-			if (event.type === 'message_end') {
+			if (event.type === 'model_call_end') {
 				stopReason = event.stopReason;
 				usage = event.usage;
 			}
@@ -46,6 +30,41 @@ export class AgentModel implements ModelModule {
 			stopReason,
 			usage,
 		};
+	}
+
+	async *stream(request: ModelRequest): AsyncIterable<ModelEvent> {
+		const system = [
+			request.system,
+			...request.messages
+				.filter((message) => message.role === 'system')
+				.map((message) => message.content),
+		]
+			.filter(Boolean)
+			.join('\n\n');
+		const messages = request.messages.filter((message) => message.role !== 'system');
+
+		yield { type: 'model_call_start', model: request.model };
+
+		for await (const event of this.llm.build(request.provider).stream({
+			model: request.model,
+			system,
+			messages: messages.map(toTranscriptEntry),
+			tools: [],
+			maxTokens: request.maxTokens,
+			signal: request.signal,
+		})) {
+			if (event.type === 'text_delta') {
+				yield { type: 'model_call_delta', delta: event.text };
+			}
+			if (event.type === 'message_end') {
+				yield {
+					type: 'model_call_end',
+					model: request.model,
+					stopReason: event.stopReason,
+					usage: event.usage,
+				};
+			}
+		}
 	}
 }
 
