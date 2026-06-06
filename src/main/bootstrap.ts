@@ -5,11 +5,10 @@ import { LoggerService } from './observability';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
-import { AgentService } from './agent';
-import type { AgentServiceDependencies } from './agent/kernel';
-import { AgentDataDirectoryService } from './agent/storage';
-import { AgentSettingsStore } from './agent/settings';
-import { WorkspaceService } from './agent/workspace';
+import { AgentV2Service, type AgentV2ServiceDependencies } from './agent_v2';
+import { AgentDataDirectoryService } from './data-directory';
+import { AgentSettingsStore } from './agent-settings';
+import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
@@ -70,7 +69,7 @@ export function bootstrapServices(): BootstrapResult {
 	const llm = container.register('llm', new LlmService());
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 
-	const agentDependencies: AgentServiceDependencies = {
+	const agentDependencies: AgentV2ServiceDependencies = {
 		store,
 		cron,
 			logger,
@@ -85,7 +84,7 @@ export function bootstrapServices(): BootstrapResult {
 	};
 	const agentService = container.register(
 		'agentService',
-		new AgentService(agentDependencies, {
+		new AgentV2Service(agentDependencies, {
 			sessionBaseDir: agentDataDirectory.resolve('sessions'),
 		})
 	);

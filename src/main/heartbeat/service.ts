@@ -1,5 +1,5 @@
 import type { Disposable } from '../services/service-container';
-import type { AgentService } from '../agent';
+import type { AgentV2Service } from '../agent_v2';
 import {
 	getModelReasoningEfforts,
 	isModelReasoningEffort,
@@ -117,7 +117,7 @@ export class HeartbeatService implements Disposable {
 	private routesBySession = new Map<string, DeliveryRoute>();
 	private readonly runtimeState: HeartbeatRuntimeState;
 
-	constructor(private readonly agentService: AgentService) {
+	constructor(private readonly agentService: AgentV2Service) {
 		this.runtimeState = new HeartbeatRuntimeState(agentService.getHeartbeatStore());
 	}
 

@@ -14,7 +14,7 @@ import {
 	type AgentSendRuntimeOptions,
 } from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/types';
-import type { AgentSendOptions } from '../agent/kernel';
+import type { AgentSendOptions } from '../agent_v2';
 import type { RuntimeEvent } from '../agent_v2/runtime';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 

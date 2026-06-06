@@ -1,7 +1,7 @@
 import type { ChannelRegistry, ChannelsService } from '../channels';
-import type { AgentService } from '../agent';
-import type { AgentDataDirectoryService } from '../agent/storage';
-import type { AgentSettingsStore } from '../agent/settings';
+import type { AgentV2Service } from '../agent_v2';
+import type { AgentDataDirectoryService } from '../data-directory';
+import type { AgentSettingsStore } from '../agent-settings';
 import type { AppPermissionsService } from '../app/permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
@@ -11,7 +11,7 @@ import type { LoggerService } from '../observability';
 import type { SkillsService } from '../skills';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../store';
-import type { WorkspaceService } from '../agent/workspace';
+import type { WorkspaceService } from '../workspace';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 
 export interface MainServices {
@@ -19,7 +19,7 @@ export interface MainServices {
 	appPermissions: AppPermissionsService;
 	agentDataDirectory: AgentDataDirectoryService;
 	agentSettings: AgentSettingsStore;
-	agentService: AgentService;
+	agentService: AgentV2Service;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
