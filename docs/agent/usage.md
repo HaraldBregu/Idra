@@ -2,9 +2,13 @@
 const agent = new Agent();
 const prompt = 'Input message';
 
-const stream = agent.run(prompt);
+const run = agent.run(prompt);
 
-for await (const event of stream) {
+setTimeout(() => {
+	run.stop();
+}, 10_000);
+
+for await (const event of run.stream) {
 	switch (event.type) {
 		case 'model_call_start':
 			console.log('model started', event.model);
@@ -44,6 +48,10 @@ for await (const event of stream) {
 
 		case 'run_finished':
 			console.log('agent finished', event.result);
+			break;
+
+		case 'run_stopped':
+			console.log('agent stopped', event.reason);
 			break;
 	}
 }
