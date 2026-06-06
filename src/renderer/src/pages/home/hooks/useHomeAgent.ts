@@ -145,7 +145,8 @@ export function useHomeAgent({
 			}
 
 			try {
-				const response = await agent.send(trimmed, runtimeOptions);
+				// const response = await agent.send(trimmed, runtimeOptions);
+				const response = await agent.send_v2(trimmed, runtimeOptions);
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
