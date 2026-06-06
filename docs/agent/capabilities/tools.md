@@ -28,7 +28,11 @@ const result = await runtime.run({
 });
 
 const handlers = new Map([
-	[readFileTool.name, (call: RuntimeToolCall) => readFileTool.execute(call.args, toolContext)],
+	[
+		readFileTool.name,
+		(call: RuntimeToolCall) =>
+			readFileTool.execute(call.args as { path: string }, toolContext),
+	],
 ]);
 
 for (const call of result.toolCalls) {
