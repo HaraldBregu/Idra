@@ -7,11 +7,9 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { AgentV2Service, type AgentV2ServiceDependencies } from './agent_v2';
 import { AgentDataDirectoryService } from './data-directory';
-import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
-import { DEFAULT_AGENT_ID } from './config';
 
 import type { MainServiceContainer, MainServices } from './services/services';
 import { HeartbeatService } from './heartbeat';
@@ -24,7 +22,6 @@ export interface BootstrapResult {
 	appState: AppState;
 	logger: LoggerService;
 	agentDataDirectory: AgentDataDirectoryService;
-	workspace: WorkspaceService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -50,12 +47,6 @@ export function bootstrapServices(): BootstrapResult {
 		new SkillsService(logger)
 	);
 
-	const workspace = container.register(
-		'workspace',
-		new WorkspaceService(logger, {
-			rootPath: agentDataDirectory.resolve(DEFAULT_AGENT_ID),
-		})
-	);
 	const store = container.register('store', new StoreService());
 	const channels = container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger, { store }));
@@ -72,7 +63,6 @@ export function bootstrapServices(): BootstrapResult {
 		cron,
 		logger,
 		eventBus,
-		workspace,
 		agentDataDirectory,
 		llm,
 		connectors,
@@ -114,7 +104,6 @@ export function bootstrapServices(): BootstrapResult {
 		appState,
 		logger,
 		agentDataDirectory,
-		workspace,
 		windowContextManager,
 	};
 }
