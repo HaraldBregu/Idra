@@ -1,8 +1,8 @@
 ```ts
 const agent = new Agent();
-const prompt = 'prompt example';
+const prompt = 'Input message';
 
-const stream = agent.stream(prompt);
+const stream = agent.run(prompt);
 
 for await (const event of stream) {
 	switch (event.type) {
