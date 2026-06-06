@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { ipcMain, shell } from 'electron';
 import type { IpcModule } from './module';
@@ -5,13 +6,16 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { AgentChannels } from '../../shared/ipc-channels';
+import { AgentRuntime } from '../agent_v2';
 import {
 	isModelReasoningEffort,
 	type AgentHistoryMessage,
+	type AgentResponseEvent,
 	type AgentSendRuntimeOptions,
 } from '../../shared/agents/service';
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/types';
 import type { AgentSendOptions } from '../agent/kernel';
+import type { RuntimeEvent } from '../agent_v2/runtime';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
@@ -54,6 +58,84 @@ function optionalStringList(value: unknown): string[] | undefined {
 		.map(optionalTrimmedString)
 		.filter((item): item is string => Boolean(item));
 	return items.length > 0 ? items : undefined;
+}
+
+function normalizeV2StopReason(value: string | undefined): AgentResponseEvent['stopReason'] {
+	if (value === 'max_tokens') return 'max_tokens';
+	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
+	if (value === 'cancelled') return 'cancelled';
+	if (value === 'error') return 'error';
+	return 'end_turn';
+}
+
+function runtimeEventToAgentEvents(
+	event: RuntimeEvent,
+	agentId: string,
+	runId: string
+): AgentResponseEvent[] {
+	if (event.type === 'run_started') {
+		return [{ type: 'run_state', state: 'thinking', agentId, runId }];
+	}
+	if (event.type === 'model_call_start') {
+		return [
+			{ type: 'model_selected', providerId: 'agent_v2', model: event.model, agentId, runId },
+		];
+	}
+	if (event.type === 'model_call_delta') {
+		return [{ type: 'text_delta', delta: event.delta, agentId, runId }];
+	}
+	if (event.type === 'tool_call_start') {
+		return [
+			{
+				type: 'tool_call_start',
+				iteration: 0,
+				toolCallId: event.toolName,
+				toolName: event.toolName,
+				name: event.toolName,
+				serviceKind: 'tool',
+				agentId,
+				runId,
+			},
+		];
+	}
+	if (event.type === 'tool_call_end') {
+		return [
+			{
+				type: 'tool_call_result',
+				iteration: 0,
+				toolCallId: event.toolName,
+				toolName: event.toolName,
+				input: {},
+				output: event.output,
+				outputText: typeof event.output === 'string' ? event.output : JSON.stringify(event.output),
+				status: 'ok',
+				durationMs: 0,
+				name: event.toolName,
+				serviceKind: 'tool',
+				agentId,
+				runId,
+			},
+		];
+	}
+	if (event.type === 'run_finished') {
+		return [
+			{
+				type: 'run_finished',
+				stopReason:
+					event.result.subtype === 'error_max_turns'
+						? 'max_iterations'
+						: normalizeV2StopReason(event.result.stopReason),
+				outputChars: event.result.text.length,
+				agentId,
+				runId,
+			},
+			{ type: 'run_state', state: 'completed', agentId, runId },
+		];
+	}
+	if (event.type === 'run_stopped') {
+		return [{ type: 'run_state', state: 'cancelled', label: event.reason, agentId, runId }];
+	}
+	return [];
 }
 
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
