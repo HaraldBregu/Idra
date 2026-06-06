@@ -1,3 +1,4 @@
+// Parses streamed JSON tool arguments into runtime-safe objects.
 export function parseToolArgs(argsText: string): Record<string, unknown> {
 	if (!argsText.trim()) return {};
 	try {

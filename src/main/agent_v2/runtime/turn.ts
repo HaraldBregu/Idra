@@ -1,3 +1,4 @@
+// Collects one streamed model response into text, tool calls, stop reason, and usage.
 import { parseToolArgs } from './shared/args';
 import type {
 	RuntimeEvent,

@@ -1,3 +1,4 @@
+// Executes a single runtime tool and normalizes failures into tool output.
 import type { RuntimeTool, RuntimeToolCall } from './types';
 
 export interface ToolOutcome {

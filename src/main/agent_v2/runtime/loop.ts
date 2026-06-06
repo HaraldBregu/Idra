@@ -1,3 +1,4 @@
+// Coordinates the agent loop: model turns, tool execution, stop handling, and final results.
 import { AgentModel } from '../model';
 import { createRuntimeSession } from './session';
 import { runModelTurn } from './turn';

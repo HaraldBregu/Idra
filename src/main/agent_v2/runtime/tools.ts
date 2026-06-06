@@ -1,3 +1,4 @@
+// Executes all tool calls requested in one model turn and returns transcript messages.
 import { formatToolOutput } from './shared/format';
 import { runTool } from './tool';
 import type {

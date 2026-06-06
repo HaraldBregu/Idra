@@ -1,3 +1,4 @@
+// Defines runtime-facing contracts, reusing the agent_v2 model module interfaces.
 import type {
 	ModelEvent,
 	ModelMessage,

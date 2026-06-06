@@ -1,3 +1,4 @@
+// Builds and tracks mutable state for one runtime session.
 import { composeMessages } from './shared/messages';
 import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from './types';
 
