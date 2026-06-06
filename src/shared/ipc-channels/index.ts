@@ -13,6 +13,7 @@ export const WindowChannels = {
 
 export const AgentChannels = {
 	send: 'agent:send',
+	sendV2: 'agent:send-v2',
 	reset: 'agent:reset',
 	getHistory: 'agent:get-history',
 	openHistoryFolder: 'agent:open-history-folder',
@@ -316,6 +317,10 @@ interface SpeechToTextInvokeChannelMap {
 
 interface AgentInvokeChannelMap {
 	[AgentChannels.send]: {
+		args: [message: string, options?: AgentSendRuntimeOptions];
+		result: string;
+	};
+	[AgentChannels.sendV2]: {
 		args: [message: string, options?: AgentSendRuntimeOptions];
 		result: string;
 	};
