@@ -6,7 +6,6 @@ import type {
 	ModelModule,
 	ModelRequest,
 	ModelResponse,
-	ModelToolCall,
 } from './types';
 
 export class AgentModel implements ModelModule {
