@@ -11,6 +11,4 @@ const availableTools = tools.getTools();
 console.log(availableTools);
 ```
 
-`getTools()` returns the tool names and descriptions used by the agent prompt
-layer. Tool execution is handled later by the agent layer that receives model
-tool calls.
+`getTools()` returns tool names and descriptions.
