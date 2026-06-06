@@ -90,6 +90,7 @@ export interface RuntimeInput {
 	task: string;
 	message: string;
 	provider: RuntimeModelProvider;
+	sessionId?: string;
 	system?: string;
 	messages?: RuntimeMessage[];
 	tools?: RuntimeTool[];
@@ -98,6 +99,7 @@ export interface RuntimeInput {
 	modelRoutes?: RuntimeModelRoute[];
 	maxTokens?: number;
 	maxRetries?: number;
+	maxTurns?: number;
 	maxIterations?: number;
 	signal?: AbortSignal;
 }
@@ -106,7 +108,14 @@ export interface RuntimeOutput {
 	text: string;
 	model: string;
 	toolCalls: RuntimeToolCall[];
+	numTurns: number;
+	subtype: 'success' | 'error_max_turns';
+	sessionId: string;
 	stopReason?: string;
+	usage?: {
+		inputTokens: number;
+		outputTokens: number;
+	};
 }
 
 export interface RuntimePrompt {
@@ -129,6 +138,9 @@ export interface RuntimePerception {
 
 export type RuntimeEvent =
 	| RuntimeModelEvent
+	| { type: 'run_started'; sessionId: string; model: string }
+	| { type: 'assistant_message'; content: string; toolCalls: RuntimeToolCall[] }
+	| { type: 'user_message'; messages: RuntimeMessage[] }
 	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
 	| { type: 'tool_call_end'; toolName: string; output: unknown }
 	| { type: 'skill_call_start'; skillName: string; input: string }
