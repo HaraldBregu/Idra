@@ -7,7 +7,7 @@ jest.mock('../../../../src/main/llm', () => ({
 	})),
 }));
 
-import { Agent } from '../../../../src/main/agent_v2';
+import { Agent, AgentModel } from '../../../../src/main/agent_v2';
 
 async function* toolCallResponse(): AsyncIterable<unknown> {
 	yield { type: 'message_start' };
@@ -41,24 +41,27 @@ describe('Agent', () => {
 	it('runs through the public Agent export', async () => {
 		const provider = { id: 'openai', apiKey: 'key', baseURL: 'https://api.example.test' };
 		const tool = jest.fn().mockResolvedValue({ sent: true });
-		const agent = new Agent({
-			provider,
-			model: 'gpt-5',
-			system: 'Be direct.',
-			maxTokens: 512,
-			tools: [
-				{
-					name: 'notify',
-					description: 'Send a notification.',
-					schema: {
-						type: 'object',
-						properties: { ok: { type: 'boolean' } },
-						required: ['ok'],
+		const agent = new Agent(
+			{
+				provider,
+				model: 'gpt-5',
+				system: 'Be direct.',
+				maxTokens: 512,
+				tools: [
+					{
+						name: 'notify',
+						description: 'Send a notification.',
+						schema: {
+							type: 'object',
+							properties: { ok: { type: 'boolean' } },
+							required: ['ok'],
+						},
+						run: tool,
 					},
-					run: tool,
-				},
-			],
-		});
+				],
+			},
+			new AgentModel()
+		);
 
 		const run = agent.run('Send the update.');
 		const events = [];
@@ -157,10 +160,13 @@ describe('Agent', () => {
 	});
 
 	it('returns a stoppable run stream', async () => {
-		const agent = new Agent({
-			provider: { id: 'openai', apiKey: 'key' },
-			model: 'gpt-5',
-		});
+		const agent = new Agent(
+			{
+				provider: { id: 'openai', apiKey: 'key' },
+				model: 'gpt-5',
+			},
+			new AgentModel()
+		);
 		const run = agent.run('Hello.');
 
 		run.stop('timeout');
