@@ -71,6 +71,7 @@ export interface RuntimePerception {
 	model: string;
 	maxTokens: number;
 	maxRetries: number;
+	maxIterations: number;
 	tools: RuntimeTool[];
 	skills: RuntimeSkill[];
 	signal?: AbortSignal;
