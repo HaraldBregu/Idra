@@ -10,7 +10,6 @@ import type { LoggerService } from '../observability';
 import type { SkillsService } from '../skills';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../store';
-import type { WorkspaceService } from '../workspace';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 
 export interface MainServices {
@@ -31,7 +30,6 @@ export interface MainServices {
 	store: StoreService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
-	workspace: WorkspaceService;
 }
 
 export type MainServiceContainer = ServiceContainer<MainServices>;

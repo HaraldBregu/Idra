@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { isPathInside, type WorkspaceFileName } from '../../workspace/files';
+import { isPathInside, type WorkspaceFileName } from './workspace';
 
 export async function fileContentDiffersFromTemplate(
 	filePath: string,

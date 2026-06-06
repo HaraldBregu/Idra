@@ -5,7 +5,6 @@ import type { ConnectorsService } from '../../connectors';
 import type { ToolPolicyServicePort } from './shared/tool-types';
 import type { StoreService } from '../../store';
 import type { SkillsService } from '../../skills';
-import type { WorkspaceService } from '../../workspace';
 import type { JSONSchema, ToolResultBlock } from '../../llm/types';
 import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../shared/agents/constants';
 
@@ -18,7 +17,6 @@ export interface FridayServices {
 	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
-	workspace: WorkspaceService;
 	cron?: CronService;
 	policy?: ToolPolicyServicePort;
 	connectors?: ConnectorsService;

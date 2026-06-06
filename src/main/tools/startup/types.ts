@@ -2,7 +2,6 @@ import type { LoggerService } from '../../observability';
 import type {
 	WorkspaceContextFile,
 	WorkspaceFileSummary,
-} from '../../workspace/files';
 } from './workspace';
 
 export interface AgentStartupFilesServiceOptions {
