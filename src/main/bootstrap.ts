@@ -72,12 +72,12 @@ export function bootstrapServices(): BootstrapResult {
 	const agentDependencies: AgentV2ServiceDependencies = {
 		store,
 		cron,
-			logger,
-			eventBus,
-			workspace,
-			agentDataDirectory,
-			agentSettings,
-			llm,
+		logger,
+		eventBus,
+		workspace,
+		agentDataDirectory,
+		agentSettings,
+		llm,
 		connectors,
 		skills,
 		channels,
@@ -90,7 +90,7 @@ export function bootstrapServices(): BootstrapResult {
 	);
 	const channelRegistry = container.register(
 		'channelRegistry',
-			new ChannelRegistry({ logger, eventBus, agentService })
+		new ChannelRegistry({ logger, eventBus, agentService })
 	);
 	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(

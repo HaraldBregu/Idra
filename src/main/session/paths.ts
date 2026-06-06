@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { resolveDefaultAgentDataPath } from '../storage';
+import { resolveDefaultAgentDataPath } from '../data-directory';
 
 export function defaultBaseDir(): string {
 	return resolveDefaultAgentDataPath('sessions');

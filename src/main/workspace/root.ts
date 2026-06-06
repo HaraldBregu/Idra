@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import type { LoggerService } from '../../observability';
+import type { LoggerService } from '../observability';
 import { resolveDefaultAgentDataPath } from '../data-directory';
 import type {
 	BootstrapMode,

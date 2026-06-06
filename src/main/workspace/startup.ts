@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { resolveDefaultAgentDataPath } from '../storage';
+import { resolveDefaultAgentDataPath } from '../data-directory';
 import {
 	DEFAULT_BOOTSTRAP_FILENAME,
 	DEFAULT_MEMORY_FILENAME,
