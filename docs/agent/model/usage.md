@@ -1,32 +1,19 @@
 # Agent Model Usage
 
-The `src/main/agent_v2/model` package exposes one public module: `AgentModel`.
-Import it from the package barrel, not from internal files.
+`src/main/agent_v2/model` is internal implementation for `Agent`.
+Do not import it directly.
+
+Use the public package root instead:
 
 ```ts
-import { AgentModel } from '';
+import { Agent } from '../../../src/main/agent_v2';
 
-const model = new AgentModel();
+const agent = new Agent();
+const run = agent.run('Summarize the current task.');
 
-const response = await model.generate({
-	provider: {
-		id: 'openai',
-		apiKey,
-		baseURL,
-	},
-	model: 'gpt-5',
-	maxTokens: 1024,
-	system: 'Answer clearly.',
-	messages: [{ role: 'user', content: 'Summarize the current task.' }],
-});
-
-console.log(response.content);
+for await (const event of run.stream) {
+	if (event.type === 'run_finished') {
+		console.log(event.result.text);
+	}
+}
 ```
-
-`response.content` contains the completed assistant text.
-
-Do not import provider adapters, transcript entries, usage types, or other
-low-level exports from `src/main/llm/types` inside `agent_v2/model` callers.
-Do not construct `LlmService` when using `AgentModel`; `AgentModel` owns the LLM
-service and the translation from simple model messages to the service stream
-request.
