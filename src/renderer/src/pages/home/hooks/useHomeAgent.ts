@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
 import type {
-	AgentResponseEvent,
 	AgentSendRuntimeOptions,
 	ModelReasoningEffort,
 } from '../../../../../shared/agents/service';
