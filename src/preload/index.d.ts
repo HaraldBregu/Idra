@@ -11,6 +11,7 @@ export interface WindowApi {
 
 export interface AgentApi {
 	send: (message: string, options?: AgentSendRuntimeOptions) => Promise<string>;
+	send_v2: (message: string, options?: AgentSendRuntimeOptions) => Promise<string>;
 	reset: () => Promise<void>;
 	cancel: () => Promise<void>;
 	getHistory: () => Promise<AgentHistoryMessage[]>;
