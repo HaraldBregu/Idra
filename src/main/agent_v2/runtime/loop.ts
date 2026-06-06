@@ -6,7 +6,7 @@ import type {
 	RuntimeRun,
 	RuntimeTool,
 	RuntimeToolCall,
-} from '../types';
+} from './types';
 
 interface ModelTurn {
 	content: string;
