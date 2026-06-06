@@ -6,12 +6,16 @@ the caller dispatches those calls to the matching project tool implementation.
 
 ```ts
 import { AgentRuntime, type RuntimeToolCall } from '../../../src/main/agent_v2';
-import { fileReadTool } from '../../../src/main/agent_v2/capabilities/tools';
+import type { AgentTool } from '../../../src/main/tools/core/tool';
+
+declare const model: ConstructorParameters<typeof AgentRuntime>[0];
+declare const readFileTool: AgentTool<{ path: string }>;
+declare const toolContext: Parameters<typeof readFileTool.execute>[1];
 
 const tools = [
 	{
-		name: fileReadTool.name,
-		description: fileReadTool.description,
+		name: readFileTool.name,
+		description: readFileTool.description,
 	},
 ];
 
@@ -24,7 +28,7 @@ const result = await runtime.run({
 });
 
 const handlers = new Map([
-	[fileReadTool.name, (call: RuntimeToolCall) => fileReadTool.execute(call.args, toolContext)],
+	[readFileTool.name, (call: RuntimeToolCall) => readFileTool.execute(call.args, toolContext)],
 ]);
 
 for (const call of result.toolCalls) {
