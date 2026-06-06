@@ -13,6 +13,8 @@ import type { LoggerService } from '../observability';
 import type { LlmService } from '../llm';
 import type { SkillsService } from '../skills';
 import type { StoreService } from '../store';
+import { AgentStartupFilesService } from '../tools/startup/service';
+import type { AgentStartupFilesServicePort } from '../tools/startup/types';
 import {
 	getDefaultAgentModels,
 	isAllowedAgentModel,
@@ -22,8 +24,6 @@ import {
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import type { PublicProvider } from '../../shared/providers';
-import { AgentWorkspaceService, type WorkspaceService } from '../workspace';
-import type { AgentStartupFilesServicePort } from '../workspace/startup';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
 import { SystemPrompt } from './runtime/system-prompt';
@@ -33,7 +33,6 @@ export interface AgentV2ServiceDependencies {
 	cron?: CronService;
 	logger: LoggerService;
 	eventBus: EventBus;
-	workspace: WorkspaceService;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
 	llm?: LlmService;
 	connectors?: ConnectorsService;
@@ -163,7 +162,7 @@ export class AgentV2Service {
 	private readonly systemPrompt = new SystemPrompt();
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
-	private workspaceService: AgentWorkspaceService | null = null;
+	private startupFiles: AgentStartupFilesServicePort | null = null;
 	private heartbeatStore: HeartbeatFileStore | null = null;
 
 	constructor(
@@ -262,14 +261,14 @@ export class AgentV2Service {
 	}
 
 	listStartupFiles(agentId: string): ReturnType<AgentStartupFilesServicePort['listFiles']> {
-		return this.getWorkspaceService().listFiles(agentId);
+		return this.getStartupFiles().listFiles(agentId);
 	}
 
 	readStartupFile(
 		agentId: string,
 		name: string
 	): ReturnType<AgentStartupFilesServicePort['readFile']> {
-		return this.getWorkspaceService().readFile(agentId, name);
+		return this.getStartupFiles().readFile(agentId, name);
 	}
 
 	writeStartupFile(
@@ -277,7 +276,7 @@ export class AgentV2Service {
 		name: string,
 		content: string
 	): ReturnType<AgentStartupFilesServicePort['writeFile']> {
-		return this.getWorkspaceService().writeFile(agentId, name, content);
+		return this.getStartupFiles().writeFile(agentId, name, content);
 	}
 
 	readHeartbeatStartupFile(
@@ -349,12 +348,11 @@ export class AgentV2Service {
 		return this.dependencies.channelRegistry;
 	}
 
-	private getWorkspaceService(): AgentWorkspaceService {
-		this.workspaceService ??= new AgentWorkspaceService({
-			agentDataDirectory: this.dependencies.agentDataDirectory,
+	private getStartupFiles(): AgentStartupFilesServicePort {
+		this.startupFiles ??= this.dependencies.startupFiles ?? new AgentStartupFilesService({
+			rootPath: this.dependencies.agentDataDirectory?.resolve(),
 			logger: this.dependencies.logger,
-			startupFiles: this.dependencies.startupFiles,
 		});
-		return this.workspaceService;
+		return this.startupFiles;
 	}
 }
