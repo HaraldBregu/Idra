@@ -1,23 +1,16 @@
 # Agent Tool Usage
 
-Tools are exposed to the agent as named capabilities. The runtime includes the
-tool names and descriptions in the prompt, the model returns `toolCalls`, and
-the caller dispatches those calls to the matching project tool implementation.
+Tools are exposed to the agent as named capabilities. Initialize the tool
+capability module, get the available tools, and pass them to the runtime.
 
 ```ts
 import { AgentRuntime, type RuntimeToolCall } from '../../../src/main/agent_v2';
-import type { AgentTool } from '../../../src/main/tools/core/tool';
+import { AgentTools } from '../../../src/main/agent_v2/capabilities/tools';
 
 declare const model: ConstructorParameters<typeof AgentRuntime>[0];
-declare const readFileTool: AgentTool<{ path: string }>;
-declare const toolContext: Parameters<typeof readFileTool.execute>[1];
 
-const tools = [
-	{
-		name: readFileTool.name,
-		description: readFileTool.description,
-	},
-];
+const toolCapabilities = new AgentTools();
+const tools = toolCapabilities.getTools();
 
 const runtime = new AgentRuntime(model);
 const result = await runtime.run({
@@ -27,23 +20,9 @@ const result = await runtime.run({
 	model: 'gpt-5',
 });
 
-const handlers = new Map([
-	[
-		readFileTool.name,
-		(call: RuntimeToolCall) =>
-			readFileTool.execute(call.args as { path: string }, toolContext),
-	],
-]);
-
-for (const call of result.toolCalls) {
-	const handler = handlers.get(call.name);
-	if (!handler) throw new Error(`Unknown tool: ${call.name}`);
-
-	const toolResult = await handler(call);
-	console.log(toolResult.content);
-}
+console.log(result.toolCalls satisfies RuntimeToolCall[]);
 ```
 
-The important boundary is that `AgentRuntime` decides what tool calls the model
-requested. Tool execution stays outside the runtime so policies, approval,
-workspace context, and result handling can be applied by the caller.
+`getTools()` returns the tool names and descriptions that the runtime includes
+in the prompt. Tool execution is handled by the next agent layer after the
+runtime reports `result.toolCalls`.
