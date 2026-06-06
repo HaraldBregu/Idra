@@ -25,9 +25,6 @@ import {
 	type TelegramChannelProperties,
 } from '../../shared/channels';
 import type {
-	AgentConfig,
-	AgentRouteBinding,
-	AgentRoutingSettings,
 	BackgroundTaskSettings,
 	ModelProviderSettings,
 	ModelModuleSettings,
@@ -36,6 +33,7 @@ import type {
 	StoreSchema,
 	TaskSchedulerSettings,
 } from './types';
+import type { AgentConfig, AgentRouteBinding, AgentRoutingSettings } from '../../shared/store';
 import type { CronJobStoreState } from '../cron/state';
 import { emptyCronJobStoreState, migrateCronJobStoreState } from '../cron/state';
 
@@ -150,7 +148,8 @@ function normalizeAgentRoutingSettings(value: unknown): AgentRoutingSettings {
 
 function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
 	const record = readRecord(value);
-	const id = typeof record?.id === 'string' ? record.id.trim() : '';
+	if (!record) return undefined;
+	const id = typeof record.id === 'string' ? record.id.trim() : '';
 	if (!id) return undefined;
 	return {
 		id,
