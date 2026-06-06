@@ -43,6 +43,7 @@ export interface RuntimeInput {
 	modelRoutes?: RuntimeModelRoute[];
 	maxTokens?: number;
 	maxRetries?: number;
+	maxIterations?: number;
 	signal?: AbortSignal;
 }
 

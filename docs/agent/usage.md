@@ -6,10 +6,6 @@ const prompt = 'Input message';
 
 const run = agent.run(prompt);
 
-setTimeout(() => {
-	run.stop();
-}, 10_000);
-
 for await (const event of run.stream) {
 	switch (event.type) {
 		case 'model_call_start':
