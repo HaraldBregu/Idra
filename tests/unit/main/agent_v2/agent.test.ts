@@ -41,7 +41,11 @@ describe('Agent', () => {
 	it('runs through the public Agent export', async () => {
 		const provider = { id: 'openai', apiKey: 'key', baseURL: 'https://api.example.test' };
 		const tool = jest.fn().mockResolvedValue({ sent: true });
-		const agent = new Agent({
+		const agent = new Agent();
+
+		const run = agent.run({
+			task: 'Send the update.',
+			message: 'Send the update.',
 			provider,
 			model: 'gpt-5',
 			sessionId: 'session_1',
@@ -60,8 +64,6 @@ describe('Agent', () => {
 				},
 			],
 		});
-
-		const run = agent.run('Send the update.');
 		const events = [];
 
 		for await (const event of run.stream) {
@@ -181,15 +183,17 @@ describe('Agent', () => {
 	it('counts maxTurns as tool-use turns only', async () => {
 		const provider = { id: 'openai', apiKey: 'key' };
 		const tool = jest.fn().mockResolvedValue({ sent: true });
-		const agent = new Agent({
+		const agent = new Agent();
+
+		const run = agent.run({
+			task: 'Send the update.',
+			message: 'Send the update.',
 			provider,
 			model: 'gpt-5',
 			sessionId: 'session_limited',
 			maxTurns: 0,
 			tools: [{ name: 'notify', run: tool }],
 		});
-
-		const run = agent.run('Send the update.');
 		const events = [];
 
 		for await (const event of run.stream) {
@@ -213,12 +217,14 @@ describe('Agent', () => {
 	});
 
 	it('returns a stoppable run stream', async () => {
-		const agent = new Agent({
+		const agent = new Agent();
+		const run = agent.run({
+			task: 'Hello.',
+			message: 'Hello.',
 			provider: { id: 'openai', apiKey: 'key' },
 			model: 'gpt-5',
 			sessionId: 'session_stop',
 		});
-		const run = agent.run('Hello.');
 
 		run.stop('timeout');
 
