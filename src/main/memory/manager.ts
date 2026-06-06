@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { resolveDefaultAgentDataPath } from '../agent/storage';
+import { resolveDefaultAgentDataPath } from '../data-directory';
 
 const TEMPLATE_FILES = [
 	'AGENTS.md',

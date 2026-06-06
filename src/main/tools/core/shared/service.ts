@@ -28,7 +28,7 @@ import {
 	type PrepareLegacyToolsForProviderOptions,
 } from '../runtime/adapt';
 import type { ToolProfile } from './tool-types';
-import type { AgentStartupFilesServicePort } from '../../../agent/workspace/startup';
+import type { AgentStartupFilesServicePort } from '../../../workspace/startup';
 
 const defaultToolPolicyService = new ToolPolicyService();
 const TOOL_SERVICE_LOG_SOURCE = 'ToolService';

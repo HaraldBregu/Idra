@@ -17,7 +17,7 @@ import {
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
 } from '../../agent/workspace/files';
-import { resolveDefaultAgentDataPath } from '../../agent/storage';
+import { resolveDefaultAgentDataPath } from '../../data-directory';
 import type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,

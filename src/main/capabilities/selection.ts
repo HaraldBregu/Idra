@@ -1,5 +1,5 @@
 import type { SkillDetails } from '../../shared/skills';
-import type { AgentTool } from '../agent/tooling';
+import type { AgentTool } from '../tools/core/tool';
 import type { AgentCapabilityBundle, AgentResolvedSkill } from './types';
 
 const MAX_SKILL_PROMPT_CHARS = 4000;

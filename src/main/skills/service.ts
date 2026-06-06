@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { LoggerService } from '../observability';
-import { resolveDefaultAppDataPath } from '../agent/storage';
+import { resolveDefaultAppDataPath } from '../data-directory';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
