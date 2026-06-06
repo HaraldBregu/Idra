@@ -7,7 +7,7 @@ jest.mock('../../../../src/main/llm', () => ({
 	})),
 }));
 
-import { Agent, AgentModel } from '../../../../src/main/agent_v2';
+import { Agent } from '../../../../src/main/agent_v2';
 
 async function* toolCallResponse(): AsyncIterable<unknown> {
 	yield { type: 'message_start' };
@@ -41,28 +41,25 @@ describe('Agent', () => {
 	it('runs through the public Agent export', async () => {
 		const provider = { id: 'openai', apiKey: 'key', baseURL: 'https://api.example.test' };
 		const tool = jest.fn().mockResolvedValue({ sent: true });
-		const agent = new Agent(
-			{
-				provider,
-				model: 'gpt-5',
-				sessionId: 'session_1',
-				system: 'Be direct.',
-				maxTokens: 512,
-				tools: [
-					{
-						name: 'notify',
-						description: 'Send a notification.',
-						schema: {
-							type: 'object',
-							properties: { ok: { type: 'boolean' } },
-							required: ['ok'],
-						},
-						run: tool,
+		const agent = new Agent({
+			provider,
+			model: 'gpt-5',
+			sessionId: 'session_1',
+			system: 'Be direct.',
+			maxTokens: 512,
+			tools: [
+				{
+					name: 'notify',
+					description: 'Send a notification.',
+					schema: {
+						type: 'object',
+						properties: { ok: { type: 'boolean' } },
+						required: ['ok'],
 					},
-				],
-			},
-			new AgentModel()
-		);
+					run: tool,
+				},
+			],
+		});
 
 		const run = agent.run('Send the update.');
 		const events = [];
@@ -184,16 +181,13 @@ describe('Agent', () => {
 	it('counts maxTurns as tool-use turns only', async () => {
 		const provider = { id: 'openai', apiKey: 'key' };
 		const tool = jest.fn().mockResolvedValue({ sent: true });
-		const agent = new Agent(
-			{
-				provider,
-				model: 'gpt-5',
-				sessionId: 'session_limited',
-				maxTurns: 0,
-				tools: [{ name: 'notify', run: tool }],
-			},
-			new AgentModel()
-		);
+		const agent = new Agent({
+			provider,
+			model: 'gpt-5',
+			sessionId: 'session_limited',
+			maxTurns: 0,
+			tools: [{ name: 'notify', run: tool }],
+		});
 
 		const run = agent.run('Send the update.');
 		const events = [];
@@ -219,14 +213,11 @@ describe('Agent', () => {
 	});
 
 	it('returns a stoppable run stream', async () => {
-		const agent = new Agent(
-			{
-				provider: { id: 'openai', apiKey: 'key' },
-				model: 'gpt-5',
-				sessionId: 'session_stop',
-			},
-			new AgentModel()
-		);
+		const agent = new Agent({
+			provider: { id: 'openai', apiKey: 'key' },
+			model: 'gpt-5',
+			sessionId: 'session_stop',
+		});
 		const run = agent.run('Hello.');
 
 		run.stop('timeout');
