@@ -212,7 +212,10 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
+		const store = container.get('store');
 		const agentDataDirectory = container.get('agentDataDirectory');
+		const agentV2 = new AgentRuntime();
+		let activeAgentV2Run: ReturnType<AgentRuntime['run']> | undefined;
 		const listStartupFiles = () => agent.listStartupFiles('main');
 		const readStartupFile = (name: string) => agent.readStartupFile('main', name);
 		const writeStartupFile = (name: string, content: string) =>
@@ -226,6 +229,64 @@ export class AgentIpc implements IpcModule {
 					streamEvent: (event) => eventBus.broadcast('agent:response', event),
 				});
 			}, AgentChannels.send)
+		);
+
+		ipcMain.handle(
+			AgentChannels.sendV2,
+			wrapSimpleHandler(async (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
+				const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
+				const configured = store.getAgentService();
+				const providerId = runtimeOptions.providerId ?? configured?.provider.id;
+				const model = runtimeOptions.model ?? configured?.model.id;
+				if (!providerId || !model) {
+					throw new Error('Agent v2 requires a configured provider and model.');
+				}
+
+				const provider = store.getProviderById(providerId);
+				if (!provider) {
+					throw new Error(`Agent v2 provider is not configured: ${providerId}`);
+				}
+
+				activeAgentV2Run?.stop('replaced');
+				const runId = runtimeOptions.runId ?? randomUUID();
+				const run = agentV2.run({
+					task: 'home_chat',
+					message,
+					provider: {
+						id: provider.id,
+						apiKey: provider.apiKey,
+						baseURL: provider.baseUrl,
+					},
+					model,
+					sessionId: runtimeOptions.sessionId ?? 'main',
+					system: 'You are a helpful assistant.',
+					maxRetries: 1,
+				});
+				activeAgentV2Run = run;
+
+				let response = '';
+				try {
+					for await (const event of run.stream) {
+						if (event.type === 'model_call_delta') response += event.delta;
+						if (event.type === 'run_finished') response = event.result.text || response;
+						for (const responseEvent of runtimeEventToAgentEvents(event, 'main', runId)) {
+							eventBus.broadcast(AgentChannels.response, responseEvent);
+						}
+					}
+					return response;
+				} catch (error) {
+					eventBus.broadcast(AgentChannels.response, {
+						type: 'run_state',
+						state: 'error',
+						label: error instanceof Error ? error.message : 'Agent v2 request failed.',
+						agentId: 'main',
+						runId,
+					} satisfies AgentResponseEvent);
+					throw error;
+				} finally {
+					if (activeAgentV2Run === run) activeAgentV2Run = undefined;
+				}
+			}, AgentChannels.sendV2)
 		);
 
 		ipcMain.handle(
@@ -256,6 +317,7 @@ export class AgentIpc implements IpcModule {
 		ipcMain.handle(
 			AgentChannels.cancel,
 			wrapSimpleHandler((): void => {
+				activeAgentV2Run?.stop('cancelled');
 				agent.cancel();
 			}, AgentChannels.cancel)
 		);
