@@ -1,10 +1,11 @@
+import { AgentModel } from '../model';
 import { createRuntimeSession } from './session';
 import { runModelTurn } from './turn';
 import { runToolCalls } from './tools';
 import type { RuntimeEvent, RuntimeInput, RuntimeModel, RuntimeRun } from './types';
 
 export class AgentRuntime {
-	constructor(private readonly model: RuntimeModel) {}
+	constructor(private readonly model: RuntimeModel = new AgentModel()) {}
 
 	run(input: RuntimeInput): RuntimeRun {
 		const controller = new AbortController();
