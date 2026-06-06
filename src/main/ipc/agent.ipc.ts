@@ -6,7 +6,7 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import { AgentRuntime } from '../agent_v2';
+import { AgentRuntime } from '../agent_v2/runtime';
 import {
 	isModelReasoningEffort,
 	type AgentHistoryMessage,
