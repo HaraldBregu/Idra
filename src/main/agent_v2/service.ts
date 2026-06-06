@@ -27,7 +27,7 @@ import { AgentWorkspaceService, type WorkspaceService } from '../workspace';
 import type { AgentStartupFilesServicePort } from '../workspace/startup';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
-import { buildSystemPrompt } from './runtime/system-prompt';
+import { SystemPrompt } from './runtime/system-prompt';
 
 export interface AgentV2ServiceDependencies {
 	store: StoreService;
@@ -162,6 +162,7 @@ function runtimeEventToAgentEvents(
 
 export class AgentV2Service {
 	private readonly runtime = new AgentRuntime();
+	private readonly systemPrompt = new SystemPrompt();
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
 	private workspaceService: AgentWorkspaceService | null = null;
@@ -187,7 +188,7 @@ export class AgentV2Service {
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
-		const system = await buildSystemPrompt({});
+		const system = await this.systemPrompt.build({});
 		const run = this.runtime.run({
 			task: 'chat',
 			message,
