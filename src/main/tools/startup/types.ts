@@ -3,6 +3,7 @@ import type {
 	WorkspaceContextFile,
 	WorkspaceFileSummary,
 } from '../../workspace/files';
+} from './workspace';
 
 export interface AgentStartupFilesServiceOptions {
 	rootPath?: string;
