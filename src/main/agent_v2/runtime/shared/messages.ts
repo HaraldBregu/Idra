@@ -1,4 +1,4 @@
-import type { RuntimeInput, RuntimeMessage } from './types';
+import type { RuntimeInput, RuntimeMessage } from '../types';
 
 export function composeMessages(input: RuntimeInput): RuntimeMessage[] {
 	const messages = [...(input.messages ?? [])];

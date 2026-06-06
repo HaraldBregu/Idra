@@ -1,4 +1,4 @@
-import { composeMessages } from './messages';
+import { composeMessages } from './shared/messages';
 import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from './types';
 
 export interface RuntimeSession {

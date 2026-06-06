@@ -1,4 +1,4 @@
-import { formatToolOutput } from './format';
+import { formatToolOutput } from './shared/format';
 import { runTool } from './tool';
 import type {
 	RuntimeEvent,

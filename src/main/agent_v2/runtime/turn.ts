@@ -1,4 +1,4 @@
-import { parseToolArgs } from './args';
+import { parseToolArgs } from './shared/args';
 import type {
 	RuntimeEvent,
 	RuntimeInput,
