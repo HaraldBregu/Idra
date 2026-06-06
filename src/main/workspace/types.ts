@@ -1,5 +1,5 @@
 import type { LoggerService } from '../../observability';
-import type { AgentDataDirectoryServicePort } from '../storage';
+import type { AgentDataDirectoryServicePort } from '../data-directory';
 import type { WORKSPACE_CONTEXT_FILE_NAMES } from './common';
 
 export interface WorkspaceServiceOptions {
