@@ -1,4 +1,3 @@
-// Collects one streamed model response into text, tool calls, stop reason, and usage.
 import { parseToolArgs } from './shared/args';
 import type {
 	RuntimeEvent,
@@ -8,6 +7,12 @@ import type {
 	RuntimeToolCall,
 } from './types';
 
+/**
+ * Normalized output from one streamed model turn.
+ *
+ * The loop stores the text as an assistant message and executes any collected
+ * tool calls before asking the model for the next turn.
+ */
 export interface ModelTurn {
 	content: string;
 	model: string;
@@ -19,6 +24,13 @@ export interface ModelTurn {
 	};
 }
 
+/**
+ * Streams one model response and collects it into a `ModelTurn`.
+ *
+ * Text deltas are concatenated, streamed tool argument chunks are assembled by
+ * tool-call id, and provider stop reason plus usage are retained for final
+ * result metadata.
+ */
 export async function* runModelTurn(
 	modelPort: RuntimeModel,
 	input: RuntimeInput,

@@ -1,4 +1,3 @@
-// Executes all tool calls requested in one model turn and returns transcript messages.
 import { formatToolOutput } from './shared/format';
 import { runTool } from './tool';
 import type {
@@ -8,6 +7,12 @@ import type {
 	RuntimeToolCall,
 } from './types';
 
+/**
+ * Executes the tool calls requested by a single assistant turn.
+ *
+ * The generator yields start/end events for UI progress and returns the `tool`
+ * transcript messages that must be appended before the next model turn.
+ */
 export async function* runToolCalls(
 	tools: RuntimeTool[],
 	toolCalls: Required<RuntimeToolCall>[],

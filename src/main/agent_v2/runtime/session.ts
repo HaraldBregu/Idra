@@ -1,7 +1,12 @@
-// Builds and tracks mutable state for one runtime session.
 import { composeMessages } from './shared/messages';
 import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from './types';
 
+/**
+ * Mutable state accumulated while a runtime loop is active.
+ *
+ * The loop updates this object after every model turn and tool-use turn so final
+ * result creation can stay centralized and consistent.
+ */
 export interface RuntimeSession {
 	id: string;
 	messages: RuntimeMessage[];
@@ -17,6 +22,12 @@ export interface RuntimeSession {
 	maxTurns: number;
 }
 
+/**
+ * Creates the initial session state from caller input.
+ *
+ * This initializes the transcript, generated or supplied session id, token usage
+ * counters, selected model, and the tool-use turn limit used by the loop.
+ */
 export function createRuntimeSession(input: RuntimeInput): RuntimeSession {
 	return {
 		id:

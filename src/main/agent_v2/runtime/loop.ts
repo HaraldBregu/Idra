@@ -1,13 +1,27 @@
-// Coordinates the agent loop: model turns, tool execution, stop handling, and final results.
 import { AgentModel } from '../model';
 import { createRuntimeSession } from './session';
 import { runModelTurn } from './turn';
 import { runToolCalls } from './tools';
 import type { RuntimeEvent, RuntimeInput, RuntimeModel, RuntimeRun } from './types';
 
+/**
+ * Orchestrates one agent run from prompt to final result.
+ *
+ * The runtime owns the loop lifecycle: it starts a session, asks the model for a
+ * turn, records assistant output, executes requested tools, feeds tool results
+ * back into the transcript, and repeats until the model returns no tool calls or
+ * the configured turn limit is reached.
+ */
 export class AgentRuntime {
 	constructor(private readonly model: RuntimeModel = new AgentModel()) {}
 
+	/**
+	 * Starts a cancellable runtime stream for a fully specified agent input.
+	 *
+	 * Callers receive model events, assistant/user turn events, tool events, and a
+	 * final run result through `RuntimeRun.stream`. Calling `stop()` aborts the
+	 * model request and causes the stream to yield a `run_stopped` event.
+	 */
 	run(input: RuntimeInput): RuntimeRun {
 		const controller = new AbortController();
 		let stopped = false;

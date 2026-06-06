@@ -1,11 +1,23 @@
-// Executes a single runtime tool and normalizes failures into tool output.
 import type { RuntimeTool, RuntimeToolCall } from './types';
 
+/**
+ * Result of one tool execution after runtime normalization.
+ *
+ * Tool failures are represented as output text instead of thrown errors so the
+ * next model turn can observe the failure and decide how to continue.
+ */
 export interface ToolOutcome {
 	output: unknown;
 	isError?: boolean;
 }
 
+/**
+ * Executes one model-requested tool call.
+ *
+ * Unknown tools and thrown exceptions are converted into error output. This keeps
+ * the agent loop moving and gives the model a concrete tool result message
+ * rather than interrupting the whole run.
+ */
 export async function runTool(
 	tool: RuntimeTool | undefined,
 	toolCall: RuntimeToolCall
