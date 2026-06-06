@@ -1,4 +1,4 @@
-import type { ToolResultStatus, TranscriptEntry } from '../../llm/types';
+import type { ToolResultStatus, TranscriptEntry } from '../llm/types';
 import type { ToolTranscriptEntry } from './types';
 
 function toolResultStatus(entry: ToolTranscriptEntry): ToolResultStatus {

@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from '../../llm/types';
+import type { TranscriptEntry } from '../llm/types';
 import { sanitizeToolUseResultPairing } from './repair';
 import type { SessionFile } from './types';
 import { MAX_TOOL_RESULT_CHARS } from './common';
