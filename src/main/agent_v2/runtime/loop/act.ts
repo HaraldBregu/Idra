@@ -7,9 +7,9 @@ export function act(
 ): Promise<RuntimeModelResponse> {
 	return retry(perception.maxRetries, () =>
 		model.generate({
+			provider: perception.provider,
 			model: perception.model,
 			system: perception.prompt.system,
-			prompt: perception.prompt.prompt,
 			messages: perception.prompt.messages,
 			maxTokens: perception.maxTokens,
 			signal: perception.signal,

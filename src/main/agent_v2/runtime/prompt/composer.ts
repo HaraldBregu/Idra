@@ -10,7 +10,8 @@ export function composePrompt(input: RuntimeInput): RuntimePrompt {
 				'When a tool is needed, output tool calls as JSON: {"toolCalls":[{"name":"tool","args":{}}]}',
 			].join('\n')
 		: '';
-	const messages = [...(input.messages ?? []), { role: 'user' as const, content: input.message }];
+	const userContent = [toolPrompt, input.message].filter(Boolean).join('\n\n');
+	const messages = [...(input.messages ?? []), { role: 'user' as const, content: userContent }];
 	const transcript = messages
 		.map((message) => `${message.role}: ${message.content}`)
 		.join('\n');

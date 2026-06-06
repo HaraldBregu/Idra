@@ -1,34 +1,23 @@
-export type RuntimeRole = 'system' | 'user' | 'assistant' | 'tool';
+import type {
+	ModelMessage,
+	ModelMessageRole,
+	ModelModule,
+	ModelProvider,
+	ModelRequest,
+	ModelResponse,
+} from '../model/types';
 
-export interface RuntimeMessage {
-	role: RuntimeRole;
-	content: string;
-	toolUseId?: string;
-}
+export type RuntimeRole = ModelMessageRole;
+export type RuntimeMessage = ModelMessage;
 
 export interface RuntimeTool {
 	name: string;
 	description?: string;
 }
 
-export interface RuntimeModelRequest {
-	model: string;
-	system: string;
-	prompt: string;
-	messages: RuntimeMessage[];
-	maxTokens: number;
-	signal?: AbortSignal;
-}
-
-export interface RuntimeModelResponse {
-	text: string;
-	model: string;
-	stopReason?: string;
-}
-
-export interface RuntimeModel {
-	generate(request: RuntimeModelRequest): Promise<RuntimeModelResponse>;
-}
+export type RuntimeModelRequest = ModelRequest;
+export type RuntimeModelResponse = ModelResponse;
+export type RuntimeModel = ModelModule;
 
 export interface RuntimeModelRoute {
 	task: string;
@@ -38,6 +27,7 @@ export interface RuntimeModelRoute {
 export interface RuntimeInput {
 	task: string;
 	message: string;
+	provider: ModelProvider;
 	system?: string;
 	messages?: RuntimeMessage[];
 	tools?: RuntimeTool[];
@@ -68,6 +58,7 @@ export interface RuntimePrompt {
 
 export interface RuntimePerception {
 	prompt: RuntimePrompt;
+	provider: ModelProvider;
 	model: string;
 	maxTokens: number;
 	maxRetries: number;
