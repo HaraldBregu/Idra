@@ -9,7 +9,6 @@ import type { ChannelType } from '../../shared/channels';
 import type { AgentSessionMetadata } from '../../shared/store';
 import type { EventBus } from '../services/event-bus';
 import type { AgentDataDirectoryServicePort } from '../data-directory';
-import type { AgentSettingsStorePort } from '../agent-settings';
 import type { LoggerService } from '../observability';
 import type { LlmService } from '../llm';
 import type { SkillsService } from '../skills';
@@ -36,7 +35,6 @@ export interface AgentV2ServiceDependencies {
 	eventBus: EventBus;
 	workspace: WorkspaceService;
 	agentDataDirectory?: AgentDataDirectoryServicePort;
-	agentSettings?: AgentSettingsStorePort;
 	llm?: LlmService;
 	connectors?: ConnectorsService;
 	skills?: SkillsService;

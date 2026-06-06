@@ -7,7 +7,6 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { AgentV2Service, type AgentV2ServiceDependencies } from './agent_v2';
 import { AgentDataDirectoryService } from './data-directory';
-import { AgentSettingsStore } from './agent-settings';
 import { WorkspaceService } from './workspace';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
@@ -58,7 +57,6 @@ export function bootstrapServices(): BootstrapResult {
 		})
 	);
 	const store = container.register('store', new StoreService());
-	const agentSettings = container.register('agentSettings', new AgentSettingsStore({ logger }));
 	const channels = container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
@@ -76,7 +74,6 @@ export function bootstrapServices(): BootstrapResult {
 		eventBus,
 		workspace,
 		agentDataDirectory,
-		agentSettings,
 		llm,
 		connectors,
 		skills,

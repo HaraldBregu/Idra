@@ -25,6 +25,9 @@ import {
 	type TelegramChannelProperties,
 } from '../../shared/channels';
 import type {
+	AgentConfig,
+	AgentRouteBinding,
+	AgentRoutingSettings,
 	BackgroundTaskSettings,
 	ModelProviderSettings,
 	ModelModuleSettings,
@@ -125,6 +128,57 @@ function readBackgroundTaskSettings(value: unknown): BackgroundTaskSettings {
 	return {
 		...(allowedTaskTypes && allowedTaskTypes.length > 0 ? { allowedTaskTypes } : {}),
 		...(defaultConcurrency ? { defaultConcurrency } : {}),
+	};
+}
+
+function normalizeAgentRoutingSettings(value: unknown): AgentRoutingSettings {
+	const record = readRecord(value);
+	const agents = Array.isArray(record?.agents)
+		? record.agents.flatMap((entry) => {
+				const agent = normalizeAgentConfig(entry);
+				return agent ? [agent] : [];
+			})
+		: [];
+	const bindings = Array.isArray(record?.bindings)
+		? record.bindings.flatMap((entry) => {
+				const binding = normalizeAgentRouteBinding(entry);
+				return binding ? [binding] : [];
+			})
+		: [];
+	return { agents, bindings };
+}
+
+function normalizeAgentConfig(value: unknown): AgentConfig | undefined {
+	const record = readRecord(value);
+	const id = typeof record?.id === 'string' ? record.id.trim() : '';
+	if (!id) return undefined;
+	return {
+		id,
+		...(record.default === true ? { default: true } : {}),
+		...(typeof record.name === 'string' && record.name.trim()
+			? { name: record.name.trim() }
+			: {}),
+		...(typeof record.workspace === 'string' && record.workspace.trim()
+			? { workspace: record.workspace.trim() }
+			: {}),
+	};
+}
+
+function normalizeAgentRouteBinding(value: unknown): AgentRouteBinding | undefined {
+	const record = readRecord(value);
+	const agentId = typeof record?.agentId === 'string' ? record.agentId.trim() : '';
+	if (!agentId) return undefined;
+	const match = readRecord(record?.match);
+	if (!match) return undefined;
+	const channel = typeof match.channel === 'string' ? match.channel.trim().toLowerCase() : '';
+	const accountId = typeof match.accountId === 'string' ? match.accountId.trim() : '';
+	if (!channel && !accountId) return undefined;
+	return {
+		agentId,
+		match: {
+			...(channel ? { channel } : {}),
+			...(accountId ? { accountId } : {}),
+		},
 	};
 }
 
@@ -314,6 +368,10 @@ export class StoreService {
 
 	getTaskSettings(): TaskSchedulerSettings {
 		return this.getTaskSchedulerSettings();
+	}
+
+	getAgentRoutingSettings(): AgentRoutingSettings {
+		return normalizeAgentRoutingSettings(this.store.get('agents'));
 	}
 
 	getAgentRuntimePreference(): string | undefined {
