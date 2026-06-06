@@ -1,9 +1,9 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { AgentTool } from '../../../../tools/core/tool';
-import { textResult } from '../../../../tools/core/tool';
-import { TOOL_LIMITS } from '../../../../tools/core/limits';
-import { resolveAbs } from '../../../../tools/core/shared/common';
+import type { AgentTool } from '../core/tool';
+import { textResult } from '../core/tool';
+import { TOOL_LIMITS } from '../core/limits';
+import { resolveAbs } from '../core/shared/common';
 
 interface SearchFilesArgs {
 	pattern: string;
