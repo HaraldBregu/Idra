@@ -6,6 +6,7 @@ import type {
 	ModelProvider,
 	ModelRequest,
 	ModelResponse,
+	ModelTool,
 } from '../model/types';
 
 export type RuntimeRole = ModelMessageRole;
@@ -14,6 +15,7 @@ export type RuntimeMessage = ModelMessage;
 export interface RuntimeTool {
 	name: string;
 	description?: string;
+	schema?: ModelTool['schema'];
 	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
 }
 
@@ -48,6 +50,7 @@ export interface RuntimeInput {
 }
 
 export interface RuntimeToolCall {
+	id?: string;
 	name: string;
 	args: Record<string, unknown>;
 }
