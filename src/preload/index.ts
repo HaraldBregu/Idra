@@ -142,6 +142,80 @@ function normalizeAgentSendRuntimeOptions(
 	return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
+function isTerminalAgentEvent(event: AgentResponseEvent): boolean {
+	return (
+		event.type === 'run_finished' ||
+		(event.type === 'run_state' &&
+			(event.state === 'completed' || event.state === 'cancelled' || event.state === 'error'))
+	);
+}
+
+function createAgentV2Stream(
+	message: string,
+	options?: AgentSendRuntimeOptions
+): AsyncIterable<AgentResponseEvent> {
+	const runId = options?.runId?.trim() || crypto.randomUUID();
+	const runtimeOptions = normalizeAgentSendRuntimeOptions({ ...options, runId });
+
+	return {
+		[Symbol.asyncIterator](): AsyncIterator<AgentResponseEvent> {
+			const queue: AgentResponseEvent[] = [];
+			let done = false;
+			let error: Error | undefined;
+			let wake: (() => void) | undefined;
+			const notify = (): void => {
+				wake?.();
+				wake = undefined;
+			};
+
+			const offResponse = typedOn(AgentChannels.response, (event: AgentResponseEvent) => {
+				if (event.runId !== runId) return;
+				queue.push(event);
+				if (isTerminalAgentEvent(event)) done = true;
+				notify();
+			});
+
+			void (runtimeOptions
+				? typedInvokeUnwrap(AgentChannels.sendV2, message, runtimeOptions)
+				: typedInvokeUnwrap(AgentChannels.sendV2, message)
+			)
+				.catch((requestError: unknown) => {
+					error =
+						requestError instanceof Error
+							? requestError
+							: new Error('Agent v2 request failed.');
+				})
+				.finally(() => {
+					done = true;
+					notify();
+				});
+
+			return {
+				async next(): Promise<IteratorResult<AgentResponseEvent>> {
+					while (queue.length === 0 && !done) {
+						await new Promise<void>((resolve) => {
+							wake = resolve;
+						});
+					}
+
+					const event = queue.shift();
+					if (event) return { done: false, value: event };
+
+					offResponse();
+					if (error) throw error;
+					return { done: true, value: undefined };
+				},
+				async return(): Promise<IteratorResult<AgentResponseEvent>> {
+					done = true;
+					offResponse();
+					void typedInvokeUnwrap(AgentChannels.cancel).catch(() => undefined);
+					return { done: true, value: undefined };
+				},
+			};
+		},
+	};
+}
+
 const win: WindowApi = {
 	minimize: (): void => {
 		typedSend(WindowChannels.minimize);
@@ -176,11 +250,11 @@ export const agent: AgentApi = {
 			? typedInvokeUnwrap(AgentChannels.send, message, runtimeOptions)
 			: typedInvokeUnwrap(AgentChannels.send, message);
 	},
-	send_v2: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-		const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
-		return runtimeOptions
-			? typedInvokeUnwrap(AgentChannels.sendV2, message, runtimeOptions)
-			: typedInvokeUnwrap(AgentChannels.sendV2, message);
+	send_v2: (
+		message: string,
+		options?: AgentSendRuntimeOptions
+	): AsyncIterable<AgentResponseEvent> => {
+		return createAgentV2Stream(message, options);
 	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.reset);
