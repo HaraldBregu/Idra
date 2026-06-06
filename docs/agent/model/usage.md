@@ -4,7 +4,7 @@ The `src/main/agent_v2/model` package exposes one public module: `AgentModel`.
 Import it from the package barrel, not from internal files.
 
 ```ts
-import { AgentModel } from '../../../src/main/agent_v2/model';
+import { AgentModel } from '';
 
 const model = new AgentModel();
 
