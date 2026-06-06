@@ -1,4 +1,3 @@
-import { AgentModel } from '../model';
 import { AgentRuntime } from './loop';
 import type { RuntimeInput, RuntimeModel, RuntimeRun } from './types';
 
@@ -11,7 +10,7 @@ export class Agent {
 
 	constructor(
 		private readonly options: AgentOptions,
-		model: RuntimeModel = new AgentModel()
+		model: RuntimeModel
 	) {
 		this.runtime = new AgentRuntime(model);
 	}
