@@ -68,4 +68,30 @@ describe('AgentModel', () => {
 			usage: { inputTokens: 3, outputTokens: 2 },
 		});
 	});
+
+	it('streams model events without exposing llm provider events', async () => {
+		const model = new AgentModel();
+		const events = [];
+
+		for await (const event of model.stream({
+			provider: { id: 'openai', apiKey: 'key' },
+			model: 'gpt-5',
+			maxTokens: 1024,
+			messages: [{ role: 'user', content: 'Hello.' }],
+		})) {
+			events.push(event);
+		}
+
+		expect(events).toEqual([
+			{ type: 'model_call_start', model: 'gpt-5' },
+			{ type: 'model_call_delta', delta: 'Hello' },
+			{ type: 'model_call_delta', delta: ' world' },
+			{
+				type: 'model_call_end',
+				model: 'gpt-5',
+				stopReason: 'end_turn',
+				usage: { inputTokens: 3, outputTokens: 2 },
+			},
+		]);
+	});
 });
