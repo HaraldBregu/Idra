@@ -31,6 +31,17 @@ export interface ModelResponse {
 	};
 }
 
+export type ModelEvent =
+	| { type: 'model_call_start'; model: string }
+	| { type: 'model_call_delta'; delta: string }
+	| {
+			type: 'model_call_end';
+			model: string;
+			stopReason?: string;
+			usage?: ModelResponse['usage'];
+	  };
+
 export interface ModelModule {
 	generate(request: ModelRequest): Promise<ModelResponse>;
+	stream(request: ModelRequest): AsyncIterable<ModelEvent>;
 }
