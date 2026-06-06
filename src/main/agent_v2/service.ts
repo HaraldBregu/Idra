@@ -27,6 +27,7 @@ import { AgentWorkspaceService, type WorkspaceService } from '../workspace';
 import type { AgentStartupFilesServicePort } from '../workspace/startup';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
+import { buildSystemPrompt } from './runtime/prompt';
 
 export interface AgentV2ServiceDependencies {
 	store: StoreService;
@@ -186,6 +187,10 @@ export class AgentV2Service {
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
+		const system = await buildSystemPrompt({
+			date: new Date().toISOString().slice(0, 10),
+			workspace: this.dependencies.workspace.getRootPath(),
+		});
 		const run = this.runtime.run({
 			task: 'chat',
 			message,
@@ -196,7 +201,7 @@ export class AgentV2Service {
 			},
 			model,
 			sessionId,
-			system: 'You are a helpful assistant.',
+			system,
 			maxRetries: 1,
 		});
 		this.activeRuns.set(resolvedAgentId, run);
