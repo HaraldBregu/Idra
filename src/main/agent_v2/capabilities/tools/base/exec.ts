@@ -8,7 +8,7 @@ import {
 	type ExecDetails,
 	runBackground,
 	runForeground,
-} from '../core/shared/shell';
+} from '../core/shell';
 
 interface ExecArgs {
 	command: string;

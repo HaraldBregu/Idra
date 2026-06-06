@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { AgentTool } from '../core/tool';
 import { textResult } from '../core/result';
 import { TOOL_LIMITS } from '../core/limits';
-import { resolveAbs } from '../core/shared/common';
+import { resolveAbs } from '../core/common';
 
 interface SearchFilesArgs {
 	pattern: string;
