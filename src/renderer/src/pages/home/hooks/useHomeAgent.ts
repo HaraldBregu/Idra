@@ -145,8 +145,14 @@ export function useHomeAgent({
 			}
 
 			try {
+				let response = '';
 				// const response = await agent.send(trimmed, runtimeOptions);
-				const response = await agent.send_v2(trimmed, runtimeOptions);
+				for await (const event of agent.send_v2(trimmed, runtimeOptions)) {
+					if (requestIdRef.current !== requestId) return;
+					if (event.agentId !== HOME_AGENT_ID) continue;
+					if (event.type === 'text_delta') response += event.delta;
+					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
+				}
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
@@ -162,20 +168,20 @@ export function useHomeAgent({
 		[dispatchChat]
 	);
 
-	useEffect(() => {
-		const agent = getAgentApi();
-		if (!agent) return;
-
-		const offResponse = agent.onResponse((event: AgentResponseEvent) => {
-			if (!requestActiveRef.current) return;
-			if (event.agentId !== HOME_AGENT_ID) return;
-			dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
-		});
-
-		return () => {
-			offResponse();
-		};
-	}, [dispatchChat]);
+	// useEffect(() => {
+	// 	const agent = getAgentApi();
+	// 	if (!agent) return;
+	//
+	// 	const offResponse = agent.onResponse((event: AgentResponseEvent) => {
+	// 		if (!requestActiveRef.current) return;
+	// 		if (event.agentId !== HOME_AGENT_ID) return;
+	// 		dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
+	// 	});
+	//
+	// 	return () => {
+	// 		offResponse();
+	// 	};
+	// }, [dispatchChat]);
 
 	const handleSubmit = useCallback((): void => {
 		if (isLoading) {
