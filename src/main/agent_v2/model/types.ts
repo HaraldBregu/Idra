@@ -6,7 +6,7 @@ export interface ModelMessage {
 	toolUseId?: string;
 }
 
-export interface ModelProvider {
+export interface  ModelProvider {
 	id: string;
 	apiKey: string;
 	baseURL?: string;
