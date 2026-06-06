@@ -13,6 +13,10 @@ interface ModelTurn {
 	model: string;
 	stopReason?: string;
 	toolCalls: Required<RuntimeToolCall>[];
+	usage?: {
+		inputTokens?: number;
+		outputTokens?: number;
+	};
 }
 
 interface ToolOutcome {
@@ -55,11 +59,17 @@ export class AgentRuntime {
 	): AsyncGenerator<RuntimeEvent> {
 		const messages = composeMessages(input);
 		const toolCalls: RuntimeToolCall[] = [];
+		const sessionId = input.sessionId ?? createSessionId();
+		const usage = { inputTokens: 0, outputTokens: 0 };
+		const maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
+		let numTurns = 0;
 		let finalText = '';
 		let lastModel = input.model ?? 'default';
 		let lastStopReason: string | undefined;
 
-		for (let iteration = 0; iteration < (input.maxIterations ?? 20); iteration += 1) {
+		yield { type: 'run_started', sessionId, model: lastModel };
+
+		while (true) {
 			if (isStopped()) {
 				yield { type: 'run_stopped', reason: getStopReason() };
 				return;
@@ -73,8 +83,15 @@ export class AgentRuntime {
 
 			lastModel = turn.model;
 			lastStopReason = turn.stopReason;
+			usage.inputTokens += turn.usage?.inputTokens ?? 0;
+			usage.outputTokens += turn.usage?.outputTokens ?? 0;
 			if (turn.content) finalText = turn.content;
 
+			yield {
+				type: 'assistant_message',
+				content: turn.content,
+				toolCalls: turn.toolCalls,
+			};
 			messages.push({
 				role: 'assistant',
 				content: turn.content,
@@ -88,7 +105,28 @@ export class AgentRuntime {
 						text: finalText,
 						model: lastModel,
 						toolCalls,
+						numTurns,
+						subtype: 'success',
+						sessionId,
 						stopReason: lastStopReason ?? 'end_turn',
+						usage,
+					},
+				};
+				return;
+			}
+
+			if (numTurns >= maxTurns) {
+				yield {
+					type: 'run_finished',
+					result: {
+						text: '',
+						model: lastModel,
+						toolCalls,
+						numTurns,
+						subtype: 'error_max_turns',
+						sessionId,
+						stopReason: lastStopReason,
+						usage,
 					},
 				};
 				return;
@@ -101,17 +139,9 @@ export class AgentRuntime {
 			}
 			toolCalls.push(...turn.toolCalls);
 			messages.push(...results);
+			numTurns += 1;
+			yield { type: 'user_message', messages: results };
 		}
-
-		yield {
-			type: 'run_finished',
-			result: {
-				text: finalText,
-				model: lastModel,
-				toolCalls,
-				stopReason: 'max_iterations',
-			},
-		};
 	}
 
 	private async *runModelTurn(
@@ -124,6 +154,7 @@ export class AgentRuntime {
 			let content = '';
 			let model = input.model ?? 'default';
 			let stopReason: string | undefined;
+			let usage: ModelTurn['usage'];
 			const pending = new Map<string, { name: string; argsText: string }>();
 
 			try {
@@ -148,6 +179,7 @@ export class AgentRuntime {
 					if (event.type === 'model_call_end') {
 						model = event.model;
 						stopReason = event.stopReason;
+						usage = event.usage;
 					}
 					yield event;
 				}
@@ -156,6 +188,7 @@ export class AgentRuntime {
 					content,
 					model,
 					stopReason,
+					usage,
 					toolCalls: [...pending].map(([id, toolCall]) => ({
 						id,
 						name: toolCall.name,
@@ -201,6 +234,10 @@ function composeMessages(input: RuntimeInput): RuntimeMessage[] {
 	const messages = [...(input.messages ?? [])];
 	if (input.message) messages.push({ role: 'user', content: input.message });
 	return messages;
+}
+
+function createSessionId(): string {
+	return `runtime-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 async function runTool(
