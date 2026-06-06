@@ -45,6 +45,7 @@ describe('Agent', () => {
 			{
 				provider,
 				model: 'gpt-5',
+				sessionId: 'session_1',
 				system: 'Be direct.',
 				maxTokens: 512,
 				tools: [
@@ -127,6 +128,7 @@ describe('Agent', () => {
 		});
 		expect(tool).toHaveBeenCalledWith({ ok: true });
 		expect(events).toEqual([
+			{ type: 'run_started', sessionId: 'session_1', model: 'gpt-5' },
 			{ type: 'model_call_start', model: 'gpt-5' },
 			{ type: 'model_tool_call_start', id: 'call_1', name: 'notify' },
 			{ type: 'model_tool_call_args_delta', id: 'call_1', jsonDelta: '{"ok":true}' },
@@ -137,8 +139,23 @@ describe('Agent', () => {
 				stopReason: 'tool_calls',
 				usage: { inputTokens: 3, outputTokens: 2 },
 			},
+			{
+				type: 'assistant_message',
+				content: '',
+				toolCalls: [{ id: 'call_1', name: 'notify', args: { ok: true } }],
+			},
 			{ type: 'tool_call_start', toolName: 'notify', input: { ok: true } },
 			{ type: 'tool_call_end', toolName: 'notify', output: { sent: true } },
+			{
+				type: 'user_message',
+				messages: [
+					{
+						role: 'tool',
+						toolUseId: 'call_1',
+						content: '{"sent":true}',
+					},
+				],
+			},
 			{ type: 'model_call_start', model: 'gpt-5' },
 			{ type: 'model_call_delta', delta: 'Done' },
 			{
@@ -147,16 +164,58 @@ describe('Agent', () => {
 				stopReason: 'end_turn',
 				usage: { inputTokens: 4, outputTokens: 1 },
 			},
+			{ type: 'assistant_message', content: 'Done', toolCalls: [] },
 			{
 				type: 'run_finished',
 				result: {
 					text: 'Done',
 					toolCalls: [{ id: 'call_1', name: 'notify', args: { ok: true } }],
 					model: 'gpt-5',
+					numTurns: 1,
+					subtype: 'success',
+					sessionId: 'session_1',
 					stopReason: 'end_turn',
+					usage: { inputTokens: 7, outputTokens: 3 },
 				},
 			},
 		]);
+	});
+
+	it('counts maxTurns as tool-use turns only', async () => {
+		const provider = { id: 'openai', apiKey: 'key' };
+		const tool = jest.fn().mockResolvedValue({ sent: true });
+		const agent = new Agent(
+			{
+				provider,
+				model: 'gpt-5',
+				sessionId: 'session_limited',
+				maxTurns: 0,
+				tools: [{ name: 'notify', run: tool }],
+			},
+			new AgentModel()
+		);
+
+		const run = agent.run('Send the update.');
+		const events = [];
+
+		for await (const event of run.stream) {
+			events.push(event);
+		}
+
+		expect(tool).not.toHaveBeenCalled();
+		expect(events.at(-1)).toEqual({
+			type: 'run_finished',
+			result: {
+				text: '',
+				toolCalls: [],
+				model: 'gpt-5',
+				numTurns: 0,
+				subtype: 'error_max_turns',
+				sessionId: 'session_limited',
+				stopReason: 'tool_calls',
+				usage: { inputTokens: 3, outputTokens: 2 },
+			},
+		});
 	});
 
 	it('returns a stoppable run stream', async () => {
@@ -164,6 +223,7 @@ describe('Agent', () => {
 			{
 				provider: { id: 'openai', apiKey: 'key' },
 				model: 'gpt-5',
+				sessionId: 'session_stop',
 			},
 			new AgentModel()
 		);
