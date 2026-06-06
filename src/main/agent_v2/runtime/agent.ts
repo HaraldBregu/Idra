@@ -1,4 +1,4 @@
-import { AgentModel } from '../model/model';
+import { AgentModel } from '../model';
 import { AgentRuntime } from './loop';
 import type { RuntimeInput, RuntimeRun } from './types';
 
