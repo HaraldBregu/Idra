@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import type { AgentTool } from '../core/tool';
-import { textResult } from '../core/tool';
+import { textResult } from '../core/result';
 import { resolveAbs, snapshot } from '../core/shared/common';
 
 interface EditArgs {

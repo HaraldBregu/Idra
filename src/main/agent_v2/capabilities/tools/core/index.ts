@@ -1,7 +1,12 @@
+export type { ToolContext } from './context';
 export { TOOL_LIMITS } from './limits';
+export { textResult } from './result';
 export {
-	textResult,
 	type AgentTool,
-	type AgentToolResult,
-	type ToolContext,
 } from './tool';
+export type {
+	AgentToolResult,
+	AgentToolResultStatus,
+	ToolResultBlock,
+} from './result';
+export type { JSONSchema } from './schema';
