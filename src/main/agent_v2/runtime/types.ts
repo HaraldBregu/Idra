@@ -1,4 +1,5 @@
 import type {
+	ModelEvent,
 	ModelMessage,
 	ModelMessageRole,
 	ModelModule,
@@ -13,6 +14,12 @@ export type RuntimeMessage = ModelMessage;
 export interface RuntimeTool {
 	name: string;
 	description?: string;
+	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
+}
+
+export interface RuntimeSkill {
+	name: string;
+	run: (input: string) => Promise<unknown> | unknown;
 }
 
 export type RuntimeModelRequest = ModelRequest;
@@ -31,6 +38,7 @@ export interface RuntimeInput {
 	system?: string;
 	messages?: RuntimeMessage[];
 	tools?: RuntimeTool[];
+	skills?: RuntimeSkill[];
 	model?: string;
 	modelRoutes?: RuntimeModelRoute[];
 	maxTokens?: number;
@@ -63,4 +71,18 @@ export interface RuntimePerception {
 	maxTokens: number;
 	maxRetries: number;
 	signal?: AbortSignal;
+}
+
+export type RuntimeEvent =
+	| ModelEvent
+	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
+	| { type: 'tool_call_end'; toolName: string; output: unknown }
+	| { type: 'skill_call_start'; skillName: string; input: string }
+	| { type: 'skill_call_end'; skillName: string; output: unknown }
+	| { type: 'run_finished'; result: RuntimeOutput }
+	| { type: 'run_stopped'; reason: string };
+
+export interface RuntimeRun {
+	stream: AsyncIterable<RuntimeEvent>;
+	stop(reason?: string): void;
 }
