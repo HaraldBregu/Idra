@@ -2,7 +2,7 @@ import {
 	DEFAULT_IDENTITY_FILENAME,
 	DEFAULT_SOUL_FILENAME,
 	DEFAULT_USER_FILENAME,
-} from './workspace';
+} from './workspace/files';
 import type { Level } from './types';
 
 export const AGENT_APP_DATA_DIRECTORY_NAME = 'friday';
