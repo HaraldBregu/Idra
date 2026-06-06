@@ -23,27 +23,31 @@ for await (const event of run.stream) {
 			break;
 
 		case 'tool_call_start':
-			console.log('tool started', event.toolName, event.input);
-			break;
-
-		case 'tool_call_delta':
-			console.log('tool update', event.delta);
+			console.log('tool input', {
+				toolName: event.toolName,
+				input: event.input,
+			});
 			break;
 
 		case 'tool_call_end':
-			console.log('tool finished', event.output);
+			console.log('tool output', {
+				toolName: event.toolName,
+				output: event.output,
+			});
 			break;
 
 		case 'skill_call_start':
-			console.log('skill started', event.skillName, event.input);
-			break;
-
-		case 'skill_call_delta':
-			console.log('skill update', event.delta);
+			console.log('skill input', {
+				skillName: event.skillName,
+				input: event.input,
+			});
 			break;
 
 		case 'skill_call_end':
-			console.log('skill finished', event.output);
+			console.log('skill output', {
+				skillName: event.skillName,
+				output: event.output,
+			});
 			break;
 
 		case 'run_finished':
