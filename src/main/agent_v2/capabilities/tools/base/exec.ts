@@ -1,14 +1,14 @@
 import path from 'node:path';
-import type { AgentTool } from '../core/tool';
-import { textResult } from '../core/tool';
-import { TOOL_LIMITS } from '../core/limits';
+import type { AgentTool } from '../../../../tools/core/tool';
+import { textResult } from '../../../../tools/core/tool';
+import { TOOL_LIMITS } from '../../../../tools/core/limits';
 import {
 	DEFAULT_TIMEOUT_MS,
 	deniedPattern,
 	type ExecDetails,
 	runBackground,
 	runForeground,
-} from '../core/shared/shell';
+} from '../../../../tools/core/shared/shell';
 
 interface ExecArgs {
 	command: string;

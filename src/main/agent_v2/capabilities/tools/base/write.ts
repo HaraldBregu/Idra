@@ -1,8 +1,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { AgentTool } from '../core/tool';
-import { textResult } from '../core/tool';
-import { resolveAbs, snapshot } from '../core/shared/common';
+import type { AgentTool } from '../../../../tools/core/tool';
+import { textResult } from '../../../../tools/core/tool';
+import { resolveAbs, snapshot } from '../../../../tools/core/shared/common';
 
 interface WriteArgs {
 	path: string;
