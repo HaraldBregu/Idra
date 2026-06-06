@@ -23,7 +23,7 @@ const DEFAULT_TOOLS: RuntimeTool[] = [
 	},
 ];
 
-export class AgentTools {
+export class Tools {
 	constructor(private readonly tools: RuntimeTool[] = DEFAULT_TOOLS) {}
 
 	getTools(): RuntimeTool[] {

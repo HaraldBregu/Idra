@@ -1,15 +1,14 @@
 # Agent Tool Usage
 
-Tools are exposed to the agent as named capabilities. Initialize the tool
-capability module and get the available tools.
+Initialize `Tools` and get the available tools.
 
 ```ts
-import { AgentTools } from '../../../src/main/agent_v2/capabilities/tools';
+import { Tools } from '../../../src/main/agent_v2/capabilities/tools';
 
-const toolCapabilities = new AgentTools();
-const tools = toolCapabilities.getTools();
+const tools = new Tools();
+const availableTools = tools.getTools();
 
-console.log(tools);
+console.log(availableTools);
 ```
 
 `getTools()` returns the tool names and descriptions used by the agent prompt
