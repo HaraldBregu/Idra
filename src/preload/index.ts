@@ -176,6 +176,12 @@ export const agent: AgentApi = {
 			? typedInvokeUnwrap(AgentChannels.send, message, runtimeOptions)
 			: typedInvokeUnwrap(AgentChannels.send, message);
 	},
+	send_v2: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
+		const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
+		return runtimeOptions
+			? typedInvokeUnwrap(AgentChannels.sendV2, message, runtimeOptions)
+			: typedInvokeUnwrap(AgentChannels.sendV2, message);
+	},
 	reset: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.reset);
 	},
