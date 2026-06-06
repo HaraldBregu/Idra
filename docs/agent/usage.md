@@ -1,4 +1,6 @@
 ```ts
+import { Agent } from '../../src/main/agent_v2';
+
 const agent = new Agent();
 const prompt = 'Input message';
 
