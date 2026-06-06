@@ -236,6 +236,9 @@ describe('Agent', () => {
 			events.push(event);
 		}
 
-		expect(events).toEqual([{ type: 'run_stopped', reason: 'timeout' }]);
+		expect(events).toEqual([
+			{ type: 'run_started', sessionId: 'session_stop', model: 'gpt-5' },
+			{ type: 'run_stopped', reason: 'timeout' },
+		]);
 	});
 });
