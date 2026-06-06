@@ -1,5 +1,19 @@
-import type { JSONSchema, ToolResultBlock } from '../../../../llm/types';
-import type { AgentToolResultStatus } from '../../../../../shared/agents/constants';
+export interface JSONSchema {
+	type?: string;
+	properties?: Record<string, unknown>;
+	required?: string[];
+	items?: unknown;
+	description?: string;
+	enum?: unknown[];
+	additionalProperties?: boolean | unknown;
+	[k: string]: unknown;
+}
+
+export type ToolResultBlock =
+	| { type: 'text'; text: string }
+	| { type: 'image'; mimeType?: string; base64?: string };
+
+export type AgentToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
 export interface ToolContext {
 	workspace: string;
