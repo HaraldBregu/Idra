@@ -9,6 +9,7 @@ export function perceive(input: RuntimeInput): RuntimePerception {
 		model: routeModel(input),
 		maxTokens: input.maxTokens ?? 4096,
 		maxRetries: input.maxRetries ?? 1,
+		maxIterations: input.maxIterations ?? 10,
 		tools: input.tools ?? [],
 		skills: input.skills ?? [],
 		signal: input.signal,
