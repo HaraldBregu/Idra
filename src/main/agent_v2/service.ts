@@ -4,6 +4,7 @@ import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
 import { HeartbeatFileStore } from '../heartbeat/store';
 import type { HeartbeatEventPayload } from '../../shared/heartbeat';
+import type { HeartbeatToolResponse } from '../heartbeat/prompt';
 import type { ChannelType } from '../../shared/channels';
 import type { AgentSessionMetadata } from '../../shared/store';
 import type { EventBus } from '../services/event-bus';
@@ -68,7 +69,7 @@ export interface AgentSendOptions {
 		suppressAgentEvents?: boolean;
 		enableHeartbeatTool?: boolean;
 		forceHeartbeatTool?: boolean;
-		onToolResponse?: (response: unknown) => void;
+		onToolResponse?: (response: HeartbeatToolResponse) => void;
 	};
 }
 
