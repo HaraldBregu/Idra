@@ -16,6 +16,7 @@ import {
 import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/types';
 import type { AgentSendOptions } from '../agent/kernel';
 import type { RuntimeEvent } from '../agent_v2/runtime';
+import type { AgentRunStopReason } from '../../shared/agents/constants';
 
 type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
 
@@ -60,7 +61,7 @@ function optionalStringList(value: unknown): string[] | undefined {
 	return items.length > 0 ? items : undefined;
 }
 
-function normalizeV2StopReason(value: string | undefined): AgentResponseEvent['stopReason'] {
+function normalizeV2StopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
 	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
 	if (value === 'cancelled') return 'cancelled';
