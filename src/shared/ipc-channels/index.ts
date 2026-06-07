@@ -192,22 +192,6 @@ interface AppInvokeChannelMap {
 		args: [];
 		result: import('../app-permissions').CameraPermissionSettings;
 	};
-	[ProviderChannels.setApiKey]: {
-		args: [providerId: string, apikey: string];
-		result: void;
-	};
-	[ProviderChannels.isApiKeySaved]: {
-		args: [providerId: string];
-		result: boolean;
-	};
-	[ProviderChannels.getAll]: {
-		args: [];
-		result: import('../providers').PublicProvider[];
-	};
-	[ProviderChannels.add]: {
-		args: [input: import('../providers').ProviderInput];
-		result: import('../providers').PublicProvider;
-	};
 	[ProviderChannels.getModels]: {
 		args: [provider: import('../providers').PublicProvider];
 		result: import('../agents/service').Model[];
