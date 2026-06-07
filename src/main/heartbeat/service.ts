@@ -770,6 +770,28 @@ export class HeartbeatService implements Disposable {
 		if (!model) throw new Error(`Model is not supported for heartbeat: ${modelId}`);
 	}
 
+	private getHeartbeatProvider(providerId: string): PublicProvider | undefined {
+		const provider = this.store.getProviderById(providerId);
+		if (!provider) return undefined;
+		const { apiKey: _apiKey, ...publicProvider } = provider;
+		return publicProvider;
+	}
+
+	private getHeartbeatModel(providerId: string, modelId: string): Model | undefined {
+		const normalizedProviderId = providerId.trim().toLowerCase();
+		const normalizedModelId = modelId.trim();
+		if (!normalizedModelId || !isAllowedAgentModel(normalizedProviderId, normalizedModelId)) {
+			return undefined;
+		}
+		const catalogModel = getDefaultAgentModels(normalizedProviderId).find(
+			(model) => model.id === normalizedModelId
+		);
+		return {
+			id: catalogModel?.id ?? normalizedModelId,
+			name: catalogModel?.name ?? normalizedModelId,
+		};
+	}
+
 	private requireReasoningEffort(
 		providerId: string | undefined,
 		modelId: string | undefined,
