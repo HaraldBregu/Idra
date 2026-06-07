@@ -20,11 +20,10 @@ import type {
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
 } from '../../shared/app-permissions';
-import { DEFAULT_PROVIDERS, type ProviderInput, type PublicProvider } from '../../shared/providers';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
 import {
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
-	isAllowedAgentModel,
 } from '../../shared/agents/models';
 import { wrapSimpleHandler } from './errorHandler';
 import { AppChannels, ProviderChannels } from '../../shared/ipc-channels';
