@@ -60,14 +60,9 @@ import type {
 	TaskSettings,
 } from '../shared/store';
 import type {
-	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
 	ModelSelection,
-	AgentStartupFileContent,
-	AgentStartupFileSummary,
-	WorkspaceFileContent,
-	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
 import { isModelReasoningEffort } from '../shared/agents/service';
