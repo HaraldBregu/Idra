@@ -57,7 +57,7 @@ export function useHomeAgent({
 	const { chatState, dispatchChat } = useHomeAgentContext();
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [historyLoading, setHistoryLoading] = useState(true);
+	const [historyLoading] = useState(false);
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
