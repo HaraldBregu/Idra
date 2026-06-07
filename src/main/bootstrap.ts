@@ -6,7 +6,7 @@ import { LoggerService } from './observability';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
-import { AgentV2Service, type AgentV2ServiceDependencies } from './agent_v2';
+import { AgentV2Service } from './agent_v2';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
