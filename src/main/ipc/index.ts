@@ -9,7 +9,6 @@ export { AppIpc } from './app.ipc';
 export { ChannelsIpc } from './channels.ipc';
 export { ConnectorsIpc } from './connectors.ipc';
 export { CronIpc } from './cron.ipc';
-export { HeartbeatIpc } from './heartbeat.ipc';
 export { RealtimeTranscriptionIpc } from './realtime-transcription.ipc';
 export { SpeechToTextIpc } from './speech-to-text.ipc';
 export { SkillsIpc } from './skills.ipc';

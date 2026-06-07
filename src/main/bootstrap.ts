@@ -13,7 +13,6 @@ import { SpeechToTextService } from './stt';
 import { AgentStartupFilesService } from './tools/startup/service';
 
 import type { MainServiceContainer, MainServices } from './services/services';
-import { HeartbeatService } from './heartbeat';
 import { LlmService } from './llm';
 
 export interface BootstrapResult {
@@ -76,20 +75,6 @@ export function bootstrapServices(): BootstrapResult {
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
-	agentDependencies.channelRegistry = channelRegistry;
-	const heartbeat = container.register(
-		'heartbeat',
-		new HeartbeatService({
-			agentService,
-			store,
-			logger,
-			eventBus,
-			channels,
-			channelRegistry,
-			startupFiles,
-		})
-	);
-	heartbeat.start();
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});

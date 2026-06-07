@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import type { HeartbeatToolResponse } from '../heartbeat/prompt';
 import type { AgentSessionMetadata } from '../../shared/store';
 import type { EventBus } from '../services/event-bus';
 import type { LoggerService } from '../observability';
@@ -29,20 +28,10 @@ export interface AgentSendOptions {
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
 	streamEvent?: (event: AgentResponseEvent) => void;
-	toolsAllow?: string[];
-	toolsDeny?: string[];
-	sessionMetadata?: Partial<AgentSessionMetadata>;
-	cronContext?: unknown;
-	heartbeat?: {
-		model?: string;
-		timeoutSeconds?: number;
-		lightContext?: boolean;
-		suppressToolErrorWarnings?: boolean;
-		suppressAgentEvents?: boolean;
-		enableHeartbeatTool?: boolean;
-		forceHeartbeatTool?: boolean;
-		onToolResponse?: (response: HeartbeatToolResponse) => void;
-	};
+		toolsAllow?: string[];
+		toolsDeny?: string[];
+		sessionMetadata?: Partial<AgentSessionMetadata>;
+		cronContext?: unknown;
 }
 
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
@@ -148,7 +137,7 @@ export class AgentV2Service {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
 		const configured = this.dependencies.store.getAgentService();
 		const providerId = options.providerId ?? configured?.provider.id;
-		const model = options.model ?? options.heartbeat?.model ?? configured?.model.id;
+		const model = options.model ?? configured?.model.id;
 		if (!providerId || !model) throw new Error('Agent v2 requires a configured provider and model.');
 
 		const provider = this.dependencies.store.getProviderById(providerId);
@@ -186,9 +175,7 @@ export class AgentV2Service {
 					provider.id
 				)) {
 					options.streamEvent?.(responseEvent);
-					if (!options.heartbeat?.suppressAgentEvents) {
-						this.dependencies.eventBus.broadcast('agent:response', responseEvent);
-					}
+					this.dependencies.eventBus.broadcast('agent:response', responseEvent);
 				}
 			}
 			return response;

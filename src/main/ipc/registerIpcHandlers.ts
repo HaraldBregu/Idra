@@ -3,7 +3,6 @@ import { AppIpc } from './app.ipc';
 import { ChannelsIpc } from './channels.ipc';
 import { ConnectorsIpc } from './connectors.ipc';
 import { CronIpc } from './cron.ipc';
-import { HeartbeatIpc } from './heartbeat.ipc';
 import { RealtimeTranscriptionIpc } from './realtime-transcription.ipc';
 import { SkillsIpc } from './skills.ipc';
 import { SpeechToTextIpc } from './speech-to-text.ipc';
@@ -22,7 +21,6 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 		new ChannelsIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),
-		new HeartbeatIpc(),
 		new RealtimeTranscriptionIpc(),
 		new SpeechToTextIpc(),
 		new SkillsIpc(),

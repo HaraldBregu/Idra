@@ -4,7 +4,6 @@ import type { AgentDataDirectoryService } from '../data-directory';
 import type { AppPermissionsService } from '../app/permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
-import type { HeartbeatService } from '../heartbeat';
 import type { LlmService } from '../llm';
 import type { LoggerService } from '../observability';
 import type { SkillsService } from '../skills';
@@ -23,7 +22,6 @@ export interface MainServices {
 	connectors: ConnectorsService;
 	cron: CronService;
 	eventBus: EventBus;
-	heartbeat: HeartbeatService;
 	llm: LlmService;
 	logger: LoggerService;
 	skills: SkillsService;
