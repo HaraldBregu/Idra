@@ -2,32 +2,13 @@ import path from 'node:path';
 import { app } from 'electron';
 import Store from 'electron-store';
 
-type AgentSettingsSchema = Record<string, unknown>;
+type SettingsSchema = Record<string, unknown>;
 
-export abstract class AgentStore {
-	abstract getItem<T>(key: string): T | undefined;
-
-	abstract setItem<T>(key: string, value: T): void;
-}
-
-export class InMemoryAgentStore extends AgentStore {
-	private readonly items = new Map<string, unknown>();
-
-	getItem<T>(key: string): T | undefined {
-		return this.items.get(key) as T | undefined;
-	}
-
-	setItem<T>(key: string, value: T): void {
-		this.items.set(key, value);
-	}
-}
-
-export class Settings extends AgentStore {
-	private readonly store: Store<AgentSettingsSchema>;
+export class Settings {
+	private readonly store: Store<SettingsSchema>;
 
 	constructor() {
-		super();
-		this.store = new Store<AgentSettingsSchema>({
+		this.store = new Store<SettingsSchema>({
 			name: 'agent-settings',
 			cwd: resolveAppDataPath(),
 			accessPropertiesByDotNotation: false,
