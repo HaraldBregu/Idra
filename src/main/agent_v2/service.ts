@@ -184,7 +184,7 @@ export class AgentV2Service {
 				runId,
 			} satisfies AgentResponseEvent;
 			options.streamEvent?.(responseEvent);
-			this.dependencies.eventBus.broadcast('agent:response', responseEvent);
+			this.eventBus.broadcast('agent:response', responseEvent);
 			throw error;
 		} finally {
 			if (this.activeRuns.get(resolvedAgentId) === run) this.activeRuns.delete(resolvedAgentId);
