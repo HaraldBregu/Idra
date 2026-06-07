@@ -6,11 +6,11 @@ import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { AgentV2Service, type AgentV2ServiceDependencies } from './agent_v2';
-import { AgentDataDirectoryService } from './data-directory';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
 import { AgentStartupFilesService } from './tools/startup/service';
+import { resolveAgentDataPath } from './tools/startup/path';
 
 import type { MainServiceContainer, MainServices } from './services/services';
 import { LlmService } from './llm';
@@ -21,7 +21,6 @@ export interface BootstrapResult {
 	windowFactory: WindowFactory;
 	appState: AppState;
 	logger: LoggerService;
-	agentDataDirectory: AgentDataDirectoryService;
 	windowContextManager: WindowContextManager<MainServices>;
 }
 
@@ -37,8 +36,12 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('logger', logger);
 	container.register('appPermissions', new AppPermissionsService());
 
-	const agentDataDirectory = container.register('agentDataDirectory', new AgentDataDirectoryService());
-	void agentDataDirectory.ensureRoot().catch((error) => {
+	const agentRoot = resolveAgentDataPath();
+	void import('node:fs/promises').then(({ mkdir, chmod }) =>
+		mkdir(agentRoot, { recursive: true, mode: 0o700 }).then(async () => {
+			if (process.platform !== 'win32') await chmod(agentRoot, 0o700).catch(() => undefined);
+		})
+	).catch((error) => {
 		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
 	});
 
@@ -59,7 +62,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	container.register(
 		'startupFiles',
-		new AgentStartupFilesService({ rootPath: agentDataDirectory.resolve(), logger })
+		new AgentStartupFilesService({ rootPath: agentRoot, logger })
 	);
 
 	const agentDependencies: AgentV2ServiceDependencies = {
@@ -93,7 +96,6 @@ export function bootstrapServices(): BootstrapResult {
 		windowFactory,
 		appState,
 		logger,
-		agentDataDirectory,
 		windowContextManager,
 	};
 }

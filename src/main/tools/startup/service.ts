@@ -17,7 +17,7 @@ import {
 	type WorkspaceFileName,
 	type WorkspaceFileSummary,
 } from './workspace';
-import { resolveDefaultAgentDataPath } from '../../data-directory';
+import { resolveAgentDataPath } from './path';
 import type {
 	AgentStartupFilesServiceOptions,
 	AgentStartupFilesServicePort,
@@ -39,7 +39,7 @@ export class AgentStartupFilesService implements AgentStartupFilesServicePort {
 	private readonly logger?: AgentStartupFilesServiceOptions['logger'];
 
 	constructor(options: AgentStartupFilesServiceOptions = {}) {
-		this.rootPath = options.rootPath ?? resolveDefaultAgentDataPath();
+		this.rootPath = options.rootPath ?? resolveAgentDataPath();
 		this.logger = options.logger;
 	}
 

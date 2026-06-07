@@ -5,6 +5,7 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { AgentChannels } from '../../shared/ipc-channels';
+import { resolveAgentDataPath } from '../tools/startup/path';
 import {
 	isModelReasoningEffort,
 	type AgentHistoryMessage,
@@ -74,7 +75,6 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
-		const agentDataDirectory = container.get('agentDataDirectory');
 		const startupFiles = container.get('startupFiles');
 		const listStartupFiles = () => startupFiles.listFiles('main');
 		const readStartupFile = (name: string) => startupFiles.readFile('main', name);
@@ -110,7 +110,7 @@ export class AgentIpc implements IpcModule {
 		ipcMain.handle(
 			AgentChannels.openHistoryFolder,
 			wrapSimpleHandler(async (): Promise<void> => {
-				const target = agentDataDirectory.resolve('sessions');
+				const target = resolveAgentDataPath('sessions');
 				await fs.mkdir(target, { recursive: true, mode: 0o700 });
 				if (process.platform !== 'win32') {
 					await fs.chmod(target, 0o700).catch(() => undefined);

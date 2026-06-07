@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { app } from 'electron';
 import type { LoggerService } from '../observability';
-import { resolveDefaultAppDataPath } from '../data-directory';
 import type {
 	SkillDetails,
 	SkillDownloadResult,
@@ -124,6 +124,16 @@ function shouldCopySkillPath(root: string, sourcePath: string): boolean {
 function isPathInside(rootPath: string, targetPath: string): boolean {
 	const relativePath = path.relative(path.resolve(rootPath), path.resolve(targetPath));
 	return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+}
+
+function resolveDefaultAppDataPath(...segments: string[]): string {
+	let appDataPath: string;
+	try {
+		appDataPath = app.getPath('appData');
+	} catch {
+		appDataPath = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+	}
+	return path.join(path.resolve(appDataPath), 'friday', ...segments);
 }
 
 export interface SkillRuntimeInput {
