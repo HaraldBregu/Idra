@@ -154,7 +154,6 @@ export class AgentV2Service {
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
 
-		
 		const system = await this.systemPrompt.build();
 
 		const run = this.runtime.run({
