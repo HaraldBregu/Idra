@@ -296,7 +296,7 @@ export class HeartbeatService implements Disposable {
 		}
 
 		if (hasModelId) patch.model = undefined;
-		this.agentService.getHeartbeatStore().setDefaultHeartbeatConfig(patch);
+		this.heartbeatStore.setDefaultHeartbeatConfig(patch);
 		this.updateConfig();
 		return this.getSettings();
 	}
@@ -354,7 +354,7 @@ export class HeartbeatService implements Disposable {
 			createdAtMs: Date.now(),
 			source: 'cron',
 		});
-		this.agentService.broadcastHeartbeatSystemEvent({
+		this.eventBus.broadcast('heartbeat:system-event', {
 			text,
 			agentId,
 			sessionKey,
@@ -407,7 +407,7 @@ export class HeartbeatService implements Disposable {
 		if (defer.defer) {
 			if (defer.reason === 'flood' && !schedule.floodLogged) {
 				schedule.floodLogged = true;
-				this.agentService.warnHeartbeat('Heartbeat flood guard deferred a wake.', {
+				this.logger.warn('HeartbeatService', 'Heartbeat flood guard deferred a wake.', {
 					agentId,
 					source: wake.source,
 				});
@@ -432,7 +432,7 @@ export class HeartbeatService implements Disposable {
 		}
 		const deliverToUser = delivery.status === 'ok';
 		const channelSettings = delivery.status === 'ok'
-			? this.agentService.getHeartbeatChannel()
+			? this.channels.getChannel()
 			: undefined;
 		if (delivery.status === 'ok' && !channelSettings) {
 			return this.skipAndAdvance(schedule, 'no-target', {
@@ -500,7 +500,7 @@ export class HeartbeatService implements Disposable {
 
 		const typingTarget = delivery.status === 'ok' ? delivery.message.to : undefined;
 		const typingPlugin = delivery.status === 'ok'
-			? this.agentService.getHeartbeatChannelRegistry()?.getPlugin(delivery.message.type)
+			? this.channelRegistry.getPlugin(delivery.message.type)
 			: undefined;
 		if (typingTarget && typingPlugin?.heartbeat?.sendTyping) {
 			await Promise.resolve(typingPlugin.heartbeat.sendTyping(typingTarget)).catch(() => undefined);
@@ -536,7 +536,7 @@ export class HeartbeatService implements Disposable {
 			if (delivery.status === 'ok') {
 				if (normalized.kind === 'alert' && visibility.showAlerts) {
 					if (!this.runtimeState.isDuplicateAlert(baseSessionKey, normalized.text, startedAt)) {
-						await this.agentService.getHeartbeatChannelRegistry()?.send({
+						await this.channelRegistry.send({
 							...delivery.message,
 							text: normalized.text,
 							idempotencyKey: `heartbeat:${agentId}:${startedAt}`,
@@ -548,7 +548,7 @@ export class HeartbeatService implements Disposable {
 						silent = true;
 					}
 				} else if (normalized.kind === 'ok' && visibility.showOk) {
-					await this.agentService.getHeartbeatChannelRegistry()?.send({
+					await this.channelRegistry.send({
 						...delivery.message,
 						text: HEARTBEAT_OK,
 						idempotencyKey: `heartbeat:${agentId}:${startedAt}:ok`,
@@ -585,7 +585,7 @@ export class HeartbeatService implements Disposable {
 				durationMs: Date.now() - startedAt,
 				indicatorType: 'error',
 			});
-			this.agentService.errorHeartbeat('Heartbeat run failed', error);
+			this.logger.error('HeartbeatService', 'Heartbeat run failed', error);
 			return { status: 'failed', reason: error instanceof Error ? error.message : String(error) };
 		} finally {
 			if (typingTarget && typingPlugin?.heartbeat?.clearTyping) {
@@ -713,7 +713,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	private getDefaultHeartbeatConfig(): AgentHeartbeatConfig {
-		return this.agentService.getHeartbeatStore().getAgentsConfig()?.defaults?.heartbeat ?? {};
+		return this.heartbeatStore.getAgentsConfig()?.defaults?.heartbeat ?? {};
 	}
 
 	private assertObject(value: unknown): asserts value is Record<string, unknown> {
@@ -760,13 +760,13 @@ export class HeartbeatService implements Disposable {
 
 	private requireProvider(providerId: string | undefined): asserts providerId is string {
 		if (!providerId) throw new Error('Heartbeat provider id is required.');
-		const provider = this.agentService.getHeartbeatProvider(providerId);
+		const provider = this.getHeartbeatProvider(providerId);
 		if (!provider) throw new Error(`Provider not configured: ${providerId}`);
 	}
 
 	private requireModel(providerId: string | undefined, modelId: string): void {
 		this.requireProvider(providerId);
-		const model = this.agentService.getHeartbeatModel(providerId, modelId);
+		const model = this.getHeartbeatModel(providerId, modelId);
 		if (!model) throw new Error(`Model is not supported for heartbeat: ${modelId}`);
 	}
 
@@ -811,7 +811,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	private getHeartbeatAgents(): AgentsHeartbeatConfig | undefined {
-		return this.agentService.getHeartbeatStore().getAgentsConfig();
+		return this.heartbeatStore.getAgentsConfig();
 	}
 
 	private async readHeartbeatFile(agentId: string): Promise<{
@@ -820,7 +820,7 @@ export class HeartbeatService implements Disposable {
 		content?: string;
 	}> {
 		try {
-			const file = await this.agentService.readHeartbeatStartupFile(agentId, 'HEARTBEAT.md');
+			const file = await this.startupFiles.readFile(agentId, 'HEARTBEAT.md');
 			return {
 				exists: !file.missing,
 				path: file.path,
@@ -887,8 +887,7 @@ export class HeartbeatService implements Disposable {
 
 	private resolveDelivery(summary: HeartbeatSummary, sessionKey: string): DeliveryResolution {
 		if (summary.target === 'none') return { status: 'none' };
-		const registry = this.agentService.getHeartbeatChannelRegistry();
-		if (!registry) return { status: 'skip', reason: 'no-target' };
+		const registry = this.channelRegistry;
 		if (summary.target === 'last') {
 			const route = this.routesBySession.get(sessionKey) ?? this.lastRoute;
 			if (!route) return { status: 'skip', reason: 'no-target' };
@@ -915,7 +914,7 @@ export class HeartbeatService implements Disposable {
 		if (!channelId) return { status: 'skip', reason: 'no-target' };
 		const plugin = registry.getPlugin(channelId);
 		if (!plugin) return { status: 'skip', reason: 'no-target', channel: channelId };
-		const channelConfig = this.agentService.getHeartbeatChannelConfig(channelId);
+		const channelConfig = this.channels.getChannelConfig(channelId);
 		if (!channelConfig) return { status: 'skip', reason: 'no-target', channel: channelId };
 		const accountId = summary.accountId ?? explicit?.accountId ?? plugin.config.defaultAccountId(channelConfig) ?? 'default';
 		const account = plugin.config.resolveAccount(channelConfig, accountId);
@@ -943,7 +942,7 @@ export class HeartbeatService implements Disposable {
 	}
 
 	private parseExplicitTarget(target: string) {
-		for (const plugin of this.agentService.getHeartbeatChannelRegistry()?.listPlugins() ?? []) {
+		for (const plugin of this.channelRegistry.listPlugins()) {
 			const parsed = plugin.messaging?.parseExplicitTarget(target);
 			if (parsed) return parsed;
 		}
@@ -962,7 +961,8 @@ export class HeartbeatService implements Disposable {
 			...event,
 		};
 		this.lastHeartbeat = payload;
-		this.agentService.emitHeartbeatEvent(payload);
+		this.eventBus.emit('heartbeat:event', payload);
+		this.eventBus.broadcast('heartbeat:event', payload);
 	}
 }
 
