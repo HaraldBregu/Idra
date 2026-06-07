@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { wrapSimpleHandler } from './core/errorHandler';
+import { wrapSimpleHandler } from './core/error-handler';
 import { CronChannels } from '../../shared/ipc-channels';
 import {
 	type CronSchedulePermissionLevel,

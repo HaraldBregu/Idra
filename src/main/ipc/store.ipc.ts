@@ -18,7 +18,7 @@ import { isAllowedAgentModel } from '../../shared/agents/models';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { wrapSimpleHandler } from './core/errorHandler';
+import { wrapSimpleHandler } from './core/error-handler';
 import { StoreChannels } from '../../shared/ipc-channels';
 import {
 	DEFAULT_PROVIDERS,

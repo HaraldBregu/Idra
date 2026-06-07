@@ -2,7 +2,7 @@ import { ipcMain, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { wrapIpcHandler } from './core/errorHandler';
+import { wrapIpcHandler } from './core/error-handler';
 import { SpeechToTextChannels } from '../../shared/ipc-channels';
 import {
 	isSpeechToTextAudioChunk,

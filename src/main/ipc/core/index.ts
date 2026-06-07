@@ -14,4 +14,4 @@ export { SpeechToTextIpc } from '../speech-to-text.ipc';
 export { SkillsIpc } from '../skills.ipc';
 export { StoreIpc } from '../store.ipc';
 export { WindowIpc } from '../window.ipc';
-export { registerIpcHandlers } from './registerIpcHandlers';
+export { registerIpcHandlers } from './register-ipc-handlers';

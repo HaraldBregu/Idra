@@ -25,7 +25,7 @@ import {
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
 } from '../../shared/agents/models';
-import { wrapSimpleHandler } from './core/errorHandler';
+import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels, ProviderChannels } from '../../shared/ipc-channels';
 import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
 
