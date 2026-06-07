@@ -173,10 +173,6 @@ export function useHomeAgent({
 		setInput('');
 		setIsLoading(false);
 		dispatchChat({ type: 'reset' });
-		void getAgentApi()?.reset().catch((error: unknown) => {
-			const message = error instanceof Error ? error.message : 'Reset failed.';
-			dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
-		});
 	}, [dispatchChat]);
 
 	useEffect(() => {
