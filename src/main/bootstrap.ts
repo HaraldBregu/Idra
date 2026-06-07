@@ -66,14 +66,9 @@ export function bootstrapServices(): BootstrapResult {
 		new AgentStartupFilesService({ rootPath: agentRoot, logger })
 	);
 
-	const agentDependencies: AgentV2ServiceDependencies = {
-		store,
-		logger,
-		eventBus,
-	};
 	const agentService = container.register(
 		'agentService',
-		new AgentV2Service(agentDependencies)
+		new AgentV2Service(store, logger, eventBus)
 	);
 	container.register(
 		'channelRegistry',
