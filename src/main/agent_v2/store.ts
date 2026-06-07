@@ -1,7 +1,2 @@
 
-export class AgentStore {
-
-    constructor(
-    ) {
-    }
-}
+export abstract class AgentStore {}
