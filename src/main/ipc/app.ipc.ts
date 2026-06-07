@@ -51,33 +51,6 @@ type OAuthUserInfoResponse = {
 	readonly email?: string;
 };
 
-function speechToTextModelOrThrow(providerId: string, model: Model): Model {
-	return catalogModelOrThrow(
-		providerId,
-		model,
-		getSpeechToTextModels,
-		isAllowedSpeechToTextModel,
-		'speech-to-text'
-	);
-}
-
-function catalogModelOrThrow(
-	providerId: string,
-	model: Model,
-	getModelsForProvider: (providerId: string) => Model[],
-	isAllowedModel: (providerId: string, modelId: string) => boolean,
-	label: string
-): Model {
-	if (!isAllowedModel(providerId, model.id)) {
-		throw new Error(`Model is not supported for ${label}: ${model.id}`);
-	}
-	const catalogModel = getModelsForProvider(providerId).find((option) => option.id === model.id);
-	return {
-		id: catalogModel?.id ?? model.id,
-		name: catalogModel?.name ?? model.name,
-	};
-}
-
 function getMicrophoneSystemStatus(): MicrophoneSystemPermissionStatus {
 	if (process.platform !== 'darwin') return 'unknown';
 
