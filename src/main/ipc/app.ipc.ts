@@ -317,37 +317,6 @@ export class AppIpc implements IpcModule {
 			const store = container.get('store');
 			const appPermissions = container.get('appPermissions');
 
-		// Language handler
-		ipcMain.on('set-language', (event, language: string) => {
-			if (!VALID_LANGUAGES.includes(language as (typeof VALID_LANGUAGES)[number])) return;
-			if (this.lastLanguage === language) return;
-			this.lastLanguage = language;
-
-			const senderContents = event.sender;
-			BrowserWindow.getAllWindows().forEach((win) => {
-				if (!win.isDestroyed() && win.webContents !== senderContents) {
-					win.webContents.send('change-language', language);
-				}
-			});
-		});
-
-		// Recent in-memory logs
-		ipcMain.handle(
-			AppChannels.getLogs,
-			wrapSimpleHandler((limit?: number) => logger.getRecentLogs(limit), AppChannels.getLogs)
-		);
-
-		// Open logs folder in system file explorer
-		ipcMain.handle(
-			AppChannels.openLogsFolder,
-			wrapSimpleHandler(async () => {
-				const logsDir = logger.getLogDirectory();
-				if (logsDir) {
-					await openPathOrThrow(logsDir);
-				}
-			}, AppChannels.openLogsFolder)
-		);
-
 		// Open application data folder in system file explorer
 		ipcMain.handle(
 			AppChannels.openAppDataFolder,
