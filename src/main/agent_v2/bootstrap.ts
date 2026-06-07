@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Workspace } from './workspace';
 
-export class AgentBootstrap {
+export class Bootstrap {
 	constructor(private readonly workspace = new Workspace()) {}
 
 	getWorkspacePath(): string {

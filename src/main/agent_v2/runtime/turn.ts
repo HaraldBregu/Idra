@@ -5,7 +5,7 @@ import type {
 	RuntimeMessage,
 	RuntimeModel,
 	RuntimeToolCall,
-} from './types';
+} from '../types';
 
 /**
  * Normalized output from one streamed model turn.

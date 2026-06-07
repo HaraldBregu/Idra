@@ -8,7 +8,7 @@ import type {
 	ModelResponse,
 	ModelTool,
 	ModelToolCall,
-} from '../model/types';
+} from './model/types';
 
 /**
  * Runtime role alias backed by the agent_v2 model module.

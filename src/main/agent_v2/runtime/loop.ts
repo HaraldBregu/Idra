@@ -2,7 +2,7 @@ import { AgentModel } from '../model';
 import { createRuntimeSession } from './session';
 import { runModelTurn } from './turn';
 import { runToolCalls } from './tools';
-import type { RuntimeEvent, RuntimeInput, RuntimeModel, RuntimeRun } from './types';
+import type { RuntimeEvent, RuntimeInput, RuntimeModel, RuntimeRun } from '../types';
 
 /**
  * Orchestrates one agent run from prompt to final result.

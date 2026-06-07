@@ -5,7 +5,7 @@ import type {
 	RuntimeMessage,
 	RuntimeTool,
 	RuntimeToolCall,
-} from './types';
+} from '../types';
 
 /**
  * Executes the tool calls requested by a single assistant turn.
