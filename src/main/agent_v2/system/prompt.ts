@@ -1,6 +1,6 @@
 export interface PromptCtx {}
 
-export default class Prompt {
+export default class {
 	async build(_ctx: PromptCtx): Promise<string> {
 		const parts: string[] = [
 			'You are a personal AI assistant. My name is Friday',
