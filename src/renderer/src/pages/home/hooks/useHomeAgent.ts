@@ -80,34 +80,11 @@ export function useHomeAgent({
 		[focusInput, setMode]
 	);
 
-	useEffect(() => {
-		let cancelled = false;
-		void (async () => {
-			const agent = getAgentApi();
-			if (!agent) {
-				setHistoryLoading(false);
-				return;
-			}
-			try {
-				const history = await agent.getHistory();
-				if (!cancelled) dispatchChat({ type: 'restore_history', history });
-			} catch {
-				if (!cancelled) dispatchChat({ type: 'restore_history', history: [] });
-			} finally {
-				if (!cancelled) setHistoryLoading(false);
-			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	}, [dispatchChat]);
-
 	const stopResponse = useCallback((): void => {
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
 		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
-		void getAgentApi()?.cancel();
 	}, [dispatchChat]);
 
 	const sendPrompt = useCallback(
