@@ -120,9 +120,9 @@ export class AgentV2Service {
 		private readonly store: StoreService,
 		private readonly logger: LoggerService,
 		private readonly eventBus: EventBus,
-		options: AgentV2ServiceOptions = {}
+		defaultAgentId = 'main'
 	) {
-		this.defaultAgentId = options.defaultAgentId ?? 'main';
+		this.defaultAgentId = defaultAgentId;
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
