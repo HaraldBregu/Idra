@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { app, ipcMain, shell, systemPreferences } from 'electron';
-import type { IpcModule } from './module';
+import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import {
@@ -25,7 +25,7 @@ import {
 	getDefaultAgentModels,
 	hasDefaultAgentModels,
 } from '../../shared/agents/models';
-import { wrapSimpleHandler } from './errorHandler';
+import { wrapSimpleHandler } from './core/errorHandler';
 import { AppChannels, ProviderChannels } from '../../shared/ipc-channels';
 import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
 

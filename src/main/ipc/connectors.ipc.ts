@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron';
-import type { IpcModule } from './module';
+import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { wrapSimpleHandler } from './errorHandler';
+import { wrapSimpleHandler } from './core/errorHandler';
 import { ConnectorsChannels } from '../../shared/ipc-channels';
 import type { ConnectorRecord } from '../../shared/connectors';
 

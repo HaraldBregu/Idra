@@ -11,7 +11,7 @@ import {
 	registerLocalResourceProtocolScheme,
 	setupMediaPermissionHandlers,
 } from './app/protocol';
-import { registerIpcHandlers } from './ipc/registerIpcHandlers';
+import { registerIpcHandlers } from './ipc/core/registerIpcHandlers';
 import {
 	setupEventLogging,
 	setupProcessSafetyNet,

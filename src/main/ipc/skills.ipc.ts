@@ -1,8 +1,8 @@
 import { BrowserWindow, dialog, type OpenDialogOptions } from 'electron';
-import type { IpcModule } from './module';
+import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { registerCommand, registerCommandWithEvent, registerQuery } from './gateway';
+import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import { SkillsChannels } from '../../shared/ipc-channels';
 
 export class SkillsIpc implements IpcModule {

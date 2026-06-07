@@ -15,10 +15,10 @@ import {
 	type Model,
 } from '../../shared/agents/service';
 import { isAllowedAgentModel } from '../../shared/agents/models';
-import type { IpcModule } from './module';
+import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { wrapSimpleHandler } from './errorHandler';
+import { wrapSimpleHandler } from './core/errorHandler';
 import { StoreChannels } from '../../shared/ipc-channels';
 import {
 	DEFAULT_PROVIDERS,
