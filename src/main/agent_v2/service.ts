@@ -10,10 +10,6 @@ import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
 import { SystemPrompt } from './system';
 
-export interface AgentV2ServiceOptions {
-	defaultAgentId?: string;
-}
-
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
