@@ -59,13 +59,6 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 	};
 }
 
-async function openPathOrThrow(target: string): Promise<void> {
-	const error = await shell.openPath(target);
-	if (error) {
-		throw new Error(error);
-	}
-}
-
 export class AgentIpc implements IpcModule {
 	readonly name = 'agent';
 
