@@ -216,28 +216,6 @@ interface AppInvokeChannelMap {
 		args: [provider: import('../providers').PublicProvider];
 		result: import('../agents/service').Model[];
 	};
-	[ProviderChannels.getAgentService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[ProviderChannels.saveAgentService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[ProviderChannels.getSpeechTranscriberService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[ProviderChannels.saveSpeechTranscriberService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
 	[RealtimeTranscriptionChannels.start]: {
 		args: [request?: import('../realtime-transcription').RealtimeTranscriptionStartRequest];
 		result: import('../realtime-transcription').RealtimeTranscriptionSession;
