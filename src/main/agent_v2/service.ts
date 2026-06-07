@@ -3,7 +3,6 @@ import type { AgentSessionMetadata } from '../../shared/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
-import type { Provider } from '../../shared/providers';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
 import { Settings } from './settings';
@@ -22,11 +21,6 @@ export interface AgentSendOptions {
 	sessionMetadata?: Partial<AgentSessionMetadata>;
 	cronContext?: unknown;
 }
-
-type AgentModelSettings = {
-	providerId: string;
-	modelId: string;
-};
 
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
@@ -114,19 +108,6 @@ function runtimeEventToAgentEvents(
 	return [];
 }
 
-function readAgentModelSettings(settings: Settings): AgentModelSettings | undefined {
-	return settings.getItem<AgentModelSettings>('llmAgent') ?? settings.getItem<AgentModelSettings>('assistant');
-}
-
-function readProviders(settings: Settings): Provider[] {
-	return settings.getItem<Provider[]>('modelProviders') ?? settings.getItem<Provider[]>('providers') ?? [];
-}
-
-function providerById(settings: Settings, id: string): Provider | undefined {
-	const providerId = id.trim().toLowerCase();
-	return readProviders(settings).find((provider) => provider.id.trim().toLowerCase() === providerId);
-}
-
 export class AgentV2Service {
 	private readonly runtime = new AgentRuntime();
 	private readonly systemPrompt = new SystemPrompt();
@@ -142,13 +123,13 @@ export class AgentV2Service {
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
-		const configured = readAgentModelSettings(this.settings);
-		const providerId = options.providerId ?? configured?.providerId;
-		const model = options.model ?? configured?.modelId;
-		if (!providerId || !model) throw new Error('Agent v2 requires a configured provider and model.');
+		const provider = this.settings.getProvider();
+		const model = options.model ?? this.settings.getModel();
+		if (!provider || !model) throw new Error('Agent v2 requires a configured provider and model.');
 
-		const provider = providerById(this.settings, providerId);
-		if (!provider) throw new Error(`Agent v2 provider is not configured: ${providerId}`);
+		if (options.providerId && provider.id.trim().toLowerCase() !== options.providerId.trim().toLowerCase()) {
+			throw new Error(`Agent v2 provider is not configured: ${options.providerId}`);
+		}
 
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
@@ -162,7 +143,7 @@ export class AgentV2Service {
 			provider: {
 				id: provider.id,
 				apiKey: provider.apiKey,
-				baseURL: provider.baseUrl,
+				baseURL: provider.baseURL,
 			},
 			model,
 			sessionId,
