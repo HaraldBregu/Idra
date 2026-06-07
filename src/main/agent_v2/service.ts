@@ -1,50 +1,24 @@
 import { randomUUID } from 'node:crypto';
-import type { ChannelRegistry, ChannelsService } from '../channels';
-import type { ConnectorsService } from '../connectors';
-import type { CronService } from '../cron';
-import { HeartbeatFileStore } from '../heartbeat/store';
-import type { HeartbeatEventPayload } from '../../shared/heartbeat';
 import type { HeartbeatToolResponse } from '../heartbeat/prompt';
-import type { ChannelType } from '../../shared/channels';
 import type { AgentSessionMetadata } from '../../shared/store';
 import type { EventBus } from '../services/event-bus';
-import type { AgentDataDirectoryServicePort } from '../data-directory';
 import type { LoggerService } from '../observability';
-import type { LlmService } from '../llm';
-import type { SkillsService } from '../skills';
 import type { StoreService } from '../store';
-import { AgentStartupFilesService } from '../tools/startup/service';
-import type { AgentStartupFilesServicePort } from '../tools/startup/types';
-import {
-	getDefaultAgentModels,
-	isAllowedAgentModel,
-	type Model,
-	type ModelReasoningEffort,
-} from '../../shared/agents/service';
+import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
-import type { PublicProvider } from '../../shared/providers';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
 import { SystemPrompt } from './runtime/system-prompt';
 
 export interface AgentV2ServiceDependencies {
 	store: StoreService;
-	cron?: CronService;
 	logger: LoggerService;
 	eventBus: EventBus;
-	agentDataDirectory?: AgentDataDirectoryServicePort;
-	llm?: LlmService;
-	connectors?: ConnectorsService;
-	skills?: SkillsService;
-	channels?: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
-	channelRegistry?: ChannelRegistry;
-	startupFiles?: AgentStartupFilesServicePort;
 }
 
 export interface AgentV2ServiceOptions {
 	defaultAgentId?: string;
-	sessionBaseDir?: string;
 }
 
 export interface AgentSendOptions {
@@ -162,8 +136,6 @@ export class AgentV2Service {
 	private readonly systemPrompt = new SystemPrompt();
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
-	private startupFiles: AgentStartupFilesServicePort | null = null;
-	private heartbeatStore: HeartbeatFileStore | null = null;
 
 	constructor(
 		private readonly dependencies: AgentV2ServiceDependencies,
@@ -186,8 +158,6 @@ export class AgentV2Service {
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
 		const system = await this.systemPrompt.build({});
-
-		console.log("system: ", system)
 
 		const run = this.runtime.run({
 			task: 'chat',
@@ -238,10 +208,6 @@ export class AgentV2Service {
 		}
 	}
 
-	reset(agentId = this.defaultAgentId): void {
-		this.cancel(agentId);
-	}
-
 	cancel(agentId?: string): void {
 		if (agentId) {
 			this.activeRuns.get(agentId)?.stop('cancelled');
@@ -254,105 +220,5 @@ export class AgentV2Service {
 
 	isBusy(agentId: string): boolean {
 		return this.activeRuns.has(agentId);
-	}
-
-	getHistory(): [] {
-		return [];
-	}
-
-	listStartupFiles(agentId: string): ReturnType<AgentStartupFilesServicePort['listFiles']> {
-		return this.getStartupFiles().listFiles(agentId);
-	}
-
-	readStartupFile(
-		agentId: string,
-		name: string
-	): ReturnType<AgentStartupFilesServicePort['readFile']> {
-		return this.getStartupFiles().readFile(agentId, name);
-	}
-
-	writeStartupFile(
-		agentId: string,
-		name: string,
-		content: string
-	): ReturnType<AgentStartupFilesServicePort['writeFile']> {
-		return this.getStartupFiles().writeFile(agentId, name, content);
-	}
-
-	readHeartbeatStartupFile(
-		agentId: string,
-		name: string
-	): ReturnType<AgentStartupFilesServicePort['readFile']> {
-		return this.readStartupFile(agentId, name);
-	}
-
-	getHeartbeatStore(): HeartbeatFileStore {
-		this.heartbeatStore ??= new HeartbeatFileStore({ logger: this.dependencies.logger });
-		return this.heartbeatStore;
-	}
-
-	getHeartbeatProvider(providerId: string): PublicProvider | undefined {
-		const provider = this.dependencies.store.getProviderById(providerId);
-		if (!provider) return undefined;
-		const { apiKey: _apiKey, ...publicProvider } = provider;
-		return publicProvider;
-	}
-
-	getHeartbeatModel(providerId: string, modelId: string): Model | undefined {
-		const normalizedProviderId = providerId.trim().toLowerCase();
-		const normalizedModelId = modelId.trim();
-		if (!normalizedModelId || !isAllowedAgentModel(normalizedProviderId, normalizedModelId)) {
-			return undefined;
-		}
-		const catalogModel = getDefaultAgentModels(normalizedProviderId).find(
-			(model) => model.id === normalizedModelId
-		);
-		return {
-			id: catalogModel?.id ?? normalizedModelId,
-			name: catalogModel?.name ?? normalizedModelId,
-		};
-	}
-
-	onHeartbeatRoute(listener: (payload: unknown) => void): () => void {
-		return this.dependencies.eventBus.on('channel:route', (event) => listener(event.payload));
-	}
-
-	broadcastHeartbeatSystemEvent(payload: unknown): void {
-		this.dependencies.eventBus.broadcast('heartbeat:system-event', payload);
-	}
-
-	emitHeartbeatEvent(payload: HeartbeatEventPayload): void {
-		this.dependencies.eventBus.emit('heartbeat:event', payload);
-		this.dependencies.eventBus.broadcast('heartbeat:event', payload);
-	}
-
-	warnHeartbeat(message: string, data?: unknown): void {
-		this.dependencies.logger.warn('HeartbeatService', message, data);
-	}
-
-	errorHeartbeat(message: string, error?: unknown): void {
-		this.dependencies.logger.error('HeartbeatService', message, error);
-	}
-
-	getHeartbeatChannel(): ReturnType<ChannelsService['getChannel']> | undefined {
-		return this.dependencies.channels?.getChannel();
-	}
-
-	getHeartbeatChannelConfig(
-		channelId: ChannelType
-	): ReturnType<ChannelsService['getChannelConfig']> | undefined {
-		return this.dependencies.channels?.getChannelConfig(channelId);
-	}
-
-	getHeartbeatChannelRegistry(): ChannelRegistry | undefined {
-		return this.dependencies.channelRegistry;
-	}
-
-	private getStartupFiles(): AgentStartupFilesServicePort {
-		this.startupFiles ??= this.dependencies.startupFiles ?? new AgentStartupFilesService({
-			rootPath: this.dependencies.agentDataDirectory?.resolve(),
-			logger: this.dependencies.logger,
-		});
-		return this.startupFiles;
 	}
 }
