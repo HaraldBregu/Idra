@@ -11,6 +11,8 @@ import { SystemPrompt } from './prompt';
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
+	providerId?: string;
+	model?: string;
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
 	streamEvent?: (event: AgentResponseEvent) => void;
