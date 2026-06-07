@@ -306,48 +306,11 @@ interface SpeechToTextInvokeChannelMap {
 }
 
 interface AgentInvokeChannelMap {
-	[AgentChannels.send]: {
-		args: [message: string, options?: AgentSendRuntimeOptions];
-		result: string;
-	};
 	[AgentChannels.sendV2]: {
 		args: [message: string, options?: AgentSendRuntimeOptions];
 		result: string;
 	};
-	[AgentChannels.reset]: { args: []; result: void };
-	[AgentChannels.getHistory]: {
-		args: [];
-		result: import('../agents/service').AgentHistoryMessage[];
-	};
-	[AgentChannels.openHistoryFolder]: {
-		args: [];
-		result: void;
-	};
 	[AgentChannels.cancel]: { args: []; result: void };
-	[AgentChannels.listStartupFiles]: {
-		args: [];
-		result: import('../agents/service').AgentStartupFileSummary[];
-	};
-	[AgentChannels.readStartupFile]: {
-		args: [name: string];
-		result: import('../agents/service').AgentStartupFileContent;
-	};
-	[AgentChannels.writeStartupFile]: {
-		args: [name: string, content: string];
-		result: import('../agents/service').AgentStartupFileContent;
-	};
-	[AgentChannels.listWorkspaceFiles]: {
-		args: [];
-		result: import('../agents/service').WorkspaceFileSummary[];
-	};
-	[AgentChannels.readWorkspaceFile]: {
-		args: [name: string];
-		result: import('../agents/service').WorkspaceFileContent;
-	};
-	[AgentChannels.writeWorkspaceFile]: {
-		args: [name: string, content: string];
-		result: import('../agents/service').WorkspaceFileContent;
-	};
 }
 
 interface WindowInvokeChannelMap {
