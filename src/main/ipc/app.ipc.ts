@@ -310,7 +310,6 @@ function readStringArray(value: unknown): string[] | undefined {
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
-	private lastLanguage: string | null = null;
 	private trayEnabled = true;
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
