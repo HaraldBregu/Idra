@@ -95,8 +95,6 @@ const ModelServicePage: React.FC = () => {
 	);
 	const navigationItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === serviceId);
 	const [state, setState] = useState<ModelServicePageState>(initialState);
-	const [historyError, setHistoryError] = useState<string | null>(null);
-	const [deletingHistory, setDeletingHistory] = useState(false);
 
 	const selectedGroup = useMemo(
 		() => state.modelGroups.find((group) => group.provider.id === state.providerId),
