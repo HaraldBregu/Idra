@@ -37,8 +37,6 @@ const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 };
 import { normalizeExternalUrl } from '../../shared/external-links';
 
-const VALID_LANGUAGES = ['en', 'it'] as const;
-
 type OAuthTokenResponse = {
 	readonly access_token?: string;
 	readonly refresh_token?: string;
