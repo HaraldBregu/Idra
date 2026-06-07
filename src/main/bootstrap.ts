@@ -68,7 +68,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const agentService = container.register(
 		'agentService',
-		new AgentV2Service(store, eventBus)
+		new AgentV2Service(store)
 	);
 	container.register(
 		'channelRegistry',
