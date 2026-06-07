@@ -6,13 +6,11 @@ import type { AgentRunStopReason } from '../../shared/agents/constants';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
 import { Settings } from './settings';
-import { SystemPrompt } from './system';
+import { SystemPrompt } from './prompt';
 
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
-	providerId?: string;
-	model?: string;
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
 	streamEvent?: (event: AgentResponseEvent) => void;
@@ -20,6 +18,97 @@ export interface AgentSendOptions {
 	toolsDeny?: string[];
 	sessionMetadata?: Partial<AgentSessionMetadata>;
 	cronContext?: unknown;
+}
+
+export class AgentV2Service {
+	private readonly runtime = new AgentRuntime();
+	private readonly systemPrompt = new SystemPrompt();
+	private readonly activeRuns = new Map<string, RuntimeRun>();
+	private readonly defaultAgentId: string;
+
+	constructor(
+		private readonly settings: Settings,
+		defaultAgentId = 'main'
+	) {
+		this.defaultAgentId = defaultAgentId;
+	}
+
+	async send(message: string, options: AgentSendOptions = {}): Promise<string> {
+		const resolvedAgentId = this.defaultAgentId;
+		const provider = this.settings.getProvider();
+		const model = this.settings.getModel();
+
+		if (!provider || !model)
+			throw new Error('Agent v2 requires a configured provider and model.');
+
+		this.cancel(resolvedAgentId);
+		const runId = options.runId ?? randomUUID();
+		const sessionId = options.sessionId ?? resolvedAgentId;
+
+		const system = await this.systemPrompt.build();
+
+		const run = this.runtime.run({
+			task: 'chat',
+			message,
+			provider: {
+				id: provider.id,
+				apiKey: provider.apiKey,
+				baseURL: provider.baseURL,
+			},
+			model,
+			sessionId,
+			system,
+			maxRetries: 1,
+		});
+		this.activeRuns.set(resolvedAgentId, run);
+
+		let response = '';
+		try {
+			for await (const event of run.stream) {
+				if (event.type === 'model_call_delta')
+					response += event.delta;
+				if (event.type === 'run_finished')
+					response = event.result.text || response;
+
+				for (const responseEvent of runtimeEventToAgentEvents(
+					event,
+					resolvedAgentId,
+					runId,
+					provider.id
+				)) {
+					options.streamEvent?.(responseEvent);
+				}
+			}
+			return response;
+		} catch (error) {
+			const responseEvent = {
+				type: 'run_state',
+				state: 'error',
+				label: error instanceof Error ? error.message : 'Agent v2 request failed.',
+				agentId: resolvedAgentId,
+				runId,
+			} satisfies AgentResponseEvent;
+			options.streamEvent?.(responseEvent);
+			throw error;
+		} finally {
+			if (this.activeRuns.get(resolvedAgentId) === run)
+				this.activeRuns.delete(resolvedAgentId);
+		}
+	}
+
+	cancel(agentId?: string): void {
+		if (agentId) {
+			this.activeRuns.get(agentId)?.stop('cancelled');
+			this.activeRuns.delete(agentId);
+			return;
+		}
+		for (const run of this.activeRuns.values()) run.stop('cancelled');
+		this.activeRuns.clear();
+	}
+
+	isBusy(agentId: string): boolean {
+		return this.activeRuns.has(agentId);
+	}
 }
 
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
@@ -106,93 +195,4 @@ function runtimeEventToAgentEvents(
 		return [{ type: 'run_state', state: 'cancelled', label: event.reason, agentId, runId }];
 	}
 	return [];
-}
-
-export class AgentV2Service {
-	private readonly runtime = new AgentRuntime();
-	private readonly systemPrompt = new SystemPrompt();
-	private readonly activeRuns = new Map<string, RuntimeRun>();
-	private readonly defaultAgentId: string;
-
-	constructor(
-		private readonly settings: Settings,
-		defaultAgentId = 'main'
-	) {
-		this.defaultAgentId = defaultAgentId;
-	}
-
-	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
-		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
-		const provider = this.settings.getProvider();
-		const model = options.model ?? this.settings.getModel();
-		if (!provider || !model) throw new Error('Agent v2 requires a configured provider and model.');
-
-		if (options.providerId && provider.id.trim().toLowerCase() !== options.providerId.trim().toLowerCase()) {
-			throw new Error(`Agent v2 provider is not configured: ${options.providerId}`);
-		}
-
-		this.cancel(resolvedAgentId);
-		const runId = options.runId ?? randomUUID();
-		const sessionId = options.sessionId ?? resolvedAgentId;
-
-		const system = await this.systemPrompt.build();
-
-		const run = this.runtime.run({
-			task: 'chat',
-			message,
-			provider: {
-				id: provider.id,
-				apiKey: provider.apiKey,
-				baseURL: provider.baseURL,
-			},
-			model,
-			sessionId,
-			system,
-			maxRetries: 1,
-		});
-		this.activeRuns.set(resolvedAgentId, run);
-
-		let response = '';
-		try {
-			for await (const event of run.stream) {
-				if (event.type === 'model_call_delta') response += event.delta;
-				if (event.type === 'run_finished') response = event.result.text || response;
-				for (const responseEvent of runtimeEventToAgentEvents(
-					event,
-					resolvedAgentId,
-					runId,
-					provider.id
-				)) {
-					options.streamEvent?.(responseEvent);
-				}
-			}
-			return response;
-		} catch (error) {
-			const responseEvent = {
-				type: 'run_state',
-				state: 'error',
-				label: error instanceof Error ? error.message : 'Agent v2 request failed.',
-				agentId: resolvedAgentId,
-				runId,
-			} satisfies AgentResponseEvent;
-			options.streamEvent?.(responseEvent);
-			throw error;
-		} finally {
-			if (this.activeRuns.get(resolvedAgentId) === run) this.activeRuns.delete(resolvedAgentId);
-		}
-	}
-
-	cancel(agentId?: string): void {
-		if (agentId) {
-			this.activeRuns.get(agentId)?.stop('cancelled');
-			this.activeRuns.delete(agentId);
-			return;
-		}
-		for (const run of this.activeRuns.values()) run.stop('cancelled');
-		this.activeRuns.clear();
-	}
-
-	isBusy(agentId: string): boolean {
-		return this.activeRuns.has(agentId);
-	}
 }

@@ -23,14 +23,6 @@ export class Settings {
 		});
 	}
 
-	getItem<T>(key: string): T | undefined {
-		return this.store.get(key) as T | undefined;
-	}
-
-	setItem<T>(key: string, value: T): void {
-		this.store.set(key, value);
-	}
-
 	getProvider(): AgentProviderSettings | undefined {
 		return this.store.get('provider');
 	}

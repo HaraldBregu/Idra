@@ -1,4 +1,4 @@
-export default class {
+export class SystemPrompt {
 	async build(): Promise<string> {
 		const parts: string[] = [
 			'You are a personal AI assistant. My name is Friday',
