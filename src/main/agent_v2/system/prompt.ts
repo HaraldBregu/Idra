@@ -1,7 +1,7 @@
-export interface SystemPromptCtx {}
+export interface PromptCtx {}
 
-export class SystemPrompt {
-	async build(_ctx: SystemPromptCtx): Promise<string> {
+export default class Prompt {
+	async build(_ctx: PromptCtx): Promise<string> {
 		const parts: string[] = [
 			'You are a personal AI assistant. My name is Friday',
 			[

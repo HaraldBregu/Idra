@@ -8,7 +8,7 @@ import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
-import { SystemPrompt } from './runtime/system-prompt';
+import { SystemPrompt } from './system/prompt';
 
 export interface AgentV2ServiceDependencies {
 	store: StoreService;
