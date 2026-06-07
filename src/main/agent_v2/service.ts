@@ -164,7 +164,6 @@ export class AgentV2Service {
 					provider.id
 				)) {
 					options.streamEvent?.(responseEvent);
-					this.eventBus.broadcast('agent:response', responseEvent);
 				}
 			}
 			return response;
