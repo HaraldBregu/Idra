@@ -18,20 +18,12 @@ export const AgentChannels = {
 } as const;
 
 export const ProviderChannels = {
-	setApiKey: 'provider:set-apikey',
-	isApiKeySaved: 'provider:is-api-key-saved',
-	getAll: 'provider:get-all',
-	add: 'provider:add',
 	getModels: 'provider:get-models',
 	getSpeechToTextModels: 'provider:get-speech-to-text-models',
 	getTextToSpeechModels: 'provider:get-text-to-speech-models',
 	getImageCreatorModels: 'provider:get-image-creator-models',
 	getTextToVideoModels: 'provider:get-text-to-video-models',
 	getTextToSoundModels: 'provider:get-text-to-sound-models',
-	getAgentService: 'provider:get-agent-service',
-	saveAgentService: 'provider:save-agent-service',
-	getSpeechTranscriberService: 'provider:get-speech-transcriber-service',
-	saveSpeechTranscriberService: 'provider:save-speech-transcriber-service',
 } as const;
 
 export const RealtimeTranscriptionChannels = {
