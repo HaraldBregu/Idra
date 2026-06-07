@@ -118,7 +118,6 @@ export class AgentV2Service {
 
 	constructor(
 		private readonly store: StoreService,
-		private readonly logger: LoggerService,
 		private readonly eventBus: EventBus,
 		defaultAgentId = 'main'
 	) {
