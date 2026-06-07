@@ -244,50 +244,11 @@ const win: WindowApi = {
 } satisfies WindowApi;
 
 export const agent: AgentApi = {
-	send: (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-		const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
-		return runtimeOptions
-			? typedInvokeUnwrap(AgentChannels.send, message, runtimeOptions)
-			: typedInvokeUnwrap(AgentChannels.send, message);
-	},
 	send_v2: (
 		message: string,
 		options?: AgentSendRuntimeOptions
 	): AsyncIterable<AgentResponseEvent> => {
 		return createAgentV2Stream(message, options);
-	},
-	reset: (): Promise<void> => {
-		return typedInvokeUnwrap(AgentChannels.reset);
-	},
-	cancel: (): Promise<void> => {
-		return typedInvokeUnwrap(AgentChannels.cancel);
-	},
-	getHistory: (): Promise<AgentHistoryMessage[]> => {
-		return typedInvokeUnwrap(AgentChannels.getHistory);
-	},
-	openHistoryFolder: (): Promise<void> => {
-		return typedInvokeUnwrap(AgentChannels.openHistoryFolder);
-	},
-	listStartupFiles: (): Promise<AgentStartupFileSummary[]> => {
-		return typedInvokeUnwrap(AgentChannels.listStartupFiles);
-	},
-	readStartupFile: (name: string): Promise<AgentStartupFileContent> => {
-		return typedInvokeUnwrap(AgentChannels.readStartupFile, name);
-	},
-	writeStartupFile: (name: string, content: string): Promise<AgentStartupFileContent> => {
-		return typedInvokeUnwrap(AgentChannels.writeStartupFile, name, content);
-	},
-	listWorkspaceFiles: (): Promise<WorkspaceFileSummary[]> => {
-		return typedInvokeUnwrap(AgentChannels.listWorkspaceFiles);
-	},
-	readWorkspaceFile: (name: string): Promise<WorkspaceFileContent> => {
-		return typedInvokeUnwrap(AgentChannels.readWorkspaceFile, name);
-	},
-	writeWorkspaceFile: (name: string, content: string): Promise<WorkspaceFileContent> => {
-		return typedInvokeUnwrap(AgentChannels.writeWorkspaceFile, name, content);
-	},
-	onResponse: (callback: (event: AgentResponseEvent) => void): (() => void) => {
-		return typedOn(AgentChannels.response, callback);
 	},
 } satisfies AgentApi;
 
