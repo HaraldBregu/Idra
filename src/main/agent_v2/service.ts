@@ -136,7 +136,7 @@ export class AgentV2Service {
 		const model = options.model ?? configured?.model.id;
 		if (!providerId || !model) throw new Error('Agent v2 requires a configured provider and model.');
 
-		const provider = this.dependencies.store.getProviderById(providerId);
+		const provider = this.store.getProviderById(providerId);
 		if (!provider) throw new Error(`Agent v2 provider is not configured: ${providerId}`);
 
 		this.cancel(resolvedAgentId);
