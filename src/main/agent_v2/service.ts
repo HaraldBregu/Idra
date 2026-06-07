@@ -113,7 +113,13 @@ export class AgentV2Service {
 	private readonly runtime = new AgentRuntime();
 	/** Builds the system prompt passed to each run. */
 	private readonly systemPrompt = new SystemPrompt();
-	/** Tracks the in-flight run per agent id so it can be cancelled/replaced. */
+	/**
+	 * MOST IMPORTANT: the central state of the service.
+	 * Maps each agent id to its currently in-flight run. `send` registers a run
+	 * here (cancelling any prior one for that agent), the `finally` block evicts
+	 * it on completion, `cancel` stops entries, and `isBusy` reads it. Everything
+	 * the service does revolves around this map.
+	 */
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	/** Agent id used when a caller does not supply one. */
 	private readonly defaultAgentId: string;
