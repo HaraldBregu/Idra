@@ -1,13 +1,18 @@
 import type { Disposable } from '../services/service-container';
 import type { AgentV2Service } from '../agent_v2';
 import {
+	getDefaultAgentModels,
 	getModelReasoningEfforts,
+	isAllowedAgentModel,
 	isModelReasoningEffort,
 	requireModelReasoningEffort,
+	type Model,
 	type ModelReasoningEffort,
 } from '../../shared/agents/service';
 import {
 	normalizeChannelId,
+	type ChannelRegistry,
+	type ChannelsService,
 	type ChannelChatType,
 	type ChannelOutboundMessage,
 } from '../channels';
@@ -63,7 +68,13 @@ import {
 	type HeartbeatToolResponse,
 } from './prompt';
 import { HeartbeatRuntimeState } from './store';
+import { HeartbeatFileStore } from './store';
 import { resolveHeartbeatVisibility } from './visibility';
+import type { EventBus } from '../services/event-bus';
+import type { LoggerService } from '../observability';
+import type { StoreService } from '../store';
+import type { AgentStartupFilesServicePort } from '../tools/startup/types';
+import type { PublicProvider } from '../../shared/providers';
 
 interface AgentSchedule {
 	agentId: string;
@@ -116,9 +127,33 @@ export class HeartbeatService implements Disposable {
 	private lastRoute: DeliveryRoute | null = null;
 	private routesBySession = new Map<string, DeliveryRoute>();
 	private readonly runtimeState: HeartbeatRuntimeState;
+	private readonly heartbeatStore: HeartbeatFileStore;
+	private readonly agentService: AgentV2Service;
+	private readonly store: StoreService;
+	private readonly logger: LoggerService;
+	private readonly eventBus: EventBus;
+	private readonly channels: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
+	private readonly channelRegistry: ChannelRegistry;
+	private readonly startupFiles: AgentStartupFilesServicePort;
 
-	constructor(private readonly agentService: AgentV2Service) {
-		this.runtimeState = new HeartbeatRuntimeState(agentService.getHeartbeatStore());
+	constructor(dependencies: {
+		agentService: AgentV2Service;
+		store: StoreService;
+		logger: LoggerService;
+		eventBus: EventBus;
+		channels: Pick<ChannelsService, 'getChannel' | 'getChannelConfig'>;
+		channelRegistry: ChannelRegistry;
+		startupFiles: AgentStartupFilesServicePort;
+	}) {
+		this.agentService = dependencies.agentService;
+		this.store = dependencies.store;
+		this.logger = dependencies.logger;
+		this.eventBus = dependencies.eventBus;
+		this.channels = dependencies.channels;
+		this.channelRegistry = dependencies.channelRegistry;
+		this.startupFiles = dependencies.startupFiles;
+		this.heartbeatStore = new HeartbeatFileStore({ logger: dependencies.logger });
+		this.runtimeState = new HeartbeatRuntimeState(this.heartbeatStore);
 	}
 
 	start(): void {
@@ -126,9 +161,9 @@ export class HeartbeatService implements Disposable {
 		this.started = true;
 		this.updateConfig();
 		this.wakeDisposer = setHeartbeatWakeHandler((wake) => this.runHeartbeatOnce(wake));
-		this.routeDisposer = this.agentService.onHeartbeatRoute((payload) => {
-			this.recordDeliveryRoute(payload as DeliveryRoute);
-		});
+		this.routeDisposer = this.eventBus.on('channel:route', (event) =>
+			this.recordDeliveryRoute(event.payload as DeliveryRoute)
+		);
 		this.armTimer();
 	}
 
