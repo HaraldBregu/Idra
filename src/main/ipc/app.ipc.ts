@@ -507,51 +507,6 @@ export class AppIpc implements IpcModule {
 			}, ProviderChannels.getTextToSoundModels)
 		);
 
-		ipcMain.handle(
-			ProviderChannels.getAgentService,
-			wrapSimpleHandler((): ModelSelection | undefined => {
-				return store.getAgentService();
-			}, ProviderChannels.getAgentService)
-		);
-
-		ipcMain.handle(
-			ProviderChannels.saveAgentService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				if (!isAllowedAgentModel(provider.id, model.id)) {
-					throw new Error(`Model is not supported for agent tool use: ${model.id}`);
-				}
-				const normalizedProviderId = provider.id.trim().toLowerCase();
-				const modelToSave = supportsModelReasoningEffortProvider(normalizedProviderId)
-					? {
-							...model,
-							effort: requireModelReasoningEffort(model.id, model.effort, normalizedProviderId),
-						}
-					: { id: model.id, name: model.name };
-				return store.setAgentService(provider.id, modelToSave);
-			}, ProviderChannels.saveAgentService)
-		);
-
-		ipcMain.handle(
-			ProviderChannels.getSpeechTranscriberService,
-			wrapSimpleHandler((): ModelSelection | undefined => {
-				return store.getSpeechTranscriberService();
-			}, ProviderChannels.getSpeechTranscriberService)
-		);
-
-		ipcMain.handle(
-			ProviderChannels.saveSpeechTranscriberService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = store.getProviderById(provider.id);
-				if (!storedProvider) {
-					throw new Error(`Provider not found: ${provider.id}`);
-				}
-				return store.setSpeechTranscriberService(
-					storedProvider.id,
-					speechToTextModelOrThrow(storedProvider.id, model)
-				);
-			}, ProviderChannels.saveSpeechTranscriberService)
-		);
-
 		logger.info('AppIpc', `Registered ${this.name} module`);
 	}
 }
