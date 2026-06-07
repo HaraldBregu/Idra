@@ -1,4 +1,3 @@
-export { Agent } from './runtime';
 export { Bootstrap } from './bootstrap';
 export { AgentV2Service } from './service';
 export { Workspace } from './workspace';

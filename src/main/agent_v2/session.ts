@@ -1,5 +1,5 @@
 import { composeMessages } from './shared/messages';
-import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from '../types';
+import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from './types';
 
 /**
  * Mutable state accumulated while a runtime loop is active.

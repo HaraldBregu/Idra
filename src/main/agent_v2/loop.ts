@@ -1,4 +1,4 @@
-import { AgentModel } from '../model';
+import { AgentModel } from './model';
 import type {
 	RuntimeEvent,
 	RuntimeInput,
@@ -7,7 +7,7 @@ import type {
 	RuntimeRun,
 	RuntimeTool,
 	RuntimeToolCall,
-} from '../types';
+} from './types';
 import { createRuntimeSession } from './session';
 import { parseToolArgs } from './shared/args';
 import { formatToolOutput } from './shared/format';

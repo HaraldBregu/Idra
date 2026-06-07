@@ -1,4 +1,4 @@
-import type { RuntimeInput, RuntimeMessage } from '../../types';
+import type { RuntimeInput, RuntimeMessage } from '../types';
 
 /**
  * Builds the transcript sent into the first model turn.
