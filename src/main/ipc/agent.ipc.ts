@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { ipcMain, shell } from 'electron';
 import type { IpcModule } from './module';
@@ -6,42 +5,12 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import { AgentRuntime } from '../agent_v2/runtime';
 import {
 	isModelReasoningEffort,
 	type AgentHistoryMessage,
-	type AgentResponseEvent,
 	type AgentSendRuntimeOptions,
 } from '../../shared/agents/service';
-import type { ToolResultBlock, ToolResultStatus, TranscriptEntry } from '../llm/types';
 import type { AgentSendOptions } from '../agent_v2';
-import type { RuntimeEvent } from '../agent_v2/runtime';
-import type { AgentRunStopReason } from '../../shared/agents/constants';
-
-type ToolTranscriptEntry = Extract<TranscriptEntry, { role: 'tool' }>;
-
-function toolResultStatus(entry: ToolTranscriptEntry): ToolResultStatus {
-	return entry.status ?? (entry.isError ? 'error' : 'ok');
-}
-
-function resultBlocksToOutput(content: ToolResultBlock[]): unknown {
-	if (content.length === 1) {
-		const block = content[0];
-		if (block?.type === 'text') return block.text ?? '';
-	}
-
-	return content.map((block) => {
-		if (block.type === 'text') {
-			return { type: 'text', text: block.text };
-		}
-
-		return {
-			type: 'image',
-			mimeType: block.mimeType ?? 'image/png',
-			base64: block.base64 ? '[base64 image]' : undefined,
-		};
-	});
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -59,84 +28,6 @@ function optionalStringList(value: unknown): string[] | undefined {
 		.map(optionalTrimmedString)
 		.filter((item): item is string => Boolean(item));
 	return items.length > 0 ? items : undefined;
-}
-
-function normalizeV2StopReason(value: string | undefined): AgentRunStopReason {
-	if (value === 'max_tokens') return 'max_tokens';
-	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
-	if (value === 'cancelled') return 'cancelled';
-	if (value === 'error') return 'error';
-	return 'end_turn';
-}
-
-function runtimeEventToAgentEvents(
-	event: RuntimeEvent,
-	agentId: string,
-	runId: string
-): AgentResponseEvent[] {
-	if (event.type === 'run_started') {
-		return [{ type: 'run_state', state: 'thinking', agentId, runId }];
-	}
-	if (event.type === 'model_call_start') {
-		return [
-			{ type: 'model_selected', providerId: 'agent_v2', model: event.model, agentId, runId },
-		];
-	}
-	if (event.type === 'model_call_delta') {
-		return [{ type: 'text_delta', delta: event.delta, agentId, runId }];
-	}
-	if (event.type === 'tool_call_start') {
-		return [
-			{
-				type: 'tool_call_start',
-				iteration: 0,
-				toolCallId: event.toolName,
-				toolName: event.toolName,
-				name: event.toolName,
-				serviceKind: 'tool',
-				agentId,
-				runId,
-			},
-		];
-	}
-	if (event.type === 'tool_call_end') {
-		return [
-			{
-				type: 'tool_call_result',
-				iteration: 0,
-				toolCallId: event.toolName,
-				toolName: event.toolName,
-				input: {},
-				output: event.output,
-				outputText: typeof event.output === 'string' ? event.output : JSON.stringify(event.output),
-				status: 'ok',
-				durationMs: 0,
-				name: event.toolName,
-				serviceKind: 'tool',
-				agentId,
-				runId,
-			},
-		];
-	}
-	if (event.type === 'run_finished') {
-		return [
-			{
-				type: 'run_finished',
-				stopReason:
-					event.result.subtype === 'error_max_turns'
-						? 'max_iterations'
-						: normalizeV2StopReason(event.result.stopReason),
-				outputChars: event.result.text.length,
-				agentId,
-				runId,
-			},
-			{ type: 'run_state', state: 'completed', agentId, runId },
-		];
-	}
-	if (event.type === 'run_stopped') {
-		return [{ type: 'run_state', state: 'cancelled', label: event.reason, agentId, runId }];
-	}
-	return [];
 }
 
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
@@ -177,128 +68,42 @@ async function openPathOrThrow(target: string): Promise<void> {
 	}
 }
 
-export function transcriptToHistory(t: TranscriptEntry[]): AgentHistoryMessage[] {
-	return t.map((entry) => {
-		if (entry.role === 'user') {
-			return { role: 'user', content: entry.content };
-		}
-		if (entry.role === 'assistant') {
-			const text = entry.content
-				.filter((b) => b.type === 'text')
-				.map((b) => b.text)
-				.join('');
-			const contentBlocks = entry.content.filter(
-				(b) => b.type === 'text' || b.type === 'tool_use'
-			);
-			return { role: 'assistant', content: text || null, contentBlocks };
-		}
-		const status = toolResultStatus(entry);
-		return {
-			role: 'tool',
-			toolUseId: entry.toolUseId,
-			isError: status !== 'ok' || entry.isError === true,
-			status,
-			output: resultBlocksToOutput(entry.content),
-			content: entry.content
-				.map((c) => (c.type === 'text' ? c.text : '[binary]'))
-				.join('\n'),
-		};
-	});
-}
-
 export class AgentIpc implements IpcModule {
 	readonly name = 'agent';
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
-		const store = container.get('store');
 		const agentDataDirectory = container.get('agentDataDirectory');
-		const agentV2 = new AgentRuntime();
-		let activeAgentV2Run: ReturnType<AgentRuntime['run']> | undefined;
-		const listStartupFiles = () => agent.listStartupFiles('main');
-		const readStartupFile = (name: string) => agent.readStartupFile('main', name);
+		const startupFiles = container.get('startupFiles');
+		const listStartupFiles = () => startupFiles.listFiles('main');
+		const readStartupFile = (name: string) => startupFiles.readFile('main', name);
 		const writeStartupFile = (name: string, content: string) =>
-			agent.writeStartupFile('main', name, content);
+			startupFiles.writeFile('main', name, content);
 
 		ipcMain.handle(
 			AgentChannels.send,
 			wrapSimpleHandler((message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-				return agent.send(message, undefined, {
-					...normalizeAgentSendRuntimeOptions(options),
-					streamEvent: (event) => eventBus.broadcast('agent:response', event),
-				});
+				return agent.send(message, undefined, normalizeAgentSendRuntimeOptions(options));
 			}, AgentChannels.send)
 		);
 
 		ipcMain.handle(
 			AgentChannels.sendV2,
 			wrapSimpleHandler(async (message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-				const runtimeOptions = normalizeAgentSendRuntimeOptions(options);
-				const configured = store.getAgentService();
-				const providerId = runtimeOptions.providerId ?? configured?.provider.id;
-				const model = runtimeOptions.model ?? configured?.model.id;
-				if (!providerId || !model) {
-					throw new Error('Agent v2 requires a configured provider and model.');
-				}
-
-				const provider = store.getProviderById(providerId);
-				if (!provider) {
-					throw new Error(`Agent v2 provider is not configured: ${providerId}`);
-				}
-
-				activeAgentV2Run?.stop('replaced');
-				const runId = runtimeOptions.runId ?? randomUUID();
-				const run = agentV2.run({
-					task: 'home_chat',
-					message,
-					provider: {
-						id: provider.id,
-						apiKey: provider.apiKey,
-						baseURL: provider.baseUrl,
-					},
-					model,
-					sessionId: runtimeOptions.sessionId ?? 'main',
-					system: 'You are a helpful assistant.',
-					maxRetries: 1,
-				});
-				activeAgentV2Run = run;
-
-				let response = '';
-				try {
-					for await (const event of run.stream) {
-						if (event.type === 'model_call_delta') response += event.delta;
-						if (event.type === 'run_finished') response = event.result.text || response;
-						for (const responseEvent of runtimeEventToAgentEvents(event, 'main', runId)) {
-							eventBus.broadcast(AgentChannels.response, responseEvent);
-						}
-					}
-					return response;
-				} catch (error) {
-					eventBus.broadcast(AgentChannels.response, {
-						type: 'run_state',
-						state: 'error',
-						label: error instanceof Error ? error.message : 'Agent v2 request failed.',
-						agentId: 'main',
-						runId,
-					} satisfies AgentResponseEvent);
-					throw error;
-				} finally {
-					if (activeAgentV2Run === run) activeAgentV2Run = undefined;
-				}
+				return agent.send(message, 'main', normalizeAgentSendRuntimeOptions(options));
 			}, AgentChannels.sendV2)
 		);
 
 		ipcMain.handle(
 			AgentChannels.reset,
-			wrapSimpleHandler(() => agent.reset(), AgentChannels.reset)
+			wrapSimpleHandler(() => agent.cancel(), AgentChannels.reset)
 		);
 
 		ipcMain.handle(
 			AgentChannels.getHistory,
 			wrapSimpleHandler(async (): Promise<AgentHistoryMessage[]> => {
-				const transcript = await agent.getHistory();
-				return transcriptToHistory(transcript);
+				return [];
 			}, AgentChannels.getHistory)
 		);
 
@@ -317,7 +122,6 @@ export class AgentIpc implements IpcModule {
 		ipcMain.handle(
 			AgentChannels.cancel,
 			wrapSimpleHandler((): void => {
-				activeAgentV2Run?.stop('cancelled');
 				agent.cancel();
 			}, AgentChannels.cancel)
 		);
