@@ -121,7 +121,9 @@ export class AgentV2Service {
 	private readonly defaultAgentId: string;
 
 	constructor(
-		private readonly dependencies: AgentV2ServiceDependencies,
+		private readonly store: StoreService,
+		private readonly logger: LoggerService,
+		private readonly eventBus: EventBus,
 		options: AgentV2ServiceOptions = {}
 	) {
 		this.defaultAgentId = options.defaultAgentId ?? 'main';
