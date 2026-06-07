@@ -385,53 +385,6 @@ const ModelServicePage: React.FC = () => {
 					</CollapsibleContent>
 				</Collapsible>
 			</SettingsSection>
-
-			{service.id === AGENTS.assistant && (
-				<SettingsSection title={t('settings.chatHistory.title')}>
-					<Card size="sm" className="gap-0! p-0!">
-						<Item variant="outline" size="md">
-							<ItemMedia variant="icon">
-								<History className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.modelServices.history')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end gap-1">
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon-sm"
-									aria-label={t('settings.chatHistory.openFolder')}
-									title={t('settings.chatHistory.openFolder')}
-									onClick={() => void openHistoryFolder()}
-								>
-									<FolderOpen className="size-3.5" />
-								</Button>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon-sm"
-									disabled={deletingHistory}
-									aria-label={t('settings.chatHistory.delete')}
-									title={t('settings.chatHistory.delete')}
-									onClick={() => void deleteHistory()}
-								>
-									{deletingHistory ? (
-										<LoaderCircle className="size-3.5 animate-spin" />
-									) : (
-										<Trash2 className="size-3.5 text-destructive" />
-									)}
-								</Button>
-							</ItemActions>
-						</Item>
-					</Card>
-					{historyError && (
-						<SettingsNotice variant="destructive" icon={AlertTriangle}>
-							{historyError}
-						</SettingsNotice>
-					)}
-				</SettingsSection>
-			)}
 		</SettingsPageShell>
 	);
 };
