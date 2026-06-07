@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { AgentSessionMetadata } from '../../shared/store';
-import type { StoreService } from '../store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
+import type { Provider } from '../../shared/providers';
 import type { RuntimeEvent, RuntimeRun } from './runtime';
 import { AgentRuntime } from './runtime';
+import { Settings } from './settings';
 import { SystemPrompt } from './system';
 
 export interface AgentSendOptions {
@@ -21,6 +22,11 @@ export interface AgentSendOptions {
 	sessionMetadata?: Partial<AgentSessionMetadata>;
 	cronContext?: unknown;
 }
+
+type AgentModelSettings = {
+	providerId: string;
+	modelId: string;
+};
 
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
@@ -108,24 +114,27 @@ function runtimeEventToAgentEvents(
 	return [];
 }
 
+function readAgentModelSettings(settings: Settings): AgentModelSettings | undefined {
+	return settings.getItem<AgentModelSettings>('llmAgent') ?? settings.getItem<AgentModelSettings>('assistant');
+}
+
+function readProviders(settings: Settings): Provider[] {
+	return settings.getItem<Provider[]>('modelProviders') ?? settings.getItem<Provider[]>('providers') ?? [];
+}
+
+function providerById(settings: Settings, id: string): Provider | undefined {
+	const providerId = id.trim().toLowerCase();
+	return readProviders(settings).find((provider) => provider.id.trim().toLowerCase() === providerId);
+}
+
 export class AgentV2Service {
-	/** Executes agent runs and produces the streamed runtime events. */
 	private readonly runtime = new AgentRuntime();
-	/** Builds the system prompt passed to each run. */
 	private readonly systemPrompt = new SystemPrompt();
-	/**
-	 * MOST IMPORTANT: the central state of the service.
-	 * Maps each agent id to its currently in-flight run. `send` registers a run
-	 * here (cancelling any prior one for that agent), the `finally` block evicts
-	 * it on completion, `cancel` stops entries, and `isBusy` reads it. Everything
-	 * the service does revolves around this map.
-	 */
 	private readonly activeRuns = new Map<string, RuntimeRun>();
-	/** Agent id used when a caller does not supply one. */
 	private readonly defaultAgentId: string;
 
 	constructor(
-		private readonly store: StoreService,
+		private readonly settings: Settings,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
@@ -133,12 +142,12 @@ export class AgentV2Service {
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
-		const configured = this.store.getAgentService();
-		const providerId = options.providerId ?? configured?.provider.id;
-		const model = options.model ?? configured?.model.id;
+		const configured = readAgentModelSettings(this.settings);
+		const providerId = options.providerId ?? configured?.providerId;
+		const model = options.model ?? configured?.modelId;
 		if (!providerId || !model) throw new Error('Agent v2 requires a configured provider and model.');
 
-		const provider = this.store.getProviderById(providerId);
+		const provider = providerById(this.settings, providerId);
 		if (!provider) throw new Error(`Agent v2 provider is not configured: ${providerId}`);
 
 		this.cancel(resolvedAgentId);

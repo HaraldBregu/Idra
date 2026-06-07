@@ -7,6 +7,7 @@ import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { AgentV2Service } from './agent_v2';
+import { Settings } from './agent_v2/settings';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
@@ -68,7 +69,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const agentService = container.register(
 		'agentService',
-		new AgentV2Service(store)
+		new AgentV2Service(new Settings())
 	);
 	container.register(
 		'channelRegistry',
@@ -96,10 +97,6 @@ export function bootstrapServices(): BootstrapResult {
 	};
 }
 
-/**
- * Cleanup handler to be called on app quit.
- * Ensures all services are properly disposed.
- */
 export async function cleanup(container: MainServiceContainer): Promise<void> {
 	const logger = container.get('logger');
 	logger.info('Bootstrap', 'Starting cleanup');
