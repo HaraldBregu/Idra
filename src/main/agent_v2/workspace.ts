@@ -8,7 +8,7 @@ export class Workspace {
 		this.workspacePath = path.resolve(workspacePath);
 	}
 
-	getWorkspace(): string {
+	getWorkspacePath(): string {
 		return this.workspacePath;
 	}
 }
