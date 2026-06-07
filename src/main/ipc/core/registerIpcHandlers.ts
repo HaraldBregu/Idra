@@ -1,16 +1,16 @@
-import { AgentIpc } from './agent.ipc';
-import { AppIpc } from './app.ipc';
-import { ChannelsIpc } from './channels.ipc';
-import { ConnectorsIpc } from './connectors.ipc';
-import { CronIpc } from './cron.ipc';
-import { RealtimeTranscriptionIpc } from './realtime-transcription.ipc';
-import { SkillsIpc } from './skills.ipc';
-import { SpeechToTextIpc } from './speech-to-text.ipc';
-import { StoreIpc } from './store.ipc';
-import { WindowIpc } from './window.ipc';
+import { AgentIpc } from '../agent.ipc';
+import { AppIpc } from '../app.ipc';
+import { ChannelsIpc } from '../channels.ipc';
+import { ConnectorsIpc } from '../connectors.ipc';
+import { CronIpc } from '../cron.ipc';
+import { RealtimeTranscriptionIpc } from '../realtime-transcription.ipc';
+import { SkillsIpc } from '../skills.ipc';
+import { SpeechToTextIpc } from '../speech-to-text.ipc';
+import { StoreIpc } from '../store.ipc';
+import { WindowIpc } from '../window.ipc';
 import type { IpcModule } from './module';
-import type { EventBus } from '../services';
-import type { MainServiceContainer } from '../services/services';
+import type { EventBus } from '../../services';
+import type { MainServiceContainer } from '../../services/services';
 
 export function registerIpcHandlers(container: MainServiceContainer, eventBus: EventBus): void {
 	const logger = container.get('logger');
