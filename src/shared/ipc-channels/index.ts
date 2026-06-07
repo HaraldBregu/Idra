@@ -12,19 +12,9 @@ export const WindowChannels = {
 } as const;
 
 export const AgentChannels = {
-	send: 'agent:send',
 	sendV2: 'agent:send-v2',
-	reset: 'agent:reset',
-	getHistory: 'agent:get-history',
-	openHistoryFolder: 'agent:open-history-folder',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
-	listStartupFiles: 'agent:list-startup',
-	readStartupFile: 'agent:read-startup-file',
-	writeStartupFile: 'agent:write-startup-file',
-	listWorkspaceFiles: 'agent:list-workspace-files',
-	readWorkspaceFile: 'agent:read-workspace-file',
-	writeWorkspaceFile: 'agent:write-workspace-file',
 } as const;
 
 export const ProviderChannels = {
