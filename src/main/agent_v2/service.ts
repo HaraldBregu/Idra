@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import type { AgentSessionMetadata } from '../../shared/store';
-import type { EventBus } from '../services/event-bus';
 import type { StoreService } from '../store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent } from '../../shared/agents/events';
