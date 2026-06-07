@@ -144,14 +144,6 @@ export const StoreChannels = {
 } as const;
 
 interface AppInvokeChannelMap {
-	[AppChannels.getLogs]: {
-		args: [limit?: number];
-		result: import('../app-log').AppLogEntry[];
-	};
-	[AppChannels.openLogsFolder]: {
-		args: [];
-		result: void;
-	};
 	[AppChannels.openAppDataFolder]: {
 		args: [];
 		result: void;
