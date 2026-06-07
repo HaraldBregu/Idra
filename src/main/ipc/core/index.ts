@@ -4,14 +4,14 @@
  */
 
 export type { IpcModule } from './module';
-export { AgentIpc } from './agent.ipc';
-export { AppIpc } from './app.ipc';
-export { ChannelsIpc } from './channels.ipc';
-export { ConnectorsIpc } from './connectors.ipc';
-export { CronIpc } from './cron.ipc';
-export { RealtimeTranscriptionIpc } from './realtime-transcription.ipc';
-export { SpeechToTextIpc } from './speech-to-text.ipc';
-export { SkillsIpc } from './skills.ipc';
-export { StoreIpc } from './store.ipc';
-export { WindowIpc } from './window.ipc';
+export { AgentIpc } from '../agent.ipc';
+export { AppIpc } from '../app.ipc';
+export { ChannelsIpc } from '../channels.ipc';
+export { ConnectorsIpc } from '../connectors.ipc';
+export { CronIpc } from '../cron.ipc';
+export { RealtimeTranscriptionIpc } from '../realtime-transcription.ipc';
+export { SpeechToTextIpc } from '../speech-to-text.ipc';
+export { SkillsIpc } from '../skills.ipc';
+export { StoreIpc } from '../store.ipc';
+export { WindowIpc } from '../window.ipc';
 export { registerIpcHandlers } from './registerIpcHandlers';
