@@ -28,10 +28,10 @@ export interface AgentSendOptions {
 	effort?: ModelReasoningEffort;
 	lightContext?: boolean;
 	streamEvent?: (event: AgentResponseEvent) => void;
-		toolsAllow?: string[];
-		toolsDeny?: string[];
-		sessionMetadata?: Partial<AgentSessionMetadata>;
-		cronContext?: unknown;
+	toolsAllow?: string[];
+	toolsDeny?: string[];
+	sessionMetadata?: Partial<AgentSessionMetadata>;
+	cronContext?: unknown;
 }
 
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {

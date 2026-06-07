@@ -1,3 +1,4 @@
+import { chmod, mkdir } from 'node:fs/promises';
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './app/permissions';
@@ -37,13 +38,13 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('appPermissions', new AppPermissionsService());
 
 	const agentRoot = resolveAgentDataPath();
-	void import('node:fs/promises').then(({ mkdir, chmod }) =>
-		mkdir(agentRoot, { recursive: true, mode: 0o700 }).then(async () => {
+	void mkdir(agentRoot, { recursive: true, mode: 0o700 })
+		.then(async () => {
 			if (process.platform !== 'win32') await chmod(agentRoot, 0o700).catch(() => undefined);
 		})
-	).catch((error) => {
-		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
-	});
+		.catch((error) => {
+			logger.error('AgentDataPath', 'Failed to create agent data directory', error);
+		});
 
 	container.register(
 		'skills',

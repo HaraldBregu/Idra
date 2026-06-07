@@ -126,7 +126,7 @@ function isPathInside(rootPath: string, targetPath: string): boolean {
 	return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 }
 
-function resolveDefaultAppDataPath(...segments: string[]): string {
+function resolveSkillsDataPath(...segments: string[]): string {
 	let appDataPath: string;
 	try {
 		appDataPath = app.getPath('appData');
@@ -185,7 +185,7 @@ export class SkillsService {
 		this.planner = new SkillPlanner();
 		this.engine = new SkillExecutionEngine(this.registry, this.auditLog, this.preferences);
 		this.dependencyResolver = new SkillDependencyResolver(this.registry);
-		this.skillsRoot = options.rootPath ?? resolveDefaultAppDataPath('skills');
+		this.skillsRoot = options.rootPath ?? resolveSkillsDataPath('skills');
 
 	}
 
