@@ -131,7 +131,7 @@ export class AgentV2Service {
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
-		const configured = this.dependencies.store.getAgentService();
+		const configured = this.store.getAgentService();
 		const providerId = options.providerId ?? configured?.provider.id;
 		const model = options.model ?? configured?.model.id;
 		if (!providerId || !model) throw new Error('Agent v2 requires a configured provider and model.');
