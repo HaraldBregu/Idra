@@ -10,25 +10,10 @@ export interface WindowApi {
 }
 
 export interface AgentApi {
-	send: (message: string, options?: AgentSendRuntimeOptions) => Promise<string>;
 	send_v2: (
 		message: string,
 		options?: AgentSendRuntimeOptions
 	) => AsyncIterable<AgentResponseEvent>;
-	reset: () => Promise<void>;
-	cancel: () => Promise<void>;
-	getHistory: () => Promise<AgentHistoryMessage[]>;
-	openHistoryFolder: () => Promise<void>;
-	listStartupFiles: () => Promise<AgentStartupFileSummary[]>;
-	readStartupFile: (name: string) => Promise<AgentStartupFileContent>;
-	writeStartupFile: (name: string, content: string) => Promise<AgentStartupFileContent>;
-	/** @deprecated Use listStartupFiles. */
-	listWorkspaceFiles: () => Promise<WorkspaceFileSummary[]>;
-	/** @deprecated Use readStartupFile. */
-	readWorkspaceFile: (name: string) => Promise<WorkspaceFileContent>;
-	/** @deprecated Use writeStartupFile. */
-	writeWorkspaceFile: (name: string, content: string) => Promise<WorkspaceFileContent>;
-	onResponse: (callback: (event: AgentResponseEvent) => void) => () => void;
 }
 
 export interface CronApi {
