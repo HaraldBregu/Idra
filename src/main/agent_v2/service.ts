@@ -33,13 +33,16 @@ export class AgentV2Service {
 		this.defaultAgentId = defaultAgentId;
 	}
 
-	async send(message: string, options: AgentSendOptions = {}): Promise<string> {
-		const resolvedAgentId = this.defaultAgentId;
+	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
+		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
 		const provider = this.settings.getProvider();
-		const model = this.settings.getModel();
+		const model = options.model ?? this.settings.getModel();
 
 		if (!provider || !model)
 			throw new Error('Agent v2 requires a configured provider and model.');
+
+		if (options.providerId && provider.id.trim().toLowerCase() !== options.providerId.trim().toLowerCase())
+			throw new Error(`Agent v2 provider is not configured: ${options.providerId}`);
 
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
