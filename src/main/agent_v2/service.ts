@@ -109,9 +109,13 @@ function runtimeEventToAgentEvents(
 }
 
 export class AgentV2Service {
+	/** Executes agent runs and produces the streamed runtime events. */
 	private readonly runtime = new AgentRuntime();
+	/** Builds the system prompt passed to each run. */
 	private readonly systemPrompt = new SystemPrompt();
+	/** Tracks the in-flight run per agent id so it can be cancelled/replaced. */
 	private readonly activeRuns = new Map<string, RuntimeRun>();
+	/** Agent id used when a caller does not supply one. */
 	private readonly defaultAgentId: string;
 
 	constructor(
@@ -134,7 +138,9 @@ export class AgentV2Service {
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
-		const system = await this.systemPrompt.build({});
+
+		
+		const system = await this.systemPrompt.build();
 
 		const run = this.runtime.run({
 			task: 'chat',
