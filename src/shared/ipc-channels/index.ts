@@ -52,8 +52,6 @@ export const SpeechToTextChannels = {
 } as const;
 
 export const AppChannels = {
-	getLogs: 'app:get-logs',
-	openLogsFolder: 'app:open-logs-folder',
 	openAppDataFolder: 'app:open-app-data-folder',
 	openExternalUrl: 'app:open-external-url',
 	authorizeOAuth: 'app:authorize-oauth',
