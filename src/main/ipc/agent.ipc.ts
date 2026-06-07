@@ -75,18 +75,6 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const agent = container.get('agentService');
-		const startupFiles = container.get('startupFiles');
-		const listStartupFiles = () => startupFiles.listFiles('main');
-		const readStartupFile = (name: string) => startupFiles.readFile('main', name);
-		const writeStartupFile = (name: string, content: string) =>
-			startupFiles.writeFile('main', name, content);
-
-		ipcMain.handle(
-			AgentChannels.send,
-			wrapSimpleHandler((message: string, options?: AgentSendRuntimeOptions): Promise<string> => {
-				return agent.send(message, undefined, normalizeAgentSendRuntimeOptions(options));
-			}, AgentChannels.send)
-		);
 
 		ipcMain.handle(
 			AgentChannels.sendV2,
@@ -99,76 +87,10 @@ export class AgentIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			AgentChannels.reset,
-			wrapSimpleHandler(() => agent.cancel(), AgentChannels.reset)
-		);
-
-		ipcMain.handle(
-			AgentChannels.getHistory,
-			wrapSimpleHandler(async (): Promise<AgentHistoryMessage[]> => {
-				return [];
-			}, AgentChannels.getHistory)
-		);
-
-		ipcMain.handle(
-			AgentChannels.openHistoryFolder,
-			wrapSimpleHandler(async (): Promise<void> => {
-				const target = resolveAgentDataPath('sessions');
-				await fs.mkdir(target, { recursive: true, mode: 0o700 });
-				if (process.platform !== 'win32') {
-					await fs.chmod(target, 0o700).catch(() => undefined);
-				}
-				await openPathOrThrow(target);
-			}, AgentChannels.openHistoryFolder)
-		);
-
-		ipcMain.handle(
 			AgentChannels.cancel,
 			wrapSimpleHandler((): void => {
 				agent.cancel();
 			}, AgentChannels.cancel)
-		);
-
-		ipcMain.handle(
-			AgentChannels.listStartupFiles,
-			wrapSimpleHandler(() => {
-				return listStartupFiles();
-			}, AgentChannels.listStartupFiles)
-		);
-
-		ipcMain.handle(
-			AgentChannels.readStartupFile,
-			wrapSimpleHandler((name: string) => {
-				return readStartupFile(name);
-			}, AgentChannels.readStartupFile)
-		);
-
-		ipcMain.handle(
-			AgentChannels.writeStartupFile,
-			wrapSimpleHandler((name: string, content: string) => {
-				return writeStartupFile(name, content);
-			}, AgentChannels.writeStartupFile)
-		);
-
-		ipcMain.handle(
-			AgentChannels.listWorkspaceFiles,
-			wrapSimpleHandler(() => {
-				return listStartupFiles();
-			}, AgentChannels.listWorkspaceFiles)
-		);
-
-		ipcMain.handle(
-			AgentChannels.readWorkspaceFile,
-			wrapSimpleHandler((name: string) => {
-				return readStartupFile(name);
-			}, AgentChannels.readWorkspaceFile)
-		);
-
-		ipcMain.handle(
-			AgentChannels.writeWorkspaceFile,
-			wrapSimpleHandler((name: string, content: string) => {
-				return writeStartupFile(name, content);
-			}, AgentChannels.writeWorkspaceFile)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);
