@@ -11,10 +11,6 @@ import {
 	getMusicCreatorModels,
 	getTextToSpeechModels,
 	getTextToVideoModels,
-	isAllowedSpeechToTextModel,
-	requireModelReasoningEffort,
-	supportsModelReasoningEffortProvider,
-	type ModelSelection,
 	type Model,
 } from '../../shared/agents/service';
 import type {
