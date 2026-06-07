@@ -42,22 +42,22 @@ export function bootstrapServices(): BootstrapResult {
 		logger.error('AgentDataDirectoryService', 'Failed to create agent data directory', error);
 	});
 
-	const skills = container.register(
+	container.register(
 		'skills',
 		new SkillsService(logger)
 	);
 
 	const store = container.register('store', new StoreService());
-	const channels = container.register('channels', new ChannelsService(logger));
+	container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger, { store }));
 	cron.restore((task) => {
 		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
 	});
 
-	const connectors = container.register('connectors', new ConnectorsService(logger));
-	const llm = container.register('llm', new LlmService());
+	container.register('connectors', new ConnectorsService(logger));
+	container.register('llm', new LlmService());
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
-	const startupFiles = container.register(
+	container.register(
 		'startupFiles',
 		new AgentStartupFilesService({ rootPath: agentDataDirectory.resolve(), logger })
 	);
@@ -71,7 +71,7 @@ export function bootstrapServices(): BootstrapResult {
 		'agentService',
 		new AgentV2Service(agentDependencies)
 	);
-	const channelRegistry = container.register(
+	container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
 	);
