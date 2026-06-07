@@ -10,6 +10,7 @@ import { AgentDataDirectoryService } from './data-directory';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
+import { AgentStartupFilesService } from './tools/startup/service';
 
 import type { MainServiceContainer, MainServices } from './services/services';
 import { HeartbeatService } from './heartbeat';
@@ -57,23 +58,19 @@ export function bootstrapServices(): BootstrapResult {
 	const connectors = container.register('connectors', new ConnectorsService(logger));
 	const llm = container.register('llm', new LlmService());
 	container.register('speechToText', new SpeechToTextService({ store, logger }));
+	const startupFiles = container.register(
+		'startupFiles',
+		new AgentStartupFilesService({ rootPath: agentDataDirectory.resolve(), logger })
+	);
 
 	const agentDependencies: AgentV2ServiceDependencies = {
 		store,
-		cron,
 		logger,
 		eventBus,
-		agentDataDirectory,
-		llm,
-		connectors,
-		skills,
-		channels,
 	};
 	const agentService = container.register(
 		'agentService',
-		new AgentV2Service(agentDependencies, {
-			sessionBaseDir: agentDataDirectory.resolve('sessions'),
-		})
+		new AgentV2Service(agentDependencies)
 	);
 	const channelRegistry = container.register(
 		'channelRegistry',
@@ -82,7 +79,15 @@ export function bootstrapServices(): BootstrapResult {
 	agentDependencies.channelRegistry = channelRegistry;
 	const heartbeat = container.register(
 		'heartbeat',
-		new HeartbeatService(agentService)
+		new HeartbeatService({
+			agentService,
+			store,
+			logger,
+			eventBus,
+			channels,
+			channelRegistry,
+			startupFiles,
+		})
 	);
 	heartbeat.start();
 	void cron.start().catch((error) => {

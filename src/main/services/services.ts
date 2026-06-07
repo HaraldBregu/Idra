@@ -10,6 +10,7 @@ import type { LoggerService } from '../observability';
 import type { SkillsService } from '../skills';
 import type { SpeechToTextService } from '../stt';
 import type { StoreService } from '../store';
+import type { AgentStartupFilesService } from '../tools/startup/service';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 
 export interface MainServices {
@@ -28,6 +29,7 @@ export interface MainServices {
 	skills: SkillsService;
 	speechToText: SpeechToTextService;
 	store: StoreService;
+	startupFiles: AgentStartupFilesService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
 }
