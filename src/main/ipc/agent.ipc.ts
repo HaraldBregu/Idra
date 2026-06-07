@@ -1,14 +1,11 @@
-import { promises as fs } from 'node:fs';
-import { ipcMain, shell } from 'electron';
+import { ipcMain } from 'electron';
 import type { IpcModule } from './module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './errorHandler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import { resolveAgentDataPath } from '../tools/startup/path';
 import {
 	isModelReasoningEffort,
-	type AgentHistoryMessage,
 	type AgentSendRuntimeOptions,
 } from '../../shared/agents/service';
 import type { AgentSendOptions } from '../agent_v2';
