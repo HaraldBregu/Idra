@@ -1,2 +1,2 @@
-export { default as systemprompt } from './prompt';
+export { default as SystemPrompt } from './prompt';
 export type { PromptCtx } from './prompt';
