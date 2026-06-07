@@ -171,7 +171,7 @@ export class AgentV2Service {
 					provider.id
 				)) {
 					options.streamEvent?.(responseEvent);
-					this.dependencies.eventBus.broadcast('agent:response', responseEvent);
+					this.eventBus.broadcast('agent:response', responseEvent);
 				}
 			}
 			return response;
