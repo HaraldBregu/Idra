@@ -162,54 +162,22 @@ export class AgentRuntime {
 				return;
 			}
 
-			session.model = turn.model;
-			session.stopReason = turn.stopReason;
-			session.usage.inputTokens += turn.usage?.inputTokens ?? 0;
-			session.usage.outputTokens += turn.usage?.outputTokens ?? 0;
-			if (turn.content) session.finalText = turn.content;
+			session.recordTurn(turn);
 
 			yield {
 				type: 'assistant_message',
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
-			session.messages.push({
-				role: 'assistant',
-				content: turn.content,
-				toolCalls: turn.toolCalls,
-			});
+			session.addAssistantMessage(turn.content, turn.toolCalls);
 
 			if (turn.toolCalls.length === 0) {
-				yield {
-					type: 'run_finished',
-					result: {
-						text: session.finalText,
-						model: session.model,
-						toolCalls: session.toolCalls,
-						numTurns: session.numTurns,
-						subtype: 'success',
-						sessionId: session.id,
-						stopReason: session.stopReason ?? 'end_turn',
-						usage: session.usage,
-					},
-				};
+				yield { type: 'run_finished', result: session.toResult('success') };
 				return;
 			}
 
-			if (session.numTurns >= session.maxTurns) {
-				yield {
-					type: 'run_finished',
-					result: {
-						text: '',
-						model: session.model,
-						toolCalls: session.toolCalls,
-						numTurns: session.numTurns,
-						subtype: 'error_max_turns',
-						sessionId: session.id,
-						stopReason: session.stopReason,
-						usage: session.usage,
-					},
-				};
+			if (session.isExhausted) {
+				yield { type: 'run_finished', result: session.toResult('error_max_turns') };
 				return;
 			}
 
@@ -218,9 +186,7 @@ export class AgentRuntime {
 				yield { type: 'run_stopped', reason: getStopReason() };
 				return;
 			}
-			session.toolCalls.push(...turn.toolCalls);
-			session.messages.push(...results);
-			session.numTurns += 1;
+			session.addToolResults(turn.toolCalls, results);
 			yield { type: 'user_message', messages: results };
 		}
 	}
