@@ -1,5 +1,11 @@
+import { BOOTSTRAP_FILE, Workspace } from '../workspace/workspace';
+
 export class SystemPrompt {
+	constructor(private readonly workspace = new Workspace()) {}
+
 	async build(): Promise<string> {
+		const hasBootstrap = await this.workspace.hasBootstrapFile();
+
 		const parts: string[] = [
 			'You are a personal AI assistant. My name is Friday',
 			[
