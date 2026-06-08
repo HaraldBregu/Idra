@@ -1,4 +1,5 @@
 import { AgentModel } from '../model';
+import type { History } from '../core/history';
 import type {
 	RuntimeEvent,
 	RuntimeInput,
@@ -11,7 +12,6 @@ import type {
 } from './types';
 import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings';
-import { SessionHistory } from '../history';
 import { SystemPrompt } from '../system/prompt';
 import { Workspace } from '../workspace';
 import { parseToolArgs } from './args';
@@ -94,11 +94,11 @@ async function* runModelTurn(
 
 export class AgentRuntime {
 	constructor(
-		workspace = new Workspace(),
-		private readonly settings = new Settings(),
+		workspace: Workspace,
+		private readonly settings: Settings,
+		private readonly history: History,
 		private readonly model: RuntimeModel = new AgentModel(),
-		private readonly systemPrompt = new SystemPrompt(workspace),
-		private readonly history = new SessionHistory()
+		private readonly systemPrompt = new SystemPrompt(workspace)
 	) {}
 
 	run(input: RuntimeInput): RuntimeRun {
