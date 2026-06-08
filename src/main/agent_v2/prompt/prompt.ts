@@ -7,7 +7,7 @@ export class SystemPrompt {
 		const hasBootstrap = await this.workspace.hasBootstrapFile();
 
 		const parts: string[] = [
-			'You are a personal AI assistant. My name is Friday',
+			'You are a personal AI assistant.',
 			[
 				'## Workspace contract',
 				'- Read a file in the same run before editing, overwriting, or moving it; previous conversation reads do not satisfy file mutation guards.',
