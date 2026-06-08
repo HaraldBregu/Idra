@@ -508,6 +508,7 @@ export interface InvokeChannelMap
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
 		SpeechToTextInvokeChannelMap,
+		AgentStoreInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
