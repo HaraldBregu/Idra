@@ -1,6 +1,5 @@
 import type { ChannelRegistry, ChannelsService } from '../channels';
 import type { AgentV2Service } from '../agent_usage/service';
-import type { AgentStoreService } from '../agent_usage/store';
 import type { AppPermissionsService } from '../app/permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
@@ -17,7 +16,6 @@ export interface MainServices {
 	appState: AppState;
 	appPermissions: AppPermissionsService;
 	agentService: AgentV2Service;
-	agentStore: AgentStoreService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
