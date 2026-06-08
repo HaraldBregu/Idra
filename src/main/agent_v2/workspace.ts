@@ -7,9 +7,9 @@ export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 export class Workspace extends AgentWorkspace {
 	private readonly workspacePath: string;
 
-	constructor(workspacePath: string) {
+	constructor(location: string) {
 		super();
-		this.workspacePath = path.resolve(workspacePath);
+		this.workspacePath = path.resolve(location);
 	}
 
 	getWorkspacePath(): string {

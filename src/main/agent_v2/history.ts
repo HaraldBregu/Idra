@@ -5,9 +5,9 @@ import { History, HistoryEntry } from './core/history';
 export class SessionHistory extends History {
 	private readonly historyPath: string;
 
-	constructor(dataPath: string) {
+	constructor(location: string) {
 		super();
-		this.historyPath = path.join(path.resolve(dataPath), 'agent-history');
+		this.historyPath = path.join(path.resolve(location), 'agent-history');
 	}
 
 	async create(sessionId: string): Promise<void> {

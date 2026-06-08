@@ -27,10 +27,10 @@ export class AgentV2Service {
 
 	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
-		const dataPath = resolveDataPath();
-		this.workspace = new Workspace(dataPath);
-		this.settings = new Settings(dataPath);
-		this.history = new SessionHistory(dataPath);
+		const location = resolveLocation();
+		this.workspace = new Workspace(location);
+		this.settings = new Settings(location);
+		this.history = new SessionHistory(location);
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 	}
 
@@ -103,7 +103,7 @@ export class AgentV2Service {
 	}
 }
 
-function resolveDataPath(): string {
+function resolveLocation(): string {
 	try {
 		return app.getPath('appData');
 	} catch {
