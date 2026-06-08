@@ -221,25 +221,6 @@ function getStoredProviderValue(
 	};
 }
 
-function getPublicProvidersFromStore(
-	storedProviders: readonly (readonly [string, StoredProvider | undefined])[]
-): PublicProvider[] {
-	return storedProviders.flatMap(([id, provider]) => {
-		if (!provider) return [];
-		const apiKey = provider.apiKey.trim();
-		if (!apiKey) return [];
-		const catalog = getDefaultProvider(id);
-		const publicProvider: PublicProvider = {
-			id,
-			name: provider.name || catalog?.name || id,
-			baseUrl: provider.baseUrl || catalog?.baseUrl || '',
-			...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
-			...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
-		};
-		return [publicProvider];
-	});
-}
-
 function getPublicProvidersFromCatalog(): PublicProvider[] {
 	return DEFAULT_PROVIDERS.map((provider) => ({
 		id: provider.id,
