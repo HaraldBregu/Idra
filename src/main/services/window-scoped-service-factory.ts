@@ -1,5 +1,4 @@
 import type { ServiceContainer, EventBus } from './index';
-import type { StoreService } from '../store';
 import type { LoggerService } from '../observability';
 
 /**
