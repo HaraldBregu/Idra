@@ -92,11 +92,24 @@ async function* runModelTurn(
 
 export class AgentRuntime {
 	constructor(
+		private readonly settings = new Settings(),
 		private readonly model: RuntimeModel = new AgentModel(),
 		private readonly systemPrompt = new SystemPrompt()
 	) {}
 
 	run(input: RuntimeInput): RuntimeRun {
+		const provider = input.provider ?? this.settings.getProvider();
+		const model = input.model ?? this.settings.getModel();
+
+		if (!provider || !model)
+			throw new Error('Agent v2 requires a configured provider and model.');
+		if (
+			input.providerId &&
+			provider.id.trim().toLowerCase() !== input.providerId.trim().toLowerCase()
+		)
+			throw new Error(`Agent v2 provider is not configured: ${input.providerId}`);
+
+		const resolved: RuntimeInput = { ...input, provider, model };
 		const controller = new AbortController();
 		let stopped = false;
 		let stopReason = 'stopped';
@@ -111,7 +124,7 @@ export class AgentRuntime {
 		);
 
 		return {
-			stream: this.stream(input, controller.signal, () => stopped, () => stopReason),
+			stream: this.stream(resolved, provider, controller.signal, () => stopped, () => stopReason),
 			stop(reason = 'stopped'): void {
 				stopped = true;
 				stopReason = reason;
