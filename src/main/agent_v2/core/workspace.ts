@@ -1,3 +1,3 @@
-export abstract class AgentWorkspace {
+export abstract class Workspace {
 	abstract getPath(): string;
 }

@@ -1,6 +1,6 @@
-export { History } from './core/history';
+export { History as AgentHistory } from './core/history';
 export { Settings as AgentSettings } from './core/settings';
-export { AgentWorkspace } from './core/workspace';
+export { Workspace as AgentWorkspace } from './core/workspace';
 export { SessionHistory } from './history';
 export { AgentV2Service } from './service';
 export { Workspace } from './workspace';
