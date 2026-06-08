@@ -77,7 +77,7 @@ export function bootstrapServices(): BootstrapResult {
 	const windowContextManager = new WindowContextManager(container, eventBus);
 	container.register('windowContextManager', windowContextManager);
 
-	logger.info('Bootstrap', `Registered ${container.has('store') ? 'all' : 'some'} global services`);
+	logger.info('Bootstrap', 'Registered global services');
 
 	return {
 		container,
