@@ -15,7 +15,7 @@ export function createAgentContainer(): Container {
 	});
 	container.register(MODEL, { useClass: AgentModel, singleton: true });
 	container.register(SYSTEM_PROMPT, {
-		useFactory: (dependencies) => new SystemPrompt(dependencies.resolve(WORKSPACE)),
+		useFactory: (dependencies) => new SystemPrompt().useContainer(dependencies),
 		singleton: true,
 	});
 
