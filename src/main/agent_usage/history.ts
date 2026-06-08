@@ -1,14 +1,18 @@
 import fs from 'node:fs/promises';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { AgentHistory } from '../agent_v2';
 import type { HistoryEntry } from '../agent_v2';
- 
+
 export class History extends AgentHistory {
 	private readonly historyPath: string;
 
-	constructor(location: string) {
+	constructor(location: string, name = 'agent-history') {
 		super();
-		this.historyPath = path.join(path.resolve(location), 'agent-history');
+		this.historyPath = path.join(path.resolve(location), name);
+		if (!existsSync(this.historyPath)) {
+			mkdirSync(this.historyPath, { recursive: true });
+		}
 	}
 
 	async create(sessionId: string): Promise<void> {
