@@ -22,6 +22,11 @@ export const ProviderStoreChannels = {
 	set: 'provider-store:set',
 } as const;
 
+export const AgentStoreChannels = {
+	get: 'agent-store:get',
+	set: 'agent-store:set',
+} as const;
+
 export const RealtimeTranscriptionChannels = {
 	start: 'realtime-transcription:start',
 	appendAudio: 'realtime-transcription:append-audio',
