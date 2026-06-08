@@ -41,7 +41,7 @@ export interface RuntimeInput {
     messages?: RuntimeMessage[];
     tools?: RuntimeTool[];
     skills?: RuntimeSkill[];
-    model?: string;
+    modelId?: string;
     modelRoutes?: RuntimeModelRoute[];
     maxTokens?: number;
     maxRetries?: number;

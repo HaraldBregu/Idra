@@ -40,7 +40,7 @@ async function* runModelTurn(
 ): AsyncGenerator<RuntimeEvent, ModelTurn | null> {
 	for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
 		let content = '';
-		let model = input.model ?? 'default';
+		let model = input.modelId ?? 'default';
 		let stopReason: string | undefined;
 		let usage: ModelTurn['usage'];
 		const pending = new Map<string, { name: string; argsText: string }>();
@@ -89,7 +89,7 @@ async function* runModelTurn(
 		}
 	}
 
-	return { content: '', model: input.model ?? 'default', toolCalls: [] };
+	return { content: '', model: input.modelId ?? 'default', toolCalls: [] };
 }
 
 export class AgentRuntime {
@@ -106,18 +106,18 @@ export class AgentRuntime {
 	}
 
 	run(input: RuntimeInput): RuntimeRun {
-		const providerId = input.provider ?? this.settings.getProviderId();
-		const modelId = input.model ?? this.settings.getModelId();
+		const provider = input.provider ?? this.settings.getProvider();
+		const modelId = input.modelId ?? this.settings.getModelId();
 
-		if (!providerId || !modelId)
+		if (!provider || !modelId)
 			throw new Error('Agent v2 requires a configured provider and model.');
 		if (
 			input.providerId &&
-			providerId.toLowerCase() !== input.providerId.trim().toLowerCase()
+			provider.id.trim().toLowerCase() !== input.providerId.trim().toLowerCase()
 		)
 			throw new Error(`Agent v2 provider is not configured: ${input.providerId}`);
 
-		const resolved: RuntimeInput = { ...input, providerId, modelId };
+		const resolved: RuntimeInput = { ...input, provider, modelId };
 		const controller = new AbortController();
 		let stopped = false;
 		let stopReason = 'stopped';
@@ -151,7 +151,7 @@ export class AgentRuntime {
 		const session = new RuntimeSession(input);
 		await this.history.append(session.id, {
 			type: 'user_message',
-			data: { task: input.task, message: input.message, model: input.model },
+			data: { task: input.task, message: input.message, model: input.modelId },
 		});
 		const system = input.system ?? (await this.systemPrompt.build());
 

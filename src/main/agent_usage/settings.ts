@@ -1,15 +1,11 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { AgentSettings } from '../agent_v2';
+import { SettingsProvider } from '../agent_v2/core/settings';
  
-export type AgentProviderSettings = {
-	id: string;
-	apiKey: string;
-	baseURL: string;
-};
 
 type SettingsSchema = {
-	provider?: AgentProviderSettings;
+	provider?: SettingsProvider;
 	model?: string;
 };
 
@@ -25,11 +21,11 @@ export class Settings extends AgentSettings {
 		});
 	}
 
-	getProvider(): AgentProviderSettings | undefined {
+	getProvider(): SettingsProvider | undefined {
 		return this.store.get('provider');
 	}
 
-	setProvider(provider: AgentProviderSettings): void {
+	setProvider(provider: SettingsProvider): void {
 		this.store.set('provider', provider);
 	}
 

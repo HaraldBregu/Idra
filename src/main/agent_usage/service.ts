@@ -13,7 +13,7 @@ export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
 	providerId?: string;
-	model?: string;
+	modelId?: string;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -32,6 +32,9 @@ export class AgentV2Service {
 		this.workspace = new Workspace(location);
 		this.settings = new Settings(location);
 		this.history = new SessionHistory(location);
+
+		console.log({settings: this.settings.getProvider()})
+
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 	}
 
@@ -46,7 +49,7 @@ export class AgentV2Service {
 			task: 'chat',
 			message,
 			providerId: options.providerId,
-			model: options.model,
+			modelId: options.modelId,
 			sessionId,
 			maxRetries: 1,
 		});

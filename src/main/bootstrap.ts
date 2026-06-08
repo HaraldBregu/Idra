@@ -6,7 +6,6 @@ import { LoggerService } from './observability';
 import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
-import { AgentV2Service } from './agent_v2';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
 import { SpeechToTextService } from './stt';
@@ -15,6 +14,7 @@ import { resolveAgentDataPath } from './tools/startup/path';
 
 import type { MainServiceContainer, MainServices } from './services/services';
 import { LlmService } from './llm';
+import { AgentV2Service } from './agent_usage/service';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
