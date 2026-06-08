@@ -17,14 +17,6 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	return trimmed || undefined;
 }
 
-function optionalStringList(value: unknown): string[] | undefined {
-	if (!Array.isArray(value)) return undefined;
-	const items = value
-		.map(optionalTrimmedString)
-		.filter((item): item is string => Boolean(item));
-	return items.length > 0 ? items : undefined;
-}
-
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
