@@ -17,15 +17,6 @@ export const AgentChannels = {
 	cancel: 'agent:cancel',
 } as const;
 
-export const ProviderChannels = {
-	getModels: 'provider:get-models',
-	getSpeechToTextModels: 'provider:get-speech-to-text-models',
-	getTextToSpeechModels: 'provider:get-text-to-speech-models',
-	getImageCreatorModels: 'provider:get-image-creator-models',
-	getTextToVideoModels: 'provider:get-text-to-video-models',
-	getTextToSoundModels: 'provider:get-text-to-sound-models',
-} as const;
-
 export const ProviderStoreChannels = {
 	get: 'provider-store:get',
 	set: 'provider-store:set',
@@ -64,6 +55,12 @@ export const AppChannels = {
 	getProviders: 'app:get-providers',
 	setProviderApiKey: 'app:set-provider-api-key',
 	isProviderApiKeySaved: 'app:is-provider-api-key-saved',
+	getModels: 'app:get-models',
+	getSpeechToTextModels: 'app:get-speech-to-text-models',
+	getTextToSpeechModels: 'app:get-text-to-speech-models',
+	getImageCreatorModels: 'app:get-image-creator-models',
+	getTextToVideoModels: 'app:get-text-to-video-models',
+	getTextToSoundModels: 'app:get-text-to-sound-models',
 	getAgentService: 'app:get-agent-service',
 	saveAgentService: 'app:save-agent-service',
 	getSpeechTranscriberService: 'app:get-speech-transcriber-service',
@@ -196,6 +193,30 @@ interface AppInvokeChannelMap {
 		args: [providerId: string];
 		result: boolean;
 	};
+	[AppChannels.getModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[AppChannels.getSpeechToTextModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[AppChannels.getTextToSpeechModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[AppChannels.getImageCreatorModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[AppChannels.getTextToVideoModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
+	[AppChannels.getTextToSoundModels]: {
+		args: [provider: import('../providers').PublicProvider];
+		result: import('../agents/service').Model[];
+	};
 	[AppChannels.getAgentService]: {
 		args: [];
 		result: import('../agents/service').ModelSelection | undefined;
@@ -261,30 +282,6 @@ interface AppInvokeChannelMap {
 			model: import('../agents/service').Model,
 		];
 		result: boolean;
-	};
-	[ProviderChannels.getModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[ProviderChannels.getSpeechToTextModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[ProviderChannels.getTextToSpeechModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[ProviderChannels.getImageCreatorModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[ProviderChannels.getTextToVideoModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
-	};
-	[ProviderChannels.getTextToSoundModels]: {
-		args: [provider: import('../providers').PublicProvider];
-		result: import('../agents/service').Model[];
 	};
 	[RealtimeTranscriptionChannels.start]: {
 		args: [request?: import('../realtime-transcription').RealtimeTranscriptionStartRequest];
