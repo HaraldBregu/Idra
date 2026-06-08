@@ -1,10 +1,11 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { app } from 'electron';
+import { AgentWorkspace } from './core/workspace';
 
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 
-export class Workspace {
+export class Workspace extends AgentWorkspace {
 	private readonly workspacePath: string;
 
 	constructor(workspacePath = resolveAppDataPath()) {
@@ -12,6 +13,10 @@ export class Workspace {
 	}
 
 	getWorkspacePath(): string {
+		return this.workspacePath;
+	}
+
+	getPath(): string {
 		return this.workspacePath;
 	}
 
