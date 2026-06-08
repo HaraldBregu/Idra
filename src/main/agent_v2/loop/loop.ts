@@ -45,7 +45,7 @@ async function* runModelTurn(
 
 		try {
 			for await (const event of modelPort.stream({
-				provider: input.provider,
+				provider,
 				model,
 				system,
 				messages,
