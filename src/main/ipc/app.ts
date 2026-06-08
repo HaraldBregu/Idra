@@ -12,13 +12,8 @@ import type {
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
 } from '../../shared/app-permissions';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
-import {
-	getDefaultAgentModels,
-	hasDefaultAgentModels,
-} from '../../shared/agents/models';
 import { wrapSimpleHandler } from './core/error-handler';
-import { AppChannels, ProviderChannels } from '../../shared/ipc-channels';
+import { AppChannels } from '../../shared/ipc-channels';
 import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
