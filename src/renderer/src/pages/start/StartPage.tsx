@@ -224,18 +224,18 @@ function getStoredProviderValue(
 
 function getPublicProvidersFromStore(storedProviders: ProviderRecord): PublicProvider[] {
 	return Object.entries(storedProviders).flatMap(([id, provider]) => {
-			const apiKey = provider.apiKey.trim();
-			if (!apiKey) return [];
-			const catalog = getDefaultProvider(id);
-			const publicProvider: PublicProvider = {
-				id,
-				name: provider.name || catalog?.name || id,
-				baseUrl: provider.baseUrl || catalog?.baseUrl || '',
-				...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
-				...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
-			};
-			return [publicProvider];
-		});
+		const apiKey = provider.apiKey.trim();
+		if (!apiKey) return [];
+		const catalog = getDefaultProvider(id);
+		const publicProvider: PublicProvider = {
+			id,
+			name: provider.name || catalog?.name || id,
+			baseUrl: provider.baseUrl || catalog?.baseUrl || '',
+			...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
+			...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
+		};
+		return [publicProvider];
+	});
 }
 
 function getAgentModelValue(providerId: string, modelId: string): string {
