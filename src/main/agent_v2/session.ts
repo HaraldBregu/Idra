@@ -1,12 +1,6 @@
 import { composeMessages } from './shared/messages';
 import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from './types';
 
-/**
- * Mutable state accumulated while a runtime loop is active.
- *
- * The loop updates this object after every model turn and tool-use turn so final
- * result creation can stay centralized and consistent.
- */
 export interface RuntimeSession {
 	id: string;
 	messages: RuntimeMessage[];
