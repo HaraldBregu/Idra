@@ -191,23 +191,14 @@ const win: WindowApi = {
 	minimize: (): void => {
 		typedSend(WindowChannels.minimize);
 	},
-	maximize: (): void => {
-		typedSend(WindowChannels.maximize);
-	},
 	close: (): void => {
 		typedSend(WindowChannels.close);
 	},
 	popupMenu: (): void => {
 		typedSend(WindowChannels.popupMenu);
 	},
-	isMaximized: (): Promise<boolean> => {
-		return typedInvokeUnwrap(WindowChannels.isMaximized);
-	},
 	isFullScreen: (): Promise<boolean> => {
 		return typedInvokeUnwrap(WindowChannels.isFullScreen);
-	},
-	onMaximizeChange: (callback: (isMaximized: boolean) => void): (() => void) => {
-		return typedOn(WindowChannels.maximizeChange, callback);
 	},
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void): (() => void) => {
 		return typedOn(WindowChannels.fullScreenChange, callback);
