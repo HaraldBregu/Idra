@@ -11,6 +11,7 @@ import type {
 } from './types';
 import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings';
+import { SessionHistory } from '../session/history';
 import { SystemPrompt } from '../system/prompt';
 import { Workspace } from '../workspace';
 import { parseToolArgs } from './args';
@@ -96,7 +97,8 @@ export class AgentRuntime {
 		workspace = new Workspace(),
 		private readonly settings = new Settings(workspace),
 		private readonly model: RuntimeModel = new AgentModel(),
-		private readonly systemPrompt = new SystemPrompt(workspace)
+		private readonly systemPrompt = new SystemPrompt(workspace),
+		private readonly history = new SessionHistory(workspace)
 	) {}
 
 	run(input: RuntimeInput): RuntimeRun {
@@ -143,6 +145,10 @@ export class AgentRuntime {
 		getStopReason: () => string
 	): AsyncGenerator<RuntimeEvent> {
 		const session = new RuntimeSession(input);
+		await this.history.append(session.id, {
+			type: 'user_message',
+			data: { task: input.task, message: input.message, model: input.model },
+		});
 		const system = input.system ?? (await this.systemPrompt.build());
 
 		yield {
@@ -160,6 +166,10 @@ export class AgentRuntime {
 
 			const turn = yield* runModelTurn(this.model, input, provider, system, session.messages, signal, isStopped);
 			if (turn === null) {
+				await this.history.append(session.id, {
+					type: 'run_stopped',
+					data: { reason: getStopReason() },
+				});
 				yield { type: 'run_stopped', reason: getStopReason() };
 				return;
 			}
@@ -171,24 +181,37 @@ export class AgentRuntime {
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
+			await this.history.append(session.id, {
+				type: 'assistant_message',
+				data: { content: turn.content, toolCalls: turn.toolCalls },
+			});
 			session.addAssistantMessage(turn.content, turn.toolCalls);
 
 			if (turn.toolCalls.length === 0) {
-				yield { type: 'run_finished', result: session.toResult('success') };
+				const result = session.toResult('success');
+				await this.history.append(session.id, { type: 'run_finished', data: result });
+				yield { type: 'run_finished', result };
 				return;
 			}
 
 			if (session.isExhausted) {
-				yield { type: 'run_finished', result: session.toResult('error_max_turns') };
+				const result = session.toResult('error_max_turns');
+				await this.history.append(session.id, { type: 'run_finished', data: result });
+				yield { type: 'run_finished', result };
 				return;
 			}
 
 			const results = yield* runToolCalls(input.tools ?? [], turn.toolCalls, isStopped);
 			if (results === null) {
+				await this.history.append(session.id, {
+					type: 'run_stopped',
+					data: { reason: getStopReason() },
+				});
 				yield { type: 'run_stopped', reason: getStopReason() };
 				return;
 			}
 			session.addToolResults(turn.toolCalls, results);
+			await this.history.append(session.id, { type: 'tool_results', data: results });
 			yield { type: 'user_message', messages: results };
 		}
 	}
