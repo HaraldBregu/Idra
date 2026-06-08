@@ -301,7 +301,6 @@ export class AppIpc implements IpcModule {
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 			const logger = container.get('logger');
-			const store = container.get('store');
 			const appPermissions = container.get('appPermissions');
 
 		// Open application data folder in system file explorer
