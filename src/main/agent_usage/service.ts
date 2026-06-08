@@ -26,15 +26,13 @@ export class AgentV2Service {
 	private readonly history: SessionHistory;
 	private readonly runtime: AgentRuntime;
 
-	constructor(defaultAgentId = 'main') {
+	constructor(store: StoreService, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
 		const location = resolveLocation();
-		
-		this.workspace = new Workspace(location);
-		this.settings = new Settings(location);
-		this.history = new SessionHistory(location);
 
-		console.log({settings: this.settings.getProvider()})
+		this.workspace = new Workspace(location);
+		this.settings = new Settings(store);
+		this.history = new SessionHistory(location);
 
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 	}
