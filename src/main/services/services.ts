@@ -1,5 +1,5 @@
 import type { ChannelRegistry, ChannelsService } from '../channels';
-import type { AgentV2Service } from '../agent_v2';
+import type { AgentV2Service } from '../agent_usage/service';
 import type { AppPermissionsService } from '../app/permissions';
 import type { ConnectorsService } from '../connectors';
 import type { CronService } from '../cron';
