@@ -1,6 +1,7 @@
+import { createAgentContainer, WORKSPACE } from '../../../src/main/agent_v2';
+
 export interface SystemPromptCtx {
 	date: string;
-	workspace: string;
 }
 
 export const ACCEPTANCE_CONTRACT = [
@@ -12,8 +13,9 @@ export const ACCEPTANCE_CONTRACT = [
 ].join('\n');
 
 export async function buildSystemPrompt(ctx: SystemPromptCtx): Promise<string> {
+	const workspace = createAgentContainer().resolve(WORKSPACE);
 	const parts: string[] = [
-		`You are a personal AI assistant. Today is ${ctx.date}. Your workspace is \`${ctx.workspace}\`.`,
+		`You are a personal AI assistant. Today is ${ctx.date}. Your workspace is \`${workspace.getWorkspacePath()}\`.`,
 		[
 			'## Workspace contract',
 			'- Read a file in the same run before editing, overwriting, or moving it; previous conversation reads do not satisfy file mutation guards.',
