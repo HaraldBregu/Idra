@@ -1402,8 +1402,7 @@ const StartPage: React.FC = () => {
 									Connect a speech-to-text capable provider to enable live transcription.
 								</SettingsNotice>
 							) : null}
-						</>
-						,
+						</>,
 						true
 					)}
 
@@ -1432,8 +1431,7 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleTextToSpeechProviderChange,
 								onModelChange: handleTextToSpeechModelChange,
 							})}
-						</>
-						,
+						</>,
 						true
 					)}
 
@@ -1462,8 +1460,7 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleImageCreatorProviderChange,
 								onModelChange: handleImageCreatorModelChange,
 							})}
-						</>
-						,
+						</>,
 						true
 					)}
 
@@ -1492,8 +1489,7 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleTextToVideoProviderChange,
 								onModelChange: handleTextToVideoModelChange,
 							})}
-						</>
-						,
+						</>,
 						true
 					)}
 
@@ -1522,8 +1518,7 @@ const StartPage: React.FC = () => {
 								onProviderChange: handleMusicCreatorProviderChange,
 								onModelChange: handleMusicCreatorModelChange,
 							})}
-						</>
-						,
+						</>,
 						true
 					)}
 
@@ -1547,8 +1542,7 @@ const StartPage: React.FC = () => {
 								OCR provider and model setup will appear here when document reading uses provider
 								models.
 							</SettingsNotice>
-						</>
-						,
+						</>,
 						true
 					)}
 
@@ -1560,8 +1554,7 @@ const StartPage: React.FC = () => {
 								Embedding provider and model setup will appear here when semantic indexing is
 								implemented.
 							</SettingsNotice>
-						</>
-						,
+						</>,
 						true
 					)}
 				</div>
