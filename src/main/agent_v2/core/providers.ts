@@ -8,7 +8,7 @@ import { MODEL, SETTINGS, SYSTEM_PROMPT, WORKSPACE } from './tokens';
 export function createAgentContainer(): Container {
 	const container = new Container();
 
-	container.register(WORKSPACE, { useClass: Workspace, singleton: true });
+	container.register(WORKSPACE, { useFactory: () => new Workspace(), singleton: true });
 	container.register(SETTINGS, {
 		useFactory: (dependencies) => new Settings(dependencies.resolve(WORKSPACE)),
 		singleton: true,
