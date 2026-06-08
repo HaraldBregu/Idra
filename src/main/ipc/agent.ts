@@ -4,10 +4,7 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
-import {
-	isModelReasoningEffort,
-	type AgentSendRuntimeOptions,
-} from '../../shared/agents/service';
+import type { AgentSendRuntimeOptions } from '../../shared/agents/service';
 import type { AgentSendOptions } from '../agent_v2';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
