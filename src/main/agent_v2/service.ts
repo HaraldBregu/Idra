@@ -1,6 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import type { AgentSessionMetadata } from '../../shared/store';
-import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { AgentRuntime } from './loop/loop';
