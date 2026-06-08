@@ -32,11 +32,6 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
 
-	const effort = options.effort;
-	if (effort !== undefined && !isModelReasoningEffort(effort)) {
-		throw new Error('Invalid assistant reasoning effort.');
-	}
-
 	const sessionId =
 		optionalTrimmedString(options.sessionId) ?? optionalTrimmedString(options.agentRuntime);
 	return {
@@ -46,16 +41,6 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 			? { providerId: optionalTrimmedString(options.providerId) }
 			: {}),
 		...(optionalTrimmedString(options.model) ? { model: optionalTrimmedString(options.model) } : {}),
-		...(effort ? { effort } : {}),
-		...(typeof options.lightContext === 'boolean'
-			? { lightContext: options.lightContext }
-			: {}),
-		...(optionalStringList(options.toolsAllow)
-			? { toolsAllow: optionalStringList(options.toolsAllow) }
-			: {}),
-		...(optionalStringList(options.toolsDeny)
-			? { toolsDeny: optionalStringList(options.toolsDeny) }
-			: {}),
 	};
 }
 
