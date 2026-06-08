@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { History, HistoryEntry } from '../core/history';
-import { Workspace } from '../workspace';
+import { History, HistoryEntry } from './core/history';
+import { Workspace } from './workspace';
 
 export class SessionHistory extends History {
 	private readonly historyPath: string;

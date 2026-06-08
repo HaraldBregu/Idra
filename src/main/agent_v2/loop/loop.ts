@@ -11,7 +11,7 @@ import type {
 } from './types';
 import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings';
-import { SessionHistory } from '../session/history';
+import { SessionHistory } from '../history';
 import { SystemPrompt } from '../system/prompt';
 import { Workspace } from '../workspace';
 import { parseToolArgs } from './args';
