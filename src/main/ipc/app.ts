@@ -5,14 +5,6 @@ import { app, ipcMain, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import {
-	getSpeechToTextModels,
-	getImageCreatorModelsForProvider,
-	getMusicCreatorModels,
-	getTextToSpeechModels,
-	getTextToVideoModels,
-	type Model,
-} from '../../shared/agents/service';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
