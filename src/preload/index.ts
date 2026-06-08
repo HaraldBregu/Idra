@@ -21,7 +21,6 @@ import type {
 	CronApi,
 	HeartbeatApi,
 	RealtimeTranscriptionApi,
-	SpeechToTextApi,
 	SkillsApi,
 	StoreApi,
 	WindowApi,
