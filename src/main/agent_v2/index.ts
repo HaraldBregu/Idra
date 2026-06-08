@@ -4,4 +4,4 @@ export { Workspace as AgentWorkspace } from './core/workspace';
 export type { HistoryEntry } from './core/history';
 
 export { AgentRuntime } from './loop/loop';
-export { RuntimeEvent, RuntimeRun } from './loop/types';
+export type { RuntimeEvent, RuntimeRun } from './loop/types';
