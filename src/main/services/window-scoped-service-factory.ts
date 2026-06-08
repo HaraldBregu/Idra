@@ -44,11 +44,11 @@ export interface WindowScopedServiceDefinition<
  *   // Register services
  *   factory.register({
  *     key: 'example',
- *     factory: ({ storeService, eventBus }) => new ExampleService(storeService, eventBus)
+ *     factory: ({ eventBus }) => new ExampleService(eventBus)
  *   })
  *
  *   // Create all services for a window
- *   await factory.createAndRegisterAll(container, { globalContainer, eventBus, storeService })
+ *   await factory.createAndRegisterAll(container, { globalContainer, eventBus })
  */
 export class WindowScopedServiceFactory<TGlobalServices extends object = Record<string, unknown>> {
 	private definitions: Map<string, WindowScopedServiceDefinition<TGlobalServices>> = new Map();
