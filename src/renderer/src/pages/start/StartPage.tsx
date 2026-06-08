@@ -22,11 +22,15 @@ import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
-	type Provider,
+	type Provider as CatalogProvider,
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '../../../../shared/agents';
 import type { Model, ModelSelection } from '../../../../shared/agents/service';
+import type {
+	Provider as StoredProvider,
+	ProviderRecord,
+} from '../../../../shared/provider-store';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -163,7 +167,7 @@ const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 	},
 ];
 
-function normalizeProvider(provider: Provider, index: number): ProviderOption {
+function normalizeProvider(provider: CatalogProvider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
 	return { label, value };
@@ -199,6 +203,40 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 			supported: supportedProviderIds.has(providerId),
 		}
 	);
+}
+
+function getDefaultProvider(providerId: string): CatalogProvider | undefined {
+	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+}
+
+function getStoredProviderValue(
+	providerId: string,
+	apiKey: string,
+	current?: StoredProvider
+): StoredProvider {
+	const catalog = getDefaultProvider(providerId);
+	return {
+		name: current?.name || catalog?.name || providerId,
+		apiKey,
+		baseUrl: current?.baseUrl || catalog?.baseUrl || '',
+	};
+}
+
+function getPublicProvidersFromStore(storedProviders: ProviderRecord): PublicProvider[] {
+	return Object.entries(storedProviders)
+		.map(([id, provider]) => {
+			const apiKey = provider.apiKey.trim();
+			if (!apiKey) return undefined;
+			const catalog = getDefaultProvider(id);
+			return {
+				id,
+				name: provider.name || catalog?.name || id,
+				baseUrl: provider.baseUrl || catalog?.baseUrl || '',
+				capabilities: catalog?.capabilities,
+				apiConfiguration: catalog?.apiConfiguration,
+			} satisfies PublicProvider;
+		})
+		.filter((provider): provider is PublicProvider => provider !== undefined);
 }
 
 function getAgentModelValue(providerId: string, modelId: string): string {
@@ -379,16 +417,16 @@ const StartPage: React.FC = () => {
 
 		async function loadApiKeyStatus(): Promise<void> {
 			try {
-				const savedEntries = await Promise.all(
-					actionableProviderCatalog.map(async (provider) => {
-						const saved = await window.app.isProviderApiKeySaved(provider.id);
-						return [provider.id, saved] as const;
-					})
-				);
+				const storedProviders = await window.providerStore.list();
 				if (cancelled) return;
 
-				const savedByProviderId = new Map(savedEntries);
-				const hasSavedProvider = savedEntries.some(([, saved]) => saved);
+				const savedByProviderId = new Map(
+					Object.entries(storedProviders).map(([providerId, provider]) => [
+						providerId,
+						provider.apiKey.trim().length > 0,
+					])
+				);
+				const hasSavedProvider = [...savedByProviderId.values()].some(Boolean);
 				setProviderEntries((entries) =>
 					actionableProviderCatalog.map((provider, index) => {
 						const current = entries.find((entry) => entry.providerId === provider.id);
@@ -436,7 +474,7 @@ const StartPage: React.FC = () => {
 					textToVideoService,
 					textToSoundService,
 				] = await Promise.all([
-					window.app.getProviders(),
+					window.providerStore.list(),
 					window.app.getAgentService(),
 					window.app.getSpeechTranscriberService(),
 					window.app.getTextToSpeechService(),
@@ -446,7 +484,7 @@ const StartPage: React.FC = () => {
 				]);
 				if (cancelled) return;
 
-				const selectableProviders = storedProviders.filter((provider) =>
+				const selectableProviders = getPublicProvidersFromStore(storedProviders).filter((provider) =>
 					supportedProviderIds.has(provider.id)
 				);
 				const preferredProvider =
@@ -740,7 +778,11 @@ const StartPage: React.FC = () => {
 		setSavingProviderId(providerId);
 		setErrorMessage('');
 		try {
-			await window.app.setProviderApiKey(providerId, apiKey);
+			const current = await window.providerStore.get(providerId);
+			await window.providerStore.set(
+				providerId,
+				getStoredProviderValue(providerId, apiKey, current)
+			);
 			updateProviderEntry(providerId, {
 				apiKey: '',
 				apiKeySaved: true,
@@ -764,7 +806,11 @@ const StartPage: React.FC = () => {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 
 			for (const entry of entriesToSave) {
-				await window.app.setProviderApiKey(entry.providerId, entry.apiKey.trim());
+				const current = await window.providerStore.get(entry.providerId);
+				await window.providerStore.set(
+					entry.providerId,
+					getStoredProviderValue(entry.providerId, entry.apiKey.trim(), current)
+				);
 			}
 
 			if (entriesToSave.length > 0) {
