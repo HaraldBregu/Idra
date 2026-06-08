@@ -44,7 +44,7 @@ async function* runModelTurn(
 			for await (const event of modelPort.stream({
 				provider: input.provider,
 				model,
-				system: input.system,
+				system,
 				messages,
 				tools: input.tools ?? [],
 				maxTokens: input.maxTokens ?? 4096,
