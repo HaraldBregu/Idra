@@ -24,7 +24,7 @@ export interface WindowScopedServiceDefinition<
 
 	/**
 	 * Factory function to create the service instance
-	 * Has access to global container, event bus, store service, and the
+	 * Has access to global container, event bus, and the
 	 * in-progress window container for resolving prior services.
 	 */
 	factory: (context: WindowScopedFactoryContext<TGlobalServices>) => Promise<unknown> | unknown;
