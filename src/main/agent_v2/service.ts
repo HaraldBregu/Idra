@@ -3,6 +3,8 @@ import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { AgentRuntime } from './loop/loop';
 import { RuntimeEvent, RuntimeRun } from './loop/types';
+import { Settings } from './settings';
+import { Workspace } from './workspace';
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -13,12 +15,17 @@ export interface AgentSendOptions {
 }
 
 export class AgentV2Service {
-	private readonly runtime = new AgentRuntime();
+	private readonly runtime: AgentRuntime;
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
 
-	constructor(defaultAgentId = 'main') {
+	constructor(
+		defaultAgentId = 'main',
+		workspace = new Workspace(),
+		settings = new Settings(workspace)
+	) {
 		this.defaultAgentId = defaultAgentId;
+		this.runtime = new AgentRuntime(workspace, settings);
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
