@@ -16,19 +16,17 @@ export interface AgentSendOptions {
 }
 
 export class AgentV2Service {
-	private readonly runtime: AgentRuntime;
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
 
-	constructor(
-		defaultAgentId = 'main',
-		workspace = new Workspace(),
-		settings = new Settings(),
-		history = new SessionHistory()
-	) {
+	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
-		this.runtime = new AgentRuntime(workspace, settings, history);
 	}
+
+	private readonly workspace = new Workspace();
+	private readonly settings = new Settings();
+	private readonly history = new SessionHistory();
+	private readonly runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
