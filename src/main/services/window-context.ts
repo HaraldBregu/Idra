@@ -72,13 +72,10 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 		serviceFactory: WindowScopedServiceFactory<TGlobalServices>
 	): Promise<void> {
 		try {
-			const storeService = globalContainer.getUnknown('store') as StoreService;
-
 			// Use factory to create and register remaining services
 			await serviceFactory.createAndRegisterAll(this.container, {
 				globalContainer,
 				eventBus: this.eventBus,
-				storeService,
 			});
 
 			this.logger?.info('WindowContext', `Initialized all services for window ${this.windowId}`);
