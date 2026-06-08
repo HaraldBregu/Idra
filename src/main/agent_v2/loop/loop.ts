@@ -10,7 +10,7 @@ import type {
 	RuntimeToolCall,
 } from './types';
 import { RuntimeSession } from '../session/session';
-import { Settings } from '../settings/settings';
+import { Settings } from '../settings';
 import { SystemPrompt } from '../system/prompt';
 import { Workspace } from '../workspace';
 import { parseToolArgs } from './args';
