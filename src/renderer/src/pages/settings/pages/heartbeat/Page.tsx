@@ -220,7 +220,7 @@ const HeartbeatPage: React.FC = () => {
 					window.heartbeat.status(),
 					window.heartbeat.getTiming(),
 					window.heartbeat.settings(),
-					window.store.getProviders(),
+					window.app.getProviders(),
 				]);
 				applyStatus(nextStatus);
 				applyTiming(nextTiming);
@@ -243,7 +243,7 @@ const HeartbeatPage: React.FC = () => {
 					window.heartbeat.status(),
 					window.heartbeat.getTiming(),
 					window.heartbeat.settings(),
-					window.store.getProviders(),
+					window.app.getProviders(),
 				]);
 				if (!mounted) return;
 				applyStatus(nextStatus);

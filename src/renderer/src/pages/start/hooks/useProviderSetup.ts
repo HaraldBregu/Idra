@@ -21,7 +21,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 			try {
 				const savedEntries = await Promise.all(
 					actionableProviderCatalog.map(async (provider) => {
-						const saved = await window.store.isProviderApiKeySaved(provider.id);
+						const saved = await window.app.isProviderApiKeySaved(provider.id);
 						return [provider.id, saved] as const;
 					})
 				);
@@ -66,7 +66,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		dispatch({ type: 'SET_SAVING_PROVIDER', providerId });
 		dispatch({ type: 'CLEAR_ERROR' });
 		try {
-			await window.store.setProviderApiKey(providerId, apiKey);
+			await window.app.setProviderApiKey(providerId, apiKey);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 			return true;
 		} catch (error) {
@@ -92,7 +92,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		try {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 			for (const entry of entriesToSave) {
-				await window.store.setProviderApiKey(entry.providerId, entry.apiKey.trim());
+				await window.app.setProviderApiKey(entry.providerId, entry.apiKey.trim());
 			}
 			if (entriesToSave.length > 0) {
 				dispatch({

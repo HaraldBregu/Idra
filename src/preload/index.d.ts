@@ -69,24 +69,6 @@ export interface ProviderStoreApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
-export interface StoreApi {
-	getProviders: () => Promise<PublicProvider[]>;
-	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
-	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
-	getAgentService: () => Promise<ModelSelection | undefined>;
-	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
-	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSpeechService: () => Promise<ModelSelection | undefined>;
-	saveTextToSpeechService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getImageCreatorService: () => Promise<ModelSelection | undefined>;
-	saveImageCreatorService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToVideoService: () => Promise<ModelSelection | undefined>;
-	saveTextToVideoService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSoundService: () => Promise<ModelSelection | undefined>;
-	saveTextToSoundService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-}
-
 import type { PublicProvider } from '../shared/providers';
 import type { Provider, ProviderRecord } from '../shared/provider-store';
 import type {
@@ -194,6 +176,5 @@ declare global {
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
 		providerStore: ProviderStoreApi;
-		store: StoreApi;
 	}
 }

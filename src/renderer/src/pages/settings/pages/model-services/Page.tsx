@@ -117,7 +117,7 @@ const ModelServicePage: React.FC = () => {
 
 			try {
 				const [storedProviders, selection] = await Promise.all([
-					window.store.getProviders(),
+					window.app.getProviders(),
 					activeService.getSelection(),
 				]);
 				if (!mounted) return;

@@ -8,6 +8,5 @@ export type {
 	ConnectorsApi,
 	SkillsApi,
 	ProviderStoreApi,
-	StoreApi,
 	RealtimeTranscriptionApi,
 } from './index.d';

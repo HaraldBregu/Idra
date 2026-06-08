@@ -12,7 +12,6 @@ import {
 	CronChannels,
 	HeartbeatChannels,
 	SkillsChannels,
-	StoreChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
@@ -24,7 +23,6 @@ import type {
 	RealtimeTranscriptionApi,
 	ProviderStoreApi,
 	SkillsApi,
-	StoreApi,
 	WindowApi,
 } from './types';
 import type { PublicProvider } from '../shared/providers';
@@ -434,54 +432,6 @@ export const providerStore: ProviderStoreApi = {
 	},
 };
 
-export const store: StoreApi = {
-	getProviders: (): Promise<PublicProvider[]> => {
-		return typedInvokeUnwrap(StoreChannels.getProviders);
-	},
-	setProviderApiKey: (providerId: string, apiKey: string): Promise<void> => {
-		return typedInvokeUnwrap(StoreChannels.setProviderApiKey, providerId, apiKey);
-	},
-	isProviderApiKeySaved: (providerId: string): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.isProviderApiKeySaved, providerId);
-	},
-	getAgentService: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAgentService);
-	},
-	saveAgentService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveAgentService, provider, model);
-	},
-	getSpeechTranscriberService: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechTranscriberService);
-	},
-	saveSpeechTranscriberService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveSpeechTranscriberService, provider, model);
-	},
-	getTextToSpeechService: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechService);
-	},
-	saveTextToSpeechService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToSpeechService, provider, model);
-	},
-	getImageCreatorService: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorService);
-	},
-	saveImageCreatorService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveImageCreatorService, provider, model);
-	},
-	getTextToVideoService: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoService);
-	},
-	saveTextToVideoService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToVideoService, provider, model);
-	},
-	getTextToSoundService: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSoundService);
-	},
-	saveTextToSoundService: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(StoreChannels.saveTextToSoundService, provider, model);
-	},
-};
-
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
@@ -538,7 +488,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('providerStore', providerStore);
-		contextBridge.exposeInMainWorld('store', store);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -563,6 +512,4 @@ if (process.contextIsolated) {
 	globalThis.skills = skills;
 	// @ts-ignore (define in dts)
 	globalThis.providerStore = providerStore;
-	// @ts-ignore (define in dts)
-	globalThis.store = store;
 }
