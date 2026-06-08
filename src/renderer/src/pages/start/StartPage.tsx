@@ -562,7 +562,6 @@ const StartPage: React.FC = () => {
 				const nextImageCreatorGroups: ProviderModelGroup[] = [];
 				const nextTextToVideoGroups: ProviderModelGroup[] = [];
 				const nextMusicCreatorGroups: ProviderModelGroup[] = [];
-				let firstError: unknown;
 
 				for (const provider of providers) {
 					const agentModels = getLlmModels(provider.id);
@@ -640,9 +639,6 @@ const StartPage: React.FC = () => {
 				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
 				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
 
-				if (!preferredAgentOption && firstError) {
-					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
-				}
 			} catch (error) {
 				if (cancelled) return;
 				setAgentModelGroups([]);
