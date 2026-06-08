@@ -3,6 +3,7 @@ import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
 import {
 	WindowChannels,
 	AgentChannels,
+	AgentStoreChannels,
 	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
@@ -14,6 +15,7 @@ import {
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
+	AgentStoreApi,
 	AgentApi,
 	ChannelsApi,
 	ConnectorsApi,
@@ -428,6 +430,15 @@ export const providerStore: ProviderStoreApi = {
 	},
 };
 
+export const agentStore: AgentStoreApi = {
+	get: (): Promise<ModelSelection | undefined> => {
+		return typedInvokeUnwrap(AgentStoreChannels.get);
+	},
+	set: (provider: PublicProvider, model: Model): Promise<boolean> => {
+		return typedInvokeUnwrap(AgentStoreChannels.set, provider, model);
+	},
+};
+
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
@@ -475,6 +486,7 @@ export const connectors: ConnectorsApi = {
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
+		contextBridge.exposeInMainWorld('agentStore', agentStore);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
@@ -490,6 +502,8 @@ if (process.contextIsolated) {
 } else {
 	// @ts-ignore (define in dts)
 	globalThis.app = app;
+	// @ts-ignore (define in dts)
+	globalThis.agentStore = agentStore;
 	// @ts-ignore (define in dts)
 	globalThis.win = win;
 	// @ts-ignore (define in dts)
