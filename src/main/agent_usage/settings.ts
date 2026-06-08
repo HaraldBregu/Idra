@@ -1,39 +1,51 @@
+import path from 'node:path';
+import Store from 'electron-store';
 import { AgentSettings } from '../agent_v2';
 import { SettingsProvider } from '../agent_v2/core/settings';
-import type { StoreService } from '../store';
+
+type SettingsSchema = {
+	provider?: SettingsProvider;
+	model?: string;
+};
 
 /**
- * Adapter that exposes the agent's configured provider/model to agent_v2.
- *
- * The selection and provider credentials live in the shared StoreService
- * (`llmAgent` settings + the provider list). This class reads from there so the
- * runtime sees the same configuration the user set in the UI, instead of an
- * empty standalone store.
+ * Agent-owned settings store. Persists the configured provider/model in its own
+ * electron-store file (under the agent data folder) independent of the shared
+ * app StoreService.
  */
 export class Settings extends AgentSettings {
-	constructor(private readonly store: StoreService) {
+	private readonly store: Store<SettingsSchema>;
+
+	constructor(location: string) {
 		super();
+		this.store = new Store<SettingsSchema>({
+			name: 'settings',
+			cwd: path.resolve(location),
+			accessPropertiesByDotNotation: false,
+		});
 	}
 
 	getProvider(): SettingsProvider | undefined {
-		const providerId = this.store.getAssistantSettings()?.providerId;
-		if (!providerId) return undefined;
+		return this.store.get('provider');
+	}
 
-		const provider = this.store.getProviderById(providerId);
-		if (!provider?.apiKey) return undefined;
+	setProvider(provider: SettingsProvider): void {
+		this.store.set('provider', provider);
+	}
 
-		return {
-			id: provider.id,
-			apiKey: provider.apiKey,
-			baseURL: provider.baseUrl,
-		};
+	getModel(): string | undefined {
+		return this.store.get('model');
+	}
+
+	setModel(model: string): void {
+		this.store.set('model', model);
 	}
 
 	getProviderId(): string | undefined {
-		return this.store.getAssistantSettings()?.providerId;
+		return this.getProvider()?.id;
 	}
 
 	getModelId(): string | undefined {
-		return this.store.getAssistantSettings()?.modelId;
+		return this.getModel();
 	}
 }
