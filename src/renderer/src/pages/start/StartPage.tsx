@@ -231,9 +231,9 @@ function getPublicProvidersFromStore(storedProviders: ProviderRecord): PublicPro
 				id,
 				name: provider.name || catalog?.name || id,
 				baseUrl: provider.baseUrl || catalog?.baseUrl || '',
+				...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
+				...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
 			};
-			if (catalog?.capabilities) publicProvider.capabilities = catalog.capabilities;
-			if (catalog?.apiConfiguration) publicProvider.apiConfiguration = catalog.apiConfiguration;
 			return [publicProvider];
 		});
 }
