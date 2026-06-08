@@ -1,8 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { HistoryEntry } from '../agent_v2';
+import { AgentHistory } from '../agent_v2';
+import type { HistoryEntry } from '../agent_v2';
  
-export class SessionHistory extends History {
+export class SessionHistory extends AgentHistory {
 	private readonly historyPath: string;
 
 	constructor(location: string) {
