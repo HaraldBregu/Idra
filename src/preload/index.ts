@@ -485,15 +485,6 @@ export const channels: ChannelsApi = {
 	getStatus: (type?: ChannelType): Promise<ChannelStatusEvent | undefined> => {
 		return typedInvokeUnwrap(ChannelsChannels.getStatus, type);
 	},
-	getTelegramConfig: (): Promise<TelegramChannelProperties> => {
-		return typedInvokeUnwrap(ChannelsChannels.getTelegramConfig);
-	},
-	saveTelegramConfig: (config: TelegramChannelProperties): Promise<TelegramChannelProperties> => {
-		return typedInvokeUnwrap(ChannelsChannels.saveTelegramConfig, config);
-	},
-	getTelegramStatus: (): Promise<ChannelStatusEvent | undefined> => {
-		return typedInvokeUnwrap(ChannelsChannels.getTelegramStatus);
-	},
 	startTelegram: (): Promise<ChannelStatusEvent | undefined> => {
 		return typedInvokeUnwrap(ChannelsChannels.startTelegram);
 	},
