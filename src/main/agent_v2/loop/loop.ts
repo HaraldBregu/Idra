@@ -30,6 +30,7 @@ interface ModelTurn {
 async function* runModelTurn(
 	modelPort: RuntimeModel,
 	input: RuntimeInput,
+	provider: RuntimeModelProvider,
 	system: string | undefined,
 	messages: RuntimeMessage[],
 	signal: AbortSignal,
