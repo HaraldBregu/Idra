@@ -23,7 +23,6 @@ export interface AgentSendOptions {
 
 export class AgentV2Service {
 	private readonly runtime = new AgentRuntime();
-	private readonly systemPrompt = new SystemPrompt();
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
 
