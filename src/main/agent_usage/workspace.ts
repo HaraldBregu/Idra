@@ -11,7 +11,9 @@ export class Workspace extends AgentWorkspace {
 	constructor(location: string, name = 'workspace') {
 		super();
 		this.workspacePath = path.resolve(location, name);
-		mkdirSync(this.workspacePath, { recursive: true });
+		if (!existsSync(this.workspacePath)) {
+			mkdirSync(this.workspacePath, { recursive: true });
+		}
 	}
 
 	getPath(): string {
