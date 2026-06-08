@@ -517,7 +517,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
-		contextBridge.exposeInMainWorld('speechToText', speechToText);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('channels', channels);
