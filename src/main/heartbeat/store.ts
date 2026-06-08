@@ -70,6 +70,12 @@ function normalizeSettings(value: unknown): HeartbeatSettings {
 	return next;
 }
 
+function normalizeLastHeartbeat(value: unknown): HeartbeatEventPayload | null {
+	if (!isRecord(value)) return null;
+	if (typeof value.timestamp !== 'number' || typeof value.status !== 'string') return null;
+	return clone(value) as unknown as HeartbeatEventPayload;
+}
+
 /**
  * Coerce arbitrary persisted/incoming data into a valid {@link HeartbeatPersistedState}.
  * Unknown or malformed fields fall back to defaults.
@@ -80,9 +86,7 @@ export function migrateHeartbeatState(raw: unknown): HeartbeatPersistedState {
 		version: HEARTBEAT_STORE_SCHEMA_VERSION,
 		enabled: raw.enabled === true,
 		settings: normalizeSettings(raw.settings),
-		lastHeartbeat: isRecord(raw.lastHeartbeat)
-			? (clone(raw.lastHeartbeat) as HeartbeatEventPayload)
-			: null,
+		lastHeartbeat: normalizeLastHeartbeat(raw.lastHeartbeat),
 	};
 }
 
