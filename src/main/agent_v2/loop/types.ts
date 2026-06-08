@@ -34,7 +34,8 @@ export interface RuntimeOutput {
 export interface RuntimeInput {
     task: string;
     message: string;
-    provider: RuntimeModelProvider;
+    provider?: RuntimeModelProvider;
+    providerId?: string;
     sessionId?: string;
     system?: string;
     messages?: RuntimeMessage[];
