@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { AgentWorkspace } from '../agent_v2';
 
@@ -12,10 +12,6 @@ export class Workspace extends AgentWorkspace {
 		super();
 		this.workspacePath = path.resolve(location, name);
 		mkdirSync(this.workspacePath, { recursive: true });
-	}
-
-	getWorkspacePath(): string {
-		return this.workspacePath;
 	}
 
 	getPath(): string {
