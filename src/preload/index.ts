@@ -405,9 +405,6 @@ export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
 	},
-	load: (name: string) => {
-		return typedInvokeUnwrap(SkillsChannels.load, name);
-	},
 	importSkill: () => {
 		return typedInvokeUnwrap(SkillsChannels.import);
 	},
