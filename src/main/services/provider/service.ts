@@ -19,7 +19,7 @@ export interface ProviderServiceOptions {
 	cwd?: string;
 }
 
-export class ProviderService {
+export class ProviderStoreService {
 	private readonly store: ProvidersStore;
 
 	constructor(options: ProviderServiceOptions = {}) {
