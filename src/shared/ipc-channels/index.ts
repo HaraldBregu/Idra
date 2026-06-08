@@ -26,6 +26,12 @@ export const ProviderChannels = {
 	getTextToSoundModels: 'provider:get-text-to-sound-models',
 } as const;
 
+export const ProviderStoreChannels = {
+	list: 'provider-store:list',
+	get: 'provider-store:get',
+	set: 'provider-store:set',
+} as const;
+
 export const RealtimeTranscriptionChannels = {
 	start: 'realtime-transcription:start',
 	appendAudio: 'realtime-transcription:append-audio',
@@ -246,6 +252,21 @@ interface SpeechToTextInvokeChannelMap {
 	[SpeechToTextChannels.cancelDictation]: {
 		args: [sessionId: string];
 		result: void;
+	};
+}
+
+interface ProviderStoreInvokeChannelMap {
+	[ProviderStoreChannels.list]: {
+		args: [];
+		result: import('../provider-store').ProviderRecord;
+	};
+	[ProviderStoreChannels.get]: {
+		args: [id: string];
+		result: import('../provider-store').Provider | undefined;
+	};
+	[ProviderStoreChannels.set]: {
+		args: [id: string, provider: import('../provider-store').Provider];
+		result: import('../provider-store').Provider;
 	};
 }
 
@@ -532,6 +553,7 @@ export interface InvokeChannelMap
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
 		SpeechToTextInvokeChannelMap,
+		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,

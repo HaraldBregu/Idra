@@ -63,6 +63,12 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
+export interface ProviderStoreApi {
+	list: () => Promise<ProviderRecord>;
+	get: (id: string) => Promise<Provider | undefined>;
+	set: (id: string, provider: Provider) => Promise<Provider>;
+}
+
 export interface StoreApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
@@ -82,6 +88,7 @@ export interface StoreApi {
 }
 
 import type { PublicProvider } from '../shared/providers';
+import type { Provider, ProviderRecord } from '../shared/provider-store';
 import type {
 	CronSchedule,
 	CronScheduleEvent,
@@ -186,6 +193,7 @@ declare global {
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
+		providerStore: ProviderStoreApi;
 		store: StoreApi;
 	}
 }

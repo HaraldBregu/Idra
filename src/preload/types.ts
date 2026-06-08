@@ -7,6 +7,7 @@ export type {
 	ChannelsApi,
 	ConnectorsApi,
 	SkillsApi,
+	ProviderStoreApi,
 	StoreApi,
 	RealtimeTranscriptionApi,
 } from './index.d';

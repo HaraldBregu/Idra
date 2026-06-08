@@ -1,14 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-
-export interface Provider {
-	name: string;
-	apiKey: string;
-	baseUrl: string;
-}
-
-export type ProviderRecord = Record<string, Provider>;
+import type { Provider, ProviderRecord } from '../../../shared/provider-store';
 
 type ProvidersStore = {
 	get store(): unknown;

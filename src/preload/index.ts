@@ -7,6 +7,7 @@ import {
 	ChannelsChannels,
 	ConnectorsChannels,
 	ProviderChannels,
+	ProviderStoreChannels,
 	RealtimeTranscriptionChannels,
 	CronChannels,
 	HeartbeatChannels,
@@ -21,6 +22,7 @@ import type {
 	CronApi,
 	HeartbeatApi,
 	RealtimeTranscriptionApi,
+	ProviderStoreApi,
 	SkillsApi,
 	StoreApi,
 	WindowApi,
@@ -53,6 +55,7 @@ import { isModelReasoningEffort } from '../shared/agents/service';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from '../shared/connectors';
+import type { Provider, ProviderRecord } from '../shared/provider-store';
 import {
 	isRealtimeTranscriptionAudioChunk,
 	isRealtimeTranscriptionSessionId,
@@ -419,6 +422,18 @@ export const skills: SkillsApi = {
 	},
 };
 
+export const providerStore: ProviderStoreApi = {
+	list: (): Promise<ProviderRecord> => {
+		return typedInvokeUnwrap(ProviderStoreChannels.list);
+	},
+	get: (id: string): Promise<Provider | undefined> => {
+		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
+	},
+	set: (id: string, provider: Provider): Promise<Provider> => {
+		return typedInvokeUnwrap(ProviderStoreChannels.set, id, provider);
+	},
+};
+
 export const store: StoreApi = {
 	getProviders: (): Promise<PublicProvider[]> => {
 		return typedInvokeUnwrap(StoreChannels.getProviders);
@@ -522,6 +537,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
+		contextBridge.exposeInMainWorld('providerStore', providerStore);
 		contextBridge.exposeInMainWorld('store', store);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
