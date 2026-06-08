@@ -21,8 +21,6 @@ export interface MainServices {
 	llm: LlmService;
 	logger: LoggerService;
 	skills: SkillsService;
-	speechToText: SpeechToTextService;
-	store: StoreService;
 	startupFiles: AgentStartupFilesService;
 	windowContextManager: WindowContextManager<MainServices>;
 	windowFactory: WindowFactory;
