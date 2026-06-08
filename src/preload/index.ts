@@ -53,12 +53,7 @@ import type {
 	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
 import { isModelReasoningEffort } from '../shared/agents/service';
-import type {
-	Channel,
-	ChannelStatusEvent,
-	ChannelType,
-	TelegramChannelProperties,
-} from '../shared/channels';
+import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from '../shared/connectors';
 import {
