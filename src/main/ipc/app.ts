@@ -15,6 +15,21 @@ import type {
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc-channels';
 import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
+import {
+	DEFAULT_PROVIDERS,
+	type PublicProvider,
+	type Provider as CatalogProvider,
+} from '../../shared/providers';
+import {
+	getImageCreatorModels,
+	getLlmModels,
+	getMusicModels,
+	getSpeechToTextModels,
+	getTextToSpeechModels,
+	getTextToVideoModels,
+	type Model,
+} from '../../shared/agents/service';
+import type { Provider as StoredProvider } from '../../shared/provider-store';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
@@ -294,14 +309,45 @@ function readStringArray(value: unknown): string[] | undefined {
 	return value.map((entry) => entry.trim()).filter(Boolean);
 }
 
+function getDefaultProvider(providerId: string): CatalogProvider | undefined {
+	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+}
+
+function getStoredProviderValue(
+	providerId: string,
+	apiKey: string,
+	current?: StoredProvider
+): StoredProvider {
+	const catalog = getDefaultProvider(providerId);
+	return {
+		name: current?.name || catalog?.name || providerId,
+		apiKey,
+		baseUrl: current?.baseUrl || catalog?.baseUrl || '',
+	};
+}
+
+function toPublicProvider(id: string, provider: StoredProvider): PublicProvider | undefined {
+	if (!provider.apiKey.trim()) return undefined;
+	const catalog = getDefaultProvider(id);
+	return {
+		id,
+		name: provider.name || catalog?.name || id,
+		baseUrl: provider.baseUrl || catalog?.baseUrl || '',
+		...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
+		...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
+	};
+}
+
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
 	private trayEnabled = true;
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
-			const logger = container.get('logger');
-			const appPermissions = container.get('appPermissions');
+		const logger = container.get('logger');
+		const appPermissions = container.get('appPermissions');
+		const providerStore = container.get('providerStore');
+		const modelSelections = container.get('modelSelections');
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(
@@ -406,6 +452,160 @@ export class AppIpc implements IpcModule {
 				}
 				return cameraSettings(enabled);
 			}, AppChannels.requestCameraPermission)
+		);
+
+		ipcMain.handle(
+			AppChannels.setProviderApiKey,
+			wrapSimpleHandler(async (providerId: string, apiKey: string) => {
+				const current = providerStore.get(providerId);
+				providerStore.set(providerId, getStoredProviderValue(providerId, apiKey, current));
+			}, AppChannels.setProviderApiKey)
+		);
+
+		ipcMain.handle(
+			AppChannels.isProviderApiKeySaved,
+			wrapSimpleHandler((providerId: string) => {
+				return (providerStore.get(providerId)?.apiKey.trim().length ?? 0) > 0;
+			}, AppChannels.isProviderApiKeySaved)
+		);
+
+		ipcMain.handle(
+			AppChannels.getProviders,
+			wrapSimpleHandler(() => {
+				return Object.entries(providerStore.list()).flatMap(([id, provider]) => {
+					const publicProvider = toPublicProvider(id, provider);
+					return publicProvider ? [publicProvider] : [];
+				});
+			}, AppChannels.getProviders)
+		);
+
+		ipcMain.handle(
+			AppChannels.getModels,
+			wrapSimpleHandler((provider: PublicProvider) => {
+				return getLlmModels(provider.id);
+			}, AppChannels.getModels)
+		);
+
+		ipcMain.handle(
+			AppChannels.getSpeechToTextModels,
+			wrapSimpleHandler((provider: PublicProvider) => {
+				return getSpeechToTextModels(provider.id);
+			}, AppChannels.getSpeechToTextModels)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTextToSpeechModels,
+			wrapSimpleHandler((provider: PublicProvider) => {
+				return getTextToSpeechModels(provider.id);
+			}, AppChannels.getTextToSpeechModels)
+		);
+
+		ipcMain.handle(
+			AppChannels.getImageCreatorModels,
+			wrapSimpleHandler((provider: PublicProvider) => {
+				return getImageCreatorModels(provider.id);
+			}, AppChannels.getImageCreatorModels)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTextToVideoModels,
+			wrapSimpleHandler((provider: PublicProvider) => {
+				return getTextToVideoModels(provider.id);
+			}, AppChannels.getTextToVideoModels)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTextToSoundModels,
+			wrapSimpleHandler((provider: PublicProvider) => {
+				return getMusicModels(provider.id);
+			}, AppChannels.getTextToSoundModels)
+		);
+
+		ipcMain.handle(
+			AppChannels.getAgentService,
+			wrapSimpleHandler(() => modelSelections.getAgentService(), AppChannels.getAgentService)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveAgentService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				return modelSelections.saveAgentService(provider, model);
+			}, AppChannels.saveAgentService)
+		);
+
+		ipcMain.handle(
+			AppChannels.getSpeechTranscriberService,
+			wrapSimpleHandler(
+				() => modelSelections.getSpeechTranscriberService(),
+				AppChannels.getSpeechTranscriberService
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveSpeechTranscriberService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				return modelSelections.saveSpeechTranscriberService(provider, model);
+			}, AppChannels.saveSpeechTranscriberService)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTextToSpeechService,
+			wrapSimpleHandler(
+				() => modelSelections.getTextToSpeechService(),
+				AppChannels.getTextToSpeechService
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveTextToSpeechService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				return modelSelections.saveTextToSpeechService(provider, model);
+			}, AppChannels.saveTextToSpeechService)
+		);
+
+		ipcMain.handle(
+			AppChannels.getImageCreatorService,
+			wrapSimpleHandler(
+				() => modelSelections.getImageCreatorService(),
+				AppChannels.getImageCreatorService
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveImageCreatorService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				return modelSelections.saveImageCreatorService(provider, model);
+			}, AppChannels.saveImageCreatorService)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTextToVideoService,
+			wrapSimpleHandler(
+				() => modelSelections.getTextToVideoService(),
+				AppChannels.getTextToVideoService
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveTextToVideoService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				return modelSelections.saveTextToVideoService(provider, model);
+			}, AppChannels.saveTextToVideoService)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTextToSoundService,
+			wrapSimpleHandler(
+				() => modelSelections.getTextToSoundService(),
+				AppChannels.getTextToSoundService
+			)
+		);
+
+		ipcMain.handle(
+			AppChannels.saveTextToSoundService,
+			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
+				return modelSelections.saveTextToSoundService(provider, model);
+			}, AppChannels.saveTextToSoundService)
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);
