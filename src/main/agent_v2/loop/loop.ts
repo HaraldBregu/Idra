@@ -1,4 +1,4 @@
-import { AgentModel } from './model';
+import { AgentModel } from '../model';
 import type {
 	RuntimeEvent,
 	RuntimeInput,
@@ -8,10 +8,11 @@ import type {
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
-import { createRuntimeSession } from './session';
-import { parseToolArgs } from './shared/args';
-import { formatToolOutput } from './shared/format';
-import { runTool } from './tool';
+import { createRuntimeSession } from '../session';
+import { SystemPrompt } from '../prompt';
+import { parseToolArgs } from '../shared/args';
+import { formatToolOutput } from '../shared/format';
+import { runTool } from '../tool';
 
 interface ModelTurn {
 	content: string;
@@ -85,49 +86,9 @@ async function* runModelTurn(
 	return { content: '', model: input.model ?? 'default', toolCalls: [] };
 }
 
-async function* runToolCalls(
-	tools: RuntimeTool[],
-	toolCalls: Required<RuntimeToolCall>[],
-	isStopped: () => boolean
-): AsyncGenerator<RuntimeEvent, RuntimeMessage[] | null> {
-	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
-	const results: RuntimeMessage[] = [];
-
-	for (const toolCall of toolCalls) {
-		if (isStopped()) return null;
-
-		yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };
-		const outcome = await runTool(toolMap.get(toolCall.name), toolCall);
-		yield { type: 'tool_call_end', toolName: toolCall.name, output: outcome.output };
-
-		results.push({
-			role: 'tool',
-			toolUseId: toolCall.id,
-			content: formatToolOutput(outcome.output),
-		});
-	}
-
-	return results;
-}
-
-/**
- * Orchestrates one agent run from prompt to final result.
- *
- * The runtime owns the loop lifecycle: it starts a session, asks the model for a
- * turn, records assistant output, executes requested tools, feeds tool results
- * back into the transcript, and repeats until the model returns no tool calls or
- * the configured turn limit is reached.
- */
 export class AgentRuntime {
 	constructor(private readonly model: RuntimeModel = new AgentModel()) {}
 
-	/**
-	 * Starts a cancellable runtime stream for a fully specified agent input.
-	 *
-	 * Callers receive model events, assistant/user turn events, tool events, and a
-	 * final run result through `RuntimeRun.stream`. Calling `stop()` aborts the
-	 * model request and causes the stream to yield a `run_stopped` event.
-	 */
 	run(input: RuntimeInput): RuntimeRun {
 		const controller = new AbortController();
 		let stopped = false;
@@ -236,4 +197,29 @@ export class AgentRuntime {
 			yield { type: 'user_message', messages: results };
 		}
 	}
+}
+
+async function* runToolCalls(
+	tools: RuntimeTool[],
+	toolCalls: Required<RuntimeToolCall>[],
+	isStopped: () => boolean
+): AsyncGenerator<RuntimeEvent, RuntimeMessage[] | null> {
+	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
+	const results: RuntimeMessage[] = [];
+
+	for (const toolCall of toolCalls) {
+		if (isStopped()) return null;
+
+		yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };
+		const outcome = await runTool(toolMap.get(toolCall.name), toolCall);
+		yield { type: 'tool_call_end', toolName: toolCall.name, output: outcome.output };
+
+		results.push({
+			role: 'tool',
+			toolUseId: toolCall.id,
+			content: formatToolOutput(outcome.output),
+		});
+	}
+
+	return results;
 }

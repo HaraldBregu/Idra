@@ -3,10 +3,10 @@ import type { AgentSessionMetadata } from '../../shared/store';
 import type { ModelReasoningEffort } from '../../shared/agents/service';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
-import type { RuntimeEvent, RuntimeRun } from './types';
-import { AgentRuntime } from './loop';
+import { AgentRuntime } from './loop/loop';
 import { Settings } from './settings';
 import { SystemPrompt } from './prompt';
+import { RuntimeEvent, RuntimeRun } from './loop/types';
 
 export interface AgentSendOptions {
 	runId?: string;
