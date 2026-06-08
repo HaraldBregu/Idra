@@ -11,7 +11,7 @@ import type {
 } from './types';
 import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings/settings';
-import { SystemPrompt } from '../prompt/prompt';
+import { SystemPrompt } from '../system/prompt';
 import { Workspace } from '../workspace/workspace';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
@@ -96,7 +96,7 @@ export class AgentRuntime {
 		workspace = new Workspace(),
 		private readonly settings = new Settings(workspace),
 		private readonly model: RuntimeModel = new AgentModel(),
-		private readonly systemPrompt = new SystemPrompt()
+		private readonly systemPrompt = new SystemPrompt(workspace)
 	) {}
 
 	run(input: RuntimeInput): RuntimeRun {

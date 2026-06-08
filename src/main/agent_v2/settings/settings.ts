@@ -17,7 +17,7 @@ export class Settings {
 
 	constructor(workspace = new Workspace()) {
 		this.store = new Store<SettingsSchema>({
-			name: 'agent-settings',
+			name: 'agent.settings',
 			cwd: workspace.getWorkspacePath(),
 			accessPropertiesByDotNotation: false,
 		});
