@@ -3,7 +3,6 @@ import type { LoggerService } from '../../observability';
 import type { CronService } from '../../cron';
 import type { ConnectorsService } from '../../connectors';
 import type { ToolPolicyServicePort } from './shared/tool-types';
-import type { StoreService } from '../../store';
 import type { SkillsService } from '../../skills';
 import type { JSONSchema, ToolResultBlock } from '../../llm/types';
 import type { AgentCapabilityServiceKind, AgentToolResultStatus } from '../../../shared/agents/constants';
