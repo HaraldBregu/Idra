@@ -387,26 +387,6 @@ const StartPage: React.FC = () => {
 	);
 	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
 	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
-	const selectedTextToSpeechOption = getProviderModelOption(
-		textToSpeechModelGroups,
-		textToSpeechProviderId,
-		selectedTextToSpeechModel
-	);
-	const selectedImageCreatorOption = getProviderModelOption(
-		imageCreatorModelGroups,
-		imageCreatorProviderId,
-		selectedImageCreatorModel
-	);
-	const selectedTextToVideoOption = getProviderModelOption(
-		textToVideoModelGroups,
-		textToVideoProviderId,
-		selectedTextToVideoModel
-	);
-	const selectedMusicCreatorOption = getProviderModelOption(
-		musicCreatorModelGroups,
-		musicCreatorProviderId,
-		selectedMusicCreatorModel
-	);
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
 		: agentModelOptions.length === 0
@@ -937,86 +917,9 @@ const StartPage: React.FC = () => {
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
-			const selectedSpeechGroup = speechModelGroups.find(
-				(group) => group.provider.id === speechProviderId
-			);
-			const selectedSpeechOption = selectedSpeechGroup?.models.find(
-				(model) => model.id === selectedSpeechModel
-			);
-			if (selectedSpeechGroup && selectedSpeechOption) {
-				const modelToSave = {
-					id: selectedSpeechOption.id,
-					name: selectedSpeechOption.name,
-				};
-				const saved = await window.app.saveSpeechTranscriberService(
-					selectedSpeechGroup.provider,
-					modelToSave
-				);
-				if (!saved) throw new Error('Could not save the selected speech-to-text model.');
-			}
-			if (selectedTextToSpeechOption) {
-				const modelToSave = {
-					id: selectedTextToSpeechOption.model.id,
-					name: selectedTextToSpeechOption.model.name,
-				};
-				const saved = await window.app.saveTextToSpeechService(
-					selectedTextToSpeechOption.provider,
-					modelToSave
-				);
-				if (!saved) throw new Error('Could not save the selected text-to-speech model.');
-				setSavedTextToSpeechService({
-					provider: selectedTextToSpeechOption.provider,
-					model: modelToSave,
-				});
-			}
-			if (selectedImageCreatorOption) {
-				const modelToSave = {
-					id: selectedImageCreatorOption.model.id,
-					name: selectedImageCreatorOption.model.name,
-				};
-				const saved = await window.app.saveImageCreatorService(
-					selectedImageCreatorOption.provider,
-					modelToSave
-				);
-				if (!saved) throw new Error('Could not save the selected image model.');
-				setSavedImageCreatorService({
-					provider: selectedImageCreatorOption.provider,
-					model: modelToSave,
-				});
-			}
-			if (selectedTextToVideoOption) {
-				const modelToSave = {
-					id: selectedTextToVideoOption.model.id,
-					name: selectedTextToVideoOption.model.name,
-				};
-				const saved = await window.app.saveTextToVideoService(
-					selectedTextToVideoOption.provider,
-					modelToSave
-				);
-				if (!saved) throw new Error('Could not save the selected video model.');
-				setSavedTextToVideoService({
-					provider: selectedTextToVideoOption.provider,
-					model: modelToSave,
-				});
-			}
-			if (selectedMusicCreatorOption) {
-				const modelToSave = {
-					id: selectedMusicCreatorOption.model.id,
-					name: selectedMusicCreatorOption.model.name,
-				};
-				const saved = await window.app.saveTextToSoundService(
-					selectedMusicCreatorOption.provider,
-					modelToSave
-				);
-				if (!saved) throw new Error('Could not save the selected audio model.');
-				setSavedMusicCreatorService({
-					provider: selectedMusicCreatorOption.provider,
-					model: modelToSave,
-				});
-			}
 			navigate('/home');
 		} catch (error) {
-			setErrorMessage(getErrorMessage(error, 'Could not save the selected models.'));
+			setErrorMessage(getErrorMessage(error, 'Could not save the selected assistant model.'));
 		} finally {
 			setSavingConfig(false);
 		}
@@ -1335,22 +1238,28 @@ const StartPage: React.FC = () => {
 		const renderModelAreaPanel = (
 			areaId: ModelAreaId,
 			summary: string,
-			children: React.ReactNode
+			children: React.ReactNode,
+			disabled = false
 		): React.JSX.Element => {
 			const area = MODEL_AREAS.find((item) => item.id === areaId);
 			if (!area) throw new Error(`Unknown model area: ${areaId}`);
 			const Icon = area.icon;
-			const expanded = expandedModelAreaId === area.id;
+			const expanded = !disabled && expandedModelAreaId === area.id;
 
 			return (
 				<SettingsPanel key={area.id}>
 					<Item
 						as="button"
 						type="button"
+						disabled={disabled}
 						size="md"
 						aria-expanded={expanded}
 						aria-controls={`model-area-${area.id}`}
-						className={cn('text-left hover:bg-muted/30', expanded && 'border-b border-border/60')}
+						className={cn(
+							'text-left hover:bg-muted/30',
+							expanded && 'border-b border-border/60',
+							disabled && 'cursor-not-allowed opacity-50 hover:bg-transparent'
+						)}
 						onClick={() => toggleModelArea(area.id)}
 					>
 						<ItemMedia variant="icon">
@@ -1389,8 +1298,8 @@ const StartPage: React.FC = () => {
 						Configure models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the active assistant and voice input models, then review the remaining model
-						areas and their runtime status.
+						Choose the active assistant model. The remaining model areas are disabled for this
+						setup flow.
 					</p>
 				</div>
 
@@ -1494,13 +1403,21 @@ const StartPage: React.FC = () => {
 								</SettingsNotice>
 							) : null}
 						</>
+						,
+						true
 					)}
 
 					{renderModelAreaPanel(
 						AGENTS.textToSpeech,
 						loadingModels
 							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedTextToSpeechOption),
+							: getProviderModelSelectionLabel(
+									getProviderModelOption(
+										textToSpeechModelGroups,
+										textToSpeechProviderId,
+										selectedTextToSpeechModel
+									)
+								),
 						<>
 							{renderProviderModelFields({
 								providerSelectId: 'tts-provider',
@@ -1516,13 +1433,21 @@ const StartPage: React.FC = () => {
 								onModelChange: handleTextToSpeechModelChange,
 							})}
 						</>
+						,
+						true
 					)}
 
 					{renderModelAreaPanel(
 						AGENTS.textToImage,
 						loadingModels
 							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedImageCreatorOption),
+							: getProviderModelSelectionLabel(
+									getProviderModelOption(
+										imageCreatorModelGroups,
+										imageCreatorProviderId,
+										selectedImageCreatorModel
+									)
+								),
 						<>
 							{renderProviderModelFields({
 								providerSelectId: 'image-provider',
@@ -1538,13 +1463,21 @@ const StartPage: React.FC = () => {
 								onModelChange: handleImageCreatorModelChange,
 							})}
 						</>
+						,
+						true
 					)}
 
 					{renderModelAreaPanel(
 						AGENTS.textToVideo,
 						loadingModels
 							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedTextToVideoOption),
+							: getProviderModelSelectionLabel(
+									getProviderModelOption(
+										textToVideoModelGroups,
+										textToVideoProviderId,
+										selectedTextToVideoModel
+									)
+								),
 						<>
 							{renderProviderModelFields({
 								providerSelectId: 'video-provider',
@@ -1560,13 +1493,21 @@ const StartPage: React.FC = () => {
 								onModelChange: handleTextToVideoModelChange,
 							})}
 						</>
+						,
+						true
 					)}
 
 					{renderModelAreaPanel(
 						AGENTS.textToAudio,
 						loadingModels
 							? 'Loading models...'
-							: getProviderModelSelectionLabel(selectedMusicCreatorOption),
+							: getProviderModelSelectionLabel(
+									getProviderModelOption(
+										musicCreatorModelGroups,
+										musicCreatorProviderId,
+										selectedMusicCreatorModel
+									)
+								),
 						<>
 							{renderProviderModelFields({
 								providerSelectId: 'audio-provider',
@@ -1582,6 +1523,8 @@ const StartPage: React.FC = () => {
 								onModelChange: handleMusicCreatorModelChange,
 							})}
 						</>
+						,
+						true
 					)}
 
 					{renderModelAreaPanel(
@@ -1605,6 +1548,8 @@ const StartPage: React.FC = () => {
 								models.
 							</SettingsNotice>
 						</>
+						,
+						true
 					)}
 
 					{renderModelAreaPanel(
@@ -1616,6 +1561,8 @@ const StartPage: React.FC = () => {
 								implemented.
 							</SettingsNotice>
 						</>
+						,
+						true
 					)}
 				</div>
 			</div>
