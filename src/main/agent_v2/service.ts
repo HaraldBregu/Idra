@@ -5,7 +5,6 @@ import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { AgentRuntime } from './loop/loop';
 import { Settings } from './settings';
-import { SystemPrompt } from './prompt';
 import { RuntimeEvent, RuntimeRun } from './loop/types';
 
 export interface AgentSendOptions {
