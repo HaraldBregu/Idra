@@ -3,12 +3,10 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
-import { StoreService } from './store';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
-import { SpeechToTextService } from './stt';
 import { AgentStartupFilesService } from './tools/startup/service';
 import { resolveAgentDataPath } from './tools/startup/path';
 
