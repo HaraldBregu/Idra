@@ -14,6 +14,7 @@ export class Settings extends AgentSettings {
 
 	constructor(location: string) {
 		super();
+
 		this.store = new Store<SettingsSchema>({
 			name: 'settings',
 			cwd: path.resolve(location),

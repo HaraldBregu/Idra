@@ -109,9 +109,10 @@ export class AgentV2Service {
 
 function resolveLocation(): string {
 	try {
-		return app.getPath('appData');
+		return app.getPath('userData');
 	} catch {
-		return path.resolve(process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd());
+		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+		return path.resolve(base, app?.getName?.() ?? 'friday');
 	}
 }
 
