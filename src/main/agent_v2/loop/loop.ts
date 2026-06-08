@@ -134,7 +134,7 @@ export class AgentRuntime {
 				return;
 			}
 
-			const turn = yield* runModelTurn(this.model, input, session.messages, signal, isStopped);
+			const turn = yield* runModelTurn(this.model, input, system, session.messages, signal, isStopped);
 			if (turn === null) {
 				yield { type: 'run_stopped', reason: getStopReason() };
 				return;
