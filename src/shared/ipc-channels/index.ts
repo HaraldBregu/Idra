@@ -332,6 +332,20 @@ interface ProviderStoreInvokeChannelMap {
 	};
 }
 
+interface AgentStoreInvokeChannelMap {
+	[AgentStoreChannels.get]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AgentStoreChannels.set]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+}
+
 interface AgentInvokeChannelMap {
 	[AgentChannels.sendV2]: {
 		args: [message: string, options?: AgentSendRuntimeOptions];
