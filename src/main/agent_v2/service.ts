@@ -25,6 +25,9 @@ export class AgentV2Service {
 		settings = new Settings()
 	) {
 		this.defaultAgentId = defaultAgentId;
+
+
+		
 		this.runtime = new AgentRuntime(workspace, settings);
 	}
 
