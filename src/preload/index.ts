@@ -429,36 +429,6 @@ export const store: StoreApi = {
 	isProviderApiKeySaved: (providerId: string): Promise<boolean> => {
 		return typedInvokeUnwrap(StoreChannels.isProviderApiKeySaved, providerId);
 	},
-	addProvider: (input: ProviderInput): Promise<PublicProvider> => {
-		return typedInvokeUnwrap(StoreChannels.addProvider, input);
-	},
-	getAssistantSettings: (): Promise<AssistantSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getAssistantSettings);
-	},
-	getSpeechToTextSettings: (): Promise<SpeechToTextSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getSpeechToTextSettings);
-	},
-	getTextToSpeechSettings: (): Promise<TextToSpeechSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSpeechSettings);
-	},
-	getImageCreatorSettings: (): Promise<ImageCreatorSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getImageCreatorSettings);
-	},
-	getTextToVideoSettings: (): Promise<TextToVideoSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToVideoSettings);
-	},
-	getTextToSoundSettings: (): Promise<TextToSoundSettings | undefined> => {
-		return typedInvokeUnwrap(StoreChannels.getTextToSoundSettings);
-	},
-	getCronSettings: (): Promise<CronSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getCronSettings);
-	},
-	getTaskSettings: (): Promise<TaskSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getTaskSettings);
-	},
-	getAgentRoutingSettings: (): Promise<AgentRoutingSettings> => {
-		return typedInvokeUnwrap(StoreChannels.getAgentRoutingSettings);
-	},
 	getAgentService: (): Promise<ModelSelection | undefined> => {
 		return typedInvokeUnwrap(StoreChannels.getAgentService);
 	},
