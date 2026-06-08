@@ -4,8 +4,18 @@ import { AgentSettings } from '../agent_v2';
 import { SettingsProvider } from '../agent_v2/core/settings';
 
 type SettingsSchema = {
-	provider?: SettingsProvider;
-	model?: string;
+	version: number;
+	provider: SettingsProvider | undefined;
+	modelId: string | undefined;
+};
+
+/** Bump when the persisted settings shape changes and a migration is needed. */
+const SETTINGS_VERSION = 1;
+
+const DEFAULT_SETTINGS: SettingsSchema = {
+	version: SETTINGS_VERSION,
+	provider: undefined,
+	modelId: undefined,
 };
 
 /**
@@ -22,7 +32,12 @@ export class Settings extends AgentSettings {
 			name: 'settings',
 			cwd: path.resolve(location),
 			accessPropertiesByDotNotation: false,
+			defaults: DEFAULT_SETTINGS,
 		});
+	}
+
+	getVersion(): number {
+		return this.store.get('version');
 	}
 
 	getProvider(): SettingsProvider | undefined {
@@ -34,11 +49,11 @@ export class Settings extends AgentSettings {
 	}
 
 	getModel(): string | undefined {
-		return this.store.get('model');
+		return this.store.get('modelId');
 	}
 
 	setModel(model: string): void {
-		this.store.set('model', model);
+		this.store.set('modelId', model);
 	}
 
 	getProviderId(): string | undefined {

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { AgentHistory } from '../agent_v2';
 import type { HistoryEntry } from '../agent_v2';
  
-export class SessionHistory extends AgentHistory {
+export class History extends AgentHistory {
 	private readonly historyPath: string;
 
 	constructor(location: string) {

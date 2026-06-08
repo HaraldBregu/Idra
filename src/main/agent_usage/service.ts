@@ -5,7 +5,7 @@ import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { Settings } from './settings';
 import { Workspace } from './workspace';
-import { SessionHistory } from './history';
+import { History } from './history';
 import { AgentRuntime } from '../agent_v2/loop/loop';
 import { RuntimeEvent, RuntimeRun } from '../agent_v2';
 
@@ -22,7 +22,7 @@ export class AgentV2Service {
 	private readonly defaultAgentId: string;
 	private readonly workspace: Workspace;
 	private readonly settings: Settings;
-	private readonly history: SessionHistory;
+	private readonly history: History;
 	private readonly runtime: AgentRuntime;
 
 	constructor(defaultAgentId = 'main') {
@@ -31,7 +31,10 @@ export class AgentV2Service {
 
 		this.workspace = new Workspace(location);
 		this.settings = new Settings(location);
-		this.history = new SessionHistory(location);
+		this.history = new History(location);
+
+		console.log("settings: ", JSON.stringify(this.settings))
+
 
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 	}

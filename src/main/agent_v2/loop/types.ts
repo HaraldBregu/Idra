@@ -1,20 +1,11 @@
 import { ModelEvent, ModelMessage, ModelMessageRole, ModelModule, ModelProvider, ModelRequest, ModelResponse, ModelTool, ModelToolCall } from "../model/types";
 
-/**
- * Runtime tool call alias backed by the agent_v2 model module.
- */
 export type RuntimeToolCall = ModelToolCall;
-/**
- * Model streaming event alias used by runtime ports.
- */
+
 export type RuntimeModelEvent = ModelEvent;
-/**
- * Runtime transcript message alias backed by the agent_v2 model module.
- */
+
 export type RuntimeMessage = ModelMessage;
-/**
- * Final result emitted when the runtime loop finishes.
- */
+
 export interface RuntimeOutput {
 	text: string;
 	model: string;
@@ -28,9 +19,7 @@ export interface RuntimeOutput {
 		outputTokens: number;
 	};
 }
-/**
- * Complete input required to start an agent runtime loop.
- */
+
 export interface RuntimeInput {
     task: string;
     message: string;
