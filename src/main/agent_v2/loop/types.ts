@@ -87,7 +87,7 @@ export interface RuntimePerception {
  */
 export type RuntimeEvent =
 	| RuntimeModelEvent
-	| { type: 'run_started'; sessionId: string; model: string }
+	| { type: 'run_started'; sessionId: string; model: string; providerId: string }
 	| { type: 'assistant_message'; content: string; toolCalls: RuntimeToolCall[] }
 	| { type: 'user_message'; messages: RuntimeMessage[] }
 	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
