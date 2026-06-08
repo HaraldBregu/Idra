@@ -8,7 +8,6 @@
 
 import { BrowserWindow } from 'electron';
 import { ServiceContainer, type EventBus } from './index';
-import { StoreService } from '../store';
 import {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceFactory,
