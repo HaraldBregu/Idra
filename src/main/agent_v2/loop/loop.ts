@@ -98,7 +98,7 @@ export class AgentRuntime {
 		private readonly settings = new Settings(),
 		private readonly model: RuntimeModel = new AgentModel(),
 		private readonly systemPrompt = new SystemPrompt(workspace),
-		private readonly history = new SessionHistory(workspace)
+		private readonly history = new SessionHistory()
 	) {}
 
 	run(input: RuntimeInput): RuntimeRun {
