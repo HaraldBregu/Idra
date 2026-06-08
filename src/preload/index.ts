@@ -349,45 +349,6 @@ export const realtimeTranscription: RealtimeTranscriptionApi = {
 	},
 };
 
-export const speechToText: SpeechToTextApi = {
-	transcribe: (request) => {
-		return typedInvokeUnwrap(
-			SpeechToTextChannels.transcribe,
-			normalizeSpeechToTextTranscribeRequest(request)
-		);
-	},
-	startDictation: (request) => {
-		return typedInvokeUnwrap(
-			SpeechToTextChannels.startDictation,
-			normalizeSpeechToTextDictationStartRequest(request)
-		);
-	},
-	appendAudio: (sessionId: string, audio: string): void => {
-		if (!isSpeechToTextSessionId(sessionId)) {
-			throw new Error('Invalid speech-to-text session id.');
-		}
-		if (!isSpeechToTextAudioChunk(audio)) {
-			throw new Error('Invalid speech-to-text audio chunk.');
-		}
-		typedSend(SpeechToTextChannels.appendAudio, sessionId, audio);
-	},
-	finishDictation: (sessionId: string): Promise<void> => {
-		if (!isSpeechToTextSessionId(sessionId)) {
-			throw new Error('Invalid speech-to-text session id.');
-		}
-		return typedInvokeUnwrap(SpeechToTextChannels.finishDictation, sessionId);
-	},
-	cancelDictation: (sessionId: string): Promise<void> => {
-		if (!isSpeechToTextSessionId(sessionId)) {
-			throw new Error('Invalid speech-to-text session id.');
-		}
-		return typedInvokeUnwrap(SpeechToTextChannels.cancelDictation, sessionId);
-	},
-	onEvent: (callback): (() => void) => {
-		return typedOn(SpeechToTextChannels.event, callback);
-	},
-};
-
 export const cron: CronApi = {
 	pauseSchedule: (scheduleId: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.pauseSchedule, scheduleId);
