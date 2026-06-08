@@ -21,13 +21,12 @@ import {
 import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
-	getLlmModels,
 	getProviderApiConfigurationUrl,
 	type Provider as CatalogProvider,
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '../../../../shared/agents';
-import type { Model, ModelSelection } from '../../../../shared/agents/service';
+import { getLlmModels, type Model, type ModelSelection } from '../../../../shared/agents/service';
 import type {
 	Provider as StoredProvider,
 } from '../../../../shared/provider-store';
