@@ -461,7 +461,7 @@ const StartPage: React.FC = () => {
 					textToSoundService,
 				] = await Promise.all([
 					getStoredProviderEntries(),
-					window.app.getAgentService(),
+					window.agentStore.get(),
 					window.app.getSpeechTranscriberService(),
 					window.app.getTextToSpeechService(),
 					window.app.getImageCreatorService(),
@@ -864,7 +864,7 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.app.saveAgentService(
+			await window.agentStore.set(
 				selectedAgentModelOption.provider,
 				selectedAgentModelOption.model
 			);
