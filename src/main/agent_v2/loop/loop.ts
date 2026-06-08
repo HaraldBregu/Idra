@@ -124,6 +124,7 @@ export class AgentRuntime {
 		getStopReason: () => string
 	): AsyncGenerator<RuntimeEvent> {
 		const session = createRuntimeSession(input);
+		const system = input.system ?? (await this.systemPrompt.build());
 
 		yield { type: 'run_started', sessionId: session.id, model: session.model };
 
