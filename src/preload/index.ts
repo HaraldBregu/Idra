@@ -536,8 +536,6 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.realtimeTranscription = realtimeTranscription;
 	// @ts-ignore (define in dts)
-	globalThis.speechToText = speechToText;
-	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)
 	globalThis.heartbeat = heartbeat;
