@@ -35,9 +35,6 @@ import type {
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
-	HeartbeatSetModelRequest,
-	HeartbeatSetProviderRequest,
-	HeartbeatSetReasoningEffortRequest,
 	HeartbeatSettings,
 	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
