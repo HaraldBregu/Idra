@@ -37,7 +37,7 @@ export class AgentStoreService {
 		this.settings.setProvider({
 			id: provider.id,
 			apiKey: storedProvider?.apiKey ?? '',
-			baseURL: provider.baseUrl || storedProvider?.baseUrl || '',
+			baseURL: storedProvider?.baseUrl || provider.baseUrl || '',
 		});
 		this.settings.setModel(model.id);
 		return true;
