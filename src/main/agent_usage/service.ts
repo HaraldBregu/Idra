@@ -27,7 +27,7 @@ export class AgentV2Service {
 
 	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
-		const location = path.join(resolveLocation(), 'agent');
+		const location = resolveAgentUsageLocation();
 
 		this.workspace = new Workspace(location);
 		this.settings = new Settings(location);
@@ -106,6 +106,10 @@ export class AgentV2Service {
 	isBusy(agentId: string): boolean {
 		return this.activeRuns.has(agentId);
 	}
+}
+
+export function resolveAgentUsageLocation(): string {
+	return path.join(resolveLocation(), 'agent');
 }
 
 function resolveLocation(): string {
