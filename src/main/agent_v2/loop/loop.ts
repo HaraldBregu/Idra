@@ -93,13 +93,17 @@ async function* runModelTurn(
 }
 
 export class AgentRuntime {
+	private readonly model: RuntimeModel;
+	private readonly systemPrompt: SystemPrompt;
+
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
-		private readonly history: History,
-		private readonly model: RuntimeModel = new AgentModel(),
-		private readonly systemPrompt = new SystemPrompt(workspace)
-	) {}
+		private readonly history: History
+	) {
+		this.model = new AgentModel();
+		this.systemPrompt = new SystemPrompt(this.workspace);
+	}
 
 	run(input: RuntimeInput): RuntimeRun {
 		const provider = input.provider ?? this.settings.getProvider();
