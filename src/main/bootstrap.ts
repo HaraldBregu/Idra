@@ -49,16 +49,11 @@ export function bootstrapServices(): BootstrapResult {
 		new SkillsService(logger)
 	);
 
-	const store = container.register('store', new StoreService());
 	container.register('channels', new ChannelsService(logger));
-	const cron = container.register('cron', new CronService(logger, { store }));
-	cron.restore((task) => {
-		logger.info('CronService', `Tick (restored): ${task.id} '${task.expression}'`);
-	});
+	const cron = container.register('cron', new CronService(logger));
 
 	container.register('connectors', new ConnectorsService(logger));
 	container.register('llm', new LlmService());
-	container.register('speechToText', new SpeechToTextService({ store, logger }));
 	container.register(
 		'startupFiles',
 		new AgentStartupFilesService({ rootPath: agentRoot, logger })
