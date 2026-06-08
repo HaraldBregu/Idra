@@ -5,6 +5,8 @@ import { app, ipcMain, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
+import { resolveAgentUsageLocation } from '../agent_usage/service';
+import { Settings } from '../agent_usage/settings';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -28,6 +30,7 @@ import {
 	getTextToSpeechModels,
 	getTextToVideoModels,
 	type Model,
+	type ModelSelection,
 } from '../../shared/agents/service';
 import type { Provider as StoredProvider } from '../../shared/provider-store';
 
@@ -338,6 +341,30 @@ function toPublicProvider(id: string, provider: StoredProvider): PublicProvider 
 	};
 }
 
+function getAgentSelectionFromSettings(
+	settings: Settings,
+	provider?: StoredProvider
+): ModelSelection | undefined {
+	const settingsProvider = settings.getProvider();
+	const modelId = settings.getModelId();
+	if (!settingsProvider || !modelId) return undefined;
+
+	const catalog = getDefaultProvider(settingsProvider.id);
+	const publicProvider: PublicProvider = {
+		id: settingsProvider.id,
+		name: provider?.name || catalog?.name || settingsProvider.id,
+		baseUrl: settingsProvider.baseURL || provider?.baseUrl || catalog?.baseUrl || '',
+		...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
+		...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
+	};
+	const model = getLlmModels(settingsProvider.id).find((item) => item.id === modelId) ?? {
+		id: modelId,
+		name: modelId,
+	};
+
+	return { provider: publicProvider, model };
+}
+
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
@@ -347,7 +374,7 @@ export class AppIpc implements IpcModule {
 		const logger = container.get('logger');
 		const appPermissions = container.get('appPermissions');
 		const providerStore = container.get('providerStore');
-		const modelSelections = container.get('modelSelections');
+		const agentSettings = new Settings(resolveAgentUsageLocation());
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(
@@ -523,89 +550,77 @@ export class AppIpc implements IpcModule {
 
 		ipcMain.handle(
 			AppChannels.getAgentService,
-			wrapSimpleHandler(() => modelSelections.getAgentService(), AppChannels.getAgentService)
+			wrapSimpleHandler(() => {
+				const providerId = agentSettings.getProviderId();
+				return getAgentSelectionFromSettings(
+					agentSettings,
+					providerId ? providerStore.get(providerId) : undefined
+				);
+			}, AppChannels.getAgentService)
 		);
 
 		ipcMain.handle(
 			AppChannels.saveAgentService,
 			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return modelSelections.saveAgentService(provider, model);
+				const storedProvider = providerStore.get(provider.id);
+				agentSettings.setProvider({
+					id: provider.id,
+					apiKey: storedProvider?.apiKey ?? '',
+					baseURL: storedProvider?.baseUrl || provider.baseUrl || '',
+				});
+				agentSettings.setModel(model.id);
+				return true;
 			}, AppChannels.saveAgentService)
 		);
 
 		ipcMain.handle(
 			AppChannels.getSpeechTranscriberService,
-			wrapSimpleHandler(
-				() => modelSelections.getSpeechTranscriberService(),
-				AppChannels.getSpeechTranscriberService
-			)
+			wrapSimpleHandler(() => undefined, AppChannels.getSpeechTranscriberService)
 		);
 
 		ipcMain.handle(
 			AppChannels.saveSpeechTranscriberService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return modelSelections.saveSpeechTranscriberService(provider, model);
-			}, AppChannels.saveSpeechTranscriberService)
+			wrapSimpleHandler(() => true, AppChannels.saveSpeechTranscriberService)
 		);
 
 		ipcMain.handle(
 			AppChannels.getTextToSpeechService,
-			wrapSimpleHandler(
-				() => modelSelections.getTextToSpeechService(),
-				AppChannels.getTextToSpeechService
-			)
+			wrapSimpleHandler(() => undefined, AppChannels.getTextToSpeechService)
 		);
 
 		ipcMain.handle(
 			AppChannels.saveTextToSpeechService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return modelSelections.saveTextToSpeechService(provider, model);
-			}, AppChannels.saveTextToSpeechService)
+			wrapSimpleHandler(() => true, AppChannels.saveTextToSpeechService)
 		);
 
 		ipcMain.handle(
 			AppChannels.getImageCreatorService,
-			wrapSimpleHandler(
-				() => modelSelections.getImageCreatorService(),
-				AppChannels.getImageCreatorService
-			)
+			wrapSimpleHandler(() => undefined, AppChannels.getImageCreatorService)
 		);
 
 		ipcMain.handle(
 			AppChannels.saveImageCreatorService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return modelSelections.saveImageCreatorService(provider, model);
-			}, AppChannels.saveImageCreatorService)
+			wrapSimpleHandler(() => true, AppChannels.saveImageCreatorService)
 		);
 
 		ipcMain.handle(
 			AppChannels.getTextToVideoService,
-			wrapSimpleHandler(
-				() => modelSelections.getTextToVideoService(),
-				AppChannels.getTextToVideoService
-			)
+			wrapSimpleHandler(() => undefined, AppChannels.getTextToVideoService)
 		);
 
 		ipcMain.handle(
 			AppChannels.saveTextToVideoService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return modelSelections.saveTextToVideoService(provider, model);
-			}, AppChannels.saveTextToVideoService)
+			wrapSimpleHandler(() => true, AppChannels.saveTextToVideoService)
 		);
 
 		ipcMain.handle(
 			AppChannels.getTextToSoundService,
-			wrapSimpleHandler(
-				() => modelSelections.getTextToSoundService(),
-				AppChannels.getTextToSoundService
-			)
+			wrapSimpleHandler(() => undefined, AppChannels.getTextToSoundService)
 		);
 
 		ipcMain.handle(
 			AppChannels.saveTextToSoundService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				return modelSelections.saveTextToSoundService(provider, model);
-			}, AppChannels.saveTextToSoundService)
+			wrapSimpleHandler(() => true, AppChannels.saveTextToSoundService)
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);
