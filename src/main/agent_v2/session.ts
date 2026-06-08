@@ -1,10 +1,32 @@
 import { composeMessages } from './shared/messages';
-import type { RuntimeInput, RuntimeMessage, RuntimeToolCall } from './loop/types';
+import type { ModelMessage, ModelToolCall } from './model/types';
+
+/**
+ * Transcript message stored on a runtime session.
+ */
+export type SessionMessage = ModelMessage;
+/**
+ * Tool call captured during a runtime session.
+ */
+export type SessionToolCall = ModelToolCall;
+
+/**
+ * Input accepted by {@link createRuntimeSession}.
+ */
+export interface SessionInput {
+	task: string;
+	message: string;
+	sessionId?: string;
+	messages?: SessionMessage[];
+	model?: string;
+	maxTurns?: number;
+	maxIterations?: number;
+}
 
 export interface RuntimeSession {
 	id: string;
-	messages: RuntimeMessage[];
-	toolCalls: RuntimeToolCall[];
+	messages: SessionMessage[];
+	toolCalls: SessionToolCall[];
 	usage: {
 		inputTokens: number;
 		outputTokens: number;
@@ -16,7 +38,7 @@ export interface RuntimeSession {
 	maxTurns: number;
 }
 
-export function createRuntimeSession(input: RuntimeInput): RuntimeSession {
+export function createRuntimeSession(input: SessionInput): RuntimeSession {
 	return {
 		id:
 			input.sessionId ??
