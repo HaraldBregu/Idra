@@ -88,7 +88,10 @@ async function* runModelTurn(
 }
 
 export class AgentRuntime {
-	constructor(private readonly model: RuntimeModel = new AgentModel()) {}
+	constructor(
+		private readonly model: RuntimeModel = new AgentModel(),
+		private readonly systemPrompt = new SystemPrompt()
+	) {}
 
 	run(input: RuntimeInput): RuntimeRun {
 		const controller = new AbortController();
