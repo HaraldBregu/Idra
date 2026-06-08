@@ -392,20 +392,6 @@ export const heartbeat: HeartbeatApi = {
 	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
 		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, assertHeartbeatObject(request));
 	},
-	setProviderId: (request: HeartbeatSetProviderRequest): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setProviderId, assertHeartbeatObject(request));
-	},
-	setModelId: (request: HeartbeatSetModelRequest): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setModelId, assertHeartbeatObject(request));
-	},
-	setReasoningEffort: (
-		request: HeartbeatSetReasoningEffortRequest
-	): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(
-			HeartbeatChannels.setReasoningEffort,
-			assertHeartbeatObject(request)
-		);
-	},
 	systemEvent: (request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> => {
 		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, assertHeartbeatObject(request));
 	},
