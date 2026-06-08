@@ -1,4 +1,4 @@
-import type { RuntimeTool, RuntimeToolCall } from './loop/types';
+import type { RuntimeTool, RuntimeToolCall } from './types';
 
 /**
  * Result of one tool execution after runtime normalization.

@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Workspace } from './workspace';
+import { Workspace } from '../workspace/workspace';
 
 export class Bootstrap {
 	constructor(private readonly workspace = new Workspace()) {}

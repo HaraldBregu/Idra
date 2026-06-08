@@ -1,5 +1,5 @@
-import { composeMessages } from './shared/messages';
-import type { ModelMessage, ModelToolCall } from './model/types';
+import { composeMessages } from '../shared/messages';
+import type { ModelMessage, ModelToolCall } from '../model/types';
 
 /**
  * Transcript message stored on a runtime session.

@@ -9,12 +9,12 @@ import type {
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
-import { createRuntimeSession } from '../session';
-import { Settings } from '../settings';
-import { SystemPrompt } from '../prompt';
+import { createRuntimeSession } from '../session/session';
+import { Settings } from '../settings/settings';
+import { SystemPrompt } from '../prompt/prompt';
 import { parseToolArgs } from '../shared/args';
 import { formatToolOutput } from '../shared/format';
-import { runTool } from '../tool';
+import { runTool } from './tool';
 
 interface ModelTurn {
 	content: string;
