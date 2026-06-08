@@ -1,4 +1,4 @@
-import { BOOTSTRAP_FILE, Workspace } from '../workspace/workspace';
+import { BOOTSTRAP_FILE, Workspace } from '../workspace';
 
 export class SystemPrompt {
 

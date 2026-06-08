@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import { Workspace } from '../workspace/workspace';
+import { Workspace } from '../workspace';
 
 export type AgentProviderSettings = {
 	id: string;

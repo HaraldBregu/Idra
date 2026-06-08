@@ -12,7 +12,7 @@ import type {
 import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings/settings';
 import { SystemPrompt } from '../system/prompt';
-import { Workspace } from '../workspace/workspace';
+import { Workspace } from '../workspace';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { runTool } from './tool';
