@@ -1,48 +1,39 @@
-import path from 'node:path';
-import Store from 'electron-store';
 import { AgentSettings } from '../agent_v2';
 import { SettingsProvider } from '../agent_v2/core/settings';
- 
+import type { StoreService } from '../store';
 
-type SettingsSchema = {
-	provider?: SettingsProvider;
-	model?: string;
-};
-
+/**
+ * Adapter that exposes the agent's configured provider/model to agent_v2.
+ *
+ * The selection and provider credentials live in the shared StoreService
+ * (`llmAgent` settings + the provider list). This class reads from there so the
+ * runtime sees the same configuration the user set in the UI, instead of an
+ * empty standalone store.
+ */
 export class Settings extends AgentSettings {
-	private readonly store: Store<SettingsSchema>;
-
-	constructor(location: string) {
+	constructor(private readonly store: StoreService) {
 		super();
-
-		this.store = new Store<SettingsSchema>({
-			name: 'settings',
-			cwd: path.resolve(location),
-			accessPropertiesByDotNotation: false,
-		});
 	}
 
 	getProvider(): SettingsProvider | undefined {
-		return this.store.get('provider');
-	}
+		const providerId = this.store.getAssistantSettings()?.providerId;
+		if (!providerId) return undefined;
 
-	setProvider(provider: SettingsProvider): void {
-		this.store.set('provider', provider);
-	}
+		const provider = this.store.getProviderById(providerId);
+		if (!provider?.apiKey) return undefined;
 
-	getModel(): string | undefined {
-		return this.store.get('model');
-	}
-
-	setModel(model: string): void {
-		this.store.set('model', model);
+		return {
+			id: provider.id,
+			apiKey: provider.apiKey,
+			baseURL: provider.baseUrl,
+		};
 	}
 
 	getProviderId(): string | undefined {
-		return this.getProvider()?.id;
+		return this.store.getAssistantSettings()?.providerId;
 	}
 
 	getModelId(): string | undefined {
-		return this.getModel();
+		return this.store.getAssistantSettings()?.modelId;
 	}
 }

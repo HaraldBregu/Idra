@@ -112,7 +112,7 @@ function resolveLocation(): string {
 		return app.getPath('userData');
 	} catch {
 		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'friday');
+		return path.resolve(base, app?.getName?.() ?? 'Friday');
 	}
 }
 
