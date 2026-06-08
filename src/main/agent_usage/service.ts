@@ -28,7 +28,7 @@ export class AgentV2Service {
 
 	constructor(store: StoreService, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
-		const location = resolveLocation();
+		const location = path.join(resolveLocation(), 'agent');
 
 		this.workspace = new Workspace(location);
 		this.settings = new Settings(store);
