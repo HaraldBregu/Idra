@@ -8,6 +8,7 @@ import { Workspace } from './workspace';
 import { SessionHistory } from './history';
 import { AgentRuntime } from '../agent_v2/loop/loop';
 import { RuntimeEvent, RuntimeRun } from '../agent_v2';
+import type { StoreService } from '../store';
 
 export interface AgentSendOptions {
 	runId?: string;
