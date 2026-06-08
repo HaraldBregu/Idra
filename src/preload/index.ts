@@ -377,9 +377,6 @@ export const heartbeat: HeartbeatApi = {
 	status: (): Promise<HeartbeatStatus> => {
 		return typedInvokeUnwrap(HeartbeatChannels.status);
 	},
-	last: (): Promise<HeartbeatEventPayload | null> => {
-		return typedInvokeUnwrap(HeartbeatChannels.last);
-	},
 	settings: (): Promise<HeartbeatSettings> => {
 		return typedInvokeUnwrap(HeartbeatChannels.settings);
 	},
