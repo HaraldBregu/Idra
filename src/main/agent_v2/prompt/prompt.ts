@@ -1,7 +1,7 @@
 import { BOOTSTRAP_FILE, Workspace } from '../workspace/workspace';
 
 export class SystemPrompt {
-	constructor(private readonly workspace = new Workspace()) {}
+	constructor(private readonly workspace: Workspace) {}
 
 	async build(): Promise<string> {
 		const hasBootstrap = await this.workspace.hasBootstrapFile();
