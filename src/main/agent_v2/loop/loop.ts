@@ -135,6 +135,7 @@ export class AgentRuntime {
 
 	private async *stream(
 		input: RuntimeInput,
+		provider: RuntimeModelProvider,
 		signal: AbortSignal,
 		isStopped: () => boolean,
 		getStopReason: () => string
@@ -142,7 +143,12 @@ export class AgentRuntime {
 		const session = createRuntimeSession(input);
 		const system = input.system ?? (await this.systemPrompt.build());
 
-		yield { type: 'run_started', sessionId: session.id, model: session.model };
+		yield {
+			type: 'run_started',
+			sessionId: session.id,
+			model: session.model,
+			providerId: provider.id,
+		};
 
 		while (true) {
 			if (isStopped()) {
