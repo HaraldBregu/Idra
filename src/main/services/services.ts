@@ -18,6 +18,7 @@ export interface MainServices {
 	channelRegistry: ChannelRegistry;
 	connectors: ConnectorsService;
 	cron: CronService;
+	heartbeat: HeartbeatService;
 	eventBus: EventBus;
 	llm: LlmService;
 	logger: LoggerService;
