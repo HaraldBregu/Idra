@@ -12,6 +12,7 @@ import {
 	CronChannels,
 	HeartbeatChannels,
 	SkillsChannels,
+	StoreChannels,
 } from '../shared/ipc-channels';
 import type {
 	AppApi,
