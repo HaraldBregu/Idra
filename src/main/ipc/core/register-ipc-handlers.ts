@@ -18,10 +18,7 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 		new ChannelsIpc(),
 		new ConnectorsIpc(),
 		new CronIpc(),
-		new RealtimeTranscriptionIpc(),
-		new SpeechToTextIpc(),
 		new SkillsIpc(),
-		new StoreIpc(),
 		new WindowIpc(),
 	];
 
