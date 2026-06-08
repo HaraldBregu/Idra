@@ -1,6 +1,5 @@
 import cron from 'node-cron';
 import {
-	isCronTaskData,
 	type CronExecutionRecord,
 	type CronNextRunPreview,
 	type CronSchedule,
@@ -10,16 +9,13 @@ import {
 	type CronScheduleFilter,
 	type CronScheduleUpdateRequest,
 	type CronScheduledTask,
-	type CronStoredRunStatus,
-	type CronStoredSchedule,
 	type CronStoredTarget,
 	type CronTask,
 	type CronTaskData,
-	type CronTaskView,
 } from '../../shared/cron';
-import type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
-import type { CronActorContext, CronPersistenceStore, CronScheduleStore } from './core/types';
-import { ElectronStoreCronScheduleStore, InMemoryCronScheduleStore } from './store';
+import type { CronJobOptions, RegisteredJob } from './types';
+import type { CronActorContext, CronScheduleStore } from './core/types';
+import { ElectronStoreCronScheduleStore } from './store';
 import { InMemoryCronScheduleRunner } from './runner';
 import { CronSchedulerEngine } from './scheduler';
 
@@ -42,50 +38,32 @@ export interface CronServiceEvents {
 }
 
 export type CronServiceActor = CronActorContext;
-export type CronServiceStore = CronPersistenceStore;
 export type { CronJobOptions, CronTaskHandler } from './types';
-
-interface NextRunCapable {
-	getNextRun?: () => Date | null;
-}
 
 export interface CronServiceOptions {
 	enabled?: boolean;
-	store: CronServiceStore;
 	scheduleStore?: CronScheduleStore;
 }
 
 /**
- * Schedules and manages recurring jobs via node-cron. Tasks are persisted
- * to cron-owned Electron Store state so they survive app restart, and reloaded via restore().
+ * Schedules and manages recurring jobs via node-cron and the cron scheduler
+ * engine. In-memory jobs are tracked for the lifetime of the process.
  *
  * Generic over the data payload: callers parameterize schedule<TData>() with
  * whatever shape they want as long as it has a string `type` discriminator.
  */
 export class CronService implements Disposable {
-	private readonly store: CronPersistenceStore;
 	private readonly logger: CronLogger;
 	private readonly jobs = new Map<string, RegisteredJob>();
 	private readonly scheduleStore: CronScheduleStore;
 	private readonly scheduler: CronSchedulerEngine;
 	private readonly automaticEnabled: boolean;
 
-	constructor(logger: CronLogger, options: CronServiceOptions);
-	constructor(store: CronServiceStore, logger: CronLogger);
-	constructor(loggerOrStore: CronLogger | CronServiceStore, optionsOrLogger: CronServiceOptions | CronLogger) {
-		const legacySignature = 'getCronTasks' in loggerOrStore;
-		const logger = legacySignature ? optionsOrLogger as CronLogger : loggerOrStore as CronLogger;
-		const options = legacySignature
-			? { store: loggerOrStore as CronServiceStore }
-			: optionsOrLogger as CronServiceOptions;
-		if (!options.store) throw new Error('CronService requires a store persistence service.');
-		this.store = options.store;
+	constructor(logger: CronLogger, options: CronServiceOptions = {}) {
 		this.logger = logger;
 		this.automaticEnabled =
 			options.enabled ?? (process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false');
-		this.scheduleStore =
-			options.scheduleStore ??
-			(legacySignature ? new InMemoryCronScheduleStore() : new ElectronStoreCronScheduleStore());
+		this.scheduleStore = options.scheduleStore ?? new ElectronStoreCronScheduleStore();
 		const accessPolicy = {
 			authorize(): Promise<void> { return Promise.resolve(); },
 			requiresConfirmation(): boolean { return false; },
@@ -232,7 +210,6 @@ export class CronService implements Disposable {
 		};
 
 		if (!this.automaticEnabled) {
-			this.persistTask(record);
 			this.logger.warn(
 				'CronService',
 				`Saved job "${id}" while cron automatic execution is disabled`
@@ -245,10 +222,8 @@ export class CronService implements Disposable {
 			async () => {
 				try {
 					await handler();
-					this.recordRunResult(id, 'success');
 					this.logger.info('CronService', `Job "${id}" completed`);
 				} catch (err) {
-					this.recordRunResult(id, 'failure', this.errorMessage(err));
 					this.logger.error('CronService', `Job "${id}" failed`, err);
 				}
 			},
@@ -256,17 +231,14 @@ export class CronService implements Disposable {
 		);
 
 		this.jobs.set(id, { id, expression, timezone: options.timezone, task });
-		this.persistTask(record);
 		this.logger.info('CronService', `Scheduled job "${id}" with "${expression}"`);
 
 		if (options.runOnStart) {
 			void Promise.resolve(handler())
 				.then(() => {
-					this.recordRunResult(id, 'success');
 					this.logger.info('CronService', `Initial run of "${id}" completed`);
 				})
 				.catch((err) => {
-					this.recordRunResult(id, 'failure', this.errorMessage(err));
 					this.logger.error('CronService', `Initial run of "${id}" failed`, err);
 				});
 		}
@@ -279,88 +251,11 @@ export class CronService implements Disposable {
 		if (!job) return;
 		job.task.stop();
 		this.jobs.delete(id);
-		this.removePersistedTask(id);
 		this.logger.info('CronService', `Unscheduled job "${id}"`);
-	}
-
-	/**
-	 * Reload tasks persisted in the store and re-schedule them using the
-	 * supplied dispatcher. Should be called once on startup.
-	 */
-	restore(dispatcher: CronTaskHandler): void {
-		if (!this.automaticEnabled) {
-			this.logger.warn(
-				'CronService',
-				'Cron restore skipped because automatic execution is disabled'
-			);
-			return;
-		}
-		const raw = this.store.getCronTasks();
-		if (raw.length === 0) {
-			this.logger.info('CronService', 'No persisted cron tasks to restore');
-			return;
-		}
-
-		const tasks = this.migrateTasks(raw);
-		const rawById = new Map(
-			raw.flatMap((entry) => {
-				if (!entry || typeof entry !== 'object') return [];
-				const record = entry as { id?: unknown; data?: unknown; payload?: unknown };
-				if (typeof record.id !== 'string') return [];
-				return isCronTaskData(record.data) || isCronTaskData(record.payload)
-					? [[record.id, entry as CronTask]]
-					: [];
-			})
-		);
-
-		let restored = 0;
-		for (const task of tasks) {
-			if (this.jobs.has(task.id)) continue;
-			if (!cron.validate(task.expression)) {
-				this.logger.warn(
-					'CronService',
-					`Skipping invalid persisted task "${task.id}": ${task.expression}`
-				);
-				continue;
-			}
-			const scheduled = cron.schedule(
-				task.expression,
-				async () => {
-					try {
-						await dispatcher(rawById.get(task.id) ?? task);
-						this.recordRunResult(task.id, 'success');
-						this.logger.info('CronService', `Restored job "${task.id}" completed`);
-					} catch (err) {
-						this.recordRunResult(task.id, 'failure', this.errorMessage(err));
-						this.logger.error('CronService', `Restored job "${task.id}" failed`, err);
-					}
-				},
-				{ timezone: task.timezone }
-			);
-			this.jobs.set(task.id, {
-				id: task.id,
-				expression: task.expression,
-				timezone: task.timezone,
-				task: scheduled,
-			});
-			restored++;
-		}
-		this.logger.info('CronService', `Restored ${restored} cron task(s) from store`);
 	}
 
 	listJobs(): { id: string; expression: string }[] {
 		return Array.from(this.jobs.values()).map(({ id, expression }) => ({ id, expression }));
-	}
-
-	getTasks(): CronTaskView[] {
-		const tasks = this.migrateTasks(this.store.getCronTasks());
-		return tasks.map((t) => {
-			const job = this.jobs.get(t.id);
-			const next = (job?.task as NextRunCapable | undefined)?.getNextRun?.() ?? null;
-			if (!next) return { ...t };
-			const nextRunAt = next.toISOString();
-			return { ...t, nextRunAt, nextRun: nextRunAt };
-		});
 	}
 
 	has(id: string): boolean {
@@ -380,136 +275,10 @@ export class CronService implements Disposable {
 		this.logger.info('CronService', 'Disposed');
 	}
 
-	private persistTask(task: CronTask): void {
-		const tasks = this.migrateTasks(this.store.getCronTasks()).filter((t) => t.id !== task.id);
-		tasks.push(task);
-		this.store.setCronTasks(tasks);
-	}
-
-	private removePersistedTask(id: string): void {
-		const tasks = this.migrateTasks(this.store.getCronTasks()).filter((t) => t.id !== id);
-		this.store.setCronTasks(tasks);
-	}
-
-	private recordRunResult(id: string, status: CronStoredRunStatus, error?: string): void {
-		const tasks = this.migrateTasks(this.store.getCronTasks());
-		const idx = tasks.findIndex((t) => t.id === id);
-		if (idx === -1) return;
-		const now = new Date().toISOString();
-		const task = tasks[idx];
-		tasks[idx] = {
-			...task,
-			updatedAt: now,
-			lastRunAt: now,
-			lastRun: now,
-			lastRunStatus: status,
-			lastError: status === 'failure' ? error : undefined,
-			runCount: status === 'success' ? task.runCount + 1 : task.runCount,
-			failureCount: status === 'failure' ? task.failureCount + 1 : task.failureCount,
-		};
-		this.store.setCronTasks(tasks);
-	}
-
-	/**
-	 * Coerce persisted entries into CronTask shape. Accepts existing valid
-	 * records as-is, migrates legacy `{ message }` rows into
-	 * `{ data: { type: 'message', message } }`, and drops anything else.
-	 */
-	private migrateTasks(raw: readonly unknown[]): CronTask[] {
-		const out: CronTask[] = [];
-		for (const entry of raw) {
-			if (!entry || typeof entry !== 'object') continue;
-			const r = entry as Record<string, unknown>;
-			if (typeof r.id !== 'string' || typeof r.expression !== 'string') continue;
-			const data = isCronTaskData(r.data)
-				? r.data
-				: isCronTaskData(r.payload)
-					? r.payload
-					: typeof r.message === 'string'
-						? { type: 'message' as const, message: r.message }
-						: null;
-			if (!data) continue;
-			const createdAt =
-				typeof r.createdAt === 'string' ? r.createdAt : new Date().toISOString();
-			const lastRunAt =
-				typeof r.lastRunAt === 'string'
-					? r.lastRunAt
-					: typeof r.lastRun === 'string'
-						? r.lastRun
-						: undefined;
-			const runCount =
-				typeof r.runCount === 'number' && Number.isFinite(r.runCount)
-					? Math.max(0, Math.floor(r.runCount))
-					: lastRunAt
-						? 1
-						: 0;
-			const failureCount =
-				typeof r.failureCount === 'number' && Number.isFinite(r.failureCount)
-					? Math.max(0, Math.floor(r.failureCount))
-					: 0;
-			out.push({
-				id: r.id,
-				name: typeof r.name === 'string' && r.name.trim() ? r.name : r.id,
-				description: typeof r.description === 'string' ? r.description : undefined,
-				schedule: this.scheduleValue(r.schedule, r.expression),
-				expression: r.expression,
-				timezone: typeof r.timezone === 'string' ? r.timezone : 'UTC',
-				enabled: typeof r.enabled === 'boolean' ? r.enabled : true,
-				status: this.scheduleStatus(r.status, r.enabled),
-				providerId: typeof r.providerId === 'string' ? r.providerId : undefined,
-				modelId: typeof r.modelId === 'string' ? r.modelId : undefined,
-				target: typeof r.target === 'string' ? r.target : this.targetForData(data),
-				payload: data,
-				data,
-				createdAt,
-				updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : createdAt,
-				lastRunAt,
-				nextRunAt: typeof r.nextRunAt === 'string' ? r.nextRunAt : undefined,
-				lastRunStatus: this.runStatus(r.lastRunStatus),
-				lastError: typeof r.lastError === 'string' ? r.lastError : undefined,
-				runCount,
-				failureCount,
-				lastRun: lastRunAt,
-			});
-		}
-		return out;
-	}
-
 	private targetForData(data: CronTaskData): CronStoredTarget {
 		if (data.type === 'agent') return 'agent';
 		if (data.type === 'tool') return 'tool';
 		if (data.type === 'task') return 'task';
 		return 'job';
-	}
-
-	private scheduleValue(value: unknown, expression: unknown): CronStoredSchedule {
-		if (typeof value === 'string') return value;
-		if (value && typeof value === 'object' && !Array.isArray(value)) {
-			return value as CronStoredSchedule;
-		}
-		return typeof expression === 'string' ? expression : '';
-	}
-
-	private scheduleStatus(value: unknown, enabled: unknown): CronSchedule['status'] {
-		if (
-			value === 'active' ||
-			value === 'paused' ||
-			value === 'disabled' ||
-			value === 'expired' ||
-			value === 'completed' ||
-			value === 'failed' ||
-			value === 'deleted'
-		) {
-			return value;
-		}
-		return enabled === false ? 'disabled' : 'active';
-	}
-
-	private runStatus(value: unknown): CronStoredRunStatus | undefined {
-		return value === 'success' || value === 'failure' || value === 'skipped' ? value : undefined;
-	}
-
-	private errorMessage(error: unknown): string {
-		return error instanceof Error ? error.message : String(error);
 	}
 }
