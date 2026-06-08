@@ -7,7 +7,7 @@ import type { HistoryEntry } from '../agent_v2';
 export class History extends AgentHistory {
 	private readonly historyPath: string;
 
-	constructor(location: string, name = 'agent-history') {
+	constructor(location: string, name = 'history') {
 		super();
 		this.historyPath = path.join(path.resolve(location), name);
 		if (!existsSync(this.historyPath)) {
