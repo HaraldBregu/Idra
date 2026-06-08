@@ -9,7 +9,6 @@ type SettingsSchema = {
 	modelId: string | undefined;
 };
 
-/** Bump when the persisted settings shape changes and a migration is needed. */
 const SETTINGS_VERSION = 1;
 
 const DEFAULT_SETTINGS: SettingsSchema = {
@@ -18,11 +17,6 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 	modelId: undefined,
 };
 
-/**
- * Agent-owned settings store. Persists the configured provider/model in its own
- * electron-store file (under the agent data folder) independent of the shared
- * app StoreService.
- */
 export class Settings extends AgentSettings {
 	private readonly store: Store<SettingsSchema>;
 
