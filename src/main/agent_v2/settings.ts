@@ -17,6 +17,7 @@ export class Settings extends AgentSettings {
 	private readonly store: Store<SettingsSchema>;
 
 	constructor(workspace = new Workspace()) {
+		super();
 		this.store = new Store<SettingsSchema>({
 			name: 'agent.settings',
 			cwd: workspace.getPath(),

@@ -9,6 +9,7 @@ export class Workspace extends AgentWorkspace {
 	private readonly workspacePath: string;
 
 	constructor(workspacePath = resolveAppDataPath()) {
+		super();
 		this.workspacePath = path.resolve(workspacePath);
 	}
 
