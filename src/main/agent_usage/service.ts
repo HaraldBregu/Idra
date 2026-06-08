@@ -25,12 +25,12 @@ export class AgentV2Service {
 	private readonly history: SessionHistory;
 	private readonly runtime: AgentRuntime;
 
-	constructor(store: StoreService, defaultAgentId = 'main') {
+	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
 		const location = path.join(resolveLocation(), 'agent');
 
 		this.workspace = new Workspace(location);
-		this.settings = new Settings(store);
+		this.settings = new Settings(location);
 		this.history = new SessionHistory(location);
 
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
