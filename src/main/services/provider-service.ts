@@ -1,24 +1,24 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { LoggerService } from '../observability';
-import type { Provider } from '../../shared/providers';
 
 /**
- * Persisted provider configurations keyed by provider id.
- *
- * The stored value mirrors the shared {@link Provider} shape, e.g.:
+ * A single provider configuration, e.g.:
  * ```json
  * {
- *   "openai": {
- *     "id": "openai",
- *     "name": "OpenAI",
- *     "apiKey": "sk-proj-...",
- *     "baseUrl": "https://api.openai.com/v1"
- *   }
+ *   "name": "OpenAI",
+ *   "apiKey": "sk-proj-...",
+ *   "baseUrl": "https://api.openai.com/v1"
  * }
  * ```
  */
+export interface Provider {
+	name: string;
+	apiKey: string;
+	baseUrl: string;
+}
+
+/** Persisted providers keyed by id. */
 export type ProviderRecord = Record<string, Provider>;
 
 /**
@@ -26,7 +26,7 @@ export type ProviderRecord = Record<string, Provider>;
  *
  * electron-store's key-based generics assume a fixed schema, which does not fit a
  * dynamic `Record<string, Provider>`. Reading/writing the whole store object keeps
- * the operations type-safe, matching the connectors repository pattern.
+ * the operations type-safe.
  */
 type ProvidersStore = {
 	get store(): unknown;
@@ -35,21 +35,17 @@ type ProvidersStore = {
 
 export interface ProviderServiceOptions {
 	/** Directory to store the providers file in. Defaults to the app's userData path. */
-	readonly cwd?: string;
-	readonly logger?: LoggerService;
+	cwd?: string;
 }
 
 /**
- * Stores AI provider credentials (api key, base url) in an electron-store file.
- *
- * Providers are keyed by their {@link Provider.id}.
+ * Stores AI provider configurations (name, api key, base url) in an
+ * electron-store file. Providers are keyed by id.
  */
 export class ProviderService {
 	private readonly store: ProvidersStore;
-	private readonly logger?: LoggerService;
 
 	constructor(options: ProviderServiceOptions = {}) {
-		this.logger = options.logger;
 		this.store = new Store<ProviderRecord>({
 			name: 'providers',
 			cwd: options.cwd ?? resolveUserDataPath(),
@@ -60,19 +56,10 @@ export class ProviderService {
 	/** Returns every stored provider keyed by id. */
 	list(): ProviderRecord {
 		const raw = this.store.store;
-		if (!isRecord(raw)) {
-			if (raw !== undefined && !isEmptyObject(raw)) {
-				this.logger?.warn('ProviderService', 'Dropped invalid providers store contents');
-			}
-			return {};
-		}
+		if (!isRecord(raw)) return {};
 		const providers: ProviderRecord = {};
 		for (const [id, value] of Object.entries(raw)) {
-			if (isProvider(value)) {
-				providers[id] = value;
-			} else {
-				this.logger?.warn('ProviderService', 'Dropped invalid provider entry', { id });
-			}
+			if (isProvider(value)) providers[id] = value;
 		}
 		return providers;
 	}
@@ -87,18 +74,12 @@ export class ProviderService {
 		return this.get(id) !== undefined;
 	}
 
-	/**
-	 * Inserts or replaces a provider.
-	 *
-	 * When `provider.id` is omitted it defaults to `id` so the stored value is
-	 * self-describing.
-	 */
+	/** Inserts or replaces the provider stored for `id`. */
 	set(id: string, provider: Provider): Provider {
-		const stored: Provider = { ...provider, id: provider.id ?? id };
 		const providers = this.list();
-		providers[id] = stored;
+		providers[id] = provider;
 		this.store.store = providers;
-		return stored;
+		return provider;
 	}
 
 	/** Removes the provider stored for `id`, if any. */
@@ -126,10 +107,6 @@ function resolveUserDataPath(): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isEmptyObject(value: unknown): boolean {
-	return isRecord(value) && Object.keys(value).length === 0;
 }
 
 function isProvider(value: unknown): value is Provider {
