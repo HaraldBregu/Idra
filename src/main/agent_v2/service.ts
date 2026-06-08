@@ -22,7 +22,7 @@ export class AgentV2Service {
 	constructor(
 		defaultAgentId = 'main',
 		workspace = new Workspace(),
-		settings = new Settings(workspace)
+		settings = new Settings()
 	) {
 		this.defaultAgentId = defaultAgentId;
 		this.runtime = new AgentRuntime(workspace, settings);

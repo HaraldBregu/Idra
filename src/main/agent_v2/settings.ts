@@ -1,6 +1,5 @@
 import Store from 'electron-store';
 import { Settings as AgentSettings } from './core/settings';
-import { Workspace } from './workspace';
 
 export type AgentProviderSettings = {
 	id: string;
@@ -16,11 +15,10 @@ type SettingsSchema = {
 export class Settings extends AgentSettings {
 	private readonly store: Store<SettingsSchema>;
 
-	constructor(workspace = new Workspace()) {
+	constructor() {
 		super();
 		this.store = new Store<SettingsSchema>({
 			name: 'agent.settings',
-			cwd: workspace.getPath(),
 			accessPropertiesByDotNotation: false,
 		});
 	}
