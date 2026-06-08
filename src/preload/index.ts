@@ -25,7 +25,7 @@ import type {
 	StoreApi,
 	WindowApi,
 } from './types';
-import type { ProviderInput, PublicProvider } from '../shared/providers';
+import type { PublicProvider } from '../shared/providers';
 import type {
 	CronSchedule,
 	CronScheduleEvent,
