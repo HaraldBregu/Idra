@@ -8,7 +8,6 @@ import {
 	ConnectorsChannels,
 	ProviderChannels,
 	RealtimeTranscriptionChannels,
-	SpeechToTextChannels,
 	CronChannels,
 	HeartbeatChannels,
 	SkillsChannels,
