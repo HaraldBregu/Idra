@@ -21,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
+	getLlmModels,
 	getProviderApiConfigurationUrl,
 	type Provider as CatalogProvider,
 	type PublicProvider,
@@ -564,58 +565,9 @@ const StartPage: React.FC = () => {
 				let firstError: unknown;
 
 				for (const provider of providers) {
-					try {
-						const agentModels = await window.app.getModels(provider);
-						if (agentModels.length > 0) {
-							nextAgentGroups.push({ provider, models: agentModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const speechModels = await window.app.getSpeechToTextModels(provider);
-						if (speechModels.length > 0) {
-							nextSpeechGroups.push({ provider, models: speechModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const textToSpeechModels = await window.app.getTextToSpeechModels(provider);
-						if (textToSpeechModels.length > 0) {
-							nextTextToSpeechGroups.push({ provider, models: textToSpeechModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const imageCreatorModels = await window.app.getImageCreatorModels(provider);
-						if (imageCreatorModels.length > 0) {
-							nextImageCreatorGroups.push({ provider, models: imageCreatorModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const textToVideoModels = await window.app.getTextToVideoModels(provider);
-						if (textToVideoModels.length > 0) {
-							nextTextToVideoGroups.push({ provider, models: textToVideoModels });
-						}
-					} catch (error) {
-						firstError ??= error;
-					}
-
-					try {
-						const musicCreatorModels = await window.app.getTextToSoundModels(provider);
-						if (musicCreatorModels.length > 0) {
-							nextMusicCreatorGroups.push({ provider, models: musicCreatorModels });
-						}
-					} catch (error) {
-						firstError ??= error;
+					const agentModels = getLlmModels(provider.id);
+					if (agentModels.length > 0) {
+						nextAgentGroups.push({ provider, models: agentModels });
 					}
 				}
 
@@ -688,7 +640,7 @@ const StartPage: React.FC = () => {
 				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
 				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
 
-				if (!preferredAgentOption && nextSpeechGroups.length === 0 && firstError) {
+				if (!preferredAgentOption && firstError) {
 					setErrorMessage(getErrorMessage(firstError, 'Could not load models.'));
 				}
 			} catch (error) {
