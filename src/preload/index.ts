@@ -562,5 +562,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
 	// @ts-ignore (define in dts)
+	globalThis.providerStore = providerStore;
+	// @ts-ignore (define in dts)
 	globalThis.store = store;
 }
