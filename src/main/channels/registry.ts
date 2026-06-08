@@ -2,7 +2,7 @@ import type { ChannelStatusEvent } from '../../shared/channels';
 import { ChannelsChannels } from '../../shared/ipc-channels';
 import type { EventBus } from '../services/event-bus';
 import type { LoggerService } from '../observability';
-import type { AgentV2Service } from '../agent_v2';
+import type { AgentV2Service } from '../agent_usage/service';
 import type { TelegramAdapterOptions } from './telegram/types';
 import { createBundledCatalogPlugins } from './catalog-plugins';
 import { listChannelCatalog, normalizeChannelId } from './catalog';
