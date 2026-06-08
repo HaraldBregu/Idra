@@ -140,7 +140,7 @@ export class AgentRuntime {
 		isStopped: () => boolean,
 		getStopReason: () => string
 	): AsyncGenerator<RuntimeEvent> {
-		const session = createRuntimeSession(input);
+		const session = new RuntimeSession(input);
 		const system = input.system ?? (await this.systemPrompt.build());
 
 		yield {
