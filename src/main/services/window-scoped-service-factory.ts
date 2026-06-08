@@ -7,7 +7,6 @@ import type { LoggerService } from '../observability';
 export interface WindowScopedFactoryContext<TGlobalServices extends object = Record<string, unknown>> {
 	globalContainer: ServiceContainer<TGlobalServices>;
 	eventBus: EventBus;
-	storeService: StoreService;
 	windowContainer: ServiceContainer;
 }
 
