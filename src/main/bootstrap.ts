@@ -14,6 +14,7 @@ import { resolveAgentDataPath } from './tools/startup/path';
 import type { MainServiceContainer, MainServices } from './services/services';
 import { LlmService } from './llm';
 import { AgentV2Service } from './agent_usage/service';
+import { AgentStoreService } from './agent_usage/store';
 import { ModelSelectionStoreService } from './services/model/service';
 import { ProviderStoreService } from './services/provider/service';
 
@@ -60,6 +61,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('modelSelections', new ModelSelectionStoreService());
 	container.register('providerStore', new ProviderStoreService());
 	container.register('llm', new LlmService());
+	container.register('agentStore', new AgentStoreService());
 	container.register(
 		'startupFiles',
 		new AgentStartupFilesService({ rootPath: agentRoot, logger })
