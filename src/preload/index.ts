@@ -61,12 +61,6 @@ import {
 	isRealtimeTranscriptionSessionId,
 	normalizeRealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
-import {
-	isSpeechToTextAudioChunk,
-	isSpeechToTextSessionId,
-	normalizeSpeechToTextDictationStartRequest,
-	normalizeSpeechToTextTranscribeRequest,
-} from '../shared/speech-to-text';
 
 function assertHeartbeatObject<T>(request: T): T {
 	if (!request || typeof request !== 'object' || Array.isArray(request)) {
