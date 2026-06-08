@@ -72,7 +72,6 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
 		context: {
 			globalContainer: ServiceContainer<TGlobalServices>;
 			eventBus: EventBus;
-			storeService: StoreService;
 		}
 	): Promise<void> {
 		const logger = context.globalContainer.getUnknown('logger') as LoggerService;
