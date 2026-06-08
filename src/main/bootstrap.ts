@@ -52,6 +52,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger));
+	container.register('heartbeat', new HeartbeatService(logger));
 
 	container.register('connectors', new ConnectorsService(logger));
 	container.register('llm', new LlmService());
