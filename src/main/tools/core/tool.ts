@@ -13,7 +13,6 @@ export interface PlanEntry {
 }
 
 export interface FridayServices {
-	store: StoreService;
 	eventBus: EventBus;
 	logger: LoggerService;
 	cron?: CronService;
