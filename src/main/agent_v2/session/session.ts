@@ -1,30 +1,11 @@
 import { composeMessages } from '../shared/messages';
-import type { RuntimeOutput } from '../loop/types';
-import type { ModelMessage, ModelToolCall } from '../model/types';
-
-export type SessionMessage = ModelMessage;
-export type SessionToolCall = ModelToolCall;
-
-export interface SessionInput {
-	task: string;
-	message: string;
-	sessionId?: string;
-	messages?: SessionMessage[];
-	model?: string;
-	maxTurns?: number;
-	maxIterations?: number;
-}
-
-export interface SessionTurn {
-	content: string;
-	model: string;
-	stopReason?: string;
-	toolCalls: SessionToolCall[];
-	usage?: {
-		inputTokens?: number;
-		outputTokens?: number;
-	};
-}
+import type {
+	SessionInput,
+	SessionMessage,
+	SessionResult,
+	SessionToolCall,
+	SessionTurn,
+} from './types';
 
 export class RuntimeSession {
 	readonly id: string;
@@ -67,7 +48,7 @@ export class RuntimeSession {
 		this.numTurns += 1;
 	}
 
-	toResult(subtype: RuntimeOutput['subtype']): RuntimeOutput {
+	toResult(subtype: SessionResult['subtype']): SessionResult {
 		return {
 			text: subtype === 'success' ? this.finalText : '',
 			model: this.model,
