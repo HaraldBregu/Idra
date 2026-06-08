@@ -9,5 +9,4 @@ export type {
 	SkillsApi,
 	StoreApi,
 	RealtimeTranscriptionApi,
-	SpeechToTextApi,
 } from './index.d';
