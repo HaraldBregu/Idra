@@ -349,6 +349,9 @@ const StartPage: React.FC = () => {
 	);
 	const [musicCreatorProviderId, setMusicCreatorProviderId] = useState('');
 	const [selectedMusicCreatorModel, setSelectedMusicCreatorModel] = useState('');
+	const [registeredProviderIds, setRegisteredProviderIds] = useState<ReadonlySet<string>>(
+		() => new Set()
+	);
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 
@@ -484,6 +487,7 @@ const StartPage: React.FC = () => {
 					selectableProviders[0];
 
 				setProviders(selectableProviders);
+				setRegisteredProviderIds(savedProviderIds);
 				setConfigProvider(preferredProvider?.id ?? '');
 				setSavedModelId(agentService?.model.id ?? '');
 				setSpeechProviderId(speechTranscriberService?.provider?.id ?? '');
@@ -500,6 +504,7 @@ const StartPage: React.FC = () => {
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
+				setRegisteredProviderIds(new Set());
 				setConfigProvider('');
 				setSavedModelId('');
 				setSpeechProviderId('');
@@ -1267,9 +1272,20 @@ const StartPage: React.FC = () => {
 										<SelectContent>
 											{agentModelGroups.map((group) => {
 												const catalog = getProviderCatalogItem(group.provider.id);
+												const registered = registeredProviderIds.has(group.provider.id);
 												return (
 													<SelectItem key={group.provider.id} value={group.provider.id}>
-														{catalog.name}
+														<span className="min-w-0 flex-1 truncate">{catalog.name}</span>
+														<span
+															className={cn(
+																'ml-auto shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-medium',
+																registered
+																	? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+																	: 'bg-muted text-muted-foreground'
+															)}
+														>
+															{registered ? 'API key saved' : 'No API key'}
+														</span>
 													</SelectItem>
 												);
 											})}
