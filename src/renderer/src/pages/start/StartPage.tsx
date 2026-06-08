@@ -240,6 +240,16 @@ function getPublicProvidersFromStore(
 	});
 }
 
+function getPublicProvidersFromCatalog(): PublicProvider[] {
+	return DEFAULT_PROVIDERS.map((provider) => ({
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
+		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
+	}));
+}
+
 async function getStoredProviderEntries(): Promise<
 	readonly (readonly [string, StoredProvider | undefined])[]
 > {
@@ -476,12 +486,20 @@ const StartPage: React.FC = () => {
 				]);
 				if (cancelled) return;
 
-				const selectableProviders = getPublicProvidersFromStore(storedProviders).filter((provider) =>
-					supportedProviderIds.has(provider.id)
+				const savedProviderIds = new Set(
+					storedProviders.flatMap(([providerId, provider]) =>
+						(provider?.apiKey.trim().length ?? 0) > 0 ? [providerId] : []
+					)
+				);
+				const selectableProviders = getPublicProvidersFromCatalog().filter(
+					(provider) => getLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
 					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
-					selectableProviders.find((provider) => connectedProviderIds.has(provider.id)) ??
+					selectableProviders.find(
+						(provider) =>
+							connectedProviderIds.has(provider.id) || savedProviderIds.has(provider.id)
+					) ??
 					selectableProviders[0];
 
 				setProviders(selectableProviders);
