@@ -9,7 +9,7 @@ import type {
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
-import { createRuntimeSession } from '../session/session';
+import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings/settings';
 import { SystemPrompt } from '../prompt/prompt';
 import { parseToolArgs } from '../shared/args';
