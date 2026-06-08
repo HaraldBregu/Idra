@@ -1,15 +1,17 @@
 import fs from 'node:fs/promises';
+import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { AgentWorkspace } from '../agent_v2';
- 
+
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 
 export class Workspace extends AgentWorkspace {
 	private readonly workspacePath: string;
 
-	constructor(location: string) {
+	constructor(location: string, name = 'workspace') {
 		super();
-		this.workspacePath = path.resolve(location);
+		this.workspacePath = path.resolve(location, name);
+		mkdirSync(this.workspacePath, { recursive: true });
 	}
 
 	getWorkspacePath(): string {
