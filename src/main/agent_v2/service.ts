@@ -17,23 +17,12 @@ export class AgentV2Service {
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
 
-	constructor(
-		private readonly settings: Settings,
-		defaultAgentId = 'main'
-	) {
+	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
-		const provider = this.settings.getProvider();
-		const model = options.model ?? this.settings.getModel();
-
-		if (!provider || !model)
-			throw new Error('Agent v2 requires a configured provider and model.');
-
-		if (options.providerId && provider.id.trim().toLowerCase() !== options.providerId.trim().toLowerCase())
-			throw new Error(`Agent v2 provider is not configured: ${options.providerId}`);
 
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
@@ -42,20 +31,19 @@ export class AgentV2Service {
 		const run = this.runtime.run({
 			task: 'chat',
 			message,
-			provider: {
-				id: provider.id,
-				apiKey: provider.apiKey,
-				baseURL: provider.baseURL,
-			},
-			model,
+			providerId: options.providerId,
+			model: options.model,
 			sessionId,
 			maxRetries: 1,
 		});
 		this.activeRuns.set(resolvedAgentId, run);
 
 		let response = '';
+		let providerId = options.providerId ?? '';
 		try {
 			for await (const event of run.stream) {
+				if (event.type === 'run_started')
+					providerId = event.providerId;
 				if (event.type === 'model_call_delta')
 					response += event.delta;
 				if (event.type === 'run_finished')
@@ -65,7 +53,7 @@ export class AgentV2Service {
 					event,
 					resolvedAgentId,
 					runId,
-					provider.id
+					providerId
 				)) {
 					options.streamEvent?.(responseEvent);
 				}
