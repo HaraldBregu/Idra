@@ -1,11 +1,8 @@
 export interface WindowApi {
 	minimize: () => void;
-	maximize: () => void;
 	close: () => void;
 	popupMenu: () => void;
-	isMaximized: () => Promise<boolean>;
 	isFullScreen: () => Promise<boolean>;
-	onMaximizeChange: (callback: (isMaximized: boolean) => void) => () => void;
 	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
 }
 
@@ -28,17 +25,11 @@ export interface CronApi {
 
 export interface HeartbeatApi {
 	status: () => Promise<HeartbeatStatus>;
-	last: () => Promise<HeartbeatEventPayload | null>;
 	settings: () => Promise<HeartbeatSettings>;
 	saveSettings: (request: HeartbeatSettingsUpdate) => Promise<HeartbeatSettings>;
 	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
 	getTiming: () => Promise<HeartbeatTimingSettings>;
 	updateTiming: (request: HeartbeatTimingSettings) => Promise<HeartbeatTimingSettings>;
-	setProviderId: (request: HeartbeatSetProviderRequest) => Promise<HeartbeatSettings>;
-	setModelId: (request: HeartbeatSetModelRequest) => Promise<HeartbeatSettings>;
-	setReasoningEffort: (
-		request: HeartbeatSetReasoningEffortRequest
-	) => Promise<HeartbeatSettings>;
 	systemEvent: (request: HeartbeatSystemEventRequest) => Promise<HeartbeatSystemEventResult>;
 	request: (request: HeartbeatWakeRequest) => Promise<void>;
 	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
@@ -47,15 +38,11 @@ export interface HeartbeatApi {
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
-	getChannelConfig: <TKey extends ChannelType>(type: TKey) => Promise<Channel[TKey]>;
 	saveChannelConfig: <TKey extends ChannelType>(
 		type: TKey,
 		config: Channel[TKey]
 	) => Promise<Channel[TKey]>;
 	getStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
-	getTelegramConfig: () => Promise<TelegramChannelProperties>;
-	saveTelegramConfig: (config: TelegramChannelProperties) => Promise<TelegramChannelProperties>;
-	getTelegramStatus: () => Promise<ChannelStatusEvent | undefined>;
 	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
 	stopTelegram: () => Promise<void>;
 	restartTelegram: () => Promise<ChannelStatusEvent | undefined>;
@@ -65,13 +52,11 @@ export interface ChannelsApi {
 export interface ConnectorsApi {
 	list: () => Promise<ConnectorRecord>;
 	get: (id: string) => Promise<ConnectorRecord>;
-	save: (input: ConnectorInput[]) => Promise<ConnectorRecord>;
 	upsert: (input: ConnectorInput) => Promise<ConnectorRecord>;
 }
 
 export interface SkillsApi {
 	list: () => Promise<SkillInfo[]>;
-	load: (name: string) => Promise<SkillDetails>;
 	importSkill: () => Promise<SkillImportResult | undefined>;
 	downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
 	delete: (name: string) => Promise<SkillDeleteResult>;
@@ -82,16 +67,6 @@ export interface StoreApi {
 	getProviders: () => Promise<PublicProvider[]>;
 	setProviderApiKey: (providerId: string, apiKey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
-	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
-	getAssistantSettings: () => Promise<AssistantSettings | undefined>;
-	getSpeechToTextSettings: () => Promise<SpeechToTextSettings | undefined>;
-	getTextToSpeechSettings: () => Promise<TextToSpeechSettings | undefined>;
-	getImageCreatorSettings: () => Promise<ImageCreatorSettings | undefined>;
-	getTextToVideoSettings: () => Promise<TextToVideoSettings | undefined>;
-	getTextToSoundSettings: () => Promise<TextToSoundSettings | undefined>;
-	getCronSettings: () => Promise<CronSettings>;
-	getTaskSettings: () => Promise<TaskSettings>;
-	getAgentRoutingSettings: () => Promise<AgentRoutingSettings>;
 	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
@@ -106,7 +81,7 @@ export interface StoreApi {
 	saveTextToSoundService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 }
 
-import type { ProviderInput, PublicProvider } from '../shared/providers';
+import type { PublicProvider } from '../shared/providers';
 import type {
 	CronSchedule,
 	CronScheduleEvent,
@@ -116,9 +91,6 @@ import type {
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
-	HeartbeatSetModelRequest,
-	HeartbeatSetProviderRequest,
-	HeartbeatSetReasoningEffortRequest,
 	HeartbeatSettings,
 	HeartbeatSettingsUpdate,
 	HeartbeatStatus,
@@ -128,28 +100,12 @@ import type {
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
 import type {
-	AssistantSettings,
-	AgentRoutingSettings,
-	CronSettings,
-	ImageCreatorSettings,
-	SpeechToTextSettings,
-	TextToSoundSettings,
-	TextToSpeechSettings,
-	TextToVideoSettings,
-	TaskSettings,
-} from '../shared/store';
-import type {
-	AgentHistoryMessage,
 	AgentResponseEvent,
 	Model,
 	ModelSelection,
-	AgentStartupFileContent,
-	AgentStartupFileSummary,
-	WorkspaceFileContent,
-	WorkspaceFileSummary,
 	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
-import type { ChannelStatusEvent, TelegramChannelProperties } from '../shared/channels';
+import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
@@ -160,7 +116,6 @@ import type {
 } from '../shared/connectors';
 import type {
 	SkillDeleteResult,
-	SkillDetails,
 	SkillDownloadResult,
 	SkillImportResult,
 	SkillInfo,
@@ -175,13 +130,6 @@ import type {
 	RealtimeTranscriptionSession,
 	RealtimeTranscriptionStartRequest,
 } from '../shared/realtime-transcription';
-import type {
-	SpeechToTextDictationSession,
-	SpeechToTextDictationStartRequest,
-	SpeechToTextEvent,
-	SpeechToTextTranscribeRequest,
-	SpeechToTextTranscription,
-} from '../shared/speech-to-text';
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
@@ -199,7 +147,6 @@ export interface AppApi {
 	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
 	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
 	getProviders: () => Promise<PublicProvider[]>;
-	addProvider: (input: ProviderInput) => Promise<PublicProvider>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	getAgentService: () => Promise<ModelSelection | undefined>;
 	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
@@ -228,24 +175,12 @@ export interface RealtimeTranscriptionApi {
 	onEvent: (callback: (event: RealtimeTranscriptionEvent) => void) => () => void;
 }
 
-export interface SpeechToTextApi {
-	transcribe: (request: SpeechToTextTranscribeRequest) => Promise<SpeechToTextTranscription>;
-	startDictation: (
-		request?: SpeechToTextDictationStartRequest
-	) => Promise<SpeechToTextDictationSession>;
-	appendAudio: (sessionId: string, audio: string) => void;
-	finishDictation: (sessionId: string) => Promise<void>;
-	cancelDictation: (sessionId: string) => Promise<void>;
-	onEvent: (callback: (event: SpeechToTextEvent) => void) => () => void;
-}
-
 declare global {
 	interface Window {
 		win: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
 		realtimeTranscription: RealtimeTranscriptionApi;
-		speechToText: SpeechToTextApi;
 		cron: CronApi;
 		heartbeat: HeartbeatApi;
 		channels: ChannelsApi;
