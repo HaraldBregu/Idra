@@ -1,4 +1,4 @@
-import { composeMessages } from '../shared/messages';
+import { composeMessages } from './messages';
 import type {
 	SessionInput,
 	SessionMessage,

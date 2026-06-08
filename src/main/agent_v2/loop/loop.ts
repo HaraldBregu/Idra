@@ -12,8 +12,8 @@ import type {
 import { RuntimeSession } from '../session/session';
 import { Settings } from '../settings/settings';
 import { SystemPrompt } from '../prompt/prompt';
-import { parseToolArgs } from '../shared/args';
-import { formatToolOutput } from '../shared/format';
+import { parseToolArgs } from './args';
+import { formatToolOutput } from './format';
 import { runTool } from './tool';
 
 interface ModelTurn {
