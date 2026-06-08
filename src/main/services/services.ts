@@ -6,8 +6,6 @@ import type { CronService } from '../cron';
 import type { LlmService } from '../llm';
 import type { LoggerService } from '../observability';
 import type { SkillsService } from '../skills';
-import type { SpeechToTextService } from '../stt';
-import type { StoreService } from '../store';
 import type { AgentStartupFilesService } from '../tools/startup/service';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 
