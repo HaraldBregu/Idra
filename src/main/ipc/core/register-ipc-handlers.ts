@@ -3,6 +3,7 @@ import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
 import { ConnectorsIpc } from '../connectors';
 import { CronIpc } from '../cron';
+import { HeartbeatIpc } from '../heartbeat';
 import { SkillsIpc } from '../skills';
 import { WindowIpc } from '../window';
 import type { IpcModule } from './module';
