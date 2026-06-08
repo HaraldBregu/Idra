@@ -1,6 +1,7 @@
 export type {
 	WindowApi,
 	AppApi,
+	AgentStoreApi,
 	AgentApi,
 	CronApi,
 	HeartbeatApi,
