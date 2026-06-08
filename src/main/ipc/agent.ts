@@ -29,7 +29,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 		...(optionalTrimmedString(options.providerId)
 			? { providerId: optionalTrimmedString(options.providerId) }
 			: {}),
-		...(optionalTrimmedString(options.model) ? { model: optionalTrimmedString(options.model) } : {}),
+		...(optionalTrimmedString(options.model) ? { modelId: optionalTrimmedString(options.model) } : {}),
 	};
 }
 
