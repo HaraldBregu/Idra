@@ -260,9 +260,6 @@ export const app: AppApi = {
 	getProviders: (): Promise<PublicProvider[]> => {
 		return typedInvokeUnwrap(StoreChannels.getProviders);
 	},
-	addProvider: (input: ProviderInput): Promise<PublicProvider> => {
-		return typedInvokeUnwrap(StoreChannels.addProvider, input);
-	},
 	getModels: (provider: PublicProvider): Promise<Model[]> => {
 		return typedInvokeUnwrap(ProviderChannels.getModels, provider);
 	},
