@@ -1,12 +1,8 @@
-import { BOOTSTRAP_FILE, Workspace } from '../workspace';
-
 export class SystemPrompt {
 
-	constructor(private readonly workspace: Workspace) { }
+	constructor() { }
 
 	async build(): Promise<string> {
-		const hasBootstrap = await this.workspace.hasBootstrapFile();
-
 		const parts: string[] = [
 			'You are a personal AI assistant.',
 			[
@@ -29,12 +25,6 @@ export class SystemPrompt {
 				'- For multi-step, risky, or dependent work, use a short concrete plan with a verification path. Skip visible planning for simple tasks.',
 				'- Before final output, check for missed constraints, stale or unsupported facts, failed or partial tool calls, conflicting evidence, permission gaps, verification limits, and requested format.',
 				'- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.',
-			].join('\n'),
-			[
-				'## Workspace state',
-				hasBootstrap
-					? `- A ${BOOTSTRAP_FILE} file exists in the workspace; read it before acting and treat it as the source of workspace setup and conventions.`
-					: `- No ${BOOTSTRAP_FILE} file exists in the workspace yet; do not assume bootstrap setup has run.`,
 			].join('\n'),
 		];
 

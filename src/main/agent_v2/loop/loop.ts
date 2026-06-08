@@ -11,12 +11,12 @@ import type {
 	RuntimeToolCall,
 } from './types';
 import { RuntimeSession } from '../session/session';
-import { Settings } from '../settings';
 import { SystemPrompt } from '../system/prompt';
-import { Workspace } from '../workspace';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { runTool } from './tool';
+import { Workspace } from '../core/workspace';
+import { Settings } from '../core/settings';
 
 interface ModelTurn {
 	content: string;
@@ -97,27 +97,27 @@ export class AgentRuntime {
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
-		private readonly workspace: Workspace,
+		private readonly _: Workspace,
 		private readonly settings: Settings,
 		private readonly history: History
 	) {
 		this.model = new AgentModel();
-		this.systemPrompt = new SystemPrompt(this.workspace);
+		this.systemPrompt = new SystemPrompt();
 	}
 
 	run(input: RuntimeInput): RuntimeRun {
-		const provider = input.provider ?? this.settings.getProvider();
-		const model = input.model ?? this.settings.getModel();
+		const providerId = input.provider ?? this.settings.getProviderId();
+		const modelId = input.model ?? this.settings.getModelId();
 
-		if (!provider || !model)
+		if (!providerId || !modelId)
 			throw new Error('Agent v2 requires a configured provider and model.');
 		if (
 			input.providerId &&
-			provider.id.trim().toLowerCase() !== input.providerId.trim().toLowerCase()
+			providerId.toLowerCase() !== input.providerId.trim().toLowerCase()
 		)
 			throw new Error(`Agent v2 provider is not configured: ${input.providerId}`);
 
-		const resolved: RuntimeInput = { ...input, provider, model };
+		const resolved: RuntimeInput = { ...input, providerId, modelId };
 		const controller = new AbortController();
 		let stopped = false;
 		let stopReason = 'stopped';

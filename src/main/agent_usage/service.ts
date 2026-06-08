@@ -3,11 +3,11 @@ import path from 'node:path';
 import { app } from 'electron';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
-import { AgentRuntime } from './loop/loop';
-import { RuntimeEvent, RuntimeRun } from './loop/types';
-import { SessionHistory } from './history';
 import { Settings } from './settings';
 import { Workspace } from './workspace';
+import { SessionHistory } from './history';
+import { AgentRuntime } from '../agent_v2/loop/loop';
+import { RuntimeEvent, RuntimeRun } from '../agent_v2';
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -28,6 +28,7 @@ export class AgentV2Service {
 	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
 		const location = resolveLocation();
+		
 		this.workspace = new Workspace(location);
 		this.settings = new Settings(location);
 		this.history = new SessionHistory(location);

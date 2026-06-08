@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { Settings as AgentSettings } from './core/settings';
-
+import { AgentSettings } from '../agent_v2';
+ 
 export type AgentProviderSettings = {
 	id: string;
 	apiKey: string;
@@ -19,7 +19,7 @@ export class Settings extends AgentSettings {
 	constructor(location: string) {
 		super();
 		this.store = new Store<SettingsSchema>({
-			name: 'agent.settings',
+			name: 'settings',
 			cwd: path.resolve(location),
 			accessPropertiesByDotNotation: false,
 		});
