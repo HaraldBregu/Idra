@@ -1,5 +1,5 @@
 import Store from 'electron-store';
-import { AgentSettings } from './core/settings';
+import { Settings as AgentSettings } from './core/settings';
 import { Workspace } from './workspace';
 
 export type AgentProviderSettings = {
