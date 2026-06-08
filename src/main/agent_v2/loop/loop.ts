@@ -4,11 +4,13 @@ import type {
 	RuntimeInput,
 	RuntimeMessage,
 	RuntimeModel,
+	RuntimeModelProvider,
 	RuntimeRun,
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
 import { createRuntimeSession } from '../session';
+import { Settings } from '../settings';
 import { SystemPrompt } from '../prompt';
 import { parseToolArgs } from '../shared/args';
 import { formatToolOutput } from '../shared/format';
