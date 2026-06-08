@@ -93,7 +93,7 @@ async function* runModelTurn(
 
 export class AgentRuntime {
 	constructor(
-		private readonly workspace = new Workspace(),
+		workspace = new Workspace(),
 		private readonly settings = new Settings(workspace),
 		private readonly model: RuntimeModel = new AgentModel(),
 		private readonly systemPrompt = new SystemPrompt(workspace)
