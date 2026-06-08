@@ -1,18 +1,10 @@
-import type { Container } from '../core/container';
-import { WORKSPACE } from '../core/tokens';
-import { BOOTSTRAP_FILE } from '../workspace/workspace';
+import { BOOTSTRAP_FILE, Workspace } from '../workspace/workspace';
 
 export class SystemPrompt {
-	private container?: Container;
-
-	useContainer(container: Container): this {
-		this.container = container;
-		return this;
-	}
+	private readonly workspace = new Workspace();
 
 	async build(): Promise<string> {
-		const workspace = this.resolveWorkspace();
-		const hasBootstrap = await workspace.hasBootstrapFile();
+		const hasBootstrap = await this.workspace.hasBootstrapFile();
 
 		const parts: string[] = [
 			'You are a personal AI assistant.',
@@ -46,10 +38,5 @@ export class SystemPrompt {
 		];
 
 		return parts.join('\n\n');
-	}
-
-	private resolveWorkspace() {
-		if (!this.container) throw new Error('SystemPrompt requires an agent container.');
-		return this.container.resolve(WORKSPACE);
 	}
 }

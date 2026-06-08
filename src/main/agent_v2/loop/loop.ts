@@ -1,5 +1,4 @@
-import { createAgentContainer, MODEL, SETTINGS, SYSTEM_PROMPT } from '../core';
-import type { Container } from '../core';
+import { AgentModel } from '../model';
 import type {
 	RuntimeEvent,
 	RuntimeInput,
@@ -11,6 +10,9 @@ import type {
 	RuntimeToolCall,
 } from './types';
 import { RuntimeSession } from '../session/session';
+import { Settings } from '../settings/settings';
+import { SystemPrompt } from '../prompt/prompt';
+import { Workspace } from '../workspace/workspace';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { runTool } from './tool';
@@ -90,15 +92,12 @@ async function* runModelTurn(
 }
 
 export class AgentRuntime {
-	private readonly settings;
-	private readonly model: RuntimeModel;
-	private readonly systemPrompt;
-
-	constructor(container: Container = createAgentContainer()) {
-		this.settings = container.resolve(SETTINGS);
-		this.model = container.resolve(MODEL);
-		this.systemPrompt = container.resolve(SYSTEM_PROMPT);
-	}
+	constructor(
+		workspace = new Workspace(),
+		private readonly settings = new Settings(workspace),
+		private readonly model: RuntimeModel = new AgentModel(),
+		private readonly systemPrompt = new SystemPrompt()
+	) {}
 
 	run(input: RuntimeInput): RuntimeRun {
 		const provider = input.provider ?? this.settings.getProvider();
