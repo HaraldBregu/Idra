@@ -164,8 +164,3 @@ export interface CronAuditLog {
 	append(entry: CronScheduleAuditEntry): Promise<void>;
 	list(scheduleId: CronScheduleId): Promise<CronScheduleAuditEntry[]>;
 }
-
-export interface CronPersistenceStore {
-	getCronTasks(): unknown[];
-	setCronTasks(tasks: unknown[]): void;
-}
