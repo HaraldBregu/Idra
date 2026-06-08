@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import path from 'node:path';
+import { app } from 'electron';
 import type { AgentResponseEvent } from '../../shared/agents/events';
 import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { AgentRuntime } from './loop/loop';
@@ -25,9 +27,10 @@ export class AgentV2Service {
 
 	constructor(defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
-		this.workspace = new Workspace();
-		this.settings = new Settings();
-		this.history = new SessionHistory();
+		const dataPath = resolveDataPath();
+		this.workspace = new Workspace(dataPath);
+		this.settings = new Settings(dataPath);
+		this.history = new SessionHistory(dataPath);
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 	}
 
@@ -97,6 +100,14 @@ export class AgentV2Service {
 
 	isBusy(agentId: string): boolean {
 		return this.activeRuns.has(agentId);
+	}
+}
+
+function resolveDataPath(): string {
+	try {
+		return app.getPath('appData');
+	} catch {
+		return path.resolve(process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd());
 	}
 }
 

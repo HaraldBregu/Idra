@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { app } from 'electron';
 import { AgentWorkspace } from './core/workspace';
 
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
@@ -8,7 +7,7 @@ export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 export class Workspace extends AgentWorkspace {
 	private readonly workspacePath: string;
 
-	constructor(workspacePath = resolveAppDataPath()) {
+	constructor(workspacePath: string) {
 		super();
 		this.workspacePath = path.resolve(workspacePath);
 	}
@@ -45,13 +44,5 @@ export class Workspace extends AgentWorkspace {
 			throw new Error(`Workspace file path resolves outside workspace: ${filePath}`);
 		}
 		return resolvedPath;
-	}
-}
-
-function resolveAppDataPath(): string {
-	try {
-		return app.getPath('appData');
-	} catch {
-		return path.resolve(process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd());
 	}
 }

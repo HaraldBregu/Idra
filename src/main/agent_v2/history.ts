@@ -1,14 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { app } from 'electron';
 import { History, HistoryEntry } from './core/history';
 
 export class SessionHistory extends History {
 	private readonly historyPath: string;
 
-	constructor() {
+	constructor(dataPath: string) {
 		super();
-		this.historyPath = path.join(resolveAppDataPath(), 'agent-history');
+		this.historyPath = path.join(path.resolve(dataPath), 'agent-history');
 	}
 
 	async create(sessionId: string): Promise<void> {
@@ -31,12 +30,4 @@ export class SessionHistory extends History {
 
 function safeName(value: string): string {
 	return value.replace(/[^a-zA-Z0-9._-]/g, '_') || 'session';
-}
-
-function resolveAppDataPath(): string {
-	try {
-		return app.getPath('appData');
-	} catch {
-		return path.resolve(process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd());
-	}
 }

@@ -1,3 +1,4 @@
+import path from 'node:path';
 import Store from 'electron-store';
 import { Settings as AgentSettings } from './core/settings';
 
@@ -15,10 +16,11 @@ type SettingsSchema = {
 export class Settings extends AgentSettings {
 	private readonly store: Store<SettingsSchema>;
 
-	constructor() {
+	constructor(dataPath: string) {
 		super();
 		this.store = new Store<SettingsSchema>({
 			name: 'agent.settings',
+			cwd: path.resolve(dataPath),
 			accessPropertiesByDotNotation: false,
 		});
 	}
