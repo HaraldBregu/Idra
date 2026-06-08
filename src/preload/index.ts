@@ -474,9 +474,6 @@ export const channels: ChannelsApi = {
 	getConfig: (): Promise<Channel> => {
 		return typedInvokeUnwrap(ChannelsChannels.getConfig);
 	},
-	getChannelConfig: <TKey extends ChannelType>(type: TKey): Promise<Channel[TKey]> => {
-		return typedInvokeUnwrap(ChannelsChannels.getChannelConfig, type) as Promise<Channel[TKey]>;
-	},
 	saveChannelConfig: <TKey extends ChannelType>(
 		type: TKey,
 		config: Channel[TKey]
