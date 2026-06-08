@@ -4,6 +4,7 @@ import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManag
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
 import { CronService } from './cron';
+import { HeartbeatService } from './heartbeat';
 import { ChannelRegistry, ChannelsService } from './channels';
 import { ConnectorsService } from './connectors';
 import { SkillsService } from './skills';
