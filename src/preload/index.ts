@@ -54,7 +54,7 @@ import { isModelReasoningEffort } from '../shared/agents/service';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from '../shared/connectors';
-import type { Provider, ProviderRecord } from '../shared/provider-store';
+import type { Provider } from '../shared/provider-store';
 import {
 	isRealtimeTranscriptionAudioChunk,
 	isRealtimeTranscriptionSessionId,
@@ -422,9 +422,6 @@ export const skills: SkillsApi = {
 };
 
 export const providerStore: ProviderStoreApi = {
-	list: (): Promise<ProviderRecord> => {
-		return typedInvokeUnwrap(ProviderStoreChannels.list);
-	},
 	get: (id: string): Promise<Provider | undefined> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
 	},

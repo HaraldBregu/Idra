@@ -29,7 +29,6 @@ import { AGENTS, type AgentId } from '../../../../shared/agents';
 import type { Model, ModelSelection } from '../../../../shared/agents/service';
 import type {
 	Provider as StoredProvider,
-	ProviderRecord,
 } from '../../../../shared/provider-store';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -222,8 +221,11 @@ function getStoredProviderValue(
 	};
 }
 
-function getPublicProvidersFromStore(storedProviders: ProviderRecord): PublicProvider[] {
-	return Object.entries(storedProviders).flatMap(([id, provider]) => {
+function getPublicProvidersFromStore(
+	storedProviders: readonly (readonly [string, StoredProvider | undefined])[]
+): PublicProvider[] {
+	return storedProviders.flatMap(([id, provider]) => {
+		if (!provider) return [];
 		const apiKey = provider.apiKey.trim();
 		if (!apiKey) return [];
 		const catalog = getDefaultProvider(id);
@@ -236,6 +238,17 @@ function getPublicProvidersFromStore(storedProviders: ProviderRecord): PublicPro
 		};
 		return [publicProvider];
 	});
+}
+
+async function getStoredProviderEntries(): Promise<
+	readonly (readonly [string, StoredProvider | undefined])[]
+> {
+	return Promise.all(
+		actionableProviderCatalog.map(async (provider) => [
+			provider.id,
+			await window.providerStore.get(provider.id),
+		] as const)
+	);
 }
 
 function getAgentModelValue(providerId: string, modelId: string): string {
@@ -416,13 +429,13 @@ const StartPage: React.FC = () => {
 
 		async function loadApiKeyStatus(): Promise<void> {
 			try {
-				const storedProviders = await window.providerStore.list();
+				const storedProviders = await getStoredProviderEntries();
 				if (cancelled) return;
 
 				const savedByProviderId = new Map(
-					Object.entries(storedProviders).map(([providerId, provider]) => [
+					storedProviders.map(([providerId, provider]) => [
 						providerId,
-						provider.apiKey.trim().length > 0,
+						(provider?.apiKey.trim().length ?? 0) > 0,
 					])
 				);
 				const hasSavedProvider = [...savedByProviderId.values()].some(Boolean);
@@ -473,7 +486,7 @@ const StartPage: React.FC = () => {
 					textToVideoService,
 					textToSoundService,
 				] = await Promise.all([
-					window.providerStore.list(),
+					getStoredProviderEntries(),
 					window.app.getAgentService(),
 					window.app.getSpeechTranscriberService(),
 					window.app.getTextToSpeechService(),

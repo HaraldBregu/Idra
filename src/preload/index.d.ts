@@ -64,13 +64,12 @@ export interface SkillsApi {
 }
 
 export interface ProviderStoreApi {
-	list: () => Promise<ProviderRecord>;
 	get: (id: string) => Promise<Provider | undefined>;
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
 import type { PublicProvider } from '../shared/providers';
-import type { Provider, ProviderRecord } from '../shared/provider-store';
+import type { Provider } from '../shared/provider-store';
 import type {
 	CronSchedule,
 	CronScheduleEvent,

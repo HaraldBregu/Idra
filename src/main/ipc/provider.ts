@@ -11,7 +11,6 @@ export class ProviderStoreIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const providerStore = container.get('providerStore');
 
-		registerQuery(ProviderStoreChannels.list, () => providerStore.list());
 		registerQuery(ProviderStoreChannels.get, (id: string) => providerStore.get(id));
 		registerCommand(ProviderStoreChannels.set, (id: string, provider: Provider) =>
 			providerStore.set(id, provider)

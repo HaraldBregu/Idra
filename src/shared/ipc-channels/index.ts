@@ -27,7 +27,6 @@ export const ProviderChannels = {
 } as const;
 
 export const ProviderStoreChannels = {
-	list: 'provider-store:list',
 	get: 'provider-store:get',
 	set: 'provider-store:set',
 } as const;
@@ -256,10 +255,6 @@ interface SpeechToTextInvokeChannelMap {
 }
 
 interface ProviderStoreInvokeChannelMap {
-	[ProviderStoreChannels.list]: {
-		args: [];
-		result: import('../provider-store').ProviderRecord;
-	};
 	[ProviderStoreChannels.get]: {
 		args: [id: string];
 		result: import('../provider-store').Provider | undefined;
