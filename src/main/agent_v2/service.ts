@@ -48,8 +48,6 @@ export class AgentV2Service {
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
 
-		const system = await this.systemPrompt.build();
-
 		const run = this.runtime.run({
 			task: 'chat',
 			message,
@@ -60,7 +58,6 @@ export class AgentV2Service {
 			},
 			model,
 			sessionId,
-			system,
 			maxRetries: 1,
 		});
 		this.activeRuns.set(resolvedAgentId, run);
