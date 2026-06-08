@@ -61,6 +61,21 @@ export const AppChannels = {
 	getCameraPermission: 'app:get-camera-permission',
 	setCameraEnabled: 'app:set-camera-enabled',
 	requestCameraPermission: 'app:request-camera-permission',
+	getProviders: 'app:get-providers',
+	setProviderApiKey: 'app:set-provider-api-key',
+	isProviderApiKeySaved: 'app:is-provider-api-key-saved',
+	getAgentService: 'app:get-agent-service',
+	saveAgentService: 'app:save-agent-service',
+	getSpeechTranscriberService: 'app:get-speech-transcriber-service',
+	saveSpeechTranscriberService: 'app:save-speech-transcriber-service',
+	getTextToSpeechService: 'app:get-text-to-speech-service',
+	saveTextToSpeechService: 'app:save-text-to-speech-service',
+	getImageCreatorService: 'app:get-image-creator-service',
+	saveImageCreatorService: 'app:save-image-creator-service',
+	getTextToVideoService: 'app:get-text-to-video-service',
+	saveTextToVideoService: 'app:save-text-to-video-service',
+	getTextToSoundService: 'app:get-text-to-sound-service',
+	saveTextToSoundService: 'app:save-text-to-sound-service',
 } as const;
 
 export const CronChannels = {
@@ -120,34 +135,6 @@ export const ChannelsChannels = {
 	statusChanged: 'channels:status-changed',
 } as const;
 
-export const StoreChannels = {
-	getProviders: 'store:get-providers',
-	setProviderApiKey: 'store:set-provider-api-key',
-	isProviderApiKeySaved: 'store:is-provider-api-key-saved',
-	addProvider: 'store:add-provider',
-	getAssistantSettings: 'store:get-assistant-settings',
-	getSpeechToTextSettings: 'store:get-speech-to-text-settings',
-	getTextToSpeechSettings: 'store:get-text-to-speech-settings',
-	getImageCreatorSettings: 'store:get-image-creator-settings',
-	getTextToVideoSettings: 'store:get-text-to-video-settings',
-	getTextToSoundSettings: 'store:get-text-to-sound-settings',
-	getCronSettings: 'store:get-cron-settings',
-	getTaskSettings: 'store:get-task-settings',
-	getAgentRoutingSettings: 'store:get-agent-routing-settings',
-	getAgentService: 'store:get-agent-service',
-	saveAgentService: 'store:save-agent-service',
-	getSpeechTranscriberService: 'store:get-speech-transcriber-service',
-	saveSpeechTranscriberService: 'store:save-speech-transcriber-service',
-	getTextToSpeechService: 'store:get-text-to-speech-service',
-	saveTextToSpeechService: 'store:save-text-to-speech-service',
-	getImageCreatorService: 'store:get-image-creator-service',
-	saveImageCreatorService: 'store:save-image-creator-service',
-	getTextToVideoService: 'store:get-text-to-video-service',
-	saveTextToVideoService: 'store:save-text-to-video-service',
-	getTextToSoundService: 'store:get-text-to-sound-service',
-	saveTextToSoundService: 'store:save-text-to-sound-service',
-} as const;
-
 interface AppInvokeChannelMap {
 	[AppChannels.openAppDataFolder]: {
 		args: [];
@@ -196,6 +183,84 @@ interface AppInvokeChannelMap {
 	[AppChannels.requestCameraPermission]: {
 		args: [];
 		result: import('../app-permissions').CameraPermissionSettings;
+	};
+	[AppChannels.getProviders]: {
+		args: [];
+		result: import('../providers').PublicProvider[];
+	};
+	[AppChannels.setProviderApiKey]: {
+		args: [providerId: string, apiKey: string];
+		result: void;
+	};
+	[AppChannels.isProviderApiKeySaved]: {
+		args: [providerId: string];
+		result: boolean;
+	};
+	[AppChannels.getAgentService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AppChannels.saveAgentService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[AppChannels.getSpeechTranscriberService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AppChannels.saveSpeechTranscriberService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[AppChannels.getTextToSpeechService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AppChannels.saveTextToSpeechService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[AppChannels.getImageCreatorService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AppChannels.saveImageCreatorService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[AppChannels.getTextToVideoService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AppChannels.saveTextToVideoService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
+	};
+	[AppChannels.getTextToSoundService]: {
+		args: [];
+		result: import('../agents/service').ModelSelection | undefined;
+	};
+	[AppChannels.saveTextToSoundService]: {
+		args: [
+			provider: import('../providers').PublicProvider,
+			model: import('../agents/service').Model,
+		];
+		result: boolean;
 	};
 	[ProviderChannels.getModels]: {
 		args: [provider: import('../providers').PublicProvider];
@@ -422,127 +487,6 @@ interface ChannelsInvokeChannelMap {
 	};
 }
 
-interface StoreInvokeChannelMap {
-	[StoreChannels.getProviders]: {
-		args: [];
-		result: import('../providers').PublicProvider[];
-	};
-	[StoreChannels.setProviderApiKey]: {
-		args: [providerId: string, apiKey: string];
-		result: void;
-	};
-	[StoreChannels.isProviderApiKeySaved]: {
-		args: [providerId: string];
-		result: boolean;
-	};
-	[StoreChannels.addProvider]: {
-		args: [input: import('../providers').ProviderInput];
-		result: import('../providers').PublicProvider;
-	};
-	[StoreChannels.getAssistantSettings]: {
-		args: [];
-		result: import('../store').AssistantSettings | undefined;
-	};
-	[StoreChannels.getSpeechToTextSettings]: {
-		args: [];
-		result: import('../store').SpeechToTextSettings | undefined;
-	};
-	[StoreChannels.getTextToSpeechSettings]: {
-		args: [];
-		result: import('../store').TextToSpeechSettings | undefined;
-	};
-	[StoreChannels.getImageCreatorSettings]: {
-		args: [];
-		result: import('../store').ImageCreatorSettings | undefined;
-	};
-	[StoreChannels.getTextToVideoSettings]: {
-		args: [];
-		result: import('../store').TextToVideoSettings | undefined;
-	};
-	[StoreChannels.getTextToSoundSettings]: {
-		args: [];
-		result: import('../store').TextToSoundSettings | undefined;
-	};
-	[StoreChannels.getCronSettings]: {
-		args: [];
-		result: import('../store').CronSettings;
-	};
-	[StoreChannels.getTaskSettings]: {
-		args: [];
-		result: import('../store').TaskSettings;
-	};
-	[StoreChannels.getAgentRoutingSettings]: {
-		args: [];
-		result: import('../store').AgentRoutingSettings;
-	};
-	[StoreChannels.getAgentService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[StoreChannels.saveAgentService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getSpeechTranscriberService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[StoreChannels.saveSpeechTranscriberService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getTextToSpeechService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[StoreChannels.saveTextToSpeechService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getImageCreatorService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[StoreChannels.saveImageCreatorService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getTextToVideoService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[StoreChannels.saveTextToVideoService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-	[StoreChannels.getTextToSoundService]: {
-		args: [];
-		result: import('../agents/service').ModelSelection | undefined;
-	};
-	[StoreChannels.saveTextToSoundService]: {
-		args: [
-			provider: import('../providers').PublicProvider,
-			model: import('../agents/service').Model,
-		];
-		result: boolean;
-	};
-}
-
 export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
@@ -554,8 +498,7 @@ export interface InvokeChannelMap
 		HeartbeatInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
-		ChannelsInvokeChannelMap,
-		StoreInvokeChannelMap {}
+		ChannelsInvokeChannelMap {}
 
 export interface SendChannelMap {
 	[WindowChannels.minimize]: { args: [] };
