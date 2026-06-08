@@ -47,17 +47,6 @@ import type {
 	HeartbeatWakeRequest,
 } from '../shared/heartbeat';
 import type {
-	AssistantSettings,
-	AgentRoutingSettings,
-	CronSettings,
-	ImageCreatorSettings,
-	SpeechToTextSettings,
-	TextToSoundSettings,
-	TextToSpeechSettings,
-	TextToVideoSettings,
-	TaskSettings,
-} from '../shared/store';
-import type {
 	AgentResponseEvent,
 	Model,
 	ModelSelection,
