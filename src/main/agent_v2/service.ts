@@ -12,13 +12,7 @@ export interface AgentSendOptions {
 	sessionId?: string;
 	providerId?: string;
 	model?: string;
-	effort?: ModelReasoningEffort;
-	lightContext?: boolean;
 	streamEvent?: (event: AgentResponseEvent) => void;
-	toolsAllow?: string[];
-	toolsDeny?: string[];
-	sessionMetadata?: Partial<AgentSessionMetadata>;
-	cronContext?: unknown;
 }
 
 export class AgentV2Service {
