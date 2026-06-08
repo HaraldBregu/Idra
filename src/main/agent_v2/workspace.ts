@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { AgentWorkspace } from './core/workspace';
+import { Workspace as AgentWorkspace } from './core/workspace';
 
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 
