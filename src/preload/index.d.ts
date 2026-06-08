@@ -155,6 +155,11 @@ export interface AppApi {
 	saveTextToSoundService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 }
 
+export interface AgentStoreApi {
+	get: () => Promise<ModelSelection | undefined>;
+	set: (provider: PublicProvider, model: Model) => Promise<boolean>;
+}
+
 export interface RealtimeTranscriptionApi {
 	start: (request?: RealtimeTranscriptionStartRequest) => Promise<RealtimeTranscriptionSession>;
 	appendAudio: (sessionId: string, audio: string) => void;
@@ -167,6 +172,7 @@ declare global {
 	interface Window {
 		win: WindowApi;
 		app: AppApi;
+		agentStore: AgentStoreApi;
 		agent: AgentApi;
 		realtimeTranscription: RealtimeTranscriptionApi;
 		cron: CronApi;
