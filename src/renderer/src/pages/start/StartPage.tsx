@@ -1390,8 +1390,8 @@ const StartPage: React.FC = () => {
 								),
 						<>
 							{renderProviderModelFields({
-								providerSelectId: 'tts-provider',
-								modelSelectId: 'tts-model',
+								providerSelectId: MODEL_FIELD_IDS[AGENTS.textToSpeech].provider,
+								modelSelectId: MODEL_FIELD_IDS[AGENTS.textToSpeech].model,
 								providerId: textToSpeechProviderId,
 								modelId: selectedTextToSpeechModel,
 								groups: textToSpeechModelGroups,
