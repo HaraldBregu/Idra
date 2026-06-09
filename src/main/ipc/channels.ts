@@ -6,13 +6,15 @@ import { wrapSimpleHandler } from './core/error-handler';
 import { ChannelsChannels } from '../../shared/ipc/ipc-channels';
 import { type ChannelStatusEvent, type ChannelType } from '../../shared/channels';
 import { listChannelCatalog } from '../../shared/channels';
+import { ChannelRegistry } from '../channels';
+import { LoggerService } from '../observability';
 
 export class ChannelsIpc implements IpcModule {
 	readonly name = 'channels';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get('logger');
-		const channelRegistry = container.get('channelRegistry');
+		const logger = container.get(LoggerService);
+		const channelRegistry = container.get(ChannelRegistry);
 
 		ipcMain.handle(
 			ChannelsChannels.listCatalog,

@@ -11,6 +11,8 @@ import type {
 } from '../../shared/app/app-permissions';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc/ipc-channels';
+import { AppPermissionsService } from '../app/permissions';
+import { LoggerService } from '../observability';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
@@ -77,8 +79,8 @@ export class AppIpc implements IpcModule {
 	private trayEnabled = true;
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
-		const logger = container.get('logger');
-		const appPermissions = container.get('appPermissions');
+		const logger = container.get(LoggerService);
+		const appPermissions = container.get(AppPermissionsService);
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(

@@ -6,6 +6,7 @@ import { resolveAgentUsageLocation } from '../services/agent-service';
 import { AgentSettingsStore } from '../services/agent-settings-store';
 import { AgentStoreChannels } from '../../shared/ipc/ipc-channels';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
+import { ProviderStoreService } from '../services/provider-store';
 function toPublicProvider(providerId: string): PublicProvider | undefined {
 	const catalogProvider = DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
 	if (!catalogProvider) return undefined;
@@ -26,7 +27,7 @@ export class AgentStoreIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const settings = new AgentSettingsStore(
 			resolveAgentUsageLocation(),
-			container.get('providerStore')
+			container.get(ProviderStoreService)
 		);
 
 		registerQuery(AgentStoreChannels.getProvider, (): PublicProvider | undefined => {

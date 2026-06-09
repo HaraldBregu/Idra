@@ -8,9 +8,10 @@ import { WindowIpc } from '../window';
 import type { IpcModule } from './module';
 import type { EventBus } from '../../services';
 import type { MainServiceContainer } from '../../services/services';
+import { LoggerService } from '../../observability';
 
 export function registerIpcHandlers(container: MainServiceContainer, eventBus: EventBus): void {
-	const logger = container.get('logger');
+	const logger = container.get(LoggerService);
 
 	const ipcModules: IpcModule[] = [
 		new AppIpc(),

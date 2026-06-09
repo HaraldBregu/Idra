@@ -8,6 +8,8 @@ import {
 	type CronSchedulePermissionLevel,
 	type CronScheduleFilter,
 } from '../../shared/app/cron';
+import { CronService } from '../cron';
+import { LoggerService } from '../observability';
 
 function uiActor(userId?: string) {
 	return {
@@ -29,8 +31,8 @@ export class CronIpc implements IpcModule {
 	readonly name = 'cron';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get('logger');
-		const cron = container.get('cron');
+		const logger = container.get(LoggerService);
+		const cron = container.get(CronService);
 
 		ipcMain.handle(
 			CronChannels.pauseSchedule,

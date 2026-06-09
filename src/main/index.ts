@@ -20,6 +20,7 @@ import {
 } from './observability/errorReporter';
 import { setupMemoryMonitor } from './observability/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
+import { AppPermissionsService } from './app/permissions';
 
 // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -134,7 +135,7 @@ const menuManager = new Menu({
 
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
-	setupMediaPermissionHandlers(container.get('appPermissions'));
+	setupMediaPermissionHandlers(container.get(AppPermissionsService));
 	menuManager.create();
 	trayManager.create();
 
