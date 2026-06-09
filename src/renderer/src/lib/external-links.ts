@@ -7,8 +7,12 @@ export function openExternalUrl(url: string): Promise<void> {
 	return window.app.openExternalUrl(url);
 }
 
-export function handleExternalLinkClick(event: React.MouseEvent<HTMLAnchorElement>): void {
-	const href = event.currentTarget.href;
+import type { MouseEvent } from 'react';
+
+export function handleExternalLinkClick(
+	event: MouseEvent<HTMLAnchorElement>,
+	href = event.currentTarget.href
+): void {
 	if (!isExternalHref(href)) return;
 	event.preventDefault();
 	void openExternalUrl(href);

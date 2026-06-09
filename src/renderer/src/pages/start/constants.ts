@@ -2,7 +2,7 @@ import { Bot, Image as ImageIcon, Mic, Music, Video, Volume2 } from 'lucide-reac
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
-	type Provider,
+	type Provider as CatalogProvider,
 } from '../../../../shared/providers';
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
@@ -124,7 +124,7 @@ export const STEP_COPY: Record<'presentation' | 'providers', { title: string; de
 		},
 	};
 
-function normalizeProvider(provider: Provider, index: number): ProviderOption {
+function normalizeProvider(provider: CatalogProvider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;
 	return { label, value };

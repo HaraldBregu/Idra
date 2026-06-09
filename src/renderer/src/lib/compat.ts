@@ -46,6 +46,7 @@ export interface AgentHistoryMessage {
 	role: 'user' | 'agent' | 'assistant' | 'tool';
 	content?: string | null;
 	blocks?: AgentHistoryContentBlock[];
+	contentBlocks?: AgentHistoryContentBlock[];
 	toolUseId?: string;
 	isError?: boolean;
 	status?: AgentToolCallStatus;

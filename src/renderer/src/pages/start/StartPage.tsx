@@ -27,9 +27,7 @@ import {
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '@/lib/compat';
 import { appApi, getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
-import type {
-	Provider as StoredProvider,
-} from '@/lib/compat';
+import type { StoredProvider } from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
