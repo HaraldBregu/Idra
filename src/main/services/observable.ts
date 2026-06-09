@@ -24,9 +24,6 @@ export class Observable<TEvent> {
 		this.subscribers = [];
 	}
 
-	/**
-	 * Get the current number of subscribers (useful for debugging)
-	 */
 	protected getSubscriberCount(): number {
 		return this.subscribers.length;
 	}
