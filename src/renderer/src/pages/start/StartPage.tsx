@@ -1477,8 +1477,8 @@ const StartPage: React.FC = () => {
 								),
 						<>
 							{renderProviderModelFields({
-								providerSelectId: 'audio-provider',
-								modelSelectId: 'audio-model',
+								providerSelectId: MODEL_FIELD_IDS[AGENTS.textToAudio].provider,
+								modelSelectId: MODEL_FIELD_IDS[AGENTS.textToAudio].model,
 								providerId: musicCreatorProviderId,
 								modelId: selectedMusicCreatorModel,
 								groups: musicCreatorModelGroups,
