@@ -1,5 +1,5 @@
 import { getLlmModels, type Model, type ModelSelection } from '../../shared/agents/service';
-import { AgentStoreChannels } from '../../shared/ipc-channels';
+import { AgentStoreChannels } from '../../shared/ipc/ipc-channels';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
 import { resolveAgentUsageLocation } from '../services/agent-service';
 import { Settings } from '../services/settings';

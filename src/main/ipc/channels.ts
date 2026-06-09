@@ -3,7 +3,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
-import { ChannelsChannels } from '../../shared/ipc-channels';
+import { ChannelsChannels } from '../../shared/ipc/ipc-channels';
 import { type ChannelStatusEvent, type ChannelType } from '../../shared/channels';
 import { listChannelCatalog } from '../../shared/channels';
 

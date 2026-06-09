@@ -69,13 +69,13 @@ export interface ProviderStoreApi {
 }
 
 import type { PublicProvider } from '../shared/providers';
-import type { Provider } from '../shared/provider-store';
+import type { Provider } from '../shared/providers/types';
 import type {
 	CronSchedule,
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduledTask,
-} from '../shared/cron';
+} from '../shared/app/cron';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
@@ -112,7 +112,7 @@ import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
-} from '../shared/app-permissions';
+} from '../shared/app/app-permissions';
 import type {
 	RealtimeTranscriptionEvent,
 	RealtimeTranscriptionSession,

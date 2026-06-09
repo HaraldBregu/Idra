@@ -8,7 +8,7 @@ import type {
 	CronScheduleType,
 	CronScheduleUpdateRequest,
 	CronScheduleVisibility,
-} from '../../../shared/cron';
+} from '../../../shared/app/cron';
 import type { ToolContext } from '../core/tool';
 
 const CRON_TOOL_PERMISSIONS: CronSchedulePermissionLevel[] = [

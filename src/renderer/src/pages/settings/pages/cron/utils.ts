@@ -2,7 +2,7 @@ import type {
 	CronJsonValue,
 	CronSchedule,
 	CronScheduleStatus,
-} from '../../../../../../shared/cron';
+} from '../../../../../../shared/app/cron';
 
 export function formatTimestamp(value: number | string | undefined): string {
 	if (value === undefined || value === '') return '-';

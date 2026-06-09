@@ -1,5 +1,5 @@
 import type { ScheduledTask } from 'node-cron';
-import type { CronTask } from '../../shared/cron';
+import type { CronTask } from '../../shared/app/cron';
 
 export interface CronJobOptions {
 	timezone?: string;

@@ -3,7 +3,7 @@ import type {
 	CronJobDeliveryState,
 	CronJobDefinition,
 	CronJobRunRecord,
-} from '../../shared/cron';
+} from '../../shared/app/cron';
 import type {
 	CronJobDeliveryPort,
 	CronJobExecutionOutcome,

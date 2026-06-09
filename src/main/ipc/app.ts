@@ -13,9 +13,9 @@ import type {
 	CameraPermissionSettings,
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
-} from '../../shared/app-permissions';
+} from '../../shared/app/app-permissions';
 import { wrapSimpleHandler } from './core/error-handler';
-import { AppChannels } from '../../shared/ipc-channels';
+import { AppChannels } from '../../shared/ipc/ipc-channels';
 import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
 import {
 	DEFAULT_PROVIDERS,
@@ -32,7 +32,7 @@ import {
 	type Model,
 	type ModelSelection,
 } from '../../shared/agents/service';
-import type { Provider as StoredProvider } from '../../shared/provider-store';
+import type { Provider as StoredProvider } from '../../shared/providers/types';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',

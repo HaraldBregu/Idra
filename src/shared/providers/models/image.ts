@@ -1,4 +1,4 @@
-import { model, type ModelCatalog } from './models';
+import { model, type ModelCatalog } from './types';
 
 export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
 	'black-forest-labs': [

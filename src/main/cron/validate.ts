@@ -4,7 +4,7 @@ import type {
 	CronJobPayload,
 	CronJobSchedule,
 	CronJobSessionTarget,
-} from '../../shared/cron';
+} from '../../shared/app/cron';
 import {
 	CronExpressionError,
 	CronScheduleValidationError,

@@ -1,6 +1,6 @@
 import type { ModelReasoningEffort } from './agents/service';
 import type { CronStoreState, CronTask } from './cron';
-import type { Provider } from './providers';
+import type { Provider } from '../providers';
 
 export type ProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
 export type ProvidersSettings = ProviderSettings[];

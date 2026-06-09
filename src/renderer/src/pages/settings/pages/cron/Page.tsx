@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { CronSchedule } from '../../../../../../shared/cron';
+import type { CronSchedule } from '../../../../../../shared/app/cron';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,

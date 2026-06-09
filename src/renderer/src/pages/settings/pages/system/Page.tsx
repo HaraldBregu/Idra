@@ -27,7 +27,7 @@ import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
 	SystemPreferencePaneId,
-} from '../../../../../../shared/app-permissions';
+} from '../../../../../../shared/app/app-permissions';
 import {
 	SYSTEM_CAPABILITY_GROUPS,
 	type SystemCapabilityAvailability,

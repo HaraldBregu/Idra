@@ -2,7 +2,7 @@ import type {
 	CronJobDefinition,
 	CronJobState,
 	CronJobRunRecord,
-} from '../../shared/cron';
+} from '../../shared/app/cron';
 import { assertSafeCronId, cronJobScheduleIdentity } from './validate';
 import { CRON_JOB_STORE_SCHEMA_VERSION } from './constants';
 

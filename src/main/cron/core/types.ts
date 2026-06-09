@@ -15,7 +15,7 @@ import type {
 	CronScheduleSource,
 	CronScheduleUpdateRequest,
 	CronScheduledTask,
-} from '../../../shared/cron';
+} from '../../../shared/app/cron';
 
 export type {
 	CronConcurrencyPolicy,
@@ -48,7 +48,7 @@ export type {
 	CronTaskPriority,
 	CronTimezone,
 	CronValidationResult,
-} from '../../../shared/cron';
+} from '../../../shared/app/cron';
 
 export interface CronActorContext {
 	userId?: string;

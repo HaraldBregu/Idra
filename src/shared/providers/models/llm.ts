@@ -1,4 +1,4 @@
-import { mergeModelCatalogs, model, type ModelCatalog } from './models';
+import { mergeModelCatalogs, model, type ModelCatalog } from './types';
 
 export const LLM_MODELS_BY_PROVIDER = {
 	anthropic: [

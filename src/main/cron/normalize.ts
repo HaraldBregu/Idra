@@ -1,4 +1,4 @@
-import { CRON_DEFERRED_WAKE_MODE } from '../../shared/cron';
+import { CRON_DEFERRED_WAKE_MODE } from '../../shared/app/cron';
 import type {
 	CronJobAddRequest,
 	CronJobCanonicalToolRequest,
@@ -10,7 +10,7 @@ import type {
 	CronJobToolRequest,
 	CronJobUpdateRequest,
 	CronJobWakeMode,
-} from '../../shared/cron';
+} from '../../shared/app/cron';
 import type { CronJobActor } from './jobs';
 import { CRON_JOB_AGENT_TURN_FIELDS, CRON_JOB_CONTROL_FIELDS } from './constants';
 

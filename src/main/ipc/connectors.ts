@@ -3,7 +3,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
-import { ConnectorsChannels } from '../../shared/ipc-channels';
+import { ConnectorsChannels } from '../../shared/ipc/ipc-channels';
 import type { ConnectorRecord } from '../../shared/connectors';
 
 export class ConnectorsIpc implements IpcModule {

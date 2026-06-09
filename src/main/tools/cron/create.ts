@@ -8,7 +8,7 @@ import {
 	cronService,
 } from './utils';
 import { jsonText } from '../core/shared/json-text';
-import type { CronScheduleCreateRequest } from '../../../shared/cron';
+import type { CronScheduleCreateRequest } from '../../../shared/app/cron';
 
 export const cronCreateTool: AgentTool<CronCreateArgs> = {
 	name: 'cron_create',

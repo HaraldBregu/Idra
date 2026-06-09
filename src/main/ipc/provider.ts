@@ -2,8 +2,8 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
-import { ProviderStoreChannels } from '../../shared/ipc-channels';
-import type { Provider } from '../../shared/provider-store';
+import { ProviderStoreChannels } from '../../shared/ipc/ipc-channels';
+import type { Provider } from '../../shared/providers/types';
 
 export class ProviderStoreIpc implements IpcModule {
 	readonly name = 'provider-store';

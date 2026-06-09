@@ -1,9 +1,3 @@
-/**
- * Base shape every cron task payload must satisfy: a string `type`
- * discriminator chosen by the caller at task creation. Concrete data shapes
- * extend this with whatever extra fields they need. New variants are added
- * by declaring them at the call site — no central registry to update.
- */
 export interface CronTaskData<TType extends string = string> {
 	readonly type: TType;
 }

@@ -12,7 +12,7 @@ import {
 	type CronStoredTarget,
 	type CronTask,
 	type CronTaskData,
-} from '../../shared/cron';
+} from '../../shared/app/cron';
 import type { CronJobOptions, RegisteredJob } from './types';
 import type { CronActorContext, CronScheduleStore } from './core/types';
 import { ElectronStoreCronScheduleStore } from './store';

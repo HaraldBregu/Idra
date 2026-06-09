@@ -3,7 +3,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
-import { AgentChannels } from '../../shared/ipc-channels';
+import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { AgentSendRuntimeOptions } from '../../shared/agents/service';
 import type { AgentSendOptions } from '../services/agent-service';
 

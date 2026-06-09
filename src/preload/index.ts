@@ -12,7 +12,7 @@ import {
 	CronChannels,
 	HeartbeatChannels,
 	SkillsChannels,
-} from '../shared/ipc-channels';
+} from '../shared/ipc/ipc-channels';
 import type {
 	AppApi,
 	AgentStoreApi,
@@ -32,7 +32,7 @@ import type {
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduledTask,
-} from '../shared/cron';
+} from '../shared/app/cron';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatSetEnabledRequest,
@@ -54,7 +54,7 @@ import { isModelReasoningEffort } from '../shared/agents/service';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from '../shared/connectors';
-import type { Provider } from '../shared/provider-store';
+import type { Provider } from '../shared/providers/types';
 import {
 	isRealtimeTranscriptionAudioChunk,
 	isRealtimeTranscriptionSessionId,

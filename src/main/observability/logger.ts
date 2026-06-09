@@ -3,7 +3,7 @@ import path from 'node:path';
 import { app } from 'electron';
 import type { Disposable } from '../services/service-container';
 import type { EventBus } from '../services/event-bus';
-import type { AppLogEntry } from '../../shared/app-log';
+import type { AppLogEntry } from '../../shared/app/app-log';
 
 /**
  * Log levels in order of severity

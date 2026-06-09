@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { CRON_DEFERRED_WAKE_MODE } from '../../shared/cron';
+import { CRON_DEFERRED_WAKE_MODE } from '../../shared/app/cron';
 import type {
 	CronJsonObject,
 	CronJobAddRequest,
@@ -17,7 +17,7 @@ import type {
 	CronJobToolResponse,
 	CronJobUpdateRequest,
 	CronJobWakeMode,
-} from '../../shared/cron';
+} from '../../shared/app/cron';
 import type { CronSchedule } from './core/types';
 import { CronPermissionError, CronScheduleNotFoundError } from './core/errors';
 import { CronNextRunCalculator } from './calculator';
