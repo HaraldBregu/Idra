@@ -34,7 +34,6 @@ const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page')
 const ModelServicePage = lazy(() => import('./pages/settings/pages/model-services/Page'));
 const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
 const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
-const HeartbeatPage = lazy(() => import('./pages/settings/pages/heartbeat/Page'));
 
 function RouteWrapper({
 	children,
@@ -271,14 +270,6 @@ const routes: RouteObject[] = [
 								),
 							},
 						],
-					},
-					{
-						path: 'heartbeat',
-						element: (
-							<SettingsRouteWrapper>
-								<HeartbeatPage />
-							</SettingsRouteWrapper>
-						),
 					},
 					{
 						path: '*',

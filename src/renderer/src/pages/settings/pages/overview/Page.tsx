@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
@@ -51,7 +51,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'automation',
 		titleKey: 'settings.overview.groups.automation',
-		paths: ['/settings/heartbeat', '/settings/cron'],
+		paths: ['/settings/cron'],
 	},
 ] satisfies readonly {
 	readonly id: string;
@@ -151,14 +151,6 @@ function SettingsOverviewCard({
 
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [heartbeatEnabled, setHeartbeatEnabled] = useState<boolean | null>(null);
-
-	useEffect(() => {
-		void window.heartbeat.status().then((s) => setHeartbeatEnabled(s.enabled));
-		return window.heartbeat.onEvent(() => {
-			void window.heartbeat.status().then((s) => setHeartbeatEnabled(s.enabled));
-		});
-	}, []);
 
 	return (
 		<SettingsPageShell>
@@ -175,20 +167,7 @@ const OverviewPage: React.FC = () => {
 							})}
 							{group.paths.map((path) => {
 								const item = getSettingsNavigationItem(path);
-								const badge =
-									path === '/settings/heartbeat' && heartbeatEnabled !== null ? (
-										<Badge
-											variant={heartbeatEnabled ? 'outline' : 'secondary'}
-											className="h-5 rounded-md px-1.5 text-[10px]"
-										>
-											{t(
-												heartbeatEnabled
-													? 'settings.heartbeat.values.enabled'
-													: 'settings.heartbeat.values.paused'
-											)}
-										</Badge>
-									) : undefined;
-								return <SettingsOverviewCard key={item.path} item={item} badge={badge} />;
+								return <SettingsOverviewCard key={item.path} item={item} />;
 							})}
 						</SettingsPanel>
 					);

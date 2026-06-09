@@ -1,5 +1,4 @@
 import {
-	Activity,
 	Bot,
 	CalendarClock,
 	ImageIcon,
@@ -124,8 +123,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
 	// Cron
 	{ path: '/settings/cron', labelKey: 'settings.sections.taskScheduler', keywords: 'cron schedule recurring task expression timezone' },
-	// Heartbeat
-	{ path: '/settings/heartbeat', labelKey: 'settings.sections.heartbeat', keywords: 'heartbeat periodic wake manual system event status' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
@@ -164,12 +161,6 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.channels',
 		descriptionKey: 'settings.overview.descriptions.channels',
 		icon: RadioTower,
-	},
-	{
-		path: '/settings/heartbeat',
-		labelKey: 'settings.tabs.heartbeat',
-		descriptionKey: 'settings.overview.descriptions.heartbeat',
-		icon: Activity,
 	},
 	{
 		path: '/settings/cron',
