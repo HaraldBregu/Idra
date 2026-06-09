@@ -79,6 +79,11 @@ type ProviderModelOption = {
 	model: Model;
 };
 
+type AssistantProviderSelectItem = {
+	id: string;
+	label: string;
+};
+
 type AgentModelOption = {
 	value: string;
 	provider: PublicProvider;
@@ -222,11 +227,22 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	};
 }
 
-function getLlmProvidersFromCatalog(): PublicProvider[] {
+function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	const providersById = new Map(DEFAULT_PROVIDERS.map((provider) => [provider.id, provider]));
+	return providersById.get(providerId);
+}
+
+function getLlmProvidersFromCatalog(): PublicProvider[] {
 	return LLM_PROVIDERS.flatMap((providerId) => {
-		const provider = providersById.get(providerId);
+		const provider = getCatalogProviderById(providerId);
 		return provider ? [toPublicProvider(provider)] : [];
+	});
+}
+
+function getLlmProviderSelectItems(): AssistantProviderSelectItem[] {
+	return LLM_PROVIDERS.flatMap((providerId) => {
+		const provider = getCatalogProviderById(providerId);
+		return provider ? [{ id: provider.id, label: provider.name }] : [];
 	});
 }
 
@@ -342,7 +358,7 @@ const StartPage: React.FC = () => {
 	);
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
-	const assistantProviderOptions = useMemo(() => getLlmProvidersFromCatalog(), []);
+	const assistantProviderItems = useMemo(() => getLlmProviderSelectItems(), []);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
 	const hasProviderDraft = providerEntries.some(
@@ -441,19 +457,38 @@ const StartPage: React.FC = () => {
 				const agentService = await window.agentStore.get();
 				if (cancelled) return;
 
+				const savedProviderEntries = await Promise.all(
+					assistantProviderItems.map(async (provider) => {
+						try {
+							const stored = await window.providerStore.get(provider.id);
+							return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
+						} catch {
+							return [provider.id, false] as const;
+						}
+					})
+				);
+				if (cancelled) return;
+
 				const savedProviderIds = new Set(
+					savedProviderEntries
+						.filter(([, hasApiKey]) => hasApiKey)
+						.map(([providerId]) => providerId)
+				);
+				const draftProviderIds = new Set(
 					providerEntries
-						.filter((entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0)
+						.filter((entry) => entry.apiKey.trim().length > 0)
 						.map((entry) => entry.providerId)
 				);
-				const selectableProviders = assistantProviderOptions.filter(
+				const selectableProviders = getLlmProvidersFromCatalog().filter(
 					(provider) => getLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
 					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
 					selectableProviders.find(
 						(provider) =>
-							connectedProviderIds.has(provider.id) || savedProviderIds.has(provider.id)
+							connectedProviderIds.has(provider.id) ||
+							savedProviderIds.has(provider.id) ||
+							draftProviderIds.has(provider.id)
 					) ??
 					selectableProviders[0];
 
@@ -498,7 +533,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [assistantProviderOptions, connectedProviderIds, step]);
+	}, [assistantProviderItems, connectedProviderIds, providerEntries, step]);
 
 	useEffect(() => {
 		if (step !== 'models') return;
