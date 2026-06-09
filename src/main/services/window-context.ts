@@ -19,10 +19,6 @@ export interface WindowContextConfig {
 	serviceFactory?: WindowScopedServiceFactory;
 }
 
-/**
- * WindowContext encapsulates all per-window state and services.
- * Each BrowserWindow gets its own WindowContext instance.
- */
 export class WindowContext {
 	public readonly windowId: number;
 	public readonly window: BrowserWindow;
