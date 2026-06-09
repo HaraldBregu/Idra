@@ -108,7 +108,7 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
-		const signal = new AbortController().signal;
+		const signal = input.signal ?? new AbortController().signal;
 
 		return this.stream(input, provider, modelId, signal);
 	}
