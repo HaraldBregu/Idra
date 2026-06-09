@@ -20,7 +20,7 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
 
-	@Inject()
+	@Inject(() => ProviderStoreService)
 	private readonly providerStore!: ProviderStoreService;
 
 	constructor() {
