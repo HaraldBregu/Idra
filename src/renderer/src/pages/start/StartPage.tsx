@@ -1301,13 +1301,13 @@ const StartPage: React.FC = () => {
 										</SelectContent>
 									</Select>
 								</SettingsField>
-								<SettingsField id="agent-model" label="Model">
+								<SettingsField id={MODEL_FIELD_IDS[AGENTS.assistant].model} label="Model">
 									<Select
 										value={selectedModel}
 										onValueChange={handleAgentModelChange}
 										disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
 									>
-										<SelectTrigger id="agent-model" className="w-full text-xs sm:w-72">
+										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].model} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={modelCountLabel} />
 										</SelectTrigger>
 										<SelectContent>
