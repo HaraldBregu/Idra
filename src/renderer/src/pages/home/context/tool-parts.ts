@@ -3,7 +3,7 @@ import type {
 	AgentHistoryContentBlock,
 	AgentResponseEvent,
 	AgentToolCallStatus,
-} from '../@/lib/compat';
+} from '@/lib/compat';
 
 export type AgentToolPart = ToolPart & {
 	toolCallId: string;

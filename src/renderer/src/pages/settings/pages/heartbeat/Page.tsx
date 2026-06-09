@@ -30,8 +30,8 @@ import {
 	supportsModelReasoningEffortProvider,
 	type Model,
 	type ModelReasoningEffort,
-} from '../../@/lib/compat';
-import { getDefaultAgentModels } from '../../@/lib/compat/models';
+} from '@/lib/compat';
+import { getDefaultAgentModels } from '@/lib/compat';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatEventStatus,

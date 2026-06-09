@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
-import type { ModelReasoningEffort } from '../@/lib/compat';
+import type { ModelReasoningEffort } from '@/lib/compat';
 import { useHomeAgentContext } from '../context';
 
 type WindowWithOptionalAgent = Window & {
