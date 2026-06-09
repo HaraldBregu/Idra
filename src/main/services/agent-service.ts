@@ -5,7 +5,7 @@ import { AgentSettingsStore } from './agent-settings-store';
 import { AgentWorkspace } from './agent-workspace';
 import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
-import { RuntimeEvent, RuntimeRun } from '../agent';
+import { RuntimeEvent } from '../agent';
 import { AgentResponseEvent, AgentRunStopReason } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
@@ -18,7 +18,7 @@ export interface AgentSendOptions {
 }
 
 export class AgentService {
-	private readonly activeRuns = new Map<string, RuntimeRun>();
+	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
@@ -44,19 +44,21 @@ export class AgentService {
 
 		let response = '';
 		let providerId = options.providerId ?? '';
-		let run: RuntimeRun | undefined;
+		let controller: AbortController | undefined;
 		try {
-			run = this.runtime.run({
+			controller = new AbortController();
+			const stream = this.runtime.run({
 				task: 'chat',
 				message,
 				providerId: options.providerId,
 				modelId: options.modelId,
 				sessionId,
 				maxRetries: 1,
+				signal: controller.signal,
 			});
-			this.activeRuns.set(resolvedAgentId, run);
+			this.activeRuns.set(resolvedAgentId, controller);
 
-			for await (const event of run.stream) {
+			for await (const event of stream) {
 				if (event.type === 'run_started')
 					providerId = event.providerId;
 				if (event.type === 'model_call_delta')
@@ -86,18 +88,18 @@ export class AgentService {
 			options.streamEvent?.(responseEvent);
 			throw cause;
 		} finally {
-			if (run && this.activeRuns.get(resolvedAgentId) === run)
+			if (controller && this.activeRuns.get(resolvedAgentId) === controller)
 				this.activeRuns.delete(resolvedAgentId);
 		}
 	}
 
 	cancel(agentId?: string): void {
 		if (agentId) {
-			this.activeRuns.get(agentId)?.stop('cancelled');
+			this.activeRuns.get(agentId)?.abort();
 			this.activeRuns.delete(agentId);
 			return;
 		}
-		for (const run of this.activeRuns.values()) run.stop('cancelled');
+		for (const controller of this.activeRuns.values()) controller.abort();
 		this.activeRuns.clear();
 	}
 
@@ -198,9 +200,6 @@ function runtimeEventToAgentEvents(
 			},
 			{ type: 'run_state', state: 'completed', agentId, runId },
 		];
-	}
-	if (event.type === 'run_stopped') {
-		return [{ type: 'run_state', state: 'cancelled', label: event.reason, agentId, runId }];
 	}
 	return [];
 }
