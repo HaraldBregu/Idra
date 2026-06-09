@@ -1,6 +1,6 @@
 import type { ContainerInstance } from 'typedi';
 import type { EventBus } from './index';
-import type { LoggerService } from '../observability';
+import { LoggerService } from '../observability';
 
 /**
  * Context available to every window-scoped service factory function.
@@ -75,7 +75,7 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
 			eventBus: EventBus;
 		}
 	): Promise<void> {
-		const logger = context.globalContainer.get('logger') as LoggerService;
+		const logger = context.globalContainer.get(LoggerService);
 		logger?.info(
 			'WindowScopedServiceFactory',
 			`Creating ${this.definitions.size} window-scoped services`
