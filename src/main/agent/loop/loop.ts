@@ -110,7 +110,7 @@ export class AgentRuntime {
 				return;
 			}
 
-			const results = yield* runToolCalls(input.tools ?? [], turn.toolCalls);
+			const results = yield* this.runToolCalls(input.tools ?? [], turn.toolCalls);
 			session.addToolResults(turn.toolCalls, results);
 			await this.history.append(session.id, { type: 'tool_results', data: results });
 			yield { type: 'user_message', messages: results };
@@ -176,26 +176,26 @@ export class AgentRuntime {
 
 		return { content: '', model: modelId, toolCalls: [] };
 	}
-}
 
-async function* runToolCalls(
-	tools: RuntimeTool[],
-	toolCalls: Required<RuntimeToolCall>[]
-): AsyncGenerator<RuntimeEvent, RuntimeMessage[]> {
-	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
-	const results: RuntimeMessage[] = [];
+	private async *runToolCalls(
+		tools: RuntimeTool[],
+		toolCalls: Required<RuntimeToolCall>[]
+	): AsyncGenerator<RuntimeEvent, RuntimeMessage[]> {
+		const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
+		const results: RuntimeMessage[] = [];
 
-	for (const toolCall of toolCalls) {
-		yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };
-		const outcome = await runTool(toolMap.get(toolCall.name), toolCall);
-		yield { type: 'tool_call_end', toolName: toolCall.name, output: outcome.output };
+		for (const toolCall of toolCalls) {
+			yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };
+			const outcome = await runTool(toolMap.get(toolCall.name), toolCall);
+			yield { type: 'tool_call_end', toolName: toolCall.name, output: outcome.output };
 
-		results.push({
-			role: 'tool',
-			toolUseId: toolCall.id,
-			content: formatToolOutput(outcome.output),
-		});
+			results.push({
+				role: 'tool',
+				toolUseId: toolCall.id,
+				content: formatToolOutput(outcome.output),
+			});
+		}
+
+		return results;
 	}
-
-	return results;
 }
