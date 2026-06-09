@@ -4,7 +4,6 @@ export type {
 	AgentStoreApi,
 	AgentApi,
 	CronApi,
-	HeartbeatApi,
 	ChannelsApi,
 	ConnectorsApi,
 	SkillsApi,

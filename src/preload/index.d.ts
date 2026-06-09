@@ -23,18 +23,6 @@ export interface CronApi {
 	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
 }
 
-export interface HeartbeatApi {
-	status: () => Promise<HeartbeatStatus>;
-	settings: () => Promise<HeartbeatSettings>;
-	saveSettings: (request: HeartbeatSettingsUpdate) => Promise<HeartbeatSettings>;
-	setEnabled: (request: HeartbeatSetEnabledRequest) => Promise<HeartbeatStatus>;
-	getTiming: () => Promise<HeartbeatTimingSettings>;
-	updateTiming: (request: HeartbeatTimingSettings) => Promise<HeartbeatTimingSettings>;
-	systemEvent: (request: HeartbeatSystemEventRequest) => Promise<HeartbeatSystemEventResult>;
-	request: (request: HeartbeatWakeRequest) => Promise<void>;
-	onEvent: (callback: (event: HeartbeatEventPayload) => void) => () => void;
-}
-
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
@@ -76,7 +64,7 @@ import type {
 	CronScheduleFilter,
 	CronScheduledTask,
 } from '../shared/app/cron';
-import type { AgentResponseEvent, ModelReasoningEffort } from '../shared/agent/types';
+import type { AgentResponseEvent } from '../shared/agent/types';
 import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
@@ -157,105 +145,6 @@ export type OAuthAuthorizeResult = {
 	accountEmail?: string;
 	connectedAt: string;
 };
-
-export interface HeartbeatActiveHoursConfig {
-	start?: string;
-	end?: string;
-	timezone?: string;
-}
-
-export type HeartbeatTarget = 'none' | 'last' | ChannelType | string;
-
-export interface HeartbeatWakeOverride {
-	target?: HeartbeatTarget;
-	to?: string;
-	accountId?: string;
-}
-
-export interface HeartbeatStatus {
-	enabled: boolean;
-	runnerActive: boolean;
-	agentCount: number;
-	nextDueMs?: number;
-	lastHeartbeat: HeartbeatEventPayload | null;
-}
-
-export interface HeartbeatSettings {
-	every: string;
-	activeHours?: HeartbeatActiveHoursConfig;
-	providerId?: PublicProvider['id'];
-	modelId?: Model['id'];
-	reasoningEffort?: ModelReasoningEffort;
-}
-
-export type HeartbeatSettingsUpdate = Partial<HeartbeatSettings>;
-
-export interface HeartbeatSetEnabledRequest {
-	enabled: boolean;
-}
-
-export interface HeartbeatTimingSettings {
-	every: string;
-	activeHours?: HeartbeatActiveHoursConfig;
-}
-
-export interface HeartbeatSystemEventRequest {
-	text: string;
-	mode?: 'now' | 'next-heartbeat';
-	agentId?: string;
-	sessionKey?: string;
-	heartbeat?: HeartbeatWakeOverride;
-}
-
-export interface HeartbeatSystemEventResult {
-	queued: true;
-	sessionKey: string;
-	mode: 'now' | 'next-heartbeat';
-}
-
-export type HeartbeatWakeSource =
-	| 'interval'
-	| 'manual'
-	| 'exec-event'
-	| 'notifications-event'
-	| 'cron'
-	| 'hook'
-	| 'background-task'
-	| 'background-task-blocked'
-	| 'acp-spawn'
-	| 'cli-watchdog'
-	| 'restart-sentinel'
-	| 'retry'
-	| 'other';
-
-export type HeartbeatWakeIntent = 'scheduled' | 'event' | 'immediate' | 'manual';
-
-export interface HeartbeatWakeRequest {
-	source: HeartbeatWakeSource;
-	intent: HeartbeatWakeIntent;
-	reason?: string;
-	agentId?: string;
-	sessionKey?: string;
-	heartbeat?: HeartbeatWakeOverride;
-	coalesceMs?: number;
-}
-
-export type HeartbeatEventStatus = 'sent' | 'ok-empty' | 'ok-token' | 'skipped' | 'failed';
-export type HeartbeatIndicatorType = 'ok' | 'alert' | 'error';
-
-export interface HeartbeatEventPayload {
-	timestamp: number;
-	status: HeartbeatEventStatus;
-	channel?: string;
-	target?: string;
-	accountId?: string;
-	preview?: string;
-	durationMs?: number;
-	hasMedia?: boolean;
-	reason?: string;
-	silent?: boolean;
-	indicatorType?: HeartbeatIndicatorType;
-}
 
 export interface RealtimeTranscriptionStartRequest {
 	language?: string;
@@ -359,7 +248,6 @@ declare global {
 		agent: AgentApi;
 		realtimeTranscription: RealtimeTranscriptionApi;
 		cron: CronApi;
-		heartbeat: HeartbeatApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
