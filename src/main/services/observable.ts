@@ -1,6 +1,3 @@
-/**
- * Unsubscribe function returned by Observable.subscribe()
- */
 export type Unsubscribe = () => void;
 
 export class Observable<TEvent> {
