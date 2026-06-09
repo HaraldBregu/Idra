@@ -34,10 +34,10 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger));
 
-	container.register('providerStore', new ProviderStoreService());
+	const providerStore = container.register('providerStore', new ProviderStoreService());
 	container.register('llm', new LlmService());
 
-	const agentService = container.register('agentService', new AgentV2Service());
+	const agentService = container.register('agentService', new AgentV2Service(providerStore));
 
 	container.register(
 		'channelRegistry',

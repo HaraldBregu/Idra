@@ -1,22 +1,26 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { Settings, Provider } from '../agent';
+import type { ProviderStoreService } from './provider-store';
+import type { Provider as StoredProvider } from '../../shared/providers/types';
 
 type SettingsSchema = {
-	provider: Provider | undefined;
+	providerId: string | undefined;
 	modelId: string | undefined;
 };
 
 const DEFAULT_SETTINGS: SettingsSchema = {
-	provider: undefined,
+	providerId: undefined,
 	modelId: undefined,
 };
 
 export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
+	private readonly providerStore: ProviderStoreService;
 
-	constructor(location: string) {
+	constructor(location: string, providerStore: ProviderStoreService) {
 		super();
+		this.providerStore = providerStore;
 		this.store = new Store<SettingsSchema>({
 			name: 'settings',
 			cwd: path.resolve(location),
@@ -26,12 +30,19 @@ export class AgentSettingsStore extends Settings {
 	}
 
 	getProvider(): Provider | undefined {
-
-		throw this.store.get('provider');
+		const providerId = this.getProviderId();
+		if (!providerId) return undefined;
+		return toRuntimeProvider(providerId, this.providerStore.get(providerId));
 	}
 
-	setProvider(provider: Provider) {
-		this.store.set('provider', provider);
+	setProvider(provider: Provider): void {
+		const existing = this.providerStore.get(provider.id);
+		this.providerStore.set(provider.id, {
+			name: existing?.name ?? provider.id,
+			apiKey: provider.apiKey,
+			baseUrl: provider.baseURL,
+		});
+		this.setProviderId(provider.id);
 	}
 
 	getVersion(): number {
@@ -53,4 +64,13 @@ export class AgentSettingsStore extends Settings {
 	getModelId(): string | undefined {
 		return this.store.get('modelId');
 	}
+}
+
+function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Provider | undefined {
+	if (!provider) return undefined;
+	return {
+		id,
+		apiKey: provider.apiKey,
+		baseURL: provider.baseUrl,
+	};
 }
