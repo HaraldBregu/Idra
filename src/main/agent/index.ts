@@ -5,4 +5,4 @@ export type { Provider } from './core/settings'
 export { Workspace } from './core/workspace';
 
 export { AgentRuntime } from './loop/loop';
-export type { RuntimeEvent, RuntimeRun } from './loop/types';
+export type { RuntimeEvent } from './loop/types';
