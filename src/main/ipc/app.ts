@@ -5,8 +5,8 @@ import { app, ipcMain, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { resolveAgentUsageLocation } from '../agent_usage/service';
-import { Settings } from '../agent_usage/settings';
+import { resolveAgentUsageLocation } from '../services/agent-service';
+import { Settings } from '../services/settings';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { AgentSettings, Provider } from '../agent_v2';
+import { AgentSettings, Provider } from '../agent';
 
 type SettingsSchema = {
 	provider: Provider | undefined;

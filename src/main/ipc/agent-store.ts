@@ -1,8 +1,8 @@
 import { getLlmModels, type Model, type ModelSelection } from '../../shared/agents/service';
 import { AgentStoreChannels } from '../../shared/ipc-channels';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
-import { resolveAgentUsageLocation } from '../agent_usage/service';
-import { Settings } from '../agent_usage/settings';
+import { resolveAgentUsageLocation } from '../services/agent-service';
+import { Settings } from '../services/settings';
 import type { EventBus } from '../services/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import type { IpcModule } from './core/module';

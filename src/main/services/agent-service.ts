@@ -6,8 +6,8 @@ import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { Settings } from './settings';
 import { Workspace } from './workspace';
 import { History } from './history';
-import { AgentRuntime } from '../agent_v2/loop/loop';
-import { RuntimeEvent, RuntimeRun } from '../agent_v2';
+import { AgentRuntime } from '../agent/loop/loop';
+import { RuntimeEvent, RuntimeRun } from '../agent';
 
 export interface AgentSendOptions {
 	runId?: string;

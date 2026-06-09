@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { AgentWorkspace } from '../agent_v2';
+import { AgentWorkspace } from '../agent';
 
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 

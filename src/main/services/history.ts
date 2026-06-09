@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { AgentHistory } from '../agent_v2';
-import type { HistoryEntry } from '../agent_v2';
+import { AgentHistory } from '../agent';
+import type { HistoryEntry } from '../agent';
 
 export class History extends AgentHistory {
 	private readonly historyPath: string;

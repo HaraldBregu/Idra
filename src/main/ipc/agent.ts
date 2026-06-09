@@ -5,7 +5,7 @@ import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc-channels';
 import type { AgentSendRuntimeOptions } from '../../shared/agents/service';
-import type { AgentSendOptions } from '../agent_usage/service';
+import type { AgentSendOptions } from '../services/agent-service';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
