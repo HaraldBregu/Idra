@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { isRealtimeSpeechToTextModel } from '../../../../../shared/providers';
+import { appApi, isRealtimeSpeechToTextModel } from '@/lib/compat';
 
 export type VoiceButtonMode = 'dictate' | 'record' | 'disabled';
 
@@ -7,7 +7,7 @@ export function useVoiceButtonMode(): VoiceButtonMode {
 	const [mode, setMode] = useState<VoiceButtonMode>('disabled');
 
 	useEffect(() => {
-		void window.app
+		void appApi
 			.getSpeechTranscriberService()
 			.then((selection) => {
 				if (!selection?.model?.id) {

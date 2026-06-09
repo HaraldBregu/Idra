@@ -9,6 +9,7 @@ import {
 import { ConnectorCard } from './components/ConnectorCard';
 import { SETTINGS_CONNECTOR_CATALOG, type SettingsConnectorCatalogEntry } from './catalog';
 import { useConnectors } from './hooks/useConnectors';
+import { appApi } from '@/lib/compat';
 
 const ConnectorsPage = () => {
 	const navigate = useNavigate();
@@ -28,7 +29,7 @@ const ConnectorsPage = () => {
 		setConnectingId(entry.connectorId);
 		setError(null);
 		try {
-			const authorization = await appApi.(entry.oauth);
+			const authorization = await appApi.authorizeOAuth(entry.oauth);
 			await window.connectors.upsert({
 				id: entry.directConnectorId,
 				name: entry.name,

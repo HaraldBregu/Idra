@@ -1,6 +1,7 @@
 import type { Dispatch } from 'react';
 import { useEffect } from 'react';
 import { openExternalUrl } from '@/lib/external-links';
+import { appApi } from '@/lib/compat';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
@@ -21,7 +22,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 			try {
 				const savedEntries = await Promise.all(
 					actionableProviderCatalog.map(async (provider) => {
-						const saved = await appApi.(provider.id);
+						const saved = await appApi.isProviderApiKeySaved(provider.id);
 						return [provider.id, saved] as const;
 					})
 				);
@@ -66,7 +67,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		dispatch({ type: 'SET_SAVING_PROVIDER', providerId });
 		dispatch({ type: 'CLEAR_ERROR' });
 		try {
-			await appApi.(providerId, apiKey);
+			await appApi.setProviderApiKey(providerId, apiKey);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 			return true;
 		} catch (error) {
@@ -92,7 +93,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		try {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 			for (const entry of entriesToSave) {
-				await appApi.(entry.providerId, entry.apiKey.trim());
+				await appApi.setProviderApiKey(entry.providerId, entry.apiKey.trim());
 			}
 			if (entriesToSave.length > 0) {
 				dispatch({

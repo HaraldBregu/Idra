@@ -5,6 +5,7 @@ import {
 	type Provider,
 } from '../../../../shared/providers';
 import { AGENTS } from '@/lib/compat';
+import { appApi } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared/providers';
 import type { Model } from '@/lib/compat';
 import type {
@@ -26,9 +27,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Powers chat replies, reasoning, summaries, and planning.',
 		icon: Bot,
 		required: true,
-		getSelection: () => appApi.(),
-		getModels: (provider) => appApi.(provider),
-		saveSelection: (provider, model) => appApi.(provider, model),
+		getSelection: () => appApi.getAgentService(),
+		getModels: (provider) => appApi.getModels(provider),
+		saveSelection: (provider, model) => appApi.saveAgentService(provider, model),
 	},
 	{
 		id: AGENTS.speechToText,
@@ -38,9 +39,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Transcribes your voice and audio into text before Friday responds.',
 		icon: Mic,
 		required: false,
-		getSelection: () => appApi.(),
-		getModels: (provider) => appApi.(provider),
-		saveSelection: (provider, model) => appApi.(provider, model),
+		getSelection: () => appApi.getSpeechTranscriberService(),
+		getModels: (provider) => appApi.getSpeechToTextModels(provider),
+		saveSelection: (provider, model) => appApi.saveSpeechTranscriberService(provider, model),
 	},
 	{
 		id: AGENTS.textToSpeech,
@@ -50,9 +51,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'The voice Friday uses when reading responses and content aloud.',
 		icon: Volume2,
 		required: false,
-		getSelection: () => appApi.(),
-		getModels: (provider) => appApi.(provider),
-		saveSelection: (provider, model) => appApi.(provider, model),
+		getSelection: () => appApi.getTextToSpeechService(),
+		getModels: (provider) => appApi.getTextToSpeechModels(provider),
+		saveSelection: (provider, model) => appApi.saveTextToSpeechService(provider, model),
 	},
 	{
 		id: AGENTS.textToImage,
@@ -62,9 +63,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Creates images and visual assets from your text prompts.',
 		icon: ImageIcon,
 		required: false,
-		getSelection: () => appApi.(),
-		getModels: (provider) => appApi.(provider),
-		saveSelection: (provider, model) => appApi.(provider, model),
+		getSelection: () => appApi.getImageCreatorService(),
+		getModels: (provider) => appApi.getImageCreatorModels(provider),
+		saveSelection: (provider, model) => appApi.saveImageCreatorService(provider, model),
 	},
 	{
 		id: AGENTS.textToVideo,
@@ -74,9 +75,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Generates and edits short clips from prompts or existing footage.',
 		icon: Video,
 		required: false,
-		getSelection: () => appApi.(),
-		getModels: (provider) => appApi.(provider),
-		saveSelection: (provider, model) => appApi.(provider, model),
+		getSelection: () => appApi.getTextToVideoService(),
+		getModels: (provider) => appApi.getTextToVideoModels(provider),
+		saveSelection: (provider, model) => appApi.saveTextToVideoService(provider, model),
 	},
 	{
 		id: AGENTS.textToAudio,
@@ -86,9 +87,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Composes songs, loops, and short audio pieces.',
 		icon: Music,
 		required: false,
-		getSelection: () => appApi.(),
-		getModels: (provider) => appApi.(provider),
-		saveSelection: (provider, model) => appApi.(provider, model),
+		getSelection: () => appApi.getTextToSoundService(),
+		getModels: (provider) => appApi.getTextToSoundModels(provider),
+		saveSelection: (provider, model) => appApi.saveTextToSoundService(provider, model),
 	},
 ];
 

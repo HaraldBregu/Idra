@@ -16,6 +16,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { AGENTS } from '@/lib/compat';
+import { appApi } from '@/lib/compat';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared/providers';
 import {
@@ -117,7 +118,7 @@ const ModelServicePage: React.FC = () => {
 
 			try {
 				const [storedProviders, selection] = await Promise.all([
-					appApi.(),
+					appApi.getProviders(),
 					activeService.getSelection(),
 				]);
 				if (!mounted) return;

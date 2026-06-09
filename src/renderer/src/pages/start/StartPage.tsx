@@ -26,7 +26,7 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '@/lib/compat';
-import { getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
+import { appApi, getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
 import type {
 	Provider as StoredProvider,
 } from '@/lib/compat';
@@ -471,11 +471,11 @@ const StartPage: React.FC = () => {
 				] = await Promise.all([
 					getStoredProviderEntries(),
 					window.agentStore.get(),
-					appApi.(),
-					appApi.(),
-					appApi.(),
-					appApi.(),
-					appApi.(),
+					appApi.getSpeechTranscriberService(),
+					appApi.getTextToSpeechService(),
+					appApi.getImageCreatorService(),
+					appApi.getTextToVideoService(),
+					appApi.getTextToSoundService(),
 				]);
 				if (cancelled) return;
 

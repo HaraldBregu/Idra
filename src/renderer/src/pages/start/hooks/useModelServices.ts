@@ -11,6 +11,7 @@ import {
 import type { ModelServiceDefinition, ModelServiceId, ProviderModelGroup } from '../types';
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';
+import { appApi } from '@/lib/compat';
 
 export function useModelServices(
 	state: SetupState,
@@ -29,7 +30,7 @@ export function useModelServices(
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
 				const [storedProviders, ...configuredSelections] = await Promise.all([
-					appApi.(),
+					appApi.getProviders(),
 					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getSelection()),
 				]);
 				if (cancelled) return;

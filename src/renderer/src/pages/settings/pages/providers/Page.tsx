@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
+import { appApi } from '@/lib/compat';
 import { cn } from '@/lib/utils';
 import {
 	DEFAULT_PROVIDERS,
@@ -31,7 +32,7 @@ const ProvidersPage: React.FC = () => {
 	useEffect(() => {
 		void Promise.all(
 			DEFAULT_PROVIDERS.map(async (provider) => {
-				const saved = await appApi.(provider.id);
+				const saved = await appApi.isProviderApiKeySaved(provider.id);
 				return [provider.id, saved] as const;
 			})
 		).then((entries) => setApiKeyStatus(Object.fromEntries(entries)));
@@ -55,7 +56,7 @@ const ProvidersPage: React.FC = () => {
 		setSaving(providerId);
 		setError(null);
 		try {
-			await appApi.(providerId, draft);
+			await appApi.setProviderApiKey(providerId, draft);
 			setApiKeyStatus((current) => ({ ...current, [providerId]: true }));
 			setEditing((current) => ({ ...current, [providerId]: false }));
 			setDrafts((current) => ({ ...current, [providerId]: '' }));
