@@ -1,11 +1,3 @@
-/**
- * WindowContext provides per-window isolated services.
- *
- * Architecture:
- * - Global services (shared across all windows): Logger, MediaPermissions, etc.
- * - Window-scoped services (isolated per window): services registered by WindowScopedServiceFactory.
- */
-
 import { BrowserWindow } from 'electron';
 import { Container, type ContainerInstance } from 'typedi';
 import type { EventBus } from './index';
