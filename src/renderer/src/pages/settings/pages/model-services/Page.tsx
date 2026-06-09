@@ -180,6 +180,13 @@ const ModelServicePage: React.FC = () => {
 			}));
 
 			try {
+				if (activeService.id === AGENTS.assistant) {
+					const nextState = await loadAssistantState();
+					if (!mounted) return;
+					setState(nextState);
+					return;
+				}
+
 				const [storedProviders, selection] = await Promise.all([
 					appApi.getProviders(),
 					activeService.getSelection(),
@@ -266,7 +273,11 @@ const ModelServicePage: React.FC = () => {
 		if (!service || !selectedProvider || !selectedModel) return;
 		setState((current) => ({ ...current, saving: true, saved: false, error: null }));
 		try {
-			const didSave = await service.saveSelection(selectedProvider, selectedModel);
+			const didSave =
+				service.id === AGENTS.assistant
+					? (await window.agentStore.setProvider(selectedProvider)) &&
+						(await window.agentStore.setModelId(selectedModel.id))
+					: await service.saveSelection(selectedProvider, selectedModel);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
 			setState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
