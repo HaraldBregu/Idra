@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { existsSync, mkdirSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { Workspace } from '../agent';
 
@@ -11,6 +11,16 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const HEARTBEAT_FILE = 'HEARTBEAT.md'
 const MEMORY_FILE = 'MEMORY.md'
+const AGENT_TEXT_FILES = [
+	AGENT_FILE,
+	BOOTSTRAP_FILE,
+	IDENTITY_FILE,
+	USER_FILE,
+	SOUL_FILE,
+	TOOLS_FILE,
+	HEARTBEAT_FILE,
+	MEMORY_FILE,
+]
 
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
@@ -21,6 +31,7 @@ export class AgentWorkspace extends Workspace {
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}
+		this.ensureAgentFile();
 	}
 
 	getPath(): string {
@@ -50,6 +61,12 @@ export class AgentWorkspace extends Workspace {
 		return this.fileExists(BOOTSTRAP_FILE);
 	}
 
+	private ensureAgentFile(): void {
+		const agentFilePath = this.resolveWorkspacePath(AGENT_FILE);
+		if (existsSync(agentFilePath)) return;
+		copyFileSync(this.resolveTemplatePath(AGENT_FILE), agentFilePath);
+	}
+
 	private async readTextFile(filePath: string): Promise<string> {
 		try {
 			return await fs.readFile(this.resolveWorkspacePath(filePath), 'utf8');
@@ -69,5 +86,12 @@ export class AgentWorkspace extends Workspace {
 			throw new Error(`Workspace file path resolves outside workspace: ${filePath}`);
 		}
 		return resolvedPath;
+	}
+
+	private resolveTemplatePath(filePath: string): string {
+		const templatePath = path.join('resources', 'templates', filePath);
+		const developmentPath = path.resolve(process.cwd(), templatePath);
+		if (existsSync(developmentPath)) return developmentPath;
+		return path.join(process.resourcesPath, templatePath);
 	}
 }
