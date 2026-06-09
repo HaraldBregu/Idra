@@ -14,6 +14,11 @@ import {
 	type WindowScopedServiceFactory,
 } from './window-scoped-service-factory';
 
+type WindowContextLogger = {
+	info(source: string, message: string, data?: unknown): void;
+	error(source: string, message: string, data?: unknown): void;
+};
+
 export interface WindowContextConfig<TGlobalServices extends object = Record<string, unknown>> {
 	window: BrowserWindow;
 	globalContainer: TypeDiServiceContainer<TGlobalServices>;
@@ -30,7 +35,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	public readonly window: BrowserWindow;
 	public readonly container: TypeDiServiceContainer;
 	public readonly eventBus: EventBus;
-	private readonly logger: any;
+	private readonly logger: WindowContextLogger | undefined;
 
 	constructor(config: WindowContextConfig<TGlobalServices>) {
 		this.window = config.window;
@@ -39,7 +44,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 		this.eventBus = config.eventBus;
 
 		this.logger = config.globalContainer.hasUnknown('logger')
-			? config.globalContainer.getUnknown('logger')
+			? (config.globalContainer.getUnknown('logger') as WindowContextLogger)
 			: undefined;
 		this.logger?.info('WindowContext', `Creating context for window ${this.windowId}`);
 
