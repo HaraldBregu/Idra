@@ -23,7 +23,7 @@ import type {
 	ProviderStoreApi,
 	SkillsApi,
 	WindowApi,
-} from './types';
+} from './index.d';
 import type { PublicProvider } from '../shared/providers';
 import type {
 	CronSchedule,
