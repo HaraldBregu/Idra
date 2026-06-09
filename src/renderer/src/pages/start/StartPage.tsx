@@ -166,6 +166,15 @@ const MODEL_AREAS: readonly ModelAreaDefinition[] = [
 	},
 ];
 
+const MODEL_FIELD_IDS = {
+	[AGENTS.assistant]: { provider: 'agent-provider', model: 'agent-model' },
+	[AGENTS.speechToText]: { provider: 'speech-provider', model: 'speech-model' },
+	[AGENTS.textToSpeech]: { provider: 'tts-provider', model: 'tts-model' },
+	[AGENTS.textToImage]: { provider: 'image-provider', model: 'image-model' },
+	[AGENTS.textToVideo]: { provider: 'video-provider', model: 'video-model' },
+	[AGENTS.textToAudio]: { provider: 'audio-provider', model: 'audio-model' },
+} as const satisfies Partial<Record<ModelAreaId, { provider: string; model: string }>>;
+
 function normalizeProvider(provider: CatalogProvider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
 	const label = provider.name || value;

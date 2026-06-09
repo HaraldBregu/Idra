@@ -21,7 +21,7 @@ export class AgentStoreIpc implements IpcModule {
 				apiKey: '',
 				baseURL: provider.baseUrl,
 			});
-			this.settings.setModel(model.id);
+			this.settings.setModelId(model.id);
 			return true;
 		});
 	}

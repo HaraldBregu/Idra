@@ -568,7 +568,7 @@ export class AppIpc implements IpcModule {
 					apiKey: storedProvider?.apiKey ?? '',
 					baseURL: storedProvider?.baseUrl || provider.baseUrl || '',
 				});
-				agentSettings.setModel(model.id);
+				agentSettings.setModelId(model.id);
 				return true;
 			}, AppChannels.saveAgentService)
 		);

@@ -1,18 +1,13 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { AgentSettings } from '../agent_v2';
-import { SettingsProvider } from '../agent_v2/core/settings';
+import { AgentSettings, Provider } from '../agent_v2';
 
 type SettingsSchema = {
-	version: number;
-	provider: SettingsProvider | undefined;
+	provider: Provider | undefined;
 	modelId: string | undefined;
 };
 
-const SETTINGS_VERSION = 1;
-
 const DEFAULT_SETTINGS: SettingsSchema = {
-	version: SETTINGS_VERSION,
 	provider: undefined,
 	modelId: undefined,
 };
@@ -30,31 +25,31 @@ export class Settings extends AgentSettings {
 		});
 	}
 
+	getProvider(): Provider | undefined {
+		throw this.store.get('provider');
+	}
+
+	setProvider(provider: Provider) {
+		this.store.set('provider', provider);
+	}
+
 	getVersion(): number {
 		return this.store.get('version');
 	}
 
-	getProvider(): SettingsProvider | undefined {
-		return this.store.get('provider');
-	}
-
-	setProvider(provider: SettingsProvider): void {
-		this.store.set('provider', provider);
-	}
-
-	getModel(): string | undefined {
-		return this.store.get('modelId');
-	}
-
-	setModel(model: string): void {
-		this.store.set('modelId', model);
-	}
-
 	getProviderId(): string | undefined {
-		return this.getProvider()?.id;
+		return this.store.get('providerId');
+	}
+
+	setProviderId(providerId: string): void {
+		this.store.set('providerId', providerId);
+	}
+
+	setModelId(modelId: string): void {
+		this.store.set('modelId', modelId);
 	}
 
 	getModelId(): string | undefined {
-		return this.getModel();
+		return this.store.get('modelId');
 	}
 }
