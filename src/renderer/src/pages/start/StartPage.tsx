@@ -1448,8 +1448,8 @@ const StartPage: React.FC = () => {
 								),
 						<>
 							{renderProviderModelFields({
-								providerSelectId: 'video-provider',
-								modelSelectId: 'video-model',
+								providerSelectId: MODEL_FIELD_IDS[AGENTS.textToVideo].provider,
+								modelSelectId: MODEL_FIELD_IDS[AGENTS.textToVideo].model,
 								providerId: textToVideoProviderId,
 								modelId: selectedTextToVideoModel,
 								groups: textToVideoModelGroups,
