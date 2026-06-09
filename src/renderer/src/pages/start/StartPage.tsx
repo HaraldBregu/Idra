@@ -24,6 +24,7 @@ import {
 	getProviderApiConfigurationUrl,
 	type PublicProvider,
 } from '../../../../shared/providers';
+import { LLM_PROVIDERS } from '../../../../shared/providers/models/llm';
 import { AGENTS, type AgentId } from '@/lib/compat';
 import { getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
@@ -211,14 +212,22 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	);
 }
 
-function getPublicProvidersFromCatalog(): PublicProvider[] {
-	return DEFAULT_PROVIDERS.map((provider) => ({
+function toPublicProvider(provider: CatalogProvider): PublicProvider {
+	return {
 		id: provider.id,
 		name: provider.name,
 		baseUrl: provider.baseUrl,
 		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
 		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	}));
+	};
+}
+
+function getLlmProvidersFromCatalog(): PublicProvider[] {
+	const providersById = new Map(DEFAULT_PROVIDERS.map((provider) => [provider.id, provider]));
+	return LLM_PROVIDERS.flatMap((providerId) => {
+		const provider = providersById.get(providerId);
+		return provider ? [toPublicProvider(provider)] : [];
+	});
 }
 
 function getAgentModelValue(providerId: string, modelId: string): string {
@@ -436,7 +445,7 @@ const StartPage: React.FC = () => {
 						.filter((entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0)
 						.map((entry) => entry.providerId)
 				);
-				const selectableProviders = getPublicProvidersFromCatalog().filter(
+				const selectableProviders = getLlmProvidersFromCatalog().filter(
 					(provider) => getLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
