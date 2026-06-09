@@ -30,13 +30,15 @@ interface ModelTurn {
 async function* runModelTurn(
 	modelPort: RuntimeModel,
 	input: RuntimeInput,
+	provider: Provider,
+	modelId: string,
 	system: string | undefined,
 	messages: RuntimeMessage[],
 	signal: AbortSignal
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
 		let content = '';
-		let model = input.modelId ?? 'default';
+		let model = modelId;
 		let stopReason: string | undefined;
 		let usage: ModelTurn['usage'];
 		const pending = new Map<string, { name: string; argsText: string }>();
@@ -83,7 +85,7 @@ async function* runModelTurn(
 		}
 	}
 
-	return { content: '', model: input.modelId ?? 'default', toolCalls: [] };
+	return { content: '', model: modelId, toolCalls: [] };
 }
 
 export class AgentRuntime {
@@ -106,15 +108,15 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
-		const resolved: RuntimeInput = { ...input };
 		const signal = new AbortController().signal;
 
-		return this.stream(resolved, provider, signal);
+		return this.stream(input, provider, modelId, signal);
 	}
 
 	private async *stream(
 		input: RuntimeInput,
 		provider: Provider,
+		modelId: string,
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent> {
 		const session = new RuntimeSession(input);
@@ -127,12 +129,20 @@ export class AgentRuntime {
 		yield {
 			type: 'run_started',
 			sessionId: session.id,
-			model: session.model,
+			model: modelId,
 			providerId: provider.id,
 		};
 
 		while (true) {
-			const turn = yield* runModelTurn(this.model, input, provider, system, session.messages, signal);
+			const turn = yield* runModelTurn(
+				this.model,
+				input,
+				provider,
+				modelId,
+				system,
+				session.messages,
+				signal
+			);
 
 			session.recordTurn(turn);
 
