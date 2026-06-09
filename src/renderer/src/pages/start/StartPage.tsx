@@ -1349,13 +1349,13 @@ const StartPage: React.FC = () => {
 										</SelectContent>
 									</Select>
 								</SettingsField>
-								<SettingsField id="speech-model" label="Transcription model">
+								<SettingsField id={MODEL_FIELD_IDS[AGENTS.speechToText].model} label="Transcription model">
 									<Select
 										value={selectedSpeechModel}
 										onValueChange={handleSpeechModelChange}
 										disabled={loadingModels || selectedSpeechModels.length === 0 || savingConfig}
 									>
-										<SelectTrigger id="speech-model" className="w-full text-xs sm:w-72">
+										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.speechToText].model} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={speechStatus} />
 										</SelectTrigger>
 										<SelectContent>
