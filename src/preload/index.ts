@@ -82,10 +82,10 @@ function optionalStringList(value: unknown): string[] | undefined {
 }
 
 function normalizeAgentSendRuntimeOptions(
-	options?: AgentSendRuntimeOptions
-): AgentSendRuntimeOptions | undefined {
+	options?: Record<string, unknown>
+): Record<string, unknown> | undefined {
 	if (!options) return undefined;
-	const normalized: AgentSendRuntimeOptions = {
+	const normalized: Record<string, unknown> = {
 		...(optionalTrimmedString(options.runId) ? { runId: optionalTrimmedString(options.runId) } : {}),
 		...(optionalTrimmedString(options.sessionId)
 			? { sessionId: optionalTrimmedString(options.sessionId) }
