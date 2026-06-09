@@ -6,12 +6,12 @@ import { Workspace } from '../agent';
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 const AGENT_TEXT_FILES = [
 	'AGENTS.md',
+		'BOOTSTRAP.md',
 	'SOUL.md',
 	'TOOLS.md',
 	'IDENTITY.md',
 	'USER.md',
 	'HEARTBEAT.md',
-	'BOOTSTRAP.md',
 	'MEMORY.md',
 ] as const;
 
