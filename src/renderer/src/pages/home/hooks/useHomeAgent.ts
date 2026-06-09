@@ -42,7 +42,7 @@ export function resolvePromptReasoningEffort(prompt: string): {
 	return { effort: 'none', lightContext: true };
 }
 
-function runtimeOptionsForPrompt(prompt: string): AgentSendRuntimeOptions {
+function runtimeOptionsForPrompt(prompt: string) {
 	return resolvePromptReasoningEffort(prompt);
 }
 
