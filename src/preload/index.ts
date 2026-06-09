@@ -1,5 +1,5 @@
 import { contextBridge } from 'electron';
-import { typedInvokeUnwrap, typedSend, typedOn } from './typed-ipc';
+import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc/types';
 import {
 	WindowChannels,
 	AgentChannels,
