@@ -1,11 +1,13 @@
-import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
+import 'reflect-metadata';
+import { Container } from 'typedi';
+import { TypeDiServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
-import type { MainServiceContainer, MainServices } from './services/services';
+import { MainServiceTokens, type MainServiceContainer, type MainServices } from './services/services';
 import { LlmService } from './llm';
 import { AgentV2Service } from './services/agent-service';
 import { ProviderStoreService } from './services/provider-store';
@@ -20,24 +22,25 @@ export interface BootstrapResult {
 }
 
 export function bootstrapServices(): BootstrapResult {
-	const appState = new AppState();
-	const container = new ServiceContainer<MainServices>();
-	const eventBus = new EventBus();
+	const serviceContainer = Container.of('main');
+	const container = new TypeDiServiceContainer<MainServices>(serviceContainer, MainServiceTokens);
+	const appState = serviceContainer.get(AppState);
+	const eventBus = serviceContainer.get(EventBus);
 
 	container.register('appState', appState);
 	container.register('eventBus', eventBus);
 
 	const logger = new LoggerService(eventBus);
 	container.register('logger', logger);
-	container.register('appPermissions', new AppPermissionsService());
+	container.register('appPermissions', serviceContainer.get(AppPermissionsService));
 
 	container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger));
 
-	container.register('providerStore', new ProviderStoreService());
-	container.register('llm', new LlmService());
+	const providerStore = container.register('providerStore', new ProviderStoreService());
+	container.register('llm', serviceContainer.get(LlmService));
 
-	const agentService = container.register('agentService', new AgentV2Service(container));
+	const agentService = container.register('agentService', new AgentV2Service(providerStore));
 
 	container.register(
 		'channelRegistry',

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { app } from 'electron';
-import type { Disposable } from '../services/service-container';
+import type { Disposable } from '../services/di-container';
 import type { EventBus } from '../services/event-bus';
 import type { AppLogEntry } from '../../shared/app/app-log';
 

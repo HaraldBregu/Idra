@@ -7,7 +7,7 @@
  */
 
 import { BrowserWindow } from 'electron';
-import { ServiceContainer, type EventBus } from './index';
+import { TypeDiServiceContainer, type EventBus } from './index';
 import {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceFactory,
@@ -15,7 +15,7 @@ import {
 
 export interface WindowContextConfig<TGlobalServices extends object = Record<string, unknown>> {
 	window: BrowserWindow;
-	globalContainer: ServiceContainer<TGlobalServices>;
+	globalContainer: TypeDiServiceContainer<TGlobalServices>;
 	eventBus: EventBus;
 	serviceFactory?: WindowScopedServiceFactory<TGlobalServices>;
 }
@@ -27,14 +27,14 @@ export interface WindowContextConfig<TGlobalServices extends object = Record<str
 export class WindowContext<TGlobalServices extends object = Record<string, unknown>> {
 	public readonly windowId: number;
 	public readonly window: BrowserWindow;
-	public readonly container: ServiceContainer;
+	public readonly container: TypeDiServiceContainer;
 	public readonly eventBus: EventBus;
 	private readonly logger: any;
 
 	constructor(config: WindowContextConfig<TGlobalServices>) {
 		this.window = config.window;
 		this.windowId = config.window.id;
-		this.container = new ServiceContainer();
+		this.container = new TypeDiServiceContainer(new (await import('typedi')).ContainerInstance(`window:${this.windowId}`));
 		this.eventBus = config.eventBus;
 
 		this.logger = config.globalContainer.hasUnknown('logger')
@@ -93,7 +93,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	 * Get a service from this window's container.
 	 * Falls back to global container if not found in window scope.
 	 */
-	getService<T>(key: string, globalContainer: ServiceContainer): T {
+	getService<T>(key: string, globalContainer: TypeDiServiceContainer): T {
 		if (this.container.has(key)) {
 			return this.container.get(key) as T;
 		}
@@ -117,7 +117,7 @@ export class WindowContextManager<TGlobalServices extends object = Record<string
 	private contexts = new Map<number, WindowContext<TGlobalServices>>();
 
 	constructor(
-		private readonly globalContainer: ServiceContainer<TGlobalServices>,
+		private readonly globalContainer: TypeDiServiceContainer<TGlobalServices>,
 		private readonly eventBus: EventBus
 	) {}
 

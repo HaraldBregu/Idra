@@ -2,7 +2,6 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { Settings, Provider } from '../agent';
 import type { Provider as StoredProvider } from '../../shared/providers/types';
-import type { MainServiceContainer } from './services';
 import type { ProviderStoreService } from './provider-store';
 
 type SettingsSchema = {
@@ -19,9 +18,9 @@ export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
 	private readonly providerStore: ProviderStoreService;
 
-	constructor(location: string, container: MainServiceContainer) {
+	constructor(location: string, providerStore: ProviderStoreService) {
 		super();
-		this.providerStore = container.get('providerStore');
+		this.providerStore = providerStore;
 		this.store = new Store<SettingsSchema>({
 			name: 'settings',
 			cwd: path.resolve(location),

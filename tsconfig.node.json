@@ -16,6 +16,8 @@
 		"outDir": "./dist",
 		"module": "ESNext",
 		"moduleResolution": "bundler",
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
 		"allowSyntheticDefaultImports": true,
 		"sourceMap": true,
 		"removeComments": false,

@@ -1,13 +1,13 @@
-import type { ServiceContainer, EventBus } from './index';
+import type { TypeDiServiceContainer, EventBus } from './index';
 import type { LoggerService } from '../observability';
 
 /**
  * Context available to every window-scoped service factory function.
  */
 export interface WindowScopedFactoryContext<TGlobalServices extends object = Record<string, unknown>> {
-	globalContainer: ServiceContainer<TGlobalServices>;
+	globalContainer: TypeDiServiceContainer<TGlobalServices>;
 	eventBus: EventBus;
-	windowContainer: ServiceContainer;
+	windowContainer: TypeDiServiceContainer;
 }
 
 /**
@@ -68,9 +68,9 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
 	 * Services are created in registration order, allowing dependencies to be satisfied.
 	 */
 	async createAndRegisterAll(
-		container: ServiceContainer,
+		container: TypeDiServiceContainer,
 		context: {
-			globalContainer: ServiceContainer<TGlobalServices>;
+			globalContainer: TypeDiServiceContainer<TGlobalServices>;
 			eventBus: EventBus;
 		}
 	): Promise<void> {
