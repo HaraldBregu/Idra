@@ -1,5 +1,5 @@
 export const AgentChannels = {
-	sendV2: 'agent:send-v2',
+	send: 'agent:send',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
 	getProvider: 'agent-store:get-provider',
