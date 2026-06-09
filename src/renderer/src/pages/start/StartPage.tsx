@@ -211,10 +211,6 @@ function getProviderCatalogItem(providerId: string): ProviderCatalogItem {
 	);
 }
 
-function getDefaultProvider(providerId: string): CatalogProvider | undefined {
-	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
-}
-
 function getPublicProvidersFromCatalog(): PublicProvider[] {
 	return DEFAULT_PROVIDERS.map((provider) => ({
 		id: provider.id,
@@ -403,12 +399,12 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const agentService = undefined;
-				const speechTranscriberService = undefined;
-				const textToSpeechService = undefined;
-				const imageCreatorService = undefined;
-				const textToVideoService = undefined;
-				const textToSoundService = undefined;
+				const agentService: ModelSelection | undefined = undefined;
+				const speechTranscriberService: ModelSelection | undefined = undefined;
+				const textToSpeechService: ModelSelection | undefined = undefined;
+				const imageCreatorService: ModelSelection | undefined = undefined;
+				const textToVideoService: ModelSelection | undefined = undefined;
+				const textToSoundService: ModelSelection | undefined = undefined;
 				if (cancelled) return;
 
 				const savedProviderIds = new Set(
