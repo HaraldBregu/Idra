@@ -342,6 +342,7 @@ const StartPage: React.FC = () => {
 	);
 	const [savingConfig, setSavingConfig] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
+	const assistantProviderOptions = useMemo(() => getLlmProvidersFromCatalog(), []);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
 	const hasProviderDraft = providerEntries.some(
@@ -445,7 +446,7 @@ const StartPage: React.FC = () => {
 						.filter((entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0)
 						.map((entry) => entry.providerId)
 				);
-				const selectableProviders = getLlmProvidersFromCatalog().filter(
+				const selectableProviders = assistantProviderOptions.filter(
 					(provider) => getLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
@@ -497,7 +498,7 @@ const StartPage: React.FC = () => {
 		return () => {
 			cancelled = true;
 		};
-	}, [connectedProviderIds, step]);
+	}, [assistantProviderOptions, connectedProviderIds, step]);
 
 	useEffect(() => {
 		if (step !== 'models') return;
@@ -1221,17 +1222,17 @@ const StartPage: React.FC = () => {
 									<Select
 										value={configProvider}
 										onValueChange={handleAgentProviderChange}
-										disabled={loadingModels || agentModelGroups.length === 0}
+										disabled={assistantProviderOptions.length === 0}
 									>
 										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].provider} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={modelCountLabel} />
 										</SelectTrigger>
 										<SelectContent>
-											{agentModelGroups.map((group) => {
-												const catalog = getProviderCatalogItem(group.provider.id);
-												const registered = registeredProviderIds.has(group.provider.id);
+											{assistantProviderOptions.map((provider) => {
+												const catalog = getProviderCatalogItem(provider.id);
+												const registered = registeredProviderIds.has(provider.id);
 												return (
-													<SelectItem key={group.provider.id} value={group.provider.id}>
+													<SelectItem key={provider.id} value={provider.id}>
 														<span className="min-w-0 flex-1 truncate">{catalog.name}</span>
 														<span
 															className={cn(
