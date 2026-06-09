@@ -1328,13 +1328,13 @@ const StartPage: React.FC = () => {
 						speechStatus,
 						<>
 							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="speech-provider" label="Provider">
+								<SettingsField id={MODEL_FIELD_IDS[AGENTS.speechToText].provider} label="Provider">
 									<Select
 										value={speechProviderId}
 										onValueChange={handleSpeechProviderChange}
 										disabled={loadingModels || speechModelGroups.length === 0 || savingConfig}
 									>
-										<SelectTrigger id="speech-provider" className="w-full text-xs sm:w-72">
+										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.speechToText].provider} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={speechStatus} />
 										</SelectTrigger>
 										<SelectContent>
