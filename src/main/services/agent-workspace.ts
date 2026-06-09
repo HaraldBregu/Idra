@@ -11,16 +11,6 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const HEARTBEAT_FILE = 'HEARTBEAT.md'
 const MEMORY_FILE = 'MEMORY.md'
-const AGENT_TEXT_FILES = [
-	AGENT_FILE,
-	BOOTSTRAP_FILE,
-	IDENTITY_FILE,
-	USER_FILE,
-	SOUL_FILE,
-	TOOLS_FILE,
-	HEARTBEAT_FILE,
-	MEMORY_FILE,
-]
 
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
@@ -40,10 +30,14 @@ export class AgentWorkspace extends Workspace {
 
 	async getAgentText(): Promise<string> {
 		const parts: string[] = [];
-		for (const filePath of AGENT_TEXT_FILES) {
-			const text = await this.readTextFile(filePath);
-			if (text.trim()) parts.push(`## ${filePath}\n${text.trim()}`);
-		}
+		await this.appendTextFile(parts, AGENT_FILE);
+		await this.appendTextFile(parts, BOOTSTRAP_FILE);
+		await this.appendTextFile(parts, IDENTITY_FILE);
+		await this.appendTextFile(parts, USER_FILE);
+		await this.appendTextFile(parts, SOUL_FILE);
+		await this.appendTextFile(parts, TOOLS_FILE);
+		await this.appendTextFile(parts, HEARTBEAT_FILE);
+		await this.appendTextFile(parts, MEMORY_FILE);
 		return parts.join('\n\n');
 	}
 
@@ -74,6 +68,11 @@ export class AgentWorkspace extends Workspace {
 			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
 			throw error;
 		}
+	}
+
+	private async appendTextFile(parts: string[], filePath: string): Promise<void> {
+		const text = await this.readTextFile(filePath);
+		if (text.trim()) parts.push(`## ${filePath}\n${text.trim()}`);
 	}
 
 	private resolveWorkspacePath(filePath: string): string {
