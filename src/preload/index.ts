@@ -43,22 +43,65 @@ import type {
 	HeartbeatSystemEventResult,
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
-} from '../shared/heartbeat';
-import type {
-	AgentResponseEvent,
-	Model,
-	ModelSelection,
-} from '../shared/agents/service';
-import { isModelReasoningEffort } from '../shared/agents/service';
+} from './index.d';
+import type { AgentResponseEvent } from '../shared/agent/types';
+import type { ModelReasoningEffort } from '../shared/agent/types';
+import type { ProviderModel as Model } from '../shared/providers';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { ConnectorRecord } from '../shared/connectors';
+import type { ConnectorRecord, ModelSelection } from './index.d';
 import type { Provider } from '../shared/providers/types';
-import {
-	isRealtimeTranscriptionAudioChunk,
-	isRealtimeTranscriptionSessionId,
-	normalizeRealtimeTranscriptionStartRequest,
-} from '../shared/realtime-transcription';
+
+const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
+	'none',
+	'minimal',
+	'low',
+	'medium',
+	'high',
+	'xhigh',
+];
+const REALTIME_TRANSCRIPTION_MAX_LANGUAGE_LENGTH = 35;
+const REALTIME_TRANSCRIPTION_MAX_AUDIO_CHARS = 256 * 1024;
+
+function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
+	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
+}
+
+function normalizeRealtimeTranscriptionStartRequest(
+	request: unknown
+): Parameters<RealtimeTranscriptionApi['start']>[0] {
+	if (request === undefined) return undefined;
+	if (!request || typeof request !== 'object' || Array.isArray(request)) {
+		throw new Error('Invalid realtime transcription start request.');
+	}
+
+	const language = (request as { language?: unknown }).language;
+	if (language === undefined) return undefined;
+	if (typeof language !== 'string') {
+		throw new Error('Invalid realtime transcription language.');
+	}
+
+	const trimmed = language.trim();
+	if (!trimmed) return undefined;
+	if (trimmed.length > REALTIME_TRANSCRIPTION_MAX_LANGUAGE_LENGTH) {
+		throw new Error('Realtime transcription language is too long.');
+	}
+
+	return { language: trimmed };
+}
+
+function isRealtimeTranscriptionSessionId(value: unknown): value is string {
+	return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isRealtimeTranscriptionAudioChunk(value: unknown): value is string {
+	return (
+		typeof value === 'string' &&
+		value.length > 0 &&
+		value.length <= REALTIME_TRANSCRIPTION_MAX_AUDIO_CHARS &&
+		/^[A-Za-z0-9+/]+={0,2}$/.test(value)
+	);
+}
 
 function assertHeartbeatObject<T>(request: T): T {
 	if (!request || typeof request !== 'object' || Array.isArray(request)) {
