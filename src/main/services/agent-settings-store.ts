@@ -16,9 +16,7 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 	modelId: undefined,
 };
 
-@Service({
-	factory: (container) => new AgentSettingsStore(container.get(ProviderStoreService)),
-})
+@Service()
 export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
 
