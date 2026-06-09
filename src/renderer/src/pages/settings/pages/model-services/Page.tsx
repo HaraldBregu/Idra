@@ -2,6 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AlertTriangle, ChevronDown, LoaderCircle, Save } from 'lucide-react';
+import { DEFAULT_PROVIDERS } from '../../../../../../shared/providers';
+import {
+	LLM_MODELS_BY_PROVIDER,
+	LLM_PROVIDERS,
+} from '../../../../../../shared/providers/models/llm';
 import { Button } from '@/components/ui/button';
 import {
 	Collapsible,
