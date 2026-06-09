@@ -106,22 +106,26 @@ export class AgentRuntime {
 	}
 
 	run(input: RuntimeInput): RuntimeRun {
+
+		const settings_provider = this.settings.getProvider();
+									console.warn("options AbortController: ", settings_provider)
+
 		const provider = input.provider ?? this.settings.getProvider();
 		const modelId = input.modelId ?? this.settings.getModelId();
 
 		if (!provider || !modelId)
-			throw new Error('Agent v2 requires a configured provider and model.');
+			throw new Error('Agent requires a configured provider and model.');
 		if (
 			input.providerId &&
 			provider.id.trim().toLowerCase() !== input.providerId.trim().toLowerCase()
 		)
-			throw new Error(`Agent v2 provider is not configured: ${input.providerId}`);
+			throw new Error(`Agent provider is not configured: ${input.providerId}`);
 
 		const resolved: RuntimeInput = { ...input, provider, modelId };
 		const controller = new AbortController();
 		let stopped = false;
 		let stopReason = 'stopped';
-
+ 
 		input.signal?.addEventListener(
 			'abort',
 			() => {

@@ -1,19 +1,3 @@
-/**
- * CQS (Command-Query Separation) gateway helpers for IPC registration.
- *
- * `registerQuery` — read-only operations (no mutation).
- * `registerCommand` — operations that mutate state.
- *
- * Both delegate to the existing `wrapIpcHandler` / `wrapSimpleHandler` from
- * IpcErrorHandler — zero runtime cost, just an organisational signal that
- * makes intent explicit at the registration site and enables future
- * middleware hooks.
- *
- * Overloads:
- *   - With a channel from InvokeChannelMap: fully type-safe args + result.
- *   - With a raw string: fallback for channels not yet in the registry.
- */
-
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import { wrapSimpleHandler, wrapIpcHandler } from './error-handler';
 import type { InvokeChannelMap } from '../../../shared/ipc/ipc-channels';

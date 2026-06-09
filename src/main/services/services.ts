@@ -4,7 +4,7 @@ import type { AppPermissionsService } from '../app/permissions';
 import type { CronService } from '../cron';
 import type { LlmService } from '../llm';
 import type { LoggerService } from '../observability';
-import type { ProviderStoreService } from './provider/service';
+import type { ProviderStoreService } from './provider-store';
 import type { AppState, EventBus, ServiceContainer, WindowContextManager, WindowFactory } from './index';
 
 export interface MainServices {

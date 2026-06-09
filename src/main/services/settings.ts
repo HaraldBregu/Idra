@@ -26,6 +26,7 @@ export class Settings extends AgentSettings {
 	}
 
 	getProvider(): Provider | undefined {
+		
 		throw this.store.get('provider');
 	}
 

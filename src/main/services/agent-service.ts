@@ -32,10 +32,6 @@ export class AgentV2Service {
 		this.workspace = new Workspace(location);
 		this.settings = new Settings(location);
 		this.history = new History(location);
-
-		console.log("settings: ", JSON.stringify(this.settings))
-
-
 		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
 	}
 
@@ -79,7 +75,7 @@ export class AgentV2Service {
 			}
 			return response;
 		} catch (error) {
-			const cause = toError(error, 'Agent v2 request failed.');
+			const cause = toError(error, 'Agent request failed.');
 			const responseEvent = {
 				type: 'run_state',
 				state: 'error',

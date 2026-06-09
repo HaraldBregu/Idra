@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { Provider, ProviderRecord } from '../../../shared/providers/types';
+import type { Provider, ProviderRecord } from '../../shared/providers/types';
 
 type ProvidersStore = {
 	get store(): unknown;

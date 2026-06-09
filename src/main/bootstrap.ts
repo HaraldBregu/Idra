@@ -8,7 +8,7 @@ import { ChannelRegistry, ChannelsService } from './channels';
 import type { MainServiceContainer, MainServices } from './services/services';
 import { LlmService } from './llm';
 import { AgentV2Service } from './services/agent-service';
-import { ProviderStoreService } from './services/provider/service';
+import { ProviderStoreService } from './services/provider-store';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -37,10 +37,8 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('providerStore', new ProviderStoreService());
 	container.register('llm', new LlmService());
 
-	const agentService = container.register(
-		'agentService',
-		new AgentV2Service()
-	);
+	const agentService = container.register('agentService', new AgentV2Service());
+	
 	container.register(
 		'channelRegistry',
 		new ChannelRegistry({ logger, eventBus, agentService })
