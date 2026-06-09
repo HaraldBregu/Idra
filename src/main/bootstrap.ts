@@ -10,6 +10,7 @@ import { ChannelRegistry, ChannelsService } from './channels';
 import type { MainServiceContainer } from './services/services';
 import { LlmService } from './llm';
 import { AgentV2Service } from './services/agent-service';
+import { AgentSettingsStore } from './services/agent-settings-store';
 import { ProviderStoreService } from './services/provider-store';
 
 export interface BootstrapResult {

@@ -2,7 +2,6 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
-import { resolveAgentUsageLocation } from '../services/agent-service';
 import { AgentSettingsStore } from '../services/agent-settings-store';
 import { AgentStoreChannels } from '../../shared/ipc/ipc-channels';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
