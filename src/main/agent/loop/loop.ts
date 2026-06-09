@@ -27,67 +27,6 @@ interface ModelTurn {
 	};
 }
 
-async function* runModelTurn(
-	modelPort: RuntimeModel,
-	input: RuntimeInput,
-	provider: Provider,
-	modelId: string,
-	system: string | undefined,
-	messages: RuntimeMessage[],
-	signal: AbortSignal
-): AsyncGenerator<RuntimeEvent, ModelTurn> {
-	for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
-		let content = '';
-		let model = modelId;
-		let stopReason: string | undefined;
-		let usage: ModelTurn['usage'];
-		const pending = new Map<string, { name: string; argsText: string }>();
-
-		try {
-			for await (const event of modelPort.stream({
-				provider,
-				model,
-				system,
-				messages,
-				tools: input.tools ?? [],
-				maxTokens: input.maxTokens ?? 4096,
-				signal,
-			})) {
-				if (event.type === 'model_call_delta') content += event.delta;
-				if (event.type === 'model_tool_call_start') {
-					pending.set(event.id, { name: event.name, argsText: '' });
-				}
-				if (event.type === 'model_tool_call_args_delta') {
-					const toolCall = pending.get(event.id);
-					if (toolCall) toolCall.argsText += event.jsonDelta;
-				}
-				if (event.type === 'model_call_end') {
-					model = event.model;
-					stopReason = event.stopReason;
-					usage = event.usage;
-				}
-				yield event;
-			}
-
-			return {
-				content,
-				model,
-				stopReason,
-				usage,
-				toolCalls: [...pending].map(([id, toolCall]) => ({
-					id,
-					name: toolCall.name,
-					args: parseToolArgs(toolCall.argsText),
-				})),
-			};
-		} catch (error) {
-			if (attempt >= (input.maxRetries ?? 1)) throw error;
-		}
-	}
-
-	return { content: '', model: modelId, toolCalls: [] };
-}
-
 export class AgentRuntime {
 	private readonly model: RuntimeModel;
 	private readonly systemPrompt: SystemPrompt;
@@ -135,8 +74,7 @@ export class AgentRuntime {
 		};
 
 		while (true) {
-			const turn = yield* runModelTurn(
-				this.model,
+			const turn = yield* this.runModelTurn(
 				input,
 				provider,
 				modelId,
@@ -177,6 +115,66 @@ export class AgentRuntime {
 			await this.history.append(session.id, { type: 'tool_results', data: results });
 			yield { type: 'user_message', messages: results };
 		}
+	}
+
+	private async *runModelTurn(
+		input: RuntimeInput,
+		provider: Provider,
+		modelId: string,
+		system: string | undefined,
+		messages: RuntimeMessage[],
+		signal: AbortSignal
+	): AsyncGenerator<RuntimeEvent, ModelTurn> {
+		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
+			let content = '';
+			let model = modelId;
+			let stopReason: string | undefined;
+			let usage: ModelTurn['usage'];
+			const pending = new Map<string, { name: string; argsText: string }>();
+
+			try {
+				for await (const event of this.model.stream({
+					provider,
+					model,
+					system,
+					messages,
+					tools: input.tools ?? [],
+					maxTokens: input.maxTokens ?? 4096,
+					signal,
+				})) {
+					if (event.type === 'model_call_delta') content += event.delta;
+					if (event.type === 'model_tool_call_start') {
+						pending.set(event.id, { name: event.name, argsText: '' });
+					}
+					if (event.type === 'model_tool_call_args_delta') {
+						const toolCall = pending.get(event.id);
+						if (toolCall) toolCall.argsText += event.jsonDelta;
+					}
+					if (event.type === 'model_call_end') {
+						model = event.model;
+						stopReason = event.stopReason;
+						usage = event.usage;
+					}
+					yield event;
+				}
+
+				return {
+					content,
+					model,
+					stopReason,
+					usage,
+					toolCalls: [...pending].map(([id, toolCall]) => ({
+						id,
+						name: toolCall.name,
+						args: parseToolArgs(toolCall.argsText),
+					})),
+				};
+			} catch (error) {
+				if (attempt >= (input.maxRetries ?? 1)) throw error;
+			}
+		}
+
+		return { content: '', model: modelId, toolCalls: [] };
 	}
 }
 
