@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import { Container } from 'typedi';
-import { TypeDiServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
+import { EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
-import { MainServiceTokens, type MainServiceContainer, type MainServices } from './services/services';
+import type { MainServiceContainer, MainServices } from './services/services';
 import { LlmService } from './llm';
 import { AgentV2Service } from './services/agent-service';
 import { ProviderStoreService } from './services/provider-store';
@@ -22,39 +22,37 @@ export interface BootstrapResult {
 }
 
 export function bootstrapServices(): BootstrapResult {
-	const serviceContainer = Container.of('main');
-	const container = new TypeDiServiceContainer<MainServices>(serviceContainer, MainServiceTokens);
-	const appState = serviceContainer.get(AppState);
-	const eventBus = serviceContainer.get(EventBus);
-
-	container.register('appState', appState);
-	container.register('eventBus', eventBus);
+	const container = Container.of('main');
+	const appState = container.get(AppState);
+	const eventBus = container.get(EventBus);
 
 	const logger = new LoggerService(eventBus);
-	container.register('logger', logger);
-	container.register('appPermissions', serviceContainer.get(AppPermissionsService));
+	container.set(LoggerService, logger);
+	container.get(AppPermissionsService);
 
-	container.register('channels', new ChannelsService(logger));
-	const cron = container.register('cron', new CronService(logger));
+	const channels = new ChannelsService(logger);
+	container.set(ChannelsService, channels);
+	const cron = new CronService(logger);
+	container.set(CronService, cron);
 
-	const providerStore = container.register('providerStore', new ProviderStoreService());
-	container.register('llm', serviceContainer.get(LlmService));
+	const providerStore = new ProviderStoreService();
+	container.set(ProviderStoreService, providerStore);
+	container.get(LlmService);
 
-	const agentService = container.register('agentService', new AgentV2Service(providerStore));
+	const agentService = new AgentV2Service(providerStore);
+	container.set(AgentV2Service, agentService);
 
-	container.register(
-		'channelRegistry',
-		new ChannelRegistry({ logger, eventBus, agentService })
-	);
+	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
+	container.set(ChannelRegistry, channelRegistry);
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
 
 	const windowFactory = new WindowFactory(logger);
-	container.register('windowFactory', windowFactory);
+	container.set(WindowFactory, windowFactory);
 
 	const windowContextManager = new WindowContextManager(container, eventBus);
-	container.register('windowContextManager', windowContextManager);
+	container.set(WindowContextManager<MainServices>, windowContextManager);
 
 	logger.info('Bootstrap', 'Registered global services');
 
@@ -69,8 +67,11 @@ export function bootstrapServices(): BootstrapResult {
 }
 
 export async function cleanup(container: MainServiceContainer): Promise<void> {
-	const logger = container.get('logger');
+	const logger = container.get(LoggerService);
 	logger.info('Bootstrap', 'Starting cleanup');
-	await container.shutdown();
+	await container.get(WindowContextManager<MainServices>).destroyAll();
+	container.get(ChannelRegistry).destroy();
+	container.get(CronService).destroy();
+	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
 }

@@ -6,12 +6,6 @@
 export { AppState } from './app-state';
 export { EventBus, type AppEvent, type AppEvents } from './event-bus';
 export { WindowFactory } from './window-factory';
-export {
-	TypeDiServiceContainer,
-	type Disposable,
-	type ServiceKey,
-	type ServiceTokenMap,
-} from './di-container';
 export { WindowContext, WindowContextManager, type WindowContextConfig } from './window-context';
 export {
 	WindowScopedServiceFactory,
