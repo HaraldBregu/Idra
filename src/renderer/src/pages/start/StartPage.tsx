@@ -440,6 +440,7 @@ const StartPage: React.FC = () => {
 					(provider) => getLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
+					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
 					selectableProviders.find(
 						(provider) =>
 							connectedProviderIds.has(provider.id) || savedProviderIds.has(provider.id)
@@ -1211,7 +1212,7 @@ const StartPage: React.FC = () => {
 									<Select
 										value={configProvider}
 										onValueChange={handleAgentProviderChange}
-										disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
+										disabled={loadingModels || agentModelGroups.length === 0}
 									>
 										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].provider} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={modelCountLabel} />
@@ -1243,7 +1244,7 @@ const StartPage: React.FC = () => {
 									<Select
 										value={selectedModel}
 										onValueChange={handleAgentModelChange}
-										disabled={loadingModels || selectedAgentModels.length === 0 || savingConfig}
+										disabled={loadingModels || selectedAgentModels.length === 0}
 									>
 										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].model} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={modelCountLabel} />
