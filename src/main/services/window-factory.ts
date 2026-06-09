@@ -13,11 +13,6 @@ export interface RendererContentOptions {
 	hash?: string;
 }
 
-/**
- * Factory for creating BrowserWindow instances with consistent configuration.
- * Eliminates duplicated webPreferences and window config across Main
- * and WindowManagerService.
- */
 export class WindowFactory {
 	private readonly preloadPath: string;
 	private readonly iconPath: string;
