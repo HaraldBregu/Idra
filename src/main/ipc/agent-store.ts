@@ -59,5 +59,27 @@ export class AgentStoreIpc implements IpcModule {
 				return true;
 			}
 		);
+
+		registerQuery(AgentStoreChannels.getProvider, (): PublicProvider | undefined => {
+			const providerId = this.settings.getProviderId();
+			return providerId ? toPublicProvider(providerId) : undefined;
+		});
+
+		registerCommand(AgentStoreChannels.setProvider, (provider: PublicProvider): boolean => {
+			if (!provider.id) return false;
+			this.settings.setProviderId(provider.id);
+			return true;
+		});
+
+		registerQuery(AgentStoreChannels.getModelId, (): string | undefined => {
+			return this.settings.getModelId();
+		});
+
+		registerCommand(AgentStoreChannels.setModelId, (modelId: string): boolean => {
+			const trimmed = modelId.trim();
+			if (!trimmed) return false;
+			this.settings.setModelId(trimmed);
+			return true;
+		});
 	}
 }
