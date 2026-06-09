@@ -467,7 +467,10 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const agentService = await window.agentStore.get();
+				const [storedAgentProvider, storedAgentModelId] = await Promise.all([
+					window.agentStore.getProvider(),
+					window.agentStore.getModelId(),
+				]);
 				if (cancelled) return;
 
 				const savedProviderEntries = await Promise.all(
@@ -496,7 +499,7 @@ const StartPage: React.FC = () => {
 					(provider) => getProviderLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
-					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
+					selectableProviders.find((provider) => provider.id === storedAgentProvider?.id) ??
 					selectableProviders.find(
 						(provider) =>
 							connectedProviderIds.has(provider.id) ||
@@ -508,7 +511,7 @@ const StartPage: React.FC = () => {
 				setProviders(selectableProviders);
 				setRegisteredProviderIds(savedProviderIds);
 				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId(agentService?.model.id ?? '');
+				setSavedModelId(storedAgentModelId ?? '');
 				setSpeechProviderId('');
 				setSavedSpeechProviderId('');
 				setSavedSpeechModelId('');
@@ -869,10 +872,8 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.agentStore.set(
-				selectedAgentModelOption.provider,
-				selectedAgentModelOption.model
-			);
+			await window.agentStore.setProvider(selectedAgentModelOption.provider);
+			await window.agentStore.setModelId(selectedAgentModelOption.model.id);
 			navigate('/home');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected assistant model.'));
