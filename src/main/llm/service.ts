@@ -1,3 +1,4 @@
+import { Service } from 'typedi';
 import { AnthropicAdapter } from './providers/anthropic';
 import {
 	DeepSeekAdapter,
@@ -9,6 +10,7 @@ import { OllamaAdapter } from './providers/ollama';
 import { OpenAIAdapter, OpenAIChatAdapter } from './providers/openai';
 import type { ProviderAdapter, ProviderSpec } from './types';
 
+@Service()
 export class LlmService {
 	build(provider: ProviderSpec): ProviderAdapter {
 		const id = provider.id.toLowerCase();

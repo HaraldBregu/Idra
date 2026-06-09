@@ -7,6 +7,7 @@
  */
 
 import { BrowserWindow } from 'electron';
+import { Container } from 'typedi';
 import { TypeDiServiceContainer, type EventBus } from './index';
 import {
 	createDefaultWindowScopedServiceFactory,
@@ -34,7 +35,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	constructor(config: WindowContextConfig<TGlobalServices>) {
 		this.window = config.window;
 		this.windowId = config.window.id;
-		this.container = new TypeDiServiceContainer(new (await import('typedi')).ContainerInstance(`window:${this.windowId}`));
+		this.container = new TypeDiServiceContainer(Container.of(`window:${this.windowId}`));
 		this.eventBus = config.eventBus;
 
 		this.logger = config.globalContainer.hasUnknown('logger')
@@ -68,7 +69,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	 * The factory pattern allows new services to be added without modifying this method.
 	 */
 	private async initializeServices(
-		globalContainer: ServiceContainer<TGlobalServices>,
+		globalContainer: TypeDiServiceContainer<TGlobalServices>,
 		serviceFactory: WindowScopedServiceFactory<TGlobalServices>
 	): Promise<void> {
 		try {
