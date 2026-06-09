@@ -121,7 +121,7 @@ function isTerminalAgentEvent(event: AgentResponseEvent): boolean {
 
 function createAgentV2Stream(
 	message: string,
-	options?: AgentSendRuntimeOptions
+	options?: Record<string, unknown>
 ): AsyncIterable<AgentResponseEvent> {
 	const runId = options?.runId?.trim() || crypto.randomUUID();
 	const runtimeOptions = normalizeAgentSendRuntimeOptions({ ...options, runId });
