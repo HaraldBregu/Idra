@@ -2,7 +2,7 @@ export class SystemPrompt {
 
 	constructor() { }
 
-	async build(): Promise<string> {
+	async build(agentText = ''): Promise<string> {
 		const parts: string[] = [
 			'You are a personal AI assistant.',
 			[
@@ -27,6 +27,10 @@ export class SystemPrompt {
 				'- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.',
 			].join('\n'),
 		];
+
+		if (agentText.trim()) {
+			parts.push(['## Workspace context', agentText.trim()].join('\n'));
+		}
 
 		return parts.join('\n\n');
 	}
