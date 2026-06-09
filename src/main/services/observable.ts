@@ -20,10 +20,6 @@ export class Observable<TEvent> {
 		});
 	}
 
-	/**
-	 * Clear all subscribers.
-	 * Should be called during service cleanup to prevent memory leaks.
-	 */
 	protected clearSubscribers(): void {
 		this.subscribers = [];
 	}

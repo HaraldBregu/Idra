@@ -18,7 +18,7 @@ export interface BootstrapResult {
 	windowFactory: WindowFactory;
 	appState: AppState;
 	logger: LoggerService;
-	windowContextManager: WindowContextManager<MainServices>;
+	windowContextManager: WindowContextManager;
 }
 
 export function bootstrapServices(): BootstrapResult {
@@ -52,7 +52,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(WindowFactory, windowFactory);
 
 	const windowContextManager = new WindowContextManager(container, eventBus);
-	container.set(WindowContextManager<MainServices>, windowContextManager);
+	container.set(WindowContextManager, windowContextManager);
 
 	logger.info('Bootstrap', 'Registered global services');
 
@@ -69,7 +69,7 @@ export function bootstrapServices(): BootstrapResult {
 export async function cleanup(container: MainServiceContainer): Promise<void> {
 	const logger = container.get(LoggerService);
 	logger.info('Bootstrap', 'Starting cleanup');
-	await container.get(WindowContextManager<MainServices>).destroyAll();
+	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
 	container.get(CronService).destroy();
 	container.get(LoggerService).destroy();

@@ -20,7 +20,7 @@ type WindowContextLogger = {
 	error(source: string, message: string, data?: unknown): void;
 };
 
-export interface WindowContextConfig<TGlobalServices extends object = Record<string, unknown>> {
+export interface WindowContextConfig {
 	window: BrowserWindow;
 	globalContainer: ContainerInstance;
 	eventBus: EventBus;
@@ -31,14 +31,14 @@ export interface WindowContextConfig<TGlobalServices extends object = Record<str
  * WindowContext encapsulates all per-window state and services.
  * Each BrowserWindow gets its own WindowContext instance.
  */
-export class WindowContext<TGlobalServices extends object = Record<string, unknown>> {
+export class WindowContext {
 	public readonly windowId: number;
 	public readonly window: BrowserWindow;
 	public readonly container: ContainerInstance;
 	public readonly eventBus: EventBus;
 	private readonly logger: WindowContextLogger | undefined;
 
-	constructor(config: WindowContextConfig<TGlobalServices>) {
+	constructor(config: WindowContextConfig) {
 		this.window = config.window;
 		this.windowId = config.window.id;
 		this.container = Container.of(`window:${this.windowId}`);
@@ -119,8 +119,8 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
  * WindowContextManager manages all window contexts.
  * Provides a centralized registry to look up contexts by window ID.
  */
-export class WindowContextManager<TGlobalServices extends object = Record<string, unknown>> {
-	private contexts = new Map<number, WindowContext<TGlobalServices>>();
+export class WindowContextManager {
+	private contexts = new Map<number, WindowContext>();
 
 	constructor(
 		private readonly globalContainer: ContainerInstance,
@@ -130,7 +130,7 @@ export class WindowContextManager<TGlobalServices extends object = Record<string
 	/**
 	 * Create a new window context for a BrowserWindow.
 	 */
-	create(window: BrowserWindow): WindowContext<TGlobalServices> {
+	create(window: BrowserWindow): WindowContext {
 		const context = new WindowContext({
 			window,
 			globalContainer: this.globalContainer,
@@ -151,7 +151,7 @@ export class WindowContextManager<TGlobalServices extends object = Record<string
 	 * Get the context for a specific window ID.
 	 * Throws if the context doesn't exist.
 	 */
-	get(windowId: number): WindowContext<TGlobalServices> {
+	get(windowId: number): WindowContext {
 		const context = this.contexts.get(windowId);
 		if (!context) {
 			throw new Error(`No window context found for window ID ${windowId}`);
@@ -162,7 +162,7 @@ export class WindowContextManager<TGlobalServices extends object = Record<string
 	/**
 	 * Get the context for a specific window ID, or undefined if not found.
 	 */
-	tryGet(windowId: number): WindowContext<TGlobalServices> | undefined {
+	tryGet(windowId: number): WindowContext | undefined {
 		return this.contexts.get(windowId);
 	}
 

@@ -19,7 +19,7 @@ export interface MainServices {
 	llm: LlmService;
 	logger: LoggerService;
 	providerStore: ProviderStoreService;
-	windowContextManager: WindowContextManager<MainServices>;
+	windowContextManager: WindowContextManager;
 	windowFactory: WindowFactory;
 }
 

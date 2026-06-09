@@ -29,7 +29,7 @@ export class Main {
 	constructor(
 		private appState: AppState,
 		private windowFactory: WindowFactory,
-		private windowContextManager: WindowContextManager<MainServices>
+		private windowContextManager: WindowContextManager
 	) {
 		// Constructor is now minimal
 		// All services are managed by ServiceContainer in bootstrap
