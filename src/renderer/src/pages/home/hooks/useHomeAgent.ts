@@ -81,6 +81,7 @@ export function useHomeAgent({
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
+		void getAgentApi()?.cancel().catch(() => undefined);
 		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
 	}, [dispatchChat]);
 
