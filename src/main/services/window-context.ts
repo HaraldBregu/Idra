@@ -24,7 +24,7 @@ export interface WindowContextConfig<TGlobalServices extends object = Record<str
 	window: BrowserWindow;
 	globalContainer: ContainerInstance;
 	eventBus: EventBus;
-	serviceFactory?: WindowScopedServiceFactory<TGlobalServices>;
+	serviceFactory?: WindowScopedServiceFactory;
 }
 
 /**
@@ -50,8 +50,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 		this.logger?.info('WindowContext', `Creating context for window ${this.windowId}`);
 
 		// Initialize window-scoped services using the factory
-		const factory =
-			config.serviceFactory || createDefaultWindowScopedServiceFactory<TGlobalServices>();
+		const factory = config.serviceFactory || createDefaultWindowScopedServiceFactory();
 		this.initializeServices(config.globalContainer, factory);
 
 		this.eventBus.emit('window:created', {
@@ -76,7 +75,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	 */
 	private async initializeServices(
 		globalContainer: ContainerInstance,
-		serviceFactory: WindowScopedServiceFactory<TGlobalServices>
+		serviceFactory: WindowScopedServiceFactory
 	): Promise<void> {
 		try {
 			// Use factory to create and register remaining services

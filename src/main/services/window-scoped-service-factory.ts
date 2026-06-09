@@ -5,7 +5,7 @@ import { LoggerService } from '../observability';
 /**
  * Context available to every window-scoped service factory function.
  */
-export interface WindowScopedFactoryContext<TGlobalServices extends object = Record<string, unknown>> {
+export interface WindowScopedFactoryContext {
 	globalContainer: ContainerInstance;
 	eventBus: EventBus;
 	windowContainer: ContainerInstance;
@@ -15,9 +15,7 @@ export interface WindowScopedFactoryContext<TGlobalServices extends object = Rec
  * Interface for window-scoped service definitions.
  * Each service registered with the factory must implement this pattern.
  */
-export interface WindowScopedServiceDefinition<
-	TGlobalServices extends object = Record<string, unknown>,
-> {
+export interface WindowScopedServiceDefinition {
 	/**
 	 * Unique key to register the service under
 	 */
@@ -28,7 +26,7 @@ export interface WindowScopedServiceDefinition<
 	 * Has access to global container, event bus, and the
 	 * in-progress window container for resolving prior services.
 	 */
-	factory: (context: WindowScopedFactoryContext<TGlobalServices>) => Promise<unknown> | unknown;
+	factory: (context: WindowScopedFactoryContext) => Promise<unknown> | unknown;
 }
 
 /**
@@ -51,13 +49,13 @@ export interface WindowScopedServiceDefinition<
  *   // Create all services for a window
  *   await factory.createAndRegisterAll(container, { globalContainer, eventBus })
  */
-export class WindowScopedServiceFactory<TGlobalServices extends object = Record<string, unknown>> {
-	private definitions: Map<string, WindowScopedServiceDefinition<TGlobalServices>> = new Map();
+export class WindowScopedServiceFactory {
+	private definitions: Map<string, WindowScopedServiceDefinition> = new Map();
 
 	/**
 	 * Register a service definition
 	 */
-	register(definition: WindowScopedServiceDefinition<TGlobalServices>): void {
+	register(definition: WindowScopedServiceDefinition): void {
 		if (this.definitions.has(definition.key)) {
 			throw new Error(`Service "${definition.key}" is already registered`);
 		}
@@ -81,7 +79,7 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
 			`Creating ${this.definitions.size} window-scoped services`
 		);
 
-		const enrichedContext: WindowScopedFactoryContext<TGlobalServices> = {
+	const enrichedContext: WindowScopedFactoryContext = {
 			...context,
 			windowContainer: container,
 		};
@@ -126,9 +124,7 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
  * Factory for creating the default set of window-scoped services.
  * Can be overridden or extended by applications that need custom services.
  */
-export function createDefaultWindowScopedServiceFactory<
-	TGlobalServices extends object = Record<string, unknown>,
->(): WindowScopedServiceFactory<TGlobalServices> {
-	const factory = new WindowScopedServiceFactory<TGlobalServices>();
+export function createDefaultWindowScopedServiceFactory(): WindowScopedServiceFactory {
+	const factory = new WindowScopedServiceFactory();
 	return factory;
 }

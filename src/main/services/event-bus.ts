@@ -1,19 +1,12 @@
 import { BrowserWindow } from 'electron';
 import { Service } from 'typedi';
 
-/**
- * Base event structure for main process events
- */
 export interface AppEvent {
 	type: string;
 	payload: unknown;
 	timestamp: number;
 }
 
-/**
- * Typed events for cross-cutting concerns in the main process.
- * Used for analytics, logging, and monitoring.
- */
 export interface AppEvents {
 	'service:initialized': { service: string };
 	'service:destroyed': { service: string };
