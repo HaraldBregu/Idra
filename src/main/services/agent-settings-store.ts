@@ -1,8 +1,10 @@
 import path from 'node:path';
 import Store from 'electron-store';
+import { app } from 'electron';
+import { Service } from 'typedi';
 import { Settings, Provider } from '../agent';
 import type { Provider as StoredProvider } from '../../shared/providers/types';
-import type { ProviderStoreService } from './provider-store';
+import { ProviderStoreService } from './provider-store';
 
 type SettingsSchema = {
 	providerId: string | undefined;
@@ -14,16 +16,17 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 	modelId: undefined,
 };
 
+@Service({
+	factory: (container) => new AgentSettingsStore(container.get(ProviderStoreService)),
+})
 export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
-	private readonly providerStore: ProviderStoreService;
 
-	constructor(location: string, providerStore: ProviderStoreService) {
+	constructor(private readonly providerStore: ProviderStoreService) {
 		super();
-		this.providerStore = providerStore;
 		this.store = new Store<SettingsSchema>({
 			name: 'settings',
-			cwd: path.resolve(location),
+			cwd: path.resolve(resolveAgentSettingsLocation()),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
 		});
@@ -63,6 +66,15 @@ export class AgentSettingsStore extends Settings {
 
 	getModelId(): string | undefined {
 		return this.store.get('modelId');
+	}
+}
+
+function resolveAgentSettingsLocation(): string {
+	try {
+		return path.join(app.getPath('userData'), 'agent');
+	} catch {
+		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+		return path.join(path.resolve(base, app?.getName?.() ?? 'Friday'), 'agent');
 	}
 }
 

@@ -35,11 +35,10 @@ export function bootstrapServices(): BootstrapResult {
 	const cron = new CronService(logger);
 	container.set(CronService, cron);
 
-	const providerStore = new ProviderStoreService();
-	container.set(ProviderStoreService, providerStore);
+	container.get(ProviderStoreService);
 	container.get(LlmService);
 
-	const agentService = new AgentV2Service(providerStore);
+	const agentService = new AgentV2Service(container.get(AgentSettingsStore));
 	container.set(AgentV2Service, agentService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });

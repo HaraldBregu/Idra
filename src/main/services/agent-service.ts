@@ -8,7 +8,6 @@ import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent, RuntimeRun } from '../agent';
 import { AgentResponseEvent, AgentRunStopReason } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
-import type { ProviderStoreService } from './provider-store';
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -26,12 +25,12 @@ export class AgentV2Service {
 	private readonly history: History;
 	private readonly runtime: AgentRuntime;
 
-	constructor(providerStore: ProviderStoreService, defaultAgentId = 'main') {
+	constructor(agentSettingsStore: AgentSettingsStore, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
 		const location = resolveAgentUsageLocation();
 
 		this.agentWorkspace = new AgentWorkspace(location);
-		this.agentSettingsStore = new AgentSettingsStore(location, providerStore);
+		this.agentSettingsStore = agentSettingsStore;
 		this.history = new History(location);
 		this.runtime = new AgentRuntime(this.agentWorkspace, this.agentSettingsStore, this.history);
 	}

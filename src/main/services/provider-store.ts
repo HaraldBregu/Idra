@@ -1,6 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
+import { Service } from 'typedi';
 import type { Provider, ProviderRecord } from '../../shared/providers/types';
 
 type ProvidersStore = {
@@ -12,6 +13,7 @@ export interface ProviderServiceOptions {
 	cwd?: string;
 }
 
+@Service({ factory: () => new ProviderStoreService() })
 export class ProviderStoreService {
 	private readonly store: ProvidersStore;
 
