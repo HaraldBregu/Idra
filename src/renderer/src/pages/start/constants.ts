@@ -2,7 +2,6 @@ import { Bot, Image as ImageIcon, Mic, Music, Video, Volume2 } from 'lucide-reac
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
-	type Provider as CatalogProvider,
 } from '../../../../shared/providers';
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
@@ -17,6 +16,8 @@ import type {
 	ProviderOption,
 	SetupStep,
 } from './types';
+
+type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{

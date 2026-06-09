@@ -22,7 +22,6 @@ import { useNavigate } from 'react-router-dom';
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
-	type Provider as CatalogProvider,
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '@/lib/compat';
@@ -50,6 +49,8 @@ type ProviderOption = {
 	label: string;
 	value: string;
 };
+
+type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 
 type ProviderSetupEntry = {
 	providerId: string;
