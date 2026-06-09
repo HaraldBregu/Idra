@@ -362,11 +362,17 @@ export const providerStore: ProviderStoreApi = {
 };
 
 export const agentStore: AgentStoreApi = {
-	get: (): Promise<ModelSelection | undefined> => {
-		return typedInvokeUnwrap(AgentStoreChannels.get);
+	getProvider: (): Promise<PublicProvider | undefined> => {
+		return typedInvokeUnwrap(AgentStoreChannels.getProvider);
 	},
-	set: (provider: PublicProvider, model: Model): Promise<boolean> => {
-		return typedInvokeUnwrap(AgentStoreChannels.set, provider, model);
+	setProvider: (provider: PublicProvider): Promise<boolean> => {
+		return typedInvokeUnwrap(AgentStoreChannels.setProvider, provider);
+	},
+	getModelId: (): Promise<string | undefined> => {
+		return typedInvokeUnwrap(AgentStoreChannels.getModelId);
+	},
+	setModelId: (modelId: string): Promise<boolean> => {
+		return typedInvokeUnwrap(AgentStoreChannels.setModelId, modelId);
 	},
 };
 

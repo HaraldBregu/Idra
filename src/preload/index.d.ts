@@ -178,8 +178,10 @@ export interface AppApi {
 }
 
 export interface AgentStoreApi {
-	get: () => Promise<ModelSelection | undefined>;
-	set: (provider: PublicProvider, model: Model) => Promise<boolean>;
+	getProvider: () => Promise<PublicProvider | undefined>;
+	setProvider: (provider: PublicProvider) => Promise<boolean>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<boolean>;
 }
 
 export interface RealtimeTranscriptionApi {

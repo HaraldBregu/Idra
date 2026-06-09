@@ -1,6 +1,4 @@
 export const AgentStoreChannels = {
-	get: 'agent-store:get',
-	set: 'agent-store:set',
 	getProvider: 'agent-store:get-provider',
 	setProvider: 'agent-store:set-provider',
 	getModelId: 'agent-store:get-model-id',
@@ -8,22 +6,6 @@ export const AgentStoreChannels = {
 } as const;
 
 export interface AgentStoreInvokeChannelMap {
-	[AgentStoreChannels.get]: {
-		args: [];
-		result:
-			| {
-					provider: import('../../providers').PublicProvider;
-					model: import('../../providers').ProviderModel;
-			  }
-			| undefined;
-	};
-	[AgentStoreChannels.set]: {
-		args: [
-			provider: import('../../providers').PublicProvider,
-			model: import('../../providers').ProviderModel,
-		];
-		result: boolean;
-	};
 	[AgentStoreChannels.getProvider]: {
 		args: [];
 		result: import('../../providers').PublicProvider | undefined;
