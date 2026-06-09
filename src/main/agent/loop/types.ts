@@ -23,20 +23,16 @@ export interface RuntimeOutput {
 export interface RuntimeInput {
     task: string;
     message: string;
-    provider?: RuntimeModelProvider;
-    providerId?: string;
     sessionId?: string;
     system?: string;
     messages?: RuntimeMessage[];
     tools?: RuntimeTool[];
     skills?: RuntimeSkill[];
-    modelId?: string;
     modelRoutes?: RuntimeModelRoute[];
     maxTokens?: number;
     maxRetries?: number;
     maxTurns?: number;
     maxIterations?: number;
-    signal?: AbortSignal;
 }
 /**
  * Optional route hint for selecting a model based on a task name.
@@ -60,7 +56,6 @@ export interface RuntimePrompt {
  */
 export interface RuntimePerception {
 	prompt: RuntimePrompt;
-	provider: RuntimeModelProvider;
 	model: string;
 	maxTokens: number;
 	maxRetries: number;
@@ -102,10 +97,6 @@ export type RuntimeModel = ModelModule;
  * Runtime role alias backed by the agent_v2 model module.
  */
 export type RuntimeRole = ModelMessageRole;
-/**
- * Runtime provider configuration alias backed by the agent_v2 model module.
- */
-export type RuntimeModelProvider = ModelProvider;
 
 /**
  * Tool definition exposed to the model plus the local function used to execute it.

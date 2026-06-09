@@ -5,7 +5,6 @@ import type {
 	RuntimeInput,
 	RuntimeMessage,
 	RuntimeModel,
-	RuntimeModelProvider,
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
@@ -15,7 +14,7 @@ import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
-import { Settings } from '../core/settings';
+import { Provider, Settings } from '../core/settings';
 
 interface ModelTurn {
 	content: string;
@@ -31,7 +30,6 @@ interface ModelTurn {
 async function* runModelTurn(
 	modelPort: RuntimeModel,
 	input: RuntimeInput,
-	provider: RuntimeModelProvider,
 	system: string | undefined,
 	messages: RuntimeMessage[],
 	signal: AbortSignal
@@ -93,7 +91,7 @@ export class AgentRuntime {
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
-		_workspace: Workspace,
+		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly history: History
 	) {
@@ -102,32 +100,27 @@ export class AgentRuntime {
 	}
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
-		const provider = input.provider ?? this.settings.getProvider();
-		const modelId = input.modelId ?? this.settings.getModelId();
+		const provider = this.settings.getProvider();
+		const modelId = this.settings.getModelId();
 
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
-		if (
-			input.providerId &&
-			provider.id.trim().toLowerCase() !== input.providerId.trim().toLowerCase()
-		)
-			throw new Error(`Agent provider is not configured: ${input.providerId}`);
 
-		const resolved: RuntimeInput = { ...input, provider, modelId };
-		const signal = input.signal ?? new AbortController().signal;
+		const resolved: RuntimeInput = { ...input };
+		const signal = new AbortController().signal;
 
 		return this.stream(resolved, provider, signal);
 	}
 
 	private async *stream(
 		input: RuntimeInput,
-		provider: RuntimeModelProvider,
+		provider: Provider,
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent> {
 		const session = new RuntimeSession(input);
 		await this.history.append(session.id, {
 			type: 'user_message',
-			data: { task: input.task, message: input.message, model: input.modelId },
+			data: { task: input.task, message: input.message },
 		});
 		const system = input.system ?? (await this.systemPrompt.build());
 

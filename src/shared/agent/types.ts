@@ -102,7 +102,6 @@ export type AgentRunStreamEvent =
 	| { type: 'run_state'; state: AgentRunState; label?: string }
 	| {
 			type: 'model_selected';
-			providerId: string;
 			model: string;
 			effort?: ModelReasoningEffort;
 	  }

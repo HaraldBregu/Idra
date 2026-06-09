@@ -12,8 +12,6 @@ import { toError } from '../ipc/core/error';
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
-	providerId?: string;
-	modelId?: string;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -43,15 +41,12 @@ export class AgentService {
 		const sessionId = options.sessionId ?? resolvedAgentId;
 
 		let response = '';
-		let providerId = options.providerId ?? '';
 		let controller: AbortController | undefined;
 		try {
 			controller = new AbortController();
 			const stream = this.runtime.run({
 				task: 'chat',
 				message,
-				providerId: options.providerId,
-				modelId: options.modelId,
 				sessionId,
 				maxRetries: 1,
 				signal: controller.signal,
@@ -59,8 +54,8 @@ export class AgentService {
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
-				if (event.type === 'run_started')
-					providerId = event.providerId;
+				// if (event.type === 'run_started')
+				// 	providerId = event.providerId;
 				if (event.type === 'model_call_delta')
 					response += event.delta;
 				if (event.type === 'run_finished')
@@ -70,7 +65,6 @@ export class AgentService {
 					event,
 					resolvedAgentId,
 					runId,
-					providerId
 				)) {
 					options.streamEvent?.(responseEvent);
 				}
@@ -142,13 +136,12 @@ function runtimeEventToAgentEvents(
 	event: RuntimeEvent,
 	agentId: string,
 	runId: string,
-	providerId: string
 ): AgentResponseEvent[] {
 	if (event.type === 'run_started') {
 		return [{ type: 'run_state', state: 'thinking', agentId, runId }];
 	}
 	if (event.type === 'model_call_start') {
-		return [{ type: 'model_selected', providerId, model: event.model, agentId, runId }];
+		return [{ type: 'model_selected', model: event.model, agentId, runId }];
 	}
 	if (event.type === 'model_call_delta') {
 		return [{ type: 'text_delta', delta: event.delta, agentId, runId }];
