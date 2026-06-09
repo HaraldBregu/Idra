@@ -26,7 +26,6 @@ import {
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '@/lib/compat';
 import { getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
-import type { StoredProvider } from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -216,19 +215,6 @@ function getDefaultProvider(providerId: string): CatalogProvider | undefined {
 	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
 }
 
-function getStoredProviderValue(
-	providerId: string,
-	apiKey: string,
-	current?: StoredProvider
-): StoredProvider {
-	const catalog = getDefaultProvider(providerId);
-	return {
-		name: current?.name || catalog?.name || providerId,
-		apiKey,
-		baseUrl: current?.baseUrl || catalog?.baseUrl || '',
-	};
-}
-
 function getPublicProvidersFromCatalog(): PublicProvider[] {
 	return DEFAULT_PROVIDERS.map((provider) => ({
 		id: provider.id,
@@ -237,17 +223,6 @@ function getPublicProvidersFromCatalog(): PublicProvider[] {
 		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
 		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
 	}));
-}
-
-async function getStoredProviderEntries(): Promise<
-	readonly (readonly [string, StoredProvider | undefined])[]
-> {
-	return Promise.all(
-		actionableProviderCatalog.map(async (provider) => [
-			provider.id,
-			await window.providerStore.get(provider.id),
-		] as const)
-	);
 }
 
 function getAgentModelValue(providerId: string, modelId: string): string {
@@ -407,49 +382,18 @@ const StartPage: React.FC = () => {
 
 	useEffect(() => {
 		if (step !== 'providers') return;
-		let cancelled = false;
-
-		async function loadApiKeyStatus(): Promise<void> {
-			try {
-				const storedProviders = await getStoredProviderEntries();
-				if (cancelled) return;
-
-				const savedByProviderId = new Map(
-					storedProviders.map(([providerId, provider]) => [
-						providerId,
-						(provider?.apiKey.trim().length ?? 0) > 0,
-					])
-				);
-				const hasSavedProvider = [...savedByProviderId.values()].some(Boolean);
-				setProviderEntries((entries) =>
-					actionableProviderCatalog.map((provider, index) => {
-						const current = entries.find((entry) => entry.providerId === provider.id);
-						const saved = savedByProviderId.get(provider.id) ?? false;
-						const draft = current?.apiKey ?? '';
-						const hasDraft = draft.trim().length > 0;
-						return {
-							providerId: provider.id,
-							apiKey: draft,
-							apiKeySaved: saved,
-							editing: hasDraft
-								? (current?.editing ?? false)
-								: saved
-									? false
-									: (current?.editing ?? (!hasSavedProvider && index === 0)),
-						};
-					})
-				);
-			} catch (error) {
-				if (cancelled) return;
-				setErrorMessage(getErrorMessage(error, 'Could not check saved provider access.'));
-			}
-		}
-
-		void loadApiKeyStatus();
-
-		return () => {
-			cancelled = true;
-		};
+		setProviderEntries((entries) =>
+			actionableProviderCatalog.map((provider, index) => {
+				const current = entries.find((entry) => entry.providerId === provider.id);
+				const draft = current?.apiKey ?? '';
+				return {
+					providerId: provider.id,
+					apiKey: draft,
+					apiKeySaved: current?.apiKeySaved ?? false,
+					editing: current?.editing ?? index === 0,
+				};
+			})
+		);
 	}, [step]);
 
 	useEffect(() => {
@@ -459,13 +403,7 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const [
-					storedProviders,
-					agentService,
-				] = await Promise.all([
-					getStoredProviderEntries(),
-					window.agentStore.get(),
-				]);
+				const agentService = undefined;
 				const speechTranscriberService = undefined;
 				const textToSpeechService = undefined;
 				const imageCreatorService = undefined;
@@ -474,9 +412,9 @@ const StartPage: React.FC = () => {
 				if (cancelled) return;
 
 				const savedProviderIds = new Set(
-					storedProviders.flatMap(([providerId, provider]) =>
-						(provider?.apiKey.trim().length ?? 0) > 0 ? [providerId] : []
-					)
+					providerEntries
+						.filter((entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0)
+						.map((entry) => entry.providerId)
 				);
 				const selectableProviders = getPublicProvidersFromCatalog().filter(
 					(provider) => getLlmModels(provider.id).length > 0
