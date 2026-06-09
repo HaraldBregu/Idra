@@ -18,9 +18,9 @@ import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
 import { cn } from './lib/utils';
+import HomePage from './pages/home/Page';
 
 const StartPage = lazy(() => import('./pages/start/StartPage'));
-const HomePage = lazy(() => import('./pages/home/Page'));
 const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
