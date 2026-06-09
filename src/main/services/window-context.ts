@@ -7,8 +7,9 @@
  */
 
 import { BrowserWindow } from 'electron';
-import { Container } from 'typedi';
-import { TypeDiServiceContainer, type EventBus } from './index';
+import { Container, type ContainerInstance } from 'typedi';
+import type { EventBus } from './index';
+import { LoggerService } from '../observability';
 import {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceFactory,
@@ -21,7 +22,7 @@ type WindowContextLogger = {
 
 export interface WindowContextConfig<TGlobalServices extends object = Record<string, unknown>> {
 	window: BrowserWindow;
-	globalContainer: TypeDiServiceContainer<TGlobalServices>;
+	globalContainer: ContainerInstance;
 	eventBus: EventBus;
 	serviceFactory?: WindowScopedServiceFactory<TGlobalServices>;
 }
@@ -33,18 +34,18 @@ export interface WindowContextConfig<TGlobalServices extends object = Record<str
 export class WindowContext<TGlobalServices extends object = Record<string, unknown>> {
 	public readonly windowId: number;
 	public readonly window: BrowserWindow;
-	public readonly container: TypeDiServiceContainer;
+	public readonly container: ContainerInstance;
 	public readonly eventBus: EventBus;
 	private readonly logger: WindowContextLogger | undefined;
 
 	constructor(config: WindowContextConfig<TGlobalServices>) {
 		this.window = config.window;
 		this.windowId = config.window.id;
-		this.container = new TypeDiServiceContainer(Container.of(`window:${this.windowId}`));
+		this.container = Container.of(`window:${this.windowId}`);
 		this.eventBus = config.eventBus;
 
-		this.logger = config.globalContainer.hasUnknown('logger')
-			? (config.globalContainer.getUnknown('logger') as WindowContextLogger)
+		this.logger = config.globalContainer.has(LoggerService)
+			? config.globalContainer.get(LoggerService)
 			: undefined;
 		this.logger?.info('WindowContext', `Creating context for window ${this.windowId}`);
 
@@ -74,7 +75,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	 * The factory pattern allows new services to be added without modifying this method.
 	 */
 	private async initializeServices(
-		globalContainer: TypeDiServiceContainer<TGlobalServices>,
+		globalContainer: ContainerInstance,
 		serviceFactory: WindowScopedServiceFactory<TGlobalServices>
 	): Promise<void> {
 		try {
@@ -99,7 +100,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	 * Get a service from this window's container.
 	 * Falls back to global container if not found in window scope.
 	 */
-	getService<T>(key: string, globalContainer: TypeDiServiceContainer): T {
+	getService<T>(key: string, globalContainer: ContainerInstance): T {
 		if (this.container.has(key)) {
 			return this.container.get(key) as T;
 		}
@@ -111,7 +112,7 @@ export class WindowContext<TGlobalServices extends object = Record<string, unkno
 	 */
 	async destroy(): Promise<void> {
 		this.logger?.info('WindowContext', `Destroying context for window ${this.windowId}`);
-		await this.container.shutdown();
+		this.container.reset({ strategy: 'resetServices' });
 	}
 }
 
@@ -123,7 +124,7 @@ export class WindowContextManager<TGlobalServices extends object = Record<string
 	private contexts = new Map<number, WindowContext<TGlobalServices>>();
 
 	constructor(
-		private readonly globalContainer: TypeDiServiceContainer<TGlobalServices>,
+		private readonly globalContainer: ContainerInstance,
 		private readonly eventBus: EventBus
 	) {}
 
@@ -177,7 +178,7 @@ export class WindowContextManager<TGlobalServices extends object = Record<string
 	 * Destroy all window contexts.
 	 */
 	async destroyAll(): Promise<void> {
-		const logger = this.globalContainer.getUnknown('logger') as { info(s: string, m: string): void };
+		const logger = this.globalContainer.get(LoggerService);
 		logger?.info('WindowContextManager', `Destroying ${this.contexts.size} window contexts`);
 		for (const context of this.contexts.values()) {
 			await context.destroy();

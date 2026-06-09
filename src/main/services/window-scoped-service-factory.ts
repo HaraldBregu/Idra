@@ -1,13 +1,14 @@
-import type { TypeDiServiceContainer, EventBus } from './index';
+import type { ContainerInstance } from 'typedi';
+import type { EventBus } from './index';
 import type { LoggerService } from '../observability';
 
 /**
  * Context available to every window-scoped service factory function.
  */
 export interface WindowScopedFactoryContext<TGlobalServices extends object = Record<string, unknown>> {
-	globalContainer: TypeDiServiceContainer<TGlobalServices>;
+	globalContainer: ContainerInstance;
 	eventBus: EventBus;
-	windowContainer: TypeDiServiceContainer;
+	windowContainer: ContainerInstance;
 }
 
 /**
@@ -68,13 +69,13 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
 	 * Services are created in registration order, allowing dependencies to be satisfied.
 	 */
 	async createAndRegisterAll(
-		container: TypeDiServiceContainer,
+		container: ContainerInstance,
 		context: {
-			globalContainer: TypeDiServiceContainer<TGlobalServices>;
+			globalContainer: ContainerInstance;
 			eventBus: EventBus;
 		}
 	): Promise<void> {
-		const logger = context.globalContainer.getUnknown('logger') as LoggerService;
+		const logger = context.globalContainer.get('logger') as LoggerService;
 		logger?.info(
 			'WindowScopedServiceFactory',
 			`Creating ${this.definitions.size} window-scoped services`
@@ -88,7 +89,7 @@ export class WindowScopedServiceFactory<TGlobalServices extends object = Record<
 		for (const definition of this.definitions.values()) {
 			try {
 				const service = await definition.factory(enrichedContext);
-				container.register(definition.key, service);
+				container.set(definition.key, service);
 				logger?.info('WindowScopedServiceFactory', `Registered service: ${definition.key}`);
 			} catch (error) {
 				logger?.error(
