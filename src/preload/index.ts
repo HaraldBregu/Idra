@@ -43,6 +43,9 @@ import type {
 	HeartbeatSystemEventResult,
 	HeartbeatTimingSettings,
 	HeartbeatWakeRequest,
+	OAuthAuthorizeResult,
+	RealtimeTranscriptionEvent,
+	RealtimeTranscriptionSession,
 } from './index.d';
 import type { AgentResponseEvent } from '../shared/agent/types';
 import type { ModelReasoningEffort } from '../shared/agent/types';
@@ -166,7 +169,7 @@ function createAgentV2Stream(
 	message: string,
 	options?: Record<string, unknown>
 ): AsyncIterable<AgentResponseEvent> {
-	const runId = options?.runId?.trim() || crypto.randomUUID();
+	const runId = optionalTrimmedString(options?.runId) || crypto.randomUUID();
 	const runtimeOptions = normalizeAgentSendRuntimeOptions({ ...options, runId });
 
 	return {
@@ -263,7 +266,7 @@ export const app: AppApi = {
 		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
 	},
 	authorizeOAuth: (input: Parameters<AppApi['authorizeOAuth']>[0]) => {
-		return typedInvokeUnwrap(AppChannels.authorizeOAuth, input);
+		return typedInvokeUnwrap<OAuthAuthorizeResult>(AppChannels.authorizeOAuth, input);
 	},
 	setTrayEnabled: (enabled: boolean): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
@@ -359,7 +362,7 @@ export const app: AppApi = {
 
 export const realtimeTranscription: RealtimeTranscriptionApi = {
 	start: (request) => {
-		return typedInvokeUnwrap(
+		return typedInvokeUnwrap<RealtimeTranscriptionSession>(
 			RealtimeTranscriptionChannels.start,
 			normalizeRealtimeTranscriptionStartRequest(request)
 		);
@@ -386,7 +389,9 @@ export const realtimeTranscription: RealtimeTranscriptionApi = {
 		return typedInvokeUnwrap(RealtimeTranscriptionChannels.cancel, sessionId);
 	},
 	onEvent: (callback): (() => void) => {
-		return typedOn(RealtimeTranscriptionChannels.event, callback);
+		return typedOn(RealtimeTranscriptionChannels.event, (event) => {
+			callback(event as RealtimeTranscriptionEvent);
+		});
 	},
 };
 
@@ -416,32 +421,46 @@ export const cron: CronApi = {
 
 export const heartbeat: HeartbeatApi = {
 	status: (): Promise<HeartbeatStatus> => {
-		return typedInvokeUnwrap(HeartbeatChannels.status);
+		return typedInvokeUnwrap<HeartbeatStatus>(HeartbeatChannels.status);
 	},
 	settings: (): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.settings);
+		return typedInvokeUnwrap<HeartbeatSettings>(HeartbeatChannels.settings);
 	},
 	saveSettings: (request: HeartbeatSettingsUpdate): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.saveSettings, assertHeartbeatObject(request));
+		return typedInvokeUnwrap<HeartbeatSettings>(
+			HeartbeatChannels.saveSettings,
+			assertHeartbeatObject(request)
+		);
 	},
 	setEnabled: (request: HeartbeatSetEnabledRequest): Promise<HeartbeatStatus> => {
-		return typedInvokeUnwrap(HeartbeatChannels.setEnabled, assertHeartbeatObject(request));
+		return typedInvokeUnwrap<HeartbeatStatus>(
+			HeartbeatChannels.setEnabled,
+			assertHeartbeatObject(request)
+		);
 	},
 	getTiming: (): Promise<HeartbeatTimingSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.getTiming);
+		return typedInvokeUnwrap<HeartbeatTimingSettings>(HeartbeatChannels.getTiming);
 	},
 	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
-		return typedInvokeUnwrap(HeartbeatChannels.updateTiming, assertHeartbeatObject(request));
+		return typedInvokeUnwrap<HeartbeatTimingSettings>(
+			HeartbeatChannels.updateTiming,
+			assertHeartbeatObject(request)
+		);
 	},
 	systemEvent: (request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> => {
-		return typedInvokeUnwrap(HeartbeatChannels.systemEvent, assertHeartbeatObject(request));
+		return typedInvokeUnwrap<HeartbeatSystemEventResult>(
+			HeartbeatChannels.systemEvent,
+			assertHeartbeatObject(request)
+		);
 	},
 	request: (request: HeartbeatWakeRequest): Promise<void> => {
 		return typedInvokeUnwrap(HeartbeatChannels.request, assertHeartbeatObject(request));
 	},
 	onEvent: (callback: (event: HeartbeatEventPayload) => void): (() => void) => {
 		if (typeof callback !== 'function') throw new Error('heartbeat event callback must be a function.');
-		return typedOn(HeartbeatChannels.event, callback);
+		return typedOn(HeartbeatChannels.event, (event) => {
+			callback(event as HeartbeatEventPayload);
+		});
 	},
 };
 
