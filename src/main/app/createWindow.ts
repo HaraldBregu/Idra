@@ -174,7 +174,7 @@ export class Main {
 	}
 
 	create(): BrowserWindow {
-		return this.createLauncherWindow({ closeToTray: true, content: { hash: 'home' } });
+		return this.createLauncherWindow({ closeToTray: true, content: { hash: 'start' } });
 	}
 
 	showOrCreate(): void {
