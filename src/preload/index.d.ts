@@ -76,47 +76,231 @@ import type {
 	CronScheduleFilter,
 	CronScheduledTask,
 } from '../shared/app/cron';
-import type {
-	HeartbeatEventPayload,
-	HeartbeatSetEnabledRequest,
-	HeartbeatSettings,
-	HeartbeatSettingsUpdate,
-	HeartbeatStatus,
-	HeartbeatSystemEventRequest,
-	HeartbeatSystemEventResult,
-	HeartbeatTimingSettings,
-	HeartbeatWakeRequest,
-} from '../shared/heartbeat';
-import type {
-	AgentResponseEvent,
-	Model,
-	ModelSelection,
-} from '../shared/agents/service';
+import type { AgentResponseEvent, ModelReasoningEffort } from '../shared/agent/types';
+import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type {
-	ConnectorInput,
-	ConnectorRecord,
-	OAuthAuthorizeInput,
-	OAuthAuthorizeResult,
-} from '../shared/connectors';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
 	SkillImportResult,
 	SkillInfo,
-} from '../shared/skills';
+} from '../shared/skills/types';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
 } from '../shared/app/app-permissions';
-import type {
-	RealtimeTranscriptionEvent,
-	RealtimeTranscriptionSession,
-	RealtimeTranscriptionStartRequest,
-} from '../shared/realtime-transcription';
+
+export interface ModelSelection {
+	provider: PublicProvider;
+	model: Model;
+}
+
+export type ConnectorRecord = Record<
+	string,
+	{
+		type: 'mcp';
+		server_label: string;
+		server_url: string;
+		server_description?: string;
+		authorization?: string;
+		require_approval?: 'always' | 'never';
+		defer_loading?: boolean;
+		enabled?: boolean;
+		last_refreshed_at?: string;
+		created_at?: string;
+		updated_at?: string;
+		last_error?: string;
+	}
+>;
+
+export type ConnectorInput = {
+	id?: string;
+	name: string;
+	connectorId: string;
+	serverLabel?: string;
+	serverDescription?: string;
+	serverUrl?: string;
+	authorization?: string;
+	requireApproval?: 'always' | 'never';
+	deferLoading?: boolean;
+	enabled?: boolean;
+	createdAt?: string;
+};
+
+export type OAuthAuthorizeInput = {
+	service: string;
+	serviceId?: string;
+	clientIdEnv: string;
+	clientSecretEnv?: string;
+	authorizationUrl: string;
+	tokenUrl: string;
+	userInfoUrl?: string;
+	scopes: readonly string[];
+	accessType?: string;
+	prompt?: string;
+};
+
+export type OAuthAuthorizeResult = {
+	service: string;
+	serviceId?: string;
+	authorizationUrl: string;
+	redirectUri: string;
+	scopes: readonly string[];
+	accessToken: string;
+	refreshToken?: string;
+	tokenType?: string;
+	scope?: string;
+	expiresAt?: string;
+	accountEmail?: string;
+	connectedAt: string;
+};
+
+export interface HeartbeatActiveHoursConfig {
+	start?: string;
+	end?: string;
+	timezone?: string;
+}
+
+export type HeartbeatTarget = 'none' | 'last' | ChannelType | string;
+
+export interface HeartbeatWakeOverride {
+	target?: HeartbeatTarget;
+	to?: string;
+	accountId?: string;
+}
+
+export interface HeartbeatStatus {
+	enabled: boolean;
+	runnerActive: boolean;
+	agentCount: number;
+	nextDueMs?: number;
+	lastHeartbeat: HeartbeatEventPayload | null;
+}
+
+export interface HeartbeatSettings {
+	every: string;
+	activeHours?: HeartbeatActiveHoursConfig;
+	providerId?: PublicProvider['id'];
+	modelId?: Model['id'];
+	reasoningEffort?: ModelReasoningEffort;
+}
+
+export type HeartbeatSettingsUpdate = Partial<HeartbeatSettings>;
+
+export interface HeartbeatSetEnabledRequest {
+	enabled: boolean;
+}
+
+export interface HeartbeatTimingSettings {
+	every: string;
+	activeHours?: HeartbeatActiveHoursConfig;
+}
+
+export interface HeartbeatSystemEventRequest {
+	text: string;
+	mode?: 'now' | 'next-heartbeat';
+	agentId?: string;
+	sessionKey?: string;
+	heartbeat?: HeartbeatWakeOverride;
+}
+
+export interface HeartbeatSystemEventResult {
+	queued: true;
+	sessionKey: string;
+	mode: 'now' | 'next-heartbeat';
+}
+
+export type HeartbeatWakeSource =
+	| 'interval'
+	| 'manual'
+	| 'exec-event'
+	| 'notifications-event'
+	| 'cron'
+	| 'hook'
+	| 'background-task'
+	| 'background-task-blocked'
+	| 'acp-spawn'
+	| 'cli-watchdog'
+	| 'restart-sentinel'
+	| 'retry'
+	| 'other';
+
+export type HeartbeatWakeIntent = 'scheduled' | 'event' | 'immediate' | 'manual';
+
+export interface HeartbeatWakeRequest {
+	source: HeartbeatWakeSource;
+	intent: HeartbeatWakeIntent;
+	reason?: string;
+	agentId?: string;
+	sessionKey?: string;
+	heartbeat?: HeartbeatWakeOverride;
+	coalesceMs?: number;
+}
+
+export type HeartbeatEventStatus = 'sent' | 'ok-empty' | 'ok-token' | 'skipped' | 'failed';
+export type HeartbeatIndicatorType = 'ok' | 'alert' | 'error';
+
+export interface HeartbeatEventPayload {
+	timestamp: number;
+	status: HeartbeatEventStatus;
+	channel?: string;
+	target?: string;
+	accountId?: string;
+	preview?: string;
+	durationMs?: number;
+	hasMedia?: boolean;
+	reason?: string;
+	silent?: boolean;
+	indicatorType?: HeartbeatIndicatorType;
+}
+
+export interface RealtimeTranscriptionStartRequest {
+	language?: string;
+}
+
+export interface RealtimeTranscriptionSession {
+	id: string;
+	model: string;
+	sampleRate: 24000;
+}
+
+export type RealtimeTranscriptionEvent =
+	| {
+			type: 'started';
+			sessionId: string;
+			model: string;
+	  }
+	| {
+			type: 'delta';
+			sessionId: string;
+			itemId: string;
+			contentIndex: number;
+			delta: string;
+	  }
+	| {
+			type: 'committed';
+			sessionId: string;
+			itemId: string;
+	  }
+	| {
+			type: 'completed';
+			sessionId: string;
+			itemId: string;
+			contentIndex: number;
+			transcript: string;
+	  }
+	| {
+			type: 'error';
+			sessionId?: string;
+			message: string;
+	  }
+	| {
+			type: 'closed';
+			sessionId: string;
+	  };
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
