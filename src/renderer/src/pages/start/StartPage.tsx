@@ -25,7 +25,7 @@ import {
 	type PublicProvider,
 } from '../../../../shared/providers';
 import { AGENTS, type AgentId } from '@/lib/compat';
-import { appApi, getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
+import { getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
 import type { StoredProvider } from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -462,20 +462,15 @@ const StartPage: React.FC = () => {
 				const [
 					storedProviders,
 					agentService,
-					speechTranscriberService,
-					textToSpeechService,
-					imageCreatorService,
-					textToVideoService,
-					textToSoundService,
 				] = await Promise.all([
 					getStoredProviderEntries(),
 					window.agentStore.get(),
-					appApi.getSpeechTranscriberService(),
-					appApi.getTextToSpeechService(),
-					appApi.getImageCreatorService(),
-					appApi.getTextToVideoService(),
-					appApi.getTextToSoundService(),
 				]);
+				const speechTranscriberService = undefined;
+				const textToSpeechService = undefined;
+				const imageCreatorService = undefined;
+				const textToVideoService = undefined;
+				const textToSoundService = undefined;
 				if (cancelled) return;
 
 				const savedProviderIds = new Set(
