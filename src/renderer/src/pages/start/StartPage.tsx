@@ -24,9 +24,12 @@ import {
 	getProviderApiConfigurationUrl,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import { LLM_PROVIDERS } from '../../../../shared/providers/models/llm';
+import {
+	LLM_MODELS_BY_PROVIDER,
+	LLM_PROVIDERS,
+} from '../../../../shared/providers/models/llm';
 import { AGENTS, type AgentId } from '@/lib/compat';
-import { getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
+import type { Model, ModelSelection } from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -246,6 +249,10 @@ function getLlmProviderSelectItems(): AssistantProviderSelectItem[] {
 	});
 }
 
+function getProviderLlmModels(providerId: string): Model[] {
+	return [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
+}
+
 function getAgentModelValue(providerId: string, modelId: string): string {
 	return `${providerId}${AGENT_MODEL_VALUE_SEPARATOR}${modelId}`;
 }
@@ -381,10 +388,7 @@ const StartPage: React.FC = () => {
 	const selectedAgentModelOption = agentModelOptions.find(
 		(option) => option.value === selectedAgentModelValue
 	);
-	const selectedAgentModelGroup = agentModelGroups.find(
-		(group) => group.provider.id === configProvider
-	);
-	const selectedAgentModels = selectedAgentModelGroup?.models ?? [];
+	const selectedAgentModels = configProvider ? getProviderLlmModels(configProvider) : [];
 	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
@@ -480,7 +484,7 @@ const StartPage: React.FC = () => {
 						.map((entry) => entry.providerId)
 				);
 				const selectableProviders = getLlmProvidersFromCatalog().filter(
-					(provider) => getLlmModels(provider.id).length > 0
+					(provider) => getProviderLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
 					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
@@ -573,7 +577,7 @@ const StartPage: React.FC = () => {
 				const nextMusicCreatorGroups: ProviderModelGroup[] = [];
 
 				for (const provider of providers) {
-					const agentModels = getLlmModels(provider.id);
+					const agentModels = getProviderLlmModels(provider.id);
 					if (agentModels.length > 0) {
 						nextAgentGroups.push({ provider, models: agentModels });
 					}
@@ -770,10 +774,9 @@ const StartPage: React.FC = () => {
 
 	function handleAgentProviderChange(value: string | null): void {
 		const providerId = value ?? '';
-		const group = agentModelGroups.find((item) => item.provider.id === providerId);
 		setErrorMessage('');
 		setConfigProvider(providerId);
-		setSelectedModel(group?.models[0]?.id ?? '');
+		setSelectedModel(getProviderLlmModels(providerId)[0]?.id ?? '');
 	}
 
 	function handleAgentModelChange(value: string | null): void {
