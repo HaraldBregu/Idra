@@ -1,14 +1,14 @@
-export const ProviderStoreChannels = {
+export const ProviderChannels = {
 	get: 'provider-store:get',
 	set: 'provider-store:set',
 } as const;
 
-export interface ProviderStoreInvokeChannelMap {
-	[ProviderStoreChannels.get]: {
+export interface ProviderInvokeChannelMap {
+	[ProviderChannels.get]: {
 		args: [id: string];
 		result: import('../../providers/types').Provider | undefined;
 	};
-	[ProviderStoreChannels.set]: {
+	[ProviderChannels.set]: {
 		args: [id: string, provider: import('../../providers/types').Provider];
 		result: import('../../providers/types').Provider;
 	};

@@ -11,9 +11,6 @@ export const AppChannels = {
 	getCameraPermission: 'app:get-camera-permission',
 	setCameraEnabled: 'app:set-camera-enabled',
 	requestCameraPermission: 'app:request-camera-permission',
-	getProviders: 'app:get-providers',
-	setProviderApiKey: 'app:set-provider-api-key',
-	isProviderApiKeySaved: 'app:is-provider-api-key-saved',
 } as const;
 
 export interface AppInvokeChannelMap {
@@ -60,17 +57,5 @@ export interface AppInvokeChannelMap {
 	[AppChannels.requestCameraPermission]: {
 		args: [];
 		result: import('../../app/app-permissions').CameraPermissionSettings;
-	};
-	[AppChannels.getProviders]: {
-		args: [];
-		result: import('../../providers').PublicProvider[];
-	};
-	[AppChannels.setProviderApiKey]: {
-		args: [providerId: string, apiKey: string];
-		result: void;
-	};
-	[AppChannels.isProviderApiKeySaved]: {
-		args: [providerId: string];
-		result: boolean;
 	};
 }

@@ -7,14 +7,15 @@ export const SkillsChannels = {
 	getRoot: 'skills:get-root',
 } as const;
 
+
 export interface SkillsInvokeChannelMap {
-	[SkillsChannels.list]: { args: []; result: import('../../skills').SkillInfo[] };
-	[SkillsChannels.load]: { args: [name: string]; result: import('../../skills').SkillDetails };
-	[SkillsChannels.import]: { args: []; result: import('../../skills').SkillImportResult | undefined };
+	[SkillsChannels.list]: { args: []; result: import('../../skills/types').SkillInfo[] };
+	[SkillsChannels.load]: { args: [name: string]; result: import('../../skills/types').SkillDetails };
+	[SkillsChannels.import]: { args: []; result: import('../../skills/types').SkillImportResult | undefined };
 	[SkillsChannels.download]: {
 		args: [name: string];
-		result: import('../../skills').SkillDownloadResult | undefined;
+		result: import('../../skills/types').SkillDownloadResult | undefined;
 	};
-	[SkillsChannels.delete]: { args: [name: string]; result: import('../../skills').SkillDeleteResult };
+	[SkillsChannels.delete]: { args: [name: string]; result: import('../../skills/types').SkillDeleteResult };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }

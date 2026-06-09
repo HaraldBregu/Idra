@@ -1,4 +1,4 @@
-import type { SkillInfo } from './skills';
+import type { SkillInfo } from './types';
 
 // ---------------------------------------------------------------------------
 // Anthropic

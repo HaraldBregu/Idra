@@ -1,23 +1,12 @@
-import type { ModelReasoningEffort } from './agents/service';
 import type { CronStoreState, CronTask } from './cron';
-import type { Provider } from '../providers';
-
-export type ProviderSettings = Pick<Provider, 'id' | 'name' | 'baseUrl' | 'apiKey'>;
-export type ProvidersSettings = ProviderSettings[];
 
 export interface ModelModuleSettings {
 	providerId: string;
 	modelId: string;
-	effort?: ModelReasoningEffort;
 	options?: Record<string, unknown>;
 }
 
 export type AssistantSettings = ModelModuleSettings;
-export type SpeechToTextSettings = ModelModuleSettings;
-export type TextToSpeechSettings = ModelModuleSettings;
-export type ImageCreatorSettings = ModelModuleSettings;
-export type TextToVideoSettings = ModelModuleSettings;
-export type TextToSoundSettings = ModelModuleSettings;
 
 export interface AgentModuleOptions {
 	agentRuntime?: string;
@@ -52,7 +41,6 @@ export interface AgentConfig {
 	model?: {
 		providerId?: string;
 		modelId?: string;
-		effort?: ModelReasoningEffort;
 	};
 	skills?: string[];
 	tools?: AgentToolPolicy;
@@ -96,32 +84,3 @@ export interface AgentsSettings {
 }
 
 export type AgentRoutingSettings = AgentsSettings;
-
-export interface AgentSessionMetadata {
-	agentId: string;
-	inheritedToolAllow?: string[];
-	inheritedToolDeny?: string[];
-}
-
-export interface SettingsStore {
-	providers?: ProvidersSettings;
-	assistant?: AssistantSettings;
-	speechToText?: SpeechToTextSettings;
-	textToSpeech?: TextToSpeechSettings;
-	imageCreator?: ImageCreatorSettings;
-	textToVideo?: TextToVideoSettings;
-	textToSound?: TextToSoundSettings;
-	cron?: CronSettings;
-	task?: TaskSettings;
-	agents?: AgentsSettings;
-}
-
-export type StoreSchema = SettingsStore;
-
-export type SettingsStoreAccessor = {
-	get<TKey extends keyof StoreSchema>(key: TKey): StoreSchema[TKey];
-	get(key: string): unknown;
-	set<TKey extends keyof StoreSchema>(key: TKey, value: StoreSchema[TKey]): void;
-	set(key: string, value: unknown): void;
-	delete: (key: string) => void;
-};
