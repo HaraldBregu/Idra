@@ -32,7 +32,7 @@ export class AgentRuntime {
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
-		_workspace: Workspace,
+		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly history: History
 	) {
@@ -64,7 +64,7 @@ export class AgentRuntime {
 			data: { task: input.task, message: input.message },
 		});
 		
-		const system = await this.systemPrompt.build();
+		const system = await this.systemPrompt.build(await this.workspace.getAgentText());
 
 		yield {
 			type: 'run_started',
