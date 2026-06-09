@@ -5,12 +5,12 @@ import { Workspace } from '../agent';
 
 const AGENT_TEXT_FILES = [
 	'AGENTS.md',
+	'BOOTSTRAP.md',
 	'SOUL.md',
 	'TOOLS.md',
 	'IDENTITY.md',
 	'USER.md',
 	'HEARTBEAT.md',
-	BOOTSTRAP_FILE,
 	'MEMORY.md',
 ] as const;
 
