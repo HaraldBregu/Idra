@@ -10,7 +10,7 @@ export const AgentChannels = {
 
 export interface AgentInvokeChannelMap {
 	[AgentChannels.send]: {
-		args: [message: string, options?: AgentSendRuntimeOptions];
+		args: [message: string, options?: Record<string, unknown>];
 		result: string;
 	};
 	[AgentChannels.cancel]: { args: []; result: void };
