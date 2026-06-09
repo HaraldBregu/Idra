@@ -3,6 +3,8 @@ export const ProviderChannels = {
 	set: 'provider-store:set',
 } as const;
 
+export const ProviderStoreChannels = ProviderChannels;
+
 export interface ProviderInvokeChannelMap {
 	[ProviderChannels.get]: {
 		args: [id: string];
@@ -13,3 +15,5 @@ export interface ProviderInvokeChannelMap {
 		result: import('../../providers/types').Provider;
 	};
 }
+
+export type ProviderStoreInvokeChannelMap = ProviderInvokeChannelMap;
