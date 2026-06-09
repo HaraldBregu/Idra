@@ -11,7 +11,7 @@ const AGENT_TEXT_FILES = [
 	'IDENTITY.md',
 	'USER.md',
 	'HEARTBEAT.md',
-	BOOTSTRAP_FILE,
+	'BOOTSTRAP.md',
 	'MEMORY.md',
 ] as const;
 
