@@ -93,7 +93,7 @@ export class AgentRuntime {
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
-		private readonly workspace: Workspace,
+		_workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly history: History
 	) {
