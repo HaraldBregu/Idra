@@ -1419,8 +1419,8 @@ const StartPage: React.FC = () => {
 								),
 						<>
 							{renderProviderModelFields({
-								providerSelectId: 'image-provider',
-								modelSelectId: 'image-model',
+								providerSelectId: MODEL_FIELD_IDS[AGENTS.textToImage].provider,
+								modelSelectId: MODEL_FIELD_IDS[AGENTS.textToImage].model,
 								providerId: imageCreatorProviderId,
 								modelId: selectedImageCreatorModel,
 								groups: imageCreatorModelGroups,
