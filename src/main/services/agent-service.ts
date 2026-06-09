@@ -7,6 +7,7 @@ import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent, RuntimeRun } from '../agent';
 import { AgentResponseEvent, AgentRunStopReason } from '../../shared/agent/types';
+import { toError } from '../ipc/core/error';
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -77,15 +78,16 @@ export class AgentV2Service {
 			}
 			return response;
 		} catch (error) {
+			const cause = toError(error, 'Agent v2 request failed.');
 			const responseEvent = {
 				type: 'run_state',
 				state: 'error',
-				label: error instanceof Error ? error.message : 'Agent v2 request failed.',
+				label: cause.message,
 				agentId: resolvedAgentId,
 				runId,
 			} satisfies AgentResponseEvent;
 			options.streamEvent?.(responseEvent);
-			throw error;
+			throw cause;
 		} finally {
 			if (this.activeRuns.get(resolvedAgentId) === run)
 				this.activeRuns.delete(resolvedAgentId);

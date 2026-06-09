@@ -5,6 +5,7 @@ export type { IpcResult } from '../../../shared/ipc/types';
 
 // Import the types we need locally
 import type { IpcResult } from '../../../shared/ipc/types';
+import { toError } from './error';
 
 /**
  * Wraps an IPC handler with standardized error handling
@@ -33,8 +34,8 @@ export function wrapIpcHandler<TArgs extends unknown[], TResult>(
 			const result = await handler(event, ...args);
 			return { success: true, data: result };
 		} catch (err) {
-			console.error(`[IPC Error] ${handlerName}:`, err);
-			const error = err instanceof Error ? err : new Error(String(err));
+			const error = toError(err, `${handlerName} failed.`);
+			console.error(`[IPC Error] ${handlerName}:`, error);
 			return {
 				success: false,
 				error: {
