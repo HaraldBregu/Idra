@@ -385,10 +385,19 @@ const StartPage: React.FC = () => {
 	);
 	const selectedAgentModelValue =
 		configProvider && selectedModel ? getAgentModelValue(configProvider, selectedModel) : '';
-	const selectedAgentModelOption = agentModelOptions.find(
-		(option) => option.value === selectedAgentModelValue
-	);
 	const selectedAgentModels = configProvider ? getProviderLlmModels(configProvider) : [];
+	const selectedAgentModel = selectedAgentModels.find((model) => model.id === selectedModel);
+	const selectedAgentProvider = configProvider
+		? getLlmProvidersFromCatalog().find((provider) => provider.id === configProvider)
+		: undefined;
+	const selectedAgentModelOption =
+		selectedAgentProvider && selectedAgentModel
+			? {
+					value: selectedAgentModelValue,
+					provider: selectedAgentProvider,
+					model: selectedAgentModel,
+				}
+			: undefined;
 	const selectedModelName = selectedAgentModelOption?.model.name ?? selectedModel;
 	const modelCountLabel = loadingModels
 		? 'Loading models...'
