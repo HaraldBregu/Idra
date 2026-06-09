@@ -99,15 +99,17 @@ function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): Setting
 function SettingsOverviewCard({
 	item,
 	badge,
+	disabled = false,
 }: {
 	readonly item: SettingsNavigationItem | SettingsModelServiceItem;
 	readonly badge?: React.ReactNode;
+	readonly disabled?: boolean;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const comingSoon = 'comingSoon' in item && item.comingSoon === true;
+	const unavailable = disabled || ('comingSoon' in item && item.comingSoon === true);
 	const handleActivate = (): void => {
-		if (comingSoon) return;
+		if (unavailable) return;
 		navigate(item.path);
 	};
 
@@ -118,7 +120,7 @@ function SettingsOverviewCard({
 			onClick={handleActivate}
 			variant="outline"
 			size="md"
-			disabled={comingSoon}
+			disabled={unavailable}
 			className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center border-b border-border/30 px-4 text-left last:border-b-0 disabled:cursor-default disabled:opacity-60"
 		>
 			<ItemIcon icon={item.icon} className="size-7 [&_svg]:size-3.5" />
@@ -134,7 +136,7 @@ function SettingsOverviewCard({
 			</ItemContent>
 			<ItemActions className="ml-0 flex-none justify-end">
 				{badge}
-				{comingSoon ? (
+				{unavailable ? (
 					<Badge variant="secondary" className="text-[10px] leading-none">
 						Soon
 					</Badge>
@@ -151,6 +153,7 @@ function SettingsOverviewCard({
 
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
+	const disabledOverviewPaths = new Set(['/settings/skills', '/settings/connectors']);
 
 	return (
 		<SettingsPageShell>
@@ -167,7 +170,13 @@ const OverviewPage: React.FC = () => {
 							})}
 							{group.paths.map((path) => {
 								const item = getSettingsNavigationItem(path);
-								return <SettingsOverviewCard key={item.path} item={item} />;
+								return (
+									<SettingsOverviewCard
+										key={item.path}
+										item={item}
+										disabled={disabledOverviewPaths.has(item.path)}
+									/>
+								);
 							})}
 						</SettingsPanel>
 					);
