@@ -49,6 +49,8 @@ export const LLM_MODELS_BY_PROVIDER = {
 	],
 } as const satisfies ModelCatalog;
 
+export const LLM_PROVIDERS = Object.keys(LLM_MODELS_BY_PROVIDER);
+
 export const RESEARCH_CHAT_MODELS_BY_PROVIDER = {
 	perplexity: [
 		model('sonar-deep-research', 'Sonar Deep Research'),
