@@ -10,12 +10,6 @@ export class Observable<TEvent> {
 		};
 	}
 
-	/**
-	 * Notify all subscribers of an event.
-	 * Errors in subscriber callbacks are caught and logged to prevent cascading failures.
-	 *
-	 * @param event - The event to emit to subscribers
-	 */
 	protected notify(event: TEvent): void {
 		this.subscribers.forEach((callback) => {
 			try {
