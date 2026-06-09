@@ -10,7 +10,6 @@ import {
 	ProviderStoreChannels,
 	RealtimeTranscriptionChannels,
 	CronChannels,
-	HeartbeatChannels,
 	SkillsChannels,
 } from '../shared/ipc/ipc-channels';
 import type {
@@ -20,7 +19,6 @@ import type {
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
-	HeartbeatApi,
 	RealtimeTranscriptionApi,
 	ProviderStoreApi,
 	SkillsApi,
@@ -34,15 +32,6 @@ import type {
 	CronScheduledTask,
 } from '../shared/app/cron';
 import type {
-	HeartbeatEventPayload,
-	HeartbeatSetEnabledRequest,
-	HeartbeatSettings,
-	HeartbeatSettingsUpdate,
-	HeartbeatStatus,
-	HeartbeatSystemEventRequest,
-	HeartbeatSystemEventResult,
-	HeartbeatTimingSettings,
-	HeartbeatWakeRequest,
 	OAuthAuthorizeResult,
 	RealtimeTranscriptionEvent,
 	RealtimeTranscriptionSession,
@@ -104,13 +93,6 @@ function isRealtimeTranscriptionAudioChunk(value: unknown): value is string {
 		value.length <= REALTIME_TRANSCRIPTION_MAX_AUDIO_CHARS &&
 		/^[A-Za-z0-9+/]+={0,2}$/.test(value)
 	);
-}
-
-function assertHeartbeatObject<T>(request: T): T {
-	if (!request || typeof request !== 'object' || Array.isArray(request)) {
-		throw new Error('Invalid heartbeat request.');
-	}
-	return request;
 }
 
 function optionalTrimmedString(value: unknown): string | undefined {
@@ -419,51 +401,6 @@ export const cron: CronApi = {
 	},
 };
 
-export const heartbeat: HeartbeatApi = {
-	status: (): Promise<HeartbeatStatus> => {
-		return typedInvokeUnwrap<HeartbeatStatus>(HeartbeatChannels.status);
-	},
-	settings: (): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap<HeartbeatSettings>(HeartbeatChannels.settings);
-	},
-	saveSettings: (request: HeartbeatSettingsUpdate): Promise<HeartbeatSettings> => {
-		return typedInvokeUnwrap<HeartbeatSettings>(
-			HeartbeatChannels.saveSettings,
-			assertHeartbeatObject(request)
-		);
-	},
-	setEnabled: (request: HeartbeatSetEnabledRequest): Promise<HeartbeatStatus> => {
-		return typedInvokeUnwrap<HeartbeatStatus>(
-			HeartbeatChannels.setEnabled,
-			assertHeartbeatObject(request)
-		);
-	},
-	getTiming: (): Promise<HeartbeatTimingSettings> => {
-		return typedInvokeUnwrap<HeartbeatTimingSettings>(HeartbeatChannels.getTiming);
-	},
-	updateTiming: (request: HeartbeatTimingSettings): Promise<HeartbeatTimingSettings> => {
-		return typedInvokeUnwrap<HeartbeatTimingSettings>(
-			HeartbeatChannels.updateTiming,
-			assertHeartbeatObject(request)
-		);
-	},
-	systemEvent: (request: HeartbeatSystemEventRequest): Promise<HeartbeatSystemEventResult> => {
-		return typedInvokeUnwrap<HeartbeatSystemEventResult>(
-			HeartbeatChannels.systemEvent,
-			assertHeartbeatObject(request)
-		);
-	},
-	request: (request: HeartbeatWakeRequest): Promise<void> => {
-		return typedInvokeUnwrap(HeartbeatChannels.request, assertHeartbeatObject(request));
-	},
-	onEvent: (callback: (event: HeartbeatEventPayload) => void): (() => void) => {
-		if (typeof callback !== 'function') throw new Error('heartbeat event callback must be a function.');
-		return typedOn(HeartbeatChannels.event, (event) => {
-			callback(event as HeartbeatEventPayload);
-		});
-	},
-};
-
 export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
@@ -552,7 +489,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
 		contextBridge.exposeInMainWorld('cron', cron);
-		contextBridge.exposeInMainWorld('heartbeat', heartbeat);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
@@ -573,8 +509,6 @@ if (process.contextIsolated) {
 	globalThis.realtimeTranscription = realtimeTranscription;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
-	// @ts-ignore (define in dts)
-	globalThis.heartbeat = heartbeat;
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
