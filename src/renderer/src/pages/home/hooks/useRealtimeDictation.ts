@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RealtimeTranscriptionEvent } from '../../../../../shared/realtime-transcription';
+import type { RealtimeTranscriptionEvent } from '@/lib/compat';
 
 export type RealtimeDictationStatus =
 	| 'idle'

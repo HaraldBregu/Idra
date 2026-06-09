@@ -15,8 +15,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { AGENTS } from '../../../../../../shared/agents';
-import type { Model } from '../../../../../../shared/agents/service';
+import { AGENTS } from '../../@/lib/compat';
+import type { Model } from '../../@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared/providers';
 import {
 	MODEL_SERVICE_DEFINITIONS,

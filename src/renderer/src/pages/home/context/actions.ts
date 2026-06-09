@@ -1,7 +1,7 @@
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
-} from '../../../../../shared/agents/service';
+} from '../@/lib/compat';
 
 export type AgentChatAction =
 	| {

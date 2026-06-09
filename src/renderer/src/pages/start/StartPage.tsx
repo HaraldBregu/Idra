@@ -25,11 +25,11 @@ import {
 	type Provider as CatalogProvider,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import { AGENTS, type AgentId } from '../../../../shared/agents';
-import { getLlmModels, type Model, type ModelSelection } from '../../../../shared/agents/service';
+import { AGENTS, type AgentId } from '@/lib/compat';
+import { getLlmModels, type Model, type ModelSelection } from '@/lib/compat';
 import type {
 	Provider as StoredProvider,
-} from '../../../../shared/provider-store';
+} from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

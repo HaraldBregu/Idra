@@ -1,4 +1,4 @@
-import type { AgentRunState } from '../../../../../shared/agents/service';
+import type { AgentRunState } from '../@/lib/compat';
 import type { AgentToolPart } from './tool-parts';
 
 export type { AgentRunState, AgentToolPart };

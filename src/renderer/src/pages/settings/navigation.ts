@@ -15,7 +15,7 @@ import {
 	Volume2,
 	type LucideIcon,
 } from 'lucide-react';
-import { AGENTS, type AgentId } from '../../../../shared/agents';
+import { AGENTS, type AgentId } from '@/lib/compat';
 
 export interface SettingsNavigationItem {
 	readonly path: string;

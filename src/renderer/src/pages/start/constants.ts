@@ -4,9 +4,9 @@ import {
 	getProviderApiConfigurationUrl,
 	type Provider,
 } from '../../../../shared/providers';
-import { AGENTS } from '../../../../shared/agents';
+import { AGENTS } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared/providers';
-import type { Model } from '../../../../shared/agents/service';
+import type { Model } from '@/lib/compat';
 import type {
 	ModelServiceDefinition,
 	ModelServiceId,

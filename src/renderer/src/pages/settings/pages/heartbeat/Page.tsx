@@ -30,15 +30,15 @@ import {
 	supportsModelReasoningEffortProvider,
 	type Model,
 	type ModelReasoningEffort,
-} from '../../../../../../shared/agents/service';
-import { getDefaultAgentModels } from '../../../../../../shared/agents/models';
+} from '../../@/lib/compat';
+import { getDefaultAgentModels } from '../../@/lib/compat/models';
 import type {
 	HeartbeatEventPayload,
 	HeartbeatEventStatus,
 	HeartbeatSettings,
 	HeartbeatStatus,
 	HeartbeatTimingSettings,
-} from '../../../../../../shared/heartbeat';
+} from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared/providers';
 import {
 	SettingsEmptyState,

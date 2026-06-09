@@ -9,7 +9,7 @@ import {
 	Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { SkillInfo } from '../../../../../../shared/skills';
+import type { SkillInfo } from '../../../../../../shared/skills/types';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,

@@ -2,7 +2,7 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentToolCallStatus,
-} from '../../../../../shared/agents/service';
+} from '../@/lib/compat';
 import type { AgentChatAction } from './actions';
 import {
 	applyAgentResponseEventToTools,

@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
-import { AGENTS } from '../../../../shared/agents';
+import { AGENTS } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared/providers';
-import type { Model, ModelSelection } from '../../../../shared/agents/service';
+import type { Model, ModelSelection } from '@/lib/compat';
 
 export type ProviderOption = {
 	label: string;
