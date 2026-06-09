@@ -1,15 +1,9 @@
-import { chmod, mkdir } from 'node:fs/promises';
 import { ServiceContainer, EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
 import { CronService } from './cron';
-import { HeartbeatService } from './heartbeat';
 import { ChannelRegistry, ChannelsService } from './channels';
-import { ConnectorsService } from './connectors';
-import { SkillsService } from './skills';
-import { AgentStartupFilesService } from './tools/startup/service';
-import { resolveAgentDataPath } from './tools/startup/path';
 
 import type { MainServiceContainer, MainServices } from './services/services';
 import { LlmService } from './llm';
@@ -37,31 +31,11 @@ export function bootstrapServices(): BootstrapResult {
 	container.register('logger', logger);
 	container.register('appPermissions', new AppPermissionsService());
 
-	const agentRoot = resolveAgentDataPath();
-	void mkdir(agentRoot, { recursive: true, mode: 0o700 })
-		.then(async () => {
-			if (process.platform !== 'win32') await chmod(agentRoot, 0o700).catch(() => undefined);
-		})
-		.catch((error) => {
-			logger.error('AgentDataPath', 'Failed to create agent data directory', error);
-		});
-
-	container.register(
-		'skills',
-		new SkillsService(logger)
-	);
-
 	container.register('channels', new ChannelsService(logger));
 	const cron = container.register('cron', new CronService(logger));
-	container.register('heartbeat', new HeartbeatService(logger));
 
-	container.register('connectors', new ConnectorsService(logger));
 	container.register('providerStore', new ProviderStoreService());
 	container.register('llm', new LlmService());
-	container.register(
-		'startupFiles',
-		new AgentStartupFilesService({ rootPath: agentRoot, logger })
-	);
 
 	const agentService = container.register(
 		'agentService',

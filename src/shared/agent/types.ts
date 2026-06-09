@@ -1,6 +1,3 @@
-// Agent response event contract shared between the main process and the renderer.
-// Emitted on the `agent:response` channel and consumed by the renderer chat state.
-
 export type ModelReasoningEffort = 'none' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
 
 export type AgentRunState =

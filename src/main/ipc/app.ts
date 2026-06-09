@@ -1,12 +1,7 @@
-import { createHash, randomBytes } from 'node:crypto';
-import http from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { app, ipcMain, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { resolveAgentUsageLocation } from '../services/agent-service';
-import { Settings } from '../services/settings';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -16,44 +11,12 @@ import type {
 } from '../../shared/app/app-permissions';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc/ipc-channels';
-import type { OAuthAuthorizeInput, OAuthAuthorizeResult } from '../../shared/connectors';
-import {
-	DEFAULT_PROVIDERS,
-	type PublicProvider,
-	type Provider as CatalogProvider,
-} from '../../shared/providers';
-import {
-	getImageCreatorModels,
-	getLlmModels,
-	getMusicModels,
-	getSpeechToTextModels,
-	getTextToSpeechModels,
-	getTextToVideoModels,
-	type Model,
-	type ModelSelection,
-} from '../../shared/agents/service';
-import type { Provider as StoredProvider } from '../../shared/providers/types';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
 	ScreenCapture: 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
 	Camera: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Camera',
 	Microphone: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone',
-};
-import { normalizeExternalUrl } from '../../shared/external-links';
-
-type OAuthTokenResponse = {
-	readonly access_token?: string;
-	readonly refresh_token?: string;
-	readonly token_type?: string;
-	readonly scope?: string;
-	readonly expires_in?: number;
-	readonly error?: string;
-	readonly error_description?: string;
-};
-
-type OAuthUserInfoResponse = {
-	readonly email?: string;
 };
 
 function getMicrophoneSystemStatus(): MicrophoneSystemPermissionStatus {
@@ -108,263 +71,6 @@ async function openPathOrThrow(target: string): Promise<void> {
 	}
 }
 
-async function authorizeOAuth(oauth: OAuthAuthorizeInput): Promise<OAuthAuthorizeResult> {
-	const clientId = requiredEnv(oauth.clientIdEnv);
-	const clientSecret = oauth.clientSecretEnv ? requiredEnv(oauth.clientSecretEnv) : undefined;
-	const state = base64Url(randomBytes(24));
-	const codeVerifier = base64Url(randomBytes(32));
-	const codeChallenge = base64Url(createHash('sha256').update(codeVerifier).digest());
-	const callback = await waitForOAuthCallback(state);
-	const redirectUri = callback.redirectUri;
-	const authorizationUrl = new URL(oauth.authorizationUrl);
-	authorizationUrl.searchParams.set('client_id', clientId);
-	authorizationUrl.searchParams.set('redirect_uri', redirectUri);
-	authorizationUrl.searchParams.set('response_type', 'code');
-	authorizationUrl.searchParams.set('scope', oauth.scopes.join(' '));
-	authorizationUrl.searchParams.set('state', state);
-	authorizationUrl.searchParams.set('code_challenge', codeChallenge);
-	authorizationUrl.searchParams.set('code_challenge_method', 'S256');
-	authorizationUrl.searchParams.set('include_granted_scopes', 'true');
-	if (oauth.accessType) authorizationUrl.searchParams.set('access_type', oauth.accessType);
-	if (oauth.prompt) authorizationUrl.searchParams.set('prompt', oauth.prompt);
-
-	try {
-		await shell.openExternal(authorizationUrl.toString());
-		const code = await callback.code;
-		const token = await exchangeOAuthCode({
-			clientId,
-			clientSecret,
-			code,
-			codeVerifier,
-			redirectUri,
-			tokenUrl: oauth.tokenUrl,
-		});
-		const accessToken = requiredToken(token.access_token);
-		const accountEmail = oauth.userInfoUrl
-			? await readOAuthAccountEmail(oauth.userInfoUrl, accessToken)
-			: undefined;
-		const expiresAt = token.expires_in
-			? new Date(Date.now() + token.expires_in * 1000).toISOString()
-			: undefined;
-		return {
-			service: oauth.service,
-			serviceId: oauth.serviceId,
-			authorizationUrl: oauth.authorizationUrl,
-			redirectUri,
-			scopes: oauth.scopes,
-			accessToken,
-			refreshToken: token.refresh_token,
-			tokenType: token.token_type,
-			scope: token.scope,
-			expiresAt,
-			accountEmail,
-			connectedAt: new Date().toISOString(),
-		};
-	} catch (error) {
-		callback.close();
-		throw error;
-	}
-}
-
-function readOAuthAuthorizeInput(input: unknown): OAuthAuthorizeInput {
-	const raw = requireRecord(input, 'OAuth authorization');
-	const service = readString(raw.service) ?? '';
-	const clientIdEnv = readString(raw.clientIdEnv) ?? '';
-	const authorizationUrl = readString(raw.authorizationUrl) ?? '';
-	const tokenUrl = readString(raw.tokenUrl) ?? '';
-	const scopes = readStringArray(raw.scopes) ?? [];
-	if (!service) throw new Error('OAuth service is required.');
-	if (!clientIdEnv) throw new Error('OAuth client id environment variable is required.');
-	if (!authorizationUrl) throw new Error('OAuth authorization URL is required.');
-	if (!tokenUrl) throw new Error('OAuth token URL is required.');
-	if (scopes.length === 0) throw new Error('At least one OAuth scope is required.');
-	return {
-		service,
-		serviceId: readString(raw.serviceId),
-		clientIdEnv,
-		clientSecretEnv: readString(raw.clientSecretEnv),
-		authorizationUrl,
-		tokenUrl,
-		userInfoUrl: readString(raw.userInfoUrl),
-		scopes,
-		accessType: readString(raw.accessType),
-		prompt: readString(raw.prompt),
-	};
-}
-
-function requiredEnv(name: string): string {
-	const value = process.env[name]?.trim();
-	if (!value) throw new Error(`${name} is required for OAuth authorization.`);
-	return value;
-}
-
-function requiredToken(value?: string): string {
-	if (!value) throw new Error('OAuth token response did not include an access token.');
-	return value;
-}
-
-function base64Url(value: Buffer): string {
-	return value
-		.toString('base64')
-		.replaceAll('+', '-')
-		.replaceAll('/', '_')
-		.replace(/=+$/u, '');
-}
-
-async function waitForOAuthCallback(expectedState: string): Promise<{
-	readonly redirectUri: string;
-	readonly code: Promise<string>;
-	readonly close: () => void;
-}> {
-	let server: http.Server | undefined;
-	const code = new Promise<string>((resolve, reject) => {
-		server = http.createServer((request, response) => {
-			try {
-				const url = new URL(request.url ?? '/', `http://${request.headers.host ?? '127.0.0.1'}`);
-				if (url.pathname !== '/oauth/callback') {
-					response.writeHead(404);
-					response.end('Not found');
-					return;
-				}
-				const error = url.searchParams.get('error');
-				if (error) throw new Error(url.searchParams.get('error_description') ?? error);
-				if (url.searchParams.get('state') !== expectedState) throw new Error('OAuth state mismatch.');
-				const nextCode = url.searchParams.get('code');
-				if (!nextCode) throw new Error('OAuth authorization code is missing.');
-				response.writeHead(200, { 'Content-Type': 'text/html' });
-				response.end('<!doctype html><title>Connected</title><p>You can return to Friday.</p>');
-				resolve(nextCode);
-			} catch (error) {
-				response.writeHead(400, { 'Content-Type': 'text/plain' });
-				response.end(error instanceof Error ? error.message : String(error));
-				reject(error);
-			} finally {
-				server?.close();
-			}
-		});
-	});
-	await new Promise<void>((resolve, reject) => {
-		server?.once('error', reject);
-		server?.listen(0, '127.0.0.1', () => resolve());
-	});
-	const address = server?.address() as AddressInfo | null;
-	if (!address) throw new Error('Could not open OAuth callback server.');
-	return {
-		redirectUri: `http://127.0.0.1:${address.port}/oauth/callback`,
-		code,
-		close: () => server?.close(),
-	};
-}
-
-async function exchangeOAuthCode(input: {
-	readonly clientId: string;
-	readonly clientSecret?: string;
-	readonly code: string;
-	readonly codeVerifier: string;
-	readonly redirectUri: string;
-	readonly tokenUrl: string;
-}): Promise<OAuthTokenResponse> {
-	const body = new URLSearchParams({
-		client_id: input.clientId,
-		code: input.code,
-		code_verifier: input.codeVerifier,
-		grant_type: 'authorization_code',
-		redirect_uri: input.redirectUri,
-	});
-	if (input.clientSecret) body.set('client_secret', input.clientSecret);
-	const response = await fetch(input.tokenUrl, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-		body,
-	});
-	const data = await response.json() as OAuthTokenResponse;
-	if (!response.ok || data.error) {
-		throw new Error(data.error_description ?? data.error ?? `OAuth token exchange failed (${response.status}).`);
-	}
-	return data;
-}
-
-async function readOAuthAccountEmail(userInfoUrl: string, accessToken: string): Promise<string | undefined> {
-	const response = await fetch(userInfoUrl, {
-		headers: { Authorization: `Bearer ${accessToken}` },
-	});
-	if (!response.ok) return undefined;
-	const data = await response.json() as OAuthUserInfoResponse;
-	return data.email;
-}
-
-function requireRecord(value: unknown, label: string): Record<string, unknown> {
-	if (value && typeof value === 'object' && !Array.isArray(value)) {
-		return value as Record<string, unknown>;
-	}
-	throw new Error(`${label} is required.`);
-}
-
-function readString(value: unknown): string | undefined {
-	return typeof value === 'string' && value.trim() ? value.trim() : undefined;
-}
-
-function readStringArray(value: unknown): string[] | undefined {
-	if (value === undefined || value === null) return undefined;
-	if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
-		throw new Error('OAuth scopes must be an array of strings.');
-	}
-	return value.map((entry) => entry.trim()).filter(Boolean);
-}
-
-function getDefaultProvider(providerId: string): CatalogProvider | undefined {
-	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
-}
-
-function getStoredProviderValue(
-	providerId: string,
-	apiKey: string,
-	current?: StoredProvider
-): StoredProvider {
-	const catalog = getDefaultProvider(providerId);
-	return {
-		name: current?.name || catalog?.name || providerId,
-		apiKey,
-		baseUrl: current?.baseUrl || catalog?.baseUrl || '',
-	};
-}
-
-function toPublicProvider(id: string, provider: StoredProvider): PublicProvider | undefined {
-	if (!provider.apiKey.trim()) return undefined;
-	const catalog = getDefaultProvider(id);
-	return {
-		id,
-		name: provider.name || catalog?.name || id,
-		baseUrl: provider.baseUrl || catalog?.baseUrl || '',
-		...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
-		...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
-	};
-}
-
-function getAgentSelectionFromSettings(
-	settings: Settings,
-	provider?: StoredProvider
-): ModelSelection | undefined {
-	const settingsProvider = settings.getProvider();
-	const modelId = settings.getModelId();
-	if (!settingsProvider || !modelId) return undefined;
-
-	const catalog = getDefaultProvider(settingsProvider.id);
-	const publicProvider: PublicProvider = {
-		id: settingsProvider.id,
-		name: provider?.name || catalog?.name || settingsProvider.id,
-		baseUrl: settingsProvider.baseURL || provider?.baseUrl || catalog?.baseUrl || '',
-		...(catalog?.capabilities ? { capabilities: catalog.capabilities } : {}),
-		...(catalog?.apiConfiguration ? { apiConfiguration: catalog.apiConfiguration } : {}),
-	};
-	const model = getLlmModels(settingsProvider.id).find((item) => item.id === modelId) ?? {
-		id: modelId,
-		name: modelId,
-	};
-
-	return { provider: publicProvider, model };
-}
-
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
@@ -373,8 +79,6 @@ export class AppIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get('logger');
 		const appPermissions = container.get('appPermissions');
-		const providerStore = container.get('providerStore');
-		const agentSettings = new Settings(resolveAgentUsageLocation());
 
 		// Open application data folder in system file explorer
 		ipcMain.handle(
@@ -387,20 +91,8 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.openExternalUrl,
 			wrapSimpleHandler(async (url: string) => {
-				const externalUrl = normalizeExternalUrl(url);
-				if (!externalUrl) {
-					throw new Error('External URL must use HTTP or HTTPS.');
-				}
-				await shell.openExternal(externalUrl);
+				await shell.openExternal(url);
 			}, AppChannels.openExternalUrl)
-		);
-
-		ipcMain.handle(
-			AppChannels.authorizeOAuth,
-			wrapSimpleHandler(async (input: unknown) => {
-				const oauth = readOAuthAuthorizeInput(input);
-				return authorizeOAuth(oauth);
-			}, AppChannels.authorizeOAuth)
 		);
 
 		ipcMain.handle(
@@ -479,148 +171,6 @@ export class AppIpc implements IpcModule {
 				}
 				return cameraSettings(enabled);
 			}, AppChannels.requestCameraPermission)
-		);
-
-		ipcMain.handle(
-			AppChannels.setProviderApiKey,
-			wrapSimpleHandler(async (providerId: string, apiKey: string) => {
-				const current = providerStore.get(providerId);
-				providerStore.set(providerId, getStoredProviderValue(providerId, apiKey, current));
-			}, AppChannels.setProviderApiKey)
-		);
-
-		ipcMain.handle(
-			AppChannels.isProviderApiKeySaved,
-			wrapSimpleHandler((providerId: string) => {
-				return (providerStore.get(providerId)?.apiKey.trim().length ?? 0) > 0;
-			}, AppChannels.isProviderApiKeySaved)
-		);
-
-		ipcMain.handle(
-			AppChannels.getProviders,
-			wrapSimpleHandler(() => {
-				return Object.entries(providerStore.list()).flatMap(([id, provider]) => {
-					const publicProvider = toPublicProvider(id, provider);
-					return publicProvider ? [publicProvider] : [];
-				});
-			}, AppChannels.getProviders)
-		);
-
-		ipcMain.handle(
-			AppChannels.getModels,
-			wrapSimpleHandler((provider: PublicProvider) => {
-				return getLlmModels(provider.id);
-			}, AppChannels.getModels)
-		);
-
-		ipcMain.handle(
-			AppChannels.getSpeechToTextModels,
-			wrapSimpleHandler((provider: PublicProvider) => {
-				return getSpeechToTextModels(provider.id);
-			}, AppChannels.getSpeechToTextModels)
-		);
-
-		ipcMain.handle(
-			AppChannels.getTextToSpeechModels,
-			wrapSimpleHandler((provider: PublicProvider) => {
-				return getTextToSpeechModels(provider.id);
-			}, AppChannels.getTextToSpeechModels)
-		);
-
-		ipcMain.handle(
-			AppChannels.getImageCreatorModels,
-			wrapSimpleHandler((provider: PublicProvider) => {
-				return getImageCreatorModels(provider.id);
-			}, AppChannels.getImageCreatorModels)
-		);
-
-		ipcMain.handle(
-			AppChannels.getTextToVideoModels,
-			wrapSimpleHandler((provider: PublicProvider) => {
-				return getTextToVideoModels(provider.id);
-			}, AppChannels.getTextToVideoModels)
-		);
-
-		ipcMain.handle(
-			AppChannels.getTextToSoundModels,
-			wrapSimpleHandler((provider: PublicProvider) => {
-				return getMusicModels(provider.id);
-			}, AppChannels.getTextToSoundModels)
-		);
-
-		ipcMain.handle(
-			AppChannels.getAgentService,
-			wrapSimpleHandler(() => {
-				const providerId = agentSettings.getProviderId();
-				return getAgentSelectionFromSettings(
-					agentSettings,
-					providerId ? providerStore.get(providerId) : undefined
-				);
-			}, AppChannels.getAgentService)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveAgentService,
-			wrapSimpleHandler((provider: PublicProvider, model: Model) => {
-				const storedProvider = providerStore.get(provider.id);
-				agentSettings.setProvider({
-					id: provider.id,
-					apiKey: storedProvider?.apiKey ?? '',
-					baseURL: storedProvider?.baseUrl || provider.baseUrl || '',
-				});
-				agentSettings.setModelId(model.id);
-				return true;
-			}, AppChannels.saveAgentService)
-		);
-
-		ipcMain.handle(
-			AppChannels.getSpeechTranscriberService,
-			wrapSimpleHandler(() => undefined, AppChannels.getSpeechTranscriberService)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveSpeechTranscriberService,
-			wrapSimpleHandler(() => true, AppChannels.saveSpeechTranscriberService)
-		);
-
-		ipcMain.handle(
-			AppChannels.getTextToSpeechService,
-			wrapSimpleHandler(() => undefined, AppChannels.getTextToSpeechService)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveTextToSpeechService,
-			wrapSimpleHandler(() => true, AppChannels.saveTextToSpeechService)
-		);
-
-		ipcMain.handle(
-			AppChannels.getImageCreatorService,
-			wrapSimpleHandler(() => undefined, AppChannels.getImageCreatorService)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveImageCreatorService,
-			wrapSimpleHandler(() => true, AppChannels.saveImageCreatorService)
-		);
-
-		ipcMain.handle(
-			AppChannels.getTextToVideoService,
-			wrapSimpleHandler(() => undefined, AppChannels.getTextToVideoService)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveTextToVideoService,
-			wrapSimpleHandler(() => true, AppChannels.saveTextToVideoService)
-		);
-
-		ipcMain.handle(
-			AppChannels.getTextToSoundService,
-			wrapSimpleHandler(() => undefined, AppChannels.getTextToSoundService)
-		);
-
-		ipcMain.handle(
-			AppChannels.saveTextToSoundService,
-			wrapSimpleHandler(() => true, AppChannels.saveTextToSoundService)
 		);
 
 		logger.info('AppIpc', `Registered ${this.name} module`);

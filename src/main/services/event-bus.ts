@@ -30,7 +30,6 @@ export interface AppEvents {
 		chatType?: import('../channels/types').ChannelChatType;
 		sessionKey?: string;
 	};
-	'heartbeat:event': import('../../shared/heartbeat').HeartbeatEventPayload;
 }
 
 /**

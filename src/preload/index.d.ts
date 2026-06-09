@@ -118,34 +118,6 @@ export type ConnectorInput = {
 	createdAt?: string;
 };
 
-export type OAuthAuthorizeInput = {
-	service: string;
-	serviceId?: string;
-	clientIdEnv: string;
-	clientSecretEnv?: string;
-	authorizationUrl: string;
-	tokenUrl: string;
-	userInfoUrl?: string;
-	scopes: readonly string[];
-	accessType?: string;
-	prompt?: string;
-};
-
-export type OAuthAuthorizeResult = {
-	service: string;
-	serviceId?: string;
-	authorizationUrl: string;
-	redirectUri: string;
-	scopes: readonly string[];
-	accessToken: string;
-	refreshToken?: string;
-	tokenType?: string;
-	scope?: string;
-	expiresAt?: string;
-	accountEmail?: string;
-	connectedAt: string;
-};
-
 export interface RealtimeTranscriptionStartRequest {
 	language?: string;
 }
@@ -194,7 +166,6 @@ export type RealtimeTranscriptionEvent =
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
-	authorizeOAuth: (input: OAuthAuthorizeInput) => Promise<OAuthAuthorizeResult>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
 	getTrayEnabled: () => Promise<boolean>;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
@@ -204,27 +175,6 @@ export interface AppApi {
 	getCameraPermission: () => Promise<CameraPermissionSettings>;
 	setCameraEnabled: (enabled: boolean) => Promise<CameraPermissionSettings>;
 	requestCameraPermission: () => Promise<CameraPermissionSettings>;
-	setProviderApiKey: (providerId: string, apikey: string) => Promise<void>;
-	isProviderApiKeySaved: (providerId: string) => Promise<boolean>;
-	getProviders: () => Promise<PublicProvider[]>;
-	getModels: (provider: PublicProvider) => Promise<Model[]>;
-	getAgentService: () => Promise<ModelSelection | undefined>;
-	saveAgentService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getSpeechTranscriberService: () => Promise<ModelSelection | undefined>;
-	getSpeechToTextModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveSpeechTranscriberService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSpeechService: () => Promise<ModelSelection | undefined>;
-	getTextToSpeechModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveTextToSpeechService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getImageCreatorService: () => Promise<ModelSelection | undefined>;
-	getImageCreatorModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveImageCreatorService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToVideoService: () => Promise<ModelSelection | undefined>;
-	getTextToVideoModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveTextToVideoService: (provider: PublicProvider, model: Model) => Promise<boolean>;
-	getTextToSoundService: () => Promise<ModelSelection | undefined>;
-	getTextToSoundModels: (provider: PublicProvider) => Promise<Model[]>;
-	saveTextToSoundService: (provider: PublicProvider, model: Model) => Promise<boolean>;
 }
 
 export interface AgentStoreApi {
