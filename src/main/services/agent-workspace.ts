@@ -5,12 +5,6 @@ import { Workspace } from '../agent';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
-const IDENTITY_FILE = 'IDENTITY.md'
-const USER_FILE = 'USER.md'
-const SOUL_FILE = 'SOUL.md'
-const TOOLS_FILE = 'TOOLS.md'
-const HEARTBEAT_FILE = 'HEARTBEAT.md'
-const MEMORY_FILE = 'MEMORY.md'
 
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
@@ -29,16 +23,7 @@ export class AgentWorkspace extends Workspace {
 	}
 
 	async getAgentText(): Promise<string> {
-		const parts: string[] = [];
-		await this.appendTextFile(parts, AGENT_FILE);
-		await this.appendTextFile(parts, BOOTSTRAP_FILE);
-		await this.appendTextFile(parts, IDENTITY_FILE);
-		await this.appendTextFile(parts, USER_FILE);
-		await this.appendTextFile(parts, SOUL_FILE);
-		await this.appendTextFile(parts, TOOLS_FILE);
-		await this.appendTextFile(parts, HEARTBEAT_FILE);
-		await this.appendTextFile(parts, MEMORY_FILE);
-		return parts.join('\n\n');
+		return this.readTextFile(AGENT_FILE);
 	}
 
 	async fileExists(filePath: string): Promise<boolean> {
@@ -68,11 +53,6 @@ export class AgentWorkspace extends Workspace {
 			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
 			throw error;
 		}
-	}
-
-	private async appendTextFile(parts: string[], filePath: string): Promise<void> {
-		const text = await this.readTextFile(filePath);
-		if (text.trim()) parts.push(`## ${filePath}\n${text.trim()}`);
 	}
 
 	private resolveWorkspacePath(filePath: string): string {
