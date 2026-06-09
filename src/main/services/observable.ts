@@ -1,0 +1,30 @@
+export type Unsubscribe = () => void;
+
+export class Observable<TEvent> {
+	private subscribers: Array<(event: TEvent) => void> = [];
+
+	protected subscribe(callback: (event: TEvent) => void): Unsubscribe {
+		this.subscribers.push(callback);
+		return () => {
+			this.subscribers = this.subscribers.filter((cb) => cb !== callback);
+		};
+	}
+
+	protected notify(event: TEvent): void {
+		this.subscribers.forEach((callback) => {
+			try {
+				callback(event);
+			} catch (err) {
+				console.error('[Observable] Subscriber error:', err);
+			}
+		});
+	}
+
+	protected clearSubscribers(): void {
+		this.subscribers = [];
+	}
+
+	protected getSubscriberCount(): number {
+		return this.subscribers.length;
+	}
+}
