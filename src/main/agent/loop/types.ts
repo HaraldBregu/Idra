@@ -1,4 +1,4 @@
-import { ModelEvent, ModelMessage, ModelMessageRole, ModelModule, ModelProvider, ModelRequest, ModelResponse, ModelTool, ModelToolCall } from "../model/types";
+import { ModelEvent, ModelMessage, ModelMessageRole, ModelModule, ModelRequest, ModelResponse, ModelTool, ModelToolCall } from "../model/types";
 
 export type RuntimeToolCall = ModelToolCall;
 
@@ -33,6 +33,7 @@ export interface RuntimeInput {
     maxRetries?: number;
     maxTurns?: number;
     maxIterations?: number;
+    signal?: AbortSignal;
 }
 /**
  * Optional route hint for selecting a model based on a task name.
