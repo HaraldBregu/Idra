@@ -9,7 +9,7 @@ import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
 import { LlmService } from './llm';
-import { AgentV2Service } from './services/agent-service';
+import { AgentService } from './services/agent-service';
 import { AgentSettingsStore } from './services/agent-settings-store';
 import { ProviderStoreService } from './services/provider-store';
 
@@ -39,8 +39,8 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(ProviderStoreService);
 	container.get(LlmService);
 
-	const agentService = new AgentV2Service(container.get(AgentSettingsStore));
-	container.set(AgentV2Service, agentService);
+	const agentService = new AgentService(container.get(AgentSettingsStore));
+	container.set(AgentService, agentService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);

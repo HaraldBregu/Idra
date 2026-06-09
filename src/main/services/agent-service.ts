@@ -17,7 +17,7 @@ export interface AgentSendOptions {
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
-export class AgentV2Service {
+export class AgentService {
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;

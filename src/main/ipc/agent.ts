@@ -4,7 +4,7 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
-import { AgentV2Service, type AgentSendOptions } from '../services/agent-service';
+import { AgentService, type AgentSendOptions } from '../services/agent-service';
 import { LoggerService } from '../observability';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -38,7 +38,7 @@ export class AgentIpc implements IpcModule {
 
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get(LoggerService);
-		const agent = container.get(AgentV2Service);
+		const agent = container.get(AgentService);
 
 		ipcMain.handle(
 			AgentChannels.sendV2,
