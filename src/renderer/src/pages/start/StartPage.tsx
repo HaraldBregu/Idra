@@ -399,12 +399,6 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
-				const agentService: ModelSelection | undefined = undefined;
-				const speechTranscriberService: ModelSelection | undefined = undefined;
-				const textToSpeechService: ModelSelection | undefined = undefined;
-				const imageCreatorService: ModelSelection | undefined = undefined;
-				const textToVideoService: ModelSelection | undefined = undefined;
-				const textToSoundService: ModelSelection | undefined = undefined;
 				if (cancelled) return;
 
 				const savedProviderIds = new Set(
@@ -416,7 +410,6 @@ const StartPage: React.FC = () => {
 					(provider) => getLlmModels(provider.id).length > 0
 				);
 				const preferredProvider =
-					selectableProviders.find((provider) => provider.id === agentService?.provider.id) ??
 					selectableProviders.find(
 						(provider) =>
 							connectedProviderIds.has(provider.id) || savedProviderIds.has(provider.id)
@@ -426,18 +419,18 @@ const StartPage: React.FC = () => {
 				setProviders(selectableProviders);
 				setRegisteredProviderIds(savedProviderIds);
 				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId(agentService?.model.id ?? '');
-				setSpeechProviderId(speechTranscriberService?.provider?.id ?? '');
-				setSavedSpeechProviderId(speechTranscriberService?.provider?.id ?? '');
-				setSavedSpeechModelId(speechTranscriberService?.model?.id ?? '');
-				setSavedTextToSpeechService(textToSpeechService);
-				setTextToSpeechProviderId(textToSpeechService?.provider.id ?? '');
-				setSavedImageCreatorService(imageCreatorService);
-				setImageCreatorProviderId(imageCreatorService?.provider.id ?? '');
-				setSavedTextToVideoService(textToVideoService);
-				setTextToVideoProviderId(textToVideoService?.provider.id ?? '');
-				setSavedMusicCreatorService(textToSoundService);
-				setMusicCreatorProviderId(textToSoundService?.provider.id ?? '');
+				setSavedModelId('');
+				setSpeechProviderId('');
+				setSavedSpeechProviderId('');
+				setSavedSpeechModelId('');
+				setSavedTextToSpeechService(undefined);
+				setTextToSpeechProviderId('');
+				setSavedImageCreatorService(undefined);
+				setImageCreatorProviderId('');
+				setSavedTextToVideoService(undefined);
+				setTextToVideoProviderId('');
+				setSavedMusicCreatorService(undefined);
+				setMusicCreatorProviderId('');
 			} catch (error) {
 				if (cancelled) return;
 				setProviders([]);
