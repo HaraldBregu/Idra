@@ -9,8 +9,10 @@ export interface WindowApi {
 export interface AgentApi {
 	send_v2: (
 		message: string,
-		options?: Record<string, unknown>
-	) => AsyncIterable<AgentResponseEvent>;
+		options?: Record<string, unknown>,
+		onEvent?: (event: AgentResponseEvent) => void
+	) => Promise<string>;
+	cancel: () => Promise<void>;
 }
 
 export interface CronApi {

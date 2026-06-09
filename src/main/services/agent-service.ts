@@ -46,19 +46,20 @@ export class AgentV2Service {
 		const runId = options.runId ?? randomUUID();
 		const sessionId = options.sessionId ?? resolvedAgentId;
 
-		const run = this.runtime.run({
-			task: 'chat',
-			message,
-			providerId: options.providerId,
-			modelId: options.modelId,
-			sessionId,
-			maxRetries: 1,
-		});
-		this.activeRuns.set(resolvedAgentId, run);
-
 		let response = '';
 		let providerId = options.providerId ?? '';
+		let run: RuntimeRun | undefined;
 		try {
+			run = this.runtime.run({
+				task: 'chat',
+				message,
+				providerId: options.providerId,
+				modelId: options.modelId,
+				sessionId,
+				maxRetries: 1,
+			});
+			this.activeRuns.set(resolvedAgentId, run);
+
 			for await (const event of run.stream) {
 				if (event.type === 'run_started')
 					providerId = event.providerId;
@@ -89,7 +90,7 @@ export class AgentV2Service {
 			options.streamEvent?.(responseEvent);
 			throw cause;
 		} finally {
-			if (this.activeRuns.get(resolvedAgentId) === run)
+			if (run && this.activeRuns.get(resolvedAgentId) === run)
 				this.activeRuns.delete(resolvedAgentId);
 		}
 	}

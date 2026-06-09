@@ -137,78 +137,23 @@ function normalizeAgentSendRuntimeOptions(
 	return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
-function isTerminalAgentEvent(event: AgentResponseEvent): boolean {
-	return (
-		event.type === 'run_finished' ||
-		(event.type === 'run_state' &&
-			(event.state === 'completed' || event.state === 'cancelled' || event.state === 'error'))
-	);
-}
-
-function createAgentV2Stream(
+function sendAgentV2(
 	message: string,
-	options?: Record<string, unknown>
-): AsyncIterable<AgentResponseEvent> {
+	options?: Record<string, unknown>,
+	onEvent?: (event: AgentResponseEvent) => void
+): Promise<string> {
 	const runId = optionalTrimmedString(options?.runId) || crypto.randomUUID();
 	const runtimeOptions = normalizeAgentSendRuntimeOptions({ ...options, runId });
 
-	return {
-		[Symbol.asyncIterator](): AsyncIterator<AgentResponseEvent> {
-			const queue: AgentResponseEvent[] = [];
-			let done = false;
-			let error: Error | undefined;
-			let wake: (() => void) | undefined;
-			const notify = (): void => {
-				wake?.();
-				wake = undefined;
-			};
+	const offResponse = typedOn(AgentChannels.response, (event: AgentResponseEvent) => {
+		if (event.runId !== runId) return;
+		onEvent?.(event);
+	});
 
-			const offResponse = typedOn(AgentChannels.response, (event: AgentResponseEvent) => {
-				if (event.runId !== runId) return;
-				queue.push(event);
-				if (isTerminalAgentEvent(event)) done = true;
-				notify();
-			});
-
-			void (runtimeOptions
-				? typedInvokeUnwrap(AgentChannels.sendV2, message, runtimeOptions)
-				: typedInvokeUnwrap(AgentChannels.sendV2, message)
-			)
-				.catch((requestError: unknown) => {
-					error =
-						requestError instanceof Error
-							? requestError
-							: new Error('Agent v2 request failed.');
-				})
-				.finally(() => {
-					done = true;
-					notify();
-				});
-
-			return {
-				async next(): Promise<IteratorResult<AgentResponseEvent>> {
-					while (queue.length === 0 && !done) {
-						await new Promise<void>((resolve) => {
-							wake = resolve;
-						});
-					}
-
-					const event = queue.shift();
-					if (event) return { done: false, value: event };
-
-					offResponse();
-					if (error) throw error;
-					return { done: true, value: undefined };
-				},
-				async return(): Promise<IteratorResult<AgentResponseEvent>> {
-					done = true;
-					offResponse();
-					void typedInvokeUnwrap(AgentChannels.cancel).catch(() => undefined);
-					return { done: true, value: undefined };
-				},
-			};
-		},
-	};
+	return (runtimeOptions
+		? typedInvokeUnwrap<string>(AgentChannels.sendV2, message, runtimeOptions)
+		: typedInvokeUnwrap<string>(AgentChannels.sendV2, message)
+	).finally(offResponse);
 }
 
 const win: WindowApi = {
@@ -232,9 +177,13 @@ const win: WindowApi = {
 export const agent: AgentApi = {
 	send_v2: (
 		message: string,
-		options?: Record<string, unknown>
-	): AsyncIterable<AgentResponseEvent> => {
-		return createAgentV2Stream(message, options);
+		options?: Record<string, unknown>,
+		onEvent?: (event: AgentResponseEvent) => void
+	): Promise<string> => {
+		return sendAgentV2(message, options, onEvent);
+	},
+	cancel: (): Promise<void> => {
+		return typedInvokeUnwrap(AgentChannels.cancel);
 	},
 } satisfies AgentApi;
 
