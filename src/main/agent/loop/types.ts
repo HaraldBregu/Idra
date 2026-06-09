@@ -83,17 +83,7 @@ export type RuntimeEvent =
 	| { type: 'tool_call_end'; toolName: string; output: unknown }
 	| { type: 'skill_call_start'; skillName: string; input: string }
 	| { type: 'skill_call_end'; skillName: string; output: unknown }
-	| { type: 'run_finished'; result: RuntimeOutput }
-	| { type: 'run_stopped'; reason: string };
-
-
-/**
- * Cancellable handle returned by `AgentRuntime.run`.
- */
-export interface RuntimeRun {
-	stream: AsyncIterable<RuntimeEvent>;
-	stop(reason?: string): void;
-}
+	| { type: 'run_finished'; result: RuntimeOutput };
 /**
  * Model request alias used by runtime ports.
  */
@@ -131,4 +121,3 @@ export interface RuntimeSkill {
 	name: string;
 	run: (input: string) => Promise<unknown> | unknown;
 }
-
