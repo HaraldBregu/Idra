@@ -662,11 +662,6 @@ const StartPage: React.FC = () => {
 		setSavingProviderId(providerId);
 		setErrorMessage('');
 		try {
-			const current = await window.providerStore.get(providerId);
-			await window.providerStore.set(
-				providerId,
-				getStoredProviderValue(providerId, apiKey, current)
-			);
 			updateProviderEntry(providerId, {
 				apiKey: '',
 				apiKeySaved: true,
@@ -688,14 +683,6 @@ const StartPage: React.FC = () => {
 		setErrorMessage('');
 		try {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
-
-			for (const entry of entriesToSave) {
-				const current = await window.providerStore.get(entry.providerId);
-				await window.providerStore.set(
-					entry.providerId,
-					getStoredProviderValue(entry.providerId, entry.apiKey.trim(), current)
-				);
-			}
 
 			if (entriesToSave.length > 0) {
 				const savedProviderIds = new Set(entriesToSave.map((entry) => entry.providerId));
@@ -805,10 +792,6 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.agentStore.set(
-				selectedAgentModelOption.provider,
-				selectedAgentModelOption.model
-			);
 			navigate('/home');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected assistant model.'));
