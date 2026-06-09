@@ -1257,18 +1257,17 @@ const StartPage: React.FC = () => {
 									<Select
 										value={configProvider}
 										onValueChange={handleAgentProviderChange}
-										disabled={assistantProviderOptions.length === 0}
+										disabled={assistantProviderItems.length === 0}
 									>
 										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].provider} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={modelCountLabel} />
 										</SelectTrigger>
 										<SelectContent>
-											{assistantProviderOptions.map((provider) => {
-												const catalog = getProviderCatalogItem(provider.id);
+											{assistantProviderItems.map((provider) => {
 												const registered = registeredProviderIds.has(provider.id);
 												return (
 													<SelectItem key={provider.id} value={provider.id}>
-														<span className="min-w-0 flex-1 truncate">{catalog.name}</span>
+														<span className="min-w-0 flex-1 truncate">{provider.label}</span>
 														<span
 															className={cn(
 																'ml-auto shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-medium',
