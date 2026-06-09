@@ -1,6 +1,6 @@
 import type { ContainerInstance } from 'typedi';
 import type { ChannelRegistry, ChannelsService } from '../channels';
-import type { AgentV2Service } from './agent-service';
+import type { AgentService } from './agent-service';
 import type { AppPermissionsService } from '../app/permissions';
 import type { CronService } from '../cron';
 import type { LlmService } from '../llm';
@@ -11,7 +11,7 @@ import type { AppState, EventBus, WindowContextManager, WindowFactory } from './
 export interface MainServices {
 	appState: AppState;
 	appPermissions: AppPermissionsService;
-	agentService: AgentV2Service;
+	agentService: AgentService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	cron: CronService;

@@ -2,7 +2,7 @@ import type { ChannelStatusEvent } from '../../shared/channels';
 import { ChannelsChannels } from '../../shared/ipc/ipc-channels';
 import type { EventBus } from '../services/event-bus';
 import type { LoggerService } from '../observability';
-import type { AgentV2Service } from '../services/agent-service';
+import type { AgentService } from '../services/agent-service';
 import type { TelegramAdapterOptions } from './telegram/types';
 import { createBundledCatalogPlugins } from './catalog-plugins';
 import { listChannelCatalog, normalizeChannelId } from './catalog';
@@ -27,7 +27,7 @@ export type ChannelRuntimeFactory = (config: unknown) => Promise<ChannelAdapter>
 export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
-	agentService?: AgentV2Service;
+	agentService?: AgentService;
 	runtimeFactories?: Partial<Record<ChannelType, ChannelRuntimeFactory>>;
 }
 
