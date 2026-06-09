@@ -65,6 +65,8 @@ const initialState: ModelServicePageState = {
 	error: null,
 };
 
+type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
+
 function normalizeServiceId(serviceId: string | undefined): string {
 	if (serviceId === 'friday' || serviceId === 'main') return AGENTS.assistant;
 	return serviceId ?? '';
@@ -88,6 +90,62 @@ function mergeProviders(
 function firstErrorMessage(error: unknown, fallback: string): string {
 	if (error instanceof Error && error.message.trim()) return error.message;
 	return fallback;
+}
+
+function toPublicProvider(provider: CatalogProvider): PublicProvider {
+	return {
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
+		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
+	};
+}
+
+function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
+	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+}
+
+function getLlmProvidersFromCatalog(): PublicProvider[] {
+	return LLM_PROVIDERS.flatMap((providerId) => {
+		const provider = getCatalogProviderById(providerId);
+		return provider ? [toPublicProvider(provider)] : [];
+	});
+}
+
+function getProviderLlmModels(providerId: string): Model[] {
+	return [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
+}
+
+async function loadAssistantState(): Promise<ModelServicePageState> {
+	const [storedProvider, storedModelId] = await Promise.all([
+		window.agentStore.getProvider(),
+		window.agentStore.getModelId(),
+	]);
+	const providers = getLlmProvidersFromCatalog().filter(
+		(provider) => getProviderLlmModels(provider.id).length > 0
+	);
+	const modelGroups = providers.map((provider) => ({
+		provider,
+		models: getProviderLlmModels(provider.id),
+	}));
+	const preferredGroup =
+		modelGroups.find((group) => group.provider.id === storedProvider?.id) ?? modelGroups[0];
+	const preferredModel =
+		preferredGroup?.models.find((model) => model.id === storedModelId) ??
+		preferredGroup?.models[0];
+
+	return {
+		providers,
+		modelGroups,
+		providerId: preferredGroup?.provider.id ?? '',
+		modelId: preferredModel?.id ?? '',
+		loading: false,
+		loadingModels: false,
+		saving: false,
+		saved: false,
+		error: null,
+	};
 }
 
 const ModelServicePage: React.FC = () => {
