@@ -48,7 +48,6 @@ import type {
 	AgentResponseEvent,
 	Model,
 	ModelSelection,
-	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
 import { isModelReasoningEffort } from '../shared/agents/service';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
