@@ -37,10 +37,9 @@ import type {
 } from './index.d';
 import type { AgentResponseEvent } from '../shared/agent/types';
 import type { ModelReasoningEffort } from '../shared/agent/types';
-import type { ProviderModel as Model } from '../shared/providers';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { ConnectorRecord, ModelSelection } from './index.d';
+import type { ConnectorRecord } from './index.d';
 import type { Provider } from '../shared/providers/types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
