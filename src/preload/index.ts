@@ -206,7 +206,7 @@ const win: WindowApi = {
 export const agent: AgentApi = {
 	send_v2: (
 		message: string,
-		options?: AgentSendRuntimeOptions
+		options?: Record<string, unknown>
 	): AsyncIterable<AgentResponseEvent> => {
 		return createAgentV2Stream(message, options);
 	},
