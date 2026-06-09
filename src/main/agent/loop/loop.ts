@@ -114,17 +114,9 @@ export class AgentRuntime {
 			throw new Error(`Agent provider is not configured: ${input.providerId}`);
 
 		const resolved: RuntimeInput = { ...input, provider, modelId };
-		const controller = new AbortController();
+		const signal = input.signal ?? new AbortController().signal;
 
-		input.signal?.addEventListener(
-			'abort',
-			() => {
-				controller.abort();
-			},
-			{ once: true }
-		);
-
-		return this.stream(resolved, provider, controller.signal);
+		return this.stream(resolved, provider, signal);
 	}
 
 	private async *stream(
