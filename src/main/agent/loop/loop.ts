@@ -108,7 +108,7 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
-		const signal = input.signal ?? new AbortController().signal;
+		const signal = new AbortController().signal;
 
 		return this.stream(input, provider, modelId, signal);
 	}
@@ -124,7 +124,8 @@ export class AgentRuntime {
 			type: 'user_message',
 			data: { task: input.task, message: input.message },
 		});
-		const system = input.system ?? (await this.systemPrompt.build());
+		
+		const system = await this.systemPrompt.build();
 
 		yield {
 			type: 'run_started',

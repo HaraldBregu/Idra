@@ -24,7 +24,6 @@ export interface RuntimeInput {
     task: string;
     message: string;
     sessionId?: string;
-    system?: string;
     messages?: RuntimeMessage[];
     tools?: RuntimeTool[];
     skills?: RuntimeSkill[];
@@ -33,7 +32,6 @@ export interface RuntimeInput {
     maxRetries?: number;
     maxTurns?: number;
     maxIterations?: number;
-    signal?: AbortSignal;
 }
 /**
  * Optional route hint for selecting a model based on a task name.

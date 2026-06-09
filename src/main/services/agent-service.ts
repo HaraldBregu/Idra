@@ -49,7 +49,6 @@ export class AgentService {
 				message,
 				sessionId,
 				maxRetries: 1,
-				signal: controller.signal,
 			});
 			this.activeRuns.set(resolvedAgentId, controller);
 
