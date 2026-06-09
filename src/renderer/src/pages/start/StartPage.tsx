@@ -1269,13 +1269,13 @@ const StartPage: React.FC = () => {
 						selectedModelName || modelCountLabel,
 						<>
 							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="agent-provider" label="Provider">
+								<SettingsField id={MODEL_FIELD_IDS[AGENTS.assistant].provider} label="Provider">
 									<Select
 										value={configProvider}
 										onValueChange={handleAgentProviderChange}
 										disabled={loadingModels || agentModelGroups.length === 0 || savingConfig}
 									>
-										<SelectTrigger id="agent-provider" className="w-full text-xs sm:w-72">
+										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].provider} className="w-full text-xs sm:w-72">
 											<SelectValue placeholder={modelCountLabel} />
 										</SelectTrigger>
 										<SelectContent>
