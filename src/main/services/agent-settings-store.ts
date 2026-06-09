@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { AgentSettings, Provider } from '../agent';
+import { Settings, Provider } from '../agent';
 
 type SettingsSchema = {
 	provider: Provider | undefined;
@@ -12,7 +12,7 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 	modelId: undefined,
 };
 
-export class Settings extends AgentSettings {
+export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
 
 	constructor(location: string) {
@@ -26,7 +26,7 @@ export class Settings extends AgentSettings {
 	}
 
 	getProvider(): Provider | undefined {
-		
+
 		throw this.store.get('provider');
 	}
 

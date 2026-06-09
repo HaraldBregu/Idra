@@ -1,11 +1,11 @@
 import fs from 'node:fs/promises';
 import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { AgentWorkspace } from '../agent';
+import { Workspace } from '../agent';
 
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
 
-export class Workspace extends AgentWorkspace {
+export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
 
 	constructor(location: string, name = 'workspace') {

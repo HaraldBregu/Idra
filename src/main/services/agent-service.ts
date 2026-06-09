@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
-import { Settings } from './settings';
-import { Workspace } from './workspace';
+import { AgentSettingsStore } from './agent-settings-store';
+import { AgentWorkspace } from './agent-workspace';
 import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent, RuntimeRun } from '../agent';
@@ -20,8 +20,8 @@ export interface AgentSendOptions {
 export class AgentV2Service {
 	private readonly activeRuns = new Map<string, RuntimeRun>();
 	private readonly defaultAgentId: string;
-	private readonly workspace: Workspace;
-	private readonly settings: Settings;
+	private readonly agentWorkspace: AgentWorkspace;
+	private readonly agentSettingsStore: AgentSettingsStore;
 	private readonly history: History;
 	private readonly runtime: AgentRuntime;
 
@@ -29,10 +29,10 @@ export class AgentV2Service {
 		this.defaultAgentId = defaultAgentId;
 		const location = resolveAgentUsageLocation();
 
-		this.workspace = new Workspace(location);
-		this.settings = new Settings(location);
+		this.agentWorkspace = new AgentWorkspace(location);
+		this.agentSettingsStore = new AgentSettingsStore(location);
 		this.history = new History(location);
-		this.runtime = new AgentRuntime(this.workspace, this.settings, this.history);
+		this.runtime = new AgentRuntime(this.agentWorkspace, this.agentSettingsStore, this.history);
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {

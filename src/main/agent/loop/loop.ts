@@ -106,10 +106,6 @@ export class AgentRuntime {
 	}
 
 	run(input: RuntimeInput): RuntimeRun {
-
-		const settings_provider = this.settings.getProvider();
-									console.warn("options AbortController: ", settings_provider)
-
 		const provider = input.provider ?? this.settings.getProvider();
 		const modelId = input.modelId ?? this.settings.getModelId();
 
