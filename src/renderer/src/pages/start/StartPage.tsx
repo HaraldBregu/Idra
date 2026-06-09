@@ -378,18 +378,47 @@ const StartPage: React.FC = () => {
 
 	useEffect(() => {
 		if (step !== 'providers') return;
-		setProviderEntries((entries) =>
-			actionableProviderCatalog.map((provider, index) => {
-				const current = entries.find((entry) => entry.providerId === provider.id);
-				const draft = current?.apiKey ?? '';
-				return {
-					providerId: provider.id,
-					apiKey: draft,
-					apiKeySaved: current?.apiKeySaved ?? false,
-					editing: current?.editing ?? index === 0,
-				};
-			})
-		);
+		let cancelled = false;
+
+		async function loadProviderApiKeyStatus(): Promise<void> {
+			const savedEntries = await Promise.all(
+				actionableProviderCatalog.map(async (provider) => {
+					try {
+						const stored = await window.providerStore.get(provider.id);
+						return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
+					} catch {
+						return [provider.id, false] as const;
+					}
+				})
+			);
+			if (cancelled) return;
+
+			const savedByProviderId = new Map(savedEntries);
+			const hasSavedProvider = [...savedByProviderId.values()].some(Boolean);
+			setProviderEntries((entries) =>
+				actionableProviderCatalog.map((provider, index) => {
+					const current = entries.find((entry) => entry.providerId === provider.id);
+					const draft = current?.apiKey ?? '';
+					const hasDraft = draft.trim().length > 0;
+					const saved = savedByProviderId.get(provider.id) ?? false;
+					return {
+						providerId: provider.id,
+						apiKey: draft,
+						apiKeySaved: saved,
+						editing: hasDraft
+							? (current?.editing ?? false)
+							: saved
+								? false
+								: (current?.editing ?? (!hasSavedProvider && index === 0)),
+					};
+				})
+			);
+		}
+
+		void loadProviderApiKeyStatus();
+		return () => {
+			cancelled = true;
+		};
 	}, [step]);
 
 	useEffect(() => {
