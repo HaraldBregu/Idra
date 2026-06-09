@@ -24,10 +24,7 @@ export class AgentStoreIpc implements IpcModule {
 	readonly name = 'agent-store';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const settings = new AgentSettingsStore(
-			resolveAgentUsageLocation(),
-			container.get('providerStore')
-		);
+		const settings = new AgentSettingsStore(resolveAgentUsageLocation(), container);
 
 		registerQuery(AgentStoreChannels.getProvider, (): PublicProvider | undefined => {
 			const providerId = settings.getProviderId();
