@@ -91,7 +91,6 @@ import type {
 	AgentResponseEvent,
 	Model,
 	ModelSelection,
-	AgentSendRuntimeOptions,
 } from '../shared/agents/service';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
