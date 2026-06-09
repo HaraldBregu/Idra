@@ -428,6 +428,7 @@ const StartPage: React.FC = () => {
 
 		async function loadProviders(): Promise<void> {
 			try {
+				const agentService = await window.agentStore.get();
 				if (cancelled) return;
 
 				const savedProviderIds = new Set(
@@ -448,7 +449,7 @@ const StartPage: React.FC = () => {
 				setProviders(selectableProviders);
 				setRegisteredProviderIds(savedProviderIds);
 				setConfigProvider(preferredProvider?.id ?? '');
-				setSavedModelId('');
+				setSavedModelId(agentService?.model.id ?? '');
 				setSpeechProviderId('');
 				setSavedSpeechProviderId('');
 				setSavedSpeechModelId('');
@@ -810,6 +811,10 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
+			await window.agentStore.set(
+				selectedAgentModelOption.provider,
+				selectedAgentModelOption.model
+			);
 			navigate('/home');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected assistant model.'));
