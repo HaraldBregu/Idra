@@ -28,7 +28,7 @@ const ConnectorsPage = () => {
 		setConnectingId(entry.connectorId);
 		setError(null);
 		try {
-			const authorization = await window.app.authorizeOAuth(entry.oauth);
+			const authorization = await appApi.(entry.oauth);
 			await window.connectors.upsert({
 				id: entry.directConnectorId,
 				name: entry.name,

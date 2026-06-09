@@ -471,11 +471,11 @@ const StartPage: React.FC = () => {
 				] = await Promise.all([
 					getStoredProviderEntries(),
 					window.agentStore.get(),
-					window.app.getSpeechTranscriberService(),
-					window.app.getTextToSpeechService(),
-					window.app.getImageCreatorService(),
-					window.app.getTextToVideoService(),
-					window.app.getTextToSoundService(),
+					appApi.(),
+					appApi.(),
+					appApi.(),
+					appApi.(),
+					appApi.(),
 				]);
 				if (cancelled) return;
 
