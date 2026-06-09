@@ -1,13 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
-import type { AgentResponseEvent } from '../../shared/agents/events';
-import type { AgentRunStopReason } from '../../shared/agents/constants';
 import { Settings } from './settings';
 import { Workspace } from './workspace';
 import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent, RuntimeRun } from '../agent';
+import { AgentResponseEvent, AgentRunStopReason } from '../../shared/agent/types';
 
 export interface AgentSendOptions {
 	runId?: string;

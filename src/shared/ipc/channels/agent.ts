@@ -33,5 +33,5 @@ export interface AgentInvokeChannelMap {
 }
 
 export interface AgentEventChannelMap {
-	[AgentChannels.response]: { data: import('../agents/types').AgentResponseEvent };
+	[AgentChannels.response]: { data: import('../../agent/types').AgentResponseEvent };
 }
