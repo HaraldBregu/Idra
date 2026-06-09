@@ -4,6 +4,16 @@ import path from 'node:path';
 import { Workspace } from '../agent';
 
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md';
+const AGENT_TEXT_FILES = [
+	'AGENTS.md',
+	'SOUL.md',
+	'TOOLS.md',
+	'IDENTITY.md',
+	'USER.md',
+	'HEARTBEAT.md',
+	BOOTSTRAP_FILE,
+	'MEMORY.md',
+] as const;
 
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
@@ -20,6 +30,15 @@ export class AgentWorkspace extends Workspace {
 		return this.workspacePath;
 	}
 
+	async getAgentText(): Promise<string> {
+		const parts: string[] = [];
+		for (const filePath of AGENT_TEXT_FILES) {
+			const text = await this.readTextFile(filePath);
+			if (text.trim()) parts.push(`## ${filePath}\n${text.trim()}`);
+		}
+		return parts.join('\n\n');
+	}
+
 	async fileExists(filePath: string): Promise<boolean> {
 		try {
 			await fs.access(this.resolveWorkspacePath(filePath));
@@ -32,6 +51,15 @@ export class AgentWorkspace extends Workspace {
 
 	hasBootstrapFile(): Promise<boolean> {
 		return this.fileExists(BOOTSTRAP_FILE);
+	}
+
+	private async readTextFile(filePath: string): Promise<string> {
+		try {
+			return await fs.readFile(this.resolveWorkspacePath(filePath), 'utf8');
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
+			throw error;
+		}
 	}
 
 	private resolveWorkspacePath(filePath: string): string {
