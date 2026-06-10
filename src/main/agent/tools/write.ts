@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Tool } from '../core/tool';
 
-export class WriteFileTool extends Tool {
-	readonly name = 'write-file';
+export class WriteTool extends Tool {
+	readonly name = 'write';
 	readonly description = 'Write UTF-8 text content to a file by path.';
 	readonly schema = {
 		type: 'object',

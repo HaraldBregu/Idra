@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import { Tool } from '../core/tool';
 
-export class ReadFileTool extends Tool {
-	readonly name = 'read-file';
+export class ReadTool extends Tool {
+	readonly name = 'read';
 	readonly description = 'Read a UTF-8 text file by path.';
 	readonly schema = {
 		type: 'object',
