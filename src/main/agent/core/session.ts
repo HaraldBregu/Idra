@@ -4,7 +4,6 @@ import type {
 	SessionToolCall,
 	SessionTurn,
 	SessionUsage,
-} from '../types';
 } from './types';
 
 export abstract class Session {

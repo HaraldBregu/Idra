@@ -5,7 +5,6 @@ import type {
 	SessionResult,
 	SessionToolCall,
 	SessionTurn,
-} from '../agent/types';
 } from '../agent/core/types';
 
 export class AgentSession extends Session {
