@@ -11,7 +11,7 @@ export class WriteTool extends Tool {
 		properties: {
 			path: {
 				type: 'string',
-				description: 'File path to write.',
+				description: 'File path to write. Relative paths resolve from the workspace; ~ expands to the user home.',
 			},
 			content: {
 				type: 'string',

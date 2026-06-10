@@ -10,7 +10,7 @@ export class EditTool extends Tool {
 		properties: {
 			path: {
 				type: 'string',
-				description: 'File path to edit.',
+				description: 'File path to edit. Relative paths resolve from the workspace; ~ expands to the user home.',
 			},
 			oldText: {
 				type: 'string',

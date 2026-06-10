@@ -36,7 +36,8 @@ export class ExecTool extends Tool {
 			},
 			workdir: {
 				type: 'string',
-				description: 'Working directory (defaults to cwd)',
+				description:
+					'Working directory. Relative paths resolve from the workspace; ~ expands to the user home.',
 			},
 			env: {
 				type: 'object',

@@ -10,7 +10,7 @@ export class ReadTool extends Tool {
 		properties: {
 			path: {
 				type: 'string',
-				description: 'File path to read.',
+				description: 'File path to read. Relative paths resolve from the workspace; ~ expands to the user home.',
 			},
 		},
 		required: ['path'],
