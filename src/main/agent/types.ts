@@ -1,5 +1,5 @@
 import type { Tool } from './core/tool';
-import type { ModelModule } from './core/model';
+import type { Model } from './core/model';
 
 export interface Provider {
 	id: string,
@@ -157,6 +157,6 @@ export type RuntimeModelRequest = ModelRequest;
 
 export type RuntimeModelResponse = ModelResponse;
 
-export type RuntimeModel = ModelModule;
+export type RuntimeModel = Model;
 
 export type RuntimeRole = ModelMessageRole;

@@ -1,6 +1,6 @@
 export { History as AgentHistory } from './core/history';
 export type { HistoryEntry } from './core/history';
-export { ModelModule } from './core/model';
+export { Model } from './core/model';
 export { Session } from './core/session';
 export { Settings } from './core/settings';
 export type { Provider } from './core/settings'
