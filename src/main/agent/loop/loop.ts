@@ -73,7 +73,18 @@ export class AgentRuntime {
 			data: { task: input.task, message: input.message },
 		});
 		
-		const system = await this.systemPrompt.build(await workspace.getAgentText());
+		const system = await this.systemPrompt.build({
+			workspace: {
+				agentText: await workspace.getAgentText(),
+				bootstrapText: await workspace.getBootstrapText(),
+				heartbeatText: await workspace.getHeartbeatText(),
+				identityText: await workspace.getIdentityText(),
+				memoryText: await workspace.getMemoryText(),
+				soulText: await workspace.getSoulText(),
+				toolsText: await workspace.getToolsText(),
+				userText: await workspace.getUserText(),
+			},
+		});
 
 		yield {
 			type: 'run_started',

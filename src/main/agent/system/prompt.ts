@@ -1,8 +1,23 @@
+export interface SystemPromptInput {
+	workspace: SystemPromptWorkspaceText;
+}
+
+export interface SystemPromptWorkspaceText {
+	agentText: string;
+	bootstrapText: string;
+	heartbeatText: string;
+	identityText: string;
+	memoryText: string;
+	soulText: string;
+	toolsText: string;
+	userText: string;
+}
+
 export class SystemPrompt {
 
 	constructor() { }
 
-	async build(agentText = ''): Promise<string> {
+	async build(input: SystemPromptInput): Promise<string> {
 		const parts: string[] = [
 			'You are a personal AI assistant.',
 			[
@@ -28,8 +43,21 @@ export class SystemPrompt {
 			].join('\n'),
 		];
 
-		if (agentText.trim()) {
-			parts.push(['## Workspace context', agentText.trim()].join('\n'));
+		const workspaceParts = [
+			['AGENTS.md', input.workspace.agentText],
+			['BOOTSTRAP.md', input.workspace.bootstrapText],
+			['HEARTBEAT.md', input.workspace.heartbeatText],
+			['IDENTITY.md', input.workspace.identityText],
+			['MEMORY.md', input.workspace.memoryText],
+			['SOUL.md', input.workspace.soulText],
+			['TOOLS.md', input.workspace.toolsText],
+			['USER.md', input.workspace.userText],
+		]
+			.filter(([, text]) => text.trim())
+			.map(([name, text]) => [`### ${name}`, text.trim()].join('\n'));
+
+		if (workspaceParts.length > 0) {
+			parts.push(['## Workspace context', ...workspaceParts].join('\n\n'));
 		}
 
 		return parts.join('\n\n');
