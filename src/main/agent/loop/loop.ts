@@ -42,30 +42,38 @@ export class AgentRuntime {
 	}
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
-		const provider = this.settings.getProvider();
-		const modelId = this.settings.getModelId();
-
-		if (!provider || !modelId)
-			throw new Error('Agent requires a configured provider and model.');
-
 		const signal = new AbortController().signal;
 
-		return this.stream(input, provider, modelId, signal);
+		return this.stream(
+			input,
+			signal,
+			this.session,
+			this.workspace,
+			this.history,
+			this.settings
+		);
 	}
 
 	private async *stream(
 		input: RuntimeInput,
-		provider: Provider,
-		modelId: string,
-		signal: AbortSignal
+		signal: AbortSignal,
+		session: Session,
+		workspace: Workspace,
+		history: History,
+		settings: Settings
 	): AsyncGenerator<RuntimeEvent> {
-		const session = this.session;
-		await this.history.append(session.id, {
+		const provider = settings.getProvider();
+		const modelId = settings.getModelId();
+
+		if (!provider || !modelId)
+			throw new Error('Agent requires a configured provider and model.');
+
+		await history.append(session.id, {
 			type: 'user_message',
 			data: { task: input.task, message: input.message },
 		});
 		
-		const system = await this.systemPrompt.build(await this.workspace.getAgentText());
+		const system = await this.systemPrompt.build(await workspace.getAgentText());
 
 		yield {
 			type: 'run_started',
@@ -91,7 +99,7 @@ export class AgentRuntime {
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
-			await this.history.append(session.id, {
+			await history.append(session.id, {
 				type: 'assistant_message',
 				data: { content: turn.content, toolCalls: turn.toolCalls },
 			});
@@ -99,21 +107,21 @@ export class AgentRuntime {
 
 			if (turn.toolCalls.length === 0) {
 				const result = session.toResult('success');
-				await this.history.append(session.id, { type: 'run_finished', data: result });
+				await history.append(session.id, { type: 'run_finished', data: result });
 				yield { type: 'run_finished', result };
 				return;
 			}
 
 			if (session.isExhausted) {
 				const result = session.toResult('error_max_turns');
-				await this.history.append(session.id, { type: 'run_finished', data: result });
+				await history.append(session.id, { type: 'run_finished', data: result });
 				yield { type: 'run_finished', result };
 				return;
 			}
 
 			const results = yield* this.runToolCalls(input.tools ?? [], turn.toolCalls);
 			session.addToolResults(turn.toolCalls, results);
-			await this.history.append(session.id, { type: 'tool_results', data: results });
+			await history.append(session.id, { type: 'tool_results', data: results });
 			yield { type: 'user_message', messages: results };
 		}
 	}
