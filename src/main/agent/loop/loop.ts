@@ -11,7 +11,6 @@ import type { Tool } from '../core/tool';
 import { SystemPrompt } from '../system/prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
-import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
@@ -28,6 +27,11 @@ interface ModelTurn {
 		inputTokens?: number;
 		outputTokens?: number;
 	};
+}
+
+interface ToolOutcome {
+	output: unknown;
+	isError?: boolean;
 }
 
 export class AgentRuntime {
@@ -206,7 +210,7 @@ export class AgentRuntime {
 
 		for (const toolCall of toolCalls) {
 			yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };
-			const outcome = await runTool(toolMap.get(toolCall.name), toolCall);
+			const outcome = await this.runTool(toolMap.get(toolCall.name), toolCall);
 			yield { type: 'tool_call_end', toolName: toolCall.name, output: outcome.output };
 
 			results.push({
@@ -217,5 +221,24 @@ export class AgentRuntime {
 		}
 
 		return results;
+	}
+
+	private async runTool(
+		tool: Tool | undefined,
+		toolCall: ToolCall
+	): Promise<ToolOutcome> {
+		if (!tool) {
+			return { output: `Error: unknown tool '${toolCall.name}'`, isError: true };
+		}
+
+		try {
+			return { output: await tool.run(toolCall.args) };
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			return {
+				output: `Error: tool '${toolCall.name}' failed: ${message}`,
+				isError: true,
+			};
+		}
 	}
 }
