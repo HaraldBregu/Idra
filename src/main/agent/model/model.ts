@@ -1,14 +1,9 @@
 import { LlmService } from '../../llm';
 import type { AgentContentBlock, TranscriptEntry } from '../../llm/types';
-import type {
-	ModelEvent,
-	ModelMessage,
-	ModelModule,
-	ModelRequest,
-	ModelResponse,
-} from '../types';
+import { ModelModule } from '../core/model';
+import type { ModelEvent, ModelMessage, ModelRequest, ModelResponse } from '../types';
 
-export class AgentModel implements ModelModule {
+export class AgentModel extends ModelModule {
 	private readonly llm = new LlmService();
 
 	async generate(request: ModelRequest): Promise<ModelResponse> {

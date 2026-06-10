@@ -1,4 +1,5 @@
 import type { Tool } from './core/tool';
+import type { ModelModule } from './core/model';
 
 export interface Provider {
 	id: string,
@@ -60,11 +61,6 @@ export type ModelEvent =
 			stopReason?: string;
 			usage?: ModelResponse['usage'];
 	  };
-
-export interface ModelModule {
-	generate(request: ModelRequest): Promise<ModelResponse>;
-	stream(request: ModelRequest): AsyncIterable<ModelEvent>;
-}
 
 export type SessionMessage = ModelMessage;
 export type SessionToolCall = ModelToolCall;
