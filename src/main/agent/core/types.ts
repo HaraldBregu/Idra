@@ -102,6 +102,19 @@ export type RuntimeEvent =
 	| { type: 'run_started'; sessionId: string; model: string; providerId: string }
 	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
 	| { type: 'user_message'; messages: Message[] }
-	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
-	| { type: 'tool_call_end'; toolName: string; output: unknown }
+	| {
+			type: 'tool_call_start';
+			toolCallId: string;
+			toolName: string;
+			input: Record<string, unknown>;
+	  }
+	| {
+			type: 'tool_call_end';
+			toolCallId: string;
+			toolName: string;
+			input: Record<string, unknown>;
+			output: unknown;
+			isError?: boolean;
+			durationMs: number;
+	  }
 	| { type: 'run_finished'; result: RuntimeOutput };

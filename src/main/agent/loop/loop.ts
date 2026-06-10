@@ -86,7 +86,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath));
 		tools.push(new WriteTool(workspacePath));
 		tools.push(new ExecTool(workspacePath));
- 
+
 		const system = await this.systemPrompt.build({
 			workspace,
 		});
@@ -212,9 +212,23 @@ export class AgentRuntime {
 		const results: Message[] = [];
 
 		for (const toolCall of toolCalls) {
-			yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };
+			const startedAtMs = Date.now();
+			yield {
+				type: 'tool_call_start',
+				toolCallId: toolCall.id,
+				toolName: toolCall.name,
+				input: toolCall.args,
+			};
 			const outcome = await this.runTool(toolMap.get(toolCall.name), toolCall);
-			yield { type: 'tool_call_end', toolName: toolCall.name, output: outcome.output };
+			yield {
+				type: 'tool_call_end',
+				toolCallId: toolCall.id,
+				toolName: toolCall.name,
+				input: toolCall.args,
+				output: outcome.output,
+				isError: outcome.isError,
+				durationMs: Date.now() - startedAtMs,
+			};
 
 			results.push({
 				role: 'tool',

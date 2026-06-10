@@ -160,8 +160,20 @@ function runtimeEventToAgentEvents(
 			{
 				type: 'tool_call_start',
 				iteration: 0,
-				toolCallId: event.toolName,
+				toolCallId: event.toolCallId,
 				toolName: event.toolName,
+				name: event.toolName,
+				serviceKind: 'tool',
+				agentId,
+				runId,
+			},
+			{
+				type: 'tool_call_input',
+				iteration: 0,
+				toolCallId: event.toolCallId,
+				toolName: event.toolName,
+				input: event.input,
+				argsText: outputText(event.input),
 				name: event.toolName,
 				serviceKind: 'tool',
 				agentId,
@@ -170,17 +182,19 @@ function runtimeEventToAgentEvents(
 		];
 	}
 	if (event.type === 'tool_call_end') {
+		const status = event.isError ? 'error' : 'ok';
 		return [
 			{
 				type: 'tool_call_result',
 				iteration: 0,
-				toolCallId: event.toolName,
+				toolCallId: event.toolCallId,
 				toolName: event.toolName,
-				input: {},
+				input: event.input,
 				output: event.output,
 				outputText: outputText(event.output),
-				status: 'ok',
-				durationMs: 0,
+				status,
+				durationMs: event.durationMs,
+				errorText: event.isError ? outputText(event.output) : undefined,
 				name: event.toolName,
 				serviceKind: 'tool',
 				agentId,
