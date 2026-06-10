@@ -60,6 +60,7 @@ export class SystemPrompt {
 			parts.push(['## Workspace context', ...workspaceParts].join('\n\n'));
 		}
 
+		
 		return parts.join('\n\n');
 	}
 }
