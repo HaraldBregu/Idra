@@ -1,8 +1,4 @@
-export interface Provider {
-	id: string,
-	apiKey: string,
-	baseURL: string,
-}
+import { Provider } from '../types'
 
 export abstract class Settings {
 	abstract getProvider(): Provider | undefined;

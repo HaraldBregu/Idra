@@ -13,8 +13,9 @@ import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
-import { Provider, Settings } from '../core/settings';
+import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
+import { Provider } from '../types'
 
 interface ModelTurn {
 	content: string;

@@ -1,5 +1,11 @@
 import type { JSONSchema } from '../llm/types';
 
+export interface Provider {
+	id: string,
+	apiKey: string,
+	baseURL: string,
+}
+
 export type ModelMessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
 export interface ModelTool {
