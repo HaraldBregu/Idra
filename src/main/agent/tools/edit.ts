@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { Tool } from '../core/tool';
+import { resolveToolPath } from './resolve';
 
 export class EditTool extends Tool {
 	readonly name = 'edit';
@@ -24,6 +25,10 @@ export class EditTool extends Tool {
 		additionalProperties: false,
 	};
 
+	constructor(private readonly basePath = process.cwd()) {
+		super();
+	}
+
 	async run(input: Record<string, unknown>): Promise<{ path: string }> {
 		const filePath = input.path;
 		const oldText = input.oldText;
@@ -38,7 +43,8 @@ export class EditTool extends Tool {
 			throw new Error('edit requires string newText.');
 		}
 
-		const content = await fs.readFile(filePath, 'utf8');
+		const resolvedPath = resolveToolPath(this.basePath, filePath);
+		const content = await fs.readFile(resolvedPath, 'utf8');
 		const firstIndex = content.indexOf(oldText);
 		if (firstIndex === -1) {
 			throw new Error('edit oldText was not found.');
@@ -47,7 +53,7 @@ export class EditTool extends Tool {
 			throw new Error('edit oldText matched multiple locations.');
 		}
 
-		await fs.writeFile(filePath, content.replace(oldText, newText), 'utf8');
-		return { path: filePath };
+		await fs.writeFile(resolvedPath, content.replace(oldText, newText), 'utf8');
+		return { path: resolvedPath };
 	}
 }

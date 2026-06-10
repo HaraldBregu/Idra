@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
 import { Tool } from '../core/tool';
+import { resolveToolPath } from './resolve';
 
 interface ExecResult {
 	command: string;
@@ -84,6 +85,10 @@ export class ExecTool extends Tool {
 		},
 	};
 
+	constructor(private readonly basePath = process.cwd()) {
+		super();
+	}
+
 	async run(input: Record<string, unknown>): Promise<ExecResult> {
 		const command = input.command;
 		const workdir = input.workdir;
@@ -167,7 +172,7 @@ export class ExecTool extends Tool {
 			}
 		}
 
-		const cwd = workdir ?? process.cwd();
+		const cwd = resolveToolPath(this.basePath, workdir ?? '.');
 		const yieldMs = yieldMsInput ?? 10000;
 		const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 		const startedAt = Date.now();

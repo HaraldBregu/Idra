@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { Tool } from '../core/tool';
+import { resolveToolPath } from './resolve';
 
 export class ReadTool extends Tool {
 	readonly name = 'read';
@@ -16,11 +17,15 @@ export class ReadTool extends Tool {
 		additionalProperties: false,
 	};
 
+	constructor(private readonly basePath = process.cwd()) {
+		super();
+	}
+
 	run(input: Record<string, unknown>): Promise<string> {
 		const filePath = input.path;
 		if (typeof filePath !== 'string' || !filePath.trim()) {
 			throw new Error('read-file requires a non-empty path.');
 		}
-		return fs.readFile(filePath, 'utf8');
+		return fs.readFile(resolveToolPath(this.basePath, filePath), 'utf8');
 	}
 }

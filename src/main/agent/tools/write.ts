@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Tool } from '../core/tool';
+import { resolveToolPath } from './resolve';
 
 export class WriteTool extends Tool {
 	readonly name = 'write';
@@ -21,6 +22,10 @@ export class WriteTool extends Tool {
 		additionalProperties: false,
 	};
 
+	constructor(private readonly basePath = process.cwd()) {
+		super();
+	}
+
 	async run(input: Record<string, unknown>): Promise<{ path: string }> {
 		const filePath = input.path;
 		const content = input.content;
@@ -30,12 +35,9 @@ export class WriteTool extends Tool {
 		if (typeof content !== 'string') {
 			throw new Error('write-file requires string content.');
 		}
-		await fs.mkdir(path.dirname(filePath), { recursive: true });
-		await fs.writeFile(filePath, content, 'utf8');
-
-		console.log({filePath})
-		console.log({content})
-
-		return { path: filePath };
+		const resolvedPath = resolveToolPath(this.basePath, filePath);
+		await fs.mkdir(path.dirname(resolvedPath), { recursive: true });
+		await fs.writeFile(resolvedPath, content, 'utf8');
+		return { path: resolvedPath };
 	}
 }
