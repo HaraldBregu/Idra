@@ -60,6 +60,8 @@ export class SystemPrompt {
 
 		if (workspaceContext) prompt += `\n\n## Workspace context${workspaceContext}`;
 
+
+		console.log({workspaceContext})
 		return prompt;
 	}
 }
