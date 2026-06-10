@@ -15,6 +15,7 @@ import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { EditTool } from '../tools/edit';
+import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 
@@ -83,6 +84,7 @@ export class AgentRuntime {
 		tools.push(new ReadTool());
 		tools.push(new EditTool());
 		tools.push(new WriteTool());
+		tools.push(new ExecTool());
  
 		const system = await this.systemPrompt.build({
 			workspace,
