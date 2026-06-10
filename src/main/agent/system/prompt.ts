@@ -2,18 +2,6 @@ import type { Workspace } from '../core/workspace';
 
 export interface SystemPromptInput {
 	workspace: Workspace;
-	workspaceText: SystemPromptWorkspaceText;
-}
-
-export interface SystemPromptWorkspaceText {
-	agentText: string;
-	bootstrapText: string;
-	heartbeatText: string;
-	identityText: string;
-	memoryText: string;
-	soulText: string;
-	toolsText: string;
-	userText: string;
 }
 
 export class SystemPrompt {
@@ -43,28 +31,33 @@ export class SystemPrompt {
 		prompt += '\n- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.';
 
 		let workspaceContext = '';
+		const agentText = await input.workspace.getAgentText();
+		const bootstrapText = await input.workspace.getBootstrapText();
+		const heartbeatText = await input.workspace.getHeartbeatText();
+		const identityText = await input.workspace.getIdentityText();
+		const memoryText = await input.workspace.getMemoryText();
+		const soulText = await input.workspace.getSoulText();
+		const toolsText = await input.workspace.getToolsText();
+		const userText = await input.workspace.getUserText();
 
-		if (input.workspaceText.agentText.trim())
-			workspaceContext += `\n\n${input.workspaceText.agentText.trim()}`;
-		if (input.workspaceText.bootstrapText.trim())
-			workspaceContext += `\n\n${input.workspaceText.bootstrapText.trim()}`;
-		if (input.workspaceText.heartbeatText.trim())
-			workspaceContext += `\n\n${input.workspaceText.heartbeatText.trim()}`;
-		if (input.workspaceText.identityText.trim())
-			workspaceContext += `\n\n${input.workspaceText.identityText.trim()}`;
-		if (input.workspaceText.memoryText.trim())
-			workspaceContext += `\n\n${input.workspaceText.memoryText.trim()}`;
-		if (input.workspaceText.soulText.trim())
-			workspaceContext += `\n\n${input.workspaceText.soulText.trim()}`;
-		if (input.workspaceText.toolsText.trim())
-			workspaceContext += `\n\n${input.workspaceText.toolsText.trim()}`;
-		if (input.workspaceText.userText.trim())
-			workspaceContext += `\n\n${input.workspaceText.userText.trim()}`;
+		if (agentText.trim())
+			workspaceContext += `\n\n${agentText.trim()}`;
+		if (bootstrapText.trim())
+			workspaceContext += `\n\n${bootstrapText.trim()}`;
+		if (heartbeatText.trim())
+			workspaceContext += `\n\n${heartbeatText.trim()}`;
+		if (identityText.trim())
+			workspaceContext += `\n\n${identityText.trim()}`;
+		if (memoryText.trim())
+			workspaceContext += `\n\n${memoryText.trim()}`;
+		if (soulText.trim())
+			workspaceContext += `\n\n${soulText.trim()}`;
+		if (toolsText.trim())
+			workspaceContext += `\n\n${toolsText.trim()}`;
+		if (userText.trim())
+			workspaceContext += `\n\n${userText.trim()}`;
 
 		if (workspaceContext) prompt += workspaceContext;
-
-
-		console.log({workspaceContext})
 		return prompt;
 	}
 }
