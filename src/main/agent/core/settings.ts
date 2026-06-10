@@ -1,4 +1,6 @@
-import { Provider } from '../types'
+import type { Provider } from '../types'
+
+export type { Provider }
 
 export abstract class Settings {
 	abstract getProvider(): Provider | undefined;
