@@ -60,16 +60,6 @@ export class AgentWorkspace extends Workspace {
 		return this.readTextFile(USER_FILE);
 	}
 
-	async readFile(filePath: string): Promise<string> {
-		return this.readTextFile(filePath);
-	}
-
-	async writeFile(filePath: string, content: string): Promise<void> {
-		const workspaceFilePath = this.resolveWorkspacePath(filePath);
-		await fs.mkdir(path.dirname(workspaceFilePath), { recursive: true });
-		await fs.writeFile(workspaceFilePath, content, 'utf8');
-	}
-
 	async fileExists(filePath: string): Promise<boolean> {
 		try {
 			await fs.access(this.resolveWorkspacePath(filePath));

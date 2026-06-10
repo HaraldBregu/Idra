@@ -16,8 +16,8 @@ import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { readTool } from '../tools/read';
-import { writeTool } from '../tools/write';
+import { ReadTool } from '../tools/read';
+import { WriteTool } from '../tools/write';
 
 interface ModelTurn {
 	content: string;
@@ -76,8 +76,8 @@ export class AgentRuntime {
 			data: { task: input.task, message: input.message },
 		});
 		const tools = input.tools ? input.tools.slice() : [];
-		tools.push(readTool(workspace));
-		tools.push(writeTool(workspace));
+		tools.push(new ReadTool(workspace).toRuntimeTool());
+		tools.push(new WriteTool(workspace).toRuntimeTool());
  
 		const system = await this.systemPrompt.build({
 			workspace,
