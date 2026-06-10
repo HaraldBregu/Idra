@@ -5,12 +5,12 @@ import { Workspace } from '../agent';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
+const HEARTBEAT_FILE = 'HEARTBEAT.md'
 const IDENTITY_FILE = 'IDENTITY.md'
-const USER_FILE = 'USER.md'
+const MEMORY_FILE = 'MEMORY.md'
 const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
-const HEARTBEAT_FILE = 'HEARTBEAT.md'
-const MEMORY_FILE = 'MEMORY.md'
+const USER_FILE = 'USER.md'
 
 
 export class AgentWorkspace extends Workspace {
