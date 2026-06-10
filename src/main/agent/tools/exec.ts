@@ -5,6 +5,7 @@ interface ExecResult {
 	command: string;
 	workdir: string;
 	background: boolean;
+	pty: boolean;
 	pid?: number;
 	exitCode?: number | null;
 	signal?: NodeJS.Signals | null;
@@ -18,7 +19,12 @@ interface ExecResult {
 
 export class ExecTool extends Tool {
 	readonly name = 'exec';
-	readonly description = 'Execute a shell command.';
+	readonly description =
+		'Execute shell commands with background continuation for work that starts now. ' +
+		'Use yieldMs/background to continue later via process tool. ' +
+		'For long-running work started now, rely on automatic completion wake when it is enabled and the command emits output or fails; otherwise use process to confirm completion. ' +
+		'Use process whenever you need logs, status, input, or intervention. ' +
+		'Use pty=true for TTY-required commands (terminal UIs, coding agents).';
 	readonly schema = {
 		type: 'object',
 		required: ['command'],
@@ -141,9 +147,6 @@ export class ExecTool extends Tool {
 		if (nodeInput !== undefined && typeof nodeInput !== 'string') {
 			throw new Error('exec node must be a string.');
 		}
-		if (ptyInput === true) {
-			throw new Error('exec pty mode is not available in this runtime.');
-		}
 		if (elevatedInput === true) {
 			throw new Error('exec elevated mode is not available in this runtime.');
 		}
@@ -168,28 +171,56 @@ export class ExecTool extends Tool {
 		const yieldMs = yieldMsInput ?? 10000;
 		const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 		const startedAt = Date.now();
+		const pty = ptyInput === true;
+		const spawnCommand = pty ? 'script' : command;
+		const spawnArgs = pty
+			? process.platform === 'darwin' ||
+				process.platform === 'freebsd' ||
+				process.platform === 'openbsd' ||
+				process.platform === 'netbsd'
+				? ['-q', '/dev/null', process.env.SHELL ?? '/bin/sh', '-lc', command]
+				: ['-q', '-e', '-c', command, '/dev/null']
+			: [];
+		const shell = !pty;
 
 		if (backgroundInput === true) {
-			const child = spawn(command, {
+			const child = spawn(spawnCommand, spawnArgs, {
 				cwd,
 				env,
-				shell: true,
+				shell,
 				detached: true,
 				stdio: 'ignore',
 			});
-			child.unref();
-			return {
-				command,
-				workdir: cwd,
-				background: true,
-				pid: child.pid,
-				stdout: '',
-				stderr: '',
-				durationMs: Date.now() - startedAt,
-			};
+			let timeoutTimer: NodeJS.Timeout | undefined;
+			if (timeoutMs !== undefined) {
+				timeoutTimer = setTimeout(() => child.kill('SIGTERM'), timeoutMs);
+				timeoutTimer.unref();
+			}
+			return await new Promise<ExecResult>((resolve, reject) => {
+				child.once('error', (error) => {
+					if (timeoutTimer) clearTimeout(timeoutTimer);
+					reject(error);
+				});
+				child.once('exit', () => {
+					if (timeoutTimer) clearTimeout(timeoutTimer);
+				});
+				child.once('spawn', () => {
+					child.unref();
+					resolve({
+						command,
+						workdir: cwd,
+						background: true,
+						pty,
+						pid: child.pid,
+						stdout: '',
+						stderr: '',
+						durationMs: Date.now() - startedAt,
+					});
+				});
+			});
 		}
 
-		const child = spawn(command, { cwd, env, shell: true });
+		const child = spawn(spawnCommand, spawnArgs, { cwd, env, shell });
 		const maxOutputLength = 200000;
 		let stdout = '';
 		let stderr = '';
@@ -230,6 +261,7 @@ export class ExecTool extends Tool {
 					command,
 					workdir: cwd,
 					background: true,
+					pty,
 					pid: child.pid,
 					stdout,
 					stderr,
@@ -262,6 +294,7 @@ export class ExecTool extends Tool {
 					command,
 					workdir: cwd,
 					background: false,
+					pty,
 					pid: child.pid,
 					exitCode,
 					signal,
