@@ -3,9 +3,14 @@ import path from 'node:path';
 import { Tool } from '../core/tool';
 import type { Workspace } from '../core/workspace';
 import type { RuntimeTool } from '../types';
+import { resolveWorkspacePath } from './path';
 
 export class WriteTool extends Tool {
-	toRuntimeTool(workspace: Workspace): RuntimeTool {
+	constructor(private readonly workspace: Workspace) {
+		super();
+	}
+
+	run(): RuntimeTool {
 		return {
 			name: 'write_file',
 			description: 'Write UTF-8 text content to a workspace file by relative path.',
@@ -33,7 +38,7 @@ export class WriteTool extends Tool {
 				if (typeof content !== 'string') {
 					throw new Error('write_file requires string content.');
 				}
-				const workspaceFilePath = this.resolveWorkspacePath(workspace, filePath);
+				const workspaceFilePath = resolveWorkspacePath(this.workspace, filePath);
 				await fs.mkdir(path.dirname(workspaceFilePath), { recursive: true });
 				await fs.writeFile(workspaceFilePath, content, 'utf8');
 				return { path: filePath };
