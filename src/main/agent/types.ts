@@ -1,4 +1,3 @@
-import type { JSONSchema } from '../llm/types';
 import type { Tool } from './core/tool';
 
 export interface Provider {
