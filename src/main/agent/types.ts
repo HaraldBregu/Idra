@@ -126,7 +126,6 @@ export interface RuntimeInput {
 	sessionId?: string;
 	messages?: RuntimeMessage[];
 	tools?: RuntimeTool[];
-	skills?: RuntimeSkill[];
 	modelRoutes?: RuntimeModelRoute[];
 	maxTokens?: number;
 	maxRetries?: number;
@@ -152,7 +151,6 @@ export interface RuntimePerception {
 	maxRetries: number;
 	maxIterations: number;
 	tools: RuntimeTool[];
-	skills: RuntimeSkill[];
 	signal?: AbortSignal;
 }
 
@@ -163,8 +161,6 @@ export type RuntimeEvent =
 	| { type: 'user_message'; messages: RuntimeMessage[] }
 	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
 	| { type: 'tool_call_end'; toolName: string; output: unknown }
-	| { type: 'skill_call_start'; skillName: string; input: string }
-	| { type: 'skill_call_end'; skillName: string; output: unknown }
 	| { type: 'run_finished'; result: RuntimeOutput };
 
 export type RuntimeModelRequest = ModelRequest;
@@ -177,9 +173,4 @@ export type RuntimeRole = ModelMessageRole;
 
 export interface RuntimeTool extends ModelTool {
 	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
-}
-
-export interface RuntimeSkill {
-	name: string;
-	run: (input: string) => Promise<unknown> | unknown;
 }
