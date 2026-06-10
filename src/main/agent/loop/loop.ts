@@ -8,7 +8,7 @@ import type {
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
-import { RuntimeSession } from '../../services/agent-session';
+import { AgentSession } from '../../services/agent-session';
 import { SystemPrompt } from '../system/prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
@@ -58,7 +58,7 @@ export class AgentRuntime {
 		modelId: string,
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent> {
-		const session = new RuntimeSession(input);
+		const session = new AgentSession(input);
 		await this.history.append(session.id, {
 			type: 'user_message',
 			data: { task: input.task, message: input.message },

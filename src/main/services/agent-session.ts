@@ -7,7 +7,7 @@ import type {
 	SessionTurn,
 } from '../agent/types';
 
-export class RuntimeSession extends Session {
+export class AgentSession extends Session {
 	readonly id: string;
 	readonly messages: SessionMessage[];
 	readonly toolCalls: SessionToolCall[] = [];
@@ -21,7 +21,7 @@ export class RuntimeSession extends Session {
 
 	constructor(input: SessionInput) {
 		super();
-		this.id = input.sessionId ?? RuntimeSession.generateId();
+		this.id = input.sessionId ?? AgentSession.generateId();
 		this.messages = [...(input.messages ?? [])];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
