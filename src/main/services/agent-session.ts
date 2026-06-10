@@ -1,12 +1,11 @@
-import { Session } from '../core/session';
-import { composeMessages } from './messages';
+import { Session } from '../agent/core/session';
 import type {
 	SessionInput,
 	SessionMessage,
 	SessionResult,
 	SessionToolCall,
 	SessionTurn,
-} from '../types';
+} from '../agent/types';
 
 export class RuntimeSession extends Session {
 	readonly id: string;
@@ -23,7 +22,8 @@ export class RuntimeSession extends Session {
 	constructor(input: SessionInput) {
 		super();
 		this.id = input.sessionId ?? RuntimeSession.generateId();
-		this.messages = composeMessages(input);
+		this.messages = [...(input.messages ?? [])];
+		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 	}

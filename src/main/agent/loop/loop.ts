@@ -8,7 +8,7 @@ import type {
 	RuntimeTool,
 	RuntimeToolCall,
 } from './types';
-import { RuntimeSession } from '../session/session';
+import { RuntimeSession } from '../../services/agent-session';
 import { SystemPrompt } from '../system/prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
