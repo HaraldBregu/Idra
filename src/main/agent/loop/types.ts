@@ -9,7 +9,6 @@ import type {
 	ModelToolCall,
 	SessionResult,
 } from '../types';
-import type { Session } from '../core/session';
 
 export type RuntimeToolCall = ModelToolCall;
 
@@ -22,7 +21,6 @@ export type RuntimeOutput = SessionResult;
 export interface RuntimeInput {
     task: string;
     message: string;
-    session: Session;
     sessionId?: string;
     messages?: RuntimeMessage[];
     tools?: RuntimeTool[];

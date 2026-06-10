@@ -22,7 +22,6 @@ export class AgentService {
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
 	private readonly history: History;
-	private readonly runtime: AgentRuntime;
 
 	constructor(agentSettingsStore: AgentSettingsStore, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
@@ -31,7 +30,6 @@ export class AgentService {
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
 		this.history = new History(location);
-		this.runtime = new AgentRuntime(this.agentWorkspace, this.agentSettingsStore, this.history);
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
@@ -50,12 +48,18 @@ export class AgentService {
 				message,
 				sessionId,
 			};
+			const session = new AgentSession(sessionInput);
+			const runtime = new AgentRuntime(
+				this.agentWorkspace,
+				this.agentSettingsStore,
+				this.history,
+				session
+			);
 			const input = {
 				...sessionInput,
-				session: new AgentSession(sessionInput),
 				maxRetries: 1,
 			};
-			const stream = this.runtime.run(input);
+			const stream = runtime.run(input);
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {

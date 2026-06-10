@@ -14,6 +14,7 @@ import { formatToolOutput } from './format';
 import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
 import { Provider, Settings } from '../core/settings';
+import type { Session } from '../core/session';
 
 interface ModelTurn {
 	content: string;
@@ -33,7 +34,8 @@ export class AgentRuntime {
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
-		private readonly history: History
+		private readonly history: History,
+		private readonly session: Session
 	) {
 		this.model = new AgentModel();
 		this.systemPrompt = new SystemPrompt();
@@ -57,7 +59,7 @@ export class AgentRuntime {
 		modelId: string,
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent> {
-		const session = input.session;
+		const session = this.session;
 		await this.history.append(session.id, {
 			type: 'user_message',
 			data: { task: input.task, message: input.message },
