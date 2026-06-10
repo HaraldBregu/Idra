@@ -1,4 +1,4 @@
-import { AgentModel } from '../model';
+import { AgentModel } from './model';
 import type { History } from '../core/history';
 import type {
 	Provider,
