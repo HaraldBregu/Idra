@@ -12,6 +12,17 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
+const WORKSPACE_FILES = [
+	AGENT_FILE,
+	BOOTSTRAP_FILE,
+	HEARTBEAT_FILE,
+	IDENTITY_FILE,
+	MEMORY_FILE,
+	SOUL_FILE,
+	TOOLS_FILE,
+	USER_FILE,
+] as const
+
 
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
@@ -22,7 +33,7 @@ export class AgentWorkspace extends Workspace {
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}
-		this.ensureAgentFile();
+		this.ensureWorkspaceFiles();
 	}
 
 	getPath(): string {
@@ -75,10 +86,14 @@ export class AgentWorkspace extends Workspace {
 		return this.fileExists(BOOTSTRAP_FILE);
 	}
 
-	private ensureAgentFile(): void {
-		const agentFilePath = this.resolveWorkspacePath(AGENT_FILE);
-		if (existsSync(agentFilePath)) return;
-		copyFileSync(this.resolveTemplatePath(AGENT_FILE), agentFilePath);
+	private ensureWorkspaceFiles(): void {
+		for (const filePath of WORKSPACE_FILES) this.ensureWorkspaceFile(filePath);
+	}
+
+	private ensureWorkspaceFile(filePath: string): void {
+		const workspaceFilePath = this.resolveWorkspacePath(filePath);
+		if (existsSync(workspaceFilePath)) return;
+		copyFileSync(this.resolveTemplatePath(filePath), workspaceFilePath);
 	}
 
 	private async readTextFile(filePath: string): Promise<string> {
