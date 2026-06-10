@@ -1,5 +1,5 @@
-import type { Tool } from './core/tool';
-import type { Model } from './core/model';
+import type { Model } from './model';
+import type { Tool } from './tool';
 
 export interface Provider {
 	id: string,

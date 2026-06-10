@@ -8,4 +8,4 @@ export { Tool } from './core/tool';
 export { Workspace } from './core/workspace';
 
 export { AgentRuntime } from './loop/loop';
-export type { RuntimeEvent } from './types';
+export type { RuntimeEvent } from './core/types';

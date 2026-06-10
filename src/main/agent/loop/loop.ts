@@ -8,6 +8,7 @@ import type {
 	RuntimeModel,
 	RuntimeToolCall,
 } from '../types';
+} from '../core/types';
 import type { Tool } from '../core/tool';
 import { SystemPrompt } from '../system/prompt';
 import { parseToolArgs } from './args';

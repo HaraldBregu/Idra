@@ -5,6 +5,7 @@ import type {
 	SessionTurn,
 	SessionUsage,
 } from '../types';
+} from './types';
 
 export abstract class Session {
 	abstract readonly id: string;

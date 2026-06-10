@@ -1,7 +1,7 @@
 import { LlmService } from '../../llm';
 import type { AgentContentBlock, TranscriptEntry } from '../../llm/types';
 import { Model } from '../core/model';
-import type { ModelEvent, ModelMessage, ModelRequest, ModelResponse } from '../types';
+import type { ModelEvent, ModelMessage, ModelRequest, ModelResponse } from '../core/types';
 
 export class AgentModel extends Model {
 	private readonly llm = new LlmService();

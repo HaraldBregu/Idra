@@ -1,5 +1,5 @@
 import type { Tool } from '../core/tool';
-import type { RuntimeToolCall } from '../types';
+import type { RuntimeToolCall } from '../core/types';
 
 export interface ToolOutcome {
 	output: unknown;
