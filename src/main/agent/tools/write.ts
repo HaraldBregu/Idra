@@ -1,9 +1,14 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Tool } from '../core/tool';
+import type { Workspace } from '../core/workspace';
 import type { RuntimeTool } from '../types';
 
 export class WriteTool extends Tool {
+	constructor(workspace: Workspace) {
+		super(workspace);
+	}
+
 	toRuntimeTool(): RuntimeTool {
 		return {
 			name: 'write_file',

@@ -1,8 +1,13 @@
 import fs from 'node:fs/promises';
 import { Tool } from '../core/tool';
+import type { Workspace } from '../core/workspace';
 import type { RuntimeTool } from '../types';
 
 export class ReadTool extends Tool {
+	constructor(workspace: Workspace) {
+		super(workspace);
+	}
+
 	toRuntimeTool(): RuntimeTool {
 		return {
 			name: 'read_file',
