@@ -1,3 +1,4 @@
+import { Session } from '../core/session';
 import { composeMessages } from './messages';
 import type {
 	SessionInput,
@@ -5,9 +6,9 @@ import type {
 	SessionResult,
 	SessionToolCall,
 	SessionTurn,
-} from './types';
+} from '../types';
 
-export class RuntimeSession {
+export class RuntimeSession extends Session {
 	readonly id: string;
 	readonly messages: SessionMessage[];
 	readonly toolCalls: SessionToolCall[] = [];
@@ -20,6 +21,7 @@ export class RuntimeSession {
 	stopReason?: string;
 
 	constructor(input: SessionInput) {
+		super();
 		this.id = input.sessionId ?? RuntimeSession.generateId();
 		this.messages = composeMessages(input);
 		this.model = input.model ?? 'default';

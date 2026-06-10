@@ -6,7 +6,7 @@ import type {
 	ModelModule,
 	ModelRequest,
 	ModelResponse,
-} from './types';
+} from '../types';
 
 export class AgentModel implements ModelModule {
 	private readonly llm = new LlmService();

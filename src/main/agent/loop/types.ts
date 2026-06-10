@@ -1,4 +1,14 @@
-import { ModelEvent, ModelMessage, ModelMessageRole, ModelModule, ModelRequest, ModelResponse, ModelTool, ModelToolCall } from "../model/types";
+import type {
+	ModelEvent,
+	ModelMessage,
+	ModelMessageRole,
+	ModelModule,
+	ModelRequest,
+	ModelResponse,
+	ModelTool,
+	ModelToolCall,
+	SessionResult,
+} from '../types';
 
 export type RuntimeToolCall = ModelToolCall;
 
@@ -6,19 +16,7 @@ export type RuntimeModelEvent = ModelEvent;
 
 export type RuntimeMessage = ModelMessage;
 
-export interface RuntimeOutput {
-	text: string;
-	model: string;
-	toolCalls: RuntimeToolCall[];
-	numTurns: number;
-	subtype: 'success' | 'error_max_turns';
-	sessionId: string;
-	stopReason?: string;
-	usage?: {
-		inputTokens: number;
-		outputTokens: number;
-	};
-}
+export type RuntimeOutput = SessionResult;
 
 export interface RuntimeInput {
     task: string;
