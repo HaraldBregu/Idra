@@ -8,4 +8,6 @@ export abstract class Workspace {
 	abstract getSoulText(): Promise<string>;
 	abstract getToolsText(): Promise<string>;
 	abstract getUserText(): Promise<string>;
+	abstract readFile(filePath: string): Promise<string>;
+	abstract writeFile(filePath: string, content: string): Promise<void>;
 }

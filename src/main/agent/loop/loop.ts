@@ -16,6 +16,8 @@ import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
+import { readTool } from '../tools/read';
+import { writeTool } from '../tools/write';
 
 interface ModelTurn {
 	content: string;
@@ -73,6 +75,9 @@ export class AgentRuntime {
 			type: 'user_message',
 			data: { task: input.task, message: input.message },
 		});
+		const tools = input.tools ? input.tools.slice() : [];
+		tools.push(readTool(workspace));
+		tools.push(writeTool(workspace));
  
 		const system = await this.systemPrompt.build({
 			workspace,
@@ -92,6 +97,7 @@ export class AgentRuntime {
 				modelId,
 				system,
 				session.messages,
+				tools,
 				signal
 			);
 
@@ -122,7 +128,7 @@ export class AgentRuntime {
 				return;
 			}
 
-			const results = yield* this.runToolCalls(input.tools ?? [], turn.toolCalls);
+			const results = yield* this.runToolCalls(tools, turn.toolCalls);
 			session.addToolResults(turn.toolCalls, results);
 			await history.append(session.id, { type: 'tool_results', data: results });
 			yield { type: 'user_message', messages: results };
@@ -135,6 +141,7 @@ export class AgentRuntime {
 		modelId: string,
 		system: string | undefined,
 		messages: RuntimeMessage[],
+		tools: RuntimeTool[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
@@ -150,7 +157,7 @@ export class AgentRuntime {
 					model,
 					system,
 					messages,
-					tools: input.tools ?? [],
+					tools,
 					maxTokens: input.maxTokens ?? 4096,
 					signal,
 				})) {
