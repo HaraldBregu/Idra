@@ -1,4 +1,5 @@
-import type { RuntimeTool, RuntimeToolCall } from '../types';
+import type { Tool } from '../core/tool';
+import type { RuntimeToolCall } from '../types';
 
 export interface ToolOutcome {
 	output: unknown;
@@ -6,10 +7,10 @@ export interface ToolOutcome {
 }
 
 export async function runTool(
-	tool: RuntimeTool | undefined,
+	tool: Tool | undefined,
 	toolCall: RuntimeToolCall
 ): Promise<ToolOutcome> {
-	if (!tool?.run) {
+	if (!tool) {
 		return { output: `Error: unknown tool '${toolCall.name}'`, isError: true };
 	}
 

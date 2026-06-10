@@ -1,4 +1,5 @@
 import type { JSONSchema } from '../llm/types';
+import type { Tool } from './core/tool';
 
 export interface Provider {
 	id: string,
@@ -7,12 +8,6 @@ export interface Provider {
 }
 
 export type ModelMessageRole = 'system' | 'user' | 'assistant' | 'tool';
-
-export interface ModelTool {
-	name: string;
-	description?: string;
-	schema?: JSONSchema;
-}
 
 export interface ModelToolCall {
 	id: string;
@@ -39,7 +34,7 @@ export interface ModelRequest {
 	provider: ModelProvider;
 	model: string;
 	maxTokens: number;
-	tools?: ModelTool[];
+	tools?: Tool[];
 	signal?: AbortSignal;
 }
 
@@ -125,7 +120,7 @@ export interface RuntimeInput {
 	message: string;
 	sessionId?: string;
 	messages?: RuntimeMessage[];
-	tools?: RuntimeTool[];
+	tools?: Tool[];
 	modelRoutes?: RuntimeModelRoute[];
 	maxTokens?: number;
 	maxRetries?: number;
@@ -150,7 +145,7 @@ export interface RuntimePerception {
 	maxTokens: number;
 	maxRetries: number;
 	maxIterations: number;
-	tools: RuntimeTool[];
+	tools: Tool[];
 	signal?: AbortSignal;
 }
 
@@ -170,7 +165,3 @@ export type RuntimeModelResponse = ModelResponse;
 export type RuntimeModel = ModelModule;
 
 export type RuntimeRole = ModelMessageRole;
-
-export interface RuntimeTool extends ModelTool {
-	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
-}

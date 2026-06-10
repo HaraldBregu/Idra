@@ -1,5 +1,9 @@
-import type { RuntimeTool } from '../types';
+import type { JSONSchema } from '../../llm/types';
 
 export abstract class Tool {
-	abstract run(): RuntimeTool;
+	abstract readonly name: string;
+	readonly description?: string;
+	readonly schema?: JSONSchema;
+
+	abstract run(input: Record<string, unknown>): Promise<unknown> | unknown;
 }

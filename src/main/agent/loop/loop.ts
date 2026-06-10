@@ -6,9 +6,9 @@ import type {
 	RuntimeInput,
 	RuntimeMessage,
 	RuntimeModel,
-	RuntimeTool,
 	RuntimeToolCall,
 } from '../types';
+import type { Tool } from '../core/tool';
 import { SystemPrompt } from '../system/prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
@@ -76,8 +76,8 @@ export class AgentRuntime {
 			data: { task: input.task, message: input.message },
 		});
 		const tools = input.tools ? input.tools.slice() : [];
-		tools.push(new ReadTool(workspace).run());
-		tools.push(new WriteTool(workspace).run());
+		tools.push(new ReadTool(workspace));
+		tools.push(new WriteTool(workspace));
  
 		const system = await this.systemPrompt.build({
 			workspace,
@@ -141,7 +141,7 @@ export class AgentRuntime {
 		modelId: string,
 		system: string | undefined,
 		messages: RuntimeMessage[],
-		tools: RuntimeTool[],
+		tools: Tool[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
@@ -197,7 +197,7 @@ export class AgentRuntime {
 	}
 
 	private async *runToolCalls(
-		tools: RuntimeTool[],
+		tools: Tool[],
 		toolCalls: Required<RuntimeToolCall>[]
 	): AsyncGenerator<RuntimeEvent, RuntimeMessage[]> {
 		const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
