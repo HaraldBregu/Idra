@@ -1,13 +1,14 @@
 import { AgentModel } from '../model';
 import type { History } from '../core/history';
 import type {
+	Provider,
 	RuntimeEvent,
 	RuntimeInput,
 	RuntimeMessage,
 	RuntimeModel,
 	RuntimeTool,
 	RuntimeToolCall,
-} from './types';
+} from '../types';
 import { SystemPrompt } from '../system/prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
@@ -15,7 +16,6 @@ import { runTool } from './tool';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { Provider } from '../types'
 
 interface ModelTurn {
 	content: string;

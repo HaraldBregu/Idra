@@ -111,3 +111,75 @@ export interface SessionTurn {
 		outputTokens?: number;
 	};
 }
+
+export type RuntimeToolCall = ModelToolCall;
+
+export type RuntimeModelEvent = ModelEvent;
+
+export type RuntimeMessage = ModelMessage;
+
+export type RuntimeOutput = SessionResult;
+
+export interface RuntimeInput {
+	task: string;
+	message: string;
+	sessionId?: string;
+	messages?: RuntimeMessage[];
+	tools?: RuntimeTool[];
+	skills?: RuntimeSkill[];
+	modelRoutes?: RuntimeModelRoute[];
+	maxTokens?: number;
+	maxRetries?: number;
+	maxTurns?: number;
+	maxIterations?: number;
+}
+
+export interface RuntimeModelRoute {
+	task: string;
+	model: string;
+}
+
+export interface RuntimePrompt {
+	system: string;
+	prompt: string;
+	messages: RuntimeMessage[];
+}
+
+export interface RuntimePerception {
+	prompt: RuntimePrompt;
+	model: string;
+	maxTokens: number;
+	maxRetries: number;
+	maxIterations: number;
+	tools: RuntimeTool[];
+	skills: RuntimeSkill[];
+	signal?: AbortSignal;
+}
+
+export type RuntimeEvent =
+	| RuntimeModelEvent
+	| { type: 'run_started'; sessionId: string; model: string; providerId: string }
+	| { type: 'assistant_message'; content: string; toolCalls: RuntimeToolCall[] }
+	| { type: 'user_message'; messages: RuntimeMessage[] }
+	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
+	| { type: 'tool_call_end'; toolName: string; output: unknown }
+	| { type: 'skill_call_start'; skillName: string; input: string }
+	| { type: 'skill_call_end'; skillName: string; output: unknown }
+	| { type: 'run_finished'; result: RuntimeOutput };
+
+export type RuntimeModelRequest = ModelRequest;
+
+export type RuntimeModelResponse = ModelResponse;
+
+export type RuntimeModel = ModelModule;
+
+export type RuntimeRole = ModelMessageRole;
+
+export interface RuntimeTool extends ModelTool {
+	run?: (input: Record<string, unknown>) => Promise<unknown> | unknown;
+}
+
+export interface RuntimeSkill {
+	name: string;
+	run: (input: string) => Promise<unknown> | unknown;
+}

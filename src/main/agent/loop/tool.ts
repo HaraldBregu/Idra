@@ -1,4 +1,4 @@
-import type { RuntimeTool, RuntimeToolCall } from './types';
+import type { RuntimeTool, RuntimeToolCall } from '../types';
 
 export interface ToolOutcome {
 	output: unknown;
