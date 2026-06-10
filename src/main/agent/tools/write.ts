@@ -32,6 +32,10 @@ export class WriteTool extends Tool {
 		}
 		await fs.mkdir(path.dirname(filePath), { recursive: true });
 		await fs.writeFile(filePath, content, 'utf8');
+
+		console.log({filePath})
+		console.log({content})
+
 		return { path: filePath };
 	}
 }
