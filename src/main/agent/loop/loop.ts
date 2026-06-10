@@ -73,7 +73,7 @@ export class AgentRuntime {
 			data: { task: input.task, message: input.message },
 		});
 		
-		const system = await this.systemPrompt.build(await workspace.getAgenusetText());
+		const system = await this.systemPrompt.build(await workspace.getAgentText());
 
 		yield {
 			type: 'run_started',
