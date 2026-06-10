@@ -42,23 +42,23 @@ export class SystemPrompt {
 		let workspaceContext = '';
 
 		if (input.workspace.agentText.trim())
-			workspaceContext += `\n\n### AGENTS.md\n${input.workspace.agentText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.agentText.trim()}`;
 		if (input.workspace.bootstrapText.trim())
-			workspaceContext += `\n\n### BOOTSTRAP.md\n${input.workspace.bootstrapText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.bootstrapText.trim()}`;
 		if (input.workspace.heartbeatText.trim())
-			workspaceContext += `\n\n### HEARTBEAT.md\n${input.workspace.heartbeatText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.heartbeatText.trim()}`;
 		if (input.workspace.identityText.trim())
-			workspaceContext += `\n\n### IDENTITY.md\n${input.workspace.identityText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.identityText.trim()}`;
 		if (input.workspace.memoryText.trim())
-			workspaceContext += `\n\n### MEMORY.md\n${input.workspace.memoryText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.memoryText.trim()}`;
 		if (input.workspace.soulText.trim())
-			workspaceContext += `\n\n### SOUL.md\n${input.workspace.soulText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.soulText.trim()}`;
 		if (input.workspace.toolsText.trim())
-			workspaceContext += `\n\n### TOOLS.md\n${input.workspace.toolsText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.toolsText.trim()}`;
 		if (input.workspace.userText.trim())
-			workspaceContext += `\n\n### USER.md\n${input.workspace.userText.trim()}`;
+			workspaceContext += `\n\n${input.workspace.userText.trim()}`;
 
-		if (workspaceContext) prompt += `\n\n## Workspace context${workspaceContext}`;
+		if (workspaceContext) prompt += workspaceContext;
 
 
 		console.log({workspaceContext})
