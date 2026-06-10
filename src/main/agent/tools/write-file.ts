@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Tool } from '../core/tool';
 
-export class WriteTool extends Tool {
-	readonly name = 'write_file';
+export class WriteFileTool extends Tool {
+	readonly name = 'write-file';
 	readonly description = 'Write UTF-8 text content to a file by path.';
 	readonly schema = {
 		type: 'object',
@@ -25,10 +25,10 @@ export class WriteTool extends Tool {
 		const filePath = input.path;
 		const content = input.content;
 		if (typeof filePath !== 'string' || !filePath.trim()) {
-			throw new Error('write_file requires a non-empty path.');
+			throw new Error('write-file requires a non-empty path.');
 		}
 		if (typeof content !== 'string') {
-			throw new Error('write_file requires string content.');
+			throw new Error('write-file requires string content.');
 		}
 		await fs.mkdir(path.dirname(filePath), { recursive: true });
 		await fs.writeFile(filePath, content, 'utf8');
