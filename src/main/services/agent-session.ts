@@ -1,16 +1,16 @@
 import { Session } from '../agent/core/session';
 import type {
 	SessionInput,
-	SessionMessage,
+	Message,
 	SessionResult,
-	SessionToolCall,
+	ToolCall,
 	SessionTurn,
 } from '../agent/core/types';
 
 export class AgentSession extends Session {
 	readonly id: string;
-	readonly messages: SessionMessage[];
-	readonly toolCalls: SessionToolCall[] = [];
+	readonly messages: Message[];
+	readonly toolCalls: ToolCall[] = [];
 	readonly usage = { inputTokens: 0, outputTokens: 0 };
 	readonly maxTurns: number;
 
@@ -40,11 +40,11 @@ export class AgentSession extends Session {
 		if (turn.content) this.finalText = turn.content;
 	}
 
-	addAssistantMessage(content: string, toolCalls: SessionToolCall[]): void {
+	addAssistantMessage(content: string, toolCalls: ToolCall[]): void {
 		this.messages.push({ role: 'assistant', content, toolCalls });
 	}
 
-	addToolResults(toolCalls: SessionToolCall[], results: SessionMessage[]): void {
+	addToolResults(toolCalls: ToolCall[], results: Message[]): void {
 		this.toolCalls.push(...toolCalls);
 		this.messages.push(...results);
 		this.numTurns += 1;

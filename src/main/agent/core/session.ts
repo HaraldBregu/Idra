@@ -1,15 +1,15 @@
 import type {
-	SessionMessage,
+	Message,
 	SessionResult,
-	SessionToolCall,
+	ToolCall,
 	SessionTurn,
 	SessionUsage,
 } from './types';
 
 export abstract class Session {
 	abstract readonly id: string;
-	abstract readonly messages: SessionMessage[];
-	abstract readonly toolCalls: SessionToolCall[];
+	abstract readonly messages: Message[];
+	abstract readonly toolCalls: ToolCall[];
 	abstract readonly usage: SessionUsage;
 	abstract readonly maxTurns: number;
 
@@ -21,10 +21,10 @@ export abstract class Session {
 	abstract get isExhausted(): boolean;
 
 	abstract recordTurn(turn: SessionTurn): void;
-	abstract addAssistantMessage(content: string, toolCalls: SessionToolCall[]): void;
+	abstract addAssistantMessage(content: string, toolCalls: ToolCall[]): void;
 	abstract addToolResults(
-		toolCalls: SessionToolCall[],
-		results: SessionMessage[]
+		toolCalls: ToolCall[],
+		results: Message[]
 	): void;
 	abstract toResult(subtype: SessionResult['subtype']): SessionResult;
 }

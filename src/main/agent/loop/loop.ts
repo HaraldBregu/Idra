@@ -4,9 +4,8 @@ import type {
 	Provider,
 	RuntimeEvent,
 	RuntimeInput,
-	RuntimeMessage,
-	RuntimeModel,
-	RuntimeToolCall,
+	Message,
+	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import { SystemPrompt } from '../system/prompt';
@@ -23,7 +22,7 @@ interface ModelTurn {
 	content: string;
 	model: string;
 	stopReason?: string;
-	toolCalls: Required<RuntimeToolCall>[];
+	toolCalls: Required<ToolCall>[];
 	usage?: {
 		inputTokens?: number;
 		outputTokens?: number;
@@ -31,7 +30,7 @@ interface ModelTurn {
 }
 
 export class AgentRuntime {
-	private readonly model: RuntimeModel;
+	private readonly model: AgentModel;
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
@@ -140,7 +139,7 @@ export class AgentRuntime {
 		provider: Provider,
 		modelId: string,
 		system: string | undefined,
-		messages: RuntimeMessage[],
+		messages: Message[],
 		tools: Tool[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
@@ -198,10 +197,10 @@ export class AgentRuntime {
 
 	private async *runToolCalls(
 		tools: Tool[],
-		toolCalls: Required<RuntimeToolCall>[]
-	): AsyncGenerator<RuntimeEvent, RuntimeMessage[]> {
+		toolCalls: Required<ToolCall>[]
+	): AsyncGenerator<RuntimeEvent, Message[]> {
 		const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
-		const results: RuntimeMessage[] = [];
+		const results: Message[] = [];
 
 		for (const toolCall of toolCalls) {
 			yield { type: 'tool_call_start', toolName: toolCall.name, input: toolCall.args };

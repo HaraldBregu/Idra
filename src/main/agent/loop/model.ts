@@ -2,7 +2,7 @@ import { LlmService } from '../../llm';
 import type { AgentContentBlock, TranscriptEntry } from '../../llm/types';
 import { Model } from '../core/model';
 import type { ModelEvent, ModelRequest, ModelResponse } from '../core/model';
-import type { ModelMessage } from '../core/types';
+import type { Message } from '../core/types';
 
 export class AgentModel extends Model {
 	private readonly llm = new LlmService();
@@ -96,7 +96,7 @@ export class AgentModel extends Model {
 	}
 }
 
-function toTranscriptEntry(message: ModelMessage): TranscriptEntry {
+function toTranscriptEntry(message: Message): TranscriptEntry {
 	if (message.role === 'assistant') {
 		const content: AgentContentBlock[] = [];
 		if (message.content) content.push({ type: 'text', text: message.content });

@@ -1,10 +1,10 @@
 import type { Tool } from './tool';
-import type { ModelMessage, ModelProvider, ModelToolCall } from './types';
+import type { Message, Provider, ToolCall } from './types';
 
 export interface ModelRequest {
-	messages: ModelMessage[];
+	messages: Message[];
 	system?: string;
-	provider: ModelProvider;
+	provider: Provider;
 	model: string;
 	maxTokens: number;
 	tools?: Tool[];
@@ -13,7 +13,7 @@ export interface ModelRequest {
 
 export interface ModelResponse {
 	content: string;
-	toolCalls?: ModelToolCall[];
+	toolCalls?: ToolCall[];
 	model?: string;
 	stopReason?: string;
 	usage?: {

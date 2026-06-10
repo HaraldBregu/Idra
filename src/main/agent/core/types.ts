@@ -1,4 +1,4 @@
-import type { Model, ModelEvent, ModelRequest, ModelResponse } from './model';
+import type { ModelEvent } from './model';
 import type { Tool } from './tool';
 
 export interface Provider {
@@ -7,29 +7,20 @@ export interface Provider {
 	baseURL: string,
 }
 
-export type ModelMessageRole = 'system' | 'user' | 'assistant' | 'tool';
+export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
-export interface ModelToolCall {
+export interface ToolCall {
 	id: string;
 	name: string;
 	args: Record<string, unknown>;
 }
 
-export interface ModelMessage {
-	role: ModelMessageRole;
+export interface Message {
+	role: MessageRole;
 	content: string;
 	toolUseId?: string;
-	toolCalls?: ModelToolCall[];
+	toolCalls?: ToolCall[];
 }
-
-export interface ModelProvider {
-	id: string;
-	apiKey: string;
-	baseURL?: string;
-}
-
-export type SessionMessage = ModelMessage;
-export type SessionToolCall = ModelToolCall;
 
 export interface SessionUsage {
 	inputTokens: number;
@@ -39,7 +30,7 @@ export interface SessionUsage {
 export interface SessionResult {
 	text: string;
 	model: string;
-	toolCalls: SessionToolCall[];
+	toolCalls: ToolCall[];
 	numTurns: number;
 	subtype: 'success' | 'error_max_turns';
 	sessionId: string;
@@ -51,7 +42,7 @@ export interface SessionInput {
 	task: string;
 	message: string;
 	sessionId?: string;
-	messages?: SessionMessage[];
+	messages?: Message[];
 	model?: string;
 	maxTurns?: number;
 	maxIterations?: number;
@@ -61,18 +52,14 @@ export interface SessionTurn {
 	content: string;
 	model: string;
 	stopReason?: string;
-	toolCalls: SessionToolCall[];
+	toolCalls: ToolCall[];
 	usage?: {
 		inputTokens?: number;
 		outputTokens?: number;
 	};
 }
 
-export type RuntimeToolCall = ModelToolCall;
-
 export type RuntimeModelEvent = ModelEvent;
-
-export type RuntimeMessage = ModelMessage;
 
 export type RuntimeOutput = SessionResult;
 
@@ -80,7 +67,7 @@ export interface RuntimeInput {
 	task: string;
 	message: string;
 	sessionId?: string;
-	messages?: RuntimeMessage[];
+	messages?: Message[];
 	tools?: Tool[];
 	modelRoutes?: RuntimeModelRoute[];
 	maxTokens?: number;
@@ -97,7 +84,7 @@ export interface RuntimeModelRoute {
 export interface RuntimePrompt {
 	system: string;
 	prompt: string;
-	messages: RuntimeMessage[];
+	messages: Message[];
 }
 
 export interface RuntimePerception {
@@ -113,16 +100,8 @@ export interface RuntimePerception {
 export type RuntimeEvent =
 	| RuntimeModelEvent
 	| { type: 'run_started'; sessionId: string; model: string; providerId: string }
-	| { type: 'assistant_message'; content: string; toolCalls: RuntimeToolCall[] }
-	| { type: 'user_message'; messages: RuntimeMessage[] }
+	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
+	| { type: 'user_message'; messages: Message[] }
 	| { type: 'tool_call_start'; toolName: string; input: Record<string, unknown> }
 	| { type: 'tool_call_end'; toolName: string; output: unknown }
 	| { type: 'run_finished'; result: RuntimeOutput };
-
-export type RuntimeModelRequest = ModelRequest;
-
-export type RuntimeModelResponse = ModelResponse;
-
-export type RuntimeModel = Model;
-
-export type RuntimeRole = ModelMessageRole;
