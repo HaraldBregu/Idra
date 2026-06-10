@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
 import { AgentSettingsStore } from './agent-settings-store';
+import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
@@ -44,12 +45,17 @@ export class AgentService {
 		let controller: AbortController | undefined;
 		try {
 			controller = new AbortController();
-			const stream = this.runtime.run({
+			const sessionInput = {
 				task: 'chat',
 				message,
 				sessionId,
+			};
+			const input = {
+				...sessionInput,
+				session: new AgentSession(sessionInput),
 				maxRetries: 1,
-			});
+			};
+			const stream = this.runtime.run(input);
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
