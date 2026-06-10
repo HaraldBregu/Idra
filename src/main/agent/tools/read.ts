@@ -4,11 +4,7 @@ import type { Workspace } from '../core/workspace';
 import type { RuntimeTool } from '../types';
 
 export class ReadTool extends Tool {
-	constructor(workspace: Workspace) {
-		super(workspace);
-	}
-
-	toRuntimeTool(): RuntimeTool {
+	toRuntimeTool(workspace: Workspace): RuntimeTool {
 		return {
 			name: 'read_file',
 			description: 'Read a UTF-8 text file from the workspace by relative path.',
@@ -28,7 +24,7 @@ export class ReadTool extends Tool {
 				if (typeof filePath !== 'string' || !filePath.trim()) {
 					throw new Error('read_file requires a non-empty path.');
 				}
-				return fs.readFile(this.resolveWorkspacePath(filePath), 'utf8');
+				return fs.readFile(this.resolveWorkspacePath(workspace, filePath), 'utf8');
 			},
 		};
 	}
