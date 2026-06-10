@@ -72,7 +72,7 @@ export class AgentRuntime {
 			type: 'user_message',
 			data: { task: input.task, message: input.message },
 		});
-		
+ 
 		const system = await this.systemPrompt.build({
 			workspace: {
 				agentText: await workspace.getAgentText(),

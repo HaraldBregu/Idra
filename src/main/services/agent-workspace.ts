@@ -23,7 +23,6 @@ const WORKSPACE_FILES = [
 	USER_FILE,
 ] as const
 
-
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
 
