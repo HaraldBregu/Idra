@@ -12,17 +12,6 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
-const WORKSPACE_FILES = [
-	AGENT_FILE,
-	BOOTSTRAP_FILE,
-	HEARTBEAT_FILE,
-	IDENTITY_FILE,
-	MEMORY_FILE,
-	SOUL_FILE,
-	TOOLS_FILE,
-	USER_FILE,
-] as const
-
 export class AgentWorkspace extends Workspace {
 	private readonly workspacePath: string;
 
@@ -86,7 +75,14 @@ export class AgentWorkspace extends Workspace {
 	}
 
 	private ensureWorkspaceFiles(): void {
-		for (const filePath of WORKSPACE_FILES) this.ensureWorkspaceFile(filePath);
+		this.ensureWorkspaceFile(AGENT_FILE);
+		this.ensureWorkspaceFile(BOOTSTRAP_FILE);
+		this.ensureWorkspaceFile(HEARTBEAT_FILE);
+		this.ensureWorkspaceFile(IDENTITY_FILE);
+		this.ensureWorkspaceFile(MEMORY_FILE);
+		this.ensureWorkspaceFile(SOUL_FILE);
+		this.ensureWorkspaceFile(TOOLS_FILE);
+		this.ensureWorkspaceFile(USER_FILE);
 	}
 
 	private ensureWorkspaceFile(filePath: string): void {
