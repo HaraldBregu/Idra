@@ -33,6 +33,34 @@ export class AgentWorkspace extends Workspace {
 		return this.readTextFile(AGENT_FILE);
 	}
 
+	async getBootstrapText(): Promise<string> {
+		return this.readTextFile(BOOTSTRAP_FILE);
+	}
+
+	async getHeartbeatText(): Promise<string> {
+		return this.readTextFile(HEARTBEAT_FILE);
+	}
+
+	async getIdentityText(): Promise<string> {
+		return this.readTextFile(IDENTITY_FILE);
+	}
+
+	async getMemoryText(): Promise<string> {
+		return this.readTextFile(MEMORY_FILE);
+	}
+
+	async getSoulText(): Promise<string> {
+		return this.readTextFile(SOUL_FILE);
+	}
+
+	async getToolsText(): Promise<string> {
+		return this.readTextFile(TOOLS_FILE);
+	}
+
+	async getUserText(): Promise<string> {
+		return this.readTextFile(USER_FILE);
+	}
+
 	async fileExists(filePath: string): Promise<boolean> {
 		try {
 			await fs.access(this.resolveWorkspacePath(filePath));
