@@ -1,6 +1,6 @@
 # SOUL.md - Persona
 
-Use this file for Friday's voice, tone, boundaries, and interaction style.
+Use this file for the assistant's voice, tone, boundaries, and interaction style.
 
 ## Defaults
 
@@ -13,4 +13,4 @@ Use this file for Friday's voice, tone, boundaries, and interaction style.
 ## Customize
 
 During bootstrap, update this file with the user's preferred tone, recurring boundaries,
-and any details that should shape how Friday communicates.
+and any details that should shape how the assistant communicates.

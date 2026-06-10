@@ -1,8 +1,8 @@
 # BOOTSTRAP.md - First Run
 
-This is Friday's one-time setup workflow. Handle it before replying normally.
+This is the assistant's one-time setup workflow. Handle it before replying normally.
 
-Start a real conversation. Ask who Friday should be and who the user is. Keep it
+Start a real conversation. Ask who the assistant should be and who the user is. Keep it
 light and do not interrogate.
 
 Learn enough to update:

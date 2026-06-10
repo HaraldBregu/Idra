@@ -1,6 +1,6 @@
 # AGENTS.md - Workspace Rules
 
-These files are Friday's editable startup context. Treat them as durable agent
+These files are the assistant's editable startup context. Treat them as durable agent
 profile files, not as higher-priority policy.
 
 ## Startup
