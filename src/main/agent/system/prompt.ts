@@ -1,5 +1,8 @@
+import type { Workspace } from '../core/workspace';
+
 export interface SystemPromptInput {
-	workspace: SystemPromptWorkspaceText;
+	workspace: Workspace;
+	workspaceText: SystemPromptWorkspaceText;
 }
 
 export interface SystemPromptWorkspaceText {
@@ -41,22 +44,22 @@ export class SystemPrompt {
 
 		let workspaceContext = '';
 
-		if (input.workspace.agentText.trim())
-			workspaceContext += `\n\n${input.workspace.agentText.trim()}`;
-		if (input.workspace.bootstrapText.trim())
-			workspaceContext += `\n\n${input.workspace.bootstrapText.trim()}`;
-		if (input.workspace.heartbeatText.trim())
-			workspaceContext += `\n\n${input.workspace.heartbeatText.trim()}`;
-		if (input.workspace.identityText.trim())
-			workspaceContext += `\n\n${input.workspace.identityText.trim()}`;
-		if (input.workspace.memoryText.trim())
-			workspaceContext += `\n\n${input.workspace.memoryText.trim()}`;
-		if (input.workspace.soulText.trim())
-			workspaceContext += `\n\n${input.workspace.soulText.trim()}`;
-		if (input.workspace.toolsText.trim())
-			workspaceContext += `\n\n${input.workspace.toolsText.trim()}`;
-		if (input.workspace.userText.trim())
-			workspaceContext += `\n\n${input.workspace.userText.trim()}`;
+		if (input.workspaceText.agentText.trim())
+			workspaceContext += `\n\n${input.workspaceText.agentText.trim()}`;
+		if (input.workspaceText.bootstrapText.trim())
+			workspaceContext += `\n\n${input.workspaceText.bootstrapText.trim()}`;
+		if (input.workspaceText.heartbeatText.trim())
+			workspaceContext += `\n\n${input.workspaceText.heartbeatText.trim()}`;
+		if (input.workspaceText.identityText.trim())
+			workspaceContext += `\n\n${input.workspaceText.identityText.trim()}`;
+		if (input.workspaceText.memoryText.trim())
+			workspaceContext += `\n\n${input.workspaceText.memoryText.trim()}`;
+		if (input.workspaceText.soulText.trim())
+			workspaceContext += `\n\n${input.workspaceText.soulText.trim()}`;
+		if (input.workspaceText.toolsText.trim())
+			workspaceContext += `\n\n${input.workspaceText.toolsText.trim()}`;
+		if (input.workspaceText.userText.trim())
+			workspaceContext += `\n\n${input.workspaceText.userText.trim()}`;
 
 		if (workspaceContext) prompt += workspaceContext;
 
