@@ -32,13 +32,15 @@ export class SystemPrompt {
 
 		let workspaceContext = '';
 		const agentText = await input.workspace.getAgentText();
-		const bootstrapText = await input.workspace.getBootstrapText();
 		const heartbeatText = await input.workspace.getHeartbeatText();
 		const identityText = await input.workspace.getIdentityText();
 		const memoryText = await input.workspace.getMemoryText();
 		const soulText = await input.workspace.getSoulText();
 		const toolsText = await input.workspace.getToolsText();
 		const userText = await input.workspace.getUserText();
+		const bootstrapText = hasUserProfile(userText)
+			? ''
+			: await input.workspace.getBootstrapText();
 		if (agentText.trim())
 			workspaceContext += `\n\n${agentText.trim()}`;
 		if (bootstrapText.trim())
@@ -60,4 +62,14 @@ export class SystemPrompt {
 
 		return prompt;
 	}
+}
+
+function hasUserProfile(userText: string): boolean {
+	return userText
+		.split('\n')
+		.map((line) => line.trim())
+		.some((line) => {
+			const field = line.match(/^-\s+\*\*[^:]+:\*\*\s*(.+)$/);
+			return field ? field[1].trim().length > 0 : false;
+		});
 }
