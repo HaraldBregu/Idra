@@ -14,6 +14,7 @@ export interface AgentApi {
 	) => Promise<string>;
 	cancel: () => Promise<void>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
+	clearMessages: (sessionId: string) => Promise<void>;
 }
 
 export interface CronApi {
