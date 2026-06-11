@@ -24,10 +24,12 @@ export class AgentSession extends Session {
 	finalText = '';
 	stopReason?: string;
 	private readonly sessionsPath?: string;
+	private readonly sessionFolderName: string;
 
 	constructor(input: SessionInput, location?: string) {
 		super();
 		this.id = input.sessionId ?? AgentSession.generateId();
+		this.sessionFolderName = sessionFolderName(this.id);
 		this.sessionsPath = location ? path.join(path.resolve(location), 'sessions') : undefined;
 		this.messages = [...AgentSession.loadMessages(this.id, location), ...(input.messages ?? [])];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
@@ -122,11 +124,11 @@ export class AgentSession extends Session {
 	}
 
 	private sessionPath(): string {
-		return sessionPath(this.sessionsPath ?? '', this.id);
+		return sessionPath(this.sessionsPath ?? '', this.sessionFolderName);
 	}
 
 	private messagesFilePath(): string {
-		return messagesFilePath(this.sessionsPath ?? '', this.id);
+		return path.join(this.sessionPath(), 'messages.json');
 	}
 
 	private runFilePath(): string {
@@ -134,16 +136,20 @@ export class AgentSession extends Session {
 	}
 }
 
-function sessionPath(sessionsPath: string, sessionId: string): string {
-	return path.join(sessionsPath, safeName(sessionId));
+function sessionPath(sessionsPath: string, sessionFolderName: string): string {
+	return path.join(sessionsPath, sessionFolderName);
 }
 
 function messagesFilePath(sessionsPath: string, sessionId: string): string {
-	return path.join(sessionPath(sessionsPath, sessionId), 'messages.json');
+	return path.join(sessionPath(sessionsPath, sessionFolderName(sessionId)), 'messages.json');
 }
 
 function legacyFilePath(sessionsPath: string, sessionId: string): string {
 	return path.join(sessionsPath, `${safeName(sessionId)}.json`);
+}
+
+function sessionFolderName(sessionId: string): string {
+	return safeName(sessionId);
 }
 
 function safeName(value: string): string {
