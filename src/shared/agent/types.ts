@@ -21,6 +21,29 @@ export type AgentRunStopReason =
 
 export type AgentToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
+export type AgentHistoryContentBlock =
+	| {
+			type: 'text';
+			text: string;
+	  }
+	| {
+			type: 'tool_use';
+			toolUseId: string;
+			toolName: string;
+			toolArgs?: unknown;
+	  };
+
+export interface AgentHistoryMessage {
+	role: 'user' | 'agent' | 'assistant' | 'tool';
+	content?: string | null;
+	blocks?: AgentHistoryContentBlock[];
+	contentBlocks?: AgentHistoryContentBlock[];
+	toolUseId?: string;
+	isError?: boolean;
+	status?: AgentToolResultStatus;
+	output?: unknown;
+}
+
 export type AgentCapabilityServiceKind = 'tool' | 'connector' | 'mcp';
 
 export interface AgentToolCapabilitySummary {
@@ -35,11 +58,7 @@ export interface AgentSelectedSkillSummary {
 	reason: string;
 }
 
-export type AgentIntentResolutionStatus =
-	| 'recognized'
-	| 'ambiguous'
-	| 'missing_slots'
-	| 'unknown';
+export type AgentIntentResolutionStatus = 'recognized' | 'ambiguous' | 'missing_slots' | 'unknown';
 
 export interface AgentIntentAlternativeSummary {
 	name: string;

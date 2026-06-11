@@ -6,7 +6,13 @@ import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
-import { AgentResponseEvent, AgentRunStopReason } from '../../shared/agent/types';
+import type { Message } from '../agent/core/types';
+import type {
+	AgentHistoryContentBlock,
+	AgentHistoryMessage,
+	AgentResponseEvent,
+	AgentRunStopReason,
+} from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
 export interface AgentSendOptions {
@@ -21,6 +27,7 @@ export class AgentService {
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
 	private readonly location: string;
+	private readonly lastMessagesLimit = 50;
 
 	constructor(agentSettingsStore: AgentSettingsStore, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
@@ -49,11 +56,7 @@ export class AgentService {
 				sessionId,
 			};
 			session = new AgentSession(sessionInput, this.location);
-			const runtime = new AgentRuntime(
-				this.agentWorkspace,
-				this.agentSettingsStore,
-				session
-			);
+			const runtime = new AgentRuntime(this.agentWorkspace, this.agentSettingsStore, session);
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
@@ -65,16 +68,10 @@ export class AgentService {
 				session.appendRun(event);
 				// if (event.type === 'run_started')
 				// 	providerId = event.providerId;
-				if (event.type === 'model_call_delta')
-					response += event.delta;
-				if (event.type === 'run_finished')
-					response = event.result.text || response;
+				if (event.type === 'model_call_delta') response += event.delta;
+				if (event.type === 'run_finished') response = event.result.text || response;
 
-				for (const responseEvent of runtimeEventToAgentEvents(
-					event,
-					resolvedAgentId,
-					runId,
-				)) {
+				for (const responseEvent of runtimeEventToAgentEvents(event, resolvedAgentId, runId)) {
 					options.streamEvent?.(responseEvent);
 				}
 			}
@@ -101,6 +98,13 @@ export class AgentService {
 		}
 	}
 
+	getLastMessages(sessionId: string): AgentHistoryMessage[] {
+		return AgentSession.loadMessages(sessionId, this.location)
+			.slice(-this.lastMessagesLimit)
+			.map(toHistoryMessage)
+			.filter((message): message is AgentHistoryMessage => message !== undefined);
+	}
+
 	cancel(agentId?: string): void {
 		if (agentId) {
 			this.activeRuns.get(agentId)?.abort();
@@ -124,7 +128,8 @@ function resolveLocation(): string {
 	try {
 		return app.getPath('userData');
 	} catch {
-		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+		const base =
+			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
 		return path.resolve(base, app?.getName?.() ?? 'Friday');
 	}
 }
@@ -146,10 +151,72 @@ function outputText(output: unknown): string {
 	}
 }
 
+function toHistoryMessage(message: Message): AgentHistoryMessage | undefined {
+	if (message.role === 'system') return undefined;
+
+	const content = toTextContent(message.content);
+	if (message.role === 'tool') {
+		const isError = content.startsWith('Error:');
+		return {
+			role: 'tool',
+			content,
+			toolUseId: message.toolUseId,
+			isError,
+			status: isError ? 'error' : 'ok',
+			output: content,
+		};
+	}
+
+	if (message.role === 'assistant') {
+		return {
+			role: 'assistant',
+			content,
+			contentBlocks: toHistoryContentBlocks(message),
+		};
+	}
+
+	return {
+		role: 'user',
+		content,
+	};
+}
+
+function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
+	const blocks = Array.isArray(message.content)
+		? message.content
+				.map((block): AgentHistoryContentBlock | undefined => {
+					if (block.type === 'text' && typeof block.text === 'string') {
+						return { type: 'text', text: block.text };
+					}
+					return undefined;
+				})
+				.filter((block): block is AgentHistoryContentBlock => block !== undefined)
+		: [];
+
+	for (const toolCall of message.toolCalls ?? []) {
+		blocks.push({
+			type: 'tool_use',
+			toolUseId: toolCall.id,
+			toolName: toolCall.name,
+			toolArgs: toolCall.args,
+		});
+	}
+
+	return blocks;
+}
+
+function toTextContent(content: Message['content']): string {
+	if (typeof content === 'string') return content;
+	return content
+		.map((block) => (block.type === 'text' && typeof block.text === 'string' ? block.text : ''))
+		.filter(Boolean)
+		.join('\n');
+}
+
 function runtimeEventToAgentEvents(
 	event: RuntimeEvent,
 	agentId: string,
-	runId: string,
+	runId: string
 ): AgentResponseEvent[] {
 	if (event.type === 'run_started') {
 		return [{ type: 'run_state', state: 'thinking', agentId, runId }];

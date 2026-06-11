@@ -25,18 +25,32 @@ export class AgentSession extends Session {
 	stopReason?: string;
 	private readonly sessionsPath?: string;
 
-	constructor(
-		input: SessionInput,
-		location?: string
-	) {
+	constructor(input: SessionInput, location?: string) {
 		super();
 		this.id = input.sessionId ?? AgentSession.generateId();
 		this.sessionsPath = location ? path.join(path.resolve(location), 'sessions') : undefined;
-		this.messages = [...(this.loadMessages() ?? []), ...(input.messages ?? [])];
+		this.messages = [...AgentSession.loadMessages(this.id, location), ...(input.messages ?? [])];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 		this.persist();
+	}
+
+	static loadMessages(sessionId: string, location?: string): Message[] {
+		if (!location) return [];
+		const sessionsPath = path.join(path.resolve(location), 'sessions');
+		const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
+			? messagesFilePath(sessionsPath, sessionId)
+			: legacyFilePath(sessionsPath, sessionId);
+		if (!existsSync(filePath)) return [];
+		try {
+			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+			if (Array.isArray(raw)) return raw.filter(isMessage);
+			if (isRecord(raw) && Array.isArray(raw.content)) return raw.content.filter(isMessage);
+			return [];
+		} catch {
+			return [];
+		}
 	}
 
 	appendRun(entry: unknown): void {
@@ -81,8 +95,7 @@ export class AgentSession extends Session {
 			numTurns: this.numTurns,
 			subtype,
 			sessionId: this.id,
-			stopReason:
-				subtype === 'success' ? this.stopReason ?? 'end_turn' : this.stopReason,
+			stopReason: subtype === 'success' ? (this.stopReason ?? 'end_turn') : this.stopReason,
 			usage: this.usage,
 		};
 	}
@@ -94,49 +107,43 @@ export class AgentSession extends Session {
 	private persist(): void {
 		if (!this.sessionsPath) return;
 		this.ensureSession();
-		writeFileSync(this.messagesFilePath(), `${JSON.stringify(this.messages, null, '\t')}\n`, 'utf8');
-	}
-
-	private loadMessages(): Message[] | undefined {
-		if (!this.sessionsPath) return undefined;
-		const filePath = existsSync(this.messagesFilePath())
-			? this.messagesFilePath()
-			: this.legacyFilePath();
-		if (!existsSync(filePath)) return undefined;
-		try {
-			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-			if (Array.isArray(raw)) return raw.filter(isMessage);
-			if (isRecord(raw) && Array.isArray(raw.content))
-				return raw.content.filter(isMessage);
-			return undefined;
-		} catch {
-			return undefined;
-		}
+		writeFileSync(
+			this.messagesFilePath(),
+			`${JSON.stringify(this.messages, null, '\t')}\n`,
+			'utf8'
+		);
 	}
 
 	private ensureSession(): void {
 		mkdirSync(this.sessionPath(), { recursive: true });
 		if (!existsSync(this.messagesFilePath()))
 			writeFileSync(this.messagesFilePath(), '[]\n', 'utf8');
-		if (!existsSync(this.runFilePath()))
-			writeFileSync(this.runFilePath(), '', 'utf8');
+		if (!existsSync(this.runFilePath())) writeFileSync(this.runFilePath(), '', 'utf8');
 	}
 
 	private sessionPath(): string {
-		return path.join(this.sessionsPath ?? '', safeName(this.id));
+		return sessionPath(this.sessionsPath ?? '', this.id);
 	}
 
 	private messagesFilePath(): string {
-		return path.join(this.sessionPath(), 'messages.json');
+		return messagesFilePath(this.sessionsPath ?? '', this.id);
 	}
 
 	private runFilePath(): string {
 		return path.join(this.sessionPath(), 'run.jsonl');
 	}
+}
 
-	private legacyFilePath(): string {
-		return path.join(this.sessionsPath ?? '', `${safeName(this.id)}.json`);
-	}
+function sessionPath(sessionsPath: string, sessionId: string): string {
+	return path.join(sessionsPath, safeName(sessionId));
+}
+
+function messagesFilePath(sessionsPath: string, sessionId: string): string {
+	return path.join(sessionPath(sessionsPath, sessionId), 'messages.json');
+}
+
+function legacyFilePath(sessionsPath: string, sessionId: string): string {
+	return path.join(sessionsPath, `${safeName(sessionId)}.json`);
 }
 
 function safeName(value: string): string {

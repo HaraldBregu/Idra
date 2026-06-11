@@ -3,8 +3,11 @@ import { cloneModels, type ProviderModel } from '../../../shared/providers/model
 import type { PublicProvider } from '../../../shared/providers';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import type {
+	AgentHistoryContentBlock,
+	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunState,
+	AgentToolResultStatus,
 	ModelReasoningEffort,
 } from '../../../shared/agent/types';
 
@@ -21,37 +24,21 @@ export const AGENTS = {
 
 export type AgentId = (typeof AGENTS)[keyof typeof AGENTS];
 export type Model = ProviderModel;
-export type { AgentResponseEvent, AgentRunState, ModelReasoningEffort, StoredProvider };
+export type {
+	AgentHistoryContentBlock,
+	AgentHistoryMessage,
+	AgentResponseEvent,
+	AgentRunState,
+	ModelReasoningEffort,
+	StoredProvider,
+};
 
 export interface ModelSelection {
 	provider: PublicProvider;
 	model: Model;
 }
 
-export type AgentToolCallStatus = 'ok' | 'error' | 'blocked' | 'rejected';
-
-export type AgentHistoryContentBlock =
-	| {
-			type: 'text';
-			text: string;
-	  }
-	| {
-			type: 'tool_use';
-			toolUseId: string;
-			toolName: string;
-			toolArgs?: unknown;
-	  };
-
-export interface AgentHistoryMessage {
-	role: 'user' | 'agent' | 'assistant' | 'tool';
-	content?: string | null;
-	blocks?: AgentHistoryContentBlock[];
-	contentBlocks?: AgentHistoryContentBlock[];
-	toolUseId?: string;
-	isError?: boolean;
-	status?: AgentToolCallStatus;
-	output?: unknown;
-}
+export type AgentToolCallStatus = AgentToolResultStatus;
 
 export type ConnectorInput = {
 	id?: string;

@@ -8,6 +8,7 @@ type WindowWithOptionalAgent = Window & {
 };
 
 const HOME_AGENT_ID = 'main';
+const HOME_AGENT_SESSION_ID = 'home';
 const HIGH_REASONING_PATTERN =
 	/\b(architecture|analy[sz]e|debug|diagnose|investigate|refactor|review|root cause|security|performance|race condition|trade-?off|think hard|deep dive|step by step|plan|design|why|failing|broken|error|exception|stack trace)\b/i;
 const MEDIUM_REASONING_PATTERN =
@@ -46,17 +47,14 @@ function runtimeOptionsForPrompt(prompt: string) {
 	return resolvePromptReasoningEffort(prompt);
 }
 
-export function useHomeAgent({
-	setMode,
-}: {
-	readonly setMode: (mode: ChatMode) => void;
-}) {
+export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) => void }) {
 	const { chatState, dispatchChat } = useHomeAgentContext();
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
-	const [historyLoading] = useState(false);
+	const [historyLoading, setHistoryLoading] = useState(false);
 	const requestIdRef = useRef(0);
 	const requestActiveRef = useRef(false);
+	const localInteractionRef = useRef(false);
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 
 	const focusInput = useCallback((): void => {
@@ -81,7 +79,9 @@ export function useHomeAgent({
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
 		setIsLoading(false);
-		void getAgentApi()?.cancel().catch(() => undefined);
+		void getAgentApi()
+			?.cancel()
+			.catch(() => undefined);
 		dispatchChat({ type: 'cancel_active', completedAtMs: Date.now() });
 	}, [dispatchChat]);
 
@@ -93,8 +93,12 @@ export function useHomeAgent({
 			const requestId = requestIdRef.current + 1;
 			requestIdRef.current = requestId;
 			requestActiveRef.current = true;
+			localInteractionRef.current = true;
 			const submittedAtMs = Date.now();
-			const runtimeOptions = runtimeOptionsForPrompt(trimmed);
+			const runtimeOptions = {
+				...runtimeOptionsForPrompt(trimmed),
+				sessionId: HOME_AGENT_SESSION_ID,
+			};
 
 			setInput('');
 			setIsLoading(true);
@@ -166,9 +170,32 @@ export function useHomeAgent({
 	const resetChat = useCallback((): void => {
 		requestIdRef.current += 1;
 		requestActiveRef.current = false;
+		localInteractionRef.current = true;
 		setInput('');
 		setIsLoading(false);
 		dispatchChat({ type: 'reset' });
+	}, [dispatchChat]);
+
+	useEffect(() => {
+		let cancelled = false;
+		const agent = getAgentApi();
+		if (!agent) return;
+
+		setHistoryLoading(true);
+		agent
+			.getLastMessages(HOME_AGENT_SESSION_ID)
+			.then((history) => {
+				if (cancelled || localInteractionRef.current) return;
+				dispatchChat({ type: 'restore_history', history });
+			})
+			.catch(() => undefined)
+			.finally(() => {
+				if (!cancelled) setHistoryLoading(false);
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, [dispatchChat]);
 
 	useEffect(() => {

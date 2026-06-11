@@ -13,6 +13,7 @@ export interface AgentApi {
 		onEvent?: (event: AgentResponseEvent) => void
 	) => Promise<string>;
 	cancel: () => Promise<void>;
+	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 }
 
 export interface CronApi {
@@ -66,7 +67,7 @@ import type {
 	CronScheduleFilter,
 	CronScheduledTask,
 } from '../shared/app/cron';
-import type { AgentResponseEvent } from '../shared/agent/types';
+import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent/types';
 import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';

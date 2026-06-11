@@ -17,6 +17,12 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	return trimmed || undefined;
 }
 
+function normalizeAgentSessionId(value: unknown): string {
+	const sessionId = optionalTrimmedString(value);
+	if (!sessionId) throw new Error('Invalid assistant session id.');
+	return sessionId;
+}
+
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
@@ -24,12 +30,16 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 	const sessionId =
 		optionalTrimmedString(options.sessionId) ?? optionalTrimmedString(options.agentRuntime);
 	return {
-		...(optionalTrimmedString(options.runId) ? { runId: optionalTrimmedString(options.runId) } : {}),
+		...(optionalTrimmedString(options.runId)
+			? { runId: optionalTrimmedString(options.runId) }
+			: {}),
 		...(sessionId ? { sessionId } : {}),
 		...(optionalTrimmedString(options.providerId)
 			? { providerId: optionalTrimmedString(options.providerId) }
 			: {}),
-		...(optionalTrimmedString(options.model) ? { modelId: optionalTrimmedString(options.model) } : {}),
+		...(optionalTrimmedString(options.model)
+			? { modelId: optionalTrimmedString(options.model) }
+			: {}),
 	};
 }
 
@@ -55,6 +65,13 @@ export class AgentIpc implements IpcModule {
 			wrapSimpleHandler((): void => {
 				agent.cancel();
 			}, AgentChannels.cancel)
+		);
+
+		ipcMain.handle(
+			AgentChannels.lastMessages,
+			wrapSimpleHandler((sessionId: unknown) => {
+				return agent.getLastMessages(normalizeAgentSessionId(sessionId));
+			}, AgentChannels.lastMessages)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);

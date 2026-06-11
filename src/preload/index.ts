@@ -31,12 +31,12 @@ import type {
 	CronScheduleFilter,
 	CronScheduledTask,
 } from '../shared/app/cron';
+import type { RealtimeTranscriptionEvent, RealtimeTranscriptionSession } from './index.d';
 import type {
-	RealtimeTranscriptionEvent,
-	RealtimeTranscriptionSession,
-} from './index.d';
-import type { AgentResponseEvent } from '../shared/agent/types';
-import type { ModelReasoningEffort } from '../shared/agent/types';
+	AgentHistoryMessage,
+	AgentResponseEvent,
+	ModelReasoningEffort,
+} from '../shared/agent/types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from './index.d';
@@ -101,9 +101,7 @@ function optionalTrimmedString(value: unknown): string | undefined {
 
 function optionalStringList(value: unknown): string[] | undefined {
 	if (!Array.isArray(value)) return undefined;
-	const items = value
-		.map(optionalTrimmedString)
-		.filter((item): item is string => Boolean(item));
+	const items = value.map(optionalTrimmedString).filter((item): item is string => Boolean(item));
 	return items.length > 0 ? items : undefined;
 }
 
@@ -112,7 +110,9 @@ function normalizeAgentSendRuntimeOptions(
 ): Record<string, unknown> | undefined {
 	if (!options) return undefined;
 	const normalized: Record<string, unknown> = {
-		...(optionalTrimmedString(options.runId) ? { runId: optionalTrimmedString(options.runId) } : {}),
+		...(optionalTrimmedString(options.runId)
+			? { runId: optionalTrimmedString(options.runId) }
+			: {}),
 		...(optionalTrimmedString(options.sessionId)
 			? { sessionId: optionalTrimmedString(options.sessionId) }
 			: {}),
@@ -122,11 +122,11 @@ function normalizeAgentSendRuntimeOptions(
 		...(optionalTrimmedString(options.providerId)
 			? { providerId: optionalTrimmedString(options.providerId) }
 			: {}),
-		...(optionalTrimmedString(options.model) ? { model: optionalTrimmedString(options.model) } : {}),
-		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
-		...(typeof options.lightContext === 'boolean'
-			? { lightContext: options.lightContext }
+		...(optionalTrimmedString(options.model)
+			? { model: optionalTrimmedString(options.model) }
 			: {}),
+		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
+		...(typeof options.lightContext === 'boolean' ? { lightContext: options.lightContext } : {}),
 		...(optionalStringList(options.toolsAllow)
 			? { toolsAllow: optionalStringList(options.toolsAllow) }
 			: {}),
@@ -150,9 +150,10 @@ function sendAgentV2(
 		onEvent?.(event);
 	});
 
-	return (runtimeOptions
-		? typedInvokeUnwrap<string>(AgentChannels.sendV2, message, runtimeOptions)
-		: typedInvokeUnwrap<string>(AgentChannels.sendV2, message)
+	return (
+		runtimeOptions
+			? typedInvokeUnwrap<string>(AgentChannels.sendV2, message, runtimeOptions)
+			: typedInvokeUnwrap<string>(AgentChannels.sendV2, message)
 	).finally(offResponse);
 }
 
@@ -184,6 +185,11 @@ export const agent: AgentApi = {
 	},
 	cancel: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.cancel);
+	},
+	getLastMessages: (sessionId: string): Promise<AgentHistoryMessage[]> => {
+		const normalizedSessionId = optionalTrimmedString(sessionId);
+		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
+		return typedInvokeUnwrap(AgentChannels.lastMessages, normalizedSessionId);
 	},
 } satisfies AgentApi;
 
