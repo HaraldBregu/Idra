@@ -4,7 +4,6 @@ import { app } from 'electron';
 import { AgentSettingsStore } from './agent-settings-store';
 import { AgentSession, AgentSessionStore } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
-import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
 import { AgentResponseEvent, AgentRunStopReason } from '../../shared/agent/types';
@@ -22,7 +21,6 @@ export class AgentService {
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
 	private readonly agentSessionStore: AgentSessionStore;
-	private readonly history: History;
 
 	constructor(agentSettingsStore: AgentSettingsStore, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
@@ -31,7 +29,6 @@ export class AgentService {
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
 		this.agentSessionStore = new AgentSessionStore(location);
-		this.history = new History(location);
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
@@ -54,7 +51,6 @@ export class AgentService {
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
-				this.history,
 				session
 			);
 			const input = {

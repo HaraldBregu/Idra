@@ -1,5 +1,4 @@
 import { AgentModel } from './model';
-import type { History } from '../core/history';
 import type {
 	Provider,
 	RuntimeEvent,
@@ -42,7 +41,6 @@ export class AgentRuntime {
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
-		private readonly history: History,
 		private readonly session: Session
 	) {
 		this.model = new AgentModel();
@@ -57,7 +55,6 @@ export class AgentRuntime {
 			signal,
 			this.session,
 			this.workspace,
-			this.history,
 			this.settings
 		);
 	}
@@ -67,7 +64,6 @@ export class AgentRuntime {
 		signal: AbortSignal,
 		session: Session,
 		workspace: Workspace,
-		history: History,
 		settings: Settings
 	): AsyncGenerator<RuntimeEvent> {
 		const provider = settings.getProvider();
@@ -76,10 +72,6 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
-		await history.append(session.id, {
-			type: 'user_message',
-			data: { task: input.task, message: input.message },
-		});
 		const tools = input.tools ? input.tools.slice() : [];
 		const workspacePath = workspace.getPath();
 		tools.push(new ReadTool(workspacePath));
@@ -116,29 +108,22 @@ export class AgentRuntime {
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
-			await history.append(session.id, {
-				type: 'assistant_message',
-				data: { content: turn.content, toolCalls: turn.toolCalls },
-			});
 			session.addAssistantMessage(turn.content, turn.toolCalls);
 
 			if (turn.toolCalls.length === 0) {
 				const result = session.toResult('success');
-				await history.append(session.id, { type: 'run_finished', data: result });
 				yield { type: 'run_finished', result };
 				return;
 			}
 
 			if (session.isExhausted) {
 				const result = session.toResult('error_max_turns');
-				await history.append(session.id, { type: 'run_finished', data: result });
 				yield { type: 'run_finished', result };
 				return;
 			}
 
 			const results = yield* this.runToolCalls(tools, turn.toolCalls);
 			session.addToolResults(turn.toolCalls, results);
-			await history.append(session.id, { type: 'tool_results', data: results });
 			yield { type: 'user_message', messages: results };
 		}
 	}
