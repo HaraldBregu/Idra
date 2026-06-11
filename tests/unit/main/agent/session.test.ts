@@ -52,4 +52,28 @@ describe('AgentSession', () => {
 			{ role: 'tool', toolUseId: 'tool-1', content: 'notes' },
 		]);
 	});
+
+	it('clears messages from the latest uuid folder without deleting it', async () => {
+		const session = new AgentSession(
+			{
+				task: 'chat',
+				message: 'hello',
+				sessionId: 'home',
+			},
+			location
+		);
+
+		session.addAssistantMessage('hi', []);
+
+		AgentSession.clearMessages('home', location);
+
+		const entries = await fs.readdir(path.join(location, 'sessions'), { withFileTypes: true });
+		const folders = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+
+		expect(folders).toEqual([session.id]);
+		expect(AgentSession.loadMessages('home', location)).toEqual([]);
+		expect(await fs.readFile(path.join(location, 'sessions', session.id, 'messages.json'), 'utf8')).toBe(
+			'[]\n'
+		);
+	});
 });
