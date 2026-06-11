@@ -7,7 +7,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import { SystemPrompt } from '../system/prompt';
+import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
@@ -82,6 +82,8 @@ export class AgentRuntime {
 		const system = await this.systemPrompt.build({
 			workspace,
 		});
+
+		
 
 		yield {
 			type: 'run_started',

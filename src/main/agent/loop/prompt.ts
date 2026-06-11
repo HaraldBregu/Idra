@@ -39,7 +39,6 @@ export class SystemPrompt {
 		const soulText = await input.workspace.getSoulText();
 		const toolsText = await input.workspace.getToolsText();
 		const userText = await input.workspace.getUserText();
-
 		if (agentText.trim())
 			workspaceContext += `\n\n${agentText.trim()}`;
 		if (bootstrapText.trim())
@@ -58,6 +57,7 @@ export class SystemPrompt {
 			workspaceContext += `\n\n${userText.trim()}`;
 
 		if (workspaceContext) prompt += workspaceContext;
+
 		return prompt;
 	}
 }
