@@ -1,6 +1,7 @@
 import { Service } from 'typedi';
 import { AnthropicAdapter } from './providers/anthropic';
-import { OpenAIAdapter, OpenAIChatAdapter } from './providers/openai';
+import { OpenAIChatAdapter } from './providers/generic';
+import { OpenAIAdapter } from './providers/openai';
 import type { ProviderAdapter, ProviderSpec } from './types';
 
 @Service()
