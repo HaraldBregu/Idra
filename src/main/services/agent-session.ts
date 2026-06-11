@@ -59,6 +59,12 @@ export class AgentSession extends Session {
 		return loadMessagesBySessionId(resolvedSessionId, location);
 	}
 
+	static clearMessages(sessionId: string, location?: string): void {
+		if (!location) return;
+		const resolvedSessionId = resolveStoredSessionId(sessionId, location);
+		clearMessagesBySessionId(resolvedSessionId, location);
+	}
+
 	appendRun(entry: unknown): void {
 		if (!this.sessionsPath) return;
 		this.ensureSession();
@@ -151,6 +157,18 @@ function loadMessagesBySessionId(sessionId: string, location?: string): Message[
 	} catch {
 		return [];
 	}
+}
+
+function clearMessagesBySessionId(sessionId: string, location: string): void {
+	const sessionsPath = path.join(path.resolve(location), 'sessions');
+	const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
+		? messagesFilePath(sessionsPath, sessionId)
+		: legacyFilePath(sessionsPath, sessionId);
+	if (!existsSync(filePath)) return;
+	writeFileSync(filePath, '[]\n', 'utf8');
+
+	const runFilePath = path.join(sessionPath(sessionsPath, sessionFolderName(sessionId)), 'run.jsonl');
+	if (existsSync(runFilePath)) writeFileSync(runFilePath, '', 'utf8');
 }
 
 function sessionPath(sessionsPath: string, sessionFolderName: string): string {
