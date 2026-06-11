@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, ExternalLink, LoaderCircle, Pencil } from 'lucide-react';
+import { AlertTriangle, ExternalLink, KeyRound, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,11 @@ import { openExternalUrl } from '@/lib/external-links';
 import { appApi } from '@/lib/compat';
 import { cn } from '@/lib/utils';
 import {
-	DEFAULT_PROVIDERS,
-	getProviderApiConfigurationUrl,
-} from '../../../../../../shared/providers';
+	actionableProviderCatalog,
+	getErrorMessage,
+	MASKED_API_KEY_LABEL,
+} from '../../../start/constants';
+import type { ProviderCatalogItem, ProviderSetupEntry } from '../../../start/types';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
@@ -19,51 +21,95 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const MASKED_API_KEY = '••••••••' as const;
-
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
-	const [apiKeyStatus, setApiKeyStatus] = useState<Record<string, boolean>>({});
-	const [drafts, setDrafts] = useState<Record<string, string>>({});
-	const [editing, setEditing] = useState<Record<string, boolean>>({});
-	const [saving, setSaving] = useState<string | null>(null);
+	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
+		actionableProviderCatalog.map((provider, index) => ({
+			providerId: provider.id,
+			apiKey: '',
+			apiKeySaved: false,
+			editing: index === 0,
+		}))
+	);
+	const [savingProviderId, setSavingProviderId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
+		let cancelled = false;
+
 		void Promise.all(
-			DEFAULT_PROVIDERS.map(async (provider) => {
+			actionableProviderCatalog.map(async (provider) => {
 				const saved = await appApi.isProviderApiKeySaved(provider.id);
 				return [provider.id, saved] as const;
 			})
-		).then((entries) => setApiKeyStatus(Object.fromEntries(entries)));
+		)
+			.then((entries) => {
+				if (cancelled) return;
+				const savedStatus: Record<string, boolean> = Object.fromEntries(entries);
+				const hasSavedProvider = Object.values(savedStatus).some(Boolean);
+
+				setProviderEntries((currentEntries) =>
+					actionableProviderCatalog.map((provider, index) => {
+						const current = currentEntries.find((entry) => entry.providerId === provider.id);
+						const draft = current?.apiKey ?? '';
+						const hasDraft = draft.trim().length > 0;
+						const saved = savedStatus[provider.id] ?? false;
+
+						return {
+							providerId: provider.id,
+							apiKey: draft,
+							apiKeySaved: saved,
+							editing: hasDraft
+								? (current?.editing ?? false)
+								: saved
+									? false
+									: (current?.editing ?? (!hasSavedProvider && index === 0)),
+						};
+					})
+				);
+			})
+			.catch((err) => {
+				if (cancelled) return;
+				setError(getErrorMessage(err, 'Could not check saved provider access.'));
+			});
+
+		return () => {
+			cancelled = true;
+		};
 	}, []);
 
-	const startEditing = (providerId: string): void => {
-		setEditing((current) => ({ ...current, [providerId]: true }));
-		setDrafts((current) => ({ ...current, [providerId]: '' }));
+	const updateProviderEntry = (providerId: string, patch: Partial<ProviderSetupEntry>): void => {
+		setProviderEntries((currentEntries) =>
+			currentEntries.map((entry) =>
+				entry.providerId === providerId ? { ...entry, ...patch } : entry
+			)
+		);
+	};
+
+	const handleProviderApiKeyChange = (providerId: string, apiKey: string): void => {
+		updateProviderEntry(providerId, { apiKey });
 		setError(null);
 	};
 
-	const cancelEditing = (providerId: string): void => {
-		setEditing((current) => ({ ...current, [providerId]: false }));
-		setDrafts((current) => ({ ...current, [providerId]: '' }));
-		setError(null);
+	const handleOpenProviderLink = (provider: ProviderCatalogItem): void => {
+		if (!provider.apiConfigurationUrl) return;
+		openExternalUrl(provider.apiConfigurationUrl);
 	};
 
-	const saveApiKey = async (providerId: string): Promise<void> => {
-		const draft = drafts[providerId]?.trim() ?? '';
-		if (!draft || draft === MASKED_API_KEY) return;
-		setSaving(providerId);
+	const saveProviderEntry = async (providerId: string): Promise<void> => {
+		const entry = providerEntries.find((item) => item.providerId === providerId);
+		const apiKey = entry?.apiKey.trim() ?? '';
+		if (!entry || !apiKey) return;
+
+		setSavingProviderId(providerId);
 		setError(null);
 		try {
-			await appApi.setProviderApiKey(providerId, draft);
-			setApiKeyStatus((current) => ({ ...current, [providerId]: true }));
-			setEditing((current) => ({ ...current, [providerId]: false }));
-			setDrafts((current) => ({ ...current, [providerId]: '' }));
+			await appApi.setProviderApiKey(providerId, apiKey);
+			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 		} catch (err) {
-			setError(err instanceof Error ? err.message : String(err));
+			setError(getErrorMessage(err, 'Could not save provider API key.'));
 		} finally {
-			setSaving(null);
+			setSavingProviderId(null);
 		}
 	};
 
@@ -82,27 +128,28 @@ const ProvidersPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.providers.registeredProviders')}>
 				<div className="space-y-2">
-					{DEFAULT_PROVIDERS.map((provider) => {
-						const isSaved = apiKeyStatus[provider.id] ?? false;
-						const isEditing = editing[provider.id] ?? false;
-						const draft = drafts[provider.id] ?? '';
-						const isBusy = saving === provider.id;
-						const canSave = draft.trim().length > 0 && !isBusy;
-						const apiConfigurationUrl = getProviderApiConfigurationUrl(provider);
+					{actionableProviderCatalog.map((provider) => {
+						const entry = providerEntries.find((item) => item.providerId === provider.id);
+						const connected = entry?.apiKeySaved ?? false;
+						const editing = entry?.editing ?? false;
+						const savingThisProvider = savingProviderId === provider.id;
+						const canSaveProvider =
+							!!entry && !savingThisProvider && entry.apiKey.trim().length > 0;
 
 						return (
 							<Card
 								key={provider.id}
 								className={cn(
 									'rounded-lg border-border bg-card py-0 shadow-none',
-									isEditing && 'border-ring ring-2 ring-ring/20'
+									editing && 'border-ring ring-2 ring-ring/20',
+									!provider.supported && 'opacity-70'
 								)}
 							>
 								<CardContent className="p-0">
 									<div
 										className={cn(
 											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
-											isEditing && 'pb-2'
+											editing && 'pb-2'
 										)}
 									>
 										<ProviderAvatar providerId={provider.id} name={provider.name} />
@@ -117,85 +164,105 @@ const ProvidersPage: React.FC = () => {
 													size="icon-xs"
 													className="size-5 text-muted-foreground hover:text-foreground"
 													aria-label={`Open ${provider.name} API setup`}
-													onClick={() => openExternalUrl(apiConfigurationUrl)}
+													onClick={() => handleOpenProviderLink(provider)}
 												>
 													<ExternalLink className="size-3" />
 												</Button>
 											</div>
 											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
-												{isSaved ? 'sk-************' : (provider.capabilities ?? provider.baseUrl)}
+												{connected ? MASKED_API_KEY_LABEL : provider.capabilities}
 											</p>
 										</div>
 										<div className="flex shrink-0 justify-end gap-2">
-											{isSaved && !isEditing ? (
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-xs"
-													aria-label={`Edit ${provider.name} API key`}
-													onClick={() => startEditing(provider.id)}
-												>
-													<Pencil className="size-3.5" />
+											{provider.supported ? (
+												connected && !editing ? (
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-xs"
+														aria-label={`Edit ${provider.name} API key`}
+														onClick={() =>
+															updateProviderEntry(provider.id, {
+																editing: true,
+																apiKey: '',
+															})
+														}
+													>
+														<Pencil className="size-3.5" />
+													</Button>
+												) : editing ? null : (
+													<Button
+														type="button"
+														variant="outline"
+														size="xs"
+														onClick={() => updateProviderEntry(provider.id, { editing: true })}
+													>
+														Connect
+													</Button>
+												)
+											) : (
+												<Button type="button" variant="outline" size="xs" disabled>
+													Soon
 												</Button>
-											) : !isEditing ? (
-												<Button
-													type="button"
-													variant="outline"
-													size="xs"
-													onClick={() => startEditing(provider.id)}
-												>
-													Connect
-												</Button>
-											) : null}
+											)}
 										</div>
 									</div>
 
-									{isEditing && (
+									{provider.supported && editing && entry ? (
 										<div className="flex items-center gap-2 px-3 pb-3">
 											<Input
+												aria-label={`${provider.name} API key`}
 												autoComplete="off"
-												type="password"
-												value={draft}
+												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
+												disabled={savingThisProvider}
 												onChange={(event) =>
-													setDrafts((current) => ({
-														...current,
-														[provider.id]: event.target.value,
-													}))
+													handleProviderApiKeyChange(provider.id, event.target.value)
 												}
 												onKeyDown={(event) => {
-													if (event.key === 'Enter' && canSave) void saveApiKey(provider.id);
+													if (event.key === 'Enter' && canSaveProvider) {
+														void saveProviderEntry(provider.id);
+													}
 												}}
 												placeholder={t('settings.providers.apiKeyPlaceholder')}
-												className="h-8 flex-1 rounded-md border-input bg-card px-2.5 text-xs font-semibold placeholder:text-muted-foreground"
-												aria-label={`${provider.name} API key`}
-												disabled={isBusy}
+												spellCheck={false}
+												type="password"
+												value={entry.apiKey}
 											/>
 											<Button
 												type="button"
 												variant="outline"
 												size="sm"
-												disabled={isBusy}
-												onClick={() => cancelEditing(provider.id)}
+												disabled={savingThisProvider}
+												onClick={() =>
+													updateProviderEntry(provider.id, { apiKey: '', editing: false })
+												}
 											>
 												{t('common.cancel')}
 											</Button>
 											<Button
 												type="button"
 												size="sm"
-												disabled={!canSave}
-												onClick={() => void saveApiKey(provider.id)}
+												disabled={!canSaveProvider}
+												onClick={() => void saveProviderEntry(provider.id)}
 											>
-												{isBusy ? <LoaderCircle className="size-3.5 animate-spin" /> : null}
+												{savingThisProvider ? (
+													<LoaderCircle className="size-3.5 animate-spin" />
+												) : null}
 												{t('common.save')}
 											</Button>
 										</div>
-									)}
+									) : null}
 								</CardContent>
 							</Card>
 						);
 					})}
 				</div>
 			</SettingsSection>
+
+			<SettingsNotice icon={KeyRound}>
+				Keys stay in Friday&apos;s local app data folder and are only used for providers you
+				connect. You can revoke them anytime.
+			</SettingsNotice>
 		</SettingsPageShell>
 	);
 };
