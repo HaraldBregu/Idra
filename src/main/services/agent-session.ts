@@ -36,7 +36,10 @@ export class AgentSession extends Session {
 			input.sessionId && input.sessionId !== this.id && storedMessages.length === 0
 				? loadMessagesBySessionId(input.sessionId, location)
 				: [];
-		this.messages = [...(storedMessages.length > 0 ? storedMessages : legacyMessages), ...(input.messages ?? [])];
+		this.messages = [
+			...(storedMessages.length > 0 ? storedMessages : legacyMessages),
+			...(input.messages ?? []),
+		];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
@@ -126,20 +129,20 @@ export class AgentSession extends Session {
 }
 
 function loadMessagesBySessionId(sessionId: string, location?: string): Message[] {
-		if (!location) return [];
-		const sessionsPath = path.join(path.resolve(location), 'sessions');
-		const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
-			? messagesFilePath(sessionsPath, sessionId)
-			: legacyFilePath(sessionsPath, sessionId);
-		if (!existsSync(filePath)) return [];
-		try {
-			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-			if (Array.isArray(raw)) return raw.filter(isMessage);
-			if (isRecord(raw) && Array.isArray(raw.content)) return raw.content.filter(isMessage);
-			return [];
-		} catch {
-			return [];
-		}
+	if (!location) return [];
+	const sessionsPath = path.join(path.resolve(location), 'sessions');
+	const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
+		? messagesFilePath(sessionsPath, sessionId)
+		: legacyFilePath(sessionsPath, sessionId);
+	if (!existsSync(filePath)) return [];
+	try {
+		const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+		if (Array.isArray(raw)) return raw.filter(isMessage);
+		if (isRecord(raw) && Array.isArray(raw.content)) return raw.content.filter(isMessage);
+		return [];
+	} catch {
+		return [];
+	}
 }
 
 function sessionPath(sessionsPath: string, sessionFolderName: string): string {
@@ -178,8 +181,7 @@ function readAliases(sessionsPath: string): Record<string, string> {
 		if (!isRecord(raw)) return {};
 		return Object.fromEntries(
 			Object.entries(raw).filter(
-				(entry): entry is [string, string] =>
-					typeof entry[1] === 'string' && isUuid(entry[1])
+				(entry): entry is [string, string] => typeof entry[1] === 'string' && isUuid(entry[1])
 			)
 		);
 	} catch {
