@@ -28,10 +28,15 @@ export class AgentSession extends Session {
 
 	constructor(input: SessionInput, location?: string) {
 		super();
-		this.id = input.sessionId ?? AgentSession.generateId();
+		this.id = resolveSessionId(input.sessionId, location);
 		this.sessionFolderName = sessionFolderName(this.id);
 		this.sessionsPath = location ? path.join(path.resolve(location), 'sessions') : undefined;
-		this.messages = [...AgentSession.loadMessages(this.id, location), ...(input.messages ?? [])];
+		const storedMessages = loadMessagesBySessionId(this.id, location);
+		const legacyMessages =
+			input.sessionId && input.sessionId !== this.id && storedMessages.length === 0
+				? loadMessagesBySessionId(input.sessionId, location)
+				: [];
+		this.messages = [...(storedMessages.length > 0 ? storedMessages : legacyMessages), ...(input.messages ?? [])];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
@@ -39,20 +44,8 @@ export class AgentSession extends Session {
 	}
 
 	static loadMessages(sessionId: string, location?: string): Message[] {
-		if (!location) return [];
-		const sessionsPath = path.join(path.resolve(location), 'sessions');
-		const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
-			? messagesFilePath(sessionsPath, sessionId)
-			: legacyFilePath(sessionsPath, sessionId);
-		if (!existsSync(filePath)) return [];
-		try {
-			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-			if (Array.isArray(raw)) return raw.filter(isMessage);
-			if (isRecord(raw) && Array.isArray(raw.content)) return raw.content.filter(isMessage);
-			return [];
-		} catch {
-			return [];
-		}
+		const resolvedSessionId = resolveStoredSessionId(sessionId, location);
+		return loadMessagesBySessionId(resolvedSessionId, location);
 	}
 
 	appendRun(entry: unknown): void {
@@ -136,8 +129,71 @@ export class AgentSession extends Session {
 	}
 }
 
+function loadMessagesBySessionId(sessionId: string, location?: string): Message[] {
+		if (!location) return [];
+		const sessionsPath = path.join(path.resolve(location), 'sessions');
+		const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
+			? messagesFilePath(sessionsPath, sessionId)
+			: legacyFilePath(sessionsPath, sessionId);
+		if (!existsSync(filePath)) return [];
+		try {
+			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+			if (Array.isArray(raw)) return raw.filter(isMessage);
+			if (isRecord(raw) && Array.isArray(raw.content)) return raw.content.filter(isMessage);
+			return [];
+		} catch {
+			return [];
+		}
+}
+
 function sessionPath(sessionsPath: string, sessionFolderName: string): string {
 	return path.join(sessionsPath, sessionFolderName);
+}
+
+function resolveSessionId(sessionId: string | undefined, location?: string): string {
+	if (!sessionId) return AgentSession.generateId();
+	if (isUuid(sessionId) || !location) return sessionId;
+
+	const sessionsPath = path.join(path.resolve(location), 'sessions');
+	const aliases = readAliases(sessionsPath);
+	const existing = aliases[sessionId];
+	if (existing) return existing;
+
+	const next = AgentSession.generateId();
+	writeAliases(sessionsPath, { ...aliases, [sessionId]: next });
+	return next;
+}
+
+function resolveStoredSessionId(sessionId: string, location?: string): string {
+	if (!location) return sessionId;
+	const sessionsPath = path.join(path.resolve(location), 'sessions');
+	return readAliases(sessionsPath)[sessionId] ?? sessionId;
+}
+
+function aliasesFilePath(sessionsPath: string): string {
+	return path.join(sessionsPath, 'aliases.json');
+}
+
+function readAliases(sessionsPath: string): Record<string, string> {
+	const filePath = aliasesFilePath(sessionsPath);
+	if (!existsSync(filePath)) return {};
+	try {
+		const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+		if (!isRecord(raw)) return {};
+		return Object.fromEntries(
+			Object.entries(raw).filter(
+				(entry): entry is [string, string] =>
+					typeof entry[1] === 'string' && isUuid(entry[1])
+			)
+		);
+	} catch {
+		return {};
+	}
+}
+
+function writeAliases(sessionsPath: string, aliases: Record<string, string>): void {
+	mkdirSync(sessionsPath, { recursive: true });
+	writeFileSync(aliasesFilePath(sessionsPath), `${JSON.stringify(aliases, null, '\t')}\n`, 'utf8');
 }
 
 function messagesFilePath(sessionsPath: string, sessionId: string): string {
@@ -154,6 +210,10 @@ function sessionFolderName(sessionId: string): string {
 
 function safeName(value: string): string {
 	return value.replace(/[^a-zA-Z0-9._-]/g, '_') || 'session';
+}
+
+function isUuid(value: string): boolean {
+	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 function stringifyRunEntry(entry: unknown): string {
