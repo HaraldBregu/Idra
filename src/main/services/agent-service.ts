@@ -40,6 +40,7 @@ export class AgentService {
 
 		let response = '';
 		let controller: AbortController | undefined;
+		let session: AgentSession | undefined;
 		try {
 			controller = new AbortController();
 			const sessionInput = {
@@ -47,7 +48,7 @@ export class AgentService {
 				message,
 				sessionId,
 			};
-			const session = new AgentSession(sessionInput, this.agentSessionStore);
+			session = new AgentSession(sessionInput, this.agentSessionStore);
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
@@ -61,6 +62,7 @@ export class AgentService {
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
+				this.agentSessionStore.appendRun(session.id, event);
 				// if (event.type === 'run_started')
 				// 	providerId = event.providerId;
 				if (event.type === 'model_call_delta')
@@ -79,6 +81,11 @@ export class AgentService {
 			return response;
 		} catch (error) {
 			const cause = toError(error, 'Agent request failed.');
+			if (session)
+				this.agentSessionStore.appendRun(session.id, {
+					type: 'run_error',
+					message: cause.message,
+				});
 			const responseEvent = {
 				type: 'run_state',
 				state: 'error',

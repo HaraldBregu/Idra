@@ -7,6 +7,7 @@ import type {
 } from './types';
 
 export abstract class SessionStore {
+	abstract appendRun(sessionId: string, entry: unknown): void;
 	abstract load(sessionId: string): Message[] | undefined;
 	abstract save(sessionId: string, content: Message[]): Message[];
 }

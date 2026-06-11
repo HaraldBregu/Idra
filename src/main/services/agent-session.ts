@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { Session, SessionStore } from '../agent/core/session';
 import type {
@@ -21,8 +21,15 @@ export class AgentSessionStore extends SessionStore {
 		mkdirSync(this.storePath, { recursive: true });
 	}
 
+	appendRun(sessionId: string, entry: unknown): void {
+		this.ensureSession(sessionId);
+		appendFileSync(this.runFilePath(sessionId), `${stringifyRunEntry(entry)}\n`, 'utf8');
+	}
+
 	load(sessionId: string): Message[] | undefined {
-		const filePath = this.filePath(sessionId);
+		const filePath = existsSync(this.messagesFilePath(sessionId))
+			? this.messagesFilePath(sessionId)
+			: this.legacyFilePath(sessionId);
 		if (!existsSync(filePath)) return undefined;
 		try {
 			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
@@ -36,13 +43,34 @@ export class AgentSessionStore extends SessionStore {
 	}
 
 	save(sessionId: string, content: Message[]): Message[] {
-		mkdirSync(this.storePath, { recursive: true });
-		writeFileSync(this.filePath(sessionId), `${JSON.stringify(content, null, '\t')}\n`, 'utf8');
+		this.ensureSession(sessionId);
+		writeFileSync(this.messagesFilePath(sessionId), `${JSON.stringify(content, null, '\t')}\n`, 'utf8');
 		return content;
 	}
 
-	filePath(sessionId: string): string {
+	sessionPath(sessionId: string): string {
+		return path.join(this.storePath, safeName(sessionId));
+	}
+
+	messagesFilePath(sessionId: string): string {
+		return path.join(this.sessionPath(sessionId), 'messages.json');
+	}
+
+	runFilePath(sessionId: string): string {
+		return path.join(this.sessionPath(sessionId), 'run.jsonl');
+	}
+
+	private legacyFilePath(sessionId: string): string {
 		return path.join(this.storePath, `${safeName(sessionId)}.json`);
+	}
+
+	private ensureSession(sessionId: string): void {
+		const sessionPath = this.sessionPath(sessionId);
+		mkdirSync(sessionPath, { recursive: true });
+		if (!existsSync(this.messagesFilePath(sessionId)))
+			writeFileSync(this.messagesFilePath(sessionId), '[]\n', 'utf8');
+		if (!existsSync(this.runFilePath(sessionId)))
+			writeFileSync(this.runFilePath(sessionId), '', 'utf8');
 	}
 }
 
@@ -124,6 +152,15 @@ export class AgentSession extends Session {
 
 function safeName(value: string): string {
 	return value.replace(/[^a-zA-Z0-9._-]/g, '_') || 'session';
+}
+
+function stringifyRunEntry(entry: unknown): string {
+	const timestamp = new Date().toISOString();
+	try {
+		return JSON.stringify({ timestamp, event: entry });
+	} catch {
+		return JSON.stringify({ timestamp, event: { type: 'unserializable' } });
+	}
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
