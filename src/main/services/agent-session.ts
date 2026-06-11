@@ -159,7 +159,7 @@ function resolveSessionId(sessionId: string | undefined, location?: string): str
 	const existing = aliases[sessionId];
 	if (existing) return existing;
 
-	const next = AgentSession.generateId();
+	const next = randomUUID();
 	writeAliases(sessionsPath, { ...aliases, [sessionId]: next });
 	return next;
 }
