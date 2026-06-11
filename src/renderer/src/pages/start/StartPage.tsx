@@ -24,6 +24,7 @@ import {
 	getProviderApiConfigurationUrl,
 	type PublicProvider,
 } from '../../../../shared/providers';
+import type { Provider as StoredProvider } from '../../../../shared/providers/types';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
@@ -233,6 +234,16 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
 	const providersById = new Map(DEFAULT_PROVIDERS.map((provider) => [provider.id, provider]));
 	return providersById.get(providerId);
+}
+
+function toStoredProvider(providerId: string, apiKey: string): StoredProvider | undefined {
+	const provider = getCatalogProviderById(providerId);
+	if (!provider) return undefined;
+	return {
+		name: provider.name,
+		apiKey,
+		baseUrl: provider.baseUrl,
+	};
 }
 
 function getLlmProvidersFromCatalog(): PublicProvider[] {
@@ -743,6 +754,9 @@ const StartPage: React.FC = () => {
 		setSavingProviderId(providerId);
 		setErrorMessage('');
 		try {
+			const provider = toStoredProvider(providerId, apiKey);
+			if (!provider) throw new Error('Unknown provider.');
+			await window.providerStore.set(providerId, provider);
 			updateProviderEntry(providerId, {
 				apiKey: '',
 				apiKeySaved: true,
@@ -766,6 +780,13 @@ const StartPage: React.FC = () => {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 
 			if (entriesToSave.length > 0) {
+				await Promise.all(
+					entriesToSave.map((entry) => {
+						const provider = toStoredProvider(entry.providerId, entry.apiKey.trim());
+						if (!provider) throw new Error(`Unknown provider: ${entry.providerId}`);
+						return window.providerStore.set(entry.providerId, provider);
+					})
+				);
 				const savedProviderIds = new Set(entriesToSave.map((entry) => entry.providerId));
 				setProviderEntries((entries) =>
 					entries.map((entry) =>
