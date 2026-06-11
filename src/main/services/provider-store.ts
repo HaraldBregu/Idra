@@ -20,7 +20,7 @@ export class ProviderStoreService {
 	constructor(options: ProviderServiceOptions = {}) {
 		this.store = new Store<ProviderRecord>({
 			name: 'providers',
-			cwd: options.cwd ?? resolveUserDataPath(),
+			cwd: options.cwd ?? resolveAppDataPath(),
 			accessPropertiesByDotNotation: false,
 		}) as unknown as ProvidersStore;
 	}
@@ -62,9 +62,9 @@ export class ProviderStoreService {
 	}
 }
 
-function resolveUserDataPath(): string {
+function resolveAppDataPath(): string {
 	try {
-		return app.getPath('userData');
+		return path.resolve(app.getPath('appData'), app.getName());
 	} catch {
 		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
 		return path.resolve(base, app?.getName?.() ?? 'Friday');
