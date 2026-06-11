@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
-import { appApi } from '@/lib/compat';
 import { cn } from '@/lib/utils';
+import { DEFAULT_PROVIDERS, type Provider } from '../../../../../../shared/providers';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
@@ -39,8 +39,8 @@ const ProvidersPage: React.FC = () => {
 
 		void Promise.all(
 			actionableProviderCatalog.map(async (provider) => {
-				const saved = await appApi.isProviderApiKeySaved(provider.id);
-				return [provider.id, saved] as const;
+				const stored = await window.providerStore.get(provider.id);
+				return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
 			})
 		)
 			.then((entries) => {
@@ -96,6 +96,17 @@ const ProvidersPage: React.FC = () => {
 		openExternalUrl(provider.apiConfigurationUrl);
 	};
 
+	const toStoredProvider = (providerId: string, apiKey: string): Provider | undefined => {
+		const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+		if (!provider) return undefined;
+
+		return {
+			name: provider.name,
+			apiKey,
+			baseUrl: provider.baseUrl,
+		};
+	};
+
 	const saveProviderEntry = async (providerId: string): Promise<void> => {
 		const entry = providerEntries.find((item) => item.providerId === providerId);
 		const apiKey = entry?.apiKey.trim() ?? '';
@@ -104,7 +115,9 @@ const ProvidersPage: React.FC = () => {
 		setSavingProviderId(providerId);
 		setError(null);
 		try {
-			await appApi.setProviderApiKey(providerId, apiKey);
+			const provider = toStoredProvider(providerId, apiKey);
+			if (!provider) throw new Error('Unknown provider.');
+			await window.providerStore.set(providerId, provider);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 		} catch (err) {
 			setError(getErrorMessage(err, 'Could not save provider API key.'));
