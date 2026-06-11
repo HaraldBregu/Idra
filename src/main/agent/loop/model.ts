@@ -98,8 +98,7 @@ export class AgentModel extends Model {
 
 function toTranscriptEntry(message: Message): TranscriptEntry {
 	if (message.role === 'assistant') {
-		const content: AgentContentBlock[] = [];
-		if (message.content) content.push({ type: 'text', text: message.content });
+		const content = toAssistantContent(message.content);
 		for (const toolCall of message.toolCalls ?? []) {
 			content.push({
 				type: 'tool_use',
@@ -115,10 +114,29 @@ function toTranscriptEntry(message: Message): TranscriptEntry {
 		return {
 			role: 'tool',
 			toolUseId: message.toolUseId ?? 'tool',
-			content: [{ type: 'text', text: message.content }],
+			content: [{ type: 'text', text: toTextContent(message.content) }],
 		};
 	}
-	return { role: 'user', content: message.content };
+	return { role: 'user', content: toTextContent(message.content) };
+}
+
+function toAssistantContent(content: Message['content']): AgentContentBlock[] {
+	if (typeof content === 'string') return content ? [{ type: 'text', text: content }] : [];
+	return content
+		.map((block): AgentContentBlock | undefined => {
+			if (block.type === 'text' && typeof block.text === 'string')
+				return { type: 'text', text: block.text };
+			return undefined;
+		})
+		.filter((block): block is AgentContentBlock => block !== undefined);
+}
+
+function toTextContent(content: Message['content']): string {
+	if (typeof content === 'string') return content;
+	return content
+		.map((block) => (block.type === 'text' && typeof block.text === 'string' ? block.text : ''))
+		.filter(Boolean)
+		.join('\n');
 }
 
 function parseToolArgs(argsText: string): Record<string, unknown> {

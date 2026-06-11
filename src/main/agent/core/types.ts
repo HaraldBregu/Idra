@@ -15,9 +15,16 @@ export interface ToolCall {
 	args: Record<string, unknown>;
 }
 
+export interface MessageContentBlock {
+	type: string;
+	[key: string]: unknown;
+}
+
+export type MessageContent = string | MessageContentBlock[];
+
 export interface Message {
 	role: MessageRole;
-	content: string;
+	content: MessageContent;
 	toolUseId?: string;
 	toolCalls?: ToolCall[];
 }

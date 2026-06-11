@@ -6,6 +6,16 @@ import type {
 	SessionUsage,
 } from './types';
 
+export interface SessionRecord {
+	uuid: string;
+	content: Message[];
+}
+
+export abstract class SessionStore {
+	abstract load(sessionId: string): SessionRecord | undefined;
+	abstract save(sessionId: string, content: Message[]): SessionRecord;
+}
+
 export abstract class Session {
 	abstract readonly id: string;
 	abstract readonly messages: Message[];

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
 import { AgentSettingsStore } from './agent-settings-store';
-import { AgentSession } from './agent-session';
+import { AgentSession, AgentSessionStore } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { History } from './history';
 import { AgentRuntime } from '../agent/loop/loop';
@@ -21,6 +21,7 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
+	private readonly agentSessionStore: AgentSessionStore;
 	private readonly history: History;
 
 	constructor(agentSettingsStore: AgentSettingsStore, defaultAgentId = 'main') {
@@ -29,6 +30,7 @@ export class AgentService {
 
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
+		this.agentSessionStore = new AgentSessionStore(location);
 		this.history = new History(location);
 	}
 
@@ -48,7 +50,7 @@ export class AgentService {
 				message,
 				sessionId,
 			};
-			const session = new AgentSession(sessionInput);
+			const session = new AgentSession(sessionInput, this.agentSessionStore);
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
