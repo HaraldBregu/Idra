@@ -105,6 +105,10 @@ export class AgentService {
 			.filter((message): message is AgentHistoryMessage => message !== undefined);
 	}
 
+	clearMessages(sessionId: string): void {
+		AgentSession.clearMessages(sessionId, this.location);
+	}
+
 	cancel(agentId?: string): void {
 		if (agentId) {
 			this.activeRuns.get(agentId)?.abort();
