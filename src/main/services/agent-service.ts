@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
 import { AgentSettingsStore } from './agent-settings-store';
-import { AgentSession, AgentSessionStore } from './agent-session';
+import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
@@ -20,15 +20,15 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
-	private readonly agentSessionStore: AgentSessionStore;
+	private readonly location: string;
 
 	constructor(agentSettingsStore: AgentSettingsStore, defaultAgentId = 'main') {
 		this.defaultAgentId = defaultAgentId;
 		const location = resolveAgentUsageLocation();
 
+		this.location = location;
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
-		this.agentSessionStore = new AgentSessionStore(location);
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
@@ -48,7 +48,7 @@ export class AgentService {
 				message,
 				sessionId,
 			};
-			session = new AgentSession(sessionInput, this.agentSessionStore);
+			session = new AgentSession(sessionInput, this.location);
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
@@ -62,7 +62,7 @@ export class AgentService {
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
-				this.agentSessionStore.appendRun(session.id, event);
+				session.appendRun(event);
 				// if (event.type === 'run_started')
 				// 	providerId = event.providerId;
 				if (event.type === 'model_call_delta')
@@ -82,7 +82,7 @@ export class AgentService {
 		} catch (error) {
 			const cause = toError(error, 'Agent request failed.');
 			if (session)
-				this.agentSessionStore.appendRun(session.id, {
+				session.appendRun({
 					type: 'run_error',
 					message: cause.message,
 				});

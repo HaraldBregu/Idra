@@ -6,12 +6,6 @@ import type {
 	SessionUsage,
 } from './types';
 
-export abstract class SessionStore {
-	abstract appendRun(sessionId: string, entry: unknown): void;
-	abstract load(sessionId: string): Message[] | undefined;
-	abstract save(sessionId: string, content: Message[]): Message[];
-}
-
 export abstract class Session {
 	abstract readonly id: string;
 	abstract readonly messages: Message[];

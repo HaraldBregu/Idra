@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { Session, SessionStore } from '../agent/core/session';
+import { Session } from '../agent/core/session';
 import type {
 	SessionInput,
 	Message,
@@ -11,68 +11,6 @@ import type {
 	ToolCall,
 	SessionTurn,
 } from '../agent/core/types';
-
-export class AgentSessionStore extends SessionStore {
-	private readonly storePath: string;
-
-	constructor(location: string, name = 'sessions') {
-		super();
-		this.storePath = path.join(path.resolve(location), name);
-		mkdirSync(this.storePath, { recursive: true });
-	}
-
-	appendRun(sessionId: string, entry: unknown): void {
-		this.ensureSession(sessionId);
-		appendFileSync(this.runFilePath(sessionId), `${stringifyRunEntry(entry)}\n`, 'utf8');
-	}
-
-	load(sessionId: string): Message[] | undefined {
-		const filePath = existsSync(this.messagesFilePath(sessionId))
-			? this.messagesFilePath(sessionId)
-			: this.legacyFilePath(sessionId);
-		if (!existsSync(filePath)) return undefined;
-		try {
-			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-			if (Array.isArray(raw)) return raw.filter(isMessage);
-			if (isRecord(raw) && Array.isArray(raw.content))
-				return raw.content.filter(isMessage);
-			return undefined;
-		} catch {
-			return undefined;
-		}
-	}
-
-	save(sessionId: string, content: Message[]): Message[] {
-		this.ensureSession(sessionId);
-		writeFileSync(this.messagesFilePath(sessionId), `${JSON.stringify(content, null, '\t')}\n`, 'utf8');
-		return content;
-	}
-
-	sessionPath(sessionId: string): string {
-		return path.join(this.storePath, safeName(sessionId));
-	}
-
-	messagesFilePath(sessionId: string): string {
-		return path.join(this.sessionPath(sessionId), 'messages.json');
-	}
-
-	runFilePath(sessionId: string): string {
-		return path.join(this.sessionPath(sessionId), 'run.jsonl');
-	}
-
-	private legacyFilePath(sessionId: string): string {
-		return path.join(this.storePath, `${safeName(sessionId)}.json`);
-	}
-
-	private ensureSession(sessionId: string): void {
-		const sessionPath = this.sessionPath(sessionId);
-		mkdirSync(sessionPath, { recursive: true });
-		if (!existsSync(this.messagesFilePath(sessionId)))
-			writeFileSync(this.messagesFilePath(sessionId), '[]\n', 'utf8');
-		if (!existsSync(this.runFilePath(sessionId)))
-			writeFileSync(this.runFilePath(sessionId), '', 'utf8');
-	}
-}
 
 export class AgentSession extends Session {
 	readonly id: string;
@@ -85,18 +23,26 @@ export class AgentSession extends Session {
 	numTurns = 0;
 	finalText = '';
 	stopReason?: string;
+	private readonly sessionsPath?: string;
 
 	constructor(
 		input: SessionInput,
-		private readonly store?: SessionStore
+		location?: string
 	) {
 		super();
 		this.id = input.sessionId ?? AgentSession.generateId();
-		this.messages = [...(this.store?.load(this.id) ?? []), ...(input.messages ?? [])];
+		this.sessionsPath = location ? path.join(path.resolve(location), 'sessions') : undefined;
+		this.messages = [...(this.loadMessages() ?? []), ...(input.messages ?? [])];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 		this.persist();
+	}
+
+	appendRun(entry: unknown): void {
+		if (!this.sessionsPath) return;
+		this.ensureSession();
+		appendFileSync(this.runFilePath(), `${stringifyRunEntry(entry)}\n`, 'utf8');
 	}
 
 	get isExhausted(): boolean {
@@ -146,7 +92,50 @@ export class AgentSession extends Session {
 	}
 
 	private persist(): void {
-		this.store?.save(this.id, this.messages);
+		if (!this.sessionsPath) return;
+		this.ensureSession();
+		writeFileSync(this.messagesFilePath(), `${JSON.stringify(this.messages, null, '\t')}\n`, 'utf8');
+	}
+
+	private loadMessages(): Message[] | undefined {
+		if (!this.sessionsPath) return undefined;
+		const filePath = existsSync(this.messagesFilePath())
+			? this.messagesFilePath()
+			: this.legacyFilePath();
+		if (!existsSync(filePath)) return undefined;
+		try {
+			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+			if (Array.isArray(raw)) return raw.filter(isMessage);
+			if (isRecord(raw) && Array.isArray(raw.content))
+				return raw.content.filter(isMessage);
+			return undefined;
+		} catch {
+			return undefined;
+		}
+	}
+
+	private ensureSession(): void {
+		mkdirSync(this.sessionPath(), { recursive: true });
+		if (!existsSync(this.messagesFilePath()))
+			writeFileSync(this.messagesFilePath(), '[]\n', 'utf8');
+		if (!existsSync(this.runFilePath()))
+			writeFileSync(this.runFilePath(), '', 'utf8');
+	}
+
+	private sessionPath(): string {
+		return path.join(this.sessionsPath ?? '', safeName(this.id));
+	}
+
+	private messagesFilePath(): string {
+		return path.join(this.sessionPath(), 'messages.json');
+	}
+
+	private runFilePath(): string {
+		return path.join(this.sessionPath(), 'run.jsonl');
+	}
+
+	private legacyFilePath(): string {
+		return path.join(this.sessionsPath ?? '', `${safeName(this.id)}.json`);
 	}
 }
 
