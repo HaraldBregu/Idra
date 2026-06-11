@@ -74,6 +74,13 @@ export class AgentIpc implements IpcModule {
 			}, AgentChannels.lastMessages)
 		);
 
+		ipcMain.handle(
+			AgentChannels.clearMessages,
+			wrapSimpleHandler((sessionId: unknown): void => {
+				agent.clearMessages(normalizeAgentSessionId(sessionId));
+			}, AgentChannels.clearMessages)
+		);
+
 		logger.info('AgentIpc', `Registered ${this.name} module`);
 	}
 }
