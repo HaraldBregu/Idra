@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, ChevronDown, LoaderCircle, Save } from 'lucide-react';
+import { AlertTriangle, ChevronDown, LoaderCircle, Save, Trash2 } from 'lucide-react';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared/providers';
 import {
 	LLM_MODELS_BY_PROVIDER,
@@ -37,6 +37,7 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
 } from '../../components';
 import { SETTINGS_MODEL_SERVICE_ITEMS } from '../../navigation';
@@ -64,6 +65,8 @@ const initialState: ModelServicePageState = {
 	saved: false,
 	error: null,
 };
+
+const HOME_AGENT_SESSION_ID = 'home';
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 
@@ -157,6 +160,7 @@ const ModelServicePage: React.FC = () => {
 	);
 	const navigationItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === serviceId);
 	const [state, setState] = useState<ModelServicePageState>(initialState);
+	const [historyDeleting, setHistoryDeleting] = useState(false);
 
 	const selectedGroup = useMemo(
 		() => state.modelGroups.find((group) => group.provider.id === state.providerId),
@@ -286,6 +290,24 @@ const ModelServicePage: React.FC = () => {
 				saving: false,
 				error: firstErrorMessage(error, t('settings.modelServices.saveError')),
 			}));
+		}
+	};
+
+	const handleClearHistory = async (): Promise<void> => {
+		if (!service || service.id !== AGENTS.assistant) return;
+		if (!window.confirm(t('settings.chatHistory.confirmDelete'))) return;
+
+		setHistoryDeleting(true);
+		setState((current) => ({ ...current, error: null }));
+		try {
+			await window.agent.clearMessages(HOME_AGENT_SESSION_ID);
+		} catch (error) {
+			setState((current) => ({
+				...current,
+				error: firstErrorMessage(error, t('settings.chatHistory.errors.delete')),
+			}));
+		} finally {
+			setHistoryDeleting(false);
 		}
 	};
 
@@ -434,6 +456,34 @@ const ModelServicePage: React.FC = () => {
 					</CollapsibleContent>
 				</Collapsible>
 			</SettingsSection>
+
+			{service.id === AGENTS.assistant && (
+				<SettingsSection title={t('settings.modelServices.history')}>
+					<SettingsPanel>
+						<SettingsRow
+							title={t('settings.modelServices.history')}
+							description={t('settings.chatHistory.description')}
+							actions={
+								<Button
+									type="button"
+									variant="destructive"
+									size="icon"
+									className="size-8"
+									disabled={historyDeleting}
+									aria-label={t('settings.chatHistory.delete')}
+									onClick={() => void handleClearHistory()}
+								>
+									{historyDeleting ? (
+										<LoaderCircle className="size-3 animate-spin" />
+									) : (
+										<Trash2 className="size-3" />
+									)}
+								</Button>
+							}
+						/>
+					</SettingsPanel>
+				</SettingsSection>
+			)}
 		</SettingsPageShell>
 	);
 };
