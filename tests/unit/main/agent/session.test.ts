@@ -14,7 +14,7 @@ describe('AgentSession', () => {
 		await fs.rm(location, { recursive: true, force: true });
 	});
 
-	it('loads persisted messages without appending a new user message', () => {
+	it('stores aliased sessions in a uuid folder', async () => {
 		const session = new AgentSession(
 			{
 				task: 'chat',
@@ -32,6 +32,14 @@ describe('AgentSession', () => {
 			[{ role: 'tool', toolUseId: 'tool-1', content: 'notes' }]
 		);
 
+		expect(session.id).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+		);
+		const entries = await fs.readdir(path.join(location, 'sessions'), { withFileTypes: true });
+		const folders = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+
+		expect(folders).toEqual([session.id]);
+		expect(folders).not.toContain('home');
 		expect(AgentSession.loadMessages('home', location)).toEqual([
 			{ role: 'user', content: 'hello' },
 			{
