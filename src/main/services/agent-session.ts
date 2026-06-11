@@ -95,10 +95,6 @@ export class AgentSession extends Session {
 		};
 	}
 
-	private static generateId(): string {
-		return randomUUID();
-	}
-
 	private persist(): void {
 		if (!this.sessionsPath) return;
 		this.ensureSession();
