@@ -1,5 +1,5 @@
 import React from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useLocation } from 'react-router-dom';
 import { duration, ease, pageVariants } from './motion';
 
@@ -19,18 +19,15 @@ export function PageTransition({ children }: PageTransitionProps): React.JSX.Ele
 	}
 
 	return (
-		<AnimatePresence mode="wait" initial={false}>
-			<motion.div
-				key={topKey}
-				variants={pageVariants}
-				initial="initial"
-				animate="animate"
-				exit="exit"
-				transition={{ duration: duration.normal, ease: ease.out }}
-				className="h-full"
-			>
-				{children}
-			</motion.div>
-		</AnimatePresence>
+		<motion.div
+			key={topKey}
+			variants={pageVariants}
+			initial="initial"
+			animate="animate"
+			transition={{ duration: duration.normal, ease: ease.out }}
+			className="h-full"
+		>
+			{children}
+		</motion.div>
 	);
 }
