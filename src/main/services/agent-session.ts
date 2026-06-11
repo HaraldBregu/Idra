@@ -1,5 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+	appendFileSync,
+	existsSync,
+	mkdirSync,
+	readFileSync,
+	readdirSync,
+	statSync,
+	writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import { Session } from '../agent/core/session';
 import type {
@@ -154,44 +162,31 @@ function resolveSessionId(sessionId: string | undefined, location?: string): str
 	if (isUuid(sessionId) || !location) return sessionId;
 
 	const sessionsPath = path.join(path.resolve(location), 'sessions');
-	const aliases = readAliases(sessionsPath);
-	const existing = aliases[sessionId];
-	if (existing) return existing;
-
-	const next = randomUUID();
-	writeAliases(sessionsPath, { ...aliases, [sessionId]: next });
-	return next;
+	return latestUuidSessionId(sessionsPath) ?? randomUUID();
 }
 
 function resolveStoredSessionId(sessionId: string, location?: string): string {
-	if (!location) return sessionId;
+	if (isUuid(sessionId) || !location) return sessionId;
 	const sessionsPath = path.join(path.resolve(location), 'sessions');
-	return readAliases(sessionsPath)[sessionId] ?? sessionId;
+	return latestUuidSessionId(sessionsPath) ?? sessionId;
 }
 
-function aliasesFilePath(sessionsPath: string): string {
-	return path.join(sessionsPath, 'aliases.json');
-}
-
-function readAliases(sessionsPath: string): Record<string, string> {
-	const filePath = aliasesFilePath(sessionsPath);
-	if (!existsSync(filePath)) return {};
+function latestUuidSessionId(sessionsPath: string): string | undefined {
+	if (!existsSync(sessionsPath)) return undefined;
 	try {
-		const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-		if (!isRecord(raw)) return {};
-		return Object.fromEntries(
-			Object.entries(raw).filter(
-				(entry): entry is [string, string] => typeof entry[1] === 'string' && isUuid(entry[1])
-			)
-		);
+		return readdirSync(sessionsPath, { withFileTypes: true })
+			.filter((entry) => entry.isDirectory() && isUuid(entry.name))
+			.map((entry) => {
+				const stats = statSync(sessionPath(sessionsPath, entry.name));
+				return {
+					name: entry.name,
+					createdAtMs: stats.birthtimeMs || stats.ctimeMs || stats.mtimeMs,
+				};
+			})
+			.sort((a, b) => b.createdAtMs - a.createdAtMs || b.name.localeCompare(a.name))[0]?.name;
 	} catch {
-		return {};
+		return undefined;
 	}
-}
-
-function writeAliases(sessionsPath: string, aliases: Record<string, string>): void {
-	mkdirSync(sessionsPath, { recursive: true });
-	writeFileSync(aliasesFilePath(sessionsPath), `${JSON.stringify(aliases, null, '\t')}\n`, 'utf8');
 }
 
 function messagesFilePath(sessionsPath: string, sessionId: string): string {
