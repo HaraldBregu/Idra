@@ -19,7 +19,6 @@ export function AgentToolActivity({
 					<Tool
 						key={tool.toolCallId}
 						toolPart={tool}
-						defaultOpen
 						className="mt-0 w-full max-w-2xl"
 					/>
 				))}
