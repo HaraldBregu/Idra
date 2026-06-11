@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { Session, SessionStore, type SessionRecord } from '../agent/core/session';
+import { Session, SessionStore } from '../agent/core/session';
 import type {
 	SessionInput,
 	Message,
@@ -12,8 +12,6 @@ import type {
 	SessionTurn,
 } from '../agent/core/types';
 
-export type AgentSessionRecord = SessionRecord;
-
 export class AgentSessionStore extends SessionStore {
 	private readonly storePath: string;
 
@@ -23,30 +21,24 @@ export class AgentSessionStore extends SessionStore {
 		mkdirSync(this.storePath, { recursive: true });
 	}
 
-	load(sessionId: string): SessionRecord | undefined {
+	load(sessionId: string): Message[] | undefined {
 		const filePath = this.filePath(sessionId);
 		if (!existsSync(filePath)) return undefined;
 		try {
 			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-			if (!isRecord(raw) || typeof raw.uuid !== 'string' || !Array.isArray(raw.content))
-				return undefined;
-			return {
-				uuid: raw.uuid,
-				content: raw.content.filter(isMessage),
-			};
+			if (Array.isArray(raw)) return raw.filter(isMessage);
+			if (isRecord(raw) && Array.isArray(raw.content))
+				return raw.content.filter(isMessage);
+			return undefined;
 		} catch {
 			return undefined;
 		}
 	}
 
-	save(sessionId: string, content: Message[]): SessionRecord {
+	save(sessionId: string, content: Message[]): Message[] {
 		mkdirSync(this.storePath, { recursive: true });
-		const record = {
-			uuid: this.load(sessionId)?.uuid ?? randomUUID(),
-			content,
-		};
-		writeFileSync(this.filePath(sessionId), `${JSON.stringify(record, null, '\t')}\n`, 'utf8');
-		return record;
+		writeFileSync(this.filePath(sessionId), `${JSON.stringify(content, null, '\t')}\n`, 'utf8');
+		return content;
 	}
 
 	filePath(sessionId: string): string {
@@ -72,7 +64,7 @@ export class AgentSession extends Session {
 	) {
 		super();
 		this.id = input.sessionId ?? AgentSession.generateId();
-		this.messages = [...(this.store?.load(this.id)?.content ?? []), ...(input.messages ?? [])];
+		this.messages = [...(this.store?.load(this.id) ?? []), ...(input.messages ?? [])];
 		if (input.message) this.messages.push({ role: 'user', content: input.message });
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;

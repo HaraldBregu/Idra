@@ -39,7 +39,7 @@ export class AgentService {
 
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
-		const sessionId = options.sessionId ?? resolvedAgentId;
+		const sessionId = options.sessionId;
 
 		let response = '';
 		let controller: AbortController | undefined;
