@@ -47,6 +47,16 @@ class TestWorkspace extends Workspace {
 }
 
 describe('SystemPrompt', () => {
+	it('sets a natural assistant voice', async () => {
+		const prompt = await new SystemPrompt().build({
+			workspace: new TestWorkspace(''),
+		});
+
+		expect(prompt).toContain('Sound natural, direct, and human');
+		expect(prompt).toContain('Do not use em dashes');
+		expect(prompt).toContain('Avoid canned openings');
+	});
+
 	it('includes bootstrap when the user profile is empty', async () => {
 		const prompt = await new SystemPrompt().build({
 			workspace: new TestWorkspace('- **Name:**\n- **What to call them:**'),
