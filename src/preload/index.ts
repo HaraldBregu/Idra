@@ -191,6 +191,11 @@ export const agent: AgentApi = {
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
 		return typedInvokeUnwrap(AgentChannels.lastMessages, normalizedSessionId);
 	},
+	clearMessages: (sessionId: string): Promise<void> => {
+		const normalizedSessionId = optionalTrimmedString(sessionId);
+		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
+		return typedInvokeUnwrap(AgentChannels.clearMessages, normalizedSessionId);
+	},
 } satisfies AgentApi;
 
 export const app: AppApi = {
