@@ -69,14 +69,6 @@ const GeneralPage: React.FC = () => {
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemContent>
-							<ItemTitle>{t('settings.application.description')}</ItemTitle>
-						</ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<span className="text-[13px] text-foreground">{__APP_DESCRIPTION__}</span>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemContent>
 							<ItemTitle>{t('settings.application.version')}</ItemTitle>
 						</ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">

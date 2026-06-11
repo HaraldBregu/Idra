@@ -230,8 +230,6 @@
 			"actions": "Azioni",
 			"name": "Nome",
 			"nameDescription": "Nome dell'applicazione installata",
-			"description": "Descrizione",
-			"descriptionDescription": "Breve riepilogo incluso in questa build",
 			"version": "Versione",
 			"versionDescription": "Versione corrente della build dell'app",
 			"author": "Autore",

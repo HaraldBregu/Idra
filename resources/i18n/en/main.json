@@ -230,8 +230,6 @@
 			"actions": "Actions",
 			"name": "Name",
 			"nameDescription": "Installed application name",
-			"description": "Description",
-			"descriptionDescription": "Short summary bundled with this build",
 			"version": "Version",
 			"versionDescription": "Current application build version",
 			"author": "Author",
