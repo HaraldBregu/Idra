@@ -22,7 +22,7 @@ export class ProviderStoreService {
 			name: 'providers',
 			cwd: options.cwd ?? resolveAppDataPath(),
 			accessPropertiesByDotNotation: false,
-		}) as unknown as ProvidersStore;
+		});
 	}
 
 	list(): ProviderRecord {
