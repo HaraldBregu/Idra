@@ -1,6 +1,5 @@
 export const AgentChannels = {
 	send: 'agent:send',
-	sendV2: 'agent:send',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
 	lastMessages: 'agent:last-messages',

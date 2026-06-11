@@ -51,13 +51,13 @@ export class AgentIpc implements IpcModule {
 		const agent = container.get(AgentService);
 
 		ipcMain.handle(
-			AgentChannels.sendV2,
+			AgentChannels.send,
 			wrapSimpleHandler(async (message: string, options?: unknown): Promise<string> => {
 				return agent.send(message, 'main', {
 					...normalizeAgentSendRuntimeOptions(options),
 					streamEvent: (event) => eventBus.broadcast(AgentChannels.response, event),
 				});
-			}, AgentChannels.sendV2)
+			}, AgentChannels.send)
 		);
 
 		ipcMain.handle(

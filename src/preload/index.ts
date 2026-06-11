@@ -137,7 +137,7 @@ function normalizeAgentSendRuntimeOptions(
 	return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
-function sendAgentV2(
+function sendAgent(
 	message: string,
 	options?: Record<string, unknown>,
 	onEvent?: (event: AgentResponseEvent) => void
@@ -152,8 +152,8 @@ function sendAgentV2(
 
 	return (
 		runtimeOptions
-			? typedInvokeUnwrap<string>(AgentChannels.sendV2, message, runtimeOptions)
-			: typedInvokeUnwrap<string>(AgentChannels.sendV2, message)
+			? typedInvokeUnwrap<string>(AgentChannels.send, message, runtimeOptions)
+			: typedInvokeUnwrap<string>(AgentChannels.send, message)
 	).finally(offResponse);
 }
 
@@ -176,12 +176,12 @@ const win: WindowApi = {
 } satisfies WindowApi;
 
 export const agent: AgentApi = {
-	send_v2: (
+	send: (
 		message: string,
 		options?: Record<string, unknown>,
 		onEvent?: (event: AgentResponseEvent) => void
 	): Promise<string> => {
-		return sendAgentV2(message, options, onEvent);
+		return sendAgent(message, options, onEvent);
 	},
 	cancel: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.cancel);

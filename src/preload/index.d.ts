@@ -7,7 +7,7 @@ export interface WindowApi {
 }
 
 export interface AgentApi {
-	send_v2: (
+	send: (
 		message: string,
 		options?: Record<string, unknown>,
 		onEvent?: (event: AgentResponseEvent) => void

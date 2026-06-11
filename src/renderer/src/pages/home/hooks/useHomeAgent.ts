@@ -124,7 +124,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 			try {
 				let response = '';
-				response = await agent.send_v2(trimmed, runtimeOptions, (event) => {
+				response = await agent.send(trimmed, runtimeOptions, (event) => {
 					if (requestIdRef.current !== requestId || event.agentId !== HOME_AGENT_ID) return;
 					if (event.type === 'text_delta') response += event.delta;
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
