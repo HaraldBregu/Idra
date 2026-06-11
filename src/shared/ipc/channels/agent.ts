@@ -3,6 +3,7 @@ export const AgentChannels = {
 	response: 'agent:response',
 	cancel: 'agent:cancel',
 	lastMessages: 'agent:last-messages',
+	clearMessages: 'agent:clear-messages',
 } as const;
 
 export interface AgentInvokeChannelMap {
@@ -15,6 +16,7 @@ export interface AgentInvokeChannelMap {
 		args: [sessionId: string];
 		result: import('../../agent/types').AgentHistoryMessage[];
 	};
+	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
 }
 
 export interface AgentEventChannelMap {
