@@ -127,11 +127,19 @@ export class OpenAIChatAdapter implements ProviderAdapter {
 			},
 		}));
 
+				console.log("Hello world")
+
+
 		yield { type: 'message_start' };
 
 		const usage: Usage = { inputTokens: 0, outputTokens: 0 };
 		let stopReason = 'end_turn';
 		const pending = new Map<number, ChatToolCallState>();
+
+const data = buildChatMessages(req.system, req.messages, {
+					includeReasoningContent: this.reasoningContentEnabled,
+				})
+		console.log({datachat: data})
 
 		try {
 			const params: Record<string, unknown> = {
