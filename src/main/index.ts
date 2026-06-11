@@ -16,7 +16,6 @@ import { registerIpcHandlers } from './ipc/core/register-ipc-handlers';
 import {
 	setupEventLogging,
 	setupProcessSafetyNet,
-	writeCrashLine,
 } from './observability/errorReporter';
 import { setupMemoryMonitor } from './observability/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
@@ -57,23 +56,6 @@ registerLocalResourceProtocolScheme();
 
 // Install process-level safety net BEFORE anything else so we can see silent exits.
 setupProcessSafetyNet();
-
-// Wrap app.quit to capture the JS call site. Electron emits before-quit
-// asynchronously, so the safety-net before-quit stack only shows EventEmitter
-// frames — useless for finding which line called quit. Wrapping here records
-// the original caller's stack synchronously to crash.log.
-const originalAppQuit = app.quit.bind(app);
-app.quit = function quitWithTrace(): void {
-	const stack = new Error('app.quit call site').stack;
-	writeCrashLine(`[app.quit:called]\n${stack}`);
-	return originalAppQuit();
-};
-const originalAppExit = app.exit.bind(app);
-app.exit = function exitWithTrace(code?: number): void {
-	const stack = new Error('app.exit call site').stack;
-	writeCrashLine(`[app.exit:called] code=${code}\n${stack}`);
-	return originalAppExit(code);
-};
 
 // Start Chromium crash capture as early as possible so renderer/process
 // crashes produce dumps instead of only a generic Crashpad stderr line.

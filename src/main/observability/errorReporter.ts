@@ -1,25 +1,8 @@
 import { app } from 'electron';
-import fs from 'node:fs';
-import path from 'node:path';
 import type { LoggerService } from './index';
 
 let safetyNetLogger: LoggerService | null = null;
 let safetyNetInstalled = false;
-let safetyNetCrashFile: string | null = null;
-
-export function writeCrashLine(line: string): void {
-	try {
-		if (!safetyNetCrashFile) {
-			const dir = path.join(app.getPath('userData'), 'logs');
-			fs.mkdirSync(dir, { recursive: true });
-			safetyNetCrashFile = path.join(dir, 'crash.log');
-		}
-		const stamp = new Date().toISOString();
-		fs.appendFileSync(safetyNetCrashFile, `[${stamp}] [pid=${process.pid}] ${line}\n`);
-	} catch {
-		// swallow because this is often called during shutdown
-	}
-}
 
 export function setupProcessSafetyNet(logger?: LoggerService): void {
 	if (logger) {
@@ -30,11 +13,8 @@ export function setupProcessSafetyNet(logger?: LoggerService): void {
 	}
 	safetyNetInstalled = true;
 
-	writeCrashLine(`[boot] pid=${process.pid} argv=${process.argv.join(' ')}`);
-
 	process.on('uncaughtException', (error, origin) => {
 		const message = error instanceof Error ? error.stack || error.message : String(error);
-		writeCrashLine(`[uncaughtException:${origin}] ${message}`);
 		safetyNetLogger?.error('Process', `uncaughtException (${origin})`, { error: message });
 		// eslint-disable-next-line no-console
 		console.error(`[uncaughtException:${origin}]`, message);
@@ -42,7 +22,6 @@ export function setupProcessSafetyNet(logger?: LoggerService): void {
 
 	process.on('unhandledRejection', (reason) => {
 		const message = reason instanceof Error ? reason.stack || reason.message : String(reason);
-		writeCrashLine(`[unhandledRejection] ${message}`);
 		safetyNetLogger?.error('Process', 'unhandledRejection', { reason: message });
 		// eslint-disable-next-line no-console
 		console.error('[unhandledRejection]', message);
@@ -50,39 +29,18 @@ export function setupProcessSafetyNet(logger?: LoggerService): void {
 
 	process.on('exit', (code) => {
 		const stack = new Error('exit trace').stack;
-		writeCrashLine(`[process.exit] code=${code}\n${stack}`);
 		safetyNetLogger?.warn('Process', `process.exit(${code})`, { stack });
 		// eslint-disable-next-line no-console
 		console.error(`[process.exit] code=${code}`, stack);
 	});
 
-	process.on('beforeExit', (code) => {
-		writeCrashLine(`[beforeExit] code=${code}`);
-	});
-
 	for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGQUIT'] as const) {
 		process.on(signal, () => {
-			writeCrashLine(`[signal] ${signal}`);
 			safetyNetLogger?.warn('Process', `Received ${signal}`);
 			// eslint-disable-next-line no-console
 			console.error(`[signal] ${signal}`);
 		});
 	}
-
-	app.on('before-quit', () => {
-		const stack = new Error('before-quit trace').stack;
-		writeCrashLine(`[app:before-quit] ${stack}`);
-	});
-	app.on('will-quit', () => writeCrashLine('[app:will-quit]'));
-	app.on('quit', (_e, code) => writeCrashLine(`[app:quit] code=${code}`));
-	app.on('render-process-gone', (_e, _wc, details) => {
-		writeCrashLine(`[render-process-gone] reason=${details.reason} exitCode=${details.exitCode}`);
-	});
-	app.on('child-process-gone', (_e, details) => {
-		writeCrashLine(
-			`[child-process-gone] type=${details.type} reason=${details.reason} exitCode=${details.exitCode}`
-		);
-	});
 }
 
 export function setupEventLogging(logger: LoggerService): void {

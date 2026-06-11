@@ -1,5 +1,4 @@
 import type { LoggerService } from './index';
-import { writeCrashLine } from './errorReporter';
 
 let memoryMonitorInterval: NodeJS.Timeout | null = null;
 
@@ -13,7 +12,6 @@ export function setupMemoryMonitor(logger: LoggerService, intervalMs = 30_000): 
 			`heapTotal=${mb(m.heapTotal)}MB external=${mb(m.external)}MB ` +
 			`arrayBuffers=${mb(m.arrayBuffers)}MB`;
 		logger.info('MemoryMonitor', line);
-		writeCrashLine(line);
 	};
 	sample();
 	memoryMonitorInterval = setInterval(sample, intervalMs);

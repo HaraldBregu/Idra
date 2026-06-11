@@ -1,7 +1,6 @@
 import { app } from 'electron';
 import type { AppState } from '../services/app-state';
 import type { LoggerService } from '../observability';
-import { writeCrashLine } from '../observability/errorReporter';
 
 export function setupAppLifecycle(appState: AppState, logger?: LoggerService): void {
 	app.on('before-quit', () => {
@@ -10,9 +9,6 @@ export function setupAppLifecycle(appState: AppState, logger?: LoggerService): v
 	});
 
 	app.on('window-all-closed', () => {
-		writeCrashLine(
-			`[window-all-closed] platform=${process.platform} isQuitting=${appState.isQuitting}`
-		);
 		logger?.info('App', 'All windows closed');
 		if (process.platform !== 'darwin' && appState.isQuitting) {
 			app.quit();
