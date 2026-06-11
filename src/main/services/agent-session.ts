@@ -151,7 +151,7 @@ function sessionPath(sessionsPath: string, sessionFolderName: string): string {
 }
 
 function resolveSessionId(sessionId: string | undefined, location?: string): string {
-	if (!sessionId) return AgentSession.generateId();
+	if (!sessionId) return randomUUID();
 	if (isUuid(sessionId) || !location) return sessionId;
 
 	const sessionsPath = path.join(path.resolve(location), 'sessions');
