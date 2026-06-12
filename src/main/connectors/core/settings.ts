@@ -10,5 +10,7 @@ export abstract class Settings {
 	abstract get(id: string): ConnectorSettingsRecord;
 	abstract save(connectors: ConnectorSettingsRecord): ConnectorSettingsRecord;
 	abstract upsert(input: ConnectorInput): ConnectorSettingsRecord;
-	abstract authorizeOAuth(input: ConnectorOAuthDefaults): Promise<ConnectorOAuthAuthorizationResult>;
+	abstract authorizeOAuth(
+		input: ConnectorOAuthDefaults
+	): Promise<ConnectorOAuthAuthorizationResult>;
 }

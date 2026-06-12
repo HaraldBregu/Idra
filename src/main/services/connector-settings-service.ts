@@ -175,7 +175,8 @@ function normalizeOAuthRequest(input: ConnectorOAuthDefaults): OAuthAuthorizatio
 		: [];
 	if (!service) throw new Error('OAuth service is required.');
 	if (!clientIdEnv) throw new Error('OAuth client id env var is required.');
-	if (!authorizationUrl || !isValidUrl(authorizationUrl)) throw new Error('OAuth authorization URL is invalid.');
+	if (!authorizationUrl || !isValidUrl(authorizationUrl))
+		throw new Error('OAuth authorization URL is invalid.');
 	if (!tokenUrl || !isValidUrl(tokenUrl)) throw new Error('OAuth token URL is invalid.');
 	if (scopes.length === 0) throw new Error('OAuth scopes are required.');
 
@@ -193,7 +194,9 @@ function normalizeOAuthRequest(input: ConnectorOAuthDefaults): OAuthAuthorizatio
 	};
 }
 
-async function waitForOAuthCallback(input: OAuthCallbackInput): Promise<{ code: string; redirectUri: string }> {
+async function waitForOAuthCallback(
+	input: OAuthCallbackInput
+): Promise<{ code: string; redirectUri: string }> {
 	return new Promise((resolve, reject) => {
 		let redirectUri = '';
 		const server = createServer((request, response) => {
@@ -208,12 +211,16 @@ async function waitForOAuthCallback(input: OAuthCallbackInput): Promise<{ code: 
 				const code = callbackUrl.searchParams.get('code');
 				if (!code) throw new Error('OAuth authorization code is missing.');
 				response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-				response.end('<!doctype html><title>Friday</title><p>Authorization complete. You can close this window.</p>');
+				response.end(
+					'<!doctype html><title>Friday</title><p>Authorization complete. You can close this window.</p>'
+				);
 				cleanup();
 				resolve({ code, redirectUri });
 			} catch (error) {
 				response.writeHead(400, { 'content-type': 'text/html; charset=utf-8' });
-				response.end('<!doctype html><title>Friday</title><p>Authorization failed. You can close this window.</p>');
+				response.end(
+					'<!doctype html><title>Friday</title><p>Authorization failed. You can close this window.</p>'
+				);
 				cleanup();
 				reject(error);
 			}
@@ -280,7 +287,11 @@ async function exchangeOAuthCode(input: OAuthTokenInput): Promise<string> {
 	});
 	const payload = await response.json().catch((): unknown => ({}));
 	if (!response.ok) throw new Error(oauthTokenErrorMessage(payload));
-	if (!isRecord(payload) || typeof payload.access_token !== 'string' || !payload.access_token.trim()) {
+	if (
+		!isRecord(payload) ||
+		typeof payload.access_token !== 'string' ||
+		!payload.access_token.trim()
+	) {
 		throw new Error('OAuth token response did not include an access token.');
 	}
 	return payload.access_token.trim();

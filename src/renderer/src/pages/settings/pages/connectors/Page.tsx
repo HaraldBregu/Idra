@@ -1,11 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
-import {
-	SettingsNotice,
-	SettingsPageHeader,
-	SettingsPageShell,
-} from '../../components';
+import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
 import { SETTINGS_CONNECTOR_CATALOG, type SettingsConnectorCatalogEntry } from './catalog';
 import { useConnectors } from './hooks/useConnectors';
@@ -51,10 +47,7 @@ const ConnectorsPage = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
-				title="Connectors"
-				description="Connect external services."
-			/>
+			<SettingsPageHeader title="Connectors" description="Connect external services." />
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
@@ -71,7 +64,9 @@ const ConnectorsPage = () => {
 							connecting={connectingId === entry.connectorId}
 							connector={connector ? { id: entry.directConnectorId, entry: connector } : undefined}
 							onConnect={() => connect(entry)}
-							onViewDetails={connector ? () => openConnectorDetails(entry.directConnectorId) : undefined}
+							onViewDetails={
+								connector ? () => openConnectorDetails(entry.directConnectorId) : undefined
+							}
 						/>
 					);
 				})}
