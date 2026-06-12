@@ -1,4 +1,5 @@
 export { AppState } from './app-state';
+export { ConnectorService } from './connector-service';
 export { EventBus, type AppEvent, type AppEvents } from './event-bus';
 export { WindowFactory } from './window-factory';
 export { WindowContext, WindowContextManager, type WindowContextConfig } from './window-context';

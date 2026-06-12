@@ -1,6 +1,7 @@
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
+import { ConnectorsIpc } from '../connectors';
 import { CronIpc } from '../cron';
 import { ProviderStoreIpc } from '../provider';
 import { SttIpc } from '../stt';
@@ -17,6 +18,7 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 		new AppIpc(),
 		new AgentIpc(),
 		new ChannelsIpc(),
+		new ConnectorsIpc(),
 		new CronIpc(),
 		new ProviderStoreIpc(),
 		new SttIpc(),

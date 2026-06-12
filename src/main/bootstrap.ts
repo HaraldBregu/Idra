@@ -11,6 +11,7 @@ import type { MainServiceContainer } from './services/services';
 import { LlmService } from './llm';
 import { AgentService } from './services/agent-service';
 import { AgentSettingsStore } from './services/agent-settings-store';
+import { ConnectorService } from './services/connector-service';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
 
@@ -38,6 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(CronService, cron);
 
 	container.get(ProviderService);
+	container.get(ConnectorService);
 	container.get(LlmService);
 	container.get(SttService);
 
