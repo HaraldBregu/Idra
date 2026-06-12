@@ -45,7 +45,7 @@ function sttStore(provider?: {
 
 describe('SttService', () => {
 	it('ignores the TypeDI container argument when runtime metadata is unavailable', () => {
-		const service = new SttService({} as never);
+		const service = new SttService({} as never, { store: sttStore() });
 		const internals = service as unknown as { adapterFactory: SttAdapterFactory };
 
 		expect(internals.adapterFactory).toBeInstanceOf(SttAdapterFactory);
