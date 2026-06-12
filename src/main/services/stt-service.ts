@@ -3,7 +3,6 @@ import { Inject, Service } from 'typedi';
 import {
 	DEFAULT_PROVIDERS,
 	PROVIDER_API_CONFIGURATIONS,
-	type Provider,
 	type PublicProvider,
 } from '../../shared/providers';
 import type { Provider as CatalogProvider } from '../../shared/providers/definitions';
