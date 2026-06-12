@@ -1,6 +1,19 @@
 import { CronService, type CronServiceOptions } from './service';
 import type { CronLogger } from './core/logger';
 
+/**
+ * Cron module entrypoint.
+ *
+ * Startup code should call createCronService(logger), store the service in the
+ * main container, then call service.start(). The service exposes two cron
+ * surfaces: durable schedules via create/list/pause/run/deleteSchedule, and
+ * process-local node-cron jobs via schedule/listJobs/deleteJob.
+ *
+ * Folder map:
+ * - core: domain contracts, validation, events, payload safety, triggering.
+ * - engine: scheduler orchestration and next-run calculation.
+ * - adapters: Electron/node-cron/in-memory implementations behind core ports.
+ */
 export function createCronService(
 	logger: CronLogger,
 	options: CronServiceOptions = {}
