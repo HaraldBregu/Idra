@@ -24,6 +24,7 @@ import {
 	getProviderApiConfigurationUrl,
 	type PublicProvider,
 } from '../../../../shared/providers';
+import { isSpeechToTextProviderId } from '../../../../shared/providers/models/stt';
 import type { Provider as StoredProvider } from '../../../../shared/providers/types';
 import {
 	LLM_MODELS_BY_PROVIDER,
@@ -244,6 +245,21 @@ function toStoredProvider(providerId: string, apiKey: string): StoredProvider | 
 		apiKey,
 		baseUrl: provider.baseUrl,
 	};
+}
+
+function getStoredProvider(providerId: string): Promise<StoredProvider | undefined> {
+	return isSpeechToTextProviderId(providerId)
+		? window.stt.getProvider(providerId)
+		: window.provider.get(providerId);
+}
+
+function saveStoredProvider(
+	providerId: string,
+	provider: StoredProvider
+): Promise<StoredProvider> {
+	return isSpeechToTextProviderId(providerId)
+		? window.stt.saveProvider(providerId, provider)
+		: window.provider.set(providerId, provider);
 }
 
 function getLlmProvidersFromCatalog(): PublicProvider[] {
