@@ -1,5 +1,6 @@
 import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/providers/models/llm';
 import { cloneModels, type ProviderModel } from '../../../shared/providers/models/types';
+import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/providers/models/stt';
 import type { ConnectorInput, ConnectorOAuthDefaults } from '../../../shared/connector';
 import type { PublicProvider } from '../../../shared/providers';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
@@ -78,13 +79,5 @@ export function getLlmModels(providerId: string): Model[] {
 }
 
 export function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean {
-	const provider = providerId.trim().toLowerCase();
-	const model = modelId.trim();
-	if (provider === 'openai') return model.includes('transcribe');
-	if (provider === 'deepgram') return model === 'flux';
-	if (provider === 'elevenlabs') return model.includes('realtime');
-	if (provider === 'mistral') return model.includes('realtime');
-	if (provider === 'qwen') return model.includes('omni');
-	if (provider === 'xai') return model.includes('streaming');
-	return false;
+	return isRealtimeSpeechToTextModelFromCatalog(providerId, modelId);
 }
