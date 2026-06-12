@@ -1,7 +1,7 @@
-
 export interface ToolContextState {
 	path?: string;
 }
+
 export abstract class Context {
 	protected readonly state: ToolContextState = {};
 
