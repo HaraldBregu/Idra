@@ -22,6 +22,18 @@ import {
 	SettingsSection,
 } from '../../components';
 
+function getStoredProvider(providerId: string): Promise<Provider | undefined> {
+	return isSpeechToTextProviderId(providerId)
+		? window.stt.getProvider(providerId)
+		: window.provider.get(providerId);
+}
+
+function saveStoredProvider(providerId: string, provider: Provider): Promise<Provider> {
+	return isSpeechToTextProviderId(providerId)
+		? window.stt.saveProvider(providerId, provider)
+		: window.provider.set(providerId, provider);
+}
+
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [providerEntries, setProviderEntries] = useState<ProviderSetupEntry[]>(() =>
@@ -95,18 +107,6 @@ const ProvidersPage: React.FC = () => {
 	const handleOpenProviderLink = (provider: ProviderCatalogItem): void => {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
-	};
-
-	const getStoredProvider = (providerId: string): Promise<Provider | undefined> => {
-		return isSpeechToTextProviderId(providerId)
-			? window.stt.getProvider(providerId)
-			: window.provider.get(providerId);
-	};
-
-	const saveStoredProvider = (providerId: string, provider: Provider): Promise<Provider> => {
-		return isSpeechToTextProviderId(providerId)
-			? window.stt.saveProvider(providerId, provider)
-			: window.provider.set(providerId, provider);
 	};
 
 	const toStoredProvider = (providerId: string, apiKey: string): Provider | undefined => {
