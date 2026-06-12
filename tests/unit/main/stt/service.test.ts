@@ -3,7 +3,7 @@ jest.mock('@mistralai/mistralai', () => ({
 }));
 
 import { SttService } from '../../../../src/main/services/stt-service';
-import type { SttAdapterFactory } from '../../../../src/main/stt/factory';
+import { SttAdapterFactory } from '../../../../src/main/stt/factory';
 import type { SttAdapter } from '../../../../src/main/stt/types';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../../../../src/main/stt/errors';
 
@@ -15,6 +15,13 @@ const audio = {
 };
 
 describe('SttService', () => {
+	it('ignores the TypeDI container argument when runtime metadata is unavailable', () => {
+		const service = new SttService({} as never);
+		const internals = service as unknown as { adapterFactory: SttAdapterFactory };
+
+		expect(internals.adapterFactory).toBeInstanceOf(SttAdapterFactory);
+	});
+
 	it('normalizes requests and sends them through the selected provider adapter', async () => {
 		const adapter: SttAdapter = {
 			transcribe: jest.fn(async (request) => ({
