@@ -1,4 +1,4 @@
-import type { JSONSchema } from '../../llm/types';
+import type { JSONSchema } from './types';
 
 export interface ToolContextState {
 	currentDirectory?: string;

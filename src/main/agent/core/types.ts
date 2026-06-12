@@ -15,6 +15,17 @@ export interface ToolCall {
 	args: Record<string, unknown>;
 }
 
+export interface JSONSchema {
+	type?: string;
+	properties?: Record<string, unknown>;
+	required?: string[];
+	items?: unknown;
+	description?: string;
+	enum?: unknown[];
+	additionalProperties?: boolean | unknown;
+	[k: string]: unknown;
+}
+
 export interface MessageContentBlock {
 	type: string;
 	[key: string]: unknown;
