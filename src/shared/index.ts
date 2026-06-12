@@ -1,6 +1,7 @@
 export * from './app/app-log';
 export * from './ipc/types';
 export * from './channels';
+export * from './connector';
 export * from './providers';
 export * from './app/shortcuts';
 export * from './skills/types';
