@@ -1,10 +1,4 @@
-import type { JSONSchema } from './types';
-
-export interface ToolContextState {
-	currentDirectory?: string;
-	currentFile?: string;
-	currentFiles: string[];
-}
+import type { JSONSchema, ToolContextState } from './types';
 
 export class ToolContext {
 	private readonly state: ToolContextState;

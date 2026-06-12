@@ -26,6 +26,12 @@ export interface JSONSchema {
 	[k: string]: unknown;
 }
 
+export interface ToolContextState {
+	currentDirectory?: string;
+	currentFile?: string;
+	currentFiles: string[];
+}
+
 export interface MessageContentBlock {
 	type: string;
 	[key: string]: unknown;
