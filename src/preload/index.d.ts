@@ -55,7 +55,7 @@ export interface SkillsApi {
 	getRoot: () => Promise<string>;
 }
 
-export interface ProviderStoreApi {
+export interface ProviderApi {
 	get: (id: string) => Promise<Provider | undefined>;
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
@@ -169,7 +169,7 @@ declare global {
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
-		providerStore: ProviderStoreApi;
+		provider: ProviderApi;
 		stt: SttApi;
 	}
 }

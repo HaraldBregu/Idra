@@ -19,7 +19,7 @@ import type {
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
-	ProviderStoreApi,
+	ProviderApi,
 	SkillsApi,
 	SttApi,
 	WindowApi,
@@ -246,7 +246,7 @@ export const skills: SkillsApi = {
 	},
 };
 
-export const providerStore: ProviderStoreApi = {
+export const provider: ProviderApi = {
 	get: (id: string): Promise<Provider | undefined> => {
 		return typedInvokeUnwrap(ProviderStoreChannels.get, id);
 	},
@@ -361,7 +361,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
-		contextBridge.exposeInMainWorld('providerStore', providerStore);
+		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('stt', stt);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
@@ -384,7 +384,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
 	// @ts-ignore (define in dts)
-	globalThis.providerStore = providerStore;
+	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
 	globalThis.stt = stt;
 }
