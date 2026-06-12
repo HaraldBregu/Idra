@@ -8,6 +8,7 @@ import { ElevenLabsSttAdapter } from '../../../../src/main/stt/providers/elevenl
 import { MistralSttAdapter } from '../../../../src/main/stt/providers/mistral';
 import { OpenAISttAdapter } from '../../../../src/main/stt/providers/openai';
 import { QwenSttAdapter } from '../../../../src/main/stt/providers/qwen';
+import { XaiSttAdapter } from '../../../../src/main/stt/providers/xai';
 import { SttProviderUnsupportedError } from '../../../../src/main/stt/errors';
 
 describe('SttAdapterFactory', () => {
@@ -18,7 +19,7 @@ describe('SttAdapterFactory', () => {
 
 		expect(factory.build(provider)).toBeInstanceOf(OpenAISttAdapter);
 		expect(factory.build({ ...provider, id: 'xai', name: 'xAI' })).toBeInstanceOf(
-			OpenAISttAdapter
+			XaiSttAdapter
 		);
 		expect(factory.build({ ...provider, id: 'mistral', name: 'Mistral' })).toBeInstanceOf(
 			MistralSttAdapter
