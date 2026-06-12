@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { ToolContext } from '../../../../src/main/agent/loop/context';
+import { AgentContext } from '../../../../src/main/agent/loop/context';
 import { ExecTool } from '../../../../src/main/agent/tools/exec';
 import { ReadTool } from '../../../../src/main/agent/tools/read';
 import { WriteTool } from '../../../../src/main/agent/tools/write';
@@ -30,7 +30,7 @@ describe('agent file tools', () => {
 	});
 
 	it('keeps file state in a shared tool context', async () => {
-		const context = new ToolContext();
+		const context = new AgentContext();
 		const write = new WriteTool(workspacePath, context);
 		const read = new ReadTool(workspacePath, context);
 		const expectedPath = path.join(workspacePath, 'notes/test.txt');
@@ -46,7 +46,7 @@ describe('agent file tools', () => {
 	});
 
 	it('records exec workdir in the shared tool context', async () => {
-		const context = new ToolContext();
+		const context = new AgentContext();
 		const tool = new ExecTool(workspacePath, context);
 		const nestedPath = path.join(workspacePath, 'nested');
 		const command = `"${process.execPath}" --version`;

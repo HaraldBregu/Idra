@@ -18,6 +18,7 @@ import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
+import { AgentContext } from './context';
 
 interface ModelTurn {
 	content: string;
@@ -74,7 +75,7 @@ export class AgentRuntime {
 			throw new Error('Agent requires a configured provider and model.');
 
 		const workspacePath = workspace.getPath();
-		const toolContext = new ToolContext();
+		const toolContext = new AgentContext();
 		const tools = input.tools ? input.tools.slice() : [];
 		tools.push(new ReadTool(workspacePath, toolContext));
 		tools.push(new EditTool(workspacePath, toolContext));
