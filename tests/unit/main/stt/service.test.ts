@@ -15,10 +15,7 @@ const audio = {
 	fileName: 'audio.wav',
 };
 
-function sttStore(provider?: {
-	id?: string;
-	modelId?: string;
-}): SttServiceOptions['store'] {
+function sttStore(provider?: { id?: string; modelId?: string }): SttServiceOptions['store'] {
 	const state = {
 		providerId: provider?.id,
 		modelId: provider?.modelId,
