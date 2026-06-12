@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { Tool } from '../core/tool';
+import { Tool, type ToolContext } from '../core/tool';
 import { resolveToolPath } from './resolve';
 
 export class EditTool extends Tool {
@@ -26,8 +26,11 @@ export class EditTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(private readonly basePath = process.cwd()) {
-		super();
+	constructor(
+		private readonly basePath = process.cwd(),
+		context?: ToolContext
+	) {
+		super(context);
 	}
 
 	async run(input: Record<string, unknown>): Promise<{ path: string }> {
@@ -55,6 +58,7 @@ export class EditTool extends Tool {
 		}
 
 		await fs.writeFile(resolvedPath, content.replace(oldText, newText), 'utf8');
+		this.context.setCurrentFile(resolvedPath);
 		return { path: resolvedPath };
 	}
 }
