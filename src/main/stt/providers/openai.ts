@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
-import { OpenAIRealtimeWS } from 'openai/realtime/ws';
-import type { RealtimeServerEvent } from 'openai/resources/realtime/realtime';
+import WebSocket from 'ws';
 import { createAudioFile } from '../audio';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../errors';
 import type {
@@ -12,10 +11,29 @@ import type {
 	SttRealtimeEventHandler,
 } from '../types';
 import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt/transcription';
+import {
+	OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
+	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
+	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
+} from '../../../shared/providers/models/stt';
+
+const OPENAI_REALTIME_PATH = 'realtime';
+const OPENAI_REALTIME_AUTH_SCHEME = 'Bearer';
+const OPENAI_REALTIME_SESSION_UPDATE_EVENT = 'transcription_session.update';
+const OPENAI_REALTIME_AUDIO_FORMAT = 'pcm16';
 
 export interface OpenAISttAdapterOptions extends SttProviderSpec {
 	clientFactory?: (opts: { apiKey: string; baseURL?: string }) => OpenAI;
 }
+
+type OpenAIRealtimeServerEvent = {
+	type?: string;
+	item_id?: string;
+	content_index?: number;
+	delta?: string;
+	transcript?: string;
+	error?: { message?: string };
+};
 
 export class OpenAISttAdapter implements SttAdapter {
 	private readonly client: OpenAI;
@@ -68,17 +86,19 @@ export class OpenAISttAdapter implements SttAdapter {
 		request: SttAdapterRealtimeStartRequest,
 		emit: SttRealtimeEventHandler
 	): Promise<SttRealtimeConnection> {
-		if (this.provider.id !== 'openai') {
+		if (this.provider.id !== OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) {
 			throw new SttProviderUnsupportedError(
 				`${this.provider.name} realtime speech-to-text is not implemented.`
 			);
 		}
 
-		const connection = await OpenAIRealtimeWS.create(this.client, {
-			model: realtimeModelFor(request.modelId),
+		const socket = new WebSocket(openAIRealtimeUrl(this.provider.baseURL), {
+			headers: {
+				Authorization: `${OPENAI_REALTIME_AUTH_SCHEME} ${this.provider.apiKey}`,
+			},
 		});
-		await waitForOpen(connection);
-		const session = new OpenAIRealtimeSttConnection(connection, request, emit);
+		await waitForOpen(socket);
+		const session = new OpenAIRealtimeSttConnection(socket, request, emit);
 		session.configure();
 		return session;
 	}
@@ -88,44 +108,53 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 	private closed = false;
 
 	constructor(
-		private readonly connection: OpenAIRealtimeWS,
+		private readonly socket: WebSocket,
 		private readonly request: SttAdapterRealtimeStartRequest,
 		private readonly emit: SttRealtimeEventHandler
 	) {
-		this.connection.on('event', (event) => this.handleEvent(event));
-		this.connection.on('error', (error) => this.emitError(error.message));
-		this.connection.socket.once('close', () => this.emitClosed());
+		this.socket.on('message', (data) => this.handleEvent(data.toString()));
+		this.socket.once('error', (error) => this.emitError(error.message));
+		this.socket.once('close', () => this.emitClosed());
 	}
 
 	configure(): void {
-		this.connection.send({
-			type: 'transcription_session.update',
+		this.socket.send(
+			JSON.stringify({
+				type: OPENAI_REALTIME_SESSION_UPDATE_EVENT,
 			session: {
-				input_audio_format: 'pcm16',
+				input_audio_format: OPENAI_REALTIME_AUDIO_FORMAT,
 				input_audio_transcription: {
-					model: this.request.modelId as 'gpt-4o-transcribe' | 'gpt-4o-mini-transcribe',
+					model: this.request.modelId,
 					...(this.request.language ? { language: this.request.language } : {}),
 					...(this.request.prompt ? { prompt: this.request.prompt } : {}),
 				},
 				turn_detection: null,
 			},
-		} as never);
+			})
+		);
 	}
 
 	async appendAudio(audio: string): Promise<void> {
-		this.connection.send({ type: 'input_audio_buffer.append', audio });
+		this.socket.send(JSON.stringify({ type: 'input_audio_buffer.append', audio }));
 	}
 
 	async finish(): Promise<void> {
-		this.connection.send({ type: 'input_audio_buffer.commit' });
+		this.socket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
 	}
 
 	async cancel(): Promise<void> {
-		this.connection.close({ code: 1000, reason: 'cancelled' });
+		this.socket.close(1000, 'cancelled');
 		this.emitClosed();
 	}
 
-	private handleEvent(event: RealtimeServerEvent): void {
+	private handleEvent(message: string): void {
+		let event: OpenAIRealtimeServerEvent;
+		try {
+			event = JSON.parse(message) as OpenAIRealtimeServerEvent;
+		} catch {
+			return;
+		}
+
 		if (event.type === 'input_audio_buffer.committed') {
 			this.emit({
 				type: 'committed',
@@ -152,12 +181,12 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 				contentIndex: event.content_index,
 				transcript: event.transcript,
 			});
-			this.connection.close({ code: 1000, reason: 'completed' });
+			this.socket.close(1000, 'completed');
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.failed') {
 			this.emitError(event.error.message ?? 'OpenAI realtime transcription failed.');
-			this.connection.close({ code: 1011, reason: 'transcription failed' });
+			this.socket.close(1011, 'transcription failed');
 			return;
 		}
 		if (event.type === 'error') {
@@ -180,15 +209,21 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 	}
 }
 
-function realtimeModelFor(modelId: string): string {
-	return modelId.includes('mini') ? 'gpt-4o-mini-realtime-preview' : 'gpt-4o-realtime-preview';
+function openAIRealtimeUrl(baseURL: string | undefined): string {
+	const url = new URL(
+		OPENAI_REALTIME_PATH,
+		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+	);
+	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
+	url.searchParams.set('model', OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID);
+	return url.toString();
 }
 
-async function waitForOpen(connection: OpenAIRealtimeWS): Promise<void> {
-	if (connection.socket.readyState === connection.socket.OPEN) return;
+async function waitForOpen(socket: WebSocket): Promise<void> {
+	if (socket.readyState === WebSocket.OPEN) return;
 	await new Promise<void>((resolve, reject) => {
-		connection.socket.once('open', resolve);
-		connection.socket.once('error', reject);
+		socket.once('open', resolve);
+		socket.once('error', reject);
 	});
 }
 
