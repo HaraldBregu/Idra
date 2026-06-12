@@ -65,6 +65,7 @@ export class AgentModel extends Model {
 				description: tool.description ?? '',
 				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
 			})),
+			mcp: request.mcp,
 			maxTokens: request.maxTokens,
 			signal: request.signal,
 		})) {
