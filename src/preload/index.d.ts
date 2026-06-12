@@ -51,6 +51,7 @@ export interface ConnectorsApi {
 	list: () => Promise<ConnectorRecord>;
 	get: (id: string) => Promise<ConnectorRecord>;
 	upsert: (input: ConnectorInput) => Promise<ConnectorRecord>;
+	authorizeOAuth: (input: ConnectorOAuthDefaults) => Promise<ConnectorOAuthAuthorizationResult>;
 }
 
 export interface SkillsApi {
@@ -96,7 +97,12 @@ import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { ConnectorInput, ConnectorSettingsRecord } from '../shared/connector';
+import type {
+	ConnectorInput,
+	ConnectorOAuthAuthorizationResult,
+	ConnectorOAuthDefaults,
+	ConnectorSettingsRecord,
+} from '../shared/connector';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -123,7 +129,7 @@ export interface ModelSelection {
 }
 
 export type ConnectorRecord = ConnectorSettingsRecord;
-export type { ConnectorInput };
+export type { ConnectorInput, ConnectorOAuthAuthorizationResult, ConnectorOAuthDefaults };
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

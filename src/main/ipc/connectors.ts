@@ -3,7 +3,11 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ConnectorsChannels } from '../../shared/ipc/ipc-channels';
-import type { ConnectorInput, ConnectorSettingsRecord } from '../../shared/connector';
+import type {
+	ConnectorInput,
+	ConnectorOAuthDefaults,
+	ConnectorSettingsRecord,
+} from '../../shared/connector';
 import { ConnectorSettingsService } from '../services/connector-settings-service';
 
 export class ConnectorsIpc implements IpcModule {
@@ -19,6 +23,9 @@ export class ConnectorsIpc implements IpcModule {
 		);
 		registerCommand(ConnectorsChannels.upsert, (input: ConnectorInput) =>
 			connectorSettingsService.upsert(input)
+		);
+		registerCommand(ConnectorsChannels.authorizeOAuth, (input: ConnectorOAuthDefaults) =>
+			connectorSettingsService.authorizeOAuth(input)
 		);
 	}
 }

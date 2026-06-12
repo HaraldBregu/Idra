@@ -398,6 +398,9 @@ export const connectors: ConnectorsApi = {
 	upsert: (input: Parameters<ConnectorsApi['upsert']>[0]): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.upsert, input);
 	},
+	authorizeOAuth: (input: Parameters<ConnectorsApi['authorizeOAuth']>[0]) => {
+		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, input);
+	},
 };
 
 if (process.contextIsolated) {
