@@ -11,13 +11,13 @@ import type {
 } from 'openai/resources/responses/responses';
 import type {
 	AgentContentBlock,
-	ProviderBuiltInToolSpec,
 	ProviderAdapter,
 	ProviderEvent,
 	ProviderStreamRequest,
 	TranscriptEntry,
 	Usage,
 } from '../types';
+import { adaptOpenAIMcpServers } from '../mcp/openai';
 import { ContextOverflowError, ProviderAuthError } from '../types';
 
 type ReasoningContentBlock = Extract<AgentContentBlock, { type: 'reasoning' }>;
@@ -103,10 +103,6 @@ function hasFunctionCall(output: ResponseOutputItem[] | undefined): boolean {
 	return output?.some((item) => item.type === 'function_call') ?? false;
 }
 
-function toOpenAIResponseTool(tool: ProviderBuiltInToolSpec): ResponseTool {
-	return tool as unknown as ResponseTool;
-}
-
 export interface OpenAIAdapterOptions {
 	apiKey: string;
 	baseURL?: string;
@@ -141,7 +137,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 		}));
 		const tools: ResponseTool[] = [
 			...functionTools,
-			...(req.builtInTools ?? []).filter((tool) => tool.type === 'mcp').map(toOpenAIResponseTool),
+			...adaptOpenAIMcpServers(req.mcp),
 		];
 
 		const params: ResponseCreateParamsStreaming = {
