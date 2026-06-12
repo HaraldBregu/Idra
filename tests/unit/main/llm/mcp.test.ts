@@ -85,7 +85,6 @@ describe('MCP provider adapters', () => {
 		});
 
 		for await (const _event of adapter.stream(request())) {
-			// drain stream
 		}
 
 		expect(create).toHaveBeenCalledWith(
@@ -117,7 +116,6 @@ describe('MCP provider adapters', () => {
 		});
 
 		for await (const _event of adapter.stream(request())) {
-			// drain stream
 		}
 
 		expect(betaStream).toHaveBeenCalledWith(
