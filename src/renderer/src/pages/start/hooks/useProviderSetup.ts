@@ -1,9 +1,7 @@
 import type { Dispatch } from 'react';
 import { useEffect } from 'react';
 import { openExternalUrl } from '@/lib/external-links';
-import { appApi } from '@/lib/compat';
 import { DEFAULT_PROVIDERS } from '../../../../../shared/providers';
-import { isSpeechToTextProviderId } from '../../../../../shared/providers/models/stt';
 import type { Provider } from '../../../../../shared/providers/types';
 import { actionableProviderCatalog, getErrorMessage, MODEL_SERVICE_STEP_IDS } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
@@ -21,20 +19,14 @@ function toStoredProvider(providerId: string, apiKey: string): Provider | undefi
 }
 
 async function isProviderApiKeySaved(providerId: string): Promise<boolean> {
-	if (isSpeechToTextProviderId(providerId)) {
-		return window.stt.isProviderConfigured(providerId);
-	}
-	return appApi.isProviderApiKeySaved(providerId);
+	const provider = await window.provider.get(providerId);
+	return Boolean(provider?.apiKey.trim());
 }
 
 async function setProviderApiKey(providerId: string, apiKey: string): Promise<void> {
-	if (isSpeechToTextProviderId(providerId)) {
-		const provider = toStoredProvider(providerId, apiKey);
-		if (!provider) throw new Error('Unknown provider.');
-		await window.stt.saveProvider(providerId, provider);
-		return;
-	}
-	await appApi.setProviderApiKey(providerId, apiKey);
+	const provider = toStoredProvider(providerId, apiKey);
+	if (!provider) throw new Error('Unknown provider.');
+	await window.provider.set(providerId, provider);
 }
 
 export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupAction>) {
