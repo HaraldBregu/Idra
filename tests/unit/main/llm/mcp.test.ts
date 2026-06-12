@@ -76,7 +76,9 @@ describe('MCP provider adapters', () => {
 	});
 
 	it('adds neutral MCP servers to OpenAI request tools', async () => {
-		async function* stream(): AsyncIterable<unknown> {}
+		async function* stream(): AsyncIterable<unknown> {
+			return undefined;
+		}
 
 		const create = jest.fn().mockResolvedValue(stream());
 		const adapter = new OpenAIAdapter({
@@ -105,7 +107,9 @@ describe('MCP provider adapters', () => {
 	});
 
 	it('uses Anthropic beta messages when neutral MCP servers are present', async () => {
-		async function* stream(): AsyncIterable<unknown> {}
+		async function* stream(): AsyncIterable<unknown> {
+			return undefined;
+		}
 
 		const betaStream = jest.fn().mockReturnValue(stream());
 		const messagesStream = jest.fn().mockReturnValue(stream());
