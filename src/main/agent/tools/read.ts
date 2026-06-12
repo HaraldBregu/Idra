@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { Tool } from '../core/tool';
+import { Tool, type ToolContext } from '../core/tool';
 import { resolveToolPath } from './resolve';
 
 export class ReadTool extends Tool {
@@ -18,15 +18,21 @@ export class ReadTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(private readonly basePath = process.cwd()) {
-		super();
+	constructor(
+		private readonly basePath = process.cwd(),
+		context?: ToolContext
+	) {
+		super(context);
 	}
 
-	run(input: Record<string, unknown>): Promise<string> {
+	async run(input: Record<string, unknown>): Promise<string> {
 		const filePath = input.path;
 		if (typeof filePath !== 'string' || !filePath.trim()) {
 			throw new Error('read-file requires a non-empty path.');
 		}
-		return fs.readFile(resolveToolPath(this.basePath, filePath), 'utf8');
+		const resolvedPath = resolveToolPath(this.basePath, filePath);
+		const content = await fs.readFile(resolvedPath, 'utf8');
+		this.context.setCurrentFile(resolvedPath);
+		return content;
 	}
 }
