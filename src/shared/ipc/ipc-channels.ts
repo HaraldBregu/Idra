@@ -28,7 +28,7 @@ import type {
 	RealtimeTranscriptionSendChannelMap,
 } from './channels/realtime-transcription';
 import type { SkillsInvokeChannelMap } from './channels/skills';
-import type { SttInvokeChannelMap } from './channels/stt';
+import type { SttEventChannelMap, SttInvokeChannelMap } from './channels/stt';
 import type {
 	WindowEventChannelMap,
 	WindowInvokeChannelMap,
@@ -60,3 +60,5 @@ export interface EventChannelMap
 		CronEventChannelMap,
 		HeartbeatEventChannelMap,
 		RealtimeTranscriptionEventChannelMap {}
+		RealtimeTranscriptionEventChannelMap,
+		SttEventChannelMap {}
