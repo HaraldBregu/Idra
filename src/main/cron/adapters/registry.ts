@@ -1,10 +1,11 @@
 import cron from 'node-cron';
 import type {
+	CronJobInfo,
 	CronTask,
 	CronTaskData,
-} from '../../shared/app/cron';
-import type { CronLogger } from './core/logger';
-import type { CronJobOptions, RegisteredJob } from './types';
+} from '../../../shared/app/cron';
+import type { CronLogger } from '../core/logger';
+import type { CronJobOptions, RegisteredJob } from '../types';
 
 export class NodeCronJobRegistry {
 	private readonly jobs = new Map<string, RegisteredJob>();

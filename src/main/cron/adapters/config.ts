@@ -3,9 +3,9 @@ import type {
 	CronConfigurationStore,
 	CronServiceConfiguration,
 	CronServiceConfigurationPatch,
-} from './core/config';
-import { normalizeCronServiceConfigurationPatch } from './core/config';
-import { CronScheduleStoreError } from './core/errors';
+} from '../core/config';
+import { normalizeCronServiceConfigurationPatch } from '../core/config';
+import { CronScheduleStoreError } from '../core/errors';
 
 type CronConfigurationElectronStore = {
 	get store(): unknown;

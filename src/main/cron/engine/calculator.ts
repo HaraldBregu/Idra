@@ -1,6 +1,6 @@
-import type { CronSchedule } from './core/types';
-import { parseCronExpression } from './core/validation';
-import { CRON_MINUTE_MS, MAX_CRON_SCAN_MINUTES } from './constants';
+import type { CronSchedule } from '../core/types';
+import { parseCronExpression } from '../core/validation';
+import { CRON_MINUTE_MS, MAX_CRON_SCAN_MINUTES } from '../constants';
 
 interface TimeParts {
 	minute: number;
