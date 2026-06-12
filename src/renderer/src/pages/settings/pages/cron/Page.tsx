@@ -216,7 +216,7 @@ const CronPage: React.FC = () => {
 
 				{loading ? (
 					<CronLoadingList />
-				) : schedules.length === 0 ? (
+				) : empty ? (
 					<SettingsPanel>
 						<SettingsEmptyState
 							icon={Clock3}
@@ -226,116 +226,204 @@ const CronPage: React.FC = () => {
 						/>
 					</SettingsPanel>
 				) : (
-					<SettingsPanel>
-						<div className="grid gap-0">
-							{schedules.map((schedule) => {
-								const toggleBusy = busyId === `toggle:${schedule.id}`;
-								const runBusy = busyId === `run:${schedule.id}`;
-								const deleteBusy = busyId === `delete:${schedule.id}`;
-								const anyBusy = Boolean(busyId);
-
-								return (
-									<div
-										key={schedule.id}
-										role="button"
-										tabIndex={0}
-										onClick={() => navigateToSchedule(schedule.id)}
-										onKeyDown={(event) => {
-											if (event.key !== 'Enter' && event.key !== ' ') return;
-											event.preventDefault();
-											navigateToSchedule(schedule.id);
-										}}
-										className="grid gap-2 border-b border-border/60 px-3 py-2 outline-none last:border-b-0 focus-visible:ring-3 focus-visible:ring-ring/50 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
-									>
-										<div className="flex min-w-0 items-start gap-2">
-											<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
-												<Clock3 className="size-3" strokeWidth={1.8} />
-											</span>
-											<div className="min-w-0 flex-1">
-												<div className="truncate text-[13px] font-medium text-foreground">
-													{schedule.name}
-												</div>
-												<div className="mt-1 flex flex-wrap items-center gap-1.5">
-													<Badge
-														variant={statusVariant(schedule.status)}
-														className="h-4 px-1.5 text-[10px]"
-													>
-														{t(statusLabelKey(schedule.status))}
-													</Badge>
-													<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-														{schedule.taskType}
-													</Badge>
-													<Badge
-														variant="outline"
-														className="h-4 max-w-full px-1.5 font-mono text-[10px]"
-													>
-														<span className="truncate">{formatSchedule(schedule)}</span>
-													</Badge>
-													<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
-														{t('settings.cron.nextRun')}: {formatTimestamp(schedule.nextRunAt)}
-													</Badge>
-												</div>
-												{schedule.description || schedule.taskInput ? (
-													<p className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-														{schedule.description || inputSummary(schedule)}
-													</p>
-												) : null}
-											</div>
-										</div>
-
-										<div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
-											<Button
-												type="button"
-												size="xs"
-												variant="outline"
-												disabled={anyBusy || schedule.status === 'deleted'}
-												onClick={(event) => void toggleSchedule(schedule, event)}
-												aria-label={t(scheduleActionLabel(schedule))}
-											>
-												{toggleBusy ? (
-													<LoaderCircle className="size-3 animate-spin" />
-												) : schedule.status === 'active' ? (
-													<Pause className="size-3" />
-												) : (
-													<Play className="size-3" />
-												)}
-												{t(scheduleActionLabel(schedule))}
-											</Button>
-											<Button
-												type="button"
-												size="xs"
-												variant="outline"
-												disabled={anyBusy || schedule.status === 'deleted'}
-												onClick={(event) => void runSchedule(schedule, event)}
-												aria-label={t('settings.cron.actions.run')}
-											>
-												{runBusy ? (
-													<LoaderCircle className="size-3 animate-spin" />
-												) : (
-													<Play className="size-3" />
-												)}
-												{t('settings.cron.actions.run')}
-											</Button>
-											<Button
-												type="button"
-												size="icon-xs"
-												variant="destructive"
-												disabled={anyBusy}
-												onClick={(event) => void deleteSchedule(schedule, event)}
-												aria-label={t('settings.cron.actions.removeLabel', { id: schedule.name })}
-											>
-												{deleteBusy ? (
-													<LoaderCircle className="size-3 animate-spin" />
-												) : (
-													<Trash2 className="size-3" />
-												)}
-											</Button>
-										</div>
+					<div className="grid gap-3">
+						{schedules.length > 0 && (
+							<SettingsPanel>
+								<div className="border-b border-border/60 px-3 py-2">
+									<div className="text-xs font-medium text-foreground">
+										{t('settings.cron.schedulesTitle')}
 									</div>
-								);
-							})}
-						</div>
-					</SettingsPanel>
+									<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.cron.schedulesDescription')}
+									</div>
+								</div>
+								<div className="grid gap-0">
+									{schedules.map((schedule) => {
+										const toggleBusy = busyId === `toggle:${schedule.id}`;
+										const runBusy = busyId === `run:${schedule.id}`;
+										const deleteBusy = busyId === `delete:${schedule.id}`;
+										const anyBusy = Boolean(busyId);
+
+										return (
+											<div
+												key={schedule.id}
+												role="button"
+												tabIndex={0}
+												onClick={() => navigateToSchedule(schedule.id)}
+												onKeyDown={(event) => {
+													if (event.key !== 'Enter' && event.key !== ' ') return;
+													event.preventDefault();
+													navigateToSchedule(schedule.id);
+												}}
+												className="grid gap-2 border-b border-border/60 px-3 py-2 outline-none last:border-b-0 focus-visible:ring-3 focus-visible:ring-ring/50 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+											>
+												<div className="flex min-w-0 items-start gap-2">
+													<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+														<Clock3 className="size-3" strokeWidth={1.8} />
+													</span>
+													<div className="min-w-0 flex-1">
+														<div className="truncate text-[13px] font-medium text-foreground">
+															{schedule.name}
+														</div>
+														<div className="mt-1 flex flex-wrap items-center gap-1.5">
+															<Badge
+																variant={statusVariant(schedule.status)}
+																className="h-4 px-1.5 text-[10px]"
+															>
+																{t(statusLabelKey(schedule.status))}
+															</Badge>
+															<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+																{schedule.taskType}
+															</Badge>
+															<Badge
+																variant="outline"
+																className="h-4 max-w-full px-1.5 font-mono text-[10px]"
+															>
+																<span className="truncate">{formatSchedule(schedule)}</span>
+															</Badge>
+															<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+																{t('settings.cron.nextRun')}: {formatTimestamp(schedule.nextRunAt)}
+															</Badge>
+														</div>
+														{schedule.description || schedule.taskInput ? (
+															<p className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+																{schedule.description || inputSummary(schedule)}
+															</p>
+														) : null}
+													</div>
+												</div>
+
+												<div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+													<Button
+														type="button"
+														size="xs"
+														variant="outline"
+														disabled={anyBusy || schedule.status === 'deleted'}
+														onClick={(event) => void toggleSchedule(schedule, event)}
+														aria-label={t(scheduleActionLabel(schedule))}
+													>
+														{toggleBusy ? (
+															<LoaderCircle className="size-3 animate-spin" />
+														) : schedule.status === 'active' ? (
+															<Pause className="size-3" />
+														) : (
+															<Play className="size-3" />
+														)}
+														{t(scheduleActionLabel(schedule))}
+													</Button>
+													<Button
+														type="button"
+														size="xs"
+														variant="outline"
+														disabled={anyBusy || schedule.status === 'deleted'}
+														onClick={(event) => void runSchedule(schedule, event)}
+														aria-label={t('settings.cron.actions.run')}
+													>
+														{runBusy ? (
+															<LoaderCircle className="size-3 animate-spin" />
+														) : (
+															<Play className="size-3" />
+														)}
+														{t('settings.cron.actions.run')}
+													</Button>
+													<Button
+														type="button"
+														size="icon-xs"
+														variant="destructive"
+														disabled={anyBusy}
+														onClick={(event) => void deleteSchedule(schedule, event)}
+														aria-label={t('settings.cron.actions.removeLabel', { id: schedule.name })}
+													>
+														{deleteBusy ? (
+															<LoaderCircle className="size-3 animate-spin" />
+														) : (
+															<Trash2 className="size-3" />
+														)}
+													</Button>
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</SettingsPanel>
+						)}
+
+						{jobs.length > 0 && (
+							<SettingsPanel>
+								<div className="border-b border-border/60 px-3 py-2">
+									<div className="text-xs font-medium text-foreground">
+										{t('settings.cron.jobsTitle')}
+									</div>
+									<div className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.cron.jobsDescription')}
+									</div>
+								</div>
+								<div className="grid gap-0">
+									{jobs.map((job) => {
+										const deleteBusy = busyId === `job:${job.id}`;
+										const anyBusy = Boolean(busyId);
+
+										return (
+											<div
+												key={job.id}
+												className="grid gap-2 border-b border-border/60 px-3 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+											>
+												<div className="flex min-w-0 items-start gap-2">
+													<span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+														<Clock3 className="size-3" strokeWidth={1.8} />
+													</span>
+													<div className="min-w-0 flex-1">
+														<div className="truncate text-[13px] font-medium text-foreground">
+															{job.name}
+														</div>
+														<div className="mt-1 flex flex-wrap items-center gap-1.5">
+															<Badge
+																variant={statusVariant(job.status)}
+																className="h-4 px-1.5 text-[10px]"
+															>
+																{t(statusLabelKey(job.status))}
+															</Badge>
+															<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+																{job.target ?? 'job'}
+															</Badge>
+															<Badge
+																variant="outline"
+																className="h-4 max-w-full px-1.5 font-mono text-[10px]"
+															>
+																<span className="truncate">{formatJobSchedule(job)}</span>
+															</Badge>
+														</div>
+														{job.description ? (
+															<p className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
+																{job.description}
+															</p>
+														) : null}
+													</div>
+												</div>
+
+												<div className="flex flex-wrap items-center gap-1.5 sm:justify-end">
+													<Button
+														type="button"
+														size="icon-xs"
+														variant="destructive"
+														disabled={anyBusy}
+														onClick={(event) => void deleteJob(job, event)}
+														aria-label={t('settings.cron.actions.removeJobLabel', { id: job.name })}
+													>
+														{deleteBusy ? (
+															<LoaderCircle className="size-3 animate-spin" />
+														) : (
+															<Trash2 className="size-3" />
+														)}
+													</Button>
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							</SettingsPanel>
+						)}
+					</div>
 				)}
 			</SettingsSection>
 		</SettingsPageShell>
