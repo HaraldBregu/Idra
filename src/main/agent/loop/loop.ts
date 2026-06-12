@@ -7,7 +7,6 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import { ToolContext } from './context';
 import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';

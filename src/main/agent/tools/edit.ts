@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import { Tool } from '../core/tool';
-import type { ToolContext } from '../loop/context';
+import type { Context } from '../core/context';
 import { resolveToolPath } from './resolve';
 
 export class EditTool extends Tool {
@@ -29,7 +29,7 @@ export class EditTool extends Tool {
 
 	constructor(
 		private readonly basePath = process.cwd(),
-		context?: ToolContext
+		context?: Context
 	) {
 		super(context);
 	}

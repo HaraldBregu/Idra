@@ -1,5 +1,7 @@
-import type { ToolContextState } from './types';
 
+export interface ToolContextState {
+	path?: string;
+}
 export abstract class Context {
 	protected readonly state: ToolContextState = {};
 

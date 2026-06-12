@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { Tool } from '../core/tool';
-import type { ToolContext } from '../loop/context';
+import type { Context } from '../core/context';
 import { resolveToolPath } from './resolve';
 
 interface ExecResult {
@@ -86,7 +86,7 @@ export class ExecTool extends Tool {
 
 	constructor(
 		private readonly basePath = process.cwd(),
-		context?: ToolContext
+		context?: Context
 	) {
 		super(context);
 	}

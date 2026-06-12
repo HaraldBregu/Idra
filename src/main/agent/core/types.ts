@@ -26,10 +26,6 @@ export interface JSONSchema {
 	[k: string]: unknown;
 }
 
-export interface ToolContextState {
-	path?: string;
-}
-
 export interface MessageContentBlock {
 	type: string;
 	[key: string]: unknown;
