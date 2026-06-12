@@ -1,10 +1,16 @@
-import type { ConnectorInput, ConnectorSettingsRecord } from '../../connector';
+import type {
+	ConnectorInput,
+	ConnectorOAuthAuthorizationResult,
+	ConnectorOAuthDefaults,
+	ConnectorSettingsRecord,
+} from '../../connector';
 
 export const ConnectorsChannels = {
 	list: 'connectors:list',
 	save: 'connectors:save',
 	upsert: 'connectors:upsert',
 	get: 'connectors:get',
+	authorizeOAuth: 'connectors:authorize-oauth',
 } as const;
 
 export interface ConnectorsInvokeChannelMap {
@@ -15,4 +21,8 @@ export interface ConnectorsInvokeChannelMap {
 		result: ConnectorSettingsRecord;
 	};
 	[ConnectorsChannels.upsert]: { args: [input: ConnectorInput]; result: ConnectorSettingsRecord };
+	[ConnectorsChannels.authorizeOAuth]: {
+		args: [input: ConnectorOAuthDefaults];
+		result: ConnectorOAuthAuthorizationResult;
+	};
 }

@@ -19,6 +19,10 @@ export interface ConnectorOAuthDefaults {
 	readonly prompt?: string;
 }
 
+export interface ConnectorOAuthAuthorizationResult {
+	readonly accessToken: string;
+}
+
 export interface ConnectorDefault {
 	readonly id: ConnectorId;
 	readonly connectorId: string;
