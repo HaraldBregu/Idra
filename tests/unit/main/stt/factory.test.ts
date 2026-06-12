@@ -7,6 +7,7 @@ import { DeepgramSttAdapter } from '../../../../src/main/stt/providers/deepgram'
 import { ElevenLabsSttAdapter } from '../../../../src/main/stt/providers/elevenlabs';
 import { MistralSttAdapter } from '../../../../src/main/stt/providers/mistral';
 import { OpenAISttAdapter } from '../../../../src/main/stt/providers/openai';
+import { QwenSttAdapter } from '../../../../src/main/stt/providers/qwen';
 import { SttProviderUnsupportedError } from '../../../../src/main/stt/errors';
 
 describe('SttAdapterFactory', () => {
@@ -28,12 +29,15 @@ describe('SttAdapterFactory', () => {
 		expect(
 			factory.build({ ...provider, id: 'elevenlabs', name: 'ElevenLabs' })
 		).toBeInstanceOf(ElevenLabsSttAdapter);
+		expect(factory.build({ ...provider, id: 'qwen', name: 'Qwen' })).toBeInstanceOf(
+			QwenSttAdapter
+		);
 	});
 
 	it('rejects unsupported providers', () => {
 		const factory = new SttAdapterFactory();
 
-		expect(() => factory.build({ ...provider, id: 'qwen', name: 'Qwen' })).toThrow(
+		expect(() => factory.build({ ...provider, id: 'unknown', name: 'Unknown' })).toThrow(
 			SttProviderUnsupportedError
 		);
 	});
