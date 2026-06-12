@@ -18,23 +18,43 @@ export const SPEECH_TO_TEXT_PROVIDER_IDS = [
 export type SpeechToTextProviderId = (typeof SPEECH_TO_TEXT_PROVIDER_IDS)[number];
 
 export const DEEPGRAM_NOVA_3_SPEECH_TO_TEXT_MODEL_ID = 'nova-3';
-export const DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID = 'flux';
+export const DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID = 'flux-general-en';
 export const GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-transcribe';
 export const MINI_SPEECH_TRANSCRIBER_MODEL_ID = 'gpt-4o-mini-transcribe';
+export const OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'gpt-realtime-whisper';
 export const SPEECH_TRANSCRIBER_MODEL_IDS = [
 	GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID,
 	MINI_SPEECH_TRANSCRIBER_MODEL_ID,
+	OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 ] as const;
 export const LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS = [] as const;
-export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-2602';
+export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-latest';
 export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID =
 	'voxtral-mini-transcribe-realtime-2602';
-export const QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID = 'qwen3.5-omni';
-export const QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-omni-flash';
+export const QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-asr-flash-realtime';
 export const ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2';
 export const ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2_realtime';
 export const XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID = 'xai-stt-batch';
 export const XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID = 'xai-stt-streaming';
+
+export const SPEECH_TO_TEXT_PROVIDER_BASE_URLS = {
+	[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.deepgram.com/v1',
+	[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.elevenlabs.io/v1',
+	[MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.mistral.ai/v1',
+	[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.openai.com/v1',
+	[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]:
+		'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
+	[XAI_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.x.ai/v1',
+} as const satisfies Readonly<Record<SpeechToTextProviderId, string>>;
+
+export const SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES = {
+	[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]: 24_000,
+	[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]: 16_000,
+	[MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID]: 16_000,
+	[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]: 24_000,
+	[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]: 16_000,
+	[XAI_SPEECH_TO_TEXT_PROVIDER_ID]: 24_000,
+} as const satisfies Readonly<Record<SpeechToTextProviderId, number>>;
 
 export const SPEECH_TO_TEXT_BATCH_API_TYPE = 'batch';
 export const SPEECH_TO_TEXT_STREAM_API_TYPE = 'stream';
@@ -60,10 +80,10 @@ export const SPEECH_TO_TEXT_MODELS_BY_PROVIDER = {
 	[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]: [
 		model(GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Transcribe'),
 		model(MINI_SPEECH_TRANSCRIBER_MODEL_ID, 'GPT-4o Mini Transcribe'),
+		model(OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID, 'GPT Realtime Whisper'),
 	],
 	[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]: [
-		model(QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3.5 Omni'),
-		model(QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3 Omni Flash'),
+		model(QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID, 'Qwen3 ASR Flash Realtime'),
 	],
 	[XAI_SPEECH_TO_TEXT_PROVIDER_ID]: [
 		model(XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID, 'xAI STT Batch'),
@@ -90,18 +110,12 @@ export const SPEECH_TO_TEXT_MODEL_API_TYPES_BY_PROVIDER = {
 		[MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
 	},
 	[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]: {
-		[GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID]: [
-			SPEECH_TO_TEXT_BATCH_API_TYPE,
-			SPEECH_TO_TEXT_STREAM_API_TYPE,
-		],
-		[MINI_SPEECH_TRANSCRIBER_MODEL_ID]: [
-			SPEECH_TO_TEXT_BATCH_API_TYPE,
-			SPEECH_TO_TEXT_STREAM_API_TYPE,
-		],
+		[GPT_4O_SPEECH_TRANSCRIBER_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
+		[MINI_SPEECH_TRANSCRIBER_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
+		[OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
 	},
 	[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]: {
-		[QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
-		[QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
+		[QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
 	},
 	[XAI_SPEECH_TO_TEXT_PROVIDER_ID]: {
 		[XAI_BATCH_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
@@ -119,6 +133,10 @@ function resolveSpeechToTextProviderId(providerId: string): SpeechToTextProvider
 	return (SPEECH_TO_TEXT_PROVIDER_IDS as readonly string[]).includes(normalizedProviderId)
 		? (normalizedProviderId as SpeechToTextProviderId)
 		: null;
+}
+
+export function isSpeechToTextProviderId(providerId: string): providerId is SpeechToTextProviderId {
+	return resolveSpeechToTextProviderId(providerId) !== null;
 }
 
 export function getSpeechToTextModelApiTypes(
@@ -145,7 +163,7 @@ export function isRealtimeSpeechToTextModel(providerId: string, modelId: string)
 		return model === DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID;
 	}
 	if (provider === SPEECH_TRANSCRIBER_PROVIDER_ID) {
-		return (SPEECH_TRANSCRIBER_MODEL_IDS as readonly string[]).includes(model);
+		return model === OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID;
 	}
 	if (provider === ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID) {
 		return model === ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID;
@@ -154,10 +172,7 @@ export function isRealtimeSpeechToTextModel(providerId: string, modelId: string)
 		return model === MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID;
 	}
 	if (provider === QWEN_SPEECH_TO_TEXT_PROVIDER_ID) {
-		return (
-			model === QWEN_OMNI_SPEECH_TO_TEXT_MODEL_ID ||
-			model === QWEN_OMNI_FLASH_SPEECH_TO_TEXT_MODEL_ID
-		);
+		return model === QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID;
 	}
 	if (provider === XAI_SPEECH_TO_TEXT_PROVIDER_ID) {
 		return model === XAI_STREAMING_SPEECH_TO_TEXT_MODEL_ID;
