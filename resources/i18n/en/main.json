@@ -151,6 +151,7 @@
 				"app": "App",
 				"agent": "Agent",
 					"modelServices": "Model services",
+					"connectors": "Connectors",
 					"channels": "Channels",
 					"automation": "Automation",
 					"general": "General setup",
