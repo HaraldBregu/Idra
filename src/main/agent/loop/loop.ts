@@ -73,7 +73,7 @@ export class AgentRuntime {
 			throw new Error('Agent requires a configured provider and model.');
 
 		const workspacePath = workspace.getPath();
-		const toolContext = new ToolContext({ currentDirectory: workspacePath });
+		const toolContext = new ToolContext({ path: workspacePath });
 		const tools = input.tools ? input.tools.slice() : [];
 		tools.push(new ReadTool(workspacePath, toolContext));
 		tools.push(new EditTool(workspacePath, toolContext));
@@ -83,8 +83,6 @@ export class AgentRuntime {
 		const system = await this.systemPrompt.build({
 			workspace,
 		});
-
-		
 
 		yield {
 			type: 'run_started',

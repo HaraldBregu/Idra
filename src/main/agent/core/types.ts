@@ -27,9 +27,7 @@ export interface JSONSchema {
 }
 
 export interface ToolContextState {
-	currentDirectory?: string;
-	currentFile?: string;
-	currentFiles: string[];
+	path?: string;
 }
 
 export interface MessageContentBlock {

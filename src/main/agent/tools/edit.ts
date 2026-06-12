@@ -58,7 +58,7 @@ export class EditTool extends Tool {
 		}
 
 		await fs.writeFile(resolvedPath, content.replace(oldText, newText), 'utf8');
-		this.context.setCurrentFile(resolvedPath);
+		this.context.setPath(resolvedPath);
 		return { path: resolvedPath };
 	}
 }

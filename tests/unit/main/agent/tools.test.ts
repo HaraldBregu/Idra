@@ -30,7 +30,7 @@ describe('agent file tools', () => {
 	});
 
 	it('keeps file state in a shared tool context', async () => {
-		const context = new ToolContext({ currentDirectory: workspacePath });
+		const context = new ToolContext({ path: workspacePath });
 		const write = new WriteTool(workspacePath, context);
 		const read = new ReadTool(workspacePath, context);
 		const expectedPath = path.join(workspacePath, 'notes/test.txt');
@@ -39,14 +39,12 @@ describe('agent file tools', () => {
 		await expect(read.run({ path: 'notes/test.txt' })).resolves.toBe('hello');
 
 		expect(context.snapshot()).toEqual({
-			currentDirectory: workspacePath,
-			currentFile: expectedPath,
-			currentFiles: [expectedPath],
+			path: expectedPath,
 		});
 	});
 
 	it('uses the tool context current directory for exec calls without workdir', async () => {
-		const context = new ToolContext({ currentDirectory: workspacePath });
+		const context = new ToolContext({ path: workspacePath });
 		const tool = new ExecTool(workspacePath, context);
 		const nestedPath = path.join(workspacePath, 'nested');
 		const command = `"${process.execPath}" --version`;
@@ -57,7 +55,7 @@ describe('agent file tools', () => {
 
 		expect(first.workdir).toBe(nestedPath);
 		expect(second.workdir).toBe(nestedPath);
-		expect(context.currentDirectory).toBe(nestedPath);
+		expect(context.path).toBe(nestedPath);
 	});
 
 	it('expands home-relative paths', () => {

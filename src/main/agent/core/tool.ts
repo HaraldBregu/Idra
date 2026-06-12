@@ -5,50 +5,21 @@ export class ToolContext {
 
 	constructor(initialState: Partial<ToolContextState> = {}) {
 		this.state = {
-			currentDirectory: initialState.currentDirectory,
-			currentFile: initialState.currentFile,
-			currentFiles: [...new Set(initialState.currentFiles ?? [])],
+			path: initialState.path,
 		};
-
-		if (this.state.currentFile) this.addCurrentFile(this.state.currentFile);
 	}
 
-	get currentDirectory(): string | undefined {
-		return this.state.currentDirectory;
+	get path(): string | undefined {
+		return this.state.path;
 	}
 
-	get currentFile(): string | undefined {
-		return this.state.currentFile;
-	}
-
-	get currentFiles(): readonly string[] {
-		return [...this.state.currentFiles];
-	}
-
-	setCurrentDirectory(currentDirectory: string): void {
-		this.state.currentDirectory = currentDirectory;
-	}
-
-	setCurrentFile(currentFile: string): void {
-		this.state.currentFile = currentFile;
-		this.addCurrentFile(currentFile);
-	}
-
-	addCurrentFile(currentFile: string): void {
-		if (!this.state.currentFiles.includes(currentFile)) {
-			this.state.currentFiles.push(currentFile);
-		}
-	}
-
-	setCurrentFiles(currentFiles: string[]): void {
-		this.state.currentFiles = [...new Set(currentFiles)];
+	setPath(path: string): void {
+		this.state.path = path;
 	}
 
 	snapshot(): ToolContextState {
 		return {
-			currentDirectory: this.state.currentDirectory,
-			currentFile: this.state.currentFile,
-			currentFiles: [...this.state.currentFiles],
+			path: this.state.path,
 		};
 	}
 }

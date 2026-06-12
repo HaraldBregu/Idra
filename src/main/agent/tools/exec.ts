@@ -175,7 +175,7 @@ export class ExecTool extends Tool {
 
 		const cwd =
 			workdir === undefined
-				? this.context.currentDirectory ?? this.basePath
+				? this.context.path ?? this.basePath
 				: resolveToolPath(this.basePath, workdir);
 		const yieldMs = yieldMsInput ?? 10000;
 		const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
@@ -215,7 +215,7 @@ export class ExecTool extends Tool {
 				});
 				child.once('spawn', () => {
 					child.unref();
-					this.context.setCurrentDirectory(cwd);
+					this.context.setPath(cwd);
 					resolve({
 						command,
 						workdir: cwd,
@@ -267,7 +267,7 @@ export class ExecTool extends Tool {
 				child.stderr.removeAllListeners('data');
 				child.stdout.resume();
 				child.stderr.resume();
-				this.context.setCurrentDirectory(cwd);
+				this.context.setPath(cwd);
 				resolve({
 					command,
 					workdir: cwd,
@@ -301,7 +301,7 @@ export class ExecTool extends Tool {
 				if (settled) return;
 				settled = true;
 				clearTimeout(yieldTimer);
-				this.context.setCurrentDirectory(cwd);
+				this.context.setPath(cwd);
 				resolve({
 					command,
 					workdir: cwd,

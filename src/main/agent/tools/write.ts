@@ -42,7 +42,7 @@ export class WriteTool extends Tool {
 		const resolvedPath = resolveToolPath(this.basePath, filePath);
 		await fs.mkdir(path.dirname(resolvedPath), { recursive: true });
 		await fs.writeFile(resolvedPath, content, 'utf8');
-		this.context.setCurrentFile(resolvedPath);
+		this.context.setPath(resolvedPath);
 		return { path: resolvedPath };
 	}
 }
