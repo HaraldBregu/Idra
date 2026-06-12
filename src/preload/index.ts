@@ -11,6 +11,7 @@ import {
 	RealtimeTranscriptionChannels,
 	CronChannels,
 	SkillsChannels,
+	SttChannels,
 } from '../shared/ipc/ipc-channels';
 import type {
 	AppApi,
@@ -22,6 +23,7 @@ import type {
 	RealtimeTranscriptionApi,
 	ProviderStoreApi,
 	SkillsApi,
+	SttApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared/providers';
@@ -41,6 +43,7 @@ import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channel
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from './index.d';
 import type { Provider } from '../shared/providers/types';
+import { normalizeSttTranscriptionRequest } from '../shared/stt/transcription';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
@@ -320,6 +323,12 @@ export const providerStore: ProviderStoreApi = {
 	},
 };
 
+export const stt: SttApi = {
+	transcribe: (request) => {
+		return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
+	},
+};
+
 export const agentStore: AgentStoreApi = {
 	getProvider: (): Promise<PublicProvider | undefined> => {
 		return typedInvokeUnwrap(AgentStoreChannels.getProvider);
@@ -391,6 +400,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('providerStore', providerStore);
+		contextBridge.exposeInMainWorld('stt', stt);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -415,4 +425,6 @@ if (process.contextIsolated) {
 	globalThis.skills = skills;
 	// @ts-ignore (define in dts)
 	globalThis.providerStore = providerStore;
+	// @ts-ignore (define in dts)
+	globalThis.stt = stt;
 }

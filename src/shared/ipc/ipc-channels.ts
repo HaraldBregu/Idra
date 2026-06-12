@@ -8,6 +8,7 @@ export { HeartbeatChannels } from './channels/heartbeat';
 export { ProviderStoreChannels } from './channels/provider';
 export { RealtimeTranscriptionChannels } from './channels/realtime-transcription';
 export { SkillsChannels } from './channels/skills';
+export { SttChannels } from './channels/stt';
 export { WindowChannels } from './channels/window';
 
 import type { AgentEventChannelMap, AgentInvokeChannelMap } from './channels/agent';
@@ -27,6 +28,7 @@ import type {
 	RealtimeTranscriptionSendChannelMap,
 } from './channels/realtime-transcription';
 import type { SkillsInvokeChannelMap } from './channels/skills';
+import type { SttInvokeChannelMap } from './channels/stt';
 import type {
 	WindowEventChannelMap,
 	WindowInvokeChannelMap,
@@ -44,7 +46,8 @@ export interface InvokeChannelMap
 		SkillsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
-		RealtimeTranscriptionInvokeChannelMap {}
+		RealtimeTranscriptionInvokeChannelMap,
+		SttInvokeChannelMap {}
 
 export interface SendChannelMap
 	extends WindowSendChannelMap,

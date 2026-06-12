@@ -4,6 +4,7 @@ import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
 import { CronIpc } from '../cron';
 import { ProviderStoreIpc } from '../provider';
+import { SttIpc } from '../stt';
 import { WindowIpc } from '../window';
 import type { IpcModule } from './module';
 import type { EventBus } from '../../services';
@@ -20,6 +21,7 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 		new ChannelsIpc(),
 		new CronIpc(),
 		new ProviderStoreIpc(),
+		new SttIpc(),
 		new WindowIpc(),
 	];
 

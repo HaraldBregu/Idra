@@ -60,6 +60,10 @@ export interface ProviderStoreApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface SttApi {
+	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
+}
+
 import type { PublicProvider } from '../shared/providers';
 import type { Provider } from '../shared/providers/types';
 import type {
@@ -73,6 +77,10 @@ import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
+import type {
+	SttTranscriptionRequest,
+	SttTranscriptionResult,
+} from '../shared/stt/transcription';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
@@ -208,5 +216,6 @@ declare global {
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
 		providerStore: ProviderStoreApi;
+		stt: SttApi;
 	}
 }

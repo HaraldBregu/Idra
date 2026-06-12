@@ -12,6 +12,7 @@ import { LlmService } from './llm';
 import { AgentService } from './services/agent-service';
 import { AgentSettingsStore } from './services/agent-settings-store';
 import { ProviderStoreService } from './services/provider-store';
+import { SttService } from './services/stt-service';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -38,6 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.get(ProviderStoreService);
 	container.get(LlmService);
+	container.get(SttService);
 
 	const agentService = new AgentService(container.get(AgentSettingsStore));
 	container.set(AgentService, agentService);
