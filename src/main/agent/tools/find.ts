@@ -14,7 +14,8 @@ interface FindResult {
 
 export class FindTool extends Tool {
 	readonly name = 'find';
-	readonly description = 'Find files by name or path pattern.';
+	readonly description =
+		'Recursively find files by name or relative path pattern. Use this to locate files before reading or editing them.';
 	readonly schema = {
 		type: 'object',
 		properties: {

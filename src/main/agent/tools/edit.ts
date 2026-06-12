@@ -4,7 +4,8 @@ import { resolveToolPath } from './resolve';
 
 export class EditTool extends Tool {
 	readonly name = 'edit';
-	readonly description = 'Edit a UTF-8 text file by replacing exact text.';
+	readonly description =
+		'Edit a UTF-8 text file by replacing one exact text match. Use this for focused changes when the old text appears exactly once.';
 	readonly schema = {
 		type: 'object',
 		properties: {

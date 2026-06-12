@@ -5,7 +5,8 @@ import { resolveToolPath } from './resolve';
 
 export class WriteTool extends Tool {
 	readonly name = 'write';
-	readonly description = 'Write UTF-8 text content to a file by path.';
+	readonly description =
+		'Create or overwrite a UTF-8 text file with exact content, creating parent directories when needed.';
 	readonly schema = {
 		type: 'object',
 		properties: {

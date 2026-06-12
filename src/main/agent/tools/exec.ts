@@ -21,11 +21,8 @@ interface ExecResult {
 export class ExecTool extends Tool {
 	readonly name = 'exec';
 	readonly description =
-		'Execute shell commands with background continuation for work that starts now. ' +
-		'Use yieldMs/background to continue later via process tool. ' +
-		'For long-running work started now, rely on automatic completion wake when it is enabled and the command emits output or fails; otherwise use process to confirm completion. ' +
-		'Use process whenever you need logs, status, input, or intervention. ' +
-		'Use pty=true for TTY-required commands (terminal UIs, coding agents).';
+		'Run a shell command from the workspace or a chosen working directory. ' +
+		'Use it for builds, tests, searches, and other command-line checks; set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.';
 	readonly schema = {
 		type: 'object',
 		required: ['command'],

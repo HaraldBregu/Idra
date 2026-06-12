@@ -13,6 +13,8 @@ const DEFAULT_SETTINGS: SttSettingsSchema = {
 	modelId: undefined,
 };
 
+const STT_SETTINGS_STORE_NAME = 'settings.stt';
+
 export interface SttSettingsStoreOptions {
 	cwd?: string;
 }
@@ -23,7 +25,7 @@ export class SttSettingsStore {
 
 	constructor(options: SttSettingsStoreOptions = {}) {
 		this.store = new Store<SttSettingsSchema>({
-			name: 'settings',
+			name: STT_SETTINGS_STORE_NAME,
 			cwd: options.cwd ?? resolveSttSettingsLocation(),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
@@ -46,10 +48,10 @@ export class SttSettingsStore {
 
 function resolveSttSettingsLocation(): string {
 	try {
-		return path.join(app.getPath('userData'), 'stt');
+		return path.resolve(app.getPath('appData'), app.getName());
 	} catch {
 		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.join(path.resolve(base, app?.getName?.() ?? 'Friday'), 'stt');
+		return path.resolve(base, app?.getName?.() ?? 'Friday');
 	}
 }
 

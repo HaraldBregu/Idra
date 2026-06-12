@@ -4,7 +4,8 @@ import { resolveToolPath } from './resolve';
 
 export class ReadTool extends Tool {
 	readonly name = 'read';
-	readonly description = 'Read a UTF-8 text file by path.';
+	readonly description =
+		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.';
 	readonly schema = {
 		type: 'object',
 		properties: {
