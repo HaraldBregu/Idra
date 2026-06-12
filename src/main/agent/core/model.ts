@@ -1,5 +1,6 @@
 import type { Tool } from './tool';
 import type { Message, Provider, ToolCall } from './types';
+import type { ProviderMcpServerSpec } from '../../llm/types';
 
 export interface ModelRequest {
 	messages: Message[];
@@ -8,6 +9,7 @@ export interface ModelRequest {
 	model: string;
 	maxTokens: number;
 	tools?: Tool[];
+	mcp?: ProviderMcpServerSpec[];
 	signal?: AbortSignal;
 }
 
