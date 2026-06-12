@@ -28,6 +28,7 @@ import type {
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduledTask,
+	CronJobInfo,
 } from '../shared/app/cron';
 import type {
 	AgentHistoryMessage,
@@ -224,8 +225,14 @@ export const cron: CronApi = {
 	deleteSchedule: (scheduleId: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.deleteSchedule, scheduleId);
 	},
+	deleteJob: (jobId: string): Promise<void> => {
+		return typedInvokeUnwrap(CronChannels.deleteJob, jobId);
+	},
 	listSchedules: (filter?: CronScheduleFilter): Promise<CronSchedule[]> => {
 		return typedInvokeUnwrap(CronChannels.listSchedules, filter);
+	},
+	listJobs: (): Promise<CronJobInfo[]> => {
+		return typedInvokeUnwrap(CronChannels.listJobs);
 	},
 	getSchedule: (scheduleId: string): Promise<CronSchedule> => {
 		return typedInvokeUnwrap(CronChannels.getSchedule, scheduleId);
