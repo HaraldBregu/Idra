@@ -3,10 +3,10 @@ jest.mock('@mistralai/mistralai', () => ({
 }));
 
 import { SttService } from '../../../../src/main/services/stt-service';
+import type { SttServiceOptions } from '../../../../src/main/services/stt-service';
 import { SttAdapterFactory } from '../../../../src/main/stt/factory';
 import type { SttAdapter } from '../../../../src/main/stt/types';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../../../../src/main/stt/errors';
-import type { SttSettingsStore } from '../../../../src/main/stt/settings';
 
 const audio = {
 	data: Buffer.from('audio').toString('base64'),
@@ -21,29 +21,26 @@ function sttStore(provider?: {
 	apiKey: string;
 	baseUrl: string;
 	modelId?: string;
-}): SttSettingsStore {
-	return {
-		getProviderId: jest.fn(() => provider?.id),
-		getModelId: jest.fn(() => provider?.modelId),
-		setSelection: jest.fn(),
-		getProvider: jest.fn(() =>
-			provider
-				? {
+}): SttServiceOptions['store'] {
+	const state = {
+		providerId: provider?.id,
+		modelId: provider?.modelId,
+		providers: provider
+			? {
+					[provider.id]: {
 						name: provider.name,
 						apiKey: provider.apiKey,
 						baseUrl: provider.baseUrl,
-					}
-				: undefined
-		),
-		setProvider: jest.fn((_providerId, nextProvider) => nextProvider),
-		hasProvider: jest.fn(() => Boolean(provider?.apiKey)),
-		getProviderSpec: jest.fn((providerId: string) => ({
-			id: providerId,
-			name: provider?.name ?? providerId,
-			apiKey: provider?.apiKey ?? '',
-			baseURL: provider?.baseUrl,
-		})),
-	} as unknown as SttSettingsStore;
+					},
+				}
+			: {},
+	};
+	return {
+		get: jest.fn((key: keyof typeof state) => state[key]),
+		set: jest.fn((key: keyof typeof state, value: (typeof state)[keyof typeof state]) => {
+			state[key] = value as never;
+		}),
+	} as SttServiceOptions['store'];
 }
 
 describe('SttService', () => {
@@ -75,7 +72,7 @@ describe('SttService', () => {
 			apiKey: 'test-key',
 			baseUrl: 'https://api.mistral.ai/v1',
 		});
-		const service = new SttService(factory, store as never);
+		const service = new SttService(factory, { store });
 
 		const result = await service.transcribe({
 			audio,
@@ -119,7 +116,7 @@ describe('SttService', () => {
 			apiKey: 'test-key',
 			baseUrl: 'https://api.deepgram.com/v1',
 		});
-		const service = new SttService(factory, store as never);
+		const service = new SttService(factory, { store });
 
 		await service.transcribe({ audio, providerId: 'deepgram' });
 
@@ -134,12 +131,14 @@ describe('SttService', () => {
 	it('rejects streaming-only speech-to-text models for the batch API', async () => {
 		const service = new SttService(
 			{ build: jest.fn() } as unknown as SttAdapterFactory,
-			sttStore({
-				id: 'qwen',
-				name: 'Qwen',
-				apiKey: 'test-key',
-				baseUrl: 'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
-			}) as never
+			{
+				store: sttStore({
+					id: 'qwen',
+					name: 'Qwen',
+					apiKey: 'test-key',
+					baseUrl: 'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
+				}),
+			}
 		);
 
 		await expect(
@@ -164,7 +163,7 @@ describe('SttService', () => {
 			apiKey: 'test-key',
 			baseUrl: 'https://api.openai.com/v1',
 		});
-		const service = new SttService(factory, store as never);
+		const service = new SttService(factory, { store });
 		const events: unknown[] = [];
 
 		const session = await service.startRealtime(
@@ -205,12 +204,14 @@ describe('SttService', () => {
 		};
 		const service = new SttService(
 			{ build: jest.fn(() => adapter) } as unknown as SttAdapterFactory,
-			sttStore({
-				id: 'deepgram',
-				name: 'Deepgram',
-				apiKey: 'test-key',
-				baseUrl: 'https://api.deepgram.com/v1',
-			}) as never
+			{
+				store: sttStore({
+					id: 'deepgram',
+					name: 'Deepgram',
+					apiKey: 'test-key',
+					baseUrl: 'https://api.deepgram.com/v1',
+				}),
+			}
 		);
 
 		const session = await service.startRealtime({ providerId: 'deepgram' }, jest.fn());
@@ -226,12 +227,14 @@ describe('SttService', () => {
 	it('rejects batch-only models for realtime sessions', async () => {
 		const service = new SttService(
 			{ build: jest.fn() } as unknown as SttAdapterFactory,
-			sttStore({
-				id: 'xai',
-				name: 'xAI',
-				apiKey: 'test-key',
-				baseUrl: 'https://api.x.ai/v1',
-			}) as never
+			{
+				store: sttStore({
+					id: 'xai',
+					name: 'xAI',
+					apiKey: 'test-key',
+					baseUrl: 'https://api.x.ai/v1',
+				}),
+			}
 		);
 
 		await expect(
@@ -242,12 +245,14 @@ describe('SttService', () => {
 	it('requires a configured API key', async () => {
 		const service = new SttService(
 			{ build: jest.fn() } as unknown as SttAdapterFactory,
-			sttStore({
-				id: 'openai',
-				name: 'OpenAI',
-				apiKey: '',
-				baseUrl: 'https://api.openai.com/v1',
-			}) as never
+			{
+				store: sttStore({
+					id: 'openai',
+					name: 'OpenAI',
+					apiKey: '',
+					baseUrl: 'https://api.openai.com/v1',
+				}),
+			}
 		);
 
 		await expect(
