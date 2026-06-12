@@ -99,4 +99,28 @@ describe('ConnectorSettingsService', () => {
 			})
 		).toThrow('Unsupported connector: drive');
 	});
+
+	it('requires a configured OAuth client id before authorizing', async () => {
+		const service = createService();
+		const originalValue = process.env.TEST_CONNECTOR_CLIENT_ID;
+		delete process.env.TEST_CONNECTOR_CLIENT_ID;
+
+		try {
+			await expect(
+				service.authorizeOAuth({
+					service: 'test',
+					clientIdEnv: 'TEST_CONNECTOR_CLIENT_ID',
+					authorizationUrl: 'https://example.com/oauth/authorize',
+					tokenUrl: 'https://example.com/oauth/token',
+					scopes: ['profile'],
+				})
+			).rejects.toThrow('Missing OAuth client id: TEST_CONNECTOR_CLIENT_ID');
+		} finally {
+			if (originalValue === undefined) {
+				delete process.env.TEST_CONNECTOR_CLIENT_ID;
+			} else {
+				process.env.TEST_CONNECTOR_CLIENT_ID = originalValue;
+			}
+		}
+	});
 });
