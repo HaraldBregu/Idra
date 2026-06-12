@@ -93,6 +93,7 @@ import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
+import type { ConnectorInput, ConnectorSettingsRecord } from '../shared/connector';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -118,37 +119,8 @@ export interface ModelSelection {
 	model: Model;
 }
 
-export type ConnectorRecord = Record<
-	string,
-	{
-		type: 'mcp';
-		server_label: string;
-		server_url: string;
-		server_description?: string;
-		authorization?: string;
-		require_approval?: 'always' | 'never';
-		defer_loading?: boolean;
-		enabled?: boolean;
-		last_refreshed_at?: string;
-		created_at?: string;
-		updated_at?: string;
-		last_error?: string;
-	}
->;
-
-export type ConnectorInput = {
-	id?: string;
-	name: string;
-	connectorId: string;
-	serverLabel?: string;
-	serverDescription?: string;
-	serverUrl?: string;
-	authorization?: string;
-	requireApproval?: 'always' | 'never';
-	deferLoading?: boolean;
-	enabled?: boolean;
-	createdAt?: string;
-};
+export type ConnectorRecord = ConnectorSettingsRecord;
+export type { ConnectorInput };
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

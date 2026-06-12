@@ -53,7 +53,7 @@ export function ConnectorCard({
 		>
 			<ConnectorIcon
 				connectorId={connector?.id ?? catalogEntry.connectorId}
-				directConnectorId={catalogEntry.directConnectorId}
+				directConnectorId={catalogEntry.iconId ?? catalogEntry.directConnectorId}
 				name={title}
 			/>
 			<ItemContent className="min-w-0 flex-col items-start gap-1">

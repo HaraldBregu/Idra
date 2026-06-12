@@ -1,5 +1,6 @@
 import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/providers/models/llm';
 import { cloneModels, type ProviderModel } from '../../../shared/providers/models/types';
+import type { ConnectorInput, ConnectorOAuthDefaults } from '../../../shared/connector';
 import type { PublicProvider } from '../../../shared/providers';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import type {
@@ -42,32 +43,8 @@ export interface ModelSelection {
 export type AgentToolCallStatus = AgentToolResultStatus;
 export type { SttRealtimeEvent };
 
-export type ConnectorInput = {
-	id?: string;
-	name: string;
-	connectorId: string;
-	serverLabel?: string;
-	serverDescription?: string;
-	serverUrl?: string;
-	authorization?: string;
-	requireApproval?: 'always' | 'never';
-	deferLoading?: boolean;
-	enabled?: boolean;
-	createdAt?: string;
-};
-
-export type OAuthAuthorizeInput = {
-	service: string;
-	serviceId?: string;
-	clientIdEnv: string;
-	clientSecretEnv?: string;
-	authorizationUrl: string;
-	tokenUrl: string;
-	userInfoUrl?: string;
-	scopes: readonly string[];
-	accessType?: string;
-	prompt?: string;
-};
+export type { ConnectorInput };
+export type OAuthAuthorizeInput = ConnectorOAuthDefaults;
 
 export type RendererAppApi = Window['app'] & {
 	authorizeOAuth(input: OAuthAuthorizeInput): Promise<{ accessToken: string }>;
