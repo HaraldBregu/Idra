@@ -6,7 +6,7 @@ import type {
 	Message,
 	ToolCall,
 } from '../core/types';
-import type { Tool } from '../core/tool';
+import { ToolContext, type Tool } from '../core/tool';
 import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
@@ -72,12 +72,13 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
+		const toolContext = new ToolContext({ currentDirectory: workspacePath });
 		const tools = input.tools ? input.tools.slice() : [];
 		const workspacePath = workspace.getPath();
-		tools.push(new ReadTool(workspacePath));
-		tools.push(new EditTool(workspacePath));
-		tools.push(new WriteTool(workspacePath));
-		tools.push(new ExecTool(workspacePath));
+		tools.push(new ReadTool(workspacePath, toolContext));
+		tools.push(new EditTool(workspacePath, toolContext));
+		tools.push(new WriteTool(workspacePath, toolContext));
+		tools.push(new ExecTool(workspacePath, toolContext));
 
 		const system = await this.systemPrompt.build({
 			workspace,
