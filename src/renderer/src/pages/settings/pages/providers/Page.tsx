@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PROVIDERS, type Provider } from '../../../../../../shared/providers';
-import { isSpeechToTextProviderId } from '../../../../../../shared/providers/models/stt';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
@@ -21,18 +20,6 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
-
-function getStoredProvider(providerId: string): Promise<Provider | undefined> {
-	return isSpeechToTextProviderId(providerId)
-		? window.stt.getProvider(providerId)
-		: window.provider.get(providerId);
-}
-
-function saveStoredProvider(providerId: string, provider: Provider): Promise<Provider> {
-	return isSpeechToTextProviderId(providerId)
-		? window.stt.saveProvider(providerId, provider)
-		: window.provider.set(providerId, provider);
-}
 
 const ProvidersPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -52,7 +39,7 @@ const ProvidersPage: React.FC = () => {
 
 		void Promise.all(
 			actionableProviderCatalog.map(async (provider) => {
-				const stored = await getStoredProvider(provider.id);
+				const stored = await window.provider.get(provider.id);
 				return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
 			})
 		)
@@ -130,7 +117,7 @@ const ProvidersPage: React.FC = () => {
 		try {
 			const provider = toStoredProvider(providerId, apiKey);
 			if (!provider) throw new Error('Unknown provider.');
-			await saveStoredProvider(providerId, provider);
+			await window.provider.set(providerId, provider);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 		} catch (err) {
 			setError(getErrorMessage(err, 'Could not save provider API key.'));
