@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { Tool } from '../core/tool';
+import { Tool, type ToolContext } from '../core/tool';
 import { resolveToolPath } from './resolve';
 
 interface ExecResult {
@@ -83,8 +83,11 @@ export class ExecTool extends Tool {
 		},
 	};
 
-	constructor(private readonly basePath = process.cwd()) {
-		super();
+	constructor(
+		private readonly basePath = process.cwd(),
+		context?: ToolContext
+	) {
+		super(context);
 	}
 
 	async run(input: Record<string, unknown>): Promise<ExecResult> {
@@ -170,7 +173,10 @@ export class ExecTool extends Tool {
 			}
 		}
 
-		const cwd = resolveToolPath(this.basePath, workdir ?? '.');
+		const cwd =
+			workdir === undefined
+				? this.context.currentDirectory ?? this.basePath
+				: resolveToolPath(this.basePath, workdir);
 		const yieldMs = yieldMsInput ?? 10000;
 		const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 		const startedAt = Date.now();
@@ -209,6 +215,7 @@ export class ExecTool extends Tool {
 				});
 				child.once('spawn', () => {
 					child.unref();
+					this.context.setCurrentDirectory(cwd);
 					resolve({
 						command,
 						workdir: cwd,
@@ -260,6 +267,7 @@ export class ExecTool extends Tool {
 				child.stderr.removeAllListeners('data');
 				child.stdout.resume();
 				child.stderr.resume();
+				this.context.setCurrentDirectory(cwd);
 				resolve({
 					command,
 					workdir: cwd,
@@ -293,6 +301,7 @@ export class ExecTool extends Tool {
 				if (settled) return;
 				settled = true;
 				clearTimeout(yieldTimer);
+				this.context.setCurrentDirectory(cwd);
 				resolve({
 					command,
 					workdir: cwd,
