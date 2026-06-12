@@ -6,6 +6,7 @@ import {
 	type Provider,
 	type PublicProvider,
 } from '../../shared/providers';
+import type { Provider as CatalogProvider } from '../../shared/providers/definitions';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
@@ -274,7 +275,7 @@ export class SttService {
 	}
 }
 
-function defaultProvider(providerId: string): Provider | undefined {
+function defaultProvider(providerId: string): CatalogProvider | undefined {
 	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
 }
 
