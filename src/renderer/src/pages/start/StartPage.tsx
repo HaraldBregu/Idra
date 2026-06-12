@@ -450,7 +450,7 @@ const StartPage: React.FC = () => {
 			const savedEntries = await Promise.all(
 				actionableProviderCatalog.map(async (provider) => {
 					try {
-						const stored = await window.provider.get(provider.id);
+						const stored = await getStoredProvider(provider.id);
 						return [provider.id, (stored?.apiKey.trim().length ?? 0) > 0] as const;
 					} catch {
 						return [provider.id, false] as const;
@@ -772,7 +772,7 @@ const StartPage: React.FC = () => {
 		try {
 			const provider = toStoredProvider(providerId, apiKey);
 			if (!provider) throw new Error('Unknown provider.');
-			await window.provider.set(providerId, provider);
+			await saveStoredProvider(providerId, provider);
 			updateProviderEntry(providerId, {
 				apiKey: '',
 				apiKeySaved: true,
@@ -800,7 +800,7 @@ const StartPage: React.FC = () => {
 					entriesToSave.map((entry) => {
 						const provider = toStoredProvider(entry.providerId, entry.apiKey.trim());
 						if (!provider) throw new Error(`Unknown provider: ${entry.providerId}`);
-						return window.provider.set(entry.providerId, provider);
+						return saveStoredProvider(entry.providerId, provider);
 					})
 				);
 				const savedProviderIds = new Set(entriesToSave.map((entry) => entry.providerId));
