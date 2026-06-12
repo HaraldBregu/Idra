@@ -18,7 +18,6 @@ import {
 	type SettingsModelServiceItem,
 } from '../../navigation';
 
-
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'app',
@@ -100,7 +99,6 @@ function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): Setting
 	return { ...item, id: agentId };
 }
 
-
 function SettingsOverviewCard({
 	item,
 	badge,
@@ -146,10 +144,7 @@ function SettingsOverviewCard({
 						Soon
 					</Badge>
 				) : (
-					<ChevronRight
-						className="size-3 shrink-0 text-muted-foreground/40"
-						strokeWidth={1.8}
-					/>
+					<ChevronRight className="size-3 shrink-0 text-muted-foreground/40" strokeWidth={1.8} />
 				)}
 			</ItemActions>
 		</Item>
@@ -162,46 +157,43 @@ const OverviewPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-				<SettingsPageHeader
-					title={t('settings.title')}
-					description={t('settings.description')}
-				/>
-				{SETTINGS_OVERVIEW_GROUPS.map((group) => {
-					const panel = (
-						<SettingsPanel>
-							{group.agentIds?.map((agentId) => {
-								const item = getSettingsOverviewAgentItem(agentId);
-								return <SettingsOverviewCard key={item.path} item={item} />;
-							})}
-							{group.paths.map((path) => {
-								const item = getSettingsNavigationItem(path);
-								return (
-									<SettingsOverviewCard
-										key={item.path}
-										item={item}
-										disabled={disabledOverviewPaths.has(item.path)}
-									/>
-								);
-							})}
-						</SettingsPanel>
-					);
+			<SettingsPageHeader title={t('settings.title')} description={t('settings.description')} />
+			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
+				const panel = (
+					<SettingsPanel>
+						{group.agentIds?.map((agentId) => {
+							const item = getSettingsOverviewAgentItem(agentId);
+							return <SettingsOverviewCard key={item.path} item={item} />;
+						})}
+						{group.paths.map((path) => {
+							const item = getSettingsNavigationItem(path);
+							return (
+								<SettingsOverviewCard
+									key={item.path}
+									item={item}
+									disabled={disabledOverviewPaths.has(item.path)}
+								/>
+							);
+						})}
+					</SettingsPanel>
+				);
 
-					if (!group.titleKey) {
-						return (
-							<section key={group.id} className="flex flex-col gap-2">
-								{panel}
-							</section>
-						);
-					}
-
+				if (!group.titleKey) {
 					return (
-						<SettingsSection key={group.id} hideTitle={group.id === 'app'} title={t(group.titleKey)}>
+						<section key={group.id} className="flex flex-col gap-2">
 							{panel}
-						</SettingsSection>
+						</section>
 					);
-				})}
-			</SettingsPageShell>
-		);
-	};
+				}
+
+				return (
+					<SettingsSection key={group.id} hideTitle={group.id === 'app'} title={t(group.titleKey)}>
+						{panel}
+					</SettingsSection>
+				);
+			})}
+		</SettingsPageShell>
+	);
+};
 
 export default OverviewPage;

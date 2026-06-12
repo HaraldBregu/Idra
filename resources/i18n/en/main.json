@@ -150,11 +150,11 @@
 			"groups": {
 				"app": "App",
 				"agent": "Agent",
-					"modelServices": "Model services",
-					"connectors": "Connectors",
-					"channels": "Channels",
-					"automation": "Automation",
-					"general": "General setup",
+				"modelServices": "Model services",
+				"connectors": "Connectors",
+				"channels": "Channels",
+				"automation": "Automation",
+				"general": "General setup",
 				"aiAgents": "AI agents",
 				"aiFeatures": "AI Features",
 				"automations": "Automations"
@@ -165,10 +165,10 @@
 				"system": "Permissions, keep-awake controls, and desktop capabilities",
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
-					"connectors": "Connected apps",
-					"providers": "AI API keys",
-					"cron": "View, run, pause, and delete scheduled agent tasks",
-					"heartbeat": "Periodic agent checks"
+				"connectors": "Connected apps",
+				"providers": "AI API keys",
+				"cron": "View, run, pause, and delete scheduled agent tasks",
+				"heartbeat": "Periodic agent checks"
 			}
 		},
 		"tabs": {
@@ -183,9 +183,9 @@
 			"tools": "Tools",
 			"system": "System",
 			"themes": "Themes",
-				"editor": "Editor",
-				"taskScheduler": "Tasks",
-				"heartbeat": "Heartbeat",
+			"editor": "Editor",
+			"taskScheduler": "Tasks",
+			"heartbeat": "Heartbeat",
 			"developer": "Developer",
 			"skills": "Skills"
 		},
@@ -212,10 +212,10 @@
 			"dialogs": "Dialogs",
 			"clipboard": "Clipboard",
 			"application": "Application",
-				"profile": "Profile",
-				"editor": "Editor",
-				"taskScheduler": "Tasks",
-				"heartbeat": "Heartbeat",
+			"profile": "Profile",
+			"editor": "Editor",
+			"taskScheduler": "Tasks",
+			"heartbeat": "Heartbeat",
 			"developer": "Developer"
 		},
 		"profile": {
@@ -246,11 +246,11 @@
 			"menuBar": "Menu Bar",
 			"menuBarDescription": "Show or hide the app icon in the menu bar",
 			"keepAwake": "Keep Computer Active",
-				"keepAwakeDescription": "Prevent Friday from being suspended while it works in the background",
-				"appData": "Application Data",
-				"appDataDescription": "Folder where Friday stores application settings and logs",
-				"openAppData": "Open Folder"
-			},
+			"keepAwakeDescription": "Prevent Friday from being suspended while it works in the background",
+			"appData": "Application Data",
+			"appDataDescription": "Folder where Friday stores application settings and logs",
+			"openAppData": "Open Folder"
+		},
 		"system": {
 			"description": "Manage operating system permissions, background behavior, and desktop capability boundaries.",
 			"actionsDescription": "Open required operating system panels and control background power behavior.",
@@ -309,8 +309,8 @@
 					"startOtherPrograms": {
 						"title": "Start other programs",
 						"note": "Subject to permissions."
-						},
-						"accessSystemInformation": {
+					},
+					"accessSystemInformation": {
 						"title": "Access system information",
 						"note": "CPU, RAM, OS version, device info, etc."
 					},
@@ -543,7 +543,7 @@
 			"emptyTitle": "No tasks",
 			"emptyDescription": "Agent tasks scheduled for later or recurring work will appear here."
 		},
-			"heartbeat": {
+		"heartbeat": {
 			"description": "Heartbeat runner and manual checks.",
 			"runtime": {
 				"title": "Runtime",
@@ -1181,10 +1181,10 @@
 		"tools": "Tools",
 		"filesDescription": "Manage imported files",
 		"contentDescription": "Browse content library",
-			"dataDescription": "Inspect structured data",
-			"searchDescription": "Find across your workspace",
-			"settingsDescription": "Configure preferences",
-			"reduxDescription": "Inspect application state",
+		"dataDescription": "Inspect structured data",
+		"searchDescription": "Find across your workspace",
+		"settingsDescription": "Configure preferences",
+		"reduxDescription": "Inspect application state",
 		"logs": "Logs",
 		"logsDescription": "Browse application logs"
 	},
