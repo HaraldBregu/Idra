@@ -159,7 +159,7 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 			this.emit({
 				type: 'committed',
 				sessionId: this.request.sessionId,
-				itemId: event.item_id,
+				itemId: event.item_id ?? this.request.sessionId,
 			});
 			return;
 		}
@@ -167,7 +167,7 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 			this.emit({
 				type: 'delta',
 				sessionId: this.request.sessionId,
-				itemId: event.item_id,
+				itemId: event.item_id ?? this.request.sessionId,
 				contentIndex: event.content_index ?? 0,
 				delta: event.delta ?? '',
 			});
@@ -177,20 +177,20 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 			this.emit({
 				type: 'completed',
 				sessionId: this.request.sessionId,
-				itemId: event.item_id,
-				contentIndex: event.content_index,
-				transcript: event.transcript,
+				itemId: event.item_id ?? this.request.sessionId,
+				contentIndex: event.content_index ?? 0,
+				transcript: event.transcript ?? '',
 			});
 			this.socket.close(1000, 'completed');
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.failed') {
-			this.emitError(event.error.message ?? 'OpenAI realtime transcription failed.');
+			this.emitError(event.error?.message ?? 'OpenAI realtime transcription failed.');
 			this.socket.close(1011, 'transcription failed');
 			return;
 		}
 		if (event.type === 'error') {
-			this.emitError(event.error.message ?? 'OpenAI realtime transcription error.');
+			this.emitError(event.error?.message ?? 'OpenAI realtime transcription error.');
 		}
 	}
 
