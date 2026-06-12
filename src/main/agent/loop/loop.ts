@@ -15,7 +15,6 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
-import { FindTool } from '../tools/find';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 
@@ -77,7 +76,6 @@ export class AgentRuntime {
 		const workspacePath = workspace.getPath();
 		tools.push(new ReadTool(workspacePath));
 		tools.push(new EditTool(workspacePath));
-		tools.push(new FindTool(workspacePath));
 		tools.push(new WriteTool(workspacePath));
 		tools.push(new ExecTool(workspacePath));
 
