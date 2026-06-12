@@ -24,7 +24,6 @@ import { ScheduleDescriber } from './core/describer';
 import {
 	CronScheduleExecutionError,
 	CronScheduleRecoveryError,
-	CronScheduleValidationError,
 	CronSchedulerError,
 	toCronRecordError,
 } from './core/errors';
