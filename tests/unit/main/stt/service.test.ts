@@ -101,16 +101,26 @@ describe('SttService', () => {
 	});
 
 	it('requires a configured API key', async () => {
+		const originalOpenAiKey = process.env.OPENAI_API_KEY;
+		delete process.env.OPENAI_API_KEY;
 		const service = new SttService({ build: jest.fn() } as unknown as SttAdapterFactory, {
 			get: jest.fn(() => undefined),
 		} as never);
 
-		await expect(
-			service.transcribe({
-				audio,
-				providerId: 'openai',
-				modelId: 'gpt-4o-transcribe',
-			})
-		).rejects.toThrow(SttProviderAuthError);
+		try {
+			await expect(
+				service.transcribe({
+					audio,
+					providerId: 'openai',
+					modelId: 'gpt-4o-transcribe',
+				})
+			).rejects.toThrow(SttProviderAuthError);
+		} finally {
+			if (originalOpenAiKey === undefined) {
+				delete process.env.OPENAI_API_KEY;
+			} else {
+				process.env.OPENAI_API_KEY = originalOpenAiKey;
+			}
+		}
 	});
 });
