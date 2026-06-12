@@ -8,15 +8,19 @@ import type {
 } from '../../stt/transcription';
 import type { PublicProvider } from '../../providers';
 import type { ProviderModel } from '../../providers/models/types';
+import type { Provider } from '../../providers/types';
 
 export const SttChannels = {
 	appendRealtimeAudio: 'stt:append-realtime-audio',
 	cancelRealtime: 'stt:cancel-realtime',
 	finishRealtime: 'stt:finish-realtime',
+	getProvider: 'stt:get-provider',
 	getSelection: 'stt:get-selection',
+	isProviderConfigured: 'stt:is-provider-configured',
 	listModels: 'stt:list-models',
 	listProviders: 'stt:list-providers',
 	realtimeEvent: 'stt:realtime-event',
+	saveProvider: 'stt:save-provider',
 	saveSelection: 'stt:save-selection',
 	startRealtime: 'stt:start-realtime',
 	transcribe: 'stt:transcribe',
@@ -46,6 +50,18 @@ export interface SttInvokeChannelMap {
 	[SttChannels.getSelection]: {
 		args: [];
 		result: SttModelSelection | undefined;
+	};
+	[SttChannels.getProvider]: {
+		args: [providerId: string];
+		result: Provider | undefined;
+	};
+	[SttChannels.saveProvider]: {
+		args: [providerId: string, provider: Provider];
+		result: Provider;
+	};
+	[SttChannels.isProviderConfigured]: {
+		args: [providerId: string];
+		result: boolean;
 	};
 	[SttChannels.listProviders]: {
 		args: [];
