@@ -29,7 +29,12 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'agent',
 		titleKey: 'settings.overview.groups.agent',
 		agentIds: [AGENTS.assistant],
-		paths: ['/settings/skills', '/settings/connectors'],
+		paths: ['/settings/skills'],
+	},
+	{
+		id: 'connectors',
+		titleKey: 'settings.overview.groups.connectors',
+		paths: ['/settings/connectors'],
 	},
 	{
 		id: 'modelServices',
@@ -153,7 +158,7 @@ function SettingsOverviewCard({
 
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
-	const disabledOverviewPaths = new Set(['/settings/skills', '/settings/connectors']);
+	const disabledOverviewPaths = new Set(['/settings/skills']);
 
 	return (
 		<SettingsPageShell>
