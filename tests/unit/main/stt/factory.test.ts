@@ -1,3 +1,7 @@
+jest.mock('@mistralai/mistralai', () => ({
+	Mistral: jest.fn(() => ({ audio: { transcriptions: { complete: jest.fn() } } })),
+}));
+
 import { SttAdapterFactory } from '../../../../src/main/stt/factory';
 import { DeepgramSttAdapter } from '../../../../src/main/stt/providers/deepgram';
 import { ElevenLabsSttAdapter } from '../../../../src/main/stt/providers/elevenlabs';
