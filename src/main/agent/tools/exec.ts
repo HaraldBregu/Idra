@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process';
-import { Tool, type ToolContext } from '../core/tool';
+import { Tool } from '../core/tool';
+import type { ToolContext } from '../loop/context';
 import { resolveToolPath } from './resolve';
 
 interface ExecResult {

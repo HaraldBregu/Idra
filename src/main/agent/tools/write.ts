@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Tool, type ToolContext } from '../core/tool';
+import { Tool } from '../core/tool';
+import type { ToolContext } from '../loop/context';
 import { resolveToolPath } from './resolve';
 
 export class WriteTool extends Tool {

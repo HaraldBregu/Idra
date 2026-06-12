@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
-import { Tool, type ToolContext } from '../core/tool';
+import { Tool } from '../core/tool';
+import type { ToolContext } from '../loop/context';
 import { resolveToolPath } from './resolve';
 
 export class EditTool extends Tool {
