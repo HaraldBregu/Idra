@@ -1,3 +1,13 @@
+import { CronService, type CronServiceOptions } from './service';
+import type { CronLogger } from './core/logger';
+
+export function createCronService(
+	logger: CronLogger,
+	options: CronServiceOptions = {}
+): CronService {
+	return new CronService(logger, options);
+}
+
 export { CronService } from './service';
 export type { CronServiceOptions, CronServiceActor } from './service';
 export type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
@@ -6,13 +16,13 @@ export type * from './core/types';
 export * from './core/errors';
 export * from './core/validation';
 export * from './core/describer';
-export * from './store';
-export * from './config';
-export * from './calculator';
-export * from './runner';
-export * from './registry';
-export * from './scheduler';
-export * from './support';
+export * from './adapters/store';
+export * from './adapters/config';
+export * from './adapters/runner';
+export * from './adapters/registry';
+export * from './engine/calculator';
+export * from './engine/scheduler';
+export * from './engine/support';
 export * from './core/config';
 export * from './core/events';
 export * from './core/logger';

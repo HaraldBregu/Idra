@@ -30,11 +30,18 @@ export class NodeCronJobRegistry {
 			throw new Error(`Invalid cron expression for "${id}": ${expression}`);
 		}
 
-		const record = this.createRecord(id, expression, data, options);
-		if (!this.automaticEnabled) {
+		const effectiveOptions = {
+			...options,
+			enabled: (options.enabled ?? true) && this.automaticEnabled,
+		};
+		const record = this.createRecord(id, expression, data, effectiveOptions);
+		const job = this.createJob(record, expression, options);
+
+		if (!record.enabled) {
+			this.jobs.set(id, job);
 			this.logger.warn(
 				'CronService',
-				`Saved job "${id}" while cron automatic execution is disabled`
+				`Saved disabled job "${id}"`
 			);
 			return record;
 		}
@@ -52,7 +59,7 @@ export class NodeCronJobRegistry {
 			{ timezone: options.timezone }
 		);
 
-		this.jobs.set(id, { id, expression, timezone: options.timezone, task });
+		this.jobs.set(id, { ...job, task });
 		this.logger.info('CronService', `Scheduled job "${id}" with "${expression}"`);
 
 		if (options.runOnStart) {
@@ -71,13 +78,13 @@ export class NodeCronJobRegistry {
 	unschedule(id: string): void {
 		const job = this.jobs.get(id);
 		if (!job) return;
-		job.task.stop();
+		job.task?.stop();
 		this.jobs.delete(id);
 		this.logger.info('CronService', `Unscheduled job "${id}"`);
 	}
 
-	listJobs(): { id: string; expression: string }[] {
-		return Array.from(this.jobs.values()).map(({ id, expression }) => ({ id, expression }));
+	listJobs(): CronJobInfo[] {
+		return Array.from(this.jobs.values()).map((job) => ({ ...job.info }));
 	}
 
 	has(id: string): boolean {
@@ -87,7 +94,7 @@ export class NodeCronJobRegistry {
 	destroy(): void {
 		for (const job of this.jobs.values()) {
 			try {
-				job.task.stop();
+				job.task?.stop();
 			} catch (err) {
 				this.logger.error('CronService', `Failed to stop job "${job.id}"`, err);
 			}
@@ -121,6 +128,30 @@ export class NodeCronJobRegistry {
 			updatedAt: now,
 			runCount: 0,
 			failureCount: 0,
+		};
+	}
+
+	private createJob<TData extends CronTaskData>(
+		record: CronTask<TData>,
+		expression: string,
+		options: CronJobOptions
+	): RegisteredJob {
+		return {
+			id: record.id,
+			expression,
+			timezone: options.timezone,
+			info: {
+				id: record.id,
+				name: record.name,
+				description: record.description,
+				expression,
+				timezone: options.timezone,
+				enabled: record.enabled,
+				status: record.status,
+				target: record.target,
+				createdAt: record.createdAt,
+				updatedAt: record.updatedAt,
+			},
 		};
 	}
 }

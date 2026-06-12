@@ -1,5 +1,6 @@
 import {
 	type CronExecutionRecord,
+	type CronJobInfo,
 	type CronNextRunPreview,
 	type CronSchedule,
 	type CronScheduleCreateRequest,
@@ -15,12 +16,12 @@ import type { CronActorContext, CronScheduleStore } from './core/types';
 import type { CronConfigurationStore, CronServiceConfiguration } from './core/config';
 import type { CronLogger } from './core/logger';
 import type { CronJobOptions } from './types';
-import { ElectronStoreCronScheduleStore } from './store';
-import { ElectronStoreCronConfigurationStore } from './config';
-import { InMemoryCronScheduleRunner } from './runner';
-import { CronSchedulerEngine } from './scheduler';
+import { ElectronStoreCronScheduleStore } from './adapters/store';
+import { ElectronStoreCronConfigurationStore } from './adapters/config';
+import { InMemoryCronScheduleRunner } from './adapters/runner';
+import { CronSchedulerEngine } from './engine/scheduler';
 import { resolveCronServiceConfiguration } from './core/config';
-import { NodeCronJobRegistry } from './registry';
+import { NodeCronJobRegistry } from './adapters/registry';
 
 interface Disposable {
 	destroy(): void | Promise<void>;
@@ -196,7 +197,11 @@ export class CronService implements Disposable {
 		this.jobRegistry.unschedule(id);
 	}
 
-	listJobs(): { id: string; expression: string }[] {
+	deleteJob(id: string): void {
+		this.jobRegistry.unschedule(id);
+	}
+
+	listJobs(): CronJobInfo[] {
 		return this.jobRegistry.listJobs();
 	}
 

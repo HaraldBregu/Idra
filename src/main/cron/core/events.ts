@@ -7,7 +7,7 @@ import type {
 	CronScheduleSource,
 	CronScheduleStore,
 } from './types';
-import { CronScheduleEventBus, redactCronValue, summarizeCronValue } from '../support';
+import { CronScheduleEventBus, redactCronValue, summarizeCronValue } from '../engine/support';
 
 export class CronScheduleEventRecorder {
 	constructor(

@@ -50,7 +50,15 @@ export interface CronTaskView<TData extends CronTaskData = CronTaskData> extends
 
 export interface CronJobInfo {
 	readonly id: string;
+	readonly name: string;
+	readonly description?: string;
 	readonly expression: string;
+	readonly timezone?: string;
+	readonly enabled: boolean;
+	readonly status: CronScheduleStatus;
+	readonly target?: CronStoredTarget;
+	readonly createdAt: string;
+	readonly updatedAt: string;
 }
 
 export interface CronTickEvent {

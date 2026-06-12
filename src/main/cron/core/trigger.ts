@@ -8,7 +8,7 @@ import type { CronLogger } from './logger';
 import { CronScheduleExecutionError, CronSchedulerError } from './errors';
 import { assertScheduleCanRun } from './validation';
 import { delay } from './retry';
-import { CronNextRunCalculator } from '../calculator';
+import { CronNextRunCalculator } from '../engine/calculator';
 import { CronScheduleEventRecorder } from './events';
 import { CronScheduleRunRecorder } from './recording';
 

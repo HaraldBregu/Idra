@@ -4,7 +4,7 @@ import { EventBus, WindowFactory, AppState, WindowContextManager } from './servi
 
 import { AppPermissionsService } from './app/permissions';
 import { LoggerService } from './observability';
-import { CronService } from './cron';
+import { CronService, createCronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
@@ -34,7 +34,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new CronService(logger);
+	const cron = createCronService(logger);
 	container.set(CronService, cron);
 
 	container.get(ProviderService);

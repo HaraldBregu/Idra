@@ -50,8 +50,18 @@ export class CronIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			CronChannels.deleteJob,
+			wrapSimpleHandler((jobId: string) => cron.deleteJob(jobId), CronChannels.deleteJob)
+		);
+
+		ipcMain.handle(
 			CronChannels.listSchedules,
 			wrapSimpleHandler((filter?: CronScheduleFilter) => cron.listSchedules(filter ?? {}, uiActor()), CronChannels.listSchedules)
+		);
+
+		ipcMain.handle(
+			CronChannels.listJobs,
+			wrapSimpleHandler(() => cron.listJobs(), CronChannels.listJobs)
 		);
 
 		ipcMain.handle(

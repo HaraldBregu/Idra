@@ -1,5 +1,5 @@
 import type { ScheduledTask } from 'node-cron';
-import type { CronTask } from '../../shared/app/cron';
+import type { CronJobInfo, CronTask } from '../../shared/app/cron';
 
 export interface CronJobOptions {
 	timezone?: string;
@@ -16,7 +16,8 @@ export interface RegisteredJob {
 	id: string;
 	expression: string;
 	timezone?: string;
-	task: ScheduledTask;
+	task?: ScheduledTask;
+	info: CronJobInfo;
 }
 
 export type CronTaskHandler = (task: CronTask) => void | Promise<void>;
