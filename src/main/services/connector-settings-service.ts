@@ -2,7 +2,7 @@ import path from 'node:path';
 import { app } from 'electron';
 import Store from 'electron-store';
 import { Service } from 'typedi';
-import { Settings, SIMPLE_CONNECTORS } from '../connector';
+import { Settings, SIMPLE_CONNECTORS } from '../connectors';
 import type {
 	ConnectorApprovalPolicy,
 	ConnectorId,
