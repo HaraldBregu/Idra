@@ -1,7 +1,7 @@
 import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/providers/models/llm';
 import { cloneModels, type ProviderModel } from '../../../shared/providers/models/types';
 import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/providers/models/stt';
-import type { ConnectorInput, ConnectorOAuthDefaults } from '../../../shared/connector';
+import type { ConnectorInput } from '../../../shared/connector';
 import type { PublicProvider } from '../../../shared/providers';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import type {
@@ -45,10 +45,8 @@ export type AgentToolCallStatus = AgentToolResultStatus;
 export type { SttRealtimeEvent };
 
 export type { ConnectorInput };
-export type OAuthAuthorizeInput = ConnectorOAuthDefaults;
 
 export type RendererAppApi = Window['app'] & {
-	authorizeOAuth(input: OAuthAuthorizeInput): Promise<{ accessToken: string }>;
 	setProviderApiKey(providerId: string, apikey: string): Promise<void>;
 	isProviderApiKeySaved(providerId: string): Promise<boolean>;
 	getProviders(): Promise<PublicProvider[]>;
