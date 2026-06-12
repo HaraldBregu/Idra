@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Tool } from '../core/tool';
+import { Tool, type ToolContext } from '../core/tool';
 import { resolveToolPath } from './resolve';
 
 export class WriteTool extends Tool {
@@ -23,8 +23,11 @@ export class WriteTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(private readonly basePath = process.cwd()) {
-		super();
+	constructor(
+		private readonly basePath = process.cwd(),
+		context?: ToolContext
+	) {
+		super(context);
 	}
 
 	async run(input: Record<string, unknown>): Promise<{ path: string }> {
@@ -39,6 +42,7 @@ export class WriteTool extends Tool {
 		const resolvedPath = resolveToolPath(this.basePath, filePath);
 		await fs.mkdir(path.dirname(resolvedPath), { recursive: true });
 		await fs.writeFile(resolvedPath, content, 'utf8');
+		this.context.setCurrentFile(resolvedPath);
 		return { path: resolvedPath };
 	}
 }
