@@ -15,6 +15,10 @@ export interface AgentApi {
 	cancel: () => Promise<void>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	clearMessages: (sessionId: string) => Promise<void>;
+	getProvider: () => Promise<PublicProvider | undefined>;
+	setProvider: (provider: PublicProvider) => Promise<boolean>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<boolean>;
 }
 
 export interface CronApi {
@@ -152,18 +156,10 @@ export interface AppApi {
 	requestCameraPermission: () => Promise<CameraPermissionSettings>;
 }
 
-export interface AgentStoreApi {
-	getProvider: () => Promise<PublicProvider | undefined>;
-	setProvider: (provider: PublicProvider) => Promise<boolean>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<boolean>;
-}
-
 declare global {
 	interface Window {
 		win: WindowApi;
 		app: AppApi;
-		agentStore: AgentStoreApi;
 		agent: AgentApi;
 		cron: CronApi;
 		channels: ChannelsApi;

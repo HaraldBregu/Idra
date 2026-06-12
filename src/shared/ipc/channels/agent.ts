@@ -4,6 +4,10 @@ export const AgentChannels = {
 	cancel: 'agent:cancel',
 	lastMessages: 'agent:last-messages',
 	clearMessages: 'agent:clear-messages',
+	getProvider: 'agent:get-provider',
+	setProvider: 'agent:set-provider',
+	getModelId: 'agent:get-model-id',
+	setModelId: 'agent:set-model-id',
 } as const;
 
 export interface AgentInvokeChannelMap {
@@ -17,6 +21,22 @@ export interface AgentInvokeChannelMap {
 		result: import('../../agent/types').AgentHistoryMessage[];
 	};
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
+	[AgentChannels.getProvider]: {
+		args: [];
+		result: import('../../providers').PublicProvider | undefined;
+	};
+	[AgentChannels.setProvider]: {
+		args: [provider: import('../../providers').PublicProvider];
+		result: boolean;
+	};
+	[AgentChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[AgentChannels.setModelId]: {
+		args: [modelId: string];
+		result: boolean;
+	};
 }
 
 export interface AgentEventChannelMap {

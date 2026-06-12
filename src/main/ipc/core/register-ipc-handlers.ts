@@ -1,5 +1,4 @@
 import { AgentIpc } from '../agent';
-import { AgentStoreIpc } from '../agent-store';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
 import { CronIpc } from '../cron';
@@ -17,7 +16,6 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 	const ipcModules: IpcModule[] = [
 		new AppIpc(),
 		new AgentIpc(),
-		new AgentStoreIpc(),
 		new ChannelsIpc(),
 		new CronIpc(),
 		new ProviderStoreIpc(),

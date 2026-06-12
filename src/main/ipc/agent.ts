@@ -6,6 +6,8 @@ import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import { AgentService, type AgentSendOptions } from '../services/agent-service';
 import { LoggerService } from '../observability';
+import { AgentSettingsStore } from '../services/agent-settings-store';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -21,6 +23,20 @@ function normalizeAgentSessionId(value: unknown): string {
 	const sessionId = optionalTrimmedString(value);
 	if (!sessionId) throw new Error('Invalid assistant session id.');
 	return sessionId;
+}
+
+function toPublicProvider(providerId: string): PublicProvider | undefined {
+	const catalogProvider = DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
+	if (!catalogProvider) return undefined;
+	return {
+		id: catalogProvider.id,
+		name: catalogProvider.name,
+		baseUrl: catalogProvider.baseUrl,
+		...(catalogProvider.capabilities ? { capabilities: catalogProvider.capabilities } : {}),
+		...(catalogProvider.apiConfiguration
+			? { apiConfiguration: catalogProvider.apiConfiguration }
+			: {}),
+	};
 }
 
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
@@ -49,6 +65,7 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get(LoggerService);
 		const agent = container.get(AgentService);
+		const settings = container.get(AgentSettingsStore);
 
 		ipcMain.handle(
 			AgentChannels.send,
@@ -79,6 +96,40 @@ export class AgentIpc implements IpcModule {
 			wrapSimpleHandler((sessionId: unknown): void => {
 				agent.clearMessages(normalizeAgentSessionId(sessionId));
 			}, AgentChannels.clearMessages)
+		);
+
+		ipcMain.handle(
+			AgentChannels.getProvider,
+			wrapSimpleHandler((): PublicProvider | undefined => {
+				const providerId = settings.getProviderId();
+				return providerId ? toPublicProvider(providerId) : undefined;
+			}, AgentChannels.getProvider)
+		);
+
+		ipcMain.handle(
+			AgentChannels.setProvider,
+			wrapSimpleHandler((provider: PublicProvider): boolean => {
+				if (!provider.id) return false;
+				settings.setProviderId(provider.id);
+				return true;
+			}, AgentChannels.setProvider)
+		);
+
+		ipcMain.handle(
+			AgentChannels.getModelId,
+			wrapSimpleHandler((): string | undefined => {
+				return settings.getModelId();
+			}, AgentChannels.getModelId)
+		);
+
+		ipcMain.handle(
+			AgentChannels.setModelId,
+			wrapSimpleHandler((modelId: string): boolean => {
+				const trimmed = modelId.trim();
+				if (!trimmed) return false;
+				settings.setModelId(trimmed);
+				return true;
+			}, AgentChannels.setModelId)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);

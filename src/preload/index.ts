@@ -3,7 +3,6 @@ import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc/types';
 import {
 	WindowChannels,
 	AgentChannels,
-	AgentStoreChannels,
 	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
@@ -14,7 +13,6 @@ import {
 } from '../shared/ipc/ipc-channels';
 import type {
 	AppApi,
-	AgentStoreApi,
 	AgentApi,
 	ChannelsApi,
 	ConnectorsApi,
@@ -166,6 +164,18 @@ export const agent: AgentApi = {
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
 		return typedInvokeUnwrap(AgentChannels.clearMessages, normalizedSessionId);
 	},
+	getProvider: (): Promise<PublicProvider | undefined> => {
+		return typedInvokeUnwrap(AgentChannels.getProvider);
+	},
+	setProvider: (provider: PublicProvider): Promise<boolean> => {
+		return typedInvokeUnwrap(AgentChannels.setProvider, provider);
+	},
+	getModelId: (): Promise<string | undefined> => {
+		return typedInvokeUnwrap(AgentChannels.getModelId);
+	},
+	setModelId: (modelId: string): Promise<boolean> => {
+		return typedInvokeUnwrap(AgentChannels.setModelId, modelId);
+	},
 } satisfies AgentApi;
 
 export const app: AppApi = {
@@ -292,21 +302,6 @@ export const stt: SttApi = {
 	},
 };
 
-export const agentStore: AgentStoreApi = {
-	getProvider: (): Promise<PublicProvider | undefined> => {
-		return typedInvokeUnwrap(AgentStoreChannels.getProvider);
-	},
-	setProvider: (provider: PublicProvider): Promise<boolean> => {
-		return typedInvokeUnwrap(AgentStoreChannels.setProvider, provider);
-	},
-	getModelId: (): Promise<string | undefined> => {
-		return typedInvokeUnwrap(AgentStoreChannels.getModelId);
-	},
-	setModelId: (modelId: string): Promise<boolean> => {
-		return typedInvokeUnwrap(AgentStoreChannels.setModelId, modelId);
-	},
-};
-
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
@@ -354,7 +349,6 @@ export const connectors: ConnectorsApi = {
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
-		contextBridge.exposeInMainWorld('agentStore', agentStore);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('cron', cron);
@@ -369,8 +363,6 @@ if (process.contextIsolated) {
 } else {
 	// @ts-ignore (define in dts)
 	globalThis.app = app;
-	// @ts-ignore (define in dts)
-	globalThis.agentStore = agentStore;
 	// @ts-ignore (define in dts)
 	globalThis.win = win;
 	// @ts-ignore (define in dts)

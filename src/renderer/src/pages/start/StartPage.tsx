@@ -479,8 +479,8 @@ const StartPage: React.FC = () => {
 		async function loadProviders(): Promise<void> {
 			try {
 				const [storedAgentProvider, storedAgentModelId] = await Promise.all([
-					window.agentStore.getProvider(),
-					window.agentStore.getModelId(),
+					window.agent.getProvider(),
+					window.agent.getModelId(),
 				]);
 				if (cancelled) return;
 
@@ -893,8 +893,8 @@ const StartPage: React.FC = () => {
 		setSavingConfig(true);
 		setErrorMessage('');
 		try {
-			await window.agentStore.setProvider(selectedAgentModelOption.provider);
-			await window.agentStore.setModelId(selectedAgentModelOption.model.id);
+			await window.agent.setProvider(selectedAgentModelOption.provider);
+			await window.agent.setModelId(selectedAgentModelOption.model.id);
 			navigate('/home');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, 'Could not save the selected assistant model.'));

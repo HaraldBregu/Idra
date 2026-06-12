@@ -122,8 +122,8 @@ function getProviderLlmModels(providerId: string): Model[] {
 
 async function loadAssistantState(): Promise<ModelServicePageState> {
 	const [storedProvider, storedModelId] = await Promise.all([
-		window.agentStore.getProvider(),
-		window.agentStore.getModelId(),
+		window.agent.getProvider(),
+		window.agent.getModelId(),
 	]);
 	const providers = getLlmProvidersFromCatalog().filter(
 		(provider) => getProviderLlmModels(provider.id).length > 0
@@ -279,8 +279,8 @@ const ModelServicePage: React.FC = () => {
 		try {
 			const didSave =
 				service.id === AGENTS.assistant
-					? (await window.agentStore.setProvider(selectedProvider)) &&
-						(await window.agentStore.setModelId(selectedModel.id))
+					? (await window.agent.setProvider(selectedProvider)) &&
+						(await window.agent.setModelId(selectedModel.id))
 					: await service.saveSelection(selectedProvider, selectedModel);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
 			setState((current) => ({ ...current, saving: false, saved: true }));

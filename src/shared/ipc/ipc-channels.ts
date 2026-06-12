@@ -1,5 +1,4 @@
 export { AgentChannels } from './channels/agent';
-export { AgentStoreChannels } from './channels/agent-store';
 export { AppChannels } from './channels/app';
 export { ChannelsChannels } from './channels/channels';
 export { ConnectorsChannels } from './channels/connectors';
@@ -11,7 +10,6 @@ export { SttChannels } from './channels/stt';
 export { WindowChannels } from './channels/window';
 
 import type { AgentEventChannelMap, AgentInvokeChannelMap } from './channels/agent';
-import type { AgentStoreInvokeChannelMap } from './channels/agent-store';
 import type { AppInvokeChannelMap } from './channels/app';
 import type {
 	ChannelsEventChannelMap,
@@ -32,7 +30,6 @@ import type {
 export interface InvokeChannelMap
 	extends AppInvokeChannelMap,
 		AgentInvokeChannelMap,
-		AgentStoreInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
 		CronInvokeChannelMap,
