@@ -6,10 +6,16 @@ import type {
 } from '../core/config';
 import { normalizeCronServiceConfigurationPatch } from '../core/config';
 import { CronScheduleStoreError } from '../core/errors';
+import type { CronStoreState } from '../core/types';
+import {
+	CRON_STORE_DIRECTORY,
+	CRON_STORE_FILE_NAME,
+} from '../constants';
+import { migrateCronStoreState } from './store';
 
 type CronConfigurationElectronStore = {
 	get store(): unknown;
-	set store(value: CronServiceConfigurationPatch);
+	set store(value: CronStoreState);
 };
 
 export class ElectronStoreCronConfigurationStore implements CronConfigurationStore {
@@ -18,15 +24,18 @@ export class ElectronStoreCronConfigurationStore implements CronConfigurationSto
 	constructor(store?: CronConfigurationElectronStore) {
 		this.store =
 			store ??
-			new Store<CronServiceConfigurationPatch>({
-				name: 'cron-config',
+			new Store<CronStoreState>({
+				name: CRON_STORE_FILE_NAME,
+				cwd: CRON_STORE_DIRECTORY,
 				accessPropertiesByDotNotation: false,
 			});
 	}
 
 	readConfiguration(): CronServiceConfigurationPatch {
 		try {
-			return normalizeCronServiceConfigurationPatch(this.store.store);
+			return normalizeCronServiceConfigurationPatch(
+				migrateCronStoreState(this.store.store).configuration
+			);
 		} catch (error) {
 			throw new CronScheduleStoreError('Failed to read cron configuration.', {
 				error: error instanceof Error ? error.message : String(error),
@@ -36,7 +45,11 @@ export class ElectronStoreCronConfigurationStore implements CronConfigurationSto
 
 	writeConfiguration(configuration: CronServiceConfiguration): CronServiceConfiguration {
 		try {
-			this.store.store = configuration;
+			const state = migrateCronStoreState(this.store.store);
+			this.store.store = {
+				...state,
+				configuration: normalizeCronServiceConfigurationPatch(configuration),
+			};
 			return { ...configuration };
 		} catch (error) {
 			throw new CronScheduleStoreError('Failed to write cron configuration.', {

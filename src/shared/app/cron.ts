@@ -436,6 +436,7 @@ export interface CronScheduleConfirmation {
 
 export interface CronStoreState {
 	schemaVersion: number;
+	configuration: Partial<CronServiceConfiguration>;
 	schedules: CronSchedule[];
 	events: CronScheduleEvent[];
 	executions: CronExecutionRecord[];

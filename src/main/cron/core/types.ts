@@ -16,6 +16,7 @@ import type {
 	CronScheduleUpdateRequest,
 	CronScheduledTask,
 } from '../../../shared/app/cron';
+import type { CronServiceConfigurationPatch } from './config';
 
 export type {
 	CronConcurrencyPolicy,
@@ -152,6 +153,7 @@ export interface CronSchedulerOptions {
 
 export interface CronStoreState {
 	schemaVersion: number;
+	configuration: CronServiceConfigurationPatch;
 	schedules: CronSchedule[];
 	events: CronScheduleEvent[];
 	executions: CronExecutionRecord[];

@@ -12,6 +12,8 @@ import type {
 } from './core/types';
 
 export const CRON_STORE_SCHEMA_VERSION = 1;
+export const CRON_STORE_DIRECTORY = 'cron';
+export const CRON_STORE_FILE_NAME = 'settings';
 
 export const CRON_MINUTE_MS = 60_000;
 export const MAX_CRON_SCAN_MINUTES = 366 * 24 * 60;

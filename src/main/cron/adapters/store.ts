@@ -16,10 +16,11 @@ import {
 	CronScheduleStoreError,
 } from '../core/errors';
 import { isActiveSchedule } from '../core/validation';
-import { CRON_STORE_SCHEMA_VERSION } from '../constants';
-
-const CRON_STORE_DIRECTORY = 'cron';
-const CRON_STORE_FILE_NAME = 'settings';
+import {
+	CRON_STORE_DIRECTORY,
+	CRON_STORE_FILE_NAME,
+	CRON_STORE_SCHEMA_VERSION,
+} from '../constants';
 
 function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;
@@ -38,6 +39,7 @@ function matchesValue<T extends string>(candidate: T | undefined, expected: T | 
 export function emptyCronStoreState(): CronStoreState {
 	return {
 		schemaVersion: CRON_STORE_SCHEMA_VERSION,
+		configuration: {},
 		schedules: [],
 		events: [],
 		executions: [],
@@ -52,6 +54,7 @@ export function migrateCronStoreState(raw: unknown): CronStoreState {
 	const base = emptyCronStoreState();
 	return {
 		schemaVersion: CRON_STORE_SCHEMA_VERSION,
+		configuration: isRecord(raw.configuration) ? raw.configuration as CronStoreState['configuration'] : base.configuration,
 		schedules: Array.isArray(raw.schedules) ? raw.schedules.filter(isRecord) as unknown as CronStoreState['schedules'] : base.schedules,
 		events: Array.isArray(raw.events) ? raw.events.filter(isRecord) as unknown as CronStoreState['events'] : base.events,
 		executions: Array.isArray(raw.executions) ? raw.executions.filter(isRecord) as unknown as CronStoreState['executions'] : base.executions,
