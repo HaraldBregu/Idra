@@ -129,17 +129,14 @@ describe('SttService', () => {
 	});
 
 	it('rejects streaming-only speech-to-text models for the batch API', async () => {
-		const service = new SttService(
-			{ build: jest.fn() } as unknown as SttAdapterFactory,
-			{
-				store: sttStore({
-					id: 'qwen',
-					name: 'Qwen',
-					apiKey: 'test-key',
-					baseUrl: 'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
-				}),
-			}
-		);
+		const service = new SttService({ build: jest.fn() } as unknown as SttAdapterFactory, {
+			store: sttStore({
+				id: 'qwen',
+				name: 'Qwen',
+				apiKey: 'test-key',
+				baseUrl: 'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
+			}),
+		});
 
 		await expect(
 			service.transcribe({ audio, providerId: 'qwen', modelId: 'qwen3-asr-flash-realtime' })
@@ -225,17 +222,14 @@ describe('SttService', () => {
 	});
 
 	it('rejects batch-only models for realtime sessions', async () => {
-		const service = new SttService(
-			{ build: jest.fn() } as unknown as SttAdapterFactory,
-			{
-				store: sttStore({
-					id: 'xai',
-					name: 'xAI',
-					apiKey: 'test-key',
-					baseUrl: 'https://api.x.ai/v1',
-				}),
-			}
-		);
+		const service = new SttService({ build: jest.fn() } as unknown as SttAdapterFactory, {
+			store: sttStore({
+				id: 'xai',
+				name: 'xAI',
+				apiKey: 'test-key',
+				baseUrl: 'https://api.x.ai/v1',
+			}),
+		});
 
 		await expect(
 			service.startRealtime({ providerId: 'xai', modelId: 'xai-stt-batch' }, jest.fn())
@@ -243,17 +237,14 @@ describe('SttService', () => {
 	});
 
 	it('requires a configured API key', async () => {
-		const service = new SttService(
-			{ build: jest.fn() } as unknown as SttAdapterFactory,
-			{
-				store: sttStore({
-					id: 'openai',
-					name: 'OpenAI',
-					apiKey: '',
-					baseUrl: 'https://api.openai.com/v1',
-				}),
-			}
-		);
+		const service = new SttService({ build: jest.fn() } as unknown as SttAdapterFactory, {
+			store: sttStore({
+				id: 'openai',
+				name: 'OpenAI',
+				apiKey: '',
+				baseUrl: 'https://api.openai.com/v1',
+			}),
+		});
 
 		await expect(
 			service.transcribe({

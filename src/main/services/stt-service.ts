@@ -68,10 +68,7 @@ export class SttService {
 
 	constructor();
 	constructor(adapterFactory: SttAdapterFactory, options?: SttServiceOptions);
-	constructor(
-		adapterFactory: unknown = new SttAdapterFactory(),
-		options: SttServiceOptions = {}
-	) {
+	constructor(adapterFactory: unknown = new SttAdapterFactory(), options: SttServiceOptions = {}) {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)
 			? adapterFactory
 			: new SttAdapterFactory();
