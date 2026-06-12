@@ -1,4 +1,4 @@
-import { mkdtempSync } from 'node:fs';
+import { existsSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
@@ -7,6 +7,14 @@ function createService(): ConnectorSettingsService {
 	return new ConnectorSettingsService({
 		cwd: mkdtempSync(path.join(tmpdir(), 'friday-connectors-')),
 	});
+}
+
+function createServiceWithLocation(): { service: ConnectorSettingsService; cwd: string } {
+	const cwd = mkdtempSync(path.join(tmpdir(), 'friday-connectors-'));
+	return {
+		service: new ConnectorSettingsService({ cwd }),
+		cwd,
+	};
 }
 
 describe('ConnectorSettingsService', () => {
@@ -38,6 +46,18 @@ describe('ConnectorSettingsService', () => {
 		);
 		expect(result.gmail?.created_at).toBeDefined();
 		expect(result.gmail?.updated_at).toBeDefined();
+	});
+
+	it('writes settings to setting.json in the connector settings directory', () => {
+		const { service, cwd } = createServiceWithLocation();
+
+		service.upsert({
+			id: 'gmail',
+			name: 'Gmail',
+			connectorId: 'connector_gmail',
+		});
+
+		expect(existsSync(path.join(cwd, 'setting.json'))).toBe(true);
 	});
 
 	it('resolves connector ids from catalog connector ids', () => {
