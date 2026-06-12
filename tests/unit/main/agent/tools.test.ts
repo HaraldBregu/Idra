@@ -1,6 +1,9 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { ToolContext } from '../../../../src/main/agent/core/tool';
+import { ExecTool } from '../../../../src/main/agent/tools/exec';
+import { ReadTool } from '../../../../src/main/agent/tools/read';
 import { WriteTool } from '../../../../src/main/agent/tools/write';
 import { resolveToolPath } from '../../../../src/main/agent/tools/resolve';
 
@@ -24,6 +27,37 @@ describe('agent file tools', () => {
 
 		await expect(fs.readFile(expectedPath, 'utf8')).resolves.toBe('hello');
 		expect(result.path).toBe(expectedPath);
+	});
+
+	it('keeps file state in a shared tool context', async () => {
+		const context = new ToolContext({ currentDirectory: workspacePath });
+		const write = new WriteTool(workspacePath, context);
+		const read = new ReadTool(workspacePath, context);
+		const expectedPath = path.join(workspacePath, 'notes/test.txt');
+
+		await write.run({ path: 'notes/test.txt', content: 'hello' });
+		await expect(read.run({ path: 'notes/test.txt' })).resolves.toBe('hello');
+
+		expect(context.snapshot()).toEqual({
+			currentDirectory: workspacePath,
+			currentFile: expectedPath,
+			currentFiles: [expectedPath],
+		});
+	});
+
+	it('uses the tool context current directory for exec calls without workdir', async () => {
+		const context = new ToolContext({ currentDirectory: workspacePath });
+		const tool = new ExecTool(workspacePath, context);
+		const nestedPath = path.join(workspacePath, 'nested');
+		const command = `"${process.execPath}" --version`;
+
+		await fs.mkdir(nestedPath, { recursive: true });
+		const first = await tool.run({ command, workdir: 'nested' });
+		const second = await tool.run({ command });
+
+		expect(first.workdir).toBe(nestedPath);
+		expect(second.workdir).toBe(nestedPath);
+		expect(context.currentDirectory).toBe(nestedPath);
 	});
 
 	it('expands home-relative paths', () => {
