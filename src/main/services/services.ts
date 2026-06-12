@@ -5,7 +5,7 @@ import type { AppPermissionsService } from '../app/permissions';
 import type { CronService } from '../cron';
 import type { LlmService } from '../llm';
 import type { LoggerService } from '../observability';
-import type { ConnectorService } from './connector-service';
+import type { ConnectorSettingsService } from './connector-settings-service';
 import type { ProviderService } from './provider-service';
 import type { SttService } from './stt-service';
 import type { AppState, EventBus, WindowContextManager, WindowFactory } from './index';
@@ -16,7 +16,7 @@ export interface MainServices {
 	agentService: AgentService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
-	connectorService: ConnectorService;
+	connectorSettingsService: ConnectorSettingsService;
 	cron: CronService;
 	eventBus: EventBus;
 	llm: LlmService;

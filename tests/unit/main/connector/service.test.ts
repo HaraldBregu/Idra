@@ -1,40 +1,23 @@
-import { ConnectorService } from '../../../../src/main/services/connector-service';
-import type { ConnectorSettingsRecord } from '../../../../src/shared/connector';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
 
-class MemoryConnectorStore {
-	private state = {
-		connectors: {},
-	} as { connectors: ConnectorSettingsRecord };
-
-	get store(): unknown {
-		return this.state;
-	}
-
-	set store(value: { connectors: ConnectorSettingsRecord }) {
-		this.state = value;
-	}
-
-	get(key: 'connectors'): unknown {
-		return this.state[key];
-	}
-
-	set(key: 'connectors', value: ConnectorSettingsRecord): void {
-		this.state = {
-			...this.state,
-			[key]: value,
-		};
-	}
+function createService(): ConnectorSettingsService {
+	return new ConnectorSettingsService({
+		cwd: mkdtempSync(path.join(tmpdir(), 'friday-connectors-')),
+	});
 }
 
-describe('ConnectorService', () => {
+describe('ConnectorSettingsService', () => {
 	it('starts with no configured connectors', () => {
-		const service = new ConnectorService({ store: new MemoryConnectorStore() });
+		const service = createService();
 
 		expect(service.list()).toEqual({});
 	});
 
 	it('stores supported connector settings by connector id', () => {
-		const service = new ConnectorService({ store: new MemoryConnectorStore() });
+		const service = createService();
 
 		const result = service.upsert({
 			id: 'gmail',
@@ -58,7 +41,7 @@ describe('ConnectorService', () => {
 	});
 
 	it('resolves connector ids from catalog connector ids', () => {
-		const service = new ConnectorService({ store: new MemoryConnectorStore() });
+		const service = createService();
 
 		service.upsert({
 			name: 'Calendar',
@@ -74,7 +57,7 @@ describe('ConnectorService', () => {
 	});
 
 	it('rejects unsupported connectors', () => {
-		const service = new ConnectorService({ store: new MemoryConnectorStore() });
+		const service = createService();
 
 		expect(() =>
 			service.upsert({

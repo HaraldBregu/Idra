@@ -4,21 +4,21 @@ import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ConnectorsChannels } from '../../shared/ipc/ipc-channels';
 import type { ConnectorInput, ConnectorSettingsRecord } from '../../shared/connector';
-import { ConnectorService } from '../services/connector-service';
+import { ConnectorSettingsService } from '../services/connector-settings-service';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const connectorService = container.get(ConnectorService);
+		const connectorSettingsService = container.get(ConnectorSettingsService);
 
-		registerQuery(ConnectorsChannels.list, () => connectorService.list());
-		registerQuery(ConnectorsChannels.get, (id: string) => connectorService.get(id));
+		registerQuery(ConnectorsChannels.list, () => connectorSettingsService.list());
+		registerQuery(ConnectorsChannels.get, (id: string) => connectorSettingsService.get(id));
 		registerCommand(ConnectorsChannels.save, (input: ConnectorSettingsRecord) =>
-			connectorService.save(input)
+			connectorSettingsService.save(input)
 		);
 		registerCommand(ConnectorsChannels.upsert, (input: ConnectorInput) =>
-			connectorService.upsert(input)
+			connectorSettingsService.upsert(input)
 		);
 	}
 }
