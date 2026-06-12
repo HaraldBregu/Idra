@@ -3,7 +3,6 @@ import type {
 	CronActorContext,
 	CronExecutionRecord,
 	CronJsonObject,
-	CronJsonValue,
 	CronNextRunPreview,
 	CronSchedule,
 	CronScheduleAccessPolicy,
@@ -36,13 +35,9 @@ import { CronNextRunCalculator } from './calculator';
 import { CronScheduleEventBus } from './support';
 import { redactCronValue, summarizeCronValue } from './support';
 import {
-	CRON_AGENT_TASK_INPUT_KEYS,
-	CRON_AGENT_TASK_TYPE,
 	DEFAULT_CRON_RETRY_POLICY,
 	DEFAULT_CRON_RUN_POLICY,
 	DEFAULT_CRON_SCHEDULER_OPTIONS,
-	CRON_SECRET_VALUE_PATTERNS,
-	MAX_AGENT_INSTRUCTION_LENGTH,
 } from './constants';
 
 export {
@@ -50,52 +45,6 @@ export {
 	DEFAULT_CRON_RUN_POLICY,
 	DEFAULT_CRON_SCHEDULER_OPTIONS,
 } from './constants';
-
-function assertOnlyAgentInstruction(input: Record<string, unknown>): void {
-	for (const key of Object.keys(input)) {
-		if (!CRON_AGENT_TASK_INPUT_KEYS.has(key)) {
-			throw new CronScheduleValidationError(
-				`Scheduled agent input only supports message; ${key} is not allowed.`,
-				{ field: `taskInput.${key}` }
-			);
-		}
-	}
-}
-
-function normalizeAgentTaskInput(value: CronJsonValue | undefined): CronJsonObject {
-	if (!value || typeof value !== 'object' || Array.isArray(value)) {
-		throw new CronScheduleValidationError('taskInput must be an object with a message.');
-	}
-	assertOnlyAgentInstruction(value);
-	if (typeof value.message !== 'string') {
-		throw new CronScheduleValidationError('taskInput.message is required.');
-	}
-	const message = value.message.trim();
-	if (!message) throw new CronScheduleValidationError('taskInput.message is required.');
-	if (message.length > MAX_AGENT_INSTRUCTION_LENGTH) {
-		throw new CronScheduleValidationError('taskInput.message is too long.');
-	}
-	if (CRON_SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(message))) {
-		throw new CronScheduleValidationError('taskInput.message contains secret-looking content.');
-	}
-	return { message };
-}
-
-function normalizeAgentScheduleTask(
-	request: CronScheduleCreateRequest | CronScheduleUpdateRequest,
-	existing?: CronSchedule
-): { taskType: string; taskInput: CronJsonObject } {
-	const taskType = request.taskType ?? existing?.taskType;
-	if (taskType !== CRON_AGENT_TASK_TYPE) {
-		throw new CronScheduleValidationError(
-			`Scheduled tasks must create ${CRON_AGENT_TASK_TYPE} background tasks.`
-		);
-	}
-	return {
-		taskType: CRON_AGENT_TASK_TYPE,
-		taskInput: normalizeAgentTaskInput(request.taskInput ?? existing?.taskInput),
-	};
-}
 
 export class CronSchedulerEngine implements CronScheduler {
 	private readonly options: CronSchedulerOptions;
@@ -153,15 +102,10 @@ export class CronSchedulerEngine implements CronScheduler {
 		request: CronScheduleCreateRequest,
 		actor = this.systemActor(request.ownerUserId)
 	): Promise<CronSchedule> {
-		const requestWithDefaults: CronScheduleCreateRequest = {
-			...request,
-			taskType: request.taskType ?? CRON_AGENT_TASK_TYPE,
-		};
 		await this.accessPolicy.authorize({ action: 'createSchedule', request, actor });
 		this.accessPolicy.validateFrequency({ request, actor });
-		validateScheduleShape(requestWithDefaults, this.options.runPolicy);
+		validateScheduleShape(request, this.options.runPolicy);
 		assertSafeStoredSchedulePayload(request);
-		const normalizedTask = normalizeAgentScheduleTask(requestWithDefaults);
 
 		const now = new Date();
 		const nowIso = now.toISOString();
@@ -190,8 +134,8 @@ export class CronSchedulerEngine implements CronScheduler {
 			catchUpWindowMs: request.catchUpWindowMs ?? this.options.runPolicy.catchUpWindowMs,
 			concurrencyPolicy: request.concurrencyPolicy ?? 'skipIfRunning',
 			retryPolicy: mergeRetryPolicy(this.options.defaultRetryPolicy, request.retryPolicy),
-			taskType: normalizedTask.taskType,
-			taskInput: normalizedTask.taskInput,
+			taskType: request.taskType,
+			taskInput: request.taskInput,
 			taskPriority: request.taskPriority ?? 'normal',
 			taskTags: request.taskTags ?? [],
 			taskMetadata: request.taskMetadata ?? {},
@@ -234,14 +178,10 @@ export class CronSchedulerEngine implements CronScheduler {
 		this.accessPolicy.validateFrequency({ request: patch, actor, existingSchedule: current });
 		validateScheduleShape(patch, this.options.runPolicy, current);
 		assertSafeStoredSchedulePayload(patch);
-		const normalizedTask = normalizeAgentScheduleTask(patch, current);
-		const normalizedPatch: CronScheduleUpdateRequest = { ...patch };
-		if (patch.taskType !== undefined) normalizedPatch.taskType = normalizedTask.taskType;
-		if (patch.taskInput !== undefined) normalizedPatch.taskInput = normalizedTask.taskInput;
 		const merged: CronSchedule = {
 			...current,
-			...normalizedPatch,
-			retryPolicy: mergeRetryPolicy(current.retryPolicy, normalizedPatch.retryPolicy),
+			...patch,
+			retryPolicy: mergeRetryPolicy(current.retryPolicy, patch.retryPolicy),
 			updatedAt: new Date().toISOString(),
 			audit: [
 				...current.audit,

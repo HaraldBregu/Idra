@@ -1,6 +1,5 @@
 import cron from 'node-cron';
 import type {
-	CronStoredTarget,
 	CronTask,
 	CronTaskData,
 } from '../../shared/app/cron';
@@ -114,7 +113,7 @@ export class NodeCronJobRegistry {
 			status: enabled ? 'active' : 'disabled',
 			providerId: options.providerId,
 			modelId: options.modelId,
-			target: options.target ?? this.targetForData(data),
+			target: options.target ?? 'job',
 			payload: data,
 			data,
 			createdAt: now,
@@ -122,12 +121,5 @@ export class NodeCronJobRegistry {
 			runCount: 0,
 			failureCount: 0,
 		};
-	}
-
-	private targetForData(data: CronTaskData): CronStoredTarget {
-		if (data.type === 'agent') return 'agent';
-		if (data.type === 'tool') return 'tool';
-		if (data.type === 'task') return 'task';
-		return 'job';
 	}
 }

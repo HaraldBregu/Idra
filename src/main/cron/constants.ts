@@ -11,14 +11,10 @@ import type {
 	CronScheduleVisibility,
 } from './core/types';
 
-export const CRON_AGENT_TASK_TYPE = 'agent.run';
-export const DEFAULT_CRON_AGENT_ID = 'main';
 export const CRON_STORE_SCHEMA_VERSION = 1;
-export const CRON_JOB_STORE_SCHEMA_VERSION = 1;
 
 export const CRON_MINUTE_MS = 60_000;
 export const MAX_CRON_SCAN_MINUTES = 366 * 24 * 60;
-export const MAX_AGENT_INSTRUCTION_LENGTH = 200_000;
 
 export const CRON_DAY_NAMES = [
 	'Sunday',
@@ -105,34 +101,7 @@ export const CRON_SECRET_VALUE_PATTERNS: readonly RegExp[] = [
 	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
 ];
 
-export const CRON_AGENT_TASK_INPUT_KEYS = new Set(['message']);
 export const CRON_PATH_SEPARATOR_PATTERN = /[\\/]/;
-
-export const CRON_JOB_CONTROL_FIELDS = new Set([
-	'action',
-	'id',
-	'jobId',
-	'job',
-	'patch',
-	'contextMessages',
-	'timeoutMs',
-	'includeDisabled',
-	'include',
-	'agentId',
-	'runMode',
-	'mode',
-	'force',
-	'limit',
-]);
-
-export const CRON_JOB_AGENT_TURN_FIELDS = [
-	'fallbacks',
-	'thinking',
-	'timeoutSeconds',
-	'lightContext',
-	'allowUnsafeExternalContent',
-	'toolsAllow',
-] as const;
 
 export const DEFAULT_CRON_RETRY_POLICY: CronRetryPolicy = {
 	maxAttempts: 1,
@@ -162,18 +131,5 @@ export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
 	totalTurnTimeoutMs: 5 * 60_000,
 	runPolicy: DEFAULT_CRON_RUN_POLICY,
 	defaultRetryPolicy: DEFAULT_CRON_RETRY_POLICY,
-	defaultTimezone: 'UTC',
-};
-
-export const DEFAULT_CRON_JOB_OPTIONS = {
-	enabled: process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false',
-	maintenanceIntervalMs: 60_000,
-	minRefireGapMs: 1_000,
-	stuckRunThresholdMs: 30 * 60_000,
-	maxConcurrentRuns: 1,
-	scheduleErrorDisableThreshold: 3,
-	defaultOneShotMaxAttempts: 3,
-	defaultBackoffMs: 60_000,
-	defaultMaxBackoffMs: 15 * 60_000,
 	defaultTimezone: 'UTC',
 };

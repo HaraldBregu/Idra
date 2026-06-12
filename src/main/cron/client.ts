@@ -6,8 +6,6 @@ import type {
 	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduleUpdateRequest,
-	CronJobToolRequest,
-	CronJobToolResponse,
 	CronScheduledTask,
 } from '../../shared/app/cron';
 
@@ -23,7 +21,6 @@ export interface CronClient {
 	getScheduleExecutions(scheduleId: string): Promise<CronExecutionRecord[]>;
 	runScheduleNow(scheduleId: string): Promise<CronScheduledTask>;
 	getNextRuns(scheduleId: string, count: number): Promise<CronNextRunPreview>;
-	action(request: CronJobToolRequest): Promise<CronJobToolResponse>;
 	subscribeToSchedules(listener: (event: CronScheduleEvent) => void): () => void;
 	subscribeToSchedule(scheduleId: string, listener: (event: CronScheduleEvent) => void): () => void;
 }
