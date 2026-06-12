@@ -72,9 +72,9 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
+		const workspacePath = workspace.getPath();
 		const toolContext = new ToolContext({ currentDirectory: workspacePath });
 		const tools = input.tools ? input.tools.slice() : [];
-		const workspacePath = workspace.getPath();
 		tools.push(new ReadTool(workspacePath, toolContext));
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
