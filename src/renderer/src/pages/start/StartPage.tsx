@@ -24,7 +24,6 @@ import {
 	getProviderApiConfigurationUrl,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import { isSpeechToTextProviderId } from '../../../../shared/providers/models/stt';
 import type { Provider as StoredProvider } from '../../../../shared/providers/types';
 import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '../../../../shared/providers/models/llm';
 import { AGENTS, type AgentId } from '@/lib/compat';
@@ -245,15 +244,11 @@ function toStoredProvider(providerId: string, apiKey: string): StoredProvider | 
 }
 
 function getStoredProvider(providerId: string): Promise<StoredProvider | undefined> {
-	return isSpeechToTextProviderId(providerId)
-		? window.stt.getProvider(providerId)
-		: window.provider.get(providerId);
+	return window.provider.get(providerId);
 }
 
 function saveStoredProvider(providerId: string, provider: StoredProvider): Promise<StoredProvider> {
-	return isSpeechToTextProviderId(providerId)
-		? window.stt.saveProvider(providerId, provider)
-		: window.provider.set(providerId, provider);
+	return window.provider.set(providerId, provider);
 }
 
 function getLlmProvidersFromCatalog(): PublicProvider[] {
