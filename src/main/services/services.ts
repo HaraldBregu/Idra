@@ -4,7 +4,7 @@ import type { AgentService } from './agent-service';
 import type { AppPermissionsService } from '../app/permissions';
 import type { CronService } from '../cron';
 import type { LlmService } from '../llm';
-import type { LoggerService } from '../observability';
+import type { LoggerService } from '../shared';
 import type { ConnectorSettingsService } from './connector-settings-service';
 import type { ProviderService } from './provider-service';
 import type { SttService } from './stt-service';

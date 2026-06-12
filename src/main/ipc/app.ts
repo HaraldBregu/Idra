@@ -12,7 +12,7 @@ import type {
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc/ipc-channels';
 import { AppPermissionsService } from '../app/permissions';
-import { LoggerService } from '../observability';
+import { LoggerService } from '../shared';
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',

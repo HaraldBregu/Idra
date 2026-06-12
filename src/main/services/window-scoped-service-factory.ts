@@ -1,6 +1,6 @@
 import type { ContainerInstance } from 'typedi';
 import type { EventBus } from './index';
-import { LoggerService } from '../observability';
+import { LoggerService } from '../shared';
 
 export interface WindowScopedFactoryContext {
 	globalContainer: ContainerInstance;

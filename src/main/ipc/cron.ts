@@ -9,7 +9,7 @@ import {
 	type CronScheduleFilter,
 } from '../../shared/app/cron';
 import { CronService } from '../cron';
-import { LoggerService } from '../observability';
+import { LoggerService } from '../shared';
 
 function uiActor(userId?: string) {
 	return {

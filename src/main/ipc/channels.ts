@@ -7,7 +7,7 @@ import { ChannelsChannels } from '../../shared/ipc/ipc-channels';
 import { type ChannelStatusEvent, type ChannelType } from '../../shared/channels';
 import { listChannelCatalog } from '../../shared/channels';
 import { ChannelRegistry } from '../channels';
-import { LoggerService } from '../observability';
+import { LoggerService } from '../shared';
 
 export class ChannelsIpc implements IpcModule {
 	readonly name = 'channels';

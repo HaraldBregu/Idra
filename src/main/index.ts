@@ -16,8 +16,8 @@ import { registerIpcHandlers } from './ipc/core/register-ipc-handlers';
 import {
 	setupEventLogging,
 	setupProcessSafetyNet,
-} from './observability/errorReporter';
-import { setupMemoryMonitor } from './observability/metrics';
+} from './shared/errorReporter';
+import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { AppPermissionsService } from './app/permissions';
 

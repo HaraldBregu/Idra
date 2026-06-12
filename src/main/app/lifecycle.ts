@@ -1,6 +1,6 @@
 import { app } from 'electron';
 import type { AppState } from '../services/app-state';
-import type { LoggerService } from '../observability';
+import type { LoggerService } from '../shared';
 
 export function setupAppLifecycle(appState: AppState, logger?: LoggerService): void {
 	app.on('before-quit', () => {

@@ -3,7 +3,7 @@ import { Container } from 'typedi';
 import { EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './app/permissions';
-import { LoggerService } from './observability';
+import { LoggerService } from './shared';
 import { CronService, createCronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 

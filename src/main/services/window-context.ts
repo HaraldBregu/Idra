@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { Container, type ContainerInstance } from 'typedi';
 import type { EventBus } from './index';
-import { LoggerService } from '../observability';
+import { LoggerService } from '../shared';
 import {
 	createDefaultWindowScopedServiceFactory,
 	type WindowScopedServiceFactory,
