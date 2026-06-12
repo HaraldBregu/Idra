@@ -74,6 +74,9 @@ export interface SttApi {
 	cancelRealtime: (sessionId: string) => Promise<void>;
 	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
 	getSelection: () => Promise<SttModelSelection | undefined>;
+	getProvider: (providerId: string) => Promise<Provider | undefined>;
+	saveProvider: (providerId: string, provider: Provider) => Promise<Provider>;
+	isProviderConfigured: (providerId: string) => Promise<boolean>;
 	listProviders: () => Promise<PublicProvider[]>;
 	listModels: (providerId: string) => Promise<Model[]>;
 	saveSelection: (providerId: string, modelId: string) => Promise<boolean>;
