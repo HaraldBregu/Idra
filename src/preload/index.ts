@@ -74,19 +74,6 @@ function optionalStringList(value: unknown): string[] | undefined {
 	return items.length > 0 ? items : undefined;
 }
 
-function normalizeStoredProvider(provider: Provider): Provider {
-	if (!provider || typeof provider !== 'object' || Array.isArray(provider)) {
-		throw new Error('Invalid provider configuration.');
-	}
-	const name = optionalTrimmedString(provider.name);
-	const apiKey = optionalTrimmedString(provider.apiKey);
-	const baseUrl = optionalTrimmedString(provider.baseUrl);
-	if (!name) throw new Error('Provider name is required.');
-	if (!apiKey) throw new Error('Provider API key is required.');
-	if (!baseUrl) throw new Error('Provider base URL is required.');
-	return { name, apiKey, baseUrl };
-}
-
 function normalizeAgentSendRuntimeOptions(
 	options?: Record<string, unknown>
 ): Record<string, unknown> | undefined {
@@ -319,25 +306,6 @@ export const stt: SttApi = {
 	},
 	getSelection: () => {
 		return typedInvokeUnwrap(SttChannels.getSelection);
-	},
-	getProvider: (providerId) => {
-		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
-		return typedInvokeUnwrap(SttChannels.getProvider, normalizedProviderId);
-	},
-	saveProvider: (providerId, provider) => {
-		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
-		return typedInvokeUnwrap(
-			SttChannels.saveProvider,
-			normalizedProviderId,
-			normalizeStoredProvider(provider)
-		);
-	},
-	isProviderConfigured: (providerId) => {
-		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
-		return typedInvokeUnwrap(SttChannels.isProviderConfigured, normalizedProviderId);
 	},
 	listProviders: () => {
 		return typedInvokeUnwrap(SttChannels.listProviders);
