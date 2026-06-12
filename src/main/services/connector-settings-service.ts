@@ -2,7 +2,7 @@ import path from 'node:path';
 import { app } from 'electron';
 import Store from 'electron-store';
 import { Service } from 'typedi';
-import { ConnectorSettings, SIMPLE_CONNECTORS } from '../connector';
+import { Settings, SIMPLE_CONNECTORS } from '../connector';
 import type {
 	ConnectorApprovalPolicy,
 	ConnectorId,
@@ -16,36 +16,26 @@ interface ConnectorSettingsSchema {
 	connectors: ConnectorSettingsRecord;
 }
 
-type ConnectorStore = {
-	get(key: 'connectors'): unknown;
-	set(key: 'connectors', value: ConnectorSettingsRecord): void;
-	get store(): unknown;
-	set store(value: ConnectorSettingsSchema);
-};
-
-export interface ConnectorServiceOptions {
+export interface ConnectorSettingsServiceOptions {
 	cwd?: string;
-	store?: ConnectorStore;
 }
 
 const DEFAULT_SETTINGS: ConnectorSettingsSchema = {
 	connectors: {},
 };
 
-@Service({ factory: () => new ConnectorService() })
-export class ConnectorService extends ConnectorSettings {
-	private readonly store: ConnectorStore;
+@Service({ factory: () => new ConnectorSettingsService() })
+export class ConnectorSettingsService extends Settings {
+	private readonly store: Store<ConnectorSettingsSchema>;
 
-	constructor(options: ConnectorServiceOptions = {}) {
+	constructor(options: ConnectorSettingsServiceOptions = {}) {
 		super();
-		this.store =
-			options.store ??
-			new Store<ConnectorSettingsSchema>({
-				name: 'settings',
-				cwd: options.cwd ?? resolveConnectorSettingsLocation(),
-				accessPropertiesByDotNotation: false,
-				defaults: DEFAULT_SETTINGS,
-			});
+		this.store = new Store<ConnectorSettingsSchema>({
+			name: 'setting',
+			cwd: options.cwd ?? resolveConnectorSettingsLocation(),
+			accessPropertiesByDotNotation: false,
+			defaults: DEFAULT_SETTINGS,
+		});
 	}
 
 	list(): ConnectorSettingsRecord {
@@ -105,11 +95,11 @@ export class ConnectorService extends ConnectorSettings {
 
 export function resolveConnectorSettingsLocation(): string {
 	try {
-		return path.join(app.getPath('userData'), 'connector');
+		return path.join(app.getPath('appData'), app.getName(), 'connectors');
 	} catch {
 		const base =
 			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday', 'connector');
+		return path.resolve(base, app?.getName?.() ?? 'Friday', 'connectors');
 	}
 }
 
