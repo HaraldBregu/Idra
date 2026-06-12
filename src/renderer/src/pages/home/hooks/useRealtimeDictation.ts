@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RealtimeTranscriptionEvent } from '@/lib/compat';
+import type { SttRealtimeEvent } from '@shared/stt/transcription';
 
 export type RealtimeDictationStatus =
 	| 'idle'
@@ -8,8 +8,6 @@ export type RealtimeDictationStatus =
 	| 'recording'
 	| 'finishing'
 	| 'error';
-
-type RealtimeTranscriptionApi = Window['realtimeTranscription'];
 
 const AUDIO_BUFFER_SIZE = 4096;
 const CLOCK_INTERVAL_MS = 250;
@@ -186,10 +184,10 @@ export function useRealtimeDictation({
 	}, []);
 
 	useEffect(() => {
-		const api: RealtimeTranscriptionApi | undefined = window.realtimeTranscription;
+		const api = window.stt;
 		if (!api) return;
 
-		return api.onEvent((event: RealtimeTranscriptionEvent) => {
+		return api.onRealtimeEvent((event: SttRealtimeEvent) => {
 			if (event.sessionId && event.sessionId !== sessionIdRef.current) return;
 
 			if (event.type === 'committed') {
@@ -255,9 +253,9 @@ export function useRealtimeDictation({
 		baseTextRef.current = valueRef.current;
 
 		try {
-			const transcriptionApi = window.realtimeTranscription;
+			const transcriptionApi = window.stt;
 			if (!transcriptionApi) {
-				throw new Error('Realtime transcription API is unavailable.');
+				throw new Error('Speech-to-text API is unavailable.');
 			}
 			if (!(await getAppMicrophoneEnabled())) {
 				throw new Error('Microphone recording is disabled in Settings.');
@@ -272,7 +270,7 @@ export function useRealtimeDictation({
 			});
 
 			setStatus('connecting');
-			const session = await transcriptionApi.start({
+			const session = await transcriptionApi.startRealtime({
 				language: preferredLanguage(),
 			});
 			sessionIdRef.current = session.id;
@@ -287,7 +285,7 @@ export function useRealtimeDictation({
 				const input = event.inputBuffer.getChannelData(0);
 				const pcm = resampleToPcm16(input, audioContext.sampleRate, session.sampleRate);
 				if (pcm.length === 0) return;
-				transcriptionApi.appendAudio(sessionId, pcm16ToBase64(pcm));
+				void transcriptionApi.appendRealtimeAudio(sessionId, pcm16ToBase64(pcm));
 			};
 
 			source.connect(processor);
@@ -305,7 +303,7 @@ export function useRealtimeDictation({
 			return true;
 		} catch (error) {
 			if (sessionIdRef.current) {
-				await window.realtimeTranscription?.cancel(sessionIdRef.current).catch(() => undefined);
+				await window.stt?.cancelRealtime(sessionIdRef.current).catch(() => undefined);
 				sessionIdRef.current = null;
 			}
 			stopClock();
@@ -326,7 +324,7 @@ export function useRealtimeDictation({
 		mutedRef.current = false;
 		setElapsedMs(0);
 		setStatus('idle');
-		if (sessionId) await window.realtimeTranscription?.cancel(sessionId).catch(() => undefined);
+		if (sessionId) await window.stt?.cancelRealtime(sessionId).catch(() => undefined);
 	}, [stopAudio, stopClock]);
 
 	const finish = useCallback(async (): Promise<void> => {
@@ -343,7 +341,7 @@ export function useRealtimeDictation({
 
 		setStatus('finishing');
 		try {
-			await window.realtimeTranscription?.finish(sessionId);
+			await window.stt?.finishRealtime(sessionId);
 		} catch (error) {
 			sessionIdRef.current = null;
 			setStatus('error');
@@ -357,7 +355,7 @@ export function useRealtimeDictation({
 			sessionIdRef.current = null;
 			stopClock();
 			stopAudio();
-			if (sessionId) void window.realtimeTranscription?.cancel(sessionId).catch(() => undefined);
+			if (sessionId) void window.stt?.cancelRealtime(sessionId).catch(() => undefined);
 		};
 	}, [stopAudio, stopClock]);
 

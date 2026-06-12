@@ -10,6 +10,7 @@ import type {
 	AgentToolResultStatus,
 	ModelReasoningEffort,
 } from '../../../shared/agent/types';
+import type { SttRealtimeEvent } from '../../../shared/stt/transcription';
 
 export const AGENTS = {
 	assistant: 'assistant',
@@ -39,6 +40,7 @@ export interface ModelSelection {
 }
 
 export type AgentToolCallStatus = AgentToolResultStatus;
+export type { SttRealtimeEvent };
 
 export type ConnectorInput = {
 	id?: string;
@@ -66,20 +68,6 @@ export type OAuthAuthorizeInput = {
 	accessType?: string;
 	prompt?: string;
 };
-
-export type RealtimeTranscriptionEvent =
-	| { type: 'started'; sessionId: string; model: string }
-	| { type: 'delta'; sessionId: string; itemId: string; contentIndex: number; delta: string }
-	| { type: 'committed'; sessionId: string; itemId: string }
-	| {
-			type: 'completed';
-			sessionId: string;
-			itemId: string;
-			contentIndex: number;
-			transcript: string;
-	  }
-	| { type: 'error'; sessionId?: string; message: string }
-	| { type: 'closed'; sessionId: string };
 
 export type RendererAppApi = Window['app'] & {
 	authorizeOAuth(input: OAuthAuthorizeInput): Promise<{ accessToken: string }>;

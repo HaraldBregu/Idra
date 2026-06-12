@@ -138,51 +138,6 @@ export type ConnectorInput = {
 	createdAt?: string;
 };
 
-export interface RealtimeTranscriptionStartRequest {
-	language?: string;
-}
-
-export interface RealtimeTranscriptionSession {
-	id: string;
-	model: string;
-	sampleRate: number;
-}
-
-export type RealtimeTranscriptionEvent =
-	| {
-			type: 'started';
-			sessionId: string;
-			model: string;
-	  }
-	| {
-			type: 'delta';
-			sessionId: string;
-			itemId: string;
-			contentIndex: number;
-			delta: string;
-	  }
-	| {
-			type: 'committed';
-			sessionId: string;
-			itemId: string;
-	  }
-	| {
-			type: 'completed';
-			sessionId: string;
-			itemId: string;
-			contentIndex: number;
-			transcript: string;
-	  }
-	| {
-			type: 'error';
-			sessionId?: string;
-			message: string;
-	  }
-	| {
-			type: 'closed';
-			sessionId: string;
-	  };
-
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
@@ -204,21 +159,12 @@ export interface AgentStoreApi {
 	setModelId: (modelId: string) => Promise<boolean>;
 }
 
-export interface RealtimeTranscriptionApi {
-	start: (request?: RealtimeTranscriptionStartRequest) => Promise<RealtimeTranscriptionSession>;
-	appendAudio: (sessionId: string, audio: string) => void;
-	finish: (sessionId: string) => Promise<void>;
-	cancel: (sessionId: string) => Promise<void>;
-	onEvent: (callback: (event: RealtimeTranscriptionEvent) => void) => () => void;
-}
-
 declare global {
 	interface Window {
 		win: WindowApi;
 		app: AppApi;
 		agentStore: AgentStoreApi;
 		agent: AgentApi;
-		realtimeTranscription: RealtimeTranscriptionApi;
 		cron: CronApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;

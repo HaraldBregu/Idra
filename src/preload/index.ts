@@ -19,7 +19,6 @@ import type {
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
-	RealtimeTranscriptionApi,
 	ProviderStoreApi,
 	SkillsApi,
 	SttApi,
@@ -32,7 +31,6 @@ import type {
 	CronScheduleFilter,
 	CronScheduledTask,
 } from '../shared/app/cron';
-import type { RealtimeTranscriptionEvent, RealtimeTranscriptionSession } from './index.d';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
@@ -56,47 +54,13 @@ const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'high',
 	'xhigh',
 ];
-const REALTIME_TRANSCRIPTION_MAX_LANGUAGE_LENGTH = 35;
-const REALTIME_TRANSCRIPTION_MAX_AUDIO_CHARS = 256 * 1024;
 
 function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
 }
 
-function normalizeRealtimeTranscriptionStartRequest(
-	request: unknown
-): Parameters<RealtimeTranscriptionApi['start']>[0] {
-	if (request === undefined) return undefined;
-	if (!request || typeof request !== 'object' || Array.isArray(request)) {
-		throw new Error('Invalid realtime transcription start request.');
-	}
-
-	const language = (request as { language?: unknown }).language;
-	if (language === undefined) return undefined;
-	if (typeof language !== 'string') {
-		throw new Error('Invalid realtime transcription language.');
-	}
-
-	const trimmed = language.trim();
-	if (!trimmed) return undefined;
-	if (trimmed.length > REALTIME_TRANSCRIPTION_MAX_LANGUAGE_LENGTH) {
-		throw new Error('Realtime transcription language is too long.');
-	}
-
-	return { language: trimmed };
-}
-
-function isRealtimeTranscriptionSessionId(value: unknown): value is string {
+function isSttRealtimeSessionId(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
-}
-
-function isRealtimeTranscriptionAudioChunk(value: unknown): value is string {
-	return (
-		typeof value === 'string' &&
-		value.length > 0 &&
-		value.length <= REALTIME_TRANSCRIPTION_MAX_AUDIO_CHARS &&
-		/^[A-Za-z0-9+/]+={0,2}$/.test(value)
-	);
 }
 
 function optionalTrimmedString(value: unknown): string | undefined {
@@ -240,41 +204,6 @@ export const app: AppApi = {
 	},
 };
 
-export const realtimeTranscription: RealtimeTranscriptionApi = {
-	start: (request) => {
-		return typedInvokeUnwrap<RealtimeTranscriptionSession>(
-			SttChannels.startRealtime,
-			normalizeRealtimeTranscriptionStartRequest(request)
-		);
-	},
-	appendAudio: (sessionId: string, audio: string): void => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
-			throw new Error('Invalid realtime transcription session id.');
-		}
-		if (!isRealtimeTranscriptionAudioChunk(audio)) {
-			throw new Error('Invalid realtime transcription audio chunk.');
-		}
-		void typedInvokeUnwrap(SttChannels.appendRealtimeAudio, sessionId, audio);
-	},
-	finish: (sessionId: string): Promise<void> => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
-			throw new Error('Invalid realtime transcription session id.');
-		}
-		return typedInvokeUnwrap(SttChannels.finishRealtime, sessionId);
-	},
-	cancel: (sessionId: string): Promise<void> => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
-			throw new Error('Invalid realtime transcription session id.');
-		}
-		return typedInvokeUnwrap(SttChannels.cancelRealtime, sessionId);
-	},
-	onEvent: (callback): (() => void) => {
-		return typedOn(SttChannels.realtimeEvent, (event) => {
-			callback(event as RealtimeTranscriptionEvent);
-		});
-	},
-};
-
 export const cron: CronApi = {
 	pauseSchedule: (scheduleId: string): Promise<void> => {
 		return typedInvokeUnwrap(CronChannels.pauseSchedule, scheduleId);
@@ -337,7 +266,7 @@ export const stt: SttApi = {
 		);
 	},
 	appendRealtimeAudio: (sessionId, audio) => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+		if (!isSttRealtimeSessionId(sessionId)) {
 			throw new Error('Invalid speech-to-text realtime session id.');
 		}
 		return typedInvokeUnwrap(
@@ -347,13 +276,13 @@ export const stt: SttApi = {
 		);
 	},
 	finishRealtime: (sessionId) => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+		if (!isSttRealtimeSessionId(sessionId)) {
 			throw new Error('Invalid speech-to-text realtime session id.');
 		}
 		return typedInvokeUnwrap(SttChannels.finishRealtime, sessionId);
 	},
 	cancelRealtime: (sessionId) => {
-		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+		if (!isSttRealtimeSessionId(sessionId)) {
 			throw new Error('Invalid speech-to-text realtime session id.');
 		}
 		return typedInvokeUnwrap(SttChannels.cancelRealtime, sessionId);
@@ -428,7 +357,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('agentStore', agentStore);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
-		contextBridge.exposeInMainWorld('realtimeTranscription', realtimeTranscription);
 		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
@@ -447,8 +375,6 @@ if (process.contextIsolated) {
 	globalThis.win = win;
 	// @ts-ignore (define in dts)
 	globalThis.agent = agent;
-	// @ts-ignore (define in dts)
-	globalThis.realtimeTranscription = realtimeTranscription;
 	// @ts-ignore (define in dts)
 	globalThis.cron = cron;
 	// @ts-ignore (define in dts)
