@@ -2,6 +2,9 @@ import type { Dispatch } from 'react';
 import { useEffect } from 'react';
 import { openExternalUrl } from '@/lib/external-links';
 import { appApi } from '@/lib/compat';
+import { DEFAULT_PROVIDERS } from '../../../../../shared/providers';
+import { isSpeechToTextProviderId } from '../../../../../shared/providers/models/stt';
+import type { Provider } from '../../../../../shared/providers/types';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
@@ -10,6 +13,33 @@ import {
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';
+
+function toStoredProvider(providerId: string, apiKey: string): Provider | undefined {
+	const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+	if (!provider) return undefined;
+	return {
+		name: provider.name,
+		apiKey,
+		baseUrl: provider.baseUrl,
+	};
+}
+
+async function isProviderApiKeySaved(providerId: string): Promise<boolean> {
+	if (isSpeechToTextProviderId(providerId)) {
+		return window.stt.isProviderConfigured(providerId);
+	}
+	return appApi.isProviderApiKeySaved(providerId);
+}
+
+async function setProviderApiKey(providerId: string, apiKey: string): Promise<void> {
+	if (isSpeechToTextProviderId(providerId)) {
+		const provider = toStoredProvider(providerId, apiKey);
+		if (!provider) throw new Error('Unknown provider.');
+		await window.stt.saveProvider(providerId, provider);
+		return;
+	}
+	await appApi.setProviderApiKey(providerId, apiKey);
+}
 
 export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupAction>) {
 	const { step, providerEntries, savingProviderId } = state;
@@ -22,7 +52,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 			try {
 				const savedEntries = await Promise.all(
 					actionableProviderCatalog.map(async (provider) => {
-						const saved = await appApi.isProviderApiKeySaved(provider.id);
+						const saved = await isProviderApiKeySaved(provider.id);
 						return [provider.id, saved] as const;
 					})
 				);
@@ -67,7 +97,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		dispatch({ type: 'SET_SAVING_PROVIDER', providerId });
 		dispatch({ type: 'CLEAR_ERROR' });
 		try {
-			await appApi.setProviderApiKey(providerId, apiKey);
+			await setProviderApiKey(providerId, apiKey);
 			updateProviderEntry(providerId, { apiKey: '', apiKeySaved: true, editing: false });
 			return true;
 		} catch (error) {
@@ -93,7 +123,7 @@ export function useProviderSetup(state: SetupState, dispatch: Dispatch<SetupActi
 		try {
 			const entriesToSave = providerEntries.filter((entry) => entry.apiKey.trim().length > 0);
 			for (const entry of entriesToSave) {
-				await appApi.setProviderApiKey(entry.providerId, entry.apiKey.trim());
+				await setProviderApiKey(entry.providerId, entry.apiKey.trim());
 			}
 			if (entriesToSave.length > 0) {
 				dispatch({
