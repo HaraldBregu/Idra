@@ -151,6 +151,16 @@ async function loadAssistantState(): Promise<ModelServicePageState> {
 	};
 }
 
+async function loadServiceProviders(
+	service: ModelServiceDefinition,
+	selection: Awaited<ReturnType<ModelServiceDefinition['getSelection']>>
+): Promise<PublicProvider[]> {
+	if (service.id === AGENTS.speechToText) {
+		return mergeProviders(await window.stt.listProviders(), selection?.provider);
+	}
+	return mergeProviders(await appApi.getProviders(), selection?.provider);
+}
+
 const ModelServicePage: React.FC = () => {
 	const { t } = useTranslation();
 	const { serviceId: routeServiceId } = useParams();
@@ -191,13 +201,10 @@ const ModelServicePage: React.FC = () => {
 					return;
 				}
 
-				const [storedProviders, selection] = await Promise.all([
-					appApi.getProviders(),
-					activeService.getSelection(),
-				]);
+				const selection = await activeService.getSelection();
+				const providers = await loadServiceProviders(activeService, selection);
 				if (!mounted) return;
 
-				const providers = mergeProviders(storedProviders, selection?.provider);
 				const modelGroups: ProviderModelGroup[] = [];
 				let firstModelError: unknown;
 

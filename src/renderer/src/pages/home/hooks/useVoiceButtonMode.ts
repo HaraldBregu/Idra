@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { appApi, isRealtimeSpeechToTextModel } from '@/lib/compat';
+import {
+	SPEECH_TO_TEXT_BATCH_API_TYPE,
+	SPEECH_TO_TEXT_STREAM_API_TYPE,
+	getSpeechToTextModelApiTypes,
+} from '@shared/providers/models/stt';
 
 export type VoiceButtonMode = 'dictate' | 'record' | 'disabled';
 
@@ -7,18 +11,19 @@ export function useVoiceButtonMode(): VoiceButtonMode {
 	const [mode, setMode] = useState<VoiceButtonMode>('disabled');
 
 	useEffect(() => {
-		void appApi
-			.getSpeechTranscriberService()
+		void window.stt
+			.getSelection()
 			.then((selection) => {
 				if (!selection?.model?.id) {
 					setMode('disabled');
 					return;
 				}
-				setMode(
-					isRealtimeSpeechToTextModel(selection.provider.id, selection.model.id)
-						? 'dictate'
-						: 'record'
-				);
+				const apiTypes = getSpeechToTextModelApiTypes(selection.provider.id, selection.model.id);
+				if (apiTypes.includes(SPEECH_TO_TEXT_STREAM_API_TYPE)) {
+					setMode('dictate');
+					return;
+				}
+				setMode(apiTypes.includes(SPEECH_TO_TEXT_BATCH_API_TYPE) ? 'record' : 'disabled');
 			})
 			.catch(() => setMode('disabled'));
 	}, []);

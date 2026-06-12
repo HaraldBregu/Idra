@@ -1,7 +1,7 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
-import { registerCommand, registerCommandWithEvent } from './core/gateway';
+import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import { SttChannels } from '../../shared/ipc/ipc-channels';
 import { SttService } from '../services/stt-service';
 
@@ -10,6 +10,12 @@ export class SttIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const stt = container.get(SttService);
+		registerQuery(SttChannels.getSelection, () => stt.getSelection());
+		registerQuery(SttChannels.listProviders, () => stt.listProviders());
+		registerQuery(SttChannels.listModels, (providerId) => stt.listModels(providerId));
+		registerCommand(SttChannels.saveSelection, (providerId, modelId) =>
+			stt.saveSelection(providerId, modelId)
+		);
 		registerCommand(SttChannels.transcribe, (request) => stt.transcribe(request));
 		registerCommandWithEvent(SttChannels.startRealtime, (event, request) =>
 			stt.startRealtime(request, (sttEvent) => {
