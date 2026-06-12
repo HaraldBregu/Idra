@@ -1,6 +1,7 @@
 export const app = {
 	getName: (): string => 'Friday',
 	getPath: (): string => process.cwd(),
+	getVersion: (): string => '0.0.0-test',
 };
 
 export const ipcMain = {
