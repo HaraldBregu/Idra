@@ -31,7 +31,7 @@ import {
 	normalizeProviderId,
 	type ProviderModel,
 } from '../../shared/providers/models/types';
-import { SttAdapterFactory } from '../stt';
+import { SttAdapterFactory } from '../stt/factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../stt/errors';
 import { SttSettingsStore } from '../stt/settings';
 import type { SttActiveRealtimeSession, SttProviderSpec } from '../stt/types';
