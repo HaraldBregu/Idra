@@ -10,6 +10,10 @@ import type {
 	SttRealtimeEventHandler,
 } from '../types';
 import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt/transcription';
+import {
+	MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID,
+	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
+} from '../../../shared/providers/models/stt';
 
 type MistralTranscriptionClient = {
 	audio: {
@@ -215,7 +219,10 @@ class MistralRealtimeSttConnection implements SttRealtimeConnection {
 }
 
 function realtimeBaseUrl(baseURL: string | undefined): string {
-	return (baseURL ?? 'https://api.mistral.ai').replace(/\/v1\/?$/, '');
+	return (baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID]).replace(
+		/\/v1\/?$/,
+		''
+	);
 }
 
 function errorMessage(error: unknown, fallback: string): string {
