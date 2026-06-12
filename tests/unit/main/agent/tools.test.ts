@@ -45,19 +45,21 @@ describe('agent file tools', () => {
 		});
 	});
 
-	it('uses the tool context path for exec calls without workdir', async () => {
+	it('records exec workdir in the shared tool context', async () => {
 		const context = new ToolContext();
 		const tool = new ExecTool(workspacePath, context);
 		const nestedPath = path.join(workspacePath, 'nested');
 		const command = `"${process.execPath}" --version`;
+
+		expect(context.snapshot()).toEqual({});
 
 		await fs.mkdir(nestedPath, { recursive: true });
 		const first = await tool.run({ command, workdir: 'nested' });
 		const second = await tool.run({ command });
 
 		expect(first.workdir).toBe(nestedPath);
-		expect(second.workdir).toBe(nestedPath);
-		expect(context.path).toBe(nestedPath);
+		expect(second.workdir).toBe(workspacePath);
+		expect(context.path).toBe(workspacePath);
 	});
 
 	it('expands home-relative paths', () => {

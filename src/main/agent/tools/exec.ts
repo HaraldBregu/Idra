@@ -173,10 +173,7 @@ export class ExecTool extends Tool {
 			}
 		}
 
-		const cwd =
-			workdir === undefined
-				? this.context.path ?? this.basePath
-				: resolveToolPath(this.basePath, workdir);
+		const cwd = resolveToolPath(this.basePath, workdir ?? '.');
 		const yieldMs = yieldMsInput ?? 10000;
 		const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 		const startedAt = Date.now();
