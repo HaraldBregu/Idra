@@ -250,16 +250,20 @@ export class SttService {
 		return session;
 	}
 
-	private getConfiguredProviderId(): string | undefined {
-		return this.getSettingsStore()?.getProviderId();
+	private getConfiguredProviderId(): SpeechToTextProviderId | undefined {
+		const providerId = this.getSettingsStore()?.getProviderId();
+		if (!providerId) return undefined;
+		try {
+			return this.resolveProviderId(providerId);
+		} catch {
+			return undefined;
+		}
 	}
 
 	private getConfiguredModelId(providerId: SpeechToTextProviderId): string | undefined {
 		const settings = this.getSettingsStore();
-		const configuredProviderId = settings?.getProviderId();
-		if (!configuredProviderId || this.resolveProviderId(configuredProviderId) !== providerId) {
-			return undefined;
-		}
+		const configuredProviderId = this.getConfiguredProviderId();
+		if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
 		return settings?.getModelId();
 	}
 
