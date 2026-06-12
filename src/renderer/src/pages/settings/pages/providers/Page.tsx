@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { openExternalUrl } from '@/lib/external-links';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PROVIDERS, type Provider } from '../../../../../../shared/providers';
+import { isSpeechToTextProviderId } from '../../../../../../shared/providers/models/stt';
 import {
 	actionableProviderCatalog,
 	getErrorMessage,
@@ -94,6 +95,18 @@ const ProvidersPage: React.FC = () => {
 	const handleOpenProviderLink = (provider: ProviderCatalogItem): void => {
 		if (!provider.apiConfigurationUrl) return;
 		openExternalUrl(provider.apiConfigurationUrl);
+	};
+
+	const getStoredProvider = (providerId: string): Promise<Provider | undefined> => {
+		return isSpeechToTextProviderId(providerId)
+			? window.stt.getProvider(providerId)
+			: window.provider.get(providerId);
+	};
+
+	const saveStoredProvider = (providerId: string, provider: Provider): Promise<Provider> => {
+		return isSpeechToTextProviderId(providerId)
+			? window.stt.saveProvider(providerId, provider)
+			: window.provider.set(providerId, provider);
 	};
 
 	const toStoredProvider = (providerId: string, apiKey: string): Provider | undefined => {
