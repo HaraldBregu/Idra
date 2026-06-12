@@ -18,21 +18,17 @@ describe('SttAdapterFactory', () => {
 		const factory = new SttAdapterFactory();
 
 		expect(factory.build(provider)).toBeInstanceOf(OpenAISttAdapter);
-		expect(factory.build({ ...provider, id: 'xai', name: 'xAI' })).toBeInstanceOf(
-			XaiSttAdapter
-		);
+		expect(factory.build({ ...provider, id: 'xai', name: 'xAI' })).toBeInstanceOf(XaiSttAdapter);
 		expect(factory.build({ ...provider, id: 'mistral', name: 'Mistral' })).toBeInstanceOf(
 			MistralSttAdapter
 		);
 		expect(factory.build({ ...provider, id: 'deepgram', name: 'Deepgram' })).toBeInstanceOf(
 			DeepgramSttAdapter
 		);
-		expect(
-			factory.build({ ...provider, id: 'elevenlabs', name: 'ElevenLabs' })
-		).toBeInstanceOf(ElevenLabsSttAdapter);
-		expect(factory.build({ ...provider, id: 'qwen', name: 'Qwen' })).toBeInstanceOf(
-			QwenSttAdapter
+		expect(factory.build({ ...provider, id: 'elevenlabs', name: 'ElevenLabs' })).toBeInstanceOf(
+			ElevenLabsSttAdapter
 		);
+		expect(factory.build({ ...provider, id: 'qwen', name: 'Qwen' })).toBeInstanceOf(QwenSttAdapter);
 	});
 
 	it('rejects unsupported providers', () => {

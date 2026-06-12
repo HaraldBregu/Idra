@@ -34,7 +34,8 @@ export class QwenSttAdapter implements SttAdapter {
 	private readonly provider: SttProviderSpec;
 
 	constructor(provider: SttProviderSpec) {
-		if (!provider.apiKey) throw new SttProviderAuthError(`${provider.name} API key not configured.`);
+		if (!provider.apiKey)
+			throw new SttProviderAuthError(`${provider.name} API key not configured.`);
 		this.provider = provider;
 	}
 
@@ -170,10 +171,7 @@ function qwenRealtimeUrl(
 		baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]
 	);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
-	url.searchParams.set(
-		'model',
-		request.modelId || QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID
-	);
+	url.searchParams.set('model', request.modelId || QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID);
 	return url.toString();
 }
 

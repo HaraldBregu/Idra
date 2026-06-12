@@ -23,8 +23,10 @@ export class SttAdapterFactory {
 		const id = normalizeProviderId(provider.id);
 		if (id === OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) return new OpenAISttAdapter({ ...provider, id });
 		if (id === XAI_SPEECH_TO_TEXT_PROVIDER_ID) return new XaiSttAdapter({ ...provider, id });
-		if (id === MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID) return new MistralSttAdapter({ ...provider, id });
-		if (id === DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID) return new DeepgramSttAdapter({ ...provider, id });
+		if (id === MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID)
+			return new MistralSttAdapter({ ...provider, id });
+		if (id === DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID)
+			return new DeepgramSttAdapter({ ...provider, id });
 		if (id === ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID) {
 			return new ElevenLabsSttAdapter({ ...provider, id });
 		}

@@ -29,8 +29,7 @@ export const SPEECH_TRANSCRIBER_MODEL_IDS = [
 ] as const;
 export const LEGACY_SPEECH_TRANSCRIBER_MODEL_IDS = [] as const;
 export const MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-latest';
-export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID =
-	'voxtral-mini-transcribe-realtime-2602';
+export const MISTRAL_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'voxtral-mini-transcribe-realtime-2602';
 export const QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'qwen3-asr-flash-realtime';
 export const ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2';
 export const ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID = 'scribe_v2_realtime';
@@ -42,8 +41,7 @@ export const SPEECH_TO_TEXT_PROVIDER_BASE_URLS = {
 	[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.elevenlabs.io/v1',
 	[MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.mistral.ai/v1',
 	[OPENAI_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.openai.com/v1',
-	[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]:
-		'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
+	[QWEN_SPEECH_TO_TEXT_PROVIDER_ID]: 'wss://dashscope-intl.aliyuncs.com/api-ws/v1/realtime',
 	[XAI_SPEECH_TO_TEXT_PROVIDER_ID]: 'https://api.x.ai/v1',
 } as const satisfies Readonly<Record<SpeechToTextProviderId, string>>;
 
@@ -101,9 +99,7 @@ export const SPEECH_TO_TEXT_MODEL_API_TYPES_BY_PROVIDER = {
 	},
 	[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]: {
 		[ELEVENLABS_SCRIBE_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
-		[ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [
-			SPEECH_TO_TEXT_STREAM_API_TYPE,
-		],
+		[ELEVENLABS_SCRIBE_REALTIME_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_STREAM_API_TYPE],
 	},
 	[MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID]: {
 		[MISTRAL_OFFLINE_SPEECH_TO_TEXT_MODEL_ID]: [SPEECH_TO_TEXT_BATCH_API_TYPE],
@@ -126,7 +122,8 @@ export const SPEECH_TO_TEXT_MODEL_API_TYPES_BY_PROVIDER = {
 >;
 
 export const STT_MODELS_BY_PROVIDER = SPEECH_TO_TEXT_MODELS_BY_PROVIDER;
-export const SPEECH_TO_TEXT_MODELS = SPEECH_TO_TEXT_MODELS_BY_PROVIDER[SPEECH_TRANSCRIBER_PROVIDER_ID];
+export const SPEECH_TO_TEXT_MODELS =
+	SPEECH_TO_TEXT_MODELS_BY_PROVIDER[SPEECH_TRANSCRIBER_PROVIDER_ID];
 
 function resolveSpeechToTextProviderId(providerId: string): SpeechToTextProviderId | null {
 	const normalizedProviderId = normalizeProviderId(providerId);

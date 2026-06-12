@@ -5,11 +5,7 @@ import { appApi } from '@/lib/compat';
 import { DEFAULT_PROVIDERS } from '../../../../../shared/providers';
 import { isSpeechToTextProviderId } from '../../../../../shared/providers/models/stt';
 import type { Provider } from '../../../../../shared/providers/types';
-import {
-	actionableProviderCatalog,
-	getErrorMessage,
-	MODEL_SERVICE_STEP_IDS,
-} from '../constants';
+import { actionableProviderCatalog, getErrorMessage, MODEL_SERVICE_STEP_IDS } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';

@@ -108,9 +108,8 @@ export class MistralSttAdapter implements SttAdapter {
 		request: SttAdapterRealtimeStartRequest,
 		emit: SttRealtimeEventHandler
 	): Promise<SttRealtimeConnection> {
-		const { AudioEncoding, RealtimeTranscription } = await import(
-			'@mistralai/mistralai/extra/realtime'
-		);
+		const { AudioEncoding, RealtimeTranscription } =
+			await import('@mistralai/mistralai/extra/realtime');
 		const client = new RealtimeTranscription({
 			apiKey: this.provider.apiKey,
 			serverURL: realtimeBaseUrl(this.provider.baseURL),
@@ -247,9 +246,7 @@ function toUsage(usage: unknown): SttUsage | undefined {
 	};
 	const next: SttUsage = {
 		...(typeof value.promptTokens === 'number' ? { inputTokens: value.promptTokens } : {}),
-		...(typeof value.completionTokens === 'number'
-			? { outputTokens: value.completionTokens }
-			: {}),
+		...(typeof value.completionTokens === 'number' ? { outputTokens: value.completionTokens } : {}),
 		...(typeof value.totalTokens === 'number' ? { totalTokens: value.totalTokens } : {}),
 		...(typeof value.promptAudioSeconds === 'number'
 			? { durationSeconds: value.promptAudioSeconds }

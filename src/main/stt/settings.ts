@@ -104,7 +104,8 @@ function resolveSttSettingsLocation(): string {
 	try {
 		return path.resolve(app.getPath('appData'), app.getName());
 	} catch {
-		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+		const base =
+			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
 		return path.resolve(base, app?.getName?.() ?? 'Friday');
 	}
 }
@@ -154,7 +155,10 @@ function defaultProvider(providerId: SpeechToTextProviderId) {
 	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
 }
 
-function withDefaultProviderValues(providerId: SpeechToTextProviderId, provider: Provider): Provider {
+function withDefaultProviderValues(
+	providerId: SpeechToTextProviderId,
+	provider: Provider
+): Provider {
 	const defaults = defaultProvider(providerId);
 	const normalized = normalizeProvider(provider);
 	return {

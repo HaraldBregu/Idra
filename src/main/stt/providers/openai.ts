@@ -121,15 +121,15 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 		this.socket.send(
 			JSON.stringify({
 				type: OPENAI_REALTIME_SESSION_UPDATE_EVENT,
-			session: {
-				input_audio_format: OPENAI_REALTIME_AUDIO_FORMAT,
-				input_audio_transcription: {
-					model: this.request.modelId,
-					...(this.request.language ? { language: this.request.language } : {}),
-					...(this.request.prompt ? { prompt: this.request.prompt } : {}),
+				session: {
+					input_audio_format: OPENAI_REALTIME_AUDIO_FORMAT,
+					input_audio_transcription: {
+						model: this.request.modelId,
+						...(this.request.language ? { language: this.request.language } : {}),
+						...(this.request.prompt ? { prompt: this.request.prompt } : {}),
+					},
+					turn_detection: null,
 				},
-				turn_detection: null,
-			},
 			})
 		);
 	}

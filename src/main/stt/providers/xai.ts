@@ -79,7 +79,9 @@ export class XaiSttAdapter implements SttAdapter {
 				providerId: this.provider.id,
 				providerName: this.provider.name,
 				modelId: request.modelId,
-				...(data.language || request.language ? { language: data.language ?? request.language } : {}),
+				...(data.language || request.language
+					? { language: data.language ?? request.language }
+					: {}),
 				createdAt: new Date().toISOString(),
 				...(usage ? { usage } : {}),
 			},
@@ -177,7 +179,10 @@ class XaiRealtimeSttConnection implements SttRealtimeConnection {
 }
 
 function xaiSttUrl(baseURL: string | undefined): URL {
-	return new URL(XAI_STT_PATH, `${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[XAI_SPEECH_TO_TEXT_PROVIDER_ID]}/`);
+	return new URL(
+		XAI_STT_PATH,
+		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[XAI_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+	);
 }
 
 function xaiRealtimeUrl(baseURL: string | undefined): string {

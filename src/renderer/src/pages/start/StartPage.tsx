@@ -26,10 +26,7 @@ import {
 } from '../../../../shared/providers';
 import { isSpeechToTextProviderId } from '../../../../shared/providers/models/stt';
 import type { Provider as StoredProvider } from '../../../../shared/providers/types';
-import {
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-} from '../../../../shared/providers/models/llm';
+import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '../../../../shared/providers/models/llm';
 import { AGENTS, type AgentId } from '@/lib/compat';
 import type { Model, ModelSelection } from '@/lib/compat';
 import { ProviderAvatar } from '@/components/provider-avatar';
@@ -253,10 +250,7 @@ function getStoredProvider(providerId: string): Promise<StoredProvider | undefin
 		: window.provider.get(providerId);
 }
 
-function saveStoredProvider(
-	providerId: string,
-	provider: StoredProvider
-): Promise<StoredProvider> {
+function saveStoredProvider(providerId: string, provider: StoredProvider): Promise<StoredProvider> {
 	return isSpeechToTextProviderId(providerId)
 		? window.stt.saveProvider(providerId, provider)
 		: window.provider.set(providerId, provider);
@@ -359,32 +353,20 @@ const StartPage: React.FC = () => {
 	const [savedSpeechModelId, setSavedSpeechModelId] = useState('');
 	const [speechModelGroups, setSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [selectedSpeechModel, setSelectedSpeechModel] = useState('');
-	const [savedTextToSpeechService, setSavedTextToSpeechService] =
-		useState<ModelSelection>();
-	const [textToSpeechModelGroups, setTextToSpeechModelGroups] = useState<ProviderModelGroup[]>(
-		[]
-	);
+	const [savedTextToSpeechService, setSavedTextToSpeechService] = useState<ModelSelection>();
+	const [textToSpeechModelGroups, setTextToSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [textToSpeechProviderId, setTextToSpeechProviderId] = useState('');
 	const [selectedTextToSpeechModel, setSelectedTextToSpeechModel] = useState('');
-	const [savedImageCreatorService, setSavedImageCreatorService] =
-		useState<ModelSelection>();
-	const [imageCreatorModelGroups, setImageCreatorModelGroups] = useState<ProviderModelGroup[]>(
-		[]
-	);
+	const [savedImageCreatorService, setSavedImageCreatorService] = useState<ModelSelection>();
+	const [imageCreatorModelGroups, setImageCreatorModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [imageCreatorProviderId, setImageCreatorProviderId] = useState('');
 	const [selectedImageCreatorModel, setSelectedImageCreatorModel] = useState('');
-	const [savedTextToVideoService, setSavedTextToVideoService] =
-		useState<ModelSelection>();
-	const [textToVideoModelGroups, setTextToVideoModelGroups] = useState<ProviderModelGroup[]>(
-		[]
-	);
+	const [savedTextToVideoService, setSavedTextToVideoService] = useState<ModelSelection>();
+	const [textToVideoModelGroups, setTextToVideoModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [textToVideoProviderId, setTextToVideoProviderId] = useState('');
 	const [selectedTextToVideoModel, setSelectedTextToVideoModel] = useState('');
-	const [savedMusicCreatorService, setSavedMusicCreatorService] =
-		useState<ModelSelection>();
-	const [musicCreatorModelGroups, setMusicCreatorModelGroups] = useState<ProviderModelGroup[]>(
-		[]
-	);
+	const [savedMusicCreatorService, setSavedMusicCreatorService] = useState<ModelSelection>();
+	const [musicCreatorModelGroups, setMusicCreatorModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [musicCreatorProviderId, setMusicCreatorProviderId] = useState('');
 	const [selectedMusicCreatorModel, setSelectedMusicCreatorModel] = useState('');
 	const [registeredProviderIds, setRegisteredProviderIds] = useState<ReadonlySet<string>>(
@@ -650,8 +632,7 @@ const StartPage: React.FC = () => {
 				const preferredSpeechOption =
 					speechOptions.find(
 						(option) =>
-							option.provider.id === savedSpeechProviderId &&
-							option.model.id === savedSpeechModelId
+							option.provider.id === savedSpeechProviderId && option.model.id === savedSpeechModelId
 					) ??
 					speechOptions.find((option) => option.provider.id === savedSpeechProviderId) ??
 					speechOptions[0];
@@ -690,7 +671,6 @@ const StartPage: React.FC = () => {
 				);
 				setMusicCreatorProviderId(preferredMusicCreatorOption?.provider.id ?? '');
 				setSelectedMusicCreatorModel(preferredMusicCreatorOption?.model.id ?? '');
-
 			} catch (error) {
 				if (cancelled) return;
 				setAgentModelGroups([]);
@@ -962,8 +942,8 @@ const StartPage: React.FC = () => {
 					Welcome to {PRODUCT_NAME}
 				</h1>
 				<p className="mt-4 max-w-md text-base font-medium leading-relaxed text-muted-foreground">
-					Connect an AI provider, choose the models {PRODUCT_NAME} should use, and review
-					which model areas are ready now.
+					Connect an AI provider, choose the models {PRODUCT_NAME} should use, and review which
+					model areas are ready now.
 				</p>
 			</div>
 		);
@@ -1001,9 +981,9 @@ const StartPage: React.FC = () => {
 									!provider.supported && 'opacity-70'
 								)}
 							>
-			<CardContent className="p-0">
-				<div
-					className={cn(
+								<CardContent className="p-0">
+									<div
+										className={cn(
 											'grid min-h-12 grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-2.5 px-3 py-2.5',
 											editing && 'pb-2'
 										)}
@@ -1026,9 +1006,7 @@ const StartPage: React.FC = () => {
 												</Button>
 											</div>
 											<p className="truncate text-xs font-medium leading-tight text-muted-foreground">
-												{connected
-													? MASKED_API_KEY_LABEL
-													: provider.capabilities}
+												{connected ? MASKED_API_KEY_LABEL : provider.capabilities}
 											</p>
 										</div>
 										<div className="flex shrink-0 justify-end gap-2">
@@ -1122,8 +1100,8 @@ const StartPage: React.FC = () => {
 					<div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-muted-foreground">
 						<KeyRound className="size-4 shrink-0" />
 						<p className="text-xs font-medium leading-snug">
-							Keys stay in {PRODUCT_NAME}&apos;s local app data folder and are only used for providers
-							you connect. You can revoke them anytime.
+							Keys stay in {PRODUCT_NAME}&apos;s local app data folder and are only used for
+							providers you connect. You can revoke them anytime.
 						</p>
 					</div>
 				</div>
@@ -1292,8 +1270,8 @@ const StartPage: React.FC = () => {
 						Configure models
 					</h1>
 					<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-						Choose the active assistant model. The remaining model areas are disabled for this
-						setup flow.
+						Choose the active assistant model. The remaining model areas are disabled for this setup
+						flow.
 					</p>
 				</div>
 
@@ -1309,7 +1287,10 @@ const StartPage: React.FC = () => {
 										onValueChange={handleAgentProviderChange}
 										disabled={assistantProviderItems.length === 0}
 									>
-										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].provider} className="w-full text-xs sm:w-72">
+										<SelectTrigger
+											id={MODEL_FIELD_IDS[AGENTS.assistant].provider}
+											className="w-full text-xs sm:w-72"
+										>
 											<SelectValue placeholder={modelCountLabel} />
 										</SelectTrigger>
 										<SelectContent>
@@ -1340,7 +1321,10 @@ const StartPage: React.FC = () => {
 										onValueChange={handleAgentModelChange}
 										disabled={loadingModels || selectedAgentModels.length === 0}
 									>
-										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.assistant].model} className="w-full text-xs sm:w-72">
+										<SelectTrigger
+											id={MODEL_FIELD_IDS[AGENTS.assistant].model}
+											className="w-full text-xs sm:w-72"
+										>
 											<SelectValue placeholder={modelCountLabel} />
 										</SelectTrigger>
 										<SelectContent>
@@ -1367,7 +1351,10 @@ const StartPage: React.FC = () => {
 										onValueChange={handleSpeechProviderChange}
 										disabled={loadingModels || speechModelGroups.length === 0 || savingConfig}
 									>
-										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.speechToText].provider} className="w-full text-xs sm:w-72">
+										<SelectTrigger
+											id={MODEL_FIELD_IDS[AGENTS.speechToText].provider}
+											className="w-full text-xs sm:w-72"
+										>
 											<SelectValue placeholder={speechStatus} />
 										</SelectTrigger>
 										<SelectContent>
@@ -1382,13 +1369,19 @@ const StartPage: React.FC = () => {
 										</SelectContent>
 									</Select>
 								</SettingsField>
-								<SettingsField id={MODEL_FIELD_IDS[AGENTS.speechToText].model} label="Transcription model">
+								<SettingsField
+									id={MODEL_FIELD_IDS[AGENTS.speechToText].model}
+									label="Transcription model"
+								>
 									<Select
 										value={selectedSpeechModel}
 										onValueChange={handleSpeechModelChange}
 										disabled={loadingModels || selectedSpeechModels.length === 0 || savingConfig}
 									>
-										<SelectTrigger id={MODEL_FIELD_IDS[AGENTS.speechToText].model} className="w-full text-xs sm:w-72">
+										<SelectTrigger
+											id={MODEL_FIELD_IDS[AGENTS.speechToText].model}
+											className="w-full text-xs sm:w-72"
+										>
 											<SelectValue placeholder={speechStatus} />
 										</SelectTrigger>
 										<SelectContent>

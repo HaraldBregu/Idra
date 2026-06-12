@@ -47,7 +47,10 @@ export class SttService {
 
 	constructor();
 	constructor(adapterFactory: SttAdapterFactory, settingsStoreOverride?: SttSettingsStore);
-	constructor(adapterFactory: unknown = new SttAdapterFactory(), settingsStoreOverride?: SttSettingsStore) {
+	constructor(
+		adapterFactory: unknown = new SttAdapterFactory(),
+		settingsStoreOverride?: SttSettingsStore
+	) {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)
 			? adapterFactory
 			: new SttAdapterFactory();
@@ -117,8 +120,7 @@ export class SttService {
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ??
-				this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_BATCH_API_TYPE),
+			normalized.modelId ?? this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_BATCH_API_TYPE),
 			SPEECH_TO_TEXT_BATCH_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
@@ -141,8 +143,7 @@ export class SttService {
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ??
-				this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE),
+			normalized.modelId ?? this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE),
 			SPEECH_TO_TEXT_STREAM_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
@@ -207,7 +208,9 @@ export class SttService {
 		if ((SPEECH_TO_TEXT_PROVIDER_IDS as readonly string[]).includes(normalized)) {
 			return normalized as SpeechToTextProviderId;
 		}
-		throw new SttProviderUnsupportedError(`Speech-to-text provider is not supported: ${normalized}`);
+		throw new SttProviderUnsupportedError(
+			`Speech-to-text provider is not supported: ${normalized}`
+		);
 	}
 
 	private resolveModelId(

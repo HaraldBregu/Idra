@@ -290,10 +290,7 @@ export const stt: SttApi = {
 		return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
 	},
 	startRealtime: (request) => {
-		return typedInvokeUnwrap(
-			SttChannels.startRealtime,
-			normalizeSttRealtimeStartRequest(request)
-		);
+		return typedInvokeUnwrap(SttChannels.startRealtime, normalizeSttRealtimeStartRequest(request));
 	},
 	appendRealtimeAudio: (sessionId, audio) => {
 		if (!isSttRealtimeSessionId(sessionId)) {
@@ -355,11 +352,7 @@ export const stt: SttApi = {
 		const normalizedModelId = optionalTrimmedString(modelId);
 		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
 		if (!normalizedModelId) throw new Error('Invalid speech-to-text model id.');
-		return typedInvokeUnwrap(
-			SttChannels.saveSelection,
-			normalizedProviderId,
-			normalizedModelId
-		);
+		return typedInvokeUnwrap(SttChannels.saveSelection, normalizedProviderId, normalizedModelId);
 	},
 };
 
