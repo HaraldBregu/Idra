@@ -1,7 +1,14 @@
 import { Mistral } from '@mistralai/mistralai';
 import { createAudioFile } from '../audio';
 import { SttProviderAuthError } from '../errors';
-import type { SttAdapter, SttAdapterTranscriptionRequest, SttProviderSpec } from '../types';
+import type {
+	SttAdapter,
+	SttAdapterRealtimeStartRequest,
+	SttAdapterTranscriptionRequest,
+	SttProviderSpec,
+	SttRealtimeConnection,
+	SttRealtimeEventHandler,
+} from '../types';
 import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt/transcription';
 
 type MistralTranscriptionClient = {
@@ -92,6 +99,131 @@ export class MistralSttAdapter implements SttAdapter {
 			throw error;
 		}
 	}
+
+	async startRealtime(
+		request: SttAdapterRealtimeStartRequest,
+		emit: SttRealtimeEventHandler
+	): Promise<SttRealtimeConnection> {
+		const { AudioEncoding, RealtimeTranscription } = await import(
+			'@mistralai/mistralai/extra/realtime'
+		);
+		const client = new RealtimeTranscription({
+			apiKey: this.provider.apiKey,
+			serverURL: realtimeBaseUrl(this.provider.baseURL),
+		});
+		const connection = await client.connect(request.modelId, {
+			audioFormat: {
+				encoding: AudioEncoding.PcmS16le,
+				sampleRate: request.sampleRate,
+			},
+		});
+		const session = new MistralRealtimeSttConnection(connection, request, emit);
+		session.listen();
+		return session;
+	}
+}
+
+type MistralRealtimeEvent = {
+	type: string;
+	text?: string;
+	error?: { message?: unknown };
+};
+
+type MistralRealtimeConnection = AsyncIterable<MistralRealtimeEvent> & {
+	sendAudio(audioBytes: Uint8Array | ArrayBuffer): Promise<void>;
+	endAudio(): Promise<void>;
+	close(code?: number, reason?: string): Promise<void>;
+};
+
+class MistralRealtimeSttConnection implements SttRealtimeConnection {
+	private closed = false;
+	private transcript = '';
+
+	constructor(
+		private readonly connection: MistralRealtimeConnection,
+		private readonly request: SttAdapterRealtimeStartRequest,
+		private readonly emit: SttRealtimeEventHandler
+	) {}
+
+	listen(): void {
+		void this.readEvents();
+	}
+
+	async appendAudio(audio: string): Promise<void> {
+		await this.connection.sendAudio(Buffer.from(audio, 'base64'));
+	}
+
+	async finish(): Promise<void> {
+		await this.connection.endAudio();
+	}
+
+	async cancel(): Promise<void> {
+		await this.connection.close(1000, 'cancelled');
+		this.emitClosed();
+	}
+
+	private async readEvents(): Promise<void> {
+		try {
+			for await (const event of this.connection) {
+				if (event.type === 'transcription.text.delta' && event.text) {
+					this.transcript += event.text;
+					this.emit({
+						type: 'delta',
+						sessionId: this.request.sessionId,
+						itemId: this.request.sessionId,
+						contentIndex: 0,
+						delta: event.text,
+					});
+					continue;
+				}
+				if (event.type === 'transcription.done') {
+					this.emit({
+						type: 'completed',
+						sessionId: this.request.sessionId,
+						itemId: this.request.sessionId,
+						contentIndex: 0,
+						transcript: event.text ?? this.transcript,
+					});
+					await this.connection.close(1000, 'completed');
+					this.emitClosed();
+					return;
+				}
+				if (event.type === 'error') {
+					this.emitError(errorMessage(event.error, 'Mistral realtime transcription error.'));
+				}
+			}
+		} catch (error) {
+			this.emitError(errorMessage(error, 'Mistral realtime transcription failed.'));
+		} finally {
+			this.emitClosed();
+		}
+	}
+
+	private emitError(message: string): void {
+		if (!this.closed) this.emit({ type: 'error', sessionId: this.request.sessionId, message });
+	}
+
+	private emitClosed(): void {
+		if (this.closed) return;
+		this.closed = true;
+		this.emit({ type: 'closed', sessionId: this.request.sessionId });
+	}
+}
+
+function realtimeBaseUrl(baseURL: string | undefined): string {
+	return (baseURL ?? 'https://api.mistral.ai').replace(/\/v1\/?$/, '');
+}
+
+function errorMessage(error: unknown, fallback: string): string {
+	if (error instanceof Error && error.message) return error.message;
+	if (
+		error &&
+		typeof error === 'object' &&
+		typeof (error as { message?: unknown }).message === 'string'
+	) {
+		return (error as { message: string }).message;
+	}
+	return fallback;
 }
 
 function toUsage(usage: unknown): SttUsage | undefined {

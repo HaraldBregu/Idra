@@ -1,6 +1,17 @@
 import { createAudioFile } from '../audio';
-import { SttProviderAuthError, SttProviderRequestError } from '../errors';
-import type { SttAdapter, SttAdapterTranscriptionRequest, SttProviderSpec } from '../types';
+import {
+	SttProviderAuthError,
+	SttProviderRequestError,
+	SttProviderUnsupportedError,
+} from '../errors';
+import type {
+	SttAdapter,
+	SttAdapterRealtimeStartRequest,
+	SttAdapterTranscriptionRequest,
+	SttProviderSpec,
+	SttRealtimeConnection,
+	SttRealtimeEventHandler,
+} from '../types';
 import type { SttTranscriptionResult } from '../../../shared/stt/transcription';
 
 type ElevenLabsTranscriptionResponse = {
@@ -64,5 +75,14 @@ export class ElevenLabsSttAdapter implements SttAdapter {
 				createdAt: new Date().toISOString(),
 			},
 		};
+	}
+
+	async startRealtime(
+		request: SttAdapterRealtimeStartRequest,
+		_emit: SttRealtimeEventHandler
+	): Promise<SttRealtimeConnection> {
+		throw new SttProviderUnsupportedError(
+			`ElevenLabs realtime speech-to-text is cataloged for ${request.modelId}, but no supported realtime transport is available in this runtime.`
+		);
 	}
 }

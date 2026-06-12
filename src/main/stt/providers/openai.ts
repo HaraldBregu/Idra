@@ -1,7 +1,16 @@
 import OpenAI from 'openai';
+import { OpenAIRealtimeWS } from 'openai/realtime/ws';
+import type { RealtimeServerEvent } from 'openai/resources/realtime/realtime';
 import { createAudioFile } from '../audio';
-import { SttProviderAuthError } from '../errors';
-import type { SttAdapter, SttAdapterTranscriptionRequest, SttProviderSpec } from '../types';
+import { SttProviderAuthError, SttProviderUnsupportedError } from '../errors';
+import type {
+	SttAdapter,
+	SttAdapterRealtimeStartRequest,
+	SttAdapterTranscriptionRequest,
+	SttProviderSpec,
+	SttRealtimeConnection,
+	SttRealtimeEventHandler,
+} from '../types';
 import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt/transcription';
 
 export interface OpenAISttAdapterOptions extends SttProviderSpec {
@@ -54,6 +63,133 @@ export class OpenAISttAdapter implements SttAdapter {
 			throw error;
 		}
 	}
+
+	async startRealtime(
+		request: SttAdapterRealtimeStartRequest,
+		emit: SttRealtimeEventHandler
+	): Promise<SttRealtimeConnection> {
+		if (this.provider.id !== 'openai') {
+			throw new SttProviderUnsupportedError(
+				`${this.provider.name} realtime speech-to-text is not implemented.`
+			);
+		}
+
+		const connection = await OpenAIRealtimeWS.create(this.client, {
+			model: realtimeModelFor(request.modelId),
+		});
+		await waitForOpen(connection);
+		const session = new OpenAIRealtimeSttConnection(connection, request, emit);
+		session.configure();
+		return session;
+	}
+}
+
+class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
+	private closed = false;
+
+	constructor(
+		private readonly connection: OpenAIRealtimeWS,
+		private readonly request: SttAdapterRealtimeStartRequest,
+		private readonly emit: SttRealtimeEventHandler
+	) {
+		this.connection.on('event', (event) => this.handleEvent(event));
+		this.connection.on('error', (error) => this.emitError(error.message));
+		this.connection.socket.once('close', () => this.emitClosed());
+	}
+
+	configure(): void {
+		this.connection.send({
+			type: 'transcription_session.update',
+			session: {
+				input_audio_format: 'pcm16',
+				input_audio_transcription: {
+					model: this.request.modelId as 'gpt-4o-transcribe' | 'gpt-4o-mini-transcribe',
+					...(this.request.language ? { language: this.request.language } : {}),
+					...(this.request.prompt ? { prompt: this.request.prompt } : {}),
+				},
+				turn_detection: null,
+			},
+		});
+	}
+
+	async appendAudio(audio: string): Promise<void> {
+		this.connection.send({ type: 'input_audio_buffer.append', audio });
+	}
+
+	async finish(): Promise<void> {
+		this.connection.send({ type: 'input_audio_buffer.commit' });
+	}
+
+	async cancel(): Promise<void> {
+		this.connection.close({ code: 1000, reason: 'cancelled' });
+		this.emitClosed();
+	}
+
+	private handleEvent(event: RealtimeServerEvent): void {
+		if (event.type === 'input_audio_buffer.committed') {
+			this.emit({
+				type: 'committed',
+				sessionId: this.request.sessionId,
+				itemId: event.item_id,
+			});
+			return;
+		}
+		if (event.type === 'conversation.item.input_audio_transcription.delta') {
+			this.emit({
+				type: 'delta',
+				sessionId: this.request.sessionId,
+				itemId: event.item_id,
+				contentIndex: event.content_index ?? 0,
+				delta: event.delta ?? '',
+			});
+			return;
+		}
+		if (event.type === 'conversation.item.input_audio_transcription.completed') {
+			this.emit({
+				type: 'completed',
+				sessionId: this.request.sessionId,
+				itemId: event.item_id,
+				contentIndex: event.content_index,
+				transcript: event.transcript,
+			});
+			this.connection.close({ code: 1000, reason: 'completed' });
+			return;
+		}
+		if (event.type === 'conversation.item.input_audio_transcription.failed') {
+			this.emitError(event.error.message ?? 'OpenAI realtime transcription failed.');
+			this.connection.close({ code: 1011, reason: 'transcription failed' });
+			return;
+		}
+		if (event.type === 'error') {
+			this.emitError(event.error.message ?? 'OpenAI realtime transcription error.');
+		}
+	}
+
+	private emit(event: Parameters<SttRealtimeEventHandler>[0]): void {
+		if (!this.closed) this.emit(event);
+	}
+
+	private emitError(message: string): void {
+		this.emit({ type: 'error', sessionId: this.request.sessionId, message });
+	}
+
+	private emitClosed(): void {
+		if (this.closed) return;
+		this.closed = true;
+		this.emit({ type: 'closed', sessionId: this.request.sessionId });
+	}
+}
+
+function realtimeModelFor(modelId: string): string {
+	return modelId.includes('mini') ? 'gpt-4o-mini-realtime-preview' : 'gpt-4o-realtime-preview';
+}
+
+async function waitForOpen(connection: OpenAIRealtimeWS): Promise<void> {
+	if (connection.socket.readyState === connection.socket.OPEN) return;
+	await new Promise<void>((resolve, reject) => {
+		connection.socket.once('open', resolve);
+		connection.socket.once('error', reject);
+	});
 }
 
 function toUsage(usage: unknown): SttUsage | undefined {

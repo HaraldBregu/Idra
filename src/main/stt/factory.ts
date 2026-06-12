@@ -4,6 +4,7 @@ import { DeepgramSttAdapter } from './providers/deepgram';
 import { ElevenLabsSttAdapter } from './providers/elevenlabs';
 import { MistralSttAdapter } from './providers/mistral';
 import { OpenAISttAdapter } from './providers/openai';
+import { QwenSttAdapter } from './providers/qwen';
 import { SttProviderUnsupportedError } from './errors';
 import type { SttAdapter, SttProviderSpec } from './types';
 
@@ -15,6 +16,7 @@ export class SttAdapterFactory {
 		if (id === 'mistral') return new MistralSttAdapter({ ...provider, id });
 		if (id === 'deepgram') return new DeepgramSttAdapter({ ...provider, id });
 		if (id === 'elevenlabs') return new ElevenLabsSttAdapter({ ...provider, id });
+		if (id === 'qwen') return new QwenSttAdapter({ ...provider, id });
 		throw new SttProviderUnsupportedError(`Speech-to-text provider is not supported: ${id}`);
 	}
 }
