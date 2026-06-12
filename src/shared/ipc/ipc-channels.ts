@@ -59,6 +59,5 @@ export interface EventChannelMap
 		ChannelsEventChannelMap,
 		CronEventChannelMap,
 		HeartbeatEventChannelMap,
-		RealtimeTranscriptionEventChannelMap {}
 		RealtimeTranscriptionEventChannelMap,
 		SttEventChannelMap {}
