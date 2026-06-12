@@ -11,15 +11,8 @@ export class SttIpc implements IpcModule {
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const stt = container.get(SttService);
 		registerQuery(SttChannels.getSelection, () => stt.getSelection());
-		registerQuery(SttChannels.getProvider, (providerId) => stt.getProvider(providerId));
-		registerQuery(SttChannels.isProviderConfigured, (providerId) =>
-			stt.isProviderConfigured(providerId)
-		);
 		registerQuery(SttChannels.listProviders, () => stt.listProviders());
 		registerQuery(SttChannels.listModels, (providerId) => stt.listModels(providerId));
-		registerCommand(SttChannels.saveProvider, (providerId, provider) =>
-			stt.saveProvider(providerId, provider)
-		);
 		registerCommand(SttChannels.saveSelection, (providerId, modelId) =>
 			stt.saveSelection(providerId, modelId)
 		);
