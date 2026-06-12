@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { ToolContext } from '../../../../src/main/agent/core/tool';
+import { ToolContext } from '../../../../src/main/agent/loop/context';
 import { ExecTool } from '../../../../src/main/agent/tools/exec';
 import { ReadTool } from '../../../../src/main/agent/tools/read';
 import { WriteTool } from '../../../../src/main/agent/tools/write';

@@ -6,7 +6,8 @@ import type {
 	Message,
 	ToolCall,
 } from '../core/types';
-import { ToolContext, type Tool } from '../core/tool';
+import type { Tool } from '../core/tool';
+import { ToolContext } from './context';
 import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';

@@ -1,20 +1,5 @@
-import type { JSONSchema, ToolContextState } from './types';
-
-export class ToolContext {
-	private readonly state: ToolContextState = {};
-
-	get path(): string | undefined {
-		return this.state.path;
-	}
-
-	setPath(path: string): void {
-		this.state.path = path;
-	}
-
-	snapshot(): ToolContextState {
-		return { ...this.state };
-	}
-}
+import type { JSONSchema } from './types';
+import { ToolContext } from '../loop/context';
 
 export abstract class Tool {
 	abstract readonly name: string;
