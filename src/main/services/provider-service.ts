@@ -19,8 +19,8 @@ export class ProviderService {
 
 	constructor(options: ProviderServiceOptions = {}) {
 		this.store = new Store<ProviderRecord>({
-			name: 'providers',
-			cwd: options.cwd ?? resolveAppDataPath(),
+			name: 'settings',
+			cwd: path.join(options.cwd ?? resolveAppDataPath(), 'providers'),
 			accessPropertiesByDotNotation: false,
 		});
 	}
