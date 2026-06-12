@@ -12,7 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { CronSchedule } from '../../../../../../shared/app/cron';
+import type { CronJobInfo, CronSchedule } from '../../../../../../shared/app/cron';
 import {
 	SettingsEmptyState,
 	SettingsPageHeader,
@@ -22,8 +22,10 @@ import {
 } from '../../components';
 import {
 	formatSchedule,
+	formatJobSchedule,
 	formatTimestamp,
 	inputSummary,
+	sortJobs,
 	sortSchedules,
 	statusLabelKey,
 	statusVariant,
@@ -59,15 +61,20 @@ const CronPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [schedules, setSchedules] = useState<readonly CronSchedule[]>([]);
+	const [jobs, setJobs] = useState<readonly CronJobInfo[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [busyId, setBusyId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const loadSchedules = useCallback(async (showLoading = false): Promise<void> => {
+	const loadCronItems = useCallback(async (showLoading = false): Promise<void> => {
 		if (showLoading) setLoading(true);
 		try {
-			const nextSchedules = await window.cron.listSchedules({ includeDeleted: false });
+			const [nextSchedules, nextJobs] = await Promise.all([
+				window.cron.listSchedules({ includeDeleted: false }),
+				window.cron.listJobs(),
+			]);
 			setSchedules(sortSchedules(nextSchedules));
+			setJobs(sortJobs(nextJobs));
 			setError(null);
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
@@ -82,9 +89,13 @@ const CronPage: React.FC = () => {
 		async function loadInitialSchedules(): Promise<void> {
 			setLoading(true);
 			try {
-				const nextSchedules = await window.cron.listSchedules({ includeDeleted: false });
+				const [nextSchedules, nextJobs] = await Promise.all([
+					window.cron.listSchedules({ includeDeleted: false }),
+					window.cron.listJobs(),
+				]);
 				if (!mounted) return;
 				setSchedules(sortSchedules(nextSchedules));
+				setJobs(sortJobs(nextJobs));
 				setError(null);
 			} catch (caught) {
 				if (mounted) setError(caught instanceof Error ? caught.message : String(caught));
@@ -95,14 +106,14 @@ const CronPage: React.FC = () => {
 
 		void loadInitialSchedules();
 		const unsubscribe = window.cron.subscribeToSchedules(() => {
-			void loadSchedules(false);
+			void loadCronItems(false);
 		});
 
 		return () => {
 			mounted = false;
 			unsubscribe();
 		};
-	}, [loadSchedules]);
+	}, [loadCronItems]);
 
 	const navigateToSchedule = (scheduleId: string): void => {
 		navigate(`/settings/cron/crondetails/${encodeURIComponent(scheduleId)}`);
@@ -121,7 +132,7 @@ const CronPage: React.FC = () => {
 			} else {
 				await window.cron.resumeSchedule(schedule.id);
 			}
-			await loadSchedules(false);
+			await loadCronItems(false);
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
@@ -138,7 +149,7 @@ const CronPage: React.FC = () => {
 		setError(null);
 		try {
 			await window.cron.runNow(schedule.id);
-			await loadSchedules(false);
+			await loadCronItems(false);
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
@@ -157,13 +168,34 @@ const CronPage: React.FC = () => {
 		setError(null);
 		try {
 			await window.cron.deleteSchedule(schedule.id);
-			await loadSchedules(false);
+			await loadCronItems(false);
 		} catch (caught) {
 			setError(caught instanceof Error ? caught.message : String(caught));
 		} finally {
 			setBusyId(null);
 		}
 	};
+
+	const deleteJob = async (
+		job: CronJobInfo,
+		event: React.MouseEvent<HTMLButtonElement>
+	): Promise<void> => {
+		event.stopPropagation();
+		if (!window.confirm(t('settings.cron.actions.confirmRemoveJob', { id: job.name }))) return;
+
+		setBusyId(`job:${job.id}`);
+		setError(null);
+		try {
+			await window.cron.deleteJob(job.id);
+			await loadCronItems(false);
+		} catch (caught) {
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setBusyId(null);
+		}
+	};
+
+	const empty = schedules.length === 0 && jobs.length === 0;
 
 	return (
 		<SettingsPageShell>
