@@ -84,9 +84,12 @@ describe('MCP provider adapters', () => {
 			clientFactory: () => ({ responses: { create } }) as unknown as OpenAI,
 		});
 
-		for await (const _event of adapter.stream(request())) {
+		const events: string[] = [];
+		for await (const event of adapter.stream(request())) {
+			events.push(event.type);
 		}
 
+		expect(events).toEqual(['message_start', 'message_end']);
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
 				tools: [
@@ -115,9 +118,12 @@ describe('MCP provider adapters', () => {
 				}) as unknown as Anthropic,
 		});
 
-		for await (const _event of adapter.stream(request())) {
+		const events: string[] = [];
+		for await (const event of adapter.stream(request())) {
+			events.push(event.type);
 		}
 
+		expect(events).toEqual(['message_start', 'message_end']);
 		expect(betaStream).toHaveBeenCalledWith(
 			expect.objectContaining({
 				mcp_servers: [
