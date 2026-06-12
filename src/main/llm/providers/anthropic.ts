@@ -6,6 +6,7 @@ import type {
 	ProviderStreamRequest,
 	TranscriptEntry,
 } from '../types';
+import { adaptAnthropicMcpServers } from '../mcp/anthropic';
 import { ContextOverflowError, ProviderAuthError } from '../types';
 
 function buildAnthropicMessages(transcript: TranscriptEntry[]): Anthropic.Messages.MessageParam[] {
@@ -83,20 +84,13 @@ export class AnthropicAdapter implements ProviderAdapter {
 	}
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
-		const mcpTools = (req.builtInTools ?? []).filter((tool) => tool.type === 'mcp_toolset');
+		const mcp = adaptAnthropicMcpServers(req.mcp);
 		const tools: Array<Anthropic.Messages.Tool | BetaMessages.BetaToolUnion> = req.tools.map((t) => ({
 			name: t.name,
 			description: t.description,
 			input_schema: t.schema as Anthropic.Messages.Tool.InputSchema,
 		}));
-		for (const tool of mcpTools) {
-			tools.push({
-				type: 'mcp_toolset',
-				mcp_server_name: tool.mcp_server_name,
-				...(tool.defer_loading ? { defer_loading: true } : {}),
-			});
-		}
-		const mcpServers = mcpTools.map((tool) => tool.server);
+		tools.push(...mcp.tools);
 
 		yield { type: 'message_start' };
 
@@ -105,13 +99,13 @@ export class AnthropicAdapter implements ProviderAdapter {
 		const blockIndexToToolUseId = new Map<number, string>();
 
 		try {
-			const stream: AsyncIterable<unknown> = mcpServers.length > 0
+			const stream: AsyncIterable<unknown> = mcp.servers.length > 0
 				? this.client.beta.messages.stream({
 					model: req.model,
 					system: req.system,
 					max_tokens: req.maxTokens,
 					tools: tools.length > 0 ? tools as BetaMessages.BetaToolUnion[] : undefined,
-					mcp_servers: mcpServers,
+					mcp_servers: mcp.servers,
 					betas: ['mcp-client-2025-11-20'],
 					messages: buildAnthropicMessages(req.messages),
 				} as BetaMessages.MessageCreateParamsStreaming, { signal: req.signal })
