@@ -10,7 +10,7 @@ export class AgentMcp {
 		return Object.values(this.connectors.list())
 			.filter((connector) => connector.enabled !== false)
 			.map((connector) => ({
-				type: 'mcp',
+				type: 'mcp' as const,
 				server_label: connector.server_label,
 				server_url: connector.server_url,
 				...(connector.authorization ? { authorization: connector.authorization } : {}),
