@@ -10,6 +10,16 @@ import type {
 	SttRealtimeEventHandler,
 } from '../types';
 import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt/transcription';
+import {
+	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
+	DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID,
+	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
+} from '../../../shared/providers/models/stt';
+
+const DEEPGRAM_LISTEN_PATH = 'listen';
+const DEEPGRAM_FLUX_LISTEN_PATH = '../v2/listen';
+const DEEPGRAM_AUTH_SCHEME = 'Token';
+const DEEPGRAM_LINEAR16_ENCODING = 'linear16';
 
 type DeepgramTranscriptionResponse = {
 	metadata?: {
@@ -42,8 +52,8 @@ export class DeepgramSttAdapter implements SttAdapter {
 		const file = await createAudioFile(request.audio);
 		const body = Buffer.from(await file.arrayBuffer());
 		const endpoint = new URL(
-			'listen',
-			`${this.provider.baseURL ?? 'https://api.deepgram.com/v1'}/`
+			DEEPGRAM_LISTEN_PATH,
+			`${this.provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]}/`
 		);
 		endpoint.searchParams.set('model', request.modelId);
 		if (request.language) endpoint.searchParams.set('language', request.language);
@@ -52,7 +62,7 @@ export class DeepgramSttAdapter implements SttAdapter {
 		const response = await this.fetcher(endpoint, {
 			method: 'POST',
 			headers: {
-				Authorization: `Token ${this.provider.apiKey}`,
+				Authorization: `${DEEPGRAM_AUTH_SCHEME} ${this.provider.apiKey}`,
 				'Content-Type': request.audio.mimeType,
 			},
 			body,
@@ -87,7 +97,7 @@ export class DeepgramSttAdapter implements SttAdapter {
 		emit: SttRealtimeEventHandler
 	): Promise<SttRealtimeConnection> {
 		const socket = new WebSocket(deepgramRealtimeUrl(this.provider.baseURL, request), {
-			headers: { Authorization: `Token ${this.provider.apiKey}` },
+			headers: { Authorization: `${DEEPGRAM_AUTH_SCHEME} ${this.provider.apiKey}` },
 		});
 		await waitForOpen(socket);
 		return new DeepgramRealtimeSttConnection(socket, request, emit);
@@ -143,6 +153,19 @@ class DeepgramRealtimeSttConnection implements SttRealtimeConnection {
 			this.socket.close(1000, 'completed');
 			return;
 		}
+		if (data.type === 'TurnInfo') {
+			const transcript = data.channel?.alternatives?.[0]?.transcript;
+			if (!transcript) return;
+			this.completedCount += 1;
+			this.emit({
+				type: 'completed',
+				sessionId: this.request.sessionId,
+				itemId: `${this.request.sessionId}-${this.completedCount}`,
+				contentIndex: 0,
+				transcript,
+			});
+			return;
+		}
 		const transcript = data.channel?.alternatives?.[0]?.transcript;
 		if (!transcript) return;
 
@@ -188,10 +211,17 @@ function deepgramRealtimeUrl(
 	baseURL: string | undefined,
 	request: SttAdapterRealtimeStartRequest
 ): string {
-	const url = new URL('listen', `${baseURL ?? 'https://api.deepgram.com/v1'}/`);
+	const path =
+		request.modelId === DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID
+			? DEEPGRAM_FLUX_LISTEN_PATH
+			: DEEPGRAM_LISTEN_PATH;
+	const url = new URL(
+		path,
+		`${baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+	);
 	url.protocol = url.protocol === 'http:' ? 'ws:' : 'wss:';
 	url.searchParams.set('model', request.modelId);
-	url.searchParams.set('encoding', 'linear16');
+	url.searchParams.set('encoding', DEEPGRAM_LINEAR16_ENCODING);
 	url.searchParams.set('sample_rate', String(request.sampleRate));
 	url.searchParams.set('channels', '1');
 	url.searchParams.set('interim_results', 'true');
