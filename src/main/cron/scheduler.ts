@@ -5,7 +5,6 @@ import type {
 	CronJsonObject,
 	CronJsonValue,
 	CronNextRunPreview,
-	CronRetryPolicy,
 	CronSchedule,
 	CronScheduleAccessPolicy,
 	CronScheduleAuditEntry,
@@ -21,6 +20,7 @@ import type {
 	CronScheduleStore,
 	CronScheduledTask,
 } from './core/types';
+import type { CronLogger } from './core/logger';
 import { ScheduleDescriber } from './core/describer';
 import {
 	CronScheduleExecutionError,
@@ -29,6 +29,8 @@ import {
 	CronSchedulerError,
 	toCronRecordError,
 } from './core/errors';
+import { assertSafeStoredSchedulePayload } from './core/payload';
+import { delay, mergeRetryPolicy } from './core/retry';
 import { assertScheduleCanRun, validateScheduleShape } from './core/validation';
 import { CronNextRunCalculator } from './calculator';
 import { CronScheduleEventBus } from './support';
@@ -36,9 +38,6 @@ import { redactCronValue, summarizeCronValue } from './support';
 import {
 	CRON_AGENT_TASK_INPUT_KEYS,
 	CRON_AGENT_TASK_TYPE,
-	CRON_RUNTIME_CONFIG_KEY_PATTERN,
-	CRON_SECRET_KEY_PATTERN,
-	CRON_SECRET_VALUE_PATTERNS,
 	DEFAULT_CRON_RETRY_POLICY,
 	DEFAULT_CRON_RUN_POLICY,
 	DEFAULT_CRON_SCHEDULER_OPTIONS,
@@ -50,77 +49,6 @@ export {
 	DEFAULT_CRON_RUN_POLICY,
 	DEFAULT_CRON_SCHEDULER_OPTIONS,
 } from './constants';
-
-interface CronLogger {
-	debug?(scope: string, message: string, metadata?: unknown): void;
-	info(scope: string, message: string, metadata?: unknown): void;
-	warn(scope: string, message: string, metadata?: unknown): void;
-	error(scope: string, message: string, metadata?: unknown): void;
-}
-
-function delay(ms: number): Promise<void> {
-	return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function mergeRetryPolicy(
-	base: CronRetryPolicy,
-	patch?: Partial<CronRetryPolicy>
-): CronRetryPolicy {
-	return {
-		...base,
-		...(patch ?? {}),
-		retryableErrorCodes: patch?.retryableErrorCodes ?? base.retryableErrorCodes,
-		nonRetryableErrorCodes: patch?.nonRetryableErrorCodes ?? base.nonRetryableErrorCodes,
-	};
-}
-
-function assertSafeStoredScheduleValue(value: CronJsonValue, path = 'taskInput'): void {
-	if (Array.isArray(value)) {
-		value.forEach((entry, index) => assertSafeStoredScheduleValue(entry, `${path}[${index}]`));
-		return;
-	}
-	if (typeof value === 'string') {
-		if (CRON_SECRET_VALUE_PATTERNS.some((pattern) => pattern.test(value))) {
-			throw new CronScheduleExecutionError(
-				`Sensitive value cannot be stored in cron schedule: ${path}`,
-				{
-					field: path,
-				}
-			);
-		}
-		return;
-	}
-	if (!value || typeof value !== 'object') return;
-	for (const [key, child] of Object.entries(value)) {
-		if (CRON_SECRET_KEY_PATTERN.test(key)) {
-			throw new CronScheduleExecutionError(
-				`Sensitive field cannot be stored in cron schedule: ${path}.${key}`,
-				{
-					field: `${path}.${key}`,
-				}
-			);
-		}
-		if (CRON_RUNTIME_CONFIG_KEY_PATTERN.test(key)) {
-			throw new CronScheduleExecutionError(
-				`Runtime configuration cannot be stored in cron schedule: ${path}.${key}`,
-				{
-					field: `${path}.${key}`,
-				}
-			);
-		}
-		assertSafeStoredScheduleValue(child, `${path}.${key}`);
-	}
-}
-
-function assertSafeStoredSchedulePayload(
-	request: CronScheduleCreateRequest | CronScheduleUpdateRequest
-): void {
-	if (request.taskInput !== undefined)
-		assertSafeStoredScheduleValue(request.taskInput, 'taskInput');
-	if (request.taskMetadata !== undefined)
-		assertSafeStoredScheduleValue(request.taskMetadata, 'taskMetadata');
-	if (request.metadata !== undefined) assertSafeStoredScheduleValue(request.metadata, 'metadata');
-}
 
 function assertOnlyAgentInstruction(input: Record<string, unknown>): void {
 	for (const key of Object.keys(input)) {
@@ -220,7 +148,7 @@ export class CronSchedulerEngine implements CronScheduler {
 		await this.recoverSchedulesOnStartup();
 	}
 
-async createSchedule(
+	async createSchedule(
 		request: CronScheduleCreateRequest,
 		actor = this.systemActor(request.ownerUserId)
 	): Promise<CronSchedule> {
