@@ -165,12 +165,12 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 		}
 	}
 
-	private emit(event: Parameters<SttRealtimeEventHandler>[0]): void {
+	private emitEvent(event: Parameters<SttRealtimeEventHandler>[0]): void {
 		if (!this.closed) this.emit(event);
 	}
 
 	private emitError(message: string): void {
-		this.emit({ type: 'error', sessionId: this.request.sessionId, message });
+		this.emitEvent({ type: 'error', sessionId: this.request.sessionId, message });
 	}
 
 	private emitClosed(): void {
