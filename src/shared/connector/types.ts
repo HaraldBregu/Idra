@@ -34,7 +34,7 @@ export interface ConnectorDefault {
 	readonly oauth: ConnectorOAuthDefaults;
 }
 
-export interface ConnectorSettingsEntry {
+export interface ConnectorData {
 	readonly type: 'mcp';
 	readonly server_label: string;
 	readonly server_url: string;
@@ -49,7 +49,7 @@ export interface ConnectorSettingsEntry {
 	readonly last_error?: string;
 }
 
-export type ConnectorSettingsRecord = Record<string, ConnectorSettingsEntry>;
+export type ConnectorSettingsRecord = Record<string, ConnectorData>;
 
 export interface ConnectorInput {
 	readonly id?: string;

@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
@@ -57,7 +57,19 @@ describe('ConnectorSettingsService', () => {
 			connectorId: 'connector_gmail',
 		});
 
-		expect(existsSync(path.join(cwd, 'setting.json'))).toBe(true);
+		const settingsPath = path.join(cwd, 'setting.json');
+		const stored = JSON.parse(readFileSync(settingsPath, 'utf8'));
+
+		expect(existsSync(settingsPath)).toBe(true);
+		expect(stored).not.toHaveProperty('connectors');
+		expect(stored).toEqual(
+			expect.objectContaining({
+				gmail: expect.objectContaining({
+					type: 'mcp',
+					server_label: 'gmail',
+				}),
+			})
+		);
 	});
 
 	it('resolves connector ids from catalog connector ids', () => {

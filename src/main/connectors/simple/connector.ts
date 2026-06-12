@@ -1,7 +1,7 @@
 import type {
+	ConnectorData,
 	ConnectorDefault,
 	ConnectorId,
-	ConnectorSettingsEntry,
 } from '../../../shared/connector';
 import { Connector } from '../core/connector';
 
@@ -13,7 +13,7 @@ export class SimpleConnector extends Connector {
 		this.id = defaults.id;
 	}
 
-	toSettings(): ConnectorSettingsEntry {
+	toSettings(): ConnectorData {
 		return {
 			type: 'mcp',
 			server_label: this.defaults.serverLabel,

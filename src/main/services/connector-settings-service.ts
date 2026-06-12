@@ -5,32 +5,26 @@ import { Service } from 'typedi';
 import { Settings, SIMPLE_CONNECTORS } from '../connectors';
 import type {
 	ConnectorApprovalPolicy,
+	ConnectorData,
 	ConnectorId,
 	ConnectorInput,
-	ConnectorSettingsEntry,
 	ConnectorSettingsRecord,
 } from '../../shared/connector';
 import { CONNECTOR_APPROVAL_POLICIES, CONNECTOR_IDS } from '../../shared/connector';
-
-interface ConnectorSettingsSchema {
-	connectors: ConnectorSettingsRecord;
-}
 
 export interface ConnectorSettingsServiceOptions {
 	cwd?: string;
 }
 
-const DEFAULT_SETTINGS: ConnectorSettingsSchema = {
-	connectors: {},
-};
+const DEFAULT_SETTINGS: ConnectorSettingsRecord = {};
 
 @Service({ factory: () => new ConnectorSettingsService() })
 export class ConnectorSettingsService extends Settings {
-	private readonly store: Store<ConnectorSettingsSchema>;
+	private readonly store: Store<ConnectorSettingsRecord>;
 
 	constructor(options: ConnectorSettingsServiceOptions = {}) {
 		super();
-		this.store = new Store<ConnectorSettingsSchema>({
+		this.store = new Store<ConnectorSettingsRecord>({
 			name: 'setting',
 			cwd: options.cwd ?? resolveConnectorSettingsLocation(),
 			accessPropertiesByDotNotation: false,
@@ -39,7 +33,7 @@ export class ConnectorSettingsService extends Settings {
 	}
 
 	list(): ConnectorSettingsRecord {
-		return normalizeConnectorRecord(this.store.get('connectors'));
+		return normalizeConnectorRecord(this.store.store);
 	}
 
 	get(id: string): ConnectorSettingsRecord {
@@ -50,7 +44,7 @@ export class ConnectorSettingsService extends Settings {
 
 	save(connectors: ConnectorSettingsRecord): ConnectorSettingsRecord {
 		const next = normalizeConnectorRecord(connectors);
-		this.store.set('connectors', next);
+		this.store.store = next;
 		return next;
 	}
 
@@ -62,7 +56,7 @@ export class ConnectorSettingsService extends Settings {
 		const current = connectors[connectorId];
 		const defaults = defaultSettings(connectorId);
 		const now = new Date().toISOString();
-		const nextConnector: ConnectorSettingsEntry = {
+		const nextConnector: ConnectorData = {
 			...defaults,
 			...current,
 			server_label:
@@ -88,7 +82,7 @@ export class ConnectorSettingsService extends Settings {
 			...connectors,
 			[connectorId]: nextConnector,
 		};
-		this.store.set('connectors', next);
+		this.store.store = next;
 		return { [connectorId]: nextConnector };
 	}
 }
@@ -103,7 +97,7 @@ export function resolveConnectorSettingsLocation(): string {
 	}
 }
 
-function defaultSettings(id: ConnectorId): ConnectorSettingsEntry {
+function defaultSettings(id: ConnectorId): ConnectorData {
 	const connector = SIMPLE_CONNECTORS.find((candidate) => candidate.id === id);
 	if (!connector) throw new Error(`Unsupported connector: ${id}`);
 	return connector.toSettings();
@@ -120,7 +114,7 @@ function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 	return connectors;
 }
 
-function isConnectorSettingsEntry(value: unknown): value is ConnectorSettingsEntry {
+function isConnectorSettingsEntry(value: unknown): value is ConnectorData {
 	return (
 		isRecord(value) &&
 		value.type === 'mcp' &&
