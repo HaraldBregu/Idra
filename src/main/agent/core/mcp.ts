@@ -15,7 +15,7 @@ export class AgentMcp {
 		if (providerId.trim().toLowerCase() !== 'openai') return [];
 
 		return Object.entries(this.connectors.list())
-			.filter((connector) => connector.enabled !== false)
+			.filter(([, connector]) => connector.enabled !== false)
 			.map(([id, connector]) => {
 				const connectorId = OPENAI_CONNECTOR_IDS[id as ConnectorId];
 
