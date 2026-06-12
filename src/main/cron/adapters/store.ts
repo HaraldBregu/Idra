@@ -18,6 +18,9 @@ import {
 import { isActiveSchedule } from '../core/validation';
 import { CRON_STORE_SCHEMA_VERSION } from '../constants';
 
+const CRON_STORE_DIRECTORY = 'cron';
+const CRON_STORE_FILE_NAME = 'settings';
+
 function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -199,7 +202,8 @@ export class ElectronStoreCronScheduleStore implements CronScheduleStore {
 		this.store =
 			store ??
 			new Store<CronStoreState>({
-				name: 'cron',
+				name: CRON_STORE_FILE_NAME,
+				cwd: CRON_STORE_DIRECTORY,
 				accessPropertiesByDotNotation: false,
 			});
 	}
