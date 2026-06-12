@@ -1,20 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import type {
 	CronActorContext,
-	CronExecutionRecord,
-	CronJsonObject,
 	CronNextRunPreview,
 	CronSchedule,
 	CronScheduleAccessPolicy,
-	CronScheduleAuditEntry,
 	CronScheduleCreateRequest,
-	CronScheduleEvent,
 	CronScheduleFilter,
 	CronScheduleId,
 	CronScheduler,
 	CronSchedulerOptions,
 	CronScheduleRunner,
-	CronScheduleSource,
 	CronScheduleUpdateRequest,
 	CronScheduleStore,
 	CronScheduledTask,
@@ -23,16 +18,15 @@ import type { CronLogger } from './core/logger';
 import { ScheduleDescriber } from './core/describer';
 import {
 	CronScheduleExecutionError,
-	CronScheduleRecoveryError,
-	CronSchedulerError,
-	toCronRecordError,
 } from './core/errors';
+import { CronScheduleEventRecorder } from './core/events';
 import { assertSafeStoredSchedulePayload } from './core/payload';
-import { delay, mergeRetryPolicy } from './core/retry';
-import { assertScheduleCanRun, validateScheduleShape } from './core/validation';
+import { mergeRetryPolicy } from './core/retry';
+import { CronScheduleRunRecorder } from './core/recording';
+import { CronScheduleTrigger } from './core/trigger';
+import { validateScheduleShape } from './core/validation';
 import { CronNextRunCalculator } from './calculator';
 import { CronScheduleEventBus } from './support';
-import { redactCronValue, summarizeCronValue } from './support';
 import {
 	DEFAULT_CRON_RETRY_POLICY,
 	DEFAULT_CRON_RUN_POLICY,
@@ -50,6 +44,9 @@ export class CronSchedulerEngine implements CronScheduler {
 	private readonly calculator: CronNextRunCalculator;
 	private readonly describer: ScheduleDescriber;
 	private readonly eventBus: CronScheduleEventBus;
+	private readonly eventRecorder: CronScheduleEventRecorder;
+	private readonly runRecorder: CronScheduleRunRecorder;
+	private readonly trigger: CronScheduleTrigger;
 	private timer: NodeJS.Timeout | undefined;
 	private started = false;
 
@@ -69,6 +66,20 @@ export class CronSchedulerEngine implements CronScheduler {
 		this.calculator = new CronNextRunCalculator();
 		this.describer = new ScheduleDescriber();
 		this.eventBus = new CronScheduleEventBus();
+		this.eventRecorder = new CronScheduleEventRecorder(this.store, this.eventBus);
+		this.runRecorder = new CronScheduleRunRecorder(this.store, this.eventRecorder);
+		this.trigger = new CronScheduleTrigger(
+			this.store,
+			this.runner,
+			this.calculator,
+			this.eventRecorder,
+			this.runRecorder,
+			{
+				runnerId: this.options.runnerId,
+				lockTtlMs: this.options.lockTtlMs,
+			},
+			this.logger
+		);
 	}
 
 	get events(): CronScheduleEventBus {
@@ -148,16 +159,18 @@ export class CronSchedulerEngine implements CronScheduler {
 			audit: [],
 		};
 		schedule.nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-		schedule.audit = [this.audit(schedule, 'schedule.created', 'Schedule created.', actor.source)];
+		schedule.audit = [
+			this.eventRecorder.audit(schedule, 'schedule.created', 'Schedule created.', actor.source),
+		];
 
 		const created = await this.store.createSchedule(schedule);
-		await this.emitEvent({
+		await this.eventRecorder.emit({
 			scheduleId: created.id,
 			type: 'schedule.created',
 			userId: created.ownerUserId,
 			source: created.source,
 			message: 'Schedule created.',
-			metadata: this.auditMetadata(created),
+			metadata: this.eventRecorder.auditMetadata(created),
 		});
 		return created;
 	}
@@ -184,18 +197,18 @@ export class CronSchedulerEngine implements CronScheduler {
 			updatedAt: new Date().toISOString(),
 			audit: [
 				...current.audit,
-				this.audit(current, 'schedule.updated', 'Schedule updated.', actor.source),
+				this.eventRecorder.audit(current, 'schedule.updated', 'Schedule updated.', actor.source),
 			],
 		};
 		merged.nextRunAt = this.calculator.getNextRun(merged, new Date())?.toISOString();
 		const updated = await this.store.updateSchedule(scheduleId, merged);
-		await this.emitEvent({
+		await this.eventRecorder.emit({
 			scheduleId,
 			type: 'schedule.updated',
 			userId: updated.ownerUserId,
 			source: updated.source,
 			message: 'Schedule updated.',
-			metadata: this.auditMetadata(updated),
+			metadata: this.eventRecorder.auditMetadata(updated),
 		});
 		return updated;
 	}
@@ -210,10 +223,10 @@ export class CronSchedulerEngine implements CronScheduler {
 			updatedAt: now,
 			audit: [
 				...schedule.audit,
-				this.audit(schedule, 'schedule.paused', 'Schedule paused.', actor.source),
+				this.eventRecorder.audit(schedule, 'schedule.paused', 'Schedule paused.', actor.source),
 			],
 		});
-		await this.emitEvent({
+		await this.eventRecorder.emit({
 			scheduleId,
 			type: 'schedule.paused',
 			userId: updated.ownerUserId,
@@ -238,10 +251,10 @@ export class CronSchedulerEngine implements CronScheduler {
 			updatedAt: now.toISOString(),
 			audit: [
 				...schedule.audit,
-				this.audit(schedule, 'schedule.resumed', 'Schedule resumed.', actor.source),
+				this.eventRecorder.audit(schedule, 'schedule.resumed', 'Schedule resumed.', actor.source),
 			],
 		});
-		await this.emitEvent({
+		await this.eventRecorder.emit({
 			scheduleId,
 			type: 'schedule.resumed',
 			userId: updated.ownerUserId,
@@ -262,11 +275,11 @@ export class CronSchedulerEngine implements CronScheduler {
 			updatedAt: now,
 			audit: [
 				...schedule.audit,
-				this.audit(schedule, 'schedule.deleted', 'Schedule deleted.', actor.source),
+				this.eventRecorder.audit(schedule, 'schedule.deleted', 'Schedule deleted.', actor.source),
 			],
 		});
 		await this.store.deleteSchedule(scheduleId);
-		await this.emitEvent({
+		await this.eventRecorder.emit({
 			scheduleId,
 			type: 'schedule.deleted',
 			userId: schedule.ownerUserId,
@@ -299,9 +312,9 @@ export class CronSchedulerEngine implements CronScheduler {
 		scheduleId: CronScheduleId,
 		actor = this.systemActor()
 	): Promise<CronScheduledTask> {
-		const schedule = await this.store.getSchedule(scheduleId);
-		await this.accessPolicy.authorize({ action: 'runScheduleNow', schedule, actor });
-		const task = await this.triggerSchedule(schedule, new Date().toISOString(), false, true);
+			const schedule = await this.store.getSchedule(scheduleId);
+			await this.accessPolicy.authorize({ action: 'runScheduleNow', schedule, actor });
+		const task = await this.trigger.trigger(schedule, new Date().toISOString(), false, true);
 		if (!task) throw new CronScheduleExecutionError('Schedule did not create a task.');
 		return task;
 	}
@@ -312,14 +325,14 @@ export class CronSchedulerEngine implements CronScheduler {
 
 	async recoverSchedulesOnStartup(): Promise<void> {
 		const now = new Date();
-		const schedules = await this.store.listRecoverableSchedules();
-		for (const schedule of schedules) {
-			try {
-				validateScheduleShape(schedule, this.options.runPolicy);
-				await this.emitEvent({
-					scheduleId: schedule.id,
-					type: 'schedule.loaded',
-					userId: schedule.ownerUserId,
+			const schedules = await this.store.listRecoverableSchedules();
+			for (const schedule of schedules) {
+				try {
+					validateScheduleShape(schedule, this.options.runPolicy);
+					await this.eventRecorder.emit({
+						scheduleId: schedule.id,
+						type: 'schedule.loaded',
+						userId: schedule.ownerUserId,
 					source: schedule.source,
 					message: 'Schedule loaded during startup recovery.',
 					metadata: {},
@@ -335,16 +348,16 @@ export class CronSchedulerEngine implements CronScheduler {
 					continue;
 				}
 
-				if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
-					await this.handleMissedRun(schedule, now);
-				} else {
-					await this.store.updateSchedule(schedule.id, { lastEvaluatedAt: now.toISOString() });
+					if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
+						await this.handleMissedRun(schedule, now);
+					} else {
+						await this.store.updateSchedule(schedule.id, { lastEvaluatedAt: now.toISOString() });
+					}
+				} catch (error) {
+					await this.runRecorder.markRecoveryFailed(schedule, error);
 				}
-			} catch (error) {
-				await this.markRecoveryFailed(schedule, error);
 			}
 		}
-	}
 
 	async processDueSchedules(now: Date): Promise<void> {
 		const due = (await this.store.listDueSchedules(now)).slice(
@@ -352,7 +365,7 @@ export class CronSchedulerEngine implements CronScheduler {
 			this.options.runPolicy.maxRunsPerTurn
 		);
 		for (const schedule of due) {
-			await this.triggerSchedule(schedule, schedule.nextRunAt ?? now.toISOString(), false, false);
+			await this.trigger.trigger(schedule, schedule.nextRunAt ?? now.toISOString(), false, false);
 		}
 	}
 
@@ -372,7 +385,7 @@ export class CronSchedulerEngine implements CronScheduler {
 	}
 
 	private async handleMissedRun(schedule: CronSchedule, now: Date): Promise<void> {
-		await this.emitEvent({
+		await this.eventRecorder.emit({
 			scheduleId: schedule.id,
 			type: 'schedule.missed',
 			userId: schedule.ownerUserId,
@@ -389,7 +402,7 @@ export class CronSchedulerEngine implements CronScheduler {
 					lastEvaluatedAt: now.toISOString(),
 					updatedAt: now.toISOString(),
 				});
-				await this.emitEvent({
+				await this.eventRecorder.emit({
 					scheduleId: schedule.id,
 					type: 'schedule.skipped',
 					userId: schedule.ownerUserId,
@@ -400,7 +413,7 @@ export class CronSchedulerEngine implements CronScheduler {
 				return;
 			}
 			case 'runOnce':
-				await this.triggerSchedule(schedule, schedule.nextRunAt ?? now.toISOString(), true, false);
+				await this.trigger.trigger(schedule, schedule.nextRunAt ?? now.toISOString(), true, false);
 				return;
 			case 'catchUp': {
 				const limit = Math.min(
@@ -413,7 +426,7 @@ export class CronSchedulerEngine implements CronScheduler {
 					.getMissedRuns(schedule, now, limit)
 					.filter((runAt) => runAt.getTime() >= cutoff);
 				for (const runAt of missedRuns) {
-					await this.triggerSchedule(schedule, runAt.toISOString(), true, false);
+					await this.trigger.trigger(schedule, runAt.toISOString(), true, false);
 				}
 				return;
 			}
@@ -423,7 +436,7 @@ export class CronSchedulerEngine implements CronScheduler {
 					lastFailedRunAt: now.toISOString(),
 					updatedAt: now.toISOString(),
 				});
-				await this.emitEvent({
+				await this.eventRecorder.emit({
 					scheduleId: schedule.id,
 					type: 'schedule.failed',
 					userId: schedule.ownerUserId,
@@ -433,308 +446,9 @@ export class CronSchedulerEngine implements CronScheduler {
 				});
 				return;
 			case 'askUser':
-				await this.triggerSchedule(schedule, schedule.nextRunAt ?? now.toISOString(), true, false);
+				await this.trigger.trigger(schedule, schedule.nextRunAt ?? now.toISOString(), true, false);
 				return;
 		}
-	}
-
-	private async triggerSchedule(
-		inputSchedule: CronSchedule,
-		scheduledRunAt: string,
-		missedRun: boolean,
-		manual: boolean
-	): Promise<CronScheduledTask | undefined> {
-		const locked = await this.store.acquireScheduleLock(
-			inputSchedule.id,
-			this.options.runnerId,
-			this.options.lockTtlMs
-		);
-		if (!locked) return undefined;
-
-		try {
-			const schedule = await this.store.getSchedule(inputSchedule.id);
-			if (!manual) assertScheduleCanRun(schedule);
-
-			await this.emitEvent({
-				scheduleId: schedule.id,
-				type: 'schedule.due',
-				userId: schedule.ownerUserId,
-				source: schedule.source,
-				message: 'Schedule is due.',
-				metadata: { scheduledRunAt, missedRun },
-			});
-
-			const idempotencyKey = this.idempotencyKey(schedule.id, scheduledRunAt);
-			const existingExecution = await this.store.getExecutionByIdempotencyKey(idempotencyKey);
-			if (existingExecution) {
-				await this.emitEvent({
-					scheduleId: schedule.id,
-					type: 'schedule.skipped',
-					userId: schedule.ownerUserId,
-					source: schedule.source,
-					message: 'Duplicate scheduled run ignored.',
-					metadata: { idempotencyKey },
-				});
-				return undefined;
-			}
-
-			const existingTask = await this.runner.findExistingTask?.({
-				scheduleId: schedule.id,
-				scheduledRunAt,
-			});
-			if (existingTask) {
-				await this.recordExecution(
-					schedule,
-					idempotencyKey,
-					scheduledRunAt,
-					'duplicateIgnored',
-					missedRun,
-					{
-						taskId: existingTask.id,
-					}
-				);
-				return undefined;
-			}
-
-			const concurrencyDecision = await this.applyConcurrencyPolicy(
-				schedule,
-				scheduledRunAt,
-				missedRun
-			);
-			if (concurrencyDecision === 'skipped') return undefined;
-
-			const task = await this.createTaskWithRetry(
-				schedule,
-				scheduledRunAt,
-				missedRun,
-				idempotencyKey
-			);
-			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt);
-			await this.recordExecution(
-				updated,
-				idempotencyKey,
-				scheduledRunAt,
-				'taskCreated',
-				missedRun,
-				{
-					taskId: task.id,
-				}
-			);
-			await this.emitEvent({
-				scheduleId: schedule.id,
-				type: 'schedule.triggered',
-				userId: schedule.ownerUserId,
-				source: schedule.source,
-				message: 'Scheduled task created.',
-				metadata: { taskId: task.id, scheduledRunAt, nextRunAt: updated.nextRunAt ?? null },
-			});
-			return task;
-		} catch (error) {
-			await this.recordFailure(inputSchedule, scheduledRunAt, missedRun, error);
-			this.logger?.error('CronScheduler', `Failed to trigger schedule ${inputSchedule.id}.`, error);
-			if (error instanceof CronSchedulerError && !error.retryable) return undefined;
-			return undefined;
-		} finally {
-			await this.store.releaseScheduleLock(inputSchedule.id, this.options.runnerId);
-		}
-	}
-
-	private async applyConcurrencyPolicy(
-		schedule: CronSchedule,
-		scheduledRunAt: string,
-		missedRun: boolean
-	): Promise<'proceed' | 'skipped'> {
-		const running = await this.runner.listRunningTasks?.(schedule.id);
-		if (!running || running.length === 0 || schedule.concurrencyPolicy === 'allowOverlap')
-			return 'proceed';
-
-		if (schedule.concurrencyPolicy === 'skipIfRunning') {
-			const idempotencyKey = this.idempotencyKey(schedule.id, scheduledRunAt);
-			await this.recordExecution(schedule, idempotencyKey, scheduledRunAt, 'skipped', missedRun, {
-				reason: 'concurrency',
-				runningTaskIds: running.map((task) => task.id),
-			});
-			const updated = await this.updateScheduleAfterTrigger(schedule, scheduledRunAt);
-			await this.emitEvent({
-				scheduleId: schedule.id,
-				type: 'schedule.skipped',
-				userId: schedule.ownerUserId,
-				source: schedule.source,
-				message: 'Skipped because a previous run is still active.',
-				metadata: { nextRunAt: updated.nextRunAt ?? null },
-			});
-			return 'skipped';
-		}
-
-		if (['cancelPrevious', 'replacePrevious'].includes(schedule.concurrencyPolicy)) {
-			await this.runner.cancelRunningTasks?.(schedule.id, 'Superseded by a newer scheduled run.');
-		}
-
-		return 'proceed';
-	}
-
-	private async createTaskWithRetry(
-		schedule: CronSchedule,
-		scheduledRunAt: string,
-		missedRun: boolean,
-		idempotencyKey: string
-	): Promise<CronScheduledTask> {
-		const maxAttempts = Math.max(1, schedule.retryPolicy.maxAttempts);
-		let attempt = 0;
-		let lastError: unknown;
-		while (attempt < maxAttempts) {
-			attempt++;
-			try {
-				return await this.runner.createTaskForSchedule({
-					schedule,
-					scheduledRunAt,
-					actualTriggeredAt: new Date().toISOString(),
-					runNumber: schedule.runCount + 1,
-					missedRun,
-					idempotencyKey,
-					runnerId: this.options.runnerId,
-				});
-			} catch (error) {
-				lastError = error;
-				if (attempt >= maxAttempts) break;
-				const backoff = Math.min(
-					schedule.retryPolicy.maxDelayMs,
-					Math.round(
-						schedule.retryPolicy.initialDelayMs *
-							schedule.retryPolicy.backoffMultiplier ** (attempt - 1)
-					)
-				);
-				await delay(
-					schedule.retryPolicy.jitter ? Math.round(backoff * (0.75 + Math.random() * 0.5)) : backoff
-				);
-			}
-		}
-		throw new CronScheduleExecutionError('Task creation failed after retry attempts.', {
-			error: lastError instanceof Error ? lastError.message : String(lastError),
-		});
-	}
-
-	private async updateScheduleAfterTrigger(
-		schedule: CronSchedule,
-		scheduledRunAt: string
-	): Promise<CronSchedule> {
-		const now = new Date().toISOString();
-		const runCount = schedule.runCount + 1;
-		const base: CronSchedule = {
-			...schedule,
-			runCount,
-			lastRunAt: scheduledRunAt,
-			lastEvaluatedAt: now,
-		};
-		const completed =
-			schedule.type === 'oneTime' ||
-			(schedule.maxRuns !== undefined && runCount >= schedule.maxRuns);
-		const nextRunAt = completed
-			? undefined
-			: this.calculator.getNextRun(base, new Date(scheduledRunAt))?.toISOString();
-		const status = completed ? 'completed' : schedule.status;
-		const updated = await this.store.updateSchedule(schedule.id, {
-			runCount,
-			lastRunAt: scheduledRunAt,
-			lastEvaluatedAt: now,
-			nextRunAt,
-			status,
-			updatedAt: now,
-		});
-		if (completed) {
-			await this.emitEvent({
-				scheduleId: schedule.id,
-				type: 'schedule.completed',
-				userId: schedule.ownerUserId,
-				source: schedule.source,
-				message: 'Schedule completed.',
-				metadata: { runCount },
-			});
-		}
-		return updated;
-	}
-
-	private async recordExecution(
-		schedule: CronSchedule,
-		idempotencyKey: string,
-		scheduledRunAt: string,
-		status: CronExecutionRecord['status'],
-		missedRun: boolean,
-		metadata: CronJsonObject = {}
-	): Promise<void> {
-		const now = new Date().toISOString();
-		await this.store.recordExecution({
-			executionId: randomUUID(),
-			scheduleId: schedule.id,
-			idempotencyKey,
-			scheduledRunAt,
-			triggeredAt: now,
-			taskId: typeof metadata.taskId === 'string' ? metadata.taskId : undefined,
-			status,
-			missedRun,
-			runNumber: schedule.runCount + 1,
-			metadata,
-		});
-	}
-
-	private async recordFailure(
-		schedule: CronSchedule,
-		scheduledRunAt: string,
-		missedRun: boolean,
-		error: unknown
-	): Promise<void> {
-		const now = new Date().toISOString();
-		const idempotencyKey = this.idempotencyKey(schedule.id, scheduledRunAt);
-		await this.store.recordExecution({
-			executionId: randomUUID(),
-			scheduleId: schedule.id,
-			idempotencyKey,
-			scheduledRunAt,
-			triggeredAt: now,
-			status: 'taskFailed',
-			missedRun,
-			runNumber: schedule.runCount + 1,
-			failedAt: now,
-			error: toCronRecordError(error),
-			metadata: {},
-		});
-		await this.store.updateSchedule(schedule.id, {
-			lastFailedRunAt: now,
-			updatedAt: now,
-		});
-		await this.emitEvent({
-			scheduleId: schedule.id,
-			type: 'schedule.failed',
-			userId: schedule.ownerUserId,
-			source: schedule.source,
-			message: 'Schedule run failed.',
-			metadata: { error: toCronRecordError(error).safeUserMessage },
-		});
-	}
-
-	private async markRecoveryFailed(schedule: CronSchedule, error: unknown): Promise<void> {
-		const now = new Date().toISOString();
-		await this.store.updateSchedule(schedule.id, {
-			status: 'failed',
-			lastFailedRunAt: now,
-			updatedAt: now,
-		});
-		await this.emitEvent({
-			scheduleId: schedule.id,
-			type: 'schedule.failed',
-			userId: schedule.ownerUserId,
-			source: schedule.source,
-			message: 'Schedule failed during startup recovery.',
-			metadata: {
-				error: toCronRecordError(
-					new CronScheduleRecoveryError('Startup recovery failed.', { reason: String(error) })
-				),
-			},
-		});
-	}
-
-	private idempotencyKey(scheduleId: CronScheduleId, scheduledRunAt: string): string {
-		return `cron:${scheduleId}:${new Date(scheduledRunAt).toISOString()}`;
 	}
 
 	private systemActor(userId?: string): CronActorContext {
@@ -743,52 +457,6 @@ export class CronSchedulerEngine implements CronScheduler {
 			userId,
 			timezone: this.options.defaultTimezone,
 			permissions: ['adminScheduleManagement'],
-		};
-	}
-
-	private audit(
-		schedule: Pick<CronSchedule, 'id'>,
-		action: string,
-		message: string,
-		actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'agent-cron-service'
-	): CronScheduleAuditEntry {
-		return {
-			auditId: randomUUID(),
-			scheduleId: schedule.id,
-			action,
-			actor,
-			message,
-			createdAt: new Date().toISOString(),
-			metadata: {},
-		};
-	}
-
-	private async emitEvent(input: Omit<CronScheduleEvent, 'eventId' | 'timestamp'>): Promise<void> {
-		if (input.scheduleId === 'pending') {
-			this.eventBus.emit({
-				...input,
-				eventId: randomUUID(),
-				timestamp: new Date().toISOString(),
-			});
-			return;
-		}
-		const event: CronScheduleEvent = {
-			...input,
-			eventId: randomUUID(),
-			timestamp: new Date().toISOString(),
-		};
-		await this.store.appendScheduleEvent(event);
-		this.eventBus.emit(event);
-	}
-
-	private auditMetadata(schedule: CronSchedule): CronJsonObject {
-		return {
-			taskType: schedule.taskType,
-			source: schedule.source,
-			visibility: schedule.visibility,
-			timezone: schedule.timezone,
-			nextRunAt: schedule.nextRunAt ?? null,
-			taskInputSummary: summarizeCronValue(redactCronValue(schedule.taskInput)),
 		};
 	}
 }
