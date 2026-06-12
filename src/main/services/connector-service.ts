@@ -75,14 +75,17 @@ export class ConnectorService extends ConnectorSettings {
 		const nextConnector: ConnectorSettingsEntry = {
 			...defaults,
 			...current,
-			server_label: optionalTrimmedString(input.serverLabel) ?? current?.server_label ?? defaults.server_label,
-			server_url: optionalTrimmedString(input.serverUrl) ?? current?.server_url ?? defaults.server_url,
+			server_label:
+				optionalTrimmedString(input.serverLabel) ?? current?.server_label ?? defaults.server_label,
+			server_url:
+				optionalTrimmedString(input.serverUrl) ?? current?.server_url ?? defaults.server_url,
 			server_description:
 				optionalTrimmedString(input.serverDescription) ??
 				current?.server_description ??
 				defaults.server_description,
 			authorization: optionalTrimmedString(input.authorization) ?? current?.authorization,
-			require_approval: input.requireApproval ?? current?.require_approval ?? defaults.require_approval,
+			require_approval:
+				input.requireApproval ?? current?.require_approval ?? defaults.require_approval,
 			defer_loading: input.deferLoading ?? current?.defer_loading ?? defaults.defer_loading,
 			enabled: input.enabled ?? current?.enabled ?? defaults.enabled,
 			created_at: optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,

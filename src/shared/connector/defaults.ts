@@ -21,12 +21,7 @@ export const CONNECTOR_DEFAULTS = [
 			authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
 			tokenUrl: 'https://oauth2.googleapis.com/token',
 			userInfoUrl: 'https://openidconnect.googleapis.com/v1/userinfo',
-			scopes: [
-				'openid',
-				'email',
-				'profile',
-				'https://www.googleapis.com/auth/gmail.modify',
-			],
+			scopes: ['openid', 'email', 'profile', 'https://www.googleapis.com/auth/gmail.modify'],
 			accessType: 'offline',
 			prompt: 'consent',
 		},
