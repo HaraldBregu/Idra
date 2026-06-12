@@ -1,6 +1,4 @@
-import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { app } from 'electron';
 import Store from 'electron-store';
 import { Service } from 'typedi';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
@@ -53,7 +51,8 @@ const DEFAULT_SETTINGS: SttSettingsSchema = {
 	providers: {},
 };
 
-const STT_SETTINGS_STORE_NAME = 'settings.stt';
+const STT_SETTINGS_STORE_NAME = 'settings';
+const STT_SETTINGS_STORE_DIRECTORY = 'stt';
 
 export interface SttServiceOptions {
 	cwd?: string;
@@ -76,7 +75,7 @@ export class SttService {
 			options.store ??
 			new Store<SttSettingsSchema>({
 				name: STT_SETTINGS_STORE_NAME,
-				cwd: options.cwd ?? resolveSttSettingsLocation(),
+				cwd: options.cwd ?? STT_SETTINGS_STORE_DIRECTORY,
 				accessPropertiesByDotNotation: false,
 				defaults: DEFAULT_SETTINGS,
 			});
@@ -380,16 +379,6 @@ function findSpeechToTextModel(
 
 function realtimeSampleRate(providerId: SpeechToTextProviderId): number {
 	return SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES[providerId] ?? STT_DEFAULT_REALTIME_SAMPLE_RATE;
-}
-
-function resolveSttSettingsLocation(): string {
-	try {
-		return path.resolve(app.getPath('appData'), app.getName());
-	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday');
-	}
 }
 
 function optionalTrimmedString(value: unknown): string | undefined {
