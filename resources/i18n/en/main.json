@@ -481,7 +481,9 @@
 				"run": "Run now",
 				"remove": "Delete",
 				"removeLabel": "Delete scheduled task {{id}}",
+				"removeJobLabel": "Delete registered cron job {{id}}",
 				"confirmRemove": "Delete scheduled task {{id}}?",
+				"confirmRemoveJob": "Delete registered cron job {{id}}?",
 				"removing": "Deleting..."
 			},
 			"details": {
@@ -521,6 +523,10 @@
 			"enabled": "Enabled",
 			"disabled": "Disabled",
 			"nextRun": "Next",
+			"schedulesTitle": "Scheduled tasks",
+			"schedulesDescription": "Durable cron schedules saved by Friday.",
+			"jobsTitle": "Registered jobs",
+			"jobsDescription": "Process-local node-cron jobs registered by the app.",
 			"status": {
 				"active": "Active",
 				"paused": "Paused",

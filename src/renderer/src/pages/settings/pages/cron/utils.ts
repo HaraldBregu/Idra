@@ -1,5 +1,6 @@
 import type {
 	CronJsonValue,
+	CronJobInfo,
 	CronSchedule,
 	CronScheduleStatus,
 } from '../../../../../../shared/app/cron';
@@ -42,6 +43,10 @@ export function formatSchedule(schedule: CronSchedule): string {
 	}
 	if (schedule.type === 'manual') return 'Manual';
 	return schedule.type;
+}
+
+export function formatJobSchedule(job: CronJobInfo): string {
+	return job.timezone ? `${job.expression} ${job.timezone}` : job.expression;
 }
 
 export function inputSummary(schedule: CronSchedule): string {
@@ -94,4 +99,8 @@ export function sortSchedules(schedules: readonly CronSchedule[]): CronSchedule[
 		return (Number.isNaN(leftTime) ? Number.MAX_SAFE_INTEGER : leftTime) -
 			(Number.isNaN(rightTime) ? Number.MAX_SAFE_INTEGER : rightTime);
 	});
+}
+
+export function sortJobs(jobs: readonly CronJobInfo[]): CronJobInfo[] {
+	return [...jobs].sort((left, right) => left.name.localeCompare(right.name));
 }

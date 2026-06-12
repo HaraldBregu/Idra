@@ -481,7 +481,9 @@
 				"run": "Esegui ora",
 				"remove": "Elimina",
 				"removeLabel": "Elimina attivita programmata {{id}}",
+				"removeJobLabel": "Elimina job cron registrato {{id}}",
 				"confirmRemove": "Eliminare l'attivita programmata {{id}}?",
+				"confirmRemoveJob": "Eliminare il job cron registrato {{id}}?",
 				"removing": "Eliminazione..."
 			},
 			"details": {
@@ -521,6 +523,10 @@
 			"enabled": "Attiva",
 			"disabled": "Disattivata",
 			"nextRun": "Prossima",
+			"schedulesTitle": "Attivita programmate",
+			"schedulesDescription": "Pianificazioni cron persistenti salvate da Friday.",
+			"jobsTitle": "Job registrati",
+			"jobsDescription": "Job node-cron locali al processo registrati dall'app.",
 			"status": {
 				"active": "Attiva",
 				"paused": "In pausa",
