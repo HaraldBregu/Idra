@@ -1,3 +1,6 @@
+import type { PublicProvider } from '../providers';
+import type { ProviderModel } from '../providers/models/types';
+
 export const STT_AUDIO_ENCODINGS = ['base64'] as const;
 export const STT_MAX_AUDIO_BASE64_LENGTH = 64 * 1024 * 1024;
 export const STT_MAX_REALTIME_AUDIO_BASE64_LENGTH = 256 * 1024;
@@ -97,6 +100,11 @@ export interface SttTranscriptionMetadata {
 export interface SttTranscriptionResult {
 	text: string;
 	metadata: SttTranscriptionMetadata;
+}
+
+export interface SttModelSelection {
+	provider: PublicProvider;
+	model: ProviderModel;
 }
 
 export function normalizeSttTranscriptionRequest(

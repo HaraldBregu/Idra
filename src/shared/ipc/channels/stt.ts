@@ -1,16 +1,23 @@
 import type {
+	SttModelSelection,
 	SttRealtimeEvent,
 	SttRealtimeStartRequest,
 	SttRealtimeSession,
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
 } from '../../stt/transcription';
+import type { PublicProvider } from '../../providers';
+import type { ProviderModel } from '../../providers/models/types';
 
 export const SttChannels = {
 	appendRealtimeAudio: 'stt:append-realtime-audio',
 	cancelRealtime: 'stt:cancel-realtime',
 	finishRealtime: 'stt:finish-realtime',
+	getSelection: 'stt:get-selection',
+	listModels: 'stt:list-models',
+	listProviders: 'stt:list-providers',
 	realtimeEvent: 'stt:realtime-event',
+	saveSelection: 'stt:save-selection',
 	startRealtime: 'stt:start-realtime',
 	transcribe: 'stt:transcribe',
 } as const;
@@ -35,6 +42,22 @@ export interface SttInvokeChannelMap {
 	[SttChannels.cancelRealtime]: {
 		args: [sessionId: string];
 		result: void;
+	};
+	[SttChannels.getSelection]: {
+		args: [];
+		result: SttModelSelection | undefined;
+	};
+	[SttChannels.listProviders]: {
+		args: [];
+		result: PublicProvider[];
+	};
+	[SttChannels.listModels]: {
+		args: [providerId: string];
+		result: ProviderModel[];
+	};
+	[SttChannels.saveSelection]: {
+		args: [providerId: string, modelId: string];
+		result: boolean;
 	};
 }
 

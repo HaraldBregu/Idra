@@ -300,6 +300,28 @@ export const stt: SttApi = {
 	onRealtimeEvent: (callback) => {
 		return typedOn(SttChannels.realtimeEvent, callback);
 	},
+	getSelection: () => {
+		return typedInvokeUnwrap(SttChannels.getSelection);
+	},
+	listProviders: () => {
+		return typedInvokeUnwrap(SttChannels.listProviders);
+	},
+	listModels: (providerId) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
+		return typedInvokeUnwrap(SttChannels.listModels, normalizedProviderId);
+	},
+	saveSelection: (providerId, modelId) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
+		if (!normalizedModelId) throw new Error('Invalid speech-to-text model id.');
+		return typedInvokeUnwrap(
+			SttChannels.saveSelection,
+			normalizedProviderId,
+			normalizedModelId
+		);
+	},
 };
 
 export const channels: ChannelsApi = {

@@ -71,6 +71,10 @@ export interface SttApi {
 	finishRealtime: (sessionId: string) => Promise<void>;
 	cancelRealtime: (sessionId: string) => Promise<void>;
 	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
+	getSelection: () => Promise<SttModelSelection | undefined>;
+	listProviders: () => Promise<PublicProvider[]>;
+	listModels: (providerId: string) => Promise<Model[]>;
+	saveSelection: (providerId: string, modelId: string) => Promise<boolean>;
 }
 
 import type { PublicProvider } from '../shared/providers';
@@ -92,6 +96,7 @@ import type {
 	SttRealtimeStartRequest,
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
+	SttModelSelection,
 } from '../shared/stt/transcription';
 import type {
 	SkillDeleteResult,
