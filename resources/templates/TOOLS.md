@@ -8,11 +8,11 @@ runtime-specific and are intentionally omitted.
 
 | Source file | Exposed tool | How it is used |
 | --- | --- | --- |
-| `read.ts` | `read` | Reads a UTF-8 text file from a required `path`. |
-| `edit.ts` | `edit` | Replaces required exact `oldText` with required `newText` in a UTF-8 text file. The old text must exist exactly once. |
-| `find.ts` | `find` | Finds files by required `pattern` from the workspace or an optional `path`, returning absolute paths up to an optional `maxResults` cap. |
-| `write.ts` | `write` | Creates or overwrites a UTF-8 text file with required `content`; parent directories are created as needed. |
-| `exec.ts` | `exec` | Runs a required shell `command` from the workspace or provided `workdir`, with optional environment, yield/background mode, timeout, and PTY support. |
+| `read.ts` | `read` | Reads the full UTF-8 contents of a single text file from a required `path`. Use it before editing when current file contents matter. |
+| `edit.ts` | `edit` | Replaces one exact `oldText` match with required `newText` in a UTF-8 text file. Use it for focused edits when the old text appears exactly once. |
+| `find.ts` | `find` | Recursively finds files by required name or relative path `pattern` from the workspace or an optional `path`, returning absolute paths up to an optional `maxResults` cap. |
+| `write.ts` | `write` | Creates or overwrites a UTF-8 text file with exact `content`, creating parent directories when needed. |
+| `exec.ts` | `exec` | Runs a shell `command` from the workspace or provided `workdir` for builds, tests, searches, and command-line checks, with optional environment, yield/background mode, timeout, and PTY support. |
 
 ## Runtime Bucket
 
