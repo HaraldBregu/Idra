@@ -6,7 +6,7 @@ export abstract class Tool {
 	readonly description?: string;
 	readonly schema?: JSONSchema;
 
-	constructor(readonly context :Context) {}
+	constructor(readonly context: Context) { }
 
 	abstract run(input: Record<string, unknown>): Promise<unknown> | unknown;
 }
