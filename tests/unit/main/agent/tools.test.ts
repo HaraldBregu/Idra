@@ -30,10 +30,12 @@ describe('agent file tools', () => {
 	});
 
 	it('keeps file state in a shared tool context', async () => {
-		const context = new ToolContext({ path: workspacePath });
+		const context = new ToolContext();
 		const write = new WriteTool(workspacePath, context);
 		const read = new ReadTool(workspacePath, context);
 		const expectedPath = path.join(workspacePath, 'notes/test.txt');
+
+		expect(context.snapshot()).toEqual({});
 
 		await write.run({ path: 'notes/test.txt', content: 'hello' });
 		await expect(read.run({ path: 'notes/test.txt' })).resolves.toBe('hello');
@@ -44,7 +46,7 @@ describe('agent file tools', () => {
 	});
 
 	it('uses the tool context path for exec calls without workdir', async () => {
-		const context = new ToolContext({ path: workspacePath });
+		const context = new ToolContext();
 		const tool = new ExecTool(workspacePath, context);
 		const nestedPath = path.join(workspacePath, 'nested');
 		const command = `"${process.execPath}" --version`;

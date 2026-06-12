@@ -1,13 +1,7 @@
 import type { JSONSchema, ToolContextState } from './types';
 
 export class ToolContext {
-	private readonly state: ToolContextState;
-
-	constructor(initialState: Partial<ToolContextState> = {}) {
-		this.state = {
-			path: initialState.path,
-		};
-	}
+	private readonly state: ToolContextState = {};
 
 	get path(): string | undefined {
 		return this.state.path;
@@ -18,9 +12,7 @@ export class ToolContext {
 	}
 
 	snapshot(): ToolContextState {
-		return {
-			path: this.state.path,
-		};
+		return { ...this.state };
 	}
 }
 

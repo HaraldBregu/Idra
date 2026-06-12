@@ -73,7 +73,7 @@ export class AgentRuntime {
 			throw new Error('Agent requires a configured provider and model.');
 
 		const workspacePath = workspace.getPath();
-		const toolContext = new ToolContext({ path: workspacePath });
+		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 		tools.push(new ReadTool(workspacePath, toolContext));
 		tools.push(new EditTool(workspacePath, toolContext));
