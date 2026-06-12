@@ -109,7 +109,7 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 				},
 				turn_detection: null,
 			},
-		});
+		} as never);
 	}
 
 	async appendAudio(audio: string): Promise<void> {

@@ -117,7 +117,11 @@ export class MistralSttAdapter implements SttAdapter {
 				sampleRate: request.sampleRate,
 			},
 		});
-		const session = new MistralRealtimeSttConnection(connection, request, emit);
+		const session = new MistralRealtimeSttConnection(
+			connection as unknown as MistralRealtimeConnection,
+			request,
+			emit
+		);
 		session.listen();
 		return session;
 	}
