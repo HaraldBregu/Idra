@@ -1,33 +1,46 @@
 # Tools
 
-This document describes the local tools implemented under
-`src/main/tools/base`. Tools outside that directory are intentionally omitted.
+This document describes the local agent tools implemented under
+`src/main/agent/tools`. Tools passed in through `RuntimeInput.tools` are
+runtime-specific and are intentionally omitted.
 
-## Current Base Tools
+## Current Agent Tools
 
 | Source file | Exposed tool | How it is used |
 | --- | --- | --- |
-| `edit.ts` | `edit` | Applies targeted text replacements to an existing UTF-8 file. The file must have been read earlier in the run, and unchanged files are guarded by the read snapshot. |
-| `exec.ts` | `exec` | Runs a shell command in the workspace with approval gating, denied-pattern checks, optional background mode, and capped foreground output. |
-| `find.ts` | `find` | Finds files by glob pattern from the workspace or a provided search directory, excluding `node_modules` and `.git` paths. |
-| `read.ts` | `read` | Reads a UTF-8 file and returns content with 1-indexed line-number prefixes. The default cap is 2000 lines. |
-| `write.ts` | `write` | Creates or overwrites a UTF-8 file. Existing files must have been read earlier in the run, and parent directories are created as needed. |
+| `read.ts` | `read` | Reads a UTF-8 text file from a required `path`. |
+| `edit.ts` | `edit` | Replaces required exact `oldText` with required `newText` in a UTF-8 text file. The old text must exist exactly once. |
+| `write.ts` | `write` | Creates or overwrites a UTF-8 text file with required `content`; parent directories are created as needed. |
+| `exec.ts` | `exec` | Runs a required shell `command` from the workspace or provided `workdir`, with optional environment, yield/background mode, timeout, and PTY support. |
 
 ## Runtime Bucket
 
-The run-scoped base tools are assembled through `createFileTools`:
+`AgentRuntime` starts with any tools provided through `RuntimeInput.tools`,
+then appends the local file and command tools:
 
-- `createFileTools` includes `read`, `edit`, `find`, `exec`, and `write`.
+- `read`
+- `edit`
+- `write`
+- `exec`
 
-Each tool is wrapped through the canonical runtime bridge before provider schema
-normalization and policy filtering.
+These tools are exposed to the provider through the `Tool` base class contract:
+`name`, optional `description`, optional JSON schema, and `run(input)`.
 
 ## Safety Rules
 
-The base tools rely on shared workspace and execution guards:
+The local tools rely on shared path resolution and per-tool validation:
 
-- `read`, `write`, `edit`, and `find` resolve absolute or workspace-relative
-  paths through the shared path resolver.
-- `write` and `edit` enforce read-before-write checks for existing files.
-- `exec` requires approval and blocks denied command patterns before execution.
-- `exec` caps foreground command output and supports background process startup.
+- `read`, `write`, `edit`, and `exec.workdir` resolve paths through
+  `resolveToolPath`.
+- Relative paths resolve from the workspace path supplied to the runtime.
+- `~` and `~/...` expand to the user home directory.
+- Absolute paths are normalized and used as provided.
+- `edit` rejects empty `oldText`, non-string `newText`, missing matches, and
+  repeated matches.
+- `write` rejects non-string content and creates parent directories before
+  writing.
+- `exec` rejects empty commands, invalid `workdir`, invalid environment values,
+  invalid timing flags, and unavailable elevated, gateway, or node execution.
+- `exec` captures up to 200000 characters each from stdout and stderr, records
+  truncation flags, supports `timeout`, and returns background process metadata
+  when `background` is true or `yieldMs` elapses.
