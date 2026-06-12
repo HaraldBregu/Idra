@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
 import type { Provider as CatalogProvider } from '../../shared/providers/definitions';
-import type { Provider, ProviderRecord } from '../../shared/providers/types';
+import type { Provider } from '../../shared/providers/types';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
@@ -36,11 +36,11 @@ import {
 import { SttAdapterFactory } from '../stt/factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../stt/errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from '../stt/types';
+import { ProviderService } from './provider-service';
 
 interface SttSettingsSchema {
 	providerId: string | undefined;
 	modelId: string | undefined;
-	providers: ProviderRecord;
 }
 
 type SttSettingsStorage = Pick<Store<SttSettingsSchema>, 'get' | 'set'>;
@@ -48,7 +48,6 @@ type SttSettingsStorage = Pick<Store<SttSettingsSchema>, 'get' | 'set'>;
 const DEFAULT_SETTINGS: SttSettingsSchema = {
 	providerId: undefined,
 	modelId: undefined,
-	providers: {},
 };
 
 const STT_SETTINGS_STORE_NAME = 'settings';
@@ -56,12 +55,17 @@ const STT_SETTINGS_STORE_DIRECTORY = 'stt';
 
 export interface SttServiceOptions {
 	cwd?: string;
+	providerStore?: Pick<ProviderService, 'get'>;
 	store?: SttSettingsStorage;
 }
 
 @Service()
 export class SttService {
+	@Inject(() => ProviderService)
+	private readonly providerStore!: ProviderService;
+
 	private readonly adapterFactory: SttAdapterFactory;
+	private readonly providerStoreOverride?: Pick<ProviderService, 'get'>;
 	private readonly store: SttSettingsStorage;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
@@ -71,6 +75,7 @@ export class SttService {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)
 			? adapterFactory
 			: new SttAdapterFactory();
+		this.providerStoreOverride = options.providerStore;
 		this.store =
 			options.store ??
 			new Store<SttSettingsSchema>({
@@ -119,22 +124,6 @@ export class SttService {
 		}
 		this.setSelection(normalizedProviderId, normalizedModelId);
 		return true;
-	}
-
-	getProvider(providerId: string): Provider | undefined {
-		const normalizedProviderId = this.resolveProviderId(providerId);
-		return this.getStoredProvider(normalizedProviderId);
-	}
-
-	saveProvider(providerId: string, provider: Provider): Provider {
-		const normalizedProviderId = this.resolveProviderId(providerId);
-		return this.setStoredProvider(normalizedProviderId, provider);
-	}
-
-	isProviderConfigured(providerId: string): boolean {
-		const normalizedProviderId = this.resolveProviderId(providerId);
-		const provider = this.getStoredProvider(normalizedProviderId);
-		return Boolean(provider?.apiKey.trim());
 	}
 
 	async transcribe(request: SttTranscriptionRequest): Promise<SttTranscriptionResult> {
@@ -263,7 +252,7 @@ export class SttService {
 	}
 
 	private resolveProvider(providerId: SpeechToTextProviderId): SttProviderSpec {
-		const provider = this.getProviderSpec(providerId);
+		const provider = this.getProviderSpecFromProviderStore(providerId);
 		if (!provider.apiKey) {
 			throw new SttProviderAuthError(`${provider.name} API key not configured.`);
 		}
@@ -312,35 +301,8 @@ export class SttService {
 		this.store.set('modelId', modelId);
 	}
 
-	private listStoredProviders(): ProviderRecord {
-		const raw = this.store.get('providers');
-		if (!isRecord(raw)) return {};
-		const providers: ProviderRecord = {};
-		for (const [id, value] of Object.entries(raw)) {
-			const providerId = resolveSttProviderId(id);
-			if (providerId && isProvider(value)) providers[providerId] = normalizeProvider(value);
-		}
-		return providers;
-	}
-
-	private getStoredProvider(providerId: string): Provider | undefined {
-		const normalized = resolveSttProviderId(providerId);
-		if (!normalized) return undefined;
-		const stored = this.listStoredProviders()[normalized];
-		return stored ? withDefaultProviderValues(normalized, stored) : undefined;
-	}
-
-	private setStoredProvider(providerId: string, provider: Provider): Provider {
-		const normalized = requireSttProviderId(providerId);
-		const next = withDefaultProviderValues(normalized, provider);
-		const providers = this.listStoredProviders();
-		providers[normalized] = next;
-		this.store.set('providers', providers);
-		return next;
-	}
-
-	private getProviderSpec(providerId: SpeechToTextProviderId): SttProviderSpec {
-		const stored = this.getStoredProvider(providerId);
+	private getProviderSpecFromProviderStore(providerId: SpeechToTextProviderId): SttProviderSpec {
+		const stored = this.getProviderStore().get(providerId);
 		const defaults = defaultProvider(providerId);
 		return {
 			id: providerId,
@@ -348,6 +310,10 @@ export class SttService {
 			apiKey: stored?.apiKey.trim() ?? '',
 			baseURL: stored?.baseUrl || SPEECH_TO_TEXT_PROVIDER_BASE_URLS[providerId],
 		};
+	}
+
+	private getProviderStore(): Pick<ProviderService, 'get'> {
+		return this.providerStoreOverride ?? this.providerStore;
 	}
 }
 
@@ -385,54 +351,6 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();
 	return trimmed || undefined;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isProvider(value: unknown): value is Provider {
-	return (
-		isRecord(value) &&
-		typeof value.name === 'string' &&
-		typeof value.apiKey === 'string' &&
-		typeof value.baseUrl === 'string'
-	);
-}
-
-function normalizeProvider(provider: Provider): Provider {
-	return {
-		name: provider.name.trim(),
-		apiKey: provider.apiKey.trim(),
-		baseUrl: provider.baseUrl.trim(),
-	};
-}
-
-function resolveSttProviderId(providerId: string): SpeechToTextProviderId | undefined {
-	const normalized = normalizeProviderId(providerId);
-	if ((SPEECH_TO_TEXT_PROVIDER_IDS as readonly string[]).includes(normalized)) {
-		return normalized as SpeechToTextProviderId;
-	}
-	return undefined;
-}
-
-function requireSttProviderId(providerId: string): SpeechToTextProviderId {
-	const normalized = resolveSttProviderId(providerId);
-	if (!normalized) throw new Error(`Unsupported speech-to-text provider: ${providerId}`);
-	return normalized;
-}
-
-function withDefaultProviderValues(
-	providerId: SpeechToTextProviderId,
-	provider: Provider
-): Provider {
-	const defaults = defaultProvider(providerId);
-	const normalized = normalizeProvider(provider);
-	return {
-		name: normalized.name || defaults?.name || providerId,
-		apiKey: normalized.apiKey,
-		baseUrl: normalized.baseUrl || SPEECH_TO_TEXT_PROVIDER_BASE_URLS[providerId],
-	};
 }
 
 function isSttAdapterFactory(value: unknown): value is SttAdapterFactory {
