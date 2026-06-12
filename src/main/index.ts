@@ -21,14 +21,14 @@ import { setupMemoryMonitor } from './observability/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { AppPermissionsService } from './app/permissions';
 
-// DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
-// exception 0xE0000008) come from the V8/JS heap or from native/C++
-// allocations. Must run before V8 isolates fully initialize. If crashes
-// take noticeably longer with this set, the leak is JS-side.
-app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
-if (process.platform === 'linux') {
-	app.commandLine.appendSwitch('enable-transparent-visuals');
-}
+// // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
+// // exception 0xE0000008) come from the V8/JS heap or from native/C++
+// // allocations. Must run before V8 isolates fully initialize. If crashes
+// // take noticeably longer with this set, the leak is JS-side.
+// app.commandLine.appendSwitch('js-flags', '--max-old-space-size=8192');
+// if (process.platform === 'linux') {
+// 	app.commandLine.appendSwitch('enable-transparent-visuals');
+// }
 
 function loadLocalEnv(): void {
 	const paths = Array.from(
