@@ -15,8 +15,13 @@ import type {
 import type { Provider } from '../../../../src/main/agent/core/types';
 
 class TestSettings extends Settings {
-	private provider: Provider = { id: 'openai', apiKey: 'key', baseURL: '' };
+	private provider: Provider;
 	private modelId = 'gpt-test';
+
+	constructor(providerId = 'openai') {
+		super();
+		this.provider = { id: providerId, apiKey: 'key', baseURL: '' };
+	}
 
 	getProvider(): Provider | undefined {
 		return this.provider;
@@ -92,7 +97,7 @@ describe('AgentRuntime MCP connectors', () => {
 		await fs.rm(cwd, { recursive: true, force: true });
 	});
 
-	it('passes enabled connector service entries to the model as MCP servers', async () => {
+	it('passes enabled connector service entries to OpenAI as MCP connectors', async () => {
 		const requests: ProviderStreamRequest[] = [];
 		const stream = jest.fn(async function* (
 			request: ProviderStreamRequest
@@ -138,12 +143,51 @@ describe('AgentRuntime MCP connectors', () => {
 			{
 				type: 'mcp',
 				server_label: 'gmail',
-				server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
+				connector_id: 'connector_gmail',
 				authorization: 'token',
 				require_approval: 'always',
 				defer_loading: false,
 				server_description: 'Read and search Gmail messages through the OpenAI Gmail connector.',
 			},
 		]);
+	});
+
+	it('does not pass OpenAI app connectors to Anthropic as remote MCP servers', async () => {
+		const requests: ProviderStreamRequest[] = [];
+		const stream = jest.fn(async function* (
+			request: ProviderStreamRequest
+		): AsyncIterable<ProviderEvent> {
+			requests.push(request);
+			yield { type: 'text_delta', text: 'done' };
+			yield {
+				type: 'message_end',
+				stopReason: 'end_turn',
+				usage: { inputTokens: 1, outputTokens: 1 },
+			};
+		});
+		jest.spyOn(LlmService.prototype, 'build').mockReturnValue({
+			stream,
+		} as ProviderAdapter);
+
+		const connectors = new ConnectorSettingsService({ cwd });
+		connectors.upsert({
+			id: 'calendar',
+			name: 'Calendar',
+			connectorId: 'connector_googlecalendar',
+			authorization: ' token ',
+		});
+
+		const runtime = new AgentRuntime(
+			new TestWorkspace(cwd),
+			new TestSettings('anthropic'),
+			new AgentSession({ task: 'chat', message: 'check calendar' }),
+			connectors
+		);
+
+		for await (const _event of runtime.run({ task: 'chat', message: 'check calendar' })) {
+		}
+
+		expect(stream).toHaveBeenCalledTimes(1);
+		expect(requests[0]?.mcp).toEqual([]);
 	});
 });

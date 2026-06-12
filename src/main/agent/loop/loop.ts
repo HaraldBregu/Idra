@@ -86,7 +86,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
-		const mcp = this.mcp.list();
+		const mcp = this.mcp.list(provider.id);
 
 		const system = await this.systemPrompt.build(workspace);
 

@@ -77,7 +77,7 @@ describe('ConnectorSettingsService', () => {
 
 		service.upsert({
 			name: 'Calendar',
-			connectorId: 'connector_calendar',
+			connectorId: 'connector_googlecalendar',
 		});
 
 		expect(service.get('calendar').calendar).toEqual(

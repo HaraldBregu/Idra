@@ -28,7 +28,7 @@ export const CONNECTOR_DEFAULTS = [
 	},
 	{
 		id: 'calendar',
-		connectorId: 'connector_calendar',
+		connectorId: 'connector_googlecalendar',
 		name: 'Calendar',
 		serverLabel: 'calendar',
 		serverUrl: 'https://www.googleapis.com/calendar/v3',
