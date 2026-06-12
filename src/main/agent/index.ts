@@ -5,7 +5,7 @@ export { Settings } from './core/settings';
 export type { Provider } from './core/settings'
 export { Tool } from './core/tool';
 export { AgentContext } from './loop/context';
-export type { ToolContextState } from './core/types';
+export type { ToolContextState } from './core/context';
 export { Workspace } from './core/workspace';
 
 export { AgentRuntime } from './loop/loop';
