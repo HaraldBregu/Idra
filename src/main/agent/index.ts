@@ -3,7 +3,7 @@ export { Session } from './core/session';
 export { Settings } from './core/settings';
 export type { Provider } from './core/settings'
 export { Tool, ToolContext } from './core/tool';
-export type { ToolContextState } from './core/tool';
+export type { ToolContextState } from './core/types';
 export { Workspace } from './core/workspace';
 
 export { AgentRuntime } from './loop/loop';
