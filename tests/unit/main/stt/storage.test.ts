@@ -25,7 +25,6 @@ describe('SttService storage', () => {
 			defaults: {
 				providerId: undefined,
 				modelId: undefined,
-				providers: {},
 			},
 		});
 	});
