@@ -62,6 +62,11 @@ export interface ProviderStoreApi {
 
 export interface SttApi {
 	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
+	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
+	appendRealtimeAudio: (sessionId: string, audio: string) => Promise<void>;
+	finishRealtime: (sessionId: string) => Promise<void>;
+	cancelRealtime: (sessionId: string) => Promise<void>;
+	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
 }
 
 import type { PublicProvider } from '../shared/providers';
@@ -78,6 +83,9 @@ import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type {
+	SttRealtimeEvent,
+	SttRealtimeSession,
+	SttRealtimeStartRequest,
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
 } from '../shared/stt/transcription';
@@ -137,7 +145,7 @@ export interface RealtimeTranscriptionStartRequest {
 export interface RealtimeTranscriptionSession {
 	id: string;
 	model: string;
-	sampleRate: 24000;
+	sampleRate: number;
 }
 
 export type RealtimeTranscriptionEvent =

@@ -43,7 +43,11 @@ import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channel
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { ConnectorRecord } from './index.d';
 import type { Provider } from '../shared/providers/types';
-import { normalizeSttTranscriptionRequest } from '../shared/stt/transcription';
+import {
+	normalizeSttRealtimeAudioChunk,
+	normalizeSttRealtimeStartRequest,
+	normalizeSttTranscriptionRequest,
+} from '../shared/stt/transcription';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
@@ -240,7 +244,7 @@ export const app: AppApi = {
 export const realtimeTranscription: RealtimeTranscriptionApi = {
 	start: (request) => {
 		return typedInvokeUnwrap<RealtimeTranscriptionSession>(
-			RealtimeTranscriptionChannels.start,
+			SttChannels.startRealtime,
 			normalizeRealtimeTranscriptionStartRequest(request)
 		);
 	},
@@ -251,22 +255,22 @@ export const realtimeTranscription: RealtimeTranscriptionApi = {
 		if (!isRealtimeTranscriptionAudioChunk(audio)) {
 			throw new Error('Invalid realtime transcription audio chunk.');
 		}
-		typedSend(RealtimeTranscriptionChannels.appendAudio, sessionId, audio);
+		void typedInvokeUnwrap(SttChannels.appendRealtimeAudio, sessionId, audio);
 	},
 	finish: (sessionId: string): Promise<void> => {
 		if (!isRealtimeTranscriptionSessionId(sessionId)) {
 			throw new Error('Invalid realtime transcription session id.');
 		}
-		return typedInvokeUnwrap(RealtimeTranscriptionChannels.finish, sessionId);
+		return typedInvokeUnwrap(SttChannels.finishRealtime, sessionId);
 	},
 	cancel: (sessionId: string): Promise<void> => {
 		if (!isRealtimeTranscriptionSessionId(sessionId)) {
 			throw new Error('Invalid realtime transcription session id.');
 		}
-		return typedInvokeUnwrap(RealtimeTranscriptionChannels.cancel, sessionId);
+		return typedInvokeUnwrap(SttChannels.cancelRealtime, sessionId);
 	},
 	onEvent: (callback): (() => void) => {
-		return typedOn(RealtimeTranscriptionChannels.event, (event) => {
+		return typedOn(SttChannels.realtimeEvent, (event) => {
 			callback(event as RealtimeTranscriptionEvent);
 		});
 	},
@@ -326,6 +330,37 @@ export const providerStore: ProviderStoreApi = {
 export const stt: SttApi = {
 	transcribe: (request) => {
 		return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
+	},
+	startRealtime: (request) => {
+		return typedInvokeUnwrap(
+			SttChannels.startRealtime,
+			normalizeSttRealtimeStartRequest(request)
+		);
+	},
+	appendRealtimeAudio: (sessionId, audio) => {
+		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+			throw new Error('Invalid speech-to-text realtime session id.');
+		}
+		return typedInvokeUnwrap(
+			SttChannels.appendRealtimeAudio,
+			sessionId,
+			normalizeSttRealtimeAudioChunk(audio)
+		);
+	},
+	finishRealtime: (sessionId) => {
+		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+			throw new Error('Invalid speech-to-text realtime session id.');
+		}
+		return typedInvokeUnwrap(SttChannels.finishRealtime, sessionId);
+	},
+	cancelRealtime: (sessionId) => {
+		if (!isRealtimeTranscriptionSessionId(sessionId)) {
+			throw new Error('Invalid speech-to-text realtime session id.');
+		}
+		return typedInvokeUnwrap(SttChannels.cancelRealtime, sessionId);
+	},
+	onRealtimeEvent: (callback) => {
+		return typedOn(SttChannels.realtimeEvent, callback);
 	},
 };
 
