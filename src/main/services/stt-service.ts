@@ -1,15 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
-import {
-	DEFAULT_PROVIDERS,
-	PROVIDER_API_CONFIGURATIONS,
-	type PublicProvider,
-} from '../../shared/providers';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
 import type { Provider as CatalogProvider } from '../../shared/providers/definitions';
+import type { Provider } from '../../shared/providers/types';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
 	SPEECH_TO_TEXT_MODELS_BY_PROVIDER,
+	SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES,
 	SPEECH_TO_TEXT_PROVIDER_IDS,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	getSpeechToTextModelApiTypes,
@@ -37,36 +35,22 @@ import { SttAdapterFactory } from '../stt';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../stt/errors';
 import { SttSettingsStore } from '../stt/settings';
 import type { SttActiveRealtimeSession, SttProviderSpec } from '../stt/types';
-import { ProviderService } from './provider-service';
 
 @Service()
 export class SttService {
-	@Inject(() => ProviderService)
-	private readonly providerStore!: ProviderService;
-
 	@Inject(() => SttSettingsStore)
 	private readonly settingsStore?: SttSettingsStore;
 
 	private readonly adapterFactory: SttAdapterFactory;
-	private readonly providerStoreOverride?: ProviderService;
 	private readonly settingsStoreOverride?: SttSettingsStore;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
 	constructor();
-	constructor(
-		adapterFactory: SttAdapterFactory,
-		providerStoreOverride?: ProviderService,
-		settingsStoreOverride?: SttSettingsStore
-	);
-	constructor(
-		adapterFactory: unknown = new SttAdapterFactory(),
-		providerStoreOverride?: ProviderService,
-		settingsStoreOverride?: SttSettingsStore
-	) {
+	constructor(adapterFactory: SttAdapterFactory, settingsStoreOverride?: SttSettingsStore);
+	constructor(adapterFactory: unknown = new SttAdapterFactory(), settingsStoreOverride?: SttSettingsStore) {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)
 			? adapterFactory
 			: new SttAdapterFactory();
-		this.providerStoreOverride = providerStoreOverride;
 		this.settingsStoreOverride = settingsStoreOverride;
 	}
 
@@ -111,6 +95,21 @@ export class SttService {
 		return true;
 	}
 
+	getProvider(providerId: string): Provider | undefined {
+		const normalizedProviderId = this.resolveProviderId(providerId);
+		return this.requireSettingsStore().getProvider(normalizedProviderId);
+	}
+
+	saveProvider(providerId: string, provider: Provider): Provider {
+		const normalizedProviderId = this.resolveProviderId(providerId);
+		return this.requireSettingsStore().setProvider(normalizedProviderId, provider);
+	}
+
+	isProviderConfigured(providerId: string): boolean {
+		const normalizedProviderId = this.resolveProviderId(providerId);
+		return this.requireSettingsStore().hasProvider(normalizedProviderId);
+	}
+
 	async transcribe(request: SttTranscriptionRequest): Promise<SttTranscriptionResult> {
 		const normalized = normalizeSttTranscriptionRequest(request);
 		const providerId = this.resolveProviderId(
@@ -118,7 +117,8 @@ export class SttService {
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ?? this.getConfiguredModelId(providerId),
+			normalized.modelId ??
+				this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_BATCH_API_TYPE),
 			SPEECH_TO_TEXT_BATCH_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
@@ -141,7 +141,8 @@ export class SttService {
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ?? this.getConfiguredModelId(providerId),
+			normalized.modelId ??
+				this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE),
 			SPEECH_TO_TEXT_STREAM_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
@@ -235,20 +236,11 @@ export class SttService {
 	}
 
 	private resolveProvider(providerId: SpeechToTextProviderId): SttProviderSpec {
-		const store = this.providerStoreOverride ?? this.providerStore;
-		const stored = store.get(providerId);
-		const defaults = defaultProvider(providerId);
-		const apiKey = stored?.apiKey.trim() || envApiKey(providerId);
-		if (!apiKey) {
-			throw new SttProviderAuthError(`${defaults?.name ?? providerId} API key not configured.`);
+		const provider = this.requireSettingsStore().getProviderSpec(providerId);
+		if (!provider.apiKey) {
+			throw new SttProviderAuthError(`${provider.name} API key not configured.`);
 		}
-
-		return {
-			id: providerId,
-			name: stored?.name || defaults?.name || providerId,
-			apiKey,
-			baseURL: stored?.baseUrl || defaults?.baseUrl,
-		};
+		return provider;
 	}
 
 	private resolveRealtimeSession(sessionId: string): SttActiveRealtimeSession {
@@ -268,11 +260,17 @@ export class SttService {
 		}
 	}
 
-	private getConfiguredModelId(providerId: SpeechToTextProviderId): string | undefined {
+	private getConfiguredModelId(
+		providerId: SpeechToTextProviderId,
+		apiType: typeof SPEECH_TO_TEXT_BATCH_API_TYPE | typeof SPEECH_TO_TEXT_STREAM_API_TYPE
+	): string | undefined {
 		const settings = this.getSettingsStore();
 		const configuredProviderId = this.getConfiguredProviderId();
 		if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
-		return settings?.getModelId();
+		const modelId = settings?.getModelId();
+		return modelId && supportsSpeechToTextModelApiType(providerId, modelId, apiType)
+			? modelId
+			: undefined;
 	}
 
 	private getSettingsStore(): SttSettingsStore | undefined {
@@ -312,19 +310,8 @@ function findSpeechToTextModel(
 	);
 }
 
-function envApiKey(providerId: string): string {
-	const config =
-		PROVIDER_API_CONFIGURATIONS[providerId as keyof typeof PROVIDER_API_CONFIGURATIONS];
-	for (const envVar of config?.recommendedEnvVars ?? []) {
-		const value = process.env[envVar]?.trim();
-		if (value) return value;
-	}
-	return '';
-}
-
-function realtimeSampleRate(providerId: string): number {
-	if (providerId === 'mistral') return 16_000;
-	return STT_DEFAULT_REALTIME_SAMPLE_RATE;
+function realtimeSampleRate(providerId: SpeechToTextProviderId): number {
+	return SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES[providerId] ?? STT_DEFAULT_REALTIME_SAMPLE_RATE;
 }
 
 function isSttAdapterFactory(value: unknown): value is SttAdapterFactory {
