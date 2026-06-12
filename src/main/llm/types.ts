@@ -102,31 +102,21 @@ export interface ProviderToolSpec {
 	schema: JSONSchema;
 }
 
-export type ProviderOpenAIMcpToolSpec = {
-	type: 'mcp';
+export type ProviderMcpApprovalPolicy = 'always' | 'never' | { never: { tool_names: string[] } };
+
+export interface ProviderMcpServerSpec {
+	type?: 'mcp';
 	server_label: string;
 	connector_id?: string;
 	server_url?: string;
 	authorization?: string;
-	require_approval?: 'always' | 'never' | { never: { tool_names: string[] } };
+	headers?: Record<string, string>;
+	require_approval?: ProviderMcpApprovalPolicy;
 	allowed_tools?: string[];
 	defer_loading?: boolean;
 	server_description?: string;
-};
-
-export type ProviderAnthropicMcpToolsetSpec = {
-	type: 'mcp_toolset';
-	mcp_server_name: string;
-	defer_loading?: boolean;
-	server: {
-		type: 'url';
-		name: string;
-		url: string;
-		authorization_token?: string;
-	};
-};
-
-export type ProviderBuiltInToolSpec = ProviderOpenAIMcpToolSpec | ProviderAnthropicMcpToolsetSpec;
+	enabled?: boolean;
+}
 
 export interface ProviderStreamRequest {
 	model: string;
@@ -136,7 +126,7 @@ export interface ProviderStreamRequest {
 	inputItems?: unknown[];
 	previousResponseId?: string;
 	tools: ProviderToolSpec[];
-	builtInTools?: ProviderBuiltInToolSpec[];
+	mcp?: ProviderMcpServerSpec[];
 	maxTokens: number;
 	signal?: AbortSignal;
 }
