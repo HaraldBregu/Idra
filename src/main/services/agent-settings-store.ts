@@ -4,7 +4,7 @@ import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { Settings, Provider } from '../agent';
 import type { Provider as StoredProvider } from '../../shared/providers/types';
-import { ProviderStoreService } from './provider-store';
+import { ProviderService } from './provider-service';
 
 type SettingsSchema = {
 	providerId: string | undefined;
@@ -20,8 +20,8 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 export class AgentSettingsStore extends Settings {
 	private readonly store: Store<SettingsSchema>;
 
-	@Inject(() => ProviderStoreService)
-	private readonly providerStore!: ProviderStoreService;
+	@Inject(() => ProviderService)
+	private readonly providerStore!: ProviderService;
 
 	constructor() {
 		super();

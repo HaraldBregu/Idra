@@ -37,30 +37,30 @@ import { SttAdapterFactory } from '../stt';
 import { SttProviderAuthError, SttProviderUnsupportedError } from '../stt/errors';
 import { SttSettingsStore } from '../stt/settings';
 import type { SttActiveRealtimeSession, SttProviderSpec } from '../stt/types';
-import { ProviderStoreService } from './provider-store';
+import { ProviderService } from './provider-service';
 
 @Service()
 export class SttService {
-	@Inject(() => ProviderStoreService)
-	private readonly providerStore!: ProviderStoreService;
+	@Inject(() => ProviderService)
+	private readonly providerStore!: ProviderService;
 
 	@Inject(() => SttSettingsStore)
 	private readonly settingsStore?: SttSettingsStore;
 
 	private readonly adapterFactory: SttAdapterFactory;
-	private readonly providerStoreOverride?: ProviderStoreService;
+	private readonly providerStoreOverride?: ProviderService;
 	private readonly settingsStoreOverride?: SttSettingsStore;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
 	constructor();
 	constructor(
 		adapterFactory: SttAdapterFactory,
-		providerStoreOverride?: ProviderStoreService,
+		providerStoreOverride?: ProviderService,
 		settingsStoreOverride?: SttSettingsStore
 	);
 	constructor(
 		adapterFactory: unknown = new SttAdapterFactory(),
-		providerStoreOverride?: ProviderStoreService,
+		providerStoreOverride?: ProviderService,
 		settingsStoreOverride?: SttSettingsStore
 	) {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)

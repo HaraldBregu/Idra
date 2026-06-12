@@ -13,8 +13,8 @@ export interface ProviderServiceOptions {
 	cwd?: string;
 }
 
-@Service({ factory: () => new ProviderStoreService() })
-export class ProviderStoreService {
+@Service({ factory: () => new ProviderService() })
+export class ProviderService {
 	private readonly store: ProvidersStore;
 
 	constructor(options: ProviderServiceOptions = {}) {
