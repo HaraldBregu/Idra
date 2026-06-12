@@ -43,7 +43,7 @@ describe('agent file tools', () => {
 		});
 	});
 
-	it('uses the tool context current directory for exec calls without workdir', async () => {
+	it('uses the tool context path for exec calls without workdir', async () => {
 		const context = new ToolContext({ path: workspacePath });
 		const tool = new ExecTool(workspacePath, context);
 		const nestedPath = path.join(workspacePath, 'nested');
