@@ -3,6 +3,10 @@ const storeConstructor = jest.fn(() => ({
 	set: jest.fn(),
 }));
 
+jest.mock('@mistralai/mistralai', () => ({
+	Mistral: jest.fn(() => ({ audio: { transcriptions: { complete: jest.fn() } } })),
+}));
+
 jest.mock('electron-store', () => ({
 	__esModule: true,
 	default: storeConstructor,
