@@ -13,11 +13,14 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
+import { AgentMcp } from '../core/mcp';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 import { AgentContext } from './context';
+import type { Settings as ConnectorSettings } from '../../connectors';
+import type { ProviderMcpServerSpec } from '../../llm/types';
 
 interface ModelTurn {
 	content: string;
@@ -37,14 +40,17 @@ interface ToolOutcome {
 
 export class AgentRuntime {
 	private readonly model: AgentModel;
+	private readonly mcp: AgentMcp;
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
-		private readonly session: Session
+		private readonly session: Session,
+		connectors?: ConnectorSettings
 	) {
 		this.model = new AgentModel();
+		this.mcp = new AgentMcp(connectors);
 		this.systemPrompt = new SystemPrompt();
 	}
 
@@ -80,6 +86,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
+		const mcp = this.mcp.list();
 
 		const system = await this.systemPrompt.build(workspace);
 
@@ -98,6 +105,7 @@ export class AgentRuntime {
 				system,
 				session.messages,
 				tools,
+				mcp,
 				signal
 			);
 
@@ -135,6 +143,7 @@ export class AgentRuntime {
 		system: string | undefined,
 		messages: Message[],
 		tools: Tool[],
+		mcp: ProviderMcpServerSpec[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
@@ -151,6 +160,7 @@ export class AgentRuntime {
 					system,
 					messages,
 					tools,
+					mcp,
 					maxTokens: input.maxTokens ?? 4096,
 					signal,
 				})) {
