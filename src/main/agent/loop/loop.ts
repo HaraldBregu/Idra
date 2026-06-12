@@ -81,9 +81,7 @@ export class AgentRuntime {
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
 
-		const system = await this.systemPrompt.build({
-			workspace,
-		});
+		const system = await this.systemPrompt.build(workspace);
 
 		yield {
 			type: 'run_started',

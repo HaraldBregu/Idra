@@ -1,14 +1,10 @@
 import type { Workspace } from '../core/workspace';
 
-export interface SystemPromptInput {
-	workspace: Workspace;
-}
-
 export class SystemPrompt {
 
 	constructor() { }
 
-	async build(input: SystemPromptInput): Promise<string> {
+	async build(workspace: Workspace): Promise<string> {
 		let prompt = 'You are a personal AI assistant.';
 
 		prompt += '\n\n## Voice';
@@ -37,16 +33,16 @@ export class SystemPrompt {
 		prompt += '\n- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.';
 
 		let workspaceContext = '';
-		const agentText = await input.workspace.getAgentText();
-		const heartbeatText = await input.workspace.getHeartbeatText();
-		const identityText = await input.workspace.getIdentityText();
-		const memoryText = await input.workspace.getMemoryText();
-		const soulText = await input.workspace.getSoulText();
-		const toolsText = await input.workspace.getToolsText();
-		const userText = await input.workspace.getUserText();
+		const agentText = await workspace.getAgentText();
+		const heartbeatText = await workspace.getHeartbeatText();
+		const identityText = await workspace.getIdentityText();
+		const memoryText = await workspace.getMemoryText();
+		const soulText = await workspace.getSoulText();
+		const toolsText = await workspace.getToolsText();
+		const userText = await workspace.getUserText();
 		const bootstrapText = hasUserProfile(userText)
 			? ''
-			: await input.workspace.getBootstrapText();
+			: await workspace.getBootstrapText();
 		if (agentText.trim())
 			workspaceContext += `\n\n${agentText.trim()}`;
 		if (bootstrapText.trim())
