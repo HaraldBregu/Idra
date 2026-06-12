@@ -1,8 +1,4 @@
-import type {
-	ConnectorData,
-	ConnectorDefault,
-	ConnectorId,
-} from '../../../shared/connector';
+import type { ConnectorData, ConnectorDefault, ConnectorId } from '../../../shared/connector';
 
 export abstract class Connector {
 	abstract readonly id: ConnectorId;

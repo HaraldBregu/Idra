@@ -1,8 +1,4 @@
-import type {
-	ConnectorData,
-	ConnectorDefault,
-	ConnectorId,
-} from '../../../shared/connector';
+import type { ConnectorData, ConnectorDefault, ConnectorId } from '../../../shared/connector';
 import { Connector } from '../core/connector';
 
 export class SimpleConnector extends Connector {
