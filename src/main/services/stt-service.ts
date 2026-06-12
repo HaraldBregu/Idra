@@ -52,12 +52,20 @@ export class SttService {
 	private readonly settingsStoreOverride?: SttSettingsStore;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
+	constructor();
 	constructor(
-		adapterFactory = new SttAdapterFactory(),
+		adapterFactory: SttAdapterFactory,
+		providerStoreOverride?: ProviderStoreService,
+		settingsStoreOverride?: SttSettingsStore
+	);
+	constructor(
+		adapterFactory: unknown = new SttAdapterFactory(),
 		providerStoreOverride?: ProviderStoreService,
 		settingsStoreOverride?: SttSettingsStore
 	) {
-		this.adapterFactory = adapterFactory;
+		this.adapterFactory = isSttAdapterFactory(adapterFactory)
+			? adapterFactory
+			: new SttAdapterFactory();
 		this.providerStoreOverride = providerStoreOverride;
 		this.settingsStoreOverride = settingsStoreOverride;
 	}
@@ -317,4 +325,12 @@ function envApiKey(providerId: string): string {
 function realtimeSampleRate(providerId: string): number {
 	if (providerId === 'mistral') return 16_000;
 	return STT_DEFAULT_REALTIME_SAMPLE_RATE;
+}
+
+function isSttAdapterFactory(value: unknown): value is SttAdapterFactory {
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		typeof (value as { build?: unknown }).build === 'function'
+	);
 }
