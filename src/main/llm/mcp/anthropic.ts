@@ -14,7 +14,9 @@ export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): An
 		type: 'url',
 		name: entry.serverLabel,
 		url: entry.serverUrl ?? '',
-		...(entry.authorization ? { authorization_token: entry.authorization } : {}),
+		...(authorizationToken(entry.authorization)
+			? { authorization_token: authorizationToken(entry.authorization) }
+			: {}),
 	}));
 	const tools: BetaMessages.BetaMCPToolset[] = entries.map((entry) => {
 		const defaultConfig: BetaMessages.BetaMCPToolDefaultConfig = {};
@@ -38,4 +40,10 @@ export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): An
 	});
 
 	return { tools, servers };
+}
+
+function authorizationToken(value: string | undefined): string | undefined {
+	const token = value?.trim();
+	if (!token) return undefined;
+	return token.replace(/^Bearer\s+/i, '');
 }
