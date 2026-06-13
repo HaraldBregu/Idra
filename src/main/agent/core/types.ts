@@ -73,6 +73,7 @@ export interface SessionTurn {
 	model: string;
 	stopReason?: string;
 	toolCalls: ToolCall[];
+	providerItems?: MessageContentBlock[];
 	usage?: {
 		inputTokens?: number;
 		outputTokens?: number;
