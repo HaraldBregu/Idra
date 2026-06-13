@@ -44,6 +44,9 @@ function toAssistantContent(content: Message['content']): AgentContentBlock[] {
 		.map((block): AgentContentBlock | undefined => {
 			if (block.type === 'text' && typeof block.text === 'string')
 				return { type: 'text', text: block.text };
+			if (block.type === 'provider_item' && block.provider === 'openai') {
+				return { type: 'provider_item', provider: 'openai', item: block.item };
+			}
 			return undefined;
 		})
 		.filter((block): block is AgentContentBlock => block !== undefined);
