@@ -1,6 +1,6 @@
 export type McpApprovalPolicy = 'always' | 'never' | { never: { toolNames: string[] } };
 
-export interface McpTool {
+export interface Mcp {
 	serverLabel: string;
 	connectorId?: string;
 	authorization?: string;
@@ -10,19 +10,6 @@ export interface McpTool {
 	deferLoading?: boolean;
 	serverDescription?: string;
 	enabled?: boolean;
-}
-
-export interface McpServer {
-	name: string;
-	url: string;
-	authorizationToken?: string;
-	allowedTools?: string[];
-	enabled?: boolean;
-}
-
-export interface Mcp {
-	tools: McpTool[];
-	servers: McpServer[];
 }
 
 export abstract class McpData {
