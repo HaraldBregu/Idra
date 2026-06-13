@@ -1,23 +1,23 @@
 import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
+import { Connector } from '../../../../src/main/connectors';
 
-function createService(): ConnectorSettingsService {
-	return new ConnectorSettingsService({
+function createService(): Connector {
+	return new Connector({
 		cwd: mkdtempSync(path.join(tmpdir(), 'friday-connectors-')),
 	});
 }
 
-function createServiceWithLocation(): { service: ConnectorSettingsService; cwd: string } {
+function createServiceWithLocation(): { service: Connector; cwd: string } {
 	const cwd = mkdtempSync(path.join(tmpdir(), 'friday-connectors-'));
 	return {
-		service: new ConnectorSettingsService({ cwd }),
+		service: new Connector({ cwd }),
 		cwd,
 	};
 }
 
-describe('ConnectorSettingsService', () => {
+describe('Connector', () => {
 	it('starts with no configured connectors', () => {
 		const service = createService();
 

@@ -7,7 +7,7 @@ import { AgentRuntime } from '../../../../src/main/agent/loop/loop';
 import { Settings } from '../../../../src/main/agent/core/settings';
 import { Workspace } from '../../../../src/main/agent/core/workspace';
 import { AgentSession } from '../../../../src/main/services/agent-session';
-import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
+import { Connector } from '../../../../src/main/connectors';
 import { LlmService } from '../../../../src/main/llm';
 import type {
 	ProviderAdapter,
@@ -118,7 +118,7 @@ describe('AgentRuntime MCP connectors', () => {
 			stream,
 		} as ProviderAdapter);
 
-		const connectors = new ConnectorSettingsService({ cwd });
+		const connectors = new Connector({ cwd });
 		connectors.upsert({
 			id: 'gmail',
 			name: 'Gmail',
@@ -131,7 +131,7 @@ describe('AgentRuntime MCP connectors', () => {
 			connectorId: 'connector_calendar',
 			enabled: false,
 		});
-		Container.of('main').set(ConnectorSettingsService, connectors);
+		Container.of('main').set(Connector, connectors);
 
 		const runtime = new AgentRuntime(
 			new TestWorkspace(cwd),
@@ -176,14 +176,14 @@ describe('AgentRuntime MCP connectors', () => {
 			stream,
 		} as ProviderAdapter);
 
-		const connectors = new ConnectorSettingsService({ cwd });
+		const connectors = new Connector({ cwd });
 		connectors.upsert({
 			id: 'calendar',
 			name: 'Calendar',
 			connectorId: 'connector_googlecalendar',
 			authorization: ' token ',
 		});
-		Container.of('main').set(ConnectorSettingsService, connectors);
+		Container.of('main').set(Connector, connectors);
 
 		const runtime = new AgentRuntime(
 			new TestWorkspace(cwd),

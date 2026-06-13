@@ -13,5 +13,5 @@ export interface Mcp {
 }
 
 export abstract class McpData {
-	abstract list(): Mcp[];
+	abstract mcp(): Mcp[];
 }

@@ -1,3 +1,2 @@
-export { McpData } from './mcp';
+export { Connector } from './connector';
 export { Settings } from './core/settings';
-export { SimpleConnector, SIMPLE_CONNECTORS } from './simple';

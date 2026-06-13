@@ -8,24 +8,24 @@ import type {
 	ConnectorOAuthDefaults,
 	ConnectorSettingsRecord,
 } from '../../shared/connector';
-import { ConnectorSettingsService } from '../services/connector-settings-service';
+import { Connector } from '../connectors';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const connectorSettingsService = container.get(ConnectorSettingsService);
+		const connector = container.get(Connector);
 
-		registerQuery(ConnectorsChannels.list, () => connectorSettingsService.list());
-		registerQuery(ConnectorsChannels.get, (id: string) => connectorSettingsService.get(id));
+		registerQuery(ConnectorsChannels.list, () => connector.list());
+		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
 		registerCommand(ConnectorsChannels.save, (input: ConnectorSettingsRecord) =>
-			connectorSettingsService.save(input)
+			connector.save(input)
 		);
 		registerCommand(ConnectorsChannels.upsert, (input: ConnectorInput) =>
-			connectorSettingsService.upsert(input)
+			connector.upsert(input)
 		);
 		registerCommand(ConnectorsChannels.authorizeOAuth, (input: ConnectorOAuthDefaults) =>
-			connectorSettingsService.authorizeOAuth(input)
+			connector.authorizeOAuth(input)
 		);
 	}
 }

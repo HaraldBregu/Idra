@@ -8,10 +8,10 @@ import { CronService, createCronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
+import { Connector } from './connectors';
 import { LlmService } from './llm';
 import { AgentService } from './services/agent-service';
 import { AgentSettingsStore } from './services/agent-settings-store';
-import { ConnectorSettingsService } from './services/connector-settings-service';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
 
@@ -39,7 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(CronService, cron);
 
 	container.get(ProviderService);
-	container.get(ConnectorSettingsService);
+	container.get(Connector);
 	container.get(LlmService);
 	container.get(SttService);
 

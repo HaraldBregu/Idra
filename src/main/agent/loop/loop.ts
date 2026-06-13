@@ -15,7 +15,8 @@ import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import type { Mcp } from '../core/mcp';
-import { McpData } from '../../connectors';
+import type { McpData } from '../core/mcp';
+import { Connector } from '../../connectors';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
@@ -49,7 +50,7 @@ export class AgentRuntime {
 		private readonly session: Session
 	) {
 		this.model = new AgentModel();
-		this.mcpData = Container.of('main').get(McpData);
+		this.mcpData = Container.of('main').get(Connector);
 		this.systemPrompt = new SystemPrompt();
 	}
 
@@ -85,7 +86,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
-		const mcp = this.mcpData.list();
+		const mcp = this.mcpData.mcp();
 
 		const system = await this.systemPrompt.build(workspace);
 
