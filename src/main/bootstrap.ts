@@ -9,6 +9,7 @@ import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
 import { LlmService } from './llm';
+import { AgentMcpService } from './services/agent-mcp-service';
 import { AgentService } from './services/agent-service';
 import { AgentSettingsStore } from './services/agent-settings-store';
 import { ConnectorSettingsService } from './services/connector-settings-service';
@@ -40,12 +41,14 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.get(ProviderService);
 	const connectorSettingsService = container.get(ConnectorSettingsService);
+	const agentMcpService = new AgentMcpService(connectorSettingsService);
+	container.set(AgentMcpService, agentMcpService);
 	container.get(LlmService);
 	container.get(SttService);
 
 	const agentService = new AgentService(
 		container.get(AgentSettingsStore),
-		connectorSettingsService
+		agentMcpService
 	);
 	container.set(AgentService, agentService);
 
