@@ -1,5 +1,6 @@
 import type {
 	Message,
+	MessageContentBlock,
 	SessionResult,
 	ToolCall,
 	SessionTurn,
@@ -21,7 +22,11 @@ export abstract class Session {
 	abstract get isExhausted(): boolean;
 
 	abstract recordTurn(turn: SessionTurn): void;
-	abstract addAssistantMessage(content: string, toolCalls: ToolCall[]): void;
+	abstract addAssistantMessage(
+		content: string,
+		toolCalls: ToolCall[],
+		providerItems?: MessageContentBlock[]
+	): void;
 	abstract addToolResults(
 		toolCalls: ToolCall[],
 		results: Message[]
