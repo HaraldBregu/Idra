@@ -4,7 +4,6 @@ export interface Mcp {
 	serverLabel: string;
 	connectorId?: string;
 	authorization?: string;
-	headers?: Record<string, string>;
 	requireApproval?: McpApprovalPolicy;
 	allowedTools?: string[];
 	deferLoading?: boolean;
