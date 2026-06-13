@@ -1,5 +1,5 @@
 import type { Messages as BetaMessages } from '@anthropic-ai/sdk/resources/beta/messages/messages';
-import type { ProviderMcpServerSpec } from '../types';
+import type { ProviderMcpServerSpec, ProviderMcpToolSpec } from '../types';
 
 export interface AnthropicMcpConfig {
 	tools: BetaMessages.BetaMCPToolset[];
@@ -7,34 +7,39 @@ export interface AnthropicMcpConfig {
 }
 
 export function adaptAnthropicMcpServers(
-	mcp: ProviderMcpServerSpec[] | undefined
+	mcpTools: ProviderMcpToolSpec[] | undefined,
+	mcpServers: ProviderMcpServerSpec[] | undefined
 ): AnthropicMcpConfig {
-	const tools: BetaMessages.BetaMCPToolset[] = [];
-	const servers: BetaMessages.BetaRequestMCPServerURLDefinition[] = [];
+	const toolsByServerLabel = new Map(
+		(mcpTools ?? [])
+			.filter((tool) => tool.enabled !== false)
+			.map((tool) => [tool.server_label, tool])
+	);
 
-	for (const server of mcp ?? []) {
-		if (server.enabled === false) continue;
-		if (!server.server_url) {
-			throw new Error(`MCP server '${server.server_label}' requires server_url for Anthropic.`);
-		}
-
-		servers.push({
+	const servers = (mcpServers ?? [])
+		.filter((server) => server.enabled !== false)
+		.map((server): BetaMessages.BetaRequestMCPServerURLDefinition => ({
 			type: 'url',
-			name: server.server_label,
-			url: server.server_url,
-			...(server.authorization ? { authorization_token: server.authorization } : {}),
+			name: server.name,
+			url: server.url,
+			...(server.authorization_token
+				? { authorization_token: server.authorization_token }
+				: {}),
 			...(server.allowed_tools
 				? { tool_configuration: { allowed_tools: server.allowed_tools } }
 				: {}),
-		});
-		tools.push({
+		}));
+	const tools = servers.map((server): BetaMessages.BetaMCPToolset => {
+		const tool = toolsByServerLabel.get(server.name);
+
+		return {
 			type: 'mcp_toolset',
-			mcp_server_name: server.server_label,
-			...(server.defer_loading !== undefined
-				? { default_config: { defer_loading: server.defer_loading } }
+			mcp_server_name: server.name,
+			...(tool?.defer_loading !== undefined
+				? { default_config: { defer_loading: tool.defer_loading } }
 				: {}),
-		});
-	}
+		};
+	});
 
 	return { tools, servers };
 }
