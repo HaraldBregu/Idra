@@ -48,6 +48,29 @@ describe('Connector', () => {
 		expect(result.gmail?.updated_at).toBeDefined();
 	});
 
+	it('stores connector approval policy updates', () => {
+		const service = createService();
+
+		service.upsert({
+			id: 'gmail',
+			name: 'Gmail',
+			authorization: 'token',
+		});
+		const result = service.upsert({
+			id: 'gmail',
+			name: 'Gmail',
+			requireApproval: 'never',
+		});
+
+		expect(result.gmail?.require_approval).toBe('never');
+		expect(service.mcp()).toEqual([
+			expect.objectContaining({
+				serverLabel: 'gmail',
+				requireApproval: 'never',
+			}),
+		]);
+	});
+
 	it('writes settings to setting.json in the connector settings directory', () => {
 		const { service, cwd } = createServiceWithLocation();
 
