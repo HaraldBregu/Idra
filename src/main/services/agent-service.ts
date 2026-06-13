@@ -5,6 +5,7 @@ import { AgentSettingsStore } from './agent-settings-store';
 import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
+import { AgentModel } from '../llm';
 import { RuntimeEvent } from '../agent';
 import type { McpData } from '../agent/core/mcp';
 import type { Message } from '../agent/core/types';
@@ -68,7 +69,8 @@ export class AgentService {
 				this.agentWorkspace,
 				this.agentSettingsStore,
 				session,
-				this.mcpData
+				this.mcpData,
+				new AgentModel()
 			);
 			const input = {
 				...sessionInput,

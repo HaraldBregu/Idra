@@ -1,4 +1,4 @@
-import { AgentModel } from './model';
+import type { AgentModel } from '../../llm';
 import type {
 	Provider,
 	RuntimeEvent,
@@ -38,16 +38,15 @@ interface ToolOutcome {
 }
 
 export class AgentRuntime {
-	private readonly model: AgentModel;
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly session: Session,
-		private readonly mcpData: McpData
+		private readonly mcpData: McpData,
+		private readonly model: AgentModel
 	) {
-		this.model = new AgentModel();
 		this.systemPrompt = new SystemPrompt();
 	}
 

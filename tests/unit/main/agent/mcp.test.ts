@@ -7,7 +7,7 @@ import { Settings } from '../../../../src/main/agent/core/settings';
 import { Workspace } from '../../../../src/main/agent/core/workspace';
 import { AgentSession } from '../../../../src/main/services/agent-session';
 import { Connector } from '../../../../src/main/connectors';
-import { LlmService } from '../../../../src/main/llm';
+import { AgentModel, LlmService } from '../../../../src/main/llm';
 import type {
 	ProviderAdapter,
 	ProviderEvent,
@@ -131,7 +131,8 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail' }),
-			connectors
+			connectors,
+			new AgentModel()
 		);
 
 		const events: string[] = [];
@@ -175,7 +176,8 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail', effort: 'high' }),
-			new Connector({ cwd })
+			new Connector({ cwd }),
+			new AgentModel()
 		);
 
 		const events: string[] = [];
@@ -219,7 +221,8 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings('anthropic'),
 			new AgentSession({ task: 'chat', message: 'check calendar' }),
-			connectors
+			connectors,
+			new AgentModel()
 		);
 
 		const events: string[] = [];
