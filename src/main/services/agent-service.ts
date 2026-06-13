@@ -4,7 +4,6 @@ import { app } from 'electron';
 import { AgentSettingsStore } from './agent-settings-store';
 import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
-import { ConnectorSettingsService } from './connector-settings-service';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
 import type { Message } from '../agent/core/types';
