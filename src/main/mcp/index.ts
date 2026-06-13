@@ -1,1 +1,1 @@
-export { ConnectorMcpData } from './connector';
+export { McpData } from './mcp';

@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { McpData } from '../agent/core/mcp';
+import { McpData as CoreMcpData } from '../agent/core/mcp';
 import { ConnectorSettingsService } from '../services/connector-settings-service';
 import type { Mcp } from '../agent/core/mcp';
 import type { ConnectorId } from '../../shared/connector';
@@ -10,7 +10,7 @@ const OPENAI_CONNECTOR_IDS = {
 } as const satisfies Record<ConnectorId, string>;
 
 @Service()
-export class ConnectorMcpData extends McpData {
+export class McpData extends CoreMcpData {
 	constructor(private readonly connectors: ConnectorSettingsService) {
 		super();
 	}
