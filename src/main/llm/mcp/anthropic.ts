@@ -8,7 +8,7 @@ export interface AnthropicMcpConfig {
 
 export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): AnthropicMcpConfig {
 	const entries = (mcp ?? []).filter(
-		(entry) => entry.enabled !== false && !entry.connectorId && entry.serverUrl
+		(entry) => entry.enabled !== false && entry.serverUrl
 	);
 	const servers = entries.map((entry): BetaMessages.BetaRequestMCPServerURLDefinition => ({
 		type: 'url',
