@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
-import { AgentMcp } from '../agent/core/mcp';
+import { Mcp } from '../agent/core/mcp';
 import { ConnectorSettingsService } from './connector-settings-service';
-import type { AgentMcpConfig } from '../agent/core/mcp';
+import type { McpConfig } from '../agent/core/mcp';
 import type { ConnectorId } from '../../shared/connector';
 
 const OPENAI_CONNECTOR_IDS = {
@@ -10,14 +10,14 @@ const OPENAI_CONNECTOR_IDS = {
 } as const satisfies Record<ConnectorId, string>;
 
 @Service()
-export class AgentMcpService extends AgentMcp {
+export class AgentMcpService extends Mcp {
 	constructor(private readonly connectors: ConnectorSettingsService) {
 		super();
 	}
 
-	list(): AgentMcpConfig {
-		const tools: AgentMcpConfig['tools'] = [];
-		const servers: AgentMcpConfig['servers'] = [];
+	list(): McpConfig {
+		const tools: McpConfig['tools'] = [];
+		const servers: McpConfig['servers'] = [];
 
 		for (const [id, connector] of Object.entries(this.connectors.list())) {
 			if (connector.enabled === false) continue;

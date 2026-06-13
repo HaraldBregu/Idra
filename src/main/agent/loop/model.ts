@@ -8,7 +8,7 @@ import type {
 } from '../../llm/types';
 import { Model } from '../core/model';
 import type { ModelEvent, ModelRequest, ModelResponse } from '../core/model';
-import type { AgentMcpApprovalPolicy } from '../core/mcp';
+import type { McpApprovalPolicy } from '../core/mcp';
 import type { Message } from '../core/types';
 
 export class AgentModel extends Model {
@@ -131,7 +131,7 @@ function toProviderMcpServers(mcp: ModelRequest['mcp']): ProviderMcpServerSpec[]
 	}));
 }
 
-function toProviderMcpApproval(policy: AgentMcpApprovalPolicy): ProviderMcpApprovalPolicy {
+function toProviderMcpApproval(policy: McpApprovalPolicy): ProviderMcpApprovalPolicy {
 	if (policy === 'always' || policy === 'never') return policy;
 	return { never: { tool_names: policy.never.toolNames } };
 }

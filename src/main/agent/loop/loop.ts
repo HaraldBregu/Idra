@@ -13,13 +13,13 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import type { AgentMcp } from '../core/mcp';
+import type { Mcp } from '../core/mcp';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 import { AgentContext } from './context';
-import type { AgentMcpConfig } from '../core/mcp';
+import type { McpConfig } from '../core/mcp';
 
 interface ModelTurn {
 	content: string;
@@ -39,14 +39,14 @@ interface ToolOutcome {
 
 export class AgentRuntime {
 	private readonly model: AgentModel;
-	private readonly mcp: AgentMcp;
+	private readonly mcp: Mcp;
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly session: Session,
-		mcp: AgentMcp
+		mcp: Mcp
 	) {
 		this.model = new AgentModel();
 		this.mcp = mcp;
@@ -142,7 +142,7 @@ export class AgentRuntime {
 		system: string | undefined,
 		messages: Message[],
 		tools: Tool[],
-		mcp: AgentMcpConfig,
+		mcp: McpConfig,
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {

@@ -6,7 +6,7 @@ import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
-import type { AgentMcp } from '../agent/core/mcp';
+import type { Mcp } from '../agent/core/mcp';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -27,13 +27,13 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
-	private readonly mcp: AgentMcp;
+	private readonly mcp: Mcp;
 	private readonly location: string;
 	private readonly lastMessagesLimit = 50;
 
 	constructor(
 		agentSettingsStore: AgentSettingsStore,
-		mcp: AgentMcp,
+		mcp: Mcp,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
