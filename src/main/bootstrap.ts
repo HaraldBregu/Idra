@@ -39,14 +39,11 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(CronService, cron);
 
 	container.get(ProviderService);
-	const connectorSettingsService = container.get(ConnectorSettingsService);
+	container.get(ConnectorSettingsService);
 	container.get(LlmService);
 	container.get(SttService);
 
-	const agentService = new AgentService(
-		container.get(AgentSettingsStore),
-		connectorSettingsService
-	);
+	const agentService = new AgentService(container.get(AgentSettingsStore));
 	container.set(AgentService, agentService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });

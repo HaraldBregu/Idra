@@ -1,3 +1,4 @@
+import { Container } from 'typedi';
 import { AgentModel } from './model';
 import type {
 	Provider,
@@ -15,7 +16,6 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import type { Mcp } from '../core/mcp';
 import { McpData } from '../../mcp';
-import type { ConnectorSettingsService } from '../../services/connector-settings-service';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
@@ -46,11 +46,10 @@ export class AgentRuntime {
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
-		private readonly session: Session,
-		connectors: ConnectorSettingsService
+		private readonly session: Session
 	) {
 		this.model = new AgentModel();
-		this.mcpData = new McpData(connectors);
+		this.mcpData = Container.of('main').get(McpData);
 		this.systemPrompt = new SystemPrompt();
 	}
 

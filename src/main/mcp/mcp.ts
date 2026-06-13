@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { McpData as CoreMcpData } from '../agent/core/mcp';
 import { ConnectorSettingsService } from '../services/connector-settings-service';
 import type { Mcp } from '../agent/core/mcp';
@@ -11,9 +11,8 @@ const OPENAI_CONNECTOR_IDS = {
 
 @Service()
 export class McpData extends CoreMcpData {
-	constructor(private readonly connectors: ConnectorSettingsService) {
-		super();
-	}
+	@Inject(() => ConnectorSettingsService)
+	private readonly connectors!: ConnectorSettingsService;
 
 	list(): Mcp[] {
 		const mcp: Mcp[] = [];
