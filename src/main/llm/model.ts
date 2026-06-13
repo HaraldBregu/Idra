@@ -128,6 +128,7 @@ export class AgentModel extends Model implements ProviderAdapter {
 			yield* this.streamAgent(request);
 			return;
 		}
+
 		yield* this.streamProvider(request);
 	}
 
@@ -229,6 +230,9 @@ export class AgentModel extends Model implements ProviderAdapter {
 			...functionTools,
 			...adaptOpenAIMcpTools(req.mcp),
 		];
+
+				console.log("stream tools: ", tools);
+
 
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
