@@ -1,13 +1,10 @@
 import { LlmService } from '../../llm';
 import type {
 	AgentContentBlock,
-	ProviderMcpApprovalPolicy,
-	ProviderMcpToolSpec,
 	TranscriptEntry,
 } from '../../llm/types';
 import { Model } from '../core/model';
 import type { ModelEvent, ModelRequest, ModelResponse } from '../core/model';
-import type { McpApprovalPolicy } from '../core/mcp';
 import type { Message } from '../core/types';
 
 export class AgentModel extends Model {
@@ -71,7 +68,7 @@ export class AgentModel extends Model {
 				description: tool.description ?? '',
 				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
 			})),
-			mcpTools: toProviderMcpTools(request.mcp),
+			mcp: request.mcp,
 			maxTokens: request.maxTokens,
 			signal: request.signal,
 		})) {
@@ -101,27 +98,6 @@ export class AgentModel extends Model {
 			}
 		}
 	}
-}
-
-function toProviderMcpTools(mcp: ModelRequest['mcp']): ProviderMcpToolSpec[] | undefined {
-	return mcp?.map((entry) => ({
-		server_label: entry.serverLabel,
-		...(entry.connectorId ? { connector_id: entry.connectorId } : {}),
-		...(entry.authorization ? { authorization: entry.authorization } : {}),
-		...(entry.headers ? { headers: entry.headers } : {}),
-		...(entry.requireApproval
-			? { require_approval: toProviderMcpApproval(entry.requireApproval) }
-			: {}),
-		...(entry.allowedTools ? { allowed_tools: entry.allowedTools } : {}),
-		...(entry.deferLoading !== undefined ? { defer_loading: entry.deferLoading } : {}),
-		...(entry.serverDescription ? { server_description: entry.serverDescription } : {}),
-		...(entry.enabled !== undefined ? { enabled: entry.enabled } : {}),
-	}));
-}
-
-function toProviderMcpApproval(policy: McpApprovalPolicy): ProviderMcpApprovalPolicy {
-	if (policy === 'always' || policy === 'never') return policy;
-	return { never: { tool_names: policy.never.toolNames } };
 }
 
 function toTranscriptEntry(message: Message): TranscriptEntry {
