@@ -1,9 +1,8 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import type OpenAI from 'openai';
+import { LlmService } from '../../../../src/main/llm/service';
 import { adaptAnthropicMcpServers } from '../../../../src/main/llm/mcp/anthropic';
 import { adaptOpenAIMcpTools } from '../../../../src/main/llm/mcp/openai';
-import { AnthropicAdapter } from '../../../../src/main/llm/providers/anthropic';
-import { OpenAIAdapter } from '../../../../src/main/llm/providers/openai';
 import type { ProviderStreamRequest } from '../../../../src/main/llm/types';
 
 describe('MCP provider adapters', () => {
@@ -86,13 +85,13 @@ describe('MCP provider adapters', () => {
 		}
 
 		const create = jest.fn().mockResolvedValue(stream());
-		const adapter = new OpenAIAdapter({
-			apiKey: 'key',
-			clientFactory: () => ({ responses: { create } }) as unknown as OpenAI,
+		const service = new LlmService({
+			provider: { id: 'openai', apiKey: 'key' },
+			openAIClientFactory: () => ({ responses: { create } }) as unknown as OpenAI,
 		});
 
 		const events: string[] = [];
-		for await (const event of adapter.stream(request())) {
+		for await (const event of service.stream(request())) {
 			events.push(event.type);
 		}
 
@@ -118,9 +117,9 @@ describe('MCP provider adapters', () => {
 
 		const betaStream = jest.fn().mockReturnValue(stream());
 		const messagesStream = jest.fn().mockReturnValue(stream());
-		const adapter = new AnthropicAdapter({
-			apiKey: 'key',
-			clientFactory: () =>
+		const service = new LlmService({
+			provider: { id: 'anthropic', apiKey: 'key' },
+			anthropicClientFactory: () =>
 				({
 					beta: { messages: { stream: betaStream } },
 					messages: { stream: messagesStream },
@@ -128,7 +127,7 @@ describe('MCP provider adapters', () => {
 		});
 
 		const events: string[] = [];
-		for await (const event of adapter.stream(anthropicRequest())) {
+		for await (const event of service.stream(anthropicRequest())) {
 			events.push(event.type);
 		}
 

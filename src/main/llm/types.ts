@@ -9,9 +9,9 @@ export interface ProviderSpec {
 /**
  * Provider-neutral abstraction over chat-style LLM APIs.
  *
- * Adapters translate the unified {@link TranscriptEntry} model and tool specs
- * into each vendor's native shape, and emit unified {@link ProviderEvent}s
- * over an async iterable.
+ * The LLM service translates the unified {@link TranscriptEntry} model and tool
+ * specs into each vendor's native shape, and emits unified
+ * {@link ProviderEvent}s over an async iterable.
  */
 
 export interface Usage {

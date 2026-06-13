@@ -1,16 +1,13 @@
 import { LlmService } from '../../../../src/main/llm/service';
-import { AnthropicAdapter } from '../../../../src/main/llm/providers/anthropic';
-import { OpenAIChatAdapter } from '../../../../src/main/llm/providers/generic';
-import { OpenAIAdapter } from '../../../../src/main/llm/providers/openai';
 
 describe('LlmService', () => {
 	const apiKey = 'test-api-key';
 
-	it('routes supported providers to their adapters', () => {
+	it('uses one provider handler for supported providers', () => {
 		const service = new LlmService();
 
-		expect(service.build({ id: 'openai', apiKey })).toBeInstanceOf(OpenAIAdapter);
-		expect(service.build({ id: 'anthropic', apiKey })).toBeInstanceOf(AnthropicAdapter);
-		expect(service.build({ id: 'deepseek', apiKey })).toBeInstanceOf(OpenAIChatAdapter);
+		expect(service.build({ id: 'openai', apiKey })).toBeInstanceOf(LlmService);
+		expect(service.build({ id: 'anthropic', apiKey })).toBeInstanceOf(LlmService);
+		expect(service.build({ id: 'deepseek', apiKey })).toBeInstanceOf(LlmService);
 	});
 });
