@@ -71,6 +71,24 @@ describe('Connector', () => {
 		]);
 	});
 
+	it('stores connector enabled updates', () => {
+		const service = createService();
+
+		service.upsert({
+			id: 'gmail',
+			name: 'Gmail',
+			authorization: 'token',
+		});
+		const result = service.upsert({
+			id: 'gmail',
+			name: 'Gmail',
+			enabled: false,
+		});
+
+		expect(result.gmail?.enabled).toBe(false);
+		expect(service.mcp()).toEqual([]);
+	});
+
 	it('writes settings to setting.json in the connector settings directory', () => {
 		const { service, cwd } = createServiceWithLocation();
 
