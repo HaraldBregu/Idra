@@ -9,33 +9,27 @@ import type { ProviderStreamRequest } from '../../../../src/main/llm/types';
 describe('MCP provider adapters', () => {
 	it('adapts neutral MCP servers for OpenAI response tools', () => {
 		expect(
-			adaptOpenAIMcpTools(
-				[
-					{
-						server_label: 'gmail',
-						authorization: 'token',
-						require_approval: 'always',
-						allowed_tools: ['search'],
-						defer_loading: true,
-						server_description: 'Gmail search',
-					},
-					{
-						server_label: 'disabled',
-						enabled: false,
-					},
-				],
-				[
-					{
-						name: 'gmail',
-						url: 'https://gmail.example/mcp',
-					},
-				]
-			)
+			adaptOpenAIMcpTools([
+				{
+					serverLabel: 'gmail',
+					connectorId: 'connector_gmail',
+					authorization: 'token',
+					requireApproval: 'always',
+					allowedTools: ['search'],
+					deferLoading: true,
+					serverDescription: 'Gmail search',
+				},
+				{
+					serverLabel: 'disabled',
+					connectorId: 'connector_gmail',
+					enabled: false,
+				},
+			])
 		).toEqual([
 			{
 				type: 'mcp',
 				server_label: 'gmail',
-				server_url: 'https://gmail.example/mcp',
+				connector_id: 'connector_gmail',
 				authorization: 'token',
 				require_approval: 'always',
 				allowed_tools: ['search'],
@@ -47,45 +41,27 @@ describe('MCP provider adapters', () => {
 
 	it('adapts neutral MCP servers for Anthropic beta MCP config', () => {
 		expect(
-			adaptAnthropicMcpServers(
-				[
-					{
-						server_label: 'gmail',
-						defer_loading: true,
-					},
-					{
-						server_label: 'disabled',
-						enabled: false,
-					},
-				],
-				[
-					{
-						name: 'gmail',
-						url: 'https://gmail.example/mcp',
-						authorization_token: 'token',
-						allowed_tools: ['search'],
-					},
-					{
-						name: 'disabled',
-						url: 'https://disabled.example/mcp',
-						enabled: false,
-					},
-				]
-			)
-		).toEqual({
-			servers: [
+			adaptAnthropicMcpServers([
 				{
-					type: 'url',
-					name: 'gmail',
-					url: 'https://gmail.example/mcp',
-					authorization_token: 'token',
-					tool_configuration: { allowed_tools: ['search'] },
+					serverLabel: 'gmail',
+					connectorId: 'connector_gmail',
+					deferLoading: true,
 				},
-			],
+				{
+					serverLabel: 'filesystem',
+					deferLoading: true,
+				},
+				{
+					serverLabel: 'disabled',
+					enabled: false,
+				},
+			])
+		).toEqual({
+			servers: [],
 			tools: [
 				{
 					type: 'mcp_toolset',
-					mcp_server_name: 'gmail',
+					mcp_server_name: 'filesystem',
 					default_config: { defer_loading: true },
 				},
 			],
@@ -115,7 +91,7 @@ describe('MCP provider adapters', () => {
 					expect.objectContaining({
 						type: 'mcp',
 						server_label: 'gmail',
-						server_url: 'https://gmail.example/mcp',
+						connector_id: 'connector_gmail',
 					}),
 				],
 			}),
@@ -147,19 +123,8 @@ describe('MCP provider adapters', () => {
 		expect(events).toEqual(['message_start', 'message_end']);
 		expect(betaStream).toHaveBeenCalledWith(
 			expect.objectContaining({
-				mcp_servers: [
-					expect.objectContaining({
-						type: 'url',
-						name: 'gmail',
-						url: 'https://gmail.example/mcp',
-					}),
-				],
-				tools: [
-					expect.objectContaining({
-						type: 'mcp_toolset',
-						mcp_server_name: 'gmail',
-					}),
-				],
+				mcp_servers: [],
+				tools: [],
 			}),
 			expect.any(Object)
 		);
@@ -173,15 +138,10 @@ function request(): ProviderStreamRequest {
 		system: '',
 		messages: [],
 		tools: [],
-		mcpTools: [
+		mcp: [
 			{
-				server_label: 'gmail',
-			},
-		],
-		mcpServers: [
-			{
-				name: 'gmail',
-				url: 'https://gmail.example/mcp',
+				serverLabel: 'gmail',
+				connectorId: 'connector_gmail',
 			},
 		],
 		maxTokens: 128,
