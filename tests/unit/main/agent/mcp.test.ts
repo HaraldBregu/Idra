@@ -4,7 +4,6 @@ import path from 'node:path';
 import { AgentRuntime } from '../../../../src/main/agent/loop/loop';
 import { Settings } from '../../../../src/main/agent/core/settings';
 import { Workspace } from '../../../../src/main/agent/core/workspace';
-import { McpData } from '../../../../src/main/mcp';
 import { AgentSession } from '../../../../src/main/services/agent-session';
 import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
 import { LlmService } from '../../../../src/main/llm';
@@ -133,7 +132,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail' }),
-			new McpData(connectors)
+			connectors
 		);
 
 		const events: string[] = [];
@@ -185,7 +184,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings('anthropic'),
 			new AgentSession({ task: 'chat', message: 'check calendar' }),
-			new McpData(connectors)
+			connectors
 		);
 
 		const events: string[] = [];
