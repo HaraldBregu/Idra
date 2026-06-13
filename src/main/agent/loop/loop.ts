@@ -4,6 +4,7 @@ import type {
 	RuntimeEvent,
 	RuntimeInput,
 	Message,
+	MessageContentBlock,
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
@@ -30,6 +31,7 @@ interface ModelTurn {
 		inputTokens?: number;
 		outputTokens?: number;
 	};
+	providerItems?: MessageContentBlock[];
 }
 
 interface ToolOutcome {
@@ -112,7 +114,7 @@ export class AgentRuntime {
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
-			session.addAssistantMessage(turn.content, turn.toolCalls);
+			session.addAssistantMessage(turn.content, turn.toolCalls, turn.providerItems);
 
 			if (turn.toolCalls.length === 0) {
 				const result = session.toResult('success');
@@ -147,6 +149,7 @@ export class AgentRuntime {
 			let model = modelId;
 			let stopReason: string | undefined;
 			let usage: ModelTurn['usage'];
+			const providerItems: MessageContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsText: string }>();
 
 			try {
@@ -162,6 +165,13 @@ export class AgentRuntime {
 					signal,
 				})) {
 					if (event.type === 'model_call_delta') content += event.delta;
+					if (event.type === 'model_provider_item') {
+						providerItems.push({
+							type: 'provider_item',
+							provider: event.provider,
+							item: event.item,
+						});
+					}
 					if (event.type === 'model_tool_call_start') {
 						pending.set(event.id, { name: event.name, argsText: '' });
 					}
@@ -182,6 +192,7 @@ export class AgentRuntime {
 					model,
 					stopReason,
 					usage,
+					providerItems,
 					toolCalls: [...pending].map(([id, toolCall]) => ({
 						id,
 						name: toolCall.name,
