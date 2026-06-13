@@ -106,29 +106,33 @@ export class AgentModel extends Model {
 }
 
 function toProviderMcpTools(mcp: ModelRequest['mcp']): ProviderMcpToolSpec[] | undefined {
-	return mcp?.tools.map((tool) => ({
-		server_label: tool.serverLabel,
-		...(tool.connectorId ? { connector_id: tool.connectorId } : {}),
-		...(tool.authorization ? { authorization: tool.authorization } : {}),
-		...(tool.headers ? { headers: tool.headers } : {}),
-		...(tool.requireApproval
-			? { require_approval: toProviderMcpApproval(tool.requireApproval) }
-			: {}),
-		...(tool.allowedTools ? { allowed_tools: tool.allowedTools } : {}),
-		...(tool.deferLoading !== undefined ? { defer_loading: tool.deferLoading } : {}),
-		...(tool.serverDescription ? { server_description: tool.serverDescription } : {}),
-		...(tool.enabled !== undefined ? { enabled: tool.enabled } : {}),
-	}));
+	return mcp?.flatMap((entry) =>
+		entry.tools.map((tool) => ({
+			server_label: tool.serverLabel,
+			...(tool.connectorId ? { connector_id: tool.connectorId } : {}),
+			...(tool.authorization ? { authorization: tool.authorization } : {}),
+			...(tool.headers ? { headers: tool.headers } : {}),
+			...(tool.requireApproval
+				? { require_approval: toProviderMcpApproval(tool.requireApproval) }
+				: {}),
+			...(tool.allowedTools ? { allowed_tools: tool.allowedTools } : {}),
+			...(tool.deferLoading !== undefined ? { defer_loading: tool.deferLoading } : {}),
+			...(tool.serverDescription ? { server_description: tool.serverDescription } : {}),
+			...(tool.enabled !== undefined ? { enabled: tool.enabled } : {}),
+		}))
+	);
 }
 
 function toProviderMcpServers(mcp: ModelRequest['mcp']): ProviderMcpServerSpec[] | undefined {
-	return mcp?.servers.map((server) => ({
-		name: server.name,
-		url: server.url,
-		...(server.authorizationToken ? { authorization_token: server.authorizationToken } : {}),
-		...(server.allowedTools ? { allowed_tools: server.allowedTools } : {}),
-		...(server.enabled !== undefined ? { enabled: server.enabled } : {}),
-	}));
+	return mcp?.flatMap((entry) =>
+		entry.servers.map((server) => ({
+			name: server.name,
+			url: server.url,
+			...(server.authorizationToken ? { authorization_token: server.authorizationToken } : {}),
+			...(server.allowedTools ? { allowed_tools: server.allowedTools } : {}),
+			...(server.enabled !== undefined ? { enabled: server.enabled } : {}),
+		}))
+	);
 }
 
 function toProviderMcpApproval(policy: McpApprovalPolicy): ProviderMcpApprovalPolicy {
