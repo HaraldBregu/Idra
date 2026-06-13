@@ -368,7 +368,12 @@ function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 	for (const [rawId, rawConnector] of Object.entries(value)) {
 		const id = toConnectorId(rawId);
 		if (!id || !isConnectorSettingsEntry(rawConnector)) continue;
-		connectors[id] = rawConnector;
+		const defaults = defaultSettings(id);
+		connectors[id] = {
+			...defaults,
+			...rawConnector,
+			connector_id: rawConnector.connector_id ?? defaults.connector_id,
+		};
 	}
 	return connectors;
 }
@@ -377,6 +382,7 @@ function isConnectorSettingsEntry(value: unknown): value is ConnectorData {
 	return (
 		isRecord(value) &&
 		value.type === 'mcp' &&
+		(value.connector_id === undefined || typeof value.connector_id === 'string') &&
 		typeof value.server_label === 'string' &&
 		typeof value.server_url === 'string' &&
 		(value.server_description === undefined || typeof value.server_description === 'string') &&

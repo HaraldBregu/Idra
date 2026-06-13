@@ -83,6 +83,26 @@ describe('Connector', () => {
 		).toThrow('Unsupported connector:');
 	});
 
+	it('backfills provider connector ids for stored connector records', () => {
+		const service = createService();
+
+		service.save({
+			calendar: {
+				type: 'mcp',
+				server_label: 'calendar',
+				server_url: 'https://www.googleapis.com/calendar/v3',
+				enabled: true,
+			},
+		});
+
+		expect(service.mcp()).toEqual([
+			expect.objectContaining({
+				serverLabel: 'calendar',
+				connectorId: 'connector_googlecalendar',
+			}),
+		]);
+	});
+
 	it('rejects unsupported connectors', () => {
 		const service = createService();
 
