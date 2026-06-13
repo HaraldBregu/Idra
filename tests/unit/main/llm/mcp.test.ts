@@ -121,14 +121,13 @@ describe('MCP provider adapters', () => {
 		}
 
 		expect(events).toEqual(['message_start', 'message_end']);
-		expect(betaStream).toHaveBeenCalledWith(
+		expect(betaStream).not.toHaveBeenCalled();
+		expect(messagesStream).toHaveBeenCalledWith(
 			expect.objectContaining({
-				mcp_servers: [],
-				tools: [],
+				tools: undefined,
 			}),
 			expect.any(Object)
 		);
-		expect(messagesStream).not.toHaveBeenCalled();
 	});
 });
 
