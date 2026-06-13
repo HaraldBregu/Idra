@@ -53,7 +53,7 @@ describe('MCP provider adapters', () => {
 					serverLabel: 'filesystem',
 					serverUrl: 'https://filesystem.example/mcp',
 					connectorId: 'connector_filesystem',
-					authorization: 'token',
+					authorization: ' Bearer token ',
 					allowedTools: ['search'],
 					deferLoading: true,
 				},
