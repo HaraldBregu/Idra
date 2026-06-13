@@ -39,13 +39,16 @@ interface LlmClientFactoryInput {
 }
 
 export interface ModelSdkOptions {
-	provider: ProviderSpec;
+	provider?: ProviderSpec;
+	providerModelFactory?: ProviderModelFactory;
 	openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
 	anthropicClientFactory?: (opts: LlmClientFactoryInput) => Anthropic;
 	reasoningEffortEnabled?: boolean;
 	reasoningContentEnabled?: boolean;
 	thinkingModeEnabled?: boolean;
 }
+
+export type AgentModelOptions = ModelSdkOptions;
 
 interface ResponseToolCallState {
 	id: string;
@@ -62,16 +65,19 @@ interface ChatToolCallState {
 	emittedStart: boolean;
 }
 
-export class ModelSdk implements ProviderAdapter {
-	private readonly provider: ProviderSpec;
+export class AgentModel extends Model implements ProviderAdapter {
+	private readonly provider?: ProviderSpec;
+	private readonly providerModelFactory?: ProviderModelFactory;
 	private readonly openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
 	private readonly anthropicClientFactory?: (opts: LlmClientFactoryInput) => Anthropic;
 	private readonly reasoningEffortEnabled: boolean;
 	private readonly reasoningContentEnabled: boolean;
 	private readonly thinkingModeEnabled: boolean;
 
-	constructor(options: ModelSdkOptions) {
+	constructor(options: AgentModelOptions = {}) {
+		super();
 		this.provider = options.provider;
+		this.providerModelFactory = options.providerModelFactory;
 		this.openAIClientFactory = options.openAIClientFactory;
 		this.anthropicClientFactory = options.anthropicClientFactory;
 		this.reasoningEffortEnabled = options.reasoningEffortEnabled ?? false;
@@ -79,8 +85,123 @@ export class ModelSdk implements ProviderAdapter {
 		this.thinkingModeEnabled = options.thinkingModeEnabled ?? false;
 	}
 
-	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
+	async generate(request: ModelRequest): Promise<ModelResponse> {
+		let content = '';
+		const toolCalls = new Map<string, { name: string; argsText: string }>();
+		let stopReason: string | undefined;
+		let usage: ModelResponse['usage'];
+
+		for await (const event of this.stream(request)) {
+			if (event.type === 'model_call_delta') {
+				content += event.delta;
+			}
+			if (event.type === 'model_tool_call_start') {
+				toolCalls.set(event.id, { name: event.name, argsText: '' });
+			}
+			if (event.type === 'model_tool_call_args_delta') {
+				const toolCall = toolCalls.get(event.id);
+				if (toolCall) toolCall.argsText += event.jsonDelta;
+			}
+			if (event.type === 'model_call_end') {
+				stopReason = event.stopReason;
+				usage = event.usage;
+			}
+		}
+
+		return {
+			content,
+			toolCalls: [...toolCalls].map(([id, toolCall]) => ({
+				id,
+				name: toolCall.name,
+				args: parseToolArgs(toolCall.argsText),
+			})),
+			model: request.model,
+			stopReason,
+			usage,
+		};
+	}
+
+	stream(request: ModelRequest): AsyncIterable<ModelEvent>;
+	stream(request: ProviderStreamRequest): AsyncIterable<ProviderEvent>;
+	async *stream(
+		request: ModelRequest | ProviderStreamRequest
+	): AsyncIterable<ModelEvent | ProviderEvent> {
+		if (isModelRequest(request)) {
+			yield* this.streamAgent(request);
+			return;
+		}
+		yield* this.streamProvider(request);
+	}
+
+	private async *streamAgent(request: ModelRequest): AsyncIterable<ModelEvent> {
+		const system = [
+			request.system,
+			...request.messages
+				.filter((message) => message.role === 'system')
+				.map((message) => message.content),
+		]
+			.filter(Boolean)
+			.join('\n\n');
+		const messages = request.messages.filter((message) => message.role !== 'system');
+
+		yield { type: 'model_call_start', model: request.model, effort: request.effort };
+
+		for await (const event of this.createProviderModel(request.provider).stream({
+			model: request.model,
+			effort: request.effort,
+			system,
+			messages: messages.map(toTranscriptEntry),
+			tools: (request.tools ?? []).map((tool) => ({
+				name: tool.name,
+				description: tool.description ?? '',
+				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
+			})),
+			mcp: request.mcp,
+			maxTokens: request.maxTokens,
+			signal: request.signal,
+		})) {
+			if (event.type === 'text_delta') {
+				yield { type: 'model_call_delta', delta: event.text };
+			}
+			if (event.type === 'tool_call_start') {
+				yield { type: 'model_tool_call_start', id: event.id, name: event.name };
+			}
+			if (event.type === 'tool_call_args_delta') {
+				yield {
+					type: 'model_tool_call_args_delta',
+					id: event.id,
+					jsonDelta: event.jsonDelta,
+				};
+			}
+			if (event.type === 'tool_call_end') {
+				yield { type: 'model_tool_call_end', id: event.id };
+			}
+			if (event.type === 'message_end') {
+				yield {
+					type: 'model_call_end',
+					model: request.model,
+					stopReason: event.stopReason,
+					usage: event.usage,
+				};
+			}
+		}
+	}
+
+	private createProviderModel(provider: ProviderSpec): ProviderAdapter {
+		if (this.providerModelFactory) return this.providerModelFactory(provider);
+		return new AgentModel({
+			provider,
+			openAIClientFactory: this.openAIClientFactory,
+			anthropicClientFactory: this.anthropicClientFactory,
+			reasoningEffortEnabled: this.reasoningEffortEnabled,
+			reasoningContentEnabled: this.reasoningContentEnabled,
+			thinkingModeEnabled: this.thinkingModeEnabled,
+		});
+	}
+
+	private async *streamProvider(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
 		const provider = this.provider;
+		if (!provider) throw new Error('AgentModel requires a provider for LLM streaming.');
 
 		const id = provider.id.toLowerCase();
 		if (id === 'anthropic') {
