@@ -5,6 +5,7 @@ import { AgentRuntime } from '../../../../src/main/agent/loop/loop';
 import { Settings } from '../../../../src/main/agent/core/settings';
 import { Workspace } from '../../../../src/main/agent/core/workspace';
 import { AgentSession } from '../../../../src/main/services/agent-session';
+import { AgentMcpService } from '../../../../src/main/services/agent-mcp-service';
 import { ConnectorSettingsService } from '../../../../src/main/services/connector-settings-service';
 import { LlmService } from '../../../../src/main/llm';
 import type {
@@ -132,12 +133,15 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail' }),
-			connectors
+			new AgentMcpService(connectors)
 		);
 
-		for await (const _event of runtime.run({ task: 'chat', message: 'check gmail' })) {
+		const events: string[] = [];
+		for await (const event of runtime.run({ task: 'chat', message: 'check gmail' })) {
+			events.push(event.type);
 		}
 
+		expect(events).toContain('run_finished');
 		expect(stream).toHaveBeenCalledTimes(1);
 		expect(requests[0]?.mcp).toEqual([
 			{
@@ -181,12 +185,15 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestWorkspace(cwd),
 			new TestSettings('anthropic'),
 			new AgentSession({ task: 'chat', message: 'check calendar' }),
-			connectors
+			new AgentMcpService(connectors)
 		);
 
-		for await (const _event of runtime.run({ task: 'chat', message: 'check calendar' })) {
+		const events: string[] = [];
+		for await (const event of runtime.run({ task: 'chat', message: 'check calendar' })) {
+			events.push(event.type);
 		}
 
+		expect(events).toContain('run_finished');
 		expect(stream).toHaveBeenCalledTimes(1);
 		expect(requests[0]?.mcp).toEqual([]);
 	});
