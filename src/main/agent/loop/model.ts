@@ -1,7 +1,14 @@
 import { LlmService } from '../../llm';
-import type { AgentContentBlock, TranscriptEntry } from '../../llm/types';
+import type {
+	AgentContentBlock,
+	ProviderMcpApprovalPolicy,
+	ProviderMcpServerSpec,
+	ProviderMcpToolSpec,
+	TranscriptEntry,
+} from '../../llm/types';
 import { Model } from '../core/model';
 import type { ModelEvent, ModelRequest, ModelResponse } from '../core/model';
+import type { AgentMcpApprovalPolicy } from '../core/mcp';
 import type { Message } from '../core/types';
 
 export class AgentModel extends Model {
@@ -65,7 +72,8 @@ export class AgentModel extends Model {
 				description: tool.description ?? '',
 				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
 			})),
-			mcp: request.mcp,
+			mcpTools: toProviderMcpTools(request.mcp),
+			mcpServers: toProviderMcpServers(request.mcp),
 			maxTokens: request.maxTokens,
 			signal: request.signal,
 		})) {
@@ -95,6 +103,37 @@ export class AgentModel extends Model {
 			}
 		}
 	}
+}
+
+function toProviderMcpTools(mcp: ModelRequest['mcp']): ProviderMcpToolSpec[] | undefined {
+	return mcp?.tools.map((tool) => ({
+		server_label: tool.serverLabel,
+		...(tool.connectorId ? { connector_id: tool.connectorId } : {}),
+		...(tool.authorization ? { authorization: tool.authorization } : {}),
+		...(tool.headers ? { headers: tool.headers } : {}),
+		...(tool.requireApproval
+			? { require_approval: toProviderMcpApproval(tool.requireApproval) }
+			: {}),
+		...(tool.allowedTools ? { allowed_tools: tool.allowedTools } : {}),
+		...(tool.deferLoading !== undefined ? { defer_loading: tool.deferLoading } : {}),
+		...(tool.serverDescription ? { server_description: tool.serverDescription } : {}),
+		...(tool.enabled !== undefined ? { enabled: tool.enabled } : {}),
+	}));
+}
+
+function toProviderMcpServers(mcp: ModelRequest['mcp']): ProviderMcpServerSpec[] | undefined {
+	return mcp?.servers.map((server) => ({
+		name: server.name,
+		url: server.url,
+		...(server.authorizationToken ? { authorization_token: server.authorizationToken } : {}),
+		...(server.allowedTools ? { allowed_tools: server.allowedTools } : {}),
+		...(server.enabled !== undefined ? { enabled: server.enabled } : {}),
+	}));
+}
+
+function toProviderMcpApproval(policy: AgentMcpApprovalPolicy): ProviderMcpApprovalPolicy {
+	if (policy === 'always' || policy === 'never') return policy;
+	return { never: { tool_names: policy.never.toolNames } };
 }
 
 function toTranscriptEntry(message: Message): TranscriptEntry {
