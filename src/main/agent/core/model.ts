@@ -1,12 +1,14 @@
 import type { Tool } from './tool';
 import type { Message, Provider, ToolCall } from './types';
 import type { Mcp } from './mcp';
+import type { ModelReasoningEffort } from '../../../shared/agent/types';
 
 export interface ModelRequest {
 	messages: Message[];
 	system?: string;
 	provider: Provider;
 	model: string;
+	effort?: ModelReasoningEffort;
 	maxTokens: number;
 	tools?: Tool[];
 	mcp?: Mcp[];
@@ -25,7 +27,7 @@ export interface ModelResponse {
 }
 
 export type ModelEvent =
-	| { type: 'model_call_start'; model: string }
+	| { type: 'model_call_start'; model: string; effort?: ModelReasoningEffort }
 	| { type: 'model_call_delta'; delta: string }
 	| { type: 'model_tool_call_start'; id: string; name: string }
 	| { type: 'model_tool_call_args_delta'; id: string; jsonDelta: string }

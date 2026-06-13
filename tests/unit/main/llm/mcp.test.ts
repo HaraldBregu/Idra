@@ -110,6 +110,41 @@ describe('MCP provider adapters', () => {
 		);
 	});
 
+	it('adds reasoning effort to OpenAI Responses requests', async () => {
+		async function* stream(): AsyncIterable<unknown> {
+			yield {
+				type: 'response.output_text.delta',
+				delta: 'hello',
+			};
+			yield {
+				type: 'response.completed',
+				response: {
+					usage: { input_tokens: 3, output_tokens: 2 },
+					output: [],
+				},
+			};
+		}
+
+		const create = jest.fn().mockResolvedValue(stream());
+		const service = new LlmService({
+			openAIClientFactory: () => ({ responses: { create } }) as unknown as OpenAI,
+		});
+		const model = service.build({ id: 'openai', apiKey: 'key' });
+
+		const events: string[] = [];
+		for await (const event of model.stream({ ...request(), effort: 'high' })) {
+			events.push(event.type);
+		}
+
+		expect(events).toEqual(['message_start', 'text_delta', 'message_end']);
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				reasoning: { effort: 'high' },
+			}),
+			expect.any(Object)
+		);
+	});
+
 	it('uses Anthropic beta messages when neutral MCP servers are present', async () => {
 		async function* stream(): AsyncIterable<unknown> {
 			yield* [];

@@ -57,10 +57,11 @@ export class AgentModel extends Model {
 			.join('\n\n');
 		const messages = request.messages.filter((message) => message.role !== 'system');
 
-		yield { type: 'model_call_start', model: request.model };
+		yield { type: 'model_call_start', model: request.model, effort: request.effort };
 		
 		for await (const event of this.llm.build(request.provider).stream({
 			model: request.model,
+			effort: request.effort,
 			system,
 			messages: messages.map(toTranscriptEntry),
 			tools: (request.tools ?? []).map((tool) => ({

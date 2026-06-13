@@ -154,6 +154,7 @@ export class AgentRuntime {
 				for await (const event of this.model.stream({
 					provider,
 					model,
+					effort: input.effort,
 					system,
 					messages,
 					tools,

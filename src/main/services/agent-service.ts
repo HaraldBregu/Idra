@@ -13,12 +13,14 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunStopReason,
+	ModelReasoningEffort,
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
+	effort?: ModelReasoningEffort;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -59,6 +61,7 @@ export class AgentService {
 				task: 'chat',
 				message,
 				sessionId,
+				effort: options.effort,
 			};
 			session = new AgentSession(sessionInput, this.location);
 			const runtime = new AgentRuntime(
@@ -236,7 +239,7 @@ function runtimeEventToAgentEvents(
 		return [{ type: 'run_state', state: 'thinking', agentId, runId }];
 	}
 	if (event.type === 'model_call_start') {
-		return [{ type: 'model_selected', model: event.model, agentId, runId }];
+		return [{ type: 'model_selected', model: event.model, effort: event.effort, agentId, runId }];
 	}
 	if (event.type === 'model_call_delta') {
 		return [{ type: 'text_delta', delta: event.delta, agentId, runId }];

@@ -8,6 +8,16 @@ import { AgentService, type AgentSendOptions } from '../services/agent-service';
 import { LoggerService } from '../shared';
 import { AgentSettingsStore } from '../services/agent-settings-store';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
+import type { ModelReasoningEffort } from '../../shared/agent/types';
+
+const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
+	'none',
+	'minimal',
+	'low',
+	'medium',
+	'high',
+	'xhigh',
+];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -17,6 +27,10 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();
 	return trimmed || undefined;
+}
+
+function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
+	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
 }
 
 function normalizeAgentSessionId(value: unknown): string {
@@ -56,6 +70,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 		...(optionalTrimmedString(options.model)
 			? { modelId: optionalTrimmedString(options.model) }
 			: {}),
+		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
 	};
 }
 

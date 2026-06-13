@@ -154,6 +154,43 @@ describe('AgentRuntime MCP connectors', () => {
 		]);
 	});
 
+	it('passes reasoning effort through to the LLM request', async () => {
+		const requests: ProviderStreamRequest[] = [];
+		const stream = jest.fn(async function* (
+			request: ProviderStreamRequest
+		): AsyncIterable<ProviderEvent> {
+			requests.push(request);
+			yield { type: 'text_delta', text: 'done' };
+			yield {
+				type: 'message_end',
+				stopReason: 'end_turn',
+				usage: { inputTokens: 1, outputTokens: 1 },
+			};
+		});
+		jest.spyOn(LlmService.prototype, 'build').mockReturnValue({
+			stream,
+		} as ProviderAdapter);
+
+		const runtime = new AgentRuntime(
+			new TestWorkspace(cwd),
+			new TestSettings(),
+			new AgentSession({ task: 'chat', message: 'check gmail', effort: 'high' }),
+			new Connector({ cwd })
+		);
+
+		const events: string[] = [];
+		for await (const event of runtime.run({
+			task: 'chat',
+			message: 'check gmail',
+			effort: 'high',
+		})) {
+			events.push(event.type);
+		}
+
+		expect(events).toContain('run_finished');
+		expect(requests[0]?.effort).toBe('high');
+	});
+
 	it('passes connector service entries without provider connector ids', async () => {
 		const requests: ProviderStreamRequest[] = [];
 		const stream = jest.fn(async function* (

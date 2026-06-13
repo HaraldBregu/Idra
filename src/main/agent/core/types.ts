@@ -1,5 +1,6 @@
 import type { ModelEvent } from './model';
 import type { Tool } from './tool';
+import type { ModelReasoningEffort } from '../../../shared/agent/types';
 
 export interface Provider {
 	id: string,
@@ -62,6 +63,7 @@ export interface SessionInput {
 	sessionId?: string;
 	messages?: Message[];
 	model?: string;
+	effort?: ModelReasoningEffort;
 	maxTurns?: number;
 	maxIterations?: number;
 }
@@ -88,6 +90,7 @@ export interface RuntimeInput {
 	messages?: Message[];
 	tools?: Tool[];
 	modelRoutes?: RuntimeModelRoute[];
+	effort?: ModelReasoningEffort;
 	maxTokens?: number;
 	maxRetries?: number;
 	maxTurns?: number;
