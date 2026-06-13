@@ -84,6 +84,32 @@ describe('MCP provider adapters', () => {
 		});
 	});
 
+	it('uses the basic Anthropic MCP toolset shape when all tools are enabled', () => {
+		expect(
+			adaptAnthropicMcpServers([
+				{
+					serverLabel: 'customer_ops',
+					serverUrl: 'https://your-public-domain.example.com/mcp',
+					deferLoading: false,
+				},
+			])
+		).toEqual({
+			servers: [
+				{
+					type: 'url',
+					name: 'customer_ops',
+					url: 'https://your-public-domain.example.com/mcp',
+				},
+			],
+			tools: [
+				{
+					type: 'mcp_toolset',
+					mcp_server_name: 'customer_ops',
+				},
+			],
+		});
+	});
+
 	it('adds neutral MCP servers to OpenAI request tools', async () => {
 		async function* stream(): AsyncIterable<unknown> {
 			yield* [];
@@ -241,11 +267,16 @@ describe('MCP provider adapters', () => {
 		}
 
 		const betaStream = jest.fn().mockReturnValue(stream());
+		const betaCreate = jest.fn().mockResolvedValue({
+			content: [{ type: 'text', text: 'Done.' }],
+			stop_reason: 'end_turn',
+			usage: { input_tokens: 3, output_tokens: 2 },
+		});
 		const messagesStream = jest.fn().mockReturnValue(stream());
 		const service = new LlmService({
 			anthropicClientFactory: () =>
 				({
-					beta: { messages: { stream: betaStream } },
+					beta: { messages: { create: betaCreate, stream: betaStream } },
 					messages: { stream: messagesStream },
 				}) as unknown as Anthropic,
 		});
@@ -256,8 +287,8 @@ describe('MCP provider adapters', () => {
 			events.push(event.type);
 		}
 
-		expect(events).toEqual(['message_start', 'message_end']);
-		expect(betaStream).toHaveBeenCalledWith(
+		expect(events).toEqual(['message_start', 'text_delta', 'message_end']);
+		expect(betaCreate).toHaveBeenCalledWith(
 			expect.objectContaining({
 				mcp_servers: [
 					expect.objectContaining({
@@ -282,6 +313,7 @@ describe('MCP provider adapters', () => {
 				headers: { 'anthropic-beta': 'mcp-client-2025-11-20' },
 			})
 		);
+		expect(betaStream).not.toHaveBeenCalled();
 		expect(messagesStream).not.toHaveBeenCalled();
 	});
 });
