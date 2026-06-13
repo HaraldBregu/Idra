@@ -1,3 +1,4 @@
+import { ModeSdk } from '../../../../src/main/llm/mode-sdk';
 import { LlmService } from '../../../../src/main/llm/service';
 
 describe('LlmService', () => {
@@ -6,8 +7,8 @@ describe('LlmService', () => {
 	it('uses one provider handler for supported providers', () => {
 		const service = new LlmService();
 
-		expect(service.build({ id: 'openai', apiKey })).toBeInstanceOf(LlmService);
-		expect(service.build({ id: 'anthropic', apiKey })).toBeInstanceOf(LlmService);
-		expect(service.build({ id: 'deepseek', apiKey })).toBeInstanceOf(LlmService);
+		expect(service.build({ id: 'openai', apiKey })).toBeInstanceOf(ModeSdk);
+		expect(service.build({ id: 'anthropic', apiKey })).toBeInstanceOf(ModeSdk);
+		expect(service.build({ id: 'deepseek', apiKey })).toBeInstanceOf(ModeSdk);
 	});
 });

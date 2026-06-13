@@ -86,12 +86,12 @@ describe('MCP provider adapters', () => {
 
 		const create = jest.fn().mockResolvedValue(stream());
 		const service = new LlmService({
-			provider: { id: 'openai', apiKey: 'key' },
 			openAIClientFactory: () => ({ responses: { create } }) as unknown as OpenAI,
 		});
+		const model = service.build({ id: 'openai', apiKey: 'key' });
 
 		const events: string[] = [];
-		for await (const event of service.stream(request())) {
+		for await (const event of model.stream(request())) {
 			events.push(event.type);
 		}
 
@@ -118,16 +118,16 @@ describe('MCP provider adapters', () => {
 		const betaStream = jest.fn().mockReturnValue(stream());
 		const messagesStream = jest.fn().mockReturnValue(stream());
 		const service = new LlmService({
-			provider: { id: 'anthropic', apiKey: 'key' },
 			anthropicClientFactory: () =>
 				({
 					beta: { messages: { stream: betaStream } },
 					messages: { stream: messagesStream },
 				}) as unknown as Anthropic,
 		});
+		const model = service.build({ id: 'anthropic', apiKey: 'key' });
 
 		const events: string[] = [];
-		for await (const event of service.stream(anthropicRequest())) {
+		for await (const event of model.stream(anthropicRequest())) {
 			events.push(event.type);
 		}
 
