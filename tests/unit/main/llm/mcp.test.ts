@@ -110,7 +110,9 @@ describe('MCP provider adapters', () => {
 					}),
 				],
 			}),
-			expect.any(Object)
+			expect.objectContaining({
+				headers: { 'anthropic-beta': 'mcp-client-2025-11-20' },
+			})
 		);
 	});
 
