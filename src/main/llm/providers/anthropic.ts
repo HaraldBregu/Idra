@@ -84,7 +84,7 @@ export class AnthropicAdapter implements ProviderAdapter {
 	}
 
 	async *stream(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
-		const mcp = adaptAnthropicMcpServers(req.mcpTools, req.mcpServers);
+		const mcp = adaptAnthropicMcpServers(req.mcp);
 		const tools: Array<Anthropic.Messages.Tool | BetaMessages.BetaToolUnion> = req.tools.map((t) => ({
 			name: t.name,
 			description: t.description,
