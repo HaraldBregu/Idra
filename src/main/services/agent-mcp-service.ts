@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { AgentMcp } from '../agent/core/mcp';
 import { ConnectorSettingsService } from './connector-settings-service';
-import type { ProviderMcpServerSpec } from '../llm/types';
+import type { AgentMcpConfig } from '../agent/core/mcp';
 import type { ConnectorId } from '../../shared/connector';
 
 const OPENAI_CONNECTOR_IDS = {
@@ -15,29 +15,33 @@ export class AgentMcpService extends AgentMcp {
 		super();
 	}
 
-	list(providerId: string): ProviderMcpServerSpec[] {
-		if (providerId.trim().toLowerCase() !== 'openai') return [];
+	list(): AgentMcpConfig {
+		const tools: AgentMcpConfig['tools'] = [];
+		const servers: AgentMcpConfig['servers'] = [];
 
-		return Object.entries(this.connectors.list())
-			.filter(([, connector]) => connector.enabled !== false)
-			.map(([id, connector]) => {
-				const connectorId = OPENAI_CONNECTOR_IDS[id as ConnectorId];
+		for (const [id, connector] of Object.entries(this.connectors.list())) {
+			if (connector.enabled === false) continue;
 
-				return {
-					type: 'mcp' as const,
-					server_label: connector.server_label,
-					...(connectorId ? { connector_id: connectorId } : {}),
-					...(connector.authorization ? { authorization: connector.authorization } : {}),
-					...(connector.require_approval
-						? { require_approval: connector.require_approval }
-						: {}),
-					...(connector.defer_loading !== undefined
-						? { defer_loading: connector.defer_loading }
-						: {}),
-					...(connector.server_description
-						? { server_description: connector.server_description }
-						: {}),
-				};
+			const connectorId = OPENAI_CONNECTOR_IDS[id as ConnectorId];
+			tools.push({
+				serverLabel: connector.server_label,
+				...(connectorId ? { connectorId } : {}),
+				...(connector.authorization ? { authorization: connector.authorization } : {}),
+				...(connector.require_approval ? { requireApproval: connector.require_approval } : {}),
+				...(connector.defer_loading !== undefined
+					? { deferLoading: connector.defer_loading }
+					: {}),
+				...(connector.server_description
+					? { serverDescription: connector.server_description }
+					: {}),
 			});
+			servers.push({
+				name: connector.server_label,
+				url: connector.server_url,
+				...(connector.authorization ? { authorizationToken: connector.authorization } : {}),
+			});
+		}
+
+		return { tools, servers };
 	}
 }
