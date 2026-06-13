@@ -220,7 +220,7 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Server URL" value={connector.server_url} mono />
 					<DetailRow label="Enabled" value={connector.enabled === false ? 'Disabled' : 'Enabled'} />
 					<DetailRow
-						label="Permissions"
+						label="Require approval"
 						value={
 							<Select
 								value={approvalPolicy}
