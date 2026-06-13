@@ -224,7 +224,9 @@ const ConnectorDetailsPage: React.FC = () => {
 						value={
 							<Select
 								value={approvalPolicy}
-								onValueChange={(value) => void handleApprovalPolicyChange(value)}
+								onValueChange={(value) => {
+									if (value) void handleApprovalPolicyChange(value);
+								}}
 								disabled={savingApproval}
 							>
 								<SelectTrigger className="w-44 text-xs">
