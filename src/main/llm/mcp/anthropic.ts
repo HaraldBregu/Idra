@@ -1,5 +1,6 @@
 import type { Messages as BetaMessages } from '@anthropic-ai/sdk/resources/beta/messages/messages';
 import type { ProviderMcpSpec } from '../types';
+import { authorizationToken } from './token';
 
 export interface AnthropicMcpConfig {
 	tools: BetaMessages.BetaMCPToolset[];
@@ -10,14 +11,15 @@ export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): An
 	const entries = (mcp ?? []).filter(
 		(entry) => entry.enabled !== false && entry.serverUrl
 	);
-	const servers = entries.map((entry): BetaMessages.BetaRequestMCPServerURLDefinition => ({
-		type: 'url',
-		name: entry.serverLabel,
-		url: entry.serverUrl ?? '',
-		...(authorizationToken(entry.authorization)
-			? { authorization_token: authorizationToken(entry.authorization) }
-			: {}),
-	}));
+	const servers = entries.map((entry): BetaMessages.BetaRequestMCPServerURLDefinition => {
+		const token = authorizationToken(entry.authorization);
+		return {
+			type: 'url',
+			name: entry.serverLabel,
+			url: entry.serverUrl ?? '',
+			...(token ? { authorization_token: token } : {}),
+		};
+	});
 	const tools: BetaMessages.BetaMCPToolset[] = entries.map((entry) => {
 		const defaultConfig: BetaMessages.BetaMCPToolDefaultConfig = {};
 		if (entry.allowedTools !== undefined) defaultConfig.enabled = false;
@@ -40,10 +42,4 @@ export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): An
 	});
 
 	return { tools, servers };
-}
-
-function authorizationToken(value: string | undefined): string | undefined {
-	const token = value?.trim();
-	if (!token) return undefined;
-	return token.replace(/^Bearer\s+/i, '');
 }
