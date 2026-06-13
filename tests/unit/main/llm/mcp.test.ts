@@ -52,6 +52,7 @@ describe('MCP provider adapters', () => {
 				{
 					serverLabel: 'filesystem',
 					serverUrl: 'https://filesystem.example/mcp',
+					connectorId: 'connector_filesystem',
 					authorization: 'token',
 					allowedTools: ['search'],
 					deferLoading: true,
@@ -312,6 +313,7 @@ function anthropicRequest(): ProviderStreamRequest {
 			{
 				serverLabel: 'filesystem',
 				serverUrl: 'https://filesystem.example/mcp',
+				connectorId: 'connector_filesystem',
 				allowedTools: ['search'],
 				deferLoading: true,
 			},
