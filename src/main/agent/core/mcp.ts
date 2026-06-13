@@ -20,11 +20,11 @@ export interface McpServer {
 	enabled?: boolean;
 }
 
-export interface McpConfig {
+export interface Mcp {
 	tools: McpTool[];
 	servers: McpServer[];
 }
 
-export abstract class Mcp {
-	abstract list(): McpConfig;
+export abstract class McpData {
+	abstract list(): Mcp[];
 }
