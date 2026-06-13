@@ -101,7 +101,7 @@ describe('AgentRuntime MCP connectors', () => {
 		await fs.rm(cwd, { recursive: true, force: true });
 	});
 
-	it('passes enabled connector service entries to OpenAI as MCP connectors', async () => {
+	it('passes enabled connector service entries as MCP servers', async () => {
 		const requests: ProviderStreamRequest[] = [];
 		const stream = jest.fn(async function* (
 			request: ProviderStreamRequest
@@ -156,7 +156,7 @@ describe('AgentRuntime MCP connectors', () => {
 		]);
 	});
 
-	it('does not pass OpenAI app connectors to Anthropic as remote MCP servers', async () => {
+	it('passes connector service entries without provider connector ids', async () => {
 		const requests: ProviderStreamRequest[] = [];
 		const stream = jest.fn(async function* (
 			request: ProviderStreamRequest
