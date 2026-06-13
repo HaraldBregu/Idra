@@ -153,13 +153,7 @@ describe('AgentRuntime MCP connectors', () => {
 				server_description: 'Read and search Gmail messages through the OpenAI Gmail connector.',
 			},
 		]);
-		expect(requests[0]?.mcpServers).toEqual([
-			{
-				name: 'gmail',
-				url: 'https://gmailmcp.googleapis.com/mcp/v1',
-				authorization_token: 'token',
-			},
-		]);
+		expect(requests[0]?.mcpServers).toBeUndefined();
 	});
 
 	it('does not pass OpenAI app connectors to Anthropic as remote MCP servers', async () => {
@@ -212,12 +206,6 @@ describe('AgentRuntime MCP connectors', () => {
 					'Read Google Calendar events through the Google Calendar connector.',
 			},
 		]);
-		expect(requests[0]?.mcpServers).toEqual([
-			{
-				name: 'calendar',
-				url: 'https://www.googleapis.com/calendar/v3',
-				authorization_token: 'token',
-			},
-		]);
+		expect(requests[0]?.mcpServers).toBeUndefined();
 	});
 });
