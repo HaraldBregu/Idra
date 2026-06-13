@@ -15,7 +15,7 @@ export function adaptOpenAIMcpTools(mcp: ProviderMcpSpec[] | undefined): Respons
 				type: 'mcp',
 				server_label: entry.serverLabel,
 				...(entry.connectorId ? { connector_id: entry.connectorId } : {}),
-				...(entry.serverUrl ? { server_url: entry.serverUrl } : {}),
+				...(!entry.connectorId && entry.serverUrl ? { server_url: entry.serverUrl } : {}),
 				...(entry.authorization ? { authorization: entry.authorization } : {}),
 				...(entry.headers ? { headers: entry.headers } : {}),
 				...(entry.requireApproval

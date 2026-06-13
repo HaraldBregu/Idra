@@ -30,7 +30,6 @@ describe('MCP provider adapters', () => {
 				{
 					type: 'mcp',
 					server_label: 'gmail',
-					server_url: 'https://gmail.example/mcp',
 					connector_id: 'connector_gmail',
 					authorization: 'token',
 					require_approval: 'always',
@@ -104,7 +103,6 @@ describe('MCP provider adapters', () => {
 					expect.objectContaining({
 						type: 'mcp',
 						server_label: 'gmail',
-						server_url: 'https://gmail.example/mcp',
 						connector_id: 'connector_gmail',
 					}),
 				],

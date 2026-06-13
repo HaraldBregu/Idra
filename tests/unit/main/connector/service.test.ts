@@ -37,6 +37,7 @@ describe('Connector', () => {
 		expect(result.gmail).toEqual(
 			expect.objectContaining({
 				type: 'mcp',
+				connector_id: 'connector_gmail',
 				server_label: 'gmail',
 				server_url: 'https://gmailmcp.googleapis.com/mcp/v1',
 				authorization: 'token',
@@ -64,6 +65,7 @@ describe('Connector', () => {
 			expect.objectContaining({
 				gmail: expect.objectContaining({
 					type: 'mcp',
+					connector_id: 'connector_gmail',
 					server_label: 'gmail',
 				}),
 			})

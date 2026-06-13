@@ -145,6 +145,7 @@ describe('AgentRuntime MCP connectors', () => {
 			{
 				serverLabel: 'gmail',
 				serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
+				connectorId: 'connector_gmail',
 				authorization: 'token',
 				requireApproval: 'always',
 				deferLoading: false,
@@ -195,6 +196,7 @@ describe('AgentRuntime MCP connectors', () => {
 			{
 				serverLabel: 'calendar',
 				serverUrl: 'https://www.googleapis.com/calendar/v3',
+				connectorId: 'connector_googlecalendar',
 				authorization: 'token',
 				requireApproval: 'always',
 				deferLoading: false,

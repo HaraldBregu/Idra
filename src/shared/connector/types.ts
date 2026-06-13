@@ -40,6 +40,7 @@ export interface ConnectorDefault {
 
 export interface ConnectorData {
 	readonly type: 'mcp';
+	readonly connector_id?: string;
 	readonly server_label: string;
 	readonly server_url: string;
 	readonly server_description?: string;

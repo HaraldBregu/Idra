@@ -69,6 +69,8 @@ export class Connector extends McpData {
 		const nextConnector: ConnectorData = {
 			...defaults,
 			...current,
+			connector_id:
+				optionalTrimmedString(input.connectorId) ?? current?.connector_id ?? defaults.connector_id,
 			server_label:
 				optionalTrimmedString(input.serverLabel) ?? current?.server_label ?? defaults.server_label,
 			server_url:
@@ -132,6 +134,7 @@ export class Connector extends McpData {
 			mcp.push({
 				serverLabel: connector.server_label,
 				serverUrl: connector.server_url,
+				...(connector.connector_id ? { connectorId: connector.connector_id } : {}),
 				...(connector.authorization ? { authorization: connector.authorization } : {}),
 				...(connector.require_approval ? { requireApproval: connector.require_approval } : {}),
 				...(connector.defer_loading !== undefined
@@ -162,6 +165,7 @@ function defaultSettings(id: ConnectorId): ConnectorData {
 	if (!connector) throw new Error(`Unsupported connector: ${id}`);
 	return {
 		type: 'mcp',
+		connector_id: connector.connectorId,
 		server_label: connector.serverLabel,
 		server_url: connector.serverUrl,
 		server_description: connector.serverDescription,
