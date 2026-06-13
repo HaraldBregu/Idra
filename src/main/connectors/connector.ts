@@ -27,10 +27,6 @@ export interface ConnectorOptions {
 
 const DEFAULT_SETTINGS: ConnectorSettingsRecord = {};
 const OAUTH_TIMEOUT_MS = 120_000;
-const OPENAI_CONNECTOR_IDS = {
-	gmail: 'connector_gmail',
-	calendar: 'connector_googlecalendar',
-} as const satisfies Record<ConnectorId, string>;
 
 @Service({ factory: () => new Connector() })
 export class Connector extends McpData {
@@ -65,7 +61,7 @@ export class Connector extends McpData {
 	upsert(input: ConnectorInput): ConnectorSettingsRecord {
 		if (!isRecord(input)) throw new Error('Connector input must be an object.');
 
-		const connectorId = resolveConnectorId(input.id ?? input.connectorId);
+		const connectorId = resolveConnectorId(input.id);
 		const connectors = this.list();
 		const current = connectors[connectorId];
 		const defaults = defaultSettings(connectorId);
@@ -130,14 +126,12 @@ export class Connector extends McpData {
 	mcp(): Mcp[] {
 		const mcp: Mcp[] = [];
 
-		for (const [id, connector] of Object.entries(this.list())) {
+		for (const connector of Object.values(this.list())) {
 			if (connector.enabled === false) continue;
 
-			const connectorId = OPENAI_CONNECTOR_IDS[id as ConnectorId];
 			mcp.push({
 				serverLabel: connector.server_label,
 				serverUrl: connector.server_url,
-				...(connectorId ? { connectorId } : {}),
 				...(connector.authorization ? { authorization: connector.authorization } : {}),
 				...(connector.require_approval ? { requireApproval: connector.require_approval } : {}),
 				...(connector.defer_loading !== undefined
@@ -403,7 +397,7 @@ function toConnectorId(value: string | undefined): ConnectorId | undefined {
 	const normalized = value?.trim().toLowerCase();
 	if (!normalized) return undefined;
 	if ((CONNECTOR_IDS as readonly string[]).includes(normalized)) return normalized as ConnectorId;
-	return CONNECTOR_DEFAULTS.find((connector) => connector.connectorId === normalized)?.id;
+	return undefined;
 }
 
 function isConnectorApprovalPolicy(value: unknown): value is ConnectorApprovalPolicy {

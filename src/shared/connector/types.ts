@@ -58,7 +58,7 @@ export type ConnectorSettingsRecord = Record<string, ConnectorData>;
 export interface ConnectorInput {
 	readonly id?: string;
 	readonly name: string;
-	readonly connectorId: string;
+	readonly connectorId?: string;
 	readonly serverLabel?: string;
 	readonly serverDescription?: string;
 	readonly serverUrl?: string;

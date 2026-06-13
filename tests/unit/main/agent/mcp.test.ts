@@ -122,13 +122,11 @@ describe('AgentRuntime MCP connectors', () => {
 		connectors.upsert({
 			id: 'gmail',
 			name: 'Gmail',
-			connectorId: 'connector_gmail',
 			authorization: ' token ',
 		});
 		connectors.upsert({
 			id: 'calendar',
 			name: 'Calendar',
-			connectorId: 'connector_calendar',
 			enabled: false,
 		});
 		Container.of('main').set(Connector, connectors);
@@ -150,7 +148,6 @@ describe('AgentRuntime MCP connectors', () => {
 			{
 				serverLabel: 'gmail',
 				serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
-				connectorId: 'connector_gmail',
 				authorization: 'token',
 				requireApproval: 'always',
 				deferLoading: false,
@@ -180,7 +177,6 @@ describe('AgentRuntime MCP connectors', () => {
 		connectors.upsert({
 			id: 'calendar',
 			name: 'Calendar',
-			connectorId: 'connector_googlecalendar',
 			authorization: ' token ',
 		});
 		Container.of('main').set(Connector, connectors);
@@ -202,7 +198,6 @@ describe('AgentRuntime MCP connectors', () => {
 			{
 				serverLabel: 'calendar',
 				serverUrl: 'https://www.googleapis.com/calendar/v3',
-				connectorId: 'connector_googlecalendar',
 				authorization: 'token',
 				requireApproval: 'always',
 				deferLoading: false,

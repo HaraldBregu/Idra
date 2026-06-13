@@ -30,7 +30,6 @@ describe('Connector', () => {
 		const result = service.upsert({
 			id: 'gmail',
 			name: 'Gmail',
-			connectorId: 'connector_gmail',
 			authorization: ' token ',
 		});
 
@@ -54,7 +53,6 @@ describe('Connector', () => {
 		service.upsert({
 			id: 'gmail',
 			name: 'Gmail',
-			connectorId: 'connector_gmail',
 		});
 
 		const settingsPath = path.join(cwd, 'setting.json');
@@ -72,20 +70,15 @@ describe('Connector', () => {
 		);
 	});
 
-	it('resolves connector ids from catalog connector ids', () => {
+	it('does not resolve provider connector ids as connector ids', () => {
 		const service = createService();
 
-		service.upsert({
-			name: 'Calendar',
-			connectorId: 'connector_googlecalendar',
-		});
-
-		expect(service.get('calendar').calendar).toEqual(
-			expect.objectContaining({
-				server_label: 'calendar',
-				server_url: 'https://www.googleapis.com/calendar/v3',
+		expect(() =>
+			service.upsert({
+				name: 'Calendar',
+				connectorId: 'connector_googlecalendar',
 			})
-		);
+		).toThrow('Unsupported connector:');
 	});
 
 	it('rejects unsupported connectors', () => {
@@ -95,7 +88,6 @@ describe('Connector', () => {
 			service.upsert({
 				id: 'drive',
 				name: 'Drive',
-				connectorId: 'connector_drive',
 			})
 		).toThrow('Unsupported connector: drive');
 	});
