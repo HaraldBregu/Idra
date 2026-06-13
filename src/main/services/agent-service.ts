@@ -6,6 +6,7 @@ import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
+import type { McpData } from '../agent/core/mcp';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -31,6 +32,7 @@ export class AgentService {
 
 	constructor(
 		agentSettingsStore: AgentSettingsStore,
+		private readonly mcpData: McpData,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
@@ -62,7 +64,8 @@ export class AgentService {
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
-				session
+				session,
+				this.mcpData
 			);
 			const input = {
 				...sessionInput,

@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { Container } from 'typedi';
 import { AgentRuntime } from '../../../../src/main/agent/loop/loop';
 import { Settings } from '../../../../src/main/agent/core/settings';
 import { Workspace } from '../../../../src/main/agent/core/workspace';
@@ -92,12 +91,10 @@ describe('AgentRuntime MCP connectors', () => {
 	let cwd: string;
 
 	beforeEach(async () => {
-		Container.reset('main');
 		cwd = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-agent-mcp-'));
 	});
 
 	afterEach(async () => {
-		Container.reset('main');
 		await fs.rm(cwd, { recursive: true, force: true });
 	});
 
@@ -129,12 +126,12 @@ describe('AgentRuntime MCP connectors', () => {
 			name: 'Calendar',
 			enabled: false,
 		});
-		Container.of('main').set(Connector, connectors);
 
 		const runtime = new AgentRuntime(
 			new TestWorkspace(cwd),
 			new TestSettings(),
-			new AgentSession({ task: 'chat', message: 'check gmail' })
+			new AgentSession({ task: 'chat', message: 'check gmail' }),
+			connectors
 		);
 
 		const events: string[] = [];
@@ -179,12 +176,12 @@ describe('AgentRuntime MCP connectors', () => {
 			name: 'Calendar',
 			authorization: ' token ',
 		});
-		Container.of('main').set(Connector, connectors);
 
 		const runtime = new AgentRuntime(
 			new TestWorkspace(cwd),
 			new TestSettings('anthropic'),
-			new AgentSession({ task: 'chat', message: 'check calendar' })
+			new AgentSession({ task: 'chat', message: 'check calendar' }),
+			connectors
 		);
 
 		const events: string[] = [];

@@ -1,4 +1,3 @@
-import { Container } from 'typedi';
 import { AgentModel } from './model';
 import type {
 	Provider,
@@ -16,7 +15,6 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import type { Mcp } from '../core/mcp';
 import type { McpData } from '../core/mcp';
-import { Connector } from '../../connectors';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
@@ -41,16 +39,15 @@ interface ToolOutcome {
 
 export class AgentRuntime {
 	private readonly model: AgentModel;
-	private readonly mcpData: McpData;
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
-		private readonly session: Session
+		private readonly session: Session,
+		private readonly mcpData: McpData
 	) {
 		this.model = new AgentModel();
-		this.mcpData = Container.of('main').get(Connector);
 		this.systemPrompt = new SystemPrompt();
 	}
 

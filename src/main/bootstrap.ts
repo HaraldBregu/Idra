@@ -43,7 +43,10 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(LlmService);
 	container.get(SttService);
 
-	const agentService = new AgentService(container.get(AgentSettingsStore));
+	const agentService = new AgentService(
+		container.get(AgentSettingsStore),
+		container.get(Connector)
+	);
 	container.set(AgentService, agentService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
