@@ -4,9 +4,9 @@ import { app } from 'electron';
 import { AgentSettingsStore } from './agent-settings-store';
 import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
-import { ConnectorSettingsService } from './connector-settings-service';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
+import { AgentMcp } from '../agent/core/mcp';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -27,13 +27,13 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
-	private readonly connectorSettingsService?: ConnectorSettingsService;
+	private readonly mcp: AgentMcp;
 	private readonly location: string;
 	private readonly lastMessagesLimit = 50;
 
 	constructor(
 		agentSettingsStore: AgentSettingsStore,
-		connectorSettingsService?: ConnectorSettingsService,
+		mcp: AgentMcp,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
@@ -42,7 +42,7 @@ export class AgentService {
 		this.location = location;
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
-		this.connectorSettingsService = connectorSettingsService;
+		this.mcp = mcp;
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
@@ -67,7 +67,7 @@ export class AgentService {
 				this.agentWorkspace,
 				this.agentSettingsStore,
 				session,
-				this.connectorSettingsService
+				this.mcp
 			);
 			const input = {
 				...sessionInput,
