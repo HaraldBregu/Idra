@@ -146,17 +146,16 @@ describe('AgentRuntime MCP connectors', () => {
 
 		expect(events).toContain('run_finished');
 		expect(stream).toHaveBeenCalledTimes(1);
-		expect(requests[0]?.mcpTools).toEqual([
+		expect(requests[0]?.mcp).toEqual([
 			{
-				server_label: 'gmail',
-				connector_id: 'connector_gmail',
+				serverLabel: 'gmail',
+				connectorId: 'connector_gmail',
 				authorization: 'token',
-				require_approval: 'always',
-				defer_loading: false,
-				server_description: 'Read and search Gmail messages through the OpenAI Gmail connector.',
+				requireApproval: 'always',
+				deferLoading: false,
+				serverDescription: 'Read and search Gmail messages through the OpenAI Gmail connector.',
 			},
 		]);
-		expect(requests[0]?.mcpServers).toBeUndefined();
 	});
 
 	it('does not pass OpenAI app connectors to Anthropic as remote MCP servers', async () => {
@@ -198,17 +197,16 @@ describe('AgentRuntime MCP connectors', () => {
 
 		expect(events).toContain('run_finished');
 		expect(stream).toHaveBeenCalledTimes(1);
-		expect(requests[0]?.mcpTools).toEqual([
+		expect(requests[0]?.mcp).toEqual([
 			{
-				server_label: 'calendar',
-				connector_id: 'connector_googlecalendar',
+				serverLabel: 'calendar',
+				connectorId: 'connector_googlecalendar',
 				authorization: 'token',
-				require_approval: 'always',
-				defer_loading: false,
-				server_description:
+				requireApproval: 'always',
+				deferLoading: false,
+				serverDescription:
 					'Read Google Calendar events through the Google Calendar connector.',
 			},
 		]);
-		expect(requests[0]?.mcpServers).toBeUndefined();
 	});
 });
