@@ -19,7 +19,7 @@ import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 import { AgentContext } from './context';
-import type { ProviderMcpServerSpec } from '../../llm/types';
+import type { AgentMcpConfig } from '../core/mcp';
 
 interface ModelTurn {
 	content: string;
@@ -85,7 +85,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
-		const mcp = this.mcp.list(provider.id);
+		const mcp = this.mcp.list();
 
 		const system = await this.systemPrompt.build(workspace);
 
@@ -142,7 +142,7 @@ export class AgentRuntime {
 		system: string | undefined,
 		messages: Message[],
 		tools: Tool[],
-		mcp: ProviderMcpServerSpec[],
+		mcp: AgentMcpConfig,
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
