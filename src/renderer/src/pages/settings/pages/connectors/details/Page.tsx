@@ -12,6 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import {
 	SettingsEmptyState,
 	SettingsNotice,
@@ -100,6 +101,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [savingApproval, setSavingApproval] = useState(false);
+	const [savingEnabled, setSavingEnabled] = useState(false);
 
 	useEffect(() => {
 		let mounted = true;
@@ -168,6 +170,38 @@ const ConnectorDetailsPage: React.FC = () => {
 	const authLabel = connector.authorization ? 'Access token' : 'Remote MCP';
 	const displayName = connectorName(id, connector);
 	const approvalPolicy = formatApprovalPolicy(connector.require_approval);
+	const enabled = connector.enabled !== false;
+
+	const handleEnabledChange = async (checked: boolean): Promise<void> => {
+		if (checked === enabled) return;
+
+		const previousRecord = connectorRecord;
+		const optimisticRecord: ConnectorRecord = {
+			...(connectorRecord ?? {}),
+			[id]: {
+				...connector,
+				enabled: checked,
+			},
+		};
+
+		setSavingEnabled(true);
+		setError(null);
+		setConnectorRecord(optimisticRecord);
+
+		try {
+			const nextRecord = await window.connectors.upsert({
+				id,
+				name: displayName,
+				enabled: checked,
+			});
+			setConnectorRecord(nextRecord);
+		} catch (caught) {
+			setConnectorRecord(previousRecord);
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setSavingEnabled(false);
+		}
+	};
 
 	const handleApprovalPolicyChange = async (value: string): Promise<void> => {
 		if (!isApprovalPolicy(value) || value === approvalPolicy) return;
@@ -218,7 +252,17 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Connector" value={id} mono />
 					<DetailRow label="Server label" value={connector.server_label} mono />
 					<DetailRow label="Server URL" value={connector.server_url} mono />
-					<DetailRow label="Enabled" value={connector.enabled === false ? 'Disabled' : 'Enabled'} />
+					<DetailRow
+						label="Enabled"
+						value={
+							<Switch
+								checked={enabled}
+								disabled={savingEnabled}
+								onCheckedChange={(checked) => void handleEnabledChange(checked)}
+								aria-label="Enabled"
+							/>
+						}
+					/>
 					<DetailRow
 						label="Require approval"
 						value={
