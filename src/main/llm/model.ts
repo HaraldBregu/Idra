@@ -486,8 +486,8 @@ export class AgentModel extends Model implements ProviderAdapter {
 		const blockIndexToToolUseId = new Map<number, string>();
 
 		try {
-			const stream: AsyncIterable<unknown> = mcp.servers.length > 0
-				? client.beta.messages.stream({
+			if (mcp.servers.length > 0) {
+				const message = await client.beta.messages.create({
 					model: req.model,
 					system: req.system,
 					max_tokens: req.maxTokens,
@@ -495,11 +495,30 @@ export class AgentModel extends Model implements ProviderAdapter {
 					mcp_servers: mcp.servers,
 					betas: [ANTHROPIC_MCP_BETA],
 					messages: buildAnthropicMessages(req.messages),
-				} as BetaMessages.MessageCreateParamsStreaming, {
+				} as BetaMessages.MessageCreateParamsNonStreaming, {
 					signal: req.signal,
 					headers: { 'anthropic-beta': ANTHROPIC_MCP_BETA },
-				})
-				: client.messages.stream({
+				});
+
+				usage.inputTokens = message.usage.input_tokens ?? usage.inputTokens;
+				usage.outputTokens = message.usage.output_tokens ?? usage.outputTokens;
+				stopReason = message.stop_reason ?? stopReason;
+
+				for (const block of message.content) {
+					if (block.type === 'text') {
+						yield { type: 'text_delta', text: block.text };
+					} else if (block.type === 'tool_use') {
+						yield { type: 'tool_call_start', id: block.id, name: block.name };
+						yield {
+							type: 'tool_call_args_delta',
+							id: block.id,
+							jsonDelta: JSON.stringify(block.input ?? {}),
+						};
+						yield { type: 'tool_call_end', id: block.id };
+					}
+				}
+			} else {
+				const stream = client.messages.stream({
 					model: req.model,
 					system: req.system,
 					max_tokens: req.maxTokens,
@@ -507,36 +526,37 @@ export class AgentModel extends Model implements ProviderAdapter {
 					messages: buildAnthropicMessages(req.messages),
 				}, { signal: req.signal });
 
-			for await (const rawEvent of stream) {
-				if (!rawEvent || typeof rawEvent !== 'object') continue;
-				const event = rawEvent as Anthropic.Messages.RawMessageStreamEvent;
-				if (event.type === 'content_block_start') {
-					if (event.content_block.type === 'tool_use') {
-						blockIndexToToolUseId.set(event.index, event.content_block.id);
-						yield {
-							type: 'tool_call_start',
-							id: event.content_block.id,
-							name: event.content_block.name,
-						};
-					}
-				} else if (event.type === 'content_block_delta') {
-					const delta = event.delta;
-					if (delta.type === 'text_delta') {
-						yield { type: 'text_delta', text: delta.text };
-					} else if (delta.type === 'input_json_delta') {
-						const id = blockIndexToToolUseId.get(event.index) ?? '';
-						yield { type: 'tool_call_args_delta', id, jsonDelta: delta.partial_json };
-					}
-				} else if (event.type === 'content_block_stop') {
-					const id = blockIndexToToolUseId.get(event.index);
-					if (id) yield { type: 'tool_call_end', id };
-				} else if (event.type === 'message_delta') {
-					if (event.delta.stop_reason) stopReason = event.delta.stop_reason;
-					if (event.usage) usage.outputTokens = event.usage.output_tokens ?? usage.outputTokens;
-				} else if (event.type === 'message_start') {
-					if (event.message.usage) {
-						usage.inputTokens = event.message.usage.input_tokens ?? usage.inputTokens;
-						usage.outputTokens = event.message.usage.output_tokens ?? usage.outputTokens;
+				for await (const rawEvent of stream) {
+					if (!rawEvent || typeof rawEvent !== 'object') continue;
+					const event = rawEvent as Anthropic.Messages.RawMessageStreamEvent;
+					if (event.type === 'content_block_start') {
+						if (event.content_block.type === 'tool_use') {
+							blockIndexToToolUseId.set(event.index, event.content_block.id);
+							yield {
+								type: 'tool_call_start',
+								id: event.content_block.id,
+								name: event.content_block.name,
+							};
+						}
+					} else if (event.type === 'content_block_delta') {
+						const delta = event.delta;
+						if (delta.type === 'text_delta') {
+							yield { type: 'text_delta', text: delta.text };
+						} else if (delta.type === 'input_json_delta') {
+							const id = blockIndexToToolUseId.get(event.index) ?? '';
+							yield { type: 'tool_call_args_delta', id, jsonDelta: delta.partial_json };
+						}
+					} else if (event.type === 'content_block_stop') {
+						const id = blockIndexToToolUseId.get(event.index);
+						if (id) yield { type: 'tool_call_end', id };
+					} else if (event.type === 'message_delta') {
+						if (event.delta.stop_reason) stopReason = event.delta.stop_reason;
+						if (event.usage) usage.outputTokens = event.usage.output_tokens ?? usage.outputTokens;
+					} else if (event.type === 'message_start') {
+						if (event.message.usage) {
+							usage.inputTokens = event.message.usage.input_tokens ?? usage.inputTokens;
+							usage.outputTokens = event.message.usage.output_tokens ?? usage.outputTokens;
+						}
 					}
 				}
 			}
