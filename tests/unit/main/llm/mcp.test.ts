@@ -110,9 +110,7 @@ describe('MCP provider adapters', () => {
 					}),
 				],
 			}),
-			expect.objectContaining({
-				headers: { 'anthropic-beta': 'mcp-client-2025-11-20' },
-			})
+			expect.any(Object)
 		);
 	});
 
@@ -279,7 +277,9 @@ describe('MCP provider adapters', () => {
 				],
 				betas: ['mcp-client-2025-11-20'],
 			}),
-			expect.any(Object)
+			expect.objectContaining({
+				headers: { 'anthropic-beta': 'mcp-client-2025-11-20' },
+			})
 		);
 		expect(messagesStream).not.toHaveBeenCalled();
 	});
