@@ -19,7 +19,7 @@ export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): An
 	const tools: BetaMessages.BetaMCPToolset[] = entries.map((entry) => {
 		const defaultConfig: BetaMessages.BetaMCPToolDefaultConfig = {};
 		if (entry.allowedTools !== undefined) defaultConfig.enabled = false;
-		if (entry.deferLoading !== undefined) defaultConfig.defer_loading = entry.deferLoading;
+		if (entry.deferLoading === true) defaultConfig.defer_loading = true;
 
 		const configs = entry.allowedTools?.reduce<Record<string, BetaMessages.BetaMCPToolConfig>>(
 			(acc, toolName) => {
