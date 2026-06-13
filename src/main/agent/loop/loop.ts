@@ -13,13 +13,12 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import type { Mcp } from '../core/mcp';
+import type { Mcp, McpData } from '../core/mcp';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 import { AgentContext } from './context';
-import type { McpConfig } from '../core/mcp';
 
 interface ModelTurn {
 	content: string;
@@ -39,17 +38,17 @@ interface ToolOutcome {
 
 export class AgentRuntime {
 	private readonly model: AgentModel;
-	private readonly mcp: Mcp;
+	private readonly mcpData: McpData;
 	private readonly systemPrompt: SystemPrompt;
 
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly session: Session,
-		mcp: Mcp
+		mcpData: McpData
 	) {
 		this.model = new AgentModel();
-		this.mcp = mcp;
+		this.mcpData = mcpData;
 		this.systemPrompt = new SystemPrompt();
 	}
 
@@ -85,7 +84,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
-		const mcp = this.mcp.list();
+		const mcp = this.mcpData.list();
 
 		const system = await this.systemPrompt.build(workspace);
 
@@ -142,7 +141,7 @@ export class AgentRuntime {
 		system: string | undefined,
 		messages: Message[],
 		tools: Tool[],
-		mcp: McpConfig,
+		mcp: Mcp[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {

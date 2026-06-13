@@ -6,7 +6,7 @@ import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
-import type { Mcp } from '../agent/core/mcp';
+import type { McpData } from '../agent/core/mcp';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -27,13 +27,13 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
-	private readonly mcp: Mcp;
+	private readonly mcpData: McpData;
 	private readonly location: string;
 	private readonly lastMessagesLimit = 50;
 
 	constructor(
 		agentSettingsStore: AgentSettingsStore,
-		mcp: Mcp,
+		mcpData: McpData,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
@@ -42,7 +42,7 @@ export class AgentService {
 		this.location = location;
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
-		this.mcp = mcp;
+		this.mcpData = mcpData;
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
@@ -67,7 +67,7 @@ export class AgentService {
 				this.agentWorkspace,
 				this.agentSettingsStore,
 				session,
-				this.mcp
+				this.mcpData
 			);
 			const input = {
 				...sessionInput,

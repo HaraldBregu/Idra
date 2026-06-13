@@ -1,6 +1,6 @@
 import type { Tool } from './tool';
 import type { Message, Provider, ToolCall } from './types';
-import type { McpConfig } from './mcp';
+import type { Mcp } from './mcp';
 
 export interface ModelRequest {
 	messages: Message[];
@@ -9,7 +9,7 @@ export interface ModelRequest {
 	model: string;
 	maxTokens: number;
 	tools?: Tool[];
-	mcp?: McpConfig;
+	mcp?: Mcp[];
 	signal?: AbortSignal;
 }
 
