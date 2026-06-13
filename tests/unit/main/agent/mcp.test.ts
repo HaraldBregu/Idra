@@ -149,6 +149,7 @@ describe('AgentRuntime MCP connectors', () => {
 		expect(requests[0]?.mcp).toEqual([
 			{
 				serverLabel: 'gmail',
+				serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
 				connectorId: 'connector_gmail',
 				authorization: 'token',
 				requireApproval: 'always',
@@ -200,6 +201,7 @@ describe('AgentRuntime MCP connectors', () => {
 		expect(requests[0]?.mcp).toEqual([
 			{
 				serverLabel: 'calendar',
+				serverUrl: 'https://www.googleapis.com/calendar/v3',
 				connectorId: 'connector_googlecalendar',
 				authorization: 'token',
 				requireApproval: 'always',

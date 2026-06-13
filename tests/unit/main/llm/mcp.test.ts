@@ -12,6 +12,7 @@ describe('MCP provider adapters', () => {
 			adaptOpenAIMcpTools([
 				{
 					serverLabel: 'gmail',
+					serverUrl: 'https://gmail.example/mcp',
 					connectorId: 'connector_gmail',
 					authorization: 'token',
 					requireApproval: 'always',
@@ -26,12 +27,13 @@ describe('MCP provider adapters', () => {
 				},
 			])
 		).toEqual([
-			{
-				type: 'mcp',
-				server_label: 'gmail',
-				connector_id: 'connector_gmail',
-				authorization: 'token',
-				require_approval: 'always',
+				{
+					type: 'mcp',
+					server_label: 'gmail',
+					server_url: 'https://gmail.example/mcp',
+					connector_id: 'connector_gmail',
+					authorization: 'token',
+					require_approval: 'always',
 				allowed_tools: ['search'],
 				defer_loading: true,
 				server_description: 'Gmail search',
@@ -49,6 +51,9 @@ describe('MCP provider adapters', () => {
 				},
 				{
 					serverLabel: 'filesystem',
+					serverUrl: 'https://filesystem.example/mcp',
+					authorization: 'token',
+					allowedTools: ['search'],
 					deferLoading: true,
 				},
 				{
@@ -57,7 +62,15 @@ describe('MCP provider adapters', () => {
 				},
 			])
 		).toEqual({
-			servers: [],
+			servers: [
+				{
+					type: 'url',
+					name: 'filesystem',
+					url: 'https://filesystem.example/mcp',
+					authorization_token: 'token',
+					tool_configuration: { allowed_tools: ['search'] },
+				},
+			],
 			tools: [
 				{
 					type: 'mcp_toolset',
@@ -91,6 +104,7 @@ describe('MCP provider adapters', () => {
 					expect.objectContaining({
 						type: 'mcp',
 						server_label: 'gmail',
+						server_url: 'https://gmail.example/mcp',
 						connector_id: 'connector_gmail',
 					}),
 				],
@@ -116,18 +130,30 @@ describe('MCP provider adapters', () => {
 		});
 
 		const events: string[] = [];
-		for await (const event of adapter.stream(request())) {
+		for await (const event of adapter.stream(anthropicRequest())) {
 			events.push(event.type);
 		}
 
 		expect(events).toEqual(['message_start', 'message_end']);
-		expect(betaStream).not.toHaveBeenCalled();
-		expect(messagesStream).toHaveBeenCalledWith(
+		expect(betaStream).toHaveBeenCalledWith(
 			expect.objectContaining({
-				tools: undefined,
+				mcp_servers: [
+					expect.objectContaining({
+						type: 'url',
+						name: 'filesystem',
+						url: 'https://filesystem.example/mcp',
+					}),
+				],
+				tools: [
+					expect.objectContaining({
+						type: 'mcp_toolset',
+						mcp_server_name: 'filesystem',
+					}),
+				],
 			}),
 			expect.any(Object)
 		);
+		expect(messagesStream).not.toHaveBeenCalled();
 	});
 });
 
@@ -140,7 +166,24 @@ function request(): ProviderStreamRequest {
 		mcp: [
 			{
 				serverLabel: 'gmail',
+				serverUrl: 'https://gmail.example/mcp',
 				connectorId: 'connector_gmail',
+			},
+		],
+		maxTokens: 128,
+	};
+}
+
+function anthropicRequest(): ProviderStreamRequest {
+	return {
+		model: 'test-model',
+		system: '',
+		messages: [],
+		tools: [],
+		mcp: [
+			{
+				serverLabel: 'filesystem',
+				serverUrl: 'https://filesystem.example/mcp',
 			},
 		],
 		maxTokens: 128,
