@@ -13,7 +13,7 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { AgentMcp } from '../core/mcp';
+import type { AgentMcp } from '../core/mcp';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
