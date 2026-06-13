@@ -83,10 +83,18 @@ export class AgentSession extends Session {
 		if (turn.content) this.finalText = turn.content;
 	}
 
-	addAssistantMessage(content: string, toolCalls: ToolCall[]): void {
+	addAssistantMessage(
+		content: string,
+		toolCalls: ToolCall[],
+		providerItems: MessageContentBlock[] = []
+	): void {
+		const contentBlocks: MessageContentBlock[] = [...providerItems];
+		if (content || contentBlocks.length === 0) {
+			contentBlocks.push({ type: 'text', text: content });
+		}
 		this.messages.push({
 			role: 'assistant',
-			content: [{ type: 'text', text: content }],
+			content: contentBlocks,
 			toolCalls,
 		});
 		this.persist();
