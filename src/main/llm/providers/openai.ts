@@ -17,7 +17,7 @@ import type {
 	TranscriptEntry,
 	Usage,
 } from '../types';
-import { adaptOpenAIMcpServers } from '../mcp/openai';
+import { adaptOpenAIMcpTools } from '../mcp/openai';
 import { ContextOverflowError, ProviderAuthError } from '../types';
 
 type ReasoningContentBlock = Extract<AgentContentBlock, { type: 'reasoning' }>;
@@ -137,7 +137,7 @@ export class OpenAIAdapter implements ProviderAdapter {
 		}));
 		const tools: ResponseTool[] = [
 			...functionTools,
-			...adaptOpenAIMcpServers(req.mcp),
+			...adaptOpenAIMcpTools(req.mcpTools, req.mcpServers),
 		];
 
 		const params: ResponseCreateParamsStreaming = {
