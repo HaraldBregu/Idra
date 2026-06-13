@@ -16,14 +16,13 @@ export class ConnectorMcpData extends McpData {
 	}
 
 	list(): Mcp[] {
-		const tools: Mcp['tools'] = [];
-		const servers: Mcp['servers'] = [];
+		const mcp: Mcp[] = [];
 
 		for (const [id, connector] of Object.entries(this.connectors.list())) {
 			if (connector.enabled === false) continue;
 
 			const connectorId = OPENAI_CONNECTOR_IDS[id as ConnectorId];
-			tools.push({
+			mcp.push({
 				serverLabel: connector.server_label,
 				...(connectorId ? { connectorId } : {}),
 				...(connector.authorization ? { authorization: connector.authorization } : {}),
@@ -35,13 +34,8 @@ export class ConnectorMcpData extends McpData {
 					? { serverDescription: connector.server_description }
 					: {}),
 			});
-			servers.push({
-				name: connector.server_label,
-				url: connector.server_url,
-				...(connector.authorization ? { authorizationToken: connector.authorization } : {}),
-			});
 		}
 
-		return tools.length > 0 || servers.length > 0 ? [{ tools, servers }] : [];
+		return mcp;
 	}
 }
