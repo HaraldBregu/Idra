@@ -15,7 +15,7 @@ import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import type { Mcp } from '../core/mcp';
-import { McpData } from '../../mcp';
+import { McpData } from '../../connectors';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';

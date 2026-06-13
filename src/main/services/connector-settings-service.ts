@@ -4,7 +4,8 @@ import path from 'node:path';
 import { app, shell } from 'electron';
 import Store from 'electron-store';
 import { Service } from 'typedi';
-import { Settings, SIMPLE_CONNECTORS } from '../connectors';
+import { Settings } from '../connectors/core/settings';
+import { SIMPLE_CONNECTORS } from '../connectors/simple';
 import type {
 	ConnectorApprovalPolicy,
 	ConnectorData,

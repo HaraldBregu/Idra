@@ -1,1 +1,0 @@
-export { McpData } from './mcp';

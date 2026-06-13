@@ -1,11 +1,9 @@
 import type { ConnectorData, ConnectorDefault, ConnectorId } from '../../../shared/connector';
-import { Connector } from '../core/connector';
 
-export class SimpleConnector extends Connector {
+export class SimpleConnector {
 	readonly id: ConnectorId;
 
 	constructor(readonly defaults: ConnectorDefault) {
-		super();
 		this.id = defaults.id;
 	}
 
