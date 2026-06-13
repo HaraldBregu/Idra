@@ -58,7 +58,7 @@ export class AgentModel extends Model {
 		const messages = request.messages.filter((message) => message.role !== 'system');
 
 		yield { type: 'model_call_start', model: request.model };
-
+		
 		for await (const event of this.llm.build(request.provider).stream({
 			model: request.model,
 			system,
