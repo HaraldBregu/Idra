@@ -5,16 +5,17 @@ export function adaptOpenAIMcpTools(mcp: ProviderMcpSpec[] | undefined): Respons
 	return (mcp ?? [])
 		.filter((entry) => entry.enabled !== false)
 		.map((entry) => {
-			if (!entry.connectorId) {
+			if (!entry.connectorId && !entry.serverUrl) {
 				throw new Error(
-					`MCP tool '${entry.serverLabel}' requires connectorId for OpenAI.`
+					`MCP tool '${entry.serverLabel}' requires connectorId or serverUrl for OpenAI.`
 				);
 			}
 
 			return {
 				type: 'mcp',
 				server_label: entry.serverLabel,
-				connector_id: entry.connectorId,
+				...(entry.connectorId ? { connector_id: entry.connectorId } : {}),
+				...(entry.serverUrl ? { server_url: entry.serverUrl } : {}),
 				...(entry.authorization ? { authorization: entry.authorization } : {}),
 				...(entry.headers ? { headers: entry.headers } : {}),
 				...(entry.requireApproval

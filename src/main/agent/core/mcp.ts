@@ -2,6 +2,7 @@ export type McpApprovalPolicy = 'always' | 'never' | { never: { toolNames: strin
 
 export interface Mcp {
 	serverLabel: string;
+	serverUrl?: string;
 	connectorId?: string;
 	authorization?: string;
 	requireApproval?: McpApprovalPolicy;

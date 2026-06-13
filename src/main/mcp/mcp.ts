@@ -23,6 +23,7 @@ export class McpData extends CoreMcpData {
 			const connectorId = OPENAI_CONNECTOR_IDS[id as ConnectorId];
 			mcp.push({
 				serverLabel: connector.server_label,
+				serverUrl: connector.server_url,
 				...(connectorId ? { connectorId } : {}),
 				...(connector.authorization ? { authorization: connector.authorization } : {}),
 				...(connector.require_approval ? { requireApproval: connector.require_approval } : {}),

@@ -106,6 +106,7 @@ export type ProviderMcpApprovalPolicy = 'always' | 'never' | { never: { toolName
 
 export interface ProviderMcpSpec {
 	serverLabel: string;
+	serverUrl?: string;
 	connectorId?: string;
 	authorization?: string;
 	headers?: Record<string, string>;

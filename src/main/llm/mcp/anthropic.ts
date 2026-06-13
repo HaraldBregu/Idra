@@ -7,8 +7,18 @@ export interface AnthropicMcpConfig {
 }
 
 export function adaptAnthropicMcpServers(mcp: ProviderMcpSpec[] | undefined): AnthropicMcpConfig {
-	const entries = (mcp ?? []).filter((entry) => entry.enabled !== false && !entry.connectorId);
-	const servers: BetaMessages.BetaRequestMCPServerURLDefinition[] = [];
+	const entries = (mcp ?? []).filter(
+		(entry) => entry.enabled !== false && !entry.connectorId && entry.serverUrl
+	);
+	const servers = entries.map((entry): BetaMessages.BetaRequestMCPServerURLDefinition => ({
+		type: 'url',
+		name: entry.serverLabel,
+		url: entry.serverUrl ?? '',
+		...(entry.authorization ? { authorization_token: entry.authorization } : {}),
+		...(entry.allowedTools
+			? { tool_configuration: { allowed_tools: entry.allowedTools } }
+			: {}),
+	}));
 	const tools: BetaMessages.BetaMCPToolset[] = entries.map((entry) => ({
 		type: 'mcp_toolset',
 		mcp_server_name: entry.serverLabel,
