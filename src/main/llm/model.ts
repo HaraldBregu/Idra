@@ -288,6 +288,7 @@ export class AgentModel extends Model implements ProviderAdapter {
 		try {
 			const stream = await client.responses.create(params, { signal: req.signal });
 			for await (const event of stream) {
+				console.log({event})
 				for (const providerEvent of this.adaptOpenAIResponseEvent(
 					event,
 					usage,
