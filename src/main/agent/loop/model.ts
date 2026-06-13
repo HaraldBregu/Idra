@@ -2,7 +2,6 @@ import { LlmService } from '../../llm';
 import type {
 	AgentContentBlock,
 	ProviderMcpApprovalPolicy,
-	ProviderMcpServerSpec,
 	ProviderMcpToolSpec,
 	TranscriptEntry,
 } from '../../llm/types';
@@ -73,7 +72,6 @@ export class AgentModel extends Model {
 				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
 			})),
 			mcpTools: toProviderMcpTools(request.mcp),
-			mcpServers: toProviderMcpServers(request.mcp),
 			maxTokens: request.maxTokens,
 			signal: request.signal,
 		})) {
@@ -106,33 +104,19 @@ export class AgentModel extends Model {
 }
 
 function toProviderMcpTools(mcp: ModelRequest['mcp']): ProviderMcpToolSpec[] | undefined {
-	return mcp?.flatMap((entry) =>
-		entry.tools.map((tool) => ({
-			server_label: tool.serverLabel,
-			...(tool.connectorId ? { connector_id: tool.connectorId } : {}),
-			...(tool.authorization ? { authorization: tool.authorization } : {}),
-			...(tool.headers ? { headers: tool.headers } : {}),
-			...(tool.requireApproval
-				? { require_approval: toProviderMcpApproval(tool.requireApproval) }
-				: {}),
-			...(tool.allowedTools ? { allowed_tools: tool.allowedTools } : {}),
-			...(tool.deferLoading !== undefined ? { defer_loading: tool.deferLoading } : {}),
-			...(tool.serverDescription ? { server_description: tool.serverDescription } : {}),
-			...(tool.enabled !== undefined ? { enabled: tool.enabled } : {}),
-		}))
-	);
-}
-
-function toProviderMcpServers(mcp: ModelRequest['mcp']): ProviderMcpServerSpec[] | undefined {
-	return mcp?.flatMap((entry) =>
-		entry.servers.map((server) => ({
-			name: server.name,
-			url: server.url,
-			...(server.authorizationToken ? { authorization_token: server.authorizationToken } : {}),
-			...(server.allowedTools ? { allowed_tools: server.allowedTools } : {}),
-			...(server.enabled !== undefined ? { enabled: server.enabled } : {}),
-		}))
-	);
+	return mcp?.map((entry) => ({
+		server_label: entry.serverLabel,
+		...(entry.connectorId ? { connector_id: entry.connectorId } : {}),
+		...(entry.authorization ? { authorization: entry.authorization } : {}),
+		...(entry.headers ? { headers: entry.headers } : {}),
+		...(entry.requireApproval
+			? { require_approval: toProviderMcpApproval(entry.requireApproval) }
+			: {}),
+		...(entry.allowedTools ? { allowed_tools: entry.allowedTools } : {}),
+		...(entry.deferLoading !== undefined ? { defer_loading: entry.deferLoading } : {}),
+		...(entry.serverDescription ? { server_description: entry.serverDescription } : {}),
+		...(entry.enabled !== undefined ? { enabled: entry.enabled } : {}),
+	}));
 }
 
 function toProviderMcpApproval(policy: McpApprovalPolicy): ProviderMcpApprovalPolicy {
