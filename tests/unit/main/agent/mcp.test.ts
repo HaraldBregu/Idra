@@ -181,6 +181,70 @@ describe('AgentRuntime MCP connectors', () => {
 		expect(requests[0]?.effort).toBe('high');
 	});
 
+	it('records OpenAI MCP output items in assistant history', async () => {
+		const listItem = {
+			id: 'mcpl_1',
+			type: 'mcp_list_tools',
+			server_label: 'gmail',
+			tools: [{ name: 'search_emails', input_schema: { type: 'object' } }],
+		};
+		const callItem = {
+			id: 'mcp_1',
+			type: 'mcp_call',
+			server_label: 'gmail',
+			name: 'search_emails',
+			arguments: '{"query":"from:alice"}',
+			output: '{"messages":[]}',
+		};
+		const stream = jest.fn(async function* (): AsyncIterable<ProviderEvent> {
+			yield {
+				type: 'mcp_list_tools',
+				serverLabel: 'gmail',
+				item: listItem,
+				tools: [{ name: 'search_emails', inputSchema: { type: 'object' } }],
+			};
+			yield {
+				type: 'mcp_call',
+				id: 'mcp_1',
+				serverLabel: 'gmail',
+				name: 'search_emails',
+				arguments: '{"query":"from:alice"}',
+				output: '{"messages":[]}',
+				item: callItem,
+			};
+			yield { type: 'text_delta', text: 'No messages.' };
+			yield {
+				type: 'message_end',
+				stopReason: 'end_turn',
+				usage: { inputTokens: 1, outputTokens: 1 },
+			};
+		});
+		const session = new AgentSession({ task: 'chat', message: 'check gmail' });
+		const runtime = new AgentRuntime(
+			new TestWorkspace(cwd),
+			new TestSettings(),
+			session,
+			new Connector({ cwd }),
+			new AgentModel({ providerModelFactory: () => ({ stream }) })
+		);
+
+		const events: string[] = [];
+		for await (const event of runtime.run({ task: 'chat', message: 'check gmail' })) {
+			events.push(event.type);
+		}
+
+		expect(events).toContain('run_finished');
+		expect(session.messages[1]).toEqual({
+			role: 'assistant',
+			content: [
+				{ type: 'provider_item', provider: 'openai', item: listItem },
+				{ type: 'provider_item', provider: 'openai', item: callItem },
+				{ type: 'text', text: 'No messages.' },
+			],
+			toolCalls: [],
+		});
+	});
+
 	it('passes connector service entries without provider connector ids', async () => {
 		const requests: ProviderStreamRequest[] = [];
 		const stream = jest.fn(async function* (
