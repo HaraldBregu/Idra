@@ -4,14 +4,28 @@
     {
       "name": "Debug Main Process",
       "type": "node",
-      "request": "launch",
+      "request": "attach",
       "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-      "windows": {
-        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
-      },
-      "args" : ["."],
+      "port": 5858,
+      "preLaunchTask": "electron-vite: dev",
+      "restart": true,
+      "timeout": 30000,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/out/main/**/*.js"],
+      "skipFiles": ["<node_internals>/**"],
       "outputCapture": "std"
+    },
+    {
+      "name": "Attach Main Process",
+      "type": "node",
+      "request": "attach",
+      "cwd": "${workspaceFolder}",
+      "port": 5858,
+      "restart": true,
+      "timeout": 30000,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/out/main/**/*.js"],
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
 }

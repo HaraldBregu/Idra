@@ -53,9 +53,9 @@
 	},
 	"main": "./out/main/index.js",
 	"scripts": {
-		"dev": "cross-env NODE_ENV=development electron-vite dev --inspect",
-		"dev:staging": "cross-env NODE_ENV=staging electron-vite dev --inspect --mode staging",
-		"dev:prod": "cross-env NODE_ENV=production electron-vite dev --inspect --mode production",
+		"dev": "cross-env NODE_ENV=development electron-vite dev --inspect --sourcemap",
+		"dev:staging": "cross-env NODE_ENV=staging electron-vite dev --inspect --sourcemap --mode staging",
+		"dev:prod": "cross-env NODE_ENV=production electron-vite dev --inspect --sourcemap --mode production",
 		"dev-linux": "cross-env NODE_ENV=development ELECTRON_DISABLE_SANDBOX=1 electron-vite dev",
 		"dev-linux:staging": "cross-env NODE_ENV=staging ELECTRON_DISABLE_SANDBOX=1 electron-vite dev --mode staging",
 		"dev-linux:prod": "cross-env NODE_ENV=production ELECTRON_DISABLE_SANDBOX=1 electron-vite dev --mode production",
