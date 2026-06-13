@@ -1,41 +1,35 @@
 import type { Tool as ResponseTool } from 'openai/resources/responses/responses';
-import type { ProviderMcpServerSpec, ProviderMcpToolSpec } from '../types';
+import type { ProviderMcpApprovalPolicy, ProviderMcpSpec } from '../types';
 
-export function adaptOpenAIMcpTools(
-	mcpTools: ProviderMcpToolSpec[] | undefined,
-	mcpServers: ProviderMcpServerSpec[] | undefined
-): ResponseTool[] {
-	const serversByName = new Map(
-		(mcpServers ?? [])
-			.filter((server) => server.enabled !== false)
-			.map((server) => [server.name, server])
-	);
-
-	return (mcpTools ?? [])
-		.filter((tool) => tool.enabled !== false)
-		.map((tool) => {
-			const server = serversByName.get(tool.server_label);
-			const serverUrl = tool.server_url ?? (tool.connector_id ? undefined : server?.url);
-			const authorization = tool.authorization ?? server?.authorization_token;
-			const allowedTools = tool.allowed_tools ?? server?.allowed_tools;
-
-			if (!serverUrl && !tool.connector_id) {
+export function adaptOpenAIMcpTools(mcp: ProviderMcpSpec[] | undefined): ResponseTool[] {
+	return (mcp ?? [])
+		.filter((entry) => entry.enabled !== false)
+		.map((entry) => {
+			if (!entry.connectorId) {
 				throw new Error(
-					`MCP tool '${tool.server_label}' requires server_url or connector_id.`
+					`MCP tool '${entry.serverLabel}' requires connectorId for OpenAI.`
 				);
 			}
 
 			return {
 				type: 'mcp',
-				server_label: tool.server_label,
-				...(tool.connector_id ? { connector_id: tool.connector_id } : {}),
-				...(serverUrl ? { server_url: serverUrl } : {}),
-				...(authorization ? { authorization } : {}),
-				...(tool.headers ? { headers: tool.headers } : {}),
-				...(tool.require_approval ? { require_approval: tool.require_approval } : {}),
-				...(allowedTools ? { allowed_tools: allowedTools } : {}),
-				...(tool.defer_loading !== undefined ? { defer_loading: tool.defer_loading } : {}),
-				...(tool.server_description ? { server_description: tool.server_description } : {}),
+				server_label: entry.serverLabel,
+				connector_id: entry.connectorId,
+				...(entry.authorization ? { authorization: entry.authorization } : {}),
+				...(entry.headers ? { headers: entry.headers } : {}),
+				...(entry.requireApproval
+					? { require_approval: toOpenAIApproval(entry.requireApproval) }
+					: {}),
+				...(entry.allowedTools ? { allowed_tools: entry.allowedTools } : {}),
+				...(entry.deferLoading !== undefined ? { defer_loading: entry.deferLoading } : {}),
+				...(entry.serverDescription ? { server_description: entry.serverDescription } : {}),
 			} as unknown as ResponseTool;
 		});
+}
+
+function toOpenAIApproval(
+	policy: ProviderMcpApprovalPolicy
+): 'always' | 'never' | { never: { tool_names: string[] } } {
+	if (policy === 'always' || policy === 'never') return policy;
+	return { never: { tool_names: policy.never.toolNames } };
 }
