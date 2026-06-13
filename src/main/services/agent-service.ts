@@ -6,7 +6,7 @@ import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { RuntimeEvent } from '../agent';
-import { AgentMcp } from '../agent/core/mcp';
+import type { AgentMcp } from '../agent/core/mcp';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
