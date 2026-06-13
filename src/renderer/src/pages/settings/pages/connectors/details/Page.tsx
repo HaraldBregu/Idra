@@ -6,6 +6,13 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import {
 	SettingsEmptyState,
 	SettingsNotice,
 	SettingsPageHeader,
@@ -16,6 +23,9 @@ import { SETTINGS_CONNECTOR_CATALOG } from '../catalog';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
 type ConnectorEntry = ConnectorRecord[string];
+type ApprovalPolicy = NonNullable<ConnectorEntry['require_approval']>;
+
+const APPROVAL_POLICIES = ['always', 'never'] as const satisfies readonly ApprovalPolicy[];
 
 function formatTimestamp(value?: string): string {
 	if (!value) return 'Never';
@@ -26,6 +36,10 @@ function formatTimestamp(value?: string): string {
 
 function formatApprovalPolicy(value: ConnectorEntry['require_approval']): string {
 	return value ?? 'always';
+}
+
+function isApprovalPolicy(value: string): value is ApprovalPolicy {
+	return APPROVAL_POLICIES.includes(value as ApprovalPolicy);
 }
 
 function connectorRecordEntry(
@@ -85,6 +99,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [connectorRecord, setConnectorRecord] = useState<ConnectorRecord | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [savingApproval, setSavingApproval] = useState(false);
 
 	useEffect(() => {
 		let mounted = true;
@@ -152,6 +167,38 @@ const ConnectorDetailsPage: React.FC = () => {
 	const { id, connector } = selected;
 	const authLabel = connector.authorization ? 'Access token' : 'Remote MCP';
 	const displayName = connectorName(id, connector);
+	const approvalPolicy = formatApprovalPolicy(connector.require_approval);
+
+	const handleApprovalPolicyChange = async (value: string): Promise<void> => {
+		if (!isApprovalPolicy(value) || value === approvalPolicy) return;
+
+		const previousRecord = connectorRecord;
+		const optimisticRecord: ConnectorRecord = {
+			...(connectorRecord ?? {}),
+			[id]: {
+				...connector,
+				require_approval: value,
+			},
+		};
+
+		setSavingApproval(true);
+		setError(null);
+		setConnectorRecord(optimisticRecord);
+
+		try {
+			const nextRecord = await window.connectors.upsert({
+				id,
+				name: displayName,
+				requireApproval: value,
+			});
+			setConnectorRecord(nextRecord);
+		} catch (caught) {
+			setConnectorRecord(previousRecord);
+			setError(caught instanceof Error ? caught.message : String(caught));
+		} finally {
+			setSavingApproval(false);
+		}
+	};
 
 	return (
 		<SettingsPageShell>
@@ -172,7 +219,24 @@ const ConnectorDetailsPage: React.FC = () => {
 					<DetailRow label="Server label" value={connector.server_label} mono />
 					<DetailRow label="Server URL" value={connector.server_url} mono />
 					<DetailRow label="Enabled" value={connector.enabled === false ? 'Disabled' : 'Enabled'} />
-					<DetailRow label="Approval policy" value={formatApprovalPolicy(connector.require_approval)} />
+					<DetailRow
+						label="Permissions"
+						value={
+							<Select
+								value={approvalPolicy}
+								onValueChange={(value) => void handleApprovalPolicyChange(value)}
+								disabled={savingApproval}
+							>
+								<SelectTrigger className="w-44 text-xs">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="always">Always require approval</SelectItem>
+									<SelectItem value="never">Never require approval</SelectItem>
+								</SelectContent>
+							</Select>
+						}
+					/>
 					<DetailRow label="Auth" value={authLabel} />
 					<DetailRow label="Last refreshed" value={formatTimestamp(connector.last_refreshed_at)} />
 					<DetailRow label="Updated" value={formatTimestamp(connector.updated_at)} />
