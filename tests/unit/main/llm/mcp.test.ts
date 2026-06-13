@@ -1,7 +1,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import type OpenAI from 'openai';
 import { adaptAnthropicMcpServers } from '../../../../src/main/llm/mcp/anthropic';
-import { adaptOpenAIMcpServers } from '../../../../src/main/llm/mcp/openai';
+import { adaptOpenAIMcpTools } from '../../../../src/main/llm/mcp/openai';
 import { AnthropicAdapter } from '../../../../src/main/llm/providers/anthropic';
 import { OpenAIAdapter } from '../../../../src/main/llm/providers/openai';
 import type { ProviderStreamRequest } from '../../../../src/main/llm/types';
@@ -9,22 +9,28 @@ import type { ProviderStreamRequest } from '../../../../src/main/llm/types';
 describe('MCP provider adapters', () => {
 	it('adapts neutral MCP servers for OpenAI response tools', () => {
 		expect(
-			adaptOpenAIMcpServers([
-				{
-					server_label: 'gmail',
-					server_url: 'https://gmail.example/mcp',
-					authorization: 'token',
-					require_approval: 'always',
-					allowed_tools: ['search'],
-					defer_loading: true,
-					server_description: 'Gmail search',
-				},
-				{
-					server_label: 'disabled',
-					server_url: 'https://disabled.example/mcp',
-					enabled: false,
-				},
-			])
+			adaptOpenAIMcpTools(
+				[
+					{
+						server_label: 'gmail',
+						authorization: 'token',
+						require_approval: 'always',
+						allowed_tools: ['search'],
+						defer_loading: true,
+						server_description: 'Gmail search',
+					},
+					{
+						server_label: 'disabled',
+						enabled: false,
+					},
+				],
+				[
+					{
+						name: 'gmail',
+						url: 'https://gmail.example/mcp',
+					},
+				]
+			)
 		).toEqual([
 			{
 				type: 'mcp',
@@ -41,20 +47,31 @@ describe('MCP provider adapters', () => {
 
 	it('adapts neutral MCP servers for Anthropic beta MCP config', () => {
 		expect(
-			adaptAnthropicMcpServers([
-				{
-					server_label: 'gmail',
-					server_url: 'https://gmail.example/mcp',
-					authorization: 'token',
-					allowed_tools: ['search'],
-					defer_loading: true,
-				},
-				{
-					server_label: 'disabled',
-					server_url: 'https://disabled.example/mcp',
-					enabled: false,
-				},
-			])
+			adaptAnthropicMcpServers(
+				[
+					{
+						server_label: 'gmail',
+						defer_loading: true,
+					},
+					{
+						server_label: 'disabled',
+						enabled: false,
+					},
+				],
+				[
+					{
+						name: 'gmail',
+						url: 'https://gmail.example/mcp',
+						authorization_token: 'token',
+						allowed_tools: ['search'],
+					},
+					{
+						name: 'disabled',
+						url: 'https://disabled.example/mcp',
+						enabled: false,
+					},
+				]
+			)
 		).toEqual({
 			servers: [
 				{
@@ -156,10 +173,15 @@ function request(): ProviderStreamRequest {
 		system: '',
 		messages: [],
 		tools: [],
-		mcp: [
+		mcpTools: [
 			{
 				server_label: 'gmail',
-				server_url: 'https://gmail.example/mcp',
+			},
+		],
+		mcpServers: [
+			{
+				name: 'gmail',
+				url: 'https://gmail.example/mcp',
 			},
 		],
 		maxTokens: 128,
