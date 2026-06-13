@@ -19,7 +19,6 @@ import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 import { AgentContext } from './context';
-import type { Settings as ConnectorSettings } from '../../connectors';
 import type { ProviderMcpServerSpec } from '../../llm/types';
 
 interface ModelTurn {
@@ -47,10 +46,10 @@ export class AgentRuntime {
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly session: Session,
-		connectors?: ConnectorSettings
+		mcp: AgentMcp
 	) {
 		this.model = new AgentModel();
-		this.mcp = new AgentMcp(connectors);
+		this.mcp = mcp;
 		this.systemPrompt = new SystemPrompt();
 	}
 
