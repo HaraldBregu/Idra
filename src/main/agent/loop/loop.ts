@@ -13,7 +13,9 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import type { Mcp, McpData } from '../core/mcp';
+import type { Mcp } from '../core/mcp';
+import { McpData } from '../../mcp';
+import type { ConnectorSettingsService } from '../../services/connector-settings-service';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
@@ -45,10 +47,10 @@ export class AgentRuntime {
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly session: Session,
-		mcpData: McpData
+		connectors: ConnectorSettingsService
 	) {
 		this.model = new AgentModel();
-		this.mcpData = mcpData;
+		this.mcpData = new McpData(connectors);
 		this.systemPrompt = new SystemPrompt();
 	}
 
