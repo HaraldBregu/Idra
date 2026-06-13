@@ -143,15 +143,21 @@ describe('AgentRuntime MCP connectors', () => {
 
 		expect(events).toContain('run_finished');
 		expect(stream).toHaveBeenCalledTimes(1);
-		expect(requests[0]?.mcp).toEqual([
+		expect(requests[0]?.mcpTools).toEqual([
 			{
-				type: 'mcp',
 				server_label: 'gmail',
 				connector_id: 'connector_gmail',
 				authorization: 'token',
 				require_approval: 'always',
 				defer_loading: false,
 				server_description: 'Read and search Gmail messages through the OpenAI Gmail connector.',
+			},
+		]);
+		expect(requests[0]?.mcpServers).toEqual([
+			{
+				name: 'gmail',
+				url: 'https://gmailmcp.googleapis.com/mcp/v1',
+				authorization_token: 'token',
 			},
 		]);
 	});
@@ -195,6 +201,23 @@ describe('AgentRuntime MCP connectors', () => {
 
 		expect(events).toContain('run_finished');
 		expect(stream).toHaveBeenCalledTimes(1);
-		expect(requests[0]?.mcp).toEqual([]);
+		expect(requests[0]?.mcpTools).toEqual([
+			{
+				server_label: 'calendar',
+				connector_id: 'connector_googlecalendar',
+				authorization: 'token',
+				require_approval: 'always',
+				defer_loading: false,
+				server_description:
+					'Read Google Calendar events through the Google Calendar connector.',
+			},
+		]);
+		expect(requests[0]?.mcpServers).toEqual([
+			{
+				name: 'calendar',
+				url: 'https://www.googleapis.com/calendar/v3',
+				authorization_token: 'token',
+			},
+		]);
 	});
 });
