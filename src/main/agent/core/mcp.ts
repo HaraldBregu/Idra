@@ -1,18 +1,18 @@
-export type AgentMcpApprovalPolicy = 'always' | 'never' | { never: { toolNames: string[] } };
+export type McpApprovalPolicy = 'always' | 'never' | { never: { toolNames: string[] } };
 
-export interface AgentMcpTool {
+export interface McpTool {
 	serverLabel: string;
 	connectorId?: string;
 	authorization?: string;
 	headers?: Record<string, string>;
-	requireApproval?: AgentMcpApprovalPolicy;
+	requireApproval?: McpApprovalPolicy;
 	allowedTools?: string[];
 	deferLoading?: boolean;
 	serverDescription?: string;
 	enabled?: boolean;
 }
 
-export interface AgentMcpServer {
+export interface McpServer {
 	name: string;
 	url: string;
 	authorizationToken?: string;
@@ -20,11 +20,11 @@ export interface AgentMcpServer {
 	enabled?: boolean;
 }
 
-export interface AgentMcpConfig {
-	tools: AgentMcpTool[];
-	servers: AgentMcpServer[];
+export interface McpConfig {
+	tools: McpTool[];
+	servers: McpServer[];
 }
 
-export abstract class AgentMcp {
-	abstract list(): AgentMcpConfig;
+export abstract class Mcp {
+	abstract list(): McpConfig;
 }
