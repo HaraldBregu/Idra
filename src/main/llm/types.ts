@@ -104,7 +104,7 @@ export interface ProviderToolSpec {
 
 export type ProviderMcpApprovalPolicy = 'always' | 'never' | { never: { tool_names: string[] } };
 
-export interface ProviderMcpServerSpec {
+export interface ProviderMcpToolSpec {
 	type?: 'mcp';
 	server_label: string;
 	connector_id?: string;
@@ -118,6 +118,15 @@ export interface ProviderMcpServerSpec {
 	enabled?: boolean;
 }
 
+export interface ProviderMcpServerSpec {
+	type?: 'url';
+	name: string;
+	url: string;
+	authorization_token?: string;
+	allowed_tools?: string[];
+	enabled?: boolean;
+}
+
 export interface ProviderStreamRequest {
 	model: string;
 	effort?: ModelReasoningEffort;
@@ -126,7 +135,8 @@ export interface ProviderStreamRequest {
 	inputItems?: unknown[];
 	previousResponseId?: string;
 	tools: ProviderToolSpec[];
-	mcp?: ProviderMcpServerSpec[];
+	mcpTools?: ProviderMcpToolSpec[];
+	mcpServers?: ProviderMcpServerSpec[];
 	maxTokens: number;
 	signal?: AbortSignal;
 }
