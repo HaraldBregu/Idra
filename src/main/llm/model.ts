@@ -31,6 +31,7 @@ import {
 } from './shared';
 
 type ProviderModelFactory = (provider: ProviderSpec) => ProviderAdapter;
+const ANTHROPIC_MCP_BETA = 'mcp-client-2025-11-20';
 
 interface LlmClientFactoryInput {
 	apiKey: string;
@@ -492,9 +493,12 @@ export class AgentModel extends Model implements ProviderAdapter {
 					max_tokens: req.maxTokens,
 					tools: tools.length > 0 ? tools as BetaMessages.BetaToolUnion[] : undefined,
 					mcp_servers: mcp.servers,
-					betas: ['mcp-client-2025-11-20'],
+					betas: [ANTHROPIC_MCP_BETA],
 					messages: buildAnthropicMessages(req.messages),
-				} as BetaMessages.MessageCreateParamsStreaming, { signal: req.signal })
+				} as BetaMessages.MessageCreateParamsStreaming, {
+					signal: req.signal,
+					headers: { 'anthropic-beta': ANTHROPIC_MCP_BETA },
+				})
 				: client.messages.stream({
 					model: req.model,
 					system: req.system,
