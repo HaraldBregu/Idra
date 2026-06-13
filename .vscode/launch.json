@@ -2,29 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Main Process",
+      "name": "Launch Main Debugger",
       "type": "node",
-      "request": "attach",
+      "request": "launch",
       "cwd": "${workspaceFolder}",
-      "port": 5858,
-      "preLaunchTask": "electron-vite: dev",
-      "restart": true,
-      "timeout": 30000,
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["dev"],
+      "autoAttachChildProcesses": true,
+      "console": "integratedTerminal",
       "sourceMaps": true,
       "outFiles": ["${workspaceFolder}/out/main/**/*.js"],
-      "skipFiles": ["<node_internals>/**"],
-      "outputCapture": "std"
-    },
-    {
-      "name": "Attach Main Process",
-      "type": "node",
-      "request": "attach",
-      "cwd": "${workspaceFolder}",
-      "port": 5858,
-      "restart": true,
-      "timeout": 30000,
-      "sourceMaps": true,
-      "outFiles": ["${workspaceFolder}/out/main/**/*.js"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/out/main/**/*.js",
+        "!**/node_modules/**"
+      ],
       "skipFiles": ["<node_internals>/**"]
     }
   ]
