@@ -33,6 +33,7 @@ export type ProviderEvent =
 			serverLabel: string;
 			name: string;
 			arguments: string;
+			item?: unknown;
 	  }
 	| {
 			type: 'mcp_list_tools';
