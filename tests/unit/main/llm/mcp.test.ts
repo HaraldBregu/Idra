@@ -68,14 +68,16 @@ describe('MCP provider adapters', () => {
 					name: 'filesystem',
 					url: 'https://filesystem.example/mcp',
 					authorization_token: 'token',
-					tool_configuration: { allowed_tools: ['search'] },
 				},
 			],
 			tools: [
 				{
 					type: 'mcp_toolset',
 					mcp_server_name: 'filesystem',
-					default_config: { defer_loading: true },
+					default_config: { enabled: false, defer_loading: true },
+					configs: {
+						search: { enabled: true },
+					},
 				},
 			],
 		});
@@ -267,8 +269,13 @@ describe('MCP provider adapters', () => {
 					expect.objectContaining({
 						type: 'mcp_toolset',
 						mcp_server_name: 'filesystem',
+						default_config: { enabled: false, defer_loading: true },
+						configs: {
+							search: { enabled: true },
+						},
 					}),
 				],
+				betas: ['mcp-client-2025-11-20'],
 			}),
 			expect.any(Object)
 		);
@@ -303,6 +310,8 @@ function anthropicRequest(): ProviderStreamRequest {
 			{
 				serverLabel: 'filesystem',
 				serverUrl: 'https://filesystem.example/mcp',
+				allowedTools: ['search'],
+				deferLoading: true,
 			},
 		],
 		maxTokens: 128,
