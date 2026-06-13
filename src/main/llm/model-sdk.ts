@@ -31,7 +31,7 @@ interface LlmClientFactoryInput {
 	baseURL?: string;
 }
 
-export interface ModeSdkOptions {
+export interface ModelSdkOptions {
 	provider: ProviderSpec;
 	openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
 	anthropicClientFactory?: (opts: LlmClientFactoryInput) => Anthropic;
@@ -55,7 +55,7 @@ interface ChatToolCallState {
 	emittedStart: boolean;
 }
 
-export class ModeSdk implements ProviderAdapter {
+export class ModelSdk implements ProviderAdapter {
 	private readonly provider: ProviderSpec;
 	private readonly openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
 	private readonly anthropicClientFactory?: (opts: LlmClientFactoryInput) => Anthropic;
@@ -63,7 +63,7 @@ export class ModeSdk implements ProviderAdapter {
 	private readonly reasoningContentEnabled: boolean;
 	private readonly thinkingModeEnabled: boolean;
 
-	constructor(options: ModeSdkOptions) {
+	constructor(options: ModelSdkOptions) {
 		this.provider = options.provider;
 		this.openAIClientFactory = options.openAIClientFactory;
 		this.anthropicClientFactory = options.anthropicClientFactory;

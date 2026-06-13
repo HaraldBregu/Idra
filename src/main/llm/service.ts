@@ -1,15 +1,15 @@
 import { Service } from 'typedi';
-import { ModeSdk, type ModeSdkOptions } from './mode-sdk';
+import { ModelSdk, type ModelSdkOptions } from './model-sdk';
 import type { ProviderAdapter, ProviderSpec } from './types';
 
-export type LlmServiceOptions = Omit<ModeSdkOptions, 'provider'>;
+export type LlmServiceOptions = Omit<ModelSdkOptions, 'provider'>;
 
 @Service()
 export class LlmService {
 	constructor(private readonly options: LlmServiceOptions = {}) {}
 
 	build(provider: ProviderSpec): ProviderAdapter {
-		return new ModeSdk({
+		return new ModelSdk({
 			provider,
 			...this.options,
 		});
