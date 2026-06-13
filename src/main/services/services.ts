@@ -1,5 +1,6 @@
 import type { ContainerInstance } from 'typedi';
 import type { ChannelRegistry, ChannelsService } from '../channels';
+import type { AgentMcpService } from './agent-mcp-service';
 import type { AgentService } from './agent-service';
 import type { AppPermissionsService } from '../app/permissions';
 import type { CronService } from '../cron';
@@ -13,6 +14,7 @@ import type { AppState, EventBus, WindowContextManager, WindowFactory } from './
 export interface MainServices {
 	appState: AppState;
 	appPermissions: AppPermissionsService;
+	agentMcpService: AgentMcpService;
 	agentService: AgentService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
