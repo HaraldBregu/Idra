@@ -124,7 +124,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail' }),
 			connectors,
-			new AgentModel(() => ({ stream }))
+			new AgentModel({ providerModelFactory: () => ({ stream }) })
 		);
 
 		const events: string[] = [];
@@ -165,7 +165,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail', effort: 'high' }),
 			new Connector({ cwd }),
-			new AgentModel(() => ({ stream }))
+			new AgentModel({ providerModelFactory: () => ({ stream }) })
 		);
 
 		const events: string[] = [];
@@ -206,7 +206,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestSettings('anthropic'),
 			new AgentSession({ task: 'chat', message: 'check calendar' }),
 			connectors,
-			new AgentModel(() => ({ stream }))
+			new AgentModel({ providerModelFactory: () => ({ stream }) })
 		);
 
 		const events: string[] = [];

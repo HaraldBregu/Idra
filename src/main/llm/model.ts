@@ -38,7 +38,7 @@ interface LlmClientFactoryInput {
 	baseURL?: string;
 }
 
-export interface ModelSdkOptions {
+export interface AgentModelOptions {
 	provider?: ProviderSpec;
 	providerModelFactory?: ProviderModelFactory;
 	openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
@@ -47,8 +47,6 @@ export interface ModelSdkOptions {
 	reasoningContentEnabled?: boolean;
 	thinkingModeEnabled?: boolean;
 }
-
-export type AgentModelOptions = ModelSdkOptions;
 
 interface ResponseToolCallState {
 	id: string;
@@ -677,101 +675,8 @@ export class AgentModel extends Model implements ProviderAdapter {
 	}
 }
 
-export class AgentModel extends Model {
-	constructor(
-		private readonly buildProviderModel: ProviderModelFactory = (provider) =>
-			new ModelSdk({ provider })
-	) {
-		super();
-	}
-
-	async generate(request: ModelRequest): Promise<ModelResponse> {
-		let content = '';
-		const toolCalls = new Map<string, { name: string; argsText: string }>();
-		let stopReason: string | undefined;
-		let usage: ModelResponse['usage'];
-
-		for await (const event of this.stream(request)) {
-			if (event.type === 'model_call_delta') {
-				content += event.delta;
-			}
-			if (event.type === 'model_tool_call_start') {
-				toolCalls.set(event.id, { name: event.name, argsText: '' });
-			}
-			if (event.type === 'model_tool_call_args_delta') {
-				const toolCall = toolCalls.get(event.id);
-				if (toolCall) toolCall.argsText += event.jsonDelta;
-			}
-			if (event.type === 'model_call_end') {
-				stopReason = event.stopReason;
-				usage = event.usage;
-			}
-		}
-
-		return {
-			content,
-			toolCalls: [...toolCalls].map(([id, toolCall]) => ({
-				id,
-				name: toolCall.name,
-				args: parseToolArgs(toolCall.argsText),
-			})),
-			model: request.model,
-			stopReason,
-			usage,
-		};
-	}
-
-	async *stream(request: ModelRequest): AsyncIterable<ModelEvent> {
-		const system = [
-			request.system,
-			...request.messages
-				.filter((message) => message.role === 'system')
-				.map((message) => message.content),
-		]
-			.filter(Boolean)
-			.join('\n\n');
-		const messages = request.messages.filter((message) => message.role !== 'system');
-
-		yield { type: 'model_call_start', model: request.model, effort: request.effort };
-
-		for await (const event of this.buildProviderModel(request.provider).stream({
-			model: request.model,
-			effort: request.effort,
-			system,
-			messages: messages.map(toTranscriptEntry),
-			tools: (request.tools ?? []).map((tool) => ({
-				name: tool.name,
-				description: tool.description ?? '',
-				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
-			})),
-			mcp: request.mcp,
-			maxTokens: request.maxTokens,
-			signal: request.signal,
-		})) {
-			if (event.type === 'text_delta') {
-				yield { type: 'model_call_delta', delta: event.text };
-			}
-			if (event.type === 'tool_call_start') {
-				yield { type: 'model_tool_call_start', id: event.id, name: event.name };
-			}
-			if (event.type === 'tool_call_args_delta') {
-				yield {
-					type: 'model_tool_call_args_delta',
-					id: event.id,
-					jsonDelta: event.jsonDelta,
-				};
-			}
-			if (event.type === 'tool_call_end') {
-				yield { type: 'model_tool_call_end', id: event.id };
-			}
-			if (event.type === 'message_end') {
-				yield {
-					type: 'model_call_end',
-					model: request.model,
-					stopReason: event.stopReason,
-					usage: event.usage,
-				};
-			}
-		}
-	}
+function isModelRequest(
+	request: ModelRequest | ProviderStreamRequest
+): request is ModelRequest {
+	return 'provider' in request;
 }
