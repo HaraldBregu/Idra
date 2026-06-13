@@ -6,7 +6,6 @@ import type {
 	ResponseCreateParamsStreaming,
 	ResponseFunctionToolCall,
 	ResponseStreamEvent,
-	Tool as ResponseTool,
 } from 'openai/resources/responses/responses';
 import { adaptAnthropicMcpServers } from './mcp/anthropic';
 import { adaptOpenAIMcpTools } from './mcp/openai';
@@ -226,13 +225,10 @@ export class AgentModel extends Model implements ProviderAdapter {
 			parameters: tool.schema as Record<string, unknown>,
 			strict: false,
 		}));
-		const tools: ResponseTool[] = [
+		const tools: NonNullable<ResponseCreateParamsStreaming['tools']> = [
 			...functionTools,
 			...adaptOpenAIMcpTools(req.mcp),
 		];
-
-				console.log("stream tools: ", tools);
-
 
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
