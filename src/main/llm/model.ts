@@ -375,7 +375,7 @@ export class AgentModel extends Model implements ProviderAdapter {
 			}
 			case 'response.output_item.done': {
 				if (event.item.type === 'reasoning') {
-					yield { type: 'reasoning_item', item: event.item };
+					yield { type: 'reasoning_item', provider: 'openai', item: event.item };
 					break;
 				}
 				if (event.item.type === 'mcp_approval_request') {
@@ -385,6 +385,7 @@ export class AgentModel extends Model implements ProviderAdapter {
 						serverLabel: event.item.server_label,
 						name: event.item.name,
 						arguments: event.item.arguments,
+						item: event.item,
 					};
 					setStopReason('end_turn');
 					break;
