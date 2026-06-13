@@ -1,4 +1,4 @@
-import { ModelSdk } from '../../../../src/main/llm/model-sdk';
+import { ModelSdk } from '../../../../src/main/llm/model';
 import { LlmService } from '../../../../src/main/llm/service';
 
 describe('LlmService', () => {

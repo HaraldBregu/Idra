@@ -7,12 +7,8 @@ import { Settings } from '../../../../src/main/agent/core/settings';
 import { Workspace } from '../../../../src/main/agent/core/workspace';
 import { AgentSession } from '../../../../src/main/services/agent-session';
 import { Connector } from '../../../../src/main/connectors';
-import { AgentModel, LlmService } from '../../../../src/main/llm';
-import type {
-	ProviderAdapter,
-	ProviderEvent,
-	ProviderStreamRequest,
-} from '../../../../src/main/llm/types';
+import { AgentModel } from '../../../../src/main/llm';
+import type { ProviderEvent, ProviderStreamRequest } from '../../../../src/main/llm/types';
 import type { Provider } from '../../../../src/main/agent/core/types';
 
 class TestSettings extends Settings {
@@ -111,10 +107,6 @@ describe('AgentRuntime MCP connectors', () => {
 				usage: { inputTokens: 1, outputTokens: 1 },
 			};
 		});
-		jest.spyOn(LlmService.prototype, 'build').mockReturnValue({
-			stream,
-		} as ProviderAdapter);
-
 		const connectors = new Connector({ cwd });
 		connectors.upsert({
 			id: 'gmail',
@@ -132,7 +124,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail' }),
 			connectors,
-			new AgentModel()
+			new AgentModel(() => ({ stream }))
 		);
 
 		const events: string[] = [];
@@ -168,16 +160,12 @@ describe('AgentRuntime MCP connectors', () => {
 				usage: { inputTokens: 1, outputTokens: 1 },
 			};
 		});
-		jest.spyOn(LlmService.prototype, 'build').mockReturnValue({
-			stream,
-		} as ProviderAdapter);
-
 		const runtime = new AgentRuntime(
 			new TestWorkspace(cwd),
 			new TestSettings(),
 			new AgentSession({ task: 'chat', message: 'check gmail', effort: 'high' }),
 			new Connector({ cwd }),
-			new AgentModel()
+			new AgentModel(() => ({ stream }))
 		);
 
 		const events: string[] = [];
@@ -206,10 +194,6 @@ describe('AgentRuntime MCP connectors', () => {
 				usage: { inputTokens: 1, outputTokens: 1 },
 			};
 		});
-		jest.spyOn(LlmService.prototype, 'build').mockReturnValue({
-			stream,
-		} as ProviderAdapter);
-
 		const connectors = new Connector({ cwd });
 		connectors.upsert({
 			id: 'calendar',
@@ -222,7 +206,7 @@ describe('AgentRuntime MCP connectors', () => {
 			new TestSettings('anthropic'),
 			new AgentSession({ task: 'chat', message: 'check calendar' }),
 			connectors,
-			new AgentModel()
+			new AgentModel(() => ({ stream }))
 		);
 
 		const events: string[] = [];
