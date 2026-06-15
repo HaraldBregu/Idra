@@ -134,6 +134,7 @@ const McpServerPage: React.FC = () => {
 					setUrl(t.url);
 					setHeadersText(serializeKeyValueLines(t.headers, ': '));
 				}
+				if (server.oauth) setSavedOAuth(server.oauth);
 				setLoading(false);
 			},
 			(err) => {
