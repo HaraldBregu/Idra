@@ -186,27 +186,7 @@ export class Connector extends McpData {
 	}
 
 	mcp(): Mcp[] {
-		const mcp: Mcp[] = [];
-
-		for (const connector of Object.values(this.list())) {
-			if (connector.enabled === false) continue;
-
-			mcp.push({
-				serverLabel: connector.server_label,
-				serverUrl: connector.server_url,
-				...(connector.connector_id ? { connectorId: connector.connector_id } : {}),
-				...(connector.authorization ? { authorization: connector.authorization } : {}),
-				...(connector.require_approval ? { requireApproval: connector.require_approval } : {}),
-				...(connector.defer_loading !== undefined
-					? { deferLoading: connector.defer_loading }
-					: {}),
-				...(connector.server_description
-					? { serverDescription: connector.server_description }
-					: {}),
-			});
-		}
-
-		return mcp;
+		return [];
 	}
 }
 
