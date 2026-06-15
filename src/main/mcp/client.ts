@@ -56,14 +56,32 @@ export class McpClient {
 		}
 	}
 
-	async callTool(name: string, args: Record<string, unknown>): Promise<unknown> {
+	async callTool(name: string, args: Record<string, unknown>): Promise<string> {
 		if (!this._state.connected) {
 			throw new Error(`MCP server '${this.config.label}' is not connected`);
 		}
 		if (this._oauth && isOAuthExpired(this._oauth)) {
 			await this.refreshOAuth();
 		}
-		return this.sdkClient.callTool({ name, arguments: args });
+
+		let raw: unknown;
+		try {
+			raw = await this.sdkClient.callTool({ name, arguments: args });
+		} catch (error) {
+			// The transport may throw with the raw JSON-RPC body embedded in the error message.
+			// Try to extract the human-readable content from it; otherwise re-throw as-is.
+			const extracted = extractErrorFromSdkThrow(error);
+			throw new Error(extracted ?? (error instanceof Error ? error.message : String(error)));
+		}
+
+		const result = raw as { content?: unknown[]; isError?: boolean };
+		const text = extractContentText(result.content ?? []);
+
+		if (result.isError) {
+			throw new Error(text || `Tool '${name}' returned an error`);
+		}
+
+		return text;
 	}
 
 	async close(): Promise<void> {
@@ -115,7 +133,7 @@ export class McpClient {
 			this.sdkClient = newSdkClient();
 			await this.connect();
 		} catch {
-			// Let the call proceed with the current (expired) token; it will surface the error naturally
+			// Let the call proceed and surface the auth error naturally
 		}
 	}
 }
@@ -151,4 +169,46 @@ function buildTransport(
 function isOAuthExpired(oauth: McpServerOAuth): boolean {
 	if (!oauth.tokenExpiresAt) return false;
 	return Date.now() > new Date(oauth.tokenExpiresAt).getTime() - 5 * 60 * 1000;
+}
+
+/** Extract text/image content from an MCP tool result content array. */
+function extractContentText(content: unknown[]): string {
+	if (!Array.isArray(content)) return '';
+	return content
+		.map((block) => {
+			if (typeof block !== 'object' || block === null) return '';
+			const b = block as Record<string, unknown>;
+			if (b.type === 'text' && typeof b.text === 'string') return b.text;
+			if (b.type === 'image') return '[image]';
+			if (b.type === 'resource') return JSON.stringify(b.resource ?? '');
+			return '';
+		})
+		.filter(Boolean)
+		.join('\n');
+}
+
+/**
+ * When the transport throws (e.g. HTTP 4xx/5xx), the SDK embeds the raw JSON-RPC
+ * response body in the error message. Try to parse it and return the human-readable
+ * content text, so callers get a clean error instead of a JSON blob.
+ */
+function extractErrorFromSdkThrow(error: unknown): string | undefined {
+	const msg = error instanceof Error ? error.message : String(error);
+	const match = msg.match(/(\{[\s\S]*\})/);
+	if (!match) return undefined;
+	try {
+		const parsed = JSON.parse(match[1]) as Record<string, unknown>;
+		// JSON-RPC success response with isError: true in the MCP result
+		const result = parsed.result as Record<string, unknown> | undefined;
+		if (result?.content) {
+			const text = extractContentText(result.content as unknown[]);
+			if (text) return text;
+		}
+		// JSON-RPC error response
+		const err = parsed.error as Record<string, unknown> | undefined;
+		if (typeof err?.message === 'string') return err.message;
+	} catch {
+		// Not JSON — fall through
+	}
+	return undefined;
 }
