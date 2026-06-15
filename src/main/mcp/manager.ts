@@ -2,7 +2,7 @@ import { McpClient } from './client';
 import { McpTool } from './tool';
 import type { McpServerStore } from './store';
 import type { Tool } from '../agent/core/tool';
-import type { McpServerInfo } from '../../shared/mcp/types';
+import type { McpServerConfig, McpServerInfo, McpServerOAuth } from '../../shared/mcp/types';
 
 export class McpClientManager {
 	private readonly clients = new Map<string, McpClient>();
