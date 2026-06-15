@@ -81,7 +81,6 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
-		const mcp = this.mcpData.mcp();
 
 		const system = await this.systemPrompt.build(workspace);
 
@@ -100,7 +99,6 @@ export class AgentRuntime {
 				system,
 				session.messages,
 				tools,
-				mcp,
 				signal
 			);
 
