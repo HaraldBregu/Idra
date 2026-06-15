@@ -1,5 +1,4 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { Messages as BetaMessages } from '@anthropic-ai/sdk/resources/beta/messages/messages';
 import OpenAI from 'openai';
 import type {
 	FunctionTool,
@@ -7,8 +6,6 @@ import type {
 	ResponseFunctionToolCall,
 	ResponseStreamEvent,
 } from 'openai/resources/responses/responses';
-import { adaptAnthropicMcpServers } from './mcp/anthropic';
-import { adaptOpenAIMcpTools } from './mcp/openai';
 import { Model } from '../agent/core/model';
 import type { ModelEvent, ModelRequest, ModelResponse } from '../agent/core/model';
 import type {
