@@ -116,6 +116,7 @@ const menuManager = new Menu({
 });
 
 app.whenReady().then(async () => {
+	await connectMcpServers(container, logger);
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers(container.get(AppPermissionsService));
 	menuManager.create();
