@@ -166,6 +166,17 @@ const McpServerPage: React.FC = () => {
 			const existing = parseKeyValueLines(headersText, ':');
 			existing['Authorization'] = `Bearer ${result.accessToken}`;
 			setHeadersText(serializeKeyValueLines(existing, ': '));
+			if (result.refreshToken) {
+				setSavedOAuth({
+					tokenUrl: googleOAuthConfig.tokenUrl,
+					clientIdEnv: googleOAuthConfig.clientIdEnv,
+					clientSecretEnv: googleOAuthConfig.clientSecretEnv,
+					refreshToken: result.refreshToken,
+					tokenExpiresAt: result.expiresIn
+						? new Date(Date.now() + result.expiresIn * 1000).toISOString()
+						: undefined,
+				});
+			}
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
