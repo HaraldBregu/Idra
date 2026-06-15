@@ -44,9 +44,15 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(LlmService);
 	container.get(SttService);
 
+	const mcpStore = new McpServerStore();
+	const mcpManager = new McpClientManager(mcpStore);
+	container.set(McpServerStore, mcpStore);
+	container.set(McpClientManager, mcpManager);
+
 	const agentService = new AgentService(
 		container.get(AgentSettingsStore),
-		container.get(Connector)
+		container.get(Connector),
+		mcpManager
 	);
 	container.set(AgentService, agentService);
 
