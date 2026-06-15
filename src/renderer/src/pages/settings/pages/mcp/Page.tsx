@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Box, ChevronRight, Plus, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Box, ChevronRight, Plus, RefreshCw, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
@@ -15,28 +15,20 @@ import {
 	SettingsSection,
 } from '../../components';
 
-function statusBadge(config: McpServerConfig, info: McpServerInfo | undefined): React.JSX.Element {
+function StatusBadge({ config, info }: { config: McpServerConfig; info: McpServerInfo | undefined }): React.JSX.Element {
 	if (!config.enabled) {
 		return <Badge variant="outline" className="text-[10px]">Disabled</Badge>;
 	}
 	if (!info) {
-		return <Badge variant="secondary" className="text-[10px]">Disconnected</Badge>;
+		return <Badge variant="secondary" className="text-[10px]">Not connected</Badge>;
 	}
 	if (info.status === 'connected') {
-		return (
-			<Badge className="bg-emerald-500/15 text-emerald-600 border-transparent text-[10px]">
-				Connected
-			</Badge>
-		);
+		return <Badge className="bg-emerald-500/15 text-emerald-600 border-transparent text-[10px]">Connected</Badge>;
 	}
 	if (info.status === 'error') {
 		return <Badge variant="destructive" className="text-[10px]">Error</Badge>;
 	}
 	return <Badge variant="secondary" className="text-[10px]">Disconnected</Badge>;
-}
-
-function transportLabel(config: McpServerConfig): string {
-	return config.transport.type.toUpperCase();
 }
 
 const McpPage: React.FC = () => {
@@ -45,6 +37,7 @@ const McpPage: React.FC = () => {
 	const [statusMap, setStatusMap] = useState<Map<string, McpServerInfo>>(new Map());
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [reconnecting, setReconnecting] = useState<string | null>(null);
 
 	const load = useCallback(async (): Promise<void> => {
 		setLoading(true);
@@ -66,6 +59,21 @@ const McpPage: React.FC = () => {
 	useEffect(() => {
 		void load();
 	}, [load]);
+
+	const reconnect = useCallback(async (server: McpServerConfig, e: React.MouseEvent): Promise<void> => {
+		e.stopPropagation();
+		setReconnecting(server.id);
+		setError(null);
+		try {
+			await window.mcp.upsertServer(server);
+			const statuses = await window.mcp.status();
+			setStatusMap(new Map(statuses.map((s) => [s.serverId, s])));
+		} catch (err) {
+			setError(err instanceof Error ? err.message : String(err));
+		} finally {
+			setReconnecting(null);
+		}
+	}, []);
 
 	return (
 		<SettingsPageShell>
@@ -106,40 +114,69 @@ const McpPage: React.FC = () => {
 						servers.map((server) => {
 							const info = statusMap.get(server.id);
 							const toolCount = info?.toolNames.length ?? 0;
+							const isReconnecting = reconnecting === server.id;
+
 							return (
-								<Item
-									key={server.id}
-									role="button"
-									tabIndex={0}
-									variant="outline"
-									size="md"
-									className="cursor-pointer border-b border-border/60 hover:bg-muted/40 last:border-b-0"
-									onClick={() => navigate(`/settings/mcp/server/${encodeURIComponent(server.id)}`)}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											e.preventDefault();
-											navigate(`/settings/mcp/server/${encodeURIComponent(server.id)}`);
-										}
-									}}
-								>
-									<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-										<ItemTitle className="max-w-full truncate">{server.label}</ItemTitle>
-										<div className="flex items-center gap-1.5">
-											<Badge variant="outline" className="text-[10px] font-mono">
-												{transportLabel(server)}
-											</Badge>
-											{statusBadge(server, info)}
-											{info && toolCount > 0 && (
-												<span className="text-[11px] text-muted-foreground">
-													{toolCount} {toolCount === 1 ? 'tool' : 'tools'}
-												</span>
-											)}
+								<div key={server.id} className="border-b border-border/60 last:border-b-0">
+									<Item
+										role="button"
+										tabIndex={0}
+										variant="outline"
+										size="md"
+										className="cursor-pointer border-0 hover:bg-muted/40"
+										onClick={() => navigate(`/settings/mcp/server/${encodeURIComponent(server.id)}`)}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' || e.key === ' ') {
+												e.preventDefault();
+												navigate(`/settings/mcp/server/${encodeURIComponent(server.id)}`);
+											}
+										}}
+									>
+										<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
+											<ItemTitle className="max-w-full truncate">{server.label}</ItemTitle>
+											<div className="flex flex-wrap items-center gap-1.5">
+												<Badge variant="outline" className="text-[10px] font-mono">
+													{server.transport.type.toUpperCase()}
+												</Badge>
+												<StatusBadge config={server} info={info} />
+												{info?.status === 'connected' && toolCount > 0 && (
+													<span className="text-[11px] text-muted-foreground">
+														{toolCount} {toolCount === 1 ? 'tool' : 'tools'}
+													</span>
+												)}
+											</div>
+										</ItemContent>
+										<ItemActions className="ml-auto flex-none items-center justify-end gap-2">
+											<Button
+												variant="outline"
+												size="xs"
+												disabled={isReconnecting}
+												onClick={(e) => void reconnect(server, e)}
+												className="shrink-0"
+											>
+												<RotateCcw className={`size-3 ${isReconnecting ? 'animate-spin' : ''}`} />
+												{isReconnecting ? 'Connecting…' : 'Reconnect'}
+											</Button>
+											<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
+										</ItemActions>
+									</Item>
+
+									{info?.status === 'error' && info.errorMessage && (
+										<div className="border-t border-border/40 bg-destructive/5 px-4 py-2">
+											<p className="text-[11px] text-destructive">
+												{info.errorMessage}
+											</p>
 										</div>
-									</ItemContent>
-									<ItemActions className="ml-auto flex-none justify-end">
-										<ChevronRight className="size-3.5 text-muted-foreground" strokeWidth={1.8} />
-									</ItemActions>
-								</Item>
+									)}
+
+									{info?.status === 'connected' && toolCount > 0 && (
+										<div className="border-t border-border/40 bg-muted/20 px-4 py-1.5">
+											<p className="text-[11px] text-muted-foreground">
+												{info.toolNames.join(' · ')}
+											</p>
+										</div>
+									)}
+								</div>
 							);
 						})
 					)}
