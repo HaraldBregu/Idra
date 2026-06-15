@@ -151,22 +151,14 @@ export class AgentModel extends Model implements ProviderAdapter {
 				description: tool.description ?? '',
 				schema: tool.schema ?? { type: 'object', properties: {}, additionalProperties: true },
 			})),
-			mcp: request.mcp,
 			maxTokens: request.maxTokens,
 			signal: request.signal,
 		})) {
 			if (event.type === 'text_delta') {
 				yield { type: 'model_call_delta', delta: event.text };
 			}
-			if (
-				(event.type === 'reasoning_item' && event.provider === 'openai') ||
-				event.type === 'mcp_approval_request' ||
-				event.type === 'mcp_list_tools' ||
-				event.type === 'mcp_call'
-			) {
-				if (event.item) {
-					yield { type: 'model_provider_item', provider: 'openai', item: event.item };
-				}
+			if (event.type === 'reasoning_item' && event.provider === 'openai' && event.item) {
+				yield { type: 'model_provider_item', provider: 'openai', item: event.item };
 			}
 			if (event.type === 'tool_call_start') {
 				yield { type: 'model_tool_call_start', id: event.id, name: event.name };
