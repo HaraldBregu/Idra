@@ -198,6 +198,7 @@ const McpServerPage: React.FC = () => {
 				enabled,
 				createdAt: now,
 				updatedAt: now,
+				...(savedOAuth ? { oauth: savedOAuth } : {}),
 			};
 			await window.mcp.upsertServer(config);
 			navigate('/settings/mcp');
