@@ -69,6 +69,9 @@ export class AgentService {
 			session = new AgentSession(sessionInput, this.location);
 			await this.mcpData.refresh?.();
 			const mcpTools = this.mcpManager?.getTools() ?? [];
+
+			console.log({mcpTools})
+
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,

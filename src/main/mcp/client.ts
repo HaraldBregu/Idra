@@ -17,13 +17,19 @@ export interface McpClientState {
 	tools: McpToolDefinition[];
 }
 
+/** Called after a successful OAuth token refresh with the updated oauth state and new access token. */
+export type McpOAuthRefreshedCallback = (oauth: McpServerOAuth, accessToken: string) => void;
+
 export class McpClient {
 	private sdkClient: Client;
 	private _state: McpClientState = { connected: false, tools: [] };
 	private _headers: Record<string, string> | undefined;
 	private _oauth: McpServerOAuth | undefined;
 
-	constructor(readonly config: McpServerConfig) {
+	constructor(
+		readonly config: McpServerConfig,
+		private readonly onOAuthRefreshed?: McpOAuthRefreshedCallback
+	) {
 		this.sdkClient = newSdkClient();
 		const t = config.transport;
 		this._headers = t.type !== 'stdio' && t.headers ? { ...t.headers } : undefined;
@@ -35,6 +41,11 @@ export class McpClient {
 	}
 
 	async connect(): Promise<void> {
+		// Proactively refresh the OAuth token before connecting if it is already expired,
+		// so the initial bootstrap succeeds even when the stored token has lapsed.
+		if (this._oauth && isOAuthExpired(this._oauth)) {
+			await this.fetchFreshToken();
+		}
 		try {
 			const transport = buildTransport(this.config, this._headers);
 			await this.sdkClient.connect(transport);
@@ -60,8 +71,18 @@ export class McpClient {
 		if (!this._state.connected) {
 			throw new Error(`MCP server '${this.config.label}' is not connected`);
 		}
+
+		// If the token has expired mid-session, refresh it and reconnect before calling.
 		if (this._oauth && isOAuthExpired(this._oauth)) {
-			await this.refreshOAuth();
+			await this.fetchFreshToken();
+			await this.close();
+			this.sdkClient = newSdkClient();
+			await this.connect();
+			if (!this._state.connected) {
+				throw new Error(
+					`MCP server '${this.config.label}' failed to reconnect after token refresh`
+				);
+			}
 		}
 
 		let raw: unknown;
@@ -93,8 +114,14 @@ export class McpClient {
 		this._state = { connected: false, tools: [] };
 	}
 
-	private async refreshOAuth(): Promise<void> {
-		const oauth = this._oauth!;
+	/**
+	 * Fetches a fresh access token via the refresh_token grant and updates
+	 * `_headers` / `_oauth` in place. Does NOT close or reconnect — call
+	 * `close()` + `connect()` after this if a live reconnect is needed.
+	 */
+	private async fetchFreshToken(): Promise<void> {
+		const oauth = this._oauth;
+		if (!oauth) return;
 		const clientId = process.env[oauth.clientIdEnv];
 		if (!clientId) return;
 
@@ -129,11 +156,9 @@ export class McpClient {
 					? new Date(Date.now() + payload.expires_in * 1000).toISOString()
 					: undefined;
 
-			await this.close();
-			this.sdkClient = newSdkClient();
-			await this.connect();
+			this.onOAuthRefreshed?.(oauth, accessToken);
 		} catch {
-			// Let the call proceed and surface the auth error naturally
+			// Let the call proceed and surface the auth error naturally.
 		}
 	}
 }

@@ -84,6 +84,9 @@ export class AgentRuntime {
 
 		const system = await this.systemPrompt.build(workspace);
 
+
+		console.log({tools})
+
 		yield {
 			type: 'run_started',
 			sessionId: session.id,
@@ -215,6 +218,8 @@ export class AgentRuntime {
 				toolName: toolCall.name,
 				input: toolCall.args,
 			};
+
+			console.log({toolMap: toolMap.get(toolCall.name)})
 			const outcome = await this.runTool(toolMap.get(toolCall.name), toolCall);
 			yield {
 				type: 'tool_call_end',
