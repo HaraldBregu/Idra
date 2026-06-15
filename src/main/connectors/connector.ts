@@ -66,6 +66,7 @@ export class Connector extends McpData {
 		const current = connectors[connectorId];
 		const defaults = defaultSettings(connectorId);
 		const now = new Date().toISOString();
+		const incomingAuthorization = optionalTrimmedString(input.authorization);
 		const nextConnector: ConnectorData = {
 			...defaults,
 			...current,
@@ -79,15 +80,17 @@ export class Connector extends McpData {
 				optionalTrimmedString(input.serverDescription) ??
 				current?.server_description ??
 				defaults.server_description,
-			authorization: optionalTrimmedString(input.authorization) ?? current?.authorization,
+			authorization: incomingAuthorization ?? current?.authorization,
+			refresh_token: optionalTrimmedString(input.refreshToken) ?? current?.refresh_token,
+			token_expires_at: optionalTrimmedString(input.tokenExpiresAt) ?? current?.token_expires_at,
 			require_approval:
 				input.requireApproval ?? current?.require_approval ?? defaults.require_approval,
 			defer_loading: input.deferLoading ?? current?.defer_loading ?? defaults.defer_loading,
 			enabled: input.enabled ?? current?.enabled ?? defaults.enabled,
 			created_at: optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
 			updated_at: now,
-			last_refreshed_at: current?.last_refreshed_at,
-			last_error: current?.last_error,
+			last_refreshed_at: incomingAuthorization ? now : current?.last_refreshed_at,
+			last_error: incomingAuthorization ? undefined : current?.last_error,
 		};
 
 		const next = {
