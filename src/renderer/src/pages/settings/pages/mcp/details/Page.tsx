@@ -105,6 +105,7 @@ const McpServerPage: React.FC = () => {
 	const [url, setUrl] = useState('');
 	const [headersText, setHeadersText] = useState('');
 	const [enabled, setEnabled] = useState(true);
+	const [authorizing, setAuthorizing] = useState(false);
 
 	useEffect(() => {
 		if (isNew) return;
