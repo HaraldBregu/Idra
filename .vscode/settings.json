@@ -24,7 +24,7 @@
     "node_modules": true,
     "out": true,
     "package-lock.json": true,
-    "package.json": true,
+    // "package.json": true,
     "playwright.config.ts": true,
     "postcss.config.cjs": true,
     "README.md": true,
