@@ -147,6 +147,30 @@ const McpServerPage: React.FC = () => {
 		};
 	}, [isNew, serverId]);
 
+	const googleOAuthConfig = (transportType === 'http' || transportType === 'sse')
+		? (url.toLowerCase().includes('googleapis.com')
+			? (url.includes('calendar')
+				? CONNECTOR_DEFAULTS.find((d) => d.id === 'calendar')?.oauth
+				: CONNECTOR_DEFAULTS.find((d) => d.id === 'gmail')?.oauth)
+			: undefined)
+		: undefined;
+
+	const handleAuthorize = async (): Promise<void> => {
+		if (!googleOAuthConfig) return;
+		setAuthorizing(true);
+		setError(null);
+		try {
+			const result = await window.connectors.authorizeOAuth(googleOAuthConfig);
+			const existing = parseKeyValueLines(headersText, ':');
+			existing['Authorization'] = `Bearer ${result.accessToken}`;
+			setHeadersText(serializeKeyValueLines(existing, ': '));
+		} catch (err) {
+			setError(err instanceof Error ? err.message : String(err));
+		} finally {
+			setAuthorizing(false);
+		}
+	};
+
 	const handleSave = async (): Promise<void> => {
 		if (!isValid(transportType, command, url, label)) return;
 
