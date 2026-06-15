@@ -13,7 +13,9 @@ export class McpClientManager {
 		const configs = this.store.list().filter((c) => c.enabled);
 		await Promise.allSettled(
 			configs.map(async (config) => {
-				const client = new McpClient(config);
+				const client = new McpClient(config, (oauth, accessToken) =>
+					this.persistOAuthRefresh(config, oauth, accessToken)
+				);
 				await client.connect();
 				if (!client.state.connected) {
 					logger?.warn(
