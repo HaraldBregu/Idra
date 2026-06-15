@@ -136,7 +136,6 @@ export class AgentRuntime {
 		system: string | undefined,
 		messages: Message[],
 		tools: Tool[],
-		mcp: Mcp[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
 		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
@@ -155,7 +154,6 @@ export class AgentRuntime {
 					system,
 					messages,
 					tools,
-					mcp,
 					maxTokens: input.maxTokens ?? 4096,
 					signal,
 				})) {
