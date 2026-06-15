@@ -68,6 +68,8 @@ export interface ConnectorInput {
 	readonly serverDescription?: string;
 	readonly serverUrl?: string;
 	readonly authorization?: string;
+	readonly refreshToken?: string;
+	readonly tokenExpiresAt?: string;
 	readonly requireApproval?: ConnectorApprovalPolicy;
 	readonly deferLoading?: boolean;
 	readonly enabled?: boolean;
