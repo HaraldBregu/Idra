@@ -14,4 +14,5 @@ export interface Mcp {
 
 export abstract class McpData {
 	abstract mcp(): Mcp[];
+	refresh?(): Promise<void>;
 }
