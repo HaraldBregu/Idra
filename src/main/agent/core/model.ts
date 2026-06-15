@@ -1,6 +1,5 @@
 import type { Tool } from './tool';
 import type { Message, Provider, ToolCall } from './types';
-import type { Mcp } from './mcp';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
 
 export interface ModelRequest {
@@ -11,7 +10,6 @@ export interface ModelRequest {
 	effort?: ModelReasoningEffort;
 	maxTokens: number;
 	tools?: Tool[];
-	mcp?: Mcp[];
 	signal?: AbortSignal;
 }
 
