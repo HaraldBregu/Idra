@@ -362,6 +362,28 @@ const McpServerPage: React.FC = () => {
 									/>
 								</SettingsField>
 
+								{googleOAuthConfig && (
+									<div className="flex items-center gap-3 rounded-md border border-border/60 bg-muted/30 px-3 py-2.5">
+										<div className="flex-1 min-w-0">
+											<p className="text-xs font-medium">Google authentication</p>
+											<p className="text-[11px] text-muted-foreground mt-0.5">
+												Authorize with Google to set a fresh access token in the headers below.
+											</p>
+										</div>
+										<Button
+											type="button"
+											variant="outline"
+											size="xs"
+											onClick={() => void handleAuthorize()}
+											disabled={authorizing}
+											className="shrink-0"
+										>
+											<LogIn className="size-3" />
+											{authorizing ? 'Authorizing…' : 'Connect with Google'}
+										</Button>
+									</div>
+								)}
+
 								<SettingsField
 									id="mcp-headers"
 									label="Headers"
