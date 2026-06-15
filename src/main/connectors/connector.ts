@@ -367,7 +367,13 @@ function buildAuthorizationUrl(input: OAuthCallbackInput, redirectUri: string): 
 	return url.toString();
 }
 
-async function exchangeOAuthCode(input: OAuthTokenInput): Promise<string> {
+interface OAuthTokenResult {
+	accessToken: string;
+	refreshToken?: string;
+	expiresIn?: number;
+}
+
+async function exchangeOAuthCode(input: OAuthTokenInput): Promise<OAuthTokenResult> {
 	const body = new URLSearchParams({
 		grant_type: 'authorization_code',
 		code: input.code,
@@ -394,7 +400,59 @@ async function exchangeOAuthCode(input: OAuthTokenInput): Promise<string> {
 	) {
 		throw new Error('OAuth token response did not include an access token.');
 	}
-	return payload.access_token.trim();
+	return {
+		accessToken: payload.access_token.trim(),
+		refreshToken: typeof payload.refresh_token === 'string' ? payload.refresh_token.trim() || undefined : undefined,
+		expiresIn: typeof payload.expires_in === 'number' ? payload.expires_in : undefined,
+	};
+}
+
+async function refreshOAuthToken(
+	refreshToken: string,
+	clientId: string,
+	clientSecret: string | undefined,
+	tokenUrl: string
+): Promise<OAuthTokenResult> {
+	const body = new URLSearchParams({
+		grant_type: 'refresh_token',
+		refresh_token: refreshToken,
+		client_id: clientId,
+	});
+	if (clientSecret) body.set('client_secret', clientSecret);
+
+	const response = await fetch(tokenUrl, {
+		method: 'POST',
+		headers: {
+			accept: 'application/json',
+			'content-type': 'application/x-www-form-urlencoded',
+		},
+		body,
+	});
+	const payload = await response.json().catch((): unknown => ({}));
+	if (!response.ok) throw new Error(oauthTokenErrorMessage(payload));
+	if (
+		!isRecord(payload) ||
+		typeof payload.access_token !== 'string' ||
+		!payload.access_token.trim()
+	) {
+		throw new Error('Token refresh response did not include an access token.');
+	}
+	return {
+		accessToken: payload.access_token.trim(),
+		refreshToken: typeof payload.refresh_token === 'string' ? payload.refresh_token.trim() || undefined : undefined,
+		expiresIn: typeof payload.expires_in === 'number' ? payload.expires_in : undefined,
+	};
+}
+
+function isTokenExpired(connector: ConnectorData): boolean {
+	if (!connector.token_expires_at) {
+		// No expiry stored — use last_refreshed_at as a fallback assuming 1-hour tokens
+		if (!connector.last_refreshed_at) return false;
+		const refreshedAt = new Date(connector.last_refreshed_at).getTime();
+		return Date.now() > refreshedAt + 55 * 60 * 1000;
+	}
+	const expiresAt = new Date(connector.token_expires_at).getTime();
+	return Date.now() > expiresAt - 5 * 60 * 1000;
 }
 
 function oauthTokenErrorMessage(payload: unknown): string {
