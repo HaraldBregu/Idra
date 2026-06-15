@@ -920,6 +920,58 @@
 			"deleteErrorFallback": "Failed to delete the theme. Please try again.",
 			"dismissError": "Dismiss error",
 			"dismissSuccess": "Dismiss"
+		},
+		"mcp": {
+			"title": "MCP Servers",
+			"description": "Configure Model Context Protocol servers to extend the agent with external tools.",
+			"addServer": "Add Server",
+			"refresh": "Refresh",
+			"empty": "No MCP servers",
+			"emptyDescription": "Add a server to extend the agent with external tools via the Model Context Protocol.",
+			"addTitle": "Add Server",
+			"detailsTitle": "Server Details",
+			"notFoundTitle": "Server not found",
+			"notFoundDescription": "The MCP server may have been removed.",
+			"save": "Save",
+			"saving": "Saving…",
+			"delete": "Delete",
+			"deleting": "Deleting…",
+			"deleteConfirm": "Delete this MCP server?",
+			"enabled": "Enabled",
+			"enabledDescription": "Connect this server when the agent starts.",
+			"loadError": "Unable to load MCP servers.",
+			"saveError": "Unable to save MCP server.",
+			"deleteError": "Unable to delete MCP server.",
+			"form": {
+				"label": "Label",
+				"labelPlaceholder": "My MCP Server",
+				"transport": "Transport",
+				"command": "Command",
+				"commandPlaceholder": "npx -y @modelcontextprotocol/server-filesystem",
+				"args": "Arguments",
+				"argsDescription": "One argument per line",
+				"env": "Environment variables",
+				"envDescription": "KEY=value, one per line",
+				"cwd": "Working directory",
+				"cwdDescription": "Optional",
+				"url": "URL",
+				"headers": "Headers",
+				"headersDescription": "Key: Value, one per line"
+			},
+			"transport": {
+				"stdio": "stdio",
+				"sse": "SSE",
+				"http": "HTTP"
+			},
+			"status": {
+				"connected": "Connected",
+				"connecting": "Connecting",
+				"error": "Error",
+				"disconnected": "Disconnected",
+				"disabled": "Disabled"
+			},
+			"tools": "{{count}} tools",
+			"tool": "1 tool"
 		}
 	},
 	"dialogs": {
