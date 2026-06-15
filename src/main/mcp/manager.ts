@@ -56,9 +56,29 @@ export class McpClientManager {
 			this.clients.delete(serverId);
 			return;
 		}
-		const client = new McpClient(config);
+		const client = new McpClient(config, (oauth, accessToken) =>
+			this.persistOAuthRefresh(config, oauth, accessToken)
+		);
 		await client.connect();
 		this.clients.set(serverId, client);
+	}
+
+	private persistOAuthRefresh(
+		config: McpServerConfig,
+		oauth: McpServerOAuth,
+		accessToken: string
+	): void {
+		const updatedTransport =
+			config.transport.type !== 'stdio'
+				? {
+						...config.transport,
+						headers: {
+							...(config.transport.headers ?? {}),
+							Authorization: `Bearer ${accessToken}`,
+						},
+					}
+				: config.transport;
+		this.store.upsert({ ...config, transport: updatedTransport, oauth });
 	}
 
 	async disconnect(): Promise<void> {
