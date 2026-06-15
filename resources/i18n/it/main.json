@@ -920,6 +920,58 @@
 			"deleteErrorFallback": "Eliminazione del tema non riuscita. Riprova.",
 			"dismissError": "Chiudi errore",
 			"dismissSuccess": "Chiudi"
+		},
+		"mcp": {
+			"title": "Server MCP",
+			"description": "Configura server Model Context Protocol per estendere l'agente con strumenti esterni.",
+			"addServer": "Aggiungi server",
+			"refresh": "Aggiorna",
+			"empty": "Nessun server MCP",
+			"emptyDescription": "Aggiungi un server per estendere l'agente con strumenti esterni tramite il Model Context Protocol.",
+			"addTitle": "Aggiungi server",
+			"detailsTitle": "Dettagli server",
+			"notFoundTitle": "Server non trovato",
+			"notFoundDescription": "Il server MCP potrebbe essere stato rimosso.",
+			"save": "Salva",
+			"saving": "Salvataggio…",
+			"delete": "Elimina",
+			"deleting": "Eliminazione…",
+			"deleteConfirm": "Eliminare questo server MCP?",
+			"enabled": "Abilitato",
+			"enabledDescription": "Connetti questo server all'avvio dell'agente.",
+			"loadError": "Impossibile caricare i server MCP.",
+			"saveError": "Impossibile salvare il server MCP.",
+			"deleteError": "Impossibile eliminare il server MCP.",
+			"form": {
+				"label": "Etichetta",
+				"labelPlaceholder": "Il mio server MCP",
+				"transport": "Trasporto",
+				"command": "Comando",
+				"commandPlaceholder": "npx -y @modelcontextprotocol/server-filesystem",
+				"args": "Argomenti",
+				"argsDescription": "Un argomento per riga",
+				"env": "Variabili d'ambiente",
+				"envDescription": "CHIAVE=valore, una per riga",
+				"cwd": "Directory di lavoro",
+				"cwdDescription": "Opzionale",
+				"url": "URL",
+				"headers": "Header",
+				"headersDescription": "Chiave: Valore, uno per riga"
+			},
+			"transport": {
+				"stdio": "stdio",
+				"sse": "SSE",
+				"http": "HTTP"
+			},
+			"status": {
+				"connected": "Connesso",
+				"connecting": "Connessione",
+				"error": "Errore",
+				"disconnected": "Disconnesso",
+				"disabled": "Disabilitato"
+			},
+			"tools": "{{count}} strumenti",
+			"tool": "1 strumento"
 		}
 	},
 	"dialogs": {
