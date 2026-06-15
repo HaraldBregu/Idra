@@ -505,6 +505,8 @@ function isConnectorSettingsEntry(value: unknown): value is ConnectorData {
 		typeof value.server_url === 'string' &&
 		(value.server_description === undefined || typeof value.server_description === 'string') &&
 		(value.authorization === undefined || typeof value.authorization === 'string') &&
+		(value.refresh_token === undefined || typeof value.refresh_token === 'string') &&
+		(value.token_expires_at === undefined || typeof value.token_expires_at === 'string') &&
 		(value.require_approval === undefined || isConnectorApprovalPolicy(value.require_approval)) &&
 		(value.defer_loading === undefined || typeof value.defer_loading === 'boolean') &&
 		(value.enabled === undefined || typeof value.enabled === 'boolean') &&
