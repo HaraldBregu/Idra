@@ -166,6 +166,7 @@
 				"channels": "Messaging channels",
 				"skills": "Installed skills",
 				"connectors": "Connected apps",
+				"mcp": "Model Context Protocol servers",
 				"providers": "AI API keys",
 				"cron": "View, run, pause, and delete scheduled agent tasks",
 				"heartbeat": "Periodic agent checks"
