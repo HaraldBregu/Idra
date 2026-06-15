@@ -8,6 +8,7 @@ import { AgentRuntime } from '../agent/loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '../agent';
 import type { McpData } from '../agent/core/mcp';
+import type { McpClientManager } from '../mcp';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
