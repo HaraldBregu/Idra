@@ -47,6 +47,8 @@ export interface ConnectorData {
 	readonly server_url: string;
 	readonly server_description?: string;
 	readonly authorization?: string;
+	readonly refresh_token?: string;
+	readonly token_expires_at?: string;
 	readonly require_approval?: ConnectorApprovalPolicy;
 	readonly defer_loading?: boolean;
 	readonly enabled?: boolean;
