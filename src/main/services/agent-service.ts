@@ -73,7 +73,6 @@ export class AgentService {
 				this.agentWorkspace,
 				this.agentSettingsStore,
 				session,
-				this.mcpData,
 				new AgentModel()
 			);
 			const input = {
