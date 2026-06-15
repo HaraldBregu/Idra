@@ -391,6 +391,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('stt', stt);
+		contextBridge.exposeInMainWorld('mcp', mcp);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -413,4 +414,6 @@ if (process.contextIsolated) {
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
 	globalThis.stt = stt;
+	// @ts-ignore (define in dts)
+	globalThis.mcp = mcp;
 }
