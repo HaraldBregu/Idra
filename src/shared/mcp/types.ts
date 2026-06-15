@@ -20,6 +20,14 @@ export interface McpHttpConfig {
 
 export type McpTransportConfig = McpStdioConfig | McpSseConfig | McpHttpConfig;
 
+export interface McpServerOAuth {
+	tokenUrl: string;
+	clientIdEnv: string;
+	clientSecretEnv?: string;
+	refreshToken: string;
+	tokenExpiresAt?: string;
+}
+
 export interface McpServerConfig {
 	id: string;
 	label: string;
@@ -27,6 +35,7 @@ export interface McpServerConfig {
 	enabled: boolean;
 	createdAt: string;
 	updatedAt: string;
+	oauth?: McpServerOAuth;
 }
 
 export type McpServerRecord = Record<string, McpServerConfig>;
