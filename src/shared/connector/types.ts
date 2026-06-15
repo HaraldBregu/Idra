@@ -21,6 +21,8 @@ export interface ConnectorOAuthDefaults {
 
 export interface ConnectorOAuthAuthorizationResult {
 	readonly accessToken: string;
+	readonly refreshToken?: string;
+	readonly expiresIn?: number;
 }
 
 export interface ConnectorDefault {
