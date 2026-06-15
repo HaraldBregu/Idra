@@ -44,7 +44,6 @@ export class AgentRuntime {
 		private readonly workspace: Workspace,
 		private readonly settings: Settings,
 		private readonly session: Session,
-		private readonly mcpData: McpData,
 		private readonly model: AgentModel
 	) {
 		this.systemPrompt = new SystemPrompt();
