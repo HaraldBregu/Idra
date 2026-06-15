@@ -125,7 +125,64 @@ export class Connector extends McpData {
 			codeVerifier,
 		});
 
-		return { accessToken: token };
+		return {
+			accessToken: token.accessToken,
+			refreshToken: token.refreshToken,
+			expiresIn: token.expiresIn,
+		};
+	}
+
+	async refresh(): Promise<void> {
+		const connectors = this.list();
+		await Promise.allSettled(
+			Object.entries(connectors).map(async ([id, connector]) => {
+				if (connector.enabled === false) return;
+				if (!connector.refresh_token) return;
+				if (!isTokenExpired(connector)) return;
+
+				const connectorId = toConnectorId(id);
+				if (!connectorId) return;
+				const defaults = CONNECTOR_DEFAULTS.find((d) => d.id === connectorId);
+				if (!defaults) return;
+
+				try {
+					const clientId = envValue(defaults.oauth.clientIdEnv);
+					const clientSecret = defaults.oauth.clientSecretEnv
+						? envValue(defaults.oauth.clientSecretEnv)
+						: undefined;
+					if (!clientId) return;
+
+					const token = await refreshOAuthToken(
+						connector.refresh_token,
+						clientId,
+						clientSecret,
+						defaults.oauth.tokenUrl
+					);
+
+					const now = new Date().toISOString();
+					const nextConnector: ConnectorData = {
+						...connector,
+						authorization: token.accessToken,
+						refresh_token: token.refreshToken ?? connector.refresh_token,
+						token_expires_at: token.expiresIn
+							? new Date(Date.now() + token.expiresIn * 1000).toISOString()
+							: undefined,
+						last_refreshed_at: now,
+						updated_at: now,
+						last_error: undefined,
+					};
+					this.store.store = { ...this.store.store, [id]: nextConnector };
+				} catch (error) {
+					const message = error instanceof Error ? error.message : String(error);
+					const nextConnector: ConnectorData = {
+						...connector,
+						last_error: message,
+						updated_at: new Date().toISOString(),
+					};
+					this.store.store = { ...this.store.store, [id]: nextConnector };
+				}
+			})
+		);
 	}
 
 	mcp(): Mcp[] {
