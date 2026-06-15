@@ -93,13 +93,19 @@ export class McpClient {
 
 		// If the token has expired mid-session, refresh it and reconnect before calling.
 		if (this._oauth && isOAuthExpired(this._oauth)) {
-			await this.fetchFreshToken();
+			const refreshed = await this.fetchFreshToken();
+			if (!refreshed) {
+				throw new Error(
+					`MCP server '${this.config.label}' OAuth token refresh failed. Please re-authorize in Settings.`
+				);
+			}
 			await this.close();
 			this.sdkClient = newSdkClient();
 			await this.connect();
 			if (!this._state.connected) {
 				throw new Error(
-					`MCP server '${this.config.label}' failed to reconnect after token refresh`
+					this._state.errorMessage ??
+						`MCP server '${this.config.label}' failed to reconnect after token refresh`
 				);
 			}
 		}
