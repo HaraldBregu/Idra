@@ -166,6 +166,7 @@
 				"channels": "Canali messaggi",
 				"skills": "Abilita installate",
 				"connectors": "App collegate",
+				"mcp": "Server Model Context Protocol",
 				"providers": "Chiavi API AI",
 				"cron": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate",
 				"heartbeat": "Controlli periodici agenti"
