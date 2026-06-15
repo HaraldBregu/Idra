@@ -28,7 +28,6 @@ import {
 } from './shared';
 
 type ProviderModelFactory = (provider: ProviderSpec) => ProviderAdapter;
-const ANTHROPIC_MCP_BETA = 'mcp-client-2025-11-20';
 
 interface LlmClientFactoryInput {
 	apiKey: string;
