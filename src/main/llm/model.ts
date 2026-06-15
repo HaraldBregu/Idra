@@ -217,17 +217,13 @@ export class AgentModel extends Model implements ProviderAdapter {
 		req: ProviderStreamRequest
 	): AsyncIterable<ProviderEvent> {
 		const client = this.createOpenAIClient(provider, 'OpenAI api key not configured');
-		const functionTools: FunctionTool[] = req.tools.map((tool) => ({
+		const tools: FunctionTool[] = req.tools.map((tool) => ({
 			type: 'function',
 			name: tool.name,
 			description: tool.description,
 			parameters: tool.schema as Record<string, unknown>,
 			strict: false,
 		}));
-		const tools: NonNullable<ResponseCreateParamsStreaming['tools']> = [
-			...functionTools,
-			...adaptOpenAIMcpTools(req.mcp),
-		];
 
 		const params: ResponseCreateParamsStreaming = {
 			model: req.model,
