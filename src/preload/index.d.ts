@@ -119,6 +119,7 @@ import type {
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
 } from '../shared/app/app-permissions';
+import type { McpServerConfig, McpServerInfo } from '../shared/mcp/types';
 
 export interface ModelSelection {
 	provider: PublicProvider;
@@ -127,6 +128,14 @@ export interface ModelSelection {
 
 export type ConnectorRecord = ConnectorSettingsRecord;
 export type { ConnectorInput, ConnectorOAuthAuthorizationResult, ConnectorOAuthDefaults };
+export type { McpServerConfig, McpServerInfo };
+
+export interface McpApi {
+	listServers: () => Promise<McpServerConfig[]>;
+	upsertServer: (config: McpServerConfig) => Promise<McpServerConfig>;
+	deleteServer: (id: string) => Promise<void>;
+	status: () => Promise<McpServerInfo[]>;
+}
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
