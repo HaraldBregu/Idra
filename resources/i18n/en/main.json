@@ -176,6 +176,7 @@
 			"modelServices": "Model services",
 			"channels": "Channels",
 			"connectors": "Connectors",
+			"mcp": "MCP Servers",
 			"workspace": "Workspace",
 			"providers": "Providers",
 			"media": "Media",
