@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AlertTriangle, Trash2 } from 'lucide-react';
+import { AlertTriangle, LogIn, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +13,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import type { McpServerConfig, McpTransportConfig } from '../../../../../../../shared/mcp/types';
+import { CONNECTOR_DEFAULTS } from '../../../../../../../shared/connector';
 import {
 	SettingsField,
 	SettingsNotice,
