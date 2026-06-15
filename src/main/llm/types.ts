@@ -103,21 +103,6 @@ export interface ProviderToolSpec {
 	schema: JSONSchema;
 }
 
-export type ProviderMcpApprovalPolicy = 'always' | 'never' | { never: { toolNames: string[] } };
-
-export interface ProviderMcpSpec {
-	serverLabel: string;
-	serverUrl?: string;
-	connectorId?: string;
-	authorization?: string;
-	headers?: Record<string, string>;
-	requireApproval?: ProviderMcpApprovalPolicy;
-	allowedTools?: string[];
-	deferLoading?: boolean;
-	serverDescription?: string;
-	enabled?: boolean;
-}
-
 export interface ProviderStreamRequest {
 	model: string;
 	effort?: ModelReasoningEffort;
@@ -126,7 +111,6 @@ export interface ProviderStreamRequest {
 	inputItems?: unknown[];
 	previousResponseId?: string;
 	tools: ProviderToolSpec[];
-	mcp?: ProviderMcpSpec[];
 	maxTokens: number;
 	signal?: AbortSignal;
 }
