@@ -162,5 +162,6 @@ declare global {
 		skills: SkillsApi;
 		provider: ProviderApi;
 		stt: SttApi;
+		mcp: McpApi;
 	}
 }
