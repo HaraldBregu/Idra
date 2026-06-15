@@ -84,9 +84,6 @@ export class AgentRuntime {
 
 		const system = await this.systemPrompt.build(workspace);
 
-
-		console.log({tools})
-
 		yield {
 			type: 'run_started',
 			sessionId: session.id,
@@ -219,7 +216,6 @@ export class AgentRuntime {
 				input: toolCall.args,
 			};
 
-			console.log({toolMap: toolMap.get(toolCall.name)})
 			const outcome = await this.runTool(toolMap.get(toolCall.name), toolCall);
 			yield {
 				type: 'tool_call_end',
@@ -248,6 +244,8 @@ export class AgentRuntime {
 		if (!tool) {
 			return { output: `Error: unknown tool '${toolCall.name}'`, isError: true };
 		}
+
+		console.log({tool})
 
 		try {
 			return { output: await tool.run(toolCall.args) };

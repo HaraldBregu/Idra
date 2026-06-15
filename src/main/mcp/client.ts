@@ -44,7 +44,26 @@ export class McpClient {
 		// Proactively refresh the OAuth token before connecting if it is already expired,
 		// so the initial bootstrap succeeds even when the stored token has lapsed.
 		if (this._oauth && isOAuthExpired(this._oauth)) {
-			await this.fetchFreshToken();
+			const refreshed = await this.fetchFreshToken();
+			if (!refreshed) {
+				this._state = {
+					connected: false,
+					errorMessage:
+						'OAuth token refresh failed. Please re-authorize this server in Settings.',
+					tools: [],
+				};
+				return;
+			}
+		}
+		// Guard: OAuth is configured but no access token is available (e.g. the server was
+		// saved before completing the authorization flow, or the stored token was cleared).
+		if (this._oauth && !this._headers?.['Authorization']) {
+			this._state = {
+				connected: false,
+				errorMessage: 'No OAuth access token. Please authorize this server in Settings.',
+				tools: [],
+			};
+			return;
 		}
 		try {
 			const transport = buildTransport(this.config, this._headers);
