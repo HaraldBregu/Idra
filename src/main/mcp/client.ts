@@ -143,12 +143,13 @@ export class McpClient {
 	 * Fetches a fresh access token via the refresh_token grant and updates
 	 * `_headers` / `_oauth` in place. Does NOT close or reconnect — call
 	 * `close()` + `connect()` after this if a live reconnect is needed.
+	 * Returns `true` on success, `false` if the refresh could not be completed.
 	 */
-	private async fetchFreshToken(): Promise<void> {
+	private async fetchFreshToken(): Promise<boolean> {
 		const oauth = this._oauth;
-		if (!oauth) return;
+		if (!oauth) return false;
 		const clientId = process.env[oauth.clientIdEnv];
-		if (!clientId) return;
+		if (!clientId) return false;
 
 		try {
 			const body = new URLSearchParams({
@@ -164,12 +165,12 @@ export class McpClient {
 				headers: { 'content-type': 'application/x-www-form-urlencoded' },
 				body,
 			});
-			if (!response.ok) return;
+			if (!response.ok) return false;
 
 			const payload = (await response.json()) as Record<string, unknown>;
 			const accessToken =
 				typeof payload.access_token === 'string' ? payload.access_token.trim() : '';
-			if (!accessToken) return;
+			if (!accessToken) return false;
 
 			this._headers = { ...(this._headers ?? {}), Authorization: `Bearer ${accessToken}` };
 
@@ -182,8 +183,9 @@ export class McpClient {
 					: undefined;
 
 			this.onOAuthRefreshed?.(oauth, accessToken);
+			return true;
 		} catch {
-			// Let the call proceed and surface the auth error naturally.
+			return false;
 		}
 	}
 }
