@@ -106,6 +106,7 @@ const McpServerPage: React.FC = () => {
 	const [headersText, setHeadersText] = useState('');
 	const [enabled, setEnabled] = useState(true);
 	const [authorizing, setAuthorizing] = useState(false);
+	const [savedOAuth, setSavedOAuth] = useState<import('../../../../../../../shared/mcp/types').McpServerOAuth | undefined>(undefined);
 
 	useEffect(() => {
 		if (isNew) return;
