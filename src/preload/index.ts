@@ -6,6 +6,7 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ConnectorsChannels,
+	McpChannels,
 	ProviderStoreChannels,
 	CronChannels,
 	SkillsChannels,
