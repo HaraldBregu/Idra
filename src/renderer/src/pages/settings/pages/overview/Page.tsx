@@ -33,7 +33,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'connectors',
 		titleKey: 'settings.overview.groups.connectors',
-		paths: ['/settings/connectors'],
+		paths: ['/settings/connectors', '/settings/mcp'],
 	},
 	{
 		id: 'modelServices',
