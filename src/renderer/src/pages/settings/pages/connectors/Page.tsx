@@ -25,6 +25,9 @@ const ConnectorsPage = () => {
 		setError(null);
 		try {
 			const authorization = await window.connectors.authorizeOAuth(entry.oauth);
+			const tokenExpiresAt = authorization.expiresIn
+				? new Date(Date.now() + authorization.expiresIn * 1000).toISOString()
+				: undefined;
 			await window.connectors.upsert({
 				id: entry.directConnectorId,
 				name: entry.name,
@@ -33,6 +36,8 @@ const ConnectorsPage = () => {
 				serverDescription: entry.serverDescription,
 				serverUrl: entry.serverUrl,
 				authorization: authorization.accessToken,
+				refreshToken: authorization.refreshToken,
+				tokenExpiresAt,
 				requireApproval: entry.requireApproval,
 				deferLoading: entry.deferLoading,
 				enabled: entry.enabled,
