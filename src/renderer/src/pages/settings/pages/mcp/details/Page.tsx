@@ -195,7 +195,7 @@ const McpServerPage: React.FC = () => {
 				envText,
 				cwd,
 				url,
-				authToken,
+				useAuthToken ? authToken : '',
 				enabled,
 			);
 			await window.connectors.upsert(input);
