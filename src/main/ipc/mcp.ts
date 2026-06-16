@@ -4,7 +4,7 @@ import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { McpChannels } from '../../shared/ipc/channels/mcp';
 import type { McpNamedEntry } from '../../shared/mcp/types';
-import { McpClientManager, McpServerStore } from '../mcp';
+import { McpClientManager, McpServerStore } from '../agent/mcp';
 
 export class McpIpc implements IpcModule {
 	readonly name = 'mcp';
