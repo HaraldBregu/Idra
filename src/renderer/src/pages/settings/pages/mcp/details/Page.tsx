@@ -63,18 +63,20 @@ function buildConfig(
 	enabled: boolean,
 ): McpServerConfig {
 	if (type === 'stdio') {
-		const config: McpServerConfig = {
+		const config: McpStdioConfig = {
 			command: command.trim(),
 			args: parseLines(argsText),
 			env: parseKeyValueLines(envText, '='),
 		};
 		const trimmedCwd = cwd.trim();
-		if (trimmedCwd) (config as { cwd?: string }).cwd = trimmedCwd;
-		if (!enabled) (config as { enabled?: boolean }).enabled = false;
+		if (trimmedCwd) config.cwd = trimmedCwd;
+		if (!enabled) config.enabled = false;
 		return config;
 	}
 	const auth = authToken.trim() ? { token: authToken.trim() } : undefined;
-	return { type, url: url.trim(), ...(auth ? { auth } : {}), ...(!enabled ? { enabled: false } : {}) };
+	const base = { url: url.trim(), ...(auth ? { auth } : {}), ...(!enabled ? { enabled: false } : {}) };
+	if (type === 'sse') return { type: 'sse', ...base };
+	return { type: 'http', ...base };
 }
 
 function isFormValid(type: TransportType, command: string, url: string, name: string): boolean {
