@@ -35,7 +35,7 @@ export interface ConnectorDefault {
 	readonly requireApproval?: ConnectorApprovalPolicy;
 	readonly deferLoading?: boolean;
 	readonly enabled?: boolean;
-	readonly oauth: ConnectorOAuthDefaults;
+	readonly oauth?: ConnectorOAuthDefaults;
 }
 
 interface ConnectorBase {
