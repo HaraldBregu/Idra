@@ -281,7 +281,9 @@ const ConnectorDetailsPage: React.FC = () => {
 						}
 					/>
 					<DetailRow label="Auth" value={authLabel} />
-					<DetailRow label="Last refreshed" value={formatTimestamp(connector.last_refreshed_at)} />
+					{httpConnector && (
+						<DetailRow label="Last refreshed" value={formatTimestamp(httpConnector.last_refreshed_at)} />
+					)}
 					<DetailRow label="Updated" value={formatTimestamp(connector.updated_at)} />
 				</Card>
 			</SettingsSection>
