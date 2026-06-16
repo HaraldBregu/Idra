@@ -51,6 +51,9 @@ export interface ConnectorsApi {
 	list: () => Promise<ConnectorRecord>;
 	get: (id: string) => Promise<ConnectorRecord>;
 	upsert: (input: ConnectorInput) => Promise<ConnectorRecord>;
+	delete: (id: string) => Promise<void>;
+	reconnect: (name: string) => Promise<void>;
+	status: () => Promise<McpServerInfo[]>;
 	authorizeOAuth: (input: ConnectorOAuthDefaults) => Promise<ConnectorOAuthAuthorizationResult>;
 }
 
