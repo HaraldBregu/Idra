@@ -25,16 +25,18 @@ export interface ConnectorOptions {
 	cwd?: string;
 }
 
-const DEFAULT_SETTINGS: ConnectorSettingsRecord = {};
+type ConnectorStoreSchema = { mcpServers: Record<string, unknown> };
+
+const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {} };
 const OAUTH_TIMEOUT_MS = 120_000;
 
 @Service({ factory: () => new Connector() })
 export class Connector extends McpData {
-	private readonly store: Store<ConnectorSettingsRecord>;
+	private readonly store: Store<ConnectorStoreSchema>;
 
 	constructor(options: ConnectorOptions = {}) {
 		super();
-		this.store = new Store<ConnectorSettingsRecord>({
+		this.store = new Store<ConnectorStoreSchema>({
 			name: 'setting',
 			cwd: options.cwd ?? resolveConnectorSettingsLocation(),
 			accessPropertiesByDotNotation: false,
@@ -43,7 +45,11 @@ export class Connector extends McpData {
 	}
 
 	list(): ConnectorSettingsRecord {
-		return normalizeConnectorRecord(this.store.store);
+		const data = this.store.store;
+		// Support old format (connector IDs at root level, no mcpServers wrapper)
+		const source =
+			isRecord(data) && isRecord(data.mcpServers) ? data.mcpServers : data;
+		return normalizeConnectorRecord(source);
 	}
 
 	get(id: string): ConnectorSettingsRecord {
@@ -54,7 +60,7 @@ export class Connector extends McpData {
 
 	save(connectors: ConnectorSettingsRecord): ConnectorSettingsRecord {
 		const next = normalizeConnectorRecord(connectors);
-		this.store.store = next;
+		this.store.store = { mcpServers: next };
 		return next;
 	}
 
@@ -66,21 +72,12 @@ export class Connector extends McpData {
 		const current = connectors[connectorId];
 		const defaults = defaultSettings(connectorId);
 		const now = new Date().toISOString();
-		const incomingAuthorization = optionalTrimmedString(input.authorization);
+		const incomingToken = optionalTrimmedString(input.token);
 		const nextConnector: ConnectorData = {
 			...defaults,
 			...current,
-			connector_id:
-				optionalTrimmedString(input.connectorId) ?? current?.connector_id ?? defaults.connector_id,
-			server_label:
-				optionalTrimmedString(input.serverLabel) ?? current?.server_label ?? defaults.server_label,
-			server_url:
-				optionalTrimmedString(input.serverUrl) ?? current?.server_url ?? defaults.server_url,
-			server_description:
-				optionalTrimmedString(input.serverDescription) ??
-				current?.server_description ??
-				defaults.server_description,
-			authorization: incomingAuthorization ?? current?.authorization,
+			url: current?.url ?? defaults.url,
+			token: incomingToken ?? current?.token,
 			refresh_token: optionalTrimmedString(input.refreshToken) ?? current?.refresh_token,
 			token_expires_at: optionalTrimmedString(input.tokenExpiresAt) ?? current?.token_expires_at,
 			require_approval:
@@ -89,15 +86,12 @@ export class Connector extends McpData {
 			enabled: input.enabled ?? current?.enabled ?? defaults.enabled,
 			created_at: optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
 			updated_at: now,
-			last_refreshed_at: incomingAuthorization ? now : current?.last_refreshed_at,
-			last_error: incomingAuthorization ? undefined : current?.last_error,
+			last_refreshed_at: incomingToken ? now : current?.last_refreshed_at,
+			last_error: incomingToken ? undefined : current?.last_error,
 		};
 
-		const next = {
-			...connectors,
-			[connectorId]: nextConnector,
-		};
-		this.store.store = next;
+		const next = { ...connectors, [connectorId]: nextConnector };
+		this.store.store = { mcpServers: next };
 		return { [connectorId]: nextConnector };
 	}
 
@@ -162,7 +156,7 @@ export class Connector extends McpData {
 					const now = new Date().toISOString();
 					const nextConnector: ConnectorData = {
 						...connector,
-						authorization: token.accessToken,
+						token: token.accessToken,
 						refresh_token: token.refreshToken ?? connector.refresh_token,
 						token_expires_at: token.expiresIn
 							? new Date(Date.now() + token.expiresIn * 1000).toISOString()
@@ -171,7 +165,8 @@ export class Connector extends McpData {
 						updated_at: now,
 						last_error: undefined,
 					};
-					this.store.store = { ...this.store.store, [id]: nextConnector };
+					const current = this.store.store.mcpServers ?? {};
+					this.store.store = { mcpServers: { ...current, [id]: nextConnector } };
 				} catch (error) {
 					const message = error instanceof Error ? error.message : String(error);
 					const nextConnector: ConnectorData = {
@@ -179,14 +174,25 @@ export class Connector extends McpData {
 						last_error: message,
 						updated_at: new Date().toISOString(),
 					};
-					this.store.store = { ...this.store.store, [id]: nextConnector };
+					const current = this.store.store.mcpServers ?? {};
+					this.store.store = { mcpServers: { ...current, [id]: nextConnector } };
 				}
 			})
 		);
 	}
 
 	mcp(): Mcp[] {
-		return [];
+		const connectors = this.list();
+		return Object.entries(connectors)
+			.filter(([, connector]) => connector.enabled !== false)
+			.map(([id, connector]) => ({
+				serverLabel: id,
+				serverUrl: connector.url,
+				authorization: connector.token,
+				requireApproval: connector.require_approval,
+				deferLoading: connector.defer_loading,
+				enabled: connector.enabled,
+			}));
 	}
 }
 
@@ -204,11 +210,8 @@ function defaultSettings(id: ConnectorId): ConnectorData {
 	const connector = CONNECTOR_DEFAULTS.find((candidate) => candidate.id === id);
 	if (!connector) throw new Error(`Unsupported connector: ${id}`);
 	return {
-		type: 'mcp',
-		connector_id: connector.connectorId,
-		server_label: connector.serverLabel,
-		server_url: connector.serverUrl,
-		server_description: connector.serverDescription,
+		type: 'http',
+		url: connector.url,
 		require_approval: connector.requireApproval,
 		defer_loading: connector.deferLoading,
 		enabled: connector.enabled,
@@ -460,17 +463,37 @@ function isValidUrl(value: string): boolean {
 	}
 }
 
+function migrateConnectorEntry(value: unknown): unknown {
+	if (!isRecord(value) || value.type !== 'mcp') return value;
+	// Migrate from old format: type=mcp, server_url, authorization → type=http, url, token
+	return {
+		type: 'http',
+		url: value.server_url,
+		token: value.authorization,
+		refresh_token: value.refresh_token,
+		token_expires_at: value.token_expires_at,
+		require_approval: value.require_approval,
+		defer_loading: value.defer_loading,
+		enabled: value.enabled,
+		last_refreshed_at: value.last_refreshed_at,
+		created_at: value.created_at,
+		updated_at: value.updated_at,
+		last_error: value.last_error,
+	};
+}
+
 function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 	if (!isRecord(value)) return {};
 	const connectors: ConnectorSettingsRecord = {};
 	for (const [rawId, rawConnector] of Object.entries(value)) {
 		const id = toConnectorId(rawId);
-		if (!id || !isConnectorSettingsEntry(rawConnector)) continue;
+		const entry = migrateConnectorEntry(rawConnector);
+		if (!id || !isConnectorSettingsEntry(entry)) continue;
 		const defaults = defaultSettings(id);
 		connectors[id] = {
 			...defaults,
-			...rawConnector,
-			connector_id: rawConnector.connector_id ?? defaults.connector_id,
+			...entry,
+			url: entry.url ?? defaults.url,
 		};
 	}
 	return connectors;
@@ -479,12 +502,9 @@ function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 function isConnectorSettingsEntry(value: unknown): value is ConnectorData {
 	return (
 		isRecord(value) &&
-		value.type === 'mcp' &&
-		(value.connector_id === undefined || typeof value.connector_id === 'string') &&
-		typeof value.server_label === 'string' &&
-		typeof value.server_url === 'string' &&
-		(value.server_description === undefined || typeof value.server_description === 'string') &&
-		(value.authorization === undefined || typeof value.authorization === 'string') &&
+		value.type === 'http' &&
+		typeof value.url === 'string' &&
+		(value.token === undefined || typeof value.token === 'string') &&
 		(value.refresh_token === undefined || typeof value.refresh_token === 'string') &&
 		(value.token_expires_at === undefined || typeof value.token_expires_at === 'string') &&
 		(value.require_approval === undefined || isConnectorApprovalPolicy(value.require_approval)) &&
