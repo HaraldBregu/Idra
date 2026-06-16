@@ -234,7 +234,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title={displayName}
-				description={connector.server_description}
+				description={catalogEntry?.description}
 			/>
 
 			{error && (
@@ -246,8 +246,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			<SettingsSection title="Configuration">
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={id} mono />
-					<DetailRow label="Server label" value={connector.server_label} mono />
-					<DetailRow label="Server URL" value={connector.server_url} mono />
+					<DetailRow label="Server URL" value={connector.url} mono />
 					<DetailRow
 						label="Enabled"
 						value={
