@@ -6,14 +6,17 @@ import Store from 'electron-store';
 import { Service } from 'typedi';
 import { McpData } from '../agent/core/mcp';
 import type { Mcp } from '../agent/core/mcp';
+import type { McpNamedEntry, McpServerConfig, McpStdioConfig } from '../../shared/mcp/types';
 import type {
 	ConnectorApprovalPolicy,
 	ConnectorData,
-	ConnectorId,
+	ConnectorHttpData,
 	ConnectorInput,
 	ConnectorOAuthAuthorizationResult,
 	ConnectorOAuthDefaults,
 	ConnectorSettingsRecord,
+	ConnectorSseData,
+	ConnectorStdioData,
 } from '../../shared/connector';
 import {
 	CONNECTOR_APPROVAL_POLICIES,
@@ -53,7 +56,7 @@ export class Connector extends McpData {
 	}
 
 	get(id: string): ConnectorSettingsRecord {
-		const connectorId = resolveConnectorId(id);
+		const connectorId = resolveId(id);
 		const connector = this.list()[connectorId];
 		return connector ? { [connectorId]: connector } : {};
 	}
@@ -67,32 +70,93 @@ export class Connector extends McpData {
 	upsert(input: ConnectorInput): ConnectorSettingsRecord {
 		if (!isRecord(input)) throw new Error('Connector input must be an object.');
 
-		const connectorId = resolveConnectorId(input.id);
+		const id = resolveId(input.id);
 		const connectors = this.list();
-		const current = connectors[connectorId];
-		const defaults = defaultSettings(connectorId);
+		const current = connectors[id];
+		const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
 		const now = new Date().toISOString();
-		const incomingToken = optionalTrimmedString(input.token);
-		const nextConnector: ConnectorData = {
-			...defaults,
-			...current,
-			url: current?.url ?? defaults.url,
-			token: incomingToken ?? current?.token,
-			refresh_token: optionalTrimmedString(input.refreshToken) ?? current?.refresh_token,
-			token_expires_at: optionalTrimmedString(input.tokenExpiresAt) ?? current?.token_expires_at,
-			require_approval:
-				input.requireApproval ?? current?.require_approval ?? defaults.require_approval,
-			defer_loading: input.deferLoading ?? current?.defer_loading ?? defaults.defer_loading,
-			enabled: input.enabled ?? current?.enabled ?? defaults.enabled,
-			created_at: optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
-			updated_at: now,
-			last_refreshed_at: incomingToken ? now : current?.last_refreshed_at,
-			last_error: incomingToken ? undefined : current?.last_error,
-		};
 
-		const next = { ...connectors, [connectorId]: nextConnector };
+		const type = (optionalTrimmedString(input.type) ?? current?.type ?? (predefined ? 'http' : undefined)) as ConnectorData['type'] | undefined;
+		if (!type) throw new Error(`Connector type is required for: ${id}`);
+
+		let nextConnector: ConnectorData;
+
+		if (type === 'stdio') {
+			const command =
+				optionalTrimmedString(input.command) ??
+				(current?.type === 'stdio' ? current.command : undefined);
+			if (!command) throw new Error('Connector command is required for stdio type.');
+			const stdioCurrent: ConnectorStdioData | undefined =
+				current?.type === 'stdio' ? current : undefined;
+			nextConnector = {
+				type: 'stdio',
+				command,
+				args: input.args ?? stdioCurrent?.args,
+				env: input.env ?? stdioCurrent?.env,
+				cwd: optionalTrimmedString(input.cwd) ?? stdioCurrent?.cwd,
+				require_approval: input.requireApproval ?? current?.require_approval,
+				defer_loading: input.deferLoading ?? current?.defer_loading,
+				enabled: input.enabled ?? current?.enabled ?? true,
+				created_at: optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
+				updated_at: now,
+				last_error: stdioCurrent?.last_error,
+			};
+		} else {
+			const urlCurrent =
+				current?.type === 'http' || current?.type === 'sse' ? current.url : undefined;
+			const tokenCurrent =
+				current?.type === 'http' || current?.type === 'sse' ? current.token : undefined;
+			const url =
+				optionalTrimmedString(input.url) ?? urlCurrent ?? predefined?.url;
+			if (!url) throw new Error(`Connector URL is required for ${type} type.`);
+
+			const incomingToken = optionalTrimmedString(input.token);
+			const base = {
+				url,
+				token: incomingToken ?? tokenCurrent,
+				require_approval:
+					input.requireApproval ??
+					current?.require_approval ??
+					predefined?.requireApproval,
+				defer_loading:
+					input.deferLoading ?? current?.defer_loading ?? predefined?.deferLoading,
+				enabled: input.enabled ?? current?.enabled ?? predefined?.enabled ?? true,
+				created_at:
+					optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
+				updated_at: now,
+				last_error: incomingToken
+					? undefined
+					: (current?.type === 'sse' || current?.type === 'http' ? current.last_error : undefined),
+			};
+
+			if (type === 'sse') {
+				nextConnector = { type: 'sse', ...base };
+			} else {
+				const httpCurrent: ConnectorHttpData | undefined =
+					current?.type === 'http' ? current : undefined;
+				nextConnector = {
+					type: 'http',
+					...base,
+					refresh_token:
+						optionalTrimmedString(input.refreshToken) ?? httpCurrent?.refresh_token,
+					token_expires_at:
+						optionalTrimmedString(input.tokenExpiresAt) ?? httpCurrent?.token_expires_at,
+					last_refreshed_at: incomingToken ? now : httpCurrent?.last_refreshed_at,
+				};
+			}
+		}
+
+		const next = { ...connectors, [id]: nextConnector };
 		this.store.store = { mcpServers: next };
-		return { [connectorId]: nextConnector };
+		return { [id]: nextConnector };
+	}
+
+	delete(id: string): void {
+		const connectorId = resolveId(id);
+		const connectors = this.list();
+		const next = { ...connectors };
+		delete next[connectorId];
+		this.store.store = { mcpServers: next };
 	}
 
 	async authorizeOAuth(input: ConnectorOAuthDefaults): Promise<ConnectorOAuthAuthorizationResult> {
@@ -130,19 +194,18 @@ export class Connector extends McpData {
 		const connectors = this.list();
 		await Promise.allSettled(
 			Object.entries(connectors).map(async ([id, connector]) => {
+				if (connector.type !== 'http') return;
 				if (connector.enabled === false) return;
 				if (!connector.refresh_token) return;
 				if (!isTokenExpired(connector)) return;
 
-				const connectorId = toConnectorId(id);
-				if (!connectorId) return;
-				const defaults = CONNECTOR_DEFAULTS.find((d) => d.id === connectorId);
-				if (!defaults) return;
+				const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
+				if (!predefined) return;
 
 				try {
-					const clientId = envValue(defaults.oauth.clientIdEnv);
-					const clientSecret = defaults.oauth.clientSecretEnv
-						? envValue(defaults.oauth.clientSecretEnv)
+					const clientId = envValue(predefined.oauth.clientIdEnv);
+					const clientSecret = predefined.oauth.clientSecretEnv
+						? envValue(predefined.oauth.clientSecretEnv)
 						: undefined;
 					if (!clientId) return;
 
@@ -150,11 +213,11 @@ export class Connector extends McpData {
 						connector.refresh_token,
 						clientId,
 						clientSecret,
-						defaults.oauth.tokenUrl
+						predefined.oauth.tokenUrl
 					);
 
 					const now = new Date().toISOString();
-					const nextConnector: ConnectorData = {
+					const next: ConnectorHttpData = {
 						...connector,
 						token: token.accessToken,
 						refresh_token: token.refreshToken ?? connector.refresh_token,
@@ -166,33 +229,43 @@ export class Connector extends McpData {
 						last_error: undefined,
 					};
 					const current = this.store.store.mcpServers ?? {};
-					this.store.store = { mcpServers: { ...current, [id]: nextConnector } };
+					this.store.store = { mcpServers: { ...current, [id]: next } };
 				} catch (error) {
 					const message = error instanceof Error ? error.message : String(error);
-					const nextConnector: ConnectorData = {
+					const next: ConnectorHttpData = {
 						...connector,
 						last_error: message,
 						updated_at: new Date().toISOString(),
 					};
 					const current = this.store.store.mcpServers ?? {};
-					this.store.store = { mcpServers: { ...current, [id]: nextConnector } };
+					this.store.store = { mcpServers: { ...current, [id]: next } };
 				}
 			})
 		);
 	}
 
+	listMcpEntries(): McpNamedEntry[] {
+		const connectors = this.list();
+		return Object.entries(connectors)
+			.filter(([, c]) => c.enabled !== false)
+			.map(([name, c]) => ({ name, config: toMcpServerConfig(c) }));
+	}
+
 	mcp(): Mcp[] {
 		const connectors = this.list();
 		return Object.entries(connectors)
-			.filter(([, connector]) => connector.enabled !== false)
-			.map(([id, connector]) => ({
-				serverLabel: id,
-				serverUrl: connector.url,
-				authorization: connector.token,
-				requireApproval: connector.require_approval,
-				deferLoading: connector.defer_loading,
-				enabled: connector.enabled,
-			}));
+			.filter(([, c]) => c.enabled !== false && (c.type === 'http' || c.type === 'sse'))
+			.map(([id, c]) => {
+				const httpOrSse = c as ConnectorHttpData | ConnectorSseData;
+				return {
+					serverLabel: id,
+					serverUrl: httpOrSse.url,
+					authorization: httpOrSse.token,
+					requireApproval: c.require_approval,
+					deferLoading: c.defer_loading,
+					enabled: c.enabled,
+				};
+			});
 	}
 }
 
@@ -206,16 +279,28 @@ export function resolveConnectorSettingsLocation(): string {
 	}
 }
 
-function defaultSettings(id: ConnectorId): ConnectorData {
-	const connector = CONNECTOR_DEFAULTS.find((candidate) => candidate.id === id);
-	if (!connector) throw new Error(`Unsupported connector: ${id}`);
-	return {
-		type: 'http',
-		url: connector.url,
-		require_approval: connector.requireApproval,
-		defer_loading: connector.deferLoading,
-		enabled: connector.enabled,
+function toMcpServerConfig(data: ConnectorData): McpServerConfig {
+	if (data.type === 'stdio') {
+		const config: McpStdioConfig = { command: data.command };
+		if (data.args?.length) config.args = [...data.args];
+		if (data.env && Object.keys(data.env).length) config.env = { ...data.env };
+		if (data.cwd) config.cwd = data.cwd;
+		if (data.enabled === false) config.enabled = false;
+		return config;
+	}
+	const auth = data.token ? { token: data.token } : undefined;
+	const base = {
+		url: data.url,
+		...(auth ? { auth } : {}),
+		...(data.enabled === false ? { enabled: false } : {}),
 	};
+	return data.type === 'sse' ? { type: 'sse', ...base } : { type: 'http', ...base };
+}
+
+function resolveId(value: string | undefined): string {
+	const id = value?.trim().toLowerCase();
+	if (!id) throw new Error('Connector ID is required.');
+	return id;
 }
 
 interface OAuthAuthorizationRequest {
@@ -385,7 +470,10 @@ async function exchangeOAuthCode(input: OAuthTokenInput): Promise<OAuthTokenResu
 	}
 	return {
 		accessToken: payload.access_token.trim(),
-		refreshToken: typeof payload.refresh_token === 'string' ? payload.refresh_token.trim() || undefined : undefined,
+		refreshToken:
+			typeof payload.refresh_token === 'string'
+				? payload.refresh_token.trim() || undefined
+				: undefined,
 		expiresIn: typeof payload.expires_in === 'number' ? payload.expires_in : undefined,
 	};
 }
@@ -422,14 +510,16 @@ async function refreshOAuthToken(
 	}
 	return {
 		accessToken: payload.access_token.trim(),
-		refreshToken: typeof payload.refresh_token === 'string' ? payload.refresh_token.trim() || undefined : undefined,
+		refreshToken:
+			typeof payload.refresh_token === 'string'
+				? payload.refresh_token.trim() || undefined
+				: undefined,
 		expiresIn: typeof payload.expires_in === 'number' ? payload.expires_in : undefined,
 	};
 }
 
-function isTokenExpired(connector: ConnectorData): boolean {
+function isTokenExpired(connector: ConnectorHttpData): boolean {
 	if (!connector.token_expires_at) {
-		// No expiry stored — use last_refreshed_at as a fallback assuming 1-hour tokens
 		if (!connector.last_refreshed_at) return false;
 		const refreshedAt = new Date(connector.last_refreshed_at).getTime();
 		return Date.now() > refreshedAt + 55 * 60 * 1000;
@@ -465,7 +555,6 @@ function isValidUrl(value: string): boolean {
 
 function migrateConnectorEntry(value: unknown): unknown {
 	if (!isRecord(value) || value.type !== 'mcp') return value;
-	// Migrate from old format: type=mcp, server_url, authorization → type=http, url, token
 	return {
 		type: 'http',
 		url: value.server_url,
@@ -485,49 +574,65 @@ function migrateConnectorEntry(value: unknown): unknown {
 function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 	if (!isRecord(value)) return {};
 	const connectors: ConnectorSettingsRecord = {};
-	for (const [rawId, rawConnector] of Object.entries(value)) {
-		const id = toConnectorId(rawId);
-		const entry = migrateConnectorEntry(rawConnector);
-		if (!id || !isConnectorSettingsEntry(entry)) continue;
-		const defaults = defaultSettings(id);
-		connectors[id] = {
-			...defaults,
-			...entry,
-			url: entry.url ?? defaults.url,
-		};
+	for (const [rawId, rawEntry] of Object.entries(value)) {
+		const id = rawId.trim().toLowerCase();
+		if (!id) continue;
+		const entry = migrateConnectorEntry(rawEntry);
+		if (!isConnectorEntry(entry)) continue;
+		const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
+		if (predefined && entry.type === 'http') {
+			connectors[id] = {
+				...entry,
+				url: entry.url || predefined.url,
+				require_approval: entry.require_approval ?? predefined.requireApproval,
+				defer_loading: entry.defer_loading ?? predefined.deferLoading,
+				enabled: entry.enabled ?? predefined.enabled,
+			};
+		} else {
+			connectors[id] = entry;
+		}
 	}
 	return connectors;
 }
 
-function isConnectorSettingsEntry(value: unknown): value is ConnectorData {
+function isConnectorEntry(value: unknown): value is ConnectorData {
+	if (!isRecord(value)) return false;
+	const { type } = value;
+	if (type === 'stdio') {
+		return (
+			typeof value.command === 'string' &&
+			(value.args === undefined || Array.isArray(value.args)) &&
+			(value.env === undefined || isStringRecord(value.env)) &&
+			(value.cwd === undefined || typeof value.cwd === 'string') &&
+			isCommonFields(value)
+		);
+	}
+	if (type === 'http' || type === 'sse') {
+		return (
+			typeof value.url === 'string' &&
+			(value.token === undefined || typeof value.token === 'string') &&
+			isCommonFields(value)
+		);
+	}
+	return false;
+}
+
+function isCommonFields(value: Record<string, unknown>): boolean {
 	return (
-		isRecord(value) &&
-		value.type === 'http' &&
-		typeof value.url === 'string' &&
-		(value.token === undefined || typeof value.token === 'string') &&
-		(value.refresh_token === undefined || typeof value.refresh_token === 'string') &&
-		(value.token_expires_at === undefined || typeof value.token_expires_at === 'string') &&
-		(value.require_approval === undefined || isConnectorApprovalPolicy(value.require_approval)) &&
+		(value.require_approval === undefined ||
+			isConnectorApprovalPolicy(value.require_approval)) &&
 		(value.defer_loading === undefined || typeof value.defer_loading === 'boolean') &&
 		(value.enabled === undefined || typeof value.enabled === 'boolean') &&
-		(value.last_refreshed_at === undefined || typeof value.last_refreshed_at === 'string') &&
 		(value.created_at === undefined || typeof value.created_at === 'string') &&
 		(value.updated_at === undefined || typeof value.updated_at === 'string') &&
 		(value.last_error === undefined || typeof value.last_error === 'string')
 	);
 }
 
-function resolveConnectorId(value: string | undefined): ConnectorId {
-	const id = toConnectorId(value);
-	if (!id) throw new Error(`Unsupported connector: ${value ?? ''}`);
-	return id;
-}
-
-function toConnectorId(value: string | undefined): ConnectorId | undefined {
-	const normalized = value?.trim().toLowerCase();
-	if (!normalized) return undefined;
-	if ((CONNECTOR_IDS as readonly string[]).includes(normalized)) return normalized as ConnectorId;
-	return undefined;
+function isStringRecord(value: unknown): value is Record<string, string> {
+	return (
+		isRecord(value) && Object.values(value).every((v) => typeof v === 'string')
+	);
 }
 
 function isConnectorApprovalPolicy(value: unknown): value is ConnectorApprovalPolicy {
@@ -543,3 +648,6 @@ function optionalTrimmedString(value: unknown): string | undefined {
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
+
+// Keep for backward compat with any code that still checks CONNECTOR_IDS
+export { CONNECTOR_IDS };
