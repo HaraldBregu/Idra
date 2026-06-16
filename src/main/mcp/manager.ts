@@ -2,7 +2,7 @@ import { McpClient } from './client';
 import { McpTool } from './tool';
 import type { McpServerStore } from './store';
 import type { Tool } from '../agent/core/tool';
-import type { McpServerConfig, McpServerInfo, McpServerOAuth } from '../../shared/mcp/types';
+import type { McpServerInfo } from '../../shared/mcp/types';
 
 export class McpClientManager {
 	private readonly clients = new Map<string, McpClient>();
@@ -10,20 +10,18 @@ export class McpClientManager {
 	constructor(private readonly store: McpServerStore) {}
 
 	async connect(logger?: { warn(src: string, msg: string): void }): Promise<void> {
-		const configs = this.store.list().filter((c) => c.enabled);
+		const entries = this.store.list().filter((e) => e.config.enabled !== false);
 		await Promise.allSettled(
-			configs.map(async (config) => {
-				const client = new McpClient(config, (oauth, accessToken) =>
-					this.persistOAuthRefresh(config, oauth, accessToken)
-				);
+			entries.map(async ({ name, config }) => {
+				const client = new McpClient(name, config);
 				await client.connect();
 				if (!client.state.connected) {
 					logger?.warn(
 						'McpClientManager',
-						`'${config.label}' failed to connect: ${client.state.errorMessage}`
+						`'${name}' failed to connect: ${client.state.errorMessage}`
 					);
 				}
-				this.clients.set(config.id, client);
+				this.clients.set(name, client);
 			})
 		);
 	}
@@ -41,44 +39,28 @@ export class McpClientManager {
 
 	getStatus(): McpServerInfo[] {
 		return [...this.clients.values()].map((c) => ({
-			serverId: c.config.id,
-			label: c.config.label,
+			serverName: c.name,
 			status: c.state.connected ? ('connected' as const) : ('error' as const),
 			errorMessage: c.state.errorMessage,
 			toolNames: c.state.tools.map((t) => t.name),
 		}));
 	}
 
-	async reconnect(serverId: string): Promise<void> {
-		await this.clients.get(serverId)?.close();
-		const config = this.store.get(serverId);
-		if (!config?.enabled) {
-			this.clients.delete(serverId);
+	async reconnect(name: string): Promise<void> {
+		await this.clients.get(name)?.close();
+		const config = this.store.get(name);
+		if (!config || config.enabled === false) {
+			this.clients.delete(name);
 			return;
 		}
-		const client = new McpClient(config, (oauth, accessToken) =>
-			this.persistOAuthRefresh(config, oauth, accessToken)
-		);
+		const client = new McpClient(name, config);
 		await client.connect();
-		this.clients.set(serverId, client);
+		this.clients.set(name, client);
 	}
 
-	private persistOAuthRefresh(
-		config: McpServerConfig,
-		oauth: McpServerOAuth,
-		accessToken: string
-	): void {
-		const updatedTransport =
-			config.transport.type !== 'stdio'
-				? {
-						...config.transport,
-						headers: {
-							...(config.transport.headers ?? {}),
-							Authorization: `Bearer ${accessToken}`,
-						},
-					}
-				: config.transport;
-		this.store.upsert({ ...config, transport: updatedTransport, oauth });
+	async disconnectOne(name: string): Promise<void> {
+		await this.clients.get(name)?.close();
+		this.clients.delete(name);
 	}
 
 	async disconnect(): Promise<void> {
