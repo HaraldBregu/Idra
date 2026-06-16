@@ -200,7 +200,7 @@ export class Connector extends McpData {
 				if (!isTokenExpired(connector)) return;
 
 				const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
-				if (!predefined) return;
+				if (!predefined?.oauth) return;
 
 				try {
 					const clientId = envValue(predefined.oauth.clientIdEnv);
