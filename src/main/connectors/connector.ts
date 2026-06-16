@@ -37,7 +37,7 @@ export class Connector extends McpData {
 	constructor(options: ConnectorOptions = {}) {
 		super();
 		this.store = new Store<ConnectorStoreSchema>({
-			name: 'setting',
+			name: 'settings',
 			cwd: options.cwd ?? resolveConnectorSettingsLocation(),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
