@@ -29,9 +29,7 @@ export interface ConnectorDefault {
 	readonly id: ConnectorId;
 	readonly connectorId: string;
 	readonly name: string;
-	readonly serverLabel: string;
-	readonly serverDescription?: string;
-	readonly serverUrl: string;
+	readonly url: string;
 	readonly description: string;
 	readonly iconId?: string;
 	readonly requireApproval?: ConnectorApprovalPolicy;
@@ -41,12 +39,9 @@ export interface ConnectorDefault {
 }
 
 export interface ConnectorData {
-	readonly type: 'mcp';
-	readonly connector_id?: string;
-	readonly server_label: string;
-	readonly server_url: string;
-	readonly server_description?: string;
-	readonly authorization?: string;
+	readonly type: 'http';
+	readonly url: string;
+	readonly token?: string;
 	readonly refresh_token?: string;
 	readonly token_expires_at?: string;
 	readonly require_approval?: ConnectorApprovalPolicy;
@@ -63,11 +58,7 @@ export type ConnectorSettingsRecord = Record<string, ConnectorData>;
 export interface ConnectorInput {
 	readonly id?: string;
 	readonly name: string;
-	readonly connectorId?: string;
-	readonly serverLabel?: string;
-	readonly serverDescription?: string;
-	readonly serverUrl?: string;
-	readonly authorization?: string;
+	readonly token?: string;
 	readonly refreshToken?: string;
 	readonly tokenExpiresAt?: string;
 	readonly requireApproval?: ConnectorApprovalPolicy;
