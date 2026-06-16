@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import type { McpServerConfig, McpTransportConfig } from '../../../../../../../shared/mcp/types';
+import type { McpServerConfig } from '../../../../../../../shared/mcp/types';
 import { CONNECTOR_DEFAULTS } from '../../../../../../../shared/connector';
 import {
 	SettingsField,
@@ -24,7 +24,7 @@ import {
 	SettingsSection,
 } from '../../../components';
 
-type TransportType = McpTransportConfig['type'];
+type TransportType = 'stdio' | 'http' | 'sse';
 
 function parseLines(text: string): string[] {
 	return text.split('\n').map((l) => l.trim()).filter(Boolean);
@@ -52,35 +52,33 @@ function serializeKeyValueLines(values: Record<string, string> | undefined, sep:
 		.join('\n');
 }
 
-function buildTransport(
+function buildConfig(
 	type: TransportType,
 	command: string,
 	argsText: string,
 	envText: string,
 	cwd: string,
 	url: string,
-	headersText: string
-): McpTransportConfig {
+	authToken: string,
+	enabled: boolean,
+): McpServerConfig {
 	if (type === 'stdio') {
-		const config: McpTransportConfig = {
-			type: 'stdio',
+		const config: McpServerConfig = {
 			command: command.trim(),
 			args: parseLines(argsText),
 			env: parseKeyValueLines(envText, '='),
 		};
 		const trimmedCwd = cwd.trim();
-		if (trimmedCwd) config.cwd = trimmedCwd;
+		if (trimmedCwd) (config as { cwd?: string }).cwd = trimmedCwd;
+		if (!enabled) (config as { enabled?: boolean }).enabled = false;
 		return config;
 	}
-	const headers = parseKeyValueLines(headersText, ':');
-	if (type === 'sse') {
-		return { type: 'sse', url: url.trim(), headers };
-	}
-	return { type: 'http', url: url.trim(), headers };
+	const auth = authToken.trim() ? { token: authToken.trim() } : undefined;
+	return { type, url: url.trim(), ...(auth ? { auth } : {}), ...(!enabled ? { enabled: false } : {}) };
 }
 
-function isValid(type: TransportType, command: string, url: string, label: string): boolean {
-	if (!label.trim()) return false;
+function isFormValid(type: TransportType, command: string, url: string, name: string): boolean {
+	if (!name.trim()) return false;
 	if (type === 'stdio') return Boolean(command.trim());
 	return Boolean(url.trim());
 }
@@ -96,17 +94,18 @@ const McpServerPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [notFound, setNotFound] = useState(false);
 
-	const [label, setLabel] = useState('');
+	const [nameInput, setNameInput] = useState('');
 	const [transportType, setTransportType] = useState<TransportType>('stdio');
 	const [command, setCommand] = useState('');
 	const [argsText, setArgsText] = useState('');
 	const [envText, setEnvText] = useState('');
 	const [cwd, setCwd] = useState('');
 	const [url, setUrl] = useState('');
-	const [headersText, setHeadersText] = useState('');
+	const [authToken, setAuthToken] = useState('');
 	const [enabled, setEnabled] = useState(true);
 	const [authorizing, setAuthorizing] = useState(false);
-	const [savedOAuth, setSavedOAuth] = useState<import('../../../../../../../shared/mcp/types').McpServerOAuth | undefined>(undefined);
+
+	const serverName = isNew ? nameInput : (serverId ?? '');
 
 	useEffect(() => {
 		if (isNew) return;
@@ -115,26 +114,25 @@ const McpServerPage: React.FC = () => {
 		void window.mcp.listServers().then(
 			(servers) => {
 				if (!mounted) return;
-				const server = servers.find((s) => s.id === serverId);
-				if (!server) {
+				const entry = servers.find((s) => s.name === serverId);
+				if (!entry) {
 					setNotFound(true);
 					setLoading(false);
 					return;
 				}
-				setLabel(server.label);
-				setEnabled(server.enabled);
-				const t = server.transport;
-				setTransportType(t.type);
-				if (t.type === 'stdio') {
-					setCommand(t.command);
-					setArgsText(serializeLines(t.args));
-					setEnvText(serializeKeyValueLines(t.env, '='));
-					setCwd(t.cwd ?? '');
+				const c = entry.config;
+				setEnabled(c.enabled !== false);
+				if ('command' in c) {
+					setTransportType('stdio');
+					setCommand(c.command);
+					setArgsText(serializeLines(c.args));
+					setEnvText(serializeKeyValueLines(c.env, '='));
+					setCwd(c.cwd ?? '');
 				} else {
-					setUrl(t.url);
-					setHeadersText(serializeKeyValueLines(t.headers, ': '));
+					setTransportType(c.type);
+					setUrl(c.url);
+					setAuthToken(c.auth?.token ?? '');
 				}
-				if (server.oauth) setSavedOAuth(server.oauth);
 				setLoading(false);
 			},
 			(err) => {
@@ -163,20 +161,7 @@ const McpServerPage: React.FC = () => {
 		setError(null);
 		try {
 			const result = await window.connectors.authorizeOAuth(googleOAuthConfig);
-			const existing = parseKeyValueLines(headersText, ':');
-			existing['Authorization'] = `Bearer ${result.accessToken}`;
-			setHeadersText(serializeKeyValueLines(existing, ': '));
-			if (result.refreshToken) {
-				setSavedOAuth({
-					tokenUrl: googleOAuthConfig.tokenUrl,
-					clientIdEnv: googleOAuthConfig.clientIdEnv,
-					clientSecretEnv: googleOAuthConfig.clientSecretEnv,
-					refreshToken: result.refreshToken,
-					tokenExpiresAt: result.expiresIn
-						? new Date(Date.now() + result.expiresIn * 1000).toISOString()
-						: undefined,
-				});
-			}
+			setAuthToken(result.accessToken);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
@@ -185,22 +170,13 @@ const McpServerPage: React.FC = () => {
 	};
 
 	const handleSave = async (): Promise<void> => {
-		if (!isValid(transportType, command, url, label)) return;
+		if (!isFormValid(transportType, command, url, serverName)) return;
 
 		setSaving(true);
 		setError(null);
 		try {
-			const now = new Date().toISOString();
-			const config: McpServerConfig = {
-				id: isNew ? crypto.randomUUID() : serverId!,
-				label: label.trim(),
-				transport: buildTransport(transportType, command, argsText, envText, cwd, url, headersText),
-				enabled,
-				createdAt: now,
-				updatedAt: now,
-				...(savedOAuth ? { oauth: savedOAuth } : {}),
-			};
-			await window.mcp.upsertServer(config);
+			const config = buildConfig(transportType, command, argsText, envText, cwd, url, authToken, enabled);
+			await window.mcp.upsertServer({ name: serverName.trim(), config });
 			navigate('/settings/mcp');
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -224,8 +200,8 @@ const McpServerPage: React.FC = () => {
 		}
 	};
 
-	const title = isNew ? 'Add MCP Server' : (label || 'Server Details');
-	const valid = isValid(transportType, command, url, label);
+	const title = isNew ? 'Add MCP Server' : (serverId || 'Server Details');
+	const valid = isFormValid(transportType, command, url, serverName);
 
 	if (loading) {
 		return (
@@ -276,15 +252,17 @@ const McpServerPage: React.FC = () => {
 			<SettingsSection title="Configuration">
 				<SettingsPanel>
 					<div className="flex flex-col gap-4 p-3">
-						<SettingsField id="mcp-label" label="Label">
-							<Input
-								id="mcp-label"
-								value={label}
-								onChange={(e) => setLabel(e.target.value)}
-								placeholder="My MCP Server"
-								className="h-8 text-sm"
-							/>
-						</SettingsField>
+						{isNew && (
+							<SettingsField id="mcp-name" label="Name">
+								<Input
+									id="mcp-name"
+									value={nameInput}
+									onChange={(e) => setNameInput(e.target.value)}
+									placeholder="gmail"
+									className="h-8 text-sm font-mono"
+								/>
+							</SettingsField>
+						)}
 
 						<SettingsField id="mcp-transport" label="Transport">
 							<Select
@@ -381,7 +359,7 @@ const McpServerPage: React.FC = () => {
 										<div className="flex-1 min-w-0">
 											<p className="text-xs font-medium">Google authentication</p>
 											<p className="text-[11px] text-muted-foreground mt-0.5">
-												Authorize with Google to set a fresh access token in the headers below.
+												Authorize with Google to set a fresh access token.
 											</p>
 										</div>
 										<Button
@@ -399,17 +377,17 @@ const McpServerPage: React.FC = () => {
 								)}
 
 								<SettingsField
-									id="mcp-headers"
-									label="Headers"
-									description="Key: Value, one per line"
+									id="mcp-auth-token"
+									label="Auth token"
+									description="Used as Authorization: Bearer <token>"
 								>
-									<Textarea
-										id="mcp-headers"
-										value={headersText}
-										onChange={(e) => setHeadersText(e.target.value)}
-										placeholder="Authorization: Bearer token"
-										className="font-mono text-xs"
-										rows={3}
+									<Input
+										id="mcp-auth-token"
+										type="password"
+										value={authToken}
+										onChange={(e) => setAuthToken(e.target.value)}
+										placeholder="your-token-here"
+										className="h-8 font-mono text-sm"
 									/>
 								</SettingsField>
 							</>
