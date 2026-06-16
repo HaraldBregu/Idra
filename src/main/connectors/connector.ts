@@ -649,5 +649,3 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-// Keep for backward compat with any code that still checks CONNECTOR_IDS
-export { CONNECTOR_IDS };
