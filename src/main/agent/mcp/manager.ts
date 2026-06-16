@@ -1,16 +1,15 @@
 import { McpClient } from './client';
 import { McpTool } from './tool';
-import type { McpServerStore } from './store';
 import type { Tool } from '../core/tool';
-import type { McpServerInfo } from '../../../shared/mcp/types';
+import type { McpNamedEntry, McpServerInfo } from '../../../shared/mcp/types';
 
 export class McpClientManager {
 	private readonly clients = new Map<string, McpClient>();
 
-	constructor(private readonly store: McpServerStore) {}
+	constructor(readonly mcpServers: McpNamedEntry[]) {}
 
 	async connect(logger?: { warn(src: string, msg: string): void }): Promise<void> {
-		const entries = this.store.list().filter((e) => e.config.enabled !== false);
+		const entries = this.mcpServers.filter((e) => e.config.enabled !== false);
 		await Promise.allSettled(
 			entries.map(async ({ name, config }) => {
 				const client = new McpClient(name, config);
@@ -48,12 +47,12 @@ export class McpClientManager {
 
 	async reconnect(name: string): Promise<void> {
 		await this.clients.get(name)?.close();
-		const config = this.store.get(name);
-		if (!config || config.enabled === false) {
+		const entry = this.mcpServers.find((e) => e.name === name);
+		if (!entry || entry.config.enabled === false) {
 			this.clients.delete(name);
 			return;
 		}
-		const client = new McpClient(name, config);
+		const client = new McpClient(name, entry.config);
 		await client.connect();
 		this.clients.set(name, client);
 	}
