@@ -110,6 +110,7 @@ const McpServerPage: React.FC = () => {
 	const [envText, setEnvText] = useState('');
 	const [cwd, setCwd] = useState('');
 	const [url, setUrl] = useState('');
+	const [useAuthToken, setUseAuthToken] = useState(false);
 	const [authToken, setAuthToken] = useState('');
 	const [enabled, setEnabled] = useState(true);
 	const [authorizing, setAuthorizing] = useState(false);
