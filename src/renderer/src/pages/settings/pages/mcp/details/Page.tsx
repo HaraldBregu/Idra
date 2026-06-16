@@ -172,6 +172,7 @@ const McpServerPage: React.FC = () => {
 		setError(null);
 		try {
 			const result = await window.connectors.authorizeOAuth(googleOAuthConfig);
+			setUseAuthToken(true);
 			setAuthToken(result.accessToken);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
