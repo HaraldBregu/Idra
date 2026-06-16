@@ -6,10 +6,10 @@ import type { McpNamedEntry, McpServerInfo } from '../../../shared/mcp/types';
 export class McpClientManager {
 	private readonly clients = new Map<string, McpClient>();
 
-	constructor(readonly mcpServers: McpNamedEntry[]) {}
+	constructor(private readonly getEntries: () => McpNamedEntry[]) {}
 
 	async connect(logger?: { warn(src: string, msg: string): void }): Promise<void> {
-		const entries = this.mcpServers.filter((e) => e.config.enabled !== false);
+		const entries = this.getEntries().filter((e) => e.config.enabled !== false);
 		await Promise.allSettled(
 			entries.map(async ({ name, config }) => {
 				const client = new McpClient(name, config);
