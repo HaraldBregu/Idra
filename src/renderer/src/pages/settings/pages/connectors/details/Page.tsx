@@ -248,7 +248,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			<SettingsSection title="Configuration">
 				<Card size="sm" className="gap-0! p-0!">
 					<DetailRow label="Connector" value={id} mono />
-					<DetailRow label="Server URL" value={connector.url} mono />
+					{httpOrSse && <DetailRow label="Server URL" value={httpOrSse.url} mono />}
 					<DetailRow
 						label="Enabled"
 						value={
