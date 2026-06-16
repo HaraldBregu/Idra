@@ -21,6 +21,7 @@ import {
 	SettingsSection,
 } from '../../../components';
 import { SETTINGS_CONNECTOR_CATALOG } from '../catalog';
+import type { SettingsConnectorCatalogEntry } from '../catalog';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
 type ConnectorEntry = ConnectorRecord[string];
