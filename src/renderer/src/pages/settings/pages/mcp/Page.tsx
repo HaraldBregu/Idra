@@ -4,7 +4,7 @@ import { AlertTriangle, Box, ChevronRight, Plus, RefreshCw, RotateCcw } from 'lu
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { McpServerConfig, McpServerInfo } from '../../../../../../shared/mcp/types';
+import type { McpNamedEntry, McpServerInfo } from '../../../../../../shared/mcp/types';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
@@ -15,8 +15,12 @@ import {
 	SettingsSection,
 } from '../../components';
 
-function StatusBadge({ config, info }: { config: McpServerConfig; info: McpServerInfo | undefined }): React.JSX.Element {
-	if (!config.enabled) {
+function transportLabel(entry: McpNamedEntry): string {
+	return 'command' in entry.config ? 'STDIO' : entry.config.type.toUpperCase();
+}
+
+function StatusBadge({ entry, info }: { entry: McpNamedEntry; info: McpServerInfo | undefined }): React.JSX.Element {
+	if (entry.config.enabled === false) {
 		return <Badge variant="outline" className="text-[10px]">Disabled</Badge>;
 	}
 	if (!info) {
@@ -33,7 +37,7 @@ function StatusBadge({ config, info }: { config: McpServerConfig; info: McpServe
 
 const McpPage: React.FC = () => {
 	const navigate = useNavigate();
-	const [servers, setServers] = useState<McpServerConfig[]>([]);
+	const [servers, setServers] = useState<McpNamedEntry[]>([]);
 	const [statusMap, setStatusMap] = useState<Map<string, McpServerInfo>>(new Map());
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -48,7 +52,7 @@ const McpPage: React.FC = () => {
 				window.mcp.status(),
 			]);
 			setServers(configs);
-			setStatusMap(new Map(statuses.map((s) => [s.serverId, s])));
+			setStatusMap(new Map(statuses.map((s) => [s.serverName, s])));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
@@ -60,14 +64,14 @@ const McpPage: React.FC = () => {
 		void load();
 	}, [load]);
 
-	const reconnect = useCallback(async (server: McpServerConfig, e: React.MouseEvent): Promise<void> => {
+	const reconnect = useCallback(async (entry: McpNamedEntry, e: React.MouseEvent): Promise<void> => {
 		e.stopPropagation();
-		setReconnecting(server.id);
+		setReconnecting(entry.name);
 		setError(null);
 		try {
-			await window.mcp.upsertServer(server);
+			await window.mcp.upsertServer(entry);
 			const statuses = await window.mcp.status();
-			setStatusMap(new Map(statuses.map((s) => [s.serverId, s])));
+			setStatusMap(new Map(statuses.map((s) => [s.serverName, s])));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		} finally {
@@ -111,34 +115,34 @@ const McpPage: React.FC = () => {
 							description="Add a server to extend the agent with external tools via the Model Context Protocol."
 						/>
 					) : (
-						servers.map((server) => {
-							const info = statusMap.get(server.id);
+						servers.map((entry) => {
+							const info = statusMap.get(entry.name);
 							const toolCount = info?.toolNames.length ?? 0;
-							const isReconnecting = reconnecting === server.id;
+							const isReconnecting = reconnecting === entry.name;
 
 							return (
-								<div key={server.id} className="border-b border-border/60 last:border-b-0">
+								<div key={entry.name} className="border-b border-border/60 last:border-b-0">
 									<Item
 										role="button"
 										tabIndex={0}
 										variant="outline"
 										size="md"
 										className="cursor-pointer border-0 hover:bg-muted/40"
-										onClick={() => navigate(`/settings/mcp/server/${encodeURIComponent(server.id)}`)}
+										onClick={() => navigate(`/settings/mcp/server/${encodeURIComponent(entry.name)}`)}
 										onKeyDown={(e) => {
 											if (e.key === 'Enter' || e.key === ' ') {
 												e.preventDefault();
-												navigate(`/settings/mcp/server/${encodeURIComponent(server.id)}`);
+												navigate(`/settings/mcp/server/${encodeURIComponent(entry.name)}`);
 											}
 										}}
 									>
 										<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-											<ItemTitle className="max-w-full truncate">{server.label}</ItemTitle>
+											<ItemTitle className="max-w-full truncate">{entry.name}</ItemTitle>
 											<div className="flex flex-wrap items-center gap-1.5">
 												<Badge variant="outline" className="text-[10px] font-mono">
-													{server.transport.type.toUpperCase()}
+													{transportLabel(entry)}
 												</Badge>
-												<StatusBadge config={server} info={info} />
+												<StatusBadge entry={entry} info={info} />
 												{info?.status === 'connected' && toolCount > 0 && (
 													<span className="text-[11px] text-muted-foreground">
 														{toolCount} {toolCount === 1 ? 'tool' : 'tools'}
@@ -151,7 +155,7 @@ const McpPage: React.FC = () => {
 												variant="outline"
 												size="xs"
 												disabled={isReconnecting}
-												onClick={(e) => void reconnect(server, e)}
+												onClick={(e) => void reconnect(entry, e)}
 												className="shrink-0"
 											>
 												<RotateCcw className={`size-3 ${isReconnecting ? 'animate-spin' : ''}`} />
