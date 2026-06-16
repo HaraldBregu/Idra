@@ -26,6 +26,7 @@ import type { SettingsConnectorCatalogEntry } from '../catalog';
 type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
 type ConnectorEntry = ConnectorRecord[string];
 type ApprovalPolicy = NonNullable<ConnectorEntry['require_approval']>;
+type CatalogEntry = SettingsConnectorCatalogEntry;
 
 const APPROVAL_POLICIES = ['always', 'never'] as const satisfies readonly ApprovalPolicy[];
 
