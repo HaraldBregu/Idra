@@ -31,11 +31,7 @@ const ConnectorsPage = () => {
 			await window.connectors.upsert({
 				id: entry.directConnectorId,
 				name: entry.name,
-				connectorId: entry.connectorId,
-				serverLabel: entry.serverLabel,
-				serverDescription: entry.serverDescription,
-				serverUrl: entry.serverUrl,
-				authorization: authorization.accessToken,
+				token: authorization.accessToken,
 				refreshToken: authorization.refreshToken,
 				tokenExpiresAt,
 				requireApproval: entry.requireApproval,
