@@ -48,23 +48,17 @@ function isApprovalPolicy(value: string): value is ApprovalPolicy {
 function connectorRecordEntry(
 	record: ConnectorRecord,
 	preferredId?: string
-): { id: string; connector: ConnectorEntry } | undefined {
+): { id: string; connector: ConnectorEntry; catalogEntry?: CatalogEntry } | undefined {
 	const entry = preferredId ? record[preferredId] : undefined;
-	if (preferredId && entry) return { id: preferredId, connector: entry };
-	const [id, connector] = Object.entries(record)[0] ?? [];
-	return id && connector ? { id, connector } : undefined;
+	const id = preferredId && entry ? preferredId : (Object.entries(record)[0]?.[0]);
+	const connector = id ? record[id] : undefined;
+	if (!id || !connector) return undefined;
+	const catalogEntry = SETTINGS_CONNECTOR_CATALOG.find((e) => e.directConnectorId === id);
+	return { id, connector, catalogEntry };
 }
 
-function connectorName(id: string, connector: ConnectorEntry): string {
-	const serverLabel = connector.server_label
-		.split(/[_-]+/u)
-		.map((part) => part ? part[0].toUpperCase() + part.slice(1) : '')
-		.join(' ')
-		.trim();
-	return (
-		SETTINGS_CONNECTOR_CATALOG.find((entry) => entry.directConnectorId === id)?.name ??
-		(serverLabel || id)
-	);
+function connectorName(id: string, catalogEntry?: CatalogEntry): string {
+	return catalogEntry?.name ?? id;
 }
 
 function DetailRow({
