@@ -47,7 +47,7 @@ export class McpClientManager {
 
 	async reconnect(name: string): Promise<void> {
 		await this.clients.get(name)?.close();
-		const entry = this.mcpServers.find((e) => e.name === name);
+		const entry = this.getEntries().find((e) => e.name === name);
 		if (!entry || entry.config.enabled === false) {
 			this.clients.delete(name);
 			return;
