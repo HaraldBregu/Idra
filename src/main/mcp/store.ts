@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { McpServerConfig, McpServerRecord } from '../../shared/mcp/types';
+import type { McpServerConfig, McpServerRecord, McpNamedEntry } from '../../shared/mcp/types';
 
 function resolveMcpStorePath(): string {
 	try {
@@ -24,33 +24,31 @@ export class McpServerStore {
 		});
 	}
 
-	list(): McpServerConfig[] {
-		return Object.values(this.store.store).filter(isValid);
+	list(): McpNamedEntry[] {
+		return Object.entries(this.store.store)
+			.filter(([, v]) => isValid(v))
+			.map(([name, config]) => ({ name, config: config as McpServerConfig }));
 	}
 
-	get(id: string): McpServerConfig | undefined {
-		const entry = this.store.store[id];
-		return isValid(entry) ? entry : undefined;
+	get(name: string): McpServerConfig | undefined {
+		const entry = this.store.store[name];
+		return isValid(entry) ? (entry as McpServerConfig) : undefined;
 	}
 
-	upsert(config: McpServerConfig): McpServerConfig {
-		const next = { ...config, updatedAt: new Date().toISOString() };
-		this.store.store = { ...this.store.store, [config.id]: next };
-		return next;
+	upsert(name: string, config: McpServerConfig): void {
+		this.store.store = { ...this.store.store, [name]: config };
 	}
 
-	delete(id: string): void {
+	delete(name: string): void {
 		const all = { ...this.store.store };
-		delete all[id];
+		delete all[name];
 		this.store.store = all;
 	}
 }
 
 function isValid(v: unknown): v is McpServerConfig {
-	return (
-		typeof v === 'object' &&
-		v !== null &&
-		typeof (v as McpServerConfig).id === 'string' &&
-		typeof (v as McpServerConfig).transport === 'object'
-	);
+	if (typeof v !== 'object' || v === null) return false;
+	const o = v as Record<string, unknown>;
+	if (typeof o.command === 'string') return true;
+	return (o.type === 'http' || o.type === 'sse') && typeof o.url === 'string';
 }
