@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import type { McpServerConfig } from '../../../../../../../shared/mcp/types';
+import type { McpServerConfig, McpStdioConfig } from '../../../../../../../shared/mcp/types';
 import { CONNECTOR_DEFAULTS } from '../../../../../../../shared/connector';
 import {
 	SettingsField,
