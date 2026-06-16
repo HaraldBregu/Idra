@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { McpServerConfig, McpServerRecord, McpNamedEntry } from '../../shared/mcp/types';
+import type { McpServerConfig, McpServerRecord, McpNamedEntry } from '../../../shared/mcp/types';
 
 function resolveMcpStorePath(): string {
 	try {
