@@ -14,7 +14,7 @@ import { AgentService } from './services/agent-service';
 import { AgentSettingsStore } from './services/agent-settings-store';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
-import { McpServerStore, McpClientManager } from './mcp';
+import { McpServerStore, McpClientManager } from './agent/mcp';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
