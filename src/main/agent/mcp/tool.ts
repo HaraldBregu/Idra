@@ -1,4 +1,4 @@
-import { Tool } from '../agent/core/tool';
+import { Tool } from '../core/tool';
 import type { McpClient } from './client';
 
 export class McpTool extends Tool {
