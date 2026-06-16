@@ -245,8 +245,6 @@ export class AgentRuntime {
 			return { output: `Error: unknown tool '${toolCall.name}'`, isError: true };
 		}
 
-		console.log({tool})
-
 		try {
 			return { output: await tool.run(toolCall.args) };
 		} catch (error) {
