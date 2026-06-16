@@ -12,7 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import type { McpServerConfig, McpStdioConfig } from '../../../../../../../shared/mcp/types';
+import type { ConnectorInput } from '../../../../../../../shared/connector';
 import { CONNECTOR_DEFAULTS } from '../../../../../../../shared/connector';
 import {
 	SettingsField,
@@ -42,17 +42,21 @@ function parseKeyValueLines(text: string, sep: string): Record<string, string> {
 	return result;
 }
 
-function serializeLines(values: string[] | undefined): string {
+function serializeLines(values: readonly string[] | undefined): string {
 	return (values ?? []).join('\n');
 }
 
-function serializeKeyValueLines(values: Record<string, string> | undefined, sep: string): string {
+function serializeKeyValueLines(
+	values: Readonly<Record<string, string>> | undefined,
+	sep: string
+): string {
 	return Object.entries(values ?? {})
 		.map(([k, v]) => `${k}${sep}${v}`)
 		.join('\n');
 }
 
-function buildConfig(
+function buildInput(
+	id: string,
 	type: TransportType,
 	command: string,
 	argsText: string,
@@ -61,22 +65,25 @@ function buildConfig(
 	url: string,
 	authToken: string,
 	enabled: boolean,
-): McpServerConfig {
+): ConnectorInput {
 	if (type === 'stdio') {
-		const config: McpStdioConfig = {
+		return {
+			id,
+			type: 'stdio',
 			command: command.trim(),
 			args: parseLines(argsText),
 			env: parseKeyValueLines(envText, '='),
+			cwd: cwd.trim() || undefined,
+			enabled,
 		};
-		const trimmedCwd = cwd.trim();
-		if (trimmedCwd) config.cwd = trimmedCwd;
-		if (!enabled) config.enabled = false;
-		return config;
 	}
-	const auth = authToken.trim() ? { token: authToken.trim() } : undefined;
-	const base = { url: url.trim(), ...(auth ? { auth } : {}), ...(!enabled ? { enabled: false } : {}) };
-	if (type === 'sse') return { type: 'sse', ...base };
-	return { type: 'http', ...base };
+	return {
+		id,
+		type,
+		url: url.trim(),
+		token: authToken.trim() || undefined,
+		enabled,
+	};
 }
 
 function isFormValid(type: TransportType, command: string, url: string, name: string): boolean {
@@ -113,27 +120,27 @@ const McpServerPage: React.FC = () => {
 		if (isNew) return;
 
 		let mounted = true;
-		void window.mcp.listServers().then(
-			(servers) => {
+		void window.connectors.list().then(
+			(connectors) => {
 				if (!mounted) return;
-				const entry = servers.find((s) => s.name === serverId);
-				if (!entry) {
+				const id = serverId ?? '';
+				const data = connectors[id];
+				if (!data) {
 					setNotFound(true);
 					setLoading(false);
 					return;
 				}
-				const c = entry.config;
-				setEnabled(c.enabled !== false);
-				if ('command' in c) {
+				setEnabled(data.enabled !== false);
+				if (data.type === 'stdio') {
 					setTransportType('stdio');
-					setCommand(c.command);
-					setArgsText(serializeLines(c.args));
-					setEnvText(serializeKeyValueLines(c.env, '='));
-					setCwd(c.cwd ?? '');
+					setCommand(data.command);
+					setArgsText(serializeLines(data.args));
+					setEnvText(serializeKeyValueLines(data.env, '='));
+					setCwd(data.cwd ?? '');
 				} else {
-					setTransportType(c.type);
-					setUrl(c.url);
-					setAuthToken(c.auth?.token ?? '');
+					setTransportType(data.type);
+					setUrl(data.url);
+					setAuthToken(data.token ?? '');
 				}
 				setLoading(false);
 			},
@@ -177,8 +184,18 @@ const McpServerPage: React.FC = () => {
 		setSaving(true);
 		setError(null);
 		try {
-			const config = buildConfig(transportType, command, argsText, envText, cwd, url, authToken, enabled);
-			await window.mcp.upsertServer({ name: serverName.trim(), config });
+			const input = buildInput(
+				serverName.trim(),
+				transportType,
+				command,
+				argsText,
+				envText,
+				cwd,
+				url,
+				authToken,
+				enabled,
+			);
+			await window.connectors.upsert(input);
 			navigate('/settings/mcp');
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -194,7 +211,7 @@ const McpServerPage: React.FC = () => {
 		setDeleting(true);
 		setError(null);
 		try {
-			await window.mcp.deleteServer(serverId);
+			await window.connectors.delete(serverId);
 			navigate('/settings/mcp');
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -260,7 +277,7 @@ const McpServerPage: React.FC = () => {
 									id="mcp-name"
 									value={nameInput}
 									onChange={(e) => setNameInput(e.target.value)}
-									placeholder="gmail"
+									placeholder="my-server"
 									className="h-8 text-sm font-mono"
 								/>
 							</SettingsField>
