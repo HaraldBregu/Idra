@@ -398,14 +398,14 @@ const McpServerPage: React.FC = () => {
 								<SettingsField
 									id="mcp-auth-token"
 									label="Auth token"
-									description="Used as Authorization: Bearer <token>"
+									description="Optional. Used as Authorization: Bearer <token>"
 								>
 									<Input
 										id="mcp-auth-token"
 										type="password"
 										value={authToken}
 										onChange={(e) => setAuthToken(e.target.value)}
-										placeholder="your-token-here"
+										placeholder="Leave blank if not required"
 										className="h-8 font-mono text-sm"
 									/>
 								</SettingsField>
