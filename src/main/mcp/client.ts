@@ -3,7 +3,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import type { McpServerConfig, McpServerOAuth } from '../../shared/mcp/types';
+import type { McpServerConfig } from '../../shared/mcp/types';
 
 export interface McpToolDefinition {
 	name: string;
@@ -17,23 +17,15 @@ export interface McpClientState {
 	tools: McpToolDefinition[];
 }
 
-/** Called after a successful OAuth token refresh with the updated oauth state and new access token. */
-export type McpOAuthRefreshedCallback = (oauth: McpServerOAuth, accessToken: string) => void;
-
 export class McpClient {
 	private sdkClient: Client;
 	private _state: McpClientState = { connected: false, tools: [] };
-	private _headers: Record<string, string> | undefined;
-	private _oauth: McpServerOAuth | undefined;
 
 	constructor(
+		readonly name: string,
 		readonly config: McpServerConfig,
-		private readonly onOAuthRefreshed?: McpOAuthRefreshedCallback
 	) {
 		this.sdkClient = newSdkClient();
-		const t = config.transport;
-		this._headers = t.type !== 'stdio' && t.headers ? { ...t.headers } : undefined;
-		this._oauth = config.oauth ? { ...config.oauth } : undefined;
 	}
 
 	get state(): McpClientState {
@@ -41,32 +33,8 @@ export class McpClient {
 	}
 
 	async connect(): Promise<void> {
-		// Proactively refresh the OAuth token before connecting if it is already expired,
-		// so the initial bootstrap succeeds even when the stored token has lapsed.
-		if (this._oauth && isOAuthExpired(this._oauth)) {
-			const refreshed = await this.fetchFreshToken();
-			if (!refreshed) {
-				this._state = {
-					connected: false,
-					errorMessage:
-						'OAuth token refresh failed. Please re-authorize this server in Settings.',
-					tools: [],
-				};
-				return;
-			}
-		}
-		// Guard: OAuth is configured but no access token is available (e.g. the server was
-		// saved before completing the authorization flow, or the stored token was cleared).
-		if (this._oauth && !this._headers?.['Authorization']) {
-			this._state = {
-				connected: false,
-				errorMessage: 'No OAuth access token. Please authorize this server in Settings.',
-				tools: [],
-			};
-			return;
-		}
 		try {
-			const transport = buildTransport(this.config, this._headers);
+			const transport = buildTransport(this.config);
 			await this.sdkClient.connect(transport);
 			const result = await this.sdkClient.listTools();
 			this._state = {
@@ -86,36 +54,15 @@ export class McpClient {
 		}
 	}
 
-	async callTool(name: string, args: Record<string, unknown>): Promise<string> {
+	async callTool(toolName: string, args: Record<string, unknown>): Promise<string> {
 		if (!this._state.connected) {
-			throw new Error(`MCP server '${this.config.label}' is not connected`);
-		}
-
-		// If the token has expired mid-session, refresh it and reconnect before calling.
-		if (this._oauth && isOAuthExpired(this._oauth)) {
-			const refreshed = await this.fetchFreshToken();
-			if (!refreshed) {
-				throw new Error(
-					`MCP server '${this.config.label}' OAuth token refresh failed. Please re-authorize in Settings.`
-				);
-			}
-			await this.close();
-			this.sdkClient = newSdkClient();
-			await this.connect();
-			if (!this._state.connected) {
-				throw new Error(
-					this._state.errorMessage ??
-						`MCP server '${this.config.label}' failed to reconnect after token refresh`
-				);
-			}
+			throw new Error(`MCP server '${this.name}' is not connected`);
 		}
 
 		let raw: unknown;
 		try {
-			raw = await this.sdkClient.callTool({ name, arguments: args });
+			raw = await this.sdkClient.callTool({ name: toolName, arguments: args });
 		} catch (error) {
-			// The transport may throw with the raw JSON-RPC body embedded in the error message.
-			// Try to extract the human-readable content from it; otherwise re-throw as-is.
 			const extracted = extractErrorFromSdkThrow(error);
 			throw new Error(extracted ?? (error instanceof Error ? error.message : String(error)));
 		}
@@ -124,7 +71,7 @@ export class McpClient {
 		const text = extractContentText(result.content ?? []);
 
 		if (result.isError) {
-			throw new Error(text || `Tool '${name}' returned an error`);
+			throw new Error(text || `Tool '${toolName}' returned an error`);
 		}
 
 		return text;
@@ -138,92 +85,32 @@ export class McpClient {
 		}
 		this._state = { connected: false, tools: [] };
 	}
-
-	/**
-	 * Fetches a fresh access token via the refresh_token grant and updates
-	 * `_headers` / `_oauth` in place. Does NOT close or reconnect — call
-	 * `close()` + `connect()` after this if a live reconnect is needed.
-	 * Returns `true` on success, `false` if the refresh could not be completed.
-	 */
-	private async fetchFreshToken(): Promise<boolean> {
-		const oauth = this._oauth;
-		if (!oauth) return false;
-		const clientId = process.env[oauth.clientIdEnv];
-		if (!clientId) return false;
-
-		try {
-			const body = new URLSearchParams({
-				grant_type: 'refresh_token',
-				refresh_token: oauth.refreshToken,
-				client_id: clientId,
-			});
-			const clientSecret = oauth.clientSecretEnv ? process.env[oauth.clientSecretEnv] : undefined;
-			if (clientSecret) body.set('client_secret', clientSecret);
-
-			const response = await fetch(oauth.tokenUrl, {
-				method: 'POST',
-				headers: { 'content-type': 'application/x-www-form-urlencoded' },
-				body,
-			});
-			if (!response.ok) return false;
-
-			const payload = (await response.json()) as Record<string, unknown>;
-			const accessToken =
-				typeof payload.access_token === 'string' ? payload.access_token.trim() : '';
-			if (!accessToken) return false;
-
-			this._headers = { ...(this._headers ?? {}), Authorization: `Bearer ${accessToken}` };
-
-			if (typeof payload.refresh_token === 'string' && payload.refresh_token) {
-				oauth.refreshToken = payload.refresh_token;
-			}
-			oauth.tokenExpiresAt =
-				typeof payload.expires_in === 'number'
-					? new Date(Date.now() + payload.expires_in * 1000).toISOString()
-					: undefined;
-
-			this.onOAuthRefreshed?.(oauth, accessToken);
-			return true;
-		} catch {
-			return false;
-		}
-	}
 }
 
 function newSdkClient(): Client {
 	return new Client({ name: 'friday', version: '1.0.0' }, { capabilities: {} });
 }
 
-function buildTransport(
-	config: McpServerConfig,
-	headers: Record<string, string> | undefined
-): Transport {
-	const t = config.transport;
-	if (t.type === 'stdio') {
+function buildTransport(config: McpServerConfig): Transport {
+	if ('command' in config) {
 		return new StdioClientTransport({
-			command: t.command,
-			args: t.args,
-			env: t.env,
-			cwd: t.cwd,
+			command: config.command,
+			args: config.args,
+			env: config.env,
+			cwd: config.cwd,
 		});
 	}
-	const effectiveHeaders = headers ?? t.headers;
-	if (t.type === 'sse') {
-		return new SSEClientTransport(new URL(t.url), {
-			requestInit: effectiveHeaders ? { headers: effectiveHeaders } : undefined,
+	const headers = config.auth ? { Authorization: `Bearer ${config.auth.token}` } : undefined;
+	if (config.type === 'sse') {
+		return new SSEClientTransport(new URL(config.url), {
+			requestInit: headers ? { headers } : undefined,
 		});
 	}
-	return new StreamableHTTPClientTransport(new URL(t.url), {
-		requestInit: effectiveHeaders ? { headers: effectiveHeaders } : undefined,
+	return new StreamableHTTPClientTransport(new URL(config.url), {
+		requestInit: headers ? { headers } : undefined,
 	});
 }
 
-function isOAuthExpired(oauth: McpServerOAuth): boolean {
-	if (!oauth.tokenExpiresAt) return false;
-	return Date.now() > new Date(oauth.tokenExpiresAt).getTime() - 5 * 60 * 1000;
-}
-
-/** Extract text/image content from an MCP tool result content array. */
 function extractContentText(content: unknown[]): string {
 	if (!Array.isArray(content)) return '';
 	return content
@@ -239,28 +126,21 @@ function extractContentText(content: unknown[]): string {
 		.join('\n');
 }
 
-/**
- * When the transport throws (e.g. HTTP 4xx/5xx), the SDK embeds the raw JSON-RPC
- * response body in the error message. Try to parse it and return the human-readable
- * content text, so callers get a clean error instead of a JSON blob.
- */
 function extractErrorFromSdkThrow(error: unknown): string | undefined {
 	const msg = error instanceof Error ? error.message : String(error);
 	const match = msg.match(/(\{[\s\S]*\})/);
 	if (!match) return undefined;
 	try {
 		const parsed = JSON.parse(match[1]) as Record<string, unknown>;
-		// JSON-RPC success response with isError: true in the MCP result
 		const result = parsed.result as Record<string, unknown> | undefined;
 		if (result?.content) {
 			const text = extractContentText(result.content as unknown[]);
 			if (text) return text;
 		}
-		// JSON-RPC error response
 		const err = parsed.error as Record<string, unknown> | undefined;
 		if (typeof err?.message === 'string') return err.message;
 	} catch {
-		// Not JSON — fall through
+		// not JSON
 	}
 	return undefined;
 }
