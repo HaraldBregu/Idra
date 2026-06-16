@@ -162,9 +162,9 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const { id, connector } = selected;
-	const authLabel = connector.authorization ? 'Access token' : 'Remote MCP';
-	const displayName = connectorName(id, connector);
+	const { id, connector, catalogEntry } = selected;
+	const authLabel = connector.token ? 'Access token' : 'Remote MCP';
+	const displayName = connectorName(id, catalogEntry);
 	const approvalPolicy = formatApprovalPolicy(connector.require_approval);
 	const enabled = connector.enabled !== false;
 
