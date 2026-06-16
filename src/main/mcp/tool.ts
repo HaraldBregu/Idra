@@ -13,8 +13,8 @@ export class McpTool extends Tool {
 		inputSchema: Record<string, unknown>
 	) {
 		super();
-		this.name = `mcp__${client.config.id}__${rawToolName}`;
-		this.description = `[${client.config.label}] ${description ?? rawToolName}`;
+		this.name = `mcp__${client.name}__${rawToolName}`;
+		this.description = `[${client.name}] ${description ?? rawToolName}`;
 		this.schema = inputSchema;
 	}
 
