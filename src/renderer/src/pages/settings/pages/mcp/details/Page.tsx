@@ -141,6 +141,7 @@ const McpServerPage: React.FC = () => {
 				} else {
 					setTransportType(data.type);
 					setUrl(data.url);
+					setUseAuthToken(Boolean(data.token));
 					setAuthToken(data.token ?? '');
 				}
 				setLoading(false);
