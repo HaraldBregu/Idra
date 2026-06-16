@@ -1,4 +1,4 @@
-import type { McpServerConfig, McpServerInfo } from '../../mcp/types';
+import type { McpNamedEntry, McpServerInfo } from '../../mcp/types';
 
 export const McpChannels = {
 	listServers: 'mcp:list-servers',
@@ -8,8 +8,8 @@ export const McpChannels = {
 } as const;
 
 export interface McpInvokeChannelMap {
-	[McpChannels.listServers]: { args: []; result: McpServerConfig[] };
-	[McpChannels.upsertServer]: { args: [config: McpServerConfig]; result: McpServerConfig };
-	[McpChannels.deleteServer]: { args: [id: string]; result: void };
+	[McpChannels.listServers]: { args: []; result: McpNamedEntry[] };
+	[McpChannels.upsertServer]: { args: [entry: McpNamedEntry]; result: void };
+	[McpChannels.deleteServer]: { args: [name: string]; result: void };
 	[McpChannels.status]: { args: []; result: McpServerInfo[] };
 }
