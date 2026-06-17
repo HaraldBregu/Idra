@@ -157,12 +157,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Plug,
 	},
 	{
-		path: '/settings/mcp',
-		labelKey: 'settings.tabs.mcp',
-		descriptionKey: 'settings.overview.descriptions.mcp',
-		icon: Box,
-	},
-	{
 		path: '/settings/channels',
 		labelKey: 'settings.tabs.channels',
 		descriptionKey: 'settings.overview.descriptions.channels',
