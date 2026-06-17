@@ -1,4 +1,4 @@
-import { CronTool, requireString } from './base';
+import { CronTool, requireString } from '../core/base';
 
 export class CronRunScheduleNowTool extends CronTool {
 	readonly name = 'cron_run_schedule_now';

@@ -1,5 +1,5 @@
 import type { CronScheduleStatus } from '../../../shared/app/cron';
-import { CronTool, optionalString } from './base';
+import { CronTool, optionalString } from '../core/base';
 
 export class CronListSchedulesTool extends CronTool {
 	readonly name = 'cron_list_schedules';

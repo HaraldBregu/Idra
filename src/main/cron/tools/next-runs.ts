@@ -1,4 +1,4 @@
-import { CronTool, optionalNumber, requireString } from './base';
+import { CronTool, optionalNumber, requireString } from '../core/base';
 
 export class CronNextRunsTool extends CronTool {
 	readonly name = 'cron_next_runs';

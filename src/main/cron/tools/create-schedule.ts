@@ -1,5 +1,5 @@
 import type { CronJsonValue, CronScheduleType } from '../../../shared/app/cron';
-import { CronTool, optionalNumber, optionalString, requireString } from './base';
+import { CronTool, optionalNumber, optionalString, requireString } from '../core/base';
 
 export class CronCreateScheduleTool extends CronTool {
 	readonly name = 'cron_create_schedule';

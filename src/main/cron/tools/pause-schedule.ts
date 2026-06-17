@@ -1,4 +1,4 @@
-import { CronTool, requireString } from './base';
+import { CronTool, requireString } from '../core/base';
 
 export class CronPauseScheduleTool extends CronTool {
 	readonly name = 'cron_pause_schedule';
