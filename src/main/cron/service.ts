@@ -182,7 +182,7 @@ export class CronService {
 		const nextRunAt = this.calculator
 			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
 			?.toISOString();
-		const updated = this.store.update(scheduleId, {
+		const updated = this.updateStored(scheduleId, {
 			status: 'active',
 			enabled: true,
 			pausedAt: undefined,
