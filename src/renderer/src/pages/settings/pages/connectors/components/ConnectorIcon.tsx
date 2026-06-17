@@ -15,6 +15,11 @@ const directConnectorIconModules = import.meta.glob<string>(
 	{ eager: true, import: 'default' }
 );
 
+const lobehubIconModules = import.meta.glob<string>(
+	'@resources/icons/brands/*/fallback_lobehub/png_*/*.png',
+	{ eager: true, import: 'default' }
+);
+
 function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 	const partialAssets: Record<string, Partial<ConnectorIconAsset>> = {};
 
@@ -24,6 +29,18 @@ function buildIconAssets(): Readonly<Record<string, ConnectorIconAsset>> {
 		const [, id, theme] = match;
 		if (!id || (theme !== 'light' && theme !== 'dark')) continue;
 		partialAssets[id] = { ...partialAssets[id], [theme]: url };
+	}
+
+	for (const [path, url] of Object.entries(lobehubIconModules)) {
+		// Only pick the icon whose filename matches the brand folder name (e.g. brands/xai/.../xai.png)
+		const match = path.match(/brands\/([^/]+)\/fallback_lobehub\/png_(light|dark)\/\1\.png$/);
+		if (!match) continue;
+		const [, id, theme] = match;
+		if (!id || (theme !== 'light' && theme !== 'dark')) continue;
+		// Direct icons take precedence
+		if (!partialAssets[id]?.[theme as keyof ConnectorIconAsset]) {
+			partialAssets[id] = { ...partialAssets[id], [theme]: url };
+		}
 	}
 
 	return Object.freeze(

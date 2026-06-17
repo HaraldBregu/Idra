@@ -33,7 +33,6 @@ export class Connector {
 	private readonly store: Store<ConnectorStoreSchema>;
 
 	constructor(options: ConnectorOptions = {}) {
-		super();
 		this.store = new Store<ConnectorStoreSchema>({
 			name: 'settings',
 			cwd: options.cwd ?? resolveConnectorSettingsLocation(),
