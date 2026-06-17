@@ -61,6 +61,7 @@ export class CronService {
 			name: CRON_STORE_FILE_NAME,
 			cwd: CRON_STORE_DIRECTORY,
 			accessPropertiesByDotNotation: false,
+			defaults: { schedules: [] },
 		});
 		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
 		this.setStoredEnabled(this.enabled);
