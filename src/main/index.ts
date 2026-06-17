@@ -18,7 +18,7 @@ import {
 	setupProcessSafetyNet,
 } from './shared/errorReporter';
 import { setupMemoryMonitor } from './shared/metrics';
-import { bootstrapServices, cleanup, connectMcpServers } from './bootstrap';
+import { bootstrapServices, cleanup } from './bootstrap';
 import { AppPermissionsService } from './app/permissions';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
