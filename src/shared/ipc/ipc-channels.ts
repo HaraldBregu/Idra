@@ -2,7 +2,6 @@ export { AgentChannels } from './channels/agent';
 export { AppChannels } from './channels/app';
 export { ChannelsChannels } from './channels/channels';
 export { ConnectorsChannels } from './channels/connectors';
-export { CronChannels } from './channels/cron';
 export { HeartbeatChannels } from './channels/heartbeat';
 export { ProviderStoreChannels } from './channels/provider';
 export { SkillsChannels } from './channels/skills';
