@@ -38,6 +38,7 @@ export * from './adapters/registry';
 export * from './engine/calculator';
 export * from './engine/scheduler';
 export * from './engine/support';
+export * from './core/base';
 export * from './core/config';
 export * from './core/events';
 export * from './core/logger';
