@@ -28,7 +28,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		let mounted = true;
 		setConnectorDetailName(null);
 		void window.connectors.get(connectorDetailId).then(
-			(record) => {
+			() => {
 				const name = CONNECTOR_DEFAULTS.find((entry) => entry.id === connectorDetailId)?.name ??
 					connectorDetailId;
 				if (mounted) setConnectorDetailName(name ?? null);
