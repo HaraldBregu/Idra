@@ -59,6 +59,7 @@ export function ConnectorIcon({
 	connectorId,
 	directConnectorId,
 	name,
+	asset: assetProp,
 	className,
 	imageClassName,
 	fallbackClassName,
@@ -66,12 +67,13 @@ export function ConnectorIcon({
 	readonly connectorId?: string;
 	readonly directConnectorId?: DirectConnectorCatalogId;
 	readonly name: string;
+	readonly asset?: ConnectorIconAsset;
 	readonly className?: string;
 	readonly imageClassName?: string;
 	readonly fallbackClassName?: string;
 }): React.JSX.Element {
 	const iconId = directConnectorId ?? connectorId;
-	const asset = iconId ? DIRECT_CONNECTOR_ICON_ASSETS[iconId] : undefined;
+	const asset = assetProp ?? (iconId ? DIRECT_CONNECTOR_ICON_ASSETS[iconId] : undefined);
 
 	return (
 		<span
