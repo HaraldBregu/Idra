@@ -20,13 +20,12 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
-import { SETTINGS_CONNECTOR_CATALOG } from '../catalog';
-import type { SettingsConnectorCatalogEntry } from '../catalog';
+import { CONNECTOR_DEFAULTS, type ConnectorDefault } from '@shared/connector';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
 type ConnectorEntry = ConnectorRecord[string];
 type ApprovalPolicy = NonNullable<ConnectorEntry['require_approval']>;
-type CatalogEntry = SettingsConnectorCatalogEntry;
+type CatalogEntry = ConnectorDefault;
 
 const APPROVAL_POLICIES = ['always', 'never'] as const satisfies readonly ApprovalPolicy[];
 
