@@ -1,0 +1,52 @@
+import { type ProviderModel } from '../../../shared/providers/models/types';
+import type { ConnectorInput } from '../../../shared/connector';
+import type { PublicProvider } from '../../../shared/providers';
+import type { Provider as StoredProvider } from '../../../shared/providers/types';
+import type { AgentHistoryContentBlock, AgentHistoryMessage, AgentResponseEvent, AgentRunState, AgentToolResultStatus, ModelReasoningEffort } from '../../../shared/agent/types';
+import type { SttRealtimeEvent } from '../../../shared/stt/transcription';
+export declare const AGENTS: {
+    readonly assistant: "assistant";
+    readonly speechToText: "speech-to-text";
+    readonly textToSpeech: "text-to-speech";
+    readonly textToImage: "text-to-image";
+    readonly textToVideo: "text-to-video";
+    readonly textToAudio: "text-to-audio";
+    readonly documentReader: "document-reader";
+    readonly embedding: "embedding";
+};
+export type AgentId = (typeof AGENTS)[keyof typeof AGENTS];
+export type Model = ProviderModel;
+export type { AgentHistoryContentBlock, AgentHistoryMessage, AgentResponseEvent, AgentRunState, ModelReasoningEffort, StoredProvider, };
+export interface ModelSelection {
+    provider: PublicProvider;
+    model: Model;
+}
+export type AgentToolCallStatus = AgentToolResultStatus;
+export type { SttRealtimeEvent };
+export type { ConnectorInput };
+export type RendererAppApi = Window['app'] & {
+    setProviderApiKey(providerId: string, apikey: string): Promise<void>;
+    isProviderApiKeySaved(providerId: string): Promise<boolean>;
+    getProviders(): Promise<PublicProvider[]>;
+    getModels(provider: PublicProvider): Promise<Model[]>;
+    getAgentService(): Promise<ModelSelection | undefined>;
+    saveAgentService(provider: PublicProvider, model: Model): Promise<boolean>;
+    getSpeechTranscriberService(): Promise<ModelSelection | undefined>;
+    getSpeechToTextModels(provider: PublicProvider): Promise<Model[]>;
+    saveSpeechTranscriberService(provider: PublicProvider, model: Model): Promise<boolean>;
+    getTextToSpeechService(): Promise<ModelSelection | undefined>;
+    getTextToSpeechModels(provider: PublicProvider): Promise<Model[]>;
+    saveTextToSpeechService(provider: PublicProvider, model: Model): Promise<boolean>;
+    getImageCreatorService(): Promise<ModelSelection | undefined>;
+    getImageCreatorModels(provider: PublicProvider): Promise<Model[]>;
+    saveImageCreatorService(provider: PublicProvider, model: Model): Promise<boolean>;
+    getTextToVideoService(): Promise<ModelSelection | undefined>;
+    getTextToVideoModels(provider: PublicProvider): Promise<Model[]>;
+    saveTextToVideoService(provider: PublicProvider, model: Model): Promise<boolean>;
+    getTextToSoundService(): Promise<ModelSelection | undefined>;
+    getTextToSoundModels(provider: PublicProvider): Promise<Model[]>;
+    saveTextToSoundService(provider: PublicProvider, model: Model): Promise<boolean>;
+};
+export declare const appApi: RendererAppApi;
+export declare function getLlmModels(providerId: string): Model[];
+export declare function isRealtimeSpeechToTextModel(providerId: string, modelId: string): boolean;

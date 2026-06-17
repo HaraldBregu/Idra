@@ -1,0 +1,17 @@
+export const SKILL_CATEGORIES = [
+    'communication',
+    'research',
+    'coding',
+    'planning',
+    'analytics',
+    'productivity',
+    'content',
+    'workflow',
+    'automation',
+    'support',
+    'retrieval',
+    'reasoning',
+    'creative',
+    'operations',
+    'developerTools',
+];
