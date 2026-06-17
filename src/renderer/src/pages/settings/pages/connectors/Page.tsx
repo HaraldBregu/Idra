@@ -25,10 +25,10 @@ const ConnectorsPage = () => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
 	};
 
-	const connect = async (entry: SettingsConnectorCatalogEntry): Promise<void> => {
-		const connector = connectors[entry.directConnectorId];
+	const connect = async (entry: ConnectorDefault): Promise<void> => {
+		const connector = connectors[entry.id];
 		if (connector && connector.enabled !== false && !connector.last_error) {
-			openConnectorDetails(entry.directConnectorId);
+			openConnectorDetails(entry.id);
 			return;
 		}
 		setConnectingId(entry.connectorId);
