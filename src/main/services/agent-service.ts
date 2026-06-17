@@ -34,8 +34,6 @@ export class AgentService {
 
 	constructor(
 		agentSettingsStore: AgentSettingsStore,
-		private readonly mcpData: McpData,
-		private readonly mcpManager?: McpClientManager,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
