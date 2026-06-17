@@ -78,10 +78,10 @@ export class AgentRuntime {
 		const workspacePath = workspace.getPath();
 		const toolContext = new AgentContext();
 		const tools = input.tools ? input.tools.slice() : [];
-		tools.push(new ReadTool(workspacePath, toolContext));
-		tools.push(new EditTool(workspacePath, toolContext));
-		tools.push(new WriteTool(workspacePath, toolContext));
-		tools.push(new ExecTool(workspacePath, toolContext));
+		tools.push(new ReadTool(toolContext));
+		tools.push(new EditTool(toolContext));
+		tools.push(new WriteTool(toolContext));
+		tools.push(new ExecTool(toolContext));
 		tools.push(new ProcessTool(toolContext));
 
 		const system = await this.systemPrompt.build(workspace);
