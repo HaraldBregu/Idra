@@ -3,7 +3,7 @@ import { ChevronRight, PlugZap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { SettingsConnectorCatalogEntry } from '../catalog';
+import type { ConnectorDefault } from '@shared/connector';
 import { ConnectorIcon } from './ConnectorIcon';
 import { ConnectorStatusBadge, type ConnectorStatus } from './ConnectorStatusBadge';
 
