@@ -71,9 +71,9 @@ const ConnectorsPage = () => {
 					catalogEntry={GMAIL}
 					icon={GMAIL_ICON}
 					connecting={connectingId === GMAIL.connectorId}
-					connector={connectors[GMAIL.directConnectorId] ? { id: GMAIL.directConnectorId, entry: connectors[GMAIL.directConnectorId] } : undefined}
+					connector={connectors[GMAIL.id] ? { id: GMAIL.id, entry: connectors[GMAIL.id] } : undefined}
 					onConnect={() => connect(GMAIL)}
-					onViewDetails={connectors[GMAIL.directConnectorId] ? () => openConnectorDetails(GMAIL.directConnectorId) : undefined}
+					onViewDetails={connectors[GMAIL.id] ? () => openConnectorDetails(GMAIL.id) : undefined}
 				/>
 
 				<ConnectorCard
