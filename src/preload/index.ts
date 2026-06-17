@@ -17,7 +17,6 @@ import type {
 	ChannelsApi,
 	ConnectorsApi,
 	CronApi,
-	McpApi,
 	ProviderApi,
 	SkillsApi,
 	SttApi,
