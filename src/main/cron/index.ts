@@ -22,7 +22,6 @@ export function createCronService(
 }
 
 export { CronService } from './service';
-export type { CronData } from '../agent/core/cron-data';
 export type { CronServiceOptions, CronServiceActor } from './service';
 export type { CronJobOptions, CronTaskHandler, RegisteredJob } from './types';
 export * from './constants';
