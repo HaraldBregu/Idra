@@ -165,7 +165,7 @@ export class CronService {
 			audit: [],
 		};
 		schedule.nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-		const created = this.store.create(schedule);
+		const created = this.createStored(schedule);
 		this.emit(created, 'schedule.created', 'Schedule created.');
 		return created;
 	}
