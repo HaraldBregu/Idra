@@ -12,7 +12,6 @@ import type {
 	ConnectorOAuthAuthorizationResult,
 	ConnectorOAuthDefaults,
 	ConnectorSettingsRecord,
-	ConnectorSseData,
 	ConnectorStdioData,
 } from '../../shared/connector';
 import {
