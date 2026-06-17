@@ -60,34 +60,6 @@ function connectorName(id: string, catalogEntry?: CatalogEntry): string {
 	return catalogEntry?.name ?? id;
 }
 
-function DetailRow({
-	label,
-	value,
-	mono,
-}: {
-	readonly label: React.ReactNode;
-	readonly value: React.ReactNode;
-	readonly mono?: boolean;
-}): React.JSX.Element {
-	return (
-		<Item variant="outline" size="md" className="border-b border-border/60">
-			<ItemContent>
-				<ItemTitle>{label}</ItemTitle>
-			</ItemContent>
-			<ItemActions className="ml-auto flex-none justify-end">
-				<span
-					className={
-						mono
-							? 'max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground'
-							: 'max-w-[min(28rem,55vw)] truncate text-right text-[13px] text-foreground'
-					}
-				>
-					{value}
-				</span>
-			</ItemActions>
-		</Item>
-	);
-}
 
 const ConnectorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
