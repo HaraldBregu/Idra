@@ -4,9 +4,6 @@ import path from 'node:path';
 import { app, shell } from 'electron';
 import Store from 'electron-store';
 import { Service } from 'typedi';
-import { McpData } from '../agent/core/mcp';
-import type { Mcp } from '../agent/core/mcp';
-import type { McpNamedEntry, McpServerConfig, McpStdioConfig } from '../../shared/mcp/types';
 import type {
 	ConnectorApprovalPolicy,
 	ConnectorData,
