@@ -7,11 +7,11 @@ import {
 	type CronScheduleEvent,
 	type CronScheduleEventType,
 	type CronScheduleFilter,
-	type CronScheduleUpdateRequest,
 	type CronScheduledTask,
 	type CronTask,
 	type CronTaskData,
 } from '../../shared/app/cron';
+import type { CronNextRunPreview, CronScheduleUpdateRequest } from './types';
 import type { CronData } from '../agent/core/cron-data';
 import type { CronActorContext, CronScheduleStore } from './core/types';
 import type { CronConfigurationStore, CronServiceConfiguration } from './core/config';
