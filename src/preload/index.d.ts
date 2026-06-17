@@ -128,7 +128,6 @@ declare global {
 		win: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
-		cron: CronApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
 		skills: SkillsApi;
