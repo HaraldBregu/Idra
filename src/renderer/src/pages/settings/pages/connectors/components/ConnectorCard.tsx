@@ -84,7 +84,10 @@ export function ConnectorCard({
 						variant="outline"
 						size="sm"
 						disabled={connecting}
-						onClick={onConnect}
+						onClick={(event) => {
+							event.stopPropagation();
+							onConnect();
+						}}
 						aria-label={`Connect ${title}`}
 					>
 						<PlugZap className="size-3.5" />
