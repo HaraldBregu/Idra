@@ -68,7 +68,8 @@ export class AgentService {
 				this.agentWorkspace,
 				this.agentSettingsStore,
 				session,
-				new AgentModel()
+				new AgentModel(),
+				new DefaultCronData()
 			);
 			const input = {
 				...sessionInput,
