@@ -42,6 +42,5 @@ export interface EventChannelMap
 	extends AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
-		CronEventChannelMap,
 		HeartbeatEventChannelMap,
 		SttEventChannelMap {}
