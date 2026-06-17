@@ -6,15 +6,6 @@ jest.mock('electron-store', () => ({
 }));
 
 import { CronService } from '../../../../src/main/cron/service';
-import type { CronLogger } from '../../../../src/main/cron/types';
-
-function createLogger(): CronLogger {
-	return {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-	};
-}
 
 describe('CronService', () => {
 	beforeEach(() => {
@@ -22,7 +13,7 @@ describe('CronService', () => {
 	});
 
 	it('persists cron state in cron/settings.json', () => {
-		new CronService(createLogger(), { enabled: false });
+		new CronService({ enabled: false });
 
 		expect(storeConstructor).toHaveBeenCalledWith({
 			name: 'settings',
