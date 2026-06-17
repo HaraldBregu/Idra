@@ -54,11 +54,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		titleKey: 'settings.overview.groups.channels',
 		paths: ['/settings/channels'],
 	},
-	{
-		id: 'automation',
-		titleKey: 'settings.overview.groups.automation',
-		paths: ['/settings/cron'],
-	},
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
