@@ -21,12 +21,14 @@ function connectorStatus(connector: ConnectorEntry): ConnectorStatus {
 
 export function ConnectorCard({
 	catalogEntry,
+	icon,
 	connecting,
 	connector,
 	onConnect,
 	onViewDetails,
 }: {
 	readonly catalogEntry: SettingsConnectorCatalogEntry;
+	readonly icon?: { readonly light: string; readonly dark: string };
 	readonly connecting?: boolean;
 	readonly connector?: {
 		readonly id: string;
