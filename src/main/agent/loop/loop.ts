@@ -83,6 +83,8 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
+		tools.push(new WebSearchTool(toolContext));
+		tools.push(new WebFetchTool(toolContext));
 
 		const system = await this.systemPrompt.build(workspace);
 
