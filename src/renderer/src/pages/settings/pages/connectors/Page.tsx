@@ -1,10 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
+import gmailIconLight from '@resources/icons/brands/gmail/gmail_light.png';
+import gmailIconDark from '@resources/icons/brands/gmail/gmail_dark.png';
+import calendarIconLight from '@resources/icons/brands/google_calendar/google_calendar_light.png';
+import calendarIconDark from '@resources/icons/brands/google_calendar/google_calendar_dark.png';
+import { GMAIL_CONNECTOR, CALENDAR_CONNECTOR } from '@shared/connector';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
-import { SETTINGS_CONNECTOR_CATALOG, type SettingsConnectorCatalogEntry } from './catalog';
 import { useConnectors } from './hooks/useConnectors';
+import type { SettingsConnectorCatalogEntry } from './catalog';
+
+const GMAIL: SettingsConnectorCatalogEntry = { ...GMAIL_CONNECTOR, directConnectorId: GMAIL_CONNECTOR.id };
+const GMAIL_ICON = { light: gmailIconLight, dark: gmailIconDark };
+
+const CALENDAR: SettingsConnectorCatalogEntry = { ...CALENDAR_CONNECTOR, directConnectorId: CALENDAR_CONNECTOR.id };
+const CALENDAR_ICON = { light: calendarIconLight, dark: calendarIconDark };
 
 const ConnectorsPage = () => {
 	const navigate = useNavigate();
@@ -55,22 +66,25 @@ const ConnectorsPage = () => {
 					{error}
 				</SettingsNotice>
 			)}
+
 			<div className="grid gap-2">
-				{SETTINGS_CONNECTOR_CATALOG.map((entry) => {
-					const connector = connectors[entry.directConnectorId];
-					return (
-						<ConnectorCard
-							key={entry.connectorId}
-							catalogEntry={entry}
-							connecting={connectingId === entry.connectorId}
-							connector={connector ? { id: entry.directConnectorId, entry: connector } : undefined}
-							onConnect={() => connect(entry)}
-							onViewDetails={
-								connector ? () => openConnectorDetails(entry.directConnectorId) : undefined
-							}
-						/>
-					);
-				})}
+				<ConnectorCard
+					catalogEntry={GMAIL}
+					icon={GMAIL_ICON}
+					connecting={connectingId === GMAIL.connectorId}
+					connector={connectors[GMAIL.directConnectorId] ? { id: GMAIL.directConnectorId, entry: connectors[GMAIL.directConnectorId] } : undefined}
+					onConnect={() => connect(GMAIL)}
+					onViewDetails={connectors[GMAIL.directConnectorId] ? () => openConnectorDetails(GMAIL.directConnectorId) : undefined}
+				/>
+
+				<ConnectorCard
+					catalogEntry={CALENDAR}
+					icon={CALENDAR_ICON}
+					connecting={connectingId === CALENDAR.connectorId}
+					connector={connectors[CALENDAR.directConnectorId] ? { id: CALENDAR.directConnectorId, entry: connectors[CALENDAR.directConnectorId] } : undefined}
+					onConnect={() => connect(CALENDAR)}
+					onViewDetails={connectors[CALENDAR.directConnectorId] ? () => openConnectorDetails(CALENDAR.directConnectorId) : undefined}
+				/>
 			</div>
 		</SettingsPageShell>
 	);
