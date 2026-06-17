@@ -194,6 +194,16 @@ export class CronService implements Disposable {
 		return this.jobRegistry.schedule(id, expression, data, handler, options);
 	}
 
+	register<TData extends CronTaskData>(job: CronJob<TData>): CronTask<TData> {
+		return this.schedule(job.id, job.expression, job.data, () => job.run(), {
+			name: job.name,
+			description: job.description,
+			timezone: job.timezone,
+			enabled: job.enabled,
+			runOnStart: job.runOnStart,
+		});
+	}
+
 	unschedule(id: string): void {
 		this.jobRegistry.unschedule(id);
 	}
