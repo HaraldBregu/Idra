@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import type {
+	CronActorContext,
 	CronJobInfo,
 	CronJsonObject,
+	CronLogger,
 	CronSchedule,
 	CronScheduleCreateRequest,
 	CronScheduleEvent,
@@ -10,8 +12,9 @@ import type {
 	CronScheduleFilter,
 	CronScheduleId,
 	CronScheduledTask,
-} from '../../shared/app/cron';
-import type { CronActorContext, CronLogger, CronServiceOptions, PersistedCronState } from './types';
+	CronServiceOptions,
+	PersistedCronState,
+} from './types';
 import { CronNextRunCalculator } from './calculator';
 import {
 	CRON_STORE_DIRECTORY,
