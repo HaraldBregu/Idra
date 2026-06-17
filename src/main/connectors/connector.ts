@@ -17,7 +17,6 @@ import type {
 import {
 	CONNECTOR_APPROVAL_POLICIES,
 	CONNECTOR_DEFAULTS,
-	CONNECTOR_IDS,
 } from '../../shared/connector';
 
 export interface ConnectorOptions {
