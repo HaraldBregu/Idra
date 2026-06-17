@@ -201,27 +201,6 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'mcp',
-						children: [
-							{
-								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<McpPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'server/:serverId',
-								element: (
-									<SettingsRouteWrapper>
-										<McpServerPage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
-					},
-					{
 						path: 'skills',
 						children: [
 							{
