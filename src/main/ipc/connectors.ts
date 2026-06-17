@@ -15,7 +15,6 @@ export class ConnectorsIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const connector = container.get(Connector);
-		const mcpManager = container.get(McpClientManager);
 
 		registerQuery(ConnectorsChannels.list, () => connector.list());
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
@@ -26,8 +25,6 @@ export class ConnectorsIpc implements IpcModule {
 			connector.upsert(input)
 		);
 		registerCommand(ConnectorsChannels.delete, (id: string) => connector.delete(id));
-		registerCommand(ConnectorsChannels.reconnect, (name: string) => mcpManager.reconnect(name));
-		registerQuery(ConnectorsChannels.status, () => mcpManager.getStatus());
 		registerCommand(ConnectorsChannels.authorizeOAuth, (input: ConnectorOAuthDefaults) =>
 			connector.authorizeOAuth(input)
 		);
