@@ -27,7 +27,7 @@ export function ConnectorCard({
 	onConnect,
 	onViewDetails,
 }: {
-	readonly catalogEntry: SettingsConnectorCatalogEntry;
+	readonly catalogEntry: ConnectorDefault;
 	readonly icon?: { readonly light: string; readonly dark: string };
 	readonly connecting?: boolean;
 	readonly connector?: {
