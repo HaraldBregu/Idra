@@ -9,7 +9,6 @@ export const MAX_CRON_SCAN_MINUTES = 366 * 24 * 60;
 export const POLL_INTERVAL_MS = 30_000;
 export const DEFAULT_TIMEZONE = 'UTC';
 
-/** Minute, hour, day-of-month, month, day-of-week field ranges. */
 export const CRON_FIELD_RANGES: readonly [min: number, max: number][] = [
 	[0, 59],
 	[0, 23],
@@ -18,10 +17,6 @@ export const CRON_FIELD_RANGES: readonly [min: number, max: number][] = [
 	[0, 7],
 ];
 
-/**
- * Retained only to populate the required `retryPolicy` field on stored
- * schedules; the simplified scheduler does not retry.
- */
 export const DEFAULT_CRON_RETRY_POLICY: CronRetryPolicy = {
 	maxAttempts: 1,
 	initialDelayMs: 500,
