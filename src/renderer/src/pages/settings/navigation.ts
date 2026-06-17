@@ -159,10 +159,4 @@ export const SETTINGS_NAVIGATION = [
 		descriptionKey: 'settings.overview.descriptions.channels',
 		icon: RadioTower,
 	},
-	{
-		path: '/settings/cron',
-		labelKey: 'settings.sections.taskScheduler',
-		descriptionKey: 'settings.overview.descriptions.cron',
-		icon: CalendarClock,
-	},
 ] satisfies readonly SettingsNavigationItem[];
