@@ -31,7 +31,7 @@ const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {} };
 const OAUTH_TIMEOUT_MS = 120_000;
 
 @Service({ factory: () => new Connector() })
-export class Connector extends McpData {
+export class Connector {
 	private readonly store: Store<ConnectorStoreSchema>;
 
 	constructor(options: ConnectorOptions = {}) {
