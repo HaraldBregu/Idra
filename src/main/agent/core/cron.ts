@@ -1,4 +1,5 @@
 import type { CronTaskData } from '../../../shared/app/cron';
+import type { Tool } from './tool';
 
 export abstract class CronJob<TData extends CronTaskData = CronTaskData> {
 	abstract readonly id: string;
@@ -9,6 +10,10 @@ export abstract class CronJob<TData extends CronTaskData = CronTaskData> {
 	readonly timezone?: string;
 	readonly enabled?: boolean;
 	readonly runOnStart?: boolean;
+
+	tools(): Tool[] {
+		return [];
+	}
 
 	abstract run(): void | Promise<void>;
 }
