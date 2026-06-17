@@ -1,7 +1,9 @@
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { Tool } from '../core/tool';
 import type { Context } from '../core/context';
 import { resolveToolPath } from './resolve';
+import { registry } from './process/registry';
 
 interface ExecResult {
 	command: string;
@@ -9,6 +11,7 @@ interface ExecResult {
 	background: boolean;
 	pty: boolean;
 	pid?: number;
+	sessionId?: string;
 	exitCode?: number | null;
 	signal?: NodeJS.Signals | null;
 	stdout: string;
