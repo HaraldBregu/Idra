@@ -218,22 +218,34 @@ const ConnectorDetailsPage: React.FC = () => {
 
 			<SettingsSection title="Configuration">
 				<Card size="sm" className="gap-0! p-0!">
-					<DetailRow label="Connector" value={id} mono />
-					{httpOrSse && <DetailRow label="Server URL" value={httpOrSse.url} mono />}
-					<DetailRow
-						label="Enabled"
-						value={
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent><ItemTitle>Connector</ItemTitle></ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{id}</span>
+						</ItemActions>
+					</Item>
+					{httpOrSse && (
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemContent><ItemTitle>Server URL</ItemTitle></ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{httpOrSse.url}</span>
+							</ItemActions>
+						</Item>
+					)}
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent><ItemTitle>Enabled</ItemTitle></ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Switch
 								checked={enabled}
 								disabled={savingEnabled}
 								onCheckedChange={(checked) => void handleEnabledChange(checked)}
 								aria-label="Enabled"
 							/>
-						}
-					/>
-					<DetailRow
-						label="Require approval"
-						value={
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent><ItemTitle>Require approval</ItemTitle></ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
 							<Select
 								value={approvalPolicy}
 								onValueChange={(value) => {
@@ -249,13 +261,28 @@ const ConnectorDetailsPage: React.FC = () => {
 									<SelectItem value="never">Never require approval</SelectItem>
 								</SelectContent>
 							</Select>
-						}
-					/>
-					<DetailRow label="Auth" value={authLabel} />
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent><ItemTitle>Auth</ItemTitle></ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="max-w-[min(28rem,55vw)] truncate text-right text-[13px] text-foreground">{authLabel}</span>
+						</ItemActions>
+					</Item>
 					{httpConnector && (
-						<DetailRow label="Last refreshed" value={formatTimestamp(httpConnector.last_refreshed_at)} />
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemContent><ItemTitle>Last refreshed</ItemTitle></ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<span className="max-w-[min(28rem,55vw)] truncate text-right text-[13px] text-foreground">{formatTimestamp(httpConnector.last_refreshed_at)}</span>
+							</ItemActions>
+						</Item>
 					)}
-					<DetailRow label="Updated" value={formatTimestamp(connector.updated_at)} />
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent><ItemTitle>Updated</ItemTitle></ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="max-w-[min(28rem,55vw)] truncate text-right text-[13px] text-foreground">{formatTimestamp(connector.updated_at)}</span>
+						</ItemActions>
+					</Item>
 				</Card>
 			</SettingsSection>
 
