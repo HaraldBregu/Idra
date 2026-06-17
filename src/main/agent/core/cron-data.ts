@@ -4,7 +4,7 @@ export interface CronTaskData<TType extends string = string> {
 	readonly type: TType;
 }
 
-export abstract class CronJob<TData extends CronTaskData = CronTaskData> {
+export abstract class CronData<TData extends CronTaskData = CronTaskData> {
 	abstract readonly id: string;
 	abstract readonly expression: string;
 	abstract readonly data: TData;
