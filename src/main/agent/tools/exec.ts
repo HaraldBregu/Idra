@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { Tool } from '../core/tool';
 import type { Context } from '../core/context';
 import { resolveToolPath } from './resolve';
-import { registry } from './process/registry';
+import { registry } from './process';
 
 interface ExecResult {
 	command: string;
