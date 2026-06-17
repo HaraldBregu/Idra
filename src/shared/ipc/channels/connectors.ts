@@ -11,8 +11,6 @@ export const ConnectorsChannels = {
 	upsert: 'connectors:upsert',
 	get: 'connectors:get',
 	delete: 'connectors:delete',
-	reconnect: 'connectors:reconnect',
-	status: 'connectors:status',
 	authorizeOAuth: 'connectors:authorize-oauth',
 } as const;
 
@@ -25,8 +23,6 @@ export interface ConnectorsInvokeChannelMap {
 	};
 	[ConnectorsChannels.upsert]: { args: [input: ConnectorInput]; result: ConnectorSettingsRecord };
 	[ConnectorsChannels.delete]: { args: [id: string]; result: void };
-	[ConnectorsChannels.reconnect]: { args: [name: string]; result: void };
-	[ConnectorsChannels.status]: { args: []; result: import('../../mcp/types').McpServerInfo[] };
 	[ConnectorsChannels.authorizeOAuth]: {
 		args: [input: ConnectorOAuthDefaults];
 		result: ConnectorOAuthAuthorizationResult;
