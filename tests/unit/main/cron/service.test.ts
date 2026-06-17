@@ -24,7 +24,7 @@ describe('CronService', () => {
 	});
 
 	it('creates and lists schedules through the merged store', () => {
-		const service = new CronService(createLogger(), { enabled: false });
+		const service = new CronService({ enabled: false });
 
 		const created = service.createSchedule({
 			name: 'Daily summary',
