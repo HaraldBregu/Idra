@@ -96,13 +96,5 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: t('settings.cron.detailsTitle') });
 	}
 
-	if (location.pathname.startsWith('/settings/mcp/server/')) {
-		const serverId = decodeURIComponent(location.pathname.split('/').at(-1) ?? '');
-		items[0] = { ...items[0], path: current.path };
-		items.push({
-			label: serverId === 'new' ? 'Add Server' : 'Server Details',
-		});
-	}
-
 	return items;
 }
