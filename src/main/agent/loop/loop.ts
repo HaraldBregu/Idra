@@ -18,7 +18,6 @@ import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
-import { WebSearchTool } from '../tools/web-search';
 import { AgentContext } from './context';
 
 interface ModelTurn {
@@ -82,7 +81,6 @@ export class AgentRuntime {
 		tools.push(new EditTool(workspacePath, toolContext));
 		tools.push(new WriteTool(workspacePath, toolContext));
 		tools.push(new ExecTool(workspacePath, toolContext));
-		tools.push(new WebSearchTool(toolContext));
 
 		const system = await this.systemPrompt.build(workspace);
 
