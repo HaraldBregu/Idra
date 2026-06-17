@@ -1,9 +1,16 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import os from 'node:os';
+import path from 'node:path';
 import { Tool } from '../core/tool';
 import type { Context } from '../core/context';
-import { resolveToolPath } from './resolve';
 import { registry } from './process';
+
+function resolvePath(p: string): string {
+	if (p === '~') return os.homedir();
+	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
+	return path.resolve(p);
+}
 
 interface ExecResult {
 	command: string;
