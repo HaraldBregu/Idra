@@ -21,18 +21,6 @@ export interface AgentApi {
 	setModelId: (modelId: string) => Promise<boolean>;
 }
 
-export interface CronApi {
-	pauseSchedule: (scheduleId: string) => Promise<void>;
-	resumeSchedule: (scheduleId: string) => Promise<void>;
-	deleteSchedule: (scheduleId: string) => Promise<void>;
-	deleteJob: (jobId: string) => Promise<void>;
-	listSchedules: (filter?: CronScheduleFilter) => Promise<CronSchedule[]>;
-	listJobs: () => Promise<CronJobInfo[]>;
-	getSchedule: (scheduleId: string) => Promise<CronSchedule>;
-	runNow: (scheduleId: string) => Promise<CronScheduledTask>;
-	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void) => () => void;
-}
-
 export interface ChannelsApi {
 	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
