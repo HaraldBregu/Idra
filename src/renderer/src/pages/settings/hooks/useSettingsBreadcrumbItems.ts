@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared/channels';
 import { AGENTS } from '@/lib/compat';
 import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_NAVIGATION } from '../navigation';
-import { SETTINGS_CONNECTOR_CATALOG } from '../pages/connectors/catalog';
+import { CONNECTOR_DEFAULTS } from '@shared/connector';
 
 interface SettingsBreadcrumbItem {
 	readonly label: string;
