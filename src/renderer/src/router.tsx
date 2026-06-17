@@ -249,27 +249,6 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'cron',
-						children: [
-							{
-								index: true,
-								element: (
-									<SettingsRouteWrapper>
-										<CronPage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: 'crondetails/:jobId',
-								element: (
-									<SettingsRouteWrapper>
-										<CronDetailsPage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
-					},
-					{
 						path: '*',
 						loader: () => {
 							throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
