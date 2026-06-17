@@ -2,7 +2,6 @@ import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
 import { ConnectorsIpc } from '../connectors';
-import { CronIpc } from '../cron';
 import { ProviderStoreIpc } from '../provider';
 import { SttIpc } from '../stt';
 import { WindowIpc } from '../window';
