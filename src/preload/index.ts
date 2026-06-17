@@ -369,12 +369,6 @@ export const connectors: ConnectorsApi = {
 	delete: (id: string): Promise<void> => {
 		return typedInvokeUnwrap(ConnectorsChannels.delete, id);
 	},
-	reconnect: (name: string): Promise<void> => {
-		return typedInvokeUnwrap(ConnectorsChannels.reconnect, name);
-	},
-	status: () => {
-		return typedInvokeUnwrap(ConnectorsChannels.status);
-	},
 	authorizeOAuth: (input: Parameters<ConnectorsApi['authorizeOAuth']>[0]) => {
 		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, input);
 	},
