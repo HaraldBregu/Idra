@@ -94,10 +94,7 @@ export class ExecTool extends Tool {
 		},
 	};
 
-	constructor(
-		private readonly basePath = process.cwd(),
-		context?: Context
-	) {
+	constructor(context?: Context) {
 		super(context);
 	}
 
