@@ -98,7 +98,10 @@ export function ConnectorCard({
 					<Button
 						variant="ghost"
 						size="icon-xs"
-						onClick={onViewDetails}
+						onClick={(event) => {
+							event.stopPropagation();
+							onViewDetails();
+						}}
 						aria-label={`View ${title} details`}
 					>
 						<ChevronRight className="size-3" />
