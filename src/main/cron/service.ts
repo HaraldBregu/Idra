@@ -12,7 +12,7 @@ import {
 	type CronTask,
 	type CronTaskData,
 } from '../../shared/app/cron';
-import type { CronJob } from '../agent/core/cron-data';
+import type { CronData } from '../agent/core/cron-data';
 import type { CronActorContext, CronScheduleStore } from './core/types';
 import type { CronConfigurationStore, CronServiceConfiguration } from './core/config';
 import type { CronLogger } from './core/logger';
