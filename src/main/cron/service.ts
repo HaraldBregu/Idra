@@ -1,216 +1,298 @@
-import {
-	type CronExecutionRecord,
-	type CronJobInfo,
-	type CronSchedule,
-	type CronScheduleCreateRequest,
-	type CronScheduleEvent,
-	type CronScheduleEventType,
-	type CronScheduleFilter,
-	type CronScheduledTask,
-	type CronTask,
-	type CronTaskData,
+import { randomUUID } from 'node:crypto';
+import type {
+	CronJobInfo,
+	CronJsonObject,
+	CronSchedule,
+	CronScheduleCreateRequest,
+	CronScheduleEvent,
+	CronScheduleEventType,
+	CronScheduleFilter,
+	CronScheduledTask,
 } from '../../shared/app/cron';
-import type { CronNextRunPreview, CronScheduleUpdateRequest } from './types';
-import type { CronActorContext, CronScheduleStore } from './core/types';
-import type { CronConfigurationStore, CronServiceConfiguration } from './core/config';
-import type { CronLogger } from './core/logger';
-import type { CronJobOptions } from './types';
-import { ElectronStoreCronScheduleStore } from './adapters/store';
-import { ElectronStoreCronConfigurationStore } from './adapters/config';
-import { InMemoryCronScheduleRunner } from './adapters/runner';
-import { CronSchedulerEngine } from './engine/scheduler';
-import { resolveCronServiceConfiguration } from './core/config';
-import { NodeCronJobRegistry } from './adapters/registry';
+import type { CronActorContext, CronLogger, CronServiceOptions } from './types';
+import { CronNextRunCalculator } from './calculator';
+import { CronStore } from './store';
+import { DEFAULT_CRON_RETRY_POLICY, DEFAULT_TIMEZONE, POLL_INTERVAL_MS, defaultCronEnabled } from './constants';
 
-interface Disposable {
-	destroy(): void | Promise<void>;
-}
+export type { CronServiceOptions, CronServiceActor } from './types';
 
-export type CronServiceEventListener = (event: CronScheduleEvent) => void;
+type CronEventListener = (event: CronScheduleEvent) => void;
 
 export interface CronServiceEvents {
-	subscribe(listener: CronServiceEventListener): () => void;
-	subscribeToType(type: CronScheduleEventType, listener: CronServiceEventListener): () => void;
+	subscribe(listener: CronEventListener): () => void;
 }
 
-export type CronServiceActor = CronActorContext;
-export type { CronJobOptions, CronTaskHandler } from './types';
-
-export interface CronServiceOptions {
-	enabled?: boolean;
-	scheduleStore?: CronScheduleStore;
-	configurationStore?: CronConfigurationStore;
+function isActiveSchedule(schedule: CronSchedule): boolean {
+	return schedule.status === 'active' && schedule.enabled && !schedule.deletedAt;
 }
 
 /**
- * Schedules and manages recurring jobs via node-cron and the cron scheduler
- * engine. In-memory jobs are tracked for the lifetime of the process.
- *
- * Generic over the data payload: callers parameterize schedule<TData>() with
- * whatever shape they want as long as it has a string `type` discriminator.
+ * Persists recurring schedules to the cron settings file and runs the ones that
+ * are due via a poll loop. Schedules fire by producing a `CronScheduledTask`
+ * record and emitting events that the renderer subscribes to over IPC.
  */
-export class CronService implements Disposable {
+export class CronService {
 	private readonly logger: CronLogger;
-	private readonly scheduleStore: CronScheduleStore;
-	private readonly configurationStore: CronConfigurationStore;
-	private readonly configuration: CronServiceConfiguration;
-	private readonly scheduler: CronSchedulerEngine;
-	private readonly jobRegistry: NodeCronJobRegistry;
-	private readonly automaticEnabled: boolean;
+	private readonly store: CronStore;
+	private readonly calculator = new CronNextRunCalculator();
+	private readonly listeners = new Set<CronEventListener>();
+	private readonly enabled: boolean;
+	private timer: NodeJS.Timeout | undefined;
 
 	constructor(logger: CronLogger, options: CronServiceOptions = {}) {
 		this.logger = logger;
-		this.configurationStore =
-			options.configurationStore ?? new ElectronStoreCronConfigurationStore();
-		this.configuration = resolveCronServiceConfiguration(
-			this.configurationStore.readConfiguration(),
-			{ enabled: options.enabled }
-		);
-		this.configurationStore.writeConfiguration(this.configuration);
-		this.automaticEnabled = this.configuration.enabled;
-		this.scheduleStore = options.scheduleStore ?? new ElectronStoreCronScheduleStore();
-		this.jobRegistry = new NodeCronJobRegistry(logger, this.automaticEnabled);
-		const accessPolicy = {
-			authorize(): Promise<void> { return Promise.resolve(); },
-			requiresConfirmation(): boolean { return false; },
-			validateFrequency(): void { return undefined; },
-		};
-		this.scheduler = new CronSchedulerEngine(
-			this.scheduleStore,
-			new InMemoryCronScheduleRunner(),
-			accessPolicy,
-			{},
-			logger
-		);
+		this.store = new CronStore();
+		this.enabled = options.enabled ?? this.store.getEnabled() ?? defaultCronEnabled();
+		this.store.setEnabled(this.enabled);
 	}
 
 	get events(): CronServiceEvents {
-		return this.scheduler.events;
-	}
-
-	getConfiguration(): CronServiceConfiguration {
-		return { ...this.configuration };
+		return {
+			subscribe: (listener) => {
+				this.listeners.add(listener);
+				return () => this.listeners.delete(listener);
+			},
+		};
 	}
 
 	async start(): Promise<void> {
-		if (!this.automaticEnabled) {
+		if (!this.enabled) {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
-			this.logger.info('CronService', 'Cron service started with automatic execution disabled.');
 			return;
 		}
-		await this.scheduler.start();
+		this.recover(new Date());
+		this.timer = setInterval(() => {
+			try {
+				this.processDue(new Date());
+			} catch (error) {
+				this.logger.error('CronService', 'Failed to process due schedules.', error);
+			}
+		}, POLL_INTERVAL_MS);
+		this.timer.unref?.();
 		this.logger.info('CronService', 'Cron service started.');
 	}
 
 	async stop(): Promise<void> {
-		await this.scheduler.stop();
-		this.logger.info('CronService', 'Cron service stopped.');
-	}
-
-	async reload(): Promise<void> {
-		this.logger.info('CronService', 'Cron service reload requested.');
-		await this.scheduler.reload();
-	}
-
-	createSchedule(
-		request: CronScheduleCreateRequest,
-		actor?: CronActorContext
-	): Promise<CronSchedule> {
-		return this.scheduler.createSchedule(request, actor);
-	}
-
-	updateSchedule(
-		scheduleId: string,
-		patch: CronScheduleUpdateRequest,
-		actor?: CronActorContext
-	): Promise<CronSchedule> {
-		return this.scheduler.updateSchedule(scheduleId, patch, actor);
-	}
-
-	pauseSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
-		return this.scheduler.pauseSchedule(scheduleId, actor);
-	}
-
-	resumeSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
-		return this.scheduler.resumeSchedule(scheduleId, actor);
-	}
-
-	deleteSchedule(scheduleId: string, actor?: CronActorContext): Promise<void> {
-		return this.scheduler.deleteSchedule(scheduleId, actor);
-	}
-
-	getSchedule(scheduleId: string, actor?: CronActorContext): Promise<CronSchedule> {
-		return this.scheduler.getSchedule(scheduleId, actor);
-	}
-
-	listSchedules(filter?: CronScheduleFilter, actor?: CronActorContext): Promise<CronSchedule[]> {
-		return this.scheduler.listSchedules(filter, actor);
-	}
-
-	runScheduleNow(
-		scheduleId: string,
-		actor?: CronActorContext
-	): Promise<CronScheduledTask> {
-		return this.scheduler.runScheduleNow(scheduleId, actor);
-	}
-
-	computeNextRun(schedule: CronSchedule, from?: Date): Promise<Date | null> {
-		return this.scheduler.computeNextRun(schedule, from);
-	}
-
-	processDueSchedules(now: Date): Promise<void> {
-		return this.scheduler.processDueSchedules(now);
-	}
-
-	recoverSchedulesOnStartup(): Promise<void> {
-		return this.scheduler.recoverSchedulesOnStartup();
-	}
-
-	getNextRuns(
-		scheduleId: string,
-		count: number,
-		actor?: CronActorContext
-	): Promise<CronNextRunPreview> {
-		return this.scheduler.getNextRuns(scheduleId, count, actor);
-	}
-
-	async getScheduleEvents(scheduleId: string): Promise<CronScheduleEvent[]> {
-		return scheduleId ? this.scheduleStore.getScheduleEvents(scheduleId) : [];
-	}
-
-	async getScheduleExecutions(scheduleId: string): Promise<CronExecutionRecord[]> {
-		return scheduleId ? this.scheduleStore.listExecutions(scheduleId) : [];
-	}
-
-	schedule<TData extends CronTaskData>(
-		id: string,
-		expression: string,
-		data: TData,
-		handler: () => void | Promise<void>,
-		options: CronJobOptions = {}
-	): CronTask<TData> {
-		return this.jobRegistry.schedule(id, expression, data, handler, options);
-	}
-
-	unschedule(id: string): void {
-		this.jobRegistry.unschedule(id);
-	}
-
-	deleteJob(id: string): void {
-		this.jobRegistry.unschedule(id);
-	}
-
-	listJobs(): CronJobInfo[] {
-		return this.jobRegistry.listJobs();
-	}
-
-	has(id: string): boolean {
-		return this.jobRegistry.has(id);
+		if (this.timer) clearInterval(this.timer);
+		this.timer = undefined;
 	}
 
 	destroy(): void {
-		void this.scheduler.stop();
-		this.jobRegistry.destroy();
+		void this.stop();
 		this.logger.info('CronService', 'Disposed');
+	}
+
+	createSchedule(request: CronScheduleCreateRequest, actor?: CronActorContext): CronSchedule {
+		const now = new Date();
+		const nowIso = now.toISOString();
+		const schedule: CronSchedule = {
+			id: randomUUID(),
+			name: request.name.trim(),
+			description: request.description?.trim(),
+			type: request.type,
+			status: request.enabled === false ? 'disabled' : 'active',
+			source: request.source,
+			sourceId: request.sourceId,
+			ownerUserId: request.ownerUserId ?? actor?.userId,
+			sessionId: request.sessionId ?? actor?.sessionId,
+			createdBy: request.createdBy,
+			visibility: request.visibility ?? 'user',
+			timezone: request.timezone || actor?.timezone || DEFAULT_TIMEZONE,
+			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
+			intervalMs: request.intervalMs,
+			runAt: request.runAt,
+			startAt: request.startAt,
+			endAt: request.endAt,
+			maxRuns: request.maxRuns,
+			runCount: 0,
+			missedRunPolicy: request.missedRunPolicy ?? 'skip',
+			concurrencyPolicy: request.concurrencyPolicy ?? 'skipIfRunning',
+			retryPolicy: { ...DEFAULT_CRON_RETRY_POLICY, ...(request.retryPolicy ?? {}) },
+			providerId: request.providerId,
+			modelId: request.modelId,
+			target: request.target,
+			payload: request.payload,
+			taskType: request.taskType,
+			taskInput: request.taskInput,
+			taskPriority: request.taskPriority ?? 'normal',
+			taskTags: request.taskTags ?? [],
+			taskMetadata: request.taskMetadata ?? {},
+			requiredPermissions: request.requiredPermissions ?? [],
+			requiresConfirmation: request.requiresConfirmation ?? false,
+			confirmationPolicy: request.confirmationPolicy,
+			enabled: request.enabled ?? true,
+			createdAt: nowIso,
+			updatedAt: nowIso,
+			metadata: request.metadata ?? {},
+			audit: [],
+		};
+		schedule.nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
+		const created = this.store.create(schedule);
+		this.emit(created, 'schedule.created', 'Schedule created.');
+		return created;
+	}
+
+	pauseSchedule(scheduleId: string, _actor?: CronActorContext): void {
+		const now = new Date().toISOString();
+		const updated = this.store.update(scheduleId, { status: 'paused', pausedAt: now, updatedAt: now });
+		this.emit(updated, 'schedule.paused', 'Schedule paused.');
+	}
+
+	resumeSchedule(scheduleId: string, _actor?: CronActorContext): void {
+		const schedule = this.require(scheduleId);
+		const now = new Date();
+		const nextRunAt = this.calculator
+			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
+			?.toISOString();
+		const updated = this.store.update(scheduleId, {
+			status: 'active',
+			enabled: true,
+			pausedAt: undefined,
+			nextRunAt,
+			updatedAt: now.toISOString(),
+		});
+		this.emit(updated, 'schedule.resumed', 'Schedule resumed.');
+	}
+
+	deleteSchedule(scheduleId: string, _actor?: CronActorContext): void {
+		const now = new Date().toISOString();
+		const updated = this.store.update(scheduleId, {
+			status: 'deleted',
+			enabled: false,
+			deletedAt: now,
+			updatedAt: now,
+		});
+		this.emit(updated, 'schedule.deleted', 'Schedule deleted.');
+	}
+
+	getSchedule(scheduleId: string, _actor?: CronActorContext): CronSchedule {
+		return this.require(scheduleId);
+	}
+
+	listSchedules(filter: CronScheduleFilter = {}, _actor?: CronActorContext): CronSchedule[] {
+		return this.store.list(filter);
+	}
+
+	runScheduleNow(scheduleId: string, _actor?: CronActorContext): CronScheduledTask {
+		const schedule = this.require(scheduleId);
+		return this.trigger(schedule, new Date().toISOString());
+	}
+
+	/** No process-local node-cron jobs exist in the simplified module. */
+	listJobs(): CronJobInfo[] {
+		return [];
+	}
+
+	deleteJob(_id: string): void {
+		// No-op: process-local jobs are no longer supported.
+	}
+
+	private require(scheduleId: string): CronSchedule {
+		const schedule = this.store.find(scheduleId);
+		if (!schedule) throw new Error(`Cron schedule not found: ${scheduleId}`);
+		return schedule;
+	}
+
+	private recover(now: Date): void {
+		for (const schedule of this.store.list().filter(isActiveSchedule)) {
+			if (!schedule.nextRunAt) {
+				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
+				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+			} else if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
+				// Skip missed runs: advance to the next future occurrence.
+				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
+				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+			}
+		}
+	}
+
+	private processDue(now: Date): void {
+		const due = this.store
+			.list()
+			.filter(isActiveSchedule)
+			.filter((schedule) => Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime()));
+		for (const schedule of due) {
+			this.trigger(schedule, schedule.nextRunAt ?? now.toISOString());
+		}
+	}
+
+	private trigger(schedule: CronSchedule, scheduledRunAt: string): CronScheduledTask {
+		const task = this.buildTask(schedule, scheduledRunAt);
+		const now = new Date().toISOString();
+		const runCount = schedule.runCount + 1;
+		const completed =
+			schedule.type === 'oneTime' || (schedule.maxRuns !== undefined && runCount >= schedule.maxRuns);
+		const nextRunAt = completed
+			? undefined
+			: this.calculator
+					.getNextRun({ ...schedule, runCount, lastRunAt: scheduledRunAt }, new Date(scheduledRunAt))
+					?.toISOString();
+		const updated = this.store.update(schedule.id, {
+			runCount,
+			lastRunAt: scheduledRunAt,
+			lastEvaluatedAt: now,
+			nextRunAt,
+			status: completed ? 'completed' : schedule.status,
+			updatedAt: now,
+		});
+		this.emit(updated, 'schedule.triggered', 'Scheduled task created.', {
+			taskId: task.id,
+			scheduledRunAt,
+			nextRunAt: updated.nextRunAt ?? null,
+		});
+		if (completed) this.emit(updated, 'schedule.completed', 'Schedule completed.', { runCount });
+		return task;
+	}
+
+	private buildTask(schedule: CronSchedule, scheduledRunAt: string): CronScheduledTask {
+		const now = new Date().toISOString();
+		return {
+			id: randomUUID(),
+			type: schedule.taskType,
+			title: schedule.name,
+			description: schedule.description,
+			source: 'cron',
+			sourceId: schedule.id,
+			userId: schedule.ownerUserId,
+			sessionId: schedule.sessionId,
+			input: schedule.taskInput,
+			status: 'queued',
+			priority: schedule.taskPriority,
+			visibility: schedule.visibility,
+			tags: ['cron', ...schedule.taskTags],
+			metadata: {
+				...schedule.taskMetadata,
+				cronScheduleId: schedule.id,
+				scheduledRunAt,
+				runNumber: schedule.runCount + 1,
+			},
+			createdAt: now,
+			updatedAt: now,
+		};
+	}
+
+	private emit(
+		schedule: CronSchedule,
+		type: CronScheduleEventType,
+		message: string,
+		metadata: CronJsonObject = {}
+	): void {
+		const event: CronScheduleEvent = {
+			eventId: randomUUID(),
+			scheduleId: schedule.id,
+			type,
+			userId: schedule.ownerUserId,
+			source: schedule.source,
+			timestamp: new Date().toISOString(),
+			message,
+			metadata,
+		};
+		for (const listener of this.listeners) {
+			try {
+				listener(event);
+			} catch (error) {
+				this.logger.error('CronService', 'Cron event listener failed.', error);
+			}
+		}
 	}
 }
