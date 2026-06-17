@@ -11,12 +11,6 @@ export interface AgentModuleOptions {
 	[key: string]: unknown;
 }
 
-export interface CronSettings {
-	enabled?: boolean;
-	scheduler?: CronStoreState;
-	tasks?: CronTask[];
-}
-
 export interface TaskSettings {
 	allowedTaskTypes?: string[];
 	defaultConcurrency?: number;
