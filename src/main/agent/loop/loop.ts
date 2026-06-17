@@ -19,6 +19,7 @@ import { ExecTool } from '../tools/exec';
 import { ProcessTool } from '../tools/process';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
+import { CronData } from '../core/cron-data';
 import { AgentContext } from './context';
 
 interface ModelTurn {
