@@ -23,8 +23,6 @@ const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const ModelServicePage = lazy(() => import('./pages/settings/pages/model-services/Page'));
-const CronPage = lazy(() => import('./pages/settings/pages/cron/Page'));
-const CronDetailsPage = lazy(() => import('./pages/settings/pages/cron/details/Page'));
 function RouteWrapper({ children, fallback = _jsx(PageLoadingSkeleton, {}), }) {
     return (_jsx(ErrorBoundary, { level: "route", children: _jsx(Suspense, { fallback: fallback, children: children }) }));
 }
@@ -132,19 +130,6 @@ const routes = [
                             {
                                 path: ':serviceId/details/chathistory',
                                 element: (_jsx(SettingsRouteWrapper, { children: _jsx(ModelServicePage, {}) })),
-                            },
-                        ],
-                    },
-                    {
-                        path: 'cron',
-                        children: [
-                            {
-                                index: true,
-                                element: (_jsx(SettingsRouteWrapper, { children: _jsx(CronPage, {}) })),
-                            },
-                            {
-                                path: 'crondetails/:jobId',
-                                element: (_jsx(SettingsRouteWrapper, { children: _jsx(CronDetailsPage, {}) })),
                             },
                         ],
                     },

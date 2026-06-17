@@ -19,7 +19,6 @@ import { CronNextRunCalculator } from './calculator';
 import {
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
-	CRON_STORE_SCHEMA_VERSION,
 	DEFAULT_CRON_RETRY_POLICY,
 	DEFAULT_TIMEZONE,
 	POLL_INTERVAL_MS,
@@ -63,11 +62,6 @@ function migrate(raw: unknown): PersistedCronState {
 	};
 }
 
-/**
- * Persists recurring schedules to the cron settings file and runs the ones that
- * are due via a poll loop. Schedules fire by producing a `CronScheduledTask`
- * record and emitting events that the renderer subscribes to over IPC.
- */
 export class CronService {
 	private readonly logger: CronLogger;
 	private readonly store: Store<PersistedCronState>;

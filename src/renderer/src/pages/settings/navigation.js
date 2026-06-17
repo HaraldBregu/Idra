@@ -1,4 +1,4 @@
-import { Bot, CalendarClock, ImageIcon, Info, Mic, MonitorCog, Music, Plug, RadioTower, Server, Sparkles, Video, Volume2, } from 'lucide-react';
+import { Bot, ImageIcon, Info, Mic, MonitorCog, Music, Plug, RadioTower, Server, Sparkles, Video, Volume2, } from 'lucide-react';
 import { AGENTS } from '@/lib/compat';
 export const SETTINGS_MODEL_SERVICE_ITEMS = [
     {
@@ -79,8 +79,6 @@ export const SETTINGS_DETAIL_ITEMS = [
     // Model services
     ...SETTINGS_MODEL_SERVICE_ITEMS,
     { path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
-    // Cron
-    { path: '/settings/cron', labelKey: 'settings.sections.taskScheduler', keywords: 'cron schedule recurring task expression timezone' },
 ];
 export const SETTINGS_NAVIGATION = [
     {
@@ -118,11 +116,5 @@ export const SETTINGS_NAVIGATION = [
         labelKey: 'settings.tabs.channels',
         descriptionKey: 'settings.overview.descriptions.channels',
         icon: RadioTower,
-    },
-    {
-        path: '/settings/cron',
-        labelKey: 'settings.sections.taskScheduler',
-        descriptionKey: 'settings.overview.descriptions.cron',
-        icon: CalendarClock,
     },
 ];

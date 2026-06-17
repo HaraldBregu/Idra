@@ -71,9 +71,5 @@ export function useSettingsBreadcrumbItems() {
         items[0] = { ...items[0], path: current.path };
         items.push({ label: skillId });
     }
-    if (location.pathname.startsWith('/settings/cron/crondetails/')) {
-        items[0] = { ...items[0], path: current.path };
-        items.push({ label: t('settings.cron.detailsTitle') });
-    }
     return items;
 }

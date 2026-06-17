@@ -1,4 +1,3 @@
-import type { CronStoreState, CronTask } from './cron';
 export interface ModelModuleSettings {
     providerId: string;
     modelId: string;
@@ -8,11 +7,6 @@ export type AssistantSettings = ModelModuleSettings;
 export interface AgentModuleOptions {
     agentRuntime?: string;
     [key: string]: unknown;
-}
-export interface CronSettings {
-    enabled?: boolean;
-    scheduler?: CronStoreState;
-    tasks?: CronTask[];
 }
 export interface TaskSettings {
     allowedTaskTypes?: string[];

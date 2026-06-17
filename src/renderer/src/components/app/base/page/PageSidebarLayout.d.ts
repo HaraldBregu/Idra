@@ -26,8 +26,8 @@ declare function PageSidebarLayoutGroupContent({ className, ...props }: React.Co
 declare function PageSidebarLayoutMenu({ className, ...props }: React.ComponentProps<'ul'>): import("react/jsx-runtime").JSX.Element;
 declare function PageSidebarLayoutMenuItem({ className, ...props }: React.ComponentProps<'li'>): import("react/jsx-runtime").JSX.Element;
 declare const pageSidebarLayoutMenuButtonVariants: (props?: ({
-    variant?: "outline" | "default" | null | undefined;
-    size?: "sm" | "default" | "lg" | null | undefined;
+    variant?: "default" | "outline" | null | undefined;
+    size?: "default" | "sm" | "lg" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 declare function PageSidebarLayoutMenuButton({ render, isActive, variant, size, tooltip, className, ...props }: useRender.ComponentProps<'button'> & React.ComponentProps<'button'> & {
     isActive?: boolean;

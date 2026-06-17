@@ -7,7 +7,7 @@ declare const inputGroupAddonVariants: (props?: ({
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 declare function InputGroupAddon({ className, align, ...props }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>): import("react/jsx-runtime").JSX.Element;
 declare const inputGroupButtonVariants: (props?: ({
-    size?: "sm" | "xs" | "icon-xs" | "icon-sm" | null | undefined;
+    size?: "xs" | "sm" | "icon-xs" | "icon-sm" | null | undefined;
 } & import("class-variance-authority/types").ClassProp) | undefined) => string;
 declare function InputGroupButton({ className, type, variant, size, ...props }: Omit<React.ComponentProps<typeof Button>, "size" | "type"> & VariantProps<typeof inputGroupButtonVariants> & {
     type?: "button" | "submit" | "reset";
