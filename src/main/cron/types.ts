@@ -394,7 +394,6 @@ export interface CronServiceOptions {
 
 /** Shape persisted to the cron electron-store settings file. */
 export interface PersistedCronState {
-	schemaVersion: number;
 	enabled?: boolean;
 	schedules: CronSchedule[];
 }
