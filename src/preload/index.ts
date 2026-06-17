@@ -7,7 +7,6 @@ import {
 	ChannelsChannels,
 	ConnectorsChannels,
 	ProviderStoreChannels,
-	CronChannels,
 	SkillsChannels,
 	SttChannels,
 } from '../shared/ipc/ipc-channels';
@@ -16,20 +15,12 @@ import type {
 	AgentApi,
 	ChannelsApi,
 	ConnectorsApi,
-	CronApi,
 	ProviderApi,
 	SkillsApi,
 	SttApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared/providers';
-import type {
-	CronSchedule,
-	CronScheduleEvent,
-	CronScheduleFilter,
-	CronScheduledTask,
-	CronJobInfo,
-} from '../shared/app/cron';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
