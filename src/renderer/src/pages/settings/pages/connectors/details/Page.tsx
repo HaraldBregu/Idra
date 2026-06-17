@@ -52,7 +52,7 @@ function connectorRecordEntry(
 	const id = preferredId && entry ? preferredId : (Object.entries(record)[0]?.[0]);
 	const connector = id ? record[id] : undefined;
 	if (!id || !connector) return undefined;
-	const catalogEntry = SETTINGS_CONNECTOR_CATALOG.find((e) => e.directConnectorId === id);
+	const catalogEntry = CONNECTOR_DEFAULTS.find((e) => e.id === id);
 	return { id, connector, catalogEntry };
 }
 
