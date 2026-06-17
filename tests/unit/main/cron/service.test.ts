@@ -1,4 +1,4 @@
-const storeConstructor = jest.fn(() => ({ store: {} }));
+const storeConstructor = jest.fn(() => ({ store: { schedules: [] } }));
 
 jest.mock('electron-store', () => ({
 	__esModule: true,
