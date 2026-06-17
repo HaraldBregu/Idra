@@ -80,9 +80,9 @@ const ConnectorsPage = () => {
 					catalogEntry={CALENDAR}
 					icon={CALENDAR_ICON}
 					connecting={connectingId === CALENDAR.connectorId}
-					connector={connectors[CALENDAR.directConnectorId] ? { id: CALENDAR.directConnectorId, entry: connectors[CALENDAR.directConnectorId] } : undefined}
+					connector={connectors[CALENDAR.id] ? { id: CALENDAR.id, entry: connectors[CALENDAR.id] } : undefined}
 					onConnect={() => connect(CALENDAR)}
-					onViewDetails={connectors[CALENDAR.directConnectorId] ? () => openConnectorDetails(CALENDAR.directConnectorId) : undefined}
+					onViewDetails={connectors[CALENDAR.id] ? () => openConnectorDetails(CALENDAR.id) : undefined}
 				/>
 			</div>
 		</SettingsPageShell>
