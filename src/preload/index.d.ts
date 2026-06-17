@@ -120,8 +120,6 @@ import type {
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
 } from '../shared/app/app-permissions';
-import type { McpNamedEntry, McpServerInfo } from '../shared/mcp/types';
-
 export interface ModelSelection {
 	provider: PublicProvider;
 	model: Model;

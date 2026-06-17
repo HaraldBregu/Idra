@@ -26,18 +26,15 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		id: 'agent',
-		titleKey: 'settings.overview.groups.agent',
 		agentIds: [AGENTS.assistant],
 		paths: [],
 	},
 	{
 		id: 'skills',
-		titleKey: 'settings.overview.groups.skills',
 		paths: ['/settings/skills'],
 	},
 	{
 		id: 'connectors',
-		titleKey: 'settings.overview.groups.connectors',
 		paths: ['/settings/connectors'],
 	},
 	{
