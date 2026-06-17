@@ -49,7 +49,11 @@ export function ConnectorCard({
 			size="md"
 			onClick={(event) => {
 				if (isInteractiveTarget(event.target)) return;
-				if (hasDetails) onViewDetails();
+				if (hasDetails) {
+					onViewDetails();
+					return;
+				}
+				if (!connected && !disabled) onConnect();
 			}}
 			className="cursor-pointer rounded-lg border border-border/70 bg-card text-left hover:border-foreground/15 hover:bg-card/95"
 		>
