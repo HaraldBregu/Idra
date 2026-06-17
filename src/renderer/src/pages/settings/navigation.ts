@@ -120,8 +120,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Model services
 	...SETTINGS_MODEL_SERVICE_ITEMS,
 	{ path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
-	// Cron
-	{ path: '/settings/cron', labelKey: 'settings.sections.taskScheduler', keywords: 'cron schedule recurring task expression timezone' },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
