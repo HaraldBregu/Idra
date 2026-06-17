@@ -88,13 +88,13 @@ export function ConnectorIcon({
 						src={asset.light}
 						alt=""
 						draggable={false}
-						className={cn('size-full object-cover', imageClassName)}
+						className={cn('size-full object-contain', imageClassName)}
 					/>
 					<img
 						src={asset.dark}
 						alt=""
 						draggable={false}
-						className={cn('hidden size-full object-cover dark:block', imageClassName)}
+						className={cn('hidden size-full object-contain dark:block', imageClassName)}
 					/>
 				</>
 			) : (
@@ -103,13 +103,13 @@ export function ConnectorIcon({
 						src={openaiIconLight}
 						alt=""
 						draggable={false}
-						className={cn('size-full object-cover', fallbackClassName)}
+						className={cn('size-full object-contain', fallbackClassName)}
 					/>
 					<img
 						src={openaiIconDark}
 						alt=""
 						draggable={false}
-						className={cn('hidden size-full object-cover dark:block', fallbackClassName)}
+						className={cn('hidden size-full object-contain dark:block', fallbackClassName)}
 					/>
 				</>
 			)}
