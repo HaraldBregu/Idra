@@ -1,15 +1,4 @@
-import { randomUUID } from 'node:crypto';
-import type {
-	CronConcurrencyPolicy,
-	CronMissedRunPolicy,
-	CronRetryPolicy,
-	CronRunPolicy,
-	CronSchedulerOptions,
-	CronScheduleSource,
-	CronScheduleStatus,
-	CronScheduleType,
-	CronScheduleVisibility,
-} from './core/types';
+import type { CronRetryPolicy } from '../../shared/app/cron';
 
 export const CRON_STORE_SCHEMA_VERSION = 1;
 export const CRON_STORE_DIRECTORY = 'cron';
@@ -18,16 +7,10 @@ export const CRON_STORE_FILE_NAME = 'settings';
 export const CRON_MINUTE_MS = 60_000;
 export const MAX_CRON_SCAN_MINUTES = 366 * 24 * 60;
 
-export const CRON_DAY_NAMES = [
-	'Sunday',
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Fri' + 'day',
-	'Saturday',
-];
+export const POLL_INTERVAL_MS = 30_000;
+export const DEFAULT_TIMEZONE = 'UTC';
 
+/** Minute, hour, day-of-month, month, day-of-week field ranges. */
 export const CRON_FIELD_RANGES: readonly [min: number, max: number][] = [
 	[0, 59],
 	[0, 23],
@@ -36,102 +19,20 @@ export const CRON_FIELD_RANGES: readonly [min: number, max: number][] = [
 	[0, 7],
 ];
 
-export const CRON_SCHEDULE_TYPES: readonly CronScheduleType[] = [
-	'cron',
-	'interval',
-	'fixedRate',
-	'fixedDelay',
-	'oneTime',
-	'calendar',
-	'manual',
-];
-
-export const CRON_SOURCES: readonly CronScheduleSource[] = [
-	'agent',
-	'skill',
-	'tool',
-	'connector',
-	'api',
-	'ui',
-	'system',
-	'migration',
-	'maintenance',
-];
-
-export const CRON_STATUSES: readonly CronScheduleStatus[] = [
-	'active',
-	'paused',
-	'disabled',
-	'expired',
-	'completed',
-	'failed',
-	'deleted',
-];
-
-export const CRON_VISIBILITIES: readonly CronScheduleVisibility[] = [
-	'private',
-	'user',
-	'workspace',
-	'system',
-];
-
-export const CRON_MISSED_POLICIES: readonly CronMissedRunPolicy[] = [
-	'skip',
-	'runOnce',
-	'catchUp',
-	'fail',
-	'askUser',
-];
-
-export const CRON_CONCURRENCY_POLICIES: readonly CronConcurrencyPolicy[] = [
-	'allowOverlap',
-	'skipIfRunning',
-	'queueIfRunning',
-	'cancelPrevious',
-	'replacePrevious',
-];
-
-export const CRON_REDACT_SENSITIVE_KEY_PATTERN =
-	/(api[-_]?key|token|secret|password|credential|authorization|cookie|oauth|private[-_]?key|payment|card|body|content)/i;
-export const CRON_SECRET_KEY_PATTERN =
-	/(api[-_]?key|token|secret|password|credential|authorization|oauth|private[-_]?key)/i;
-export const CRON_RUNTIME_CONFIG_KEY_PATTERN =
-	/^(provider|providerId|providerConfig|model|modelId|modelConfig|baseUrl|baseURL|apiBaseUrl|endpointUrl)$/;
-export const CRON_SECRET_VALUE_PATTERNS: readonly RegExp[] = [
-	/-----BEGIN [A-Z ]*PRIVATE KEY-----/i,
-	/authorization\s*:\s*bearer\s+\S+/i,
-	/(?:api[-_]?key|credential|password|secret|token)\s*[:=]\s*\S+/i,
-];
-
-export const CRON_PATH_SEPARATOR_PATTERN = /[\\/]/;
-
+/**
+ * Retained only to populate the required `retryPolicy` field on stored
+ * schedules; the simplified scheduler does not retry.
+ */
 export const DEFAULT_CRON_RETRY_POLICY: CronRetryPolicy = {
 	maxAttempts: 1,
 	initialDelayMs: 500,
 	maxDelayMs: 15_000,
 	backoffMultiplier: 2,
 	jitter: true,
-	retryableErrorCodes: ['CRON_SCHEDULE_EXECUTION_TRANSIENT', 'CRON_SCHEDULE_LOCK_FAILED'],
-	nonRetryableErrorCodes: ['CRON_SCHEDULE_VALIDATION_FAILED', 'CRON_PERMISSION_DENIED'],
+	retryableErrorCodes: [],
+	nonRetryableErrorCodes: [],
 };
 
-export const DEFAULT_CRON_RUN_POLICY: CronRunPolicy = {
-	maxCatchUpRuns: 5,
-	catchUpWindowMs: 24 * 60 * 60_000,
-	minIntervalMs: 60_000,
-	maxRunsPerTurn: 20,
-	highFrequencyThresholdMs: 5 * 60_000,
-	dstPolicy: 'skipNonexistentTime',
-};
-
-export const DEFAULT_CRON_SCHEDULER_OPTIONS: CronSchedulerOptions = {
-	runnerId: `cron-${process.pid}-${randomUUID()}`,
-	pollIntervalMs: 30_000,
-	lockTtlMs: 2 * 60_000,
-	maxToolCallsPerTurn: 20,
-	maxPlanningDepth: 10,
-	totalTurnTimeoutMs: 5 * 60_000,
-	runPolicy: DEFAULT_CRON_RUN_POLICY,
-	defaultRetryPolicy: DEFAULT_CRON_RETRY_POLICY,
-	defaultTimezone: 'UTC',
-};
+export function defaultCronEnabled(): boolean {
+	return process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false';
+}
