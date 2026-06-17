@@ -1,5 +1,19 @@
 import type { CronSchedule, CronSchedulePermissionLevel } from '../../shared/app/cron';
 
+export type {
+	CronJobInfo,
+	CronJsonObject,
+	CronRetryPolicy,
+	CronSchedule,
+	CronScheduleCreateRequest,
+	CronScheduleEvent,
+	CronScheduleEventType,
+	CronScheduleFilter,
+	CronScheduleId,
+	CronSchedulePermissionLevel,
+	CronScheduledTask,
+} from '../../shared/app/cron';
+
 export interface CronLogger {
 	debug?(scope: string, message: string, metadata?: unknown): void;
 	info(scope: string, message: string, metadata?: unknown): void;
