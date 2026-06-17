@@ -1,6 +1,5 @@
 import { CronService } from './service';
-import type { CronServiceOptions } from './types';
-import type { CronLogger } from './types';
+import type { CronLogger, CronServiceOptions } from './types';
 
 /**
  * Cron module entrypoint.
