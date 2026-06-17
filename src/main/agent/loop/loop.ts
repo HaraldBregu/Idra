@@ -85,8 +85,7 @@ export class AgentRuntime {
 		tools.push(new ExecTool(toolContext));
 		tools.push(new ProcessTool(toolContext));
 
-		const cronData = new CronData(toolContext);
-		tools.push(...cronData.tools());
+		tools.push(...this.cronData.tools());
 
 		const system = await this.systemPrompt.build(workspace);
 
