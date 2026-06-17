@@ -49,16 +49,18 @@ function matchesValue<T extends string>(candidate: T | undefined, expected: T | 
 	return Array.isArray(expected) ? expected.includes(candidate) : candidate === expected;
 }
 
+@Service()
 export class CronService {
-	private readonly logger: CronLogger;
+	@Inject(() => LoggerService)
+	private readonly logger!: CronLogger;
+
 	private readonly store: Store<PersistedCronState>;
 	private readonly calculator = new CronNextRunCalculator();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 	private timer: NodeJS.Timeout | undefined;
 
-	constructor(logger: CronLogger, options: CronServiceOptions = {}) {
-		this.logger = logger;
+	constructor(options: CronServiceOptions = {}) {
 		this.store = new Store<PersistedCronState>({
 			name: CRON_STORE_FILE_NAME,
 			cwd: CRON_STORE_DIRECTORY,
