@@ -57,6 +57,7 @@ export function ConnectorCard({
 				connectorId={connector?.id ?? catalogEntry.connectorId}
 				directConnectorId={catalogEntry.iconId ?? catalogEntry.directConnectorId}
 				name={title}
+				asset={icon}
 			/>
 			<ItemContent className="min-w-0 flex-col items-start gap-1">
 				<div className="flex max-w-full items-center gap-2">
