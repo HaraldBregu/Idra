@@ -367,7 +367,7 @@ export class CronService {
 	}
 
 	private readState(): PersistedCronState {
-		return migrate(this.store.store);
+		return this.store.store;
 	}
 
 	private writeState<T>(mutate: (state: PersistedCronState) => T): T {
