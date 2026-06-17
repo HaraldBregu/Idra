@@ -253,23 +253,6 @@ export function resolveConnectorSettingsLocation(): string {
 	}
 }
 
-function toMcpServerConfig(data: ConnectorData): McpServerConfig {
-	if (data.type === 'stdio') {
-		const config: McpStdioConfig = { command: data.command };
-		if (data.args?.length) config.args = [...data.args];
-		if (data.env && Object.keys(data.env).length) config.env = { ...data.env };
-		if (data.cwd) config.cwd = data.cwd;
-		if (data.enabled === false) config.enabled = false;
-		return config;
-	}
-	const auth = data.token ? { token: data.token } : undefined;
-	const base = {
-		url: data.url,
-		...(auth ? { auth } : {}),
-		...(data.enabled === false ? { enabled: false } : {}),
-	};
-	return data.type === 'sse' ? { type: 'sse', ...base } : { type: 'http', ...base };
-}
 
 function resolveId(value: string | undefined): string {
 	const id = value?.trim().toLowerCase();
