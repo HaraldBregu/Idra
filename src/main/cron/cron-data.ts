@@ -1,4 +1,4 @@
-import { CronData } from '../agent/core/cron-data';
+import { CronData as AgentCronData } from '../agent/core/cron-data';
 import type { Tool } from '../agent/core/tool';
 import type { CronService } from './service';
 import {
@@ -12,11 +12,7 @@ import {
 	CronRunScheduleNowTool,
 } from './tools';
 
-/**
- * CronData implementation backed by the CronService. Exposes the durable
- * schedule management surface to the agent as tools.
- */
-export class CronServiceData extends CronData {
+export class CronData extends AgentCronData {
 	constructor(private readonly service: CronService) {
 		super();
 	}
