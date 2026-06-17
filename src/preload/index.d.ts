@@ -71,13 +71,6 @@ export interface SttApi {
 
 import type { PublicProvider } from '../shared/providers';
 import type { Provider } from '../shared/providers/types';
-import type {
-	CronSchedule,
-	CronScheduleEvent,
-	CronScheduleFilter,
-	CronScheduledTask,
-	CronJobInfo,
-} from '../shared/app/cron';
 import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent/types';
 import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
