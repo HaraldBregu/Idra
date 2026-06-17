@@ -41,25 +41,10 @@ function clone<T>(value: T): T {
 	return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
 function matchesValue<T extends string>(candidate: T | undefined, expected: T | T[] | undefined): boolean {
 	if (!expected) return true;
 	if (!candidate) return false;
 	return Array.isArray(expected) ? expected.includes(candidate) : candidate === expected;
-}
-
-function migrate(raw: unknown): PersistedCronState {
-	if (!isRecord(raw)) return { schemaVersion: CRON_STORE_SCHEMA_VERSION, schedules: [] };
-	return {
-		schemaVersion: CRON_STORE_SCHEMA_VERSION,
-		enabled: typeof raw.enabled === 'boolean' ? raw.enabled : undefined,
-		schedules: Array.isArray(raw.schedules)
-			? (raw.schedules.filter(isRecord) as unknown as CronSchedule[])
-			: [],
-	};
 }
 
 export class CronService {
