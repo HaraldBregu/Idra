@@ -241,29 +241,6 @@ export class Connector {
 		);
 	}
 
-	listMcpEntries(): McpNamedEntry[] {
-		const connectors = this.list();
-		return Object.entries(connectors)
-			.filter(([, c]) => c.enabled !== false)
-			.map(([name, c]) => ({ name, config: toMcpServerConfig(c) }));
-	}
-
-	mcp(): Mcp[] {
-		const connectors = this.list();
-		return Object.entries(connectors)
-			.filter(([, c]) => c.enabled !== false && (c.type === 'http' || c.type === 'sse'))
-			.map(([id, c]) => {
-				const httpOrSse = c as ConnectorHttpData | ConnectorSseData;
-				return {
-					serverLabel: id,
-					serverUrl: httpOrSse.url,
-					authorization: httpOrSse.token,
-					requireApproval: c.require_approval,
-					deferLoading: c.defer_loading,
-					enabled: c.enabled,
-				};
-			});
-	}
 }
 
 export function resolveConnectorSettingsLocation(): string {
