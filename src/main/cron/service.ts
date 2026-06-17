@@ -264,7 +264,7 @@ export class CronService {
 			: this.calculator
 					.getNextRun({ ...schedule, runCount, lastRunAt: scheduledRunAt }, new Date(scheduledRunAt))
 					?.toISOString();
-		const updated = this.store.update(schedule.id, {
+		const updated = this.updateStored(schedule.id, {
 			runCount,
 			lastRunAt: scheduledRunAt,
 			lastEvaluatedAt: now,
