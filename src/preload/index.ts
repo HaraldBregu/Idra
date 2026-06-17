@@ -407,6 +407,4 @@ if (process.contextIsolated) {
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
 	globalThis.stt = stt;
-	// @ts-ignore (define in dts)
-	globalThis.mcp = mcp;
 }
