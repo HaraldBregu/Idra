@@ -206,36 +206,6 @@ export const app: AppApi = {
 	},
 };
 
-export const cron: CronApi = {
-	pauseSchedule: (scheduleId: string): Promise<void> => {
-		return typedInvokeUnwrap(CronChannels.pauseSchedule, scheduleId);
-	},
-	resumeSchedule: (scheduleId: string): Promise<void> => {
-		return typedInvokeUnwrap(CronChannels.resumeSchedule, scheduleId);
-	},
-	deleteSchedule: (scheduleId: string): Promise<void> => {
-		return typedInvokeUnwrap(CronChannels.deleteSchedule, scheduleId);
-	},
-	deleteJob: (jobId: string): Promise<void> => {
-		return typedInvokeUnwrap(CronChannels.deleteJob, jobId);
-	},
-	listSchedules: (filter?: CronScheduleFilter): Promise<CronSchedule[]> => {
-		return typedInvokeUnwrap(CronChannels.listSchedules, filter);
-	},
-	listJobs: (): Promise<CronJobInfo[]> => {
-		return typedInvokeUnwrap(CronChannels.listJobs);
-	},
-	getSchedule: (scheduleId: string): Promise<CronSchedule> => {
-		return typedInvokeUnwrap(CronChannels.getSchedule, scheduleId);
-	},
-	runNow: (scheduleId: string): Promise<CronScheduledTask> => {
-		return typedInvokeUnwrap(CronChannels.runNow, scheduleId);
-	},
-	subscribeToSchedules: (listener: (event: CronScheduleEvent) => void): (() => void) => {
-		return typedOn(CronChannels.event, listener);
-	},
-};
-
 export const skills: SkillsApi = {
 	list: () => {
 		return typedInvokeUnwrap(SkillsChannels.list);
