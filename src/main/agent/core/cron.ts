@@ -1,8 +1,7 @@
 import type { Tool } from './tool';
+import type { CronTaskData } from './cron-data';
 
-export interface CronTaskData<TType extends string = string> {
-	readonly type: TType;
-}
+export type { CronTaskData };
 
 export abstract class CronJob<TData extends CronTaskData = CronTaskData> {
 	abstract readonly id: string;
