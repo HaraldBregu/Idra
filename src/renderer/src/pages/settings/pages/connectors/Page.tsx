@@ -31,6 +31,7 @@ const ConnectorsPage = () => {
 			openConnectorDetails(entry.id);
 			return;
 		}
+		if (!entry.oauth) return;
 		setConnectingId(entry.connectorId);
 		setError(null);
 		try {
@@ -39,7 +40,7 @@ const ConnectorsPage = () => {
 				? new Date(Date.now() + authorization.expiresIn * 1000).toISOString()
 				: undefined;
 			await window.connectors.upsert({
-				id: entry.directConnectorId,
+				id: entry.id,
 				name: entry.name,
 				token: authorization.accessToken,
 				refreshToken: authorization.refreshToken,
