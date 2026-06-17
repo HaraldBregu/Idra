@@ -1,7 +1,14 @@
 import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { Tool } from '../core/tool';
 import type { Context } from '../core/context';
-import { resolveToolPath } from './resolve';
+
+function resolvePath(p: string): string {
+	if (p === '~') return os.homedir();
+	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
+	return path.resolve(p);
+}
 
 export class ReadTool extends Tool {
 	readonly name = 'read';
@@ -12,28 +19,25 @@ export class ReadTool extends Tool {
 		properties: {
 			path: {
 				type: 'string',
-				description: 'File path to read. Relative paths resolve from the workspace; ~ expands to the user home.',
+				description: 'Absolute file path to read. ~ expands to the user home.',
 			},
 		},
 		required: ['path'],
 		additionalProperties: false,
 	};
 
-	constructor(
-		private readonly basePath = process.cwd(),
-		context?: Context
-	) {
+	constructor(context?: Context) {
 		super(context);
 	}
 
 	async run(input: Record<string, unknown>): Promise<string> {
 		const filePath = input.path;
 		if (typeof filePath !== 'string' || !filePath.trim()) {
-			throw new Error('read-file requires a non-empty path.');
+			throw new Error('read requires a non-empty path.');
 		}
-		const resolvedPath = resolveToolPath(this.basePath, filePath);
-		const content = await fs.readFile(resolvedPath, 'utf8');
-		this.context.setPath(resolvedPath);
+		const resolved = resolvePath(filePath);
+		const content = await fs.readFile(resolved, 'utf8');
+		this.context.setPath(resolved);
 		return content;
 	}
 }
