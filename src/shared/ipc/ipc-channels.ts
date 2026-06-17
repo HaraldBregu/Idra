@@ -30,7 +30,6 @@ export interface InvokeChannelMap
 		AgentInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
-		CronInvokeChannelMap,
 		HeartbeatInvokeChannelMap,
 		SkillsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
