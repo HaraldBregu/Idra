@@ -72,18 +72,9 @@ export function bootstrapServices(): BootstrapResult {
 	};
 }
 
-export async function connectMcpServers(
-	container: MainServiceContainer,
-	logger: LoggerService
-): Promise<void> {
-	await container.get(McpClientManager).connect(logger);
-	logger.info('Bootstrap', 'MCP servers connected');
-}
-
 export async function cleanup(container: MainServiceContainer): Promise<void> {
 	const logger = container.get(LoggerService);
 	logger.info('Bootstrap', 'Starting cleanup');
-	await container.get(McpClientManager).disconnect();
 	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
 	container.get(CronService).destroy();
