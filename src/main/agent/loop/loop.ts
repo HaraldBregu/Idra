@@ -18,6 +18,7 @@ import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
+import { WebSearchTool } from '../tools/web-search';
 import { AgentContext } from './context';
 
 interface ModelTurn {
