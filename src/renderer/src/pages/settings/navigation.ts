@@ -1,6 +1,5 @@
 import {
 	Bot,
-	CalendarClock,
 	ImageIcon,
 	Info,
 	Mic,
