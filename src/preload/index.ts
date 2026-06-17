@@ -356,8 +356,6 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.agent = agent;
 	// @ts-ignore (define in dts)
-	globalThis.cron = cron;
-	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.connectors = connectors;
