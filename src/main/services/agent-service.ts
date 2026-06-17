@@ -18,7 +18,11 @@ import type {
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
-class DefaultCronData extends CronData {}
+class DefaultCronData extends CronData {
+	tools() {
+		return [];
+	}
+}
 
 export interface AgentSendOptions {
 	runId?: string;
