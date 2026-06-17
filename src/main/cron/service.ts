@@ -208,7 +208,7 @@ export class CronService {
 	}
 
 	listSchedules(filter: CronScheduleFilter = {}, _actor?: CronActorContext): CronSchedule[] {
-		return this.store.list(filter);
+		return this.listStored(filter);
 	}
 
 	runScheduleNow(scheduleId: string, _actor?: CronActorContext): CronScheduledTask {
