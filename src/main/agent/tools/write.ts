@@ -1,8 +1,14 @@
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { Tool } from '../core/tool';
 import type { Context } from '../core/context';
-import { resolveToolPath } from './resolve';
+
+function resolvePath(p: string): string {
+	if (p === '~') return os.homedir();
+	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
+	return path.resolve(p);
+}
 
 export class WriteTool extends Tool {
 	readonly name = 'write';
@@ -13,7 +19,7 @@ export class WriteTool extends Tool {
 		properties: {
 			path: {
 				type: 'string',
-				description: 'File path to write. Relative paths resolve from the workspace; ~ expands to the user home.',
+				description: 'Absolute file path to write. ~ expands to the user home.',
 			},
 			content: {
 				type: 'string',
@@ -24,10 +30,7 @@ export class WriteTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(
-		private readonly basePath = process.cwd(),
-		context?: Context
-	) {
+	constructor(context?: Context) {
 		super(context);
 	}
 
@@ -35,15 +38,15 @@ export class WriteTool extends Tool {
 		const filePath = input.path;
 		const content = input.content;
 		if (typeof filePath !== 'string' || !filePath.trim()) {
-			throw new Error('write-file requires a non-empty path.');
+			throw new Error('write requires a non-empty path.');
 		}
 		if (typeof content !== 'string') {
-			throw new Error('write-file requires string content.');
+			throw new Error('write requires string content.');
 		}
-		const resolvedPath = resolveToolPath(this.basePath, filePath);
-		await fs.mkdir(path.dirname(resolvedPath), { recursive: true });
-		await fs.writeFile(resolvedPath, content, 'utf8');
-		this.context.setPath(resolvedPath);
-		return { path: resolvedPath };
+		const resolved = resolvePath(filePath);
+		await fs.mkdir(path.dirname(resolved), { recursive: true });
+		await fs.writeFile(resolved, content, 'utf8');
+		this.context.setPath(resolved);
+		return { path: resolved };
 	}
 }
