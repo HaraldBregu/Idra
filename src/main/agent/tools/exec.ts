@@ -264,15 +264,44 @@ export class ExecTool extends Tool {
 			const yieldTimer = setTimeout(() => {
 				if (settled) return;
 				settled = true;
+
+				// Register the still-running process as a trackable session.
+				const sessionId = randomUUID();
+				const session = registry.register({
+					id: sessionId,
+					pid: child.pid,
+					command,
+					workdir: cwd,
+					startedAt,
+					stdout,
+					stderr,
+					exitCode: undefined,
+					exitSignal: undefined,
+					exited: false,
+					child,
+				});
+
+				// Redirect output buffering to the registry session.
 				child.stdout.removeAllListeners('data');
 				child.stderr.removeAllListeners('data');
-				child.stdout.resume();
-				child.stderr.resume();
+				child.stdout.on('data', (chunk: Buffer | string) =>
+					registry.append(session, 'stdout', chunk.toString())
+				);
+				child.stderr.on('data', (chunk: Buffer | string) =>
+					registry.append(session, 'stderr', chunk.toString())
+				);
+				child.once('close', (exitCode, signal) => {
+					session.exited = true;
+					session.exitCode = exitCode;
+					session.exitSignal = signal;
+				});
+
 				this.context.setPath(cwd);
 				resolve({
 					command,
 					workdir: cwd,
 					background: true,
+					sessionId,
 					pty,
 					pid: child.pid,
 					stdout,
