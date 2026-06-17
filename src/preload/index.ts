@@ -340,7 +340,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
-		contextBridge.exposeInMainWorld('cron', cron);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('connectors', connectors);
 		contextBridge.exposeInMainWorld('skills', skills);
