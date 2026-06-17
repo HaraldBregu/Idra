@@ -1,22 +1,12 @@
 import type { Tool } from './tool';
+import { Context } from './context';
 
-export interface CronTaskData<TType extends string = string> {
-	readonly type: TType;
-}
+class DefaultContext extends Context {}
 
-export abstract class CronData<TData extends CronTaskData = CronTaskData> {
-	abstract readonly id: string;
-	abstract readonly expression: string;
-	abstract readonly data: TData;
-	readonly name?: string;
-	readonly description?: string;
-	readonly timezone?: string;
-	readonly enabled?: boolean;
-	readonly runOnStart?: boolean;
+export class CronData {
+	constructor(readonly context = new DefaultContext()) {}
 
 	tools(): Tool[] {
 		return [];
 	}
-
-	abstract run(): void | Promise<void>;
 }
