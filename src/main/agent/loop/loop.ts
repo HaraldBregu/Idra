@@ -16,6 +16,7 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { EditTool } from '../tools/edit';
 import { ExecTool } from '../tools/exec';
+import { ProcessTool } from '../tools/process';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
 import { AgentContext } from './context';
