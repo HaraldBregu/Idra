@@ -114,7 +114,7 @@ export function ConnectorCard({
 		>
 			<ItemMedia
 				className={cn(
-					'shrink-0 overflow-hidden rounded-md border border-border/70 bg-background p-0'
+					'size-8 shrink-0 overflow-hidden rounded-md border border-border/70 bg-background p-0'
 				)}
 			>
 				<img src={lightSrc} alt="" draggable={false} className="size-full object-contain dark:hidden" />
