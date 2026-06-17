@@ -1,4 +1,4 @@
-import type { CronSchedule } from '../../shared/app/cron';
+import type { CronSchedule } from './types';
 import { CRON_FIELD_RANGES, CRON_MINUTE_MS, MAX_CRON_SCAN_MINUTES } from './constants';
 
 function parseCronPart(part: string, min: number, max: number): number[] | null {
