@@ -172,7 +172,7 @@ export class CronService {
 
 	pauseSchedule(scheduleId: string, _actor?: CronActorContext): void {
 		const now = new Date().toISOString();
-		const updated = this.store.update(scheduleId, { status: 'paused', pausedAt: now, updatedAt: now });
+		const updated = this.updateStored(scheduleId, { status: 'paused', pausedAt: now, updatedAt: now });
 		this.emit(updated, 'schedule.paused', 'Schedule paused.');
 	}
 
