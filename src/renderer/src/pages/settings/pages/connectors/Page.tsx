@@ -5,16 +5,15 @@ import gmailIconLight from '@resources/icons/brands/gmail/gmail_light.png';
 import gmailIconDark from '@resources/icons/brands/gmail/gmail_dark.png';
 import calendarIconLight from '@resources/icons/brands/google_calendar/google_calendar_light.png';
 import calendarIconDark from '@resources/icons/brands/google_calendar/google_calendar_dark.png';
-import { GMAIL_CONNECTOR, CALENDAR_CONNECTOR } from '@shared/connector';
+import { GMAIL_CONNECTOR, CALENDAR_CONNECTOR, type ConnectorDefault } from '@shared/connector';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
 import { useConnectors } from './hooks/useConnectors';
-import type { SettingsConnectorCatalogEntry } from './catalog';
 
-const GMAIL: SettingsConnectorCatalogEntry = { ...GMAIL_CONNECTOR, directConnectorId: GMAIL_CONNECTOR.id };
+const GMAIL: ConnectorDefault = GMAIL_CONNECTOR;
 const GMAIL_ICON = { light: gmailIconLight, dark: gmailIconDark };
 
-const CALENDAR: SettingsConnectorCatalogEntry = { ...CALENDAR_CONNECTOR, directConnectorId: CALENDAR_CONNECTOR.id };
+const CALENDAR: ConnectorDefault = CALENDAR_CONNECTOR;
 const CALENDAR_ICON = { light: calendarIconLight, dark: calendarIconDark };
 
 const ConnectorsPage = () => {
