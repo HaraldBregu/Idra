@@ -28,6 +28,7 @@ describe('CronService', () => {
 			name: 'settings',
 			cwd: 'cron',
 			accessPropertiesByDotNotation: false,
+			defaults: { schedules: [] },
 		});
 	});
 
