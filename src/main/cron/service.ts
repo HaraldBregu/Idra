@@ -226,27 +226,26 @@ export class CronService {
 	}
 
 	private require(scheduleId: string): CronSchedule {
-		const schedule = this.store.find(scheduleId);
+		const schedule = this.findStored(scheduleId);
 		if (!schedule) throw new Error(`Cron schedule not found: ${scheduleId}`);
 		return schedule;
 	}
 
 	private recover(now: Date): void {
-		for (const schedule of this.store.list().filter(isActiveSchedule)) {
+		for (const schedule of this.listStored().filter(isActiveSchedule)) {
 			if (!schedule.nextRunAt) {
 				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+				this.updateStored(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
 			} else if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
 				// Skip missed runs: advance to the next future occurrence.
 				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+				this.updateStored(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
 			}
 		}
 	}
 
 	private processDue(now: Date): void {
-		const due = this.store
-			.list()
+		const due = this.listStored()
 			.filter(isActiveSchedule)
 			.filter((schedule) => Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime()));
 		for (const schedule of due) {
