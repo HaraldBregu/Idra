@@ -127,14 +127,6 @@ export interface ModelSelection {
 
 export type ConnectorRecord = ConnectorSettingsRecord;
 export type { ConnectorInput, ConnectorOAuthAuthorizationResult, ConnectorOAuthDefaults };
-export type { McpNamedEntry, McpServerInfo };
-
-export interface McpApi {
-	listServers: () => Promise<McpNamedEntry[]>;
-	upsertServer: (entry: McpNamedEntry) => Promise<void>;
-	deleteServer: (name: string) => Promise<void>;
-	status: () => Promise<McpServerInfo[]>;
-}
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
