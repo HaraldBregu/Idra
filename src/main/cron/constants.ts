@@ -1,4 +1,4 @@
-import type { CronRetryPolicy } from '../../shared/app/cron';
+import type { CronRetryPolicy } from './types';
 
 export const CRON_STORE_SCHEMA_VERSION = 1;
 export const CRON_STORE_DIRECTORY = 'cron';
