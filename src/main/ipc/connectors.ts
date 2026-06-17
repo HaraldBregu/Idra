@@ -9,7 +9,6 @@ import type {
 	ConnectorSettingsRecord,
 } from '../../shared/connector';
 import { Connector } from '../connectors';
-import { McpClientManager } from '../agent/mcp';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
