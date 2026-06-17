@@ -356,13 +356,6 @@ export const channels: ChannelsApi = {
 	},
 };
 
-export const mcp: McpApi = {
-	listServers: () => typedInvokeUnwrap(McpChannels.listServers),
-	upsertServer: (config) => typedInvokeUnwrap(McpChannels.upsertServer, config),
-	deleteServer: (id: string) => typedInvokeUnwrap(McpChannels.deleteServer, id),
-	status: () => typedInvokeUnwrap(McpChannels.status),
-};
-
 export const connectors: ConnectorsApi = {
 	list: (): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.list);
