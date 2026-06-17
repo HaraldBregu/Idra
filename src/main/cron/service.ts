@@ -67,7 +67,7 @@ function migrate(raw: unknown): PersistedCronState {
  */
 export class CronService {
 	private readonly logger: CronLogger;
-	private readonly store: CronStore;
+	private readonly store: Store<PersistedCronState>;
 	private readonly calculator = new CronNextRunCalculator();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
@@ -75,9 +75,13 @@ export class CronService {
 
 	constructor(logger: CronLogger, options: CronServiceOptions = {}) {
 		this.logger = logger;
-		this.store = new CronStore();
-		this.enabled = options.enabled ?? this.store.getEnabled() ?? defaultCronEnabled();
-		this.store.setEnabled(this.enabled);
+		this.store = new Store<PersistedCronState>({
+			name: CRON_STORE_FILE_NAME,
+			cwd: CRON_STORE_DIRECTORY,
+			accessPropertiesByDotNotation: false,
+		});
+		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
+		this.setStoredEnabled(this.enabled);
 	}
 
 	get events(): CronServiceEvents {
