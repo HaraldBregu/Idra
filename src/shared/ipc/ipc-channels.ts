@@ -4,7 +4,6 @@ export { ChannelsChannels } from './channels/channels';
 export { ConnectorsChannels } from './channels/connectors';
 export { CronChannels } from './channels/cron';
 export { HeartbeatChannels } from './channels/heartbeat';
-export { McpChannels } from './channels/mcp';
 export { ProviderStoreChannels } from './channels/provider';
 export { SkillsChannels } from './channels/skills';
 export { SttChannels } from './channels/stt';
