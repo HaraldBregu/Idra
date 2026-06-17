@@ -63,9 +63,6 @@ export class AgentService {
 				effort: options.effort,
 			};
 			session = new AgentSession(sessionInput, this.location);
-			await this.mcpData.refresh?.();
-			const mcpTools = this.mcpManager?.getTools() ?? [];
-
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
@@ -75,7 +72,7 @@ export class AgentService {
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
-				tools: mcpTools,
+				tools: [],
 			};
 			const stream = runtime.run(input);
 			this.activeRuns.set(resolvedAgentId, controller);
