@@ -30,23 +30,48 @@ const CHROME_UA =
 const FETCH_TIMEOUT_MS = 30_000;
 const MAX_REDIRECTS = 5;
 
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
+// Follow redirects manually so each hop is validated against SSRF rules.
+async function fetchWithSafeRedirects(url: string, signal: AbortSignal): Promise<Response> {
+	let currentUrl = url;
+	let hopsLeft = MAX_REDIRECTS;
+
+	const headers = {
+		'User-Agent': CHROME_UA,
+		'Accept': 'text/markdown, text/html;q=0.9, */*;q=0.1',
+	};
+
+	while (true) {
+		const response = await fetch(currentUrl, { redirect: 'manual', signal, headers });
+
+		if (!REDIRECT_STATUSES.has(response.status)) {
+			return response;
+		}
+
+		if (hopsLeft <= 0) {
+			throw new Error(`web_fetch: too many redirects (limit ${MAX_REDIRECTS})`);
+		}
+
+		const location = response.headers.get('location');
+		if (!location) {
+			throw new Error('web_fetch: redirect response missing Location header');
+		}
+
+		// Resolve relative Location against the current URL, then SSRF-check the target.
+		const next = new URL(location, currentUrl).toString();
+		await assertSafeUrl(next);
+		currentUrl = next;
+		hopsLeft--;
+	}
+}
+
 async function directFetch(params: FetchParams, signal: AbortSignal): Promise<WebFetchResult> {
-	const response = await fetch(params.url, {
-		redirect: 'follow',
-		signal,
-		headers: {
-			'User-Agent': CHROME_UA,
-			'Accept': 'text/markdown, text/html;q=0.9, */*;q=0.1',
-		},
-	});
+	const response = await fetchWithSafeRedirects(params.url, signal);
 
 	if (!response.ok) {
 		throw new Error(`HTTP ${response.status} ${response.statusText}`);
 	}
-
-	// Enforce redirect limit via response.redirected — fetch() follows automatically;
-	// we can't count them without a custom agent, so we rely on the OS/Node limit.
-	void MAX_REDIRECTS;
 
 	const rawContentType = response.headers.get('content-type') ?? '';
 	const contentType = rawContentType.split(';')[0].trim().toLowerCase();
@@ -78,7 +103,7 @@ function isMissingKeyError(err: unknown): boolean {
 }
 
 export async function runWebFetch(params: FetchParams): Promise<WebFetchOutput> {
-	assertSafeUrl(params.url);
+	await assertSafeUrl(params.url);
 
 	const timeout = AbortSignal.timeout(FETCH_TIMEOUT_MS);
 
