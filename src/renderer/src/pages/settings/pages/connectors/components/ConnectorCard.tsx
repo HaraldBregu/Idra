@@ -55,7 +55,7 @@ export function ConnectorCard({
 		>
 			<ConnectorIcon
 				connectorId={connector?.id ?? catalogEntry.connectorId}
-				directConnectorId={catalogEntry.iconId ?? catalogEntry.directConnectorId}
+				directConnectorId={catalogEntry.iconId ?? catalogEntry.id}
 				name={title}
 				asset={icon}
 			/>
