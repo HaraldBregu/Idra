@@ -1,7 +1,14 @@
 import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { Tool } from '../core/tool';
 import type { Context } from '../core/context';
-import { resolveToolPath } from './resolve';
+
+function resolvePath(p: string): string {
+	if (p === '~') return os.homedir();
+	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
+	return path.resolve(p);
+}
 
 export class EditTool extends Tool {
 	readonly name = 'edit';
@@ -12,7 +19,7 @@ export class EditTool extends Tool {
 		properties: {
 			path: {
 				type: 'string',
-				description: 'File path to edit. Relative paths resolve from the workspace; ~ expands to the user home.',
+				description: 'Absolute file path to edit. ~ expands to the user home.',
 			},
 			oldText: {
 				type: 'string',
@@ -27,10 +34,7 @@ export class EditTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(
-		private readonly basePath = process.cwd(),
-		context?: Context
-	) {
+	constructor(context?: Context) {
 		super(context);
 	}
 
@@ -48,8 +52,8 @@ export class EditTool extends Tool {
 			throw new Error('edit requires string newText.');
 		}
 
-		const resolvedPath = resolveToolPath(this.basePath, filePath);
-		const content = await fs.readFile(resolvedPath, 'utf8');
+		const resolved = resolvePath(filePath);
+		const content = await fs.readFile(resolved, 'utf8');
 		const firstIndex = content.indexOf(oldText);
 		if (firstIndex === -1) {
 			throw new Error('edit oldText was not found.');
@@ -58,8 +62,8 @@ export class EditTool extends Tool {
 			throw new Error('edit oldText matched multiple locations.');
 		}
 
-		await fs.writeFile(resolvedPath, content.replace(oldText, newText), 'utf8');
-		this.context.setPath(resolvedPath);
-		return { path: resolvedPath };
+		await fs.writeFile(resolved, content.replace(oldText, newText), 'utf8');
+		this.context.setPath(resolved);
+		return { path: resolved };
 	}
 }
