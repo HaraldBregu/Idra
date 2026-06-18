@@ -1,5 +1,5 @@
 export { Model } from './core/model';
-export { ToolContext } from './core/tool-context';
+export { ToolContext } from './core/tool';
 export { Session } from './core/session';
 export { Settings } from './core/settings';
 export type { Provider } from './core/types';
