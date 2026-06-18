@@ -19,7 +19,6 @@ import { ExecTool } from '../tools/exec';
 import { ProcessTool } from '../tools/process';
 import { ReadTool } from '../tools/read';
 import { WriteTool } from '../tools/write';
-import { CronData } from '../core/cron-data';
 import { AgentContext } from './context';
 
 interface ModelTurn {
@@ -47,7 +46,6 @@ export class AgentRuntime {
 		private readonly settings: Settings,
 		private readonly session: Session,
 		private readonly model: AgentModel,
-		private readonly cronData: CronData
 	) {
 		this.systemPrompt = new SystemPrompt();
 	}
@@ -84,8 +82,6 @@ export class AgentRuntime {
 		tools.push(new WriteTool(toolContext));
 		tools.push(new ExecTool(toolContext));
 		tools.push(new ProcessTool(toolContext));
-
-		tools.push(...this.cronData.tools());
 
 		const system = await this.systemPrompt.build(workspace);
 
