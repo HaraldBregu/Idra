@@ -14,11 +14,7 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { EditTool } from '../tools/edit';
-import { ExecTool } from '../tools/exec';
-import { ProcessTool } from '../tools/process';
-import { ReadTool } from '../tools/read';
-import { WriteTool } from '../tools/write';
+import { AgentToolData } from '../tools/tool-data';
 import { AgentContext } from './context';
 
 interface ModelTurn {
