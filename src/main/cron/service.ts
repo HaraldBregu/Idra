@@ -35,7 +35,7 @@ import type {
 	PersistedCronState,
 } from './core';
 
-export type { CronServiceOptions, CronServiceActor } from './types';
+export type { CronServiceOptions, CronServiceActor } from './core';
 
 type CronEventListener = (event: CronScheduleEvent) => void;
 
