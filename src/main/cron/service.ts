@@ -163,48 +163,38 @@ export class CronService {
 	}
 
 	getSchedule(scheduleId: string, _actor?: CronActorContext): CronSchedule {
-		return this.require(scheduleId);
+		return this.store.require(scheduleId);
 	}
 
 	listSchedules(filter: CronScheduleFilter = {}, _actor?: CronActorContext): CronSchedule[] {
-		return this.listStored(filter);
+		return this.store.list(filter);
 	}
 
 	runScheduleNow(scheduleId: string, _actor?: CronActorContext): CronScheduledTask {
-		const schedule = this.require(scheduleId);
+		const schedule = this.store.require(scheduleId);
 		return this.trigger(schedule, new Date().toISOString());
 	}
 
-	/** No process-local node-cron jobs exist in the simplified module. */
 	listJobs(): CronJobInfo[] {
 		return [];
 	}
 
-	deleteJob(_id: string): void {
-		// No-op: process-local jobs are no longer supported.
-	}
-
-	private require(scheduleId: string): CronSchedule {
-		const schedule = this.findStored(scheduleId);
-		if (!schedule) throw new Error(`Cron schedule not found: ${scheduleId}`);
-		return schedule;
-	}
+	deleteJob(_id: string): void {}
 
 	private recover(now: Date): void {
-		for (const schedule of this.listStored().filter(isActiveSchedule)) {
+		for (const schedule of this.store.list().filter(isActiveSchedule)) {
 			if (!schedule.nextRunAt) {
 				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.updateStored(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
 			} else if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
-				// Skip missed runs: advance to the next future occurrence.
 				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.updateStored(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
 			}
 		}
 	}
 
 	private processDue(now: Date): void {
-		const due = this.listStored()
+		const due = this.store.list()
 			.filter(isActiveSchedule)
 			.filter((schedule) => Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime()));
 		for (const schedule of due) {
