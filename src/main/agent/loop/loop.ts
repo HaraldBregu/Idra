@@ -8,6 +8,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
+import type { Cron } from '../core/cron';
 import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
@@ -16,6 +17,7 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolData } from '../tools/tool-data';
 import { ToolContext } from '../tools/tool-context';
+import { CronFunctionTool } from '../tools/cron';
 
 interface ModelTurn {
 	content: string;
