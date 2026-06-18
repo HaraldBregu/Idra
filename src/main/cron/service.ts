@@ -12,20 +12,13 @@ import type {
 	CronScheduleEvent,
 	CronScheduleEventType,
 	CronScheduleFilter,
-	CronScheduleId,
 	CronScheduledTask,
 	CronServiceOptions,
-	PersistedCronState,
 } from './types';
 import { CronNextRunCalculator } from './calculator';
-import {
-	CRON_STORE_DIRECTORY,
-	CRON_STORE_FILE_NAME,
-	DEFAULT_CRON_RETRY_POLICY,
-	DEFAULT_TIMEZONE,
-	POLL_INTERVAL_MS,
-	defaultCronEnabled,
-} from './constants';
+import { isActiveSchedule } from './core';
+import { ElectronCronStore } from './store';
+import { DEFAULT_CRON_RETRY_POLICY, DEFAULT_TIMEZONE, POLL_INTERVAL_MS, defaultCronEnabled } from './constants';
 
 export type { CronServiceOptions, CronServiceActor } from './types';
 
@@ -35,40 +28,20 @@ export interface CronServiceEvents {
 	subscribe(listener: CronEventListener): () => void;
 }
 
-function isActiveSchedule(schedule: CronSchedule): boolean {
-	return schedule.status === 'active' && schedule.enabled && !schedule.deletedAt;
-}
-
-function clone<T>(value: T): T {
-	return JSON.parse(JSON.stringify(value)) as T;
-}
-
-function matchesValue<T extends string>(candidate: T | undefined, expected: T | T[] | undefined): boolean {
-	if (!expected) return true;
-	if (!candidate) return false;
-	return Array.isArray(expected) ? expected.includes(candidate) : candidate === expected;
-}
-
 @Service()
 export class CronService {
 	@Inject(() => LoggerService)
 	private readonly logger!: CronLogger;
 
-	private readonly store: Store<PersistedCronState>;
+	private readonly store = new ElectronCronStore();
 	private readonly calculator = new CronNextRunCalculator();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 	private timer: NodeJS.Timeout | undefined;
 
 	constructor(options: CronServiceOptions = {}) {
-		this.store = new Store<PersistedCronState>({
-			name: CRON_STORE_FILE_NAME,
-			cwd: CRON_STORE_DIRECTORY,
-			accessPropertiesByDotNotation: false,
-			defaults: { schedules: [] },
-		});
-		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
-		this.setStoredEnabled(this.enabled);
+		this.enabled = options.enabled ?? this.store.isEnabled(defaultCronEnabled());
+		this.store.setEnabled(this.enabled);
 	}
 
 	get events(): CronServiceEvents {
