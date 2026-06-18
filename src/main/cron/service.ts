@@ -37,7 +37,7 @@ export interface CronServiceEvents {
 }
 
 @Service()
-export class CronService extends CronStore {
+export class CronService {
 	@Inject(() => LoggerService)
 	private readonly logger!: CronLogger;
 
@@ -48,26 +48,16 @@ export class CronService extends CronStore {
 	private timer: NodeJS.Timeout | undefined;
 
 	constructor(options: CronServiceOptions = {}) {
-		super();
 		this.store = new Store<PersistedCronState>({
 			name: CRON_STORE_FILE_NAME,
 			cwd: CRON_STORE_DIRECTORY,
 			accessPropertiesByDotNotation: false,
 			defaults: { schedules: [] },
 		});
-		this.enabled = options.enabled ?? this.isEnabled(defaultCronEnabled());
-		this.setEnabled(this.enabled);
-	}
-
-	protected readState(): PersistedCronState {
-		return this.store.store;
-	}
-
-	protected writeState<T>(mutate: (state: PersistedCronState) => T): T {
-		const state = this.readState();
-		const result = mutate(state);
-		this.store.store = state;
-		return result;
+		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
+		this.writeState((state) => {
+			state.enabled = this.enabled;
+		});
 	}
 
 	get events(): CronServiceEvents {
