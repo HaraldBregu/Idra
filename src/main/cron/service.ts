@@ -12,12 +12,13 @@ import type {
 	CronScheduleEvent,
 	CronScheduleEventType,
 	CronScheduleFilter,
+	CronScheduleId,
 	CronScheduledTask,
 	CronServiceOptions,
 	PersistedCronState,
 } from './types';
 import { CronNextRunCalculator } from './calculator';
-import { CronStore, isActiveSchedule } from './core';
+import { clone, isActiveSchedule, matchesValue } from './core';
 import {
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
@@ -150,24 +151,24 @@ export class CronService extends CronStore {
 			audit: [],
 		};
 		schedule.nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-		const created = this.store.create(schedule);
+		const created = this.create(schedule);
 		this.emit(created, 'schedule.created', 'Schedule created.');
 		return created;
 	}
 
 	pauseSchedule(scheduleId: string, _actor?: CronActorContext): void {
 		const now = new Date().toISOString();
-		const updated = this.store.update(scheduleId, { status: 'paused', pausedAt: now, updatedAt: now });
+		const updated = this.update(scheduleId, { status: 'paused', pausedAt: now, updatedAt: now });
 		this.emit(updated, 'schedule.paused', 'Schedule paused.');
 	}
 
 	resumeSchedule(scheduleId: string, _actor?: CronActorContext): void {
-		const schedule = this.store.require(scheduleId);
+		const schedule = this.require(scheduleId);
 		const now = new Date();
 		const nextRunAt = this.calculator
 			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
 			?.toISOString();
-		const updated = this.store.update(scheduleId, {
+		const updated = this.update(scheduleId, {
 			status: 'active',
 			enabled: true,
 			pausedAt: undefined,
@@ -179,7 +180,7 @@ export class CronService extends CronStore {
 
 	deleteSchedule(scheduleId: string, _actor?: CronActorContext): void {
 		const now = new Date().toISOString();
-		const updated = this.store.update(scheduleId, {
+		const updated = this.update(scheduleId, {
 			status: 'deleted',
 			enabled: false,
 			deletedAt: now,
@@ -189,15 +190,15 @@ export class CronService extends CronStore {
 	}
 
 	getSchedule(scheduleId: string, _actor?: CronActorContext): CronSchedule {
-		return this.store.require(scheduleId);
+		return this.require(scheduleId);
 	}
 
 	listSchedules(filter: CronScheduleFilter = {}, _actor?: CronActorContext): CronSchedule[] {
-		return this.store.list(filter);
+		return this.list(filter);
 	}
 
 	runScheduleNow(scheduleId: string, _actor?: CronActorContext): CronScheduledTask {
-		const schedule = this.store.require(scheduleId);
+		const schedule = this.require(scheduleId);
 		return this.trigger(schedule, new Date().toISOString());
 	}
 
@@ -208,19 +209,19 @@ export class CronService extends CronStore {
 	deleteJob(_id: string): void {}
 
 	private recover(now: Date): void {
-		for (const schedule of this.store.list().filter(isActiveSchedule)) {
+		for (const schedule of this.list().filter(isActiveSchedule)) {
 			if (!schedule.nextRunAt) {
 				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+				this.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
 			} else if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
 				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.store.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
+				this.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
 			}
 		}
 	}
 
 	private processDue(now: Date): void {
-		const due = this.store.list()
+		const due = this.list()
 			.filter(isActiveSchedule)
 			.filter((schedule) => Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime()));
 		for (const schedule of due) {
@@ -239,7 +240,7 @@ export class CronService extends CronStore {
 			: this.calculator
 					.getNextRun({ ...schedule, runCount, lastRunAt: scheduledRunAt }, new Date(scheduledRunAt))
 					?.toISOString();
-		const updated = this.store.update(schedule.id, {
+		const updated = this.update(schedule.id, {
 			runCount,
 			lastRunAt: scheduledRunAt,
 			lastEvaluatedAt: now,
