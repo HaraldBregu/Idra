@@ -30,7 +30,7 @@ export class WriteTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(context?: Context) {
+	constructor(context?: ToolContext) {
 		super(context);
 	}
 
