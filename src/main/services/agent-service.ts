@@ -71,7 +71,8 @@ export class AgentService {
 				this.agentWorkspace,
 				this.agentSettingsStore,
 				session,
-				new AgentModel()
+				new AgentModel(),
+				this.cron
 			);
 			const input = {
 				...sessionInput,
