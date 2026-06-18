@@ -94,7 +94,7 @@ export class ExecTool extends Tool {
 		},
 	};
 
-	constructor(context?: Context) {
+	constructor(context?: ToolContext) {
 		super(context);
 	}
 
