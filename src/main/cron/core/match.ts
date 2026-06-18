@@ -1,4 +1,3 @@
-/** Returns true when a candidate matches an expected value or set of values. */
 export function matchesValue<T extends string>(
 	candidate: T | undefined,
 	expected: T | T[] | undefined
