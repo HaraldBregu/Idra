@@ -220,7 +220,7 @@ export class ExecTool extends Tool {
 				});
 				child.once('spawn', () => {
 					child.unref();
-					this.context?.setPath(cwd);
+					this.context.setPath(cwd);
 					resolve({
 						command,
 						workdir: cwd,
@@ -300,7 +300,7 @@ export class ExecTool extends Tool {
 					session.exitSignal = signal;
 				});
 
-				this.context?.setPath(cwd);
+				this.context.setPath(cwd);
 				resolve({
 					command,
 					workdir: cwd,
@@ -335,7 +335,7 @@ export class ExecTool extends Tool {
 				if (settled) return;
 				settled = true;
 				clearTimeout(yieldTimer);
-				this.context?.setPath(cwd);
+				this.context.setPath(cwd);
 				resolve({
 					command,
 					workdir: cwd,
