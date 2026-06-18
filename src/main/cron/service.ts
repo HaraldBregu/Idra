@@ -211,6 +211,20 @@ export class CronService {
 		return this.trigger(schedule, new Date().toISOString());
 	}
 
+	get functions(): CronFunctionDefinition[] {
+		return CRON_FUNCTIONS;
+	}
+
+	invoke<K extends CronFunctionId>(
+		id: K,
+		input: CronFunctionInput[K],
+		actor?: CronActorContext
+	): CronFunctionResult[K] {
+		const definition = CRON_FUNCTIONS.find((fn) => fn.id === id);
+		if (!definition) throw new Error(`Unknown cron function: ${id}`);
+		return this.handlers[id](input, actor);
+	}
+
 	listJobs(): CronJobInfo[] {
 		return [];
 	}
