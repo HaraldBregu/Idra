@@ -14,8 +14,8 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { AgentToolData } from '../tools/tool-data';
-import { AgentContext } from './context';
+import { ToolData } from '../tools/tool-data';
+import { ToolContext } from '../tools/tool-context';
 
 interface ModelTurn {
 	content: string;
@@ -71,9 +71,9 @@ export class AgentRuntime {
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
 
-		const toolContext = new AgentContext();
+		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
-		tools.push(...new AgentToolData(toolContext).tools());
+		tools.push(...new ToolData(toolContext).tools());
 
 		const system = await this.systemPrompt.build(workspace);
 

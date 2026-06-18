@@ -4,7 +4,7 @@ export { Session } from './core/session';
 export { Settings } from './core/settings';
 export type { Provider } from './core/types';
 export { Tool, ToolData } from './core/tool';
-export { AgentContext } from './loop/context';
+export { AgentContext } from './tools/tool-context';
 export type { ToolContextState } from './core/tool';
 export { Workspace } from './core/workspace';
 

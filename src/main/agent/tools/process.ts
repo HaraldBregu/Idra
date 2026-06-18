@@ -1,5 +1,5 @@
 import type { ChildProcess } from 'node:child_process';
-import { Tool, ToolContext } from '../core/tool';
+import { Tool, Context } from '../core/tool';
 
 const MAX_BUFFER = 500_000;
 
@@ -157,7 +157,7 @@ export class ProcessTool extends Tool {
 		},
 	};
 
-	constructor(context: ToolContext) {
+	constructor(context: Context) {
 		super(context);
 	}
 

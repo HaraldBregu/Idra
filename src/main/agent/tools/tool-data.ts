@@ -1,13 +1,13 @@
-import { ToolData } from '../core/tool';
-import type { ToolContext } from '../core/tool';
+import { ToolData as ToolDataAbstract} from '../core/tool';
+import type { Context } from '../core/tool';
 import { EditTool } from './edit';
 import { ExecTool } from './exec';
 import { ProcessTool } from './process';
 import { ReadTool } from './read';
 import { WriteTool } from './write';
 
-export class AgentToolData extends ToolData {
-	constructor(private readonly context: ToolContext) {
+export class ToolData extends ToolDataAbstract {
+	constructor(private readonly context: Context) {
 		super();
 	}
 

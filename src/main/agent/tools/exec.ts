@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { Tool } from '../core/tool';
-import type { ToolContext } from '../core/tool';
+import type { Context } from '../core/tool';
 import { registry } from './process';
 
 function resolvePath(p: string): string {
@@ -94,7 +94,7 @@ export class ExecTool extends Tool {
 		},
 	};
 
-	constructor(context: ToolContext) {
+	constructor(context: Context) {
 		super(context);
 	}
 

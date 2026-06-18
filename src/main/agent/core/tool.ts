@@ -1,14 +1,14 @@
 import type { JSONSchema } from './types';
 
 
-export interface ToolContextState {
+export interface ContextState {
 	path?: string;
 }
 
-export abstract class ToolContext {
+export abstract class Context {
 	abstract get path(): string | undefined;
 	abstract setPath(path: string): void;
-	abstract snapshot(): ToolContextState;
+	abstract snapshot(): ContextState;
 }
 
 export abstract class Tool {
@@ -16,7 +16,7 @@ export abstract class Tool {
 	readonly description?: string;
 	readonly schema?: JSONSchema;
 
-	constructor(readonly context: ToolContext) {}
+	constructor(readonly context: Context) {}
 
 	abstract run(input: Record<string, unknown>): Promise<unknown> | unknown;
 }
