@@ -30,11 +30,13 @@ export class AgentService {
 	private readonly defaultAgentId: string;
 	private readonly agentWorkspace: AgentWorkspace;
 	private readonly agentSettingsStore: AgentSettingsStore;
+	private readonly cron: Cron;
 	private readonly location: string;
 	private readonly lastMessagesLimit = 50;
 
 	constructor(
 		agentSettingsStore: AgentSettingsStore,
+		cron: Cron,
 		defaultAgentId = 'main'
 	) {
 		this.defaultAgentId = defaultAgentId;
@@ -43,6 +45,7 @@ export class AgentService {
 		this.location = location;
 		this.agentWorkspace = new AgentWorkspace(location);
 		this.agentSettingsStore = agentSettingsStore;
+		this.cron = cron;
 	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
