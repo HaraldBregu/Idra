@@ -7,11 +7,6 @@ import type {
 import { clone } from './clone';
 import { matchesValue } from './match';
 
-/**
- * Persistence and query layer for cron schedules. Subclasses supply the raw
- * state read/write (electron-store, in-memory, etc.); the shared CRUD,
- * filtering, and cloning logic lives here so it is backend-agnostic.
- */
 export abstract class CronStore {
 	protected abstract readState(): PersistedCronState;
 	protected abstract writeState<T>(mutate: (state: PersistedCronState) => T): T;
