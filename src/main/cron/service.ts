@@ -25,7 +25,7 @@ import {
 	type CronFunctionId,
 	type CronFunctionInput,
 	type CronFunctionResult,
-} from './functions';
+} from './registry';
 import {
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
