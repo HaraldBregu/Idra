@@ -15,7 +15,6 @@ import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { AgentToolData } from '../tools/tool-data';
-import { AgentContext } from './context';
 
 interface ModelTurn {
 	content: string;
