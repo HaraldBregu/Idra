@@ -82,7 +82,7 @@ export class AgentRuntime {
 		tools.push(new EditTool(toolContext));
 		tools.push(new WriteTool(toolContext));
 		tools.push(new ExecTool(toolContext));
-		tools.push(new ProcessTool(toolContext));
+		// tools.push(new ProcessTool(toolContext));
 
 		tools.push(...this.toolData.tools());
 
