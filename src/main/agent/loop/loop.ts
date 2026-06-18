@@ -7,7 +7,7 @@ import type {
 	MessageContentBlock,
 	ToolCall,
 } from '../core/types';
-import type { Tool } from '../core/tool';
+import type { Tool, ToolData } from '../core/tool';
 import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
