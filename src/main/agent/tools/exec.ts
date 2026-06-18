@@ -220,7 +220,7 @@ export class ExecTool extends Tool {
 				});
 				child.once('spawn', () => {
 					child.unref();
-					this.context.setPath(cwd);
+					this.context?.setPath(cwd);
 					resolve({
 						command,
 						workdir: cwd,
