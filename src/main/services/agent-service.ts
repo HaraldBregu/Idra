@@ -17,12 +17,6 @@ import type {
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
-class DefaultToolData extends ToolData {
-	tools() {
-		return [];
-	}
-}
-
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
