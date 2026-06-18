@@ -26,7 +26,7 @@ export class ReadTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(context?: Context) {
+	constructor(context?: ToolContext) {
 		super(context);
 	}
 
