@@ -37,7 +37,7 @@ export class ReadTool extends Tool {
 		}
 		const resolved = resolvePath(filePath);
 		const content = await fs.readFile(resolved, 'utf8');
-		this.context?.setPath(resolved);
+		this.context.setPath(resolved);
 		return content;
 	}
 }
