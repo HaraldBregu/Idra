@@ -84,6 +84,8 @@ export class AgentRuntime {
 		tools.push(new ExecTool(toolContext));
 		tools.push(new ProcessTool(toolContext));
 
+		tools.push(...this.toolData.tools());
+
 		const system = await this.systemPrompt.build(workspace);
 
 		yield {
