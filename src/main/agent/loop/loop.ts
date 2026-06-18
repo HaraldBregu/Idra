@@ -46,6 +46,7 @@ export class AgentRuntime {
 		private readonly settings: Settings,
 		private readonly session: Session,
 		private readonly model: AgentModel,
+		private readonly toolData: ToolData,
 	) {
 		this.systemPrompt = new SystemPrompt();
 	}
