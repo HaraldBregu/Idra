@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import Store from 'electron-store';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
 import type {
@@ -13,11 +14,18 @@ import type {
 	CronScheduleFilter,
 	CronScheduledTask,
 	CronServiceOptions,
+	PersistedCronState,
 } from './types';
 import { CronNextRunCalculator } from './calculator';
-import { isActiveSchedule } from './core';
-import { ElectronCronStore } from './store';
-import { DEFAULT_CRON_RETRY_POLICY, DEFAULT_TIMEZONE, POLL_INTERVAL_MS, defaultCronEnabled } from './constants';
+import { CronStore, isActiveSchedule } from './core';
+import {
+	CRON_STORE_DIRECTORY,
+	CRON_STORE_FILE_NAME,
+	DEFAULT_CRON_RETRY_POLICY,
+	DEFAULT_TIMEZONE,
+	POLL_INTERVAL_MS,
+	defaultCronEnabled,
+} from './constants';
 
 export type { CronServiceOptions, CronServiceActor } from './types';
 
