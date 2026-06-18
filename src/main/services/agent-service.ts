@@ -7,6 +7,7 @@ import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '../agent';
+import type { Cron } from '../agent/core/cron';
 import type { Message } from '../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
