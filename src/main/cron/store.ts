@@ -3,7 +3,6 @@ import type { PersistedCronState } from './types';
 import { CronStore } from './core';
 import { CRON_STORE_DIRECTORY, CRON_STORE_FILE_NAME } from './constants';
 
-/** electron-store backed persistence for cron schedules. */
 export class ElectronCronStore extends CronStore {
 	private readonly store: Store<PersistedCronState>;
 
