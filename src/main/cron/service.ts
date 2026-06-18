@@ -298,4 +298,60 @@ export class CronService {
 			}
 		}
 	}
+
+	private list(filter: CronScheduleFilter = {}): CronSchedule[] {
+		const schedules = this.readState()
+			.schedules.filter((schedule) => filter.includeDeleted || schedule.status !== 'deleted')
+			.filter((schedule) => matchesValue(schedule.status, filter.status))
+			.filter((schedule) => matchesValue(schedule.source, filter.source))
+			.filter((schedule) => !filter.sourceId || schedule.sourceId === filter.sourceId)
+			.filter((schedule) => !filter.ownerUserId || schedule.ownerUserId === filter.ownerUserId)
+			.filter((schedule) => !filter.sessionId || schedule.sessionId === filter.sessionId)
+			.filter((schedule) => matchesValue(schedule.visibility, filter.visibility))
+			.filter((schedule) => !filter.taskType || schedule.taskType === filter.taskType)
+			.filter((schedule) => !filter.tag || schedule.taskTags.includes(filter.tag))
+			.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
+		return clone(typeof filter.limit === 'number' ? schedules.slice(0, filter.limit) : schedules);
+	}
+
+	private require(scheduleId: CronScheduleId): CronSchedule {
+		const schedule = this.readState().schedules.find((entry) => entry.id === scheduleId);
+		if (!schedule) throw new Error(`Cron schedule not found: ${scheduleId}`);
+		return clone(schedule);
+	}
+
+	private create(schedule: CronSchedule): CronSchedule {
+		return this.writeState((state) => {
+			state.schedules.push(clone(schedule));
+			return clone(schedule);
+		});
+	}
+
+	private update(scheduleId: CronScheduleId, patch: Partial<CronSchedule>): CronSchedule {
+		return this.writeState((state) => {
+			const index = state.schedules.findIndex((schedule) => schedule.id === scheduleId);
+			if (index === -1) throw new Error(`Cron schedule not found: ${scheduleId}`);
+			const current = state.schedules[index]!;
+			const next: CronSchedule = {
+				...current,
+				...clone(patch),
+				id: current.id,
+				metadata: { ...current.metadata, ...(patch.metadata ?? {}) },
+				taskMetadata: { ...current.taskMetadata, ...(patch.taskMetadata ?? {}) },
+			};
+			state.schedules[index] = next;
+			return clone(next);
+		});
+	}
+
+	private readState(): PersistedCronState {
+		return this.store.store;
+	}
+
+	private writeState<T>(mutate: (state: PersistedCronState) => T): T {
+		const state = this.readState();
+		const result = mutate(state);
+		this.store.store = state;
+		return result;
+	}
 }
