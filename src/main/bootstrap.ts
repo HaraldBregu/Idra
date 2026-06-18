@@ -43,7 +43,8 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(SttService);
 
 	const agentService = new AgentService(
-		container.get(AgentSettingsStore)
+		container.get(AgentSettingsStore),
+		cron
 	);
 	container.set(AgentService, agentService);
 
