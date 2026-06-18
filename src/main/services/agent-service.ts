@@ -5,7 +5,7 @@ import { AgentSettingsStore } from './agent-settings-store';
 import { AgentSession } from './agent-session';
 import { AgentWorkspace } from './agent-workspace';
 import { AgentRuntime } from '../agent/loop/loop';
-import { CronData } from '../agent/core/cron-data';
+import { ToolData } from '../agent/core/tool';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '../agent';
 import type { Message } from '../agent/core/types';
