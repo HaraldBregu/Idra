@@ -9,7 +9,7 @@ const scheduleIdSchema: JSONSchema = {
 	required: ['scheduleId'],
 };
 
-const CRON_FUNCTION_SCHEMAS: Record<CronFunctionId, JSONSchema> = {
+export const CRON_FUNCTION_SCHEMAS: Record<CronFunctionId, JSONSchema> = {
 	create_schedule: {
 		type: 'object',
 		properties: {
