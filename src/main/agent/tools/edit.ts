@@ -34,7 +34,7 @@ export class EditTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(context?: Context) {
+	constructor(context?: ToolContext) {
 		super(context);
 	}
 
