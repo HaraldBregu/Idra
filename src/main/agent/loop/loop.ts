@@ -77,6 +77,11 @@ export class AgentRuntime {
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 		tools.push(...new ToolData(toolContext).tools());
+		tools.push(
+			...this.cron.functions.map(
+				(fn) => new CronFunctionTool(this.cron, toolContext, fn)
+			)
+		);
 
 		const system = await this.systemPrompt.build(workspace);
 
