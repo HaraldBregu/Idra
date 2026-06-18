@@ -22,6 +22,12 @@ export abstract class Tool {
 	abstract run(input: Record<string, unknown>): Promise<unknown> | unknown;
 }
 
+export abstract class CronTool extends Tool {
+	abstract readonly name: CronFunctionId;
+	abstract readonly description: string;
+	abstract readonly schema: JSONSchema;
+}
+
 export abstract class ToolData {
 	abstract tools(): Tool[];
 }
