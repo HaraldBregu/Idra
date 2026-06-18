@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { Tool } from '../core/tool';
-import type { ToolContext } from '../core/tool-context';
+import type { ToolContext } from '../core/tool';
 
 function resolvePath(p: string): string {
 	if (p === '~') return os.homedir();
@@ -34,7 +34,7 @@ export class EditTool extends Tool {
 		additionalProperties: false,
 	};
 
-	constructor(context?: ToolContext) {
+	constructor(context: ToolContext) {
 		super(context);
 	}
 

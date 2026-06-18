@@ -1,5 +1,5 @@
 import type { ChildProcess } from 'node:child_process';
-import { Tool } from '../core/tool';
+import { Tool, ToolContext } from '../core/tool';
 
 const MAX_BUFFER = 500_000;
 
@@ -156,6 +156,10 @@ export class ProcessTool extends Tool {
 			},
 		},
 	};
+
+	constructor(context: ToolContext) {
+		super(context);
+	}
 
 	async run(input: Record<string, unknown>): Promise<unknown> {
 		const action = input.action;
