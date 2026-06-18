@@ -1,7 +1,5 @@
 import type { JSONSchema } from './types';
-import { Context } from './context';
-
-export class ToolContext extends Context {}
+import { ToolContext } from './tool-context';
 
 export abstract class Tool {
 	abstract readonly name: string;
