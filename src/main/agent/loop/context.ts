@@ -1,3 +1,3 @@
-import { Context } from '../core/context';
+import { ToolContext } from '../core/tool-context';
 
-export class AgentContext extends Context {}
+export class AgentContext extends ToolContext {}
