@@ -57,13 +57,13 @@ export class CronService {
 	private readonly handlers: {
 		[K in CronFunctionId]: (input: CronFunctionInput[K], actor?: CronActorContext) => CronFunctionResult[K];
 	} = {
-		createSchedule: (input, actor) => this.createSchedule(input.request, actor),
-		pauseSchedule: (input, actor) => this.pauseSchedule(input.scheduleId, actor),
-		resumeSchedule: (input, actor) => this.resumeSchedule(input.scheduleId, actor),
-		deleteSchedule: (input, actor) => this.deleteSchedule(input.scheduleId, actor),
-		getSchedule: (input, actor) => this.getSchedule(input.scheduleId, actor),
-		listSchedules: (input, actor) => this.listSchedules(input.filter, actor),
-		runScheduleNow: (input, actor) => this.runScheduleNow(input.scheduleId, actor),
+		create_schedule: (input, actor) => this.createSchedule(input.request, actor),
+		pause_schedule: (input, actor) => this.pauseSchedule(input.scheduleId, actor),
+		resume_schedule: (input, actor) => this.resumeSchedule(input.scheduleId, actor),
+		delete_schedule: (input, actor) => this.deleteSchedule(input.scheduleId, actor),
+		get_schedule: (input, actor) => this.getSchedule(input.scheduleId, actor),
+		list_schedules: (input, actor) => this.listSchedules(input.filter, actor),
+		run_schedule_now: (input, actor) => this.runScheduleNow(input.scheduleId, actor),
 	};
 
 	constructor(options: CronServiceOptions = {}) {
