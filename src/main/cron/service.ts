@@ -36,19 +36,37 @@ export interface CronServiceEvents {
 }
 
 @Service()
-export class CronService {
+export class CronService extends CronStore {
 	@Inject(() => LoggerService)
 	private readonly logger!: CronLogger;
 
-	private readonly store = new ElectronCronStore();
+	private readonly store: Store<PersistedCronState>;
 	private readonly calculator = new CronNextRunCalculator();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 	private timer: NodeJS.Timeout | undefined;
 
 	constructor(options: CronServiceOptions = {}) {
-		this.enabled = options.enabled ?? this.store.isEnabled(defaultCronEnabled());
-		this.store.setEnabled(this.enabled);
+		super();
+		this.store = new Store<PersistedCronState>({
+			name: CRON_STORE_FILE_NAME,
+			cwd: CRON_STORE_DIRECTORY,
+			accessPropertiesByDotNotation: false,
+			defaults: { schedules: [] },
+		});
+		this.enabled = options.enabled ?? this.isEnabled(defaultCronEnabled());
+		this.setEnabled(this.enabled);
+	}
+
+	protected readState(): PersistedCronState {
+		return this.store.store;
+	}
+
+	protected writeState<T>(mutate: (state: PersistedCronState) => T): T {
+		const state = this.readState();
+		const result = mutate(state);
+		this.store.store = state;
+		return result;
 	}
 
 	get events(): CronServiceEvents {
