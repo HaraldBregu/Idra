@@ -75,7 +75,7 @@ export class AgentService {
 				this.agentSettingsStore,
 				session,
 				new AgentModel(),
-				new DefaultCronData()
+				new DefaultToolData()
 			);
 			const input = {
 				...sessionInput,
