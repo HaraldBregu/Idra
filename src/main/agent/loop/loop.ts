@@ -44,6 +44,7 @@ export class AgentRuntime {
 		private readonly settings: Settings,
 		private readonly session: Session,
 		private readonly model: AgentModel,
+		private readonly cron: Cron,
 	) {
 		this.systemPrompt = new SystemPrompt();
 	}
