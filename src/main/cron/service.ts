@@ -20,6 +20,13 @@ import type {
 import { CronNextRunCalculator } from './calculator';
 import { clone, isActiveSchedule, matchesValue } from './core';
 import {
+	CRON_FUNCTIONS,
+	type CronFunctionDefinition,
+	type CronFunctionId,
+	type CronFunctionInput,
+	type CronFunctionResult,
+} from './functions';
+import {
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
 	DEFAULT_CRON_RETRY_POLICY,
