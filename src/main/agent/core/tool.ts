@@ -1,5 +1,5 @@
 import type { JSONSchema } from './types';
-import type { CronFunctionId } from './cron';
+import type { Cron, CronFunctionId } from './cron';
 
 
 export interface ContextState {
