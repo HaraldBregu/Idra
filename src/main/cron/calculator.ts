@@ -130,8 +130,7 @@ function minuteCeil(date: Date): Date {
 	return new Date(Math.floor(time / CRON_MINUTE_MS) * CRON_MINUTE_MS + CRON_MINUTE_MS);
 }
 
-/** Computes the next fire time for a schedule, or null if it will never run again. */
-export class CronNextRunCalculator {
+export class CronNextRunCalculator extends NextRunCalculator {
 	getNextRun(schedule: CronSchedule, from = new Date()): Date | null {
 		if (!schedule.enabled || schedule.status === 'deleted') return null;
 		if (schedule.maxRuns !== undefined && schedule.runCount >= schedule.maxRuns) return null;
