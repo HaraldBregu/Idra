@@ -136,12 +136,12 @@ export class CronService {
 	}
 
 	resumeSchedule(scheduleId: string, _actor?: CronActorContext): void {
-		const schedule = this.require(scheduleId);
+		const schedule = this.store.require(scheduleId);
 		const now = new Date();
 		const nextRunAt = this.calculator
 			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
 			?.toISOString();
-		const updated = this.updateStored(scheduleId, {
+		const updated = this.store.update(scheduleId, {
 			status: 'active',
 			enabled: true,
 			pausedAt: undefined,
