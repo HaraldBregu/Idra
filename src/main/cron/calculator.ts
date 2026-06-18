@@ -1,4 +1,5 @@
 import type { CronSchedule } from './types';
+import { NextRunCalculator } from './core';
 import { CRON_FIELD_RANGES, CRON_MINUTE_MS, MAX_CRON_SCAN_MINUTES } from './constants';
 
 function parseCronPart(part: string, min: number, max: number): number[] | null {
