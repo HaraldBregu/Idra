@@ -153,7 +153,7 @@ export class CronService {
 
 	deleteSchedule(scheduleId: string, _actor?: CronActorContext): void {
 		const now = new Date().toISOString();
-		const updated = this.updateStored(scheduleId, {
+		const updated = this.store.update(scheduleId, {
 			status: 'deleted',
 			enabled: false,
 			deletedAt: now,
