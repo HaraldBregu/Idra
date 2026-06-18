@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { Tool } from '../core/tool';
-import type { Context } from '../core/context';
+import type { ToolContext } from '../core/tool-context';
 
 function resolvePath(p: string): string {
 	if (p === '~') return os.homedir();
