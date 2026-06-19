@@ -213,11 +213,15 @@ export class CronService {
 		return this.trigger(schedule, new Date().toISOString());
 	}
 
-	get functions() {
-		return CRON_FUNCTIONS.map((fn) => ({
-			...fn,
-			schema: CRON_FUNCTION_SCHEMAS[fn.id],
-		}));
+	get tools(): CronTool[] {
+		return CRON_FUNCTIONS.map(
+			(fn) =>
+				new CronFunctionTool(this, {
+					id: fn.id,
+					description: fn.description,
+					schema: CRON_FUNCTION_SCHEMAS[fn.id],
+				})
+		);
 	}
 
 	invoke<K extends CronFunctionId>(
