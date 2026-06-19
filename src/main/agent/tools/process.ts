@@ -1,5 +1,5 @@
 import type { ChildProcess } from 'node:child_process';
-import { Tool, Context } from '../core/tool';
+import { BaseTool, Context } from '../core/tool';
 
 const MAX_BUFFER = 500_000;
 
@@ -105,7 +105,7 @@ async function pollUntil(session: ProcessSession, timeoutMs: number): Promise<vo
 	}
 }
 
-export class ProcessTool extends Tool {
+export class ProcessTool extends BaseTool {
 	readonly name = 'process';
 	readonly label = 'Process';
 	readonly description =

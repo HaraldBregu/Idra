@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
-import { Tool } from '../core/tool';
+import { BaseTool } from '../core/tool';
 import type { Context } from '../core/tool';
 import { registry } from './process';
 
@@ -29,7 +29,7 @@ interface ExecResult {
 	stderrTruncated?: boolean;
 }
 
-export class ExecTool extends Tool {
+export class ExecTool extends BaseTool {
 	readonly name = 'exec';
 	readonly description =
 		'Run a shell command from the workspace or a chosen working directory. ' +

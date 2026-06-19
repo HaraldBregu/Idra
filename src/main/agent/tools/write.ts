@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { Tool } from '../core/tool';
+import { BaseTool } from '../core/tool';
 import type { Context } from '../core/tool';
 
 function resolvePath(p: string): string {
@@ -10,7 +10,7 @@ function resolvePath(p: string): string {
 	return path.resolve(p);
 }
 
-export class WriteTool extends Tool {
+export class WriteTool extends BaseTool {
 	readonly name = 'write';
 	readonly description =
 		'Create or overwrite a UTF-8 text file with exact content, creating parent directories when needed.';

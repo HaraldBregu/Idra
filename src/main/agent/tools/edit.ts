@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { Tool } from '../core/tool';
+import { BaseTool } from '../core/tool';
 import type { Context } from '../core/tool';
 
 function resolvePath(p: string): string {
@@ -10,7 +10,7 @@ function resolvePath(p: string): string {
 	return path.resolve(p);
 }
 
-export class EditTool extends Tool {
+export class EditTool extends BaseTool {
 	readonly name = 'edit';
 	readonly description =
 		'Edit a UTF-8 text file by replacing one exact text match. Use this for focused changes when the old text appears exactly once.';

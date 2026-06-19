@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { Tool } from '../core/tool';
+import { BaseTool } from '../core/tool';
 import type { Context } from '../core/tool';
 
 function resolvePath(p: string): string {
@@ -10,7 +10,7 @@ function resolvePath(p: string): string {
 	return path.resolve(p);
 }
 
-export class ReadTool extends Tool {
+export class ReadTool extends BaseTool {
 	readonly name = 'read';
 	readonly description =
 		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.';

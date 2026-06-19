@@ -1,3 +1,5 @@
+import type { JSONSchema } from './types';
+
 export type CronStoredSchedule = string | CronJsonObject;
 export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
 export type CronStoredRunStatus = 'success' | 'failure' | 'skipped';

@@ -14,12 +14,18 @@ export abstract class Context {
 
 export abstract class Tool {
 	abstract readonly name: string;
-	readonly description?: string;
-	readonly schema?: JSONSchema;
+	abstract readonly description: string;
+	abstract readonly schema: JSONSchema;
 
 	constructor(readonly context: Context) {}
 
 	abstract run(input: Record<string, unknown>): Promise<unknown> | unknown;
+}
+
+export abstract class BaseTool extends Tool {
+	abstract readonly name: string;
+	abstract readonly description: string;
+	abstract readonly schema: JSONSchema;
 }
 
 export abstract class CronTool extends Tool {
