@@ -47,6 +47,7 @@ export function bootstrapServices(): BootstrapResult {
 		cron
 	);
 	container.set(AgentService, agentService);
+	cron.setAgentService(agentService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);
