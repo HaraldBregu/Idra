@@ -208,8 +208,7 @@ export class CronService {
 	}
 
 	runScheduleNow(scheduleId: string, _actor?: CronActorContext): CronScheduledTask {
-		const schedule = this.require(scheduleId);
-		return this.trigger(schedule, new Date().toISOString());
+		return this.trigger(scheduleId);
 	}
 
 	get tools(): CronTool[] {
