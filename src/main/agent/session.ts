@@ -20,7 +20,7 @@ import type {
 	SessionTurn,
 } from './core/types';
 
-export class AgentSession extends Session {
+export class SessionService extends Session {
 	readonly id: string;
 	readonly messages: Message[];
 	readonly toolCalls: ToolCall[] = [];
