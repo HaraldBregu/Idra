@@ -14,12 +14,12 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
+@Service()
 export class WorkspaceService extends Workspace {
-	private readonly workspacePath: string;
+	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
 
-	constructor(location: string, name = 'workspace') {
+	constructor() {
 		super();
-		this.workspacePath = path.resolve(location, name);
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}
