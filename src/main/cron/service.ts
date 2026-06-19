@@ -336,7 +336,12 @@ export class CronService {
 			scheduledRunAt,
 		});
 		const task = this.buildTask(schedule, scheduledRunAt);
-		this.runAgent(schedule);
+		resolveTaskHandler(schedule.taskType)({
+			schedule,
+			task,
+			logger: this.logger,
+			agent: this.agentService,
+		});
 		const runCount = schedule.runCount + 1;
 		const completed = schedule.maxRuns !== undefined && runCount >= schedule.maxRuns;
 		if (completed) this.unscheduleJob(schedule.id);
