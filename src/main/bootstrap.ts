@@ -42,11 +42,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(LlmService);
 	container.get(SttService);
 
-	const agentService = new AgentService(
-		container.get(AgentSettingsStore),
-		cron
-	);
-	container.set(AgentService, agentService);
+	const agentService = container.get(AgentService);
 	cron.setAgentService(agentService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
