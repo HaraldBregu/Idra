@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
-import { CronTool } from '../agent/tools/cron';
+import { CronTool } from '../agent/tools/automation';
 import {
 	CRON_FUNCTIONS,
 	CRON_FUNCTION_SCHEMAS,

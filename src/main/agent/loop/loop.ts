@@ -76,7 +76,7 @@ export class AgentRuntime {
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 
-		const toolData = new ToolLoader(toolContext, workspace);
+		const toolData = new ToolLoader(toolContext);
 		tools.push(...toolData.tools);
 		tools.push(...this.cron.tools);
 
