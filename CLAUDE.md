@@ -63,9 +63,11 @@ The test: Every changed line should trace directly to the user's request.
 **Define success criteria. Loop until verified.**
 
 Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
+- "Add validation" → "Confirm invalid inputs are rejected and valid ones pass"
+- "Fix the bug" → "Reproduce the bug, then confirm the fix resolves it"
+- "Refactor X" → "Confirm behavior is unchanged before and after"
+
+When the user asks for tests, verify via tests. Otherwise verify by other means (running the code, manual checks) and don't add tests on your own.
 
 For multi-step tasks, state a brief plan:
 ```
