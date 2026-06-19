@@ -13,7 +13,65 @@ export const CRON_FUNCTION_SCHEMAS: Record<CronFunctionId, JSONSchema> = {
 	create_schedule: {
 		type: 'object',
 		properties: {
-			request: { type: 'object', description: 'Schedule creation request.' },
+			request: {
+				type: 'object',
+				description: 'Schedule creation request.',
+				properties: {
+					name: { type: 'string', description: 'Human-readable name for the schedule.' },
+					description: {
+						type: 'string',
+						description: 'Optional description of what the schedule does.',
+					},
+					type: {
+						type: 'string',
+						enum: ['cron', 'interval', 'fixedRate', 'fixedDelay', 'oneTime', 'calendar', 'manual'],
+						description:
+							'Scheduling strategy. Use "cron" with cronExpression, "interval" with intervalMs, or "oneTime" with runAt.',
+					},
+					cronExpression: {
+						type: 'string',
+						description: 'Cron expression (e.g. "0 9 * * *"). Required when type is "cron".',
+					},
+					intervalMs: {
+						type: 'number',
+						description:
+							'Interval in milliseconds. Required when type is "interval", "fixedRate", or "fixedDelay".',
+					},
+					runAt: {
+						type: 'string',
+						description: 'ISO timestamp for a single run. Required when type is "oneTime".',
+					},
+					startAt: {
+						type: 'string',
+						description: 'ISO timestamp before which the schedule will not run.',
+					},
+					endAt: {
+						type: 'string',
+						description: 'ISO timestamp after which the schedule stops running.',
+					},
+					timezone: {
+						type: 'string',
+						description: 'IANA timezone (e.g. "Europe/Rome"). Defaults to the system timezone.',
+					},
+					maxRuns: {
+						type: 'number',
+						description: 'Maximum number of times the schedule may run.',
+					},
+					taskType: {
+						type: 'string',
+						description: 'Identifier for the task to run when the schedule fires.',
+					},
+					taskInput: {
+						description: 'Arbitrary input payload passed to the task when it runs.',
+					},
+					taskPriority: {
+						type: 'string',
+						enum: ['low', 'normal', 'high', 'critical'],
+						description: 'Priority of the task spawned when the schedule fires.',
+					},
+				},
+				required: ['name', 'type'],
+			},
 		},
 		required: ['request'],
 	},
