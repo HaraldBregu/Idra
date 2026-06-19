@@ -108,7 +108,7 @@ export class CronService {
 	}
 
 	async stop(): Promise<void> {
-		for (const task of this.tasks.values()) task.destroy();
+		for (const task of this.tasks.values()) task.stop();
 		this.tasks.clear();
 	}
 
