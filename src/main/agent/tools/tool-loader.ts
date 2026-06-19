@@ -26,6 +26,7 @@ export class ToolLoader extends ToolData {
 			new ExecTool(this.context),
 			new ProcessTool(this.context),
 			new UpdateIdentityTool(this.workspace, this.context),
+			new ReadIdentityTool(this.workspace, this.context),
 		];
 	}
 }
