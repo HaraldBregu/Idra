@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Container } from 'typedi';
 import { EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
-import { AppPermissionsService } from './app/permissions';
+import { AppPermissionsService } from './permissions';
 import { LoggerService } from './shared';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
