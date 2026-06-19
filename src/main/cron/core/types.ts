@@ -392,6 +392,20 @@ export interface CronServiceOptions {
 	enabled?: boolean;
 }
 
+export interface CronAgentService {
+	send(message: string, agentId?: string, options?: { sessionId?: string }): Promise<string>;
+	isBusy(agentId: string): boolean;
+}
+
+export interface CronTaskContext {
+	schedule: CronSchedule;
+	task: CronScheduledTask;
+	logger: CronLogger;
+	agent: CronAgentService;
+}
+
+export type CronTaskHandler = (context: CronTaskContext) => void;
+
 /** Shape persisted to the cron electron-store settings file. */
 export interface PersistedCronState {
 	enabled?: boolean;
