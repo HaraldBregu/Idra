@@ -6,7 +6,7 @@ import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import { AgentService, type AgentSendOptions } from '../agent/service';
 import { LoggerService } from '../shared';
-import { AgentSettings } from '../agent/settings';
+import { SettingsService } from '../agent/settings';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
 
@@ -80,7 +80,7 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get(LoggerService);
 		const agent = container.get(AgentService);
-		const settings = container.get(AgentSettings);
+		const settings = container.get(SettingsService);
 
 		ipcMain.handle(
 			AgentChannels.send,
