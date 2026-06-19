@@ -53,10 +53,9 @@ export class CronService {
 	private readonly agentService!: AgentService;
 
 	private readonly store: Store<PersistedCronState>;
-	private readonly calculator = new CronNextRunCalculator();
+	private readonly tasks = new Map<CronScheduleId, ScheduledTask>();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
-	private timer: NodeJS.Timeout | undefined;
 
 	private readonly handlers: {
 		[K in CronFunctionId]: (input: CronFunctionInput[K], actor?: CronActorContext) => CronFunctionResult[K];
