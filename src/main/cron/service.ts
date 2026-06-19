@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
+import cron, { type ScheduledTask } from 'node-cron';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
 import { CronTool } from '../agent/tools/automation/cron';
@@ -8,10 +9,8 @@ import {
 	CRON_FUNCTION_SCHEMAS,
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
-	CronNextRunCalculator,
 	DEFAULT_CRON_RETRY_POLICY,
 	DEFAULT_TIMEZONE,
-	POLL_INTERVAL_MS,
 	clone,
 	defaultCronEnabled,
 	isActiveSchedule,
