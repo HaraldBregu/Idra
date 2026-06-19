@@ -1,12 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
+import { Inject, Service } from 'typedi';
 import { AgentSettingsStore } from '../services/agent-settings-store';
 import { AgentSession } from '../services/agent-session';
 import { AgentWorkspace } from '../services/agent-workspace';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '.';
+import { CronService } from '../cron';
 import type { Cron } from './core/cron';
 import type { Message } from './core/types';
 import type {
