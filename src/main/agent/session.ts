@@ -11,7 +11,7 @@ import {
 import path from 'node:path';
 import { Service } from 'typedi';
 import { Session } from './core/session';
-import { resolveAgentUsageLocation } from './location';
+import { resolveAgentUsageLocation } from './shared/location';
 import type {
 	SessionInput,
 	Message,

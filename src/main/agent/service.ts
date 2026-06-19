@@ -3,7 +3,7 @@ import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
 import { SessionService, AgentSession } from './session';
 import { WorkspaceService } from './workspace';
-import { resolveAgentUsageLocation } from './location';
+import { resolveAgentUsageLocation } from './shared/location';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '.';

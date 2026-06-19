@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
+import { Service } from 'typedi';
 import { Workspace } from '.';
+import { resolveAgentUsageLocation } from './shared/location';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
