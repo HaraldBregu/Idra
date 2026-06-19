@@ -62,6 +62,10 @@ export class WorkspaceService extends Workspace {
 		return this.readTextFile(USER_FILE);
 	}
 
+	async setIdentityText(content: string): Promise<void> {
+		await fs.writeFile(this.resolveWorkspacePath(IDENTITY_FILE), content, 'utf8');
+	}
+
 	async fileExists(filePath: string): Promise<boolean> {
 		try {
 			await fs.access(this.resolveWorkspacePath(filePath));
