@@ -12,7 +12,7 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
-export class AgentWorkspace extends Workspace {
+export class WorkspaceService extends Workspace {
 	private readonly workspacePath: string;
 
 	constructor(location: string, name = 'workspace') {
