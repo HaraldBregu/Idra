@@ -52,7 +52,7 @@ export class AgentService {
 
 		let response = '';
 		let controller: AbortController | undefined;
-		let session: SessionService | undefined;
+		let session: AgentSession | undefined;
 		try {
 			controller = new AbortController();
 			const sessionInput = {
@@ -61,7 +61,7 @@ export class AgentService {
 				sessionId,
 				effort: options.effort,
 			};
-			session = new SessionService(sessionInput, this.location);
+			session = this.session.create(sessionInput);
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
