@@ -1,5 +1,5 @@
 import { WorkspaceTool } from '../core/tool';
-import { ToolContext } from './tool-context';
+import { ToolContext } from './context';
 import type { Context } from '../core/tool';
 import type { Workspace } from '../core/workspace';
 import type { JSONSchema } from '../core/types';

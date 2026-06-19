@@ -15,8 +15,8 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { ToolLoader } from '../tools/tool-loader';
-import { ToolContext } from '../tools/tool-context';
+import { ToolLoader } from '../tools/loader';
+import { ToolContext } from '../tools/context';
 
 interface ModelTurn {
 	content: string;
