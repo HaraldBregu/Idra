@@ -7,6 +7,7 @@ import { ProcessTool } from './process';
 import { ReadTool } from './read';
 import { WriteTool } from './write';
 import { UpdateIdentityTool } from './identity';
+import { ReadIdentityTool } from './read-identity';
 
 export class ToolLoader extends ToolData {
 	constructor(
