@@ -75,17 +75,6 @@ export class AgentSession extends Session {
 		this.persist();
 	}
 
-	static loadMessages(sessionId: string, location?: string): Message[] {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, location);
-		return loadMessagesBySessionId(resolvedSessionId, location);
-	}
-
-	static clearMessages(sessionId: string, location?: string): void {
-		if (!location) return;
-		const resolvedSessionId = resolveStoredSessionId(sessionId, location);
-		clearMessagesBySessionId(resolvedSessionId, location);
-	}
-
 	appendRun(entry: unknown): void {
 		if (!this.sessionsPath) return;
 		this.ensureSession();
