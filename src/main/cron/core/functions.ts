@@ -137,7 +137,8 @@ export const CRON_FUNCTION_SCHEMAS: Record<CronFunctionId, JSONSchema> = {
 					},
 					taskType: {
 						type: 'string',
-						description: 'Identifier for the task to run when the schedule fires.',
+						description:
+							'Handler that runs when the schedule fires. Use "agent" to run the AI agent (default) or "debug" to log the trigger without side effects.',
 					},
 					taskInput: {
 						description: 'Arbitrary input payload passed to the task when it runs.',
