@@ -156,8 +156,7 @@ export class CronService {
 			metadata: request.metadata ?? {},
 			audit: [],
 		};
-		schedule.nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-		const created = this.create(schedule);
+		const created = this.activate(this.create(schedule));
 		this.emit(created, 'schedule.created', 'Schedule created.');
 		return created;
 	}
