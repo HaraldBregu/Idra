@@ -58,7 +58,7 @@ export class CronService {
 	private readonly agentService!: AgentService;
 
 	private readonly store: Store<PersistedCronState>;
-	private readonly tasks = new Map<CronScheduleId, ScheduledTask>();
+	private readonly tasks = new Map<CronScheduleId, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 
