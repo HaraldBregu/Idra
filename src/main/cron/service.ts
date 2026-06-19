@@ -50,12 +50,14 @@ export class CronService {
 	@Inject(() => LoggerService)
 	private readonly logger!: CronLogger;
 
+	@Inject(() => AgentService)
+	private readonly agentService!: AgentService;
+
 	private readonly store: Store<PersistedCronState>;
 	private readonly calculator = new CronNextRunCalculator();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 	private timer: NodeJS.Timeout | undefined;
-	private agentService: AgentService | undefined;
 
 	private readonly handlers: {
 		[K in CronFunctionId]: (input: CronFunctionInput[K], actor?: CronActorContext) => CronFunctionResult[K];
