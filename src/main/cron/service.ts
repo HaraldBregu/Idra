@@ -262,6 +262,11 @@ export class CronService {
 	}
 
 	private trigger(schedule: CronSchedule, scheduledRunAt: string): CronScheduledTask {
+		console.log('[CronService] Schedule triggered', {
+			scheduleId: schedule.id,
+			name: schedule.name,
+			scheduledRunAt,
+		});
 		const task = this.buildTask(schedule, scheduledRunAt);
 		const now = new Date().toISOString();
 		const runCount = schedule.runCount + 1;
