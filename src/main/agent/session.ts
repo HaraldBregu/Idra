@@ -9,7 +9,9 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
+import { Service } from 'typedi';
 import { Session } from './core/session';
+import { resolveAgentUsageLocation } from './location';
 import type {
 	SessionInput,
 	Message,
@@ -20,7 +22,26 @@ import type {
 	SessionTurn,
 } from './core/types';
 
-export class SessionService extends Session {
+@Service()
+export class SessionService {
+	private readonly location = resolveAgentUsageLocation();
+
+	create(input: SessionInput): AgentSession {
+		return new AgentSession(input, this.location);
+	}
+
+	loadMessages(sessionId: string): Message[] {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, this.location);
+		return loadMessagesBySessionId(resolvedSessionId, this.location);
+	}
+
+	clearMessages(sessionId: string): void {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, this.location);
+		clearMessagesBySessionId(resolvedSessionId, this.location);
+	}
+}
+
+export class AgentSession extends Session {
 	readonly id: string;
 	readonly messages: Message[];
 	readonly toolCalls: ToolCall[] = [];
