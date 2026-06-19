@@ -138,20 +138,6 @@ export class AgentService {
 	}
 }
 
-export function resolveAgentUsageLocation(): string {
-	return path.join(resolveLocation(), 'agent');
-}
-
-function resolveLocation(): string {
-	try {
-		return app.getPath('userData');
-	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday');
-	}
-}
-
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
 	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
