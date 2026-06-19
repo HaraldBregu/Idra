@@ -3,7 +3,7 @@ import path from 'node:path';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { AgentSettings } from './settings';
-import { AgentSession } from './session';
+import { SessionService } from './session';
 import { AgentWorkspace } from './workspace';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
@@ -50,7 +50,7 @@ export class AgentService {
 
 		let response = '';
 		let controller: AbortController | undefined;
-		let session: AgentSession | undefined;
+		let session: SessionService | undefined;
 		try {
 			controller = new AbortController();
 			const sessionInput = {
@@ -59,7 +59,7 @@ export class AgentService {
 				sessionId,
 				effort: options.effort,
 			};
-			session = new AgentSession(sessionInput, this.location);
+			session = new SessionService(sessionInput, this.location);
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
@@ -110,14 +110,14 @@ export class AgentService {
 	}
 
 	getLastMessages(sessionId: string): AgentHistoryMessage[] {
-		return AgentSession.loadMessages(sessionId, this.location)
+		return SessionService.loadMessages(sessionId, this.location)
 			.slice(-this.lastMessagesLimit)
 			.map(toHistoryMessage)
 			.filter((message): message is AgentHistoryMessage => message !== undefined);
 	}
 
 	clearMessages(sessionId: string): void {
-		AgentSession.clearMessages(sessionId, this.location);
+		SessionService.clearMessages(sessionId, this.location);
 	}
 
 	cancel(agentId?: string): void {
