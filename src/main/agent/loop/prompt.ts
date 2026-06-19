@@ -34,7 +34,8 @@ export class SystemPrompt {
 
 		const displayWorkspaceDir = workspace.getPath();
 		prompt += '\n\n## Workspace';
-		prompt += `\nYour working directory is: ${displayWorkspaceDir}`;
+		prompt += `\nYour workspace directory holds your configuration and bootstrap files: ${displayWorkspaceDir}`;
+		prompt += '\nIt is not your working directory for tasks; use it only to read or update your configuration and bootstrap files.';
 
 		let workspaceContext = '';
 		const agentText = await workspace.getAgentText();
