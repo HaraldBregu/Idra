@@ -362,32 +362,6 @@ export class CronService {
 		return task;
 	}
 
-	private runAgent(schedule: CronSchedule): void {
-		const agentId = `cron:${schedule.id}`;
-		if (schedule.concurrencyPolicy === 'skipIfRunning' && this.agentService.isBusy(agentId)) {
-			this.logger.warn(
-				'CronService',
-				`Schedule ${schedule.id} skipped: previous agent run still in progress.`
-			);
-			return;
-		}
-		this.agentService
-			.send(this.resolvePrompt(schedule), agentId, { sessionId: schedule.sessionId })
-			.catch((error) => {
-				this.logger.error('CronService', `Agent run failed for schedule ${schedule.id}.`, error);
-			});
-	}
-
-	private resolvePrompt(schedule: CronSchedule): string {
-		const input = schedule.taskInput;
-		if (typeof input === 'string' && input.trim()) return input;
-		if (input && typeof input === 'object' && !Array.isArray(input)) {
-			const message = (input as CronJsonObject).message;
-			if (typeof message === 'string' && message.trim()) return message;
-		}
-		return schedule.description?.trim() || schedule.name;
-	}
-
 	private buildTask(schedule: CronSchedule, scheduledRunAt: string): CronScheduledTask {
 		const now = new Date().toISOString();
 		return {
