@@ -325,7 +325,7 @@ export interface CronEvents {
 
 export abstract class Cron {
 	abstract get events(): CronEvents;
-	abstract get functions(): CronFunctionDefinition[];
+	abstract get tools(): CronTool[];
 
 	abstract start(): Promise<void>;
 	abstract stop(): Promise<void>;
