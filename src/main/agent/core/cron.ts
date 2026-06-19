@@ -299,13 +299,6 @@ export type CronFunctionId =
 	| 'list_schedules'
 	| 'run_schedule_now';
 
-export interface CronFunctionDefinition {
-	id: CronFunctionId;
-	name: string;
-	description: string;
-	schema: JSONSchema;
-}
-
 export interface CronFunctionInput {
 	create_schedule: { request: CronScheduleCreateRequest };
 	pause_schedule: { scheduleId: string };
