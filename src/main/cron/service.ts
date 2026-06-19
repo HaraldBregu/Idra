@@ -238,50 +238,63 @@ export class CronService {
 
 	deleteJob(_id: string): void {}
 
-	private recover(now: Date): void {
-		for (const schedule of this.list().filter(isActiveSchedule)) {
-			if (!schedule.nextRunAt) {
-				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
-			} else if (Date.parse(schedule.nextRunAt) <= now.getTime()) {
-				const nextRunAt = this.calculator.getNextRun(schedule, now)?.toISOString();
-				this.update(schedule.id, { nextRunAt, lastEvaluatedAt: now.toISOString() });
-			}
-		}
+	private activate(schedule: CronSchedule): CronSchedule {
+		if (!isActiveSchedule(schedule)) return schedule;
+		this.scheduleJob(schedule);
+		const nextRunAt = this.tasks.get(schedule.id)?.getNextRun()?.toISOString();
+		return nextRunAt ? this.update(schedule.id, { nextRunAt }) : schedule;
 	}
 
-	private processDue(now: Date): void {
-		const due = this.list()
-			.filter(isActiveSchedule)
-			.filter((schedule) => Boolean(schedule.nextRunAt && Date.parse(schedule.nextRunAt) <= now.getTime()));
-		for (const schedule of due) {
-			this.trigger(schedule, schedule.nextRunAt ?? now.toISOString());
+	private scheduleJob(schedule: CronSchedule): void {
+		this.unscheduleJob(schedule.id);
+		if (schedule.type !== 'cron' || !schedule.cronExpression) {
+			this.logger.warn(
+				'CronService',
+				`Schedule ${schedule.id} skipped: only cron-expression schedules are supported.`
+			);
+			return;
 		}
+		if (!cron.validate(schedule.cronExpression)) {
+			this.logger.warn(
+				'CronService',
+				`Schedule ${schedule.id} has an invalid cron expression: ${schedule.cronExpression}`
+			);
+			return;
+		}
+		const task = cron.schedule(schedule.cronExpression, () => this.trigger(schedule.id), {
+			name: schedule.id,
+			timezone: schedule.timezone,
+			maxExecutions: schedule.maxRuns,
+		});
+		this.tasks.set(schedule.id, task);
 	}
 
-	private trigger(schedule: CronSchedule, scheduledRunAt: string): CronScheduledTask {
+	private unscheduleJob(scheduleId: CronScheduleId): void {
+		const task = this.tasks.get(scheduleId);
+		if (!task) return;
+		task.destroy();
+		this.tasks.delete(scheduleId);
+	}
+
+	private trigger(scheduleId: CronScheduleId): CronScheduledTask {
+		const schedule = this.require(scheduleId);
+		const scheduledRunAt = new Date().toISOString();
 		console.log('[CronService] Schedule triggered', {
 			scheduleId: schedule.id,
 			name: schedule.name,
 			scheduledRunAt,
 		});
 		const task = this.buildTask(schedule, scheduledRunAt);
-		const now = new Date().toISOString();
 		const runCount = schedule.runCount + 1;
-		const completed =
-			schedule.type === 'oneTime' || (schedule.maxRuns !== undefined && runCount >= schedule.maxRuns);
-		const nextRunAt = completed
-			? undefined
-			: this.calculator
-					.getNextRun({ ...schedule, runCount, lastRunAt: scheduledRunAt }, new Date(scheduledRunAt))
-					?.toISOString();
+		const completed = schedule.maxRuns !== undefined && runCount >= schedule.maxRuns;
+		if (completed) this.unscheduleJob(schedule.id);
 		const updated = this.update(schedule.id, {
 			runCount,
 			lastRunAt: scheduledRunAt,
-			lastEvaluatedAt: now,
-			nextRunAt,
+			lastEvaluatedAt: scheduledRunAt,
+			nextRunAt: completed ? undefined : this.tasks.get(schedule.id)?.getNextRun()?.toISOString(),
 			status: completed ? 'completed' : schedule.status,
-			updatedAt: now,
+			updatedAt: scheduledRunAt,
 		});
 		this.emit(updated, 'schedule.triggered', 'Scheduled task created.', {
 			taskId: task.id,
