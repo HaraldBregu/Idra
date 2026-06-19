@@ -1,10 +1,10 @@
-import { CronTool } from '../core/tool';
+import { CronTool as CronToolAbstract} from '../core/tool';
 import { ToolContext } from './tool-context';
 import type { Context } from '../core/tool';
 import type { Cron, CronFunctionId, CronFunctionInput } from '../core/cron';
 import type { JSONSchema } from '../core/types';
 
-export class CronFunctionTool extends CronTool {
+export class CronTool extends CronToolAbstract {
 	readonly name: CronFunctionId;
 	readonly description: string;
 	readonly schema: JSONSchema;

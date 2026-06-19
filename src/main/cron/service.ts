@@ -2,8 +2,7 @@ import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
-import { CronFunctionTool } from '../agent/tools/cron';
-import type { CronTool } from '../agent/core/tool';
+import { CronTool } from '../agent/tools/cron';
 import {
 	CRON_FUNCTIONS,
 	CRON_FUNCTION_SCHEMAS,
@@ -18,6 +17,7 @@ import {
 	isActiveSchedule,
 	matchesValue,
 } from './core';
+import type { AgentService } from '../services/agent-service';
 import type {
 	CronActorContext,
 	CronFunctionId,
@@ -216,7 +216,7 @@ export class CronService {
 	get tools(): CronTool[] {
 		return CRON_FUNCTIONS.map(
 			(fn) =>
-				new CronFunctionTool(this, {
+				new CronTool(this, {
 					id: fn.id,
 					description: fn.description,
 					schema: CRON_FUNCTION_SCHEMAS[fn.id],
