@@ -1,6 +1,8 @@
 import { ToolData} from '../core/tool';
 import type { Context, Tool } from '../core/tool';
-import { ReadTool, WriteTool, EditTool } from './filesystem/filesystem';
+import { ReadTool } from './filesystem/read';
+import { WriteTool } from './filesystem/write';
+import { EditTool } from './filesystem/edit';
 import { ExecTool, ProcessTool } from './runtime';
 
 export class ToolLoader extends ToolData {
