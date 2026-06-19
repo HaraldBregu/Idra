@@ -4,7 +4,7 @@ import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
 import { SessionService } from './session';
-import { AgentWorkspace } from './workspace';
+import { WorkspaceService } from './workspace';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '.';
@@ -38,7 +38,7 @@ export class AgentService {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly defaultAgentId = 'main';
 	private readonly location = resolveAgentUsageLocation();
-	private readonly agentWorkspace = new AgentWorkspace(this.location);
+	private readonly agentWorkspace = new WorkspaceService(this.location);
 	private readonly lastMessagesLimit = 50;
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
