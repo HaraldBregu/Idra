@@ -162,33 +162,38 @@ export class CronService {
 	}
 
 	pauseSchedule(scheduleId: string, _actor?: CronActorContext): void {
+		this.unscheduleJob(scheduleId);
 		const now = new Date().toISOString();
-		const updated = this.update(scheduleId, { status: 'paused', pausedAt: now, updatedAt: now });
+		const updated = this.update(scheduleId, {
+			status: 'paused',
+			pausedAt: now,
+			nextRunAt: undefined,
+			updatedAt: now,
+		});
 		this.emit(updated, 'schedule.paused', 'Schedule paused.');
 	}
 
 	resumeSchedule(scheduleId: string, _actor?: CronActorContext): void {
-		const schedule = this.require(scheduleId);
-		const now = new Date();
-		const nextRunAt = this.calculator
-			.getNextRun({ ...schedule, status: 'active', enabled: true, pausedAt: undefined }, now)
-			?.toISOString();
-		const updated = this.update(scheduleId, {
-			status: 'active',
-			enabled: true,
-			pausedAt: undefined,
-			nextRunAt,
-			updatedAt: now.toISOString(),
-		});
+		const now = new Date().toISOString();
+		const updated = this.activate(
+			this.update(scheduleId, {
+				status: 'active',
+				enabled: true,
+				pausedAt: undefined,
+				updatedAt: now,
+			})
+		);
 		this.emit(updated, 'schedule.resumed', 'Schedule resumed.');
 	}
 
 	deleteSchedule(scheduleId: string, _actor?: CronActorContext): void {
+		this.unscheduleJob(scheduleId);
 		const now = new Date().toISOString();
 		const updated = this.update(scheduleId, {
 			status: 'deleted',
 			enabled: false,
 			deletedAt: now,
+			nextRunAt: undefined,
 			updatedAt: now,
 		});
 		this.emit(updated, 'schedule.deleted', 'Schedule deleted.');
