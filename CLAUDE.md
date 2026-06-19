@@ -23,6 +23,7 @@ Before implementing:
 - No abstractions for single-use code.
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
+- Do not write or run tests unless the user explicitly asks for them.
 - Use established design patterns when they prevent tangled control flow or repeated ad hoc logic; don't add patterns preemptively.
 - Use dependency injection when it makes dependencies explicit, improves readability, or simplifies testing; avoid hidden globals and hard-coded service construction in business logic.
 - Default to a module-based file structure. Split code into separate files when responsibilities diverge, and move any function or component reused by multiple modules into its own shared file.

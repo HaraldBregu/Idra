@@ -17,7 +17,7 @@ import {
 	isActiveSchedule,
 	matchesValue,
 } from './core';
-import type { AgentService } from '../agent/service';
+import { AgentService } from '../agent/service';
 import type {
 	CronActorContext,
 	CronFunctionId,
