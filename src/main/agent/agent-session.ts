@@ -9,7 +9,7 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import { Session } from '../agent/core/session';
+import { Session } from './core/session';
 import type {
 	SessionInput,
 	Message,
