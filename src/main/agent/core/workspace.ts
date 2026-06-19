@@ -8,4 +8,5 @@ export abstract class Workspace {
 	abstract getSoulText(): Promise<string>;
 	abstract getToolsText(): Promise<string>;
 	abstract getUserText(): Promise<string>;
+	abstract setIdentityText(content: string): Promise<void>;
 }
