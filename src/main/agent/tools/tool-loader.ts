@@ -1,11 +1,9 @@
 import { ToolData} from '../core/tool';
 import type { Context, Tool } from '../core/tool';
 import type { Workspace } from '../core/workspace';
-import { EditTool } from './edit';
 import { ExecTool } from './exec';
 import { ProcessTool } from './process';
-import { ReadTool } from './read';
-import { WriteTool } from './write';
+import { ReadTool, WriteTool, EditTool } from './file';
 import { UpdateIdentityTool } from './identity';
 import { ReadIdentityTool } from './read-identity';
 
