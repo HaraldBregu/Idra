@@ -1,10 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import path from 'node:path';
-import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
-import { SessionService } from './session';
+import { SessionService, AgentSession } from './session';
 import { WorkspaceService } from './workspace';
+import { resolveAgentUsageLocation } from './location';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from '.';
