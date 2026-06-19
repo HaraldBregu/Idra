@@ -18,7 +18,6 @@ import {
 } from './core';
 import type {
 	CronActorContext,
-	CronFunctionDefinition,
 	CronFunctionId,
 	CronFunctionInput,
 	CronFunctionResult,
