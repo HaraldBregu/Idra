@@ -17,7 +17,7 @@ export class CronFunctionTool extends CronTool {
 		super(cron, context);
 		this.name = definition.id;
 		this.description = definition.description;
-		this.schema = { type: 'object', properties: {}, additionalProperties: true };
+		this.schema = definition.schema;
 	}
 
 	run(input: Record<string, unknown>): unknown {
