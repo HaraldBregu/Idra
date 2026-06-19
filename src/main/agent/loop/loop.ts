@@ -15,7 +15,7 @@ import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
-import { ToolData } from '../tools/tool-data';
+import { ToolLoader } from '../tools/tool-loader';
 import { ToolContext } from '../tools/tool-context';
 
 interface ModelTurn {
@@ -76,7 +76,7 @@ export class AgentRuntime {
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 
-		const toolData = new ToolData(toolContext, workspace);
+		const toolData = new ToolLoader(toolContext, workspace);
 		tools.push(...toolData.tools);
 		tools.push(...this.cron.tools);
 

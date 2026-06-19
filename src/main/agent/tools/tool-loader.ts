@@ -1,4 +1,4 @@
-import { ToolData as ToolDataAbstract} from '../core/tool';
+import { ToolData} from '../core/tool';
 import type { Context, Tool } from '../core/tool';
 import type { Workspace } from '../core/workspace';
 import { EditTool } from './edit';
@@ -8,13 +8,14 @@ import { ReadTool } from './read';
 import { WriteTool } from './write';
 import { UpdateIdentityTool } from './identity';
 
-export class ToolData extends ToolDataAbstract {
+export class ToolLoader extends ToolData {
 	constructor(
 		private readonly context: Context,
 		private readonly workspace: Workspace
 	) {
 		super();
 	}
+	
 
 	get tools(): Tool[] {
 		return [
