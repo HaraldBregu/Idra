@@ -36,10 +36,11 @@ export class AgentService {
 	@Inject(() => SessionService)
 	private readonly session!: SessionService;
 
+	@Inject(() => WorkspaceService)
+	private readonly agentWorkspace!: WorkspaceService;
+
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly defaultAgentId = 'main';
-	private readonly location = resolveAgentUsageLocation();
-	private readonly agentWorkspace = new WorkspaceService(this.location);
 	private readonly lastMessagesLimit = 50;
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
