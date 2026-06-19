@@ -8,7 +8,11 @@ export class CronFunctionTool extends CronTool {
 	readonly description: string;
 	readonly schema: JSONSchema;
 
-	constructor(cron: Cron, context: Context, definition: CronFunctionDefinition) {
+	constructor(
+		cron: Cron,
+		context: Context,
+		definition: { id: CronFunctionId; description: string; schema: JSONSchema }
+	) {
 		super(cron, context);
 		this.name = definition.id;
 		this.description = definition.description;
