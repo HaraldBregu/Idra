@@ -1,4 +1,4 @@
-import type { CronTool } from './tool';
+import type { JSONSchema } from './types';
 
 export type CronStoredSchedule = string | CronJsonObject;
 export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
