@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
-import cron, { type ScheduledTask } from 'node-cron';
+import cron from 'node-cron';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
 import { CronTool } from '../agent/tools/automation/cron';
