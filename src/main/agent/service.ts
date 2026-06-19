@@ -27,28 +27,19 @@ export interface AgentSendOptions {
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
+@Service()
 export class AgentService {
+	@Inject(() => AgentSettingsStore)
+	private readonly agentSettingsStore!: AgentSettingsStore;
+
+	@Inject(() => CronService)
+	private readonly cron!: Cron;
+
 	private readonly activeRuns = new Map<string, AbortController>();
-	private readonly defaultAgentId: string;
-	private readonly agentWorkspace: AgentWorkspace;
-	private readonly agentSettingsStore: AgentSettingsStore;
-	private readonly cron: Cron;
-	private readonly location: string;
+	private readonly defaultAgentId = 'main';
+	private readonly location = resolveAgentUsageLocation();
+	private readonly agentWorkspace = new AgentWorkspace(this.location);
 	private readonly lastMessagesLimit = 50;
-
-	constructor(
-		agentSettingsStore: AgentSettingsStore,
-		cron: Cron,
-		defaultAgentId = 'main'
-	) {
-		this.defaultAgentId = defaultAgentId;
-		const location = resolveAgentUsageLocation();
-
-		this.location = location;
-		this.agentWorkspace = new AgentWorkspace(location);
-		this.agentSettingsStore = agentSettingsStore;
-		this.cron = cron;
-	}
 
 	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
