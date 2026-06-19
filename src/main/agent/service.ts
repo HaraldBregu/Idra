@@ -34,6 +34,9 @@ export class AgentService {
 	@Inject(() => CronService)
 	private readonly cron!: Cron;
 
+	@Inject(() => SessionService)
+	private readonly session!: SessionService;
+
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly defaultAgentId = 'main';
 	private readonly location = resolveAgentUsageLocation();
