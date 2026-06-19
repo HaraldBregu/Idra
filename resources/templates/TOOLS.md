@@ -6,13 +6,13 @@ runtime-specific and are intentionally omitted.
 
 ## Current Agent Tools
 
-| Source file | Exposed tool | How it is used |
-| --- | --- | --- |
-| `filesystem/read.ts` | `read` | Reads the full UTF-8 contents of a single text file from a required `path`. Use it before editing when current file contents matter. |
-| `filesystem/write.ts` | `write` | Creates or overwrites a UTF-8 text file with exact `content`, creating parent directories when needed. |
-| `filesystem/edit.ts` | `edit` | Replaces one exact `oldText` match with required `newText` in a UTF-8 text file. Use it for focused edits when the old text appears exactly once. |
-| `runtime/exec.ts` | `exec` | Runs a shell `command` from the workspace or provided `workdir` for builds, tests, searches, and command-line checks, with optional environment, yield/background mode, timeout, and PTY support. |
-| `runtime/process.ts` | `process` | Manages exec sessions already started: `list`, `poll`, `log`, `write`, `send-keys`, `submit`, `paste`, `kill`, `clear`, and `remove` by `sessionId`. |
+| Tool | How it is used |
+| --- | --- |
+| `read` | Reads the full UTF-8 contents of a single text file from a required `path`. Use it before editing when current file contents matter. |
+| `write` | Creates or overwrites a UTF-8 text file with exact `content`, creating parent directories when needed. |
+| `edit` | Replaces one exact `oldText` match with required `newText` in a UTF-8 text file. Use it for focused edits when the old text appears exactly once. |
+| `exec` | Runs a shell `command` from the workspace or provided `workdir` for builds, tests, searches, and command-line checks, with optional environment, yield/background mode, timeout, and PTY support. |
+| `process` | Manages exec sessions already started: `list`, `poll`, `log`, `write`, `send-keys`, `submit`, `paste`, `kill`, `clear`, and `remove` by `sessionId`. |
 
 ## Runtime Bucket
 
