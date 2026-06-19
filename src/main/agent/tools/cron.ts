@@ -11,8 +11,8 @@ export class CronFunctionTool extends CronTool {
 
 	constructor(
 		cron: Cron,
-		context: Context,
-		definition: { id: CronFunctionId; description: string; schema: JSONSchema }
+		definition: { id: CronFunctionId; description: string; schema: JSONSchema },
+		context: Context = new ToolContext()
 	) {
 		super(cron, context);
 		this.name = definition.id;
