@@ -96,21 +96,15 @@ export class CronService {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
 			return;
 		}
-		this.recover(new Date());
-		this.timer = setInterval(() => {
-			try {
-				this.processDue(new Date());
-			} catch (error) {
-				this.logger.error('CronService', 'Failed to process due schedules.', error);
-			}
-		}, POLL_INTERVAL_MS);
-		this.timer.unref?.();
+		for (const schedule of this.list().filter(isActiveSchedule)) {
+			this.activate(schedule);
+		}
 		this.logger.info('CronService', 'Cron service started.');
 	}
 
 	async stop(): Promise<void> {
-		if (this.timer) clearInterval(this.timer);
-		this.timer = undefined;
+		for (const task of this.tasks.values()) task.destroy();
+		this.tasks.clear();
 	}
 
 	destroy(): void {
