@@ -39,5 +39,5 @@ export abstract class CronTool extends Tool {
 }
 
 export abstract class ToolData {
-	abstract tools(): Tool[];
+	abstract get tools(): Tool[];
 }

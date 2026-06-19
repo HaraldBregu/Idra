@@ -17,7 +17,6 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolData } from '../tools/tool-data';
 import { ToolContext } from '../tools/tool-context';
-import { CronFunctionTool } from '../tools/cron';
 
 interface ModelTurn {
 	content: string;
@@ -76,12 +75,10 @@ export class AgentRuntime {
 
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
-		tools.push(...new ToolData(toolContext).tools());
-		tools.push(
-			...this.cron.functions.map(
-				(fn) => new CronFunctionTool(this.cron, toolContext, fn)
-			)
-		);
+
+		const toolData = new ToolData(toolContext);
+		tools.push(...toolData.tools);
+		tools.push(...this.cron.tools);
 
 		const system = await this.systemPrompt.build(workspace);
 

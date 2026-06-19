@@ -1,5 +1,5 @@
 import { ToolData as ToolDataAbstract} from '../core/tool';
-import type { Context } from '../core/tool';
+import type { Context, Tool } from '../core/tool';
 import { EditTool } from './edit';
 import { ExecTool } from './exec';
 import { ProcessTool } from './process';
@@ -11,7 +11,7 @@ export class ToolData extends ToolDataAbstract {
 		super();
 	}
 
-	tools() {
+	get tools(): Tool[] {
 		return [
 			new ReadTool(this.context),
 			new WriteTool(this.context),
