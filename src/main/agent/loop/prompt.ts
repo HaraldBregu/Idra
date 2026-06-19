@@ -32,6 +32,10 @@ export class SystemPrompt {
 		prompt += '\n- Before final output, check for missed constraints, stale or unsupported facts, failed or partial tool calls, conflicting evidence, permission gaps, verification limits, and requested format.';
 		prompt += '\n- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.';
 
+		const displayWorkspaceDir = workspace.getPath();
+		prompt += '\n\n## Workspace';
+		prompt += `\nYour working directory is: ${displayWorkspaceDir}`;
+
 		let workspaceContext = '';
 		const agentText = await workspace.getAgentText();
 		const heartbeatText = await workspace.getHeartbeatText();
