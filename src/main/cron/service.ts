@@ -252,32 +252,78 @@ export class CronService {
 
 	private scheduleJob(schedule: CronSchedule): void {
 		this.unscheduleJob(schedule.id);
-		if (schedule.type !== 'cron' || !schedule.cronExpression) {
-			this.logger.warn(
-				'CronService',
-				`Schedule ${schedule.id} skipped: only cron-expression schedules are supported.`
-			);
-			return;
+		const handle = this.createJob(schedule);
+		if (handle) this.tasks.set(schedule.id, handle);
+	}
+
+	private createJob(schedule: CronSchedule): CronJobHandle | undefined {
+		switch (schedule.type) {
+			case 'cron':
+				return this.createCronJob(schedule);
+			case 'interval':
+			case 'fixedRate':
+			case 'fixedDelay':
+				return this.createIntervalJob(schedule);
+			case 'oneTime':
+				return this.createOneTimeJob(schedule);
+			default:
+				this.logger.warn(
+					'CronService',
+					`Schedule ${schedule.id} skipped: schedule type "${schedule.type}" is not supported.`
+				);
+				return undefined;
 		}
-		if (!cron.validate(schedule.cronExpression)) {
+	}
+
+	private createCronJob(schedule: CronSchedule): CronJobHandle | undefined {
+		if (!schedule.cronExpression || !cron.validate(schedule.cronExpression)) {
 			this.logger.warn(
 				'CronService',
 				`Schedule ${schedule.id} has an invalid cron expression: ${schedule.cronExpression}`
 			);
-			return;
+			return undefined;
 		}
 		const task = cron.schedule(schedule.cronExpression, () => this.trigger(schedule.id), {
 			name: schedule.id,
 			timezone: schedule.timezone,
 			maxExecutions: schedule.maxRuns,
 		});
-		this.tasks.set(schedule.id, task);
+		return { stop: () => task.destroy(), getNextRun: () => task.getNextRun() };
+	}
+
+	private createIntervalJob(schedule: CronSchedule): CronJobHandle | undefined {
+		const intervalMs = schedule.intervalMs;
+		if (!intervalMs || intervalMs <= 0) {
+			this.logger.warn(
+				'CronService',
+				`Schedule ${schedule.id} skipped: a positive intervalMs is required for ${schedule.type} schedules.`
+			);
+			return undefined;
+		}
+		const timer = setInterval(() => this.trigger(schedule.id), intervalMs);
+		return {
+			stop: () => clearInterval(timer),
+			getNextRun: () => new Date(Date.now() + intervalMs),
+		};
+	}
+
+	private createOneTimeJob(schedule: CronSchedule): CronJobHandle | undefined {
+		const runAt = schedule.runAt ? Date.parse(schedule.runAt) : Number.NaN;
+		if (Number.isNaN(runAt)) {
+			this.logger.warn(
+				'CronService',
+				`Schedule ${schedule.id} skipped: a valid runAt timestamp is required for oneTime schedules.`
+			);
+			return undefined;
+		}
+		const timer = setTimeout(() => this.trigger(schedule.id), Math.max(0, runAt - Date.now()));
+		return { stop: () => clearTimeout(timer), getNextRun: () => new Date(runAt) };
 	}
 
 	private unscheduleJob(scheduleId: CronScheduleId): void {
 		const task = this.tasks.get(scheduleId);
 		if (!task) return;
-		task.destroy();
+		task.stop();
 		this.tasks.delete(scheduleId);
 	}
 
