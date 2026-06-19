@@ -80,7 +80,7 @@ export class AgentIpc implements IpcModule {
 	register(container: MainServiceContainer, eventBus: EventBus): void {
 		const logger = container.get(LoggerService);
 		const agent = container.get(AgentService);
-		const settings = container.get(AgentSettingsStore);
+		const settings = container.get(AgentSettings);
 
 		ipcMain.handle(
 			AgentChannels.send,
