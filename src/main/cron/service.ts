@@ -4,6 +4,7 @@ import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
 import {
 	CRON_FUNCTIONS,
+	CRON_FUNCTION_SCHEMAS,
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
 	CronNextRunCalculator,
