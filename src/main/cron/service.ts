@@ -55,6 +55,7 @@ export class CronService {
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 	private timer: NodeJS.Timeout | undefined;
+	private agentService: AgentService | undefined;
 
 	private readonly handlers: {
 		[K in CronFunctionId]: (input: CronFunctionInput[K], actor?: CronActorContext) => CronFunctionResult[K];
