@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { AgentSettingsStore } from './settings-store';
+import { AgentSettings } from './settings';
 import { AgentSession } from './session';
 import { AgentWorkspace } from './workspace';
 import { AgentRuntime } from './loop/loop';
