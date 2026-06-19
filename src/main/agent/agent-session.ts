@@ -18,7 +18,7 @@ import type {
 	SessionResult,
 	ToolCall,
 	SessionTurn,
-} from '../agent/core/types';
+} from './core/types';
 
 export class AgentSession extends Session {
 	readonly id: string;
