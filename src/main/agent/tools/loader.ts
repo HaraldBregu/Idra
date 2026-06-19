@@ -3,7 +3,8 @@ import type { Context, Tool } from '../core/tool';
 import { ReadTool } from './filesystem/read';
 import { WriteTool } from './filesystem/write';
 import { EditTool } from './filesystem/edit';
-import { ExecTool, ProcessTool } from './runtime/runtime';
+import { ExecTool } from './runtime/exec';
+import { ProcessTool } from './runtime/process';
 
 export class ToolLoader extends ToolData {
 	constructor(
