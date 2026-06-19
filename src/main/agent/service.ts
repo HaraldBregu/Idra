@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { AgentSettings } from './settings';
+import { SettingsService } from './settings';
 import { SessionService } from './session';
 import { AgentWorkspace } from './workspace';
 import { AgentRuntime } from './loop/loop';
@@ -29,8 +29,8 @@ export interface AgentSendOptions {
 
 @Service()
 export class AgentService {
-	@Inject(() => AgentSettings)
-	private readonly agentSettingsStore!: AgentSettings;
+	@Inject(() => SettingsService)
+	private readonly agentSettingsStore!: SettingsService;
 
 	@Inject(() => CronService)
 	private readonly cron!: Cron;
