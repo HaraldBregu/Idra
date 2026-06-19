@@ -303,6 +303,7 @@ export interface CronFunctionDefinition {
 	id: CronFunctionId;
 	name: string;
 	description: string;
+	schema: JSONSchema;
 }
 
 export interface CronFunctionInput {
