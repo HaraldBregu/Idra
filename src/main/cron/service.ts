@@ -40,6 +40,11 @@ export type { CronServiceOptions, CronServiceActor } from './core';
 
 type CronEventListener = (event: CronScheduleEvent) => void;
 
+interface CronJobHandle {
+	stop(): void;
+	getNextRun(): Date | null;
+}
+
 export interface CronServiceEvents {
 	subscribe(listener: CronEventListener): () => void;
 }
