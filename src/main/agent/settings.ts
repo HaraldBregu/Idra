@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 };
 
 @Service()
-export class AgentSettings extends Settings {
+export class SettingsService extends Settings {
 	private readonly store: Store<SettingsSchema>;
 
 	@Inject(() => ProviderService)
