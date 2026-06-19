@@ -1,14 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app } from 'electron';
-import { AgentSettingsStore } from './agent-settings-store';
-import { AgentSession } from './agent-session';
-import { AgentWorkspace } from './agent-workspace';
-import { AgentRuntime } from '../agent/loop/loop';
+import { AgentSettingsStore } from '../services/agent-settings-store';
+import { AgentSession } from '../services/agent-session';
+import { AgentWorkspace } from '../services/agent-workspace';
+import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
-import { RuntimeEvent } from '../agent';
-import type { Cron } from '../agent/core/cron';
-import type { Message } from '../agent/core/types';
+import { RuntimeEvent } from '.';
+import type { Cron } from './core/cron';
+import type { Message } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
