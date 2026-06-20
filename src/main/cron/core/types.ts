@@ -392,15 +392,6 @@ export interface CronServiceOptions {
 	enabled?: boolean;
 }
 
-export interface CronTaskContext {
-	schedule: CronSchedule;
-	task: CronScheduledTask;
-	logger: CronLogger;
-	agent: AgentService;
-}
-
-export type CronTaskHandler = (context: CronTaskContext) => void;
-
 /** Shape persisted to the cron electron-store settings file. */
 export interface PersistedCronState {
 	enabled?: boolean;
