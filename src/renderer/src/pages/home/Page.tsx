@@ -323,9 +323,7 @@ function PageContent(): ReactElement {
 	const [transcribingRecording, setTranscribingRecording] = useState(false);
 	const transcriptionRunRef = useRef(0);
 	const visibleMessages = agent.chatState.messages.filter(
-		(message) =>
-			message.id !== welcomeMessage.id &&
-			!(message.role === 'agent' && message.tools.length > 0)
+		(message) => message.id !== welcomeMessage.id
 	);
 	const showEmptyConversation =
 		visibleMessages.length === 0 &&
