@@ -110,9 +110,8 @@ export class AgentSession extends Session {
 		this.persist();
 	}
 
-	addToolResults(toolCalls: ToolCall[], results: Message[]): void {
+	addToolResults(toolCalls: ToolCall[]): void {
 		this.toolCalls.push(...toolCalls);
-		this.messages.push(...results);
 		this.numTurns += 1;
 		this.persist();
 	}
