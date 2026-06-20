@@ -27,9 +27,6 @@ export abstract class Session {
 		toolCalls: ToolCall[],
 		providerItems?: MessageContentBlock[]
 	): void;
-	abstract addToolResults(
-		toolCalls: ToolCall[],
-		results: Message[]
-	): void;
+	abstract addToolResults(toolCalls: ToolCall[]): void;
 	abstract toResult(subtype: SessionResult['subtype']): SessionResult;
 }
