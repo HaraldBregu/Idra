@@ -3,7 +3,6 @@ import Store from 'electron-store';
 import cron from 'node-cron';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
-import { CronTool } from '../agent/core/tool';
 import {
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
@@ -14,15 +13,6 @@ import {
 	isActiveSchedule,
 	matchesValue,
 } from './core';
-import {
-	CreateScheduleTool,
-	DeleteScheduleTool,
-	GetScheduleTool,
-	ListSchedulesTool,
-	PauseScheduleTool,
-	ResumeScheduleTool,
-	RunScheduleNowTool,
-} from '../agent/tools/automation/cron';
 import { AgentService } from '../agent/service';
 import { resolveTaskHandler } from './handlers';
 import type {
