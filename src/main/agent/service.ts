@@ -61,7 +61,7 @@ export class AgentService {
 				sessionId,
 				effort: options.effort,
 			};
-			session = this.session.create(sessionInput);
+			session = this.session.create(sessionInput, options.category);
 			const runtime = new AgentRuntime(
 				this.agentWorkspace,
 				this.agentSettingsStore,
