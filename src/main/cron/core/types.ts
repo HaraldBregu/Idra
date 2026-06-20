@@ -1,5 +1,3 @@
-import type { AgentService } from '../../agent/service';
-
 export interface CronTaskData<TType extends string = string> {
 	readonly type: TType;
 }
