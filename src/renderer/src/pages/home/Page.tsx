@@ -525,7 +525,6 @@ function PageContent(): ReactElement {
 										);
 									}
 
-
 									return (
 										<AssistantMessage
 											key={message.id}

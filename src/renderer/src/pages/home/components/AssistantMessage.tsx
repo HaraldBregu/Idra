@@ -6,8 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Message } from '@/components/ui/message';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { cn } from '@/lib/utils';
-import { getAgentSkillUsages, type AgentMessage } from '../context';
-import { SkillUsage } from './SkillUsage';
+import { type AgentMessage } from '../context';
 import { markdownComponents } from './markdown';
 import { statusLabel, isRunningState, stateTone } from './status';
 
@@ -38,7 +37,6 @@ export function AssistantMessage({
 	readonly collapseLongContent?: boolean;
 	readonly className?: string;
 }): ReactElement {
-	const skillUsages = getAgentSkillUsages(message.tools);
 	const canToggleContent =
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
@@ -57,21 +55,23 @@ export function AssistantMessage({
 	);
 
 	return (
+	<>
+		{showHeader && (
+			<div className="flex min-w-0 items-center gap-2">
+				<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
+				<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
+					Friday
+				</span>
+			</div>
+		)}
+
 		<Message className={cn('min-w-0 w-full flex-col', className)}>
-			{showHeader && (
-				<div className="flex min-w-0 items-center gap-2">
-					<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
-					<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
-						Friday
-					</span>
-				</div>
-			)}
-			{hasContent && (
+			{hasContent && !hasTools && (
 				<>
 					<Markdown
 						components={markdownComponents}
 						className={cn(
-							'prose min-w-0 max-w-none break-words rounded-xl bg-secondary px-4 text-sm leading-relaxed text-secondary-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert [&_*]:max-w-full [&_a]:break-words [&_a]:[overflow-wrap:anywhere] [&_code]:break-words',
+							'prose min-w-0 max-w-none break-words rounded-xl bg-secondary px-4 py-2 text-sm leading-relaxed text-secondary-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert [&_*]:max-w-full [&_a]:break-words [&_a]:[overflow-wrap:anywhere] [&_code]:break-words',
 							canToggleContent && !isContentExpanded && 'max-h-48 overflow-hidden'
 						)}
 					>
@@ -92,7 +92,7 @@ export function AssistantMessage({
 				</>
 			)}
 			{showActivity && (
-				<div className={cn('flex w-full flex-col', hasContent ? 'my-3' : undefined)}>
+				<div className={cn('flex w-full flex-col', hasContent ? 'my-2' : undefined)}>
 					<div className="flex w-full flex-col">
 						{hasTools ? (
 							<div className="w-full">
@@ -117,7 +117,7 @@ export function AssistantMessage({
 					)}
 				</div>
 			)}
-			<SkillUsage skills={skillUsages} className={hasContent ? 'mt-1' : undefined} />
 		</Message>
+	</>
 	);
 }
