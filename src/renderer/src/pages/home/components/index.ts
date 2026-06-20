@@ -1,3 +1,3 @@
 export { ActivityPanel } from './ActivityPanel';
-export { TextMessage } from './TextMessage';
+export { AssistantMessage } from './AssistantMessage';
 export { UserMessage } from './UserMessage';
