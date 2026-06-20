@@ -1,5 +1,4 @@
 import { CronTool } from '../../core/tool';
-import { ToolContext } from '../context';
 import type { Context } from '../../core/tool';
 import type {
 	Cron,
@@ -60,7 +59,7 @@ export class CreateScheduleTool extends CronTool {
 		additionalProperties: false,
 	};
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
@@ -78,7 +77,7 @@ export class PauseScheduleTool extends CronTool {
 	readonly description = 'Pause an active cron schedule by id.';
 	readonly schema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
@@ -92,7 +91,7 @@ export class ResumeScheduleTool extends CronTool {
 	readonly description = 'Resume a paused cron schedule by id.';
 	readonly schema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
@@ -106,7 +105,7 @@ export class DeleteScheduleTool extends CronTool {
 	readonly description = 'Delete a cron schedule by id.';
 	readonly schema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
@@ -120,7 +119,7 @@ export class GetScheduleTool extends CronTool {
 	readonly description = 'Fetch a single cron schedule by id.';
 	readonly schema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
@@ -144,7 +143,7 @@ export class ListSchedulesTool extends CronTool {
 		additionalProperties: false,
 	};
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
@@ -162,7 +161,7 @@ export class RunScheduleNowTool extends CronTool {
 	readonly description = 'Trigger a cron schedule to run immediately by id.';
 	readonly schema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context = new ToolContext()) {
+	constructor(cron: Cron, context: Context) {
 		super(cron, context);
 	}
 
