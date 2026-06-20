@@ -55,49 +55,47 @@ export function AssistantMessage({
 	);
 
 	return (
-		<div className={cn('flex w-full flex-col gap-2', className)}>
-			<Message className="min-w-0 w-full flex-col gap-2">
-				{hasContent && !hasTools && (
-					<>
-						<Markdown
-							components={markdownComponents}
+		<Message className={cn('flex w-full flex-col', className)}>
+			{hasContent && !hasTools && (
+				<>
+					<Markdown
+						components={markdownComponents}
+					>
+						{message.content}
+					</Markdown>
+					{canToggleContent ? (
+						<Button
+							type="button"
+							variant="ghost"
+							size="xs"
+							className="self-start text-muted-foreground hover:text-foreground"
+							aria-expanded={isContentExpanded}
+							onClick={() => setIsContentExpanded((expanded) => !expanded)}
 						>
-							{message.content}
-						</Markdown>
-						{canToggleContent ? (
-							<Button
-								type="button"
-								variant="ghost"
-								size="xs"
-								className="self-start text-muted-foreground hover:text-foreground"
-								aria-expanded={isContentExpanded}
-								onClick={() => setIsContentExpanded((expanded) => !expanded)}
-							>
-								{isContentExpanded ? 'Less' : 'More'}
-							</Button>
-						) : null}
-					</>
-				)}
-				{showActivity && (
-					<div className="flex w-full flex-col">
-						{hasTools ? (
-							<div className="w-full">
-								<div className="flex w-full flex-col gap-4">
-									{message.tools.map((tool) => (
-										<Tool
-											key={tool.toolCallId}
-											toolPart={tool}
-											className="mt-0 w-full max-w-2xl"
-										/>
-									))}
-								</div>
+							{isContentExpanded ? 'Less' : 'More'}
+						</Button>
+					) : null}
+				</>
+			)}
+			{showActivity && (
+				<div className="flex w-full flex-col">
+					{hasTools ? (
+						<div className="w-full">
+							<div className="flex w-full flex-col gap-4">
+								{message.tools.map((tool) => (
+									<Tool
+										key={tool.toolCallId}
+										toolPart={tool}
+										className="mt-0 w-full max-w-2xl"
+									/>
+								))}
 							</div>
-						) : (
-							<span className={statusClassName}>{labelContent}</span>
-						)}
-					</div>
-				)}
-			</Message>
-		</div>
+						</div>
+					) : (
+						<span className={statusClassName}>{labelContent}</span>
+					)}
+				</div>
+			)}
+		</Message>
 	);
 }

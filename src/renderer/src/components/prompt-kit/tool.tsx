@@ -90,14 +90,14 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 						<Button
 							type="button"
 							variant="ghost"
-							className="p-0! h-auto w-full justify-between rounded-md bg-transparent! py-1 font-normal text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
+							className="p-0! h-auto w-full justify-start rounded-md bg-transparent! py-1 font-normal text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
 								<span className="truncate font-mono text-sm font-medium capitalize">
 									{toolPart.type}
 								</span>
+								<ChevronDown className={cn('size-3.5', isOpen && 'rotate-180')} />
 							</div>
-							<ChevronDown className={cn('size-3.5', isOpen && 'rotate-180')} />
 						</Button>
 					}
 				/>
