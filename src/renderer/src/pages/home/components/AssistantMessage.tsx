@@ -1,15 +1,29 @@
-import { useState, type ReactElement } from 'react';
+import { useState, type ReactElement, type ReactNode } from 'react';
 import { Markdown } from '@/components/prompt-kit/markdown';
+import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
+import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { Message } from '@/components/ui/message';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { cn } from '@/lib/utils';
 import { getAgentSkillUsages, type AgentMessage } from '../context';
-import { ActivityPanel } from './ActivityPanel';
 import { SkillUsage } from './SkillUsage';
 import { markdownComponents } from './markdown';
+import { statusLabel, isRunningState, stateTone } from './status';
 
 const LONG_MESSAGE_LENGTH = 600;
+
+function statusLabelContent(
+	message: AgentMessage,
+	isStreaming: boolean,
+	label: string
+): ReactNode {
+	if (isStreaming && isRunningState(message.state)) {
+		return <TextShimmer className="text-sm">{label}</TextShimmer>;
+	}
+
+	return label;
+}
 
 export function AssistantMessage({
 	message,
@@ -29,6 +43,19 @@ export function AssistantMessage({
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
 
+	const hasContent = message.content.length > 0;
+	const hasTools = message.tools.length > 0;
+	const showActivity =
+		hasTools ||
+		(message.state !== 'idle' && message.state !== 'completed') ||
+		Boolean(message.errorText);
+	const label = statusLabel(message);
+	const labelContent = statusLabelContent(message, isStreaming, label);
+	const statusClassName = cn(
+		'inline-flex min-h-6 max-w-full items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+		stateTone(message.state)
+	);
+
 	return (
 		<Message className={cn('min-w-0 w-full flex-col', className)}>
 			{showHeader && (
@@ -39,12 +66,12 @@ export function AssistantMessage({
 					</span>
 				</div>
 			)}
-			{message.content.length > 0 && (
+			{hasContent && (
 				<>
 					<Markdown
 						components={markdownComponents}
 						className={cn(
-							'prose min-w-0 max-w-none break-words rounded-xl bg-secondary px-4 py-3 text-sm leading-relaxed text-secondary-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert [&_*]:max-w-full [&_a]:break-words [&_a]:[overflow-wrap:anywhere] [&_code]:break-words',
+							'prose min-w-0 max-w-none break-words rounded-xl bg-secondary px-4 text-sm leading-relaxed text-secondary-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert [&_*]:max-w-full [&_a]:break-words [&_a]:[overflow-wrap:anywhere] [&_code]:break-words',
 							canToggleContent && !isContentExpanded && 'max-h-48 overflow-hidden'
 						)}
 					>
@@ -64,12 +91,33 @@ export function AssistantMessage({
 					) : null}
 				</>
 			)}
-			<ActivityPanel
-				message={message}
-				isStreaming={isStreaming}
-				className={message.content.length > 0 ? 'my-3' : undefined}
-			/>
-			<SkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
+			{showActivity && (
+				<div className={cn('flex w-full flex-col', hasContent ? 'my-3' : undefined)}>
+					<div className="flex w-full flex-col">
+						{hasTools ? (
+							<div className="w-full">
+								<div className="flex w-full flex-col gap-0">
+									{message.tools.map((tool) => (
+										<Tool
+											key={tool.toolCallId}
+											toolPart={tool}
+											className="mt-0 w-full max-w-2xl"
+										/>
+									))}
+								</div>
+							</div>
+						) : (
+							<span className={statusClassName}>{labelContent}</span>
+						)}
+					</div>
+					{message.errorText && (
+						<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
+							{message.errorText}
+						</p>
+					)}
+				</div>
+			)}
+			<SkillUsage skills={skillUsages} className={hasContent ? 'mt-1' : undefined} />
 		</Message>
 	);
 }
