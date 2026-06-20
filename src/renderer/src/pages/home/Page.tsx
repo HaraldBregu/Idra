@@ -527,7 +527,7 @@ function PageContent(): ReactElement {
 
 
 									return (
-										<AgentTextMessage
+										<TextMessage
 											key={message.id}
 											message={message}
 											isStreaming={
