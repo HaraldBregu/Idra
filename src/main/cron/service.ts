@@ -191,15 +191,8 @@ export class CronService {
 
 	deleteSchedule(scheduleId: string, _actor?: CronActorContext): void {
 		this.unscheduleJob(scheduleId);
-		const now = new Date().toISOString();
-		const updated = this.update(scheduleId, {
-			status: 'deleted',
-			enabled: false,
-			deletedAt: now,
-			nextRunAt: undefined,
-			updatedAt: now,
-		});
-		this.emit(updated, 'schedule.deleted', 'Schedule deleted.');
+		const removed = this.remove(scheduleId);
+		this.emit(removed, 'schedule.deleted', 'Schedule deleted.');
 	}
 
 	getSchedule(scheduleId: string, _actor?: CronActorContext): CronSchedule {
