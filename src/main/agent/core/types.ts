@@ -43,7 +43,6 @@ export type MessageContent = string | MessageContentBlock[];
 export interface Message {
 	role: MessageRole;
 	content: MessageContent;
-	toolUseId?: string;
 	toolCalls?: ToolCall[];
 }
 
