@@ -155,34 +155,36 @@ function outputText(output: unknown): string {
 	}
 }
 
-function toHistoryMessage(message: Message): AgentHistoryMessage | undefined {
-	if (message.role === 'system') return undefined;
+function toHistoryMessages(message: Message): AgentHistoryMessage[] {
+	if (message.role === 'system') return [];
 
 	const content = toTextContent(message.content);
-	if (message.role === 'tool') {
-		const isError = content.startsWith('Error:');
-		return {
-			role: 'tool',
-			content,
-			toolUseId: message.toolUseId,
-			isError,
-			status: isError ? 'error' : 'ok',
-			output: content,
-		};
-	}
 
 	if (message.role === 'assistant') {
-		return {
-			role: 'assistant',
-			content,
-			contentBlocks: toHistoryContentBlocks(message),
-		};
+		const messages: AgentHistoryMessage[] = [
+			{
+				role: 'assistant',
+				content,
+				contentBlocks: toHistoryContentBlocks(message),
+			},
+		];
+		for (const toolCall of message.toolCalls ?? []) {
+			if (!toolCall.result) continue;
+			const output = toTextContent(toolCall.result.content);
+			const isError = toolCall.result.isError ?? output.startsWith('Error:');
+			messages.push({
+				role: 'tool',
+				content: output,
+				toolUseId: toolCall.id,
+				isError,
+				status: isError ? 'error' : 'ok',
+				output,
+			});
+		}
+		return messages;
 	}
 
-	return {
-		role: 'user',
-		content,
-	};
+	return [{ role: 'user', content }];
 }
 
 function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
