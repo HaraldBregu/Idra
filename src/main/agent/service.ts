@@ -8,7 +8,7 @@ import { AgentModel } from '../llm';
 import { RuntimeEvent } from '.';
 import { CronService } from '../cron';
 import type { Cron } from './core/cron';
-import type { Message } from './core/types';
+import type { Message, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
@@ -40,11 +40,10 @@ export class AgentService {
 	private readonly agentWorkspace!: WorkspaceService;
 
 	private readonly activeRuns = new Map<string, AbortController>();
-	private readonly defaultAgentId = 'main';
 	private readonly lastMessagesLimit = 50;
 
-	async send(message: string, agentId?: string, options: AgentSendOptions = {}): Promise<string> {
-		const resolvedAgentId = agentId?.trim() || this.defaultAgentId;
+	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
+		const resolvedAgentId = agentId.trim();
 
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();

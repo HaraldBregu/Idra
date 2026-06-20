@@ -247,7 +247,7 @@ export class ChannelRegistry {
 						chatType: normalized.chatType,
 						sessionKey,
 					});
-					const reply = await this.dependencies.agentService.send(normalized.text);
+					const reply = await this.dependencies.agentService.send(normalized.text, 'from-channels-todo');
 					await this.send({
 						type: channelId,
 						accountId,

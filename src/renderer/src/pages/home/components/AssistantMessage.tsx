@@ -4,7 +4,6 @@ import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { Message } from '@/components/prompt-kit/message';
-import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { cn } from '@/lib/utils';
 import { type AgentMessage } from '../context';
 import { markdownComponents } from './markdown';
@@ -27,7 +26,6 @@ function statusLabelContent(
 export function AssistantMessage({
 	message,
 	isStreaming = false,
-	showHeader = true,
 	collapseLongContent = false,
 	className,
 }: {
