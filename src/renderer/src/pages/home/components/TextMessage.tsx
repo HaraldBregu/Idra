@@ -32,7 +32,12 @@ export function TextMessage({
 	return (
 		<Message className={cn('min-w-0 w-full flex-col', className)}>
 			{showHeader && (
-				<AssistantMessageHeader avatarState={isStreaming ? 'active' : 'stopped'} />
+				<div className="flex min-w-0 items-center gap-2">
+					<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
+					<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
+						Friday
+					</span>
+				</div>
 			)}
 			{message.content.length > 0 && (
 				<>
