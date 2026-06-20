@@ -62,6 +62,8 @@ export interface SessionResult {
 	usage?: SessionUsage;
 }
 
+export type SessionCategory = 'home' | 'task';
+
 export interface SessionInput {
 	task: string;
 	message: string;
