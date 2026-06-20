@@ -199,22 +199,32 @@ function clearMessagesBySessionId(
 	if (existsSync(runFilePath)) writeFileSync(runFilePath, '', 'utf8');
 }
 
+function sessionsRoot(location: string, category: SessionCategory): string {
+	return path.join(path.resolve(location), 'sessions', category);
+}
+
 function sessionPath(sessionsPath: string, sessionFolderName: string): string {
 	return path.join(sessionsPath, sessionFolderName);
 }
 
-function resolveSessionId(sessionId: string | undefined, location?: string): string {
+function resolveSessionId(
+	sessionId: string | undefined,
+	category: SessionCategory,
+	location?: string
+): string {
 	if (!sessionId) return randomUUID();
 	if (isUuid(sessionId) || !location) return sessionId;
 
-	const sessionsPath = path.join(path.resolve(location), 'sessions');
-	return latestUuidSessionId(sessionsPath) ?? randomUUID();
+	return latestUuidSessionId(sessionsRoot(location, category)) ?? randomUUID();
 }
 
-function resolveStoredSessionId(sessionId: string, location?: string): string {
+function resolveStoredSessionId(
+	sessionId: string,
+	category: SessionCategory,
+	location?: string
+): string {
 	if (isUuid(sessionId) || !location) return sessionId;
-	const sessionsPath = path.join(path.resolve(location), 'sessions');
-	return latestUuidSessionId(sessionsPath) ?? sessionId;
+	return latestUuidSessionId(sessionsRoot(location, category)) ?? sessionId;
 }
 
 function latestUuidSessionId(sessionsPath: string): string | undefined {
