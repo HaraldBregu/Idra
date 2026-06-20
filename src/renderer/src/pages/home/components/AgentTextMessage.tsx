@@ -25,7 +25,6 @@ export function AgentTextMessage({
 	readonly className?: string;
 }): ReactElement {
 	const skillUsages = getAgentSkillUsages(message.tools);
-	const showContent = message.tools.length === 0 && message.content.length > 0;
 	const canToggleContent =
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
