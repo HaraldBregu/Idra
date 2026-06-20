@@ -44,7 +44,7 @@ export function ActivityPanel({
 		<div className={cn('flex w-full flex-col', className)}>
 			<div className="flex w-full flex-col">
 				{hasTools ? (
-					<AgentToolActivity
+					<ToolActivity
 						tools={message.tools}
 						className="w-full"
 					/>
