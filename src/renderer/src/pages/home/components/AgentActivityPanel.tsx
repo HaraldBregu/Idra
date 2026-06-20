@@ -20,9 +20,11 @@ function statusLabelContent(
 export function AgentActivityPanel({
 	message,
 	isStreaming,
+	className,
 }: {
 	readonly message: AgentMessage;
 	readonly isStreaming: boolean;
+	readonly className?: string;
 }): ReactElement | null {
 	const hasTools = message.tools.length > 0;
 	const showActivity =
