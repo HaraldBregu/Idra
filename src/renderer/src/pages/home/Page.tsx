@@ -22,7 +22,7 @@ import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import { ScrollButton } from '@/components/ui/scroll-button';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
-import { AgentTextMessage } from './components/AgentTextMessage';
+import { TextMessage } from './components/TextMessage';
 import { UserMessage } from './components/UserMessage';
 import { Provider, welcomeMessage } from './context';
 import {
