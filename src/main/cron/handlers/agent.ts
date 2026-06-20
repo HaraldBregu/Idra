@@ -1,7 +1,7 @@
 import type { CronTaskContext } from '../core';
 import { resolvePrompt } from './prompt';
 
-export function runAgentTask({ schedule, logger, agent }: CronTaskContext): void {
+export function runAgentTask({ schedule, task, logger, agent }: CronTaskContext): void {
 	const agentId = `cron:${schedule.id}`;
 	if (schedule.concurrencyPolicy === 'skipIfRunning' && agent.isBusy(agentId)) {
 		logger.warn(
@@ -11,7 +11,7 @@ export function runAgentTask({ schedule, logger, agent }: CronTaskContext): void
 		return;
 	}
 	agent
-		.send(resolvePrompt(schedule), agentId, { sessionId: schedule.sessionId })
+		.send(resolvePrompt(schedule), agentId, { sessionId: task.id, category: 'task' })
 		.catch((error) => {
 			logger.error('CronService', `Agent run failed for schedule ${schedule.id}.`, error);
 		});
