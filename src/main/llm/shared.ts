@@ -14,7 +14,7 @@ import type {
 
 type ReasoningContentBlock = Extract<AgentContentBlock, { type: 'reasoning' }>;
 
-export function toTranscriptEntry(message: Message): TranscriptEntry {
+export function toTranscriptEntry(message: Message): TranscriptEntry[] {
 	if (message.role === 'assistant') {
 		const content = toAssistantContent(message.content);
 		for (const toolCall of message.toolCalls ?? []) {
@@ -26,16 +26,21 @@ export function toTranscriptEntry(message: Message): TranscriptEntry {
 			});
 		}
 		if (content.length === 0) content.push({ type: 'text', text: '' });
-		return { role: 'assistant', content };
+
+		const entries: TranscriptEntry[] = [{ role: 'assistant', content }];
+		for (const toolCall of message.toolCalls ?? []) {
+			if (!toolCall.result) continue;
+			entries.push({
+				role: 'tool',
+				toolUseId: toolCall.id,
+				content: [{ type: 'text', text: toTextContent(toolCall.result.content) }],
+				isError: toolCall.result.isError,
+				status: toolCall.result.isError ? 'error' : 'ok',
+			});
+		}
+		return entries;
 	}
-	if (message.role === 'tool') {
-		return {
-			role: 'tool',
-			toolUseId: message.toolUseId ?? 'tool',
-			content: [{ type: 'text', text: toTextContent(message.content) }],
-		};
-	}
-	return { role: 'user', content: toTextContent(message.content) };
+	return [{ role: 'user', content: toTextContent(message.content) }];
 }
 
 function toAssistantContent(content: Message['content']): AgentContentBlock[] {
