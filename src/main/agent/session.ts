@@ -14,6 +14,7 @@ import { Session } from './core/session';
 import { resolveAgentUsageLocation } from './shared/location';
 import type {
 	SessionInput,
+	SessionCategory,
 	Message,
 	MessageContent,
 	MessageContentBlock,
@@ -22,22 +23,24 @@ import type {
 	SessionTurn,
 } from './core/types';
 
+const DEFAULT_CATEGORY: SessionCategory = 'home';
+
 @Service()
 export class SessionService {
 	private readonly location = resolveAgentUsageLocation();
 
-	create(input: SessionInput): AgentSession {
-		return new AgentSession(input, this.location);
+	create(input: SessionInput, category: SessionCategory = DEFAULT_CATEGORY): AgentSession {
+		return new AgentSession(input, this.location, category);
 	}
 
-	loadMessages(sessionId: string): Message[] {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, this.location);
-		return loadMessagesBySessionId(resolvedSessionId, this.location);
+	loadMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): Message[] {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, category, this.location);
+		return loadMessagesBySessionId(resolvedSessionId, category, this.location);
 	}
 
-	clearMessages(sessionId: string): void {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, this.location);
-		clearMessagesBySessionId(resolvedSessionId, this.location);
+	clearMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): void {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, category, this.location);
+		clearMessagesBySessionId(resolvedSessionId, category, this.location);
 	}
 }
 
