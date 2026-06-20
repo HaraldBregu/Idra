@@ -6,6 +6,15 @@ import { WriteTool } from './filesystem/write';
 import { EditTool } from './filesystem/edit';
 import { ExecTool } from './runtime/exec';
 import { ProcessTool } from './runtime/process';
+import {
+	CreateScheduleTool,
+	PauseScheduleTool,
+	ResumeScheduleTool,
+	DeleteScheduleTool,
+	GetScheduleTool,
+	ListSchedulesTool,
+	RunScheduleNowTool,
+} from './automation/cron';
 
 export class ToolLoader extends ToolData {
 	constructor(
@@ -22,7 +31,13 @@ export class ToolLoader extends ToolData {
 			new EditTool(this.context),
 			new ExecTool(this.context),
 			new ProcessTool(this.context),
-			...this.cron.tools,
+			new CreateScheduleTool(this.cron, this.context),
+			new PauseScheduleTool(this.cron, this.context),
+			new ResumeScheduleTool(this.cron, this.context),
+			new DeleteScheduleTool(this.cron, this.context),
+			new GetScheduleTool(this.cron, this.context),
+			new ListSchedulesTool(this.cron, this.context),
+			new RunScheduleNowTool(this.cron, this.context),
 		];
 	}
 }
