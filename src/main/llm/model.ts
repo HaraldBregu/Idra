@@ -145,7 +145,7 @@ export class AgentModel extends Model implements ProviderAdapter {
 			model: request.model,
 			effort: request.effort,
 			system,
-			messages: messages.map(toTranscriptEntry),
+			messages: messages.flatMap(toTranscriptEntry),
 			tools: (request.tools ?? []).map((tool) => ({
 				name: tool.name,
 				description: tool.description ?? '',
