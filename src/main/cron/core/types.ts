@@ -395,7 +395,11 @@ export interface CronServiceOptions {
 }
 
 export interface CronAgentService {
-	send(message: string, agentId?: string, options?: { sessionId?: string }): Promise<string>;
+	send(
+		message: string,
+		agentId?: string,
+		options?: { sessionId?: string; category?: SessionCategory }
+	): Promise<string>;
 	isBusy(agentId: string): boolean;
 }
 
