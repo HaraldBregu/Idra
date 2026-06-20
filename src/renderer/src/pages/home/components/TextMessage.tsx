@@ -59,12 +59,12 @@ export function TextMessage({
 					) : null}
 				</>
 			)}
-			<AgentActivityPanel
+			<ActivityPanel
 				message={message}
 				isStreaming={isStreaming}
 				className={message.content.length > 0 ? 'mt-3' : undefined}
 			/>
-			<AgentSkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
+			<SkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
 		</Message>
 	);
 }
