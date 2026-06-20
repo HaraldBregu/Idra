@@ -265,26 +265,24 @@ function isMessageContent(value: unknown): value is MessageContent {
 	return typeof value === 'string' || (Array.isArray(value) && value.every(isContentBlock));
 }
 
+function isToolResult(value: unknown): value is NonNullable<ToolCall['result']> {
+	return isRecord(value) && isMessageContent(value.content);
+}
+
 function isToolCall(value: unknown): value is ToolCall {
 	return (
 		isRecord(value) &&
 		typeof value.id === 'string' &&
 		typeof value.name === 'string' &&
-		isRecord(value.args)
+		isRecord(value.args) &&
+		(value.result === undefined || isToolResult(value.result))
 	);
 }
 
 function isMessage(value: unknown): value is Message {
 	if (!isRecord(value)) return false;
-	if (
-		value.role !== 'system' &&
-		value.role !== 'user' &&
-		value.role !== 'assistant' &&
-		value.role !== 'tool'
-	)
-		return false;
+	if (value.role !== 'system' && value.role !== 'user' && value.role !== 'assistant') return false;
 	if (!isMessageContent(value.content)) return false;
-	if (value.toolUseId !== undefined && typeof value.toolUseId !== 'string') return false;
 	if (value.toolCalls !== undefined) {
 		if (!Array.isArray(value.toolCalls)) return false;
 		if (!value.toolCalls.every(isToolCall)) return false;
