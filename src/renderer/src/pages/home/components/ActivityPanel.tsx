@@ -44,10 +44,17 @@ export function ActivityPanel({
 		<div className={cn('flex w-full flex-col', className)}>
 			<div className="flex w-full flex-col">
 				{hasTools ? (
-					<ToolActivity
-						tools={message.tools}
-						className="w-full"
-					/>
+					<div className="w-full">
+						<div className="flex w-full flex-col gap-0">
+							{message.tools.map((tool) => (
+								<Tool
+									key={tool.toolCallId}
+									toolPart={tool}
+									className="mt-0 w-full max-w-2xl"
+								/>
+							))}
+						</div>
+					</div>
 				) : (
 					<span className={statusClassName}>
 						{labelContent}
