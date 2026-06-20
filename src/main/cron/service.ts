@@ -423,6 +423,15 @@ export class CronService {
 		});
 	}
 
+	private remove(scheduleId: CronScheduleId): CronSchedule {
+		return this.writeState((state) => {
+			const index = state.schedules.findIndex((schedule) => schedule.id === scheduleId);
+			if (index === -1) throw new Error(`Cron schedule not found: ${scheduleId}`);
+			const [removed] = state.schedules.splice(index, 1);
+			return clone(removed!);
+		});
+	}
+
 	private update(scheduleId: CronScheduleId, patch: Partial<CronSchedule>): CronSchedule {
 		return this.writeState((state) => {
 			const index = state.schedules.findIndex((schedule) => schedule.id === scheduleId);
