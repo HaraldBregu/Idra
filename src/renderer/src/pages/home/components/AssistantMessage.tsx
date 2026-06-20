@@ -56,15 +56,15 @@ export function AssistantMessage({
 
 	return (
 		<div className={cn('flex w-full flex-col gap-2', className)}>
-			{showHeader && (
+			{/* {showHeader && (
 				<div className="flex min-w-0 items-center">
 					<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
 					<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
 						Friday
 					</span>
 				</div>
-			)}
-			<Message className="min-w-0 w-full flex-col">
+			)} */}
+			<Message className="min-w-0 w-full flex-col gap-2">
 				{hasContent && !hasTools && (
 					<>
 						<Markdown
@@ -91,12 +91,12 @@ export function AssistantMessage({
 						<div className="flex w-full flex-col">
 							{hasTools ? (
 								<div className="w-full">
-									<div className="flex w-full flex-col gap-0">
+									<div className="flex w-full flex-col gap-2">
 										{message.tools.map((tool) => (
 											<Tool
 												key={tool.toolCallId}
 												toolPart={tool}
-												className="mt-0 w-full max-w-2xl py-0.5"
+												className="mt-0 w-full max-w-2xl"
 											/>
 										))}
 									</div>
