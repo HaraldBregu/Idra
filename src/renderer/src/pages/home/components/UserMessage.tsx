@@ -1,6 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
-import { Message, MessageContent } from '@/components/ui/message';
+import { Message, MessageContent } from '@/components/prompt-kit/message';
 import { cn } from '@/lib/utils';
 
 const LONG_MESSAGE_LENGTH = 600;
