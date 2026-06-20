@@ -22,7 +22,7 @@ interface ModelTurn {
 	content: string;
 	model: string;
 	stopReason?: string;
-	toolCalls: Required<ToolCall>[];
+	toolCalls: ToolCall[];
 	usage?: {
 		inputTokens?: number;
 		outputTokens?: number;
