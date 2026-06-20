@@ -1,4 +1,4 @@
-export { AgentActivityPanel } from './AgentActivityPanel';
-export { AgentTextMessage } from './AgentTextMessage';
-export { AgentToolActivity } from './AgentToolActivity';
+export { ActivityPanel } from './ActivityPanel';
+export { TextMessage } from './TextMessage';
+export { ToolActivity } from './ToolActivity';
 export { UserMessage } from './UserMessage';
