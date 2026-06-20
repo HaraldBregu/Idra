@@ -45,19 +45,6 @@ function formatValue(value: unknown): string {
 	return String(value);
 }
 
-function stateIcon(state: ToolPart['state']) {
-	switch (state) {
-		case 'input-streaming':
-			return <Loader2 className="size-3.5 animate-spin text-muted-foreground" />;
-		case 'input-available':
-			return <Settings className="size-3.5 text-muted-foreground" />;
-		case 'output-available':
-			return <CheckCircle className="size-3.5 text-muted-foreground" />;
-		case 'output-error':
-			return <XCircle className="size-3.5 text-muted-foreground" />;
-	}
-}
-
 function ToolInput({ input }: { readonly input: unknown }) {
 	if (!isRecord(input) || Object.keys(input).length === 0) return null;
 
