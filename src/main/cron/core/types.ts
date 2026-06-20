@@ -1,3 +1,5 @@
+import type { SessionCategory } from '../../agent/core/types';
+
 export interface CronTaskData<TType extends string = string> {
 	readonly type: TType;
 }
