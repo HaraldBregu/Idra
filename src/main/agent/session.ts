@@ -162,9 +162,13 @@ export class AgentSession extends Session {
 	}
 }
 
-function loadMessagesBySessionId(sessionId: string, location?: string): Message[] {
+function loadMessagesBySessionId(
+	sessionId: string,
+	category: SessionCategory,
+	location?: string
+): Message[] {
 	if (!location) return [];
-	const sessionsPath = path.join(path.resolve(location), 'sessions');
+	const sessionsPath = sessionsRoot(location, category);
 	const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
 		? messagesFilePath(sessionsPath, sessionId)
 		: legacyFilePath(sessionsPath, sessionId);
