@@ -11,7 +11,7 @@ import { markdownComponents } from './markdown';
 
 const LONG_MESSAGE_LENGTH = 600;
 
-export function AgentTextMessage({
+export function TextMessage({
 	message,
 	isStreaming = false,
 	showHeader = true,
