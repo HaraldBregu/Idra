@@ -56,14 +56,6 @@ export function AssistantMessage({
 
 	return (
 		<div className={cn('flex w-full flex-col gap-2', className)}>
-			{/* {showHeader && (
-				<div className="flex min-w-0 items-center">
-					<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
-					<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
-						Friday
-					</span>
-				</div>
-			)} */}
 			<Message className="min-w-0 w-full flex-col gap-2">
 				{hasContent && !hasTools && (
 					<>
@@ -87,28 +79,21 @@ export function AssistantMessage({
 					</>
 				)}
 				{showActivity && (
-					<div className={cn('flex w-full flex-col')}>
-						<div className="flex w-full flex-col">
-							{hasTools ? (
-								<div className="w-full">
-									<div className="flex w-full flex-col gap-2">
-										{message.tools.map((tool) => (
-											<Tool
-												key={tool.toolCallId}
-												toolPart={tool}
-												className="mt-0 w-full max-w-2xl"
-											/>
-										))}
-									</div>
+					<div className="flex w-full flex-col">
+						{hasTools ? (
+							<div className="w-full">
+								<div className="flex w-full flex-col gap-4">
+									{message.tools.map((tool) => (
+										<Tool
+											key={tool.toolCallId}
+											toolPart={tool}
+											className="mt-0 w-full max-w-2xl"
+										/>
+									))}
 								</div>
-							) : (
-								<span className={statusClassName}>{labelContent}</span>
-							)}
-						</div>
-						{message.errorText && (
-							<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
-								{message.errorText}
-							</p>
+							</div>
+						) : (
+							<span className={statusClassName}>{labelContent}</span>
 						)}
 					</div>
 				)}

@@ -103,10 +103,9 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 						<Button
 							type="button"
 							variant="ghost"
-							className="h-auto w-full justify-between rounded-md bg-background px-1.5 py-1 font-normal text-muted-foreground"
+							className="h-auto w-full justify-between rounded-md bg-background px-1.5 py-1 font-normal text-muted-foreground hover:bg-background"
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
-								{stateIcon(state)}
 								<span className="truncate font-mono text-xs font-medium">
 									{toolPart.type}
 								</span>
