@@ -36,7 +36,7 @@ function formatElapsedSeconds(message: AgentMessage): string | undefined {
 	return `${seconds} second${seconds === 1 ? '' : 's'}`;
 }
 
-export function agentStatusLabel(message: AgentMessage): string {
+export function statusLabel(message: AgentMessage): string {
 	if (message.state === 'answering' && message.tools.length > 0) {
 		return 'Answering with tool results';
 	}
