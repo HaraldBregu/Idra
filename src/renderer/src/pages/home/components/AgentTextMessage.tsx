@@ -34,8 +34,7 @@ export function AgentTextMessage({
 			{showHeader && (
 				<AssistantMessageHeader avatarState={isStreaming ? 'active' : 'stopped'} />
 			)}
-			<AgentActivityPanel message={message} isStreaming={isStreaming} />
-			{showContent && (
+			{message.content.length > 0 && (
 				<>
 					<Markdown
 						components={markdownComponents}
