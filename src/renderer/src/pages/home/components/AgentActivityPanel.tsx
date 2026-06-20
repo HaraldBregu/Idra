@@ -41,7 +41,7 @@ export function AgentActivityPanel({
 	);
 
 	return (
-		<div className="flex w-full flex-col">
+		<div className={cn('flex w-full flex-col', className)}>
 			<div className="flex w-full flex-col">
 				{hasTools ? (
 					<AgentToolActivity
