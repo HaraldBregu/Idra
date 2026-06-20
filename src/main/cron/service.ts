@@ -343,6 +343,7 @@ export class CronService {
 			scheduleId: schedule.id,
 			name: schedule.name,
 			scheduledRunAt,
+			schedule
 		});
 		const task = this.buildTask(schedule, scheduledRunAt);
 		resolveTaskHandler(schedule.taskType)({
