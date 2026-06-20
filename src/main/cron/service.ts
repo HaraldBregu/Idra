@@ -214,18 +214,6 @@ export class CronService {
 		return this.trigger(scheduleId);
 	}
 
-	get tools(): CronTool[] {
-		return [
-			new CreateScheduleTool(this),
-			new PauseScheduleTool(this),
-			new ResumeScheduleTool(this),
-			new DeleteScheduleTool(this),
-			new GetScheduleTool(this),
-			new ListSchedulesTool(this),
-			new RunScheduleNowTool(this),
-		];
-	}
-
 	invoke<K extends CronFunctionId>(
 		id: K,
 		input: CronFunctionInput[K],
