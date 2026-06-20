@@ -55,69 +55,64 @@ export function AssistantMessage({
 	);
 
 	return (
-	<>
-		{showHeader && (
-			<div className="flex min-w-0 items-center gap-2">
-				<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
-				<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
-					Friday
-				</span>
-			</div>
-		)}
-
-		<Message className={cn('min-w-0 w-full flex-col', className)}>
-			{hasContent && !hasTools && (
-				<>
-					<Markdown
-						components={markdownComponents}
-						className={cn(
-							'prose min-w-0 max-w-none break-words rounded-xl bg-secondary px-4 py-2 text-sm leading-relaxed text-secondary-foreground shadow-sm [overflow-wrap:anywhere] prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-sm prose-h6:text-xs dark:prose-invert [&_*]:max-w-full [&_a]:break-words [&_a]:[overflow-wrap:anywhere] [&_code]:break-words',
-							canToggleContent && !isContentExpanded && 'max-h-48 overflow-hidden'
-						)}
-					>
-						{message.content}
-					</Markdown>
-					{canToggleContent ? (
-						<Button
-							type="button"
-							variant="ghost"
-							size="xs"
-							className="self-start text-muted-foreground hover:text-foreground"
-							aria-expanded={isContentExpanded}
-							onClick={() => setIsContentExpanded((expanded) => !expanded)}
-						>
-							{isContentExpanded ? 'Less' : 'More'}
-						</Button>
-					) : null}
-				</>
-			)}
-			{showActivity && (
-				<div className={cn('flex w-full flex-col', hasContent ? 'my-2' : undefined)}>
-					<div className="flex w-full flex-col">
-						{hasTools ? (
-							<div className="w-full">
-								<div className="flex w-full flex-col gap-0">
-									{message.tools.map((tool) => (
-										<Tool
-											key={tool.toolCallId}
-											toolPart={tool}
-											className="mt-0 w-full max-w-2xl"
-										/>
-									))}
-								</div>
-							</div>
-						) : (
-							<span className={statusClassName}>{labelContent}</span>
-						)}
-					</div>
-					{message.errorText && (
-						<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
-							{message.errorText}
-						</p>
-					)}
+		<div className={cn('flex w-full flex-col gap-2', className)}>
+			{showHeader && (
+				<div className="flex min-w-0 items-center">
+					<GradientSphere size={24} state={isStreaming ? 'active' : 'stopped'} />
+					<span className="min-w-0 truncate text-sm font-semibold leading-none text-foreground">
+						Friday
+					</span>
 				</div>
 			)}
-		</Message>
-	</>
+			<Message className="min-w-0 w-full flex-col">
+				{hasContent && !hasTools && (
+					<>
+						<Markdown
+							components={markdownComponents}
+						>
+							{message.content}
+						</Markdown>
+						{canToggleContent ? (
+							<Button
+								type="button"
+								variant="ghost"
+								size="xs"
+								className="self-start text-muted-foreground hover:text-foreground"
+								aria-expanded={isContentExpanded}
+								onClick={() => setIsContentExpanded((expanded) => !expanded)}
+							>
+								{isContentExpanded ? 'Less' : 'More'}
+							</Button>
+						) : null}
+					</>
+				)}
+				{showActivity && (
+					<div className={cn('flex w-full flex-col')}>
+						<div className="flex w-full flex-col">
+							{hasTools ? (
+								<div className="w-full">
+									<div className="flex w-full flex-col gap-0">
+										{message.tools.map((tool) => (
+											<Tool
+												key={tool.toolCallId}
+												toolPart={tool}
+												className="mt-0 w-full max-w-2xl py-0.5"
+											/>
+										))}
+									</div>
+								</div>
+							) : (
+								<span className={statusClassName}>{labelContent}</span>
+							)}
+						</div>
+						{message.errorText && (
+							<p className="rounded-md bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
+								{message.errorText}
+							</p>
+						)}
+					</div>
+				)}
+			</Message>
+		</>
 	);
 }
