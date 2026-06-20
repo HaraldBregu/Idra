@@ -11,7 +11,7 @@ import { markdownComponents } from './markdown';
 
 const LONG_MESSAGE_LENGTH = 600;
 
-export function TextMessage({
+export function AssistantMessage({
 	message,
 	isStreaming = false,
 	showHeader = true,
@@ -67,7 +67,7 @@ export function TextMessage({
 			<ActivityPanel
 				message={message}
 				isStreaming={isStreaming}
-				className={message.content.length > 0 ? 'mt-3' : undefined}
+				className={message.content.length > 0 ? 'my-3' : undefined}
 			/>
 			<SkillUsage skills={skillUsages} className={message.content.length > 0 ? 'mt-1' : undefined} />
 		</Message>
