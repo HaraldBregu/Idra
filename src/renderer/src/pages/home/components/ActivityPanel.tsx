@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
+import { Tool } from '@/components/prompt-kit/tool';
 import { cn } from '@/lib/utils';
 import type { AgentMessage } from '../context';
-import { ToolActivity } from './ToolActivity';
 import { statusLabel, isRunningState, stateTone } from './status';
 
 function statusLabelContent(
