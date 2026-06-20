@@ -90,10 +90,10 @@ function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
 						<Button
 							type="button"
 							variant="ghost"
-							className="h-auto w-full justify-between rounded-md bg-background px-1.5 py-1 font-normal text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
+							className="p-0! h-auto w-full justify-between rounded-md bg-transparent! py-1 font-normal text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
-								<span className="truncate font-mono text-xs font-medium">
+								<span className="truncate font-mono text-sm font-medium capitalize">
 									{toolPart.type}
 								</span>
 							</div>

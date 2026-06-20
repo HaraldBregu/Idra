@@ -1,12 +1,12 @@
-import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./tooltip"
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { Markdown } from "./markdown"
+import { Markdown } from "@/components/prompt-kit/markdown"
 
 export type MessageProps = {
   children: React.ReactNode
