@@ -183,8 +183,12 @@ function loadMessagesBySessionId(
 	}
 }
 
-function clearMessagesBySessionId(sessionId: string, location: string): void {
-	const sessionsPath = path.join(path.resolve(location), 'sessions');
+function clearMessagesBySessionId(
+	sessionId: string,
+	category: SessionCategory,
+	location: string
+): void {
+	const sessionsPath = sessionsRoot(location, category);
 	const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
 		? messagesFilePath(sessionsPath, sessionId)
 		: legacyFilePath(sessionsPath, sessionId);
