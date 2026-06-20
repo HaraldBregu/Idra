@@ -3,7 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AgentSkillUsage as AgentSkillUsageItem } from '../context';
 
-export function AgentSkillUsage({
+export function SkillUsage({
 	skills,
 	className,
 }: {
