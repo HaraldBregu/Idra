@@ -115,8 +115,7 @@ export class AgentService {
 		return this.session
 			.loadMessages(sessionId)
 			.slice(-this.lastMessagesLimit)
-			.map(toHistoryMessage)
-			.filter((message): message is AgentHistoryMessage => message !== undefined);
+			.flatMap(toHistoryMessages);
 	}
 
 	clearMessages(sessionId: string): void {
