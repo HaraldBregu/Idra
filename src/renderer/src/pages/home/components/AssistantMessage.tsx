@@ -113,6 +113,6 @@ export function AssistantMessage({
 					</div>
 				)}
 			</Message>
-		</>
+		</div>
 	);
 }
