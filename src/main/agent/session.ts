@@ -105,7 +105,7 @@ export class AgentSession extends Session {
 		this.messages.push({
 			role: 'assistant',
 			content: contentBlocks,
-			toolCalls,
+			...(toolCalls.length > 0 ? { toolCalls } : {}),
 		});
 		this.persist();
 	}
