@@ -8,12 +8,18 @@ export interface Provider {
 	baseURL: string,
 }
 
-export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
+export type MessageRole = 'system' | 'user' | 'assistant';
+
+export interface ToolResult {
+	content: MessageContent;
+	isError?: boolean;
+}
 
 export interface ToolCall {
 	id: string;
 	name: string;
 	args: Record<string, unknown>;
+	result?: ToolResult;
 }
 
 export interface JSONSchema {
