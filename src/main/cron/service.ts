@@ -225,14 +225,15 @@ export class CronService {
 	}
 
 	get tools(): CronTool[] {
-		return CRON_FUNCTIONS.map(
-			(fn) =>
-				new CronTool(this, {
-					id: fn.id,
-					description: fn.description,
-					schema: CRON_FUNCTION_SCHEMAS[fn.id],
-				})
-		);
+		return [
+			new CreateScheduleTool(this),
+			new PauseScheduleTool(this),
+			new ResumeScheduleTool(this),
+			new DeleteScheduleTool(this),
+			new GetScheduleTool(this),
+			new ListSchedulesTool(this),
+			new RunScheduleNowTool(this),
+		];
 	}
 
 	invoke<K extends CronFunctionId>(
@@ -240,9 +241,9 @@ export class CronService {
 		input: CronFunctionInput[K],
 		actor?: CronActorContext
 	): CronFunctionResult[K] {
-		const definition = CRON_FUNCTIONS.find((fn) => fn.id === id);
-		if (!definition) throw new Error(`Unknown cron function: ${id}`);
-		return this.handlers[id](input, actor);
+		const handler = this.handlers[id];
+		if (!handler) throw new Error(`Unknown cron function: ${id}`);
+		return handler(input, actor);
 	}
 
 	listJobs(): CronJobInfo[] {
