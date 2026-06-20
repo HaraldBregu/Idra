@@ -527,7 +527,7 @@ function PageContent(): ReactElement {
 
 
 									return (
-										<TextMessage
+										<AssistantMessage
 											key={message.id}
 											message={message}
 											isStreaming={
