@@ -364,6 +364,37 @@ export class CronService {
 		};
 	}
 
+	private runTask(schedule: CronSchedule, task: CronScheduledTask): void {
+		if (schedule.taskType === 'debug') {
+			this.runDebugTask(schedule, task);
+			return;
+		}
+		this.runAgentTask(schedule, task);
+	}
+
+	private runAgentTask(schedule: CronSchedule, task: CronScheduledTask): void {
+		const agentId = `cron:${schedule.id}`;
+		if (schedule.concurrencyPolicy === 'skipIfRunning' && this.agentService.isBusy(agentId)) {
+			this.logger.warn(
+				'CronService',
+				`Schedule ${schedule.id} skipped: previous agent run still in progress.`
+			);
+			return;
+		}
+		this.agentService
+			.send(resolvePrompt(schedule), agentId, { sessionId: task.id, category: 'task' })
+			.catch((error) => {
+				this.logger.error('CronService', `Agent run failed for schedule ${schedule.id}.`, error);
+			});
+	}
+
+	private runDebugTask(schedule: CronSchedule, task: CronScheduledTask): void {
+		this.logger.info('CronService', `Debug task fired for schedule ${schedule.id}.`, {
+			schedule,
+			task,
+		});
+	}
+
 	private emit(
 		schedule: CronSchedule,
 		type: CronScheduleEventType,
