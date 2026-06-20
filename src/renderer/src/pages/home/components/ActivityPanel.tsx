@@ -33,8 +33,8 @@ export function ActivityPanel({
 		Boolean(message.errorText);
 
 	if (!showActivity) return null;
-	const statusLabel = agentStatusLabel(message);
-	const labelContent = statusLabelContent(message, isStreaming, statusLabel);
+	const label = statusLabel(message);
+	const labelContent = statusLabelContent(message, isStreaming, label);
 	const statusClassName = cn(
 		'inline-flex min-h-6 max-w-full items-center rounded-full px-2 py-0.5 text-xs font-semibold',
 		stateTone(message.state)
