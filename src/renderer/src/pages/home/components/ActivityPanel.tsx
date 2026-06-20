@@ -17,7 +17,7 @@ function statusLabelContent(
 	return statusLabel;
 }
 
-export function AgentActivityPanel({
+export function ActivityPanel({
 	message,
 	isStreaming,
 	className,
