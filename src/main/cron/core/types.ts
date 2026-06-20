@@ -394,20 +394,11 @@ export interface CronServiceOptions {
 	enabled?: boolean;
 }
 
-export interface CronAgentService {
-	send(
-		message: string,
-		agentId?: string,
-		options?: { sessionId?: string; category?: SessionCategory }
-	): Promise<string>;
-	isBusy(agentId: string): boolean;
-}
-
 export interface CronTaskContext {
 	schedule: CronSchedule;
 	task: CronScheduledTask;
 	logger: CronLogger;
-	agent: CronAgentService;
+	agent: AgentService;
 }
 
 export type CronTaskHandler = (context: CronTaskContext) => void;
