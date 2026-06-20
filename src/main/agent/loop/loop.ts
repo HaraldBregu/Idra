@@ -121,9 +121,8 @@ export class AgentRuntime {
 				return;
 			}
 
-			const results = yield* this.runToolCalls(tools, turn.toolCalls);
-			session.addToolResults(turn.toolCalls, results);
-			yield { type: 'user_message', messages: results };
+			yield* this.runToolCalls(tools, turn.toolCalls);
+			session.addToolResults(turn.toolCalls);
 		}
 	}
 
