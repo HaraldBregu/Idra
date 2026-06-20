@@ -14,7 +14,6 @@ import {
 	matchesValue,
 } from './core';
 import { AgentService } from '../agent/service';
-import { resolveTaskHandler } from './handlers/resolve';
 import type {
 	CronActorContext,
 	CronFunctionId,
