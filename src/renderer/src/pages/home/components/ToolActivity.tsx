@@ -3,7 +3,7 @@ import { Tool } from '@/components/prompt-kit/tool';
 import { cn } from '@/lib/utils';
 import type { AgentToolPart } from '../context';
 
-export function AgentToolActivity({
+export function ToolActivity({
 	tools,
 	className,
 }: {
