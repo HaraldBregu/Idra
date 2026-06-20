@@ -199,10 +199,9 @@ export class AgentRuntime {
 
 	private async *runToolCalls(
 		tools: Tool[],
-		toolCalls: Required<ToolCall>[]
-	): AsyncGenerator<RuntimeEvent, Message[]> {
+		toolCalls: ToolCall[]
+	): AsyncGenerator<RuntimeEvent, void> {
 		const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
-		const results: Message[] = [];
 
 		for (const toolCall of toolCalls) {
 			const startedAtMs = Date.now();
@@ -224,14 +223,11 @@ export class AgentRuntime {
 				durationMs: Date.now() - startedAtMs,
 			};
 
-			results.push({
-				role: 'tool',
-				toolUseId: toolCall.id,
+			toolCall.result = {
 				content: formatToolOutput(outcome.output),
-			});
+				isError: outcome.isError,
+			};
 		}
-
-		return results;
 	}
 
 	private async runTool(
