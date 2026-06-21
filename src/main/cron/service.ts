@@ -45,7 +45,7 @@ export class CronService {
 	private agent?: CronAgent;
 
 	private readonly store: Store<PersistedCronState>;
-	private readonly tasks = new Map<CronScheduleId, CronJobHandle>();
+	private readonly tasks = new Map<string, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 
@@ -264,7 +264,7 @@ export class CronService {
 		return { stop: () => clearTimeout(timer), getNextRun: () => new Date(runAt) };
 	}
 
-	private unscheduleJob(scheduleId: CronScheduleId): void {
+	private unscheduleJob(scheduleId: string): void {
 		const task = this.tasks.get(scheduleId);
 		if (task) {
 			task.stop();
@@ -275,7 +275,7 @@ export class CronService {
 		}
 	}
 
-	private fire(scheduleId: CronScheduleId): void {
+	private fire(scheduleId: string): void {
 		if (!this.exists(scheduleId)) {
 			console.warn(
 				'[CronService]',
@@ -297,7 +297,7 @@ export class CronService {
 		}
 	}
 
-	private trigger(scheduleId: CronScheduleId): CronScheduledTask {
+	private trigger(scheduleId: string): CronScheduledTask {
 		const schedule = this.require(scheduleId);
 		const scheduledRunAt = new Date().toISOString();
 		console.log('[CronService] Schedule triggered', {
@@ -423,13 +423,13 @@ export class CronService {
 		return clone(typeof filter.limit === 'number' ? schedules.slice(0, filter.limit) : schedules);
 	}
 
-	private require(scheduleId: CronScheduleId): CronSchedule {
+	private require(scheduleId: string): CronSchedule {
 		const schedule = this.readState().schedules.find((entry) => entry.id === scheduleId);
 		if (!schedule) throw new Error(`Cron schedule not found: ${scheduleId}`);
 		return clone(schedule);
 	}
 
-	private exists(scheduleId: CronScheduleId): boolean {
+	private exists(scheduleId: string): boolean {
 		return this.readState().schedules.some((entry) => entry.id === scheduleId);
 	}
 
@@ -440,7 +440,7 @@ export class CronService {
 		});
 	}
 
-	private remove(scheduleId: CronScheduleId): CronSchedule {
+	private remove(scheduleId: string): CronSchedule {
 		return this.writeState((state) => {
 			const index = state.schedules.findIndex((schedule) => schedule.id === scheduleId);
 			if (index === -1) throw new Error(`Cron schedule not found: ${scheduleId}`);
@@ -449,7 +449,7 @@ export class CronService {
 		});
 	}
 
-	private update(scheduleId: CronScheduleId, patch: Partial<CronSchedule>): CronSchedule {
+	private update(scheduleId: string, patch: Partial<CronSchedule>): CronSchedule {
 		return this.writeState((state) => {
 			const index = state.schedules.findIndex((schedule) => schedule.id === scheduleId);
 			if (index === -1) throw new Error(`Cron schedule not found: ${scheduleId}`);
