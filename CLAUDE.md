@@ -20,6 +20,7 @@ Before implementing:
 
 - No features beyond what was asked.
 - Do not over-engineer the solution; actively look for the simplest solution that satisfies the request.
+- When generating code, start with the most basic working implementation first, then iterate only if the user asks for more.
 - No abstractions for single-use code.
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
@@ -84,11 +85,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
-## Codex Auto-Commit Hook
+## Claude Auto-Commit Hook
 
-This repo manages Codex auto-commit from `.codex` only. The hook entry is configured in `.codex/hooks.json` and runs `.codex/hooks/auto-add-commit-push.sh`.
+Claude uses its own auto-commit script for this repository.
 
-- It runs `git add -A`, skips commits when there are no changes, and unstages common secret patterns (`*.env`, `*.pem`, `*.key`, `credentials.json`).
-- It uses `git rev-parse --show-toplevel` to locate the repo root.
-- It uses `CODEX_TOOL_NAME` (if set) to tag the commit subject.
-- After each tool use that changes the worktree, add, commit, and push the resulting changes.
+- Do not replace or override Claude's auto-commit script configuration.
+- Keep commit automation changes aligned with Claude's script behavior and configuration.
