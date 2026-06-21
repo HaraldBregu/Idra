@@ -250,55 +250,6 @@ export interface CronScheduleEvent {
 	metadata: CronJsonObject;
 }
 
-export interface CronExecutionRecord {
-	executionId: string;
-	scheduleId: CronScheduleId;
-	idempotencyKey: string;
-	scheduledRunAt: string;
-	triggeredAt: string;
-	taskId?: string;
-	status: CronExecutionStatus;
-	missedRun: boolean;
-	runNumber: number;
-	completedAt?: string;
-	failedAt?: string;
-	error?: {
-		code: string;
-		message: string;
-		safeUserMessage: string;
-		retryable: boolean;
-		metadata?: CronJsonObject;
-	};
-	metadata: CronJsonObject;
-}
-
-export interface CronScheduleConfirmation {
-	confirmationId: string;
-	scheduleId?: CronScheduleId;
-	proposedScheduleRequest: CronScheduleCreateRequest;
-	userId?: string;
-	actionSummary: string;
-	scheduleSummary: string;
-	dataAccessSummary: string;
-	externalEffectSummary: string;
-	risks: string[];
-	expiresAt: string;
-	createdAt: string;
-}
-
-export interface CronStoreState {
-	schemaVersion: number;
-	configuration: {
-		enabled?: boolean;
-	};
-	schedules: CronSchedule[];
-	events: CronScheduleEvent[];
-	executions: CronExecutionRecord[];
-	locks: Record<string, { runnerId: string; expiresAt: string }>;
-	confirmations: CronScheduleConfirmation[];
-	quarantined: CronJsonObject[];
-}
-
 /**
  * Caller context for a schedule operation. Retained so the IPC layer can keep
  * passing a UI actor, but the simplified service does not enforce permissions.
