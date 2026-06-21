@@ -262,8 +262,6 @@ export interface CronActorContext {
 	permissions?: CronSchedulePermissionLevel[];
 }
 
-export type CronServiceActor = CronActorContext;
-
 export interface CronServiceOptions {
 	enabled?: boolean;
 }
