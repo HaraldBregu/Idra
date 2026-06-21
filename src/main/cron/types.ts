@@ -101,18 +101,6 @@ export interface CronRetryPolicy {
 	nonRetryableErrorCodes: string[];
 }
 
-export interface CronConfirmationPolicy {
-	confirmationId?: string;
-	actionSummary: string;
-	scheduleSummary: string;
-	dataAccessSummary: string;
-	externalEffectSummary: string;
-	risks: string[];
-	confirmedAt?: string;
-	confirmedBy?: string;
-	expiresAt?: string;
-}
-
 export interface CronSchedule {
 	id: string;
 	name: string;
