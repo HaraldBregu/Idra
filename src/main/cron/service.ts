@@ -342,7 +342,6 @@ export class CronService {
 				...current,
 				...clone(patch),
 				id: current.id,
-				taskMetadata: { ...current.taskMetadata, ...(patch.taskMetadata ?? {}) },
 			};
 			state.schedules[index] = next;
 			return clone(next);
