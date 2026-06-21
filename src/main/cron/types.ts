@@ -147,7 +147,7 @@ export interface CronConfirmationPolicy {
 	expiresAt?: string;
 }
 
-export interface CronScheduleDefinition {
+export interface CronSchedule {
 	id: CronScheduleId;
 	name: string;
 	description?: string;
