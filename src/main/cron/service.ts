@@ -232,7 +232,7 @@ export class CronService {
 				return this.createOneTimeJob(schedule);
 			default:
 				console.warn(
-					'CronService',
+					'[CronService]',
 					`Schedule ${schedule.id} skipped: schedule type "${schedule.type}" is not supported.`
 				);
 				return undefined;
@@ -242,7 +242,7 @@ export class CronService {
 	private createCronJob(schedule: CronSchedule): CronJobHandle | undefined {
 		if (!schedule.cronExpression || !cron.validate(schedule.cronExpression)) {
 			console.warn(
-				'CronService',
+				'[CronService]',
 				`Schedule ${schedule.id} has an invalid cron expression: ${schedule.cronExpression}`
 			);
 			return undefined;
@@ -259,7 +259,7 @@ export class CronService {
 		const intervalMs = schedule.intervalMs;
 		if (!intervalMs || intervalMs <= 0) {
 			console.warn(
-				'CronService',
+				'[CronService]',
 				`Schedule ${schedule.id} skipped: a positive intervalMs is required for ${schedule.type} schedules.`
 			);
 			return undefined;
@@ -275,7 +275,7 @@ export class CronService {
 		const runAt = schedule.runAt ? Date.parse(schedule.runAt) : Number.NaN;
 		if (Number.isNaN(runAt)) {
 			console.warn(
-				'CronService',
+				'[CronService]',
 				`Schedule ${schedule.id} skipped: a valid runAt timestamp is required for oneTime schedules.`
 			);
 			return undefined;
@@ -298,7 +298,7 @@ export class CronService {
 	private fire(scheduleId: CronScheduleId): void {
 		if (!this.exists(scheduleId)) {
 			console.warn(
-				'CronService',
+				'[CronService]',
 				`Orphaned cron job removed: schedule ${scheduleId} no longer exists.`
 			);
 			this.unscheduleJob(scheduleId);
@@ -383,7 +383,7 @@ export class CronService {
 		const agentId = `cron:${schedule.id}`;
 		if (schedule.concurrencyPolicy === 'skipIfRunning' && this.agentService.isBusy(agentId)) {
 			console.warn(
-				'CronService',
+				'[CronService]',
 				`Schedule ${schedule.id} skipped: previous agent run still in progress.`
 			);
 			return;
