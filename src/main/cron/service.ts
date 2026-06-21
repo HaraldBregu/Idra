@@ -218,22 +218,14 @@ export class CronService {
 	}
 
 	private createJob(schedule: CronSchedule): CronJobHandle | undefined {
-		switch (schedule.type) {
-			case 'cron':
-				return this.createCronJob(schedule);
-			case 'interval':
-			case 'fixedRate':
-			case 'fixedDelay':
-				return this.createIntervalJob(schedule);
-			case 'oneTime':
-				return this.createOneTimeJob(schedule);
-			default:
-				console.warn(
-					'[CronService]',
-					`Schedule ${schedule.id} skipped: schedule type "${schedule.type}" is not supported.`
-				);
-				return undefined;
-		}
+		if (schedule.cronExpression) return this.createCronJob(schedule);
+		if (schedule.intervalMs) return this.createIntervalJob(schedule);
+		if (schedule.runAt) return this.createOneTimeJob(schedule);
+		console.warn(
+			'[CronService]',
+			`Schedule ${schedule.id} skipped: no cronExpression, intervalMs, or runAt provided.`
+		);
+		return undefined;
 	}
 
 	private createCronJob(schedule: CronSchedule): CronJobHandle | undefined {
