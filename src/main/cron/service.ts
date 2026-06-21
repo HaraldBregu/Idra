@@ -44,11 +44,8 @@ export interface CronServiceEvents {
 
 @Service()
 export class CronService {
-	@Inject(() => LoggerService)
-	private readonly logger!: CronLogger;
-
 	@Inject(() => AgentService)
-	private readonly agentService!: AgentService;
+	private readonly agentService!: CronAgent;
 
 	private readonly store: Store<PersistedCronState>;
 	private readonly tasks = new Map<CronScheduleId, CronJobHandle>();
