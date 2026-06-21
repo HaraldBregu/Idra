@@ -75,6 +75,10 @@ export class CronService {
 		});
 	}
 
+	setAgent(agent: CronAgent): void {
+		this.agent = agent;
+	}
+
 	get events(): CronServiceEvents {
 		return {
 			subscribe: (listener) => {
