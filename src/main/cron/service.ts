@@ -401,7 +401,6 @@ export class CronService {
 			scheduleId: schedule.id,
 			type,
 			userId: schedule.ownerUserId,
-			source: schedule.source,
 			timestamp: new Date().toISOString(),
 			message,
 			metadata,
