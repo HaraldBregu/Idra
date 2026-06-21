@@ -1,32 +1,5 @@
-export interface CronTaskData<TType extends string = string> {
-	readonly type: TType;
-}
-
-export type CronStoredSchedule = string | CronJsonObject;
 export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
 export type CronStoredRunStatus = 'success' | 'failure' | 'skipped';
-
-export interface CronTask<TData extends CronTaskData = CronTaskData> {
-	readonly id: string;
-	readonly name: string;
-	readonly description?: string;
-	readonly schedule: CronStoredSchedule;
-	readonly expression: string;
-	readonly timezone: string;
-	readonly enabled: boolean;
-	readonly target: CronStoredTarget;
-	readonly payload: TData;
-	readonly data: TData;
-	readonly createdAt: string;
-	readonly updatedAt: string;
-	readonly lastRunAt?: string;
-	readonly nextRunAt?: string;
-	readonly lastRunStatus?: CronStoredRunStatus;
-	readonly lastError?: string;
-	readonly runCount: number;
-	readonly failureCount: number;
-	readonly lastRun?: string;
-}
 
 export interface CronJobInfo {
 	readonly id: string;
