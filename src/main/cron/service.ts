@@ -244,26 +244,11 @@ export class CronService {
 	private trigger(scheduleId: string): CronScheduledTask {
 		const schedule = this.require(scheduleId);
 		const scheduledRunAt = new Date().toISOString();
-		console.log('[CronService] Schedule triggered', {
-			scheduleId: schedule.id,
-			name: schedule.name,
-			scheduledRunAt,
-			schedule
-		});
 		const task = this.buildTask(schedule, scheduledRunAt);
-		const runCount = schedule.runCount + 1;
-		const completed = schedule.maxRuns !== undefined && runCount >= schedule.maxRuns;
-		if (completed) this.unscheduleJob(schedule.id);
-		const updated = this.update(schedule.id, {
-			runCount,
-			...(completed ? { enabled: false } : {}),
-			updatedAt: scheduledRunAt,
-		});
-		this.emit(updated, 'schedule.triggered', 'Scheduled task created.', {
+		this.emit(schedule, 'schedule.triggered', 'Scheduled task created.', {
 			taskId: task.id,
 			scheduledRunAt,
 		});
-		if (completed) this.emit(updated, 'schedule.completed', 'Schedule completed.', { runCount });
 		return task;
 	}
 
@@ -276,18 +261,15 @@ export class CronService {
 			description: schedule.description,
 			source: 'cron',
 			sourceId: schedule.id,
-			userId: schedule.ownerUserId,
 			sessionId: schedule.sessionId,
-			input: schedule.taskInput,
+			input: null,
 			status: 'queued',
-			priority: schedule.taskPriority,
-			visibility: schedule.visibility,
-			tags: ['cron', ...schedule.taskTags],
+			priority: 'normal',
+			visibility: 'user',
+			tags: ['cron'],
 			metadata: {
-				...schedule.taskMetadata,
 				cronScheduleId: schedule.id,
 				scheduledRunAt,
-				runNumber: schedule.runCount + 1,
 			},
 			createdAt: now,
 			updatedAt: now,
