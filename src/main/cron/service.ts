@@ -231,7 +231,7 @@ export class CronService {
 			case 'oneTime':
 				return this.createOneTimeJob(schedule);
 			default:
-				this.logger.warn(
+				console.warn(
 					'CronService',
 					`Schedule ${schedule.id} skipped: schedule type "${schedule.type}" is not supported.`
 				);
@@ -241,7 +241,7 @@ export class CronService {
 
 	private createCronJob(schedule: CronSchedule): CronJobHandle | undefined {
 		if (!schedule.cronExpression || !cron.validate(schedule.cronExpression)) {
-			this.logger.warn(
+			console.warn(
 				'CronService',
 				`Schedule ${schedule.id} has an invalid cron expression: ${schedule.cronExpression}`
 			);
@@ -258,7 +258,7 @@ export class CronService {
 	private createIntervalJob(schedule: CronSchedule): CronJobHandle | undefined {
 		const intervalMs = schedule.intervalMs;
 		if (!intervalMs || intervalMs <= 0) {
-			this.logger.warn(
+			console.warn(
 				'CronService',
 				`Schedule ${schedule.id} skipped: a positive intervalMs is required for ${schedule.type} schedules.`
 			);
@@ -274,7 +274,7 @@ export class CronService {
 	private createOneTimeJob(schedule: CronSchedule): CronJobHandle | undefined {
 		const runAt = schedule.runAt ? Date.parse(schedule.runAt) : Number.NaN;
 		if (Number.isNaN(runAt)) {
-			this.logger.warn(
+			console.warn(
 				'CronService',
 				`Schedule ${schedule.id} skipped: a valid runAt timestamp is required for oneTime schedules.`
 			);
@@ -297,7 +297,7 @@ export class CronService {
 
 	private fire(scheduleId: CronScheduleId): void {
 		if (!this.exists(scheduleId)) {
-			this.logger.warn(
+			console.warn(
 				'CronService',
 				`Orphaned cron job removed: schedule ${scheduleId} no longer exists.`
 			);
@@ -382,7 +382,7 @@ export class CronService {
 	private runAgentTask(schedule: CronSchedule): void {
 		const agentId = `cron:${schedule.id}`;
 		if (schedule.concurrencyPolicy === 'skipIfRunning' && this.agentService.isBusy(agentId)) {
-			this.logger.warn(
+			console.warn(
 				'CronService',
 				`Schedule ${schedule.id} skipped: previous agent run still in progress.`
 			);

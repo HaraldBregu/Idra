@@ -353,13 +353,6 @@ export interface CronStoreState {
 	quarantined: CronJsonObject[];
 }
 
-export interface CronLogger {
-	debug?(scope: string, message: string, metadata?: unknown): void;
-	info(scope: string, message: string, metadata?: unknown): void;
-	warn(scope: string, message: string, metadata?: unknown): void;
-	error(scope: string, message: string, metadata?: unknown): void;
-}
-
 /**
  * Caller context for a schedule operation. Retained so the IPC layer can keep
  * passing a UI actor, but the simplified service does not enforce permissions.
