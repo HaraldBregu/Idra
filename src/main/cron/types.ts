@@ -157,49 +157,16 @@ export interface CronSchedule {
 export interface CronScheduleCreateRequest {
 	name: string;
 	description?: string;
-	type: CronScheduleType;
-	source: CronScheduleSource;
-	sourceId?: string;
-	ownerUserId?: string;
 	sessionId?: string;
-	createdBy: string;
-	visibility?: CronScheduleVisibility;
-	timezone: string;
 	cronExpression?: string;
-	intervalMs?: number;
-	runAt?: string;
-	startAt?: string;
-	endAt?: string;
-	maxRuns?: number;
-	missedRunPolicy?: CronMissedRunPolicy;
-	concurrencyPolicy?: CronConcurrencyPolicy;
-	retryPolicy?: Partial<CronRetryPolicy>;
-	providerId?: string;
-	modelId?: string;
 	target?: CronStoredTarget;
-	payload?: CronJsonValue;
 	taskType: string;
-	taskInput: CronJsonValue;
-	taskPriority?: CronTaskPriority;
-	taskTags?: string[];
-	taskMetadata?: CronJsonObject;
-	requiredPermissions?: CronSchedulePermissionLevel[];
-	requiresConfirmation?: boolean;
-	confirmationPolicy?: CronConfirmationPolicy;
 	enabled?: boolean;
-	metadata?: CronJsonObject;
 }
 
 export interface CronScheduleFilter {
-	status?: CronScheduleStatus | CronScheduleStatus[];
-	source?: CronScheduleSource | CronScheduleSource[];
-	sourceId?: string;
-	ownerUserId?: string;
 	sessionId?: string;
-	visibility?: CronScheduleVisibility | CronScheduleVisibility[];
 	taskType?: string;
-	tag?: string;
-	includeDeleted?: boolean;
 	limit?: number;
 }
 
