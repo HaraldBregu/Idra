@@ -14,7 +14,7 @@ export function matchesValue<T extends string>(
 }
 
 export function isActiveSchedule(schedule: CronSchedule): boolean {
-	return schedule.enabled && !schedule.deletedAt;
+	return schedule.enabled;
 }
 
 import type { CronRetryPolicy } from './types';
