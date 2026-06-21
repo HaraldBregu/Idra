@@ -311,6 +311,28 @@ export class CronService {
 		}
 	}
 
+	private fire(scheduleId: CronScheduleId): void {
+		if (!this.exists(scheduleId)) {
+			this.logger.warn(
+				'CronService',
+				`Orphaned cron job removed: schedule ${scheduleId} no longer exists.`
+			);
+			this.unscheduleJob(scheduleId);
+			return;
+		}
+		this.trigger(scheduleId);
+	}
+
+	private reconcile(): void {
+		const active = new Set(this.list().filter(isActiveSchedule).map((schedule) => schedule.id));
+		for (const task of cron.getTasks().values()) {
+			if (task.name && !active.has(task.name)) {
+				this.logger.warn('CronService', `Destroying orphaned cron job ${task.name}.`);
+				void task.destroy();
+			}
+		}
+	}
+
 	private trigger(scheduleId: CronScheduleId): CronScheduledTask {
 		const schedule = this.require(scheduleId);
 		const scheduledRunAt = new Date().toISOString();
