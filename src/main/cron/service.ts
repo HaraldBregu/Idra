@@ -302,9 +302,13 @@ export class CronService {
 
 	private unscheduleJob(scheduleId: CronScheduleId): void {
 		const task = this.tasks.get(scheduleId);
-		if (!task) return;
-		task.stop();
-		this.tasks.delete(scheduleId);
+		if (task) {
+			task.stop();
+			this.tasks.delete(scheduleId);
+		}
+		for (const cronTask of cron.getTasks().values()) {
+			if (cronTask.name === scheduleId) void cronTask.destroy();
+		}
 	}
 
 	private trigger(scheduleId: CronScheduleId): CronScheduledTask {
