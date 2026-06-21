@@ -249,7 +249,7 @@ export class CronService {
 		if (!intervalMs || intervalMs <= 0) {
 			console.warn(
 				'[CronService]',
-				`Schedule ${schedule.id} skipped: a positive intervalMs is required for ${schedule.type} schedules.`
+				`Schedule ${schedule.id} skipped: a positive intervalMs is required for interval schedules.`
 			);
 			return undefined;
 		}
