@@ -107,7 +107,7 @@ export interface CronScheduledTask {
 	title: string;
 	description?: string;
 	source: 'cron';
-	sourceId: CronScheduleId;
+	sourceId: string;
 	userId?: string;
 	sessionId?: string;
 	input: CronJsonValue;
@@ -143,7 +143,7 @@ export interface CronConfirmationPolicy {
 }
 
 export interface CronSchedule {
-	id: CronScheduleId;
+	id: string;
 	name: string;
 	description?: string;
 	sourceId?: string;
@@ -218,7 +218,7 @@ export interface CronScheduleFilter {
 
 export interface CronScheduleEvent {
 	eventId: string;
-	scheduleId: CronScheduleId;
+	scheduleId: string;
 	type: CronScheduleEventType;
 	userId?: string;
 	timestamp: string;
