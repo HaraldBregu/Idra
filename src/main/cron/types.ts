@@ -14,9 +14,6 @@ export interface CronTask<TData extends CronTaskData = CronTaskData> {
 	readonly expression: string;
 	readonly timezone: string;
 	readonly enabled: boolean;
-	readonly status: CronScheduleStatus;
-	readonly providerId?: string;
-	readonly modelId?: string;
 	readonly target: CronStoredTarget;
 	readonly payload: TData;
 	readonly data: TData;
