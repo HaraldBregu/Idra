@@ -263,7 +263,7 @@ export class CronService {
 			);
 			return undefined;
 		}
-		const task = cron.schedule(schedule.cronExpression, () => this.trigger(schedule.id), {
+		const task = cron.schedule(schedule.cronExpression, () => this.fire(schedule.id), {
 			name: schedule.id,
 			timezone: schedule.timezone,
 			maxExecutions: schedule.maxRuns,
@@ -280,7 +280,7 @@ export class CronService {
 			);
 			return undefined;
 		}
-		const timer = setInterval(() => this.trigger(schedule.id), intervalMs);
+		const timer = setInterval(() => this.fire(schedule.id), intervalMs);
 		return {
 			stop: () => clearInterval(timer),
 			getNextRun: () => new Date(Date.now() + intervalMs),
@@ -296,7 +296,7 @@ export class CronService {
 			);
 			return undefined;
 		}
-		const timer = setTimeout(() => this.trigger(schedule.id), Math.max(0, runAt - Date.now()));
+		const timer = setTimeout(() => this.fire(schedule.id), Math.max(0, runAt - Date.now()));
 		return { stop: () => clearTimeout(timer), getNextRun: () => new Date(runAt) };
 	}
 
