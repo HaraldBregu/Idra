@@ -321,7 +321,7 @@ export class CronService {
 		if (completed) this.unscheduleJob(schedule.id);
 		const updated = this.update(schedule.id, {
 			runCount,
-			status: completed ? 'completed' : schedule.status,
+			...(completed ? { enabled: false } : {}),
 			updatedAt: scheduledRunAt,
 		});
 		this.emit(updated, 'schedule.triggered', 'Scheduled task created.', {
