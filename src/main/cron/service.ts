@@ -357,15 +357,20 @@ export class CronService {
 	}
 
 	private runAgentTask(schedule: CronSchedule): void {
+		const agent = this.agent;
+		if (!agent) {
+			console.warn('[CronService]', `Schedule ${schedule.id} skipped: no agent configured.`);
+			return;
+		}
 		const agentId = `cron:${schedule.id}`;
-		if (schedule.concurrencyPolicy === 'skipIfRunning' && this.agentService.isBusy(agentId)) {
+		if (schedule.concurrencyPolicy === 'skipIfRunning' && agent.isBusy(agentId)) {
 			console.warn(
 				'[CronService]',
 				`Schedule ${schedule.id} skipped: previous agent run still in progress.`
 			);
 			return;
 		}
-		this.agentService
+		agent
 			.send(resolvePrompt(schedule), agentId, { sessionId: schedule.id, category: 'task' })
 			.catch((error) => {
 				console.error('[CronService]', `Agent run failed for schedule ${schedule.id}.`, error);
