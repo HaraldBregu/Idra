@@ -25,7 +25,6 @@ import type {
 	CronScheduleEvent,
 	CronScheduleEventType,
 	CronScheduleFilter,
-	CronScheduleId,
 	PersistedCronState,
 	CronServiceOptions,
 } from './types';
