@@ -242,15 +242,6 @@ export interface CronServiceOptions {
 	enabled?: boolean;
 }
 
-export interface CronAgent {
-	send(
-		message: string,
-		agentId: string,
-		options?: { sessionId?: string; category?: 'home' | 'task' }
-	): Promise<string>;
-	isBusy(agentId: string): boolean;
-}
-
 /** Shape persisted to the cron electron-store settings file. */
 export interface PersistedCronState {
 	enabled?: boolean;
