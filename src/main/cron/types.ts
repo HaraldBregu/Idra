@@ -41,15 +41,6 @@ export type CronSchedulePermissionLevel =
 	| 'scheduleFileSystemAccess'
 	| 'adminScheduleManagement';
 
-export type CronMissedRunPolicy = 'skip' | 'runOnce' | 'catchUp' | 'fail' | 'askUser';
-
-export type CronConcurrencyPolicy =
-	| 'allowOverlap'
-	| 'skipIfRunning'
-	| 'queueIfRunning'
-	| 'cancelPrevious'
-	| 'replacePrevious';
-
 export type CronScheduleEventType =
 	| 'schedule.created'
 	| 'schedule.updated'
