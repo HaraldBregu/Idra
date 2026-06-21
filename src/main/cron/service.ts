@@ -145,7 +145,6 @@ export class CronService {
 		const now = new Date().toISOString();
 		const updated = this.update(scheduleId, {
 			enabled: false,
-			pausedAt: now,
 			updatedAt: now,
 		});
 		this.emit(updated, 'schedule.paused', 'Schedule paused.');
