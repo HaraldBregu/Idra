@@ -286,7 +286,6 @@ export class CronService {
 			eventId: randomUUID(),
 			scheduleId: schedule.id,
 			type,
-			userId: schedule.ownerUserId,
 			timestamp: new Date().toISOString(),
 			message,
 			metadata,
