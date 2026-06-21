@@ -76,15 +76,6 @@ export type CronConcurrencyPolicy =
 	| 'cancelPrevious'
 	| 'replacePrevious';
 
-export type CronExecutionStatus =
-	| 'created'
-	| 'skipped'
-	| 'taskCreated'
-	| 'taskCompleted'
-	| 'taskFailed'
-	| 'cancelled'
-	| 'duplicateIgnored';
-
 export type CronScheduleEventType =
 	| 'schedule.created'
 	| 'schedule.updated'
