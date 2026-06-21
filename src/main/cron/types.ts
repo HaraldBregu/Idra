@@ -1,5 +1,4 @@
 export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
-export type CronStoredRunStatus = 'success' | 'failure' | 'skipped';
 
 export interface CronJobInfo {
 	readonly id: string;
