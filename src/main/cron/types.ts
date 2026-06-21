@@ -151,7 +151,7 @@ export interface CronSchedule {
 	sessionId?: string;
 	visibility: CronScheduleVisibility;
 	timezone: CronTimezone;
-	cronExpression?: CronExpression;
+	cronExpression?: string;
 	intervalMs?: number;
 	runAt?: string;
 	maxRuns?: number;
@@ -178,7 +178,7 @@ export interface CronScheduleCreateRequest {
 	createdBy: string;
 	visibility?: CronScheduleVisibility;
 	timezone: CronTimezone;
-	cronExpression?: CronExpression;
+	cronExpression?: string;
 	intervalMs?: number;
 	runAt?: string;
 	startAt?: string;
