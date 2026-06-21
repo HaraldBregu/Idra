@@ -172,8 +172,6 @@ export interface CronSchedule {
 	updatedAt: string;
 }
 
-export type CronSchedule = CronScheduleDefinition;
-
 export interface CronScheduleCreateRequest {
 	name: string;
 	description?: string;
