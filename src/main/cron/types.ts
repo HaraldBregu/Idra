@@ -148,16 +148,6 @@ export interface CronConfirmationPolicy {
 	expiresAt?: string;
 }
 
-export interface CronScheduleAuditEntry {
-	auditId: string;
-	scheduleId: CronScheduleId;
-	action: string;
-	actor: CronScheduleSource | 'cron-scheduler' | 'cron-ipc' | 'agent-cron-service';
-	message: string;
-	createdAt: string;
-	metadata: CronJsonObject;
-}
-
 export interface CronScheduleDefinition {
 	id: CronScheduleId;
 	name: string;
