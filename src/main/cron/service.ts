@@ -41,8 +41,6 @@ export interface CronServiceEvents {
 
 @Service()
 export class CronService {
-	private agent?: CronAgent;
-
 	private readonly store: Store<PersistedCronState>;
 	private readonly tasks = new Map<string, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
