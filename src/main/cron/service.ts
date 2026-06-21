@@ -369,10 +369,10 @@ export class CronService {
 			this.runDebugTask(schedule, task);
 			return;
 		}
-		this.runAgentTask(schedule, task);
+		this.runAgentTask(schedule);
 	}
 
-	private runAgentTask(schedule: CronSchedule, task: CronScheduledTask): void {
+	private runAgentTask(schedule: CronSchedule): void {
 		const agentId = `cron:${schedule.id}`;
 		if (schedule.concurrencyPolicy === 'skipIfRunning' && this.agentService.isBusy(agentId)) {
 			this.logger.warn(
@@ -382,7 +382,7 @@ export class CronService {
 			return;
 		}
 		this.agentService
-			.send(resolvePrompt(schedule), agentId, { sessionId: task.id, category: 'task' })
+			.send(resolvePrompt(schedule), agentId, { sessionId: schedule.id, category: 'task' })
 			.catch((error) => {
 				this.logger.error('CronService', `Agent run failed for schedule ${schedule.id}.`, error);
 			});
