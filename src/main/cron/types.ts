@@ -146,23 +146,10 @@ export interface CronSchedule {
 	id: string;
 	name: string;
 	description?: string;
-	sourceId?: string;
-	ownerUserId?: string;
 	sessionId?: string;
-	visibility: CronScheduleVisibility;
-	timezone: string;
 	cronExpression?: string;
-	intervalMs?: number;
-	runAt?: string;
-	maxRuns?: number;
-	runCount: number;
-	concurrencyPolicy: CronConcurrencyPolicy;
 	target?: CronStoredTarget;
 	taskType: string;
-	taskInput: CronJsonValue;
-	taskPriority: CronTaskPriority;
-	taskTags: string[];
-	taskMetadata: CronJsonObject;
 	enabled: boolean;
 	updatedAt: string;
 }
