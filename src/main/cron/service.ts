@@ -128,7 +128,6 @@ export class CronService {
 			sourceId: request.sourceId,
 			ownerUserId: request.ownerUserId ?? actor?.userId,
 			sessionId: request.sessionId ?? actor?.sessionId,
-			createdBy: request.createdBy,
 			visibility: request.visibility ?? 'user',
 			timezone: request.timezone || actor?.timezone || DEFAULT_TIMEZONE,
 			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
@@ -138,9 +137,7 @@ export class CronService {
 			endAt: request.endAt,
 			maxRuns: request.maxRuns,
 			runCount: 0,
-			missedRunPolicy: request.missedRunPolicy ?? 'skip',
 			concurrencyPolicy: request.concurrencyPolicy ?? 'skipIfRunning',
-			retryPolicy: { ...DEFAULT_CRON_RETRY_POLICY, ...(request.retryPolicy ?? {}) },
 			providerId: request.providerId,
 			modelId: request.modelId,
 			target: request.target,
@@ -150,14 +147,10 @@ export class CronService {
 			taskPriority: request.taskPriority ?? 'normal',
 			taskTags: request.taskTags ?? [],
 			taskMetadata: request.taskMetadata ?? {},
-			requiredPermissions: request.requiredPermissions ?? [],
-			requiresConfirmation: request.requiresConfirmation ?? false,
 			confirmationPolicy: request.confirmationPolicy,
 			enabled: request.enabled ?? true,
 			createdAt: nowIso,
 			updatedAt: nowIso,
-			metadata: request.metadata ?? {},
-			audit: [],
 		};
 		const created = this.activate(this.create(schedule));
 		this.emit(created, 'schedule.created', 'Schedule created.');
