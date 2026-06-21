@@ -416,10 +416,7 @@ export class CronService {
 
 	private list(filter: CronScheduleFilter = {}): CronSchedule[] {
 		const schedules = this.readState()
-			.schedules.filter((schedule) => filter.includeDeleted || schedule.status !== 'deleted')
-			.filter((schedule) => matchesValue(schedule.status, filter.status))
-			.filter((schedule) => matchesValue(schedule.source, filter.source))
-			.filter((schedule) => !filter.sourceId || schedule.sourceId === filter.sourceId)
+			.schedules.filter((schedule) => !filter.sourceId || schedule.sourceId === filter.sourceId)
 			.filter((schedule) => !filter.ownerUserId || schedule.ownerUserId === filter.ownerUserId)
 			.filter((schedule) => !filter.sessionId || schedule.sessionId === filter.sessionId)
 			.filter((schedule) => matchesValue(schedule.visibility, filter.visibility))
