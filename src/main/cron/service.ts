@@ -151,7 +151,7 @@ export class CronService {
 		this.unscheduleJob(scheduleId);
 		const now = new Date().toISOString();
 		const updated = this.update(scheduleId, {
-			status: 'paused',
+			enabled: false,
 			pausedAt: now,
 			updatedAt: now,
 		});
