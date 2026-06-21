@@ -95,7 +95,7 @@ export class CronService {
 		for (const schedule of this.list().filter(isActiveSchedule)) {
 			this.activate(schedule);
 		}
-		this.logger.info('CronService', 'Cron service started.');
+		console.info('[CronService]', 'Cron service started.');
 	}
 
 	async stop(): Promise<void> {
@@ -105,7 +105,7 @@ export class CronService {
 
 	destroy(): void {
 		void this.stop();
-		this.logger.info('CronService', 'Disposed');
+		console.info('[CronService]', 'Disposed');
 	}
 
 	createSchedule(request: CronScheduleCreateRequest, actor?: CronActorContext): CronSchedule {
@@ -396,7 +396,7 @@ export class CronService {
 	}
 
 	private runDebugTask(schedule: CronSchedule, task: CronScheduledTask): void {
-		this.logger.info('CronService', `Debug task fired for schedule ${schedule.id}.`, {
+		console.info('[CronService]', `Debug task fired for schedule ${schedule.id}.`, {
 			schedule,
 			task,
 		});
