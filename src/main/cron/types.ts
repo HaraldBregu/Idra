@@ -22,26 +22,6 @@ export type CronScheduleStatus =
 	| 'failed'
 	| 'deleted';
 
-export type CronScheduleType =
-	| 'cron'
-	| 'interval'
-	| 'fixedRate'
-	| 'fixedDelay'
-	| 'oneTime'
-	| 'calendar'
-	| 'manual';
-
-export type CronScheduleSource =
-	| 'agent'
-	| 'skill'
-	| 'tool'
-	| 'connector'
-	| 'api'
-	| 'ui'
-	| 'system'
-	| 'migration'
-	| 'maintenance';
-
 export type CronScheduleVisibility = 'private' | 'user' | 'workspace' | 'system';
 
 export type CronSchedulePermissionLevel =
