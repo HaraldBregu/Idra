@@ -301,12 +301,8 @@ export class CronService {
 
 	private list(filter: CronScheduleFilter = {}): CronSchedule[] {
 		const schedules = this.readState()
-			.schedules.filter((schedule) => !filter.sourceId || schedule.sourceId === filter.sourceId)
-			.filter((schedule) => !filter.ownerUserId || schedule.ownerUserId === filter.ownerUserId)
-			.filter((schedule) => !filter.sessionId || schedule.sessionId === filter.sessionId)
-			.filter((schedule) => matchesValue(schedule.visibility, filter.visibility))
+			.schedules.filter((schedule) => !filter.sessionId || schedule.sessionId === filter.sessionId)
 			.filter((schedule) => !filter.taskType || schedule.taskType === filter.taskType)
-			.filter((schedule) => !filter.tag || schedule.taskTags.includes(filter.tag))
 			.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
 		return clone(typeof filter.limit === 'number' ? schedules.slice(0, filter.limit) : schedules);
 	}
