@@ -190,12 +190,7 @@ export class CronService {
 
 	private createJob(schedule: CronSchedule): CronJobHandle | undefined {
 		if (schedule.cronExpression) return this.createCronJob(schedule);
-		if (schedule.intervalMs) return this.createIntervalJob(schedule);
-		if (schedule.runAt) return this.createOneTimeJob(schedule);
-		console.warn(
-			'[CronService]',
-			`Schedule ${schedule.id} skipped: no cronExpression, intervalMs, or runAt provided.`
-		);
+		console.warn('[CronService]', `Schedule ${schedule.id} skipped: no cronExpression provided.`);
 		return undefined;
 	}
 
@@ -209,39 +204,8 @@ export class CronService {
 		}
 		const task = cron.schedule(schedule.cronExpression, () => this.fire(schedule.id), {
 			name: schedule.id,
-			timezone: schedule.timezone,
-			maxExecutions: schedule.maxRuns,
 		});
 		return { stop: () => task.destroy(), getNextRun: () => task.getNextRun() };
-	}
-
-	private createIntervalJob(schedule: CronSchedule): CronJobHandle | undefined {
-		const intervalMs = schedule.intervalMs;
-		if (!intervalMs || intervalMs <= 0) {
-			console.warn(
-				'[CronService]',
-				`Schedule ${schedule.id} skipped: a positive intervalMs is required for interval schedules.`
-			);
-			return undefined;
-		}
-		const timer = setInterval(() => this.fire(schedule.id), intervalMs);
-		return {
-			stop: () => clearInterval(timer),
-			getNextRun: () => new Date(Date.now() + intervalMs),
-		};
-	}
-
-	private createOneTimeJob(schedule: CronSchedule): CronJobHandle | undefined {
-		const runAt = schedule.runAt ? Date.parse(schedule.runAt) : Number.NaN;
-		if (Number.isNaN(runAt)) {
-			console.warn(
-				'[CronService]',
-				`Schedule ${schedule.id} skipped: a valid runAt timestamp is required for oneTime schedules.`
-			);
-			return undefined;
-		}
-		const timer = setTimeout(() => this.fire(schedule.id), Math.max(0, runAt - Date.now()));
-		return { stop: () => clearTimeout(timer), getNextRun: () => new Date(runAt) };
 	}
 
 	private unscheduleJob(scheduleId: string): void {
