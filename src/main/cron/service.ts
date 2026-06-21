@@ -2,13 +2,34 @@ import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import cron from 'node-cron';
 import { Inject, Service } from 'typedi';
-import { LoggerService } from '../shared';
 import { AgentService } from '../agent/service';
-import { CronActorContext, CronFunctionId, CronFunctionInput, CronFunctionResult, CronJobInfo, CronJsonObject, CronSchedule, CronScheduleCreateRequest, CronScheduledTask, CronScheduleEvent, CronScheduleEventType, CronScheduleFilter, CronScheduleId } from '../agent/core/cron';
-import { clone } from 'zod';
-import { CRON_STORE_FILE_NAME, CRON_STORE_DIRECTORY, defaultCronEnabled, DEFAULT_TIMEZONE } from './constants';
-import { CronLogger, PersistedCronState, CronServiceOptions } from './types';
-import { isActiveSchedule, matchesValue } from './util';
+import {
+	clone,
+	matchesValue,
+	isActiveSchedule,
+	CRON_STORE_FILE_NAME,
+	CRON_STORE_DIRECTORY,
+	DEFAULT_TIMEZONE,
+	defaultCronEnabled,
+} from './util';
+import type {
+	CronAgent,
+	CronActorContext,
+	CronFunctionId,
+	CronFunctionInput,
+	CronFunctionResult,
+	CronJobInfo,
+	CronJsonObject,
+	CronSchedule,
+	CronScheduleCreateRequest,
+	CronScheduledTask,
+	CronScheduleEvent,
+	CronScheduleEventType,
+	CronScheduleFilter,
+	CronScheduleId,
+	PersistedCronState,
+	CronServiceOptions,
+} from './types';
 
 type CronEventListener = (event: CronScheduleEvent) => void;
 
