@@ -3,36 +3,12 @@ import Store from 'electron-store';
 import cron from 'node-cron';
 import { Inject, Service } from 'typedi';
 import { LoggerService } from '../shared';
-import {
-	CRON_STORE_DIRECTORY,
-	CRON_STORE_FILE_NAME,
-	DEFAULT_TIMEZONE,
-	clone,
-	defaultCronEnabled,
-	isActiveSchedule,
-	matchesValue,
-} from './core';
 import { AgentService } from '../agent/service';
-import type {
-	CronActorContext,
-	CronFunctionId,
-	CronFunctionInput,
-	CronFunctionResult,
-	CronJobInfo,
-	CronJsonObject,
-	CronLogger,
-	CronSchedule,
-	CronScheduleCreateRequest,
-	CronScheduleEvent,
-	CronScheduleEventType,
-	CronScheduleFilter,
-	CronScheduleId,
-	CronScheduledTask,
-	CronServiceOptions,
-	PersistedCronState,
-} from './core';
-
-export type { CronServiceOptions, CronServiceActor } from './core';
+import { CronActorContext, CronFunctionId, CronFunctionInput, CronFunctionResult, CronJobInfo, CronJsonObject, CronSchedule, CronScheduleCreateRequest, CronScheduledTask, CronScheduleEvent, CronScheduleEventType, CronScheduleFilter, CronScheduleId } from '../agent/core/cron';
+import { clone } from 'zod';
+import { CRON_STORE_FILE_NAME, CRON_STORE_DIRECTORY, defaultCronEnabled, DEFAULT_TIMEZONE } from './constants';
+import { CronLogger, PersistedCronState, CronServiceOptions } from './types';
+import { isActiveSchedule, matchesValue } from './util';
 
 type CronEventListener = (event: CronScheduleEvent) => void;
 
@@ -162,7 +138,6 @@ export class CronService {
 		const updated = this.update(scheduleId, {
 			status: 'paused',
 			pausedAt: now,
-			nextRunAt: undefined,
 			updatedAt: now,
 		});
 		this.emit(updated, 'schedule.paused', 'Schedule paused.');
