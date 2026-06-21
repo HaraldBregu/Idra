@@ -208,7 +208,6 @@ export interface CronScheduleDefinition {
 	sourceId?: string;
 	ownerUserId?: string;
 	sessionId?: string;
-	createdBy: string;
 	visibility: CronScheduleVisibility;
 	timezone: CronTimezone;
 	cronExpression?: CronExpression;
@@ -218,19 +217,14 @@ export interface CronScheduleDefinition {
 	endAt?: string;
 	maxRuns?: number;
 	runCount: number;
-	lastRunAt?: string;
-	nextRunAt?: string;
 	lastRunStatus?: CronStoredRunStatus;
 	lastError?: string;
 	lastSuccessfulRunAt?: string;
 	lastFailedRunAt?: string;
-	lastEvaluatedAt?: string;
 	failureCount?: number;
-	missedRunPolicy: CronMissedRunPolicy;
 	maxCatchUpRuns?: number;
 	catchUpWindowMs?: number;
 	concurrencyPolicy: CronConcurrencyPolicy;
-	retryPolicy: CronRetryPolicy;
 	providerId?: string;
 	modelId?: string;
 	target?: CronStoredTarget;
@@ -240,16 +234,12 @@ export interface CronScheduleDefinition {
 	taskPriority: CronTaskPriority;
 	taskTags: string[];
 	taskMetadata: CronJsonObject;
-	requiredPermissions: CronSchedulePermissionLevel[];
-	requiresConfirmation: boolean;
 	confirmationPolicy?: CronConfirmationPolicy;
 	enabled: boolean;
 	pausedAt?: string;
 	createdAt: string;
 	updatedAt: string;
 	deletedAt?: string;
-	metadata: CronJsonObject;
-	audit: CronScheduleAuditEntry[];
 }
 
 export type CronSchedule = CronScheduleDefinition;
