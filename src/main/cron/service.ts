@@ -391,7 +391,7 @@ export class CronService {
 		this.agentService
 			.send(resolvePrompt(schedule), agentId, { sessionId: schedule.id, category: 'task' })
 			.catch((error) => {
-				this.logger.error('CronService', `Agent run failed for schedule ${schedule.id}.`, error);
+				console.error('[CronService]', `Agent run failed for schedule ${schedule.id}.`, error);
 			});
 	}
 
@@ -422,7 +422,7 @@ export class CronService {
 			try {
 				listener(event);
 			} catch (error) {
-				this.logger.error('CronService', 'Cron event listener failed.', error);
+				console.error('[CronService]', 'Cron event listener failed.', error);
 			}
 		}
 	}
