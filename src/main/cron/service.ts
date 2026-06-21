@@ -4,11 +4,9 @@ import cron from 'node-cron';
 import { Service } from 'typedi';
 import {
 	clone,
-	matchesValue,
 	isActiveSchedule,
 	CRON_STORE_FILE_NAME,
 	CRON_STORE_DIRECTORY,
-	DEFAULT_TIMEZONE,
 	defaultCronEnabled,
 } from './util';
 import type {
