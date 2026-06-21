@@ -294,7 +294,6 @@ export interface CronScheduleEvent {
 	scheduleId: CronScheduleId;
 	type: CronScheduleEventType;
 	userId?: string;
-	source: CronScheduleSource;
 	timestamp: string;
 	message: string;
 	metadata: CronJsonObject;
