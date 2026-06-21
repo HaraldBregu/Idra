@@ -257,7 +257,6 @@ export type CronSchedule = CronScheduleDefinition;
 export interface CronScheduleCreateRequest {
 	name: string;
 	description?: string;
-	schedule?: CronStoredSchedule;
 	type: CronScheduleType;
 	source: CronScheduleSource;
 	sourceId?: string;
@@ -273,8 +272,6 @@ export interface CronScheduleCreateRequest {
 	endAt?: string;
 	maxRuns?: number;
 	missedRunPolicy?: CronMissedRunPolicy;
-	maxCatchUpRuns?: number;
-	catchUpWindowMs?: number;
 	concurrencyPolicy?: CronConcurrencyPolicy;
 	retryPolicy?: Partial<CronRetryPolicy>;
 	providerId?: string;
@@ -291,7 +288,6 @@ export interface CronScheduleCreateRequest {
 	confirmationPolicy?: CronConfirmationPolicy;
 	enabled?: boolean;
 	metadata?: CronJsonObject;
-	confirmed?: boolean;
 }
 
 export interface CronScheduleFilter {
