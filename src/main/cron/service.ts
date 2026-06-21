@@ -162,7 +162,6 @@ export class CronService {
 		const now = new Date().toISOString();
 		const updated = this.activate(
 			this.update(scheduleId, {
-				status: 'active',
 				enabled: true,
 				pausedAt: undefined,
 				updatedAt: now,
