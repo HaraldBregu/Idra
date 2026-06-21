@@ -6,7 +6,6 @@ import { LoggerService } from '../shared';
 import {
 	CRON_STORE_DIRECTORY,
 	CRON_STORE_FILE_NAME,
-	DEFAULT_CRON_RETRY_POLICY,
 	DEFAULT_TIMEZONE,
 	clone,
 	defaultCronEnabled,
