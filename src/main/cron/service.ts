@@ -12,7 +12,6 @@ import {
 	defaultCronEnabled,
 } from './util';
 import type {
-	CronAgent,
 	CronActorContext,
 	CronFunctionId,
 	CronFunctionInput,
