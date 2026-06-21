@@ -61,9 +61,6 @@ export type CronSchedulePermissionLevel =
 	| 'scheduleFileSystemAccess'
 	| 'adminScheduleManagement';
 
-export type CronExpression = string;
-export type CronTimezone = string;
-
 export type CronMissedRunPolicy = 'skip' | 'runOnce' | 'catchUp' | 'fail' | 'askUser';
 
 export type CronConcurrencyPolicy =
