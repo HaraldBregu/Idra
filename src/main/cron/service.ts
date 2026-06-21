@@ -98,6 +98,7 @@ export class CronService {
 			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
 			return;
 		}
+		this.reconcile();
 		for (const schedule of this.list().filter(isActiveSchedule)) {
 			this.activate(schedule);
 		}
