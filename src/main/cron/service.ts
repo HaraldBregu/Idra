@@ -468,6 +468,10 @@ export class CronService {
 		return clone(schedule);
 	}
 
+	private exists(scheduleId: CronScheduleId): boolean {
+		return this.readState().schedules.some((entry) => entry.id === scheduleId);
+	}
+
 	private create(schedule: CronSchedule): CronSchedule {
 		return this.writeState((state) => {
 			state.schedules.push(clone(schedule));
