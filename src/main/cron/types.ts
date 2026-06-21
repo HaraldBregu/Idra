@@ -13,8 +13,6 @@ export interface CronJobInfo {
 	readonly updatedAt: string;
 }
 
-export type CronScheduleId = string;
-
 export type CronScheduleStatus =
 	| 'active'
 	| 'paused'
