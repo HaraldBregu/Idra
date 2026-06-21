@@ -218,8 +218,7 @@ export class CronService {
 	private activate(schedule: CronSchedule): CronSchedule {
 		if (!isActiveSchedule(schedule)) return schedule;
 		this.scheduleJob(schedule);
-		const nextRunAt = this.tasks.get(schedule.id)?.getNextRun()?.toISOString();
-		return nextRunAt ? this.update(schedule.id, { nextRunAt }) : schedule;
+		return schedule;
 	}
 
 	private scheduleJob(schedule: CronSchedule): void {
