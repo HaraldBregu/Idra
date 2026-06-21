@@ -201,10 +201,6 @@ export interface CronScheduleDefinition {
 	id: CronScheduleId;
 	name: string;
 	description?: string;
-	schedule?: CronStoredSchedule;
-	type: CronScheduleType;
-	status: CronScheduleStatus;
-	source: CronScheduleSource;
 	sourceId?: string;
 	ownerUserId?: string;
 	sessionId?: string;
