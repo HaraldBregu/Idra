@@ -88,7 +88,7 @@ export class CronService {
 
 	async start(): Promise<void> {
 		if (!this.enabled) {
-			this.logger.warn('CronService', 'Cron automatic execution is globally disabled.');
+			console.warn('[CronService]', 'Cron automatic execution is globally disabled.');
 			return;
 		}
 		this.reconcile();
@@ -311,7 +311,7 @@ export class CronService {
 		const active = new Set(this.list().filter(isActiveSchedule).map((schedule) => schedule.id));
 		for (const task of cron.getTasks().values()) {
 			if (task.name && !active.has(task.name)) {
-				this.logger.warn('CronService', `Destroying orphaned cron job ${task.name}.`);
+				console.warn('[CronService]', `Destroying orphaned cron job ${task.name}.`);
 				void task.destroy();
 			}
 		}
