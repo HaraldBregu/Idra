@@ -159,33 +159,17 @@ export interface CronScheduleDefinition {
 	cronExpression?: CronExpression;
 	intervalMs?: number;
 	runAt?: string;
-	startAt?: string;
-	endAt?: string;
 	maxRuns?: number;
 	runCount: number;
-	lastRunStatus?: CronStoredRunStatus;
-	lastError?: string;
-	lastSuccessfulRunAt?: string;
-	lastFailedRunAt?: string;
-	failureCount?: number;
-	maxCatchUpRuns?: number;
-	catchUpWindowMs?: number;
 	concurrencyPolicy: CronConcurrencyPolicy;
-	providerId?: string;
-	modelId?: string;
 	target?: CronStoredTarget;
-	payload?: CronJsonValue;
 	taskType: string;
 	taskInput: CronJsonValue;
 	taskPriority: CronTaskPriority;
 	taskTags: string[];
 	taskMetadata: CronJsonObject;
-	confirmationPolicy?: CronConfirmationPolicy;
 	enabled: boolean;
-	pausedAt?: string;
-	createdAt: string;
 	updatedAt: string;
-	deletedAt?: string;
 }
 
 export type CronSchedule = CronScheduleDefinition;
