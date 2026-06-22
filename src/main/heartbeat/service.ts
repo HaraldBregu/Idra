@@ -9,7 +9,7 @@ import { WorkspaceService } from '../agent/workspace';
 import { AgentRuntime } from '../agent/loop/loop';
 import { AgentModel } from '../llm';
 import { CronService } from '../cron';
-import type { HeartbeatSettings } from './types';
+import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
 
 const HEARTBEAT_STORE_NAME = 'settings';
 const HEARTBEAT_AGENT_ID = 'heartbeat';
