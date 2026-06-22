@@ -11,6 +11,7 @@ import type { MainServiceContainer } from './services/services';
 import { Connector } from './connectors';
 import { LlmService } from './llm';
 import { AgentService } from './services/agent/service';
+import { HeartbeatService } from './services/heartbeat';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
 import { SystemPromptService } from './services/agent/system-prompt';
