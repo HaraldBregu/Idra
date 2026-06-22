@@ -144,7 +144,7 @@ export class CronService {
 		this.emit(removed, 'schedule.deleted', 'Schedule deleted.');
 	}
 
-	getSchedule(scheduleId: string, _actor?: CronActorContext): CronSchedule {
+	getSchedule(scheduleId: string): CronSchedule {
 		return this.require(scheduleId);
 	}
 
