@@ -43,6 +43,7 @@ export class AgentRuntime {
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly memory: Memory,
+		private readonly heartbeat: Heartbeat,
 		private readonly settings: Settings,
 		private readonly session: Session,
 		private readonly model: AgentModel,
