@@ -13,6 +13,7 @@ import { SystemPrompt } from './prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { Workspace } from '../core/workspace';
+import { Memory } from '../core/memory';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
