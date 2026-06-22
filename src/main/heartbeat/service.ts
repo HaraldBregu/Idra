@@ -23,11 +23,13 @@ export interface HeartbeatServiceOptions {
 @Service({ factory: () => new HeartbeatService() })
 export class HeartbeatService {
 	private readonly store: Store<HeartbeatSettings>;
+	private readonly storeDirectory: string;
 
 	constructor(options: HeartbeatServiceOptions = {}) {
+		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
 		this.store = new Store<HeartbeatSettings>({
 			name: HEARTBEAT_STORE_NAME,
-			cwd: options.cwd ?? resolveHeartbeatStorePath(),
+			cwd: this.storeDirectory,
 			accessPropertiesByDotNotation: false,
 			defaults: HEARTBEAT_DEFAULT_SETTINGS,
 		});
@@ -53,7 +55,7 @@ export class HeartbeatService {
 	}
 
 	private ensureFile(): void {
-		const storePath = this.store.path;
+		const storePath = path.join(this.storeDirectory, `${HEARTBEAT_STORE_NAME}.json`);
 		if (existsSync(storePath)) return;
 		mkdirSync(path.dirname(storePath), { recursive: true });
 		writeFileSync(storePath, JSON.stringify(this.getSettings(), null, '\t'));
@@ -62,9 +64,9 @@ export class HeartbeatService {
 
 function resolveHeartbeatStorePath(): string {
 	try {
-		return path.resolve(app.getPath('appData'), 'heartbeat');
+		return path.resolve(app.getPath('appData'), app.getName(), 'heartbeat');
 	} catch {
 		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, 'heartbeat');
+		return path.resolve(base, app?.getName?.() ?? 'Friday', 'heartbeat');
 	}
 }
