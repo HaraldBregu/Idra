@@ -3,8 +3,8 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { AgentService } from '../agent/service';
-import { HeartbeatService as HeartbeatDocument } from '../agent/heartbeat';
+import { AgentService } from '../services/agent/service';
+import { HeartbeatService as HeartbeatDocument } from '../services/agent/heartbeat';
 import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
 import { randomUUID } from 'node:crypto';
 
