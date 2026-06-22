@@ -98,7 +98,7 @@ export class CronService {
 		console.info('[CronService]', 'Disposed');
 	}
 
-	createSchedule(request: CronScheduleCreateRequest, actor?: CronActorContext): CronSchedule {
+	createSchedule(request: CronScheduleCreateRequest): CronSchedule {
 		const now = new Date();
 		const nowIso = now.toISOString();
 		const schedule: CronSchedule = {
