@@ -39,8 +39,8 @@ export class HeartbeatService {
 	@Inject(() => AgentService)
 	private readonly agent!: AgentService;
 
-	@Inject(() => WorkspaceService)
-	private readonly workspace!: WorkspaceService;
+	@Inject(() => HeartbeatDocument)
+	private readonly heartbeat!: HeartbeatDocument;
 
 	constructor(options: HeartbeatServiceOptions = {}) {
 		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
