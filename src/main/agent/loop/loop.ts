@@ -9,13 +9,13 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import { SystemPrompt } from '../../services/agent/system-prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { ToolContext } from '../tools/context';
+import { SystemPrompt } from '../core/system-prompt';
 
 interface ModelTurn {
 	content: string;
@@ -72,10 +72,7 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
-		this.systemPrompt.addWorkspace();
-		// systemPrompt.addHeartBeat();
-		this.systemPrompt.addMemory();
-		const system = await this.systemPrompt.build();
+		const system = this.systemPrompt.getPrompt();
 
 		yield {
 			type: 'run_started',
