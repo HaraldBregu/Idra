@@ -264,12 +264,11 @@ export class CronService {
 		}
 	}
 
-	private list(filter: CronScheduleFilter = {}): CronSchedule[] {
-		const schedules = this.readState()
-			.schedules.filter((schedule) => !filter.sessionId || schedule.sessionId === filter.sessionId)
-			.filter((schedule) => !filter.taskType || schedule.taskType === filter.taskType)
-			.sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
-		return clone(typeof filter.limit === 'number' ? schedules.slice(0, filter.limit) : schedules);
+	private list(): CronSchedule[] {
+		const schedules = this.readState().schedules.sort(
+			(a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt)
+		);
+		return clone(schedules);
 	}
 
 	private require(scheduleId: string): CronSchedule {
