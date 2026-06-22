@@ -13,6 +13,7 @@ import { LlmService } from './llm';
 import { AgentService } from './agent/service';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
+import { HeartbeatService } from './heartbeat';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -40,6 +41,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(Connector);
 	container.get(LlmService);
 	container.get(SttService);
+	container.get(HeartbeatService);
 
 	const agentService = container.get(AgentService);
 
