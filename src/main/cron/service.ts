@@ -19,6 +19,7 @@ import type {
 	CronJobInfo,
 	CronSchedule,
 	CronScheduleCreateRequest,
+	CronScheduleUpdateRequest,
 	CronScheduledTask,
 	CronScheduleEvent,
 	CronScheduleEventType,
@@ -50,6 +51,7 @@ export class CronService {
 		[K in CronFunctionId]: (input: CronFunctionInput[K]) => CronFunctionResult[K];
 	} = {
 		create_schedule: (input) => this.createSchedule(input.request),
+		update_schedule: (input) => this.updateSchedule(input.scheduleId, input.request),
 		pause_schedule: (input) => this.pauseSchedule(input.scheduleId),
 		resume_schedule: (input) => this.resumeSchedule(input.scheduleId),
 		delete_schedule: (input) => this.deleteSchedule(input.scheduleId),
@@ -118,6 +120,22 @@ export class CronService {
 		const created = this.activate(this.create(schedule));
 		this.emit(created, 'schedule.created', 'Schedule created.');
 		return created;
+	}
+
+	updateSchedule(scheduleId: string, request: CronScheduleUpdateRequest): CronSchedule {
+		const now = new Date().toISOString();
+		const patch: Partial<CronSchedule> = { updatedAt: now };
+		if (typeof request.name === 'string') patch.name = request.name.trim();
+		if (typeof request.description === 'string') patch.description = request.description.trim();
+		if (typeof request.cronExpression === 'string') {
+			patch.cronExpression = request.cronExpression.trim().replace(/\s+/g, ' ');
+		}
+		if (typeof request.enabled === 'boolean') patch.enabled = request.enabled;
+		if (request.action) patch.action = request.action;
+		this.unscheduleJob(scheduleId);
+		const updated = this.activate(this.update(scheduleId, patch));
+		this.emit(updated, 'schedule.updated', 'Schedule updated.');
+		return updated;
 	}
 
 	pauseSchedule(scheduleId: string): void {
