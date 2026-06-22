@@ -13,8 +13,6 @@ import { LlmService } from './llm';
 import { AgentService } from './services/agent/service';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
-import { HeartbeatService } from './services/heartbeat';
-import { MemoryService } from './services/agent/memory';
 import { SystemPromptService } from './services/agent/system-prompt';
 
 export interface BootstrapResult {
