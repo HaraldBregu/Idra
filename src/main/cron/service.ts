@@ -219,13 +219,8 @@ export class CronService {
 			this.unscheduleJob(scheduleId);
 			return;
 		}
-		console.info('[CronService]', `Schedule ${scheduleId} fired.`);
-
-		const agentId = randomUUID();
-		void this.agent.send('Hey whats up', agentId, {
-			category: 'task',
-			sessionId: scheduleId,
-		});
+		handleLoggerFire(scheduleId);
+		handleAgentFire(this.agent, scheduleId);
 		this.trigger(scheduleId);
 	}
 
