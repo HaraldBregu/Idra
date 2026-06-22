@@ -234,13 +234,12 @@ export class CronService {
 
 	private trigger(scheduleId: string): CronScheduledTask {
 		const schedule = this.require(scheduleId);
-		const scheduledRunAt = new Date().toISOString();
-		const task = this.buildTask(schedule, scheduledRunAt);
+		const task = this.buildTask(schedule);
 		this.emit(schedule, 'schedule.triggered', 'Scheduled task created.');
 		return task;
 	}
 
-	private buildTask(schedule: CronSchedule, scheduledRunAt: string): CronScheduledTask {
+	private buildTask(schedule: CronSchedule): CronScheduledTask {
 		const now = new Date().toISOString();
 		return {
 			id: randomUUID(),
