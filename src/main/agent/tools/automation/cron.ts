@@ -41,17 +41,39 @@ export class CreateScheduleTool extends CronTool {
 				properties: {
 					name: { type: 'string' },
 					description: { type: 'string' },
-					type: { type: 'string' },
-					source: { type: 'string' },
-					createdBy: { type: 'string' },
-					timezone: { type: 'string' },
 					cronExpression: { type: 'string' },
-					intervalMs: { type: 'number' },
-					runAt: { type: 'string' },
-					taskType: { type: 'string' },
+					enabled: { type: 'boolean' },
+					action: {
+						type: 'object',
+						description: 'Action to run when the schedule fires.',
+						oneOf: [
+							{
+								type: 'object',
+								properties: {
+									type: { type: 'string', enum: ['debug'] },
+									message: { type: 'string' },
+								},
+								required: ['type', 'message'],
+								additionalProperties: false,
+							},
+							{
+								type: 'object',
+								properties: {
+									type: { type: 'string', enum: ['agent'] },
+									prompt: { type: 'string' },
+									effort: {
+										type: 'string',
+										enum: ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'],
+									},
+								},
+								required: ['type', 'prompt', 'effort'],
+								additionalProperties: false,
+							},
+						],
+					},
 				},
-				required: ['name', 'type', 'source', 'createdBy', 'timezone', 'taskType'],
-				additionalProperties: true,
+				required: ['name', 'action'],
+				additionalProperties: false,
 			},
 		},
 		required: ['request'],
@@ -129,16 +151,10 @@ export class GetScheduleTool extends CronTool {
 
 export class ListSchedulesTool extends CronTool {
 	readonly name = 'list_schedules';
-	readonly description = 'List cron schedules, optionally filtered.';
+	readonly description = 'List all cron schedules.';
 	readonly schema: JSONSchema = {
 		type: 'object',
-		properties: {
-			filter: {
-				type: 'object',
-				description: 'Optional filter to narrow the listed schedules.',
-				additionalProperties: true,
-			},
-		},
+		properties: {},
 		additionalProperties: false,
 	};
 
@@ -146,12 +162,8 @@ export class ListSchedulesTool extends CronTool {
 		super(cron, context);
 	}
 
-	run(input: Record<string, unknown>): CronSchedule[] {
-		const filter = input.filter;
-		if (filter !== undefined && (typeof filter !== 'object' || filter === null || Array.isArray(filter))) {
-			throw new Error('list_schedules filter must be an object.');
-		}
-		return this.cron.listSchedules(filter as CronScheduleFilter | undefined);
+	run(): CronSchedule[] {
+		return this.cron.listSchedules();
 	}
 }
 
