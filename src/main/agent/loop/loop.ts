@@ -55,7 +55,6 @@ export class AgentRuntime {
 			input,
 			signal,
 			this.session,
-			this.workspace,
 			this.settings
 		);
 	}
@@ -64,7 +63,6 @@ export class AgentRuntime {
 		input: RuntimeInput,
 		signal: AbortSignal,
 		session: Session,
-		workspace: Workspace,
 		settings: Settings
 	): AsyncGenerator<RuntimeEvent> {
 		const provider = settings.getProvider();
