@@ -2,13 +2,23 @@ import type { Workspace } from '../core/workspace';
 import type { Heartbeat } from '../core/heartbeat';
 import type { Memory } from '../core/memory';
 import { SystemPrompt as BaseSystemPrompt } from '../core/systemPrompt';
+import { Inject, Service } from 'typedi';
+import { WorkspaceService } from '../../services/agent/workspace';
+import { HeartbeatService } from '../../services/agent/heartbeat';
+import { MemoryService } from '../../services/agent/memory';
 
+@Service({ transient: true })
 export class SystemPrompt extends BaseSystemPrompt {
-	constructor(
-		private readonly workspace: Workspace,
-		private readonly heartbeat: Heartbeat,
-		private readonly memory: Memory
-	) {
+	@Inject(() => WorkspaceService)
+	private readonly workspace!: Workspace;
+
+	@Inject(() => HeartbeatService)
+	private readonly heartbeat!: Heartbeat;
+
+	@Inject(() => MemoryService)
+	private readonly memory!: Memory;
+
+	constructor() {
 		super('You are a personal AI assistant.');
 		this.prompt += '\n\n## Voice';
 		this.prompt += '\n- Sound natural, direct, and human, not like a generic support script.';
