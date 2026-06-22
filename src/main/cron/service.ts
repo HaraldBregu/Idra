@@ -43,18 +43,18 @@ export class CronService {
 	private readonly enabled: boolean;
 
 	private readonly handlers: {
-		[K in CronFunctionId]: (input: CronFunctionInput[K], actor?: CronActorContext) => CronFunctionResult[K];
+		[K in CronFunctionId]: (input: CronFunctionInput[K]) => CronFunctionResult[K];
 	} = {
-		create_schedule: (input, actor) => this.createSchedule(input.request, actor),
-		pause_schedule: (input, actor) => this.pauseSchedule(input.scheduleId, actor),
-		resume_schedule: (input, actor) => this.resumeSchedule(input.scheduleId, actor),
-		delete_schedule: (input, actor) => this.deleteSchedule(input.scheduleId, actor),
-		get_schedule: (input, actor) => this.getSchedule(input.scheduleId, actor),
-		list_schedules: (input, actor) => this.listSchedules(input.filter, actor),
-		run_schedule_now: (input, actor) => this.runScheduleNow(input.scheduleId, actor),
+		create_schedule: (input) => this.createSchedule(input.request),
+		pause_schedule: (input) => this.pauseSchedule(input.scheduleId),
+		resume_schedule: (input) => this.resumeSchedule(input.scheduleId),
+		delete_schedule: (input) => this.deleteSchedule(input.scheduleId),
+		get_schedule: (input) => this.getSchedule(input.scheduleId),
+		list_schedules: (input) => this.listSchedules(input.filter),
+		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
-	constructor(options: CronServiceOptions = {}) {
+	constructor(options: { enabled?: boolean } = {}) {
 		this.store = new Store<PersistedCronState>({
 			name: CRON_STORE_FILE_NAME,
 			cwd: CRON_STORE_DIRECTORY,
