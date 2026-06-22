@@ -65,14 +65,10 @@ export class AgentService {
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
-			var systemPrompt = this.systemPrompt 
-			if (options.category === 'heartbeat') {
-				systemPrompt = await systemPrompt.addHeartBeat();
-			} else {
-				systemPrompt = await systemPrompt.addBasePrompt();
-				systemPrompt = await systemPrompt.addWorkspace();
-				systemPrompt = await systemPrompt.addMemory();
-			}
+			var systemPrompt = this.systemPrompt
+			systemPrompt = await systemPrompt.addBasePrompt();
+			systemPrompt = await systemPrompt.addWorkspacePrompt();
+			systemPrompt = await systemPrompt.addMemoryPrompt();
 
 			const runtime = new AgentRuntime(
 				settings,

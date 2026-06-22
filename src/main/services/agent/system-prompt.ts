@@ -50,7 +50,7 @@ export class SystemPromptService extends SystemPrompt {
 		return this;
 	}
 
-	async addWorkspace(): Promise<this> {
+	async addWorkspacePrompt(): Promise<this> {
 		const displayWorkspaceDir = this.workspace.getPath();
 		this.prompt += '\n\n## Workspace';
 		this.prompt += `\nYour workspace directory holds your configuration and bootstrap files: ${displayWorkspaceDir}`;
@@ -83,13 +83,7 @@ export class SystemPromptService extends SystemPrompt {
 		return this;
 	}
 
-	async addHeartBeat(): Promise<this> {
-		const heartbeatText = await this.heartbeat.getText();
-		if (heartbeatText.trim()) this.prompt += `\n\n${heartbeatText.trim()}`;
-		return this;
-	}
-
-	async addMemory(): Promise<this> {
+	async addMemoryPrompt(): Promise<this> {
 		const memoryText = await this.memory.getText();
 		if (memoryText.trim()) this.prompt += `\n\n${memoryText.trim()}`;
 		return this;
@@ -100,9 +94,8 @@ export class SystemPromptService extends SystemPrompt {
 	}
 
 	async build(): Promise<string> {
-		await this.addWorkspace();
-		await this.addHeartBeat();
-		await this.addMemory();
+		await this.addWorkspacePrompt();
+		await this.addMemoryPrompt();
 		return this.getPrompt();
 	}
 }

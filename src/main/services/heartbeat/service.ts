@@ -15,6 +15,7 @@ const HEARTBEAT_INTERVALS_MS = {
 	'30m': 30 * 60 * 1000,
 	'1h': 60 * 60 * 1000,
 } as const;
+const HEARTBEAT_PROMPT = "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.";
 
 export const HEARTBEAT_DEFAULT_SETTINGS: HeartbeatSettings = {
 	every: '30m',
@@ -116,14 +117,14 @@ export class HeartbeatService {
 			every: settings.every,
 			target: settings.target,
 		});
-		
+
 		try {
 			const agentId = randomUUID();
 			const sessionId = randomUUID();
-			void await this.agent.send("", agentId, {
+			void await this.agent.send(HEARTBEAT_PROMPT, agentId, {
 				category: 'heartbeat',
 				sessionId,
- 			});
+			});
 		} catch (error) {
 			console.error('[HeartbeatService]', 'Heartbeat run failed.', error);
 		}

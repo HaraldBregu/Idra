@@ -74,7 +74,6 @@ export class AgentRuntime {
 
 		const system = this.systemPrompt.getPrompt();
 
-		console.log('systemPrompt \n', system);
 		yield {
 			type: 'run_started',
 			sessionId: session.id,
