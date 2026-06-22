@@ -41,8 +41,6 @@ export type CronJsonValue =
 	| CronJsonValue[]
 	| { [key: string]: CronJsonValue };
 
-export type CronJsonObject = Record<string, CronJsonValue>;
-
 export interface CronScheduledTask {
 	id: string;
 	type: string;
