@@ -92,10 +92,8 @@ export interface CronScheduleEvent {
 	eventId: string;
 	scheduleId: string;
 	type: CronScheduleEventType;
-	userId?: string;
 	timestamp: string;
 	message: string;
-	metadata: CronJsonObject;
 }
 
 /** Shape persisted to the cron electron-store settings file. */
