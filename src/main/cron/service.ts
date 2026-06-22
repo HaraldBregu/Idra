@@ -220,6 +220,7 @@ export class CronService {
 			return;
 		}
 		console.info('[CronService]', `Schedule ${scheduleId} fired.`);
+		void this.agent.send('Hey whats up', scheduleId);
 		this.trigger(scheduleId);
 	}
 
