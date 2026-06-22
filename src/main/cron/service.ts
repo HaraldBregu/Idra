@@ -127,7 +127,7 @@ export class CronService {
 		this.emit(updated, 'schedule.paused', 'Schedule paused.');
 	}
 
-	resumeSchedule(scheduleId: string, _actor?: CronActorContext): void {
+	resumeSchedule(scheduleId: string): void {
 		const now = new Date().toISOString();
 		const updated = this.activate(
 			this.update(scheduleId, {
