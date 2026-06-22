@@ -3,7 +3,12 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { AgentService } from '../agent/service';
+import { SettingsService } from '../agent/settings';
+import { SessionService } from '../agent/session';
+import { WorkspaceService } from '../agent/workspace';
+import { AgentRuntime } from '../agent/loop/loop';
+import { AgentModel } from '../llm';
+import { CronService } from '../cron';
 import type { HeartbeatSettings } from './types';
 
 const HEARTBEAT_STORE_NAME = 'settings';
@@ -35,8 +40,19 @@ export class HeartbeatService {
 	private readonly storeDirectory: string;
 	private timer: NodeJS.Timeout | undefined;
 
-	@Inject(() => AgentService)
-	private readonly agent!: AgentService;
+	@Inject(() => SettingsService)
+	private readonly agentSettingsStore!: SettingsService;
+
+	@Inject(() => SessionService)
+	private readonly session!: SessionService;
+
+	@Inject(() => WorkspaceService)
+	private readonly agentWorkspace!: WorkspaceService;
+
+	@Inject(() => CronService)
+	private readonly cron!: CronService;
+
+	private readonly activeRuns = new Set<string>();
 
 	constructor(options: HeartbeatServiceOptions = {}) {
 		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
@@ -109,14 +125,36 @@ export class HeartbeatService {
 	private async run(): Promise<void> {
 		const settings = this.getSettings();
 		if (normalizeEvery(settings.every) === '0m') return;
-		if (settings.skipWhenBusy && this.agent.isBusy(HEARTBEAT_AGENT_ID)) return;
+		if (settings.skipWhenBusy && this.activeRuns.has(HEARTBEAT_AGENT_ID)) return;
 		try {
-			await this.agent.send(HEARTBEAT_PROMPT, HEARTBEAT_AGENT_ID, {
+			const sessionInput = {
+				task: 'chat' as const,
+				message: HEARTBEAT_PROMPT,
 				category: 'task',
 				sessionId: HEARTBEAT_AGENT_ID,
-			});
+			};
+			const session = this.session.create(sessionInput, sessionInput.category);
+			const runtime = new AgentRuntime(
+				this.agentWorkspace,
+				this.agentSettingsStore,
+				session,
+				new AgentModel(),
+				this.cron
+			);
+			const input = {
+				...sessionInput,
+				maxRetries: 1,
+				tools: [],
+			};
+			const stream = runtime.run(input);
+			this.activeRuns.add(HEARTBEAT_AGENT_ID);
+			for await (const event of stream) {
+				session.appendRun(event);
+			}
 		} catch (error) {
 			console.error('[HeartbeatService]', 'Heartbeat run failed.', error);
+		} finally {
+			this.activeRuns.delete(HEARTBEAT_AGENT_ID);
 		}
 	}
 }
