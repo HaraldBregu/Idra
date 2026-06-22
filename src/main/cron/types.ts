@@ -50,26 +50,14 @@ export interface CronScheduledTask {
 	description?: string;
 	source: 'cron';
 	sourceId: string;
-	userId?: string;
 	sessionId?: string;
 	input: CronJsonValue;
 	status: CronScheduledTaskStatus;
 	priority: CronTaskPriority;
 	visibility: CronScheduleVisibility;
 	tags: string[];
-	metadata: CronJsonObject;
 	createdAt: string;
 	updatedAt: string;
-}
-
-export interface CronRetryPolicy {
-	maxAttempts: number;
-	initialDelayMs: number;
-	maxDelayMs: number;
-	backoffMultiplier: number;
-	jitter: boolean;
-	retryableErrorCodes: string[];
-	nonRetryableErrorCodes: string[];
 }
 
 export interface CronSchedule {
