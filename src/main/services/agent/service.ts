@@ -2,9 +2,6 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
 import { SessionService, AgentSession } from './session';
-import { WorkspaceService } from './workspace';
-import { MemoryService } from './memory';
-import { HeartbeatService } from './heartbeat';
 import { AgentRuntime } from '../../agent/loop/loop';
 import { AgentModel } from '../../llm';
 import { RuntimeEvent } from '../../agent';
@@ -38,15 +35,6 @@ export class AgentService {
 
 	@Inject(() => SessionService)
 	private readonly session!: SessionService;
-
-	@Inject(() => WorkspaceService)
-	private readonly agentWorkspace!: WorkspaceService;
-
-	@Inject(() => MemoryService)
-	private readonly agentMemory!: MemoryService;
-
-	@Inject(() => HeartbeatService)
-	private readonly agentHeartbeat!: HeartbeatService;
 
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
