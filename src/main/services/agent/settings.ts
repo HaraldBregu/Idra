@@ -2,9 +2,9 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { Settings, Provider } from '.';
-import type { Provider as StoredProvider } from '../../shared/providers/types';
-import { ProviderService } from '../services/provider-service';
+import { Settings, Provider } from '../../agent';
+import type { Provider as StoredProvider } from '../../../shared/providers/types';
+import { ProviderService } from '../provider-service';
 
 type SettingsSchema = {
 	providerId: string | undefined;
