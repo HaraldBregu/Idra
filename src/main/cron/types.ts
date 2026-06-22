@@ -127,22 +127,6 @@ export interface CronScheduleEvent {
 	metadata: CronJsonObject;
 }
 
-/**
- * Caller context for a schedule operation. Retained so the IPC layer can keep
- * passing a UI actor, but the simplified service does not enforce permissions.
- */
-export interface CronActorContext {
-	source?: string;
-	userId?: string;
-	sessionId?: string;
-	timezone?: string;
-	permissions?: CronSchedulePermissionLevel[];
-}
-
-export interface CronServiceOptions {
-	enabled?: boolean;
-}
-
 /** Shape persisted to the cron electron-store settings file. */
 export interface PersistedCronState {
 	enabled?: boolean;
