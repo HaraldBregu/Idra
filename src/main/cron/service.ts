@@ -19,7 +19,6 @@ import type {
 	CronScheduledTask,
 	CronScheduleEvent,
 	CronScheduleEventType,
-	CronScheduleFilter,
 	PersistedCronState,
 } from './types';
 
