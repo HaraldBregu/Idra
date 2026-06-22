@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
 import { SessionService, AgentSession } from './session';
-import { SystemPromptService } from './system-prompt';
+import { SystemPrompt } from './system-prompt';
 import { AgentRuntime } from '../../agent/loop/loop';
 import { AgentModel } from '../../llm';
 import { RuntimeEvent } from '../../agent';
@@ -37,8 +37,8 @@ export class AgentService {
 	@Inject(() => SessionService)
 	private readonly session!: SessionService;
 
-	@Inject(() => SystemPromptService)
-	private readonly systemPrompt!: SystemPromptService;
+	@Inject(() => SystemPrompt)
+	private readonly systemPrompt!: SystemPrompt;
 
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
