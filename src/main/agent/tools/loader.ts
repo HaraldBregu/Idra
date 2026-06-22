@@ -8,6 +8,7 @@ import { ExecTool } from './runtime/exec';
 import { ProcessTool } from './runtime/process';
 import {
 	CreateScheduleTool,
+	UpdateScheduleTool,
 	PauseScheduleTool,
 	ResumeScheduleTool,
 	DeleteScheduleTool,
@@ -32,6 +33,7 @@ export class ToolLoader extends ToolData {
 			new ExecTool(this.context),
 			new ProcessTool(this.context),
 			new CreateScheduleTool(this.cron, this.context),
+			new UpdateScheduleTool(this.cron, this.context),
 			new PauseScheduleTool(this.cron, this.context),
 			new ResumeScheduleTool(this.cron, this.context),
 			new DeleteScheduleTool(this.cron, this.context),
