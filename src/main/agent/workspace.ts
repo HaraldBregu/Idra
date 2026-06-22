@@ -7,7 +7,6 @@ import { resolveAgentUsageLocation } from './shared/location';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
-const HEARTBEAT_FILE = 'HEARTBEAT.md'
 const IDENTITY_FILE = 'IDENTITY.md'
 const MEMORY_FILE = 'MEMORY.md'
 const SOUL_FILE = 'SOUL.md'
