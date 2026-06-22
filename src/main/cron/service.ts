@@ -148,7 +148,7 @@ export class CronService {
 		return this.require(scheduleId);
 	}
 
-	listSchedules(filter: CronScheduleFilter = {}, _actor?: CronActorContext): CronSchedule[] {
+	listSchedules(filter: CronScheduleFilter = {}): CronSchedule[] {
 		return this.list(filter);
 	}
 
