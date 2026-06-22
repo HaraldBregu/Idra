@@ -1,3 +1,5 @@
+import type { ModelReasoningEffort } from '../../../shared/agent/types';
+
 export type CronScheduleEventType =
 	| 'schedule.created'
 	| 'schedule.updated'
