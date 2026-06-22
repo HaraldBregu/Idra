@@ -1,10 +1,10 @@
-import { SystemPrompt as BaseSystemPrompt } from '../../agent/core/systemPrompt';
+import { SystemPrompt as BaseSystemPrompt } from '../../agent/core/system-prompt';
 import { Inject, Service } from 'typedi';
 import { WorkspaceService } from './workspace';
 import { HeartbeatService } from './heartbeat';
 import { MemoryService } from './memory';
 
-@Service({ transient: true })
+@Service()
 export class SystemPrompt extends BaseSystemPrompt {
 	@Inject(() => WorkspaceService)
 	private readonly workspace!: WorkspaceService;

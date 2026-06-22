@@ -15,6 +15,7 @@ import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
 import { HeartbeatService } from './heartbeat';
 import { MemoryService } from './services/agent/memory';
+import { SystemPrompt } from './services/agent/prompt';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
@@ -44,6 +45,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(SttService);
 	container.get(HeartbeatService);
 	container.get(MemoryService);
+	container.get(SystemPrompt);
 
 	const agentService = container.get(AgentService);
 
