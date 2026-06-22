@@ -57,6 +57,10 @@ export type CronScheduleCreateRequest = Omit<
 	enabled?: boolean;
 };
 
+export type CronScheduleUpdateRequest = Partial<
+	Omit<CronSchedule, 'id' | 'createdAt' | 'updatedAt'>
+>;
+
 export interface CronScheduleEvent {
 	eventId: string;
 	scheduleId: string;
@@ -67,6 +71,7 @@ export interface CronScheduleEvent {
 
 export type CronFunctionId =
 	| 'create_schedule'
+	| 'update_schedule'
 	| 'pause_schedule'
 	| 'resume_schedule'
 	| 'delete_schedule'
@@ -76,6 +81,7 @@ export type CronFunctionId =
 
 export interface CronFunctionInput {
 	create_schedule: { request: CronScheduleCreateRequest };
+	update_schedule: { scheduleId: string; request: CronScheduleUpdateRequest };
 	pause_schedule: { scheduleId: string };
 	resume_schedule: { scheduleId: string };
 	delete_schedule: { scheduleId: string };
@@ -86,6 +92,7 @@ export interface CronFunctionInput {
 
 export interface CronFunctionResult {
 	create_schedule: CronSchedule;
+	update_schedule: CronSchedule;
 	pause_schedule: void;
 	resume_schedule: void;
 	delete_schedule: void;
@@ -106,6 +113,7 @@ export abstract class Cron {
 	abstract destroy(): void;
 
 	abstract createSchedule(request: CronScheduleCreateRequest): CronSchedule;
+	abstract updateSchedule(scheduleId: string, request: CronScheduleUpdateRequest): CronSchedule;
 	abstract pauseSchedule(scheduleId: string): void;
 	abstract resumeSchedule(scheduleId: string): void;
 	abstract deleteSchedule(scheduleId: string): void;
