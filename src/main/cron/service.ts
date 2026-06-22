@@ -10,7 +10,6 @@ import {
 	defaultCronEnabled,
 } from './util';
 import type {
-	CronActorContext,
 	CronFunctionId,
 	CronFunctionInput,
 	CronFunctionResult,
