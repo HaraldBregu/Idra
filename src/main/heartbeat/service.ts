@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Service } from 'typedi';
@@ -58,6 +58,14 @@ export class HeartbeatService {
 		const storePath = path.join(this.storeDirectory, `${HEARTBEAT_STORE_NAME}.json`);
 		if (existsSync(storePath)) return;
 		mkdirSync(path.dirname(storePath), { recursive: true });
+		const legacyStorePath = path.join(
+			resolveLegacyHeartbeatStorePath(),
+			`${HEARTBEAT_STORE_NAME}.json`
+		);
+		if (existsSync(legacyStorePath)) {
+			copyFileSync(legacyStorePath, storePath);
+			return;
+		}
 		writeFileSync(storePath, JSON.stringify(this.getSettings(), null, '\t'));
 	}
 }
@@ -68,5 +76,14 @@ function resolveHeartbeatStorePath(): string {
 	} catch {
 		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
 		return path.resolve(base, app?.getName?.() ?? 'Friday', 'heartbeat');
+	}
+}
+
+function resolveLegacyHeartbeatStorePath(): string {
+	try {
+		return path.resolve(app.getPath('appData'), 'heartbeat');
+	} catch {
+		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+		return path.resolve(base, 'heartbeat');
 	}
 }
