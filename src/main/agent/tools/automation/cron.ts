@@ -6,6 +6,7 @@ import type {
 	CronSchedule,
 	CronScheduledTask,
 	CronScheduleCreateRequest,
+	CronScheduleUpdateRequest,
 } from '../../core/cron';
 import type { JSONSchema } from '../../core/types';
 
@@ -105,6 +106,79 @@ export class PauseScheduleTool extends CronTool {
 
 	run(input: Record<string, unknown>): void {
 		this.cron.pauseSchedule(requireScheduleId(input, 'pause_schedule'));
+	}
+}
+
+export class UpdateScheduleTool extends CronTool {
+	readonly name: CronFunctionId = 'update_schedule';
+	readonly description: string = 'Update an existing cron schedule by id.';
+	readonly schema: JSONSchema = {
+		type: 'object',
+		properties: {
+			scheduleId: {
+				type: 'string',
+				description: 'Identifier of the schedule to update.',
+			},
+			request: {
+				type: 'object',
+				description: 'Fields to update on the schedule.',
+				properties: {
+					name: { type: 'string' },
+					description: { type: 'string' },
+					cronExpression: { type: 'string' },
+					enabled: { type: 'boolean' },
+					action: {
+						type: 'object',
+						description: 'Action to run when the schedule fires.',
+						oneOf: [
+							{
+								type: 'object',
+								properties: {
+									type: { type: 'string', enum: ['debug'] },
+									message: { type: 'string' },
+								},
+								required: ['type', 'message'],
+								additionalProperties: false,
+							},
+							{
+								type: 'object',
+								properties: {
+									type: { type: 'string', enum: ['agent'] },
+									prompt: { type: 'string' },
+									effort: {
+										type: 'string',
+										enum: ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'],
+									},
+								},
+								required: ['type', 'prompt', 'effort'],
+								additionalProperties: false,
+							},
+						],
+					},
+				},
+				additionalProperties: false,
+			},
+		},
+		required: ['scheduleId', 'request'],
+		additionalProperties: false,
+	};
+
+	constructor(cron: Cron, context: Context) {
+		super(cron, context);
+	}
+
+	run(input: Record<string, unknown>): CronSchedule {
+		const request = input.request;
+		if (!request || typeof request !== 'object' || Array.isArray(request)) {
+			throw new Error('update_schedule requires a request object.');
+		}
+		if (Object.keys(request).length === 0) {
+			throw new Error('update_schedule requires at least one field in request.');
+		}
+		return this.cron.updateSchedule(
+			requireScheduleId(input, 'update_schedule'),
+			request as CronScheduleUpdateRequest
+		);
 	}
 }
 
