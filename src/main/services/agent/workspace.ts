@@ -40,10 +40,6 @@ export class WorkspaceService extends Workspace {
 		return this.readTextFile(IDENTITY_FILE);
 	}
 
-	async getMemoryText(): Promise<string> {
-		return this.readTextFile(MEMORY_FILE);
-	}
-
 	async getSoulText(): Promise<string> {
 		return this.readTextFile(SOUL_FILE);
 	}
