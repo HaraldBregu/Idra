@@ -62,12 +62,16 @@ export class AgentService {
 				effort: options.effort,
 			};
 			session = this.session.create(sessionInput, options.category);
+			const workspace = this.agentWorkspace;
+			const settings = this.agentSettingsStore;
+			const model = new AgentModel();
+			const cron = this.cron;
 			const runtime = new AgentRuntime(
-				this.agentWorkspace,
-				this.agentSettingsStore,
+				workspace,
+				settings,
 				session,
-				new AgentModel(),
-				this.cron
+				model,
+				cron
 			);
 			const input = {
 				...sessionInput,
@@ -189,13 +193,13 @@ function toHistoryMessages(message: Message): AgentHistoryMessage[] {
 function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
 	const blocks = Array.isArray(message.content)
 		? message.content
-				.map((block): AgentHistoryContentBlock | undefined => {
-					if (block.type === 'text' && typeof block.text === 'string') {
-						return { type: 'text', text: block.text };
-					}
-					return undefined;
-				})
-				.filter((block): block is AgentHistoryContentBlock => block !== undefined)
+			.map((block): AgentHistoryContentBlock | undefined => {
+				if (block.type === 'text' && typeof block.text === 'string') {
+					return { type: 'text', text: block.text };
+				}
+				return undefined;
+			})
+			.filter((block): block is AgentHistoryContentBlock => block !== undefined)
 		: [];
 
 	for (const toolCall of message.toolCalls ?? []) {

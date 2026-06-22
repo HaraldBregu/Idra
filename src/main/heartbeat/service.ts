@@ -6,6 +6,7 @@ import { Inject, Service } from 'typedi';
 import { AgentService } from '../agent/service';
 import { WorkspaceService } from '../agent/workspace';
 import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
+import { randomUUID } from 'node:crypto';
 
 const HEARTBEAT_STORE_NAME = 'settings';
 const HEARTBEAT_AGENT_ID = 'heartbeat';
@@ -120,11 +121,14 @@ export class HeartbeatService {
 			every: settings.every,
 			target: settings.target,
 		});
+		
 		try {
-			await this.agent.send(message, HEARTBEAT_AGENT_ID, {
-				sessionId: HEARTBEAT_AGENT_ID,
-				category: 'task',
-			});
+			const agentId = randomUUID();
+			const sessionId = randomUUID();
+			void await this.agent.send(message, agentId, {
+				category: 'heartbeat',
+				sessionId,
+ 			});
 		} catch (error) {
 			console.error('[HeartbeatService]', 'Heartbeat run failed.', error);
 		}
