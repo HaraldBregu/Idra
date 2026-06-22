@@ -1,4 +1,4 @@
-export type HeartbeatEvery = '0m' | '30m' | '1h';
+export type HeartbeatEvery = '0m' | '1m' | '30m' | '1h';
 
 export type HeartbeatTarget = 'none' | 'last' | string;
 
