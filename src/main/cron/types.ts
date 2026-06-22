@@ -78,7 +78,7 @@ export interface CronFunctionInput {
 	resume_schedule: { scheduleId: string };
 	delete_schedule: { scheduleId: string };
 	get_schedule: { scheduleId: string };
-	list_schedules: { filter?: CronScheduleFilter };
+	list_schedules: Record<string, never>;
 	run_schedule_now: { scheduleId: string };
 }
 
