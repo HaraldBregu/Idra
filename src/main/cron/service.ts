@@ -106,7 +106,6 @@ export class CronService {
 			description: request.description?.trim(),
 			sessionId: request.sessionId,
 			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
-			target: request.target,
 			taskType: request.taskType,
 			enabled: request.enabled ?? true,
 			updatedAt: nowIso,
