@@ -152,18 +152,14 @@ export class CronService {
 		return this.list(filter);
 	}
 
-	runScheduleNow(scheduleId: string, _actor?: CronActorContext): CronScheduledTask {
+	runScheduleNow(scheduleId: string): CronScheduledTask {
 		return this.trigger(scheduleId);
 	}
 
-	invoke<K extends CronFunctionId>(
-		id: K,
-		input: CronFunctionInput[K],
-		actor?: CronActorContext
-	): CronFunctionResult[K] {
+	invoke<K extends CronFunctionId>(id: K, input: CronFunctionInput[K]): CronFunctionResult[K] {
 		const handler = this.handlers[id];
 		if (!handler) throw new Error(`Unknown cron function: ${id}`);
-		return handler(input, actor);
+		return handler(input);
 	}
 
 	listJobs(): CronJobInfo[] {
