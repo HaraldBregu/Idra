@@ -181,6 +181,26 @@ function resolveLegacyHeartbeatStorePath(): string {
 	}
 }
 
+function withinActiveHours(hours: HeartbeatActiveHours | undefined): boolean {
+	if (!hours) return true;
+	const start = parseHm(hours.start);
+	const end = parseHm(hours.end);
+	if (start === undefined || end === undefined || start === end) return true;
+	const now = new Date();
+	const minutes = now.getHours() * 60 + now.getMinutes();
+	// ponytail: wraps past midnight when start > end (e.g. 22:00–06:00)
+	return start < end ? minutes >= start && minutes < end : minutes >= start || minutes < end;
+}
+
+function parseHm(value: string): number | undefined {
+	const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+	if (!match) return undefined;
+	const h = Number(match[1]);
+	const m = Number(match[2]);
+	if (h > 23 || m > 59) return undefined;
+	return h * 60 + m;
+}
+
 function normalizeEvery(value: HeartbeatSettings['every']): keyof typeof HEARTBEAT_INTERVALS_MS {
 	if (value in HEARTBEAT_INTERVALS_MS) {
 		return value as keyof typeof HEARTBEAT_INTERVALS_MS;
