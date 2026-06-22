@@ -258,10 +258,6 @@ export class CronService {
 			priority: 'normal',
 			visibility: 'user',
 			tags: ['cron'],
-			metadata: {
-				cronScheduleId: schedule.id,
-				scheduledRunAt,
-			},
 			createdAt: now,
 			updatedAt: now,
 		};
