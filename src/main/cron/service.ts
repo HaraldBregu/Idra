@@ -240,7 +240,6 @@ export class CronService {
 		const now = new Date().toISOString();
 		return {
 			id: randomUUID(),
-			type: schedule.taskType,
 			title: schedule.name,
 			description: schedule.description,
 			createdAt: now,
