@@ -46,14 +46,6 @@ export interface CronScheduledTask {
 	type: string;
 	title: string;
 	description?: string;
-	source: 'cron';
-	sourceId: string;
-	sessionId?: string;
-	input: CronJsonValue;
-	status: CronScheduledTaskStatus;
-	priority: CronTaskPriority;
-	visibility: CronScheduleVisibility;
-	tags: string[];
 	createdAt: string;
 	updatedAt: string;
 }
