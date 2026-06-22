@@ -52,6 +52,9 @@ export function bootstrapServices(): BootstrapResult {
 	void cron.start().catch((error) => {
 		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
 	});
+	void connector.refresh().catch((error) => {
+		logger.error('Connector', 'Failed to refresh connector OAuth tokens', error);
+	});
 
 	const windowFactory = new WindowFactory(logger);
 	container.set(WindowFactory, windowFactory);
