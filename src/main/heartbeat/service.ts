@@ -123,7 +123,14 @@ export class HeartbeatService {
 	private async run(): Promise<void> {
 		const settings = this.getSettings();
 		if (normalizeEvery(settings.every) === '0m') return;
+		if (settings.target === 'none') return;
+		if (!withinActiveHours(settings.activeHours)) return;
 		if (settings.skipWhenBusy && this.activeRuns.has(HEARTBEAT_AGENT_ID)) return;
+		this.activeRuns.add(HEARTBEAT_AGENT_ID);
+		console.log('[HeartbeatService]', 'Running heartbeat', {
+			every: settings.every,
+			target: settings.target,
+		});
 		try {
 			const sessionInput = {
 				task: 'chat' as const,
