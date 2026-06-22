@@ -74,7 +74,6 @@ export class WorkspaceService extends Workspace {
 		this.ensureWorkspaceFile(AGENT_FILE);
 		this.ensureWorkspaceFile(BOOTSTRAP_FILE);
 		this.ensureWorkspaceFile(IDENTITY_FILE);
-		this.ensureWorkspaceFile(MEMORY_FILE);
 		this.ensureWorkspaceFile(SOUL_FILE);
 		this.ensureWorkspaceFile(TOOLS_FILE);
 		this.ensureWorkspaceFile(USER_FILE);
