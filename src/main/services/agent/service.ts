@@ -66,11 +66,13 @@ export class AgentService {
 			};
 			session = this.session.create(sessionInput, options.category);
 			const workspace = this.agentWorkspace;
+			const memory = this.agentMemory;
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
 			const runtime = new AgentRuntime(
 				workspace,
+				memory,
 				settings,
 				session,
 				model,
