@@ -45,6 +45,9 @@ export class AgentService {
 	@Inject(() => MemoryService)
 	private readonly agentMemory!: MemoryService;
 
+	@Inject(() => HeartbeatService)
+	private readonly agentHeartbeat!: HeartbeatService;
+
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 
