@@ -4,7 +4,6 @@ import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { AgentService } from '../services/agent/service';
-import { HeartbeatService as HeartbeatDocument } from '../services/agent/heartbeat';
 import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
 import { randomUUID } from 'node:crypto';
 
@@ -38,9 +37,6 @@ export class HeartbeatService {
 
 	@Inject(() => AgentService)
 	private readonly agent!: AgentService;
-
-	@Inject(() => HeartbeatDocument)
-	private readonly heartbeat!: HeartbeatDocument;
 
 	constructor(options: HeartbeatServiceOptions = {}) {
 		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
@@ -116,7 +112,6 @@ export class HeartbeatService {
 		if (settings.target === 'none') return;
 		if (!withinActiveHours(settings.activeHours)) return;
 		if (settings.skipWhenBusy && this.agent.isBusy(HEARTBEAT_AGENT_ID)) return;
-		const message = (await this.heartbeat.getText()).trim();
 		console.log('[HeartbeatService]', 'Running heartbeat', {
 			every: settings.every,
 			target: settings.target,
@@ -125,7 +120,7 @@ export class HeartbeatService {
 		try {
 			const agentId = randomUUID();
 			const sessionId = randomUUID();
-			void await this.agent.send(message, agentId, {
+			void await this.agent.send("", agentId, {
 				category: 'heartbeat',
 				sessionId,
  			});
