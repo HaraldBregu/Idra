@@ -223,7 +223,7 @@ export class CronService {
 			this.unscheduleJob(scheduleId);
 			return;
 		}
-		handleLoggerFire(scheduleId);
+		handleLoggerFire(scheduleId, 'Schedule fired.');
 		handleAgentFire(this.agent, scheduleId);
 		this.trigger(scheduleId);
 	}

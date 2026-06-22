@@ -2,6 +2,7 @@ import { CronTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
 import type {
 	Cron,
+	CronFunctionId,
 	CronSchedule,
 	CronScheduledTask,
 	CronScheduleCreateRequest,
@@ -29,8 +30,8 @@ const scheduleIdSchema: JSONSchema = {
 };
 
 export class CreateScheduleTool extends CronTool {
-	readonly name = 'create_schedule';
-	readonly description =
+	readonly name: CronFunctionId = 'create_schedule';
+	readonly description: string =
 		'Create a new cron schedule from a schedule definition request.';
 	readonly schema: JSONSchema = {
 		type: 'object',
@@ -94,9 +95,9 @@ export class CreateScheduleTool extends CronTool {
 }
 
 export class PauseScheduleTool extends CronTool {
-	readonly name = 'pause_schedule';
-	readonly description = 'Pause an active cron schedule by id.';
-	readonly schema = scheduleIdSchema;
+	readonly name: CronFunctionId = 'pause_schedule';
+	readonly description: string = 'Pause an active cron schedule by id.';
+	readonly schema: JSONSchema = scheduleIdSchema;
 
 	constructor(cron: Cron, context: Context) {
 		super(cron, context);
@@ -108,9 +109,9 @@ export class PauseScheduleTool extends CronTool {
 }
 
 export class ResumeScheduleTool extends CronTool {
-	readonly name = 'resume_schedule';
-	readonly description = 'Resume a paused cron schedule by id.';
-	readonly schema = scheduleIdSchema;
+	readonly name: CronFunctionId = 'resume_schedule';
+	readonly description: string = 'Resume a paused cron schedule by id.';
+	readonly schema: JSONSchema = scheduleIdSchema;
 
 	constructor(cron: Cron, context: Context) {
 		super(cron, context);
@@ -122,9 +123,9 @@ export class ResumeScheduleTool extends CronTool {
 }
 
 export class DeleteScheduleTool extends CronTool {
-	readonly name = 'delete_schedule';
-	readonly description = 'Delete a cron schedule by id.';
-	readonly schema = scheduleIdSchema;
+	readonly name: CronFunctionId = 'delete_schedule';
+	readonly description: string = 'Delete a cron schedule by id.';
+	readonly schema: JSONSchema = scheduleIdSchema;
 
 	constructor(cron: Cron, context: Context) {
 		super(cron, context);
@@ -136,9 +137,9 @@ export class DeleteScheduleTool extends CronTool {
 }
 
 export class GetScheduleTool extends CronTool {
-	readonly name = 'get_schedule';
-	readonly description = 'Fetch a single cron schedule by id.';
-	readonly schema = scheduleIdSchema;
+	readonly name: CronFunctionId = 'get_schedule';
+	readonly description: string = 'Fetch a single cron schedule by id.';
+	readonly schema: JSONSchema = scheduleIdSchema;
 
 	constructor(cron: Cron, context: Context) {
 		super(cron, context);
@@ -150,8 +151,8 @@ export class GetScheduleTool extends CronTool {
 }
 
 export class ListSchedulesTool extends CronTool {
-	readonly name = 'list_schedules';
-	readonly description = 'List all cron schedules.';
+	readonly name: CronFunctionId = 'list_schedules';
+	readonly description: string = 'List all cron schedules.';
 	readonly schema: JSONSchema = {
 		type: 'object',
 		properties: {},
@@ -168,9 +169,9 @@ export class ListSchedulesTool extends CronTool {
 }
 
 export class RunScheduleNowTool extends CronTool {
-	readonly name = 'run_schedule_now';
-	readonly description = 'Trigger a cron schedule to run immediately by id.';
-	readonly schema = scheduleIdSchema;
+	readonly name: CronFunctionId = 'run_schedule_now';
+	readonly description: string = 'Trigger a cron schedule to run immediately by id.';
+	readonly schema: JSONSchema = scheduleIdSchema;
 
 	constructor(cron: Cron, context: Context) {
 		super(cron, context);
