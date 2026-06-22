@@ -21,7 +21,7 @@ import type {
 	SessionResult,
 	ToolCall,
 	SessionTurn,
-} from './core/types';
+} from '../../agent/core/types';
 
 const DEFAULT_CATEGORY: SessionCategory = 'home';
 
