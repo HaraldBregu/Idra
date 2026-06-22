@@ -30,7 +30,7 @@ export interface HeartbeatServiceOptions {
 	cwd?: string;
 }
 
-@Service({ factory: () => new HeartbeatService() })
+@Service()
 export class HeartbeatService {
 	private readonly store: Store<HeartbeatSettings>;
 	private readonly storeDirectory: string;
@@ -113,11 +113,6 @@ export class HeartbeatService {
 		if (settings.target === 'none') return;
 		if (!withinActiveHours(settings.activeHours)) return;
 		if (settings.skipWhenBusy && this.agent.isBusy(HEARTBEAT_AGENT_ID)) return;
-		console.log('[HeartbeatService]', 'Running heartbeat', {
-			every: settings.every,
-			target: settings.target,
-		});
-
 		try {
 			const agentId = randomUUID();
 			const sessionId = randomUUID();
