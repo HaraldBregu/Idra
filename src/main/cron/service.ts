@@ -111,6 +111,8 @@ export class CronService {
 			description: request.description?.trim(),
 			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
 			enabled: request.enabled ?? true,
+			action: request.action,
+			createdAt: nowIso,
 			updatedAt: nowIso,
 		};
 		const created = this.activate(this.create(schedule));
