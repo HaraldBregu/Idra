@@ -49,7 +49,7 @@ export class CronService {
 		resume_schedule: (input) => this.resumeSchedule(input.scheduleId),
 		delete_schedule: (input) => this.deleteSchedule(input.scheduleId),
 		get_schedule: (input) => this.getSchedule(input.scheduleId),
-		list_schedules: (input) => this.listSchedules(input.filter),
+		list_schedules: () => this.listSchedules(),
 		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
