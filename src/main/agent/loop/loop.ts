@@ -81,10 +81,11 @@ export class AgentRuntime {
 
 		const systemPrompt = new SystemPrompt();
 		await systemPrompt.addWorkspace(workspace);
-		await systemPrompt.addHeartBeat(this.heartbeat);
+		// await systemPrompt.addHeartBeat(this.heartbeat);
 		await systemPrompt.addMemory(this.memory);
 		const system = systemPrompt.getPrompt();
 
+		console.log('system \n', system);
 		yield {
 			type: 'run_started',
 			sessionId: session.id,
