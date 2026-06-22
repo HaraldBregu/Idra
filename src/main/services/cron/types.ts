@@ -1,5 +1,3 @@
-import type { ModelReasoningEffort } from '../../shared/agent/types';
-
 export interface CronJobInfo {
 	readonly id: string;
 	readonly name: string;
@@ -37,7 +35,7 @@ export interface CronScheduledTask {
 
 export type CronAction =
 	| { type: 'debug'; message: string }
-	| { type: 'agent'; prompt: string; effort: ModelReasoningEffort };
+	| { type: 'agent'; prompt: string; effort: string };
 
 export interface CronSchedule {
 	id: string;

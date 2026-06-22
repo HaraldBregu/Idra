@@ -7,7 +7,9 @@ import { resolveAgentUsageLocation } from '../../agent/shared/location';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
+const HEARTBEAT_FILE = 'HEARTBEAT.md'
 const IDENTITY_FILE = 'IDENTITY.md'
+const MEMORY_FILE = 'MEMORY.md'
 const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
@@ -50,6 +52,10 @@ export class WorkspaceService extends Workspace {
 
 	async getUserText(): Promise<string> {
 		return this.readTextFile(USER_FILE);
+	}
+
+	async getMemoryText(): Promise<string> {
+		return this.readTextFile(MEMORY_FILE);
 	}
 
 	async setIdentityText(content: string): Promise<void> {

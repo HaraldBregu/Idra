@@ -1,19 +1,11 @@
 import { SystemPrompt } from '../../agent/core/system-prompt';
 import { Inject, Service } from 'typedi';
 import { WorkspaceService } from './workspace';
-import { HeartbeatService } from './heartbeat';
-import { MemoryService } from './memory';
 
 @Service()
 export class SystemPromptService extends SystemPrompt {
 	@Inject(() => WorkspaceService)
 	private readonly workspace!: WorkspaceService;
-
-	@Inject(() => HeartbeatService)
-	private readonly heartbeat!: HeartbeatService;
-
-	@Inject(() => MemoryService)
-	private readonly memory!: MemoryService;
 
 	constructor() {
 		super();
@@ -62,6 +54,8 @@ export class SystemPromptService extends SystemPrompt {
 		const soulText = await this.workspace.getSoulText();
 		const toolsText = await this.workspace.getToolsText();
 		const userText = await this.workspace.getUserText();
+const memoryText = await this.workspace.getMemoryText();
+		
 		const bootstrapText = hasUserProfile(userText)
 			? ''
 			: await this.workspace.getBootstrapText();
@@ -83,19 +77,12 @@ export class SystemPromptService extends SystemPrompt {
 		return this;
 	}
 
-	async addMemoryPrompt(): Promise<this> {
-		const memoryText = await this.memory.getText();
-		if (memoryText.trim()) this.prompt += `\n\n${memoryText.trim()}`;
-		return this;
-	}
-
 	getPrompt(): string {
 		return this.prompt;
 	}
 
 	async build(): Promise<string> {
 		await this.addWorkspacePrompt();
-		await this.addMemoryPrompt();
 		return this.getPrompt();
 	}
 }

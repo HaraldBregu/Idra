@@ -6,7 +6,7 @@ import { SystemPromptService } from './system-prompt';
 import { AgentRuntime } from '../../agent/loop/loop';
 import { AgentModel } from '../../llm';
 import { RuntimeEvent } from '../../agent';
-import { CronService } from '../../cron';
+import { CronService } from '../cron';
 import type { Cron } from '../../agent/core/cron';
 import type { Message, SessionCategory } from '../../agent/core/types';
 import type {
