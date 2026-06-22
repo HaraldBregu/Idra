@@ -3,12 +3,8 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { SettingsService } from '../agent/settings';
-import { SessionService } from '../agent/session';
+import { AgentService } from '../agent/service';
 import { WorkspaceService } from '../agent/workspace';
-import { AgentRuntime } from '../agent/loop/loop';
-import { AgentModel } from '../llm';
-import { CronService } from '../cron';
 import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
 
 const HEARTBEAT_STORE_NAME = 'settings';
@@ -122,6 +118,8 @@ export class HeartbeatService {
 	}
 
 	private async run(): Promise<void> {
+		console.log('[HeartbeatService]', 'Running heartbeat before', {
+ 		});
 		const settings = this.getSettings();
 		if (normalizeEvery(settings.every) === '0m') return;
 		if (settings.target === 'none') return;
