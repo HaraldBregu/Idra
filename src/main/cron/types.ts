@@ -42,7 +42,6 @@ export interface CronSchedule {
 	description?: string;
 	sessionId?: string;
 	cronExpression?: string;
-	target?: CronStoredTarget;
 	taskType: string;
 	enabled: boolean;
 	updatedAt: string;
