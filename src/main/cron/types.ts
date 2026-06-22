@@ -10,8 +10,6 @@ export interface CronJobInfo {
 	readonly updatedAt: string;
 }
 
-export type CronScheduleVisibility = 'private' | 'user' | 'workspace' | 'system';
-
 export type CronScheduleEventType =
 	| 'schedule.created'
 	| 'schedule.updated'
