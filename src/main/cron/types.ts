@@ -49,12 +49,6 @@ export type CronScheduleCreateRequest = Omit<CronSchedule, 'id' | 'updatedAt' | 
 	target?: CronStoredTarget;
 };
 
-export interface CronScheduleFilter {
-	sessionId?: string;
-	taskType?: string;
-	limit?: number;
-}
-
 export interface CronScheduleEvent {
 	eventId: string;
 	scheduleId: string;
