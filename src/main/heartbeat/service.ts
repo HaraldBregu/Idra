@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Service } from 'typedi';
@@ -52,7 +53,10 @@ export class HeartbeatService {
 	}
 
 	private ensureFile(): void {
-		this.store.store = this.getSettings();
+		const storePath = this.store.path;
+		if (existsSync(storePath)) return;
+		mkdirSync(path.dirname(storePath), { recursive: true });
+		writeFileSync(storePath, JSON.stringify(this.getSettings(), null, '\t'));
 	}
 }
 
