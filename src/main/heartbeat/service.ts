@@ -116,7 +116,7 @@ export class HeartbeatService {
 		if (settings.target === 'none') return;
 		if (!withinActiveHours(settings.activeHours)) return;
 		if (settings.skipWhenBusy && this.agent.isBusy(HEARTBEAT_AGENT_ID)) return;
-		const message = (await this.workspace.getHeartbeatText()).trim();
+		const message = (await this.heartbeat.getText()).trim();
 		console.log('[HeartbeatService]', 'Running heartbeat', {
 			every: settings.every,
 			target: settings.target,
