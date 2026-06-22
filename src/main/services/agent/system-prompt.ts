@@ -54,8 +54,8 @@ export class SystemPromptService extends SystemPrompt {
 		const soulText = await this.workspace.getSoulText();
 		const toolsText = await this.workspace.getToolsText();
 		const userText = await this.workspace.getUserText();
-const memoryText = await this.workspace.getMemoryText();
-		
+		const memoryText = await this.workspace.getMemoryText();
+
 		const bootstrapText = hasUserProfile(userText)
 			? ''
 			: await this.workspace.getBootstrapText();
@@ -71,8 +71,11 @@ const memoryText = await this.workspace.getMemoryText();
 			workspaceContext += `\n\n${toolsText.trim()}`;
 		if (userText.trim())
 			workspaceContext += `\n\n${userText.trim()}`;
-
-		if (workspaceContext) this.prompt += workspaceContext;
+		if (memoryText.trim())
+			workspaceContext += `\n\n${memoryText.trim()}`;
+		
+		if (workspaceContext) 
+			this.prompt += workspaceContext;
 
 		return this;
 	}
