@@ -39,7 +39,6 @@ export class SystemPrompt {
 
 		let workspaceContext = '';
 		const agentText = await workspace.getAgentText();
-		const heartbeatText = await workspace.getHeartbeatText();
 		const identityText = await workspace.getIdentityText();
 		const memoryText = await workspace.getMemoryText();
 		const soulText = await workspace.getSoulText();
