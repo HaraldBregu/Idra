@@ -35,16 +35,25 @@ export interface CronScheduledTask {
 	updatedAt: string;
 }
 
+export type CronAction =
+	| { type: 'debug'; message: string }
+	| { type: 'agent'; prompt: string; effort: ModelReasoningEffort };
+
 export interface CronSchedule {
 	id: string;
 	name: string;
 	description?: string;
 	cronExpression?: string;
 	enabled: boolean;
+	action: CronAction;
+	createdAt: string;
 	updatedAt: string;
 }
 
-export type CronScheduleCreateRequest = Omit<CronSchedule, 'id' | 'updatedAt' | 'enabled'> & {
+export type CronScheduleCreateRequest = Omit<
+	CronSchedule,
+	'id' | 'createdAt' | 'updatedAt' | 'enabled'
+> & {
 	enabled?: boolean;
 };
 
