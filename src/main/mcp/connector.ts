@@ -28,7 +28,7 @@ type ConnectorStoreSchema = { mcpServers: Record<string, unknown> };
 const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {} };
 const OAUTH_TIMEOUT_MS = 120_000;
 
-@Service({ factory: () => new Connector() })
+@Service()
 export class Connector {
 	private readonly store: Store<ConnectorStoreSchema>;
 
@@ -242,7 +242,7 @@ export class Connector {
 
 export function resolveConnectorSettingsLocation(): string {
 	try {
-		return path.join(app.getPath('appData'), app.getName(), 'connectors');
+		return path.join(app.getPath('appData'), app.getName(), 'mcp');
 	} catch {
 		const base =
 			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();

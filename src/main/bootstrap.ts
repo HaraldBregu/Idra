@@ -8,7 +8,7 @@ import { CronService } from './services/cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
-import { Connector } from './connectors';
+import { Connector } from './mcp';
 import { LlmService } from './llm';
 import { AgentService } from './services/agent/service';
 import { HeartbeatService } from './services/heartbeat';
@@ -39,7 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 	const cron = container.get(CronService);
 
 	container.get(ProviderService);
-	container.get(Connector);
+	const connector = container.get(Connector);
 	container.get(LlmService);
 	container.get(SttService);
 	container.get(HeartbeatService);

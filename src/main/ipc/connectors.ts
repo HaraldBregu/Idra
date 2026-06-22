@@ -8,7 +8,7 @@ import type {
 	ConnectorOAuthDefaults,
 	ConnectorSettingsRecord,
 } from '../../shared/connector';
-import { Connector } from '../connectors';
+import { Connector } from '../mcp';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
