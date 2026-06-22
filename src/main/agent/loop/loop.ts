@@ -9,7 +9,7 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import { SystemPromptService } from '../../services/agent/system-prompt';
+import { SystemPrompt } from '../../services/agent/system-prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { Settings } from '../core/settings';
@@ -40,7 +40,7 @@ export class AgentRuntime {
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
-		private readonly systemPrompt: SystemPromptService
+		private readonly systemPrompt: SystemPrompt
 	) { }
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
