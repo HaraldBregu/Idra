@@ -10,8 +10,8 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { Service } from 'typedi';
-import { Session } from './core/session';
-import { resolveAgentUsageLocation } from './shared/location';
+import { Session } from '../../agent/core/session';
+import { resolveAgentUsageLocation } from '../../agent/shared/location';
 import type {
 	SessionInput,
 	SessionCategory,
