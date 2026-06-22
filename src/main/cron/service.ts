@@ -144,8 +144,8 @@ export class CronService {
 		return this.require(scheduleId);
 	}
 
-	listSchedules(filter: CronScheduleFilter = {}): CronSchedule[] {
-		return this.list(filter);
+	listSchedules(): CronSchedule[] {
+		return this.list();
 	}
 
 	runScheduleNow(scheduleId: string): CronScheduledTask {
