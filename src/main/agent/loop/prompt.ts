@@ -40,7 +40,6 @@ export class SystemPrompt {
 		let workspaceContext = '';
 		const agentText = await workspace.getAgentText();
 		const identityText = await workspace.getIdentityText();
-		const memoryText = await workspace.getMemoryText();
 		const soulText = await workspace.getSoulText();
 		const toolsText = await workspace.getToolsText();
 		const userText = await workspace.getUserText();
