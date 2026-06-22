@@ -9,8 +9,7 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import { Container } from 'typedi';
-import { SystemPrompt } from '../../services/agent/prompt';
+import { SystemPromptService } from '../../services/agent/system-prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { Settings } from '../core/settings';
@@ -41,7 +40,8 @@ export class AgentRuntime {
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
-	) {}
+		private readonly systemPrompt: SystemPromptService
+	) { }
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
 		const signal = new AbortController().signal;
@@ -72,11 +72,10 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
-		const systemPrompt = Container.get(SystemPrompt);
-		systemPrompt.addWorkspace();
+		this.systemPrompt.addWorkspace();
 		// systemPrompt.addHeartBeat();
-		systemPrompt.addMemory();
-		const system = await systemPrompt.build();
+		this.systemPrompt.addMemory();
+		const system = await this.systemPrompt.build();
 
 		yield {
 			type: 'run_started',
