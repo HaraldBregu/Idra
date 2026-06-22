@@ -12,23 +12,6 @@ export interface CronJobInfo {
 
 export type CronScheduleVisibility = 'private' | 'user' | 'workspace' | 'system';
 
-export type CronSchedulePermissionLevel =
-	| 'createSchedule'
-	| 'updateSchedule'
-	| 'deleteSchedule'
-	| 'pauseSchedule'
-	| 'resumeSchedule'
-	| 'listSchedules'
-	| 'runScheduleNow'
-	| 'scheduleReadPrivateData'
-	| 'scheduleWritePrivateData'
-	| 'scheduleWriteExternal'
-	| 'scheduleDeleteData'
-	| 'scheduleConnectorAccess'
-	| 'scheduleNetworkAccess'
-	| 'scheduleFileSystemAccess'
-	| 'adminScheduleManagement';
-
 export type CronScheduleEventType =
 	| 'schedule.created'
 	| 'schedule.updated'
