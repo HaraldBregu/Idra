@@ -19,7 +19,6 @@ export interface MainServices {
 	connectorSettingsService: Connector;
 	cron: CronService;
 	eventBus: EventBus;
-	heartbeat: HeartbeatService;
 	llm: LlmService;
 	logger: LoggerService;
 	providerStore: ProviderService;
