@@ -41,6 +41,9 @@ export class CronService {
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
 
+	@Inject(() => AgentService)
+	private readonly agent!: AgentService;
+
 	private readonly handlers: {
 		[K in CronFunctionId]: (input: CronFunctionInput[K]) => CronFunctionResult[K];
 	} = {
