@@ -260,19 +260,13 @@ export class CronService {
 		};
 	}
 
-	private emit(
-		schedule: CronSchedule,
-		type: CronScheduleEventType,
-		message: string,
-		metadata: CronJsonObject = {}
-	): void {
+	private emit(schedule: CronSchedule, type: CronScheduleEventType, message: string): void {
 		const event: CronScheduleEvent = {
 			eventId: randomUUID(),
 			scheduleId: schedule.id,
 			type,
 			timestamp: new Date().toISOString(),
 			message,
-			metadata,
 		};
 		for (const listener of this.listeners) {
 			try {
