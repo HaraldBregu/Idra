@@ -130,7 +130,7 @@ export class HeartbeatService {
 			const sessionInput = {
 				task: 'chat' as const,
 				message: HEARTBEAT_PROMPT,
-				category: 'task',
+				category: 'task' as const,
 				sessionId: HEARTBEAT_AGENT_ID,
 			};
 			const session = this.session.create(sessionInput, sessionInput.category);
