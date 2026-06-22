@@ -83,7 +83,10 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
-		const system = await this.systemPrompt.build(workspace);
+		await this.systemPrompt.addWorkspace(workspace);
+		await this.systemPrompt.addHeartBeat(this.heartbeat);
+		await this.systemPrompt.addMemory(this.memory);
+		const system = this.systemPrompt.getPrompt();
 
 		yield {
 			type: 'run_started',
