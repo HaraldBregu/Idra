@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { Service } from 'typedi';
-import { Heartbeat } from './core/heartbeat';
-import { resolveAgentUsageLocation } from './shared/location';
+import { Heartbeat } from '../../agent/core/heartbeat';
+import { resolveAgentUsageLocation } from '../../agent/shared/location';
 
 const HEARTBEAT_FILE = 'HEARTBEAT.md';
 
