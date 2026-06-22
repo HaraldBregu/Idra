@@ -46,7 +46,6 @@ export interface CronSchedule {
 
 export type CronScheduleCreateRequest = Omit<CronSchedule, 'id' | 'updatedAt' | 'enabled'> & {
 	enabled?: boolean;
-	target?: CronStoredTarget;
 };
 
 export interface CronScheduleEvent {
