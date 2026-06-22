@@ -15,6 +15,7 @@ const HEARTBEAT_STORE_NAME = 'settings';
 const HEARTBEAT_AGENT_ID = 'heartbeat';
 const HEARTBEAT_INTERVALS_MS = {
 	'0m': 0,
+	'1m': 60 * 1000,
 	'30m': 30 * 60 * 1000,
 	'1h': 60 * 60 * 1000,
 } as const;
