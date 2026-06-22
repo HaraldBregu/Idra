@@ -29,7 +29,6 @@ export type CronScheduleEventType =
 
 export interface CronScheduledTask {
 	id: string;
-	type: string;
 	title: string;
 	description?: string;
 	createdAt: string;
@@ -40,9 +39,7 @@ export interface CronSchedule {
 	id: string;
 	name: string;
 	description?: string;
-	sessionId?: string;
 	cronExpression?: string;
-	taskType: string;
 	enabled: boolean;
 	updatedAt: string;
 }
