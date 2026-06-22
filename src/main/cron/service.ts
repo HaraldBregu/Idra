@@ -105,7 +105,7 @@ export class CronService {
 			id: randomUUID(),
 			name: request.name.trim(),
 			description: request.description?.trim(),
-			sessionId: request.sessionId ?? actor?.sessionId,
+			sessionId: request.sessionId,
 			cronExpression: request.cronExpression?.trim().replace(/\s+/g, ' '),
 			target: request.target,
 			taskType: request.taskType,
