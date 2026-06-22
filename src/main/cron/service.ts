@@ -236,10 +236,7 @@ export class CronService {
 		const schedule = this.require(scheduleId);
 		const scheduledRunAt = new Date().toISOString();
 		const task = this.buildTask(schedule, scheduledRunAt);
-		this.emit(schedule, 'schedule.triggered', 'Scheduled task created.', {
-			taskId: task.id,
-			scheduledRunAt,
-		});
+		this.emit(schedule, 'schedule.triggered', 'Scheduled task created.');
 		return task;
 	}
 
