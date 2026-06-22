@@ -52,8 +52,6 @@ export class SystemPrompt {
 			workspaceContext += `\n\n${bootstrapText.trim()}`;
 		if (identityText.trim())
 			workspaceContext += `\n\n${identityText.trim()}`;
-		if (memoryText.trim())
-			workspaceContext += `\n\n${memoryText.trim()}`;
 		if (soulText.trim())
 			workspaceContext += `\n\n${soulText.trim()}`;
 		if (toolsText.trim())
