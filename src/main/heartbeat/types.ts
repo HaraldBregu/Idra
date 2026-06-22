@@ -1,3 +1,5 @@
+export type HeartbeatEvery = '0m' | '30m' | '1h';
+
 export type HeartbeatTarget = 'none' | 'last' | string;
 
 export type HeartbeatDirectPolicy = 'allow' | 'block';
@@ -8,7 +10,7 @@ export interface HeartbeatActiveHours {
 }
 
 export interface HeartbeatSettings {
-	every: string;
+	every: HeartbeatEvery;
 	target: HeartbeatTarget;
 	directPolicy: HeartbeatDirectPolicy;
 	lightContext: boolean;
