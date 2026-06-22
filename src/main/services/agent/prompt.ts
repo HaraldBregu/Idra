@@ -1,6 +1,3 @@
-import type { Workspace } from '../../agent/core/workspace';
-import type { Heartbeat } from '../../agent/core/heartbeat';
-import type { Memory } from '../../agent/core/memory';
 import { SystemPrompt as BaseSystemPrompt } from '../../agent/core/systemPrompt';
 import { Inject, Service } from 'typedi';
 import { WorkspaceService } from './workspace';
@@ -10,13 +7,13 @@ import { MemoryService } from './memory';
 @Service({ transient: true })
 export class SystemPrompt extends BaseSystemPrompt {
 	@Inject(() => WorkspaceService)
-	private readonly workspace!: Workspace;
+	private readonly workspace!: WorkspaceService;
 
 	@Inject(() => HeartbeatService)
-	private readonly heartbeat!: Heartbeat;
+	private readonly heartbeat!: HeartbeatService;
 
 	@Inject(() => MemoryService)
-	private readonly memory!: Memory;
+	private readonly memory!: MemoryService;
 
 	constructor() {
 		super('You are a personal AI assistant.');
