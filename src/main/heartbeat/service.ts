@@ -18,8 +18,6 @@ const HEARTBEAT_INTERVALS_MS = {
 	'30m': 30 * 60 * 1000,
 	'1h': 60 * 60 * 1000,
 } as const;
-const HEARTBEAT_PROMPT =
-	'Run a heartbeat check using the HEARTBEAT.md guidance. If nothing is noteworthy, respond exactly HEARTBEAT_OK.';
 
 export const HEARTBEAT_DEFAULT_SETTINGS: HeartbeatSettings = {
 	every: '30m',
@@ -129,7 +127,7 @@ export class HeartbeatService {
 		try {
 			const sessionInput = {
 				task: 'chat' as const,
-				message: HEARTBEAT_PROMPT,
+				message: '',
 				category: 'task' as const,
 				sessionId: HEARTBEAT_AGENT_ID,
 			};
