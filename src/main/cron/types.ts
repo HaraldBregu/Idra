@@ -27,18 +27,6 @@ export type CronScheduleEventType =
 	| 'schedule.permissionDenied'
 	| 'schedule.nextRunUpdated';
 
-export type CronTaskPriority = 'low' | 'normal' | 'high' | 'critical';
-
-export type CronScheduledTaskStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
-
-export type CronJsonValue =
-	| string
-	| number
-	| boolean
-	| null
-	| CronJsonValue[]
-	| { [key: string]: CronJsonValue };
-
 export interface CronScheduledTask {
 	id: string;
 	type: string;
