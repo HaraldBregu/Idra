@@ -43,6 +43,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(LlmService);
 	container.get(SttService);
 	container.get(HeartbeatService);
+	container.get(MemoryService);
 
 	const agentService = container.get(AgentService);
 
