@@ -35,19 +35,11 @@ export class HeartbeatService {
 	private readonly storeDirectory: string;
 	private timer: NodeJS.Timeout | undefined;
 
-	@Inject(() => SettingsService)
-	private readonly agentSettingsStore!: SettingsService;
-
-	@Inject(() => SessionService)
-	private readonly session!: SessionService;
+	@Inject(() => AgentService)
+	private readonly agent!: AgentService;
 
 	@Inject(() => WorkspaceService)
-	private readonly agentWorkspace!: WorkspaceService;
-
-	@Inject(() => CronService)
-	private readonly cron!: CronService;
-
-	private readonly activeRuns = new Set<string>();
+	private readonly workspace!: WorkspaceService;
 
 	constructor(options: HeartbeatServiceOptions = {}) {
 		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
