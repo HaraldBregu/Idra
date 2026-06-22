@@ -40,6 +40,9 @@ export class AgentService {
 	@Inject(() => WorkspaceService)
 	private readonly agentWorkspace!: WorkspaceService;
 
+	@Inject(() => MemoryService)
+	private readonly agentMemory!: MemoryService;
+
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 
