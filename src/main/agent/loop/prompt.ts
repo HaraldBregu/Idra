@@ -1,16 +1,15 @@
 import type { Workspace } from '../core/workspace';
 import type { Heartbeat } from '../core/heartbeat';
 import type { Memory } from '../core/memory';
+import { SystemPrompt as BaseSystemPrompt } from '../core/systemPrompt';
 
-export class SystemPrompt {
-	private prompt: string;
-
+export class SystemPrompt extends BaseSystemPrompt {
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly heartbeat: Heartbeat,
 		private readonly memory: Memory
 	) {
-		this.prompt = 'You are a personal AI assistant.';
+		super('You are a personal AI assistant.');
 		this.prompt += '\n\n## Voice';
 		this.prompt += '\n- Sound natural, direct, and human, not like a generic support script.';
 		this.prompt += '\n- Do not use em dashes, prefer commas, periods, colons, or parentheses.';
