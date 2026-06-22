@@ -5,22 +5,10 @@ export interface CronJobInfo {
 	readonly name: string;
 	readonly description?: string;
 	readonly expression: string;
-	readonly timezone?: string;
 	readonly enabled: boolean;
-	readonly status: CronScheduleStatus;
-	readonly target?: CronStoredTarget;
 	readonly createdAt: string;
 	readonly updatedAt: string;
 }
-
-export type CronScheduleStatus =
-	| 'active'
-	| 'paused'
-	| 'disabled'
-	| 'expired'
-	| 'completed'
-	| 'failed'
-	| 'deleted';
 
 export type CronScheduleVisibility = 'private' | 'user' | 'workspace' | 'system';
 
