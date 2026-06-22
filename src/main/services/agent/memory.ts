@@ -2,8 +2,8 @@ import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { Service } from 'typedi';
-import { Memory } from './core/memory';
-import { resolveAgentUsageLocation } from './shared/location';
+import { Memory } from '../../agent/core/memory';
+import { resolveAgentUsageLocation } from '../../agent/shared/location';
 
 const MEMORY_FILE = 'MEMORY.md';
 
