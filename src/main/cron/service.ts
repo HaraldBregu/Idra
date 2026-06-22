@@ -117,7 +117,7 @@ export class CronService {
 		return created;
 	}
 
-	pauseSchedule(scheduleId: string, _actor?: CronActorContext): void {
+	pauseSchedule(scheduleId: string): void {
 		this.unscheduleJob(scheduleId);
 		const now = new Date().toISOString();
 		const updated = this.update(scheduleId, {
