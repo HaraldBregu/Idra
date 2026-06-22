@@ -215,6 +215,7 @@ export class CronService {
 			this.unscheduleJob(scheduleId);
 			return;
 		}
+		console.info('[CronService]', `Schedule ${scheduleId} fired.`);
 		this.trigger(scheduleId);
 	}
 
