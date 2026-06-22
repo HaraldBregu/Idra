@@ -16,7 +16,12 @@ export class SystemPromptService extends SystemPrompt {
 	private readonly memory!: MemoryService;
 
 	constructor() {
-		super('You are a personal AI assistant.');
+		super();
+	}
+
+	async addBasePrompt(): Promise<this> {
+		this.prompt += 'You are a personal AI assistant.';
+
 		this.prompt += '\n\n## Voice';
 		this.prompt += '\n- Sound natural, direct, and human, not like a generic support script.';
 		this.prompt += '\n- Do not use em dashes, prefer commas, periods, colons, or parentheses.';
@@ -41,6 +46,8 @@ export class SystemPromptService extends SystemPrompt {
 		this.prompt += '\n- For multi-step, risky, or dependent work, use a short concrete plan with a verification path. Skip visible planning for simple tasks.';
 		this.prompt += '\n- Before final output, check for missed constraints, stale or unsupported facts, failed or partial tool calls, conflicting evidence, permission gaps, verification limits, and requested format.';
 		this.prompt += '\n- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.';
+
+		return this;
 	}
 
 	async addWorkspace(): Promise<this> {
