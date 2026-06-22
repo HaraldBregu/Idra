@@ -3,6 +3,8 @@ import Store from 'electron-store';
 import cron from 'node-cron';
 import { Inject, Service } from 'typedi';
 import { AgentService } from '../agent/service';
+import { handleAgentFire } from './agent';
+import { handleLoggerFire } from './logger';
 import {
 	clone,
 	isActiveSchedule,
