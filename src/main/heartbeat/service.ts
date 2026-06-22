@@ -110,46 +110,23 @@ export class HeartbeatService {
 	}
 
 	private async run(): Promise<void> {
-		console.log('[HeartbeatService]', 'Running heartbeat before', {
- 		});
 		const settings = this.getSettings();
 		if (normalizeEvery(settings.every) === '0m') return;
 		if (settings.target === 'none') return;
 		if (!withinActiveHours(settings.activeHours)) return;
-		if (settings.skipWhenBusy && this.activeRuns.has(HEARTBEAT_AGENT_ID)) return;
-		this.activeRuns.add(HEARTBEAT_AGENT_ID);
+		if (settings.skipWhenBusy && this.agent.isBusy(HEARTBEAT_AGENT_ID)) return;
+		const message = (await this.workspace.getHeartbeatText()).trim();
 		console.log('[HeartbeatService]', 'Running heartbeat', {
 			every: settings.every,
 			target: settings.target,
 		});
 		try {
-			const sessionInput = {
-				task: 'chat' as const,
-				message: '',
-				category: 'task' as const,
+			await this.agent.send(message, HEARTBEAT_AGENT_ID, {
 				sessionId: HEARTBEAT_AGENT_ID,
-			};
-			const session = this.session.create(sessionInput, sessionInput.category);
-			const runtime = new AgentRuntime(
-				this.agentWorkspace,
-				this.agentSettingsStore,
-				session,
-				new AgentModel(),
-				this.cron
-			);
-			const input = {
-				...sessionInput,
-				maxRetries: 1,
-				tools: [],
-			};
-			const stream = runtime.run(input);
-			for await (const event of stream) {
-				session.appendRun(event);
-			}
+				category: 'task',
+			});
 		} catch (error) {
 			console.error('[HeartbeatService]', 'Heartbeat run failed.', error);
-		} finally {
-			this.activeRuns.delete(HEARTBEAT_AGENT_ID);
 		}
 	}
 }
