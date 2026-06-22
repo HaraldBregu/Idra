@@ -5,7 +5,11 @@ import type { Memory } from '../core/memory';
 export class SystemPrompt {
 	private prompt: string;
 
-	constructor() {
+	constructor(
+		private readonly workspace: Workspace,
+		private readonly heartbeat: Heartbeat,
+		private readonly memory: Memory
+	) {
 		this.prompt = 'You are a personal AI assistant.';
 		this.prompt += '\n\n## Voice';
 		this.prompt += '\n- Sound natural, direct, and human, not like a generic support script.';
@@ -33,21 +37,21 @@ export class SystemPrompt {
 		this.prompt += '\n- Return the concrete answer, artifact, draft, recommendation, checklist, analysis, schedule, code, or decision support the user requested in a concise, directly usable format.';
 	}
 
-	async addWorkspace(workspace: Workspace): Promise<this> {
-		const displayWorkspaceDir = workspace.getPath();
+	async addWorkspace(): Promise<this> {
+		const displayWorkspaceDir = this.workspace.getPath();
 		this.prompt += '\n\n## Workspace';
 		this.prompt += `\nYour workspace directory holds your configuration and bootstrap files: ${displayWorkspaceDir}`;
 		this.prompt += '\nIt is not your working directory for tasks, use it only to read or update your configuration and bootstrap files.';
 
 		let workspaceContext = '';
-		const agentText = await workspace.getAgentText();
-		const identityText = await workspace.getIdentityText();
-		const soulText = await workspace.getSoulText();
-		const toolsText = await workspace.getToolsText();
-		const userText = await workspace.getUserText();
+		const agentText = await this.workspace.getAgentText();
+		const identityText = await this.workspace.getIdentityText();
+		const soulText = await this.workspace.getSoulText();
+		const toolsText = await this.workspace.getToolsText();
+		const userText = await this.workspace.getUserText();
 		const bootstrapText = hasUserProfile(userText)
 			? ''
-			: await workspace.getBootstrapText();
+			: await this.workspace.getBootstrapText();
 		if (agentText.trim())
 			workspaceContext += `\n\n${agentText.trim()}`;
 		if (bootstrapText.trim())
@@ -66,14 +70,14 @@ export class SystemPrompt {
 		return this;
 	}
 
-	async addHeartBeat(heartbeat: Heartbeat): Promise<this> {
-		const heartbeatText = await heartbeat.getText();
+	async addHeartBeat(): Promise<this> {
+		const heartbeatText = await this.heartbeat.getText();
 		if (heartbeatText.trim()) this.prompt += `\n\n${heartbeatText.trim()}`;
 		return this;
 	}
 
-	async addMemory(memory: Memory): Promise<this> {
-		const memoryText = await memory.getText();
+	async addMemory(): Promise<this> {
+		const memoryText = await this.memory.getText();
 		if (memoryText.trim()) this.prompt += `\n\n${memoryText.trim()}`;
 		return this;
 	}
@@ -82,8 +86,10 @@ export class SystemPrompt {
 		return this.prompt;
 	}
 
-	async build(workspace: Workspace): Promise<string> {
-		await this.addWorkspace(workspace);
+	async build(): Promise<string> {
+		await this.addWorkspace();
+		await this.addHeartBeat();
+		await this.addMemory();
 		return this.getPrompt();
 	}
 }

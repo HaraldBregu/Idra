@@ -80,9 +80,9 @@ export class AgentRuntime {
 		tools.push(...toolLoader.tools);
 
 		const systemPrompt = new SystemPrompt();
-		await systemPrompt.addWorkspace(workspace);
+		// await systemPrompt.addWorkspace(workspace);
 		// await systemPrompt.addHeartBeat(this.heartbeat);
-		await systemPrompt.addMemory(this.memory);
+		// await systemPrompt.addMemory(this.memory);
 		const system = systemPrompt.getPrompt();
 
 		console.log('system \n', system);
