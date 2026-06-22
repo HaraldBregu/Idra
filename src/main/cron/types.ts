@@ -1,5 +1,3 @@
-export type CronStoredTarget = 'job' | 'tool' | 'task' | 'agent' | string;
-
 export interface CronJobInfo {
 	readonly id: string;
 	readonly name: string;
