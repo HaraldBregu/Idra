@@ -152,7 +152,6 @@ export class HeartbeatService {
 				tools: [],
 			};
 			const stream = runtime.run(input);
-			this.activeRuns.add(HEARTBEAT_AGENT_ID);
 			for await (const event of stream) {
 				session.appendRun(event);
 			}
