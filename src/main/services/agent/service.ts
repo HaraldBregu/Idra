@@ -15,8 +15,8 @@ import type {
 	AgentResponseEvent,
 	AgentRunStopReason,
 	ModelReasoningEffort,
-} from '../../shared/agent/types';
-import { toError } from '../ipc/core/error';
+} from '../../../shared/agent/types';
+import { toError } from '../../ipc/core/error';
 
 export interface AgentSendOptions {
 	runId?: string;
