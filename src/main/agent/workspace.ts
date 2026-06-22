@@ -37,10 +37,6 @@ export class WorkspaceService extends Workspace {
 		return this.readTextFile(BOOTSTRAP_FILE);
 	}
 
-	async getHeartbeatText(): Promise<string> {
-		return this.readTextFile(HEARTBEAT_FILE);
-	}
-
 	async getIdentityText(): Promise<string> {
 		return this.readTextFile(IDENTITY_FILE);
 	}
