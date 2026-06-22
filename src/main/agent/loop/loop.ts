@@ -9,12 +9,10 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import { SystemPrompt } from './prompt';
+import { Container } from 'typedi';
+import { SystemPrompt } from '../../services/agent/prompt';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
-import { Workspace } from '../core/workspace';
-import { Memory } from '../core/memory';
-import { Heartbeat } from '../core/heartbeat';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
@@ -39,9 +37,6 @@ interface ToolOutcome {
 
 export class AgentRuntime {
 	constructor(
-		private readonly workspace: Workspace,
-		private readonly memory: Memory,
-		private readonly heartbeat: Heartbeat,
 		private readonly settings: Settings,
 		private readonly session: Session,
 		private readonly model: AgentModel,
@@ -77,7 +72,7 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
-		const systemPrompt = new SystemPrompt(this.workspace, this.heartbeat, this.memory);
+		const systemPrompt = Container.get(SystemPrompt);
 		systemPrompt.addWorkspace();
 		// systemPrompt.addHeartBeat();
 		systemPrompt.addMemory();
