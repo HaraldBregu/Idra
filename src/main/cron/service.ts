@@ -23,7 +23,6 @@ import type {
 	CronScheduleEventType,
 	CronScheduleFilter,
 	PersistedCronState,
-	CronServiceOptions,
 } from './types';
 
 type CronEventListener = (event: CronScheduleEvent) => void;
