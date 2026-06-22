@@ -3,12 +3,12 @@ import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
 import { SessionService, AgentSession } from './session';
 import { WorkspaceService } from './workspace';
-import { AgentRuntime } from './loop/loop';
-import { AgentModel } from '../llm';
-import { RuntimeEvent } from '.';
-import { CronService } from '../cron';
-import type { Cron } from './core/cron';
-import type { Message, SessionCategory } from './core/types';
+import { AgentRuntime } from '../../agent/loop/loop';
+import { AgentModel } from '../../llm';
+import { RuntimeEvent } from '../../agent';
+import { CronService } from '../../cron';
+import type { Cron } from '../../agent/core/cron';
+import type { Message, SessionCategory } from '../../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
