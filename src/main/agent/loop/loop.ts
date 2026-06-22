@@ -38,8 +38,6 @@ interface ToolOutcome {
 }
 
 export class AgentRuntime {
-	private readonly systemPrompt: SystemPrompt;
-
 	constructor(
 		private readonly workspace: Workspace,
 		private readonly memory: Memory,
@@ -48,9 +46,7 @@ export class AgentRuntime {
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
-	) {
-		this.systemPrompt = new SystemPrompt();
-	}
+	) {}
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
 		const signal = new AbortController().signal;
@@ -83,10 +79,11 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
-		await this.systemPrompt.addWorkspace(workspace);
-		await this.systemPrompt.addHeartBeat(this.heartbeat);
-		await this.systemPrompt.addMemory(this.memory);
-		const system = this.systemPrompt.getPrompt();
+		const systemPrompt = new SystemPrompt();
+		await systemPrompt.addWorkspace(workspace);
+		await systemPrompt.addHeartBeat(this.heartbeat);
+		await systemPrompt.addMemory(this.memory);
+		const system = systemPrompt.getPrompt();
 
 		yield {
 			type: 'run_started',
