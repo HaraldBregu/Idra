@@ -41,8 +41,6 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(Connector);
 	container.get(LlmService);
 	container.get(SttService);
-	container.get(HeartbeatService);
-	container.get(MemoryService);
 	container.get(SystemPromptService);
 
 	const agentService = container.get(AgentService);
