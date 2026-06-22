@@ -47,15 +47,10 @@ export interface CronSchedule {
 	updatedAt: string;
 }
 
-export interface CronScheduleCreateRequest {
-	name: string;
-	description?: string;
-	sessionId?: string;
-	cronExpression?: string;
-	target?: CronStoredTarget;
-	taskType: string;
+export type CronScheduleCreateRequest = Omit<CronSchedule, 'id' | 'updatedAt' | 'enabled'> & {
 	enabled?: boolean;
-}
+	target?: CronStoredTarget;
+};
 
 export interface CronScheduleFilter {
 	sessionId?: string;
