@@ -4,6 +4,11 @@ import path from 'node:path';
 import { app, shell } from 'electron';
 import Store from 'electron-store';
 import { Service } from 'typedi';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type {
 	ConnectorApprovalPolicy,
 	ConnectorData,
