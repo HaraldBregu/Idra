@@ -333,6 +333,15 @@ export const connectors: ConnectorsApi = {
 	authorizeOAuth: (input: Parameters<ConnectorsApi['authorizeOAuth']>[0]) => {
 		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, input);
 	},
+	listTools: (id: string) => {
+		return typedInvokeUnwrap(ConnectorsChannels.listTools, id);
+	},
+	callTool: (id: string, name: string, args?: Record<string, unknown>) => {
+		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args);
+	},
+	disconnect: (id: string) => {
+		return typedInvokeUnwrap(ConnectorsChannels.disconnect, id);
+	},
 };
 
 if (process.contextIsolated) {
