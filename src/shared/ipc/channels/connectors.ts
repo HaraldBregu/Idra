@@ -31,4 +31,10 @@ export interface ConnectorsInvokeChannelMap {
 		args: [input: ConnectorOAuthDefaults];
 		result: ConnectorOAuthAuthorizationResult;
 	};
+	[ConnectorsChannels.listTools]: { args: [id: string]; result: ListToolsResult };
+	[ConnectorsChannels.callTool]: {
+		args: [id: string, name: string, args?: Record<string, unknown>];
+		result: CallToolResult;
+	};
+	[ConnectorsChannels.disconnect]: { args: [id: string]; result: void };
 }
