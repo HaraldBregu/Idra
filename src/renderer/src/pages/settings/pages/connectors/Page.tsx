@@ -3,6 +3,7 @@ import { AlertTriangle } from 'lucide-react';
 import type { ConnectorData } from '@shared/connector';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
+import { ConnectorTools } from './components/ConnectorTools';
 import { useConnectors } from './hooks/useConnectors';
 
 function describeConnector(entry: ConnectorData): string {
