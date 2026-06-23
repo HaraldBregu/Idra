@@ -36,6 +36,7 @@ const OAUTH_TIMEOUT_MS = 120_000;
 @Service()
 export class Connector {
 	private readonly store: Store<ConnectorStoreSchema>;
+	private readonly clients = new Map<string, Client>();
 
 	constructor(options: ConnectorOptions = {}) {
 		this.store = new Store<ConnectorStoreSchema>({
