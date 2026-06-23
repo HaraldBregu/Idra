@@ -15,6 +15,8 @@ import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { ToolContext } from '../tools/context';
+import { McpToolLoader } from '../mcp/loader';
+import type { Connector } from '../../mcp';
 import { SystemPrompt } from '../core/system-prompt';
 
 interface ModelTurn {
