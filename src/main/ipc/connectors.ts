@@ -29,12 +29,12 @@ export class ConnectorsIpc implements IpcModule {
 			connector.authorizeOAuth(input)
 		);
 
-		registerQuery(ConnectorsChannels.listTools, (id: string) => client.listTools(id));
+		registerQuery(ConnectorsChannels.listTools, (id: string) => connector.listTools(id));
 		registerCommand(
 			ConnectorsChannels.callTool,
 			(id: string, name: string, args?: Record<string, unknown>) =>
-				client.callTool(id, name, args)
+				connector.callTool(id, name, args)
 		);
-		registerCommand(ConnectorsChannels.disconnect, (id: string) => client.disconnect(id));
+		registerCommand(ConnectorsChannels.disconnect, (id: string) => connector.disconnect(id));
 	}
 }
