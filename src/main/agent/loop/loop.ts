@@ -75,6 +75,9 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
+		const mcpLoader = new McpToolLoader(this.connector, toolContext);
+		tools.push(...(await mcpLoader.load()));
+
 		const system = this.systemPrompt.getPrompt();
 
 		yield {
