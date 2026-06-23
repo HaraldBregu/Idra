@@ -21,6 +21,7 @@ import {
 	SettingsSection,
 } from '../../../components';
 import { CONNECTOR_DEFAULTS, type ConnectorDefault } from '@shared/connector';
+import { ConnectorTools } from '../components/ConnectorTools';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
 type ConnectorEntry = ConnectorRecord[string];
