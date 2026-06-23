@@ -287,6 +287,10 @@ const ConnectorDetailsPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
+			<SettingsSection title="Tools">
+				<ConnectorTools id={id} />
+			</SettingsSection>
+
 			{connector.last_error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{connector.last_error}
