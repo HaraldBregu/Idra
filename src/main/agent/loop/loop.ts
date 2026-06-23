@@ -42,7 +42,8 @@ export class AgentRuntime {
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
-		private readonly systemPrompt: SystemPrompt
+		private readonly systemPrompt: SystemPrompt,
+		private readonly connector: Connector
 	) { }
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
