@@ -15,7 +15,6 @@ export class ConnectorsIpc implements IpcModule {
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const connector = container.get(Connector);
-		const client = container.get(McpClient);
 
 		registerQuery(ConnectorsChannels.list, () => connector.list());
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
