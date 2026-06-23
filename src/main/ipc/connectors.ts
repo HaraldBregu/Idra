@@ -8,13 +8,14 @@ import type {
 	ConnectorOAuthDefaults,
 	ConnectorSettingsRecord,
 } from '../../shared/connector';
-import { Connector } from '../mcp';
+import { Connector, McpClient } from '../mcp';
 
 export class ConnectorsIpc implements IpcModule {
 	readonly name = 'connectors';
 
 	register(container: MainServiceContainer, _eventBus: EventBus): void {
 		const connector = container.get(Connector);
+		const client = container.get(McpClient);
 
 		registerQuery(ConnectorsChannels.list, () => connector.list());
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
@@ -28,5 +29,13 @@ export class ConnectorsIpc implements IpcModule {
 		registerCommand(ConnectorsChannels.authorizeOAuth, (input: ConnectorOAuthDefaults) =>
 			connector.authorizeOAuth(input)
 		);
+
+		registerQuery(ConnectorsChannels.listTools, (id: string) => client.listTools(id));
+		registerCommand(
+			ConnectorsChannels.callTool,
+			(id: string, name: string, args?: Record<string, unknown>) =>
+				client.callTool(id, name, args)
+		);
+		registerCommand(ConnectorsChannels.disconnect, (id: string) => client.disconnect(id));
 	}
 }
