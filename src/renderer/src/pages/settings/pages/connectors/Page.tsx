@@ -34,21 +34,19 @@ const ConnectorsPage = () => {
 			) : (
 				<div className="grid gap-2">
 					{entries.map(([id, entry]) => (
-						<div key={id} className="flex flex-col gap-2">
-							<ConnectorCard
-								catalogEntry={{
-									id,
-									connectorId: id,
-									name: id,
-									description: describeConnector(entry),
-									iconId: id,
-								}}
-								connector={{ id, entry }}
-								onConnect={() => openConnectorDetails(id)}
-								onViewDetails={() => openConnectorDetails(id)}
-							/>
-							<ConnectorTools id={id} />
-						</div>
+						<ConnectorCard
+							key={id}
+							catalogEntry={{
+								id,
+								connectorId: id,
+								name: id,
+								description: describeConnector(entry),
+								iconId: id,
+							}}
+							connector={{ id, entry }}
+							onConnect={() => openConnectorDetails(id)}
+							onViewDetails={() => openConnectorDetails(id)}
+						/>
 					))}
 				</div>
 			)}
