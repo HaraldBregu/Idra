@@ -588,7 +588,25 @@ function isValidUrl(value: string): boolean {
 }
 
 function migrateConnectorEntry(value: unknown): unknown {
-	if (!isRecord(value) || value.type !== 'mcp') return value;
+	if (!isRecord(value)) return value;
+	// Standard MCP client config format: streamable-http transport with auth in headers.
+	if (value.type === 'streamable-http' || value.type === 'http' || value.type === 'sse') {
+		return {
+			type: value.type === 'sse' ? 'sse' : 'http',
+			url: value.url,
+			token: optionalTrimmedString(value.token) ?? bearerFromHeaders(value.headers),
+			refresh_token: value.refresh_token,
+			token_expires_at: value.token_expires_at,
+			require_approval: value.require_approval,
+			defer_loading: value.defer_loading,
+			enabled: value.enabled,
+			last_refreshed_at: value.last_refreshed_at,
+			created_at: value.created_at,
+			updated_at: value.updated_at,
+			last_error: value.last_error,
+		};
+	}
+	if (value.type !== 'mcp') return value;
 	return {
 		type: 'http',
 		url: value.server_url,
