@@ -6,8 +6,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
-import type { ConnectorDefault } from '@shared/connector';
 import { ConnectorStatusBadge, type ConnectorStatus } from './ConnectorStatusBadge';
+
+type ConnectorCardEntry = {
+	readonly id: string;
+	readonly connectorId: string;
+	readonly name: string;
+	readonly description: string;
+	readonly iconId?: string;
+};
 
 type ConnectorEntry = Awaited<ReturnType<typeof window.connectors.list>>[string];
 
