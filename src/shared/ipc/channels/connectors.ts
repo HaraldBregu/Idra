@@ -1,3 +1,4 @@
+import type { CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
 import type {
 	ConnectorInput,
 	ConnectorOAuthAuthorizationResult,
@@ -12,6 +13,9 @@ export const ConnectorsChannels = {
 	get: 'connectors:get',
 	delete: 'connectors:delete',
 	authorizeOAuth: 'connectors:authorize-oauth',
+	listTools: 'connectors:list-tools',
+	callTool: 'connectors:call-tool',
+	disconnect: 'connectors:disconnect',
 } as const;
 
 export interface ConnectorsInvokeChannelMap {
