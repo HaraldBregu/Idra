@@ -41,6 +41,13 @@ export interface ConnectorsApi {
 	upsert: (input: ConnectorInput) => Promise<ConnectorRecord>;
 	delete: (id: string) => Promise<void>;
 	authorizeOAuth: (input: ConnectorOAuthDefaults) => Promise<ConnectorOAuthAuthorizationResult>;
+	listTools: (id: string) => Promise<ListToolsResult>;
+	callTool: (
+		id: string,
+		name: string,
+		args?: Record<string, unknown>
+	) => Promise<CallToolResult>;
+	disconnect: (id: string) => Promise<void>;
 }
 
 export interface SkillsApi {
