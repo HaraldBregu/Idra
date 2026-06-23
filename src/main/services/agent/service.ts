@@ -79,6 +79,7 @@ export class AgentService {
 				model,
 				cron,
 				systemPrompt,
+				this.connector,
 			);
 			const input = {
 				...sessionInput,
