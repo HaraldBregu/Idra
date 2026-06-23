@@ -83,6 +83,7 @@ import type { ProviderModel as Model } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
+import type { CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
 import type {
 	ConnectorInput,
 	ConnectorOAuthAuthorizationResult,
