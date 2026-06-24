@@ -114,7 +114,7 @@ export class Connector {
 		}
 
 		const next = { ...connectors, [id]: nextConnector };
-		this.store.store = { mcpServers: next };
+		this.store.write(next);
 		return { [id]: nextConnector };
 	}
 
