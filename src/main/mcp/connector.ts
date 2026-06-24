@@ -18,10 +18,7 @@ import type {
 	ConnectorSettingsRecord,
 	ConnectorStdioData,
 } from '../../shared/connector';
-import {
-	CONNECTOR_APPROVAL_POLICIES,
-	CONNECTOR_DEFAULTS,
-} from '../../shared/connector';
+import { CONNECTOR_APPROVAL_POLICIES } from '../../shared/connector';
 
 export interface ConnectorOptions {
 	cwd?: string;
