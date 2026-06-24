@@ -42,6 +42,10 @@ export class Connector {
 		return normalizeConnectorRecord(source);
 	}
 
+	listServers(): ConnectorSettingsRecord {
+		return this.store.servers();
+	}
+
 	get(id: string): ConnectorSettingsRecord {
 		const connectorId = resolveId(id);
 		const connector = this.list()[connectorId];
