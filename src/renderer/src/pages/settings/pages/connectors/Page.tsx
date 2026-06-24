@@ -21,7 +21,7 @@ const ConnectorsPage = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title="Connectors" description="Connected MCP servers." />
+			<SettingsPageHeader title="MCP Servers" description="Connected MCP servers." />
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
