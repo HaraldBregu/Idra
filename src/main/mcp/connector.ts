@@ -97,48 +97,29 @@ export class Connector {
 				last_error: stdioCurrent?.last_error,
 			};
 		} else {
-			const urlCurrent =
-				current?.type === 'http' || current?.type === 'sse' ? current.url : undefined;
-			const tokenCurrent =
-				current?.type === 'http' || current?.type === 'sse' ? current.token : undefined;
-			const url =
-				optionalTrimmedString(input.url) ?? urlCurrent ?? predefined?.url;
+			const httpCurrent: ConnectorHttpData | undefined =
+				current?.type === 'http' ? current : undefined;
+			const url = optionalTrimmedString(input.url) ?? httpCurrent?.url;
 			if (!url) throw new Error(`Connector URL is required for ${type} type.`);
 
 			const incomingToken = optionalTrimmedString(input.token);
-			const base = {
+			nextConnector = {
+				type: 'http',
 				url,
-				token: incomingToken ?? tokenCurrent,
-				require_approval:
-					input.requireApproval ??
-					current?.require_approval ??
-					predefined?.requireApproval,
-				defer_loading:
-					input.deferLoading ?? current?.defer_loading ?? predefined?.deferLoading,
-				enabled: input.enabled ?? current?.enabled ?? predefined?.enabled ?? true,
+				token: incomingToken ?? httpCurrent?.token,
+				require_approval: input.requireApproval ?? current?.require_approval,
+				defer_loading: input.deferLoading ?? current?.defer_loading,
+				enabled: input.enabled ?? current?.enabled ?? true,
 				created_at:
 					optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
 				updated_at: now,
-				last_error: incomingToken
-					? undefined
-					: (current?.type === 'sse' || current?.type === 'http' ? current.last_error : undefined),
+				last_error: incomingToken ? undefined : httpCurrent?.last_error,
+				refresh_token:
+					optionalTrimmedString(input.refreshToken) ?? httpCurrent?.refresh_token,
+				token_expires_at:
+					optionalTrimmedString(input.tokenExpiresAt) ?? httpCurrent?.token_expires_at,
+				last_refreshed_at: incomingToken ? now : httpCurrent?.last_refreshed_at,
 			};
-
-			if (type === 'sse') {
-				nextConnector = { type: 'sse', ...base };
-			} else {
-				const httpCurrent: ConnectorHttpData | undefined =
-					current?.type === 'http' ? current : undefined;
-				nextConnector = {
-					type: 'http',
-					...base,
-					refresh_token:
-						optionalTrimmedString(input.refreshToken) ?? httpCurrent?.refresh_token,
-					token_expires_at:
-						optionalTrimmedString(input.tokenExpiresAt) ?? httpCurrent?.token_expires_at,
-					last_refreshed_at: incomingToken ? now : httpCurrent?.last_refreshed_at,
-				};
-			}
 		}
 
 		const next = { ...connectors, [id]: nextConnector };
