@@ -213,11 +213,11 @@ const ConnectorDetailsPage: React.FC = () => {
 							<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{id}</span>
 						</ItemActions>
 					</Item>
-					{httpOrSse && (
+					{httpConnector && (
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemContent><ItemTitle>Server URL</ItemTitle></ItemContent>
 							<ItemActions className="ml-auto flex-none justify-end">
-								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{httpOrSse.url}</span>
+								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{httpConnector.url}</span>
 							</ItemActions>
 						</Item>
 					)}
