@@ -561,7 +561,7 @@ function isConnectorEntry(value: unknown): value is ConnectorData {
 			isCommonFields(value)
 		);
 	}
-	if (type === 'http' || type === 'sse') {
+	if (type === 'http') {
 		return (
 			typeof value.url === 'string' &&
 			(value.token === undefined || typeof value.token === 'string') &&
