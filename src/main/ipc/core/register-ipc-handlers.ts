@@ -21,6 +21,7 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 		new ChannelsIpc(),
 		new ConnectorsIpc(),
 		new HeartbeatIpc(),
+		new McpIpc(),
 		new ProviderStoreIpc(),
 		new SttIpc(),
 		new WindowIpc(),
