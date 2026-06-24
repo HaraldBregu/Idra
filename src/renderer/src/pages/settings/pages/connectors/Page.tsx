@@ -21,7 +21,7 @@ const ConnectorsPage = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title="MCP Servers" description="Connected MCP servers." />
+			<SettingsPageHeader title="Connectors" description="Connected connectors." />
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
@@ -30,7 +30,7 @@ const ConnectorsPage = () => {
 			)}
 
 			{entries.length === 0 ? (
-				<div className="text-[13px] text-muted-foreground">No MCP servers configured.</div>
+				<div className="text-[13px] text-muted-foreground">No connectors configured.</div>
 			) : (
 				<div className="grid gap-2">
 					{entries.map(([id, entry]) => (
