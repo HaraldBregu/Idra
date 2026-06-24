@@ -544,18 +544,7 @@ function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 		if (!id) continue;
 		const entry = migrateConnectorEntry(rawEntry);
 		if (!isConnectorEntry(entry)) continue;
-		const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
-		if (predefined && entry.type === 'http') {
-			connectors[id] = {
-				...entry,
-				url: entry.url || predefined.url,
-				require_approval: entry.require_approval ?? predefined.requireApproval,
-				defer_loading: entry.defer_loading ?? predefined.deferLoading,
-				enabled: entry.enabled ?? predefined.enabled,
-			};
-		} else {
-			connectors[id] = entry;
-		}
+		connectors[id] = entry;
 	}
 	return connectors;
 }
