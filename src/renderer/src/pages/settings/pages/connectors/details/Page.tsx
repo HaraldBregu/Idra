@@ -46,19 +46,13 @@ function isApprovalPolicy(value: string): value is ApprovalPolicy {
 function connectorRecordEntry(
 	record: ConnectorRecord,
 	preferredId?: string
-): { id: string; connector: ConnectorEntry; catalogEntry?: CatalogEntry } | undefined {
+): { id: string; connector: ConnectorEntry } | undefined {
 	const entry = preferredId ? record[preferredId] : undefined;
 	const id = preferredId && entry ? preferredId : (Object.entries(record)[0]?.[0]);
 	const connector = id ? record[id] : undefined;
 	if (!id || !connector) return undefined;
-	const catalogEntry = CONNECTOR_DEFAULTS.find((e) => e.id === id);
-	return { id, connector, catalogEntry };
+	return { id, connector };
 }
-
-function connectorName(id: string, catalogEntry?: CatalogEntry): string {
-	return catalogEntry?.name ?? id;
-}
-
 
 const ConnectorDetailsPage: React.FC = () => {
 	const { t } = useTranslation();
