@@ -123,7 +123,7 @@ export class Connector {
 		const connectors = this.list();
 		const next = { ...connectors };
 		delete next[connectorId];
-		this.store.store = { mcpServers: next };
+		this.store.write(next);
 	}
 
 	async authorizeOAuth(input: ConnectorOAuthDefaults): Promise<ConnectorOAuthAuthorizationResult> {
