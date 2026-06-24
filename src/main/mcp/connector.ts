@@ -224,16 +224,7 @@ function buildTransport(data: ConnectorData): Transport {
 	});
 }
 
-export function resolveConnectorSettingsLocation(): string {
-	try {
-		return path.join(app.getPath('appData'), app.getName(), 'mcp');
-	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday', 'connectors');
-	}
-}
-
+export { resolveConnectorSettingsLocation } from './store';
 
 function resolveId(value: string | undefined): string {
 	const id = value?.trim().toLowerCase();
