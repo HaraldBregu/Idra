@@ -4,10 +4,10 @@ import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ConnectorsChannels } from '../../shared/ipc/ipc-channels';
 import type {
-	ConnectorInput,
-	ConnectorOAuthDefaults,
-	ConnectorSettingsRecord,
-} from '../../shared/connector';
+	McpInput,
+	McpOAuthDefaults,
+	McpSettingsRecord,
+} from '../../shared/mcp';
 import { Connector } from '../mcp';
 
 export class ConnectorsIpc implements IpcModule {
@@ -18,14 +18,14 @@ export class ConnectorsIpc implements IpcModule {
 
 		registerQuery(ConnectorsChannels.list, () => connector.list());
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
-		registerCommand(ConnectorsChannels.save, (input: ConnectorSettingsRecord) =>
+		registerCommand(ConnectorsChannels.save, (input: McpSettingsRecord) =>
 			connector.save(input)
 		);
-		registerCommand(ConnectorsChannels.upsert, (input: ConnectorInput) =>
+		registerCommand(ConnectorsChannels.upsert, (input: McpInput) =>
 			connector.upsert(input)
 		);
 		registerCommand(ConnectorsChannels.delete, (id: string) => connector.delete(id));
-		registerCommand(ConnectorsChannels.authorizeOAuth, (input: ConnectorOAuthDefaults) =>
+		registerCommand(ConnectorsChannels.authorizeOAuth, (input: McpOAuthDefaults) =>
 			connector.authorizeOAuth(input)
 		);
 

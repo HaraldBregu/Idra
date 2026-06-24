@@ -7,16 +7,16 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type {
-	ConnectorApprovalPolicy,
-	ConnectorData,
-	ConnectorHttpData,
-	ConnectorInput,
-	ConnectorOAuthAuthorizationResult,
-	ConnectorOAuthDefaults,
-	ConnectorSettingsRecord,
-	ConnectorStdioData,
-} from '../../shared/connector';
-import { CONNECTOR_APPROVAL_POLICIES } from '../../shared/connector';
+	McpApprovalPolicy,
+	McpData,
+	McpHttpData,
+	McpInput,
+	McpOAuthAuthorizationResult,
+	McpOAuthDefaults,
+	McpSettingsRecord,
+	McpStdioData,
+} from '../../shared/mcp';
+import { MCP_APPROVAL_POLICIES } from '../../shared/mcp';
 import { ConnectorStore } from './store';
 
 export interface ConnectorOptions {
@@ -34,7 +34,7 @@ export class Connector {
 		this.store = new ConnectorStore(options.cwd);
 	}
 
-	list(): ConnectorSettingsRecord {
+	list(): McpSettingsRecord {
 		const data = this.store.read();
 		// Support old format (connector IDs at root level, no mcpServers wrapper)
 		const source =
@@ -42,23 +42,23 @@ export class Connector {
 		return normalizeConnectorRecord(source);
 	}
 
-	listServers(): ConnectorSettingsRecord {
+	listServers(): McpSettingsRecord {
 		return this.store.servers();
 	}
 
-	get(id: string): ConnectorSettingsRecord {
+	get(id: string): McpSettingsRecord {
 		const connectorId = resolveId(id);
 		const connector = this.list()[connectorId];
 		return connector ? { [connectorId]: connector } : {};
 	}
 
-	save(connectors: ConnectorSettingsRecord): ConnectorSettingsRecord {
+	save(connectors: McpSettingsRecord): McpSettingsRecord {
 		const next = normalizeConnectorRecord(connectors);
 		this.store.write(next);
 		return next;
 	}
 
-	upsert(input: ConnectorInput): ConnectorSettingsRecord {
+	upsert(input: McpInput): McpSettingsRecord {
 		if (!isRecord(input)) throw new Error('Connector input must be an object.');
 
 		const id = resolveId(input.id);
@@ -66,17 +66,17 @@ export class Connector {
 		const current = connectors[id];
 		const now = new Date().toISOString();
 
-		const type = (optionalTrimmedString(input.type) ?? current?.type) as ConnectorData['type'] | undefined;
+		const type = (optionalTrimmedString(input.type) ?? current?.type) as McpData['type'] | undefined;
 		if (!type) throw new Error(`Connector type is required for: ${id}`);
 
-		let nextConnector: ConnectorData;
+		let nextConnector: McpData;
 
 		if (type === 'stdio') {
 			const command =
 				optionalTrimmedString(input.command) ??
 				(current?.type === 'stdio' ? current.command : undefined);
 			if (!command) throw new Error('Connector command is required for stdio type.');
-			const stdioCurrent: ConnectorStdioData | undefined =
+			const stdioCurrent: McpStdioData | undefined =
 				current?.type === 'stdio' ? current : undefined;
 			nextConnector = {
 				type: 'stdio',
@@ -92,7 +92,7 @@ export class Connector {
 				last_error: stdioCurrent?.last_error,
 			};
 		} else {
-			const httpCurrent: ConnectorHttpData | undefined =
+			const httpCurrent: McpHttpData | undefined =
 				current?.type === 'http' ? current : undefined;
 			const url = optionalTrimmedString(input.url) ?? httpCurrent?.url;
 			if (!url) throw new Error(`Connector URL is required for ${type} type.`);
@@ -130,7 +130,7 @@ export class Connector {
 		this.store.write(next);
 	}
 
-	async authorizeOAuth(input: ConnectorOAuthDefaults): Promise<ConnectorOAuthAuthorizationResult> {
+	async authorizeOAuth(input: McpOAuthDefaults): Promise<McpOAuthAuthorizationResult> {
 		const request = normalizeOAuthRequest(input);
 		const clientId = envValue(request.clientIdEnv);
 		if (!clientId) throw new Error(`Missing OAuth client id: ${request.clientIdEnv}`);
@@ -210,7 +210,7 @@ export class Connector {
 	}
 }
 
-function buildTransport(data: ConnectorData): Transport {
+function buildTransport(data: McpData): Transport {
 	if (data.type === 'stdio') {
 		return new StdioClientTransport({
 			command: data.command,
@@ -265,7 +265,7 @@ interface OAuthTokenInput {
 	readonly codeVerifier: string;
 }
 
-function normalizeOAuthRequest(input: ConnectorOAuthDefaults): OAuthAuthorizationRequest {
+function normalizeOAuthRequest(input: McpOAuthDefaults): OAuthAuthorizationRequest {
 	if (!isRecord(input)) throw new Error('OAuth input must be an object.');
 	const service = optionalTrimmedString(input.service);
 	const clientIdEnv = optionalTrimmedString(input.clientIdEnv);
@@ -472,9 +472,9 @@ function migrateConnectorEntry(value: unknown): unknown {
 	};
 }
 
-function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
+function normalizeConnectorRecord(value: unknown): McpSettingsRecord {
 	if (!isRecord(value)) return {};
-	const connectors: ConnectorSettingsRecord = {};
+	const connectors: McpSettingsRecord = {};
 	for (const [rawId, rawEntry] of Object.entries(value)) {
 		const id = rawId.trim().toLowerCase();
 		if (!id) continue;
@@ -485,7 +485,7 @@ function normalizeConnectorRecord(value: unknown): ConnectorSettingsRecord {
 	return connectors;
 }
 
-function isConnectorEntry(value: unknown): value is ConnectorData {
+function isConnectorEntry(value: unknown): value is McpData {
 	if (!isRecord(value)) return false;
 	const { type } = value;
 	if (type === 'stdio') {
@@ -525,8 +525,8 @@ function isStringRecord(value: unknown): value is Record<string, string> {
 	);
 }
 
-function isConnectorApprovalPolicy(value: unknown): value is ConnectorApprovalPolicy {
-	return (CONNECTOR_APPROVAL_POLICIES as readonly unknown[]).includes(value);
+function isConnectorApprovalPolicy(value: unknown): value is McpApprovalPolicy {
+	return (MCP_APPROVAL_POLICIES as readonly unknown[]).includes(value);
 }
 
 function bearerFromHeaders(headers: unknown): string | undefined {

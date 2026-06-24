@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
-import type { ConnectorData } from '@shared/connector';
+import type { McpData } from '@shared/mcp';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
 import { useConnectors } from './hooks/useConnectors';
 
-function describeConnector(entry: ConnectorData): string {
+function describeConnector(entry: McpData): string {
 	return entry.type === 'stdio' ? entry.command : entry.url;
 }
 

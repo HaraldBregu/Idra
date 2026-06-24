@@ -38,9 +38,9 @@ export interface ChannelsApi {
 export interface ConnectorsApi {
 	list: () => Promise<ConnectorRecord>;
 	get: (id: string) => Promise<ConnectorRecord>;
-	upsert: (input: ConnectorInput) => Promise<ConnectorRecord>;
+	upsert: (input: McpInput) => Promise<ConnectorRecord>;
 	delete: (id: string) => Promise<void>;
-	authorizeOAuth: (input: ConnectorOAuthDefaults) => Promise<ConnectorOAuthAuthorizationResult>;
+	authorizeOAuth: (input: McpOAuthDefaults) => Promise<McpOAuthAuthorizationResult>;
 	listTools: (id: string) => Promise<ListToolsResult>;
 	callTool: (
 		id: string,
@@ -89,11 +89,11 @@ import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { CallToolResult, ListToolsResult } from '@modelcontextprotocol/sdk/types.js';
 import type {
-	ConnectorInput,
-	ConnectorOAuthAuthorizationResult,
-	ConnectorOAuthDefaults,
-	ConnectorSettingsRecord,
-} from '../shared/connector';
+	McpInput,
+	McpOAuthAuthorizationResult,
+	McpOAuthDefaults,
+	McpSettingsRecord,
+} from '../shared/mcp';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -118,8 +118,8 @@ export interface ModelSelection {
 	model: Model;
 }
 
-export type ConnectorRecord = ConnectorSettingsRecord;
-export type { ConnectorInput, ConnectorOAuthAuthorizationResult, ConnectorOAuthDefaults };
+export type ConnectorRecord = McpSettingsRecord;
+export type { McpInput, McpOAuthAuthorizationResult, McpOAuthDefaults };
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

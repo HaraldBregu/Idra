@@ -1,8 +1,8 @@
-export const CONNECTOR_APPROVAL_POLICIES = ['always', 'never'] as const;
+export const MCP_APPROVAL_POLICIES = ['always', 'never'] as const;
 
-export type ConnectorApprovalPolicy = (typeof CONNECTOR_APPROVAL_POLICIES)[number];
+export type McpApprovalPolicy = (typeof MCP_APPROVAL_POLICIES)[number];
 
-export interface ConnectorOAuthDefaults {
+export interface McpOAuthDefaults {
 	readonly service: string;
 	readonly serviceId?: string;
 	readonly clientIdEnv: string;
@@ -15,14 +15,14 @@ export interface ConnectorOAuthDefaults {
 	readonly prompt?: string;
 }
 
-export interface ConnectorOAuthAuthorizationResult {
+export interface McpOAuthAuthorizationResult {
 	readonly accessToken: string;
 	readonly refreshToken?: string;
 	readonly expiresIn?: number;
 }
 
-interface ConnectorBase {
-	readonly require_approval?: ConnectorApprovalPolicy;
+interface McpBase {
+	readonly require_approval?: McpApprovalPolicy;
 	readonly defer_loading?: boolean;
 	readonly enabled?: boolean;
 	readonly created_at?: string;
@@ -30,7 +30,7 @@ interface ConnectorBase {
 	readonly last_error?: string;
 }
 
-export interface ConnectorHttpData extends ConnectorBase {
+export interface McpHttpData extends McpBase {
 	readonly type: 'http';
 	readonly url: string;
 	readonly token?: string;
@@ -39,7 +39,7 @@ export interface ConnectorHttpData extends ConnectorBase {
 	readonly last_refreshed_at?: string;
 }
 
-export interface ConnectorStdioData extends ConnectorBase {
+export interface McpStdioData extends McpBase {
 	readonly type: 'stdio';
 	readonly command: string;
 	readonly args?: readonly string[];
@@ -47,17 +47,17 @@ export interface ConnectorStdioData extends ConnectorBase {
 	readonly cwd?: string;
 }
 
-export type ConnectorData = ConnectorHttpData | ConnectorStdioData;
+export type McpData = McpHttpData | McpStdioData;
 
-export type ConnectorSettingsRecord = Record<string, ConnectorData>;
+export type McpSettingsRecord = Record<string, McpData>;
 
-export interface ConnectorInput {
+export interface McpInput {
 	readonly id: string;
 	readonly name?: string;
 	// Transport type — required when creating a new custom server
 	readonly type?: 'http' | 'stdio';
 	// Common
-	readonly requireApproval?: ConnectorApprovalPolicy;
+	readonly requireApproval?: McpApprovalPolicy;
 	readonly deferLoading?: boolean;
 	readonly enabled?: boolean;
 	readonly createdAt?: string;

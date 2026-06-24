@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.list>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.mcp.listServers>>;
 
 export function useConnectors() {
 	const [connectors, setConnectors] = useState<ConnectorRecord>({});
