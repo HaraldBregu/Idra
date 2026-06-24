@@ -1,8 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { createServer } from 'node:http';
-import path from 'node:path';
 import { app, shell } from 'electron';
-import Store from 'electron-store';
 import { Service } from 'typedi';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
