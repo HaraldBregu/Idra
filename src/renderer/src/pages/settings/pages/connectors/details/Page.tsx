@@ -128,6 +128,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	const { id, connector } = selected;
 	const httpConnector = connector.type === 'http' ? connector : undefined;
+	const stdioConnector = connector.type === 'stdio' ? connector : undefined;
 	const authLabel = httpConnector?.token ? 'Access token' : 'Remote MCP';
 	const displayName = id;
 	const approvalPolicy = formatApprovalPolicy(connector.require_approval);
