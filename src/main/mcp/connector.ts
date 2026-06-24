@@ -166,60 +166,6 @@ export class Connector {
 		};
 	}
 
-	async refresh(): Promise<void> {
-		const connectors = this.list();
-		await Promise.allSettled(
-			Object.entries(connectors).map(async ([id, connector]) => {
-				if (connector.type !== 'http') return;
-				if (connector.enabled === false) return;
-				if (!connector.refresh_token) return;
-				if (!isTokenExpired(connector)) return;
-
-				const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
-				if (!predefined?.oauth) return;
-
-				try {
-					const clientId = envValue(predefined.oauth.clientIdEnv);
-					const clientSecret = predefined.oauth.clientSecretEnv
-						? envValue(predefined.oauth.clientSecretEnv)
-						: undefined;
-					if (!clientId) return;
-
-					const token = await refreshOAuthToken(
-						connector.refresh_token,
-						clientId,
-						clientSecret,
-						predefined.oauth.tokenUrl
-					);
-
-					const now = new Date().toISOString();
-					const next: ConnectorHttpData = {
-						...connector,
-						token: token.accessToken,
-						refresh_token: token.refreshToken ?? connector.refresh_token,
-						token_expires_at: token.expiresIn
-							? new Date(Date.now() + token.expiresIn * 1000).toISOString()
-							: undefined,
-						last_refreshed_at: now,
-						updated_at: now,
-						last_error: undefined,
-					};
-					const current = this.store.store.mcpServers ?? {};
-					this.store.store = { mcpServers: { ...current, [id]: next } };
-				} catch (error) {
-					const message = error instanceof Error ? error.message : String(error);
-					const next: ConnectorHttpData = {
-						...connector,
-						last_error: message,
-						updated_at: new Date().toISOString(),
-					};
-					const current = this.store.store.mcpServers ?? {};
-					this.store.store = { mcpServers: { ...current, [id]: next } };
-				}
-			})
-		);
-	}
-
 	async connect(id: string): Promise<Client> {
 		const connectorId = resolveId(id);
 		const existing = this.clients.get(connectorId);
