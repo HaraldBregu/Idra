@@ -38,10 +38,8 @@ const ConnectorsPage = () => {
 							key={id}
 							catalogEntry={{
 								id,
-								connectorId: id,
 								name: id,
 								description: describeConnector(entry),
-								iconId: id,
 							}}
 							connector={{ id, entry }}
 							onConnect={() => openConnectorDetails(id)}
