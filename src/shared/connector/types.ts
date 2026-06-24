@@ -61,7 +61,7 @@ export interface ConnectorInput {
 	readonly deferLoading?: boolean;
 	readonly enabled?: boolean;
 	readonly createdAt?: string;
-	// HTTP / SSE
+	// HTTP
 	readonly url?: string;
 	readonly token?: string;
 	readonly refreshToken?: string;
