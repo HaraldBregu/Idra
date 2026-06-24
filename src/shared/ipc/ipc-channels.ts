@@ -3,6 +3,7 @@ export { AppChannels } from './channels/app';
 export { ChannelsChannels } from './channels/channels';
 export { ConnectorsChannels } from './channels/connectors';
 export { HeartbeatChannels } from './channels/heartbeat';
+export { McpChannels } from './channels/mcp';
 export { ProviderStoreChannels } from './channels/provider';
 export { SkillsChannels } from './channels/skills';
 export { SttChannels } from './channels/stt';
