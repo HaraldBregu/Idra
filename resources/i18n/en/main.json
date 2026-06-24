@@ -460,9 +460,9 @@
 			"modeDescription": "Enable advanced developer tools and options"
 		},
 		"connectors": {
-			"detailsTitle": "Connector Details",
-			"notFoundTitle": "Connector not found",
-			"notFoundDescription": "The connector may have been removed."
+			"detailsTitle": "MCP Server Details",
+			"notFoundTitle": "MCP server not found",
+			"notFoundDescription": "The MCP server may have been removed."
 		},
 		"cron": {
 			"description": "View, run, pause, and delete scheduled agent tasks.",
