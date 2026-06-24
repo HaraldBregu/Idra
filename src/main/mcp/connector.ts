@@ -69,10 +69,9 @@ export class Connector {
 		const id = resolveId(input.id);
 		const connectors = this.list();
 		const current = connectors[id];
-		const predefined = CONNECTOR_DEFAULTS.find((d) => d.id === id);
 		const now = new Date().toISOString();
 
-		const type = (optionalTrimmedString(input.type) ?? current?.type ?? (predefined ? 'http' : undefined)) as ConnectorData['type'] | undefined;
+		const type = (optionalTrimmedString(input.type) ?? current?.type) as ConnectorData['type'] | undefined;
 		if (!type) throw new Error(`Connector type is required for: ${id}`);
 
 		let nextConnector: ConnectorData;
