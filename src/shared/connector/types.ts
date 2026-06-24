@@ -55,7 +55,7 @@ export interface ConnectorInput {
 	readonly id: string;
 	readonly name?: string;
 	// Transport type — required when creating a new custom server
-	readonly type?: 'http' | 'sse' | 'stdio';
+	readonly type?: 'http' | 'stdio';
 	// Common
 	readonly requireApproval?: ConnectorApprovalPolicy;
 	readonly deferLoading?: boolean;
