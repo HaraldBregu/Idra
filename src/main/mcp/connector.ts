@@ -505,7 +505,7 @@ function migrateConnectorEntry(value: unknown): unknown {
 	// Standard MCP client config format: streamable-http transport with auth in headers.
 	if (value.type === 'streamable-http' || value.type === 'http' || value.type === 'sse') {
 		return {
-			type: value.type === 'sse' ? 'sse' : 'http',
+			type: 'http',
 			url: value.url,
 			token: optionalTrimmedString(value.token) ?? bearerFromHeaders(value.headers),
 			refresh_token: value.refresh_token,
