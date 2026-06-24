@@ -50,7 +50,7 @@ export class Connector {
 
 	save(connectors: ConnectorSettingsRecord): ConnectorSettingsRecord {
 		const next = normalizeConnectorRecord(connectors);
-		this.store.store = { mcpServers: next };
+		this.store.write(next);
 		return next;
 	}
 
