@@ -1,8 +1,9 @@
 import path from 'node:path';
 import { app } from 'electron';
 import Store from 'electron-store';
+import type { ConnectorSettingsRecord } from '../../shared/connector';
 
-type ConnectorStoreSchema = { mcpServers: Record<string, unknown> };
+type ConnectorStoreSchema = { mcpServers: ConnectorSettingsRecord };
 
 const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {} };
 
@@ -22,7 +23,11 @@ export class ConnectorStore {
 		return this.store.store;
 	}
 
-	write(servers: Record<string, unknown>): void {
+	servers(): ConnectorSettingsRecord {
+		return this.store.store.mcpServers ?? {};
+	}
+
+	write(servers: ConnectorSettingsRecord): void {
 		this.store.store = { mcpServers: servers };
 	}
 }
