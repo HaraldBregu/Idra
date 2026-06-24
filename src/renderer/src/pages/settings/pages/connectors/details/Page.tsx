@@ -197,10 +197,7 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader
-				title={displayName}
-				description={catalogEntry?.description}
-			/>
+			<SettingsPageHeader title={displayName} />
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
