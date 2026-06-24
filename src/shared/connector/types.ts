@@ -1,7 +1,3 @@
-export const CONNECTOR_IDS = ['gmail', 'calendar'] as const;
-
-export type ConnectorId = (typeof CONNECTOR_IDS)[number];
-
 export const CONNECTOR_APPROVAL_POLICIES = ['always', 'never'] as const;
 
 export type ConnectorApprovalPolicy = (typeof CONNECTOR_APPROVAL_POLICIES)[number];
