@@ -21,19 +21,6 @@ export interface ConnectorOAuthAuthorizationResult {
 	readonly expiresIn?: number;
 }
 
-export interface ConnectorDefault {
-	readonly id: ConnectorId;
-	readonly connectorId: string;
-	readonly name: string;
-	readonly url: string;
-	readonly description: string;
-	readonly iconId?: string;
-	readonly requireApproval?: ConnectorApprovalPolicy;
-	readonly deferLoading?: boolean;
-	readonly enabled?: boolean;
-	readonly oauth?: ConnectorOAuthDefaults;
-}
-
 interface ConnectorBase {
 	readonly require_approval?: ConnectorApprovalPolicy;
 	readonly defer_loading?: boolean;
