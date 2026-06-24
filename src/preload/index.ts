@@ -346,6 +346,12 @@ export const connectors: ConnectorsApi = {
 	},
 };
 
+export const mcp: MCPApi = {
+	listServers: (): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(McpChannels.listServers);
+	},
+};
+
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
