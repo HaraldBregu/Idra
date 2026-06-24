@@ -425,56 +425,6 @@ async function exchangeOAuthCode(input: OAuthTokenInput): Promise<OAuthTokenResu
 	};
 }
 
-async function refreshOAuthToken(
-	refreshToken: string,
-	clientId: string,
-	clientSecret: string | undefined,
-	tokenUrl: string
-): Promise<OAuthTokenResult> {
-	const body = new URLSearchParams({
-		grant_type: 'refresh_token',
-		refresh_token: refreshToken,
-		client_id: clientId,
-	});
-	if (clientSecret) body.set('client_secret', clientSecret);
-
-	const response = await fetch(tokenUrl, {
-		method: 'POST',
-		headers: {
-			accept: 'application/json',
-			'content-type': 'application/x-www-form-urlencoded',
-		},
-		body,
-	});
-	const payload = await response.json().catch((): unknown => ({}));
-	if (!response.ok) throw new Error(oauthTokenErrorMessage(payload));
-	if (
-		!isRecord(payload) ||
-		typeof payload.access_token !== 'string' ||
-		!payload.access_token.trim()
-	) {
-		throw new Error('Token refresh response did not include an access token.');
-	}
-	return {
-		accessToken: payload.access_token.trim(),
-		refreshToken:
-			typeof payload.refresh_token === 'string'
-				? payload.refresh_token.trim() || undefined
-				: undefined,
-		expiresIn: typeof payload.expires_in === 'number' ? payload.expires_in : undefined,
-	};
-}
-
-function isTokenExpired(connector: ConnectorHttpData): boolean {
-	if (!connector.token_expires_at) {
-		if (!connector.last_refreshed_at) return false;
-		const refreshedAt = new Date(connector.last_refreshed_at).getTime();
-		return Date.now() > refreshedAt + 55 * 60 * 1000;
-	}
-	const expiresAt = new Date(connector.token_expires_at).getTime();
-	return Date.now() > expiresAt - 5 * 60 * 1000;
-}
-
 function oauthTokenErrorMessage(payload: unknown): string {
 	if (!isRecord(payload)) return 'OAuth token exchange failed.';
 	const description = optionalTrimmedString(payload.error_description);
