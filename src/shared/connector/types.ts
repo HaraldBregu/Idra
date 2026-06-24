@@ -39,12 +39,6 @@ export interface ConnectorHttpData extends ConnectorBase {
 	readonly last_refreshed_at?: string;
 }
 
-export interface ConnectorSseData extends ConnectorBase {
-	readonly type: 'sse';
-	readonly url: string;
-	readonly token?: string;
-}
-
 export interface ConnectorStdioData extends ConnectorBase {
 	readonly type: 'stdio';
 	readonly command: string;
