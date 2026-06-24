@@ -149,8 +149,8 @@ export const SETTINGS_NAVIGATION = [
 	},
 	{
 		path: '/settings/connectors',
-		labelKey: 'settings.tabs.connectors',
-		descriptionKey: 'settings.overview.descriptions.connectors',
+		labelKey: 'settings.tabs.mcp',
+		descriptionKey: 'settings.overview.descriptions.mcp',
 		icon: Plug,
 	},
 	{
