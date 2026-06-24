@@ -17,32 +17,25 @@ import type {
 	ConnectorStdioData,
 } from '../../shared/connector';
 import { CONNECTOR_APPROVAL_POLICIES } from '../../shared/connector';
+import { ConnectorStore } from './store';
 
 export interface ConnectorOptions {
 	cwd?: string;
 }
 
-type ConnectorStoreSchema = { mcpServers: Record<string, unknown> };
-
-const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {} };
 const OAUTH_TIMEOUT_MS = 120_000;
 
 @Service()
 export class Connector {
-	private readonly store: Store<ConnectorStoreSchema>;
+	private readonly store: ConnectorStore;
 	private readonly clients = new Map<string, Client>();
 
 	constructor(options: ConnectorOptions = {}) {
-		this.store = new Store<ConnectorStoreSchema>({
-			name: 'settings',
-			cwd: options.cwd ?? resolveConnectorSettingsLocation(),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_SETTINGS,
-		});
+		this.store = new ConnectorStore(options.cwd);
 	}
 
 	list(): ConnectorSettingsRecord {
-		const data = this.store.store;
+		const data = this.store.read();
 		// Support old format (connector IDs at root level, no mcpServers wrapper)
 		const source =
 			isRecord(data) && isRecord(data.mcpServers) ? data.mcpServers : data;
