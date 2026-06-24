@@ -228,15 +228,6 @@ function buildTransport(data: ConnectorData): Transport {
 	const url = new URL(data.url);
 	const headers = data.token ? { Authorization: `Bearer ${data.token}` } : undefined;
 
-	if (data.type === 'sse') {
-		return new SSEClientTransport(url, {
-			requestInit: headers ? { headers } : undefined,
-			eventSourceInit: headers
-				? { fetch: (input, init) => fetch(input, { ...init, headers: { ...init?.headers, ...headers } }) }
-				: undefined,
-		});
-	}
-
 	return new StreamableHTTPClientTransport(url, {
 		requestInit: headers ? { headers } : undefined,
 	});
