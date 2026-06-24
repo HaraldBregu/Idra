@@ -17,6 +17,7 @@ import type {
 } from './channels/channels';
 import type { ConnectorsInvokeChannelMap } from './channels/connectors';
 import type { HeartbeatEventChannelMap, HeartbeatInvokeChannelMap } from './channels/heartbeat';
+import type { McpInvokeChannelMap } from './channels/mcp';
 import type { ProviderStoreInvokeChannelMap } from './channels/provider';
 import type { SkillsInvokeChannelMap } from './channels/skills';
 import type { SttEventChannelMap, SttInvokeChannelMap } from './channels/stt';
