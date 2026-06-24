@@ -47,7 +47,7 @@ export interface ConnectorStdioData extends ConnectorBase {
 	readonly cwd?: string;
 }
 
-export type ConnectorData = ConnectorHttpData | ConnectorSseData | ConnectorStdioData;
+export type ConnectorData = ConnectorHttpData | ConnectorStdioData;
 
 export type ConnectorSettingsRecord = Record<string, ConnectorData>;
 
