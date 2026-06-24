@@ -126,11 +126,10 @@ const ConnectorDetailsPage: React.FC = () => {
 		);
 	}
 
-	const { id, connector, catalogEntry } = selected;
+	const { id, connector } = selected;
 	const httpConnector = connector.type === 'http' ? connector : undefined;
-	const httpOrSse = connector.type === 'http' || connector.type === 'sse' ? connector : undefined;
-	const authLabel = httpOrSse?.token ? 'Access token' : 'Remote MCP';
-	const displayName = connectorName(id, catalogEntry);
+	const authLabel = httpConnector?.token ? 'Access token' : 'Remote MCP';
+	const displayName = id;
 	const approvalPolicy = formatApprovalPolicy(connector.require_approval);
 	const enabled = connector.enabled !== false;
 
