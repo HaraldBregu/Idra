@@ -222,6 +222,22 @@ const ConnectorDetailsPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 					)}
+					{stdioConnector && (
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemContent><ItemTitle>Command</ItemTitle></ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{stdioConnector.command}</span>
+							</ItemActions>
+						</Item>
+					)}
+					{stdioConnector && stdioConnector.args && stdioConnector.args.length > 0 && (
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemContent><ItemTitle>Arguments</ItemTitle></ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{stdioConnector.args.join(' ')}</span>
+							</ItemActions>
+						</Item>
+					)}
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemContent><ItemTitle>Enabled</ItemTitle></ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
