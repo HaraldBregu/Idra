@@ -139,7 +139,6 @@ declare global {
 		agent: AgentApi;
 		channels: ChannelsApi;
 		connectors: ConnectorsApi;
-		mcp: MCPApi;
 		skills: SkillsApi;
 		provider: ProviderApi;
 		stt: SttApi;
