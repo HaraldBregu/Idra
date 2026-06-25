@@ -373,8 +373,6 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.connectors = connectors;
 	// @ts-ignore (define in dts)
-	globalThis.mcp = mcp;
-	// @ts-ignore (define in dts)
 	globalThis.skills = skills;
 	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
