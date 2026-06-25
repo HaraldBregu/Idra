@@ -16,7 +16,6 @@ import type {
 	AgentApi,
 	ChannelsApi,
 	ConnectorsApi,
-	MCPApi,
 	ProviderApi,
 	SkillsApi,
 	SttApi,
