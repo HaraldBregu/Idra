@@ -23,7 +23,7 @@ import {
 import { ConnectorTools } from '../components/ConnectorTools';
 import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
 
-type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.get>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.listServers>>;
 type ConnectorEntry = ConnectorRecord[string];
 type ApprovalPolicy = NonNullable<ConnectorEntry['require_approval']>;
 
