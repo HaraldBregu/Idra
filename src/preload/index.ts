@@ -323,6 +323,9 @@ export const connectors: ConnectorsApi = {
 	list: (): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.list);
 	},
+	listServers: (): Promise<ConnectorRecord> => {
+		return typedInvokeUnwrap<ConnectorRecord>(McpChannels.listServers);
+	},
 	get: (id: string): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.get, id);
 	},
