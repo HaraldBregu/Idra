@@ -51,10 +51,6 @@ export interface ConnectorsApi {
 	disconnect: (id: string) => Promise<void>;
 }
 
-export interface MCPApi {
-	listServers: () => Promise<ConnectorRecord>;
-}
-
 export interface SkillsApi {
 	list: () => Promise<SkillInfo[]>;
 	importSkill: () => Promise<SkillImportResult | undefined>;
