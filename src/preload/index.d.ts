@@ -37,6 +37,7 @@ export interface ChannelsApi {
 
 export interface ConnectorsApi {
 	list: () => Promise<ConnectorRecord>;
+	listServers: () => Promise<ConnectorRecord>;
 	get: (id: string) => Promise<ConnectorRecord>;
 	upsert: (input: McpInput) => Promise<ConnectorRecord>;
 	delete: (id: string) => Promise<void>;
