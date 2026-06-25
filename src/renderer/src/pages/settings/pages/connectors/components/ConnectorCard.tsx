@@ -70,7 +70,7 @@ export function ConnectorCard({
 						</Badge>
 					)}
 				</div>
-				<div className="line-clamp-1 max-w-full text-[12px] text-muted-foreground">
+				<div className="line-clamp-1 max-w-full font-mono text-[12px] text-muted-foreground">
 					{catalogEntry.description}
 				</div>
 			</ItemContent>
