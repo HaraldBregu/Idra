@@ -43,7 +43,7 @@ export class AgentRuntime {
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
 		private readonly systemPrompt: SystemPrompt,
-		private readonly connector: Connector
+		private readonly connector: McpManager
 	) { }
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
