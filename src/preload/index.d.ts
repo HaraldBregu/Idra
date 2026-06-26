@@ -116,7 +116,7 @@ declare global {
 		app: AppApi;
 		agent: AgentApi;
 		channels: ChannelsApi;
-		connectors: ConnectorsApi;
+		connectors: McpApi;
 		skills: SkillsApi;
 		provider: ProviderApi;
 		stt: SttApi;
