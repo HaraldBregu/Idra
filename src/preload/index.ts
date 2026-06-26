@@ -317,7 +317,7 @@ export const channels: ChannelsApi = {
 	},
 };
 
-export const connectors: ConnectorsApi = {
+export const connectors: McpApi = {
 	list: (): Promise<McpSettings> => {
 		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.list);
 	},
