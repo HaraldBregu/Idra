@@ -26,7 +26,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 		let mounted = true;
 		setConnectorDetailName(null);
-		void window.connectors.listServers().then(
+		void window.connectors.list().then(
 			() => {
 				if (mounted) setConnectorDetailName(connectorDetailId);
 			},
