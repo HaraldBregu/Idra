@@ -108,20 +108,6 @@ function isConnectorApprovalPolicy(value: unknown): value is McpApprovalPolicy {
 	return (MCP_APPROVAL_POLICIES as readonly unknown[]).includes(value);
 }
 
-function bearerFromHeaders(headers: unknown): string | undefined {
-	if (!isRecord(headers)) return undefined;
-	const auth = optionalTrimmedString(headers.Authorization ?? headers.authorization);
-	if (!auth) return undefined;
-	const match = /^Bearer\s+(.+)$/i.exec(auth);
-	return match ? match[1] : auth;
-}
-
-function optionalTrimmedString(value: unknown): string | undefined {
-	if (typeof value !== 'string') return undefined;
-	const trimmed = value.trim();
-	return trimmed || undefined;
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
