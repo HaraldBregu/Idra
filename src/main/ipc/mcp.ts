@@ -3,14 +3,14 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { registerQuery } from './core/gateway';
 import { McpChannels } from '../../shared/ipc/ipc-channels';
-import { Connector } from '../mcp';
+import { ConnectorStore } from '../mcp/store';
 
 export class McpIpc implements IpcModule {
 	readonly name = 'mcp';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const connector = container.get(Connector);
+	register(_container: MainServiceContainer, _eventBus: EventBus): void {
+		const store = new ConnectorStore();
 
-		registerQuery(McpChannels.listServers, () => connector.listServers());
+		registerQuery(McpChannels.listServers, () => store.servers());
 	}
 }

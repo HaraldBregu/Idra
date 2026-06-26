@@ -28,13 +28,13 @@ import type {
 } from '../shared/agent/types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { ConnectorRecord } from './index.d';
 import type { Provider } from '../shared/providers/types';
 import {
 	normalizeSttRealtimeAudioChunk,
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt/transcription';
+import { McpSettingsRecord } from '../shared/mcp/types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
@@ -318,8 +318,8 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	listServers: (): Promise<ConnectorRecord> => {
-		return typedInvokeUnwrap<ConnectorRecord>(McpChannels.listServers);
+	listServers: (): Promise<McpSettingsRecord> => {
+		return typedInvokeUnwrap<McpSettingsRecord>(McpChannels.listServers);
 	},
 };
 

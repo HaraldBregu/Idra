@@ -1,4 +1,4 @@
-import { normalizeProviderId } from './models/types';
+import { normalizeProviderId, ProviderModel } from './models/types';
 
 export interface ProviderApiConfiguration {
 	readonly credentialType: string | null;
@@ -21,6 +21,10 @@ export interface Provider {
 
 export type PublicProvider = Omit<Provider, 'apiKey'>;
 export type ProviderInput = Provider;
+export interface ModelSelection {
+	provider: PublicProvider;
+	model: ProviderModel;
+}
 
 export const PROVIDER_API_CONFIGURATIONS = {
 	openai: {

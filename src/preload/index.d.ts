@@ -36,7 +36,7 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	listServers: () => Promise<ConnectorRecord>;
+	listServers: () => Promise<McpSettingsRecord>;
 }
 
 export interface SkillsApi {
@@ -61,23 +61,17 @@ export interface SttApi {
 	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
 	getSelection: () => Promise<SttModelSelection | undefined>;
 	listProviders: () => Promise<PublicProvider[]>;
-	listModels: (providerId: string) => Promise<Model[]>;
+	listModels: (providerId: string) => Promise<ProviderModel[]>;
 	saveSelection: (providerId: string, modelId: string) => Promise<boolean>;
 }
 
 import type { PublicProvider } from '../shared/providers';
 import type { Provider } from '../shared/providers/types';
 import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent/types';
-import type { ProviderModel as Model } from '../shared/providers';
+import type { ProviderModel } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type {
-	McpInput,
-	McpOAuthAuthorizationResult,
-	McpOAuthDefaults,
-	McpSettingsRecord,
-} from '../shared/mcp';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -97,13 +91,6 @@ import type {
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
 } from '../shared/app/app-permissions';
-export interface ModelSelection {
-	provider: PublicProvider;
-	model: Model;
-}
-
-export type ConnectorRecord = McpSettingsRecord;
-export type { McpInput, McpOAuthAuthorizationResult, McpOAuthDefaults };
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
