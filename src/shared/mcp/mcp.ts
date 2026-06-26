@@ -2,25 +2,6 @@ export const MCP_APPROVAL_POLICIES = ['always', 'never'] as const;
 
 export type McpApprovalPolicy = (typeof MCP_APPROVAL_POLICIES)[number];
 
-export interface McpOAuthDefaults {
-	readonly service: string;
-	readonly serviceId?: string;
-	readonly clientIdEnv: string;
-	readonly clientSecretEnv?: string;
-	readonly authorizationUrl: string;
-	readonly tokenUrl: string;
-	readonly userInfoUrl?: string;
-	readonly scopes: readonly string[];
-	readonly accessType?: string;
-	readonly prompt?: string;
-}
-
-export interface McpOAuthAuthorizationResult {
-	readonly accessToken: string;
-	readonly refreshToken?: string;
-	readonly expiresIn?: number;
-}
-
 interface McpBase {
 	readonly require_approval?: McpApprovalPolicy;
 	readonly defer_loading?: boolean;
