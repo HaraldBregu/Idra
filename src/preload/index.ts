@@ -330,6 +330,12 @@ export const mcp: McpApi = {
 	delete: (id: string): Promise<void> => {
 		return typedInvokeUnwrap<void>(ConnectorsChannels.delete, id);
 	},
+	oauthStart: (id: string): Promise<McpOAuthStart> => {
+		return typedInvokeUnwrap<McpOAuthStart>(ConnectorsChannels.oauthStart, id);
+	},
+	oauthFinish: (id: string, code: string): Promise<void> => {
+		return typedInvokeUnwrap<void>(ConnectorsChannels.oauthFinish, id, code);
+	},
 };
 
 if (process.contextIsolated) {
