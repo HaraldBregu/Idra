@@ -3,11 +3,7 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ConnectorsChannels } from '../../shared/ipc/ipc-channels';
-import type {
-	McpInput,
-	McpOAuthDefaults,
-	McpSettingsRecord,
-} from '../../shared/mcp';
+import type { McpSettings } from '../../shared/mcp';
 import { Connector } from '../mcp';
 
 export class ConnectorsIpc implements IpcModule {
@@ -18,23 +14,7 @@ export class ConnectorsIpc implements IpcModule {
 
 		registerQuery(ConnectorsChannels.list, () => connector.list());
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
-		registerCommand(ConnectorsChannels.save, (input: McpSettingsRecord) =>
-			connector.save(input)
-		);
-		registerCommand(ConnectorsChannels.upsert, (input: McpInput) =>
-			connector.upsert(input)
-		);
+		registerCommand(ConnectorsChannels.save, (input: McpSettings) => connector.save(input));
 		registerCommand(ConnectorsChannels.delete, (id: string) => connector.delete(id));
-		registerCommand(ConnectorsChannels.authorizeOAuth, (input: McpOAuthDefaults) =>
-			connector.authorizeOAuth(input)
-		);
-
-		registerQuery(ConnectorsChannels.listTools, (id: string) => connector.listTools(id));
-		registerCommand(
-			ConnectorsChannels.callTool,
-			(id: string, name: string, args?: Record<string, unknown>) =>
-				connector.callTool(id, name, args)
-		);
-		registerCommand(ConnectorsChannels.disconnect, (id: string) => connector.disconnect(id));
 	}
 }
