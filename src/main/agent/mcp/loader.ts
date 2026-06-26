@@ -1,5 +1,5 @@
 import type { Context, Tool } from '../core/tool';
-import type { Connector } from '../../mcp';
+import type { McpManager } from '../../mcp';
 import { McpTool } from './tool';
 
 /**
