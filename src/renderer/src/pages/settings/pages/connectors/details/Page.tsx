@@ -6,28 +6,16 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import {
 	SettingsEmptyState,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
-import { ConnectorTools } from '../components/ConnectorTools';
 import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.listServers>>;
 type ConnectorEntry = ConnectorRecord[string];
-type ApprovalPolicy = NonNullable<ConnectorEntry['require_approval']>;
-
-const APPROVAL_POLICIES = ['always', 'never'] as const satisfies readonly ApprovalPolicy[];
 
 function connectorStatus(connector: ConnectorEntry): 'configured' | 'disabled' | 'error' {
 	if (connector.enabled === false) return 'disabled';
@@ -40,14 +28,6 @@ function formatTimestamp(value?: string): string {
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return 'Never';
 	return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
-}
-
-function formatApprovalPolicy(value: ConnectorEntry['require_approval']): string {
-	return value ?? 'always';
-}
-
-function isApprovalPolicy(value: string): value is ApprovalPolicy {
-	return APPROVAL_POLICIES.includes(value as ApprovalPolicy);
 }
 
 function connectorRecordEntry(
@@ -67,8 +47,6 @@ const ConnectorDetailsPage: React.FC = () => {
 	const [connectorRecord, setConnectorRecord] = useState<ConnectorRecord | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [savingApproval, setSavingApproval] = useState(false);
-	const [savingEnabled, setSavingEnabled] = useState(false);
 
 	useEffect(() => {
 		let mounted = true;
@@ -138,71 +116,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const stdioConnector = connector.type === 'stdio' ? connector : undefined;
 	const authLabel = httpConnector?.token ? 'Access token' : 'Remote MCP';
 	const displayName = id;
-	const approvalPolicy = formatApprovalPolicy(connector.require_approval);
-	const enabled = connector.enabled !== false;
 	const status = connectorStatus(connector);
-
-	const handleEnabledChange = async (checked: boolean): Promise<void> => {
-		if (checked === enabled) return;
-
-		const previousRecord = connectorRecord;
-		const optimisticRecord: ConnectorRecord = {
-			...(connectorRecord ?? {}),
-			[id]: {
-				...connector,
-				enabled: checked,
-			},
-		};
-
-		setSavingEnabled(true);
-		setError(null);
-		setConnectorRecord(optimisticRecord);
-
-		try {
-			const nextRecord = await window.connectors.upsert({
-				id,
-				name: displayName,
-				enabled: checked,
-			});
-			setConnectorRecord(nextRecord);
-		} catch (caught) {
-			setConnectorRecord(previousRecord);
-			setError(caught instanceof Error ? caught.message : String(caught));
-		} finally {
-			setSavingEnabled(false);
-		}
-	};
-
-	const handleApprovalPolicyChange = async (value: string): Promise<void> => {
-		if (!isApprovalPolicy(value) || value === approvalPolicy) return;
-
-		const previousRecord = connectorRecord;
-		const optimisticRecord: ConnectorRecord = {
-			...(connectorRecord ?? {}),
-			[id]: {
-				...connector,
-				require_approval: value,
-			},
-		};
-
-		setSavingApproval(true);
-		setError(null);
-		setConnectorRecord(optimisticRecord);
-
-		try {
-			const nextRecord = await window.connectors.upsert({
-				id,
-				name: displayName,
-				requireApproval: value,
-			});
-			setConnectorRecord(nextRecord);
-		} catch (caught) {
-			setConnectorRecord(previousRecord);
-			setError(caught instanceof Error ? caught.message : String(caught));
-		} finally {
-			setSavingApproval(false);
-		}
-	};
 
 	return (
 		<SettingsPageShell>
@@ -236,53 +150,22 @@ const ConnectorDetailsPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 					)}
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemContent><ItemTitle>Command</ItemTitle></ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">
-								{stdioConnector?.command ?? '—'}
-							</span>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemContent><ItemTitle>Arguments</ItemTitle></ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">
-								{stdioConnector?.args?.length ? stdioConnector.args.join(' ') : '—'}
-							</span>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemContent><ItemTitle>Enabled</ItemTitle></ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Switch
-								checked={enabled}
-								disabled={savingEnabled}
-								onCheckedChange={(checked) => void handleEnabledChange(checked)}
-								aria-label="Enabled"
-							/>
-						</ItemActions>
-					</Item>
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemContent><ItemTitle>Require approval</ItemTitle></ItemContent>
-						<ItemActions className="ml-auto flex-none justify-end">
-							<Select
-								value={approvalPolicy}
-								onValueChange={(value) => {
-									if (value) void handleApprovalPolicyChange(value);
-								}}
-								disabled={savingApproval}
-							>
-								<SelectTrigger className="w-44 text-xs">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="always">Always require approval</SelectItem>
-									<SelectItem value="never">Never require approval</SelectItem>
-								</SelectContent>
-							</Select>
-						</ItemActions>
-					</Item>
+					{stdioConnector && (
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemContent><ItemTitle>Command</ItemTitle></ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{stdioConnector.command}</span>
+							</ItemActions>
+						</Item>
+					)}
+					{stdioConnector && stdioConnector.args && stdioConnector.args.length > 0 && (
+						<Item variant="outline" size="md" className="border-b border-border/60">
+							<ItemContent><ItemTitle>Arguments</ItemTitle></ItemContent>
+							<ItemActions className="ml-auto flex-none justify-end">
+								<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{stdioConnector.args.join(' ')}</span>
+							</ItemActions>
+						</Item>
+					)}
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemContent><ItemTitle>Auth</ItemTitle></ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
@@ -304,10 +187,6 @@ const ConnectorDetailsPage: React.FC = () => {
 						</ItemActions>
 					</Item>
 				</Card>
-			</SettingsSection>
-
-			<SettingsSection title="Tools">
-				<ConnectorTools id={id} />
 			</SettingsSection>
 
 			{connector.last_error && (
