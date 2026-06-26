@@ -40,6 +40,8 @@ export interface McpApi {
 	get: (id: string) => Promise<McpSettings>;
 	save: (input: McpSettings) => Promise<McpSettings>;
 	delete: (id: string) => Promise<void>;
+	oauthStart: (id: string) => Promise<McpOAuthStart>;
+	oauthFinish: (id: string, code: string) => Promise<void>;
 }
 
 export interface SkillsApi {
