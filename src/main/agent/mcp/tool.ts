@@ -23,7 +23,7 @@ export class McpTool extends Tool {
 
 	constructor(
 		context: Context,
-		private readonly connector: Connector,
+		private readonly connector: McpManager,
 		private readonly serverId: string,
 		private readonly definition: McpToolDefinition
 	) {
