@@ -8,7 +8,7 @@ export function useConnectors() {
 
 	const load = async (): Promise<void> => {
 		try {
-			const nextConnectors = await window.connectors.listServers();
+			const nextConnectors = await window.connectors.list();
 			setConnectors(nextConnectors);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
