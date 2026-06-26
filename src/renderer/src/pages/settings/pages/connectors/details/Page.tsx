@@ -14,7 +14,7 @@ import {
 } from '../../../components';
 import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
 
-type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.listServers>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.list>>;
 type ConnectorEntry = ConnectorRecord[string];
 
 function connectorStatus(connector: ConnectorEntry): 'configured' | 'disabled' | 'error' {
