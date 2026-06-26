@@ -1,14 +1,12 @@
 import { createServer } from 'node:http';
 import { shell } from 'electron';
 import { Service } from 'typedi';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import {
 	MCP_APPROVAL_POLICIES,
 	type McpApprovalPolicy,
 	type McpData,
 	type McpSettings,
 } from '../../shared/mcp/mcp';
-import { createMcpClient } from './client';
 import { McpStore } from './store';
 
 export interface ConnectorOptions {
