@@ -64,6 +64,17 @@ export class McpService {
 		return client.callTool({ name, arguments: args });
 	}
 
+	private async connect(id: string): Promise<Client> {
+		const connectorId = resolveId(id);
+		const existing = this.clients.get(connectorId);
+		if (existing) return existing;
+		const data = this.list()[connectorId];
+		if (!data) throw new Error(`Connector "${connectorId}" not found.`);
+		const client = await createMcpClient(data);
+		this.clients.set(connectorId, client);
+		return client;
+	}
+
 	async disconnect(id: string): Promise<void> {
 		const connectorId = resolveId(id);
 		const client = this.clients.get(connectorId);
