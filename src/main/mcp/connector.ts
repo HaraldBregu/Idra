@@ -42,10 +42,6 @@ export class Connector {
 		return normalizeConnectorRecord(source);
 	}
 
-	listServers(): McpSettingsRecord {
-		return this.store.servers();
-	}
-
 	get(id: string): McpSettingsRecord {
 		const connectorId = resolveId(id);
 		const connector = this.list()[connectorId];
