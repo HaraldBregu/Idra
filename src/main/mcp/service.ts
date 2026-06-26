@@ -1,10 +1,13 @@
+import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import { Service } from 'typedi';
 import {
 	MCP_APPROVAL_POLICIES,
 	type McpApprovalPolicy,
 	type McpData,
+	type McpOAuthStart,
 	type McpSettings,
 } from '../../shared/mcp/mcp';
+import { createOAuthProvider } from './oauth';
 import { McpStore } from './store';
 
 export interface ConnectorOptions {
