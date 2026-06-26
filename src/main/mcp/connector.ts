@@ -35,11 +35,7 @@ export class Connector {
 	}
 
 	list(): McpSettingsRecord {
-		const data = this.store.read();
-		// Support old format (connector IDs at root level, no mcpServers wrapper)
-		const source =
-			isRecord(data) && isRecord(data.mcpServers) ? data.mcpServers : data;
-		return normalizeConnectorRecord(source);
+		return this.store.servers();
 	}
 
 	get(id: string): McpSettingsRecord {
