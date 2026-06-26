@@ -19,10 +19,6 @@ export class ConnectorStore {
 		});
 	}
 
-	read(): unknown {
-		return this.store.store;
-	}
-
 	servers(): McpSettingsRecord {
 		return this.store.store.mcpServers ?? {};
 	}
