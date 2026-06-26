@@ -1,8 +1,7 @@
 import path from 'node:path';
 import { app } from 'electron';
 import Store from 'electron-store';
-
-
+import type { McpSettings } from '../../shared/mcp/mcp';
 
 type ConnectorStoreSchema = { mcpServers: McpSettings };
 
