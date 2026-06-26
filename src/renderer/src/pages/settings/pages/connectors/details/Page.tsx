@@ -62,7 +62,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		setLoading(true);
 		setError(null);
 
-		void window.connectors.list().then(
+		void window.connectors.get(connectorId).then(
 			(nextConnector) => {
 				if (!mounted) return;
 				setConnectorRecord(nextConnector);
