@@ -319,32 +319,8 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	list: (): Promise<ConnectorRecord> => {
-		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.list);
-	},
 	listServers: (): Promise<ConnectorRecord> => {
 		return typedInvokeUnwrap<ConnectorRecord>(McpChannels.listServers);
-	},
-	get: (id: string): Promise<ConnectorRecord> => {
-		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.get, id);
-	},
-	upsert: (input: Parameters<ConnectorsApi['upsert']>[0]): Promise<ConnectorRecord> => {
-		return typedInvokeUnwrap<ConnectorRecord>(ConnectorsChannels.upsert, input);
-	},
-	delete: (id: string): Promise<void> => {
-		return typedInvokeUnwrap(ConnectorsChannels.delete, id);
-	},
-	authorizeOAuth: (input: Parameters<ConnectorsApi['authorizeOAuth']>[0]) => {
-		return typedInvokeUnwrap(ConnectorsChannels.authorizeOAuth, input);
-	},
-	listTools: (id: string) => {
-		return typedInvokeUnwrap(ConnectorsChannels.listTools, id);
-	},
-	callTool: (id: string, name: string, args?: Record<string, unknown>) => {
-		return typedInvokeUnwrap(ConnectorsChannels.callTool, id, name, args);
-	},
-	disconnect: (id: string) => {
-		return typedInvokeUnwrap(ConnectorsChannels.disconnect, id);
 	},
 };
 
