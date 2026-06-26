@@ -18,7 +18,6 @@ const OAUTH_TIMEOUT_MS = 120_000;
 @Service()
 export class McpService {
 	private readonly store: McpStore;
-	private readonly clients = new Map<string, Client>();
 
 	constructor(options: ConnectorOptions = {}) {
 		this.store = new McpStore(options.cwd);
