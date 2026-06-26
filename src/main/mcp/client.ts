@@ -43,3 +43,6 @@ function buildTransport(data: McpData): Transport {
 		requestInit: headers ? { headers } : undefined,
 	});
 }
+
+const transport = new StreamableHTTPClientTransport(new URL(""));
+transport.finishAuth("dfgdfg")
