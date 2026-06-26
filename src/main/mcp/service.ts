@@ -90,24 +90,6 @@ export class McpService {
 	}
 }
 
-function buildTransport(data: McpData): Transport {
-	if (data.type === 'stdio') {
-		return new StdioClientTransport({
-			command: data.command,
-			args: data.args ? [...data.args] : undefined,
-			env: data.env ? { ...data.env } : undefined,
-			cwd: data.cwd,
-		});
-	}
-
-	const url = new URL(data.url);
-	const headers = data.token ? { Authorization: `Bearer ${data.token}` } : undefined;
-
-	return new StreamableHTTPClientTransport(url, {
-		requestInit: headers ? { headers } : undefined,
-	});
-}
-
 export { resolveConnectorSettingsLocation } from './store';
 
 function resolveId(value: string | undefined): string {
