@@ -48,6 +48,42 @@ export class McpService {
 		delete next[connectorId];
 		this.store.write(next);
 	}
+
+	async startOAuth(id: string): Promise<McpOAuthStart> {
+		const { name, url } = this.httpServer(id);
+		let redirectUrl: string | undefined;
+		const result = await auth(
+			createOAuthProvider({
+				serverName: name,
+				serverUrl: url,
+				onRedirect: (u) => {
+					redirectUrl = u.toString();
+				},
+			}),
+			{ serverUrl: url },
+		);
+		if (result === 'AUTHORIZED') return { status: 'authorized' };
+		if (redirectUrl) return { status: 'redirect', url: redirectUrl };
+		throw new Error(`MCP server "${id}" did not return an authorization URL.`);
+	}
+
+	async finishOAuth(id: string, code: string): Promise<void> {
+		const { name, url } = this.httpServer(id);
+		const result = await auth(createOAuthProvider({ serverName: name, serverUrl: url }), {
+			serverUrl: url,
+			authorizationCode: code,
+		});
+		if (result !== 'AUTHORIZED') throw new Error(`OAuth authorization failed for "${id}".`);
+	}
+
+	private httpServer(id: string): { name: string; url: string } {
+		const connectorId = resolveId(id);
+		const entry = this.list()[connectorId];
+		if (!entry || entry.type !== 'http') {
+			throw new Error(`No http MCP server "${id}".`);
+		}
+		return { name: connectorId, url: entry.url };
+	}
 }
 
 export { resolveConnectorSettingsLocation } from './store';
