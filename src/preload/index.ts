@@ -338,7 +338,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
-		contextBridge.exposeInMainWorld('connectors', connectors);
+		contextBridge.exposeInMainWorld('mcp', mcp);
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('stt', stt);
