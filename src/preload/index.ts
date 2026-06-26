@@ -34,7 +34,7 @@ import {
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt/transcription';
-import { McpSettingsRecord } from '../shared/mcp/types';
+import { McpSettings } from '../shared/mcp/mcp';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
@@ -318,8 +318,8 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	listServers: (): Promise<McpSettingsRecord> => {
-		return typedInvokeUnwrap<McpSettingsRecord>(McpChannels.listServers);
+	listServers: (): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(McpChannels.listServers);
 	},
 };
 

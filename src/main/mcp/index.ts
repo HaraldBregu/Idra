@@ -1,1 +1,1 @@
-export { Connector } from './connector';
+export { Connector } from './service';

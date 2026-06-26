@@ -1,6 +1,5 @@
-import { createHash, randomBytes } from 'node:crypto';
 import { createServer } from 'node:http';
-import { app, shell } from 'electron';
+import { shell } from 'electron';
 import { Service } from 'typedi';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
@@ -10,8 +9,6 @@ import {
 	MCP_APPROVAL_POLICIES,
 	type McpApprovalPolicy,
 	type McpData,
-	type McpOAuthAuthorizationResult,
-	type McpOAuthDefaults,
 	type McpSettings,
 } from '../../shared/mcp/mcp';
 import { McpStore } from './store';
@@ -23,7 +20,7 @@ export interface ConnectorOptions {
 const OAUTH_TIMEOUT_MS = 120_000;
 
 @Service()
-export class Connector {
+export class McpService {
 	private readonly store: McpStore;
 	private readonly clients = new Map<string, Client>();
 
@@ -53,57 +50,6 @@ export class Connector {
 		const next = { ...connectors };
 		delete next[connectorId];
 		this.store.write(next);
-	}
-
-	async authorizeOAuth(input: McpOAuthDefaults): Promise<McpOAuthAuthorizationResult> {
-		const request = normalizeOAuthRequest(input);
-		const clientId = envValue(request.clientIdEnv);
-		if (!clientId) throw new Error(`Missing OAuth client id: ${request.clientIdEnv}`);
-		const clientSecret = request.clientSecretEnv ? envValue(request.clientSecretEnv) : undefined;
-		const state = base64Url(randomBytes(32));
-		const codeVerifier = base64Url(randomBytes(32));
-		const codeChallenge = base64Url(createHash('sha256').update(codeVerifier).digest());
-		const callback = await waitForOAuthCallback({
-			request,
-			clientId,
-			state,
-			codeChallenge,
-		});
-
-		const token = await exchangeOAuthCode({
-			request,
-			clientId,
-			clientSecret,
-			code: callback.code,
-			redirectUri: callback.redirectUri,
-			codeVerifier,
-		});
-
-		return {
-			accessToken: token.accessToken,
-			refreshToken: token.refreshToken,
-			expiresIn: token.expiresIn,
-		};
-	}
-
-	async connect(id: string): Promise<Client> {
-		const connectorId = resolveId(id);
-		const existing = this.clients.get(connectorId);
-		if (existing) return existing;
-
-		const data = this.get(connectorId)[connectorId];
-		if (!data) throw new Error(`Connector not found: ${connectorId}`);
-		if (data.enabled === false) throw new Error(`Connector is disabled: ${connectorId}`);
-
-		const client = new Client({ name: app.getName(), version: app.getVersion() });
-		try {
-			await client.connect(buildTransport(data));
-		} catch (error) {
-			await client.close().catch(() => undefined);
-			throw error;
-		}
-		this.clients.set(connectorId, client);
-		return client;
 	}
 
 	async listTools(id: string): ReturnType<Client['listTools']> {
