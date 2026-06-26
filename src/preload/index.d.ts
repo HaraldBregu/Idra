@@ -36,19 +36,7 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	list: () => Promise<ConnectorRecord>;
 	listServers: () => Promise<ConnectorRecord>;
-	get: (id: string) => Promise<ConnectorRecord>;
-	upsert: (input: McpInput) => Promise<ConnectorRecord>;
-	delete: (id: string) => Promise<void>;
-	authorizeOAuth: (input: McpOAuthDefaults) => Promise<McpOAuthAuthorizationResult>;
-	listTools: (id: string) => Promise<ListToolsResult>;
-	callTool: (
-		id: string,
-		name: string,
-		args?: Record<string, unknown>
-	) => Promise<CallToolResult>;
-	disconnect: (id: string) => Promise<void>;
 }
 
 export interface SkillsApi {
