@@ -6,18 +6,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import type {
-	McpApprovalPolicy,
-	McpData,
-	McpHttpData,
-	McpInput,
-	McpOAuthAuthorizationResult,
-	McpOAuthDefaults,
-	McpSettingsRecord,
-	McpStdioData,
-} from '../../shared/mcp';
-import { MCP_APPROVAL_POLICIES } from '../../shared/mcp';
-import { ConnectorStore } from './store';
+import { McpStore } from './store';
 
 export interface ConnectorOptions {
 	cwd?: string;
@@ -27,11 +16,11 @@ const OAUTH_TIMEOUT_MS = 120_000;
 
 @Service()
 export class Connector {
-	private readonly store: ConnectorStore;
+	private readonly store: McpStore;
 	private readonly clients = new Map<string, Client>();
 
 	constructor(options: ConnectorOptions = {}) {
-		this.store = new ConnectorStore(options.cwd);
+		this.store = new McpStore(options.cwd);
 	}
 
 	list(): McpSettingsRecord {
@@ -49,71 +38,7 @@ export class Connector {
 		this.store.write(next);
 		return next;
 	}
-
-	upsert(input: McpInput): McpSettingsRecord {
-		if (!isRecord(input)) throw new Error('Connector input must be an object.');
-
-		const id = resolveId(input.id);
-		const connectors = this.list();
-		const current = connectors[id];
-		const now = new Date().toISOString();
-
-		const type = (optionalTrimmedString(input.type) ?? current?.type) as McpData['type'] | undefined;
-		if (!type) throw new Error(`Connector type is required for: ${id}`);
-
-		let nextConnector: McpData;
-
-		if (type === 'stdio') {
-			const command =
-				optionalTrimmedString(input.command) ??
-				(current?.type === 'stdio' ? current.command : undefined);
-			if (!command) throw new Error('Connector command is required for stdio type.');
-			const stdioCurrent: McpStdioData | undefined =
-				current?.type === 'stdio' ? current : undefined;
-			nextConnector = {
-				type: 'stdio',
-				command,
-				args: input.args ?? stdioCurrent?.args,
-				env: input.env ?? stdioCurrent?.env,
-				cwd: optionalTrimmedString(input.cwd) ?? stdioCurrent?.cwd,
-				require_approval: input.requireApproval ?? current?.require_approval,
-				defer_loading: input.deferLoading ?? current?.defer_loading,
-				enabled: input.enabled ?? current?.enabled ?? true,
-				created_at: optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
-				updated_at: now,
-				last_error: stdioCurrent?.last_error,
-			};
-		} else {
-			const httpCurrent: McpHttpData | undefined =
-				current?.type === 'http' ? current : undefined;
-			const url = optionalTrimmedString(input.url) ?? httpCurrent?.url;
-			if (!url) throw new Error(`Connector URL is required for ${type} type.`);
-
-			const incomingToken = optionalTrimmedString(input.token);
-			nextConnector = {
-				type: 'http',
-				url,
-				token: incomingToken ?? httpCurrent?.token,
-				require_approval: input.requireApproval ?? current?.require_approval,
-				defer_loading: input.deferLoading ?? current?.defer_loading,
-				enabled: input.enabled ?? current?.enabled ?? true,
-				created_at:
-					optionalTrimmedString(input.createdAt) ?? current?.created_at ?? now,
-				updated_at: now,
-				last_error: incomingToken ? undefined : httpCurrent?.last_error,
-				refresh_token:
-					optionalTrimmedString(input.refreshToken) ?? httpCurrent?.refresh_token,
-				token_expires_at:
-					optionalTrimmedString(input.tokenExpiresAt) ?? httpCurrent?.token_expires_at,
-				last_refreshed_at: incomingToken ? now : httpCurrent?.last_refreshed_at,
-			};
-		}
-
-		const next = { ...connectors, [id]: nextConnector };
-		this.store.write(next);
-		return { [id]: nextConnector };
-	}
-
+ 
 	delete(id: string): void {
 		const connectorId = resolveId(id);
 		const connectors = this.list();

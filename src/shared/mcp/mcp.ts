@@ -49,26 +49,4 @@ export interface McpStdioData extends McpBase {
 
 export type McpData = McpHttpData | McpStdioData;
 
-export type McpSettingsRecord = Record<string, McpData>;
-
-export interface McpInput {
-	readonly id: string;
-	readonly name?: string;
-	// Transport type — required when creating a new custom server
-	readonly type?: 'http' | 'stdio';
-	// Common
-	readonly requireApproval?: McpApprovalPolicy;
-	readonly deferLoading?: boolean;
-	readonly enabled?: boolean;
-	readonly createdAt?: string;
-	// HTTP
-	readonly url?: string;
-	readonly token?: string;
-	readonly refreshToken?: string;
-	readonly tokenExpiresAt?: string;
-	// STDIO
-	readonly command?: string;
-	readonly args?: readonly string[];
-	readonly env?: Readonly<Record<string, string>>;
-	readonly cwd?: string;
-}
+export type McpSettings = Record<string, McpData>;

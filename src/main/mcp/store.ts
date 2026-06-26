@@ -1,13 +1,14 @@
 import path from 'node:path';
 import { app } from 'electron';
 import Store from 'electron-store';
-import type { McpSettingsRecord } from '../../shared/mcp';
 
-type ConnectorStoreSchema = { mcpServers: McpSettingsRecord };
+
+
+type ConnectorStoreSchema = { mcpServers: McpSettings };
 
 const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {} };
 
-export class ConnectorStore {
+export class McpStore {
 	private readonly store: Store<ConnectorStoreSchema>;
 
 	constructor(cwd?: string) {
