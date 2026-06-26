@@ -16,5 +16,9 @@ export class ConnectorsIpc implements IpcModule {
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
 		registerCommand(ConnectorsChannels.save, (input: McpSettings) => connector.save(input));
 		registerCommand(ConnectorsChannels.delete, (id: string) => connector.delete(id));
+		registerCommand(ConnectorsChannels.oauthStart, (id: string) => connector.startOAuth(id));
+		registerCommand(ConnectorsChannels.oauthFinish, (id: string, code: string) =>
+			connector.finishOAuth(id, code),
+		);
 	}
 }
