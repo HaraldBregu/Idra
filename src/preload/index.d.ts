@@ -35,7 +35,7 @@ export interface ChannelsApi {
 	onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
 }
 
-export interface ConnectorsApi {
+export interface McpApi {
 	list: () => Promise<McpSettings>;
 	get: (id: string) => Promise<McpSettings>;
 	save: (input: McpSettings) => Promise<McpSettings>;
