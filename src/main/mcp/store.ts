@@ -19,11 +19,11 @@ export class McpStore {
 		});
 	}
 
-	servers(): McpSettingsRecord {
+	servers(): McpSettings {
 		return this.store.store.mcpServers ?? {};
 	}
 
-	write(servers: McpSettingsRecord): void {
+	write(servers: McpSettings): void {
 		this.store.store = { mcpServers: servers };
 	}
 }
