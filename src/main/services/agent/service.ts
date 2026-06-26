@@ -41,8 +41,8 @@ export class AgentService {
 	@Inject(() => SystemPromptService)
 	private readonly systemPrompt!: SystemPromptService;
 
-	@Inject(() => Connector)
-	private readonly connector!: Connector;
+	@Inject(() => McpManager)
+	private readonly connector!: McpManager;
 
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
