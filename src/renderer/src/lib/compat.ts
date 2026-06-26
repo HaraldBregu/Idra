@@ -43,8 +43,6 @@ export interface ModelSelection {
 export type AgentToolCallStatus = AgentToolResultStatus;
 export type { SttRealtimeEvent };
 
-export type { McpInput };
-
 export type RendererAppApi = Window['app'] & {
 	setProviderApiKey(providerId: string, apikey: string): Promise<void>;
 	isProviderApiKeySaved(providerId: string): Promise<boolean>;
