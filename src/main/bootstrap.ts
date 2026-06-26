@@ -8,7 +8,7 @@ import { CronService } from './services/cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
-import { Connector } from './mcp';
+import { McpService } from './mcp';
 import { LlmService } from './llm';
 import { AgentService } from './services/agent/service';
 import { HeartbeatService } from './services/heartbeat';
