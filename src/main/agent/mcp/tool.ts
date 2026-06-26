@@ -1,9 +1,9 @@
 import { Tool } from '../core/tool';
 import type { Context } from '../core/tool';
 import type { JSONSchema } from '../core/types';
-import type { Connector } from '../../mcp';
+import type { McpManager } from '../../mcp';
 
-type CallToolResult = Awaited<ReturnType<Connector['callTool']>>;
+type CallToolResult = Awaited<ReturnType<McpManager['callTool']>>;
 
 export interface McpToolDefinition {
 	readonly name: string;
