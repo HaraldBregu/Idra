@@ -3,7 +3,6 @@ import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
 import { ConnectorsIpc } from '../connectors';
 import { HeartbeatIpc } from '../heartbeat';
-import { McpIpc } from '../mcp';
 import { ProviderStoreIpc } from '../provider';
 import { SttIpc } from '../stt';
 import { WindowIpc } from '../window';
