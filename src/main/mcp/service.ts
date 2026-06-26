@@ -52,51 +52,14 @@ function resolveId(value: string | undefined): string {
 	return id;
 }
 
-function migrateConnectorEntry(value: unknown): unknown {
-	if (!isRecord(value)) return value;
-	// Standard MCP client config format: streamable-http transport with auth in headers.
-	if (value.type === 'streamable-http' || value.type === 'http' || value.type === 'sse') {
-		return {
-			type: 'http',
-			url: value.url,
-			token: optionalTrimmedString(value.token) ?? bearerFromHeaders(value.headers),
-			refresh_token: value.refresh_token,
-			token_expires_at: value.token_expires_at,
-			require_approval: value.require_approval,
-			defer_loading: value.defer_loading,
-			enabled: value.enabled,
-			last_refreshed_at: value.last_refreshed_at,
-			created_at: value.created_at,
-			updated_at: value.updated_at,
-			last_error: value.last_error,
-		};
-	}
-	if (value.type !== 'mcp') return value;
-	return {
-		type: 'http',
-		url: value.server_url,
-		token: value.authorization,
-		refresh_token: value.refresh_token,
-		token_expires_at: value.token_expires_at,
-		require_approval: value.require_approval,
-		defer_loading: value.defer_loading,
-		enabled: value.enabled,
-		last_refreshed_at: value.last_refreshed_at,
-		created_at: value.created_at,
-		updated_at: value.updated_at,
-		last_error: value.last_error,
-	};
-}
-
 function normalizeConnectorRecord(value: unknown): McpSettings {
 	if (!isRecord(value)) return {};
 	const connectors: McpSettings = {};
 	for (const [rawId, rawEntry] of Object.entries(value)) {
 		const id = rawId.trim().toLowerCase();
 		if (!id) continue;
-		const entry = migrateConnectorEntry(rawEntry);
-		if (!isConnectorEntry(entry)) continue;
-		connectors[id] = entry;
+		if (!isConnectorEntry(rawEntry)) continue;
+		connectors[id] = rawEntry;
 	}
 	return connectors;
 }
