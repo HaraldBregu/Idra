@@ -4,10 +4,26 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { McpData } from '../../shared/mcp/mcp';
 
-export async function createMcpClient(data: McpData): Promise<Client> {
-	const client = new Client({ name: 'friday', version: '1.0.0' });
-	await client.connect(buildTransport(data));
-	return client;
+export class McpClient {
+	private readonly client = new Client({ name: 'friday', version: '1.0.0' });
+
+	constructor(private readonly data: McpData) {}
+
+	async connect(): Promise<void> {
+		await this.client.connect(buildTransport(this.data));
+	}
+
+	listTools(): ReturnType<Client['listTools']> {
+		return this.client.listTools();
+	}
+
+	callTool(name: string, args?: Record<string, unknown>): ReturnType<Client['callTool']> {
+		return this.client.callTool({ name, arguments: args });
+	}
+
+	async close(): Promise<void> {
+		await this.client.close();
+	}
 }
 
 function buildTransport(data: McpData): Transport {
