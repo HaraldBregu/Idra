@@ -23,17 +23,17 @@ export class Connector {
 		this.store = new McpStore(options.cwd);
 	}
 
-	list(): McpSettingsRecord {
+	list(): McpSettings {
 		return this.store.servers();
 	}
 
-	get(id: string): McpSettingsRecord {
+	get(id: string): McpSettings {
 		const connectorId = resolveId(id);
 		const connector = this.list()[connectorId];
 		return connector ? { [connectorId]: connector } : {};
 	}
 
-	save(connectors: McpSettingsRecord): McpSettingsRecord {
+	save(connectors: McpSettings): McpSettings {
 		const next = normalizeConnectorRecord(connectors);
 		this.store.write(next);
 		return next;
@@ -389,9 +389,9 @@ function migrateConnectorEntry(value: unknown): unknown {
 	};
 }
 
-function normalizeConnectorRecord(value: unknown): McpSettingsRecord {
+function normalizeConnectorRecord(value: unknown): McpSettings {
 	if (!isRecord(value)) return {};
-	const connectors: McpSettingsRecord = {};
+	const connectors: McpSettings = {};
 	for (const [rawId, rawEntry] of Object.entries(value)) {
 		const id = rawId.trim().toLowerCase();
 		if (!id) continue;
