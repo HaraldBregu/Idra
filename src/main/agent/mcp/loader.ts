@@ -10,7 +10,7 @@ import { McpTool } from './tool';
  */
 export class McpToolLoader {
 	constructor(
-		private readonly connector: Connector,
+		private readonly connector: McpManager,
 		private readonly context: Context
 	) {}
 
