@@ -55,6 +55,16 @@ function resolveId(value: string | undefined): string {
 	return id;
 }
 
+// The standard mcpServers format omits `type`: command-based entries are stdio,
+// url-based entries are http. Fill it in so the UI's discriminated union works.
+function inferType(entry: McpData): McpData {
+	if (entry.type) return entry;
+	const shape = entry as { command?: unknown; url?: unknown };
+	if (typeof shape.command === 'string') return { ...entry, type: 'stdio' } as McpData;
+	if (typeof shape.url === 'string') return { ...entry, type: 'http' } as McpData;
+	return entry;
+}
+
 function normalizeConnectorRecord(value: unknown): McpSettings {
 	if (!isRecord(value)) return {};
 	const connectors: McpSettings = {};
