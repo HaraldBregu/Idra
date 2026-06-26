@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.list>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.mcp.list>>;
 
 export function useConnectors() {
 	const [connectors, setConnectors] = useState<ConnectorRecord>({});
@@ -8,7 +8,7 @@ export function useConnectors() {
 
 	const load = async (): Promise<void> => {
 		try {
-			const nextConnectors = await window.connectors.list();
+			const nextConnectors = await window.mcp.list();
 			setConnectors(nextConnectors);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));

@@ -20,7 +20,10 @@ export class McpService {
 	}
 
 	list(): McpSettings {
-		return this.store.servers();
+		const servers = this.store.servers();
+		const out: McpSettings = {};
+		for (const [id, entry] of Object.entries(servers)) out[id] = inferType(entry);
+		return out;
 	}
 
 	get(id: string): McpSettings {

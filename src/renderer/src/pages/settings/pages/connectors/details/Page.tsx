@@ -14,7 +14,7 @@ import {
 } from '../../../components';
 import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
 
-type ConnectorRecord = Awaited<ReturnType<typeof window.connectors.list>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.mcp.list>>;
 type ConnectorEntry = ConnectorRecord[string];
 
 function connectorStatus(connector: ConnectorEntry): 'configured' | 'disabled' | 'error' {
@@ -62,7 +62,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		setLoading(true);
 		setError(null);
 
-		void window.connectors.get(connectorId).then(
+		void window.mcp.get(connectorId).then(
 			(nextConnector) => {
 				if (!mounted) return;
 				setConnectorRecord(nextConnector);
