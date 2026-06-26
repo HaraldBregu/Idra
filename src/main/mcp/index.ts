@@ -1,1 +1,2 @@
-export { Connector } from './service';
+export { McpService } from './service';
+export { McpClient } from './client';
