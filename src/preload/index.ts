@@ -5,7 +5,7 @@ import {
 	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
-	McpChannels,
+	ConnectorsChannels,
 	ProviderStoreChannels,
 	SkillsChannels,
 	SttChannels,
