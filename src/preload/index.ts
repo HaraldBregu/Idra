@@ -34,7 +34,7 @@ import {
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt/transcription';
-import { McpSettings } from '../shared/mcp/mcp';
+import { McpOAuthStart, McpSettings } from '../shared/mcp/mcp';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
