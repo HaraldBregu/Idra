@@ -36,7 +36,10 @@ export interface ChannelsApi {
 }
 
 export interface ConnectorsApi {
-	listServers: () => Promise<McpSettingsRecord>;
+	list: () => Promise<McpSettings>;
+	get: (id: string) => Promise<McpSettings>;
+	save: (input: McpSettings) => Promise<McpSettings>;
+	delete: (id: string) => Promise<void>;
 }
 
 export interface SkillsApi {
