@@ -47,44 +47,6 @@ export class McpService {
 		this.store.write(next);
 	}
 
-	async listTools(id: string): ReturnType<Client['listTools']> {
-		const client = await this.connect(id);
-		return client.listTools();
-	}
-
-	async callTool(
-		id: string,
-		name: string,
-		args?: Record<string, unknown>
-	): ReturnType<Client['callTool']> {
-		const client = await this.connect(id);
-		return client.callTool({ name, arguments: args });
-	}
-
-	private async connect(id: string): Promise<Client> {
-		const connectorId = resolveId(id);
-		const existing = this.clients.get(connectorId);
-		if (existing) return existing;
-		const data = this.list()[connectorId];
-		if (!data) throw new Error(`Connector "${connectorId}" not found.`);
-		const client = await createMcpClient(data);
-		this.clients.set(connectorId, client);
-		return client;
-	}
-
-	async disconnect(id: string): Promise<void> {
-		const connectorId = resolveId(id);
-		const client = this.clients.get(connectorId);
-		if (!client) return;
-		this.clients.delete(connectorId);
-		await client.close();
-	}
-
-	async disconnectAll(): Promise<void> {
-		const clients = [...this.clients.values()];
-		this.clients.clear();
-		await Promise.allSettled(clients.map((client) => client.close()));
-	}
 }
 
 export { resolveConnectorSettingsLocation } from './store';
