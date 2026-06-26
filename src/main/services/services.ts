@@ -17,7 +17,7 @@ export interface MainServices {
 	agentService: AgentService;
 	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
-	connectorSettingsService: Connector;
+	connectorSettingsService: McpService;
 	cron: CronService;
 	eventBus: EventBus;
 	heartbeat: HeartbeatService;
