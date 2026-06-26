@@ -39,7 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 	const cron = container.get(CronService);
 
 	container.get(ProviderService);
-	container.get(Connector);
+	container.get(McpService);
 	container.get(LlmService);
 	container.get(SttService);
 	container.get(HeartbeatService);
