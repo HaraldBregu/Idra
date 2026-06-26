@@ -7,7 +7,6 @@ import { AgentRuntime } from '../../agent/loop/loop';
 import { AgentModel } from '../../llm';
 import { RuntimeEvent } from '../../agent';
 import { CronService } from '../cron';
-import { McpManager } from '../../mcp';
 import type { Cron } from '../../agent/core/cron';
 import type { Message, SessionCategory } from '../../agent/core/types';
 import type {
