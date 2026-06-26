@@ -318,8 +318,17 @@ export const channels: ChannelsApi = {
 };
 
 export const connectors: ConnectorsApi = {
-	listServers: (): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(McpChannels.listServers);
+	list: (): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.list);
+	},
+	get: (id: string): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.get, id);
+	},
+	save: (input: McpSettings): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.save, input);
+	},
+	delete: (id: string): Promise<void> => {
+		return typedInvokeUnwrap<void>(ConnectorsChannels.delete, id);
 	},
 };
 
