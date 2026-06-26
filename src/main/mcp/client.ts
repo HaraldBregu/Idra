@@ -30,7 +30,7 @@ export class McpClient {
 	}
 }
 
-function buildTransport(data: McpData): Transport {
+function buildTransport(name: string, data: McpData): Transport {
 	if (data.type === 'stdio') {
 		return new StdioClientTransport({
 			command: data.command,
@@ -44,9 +44,7 @@ function buildTransport(data: McpData): Transport {
 	const headers = data.token ? { Authorization: `Bearer ${data.token}` } : undefined;
 
 	return new StreamableHTTPClientTransport(url, {
+		authProvider: createOAuthProvider({ serverName: name, serverUrl: data.url }),
 		requestInit: headers ? { headers } : undefined,
 	});
 }
-
-const transport = new StreamableHTTPClientTransport(new URL(""));
-transport.finishAuth("dfgdfg")
