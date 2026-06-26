@@ -31,3 +31,5 @@ export interface McpStdioData extends McpBase {
 export type McpData = McpHttpData | McpStdioData;
 
 export type McpSettings = Record<string, McpData>;
+
+export type McpOAuthStart = { status: 'authorized' } | { status: 'redirect'; url: string };
