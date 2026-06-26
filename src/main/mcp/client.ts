@@ -3,14 +3,18 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { McpData } from '../../shared/mcp/mcp';
+import { createOAuthProvider } from './oauth';
 
 export class McpClient {
 	private readonly client = new Client({ name: 'friday', version: '1.0.0' });
 
-	constructor(private readonly data: McpData) {}
+	constructor(
+		private readonly name: string,
+		private readonly data: McpData,
+	) {}
 
 	async connect(): Promise<void> {
-		await this.client.connect(buildTransport(this.data));
+		await this.client.connect(buildTransport(this.name, this.data));
 	}
 
 	listTools(): ReturnType<Client['listTools']> {
