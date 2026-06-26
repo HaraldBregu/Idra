@@ -11,7 +11,7 @@ type ConnectorCardEntry = {
 	readonly description: string;
 };
 
-type ConnectorEntry = Awaited<ReturnType<typeof window.connectors.listServers>>[string];
+type ConnectorEntry = Awaited<ReturnType<typeof window.connectors.list>>[string];
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a'));
