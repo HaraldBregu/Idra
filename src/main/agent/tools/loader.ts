@@ -6,6 +6,7 @@ import { WriteTool } from './filesystem/write';
 import { EditTool } from './filesystem/edit';
 import { ExecTool } from './runtime/exec';
 import { ProcessTool } from './runtime/process';
+import { LoadSkillTool } from './skills/load';
 import {
 	CreateScheduleTool,
 	UpdateScheduleTool,
