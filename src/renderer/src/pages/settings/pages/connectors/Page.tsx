@@ -43,7 +43,7 @@ const ConnectorsPage = () => {
 				{list.map(([id, entry]) => (
 					<ConnectorCard
 						key={id}
-						catalogEntry={{ id, name: id, description: describeConnector(entry) }}
+						catalogEntry={{ id, name: entry.name ?? id, description: describeConnector(entry) }}
 						connector={{ id, entry }}
 						onConnect={() => openConnectorDetails(id)}
 						onViewDetails={() => openConnectorDetails(id)}
