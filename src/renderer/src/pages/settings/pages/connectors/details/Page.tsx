@@ -190,6 +190,12 @@ const ConnectorDetailsPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
+			{httpConnector && httpConnector.client_id && (
+				<SettingsSection title="Authentication" description="Sign in to this server with OAuth.">
+					<ConnectorOAuthButton id={id} />
+				</SettingsSection>
+			)}
+
 			{connector.last_error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{connector.last_error}
