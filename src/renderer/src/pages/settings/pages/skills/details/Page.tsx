@@ -315,17 +315,19 @@ function SkillDetail({
 	label,
 	value,
 	mono,
+	action,
 }: {
 	readonly label: string;
 	readonly value: string;
 	readonly mono?: boolean;
+	readonly action?: React.ReactNode;
 }): React.JSX.Element {
 	return (
 		<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
 			<ItemContent className="min-w-0">
 				<ItemTitle>{label}</ItemTitle>
 			</ItemContent>
-			<ItemActions className="ml-auto min-w-0 flex-none justify-end">
+			<ItemActions className="ml-auto min-w-0 flex-none items-center justify-end gap-1.5">
 				<span
 					className={
 						mono
@@ -335,6 +337,7 @@ function SkillDetail({
 				>
 					{value}
 				</span>
+				{action}
 			</ItemActions>
 		</Item>
 	);
