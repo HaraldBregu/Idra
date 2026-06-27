@@ -86,6 +86,12 @@ const ConnectorDetailsPage: React.FC = () => {
 		};
 	}, [connectorId, t]);
 
+	const updateConnector = async (id: string, entry: McpHttpData): Promise<void> => {
+		const all = await window.mcp.list();
+		await window.mcp.save({ ...all, [id]: entry });
+		if (connectorId) setConnectorRecord(await window.mcp.get(connectorId));
+	};
+
 	if (loading) {
 		return (
 			<SettingsPageShell>
