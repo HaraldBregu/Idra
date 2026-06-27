@@ -97,6 +97,14 @@ export class SkillsService {
 		return { id, name, deleted: true };
 	}
 
+	setEnabled(id: string, enabled: boolean): SkillInfo {
+		const folder = this.resolveSkillFolder(id);
+		const info = this.read(folder, id);
+		if (!info) throw new Error(`Skill "${id}" not found.`);
+		this.store.set(id, { enabled });
+		return { ...info, manifest: { ...info.manifest, enabled } };
+	}
+
 	validate(folder: string): SkillValidationResult {
 		const issues: SkillValidationIssue[] = [];
 		const skillPath = path.join(folder, SKILL_FILE);
