@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
 import type { McpHttpData } from '@shared/mcp';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,10 +16,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export function OAuthConnectorDialog({
+	trigger,
+	initial,
 	onSubmit,
 }: {
+	readonly trigger: React.ReactElement;
+	readonly initial?: { readonly id: string; readonly entry: McpHttpData };
 	readonly onSubmit: (id: string, entry: McpHttpData) => Promise<void>;
 }): React.JSX.Element {
+	const isEdit = Boolean(initial);
 	const [open, setOpen] = useState(false);
 	const [name, setName] = useState('');
 	const [url, setUrl] = useState('');
@@ -29,11 +33,11 @@ export function OAuthConnectorDialog({
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 
-	const reset = (): void => {
-		setName('');
-		setUrl('');
-		setClientId('');
-		setClientSecret('');
+	const seed = (): void => {
+		setName(initial?.id ?? '');
+		setUrl(initial?.entry.url ?? '');
+		setClientId(initial?.entry.client_id ?? '');
+		setClientSecret(initial?.entry.client_secret ?? '');
 		setError(null);
 	};
 
@@ -46,19 +50,19 @@ export function OAuthConnectorDialog({
 		}
 		const now = new Date().toISOString();
 		const entry: McpHttpData = {
+			...initial?.entry,
 			type: 'http',
 			url: url.trim(),
 			client_id: clientId.trim(),
 			client_secret: clientSecret.trim() || undefined,
-			enabled: true,
-			created_at: now,
+			enabled: initial?.entry.enabled ?? true,
+			created_at: initial?.entry.created_at ?? now,
 			updated_at: now,
 		};
 		setSaving(true);
 		setError(null);
 		try {
 			await onSubmit(id, entry);
-			reset();
 			setOpen(false);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -72,21 +76,14 @@ export function OAuthConnectorDialog({
 			open={open}
 			onOpenChange={(next) => {
 				setOpen(next);
-				if (!next) reset();
+				seed();
 			}}
 		>
-			<DialogTrigger
-				render={
-					<Button variant="outline" size="sm">
-						<Plus className="size-3.5" />
-						Add OAuth connector
-					</Button>
-				}
-			/>
+			<DialogTrigger render={trigger} />
 			<DialogContent>
 				<form onSubmit={submit} className="grid gap-4">
 					<DialogHeader>
-						<DialogTitle>Add OAuth connector</DialogTitle>
+						<DialogTitle>{isEdit ? 'Edit connector' : 'Add OAuth connector'}</DialogTitle>
 						<DialogDescription>
 							Remote MCP server authenticated with OAuth client credentials.
 						</DialogDescription>
@@ -94,7 +91,7 @@ export function OAuthConnectorDialog({
 
 					<Field>
 						<Label htmlFor="oauth-name">Name</Label>
-						<Input id="oauth-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="my-server" />
+						<Input id="oauth-name" value={name} disabled={isEdit} onChange={(e) => setName(e.target.value)} placeholder="my-server" />
 					</Field>
 					<Field>
 						<Label htmlFor="oauth-url">Server URL</Label>
@@ -114,7 +111,7 @@ export function OAuthConnectorDialog({
 					<DialogFooter>
 						<DialogClose render={<Button type="button" variant="ghost">Cancel</Button>} />
 						<Button type="submit" disabled={saving}>
-							{saving ? 'Saving' : 'Add connector'}
+							{saving ? 'Saving' : isEdit ? 'Save' : 'Add connector'}
 						</Button>
 					</DialogFooter>
 				</form>
