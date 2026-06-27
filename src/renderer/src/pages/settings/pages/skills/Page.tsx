@@ -57,6 +57,15 @@ const SkillsPage: React.FC = () => {
 		void loadSkills();
 	}, [loadSkills]);
 
+	const handleOpenFolder = useCallback(async (): Promise<void> => {
+		setErrorMessage('');
+		try {
+			await window.skills.openRoot();
+		} catch (error) {
+			setErrorMessage(getErrorMessage(error, t('settings.skills.openFolderError')));
+		}
+	}, [t]);
+
 	const handleImport = useCallback(async (): Promise<void> => {
 		setImporting(true);
 		setErrorMessage('');
