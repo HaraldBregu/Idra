@@ -3,6 +3,7 @@ import path from 'node:path';
 import { BrowserWindow, dialog, shell, type OpenDialogOptions } from 'electron';
 import matter from 'gray-matter';
 import { Service } from 'typedi';
+import { Skills } from '../agent/core/skills';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
@@ -23,11 +24,12 @@ export interface SkillsServiceOptions {
 }
 
 @Service()
-export class SkillsService {
+export class SkillsService extends Skills {
 	private readonly store: SkillsStore;
 	private readonly root: string;
 
 	constructor(options: SkillsServiceOptions = {}) {
+		super();
 		this.root = options.cwd ?? resolveSkillsRoot();
 		this.store = new SkillsStore(this.root);
 	}
@@ -45,6 +47,26 @@ export class SkillsService {
 			if (info) skills.push(info);
 		}
 		return skills.sort((a, b) => a.name.localeCompare(b.name));
+	}
+
+	listSkills(): { title: string; description: string }[] {
+		return this.list()
+			.filter((skill) => skill.manifest.enabled !== false)
+			.map((skill) => ({ title: skill.name, description: skill.description }));
+	}
+
+	async loadSkill(name: string): Promise<{ name: string; directory: string; content: string } | undefined> {
+		const wanted = name.trim().toLowerCase();
+		const skill = this.list()
+			.filter((entry) => entry.manifest.enabled !== false)
+			.find((entry) => entry.name.toLowerCase() === wanted || entry.id.toLowerCase() === wanted);
+		if (!skill || !skill.skillPath) return undefined;
+		const content = fs.readFileSync(skill.skillPath, 'utf8');
+		return {
+			name: skill.name,
+			directory: skill.folderPath,
+			content: stripFrontmatter(content),
+		};
 	}
 
 	async import(): Promise<SkillImportResult | undefined> {
@@ -196,4 +218,9 @@ function slug(value: string): string {
 		.replace(/[^a-z0-9._-]+/g, '-')
 		.replace(/^-+|-+$/g, '');
 	return normalized || 'skill';
+}
+
+function stripFrontmatter(content: string): string {
+	const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
+	return match ? content.slice(match[0].length).trim() : content.trim();
 }
