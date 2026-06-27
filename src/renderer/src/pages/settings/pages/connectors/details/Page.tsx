@@ -125,7 +125,7 @@ const ConnectorDetailsPage: React.FC = () => {
 	const httpConnector = connector.type === 'http' ? connector : undefined;
 	const stdioConnector = connector.type === 'stdio' ? connector : undefined;
 	const authLabel = httpConnector?.token ? 'Access token' : 'Remote MCP';
-	const displayName = id;
+	const displayName = connector.name ?? id;
 	const status = connectorStatus(connector);
 
 	return (
