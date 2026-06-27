@@ -44,7 +44,12 @@ function buildTransport(name: string, data: McpData): Transport {
 	const headers = data.token ? { Authorization: `Bearer ${data.token}` } : undefined;
 
 	return new StreamableHTTPClientTransport(url, {
-		authProvider: createOAuthProvider({ serverName: name, serverUrl: data.url }),
+		authProvider: createOAuthProvider({
+			serverName: name,
+			serverUrl: data.url,
+			clientId: data.client_id,
+			clientSecret: data.client_secret,
+		}),
 		requestInit: headers ? { headers } : undefined,
 	});
 }
