@@ -32,7 +32,7 @@ export class McpClient {
 	}
 }
 
-function buildTransport(name: string, data: McpData): Transport {
+function buildTransport(id: string, data: McpData, store: McpStore): Transport {
 	if (data.type === 'stdio') {
 		return new StdioClientTransport({
 			command: data.command,
@@ -47,8 +47,10 @@ function buildTransport(name: string, data: McpData): Transport {
 
 	return new StreamableHTTPClientTransport(url, {
 		authProvider: createOAuthProvider({
-			serverName: name,
-			serverUrl: data.url,
+			storage: {
+				load: () => store.oauth(id),
+				save: (state) => store.saveOauth(id, state),
+			},
 			clientId: data.client_id,
 			clientSecret: data.client_secret,
 		}),
