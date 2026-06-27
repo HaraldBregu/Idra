@@ -222,6 +222,9 @@ export const skills: SkillsApi = {
 	setEnabled: (id: string, enabled: boolean) => {
 		return typedInvokeUnwrap(SkillsChannels.setEnabled, id, enabled);
 	},
+	openFolder: (id: string) => {
+		return typedInvokeUnwrap(SkillsChannels.openFolder, id);
+	},
 	getRoot: (): Promise<string> => {
 		return typedInvokeUnwrap(SkillsChannels.getRoot);
 	},
