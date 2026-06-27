@@ -101,6 +101,13 @@ export class SkillsService {
 		return { id, name, deleted: true };
 	}
 
+	async openFolder(id: string): Promise<void> {
+		const folder = this.resolveSkillFolder(id);
+		if (!fs.existsSync(folder)) throw new Error(`Skill "${id}" not found.`);
+		const error = await shell.openPath(folder);
+		if (error) throw new Error(error);
+	}
+
 	setEnabled(id: string, enabled: boolean): SkillInfo {
 		const folder = this.resolveSkillFolder(id);
 		const info = this.read(folder, id);
