@@ -7,7 +7,7 @@ import {
 	type McpOAuthStart,
 	type McpSettings,
 } from '../../shared/mcp/mcp';
-import { createOAuthProvider } from './oauth';
+import { createOAuthProvider, type McpOAuthStorage } from './oauth';
 import { McpStore } from './store';
 
 export interface ConnectorOptions {
