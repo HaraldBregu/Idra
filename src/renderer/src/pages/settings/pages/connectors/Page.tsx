@@ -53,7 +53,11 @@ const ConnectorsPage = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title="Connectors" description="Connected MCP servers." />
+			<SettingsPageHeader
+				title="Connectors"
+				description="Connected MCP servers."
+				action={<OAuthConnectorDialog onSubmit={addConnector} />}
+			/>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
