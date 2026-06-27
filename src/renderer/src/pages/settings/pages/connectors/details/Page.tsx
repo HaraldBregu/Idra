@@ -130,7 +130,23 @@ const ConnectorDetailsPage: React.FC = () => {
 
 	return (
 		<SettingsPageShell>
-			<SettingsPageHeader title={displayName} />
+			<SettingsPageHeader
+				title={displayName}
+				action={
+					httpConnector && (
+						<OAuthConnectorDialog
+							initial={{ id, entry: httpConnector }}
+							trigger={
+								<Button variant="outline" size="sm">
+									<Pencil className="size-3.5" />
+									Edit
+								</Button>
+							}
+							onSubmit={updateConnector}
+						/>
+					)
+				}
+			/>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
