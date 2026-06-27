@@ -65,7 +65,7 @@ export function OAuthConnectorDialog({
 		setSaving(true);
 		setError(null);
 		try {
-			await onSubmit(id, entry);
+			await onSubmit(connectorId, entry);
 			setOpen(false);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
