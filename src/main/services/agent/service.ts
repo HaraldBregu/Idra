@@ -8,6 +8,7 @@ import { AgentModel } from '../../llm';
 import { RuntimeEvent } from '../../agent';
 import { CronService } from '../cron';
 import type { Cron } from '../../agent/core/cron';
+import type { Skills } from '../../agent/core/skills';
 import type { Message, SessionCategory } from '../../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -17,6 +18,7 @@ import type {
 	ModelReasoningEffort,
 } from '../../../shared/agent/types';
 import { toError } from '../../ipc/core/error';
+import { SkillsService } from '../../skills';
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -39,6 +41,9 @@ export class AgentService {
 
 	@Inject(() => SystemPromptService)
 	private readonly systemPrompt!: SystemPromptService;
+
+	@Inject(() => SkillsService)
+	private readonly skills!: Skills;
 
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
@@ -75,6 +80,7 @@ export class AgentService {
 				model,
 				cron,
 				systemPrompt,
+				this.skills,
 			);
 			const input = {
 				...sessionInput,
