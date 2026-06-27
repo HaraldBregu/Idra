@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AlertTriangle, Download, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import type { SkillInfo } from '../../../../../../../shared/skills/types';
 import {
