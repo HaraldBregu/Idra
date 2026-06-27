@@ -9,6 +9,7 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
+import type { Skills } from '../core/skills';
 import { parseToolArgs } from './args';
 import { formatToolOutput } from './format';
 import { Settings } from '../core/settings';
@@ -41,7 +42,8 @@ export class AgentRuntime {
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
-		private readonly systemPrompt: SystemPrompt
+		private readonly systemPrompt: SystemPrompt,
+		private readonly skills: Skills
 	) { }
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
@@ -70,7 +72,7 @@ export class AgentRuntime {
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 
-		const toolLoader = new ToolLoader(toolContext, this.cron);
+		const toolLoader = new ToolLoader(toolContext, this.cron, this.skills);
 		tools.push(...toolLoader.tools);
 
 		const mcp = await loadMcpTools(toolContext);
