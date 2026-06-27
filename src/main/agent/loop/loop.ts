@@ -73,6 +73,9 @@ export class AgentRuntime {
 		const toolLoader = new ToolLoader(toolContext, this.cron);
 		tools.push(...toolLoader.tools);
 
+		const mcp = await loadMcpTools(toolContext);
+		tools.push(...mcp.tools);
+
 		const system = this.systemPrompt.getPrompt();
 
 		yield {
@@ -82,7 +85,8 @@ export class AgentRuntime {
 			providerId: provider.id,
 		};
 
-		while (true) {
+		try {
+			while (true) {
 			const turn = yield* this.runModelTurn(
 				input,
 				provider,
