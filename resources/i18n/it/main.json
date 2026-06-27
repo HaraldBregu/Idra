@@ -830,7 +830,9 @@
 			"deleteError": "Impossibile eliminare l'abilità.",
 			"enabled": "Abilitata",
 			"disabled": "Disabilitata",
-			"enableError": "Impossibile aggiornare l'abilità."
+			"enableError": "Impossibile aggiornare l'abilità.",
+			"openFolder": "Apri cartella",
+			"openFolderError": "Impossibile aprire la cartella dell'abilità."
 		},
 		"channels": {
 			"description": "Scegli quali canali di messaggistica Friday puo collegare.",
