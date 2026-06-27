@@ -5,7 +5,7 @@ export const SkillsChannels = {
 	download: 'skills:download',
 	delete: 'skills:delete',
 	setEnabled: 'skills:set-enabled',
-	openFolder: 'skills:open-folder',
+	openRoot: 'skills:open-root',
 	getRoot: 'skills:get-root',
 } as const;
 
