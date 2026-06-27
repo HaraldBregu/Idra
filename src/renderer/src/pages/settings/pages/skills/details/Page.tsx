@@ -68,6 +68,23 @@ const SkillDetailsPage: React.FC = () => {
 		void loadSkill();
 	}, [loadSkill]);
 
+	const handleToggleEnabled = useCallback(
+		async (next: boolean): Promise<void> => {
+			if (!skill) return;
+			setToggling(true);
+			setErrorMessage('');
+			try {
+				const updated = await window.skills.setEnabled(skill.id, next);
+				setSkill(updated);
+			} catch (error) {
+				setErrorMessage(getErrorMessage(error, t('settings.skills.enableError')));
+			} finally {
+				setToggling(false);
+			}
+		},
+		[skill, t]
+	);
+
 	const handleDownload = useCallback(async (): Promise<void> => {
 		if (!skill) return;
 		setDownloading(true);
