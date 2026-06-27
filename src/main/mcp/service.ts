@@ -54,12 +54,14 @@ export class McpService {
 		let redirectUrl: string | undefined;
 		const result = await auth(
 			createOAuthProvider({
-				...server,
+				storage: this.oauthStorage(server.id),
+				clientId: server.clientId,
+				clientSecret: server.clientSecret,
 				onRedirect: (u) => {
 					redirectUrl = u.toString();
 				},
 			}),
-			{ serverUrl: server.serverUrl },
+			{ serverUrl: server.url },
 		);
 		if (result === 'AUTHORIZED') return { status: 'authorized' };
 		if (redirectUrl) return { status: 'redirect', url: redirectUrl };
@@ -68,16 +70,27 @@ export class McpService {
 
 	async finishOAuth(id: string, code: string): Promise<void> {
 		const server = this.httpServer(id);
-		const result = await auth(createOAuthProvider(server), {
-			serverUrl: server.serverUrl,
-			authorizationCode: code,
-		});
+		const result = await auth(
+			createOAuthProvider({
+				storage: this.oauthStorage(server.id),
+				clientId: server.clientId,
+				clientSecret: server.clientSecret,
+			}),
+			{ serverUrl: server.url, authorizationCode: code },
+		);
 		if (result !== 'AUTHORIZED') throw new Error(`OAuth authorization failed for "${id}".`);
 	}
 
+	private oauthStorage(id: string): McpOAuthStorage {
+		return {
+			load: () => this.store.oauth(id),
+			save: (state) => this.store.saveOauth(id, state),
+		};
+	}
+
 	private httpServer(id: string): {
-		serverName: string;
-		serverUrl: string;
+		id: string;
+		url: string;
 		clientId?: string;
 		clientSecret?: string;
 	} {
@@ -87,8 +100,8 @@ export class McpService {
 			throw new Error(`No http MCP server "${id}".`);
 		}
 		return {
-			serverName: connectorId,
-			serverUrl: entry.url,
+			id: connectorId,
+			url: entry.url,
 			clientId: entry.client_id,
 			clientSecret: entry.client_secret,
 		};
