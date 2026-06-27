@@ -18,13 +18,17 @@ import { resolveSkillsRoot, SkillsStore } from './store';
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
 
+export interface SkillsServiceOptions {
+	cwd?: string;
+}
+
 @Service()
 export class SkillsService {
 	private readonly store: SkillsStore;
 	private readonly root: string;
 
-	constructor(cwd?: string) {
-		this.root = cwd ?? resolveSkillsRoot();
+	constructor(options: SkillsServiceOptions = {}) {
+		this.root = options.cwd ?? resolveSkillsRoot();
 		this.store = new SkillsStore(this.root);
 	}
 
