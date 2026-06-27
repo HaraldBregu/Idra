@@ -150,7 +150,7 @@ function SettingsOverviewCard({
 
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
-	const disabledOverviewPaths = new Set(['/settings/skills']);
+	const disabledOverviewPaths = new Set<string>([]);
 
 	return (
 		<SettingsPageShell>
