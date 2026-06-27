@@ -277,7 +277,23 @@ const SkillDetailsPage: React.FC = () => {
 								: t('settings.skills.modelVisible')
 						}
 					/>
-					<SkillDetail label={t('settings.skills.detailFolder')} value={skill.folderPath} mono />
+					<SkillDetail
+						label={t('settings.skills.detailFolder')}
+						value={skill.folderPath}
+						mono
+						action={
+							<Button
+								variant="ghost"
+								size="icon-xs"
+								onClick={() => void handleOpenFolder()}
+								disabled={deleting}
+								title={t('settings.skills.openFolder')}
+								aria-label={t('settings.skills.openFolder')}
+							>
+								<FolderOpen className="size-3.5" />
+							</Button>
+						}
+					/>
 					<SkillDetail
 						label={t('settings.skills.detailSkillFile')}
 						value={skill.skillPath || t('settings.skills.none')}
