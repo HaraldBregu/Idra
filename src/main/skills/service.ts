@@ -90,7 +90,7 @@ export class SkillsService {
 	}
 
 	delete(id: string): SkillDeleteResult {
-		const folder = path.join(this.root, id);
+		const folder = this.resolveSkillFolder(id);
 		const name = this.read(folder, id)?.name ?? id;
 		fs.rmSync(folder, { recursive: true, force: true });
 		this.store.remove(id);
