@@ -33,6 +33,7 @@ export class ToolLoader extends ToolData {
 			new EditTool(this.context),
 			new ExecTool(this.context),
 			new ProcessTool(this.context),
+			new LoadSkillTool(this.context),
 			new CreateScheduleTool(this.cron, this.context),
 			new UpdateScheduleTool(this.cron, this.context),
 			new PauseScheduleTool(this.cron, this.context),
