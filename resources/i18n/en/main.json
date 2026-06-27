@@ -827,7 +827,10 @@
 			"loadError": "Unable to load skills.",
 			"uploadError": "Unable to upload skill.",
 			"downloadError": "Unable to download skill.",
-			"deleteError": "Unable to delete skill."
+			"deleteError": "Unable to delete skill.",
+			"enabled": "Enabled",
+			"disabled": "Disabled",
+			"enableError": "Unable to update skill."
 		},
 		"channels": {
 			"description": "Choose which messaging channels Friday can connect to.",
