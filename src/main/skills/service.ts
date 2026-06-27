@@ -101,10 +101,9 @@ export class SkillsService {
 		return { id, name, deleted: true };
 	}
 
-	async openFolder(id: string): Promise<void> {
-		const folder = this.resolveSkillFolder(id);
-		if (!fs.existsSync(folder)) throw new Error(`Skill "${id}" not found.`);
-		const error = await shell.openPath(folder);
+	async openRoot(): Promise<void> {
+		fs.mkdirSync(this.root, { recursive: true });
+		const error = await shell.openPath(this.root);
 		if (error) throw new Error(error);
 	}
 
