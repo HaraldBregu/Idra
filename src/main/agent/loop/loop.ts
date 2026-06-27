@@ -120,6 +120,9 @@ export class AgentRuntime {
 
 			yield* this.runToolCalls(tools, turn.toolCalls);
 			session.addToolResults(turn.toolCalls);
+			}
+		} finally {
+			await mcp.close();
 		}
 	}
 
