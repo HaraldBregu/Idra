@@ -85,16 +85,6 @@ const SkillDetailsPage: React.FC = () => {
 		[skill, t]
 	);
 
-	const handleOpenFolder = useCallback(async (): Promise<void> => {
-		if (!skill) return;
-		setErrorMessage('');
-		try {
-			await window.skills.openFolder(skill.id);
-		} catch (error) {
-			setErrorMessage(getErrorMessage(error, t('settings.skills.openFolderError')));
-		}
-	}, [skill, t]);
-
 	const handleDownload = useCallback(async (): Promise<void> => {
 		if (!skill) return;
 		setDownloading(true);
