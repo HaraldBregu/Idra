@@ -57,7 +57,17 @@ const ConnectorsPage = () => {
 			<SettingsPageHeader
 				title="Connectors"
 				description="Connected MCP servers."
-				action={<OAuthConnectorDialog onSubmit={addConnector} />}
+				action={
+					<OAuthConnectorDialog
+						trigger={
+							<Button variant="outline" size="sm">
+								<Plus className="size-3.5" />
+								Add OAuth connector
+							</Button>
+						}
+						onSubmit={addConnector}
+					/>
+				}
 			/>
 
 			{error && (
