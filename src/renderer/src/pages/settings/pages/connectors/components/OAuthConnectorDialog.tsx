@@ -26,6 +26,7 @@ export function OAuthConnectorDialog({
 }): React.JSX.Element {
 	const isEdit = Boolean(initial);
 	const [open, setOpen] = useState(false);
+	const [id, setId] = useState('');
 	const [name, setName] = useState('');
 	const [url, setUrl] = useState('');
 	const [clientId, setClientId] = useState('');
@@ -34,7 +35,8 @@ export function OAuthConnectorDialog({
 	const [saving, setSaving] = useState(false);
 
 	const seed = (): void => {
-		setName(initial?.id ?? '');
+		setId(initial?.id ?? '');
+		setName(initial?.entry.name ?? '');
 		setUrl(initial?.entry.url ?? '');
 		setClientId(initial?.entry.client_id ?? '');
 		setClientSecret(initial?.entry.client_secret ?? '');
@@ -43,15 +45,16 @@ export function OAuthConnectorDialog({
 
 	const submit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
-		const id = name.trim().toLowerCase();
-		if (!id || !url.trim() || !clientId.trim()) {
-			setError('Name, server URL and client ID are required.');
+		const connectorId = id.trim().toLowerCase();
+		if (!connectorId || !url.trim() || !clientId.trim()) {
+			setError('ID, server URL and client ID are required.');
 			return;
 		}
 		const now = new Date().toISOString();
 		const entry: McpHttpData = {
 			...initial?.entry,
 			type: 'http',
+			name: name.trim() || undefined,
 			url: url.trim(),
 			client_id: clientId.trim(),
 			client_secret: clientSecret.trim() || undefined,
