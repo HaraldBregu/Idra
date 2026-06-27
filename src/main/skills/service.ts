@@ -77,7 +77,7 @@ export class SkillsService {
 	}
 
 	async download(id: string): Promise<SkillDownloadResult | undefined> {
-		const folder = path.join(this.root, id);
+		const folder = this.resolveSkillFolder(id);
 		if (!fs.existsSync(folder)) throw new Error(`Skill "${id}" not found.`);
 		const targets = await this.pickDirectories({
 			title: 'Choose where to download the skill',
