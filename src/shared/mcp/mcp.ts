@@ -3,6 +3,7 @@ export const MCP_APPROVAL_POLICIES = ['always', 'never'] as const;
 export type McpApprovalPolicy = (typeof MCP_APPROVAL_POLICIES)[number];
 
 interface McpBase {
+	readonly name?: string;
 	readonly require_approval?: McpApprovalPolicy;
 	readonly defer_loading?: boolean;
 	readonly enabled?: boolean;
