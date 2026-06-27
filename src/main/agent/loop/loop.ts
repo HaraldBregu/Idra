@@ -75,7 +75,6 @@ export class AgentRuntime {
 
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
- console.log("mcp.tools", mcp.tools)
 
 		const system = this.systemPrompt.getPrompt();
 
