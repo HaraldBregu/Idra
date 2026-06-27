@@ -64,8 +64,7 @@ export class AgentRuntime {
 		const provider = settings.getProvider();
 		const modelId = settings.getModelId();
 
-		if (!provider || !modelId)
-			throw new Error('Agent requires a configured provider and model.');
+		if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
@@ -87,39 +86,39 @@ export class AgentRuntime {
 
 		try {
 			while (true) {
-			const turn = yield* this.runModelTurn(
-				input,
-				provider,
-				modelId,
-				system,
-				session.messages,
-				tools,
-				signal
-			);
+				const turn = yield* this.runModelTurn(
+					input,
+					provider,
+					modelId,
+					system,
+					session.messages,
+					tools,
+					signal
+				);
 
-			session.recordTurn(turn);
+				session.recordTurn(turn);
 
-			yield {
-				type: 'assistant_message',
-				content: turn.content,
-				toolCalls: turn.toolCalls,
-			};
-			session.addAssistantMessage(turn.content, turn.toolCalls, turn.providerItems);
+				yield {
+					type: 'assistant_message',
+					content: turn.content,
+					toolCalls: turn.toolCalls,
+				};
+				session.addAssistantMessage(turn.content, turn.toolCalls, turn.providerItems);
 
-			if (turn.toolCalls.length === 0) {
-				const result = session.toResult('success');
-				yield { type: 'run_finished', result };
-				return;
-			}
+				if (turn.toolCalls.length === 0) {
+					const result = session.toResult('success');
+					yield { type: 'run_finished', result };
+					return;
+				}
 
-			if (session.isExhausted) {
-				const result = session.toResult('error_max_turns');
-				yield { type: 'run_finished', result };
-				return;
-			}
+				if (session.isExhausted) {
+					const result = session.toResult('error_max_turns');
+					yield { type: 'run_finished', result };
+					return;
+				}
 
-			yield* this.runToolCalls(tools, turn.toolCalls);
-			session.addToolResults(turn.toolCalls);
+				yield* this.runToolCalls(tools, turn.toolCalls);
+				session.addToolResults(turn.toolCalls);
 			}
 		} finally {
 			await mcp.close();
@@ -230,10 +229,7 @@ export class AgentRuntime {
 		}
 	}
 
-	private async runTool(
-		tool: Tool | undefined,
-		toolCall: ToolCall
-	): Promise<ToolOutcome> {
+	private async runTool(tool: Tool | undefined, toolCall: ToolCall): Promise<ToolOutcome> {
 		if (!tool) {
 			return { output: `Error: unknown tool '${toolCall.name}'`, isError: true };
 		}
