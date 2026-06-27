@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { AlertTriangle, Plug } from 'lucide-react';
+import { AlertTriangle, Pencil, Plug } from 'lucide-react';
+import type { McpHttpData } from '@shared/mcp';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
@@ -14,6 +16,7 @@ import {
 } from '../../../components';
 import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
 import { ConnectorOAuthButton } from '../components/ConnectorOAuthButton';
+import { OAuthConnectorDialog } from '../components/OAuthConnectorDialog';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.mcp.list>>;
 type ConnectorEntry = ConnectorRecord[string];
