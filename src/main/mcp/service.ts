@@ -132,6 +132,8 @@ function isConnectorEntry(value: unknown): value is McpData {
 		return (
 			typeof value.url === 'string' &&
 			(value.token === undefined || typeof value.token === 'string') &&
+			(value.client_id === undefined || typeof value.client_id === 'string') &&
+			(value.client_secret === undefined || typeof value.client_secret === 'string') &&
 			isCommonFields(value)
 		);
 	}
