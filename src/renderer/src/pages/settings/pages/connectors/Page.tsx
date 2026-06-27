@@ -19,10 +19,15 @@ function describeConnector(entry: McpData): string {
 
 const ConnectorsPage = () => {
 	const navigate = useNavigate();
-	const { connectors, error } = useConnectors();
+	const { connectors, error, load } = useConnectors();
 
 	const openConnectorDetails = (id: string): void => {
 		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
+	};
+
+	const addConnector = async (id: string, entry: McpHttpData): Promise<void> => {
+		await window.mcp.save({ ...connectors, [id]: entry });
+		await load();
 	};
 
 	const entries = Object.entries(connectors) as ConnectorEntry[];
