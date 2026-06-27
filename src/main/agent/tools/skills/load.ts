@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { BaseTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
-import { SkillsService } from '../../../skills';
+import type { Skills } from '../../core/skills';
 
 function stripFrontmatter(content: string): string {
 	const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
@@ -24,11 +24,11 @@ export class LoadSkillTool extends BaseTool {
 		additionalProperties: false,
 	};
 
-	private readonly skills: SkillsService;
+	private readonly skills: Skills;
 
-	constructor(context: Context) {
+	constructor(context: Context, skills: Skills) {
 		super(context);
-		this.skills = new SkillsService();
+		this.skills = skills;
 	}
 
 	async run(input: Record<string, unknown>): Promise<unknown> {
@@ -37,18 +37,16 @@ export class LoadSkillTool extends BaseTool {
 			throw new Error('load_skill requires a non-empty name.');
 		}
 		const wanted = name.trim().toLowerCase();
-		const available = this.skills.list().filter((skill) => skill.manifest.enabled !== false);
-		const skill = available.find(
-			(entry) => entry.name.toLowerCase() === wanted || entry.id.toLowerCase() === wanted,
-		);
-		if (!skill || !skill.skillPath) {
+		const skill = await this.skills.loadSkill(name);
+		if (!skill) {
 			return {
 				error: `Skill '${name}' not found.`,
-				available: available.map((entry) => entry.name),
+				available: this.skills.listSkills().map((entry) => entry.title),
 			};
 		}
-		const content = await fs.readFile(skill.skillPath, 'utf8');
-		this.context.setPath(skill.skillPath);
-		return { skillDirectory: skill.folderPath, content: stripFrontmatter(content) };
+		const skillPath = `${skill.directory}/SKILL.md`;
+		const content = await fs.readFile(skillPath, 'utf8');
+		this.context.setPath(skillPath);
+		return { skillDirectory: skill.directory, content: stripFrontmatter(content) };
 	}
 }
