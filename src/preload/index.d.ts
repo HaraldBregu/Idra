@@ -50,7 +50,7 @@ export interface SkillsApi {
 	downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
 	delete: (name: string) => Promise<SkillDeleteResult>;
 	setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
-	openFolder: (id: string) => Promise<void>;
+	openRoot: () => Promise<void>;
 	getRoot: () => Promise<string>;
 }
 
