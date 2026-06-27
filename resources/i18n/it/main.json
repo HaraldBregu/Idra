@@ -827,7 +827,10 @@
 			"loadError": "Impossibile caricare le abilità.",
 			"uploadError": "Impossibile caricare l'abilità.",
 			"downloadError": "Impossibile scaricare l'abilità.",
-			"deleteError": "Impossibile eliminare l'abilità."
+			"deleteError": "Impossibile eliminare l'abilità.",
+			"enabled": "Abilitata",
+			"disabled": "Disabilitata",
+			"enableError": "Impossibile aggiornare l'abilità."
 		},
 		"channels": {
 			"description": "Scegli quali canali di messaggistica Friday puo collegare.",
