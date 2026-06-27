@@ -23,5 +23,6 @@ export interface SkillsInvokeChannelMap {
 		args: [id: string, enabled: boolean];
 		result: import('../../skills/types').SkillInfo;
 	};
+	[SkillsChannels.openFolder]: { args: [id: string]; result: void };
 	[SkillsChannels.getRoot]: { args: []; result: string };
 }
