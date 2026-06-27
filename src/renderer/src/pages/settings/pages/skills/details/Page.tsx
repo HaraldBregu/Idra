@@ -45,6 +45,7 @@ const SkillDetailsPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [downloading, setDownloading] = useState(false);
 	const [deleting, setDeleting] = useState(false);
+	const [toggling, setToggling] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [successMessage, setSuccessMessage] = useState('');
 	const loadErrorFallback = t('settings.skills.loadError');
