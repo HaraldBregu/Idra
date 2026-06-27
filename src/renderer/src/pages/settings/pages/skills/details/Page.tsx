@@ -164,6 +164,16 @@ const SkillDetailsPage: React.FC = () => {
 				description={skill.manifest.description || t('settings.skills.noDescription')}
 				action={
 					<div className="flex flex-wrap items-center gap-1.5">
+						<label className="mr-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+							<Switch
+								checked={skill.manifest.enabled !== false}
+								onCheckedChange={(value) => void handleToggleEnabled(value)}
+								disabled={toggling || downloading || deleting}
+							/>
+							{skill.manifest.enabled !== false
+								? t('settings.skills.enabled')
+								: t('settings.skills.disabled')}
+						</label>
 						<Button
 							variant="outline"
 							size="xs"
