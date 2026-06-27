@@ -149,6 +149,17 @@ export class SkillsService {
 		};
 	}
 
+	private resolveSkillFolder(id: string): string {
+		if (!/^[a-z0-9._-]+$/i.test(id) || id === '.' || id === '..') {
+			throw new Error(`Invalid skill id: "${id}".`);
+		}
+		const folder = path.resolve(this.root, id);
+		if (path.dirname(folder) !== path.resolve(this.root)) {
+			throw new Error(`Skill id "${id}" escapes the skills root.`);
+		}
+		return folder;
+	}
+
 	private async pickDirectories(options: OpenDialogOptions): Promise<string[] | undefined> {
 		const window = BrowserWindow.getFocusedWindow();
 		const result = await (window
