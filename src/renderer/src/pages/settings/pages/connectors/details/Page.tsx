@@ -157,7 +157,7 @@ const ConnectorDetailsPage: React.FC = () => {
 			<SettingsSection title="Configuration">
 				<Card size="sm" className="gap-0! p-0!">
 					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemContent><ItemTitle>Name</ItemTitle></ItemContent>
+						<ItemContent><ItemTitle>ID</ItemTitle></ItemContent>
 						<ItemActions className="ml-auto flex-none justify-end">
 							<span className="max-w-[min(28rem,55vw)] truncate text-right font-mono text-[13px] text-foreground">{id}</span>
 						</ItemActions>
