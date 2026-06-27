@@ -49,6 +49,7 @@ export interface SkillsApi {
 	importSkill: () => Promise<SkillImportResult | undefined>;
 	downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
 	delete: (name: string) => Promise<SkillDeleteResult>;
+	setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
 	getRoot: () => Promise<string>;
 }
 
