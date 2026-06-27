@@ -177,15 +177,6 @@ const SkillDetailsPage: React.FC = () => {
 						<Button
 							variant="outline"
 							size="xs"
-							onClick={() => void handleOpenFolder()}
-							disabled={deleting}
-						>
-							<FolderOpen className="size-3" />
-							{t('settings.skills.openFolder')}
-						</Button>
-						<Button
-							variant="outline"
-							size="xs"
 							onClick={() => void handleDownload()}
 							disabled={downloading || deleting}
 						>
