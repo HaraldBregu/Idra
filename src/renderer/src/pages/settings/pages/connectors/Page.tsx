@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle } from 'lucide-react';
-import type { McpData } from '@shared/mcp';
+import type { McpData, McpHttpData } from '@shared/mcp';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
@@ -8,6 +8,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { ConnectorCard } from './components/ConnectorCard';
+import { OAuthConnectorDialog } from './components/OAuthConnectorDialog';
 import { useConnectors } from './hooks/useConnectors';
 
 type ConnectorEntry = [id: string, entry: McpData];
