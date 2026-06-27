@@ -164,6 +164,7 @@ function isConnectorEntry(value: unknown): value is McpData {
 
 function isCommonFields(value: Record<string, unknown>): boolean {
 	return (
+		(value.name === undefined || typeof value.name === 'string') &&
 		(value.require_approval === undefined ||
 			isConnectorApprovalPolicy(value.require_approval)) &&
 		(value.defer_loading === undefined || typeof value.defer_loading === 'boolean') &&
