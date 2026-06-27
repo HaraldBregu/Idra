@@ -50,17 +50,16 @@ export class McpService {
 	}
 
 	async startOAuth(id: string): Promise<McpOAuthStart> {
-		const { name, url } = this.httpServer(id);
+		const server = this.httpServer(id);
 		let redirectUrl: string | undefined;
 		const result = await auth(
 			createOAuthProvider({
-				serverName: name,
-				serverUrl: url,
+				...server,
 				onRedirect: (u) => {
 					redirectUrl = u.toString();
 				},
 			}),
-			{ serverUrl: url },
+			{ serverUrl: server.serverUrl },
 		);
 		if (result === 'AUTHORIZED') return { status: 'authorized' };
 		if (redirectUrl) return { status: 'redirect', url: redirectUrl };
@@ -68,21 +67,31 @@ export class McpService {
 	}
 
 	async finishOAuth(id: string, code: string): Promise<void> {
-		const { name, url } = this.httpServer(id);
-		const result = await auth(createOAuthProvider({ serverName: name, serverUrl: url }), {
-			serverUrl: url,
+		const server = this.httpServer(id);
+		const result = await auth(createOAuthProvider(server), {
+			serverUrl: server.serverUrl,
 			authorizationCode: code,
 		});
 		if (result !== 'AUTHORIZED') throw new Error(`OAuth authorization failed for "${id}".`);
 	}
 
-	private httpServer(id: string): { name: string; url: string } {
+	private httpServer(id: string): {
+		serverName: string;
+		serverUrl: string;
+		clientId?: string;
+		clientSecret?: string;
+	} {
 		const connectorId = resolveId(id);
 		const entry = this.list()[connectorId];
 		if (!entry || entry.type !== 'http') {
 			throw new Error(`No http MCP server "${id}".`);
 		}
-		return { name: connectorId, url: entry.url };
+		return {
+			serverName: connectorId,
+			serverUrl: entry.url,
+			clientId: entry.client_id,
+			clientSecret: entry.client_secret,
+		};
 	}
 }
 
