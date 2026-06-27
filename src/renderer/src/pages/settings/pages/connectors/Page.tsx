@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Plus } from 'lucide-react';
 import type { McpData, McpHttpData } from '@shared/mcp';
+import { Button } from '@/components/ui/button';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
