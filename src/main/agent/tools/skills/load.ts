@@ -1,12 +1,6 @@
-import fs from 'node:fs/promises';
 import { BaseTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
 import type { Skills } from '../../core/skills';
-
-function stripFrontmatter(content: string): string {
-	const match = content.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
-	return match ? content.slice(match[0].length).trim() : content.trim();
-}
 
 export class LoadSkillTool extends BaseTool {
 	readonly name = 'load_skill';
@@ -36,7 +30,6 @@ export class LoadSkillTool extends BaseTool {
 		if (typeof name !== 'string' || !name.trim()) {
 			throw new Error('load_skill requires a non-empty name.');
 		}
-		const wanted = name.trim().toLowerCase();
 		const skill = await this.skills.loadSkill(name);
 		if (!skill) {
 			return {
@@ -45,8 +38,7 @@ export class LoadSkillTool extends BaseTool {
 			};
 		}
 		const skillPath = `${skill.directory}/SKILL.md`;
-		const content = await fs.readFile(skillPath, 'utf8');
 		this.context.setPath(skillPath);
-		return { skillDirectory: skill.directory, content: stripFrontmatter(content) };
+		return { skillDirectory: skill.directory, content: skill.content };
 	}
 }
