@@ -13,6 +13,7 @@ import {
 	SettingsSection,
 } from '../../../components';
 import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
+import { ConnectorOAuthButton } from '../components/ConnectorOAuthButton';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.mcp.list>>;
 type ConnectorEntry = ConnectorRecord[string];
