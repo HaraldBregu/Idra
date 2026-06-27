@@ -15,6 +15,8 @@ export interface McpHttpData extends McpBase {
 	readonly type: 'http';
 	readonly url: string;
 	readonly token?: string;
+	readonly client_id?: string;
+	readonly client_secret?: string;
 	readonly refresh_token?: string;
 	readonly token_expires_at?: string;
 	readonly last_refreshed_at?: string;
