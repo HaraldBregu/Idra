@@ -75,10 +75,14 @@ export function OAuthConnectorDialog({
 				if (!next) reset();
 			}}
 		>
-			<DialogTrigger render={<Button variant="outline" size="sm" />}>
-				<Plus className="size-3.5" />
-				Add OAuth connector
-			</DialogTrigger>
+			<DialogTrigger
+				render={
+					<Button variant="outline" size="sm">
+						<Plus className="size-3.5" />
+						Add OAuth connector
+					</Button>
+				}
+			/>
 			<DialogContent>
 				<form onSubmit={submit} className="grid gap-4">
 					<DialogHeader>
