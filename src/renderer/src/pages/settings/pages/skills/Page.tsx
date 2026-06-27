@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
 	AlertTriangle,
 	ChevronRight,
+	FolderOpen,
 	RefreshCw,
 	Sparkles,
 	Upload,
