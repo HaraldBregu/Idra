@@ -64,7 +64,8 @@ export class AgentRuntime {
 		const provider = settings.getProvider();
 		const modelId = settings.getModelId();
 
-		if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
+		if (!provider || !modelId)
+			throw new Error('Agent requires a configured provider and model.');
 
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
