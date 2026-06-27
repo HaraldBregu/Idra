@@ -19,6 +19,6 @@ export class SkillsIpc implements IpcModule {
 		registerCommand(SkillsChannels.setEnabled, (id: string, enabled: boolean) =>
 			skills.setEnabled(id, enabled),
 		);
-		registerCommand(SkillsChannels.openFolder, (id: string) => skills.openFolder(id));
+		registerCommand(SkillsChannels.openRoot, () => skills.openRoot());
 	}
 }
