@@ -49,18 +49,23 @@ async function write(file: string, store: OAuthStore): Promise<void> {
 export function createOAuthProvider(params: {
 	serverName: string;
 	serverUrl: string;
+	clientId?: string;
+	clientSecret?: string;
 	onRedirect?: (url: URL) => void;
 }): OAuthClientProvider {
 	const file = storePath(params.serverName, params.serverUrl);
+	const staticClient = params.clientId
+		? { client_id: params.clientId, client_secret: params.clientSecret }
+		: undefined;
 	return {
 		get redirectUrl() {
 			return REDIRECT_URL;
 		},
 		get clientMetadata() {
-			return CLIENT_METADATA;
+			return clientMetadata(Boolean(params.clientSecret));
 		},
 		async clientInformation() {
-			return (await read(file)).clientInformation;
+			return staticClient ?? (await read(file)).clientInformation;
 		},
 		async saveClientInformation(clientInformation) {
 			await write(file, { ...(await read(file)), clientInformation });
