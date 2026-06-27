@@ -4,6 +4,7 @@ import { ChannelsIpc } from '../channels';
 import { ConnectorsIpc } from '../connectors';
 import { HeartbeatIpc } from '../heartbeat';
 import { ProviderStoreIpc } from '../provider';
+import { SkillsIpc } from '../../skills';
 import { SttIpc } from '../stt';
 import { WindowIpc } from '../window';
 import type { IpcModule } from './module';
