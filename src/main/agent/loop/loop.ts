@@ -14,6 +14,7 @@ import { formatToolOutput } from './format';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
+import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { SystemPrompt } from '../core/system-prompt';
 
