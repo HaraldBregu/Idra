@@ -112,7 +112,7 @@ export function OAuthConnectorDialog({
 					{error && <p className="text-[13px] text-destructive">{error}</p>}
 
 					<DialogFooter>
-						<DialogClose render={<Button type="button" variant="ghost" />}>Cancel</DialogClose>
+						<DialogClose render={<Button type="button" variant="ghost">Cancel</Button>} />
 						<Button type="submit" disabled={saving}>
 							{saving ? 'Saving' : 'Add connector'}
 						</Button>
