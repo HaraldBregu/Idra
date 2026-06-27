@@ -93,8 +93,12 @@ export function OAuthConnectorDialog({
 					</DialogHeader>
 
 					<Field>
+						<Label htmlFor="oauth-id">ID</Label>
+						<Input id="oauth-id" value={id} disabled={isEdit} onChange={(e) => setId(e.target.value)} placeholder="my-server" />
+					</Field>
+					<Field>
 						<Label htmlFor="oauth-name">Name</Label>
-						<Input id="oauth-name" value={name} disabled={isEdit} onChange={(e) => setName(e.target.value)} placeholder="my-server" />
+						<Input id="oauth-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="My Server" />
 					</Field>
 					<Field>
 						<Label htmlFor="oauth-url">Server URL</Label>
