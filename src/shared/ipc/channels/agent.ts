@@ -16,6 +16,10 @@ export interface AgentInvokeChannelMap {
 		args: [message: string, options?: Record<string, unknown>];
 		result: string;
 	};
+	[AgentChannels.respondPermission]: {
+		args: [toolCallId: string, allow: boolean];
+		result: void;
+	};
 	[AgentChannels.cancel]: { args: []; result: void };
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];

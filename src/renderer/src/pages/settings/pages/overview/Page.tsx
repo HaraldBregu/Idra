@@ -22,15 +22,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'app',
 		titleKey: 'settings.overview.groups.app',
-		paths: ['/settings/providers'],
-		items: [
-			{
-				path: '/settings/system',
-				labelKey: 'settings.sections.application',
-				descriptionKey: 'settings.overview.descriptions.system',
-				icon: SETTINGS_NAVIGATION.find((item) => item.path === '/settings/system')!.icon,
-			},
-		],
+		paths: ['/settings/general', '/settings/system', '/settings/providers'],
 	},
 	{
 		id: 'agent',
@@ -67,7 +59,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	readonly titleKey?: string;
 	readonly agentIds?: readonly SettingsOverviewAgentId[];
 	readonly paths: readonly string[];
-	readonly items?: readonly SettingsNavigationItem[];
 }[];
 
 function getSettingsNavigationItem(path: string): SettingsNavigationItem {
@@ -171,13 +162,6 @@ const OverviewPage: React.FC = () => {
 							const item = getSettingsOverviewAgentItem(agentId);
 							return <SettingsOverviewCard key={item.path} item={item} />;
 						})}
-						{group.items?.map((item) => (
-							<SettingsOverviewCard
-								key={item.path}
-								item={item}
-								disabled={disabledOverviewPaths.has(item.path)}
-							/>
-						))}
 						{group.paths.map((path) => {
 							const item = getSettingsNavigationItem(path);
 							return (
