@@ -46,7 +46,6 @@ export class AgentService {
 	private readonly skills!: Skills;
 
 	private readonly activeRuns = new Map<string, AbortController>();
-	private readonly pendingPermissions = new Map<string, (allow: boolean) => void>();
 	private readonly lastMessagesLimit = 50;
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
