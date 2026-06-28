@@ -3,22 +3,22 @@ import { Inject, Service } from 'typedi';
 import { SettingsService } from './settings';
 import { SessionService, AgentSession } from './session';
 import { SystemPromptService } from './system-prompt';
-import { AgentRuntime } from '../../agent/loop/loop';
-import { AgentModel } from '../../llm';
-import { RuntimeEvent } from '../../agent';
-import { CronService } from '../../cron';
-import type { Cron } from '../../agent/core/cron';
-import type { Skills } from '../../agent/core/skills';
-import type { Message, SessionCategory } from '../../agent/core/types';
+import { AgentRuntime } from './loop/loop';
+import { AgentModel } from '../llm';
+import { RuntimeEvent } from './index';
+import { CronService } from '../cron';
+import type { Cron } from './core/cron';
+import type { Skills } from './core/skills';
+import type { Message, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	ModelReasoningEffort,
-} from '../../../shared/agent/types';
-import { toError } from '../../ipc/core/error';
-import { SkillsService } from '../../skills';
+} from '../../shared/agent/types';
+import { toError } from '../ipc/core/error';
+import { SkillsService } from '../skills';
 
 export interface AgentSendOptions {
 	runId?: string;
