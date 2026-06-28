@@ -12,7 +12,7 @@ import { McpService } from './mcp';
 import { SkillsService } from './skills';
 import { LlmService } from './llm';
 import { AgentService } from './services/agent/service';
-import { HeartbeatService } from './services/heartbeat';
+import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
 import { SystemPromptService } from './services/agent/system-prompt';
