@@ -20,41 +20,38 @@ import {
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
-		id: 'app',
-		titleKey: 'settings.overview.groups.app',
-		paths: ['/settings/application', '/settings/providers'],
-	},
-	{
-		id: 'agent',
-		agentIds: [AGENTS.assistant],
-		paths: [],
-	},
-	{
-		id: 'extensions',
-		paths: ['/settings/skills', '/settings/connectors'],
+		id: 'primary',
+		entries: [
+			{ type: 'path', value: '/settings/application' },
+			{ type: 'path', value: '/settings/providers' },
+			{ type: 'agent', value: AGENTS.assistant },
+			{ type: 'path', value: '/settings/skills' },
+			{ type: 'path', value: '/settings/connectors' },
+		],
 	},
 	{
 		id: 'modelServices',
 		titleKey: 'settings.overview.groups.modelServices',
-		agentIds: [
-			AGENTS.speechToText,
-			AGENTS.textToSpeech,
-			AGENTS.textToImage,
-			AGENTS.textToVideo,
-			AGENTS.textToAudio,
+		entries: [
+			{ type: 'agent', value: AGENTS.speechToText },
+			{ type: 'agent', value: AGENTS.textToSpeech },
+			{ type: 'agent', value: AGENTS.textToImage },
+			{ type: 'agent', value: AGENTS.textToVideo },
+			{ type: 'agent', value: AGENTS.textToAudio },
 		],
-		paths: [],
 	},
 	{
 		id: 'channels',
 		titleKey: 'settings.overview.groups.channels',
-		paths: ['/settings/channels'],
+		entries: [{ type: 'path', value: '/settings/channels' }],
 	},
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
-	readonly agentIds?: readonly SettingsOverviewAgentId[];
-	readonly paths: readonly string[];
+	readonly entries: readonly (
+		| { readonly type: 'path'; readonly value: string }
+		| { readonly type: 'agent'; readonly value: SettingsOverviewAgentId }
+	)[];
 }[];
 
 function getSettingsNavigationItem(path: string): SettingsNavigationItem {
@@ -154,12 +151,10 @@ const OverviewPage: React.FC = () => {
 			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
 				const panel = (
 					<SettingsPanel>
-						{group.agentIds?.map((agentId) => {
-							const item = getSettingsOverviewAgentItem(agentId);
-							return <SettingsOverviewCard key={item.path} item={item} />;
-						})}
-						{group.paths.map((path) => {
-							const item = getSettingsNavigationItem(path);
+						{group.entries.map((entry) => {
+							const item = entry.type === 'agent'
+								? getSettingsOverviewAgentItem(entry.value)
+								: getSettingsNavigationItem(entry.value);
 							return (
 								<SettingsOverviewCard
 									key={item.path}
