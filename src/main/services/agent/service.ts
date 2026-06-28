@@ -150,6 +150,13 @@ export class AgentService {
 		this.session.clearMessages(sessionId);
 	}
 
+	resolvePermission(toolCallId: string, allow: boolean): void {
+		const resolve = this.pendingPermissions.get(toolCallId);
+		if (!resolve) return;
+		this.pendingPermissions.delete(toolCallId);
+		resolve(allow);
+	}
+
 	cancel(agentId?: string): void {
 		if (agentId) {
 			this.activeRuns.get(agentId)?.abort();
