@@ -201,9 +201,6 @@ function SystemCapabilityGroupPanel({
 				<h3 className="text-[13px] font-medium leading-4 text-foreground">
 					{t(group.titleKey)}
 				</h3>
-				<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-					{t(group.descriptionKey)}
-				</p>
 			</div>
 			{group.capabilities.map((capability) => (
 				<SystemCapabilityRow key={capability.id} capability={capability} />
