@@ -103,7 +103,6 @@ export interface RuntimeInput {
 	maxRetries?: number;
 	maxTurns?: number;
 	maxIterations?: number;
-	requestPermission?: (toolCall: ToolCall) => Promise<boolean>;
 }
 
 export interface RuntimeModelRoute {
