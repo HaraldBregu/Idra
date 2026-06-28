@@ -146,6 +146,9 @@ export const agent: AgentApi = {
 	cancel: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.cancel);
 	},
+	respondPermission: (toolCallId: string, allow: boolean): Promise<void> => {
+		return typedInvokeUnwrap(AgentChannels.respondPermission, toolCallId, allow);
+	},
 	getLastMessages: (sessionId: string): Promise<AgentHistoryMessage[]> => {
 		const normalizedSessionId = optionalTrimmedString(sessionId);
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
