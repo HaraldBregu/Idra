@@ -238,6 +238,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'tasks',
+						element: (
+							<SettingsRouteWrapper>
+								<TasksPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'model-services',
 						children: [
 							{
