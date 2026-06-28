@@ -65,6 +65,7 @@ const TasksPage: React.FC = () => {
 		() => PROVIDER_GROUPS.find((group) => group.id === providerId),
 		[providerId]
 	);
+	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
 
 	useEffect(() => {
 		let mounted = true;
