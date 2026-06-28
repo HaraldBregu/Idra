@@ -73,6 +73,7 @@ export class AgentService {
 			var systemPrompt = this.systemPrompt
 			systemPrompt = await systemPrompt.addBasePrompt();
 			systemPrompt = await systemPrompt.addWorkspacePrompt();
+			systemPrompt = await systemPrompt.addSkillsPrompt();
 
 			const runtime = new AgentRuntime(
 				settings,
