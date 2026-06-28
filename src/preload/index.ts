@@ -346,6 +346,12 @@ export const mcp: McpApi = {
 	},
 };
 
+export const tasks: TasksApi = {
+	list: () => {
+		return typedInvokeUnwrap(TasksChannels.list);
+	},
+};
+
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
