@@ -59,6 +59,10 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface TasksApi {
+	list: () => Promise<CronSchedule[]>;
+}
+
 export interface SttApi {
 	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
 	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
