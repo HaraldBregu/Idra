@@ -201,45 +201,7 @@ export class AgentRuntime {
 		const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
 		for (const toolCall of toolCalls) {
-			const startedAtMs = Date.now();
-			yield {
-				type: 'tool_call_start',
-				toolCallId: toolCall.id,
-				toolName: toolCall.name,
-				input: toolCall.args,
-			};
-
-			const outcome = await this.runTool(toolMap.get(toolCall.name), toolCall);
-			yield {
-				type: 'tool_call_end',
-				toolCallId: toolCall.id,
-				toolName: toolCall.name,
-				input: toolCall.args,
-				output: outcome.output,
-				isError: outcome.isError,
-				durationMs: Date.now() - startedAtMs,
-			};
-
-			toolCall.result = {
-				content: formatToolOutput(outcome.output),
-				isError: outcome.isError,
-			};
-		}
-	}
-
-	private async runTool(tool: Tool | undefined, toolCall: ToolCall): Promise<ToolOutcome> {
-		if (!tool) {
-			return { output: `Error: unknown tool '${toolCall.name}'`, isError: true };
-		}
-
-		try {
-			return { output: await tool.run(toolCall.args) };
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			return {
-				output: `Error: tool '${toolCall.name}' failed: ${message}`,
-				isError: true,
-			};
+			yield* runToolCall(toolMap.get(toolCall.name), toolCall);
 		}
 	}
 }
