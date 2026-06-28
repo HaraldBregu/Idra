@@ -4,7 +4,7 @@ import { EventBus, WindowFactory, AppState, WindowContextManager } from './servi
 
 import { AppPermissionsService } from './permissions';
 import { LoggerService } from './shared';
-import { CronService } from './services/cron';
+import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import type { MainServiceContainer } from './services/services';
