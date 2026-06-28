@@ -161,15 +161,15 @@ export const SETTINGS_NAVIGATION = [
 		icon: Plug,
 	},
 	{
-		path: '/settings/channels',
-		labelKey: 'settings.tabs.channels',
-		descriptionKey: 'settings.overview.descriptions.channels',
-		icon: RadioTower,
-	},
-	{
 		path: '/settings/tasks',
 		labelKey: 'settings.tabs.taskScheduler',
 		descriptionKey: 'settings.overview.descriptions.cron',
 		icon: ListChecks,
+	},
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.tabs.channels',
+		descriptionKey: 'settings.overview.descriptions.channels',
+		icon: RadioTower,
 	},
 ] satisfies readonly SettingsNavigationItem[];
