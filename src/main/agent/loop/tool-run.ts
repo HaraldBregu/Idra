@@ -2,12 +2,9 @@ import type { RuntimeEvent, ToolCall } from '../core/types';
 import type { Tool } from '../core/tool';
 import { formatToolOutput } from '../shared/format';
 
-export type RequestPermission = (toolCall: ToolCall) => Promise<boolean>;
-
 export async function* runToolCall(
 	tool: Tool | undefined,
-	toolCall: ToolCall,
-	requestPermission?: RequestPermission
+	toolCall: ToolCall
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 
