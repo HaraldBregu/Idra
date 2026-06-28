@@ -61,6 +61,8 @@ export interface ProviderApi {
 
 export interface TasksApi {
 	list: () => Promise<CronSchedule[]>;
+	getRuntime: () => Promise<CronRuntime | undefined>;
+	setRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
 }
 
 export interface SttApi {
