@@ -20,9 +20,7 @@ import {
 } from '../../components';
 import type {
 	CameraPermissionSettings,
-	CameraSystemPermissionStatus,
 	MicrophonePermissionSettings,
-	MicrophoneSystemPermissionStatus,
 	SystemPreferencePaneId,
 } from '../../../../../../shared/app/app-permissions';
 import {
@@ -149,12 +147,10 @@ function SystemSettingsItem({
 function MediaPermissionRows({
 	kind,
 	icon: Icon,
-	permission,
 	error,
 }: {
 	readonly kind: MediaPermissionKind;
 	readonly icon: LucideIcon;
-	readonly permission: MediaPermissionSettings;
 	readonly error: string;
 }): React.JSX.Element {
 	const { t } = useTranslation();
@@ -284,13 +280,11 @@ const SystemPage: React.FC = () => {
 					<MediaPermissionRows
 						kind="microphone"
 						icon={Mic}
-						permission={microphonePermission}
 						error={microphoneError}
 					/>
 					<MediaPermissionRows
 						kind="camera"
 						icon={Camera}
-						permission={cameraPermission}
 						error={cameraError}
 					/>
 				</SettingsPanel>
