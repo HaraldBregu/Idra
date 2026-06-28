@@ -1,10 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ListChecks } from 'lucide-react';
+import { AlertTriangle, ListChecks, LoaderCircle, Save } from 'lucide-react';
+import {
+	LLM_MODELS_BY_PROVIDER,
+	LLM_PROVIDERS,
+} from '../../../../../../shared/providers/models/llm';
+import type { Model } from '@/lib/compat';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { getProviderCatalogItem } from '../../../start/constants';
+import {
 	SettingsEmptyState,
+	SettingsField,
 	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
@@ -14,6 +29,16 @@ import {
 } from '../../components';
 
 type Task = Awaited<ReturnType<typeof window.tasks.list>>[number];
+
+interface ProviderGroup {
+	readonly id: string;
+	readonly models: readonly Model[];
+}
+
+const PROVIDER_GROUPS: readonly ProviderGroup[] = LLM_PROVIDERS.map((id) => ({
+	id,
+	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
+})).filter((group) => group.models.length > 0);
 
 function describeAction(task: Task): string {
 	return task.action.type === 'agent' ? task.action.prompt : task.action.message;
@@ -25,12 +50,29 @@ const TasksPage: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
+	const [providerId, setProviderId] = useState('');
+	const [modelId, setModelId] = useState('');
+	const [saving, setSaving] = useState(false);
+	const [saved, setSaved] = useState(false);
+	const [runtimeError, setRuntimeError] = useState<string | null>(null);
+
+	const selectedGroup = useMemo(
+		() => PROVIDER_GROUPS.find((group) => group.id === providerId),
+		[providerId]
+	);
+
 	useEffect(() => {
 		let mounted = true;
-		void window.tasks
-			.list()
-			.then((list) => {
-				if (mounted) setTasks(list);
+		void Promise.all([window.tasks.list(), window.tasks.getRuntime()])
+			.then(([list, runtime]) => {
+				if (!mounted) return;
+				setTasks(list);
+				const group =
+					PROVIDER_GROUPS.find((item) => item.id === runtime?.providerId) ?? PROVIDER_GROUPS[0];
+				const model =
+					group?.models.find((item) => item.id === runtime?.modelId) ?? group?.models[0];
+				setProviderId(group?.id ?? '');
+				setModelId(model?.id ?? '');
 			})
 			.catch((err: unknown) => {
 				if (mounted) setError(err instanceof Error ? err.message : String(err));
@@ -43,12 +85,125 @@ const TasksPage: React.FC = () => {
 		};
 	}, []);
 
+	const handleProviderChange = (nextProviderId: string): void => {
+		const group = PROVIDER_GROUPS.find((item) => item.id === nextProviderId);
+		setProviderId(nextProviderId);
+		setModelId(group?.models[0]?.id ?? '');
+		setSaved(false);
+		setRuntimeError(null);
+	};
+
+	const handleModelChange = (nextModelId: string): void => {
+		setModelId(nextModelId);
+		setSaved(false);
+		setRuntimeError(null);
+	};
+
+	const handleSave = async (): Promise<void> => {
+		if (!providerId || !modelId) return;
+		setSaving(true);
+		setSaved(false);
+		setRuntimeError(null);
+		try {
+			await window.tasks.setRuntime(providerId, modelId);
+			setSaved(true);
+		} catch (err) {
+			setRuntimeError(
+				err instanceof Error ? err.message : t('settings.cron.runtime.errors.saveFailed')
+			);
+		} finally {
+			setSaving(false);
+		}
+	};
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
 				title={t('settings.tabs.taskScheduler')}
 				description={t('settings.cron.description')}
 			/>
+
+			<SettingsSection
+				title={t('settings.cron.runtime.title')}
+				description={t('settings.cron.runtime.description')}
+			>
+				<SettingsPanel>
+					{loading ? (
+						<SettingsLoadingRows rows={1} />
+					) : PROVIDER_GROUPS.length === 0 ? (
+						<SettingsEmptyState
+							icon={AlertTriangle}
+							title={t('settings.cron.runtime.noProviders')}
+						/>
+					) : (
+						<div className="grid gap-3 px-3 py-3">
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField
+									id="task-runtime-provider"
+									label={t('settings.cron.runtime.provider')}
+								>
+									<Select value={providerId} onValueChange={handleProviderChange} disabled={saving}>
+										<SelectTrigger id="task-runtime-provider" className="w-full text-xs">
+											<SelectValue placeholder={t('settings.cron.runtime.providerPlaceholder')} />
+										</SelectTrigger>
+										<SelectContent>
+											{PROVIDER_GROUPS.map((group) => (
+												<SelectItem key={group.id} value={group.id}>
+													{getProviderCatalogItem(group.id).name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+
+								<SettingsField id="task-runtime-model" label={t('settings.cron.runtime.model')}>
+									<Select
+										value={modelId}
+										onValueChange={handleModelChange}
+										disabled={saving || !selectedGroup || selectedGroup.models.length === 0}
+									>
+										<SelectTrigger id="task-runtime-model" className="w-full text-xs">
+											<SelectValue placeholder={t('settings.cron.runtime.modelPlaceholder')} />
+										</SelectTrigger>
+										<SelectContent>
+											{selectedGroup?.models.map((model) => (
+												<SelectItem key={model.id} value={model.id}>
+													{model.name || model.id}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+							</div>
+
+							{runtimeError && (
+								<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
+							)}
+							{saved && (
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.cron.runtime.saved')}
+								</p>
+							)}
+
+							<div className="flex justify-end">
+								<Button
+									type="button"
+									size="sm"
+									disabled={saving || !providerId || !modelId}
+									onClick={() => void handleSave()}
+								>
+									{saving ? (
+										<LoaderCircle className="size-3 animate-spin" />
+									) : (
+										<Save className="size-3" />
+									)}
+									{saving ? t('settings.cron.runtime.saving') : t('common.save')}
+								</Button>
+							</div>
+						</div>
+					)}
+				</SettingsPanel>
+			</SettingsSection>
 
 			{error && (
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
