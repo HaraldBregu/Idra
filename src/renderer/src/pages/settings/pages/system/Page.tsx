@@ -273,7 +273,6 @@ const SystemPage: React.FC = () => {
 			)}
 			<SettingsSection
 				title={t('settings.system.mediaPermissions.title')}
-				description={t('settings.system.mediaPermissions.description')}
 			>
 				<SettingsPanel>
 					<MediaPermissionRows
@@ -291,7 +290,6 @@ const SystemPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.application.actions')}
-				description={t('settings.system.actionsDescription')}
 			>
 				<SettingsPanel>
 					<SystemSettingsItem
@@ -319,7 +317,6 @@ const SystemPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.system.capabilities.title')}
-				description={t('settings.system.capabilities.description')}
 			>
 				<div className="grid gap-3 lg:grid-cols-2">
 					{SYSTEM_CAPABILITY_GROUPS.map((group) => (
