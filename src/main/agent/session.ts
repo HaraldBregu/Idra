@@ -10,8 +10,8 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { Service } from 'typedi';
-import { Session } from '../../agent/core/session';
-import { resolveAgentUsageLocation } from '../../agent/shared/location';
+import { Session } from './core/session';
+import { resolveAgentUsageLocation } from './shared/location';
 import type {
 	SessionInput,
 	SessionCategory,
@@ -21,7 +21,7 @@ import type {
 	SessionResult,
 	ToolCall,
 	SessionTurn,
-} from '../../agent/core/types';
+} from './core/types';
 
 const DEFAULT_CATEGORY: SessionCategory = 'home';
 
