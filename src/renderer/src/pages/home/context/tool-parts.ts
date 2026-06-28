@@ -98,7 +98,6 @@ export function applyAgentResponseEventToTools(
 				durationMs: event.durationMs,
 				errorText,
 				status: event.status,
-				pendingPermission: false,
 			});
 		}
 		default:
