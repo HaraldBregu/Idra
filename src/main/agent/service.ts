@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
-import { SettingsService } from './settings';
+import { SettingsService } from './store';
 import { SessionService, AgentSession } from './session';
 import { SystemPromptService } from './system-prompt';
 import { AgentRuntime } from './loop/loop';
