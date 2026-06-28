@@ -15,7 +15,7 @@ import { AgentService } from './agent/service';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
-import { SystemPromptService } from './services/agent/system-prompt';
+import { SystemPromptService } from './agent/system-prompt';
 
 export interface BootstrapResult {
 	container: MainServiceContainer;
