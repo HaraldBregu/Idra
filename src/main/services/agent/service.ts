@@ -294,7 +294,7 @@ function runtimeEventToAgentEvents(
 		];
 	}
 	if (event.type === 'tool_call_end') {
-		const status = event.isError ? 'error' : 'ok';
+		const status = event.rejected ? 'rejected' : event.isError ? 'error' : 'ok';
 		return [
 			{
 				type: 'tool_call_result',

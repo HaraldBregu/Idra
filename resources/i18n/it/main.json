@@ -161,6 +161,7 @@
 				"automations": "Automazioni"
 			},
 			"descriptions": {
+				"application": "Configurazione generale, permessi e capacita desktop",
 				"general": "Info, aspetto e cartelle app",
 				"modelServices": "Configurazione servizi modello",
 				"system": "Permessi, mantieni attivo e capacita desktop",
@@ -174,6 +175,7 @@
 			}
 		},
 		"tabs": {
+			"application": "Applicazione",
 			"general": "Generale",
 			"modelServices": "Servizi modello",
 			"channels": "Canali",
