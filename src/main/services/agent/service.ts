@@ -9,7 +9,7 @@ import { RuntimeEvent } from '../../agent';
 import { CronService } from '../cron';
 import type { Cron } from '../../agent/core/cron';
 import type { Skills } from '../../agent/core/skills';
-import type { Message, SessionCategory, ToolCall } from '../../agent/core/types';
+import type { Message, SessionCategory } from '../../agent/core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
