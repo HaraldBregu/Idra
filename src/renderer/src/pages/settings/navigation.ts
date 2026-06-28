@@ -2,6 +2,7 @@ import {
 	Bot,
 	ImageIcon,
 	Info,
+	ListChecks,
 	Mic,
 	MonitorCog,
 	Music,
