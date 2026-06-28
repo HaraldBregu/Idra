@@ -25,6 +25,7 @@ export function registerIpcHandlers(container: MainServiceContainer, eventBus: E
 		new ProviderStoreIpc(),
 		new SkillsIpc(),
 		new SttIpc(),
+		new TasksIpc(),
 		new WindowIpc(),
 	];
 
