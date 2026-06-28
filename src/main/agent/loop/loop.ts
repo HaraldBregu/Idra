@@ -10,8 +10,8 @@ import type {
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
 import type { Skills } from '../core/skills';
-import { parseToolArgs } from './args';
-import { formatToolOutput } from './format';
+import { parseToolArgs } from '../shared/args';
+import { runToolCall } from './tool-run';
 import { Settings } from '../core/settings';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
