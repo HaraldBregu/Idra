@@ -118,7 +118,7 @@ function SystemSettingsItem({
 }): React.JSX.Element {
 	return (
 		<Item variant="outline" size="md" className="min-h-11 border-b border-border/60 last:border-b-0">
-			<ItemIcon icon={icon} />
+			<ItemIcon icon={icon} className="[&_svg]:size-4" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0.5">
 				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{title}
