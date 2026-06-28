@@ -727,7 +727,7 @@
 			"identity": "Identita",
 			"configuration": "Configurazione",
 			"fridayBreadcrumb": "Friday",
-			"assistantName": "AI Assistant",
+			"assistantName": "Agent",
 			"fridayDescription": "Risponde alle domande, pianifica il lavoro e usa strumenti.",
 			"speechTranscriberName": "Speech to Text",
 			"speechTranscriberDescription": "Trascrive l'audio del microfono in testo.",
