@@ -174,6 +174,19 @@ export class CronService {
 		return this.list();
 	}
 
+	getRuntime(): CronRuntime | undefined {
+		const runtime = this.readState().runtime;
+		return runtime ? clone(runtime) : undefined;
+	}
+
+	setRuntime(providerId: string, modelId: string): CronRuntime {
+		const runtime: CronRuntime = { providerId: providerId.trim(), modelId: modelId.trim() };
+		return this.writeState((state) => {
+			state.runtime = clone(runtime);
+			return clone(runtime);
+		});
+	}
+
 	runScheduleNow(scheduleId: string): CronScheduledTask {
 		return this.trigger(scheduleId);
 	}
