@@ -28,7 +28,6 @@ function createAgentToolPart(
 		durationMs: patch.durationMs,
 		errorText: patch.errorText,
 		status: patch.status,
-		pendingPermission: patch.pendingPermission,
 	};
 }
 
