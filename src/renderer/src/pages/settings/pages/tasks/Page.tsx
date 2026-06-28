@@ -223,7 +223,8 @@ const TasksPage: React.FC = () => {
 							</div>
 						</div>
 					)}
-				</SettingsPanel>
+					</CollapsibleContent>
+				</Collapsible>
 			</SettingsSection>
 
 			{error && (
