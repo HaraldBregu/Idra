@@ -9,6 +9,7 @@ import {
 	ProviderStoreChannels,
 	SkillsChannels,
 	SttChannels,
+	TasksChannels,
 } from '../shared/ipc/ipc-channels';
 import type {
 	AppApi,
@@ -18,6 +19,7 @@ import type {
 	ProviderApi,
 	SkillsApi,
 	SttApi,
+	TasksApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared/providers';
