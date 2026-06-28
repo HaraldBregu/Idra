@@ -161,6 +161,9 @@ export class AgentService {
 	}
 
 	cancel(agentId?: string): void {
+		// ponytail: deny every pending permission on any cancel — coarse but fine for one interactive agent
+		for (const resolve of this.pendingPermissions.values()) resolve(false);
+		this.pendingPermissions.clear();
 		if (agentId) {
 			this.activeRuns.get(agentId)?.abort();
 			this.activeRuns.delete(agentId);
