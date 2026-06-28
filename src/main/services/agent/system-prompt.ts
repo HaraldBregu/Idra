@@ -85,6 +85,25 @@ export class SystemPromptService extends SystemPrompt {
 		return this;
 	}
 
+	async addSkillsPrompt(): Promise<this> {
+		const skills = this.skills.listSkills();
+		if (skills.length === 0) return this;
+
+		this.prompt += '\n\n## Skills';
+		this.prompt += '\nThe following skills provide specialized instructions for specific tasks.';
+		this.prompt += '\nUse the load_skill tool with a skill name when the task matches its description.';
+		this.prompt += '\n\n<available_skills>';
+		for (const skill of skills) {
+			this.prompt += '\n  <skill>';
+			this.prompt += `\n    <name>${escapeXml(skill.title)}</name>`;
+			this.prompt += `\n    <description>${escapeXml(skill.description)}</description>`;
+			this.prompt += '\n  </skill>';
+		}
+		this.prompt += '\n</available_skills>';
+
+		return this;
+	}
+
 	getPrompt(): string {
 		return this.prompt;
 	}
@@ -93,6 +112,15 @@ export class SystemPromptService extends SystemPrompt {
 		await this.addWorkspacePrompt();
 		return this.getPrompt();
 	}
+}
+
+function escapeXml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;');
 }
 
 function hasUserProfile(userText: string): boolean {
