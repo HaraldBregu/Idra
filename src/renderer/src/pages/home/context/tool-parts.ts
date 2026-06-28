@@ -83,11 +83,6 @@ export function applyAgentResponseEventToTools(
 				input: event.input,
 				inputText: event.argsText,
 			});
-		case 'tool_permission_request':
-			return updateAgentToolPart(tools, event.toolCallId, {
-				type: event.toolName,
-				pendingPermission: true,
-			});
 		case 'tool_call_result': {
 			const isError = event.status !== 'ok';
 			const errorText =
