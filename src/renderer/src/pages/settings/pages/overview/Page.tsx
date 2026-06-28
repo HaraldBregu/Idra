@@ -30,12 +30,8 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: [],
 	},
 	{
-		id: 'skills',
-		paths: ['/settings/skills'],
-	},
-	{
-		id: 'connectors',
-		paths: ['/settings/connectors'],
+		id: 'extensions',
+		paths: ['/settings/skills', '/settings/connectors'],
 	},
 	{
 		id: 'modelServices',
