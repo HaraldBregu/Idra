@@ -81,36 +81,11 @@ export function AssistantMessage({
 						<div className="w-full">
 							<div className="flex w-full flex-col gap-4">
 								{message.tools.map((tool) => (
-									<div key={tool.toolCallId} className="flex w-full flex-col gap-2">
-										<Tool toolPart={tool} className="mt-0 w-full max-w-2xl" />
-										{tool.pendingPermission ? (
-											<div className="flex max-w-2xl items-center gap-2 rounded-md border border-border bg-muted/40 px-3 py-2 text-sm">
-												<span className="flex-1 text-muted-foreground">
-													Allow{' '}
-													<span className="font-medium text-foreground">{tool.type}</span> to run?
-												</span>
-												<Button
-													type="button"
-													size="xs"
-													variant="outline"
-													onClick={() => {
-														void window.agent?.respondPermission(tool.toolCallId, false);
-													}}
-												>
-													Deny
-												</Button>
-												<Button
-													type="button"
-													size="xs"
-													onClick={() => {
-														void window.agent?.respondPermission(tool.toolCallId, true);
-													}}
-												>
-													Allow
-												</Button>
-											</div>
-										) : null}
-									</div>
+									<Tool
+										key={tool.toolCallId}
+										toolPart={tool}
+										className="mt-0 w-full max-w-2xl"
+									/>
 								))}
 							</div>
 						</div>
