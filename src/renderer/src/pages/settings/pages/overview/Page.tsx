@@ -22,7 +22,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'app',
 		titleKey: 'settings.overview.groups.app',
-		paths: ['/settings/general', '/settings/system', '/settings/providers'],
+		paths: ['/settings/application', '/settings/providers'],
 	},
 	{
 		id: 'agent',

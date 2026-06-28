@@ -84,10 +84,23 @@ export class AgentService {
 				systemPrompt,
 				this.skills,
 			);
+			const requestPermission = (toolCall: ToolCall): Promise<boolean> =>
+				new Promise<boolean>((resolve) => {
+					this.pendingPermissions.set(toolCall.id, resolve);
+					options.streamEvent?.({
+						type: 'tool_permission_request',
+						toolCallId: toolCall.id,
+						toolName: toolCall.name,
+						input: toolCall.args,
+						agentId: resolvedAgentId,
+						runId,
+					});
+				});
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
 				tools: [],
+				requestPermission,
 			};
 			const stream = runtime.run(input);
 			this.activeRuns.set(resolvedAgentId, controller);
