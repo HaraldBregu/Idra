@@ -161,6 +161,7 @@
 				"automations": "Automations"
 			},
 			"descriptions": {
+				"application": "General setup, permissions, and desktop capabilities",
 				"general": "App info, appearance, folders",
 				"modelServices": "Model service configuration",
 				"system": "Permissions, keep-awake controls, and desktop capabilities",
@@ -174,6 +175,7 @@
 			}
 		},
 		"tabs": {
+			"application": "Application",
 			"general": "General",
 			"modelServices": "Model services",
 			"channels": "Channels",
