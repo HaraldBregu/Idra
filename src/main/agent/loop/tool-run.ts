@@ -38,7 +38,6 @@ export async function* runToolCall(
 		input: toolCall.args,
 		output,
 		isError,
-		rejected,
 		durationMs: Date.now() - startedAtMs,
 	};
 
