@@ -4,7 +4,7 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
-import { AgentService, type AgentSendOptions } from '../services/agent/service';
+import { AgentService, type AgentSendOptions } from '../agent/service';
 import { LoggerService } from '../shared';
 import { SettingsService } from '../services/agent/settings';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
