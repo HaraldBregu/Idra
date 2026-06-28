@@ -27,6 +27,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			{ type: 'agent', value: AGENTS.assistant },
 			{ type: 'path', value: '/settings/skills' },
 			{ type: 'path', value: '/settings/connectors' },
+			{ type: 'path', value: '/settings/tasks' },
 		],
 	},
 	{
