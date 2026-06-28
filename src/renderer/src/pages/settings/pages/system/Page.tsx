@@ -31,7 +31,6 @@ import {
 } from './capabilities';
 
 type MediaPermissionKind = 'microphone' | 'camera';
-type MediaPermissionSettings = MicrophonePermissionSettings | CameraPermissionSettings;
 
 const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
 	enabled: true,
@@ -216,10 +215,10 @@ function SystemCapabilityGroupPanel({
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
-	const [microphonePermission, setMicrophonePermission] =
+	const [, setMicrophonePermission] =
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
 	const [microphoneError, setMicrophoneError] = useState('');
-	const [cameraPermission, setCameraPermission] =
+	const [, setCameraPermission] =
 		useState<CameraPermissionSettings>(DEFAULT_CAMERA_PERMISSION);
 	const [cameraError, setCameraError] = useState('');
 
