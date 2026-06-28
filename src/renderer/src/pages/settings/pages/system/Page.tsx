@@ -5,13 +5,11 @@ import {
 	Camera,
 	Mic,
 	MonitorUp,
-	RefreshCw,
 	ShieldCheck,
 	type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import {
 	SettingsNotice,
@@ -36,7 +34,6 @@ import {
 
 type MediaPermissionKind = 'microphone' | 'camera';
 type MediaPermissionSettings = MicrophonePermissionSettings | CameraPermissionSettings;
-type MediaPermissionStatus = MicrophoneSystemPermissionStatus | CameraSystemPermissionStatus;
 
 const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
 	enabled: true,
@@ -56,14 +53,12 @@ const MEDIA_PERMISSION_COPY = {
 		enabledDescriptionKey: 'settings.microphone.recordingDescription',
 		systemPermissionKey: 'settings.microphone.systemPermission',
 		systemPermissionDescriptionKey: 'settings.microphone.systemPermissionDescription',
-		refreshKey: 'settings.microphone.actions.refresh',
 	},
 	camera: {
 		enabledTitleKey: 'settings.camera.access',
 		enabledDescriptionKey: 'settings.camera.accessDescription',
 		systemPermissionKey: 'settings.camera.systemPermission',
 		systemPermissionDescriptionKey: 'settings.camera.systemPermissionDescription',
-		refreshKey: 'settings.camera.actions.refresh',
 	},
 } satisfies Record<
 	MediaPermissionKind,
@@ -72,49 +67,11 @@ const MEDIA_PERMISSION_COPY = {
 		readonly enabledDescriptionKey: string;
 		readonly systemPermissionKey: string;
 		readonly systemPermissionDescriptionKey: string;
-		readonly refreshKey: string;
 	}
 >;
 
-function permissionStatusKey(status: MediaPermissionStatus): string {
-	return `settings.system.permissionStatus.${status}`;
-}
-
-function isBlockedPermission(permission: MediaPermissionSettings): boolean {
-	return permission.systemStatus === 'denied' || permission.systemStatus === 'restricted';
-}
-
-function shouldOpenPermissionSettings(permission: MediaPermissionSettings): boolean {
-	return permission.enabled && !permission.canRequest && isBlockedPermission(permission);
-}
-
-function mediaPermissionActionKey(
-	kind: MediaPermissionKind,
-	permission: MediaPermissionSettings
-): string {
-	if (!permission.enabled) return `settings.${kind}.actions.activate`;
-	if (permission.systemStatus === 'granted') return `settings.${kind}.actions.check`;
-	if (shouldOpenPermissionSettings(permission)) return `settings.${kind}.actions.openSettings`;
-	if (!permission.canRequest) return `settings.${kind}.actions.check`;
-	return `settings.${kind}.actions.request`;
-}
-
 function errorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
-}
-
-function permissionStatusClassName(status: MediaPermissionStatus): string {
-	switch (status) {
-		case 'granted':
-			return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
-		case 'denied':
-		case 'restricted':
-			return 'border-destructive/30 bg-destructive/10 text-destructive';
-		case 'not-determined':
-			return 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300';
-		default:
-			return 'border-border/60 bg-muted/50 text-muted-foreground';
-	}
 }
 
 function availabilityClassName(availability: SystemCapabilityAvailability): string {
@@ -128,25 +85,6 @@ function availabilityClassName(availability: SystemCapabilityAvailability): stri
 		case 'comingSoon':
 			return 'border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300';
 	}
-}
-
-function PermissionStatusBadge({
-	status,
-}: {
-	readonly status: MediaPermissionStatus;
-}): React.JSX.Element {
-	const { t } = useTranslation();
-
-	return (
-		<span
-			className={cn(
-				'inline-flex h-6 shrink-0 items-center rounded-md border px-2 text-[11px] font-medium',
-				permissionStatusClassName(status)
-			)}
-		>
-			{t(permissionStatusKey(status))}
-		</span>
-	);
 }
 
 function AvailabilityBadge({
@@ -212,20 +150,12 @@ function MediaPermissionRows({
 	kind,
 	icon: Icon,
 	permission,
-	loading,
 	error,
-	onToggle,
-	onAction,
-	onRefresh,
 }: {
 	readonly kind: MediaPermissionKind;
 	readonly icon: LucideIcon;
 	readonly permission: MediaPermissionSettings;
-	readonly loading: boolean;
 	readonly error: string;
-	readonly onToggle: (checked: boolean) => void;
-	readonly onAction: () => void;
-	readonly onRefresh: () => void;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const copy = MEDIA_PERMISSION_COPY[kind];
@@ -236,43 +166,11 @@ function MediaPermissionRows({
 				title={t(copy.enabledTitleKey)}
 				description={t(copy.enabledDescriptionKey)}
 				icon={Icon}
-				actions={
-					<Switch
-						checked={permission.enabled}
-						disabled={loading}
-						onCheckedChange={onToggle}
-						aria-label={t(copy.enabledTitleKey)}
-					/>
-				}
 			/>
 			<SystemSettingsItem
 				title={t(copy.systemPermissionKey)}
 				description={error || t(copy.systemPermissionDescriptionKey)}
 				icon={ShieldCheck}
-				actionClassName="sm:flex-nowrap"
-				actions={
-					<>
-						<PermissionStatusBadge status={permission.systemStatus} />
-						<Button
-							variant="outline"
-							size="xs"
-							onClick={onAction}
-							disabled={loading}
-						>
-							{t(mediaPermissionActionKey(kind, permission))}
-						</Button>
-						<Button
-							variant="ghost"
-							size="icon-xs"
-							onClick={onRefresh}
-							disabled={loading}
-							aria-label={t(copy.refreshKey)}
-							title={t(copy.refreshKey)}
-						>
-							<RefreshCw className="size-3" />
-						</Button>
-					</>
-				}
 			/>
 		</>
 	);
@@ -324,34 +222,26 @@ const SystemPage: React.FC = () => {
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
 	const [microphonePermission, setMicrophonePermission] =
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
-	const [microphoneLoading, setMicrophoneLoading] = useState(true);
 	const [microphoneError, setMicrophoneError] = useState('');
 	const [cameraPermission, setCameraPermission] =
 		useState<CameraPermissionSettings>(DEFAULT_CAMERA_PERMISSION);
-	const [cameraLoading, setCameraLoading] = useState(true);
 	const [cameraError, setCameraError] = useState('');
 
 	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
-		setMicrophoneLoading(true);
 		setMicrophoneError('');
 		try {
 			setMicrophonePermission(await window.app.getMicrophonePermission());
 		} catch (error) {
 			setMicrophoneError(errorMessage(error, t('settings.microphone.errors.load')));
-		} finally {
-			setMicrophoneLoading(false);
 		}
 	}, [t]);
 
 	const refreshCameraPermission = useCallback(async (): Promise<void> => {
-		setCameraLoading(true);
 		setCameraError('');
 		try {
 			setCameraPermission(await window.app.getCameraPermission());
 		} catch (error) {
 			setCameraError(errorMessage(error, t('settings.camera.errors.load')));
-		} finally {
-			setCameraLoading(false);
 		}
 	}, [t]);
 
@@ -359,82 +249,6 @@ const SystemPage: React.FC = () => {
 		void refreshMicrophonePermission();
 		void refreshCameraPermission();
 	}, [refreshCameraPermission, refreshMicrophonePermission]);
-
-	const handleMicrophoneToggle = useCallback((checked: boolean) => {
-		setMicrophoneLoading(true);
-		setMicrophoneError('');
-		setMicrophonePermission((current) => ({ ...current, enabled: checked }));
-		void (async () => {
-			try {
-				setMicrophonePermission(await window.app.setMicrophoneEnabled(checked));
-			} catch (error) {
-				setMicrophoneError(errorMessage(error, t('settings.microphone.errors.save')));
-				await refreshMicrophonePermission();
-			} finally {
-				setMicrophoneLoading(false);
-			}
-		})();
-	}, [refreshMicrophonePermission, t]);
-
-	const handleCameraToggle = useCallback((checked: boolean) => {
-		setCameraLoading(true);
-		setCameraError('');
-		setCameraPermission((current) => ({ ...current, enabled: checked }));
-		void (async () => {
-			try {
-				setCameraPermission(await window.app.setCameraEnabled(checked));
-			} catch (error) {
-				setCameraError(errorMessage(error, t('settings.camera.errors.save')));
-				await refreshCameraPermission();
-			} finally {
-				setCameraLoading(false);
-			}
-		})();
-	}, [refreshCameraPermission, t]);
-
-	const handleMicrophoneAction = useCallback(async (): Promise<void> => {
-		setMicrophoneLoading(true);
-		setMicrophoneError('');
-		try {
-			let next = microphonePermission;
-			if (!next.enabled) {
-				next = await window.app.setMicrophoneEnabled(true);
-				setMicrophonePermission(next);
-			}
-			if (shouldOpenPermissionSettings(next)) {
-				await window.app.openSystemPreference('Microphone');
-				setMicrophonePermission(await window.app.getMicrophonePermission());
-				return;
-			}
-			setMicrophonePermission(await window.app.requestMicrophonePermission());
-		} catch (error) {
-			setMicrophoneError(errorMessage(error, t('settings.microphone.errors.request')));
-		} finally {
-			setMicrophoneLoading(false);
-		}
-	}, [microphonePermission, t]);
-
-	const handleCameraAction = useCallback(async (): Promise<void> => {
-		setCameraLoading(true);
-		setCameraError('');
-		try {
-			let next = cameraPermission;
-			if (!next.enabled) {
-				next = await window.app.setCameraEnabled(true);
-				setCameraPermission(next);
-			}
-			if (shouldOpenPermissionSettings(next)) {
-				await window.app.openSystemPreference('Camera');
-				setCameraPermission(await window.app.getCameraPermission());
-				return;
-			}
-			setCameraPermission(await window.app.requestCameraPermission());
-		} catch (error) {
-			setCameraError(errorMessage(error, t('settings.camera.errors.request')));
-		} finally {
-			setCameraLoading(false);
-		}
-	}, [cameraPermission, t]);
 
 	const handleOpenSystemPreference = useCallback((pane: SystemPreferencePaneId) => {
 		setSystemPreferenceError('');
@@ -471,21 +285,13 @@ const SystemPage: React.FC = () => {
 						kind="microphone"
 						icon={Mic}
 						permission={microphonePermission}
-						loading={microphoneLoading}
 						error={microphoneError}
-						onToggle={handleMicrophoneToggle}
-						onAction={() => void handleMicrophoneAction()}
-						onRefresh={() => void refreshMicrophonePermission()}
 					/>
 					<MediaPermissionRows
 						kind="camera"
 						icon={Camera}
 						permission={cameraPermission}
-						loading={cameraLoading}
 						error={cameraError}
-						onToggle={handleCameraToggle}
-						onAction={() => void handleCameraAction()}
-						onRefresh={() => void refreshCameraPermission()}
 					/>
 				</SettingsPanel>
 			</SettingsSection>
