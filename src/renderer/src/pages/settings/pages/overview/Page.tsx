@@ -28,6 +28,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			{ type: 'path', value: '/settings/skills' },
 			{ type: 'path', value: '/settings/connectors' },
 			{ type: 'path', value: '/settings/tasks' },
+			{ type: 'path', value: '/settings/channels' },
 		],
 	},
 	{
