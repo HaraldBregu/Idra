@@ -171,6 +171,13 @@ const OverviewPage: React.FC = () => {
 							const item = getSettingsOverviewAgentItem(agentId);
 							return <SettingsOverviewCard key={item.path} item={item} />;
 						})}
+						{group.items?.map((item) => (
+							<SettingsOverviewCard
+								key={item.path}
+								item={item}
+								disabled={disabledOverviewPaths.has(item.path)}
+							/>
+						))}
 						{group.paths.map((path) => {
 							const item = getSettingsNavigationItem(path);
 							return (
@@ -181,13 +188,6 @@ const OverviewPage: React.FC = () => {
 								/>
 							);
 						})}
-						{group.items?.map((item) => (
-							<SettingsOverviewCard
-								key={item.path}
-								item={item}
-								disabled={disabledOverviewPaths.has(item.path)}
-							/>
-						))}
 					</SettingsPanel>
 				);
 
