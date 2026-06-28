@@ -6,6 +6,7 @@ export { HeartbeatChannels } from './channels/heartbeat';
 export { ProviderStoreChannels } from './channels/provider';
 export { SkillsChannels } from './channels/skills';
 export { SttChannels } from './channels/stt';
+export { TasksChannels } from './channels/tasks';
 export { WindowChannels } from './channels/window';
 
 import type { AgentEventChannelMap, AgentInvokeChannelMap } from './channels/agent';
