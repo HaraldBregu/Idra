@@ -100,15 +100,6 @@ export class AgentIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
-			AgentChannels.respondPermission,
-			wrapSimpleHandler((toolCallId: unknown, allow: unknown): void => {
-				const id = optionalTrimmedString(toolCallId);
-				if (!id) throw new Error('Invalid tool call id.');
-				agent.resolvePermission(id, allow === true);
-			}, AgentChannels.respondPermission)
-		);
-
-		ipcMain.handle(
 			AgentChannels.lastMessages,
 			wrapSimpleHandler((sessionId: unknown) => {
 				return agent.getLastMessages(normalizeAgentSessionId(sessionId));
