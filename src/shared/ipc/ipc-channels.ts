@@ -36,7 +36,8 @@ export interface InvokeChannelMap
 		SkillsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		ConnectorsInvokeChannelMap,
-		SttInvokeChannelMap {}
+		SttInvokeChannelMap,
+		TasksInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 
