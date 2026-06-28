@@ -17,15 +17,8 @@ export async function* runToolCall(
 
 	let output: unknown;
 	let isError: boolean | undefined;
-	let rejected = false;
 
-	const allowed = requestPermission ? await requestPermission(toolCall) : true;
-
-	if (!allowed) {
-		output = `Tool '${toolCall.name}' was denied by the user.`;
-		isError = true;
-		rejected = true;
-	} else if (!tool) {
+	if (!tool) {
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
 	} else {
