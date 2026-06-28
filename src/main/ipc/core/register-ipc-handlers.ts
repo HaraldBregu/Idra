@@ -6,6 +6,7 @@ import { HeartbeatIpc } from '../heartbeat';
 import { ProviderStoreIpc } from '../provider';
 import { SkillsIpc } from '../skills';
 import { SttIpc } from '../stt';
+import { TasksIpc } from '../tasks';
 import { WindowIpc } from '../window';
 import type { IpcModule } from './module';
 import type { EventBus } from '../../services';
