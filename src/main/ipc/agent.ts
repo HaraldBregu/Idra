@@ -6,7 +6,7 @@ import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import { AgentService, type AgentSendOptions } from '../agent/service';
 import { LoggerService } from '../shared';
-import { SettingsService } from '../services/agent/settings';
+import { SettingsService } from '../agent/settings';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
 
