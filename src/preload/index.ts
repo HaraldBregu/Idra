@@ -362,6 +362,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('stt', stt);
+		contextBridge.exposeInMainWorld('tasks', tasks);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
