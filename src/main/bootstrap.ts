@@ -11,7 +11,7 @@ import type { MainServiceContainer } from './services/services';
 import { McpService } from './mcp';
 import { SkillsService } from './skills';
 import { LlmService } from './llm';
-import { AgentService } from './services/agent/service';
+import { AgentService } from './agent/service';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './services/provider-service';
 import { SttService } from './services/stt-service';
