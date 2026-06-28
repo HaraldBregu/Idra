@@ -115,7 +115,7 @@ export class AgentRuntime {
 					return;
 				}
 
-				yield* this.runToolCalls(tools, turn.toolCalls);
+				yield* this.runToolCalls(tools, turn.toolCalls, input.requestPermission);
 				session.addToolResults(turn.toolCalls);
 			}
 		} finally {
