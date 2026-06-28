@@ -257,7 +257,7 @@ export class CronService {
 		}
 		const schedule = this.require(scheduleId);
 		if (schedule.action.type === 'debug') {
-			handleLoggerFire(scheduleId, schedule.action.message);
+			console.info('[CronService]', `Schedule ${scheduleId} fired: ${schedule.action.message}`);
 		}
 		if (schedule.action.type === 'agent') {
 			handleAgentFire(this.agent, scheduleId, schedule.action);
