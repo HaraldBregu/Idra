@@ -143,7 +143,6 @@ export type RuntimeEvent =
 			input: Record<string, unknown>;
 			output: unknown;
 			isError?: boolean;
-			rejected?: boolean;
 			durationMs: number;
 	  }
 	| { type: 'run_finished'; result: RuntimeOutput };
