@@ -85,16 +85,17 @@ const TasksPage: React.FC = () => {
 		};
 	}, []);
 
-	const handleProviderChange = (nextProviderId: string): void => {
-		const group = PROVIDER_GROUPS.find((item) => item.id === nextProviderId);
-		setProviderId(nextProviderId);
+	const handleProviderChange = (nextProviderId: string | null): void => {
+		const id = nextProviderId ?? '';
+		const group = PROVIDER_GROUPS.find((item) => item.id === id);
+		setProviderId(id);
 		setModelId(group?.models[0]?.id ?? '');
 		setSaved(false);
 		setRuntimeError(null);
 	};
 
-	const handleModelChange = (nextModelId: string): void => {
-		setModelId(nextModelId);
+	const handleModelChange = (nextModelId: string | null): void => {
+		setModelId(nextModelId ?? '');
 		setSaved(false);
 		setRuntimeError(null);
 	};
