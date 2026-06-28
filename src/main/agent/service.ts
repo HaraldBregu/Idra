@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
-import { SettingsService } from './store';
+import { StoreService } from './store';
 import { SessionService, AgentSession } from './session';
 import { SystemPromptService } from './system-prompt';
 import { AgentRuntime } from './loop/loop';
@@ -30,8 +30,8 @@ export interface AgentSendOptions {
 
 @Service()
 export class AgentService {
-	@Inject(() => SettingsService)
-	private readonly agentSettingsStore!: SettingsService;
+	@Inject(() => StoreService)
+	private readonly agentSettingsStore!: StoreService;
 
 	@Inject(() => CronService)
 	private readonly cron!: Cron;
