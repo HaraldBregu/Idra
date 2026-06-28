@@ -97,15 +97,15 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 
 export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// General — appearance
-	{ path: '/settings/general', labelKey: 'settings.language.title', descriptionKey: 'settings.language.description', keywords: 'locale english italian i18n' },
-	{ path: '/settings/general', labelKey: 'settings.application.menuBar', descriptionKey: 'settings.application.menuBarDescription', keywords: 'tray dock icon toggle' },
-	{ path: '/settings/general', labelKey: 'settings.application.appData', descriptionKey: 'settings.application.appDataDescription', keywords: 'folder files storage' },
+	{ path: '/settings/application', labelKey: 'settings.language.title', descriptionKey: 'settings.language.description', keywords: 'locale english italian i18n' },
+	{ path: '/settings/application', labelKey: 'settings.application.menuBar', descriptionKey: 'settings.application.menuBarDescription', keywords: 'tray dock icon toggle' },
+	{ path: '/settings/application', labelKey: 'settings.application.appData', descriptionKey: 'settings.application.appDataDescription', keywords: 'folder files storage' },
 	// System — permissions & folders
-	{ path: '/settings/system', labelKey: 'settings.application.accessibility', descriptionKey: 'settings.application.accessibilityDescription', keywords: 'permission system' },
-	{ path: '/settings/system', labelKey: 'settings.application.screenRecording', descriptionKey: 'settings.application.screenRecordingDescription', keywords: 'permission capture screen' },
-	{ path: '/settings/system', labelKey: 'settings.microphone.title', descriptionKey: 'settings.microphone.description', keywords: 'microphone audio recorder permission activate disable' },
-	{ path: '/settings/system', labelKey: 'settings.camera.title', descriptionKey: 'settings.camera.description', keywords: 'camera webcam video permission activate disable' },
-	{ path: '/settings/system', labelKey: 'settings.system.capabilities.title', descriptionKey: 'settings.system.capabilities.description', keywords: 'windows files network webcam microphone audio bluetooth usb printer scanner clipboard notifications gps location system information drivers daemons hardware' },
+	{ path: '/settings/application', labelKey: 'settings.application.accessibility', descriptionKey: 'settings.application.accessibilityDescription', keywords: 'permission system' },
+	{ path: '/settings/application', labelKey: 'settings.application.screenRecording', descriptionKey: 'settings.application.screenRecordingDescription', keywords: 'permission capture screen' },
+	{ path: '/settings/application', labelKey: 'settings.microphone.title', descriptionKey: 'settings.microphone.description', keywords: 'microphone audio recorder permission activate disable' },
+	{ path: '/settings/application', labelKey: 'settings.camera.title', descriptionKey: 'settings.camera.description', keywords: 'camera webcam video permission activate disable' },
+	{ path: '/settings/application', labelKey: 'settings.system.capabilities.title', descriptionKey: 'settings.system.capabilities.description', keywords: 'windows files network webcam microphone audio bluetooth usb printer scanner clipboard notifications gps location system information drivers daemons hardware' },
 	// Providers — API keys
 	{ path: '/settings/providers', labelKey: 'settings.providers.keySaved', keywords: 'api key anthropic openai google' },
 	{ path: '/settings/providers', labelKey: 'settings.providers.apiKeyPlaceholder', keywords: 'api key secret token' },
@@ -123,6 +123,12 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
+	{
+		path: '/settings/application',
+		labelKey: 'settings.tabs.application',
+		descriptionKey: 'settings.overview.descriptions.application',
+		icon: Info,
+	},
 	{
 		path: '/settings/general',
 		labelKey: 'settings.tabs.general',
