@@ -17,6 +17,7 @@ import type {
 	CronFunctionInput,
 	CronFunctionResult,
 	CronJobInfo,
+	CronRuntime,
 	CronSchedule,
 	CronScheduleCreateRequest,
 	CronScheduleUpdateRequest,
