@@ -193,15 +193,8 @@ function SystemCapabilityGroupPanel({
 }: {
 	readonly group: SystemCapabilityGroup;
 }): React.JSX.Element {
-	const { t } = useTranslation();
-
 	return (
 		<SettingsPanel className="h-full">
-			<div className="border-b border-border/60 px-3 py-2">
-				<h3 className="text-[13px] font-medium leading-4 text-foreground">
-					{t(group.titleKey)}
-				</h3>
-			</div>
 			{group.capabilities.map((capability) => (
 				<SystemCapabilityRow key={capability.id} capability={capability} />
 			))}
