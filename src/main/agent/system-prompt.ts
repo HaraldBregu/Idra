@@ -1,8 +1,8 @@
-import { SystemPrompt } from '../../agent/core/system-prompt';
+import { SystemPrompt } from './core/system-prompt';
 import { Inject, Service } from 'typedi';
 import { WorkspaceService } from './workspace';
-import type { Skills } from '../../agent/core/skills';
-import { SkillsService } from '../../skills';
+import type { Skills } from './core/skills';
+import { SkillsService } from '../skills';
 
 @Service()
 export class SystemPromptService extends SystemPrompt {
