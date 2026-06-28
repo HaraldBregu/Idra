@@ -1,0 +1,446 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+	Accessibility,
+	Camera,
+	FolderOpen,
+	Languages,
+	Mic,
+	MonitorUp,
+	PanelTop,
+	ShieldCheck,
+	type LucideIcon,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Item, ItemActions, ItemContent, ItemIcon, ItemMedia, ItemTitle } from '@/components/ui/item';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
+import { useApp, type AppLanguage } from '@/contexts';
+import {
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsPanel,
+	SettingsSection,
+} from '../../components';
+import type {
+	CameraPermissionSettings,
+	MicrophonePermissionSettings,
+	SystemPreferencePaneId,
+} from '../../../../../../shared/app/app-permissions';
+import {
+	SYSTEM_CAPABILITY_GROUPS,
+	type SystemCapabilityAvailability,
+	type SystemCapabilityGroup,
+	type SystemCapabilityItem,
+} from '../system/capabilities';
+
+type MediaPermissionKind = 'microphone' | 'camera';
+
+interface LanguageOption {
+	readonly value: AppLanguage;
+	readonly labelKey: string;
+}
+
+const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
+	{ value: 'en', labelKey: 'settings.language.en' },
+	{ value: 'it', labelKey: 'settings.language.it' },
+] as const;
+
+const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
+	enabled: true,
+	systemStatus: 'unknown',
+	canRequest: false,
+};
+
+const DEFAULT_CAMERA_PERMISSION: CameraPermissionSettings = {
+	enabled: true,
+	systemStatus: 'unknown',
+	canRequest: false,
+};
+
+const MEDIA_PERMISSION_COPY = {
+	microphone: {
+		enabledTitleKey: 'settings.microphone.recording',
+		enabledDescriptionKey: 'settings.microphone.recordingDescription',
+		systemPermissionKey: 'settings.microphone.systemPermission',
+		systemPermissionDescriptionKey: 'settings.microphone.systemPermissionDescription',
+	},
+	camera: {
+		enabledTitleKey: 'settings.camera.access',
+		enabledDescriptionKey: 'settings.camera.accessDescription',
+		systemPermissionKey: 'settings.camera.systemPermission',
+		systemPermissionDescriptionKey: 'settings.camera.systemPermissionDescription',
+	},
+} satisfies Record<
+	MediaPermissionKind,
+	{
+		readonly enabledTitleKey: string;
+		readonly enabledDescriptionKey: string;
+		readonly systemPermissionKey: string;
+		readonly systemPermissionDescriptionKey: string;
+	}
+>;
+
+function errorMessage(error: unknown, fallback: string): string {
+	return error instanceof Error ? error.message : fallback;
+}
+
+function availabilityClassName(availability: SystemCapabilityAvailability): string {
+	switch (availability) {
+		case 'yes':
+			return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
+		case 'oftenYes':
+			return 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300';
+		case 'sometimes':
+			return 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300';
+		case 'comingSoon':
+			return 'border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300';
+	}
+}
+
+function AvailabilityBadge({
+	availability,
+}: {
+	readonly availability: SystemCapabilityAvailability;
+}): React.JSX.Element {
+	const { t } = useTranslation();
+
+	return (
+		<span
+			className={cn(
+				'inline-flex h-6 shrink-0 items-center rounded-md border px-2 text-[11px] font-medium',
+				availabilityClassName(availability)
+			)}
+		>
+			{t(`settings.system.availability.${availability}`)}
+		</span>
+	);
+}
+
+function SystemSettingsItem({
+	title,
+	description,
+	icon,
+	actions,
+	actionClassName,
+}: {
+	readonly title: React.ReactNode;
+	readonly description?: React.ReactNode;
+	readonly icon: LucideIcon;
+	readonly actions?: React.ReactNode;
+	readonly actionClassName?: string;
+}): React.JSX.Element {
+	return (
+		<Item variant="outline" size="md" className="min-h-11 border-b border-border/60 last:border-b-0">
+			<ItemIcon icon={icon} className="[&_svg]:size-4" />
+			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0.5">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
+					{title}
+				</ItemTitle>
+				{description && (
+					<p className="max-w-full text-[11px] leading-4 text-muted-foreground">
+						{description}
+					</p>
+				)}
+			</ItemContent>
+			{actions && (
+				<ItemActions
+					className={cn(
+						'ml-auto flex-none flex-wrap justify-end gap-1.5',
+						actionClassName
+					)}
+				>
+					{actions}
+				</ItemActions>
+			)}
+		</Item>
+	);
+}
+
+function MediaPermissionRows({
+	kind,
+	icon: Icon,
+	error,
+}: {
+	readonly kind: MediaPermissionKind;
+	readonly icon: LucideIcon;
+	readonly error: string;
+}): React.JSX.Element {
+	const { t } = useTranslation();
+	const copy = MEDIA_PERMISSION_COPY[kind];
+
+	return (
+		<>
+			<SystemSettingsItem
+				title={t(copy.enabledTitleKey)}
+				description={t(copy.enabledDescriptionKey)}
+				icon={Icon}
+			/>
+			<SystemSettingsItem
+				title={t(copy.systemPermissionKey)}
+				description={error || t(copy.systemPermissionDescriptionKey)}
+				icon={ShieldCheck}
+			/>
+		</>
+	);
+}
+
+function SystemCapabilityRow({
+	capability,
+}: {
+	readonly capability: SystemCapabilityItem;
+}): React.JSX.Element {
+	const { t } = useTranslation();
+
+	return (
+		<SystemSettingsItem
+			title={t(capability.titleKey)}
+			description={t(capability.noteKey)}
+			icon={capability.icon}
+			actions={<AvailabilityBadge availability={capability.availability} />}
+		/>
+	);
+}
+
+function SystemCapabilityGroupPanel({
+	group,
+}: {
+	readonly group: SystemCapabilityGroup;
+}): React.JSX.Element {
+	return (
+		<SettingsPanel className="h-full">
+			{group.capabilities.map((capability) => (
+				<SystemCapabilityRow key={capability.id} capability={capability} />
+			))}
+		</SettingsPanel>
+	);
+}
+
+const ApplicationPage: React.FC = () => {
+	const { t } = useTranslation();
+	const { language, setLanguage } = useApp();
+	const [trayEnabled, setTrayEnabled] = useState(true);
+	const [systemPreferenceError, setSystemPreferenceError] = useState('');
+	const [, setMicrophonePermission] =
+		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
+	const [microphoneError, setMicrophoneError] = useState('');
+	const [, setCameraPermission] =
+		useState<CameraPermissionSettings>(DEFAULT_CAMERA_PERMISSION);
+	const [cameraError, setCameraError] = useState('');
+
+	useEffect(() => {
+		void window.app.getTrayEnabled().then(setTrayEnabled);
+	}, []);
+
+	const handleTrayToggle = useCallback((checked: boolean) => {
+		setTrayEnabled(checked);
+		void window.app.setTrayEnabled(checked);
+	}, []);
+
+	const handleOpenAppDataFolder = useCallback(() => {
+		void window.app.openAppDataFolder();
+	}, []);
+
+	const handleLanguageChange = (next: string | null): void => {
+		if (next === null) return;
+		const option = LANGUAGE_OPTIONS.find((o) => o.value === next);
+		if (option) setLanguage(option.value);
+	};
+
+	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
+		setMicrophoneError('');
+		try {
+			setMicrophonePermission(await window.app.getMicrophonePermission());
+		} catch (error) {
+			setMicrophoneError(errorMessage(error, t('settings.microphone.errors.load')));
+		}
+	}, [t]);
+
+	const refreshCameraPermission = useCallback(async (): Promise<void> => {
+		setCameraError('');
+		try {
+			setCameraPermission(await window.app.getCameraPermission());
+		} catch (error) {
+			setCameraError(errorMessage(error, t('settings.camera.errors.load')));
+		}
+	}, [t]);
+
+	useEffect(() => {
+		void refreshMicrophonePermission();
+		void refreshCameraPermission();
+	}, [refreshCameraPermission, refreshMicrophonePermission]);
+
+	const handleOpenSystemPreference = useCallback((pane: SystemPreferencePaneId) => {
+		setSystemPreferenceError('');
+		void window.app.openSystemPreference(pane)
+			.catch((error: unknown) => {
+				setSystemPreferenceError(errorMessage(error, t('settings.system.errors.openPreference')));
+			});
+	}, [t]);
+
+	const handleOpenAccessibility = useCallback(() => {
+		handleOpenSystemPreference('Accessibility');
+	}, [handleOpenSystemPreference]);
+
+	const handleOpenScreenRecording = useCallback(() => {
+		handleOpenSystemPreference('ScreenCapture');
+	}, [handleOpenSystemPreference]);
+
+	return (
+		<SettingsPageShell>
+			<SettingsPageHeader title={t('settings.tabs.application')} />
+
+			<SettingsSection title={t('settings.application.information')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent>
+							<ItemTitle>{t('settings.application.name')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="text-[13px] text-foreground">{__APP_NAME__}</span>
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemContent>
+							<ItemTitle>{t('settings.application.version')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<span className="font-mono text-[13px] text-foreground">{__APP_VERSION__}</span>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.application.actions')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<PanelTop className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.menuBar')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Switch checked={trayEnabled} onCheckedChange={handleTrayToggle} aria-label={t('settings.application.menuBar')} />
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<FolderOpen className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.appData')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Button variant="outline" size="xs" onClick={handleOpenAppDataFolder}>
+								{t('settings.application.openAppData')}
+							</Button>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.sections.layout')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<Languages className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.language.title')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Select value={language} onValueChange={handleLanguageChange}>
+								<SelectTrigger
+									size="sm"
+									className="w-36 text-xs [&_svg]:size-3"
+									aria-label={t('settings.language.title')}
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{LANGUAGE_OPTIONS.map((option) => (
+										<SelectItem key={option.value} value={option.value}>
+											{t(option.labelKey)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
+			{systemPreferenceError && (
+				<SettingsNotice variant="destructive">{systemPreferenceError}</SettingsNotice>
+			)}
+
+			<SettingsSection
+				title={t('settings.system.mediaPermissions.title')}
+			>
+				<SettingsPanel>
+					<MediaPermissionRows
+						kind="microphone"
+						icon={Mic}
+						error={microphoneError}
+					/>
+					<MediaPermissionRows
+						kind="camera"
+						icon={Camera}
+						error={cameraError}
+					/>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
+				title={t('settings.application.actions')}
+				className="mt-4"
+			>
+				<SettingsPanel>
+					<SystemSettingsItem
+						title={t('settings.application.accessibility')}
+						description={t('settings.application.accessibilityDescription')}
+						icon={Accessibility}
+						actions={
+							<Button variant="outline" size="xs" onClick={handleOpenAccessibility}>
+								{t('settings.application.openAccessibility')}
+							</Button>
+						}
+					/>
+					<SystemSettingsItem
+						title={t('settings.application.screenRecording')}
+						description={t('settings.application.screenRecordingDescription')}
+						icon={MonitorUp}
+						actions={
+							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording}>
+								{t('settings.application.openScreenRecording')}
+							</Button>
+						}
+					/>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection
+				title={t('settings.system.capabilities.title')}
+				className="mt-4"
+			>
+				<div className="grid gap-3 lg:grid-cols-2">
+					{SYSTEM_CAPABILITY_GROUPS.map((group) => (
+						<SystemCapabilityGroupPanel key={group.id} group={group} />
+					))}
+				</div>
+			</SettingsSection>
+		</SettingsPageShell>
+	);
+};
+
+export default ApplicationPage;
