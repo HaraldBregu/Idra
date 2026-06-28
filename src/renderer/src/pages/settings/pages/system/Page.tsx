@@ -280,6 +280,7 @@ const SystemPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.application.actions')}
+				className="mt-2"
 			>
 				<SettingsPanel>
 					<SystemSettingsItem
@@ -307,6 +308,7 @@ const SystemPage: React.FC = () => {
 
 			<SettingsSection
 				title={t('settings.system.capabilities.title')}
+				className="mt-2"
 			>
 				<div className="grid gap-3 lg:grid-cols-2">
 					{SYSTEM_CAPABILITY_GROUPS.map((group) => (
