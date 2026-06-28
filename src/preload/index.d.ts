@@ -79,6 +79,7 @@ export interface SttApi {
 import type { PublicProvider } from '../shared/providers';
 import type { Provider } from '../shared/providers/types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp';
+import type { CronSchedule } from '../main/cron/types';
 import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent/types';
 import type { ProviderModel } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
