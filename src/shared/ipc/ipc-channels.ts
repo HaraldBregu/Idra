@@ -20,6 +20,7 @@ import type { HeartbeatEventChannelMap, HeartbeatInvokeChannelMap } from './chan
 import type { ProviderStoreInvokeChannelMap } from './channels/provider';
 import type { SkillsInvokeChannelMap } from './channels/skills';
 import type { SttEventChannelMap, SttInvokeChannelMap } from './channels/stt';
+import type { TasksInvokeChannelMap } from './channels/tasks';
 import type {
 	WindowEventChannelMap,
 	WindowInvokeChannelMap,
