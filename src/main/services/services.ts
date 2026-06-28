@@ -1,6 +1,6 @@
 import type { ContainerInstance } from 'typedi';
 import type { ChannelRegistry, ChannelsService } from '../channels';
-import type { AgentService } from './agent/service';
+import type { AgentService } from '../agent/service';
 import type { AppPermissionsService } from '../permissions';
 import type { McpService } from '../mcp';
 import type { CronService } from '../cron';
