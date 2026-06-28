@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ListChecks, LoaderCircle, Save } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ListChecks, LoaderCircle, Save } from 'lucide-react';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
@@ -8,6 +8,11 @@ import {
 import type { Model } from '@/lib/compat';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	Select,
