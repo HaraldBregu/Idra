@@ -31,11 +31,6 @@ interface ModelTurn {
 	providerItems?: MessageContentBlock[];
 }
 
-interface ToolOutcome {
-	output: unknown;
-	isError?: boolean;
-}
-
 export class AgentRuntime {
 	constructor(
 		private readonly settings: Settings,
