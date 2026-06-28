@@ -3,8 +3,8 @@ import type { EventBus } from '../services/event-bus';
 import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { HeartbeatChannels } from '../../shared/ipc/ipc-channels';
-import { HeartbeatService } from '../services/heartbeat';
-import type { HeartbeatSettings } from '../services/heartbeat';
+import { HeartbeatService } from '../heartbeat';
+import type { HeartbeatSettings } from '../heartbeat';
 
 export class HeartbeatIpc implements IpcModule {
 	readonly name = 'heartbeat';
