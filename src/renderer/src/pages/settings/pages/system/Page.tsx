@@ -95,6 +95,7 @@ function mediaPermissionActionKey(
 	if (!permission.enabled) return `settings.${kind}.actions.activate`;
 	if (permission.systemStatus === 'granted') return `settings.${kind}.actions.check`;
 	if (shouldOpenPermissionSettings(permission)) return `settings.${kind}.actions.openSettings`;
+	if (!permission.canRequest) return `settings.${kind}.actions.check`;
 	return `settings.${kind}.actions.request`;
 }
 
