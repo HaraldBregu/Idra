@@ -129,5 +129,6 @@ declare global {
 		skills: SkillsApi;
 		provider: ProviderApi;
 		stt: SttApi;
+		tasks: TasksApi;
 	}
 }
