@@ -350,6 +350,12 @@ export const tasks: TasksApi = {
 	list: () => {
 		return typedInvokeUnwrap(TasksChannels.list);
 	},
+	getRuntime: () => {
+		return typedInvokeUnwrap(TasksChannels.getRuntime);
+	},
+	setRuntime: (providerId: string, modelId: string) => {
+		return typedInvokeUnwrap(TasksChannels.setRuntime, providerId, modelId);
+	},
 };
 
 if (process.contextIsolated) {
