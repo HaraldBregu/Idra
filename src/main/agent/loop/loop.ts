@@ -196,13 +196,12 @@ export class AgentRuntime {
 
 	private async *runToolCalls(
 		tools: Tool[],
-		toolCalls: ToolCall[],
-		requestPermission?: RuntimeInput['requestPermission']
+		toolCalls: ToolCall[]
 	): AsyncGenerator<RuntimeEvent, void> {
 		const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
 		for (const toolCall of toolCalls) {
-			yield* runToolCall(toolMap.get(toolCall.name), toolCall, requestPermission);
+			yield* runToolCall(toolMap.get(toolCall.name), toolCall);
 		}
 	}
 }
