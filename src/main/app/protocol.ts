@@ -1,6 +1,6 @@
 import { BrowserWindow, net, protocol, session } from 'electron';
 import { pathToFileURL } from 'node:url';
-import type { AppPermissionsService } from '../permissions';
+import type { AppPermissionsService } from './permissions';
 import type { LoggerService } from '../shared';
 
 const LOCAL_RESOURCE_SCHEME = 'local-resource';
