@@ -4,7 +4,7 @@ import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { Settings, Provider } from './index';
 import type { Provider as StoredProvider } from '../../shared/providers/types';
-import { ProviderService } from '../providers/provider-service';
+import { ProviderService } from '../providers';
 
 type SettingsSchema = {
 	providerId: string | undefined;
