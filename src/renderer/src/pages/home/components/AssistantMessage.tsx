@@ -54,7 +54,20 @@ export function AssistantMessage({
 
 	return (
 		<Message className={cn('flex w-full flex-col', className)}>
-			{hasContent && !hasTools && (
+			{hasTools && (
+				<div className="w-full">
+					<div className="flex w-full flex-col gap-4">
+						{message.tools.map((tool) => (
+							<Tool
+								key={tool.toolCallId}
+								toolPart={tool}
+								className="mt-0 w-full max-w-2xl"
+							/>
+						))}
+					</div>
+				</div>
+			)}
+			{hasContent && (
 				<>
 					<Markdown
 						components={markdownComponents}
@@ -75,23 +88,9 @@ export function AssistantMessage({
 					) : null}
 				</>
 			)}
-			{showActivity && (
+			{showActivity && !hasTools && (
 				<div className="flex w-full flex-col">
-					{hasTools ? (
-						<div className="w-full">
-							<div className="flex w-full flex-col gap-4">
-								{message.tools.map((tool) => (
-									<Tool
-										key={tool.toolCallId}
-										toolPart={tool}
-										className="mt-0 w-full max-w-2xl"
-									/>
-								))}
-							</div>
-						</div>
-					) : (
-						<span className={statusClassName}>{labelContent}</span>
-					)}
+					<span className={statusClassName}>{labelContent}</span>
 				</div>
 			)}
 		</Message>
