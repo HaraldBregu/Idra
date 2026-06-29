@@ -395,6 +395,32 @@ const ApplicationPage: React.FC = () => {
 							</Select>
 						</ItemActions>
 					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<SunMoon className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.theme.title')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Select value={theme} onValueChange={handleThemeChange}>
+								<SelectTrigger
+									size="sm"
+									className="w-36 text-xs [&_svg]:size-3"
+									aria-label={t('settings.theme.title')}
+								>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{THEME_OPTIONS.map((option) => (
+										<SelectItem key={option.value} value={option.value}>
+											{t(option.labelKey)}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ItemActions>
+					</Item>
 				</Card>
 			</SettingsSection>
 
