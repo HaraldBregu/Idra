@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { SkillsChannels } from '../../shared/ipc/ipc-channels';
-import type { SkillsService } from '../skills';
+import type { SkillsService } from '../agent/skills';
 
 export interface SkillsIpcDeps {
 	skills: SkillsService;
