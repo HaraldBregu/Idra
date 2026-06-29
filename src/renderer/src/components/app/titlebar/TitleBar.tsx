@@ -130,17 +130,19 @@ export const TitleBar = React.memo(function TitleBar({
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className="size-8 rounded-full"
-									title={t('titleBar.account', 'Account')}
-									aria-label={t('titleBar.account', 'Account')}
-								>
-									<User className="size-4" strokeWidth={1.8} />
-								</Button>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-8 rounded-full"
+										title={t('titleBar.account', 'Account')}
+										aria-label={t('titleBar.account', 'Account')}
+									/>
+								}
+							>
+								<User className="size-4" strokeWidth={1.8} />
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 								<DropdownMenuItem disabled>{t('titleBar.account', 'Account')}</DropdownMenuItem>
