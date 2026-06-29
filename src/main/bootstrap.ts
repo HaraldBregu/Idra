@@ -7,7 +7,7 @@ import { LoggerService } from './shared';
 import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
-import type { MainServiceContainer } from './services/services';
+import type { ContainerInstance } from 'typedi';
 import { McpService } from './mcp';
 import { SkillsService } from './skills';
 import { LlmService } from './llm';
