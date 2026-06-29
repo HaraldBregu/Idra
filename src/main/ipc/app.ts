@@ -10,7 +10,7 @@ import type {
 } from '../../shared/app/app-permissions';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc/ipc-channels';
-import type { AppPermissionsService } from '../permissions';
+import type { AppPermissionsService } from '../app/permissions';
 import type { LoggerService } from '../shared';
 
 export interface AppIpcDeps {
