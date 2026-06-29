@@ -14,7 +14,7 @@ import type {
 	SkillValidationIssue,
 	SkillValidationResult,
 } from '../../shared/skills/types';
-import { resolveSkillsRoot, SkillsStore } from '../store';
+import { resolveSkillsRoot, SkillsStore } from './store';
 
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
