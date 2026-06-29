@@ -12,7 +12,7 @@ import type { ModelReasoningEffort } from '../../shared/agent/types';
 export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: AgentService;
-	settings: StoreService;
+	settings: Store;
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
