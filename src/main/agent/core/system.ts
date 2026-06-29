@@ -1,7 +1,11 @@
+import { Skills } from './skills';
+
 export abstract class System {
 	protected prompt: string;
+	protected skills: Skills;
 
-	constructor(initialPrompt = '') {
+	constructor(skills: Skills, initialPrompt = '') {
+		this.skills = skills;
 		this.prompt = initialPrompt;
 	}
 
