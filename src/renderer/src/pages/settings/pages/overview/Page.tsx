@@ -42,11 +42,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			{ type: 'agent', value: AGENTS.textToAudio },
 		],
 	},
-	{
-		id: 'channels',
-		titleKey: 'settings.overview.groups.channels',
-		entries: [{ type: 'path', value: '/settings/channels' }],
-	},
 ] satisfies readonly {
 	readonly id: string;
 	readonly titleKey?: string;
