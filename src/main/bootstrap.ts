@@ -44,7 +44,6 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(ProviderService);
 	container.get(McpService);
 	container.get(SkillsService);
-	container.get(LlmService);
 	container.get(SttService);
 	container.get(HeartbeatService);
 	container.get(SystemService);
