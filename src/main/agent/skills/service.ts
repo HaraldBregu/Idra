@@ -13,7 +13,7 @@ import type {
 	SkillManifest,
 	SkillValidationIssue,
 	SkillValidationResult,
-} from '../../shared/skills/types';
+} from '../../../shared/skills/types';
 import { resolveSkillsRoot, SkillsStore } from './store';
 
 const SKILL_FILE = 'SKILL.md';
