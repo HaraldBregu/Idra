@@ -43,7 +43,7 @@ export class SessionService {
 	}
 }
 
-export class AgentSession extends Session {
+export class AgentSession {
 	readonly id: string;
 	readonly messages: Message[];
 	readonly toolCalls: ToolCall[] = [];
