@@ -49,7 +49,7 @@ export class AgentService {
 
 		let response = '';
 		let controller: AbortController | undefined;
-		let session: AgentSession | undefined;
+		let session: Session | undefined;
 		try {
 			controller = new AbortController();
 			const sessionInput = {
