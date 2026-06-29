@@ -56,6 +56,17 @@ const LANGUAGE_OPTIONS: readonly LanguageOption[] = [
 	{ value: 'it', labelKey: 'settings.language.it' },
 ] as const;
 
+interface ThemeOption {
+	readonly value: AppTheme;
+	readonly labelKey: string;
+}
+
+const THEME_OPTIONS: readonly ThemeOption[] = [
+	{ value: 'light', labelKey: 'settings.theme.light' },
+	{ value: 'dark', labelKey: 'settings.theme.dark' },
+	{ value: 'system', labelKey: 'settings.theme.system' },
+] as const;
+
 const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
 	enabled: true,
 	systemStatus: 'unknown',
