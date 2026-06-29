@@ -3,7 +3,7 @@ import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ProviderStoreChannels } from '../../shared/ipc/ipc-channels';
 import type { Provider } from '../../shared/providers/types';
-import type { ProviderService } from '../providers/provider-service';
+import type { ProviderService } from '../providers';
 
 export interface ProviderStoreIpcDeps {
 	providerStore: ProviderService;
