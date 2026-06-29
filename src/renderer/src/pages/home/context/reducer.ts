@@ -158,6 +158,7 @@ function applyResponseEvent(
 			runId: event.runId,
 			state: 'using_tools',
 			tools,
+			content: event.type === 'tool_call_start' ? '' : message.content,
 			startedAtMs: message.startedAtMs ?? receivedAtMs,
 		})
 	);
