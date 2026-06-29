@@ -1,12 +1,11 @@
 import type { EventBus } from '../../services/event-bus';
-import type { MainServiceContainer } from '../../services/services';
 
 /**
  * Interface for self-contained IPC handler modules.
  * Each module registers its own ipcMain.handle/on calls
- * and has access to the service container and event bus.
+ * and receives the concrete services it needs plus the event bus.
  */
-export interface IpcModule {
+export interface IpcModule<TDeps = unknown> {
 	/**
 	 * Unique name for this IPC module (used for logging).
 	 */
@@ -16,5 +15,5 @@ export interface IpcModule {
 	 * Register all IPC handlers for this domain.
 	 * Called once during app initialization.
 	 */
-	register(container: MainServiceContainer, eventBus: EventBus): void;
+	register(deps: TDeps, eventBus: EventBus): void;
 }
