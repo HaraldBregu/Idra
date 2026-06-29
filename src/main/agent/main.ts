@@ -56,7 +56,6 @@ export class AgentService {
 			const runtime = new AgentRuntime(
 				model,
 				cron,
-				this.skillsService,
 			);
 			const input = {
 				...sessionInput,
