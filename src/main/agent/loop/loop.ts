@@ -12,7 +12,7 @@ import type { Cron } from '../core/cron';
 import { parseToolArgs } from '../shared/args';
 import { runToolCall } from './tool-run';
 import type { StoreService } from '../core/store';
-import type { Session } from '../core/session';
+import { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
