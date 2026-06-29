@@ -1,1 +1,0 @@
-export { AppPermissionsService } from './service';
