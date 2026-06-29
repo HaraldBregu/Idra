@@ -65,17 +65,12 @@ export class AgentService {
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
-			var system = this.systemService
-			system = await system.addBasePrompt();
-			system = await system.addWorkspacePrompt();
-			system = await system.addSkillsPrompt();
 
 			const runtime = new AgentRuntime(
 				settings,
 				session,
 				model,
 				cron,
-				system,
 				this.skillsService,
 			);
 			const input = {
