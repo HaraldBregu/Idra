@@ -1,14 +1,19 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
-import { AgentService, type AgentSendOptions } from '../agent/service';
-import { LoggerService } from '../shared';
-import { StoreService } from '../agent/store';
+import type { AgentService, AgentSendOptions } from '../agent/service';
+import type { LoggerService } from '../shared';
+import type { StoreService } from '../agent/store';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
+
+export interface AgentIpcDeps {
+	logger: LoggerService;
+	agent: AgentService;
+	settings: StoreService;
+}
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
