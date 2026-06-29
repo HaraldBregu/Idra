@@ -13,7 +13,6 @@ import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './mcp';
 import { SkillsService } from './agent/skills';
-import { LlmService } from './llm';
 import { AgentService } from './agent/main';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './providers';
