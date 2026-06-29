@@ -33,7 +33,7 @@ interface ModelTurn {
 
 export class AgentRuntime {
 	constructor(
-		private readonly settings: Settings,
+		private readonly settings: StoreService,
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
