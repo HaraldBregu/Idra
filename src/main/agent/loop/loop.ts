@@ -17,7 +17,7 @@ import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
-import { System } from '../system';
+import { SystemService } from '../system';
 
 interface ModelTurn {
 	content: string;
@@ -37,7 +37,7 @@ export class AgentRuntime {
 		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
-		private readonly system: System,
+		private readonly systemService: SystemService,
 		private readonly skills: Skills
 	) { }
 
@@ -73,7 +73,7 @@ export class AgentRuntime {
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = this.system.getPrompt();
+		const system = this.systemService.getPrompt();
 
 		yield {
 			type: 'run_started',

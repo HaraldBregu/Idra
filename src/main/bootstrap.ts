@@ -18,7 +18,7 @@ import { AgentService } from './agent/service';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
-import { System } from './agent/system';
+import { SystemService } from './agent/system';
 
 export interface BootstrapResult {
 	container: ContainerInstance;
@@ -48,7 +48,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(LlmService);
 	container.get(SttService);
 	container.get(HeartbeatService);
-	container.get(System);
+	container.get(SystemService);
 
 	const agentService = container.get(AgentService);
 

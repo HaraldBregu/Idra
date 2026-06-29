@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
 import { StoreService } from './store';
 import { SessionService, AgentSession } from './session';
-import { System } from './system';
+import { SystemService } from './system';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from './index';
@@ -39,8 +39,8 @@ export class AgentService {
 	@Inject(() => SessionService)
 	private readonly session!: SessionService;
 
-	@Inject(() => System)
-	private readonly system!: System;
+	@Inject(() => SystemService)
+	private readonly systemService!: SystemService;
 
 	@Inject(() => SkillsService)
 	private readonly skills!: Skills;
@@ -70,7 +70,7 @@ export class AgentService {
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
-			var system = this.system
+			var system = this.systemService
 			system = await system.addBasePrompt();
 			system = await system.addWorkspacePrompt();
 			system = await system.addSkillsPrompt();

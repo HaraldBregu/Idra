@@ -1,15 +1,30 @@
+import fs from 'node:fs/promises';
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import path from 'node:path';
 import { System as AgentSystem } from './core/system';
-import { Inject, Service } from 'typedi';
-import { WorkspaceService } from './workspace';
+import { Service } from 'typedi';
 import { SkillsService } from '../skills';
+import { resolveAgentUsageLocation } from './shared/location';
+
+const AGENT_FILE = 'AGENTS.md'
+const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
+const HEARTBEAT_FILE = 'HEARTBEAT.md'
+const IDENTITY_FILE = 'IDENTITY.md'
+const MEMORY_FILE = 'MEMORY.md'
+const SOUL_FILE = 'SOUL.md'
+const TOOLS_FILE = 'TOOLS.md'
+const USER_FILE = 'USER.md'
 
 @Service()
-export class System extends AgentSystem {
-	@Inject(() => WorkspaceService)
-	private readonly workspace!: WorkspaceService;
+export class SystemService extends AgentSystem {
+	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
 
 	constructor() {
 		super(new SkillsService());
+		if (!existsSync(this.workspacePath)) {
+			mkdirSync(this.workspacePath, { recursive: true });
+		}
+		this.ensureWorkspaceFiles();
 	}
 
 	async addBasePrompt(): Promise<this> {
@@ -44,22 +59,21 @@ export class System extends AgentSystem {
 	}
 
 	async addWorkspacePrompt(): Promise<this> {
-		const displayWorkspaceDir = this.workspace.getPath();
 		this.prompt += '\n\n## Workspace';
-		this.prompt += `\nYour workspace directory holds your configuration and bootstrap files: ${displayWorkspaceDir}`;
+		this.prompt += `\nYour workspace directory holds your configuration and bootstrap files: ${this.workspacePath}`;
 		this.prompt += '\nIt is not your working directory for tasks, use it only to read or update your configuration and bootstrap files.';
 
 		let workspaceContext = '';
-		const agentText = await this.workspace.getAgentText();
-		const identityText = await this.workspace.getIdentityText();
-		const soulText = await this.workspace.getSoulText();
-		const toolsText = await this.workspace.getToolsText();
-		const userText = await this.workspace.getUserText();
-		const memoryText = await this.workspace.getMemoryText();
+		const agentText = await this.readTextFile(AGENT_FILE);
+		const identityText = await this.readTextFile(IDENTITY_FILE);
+		const soulText = await this.readTextFile(SOUL_FILE);
+		const toolsText = await this.readTextFile(TOOLS_FILE);
+		const userText = await this.readTextFile(USER_FILE);
+		const memoryText = await this.readTextFile(MEMORY_FILE);
 
 		const bootstrapText = hasUserProfile(userText)
 			? ''
-			: await this.workspace.getBootstrapText();
+			: await this.readTextFile(BOOTSTRAP_FILE);
 		if (agentText.trim())
 			workspaceContext += `\n\n${agentText.trim()}`;
 		if (bootstrapText.trim())
@@ -74,8 +88,8 @@ export class System extends AgentSystem {
 			workspaceContext += `\n\n${userText.trim()}`;
 		if (memoryText.trim())
 			workspaceContext += `\n\n${memoryText.trim()}`;
-		
-		if (workspaceContext) 
+
+		if (workspaceContext)
 			this.prompt += workspaceContext;
 
 		return this;
@@ -107,6 +121,51 @@ export class System extends AgentSystem {
 	async build(): Promise<string> {
 		await this.addWorkspacePrompt();
 		return this.getPrompt();
+	}
+
+	private ensureWorkspaceFiles(): void {
+		this.ensureWorkspaceFile(AGENT_FILE);
+		this.ensureWorkspaceFile(BOOTSTRAP_FILE);
+		this.ensureWorkspaceFile(HEARTBEAT_FILE);
+		this.ensureWorkspaceFile(IDENTITY_FILE);
+		this.ensureWorkspaceFile(MEMORY_FILE);
+		this.ensureWorkspaceFile(SOUL_FILE);
+		this.ensureWorkspaceFile(TOOLS_FILE);
+		this.ensureWorkspaceFile(USER_FILE);
+	}
+
+	private ensureWorkspaceFile(filePath: string): void {
+		const workspaceFilePath = this.resolveWorkspacePath(filePath);
+		if (existsSync(workspaceFilePath)) return;
+		copyFileSync(this.resolveTemplatePath(filePath), workspaceFilePath);
+	}
+
+	private async readTextFile(filePath: string): Promise<string> {
+		try {
+			return await fs.readFile(this.resolveWorkspacePath(filePath), 'utf8');
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === 'ENOENT') return '';
+			throw error;
+		}
+	}
+
+	private resolveWorkspacePath(filePath: string): string {
+		if (path.isAbsolute(filePath) || path.win32.isAbsolute(filePath)) {
+			throw new Error(`Workspace file path must be relative: ${filePath}`);
+		}
+		const resolvedPath = path.resolve(this.workspacePath, filePath);
+		const relativePath = path.relative(this.workspacePath, resolvedPath);
+		if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+			throw new Error(`Workspace file path resolves outside workspace: ${filePath}`);
+		}
+		return resolvedPath;
+	}
+
+	private resolveTemplatePath(filePath: string): string {
+		const templatePath = path.join('resources', 'templates', filePath);
+		const developmentPath = path.resolve(process.cwd(), templatePath);
+		if (existsSync(developmentPath)) return developmentPath;
+		return path.join(process.resourcesPath, templatePath);
 	}
 }
 
