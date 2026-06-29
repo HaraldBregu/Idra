@@ -1,3 +1,4 @@
+import type { ContainerInstance } from 'typedi';
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
@@ -8,34 +9,65 @@ import { SkillsIpc } from '../skills';
 import { SttIpc } from '../stt';
 import { TasksIpc } from '../tasks';
 import { WindowIpc } from '../window';
-import type { IpcModule } from './module';
 import type { EventBus } from '../../services';
-import type { MainServiceContainer } from '../../services/services';
 import { LoggerService } from '../../shared';
+import { AppPermissionsService } from '../../permissions';
+import { AgentService } from '../../agent/service';
+import { StoreService } from '../../agent/store';
+import { ChannelRegistry } from '../../channels';
+import { McpService } from '../../mcp';
+import { HeartbeatService } from '../../heartbeat';
+import { ProviderService } from '../../services/provider-service';
+import { SkillsService } from '../../skills';
+import { SttService } from '../../services/stt-service';
+import { CronService } from '../../cron';
 
-export function registerIpcHandlers(container: MainServiceContainer, eventBus: EventBus): void {
+export function registerIpcHandlers(container: ContainerInstance, eventBus: EventBus): void {
 	const logger = container.get(LoggerService);
 
-	const ipcModules: IpcModule[] = [
-		new AppIpc(),
-		new AgentIpc(),
-		new ChannelsIpc(),
-		new ConnectorsIpc(),
-		new HeartbeatIpc(),
-		new ProviderStoreIpc(),
-		new SkillsIpc(),
-		new SttIpc(),
-		new TasksIpc(),
-		new WindowIpc(),
-	];
-
-	for (const module of ipcModules) {
+	const safeRegister = (name: string, register: () => void): void => {
 		try {
-			module.register(container, eventBus);
+			register();
 		} catch (error) {
-			logger.error('Bootstrap', `Failed to register IPC module: ${module.name}`, error);
+			logger.error('Bootstrap', `Failed to register IPC module: ${name}`, error);
 		}
-	}
+	};
 
-	logger.info('Bootstrap', `Registered ${ipcModules.length} IPC modules`);
+	safeRegister('app', () =>
+		new AppIpc().register(
+			{ logger, appPermissions: container.get(AppPermissionsService) },
+			eventBus
+		)
+	);
+	safeRegister('agent', () =>
+		new AgentIpc().register(
+			{ logger, agent: container.get(AgentService), settings: container.get(StoreService) },
+			eventBus
+		)
+	);
+	safeRegister('channels', () =>
+		new ChannelsIpc().register(
+			{ logger, channelRegistry: container.get(ChannelRegistry) },
+			eventBus
+		)
+	);
+	safeRegister('connectors', () =>
+		new ConnectorsIpc().register({ connector: container.get(McpService) }, eventBus)
+	);
+	safeRegister('heartbeat', () =>
+		new HeartbeatIpc().register({ heartbeat: container.get(HeartbeatService) }, eventBus)
+	);
+	safeRegister('provider-store', () =>
+		new ProviderStoreIpc().register({ providerStore: container.get(ProviderService) }, eventBus)
+	);
+	safeRegister('skills', () =>
+		new SkillsIpc().register({ skills: container.get(SkillsService) }, eventBus)
+	);
+	safeRegister('stt', () => new SttIpc().register({ stt: container.get(SttService) }, eventBus));
+	safeRegister('tasks', () =>
+		new TasksIpc().register({ cron: container.get(CronService) }, eventBus)
+	);
+	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
+
+	logger.info('Bootstrap', 'Registered IPC modules');
 }
