@@ -15,15 +15,24 @@ const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
 @Service()
-export class SystemService extends AgentSystem {
+export class SystemService {
 	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
+	private readonly skills = new SkillsService();
+	private _prompt = '';
 
 	constructor() {
-		super(new SkillsService());
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}
 		this.ensureWorkspaceFiles();
+	}
+
+	get prompt(): string {
+		return this._prompt;
+	}
+
+	private set prompt(value: string) {
+		this._prompt = value;
 	}
 
 	async addBasePrompt(): Promise<this> {
