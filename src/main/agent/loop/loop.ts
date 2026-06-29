@@ -11,7 +11,7 @@ import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
 import { parseToolArgs } from '../shared/args';
 import { runToolCall } from './tool-run';
-import type { StoreService } from '../store';
+import type { StoreService } from '../core/store';
 import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';

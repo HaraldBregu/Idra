@@ -13,7 +13,7 @@ import type {
 	SkillValidationIssue,
 	SkillValidationResult,
 } from '../../shared/skills/types';
-import { resolveSkillsRoot, SkillsStore } from './store';
+import { resolveSkillsRoot, SkillsStore } from './core/store';
 
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
@@ -207,7 +207,7 @@ export class SkillsService {
 	}
 }
 
-export { resolveSkillsRoot } from './store';
+export { resolveSkillsRoot } from './core/store';
 
 function slug(value: string): string {
 	const normalized = value
