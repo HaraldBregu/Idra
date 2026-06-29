@@ -35,6 +35,11 @@ interface LlmClientFactoryInput {
 	baseURL?: string;
 }
 
+export abstract class Model {
+	abstract generate(request: ModelRequest): Promise<ModelResponse>;
+	abstract stream(request: ModelRequest): AsyncIterable<ModelEvent>;
+}
+
 export interface AgentModelOptions {
 	provider?: ProviderSpec;
 	providerModelFactory?: ProviderModelFactory;
