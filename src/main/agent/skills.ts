@@ -209,7 +209,7 @@ export class SkillsService extends Skills {
 	}
 }
 
-export { resolveSkillsRoot } from '../store';
+export { resolveSkillsRoot } from './store';
 
 function slug(value: string): string {
 	const normalized = value
