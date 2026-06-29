@@ -13,7 +13,7 @@ import type { EventBus } from '../../app';
 import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
 import { AgentService } from '../../agent/main';
-import { StoreService } from '../../agent/core/store';
+import { Store } from '../../agent/core/store';
 import { ChannelRegistry } from '../../channels';
 import { McpService } from '../../mcp';
 import { HeartbeatService } from '../../heartbeat';
