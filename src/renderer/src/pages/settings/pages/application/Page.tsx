@@ -239,7 +239,7 @@ function SystemCapabilityGroupPanel({
 
 const ApplicationPage: React.FC = () => {
 	const { t } = useTranslation();
-	const { language, setLanguage } = useApp();
+	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
 	const [, setMicrophonePermission] =
