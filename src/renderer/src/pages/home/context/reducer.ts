@@ -293,7 +293,7 @@ export function agentChatReducer(
 
 			const nextState = updateAgentMessage(state, current.id, (message) => ({
 				...message,
-				content: action.response.trim().length > 0 ? action.response : message.content,
+				content: message.content.trim().length > 0 ? message.content : action.response,
 				state:
 					message.state === 'error' || message.state === 'cancelled'
 						? message.state
