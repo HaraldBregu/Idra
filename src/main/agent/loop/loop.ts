@@ -16,7 +16,7 @@ import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
-import { SystemService } from './system';
+import { System } from '../core/system';
 import { SkillsService } from '../skills';
 
 interface ModelTurn {
@@ -72,7 +72,7 @@ export class AgentRuntime {
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = new SystemService();
+		const system = new System();
 		await system.addBasePrompt();
 		await system.addWorkspacePrompt();
 		await system.addSkillsPrompt();

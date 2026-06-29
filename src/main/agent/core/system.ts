@@ -13,7 +13,7 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
-export class SystemService {
+export class System {
 	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
 	private readonly skills = new SkillsService();
 	private _prompt = '';
