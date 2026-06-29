@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import { SttChannels } from '../../shared/ipc/ipc-channels';
-import type { SttService } from '../services/stt-service';
+import type { SttService } from '../stt/service';
 
 export interface SttIpcDeps {
 	stt: SttService;

@@ -32,10 +32,10 @@ import {
 	normalizeProviderId,
 	type ProviderModel,
 } from '../../shared/providers/models/types';
-import { SttAdapterFactory } from '../stt/factory';
-import { SttProviderAuthError, SttProviderUnsupportedError } from '../stt/errors';
-import type { SttActiveRealtimeSession, SttProviderSpec } from '../stt/types';
-import { ProviderService } from './provider-service';
+import { SttAdapterFactory } from './factory';
+import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
+import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
+import { ProviderService } from '../providers/provider-service';
 
 interface SttSettingsSchema {
 	providerId: string | undefined;
