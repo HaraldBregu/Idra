@@ -16,7 +16,7 @@ import type { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
-import { SystemService } from '../system';
+import { SystemService } from './system';
 import { SkillsService } from '../skills';
 
 interface ModelTurn {
