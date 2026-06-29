@@ -58,7 +58,6 @@ export class AgentSession {
 	private readonly sessionFolderName: string;
 
 	constructor(input: SessionInput, location?: string, category: SessionCategory = DEFAULT_CATEGORY) {
-		super();
 		this.id = resolveSessionId(input.sessionId, category, location);
 		this.sessionFolderName = sessionFolderName(this.id);
 		this.sessionsPath = location ? sessionsRoot(location, category) : undefined;
