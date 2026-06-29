@@ -10,7 +10,6 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { Service } from 'typedi';
-import { Session } from './core/session';
 import { resolveAgentUsageLocation } from './shared/location';
 import type {
 	SessionInput,
