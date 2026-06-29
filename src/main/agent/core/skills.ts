@@ -205,7 +205,7 @@ export class Skills {
 	}
 }
 
-export { resolveSkillsRoot } from './core/store';
+export { resolveSkillsRoot } from './store';
 
 function slug(value: string): string {
 	const normalized = value
