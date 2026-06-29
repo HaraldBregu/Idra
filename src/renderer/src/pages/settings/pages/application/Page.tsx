@@ -268,6 +268,12 @@ const ApplicationPage: React.FC = () => {
 		if (option) setLanguage(option.value);
 	};
 
+	const handleThemeChange = (next: string | null): void => {
+		if (next === null) return;
+		const option = THEME_OPTIONS.find((o) => o.value === next);
+		if (option) setTheme(option.value);
+	};
+
 	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
 		setMicrophoneError('');
 		try {
