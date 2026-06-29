@@ -1,7 +1,6 @@
 import { System as AgentSystem } from './core/system';
 import { Inject, Service } from 'typedi';
 import { WorkspaceService } from './workspace';
-import type { Skills } from './core/skills';
 import { SkillsService } from '../skills';
 
 @Service()
@@ -9,8 +8,8 @@ export class System extends AgentSystem {
 	@Inject(() => WorkspaceService)
 	private readonly workspace!: WorkspaceService;
 
-	constructor(@Inject(() => SkillsService) skills: Skills) {
-		super(skills);
+	constructor() {
+		super(new SkillsService());
 	}
 
 	async addBasePrompt(): Promise<this> {
