@@ -19,7 +19,7 @@ import {
 } from './shared/error-reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
-import { AppPermissionsService } from './permissions';
+import { AppPermissionsService } from './app';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // // exception 0xE0000008) come from the V8/JS heap or from native/C++
