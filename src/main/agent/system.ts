@@ -9,11 +9,8 @@ export class System extends AgentSystem {
 	@Inject(() => WorkspaceService)
 	private readonly workspace!: WorkspaceService;
 
-	@Inject(() => SkillsService)
-	private readonly skills!: Skills;
-
-	constructor() {
-		super();
+	constructor(@Inject(() => SkillsService) skills: Skills) {
+		super(skills);
 	}
 
 	async addBasePrompt(): Promise<this> {
