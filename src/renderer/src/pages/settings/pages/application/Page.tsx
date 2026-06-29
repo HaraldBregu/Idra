@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import { useApp, type AppLanguage } from '@/contexts';
+import { useApp, type AppLanguage, type AppTheme } from '@/contexts';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
