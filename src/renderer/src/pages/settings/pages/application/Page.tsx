@@ -9,6 +9,7 @@ import {
 	MonitorUp,
 	PanelTop,
 	ShieldCheck,
+	SunMoon,
 	type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
