@@ -3,7 +3,7 @@ import path from 'node:path';
 import { BrowserWindow, dialog, shell, type OpenDialogOptions } from 'electron';
 import matter from 'gray-matter';
 import { Service } from 'typedi';
-import { Skills } from '../agent/core/skills';
+import { Skills } from '../core/skills';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
