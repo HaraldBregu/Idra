@@ -49,23 +49,21 @@ export class AgentService {
 
 		let response = '';
 		let controller: AbortController | undefined;
-		let session: Session | undefined;
 		try {
 			controller = new AbortController();
 			const sessionInput = {
 				task: 'chat',
 				message,
 				sessionId,
+				category: options.category,
 				effort: options.effort,
 			};
-			session = new Session(sessionInput, options.category);
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
 
 			const runtime = new AgentRuntime(
 				settings,
-				session,
 				model,
 				cron,
 				this.skillsService,
