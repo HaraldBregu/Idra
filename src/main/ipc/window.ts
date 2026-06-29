@@ -1,10 +1,13 @@
 import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { wrapIpcHandler } from './core/error-handler';
 import { WindowChannels } from '../../shared/ipc/ipc-channels';
-import { LoggerService } from '../shared';
+import type { LoggerService } from '../shared';
+
+export interface WindowIpcDeps {
+	logger: LoggerService;
+}
 
 /**
  * IPC handlers for window management operations.
