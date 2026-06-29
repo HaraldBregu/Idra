@@ -1,15 +1,17 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { TasksChannels } from '../../shared/ipc/ipc-channels';
-import { CronService } from '../cron';
+import type { CronService } from '../cron';
 
-export class TasksIpc implements IpcModule {
+export interface TasksIpcDeps {
+	cron: CronService;
+}
+
+export class TasksIpc implements IpcModule<TasksIpcDeps> {
 	readonly name = 'tasks';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const cron = container.get(CronService);
+	register({ cron }: TasksIpcDeps, _eventBus: EventBus): void {
 
 		registerQuery(TasksChannels.list, () => cron.listSchedules());
 		registerQuery(TasksChannels.getRuntime, () => cron.getRuntime());
