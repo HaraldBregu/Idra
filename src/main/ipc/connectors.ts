@@ -1,16 +1,18 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ConnectorsChannels } from '../../shared/ipc/ipc-channels';
 import type { McpSettings } from '../../shared/mcp';
-import { McpService } from '../mcp';
+import type { McpService } from '../mcp';
 
-export class ConnectorsIpc implements IpcModule {
+export interface ConnectorsIpcDeps {
+	connector: McpService;
+}
+
+export class ConnectorsIpc implements IpcModule<ConnectorsIpcDeps> {
 	readonly name = 'connectors';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const connector = container.get(McpService);
+	register({ connector }: ConnectorsIpcDeps, _eventBus: EventBus): void {
 
 		registerQuery(ConnectorsChannels.list, () => connector.list());
 		registerQuery(ConnectorsChannels.get, (id: string) => connector.get(id));
