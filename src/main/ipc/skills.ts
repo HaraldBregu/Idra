@@ -2,25 +2,27 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { SkillsChannels } from '../../shared/ipc/ipc-channels';
-import type { SkillsService } from '../agent/skills';
+import type { SkillInfo } from '../../shared/skills/types';
 
-export interface SkillsIpcDeps {
-	skills: SkillsService;
-}
+export interface SkillsIpcDeps {}
 
 export class SkillsIpc implements IpcModule<SkillsIpcDeps> {
 	readonly name = 'skills';
 
-	register({ skills }: SkillsIpcDeps, _eventBus: EventBus): void {
-
-		registerQuery(SkillsChannels.list, () => skills.list());
-		registerQuery(SkillsChannels.getRoot, () => skills.getRoot());
-		registerCommand(SkillsChannels.import, () => skills.import());
-		registerCommand(SkillsChannels.download, (id: string) => skills.download(id));
-		registerCommand(SkillsChannels.delete, (id: string) => skills.delete(id));
-		registerCommand(SkillsChannels.setEnabled, (id: string, enabled: boolean) =>
-			skills.setEnabled(id, enabled),
-		);
-		registerCommand(SkillsChannels.openRoot, () => skills.openRoot());
+	register(_deps: SkillsIpcDeps, _eventBus: EventBus): void {
+		registerQuery(SkillsChannels.list, (): SkillInfo[] => []);
+		registerQuery(SkillsChannels.getRoot, (): string => '');
+		registerCommand(SkillsChannels.import, () => undefined);
+		registerCommand(SkillsChannels.download, () => undefined);
+		registerCommand(SkillsChannels.delete, (id: string) => ({ id, name: id, deleted: false }));
+		registerCommand(SkillsChannels.setEnabled, (id: string, enabled: boolean) => ({
+			id,
+			name: id,
+			description: '',
+			location: '',
+			folderPath: '',
+			manifest: { name: id, enabled },
+		}));
+		registerCommand(SkillsChannels.openRoot, () => undefined);
 	}
 }
