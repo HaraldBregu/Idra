@@ -17,7 +17,6 @@ import { AgentService } from './agent/main';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
-import { SystemService } from './agent/system';
 
 export interface BootstrapResult {
 	container: ContainerInstance;
