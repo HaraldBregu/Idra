@@ -38,16 +38,6 @@ export abstract class CronTool extends Tool {
 	}
 }
 
-export abstract class WorkspaceTool extends Tool {
-	abstract readonly name: string;
-	abstract readonly description: string;
-	abstract readonly schema: JSONSchema;
-
-	constructor(readonly workspace: Workspace, context: Context) {
-		super(context);
-	}
-}
-
 export abstract class ToolData {
 	abstract get tools(): Tool[];
 }
