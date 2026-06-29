@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { System as AgentSystem } from './core/system';
 import { Service } from 'typedi';
 import { SkillsService } from '../skills';
 import { resolveAgentUsageLocation } from './shared/location';
