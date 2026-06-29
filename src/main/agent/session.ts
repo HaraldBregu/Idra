@@ -9,7 +9,6 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import { Service } from 'typedi';
 import { resolveAgentUsageLocation } from './shared/location';
 import type {
 	SessionInput,
