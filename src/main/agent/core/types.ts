@@ -1,4 +1,4 @@
-import type { ModelEvent } from '../../llm';
+import type { ModelEvent } from './model';
 import type { Tool } from './tool';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
 

@@ -6,10 +6,9 @@ import type {
 	ResponseFunctionToolCall,
 	ResponseStreamEvent,
 } from 'openai/resources/responses/responses';
+import { Model } from '../agent/core/model';
+import type { ModelEvent, ModelRequest, ModelResponse } from '../agent/core/model';
 import type {
-	ModelEvent,
-	ModelRequest,
-	ModelResponse,
 	ProviderAdapter,
 	ProviderEvent,
 	ProviderSpec,
@@ -33,11 +32,6 @@ type ProviderModelFactory = (provider: ProviderSpec) => ProviderAdapter;
 interface LlmClientFactoryInput {
 	apiKey: string;
 	baseURL?: string;
-}
-
-export abstract class Model {
-	abstract generate(request: ModelRequest): Promise<ModelResponse>;
-	abstract stream(request: ModelRequest): AsyncIterable<ModelEvent>;
 }
 
 export interface AgentModelOptions {

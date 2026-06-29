@@ -1,6 +1,6 @@
-import type { Tool } from '../agent/core/tool';
-import type { Message, Provider, ToolCall } from '../agent/core/types';
-import type { ModelReasoningEffort } from '../../shared/agent/types';
+import type { Tool } from './tool';
+import type { Message, Provider, ToolCall } from './types';
+import type { ModelReasoningEffort } from '../../../shared/agent/types';
 
 export interface ModelRequest {
 	messages: Message[];
@@ -38,4 +38,7 @@ export type ModelEvent =
 			usage?: ModelResponse['usage'];
 	  };
 
-export { AgentModel, Model } from './model';
+export abstract class Model {
+	abstract generate(request: ModelRequest): Promise<ModelResponse>;
+	abstract stream(request: ModelRequest): AsyncIterable<ModelEvent>;
+}
