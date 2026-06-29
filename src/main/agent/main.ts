@@ -28,9 +28,6 @@ export interface AgentSendOptions {
 
 @Service()
 export class AgentService {
-	@Inject(() => StoreService)
-	private readonly agentSettingsStore!: StoreService;
-
 	@Inject(() => CronService)
 	private readonly cron!: Cron;
 
