@@ -20,7 +20,7 @@ export function UserMessage({
 			<div className="flex min-w-0 max-w-[75%] flex-col items-end gap-1">
 				<MessageContent
 					className={cn(
-						'min-w-0 w-fit max-w-full break-words rounded-xl bg-primary px-5 py-3 text-sm font-medium leading-relaxed text-primary-foreground [overflow-wrap:anywhere]',
+						'min-w-0 w-fit max-w-full break-words rounded-xl bg-primary px-5 py-3 text-sm font-medium leading-relaxed text-primary-foreground [overflow-wrap:anywhere] selection:bg-primary-foreground selection:text-primary',
 						canToggleContent && !isContentExpanded && 'max-h-40 overflow-hidden'
 					)}
 				>
