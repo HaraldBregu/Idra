@@ -68,7 +68,6 @@ export class Session {
 	}
 
 	appendRun(entry: unknown): void {
-		if (!this.sessionsPath) return;
 		this.ensureSession();
 		appendFileSync(this.runFilePath(), `${stringifyRunEntry(entry)}\n`, 'utf8');
 	}
