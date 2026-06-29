@@ -18,7 +18,7 @@ import { SttService } from './services/stt-service';
 import { System } from './agent/system';
 
 export interface BootstrapResult {
-	container: MainServiceContainer;
+	container: ContainerInstance;
 	eventBus: EventBus;
 	windowFactory: WindowFactory;
 	appState: AppState;
