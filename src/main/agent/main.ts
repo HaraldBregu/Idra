@@ -55,12 +55,10 @@ export class AgentService {
 				category: options.category,
 				effort: options.effort,
 			};
-			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
 
 			const runtime = new AgentRuntime(
-				settings,
 				model,
 				cron,
 				this.skillsService,
