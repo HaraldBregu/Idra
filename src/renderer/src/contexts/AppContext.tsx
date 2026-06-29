@@ -65,10 +65,15 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 	const [language, setLanguageState] = useState<AppLanguage>(
 		initialState?.language ?? readPersistedLanguage()
 	);
+	const [theme, setThemeState] = useState<AppTheme>(
+		initialState?.theme ?? readPersistedTheme()
+	);
 
 	const setLanguage = useCallback((next: AppLanguage) => setLanguageState(next), []);
+	const setTheme = useCallback((next: AppTheme) => setThemeState(next), []);
 	const resetState = useCallback(() => {
 		setLanguageState(readPersistedLanguage());
+		setThemeState(readPersistedTheme());
 	}, []);
 
 	useEffect(() => {
@@ -80,9 +85,23 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		}
 	}, [language]);
 
+	useEffect(() => {
+		applyTheme(theme);
+		try {
+			localStorage.setItem(THEME_STORAGE_KEY, theme);
+		} catch {
+			/* empty */
+		}
+		if (theme !== 'system') return;
+		const mq = window.matchMedia('(prefers-color-scheme: dark)');
+		const onChange = (): void => applyTheme('system');
+		mq.addEventListener('change', onChange);
+		return () => mq.removeEventListener('change', onChange);
+	}, [theme]);
+
 	const value = useMemo<AppContextValue>(
-		() => ({ language, setLanguage, resetState }),
-		[language, setLanguage, resetState]
+		() => ({ language, setLanguage, theme, setTheme, resetState }),
+		[language, setLanguage, theme, setTheme, resetState]
 	);
 
 	return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
