@@ -137,7 +137,7 @@ export class Session {
 	}
 
 	private sessionPath(): string {
-		return sessionPath(this.sessionsPath ?? '', this.sessionFolderName);
+		return sessionPath(this.sessionsPath, this.sessionFolderName);
 	}
 
 	private messagesFilePath(): string {
