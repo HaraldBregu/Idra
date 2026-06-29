@@ -58,7 +58,7 @@ export class AgentService {
 				sessionId,
 				effort: options.effort,
 			};
-			session = this.session.create(sessionInput, options.category);
+			session = new Session(sessionInput, options.category);
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
