@@ -1,20 +1,22 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { wrapSimpleHandler } from './core/error-handler';
 import { ChannelsChannels } from '../../shared/ipc/ipc-channels';
 import { type ChannelStatusEvent, type ChannelType } from '../../shared/channels';
 import { listChannelCatalog } from '../../shared/channels';
-import { ChannelRegistry } from '../channels';
-import { LoggerService } from '../shared';
+import type { ChannelRegistry } from '../channels';
+import type { LoggerService } from '../shared';
 
-export class ChannelsIpc implements IpcModule {
+export interface ChannelsIpcDeps {
+	logger: LoggerService;
+	channelRegistry: ChannelRegistry;
+}
+
+export class ChannelsIpc implements IpcModule<ChannelsIpcDeps> {
 	readonly name = 'channels';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get(LoggerService);
-		const channelRegistry = container.get(ChannelRegistry);
+	register({ logger, channelRegistry }: ChannelsIpcDeps, _eventBus: EventBus): void {
 
 		ipcMain.handle(
 			ChannelsChannels.listCatalog,
