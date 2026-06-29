@@ -29,9 +29,6 @@ export class AgentService {
 	@Inject(() => CronService)
 	private readonly cron!: Cron;
 
-	@Inject(() => SkillsService)
-	private readonly skillsService!: SkillsService;
-
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 
