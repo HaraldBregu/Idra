@@ -79,13 +79,10 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 	};
 }
 
-export class AgentIpc implements IpcModule {
+export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
-	register(container: MainServiceContainer, eventBus: EventBus): void {
-		const logger = container.get(LoggerService);
-		const agent = container.get(AgentService);
-		const settings = container.get(StoreService);
+	register({ logger, agent, settings }: AgentIpcDeps, eventBus: EventBus): void {
 
 		ipcMain.handle(
 			AgentChannels.send,
