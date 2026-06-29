@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
-import { StoreService } from './core/store';
 import { Session } from './core/session';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
