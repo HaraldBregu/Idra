@@ -1,7 +1,6 @@
 import path from 'node:path';
-import Store from 'electron-store';
+import ElectronStore from 'electron-store';
 import { app } from 'electron';
-import { Inject, Service } from 'typedi';
 import { Provider } from '../index';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
