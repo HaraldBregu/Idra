@@ -15,14 +15,15 @@ const USER_FILE = 'USER.md'
 
 export class System {
 	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
-	private readonly skills = new SkillsService();
 	private _prompt = '';
+	private readonly skills: Skills;
 
-	constructor() {
+	constructor(skills: Skills) {
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}
 		this.ensureWorkspaceFiles();
+		this.skills = skills;
 	}
 
 	get prompt(): string {

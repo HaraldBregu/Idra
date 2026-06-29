@@ -77,7 +77,7 @@ export class AgentRuntime {
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = new System();
+		const system = new System(new Skills());
 		await system.addBasePrompt();
 		await system.addWorkspacePrompt();
 		await system.addSkillsPrompt();

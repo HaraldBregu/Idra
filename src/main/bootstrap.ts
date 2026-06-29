@@ -12,7 +12,6 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './mcp';
-import { SkillsService } from './agent/skills';
 import { AgentService } from './agent/main';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './providers';
@@ -42,7 +41,6 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.get(ProviderService);
 	container.get(McpService);
-	container.get(SkillsService);
 	container.get(SttService);
 	container.get(HeartbeatService);
 

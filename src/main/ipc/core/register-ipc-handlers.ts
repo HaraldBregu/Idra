@@ -18,7 +18,6 @@ import { ChannelRegistry } from '../../channels';
 import { McpService } from '../../mcp';
 import { HeartbeatService } from '../../heartbeat';
 import { ProviderService } from '../../providers';
-import { SkillsService } from '../../agent/skills';
 import { SttService } from '../../stt/service';
 import { CronService } from '../../cron';
 
@@ -60,9 +59,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 	safeRegister('provider-store', () =>
 		new ProviderStoreIpc().register({ providerStore: container.get(ProviderService) }, eventBus)
 	);
-	safeRegister('skills', () =>
-		new SkillsIpc().register({ skills: container.get(SkillsService) }, eventBus)
-	);
+	safeRegister('skills', () => new SkillsIpc().register({}, eventBus));
 	safeRegister('stt', () => new SttIpc().register({ stt: container.get(SttService) }, eventBus));
 	safeRegister('tasks', () =>
 		new TasksIpc().register({ cron: container.get(CronService) }, eventBus)
