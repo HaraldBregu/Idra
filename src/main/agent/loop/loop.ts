@@ -34,7 +34,6 @@ interface ModelTurn {
 
 export class AgentRuntime {
 	constructor(
-		private readonly settings: StoreService,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
 		private readonly skillsService: SkillsService
@@ -43,9 +42,10 @@ export class AgentRuntime {
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
 		const session = new Session(input, input.category);
+		const settings = Container.of('main').get(StoreService);
 
 		try {
-			for await (const event of this.stream(input, signal, session, this.settings)) {
+			for await (const event of this.stream(input, signal, session, settings)) {
 				session.appendRun(event);
 				yield event;
 			}
