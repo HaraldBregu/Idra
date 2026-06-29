@@ -1,16 +1,18 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ProviderStoreChannels } from '../../shared/ipc/ipc-channels';
 import type { Provider } from '../../shared/providers/types';
-import { ProviderService } from '../services/provider-service';
+import type { ProviderService } from '../services/provider-service';
 
-export class ProviderStoreIpc implements IpcModule {
+export interface ProviderStoreIpcDeps {
+	providerStore: ProviderService;
+}
+
+export class ProviderStoreIpc implements IpcModule<ProviderStoreIpcDeps> {
 	readonly name = 'provider-store';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const providerStore = container.get(ProviderService);
+	register({ providerStore }: ProviderStoreIpcDeps, _eventBus: EventBus): void {
 
 		registerQuery(ProviderStoreChannels.get, (id: string) => providerStore.get(id));
 		registerCommand(ProviderStoreChannels.set, (id: string, provider: Provider) =>
