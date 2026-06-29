@@ -114,13 +114,9 @@ export class SystemService extends AgentSystem {
 		return this;
 	}
 
-	getPrompt(): string {
-		return this.prompt;
-	}
-
 	async build(): Promise<string> {
 		await this.addWorkspacePrompt();
-		return this.getPrompt();
+		return this.prompt;
 	}
 
 	private ensureWorkspaceFiles(): void {
