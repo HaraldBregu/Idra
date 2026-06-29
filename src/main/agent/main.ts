@@ -49,13 +49,7 @@ export class AgentService {
 				category: options.category,
 				effort: options.effort,
 			};
-			const model = new AgentModel();
-			const cron = this.cron;
-
-			const runtime = new AgentRuntime(
-				model,
-				cron,
-			);
+			const runtime = new AgentRuntime(this.cron);
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
