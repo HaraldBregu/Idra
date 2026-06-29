@@ -72,7 +72,11 @@ export class AgentRuntime {
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const systemPrompt = this.systemService.prompt;
+		const system = new SystemService();
+		await system.addBasePrompt();
+		await system.addWorkspacePrompt();
+		await system.addSkillsPrompt();
+		const systemPrompt = system.prompt;
 
 		yield {
 			type: 'run_started',
