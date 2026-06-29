@@ -2,7 +2,7 @@ import { Tray as ElectronTray, Menu, nativeImage } from 'electron';
 import path from 'node:path';
 import { is } from '@electron-toolkit/utils';
 
-import { loadTranslations } from '../i18n';
+import { loadTranslations } from './i18n';
 
 interface TrayManagerCallbacks {
 	onToggleApp: () => void;

@@ -12,7 +12,7 @@ import { SkillsService } from './skills';
 import { LlmService } from './llm';
 import { AgentService } from './agent/service';
 import { HeartbeatService } from './heartbeat';
-import { ProviderService } from './providers/provider-service';
+import { ProviderService } from './providers';
 import { SttService } from './stt/service';
 import { System } from './agent/system';
 
