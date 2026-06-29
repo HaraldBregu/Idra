@@ -1,2 +1,2 @@
 export { SkillsService } from './service';
-export { SkillsStore } from './store';
+export { SkillsStore } from '../store';
