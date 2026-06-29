@@ -1,5 +1,6 @@
 export { AppState } from './app-state';
 export { EventBus, type AppEvent, type AppEvents } from './event-bus';
+export { AppPermissionsService, type AppPermissionsState } from './permissions';
 export { WindowFactory } from './window-factory';
 export { WindowContext, WindowContextManager, type WindowContextConfig } from './window-context';
 export {
