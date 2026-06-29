@@ -37,9 +37,6 @@ export class AgentService {
 	@Inject(() => SessionService)
 	private readonly session!: SessionService;
 
-	@Inject(() => SystemService)
-	private readonly systemService!: SystemService;
-
 	@Inject(() => SkillsService)
 	private readonly skillsService!: SkillsService;
 
