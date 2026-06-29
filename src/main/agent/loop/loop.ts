@@ -54,7 +54,7 @@ export class AgentRuntime {
 	private async *stream(
 		input: RuntimeInput,
 		signal: AbortSignal,
-		session: AgentSession,
+		session: Session,
 		settings: StoreService
 	): AsyncGenerator<RuntimeEvent> {
 		const provider = settings.getProvider();
