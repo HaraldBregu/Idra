@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { Service } from 'typedi';
-import { SkillsService } from '../skills';
+import { SkillsService } from './skills';
 import { resolveAgentUsageLocation } from './shared/location';
 
 const AGENT_FILE = 'AGENTS.md'
