@@ -118,37 +118,35 @@ export const TitleBar = React.memo(function TitleBar({
 					</div>
 				)}
 
-				{/* ── Right action: home (in settings) or settings (elsewhere) ── */}
+				{/* ── Right action: account menu ── */}
 				{!isStart && (
 					<div
 						className="z-10 mr-3 flex h-full items-center"
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
-						{isSettings ? (
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								className="size-8 rounded-full"
-								onClick={() => navigate('/home')}
-								title={homeButtonLabel}
-								aria-label={homeButtonLabel}
-							>
-								<GradientSphere size={20} />
-							</Button>
-						) : (
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								className="size-8 rounded-full"
-								onClick={() => navigate('/settings')}
-								title={t('settings.title', 'Settings')}
-								aria-label={t('settings.title', 'Settings')}
-							>
-								<User className="size-4" strokeWidth={1.8} />
-							</Button>
-						)}
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									className="size-8 rounded-full"
+									title={t('titleBar.account', 'Account')}
+									aria-label={t('titleBar.account', 'Account')}
+								>
+									<User className="size-4" strokeWidth={1.8} />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuItem disabled>{t('titleBar.account', 'Account')}</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => navigate('/settings')}>
+									{t('settings.title', 'Settings')}
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => navigate('/home')}>
+									{t('titleBar.chat', 'Chat')}
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				)}
 
