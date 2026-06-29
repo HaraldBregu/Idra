@@ -121,7 +121,6 @@ export class Session {
 	}
 
 	private persist(): void {
-		if (!this.sessionsPath) return;
 		this.ensureSession();
 		writeFileSync(
 			this.messagesFilePath(),
