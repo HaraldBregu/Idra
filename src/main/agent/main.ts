@@ -34,9 +34,6 @@ export class AgentService {
 	@Inject(() => CronService)
 	private readonly cron!: Cron;
 
-	@Inject(() => SessionService)
-	private readonly session!: SessionService;
-
 	@Inject(() => SkillsService)
 	private readonly skillsService!: SkillsService;
 
