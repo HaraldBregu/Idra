@@ -89,11 +89,6 @@ export class AgentService {
 			return response;
 		} catch (error) {
 			const cause = toError(error, 'Agent request failed.');
-			if (session)
-				session.appendRun({
-					type: 'run_error',
-					message: cause.message,
-				});
 			const responseEvent = {
 				type: 'run_state',
 				state: 'error',
