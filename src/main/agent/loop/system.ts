@@ -13,7 +13,6 @@ const SOUL_FILE = 'SOUL.md'
 const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
-@Service()
 export class SystemService {
 	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
 	private readonly skills = new SkillsService();
