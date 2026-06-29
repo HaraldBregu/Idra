@@ -34,8 +34,7 @@ interface ModelTurn {
 export class AgentRuntime {
 	constructor(
 		private readonly model: AgentModel,
-		private readonly cron: Cron,
-		private readonly skillsService: SkillsService
+		private readonly cron: Cron
 	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
