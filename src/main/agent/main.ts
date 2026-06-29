@@ -77,7 +77,6 @@ export class AgentService {
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
-				session.appendRun(event);
 				// if (event.type === 'run_started')
 				// 	providerId = event.providerId;
 				if (event.type === 'model_call_delta') response += event.delta;
