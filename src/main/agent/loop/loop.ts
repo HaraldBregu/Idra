@@ -32,10 +32,9 @@ interface ModelTurn {
 }
 
 export class AgentRuntime {
-	constructor(
-		private readonly model: AgentModel,
-		private readonly cron: Cron
-	) { }
+	private readonly model = new AgentModel();
+
+	constructor(private readonly cron: Cron) {}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
