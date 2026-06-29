@@ -1,15 +1,17 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import { SttChannels } from '../../shared/ipc/ipc-channels';
-import { SttService } from '../services/stt-service';
+import type { SttService } from '../services/stt-service';
 
-export class SttIpc implements IpcModule {
+export interface SttIpcDeps {
+	stt: SttService;
+}
+
+export class SttIpc implements IpcModule<SttIpcDeps> {
 	readonly name = 'stt';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const stt = container.get(SttService);
+	register({ stt }: SttIpcDeps, _eventBus: EventBus): void {
 		registerQuery(SttChannels.getSelection, () => stt.getSelection());
 		registerQuery(SttChannels.listProviders, () => stt.listProviders());
 		registerQuery(SttChannels.listModels, (providerId) => stt.listModels(providerId));
