@@ -695,6 +695,12 @@
 			"it": "Italiano",
 			"itDescription": "Use Italian as the display language"
 		},
+		"theme": {
+			"title": "Theme",
+			"light": "Light",
+			"dark": "Dark",
+			"system": "System"
+		},
 		"providers": {
 			"title": "Providers",
 			"description": "Manage AI service providers available to Friday.",
