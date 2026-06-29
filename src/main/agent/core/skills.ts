@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { BrowserWindow, dialog, shell, type OpenDialogOptions } from 'electron';
 import matter from 'gray-matter';
-import { Service } from 'typedi';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
