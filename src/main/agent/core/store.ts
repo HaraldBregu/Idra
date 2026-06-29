@@ -94,10 +94,10 @@ type SkillsStoreSchema = {
 const DEFAULT_SKILLS_SETTINGS: SkillsStoreSchema = { skills: {} };
 
 export class SkillsStore {
-	private readonly store: Store<SkillsStoreSchema>;
+	private readonly store: ElectronStore<SkillsStoreSchema>;
 
 	constructor(cwd?: string) {
-		this.store = new Store<SkillsStoreSchema>({
+		this.store = new ElectronStore<SkillsStoreSchema>({
 			name: 'settings',
 			cwd: cwd ?? resolveSkillsRoot(),
 			accessPropertiesByDotNotation: false,
