@@ -1,5 +1,5 @@
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../services/event-bus';
+import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
 import { SttChannels } from '../../shared/ipc/ipc-channels';
 import type { SttService } from '../stt/service';

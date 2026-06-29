@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../services/event-bus';
+import type { EventBus } from '../app/event-bus';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { AgentService, AgentSendOptions } from '../agent/service';

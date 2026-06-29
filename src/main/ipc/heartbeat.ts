@@ -1,5 +1,5 @@
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../services/event-bus';
+import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { HeartbeatChannels } from '../../shared/ipc/ipc-channels';
 import type { HeartbeatService } from '../heartbeat';

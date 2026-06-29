@@ -9,7 +9,7 @@ import { SkillsIpc } from '../skills';
 import { SttIpc } from '../stt';
 import { TasksIpc } from '../tasks';
 import { WindowIpc } from '../window';
-import type { EventBus } from '../../services';
+import type { EventBus } from '../../app';
 import { LoggerService } from '../../shared';
 import { AppPermissionsService } from '../../permissions';
 import { AgentService } from '../../agent/service';

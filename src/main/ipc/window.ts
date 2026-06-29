@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../services/event-bus';
+import type { EventBus } from '../app/event-bus';
 import { wrapIpcHandler } from './core/error-handler';
 import { WindowChannels } from '../../shared/ipc/ipc-channels';
 import type { LoggerService } from '../shared';

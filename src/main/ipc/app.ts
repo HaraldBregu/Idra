@@ -1,6 +1,6 @@
 import { app, ipcMain, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../services/event-bus';
+import type { EventBus } from '../app/event-bus';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
