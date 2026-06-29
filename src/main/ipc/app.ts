@@ -82,10 +82,7 @@ export class AppIpc implements IpcModule {
 
 	private trayEnabled = true;
 
-	register(container: MainServiceContainer, eventBus: EventBus): void {
-		const logger = container.get(LoggerService);
-		const appPermissions = container.get(AppPermissionsService);
-
+	register({ logger, appPermissions }: AppIpcDeps, eventBus: EventBus): void {
 		// Open application data folder in system file explorer
 		ipcMain.handle(
 			AppChannels.openAppDataFolder,
