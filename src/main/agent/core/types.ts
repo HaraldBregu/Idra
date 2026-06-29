@@ -95,6 +95,7 @@ export interface RuntimeInput {
 	task: string;
 	message: string;
 	sessionId?: string;
+	category?: SessionCategory;
 	messages?: Message[];
 	tools?: Tool[];
 	modelRoutes?: RuntimeModelRoute[];

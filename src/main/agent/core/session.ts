@@ -9,7 +9,7 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import { resolveAgentUsageLocation } from './shared/location';
+import { resolveAgentUsageLocation } from '../shared/location';
 import type {
 	SessionInput,
 	SessionCategory,
@@ -19,7 +19,7 @@ import type {
 	SessionResult,
 	ToolCall,
 	SessionTurn,
-} from './core/types';
+} from './types';
 
 const DEFAULT_CATEGORY: SessionCategory = 'home';
 const LOCATION = resolveAgentUsageLocation();
