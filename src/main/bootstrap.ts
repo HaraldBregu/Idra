@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Container } from 'typedi';
+import { Container, type ContainerInstance } from 'typedi';
 import { EventBus, WindowFactory, AppState, WindowContextManager } from './services';
 
 import { AppPermissionsService } from './permissions';
