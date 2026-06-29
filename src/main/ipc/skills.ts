@@ -1,15 +1,17 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../services/event-bus';
-import type { MainServiceContainer } from '../services/services';
 import { registerCommand, registerQuery } from './core/gateway';
 import { SkillsChannels } from '../../shared/ipc/ipc-channels';
-import { SkillsService } from '../skills';
+import type { SkillsService } from '../skills';
 
-export class SkillsIpc implements IpcModule {
+export interface SkillsIpcDeps {
+	skills: SkillsService;
+}
+
+export class SkillsIpc implements IpcModule<SkillsIpcDeps> {
 	readonly name = 'skills';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const skills = container.get(SkillsService);
+	register({ skills }: SkillsIpcDeps, _eventBus: EventBus): void {
 
 		registerQuery(SkillsChannels.list, () => skills.list());
 		registerQuery(SkillsChannels.getRoot, () => skills.getRoot());
