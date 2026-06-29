@@ -1,19 +1,19 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
-import { Session } from './core/session';
-import { AgentRuntime } from './loop/loop';
-import { RuntimeEvent } from './index';
-import { CronService } from '../cron';
-import type { Cron } from './core/cron';
-import type { Message, SessionCategory } from './core/types';
+import { Session } from '../core/session';
+import { AgentRuntime } from './loop';
+import { RuntimeEvent } from '../index';
+import { CronService } from '../../cron';
+import type { Cron } from '../core/cron';
+import type { Message, SessionCategory } from '../core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	ModelReasoningEffort,
-} from '../../shared/agent/types';
-import { toError } from '../ipc/core/error';
+} from '../../../shared/agent/types';
+import { toError } from '../../ipc/core/error';
 
 export interface AgentSendOptions {
 	runId?: string;
