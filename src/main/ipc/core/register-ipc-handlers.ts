@@ -17,7 +17,7 @@ import { StoreService } from '../../agent/store';
 import { ChannelRegistry } from '../../channels';
 import { McpService } from '../../mcp';
 import { HeartbeatService } from '../../heartbeat';
-import { ProviderService } from '../../providers/provider-service';
+import { ProviderService } from '../../providers';
 import { SkillsService } from '../../skills';
 import { SttService } from '../../stt/service';
 import { CronService } from '../../cron';
