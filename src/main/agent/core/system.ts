@@ -1,16 +1,20 @@
 import { Skills } from './skills';
 
 export abstract class System {
-	protected prompt: string;
+	private _prompt: string;
 	protected skills: Skills;
 
 	constructor(skills: Skills, initialPrompt = '') {
 		this.skills = skills;
-		this.prompt = initialPrompt;
+		this._prompt = initialPrompt;
 	}
 
-	getPrompt(): string {
-		return this.prompt;
+	get prompt(): string {
+		return this._prompt;
+	}
+
+	protected set prompt(value: string) {
+		this._prompt = value;
 	}
 
 	abstract build(): Promise<string>;
