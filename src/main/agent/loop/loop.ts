@@ -61,7 +61,7 @@ export class AgentRuntime {
 		input: RuntimeInput,
 		signal: AbortSignal,
 		session: Session,
-		settings: StoreService
+		settings: Store
 	): AsyncGenerator<RuntimeEvent> {
 		const provider = settings.getProvider();
 		const modelId = settings.getModelId();
