@@ -6,8 +6,7 @@ import type {
 	ResponseFunctionToolCall,
 	ResponseStreamEvent,
 } from 'openai/resources/responses/responses';
-import { Model } from '../agent/core/model';
-import type { ModelEvent, ModelRequest, ModelResponse } from '../agent/core/model';
+import type { ModelEvent, ModelRequest, ModelResponse } from './index';
 import type {
 	ProviderAdapter,
 	ProviderEvent,
