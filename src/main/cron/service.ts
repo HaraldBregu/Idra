@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import cron from 'node-cron';
 import { Inject, Service } from 'typedi';
-import { AgentService } from '../agent/service';
+import { AgentService } from '../agent/main';
 import { handleAgentFire } from './agent';
 import {
 	clone,

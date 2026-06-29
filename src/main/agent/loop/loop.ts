@@ -9,7 +9,6 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import type { Skills } from '../core/skills';
 import { parseToolArgs } from '../shared/args';
 import { runToolCall } from './tool-run';
 import { Settings } from '../core/settings';
@@ -18,6 +17,7 @@ import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { SystemService } from '../system';
+import { SkillsService } from '../skills';
 
 interface ModelTurn {
 	content: string;
@@ -38,7 +38,7 @@ export class AgentRuntime {
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
 		private readonly systemService: SystemService,
-		private readonly skills: Skills
+		private readonly skillsService: SkillsService
 	) { }
 
 	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
@@ -67,13 +67,13 @@ export class AgentRuntime {
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 
-		const toolLoader = new ToolLoader(toolContext, this.cron, this.skills);
+		const toolLoader = new ToolLoader(toolContext, this.cron, this.skillsService);
 		tools.push(...toolLoader.tools);
 
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = this.systemService.prompt;
+		const systemPrompt = this.systemService.prompt;
 
 		yield {
 			type: 'run_started',
@@ -88,7 +88,7 @@ export class AgentRuntime {
 					input,
 					provider,
 					modelId,
-					system,
+					systemPrompt,
 					session.messages,
 					tools,
 					signal
@@ -127,7 +127,7 @@ export class AgentRuntime {
 		input: RuntimeInput,
 		provider: Provider,
 		modelId: string,
-		system: string | undefined,
+		systemPrompt: string | undefined,
 		messages: Message[],
 		tools: Tool[],
 		signal: AbortSignal
@@ -145,7 +145,7 @@ export class AgentRuntime {
 					provider,
 					model,
 					effort: input.effort,
-					system,
+					systemPrompt,
 					messages,
 					tools,
 					maxTokens: input.maxTokens ?? 4096,

@@ -8,7 +8,6 @@ import { AgentModel } from '../llm';
 import { RuntimeEvent } from './index';
 import { CronService } from '../cron';
 import type { Cron } from './core/cron';
-import type { Skills } from './core/skills';
 import type { Message, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -43,7 +42,7 @@ export class AgentService {
 	private readonly systemService!: SystemService;
 
 	@Inject(() => SkillsService)
-	private readonly skills!: Skills;
+	private readonly skillsService!: SkillsService;
 
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
@@ -81,7 +80,7 @@ export class AgentService {
 				model,
 				cron,
 				system,
-				this.skills,
+				this.skillsService,
 			);
 			const input = {
 				...sessionInput,

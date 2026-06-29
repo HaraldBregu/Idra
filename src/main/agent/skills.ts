@@ -3,7 +3,6 @@ import path from 'node:path';
 import { BrowserWindow, dialog, shell, type OpenDialogOptions } from 'electron';
 import matter from 'gray-matter';
 import { Service } from 'typedi';
-import { Skills } from './core/skills';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
@@ -24,12 +23,11 @@ export interface SkillsServiceOptions {
 }
 
 @Service()
-export class SkillsService extends Skills {
+export class SkillsService {
 	private readonly store: SkillsStore;
 	private readonly root: string;
 
 	constructor(options: SkillsServiceOptions = {}) {
-		super();
 		this.root = options.cwd ?? resolveSkillsRoot();
 		this.store = new SkillsStore(this.root);
 	}

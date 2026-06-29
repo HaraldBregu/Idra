@@ -130,7 +130,7 @@ export class AgentModel extends Model implements ProviderAdapter {
 
 	private async *streamAgent(request: ModelRequest): AsyncIterable<ModelEvent> {
 		const system = [
-			request.system,
+			request.systemPrompt,
 			...request.messages
 				.filter((message) => message.role === 'system')
 				.map((message) => message.content),

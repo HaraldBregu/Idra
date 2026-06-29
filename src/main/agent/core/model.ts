@@ -4,7 +4,7 @@ import type { ModelReasoningEffort } from '../../../shared/agent/types';
 
 export interface ModelRequest {
 	messages: Message[];
-	system?: string;
+	systemPrompt?: string;
 	provider: Provider;
 	model: string;
 	effort?: ModelReasoningEffort;
