@@ -25,11 +25,10 @@ export interface WindowIpcDeps {
  *  - window:maximize-change  -- Window maximize state changed
  *  - window:fullscreen-change -- Window fullscreen state changed
  */
-export class WindowIpc implements IpcModule {
+export class WindowIpc implements IpcModule<WindowIpcDeps> {
 	readonly name = 'window';
 
-	register(container: MainServiceContainer, _eventBus: EventBus): void {
-		const logger = container.get(LoggerService);
+	register({ logger }: WindowIpcDeps, _eventBus: EventBus): void {
 		// --- Send handlers (fire-and-forget) ---
 
 		ipcMain.on(WindowChannels.minimize, (event) => {
