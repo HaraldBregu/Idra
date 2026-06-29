@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
 import { StoreService } from './store';
 import { SessionService, AgentSession } from './session';
-import { SystemPromptService } from './system-prompt';
+import { System } from './system';
 import { AgentRuntime } from './loop/loop';
 import { AgentModel } from '../llm';
 import { RuntimeEvent } from './index';
@@ -39,8 +39,8 @@ export class AgentService {
 	@Inject(() => SessionService)
 	private readonly session!: SessionService;
 
-	@Inject(() => SystemPromptService)
-	private readonly systemPrompt!: SystemPromptService;
+	@Inject(() => System)
+	private readonly system!: System;
 
 	@Inject(() => SkillsService)
 	private readonly skills!: Skills;
@@ -70,17 +70,17 @@ export class AgentService {
 			const settings = this.agentSettingsStore;
 			const model = new AgentModel();
 			const cron = this.cron;
-			var systemPrompt = this.systemPrompt
-			systemPrompt = await systemPrompt.addBasePrompt();
-			systemPrompt = await systemPrompt.addWorkspacePrompt();
-			systemPrompt = await systemPrompt.addSkillsPrompt();
+			var system = this.system
+			system = await system.addBasePrompt();
+			system = await system.addWorkspacePrompt();
+			system = await system.addSkillsPrompt();
 
 			const runtime = new AgentRuntime(
 				settings,
 				session,
 				model,
 				cron,
-				systemPrompt,
+				system,
 				this.skills,
 			);
 			const input = {

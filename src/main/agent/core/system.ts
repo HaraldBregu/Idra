@@ -1,4 +1,4 @@
-export abstract class SystemPrompt {
+export abstract class System {
 	protected prompt: string;
 
 	constructor(initialPrompt = '') {

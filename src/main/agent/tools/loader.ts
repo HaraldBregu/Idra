@@ -30,12 +30,19 @@ export class ToolLoader extends ToolData {
 
 	get tools(): Tool[] {
 		return [
+			// Filesystem Tools
 			new ReadTool(this.context),
 			new WriteTool(this.context),
 			new EditTool(this.context),
+
+			// Runtime Tools
 			new ExecTool(this.context),
 			new ProcessTool(this.context),
+
+			// Skills Tools
 			new LoadSkillTool(this.context, this.skills),
+
+			// Automation Tools
 			new CreateScheduleTool(this.cron, this.context),
 			new UpdateScheduleTool(this.cron, this.context),
 			new PauseScheduleTool(this.cron, this.context),

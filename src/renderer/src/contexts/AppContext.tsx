@@ -10,13 +10,17 @@ import React, {
 import i18n from '../i18n';
 
 const LANGUAGE_STORAGE_KEY = 'app-language';
+const THEME_STORAGE_KEY = 'app-theme';
 
 export type AppLanguage = 'en' | 'it';
+export type AppTheme = 'light' | 'dark' | 'system';
 export type SidebarState = 'expanded' | 'collapsed';
 
 export interface AppContextValue {
 	language: AppLanguage;
 	setLanguage: (language: AppLanguage) => void;
+	theme: AppTheme;
+	setTheme: (theme: AppTheme) => void;
 	resetState: () => void;
 }
 
@@ -24,6 +28,7 @@ interface AppProviderProps {
 	children: ReactNode;
 	initialState?: {
 		language?: AppLanguage;
+		theme?: AppTheme;
 	};
 }
 
@@ -35,6 +40,23 @@ function readPersistedLanguage(): AppLanguage {
 		/* empty */
 	}
 	return 'en';
+}
+
+function readPersistedTheme(): AppTheme {
+	try {
+		const stored = localStorage.getItem(THEME_STORAGE_KEY);
+		if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
+	} catch {
+		/* empty */
+	}
+	return 'system';
+}
+
+function applyTheme(theme: AppTheme): void {
+	const dark =
+		theme === 'dark' ||
+		(theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+	document.documentElement.classList.toggle('dark', dark);
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);

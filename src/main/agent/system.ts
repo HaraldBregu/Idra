@@ -1,11 +1,11 @@
-import { SystemPrompt } from './core/system-prompt';
+import { System as AgentSystem } from './core/system';
 import { Inject, Service } from 'typedi';
 import { WorkspaceService } from './workspace';
 import type { Skills } from './core/skills';
 import { SkillsService } from '../skills';
 
 @Service()
-export class SystemPromptService extends SystemPrompt {
+export class System extends AgentSystem {
 	@Inject(() => WorkspaceService)
 	private readonly workspace!: WorkspaceService;
 
