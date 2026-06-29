@@ -17,14 +17,13 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 };
 
 @Service()
-export class StoreService extends Settings {
+export class StoreService {
 	private readonly store: Store<SettingsSchema>;
 
 	@Inject(() => ProviderService)
 	private readonly providerStore!: ProviderService;
 
 	constructor() {
-		super();
 		this.store = new Store<SettingsSchema>({
 			name: 'settings',
 			cwd: path.resolve(resolveAgentSettingsLocation()),
