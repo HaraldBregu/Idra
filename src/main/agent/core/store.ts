@@ -15,15 +15,12 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 	modelId: undefined,
 };
 
-@Service()
-export class StoreService {
-	private readonly store: Store<SettingsSchema>;
-
-	@Inject(() => ProviderService)
-	private readonly providerStore!: ProviderService;
+export class Store {
+	private readonly store: ElectronStore<SettingsSchema>;
+	private readonly providerStore = new ProviderService();
 
 	constructor() {
-		this.store = new Store<SettingsSchema>({
+		this.store = new ElectronStore<SettingsSchema>({
 			name: 'settings',
 			cwd: path.resolve(resolveAgentSettingsLocation()),
 			accessPropertiesByDotNotation: false,
