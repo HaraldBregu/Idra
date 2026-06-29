@@ -71,7 +71,7 @@ export class AgentRuntime {
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
 
-		const toolLoader = new ToolLoader(toolContext, this.cron, this.skillsService);
+		const toolLoader = new ToolLoader(toolContext, this.cron, new Skills());
 		tools.push(...toolLoader.tools);
 
 		const mcp = await loadMcpTools(toolContext);
