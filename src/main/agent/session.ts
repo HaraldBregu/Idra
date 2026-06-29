@@ -22,27 +22,9 @@ import type {
 } from './core/types';
 
 const DEFAULT_CATEGORY: SessionCategory = 'home';
+const LOCATION = resolveAgentUsageLocation();
 
-@Service()
-export class SessionService {
-	private readonly location = resolveAgentUsageLocation();
-
-	create(input: SessionInput, category: SessionCategory = DEFAULT_CATEGORY): AgentSession {
-		return new AgentSession(input, this.location, category);
-	}
-
-	loadMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): Message[] {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, category, this.location);
-		return loadMessagesBySessionId(resolvedSessionId, category, this.location);
-	}
-
-	clearMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): void {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, category, this.location);
-		clearMessagesBySessionId(resolvedSessionId, category, this.location);
-	}
-}
-
-export class AgentSession {
+export class Session {
 	readonly id: string;
 	readonly messages: Message[];
 	readonly toolCalls: ToolCall[] = [];
@@ -53,17 +35,17 @@ export class AgentSession {
 	numTurns = 0;
 	finalText = '';
 	stopReason?: string;
-	private readonly sessionsPath?: string;
+	private readonly sessionsPath: string;
 	private readonly sessionFolderName: string;
 
-	constructor(input: SessionInput, location?: string, category: SessionCategory = DEFAULT_CATEGORY) {
-		this.id = resolveSessionId(input.sessionId, category, location);
+	constructor(input: SessionInput, category: SessionCategory = DEFAULT_CATEGORY) {
+		this.id = resolveSessionId(input.sessionId, category, LOCATION);
 		this.sessionFolderName = sessionFolderName(this.id);
-		this.sessionsPath = location ? sessionsRoot(location, category) : undefined;
-		const storedMessages = loadMessagesBySessionId(this.id, category, location);
+		this.sessionsPath = sessionsRoot(LOCATION, category);
+		const storedMessages = loadMessagesBySessionId(this.id, category, LOCATION);
 		const legacyMessages =
 			input.sessionId && input.sessionId !== this.id && storedMessages.length === 0
-				? loadMessagesBySessionId(input.sessionId, category, location)
+				? loadMessagesBySessionId(input.sessionId, category, LOCATION)
 				: [];
 		this.messages = [
 			...(storedMessages.length > 0 ? storedMessages : legacyMessages),
@@ -73,6 +55,16 @@ export class AgentSession {
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 		this.persist();
+	}
+
+	static loadMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): Message[] {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, category, LOCATION);
+		return loadMessagesBySessionId(resolvedSessionId, category, LOCATION);
+	}
+
+	static clearMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): void {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, category, LOCATION);
+		clearMessagesBySessionId(resolvedSessionId, category, LOCATION);
 	}
 
 	appendRun(entry: unknown): void {
