@@ -34,21 +34,27 @@ interface ModelTurn {
 export class AgentRuntime {
 	constructor(
 		private readonly settings: StoreService,
-		private readonly session: Session,
 		private readonly model: AgentModel,
 		private readonly cron: Cron,
 		private readonly skillsService: SkillsService
 	) { }
 
-	run(input: RuntimeInput): AsyncIterable<RuntimeEvent> {
+	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
+		const session = new Session(input, input.category);
 
-		return this.stream(
-			input,
-			signal,
-			this.session,
-			this.settings
-		);
+		try {
+			for await (const event of this.stream(input, signal, session, this.settings)) {
+				session.appendRun(event);
+				yield event;
+			}
+		} catch (error) {
+			session.appendRun({
+				type: 'run_error',
+				message: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
 	}
 
 	private async *stream(
