@@ -10,8 +10,13 @@ import type {
 } from '../../shared/app/app-permissions';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc/ipc-channels';
-import { AppPermissionsService } from '../permissions';
-import { LoggerService } from '../shared';
+import type { AppPermissionsService } from '../permissions';
+import type { LoggerService } from '../shared';
+
+export interface AppIpcDeps {
+	logger: LoggerService;
+	appPermissions: AppPermissionsService;
+}
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
 	Accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
