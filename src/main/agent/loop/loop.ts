@@ -17,7 +17,7 @@ import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
-import { SkillsService } from '../skills';
+import { Skills } from '../core/skills';
 
 interface ModelTurn {
 	content: string;
