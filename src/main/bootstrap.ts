@@ -73,7 +73,7 @@ export function bootstrapServices(): BootstrapResult {
 	};
 }
 
-export async function cleanup(container: MainServiceContainer): Promise<void> {
+export async function cleanup(container: ContainerInstance): Promise<void> {
 	const logger = container.get(LoggerService);
 	logger.info('Bootstrap', 'Starting cleanup');
 	await container.get(WindowContextManager).destroyAll();
