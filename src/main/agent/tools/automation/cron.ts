@@ -7,7 +7,6 @@ import type {
 	CronScheduledTask,
 	CronScheduleCreateRequest,
 	CronScheduleUpdateRequest,
-} from '../../cron/types';
 } from '../../core/cron';
 import type { JSONSchema } from '../../core/types';
 
