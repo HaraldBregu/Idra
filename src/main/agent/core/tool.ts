@@ -1,5 +1,5 @@
 import type { JSONSchema } from './types';
-import type { CronService, CronFunctionId } from './cron';
+import type { Cron, CronFunctionId } from './cron';
 
 
 export interface ContextState {
@@ -33,7 +33,7 @@ export abstract class CronTool extends Tool {
 	abstract readonly description: string;
 	abstract readonly schema: JSONSchema;
 
-	constructor(readonly cron: CronService, context: Context) {
+	constructor(readonly cron: Cron, context: Context) {
 		super(context);
 	}
 }

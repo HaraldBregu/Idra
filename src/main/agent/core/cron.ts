@@ -144,11 +144,7 @@ interface CronJobHandle {
 	getNextRun(): Date | null;
 }
 
-export interface CronServiceEvents {
-	subscribe(listener: CronEventListener): () => void;
-}
-
-export class CronService {
+export class Cron {
 	private readonly store: CronStore;
 	private readonly tasks = new Map<string, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
@@ -175,7 +171,7 @@ export class CronService {
 		});
 	}
 
-	get events(): CronServiceEvents {
+	get events(): CronEvents {
 		return {
 			subscribe: (listener) => {
 				this.listeners.add(listener);
@@ -186,14 +182,14 @@ export class CronService {
 
 	async start(): Promise<void> {
 		if (!this.enabled) {
-			console.warn('[CronService]', 'Cron automatic execution is globally disabled.');
+			console.warn('[Cron]', 'Cron automatic execution is globally disabled.');
 			return;
 		}
 		this.reconcile();
 		for (const schedule of this.list().filter(isActiveSchedule)) {
 			this.activate(schedule);
 		}
-		console.info('[CronService]', 'Cron service started.');
+		console.info('[Cron]', 'Cron service started.');
 	}
 
 	async stop(): Promise<void> {
@@ -203,7 +199,7 @@ export class CronService {
 
 	destroy(): void {
 		void this.stop();
-		console.info('[CronService]', 'Disposed');
+		console.info('[Cron]', 'Disposed');
 	}
 
 	createSchedule(request: CronScheduleCreateRequest): CronSchedule {
@@ -318,14 +314,14 @@ export class CronService {
 
 	private createJob(schedule: CronSchedule): CronJobHandle | undefined {
 		if (schedule.cronExpression) return this.createCronJob(schedule);
-		console.warn('[CronService]', `Schedule ${schedule.id} skipped: no cronExpression provided.`);
+		console.warn('[Cron]', `Schedule ${schedule.id} skipped: no cronExpression provided.`);
 		return undefined;
 	}
 
 	private createCronJob(schedule: CronSchedule): CronJobHandle | undefined {
 		if (!schedule.cronExpression || !cron.validate(schedule.cronExpression)) {
 			console.warn(
-				'[CronService]',
+				'[Cron]',
 				`Schedule ${schedule.id} has an invalid cron expression: ${schedule.cronExpression}`
 			);
 			return undefined;
@@ -350,7 +346,7 @@ export class CronService {
 	private fire(scheduleId: string): void {
 		if (!this.exists(scheduleId)) {
 			console.warn(
-				'[CronService]',
+				'[Cron]',
 				`Orphaned cron job removed: schedule ${scheduleId} no longer exists.`
 			);
 			this.unscheduleJob(scheduleId);
@@ -358,7 +354,7 @@ export class CronService {
 		}
 		const schedule = this.require(scheduleId);
 		if (schedule.action.type === 'debug') {
-			console.info('[CronService]', `Schedule ${scheduleId} fired: ${schedule.action.message}`);
+			console.info('[Cron]', `Schedule ${scheduleId} fired: ${schedule.action.message}`);
 		}
 		if (schedule.action.type === 'agent') {
 			void Container.of('main').get(AgentService).send(schedule.action.prompt, randomUUID(), {
@@ -373,7 +369,7 @@ export class CronService {
 		const active = new Set(this.list().filter(isActiveSchedule).map((schedule) => schedule.id));
 		for (const task of cron.getTasks().values()) {
 			if (task.name && !active.has(task.name)) {
-				console.warn('[CronService]', `Destroying orphaned cron job ${task.name}.`);
+				console.warn('[Cron]', `Destroying orphaned cron job ${task.name}.`);
 				void task.destroy();
 			}
 		}
@@ -409,7 +405,7 @@ export class CronService {
 			try {
 				listener(event);
 			} catch (error) {
-				console.error('[CronService]', 'Cron event listener failed.', error);
+				console.error('[Cron]', 'Cron event listener failed.', error);
 			}
 		}
 	}

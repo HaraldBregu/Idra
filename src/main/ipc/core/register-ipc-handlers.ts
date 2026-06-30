@@ -21,7 +21,7 @@ import { McpService } from '../../mcp';
 import { HeartbeatService } from '../../heartbeat';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
-import { CronService } from '../../agent/core/cron';
+import { Cron } from '../../agent/core/cron';
 
 export function registerIpcHandlers(container: ContainerInstance, eventBus: EventBus): void {
 	const logger = container.get(LoggerService);
@@ -68,7 +68,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 	safeRegister('skills', () => new SkillsIpc().register({}, eventBus));
 	safeRegister('stt', () => new SttIpc().register({ stt: container.get(SttService) }, eventBus));
 	safeRegister('tasks', () =>
-		new TasksIpc().register({ cron: container.get(CronService) }, eventBus)
+		new TasksIpc().register({ cron: container.get(Cron) }, eventBus)
 	);
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 

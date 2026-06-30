@@ -8,7 +8,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import type { CronService } from '../core/cron';
+import type { Cron } from '../core/cron';
 import type { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { runToolCall } from './tool-run';
@@ -37,7 +37,7 @@ export class AgentRuntime {
   
 	constructor(
 		private readonly config: Config,
-		private readonly cron: CronService,
+		private readonly cron: Cron,
 	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {

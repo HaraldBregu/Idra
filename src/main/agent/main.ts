@@ -4,7 +4,7 @@ import { Session } from './core/session';
 import { AgentRuntime } from './main/loop';
 import { Config } from './core/config';
 import { RuntimeEvent } from './index';
-import { CronService } from './core/cron';
+import { Cron } from './core/cron';
 import type { Message, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -49,7 +49,7 @@ export class AgentService {
 			};
 
 			const config = new Config({ location: agentLocation() });
-			const runtime = new AgentRuntime(config, Container.of('main').get(CronService));
+			const runtime = new AgentRuntime(config, Container.of('main').get(Cron));
 			const input = {
 				...sessionInput,
 				maxRetries: 1,

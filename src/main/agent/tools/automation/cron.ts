@@ -8,6 +8,7 @@ import type {
 	CronScheduleCreateRequest,
 	CronScheduleUpdateRequest,
 } from '../../cron/types';
+} from '../../core/cron';
 import type { JSONSchema } from '../../core/types';
 
 function requireScheduleId(input: Record<string, unknown>, tool: string): string {

@@ -8,7 +8,7 @@ import {
 	AppPermissionsService,
 } from './app';
 import { LoggerService } from './shared';
-import { CronService } from './agent/core/cron';
+import { Cron } from './agent/core/cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './mcp';
@@ -37,8 +37,8 @@ export function bootstrapServices(): BootstrapResult {
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new CronService();
-	container.set(CronService, cron);
+	const cron = new Cron();
+	container.set(Cron, cron);
 
 	container.get(ProviderService);
 	container.get(McpService);
@@ -50,7 +50,7 @@ export function bootstrapServices(): BootstrapResult {
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);
 	void cron.start().catch((error) => {
-		logger.error('CronService', 'Failed to start persistent cron scheduler', error);
+		logger.error('Cron', 'Failed to start persistent cron scheduler', error);
 	});
 
 	const windowFactory = new WindowFactory(logger);
@@ -76,7 +76,7 @@ export async function cleanup(container: ContainerInstance): Promise<void> {
 	logger.info('Bootstrap', 'Starting cleanup');
 	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
-	container.get(CronService).destroy();
+	container.get(Cron).destroy();
 	container.get(HeartbeatService).destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');

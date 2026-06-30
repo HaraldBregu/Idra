@@ -1,6 +1,6 @@
 import { ToolData} from '../core/tool';
 import type { Context, Tool } from '../core/tool';
-import type { CronService } from '../core/cron';
+import type { Cron } from '../core/cron';
 import type { Skills } from '../core/skills';
 import { ReadTool } from './filesystem/read';
 import { WriteTool } from './filesystem/write';
@@ -22,7 +22,7 @@ import {
 export class ToolLoader extends ToolData {
 	constructor(
 		private readonly context: Context,
-		private readonly cron: CronService,
+		private readonly cron: Cron,
 		private readonly skills: Skills,
 	) {
 		super();
