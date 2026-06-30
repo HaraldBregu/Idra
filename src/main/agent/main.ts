@@ -26,9 +26,6 @@ export interface AgentSendOptions {
 
 @Service()
 export class AgentService {
-	@Inject(() => CronService)
-	private readonly cron!: Cron;
-
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 
