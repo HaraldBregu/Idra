@@ -4,7 +4,7 @@ import { Session } from './core/session';
 import { AgentRuntime } from './main/loop';
 import { Config } from './core/config';
 import { RuntimeEvent } from './index';
-import { CronService } from './cron';
+import { CronService } from './cron/service';
 import type { Message, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
