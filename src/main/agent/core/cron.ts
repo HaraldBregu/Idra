@@ -3,7 +3,9 @@ import cron from 'node-cron';
 import { Container } from 'typedi';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
 import { AgentService } from '../main';
+import { Config } from './config';
 import { CronStore } from './store';
+import { agentLocation } from '../shared/location';
 
 export interface CronJobInfo {
 	readonly id: string;
@@ -79,7 +81,7 @@ export interface CronRuntime {
 	modelId: string;
 }
 
-/** Shape persisted to the cron electron-store settings file. */
+/** Shape persisted to the cron electron-store file. */
 export interface PersistedCronState {
 	enabled?: boolean;
 	runtime?: CronRuntime;
@@ -130,14 +132,16 @@ export function isActiveSchedule(schedule: CronSchedule): boolean {
 	return schedule.enabled;
 }
 
-export const CRON_STORE_DIRECTORY = 'cron';
-export const CRON_STORE_FILE_NAME = 'settings';
-
 export function defaultCronEnabled(): boolean {
 	return process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false';
 }
 
 type CronEventListener = (event: CronScheduleEvent) => void;
+
+interface CronOptions {
+	enabled?: boolean;
+	config?: Config;
+}
 
 interface CronJobHandle {
 	stop(): void;
@@ -163,8 +167,8 @@ export class Cron {
 		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
-	constructor(options: { enabled?: boolean } = {}) {
-		this.store = new CronStore();
+	constructor(options: CronOptions = {}) {
+		this.store = new CronStore(options.config ?? new Config({ location: agentLocation() }));
 		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
 		this.writeState((state) => {
 			state.enabled = this.enabled;

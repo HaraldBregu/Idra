@@ -9,6 +9,8 @@ import {
 } from './app';
 import { LoggerService } from './shared';
 import { Cron } from './agent/core/cron';
+import { Config } from './agent/core/config';
+import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './mcp';
@@ -37,7 +39,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new Cron();
+	const cron = new Cron({ config: new Config({ location: agentLocation() }) });
 	container.set(Cron, cron);
 
 	container.get(ProviderService);

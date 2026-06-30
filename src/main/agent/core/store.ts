@@ -4,7 +4,6 @@ import { app } from 'electron';
 import { Provider } from '../index';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
-import { CRON_STORE_DIRECTORY, CRON_STORE_FILE_NAME } from './cron';
 import type { PersistedCronState } from './cron';
 import type { Config } from './config';
 
@@ -18,13 +17,17 @@ const DEFAULT_SETTINGS: SettingsSchema = {
 	modelId: undefined,
 };
 
+const SETTINGS_STORE_NAME = 'settings';
+const CRON_STORE_NAME = 'cron';
+const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
+
 export class Store {
-	private readonly store: ElectronStore<SettingsSchema>;
+	private readonly settings: ElectronStore<SettingsSchema>;
 	private readonly providerStore = new ProviderService();
 
 	constructor(private readonly config: Config) {
-		this.store = new ElectronStore<SettingsSchema>({
-			name: 'settings',
+		this.settings = new ElectronStore<SettingsSchema>({
+			name: SETTINGS_STORE_NAME,
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
@@ -48,23 +51,23 @@ export class Store {
 	}
 
 	getVersion(): number {
-		return this.store.get('version');
+		return this.settings.get('version');
 	}
 
 	getProviderId(): string | undefined {
-		return this.store.get('providerId');
+		return this.settings.get('providerId');
 	}
 
 	setProviderId(providerId: string): void {
-		this.store.set('providerId', providerId);
+		this.settings.set('providerId', providerId);
 	}
 
 	setModelId(modelId: string): void {
-		this.store.set('modelId', modelId);
+		this.settings.set('modelId', modelId);
 	}
 
 	getModelId(): string | undefined {
-		return this.store.get('modelId');
+		return this.settings.get('modelId');
 	}
 }
 
@@ -121,12 +124,12 @@ export class SkillsStore {
 export class CronStore {
 	private readonly store: ElectronStore<PersistedCronState>;
 
-	constructor() {
+	constructor(config: Config) {
 		this.store = new ElectronStore<PersistedCronState>({
-			name: CRON_STORE_FILE_NAME,
-			cwd: CRON_STORE_DIRECTORY,
+			name: CRON_STORE_NAME,
+			cwd: path.resolve(config.location),
 			accessPropertiesByDotNotation: false,
-			defaults: { schedules: [] },
+			defaults: DEFAULT_CRON_STATE,
 		});
 	}
 
