@@ -32,7 +32,7 @@ interface ModelTurn {
 	providerItems?: MessageContentBlock[];
 }
 
-export class AgentRunner {
+export class Runner {
 	private readonly model = new AgentModel();
   
 	constructor(
