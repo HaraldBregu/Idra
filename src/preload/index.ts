@@ -168,6 +168,30 @@ export const agent: AgentApi = {
 	setModelId: (modelId: string): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.setModelId, modelId);
 	},
+	skillsList: () => {
+		return typedInvokeUnwrap(AgentChannels.skillsList);
+	},
+	skillsLoad: (name: string) => {
+		return typedInvokeUnwrap(AgentChannels.skillsLoad, name);
+	},
+	skillsImport: () => {
+		return typedInvokeUnwrap(AgentChannels.skillsImport);
+	},
+	skillsDownload: (name: string) => {
+		return typedInvokeUnwrap(AgentChannels.skillsDownload, name);
+	},
+	skillsDelete: (name: string) => {
+		return typedInvokeUnwrap(AgentChannels.skillsDelete, name);
+	},
+	skillsSetEnabled: (id: string, enabled: boolean) => {
+		return typedInvokeUnwrap(AgentChannels.skillsSetEnabled, id, enabled);
+	},
+	skillsOpenRoot: () => {
+		return typedInvokeUnwrap(AgentChannels.skillsOpenRoot);
+	},
+	skillsGetRoot: (): Promise<string> => {
+		return typedInvokeUnwrap(AgentChannels.skillsGetRoot);
+	},
 	cron: {
 		list: () => {
 			return typedInvokeUnwrap(AgentChannels.cronList);
@@ -210,32 +234,6 @@ export const agent: AgentApi = {
 			return typedInvokeUnwrap<void>(AgentChannels.mcpOauthFinish, id, code);
 		},
 	} satisfies McpApi,
-	skills: {
-		list: () => {
-			return typedInvokeUnwrap(AgentChannels.skillsList);
-		},
-		loadSkill: (name: string) => {
-			return typedInvokeUnwrap(AgentChannels.skillsLoad, name);
-		},
-		importSkill: () => {
-			return typedInvokeUnwrap(AgentChannels.skillsImport);
-		},
-		downloadSkill: (name: string) => {
-			return typedInvokeUnwrap(AgentChannels.skillsDownload, name);
-		},
-		delete: (name: string) => {
-			return typedInvokeUnwrap(AgentChannels.skillsDelete, name);
-		},
-		setEnabled: (id: string, enabled: boolean) => {
-			return typedInvokeUnwrap(AgentChannels.skillsSetEnabled, id, enabled);
-		},
-		openRoot: () => {
-			return typedInvokeUnwrap(AgentChannels.skillsOpenRoot);
-		},
-		getRoot: (): Promise<string> => {
-			return typedInvokeUnwrap(AgentChannels.skillsGetRoot);
-		},
-	} satisfies AgentApi['skills'],
 } satisfies AgentApi;
 
 export const app: AppApi = {

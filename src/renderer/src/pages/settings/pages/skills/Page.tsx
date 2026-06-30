@@ -43,7 +43,7 @@ const SkillsPage: React.FC = () => {
 		setLoading(true);
 		setErrorMessage('');
 		try {
-			const [list, root] = await Promise.all([window.agent.skills.list(), window.agent.skills.getRoot()]);
+			const [list, root] = await Promise.all([window.agent.skillsList(), window.agent.skillsGetRoot()]);
 			setSkills(list);
 			setSkillsRoot(root);
 		} catch (error) {
@@ -60,7 +60,7 @@ const SkillsPage: React.FC = () => {
 	const handleOpenFolder = useCallback(async (): Promise<void> => {
 		setErrorMessage('');
 		try {
-			await window.agent.skills.openRoot();
+			await window.agent.skillsOpenRoot();
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, t('settings.skills.openFolderError')));
 		}
@@ -71,7 +71,7 @@ const SkillsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 		try {
-			const result = await window.agent.skills.importSkill();
+			const result = await window.agent.skillsImport();
 			if (result) {
 				const importedCount = result.imported.length;
 				const skippedCount = result.skipped.length;

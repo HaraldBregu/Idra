@@ -19,19 +19,17 @@ export interface AgentApi {
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;
 	setModelId: (modelId: string) => Promise<boolean>;
+	skillsList: () => Promise<SkillInfo[]>;
+	skillsLoad: (name: string) => Promise<SkillLoadResult | undefined>;
+	skillsImport: () => Promise<SkillImportResult | undefined>;
+	skillsDownload: (name: string) => Promise<SkillDownloadResult | undefined>;
+	skillsDelete: (name: string) => Promise<SkillDeleteResult>;
+	skillsSetEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
+	skillsOpenRoot: () => Promise<void>;
+	skillsGetRoot: () => Promise<string>;
 	cron: CronApi;
 	health: HealthApi;
 	mcp: McpApi;
-	skills: {
-		list: () => Promise<SkillInfo[]>;
-		loadSkill: (name: string) => Promise<SkillLoadResult | undefined>;
-		importSkill: () => Promise<SkillImportResult | undefined>;
-		downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
-		delete: (name: string) => Promise<SkillDeleteResult>;
-		setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
-		openRoot: () => Promise<void>;
-		getRoot: () => Promise<string>;
-	};
 }
 
 export interface ChannelsApi {
