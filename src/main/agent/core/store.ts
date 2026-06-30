@@ -1,7 +1,6 @@
 import path from 'node:path';
 import ElectronStore from 'electron-store';
 import type { Provider } from '../index';
-import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
 import type { PersistedCronState } from './cron';
 import type { Config } from './config';
@@ -43,7 +42,13 @@ export class Store {
 	getProvider(): Provider | undefined {
 		const providerId = this.getProviderId();
 		if (!providerId) return undefined;
-		return toRuntimeProvider(providerId, this.providerStore.get(providerId));
+		const provider = this.providerStore.get(providerId);
+		if (!provider) return undefined;
+		return {
+			id: providerId,
+			apiKey: provider.apiKey,
+			baseURL: provider.baseUrl,
+		};
 	}
 
 	setProvider(provider: Provider): void {
@@ -111,13 +116,4 @@ export class Store {
 		});
 		return this.cron;
 	}
-}
-
-function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Provider | undefined {
-	if (!provider) return undefined;
-	return {
-		id,
-		apiKey: provider.apiKey,
-		baseURL: provider.baseUrl,
-	};
 }
