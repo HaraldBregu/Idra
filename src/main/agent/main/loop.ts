@@ -9,6 +9,7 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
+import type { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { runToolCall } from './tool-run';
 import { Store } from '../core/store';
