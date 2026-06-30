@@ -142,7 +142,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((modelId: string): boolean => {
 				const trimmed = modelId.trim();
 				if (!trimmed) return false;
-				settings.setModelId(trimmed);
+				agent.settings.setModelId(trimmed);
 				return true;
 			}, AgentChannels.setModelId)
 		);
