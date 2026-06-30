@@ -27,7 +27,7 @@ export type ChannelRuntimeFactory = (config: unknown) => Promise<ChannelAdapter>
 export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
-	agentService?: AgentService;
+	agentService?: Agent;
 	runtimeFactories?: Partial<Record<ChannelType, ChannelRuntimeFactory>>;
 }
 
