@@ -11,7 +11,6 @@ import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
 import type { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
-import { runToolCall } from './tool-run';
 import { Store } from '../core/store';
 import { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
@@ -19,6 +18,7 @@ import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
 import { Skills } from '../core/skills';
+import { formatToolOutput } from '../shared/format';
 
 interface ModelTurn {
 	content: string;
@@ -34,7 +34,7 @@ interface ModelTurn {
 
 export class Runner {
 	private readonly model = new AgentModel();
-  
+
 	constructor(
 		private readonly config: Config,
 		private readonly cron: Cron,
@@ -215,4 +215,49 @@ export class Runner {
 			yield* runToolCall(toolMap.get(toolCall.name), toolCall);
 		}
 	}
+}
+
+export async function* runToolCall(
+	tool: Tool | undefined,
+	toolCall: ToolCall
+): AsyncGenerator<RuntimeEvent, void> {
+	const startedAtMs = Date.now();
+
+	yield {
+		type: 'tool_call_start',
+		toolCallId: toolCall.id,
+		toolName: toolCall.name,
+		input: toolCall.args,
+	};
+
+	let output: unknown;
+	let isError: boolean | undefined;
+
+	if (!tool) {
+		output = `Error: unknown tool '${toolCall.name}'`;
+		isError = true;
+	} else {
+		try {
+			output = await tool.run(toolCall.args);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			output = `Error: tool '${toolCall.name}' failed: ${message}`;
+			isError = true;
+		}
+	}
+
+	yield {
+		type: 'tool_call_end',
+		toolCallId: toolCall.id,
+		toolName: toolCall.name,
+		input: toolCall.args,
+		output,
+		isError,
+		durationMs: Date.now() - startedAtMs,
+	};
+
+	toolCall.result = {
+		content: formatToolOutput(output),
+		isError,
+	};
 }
