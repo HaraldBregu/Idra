@@ -1,16 +1,25 @@
 import { ipcMain } from 'electron';
+import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { Agent, AgentSendOptions } from '../agent/agent';
+import type { Cron } from '../agent/cron/cron';
+import { Config } from '../agent/core/config';
+import { resolveSkillsRoot, Skills } from '../agent/core/skills';
+import { createOAuthProvider, type McpOAuthStorage } from '../agent/mcp/oauth';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
+import type { HealthSettings } from '../agent/health/types';
+import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: Agent;
+	cron: Cron;
+	skills?: Skills;
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
@@ -56,6 +65,77 @@ function toPublicProvider(providerId: string): PublicProvider | undefined {
 	};
 }
 
+function resolveMcpId(value: string | undefined): string {
+	const id = value?.trim().toLowerCase();
+	if (!id) throw new Error('Connector ID is required.');
+	return id;
+}
+
+function inferMcpType(entry: McpData): McpData {
+	const shape = entry as { type?: string; command?: unknown; url?: unknown };
+	if (shape.type) return entry;
+	if (typeof shape.command === 'string') return { ...entry, type: 'stdio' } as McpData;
+	if (typeof shape.url === 'string') return { ...entry, type: 'http' } as McpData;
+	return entry;
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+	if (!isRecord(value)) return false;
+	return Object.values(value).every((item) => typeof item === 'string');
+}
+
+function hasCommonMcpFields(value: Record<string, unknown>): boolean {
+	return (
+		(value.name === undefined || typeof value.name === 'string') &&
+		(value.require_approval === undefined ||
+			value.require_approval === 'always' ||
+			value.require_approval === 'never') &&
+		(value.defer_loading === undefined || typeof value.defer_loading === 'boolean') &&
+		(value.enabled === undefined || typeof value.enabled === 'boolean') &&
+		(value.created_at === undefined || typeof value.created_at === 'string') &&
+		(value.updated_at === undefined || typeof value.updated_at === 'string') &&
+		(value.last_error === undefined || typeof value.last_error === 'string')
+	);
+}
+
+function isMcpEntry(value: unknown): value is McpData {
+	if (!isRecord(value)) return false;
+	if (value.type === 'stdio') {
+		return (
+			typeof value.command === 'string' &&
+			(value.args === undefined || Array.isArray(value.args)) &&
+			(value.env === undefined || isStringRecord(value.env)) &&
+			(value.cwd === undefined || typeof value.cwd === 'string') &&
+			hasCommonMcpFields(value)
+		);
+	}
+	if (value.type === 'http') {
+		return (
+			typeof value.url === 'string' &&
+			(value.token === undefined || typeof value.token === 'string') &&
+			(value.client_id === undefined || typeof value.client_id === 'string') &&
+			(value.client_secret === undefined || typeof value.client_secret === 'string') &&
+			hasCommonMcpFields(value)
+		);
+	}
+	return false;
+}
+
+function normalizeMcpSettings(value: unknown): McpSettings {
+	if (!isRecord(value)) return {};
+	const connectors: McpSettings = {};
+	for (const [rawId, rawEntry] of Object.entries(value)) {
+		const id = rawId.trim().toLowerCase();
+		if (!id || !isMcpEntry(rawEntry)) continue;
+		connectors[id] = rawEntry;
+	}
+	return connectors;
+}
+
+function normalizeHealthSettingsPatch(value: Partial<HealthSettings>): Partial<HealthSettings> {
+	return { ...value };
+}
+
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
@@ -80,7 +160,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
-	register({ logger, agent }: AgentIpcDeps, eventBus: EventBus): void {
+	register({ logger, agent, cron, skills = new Skills(new Config({ location: resolveSkillsRoot() })) }: AgentIpcDeps, eventBus: EventBus): void {
 
 		ipcMain.handle(
 			AgentChannels.send,
@@ -145,6 +225,182 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				agent.store.settings.setModelId(trimmed);
 				return true;
 			}, AgentChannels.setModelId)
+		);
+
+		ipcMain.handle(
+			AgentChannels.cronList,
+			wrapSimpleHandler(() => cron.listSchedules(), AgentChannels.cronList)
+		);
+
+		ipcMain.handle(
+			AgentChannels.cronGetRuntime,
+			wrapSimpleHandler(() => cron.getRuntime(), AgentChannels.cronGetRuntime)
+		);
+
+		ipcMain.handle(
+			AgentChannels.cronSetRuntime,
+			wrapSimpleHandler((providerId: string, modelId: string) => {
+				return cron.setRuntime(providerId, modelId);
+			}, AgentChannels.cronSetRuntime)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsList,
+			wrapSimpleHandler(() => skills.list(), AgentChannels.skillsList)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsLoad,
+			wrapSimpleHandler((name: string) => skills.loadSkill(name), AgentChannels.skillsLoad)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsImport,
+			wrapSimpleHandler(() => skills.import(), AgentChannels.skillsImport)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsDownload,
+			wrapSimpleHandler((name: string) => skills.download(name), AgentChannels.skillsDownload)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsDelete,
+			wrapSimpleHandler((name: string) => skills.delete(name), AgentChannels.skillsDelete)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsSetEnabled,
+			wrapSimpleHandler((id: string, enabled: boolean) => {
+				return skills.setEnabled(id, enabled);
+			}, AgentChannels.skillsSetEnabled)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsOpenRoot,
+			wrapSimpleHandler(() => skills.openRoot(), AgentChannels.skillsOpenRoot)
+		);
+
+		ipcMain.handle(
+			AgentChannels.skillsGetRoot,
+			wrapSimpleHandler(() => skills.getRoot(), AgentChannels.skillsGetRoot)
+		);
+
+		ipcMain.handle(
+			AgentChannels.healthSettings,
+			wrapSimpleHandler(() => agent.store.health.getSettings(), AgentChannels.healthSettings)
+		);
+
+		ipcMain.handle(
+			AgentChannels.healthSaveSettings,
+			wrapSimpleHandler((request: Partial<HealthSettings>) => {
+				return agent.store.health.updateSettings(normalizeHealthSettingsPatch(request));
+			}, AgentChannels.healthSaveSettings)
+		);
+
+		ipcMain.handle(
+			AgentChannels.healthResetSettings,
+			wrapSimpleHandler(() => agent.store.health.resetSettings(), AgentChannels.healthResetSettings)
+		);
+
+		const listMcp = (): McpSettings => {
+			const servers = agent.store.mcp.servers();
+			const out: McpSettings = {};
+			for (const [id, entry] of Object.entries(servers)) out[id] = inferMcpType(entry);
+			return out;
+		};
+
+		const oauthStorage = (id: string): McpOAuthStorage => ({
+			load: () => agent.store.mcp.oauth(id),
+			save: (state) => agent.store.mcp.saveOauth(id, state),
+		});
+
+		const getHttpMcpServer = (id: string): {
+			id: string;
+			url: string;
+			clientId?: string;
+			clientSecret?: string;
+		} => {
+			const connectorId = resolveMcpId(id);
+			const entry = listMcp()[connectorId];
+			if (!entry || entry.type !== 'http') throw new Error(`No http MCP server "${id}".`);
+			return {
+				id: connectorId,
+				url: entry.url,
+				clientId: entry.client_id,
+				clientSecret: entry.client_secret,
+			};
+		};
+
+		ipcMain.handle(
+			AgentChannels.mcpList,
+			wrapSimpleHandler(() => listMcp(), AgentChannels.mcpList)
+		);
+
+		ipcMain.handle(
+			AgentChannels.mcpGet,
+			wrapSimpleHandler((id: string) => {
+				const connectorId = resolveMcpId(id);
+				const connector = listMcp()[connectorId];
+				return connector ? { [connectorId]: connector } : {};
+			}, AgentChannels.mcpGet)
+		);
+
+		ipcMain.handle(
+			AgentChannels.mcpSave,
+			wrapSimpleHandler((input: McpSettings) => {
+				const next = normalizeMcpSettings(input);
+				agent.store.mcp.write(next);
+				return next;
+			}, AgentChannels.mcpSave)
+		);
+
+		ipcMain.handle(
+			AgentChannels.mcpDelete,
+			wrapSimpleHandler((id: string) => {
+				const connectorId = resolveMcpId(id);
+				const next = { ...listMcp() };
+				delete next[connectorId];
+				agent.store.mcp.write(next);
+			}, AgentChannels.mcpDelete)
+		);
+
+		ipcMain.handle(
+			AgentChannels.mcpOauthStart,
+			wrapSimpleHandler(async (id: string): Promise<McpOAuthStart> => {
+				const server = getHttpMcpServer(id);
+				let redirectUrl: string | undefined;
+				const result = await auth(
+					createOAuthProvider({
+						storage: oauthStorage(server.id),
+						clientId: server.clientId,
+						clientSecret: server.clientSecret,
+						onRedirect: (url) => {
+							redirectUrl = url.toString();
+						},
+					}),
+					{ serverUrl: server.url }
+				);
+				if (result === 'AUTHORIZED') return { status: 'authorized' };
+				if (redirectUrl) return { status: 'redirect', url: redirectUrl };
+				throw new Error(`MCP server "${id}" did not return an authorization URL.`);
+			}, AgentChannels.mcpOauthStart)
+		);
+
+		ipcMain.handle(
+			AgentChannels.mcpOauthFinish,
+			wrapSimpleHandler(async (id: string, code: string): Promise<void> => {
+				const server = getHttpMcpServer(id);
+				const result = await auth(
+					createOAuthProvider({
+						storage: oauthStorage(server.id),
+						clientId: server.clientId,
+						clientSecret: server.clientSecret,
+					}),
+					{ serverUrl: server.url, authorizationCode: code }
+				);
+				if (result !== 'AUTHORIZED') throw new Error(`OAuth authorization failed for "${id}".`);
+			}, AgentChannels.mcpOauthFinish)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);
