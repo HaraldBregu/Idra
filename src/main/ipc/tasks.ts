@@ -2,7 +2,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { TasksChannels } from '../../shared/ipc/ipc-channels';
-import type { CronService } from '../agent/cron';
+import type { CronService } from '../agent/cron/service';
 
 export interface TasksIpcDeps {
 	cron: CronService;
