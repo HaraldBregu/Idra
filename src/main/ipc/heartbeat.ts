@@ -6,7 +6,7 @@ import type { HealthStore } from '../agent/health/store';
 import type { HealthSettings } from '../agent/health/types';
 
 export interface HeartbeatIpcDeps {
-	health: HealthService;
+	health: HealthStore;
 }
 
 export class HeartbeatIpc implements IpcModule<HeartbeatIpcDeps> {
