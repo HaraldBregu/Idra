@@ -361,7 +361,7 @@ export class Cron {
 			console.info('[Cron]', `Schedule ${scheduleId} fired: ${schedule.action.message}`);
 		}
 		if (schedule.action.type === 'agent') {
-			void Container.of('main').get(AgentService).send(schedule.action.prompt, randomUUID(), {
+			void Container.of('main').get(Agent).send(schedule.action.prompt, randomUUID(), {
 				category: 'task',
 				sessionId: scheduleId,
 			});
