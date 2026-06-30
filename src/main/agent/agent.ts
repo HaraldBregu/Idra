@@ -1,12 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { Container, Service } from 'typedi';
+import { Container, Inject, Service } from 'typedi';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { Cron } from './core/cron';
-import { SettingsStore } from './core/store.settings';
-import { CronStore } from './core/store.cron';
-import { StoreSkills } from './core/skills.store';
+import { Store } from './store';
 import type { Message, RuntimeEvent, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
