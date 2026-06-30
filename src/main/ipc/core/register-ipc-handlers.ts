@@ -12,7 +12,7 @@ import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
 import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
-import { AgentService } from '../../agent/main';
+import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
 import { McpService } from '../../agent/mcp/service';
 import { HealthService } from '../../agent/health/service';
