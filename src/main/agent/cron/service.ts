@@ -3,7 +3,6 @@ import cron from 'node-cron';
 import { Container } from 'typedi';
 import { AgentService } from '../main';
 import { CronStore } from '../core/store';
-import { handleAgentFire } from './agent';
 import { clone, isActiveSchedule, defaultCronEnabled } from './util';
 import type {
 	CronFunctionId,
