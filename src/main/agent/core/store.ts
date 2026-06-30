@@ -20,7 +20,7 @@ export class Store {
 	private readonly store: ElectronStore<SettingsSchema>;
 	private readonly providerStore = new ProviderService();
 
-	constructor() {
+	constructor(private readonly config: Config) {
 		this.store = new ElectronStore<SettingsSchema>({
 			name: 'settings',
 			cwd: path.resolve(resolveAgentSettingsLocation()),
