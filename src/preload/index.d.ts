@@ -19,6 +19,10 @@ export interface AgentApi {
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;
 	setModelId: (modelId: string) => Promise<boolean>;
+	cron: CronApi;
+	health: HealthApi;
+	mcp: McpApi;
+	skills: SkillsApi;
 }
 
 export interface ChannelsApi {
@@ -59,10 +63,16 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
-export interface TasksApi {
+export interface CronApi {
 	list: () => Promise<CronSchedule[]>;
 	getRuntime: () => Promise<CronRuntime | undefined>;
 	setRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
+}
+
+export interface HealthApi {
+	getSettings: () => Promise<HealthSettings>;
+	saveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
+	resetSettings: () => Promise<HealthSettings>;
 }
 
 export interface SttApi {
@@ -82,6 +92,7 @@ import type { PublicProvider } from '../shared/providers';
 import type { Provider } from '../shared/providers/types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron/cron';
+import type { HealthSettings } from '../main/agent/health/types';
 import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent/types';
 import type { ProviderModel } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
@@ -127,10 +138,7 @@ declare global {
 		app: AppApi;
 		agent: AgentApi;
 		channels: ChannelsApi;
-		mcp: McpApi;
-		skills: SkillsApi;
 		provider: ProviderApi;
 		stt: SttApi;
-		tasks: TasksApi;
 	}
 }
