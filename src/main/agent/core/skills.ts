@@ -13,7 +13,7 @@ import type {
 	SkillValidationResult,
 } from '../../../shared/skills/types';
 import { Config } from './config';
-import { StoreSkills } from './skills.store';
+import { SkillsStore } from './store.skills';
 
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
@@ -33,12 +33,12 @@ export function resolveSkillsRoot(): string {
 }
 
 export class Skills {
-	private readonly store: StoreSkills;
+	private readonly store: SkillsStore;
 	private readonly root: string;
 
 	constructor(options: SkillsOptions = {}) {
 		this.root = options.cwd ?? resolveSkillsRoot();
-		this.store = new StoreSkills(new Config({ location: this.root }));
+		this.store = new SkillsStore(new Config({ location: this.root }));
 	}
 
 	getRoot(): string {
