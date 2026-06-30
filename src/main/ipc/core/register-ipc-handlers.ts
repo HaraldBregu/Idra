@@ -41,7 +41,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 	);
 	safeRegister('agent', () =>
 		new AgentIpc().register(
-			{ logger, agent: container.get(AgentService), settings: new Store() },
+			{ logger, agent: container.get(AgentService), settings: new Store(new Config('settings')) },
 			eventBus
 		)
 	);
