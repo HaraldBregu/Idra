@@ -14,7 +14,7 @@ import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
 import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
-import { HealthService } from '../../agent/health/service';
+import { HealthStore } from '../../agent/health/store';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/core/cron';
