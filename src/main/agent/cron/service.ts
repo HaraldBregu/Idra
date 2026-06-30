@@ -51,12 +51,7 @@ export class CronService {
 	};
 
 	constructor(options: { enabled?: boolean } = {}) {
-		this.store = new Store<PersistedCronState>({
-			name: CRON_STORE_FILE_NAME,
-			cwd: CRON_STORE_DIRECTORY,
-			accessPropertiesByDotNotation: false,
-			defaults: { schedules: [] },
-		});
+		this.store = new CronStore();
 		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
 		this.writeState((state) => {
 			state.enabled = this.enabled;
