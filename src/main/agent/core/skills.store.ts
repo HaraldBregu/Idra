@@ -13,7 +13,7 @@ type SkillsSchema = {
 const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
 const SKILLS_STORE_NAME = 'skills';
 
-export class SkillsStore {
+export class StoreSkills {
 	private readonly skills: ElectronStore<SkillsSchema>;
 
 	constructor(private readonly config: Config) {

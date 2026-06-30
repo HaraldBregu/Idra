@@ -38,4 +38,4 @@ export type ModelEvent =
 			usage?: ModelResponse['usage'];
 	  };
 
-export { AgentModel, Model } from './model';
+export { AgentModel } from './model';
