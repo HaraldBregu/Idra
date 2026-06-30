@@ -27,7 +27,7 @@ const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
 
 export class Store {
 	private readonly settings: ElectronStore<SettingsSchema>;
-	private cron?: ElectronStore<PersistedCronState>;
+	private readonly cron: ElectronStore<PersistedCronState>;
 	private readonly providerStore = new ProviderService();
 
 	constructor(private readonly config: Config) {
@@ -36,6 +36,12 @@ export class Store {
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
+		});
+		this.cron = new ElectronStore<PersistedCronState>({
+			name: CRON_STORE_NAME,
+			cwd: path.resolve(this.config.location),
+			accessPropertiesByDotNotation: false,
+			defaults: DEFAULT_CRON_STATE,
 		});
 	}
 
@@ -100,20 +106,10 @@ export class Store {
 	}
 
 	getCronState(): PersistedCronState {
-		return this.cronStore.store;
+		return this.cron.store;
 	}
 
 	setCronState(value: PersistedCronState): void {
-		this.cronStore.store = value;
-	}
-
-	private get cronStore(): ElectronStore<PersistedCronState> {
-		this.cron ??= new ElectronStore<PersistedCronState>({
-			name: CRON_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_CRON_STATE,
-		});
-		return this.cron;
+		this.cron.store = value;
 	}
 }
