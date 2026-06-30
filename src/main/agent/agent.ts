@@ -52,13 +52,13 @@ export class Agent {
 			};
 
 			const config = new Config({ location: agentLocation() });
-			const runtime = new Runner(config, Container.of('main').get(Cron));
+			const runner = new Runner(config, Container.of('main').get(Cron));
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
 				tools: [],
 			};
-			const stream = runtime.run(input);
+			const stream = runner.run(input);
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {

@@ -8,9 +8,17 @@ import { agentLocation } from './shared/location';
 
 @Service()
 export class Store {
-	private readonly config = new Config({ location: agentLocation() });
-	readonly settings = new SettingsStore(this.config);
-	readonly cron = new CronStore(this.config);
-	readonly skills = new StoreSkills(this.config);
-	readonly mcp = new McpStore(this.config);
+	private readonly config: Config;
+	readonly settings: SettingsStore;
+	readonly cron: CronStore;
+	readonly skills: StoreSkills;
+	readonly mcp: McpStore;
+
+	constructor() {
+		this.config = new Config({ location: agentLocation() });
+		this.settings = new SettingsStore(this.config);
+		this.cron = new CronStore(this.config);
+		this.skills = new StoreSkills(this.config);
+		this.mcp = new McpStore(this.config);
+	}
 }
