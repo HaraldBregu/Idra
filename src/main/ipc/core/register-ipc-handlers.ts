@@ -42,7 +42,6 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 			{
 				logger,
 				agent: container.get(AgentService),
-				settings: new SettingsStore(new Config({ location: agentLocation() })),
 			},
 			eventBus
 		)
