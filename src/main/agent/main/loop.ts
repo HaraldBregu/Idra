@@ -42,8 +42,8 @@ export class AgentRuntime {
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
-		const session = new Session(input, input.category);
-		const settings = new Store();
+		const session = new Session(input, this.config, input.category);
+		const settings = new Store(this.config);
 
 		try {
 			for await (const event of this.stream(input, signal, session, settings)) {
