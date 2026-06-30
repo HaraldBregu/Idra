@@ -39,7 +39,11 @@ export class Session {
 	private readonly sessionsPath: string;
 	private readonly sessionFolderName: string;
 
-	constructor(input: SessionInput, category: SessionCategory = DEFAULT_CATEGORY) {
+	constructor(
+		input: SessionInput,
+		private readonly config: Config,
+		category: SessionCategory = DEFAULT_CATEGORY
+	) {
 		this.id = resolveSessionId(input.sessionId, category, LOCATION);
 		this.sessionFolderName = sessionFolderName(this.id);
 		this.sessionsPath = sessionsRoot(LOCATION, category);
