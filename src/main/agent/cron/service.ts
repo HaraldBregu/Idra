@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import cron from 'node-cron';
-import { Inject, Service } from 'typedi';
+import { Container } from 'typedi';
 import { AgentService } from '../main';
 import { handleAgentFire } from './agent';
 import {
