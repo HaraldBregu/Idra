@@ -49,7 +49,7 @@ export class AgentService {
 			};
 
 			const config = new Config({ location: agentLocation() });
-			const runtime = new AgentRuntime(config, this.cron);
+			const runtime = new AgentRuntime(config, Container.of('main').get(CronService));
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
