@@ -47,7 +47,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(SttService);
 	container.get(HealthService);
 
-	const agentService = container.get(AgentService);
+	const agentService = container.get(Agent);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);
