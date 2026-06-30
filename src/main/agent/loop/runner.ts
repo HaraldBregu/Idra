@@ -37,8 +37,8 @@ export class Runner {
 
 	constructor(
 		private readonly config: Config,
-		private readonly cron: Cron,
 		private readonly settings: SettingsStore,
+		private readonly cron: Cron,
 	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {

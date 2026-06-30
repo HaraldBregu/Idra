@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { Config } from './core/config';
 import { SettingsStore } from './core/store.settings';
-import { CronStore } from './core/store.cron';
+import { CronStore } from './core/cron.store';
 import { StoreSkills } from './core/skills.store';
 import { McpStore } from './mcp/store';
 import { agentLocation } from './shared/location';

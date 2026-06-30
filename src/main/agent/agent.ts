@@ -52,7 +52,10 @@ export class Agent {
 			};
 
 			const config = new Config({ location: agentLocation() });
-			const runner = new Runner(config, Container.of('main').get(Cron), this.store.settings);
+			const runner = new Runner(
+				config, 
+				this.store.settings, 
+				Container.of('main').get(Cron));
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
