@@ -58,7 +58,7 @@ interface ChatToolCallState {
 	emittedStart: boolean;
 }
 
-export class AgentModel extends Model implements ProviderAdapter {
+export class AgentModel implements ProviderAdapter {
 	private readonly provider?: ProviderSpec;
 	private readonly providerModelFactory?: ProviderModelFactory;
 	private readonly openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
@@ -68,7 +68,6 @@ export class AgentModel extends Model implements ProviderAdapter {
 	private readonly thinkingModeEnabled: boolean;
 
 	constructor(options: AgentModelOptions = {}) {
-		super();
 		this.provider = options.provider;
 		this.providerModelFactory = options.providerModelFactory;
 		this.openAIClientFactory = options.openAIClientFactory;

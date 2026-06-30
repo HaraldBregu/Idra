@@ -50,7 +50,7 @@ export class AgentService {
 				category: options.category,
 				effort: options.effort,
 			};
-			const runtime = new AgentRuntime(this.cron);
+			const runtime = new AgentRuntime(this.cron, new Config(resolvedAgentId));
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
