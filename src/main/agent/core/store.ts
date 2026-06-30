@@ -4,6 +4,8 @@ import { app } from 'electron';
 import { Provider } from '../index';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
+import { CRON_STORE_DIRECTORY, CRON_STORE_FILE_NAME } from '../cron/util';
+import type { PersistedCronState } from '../cron/types';
 import type { Config } from './config';
 
 type SettingsSchema = {
