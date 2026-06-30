@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import cron from 'node-cron';
 import { Container } from 'typedi';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
-import { AgentService } from '../main';
+import { Agent } from '../agent';
 import { Config } from './config';
 import { CronStore } from './store.cron';
 import { agentLocation } from '../shared/location';
