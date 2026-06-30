@@ -8,7 +8,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import type { Cron } from '../core/cron';
+import type { Cron } from '../cron/types';
 import type { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { runToolCall } from './tool-run';
@@ -34,7 +34,7 @@ interface ModelTurn {
 
 export class AgentRuntime {
 	private readonly model = new AgentModel();
-
+ 
 	constructor(
 		private readonly config: Config,
 		private readonly cron: Cron,

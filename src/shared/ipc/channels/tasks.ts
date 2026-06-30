@@ -5,13 +5,13 @@ export const TasksChannels = {
 } as const;
 
 export interface TasksInvokeChannelMap {
-	[TasksChannels.list]: { args: []; result: import('../../../main/cron/types').CronSchedule[] };
+	[TasksChannels.list]: { args: []; result: import('../../../main/agent/cron/types').CronSchedule[] };
 	[TasksChannels.getRuntime]: {
 		args: [];
-		result: import('../../../main/cron/types').CronRuntime | undefined;
+		result: import('../../../main/agent/cron/types').CronRuntime | undefined;
 	};
 	[TasksChannels.setRuntime]: {
 		args: [providerId: string, modelId: string];
-		result: import('../../../main/cron/types').CronRuntime;
+		result: import('../../../main/agent/cron/types').CronRuntime;
 	};
 }
