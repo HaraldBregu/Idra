@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
 import { Session } from '../core/session';
 import { AgentRuntime } from './loop';
+import { Config } from '../core/config';
 import { RuntimeEvent } from '../index';
 import { CronService } from '../../cron';
 import type { Cron } from '../core/cron';

@@ -26,11 +26,6 @@ import {
 	toTranscriptEntry,
 } from './shared';
 
-export abstract class Model {
-	abstract generate(request: ModelRequest): Promise<ModelResponse>;
-	abstract stream(request: ModelRequest): AsyncIterable<ModelEvent>;
-}
-
 type ProviderModelFactory = (provider: ProviderSpec) => ProviderAdapter;
 
 interface LlmClientFactoryInput {
