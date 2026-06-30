@@ -125,7 +125,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			AgentChannels.setProvider,
 			wrapSimpleHandler((provider: PublicProvider): boolean => {
 				if (!provider.id) return false;
-				settings.setProviderId(provider.id);
+				agent.settings.setProviderId(provider.id);
 				return true;
 			}, AgentChannels.setProvider)
 		);
