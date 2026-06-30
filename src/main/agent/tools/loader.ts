@@ -22,7 +22,7 @@ import {
 export class ToolLoader extends ToolData {
 	constructor(
 		private readonly context: Context,
-		private readonly cron: Cron,
+		private readonly cron: CronService,
 		private readonly skills: Skills,
 	) {
 		super();
