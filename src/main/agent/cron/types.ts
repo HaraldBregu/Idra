@@ -112,3 +112,29 @@ export interface CronFunctionResult {
 	list_schedules: CronSchedule[];
 	run_schedule_now: CronScheduledTask;
 }
+
+export interface CronEvents {
+	subscribe(listener: (event: CronScheduleEvent) => void): () => void;
+}
+
+export abstract class Cron {
+	abstract get events(): CronEvents;
+
+	abstract start(): Promise<void>;
+	abstract stop(): Promise<void>;
+	abstract destroy(): void;
+
+	abstract createSchedule(request: CronScheduleCreateRequest): CronSchedule;
+	abstract updateSchedule(scheduleId: string, request: CronScheduleUpdateRequest): CronSchedule;
+	abstract pauseSchedule(scheduleId: string): void;
+	abstract resumeSchedule(scheduleId: string): void;
+	abstract deleteSchedule(scheduleId: string): void;
+	abstract getSchedule(scheduleId: string): CronSchedule;
+	abstract listSchedules(): CronSchedule[];
+	abstract runScheduleNow(scheduleId: string): CronScheduledTask;
+
+	abstract invoke<K extends CronFunctionId>(id: K, input: CronFunctionInput[K]): CronFunctionResult[K];
+
+	abstract listJobs(): CronJobInfo[];
+	abstract deleteJob(id: string): void;
+}
