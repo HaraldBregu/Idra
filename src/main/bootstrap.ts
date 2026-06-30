@@ -14,7 +14,7 @@ import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './agent/mcp/service';
-import { AgentService } from './agent/main';
+import { Agent } from './agent/agent';
 import { HealthService } from './agent/health/service';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
