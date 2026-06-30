@@ -118,6 +118,27 @@ export class SkillsStore {
 	}
 }
 
+export class CronStore {
+	private readonly store: ElectronStore<PersistedCronState>;
+
+	constructor() {
+		this.store = new ElectronStore<PersistedCronState>({
+			name: CRON_STORE_FILE_NAME,
+			cwd: CRON_STORE_DIRECTORY,
+			accessPropertiesByDotNotation: false,
+			defaults: { schedules: [] },
+		});
+	}
+
+	get state(): PersistedCronState {
+		return this.store.store;
+	}
+
+	set state(value: PersistedCronState) {
+		this.store.store = value;
+	}
+}
+
 export function resolveSkillsRoot(): string {
 	try {
 		return path.join(app.getPath('appData'), app.getName(), 'skills');
