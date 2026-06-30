@@ -12,22 +12,27 @@ export interface SkillSettings {
 type SettingsSchema = {
 	providerId: string | undefined;
 	modelId: string | undefined;
+};
+
+type SkillsSchema = {
 	skills: Record<string, SkillSettings>;
 };
 
 const DEFAULT_SETTINGS: SettingsSchema = {
 	providerId: undefined,
 	modelId: undefined,
-	skills: {},
 };
 
+const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
 const SETTINGS_STORE_NAME = 'settings';
 const CRON_STORE_NAME = 'cron';
+const SKILLS_STORE_NAME = 'skills';
 const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
 
 export class Store {
 	private readonly settings: ElectronStore<SettingsSchema>;
 	private readonly cron: ElectronStore<PersistedCronState>;
+	private readonly skills: ElectronStore<SkillsSchema>;
 	private readonly providerStore = new ProviderService();
 
 	constructor(private readonly config: Config) {
@@ -42,6 +47,12 @@ export class Store {
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_CRON_STATE,
+		});
+		this.skills = new ElectronStore<SkillsSchema>({
+			name: SKILLS_STORE_NAME,
+			cwd: path.resolve(this.config.location),
+			accessPropertiesByDotNotation: false,
+			defaults: DEFAULT_SKILLS,
 		});
 	}
 
@@ -88,7 +99,7 @@ export class Store {
 	}
 
 	all(): Record<string, SkillSettings> {
-		return this.settings.store.skills ?? {};
+		return this.skills.store.skills ?? {};
 	}
 
 	get(id: string): SkillSettings | undefined {
@@ -96,13 +107,13 @@ export class Store {
 	}
 
 	set(id: string, settings: SkillSettings): void {
-		this.settings.set('skills', { ...this.all(), [id]: settings });
+		this.skills.set('skills', { ...this.all(), [id]: settings });
 	}
 
 	remove(id: string): void {
 		const next = { ...this.all() };
 		delete next[id];
-		this.settings.set('skills', next);
+		this.skills.set('skills', next);
 	}
 
 	getCronState(): PersistedCronState {
