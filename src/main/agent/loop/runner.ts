@@ -17,7 +17,7 @@ import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
-import { resolveSkillsRoot, Skills } from '../skills/skills';
+import { Skills } from '../skills/skills';
 import { formatToolOutput } from '../shared/format';
 
 interface ModelTurn {
@@ -73,7 +73,7 @@ export class Runner {
 
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
-		const skills = new Skills(new Config({ location: resolveSkillsRoot() }));
+		const skills = new Skills(this.config);
 
 		const toolLoader = new ToolLoader(toolContext, this.cron, skills);
 		tools.push(...toolLoader.tools);
