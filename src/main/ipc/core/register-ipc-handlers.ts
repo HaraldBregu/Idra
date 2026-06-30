@@ -55,7 +55,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 	// 	new ConnectorsIpc().register({ mcp: container.get(McpService) }, eventBus)
 	// );
 	safeRegister('heartbeat', () =>
-		new HeartbeatIpc().register({ health: container.get(HealthService) }, eventBus)
+		new HeartbeatIpc().register({ health: container.get(HealthStore) }, eventBus)
 	);
 	safeRegister('provider-store', () =>
 		new ProviderStoreIpc().register({ providerStore: container.get(ProviderService) }, eventBus)
