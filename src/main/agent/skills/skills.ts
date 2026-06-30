@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { app, BrowserWindow, dialog, shell, type OpenDialogOptions } from 'electron';
+import { BrowserWindow, dialog, shell, type OpenDialogOptions } from 'electron';
 import matter from 'gray-matter';
 import type {
 	SkillDeleteResult,
@@ -17,16 +17,6 @@ import { SkillsStore } from './store';
 
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
-
-export function resolveSkillsRoot(): string {
-	try {
-		return path.join(app.getPath('appData'), app.getName(), 'skills');
-	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday', 'skills');
-	}
-}
 
 export class Skills {
 	private readonly store: SkillsStore;
