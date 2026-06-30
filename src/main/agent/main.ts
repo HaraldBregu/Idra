@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Container, Service } from 'typedi';
 import { Session } from './core/session';
-import { AgentRuntime } from './loop/loop';
+import { AgentRunner } from './loop/runner';
 import { Config } from './core/config';
 import { RuntimeEvent } from './index';
 import { Cron } from './core/cron';
@@ -49,7 +49,7 @@ export class AgentService {
 			};
 
 			const config = new Config({ location: agentLocation() });
-			const runtime = new AgentRuntime(config, Container.of('main').get(Cron));
+			const runtime = new AgentRunner(config, Container.of('main').get(Cron));
 			const input = {
 				...sessionInput,
 				maxRetries: 1,
