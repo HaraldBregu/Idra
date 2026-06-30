@@ -2,8 +2,8 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { HeartbeatChannels } from '../../shared/ipc/ipc-channels';
-import type { HealthService } from '../agent/health/service';
-import type { HeartbeatSettings } from '../agent/health/types';
+import type { HealthStore } from '../agent/health/store';
+import type { HealthSettings } from '../agent/health/types';
 
 export interface HeartbeatIpcDeps {
 	health: HealthService;
