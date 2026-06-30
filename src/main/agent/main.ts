@@ -113,6 +113,25 @@ export class AgentService {
 	}
 }
 
+export class Agent {
+	readonly settings: SettingsStore;
+	readonly cron: CronStore;
+	readonly skills: StoreSkills;
+
+	constructor(
+		config: Config,
+		private readonly agent: AgentService
+	) {
+		this.settings = new SettingsStore(config);
+		this.cron = new CronStore(config);
+		this.skills = new StoreSkills(config);
+	}
+
+	send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
+		return this.agent.send(message, agentId, options);
+	}
+}
+
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
 	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
