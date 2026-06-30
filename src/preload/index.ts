@@ -5,11 +5,8 @@ import {
 	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
-	ConnectorsChannels,
 	ProviderStoreChannels,
-	SkillsChannels,
 	SttChannels,
-	TasksChannels,
 } from '../shared/ipc/ipc-channels';
 import type {
 	AppApi,
@@ -19,7 +16,8 @@ import type {
 	ProviderApi,
 	SkillsApi,
 	SttApi,
-	TasksApi,
+	CronApi,
+	HealthApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared/providers';
@@ -37,6 +35,7 @@ import {
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt/transcription';
 import { McpOAuthStart, McpSettings } from '../shared/mcp/mcp';
+import type { HealthSettings } from '../main/agent/health/types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
@@ -170,6 +169,71 @@ export const agent: AgentApi = {
 	setModelId: (modelId: string): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.setModelId, modelId);
 	},
+	cron: {
+		list: () => {
+			return typedInvokeUnwrap(AgentChannels.cronList);
+		},
+		getRuntime: () => {
+			return typedInvokeUnwrap(AgentChannels.cronGetRuntime);
+		},
+		setRuntime: (providerId: string, modelId: string) => {
+			return typedInvokeUnwrap(AgentChannels.cronSetRuntime, providerId, modelId);
+		},
+	} satisfies CronApi,
+	health: {
+		getSettings: (): Promise<HealthSettings> => {
+			return typedInvokeUnwrap(AgentChannels.healthSettings);
+		},
+		saveSettings: (settings: Partial<HealthSettings>): Promise<HealthSettings> => {
+			return typedInvokeUnwrap(AgentChannels.healthSaveSettings, settings);
+		},
+		resetSettings: (): Promise<HealthSettings> => {
+			return typedInvokeUnwrap(AgentChannels.healthResetSettings);
+		},
+	} satisfies HealthApi,
+	mcp: {
+		list: (): Promise<McpSettings> => {
+			return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpList);
+		},
+		get: (id: string): Promise<McpSettings> => {
+			return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpGet, id);
+		},
+		save: (input: McpSettings): Promise<McpSettings> => {
+			return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpSave, input);
+		},
+		delete: (id: string): Promise<void> => {
+			return typedInvokeUnwrap<void>(AgentChannels.mcpDelete, id);
+		},
+		oauthStart: (id: string): Promise<McpOAuthStart> => {
+			return typedInvokeUnwrap<McpOAuthStart>(AgentChannels.mcpOauthStart, id);
+		},
+		oauthFinish: (id: string, code: string): Promise<void> => {
+			return typedInvokeUnwrap<void>(AgentChannels.mcpOauthFinish, id, code);
+		},
+	} satisfies McpApi,
+	skills: {
+		list: () => {
+			return typedInvokeUnwrap(AgentChannels.skillsList);
+		},
+		importSkill: () => {
+			return typedInvokeUnwrap(AgentChannels.skillsImport);
+		},
+		downloadSkill: (name: string) => {
+			return typedInvokeUnwrap(AgentChannels.skillsDownload, name);
+		},
+		delete: (name: string) => {
+			return typedInvokeUnwrap(AgentChannels.skillsDelete, name);
+		},
+		setEnabled: (id: string, enabled: boolean) => {
+			return typedInvokeUnwrap(AgentChannels.skillsSetEnabled, id, enabled);
+		},
+		openRoot: () => {
+			return typedInvokeUnwrap(AgentChannels.skillsOpenRoot);
+		},
+		getRoot: (): Promise<string> => {
+			return typedInvokeUnwrap(AgentChannels.skillsGetRoot);
+		},
+	} satisfies SkillsApi,
 } satisfies AgentApi;
 
 export const app: AppApi = {
@@ -205,30 +269,6 @@ export const app: AppApi = {
 	},
 	requestCameraPermission: () => {
 		return typedInvokeUnwrap(AppChannels.requestCameraPermission);
-	},
-};
-
-export const skills: SkillsApi = {
-	list: () => {
-		return typedInvokeUnwrap(SkillsChannels.list);
-	},
-	importSkill: () => {
-		return typedInvokeUnwrap(SkillsChannels.import);
-	},
-	downloadSkill: (name: string) => {
-		return typedInvokeUnwrap(SkillsChannels.download, name);
-	},
-	delete: (name: string) => {
-		return typedInvokeUnwrap(SkillsChannels.delete, name);
-	},
-	setEnabled: (id: string, enabled: boolean) => {
-		return typedInvokeUnwrap(SkillsChannels.setEnabled, id, enabled);
-	},
-	openRoot: () => {
-		return typedInvokeUnwrap(SkillsChannels.openRoot);
-	},
-	getRoot: (): Promise<string> => {
-		return typedInvokeUnwrap(SkillsChannels.getRoot);
 	},
 };
 
@@ -325,50 +365,14 @@ export const channels: ChannelsApi = {
 	},
 };
 
-export const mcp: McpApi = {
-	list: (): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.list);
-	},
-	get: (id: string): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.get, id);
-	},
-	save: (input: McpSettings): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(ConnectorsChannels.save, input);
-	},
-	delete: (id: string): Promise<void> => {
-		return typedInvokeUnwrap<void>(ConnectorsChannels.delete, id);
-	},
-	oauthStart: (id: string): Promise<McpOAuthStart> => {
-		return typedInvokeUnwrap<McpOAuthStart>(ConnectorsChannels.oauthStart, id);
-	},
-	oauthFinish: (id: string, code: string): Promise<void> => {
-		return typedInvokeUnwrap<void>(ConnectorsChannels.oauthFinish, id, code);
-	},
-};
-
-export const tasks: TasksApi = {
-	list: () => {
-		return typedInvokeUnwrap(TasksChannels.list);
-	},
-	getRuntime: () => {
-		return typedInvokeUnwrap(TasksChannels.getRuntime);
-	},
-	setRuntime: (providerId: string, modelId: string) => {
-		return typedInvokeUnwrap(TasksChannels.setRuntime, providerId, modelId);
-	},
-};
-
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
-		contextBridge.exposeInMainWorld('mcp', mcp);
-		contextBridge.exposeInMainWorld('skills', skills);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('stt', stt);
-		contextBridge.exposeInMainWorld('tasks', tasks);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
@@ -382,13 +386,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
-	globalThis.mcp = mcp;
-	// @ts-ignore (define in dts)
-	globalThis.skills = skills;
-	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
 	globalThis.stt = stt;
-	// @ts-ignore (define in dts)
-	globalThis.tasks = tasks;
 }
