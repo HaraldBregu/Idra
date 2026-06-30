@@ -10,6 +10,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import { resolveAgentUsageLocation } from '../shared/location';
+import type { Config } from './config';
 import type {
 	SessionInput,
 	SessionCategory,
