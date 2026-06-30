@@ -43,7 +43,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.get(ProviderService);
 	container.get(SttService);
-	container.get(HealthService);
+	container.set(HealthStore, new HealthStore(new Config({ location: agentLocation() })));
 
 	const agentService = container.get(Agent);
 
