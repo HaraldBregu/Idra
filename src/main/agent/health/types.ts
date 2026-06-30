@@ -1,21 +1,21 @@
-export type HeartbeatEvery = '0m' | '1m' | '30m' | '1h';
+export type HealthEvery = '0m' | '1m' | '30m' | '1h';
 
-export type HeartbeatTarget = 'none' | 'last' | string;
+export type HealthTarget = 'none' | 'last' | string;
 
-export type HeartbeatDirectPolicy = 'allow' | 'block';
+export type HealthDirectPolicy = 'allow' | 'block';
 
-export interface HeartbeatActiveHours {
+export interface HealthActiveHours {
 	start: string;
 	end: string;
 }
 
-export interface HeartbeatSettings {
-	every: HeartbeatEvery;
-	target: HeartbeatTarget;
-	directPolicy: HeartbeatDirectPolicy;
+export interface HealthSettings {
+	every: HealthEvery;
+	target: HealthTarget;
+	directPolicy: HealthDirectPolicy;
 	lightContext: boolean;
 	isolatedSession: boolean;
 	skipWhenBusy: boolean;
-	activeHours?: HeartbeatActiveHours;
+	activeHours?: HealthActiveHours;
 	includeReasoning?: boolean;
 }

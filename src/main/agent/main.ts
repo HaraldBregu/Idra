@@ -4,6 +4,9 @@ import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { Cron } from './core/cron';
+import { SettingsStore } from './core/store.settings';
+import { CronStore } from './core/store.cron';
+import { StoreSkills } from './core/skills.store';
 import type { Message, RuntimeEvent, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,

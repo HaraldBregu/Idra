@@ -4,7 +4,7 @@ import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
 import { AgentService } from '../main';
-import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
+import type { HealthActiveHours, HealthSettings } from './types';
 import { randomUUID } from 'node:crypto';
 
 const HEARTBEAT_STORE_NAME = 'settings';
@@ -17,7 +17,7 @@ const HEARTBEAT_INTERVALS_MS = {
 } as const;
 const HEARTBEAT_PROMPT = "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.";
 
-export const HEARTBEAT_DEFAULT_SETTINGS: HeartbeatSettings = {
+export const HEALTH_DEFAULT_SETTINGS: HealthSettings = {
 	every: '30m',
 	target: 'last',
 	directPolicy: 'allow',
@@ -26,36 +26,36 @@ export const HEARTBEAT_DEFAULT_SETTINGS: HeartbeatSettings = {
 	skipWhenBusy: true,
 };
 
-export interface HeartbeatServiceOptions {
+export interface HealthServiceOptions {
 	cwd?: string;
 }
 
 @Service()
 export class HealthService {
-	private readonly store: Store<HeartbeatSettings>;
+	private readonly store: Store<HealthSettings>;
 	private readonly storeDirectory: string;
 	private timer: NodeJS.Timeout | undefined;
 
 	@Inject(() => AgentService)
 	private readonly agent!: AgentService;
 
-	constructor(options: HeartbeatServiceOptions = {}) {
+	constructor(options: HealthServiceOptions = {}) {
 		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
-		this.store = new Store<HeartbeatSettings>({
+		this.store = new Store<HealthSettings>({
 			name: HEARTBEAT_STORE_NAME,
 			cwd: this.storeDirectory,
 			accessPropertiesByDotNotation: false,
-			defaults: HEARTBEAT_DEFAULT_SETTINGS,
+			defaults: HEALTH_DEFAULT_SETTINGS,
 		});
 		this.ensureFile();
 		this.syncSchedule();
 	}
 
-	getSettings(): HeartbeatSettings {
+	getSettings(): HealthSettings {
 		return this.store.store;
 	}
 
-	updateSettings(patch: Partial<HeartbeatSettings>): HeartbeatSettings {
+	updateSettings(patch: Partial<HealthSettings>): HealthSettings {
 		const next = {
 			...this.getSettings(),
 			...patch,
@@ -65,8 +65,8 @@ export class HealthService {
 		return next;
 	}
 
-	resetSettings(): HeartbeatSettings {
-		this.store.store = HEARTBEAT_DEFAULT_SETTINGS;
+	resetSettings(): HealthSettings {
+		this.store.store = HEALTH_DEFAULT_SETTINGS;
 		this.syncSchedule();
 		return this.getSettings();
 	}
@@ -144,7 +144,7 @@ function resolveLegacyHeartbeatStorePath(): string {
 	}
 }
 
-function withinActiveHours(hours: HeartbeatActiveHours | undefined): boolean {
+function withinActiveHours(hours: HealthActiveHours | undefined): boolean {
 	if (!hours) return true;
 	const start = parseHm(hours.start);
 	const end = parseHm(hours.end);
@@ -164,9 +164,9 @@ function parseHm(value: string): number | undefined {
 	return h * 60 + m;
 }
 
-function normalizeEvery(value: HeartbeatSettings['every']): keyof typeof HEARTBEAT_INTERVALS_MS {
+function normalizeEvery(value: HealthSettings['every']): keyof typeof HEARTBEAT_INTERVALS_MS {
 	if (value in HEARTBEAT_INTERVALS_MS) {
 		return value as keyof typeof HEARTBEAT_INTERVALS_MS;
 	}
-	return HEARTBEAT_DEFAULT_SETTINGS.every;
+	return HEALTH_DEFAULT_SETTINGS.every;
 }
