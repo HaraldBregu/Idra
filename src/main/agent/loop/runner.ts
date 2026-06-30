@@ -17,7 +17,7 @@ import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
-import { resolveSkillsRoot, Skills } from '../core/skills';
+import { resolveSkillsRoot, Skills } from '../skills/skills';
 import { formatToolOutput } from '../shared/format';
 
 interface ModelTurn {

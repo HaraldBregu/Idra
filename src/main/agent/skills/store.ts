@@ -1,6 +1,6 @@
 import path from 'node:path';
 import ElectronStore from 'electron-store';
-import type { Config } from './config';
+import type { Config } from '../core/config';
 
 export interface SkillSettings {
 	enabled: boolean;
@@ -13,7 +13,7 @@ type SkillsSchema = {
 const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
 const SKILLS_STORE_NAME = 'skills';
 
-export class StoreSkills {
+export class SkillsStore {
 	private readonly skills: ElectronStore<SkillsSchema>;
 
 	constructor(private readonly config: Config) {
