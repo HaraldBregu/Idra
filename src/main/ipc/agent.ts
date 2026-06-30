@@ -3,7 +3,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
-import type { AgentService, AgentSendOptions } from '../agent/main';
+import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
