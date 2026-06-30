@@ -18,10 +18,6 @@ import { SkillsStore } from './store.skills';
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
 
-export interface SkillsOptions {
-	cwd?: string;
-}
-
 export function resolveSkillsRoot(): string {
 	try {
 		return path.join(app.getPath('appData'), app.getName(), 'skills');
@@ -36,9 +32,9 @@ export class Skills {
 	private readonly store: SkillsStore;
 	private readonly root: string;
 
-	constructor(options: SkillsOptions = {}) {
-		this.root = options.cwd ?? resolveSkillsRoot();
-		this.store = new SkillsStore(new Config({ location: this.root }));
+	constructor(private readonly config: Config) {
+		this.root = this.config.location;
+		this.store = new SkillsStore(this.config);
 	}
 
 	getRoot(): string {

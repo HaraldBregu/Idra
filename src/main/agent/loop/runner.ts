@@ -9,7 +9,7 @@ import type {
 } from '../core/types';
 import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import type { Config } from '../core/config';
+import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { SettingsStore } from '../core/store.settings';
 import { Session } from '../core/session';
@@ -17,7 +17,7 @@ import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
-import { Skills } from '../core/skills';
+import { resolveSkillsRoot, Skills } from '../core/skills';
 import { formatToolOutput } from '../shared/format';
 
 interface ModelTurn {
@@ -73,14 +73,15 @@ export class Runner {
 
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
+		const skills = new Skills(new Config({ location: resolveSkillsRoot() }));
 
-		const toolLoader = new ToolLoader(toolContext, this.cron, new Skills());
+		const toolLoader = new ToolLoader(toolContext, this.cron, skills);
 		tools.push(...toolLoader.tools);
 
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = new System(this.config, new Skills());
+		const system = new System(this.config, skills);
 		await system.addBasePrompt();
 		await system.addWorkspacePrompt();
 		await system.addSkillsPrompt();
