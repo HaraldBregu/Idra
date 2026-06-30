@@ -18,7 +18,7 @@ import { ConnectorStatusBadge } from '../components/ConnectorStatusBadge';
 import { ConnectorOAuthButton } from '../components/ConnectorOAuthButton';
 import { OAuthConnectorDialog } from '../components/OAuthConnectorDialog';
 
-type ConnectorRecord = Awaited<ReturnType<typeof window.agent.mcp.list>>;
+type ConnectorRecord = Awaited<ReturnType<typeof window.agent.mcpList>>;
 type ConnectorEntry = ConnectorRecord[string];
 
 function connectorStatus(connector: ConnectorEntry): 'configured' | 'disabled' | 'error' {
@@ -66,7 +66,7 @@ const ConnectorDetailsPage: React.FC = () => {
 		setLoading(true);
 		setError(null);
 
-		void window.agent.mcp.get(connectorId).then(
+		void window.agent.mcpGet(connectorId).then(
 			(nextConnector) => {
 				if (!mounted) return;
 				setConnectorRecord(nextConnector);
@@ -87,9 +87,9 @@ const ConnectorDetailsPage: React.FC = () => {
 	}, [connectorId, t]);
 
 	const updateConnector = async (id: string, entry: McpHttpData): Promise<void> => {
-		const all = await window.agent.mcp.list();
-		await window.agent.mcp.save({ ...all, [id]: entry });
-		if (connectorId) setConnectorRecord(await window.agent.mcp.get(connectorId));
+		const all = await window.agent.mcpList();
+		await window.agent.mcpSave({ ...all, [id]: entry });
+		if (connectorId) setConnectorRecord(await window.agent.mcpGet(connectorId));
 	};
 
 	if (loading) {

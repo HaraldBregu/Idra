@@ -23,7 +23,7 @@ export function ConnectorOAuthButton({ id }: { readonly id: string }): React.JSX
 		setError(null);
 		setPhase('busy');
 		try {
-			const result = await window.agent.mcp.oauthStart(id);
+			const result = await window.agent.mcpOauthStart(id);
 			if (result.status === 'authorized') {
 				setPhase('done');
 				return;
@@ -45,7 +45,7 @@ export function ConnectorOAuthButton({ id }: { readonly id: string }): React.JSX
 		setError(null);
 		setPhase('busy');
 		try {
-			await window.agent.mcp.oauthFinish(id, code);
+			await window.agent.mcpOauthFinish(id, code);
 			setPhase('done');
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));

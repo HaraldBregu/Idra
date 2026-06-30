@@ -27,7 +27,7 @@ const ConnectorsPage = () => {
 	};
 
 	const addConnector = async (id: string, entry: McpHttpData): Promise<void> => {
-		await window.agent.mcp.save({ ...connectors, [id]: entry });
+		await window.agent.mcpSave({ ...connectors, [id]: entry });
 		await load();
 	};
 

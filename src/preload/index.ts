@@ -12,11 +12,8 @@ import type {
 	AppApi,
 	AgentApi,
 	ChannelsApi,
-	McpApi,
 	ProviderApi,
 	SttApi,
-	CronApi,
-	HealthApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared/providers';
@@ -192,48 +189,42 @@ export const agent: AgentApi = {
 	skillsGetRoot: (): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.skillsGetRoot);
 	},
-	cron: {
-		list: () => {
-			return typedInvokeUnwrap(AgentChannels.cronList);
-		},
-		getRuntime: () => {
-			return typedInvokeUnwrap(AgentChannels.cronGetRuntime);
-		},
-		setRuntime: (providerId: string, modelId: string) => {
-			return typedInvokeUnwrap(AgentChannels.cronSetRuntime, providerId, modelId);
-		},
-	} satisfies CronApi,
-	health: {
-		getSettings: (): Promise<HealthSettings> => {
-			return typedInvokeUnwrap(AgentChannels.healthSettings);
-		},
-		saveSettings: (settings: Partial<HealthSettings>): Promise<HealthSettings> => {
-			return typedInvokeUnwrap(AgentChannels.healthSaveSettings, settings);
-		},
-		resetSettings: (): Promise<HealthSettings> => {
-			return typedInvokeUnwrap(AgentChannels.healthResetSettings);
-		},
-	} satisfies HealthApi,
-	mcp: {
-		list: (): Promise<McpSettings> => {
-			return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpList);
-		},
-		get: (id: string): Promise<McpSettings> => {
-			return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpGet, id);
-		},
-		save: (input: McpSettings): Promise<McpSettings> => {
-			return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpSave, input);
-		},
-		delete: (id: string): Promise<void> => {
-			return typedInvokeUnwrap<void>(AgentChannels.mcpDelete, id);
-		},
-		oauthStart: (id: string): Promise<McpOAuthStart> => {
-			return typedInvokeUnwrap<McpOAuthStart>(AgentChannels.mcpOauthStart, id);
-		},
-		oauthFinish: (id: string, code: string): Promise<void> => {
-			return typedInvokeUnwrap<void>(AgentChannels.mcpOauthFinish, id, code);
-		},
-	} satisfies McpApi,
+	cronList: () => {
+		return typedInvokeUnwrap(AgentChannels.cronList);
+	},
+	cronGetRuntime: () => {
+		return typedInvokeUnwrap(AgentChannels.cronGetRuntime);
+	},
+	cronSetRuntime: (providerId: string, modelId: string) => {
+		return typedInvokeUnwrap(AgentChannels.cronSetRuntime, providerId, modelId);
+	},
+	healthGetSettings: (): Promise<HealthSettings> => {
+		return typedInvokeUnwrap(AgentChannels.healthSettings);
+	},
+	healthSaveSettings: (settings: Partial<HealthSettings>): Promise<HealthSettings> => {
+		return typedInvokeUnwrap(AgentChannels.healthSaveSettings, settings);
+	},
+	healthResetSettings: (): Promise<HealthSettings> => {
+		return typedInvokeUnwrap(AgentChannels.healthResetSettings);
+	},
+	mcpList: (): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpList);
+	},
+	mcpGet: (id: string): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpGet, id);
+	},
+	mcpSave: (input: McpSettings): Promise<McpSettings> => {
+		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpSave, input);
+	},
+	mcpDelete: (id: string): Promise<void> => {
+		return typedInvokeUnwrap<void>(AgentChannels.mcpDelete, id);
+	},
+	mcpOauthStart: (id: string): Promise<McpOAuthStart> => {
+		return typedInvokeUnwrap<McpOAuthStart>(AgentChannels.mcpOauthStart, id);
+	},
+	mcpOauthFinish: (id: string, code: string): Promise<void> => {
+		return typedInvokeUnwrap<void>(AgentChannels.mcpOauthFinish, id, code);
+	},
 } satisfies AgentApi;
 
 export const app: AppApi = {

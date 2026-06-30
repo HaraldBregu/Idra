@@ -27,9 +27,18 @@ export interface AgentApi {
 	skillsSetEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
 	skillsOpenRoot: () => Promise<void>;
 	skillsGetRoot: () => Promise<string>;
-	cron: CronApi;
-	health: HealthApi;
-	mcp: McpApi;
+	cronList: () => Promise<CronSchedule[]>;
+	cronGetRuntime: () => Promise<CronRuntime | undefined>;
+	cronSetRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
+	healthGetSettings: () => Promise<HealthSettings>;
+	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
+	healthResetSettings: () => Promise<HealthSettings>;
+	mcpList: () => Promise<McpSettings>;
+	mcpGet: (id: string) => Promise<McpSettings>;
+	mcpSave: (input: McpSettings) => Promise<McpSettings>;
+	mcpDelete: (id: string) => Promise<void>;
+	mcpOauthStart: (id: string) => Promise<McpOAuthStart>;
+	mcpOauthFinish: (id: string, code: string) => Promise<void>;
 }
 
 export interface ChannelsApi {
@@ -46,30 +55,9 @@ export interface ChannelsApi {
 	onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
 }
 
-export interface McpApi {
-	list: () => Promise<McpSettings>;
-	get: (id: string) => Promise<McpSettings>;
-	save: (input: McpSettings) => Promise<McpSettings>;
-	delete: (id: string) => Promise<void>;
-	oauthStart: (id: string) => Promise<McpOAuthStart>;
-	oauthFinish: (id: string, code: string) => Promise<void>;
-}
-
 export interface ProviderApi {
 	get: (id: string) => Promise<Provider | undefined>;
 	set: (id: string, provider: Provider) => Promise<Provider>;
-}
-
-export interface CronApi {
-	list: () => Promise<CronSchedule[]>;
-	getRuntime: () => Promise<CronRuntime | undefined>;
-	setRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
-}
-
-export interface HealthApi {
-	getSettings: () => Promise<HealthSettings>;
-	saveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
-	resetSettings: () => Promise<HealthSettings>;
 }
 
 export interface SttApi {
