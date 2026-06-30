@@ -133,7 +133,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.getModelId,
 			wrapSimpleHandler((): string | undefined => {
-				return settings.getModelId();
+				return agent.settings.getModelId();
 			}, AgentChannels.getModelId)
 		);
 
