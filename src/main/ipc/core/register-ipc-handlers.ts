@@ -18,7 +18,7 @@ import { Config } from '../../agent/core/config';
 import { agentLocation } from '../../agent/shared/location';
 import { ChannelRegistry } from '../../channels';
 import { McpService } from '../../agent/mcp/service';
-import { HeartbeatService } from '../../agent/heartbeat';
+import { HealthService } from '../../agent/health/service';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/core/cron';
@@ -57,10 +57,10 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 		)
 	);
 	safeRegister('connectors', () =>
-		new ConnectorsIpc().register({ connector: container.get(McpService) }, eventBus)
+		new ConnectorsIpc().register({ mcp: container.get(McpService) }, eventBus)
 	);
 	safeRegister('heartbeat', () =>
-		new HeartbeatIpc().register({ heartbeat: container.get(HeartbeatService) }, eventBus)
+		new HeartbeatIpc().register({ health: container.get(HealthService) }, eventBus)
 	);
 	safeRegister('provider-store', () =>
 		new ProviderStoreIpc().register({ providerStore: container.get(ProviderService) }, eventBus)

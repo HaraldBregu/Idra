@@ -15,7 +15,7 @@ import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './agent/mcp/service';
 import { AgentService } from './agent/main';
-import { HeartbeatService } from './agent/heartbeat';
+import { HealthService } from './agent/health/service';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
 
@@ -45,7 +45,7 @@ export function bootstrapServices(): BootstrapResult {
 	container.get(ProviderService);
 	container.get(McpService);
 	container.get(SttService);
-	container.get(HeartbeatService);
+	container.get(HealthService);
 
 	const agentService = container.get(AgentService);
 
@@ -79,7 +79,7 @@ export async function cleanup(container: ContainerInstance): Promise<void> {
 	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
 	container.get(Cron).destroy();
-	container.get(HeartbeatService).destroy();
+	container.get(HealthService).destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
 }

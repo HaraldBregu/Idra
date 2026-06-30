@@ -3,7 +3,7 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { AgentService } from '../agent/main';
+import { AgentService } from '../main';
 import type { HeartbeatActiveHours, HeartbeatSettings } from './types';
 import { randomUUID } from 'node:crypto';
 
@@ -31,7 +31,7 @@ export interface HeartbeatServiceOptions {
 }
 
 @Service()
-export class HeartbeatService {
+export class HealthService {
 	private readonly store: Store<HeartbeatSettings>;
 	private readonly storeDirectory: string;
 	private timer: NodeJS.Timeout | undefined;
