@@ -2,19 +2,14 @@ import type { ContainerInstance } from 'typedi';
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
-import { ConnectorsIpc } from '../connectors';
-import { HeartbeatIpc } from '../heartbeat';
 import { ProviderStoreIpc } from '../provider';
-import { SkillsIpc } from '../skills';
 import { SttIpc } from '../stt';
-import { TasksIpc } from '../tasks';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
 import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
 import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
-import { HealthStore } from '../../agent/health/store';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/cron/cron';
@@ -41,6 +36,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 			{
 				logger,
 				agent: container.get(Agent),
+				cron: container.get(Cron),
 			},
 			eventBus
 		)
@@ -51,20 +47,10 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 			eventBus
 		)
 	);
-	// safeRegister('connectors', () =>
-	// 	new ConnectorsIpc().register({ mcp: container.get(McpService) }, eventBus)
-	// );
-	safeRegister('heartbeat', () =>
-		new HeartbeatIpc().register({ health: container.get(HealthStore) }, eventBus)
-	);
 	safeRegister('provider-store', () =>
 		new ProviderStoreIpc().register({ providerStore: container.get(ProviderService) }, eventBus)
 	);
-	safeRegister('skills', () => new SkillsIpc().register({}, eventBus));
 	safeRegister('stt', () => new SttIpc().register({ stt: container.get(SttService) }, eventBus));
-	safeRegister('tasks', () =>
-		new TasksIpc().register({ cron: container.get(Cron) }, eventBus)
-	);
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
 	logger.info('Bootstrap', 'Registered IPC modules');
