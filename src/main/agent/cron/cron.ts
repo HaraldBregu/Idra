@@ -3,8 +3,8 @@ import cron from 'node-cron';
 import { Container } from 'typedi';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
 import { Agent } from '../agent';
-import { Config } from './config';
-import { CronStore } from './cron.store';
+import { Config } from '../core/config';
+import { CronStore } from './store';
 import { agentLocation } from '../shared/location';
 
 export interface CronJobInfo {

@@ -8,7 +8,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import type { Cron } from '../core/cron';
+import type { Cron } from '../cron/cron';
 import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { SettingsStore } from '../core/store.settings';

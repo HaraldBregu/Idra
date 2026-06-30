@@ -8,13 +8,12 @@ import {
 	AppPermissionsService,
 } from './app';
 import { LoggerService } from './shared';
-import { Cron } from './agent/core/cron';
+import { Cron } from './agent/cron/cron';
 import { Config } from './agent/core/config';
 import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
-import { HealthStore } from './agent/health/store';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
 
@@ -43,7 +42,6 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.get(ProviderService);
 	container.get(SttService);
-	container.set(HealthStore, new HealthStore(new Config({ location: agentLocation() })));
 
 	const agentService = container.get(Agent);
 

@@ -3,7 +3,7 @@ import { Container, Inject, Service } from 'typedi';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
-import { Cron } from './core/cron';
+import { Cron } from './cron/cron';
 import { Store } from './store';
 import type { Message, RuntimeEvent, SessionCategory } from './core/types';
 import type {

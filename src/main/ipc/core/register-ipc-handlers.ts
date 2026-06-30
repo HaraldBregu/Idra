@@ -17,7 +17,7 @@ import { ChannelRegistry } from '../../channels';
 import { HealthStore } from '../../agent/health/store';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
-import { Cron } from '../../agent/core/cron';
+import { Cron } from '../../agent/cron/cron';
 
 export function registerIpcHandlers(container: ContainerInstance, eventBus: EventBus): void {
 	const logger = container.get(LoggerService);
