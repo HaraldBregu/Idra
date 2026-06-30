@@ -13,9 +13,9 @@ import { Config } from './agent/core/config';
 import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
-import { McpService } from './mcp';
+import { McpService } from './agent/mcp/service';
 import { AgentService } from './agent/main';
-import { HeartbeatService } from './heartbeat';
+import { HeartbeatService } from './agent/heartbeat';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
 

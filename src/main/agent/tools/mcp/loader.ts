@@ -1,6 +1,7 @@
 import type { Context, Tool } from '../../core/tool';
 import type { JSONSchema } from '../../core/types';
-import { McpClient, McpStore } from '../../../mcp';
+import { McpStore } from '../../mcp/store';
+import { McpClient } from '../../mcp/client';
 import { McpTool } from './tool';
 
 export async function loadMcpTools(

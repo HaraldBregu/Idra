@@ -1,7 +1,7 @@
 import { BaseTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
 import type { JSONSchema } from '../../core/types';
-import type { McpClient } from '../../../mcp';
+import type { McpClient } from '../../mcp/client';
 
 type CallResult = { content?: unknown; isError?: boolean };
 
