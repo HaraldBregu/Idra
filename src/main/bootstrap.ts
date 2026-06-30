@@ -13,7 +13,6 @@ import { Config } from './agent/core/config';
 import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
-import { McpService } from './agent/mcp/service';
 import { Agent } from './agent/agent';
 import { HealthService } from './agent/health/service';
 import { ProviderService } from './providers';
@@ -43,7 +42,6 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(Cron, cron);
 
 	container.get(ProviderService);
-	container.get(McpService);
 	container.get(SttService);
 	container.get(HealthService);
 

@@ -12,5 +12,5 @@ export class Store {
 	readonly settings = new SettingsStore(this.config);
 	readonly cron = new CronStore(this.config);
 	readonly skills = new StoreSkills(this.config);
-	readonly mcp = new McpStore();
+	readonly mcp = new McpStore(this.config);
 }

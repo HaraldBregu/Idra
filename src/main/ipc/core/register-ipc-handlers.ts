@@ -14,7 +14,6 @@ import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
 import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
-import { McpService } from '../../agent/mcp/service';
 import { HealthService } from '../../agent/health/service';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
@@ -52,9 +51,9 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 			eventBus
 		)
 	);
-	safeRegister('connectors', () =>
-		new ConnectorsIpc().register({ mcp: container.get(McpService) }, eventBus)
-	);
+	// safeRegister('connectors', () =>
+	// 	new ConnectorsIpc().register({ mcp: container.get(McpService) }, eventBus)
+	// );
 	safeRegister('heartbeat', () =>
 		new HeartbeatIpc().register({ health: container.get(HealthService) }, eventBus)
 	);

@@ -1,11 +1,11 @@
 import path from 'node:path';
-import { app } from 'electron';
 import Store from 'electron-store';
 import type {
 	OAuthClientInformationMixed,
 	OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { McpSettings } from '../../../shared/mcp/mcp';
+import { Config } from '../core/config';
 
 export type McpOAuthState = {
 	clientInformation?: OAuthClientInformationMixed;
@@ -23,10 +23,10 @@ const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
 export class McpStore {
 	private readonly store: Store<ConnectorStoreSchema>;
 
-	constructor(cwd?: string) {
+	constructor(private readonly config: Config) {
 		this.store = new Store<ConnectorStoreSchema>({
-			name: 'settings',
-			cwd: cwd ?? resolveConnectorSettingsLocation(),
+			name: 'mcp',
+			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
 		});
@@ -46,15 +46,5 @@ export class McpStore {
 
 	saveOauth(id: string, state: McpOAuthState): void {
 		this.store.set('oauth', { ...(this.store.store.oauth ?? {}), [id]: state });
-	}
-}
-
-export function resolveConnectorSettingsLocation(): string {
-	try {
-		return path.join(app.getPath('appData'), app.getName(), 'mcp');
-	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday', 'connectors');
 	}
 }

@@ -6,16 +6,17 @@ import { Inject, Service } from 'typedi';
 import { Agent } from '../agent';
 import type { HealthActiveHours, HealthSettings } from './types';
 import { randomUUID } from 'node:crypto';
+import { Config } from '../core/config';
 
-const HEARTBEAT_STORE_NAME = 'settings';
-const HEARTBEAT_AGENT_ID = 'heartbeat';
-const HEARTBEAT_INTERVALS_MS = {
+const HEALTH_STORE_NAME = 'health';
+const HEALTH_AGENT_ID = 'health';
+const HEALTH_INTERVALS_MS = {
 	'0m': 0,
 	'1m': 60 * 1000,
 	'30m': 30 * 60 * 1000,
 	'1h': 60 * 60 * 1000,
 } as const;
-const HEARTBEAT_PROMPT = "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.";
+const HEALTH_PROMPT = "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.";
 
 export const HEALTH_DEFAULT_SETTINGS: HealthSettings = {
 	every: '30m',
@@ -26,24 +27,18 @@ export const HEALTH_DEFAULT_SETTINGS: HealthSettings = {
 	skipWhenBusy: true,
 };
 
-export interface HealthServiceOptions {
-	cwd?: string;
-}
-
 @Service()
 export class HealthService {
 	private readonly store: Store<HealthSettings>;
-	private readonly storeDirectory: string;
 	private timer: NodeJS.Timeout | undefined;
 
 	@Inject(() => Agent)
 	private readonly agent!: Agent;
 
-	constructor(options: HealthServiceOptions = {}) {
-		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
+	constructor(private readonly config: Config) {
 		this.store = new Store<HealthSettings>({
-			name: HEARTBEAT_STORE_NAME,
-			cwd: this.storeDirectory,
+			name: HEALTH_STORE_NAME,
+			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults: HEALTH_DEFAULT_SETTINGS,
 		});
@@ -79,14 +74,6 @@ export class HealthService {
 		const storePath = path.join(this.storeDirectory, `${HEARTBEAT_STORE_NAME}.json`);
 		if (existsSync(storePath)) return;
 		mkdirSync(path.dirname(storePath), { recursive: true });
-		const legacyStorePath = path.join(
-			resolveLegacyHeartbeatStorePath(),
-			`${HEARTBEAT_STORE_NAME}.json`
-		);
-		if (existsSync(legacyStorePath)) {
-			copyFileSync(legacyStorePath, storePath);
-			return;
-		}
 		writeFileSync(storePath, JSON.stringify(this.getSettings(), null, '\t'));
 	}
 
@@ -123,24 +110,6 @@ export class HealthService {
 		} catch (error) {
 			console.error('[HeartbeatService]', 'Heartbeat run failed.', error);
 		}
-	}
-}
-
-function resolveHeartbeatStorePath(): string {
-	try {
-		return path.resolve(app.getPath('appData'), app.getName(), 'heartbeat');
-	} catch {
-		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday', 'heartbeat');
-	}
-}
-
-function resolveLegacyHeartbeatStorePath(): string {
-	try {
-		return path.resolve(app.getPath('appData'), 'heartbeat');
-	} catch {
-		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, 'heartbeat');
 	}
 }
 
