@@ -1,12 +1,8 @@
 export { AgentChannels } from './channels/agent';
 export { AppChannels } from './channels/app';
 export { ChannelsChannels } from './channels/channels';
-export { ConnectorsChannels } from './channels/connectors';
-export { HeartbeatChannels } from './channels/heartbeat';
 export { ProviderStoreChannels } from './channels/provider';
-export { SkillsChannels } from './channels/skills';
 export { SttChannels } from './channels/stt';
-export { TasksChannels } from './channels/tasks';
 export { WindowChannels } from './channels/window';
 
 import type { AgentEventChannelMap, AgentInvokeChannelMap } from './channels/agent';
@@ -15,12 +11,8 @@ import type {
 	ChannelsEventChannelMap,
 	ChannelsInvokeChannelMap,
 } from './channels/channels';
-import type { ConnectorsInvokeChannelMap } from './channels/connectors';
-import type { HeartbeatEventChannelMap, HeartbeatInvokeChannelMap } from './channels/heartbeat';
 import type { ProviderStoreInvokeChannelMap } from './channels/provider';
-import type { SkillsInvokeChannelMap } from './channels/skills';
 import type { SttEventChannelMap, SttInvokeChannelMap } from './channels/stt';
-import type { TasksInvokeChannelMap } from './channels/tasks';
 import type {
 	WindowEventChannelMap,
 	WindowInvokeChannelMap,
@@ -32,12 +24,8 @@ export interface InvokeChannelMap
 		AgentInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
-		HeartbeatInvokeChannelMap,
-		SkillsInvokeChannelMap,
 		ChannelsInvokeChannelMap,
-		ConnectorsInvokeChannelMap,
-		SttInvokeChannelMap,
-		TasksInvokeChannelMap {}
+		SttInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 
@@ -45,5 +33,4 @@ export interface EventChannelMap
 	extends AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
-		HeartbeatEventChannelMap,
 		SttEventChannelMap {}
