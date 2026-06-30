@@ -14,6 +14,7 @@ import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
 import { AgentService } from '../../agent/main/main';
 import { Store } from '../../agent/core/store';
+import { Config } from '../../agent/core/config';
 import { ChannelRegistry } from '../../channels';
 import { McpService } from '../../mcp';
 import { HeartbeatService } from '../../heartbeat';
