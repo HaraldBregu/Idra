@@ -3,9 +3,8 @@ import { Container, Service } from 'typedi';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
-import { RuntimeEvent } from './index';
 import { Cron } from './core/cron';
-import type { Message, SessionCategory } from './core/types';
+import type { Message, RuntimeEvent, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
