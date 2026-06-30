@@ -1,16 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import Store from 'electron-store';
 import cron from 'node-cron';
 import { Container } from 'typedi';
 import { AgentService } from '../main';
+import { CronStore } from '../core/store';
 import { handleAgentFire } from './agent';
-import {
-	clone,
-	isActiveSchedule,
-	CRON_STORE_FILE_NAME,
-	CRON_STORE_DIRECTORY,
-	defaultCronEnabled,
-} from './util';
+import { clone, isActiveSchedule, defaultCronEnabled } from './util';
 import type {
 	CronFunctionId,
 	CronFunctionInput,
