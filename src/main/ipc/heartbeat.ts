@@ -15,7 +15,7 @@ export class HeartbeatIpc implements IpcModule<HeartbeatIpcDeps> {
 	register({ health }: HeartbeatIpcDeps, _eventBus: EventBus): void {
 		registerQuery(HeartbeatChannels.settings, () => health.getSettings());
 		registerCommand(HeartbeatChannels.saveSettings, (request) =>
-			health.updateSettings((request ?? {}) as Partial<HeartbeatSettings>)
+			health.updateSettings((request ?? {}) as Partial<HealthSettings>)
 		);
 	}
 }
