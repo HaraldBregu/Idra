@@ -27,7 +27,7 @@ export interface AgentSendOptions {
 }
 
 @Service()
-export class AgentService {
+export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 
