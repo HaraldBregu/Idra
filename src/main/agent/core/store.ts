@@ -1,20 +1,26 @@
 import path from 'node:path';
 import ElectronStore from 'electron-store';
 import { app } from 'electron';
-import { Provider } from '../index';
+import type { Provider } from '../index';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
 import type { PersistedCronState } from './cron';
 import type { Config } from './config';
 
+export interface SkillSettings {
+	enabled: boolean;
+}
+
 type SettingsSchema = {
 	providerId: string | undefined;
 	modelId: string | undefined;
+	skills: Record<string, SkillSettings>;
 };
 
 const DEFAULT_SETTINGS: SettingsSchema = {
 	providerId: undefined,
 	modelId: undefined,
+	skills: {},
 };
 
 const SETTINGS_STORE_NAME = 'settings';
@@ -69,6 +75,24 @@ export class Store {
 	getModelId(): string | undefined {
 		return this.settings.get('modelId');
 	}
+
+	all(): Record<string, SkillSettings> {
+		return this.settings.store.skills ?? {};
+	}
+
+	get(id: string): SkillSettings | undefined {
+		return this.all()[id];
+	}
+
+	set(id: string, settings: SkillSettings): void {
+		this.settings.set('skills', { ...this.all(), [id]: settings });
+	}
+
+	remove(id: string): void {
+		const next = { ...this.all() };
+		delete next[id];
+		this.settings.set('skills', next);
+	}
 }
 
 function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Provider | undefined {
@@ -78,47 +102,6 @@ function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Pr
 		apiKey: provider.apiKey,
 		baseURL: provider.baseUrl,
 	};
-}
-
-export interface SkillSettings {
-	enabled: boolean;
-}
-
-type SkillsStoreSchema = {
-	skills: Record<string, SkillSettings>;
-};
-
-const DEFAULT_SKILLS_SETTINGS: SkillsStoreSchema = { skills: {} };
-
-export class SkillsStore {
-	private readonly store: ElectronStore<SkillsStoreSchema>;
-
-	constructor(cwd?: string) {
-		this.store = new ElectronStore<SkillsStoreSchema>({
-			name: 'settings',
-			cwd: cwd ?? resolveSkillsRoot(),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_SKILLS_SETTINGS,
-		});
-	}
-
-	all(): Record<string, SkillSettings> {
-		return this.store.store.skills ?? {};
-	}
-
-	get(id: string): SkillSettings | undefined {
-		return this.all()[id];
-	}
-
-	set(id: string, settings: SkillSettings): void {
-		this.store.set('skills', { ...this.all(), [id]: settings });
-	}
-
-	remove(id: string): void {
-		const next = { ...this.all() };
-		delete next[id];
-		this.store.set('skills', next);
-	}
 }
 
 export class CronStore {
