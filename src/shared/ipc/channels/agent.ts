@@ -67,7 +67,10 @@ export interface AgentInvokeChannelMap {
 		result: import('../../../main/agent/cron/cron').CronRuntime;
 	};
 	[AgentChannels.skillsList]: { args: []; result: import('../../skills/types').SkillInfo[] };
-	[AgentChannels.skillsLoad]: { args: [name: string]; result: import('../../skills/types').SkillDetails };
+	[AgentChannels.skillsLoad]: {
+		args: [name: string];
+		result: import('../../skills/types').SkillLoadResult | undefined;
+	};
 	[AgentChannels.skillsImport]: { args: []; result: import('../../skills/types').SkillImportResult | undefined };
 	[AgentChannels.skillsDownload]: {
 		args: [name: string];

@@ -22,7 +22,16 @@ export interface AgentApi {
 	cron: CronApi;
 	health: HealthApi;
 	mcp: McpApi;
-	skills: SkillsApi;
+	skills: {
+		list: () => Promise<SkillInfo[]>;
+		loadSkill: (name: string) => Promise<SkillLoadResult | undefined>;
+		importSkill: () => Promise<SkillImportResult | undefined>;
+		downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
+		delete: (name: string) => Promise<SkillDeleteResult>;
+		setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
+		openRoot: () => Promise<void>;
+		getRoot: () => Promise<string>;
+	};
 }
 
 export interface ChannelsApi {
@@ -46,16 +55,6 @@ export interface McpApi {
 	delete: (id: string) => Promise<void>;
 	oauthStart: (id: string) => Promise<McpOAuthStart>;
 	oauthFinish: (id: string, code: string) => Promise<void>;
-}
-
-export interface SkillsApi {
-	list: () => Promise<SkillInfo[]>;
-	importSkill: () => Promise<SkillImportResult | undefined>;
-	downloadSkill: (name: string) => Promise<SkillDownloadResult | undefined>;
-	delete: (name: string) => Promise<SkillDeleteResult>;
-	setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
-	openRoot: () => Promise<void>;
-	getRoot: () => Promise<string>;
 }
 
 export interface ProviderApi {
@@ -111,6 +110,7 @@ import type {
 	SkillDownloadResult,
 	SkillImportResult,
 	SkillInfo,
+	SkillLoadResult,
 } from '../shared/skills/types';
 import type {
 	MicrophonePermissionSettings,

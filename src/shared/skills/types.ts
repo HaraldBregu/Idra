@@ -81,6 +81,12 @@ export interface SkillDownloadResult {
 	name?: string;
 }
 
+export interface SkillLoadResult {
+	name: string;
+	directory: string;
+	content: string;
+}
+
 export interface SkillFrontmatter {
 	name: string;
 	description: string;

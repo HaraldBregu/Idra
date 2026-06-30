@@ -8,6 +8,7 @@ import type {
 	SkillImportResult,
 	SkillImportSkipped,
 	SkillInfo,
+	SkillLoadResult,
 	SkillManifest,
 	SkillValidationIssue,
 	SkillValidationResult,
@@ -48,7 +49,7 @@ export class Skills {
 			.map((skill) => ({ title: skill.name, description: skill.description }));
 	}
 
-	async loadSkill(name: string): Promise<{ name: string; directory: string; content: string } | undefined> {
+	async loadSkill(name: string): Promise<SkillLoadResult | undefined> {
 		const wanted = name.trim().toLowerCase();
 		const skill = this.list()
 			.filter((entry) => entry.manifest.enabled !== false)

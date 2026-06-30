@@ -14,7 +14,6 @@ import type {
 	ChannelsApi,
 	McpApi,
 	ProviderApi,
-	SkillsApi,
 	SttApi,
 	CronApi,
 	HealthApi,
@@ -215,6 +214,9 @@ export const agent: AgentApi = {
 		list: () => {
 			return typedInvokeUnwrap(AgentChannels.skillsList);
 		},
+		loadSkill: (name: string) => {
+			return typedInvokeUnwrap(AgentChannels.skillsLoad, name);
+		},
 		importSkill: () => {
 			return typedInvokeUnwrap(AgentChannels.skillsImport);
 		},
@@ -233,7 +235,7 @@ export const agent: AgentApi = {
 		getRoot: (): Promise<string> => {
 			return typedInvokeUnwrap(AgentChannels.skillsGetRoot);
 		},
-	} satisfies SkillsApi,
+	} satisfies AgentApi['skills'],
 } satisfies AgentApi;
 
 export const app: AppApi = {
