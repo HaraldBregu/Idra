@@ -38,15 +38,15 @@ export class Runner {
 	constructor(
 		private readonly config: Config,
 		private readonly cron: Cron,
+		private readonly settings: SettingsStore,
 	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
 		const session = new Session(this.config, input, input.category);
-		const store = new SettingsStore(this.config);
 
 		try {
-			for await (const event of this.stream(input, signal, session, store)) {
+			for await (const event of this.stream(input, signal, session, this.settings)) {
 				session.appendRun(event);
 				yield event;
 			}
