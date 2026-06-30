@@ -8,7 +8,7 @@ import {
 	AppPermissionsService,
 } from './app';
 import { LoggerService } from './shared';
-import { CronService } from './agent/cron';
+import { CronService } from './agent/cron/service';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './mcp';
