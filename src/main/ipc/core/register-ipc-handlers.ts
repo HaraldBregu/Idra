@@ -21,7 +21,7 @@ import { McpService } from '../../mcp';
 import { HeartbeatService } from '../../heartbeat';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
-import { CronService } from '../../agent/cron/service';
+import { CronService } from '../../agent/core/cron';
 
 export function registerIpcHandlers(container: ContainerInstance, eventBus: EventBus): void {
 	const logger = container.get(LoggerService);
