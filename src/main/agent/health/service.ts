@@ -3,7 +3,7 @@ import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import Store from 'electron-store';
 import { app } from 'electron';
 import { Inject, Service } from 'typedi';
-import { AgentService } from '../main';
+import { Agent } from '../agent';
 import type { HealthActiveHours, HealthSettings } from './types';
 import { randomUUID } from 'node:crypto';
 
