@@ -4,6 +4,7 @@ import { app } from 'electron';
 import { Provider } from '../index';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
+import type { Config } from './config';
 
 type SettingsSchema = {
 	providerId: string | undefined;
