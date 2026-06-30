@@ -33,7 +33,7 @@ export abstract class CronTool extends Tool {
 	abstract readonly description: string;
 	abstract readonly schema: JSONSchema;
 
-	constructor(readonly cron: Cron, context: Context) {
+	constructor(readonly cron: CronService, context: Context) {
 		super(context);
 	}
 }
