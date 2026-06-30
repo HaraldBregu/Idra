@@ -1,6 +1,5 @@
 import path from 'node:path';
 import ElectronStore from 'electron-store';
-import { app } from 'electron';
 import type { Provider } from '../index';
 import type { Provider as StoredProvider } from '../../../shared/providers/types';
 import { ProviderService } from '../../providers';
@@ -121,14 +120,4 @@ function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Pr
 		apiKey: provider.apiKey,
 		baseURL: provider.baseUrl,
 	};
-}
-
-export function resolveSkillsRoot(): string {
-	try {
-		return path.join(app.getPath('appData'), app.getName(), 'skills');
-	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.resolve(base, app?.getName?.() ?? 'Friday', 'skills');
-	}
 }
