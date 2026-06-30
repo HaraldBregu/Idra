@@ -1,126 +1,72 @@
-import path from 'node:path';
-import ElectronStore from 'electron-store';
 import type { Provider } from '../index';
-import { ProviderService } from '../../providers';
 import type { PersistedCronState } from './cron';
 import type { Config } from './config';
+import { CronStore } from './store.cron';
+import { SettingsStore } from './store.settings';
+import { SkillsStore, type SkillSettings } from './store.skills';
 
-export interface SkillSettings {
-	enabled: boolean;
-}
-
-type SettingsSchema = {
-	providerId: string | undefined;
-	modelId: string | undefined;
-};
-
-type SkillsSchema = {
-	skills: Record<string, SkillSettings>;
-};
-
-const DEFAULT_SETTINGS: SettingsSchema = {
-	providerId: undefined,
-	modelId: undefined,
-};
-
-const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
-const SETTINGS_STORE_NAME = 'settings';
-const CRON_STORE_NAME = 'cron';
-const SKILLS_STORE_NAME = 'skills';
-const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
+export type { SkillSettings } from './store.skills';
 
 export class Store {
-	private readonly settings: ElectronStore<SettingsSchema>;
-	private readonly cron: ElectronStore<PersistedCronState>;
-	private readonly skills: ElectronStore<SkillsSchema>;
-	private readonly providerStore = new ProviderService();
+	private readonly settings: SettingsStore;
+	private readonly cron: CronStore;
+	private readonly skills: SkillsStore;
 
 	constructor(private readonly config: Config) {
-		this.settings = new ElectronStore<SettingsSchema>({
-			name: SETTINGS_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_SETTINGS,
-		});
-		this.cron = new ElectronStore<PersistedCronState>({
-			name: CRON_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_CRON_STATE,
-		});
-		this.skills = new ElectronStore<SkillsSchema>({
-			name: SKILLS_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_SKILLS,
-		});
+		this.settings = new SettingsStore(this.config);
+		this.cron = new CronStore(this.config);
+		this.skills = new SkillsStore(this.config);
 	}
 
 	getProvider(): Provider | undefined {
-		const providerId = this.getProviderId();
-		if (!providerId) return undefined;
-		const provider = this.providerStore.get(providerId);
-		if (!provider) return undefined;
-		return {
-			id: providerId,
-			apiKey: provider.apiKey,
-			baseURL: provider.baseUrl,
-		};
+		return this.settings.getProvider();
 	}
 
 	setProvider(provider: Provider): void {
-		const existing = this.providerStore.get(provider.id);
-		this.providerStore.set(provider.id, {
-			name: existing?.name ?? provider.id,
-			apiKey: provider.apiKey,
-			baseUrl: provider.baseURL,
-		});
-		this.setProviderId(provider.id);
+		this.settings.setProvider(provider);
 	}
 
 	getVersion(): number {
-		return this.settings.get('version');
+		return this.settings.getVersion();
 	}
 
 	getProviderId(): string | undefined {
-		return this.settings.get('providerId');
+		return this.settings.getProviderId();
 	}
 
 	setProviderId(providerId: string): void {
-		this.settings.set('providerId', providerId);
+		this.settings.setProviderId(providerId);
 	}
 
 	setModelId(modelId: string): void {
-		this.settings.set('modelId', modelId);
+		this.settings.setModelId(modelId);
 	}
 
 	getModelId(): string | undefined {
-		return this.settings.get('modelId');
+		return this.settings.getModelId();
 	}
 
 	all(): Record<string, SkillSettings> {
-		return this.skills.store.skills ?? {};
+		return this.skills.all();
 	}
 
 	get(id: string): SkillSettings | undefined {
-		return this.all()[id];
+		return this.skills.get(id);
 	}
 
 	set(id: string, settings: SkillSettings): void {
-		this.skills.set('skills', { ...this.all(), [id]: settings });
+		this.skills.set(id, settings);
 	}
 
 	remove(id: string): void {
-		const next = { ...this.all() };
-		delete next[id];
-		this.skills.set('skills', next);
+		this.skills.remove(id);
 	}
 
 	getCronState(): PersistedCronState {
-		return this.cron.store;
+		return this.cron.getState();
 	}
 
 	setCronState(value: PersistedCronState): void {
-		this.cron.store = value;
+		this.cron.setState(value);
 	}
 }
