@@ -5,14 +5,12 @@ import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { AgentService, AgentSendOptions } from '../agent/main';
 import type { LoggerService } from '../shared';
-import type { SettingsStore } from '../agent/core/store.settings';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: AgentService;
-	settings: SettingsStore;
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
