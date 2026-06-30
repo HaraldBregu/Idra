@@ -29,6 +29,7 @@ const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
 
 export class Store {
 	private readonly settings: ElectronStore<SettingsSchema>;
+	private cron?: ElectronStore<PersistedCronState>;
 	private readonly providerStore = new ProviderService();
 
 	constructor(private readonly config: Config) {
@@ -93,6 +94,24 @@ export class Store {
 		delete next[id];
 		this.settings.set('skills', next);
 	}
+
+	getCronState(): PersistedCronState {
+		return this.cronStore.store;
+	}
+
+	setCronState(value: PersistedCronState): void {
+		this.cronStore.store = value;
+	}
+
+	private get cronStore(): ElectronStore<PersistedCronState> {
+		this.cron ??= new ElectronStore<PersistedCronState>({
+			name: CRON_STORE_NAME,
+			cwd: path.resolve(this.config.location),
+			accessPropertiesByDotNotation: false,
+			defaults: DEFAULT_CRON_STATE,
+		});
+		return this.cron;
+	}
 }
 
 function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Provider | undefined {
@@ -102,27 +121,6 @@ function toRuntimeProvider(id: string, provider: StoredProvider | undefined): Pr
 		apiKey: provider.apiKey,
 		baseURL: provider.baseUrl,
 	};
-}
-
-export class CronStore {
-	private readonly store: ElectronStore<PersistedCronState>;
-
-	constructor(config: Config) {
-		this.store = new ElectronStore<PersistedCronState>({
-			name: CRON_STORE_NAME,
-			cwd: path.resolve(config.location),
-			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_CRON_STATE,
-		});
-	}
-
-	get state(): PersistedCronState {
-		return this.store.store;
-	}
-
-	set state(value: PersistedCronState) {
-		this.store.store = value;
-	}
 }
 
 export function resolveSkillsRoot(): string {

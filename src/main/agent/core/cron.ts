@@ -4,7 +4,7 @@ import { Container } from 'typedi';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
 import { AgentService } from '../main';
 import { Config } from './config';
-import { CronStore } from './store';
+import { Store } from './store';
 import { agentLocation } from '../shared/location';
 
 export interface CronJobInfo {
@@ -149,7 +149,7 @@ interface CronJobHandle {
 }
 
 export class Cron {
-	private readonly store: CronStore;
+	private readonly store: Store;
 	private readonly tasks = new Map<string, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
@@ -168,7 +168,7 @@ export class Cron {
 	};
 
 	constructor(options: CronOptions = {}) {
-		this.store = new CronStore(options.config ?? new Config({ location: agentLocation() }));
+		this.store = new Store(options.config ?? new Config({ location: agentLocation() }));
 		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
 		this.writeState((state) => {
 			state.enabled = this.enabled;
@@ -463,13 +463,13 @@ export class Cron {
 	}
 
 	private readState(): PersistedCronState {
-		return this.store.state;
+		return this.store.getCronState();
 	}
 
 	private writeState<T>(mutate: (state: PersistedCronState) => T): T {
 		const state = this.readState();
 		const result = mutate(state);
-		this.store.state = state;
+		this.store.setCronState(state);
 		return result;
 	}
 }
