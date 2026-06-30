@@ -29,10 +29,8 @@ export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 
-	private readonly config = new Config({ location: agentLocation() });
-	readonly settings = new SettingsStore(this.config);
-	readonly cron = new CronStore(this.config);
-	readonly skills = new StoreSkills(this.config);
+	@Inject(() => Store)
+	readonly store!: Store;
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId.trim();
