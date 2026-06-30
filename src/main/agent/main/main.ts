@@ -91,13 +91,13 @@ export class AgentService {
 	}
 
 	getLastMessages(sessionId: string): AgentHistoryMessage[] {
-		return Session.loadMessages(sessionId)
+		return Session.loadMessages(sessionId, new Config({ location: 'main' }))
 			.slice(-this.lastMessagesLimit)
 			.flatMap(toHistoryMessages);
 	}
 
 	clearMessages(sessionId: string): void {
-		Session.clearMessages(sessionId);
+		Session.clearMessages(sessionId, new Config({ location: 'main' }));
 	}
 
 	cancel(agentId?: string): void {
