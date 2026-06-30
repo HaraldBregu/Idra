@@ -7,7 +7,8 @@ import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { Cron } from '../agent/cron/cron';
 import { Config } from '../agent/core/config';
-import { resolveSkillsRoot, Skills } from '../agent/skills/skills';
+import { Skills } from '../agent/skills/skills';
+import { agentLocation } from '../agent/shared/location';
 import { createOAuthProvider, type McpOAuthStorage } from '../agent/mcp/oauth';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
@@ -160,7 +161,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
-	register({ logger, agent, cron, skills = new Skills(new Config({ location: resolveSkillsRoot() })) }: AgentIpcDeps, eventBus: EventBus): void {
+	register({ logger, agent, cron, skills = new Skills(new Config({ location: agentLocation() })) }: AgentIpcDeps, eventBus: EventBus): void {
 
 		ipcMain.handle(
 			AgentChannels.send,
