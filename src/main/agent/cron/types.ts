@@ -37,7 +37,7 @@ export interface CronScheduledTask {
 
 export type CronAction =
 	| { type: 'debug'; message: string }
-	| { type: 'agent'; prompt: string; effort: string };
+	| { type: 'agent'; prompt: string; effort: ModelReasoningEffort };
 
 export interface CronSchedule {
 	id: string;
