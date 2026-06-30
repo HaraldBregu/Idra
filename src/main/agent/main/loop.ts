@@ -37,7 +37,7 @@ export class AgentRuntime {
   
 	constructor(
 		private readonly config: Config,
-		private readonly cron: Cron,
+		private readonly cron: CronService,
 	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
