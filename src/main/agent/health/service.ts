@@ -36,8 +36,8 @@ export class HealthService {
 	private readonly storeDirectory: string;
 	private timer: NodeJS.Timeout | undefined;
 
-	@Inject(() => AgentService)
-	private readonly agent!: AgentService;
+	@Inject(() => Agent)
+	private readonly agent!: Agent;
 
 	constructor(options: HealthServiceOptions = {}) {
 		this.storeDirectory = options.cwd ?? resolveHeartbeatStorePath();
