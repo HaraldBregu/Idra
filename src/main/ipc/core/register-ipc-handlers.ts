@@ -13,7 +13,7 @@ import type { EventBus } from '../../app';
 import { AppPermissionsService } from '../../app';
 import { LoggerService } from '../../shared';
 import { AgentService } from '../../agent/main';
-import { Store } from '../../agent/core/store';
+import { SettingsStore } from '../../agent/core/store.settings';
 import { Config } from '../../agent/core/config';
 import { agentLocation } from '../../agent/shared/location';
 import { ChannelRegistry } from '../../channels';
@@ -45,7 +45,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 			{
 				logger,
 				agent: container.get(AgentService),
-				settings: new Store(new Config({ location: agentLocation() })),
+				settings: new SettingsStore(new Config({ location: agentLocation() })),
 			},
 			eventBus
 		)

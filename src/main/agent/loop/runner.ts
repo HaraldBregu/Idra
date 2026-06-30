@@ -11,7 +11,7 @@ import type { Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
 import type { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
-import { Store } from '../core/store';
+import { SettingsStore } from '../core/store.settings';
 import { Session } from '../core/session';
 import { ToolLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
@@ -43,7 +43,7 @@ export class Runner {
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
 		const session = new Session(this.config, input, input.category);
-		const store = new Store(this.config);
+		const store = new SettingsStore(this.config);
 
 		try {
 			for await (const event of this.stream(input, signal, session, store)) {
@@ -63,7 +63,7 @@ export class Runner {
 		input: RuntimeInput,
 		signal: AbortSignal,
 		session: Session,
-		settings: Store
+		settings: SettingsStore
 	): AsyncGenerator<RuntimeEvent> {
 		const provider = settings.getProvider();
 		const modelId = settings.getModelId();
