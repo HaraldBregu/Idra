@@ -36,8 +36,8 @@ export class AgentRuntime {
 	private readonly model = new AgentModel();
 
 	constructor(
+		private readonly config: Config,
 		private readonly cron: Cron,
-		private readonly config: Config
 	) {}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
@@ -80,7 +80,7 @@ export class AgentRuntime {
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = new System(new Skills());
+		const system = new System(this.config, new Skills());
 		await system.addBasePrompt();
 		await system.addWorkspacePrompt();
 		await system.addSkillsPrompt();

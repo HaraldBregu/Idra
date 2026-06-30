@@ -23,7 +23,7 @@ export class Store {
 	constructor(private readonly config: Config) {
 		this.store = new ElectronStore<SettingsSchema>({
 			name: 'settings',
-			cwd: path.resolve(resolveAgentSettingsLocation()),
+			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults: DEFAULT_SETTINGS,
 		});
@@ -63,15 +63,6 @@ export class Store {
 
 	getModelId(): string | undefined {
 		return this.store.get('modelId');
-	}
-}
-
-function resolveAgentSettingsLocation(): string {
-	try {
-		return path.join(app.getPath('userData'), 'agent');
-	} catch {
-		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
-		return path.join(path.resolve(base, app?.getName?.() ?? 'Friday'), 'agent');
 	}
 }
 

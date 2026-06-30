@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { Skills } from './skills';
-import { resolveAgentUsageLocation } from '../shared/location';
+import { Config } from './config';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
@@ -14,11 +14,15 @@ const TOOLS_FILE = 'TOOLS.md'
 const USER_FILE = 'USER.md'
 
 export class System {
-	private readonly workspacePath = path.resolve(resolveAgentUsageLocation(), 'workspace');
+	private readonly workspacePath: string;
 	private _prompt = '';
 	private readonly skills: Skills;
 
-	constructor(skills: Skills) {
+	constructor(
+		private readonly config: Config,
+		 skills: Skills,
+	) {
+		this.workspacePath = path.resolve(this.config.location, 'workspace');
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}

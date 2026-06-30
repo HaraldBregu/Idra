@@ -9,7 +9,6 @@ import {
 	writeFileSync,
 } from 'node:fs';
 import path from 'node:path';
-import { resolveAgentUsageLocation } from '../shared/location';
 import type { Config } from './config';
 import type {
 	SessionInput,
@@ -23,7 +22,6 @@ import type {
 } from './types';
 
 const DEFAULT_CATEGORY: SessionCategory = 'home';
-const LOCATION = resolveAgentUsageLocation();
 
 export class Session {
 	readonly id: string;
@@ -44,13 +42,13 @@ export class Session {
 		private readonly config: Config,
 		category: SessionCategory = DEFAULT_CATEGORY
 	) {
-		this.id = resolveSessionId(input.sessionId, category, LOCATION);
+		this.id = resolveSessionId(input.sessionId, category, this.config.location);
 		this.sessionFolderName = sessionFolderName(this.id);
-		this.sessionsPath = sessionsRoot(LOCATION, category);
-		const storedMessages = loadMessagesBySessionId(this.id, category, LOCATION);
+		this.sessionsPath = sessionsRoot(this.config.location, category);
+		const storedMessages = loadMessagesBySessionId(this.id, category, this.config.location);
 		const legacyMessages =
 			input.sessionId && input.sessionId !== this.id && storedMessages.length === 0
-				? loadMessagesBySessionId(input.sessionId, category, LOCATION)
+				? loadMessagesBySessionId(input.sessionId, category, this.config.location)
 				: [];
 		this.messages = [
 			...(storedMessages.length > 0 ? storedMessages : legacyMessages),
@@ -62,14 +60,22 @@ export class Session {
 		this.persist();
 	}
 
-	static loadMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): Message[] {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, category, LOCATION);
-		return loadMessagesBySessionId(resolvedSessionId, category, LOCATION);
+	static loadMessages(
+		sessionId: string,
+		config: Config,
+		category: SessionCategory = DEFAULT_CATEGORY
+	): Message[] {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, category, config.location);
+		return loadMessagesBySessionId(resolvedSessionId, category, config.location);
 	}
 
-	static clearMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): void {
-		const resolvedSessionId = resolveStoredSessionId(sessionId, category, LOCATION);
-		clearMessagesBySessionId(resolvedSessionId, category, LOCATION);
+	static clearMessages(
+		sessionId: string,
+		config: Config,
+		category: SessionCategory = DEFAULT_CATEGORY
+	): void {
+		const resolvedSessionId = resolveStoredSessionId(sessionId, category, config.location);
+		clearMessagesBySessionId(resolvedSessionId, category, config.location);
 	}
 
 	appendRun(entry: unknown): void {

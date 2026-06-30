@@ -1,16 +1,15 @@
 import path from 'node:path';
 import { app } from 'electron';
 
-export function resolveAgentUsageLocation(): string {
-	return path.join(resolveLocation(), 'agent');
+export function agentLocation(): string {
+	return path.join(userDataLocation(), 'agent');
 }
 
-function resolveLocation(): string {
+function userDataLocation(): string {
 	try {
 		return app.getPath('userData');
 	} catch {
-		const base =
-			process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
+		const base = process.env.APPDATA ?? process.env.XDG_CONFIG_HOME ?? process.env.HOME ?? process.cwd();
 		return path.resolve(base, app?.getName?.() ?? 'Friday');
 	}
 }
