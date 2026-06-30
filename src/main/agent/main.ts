@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Container, Service } from 'typedi';
 import { Session } from './core/session';
-import { AgentRuntime } from './main/loop';
+import { AgentRuntime } from './loop/loop';
 import { Config } from './core/config';
 import { RuntimeEvent } from './index';
 import { Cron } from './core/cron';
