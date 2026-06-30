@@ -1,3 +1,3 @@
-export class Config {
-	constructor(public readonly location: string) {}
+export abstract class Config {
+	abstract get location(): string
 }
