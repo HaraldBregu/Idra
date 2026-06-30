@@ -54,7 +54,7 @@ const SkillDetailsPage: React.FC = () => {
 		setLoading(true);
 		setErrorMessage('');
 		try {
-			const list = await window.skills.list();
+			const list = await window.agent.skills.list();
 			setSkill(list.find((item) => item.id === decodedSkillId) ?? null);
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, loadErrorFallback));
@@ -74,7 +74,7 @@ const SkillDetailsPage: React.FC = () => {
 			setToggling(true);
 			setErrorMessage('');
 			try {
-				const updated = await window.skills.setEnabled(skill.id, next);
+				const updated = await window.agent.skills.setEnabled(skill.id, next);
 				setSkill(updated);
 			} catch (error) {
 				setErrorMessage(getErrorMessage(error, t('settings.skills.enableError')));
@@ -91,7 +91,7 @@ const SkillDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 		try {
-			const downloaded = await window.skills.downloadSkill(skill.id);
+			const downloaded = await window.agent.skills.downloadSkill(skill.id);
 			if (downloaded) {
 				setSuccessMessage(
 					t('settings.skills.downloaded', {
@@ -116,7 +116,7 @@ const SkillDetailsPage: React.FC = () => {
 		setErrorMessage('');
 		setSuccessMessage('');
 		try {
-			await window.skills.delete(skill.id);
+			await window.agent.skills.delete(skill.id);
 			navigate('/settings/skills');
 		} catch (error) {
 			setErrorMessage(getErrorMessage(error, t('settings.skills.deleteError')));

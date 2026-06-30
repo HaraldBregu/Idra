@@ -33,7 +33,7 @@ import {
 	SettingsSection,
 } from '../../components';
 
-type Task = Awaited<ReturnType<typeof window.tasks.list>>[number];
+type Task = Awaited<ReturnType<typeof window.agent.cron.list>>[number];
 
 interface ProviderGroup {
 	readonly id: string;
@@ -69,7 +69,7 @@ const TasksPage: React.FC = () => {
 
 	useEffect(() => {
 		let mounted = true;
-		void Promise.all([window.tasks.list(), window.tasks.getRuntime()])
+		void Promise.all([window.agent.cron.list(), window.agent.cron.getRuntime()])
 			.then(([list, runtime]) => {
 				if (!mounted) return;
 				setTasks(list);
@@ -112,7 +112,7 @@ const TasksPage: React.FC = () => {
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			await window.tasks.setRuntime(providerId, modelId);
+			await window.agent.cron.setRuntime(providerId, modelId);
 			setSaved(true);
 		} catch (err) {
 			setRuntimeError(
