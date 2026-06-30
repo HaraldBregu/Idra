@@ -77,7 +77,6 @@ export async function cleanup(container: ContainerInstance): Promise<void> {
 	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
 	container.get(Cron).destroy();
-	container.get(HealthService).destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
 }
