@@ -32,7 +32,7 @@ export interface CronServiceEvents {
 }
 
 export class CronService {
-	private readonly store: Store<PersistedCronState>;
+	private readonly store: CronStore;
 	private readonly tasks = new Map<string, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
