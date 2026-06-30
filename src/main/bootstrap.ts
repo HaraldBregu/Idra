@@ -37,7 +37,8 @@ export function bootstrapServices(): BootstrapResult {
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = container.get(CronService);
+	const cron = new CronService();
+	container.set(CronService, cron);
 
 	container.get(ProviderService);
 	container.get(McpService);
