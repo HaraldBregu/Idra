@@ -38,15 +38,15 @@ export class AgentRuntime {
 	constructor(
 		private readonly config: Config,
 		private readonly cron: Cron,
-	) {}
+	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
-		const session = new Session(input, this.config, input.category);
-		const settings = new Store(this.config);
+		const session = new Session(this.config, input, input.category);
+		const store = new Store(this.config);
 
 		try {
-			for await (const event of this.stream(input, signal, session, settings)) {
+			for await (const event of this.stream(input, signal, session, store)) {
 				session.appendRun(event);
 				yield event;
 			}

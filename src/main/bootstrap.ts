@@ -12,7 +12,7 @@ import { CronService } from './cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { McpService } from './mcp';
-import { AgentService } from './agent/main/main';
+import { AgentService } from './agent/main';
 import { HeartbeatService } from './heartbeat';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';

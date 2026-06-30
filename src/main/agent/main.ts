@@ -1,20 +1,21 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Service } from 'typedi';
-import { Session } from '../core/session';
-import { AgentRuntime } from './loop';
-import { Config } from '../core/config';
-import { RuntimeEvent } from '../index';
-import { CronService } from '../../cron';
-import type { Cron } from '../core/cron';
-import type { Message, SessionCategory } from '../core/types';
+import { Session } from './core/session';
+import { AgentRuntime } from './main/loop';
+import { Config } from './core/config';
+import { RuntimeEvent } from './index';
+import { CronService } from '../cron';
+import type { Cron } from './core/cron';
+import type { Message, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	ModelReasoningEffort,
-} from '../../../shared/agent/types';
-import { toError } from '../../ipc/core/error';
+} from '../../shared/agent/types';
+import { toError } from '../ipc/core/error';
+import { agentLocation } from './shared/location';
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -51,8 +52,7 @@ export class AgentService {
 				effort: options.effort,
 			};
 
-
-			const config = new Config({ location: resolvedAgentId });
+			const config = new Config({ location: agentLocation() });
 			const runtime = new AgentRuntime(config, this.cron);
 			const input = {
 				...sessionInput,

@@ -38,8 +38,8 @@ export class Session {
 	private readonly sessionFolderName: string;
 
 	constructor(
-		input: SessionInput,
 		private readonly config: Config,
+		input: SessionInput,
 		category: SessionCategory = DEFAULT_CATEGORY
 	) {
 		this.id = resolveSessionId(input.sessionId, category, this.config.location);
