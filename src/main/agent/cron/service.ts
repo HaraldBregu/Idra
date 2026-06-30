@@ -243,7 +243,10 @@ export class CronService {
 			console.info('[CronService]', `Schedule ${scheduleId} fired: ${schedule.action.message}`);
 		}
 		if (schedule.action.type === 'agent') {
-			handleAgentFire(Container.of('main').get(AgentService), scheduleId, schedule.action);
+			void Container.of('main').get(AgentService).send(schedule.action.prompt, randomUUID(), {
+				category: 'task',
+				sessionId: scheduleId,
+			});
 		}
 		this.trigger(scheduleId);
 	}
