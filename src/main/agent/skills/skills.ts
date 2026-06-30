@@ -24,7 +24,7 @@ export class Skills {
 	private readonly root: string;
 
 	constructor(private readonly config: Config) {
-		this.root = this.config.location;
+		this.root = path.resolve(this.config.location, 'skills');
 		this.store = new SkillsStore(this.config);
 	}
 
