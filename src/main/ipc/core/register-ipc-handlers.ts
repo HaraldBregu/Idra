@@ -41,7 +41,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 		new AgentIpc().register(
 			{
 				logger,
-				agent: container.get(AgentService),
+				agent: container.get(Agent),
 			},
 			eventBus
 		)
