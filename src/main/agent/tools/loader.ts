@@ -5,14 +5,14 @@ import { EditTool } from './filesystem/edit';
 import { ExecTool } from './runtime/exec';
 import { ProcessTool } from './runtime/process';
 import { LoadSkillTool } from './skills/load';
-import { CreateScheduleTool } from './automation/create';
-import { UpdateScheduleTool } from './automation/update';
-import { PauseScheduleTool } from './automation/pause';
-import { ResumeScheduleTool } from './automation/resume';
-import { DeleteScheduleTool } from './automation/delete';
-import { GetScheduleTool } from './automation/get';
-import { ListSchedulesTool } from './automation/list';
-import { RunScheduleNowTool } from './automation/run';
+import { CreateScheduleTool } from './automation/cron-create-schedule';
+import { UpdateScheduleTool } from './automation/cron-update-schedule';
+import { PauseScheduleTool } from './automation/cron-pause-schedule';
+import { ResumeScheduleTool } from './automation/cron-resume-schedule';
+import { DeleteScheduleTool } from './automation/cron-delete-schedule';
+import { GetScheduleTool } from './automation/cron-get-schedule';
+import { ListSchedulesTool } from './automation/cron-list-schedules';
+import { RunScheduleNowTool } from './automation/cron-run-schedule-now';
 
 export class ToolsLoader {
 	constructor(private readonly context: Context) {}
