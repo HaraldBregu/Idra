@@ -7,11 +7,9 @@ import {
 	WindowContextManager,
 } from './app';
 import { LoggerService } from './shared';
-import { Cron } from './agent/cron/cron';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
-import { Skills } from './agent/skills/skills';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
 
@@ -22,8 +20,7 @@ export interface BootstrapResult {
 	appState: AppState;
 	logger: LoggerService;
 	windowContextManager: WindowContextManager;
-	cron: Cron;
-	skills: Skills;
+	agentService: Agent;
 	appPermissions: AppPermissions;
 }
 
@@ -49,22 +46,16 @@ export function bootstrapServices(): BootstrapResult {
 	const appPermissions = createAppPermissions();
 
 	const agentService = new Agent();
-	const config = agentService.config;
 	container.set(Agent, agentService);
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new Cron(agentService.cron);
-	const skills = new Skills(config, agentService.skills);
 
 	container.get(ProviderService);
 	container.get(SttService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);
-	void cron.start().catch((error) => {
-		logger.error('Cron', 'Failed to start persistent cron scheduler', error);
-	});
 
 	const windowFactory = new WindowFactory(logger);
 	container.set(WindowFactory, windowFactory);
@@ -81,18 +72,16 @@ export function bootstrapServices(): BootstrapResult {
 		appState,
 		logger,
 		windowContextManager,
-		cron,
-		skills,
+		agentService,
 		appPermissions,
 	};
 }
 
-export async function cleanup(container: ContainerInstance, cron: Cron): Promise<void> {
+export async function cleanup(container: ContainerInstance): Promise<void> {
 	const logger = container.get(LoggerService);
 	logger.info('Bootstrap', 'Starting cleanup');
 	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
-	cron.destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
 }

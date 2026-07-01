@@ -19,6 +19,8 @@ import {
 } from './shared/error-reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
+import { Cron } from './agent/cron/cron';
+import { Skills } from './agent/skills/skills';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -79,10 +81,14 @@ const {
 	windowFactory,
 	logger,
 	windowContextManager,
-	cron,
-	skills,
+	agentService,
 	appPermissions,
 } = bootstrapServices();
+const cron = new Cron(agentService.cron);
+const skills = new Skills(agentService.config, agentService.skills);
+void cron.start().catch((error) => {
+	logger.error('Cron', 'Failed to start persistent cron scheduler', error);
+});
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
 setupMemoryMonitor(logger);
@@ -157,5 +163,6 @@ app.whenReady().then(async () => {
 // Note: window-all-closed and before-quit handlers are now managed by setupAppLifecycle
 
 app.on('quit', () => {
-	cleanup(container, cron);
+	cron.destroy();
+	cleanup(container);
 });
