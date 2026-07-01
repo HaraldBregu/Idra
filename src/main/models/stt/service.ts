@@ -234,8 +234,8 @@ export class SttService {
 		return session;
 	}
 
-	private getConfiguredProviderId(mode: VoiceMode): SpeechToTextProviderId | undefined {
-		const providerId = getVoiceProviderId(mode);
+	private getConfiguredProviderId(): SpeechToTextProviderId | undefined {
+		const providerId = getVoiceProviderId();
 		if (!providerId) return undefined;
 		try {
 			return this.resolveProviderId(providerId);
