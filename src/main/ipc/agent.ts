@@ -5,7 +5,7 @@ import type { EventBus } from '../app/event-bus';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { Agent, AgentSendOptions } from '../agent/agent';
-import { getRuntime, listSchedules, setRuntime } from '../agent/cron/cron';
+import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
 import * as skills from '../agent/skills';
 import { createOAuthProvider, type McpOAuthStorage } from '../agent/mcp/oauth';
 import type { LoggerService } from '../shared';
