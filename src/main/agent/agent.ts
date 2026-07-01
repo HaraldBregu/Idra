@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { Service } from 'typedi';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
@@ -47,7 +46,6 @@ export interface AgentSendOptions {
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
-@Service()
 export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;

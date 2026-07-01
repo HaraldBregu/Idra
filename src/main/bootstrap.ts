@@ -38,7 +38,8 @@ export function bootstrapServices(): BootstrapResult {
 
 	const config = new Config({ location: agentLocation() });
 	container.set(Config, config);
-	const agentService = container.get(Agent);
+	const agentService = new Agent(config);
+	container.set(Agent, agentService);
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
