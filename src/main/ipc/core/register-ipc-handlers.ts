@@ -11,16 +11,10 @@ import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
-import { Cron } from '../../agent/cron/cron';
-
-export interface RegisterIpcHandlersServices {
-	cron: Cron;
-}
 
 export function registerIpcHandlers(
 	container: ContainerInstance,
-	eventBus: EventBus,
-	services: RegisterIpcHandlersServices
+	eventBus: EventBus
 ): void {
 	const logger = container.get(LoggerService);
 
