@@ -59,41 +59,6 @@ const THEME_OPTIONS: readonly ThemeOption[] = [
 	{ value: 'system', labelKey: 'settings.theme.system' },
 ] as const;
 
-const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
-	enabled: true,
-	systemStatus: 'unknown',
-	canRequest: false,
-};
-
-const DEFAULT_CAMERA_PERMISSION: CameraPermissionSettings = {
-	enabled: true,
-	systemStatus: 'unknown',
-	canRequest: false,
-};
-
-const MEDIA_PERMISSION_COPY = {
-	microphone: {
-		enabledTitleKey: 'settings.microphone.recording',
-		enabledDescriptionKey: 'settings.microphone.recordingDescription',
-		systemPermissionKey: 'settings.microphone.systemPermission',
-		systemPermissionDescriptionKey: 'settings.microphone.systemPermissionDescription',
-	},
-	camera: {
-		enabledTitleKey: 'settings.camera.access',
-		enabledDescriptionKey: 'settings.camera.accessDescription',
-		systemPermissionKey: 'settings.camera.systemPermission',
-		systemPermissionDescriptionKey: 'settings.camera.systemPermissionDescription',
-	},
-} satisfies Record<
-	MediaPermissionKind,
-	{
-		readonly enabledTitleKey: string;
-		readonly enabledDescriptionKey: string;
-		readonly systemPermissionKey: string;
-		readonly systemPermissionDescriptionKey: string;
-	}
->;
-
 function errorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
 }
