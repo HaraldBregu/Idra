@@ -1,5 +1,5 @@
 import type { ChildProcess } from 'node:child_process';
-import { BaseTool, Context } from '../../core/tool';
+import { BaseTool, Context } from '../../core/types';
 
 const MAX_BUFFER = 500_000;
 
