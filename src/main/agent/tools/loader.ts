@@ -17,10 +17,7 @@ import {
 } from './automation/cron';
 
 export class ToolsLoader {
-	constructor(
-		private readonly context: Context,
-		private readonly cron: Cron,
-	) {	}
+	constructor(private readonly context: Context) {}
 
 	get tools(): Tool[] {
 		return [
