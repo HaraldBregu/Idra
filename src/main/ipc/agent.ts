@@ -199,7 +199,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.getProvider,
 			wrapSimpleHandler((): PublicProvider | undefined => {
-				const providerId = agent.settings.getProviderId();
+				const providerId = getProviderId();
 				return providerId ? toPublicProvider(providerId) : undefined;
 			}, AgentChannels.getProvider)
 		);
