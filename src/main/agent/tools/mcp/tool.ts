@@ -1,4 +1,4 @@
-import { BaseTool, type Context } from '../../types';
+import { jsonTool } from '../../tool';
 import type { JSONSchema } from '../../types';
 import type { McpClient } from '../../mcp/client';
 
@@ -17,25 +17,22 @@ function extractText(result: CallResult): string {
 	return texts.length > 0 ? texts.join('\n') : JSON.stringify(content);
 }
 
-export class McpTool extends BaseTool {
-	readonly name: string;
-
-	constructor(
-		context: Context,
-		private readonly client: McpClient,
-		private readonly toolName: string,
-		readonly description: string,
-		readonly schema: JSONSchema,
-		serverId: string,
-	) {
-		super(context);
-		this.name = `mcp__${serverId}__${toolName}`;
-	}
-
-	async run(input: Record<string, unknown>): Promise<string> {
-		const result = (await this.client.callTool(this.toolName, input)) as CallResult;
-		const text = extractText(result);
-		if (result.isError) throw new Error(text || `MCP tool ${this.toolName} failed.`);
-		return text;
-	}
+export function mcpTool(
+	client: McpClient,
+	toolName: string,
+	description: string,
+	schema: JSONSchema,
+	serverId: string,
+) {
+	return jsonTool({
+		name: `mcp__${serverId}__${toolName}`,
+		description,
+		schema,
+		execute: async (input) => {
+			const result = (await client.callTool(toolName, input)) as CallResult;
+			const text = extractText(result);
+			if (result.isError) throw new Error(text || `MCP tool ${toolName} failed.`);
+			return text;
+		},
+	});
 }
