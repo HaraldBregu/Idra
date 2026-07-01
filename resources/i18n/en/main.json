@@ -175,7 +175,7 @@
 			}
 		},
 		"tabs": {
-			"application": "Application",
+			"application": "General",
 			"general": "General",
 			"modelServices": "Model services",
 			"channels": "Channels",
