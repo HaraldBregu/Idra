@@ -1,4 +1,4 @@
-import type { SessionResult } from './session-types';
+import type { SessionResult, SessionResultSubtype } from './session-types';
 import type { SessionState } from './session-types';
 
 export function toResult(state: SessionState, subtype: SessionResult['subtype']): SessionResult {
