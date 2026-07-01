@@ -138,7 +138,6 @@ type CronEventListener = (event: CronScheduleEvent) => void;
 
 interface CronOptions {
 	enabled?: boolean;
-	store: CronStore;
 }
 
 interface CronJobHandle {
@@ -147,7 +146,6 @@ interface CronJobHandle {
 }
 
 export class Cron {
-	private readonly store: CronStore;
 	private readonly tasks = new Map<string, CronJobHandle>();
 	private readonly listeners = new Set<CronEventListener>();
 	private readonly enabled: boolean;
@@ -165,8 +163,7 @@ export class Cron {
 		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
-	constructor(options: CronOptions) {
-		this.store = options.store;
+	constructor(private readonly store: CronStore, options: CronOptions = {}) {
 		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
 		this.writeState((state) => {
 			state.enabled = this.enabled;
