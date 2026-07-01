@@ -28,7 +28,6 @@ export class Agent {
 	private isStarted = false;
 	readonly config: Config;
 	readonly settings: SettingsStore;
-	readonly cron: Cron;
 	readonly health: HealthStore;
 	readonly mcp: McpStore;
 	readonly session: Session;
