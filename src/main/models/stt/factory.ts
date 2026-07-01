@@ -7,7 +7,7 @@ import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	QWEN_SPEECH_TO_TEXT_PROVIDER_ID,
 	XAI_SPEECH_TO_TEXT_PROVIDER_ID,
-} from '../../shared/providers/models/stt';
+} from '../../../shared/providers/models/stt';
 import { createDeepgramSttAdapter } from './providers/deepgram';
 import { createElevenLabsSttAdapter } from './providers/elevenlabs';
 import { createMistralSttAdapter } from './providers/mistral';
