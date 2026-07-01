@@ -59,12 +59,6 @@ export abstract class BaseTool extends Tool {
 	abstract readonly schema: JSONSchema;
 }
 
-export abstract class CronTool extends Tool {
-	abstract readonly name: CronFunctionId;
-	abstract readonly description: string;
-	abstract readonly schema: JSONSchema;
-}
-
 export interface MessageContentBlock {
 	type: string;
 	[key: string]: unknown;
