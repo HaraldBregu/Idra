@@ -31,7 +31,7 @@ export class Agent {
 			location: agentLocation()
 		});
 		initCron();
-		this.session = new Session(this.config);
+		this.session = session(this.config);
 	}
 
 	start(logger: { error(scope: string, message: string, error?: unknown): void }): void {
