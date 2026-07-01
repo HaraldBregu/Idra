@@ -4,7 +4,6 @@ import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { agentLocation } from './shared/location';
 import { destroyCron, initCron, startCron } from './cron';
-import { createMcpStore, DEFAULT_MCP_SETTINGS, type McpStore } from './mcp/mcp-store';
 import type { Message, RuntimeEvent, RuntimeInput } from './core/types';
 import type {
 	AgentHistoryContentBlock,

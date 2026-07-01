@@ -5,7 +5,7 @@ import type {
 	OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { McpSettings } from '../../../shared/mcp/mcp';
-import { Config } from '../core/config';
+import { agentLocation } from '../shared/location';
 
 export type McpOAuthState = {
 	clientInformation?: OAuthClientInformationMixed;
@@ -22,33 +22,25 @@ export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oaut
 
 const MCP_STORE_NAME = 'mcp';
 
-export type McpStore = {
-	servers(): McpSettings;
-	write(servers: McpSettings): void;
-	oauth(id: string): McpOAuthState;
-	saveOauth(id: string, state: McpOAuthState): void;
-};
+const store = new Store<ConnectorStoreSchema>({
+	name: MCP_STORE_NAME,
+	cwd: path.resolve(agentLocation()),
+	accessPropertiesByDotNotation: false,
+	defaults: DEFAULT_MCP_SETTINGS,
+});
 
-export function createMcpStore(config: Config, defaults: ConnectorStoreSchema): McpStore {
-	const store = new Store<ConnectorStoreSchema>({
-		name: MCP_STORE_NAME,
-		cwd: path.resolve(config.location),
-		accessPropertiesByDotNotation: false,
-		defaults,
-	});
+export function getMcpServers(): McpSettings {
+	return store.store.mcpServers ?? {};
+}
 
-	return {
-		servers() {
-			return store.store.mcpServers ?? {};
-		},
-		write(servers: McpSettings) {
-			store.set('mcpServers', servers);
-		},
-		oauth(id: string) {
-			return store.store.oauth?.[id] ?? {};
-		},
-		saveOauth(id: string, state: McpOAuthState) {
-			store.set('oauth', { ...(store.store.oauth ?? {}), [id]: state });
-		},
-	};
+export function setMcpServers(servers: McpSettings): void {
+	store.set('mcpServers', servers);
+}
+
+export function getMcpOauth(id: string): McpOAuthState {
+	return store.store.oauth?.[id] ?? {};
+}
+
+export function saveMcpOauth(id: string, state: McpOAuthState): void {
+	store.set('oauth', { ...(store.store.oauth ?? {}), [id]: state });
 }
