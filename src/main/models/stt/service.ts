@@ -256,19 +256,6 @@ export class SttService {
 			: undefined;
 	}
 
-	private getProviderId(): string | undefined {
-		return optionalTrimmedString(this.store.get('providerId'));
-	}
-
-	private getModelId(): string | undefined {
-		return optionalTrimmedString(this.store.get('modelId'));
-	}
-
-	private setSelection(providerId: string, modelId: string): void {
-		this.store.set('providerId', providerId);
-		this.store.set('modelId', modelId);
-	}
-
 	private getProviderSpecFromProviderStore(providerId: SpeechToTextProviderId): SttProviderSpec {
 		const stored = getProvider(providerId);
 		const defaults = defaultProvider(providerId);
