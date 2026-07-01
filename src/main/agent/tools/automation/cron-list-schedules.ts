@@ -1,20 +1,10 @@
 import { listSchedules } from '../../cron';
-import { BaseTool, type Context } from '../../types';
+import { tool } from '../../tool';
+import { z } from 'zod';
 
-export class ListSchedulesTool extends BaseTool {
-	readonly name = 'list_schedules';
-	readonly description = 'List all cron schedules.';
-	readonly schema = {
-		type: 'object',
-		properties: {},
-		additionalProperties: false,
-	};
-
-	constructor(context: Context) {
-		super(context);
-	}
-
-	run() {
-		return listSchedules();
-	}
-}
+export const listSchedulesTool = tool({
+	name: 'list_schedules',
+	description: 'List all cron schedules.',
+	inputSchema: z.object({}),
+	execute: () => listSchedules(),
+});

@@ -1,17 +1,10 @@
 import { runScheduleNow } from '../../cron';
-import { BaseTool, type Context } from '../../types';
-import { requireScheduleId, scheduleIdSchema } from './cron-schema';
+import { tool } from '../../tool';
+import { scheduleIdSchema } from './cron-schema';
 
-export class RunScheduleNowTool extends BaseTool {
-	readonly name = 'run_schedule_now';
-	readonly description = 'Trigger a cron schedule to run immediately by id.';
-	readonly schema = scheduleIdSchema;
-
-	constructor(context: Context) {
-		super(context);
-	}
-
-	run(input: Record<string, unknown>) {
-		return runScheduleNow(requireScheduleId(input, 'run_schedule_now'));
-	}
-}
+export const runScheduleNowTool = tool({
+	name: 'run_schedule_now',
+	description: 'Trigger a cron schedule to run immediately by id.',
+	inputSchema: scheduleIdSchema,
+	execute: ({ scheduleId }) => runScheduleNow(scheduleId),
+});
