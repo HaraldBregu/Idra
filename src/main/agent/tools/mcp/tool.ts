@@ -29,7 +29,7 @@ export function mcpTool(
 		description,
 		schema,
 		execute: async (input) => {
-			const result = (await client.callTool(toolName, input)) as CallResult;
+			const result = (await callTool(client, toolName, input)) as CallResult;
 			const text = extractText(result);
 			if (result.isError) throw new Error(text || `MCP tool ${toolName} failed.`);
 			return text;
