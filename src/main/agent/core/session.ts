@@ -35,18 +35,18 @@ export class Session {
 	finalText = '';
 	stopReason?: string;
 	private sessionsPath = '';
-	private sessionFolderName = '';
+	private folderName = '';
 
 	constructor(private readonly config: Config) {}
 
 	init(input: SessionInput, category: SessionCategory = DEFAULT_CATEGORY): this {
-		this.id = resolveSessionId(input.sessionId, category, this.config.location);
-		this.sessionFolderName = sessionFolderName(this.id);
-		this.sessionsPath = sessionsRoot(this.config.location, category);
-		const storedMessages = loadMessagesBySessionId(this.id, category, this.config.location);
+		this.id = Session.resolveSessionId(input.sessionId, category, this.config.location);
+		this.folderName = Session.sessionFolderName(this.id);
+		this.sessionsPath = Session.sessionsRoot(this.config.location, category);
+		const storedMessages = Session.loadMessagesBySessionId(this.id, category, this.config.location);
 		const legacyMessages =
 			input.sessionId && input.sessionId !== this.id && storedMessages.length === 0
-				? loadMessagesBySessionId(input.sessionId, category, this.config.location)
+				? Session.loadMessagesBySessionId(input.sessionId, category, this.config.location)
 				: [];
 		this.messages = [
 			...(storedMessages.length > 0 ? storedMessages : legacyMessages),
@@ -59,9 +59,27 @@ export class Session {
 		return this;
 	}
 
+	static loadMessages(
+		sessionId: string,
+		config: Config,
+		category: SessionCategory = DEFAULT_CATEGORY
+	): Message[] {
+		const resolvedSessionId = Session.resolveStoredSessionId(sessionId, category, config.location);
+		return Session.loadMessagesBySessionId(resolvedSessionId, category, config.location);
+	}
+
+	static clearMessages(
+		sessionId: string,
+		config: Config,
+		category: SessionCategory = DEFAULT_CATEGORY
+	): void {
+		const resolvedSessionId = Session.resolveStoredSessionId(sessionId, category, config.location);
+		Session.clearMessagesBySessionId(resolvedSessionId, category, config.location);
+	}
+
 	appendRun(entry: unknown): void {
 		this.ensureSession();
-		appendFileSync(this.runFilePath(), `${stringifyRunEntry(entry)}\n`, 'utf8');
+		appendFileSync(this.runFilePath(), `${Session.stringifyRunEntry(entry)}\n`, 'utf8');
 	}
 
 	get isExhausted(): boolean {
@@ -129,7 +147,7 @@ export class Session {
 	}
 
 	private sessionPath(): string {
-		return sessionPath(this.sessionsPath, this.sessionFolderName);
+		return Session.sessionPath(this.sessionsPath, this.folderName);
 	}
 
 	private messagesFilePath(): string {
@@ -139,171 +157,162 @@ export class Session {
 	private runFilePath(): string {
 		return path.join(this.sessionPath(), 'run.jsonl');
 	}
-}
 
-export function loadMessages(
-	sessionId: string,
-	config: Config,
-	category: SessionCategory = DEFAULT_CATEGORY
-): Message[] {
-	const resolvedSessionId = resolveStoredSessionId(sessionId, category, config.location);
-	return loadMessagesBySessionId(resolvedSessionId, category, config.location);
-}
-
-export function clearMessages(
-	sessionId: string,
-	config: Config,
-	category: SessionCategory = DEFAULT_CATEGORY
-): void {
-	const resolvedSessionId = resolveStoredSessionId(sessionId, category, config.location);
-	clearMessagesBySessionId(resolvedSessionId, category, config.location);
-}
-
-function loadMessagesBySessionId(
-	sessionId: string,
-	category: SessionCategory,
-	location?: string
-): Message[] {
-	if (!location) return [];
-	const sessionsPath = sessionsRoot(location, category);
-	const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
-		? messagesFilePath(sessionsPath, sessionId)
-		: legacyFilePath(sessionsPath, sessionId);
-	if (!existsSync(filePath)) return [];
-	try {
-		const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
-		if (Array.isArray(raw)) return raw.filter(isMessage);
-		if (isRecord(raw) && Array.isArray(raw.content)) return raw.content.filter(isMessage);
-		return [];
-	} catch {
-		return [];
+	private static loadMessagesBySessionId(
+		sessionId: string,
+		category: SessionCategory,
+		location?: string
+	): Message[] {
+		if (!location) return [];
+		const sessionsPath = Session.sessionsRoot(location, category);
+		const filePath = existsSync(Session.messagesFile(sessionsPath, sessionId))
+			? Session.messagesFile(sessionsPath, sessionId)
+			: Session.legacyFilePath(sessionsPath, sessionId);
+		if (!existsSync(filePath)) return [];
+		try {
+			const raw = JSON.parse(readFileSync(filePath, 'utf8')) as unknown;
+			if (Array.isArray(raw)) return raw.filter(Session.isMessage);
+			if (Session.isRecord(raw) && Array.isArray(raw.content))
+				return raw.content.filter(Session.isMessage);
+			return [];
+		} catch {
+			return [];
+		}
 	}
-}
 
-function clearMessagesBySessionId(
-	sessionId: string,
-	category: SessionCategory,
-	location: string
-): void {
-	const sessionsPath = sessionsRoot(location, category);
-	const filePath = existsSync(messagesFilePath(sessionsPath, sessionId))
-		? messagesFilePath(sessionsPath, sessionId)
-		: legacyFilePath(sessionsPath, sessionId);
-	if (!existsSync(filePath)) return;
-	writeFileSync(filePath, '[]\n', 'utf8');
+	private static clearMessagesBySessionId(
+		sessionId: string,
+		category: SessionCategory,
+		location: string
+	): void {
+		const sessionsPath = Session.sessionsRoot(location, category);
+		const filePath = existsSync(Session.messagesFile(sessionsPath, sessionId))
+			? Session.messagesFile(sessionsPath, sessionId)
+			: Session.legacyFilePath(sessionsPath, sessionId);
+		if (!existsSync(filePath)) return;
+		writeFileSync(filePath, '[]\n', 'utf8');
 
-	const runFilePath = path.join(sessionPath(sessionsPath, sessionFolderName(sessionId)), 'run.jsonl');
-	if (existsSync(runFilePath)) writeFileSync(runFilePath, '', 'utf8');
-}
-
-function sessionsRoot(location: string, category: SessionCategory): string {
-	return path.join(path.resolve(location), 'sessions', category);
-}
-
-function sessionPath(sessionsPath: string, sessionFolderName: string): string {
-	return path.join(sessionsPath, sessionFolderName);
-}
-
-function resolveSessionId(
-	sessionId: string | undefined,
-	category: SessionCategory,
-	location?: string
-): string {
-	if (!sessionId) return randomUUID();
-	if (isUuid(sessionId) || !location) return sessionId;
-
-	return latestUuidSessionId(sessionsRoot(location, category)) ?? randomUUID();
-}
-
-function resolveStoredSessionId(
-	sessionId: string,
-	category: SessionCategory,
-	location?: string
-): string {
-	if (isUuid(sessionId) || !location) return sessionId;
-	return latestUuidSessionId(sessionsRoot(location, category)) ?? sessionId;
-}
-
-function latestUuidSessionId(sessionsPath: string): string | undefined {
-	if (!existsSync(sessionsPath)) return undefined;
-	try {
-		return readdirSync(sessionsPath, { withFileTypes: true })
-			.filter((entry) => entry.isDirectory() && isUuid(entry.name))
-			.map((entry) => {
-				const stats = statSync(sessionPath(sessionsPath, entry.name));
-				return {
-					name: entry.name,
-					createdAtMs: stats.birthtimeMs || stats.ctimeMs || stats.mtimeMs,
-				};
-			})
-			.sort((a, b) => b.createdAtMs - a.createdAtMs || b.name.localeCompare(a.name))[0]?.name;
-	} catch {
-		return undefined;
+		const runFilePath = path.join(
+			Session.sessionPath(sessionsPath, Session.sessionFolderName(sessionId)),
+			'run.jsonl'
+		);
+		if (existsSync(runFilePath)) writeFileSync(runFilePath, '', 'utf8');
 	}
-}
 
-function messagesFilePath(sessionsPath: string, sessionId: string): string {
-	return path.join(sessionPath(sessionsPath, sessionFolderName(sessionId)), 'messages.json');
-}
-
-function legacyFilePath(sessionsPath: string, sessionId: string): string {
-	return path.join(sessionsPath, `${safeName(sessionId)}.json`);
-}
-
-function sessionFolderName(sessionId: string): string {
-	return safeName(sessionId);
-}
-
-function safeName(value: string): string {
-	return value.replace(/[^a-zA-Z0-9._-]/g, '_') || 'session';
-}
-
-function isUuid(value: string): boolean {
-	return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-}
-
-function stringifyRunEntry(entry: unknown): string {
-	const timestamp = new Date().toISOString();
-	try {
-		return JSON.stringify({ timestamp, event: entry });
-	} catch {
-		return JSON.stringify({ timestamp, event: { type: 'unserializable' } });
+	private static sessionsRoot(location: string, category: SessionCategory): string {
+		return path.join(path.resolve(location), 'sessions', category);
 	}
-}
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isContentBlock(value: unknown): value is MessageContentBlock {
-	return isRecord(value) && typeof value.type === 'string';
-}
-
-function isMessageContent(value: unknown): value is MessageContent {
-	return typeof value === 'string' || (Array.isArray(value) && value.every(isContentBlock));
-}
-
-function isToolResult(value: unknown): value is NonNullable<ToolCall['result']> {
-	return isRecord(value) && isMessageContent(value.content);
-}
-
-function isToolCall(value: unknown): value is ToolCall {
-	return (
-		isRecord(value) &&
-		typeof value.id === 'string' &&
-		typeof value.name === 'string' &&
-		isRecord(value.args) &&
-		(value.result === undefined || isToolResult(value.result))
-	);
-}
-
-function isMessage(value: unknown): value is Message {
-	if (!isRecord(value)) return false;
-	if (value.role !== 'system' && value.role !== 'user' && value.role !== 'assistant') return false;
-	if (!isMessageContent(value.content)) return false;
-	if (value.toolCalls !== undefined) {
-		if (!Array.isArray(value.toolCalls)) return false;
-		if (!value.toolCalls.every(isToolCall)) return false;
+	private static sessionPath(sessionsPath: string, folderName: string): string {
+		return path.join(sessionsPath, folderName);
 	}
-	return true;
+
+	private static resolveSessionId(
+		sessionId: string | undefined,
+		category: SessionCategory,
+		location?: string
+	): string {
+		if (!sessionId) return randomUUID();
+		if (Session.isUuid(sessionId) || !location) return sessionId;
+
+		return Session.latestUuidSessionId(Session.sessionsRoot(location, category)) ?? randomUUID();
+	}
+
+	private static resolveStoredSessionId(
+		sessionId: string,
+		category: SessionCategory,
+		location?: string
+	): string {
+		if (Session.isUuid(sessionId) || !location) return sessionId;
+		return Session.latestUuidSessionId(Session.sessionsRoot(location, category)) ?? sessionId;
+	}
+
+	private static latestUuidSessionId(sessionsPath: string): string | undefined {
+		if (!existsSync(sessionsPath)) return undefined;
+		try {
+			return readdirSync(sessionsPath, { withFileTypes: true })
+				.filter((entry) => entry.isDirectory() && Session.isUuid(entry.name))
+				.map((entry) => {
+					const stats = statSync(Session.sessionPath(sessionsPath, entry.name));
+					return {
+						name: entry.name,
+						createdAtMs: stats.birthtimeMs || stats.ctimeMs || stats.mtimeMs,
+					};
+				})
+				.sort((a, b) => b.createdAtMs - a.createdAtMs || b.name.localeCompare(a.name))[0]?.name;
+		} catch {
+			return undefined;
+		}
+	}
+
+	private static messagesFile(sessionsPath: string, sessionId: string): string {
+		return path.join(
+			Session.sessionPath(sessionsPath, Session.sessionFolderName(sessionId)),
+			'messages.json'
+		);
+	}
+
+	private static legacyFilePath(sessionsPath: string, sessionId: string): string {
+		return path.join(sessionsPath, `${Session.safeName(sessionId)}.json`);
+	}
+
+	private static sessionFolderName(sessionId: string): string {
+		return Session.safeName(sessionId);
+	}
+
+	private static safeName(value: string): string {
+		return value.replace(/[^a-zA-Z0-9._-]/g, '_') || 'session';
+	}
+
+	private static isUuid(value: string): boolean {
+		return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+	}
+
+	private static stringifyRunEntry(entry: unknown): string {
+		const timestamp = new Date().toISOString();
+		try {
+			return JSON.stringify({ timestamp, event: entry });
+		} catch {
+			return JSON.stringify({ timestamp, event: { type: 'unserializable' } });
+		}
+	}
+
+	private static isRecord(value: unknown): value is Record<string, unknown> {
+		return typeof value === 'object' && value !== null && !Array.isArray(value);
+	}
+
+	private static isContentBlock(value: unknown): value is MessageContentBlock {
+		return Session.isRecord(value) && typeof value.type === 'string';
+	}
+
+	private static isMessageContent(value: unknown): value is MessageContent {
+		return (
+			typeof value === 'string' || (Array.isArray(value) && value.every(Session.isContentBlock))
+		);
+	}
+
+	private static isToolResult(value: unknown): value is NonNullable<ToolCall['result']> {
+		return Session.isRecord(value) && Session.isMessageContent(value.content);
+	}
+
+	private static isToolCall(value: unknown): value is ToolCall {
+		return (
+			Session.isRecord(value) &&
+			typeof value.id === 'string' &&
+			typeof value.name === 'string' &&
+			Session.isRecord(value.args) &&
+			(value.result === undefined || Session.isToolResult(value.result))
+		);
+	}
+
+	private static isMessage(value: unknown): value is Message {
+		if (!Session.isRecord(value)) return false;
+		if (value.role !== 'system' && value.role !== 'user' && value.role !== 'assistant') return false;
+		if (!Session.isMessageContent(value.content)) return false;
+		if (value.toolCalls !== undefined) {
+			if (!Array.isArray(value.toolCalls)) return false;
+			if (!value.toolCalls.every(Session.isToolCall)) return false;
+		}
+		return true;
+	}
 }
