@@ -59,28 +59,3 @@ export interface SessionState {
 	sessionsPath: string;
 	folderName: string;
 }
-
-export interface Session {
-	id: string;
-	messages: Message[];
-	readonly toolCalls: ToolCall[];
-	readonly usage: SessionUsage;
-	maxTurns: number;
-	model: string;
-	numTurns: number;
-	finalText: string;
-	stopReason?: string;
-	readonly isExhausted: boolean;
-	init(input: SessionInput, category?: SessionCategory): Session;
-	loadMessages(sessionId: string, category?: SessionCategory): Message[];
-	clearMessages(sessionId: string, category?: SessionCategory): void;
-	appendRun(entry: unknown): void;
-	recordTurn(turn: SessionTurn): void;
-	addAssistantMessage(
-		content: string,
-		toolCalls: ToolCall[],
-		providerItems?: MessageContentBlock[]
-	): void;
-	addToolResults(toolCalls: ToolCall[]): void;
-	toResult(subtype: SessionResultSubtype): SessionResult;
-}
