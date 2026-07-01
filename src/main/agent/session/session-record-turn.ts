@@ -1,4 +1,4 @@
-import type { SessionTurn } from '../core/types';
+import type { SessionTurn } from './session-types';
 import type { SessionState } from './session-types';
 
 export function recordTurn(state: SessionState, turn: SessionTurn): void {
