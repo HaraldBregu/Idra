@@ -11,7 +11,7 @@ import type { Tool } from '../core/tool';
 import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { getModelId, getProvider } from '../settings/settings-store';
-import { Session } from '../session/session';
+import type { Session } from '../session/session';
 import { ToolsLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
