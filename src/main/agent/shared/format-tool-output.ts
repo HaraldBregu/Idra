@@ -4,6 +4,6 @@ export function formatToolOutput(output: unknown): string {
 	try {
 		return JSON.stringify(output);
 	} catch {
-	.pos return String(output);
+		return String(output);
 	}
 }
