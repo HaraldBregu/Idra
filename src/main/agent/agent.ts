@@ -33,7 +33,7 @@ export class Agent {
 			location: agentLocation()
 		});
 		initCron();
-		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
+		this.mcp = createMcpStore(this.config, DEFAULT_MCP_SETTINGS);
 		this.session = new Session(this.config);
 	}
 
