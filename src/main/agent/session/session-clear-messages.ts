@@ -1,4 +1,4 @@
-import type { Config } from '../core/config';
+import type { Config } from '../core/types';
 import type { SessionCategory } from './session-types';
 import { clearMessagesBySessionId } from './session-clear-messages-by-session-id';
 import { resolveStoredSessionId } from './session-resolve-stored-session-id';
