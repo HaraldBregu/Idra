@@ -15,6 +15,11 @@ import {
 	setMcpServers,
 	type McpOAuthStorage,
 } from '../agent/mcp';
+import type { LoggerService } from '../shared';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
+import type { ModelReasoningEffort } from '../../shared/agent/types';
+import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health-store';
+import type { HealthSettings } from '../agent/health/health-types';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings-store';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
 
