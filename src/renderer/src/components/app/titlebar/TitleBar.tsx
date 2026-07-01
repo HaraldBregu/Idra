@@ -97,7 +97,7 @@ export const TitleBar = React.memo(function TitleBar({
 						</NavButton>
 					)}
 
-					{isSettings && <NavigationButtons />}
+					{/* {isSettings && <NavigationButtons />} */}
 				</TitleBarLeftContainer>
 
 				{/* ── Center: absolutely placed so it's always truly centered ── */}
