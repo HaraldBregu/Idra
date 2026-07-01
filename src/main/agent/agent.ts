@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import path from 'node:path';
 import {
 	clearMessages as clearSessionMessages,
 	createSessionState,
@@ -7,7 +8,6 @@ import {
 	type SessionState,
 } from './session';
 import { Runner } from './loop/runner';
-import { Config } from './core/config';
 import { agentLocation } from './shared/location';
 import { destroyCron, initCron, startCron } from './cron';
 import type { Message, RuntimeEvent, RuntimeInput } from './core/types';
