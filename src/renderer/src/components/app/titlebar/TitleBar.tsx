@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Menu, PanelLeft, User } from 'lucide-react';
+import { Menu, PanelLeft, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
@@ -7,12 +7,6 @@ import { TitleBarCenterContainer } from './TitleBarCenterContainer';
 import { TitleBarLeftContainer } from './TitleBarLeftContainer';
 import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuTrigger,
-	DropdownMenuContent,
-	DropdownMenuItem,
-} from '@/components/ui/dropdown-menu';
 import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
 import { NavigationButtons } from './components/NavigationButtons';
@@ -63,6 +57,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
 	const chatButtonLabel = t('titleBar.chat', 'Chat');
+	const settingsButtonLabel = t('settings.title', 'Settings');
 
 	return (
 		<TitleBarProvider value={{ isMac, isFullScreen }}>
@@ -125,7 +120,7 @@ export const TitleBar = React.memo(function TitleBar({
 					</div>
 				)}
 
-				{/* ── Right actions: chat + account menu ── */}
+				{/* ── Right actions: chat + settings ── */}
 				{!isStart && (
 					<div
 						className="z-10 mr-3 flex h-full items-center gap-1"
@@ -142,29 +137,17 @@ export const TitleBar = React.memo(function TitleBar({
 						>
 							<AppIconFriday className="size-4" />
 						</Button>
-						<DropdownMenu>
-							<DropdownMenuTrigger
-								render={
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon"
-										className="size-8 rounded-full"
-										title={t('titleBar.account', 'Account')}
-										aria-label={t('titleBar.account', 'Account')}
-									/>
-								}
-							>
-								<User className="size-4" strokeWidth={1.8} />
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuItem disabled>{t('titleBar.account', 'Account')}</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => navigate('/settings')}>
-									{t('settings.title', 'Settings')}
-								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => navigate('/home')}>{chatButtonLabel}</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="size-8 rounded-full"
+							onClick={() => navigate('/settings')}
+							title={settingsButtonLabel}
+							aria-label={settingsButtonLabel}
+						>
+							<Settings className="size-4" strokeWidth={1.8} />
+						</Button>
 					</div>
 				)}
 
