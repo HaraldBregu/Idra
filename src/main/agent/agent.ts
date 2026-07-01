@@ -15,7 +15,6 @@ import type {
 	ModelReasoningEffort,
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
-import { agentLocation } from './shared/location';
 
 export interface AgentSendOptions {
 	runId?: string;
