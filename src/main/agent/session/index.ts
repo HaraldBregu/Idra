@@ -1,2 +1,12 @@
 export { session } from './session';
-export type { Session } from './session-types';
+export {
+	DEFAULT_CATEGORY,
+	type Session,
+	type SessionCategory,
+	type SessionInput,
+	type SessionResult,
+	type SessionResultSubtype,
+	type SessionState,
+	type SessionTurn,
+	type SessionUsage,
+} from './session-types';
