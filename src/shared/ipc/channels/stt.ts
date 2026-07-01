@@ -61,7 +61,7 @@ export interface SttInvokeChannelMap {
 		result: ProviderModel[];
 	};
 	[SttChannels.saveSelection]: {
-		args: [providerId: string, modelId: string];
+		args: [providerId: string, modelId: string, mode?: SttSelectionMode];
 		result: boolean;
 	};
 	[SttChannels.getProviderId]: {
