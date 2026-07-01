@@ -128,7 +128,7 @@ export class Skills {
 		const folder = this.resolveSkillFolder(id);
 		const info = this.read(folder, id);
 		if (!info) throw new Error(`Skill "${id}" not found.`);
-		this.store.set(id, { enabled });
+		setSkill(this.store, id, { enabled });
 		return { ...info, manifest: { ...info.manifest, enabled } };
 	}
 
