@@ -80,7 +80,7 @@ export class Runner {
 		const toolLoader = new ToolsLoader(toolContext);
 		tools.push(...toolLoader.tools);
 
-		const mcp = await loadMcpTools(toolContext);
+		const mcp = await loadMcpTools();
 		tools.push(...mcp.tools);
 
 		const systemPrompt = await buildSystemPrompt(this.config);
