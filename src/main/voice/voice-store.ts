@@ -16,7 +16,7 @@ const DEFAULT_VOICE_STORE: VoiceStoreState = {
 
 const store = new Store<VoiceStoreState>({
 	name: VOICE_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	cwd: path.resolve(agentLocation(), 'voice'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_VOICE_STORE,
 });
