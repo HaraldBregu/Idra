@@ -222,7 +222,6 @@ async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResu
 				session.exitSignal = signal;
 			});
 
-			context.setPath(cwd);
 			resolve({
 				command,
 				workdir: cwd,
