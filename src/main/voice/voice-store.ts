@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { agentLocation } from '../agent/shared/agent-location';
+import { userDataLocation } from '../agent/shared/user-data-location';
 
 export type VoiceStoreState = {
 	providerId: string | undefined;
