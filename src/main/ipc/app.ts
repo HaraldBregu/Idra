@@ -14,19 +14,6 @@ import type { LoggerService } from '../shared';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
-	appPermissions: AppPermissions;
-}
-
-export interface AppPermissionsState {
-	microphoneEnabled: boolean;
-	cameraEnabled: boolean;
-}
-
-export interface AppPermissions {
-	getMicrophoneEnabled(): boolean;
-	setMicrophoneEnabled(enabled: boolean): AppPermissionsState;
-	getCameraEnabled(): boolean;
-	setCameraEnabled(enabled: boolean): AppPermissionsState;
 }
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
@@ -50,10 +37,10 @@ function canRequestMicrophoneAccess(status: MicrophoneSystemPermissionStatus): b
 	return process.platform === 'darwin' && status === 'not-determined';
 }
 
-function microphoneSettings(enabled: boolean): MicrophonePermissionSettings {
+function microphoneSettings(): MicrophonePermissionSettings {
 	const systemStatus = getMicrophoneSystemStatus();
 	return {
-		enabled,
+		enabled: true,
 		systemStatus,
 		canRequest: canRequestMicrophoneAccess(systemStatus),
 	};
@@ -72,10 +59,10 @@ function canRequestCameraAccess(status: CameraSystemPermissionStatus): boolean {
 	return process.platform === 'darwin' && status === 'not-determined';
 }
 
-function cameraSettings(enabled: boolean): CameraPermissionSettings {
+function cameraSettings(): CameraPermissionSettings {
 	const systemStatus = getCameraSystemStatus();
 	return {
-		enabled,
+		enabled: true,
 		systemStatus,
 		canRequest: canRequestCameraAccess(systemStatus),
 	};
@@ -93,7 +80,7 @@ export class AppIpc implements IpcModule {
 
 	private trayEnabled = true;
 
-	register({ logger, appPermissions }: AppIpcDeps, eventBus: EventBus): void {
+	register({ logger }: AppIpcDeps, eventBus: EventBus): void {
 		// Open application data folder in system file explorer
 		ipcMain.handle(
 			AppChannels.openAppDataFolder,
@@ -127,26 +114,24 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.getMicrophonePermission,
 			wrapSimpleHandler(() => {
-				return microphoneSettings(appPermissions.getMicrophoneEnabled());
+				return microphoneSettings();
 			}, AppChannels.getMicrophonePermission)
 		);
 
 		ipcMain.handle(
 			AppChannels.setMicrophoneEnabled,
-			wrapSimpleHandler((enabled: boolean) => {
-				const next = appPermissions.setMicrophoneEnabled(Boolean(enabled));
-				return microphoneSettings(next.microphoneEnabled);
+			wrapSimpleHandler((_enabled: boolean) => {
+				return microphoneSettings();
 			}, AppChannels.setMicrophoneEnabled)
 		);
 
 		ipcMain.handle(
 			AppChannels.requestMicrophonePermission,
 			wrapSimpleHandler(async () => {
-				const enabled = appPermissions.getMicrophoneEnabled();
-				if (process.platform === 'darwin' && enabled) {
+				if (process.platform === 'darwin') {
 					await systemPreferences.askForMediaAccess('microphone');
 				}
-				return microphoneSettings(enabled);
+				return microphoneSettings();
 			}, AppChannels.requestMicrophonePermission)
 		);
 
@@ -164,26 +149,24 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.getCameraPermission,
 			wrapSimpleHandler(() => {
-				return cameraSettings(appPermissions.getCameraEnabled());
+				return cameraSettings();
 			}, AppChannels.getCameraPermission)
 		);
 
 		ipcMain.handle(
 			AppChannels.setCameraEnabled,
-			wrapSimpleHandler((enabled: boolean) => {
-				const next = appPermissions.setCameraEnabled(Boolean(enabled));
-				return cameraSettings(next.cameraEnabled);
+			wrapSimpleHandler((_enabled: boolean) => {
+				return cameraSettings();
 			}, AppChannels.setCameraEnabled)
 		);
 
 		ipcMain.handle(
 			AppChannels.requestCameraPermission,
 			wrapSimpleHandler(async () => {
-				const enabled = appPermissions.getCameraEnabled();
-				if (process.platform === 'darwin' && enabled) {
+				if (process.platform === 'darwin') {
 					await systemPreferences.askForMediaAccess('camera');
 				}
-				return cameraSettings(enabled);
+				return cameraSettings();
 			}, AppChannels.requestCameraPermission)
 		);
 

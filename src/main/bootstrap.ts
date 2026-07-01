@@ -21,19 +21,6 @@ export interface BootstrapResult {
 	logger: LoggerService;
 	windowContextManager: WindowContextManager;
 	agentService: Agent;
-	appPermissions: AppPermissions;
-}
-
-export interface AppPermissionsState {
-	microphoneEnabled: boolean;
-	cameraEnabled: boolean;
-}
-
-export interface AppPermissions {
-	getMicrophoneEnabled(): boolean;
-	setMicrophoneEnabled(enabled: boolean): AppPermissionsState;
-	getCameraEnabled(): boolean;
-	setCameraEnabled(enabled: boolean): AppPermissionsState;
 }
 
 export function bootstrapServices(): BootstrapResult {
@@ -43,22 +30,6 @@ export function bootstrapServices(): BootstrapResult {
 
 	const logger = new LoggerService(eventBus);
 	container.set(LoggerService, logger);
-	let appPermissionsState: AppPermissionsState = {
-		microphoneEnabled: true,
-		cameraEnabled: true,
-	};
-	const appPermissions: AppPermissions = {
-		getMicrophoneEnabled: () => appPermissionsState.microphoneEnabled,
-		setMicrophoneEnabled: (enabled) => {
-			appPermissionsState = { ...appPermissionsState, microphoneEnabled: enabled };
-			return appPermissionsState;
-		},
-		getCameraEnabled: () => appPermissionsState.cameraEnabled,
-		setCameraEnabled: (enabled) => {
-			appPermissionsState = { ...appPermissionsState, cameraEnabled: enabled };
-			return appPermissionsState;
-		},
-	};
 
 	const agentService = new Agent();
 	container.set(Agent, agentService);
@@ -88,7 +59,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		windowContextManager,
 		agentService,
-		appPermissions,
 	};
 }
 

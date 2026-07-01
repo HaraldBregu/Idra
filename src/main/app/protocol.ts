@@ -31,13 +31,10 @@ export function registerLocalResourceProtocolHandler(
 	});
 }
 
-export function setupMediaPermissionHandlers(
-	appPermissions: { getMicrophoneEnabled(): boolean }
-): void {
+export function setupMediaPermissionHandlers(): void {
 	session.defaultSession.setPermissionCheckHandler(
 		(webContents, permission, requestingOrigin, details) => {
 			if (permission !== 'media') return false;
-			if (!appPermissions.getMicrophoneEnabled()) return false;
 			if (details.mediaType !== 'audio') return false;
 			if (!details.isMainFrame) return false;
 			if (!isAppWindowWebContents(webContents)) return false;
@@ -60,7 +57,6 @@ export function setupMediaPermissionHandlers(
 			const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
 			const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
 			const allowed =
-				appPermissions.getMicrophoneEnabled() &&
 				requestsAudio &&
 				!requestsVideo &&
 				mediaDetails.isMainFrame &&

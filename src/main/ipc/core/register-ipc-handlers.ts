@@ -13,12 +13,10 @@ import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/cron/cron';
 import { Skills } from '../../agent/skills/skills';
-import type { AppPermissions } from '../app';
 
 export interface RegisterIpcHandlersServices {
 	cron: Cron;
 	skills: Skills;
-	appPermissions: AppPermissions;
 }
 
 export function registerIpcHandlers(
@@ -38,7 +36,7 @@ export function registerIpcHandlers(
 
 	safeRegister('app', () =>
 		new AppIpc().register(
-			{ logger, appPermissions: services.appPermissions },
+			{ logger },
 			eventBus
 		)
 	);

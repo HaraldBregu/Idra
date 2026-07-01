@@ -82,7 +82,6 @@ const {
 	logger,
 	windowContextManager,
 	agentService,
-	appPermissions,
 } = bootstrapServices();
 const cron = new Cron(agentService.cron);
 const skills = new Skills(agentService.config, agentService.skills);
@@ -95,7 +94,7 @@ setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(container, eventBus, { cron, skills, appPermissions });
+registerIpcHandlers(container, eventBus, { cron, skills });
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
@@ -131,7 +130,7 @@ const menuManager = new Menu({
 
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
-	setupMediaPermissionHandlers(appPermissions);
+	setupMediaPermissionHandlers();
 	menuManager.create();
 	trayManager.create();
 
