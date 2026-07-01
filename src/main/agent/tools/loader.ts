@@ -1,4 +1,4 @@
-import type { Context, Tool } from '../core/types';
+import type { Context, Tool } from '../types';
 import { ReadTool } from './filesystem/read';
 import { WriteTool } from './filesystem/write';
 import { EditTool } from './filesystem/edit';

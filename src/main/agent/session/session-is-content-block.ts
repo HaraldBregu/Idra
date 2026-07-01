@@ -1,4 +1,4 @@
-import type { MessageContentBlock } from '../core/types';
+import type { MessageContentBlock } from '../types';
 import { isRecord } from './session-is-record';
 
 export function isContentBlock(value: unknown): value is MessageContentBlock {

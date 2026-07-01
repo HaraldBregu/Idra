@@ -1,5 +1,5 @@
-import type { ModelEvent } from '../../llm';
-import type { CronFunctionId } from '../cron';
+import type { ModelEvent } from '../llm';
+import type { CronFunctionId } from './cron';
 
 export interface Config {
 	location: string;
@@ -86,7 +86,7 @@ import type {
 	SessionResultSubtype,
 	SessionTurn,
 	SessionUsage,
-} from '../session/session-types';
+} from './session/session-types';
 
 export type {
 	SessionCategory,

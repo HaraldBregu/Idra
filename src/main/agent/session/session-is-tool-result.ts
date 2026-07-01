@@ -1,4 +1,4 @@
-import type { ToolCall } from '../core/types';
+import type { ToolCall } from '../types';
 import { isMessageContent } from './session-is-message-content';
 import { isRecord } from './session-is-record';
 

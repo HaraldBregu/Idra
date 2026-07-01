@@ -10,7 +10,7 @@ import {
 import { Runner } from './loop/runner';
 import { agentLocation } from './shared/location';
 import { destroyCron, initCron, startCron } from './cron';
-import type { Config, Message, RuntimeEvent, RuntimeInput } from './core/types';
+import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,

@@ -1,4 +1,4 @@
-import type { ToolCall } from '../core/types';
+import type { ToolCall } from '../types';
 import { persist } from './session-persist';
 import type { SessionState } from './session-types';
 

@@ -1,5 +1,5 @@
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
-import type { Message, MessageContentBlock, ToolCall } from '../core/types';
+import type { Message, MessageContentBlock, ToolCall } from '../types';
 
 export const DEFAULT_CATEGORY: SessionCategory = 'home';
 

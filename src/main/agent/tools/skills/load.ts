@@ -1,4 +1,4 @@
-import { BaseTool, type Context } from '../../core/types';
+import { BaseTool, type Context } from '../../types';
 import { listSkills, loadSkill } from '../../skills';
   
 export class LoadSkillTool extends BaseTool {

@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { BaseTool, type Context } from '../../core/types';
+import { BaseTool, type Context } from '../../types';
 
 function resolvePath(p: string): string {
 	if (p === '~') return os.homedir();

@@ -6,8 +6,8 @@ import type {
 	Message,
 	MessageContentBlock,
 	ToolCall,
-} from '../core/types';
-import type { Config, Tool } from '../core/types';
+} from '../types';
+import type { Config, Tool } from '../types';
 import { parseToolArgs } from '../shared/args';
 import { getModelId, getProvider } from '../settings/settings-store';
 import {

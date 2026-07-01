@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { Provider } from '../core/types';
+import type { Provider } from '../types';
 import { ProviderService } from '../../providers';
 import { agentLocation } from '../shared/location';
 import { DEFAULT_AGENT_SETTINGS, type SettingsSchema } from './settings-types';

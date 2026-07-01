@@ -1,4 +1,4 @@
-import { CronTool, type Context } from '../../core/types';
+import { CronTool, type Context } from '../../types';
 import {
 	createSchedule,
 	deleteSchedule,
@@ -14,7 +14,7 @@ import {
 	type CronScheduleCreateRequest,
 	type CronScheduleUpdateRequest,
 } from '../../cron';
-import type { JSONSchema } from '../../core/types';
+import type { JSONSchema } from '../../types';
 
 function requireScheduleId(input: Record<string, unknown>, tool: string): string {
 	const scheduleId = input.scheduleId;

@@ -1,5 +1,5 @@
-import { BaseTool, type Context } from '../../core/types';
-import type { JSONSchema } from '../../core/types';
+import { BaseTool, type Context } from '../../types';
+import type { JSONSchema } from '../../types';
 import type { McpClient } from '../../mcp/client';
 
 type CallResult = { content?: unknown; isError?: boolean };

@@ -1,4 +1,4 @@
-import type { MessageContentBlock, ToolCall } from '../core/types';
+import type { MessageContentBlock, ToolCall } from '../types';
 import { persist } from './session-persist';
 import type { SessionState } from './session-types';
 
