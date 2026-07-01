@@ -32,7 +32,6 @@ export class Agent {
 		this.config = new Config({
 			location: agentLocation()
 		});
-		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
 		initCron();
 		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
 		this.session = new Session(this.config);
