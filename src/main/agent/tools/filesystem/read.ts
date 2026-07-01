@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { BaseTool, type Context } from '../../types';
+import { z } from 'zod';
+import { tool } from '../../tool';
+import type { Context, Tool } from '../../types';
 
 function resolvePath(p: string): string {
 	if (p === '~') return os.homedir();
@@ -9,34 +11,22 @@ function resolvePath(p: string): string {
 	return path.resolve(p);
 }
 
-export class ReadTool extends BaseTool {
-	readonly name = 'read';
-	readonly description =
-		'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.';
-	readonly schema = {
-		type: 'object',
-		properties: {
-			path: {
-				type: 'string',
-				description: 'Absolute file path to read. ~ expands to the user home.',
-			},
+export function readTool(context: Context): Tool {
+	return tool({
+		name: 'read',
+		description:
+			'Read the full UTF-8 contents of a single text file. Use this before editing when you need the current file contents.',
+		inputSchema: z.object({
+			path: z
+				.string()
+				.min(1)
+				.describe('Absolute file path to read. ~ expands to the user home.'),
+		}),
+		execute: async ({ path: filePath }) => {
+			const resolved = resolvePath(filePath);
+			const content = await fs.readFile(resolved, 'utf8');
+			context.setPath(resolved);
+			return content;
 		},
-		required: ['path'],
-		additionalProperties: false,
-	};
-
-	constructor(context: Context) {
-		super(context);
-	}
-
-	async run(input: Record<string, unknown>): Promise<string> {
-		const filePath = input.path;
-		if (typeof filePath !== 'string' || !filePath.trim()) {
-			throw new Error('read requires a non-empty path.');
-		}
-		const resolved = resolvePath(filePath);
-		const content = await fs.readFile(resolved, 'utf8');
-		this.context.setPath(resolved);
-		return content;
-	}
+	});
 }
