@@ -129,6 +129,6 @@ declare global {
 		agent: AgentApi;
 		channels: ChannelsApi;
 		provider: ProviderApi;
-		stt: SttApi;
+		voice: VoiceApi;
 	}
 }
