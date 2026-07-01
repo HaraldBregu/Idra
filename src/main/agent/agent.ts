@@ -25,7 +25,6 @@ export class Agent {
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
 	readonly config: Config;
-	readonly settings: SettingsStore;
 	readonly mcp: McpStore;
 	readonly session: Session;
 
