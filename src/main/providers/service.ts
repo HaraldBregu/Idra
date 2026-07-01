@@ -1,9 +1,7 @@
 import type { Provider, ProviderRecord } from '../../shared/providers/types';
-import { createProviderStore, readProviders, type ProviderStoreOptions } from './providers-store';
+import { clearProviders, readProviders, writeProviders } from './providers-store';
 
 export const PROVIDER_SERVICE = 'provider-service';
-
-export type ProviderServiceOptions = ProviderStoreOptions;
 
 export type ProviderService = {
 	list(): ProviderRecord;
@@ -14,11 +12,9 @@ export type ProviderService = {
 	clear(): void;
 };
 
-export function createProviderService(options: ProviderServiceOptions = {}): ProviderService {
-	const store = createProviderStore(options);
-
+export function createProviderService(): ProviderService {
 	function list(): ProviderRecord {
-		return readProviders(store);
+		return readProviders();
 	}
 
 	return {
@@ -32,17 +28,17 @@ export function createProviderService(options: ProviderServiceOptions = {}): Pro
 		set(id: string, provider: Provider): Provider {
 			const providers = list();
 			providers[id] = provider;
-			store.store = providers;
+			writeProviders(providers);
 			return provider;
 		},
 		delete(id: string): void {
 			const providers = list();
 			if (!(id in providers)) return;
 			delete providers[id];
-			store.store = providers;
+			writeProviders(providers);
 		},
 		clear(): void {
-			store.store = {};
+			clearProviders();
 		},
 	};
 }
