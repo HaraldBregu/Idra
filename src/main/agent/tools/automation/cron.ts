@@ -170,8 +170,8 @@ export class UpdateScheduleTool extends CronTool {
 		additionalProperties: false,
 	};
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): CronSchedule {
@@ -182,7 +182,7 @@ export class UpdateScheduleTool extends CronTool {
 		if (Object.keys(request).length === 0) {
 			throw new Error('update_schedule requires at least one field in request.');
 		}
-		return this.cron.updateSchedule(
+		return updateSchedule(
 			requireScheduleId(input, 'update_schedule'),
 			request as CronScheduleUpdateRequest
 		);
