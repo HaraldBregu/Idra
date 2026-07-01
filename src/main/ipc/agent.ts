@@ -12,12 +12,8 @@ import type { McpOAuthStorage } from '../agent/mcp/mcp-types';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
-import {
-	getHealthSettings,
-	resetHealthSettings,
-	updateHealthSettings,
-	type HealthSettings,
-} from '../agent/health/health-store';
+import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health-store';
+import type { HealthSettings } from '../agent/health/health-types';
 import {
 	getMcpOauth,
 	getMcpServers,
