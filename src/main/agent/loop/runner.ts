@@ -17,7 +17,6 @@ import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
 import { formatToolOutput } from '../shared/format';
-import { McpStore } from '../mcp/mcp-store';
 
 interface ModelTurn {
 	content: string;
