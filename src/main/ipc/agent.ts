@@ -302,7 +302,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.healthResetSettings,
-			wrapSimpleHandler(() => agent.health.resetSettings(), AgentChannels.healthResetSettings)
+			wrapSimpleHandler(() => resetHealthSettings(), AgentChannels.healthResetSettings)
 		);
 
 		const listMcp = (): McpSettings => {
