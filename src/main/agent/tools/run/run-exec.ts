@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 import { tool } from '../../tool';
-import { registry } from './process';
+import { registry } from './run-process';
 
 function resolvePath(p: string): string {
 	if (p === '~') return os.homedir();
