@@ -14,30 +14,28 @@ import { getScheduleTool } from './automation/cron-get-schedule';
 import { listSchedulesTool } from './automation/cron-list-schedules';
 import { runScheduleNowTool } from './automation/cron-run-schedule-now';
 
-export class ToolsLoader {
-	get tools(): Tool[] {
-		return [
-			// Filesystem Tools
-			readTool,
-			writeTool,
-			editTool,
+export function loadTools(): Tool[] {
+	return [
+		// File Tools
+		readTool,
+		writeTool,
+		editTool,
 
-			// Runtime Tools
-			execTool,
-			processTool,
+		// Run Tools
+		execTool,
+		processTool,
 
-			// Skills Tools
-			loadSkillTool,
+		// Skill Tools
+		loadSkillTool,
 
-			// Automation Tools
-			createScheduleTool,
-			updateScheduleTool,
-			pauseScheduleTool,
-			resumeScheduleTool,
-			deleteScheduleTool,
-			getScheduleTool,
-			listSchedulesTool,
-			runScheduleNowTool,
-		];
-	}
+		// Automation Tools
+		createScheduleTool,
+		updateScheduleTool,
+		pauseScheduleTool,
+		resumeScheduleTool,
+		deleteScheduleTool,
+		getScheduleTool,
+		listSchedulesTool,
+		runScheduleNowTool,
+	];
 }
