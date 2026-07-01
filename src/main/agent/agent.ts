@@ -5,6 +5,7 @@ import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { Cron } from './cron/cron';
 import { Store } from './store';
+import { Skills } from './skills/skills';
 import type { Message, RuntimeEvent, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -51,11 +52,15 @@ export class Agent {
 				effort: options.effort,
 			};
 
-			const config = new Config({ location: agentLocation() });
+			const config = this.store.config;
+			const container = Container.of('main');
 			const runner = new Runner(
 				config, 
 				this.store.settings, 
-				Container.of('main').get(Cron));
+				container.get(Cron),
+				container.get(Skills),
+				this.store.mcp,
+			);
 			const input = {
 				...sessionInput,
 				maxRetries: 1,

@@ -15,6 +15,7 @@ import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
 import { Store } from './agent/store';
+import { Skills } from './agent/skills/skills';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
 
@@ -38,12 +39,14 @@ export function bootstrapServices(): BootstrapResult {
 
 	const config = new Config({ location: agentLocation() });
 	container.set(Config, config);
-	container.set(Store, new Store(config));
+	const store = new Store(config);
+	container.set(Store, store);
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new Cron({ config });
+	const cron = new Cron({ store: store.cron });
 	container.set(Cron, cron);
+	container.set(Skills, new Skills(config, store.skills));
 
 	container.get(ProviderService);
 	container.get(SttService);

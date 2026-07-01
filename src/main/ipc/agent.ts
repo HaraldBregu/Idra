@@ -6,9 +6,7 @@ import { wrapSimpleHandler } from './core/error-handler';
 import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import type { Cron } from '../agent/cron/cron';
-import { Config } from '../agent/core/config';
 import { Skills } from '../agent/skills/skills';
-import { agentLocation } from '../agent/shared/location';
 import { createOAuthProvider, type McpOAuthStorage } from '../agent/mcp/oauth';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
@@ -20,7 +18,7 @@ export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: Agent;
 	cron: Cron;
-	skills?: Skills;
+	skills: Skills;
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
@@ -161,7 +159,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
-	register({ logger, agent, cron, skills = new Skills(new Config({ location: agentLocation() })) }: AgentIpcDeps, eventBus: EventBus): void {
+	register({ logger, agent, cron, skills }: AgentIpcDeps, eventBus: EventBus): void {
 
 		ipcMain.handle(
 			AgentChannels.send,

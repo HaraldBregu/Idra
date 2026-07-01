@@ -13,6 +13,7 @@ import { ChannelRegistry } from '../../channels';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/cron/cron';
+import { Skills } from '../../agent/skills/skills';
 
 export function registerIpcHandlers(container: ContainerInstance, eventBus: EventBus): void {
 	const logger = container.get(LoggerService);
@@ -37,6 +38,7 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 				logger,
 				agent: container.get(Agent),
 				cron: container.get(Cron),
+				skills: container.get(Skills),
 			},
 			eventBus
 		)
