@@ -9,7 +9,7 @@ import { TitleBarCenterContainerTitle } from './TitleBarCenterContainerTitle';
 import { Button } from '@/components/ui/button';
 import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
-import { NavigationButtons } from './components/NavigationButtons';
+// import { NavigationButtons } from './components/NavigationButtons';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
 import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
