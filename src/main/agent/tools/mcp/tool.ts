@@ -1,5 +1,4 @@
-import { BaseTool } from '../../core/tool';
-import type { Context } from '../../core/tool';
+import { BaseTool, type Context } from '../../core/types';
 import type { JSONSchema } from '../../core/types';
 import type { McpClient } from '../../mcp/client';
 
