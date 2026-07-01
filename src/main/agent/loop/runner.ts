@@ -17,7 +17,6 @@ import { ToolsLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
-import { Skills } from '../core/skills';
 import { formatToolOutput } from '../shared/format';
 import { McpStore } from '../store/mcp';
 
