@@ -8,7 +8,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import { Config } from '../core/config';
+import type { Config } from '../core/types';
 import { parseToolArgs } from '../shared/args';
 import { getModelId, getProvider } from '../settings/settings-store';
 import {
