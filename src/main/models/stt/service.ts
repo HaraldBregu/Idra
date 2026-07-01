@@ -90,7 +90,9 @@ export class SttService {
 				`Speech-to-text model is not supported: ${normalizedProviderId}/${normalizedModelId}`
 			);
 		}
-		setVoiceSelection(normalizedProviderId, normalizedModelId);
+		// ponytail: single settings picker writes both modes; split when the UI grows separate pickers
+		setVoiceSelection('transcribe', normalizedProviderId, normalizedModelId);
+		setVoiceSelection('realtime', normalizedProviderId, normalizedModelId);
 		return true;
 	}
 
