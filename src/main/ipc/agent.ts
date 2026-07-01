@@ -313,7 +313,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		const listMcp = (): McpSettings => {
-			const servers = agent.mcp.servers();
+			const servers = getMcpServers();
 			const out: McpSettings = {};
 			for (const [id, entry] of Object.entries(servers)) out[id] = inferMcpType(entry);
 			return out;
