@@ -13,32 +13,32 @@ interface SettingsBreadcrumbItem {
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
-	const connectorDetailId = location.pathname.startsWith('/settings/connectors/connectordetails/')
+	const mcpServerDetailId = location.pathname.startsWith('/settings/mcp/details/')
 		? decodeURIComponent(location.pathname.split('/').at(-1) ?? '')
 		: null;
-	const [connectorDetailName, setConnectorDetailName] = useState<string | null>(null);
+	const [mcpServerDetailName, setMcpServerDetailName] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (!connectorDetailId) {
-			setConnectorDetailName(null);
+		if (!mcpServerDetailId) {
+			setMcpServerDetailName(null);
 			return;
 		}
 
 		let mounted = true;
-		setConnectorDetailName(null);
+		setMcpServerDetailName(null);
 		void window.agent.mcpList().then(
 			() => {
-				if (mounted) setConnectorDetailName(connectorDetailId);
+				if (mounted) setMcpServerDetailName(mcpServerDetailId);
 			},
 			() => {
-				if (mounted) setConnectorDetailName(null);
+				if (mounted) setMcpServerDetailName(null);
 			}
 		);
 
 		return () => {
 			mounted = false;
 		};
-	}, [connectorDetailId]);
+	}, [mcpServerDetailId]);
 
 	if (location.pathname === '/settings') return [];
 
@@ -77,9 +77,9 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: channelLabel });
 	}
 
-	if (location.pathname.startsWith('/settings/connectors/connectordetails/')) {
+	if (location.pathname.startsWith('/settings/mcp/details/')) {
 		items[0] = { ...items[0], path: current.path };
-		items.push({ label: connectorDetailName ?? t('settings.connectors.detailsTitle') });
+		items.push({ label: mcpServerDetailName ?? t('settings.mcp.detailsTitle') });
 	}
 
 	if (location.pathname.startsWith('/settings/skills/skilldetails/')) {

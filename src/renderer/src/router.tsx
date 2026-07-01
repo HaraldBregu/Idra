@@ -27,8 +27,8 @@ const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
-const ConnectorsPage = lazy(() => import('./pages/settings/pages/connectors/Page'));
-const ConnectorDetailsPage = lazy(() => import('./pages/settings/pages/connectors/details/Page'));
+const McpPage = lazy(() => import('./pages/settings/pages/mcp/Page'));
+const McpDetailsPage = lazy(() => import('./pages/settings/pages/mcp/details/Page'));
 const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
@@ -180,29 +180,29 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'connectors',
+						path: 'mcp',
 						children: [
 							{
 								index: true,
 								element: (
 									<SettingsRouteWrapper>
-										<ConnectorsPage />
+										<McpPage />
 									</SettingsRouteWrapper>
 								),
 							},
 							{
-								path: 'connectordetails/:connectorId',
+								path: 'details/:mcpServerId',
 								element: (
 									<SettingsRouteWrapper>
-										<ConnectorDetailsPage />
+										<McpDetailsPage />
 									</SettingsRouteWrapper>
 								),
 							},
 							{
-								path: 'configure/:connectorCatalogId',
+								path: 'configure/:mcpServerId',
 								element: (
 									<SettingsRouteWrapper>
-										<ConnectorDetailsPage />
+										<McpDetailsPage />
 									</SettingsRouteWrapper>
 								),
 							},

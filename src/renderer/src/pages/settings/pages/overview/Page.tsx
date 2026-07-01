@@ -33,7 +33,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		entries: [
 			{ type: 'agent', value: AGENTS.assistant },
 			{ type: 'path', value: '/settings/skills' },
-			{ type: 'path', value: '/settings/connectors' },
+			{ type: 'path', value: '/settings/mcp' },
 			{ type: 'path', value: '/settings/tasks' },
 		],
 	},
