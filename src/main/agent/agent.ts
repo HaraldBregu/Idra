@@ -12,13 +12,12 @@ import { HealthStore } from './health/store';
 import { McpStore, type ConnectorStoreSchema } from './mcp/store';
 import type { PersistedCronState } from './cron/cron';
 import type { HealthSettings } from './health/types';
-import type { Message, RuntimeEvent, RuntimeInput, SessionCategory } from './core/types';
+import type { Message, RuntimeEvent, RuntimeInput } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunStopReason,
-	ModelReasoningEffort,
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
@@ -43,9 +42,6 @@ const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} }
 
 export interface AgentSendOptions {
 	runId?: string;
-	sessionId?: string;
-	category?: SessionCategory;
-	effort?: ModelReasoningEffort;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -90,31 +86,30 @@ export class Agent {
 
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
-		const sessionId = options.sessionId;
 
 		let response = '';
 		let controller: AbortController | undefined;
 		try {
 			controller = new AbortController();
-			const sessionInput = {
+
+			const input = {
 				task: 'chat',
 				message,
-				sessionId,
-				category: options.category,
-				effort: options.effort,
-			};
+			} satisfies RuntimeInput;
+
+			const session = new Session(this.config, input);
 
 			const runner = new Runner(
 				this.config,
 				this.settings,
 				this.cron,
 				this.skills,
-				this.mcp
+				this.mcp,
+				session
 			);
-			const input = {
-				...sessionInput,
-			} satisfies RuntimeInput;
-			const stream = runner.run(input);
+
+ 			const stream = runner.run(input);
+			
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
