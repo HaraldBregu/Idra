@@ -1,7 +1,7 @@
 import type { Tool } from '../types';
-import { readTool } from './filesystem/read';
-import { writeTool } from './filesystem/write';
-import { editTool } from './filesystem/edit';
+import { readTool } from './file/file-read';
+import { writeTool } from './file/file-write';
+import { editTool } from './file/file-edit';
 import { execTool } from './runtime/exec';
 import { processTool } from './runtime/process';
 import { loadSkillTool } from './skills/load';
