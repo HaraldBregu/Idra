@@ -514,6 +514,168 @@ const ModelServicePage: React.FC = () => {
 		}
 	};
 
+	const renderConfiguration = ({
+		configState,
+		triggerTitle,
+		triggerDescription,
+		providerDescription,
+		modelDescription,
+		providerFieldId,
+		modelFieldId,
+		showInlineError,
+		onProviderChange,
+		onModelChange,
+		onSave,
+	}: {
+		readonly configState: ModelServicePageState;
+		readonly triggerTitle?: React.ReactNode;
+		readonly triggerDescription?: React.ReactNode;
+		readonly providerDescription: React.ReactNode;
+		readonly modelDescription: React.ReactNode;
+		readonly providerFieldId: string;
+		readonly modelFieldId: string;
+		readonly showInlineError?: boolean;
+		readonly onProviderChange: (nextProviderId: string | null) => void;
+		readonly onModelChange: (nextModelId: string | null) => void;
+		readonly onSave: () => void;
+	}): React.ReactNode => {
+		const group = configState.modelGroups.find(
+			(item) => item.provider.id === configState.providerId
+		);
+		const provider = group?.provider;
+		const model = group?.models.find((item) => item.id === configState.modelId);
+		const providerName = provider
+			? getProviderCatalogItem(provider.id).name
+			: t('settings.modelServices.providerPlaceholder');
+		const modelName = model?.name ?? model?.id ?? t('settings.modelServices.modelUnavailable');
+
+		return (
+			<Collapsible className="rounded-lg border border-border/70 bg-card">
+				<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+					<div className="min-w-0 flex-1">
+						<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+							{triggerTitle ?? providerName}
+						</div>
+						<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+							{triggerDescription ?? modelName}
+						</p>
+					</div>
+					<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+				</CollapsibleTrigger>
+				<CollapsibleContent className="border-t border-border/60">
+					{configState.loading ? (
+						<SettingsLoadingRows rows={2} />
+					) : (
+						<div className="grid gap-3 px-3 py-3">
+							{showInlineError && configState.error && (
+								<SettingsNotice variant="destructive" icon={AlertTriangle}>
+									{configState.error}
+								</SettingsNotice>
+							)}
+
+							<div className="grid gap-3 sm:grid-cols-2">
+								<SettingsField
+									id={providerFieldId}
+									label={t('settings.modelServices.provider')}
+									description={providerDescription}
+								>
+									<Select
+										value={configState.providerId}
+										onValueChange={onProviderChange}
+										disabled={
+											configState.loading ||
+											configState.saving ||
+											configState.modelGroups.length === 0
+										}
+									>
+										<SelectTrigger id={providerFieldId} className="w-full text-xs">
+											<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
+										</SelectTrigger>
+										<SelectContent>
+											{configState.modelGroups.map((item) => (
+												<SelectItem key={item.provider.id} value={item.provider.id}>
+													{getProviderCatalogItem(item.provider.id).name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+
+								<SettingsField
+									id={modelFieldId}
+									label={t('settings.modelServices.model')}
+									description={modelDescription}
+								>
+									<Select
+										value={configState.modelId}
+										onValueChange={onModelChange}
+										disabled={
+											configState.loading ||
+											configState.loadingModels ||
+											configState.saving ||
+											!provider ||
+											!group ||
+											group.models.length === 0
+										}
+									>
+										<SelectTrigger id={modelFieldId} className="w-full text-xs">
+											<SelectValue
+												placeholder={
+													configState.loadingModels
+														? t('settings.modelServices.modelsLoading')
+														: t('settings.modelServices.modelPlaceholder')
+												}
+											/>
+										</SelectTrigger>
+										<SelectContent>
+											{group?.models.map((item) => (
+												<SelectItem key={item.id} value={item.id}>
+													{item.name || item.id}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</SettingsField>
+							</div>
+
+							{configState.providers.length === 0 && (
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.providers.noProviders')}
+								</p>
+							)}
+							{configState.providers.length > 0 && configState.modelGroups.length === 0 && (
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.modelServices.noModels')}
+								</p>
+							)}
+							{configState.saved && (
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.modelServices.saved')}
+								</p>
+							)}
+
+							<div className="flex justify-end">
+								<Button
+									type="button"
+									size="sm"
+									disabled={configState.saving || !provider || !model}
+									onClick={onSave}
+								>
+									{configState.saving ? (
+										<LoaderCircle className="size-3 animate-spin" />
+									) : (
+										<Save className="size-3" />
+									)}
+									{configState.saving ? t('settings.modelServices.saving') : t('common.save')}
+								</Button>
+							</div>
+						</div>
+					)}
+				</CollapsibleContent>
+			</Collapsible>
+		);
+	};
+
 	if (!service || !navigationItem) {
 		return (
 			<SettingsPageShell>
