@@ -52,11 +52,11 @@ export class Runner {
 
 		try {
 			for await (const event of this.stream(input, signal, session)) {
-				session.appendRun(event);
+				appendRun(session, event);
 				yield event;
 			}
 		} catch (error) {
-			session.appendRun({
+			appendRun(session, {
 				type: 'run_error',
 				message: error instanceof Error ? error.message : String(error),
 			});
@@ -67,7 +67,7 @@ export class Runner {
 	private async *stream(
 		input: RuntimeInput,
 		signal: AbortSignal,
-		session: Session,
+		session: SessionState,
 	): AsyncGenerator<RuntimeEvent> {
 		const provider = getProvider();
 		const modelId = getModelId();
