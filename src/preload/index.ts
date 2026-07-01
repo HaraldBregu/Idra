@@ -13,7 +13,7 @@ import type {
 	AgentApi,
 	ChannelsApi,
 	ProviderApi,
-	SttApi,
+	VoiceApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared/providers';
