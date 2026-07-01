@@ -134,35 +134,6 @@ function SystemCapabilityGroupPanel({
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
-	const [, setMicrophonePermission] =
-		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
-	const [microphoneError, setMicrophoneError] = useState('');
-	const [, setCameraPermission] =
-		useState<CameraPermissionSettings>(DEFAULT_CAMERA_PERMISSION);
-	const [cameraError, setCameraError] = useState('');
-
-	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
-		setMicrophoneError('');
-		try {
-			setMicrophonePermission(await window.app.getMicrophonePermission());
-		} catch (error) {
-			setMicrophoneError(errorMessage(error, t('settings.microphone.errors.load')));
-		}
-	}, [t]);
-
-	const refreshCameraPermission = useCallback(async (): Promise<void> => {
-		setCameraError('');
-		try {
-			setCameraPermission(await window.app.getCameraPermission());
-		} catch (error) {
-			setCameraError(errorMessage(error, t('settings.camera.errors.load')));
-		}
-	}, [t]);
-
-	useEffect(() => {
-		void refreshMicrophonePermission();
-		void refreshCameraPermission();
-	}, [refreshCameraPermission, refreshMicrophonePermission]);
 
 	const handleOpenSystemPreference = useCallback((pane: SystemPreferencePaneId) => {
 		setSystemPreferenceError('');
@@ -190,22 +161,7 @@ const SystemPage: React.FC = () => {
 			{systemPreferenceError && (
 				<SettingsNotice variant="destructive">{systemPreferenceError}</SettingsNotice>
 			)}
-			<SettingsSection
-				title={t('settings.system.mediaPermissions.title')}
-			>
-				<SettingsPanel>
-					<MediaPermissionRows
-						kind="microphone"
-						icon={Mic}
-						error={microphoneError}
-					/>
-					<MediaPermissionRows
-						kind="camera"
-						icon={Camera}
-						error={cameraError}
-					/>
-				</SettingsPanel>
-			</SettingsSection>
+			<MediaPermissionsSection />
 
 			<SettingsSection
 				title={t('settings.application.actions')}
