@@ -17,6 +17,7 @@ import {
 	updateHealthSettings,
 	type HealthSettings,
 } from '../agent/health';
+import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings-store';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
 
 export interface AgentIpcDeps {
