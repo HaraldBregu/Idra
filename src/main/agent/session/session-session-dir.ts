@@ -1,4 +1,3 @@
-import path from 'node:path';
 import type { SessionState } from './session-types';
 import { sessionPath } from './session-session-path';
 
