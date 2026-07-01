@@ -18,6 +18,7 @@ import { NavButton } from './components/NavButton';
 import { NavigationButtons } from './components/NavigationButtons';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
+import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -61,6 +62,7 @@ export const TitleBar = React.memo(function TitleBar({
 	const isSettings = location.pathname.startsWith('/settings');
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
+	const chatButtonLabel = t('titleBar.chat', 'Chat');
 
 	return (
 		<TitleBarProvider value={{ isMac, isFullScreen }}>
@@ -123,12 +125,23 @@ export const TitleBar = React.memo(function TitleBar({
 					</div>
 				)}
 
-				{/* ── Right action: account menu ── */}
+				{/* ── Right actions: chat + account menu ── */}
 				{!isStart && (
 					<div
-						className="z-10 mr-3 flex h-full items-center"
+						className="z-10 mr-3 flex h-full items-center gap-1"
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="size-8 rounded-full"
+							onClick={() => navigate('/home')}
+							title={chatButtonLabel}
+							aria-label={chatButtonLabel}
+						>
+							<AppIconFriday className="size-4" />
+						</Button>
 						<DropdownMenu>
 							<DropdownMenuTrigger
 								render={
@@ -149,9 +162,7 @@ export const TitleBar = React.memo(function TitleBar({
 								<DropdownMenuItem onClick={() => navigate('/settings')}>
 									{t('settings.title', 'Settings')}
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => navigate('/home')}>
-									{t('titleBar.chat', 'Chat')}
-								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => navigate('/home')}>{chatButtonLabel}</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
