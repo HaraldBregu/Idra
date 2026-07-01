@@ -60,7 +60,7 @@ export interface SttServiceOptions {
 
 @Service()
 export class SttService {
-	@Inject(() => ProviderService)
+	@Inject(PROVIDER_SERVICE)
 	private readonly providerStore!: ProviderService;
 
 	private readonly adapterFactory: SttAdapterFactory;
