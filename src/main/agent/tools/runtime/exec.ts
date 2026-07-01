@@ -145,7 +145,6 @@ async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResu
 			});
 			child.once('spawn', () => {
 				child.unref();
-				context.setPath(cwd);
 				resolve({
 					command,
 					workdir: cwd,
