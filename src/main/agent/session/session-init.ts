@@ -1,5 +1,5 @@
 import type { Config } from '../core/config';
-import type { SessionInput, SessionCategory } from '../core/types';
+import type { SessionInput, SessionCategory } from './session-types';
 import { loadMessagesBySessionId } from './session-load-messages-by-session-id';
 import { persist } from './session-persist';
 import { resolveSessionId } from './session-resolve-session-id';
