@@ -1,7 +1,7 @@
 import type { SessionResult, SessionResultSubtype } from './session-types';
 import type { SessionState } from './session-types';
 
-export function toResult(state: SessionState, subtype: SessionResult['subtype']): SessionResult {
+export function toResult(state: SessionState, subtype: SessionResultSubtype): SessionResult {
 	return {
 		text: subtype === 'success' ? state.finalText : '',
 		model: state.model,
