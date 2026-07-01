@@ -320,8 +320,8 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		};
 
 		const oauthStorage = (id: string): McpOAuthStorage => ({
-			load: () => agent.mcp.oauth(id),
-			save: (state) => agent.mcp.saveOauth(id, state),
+			load: () => getMcpOauth(id),
+			save: (state) => saveMcpOauth(id, state),
 		});
 
 		const getHttpMcpServer = (id: string): {
