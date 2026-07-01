@@ -17,6 +17,12 @@ import {
 	updateHealthSettings,
 	type HealthSettings,
 } from '../agent/health/health-store';
+import {
+	getMcpOauth,
+	getMcpServers,
+	saveMcpOauth,
+	setMcpServers,
+} from '../agent/mcp/mcp-store';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings-store';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
 
