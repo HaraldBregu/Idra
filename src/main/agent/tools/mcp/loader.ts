@@ -11,10 +11,10 @@ export async function loadMcpTools(
 	const clients: McpClient[] = [];
 
 	await Promise.all(
-		Object.entries(store.servers()).map(async ([id, data]) => {
+		Object.entries(getMcpServers()).map(async ([id, data]) => {
 			if (data.enabled === false) return;
 			try {
-				const client = new McpClient(id, data, store);
+				const client = new McpClient(id, data);
 				await client.connect();
 				clients.push(client);
 				const listed = await client.listTools();
