@@ -1,11 +1,6 @@
 import type { OAuthClientProvider } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { OAuthClientMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
-import type { McpOAuthState } from './mcp-store';
-
-export type McpOAuthStorage = {
-	load: () => McpOAuthState;
-	save: (state: McpOAuthState) => void;
-};
+import type { McpOAuthState, McpOAuthStorage } from './mcp-types';
 
 const REDIRECT_URL = 'http://127.0.0.1:8989/oauth/callback';
 
