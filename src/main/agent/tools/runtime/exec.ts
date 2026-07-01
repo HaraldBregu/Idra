@@ -256,7 +256,6 @@ async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResu
 			if (settled) return;
 			settled = true;
 			clearTimeout(yieldTimer);
-			context.setPath(cwd);
 			resolve({
 				command,
 				workdir: cwd,
