@@ -38,113 +38,89 @@ export interface ElevenLabsSttAdapterOptions extends SttProviderSpec {
 	fetchFactory?: typeof fetch;
 }
 
-export class ElevenLabsSttAdapter implements SttAdapter {
-	private readonly fetcher: typeof fetch;
-	private readonly provider: SttProviderSpec;
+export function createElevenLabsSttAdapter(opts: ElevenLabsSttAdapterOptions): SttAdapter {
+	if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
+	const provider = opts;
+	const fetcher = opts.fetchFactory ?? fetch;
 
-	constructor(opts: ElevenLabsSttAdapterOptions) {
-		if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
-		this.provider = opts;
-		this.fetcher = opts.fetchFactory ?? fetch;
-	}
+	return {
+		async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
+			const file = await createAudioFile(request.audio);
+			const form = new FormData();
+			form.append('file', file);
+			form.append('model_id', request.modelId);
+			if (request.language) form.append('language_code', request.language);
+			if (request.prompt) form.append('prompt', request.prompt);
 
-	async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
-		const file = await createAudioFile(request.audio);
-		const form = new FormData();
-		form.append('file', file);
-		form.append('model_id', request.modelId);
-		if (request.language) form.append('language_code', request.language);
-		if (request.prompt) form.append('prompt', request.prompt);
+			const endpoint = new URL(
+				ELEVENLABS_STT_PATH,
+				`${provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+			);
+			const response = await fetcher(endpoint, {
+				method: 'POST',
+				headers: {
+					[ELEVENLABS_API_KEY_HEADER]: provider.apiKey,
+				},
+				body: form,
+				signal: request.signal,
+			});
+			if (response.status === 401 || response.status === 403) {
+				throw new SttProviderAuthError(await response.text());
+			}
+			if (!response.ok) {
+				throw new SttProviderRequestError(await response.text());
+			}
 
-		const endpoint = new URL(
-			ELEVENLABS_STT_PATH,
-			`${this.provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID]}/`
-		);
-		const response = await this.fetcher(endpoint, {
-			method: 'POST',
-			headers: {
-				[ELEVENLABS_API_KEY_HEADER]: this.provider.apiKey,
-			},
-			body: form,
-			signal: request.signal,
-		});
-		if (response.status === 401 || response.status === 403) {
-			throw new SttProviderAuthError(await response.text());
-		}
-		if (!response.ok) {
-			throw new SttProviderRequestError(await response.text());
-		}
+			const data = (await response.json()) as ElevenLabsTranscriptionResponse;
 
-		const data = (await response.json()) as ElevenLabsTranscriptionResponse;
+			return {
+				text: data.text ?? '',
+				metadata: {
+					providerId: provider.id,
+					providerName: provider.name,
+					modelId: request.modelId,
+					...(data.language_code || data.languageCode || request.language
+						? { language: data.language_code ?? data.languageCode ?? request.language }
+						: {}),
+					createdAt: new Date().toISOString(),
+				},
+			};
+		},
 
-		return {
-			text: data.text ?? '',
-			metadata: {
-				providerId: this.provider.id,
-				providerName: this.provider.name,
-				modelId: request.modelId,
-				...(data.language_code || data.languageCode || request.language
-					? { language: data.language_code ?? data.languageCode ?? request.language }
-					: {}),
-				createdAt: new Date().toISOString(),
-			},
-		};
-	}
-
-	async startRealtime(
-		request: SttAdapterRealtimeStartRequest,
-		emit: SttRealtimeEventHandler
-	): Promise<SttRealtimeConnection> {
-		const socket = new WebSocket(elevenLabsRealtimeUrl(this.provider.baseURL, request), {
-			headers: {
-				[ELEVENLABS_API_KEY_HEADER]: this.provider.apiKey,
-			},
-		});
-		await waitForOpen(socket);
-		return new ElevenLabsRealtimeSttConnection(socket, request, emit);
-	}
+		async startRealtime(
+			request: SttAdapterRealtimeStartRequest,
+			emit: SttRealtimeEventHandler
+		): Promise<SttRealtimeConnection> {
+			const socket = new WebSocket(elevenLabsRealtimeUrl(provider.baseURL, request), {
+				headers: {
+					[ELEVENLABS_API_KEY_HEADER]: provider.apiKey,
+				},
+			});
+			await waitForOpen(socket);
+			return createElevenLabsRealtimeConnection(socket, request, emit);
+		},
+	};
 }
 
-class ElevenLabsRealtimeSttConnection implements SttRealtimeConnection {
-	private closed = false;
-	private partial = '';
+function createElevenLabsRealtimeConnection(
+	socket: WebSocket,
+	request: SttAdapterRealtimeStartRequest,
+	emit: SttRealtimeEventHandler
+): SttRealtimeConnection {
+	let closed = false;
+	let partial = '';
 
-	constructor(
-		private readonly socket: WebSocket,
-		private readonly request: SttAdapterRealtimeStartRequest,
-		private readonly emit: SttRealtimeEventHandler
-	) {
-		this.socket.on('message', (data) => this.handleMessage(data.toString()));
-		this.socket.once('close', () => this.emitClosed());
-		this.socket.once('error', (error) => this.emitError(error.message));
-	}
+	const emitError = (message: string): void => {
+		if (!closed) emit({ type: 'error', sessionId: request.sessionId, message });
+	};
 
-	async appendAudio(audio: string): Promise<void> {
-		this.socket.send(
-			JSON.stringify({
-				message_type: ELEVENLABS_INPUT_AUDIO_CHUNK_MESSAGE,
-				audio_base_64: audio,
-				commit: false,
-			})
-		);
-	}
+	const emitClosed = (): void => {
+		if (closed) return;
+		closed = true;
+		emit({ type: 'closed', sessionId: request.sessionId });
+	};
 
-	async finish(): Promise<void> {
-		this.socket.send(
-			JSON.stringify({
-				message_type: ELEVENLABS_INPUT_AUDIO_CHUNK_MESSAGE,
-				audio_base_64: '',
-				commit: true,
-			})
-		);
-	}
-
-	async cancel(): Promise<void> {
-		this.socket.close(1000, 'cancelled');
-		this.emitClosed();
-	}
-
-	private handleMessage(message: string): void {
+	const handleMessage = (message: string): void => {
 		let data: ElevenLabsRealtimeResponse;
 		try {
 			data = JSON.parse(message) as ElevenLabsRealtimeResponse;
@@ -153,14 +129,14 @@ class ElevenLabsRealtimeSttConnection implements SttRealtimeConnection {
 		}
 
 		if (data.message_type === 'partial_transcript' && data.text) {
-			const delta = data.text.startsWith(this.partial)
-				? data.text.slice(this.partial.length)
+			const delta = data.text.startsWith(partial)
+				? data.text.slice(partial.length)
 				: data.text;
-			this.partial = data.text;
-			this.emit({
+			partial = data.text;
+			emit({
 				type: 'delta',
-				sessionId: this.request.sessionId,
-				itemId: this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: request.sessionId,
 				contentIndex: 0,
 				delta,
 			});
@@ -171,30 +147,51 @@ class ElevenLabsRealtimeSttConnection implements SttRealtimeConnection {
 				data.message_type === 'committed_transcript_with_timestamps') &&
 			(data.transcript || data.text)
 		) {
-			this.emit({
+			emit({
 				type: 'completed',
-				sessionId: this.request.sessionId,
-				itemId: this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: request.sessionId,
 				contentIndex: 0,
 				transcript: data.transcript ?? data.text ?? '',
 			});
-			this.socket.close(1000, 'completed');
+			socket.close(1000, 'completed');
 			return;
 		}
 		if (data.message_type === 'error') {
-			this.emitError(data.error ?? 'ElevenLabs realtime transcription error.');
+			emitError(data.error ?? 'ElevenLabs realtime transcription error.');
 		}
-	}
+	};
 
-	private emitError(message: string): void {
-		if (!this.closed) this.emit({ type: 'error', sessionId: this.request.sessionId, message });
-	}
+	socket.on('message', (data) => handleMessage(data.toString()));
+	socket.once('close', () => emitClosed());
+	socket.once('error', (error) => emitError(error.message));
 
-	private emitClosed(): void {
-		if (this.closed) return;
-		this.closed = true;
-		this.emit({ type: 'closed', sessionId: this.request.sessionId });
-	}
+	return {
+		async appendAudio(audio: string): Promise<void> {
+			socket.send(
+				JSON.stringify({
+					message_type: ELEVENLABS_INPUT_AUDIO_CHUNK_MESSAGE,
+					audio_base_64: audio,
+					commit: false,
+				})
+			);
+		},
+
+		async finish(): Promise<void> {
+			socket.send(
+				JSON.stringify({
+					message_type: ELEVENLABS_INPUT_AUDIO_CHUNK_MESSAGE,
+					audio_base_64: '',
+					commit: true,
+				})
+			);
+		},
+
+		async cancel(): Promise<void> {
+			socket.close(1000, 'cancelled');
+			emitClosed();
+		},
+	};
 }
 
 function elevenLabsRealtimeUrl(
