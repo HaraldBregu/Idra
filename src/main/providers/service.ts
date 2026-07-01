@@ -1,44 +1,48 @@
-import { Service } from 'typedi';
 import type { Provider, ProviderRecord } from '../../shared/providers/types';
-import { createProviderStore, readProviders, type ProvidersStore, type ProviderStoreOptions } from './store';
+import { createProviderStore, readProviders, type ProviderStoreOptions } from './store';
+
+export const PROVIDER_SERVICE = 'provider-service';
 
 export type ProviderServiceOptions = ProviderStoreOptions;
 
-@Service({ factory: () => new ProviderService() })
-export class ProviderService {
-	private readonly store: ProvidersStore;
+export type ProviderService = {
+	list(): ProviderRecord;
+	get(id: string): Provider | undefined;
+	has(id: string): boolean;
+	set(id: string, provider: Provider): Provider;
+	delete(id: string): void;
+	clear(): void;
+};
 
-	constructor(options: ProviderServiceOptions = {}) {
-		this.store = createProviderStore(options);
+export function createProviderService(options: ProviderServiceOptions = {}): ProviderService {
+	const store = createProviderStore(options);
+
+	function list(): ProviderRecord {
+		return readProviders(store);
 	}
 
-	list(): ProviderRecord {
-		return readProviders(this.store);
-	}
-
-	get(id: string): Provider | undefined {
-		return this.list()[id];
-	}
-
-	has(id: string): boolean {
-		return this.get(id) !== undefined;
-	}
-
-	set(id: string, provider: Provider): Provider {
-		const providers = this.list();
-		providers[id] = provider;
-		this.store.store = providers;
-		return provider;
-	}
-
-	delete(id: string): void {
-		const providers = this.list();
-		if (!(id in providers)) return;
-		delete providers[id];
-		this.store.store = providers;
-	}
-
-	clear(): void {
-		this.store.store = {};
-	}
+	return {
+		list,
+		get(id: string): Provider | undefined {
+			return list()[id];
+		},
+		has(id: string): boolean {
+			return list()[id] !== undefined;
+		},
+		set(id: string, provider: Provider): Provider {
+			const providers = list();
+			providers[id] = provider;
+			store.store = providers;
+			return provider;
+		},
+		delete(id: string): void {
+			const providers = list();
+			if (!(id in providers)) return;
+			delete providers[id];
+			store.store = providers;
+		},
+		clear(): void {
+			store.store = {};
+		},
+	};
 }
