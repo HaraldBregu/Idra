@@ -2,7 +2,7 @@ import type { Context, Tool } from '../../types';
 import type { JSONSchema } from '../../types';
 import { getMcpServers } from '../../mcp/mcp-store';
 import { McpClient } from '../../mcp/client';
-import { McpTool } from './tool';
+import { mcpTool } from './tool';
 
 export async function loadMcpTools(
 	context: Context,
@@ -20,7 +20,7 @@ export async function loadMcpTools(
 				const listed = await client.listTools();
 				for (const t of listed.tools) {
 					tools.push(
-						new McpTool(context, client, t.name, t.description ?? '', t.inputSchema as JSONSchema, id),
+						mcpTool(client, t.name, t.description ?? '', t.inputSchema as JSONSchema, id),
 					);
 				}
 			} catch {
