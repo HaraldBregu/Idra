@@ -2,7 +2,7 @@ import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { McpData } from '../../../shared/mcp/mcp';
-import { createOAuthProvider } from './oauth';
+import { createOAuthProvider } from './mcp-oauth-create-provider';
 import { getMcpOauth, saveMcpOauth } from './mcp-store';
 
 export function buildTransport(id: string, data: McpData): Transport {
