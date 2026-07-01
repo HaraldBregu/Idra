@@ -17,7 +17,7 @@ export const DEFAULT_AGENT_SETTINGS: SettingsSchema = {
 const SETTINGS_STORE_NAME = 'settings';
 
 export class SettingsStore {
-	private readonly settings: ElectronStore<SettingsSchema>;
+	private readonly settings: Store<SettingsSchema>;
 	private readonly providerStore = new ProviderService();
 
 	constructor(private readonly config: Config, defaults: SettingsSchema) {
