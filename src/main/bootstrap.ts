@@ -44,7 +44,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new Cron({ store: store.cron });
+	const cron = new Cron(store.cron);
 	container.set(Cron, cron);
 	container.set(Skills, new Skills(config, store.skills));
 
