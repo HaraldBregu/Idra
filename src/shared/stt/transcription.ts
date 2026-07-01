@@ -107,6 +107,8 @@ export interface SttModelSelection {
 	model: ProviderModel;
 }
 
+export type SttSelectionMode = 'realtime' | 'transcribe';
+
 export function normalizeSttTranscriptionRequest(
 	request: SttTranscriptionRequest
 ): SttTranscriptionRequest {
