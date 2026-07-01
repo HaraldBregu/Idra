@@ -20,15 +20,21 @@ import {
 
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
-		id: 'primary',
+		id: 'general',
+		titleKey: 'settings.overview.groups.general',
 		entries: [
 			{ type: 'path', value: '/settings/application' },
 			{ type: 'path', value: '/settings/providers' },
+			{ type: 'path', value: '/settings/channels' },
+		],
+	},
+	{
+		id: 'primary',
+		entries: [
 			{ type: 'agent', value: AGENTS.assistant },
 			{ type: 'path', value: '/settings/skills' },
 			{ type: 'path', value: '/settings/connectors' },
 			{ type: 'path', value: '/settings/tasks' },
-			{ type: 'path', value: '/settings/channels' },
 		],
 	},
 	{
