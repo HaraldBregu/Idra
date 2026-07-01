@@ -5,24 +5,15 @@ import { Config } from '../core/config';
 
 const HEALTH_STORE_NAME = 'health';
 
-export const HEALTH_DEFAULT_SETTINGS: HealthSettings = {
-	every: '30m',
-	target: 'last',
-	directPolicy: 'allow',
-	lightContext: true,
-	isolatedSession: true,
-	skipWhenBusy: true,
-};
-
 export class HealthStore {
 	private readonly store: Store<HealthSettings>;
 
-	constructor(private readonly config: Config) {
+	constructor(private readonly config: Config, private readonly defaults: HealthSettings) {
 		this.store = new Store<HealthSettings>({
 			name: HEALTH_STORE_NAME,
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
-			defaults: HEALTH_DEFAULT_SETTINGS,
+			defaults,
 		});
 	}
 
@@ -37,7 +28,7 @@ export class HealthStore {
 	}
 
 	resetSettings(): HealthSettings {
-		this.store.store = HEALTH_DEFAULT_SETTINGS;
+		this.store.store = this.defaults;
 		return this.getSettings();
 	}
 }

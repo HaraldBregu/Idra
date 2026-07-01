@@ -6,22 +6,21 @@ export interface SkillSettings {
 	enabled: boolean;
 }
 
-type SkillsSchema = {
+export type SkillsSchema = {
 	skills: Record<string, SkillSettings>;
 };
 
-const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
 const SKILLS_STORE_NAME = 'skills';
 
 export class SkillsStore {
 	private readonly skills: ElectronStore<SkillsSchema>;
 
-	constructor(private readonly config: Config) {
+	constructor(private readonly config: Config, defaults: SkillsSchema) {
 		this.skills = new ElectronStore<SkillsSchema>({
 			name: SKILLS_STORE_NAME,
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_SKILLS,
+			defaults,
 		});
 	}
 

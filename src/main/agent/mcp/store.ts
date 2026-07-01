@@ -13,22 +13,20 @@ export type McpOAuthState = {
 	codeVerifier?: string;
 };
 
-type ConnectorStoreSchema = {
+export type ConnectorStoreSchema = {
 	mcpServers: McpSettings;
 	oauth: Record<string, McpOAuthState>;
 };
 
-const DEFAULT_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
-
 export class McpStore {
 	private readonly store: Store<ConnectorStoreSchema>;
 
-	constructor(private readonly config: Config) {
+	constructor(private readonly config: Config, defaults: ConnectorStoreSchema) {
 		this.store = new Store<ConnectorStoreSchema>({
 			name: 'mcp',
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
-			defaults: DEFAULT_SETTINGS,
+			defaults,
 		});
 	}
 
