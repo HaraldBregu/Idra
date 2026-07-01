@@ -1,9 +1,9 @@
-export { toText } from './text';
-export { transcribe } from './transcribe';
-export { startRealtime } from './realtime-start';
-export { appendRealtimeAudio } from './realtime-audio';
-export { finishRealtime } from './realtime-finish';
-export { cancelRealtime } from './realtime-cancel';
+export { toText } from './voice-text';
+export { transcribe } from './voice-transcribe';
+export { startRealtime } from './voice-realtime-start';
+export { appendRealtimeAudio } from './voice-realtime-audio';
+export { finishRealtime } from './voice-realtime-finish';
+export { cancelRealtime } from './voice-realtime-cancel';
 export {
 	getModelId,
 	getProviderId,
@@ -20,4 +20,4 @@ export type {
 	SttTranscriptionResult,
 	VoiceRealtimeStartRequest,
 	VoiceToTextRequest,
-} from './types';
+} from './voice-types';

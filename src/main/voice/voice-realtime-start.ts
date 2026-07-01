@@ -1,5 +1,5 @@
 import type { SttService } from '../models/stt/service';
-import type { SttRealtimeEvent, SttRealtimeSession, VoiceRealtimeStartRequest } from './types';
+import type { SttRealtimeEvent, SttRealtimeSession, VoiceRealtimeStartRequest } from './voice-types';
 
 export async function startRealtime(
 	stt: SttService,

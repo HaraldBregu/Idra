@@ -1,5 +1,5 @@
 import type { SttService } from '../models/stt/service';
-import type { SttTranscriptionResult, VoiceToTextRequest } from './types';
+import type { SttTranscriptionResult, VoiceToTextRequest } from './voice-types';
 
 export async function transcribe(
 	stt: SttService,

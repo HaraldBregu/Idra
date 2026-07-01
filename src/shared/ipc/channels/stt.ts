@@ -13,6 +13,8 @@ export const SttChannels = {
 	appendRealtimeAudio: 'stt:append-realtime-audio',
 	cancelRealtime: 'stt:cancel-realtime',
 	finishRealtime: 'stt:finish-realtime',
+	getModelId: 'stt:get-model-id',
+	getProviderId: 'stt:get-provider-id',
 	getSelection: 'stt:get-selection',
 	listModels: 'stt:list-models',
 	listProviders: 'stt:list-providers',
