@@ -1,5 +1,5 @@
-import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import type { McpClient } from './mcp-types';
 
-export async function close(client: Client): Promise<void> {
+export async function close(client: McpClient): Promise<void> {
 	await client.close();
 }
