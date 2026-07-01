@@ -4,4 +4,4 @@ export {
 	type ProviderService,
 	type ProviderServiceOptions,
 } from './service';
-export { createProviderStore, readProviders, type ProvidersStore, type ProviderStoreOptions } from './store';
+export { createProviderStore, readProviders, type ProvidersStore, type ProviderStoreOptions } from './providers-store';
