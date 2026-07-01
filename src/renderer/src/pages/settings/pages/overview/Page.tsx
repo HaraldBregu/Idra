@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { AudioWaveform, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS, type AgentId } from '@/lib/compat';
@@ -89,7 +89,8 @@ function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): Setting
 	const path = `/settings/model-services/${routeId}/details`;
 	const item = SETTINGS_MODEL_SERVICE_ITEMS.find((serviceItem) => serviceItem.path === path);
 	if (!item) throw new Error(`Missing settings overview agent route: ${path}`);
-	return { ...item, id: agentId };
+	const icon = agentId === AGENTS.speechToText ? AudioWaveform : item.icon;
+	return { ...item, id: agentId, icon };
 }
 
 function SettingsOverviewCard({
