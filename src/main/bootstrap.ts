@@ -10,7 +10,7 @@ import { LoggerService } from './shared';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
-import { SttService } from './stt/service';
+import { SttService } from './models/stt/service';
 
 export interface BootstrapResult {
 	container: ContainerInstance;
