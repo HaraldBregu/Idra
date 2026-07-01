@@ -1,4 +1,4 @@
-import type { ModelEvent } from '../llm';
+import type { ModelEvent } from '../models/llm';
 
 export interface Config {
 	location: string;
