@@ -74,7 +74,7 @@ export class Runner {
 		const toolContext = new ToolContext();
 		const tools: Tool[] = [];
 
-		const toolLoader = new ToolsLoader(toolContext, this.cron);
+		const toolLoader = new ToolsLoader(toolContext);
 		tools.push(...toolLoader.tools);
 
 		const mcp = await loadMcpTools(toolContext, this.mcpStore);
