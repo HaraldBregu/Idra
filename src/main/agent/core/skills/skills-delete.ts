@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import type { SkillDeleteResult } from '../../../../shared/skills/types';
-import { removeSkill } from '../skills-store';
+import { removeSkill } from './skills-store';
 import { readSkill } from './skills-read';
 import { resolveSkillFolder } from './skills-resolve-folder';
 
