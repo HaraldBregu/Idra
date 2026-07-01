@@ -90,7 +90,7 @@ export class SttService {
 				`Speech-to-text model is not supported: ${normalizedProviderId}/${normalizedModelId}`
 			);
 		}
-		this.setSelection(normalizedProviderId, normalizedModelId);
+		setVoiceSelection(normalizedProviderId, normalizedModelId);
 		return true;
 	}
 
