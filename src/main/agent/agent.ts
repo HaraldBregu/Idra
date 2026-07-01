@@ -111,7 +111,7 @@ export class Agent {
 	}
 
 	clearMessages(sessionId: string): void {
-		clearMessages(this.session, this.config, sessionId);
+		clearSessionMessages(this.session, this.config, sessionId);
 	}
 
 	cancel(agentId?: string): void {

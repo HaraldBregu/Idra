@@ -43,7 +43,7 @@ export class Runner {
 
 	constructor(
 		private readonly config: Config,
-		private readonly session: Session,
+		private readonly session: SessionState,
 	) {}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
