@@ -8,12 +8,12 @@ import {
 	QWEN_SPEECH_TO_TEXT_PROVIDER_ID,
 	XAI_SPEECH_TO_TEXT_PROVIDER_ID,
 } from '../../shared/providers/models/stt';
-import { DeepgramSttAdapter } from './providers/deepgram';
-import { ElevenLabsSttAdapter } from './providers/elevenlabs';
-import { MistralSttAdapter } from './providers/mistral';
-import { OpenAISttAdapter } from './providers/openai';
-import { QwenSttAdapter } from './providers/qwen';
-import { XaiSttAdapter } from './providers/xai';
+import { createDeepgramSttAdapter } from './providers/deepgram';
+import { createElevenLabsSttAdapter } from './providers/elevenlabs';
+import { createMistralSttAdapter } from './providers/mistral';
+import { createOpenAISttAdapter } from './providers/openai';
+import { createQwenSttAdapter } from './providers/qwen';
+import { createXaiSttAdapter } from './providers/xai';
 import { SttProviderUnsupportedError } from './errors';
 import type { SttAdapter, SttProviderSpec } from './types';
 
@@ -21,16 +21,13 @@ import type { SttAdapter, SttProviderSpec } from './types';
 export class SttAdapterFactory {
 	build(provider: SttProviderSpec): SttAdapter {
 		const id = normalizeProviderId(provider.id);
-		if (id === OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) return new OpenAISttAdapter({ ...provider, id });
-		if (id === XAI_SPEECH_TO_TEXT_PROVIDER_ID) return new XaiSttAdapter({ ...provider, id });
-		if (id === MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID)
-			return new MistralSttAdapter({ ...provider, id });
-		if (id === DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID)
-			return new DeepgramSttAdapter({ ...provider, id });
-		if (id === ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID) {
-			return new ElevenLabsSttAdapter({ ...provider, id });
-		}
-		if (id === QWEN_SPEECH_TO_TEXT_PROVIDER_ID) return new QwenSttAdapter({ ...provider, id });
+		const spec = { ...provider, id };
+		if (id === OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) return createOpenAISttAdapter(spec);
+		if (id === XAI_SPEECH_TO_TEXT_PROVIDER_ID) return createXaiSttAdapter(spec);
+		if (id === MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID) return createMistralSttAdapter(spec);
+		if (id === DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID) return createDeepgramSttAdapter(spec);
+		if (id === ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID) return createElevenLabsSttAdapter(spec);
+		if (id === QWEN_SPEECH_TO_TEXT_PROVIDER_ID) return createQwenSttAdapter(spec);
 		throw new SttProviderUnsupportedError(`Speech-to-text provider is not supported: ${id}`);
 	}
 }
