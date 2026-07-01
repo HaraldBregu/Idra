@@ -3,7 +3,7 @@ import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { agentLocation } from './shared/location';
-import { DEFAULT_AGENT_SETTINGS, SettingsStore } from './settings/settings';
+import { DEFAULT_AGENT_SETTINGS, SettingsStore } from './settings/settings-store';
 import { destroyCron, initCron, startCron } from './cron';
 import { DEFAULT_MCP_SETTINGS, McpStore } from './store/mcp';
 import type { Message, RuntimeEvent, RuntimeInput } from './core/types';

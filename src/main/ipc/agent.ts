@@ -296,7 +296,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.healthSaveSettings,
 			wrapSimpleHandler((request: Partial<HealthSettings>) => {
-				return agent.health.updateSettings(normalizeHealthSettingsPatch(request));
+				return updateHealthSettings(normalizeHealthSettingsPatch(request));
 			}, AgentChannels.healthSaveSettings)
 		);
 

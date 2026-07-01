@@ -10,7 +10,7 @@ import type {
 import type { Tool } from '../core/tool';
 import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
-import { SettingsStore } from '../settings/settings';
+import { SettingsStore } from '../settings/settings-store';
 import { Session } from '../core/session';
 import { ToolsLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
