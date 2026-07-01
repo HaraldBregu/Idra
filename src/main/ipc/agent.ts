@@ -254,17 +254,17 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.skillsImport,
-			wrapSimpleHandler(() => skills.import(), AgentChannels.skillsImport)
+			wrapSimpleHandler(() => skills.importSkills(), AgentChannels.skillsImport)
 		);
 
 		ipcMain.handle(
 			AgentChannels.skillsDownload,
-			wrapSimpleHandler((name: string) => skills.download(name), AgentChannels.skillsDownload)
+			wrapSimpleHandler((name: string) => skills.downloadSkill(name), AgentChannels.skillsDownload)
 		);
 
 		ipcMain.handle(
 			AgentChannels.skillsDelete,
-			wrapSimpleHandler((name: string) => skills.delete(name), AgentChannels.skillsDelete)
+			wrapSimpleHandler((name: string) => skills.deleteSkill(name), AgentChannels.skillsDelete)
 		);
 
 		ipcMain.handle(
