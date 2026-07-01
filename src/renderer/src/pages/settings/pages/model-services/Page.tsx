@@ -195,6 +195,73 @@ async function loadServiceProviders(
 	return mergeProviders(await appApi.getProviders(), selection?.provider);
 }
 
+function speechModeApiType(mode: SttSelectionMode): SpeechToTextApiType {
+	return mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
+}
+
+function speechModeModels(
+	providerId: string,
+	models: readonly Model[],
+	mode: SttSelectionMode
+): Model[] {
+	const apiType = speechModeApiType(mode);
+	return models.filter((model) => supportsSpeechToTextModelApiType(providerId, model.id, apiType));
+}
+
+async function loadSpeechModeState(
+	mode: SttSelectionMode,
+	fallbackErrorMessage: string,
+	fallbackModelErrorMessage: string
+): Promise<ModelServicePageState> {
+	try {
+		const selection = await window.voice.getSelection(mode);
+		const providers = mergeProviders(await window.voice.listProviders(), selection?.provider);
+		const modelGroups: ProviderModelGroup[] = [];
+		let firstModelError: unknown;
+
+		for (const provider of providers) {
+			try {
+				const models = speechModeModels(provider.id, await window.voice.listModels(provider.id), mode);
+				const nextModels =
+					selection?.provider.id === provider.id &&
+					supportsSpeechToTextModelApiType(provider.id, selection.model.id, speechModeApiType(mode))
+						? mergeModels(models, selection.model)
+						: models;
+				if (nextModels.length > 0) modelGroups.push({ provider, models: nextModels });
+			} catch (error) {
+				firstModelError ??= error;
+			}
+		}
+
+		const preferredGroup =
+			modelGroups.find((group) => group.provider.id === selection?.provider.id) ?? modelGroups[0];
+		const preferredModel =
+			preferredGroup?.models.find((model) => model.id === selection?.model.id) ??
+			preferredGroup?.models[0];
+
+		return {
+			providers,
+			modelGroups,
+			providerId: preferredGroup?.provider.id ?? '',
+			modelId: preferredModel?.id ?? '',
+			loading: false,
+			loadingModels: false,
+			saving: false,
+			saved: false,
+			error: firstModelError
+				? firstErrorMessage(firstModelError, fallbackModelErrorMessage)
+				: null,
+		};
+	} catch (error) {
+		return {
+			...initialState,
+			loading: false,
+			loadingModels: false,
+			error: firstErrorMessage(error, fallbackErrorMessage),
+		};
+	}
+}
+
 const ModelServicePage: React.FC = () => {
 	const { t } = useTranslation();
 	const { serviceId: routeServiceId } = useParams();
