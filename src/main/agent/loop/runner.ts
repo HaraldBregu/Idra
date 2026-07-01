@@ -19,6 +19,7 @@ import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
 import { Skills } from '../skills/skills';
 import { formatToolOutput } from '../shared/format';
+import { McpStore } from '../mcp/store';
 
 interface ModelTurn {
 	content: string;
@@ -39,6 +40,8 @@ export class Runner {
 		private readonly config: Config,
 		private readonly settings: SettingsStore,
 		private readonly cron: Cron,
+		private readonly skills: Skills,
+		private readonly mcpStore: McpStore,
 	) { }
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
@@ -73,15 +76,14 @@ export class Runner {
 
 		const toolContext = new ToolContext();
 		const tools = input.tools ? input.tools.slice() : [];
-		const skills = new Skills(this.config);
 
-		const toolLoader = new ToolLoader(toolContext, this.cron, skills);
+		const toolLoader = new ToolLoader(toolContext, this.cron, this.skills);
 		tools.push(...toolLoader.tools);
 
-		const mcp = await loadMcpTools(toolContext);
+		const mcp = await loadMcpTools(toolContext, this.mcpStore);
 		tools.push(...mcp.tools);
 
-		const system = new System(this.config, skills);
+		const system = new System(this.config, this.skills);
 		await system.addBasePrompt();
 		await system.addWorkspacePrompt();
 		await system.addSkillsPrompt();
