@@ -79,10 +79,7 @@ const execInputSchema = z.object({
 	node: z.string().optional().describe('Node id/name for host=node.'),
 });
 
-async function runExec(
-	context: Context,
-	input: z.infer<typeof execInputSchema>,
-): Promise<ExecResult> {
+async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResult> {
 	const {
 		command,
 		workdir,
