@@ -1,4 +1,4 @@
-import { enabled, tasks } from './cron-module-state';
+import { enabled } from './cron-module-state';
 import { activate } from './cron-activate';
 import { isActiveSchedule } from './cron-is-active-schedule';
 import { list } from './cron-list';
@@ -14,9 +14,4 @@ export async function startCron(): Promise<void> {
 		activate(schedule);
 	}
 	console.info('[Cron]', 'Cron service started.');
-}
-
-export async function stopCron(): Promise<void> {
-	for (const task of tasks.values()) task.stop();
-	tasks.clear();
 }
