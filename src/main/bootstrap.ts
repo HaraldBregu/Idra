@@ -43,7 +43,22 @@ export function bootstrapServices(): BootstrapResult {
 
 	const logger = new LoggerService(eventBus);
 	container.set(LoggerService, logger);
-	const appPermissions = createAppPermissions();
+	let appPermissionsState: AppPermissionsState = {
+		microphoneEnabled: true,
+		cameraEnabled: true,
+	};
+	const appPermissions: AppPermissions = {
+		getMicrophoneEnabled: () => appPermissionsState.microphoneEnabled,
+		setMicrophoneEnabled: (enabled) => {
+			appPermissionsState = { ...appPermissionsState, microphoneEnabled: enabled };
+			return appPermissionsState;
+		},
+		getCameraEnabled: () => appPermissionsState.cameraEnabled,
+		setCameraEnabled: (enabled) => {
+			appPermissionsState = { ...appPermissionsState, cameraEnabled: enabled };
+			return appPermissionsState;
+		},
+	};
 
 	const agentService = new Agent();
 	container.set(Agent, agentService);
@@ -84,24 +99,4 @@ export async function cleanup(container: ContainerInstance): Promise<void> {
 	container.get(ChannelRegistry).destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
-}
-
-function createAppPermissions(): AppPermissions {
-	let state: AppPermissionsState = {
-		microphoneEnabled: true,
-		cameraEnabled: true,
-	};
-
-	return {
-		getMicrophoneEnabled: () => state.microphoneEnabled,
-		setMicrophoneEnabled: (enabled) => {
-			state = { ...state, microphoneEnabled: enabled };
-			return state;
-		},
-		getCameraEnabled: () => state.cameraEnabled,
-		setCameraEnabled: (enabled) => {
-			state = { ...state, cameraEnabled: enabled };
-			return state;
-		},
-	};
 }
