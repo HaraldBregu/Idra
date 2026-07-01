@@ -1,20 +1,56 @@
-import type {
-	Message,
-	MessageContentBlock,
-	SessionInput,
-	SessionCategory,
-	SessionResult,
-	ToolCall,
-	SessionTurn,
-} from '../core/types';
+import type { ModelReasoningEffort } from '../../../shared/agent/types';
+import type { Message, MessageContentBlock, ToolCall } from '../core/types';
 
 export const DEFAULT_CATEGORY: SessionCategory = 'home';
+
+export type SessionCategory = 'home' | 'task' | 'heartbeat';
+
+export type SessionResultSubtype = 'success' | 'error_max_turns';
+
+export interface SessionUsage {
+	inputTokens: number;
+	outputTokens: number;
+}
+
+export interface SessionResult {
+	text: string;
+	model: string;
+	toolCalls: ToolCall[];
+	numTurns: number;
+	subtype: SessionResultSubtype;
+	sessionId: string;
+	stopReason?: string;
+	usage?: SessionUsage;
+}
+
+export interface SessionInput {
+	task: string;
+	message: string;
+	sessionId?: string;
+	messages?: Message[];
+	model?: string;
+	effort?: ModelReasoningEffort;
+	maxTurns?: number;
+	maxIterations?: number;
+}
+
+export interface SessionTurn {
+	content: string;
+	model: string;
+	stopReason?: string;
+	toolCalls: ToolCall[];
+	providerItems?: MessageContentBlock[];
+	usage?: {
+		inputTokens?: number;
+		outputTokens?: number;
+	};
+}
 
 export interface SessionState {
 	id: string;
 	messages: Message[];
 	toolCalls: ToolCall[];
-	usage: { inputTokens: number; outputTokens: number };
+	usage: SessionUsage;
 	maxTurns: number;
 	model: string;
 	numTurns: number;
@@ -28,7 +64,7 @@ export interface Session {
 	id: string;
 	messages: Message[];
 	readonly toolCalls: ToolCall[];
-	readonly usage: { inputTokens: number; outputTokens: number };
+	readonly usage: SessionUsage;
 	maxTurns: number;
 	model: string;
 	numTurns: number;
@@ -46,5 +82,5 @@ export interface Session {
 		providerItems?: MessageContentBlock[]
 	): void;
 	addToolResults(toolCalls: ToolCall[]): void;
-	toResult(subtype: SessionResult['subtype']): SessionResult;
+	toResult(subtype: SessionResultSubtype): SessionResult;
 }
