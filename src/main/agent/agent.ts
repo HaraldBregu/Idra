@@ -4,7 +4,9 @@ import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { agentLocation } from './shared/location';
 import { SettingsStore, type SettingsSchema } from './core/store.settings';
+import { Cron } from './cron/cron';
 import { CronStore } from './cron/store';
+import { Skills } from './skills/skills';
 import { SkillsStore, type SkillsSchema } from './skills/store';
 import { HealthStore } from './health/store';
 import { McpStore, type ConnectorStoreSchema } from './mcp/store';
@@ -50,20 +52,37 @@ export interface AgentSendOptions {
 export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
+	private readonly cronStore: CronStore;
+	private readonly skillsStore: SkillsStore;
+	private isStarted = false;
 	readonly config: Config;
 	readonly settings: SettingsStore;
-	readonly cron: CronStore;
-	readonly skills: SkillsStore;
+	readonly cron: Cron;
+	readonly skills: Skills;
 	readonly health: HealthStore;
 	readonly mcp: McpStore;
 
 	constructor() {
 		this.config = new Config({ location: agentLocation() });
 		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
-		this.cron = new CronStore(this.config, DEFAULT_CRON_STATE);
-		this.skills = new SkillsStore(this.config, DEFAULT_SKILLS);
+		this.cronStore = new CronStore(this.config, DEFAULT_CRON_STATE);
+		this.skillsStore = new SkillsStore(this.config, DEFAULT_SKILLS);
+		this.cron = new Cron(this.cronStore);
+		this.skills = new Skills(this.config, this.skillsStore);
 		this.health = new HealthStore(this.config, DEFAULT_HEALTH_SETTINGS);
 		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
+	}
+
+	start(logger: { error(scope: string, message: string, error?: unknown): void }): void {
+		if (this.isStarted) return;
+		this.isStarted = true;
+		void this.cron.start().catch((error) => {
+			logger.error('Cron', 'Failed to start persistent cron scheduler', error);
+		});
+	}
+
+	destroy(): void {
+		this.cron.destroy();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
@@ -88,8 +107,8 @@ export class Agent {
 			const runner = new Runner(
 				this.config,
 				this.settings,
-				this.cron,
-				this.skills,
+				this.cronStore,
+				this.skillsStore,
 				this.mcp
 			);
 			const input = {
