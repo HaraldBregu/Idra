@@ -163,7 +163,7 @@ export class Skills {
 			name,
 			description,
 			id,
-			enabled: this.store.get(id)?.enabled ?? true,
+			enabled: getSkill(this.store, id)?.enabled ?? true,
 		};
 		return {
 			id,
