@@ -35,16 +35,6 @@ export interface JSONSchema {
 	[k: string]: unknown;
 }
 
-export interface ContextState {
-	path?: string;
-}
-
-export abstract class Context {
-	abstract get path(): string | undefined;
-	abstract setPath(path: string): void;
-	abstract snapshot(): ContextState;
-}
-
 export interface Tool {
 	readonly name: string;
 	readonly description: string;
