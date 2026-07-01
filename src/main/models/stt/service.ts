@@ -13,7 +13,7 @@ import {
 	getSpeechToTextModelApiTypes,
 	supportsSpeechToTextModelApiType,
 	type SpeechToTextProviderId,
-} from '../../shared/providers/models/stt';
+} from '../../../shared/providers/models/stt';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
