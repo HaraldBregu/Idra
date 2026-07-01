@@ -1,18 +1,18 @@
 import type { Context, Tool } from '../types';
-import { ReadTool } from './filesystem/read';
-import { WriteTool } from './filesystem/write';
-import { EditTool } from './filesystem/edit';
-import { ExecTool } from './runtime/exec';
-import { ProcessTool } from './runtime/process';
-import { LoadSkillTool } from './skills/load';
-import { CreateScheduleTool } from './automation/cron-create-schedule';
-import { UpdateScheduleTool } from './automation/cron-update-schedule';
-import { PauseScheduleTool } from './automation/cron-pause-schedule';
-import { ResumeScheduleTool } from './automation/cron-resume-schedule';
-import { DeleteScheduleTool } from './automation/cron-delete-schedule';
-import { GetScheduleTool } from './automation/cron-get-schedule';
-import { ListSchedulesTool } from './automation/cron-list-schedules';
-import { RunScheduleNowTool } from './automation/cron-run-schedule-now';
+import { readTool } from './filesystem/read';
+import { writeTool } from './filesystem/write';
+import { editTool } from './filesystem/edit';
+import { execTool } from './runtime/exec';
+import { processTool } from './runtime/process';
+import { loadSkillTool } from './skills/load';
+import { createScheduleTool } from './automation/cron-create-schedule';
+import { updateScheduleTool } from './automation/cron-update-schedule';
+import { pauseScheduleTool } from './automation/cron-pause-schedule';
+import { resumeScheduleTool } from './automation/cron-resume-schedule';
+import { deleteScheduleTool } from './automation/cron-delete-schedule';
+import { getScheduleTool } from './automation/cron-get-schedule';
+import { listSchedulesTool } from './automation/cron-list-schedules';
+import { runScheduleNowTool } from './automation/cron-run-schedule-now';
 
 export class ToolsLoader {
 	constructor(private readonly context: Context) {}
@@ -20,26 +20,26 @@ export class ToolsLoader {
 	get tools(): Tool[] {
 		return [
 			// Filesystem Tools
-			new ReadTool(this.context),
-			new WriteTool(this.context),
-			new EditTool(this.context),
+			readTool(this.context),
+			writeTool(this.context),
+			editTool(this.context),
 
 			// Runtime Tools
-			new ExecTool(this.context),
-			new ProcessTool(this.context),
+			execTool(this.context),
+			processTool,
 
 			// Skills Tools
-			new LoadSkillTool(this.context),
+			loadSkillTool(this.context),
 
 			// Automation Tools
-			new CreateScheduleTool(this.context),
-			new UpdateScheduleTool(this.context),
-			new PauseScheduleTool(this.context),
-			new ResumeScheduleTool(this.context),
-			new DeleteScheduleTool(this.context),
-			new GetScheduleTool(this.context),
-			new ListSchedulesTool(this.context),
-			new RunScheduleNowTool(this.context),
+			createScheduleTool,
+			updateScheduleTool,
+			pauseScheduleTool,
+			resumeScheduleTool,
+			deleteScheduleTool,
+			getScheduleTool,
+			listSchedulesTool,
+			runScheduleNowTool,
 		];
 	}
 }
