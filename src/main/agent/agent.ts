@@ -69,7 +69,6 @@ export class Agent {
 
 			const runner = new Runner(
 				this.config,
-				this.settings,
 				this.mcp,
 				this.session
 			);
