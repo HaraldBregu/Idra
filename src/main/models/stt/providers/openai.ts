@@ -10,12 +10,12 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from '../types';
-import type { SttTranscriptionResult, SttUsage } from '../../../shared/stt/transcription';
+import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt/transcription';
 import {
 	OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../shared/providers/models/stt';
+} from '../../../../shared/providers/models/stt';
 
 const OPENAI_REALTIME_PATH = 'realtime';
 const OPENAI_REALTIME_AUTH_SCHEME = 'Bearer';
