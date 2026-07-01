@@ -21,7 +21,6 @@ export class ToolsLoader {
 	constructor(
 		private readonly context: Context,
 		private readonly cron: Cron,
-		private readonly skills: Skills,
 	) {	}
 
 	get tools(): Tool[] {
