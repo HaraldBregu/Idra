@@ -359,7 +359,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			AgentChannels.mcpSave,
 			wrapSimpleHandler((input: McpSettings) => {
 				const next = normalizeMcpSettings(input);
-				agent.mcp.write(next);
+				setMcpServers(next);
 				return next;
 			}, AgentChannels.mcpSave)
 		);
@@ -370,7 +370,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				const connectorId = resolveMcpId(id);
 				const next = { ...listMcp() };
 				delete next[connectorId];
-				agent.mcp.write(next);
+				setMcpServers(next);
 			}, AgentChannels.mcpDelete)
 		);
 
