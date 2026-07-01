@@ -295,7 +295,7 @@ export class SttService {
 	}
 
 	private getProviderSpecFromProviderStore(providerId: SpeechToTextProviderId): SttProviderSpec {
-		const stored = this.getProviderStore().get(providerId);
+		const stored = getProvider(providerId);
 		const defaults = defaultProvider(providerId);
 		return {
 			id: providerId,
