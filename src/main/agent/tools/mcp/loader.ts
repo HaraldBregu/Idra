@@ -1,12 +1,13 @@
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import type { Tool } from '../../types';
 import type { JSONSchema } from '../../types';
 import { getMcpServers } from '../../mcp/mcp-store';
-import { close, connect, listTools, type McpClient } from '../../mcp/client';
+import { close, connect, listTools } from '../../mcp/client';
 import { mcpTool } from './tool';
 
 export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
 	const tools: Tool[] = [];
-	const clients: McpClient[] = [];
+	const clients: Client[] = [];
 
 	await Promise.all(
 		Object.entries(getMcpServers()).map(async ([id, data]) => {
