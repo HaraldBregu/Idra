@@ -4,9 +4,7 @@ import { getMcpServers } from '../../mcp/mcp-store';
 import { McpClient } from '../../mcp/client';
 import { mcpTool } from './tool';
 
-export async function loadMcpTools(
-	context: Context,
-): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
+export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
 	const tools: Tool[] = [];
 	const clients: McpClient[] = [];
 
