@@ -155,7 +155,7 @@ export class Cron {
 		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
-	constructor(private readonly store: CronStore) {
+	constructor() {
 		this.enabled = this.readState().enabled ?? true;
 		this.writeState((state) => {
 			state.enabled = this.enabled;
