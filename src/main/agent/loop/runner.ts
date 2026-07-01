@@ -62,10 +62,9 @@ export class Runner {
 		input: RuntimeInput,
 		signal: AbortSignal,
 		session: Session,
-		settings: SettingsStore
 	): AsyncGenerator<RuntimeEvent> {
-		const provider = settings.getProvider();
-		const modelId = settings.getModelId();
+		const provider = getProvider();
+		const modelId = getModelId();
 
 		if (!provider || !modelId)
 			throw new Error('Agent requires a configured provider and model.');
