@@ -1,4 +1,4 @@
-import { getHealthStore, setHealthStore } from './store';
+import { getHealthStore, setHealthStore } from './health-store';
 import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './types';
 
 export function resetHealthSettings(): HealthSettings {
