@@ -2,7 +2,7 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { Provider } from '../types';
 import { ProviderService } from '../../providers';
-import { agentLocation } from '../shared/location';
+import { agentLocation } from '../shared/agent-location';
 import { DEFAULT_AGENT_SETTINGS, type SettingsSchema } from './settings-types';
 
 const SETTINGS_STORE_NAME = 'settings';
