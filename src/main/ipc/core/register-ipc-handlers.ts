@@ -11,7 +11,7 @@ import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
-import { Cron } from '../../agent/core/cron';
+import { Cron } from '../../agent/cron/cron';
 
 export interface RegisterIpcHandlersServices {
 	cron: Cron;
