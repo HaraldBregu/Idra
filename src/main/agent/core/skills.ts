@@ -114,7 +114,7 @@ export class Skills {
 		const folder = this.resolveSkillFolder(id);
 		const name = this.read(folder, id)?.name ?? id;
 		fs.rmSync(folder, { recursive: true, force: true });
-		this.store.remove(id);
+		removeSkill(this.store, id);
 		return { id, name, deleted: true };
 	}
 
