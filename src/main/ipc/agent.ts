@@ -7,7 +7,7 @@ import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
 import * as skills from '../agent/skills';
-import { createOAuthProvider } from '../agent/mcp/oauth';
+import { createOAuthProvider } from '../agent/mcp/mcp-oauth-create-provider';
 import type { McpOAuthStorage } from '../agent/mcp/mcp-types';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
