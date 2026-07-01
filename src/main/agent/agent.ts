@@ -31,7 +31,6 @@ export class Agent {
 	readonly config: Config;
 	readonly settings: SettingsStore;
 	readonly cron: Cron;
-	readonly skills: Skills;
 	readonly health: HealthStore;
 	readonly mcp: McpStore;
 	readonly session: Session;
