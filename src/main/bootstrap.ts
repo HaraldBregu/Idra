@@ -37,7 +37,6 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(ChannelsService, channels);
 
 	container.get(SttService);
-	container.get(VoiceService);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);
