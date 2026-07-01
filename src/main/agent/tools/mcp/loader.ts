@@ -1,7 +1,7 @@
 import type { Tool } from '../../types';
 import type { JSONSchema } from '../../types';
 import { getMcpServers } from '../../mcp/mcp-store';
-import { McpClient } from '../../mcp/client';
+import { close, connect, listTools, type McpClient } from '../../mcp/client';
 import { mcpTool } from './tool';
 
 export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
@@ -12,10 +12,9 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 		Object.entries(getMcpServers()).map(async ([id, data]) => {
 			if (data.enabled === false) return;
 			try {
-				const client = new McpClient(id, data);
-				await client.connect();
+				const client = await connect(id, data);
 				clients.push(client);
-				const listed = await client.listTools();
+				const listed = await listTools(client);
 				for (const t of listed.tools) {
 					tools.push(
 						mcpTool(client, t.name, t.description ?? '', t.inputSchema as JSONSchema, id),
