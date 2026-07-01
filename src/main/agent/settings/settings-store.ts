@@ -6,7 +6,7 @@ import { agentLocation } from '../shared/agent-location';
 import { DEFAULT_AGENT_SETTINGS, type SettingsSchema } from './settings-types';
 
 const SETTINGS_STORE_NAME = 'settings';
-const providerStore = new ProviderService();
+const providerStore = createProviderService();
 
 const store = new Store<SettingsSchema>({
 	name: SETTINGS_STORE_NAME,
