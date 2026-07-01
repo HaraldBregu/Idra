@@ -38,70 +38,67 @@ export interface DeepgramSttAdapterOptions extends SttProviderSpec {
 	fetchFactory?: typeof fetch;
 }
 
-export class DeepgramSttAdapter implements SttAdapter {
-	private readonly fetcher: typeof fetch;
-	private readonly provider: SttProviderSpec;
+export function createDeepgramSttAdapter(opts: DeepgramSttAdapterOptions): SttAdapter {
+	if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
+	const provider = opts;
+	const fetcher = opts.fetchFactory ?? fetch;
 
-	constructor(opts: DeepgramSttAdapterOptions) {
-		if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
-		this.provider = opts;
-		this.fetcher = opts.fetchFactory ?? fetch;
-	}
+	return {
+		async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
+			const file = await createAudioFile(request.audio);
+			const body = Buffer.from(await file.arrayBuffer());
+			const endpoint = new URL(
+				DEEPGRAM_LISTEN_PATH,
+				`${provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]}/`
+			);
+			endpoint.searchParams.set('model', request.modelId);
+			if (request.language) endpoint.searchParams.set('language', request.language);
+			if (request.prompt) endpoint.searchParams.set('keywords', request.prompt);
 
-	async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
-		const file = await createAudioFile(request.audio);
-		const body = Buffer.from(await file.arrayBuffer());
-		const endpoint = new URL(
-			DEEPGRAM_LISTEN_PATH,
-			`${this.provider.baseURL ?? SPEECH_TO_TEXT_PROVIDER_BASE_URLS[DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID]}/`
-		);
-		endpoint.searchParams.set('model', request.modelId);
-		if (request.language) endpoint.searchParams.set('language', request.language);
-		if (request.prompt) endpoint.searchParams.set('keywords', request.prompt);
+			const response = await fetcher(endpoint, {
+				method: 'POST',
+				headers: {
+					Authorization: `${DEEPGRAM_AUTH_SCHEME} ${provider.apiKey}`,
+					'Content-Type': request.audio.mimeType,
+				},
+				body,
+				signal: request.signal,
+			});
+			if (response.status === 401 || response.status === 403) {
+				throw new SttProviderAuthError(await response.text());
+			}
+			if (!response.ok) {
+				throw new SttProviderRequestError(await response.text());
+			}
 
-		const response = await this.fetcher(endpoint, {
-			method: 'POST',
-			headers: {
-				Authorization: `${DEEPGRAM_AUTH_SCHEME} ${this.provider.apiKey}`,
-				'Content-Type': request.audio.mimeType,
-			},
-			body,
-			signal: request.signal,
-		});
-		if (response.status === 401 || response.status === 403) {
-			throw new SttProviderAuthError(await response.text());
-		}
-		if (!response.ok) {
-			throw new SttProviderRequestError(await response.text());
-		}
+			const data = (await response.json()) as DeepgramTranscriptionResponse;
+			const text = data.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';
+			const usage = toUsage(data.metadata);
 
-		const data = (await response.json()) as DeepgramTranscriptionResponse;
-		const text = data.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';
-		const usage = toUsage(data.metadata);
+			return {
+				text,
+				metadata: {
+					providerId: provider.id,
+					providerName: provider.name,
+					modelId: request.modelId,
+					...(request.language ? { language: request.language } : {}),
+					createdAt: new Date().toISOString(),
+					...(usage ? { usage } : {}),
+				},
+			};
+		},
 
-		return {
-			text,
-			metadata: {
-				providerId: this.provider.id,
-				providerName: this.provider.name,
-				modelId: request.modelId,
-				...(request.language ? { language: request.language } : {}),
-				createdAt: new Date().toISOString(),
-				...(usage ? { usage } : {}),
-			},
-		};
-	}
-
-	async startRealtime(
-		request: SttAdapterRealtimeStartRequest,
-		emit: SttRealtimeEventHandler
-	): Promise<SttRealtimeConnection> {
-		const socket = new WebSocket(deepgramRealtimeUrl(this.provider.baseURL, request), {
-			headers: { Authorization: `${DEEPGRAM_AUTH_SCHEME} ${this.provider.apiKey}` },
-		});
-		await waitForOpen(socket);
-		return new DeepgramRealtimeSttConnection(socket, request, emit);
-	}
+		async startRealtime(
+			request: SttAdapterRealtimeStartRequest,
+			emit: SttRealtimeEventHandler
+		): Promise<SttRealtimeConnection> {
+			const socket = new WebSocket(deepgramRealtimeUrl(provider.baseURL, request), {
+				headers: { Authorization: `${DEEPGRAM_AUTH_SCHEME} ${provider.apiKey}` },
+			});
+			await waitForOpen(socket);
+			return createDeepgramRealtimeConnection(socket, request, emit);
+		},
+	};
 }
 
 type DeepgramRealtimeResponse = {
@@ -115,34 +112,25 @@ type DeepgramRealtimeResponse = {
 	};
 };
 
-class DeepgramRealtimeSttConnection implements SttRealtimeConnection {
-	private closed = false;
-	private completedCount = 0;
+function createDeepgramRealtimeConnection(
+	socket: WebSocket,
+	request: SttAdapterRealtimeStartRequest,
+	emit: SttRealtimeEventHandler
+): SttRealtimeConnection {
+	let closed = false;
+	let completedCount = 0;
 
-	constructor(
-		private readonly socket: WebSocket,
-		private readonly request: SttAdapterRealtimeStartRequest,
-		private readonly emit: SttRealtimeEventHandler
-	) {
-		this.socket.on('message', (data) => this.handleMessage(data.toString()));
-		this.socket.once('close', () => this.emitClosed());
-		this.socket.once('error', (error) => this.emitError(error.message));
-	}
+	const emitError = (message: string): void => {
+		if (!closed) emit({ type: 'error', sessionId: request.sessionId, message });
+	};
 
-	async appendAudio(audio: string): Promise<void> {
-		this.socket.send(Buffer.from(audio, 'base64'));
-	}
+	const emitClosed = (): void => {
+		if (closed) return;
+		closed = true;
+		emit({ type: 'closed', sessionId: request.sessionId });
+	};
 
-	async finish(): Promise<void> {
-		this.socket.send(JSON.stringify({ type: 'CloseStream' }));
-	}
-
-	async cancel(): Promise<void> {
-		this.socket.close(1000, 'cancelled');
-		this.emitClosed();
-	}
-
-	private handleMessage(message: string): void {
+	const handleMessage = (message: string): void => {
 		let data: DeepgramRealtimeResponse;
 		try {
 			data = JSON.parse(message) as DeepgramRealtimeResponse;
@@ -150,17 +138,17 @@ class DeepgramRealtimeSttConnection implements SttRealtimeConnection {
 			return;
 		}
 		if (data.type === 'CloseStream') {
-			this.socket.close(1000, 'completed');
+			socket.close(1000, 'completed');
 			return;
 		}
 		if (data.type === 'TurnInfo') {
 			const transcript = data.channel?.alternatives?.[0]?.transcript;
 			if (!transcript) return;
-			this.completedCount += 1;
-			this.emit({
+			completedCount += 1;
+			emit({
 				type: 'completed',
-				sessionId: this.request.sessionId,
-				itemId: `${this.request.sessionId}-${this.completedCount}`,
+				sessionId: request.sessionId,
+				itemId: `${request.sessionId}-${completedCount}`,
 				contentIndex: 0,
 				transcript,
 			});
@@ -170,41 +158,50 @@ class DeepgramRealtimeSttConnection implements SttRealtimeConnection {
 		if (!transcript) return;
 
 		if (data.speech_final) {
-			this.emit({
+			emit({
 				type: 'committed',
-				sessionId: this.request.sessionId,
-				itemId: this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: request.sessionId,
 			});
 		}
 		if (data.is_final) {
-			this.completedCount += 1;
-			this.emit({
+			completedCount += 1;
+			emit({
 				type: 'completed',
-				sessionId: this.request.sessionId,
-				itemId: `${this.request.sessionId}-${this.completedCount}`,
+				sessionId: request.sessionId,
+				itemId: `${request.sessionId}-${completedCount}`,
 				contentIndex: 0,
 				transcript,
 			});
 			return;
 		}
-		this.emit({
+		emit({
 			type: 'delta',
-			sessionId: this.request.sessionId,
-			itemId: this.request.sessionId,
+			sessionId: request.sessionId,
+			itemId: request.sessionId,
 			contentIndex: 0,
 			delta: transcript,
 		});
-	}
+	};
 
-	private emitError(message: string): void {
-		if (!this.closed) this.emit({ type: 'error', sessionId: this.request.sessionId, message });
-	}
+	socket.on('message', (data) => handleMessage(data.toString()));
+	socket.once('close', () => emitClosed());
+	socket.once('error', (error) => emitError(error.message));
 
-	private emitClosed(): void {
-		if (this.closed) return;
-		this.closed = true;
-		this.emit({ type: 'closed', sessionId: this.request.sessionId });
-	}
+	return {
+		async appendAudio(audio: string): Promise<void> {
+			socket.send(Buffer.from(audio, 'base64'));
+		},
+
+		async finish(): Promise<void> {
+			socket.send(JSON.stringify({ type: 'CloseStream' }));
+		},
+
+		async cancel(): Promise<void> {
+			socket.close(1000, 'cancelled');
+			emitClosed();
+		},
+	};
 }
 
 function deepgramRealtimeUrl(
