@@ -7,6 +7,13 @@ import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
 } from '../../../../../../shared/providers/models/llm';
+import {
+	SPEECH_TO_TEXT_BATCH_API_TYPE,
+	SPEECH_TO_TEXT_STREAM_API_TYPE,
+	supportsSpeechToTextModelApiType,
+	type SpeechToTextApiType,
+} from '../../../../../../shared/providers/models/stt';
+import type { SttSelectionMode } from '../../../../../../shared/stt/transcription';
 import { Button } from '@/components/ui/button';
 import {
 	Collapsible,
