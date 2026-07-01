@@ -226,7 +226,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.cronList,
-			wrapSimpleHandler(() => cron.listSchedules(), AgentChannels.cronList)
+			wrapSimpleHandler(() => listSchedules(), AgentChannels.cronList)
 		);
 
 		ipcMain.handle(
