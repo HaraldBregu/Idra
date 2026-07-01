@@ -52,7 +52,7 @@ export class Agent {
 	}
 
 	destroy(): void {
-		this.cron.destroy();
+		destroyCron();
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
