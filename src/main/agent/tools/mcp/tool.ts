@@ -1,7 +1,7 @@
 import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { jsonTool } from '../../tool';
 import type { JSONSchema } from '../../types';
-import { callTool } from '../../mcp/client';
+import { callTool } from '../../mcp/mcp-client-call-tool';
 
 type CallResult = { content?: unknown; isError?: boolean };
 
