@@ -42,11 +42,12 @@ export class Runner {
 		private readonly cron: Cron,
 		private readonly skills: Skills,
 		private readonly mcpStore: McpStore,
+		private readonly session: Session,
 	) {}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
-		const session = new Session(this.config, input);
+		const session = this.session;
 
 		try {
 			for await (const event of this.stream(input, signal, session, this.settingsStore)) {
