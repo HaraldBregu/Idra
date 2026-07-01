@@ -35,7 +35,7 @@ export class ToolsLoader {
 			new ProcessTool(this.context),
 
 			// Skills Tools
-			new LoadSkillTool(this.context, this.skills),
+			new LoadSkillTool(this.context),
 
 			// Automation Tools
 			new CreateScheduleTool(this.cron, this.context),
