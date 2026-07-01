@@ -1,7 +1,9 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { Provider, ProviderRecord } from './providers-types';
+import type { Provider, ProviderRecord, ProviderService } from './providers-types';
+
+export const PROVIDER_SERVICE = 'provider-service';
 
 const PROVIDERS_STORE_NAME = 'settings';
 
@@ -11,7 +13,7 @@ const store = new Store<ProviderRecord>({
 	accessPropertiesByDotNotation: false,
 });
 
-export function readProviders(): ProviderRecord {
+export function listProviders(): ProviderRecord {
 	const raw = store.store;
 	if (!isRecord(raw)) return {};
 	const providers: ProviderRecord = {};
@@ -21,13 +23,40 @@ export function readProviders(): ProviderRecord {
 	return providers;
 }
 
-export function writeProviders(providers: ProviderRecord): void {
+export function getProvider(id: string): Provider | undefined {
+	return listProviders()[id];
+}
+
+export function hasProvider(id: string): boolean {
+	return getProvider(id) !== undefined;
+}
+
+export function setProvider(id: string, provider: Provider): Provider {
+	const providers = listProviders();
+	providers[id] = provider;
+	store.store = providers;
+	return provider;
+}
+
+export function deleteProvider(id: string): void {
+	const providers = listProviders();
+	if (!(id in providers)) return;
+	delete providers[id];
 	store.store = providers;
 }
 
 export function clearProviders(): void {
 	store.store = {};
 }
+
+export const providerService: ProviderService = {
+	list: listProviders,
+	get: getProvider,
+	has: hasProvider,
+	set: setProvider,
+	delete: deleteProvider,
+	clear: clearProviders,
+};
 
 function resolveAppDataPath(): string {
 	try {
