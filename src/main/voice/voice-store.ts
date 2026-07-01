@@ -41,23 +41,23 @@ export function setVoiceStore(value: VoiceStoreState): void {
 	store.store = value;
 }
 
-export function getProviderId(mode: VoiceMode): string | undefined {
+export function getProviderId(mode: VoiceMode = 'transcribe'): string | undefined {
 	return optionalTrimmedString(store.get(mode)?.providerId);
 }
 
-export function setProviderId(mode: VoiceMode, providerId: string): void {
+export function setProviderId(providerId: string, mode: VoiceMode = 'transcribe'): void {
 	store.set(mode, { ...store.get(mode), providerId });
 }
 
-export function getModelId(mode: VoiceMode): string | undefined {
+export function getModelId(mode: VoiceMode = 'transcribe'): string | undefined {
 	return optionalTrimmedString(store.get(mode)?.modelId);
 }
 
-export function setModelId(mode: VoiceMode, modelId: string): void {
+export function setModelId(modelId: string, mode: VoiceMode = 'transcribe'): void {
 	store.set(mode, { ...store.get(mode), modelId });
 }
 
-export function setSelection(mode: VoiceMode, providerId: string, modelId: string): void {
+export function setSelection(providerId: string, modelId: string, mode: VoiceMode = 'transcribe'): void {
 	store.set(mode, { providerId, modelId });
 }
 
