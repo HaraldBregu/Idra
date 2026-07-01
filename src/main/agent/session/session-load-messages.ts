@@ -1,5 +1,6 @@
 import type { Config } from '../core/config';
-import type { Message, SessionCategory } from './session-types';
+import type { Message } from '../core/types';
+import type { SessionCategory } from './session-types';
 import { loadMessagesBySessionId } from './session-load-messages-by-session-id';
 import { resolveStoredSessionId } from './session-resolve-stored-session-id';
 import { DEFAULT_CATEGORY } from './session-types';
