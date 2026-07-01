@@ -160,7 +160,6 @@ export class Runner {
 				for await (const event of this.model.stream({
 					provider,
 					model,
-					//effort: input.effort,
 					systemPrompt,
 					messages,
 					tools,

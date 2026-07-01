@@ -59,22 +59,23 @@ export class Session {
 		return this;
 	}
 
-	static loadMessages(
-		sessionId: string,
-		config: Config,
-		category: SessionCategory = DEFAULT_CATEGORY
-	): Message[] {
-		const resolvedSessionId = Session.resolveStoredSessionId(sessionId, category, config.location);
-		return Session.loadMessagesBySessionId(resolvedSessionId, category, config.location);
+	loadMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): Message[] {
+		const resolvedSessionId = Session.resolveStoredSessionId(
+			sessionId,
+			category,
+			this.config.location
+		);
+		return Session.loadMessagesBySessionId(resolvedSessionId, category, this.config.location);
 	}
 
-	static clearMessages(
-		sessionId: string,
-		config: Config,
-		category: SessionCategory = DEFAULT_CATEGORY
-	): void {
-		const resolvedSessionId = Session.resolveStoredSessionId(sessionId, category, config.location);
-		Session.clearMessagesBySessionId(resolvedSessionId, category, config.location);
+	clearMessages(sessionId: string, category: SessionCategory = DEFAULT_CATEGORY): void {
+		const resolvedSessionId = Session.resolveStoredSessionId(
+			sessionId,
+			category,
+			this.config.location
+		);
+		Session.clearMessagesBySessionId(resolvedSessionId, category, this.config.location);
+		if (this.id === resolvedSessionId) this.messages = [];
 	}
 
 	appendRun(entry: unknown): void {
