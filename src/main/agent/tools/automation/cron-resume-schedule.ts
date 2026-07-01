@@ -1,6 +1,6 @@
 import { resumeSchedule } from '../../cron';
 import { BaseTool, type Context } from '../../types';
-import { requireScheduleId, scheduleIdSchema } from './schema';
+import { requireScheduleId, scheduleIdSchema } from './cron-schema';
 
 export class ResumeScheduleTool extends BaseTool {
 	readonly name = 'resume_schedule';
