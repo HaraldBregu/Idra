@@ -39,6 +39,7 @@ import {
 	getModelId as getVoiceModelId,
 	getProviderId as getVoiceProviderId,
 	setSelection as setVoiceSelection,
+	type VoiceMode,
 } from '../../voice/voice-store';
 
 @Service()
