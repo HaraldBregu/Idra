@@ -6,30 +6,26 @@ import type { McpData } from '../../../shared/mcp/mcp';
 import { createOAuthProvider } from './oauth';
 import { getMcpOauth, saveMcpOauth } from './mcp-store';
 
-export type McpClient = {
-	client: Client;
-};
-
-export async function connect(id: string, data: McpData): Promise<McpClient> {
+export async function connect(id: string, data: McpData): Promise<Client> {
 	const client = new Client({ name: 'friday', version: '1.0.0' });
 	await client.connect(buildTransport(id, data));
-	return { client };
+	return client;
 }
 
-export function listTools(client: McpClient): ReturnType<Client['listTools']> {
-	return client.client.listTools();
+export function listTools(client: Client): ReturnType<Client['listTools']> {
+	return client.listTools();
 }
 
 export function callTool(
-	client: McpClient,
+	client: Client,
 	name: string,
 	args?: Record<string, unknown>,
 ): ReturnType<Client['callTool']> {
-	return client.client.callTool({ name, arguments: args });
+	return client.callTool({ name, arguments: args });
 }
 
-export async function close(client: McpClient): Promise<void> {
-	await client.client.close();
+export async function close(client: Client): Promise<void> {
+	await client.close();
 }
 
 function buildTransport(id: string, data: McpData): Transport {
