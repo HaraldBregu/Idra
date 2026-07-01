@@ -20,6 +20,8 @@ export const SttChannels = {
 	listProviders: 'stt:list-providers',
 	realtimeEvent: 'stt:realtime-event',
 	saveSelection: 'stt:save-selection',
+	setModelId: 'stt:set-model-id',
+	setProviderId: 'stt:set-provider-id',
 	startRealtime: 'stt:start-realtime',
 	transcribe: 'stt:transcribe',
 } as const;
