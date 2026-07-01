@@ -1,9 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import { Inject, Service } from 'typedi';
+import { Service } from 'typedi';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
-import { Store } from './store';
+import { SettingsStore, type SettingsSchema } from './core/store.settings';
+import { CronStore } from './cron/store';
+import { SkillsStore, type SkillsSchema } from './skills/store';
+import { HealthStore } from './health/store';
+import { McpStore, type ConnectorStoreSchema } from './mcp/store';
+import type { PersistedCronState } from './cron/cron';
+import type { HealthSettings } from './health/types';
 import type { Message, RuntimeEvent, RuntimeInput, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -13,6 +19,42 @@ import type {
 	ModelReasoningEffort,
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
+
+const DEFAULT_AGENT_SETTINGS: SettingsSchema = {
+	providerId: undefined,
+	modelId: undefined,
+};
+
+const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
+const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
+
+const DEFAULT_HEALTH_SETTINGS: HealthSettings = {
+	every: '30m',
+	target: 'last',
+	directPolicy: 'allow',
+	lightContext: true,
+	isolatedSession: true,
+	skipWhenBusy: true,
+};
+
+const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
+
+@Service()
+export class Store {
+	readonly settings: SettingsStore;
+	readonly cron: CronStore;
+	readonly skills: SkillsStore;
+	readonly health: HealthStore;
+	readonly mcp: McpStore;
+
+	constructor(readonly config: Config) {
+		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
+		this.cron = new CronStore(this.config, DEFAULT_CRON_STATE);
+		this.skills = new SkillsStore(this.config, DEFAULT_SKILLS);
+		this.health = new HealthStore(this.config, DEFAULT_HEALTH_SETTINGS);
+		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
+	}
+}
 
 export interface AgentSendOptions {
 	runId?: string;
@@ -26,9 +68,11 @@ export interface AgentSendOptions {
 export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
+	readonly store: Store;
 
-	@Inject(() => Store)
-	readonly store!: Store;
+	constructor(config: Config) {
+		this.store = new Store(config);
+	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId.trim();

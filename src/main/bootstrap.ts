@@ -14,7 +14,6 @@ import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
-import { Store } from './agent/store';
 import { Skills } from './agent/skills/skills';
 import { ProviderService } from './providers';
 import { SttService } from './stt/service';
@@ -39,8 +38,8 @@ export function bootstrapServices(): BootstrapResult {
 
 	const config = new Config({ location: agentLocation() });
 	container.set(Config, config);
-	const store = new Store(config);
-	container.set(Store, store);
+	const agentService = container.get(Agent);
+	const store = agentService.store;
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
@@ -50,8 +49,6 @@ export function bootstrapServices(): BootstrapResult {
 
 	container.get(ProviderService);
 	container.get(SttService);
-
-	const agentService = container.get(Agent);
 
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	container.set(ChannelRegistry, channelRegistry);
