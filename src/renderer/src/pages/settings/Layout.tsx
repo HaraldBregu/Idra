@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import { ChevronRight, Settings } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { useTranslation } from 'react-i18next';
 import { useSettingsBreadcrumbItems } from './hooks';
@@ -17,7 +17,6 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 				aria-label={t('settings.breadcrumb.label')}
 				className="mx-auto flex w-full max-w-4xl min-w-0 items-center gap-1 text-[11px] text-muted-foreground"
 			>
-				<Settings className="size-3 shrink-0" strokeWidth={1.8} />
 				<Link
 					to="/settings"
 					className="min-w-0 rounded-sm font-medium text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/55"
