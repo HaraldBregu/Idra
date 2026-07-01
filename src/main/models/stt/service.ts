@@ -54,9 +54,9 @@ export class SttService {
 			: new SttAdapterFactory();
 	}
 
-	getSelection(): SttModelSelection | undefined {
-		const configuredProviderId = getVoiceProviderId();
-		const configuredModelId = getVoiceModelId();
+	getSelection(mode: SttSelectionMode = 'transcribe'): SttModelSelection | undefined {
+		const configuredProviderId = getVoiceProviderId(mode);
+		const configuredModelId = getVoiceModelId(mode);
 		if (!configuredProviderId || !configuredModelId) return undefined;
 
 		try {
