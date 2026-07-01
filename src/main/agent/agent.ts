@@ -42,7 +42,6 @@ export class Agent {
 		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
 		this.cronStore = new CronStore(this.config, DEFAULT_CRON_STATE);
 		this.cron = new Cron(this.cronStore);
-		this.skills = new Skills(this.config);
 		this.health = new HealthStore(this.config, DEFAULT_HEALTH_SETTINGS);
 		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
 		this.session = new Session(this.config);
