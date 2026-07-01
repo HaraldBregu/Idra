@@ -304,10 +304,6 @@ export class SttService {
 			baseURL: stored?.baseUrl || SPEECH_TO_TEXT_PROVIDER_BASE_URLS[providerId],
 		};
 	}
-
-	private getProviderStore(): Pick<ProviderService, 'get'> {
-		return this.providerStoreOverride ?? this.providerStore;
-	}
 }
 
 function defaultProvider(providerId: string): CatalogProvider | undefined {
