@@ -19,6 +19,10 @@ export class SttIpc implements IpcModule<SttIpcDeps> {
 		registerCommand(SttChannels.saveSelection, (providerId, modelId) =>
 			stt.saveSelection(providerId, modelId)
 		);
+		registerQuery(SttChannels.getProviderId, () => getProviderId());
+		registerCommand(SttChannels.setProviderId, (providerId) => setProviderId(providerId));
+		registerQuery(SttChannels.getModelId, () => getModelId());
+		registerCommand(SttChannels.setModelId, (modelId) => setModelId(modelId));
 		registerCommand(SttChannels.transcribe, (request) => stt.transcribe(request));
 		registerCommandWithEvent(SttChannels.startRealtime, (event, request) =>
 			stt.startRealtime(request, (sttEvent) => {
