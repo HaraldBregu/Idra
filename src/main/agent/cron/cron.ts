@@ -130,10 +130,6 @@ export function isActiveSchedule(schedule: CronSchedule): boolean {
 	return schedule.enabled;
 }
 
-export function defaultCronEnabled(): boolean {
-	return process.env.SKIP_CRON !== '1' && process.env.CRON_ENABLED !== 'false';
-}
-
 type CronEventListener = (event: CronScheduleEvent) => void;
 
 interface CronJobHandle {
@@ -160,7 +156,7 @@ export class Cron {
 	};
 
 	constructor(private readonly store: CronStore) {
-		this.enabled = this.readState().enabled ?? defaultCronEnabled();
+		this.enabled = this.readState().enabled ?? true;
 		this.writeState((state) => {
 			state.enabled = this.enabled;
 		});
