@@ -30,14 +30,14 @@ export class Agent {
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
 	readonly config: Config;
-	readonly session: Session;
+	readonly session: SessionState;
 
 	constructor() {
 		this.config = new Config({
 			location: agentLocation()
 		});
 		initCron();
-		this.session = session(this.config);
+		this.session = createSessionState();
 	}
 
 	start(logger: { error(scope: string, message: string, error?: unknown): void }): void {
