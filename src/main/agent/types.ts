@@ -77,7 +77,10 @@ export type RuntimeModelEvent = ModelEvent;
 
 export type RuntimeOutput = SessionResult;
 
-export interface RuntimeInput {
+export interface RuntimeInput extends Pick<
+	SessionInput,
+	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations'
+> {
 	task: string;
 	message: string;
 }

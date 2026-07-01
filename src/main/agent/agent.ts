@@ -22,6 +22,7 @@ import { toError } from '../ipc/core/error';
 
 export interface AgentSendOptions {
 	runId?: string;
+	sessionId?: string;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
@@ -64,6 +65,7 @@ export class Agent {
 			const input = {
 				task: 'chat',
 				message,
+				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 			} satisfies RuntimeInput;
 
 			init(this.session, this.config, input);
