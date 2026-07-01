@@ -84,10 +84,7 @@ export class Runner {
 		const mcp = await loadMcpTools(toolContext);
 		tools.push(...mcp.tools);
 
-		const system = new System(this.config);
-		await system.addBasePrompt();
-		await system.addWorkspacePrompt();
-		const systemPrompt = system.prompt;
+		const systemPrompt = await buildSystemPrompt(this.config);
 
 		yield {
 			type: 'run_started',
