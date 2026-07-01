@@ -37,7 +37,6 @@ export class Runner {
 	constructor(
 		private readonly config: Config,
 		private readonly settingsStore: SettingsStore,
-		private readonly cron: Cron,
 		private readonly mcpStore: McpStore,
 		private readonly session: Session,
 	) {}
