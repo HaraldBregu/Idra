@@ -3,24 +3,15 @@ import Store from 'electron-store';
 import { app } from 'electron';
 import type { Provider, ProviderRecord } from '../../shared/providers/types';
 
-export type ProvidersStore = {
-	get store(): unknown;
-	set store(value: ProviderRecord);
-};
+const PROVIDERS_STORE_NAME = 'settings';
 
-export interface ProviderStoreOptions {
-	cwd?: string;
-}
+const store = new Store<ProviderRecord>({
+	name: PROVIDERS_STORE_NAME,
+	cwd: path.join(resolveAppDataPath(), 'providers'),
+	accessPropertiesByDotNotation: false,
+});
 
-export function createProviderStore(options: ProviderStoreOptions = {}): ProvidersStore {
-	return new Store<ProviderRecord>({
-		name: 'settings',
-		cwd: path.join(options.cwd ?? resolveAppDataPath(), 'providers'),
-		accessPropertiesByDotNotation: false,
-	});
-}
-
-export function readProviders(store: ProvidersStore): ProviderRecord {
+export function readProviders(): ProviderRecord {
 	const raw = store.store;
 	if (!isRecord(raw)) return {};
 	const providers: ProviderRecord = {};
@@ -28,6 +19,14 @@ export function readProviders(store: ProvidersStore): ProviderRecord {
 		if (isProvider(value)) providers[id] = value;
 	}
 	return providers;
+}
+
+export function writeProviders(providers: ProviderRecord): void {
+	store.store = providers;
+}
+
+export function clearProviders(): void {
+	store.store = {};
 }
 
 function resolveAppDataPath(): string {
