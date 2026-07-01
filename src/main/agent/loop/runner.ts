@@ -108,29 +108,29 @@ export class Runner {
 					signal
 				);
 
-				session.recordTurn(turn);
+				recordTurn(session, turn);
 
 				yield {
 					type: 'assistant_message',
 					content: turn.content,
 					toolCalls: turn.toolCalls,
 				};
-				session.addAssistantMessage(turn.content, turn.toolCalls, turn.providerItems);
+				addAssistantMessage(session, turn.content, turn.toolCalls, turn.providerItems);
 
 				if (turn.toolCalls.length === 0) {
-					const result = session.toResult('success');
+					const result = toResult(session, 'success');
 					yield { type: 'run_finished', result };
 					return;
 				}
 
-				if (session.isExhausted) {
-					const result = session.toResult('error_max_turns');
+				if (isExhausted(session)) {
+					const result = toResult(session, 'error_max_turns');
 					yield { type: 'run_finished', result };
 					return;
 				}
 
 				yield* this.runToolCalls(tools, turn.toolCalls);
-				session.addToolResults(turn.toolCalls);
+				addToolResults(session, turn.toolCalls);
 			}
 		} finally {
 			await mcp.close();
