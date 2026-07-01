@@ -75,8 +75,7 @@ export class Runner {
 
 		const tools: Tool[] = [];
 
-		const toolLoader = new ToolsLoader();
-		tools.push(...toolLoader.tools);
+		tools.push(...loadTools());
 
 		const mcp = await loadMcpTools();
 		tools.push(...mcp.tools);
