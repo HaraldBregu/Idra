@@ -107,12 +107,12 @@ export class PauseScheduleTool extends CronTool {
 	readonly description: string = 'Pause an active cron schedule by id.';
 	readonly schema: JSONSchema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): void {
-		this.cron.pauseSchedule(requireScheduleId(input, 'pause_schedule'));
+		pauseSchedule(requireScheduleId(input, 'pause_schedule'));
 	}
 }
 
