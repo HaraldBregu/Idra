@@ -82,7 +82,7 @@ export class SttService {
 		return cloneModels(SPEECH_TO_TEXT_MODELS_BY_PROVIDER[normalized]);
 	}
 
-	saveSelection(providerId: string, modelId: string): boolean {
+	saveSelection(providerId: string, modelId: string, mode: SttSelectionMode = 'transcribe'): boolean {
 		const normalizedProviderId = this.resolveProviderId(providerId);
 		const normalizedModelId = modelId.trim();
 		if (!findSpeechToTextModel(normalizedProviderId, normalizedModelId)) {
