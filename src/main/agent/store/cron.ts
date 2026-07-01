@@ -1,25 +1,21 @@
 import path from 'node:path';
-import ElectronStore from 'electron-store';
+import Store from 'electron-store';
+import { agentLocation } from '../shared/location';
 import type { PersistedCronState } from '../core/cron';
-import type { Config } from '../core/config';
 
 const CRON_STORE_NAME = 'cron';
 
-export type CronStore = ElectronStore<PersistedCronState>;
+const store = new Store<PersistedCronState>({
+	name: CRON_STORE_NAME,
+	cwd: path.resolve(agentLocation()),
+	accessPropertiesByDotNotation: false,
+	defaults: { schedules: [] },
+});
 
-export function createCronStore(config: Config, defaults: PersistedCronState): CronStore {
-	return new ElectronStore<PersistedCronState>({
-		name: CRON_STORE_NAME,
-		cwd: path.resolve(config.location),
-		accessPropertiesByDotNotation: false,
-		defaults,
-	});
-}
-
-export function getCronState(store: CronStore): PersistedCronState {
+export function getCronState(): PersistedCronState {
 	return store.store;
 }
 
-export function setCronState(store: CronStore, value: PersistedCronState): void {
+export function setCronState(value: PersistedCronState): void {
 	store.store = value;
 }
