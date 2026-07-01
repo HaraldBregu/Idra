@@ -35,119 +35,92 @@ type OpenAIRealtimeServerEvent = {
 	error?: { message?: string };
 };
 
-export class OpenAISttAdapter implements SttAdapter {
-	private readonly client: OpenAI;
-	private readonly provider: SttProviderSpec;
+export function createOpenAISttAdapter(opts: OpenAISttAdapterOptions): SttAdapter {
+	if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
+	const provider = opts;
+	const factory =
+		opts.clientFactory ?? ((c) => new OpenAI({ apiKey: c.apiKey, baseURL: c.baseURL }));
+	const client = factory({ apiKey: opts.apiKey, baseURL: opts.baseURL });
 
-	constructor(opts: OpenAISttAdapterOptions) {
-		if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
-		this.provider = opts;
-		const factory =
-			opts.clientFactory ?? ((c) => new OpenAI({ apiKey: c.apiKey, baseURL: c.baseURL }));
-		this.client = factory({ apiKey: opts.apiKey, baseURL: opts.baseURL });
-	}
+	return {
+		async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
+			try {
+				const file = await createAudioFile(request.audio);
+				const response = await client.audio.transcriptions.create(
+					{
+						file,
+						model: request.modelId,
+						language: request.language,
+						prompt: request.prompt,
+						temperature: request.temperature,
+					},
+					{ signal: request.signal }
+				);
+				const text = typeof response === 'string' ? response : response.text;
+				const usage = typeof response === 'string' ? undefined : toUsage(response.usage);
 
-	async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
-		try {
-			const file = await createAudioFile(request.audio);
-			const response = await this.client.audio.transcriptions.create(
-				{
-					file,
-					model: request.modelId,
-					language: request.language,
-					prompt: request.prompt,
-					temperature: request.temperature,
+				return {
+					text,
+					metadata: {
+						providerId: provider.id,
+						providerName: provider.name,
+						modelId: request.modelId,
+						...(request.language ? { language: request.language } : {}),
+						createdAt: new Date().toISOString(),
+						...(usage ? { usage } : {}),
+					},
+				};
+			} catch (error) {
+				const status = (error as { status?: number }).status ?? 0;
+				const message = (error as Error).message ?? String(error);
+				if (status === 401 || status === 403) throw new SttProviderAuthError(message);
+				throw error;
+			}
+		},
+
+		async startRealtime(
+			request: SttAdapterRealtimeStartRequest,
+			emit: SttRealtimeEventHandler
+		): Promise<SttRealtimeConnection> {
+			if (provider.id !== OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) {
+				throw new SttProviderUnsupportedError(
+					`${provider.name} realtime speech-to-text is not implemented.`
+				);
+			}
+
+			const socket = new WebSocket(openAIRealtimeUrl(provider.baseURL), {
+				headers: {
+					Authorization: `${OPENAI_REALTIME_AUTH_SCHEME} ${provider.apiKey}`,
 				},
-				{ signal: request.signal }
-			);
-			const text = typeof response === 'string' ? response : response.text;
-			const usage = typeof response === 'string' ? undefined : toUsage(response.usage);
-
-			return {
-				text,
-				metadata: {
-					providerId: this.provider.id,
-					providerName: this.provider.name,
-					modelId: request.modelId,
-					...(request.language ? { language: request.language } : {}),
-					createdAt: new Date().toISOString(),
-					...(usage ? { usage } : {}),
-				},
-			};
-		} catch (error) {
-			const status = (error as { status?: number }).status ?? 0;
-			const message = (error as Error).message ?? String(error);
-			if (status === 401 || status === 403) throw new SttProviderAuthError(message);
-			throw error;
-		}
-	}
-
-	async startRealtime(
-		request: SttAdapterRealtimeStartRequest,
-		emit: SttRealtimeEventHandler
-	): Promise<SttRealtimeConnection> {
-		if (this.provider.id !== OPENAI_SPEECH_TO_TEXT_PROVIDER_ID) {
-			throw new SttProviderUnsupportedError(
-				`${this.provider.name} realtime speech-to-text is not implemented.`
-			);
-		}
-
-		const socket = new WebSocket(openAIRealtimeUrl(this.provider.baseURL), {
-			headers: {
-				Authorization: `${OPENAI_REALTIME_AUTH_SCHEME} ${this.provider.apiKey}`,
-			},
-		});
-		await waitForOpen(socket);
-		const session = new OpenAIRealtimeSttConnection(socket, request, emit);
-		session.configure();
-		return session;
-	}
+			});
+			await waitForOpen(socket);
+			return createOpenAIRealtimeConnection(socket, request, emit);
+		},
+	};
 }
 
-class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
-	private closed = false;
+function createOpenAIRealtimeConnection(
+	socket: WebSocket,
+	request: SttAdapterRealtimeStartRequest,
+	emit: SttRealtimeEventHandler
+): SttRealtimeConnection {
+	let closed = false;
 
-	constructor(
-		private readonly socket: WebSocket,
-		private readonly request: SttAdapterRealtimeStartRequest,
-		private readonly emit: SttRealtimeEventHandler
-	) {
-		this.socket.on('message', (data) => this.handleEvent(data.toString()));
-		this.socket.once('error', (error) => this.emitError(error.message));
-		this.socket.once('close', () => this.emitClosed());
-	}
+	const emitEvent = (event: Parameters<SttRealtimeEventHandler>[0]): void => {
+		if (!closed) emit(event);
+	};
 
-	configure(): void {
-		this.socket.send(
-			JSON.stringify({
-				type: OPENAI_REALTIME_SESSION_UPDATE_EVENT,
-				session: {
-					input_audio_format: OPENAI_REALTIME_AUDIO_FORMAT,
-					input_audio_transcription: {
-						model: this.request.modelId,
-						...(this.request.language ? { language: this.request.language } : {}),
-						...(this.request.prompt ? { prompt: this.request.prompt } : {}),
-					},
-					turn_detection: null,
-				},
-			})
-		);
-	}
+	const emitError = (message: string): void => {
+		emitEvent({ type: 'error', sessionId: request.sessionId, message });
+	};
 
-	async appendAudio(audio: string): Promise<void> {
-		this.socket.send(JSON.stringify({ type: 'input_audio_buffer.append', audio }));
-	}
+	const emitClosed = (): void => {
+		if (closed) return;
+		closed = true;
+		emit({ type: 'closed', sessionId: request.sessionId });
+	};
 
-	async finish(): Promise<void> {
-		this.socket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
-	}
-
-	async cancel(): Promise<void> {
-		this.socket.close(1000, 'cancelled');
-		this.emitClosed();
-	}
-
-	private handleEvent(message: string): void {
+	const handleEvent = (message: string): void => {
 		let event: OpenAIRealtimeServerEvent;
 		try {
 			event = JSON.parse(message) as OpenAIRealtimeServerEvent;
@@ -156,57 +129,77 @@ class OpenAIRealtimeSttConnection implements SttRealtimeConnection {
 		}
 
 		if (event.type === 'input_audio_buffer.committed') {
-			this.emit({
+			emit({
 				type: 'committed',
-				sessionId: this.request.sessionId,
-				itemId: event.item_id ?? this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: event.item_id ?? request.sessionId,
 			});
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.delta') {
-			this.emit({
+			emit({
 				type: 'delta',
-				sessionId: this.request.sessionId,
-				itemId: event.item_id ?? this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: event.item_id ?? request.sessionId,
 				contentIndex: event.content_index ?? 0,
 				delta: event.delta ?? '',
 			});
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.completed') {
-			this.emit({
+			emit({
 				type: 'completed',
-				sessionId: this.request.sessionId,
-				itemId: event.item_id ?? this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: event.item_id ?? request.sessionId,
 				contentIndex: event.content_index ?? 0,
 				transcript: event.transcript ?? '',
 			});
-			this.socket.close(1000, 'completed');
+			socket.close(1000, 'completed');
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.failed') {
-			this.emitError(event.error?.message ?? 'OpenAI realtime transcription failed.');
-			this.socket.close(1011, 'transcription failed');
+			emitError(event.error?.message ?? 'OpenAI realtime transcription failed.');
+			socket.close(1011, 'transcription failed');
 			return;
 		}
 		if (event.type === 'error') {
-			this.emitError(event.error?.message ?? 'OpenAI realtime transcription error.');
+			emitError(event.error?.message ?? 'OpenAI realtime transcription error.');
 		}
-	}
+	};
 
-	private emitEvent(event: Parameters<SttRealtimeEventHandler>[0]): void {
-		if (!this.closed) this.emit(event);
-	}
+	socket.on('message', (data) => handleEvent(data.toString()));
+	socket.once('error', (error) => emitError(error.message));
+	socket.once('close', () => emitClosed());
 
-	private emitError(message: string): void {
-		this.emitEvent({ type: 'error', sessionId: this.request.sessionId, message });
-	}
+	socket.send(
+		JSON.stringify({
+			type: OPENAI_REALTIME_SESSION_UPDATE_EVENT,
+			session: {
+				input_audio_format: OPENAI_REALTIME_AUDIO_FORMAT,
+				input_audio_transcription: {
+					model: request.modelId,
+					...(request.language ? { language: request.language } : {}),
+					...(request.prompt ? { prompt: request.prompt } : {}),
+				},
+				turn_detection: null,
+			},
+		})
+	);
 
-	private emitClosed(): void {
-		if (this.closed) return;
-		this.closed = true;
-		this.emit({ type: 'closed', sessionId: this.request.sessionId });
-	}
+	return {
+		async appendAudio(audio: string): Promise<void> {
+			socket.send(JSON.stringify({ type: 'input_audio_buffer.append', audio }));
+		},
+
+		async finish(): Promise<void> {
+			socket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+		},
+
+		async cancel(): Promise<void> {
+			socket.close(1000, 'cancelled');
+			emitClosed();
+		},
+	};
 }
 
 function openAIRealtimeUrl(baseURL: string | undefined): string {
