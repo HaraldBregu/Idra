@@ -24,24 +24,22 @@ import type {
 const DEFAULT_CATEGORY: SessionCategory = 'home';
 
 export class Session {
-	readonly id: string;
-	readonly messages: Message[];
+	id = '';
+	messages: Message[] = [];
 	readonly toolCalls: ToolCall[] = [];
 	readonly usage = { inputTokens: 0, outputTokens: 0 };
-	readonly maxTurns: number;
+	maxTurns = 20;
 
-	model: string;
+	model = 'default';
 	numTurns = 0;
 	finalText = '';
 	stopReason?: string;
-	private readonly sessionsPath: string;
-	private readonly sessionFolderName: string;
+	private sessionsPath = '';
+	private sessionFolderName = '';
 
-	constructor(
-		private readonly config: Config,
-		input: SessionInput,
-		category: SessionCategory = DEFAULT_CATEGORY
-	) {
+	constructor(private readonly config: Config) {}
+
+	init(input: SessionInput, category: SessionCategory = DEFAULT_CATEGORY): this {
 		this.id = resolveSessionId(input.sessionId, category, this.config.location);
 		this.sessionFolderName = sessionFolderName(this.id);
 		this.sessionsPath = sessionsRoot(this.config.location, category);
@@ -58,6 +56,7 @@ export class Session {
 		this.model = input.model ?? 'default';
 		this.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 		this.persist();
+		return this;
 	}
 
 	static loadMessages(
