@@ -2,7 +2,7 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { Provider } from '../core/types';
 import { ProviderService } from '../../providers';
-import type { Config } from '../core/config';
+import { agentLocation } from '../shared/location';
 
 export type SettingsSchema = {
 	providerId: string | undefined;
@@ -15,59 +15,53 @@ export const DEFAULT_AGENT_SETTINGS: SettingsSchema = {
 };
 
 const SETTINGS_STORE_NAME = 'settings';
+const providerStore = new ProviderService();
 
-export class SettingsStore {
-	private readonly settings: Store<SettingsSchema>;
-	private readonly providerStore = new ProviderService();
+const store = new Store<SettingsSchema>({
+	name: SETTINGS_STORE_NAME,
+	cwd: path.resolve(agentLocation()),
+	accessPropertiesByDotNotation: false,
+	defaults: DEFAULT_AGENT_SETTINGS,
+});
 
-	constructor(private readonly config: Config, defaults: SettingsSchema) {
-		this.settings = new Store<SettingsSchema>({
-			name: SETTINGS_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults,
-		});
-	}
+export function getProvider(): Provider | undefined {
+	const providerId = getProviderId();
+	if (!providerId) return undefined;
+	const provider = providerStore.get(providerId);
+	if (!provider) return undefined;
+	return {
+		id: providerId,
+		apiKey: provider.apiKey,
+		baseURL: provider.baseUrl,
+	};
+}
 
-	getProvider(): Provider | undefined {
-		const providerId = this.getProviderId();
-		if (!providerId) return undefined;
-		const provider = this.providerStore.get(providerId);
-		if (!provider) return undefined;
-		return {
-			id: providerId,
-			apiKey: provider.apiKey,
-			baseURL: provider.baseUrl,
-		};
-	}
+export function setProvider(provider: Provider): void {
+	const existing = providerStore.get(provider.id);
+	providerStore.set(provider.id, {
+		name: existing?.name ?? provider.id,
+		apiKey: provider.apiKey,
+		baseUrl: provider.baseURL,
+	});
+	setProviderId(provider.id);
+}
 
-	setProvider(provider: Provider): void {
-		const existing = this.providerStore.get(provider.id);
-		this.providerStore.set(provider.id, {
-			name: existing?.name ?? provider.id,
-			apiKey: provider.apiKey,
-			baseUrl: provider.baseURL,
-		});
-		this.setProviderId(provider.id);
-	}
+export function getVersion(): number {
+	return store.get('version');
+}
 
-	getVersion(): number {
-		return this.settings.get('version');
-	}
+export function getProviderId(): string | undefined {
+	return store.get('providerId');
+}
 
-	getProviderId(): string | undefined {
-		return this.settings.get('providerId');
-	}
+export function setProviderId(providerId: string): void {
+	store.set('providerId', providerId);
+}
 
-	setProviderId(providerId: string): void {
-		this.settings.set('providerId', providerId);
-	}
+export function setModelId(modelId: string): void {
+	store.set('modelId', modelId);
+}
 
-	setModelId(modelId: string): void {
-		this.settings.set('modelId', modelId);
-	}
-
-	getModelId(): string | undefined {
-		return this.settings.get('modelId');
-	}
+export function getModelId(): string | undefined {
+	return store.get('modelId');
 }
