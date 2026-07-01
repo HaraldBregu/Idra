@@ -1,6 +1,6 @@
 import type { OAuthClientProvider } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { OAuthClientMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
-import type { McpOAuthState } from './store';
+import type { McpOAuthState } from '../store/mcp';
 
 export type McpOAuthStorage = {
 	load: () => McpOAuthState;

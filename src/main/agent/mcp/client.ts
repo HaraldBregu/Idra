@@ -4,7 +4,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { McpData } from '../../../shared/mcp/mcp';
 import { createOAuthProvider } from './oauth';
-import { McpStore } from './store';
+import { McpStore } from '../store/mcp';
 
 export class McpClient {
 	private readonly client = new Client({ name: 'friday', version: '1.0.0' });

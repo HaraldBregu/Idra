@@ -1,9 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import cron from 'node-cron';
-import { Container } from 'typedi';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
-import { Agent } from '../agent';
-import { CronStore } from './store';
+import { CronStore } from '../store/cron';
 
 export interface CronJobInfo {
 	readonly id: string;
@@ -350,10 +348,7 @@ export class Cron {
 			console.info('[Cron]', `Schedule ${scheduleId} fired: ${schedule.action.message}`);
 		}
 		if (schedule.action.type === 'agent') {
-			void Container.of('main').get(Agent).send(schedule.action.prompt, randomUUID(), {
-				category: 'task',
-				sessionId: scheduleId,
-			});
+
 		}
 		this.trigger(scheduleId);
 	}

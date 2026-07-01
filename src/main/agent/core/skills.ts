@@ -13,8 +13,8 @@ import type {
 	SkillValidationIssue,
 	SkillValidationResult,
 } from '../../../shared/skills/types';
-import { Config } from '../core/config';
-import { SkillsStore } from './store';
+import { Config } from './config';
+import { SkillsStore } from '../store/skills';
 
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import ElectronStore from 'electron-store';
-import type { PersistedCronState } from './cron';
+import type { PersistedCronState } from '../core/cron';
 import type { Config } from '../core/config';
 
 const CRON_STORE_NAME = 'cron';

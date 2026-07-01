@@ -8,18 +8,18 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import { Cron } from '../cron/cron';
+import { Cron } from '../core/cron';
 import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
-import { SettingsStore } from '../core/store.settings';
+import { SettingsStore } from '../store/settings';
 import { Session } from '../core/session';
 import { ToolsLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
-import { Skills } from '../skills/skills';
+import { Skills } from '../core/skills';
 import { formatToolOutput } from '../shared/format';
-import { McpStore } from '../mcp/store';
+import { McpStore } from '../store/mcp';
 
 interface ModelTurn {
 	content: string;

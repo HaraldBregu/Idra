@@ -1,8 +1,8 @@
 import path from 'node:path';
 import ElectronStore from 'electron-store';
-import type { Provider } from './types';
+import type { Provider } from '../core/types';
 import { ProviderService } from '../../providers';
-import type { Config } from './config';
+import type { Config } from '../core/config';
 
 export type SettingsSchema = {
 	providerId: string | undefined;

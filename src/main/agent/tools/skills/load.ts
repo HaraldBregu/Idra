@@ -1,6 +1,6 @@
 import { BaseTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
-import type { Skills } from '../../skills/skills';
+import type { Skills } from '../../core/skills';
 
 export class LoadSkillTool extends BaseTool {
 	readonly name = 'load_skill';
