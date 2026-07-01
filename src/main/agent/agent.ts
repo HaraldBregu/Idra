@@ -105,14 +105,13 @@ export class Agent {
 	}
 
 	getLastMessages(sessionId: string): AgentHistoryMessage[] {
-		return this.session
-			.loadMessages(sessionId)
+		return loadMessages(this.config, sessionId)
 			.slice(-this.lastMessagesLimit)
 			.flatMap(toHistoryMessages);
 	}
 
 	clearMessages(sessionId: string): void {
-		this.session.clearMessages(sessionId);
+		clearMessages(this.session, this.config, sessionId);
 	}
 
 	cancel(agentId?: string): void {
