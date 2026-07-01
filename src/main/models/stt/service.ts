@@ -99,7 +99,7 @@ export class SttService {
 	async transcribe(request: SttTranscriptionRequest): Promise<SttTranscriptionResult> {
 		const normalized = normalizeSttTranscriptionRequest(request);
 		const providerId = this.resolveProviderId(
-			normalized.providerId ?? this.getConfiguredProviderId()
+			normalized.providerId ?? this.getConfiguredProviderId('transcribe')
 		);
 		const modelId = this.resolveModelId(
 			providerId,
