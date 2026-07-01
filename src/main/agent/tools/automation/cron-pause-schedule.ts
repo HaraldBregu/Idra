@@ -1,5 +1,5 @@
 import { pauseSchedule } from '../../cron';
-import { tool } from '../../tool';
+import { tool } from '../../shared/tool';
 import { scheduleIdSchema } from './cron-schema';
 
 export const pauseScheduleTool = tool({

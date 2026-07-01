@@ -1,5 +1,5 @@
 import { listSchedules } from '../../cron';
-import { tool } from '../../tool';
+import { tool } from '../../shared/tool';
 import { z } from 'zod';
 
 export const listSchedulesTool = tool({

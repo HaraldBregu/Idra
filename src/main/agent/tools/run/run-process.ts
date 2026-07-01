@@ -1,6 +1,6 @@
 import type { ChildProcess } from 'node:child_process';
 import { z } from 'zod';
-import { tool } from '../../tool';
+import { tool } from '../../shared/tool';
 import type { Tool } from '../../types';
 
 const MAX_BUFFER = 500_000;

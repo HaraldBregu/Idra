@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
-import { tool } from '../../tool';
+import { tool } from '../../shared/tool';
 import { registry } from './run-process';
 
 function resolvePath(p: string): string {
