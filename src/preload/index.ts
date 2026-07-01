@@ -304,8 +304,8 @@ export const voice: VoiceApi = {
 	onRealtimeEvent: (callback) => {
 		return typedOn(SttChannels.realtimeEvent, callback);
 	},
-	getSelection: () => {
-		return typedInvokeUnwrap(SttChannels.getSelection);
+	getSelection: (mode) => {
+		return typedInvokeUnwrap(SttChannels.getSelection, mode);
 	},
 	listProviders: () => {
 		return typedInvokeUnwrap(SttChannels.listProviders);
@@ -315,12 +315,17 @@ export const voice: VoiceApi = {
 		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
 		return typedInvokeUnwrap(SttChannels.listModels, normalizedProviderId);
 	},
-	saveSelection: (providerId, modelId) => {
+	saveSelection: (providerId, modelId, mode) => {
 		const normalizedProviderId = optionalTrimmedString(providerId);
 		const normalizedModelId = optionalTrimmedString(modelId);
 		if (!normalizedProviderId) throw new Error('Invalid speech-to-text provider id.');
 		if (!normalizedModelId) throw new Error('Invalid speech-to-text model id.');
-		return typedInvokeUnwrap(SttChannels.saveSelection, normalizedProviderId, normalizedModelId);
+		return typedInvokeUnwrap(
+			SttChannels.saveSelection,
+			normalizedProviderId,
+			normalizedModelId,
+			mode
+		);
 	},
 	getProviderId: () => {
 		return typedInvokeUnwrap(SttChannels.getProviderId);
