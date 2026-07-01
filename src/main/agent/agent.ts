@@ -33,9 +33,7 @@ export class Agent {
 	readonly session: SessionState;
 
 	constructor() {
-		this.config = new Config({
-			location: agentLocation()
-		});
+		this.config = { location: path.resolve(agentLocation()) };
 		initCron();
 		this.session = createSessionState();
 	}

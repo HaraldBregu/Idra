@@ -1,4 +1,4 @@
-import type { Config } from '../core/config';
+import type { Config } from '../core/types';
 import type { Message } from '../core/types';
 import type { SessionCategory } from './session-types';
 import { loadMessagesBySessionId } from './session-load-messages-by-session-id';
