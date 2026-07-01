@@ -158,7 +158,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
-	register({ logger, agent, cron, skills }: AgentIpcDeps, eventBus: EventBus): void {
+	register({ logger, agent, cron }: AgentIpcDeps, eventBus: EventBus): void {
 
 		ipcMain.handle(
 			AgentChannels.send,
