@@ -40,22 +40,6 @@ const DEFAULT_HEALTH_SETTINGS: HealthSettings = {
 const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
 
 @Service()
-export class Store {
-	readonly settings: SettingsStore;
-	readonly cron: CronStore;
-	readonly skills: SkillsStore;
-	readonly health: HealthStore;
-	readonly mcp: McpStore;
-
-	constructor(readonly config: Config) {
-		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
-		this.cron = new CronStore(this.config, DEFAULT_CRON_STATE);
-		this.skills = new SkillsStore(this.config, DEFAULT_SKILLS);
-		this.health = new HealthStore(this.config, DEFAULT_HEALTH_SETTINGS);
-		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
-	}
-}
-
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
@@ -68,10 +52,18 @@ export interface AgentSendOptions {
 export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
-	readonly store: Store;
+	readonly settings: SettingsStore;
+	readonly cron: CronStore;
+	readonly skills: SkillsStore;
+	readonly health: HealthStore;
+	readonly mcp: McpStore;
 
-	constructor(config: Config) {
-		this.store = new Store(config);
+	constructor(readonly config: Config) {
+		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
+		this.cron = new CronStore(this.config, DEFAULT_CRON_STATE);
+		this.skills = new SkillsStore(this.config, DEFAULT_SKILLS);
+		this.health = new HealthStore(this.config, DEFAULT_HEALTH_SETTINGS);
+		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
@@ -93,13 +85,12 @@ export class Agent {
 				effort: options.effort,
 			};
 
-			const config = this.store.config;
 			const runner = new Runner(
-				config, 
-				this.store.settings, 
-				this.store.cron,     
-				this.store.skills,
-				this.store.mcp,
+				this.config,
+				this.settings,
+				this.cron,
+				this.skills,
+				this.mcp
 			);
 			const input = {
 				...sessionInput,

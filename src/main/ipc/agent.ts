@@ -195,7 +195,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.getProvider,
 			wrapSimpleHandler((): PublicProvider | undefined => {
-				const providerId = agent.store.settings.getProviderId();
+				const providerId = agent.settings.getProviderId();
 				return providerId ? toPublicProvider(providerId) : undefined;
 			}, AgentChannels.getProvider)
 		);
@@ -204,7 +204,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			AgentChannels.setProvider,
 			wrapSimpleHandler((provider: PublicProvider): boolean => {
 				if (!provider.id) return false;
-				agent.store.settings.setProviderId(provider.id);
+				agent.settings.setProviderId(provider.id);
 				return true;
 			}, AgentChannels.setProvider)
 		);
@@ -212,7 +212,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.getModelId,
 			wrapSimpleHandler((): string | undefined => {
-				return agent.store.settings.getModelId();
+				return agent.settings.getModelId();
 			}, AgentChannels.getModelId)
 		);
 
@@ -221,7 +221,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((modelId: string): boolean => {
 				const trimmed = modelId.trim();
 				if (!trimmed) return false;
-				agent.store.settings.setModelId(trimmed);
+				agent.settings.setModelId(trimmed);
 				return true;
 			}, AgentChannels.setModelId)
 		);
@@ -287,31 +287,31 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.healthSettings,
-			wrapSimpleHandler(() => agent.store.health.getSettings(), AgentChannels.healthSettings)
+			wrapSimpleHandler(() => agent.health.getSettings(), AgentChannels.healthSettings)
 		);
 
 		ipcMain.handle(
 			AgentChannels.healthSaveSettings,
 			wrapSimpleHandler((request: Partial<HealthSettings>) => {
-				return agent.store.health.updateSettings(normalizeHealthSettingsPatch(request));
+				return agent.health.updateSettings(normalizeHealthSettingsPatch(request));
 			}, AgentChannels.healthSaveSettings)
 		);
 
 		ipcMain.handle(
 			AgentChannels.healthResetSettings,
-			wrapSimpleHandler(() => agent.store.health.resetSettings(), AgentChannels.healthResetSettings)
+			wrapSimpleHandler(() => agent.health.resetSettings(), AgentChannels.healthResetSettings)
 		);
 
 		const listMcp = (): McpSettings => {
-			const servers = agent.store.mcp.servers();
+			const servers = agent.mcp.servers();
 			const out: McpSettings = {};
 			for (const [id, entry] of Object.entries(servers)) out[id] = inferMcpType(entry);
 			return out;
 		};
 
 		const oauthStorage = (id: string): McpOAuthStorage => ({
-			load: () => agent.store.mcp.oauth(id),
-			save: (state) => agent.store.mcp.saveOauth(id, state),
+			load: () => agent.mcp.oauth(id),
+			save: (state) => agent.mcp.saveOauth(id, state),
 		});
 
 		const getHttpMcpServer = (id: string): {
@@ -349,7 +349,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			AgentChannels.mcpSave,
 			wrapSimpleHandler((input: McpSettings) => {
 				const next = normalizeMcpSettings(input);
-				agent.store.mcp.write(next);
+				agent.mcp.write(next);
 				return next;
 			}, AgentChannels.mcpSave)
 		);
@@ -360,7 +360,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				const connectorId = resolveMcpId(id);
 				const next = { ...listMcp() };
 				delete next[connectorId];
-				agent.store.mcp.write(next);
+				agent.mcp.write(next);
 			}, AgentChannels.mcpDelete)
 		);
 

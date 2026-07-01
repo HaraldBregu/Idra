@@ -39,13 +39,12 @@ export function bootstrapServices(): BootstrapResult {
 	const config = new Config({ location: agentLocation() });
 	container.set(Config, config);
 	const agentService = container.get(Agent);
-	const store = agentService.store;
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
-	const cron = new Cron(store.cron);
+	const cron = new Cron(agentService.cron);
 	container.set(Cron, cron);
-	container.set(Skills, new Skills(config, store.skills));
+	container.set(Skills, new Skills(config, agentService.skills));
 
 	container.get(ProviderService);
 	container.get(SttService);
