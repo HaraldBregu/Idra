@@ -45,7 +45,7 @@ export interface Message {
 	toolCalls?: ToolCall[];
 }
 
-export type {
+import type {
 	SessionCategory,
 	SessionInput,
 	SessionResult,
@@ -53,6 +53,15 @@ export type {
 	SessionTurn,
 	SessionUsage,
 } from '../session/session-types';
+
+export type {
+	SessionCategory,
+	SessionInput,
+	SessionResult,
+	SessionResultSubtype,
+	SessionTurn,
+	SessionUsage,
+};
 
 export type RuntimeModelEvent = ModelEvent;
 
