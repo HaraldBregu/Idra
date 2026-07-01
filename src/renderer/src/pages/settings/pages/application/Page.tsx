@@ -2,13 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Accessibility,
-	Camera,
 	FolderOpen,
 	Languages,
-	Mic,
 	MonitorUp,
 	PanelTop,
-	ShieldCheck,
 	SunMoon,
 	type LucideIcon,
 } from 'lucide-react';
@@ -32,19 +29,14 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import type {
-	CameraPermissionSettings,
-	MicrophonePermissionSettings,
-	SystemPreferencePaneId,
-} from '../../../../../../shared/app/app-permissions';
+import { MediaPermissionsSection } from '../../components/media';
+import type { SystemPreferencePaneId } from '../../../../../../shared/app/app-permissions';
 import {
 	SYSTEM_CAPABILITY_GROUPS,
 	type SystemCapabilityAvailability,
 	type SystemCapabilityGroup,
 	type SystemCapabilityItem,
 } from '../system/capabilities';
-
-type MediaPermissionKind = 'microphone' | 'camera';
 
 interface LanguageOption {
 	readonly value: AppLanguage;
