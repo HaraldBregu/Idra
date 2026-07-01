@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { SkillImportResult, SkillImportSkipped, SkillInfo } from '../../../../shared/skills/types';
-import { setSkill } from '../skills-store';
+import { setSkill } from './skills-store';
 import { skillsRoot } from './skills-root';
 import { readSkill } from './skills-read';
 import { pickDirectories } from './skills-pick-directories';
