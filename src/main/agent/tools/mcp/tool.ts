@@ -1,9 +1,7 @@
-import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import type { McpCallResult, McpClient } from '../../mcp/mcp-types';
 import { jsonTool } from '../../tool';
 import type { JSONSchema } from '../../types';
 import { callTool } from '../../mcp/mcp-client-call-tool';
-
-type CallResult = { content?: unknown; isError?: boolean };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;

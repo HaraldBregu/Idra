@@ -9,7 +9,7 @@ import { mcpTool } from './tool';
 
 export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
 	const tools: Tool[] = [];
-	const clients: Client[] = [];
+	const clients: McpClient[] = [];
 
 	await Promise.all(
 		Object.entries(getMcpServers()).map(async ([id, data]) => {
