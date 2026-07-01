@@ -299,6 +299,34 @@ const ModelServicePage: React.FC = () => {
 			}));
 
 			try {
+				if (activeService.id === AGENTS.speechToText) {
+					setSpeechStates({
+						realtime: { ...initialState, loading: true, loadingModels: true },
+						transcribe: { ...initialState, loading: true, loadingModels: true },
+					});
+					const [realtime, transcribe] = await Promise.all([
+						loadSpeechModeState(
+							'realtime',
+							t('settings.modelServices.loadError'),
+							t('settings.modelServices.modelsLoadError')
+						),
+						loadSpeechModeState(
+							'transcribe',
+							t('settings.modelServices.loadError'),
+							t('settings.modelServices.modelsLoadError')
+						),
+					]);
+					if (!mounted) return;
+					setSpeechStates({ realtime, transcribe });
+					setState((current) => ({
+						...current,
+						loading: false,
+						loadingModels: false,
+						error: null,
+					}));
+					return;
+				}
+
 				if (activeService.id === AGENTS.assistant) {
 					const nextState = await loadAssistantState();
 					if (!mounted) return;
