@@ -1,5 +1,5 @@
 import type { Config } from '../core/config';
-import type { SessionInput, SessionCategory } from '../core/types';
+import type { SessionInput, SessionCategory } from './session-types';
 import { addAssistantMessage as addAssistantMessageToState } from './session-add-assistant-message';
 import { addToolResults as addToolResultsToState } from './session-add-tool-results';
 import { appendRun as appendRunToState } from './session-append-run';
