@@ -247,12 +247,13 @@ export class SttService {
 	}
 
 	private getConfiguredModelId(
+		mode: VoiceMode,
 		providerId: SpeechToTextProviderId,
 		apiType: typeof SPEECH_TO_TEXT_BATCH_API_TYPE | typeof SPEECH_TO_TEXT_STREAM_API_TYPE
 	): string | undefined {
-		const configuredProviderId = this.getConfiguredProviderId();
+		const configuredProviderId = this.getConfiguredProviderId(mode);
 		if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
-		const modelId = getVoiceModelId();
+		const modelId = getVoiceModelId(mode);
 		return modelId && supportsSpeechToTextModelApiType(providerId, modelId, apiType)
 			? modelId
 			: undefined;
