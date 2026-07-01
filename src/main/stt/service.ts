@@ -54,17 +54,12 @@ const STT_SETTINGS_STORE_DIRECTORY = 'stt';
 
 export interface SttServiceOptions {
 	cwd?: string;
-	providerStore?: Pick<ProviderService, 'get'>;
 	store?: SttSettingsStorage;
 }
 
 @Service()
 export class SttService {
-	@Inject(PROVIDER_SERVICE)
-	private readonly providerStore!: ProviderService;
-
 	private readonly adapterFactory: SttAdapterFactory;
-	private readonly providerStoreOverride?: Pick<ProviderService, 'get'>;
 	private readonly store: SttSettingsStorage;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
