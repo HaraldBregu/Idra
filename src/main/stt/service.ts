@@ -69,7 +69,6 @@ export class SttService {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)
 			? adapterFactory
 			: new SttAdapterFactory();
-		this.providerStoreOverride = options.providerStore;
 		this.store =
 			options.store ??
 			new Store<SttSettingsSchema>({
