@@ -68,9 +68,7 @@ export class Agent {
 
 			init(this.session, this.config, input);
 
-			const runner = new Runner(this.config, this.session);
-
-			const stream = runner.run(input);
+			const stream = run(this.config, this.session, input);
 
 			this.activeRuns.set(resolvedAgentId, controller);
 
