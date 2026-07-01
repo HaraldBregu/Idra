@@ -1,9 +1,9 @@
-import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import type { McpCallToolResult, McpClient } from './mcp-types';
 
 export function callTool(
-	client: Client,
+	client: McpClient,
 	name: string,
 	args?: Record<string, unknown>,
-): ReturnType<Client['callTool']> {
+): McpCallToolResult {
 	return client.callTool({ name, arguments: args });
 }

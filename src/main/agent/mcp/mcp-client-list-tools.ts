@@ -1,5 +1,5 @@
-import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import type { McpClient, McpListToolsResult } from './mcp-types';
 
-export function listTools(client: Client): ReturnType<Client['listTools']> {
+export function listTools(client: McpClient): McpListToolsResult {
 	return client.listTools();
 }
