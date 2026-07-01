@@ -1,15 +1,15 @@
 import type { Config } from '../core/config';
 import type { SessionInput, SessionCategory } from '../core/types';
-import { addAssistantMessage } from './session-add-assistant-message';
-import { addToolResults } from './session-add-tool-results';
-import { appendRun } from './session-append-run';
-import { clearMessages } from './session-clear-messages';
-import { init } from './session-init';
-import { isExhausted } from './session-is-exhausted';
-import { loadMessages } from './session-load-messages';
+import { addAssistantMessage as addAssistantMessageToState } from './session-add-assistant-message';
+import { addToolResults as addToolResultsToState } from './session-add-tool-results';
+import { appendRun as appendRunToState } from './session-append-run';
+import { clearMessages as clearSessionMessages } from './session-clear-messages';
+import { init as initSession } from './session-init';
+import { isExhausted as sessionIsExhausted } from './session-is-exhausted';
+import { loadMessages as loadSessionMessages } from './session-load-messages';
 import { createSessionState } from './session-module-state';
-import { recordTurn } from './session-record-turn';
-import { toResult } from './session-to-result';
+import { recordTurn as recordSessionTurn } from './session-record-turn';
+import { toResult as sessionToResult } from './session-to-result';
 import type { Session } from './session-types';
 
 export function session(config: Config): Session {
@@ -65,31 +65,31 @@ export function session(config: Config): Session {
 			state.stopReason = value;
 		},
 		get isExhausted() {
-			return isExhausted(state);
+			return sessionIsExhausted(state);
 		},
 		init(input: SessionInput, category?: SessionCategory): Session {
-			return init(state, config, () => self, input, category);
+			return initSession(state, config, () => self, input, category);
 		},
 		loadMessages(sessionId: string, category?: SessionCategory) {
-			return loadMessages(config, sessionId, category);
+			return loadSessionMessages(config, sessionId, category);
 		},
 		clearMessages(sessionId: string, category?: SessionCategory): void {
-			clearMessages(state, config, sessionId, category);
+			clearSessionMessages(state, config, sessionId, category);
 		},
 		appendRun(entry: unknown): void {
-			appendRun(state, entry);
+			appendRunToState(state, entry);
 		},
 		recordTurn(turn) {
-			recordTurn(state, turn);
+			recordSessionTurn(state, turn);
 		},
 		addAssistantMessage(content, toolCalls, providerItems) {
-			addAssistantMessage(state, content, toolCalls, providerItems);
+			addAssistantMessageToState(state, content, toolCalls, providerItems);
 		},
 		addToolResults(calls) {
-			addToolResults(state, calls);
+			addToolResultsToState(state, calls);
 		},
 		toResult(subtype) {
-			return toResult(state, subtype);
+			return sessionToResult(state, subtype);
 		},
 	} satisfies Session;
 
