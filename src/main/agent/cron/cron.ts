@@ -3,9 +3,7 @@ import cron from 'node-cron';
 import { Container } from 'typedi';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
 import { Agent } from '../agent';
-import { Config } from '../core/config';
 import { CronStore } from './store';
-import { agentLocation } from '../shared/location';
 
 export interface CronJobInfo {
 	readonly id: string;
@@ -140,7 +138,7 @@ type CronEventListener = (event: CronScheduleEvent) => void;
 
 interface CronOptions {
 	enabled?: boolean;
-	config?: Config;
+	store: CronStore;
 }
 
 interface CronJobHandle {
@@ -167,8 +165,8 @@ export class Cron {
 		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
-	constructor(options: CronOptions = {}) {
-		this.store = new CronStore(options.config ?? new Config({ location: agentLocation() }));
+	constructor(options: CronOptions) {
+		this.store = options.store;
 		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
 		this.writeState((state) => {
 			state.enabled = this.enabled;
