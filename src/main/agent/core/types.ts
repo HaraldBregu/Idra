@@ -46,46 +46,14 @@ export interface Message {
 	toolCalls?: ToolCall[];
 }
 
-export interface SessionUsage {
-	inputTokens: number;
-	outputTokens: number;
-}
-
-export interface SessionResult {
-	text: string;
-	model: string;
-	toolCalls: ToolCall[];
-	numTurns: number;
-	subtype: 'success' | 'error_max_turns';
-	sessionId: string;
-	stopReason?: string;
-	usage?: SessionUsage;
-}
-
-export type SessionCategory = 'home' | 'task' | 'heartbeat';
-
-export interface SessionInput {
-	task: string;
-	message: string;
-	sessionId?: string;
-	messages?: Message[];
-	model?: string;
-	effort?: ModelReasoningEffort;
-	maxTurns?: number;
-	maxIterations?: number;
-}
-
-export interface SessionTurn {
-	content: string;
-	model: string;
-	stopReason?: string;
-	toolCalls: ToolCall[];
-	providerItems?: MessageContentBlock[];
-	usage?: {
-		inputTokens?: number;
-		outputTokens?: number;
-	};
-}
+export type {
+	SessionCategory,
+	SessionInput,
+	SessionResult,
+	SessionResultSubtype,
+	SessionTurn,
+	SessionUsage,
+} from '../session/session-types';
 
 export type RuntimeModelEvent = ModelEvent;
 
