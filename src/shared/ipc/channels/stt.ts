@@ -63,6 +63,22 @@ export interface SttInvokeChannelMap {
 		args: [providerId: string, modelId: string];
 		result: boolean;
 	};
+	[SttChannels.getProviderId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[SttChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[SttChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[SttChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
 }
 
 export interface SttEventChannelMap {
