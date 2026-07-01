@@ -25,7 +25,7 @@ import {
 	type SttModelSelection,
 	type SttTranscriptionRequest,
 	type SttTranscriptionResult,
-} from '../../shared/stt/transcription';
+} from '../../../shared/stt/transcription';
 import {
 	cloneModels,
 	normalizeProviderId,
