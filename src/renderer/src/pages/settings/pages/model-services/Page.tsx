@@ -156,7 +156,7 @@ async function loadServiceProviders(
 	selection: Awaited<ReturnType<ModelServiceDefinition['getSelection']>>
 ): Promise<PublicProvider[]> {
 	if (service.id === AGENTS.speechToText) {
-		return mergeProviders(await window.stt.listProviders(), selection?.provider);
+		return mergeProviders(await window.voice.listProviders(), selection?.provider);
 	}
 	return mergeProviders(await appApi.getProviders(), selection?.provider);
 }

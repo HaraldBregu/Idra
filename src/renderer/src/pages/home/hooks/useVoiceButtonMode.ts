@@ -11,7 +11,7 @@ export function useVoiceButtonMode(): VoiceButtonMode {
 	const [mode, setMode] = useState<VoiceButtonMode>('disabled');
 
 	useEffect(() => {
-		void window.stt
+		void window.voice
 			.getSelection()
 			.then((selection) => {
 				if (!selection?.model?.id) {

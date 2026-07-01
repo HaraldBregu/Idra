@@ -7,7 +7,7 @@ export type VoiceStoreState = {
 	modelId: string | undefined;
 };
 
-const VOICE_STORE_NAME = 'voice';
+const VOICE_STORE_NAME = 'settings';
 
 const DEFAULT_VOICE_STORE: VoiceStoreState = {
 	providerId: undefined,

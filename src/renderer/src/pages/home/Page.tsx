@@ -452,7 +452,7 @@ function PageContent(): ReactElement {
 				}
 
 				try {
-					const result = await window.stt.transcribe({
+					const result = await window.voice.transcribe({
 						audio: await fileToSttAudioInput(recording.file),
 					});
 					if (transcriptionRunRef.current === runId) {
