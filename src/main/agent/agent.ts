@@ -57,6 +57,7 @@ export class Agent {
 	readonly skills: Skills;
 	readonly health: HealthStore;
 	readonly mcp: McpStore;
+	readonly session: Session;
 
 	constructor() {
 		this.config = new Config({ location: agentLocation() });
@@ -67,6 +68,7 @@ export class Agent {
 		this.skills = new Skills(this.config, this.skillsStore);
 		this.health = new HealthStore(this.config, DEFAULT_HEALTH_SETTINGS);
 		this.mcp = new McpStore(this.config, DEFAULT_MCP_SETTINGS);
+		this.session = new Session(this.config);
 	}
 
 	start(logger: { error(scope: string, message: string, error?: unknown): void }): void {
