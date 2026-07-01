@@ -11,7 +11,6 @@ import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
 import { SttService } from './models/stt/service';
-import { VoiceService } from './voice';
 
 export interface BootstrapResult {
 	container: ContainerInstance;
