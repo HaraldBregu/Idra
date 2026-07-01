@@ -4,7 +4,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
 import { tool } from '../../tool';
-import type { Context, Tool } from '../../types';
 import { registry } from './process';
 
 function resolvePath(p: string): string {
