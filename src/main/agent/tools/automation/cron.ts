@@ -89,8 +89,8 @@ export class CreateScheduleTool extends CronTool {
 		additionalProperties: false,
 	};
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): CronSchedule {
@@ -98,7 +98,7 @@ export class CreateScheduleTool extends CronTool {
 		if (!request || typeof request !== 'object' || Array.isArray(request)) {
 			throw new Error('create_schedule requires a request object.');
 		}
-		return this.cron.createSchedule(request as CronScheduleCreateRequest);
+		return createSchedule(request as CronScheduleCreateRequest);
 	}
 }
 
