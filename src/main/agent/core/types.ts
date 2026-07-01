@@ -1,6 +1,5 @@
 import type { ModelEvent } from '../../llm';
 import type { Tool } from './tool';
-import type { ModelReasoningEffort } from '../../../shared/agent/types';
 
 export interface Provider {
 	id: string,
