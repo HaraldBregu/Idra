@@ -1,5 +1,5 @@
 import type { ModelEvent } from '../../llm';
-import type { Tool } from './tool';
+import type { CronFunctionId } from '../cron';
 
 export interface Config {
 	location: string;
