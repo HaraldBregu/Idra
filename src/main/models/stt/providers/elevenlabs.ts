@@ -9,11 +9,11 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from '../types';
-import type { SttTranscriptionResult } from '../../../shared/stt/transcription';
+import type { SttTranscriptionResult } from '../../../../shared/stt/transcription';
 import {
 	ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../shared/providers/models/stt';
+} from '../../../../shared/providers/models/stt';
 
 const ELEVENLABS_STT_PATH = 'speech-to-text';
 const ELEVENLABS_REALTIME_STT_PATH = 'speech-to-text/realtime';
