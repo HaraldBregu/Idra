@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import {
-	clearMessages,
+	clearMessages as clearSessionMessages,
 	createSessionState,
 	init,
 	loadMessages,

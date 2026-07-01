@@ -11,7 +11,15 @@ import type { Tool } from '../core/tool';
 import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { getModelId, getProvider } from '../settings/settings-store';
-import type { Session } from '../session';
+import {
+	addAssistantMessage,
+	addToolResults,
+	appendRun,
+	isExhausted,
+	recordTurn,
+	toResult,
+	type SessionState,
+} from '../session';
 import { ToolsLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
