@@ -68,7 +68,7 @@ export class Agent {
 				message,
 			} satisfies RuntimeInput;
 
-			this.session.init(input);
+			init(this.session, this.config, input);
 
 			const runner = new Runner(this.config, this.session);
 
