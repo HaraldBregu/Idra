@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import cron from 'node-cron';
 import type { ModelReasoningEffort } from '../../../shared/agent/types';
-import { getCronState, setCronState, type CronStore } from '../store/cron';
+import { getCronState, setCronState } from '../store/cron';
 
 export interface CronJobInfo {
 	readonly id: string;
