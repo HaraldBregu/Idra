@@ -35,7 +35,7 @@ import {
 import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
-import { ProviderService } from '../providers';
+import { PROVIDER_SERVICE, type ProviderService } from '../providers';
 
 interface SttSettingsSchema {
 	providerId: string | undefined;
