@@ -1,16 +1,7 @@
-import type { Provider, ProviderRecord } from '../../shared/providers/types';
 import { clearProviders, readProviders, writeProviders } from './providers-store';
+import type { Provider, ProviderRecord, ProviderService } from './providers-types';
 
 export const PROVIDER_SERVICE = 'provider-service';
-
-export type ProviderService = {
-	list(): ProviderRecord;
-	get(id: string): Provider | undefined;
-	has(id: string): boolean;
-	set(id: string, provider: Provider): Provider;
-	delete(id: string): void;
-	clear(): void;
-};
 
 export function createProviderService(): ProviderService {
 	function list(): ProviderRecord {
