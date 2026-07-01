@@ -7,7 +7,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
 }
 
-function extractText(result: CallResult): string {
+function extractText(result: McpCallResult): string {
 	const content = result.content;
 	if (!Array.isArray(content)) return content === undefined ? '' : JSON.stringify(content);
 	const texts = content
