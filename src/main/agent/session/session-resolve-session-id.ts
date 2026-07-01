@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { SessionCategory } from '../core/types';
+import type { SessionCategory } from './session-types';
 import { isUuid } from './session-is-uuid';
 import { latestUuidSessionId } from './session-latest-uuid-session-id';
 import { sessionsRoot } from './session-sessions-root';
