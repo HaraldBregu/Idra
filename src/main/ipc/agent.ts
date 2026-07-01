@@ -7,19 +7,14 @@ import { AgentChannels } from '../../shared/ipc/ipc-channels';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
 import * as skills from '../agent/skills';
-import { createOAuthProvider } from '../agent/mcp/mcp-oauth-create-provider';
-import type { McpOAuthStorage } from '../agent/mcp/mcp-types';
-import type { LoggerService } from '../shared';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers/definitions';
-import type { ModelReasoningEffort } from '../../shared/agent/types';
-import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health-store';
-import type { HealthSettings } from '../agent/health/health-types';
 import {
+	createOAuthProvider,
 	getMcpOauth,
 	getMcpServers,
 	saveMcpOauth,
 	setMcpServers,
-} from '../agent/mcp/mcp-store';
+	type McpOAuthStorage,
+} from '../agent/mcp';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings-store';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
 
