@@ -1,4 +1,4 @@
-import type { Tool } from '../agent/core/tool';
+import type { Tool } from '../agent/core/types';
 import type { Message, Provider, ToolCall } from '../agent/core/types';
 import type { ModelReasoningEffort } from '../../shared/agent/types';
 
