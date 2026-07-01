@@ -1,6 +1,6 @@
 import { createSchedule, type CronScheduleCreateRequest } from '../../cron';
 import { BaseTool, type Context } from '../../types';
-import { actionSchema } from './schema';
+import { actionSchema } from './cron-schema';
 
 export class CreateScheduleTool extends BaseTool {
 	readonly name = 'create_schedule';
