@@ -1,4 +1,4 @@
-import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import type { McpClient } from '../../mcp/mcp-types';
 import type { Tool } from '../../types';
 import type { JSONSchema } from '../../types';
 import { getMcpServers } from '../../mcp/mcp-store';
