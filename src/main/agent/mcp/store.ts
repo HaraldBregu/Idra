@@ -18,12 +18,14 @@ export type ConnectorStoreSchema = {
 	oauth: Record<string, McpOAuthState>;
 };
 
+const MCP_STORE_NAME = 'mcp';
+
 export class McpStore {
 	private readonly store: Store<ConnectorStoreSchema>;
 
 	constructor(private readonly config: Config, defaults: ConnectorStoreSchema) {
 		this.store = new Store<ConnectorStoreSchema>({
-			name: 'mcp',
+			name: MCP_STORE_NAME,
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
 			defaults,

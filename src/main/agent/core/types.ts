@@ -94,16 +94,6 @@ export type RuntimeOutput = SessionResult;
 export interface RuntimeInput {
 	task: string;
 	message: string;
-	sessionId?: string;
-	category?: SessionCategory;
-	messages?: Message[];
-	tools?: Tool[];
-	modelRoutes?: RuntimeModelRoute[];
-	effort?: ModelReasoningEffort;
-	maxTokens?: number;
-	maxRetries?: number;
-	maxTurns?: number;
-	maxIterations?: number;
 }
 
 export interface RuntimeModelRoute {

@@ -1,12 +1,10 @@
 import { randomUUID } from 'node:crypto';
-import { Container, Inject, Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
-import { Cron } from './cron/cron';
 import { Store } from './store';
-import { Skills } from './skills/skills';
-import type { Message, RuntimeEvent, SessionCategory } from './core/types';
+import type { Message, RuntimeEvent, RuntimeInput, SessionCategory } from './core/types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
@@ -52,19 +50,16 @@ export class Agent {
 			};
 
 			const config = this.store.config;
-			const container = Container.of('main');
 			const runner = new Runner(
 				config, 
 				this.store.settings, 
-				container.get(Cron),
-				container.get(Skills),
+				this.store.cron,
+				this.store.skills,
 				this.store.mcp,
 			);
 			const input = {
 				...sessionInput,
-				maxRetries: 1,
-				tools: [],
-			};
+			} satisfies RuntimeInput;
 			const stream = runner.run(input);
 			this.activeRuns.set(resolvedAgentId, controller);
 

@@ -1,4 +1,3 @@
-import { ToolData} from '../core/tool';
 import type { Context, Tool } from '../core/tool';
 import type { Cron } from '../cron/cron';
 import type { Skills } from '../skills/skills';
@@ -19,14 +18,12 @@ import {
 	RunScheduleNowTool,
 } from './automation/cron';
 
-export class ToolLoader extends ToolData {
+export class ToolsLoader {
 	constructor(
 		private readonly context: Context,
 		private readonly cron: Cron,
 		private readonly skills: Skills,
-	) {
-		super();
-	}
+	) {	}
 
 	get tools(): Tool[] {
 		return [

@@ -13,13 +13,15 @@ import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { SettingsStore } from '../core/store.settings';
 import { Session } from '../core/session';
-import { ToolLoader } from '../tools/loader';
+import { ToolsLoader } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { ToolContext } from '../tools/context';
 import { System } from '../core/system';
 import { Skills } from '../skills/skills';
 import { formatToolOutput } from '../shared/format';
 import { McpStore } from '../mcp/store';
+import { CronStore } from '../cron/store';
+import { SkillsStore } from '../skills/store';
 
 interface ModelTurn {
 	content: string;
@@ -35,21 +37,25 @@ interface ModelTurn {
 
 export class Runner {
 	private readonly model = new AgentModel();
+	private readonly cron: Cron;
+	private readonly skills: Skills;
 
 	constructor(
 		private readonly config: Config,
-		private readonly settings: SettingsStore,
-		private readonly cron: Cron,
-		private readonly skills: Skills,
+		private readonly settingsStore: SettingsStore,
+		private readonly cronStore: CronStore,
+		private readonly skillsStore: SkillsStore,
 		private readonly mcpStore: McpStore,
-	) { }
+	) { 
+		this.cron = new Cron(cronStore);
+	}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
-		const session = new Session(this.config, input, input.category);
+		const session = new Session(this.config, input);
 
 		try {
-			for await (const event of this.stream(input, signal, session, this.settings)) {
+			for await (const event of this.stream(input, signal, session, this.settingsStore)) {
 				session.appendRun(event);
 				yield event;
 			}
@@ -75,18 +81,17 @@ export class Runner {
 			throw new Error('Agent requires a configured provider and model.');
 
 		const toolContext = new ToolContext();
-		const tools = input.tools ? input.tools.slice() : [];
+		const tools: Tool[] = [];
 
-		const toolLoader = new ToolLoader(toolContext, this.cron, this.skills);
+		const toolLoader = new ToolsLoader(toolContext, this.cron, this.skills);
 		tools.push(...toolLoader.tools);
 
 		const mcp = await loadMcpTools(toolContext, this.mcpStore);
 		tools.push(...mcp.tools);
 
-		const system = new System(this.config, this.skills);
+		const system = new System(this.config);
 		await system.addBasePrompt();
 		await system.addWorkspacePrompt();
-		await system.addSkillsPrompt();
 		const systemPrompt = system.prompt;
 
 		yield {

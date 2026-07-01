@@ -37,7 +37,3 @@ export abstract class CronTool extends Tool {
 		super(context);
 	}
 }
-
-export abstract class ToolData {
-	abstract get tools(): Tool[];
-}

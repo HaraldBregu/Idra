@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { Config } from './config';
-import { Skills } from '../skills/skills';
 
 const AGENT_FILE = 'AGENTS.md'
 const BOOTSTRAP_FILE = 'BOOTSTRAP.md'
@@ -16,18 +15,18 @@ const USER_FILE = 'USER.md'
 export class System {
 	private readonly workspacePath: string;
 	private _prompt = '';
-	private readonly skills: Skills;
+	// private readonly skills: Skills;
 
 	constructor(
 		private readonly config: Config,
-		 skills: Skills,
+		//  skills: Skills,
 	) {
 		this.workspacePath = path.resolve(this.config.location, 'workspace');
 		if (!existsSync(this.workspacePath)) {
 			mkdirSync(this.workspacePath, { recursive: true });
 		}
 		this.ensureWorkspaceFiles();
-		this.skills = skills;
+		// this.skills = skills;
 	}
 
 	get prompt(): string {
@@ -106,24 +105,24 @@ export class System {
 		return this;
 	}
 
-	async addSkillsPrompt(): Promise<this> {
-		const skills = this.skills.listSkills();
-		if (skills.length === 0) return this;
+	// async addSkillsPrompt(): Promise<this> {
+	// 	const skills = this.skills.listSkills();
+	// 	if (skills.length === 0) return this;
 
-		this.prompt += '\n\n## Skills';
-		this.prompt += '\nThe following skills provide specialized instructions for specific tasks.';
-		this.prompt += '\nUse the load_skill tool with a skill name when the task matches its description.';
-		this.prompt += '\n\n<available_skills>';
-		for (const skill of skills) {
-			this.prompt += '\n  <skill>';
-			this.prompt += `\n    <name>${escapeXml(skill.title)}</name>`;
-			this.prompt += `\n    <description>${escapeXml(skill.description)}</description>`;
-			this.prompt += '\n  </skill>';
-		}
-		this.prompt += '\n</available_skills>';
+	// 	this.prompt += '\n\n## Skills';
+	// 	this.prompt += '\nThe following skills provide specialized instructions for specific tasks.';
+	// 	this.prompt += '\nUse the load_skill tool with a skill name when the task matches its description.';
+	// 	this.prompt += '\n\n<available_skills>';
+	// 	for (const skill of skills) {
+	// 		this.prompt += '\n  <skill>';
+	// 		this.prompt += `\n    <name>${escapeXml(skill.title)}</name>`;
+	// 		this.prompt += `\n    <description>${escapeXml(skill.description)}</description>`;
+	// 		this.prompt += '\n  </skill>';
+	// 	}
+	// 	this.prompt += '\n</available_skills>';
 
-		return this;
-	}
+	// 	return this;
+	// }
 
 	async build(): Promise<string> {
 		await this.addWorkspacePrompt();
