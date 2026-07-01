@@ -5,7 +5,6 @@ import {
 	WindowFactory,
 	AppState,
 	WindowContextManager,
-	AppPermissionsService,
 } from './app';
 import { LoggerService } from './shared';
 import { Cron } from './agent/cron/cron';
@@ -25,6 +24,19 @@ export interface BootstrapResult {
 	windowContextManager: WindowContextManager;
 	cron: Cron;
 	skills: Skills;
+	appPermissions: AppPermissions;
+}
+
+export interface AppPermissionsState {
+	microphoneEnabled: boolean;
+	cameraEnabled: boolean;
+}
+
+export interface AppPermissions {
+	getMicrophoneEnabled(): boolean;
+	setMicrophoneEnabled(enabled: boolean): AppPermissionsState;
+	getCameraEnabled(): boolean;
+	setCameraEnabled(enabled: boolean): AppPermissionsState;
 }
 
 export function bootstrapServices(): BootstrapResult {
@@ -34,7 +46,7 @@ export function bootstrapServices(): BootstrapResult {
 
 	const logger = new LoggerService(eventBus);
 	container.set(LoggerService, logger);
-	container.get(AppPermissionsService);
+	const appPermissions = createAppPermissions();
 
 	const agentService = new Agent();
 	const config = agentService.config;
@@ -71,6 +83,7 @@ export function bootstrapServices(): BootstrapResult {
 		windowContextManager,
 		cron,
 		skills,
+		appPermissions,
 	};
 }
 
@@ -82,4 +95,24 @@ export async function cleanup(container: ContainerInstance, cron: Cron): Promise
 	cron.destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
+}
+
+function createAppPermissions(): AppPermissions {
+	let state: AppPermissionsState = {
+		microphoneEnabled: true,
+		cameraEnabled: true,
+	};
+
+	return {
+		getMicrophoneEnabled: () => state.microphoneEnabled,
+		setMicrophoneEnabled: (enabled) => {
+			state = { ...state, microphoneEnabled: enabled };
+			return state;
+		},
+		getCameraEnabled: () => state.cameraEnabled,
+		setCameraEnabled: (enabled) => {
+			state = { ...state, cameraEnabled: enabled };
+			return state;
+		},
+	};
 }

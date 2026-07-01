@@ -1,6 +1,5 @@
 import { BrowserWindow, net, protocol, session } from 'electron';
 import { pathToFileURL } from 'node:url';
-import type { AppPermissionsService } from './permissions';
 import type { LoggerService } from '../shared';
 
 const LOCAL_RESOURCE_SCHEME = 'local-resource';
@@ -33,7 +32,7 @@ export function registerLocalResourceProtocolHandler(
 }
 
 export function setupMediaPermissionHandlers(
-	appPermissions: Pick<AppPermissionsService, 'getMicrophoneEnabled'>
+	appPermissions: { getMicrophoneEnabled(): boolean }
 ): void {
 	session.defaultSession.setPermissionCheckHandler(
 		(webContents, permission, requestingOrigin, details) => {

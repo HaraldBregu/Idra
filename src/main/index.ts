@@ -19,7 +19,6 @@ import {
 } from './shared/error-reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
-import { AppPermissionsService } from './app';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -73,15 +72,24 @@ try {
 }
 
 // Bootstrap new architecture - FULL INTEGRATION ENABLED
-const { container, eventBus, appState, windowFactory, logger, windowContextManager, cron, skills } =
-	bootstrapServices();
+const {
+	container,
+	eventBus,
+	appState,
+	windowFactory,
+	logger,
+	windowContextManager,
+	cron,
+	skills,
+	appPermissions,
+} = bootstrapServices();
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
 setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(container, eventBus, { cron, skills });
+registerIpcHandlers(container, eventBus, { cron, skills, appPermissions });
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
@@ -117,7 +125,7 @@ const menuManager = new Menu({
 
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
-	setupMediaPermissionHandlers(container.get(AppPermissionsService));
+	setupMediaPermissionHandlers(appPermissions);
 	menuManager.create();
 	trayManager.create();
 

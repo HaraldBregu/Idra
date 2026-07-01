@@ -10,12 +10,23 @@ import type {
 } from '../../shared/app/app-permissions';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc/ipc-channels';
-import type { AppPermissionsService } from '../app/permissions';
 import type { LoggerService } from '../shared';
 
 export interface AppIpcDeps {
 	logger: LoggerService;
-	appPermissions: AppPermissionsService;
+	appPermissions: AppPermissions;
+}
+
+export interface AppPermissionsState {
+	microphoneEnabled: boolean;
+	cameraEnabled: boolean;
+}
+
+export interface AppPermissions {
+	getMicrophoneEnabled(): boolean;
+	setMicrophoneEnabled(enabled: boolean): AppPermissionsState;
+	getCameraEnabled(): boolean;
+	setCameraEnabled(enabled: boolean): AppPermissionsState;
 }
 
 const SYSTEM_PREFERENCE_PANES: Record<SystemPreferencePaneId, string> = {
