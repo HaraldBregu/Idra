@@ -14,7 +14,7 @@ import {
 	type CronScheduledTask,
 	type CronScheduleCreateRequest,
 	type CronScheduleUpdateRequest,
-} from '../../cron/cron';
+} from '../../cron';
 import type { JSONSchema } from '../../core/types';
 
 function requireScheduleId(input: Record<string, unknown>, tool: string): string {
