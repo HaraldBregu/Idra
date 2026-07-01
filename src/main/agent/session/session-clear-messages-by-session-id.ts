@@ -1,6 +1,6 @@
 import { existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import type { SessionCategory } from '../core/types';
+import type { SessionCategory } from './session-types';
 import { legacyFilePath } from './session-legacy-file-path';
 import { messagesFile } from './session-messages-file';
 import { sessionFolderName } from './session-session-folder-name';
