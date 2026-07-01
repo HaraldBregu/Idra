@@ -13,7 +13,7 @@ export {
 	setSelection,
 	setVoiceStore,
 } from './voice-store';
-export type { VoiceStoreState } from './voice-store';
+export type { VoiceMode, VoiceSelection, VoiceStoreState } from './voice-store';
 export type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
