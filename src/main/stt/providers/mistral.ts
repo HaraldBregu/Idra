@@ -45,89 +45,84 @@ export interface MistralSttAdapterOptions extends SttProviderSpec {
 	clientFactory?: (opts: { apiKey: string; baseURL?: string }) => MistralTranscriptionClient;
 }
 
-export class MistralSttAdapter implements SttAdapter {
-	private readonly client: MistralTranscriptionClient;
-	private readonly provider: SttProviderSpec;
+export function createMistralSttAdapter(opts: MistralSttAdapterOptions): SttAdapter {
+	if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
+	const provider = opts;
+	const factory =
+		opts.clientFactory ??
+		((c) =>
+			new Mistral({
+				apiKey: c.apiKey,
+				...(c.baseURL ? { serverURL: c.baseURL } : {}),
+			}) as MistralTranscriptionClient);
+	const client = factory({ apiKey: opts.apiKey, baseURL: opts.baseURL });
 
-	constructor(opts: MistralSttAdapterOptions) {
-		if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
-		this.provider = opts;
-		const factory =
-			opts.clientFactory ??
-			((c) =>
-				new Mistral({
-					apiKey: c.apiKey,
-					...(c.baseURL ? { serverURL: c.baseURL } : {}),
-				}) as MistralTranscriptionClient);
-		this.client = factory({ apiKey: opts.apiKey, baseURL: opts.baseURL });
-	}
+	return {
+		async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
+			try {
+				const file = await createAudioFile(request.audio);
+				const response = await client.audio.transcriptions.complete(
+					{
+						model: request.modelId,
+						file,
+						language: request.language,
+						temperature: request.temperature,
+						stream: false,
+					},
+					{
+						signal: request.signal,
+						...(provider.baseURL ? { serverURL: provider.baseURL } : {}),
+					}
+				);
+				const usage = toUsage(response.usage);
 
-	async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
-		try {
-			const file = await createAudioFile(request.audio);
-			const response = await this.client.audio.transcriptions.complete(
-				{
-					model: request.modelId,
-					file,
-					language: request.language,
-					temperature: request.temperature,
-					stream: false,
+				return {
+					text: response.text,
+					metadata: {
+						providerId: provider.id,
+						providerName: provider.name,
+						modelId: request.modelId,
+						...(response.language || request.language
+							? { language: response.language ?? request.language }
+							: {}),
+						createdAt: new Date().toISOString(),
+						...(usage ? { usage } : {}),
+					},
+				};
+			} catch (error) {
+				const status =
+					(error as { status?: number; statusCode?: number }).status ??
+					(error as { statusCode?: number }).statusCode ??
+					0;
+				const message = (error as Error).message ?? String(error);
+				if (status === 401 || status === 403) throw new SttProviderAuthError(message);
+				throw error;
+			}
+		},
+
+		async startRealtime(
+			request: SttAdapterRealtimeStartRequest,
+			emit: SttRealtimeEventHandler
+		): Promise<SttRealtimeConnection> {
+			const { AudioEncoding, RealtimeTranscription } =
+				await import('@mistralai/mistralai/extra/realtime');
+			const client = new RealtimeTranscription({
+				apiKey: provider.apiKey,
+				serverURL: realtimeBaseUrl(provider.baseURL),
+			});
+			const connection = await client.connect(request.modelId, {
+				audioFormat: {
+					encoding: AudioEncoding.PcmS16le,
+					sampleRate: request.sampleRate,
 				},
-				{
-					signal: request.signal,
-					...(this.provider.baseURL ? { serverURL: this.provider.baseURL } : {}),
-				}
+			});
+			return createMistralRealtimeConnection(
+				connection as unknown as MistralRealtimeConnection,
+				request,
+				emit
 			);
-			const usage = toUsage(response.usage);
-
-			return {
-				text: response.text,
-				metadata: {
-					providerId: this.provider.id,
-					providerName: this.provider.name,
-					modelId: request.modelId,
-					...(response.language || request.language
-						? { language: response.language ?? request.language }
-						: {}),
-					createdAt: new Date().toISOString(),
-					...(usage ? { usage } : {}),
-				},
-			};
-		} catch (error) {
-			const status =
-				(error as { status?: number; statusCode?: number }).status ??
-				(error as { statusCode?: number }).statusCode ??
-				0;
-			const message = (error as Error).message ?? String(error);
-			if (status === 401 || status === 403) throw new SttProviderAuthError(message);
-			throw error;
-		}
-	}
-
-	async startRealtime(
-		request: SttAdapterRealtimeStartRequest,
-		emit: SttRealtimeEventHandler
-	): Promise<SttRealtimeConnection> {
-		const { AudioEncoding, RealtimeTranscription } =
-			await import('@mistralai/mistralai/extra/realtime');
-		const client = new RealtimeTranscription({
-			apiKey: this.provider.apiKey,
-			serverURL: realtimeBaseUrl(this.provider.baseURL),
-		});
-		const connection = await client.connect(request.modelId, {
-			audioFormat: {
-				encoding: AudioEncoding.PcmS16le,
-				sampleRate: request.sampleRate,
-			},
-		});
-		const session = new MistralRealtimeSttConnection(
-			connection as unknown as MistralRealtimeConnection,
-			request,
-			emit
-		);
-		session.listen();
-		return session;
-	}
+		},
+	};
 }
 
 type MistralRealtimeEvent = {
@@ -142,79 +137,77 @@ type MistralRealtimeConnection = AsyncIterable<MistralRealtimeEvent> & {
 	close(code?: number, reason?: string): Promise<void>;
 };
 
-class MistralRealtimeSttConnection implements SttRealtimeConnection {
-	private closed = false;
-	private transcript = '';
+function createMistralRealtimeConnection(
+	connection: MistralRealtimeConnection,
+	request: SttAdapterRealtimeStartRequest,
+	emit: SttRealtimeEventHandler
+): SttRealtimeConnection {
+	let closed = false;
+	let transcript = '';
 
-	constructor(
-		private readonly connection: MistralRealtimeConnection,
-		private readonly request: SttAdapterRealtimeStartRequest,
-		private readonly emit: SttRealtimeEventHandler
-	) {}
+	const emitError = (message: string): void => {
+		if (!closed) emit({ type: 'error', sessionId: request.sessionId, message });
+	};
 
-	listen(): void {
-		void this.readEvents();
-	}
+	const emitClosed = (): void => {
+		if (closed) return;
+		closed = true;
+		emit({ type: 'closed', sessionId: request.sessionId });
+	};
 
-	async appendAudio(audio: string): Promise<void> {
-		await this.connection.sendAudio(Buffer.from(audio, 'base64'));
-	}
-
-	async finish(): Promise<void> {
-		await this.connection.endAudio();
-	}
-
-	async cancel(): Promise<void> {
-		await this.connection.close(1000, 'cancelled');
-		this.emitClosed();
-	}
-
-	private async readEvents(): Promise<void> {
+	const readEvents = async (): Promise<void> => {
 		try {
-			for await (const event of this.connection) {
+			for await (const event of connection) {
 				if (event.type === 'transcription.text.delta' && event.text) {
-					this.transcript += event.text;
-					this.emit({
+					transcript += event.text;
+					emit({
 						type: 'delta',
-						sessionId: this.request.sessionId,
-						itemId: this.request.sessionId,
+						sessionId: request.sessionId,
+						itemId: request.sessionId,
 						contentIndex: 0,
 						delta: event.text,
 					});
 					continue;
 				}
 				if (event.type === 'transcription.done') {
-					this.emit({
+					emit({
 						type: 'completed',
-						sessionId: this.request.sessionId,
-						itemId: this.request.sessionId,
+						sessionId: request.sessionId,
+						itemId: request.sessionId,
 						contentIndex: 0,
-						transcript: event.text ?? this.transcript,
+						transcript: event.text ?? transcript,
 					});
-					await this.connection.close(1000, 'completed');
-					this.emitClosed();
+					await connection.close(1000, 'completed');
+					emitClosed();
 					return;
 				}
 				if (event.type === 'error') {
-					this.emitError(errorMessage(event.error, 'Mistral realtime transcription error.'));
+					emitError(errorMessage(event.error, 'Mistral realtime transcription error.'));
 				}
 			}
 		} catch (error) {
-			this.emitError(errorMessage(error, 'Mistral realtime transcription failed.'));
+			emitError(errorMessage(error, 'Mistral realtime transcription failed.'));
 		} finally {
-			this.emitClosed();
+			emitClosed();
 		}
-	}
+	};
 
-	private emitError(message: string): void {
-		if (!this.closed) this.emit({ type: 'error', sessionId: this.request.sessionId, message });
-	}
+	void readEvents();
 
-	private emitClosed(): void {
-		if (this.closed) return;
-		this.closed = true;
-		this.emit({ type: 'closed', sessionId: this.request.sessionId });
-	}
+	return {
+		async appendAudio(audio: string): Promise<void> {
+			await connection.sendAudio(Buffer.from(audio, 'base64'));
+		},
+
+		async finish(): Promise<void> {
+			await connection.endAudio();
+		},
+
+		async cancel(): Promise<void> {
+			await connection.close(1000, 'cancelled');
+			emitClosed();
+		},
+	};
 }
 
 function realtimeBaseUrl(baseURL: string | undefined): string {
