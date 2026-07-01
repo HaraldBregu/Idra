@@ -35,47 +35,23 @@ import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
 import { getProvider } from '../../providers';
 import type { Provider as CatalogProvider } from '../../../shared/providers/definitions';
-
-interface SttSettingsSchema {
-	providerId: string | undefined;
-	modelId: string | undefined;
-}
-
-type SttSettingsStorage = Pick<Store<SttSettingsSchema>, 'get' | 'set'>;
-
-const DEFAULT_SETTINGS: SttSettingsSchema = {
-	providerId: undefined,
-	modelId: undefined,
-};
-
-const STT_SETTINGS_STORE_NAME = 'settings';
-const STT_SETTINGS_STORE_DIRECTORY = 'stt';
-
-export interface SttServiceOptions {
-	cwd?: string;
-	store?: SttSettingsStorage;
-}
+import {
+	getModelId as getVoiceModelId,
+	getProviderId as getVoiceProviderId,
+	setSelection as setVoiceSelection,
+} from '../../voice/voice-store';
 
 @Service()
 export class SttService {
 	private readonly adapterFactory: SttAdapterFactory;
-	private readonly store: SttSettingsStorage;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
 
 	constructor();
-	constructor(adapterFactory: SttAdapterFactory, options?: SttServiceOptions);
-	constructor(adapterFactory: unknown = new SttAdapterFactory(), options: SttServiceOptions = {}) {
+	constructor(adapterFactory: SttAdapterFactory);
+	constructor(adapterFactory: unknown = new SttAdapterFactory()) {
 		this.adapterFactory = isSttAdapterFactory(adapterFactory)
 			? adapterFactory
 			: new SttAdapterFactory();
-		this.store =
-			options.store ??
-			new Store<SttSettingsSchema>({
-				name: STT_SETTINGS_STORE_NAME,
-				cwd: options.cwd ?? STT_SETTINGS_STORE_DIRECTORY,
-				accessPropertiesByDotNotation: false,
-				defaults: DEFAULT_SETTINGS,
-			});
 	}
 
 	getSelection(): SttModelSelection | undefined {
