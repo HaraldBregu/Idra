@@ -1,5 +1,5 @@
 import path from 'node:path';
-import ElectronStore from 'electron-store';
+import Store from 'electron-store';
 import type { Provider } from '../core/types';
 import { ProviderService } from '../../providers';
 import type { Config } from '../core/config';
