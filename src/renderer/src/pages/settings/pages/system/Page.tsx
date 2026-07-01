@@ -100,34 +100,6 @@ function SystemSettingsItem({
 	);
 }
 
-function MediaPermissionRows({
-	kind,
-	icon: Icon,
-	error,
-}: {
-	readonly kind: MediaPermissionKind;
-	readonly icon: LucideIcon;
-	readonly error: string;
-}): React.JSX.Element {
-	const { t } = useTranslation();
-	const copy = MEDIA_PERMISSION_COPY[kind];
-
-	return (
-		<>
-			<SystemSettingsItem
-				title={t(copy.enabledTitleKey)}
-				description={t(copy.enabledDescriptionKey)}
-				icon={Icon}
-			/>
-			<SystemSettingsItem
-				title={t(copy.systemPermissionKey)}
-				description={error || t(copy.systemPermissionDescriptionKey)}
-				icon={ShieldCheck}
-			/>
-		</>
-	);
-}
-
 function SystemCapabilityRow({
 	capability,
 }: {
