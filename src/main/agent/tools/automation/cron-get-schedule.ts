@@ -1,17 +1,10 @@
 import { getSchedule } from '../../cron';
-import { BaseTool, type Context } from '../../types';
-import { requireScheduleId, scheduleIdSchema } from './cron-schema';
+import { tool } from '../../tool';
+import { scheduleIdSchema } from './cron-schema';
 
-export class GetScheduleTool extends BaseTool {
-	readonly name = 'get_schedule';
-	readonly description = 'Fetch a single cron schedule by id.';
-	readonly schema = scheduleIdSchema;
-
-	constructor(context: Context) {
-		super(context);
-	}
-
-	run(input: Record<string, unknown>) {
-		return getSchedule(requireScheduleId(input, 'get_schedule'));
-	}
-}
+export const getScheduleTool = tool({
+	name: 'get_schedule',
+	description: 'Fetch a single cron schedule by id.',
+	inputSchema: scheduleIdSchema,
+	execute: ({ scheduleId }) => getSchedule(scheduleId),
+});
