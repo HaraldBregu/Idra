@@ -28,7 +28,6 @@ export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 	private readonly cronStore: CronStore;
-	private readonly skillsStore: SkillsStore;
 	private isStarted = false;
 	readonly config: Config;
 	readonly settings: SettingsStore;
