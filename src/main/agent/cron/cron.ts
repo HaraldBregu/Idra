@@ -136,10 +136,6 @@ export function defaultCronEnabled(): boolean {
 
 type CronEventListener = (event: CronScheduleEvent) => void;
 
-interface CronOptions {
-	enabled?: boolean;
-}
-
 interface CronJobHandle {
 	stop(): void;
 	getNextRun(): Date | null;
@@ -163,8 +159,8 @@ export class Cron {
 		run_schedule_now: (input) => this.runScheduleNow(input.scheduleId),
 	};
 
-	constructor(private readonly store: CronStore, options: CronOptions = {}) {
-		this.enabled = options.enabled ?? this.readState().enabled ?? defaultCronEnabled();
+	constructor(private readonly store: CronStore) {
+		this.enabled = this.readState().enabled ?? defaultCronEnabled();
 		this.writeState((state) => {
 			state.enabled = this.enabled;
 		});
