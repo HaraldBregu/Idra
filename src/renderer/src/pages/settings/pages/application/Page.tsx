@@ -171,12 +171,6 @@ const ApplicationPage: React.FC = () => {
 	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
-	const [, setMicrophonePermission] =
-		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
-	const [microphoneError, setMicrophoneError] = useState('');
-	const [, setCameraPermission] =
-		useState<CameraPermissionSettings>(DEFAULT_CAMERA_PERMISSION);
-	const [cameraError, setCameraError] = useState('');
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
@@ -202,29 +196,6 @@ const ApplicationPage: React.FC = () => {
 		const option = THEME_OPTIONS.find((o) => o.value === next);
 		if (option) setTheme(option.value);
 	};
-
-	const refreshMicrophonePermission = useCallback(async (): Promise<void> => {
-		setMicrophoneError('');
-		try {
-			setMicrophonePermission(await window.app.getMicrophonePermission());
-		} catch (error) {
-			setMicrophoneError(errorMessage(error, t('settings.microphone.errors.load')));
-		}
-	}, [t]);
-
-	const refreshCameraPermission = useCallback(async (): Promise<void> => {
-		setCameraError('');
-		try {
-			setCameraPermission(await window.app.getCameraPermission());
-		} catch (error) {
-			setCameraError(errorMessage(error, t('settings.camera.errors.load')));
-		}
-	}, [t]);
-
-	useEffect(() => {
-		void refreshMicrophonePermission();
-		void refreshCameraPermission();
-	}, [refreshCameraPermission, refreshMicrophonePermission]);
 
 	const handleOpenSystemPreference = useCallback((pane: SystemPreferencePaneId) => {
 		setSystemPreferenceError('');
