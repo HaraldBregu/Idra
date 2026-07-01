@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import Store from 'electron-store';
 import { Service } from 'typedi';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../shared/providers';
 import {
