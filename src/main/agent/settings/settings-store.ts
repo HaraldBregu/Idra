@@ -3,16 +3,7 @@ import Store from 'electron-store';
 import type { Provider } from '../core/types';
 import { ProviderService } from '../../providers';
 import { agentLocation } from '../shared/location';
-
-export type SettingsSchema = {
-	providerId: string | undefined;
-	modelId: string | undefined;
-};
-
-export const DEFAULT_AGENT_SETTINGS: SettingsSchema = {
-	providerId: undefined,
-	modelId: undefined,
-};
+import { DEFAULT_AGENT_SETTINGS, type SettingsSchema } from './settings-types';
 
 const SETTINGS_STORE_NAME = 'settings';
 const providerStore = new ProviderService();
