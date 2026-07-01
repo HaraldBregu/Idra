@@ -1,9 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { app } from 'electron';
-import type { Provider, ProviderRecord, ProviderService } from './providers-types';
-
-export const PROVIDER_SERVICE = 'provider-service';
+import type { Provider, ProviderRecord } from './providers-types';
 
 const PROVIDERS_STORE_NAME = 'settings';
 
@@ -48,15 +46,6 @@ export function deleteProvider(id: string): void {
 export function clearProviders(): void {
 	store.store = {};
 }
-
-export const providerService: ProviderService = {
-	list: listProviders,
-	get: getProvider,
-	has: hasProvider,
-	set: setProvider,
-	delete: deleteProvider,
-	clear: clearProviders,
-};
 
 function resolveAppDataPath(): string {
 	try {
