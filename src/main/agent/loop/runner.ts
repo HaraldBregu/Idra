@@ -8,7 +8,7 @@ import type {
 	ToolCall,
 } from '../core/types';
 import type { Tool } from '../core/tool';
-import type { Cron } from '../cron/cron';
+import { Cron } from '../cron/cron';
 import { Config } from '../core/config';
 import { parseToolArgs } from '../shared/args';
 import { SettingsStore } from '../core/store.settings';
@@ -48,6 +48,7 @@ export class Runner {
 		private readonly mcpStore: McpStore,
 	) { 
 		this.cron = new Cron(cronStore);
+		this.skills = new Skills(this.config, skillsStore);
 	}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {

@@ -20,12 +20,13 @@ const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
 
 export class Skills {
-	private readonly store: SkillsStore;
 	private readonly root: string;
 
-	constructor(private readonly config: Config, store: SkillsStore) {
+	constructor(
+		private readonly config: Config,
+		private readonly store: SkillsStore,
+	) {
 		this.root = path.resolve(this.config.location, 'skills');
-		this.store = store;
 	}
 
 	getRoot(): string {
