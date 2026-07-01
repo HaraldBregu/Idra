@@ -71,6 +71,10 @@ export interface VoiceApi {
 	listProviders: () => Promise<PublicProvider[]>;
 	listModels: (providerId: string) => Promise<ProviderModel[]>;
 	saveSelection: (providerId: string, modelId: string) => Promise<boolean>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
 }
 
 import type { PublicProvider } from '../shared/providers';
