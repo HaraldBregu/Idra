@@ -290,7 +290,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.healthSettings,
-			wrapSimpleHandler(() => agent.health.getSettings(), AgentChannels.healthSettings)
+			wrapSimpleHandler(() => getHealthSettings(), AgentChannels.healthSettings)
 		);
 
 		ipcMain.handle(
