@@ -328,22 +328,7 @@ const ApplicationPage: React.FC = () => {
 				<SettingsNotice variant="destructive">{systemPreferenceError}</SettingsNotice>
 			)}
 
-			<SettingsSection
-				title={t('settings.system.mediaPermissions.title')}
-			>
-				<SettingsPanel>
-					<MediaPermissionRows
-						kind="microphone"
-						icon={Mic}
-						error={microphoneError}
-					/>
-					<MediaPermissionRows
-						kind="camera"
-						icon={Camera}
-						error={cameraError}
-					/>
-				</SettingsPanel>
-			</SettingsSection>
+			<MediaPermissionsSection />
 
 			<SettingsSection
 				title={t('settings.application.actions')}
