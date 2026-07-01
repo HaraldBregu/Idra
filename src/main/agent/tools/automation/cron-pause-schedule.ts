@@ -1,6 +1,6 @@
 import { pauseSchedule } from '../../cron';
 import { BaseTool, type Context } from '../../types';
-import { requireScheduleId, scheduleIdSchema } from './schema';
+import { requireScheduleId, scheduleIdSchema } from './cron-schema';
 
 export class PauseScheduleTool extends BaseTool {
 	readonly name = 'pause_schedule';
