@@ -1,22 +1,10 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type {
-	OAuthClientInformationMixed,
-	OAuthTokens,
-} from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { McpSettings } from '../../../shared/mcp/mcp';
 import { agentLocation } from '../shared/location';
+import type { ConnectorStoreSchema, McpOAuthState } from './mcp-types';
 
-export type McpOAuthState = {
-	clientInformation?: OAuthClientInformationMixed;
-	tokens?: OAuthTokens;
-	codeVerifier?: string;
-};
-
-export type ConnectorStoreSchema = {
-	mcpServers: McpSettings;
-	oauth: Record<string, McpOAuthState>;
-};
+export type { ConnectorStoreSchema, McpOAuthState } from './mcp-types';
 
 export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
 
