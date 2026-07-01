@@ -61,7 +61,7 @@ function getSettingsNavigationItem(path: string): SettingsNavigationItem {
 	return SETTINGS_NAVIGATION.find((item) => item.path === path)!;
 }
 
-const SETTINGS_OVERVIEW_AGENT_IDS = [
+const _SETTINGS_OVERVIEW_AGENT_IDS = [
 	AGENTS.assistant,
 	AGENTS.speechToText,
 	AGENTS.textToSpeech,
@@ -70,7 +70,7 @@ const SETTINGS_OVERVIEW_AGENT_IDS = [
 	AGENTS.textToAudio,
 ] as const satisfies readonly AgentId[];
 
-type SettingsOverviewAgentId = (typeof SETTINGS_OVERVIEW_AGENT_IDS)[number];
+type SettingsOverviewAgentId = (typeof _SETTINGS_OVERVIEW_AGENT_IDS)[number];
 type SettingsOverviewAgentItem = Omit<SettingsModelServiceItem, 'id'> & {
 	readonly id: SettingsOverviewAgentId;
 };
