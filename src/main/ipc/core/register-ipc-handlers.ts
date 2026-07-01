@@ -9,7 +9,7 @@ import type { EventBus } from '../../app';
 import { LoggerService } from '../../shared';
 import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
-import { ProviderService } from '../../providers';
+import { PROVIDER_SERVICE } from '../../providers';
 import { SttService } from '../../stt/service';
 
 export function registerIpcHandlers(
