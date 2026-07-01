@@ -6,29 +6,30 @@ import type { McpData } from '../../../shared/mcp/mcp';
 import { createOAuthProvider } from './oauth';
 import { getMcpOauth, saveMcpOauth } from './mcp-store';
 
-export class McpClient {
-	private readonly client = new Client({ name: 'friday', version: '1.0.0' });
+export type McpClient = {
+	client: Client;
+};
 
-	constructor(
-		private readonly id: string,
-		private readonly data: McpData,
-	) {}
+export async function connect(id: string, data: McpData): Promise<McpClient> {
+	const client = new Client({ name: 'friday', version: '1.0.0' });
+	await client.connect(buildTransport(id, data));
+	return { client };
+}
 
-	async connect(): Promise<void> {
-		await this.client.connect(buildTransport(this.id, this.data));
-	}
+export function listTools(client: McpClient): ReturnType<Client['listTools']> {
+	return client.client.listTools();
+}
 
-	listTools(): ReturnType<Client['listTools']> {
-		return this.client.listTools();
-	}
+export function callTool(
+	client: McpClient,
+	name: string,
+	args?: Record<string, unknown>,
+): ReturnType<Client['callTool']> {
+	return client.client.callTool({ name, arguments: args });
+}
 
-	callTool(name: string, args?: Record<string, unknown>): ReturnType<Client['callTool']> {
-		return this.client.callTool({ name, arguments: args });
-	}
-
-	async close(): Promise<void> {
-		await this.client.close();
-	}
+export async function close(client: McpClient): Promise<void> {
+	await client.client.close();
 }
 
 function buildTransport(id: string, data: McpData): Transport {
