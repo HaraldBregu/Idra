@@ -298,12 +298,6 @@ function realtimeSampleRate(providerId: SpeechToTextProviderId): number {
 	return SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES[providerId] ?? STT_DEFAULT_REALTIME_SAMPLE_RATE;
 }
 
-function optionalTrimmedString(value: unknown): string | undefined {
-	if (typeof value !== 'string') return undefined;
-	const trimmed = value.trim();
-	return trimmed || undefined;
-}
-
 function isSttAdapterFactory(value: unknown): value is SttAdapterFactory {
 	return (
 		typeof value === 'object' &&
