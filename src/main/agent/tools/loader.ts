@@ -37,14 +37,14 @@ export class ToolsLoader {
 			new LoadSkillTool(this.context),
 
 			// Automation Tools
-			new CreateScheduleTool(this.cron, this.context),
-			new UpdateScheduleTool(this.cron, this.context),
-			new PauseScheduleTool(this.cron, this.context),
-			new ResumeScheduleTool(this.cron, this.context),
-			new DeleteScheduleTool(this.cron, this.context),
-			new GetScheduleTool(this.cron, this.context),
-			new ListSchedulesTool(this.cron, this.context),
-			new RunScheduleNowTool(this.cron, this.context),
+			new CreateScheduleTool(this.context),
+			new UpdateScheduleTool(this.context),
+			new PauseScheduleTool(this.context),
+			new ResumeScheduleTool(this.context),
+			new DeleteScheduleTool(this.context),
+			new GetScheduleTool(this.context),
+			new ListSchedulesTool(this.context),
+			new RunScheduleNowTool(this.context),
 		];
 	}
 }
