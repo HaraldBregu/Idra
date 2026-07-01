@@ -14,7 +14,7 @@ function extractCode(input: string): string {
 	}
 }
 
-export function ConnectorOAuthButton({ id }: { readonly id: string }): React.JSX.Element {
+export function McpOAuthButton({ id }: { readonly id: string }): React.JSX.Element {
 	const [phase, setPhase] = useState<Phase>('idle');
 	const [callback, setCallback] = useState('');
 	const [error, setError] = useState<string | null>(null);
