@@ -37,101 +37,87 @@ export interface XaiSttAdapterOptions extends SttProviderSpec {
 	fetchFactory?: typeof fetch;
 }
 
-export class XaiSttAdapter implements SttAdapter {
-	private readonly fetcher: typeof fetch;
-	private readonly provider: SttProviderSpec;
+export function createXaiSttAdapter(opts: XaiSttAdapterOptions): SttAdapter {
+	if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
+	const provider = opts;
+	const fetcher = opts.fetchFactory ?? fetch;
 
-	constructor(opts: XaiSttAdapterOptions) {
-		if (!opts.apiKey) throw new SttProviderAuthError(`${opts.name} API key not configured.`);
-		this.provider = opts;
-		this.fetcher = opts.fetchFactory ?? fetch;
-	}
+	return {
+		async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
+			const file = await createAudioFile(request.audio);
+			const form = new FormData();
+			if (request.language) form.append('language', request.language);
+			if (request.prompt) form.append('prompt', request.prompt);
+			form.append('file', file);
 
-	async transcribe(request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
-		const file = await createAudioFile(request.audio);
-		const form = new FormData();
-		if (request.language) form.append('language', request.language);
-		if (request.prompt) form.append('prompt', request.prompt);
-		form.append('file', file);
+			const response = await fetcher(xaiSttUrl(provider.baseURL), {
+				method: 'POST',
+				headers: {
+					Authorization: `${XAI_STT_AUTH_SCHEME} ${provider.apiKey}`,
+				},
+				body: form,
+				signal: request.signal,
+			});
+			if (response.status === 401 || response.status === 403) {
+				throw new SttProviderAuthError(await response.text());
+			}
+			if (!response.ok) {
+				throw new SttProviderRequestError(await response.text());
+			}
 
-		const response = await this.fetcher(xaiSttUrl(this.provider.baseURL), {
-			method: 'POST',
-			headers: {
-				Authorization: `${XAI_STT_AUTH_SCHEME} ${this.provider.apiKey}`,
-			},
-			body: form,
-			signal: request.signal,
-		});
-		if (response.status === 401 || response.status === 403) {
-			throw new SttProviderAuthError(await response.text());
-		}
-		if (!response.ok) {
-			throw new SttProviderRequestError(await response.text());
-		}
+			const data = (await response.json()) as XaiTranscriptionResponse;
+			const text = data.text ?? data.segments?.map((segment) => segment.text ?? '').join('') ?? '';
+			const usage = toUsage(data);
 
-		const data = (await response.json()) as XaiTranscriptionResponse;
-		const text = data.text ?? data.segments?.map((segment) => segment.text ?? '').join('') ?? '';
-		const usage = toUsage(data);
+			return {
+				text,
+				metadata: {
+					providerId: provider.id,
+					providerName: provider.name,
+					modelId: request.modelId,
+					...(data.language || request.language
+						? { language: data.language ?? request.language }
+						: {}),
+					createdAt: new Date().toISOString(),
+					...(usage ? { usage } : {}),
+				},
+			};
+		},
 
-		return {
-			text,
-			metadata: {
-				providerId: this.provider.id,
-				providerName: this.provider.name,
-				modelId: request.modelId,
-				...(data.language || request.language
-					? { language: data.language ?? request.language }
-					: {}),
-				createdAt: new Date().toISOString(),
-				...(usage ? { usage } : {}),
-			},
-		};
-	}
-
-	async startRealtime(
-		request: SttAdapterRealtimeStartRequest,
-		emit: SttRealtimeEventHandler
-	): Promise<SttRealtimeConnection> {
-		const socket = new WebSocket(xaiRealtimeUrl(this.provider.baseURL), {
-			headers: {
-				Authorization: `${XAI_STT_AUTH_SCHEME} ${this.provider.apiKey}`,
-			},
-		});
-		await waitForOpen(socket);
-		return new XaiRealtimeSttConnection(socket, request, emit);
-	}
+		async startRealtime(
+			request: SttAdapterRealtimeStartRequest,
+			emit: SttRealtimeEventHandler
+		): Promise<SttRealtimeConnection> {
+			const socket = new WebSocket(xaiRealtimeUrl(provider.baseURL), {
+				headers: {
+					Authorization: `${XAI_STT_AUTH_SCHEME} ${provider.apiKey}`,
+				},
+			});
+			await waitForOpen(socket);
+			return createXaiRealtimeConnection(socket, request, emit);
+		},
+	};
 }
 
-class XaiRealtimeSttConnection implements SttRealtimeConnection {
-	private closed = false;
-	private transcript = '';
+function createXaiRealtimeConnection(
+	socket: WebSocket,
+	request: SttAdapterRealtimeStartRequest,
+	emit: SttRealtimeEventHandler
+): SttRealtimeConnection {
+	let closed = false;
+	let transcript = '';
 
-	constructor(
-		private readonly socket: WebSocket,
-		private readonly request: SttAdapterRealtimeStartRequest,
-		private readonly emit: SttRealtimeEventHandler
-	) {
-		this.socket.on('message', (data, isBinary) => {
-			if (!isBinary) this.handleMessage(data.toString());
-		});
-		this.socket.once('close', () => this.emitClosed());
-		this.socket.once('error', (error) => this.emitError(error.message));
-	}
+	const emitError = (message: string): void => {
+		if (!closed) emit({ type: 'error', sessionId: request.sessionId, message });
+	};
 
-	async appendAudio(audio: string): Promise<void> {
-		this.socket.send(Buffer.from(audio, 'base64'));
-	}
+	const emitClosed = (): void => {
+		if (closed) return;
+		closed = true;
+		emit({ type: 'closed', sessionId: request.sessionId });
+	};
 
-	async finish(): Promise<void> {
-		this.socket.send(JSON.stringify({ type: XAI_REALTIME_AUDIO_DONE }));
-	}
-
-	async cancel(): Promise<void> {
-		this.socket.close(1000, 'cancelled');
-		this.emitClosed();
-	}
-
-	private handleMessage(message: string): void {
+	const handleMessage = (message: string): void => {
 		let data: XaiRealtimeResponse;
 		try {
 			data = JSON.parse(message) as XaiRealtimeResponse;
@@ -140,42 +126,53 @@ class XaiRealtimeSttConnection implements SttRealtimeConnection {
 		}
 
 		if (data.type === 'transcript.partial' && data.delta) {
-			this.transcript += data.delta;
-			this.emit({
+			transcript += data.delta;
+			emit({
 				type: 'delta',
-				sessionId: this.request.sessionId,
-				itemId: this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: request.sessionId,
 				contentIndex: 0,
 				delta: data.delta,
 			});
 			return;
 		}
 		if (data.type === 'transcript.done') {
-			const transcript = data.text ?? this.transcript;
-			this.emit({
+			const finalTranscript = data.text ?? transcript;
+			emit({
 				type: 'completed',
-				sessionId: this.request.sessionId,
-				itemId: this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: request.sessionId,
 				contentIndex: 0,
-				transcript,
+				transcript: finalTranscript,
 			});
-			this.socket.close(1000, 'completed');
+			socket.close(1000, 'completed');
 			return;
 		}
 		if (data.type === 'error') {
-			this.emitError(errorMessage(data.error, 'xAI realtime transcription error.'));
+			emitError(errorMessage(data.error, 'xAI realtime transcription error.'));
 		}
-	}
+	};
 
-	private emitError(message: string): void {
-		if (!this.closed) this.emit({ type: 'error', sessionId: this.request.sessionId, message });
-	}
+	socket.on('message', (data, isBinary) => {
+		if (!isBinary) handleMessage(data.toString());
+	});
+	socket.once('close', () => emitClosed());
+	socket.once('error', (error) => emitError(error.message));
 
-	private emitClosed(): void {
-		if (this.closed) return;
-		this.closed = true;
-		this.emit({ type: 'closed', sessionId: this.request.sessionId });
-	}
+	return {
+		async appendAudio(audio: string): Promise<void> {
+			socket.send(Buffer.from(audio, 'base64'));
+		},
+
+		async finish(): Promise<void> {
+			socket.send(JSON.stringify({ type: XAI_REALTIME_AUDIO_DONE }));
+		},
+
+		async cancel(): Promise<void> {
+			socket.close(1000, 'cancelled');
+			emitClosed();
+		},
+	};
 }
 
 function xaiSttUrl(baseURL: string | undefined): URL {
