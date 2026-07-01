@@ -1,7 +1,7 @@
 import { BaseTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
-import { listSkills, loadSkill } from '../../core/skills';
-
+import { listSkills, loadSkill } from '../../skills';
+  
 export class LoadSkillTool extends BaseTool {
 	readonly name = 'load_skill';
 	readonly description =
