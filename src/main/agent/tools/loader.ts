@@ -1,4 +1,4 @@
-import type { Context, Tool } from '../types';
+import type { Tool } from '../types';
 import { readTool } from './filesystem/read';
 import { writeTool } from './filesystem/write';
 import { editTool } from './filesystem/edit';
@@ -15,21 +15,19 @@ import { listSchedulesTool } from './automation/cron-list-schedules';
 import { runScheduleNowTool } from './automation/cron-run-schedule-now';
 
 export class ToolsLoader {
-	constructor(private readonly context: Context) {}
-
 	get tools(): Tool[] {
 		return [
 			// Filesystem Tools
-			readTool(this.context),
-			writeTool(this.context),
-			editTool(this.context),
+			readTool,
+			writeTool,
+			editTool,
 
 			// Runtime Tools
-			execTool(this.context),
+			execTool,
 			processTool,
 
 			// Skills Tools
-			loadSkillTool(this.context),
+			loadSkillTool,
 
 			// Automation Tools
 			createScheduleTool,
