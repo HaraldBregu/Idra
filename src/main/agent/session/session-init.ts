@@ -1,19 +1,18 @@
 import type { Config } from '../core/config';
-import type { SessionInput, SessionCategory } from './session-types';
+import type { SessionInput, SessionCategory, SessionState } from './session-types';
 import { loadMessagesBySessionId } from './session-load-messages-by-session-id';
 import { persist } from './session-persist';
 import { resolveSessionId } from './session-resolve-session-id';
 import { sessionFolderName } from './session-session-folder-name';
 import { sessionsRoot } from './session-sessions-root';
-import { DEFAULT_CATEGORY, type Session, type SessionState } from './session-types';
+import { DEFAULT_CATEGORY } from './session-types';
 
 export function init(
 	state: SessionState,
 	config: Config,
-	getSelf: () => Session,
 	input: SessionInput,
 	category: SessionCategory = DEFAULT_CATEGORY
-): Session {
+): void {
 	state.id = resolveSessionId(input.sessionId, category, config.location);
 	state.folderName = sessionFolderName(state.id);
 	state.sessionsPath = sessionsRoot(config.location, category);
@@ -30,5 +29,4 @@ export function init(
 	state.model = input.model ?? 'default';
 	state.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 	persist(state);
-	return getSelf();
 }
