@@ -1,5 +1,6 @@
 import type {
 	SttModelSelection,
+	SttSelectionMode,
 	SttRealtimeEvent,
 	SttRealtimeStartRequest,
 	SttRealtimeSession,
