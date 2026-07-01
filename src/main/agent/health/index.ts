@@ -1,6 +1,6 @@
-export { getHealthSettings } from './get-settings';
-export { updateHealthSettings } from './update-settings';
-export { resetHealthSettings } from './reset-settings';
+export { getHealthSettings } from './health-get-settings';
+export { updateHealthSettings } from './health-update-settings';
+export { resetHealthSettings } from './health-reset-settings';
 export {
 	DEFAULT_HEALTH_SETTINGS,
 	type HealthActiveHours,
@@ -8,4 +8,4 @@ export {
 	type HealthEvery,
 	type HealthSettings,
 	type HealthTarget,
-} from './types';
+} from './health-types';
