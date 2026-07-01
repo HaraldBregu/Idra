@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import Store from 'electron-store';
 import { Inject, Service } from 'typedi';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers';
 import type { Provider as CatalogProvider } from '../../shared/providers/definitions';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
