@@ -17,7 +17,7 @@ function extractText(result: McpCallResult): string {
 }
 
 export function mcpTool(
-	client: Client,
+	client: McpClient,
 	toolName: string,
 	description: string,
 	schema: JSONSchema,
