@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import type { SkillInfo, SkillManifest } from '../../../../shared/skills/types';
-import { getSkill } from '../skills-store';
+import { getSkill } from './skills-store';
 
 export const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
