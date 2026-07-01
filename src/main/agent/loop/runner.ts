@@ -19,7 +19,7 @@ import {
 	toResult,
 	type SessionState,
 } from '../session';
-import { ToolsLoader } from '../tools/loader';
+import { loadTools } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { buildSystemPrompt } from '../system';
 import { formatToolOutput } from '../shared/format';
