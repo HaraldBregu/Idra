@@ -20,7 +20,7 @@ const store = new Store<SettingsSchema>({
 export function getProvider(): Provider | undefined {
 	const providerId = getProviderId();
 	if (!providerId) return undefined;
-	const provider = providerStore.get(providerId);
+	const provider = getStoredProvider(providerId);
 	if (!provider) return undefined;
 	return {
 		id: providerId,
