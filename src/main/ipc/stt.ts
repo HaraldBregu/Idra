@@ -13,11 +13,11 @@ export class SttIpc implements IpcModule<SttIpcDeps> {
 	readonly name = 'stt';
 
 	register({ stt }: SttIpcDeps, _eventBus: EventBus): void {
-		registerQuery(SttChannels.getSelection, () => stt.getSelection());
+		registerQuery(SttChannels.getSelection, (mode) => stt.getSelection(mode));
 		registerQuery(SttChannels.listProviders, () => stt.listProviders());
 		registerQuery(SttChannels.listModels, (providerId) => stt.listModels(providerId));
-		registerCommand(SttChannels.saveSelection, (providerId, modelId) =>
-			stt.saveSelection(providerId, modelId)
+		registerCommand(SttChannels.saveSelection, (providerId, modelId, mode) =>
+			stt.saveSelection(providerId, modelId, mode)
 		);
 		registerQuery(SttChannels.getProviderId, () => getProviderId());
 		registerCommand(SttChannels.setProviderId, (providerId) => setProviderId(providerId));
