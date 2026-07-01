@@ -449,13 +449,13 @@ export class Cron {
 	}
 
 	private readState(): PersistedCronState {
-		return getCronState(this.store);
+		return getCronState();
 	}
 
 	private writeState<T>(mutate: (state: PersistedCronState) => T): T {
 		const state = this.readState();
 		const result = mutate(state);
-		setCronState(this.store, state);
+		setCronState(state);
 		return result;
 	}
 }
