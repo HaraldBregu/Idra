@@ -134,7 +134,7 @@ export class Runner {
 	}
 
 	private async *runModelTurn(
-		input: RuntimeInput,
+		_input: RuntimeInput,
 		provider: Provider,
 		modelId: string,
 		systemPrompt: string | undefined,
