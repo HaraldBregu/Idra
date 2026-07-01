@@ -237,7 +237,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		ipcMain.handle(
 			AgentChannels.cronSetRuntime,
 			wrapSimpleHandler((providerId: string, modelId: string) => {
-				return cron.setRuntime(providerId, modelId);
+				return setRuntime(providerId, modelId);
 			}, AgentChannels.cronSetRuntime)
 		);
 

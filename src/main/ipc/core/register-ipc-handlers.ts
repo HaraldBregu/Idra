@@ -37,7 +37,6 @@ export function registerIpcHandlers(
 			{
 				logger,
 				agent: container.get(Agent),
-				cron: services.cron,
 			},
 			eventBus
 		)
