@@ -30,82 +30,50 @@ type QwenRealtimeServerEvent = {
 	error?: { message?: string };
 };
 
-export class QwenSttAdapter implements SttAdapter {
-	private readonly provider: SttProviderSpec;
+export function createQwenSttAdapter(provider: SttProviderSpec): SttAdapter {
+	if (!provider.apiKey) throw new SttProviderAuthError(`${provider.name} API key not configured.`);
 
-	constructor(provider: SttProviderSpec) {
-		if (!provider.apiKey)
-			throw new SttProviderAuthError(`${provider.name} API key not configured.`);
-		this.provider = provider;
-	}
+	return {
+		async transcribe(_request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
+			throw new SttProviderUnsupportedError(
+				`${provider.name} does not expose a batch speech-to-text adapter in this runtime.`
+			);
+		},
 
-	async transcribe(_request: SttAdapterTranscriptionRequest): Promise<SttTranscriptionResult> {
-		throw new SttProviderUnsupportedError(
-			`${this.provider.name} does not expose a batch speech-to-text adapter in this runtime.`
-		);
-	}
-
-	async startRealtime(
-		request: SttAdapterRealtimeStartRequest,
-		emit: SttRealtimeEventHandler
-	): Promise<SttRealtimeConnection> {
-		const socket = new WebSocket(qwenRealtimeUrl(this.provider.baseURL, request), {
-			headers: {
-				Authorization: `${QWEN_AUTH_SCHEME} ${this.provider.apiKey}`,
-				[QWEN_REALTIME_BETA_HEADER]: QWEN_REALTIME_BETA_VALUE,
-			},
-		});
-		await waitForOpen(socket);
-		const connection = new QwenRealtimeSttConnection(socket, request, emit);
-		connection.configure();
-		return connection;
-	}
+		async startRealtime(
+			request: SttAdapterRealtimeStartRequest,
+			emit: SttRealtimeEventHandler
+		): Promise<SttRealtimeConnection> {
+			const socket = new WebSocket(qwenRealtimeUrl(provider.baseURL, request), {
+				headers: {
+					Authorization: `${QWEN_AUTH_SCHEME} ${provider.apiKey}`,
+					[QWEN_REALTIME_BETA_HEADER]: QWEN_REALTIME_BETA_VALUE,
+				},
+			});
+			await waitForOpen(socket);
+			return createQwenRealtimeConnection(socket, request, emit);
+		},
+	};
 }
 
-class QwenRealtimeSttConnection implements SttRealtimeConnection {
-	private closed = false;
+function createQwenRealtimeConnection(
+	socket: WebSocket,
+	request: SttAdapterRealtimeStartRequest,
+	emit: SttRealtimeEventHandler
+): SttRealtimeConnection {
+	let closed = false;
 
-	constructor(
-		private readonly socket: WebSocket,
-		private readonly request: SttAdapterRealtimeStartRequest,
-		private readonly emit: SttRealtimeEventHandler
-	) {
-		this.socket.on('message', (data) => this.handleMessage(data.toString()));
-		this.socket.once('close', () => this.emitClosed());
-		this.socket.once('error', (error) => this.emitError(error.message));
-	}
+	const emitError = (message: string): void => {
+		if (!closed) emit({ type: 'error', sessionId: request.sessionId, message });
+	};
 
-	configure(): void {
-		this.socket.send(
-			JSON.stringify({
-				type: QWEN_REALTIME_SESSION_UPDATE_EVENT,
-				session: {
-					input_audio_format: QWEN_REALTIME_AUDIO_FORMAT,
-					input_audio_transcription: {
-						model: this.request.modelId,
-						...(this.request.language ? { language: this.request.language } : {}),
-						...(this.request.prompt ? { prompt: this.request.prompt } : {}),
-					},
-					turn_detection: null,
-				},
-			})
-		);
-	}
+	const emitClosed = (): void => {
+		if (closed) return;
+		closed = true;
+		emit({ type: 'closed', sessionId: request.sessionId });
+	};
 
-	async appendAudio(audio: string): Promise<void> {
-		this.socket.send(JSON.stringify({ type: 'input_audio_buffer.append', audio }));
-	}
-
-	async finish(): Promise<void> {
-		this.socket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
-	}
-
-	async cancel(): Promise<void> {
-		this.socket.close(1000, 'cancelled');
-		this.emitClosed();
-	}
-
-	private handleMessage(message: string): void {
+	const handleMessage = (message: string): void => {
 		let event: QwenRealtimeServerEvent;
 		try {
 			event = JSON.parse(message) as QwenRealtimeServerEvent;
@@ -114,53 +82,77 @@ class QwenRealtimeSttConnection implements SttRealtimeConnection {
 		}
 
 		if (event.type === 'input_audio_buffer.committed') {
-			this.emit({
+			emit({
 				type: 'committed',
-				sessionId: this.request.sessionId,
-				itemId: event.item_id ?? this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: event.item_id ?? request.sessionId,
 			});
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.delta') {
-			this.emit({
+			emit({
 				type: 'delta',
-				sessionId: this.request.sessionId,
-				itemId: event.item_id ?? this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: event.item_id ?? request.sessionId,
 				contentIndex: event.content_index ?? 0,
 				delta: event.delta ?? '',
 			});
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.completed') {
-			this.emit({
+			emit({
 				type: 'completed',
-				sessionId: this.request.sessionId,
-				itemId: event.item_id ?? this.request.sessionId,
+				sessionId: request.sessionId,
+				itemId: event.item_id ?? request.sessionId,
 				contentIndex: event.content_index ?? 0,
 				transcript: event.transcript ?? '',
 			});
-			this.socket.close(1000, 'completed');
+			socket.close(1000, 'completed');
 			return;
 		}
 		if (event.type === 'conversation.item.input_audio_transcription.failed') {
-			this.emitError(event.error?.message ?? 'Qwen realtime transcription failed.');
-			this.socket.close(1011, 'transcription failed');
+			emitError(event.error?.message ?? 'Qwen realtime transcription failed.');
+			socket.close(1011, 'transcription failed');
 			return;
 		}
 		if (event.type === 'error') {
-			this.emitError(event.error?.message ?? 'Qwen realtime transcription error.');
+			emitError(event.error?.message ?? 'Qwen realtime transcription error.');
 		}
-	}
+	};
 
-	private emitError(message: string): void {
-		if (!this.closed) this.emit({ type: 'error', sessionId: this.request.sessionId, message });
-	}
+	socket.on('message', (data) => handleMessage(data.toString()));
+	socket.once('close', () => emitClosed());
+	socket.once('error', (error) => emitError(error.message));
 
-	private emitClosed(): void {
-		if (this.closed) return;
-		this.closed = true;
-		this.emit({ type: 'closed', sessionId: this.request.sessionId });
-	}
+	socket.send(
+		JSON.stringify({
+			type: QWEN_REALTIME_SESSION_UPDATE_EVENT,
+			session: {
+				input_audio_format: QWEN_REALTIME_AUDIO_FORMAT,
+				input_audio_transcription: {
+					model: request.modelId,
+					...(request.language ? { language: request.language } : {}),
+					...(request.prompt ? { prompt: request.prompt } : {}),
+				},
+				turn_detection: null,
+			},
+		})
+	);
+
+	return {
+		async appendAudio(audio: string): Promise<void> {
+			socket.send(JSON.stringify({ type: 'input_audio_buffer.append', audio }));
+		},
+
+		async finish(): Promise<void> {
+			socket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+		},
+
+		async cancel(): Promise<void> {
+			socket.close(1000, 'cancelled');
+			emitClosed();
+		},
+	};
 }
 
 function qwenRealtimeUrl(
