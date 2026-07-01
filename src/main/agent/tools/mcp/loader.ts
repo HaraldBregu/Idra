@@ -29,7 +29,7 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 	return {
 		tools,
 		close: async () => {
-			await Promise.all(clients.map((c) => c.close().catch(() => {})));
+			await Promise.all(clients.map((c) => close(c).catch(() => {})));
 		},
 	};
 }
