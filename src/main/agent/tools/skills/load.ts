@@ -1,6 +1,6 @@
 import { BaseTool } from '../../core/tool';
 import type { Context } from '../../core/tool';
-import type { Skills } from '../../core/skills';
+import { listSkills, loadSkill } from '../../core/skills';
 
 export class LoadSkillTool extends BaseTool {
 	readonly name = 'load_skill';
@@ -18,11 +18,8 @@ export class LoadSkillTool extends BaseTool {
 		additionalProperties: false,
 	};
 
-	private readonly skills: Skills;
-
-	constructor(context: Context, skills: Skills) {
+	constructor(context: Context) {
 		super(context);
-		this.skills = skills;
 	}
 
 	async run(input: Record<string, unknown>): Promise<unknown> {
@@ -30,11 +27,11 @@ export class LoadSkillTool extends BaseTool {
 		if (typeof name !== 'string' || !name.trim()) {
 			throw new Error('load_skill requires a non-empty name.');
 		}
-		const skill = await this.skills.loadSkill(name);
+		const skill = await loadSkill(name);
 		if (!skill) {
 			return {
 				error: `Skill '${name}' not found.`,
-				available: this.skills.listSkills().map((entry) => entry.title),
+				available: listSkills().map((entry) => entry.title),
 			};
 		}
 		const skillPath = `${skill.directory}/SKILL.md`;
