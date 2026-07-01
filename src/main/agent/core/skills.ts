@@ -86,7 +86,7 @@ export class Skills {
 			const destination = path.join(this.root, id);
 			fs.rmSync(destination, { recursive: true, force: true });
 			fs.cpSync(source, destination, { recursive: true });
-			setSkill(this.store, id, { enabled: true });
+			setSkill(id, { enabled: true });
 			const info = this.read(destination, id);
 			if (info) imported.push(info);
 		}
