@@ -208,12 +208,12 @@ export class DeleteScheduleTool extends CronTool {
 	readonly description: string = 'Delete a cron schedule by id.';
 	readonly schema: JSONSchema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): void {
-		this.cron.deleteSchedule(requireScheduleId(input, 'delete_schedule'));
+		deleteSchedule(requireScheduleId(input, 'delete_schedule'));
 	}
 }
 
