@@ -3,15 +3,13 @@ import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { agentLocation } from './shared/location';
-import { SettingsStore, type SettingsSchema } from './store/settings';
-import { Cron } from './core/cron';
+import { DEFAULT_AGENT_SETTINGS, SettingsStore } from './store/settings';
+import { Cron, DEFAULT_CRON_STATE } from './core/cron';
 import { CronStore } from './store/cron';
 import { Skills } from './core/skills';
-import { SkillsStore, type SkillsSchema } from './store/skills';
-import { HealthStore } from './store/health';
-import { McpStore, type ConnectorStoreSchema } from './store/mcp';
-import type { PersistedCronState } from './core/cron';
-import type { HealthSettings } from './health/types';
+import { DEFAULT_SKILLS, SkillsStore } from './store/skills';
+import { DEFAULT_HEALTH_SETTINGS, HealthStore } from './store/health';
+import { DEFAULT_MCP_SETTINGS, McpStore } from './store/mcp';
 import type { Message, RuntimeEvent, RuntimeInput } from './core/types';
 import type {
 	AgentHistoryContentBlock,
@@ -21,24 +19,6 @@ import type {
 } from '../../shared/agent/types';
 import { toError } from '../ipc/core/error';
 
-const DEFAULT_AGENT_SETTINGS: SettingsSchema = {
-	providerId: undefined,
-	modelId: undefined,
-};
-
-const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
-const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
-
-const DEFAULT_HEALTH_SETTINGS: HealthSettings = {
-	every: '30m',
-	target: 'last',
-	directPolicy: 'allow',
-	lightContext: true,
-	isolatedSession: true,
-	skipWhenBusy: true,
-};
-
-const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
 
 export interface AgentSendOptions {
 	runId?: string;

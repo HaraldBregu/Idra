@@ -9,6 +9,11 @@ export type SettingsSchema = {
 	modelId: string | undefined;
 };
 
+export const DEFAULT_AGENT_SETTINGS: SettingsSchema = {
+	providerId: undefined,
+	modelId: undefined,
+};
+
 const SETTINGS_STORE_NAME = 'settings';
 
 export class SettingsStore {

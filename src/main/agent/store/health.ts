@@ -26,6 +26,15 @@ export interface HealthSettings {
 
 const HEALTH_STORE_NAME = 'health';
 
+export const DEFAULT_HEALTH_SETTINGS: HealthSettings = {
+	every: '30m',
+	target: 'last',
+	directPolicy: 'allow',
+	lightContext: true,
+	isolatedSession: true,
+	skipWhenBusy: true,
+};
+
 export class HealthStore {
 	private readonly store: Store<HealthSettings>;
 

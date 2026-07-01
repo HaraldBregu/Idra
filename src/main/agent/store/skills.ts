@@ -10,35 +10,35 @@ export type SkillsSchema = {
 	skills: Record<string, SkillSettings>;
 };
 
+export const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
+
 const SKILLS_STORE_NAME = 'skills';
 
-export class SkillsStore {
-	private readonly skills: ElectronStore<SkillsSchema>;
+export type SkillsStore = ElectronStore<SkillsSchema>;
 
-	constructor(private readonly config: Config, defaults: SkillsSchema) {
-		this.skills = new ElectronStore<SkillsSchema>({
-			name: SKILLS_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults,
-		});
-	}
+export function createSkillsStore(config: Config, defaults: SkillsSchema): SkillsStore {
+	return new ElectronStore<SkillsSchema>({
+		name: SKILLS_STORE_NAME,
+		cwd: path.resolve(config.location),
+		accessPropertiesByDotNotation: false,
+		defaults,
+	});
+}
 
-	all(): Record<string, SkillSettings> {
-		return this.skills.store.skills ?? {};
-	}
+export function allSkills(store: SkillsStore): Record<string, SkillSettings> {
+	return store.store.skills ?? {};
+}
 
-	get(id: string): SkillSettings | undefined {
-		return this.all()[id];
-	}
+export function getSkill(store: SkillsStore, id: string): SkillSettings | undefined {
+	return allSkills(store)[id];
+}
 
-	set(id: string, settings: SkillSettings): void {
-		this.skills.set('skills', { ...this.all(), [id]: settings });
-	}
+export function setSkill(store: SkillsStore, id: string, settings: SkillSettings): void {
+	store.set('skills', { ...allSkills(store), [id]: settings });
+}
 
-	remove(id: string): void {
-		const next = { ...this.all() };
-		delete next[id];
-		this.skills.set('skills', next);
-	}
+export function removeSkill(store: SkillsStore, id: string): void {
+	const next = { ...allSkills(store) };
+	delete next[id];
+	store.set('skills', next);
 }

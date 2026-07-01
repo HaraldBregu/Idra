@@ -18,6 +18,8 @@ export type ConnectorStoreSchema = {
 	oauth: Record<string, McpOAuthState>;
 };
 
+export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
+
 const MCP_STORE_NAME = 'mcp';
 
 export class McpStore {

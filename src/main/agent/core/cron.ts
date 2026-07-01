@@ -84,6 +84,8 @@ export interface PersistedCronState {
 	schedules: CronSchedule[];
 }
 
+export const DEFAULT_CRON_STATE: PersistedCronState = { schedules: [] };
+
 export type CronFunctionId =
 	| 'create_schedule'
 	| 'update_schedule'
