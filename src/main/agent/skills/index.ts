@@ -8,3 +8,11 @@ export { deleteSkill } from './skills-delete';
 export { openRoot } from './skills-open-root';
 export { setEnabled } from './skills-set-enabled';
 export { validateSkill } from './skills-validate';
+export {
+	allSkills,
+	getSkill,
+	removeSkill,
+	setSkill,
+	type SkillSettings,
+	type SkillsSchema,
+} from './skills-store';
