@@ -275,13 +275,11 @@ async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResu
 	});
 }
 
-export function execTool(context: Context): Tool {
-	return tool({
-		name: 'exec',
-		description:
-			'Run a shell command from the workspace or a chosen working directory. ' +
-			'Use it for builds, tests, searches, and other command-line checks; set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
-		inputSchema: execInputSchema,
-		execute: (input) => runExec(context, input),
-	});
-}
+export const execTool = tool({
+	name: 'exec',
+	description:
+		'Run a shell command from the workspace or a chosen working directory. ' +
+		'Use it for builds, tests, searches, and other command-line checks; set background or yieldMs for long-running commands, timeout to stop slow commands, and pty for TTY-only CLIs.',
+	inputSchema: execInputSchema,
+	execute: runExec,
+});
