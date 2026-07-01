@@ -121,7 +121,7 @@ export class SttService {
 	): Promise<SttRealtimeSession> {
 		const normalized = normalizeSttRealtimeStartRequest(request);
 		const providerId = this.resolveProviderId(
-			normalized.providerId ?? this.getConfiguredProviderId('realtime')
+			normalized.providerId ?? this.getConfiguredProviderId()
 		);
 		const modelId = this.resolveModelId(
 			providerId,
