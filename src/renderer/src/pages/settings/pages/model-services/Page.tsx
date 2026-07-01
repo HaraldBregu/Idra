@@ -705,121 +705,53 @@ const ModelServicePage: React.FC = () => {
 			)}
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<Collapsible className="rounded-lg border border-border/70 bg-card">
-					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-						<div className="min-w-0 flex-1">
-							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-								{selectedProvider
-									? getProviderCatalogItem(selectedProvider.id).name
-									: t('settings.modelServices.providerPlaceholder')}
-							</div>
-							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-								{selectedModel?.name ?? selectedModel?.id ?? t('settings.modelServices.modelUnavailable')}
-							</p>
-						</div>
-						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-					</CollapsibleTrigger>
-					<CollapsibleContent className="border-t border-border/60">
-					{state.loading ? (
-						<SettingsLoadingRows rows={2} />
-					) : (
-						<div className="grid gap-3 px-3 py-3">
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField
-									id="model-service-provider"
-									label={t('settings.modelServices.provider')}
-									description={t('settings.modelServices.providerDescription')}
-								>
-									<Select
-										value={state.providerId}
-										onValueChange={handleProviderChange}
-										disabled={state.loading || state.saving || state.modelGroups.length === 0}
-									>
-										<SelectTrigger id="model-service-provider" className="w-full text-xs">
-											<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
-										</SelectTrigger>
-										<SelectContent>
-											{state.modelGroups.map((group) => (
-												<SelectItem key={group.provider.id} value={group.provider.id}>
-													{getProviderCatalogItem(group.provider.id).name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
+				{service.id === AGENTS.speechToText ? (
+					<div className="grid gap-2">
+						{SPEECH_MODE_CONFIGS.map((config) => {
+							const modeState = speechStates[config.mode];
+							const group = modeState.modelGroups.find(
+								(item) => item.provider.id === modeState.providerId
+							);
+							const provider = group?.provider;
+							const model = group?.models.find((item) => item.id === modeState.modelId);
+							const summary =
+								provider && model
+									? `${getProviderCatalogItem(provider.id).name} - ${model.name || model.id}`
+									: t(config.descriptionKey);
 
-								<SettingsField
-									id="model-service-model"
-									label={t('settings.modelServices.model')}
-									description={t('settings.modelServices.modelDescription')}
-								>
-									<Select
-										value={state.modelId}
-										onValueChange={handleModelChange}
-										disabled={
-											state.loading ||
-											state.loadingModels ||
-											state.saving ||
-											!selectedProvider ||
-											!selectedGroup ||
-											selectedGroup.models.length === 0
-										}
-									>
-										<SelectTrigger id="model-service-model" className="w-full text-xs">
-											<SelectValue
-												placeholder={
-													state.loadingModels
-														? t('settings.modelServices.modelsLoading')
-														: t('settings.modelServices.modelPlaceholder')
-												}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{selectedGroup?.models.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name || model.id}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-							</div>
-
-							{state.providers.length === 0 && (
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.providers.noProviders')}
-								</p>
-							)}
-							{state.providers.length > 0 && state.modelGroups.length === 0 && (
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.modelServices.noModels')}
-								</p>
-							)}
-							{state.saved && (
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.modelServices.saved')}
-								</p>
-							)}
-
-							<div className="flex justify-end">
-								<Button
-									type="button"
-									size="sm"
-									disabled={state.saving || !selectedProvider || !selectedModel}
-									onClick={() => void handleSave()}
-								>
-									{state.saving ? (
-										<LoaderCircle className="size-3 animate-spin" />
-									) : (
-										<Save className="size-3" />
-									)}
-									{state.saving ? t('settings.modelServices.saving') : t('common.save')}
-								</Button>
-							</div>
-						</div>
-					)}
-					</CollapsibleContent>
-				</Collapsible>
+							return (
+								<React.Fragment key={config.mode}>
+									{renderConfiguration({
+										configState: modeState,
+										triggerTitle: t(config.titleKey),
+										triggerDescription: summary,
+										providerDescription: t(config.providerDescriptionKey),
+										modelDescription: t(config.modelDescriptionKey),
+										providerFieldId: `model-service-${config.mode}-provider`,
+										modelFieldId: `model-service-${config.mode}-model`,
+										showInlineError: true,
+										onProviderChange: (nextProviderId) =>
+											handleSpeechProviderChange(config.mode, nextProviderId),
+										onModelChange: (nextModelId) =>
+											handleSpeechModelChange(config.mode, nextModelId),
+										onSave: () => void handleSpeechSave(config.mode),
+									})}
+								</React.Fragment>
+							);
+						})}
+					</div>
+				) : (
+					renderConfiguration({
+						configState: state,
+						providerDescription: t('settings.modelServices.providerDescription'),
+						modelDescription: t('settings.modelServices.modelDescription'),
+						providerFieldId: 'model-service-provider',
+						modelFieldId: 'model-service-model',
+						onProviderChange: handleProviderChange,
+						onModelChange: handleModelChange,
+						onSave: () => void handleSave(),
+					})
+				)}
 			</SettingsSection>
 
 			{service.id === AGENTS.assistant && (
