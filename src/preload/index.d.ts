@@ -67,10 +67,10 @@ export interface VoiceApi {
 	finishRealtime: (sessionId: string) => Promise<void>;
 	cancelRealtime: (sessionId: string) => Promise<void>;
 	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
-	getSelection: () => Promise<SttModelSelection | undefined>;
+	getSelection: (mode?: SttSelectionMode) => Promise<SttModelSelection | undefined>;
 	listProviders: () => Promise<PublicProvider[]>;
 	listModels: (providerId: string) => Promise<ProviderModel[]>;
-	saveSelection: (providerId: string, modelId: string) => Promise<boolean>;
+	saveSelection: (providerId: string, modelId: string, mode?: SttSelectionMode) => Promise<boolean>;
 	getProviderId: () => Promise<string | undefined>;
 	setProviderId: (providerId: string) => Promise<void>;
 	getModelId: () => Promise<string | undefined>;
@@ -94,6 +94,7 @@ import type {
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
 	SttModelSelection,
+	SttSelectionMode,
 } from '../shared/stt/transcription';
 import type {
 	SkillDeleteResult,
