@@ -88,7 +88,7 @@ setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(container, eventBus, agentService);
+registerIpcHandlers(container, eventBus);
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
