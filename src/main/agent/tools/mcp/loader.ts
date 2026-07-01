@@ -1,4 +1,4 @@
-import type { Context, Tool } from '../../core/tool';
+import type { Context, Tool } from '../../core/types';
 import type { JSONSchema } from '../../core/types';
 import { getMcpServers } from '../../mcp/mcp-store';
 import { McpClient } from '../../mcp/client';
