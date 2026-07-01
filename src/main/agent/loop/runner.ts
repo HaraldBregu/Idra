@@ -36,7 +36,6 @@ export class Runner {
 
 	constructor(
 		private readonly config: Config,
-		private readonly settingsStore: SettingsStore,
 		private readonly mcpStore: McpStore,
 		private readonly session: Session,
 	) {}
@@ -46,7 +45,7 @@ export class Runner {
 		const session = this.session;
 
 		try {
-			for await (const event of this.stream(input, signal, session, this.settingsStore)) {
+			for await (const event of this.stream(input, signal, session)) {
 				session.appendRun(event);
 				yield event;
 			}
