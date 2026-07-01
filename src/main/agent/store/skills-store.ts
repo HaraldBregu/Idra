@@ -1,6 +1,6 @@
 import path from 'node:path';
-import ElectronStore from 'electron-store';
-import type { Config } from '../core/config';
+import Store from 'electron-store';
+import { agentLocation } from '../shared/location';
 
 export interface SkillSettings {
 	enabled: boolean;
@@ -10,35 +10,29 @@ export type SkillsSchema = {
 	skills: Record<string, SkillSettings>;
 };
 
-export const DEFAULT_SKILLS: SkillsSchema = { skills: {} };
-
 const SKILLS_STORE_NAME = 'skills';
 
-export type SkillsStore = ElectronStore<SkillsSchema>;
+const store = new Store<SkillsSchema>({
+	name: SKILLS_STORE_NAME,
+	cwd: path.resolve(agentLocation()),
+	accessPropertiesByDotNotation: false,
+	defaults: { skills: {} },
+});
 
-export function createSkillsStore(config: Config, defaults: SkillsSchema): SkillsStore {
-	return new ElectronStore<SkillsSchema>({
-		name: SKILLS_STORE_NAME,
-		cwd: path.resolve(config.location),
-		accessPropertiesByDotNotation: false,
-		defaults,
-	});
-}
-
-export function allSkills(store: SkillsStore): Record<string, SkillSettings> {
+export function allSkills(): Record<string, SkillSettings> {
 	return store.store.skills ?? {};
 }
 
-export function getSkill(store: SkillsStore, id: string): SkillSettings | undefined {
-	return allSkills(store)[id];
+export function getSkill(id: string): SkillSettings | undefined {
+	return allSkills()[id];
 }
 
-export function setSkill(store: SkillsStore, id: string, settings: SkillSettings): void {
-	store.set('skills', { ...allSkills(store), [id]: settings });
+export function setSkill(id: string, settings: SkillSettings): void {
+	store.set('skills', { ...allSkills(), [id]: settings });
 }
 
-export function removeSkill(store: SkillsStore, id: string): void {
-	const next = { ...allSkills(store) };
+export function removeSkill(id: string): void {
+	const next = { ...allSkills() };
 	delete next[id];
 	store.set('skills', next);
 }
