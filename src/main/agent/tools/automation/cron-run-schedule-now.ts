@@ -1,6 +1,6 @@
 import { runScheduleNow } from '../../cron';
 import { BaseTool, type Context } from '../../types';
-import { requireScheduleId, scheduleIdSchema } from './schema';
+import { requireScheduleId, scheduleIdSchema } from './cron-schema';
 
 export class RunScheduleNowTool extends BaseTool {
 	readonly name = 'run_schedule_now';
