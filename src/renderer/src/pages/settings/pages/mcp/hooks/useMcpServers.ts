@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 
 type ConnectorRecord = Awaited<ReturnType<typeof window.agent.mcpList>>;
 
-export function useConnectors() {
-	const [connectors, setConnectors] = useState<ConnectorRecord>({});
+export function useMcpServers() {
+	const [servers, setServers] = useState<ConnectorRecord>({});
 	const [error, setError] = useState<string | null>(null);
 
 	const load = async (): Promise<void> => {
 		try {
-			const nextConnectors = await window.agent.mcpList();
-			setConnectors(nextConnectors);
+			const nextServers = await window.agent.mcpList();
+			setServers(nextServers);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
 		}
@@ -20,7 +20,7 @@ export function useConnectors() {
 	}, []);
 
 	return {
-		connectors,
+		servers,
 		error,
 		setError,
 		load,

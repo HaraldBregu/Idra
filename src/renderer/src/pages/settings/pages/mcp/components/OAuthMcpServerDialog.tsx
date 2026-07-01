@@ -15,7 +15,7 @@ import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function OAuthConnectorDialog({
+export function OAuthMcpServerDialog({
 	trigger,
 	initial,
 	onSubmit,
@@ -45,8 +45,8 @@ export function OAuthConnectorDialog({
 
 	const submit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
-		const connectorId = id.trim().toLowerCase();
-		if (!connectorId || !url.trim() || !clientId.trim()) {
+		const serverId = id.trim().toLowerCase();
+		if (!serverId || !url.trim() || !clientId.trim()) {
 			setError('ID, server URL and client ID are required.');
 			return;
 		}
@@ -65,7 +65,7 @@ export function OAuthConnectorDialog({
 		setSaving(true);
 		setError(null);
 		try {
-			await onSubmit(connectorId, entry);
+			await onSubmit(serverId, entry);
 			setOpen(false);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -86,7 +86,7 @@ export function OAuthConnectorDialog({
 			<DialogContent>
 				<form onSubmit={submit} className="grid gap-4">
 					<DialogHeader>
-						<DialogTitle>{isEdit ? 'Edit connector' : 'Add OAuth connector'}</DialogTitle>
+						<DialogTitle>{isEdit ? 'Edit MCP server' : 'Add MCP server'}</DialogTitle>
 						<DialogDescription>
 							Remote MCP server authenticated with OAuth client credentials.
 						</DialogDescription>
@@ -118,7 +118,7 @@ export function OAuthConnectorDialog({
 					<DialogFooter>
 						<DialogClose render={<Button type="button" variant="ghost">Cancel</Button>} />
 						<Button type="submit" disabled={saving}>
-							{saving ? 'Saving' : isEdit ? 'Save' : 'Add connector'}
+							{saving ? 'Saving' : isEdit ? 'Save' : 'Add MCP server'}
 						</Button>
 					</DialogFooter>
 				</form>

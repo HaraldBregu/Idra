@@ -8,45 +8,45 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
-import { ConnectorCard } from './components/ConnectorCard';
-import { OAuthConnectorDialog } from './components/OAuthConnectorDialog';
-import { useConnectors } from './hooks/useConnectors';
+import { McpServerCard } from './components/McpServerCard';
+import { OAuthMcpServerDialog } from './components/OAuthMcpServerDialog';
+import { useMcpServers } from './hooks/useMcpServers';
 
-type ConnectorEntry = [id: string, entry: McpData];
+type McpServerEntry = [id: string, entry: McpData];
 
-function describeConnector(entry: McpData): string {
+function describeMcpServer(entry: McpData): string {
 	return entry.type === 'stdio' ? entry.command : entry.url;
 }
 
-const ConnectorsPage = () => {
+const McpPage = () => {
 	const navigate = useNavigate();
-	const { connectors, error, load } = useConnectors();
+	const { servers, error, load } = useMcpServers();
 
-	const openConnectorDetails = (id: string): void => {
-		navigate(`/settings/connectors/connectordetails/${encodeURIComponent(id)}`);
+	const openMcpServerDetails = (id: string): void => {
+		navigate(`/settings/mcp/details/${encodeURIComponent(id)}`);
 	};
 
-	const addConnector = async (id: string, entry: McpHttpData): Promise<void> => {
-		await window.agent.mcpSave({ ...connectors, [id]: entry });
+	const addMcpServer = async (id: string, entry: McpHttpData): Promise<void> => {
+		await window.agent.mcpSave({ ...servers, [id]: entry });
 		await load();
 	};
 
-	const entries = Object.entries(connectors) as ConnectorEntry[];
+	const entries = Object.entries(servers) as McpServerEntry[];
 	const remoteEntries = entries.filter(([, entry]) => entry.type === 'http');
 	const localEntries = entries.filter(([, entry]) => entry.type === 'stdio');
 
-	const renderList = (list: ConnectorEntry[], emptyLabel: string) =>
+	const renderList = (list: McpServerEntry[], emptyLabel: string) =>
 		list.length === 0 ? (
 			<div className="px-0.5 text-[13px] text-muted-foreground">{emptyLabel}</div>
 		) : (
 			<div className="grid gap-2">
 				{list.map(([id, entry]) => (
-					<ConnectorCard
+					<McpServerCard
 						key={id}
-						catalogEntry={{ id, name: entry.name ?? id, description: describeConnector(entry) }}
-						connector={{ id, entry }}
-						onConnect={() => openConnectorDetails(id)}
-						onViewDetails={() => openConnectorDetails(id)}
+						catalogEntry={{ id, name: entry.name ?? id, description: describeMcpServer(entry) }}
+						server={{ id, entry }}
+						onConnect={() => openMcpServerDetails(id)}
+						onViewDetails={() => openMcpServerDetails(id)}
 					/>
 				))}
 			</div>
@@ -55,17 +55,17 @@ const ConnectorsPage = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title="Connectors"
+				title="MCP"
 				description="Connected MCP servers."
 				action={
-					<OAuthConnectorDialog
+					<OAuthMcpServerDialog
 						trigger={
 							<Button variant="outline" size="sm">
 								<Plus className="size-3.5" />
-								Add OAuth connector
+								Add MCP server
 							</Button>
 						}
-						onSubmit={addConnector}
+						onSubmit={addMcpServer}
 					/>
 				}
 			/>
@@ -76,8 +76,8 @@ const ConnectorsPage = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title="Connectors" description="Remote MCP servers.">
-				{renderList(remoteEntries, 'No connectors configured.')}
+			<SettingsSection title="Remote MCP servers" description="MCP servers available over HTTP.">
+				{renderList(remoteEntries, 'No remote MCP servers configured.')}
 			</SettingsSection>
 
 			<SettingsSection title="Local MCP servers" description="MCP servers running locally via a command.">
@@ -87,4 +87,4 @@ const ConnectorsPage = () => {
 	);
 };
 
-export default ConnectorsPage;
+export default McpPage;

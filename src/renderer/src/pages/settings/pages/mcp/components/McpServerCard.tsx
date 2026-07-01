@@ -3,43 +3,43 @@ import { ChevronRight, PlugZap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import { ConnectorStatusBadge, type ConnectorStatus } from './ConnectorStatusBadge';
+import { McpStatusBadge, type McpStatus } from './McpStatusBadge';
 
-type ConnectorCardEntry = {
+type McpServerCardEntry = {
 	readonly id: string;
 	readonly name: string;
 	readonly description: string;
 };
 
-type ConnectorEntry = Awaited<ReturnType<typeof window.agent.mcpList>>[string];
+type McpServerEntry = Awaited<ReturnType<typeof window.agent.mcpList>>[string];
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a'));
 }
 
-function connectorStatus(connector: ConnectorEntry): ConnectorStatus {
-	if (connector.enabled === false) return 'disabled';
-	if (connector.last_error) return 'error';
+function mcpStatus(server: McpServerEntry): McpStatus {
+	if (server.enabled === false) return 'disabled';
+	if (server.last_error) return 'error';
 	return 'configured';
 }
 
-export function ConnectorCard({
+export function McpServerCard({
 	catalogEntry,
 	connecting,
-	connector,
+	server,
 	onConnect,
 	onViewDetails,
 }: {
-	readonly catalogEntry: ConnectorCardEntry;
+	readonly catalogEntry: McpServerCardEntry;
 	readonly connecting?: boolean;
-	readonly connector?: {
+	readonly server?: {
 		readonly id: string;
-		readonly entry: ConnectorEntry;
+		readonly entry: McpServerEntry;
 	};
 	readonly onConnect: () => void;
 	readonly onViewDetails?: () => void;
 }): React.JSX.Element {
-	const status = connector ? connectorStatus(connector.entry) : undefined;
+	const status = server ? mcpStatus(server.entry) : undefined;
 	const connected = status === 'configured';
 	const disabled = status === 'disabled';
 	const hasDetails = typeof onViewDetails === 'function';
@@ -63,7 +63,7 @@ export function ConnectorCard({
 				<div className="flex max-w-full items-center gap-2">
 					<ItemTitle className="min-w-0 truncate">{title}</ItemTitle>
 					{status ? (
-						<ConnectorStatusBadge status={status} />
+						<McpStatusBadge status={status} />
 					) : (
 						<Badge variant="outline" className="h-4 px-1.5 text-[10px]">
 							Not connected

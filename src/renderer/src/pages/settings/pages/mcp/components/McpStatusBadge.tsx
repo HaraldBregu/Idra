@@ -1,12 +1,12 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 
-export type ConnectorStatus = 'configured' | 'disabled' | 'error';
+export type McpStatus = 'configured' | 'disabled' | 'error';
 
-export function ConnectorStatusBadge({
+export function McpStatusBadge({
 	status,
 }: {
-	readonly status: ConnectorStatus;
+	readonly status: McpStatus;
 }): React.JSX.Element {
 	const variant = status === 'configured' ? 'default' : status === 'error' ? 'destructive' : 'outline';
 	const label =
