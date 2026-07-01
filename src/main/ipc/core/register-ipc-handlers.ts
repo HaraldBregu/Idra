@@ -15,7 +15,16 @@ import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/cron/cron';
 import { Skills } from '../../agent/skills/skills';
 
-export function registerIpcHandlers(container: ContainerInstance, eventBus: EventBus): void {
+export interface RegisterIpcHandlersServices {
+	cron: Cron;
+	skills: Skills;
+}
+
+export function registerIpcHandlers(
+	container: ContainerInstance,
+	eventBus: EventBus,
+	services: RegisterIpcHandlersServices
+): void {
 	const logger = container.get(LoggerService);
 
 	const safeRegister = (name: string, register: () => void): void => {
@@ -37,8 +46,8 @@ export function registerIpcHandlers(container: ContainerInstance, eventBus: Even
 			{
 				logger,
 				agent: container.get(Agent),
-				cron: container.get(Cron),
-				skills: container.get(Skills),
+				cron: services.cron,
+				skills: services.skills,
 			},
 			eventBus
 		)

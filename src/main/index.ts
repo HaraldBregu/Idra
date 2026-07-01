@@ -73,7 +73,7 @@ try {
 }
 
 // Bootstrap new architecture - FULL INTEGRATION ENABLED
-const { container, eventBus, appState, windowFactory, logger, windowContextManager } =
+const { container, eventBus, appState, windowFactory, logger, windowContextManager, cron, skills } =
 	bootstrapServices();
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
@@ -81,7 +81,7 @@ setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(container, eventBus);
+registerIpcHandlers(container, eventBus, { cron, skills });
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
@@ -149,5 +149,5 @@ app.whenReady().then(async () => {
 // Note: window-all-closed and before-quit handlers are now managed by setupAppLifecycle
 
 app.on('quit', () => {
-	cleanup(container);
+	cleanup(container, cron);
 });

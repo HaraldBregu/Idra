@@ -9,7 +9,6 @@ import {
 } from './app';
 import { LoggerService } from './shared';
 import { Cron } from './agent/cron/cron';
-import { Config } from './agent/core/config';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
@@ -24,6 +23,8 @@ export interface BootstrapResult {
 	appState: AppState;
 	logger: LoggerService;
 	windowContextManager: WindowContextManager;
+	cron: Cron;
+	skills: Skills;
 }
 
 export function bootstrapServices(): BootstrapResult {
@@ -37,14 +38,12 @@ export function bootstrapServices(): BootstrapResult {
 
 	const agentService = new Agent();
 	const config = agentService.config;
-	container.set(Config, config);
 	container.set(Agent, agentService);
 
 	const channels = new ChannelsService(logger);
 	container.set(ChannelsService, channels);
 	const cron = new Cron(agentService.cron);
-	container.set(Cron, cron);
-	container.set(Skills, new Skills(config, agentService.skills));
+	const skills = new Skills(config, agentService.skills);
 
 	container.get(ProviderService);
 	container.get(SttService);
@@ -70,15 +69,17 @@ export function bootstrapServices(): BootstrapResult {
 		appState,
 		logger,
 		windowContextManager,
+		cron,
+		skills,
 	};
 }
 
-export async function cleanup(container: ContainerInstance): Promise<void> {
+export async function cleanup(container: ContainerInstance, cron: Cron): Promise<void> {
 	const logger = container.get(LoggerService);
 	logger.info('Bootstrap', 'Starting cleanup');
 	await container.get(WindowContextManager).destroyAll();
 	container.get(ChannelRegistry).destroy();
-	container.get(Cron).destroy();
+	cron.destroy();
 	container.get(LoggerService).destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
 }
