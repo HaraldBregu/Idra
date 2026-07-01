@@ -43,10 +43,10 @@ export class Runner {
 	constructor(
 		private readonly config: Config,
 		private readonly settingsStore: SettingsStore,
-		private readonly cronStore: CronStore,
-		private readonly skillsStore: SkillsStore,
+		readonly cronStore: CronStore,
+		readonly skillsStore: SkillsStore,
 		private readonly mcpStore: McpStore,
-	) { 
+	) {
 		this.cron = new Cron(cronStore);
 		this.skills = new Skills(this.config, skillsStore);
 	}
@@ -152,7 +152,8 @@ export class Runner {
 		tools: Tool[],
 		signal: AbortSignal
 	): AsyncGenerator<RuntimeEvent, ModelTurn> {
-		for (let attempt = 0; attempt <= (input.maxRetries ?? 1); attempt += 1) {
+		const maxRetries = 1;
+		for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
 			let content = '';
 			let model = modelId;
 			let stopReason: string | undefined;
@@ -160,15 +161,16 @@ export class Runner {
 			const providerItems: MessageContentBlock[] = [];
 			const pending = new Map<string, { name: string; argsText: string }>();
 
+			const maxTokens = 4096;
 			try {
 				for await (const event of this.model.stream({
 					provider,
 					model,
-					effort: input.effort,
+					//effort: input.effort,
 					systemPrompt,
 					messages,
 					tools,
-					maxTokens: input.maxTokens ?? 4096,
+					maxTokens,
 					signal,
 				})) {
 					if (event.type === 'model_call_delta') content += event.delta;
@@ -207,7 +209,7 @@ export class Runner {
 					})),
 				};
 			} catch (error) {
-				if (attempt >= (input.maxRetries ?? 1)) throw error;
+				if (attempt >= maxRetries) throw error;
 			}
 		}
 

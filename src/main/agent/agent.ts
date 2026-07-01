@@ -53,7 +53,7 @@ export class Agent {
 			const runner = new Runner(
 				config, 
 				this.store.settings, 
-				this.store.cron,
+				this.store.cron,     
 				this.store.skills,
 				this.store.mcp,
 			);
