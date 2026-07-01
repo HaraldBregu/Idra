@@ -4,7 +4,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import type { McpData } from '../../../shared/mcp/mcp';
 import { createOAuthProvider } from './oauth';
-import { McpStore } from './mcp-store';
+import { getMcpOauth, saveMcpOauth } from './mcp-store';
 
 export class McpClient {
 	private readonly client = new Client({ name: 'friday', version: '1.0.0' });
@@ -12,11 +12,10 @@ export class McpClient {
 	constructor(
 		private readonly id: string,
 		private readonly data: McpData,
-		private readonly store: McpStore,
 	) {}
 
 	async connect(): Promise<void> {
-		await this.client.connect(buildTransport(this.id, this.data, this.store));
+		await this.client.connect(buildTransport(this.id, this.data));
 	}
 
 	listTools(): ReturnType<Client['listTools']> {
