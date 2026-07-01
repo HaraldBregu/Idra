@@ -22,6 +22,7 @@ import {
 	type SttRealtimeSession,
 	type SttRealtimeStartRequest,
 	type SttModelSelection,
+	type SttSelectionMode,
 	type SttTranscriptionRequest,
 	type SttTranscriptionResult,
 } from '../../../shared/stt/transcription';
@@ -85,9 +86,11 @@ export class SttService {
 	saveSelection(providerId: string, modelId: string, mode: SttSelectionMode = 'transcribe'): boolean {
 		const normalizedProviderId = this.resolveProviderId(providerId);
 		const normalizedModelId = modelId.trim();
-		if (!findSpeechToTextModel(normalizedProviderId, normalizedModelId)) {
+		const apiType =
+			mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
+		if (!supportsSpeechToTextModelApiType(normalizedProviderId, normalizedModelId, apiType)) {
 			throw new SttProviderUnsupportedError(
-				`Speech-to-text model is not supported: ${normalizedProviderId}/${normalizedModelId}`
+				`Speech-to-text model does not support ${apiType} transcription: ${normalizedProviderId}/${normalizedModelId}`
 			);
 		}
 		setVoiceSelection(normalizedProviderId, normalizedModelId, mode);
@@ -97,11 +100,12 @@ export class SttService {
 	async transcribe(request: SttTranscriptionRequest): Promise<SttTranscriptionResult> {
 		const normalized = normalizeSttTranscriptionRequest(request);
 		const providerId = this.resolveProviderId(
-			normalized.providerId ?? this.getConfiguredProviderId()
+			normalized.providerId ?? this.getConfiguredProviderId('transcribe')
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ?? this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_BATCH_API_TYPE),
+			normalized.modelId ??
+				this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_BATCH_API_TYPE, 'transcribe'),
 			SPEECH_TO_TEXT_BATCH_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
@@ -120,11 +124,12 @@ export class SttService {
 	): Promise<SttRealtimeSession> {
 		const normalized = normalizeSttRealtimeStartRequest(request);
 		const providerId = this.resolveProviderId(
-			normalized.providerId ?? this.getConfiguredProviderId()
+			normalized.providerId ?? this.getConfiguredProviderId('realtime')
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ?? this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE),
+			normalized.modelId ??
+				this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE, 'realtime'),
 			SPEECH_TO_TEXT_STREAM_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
@@ -234,8 +239,8 @@ export class SttService {
 		return session;
 	}
 
-	private getConfiguredProviderId(): SpeechToTextProviderId | undefined {
-		const providerId = getVoiceProviderId();
+	private getConfiguredProviderId(mode: SttSelectionMode): SpeechToTextProviderId | undefined {
+		const providerId = getVoiceProviderId(mode);
 		if (!providerId) return undefined;
 		try {
 			return this.resolveProviderId(providerId);
@@ -246,11 +251,12 @@ export class SttService {
 
 	private getConfiguredModelId(
 		providerId: SpeechToTextProviderId,
-		apiType: typeof SPEECH_TO_TEXT_BATCH_API_TYPE | typeof SPEECH_TO_TEXT_STREAM_API_TYPE
+		apiType: typeof SPEECH_TO_TEXT_BATCH_API_TYPE | typeof SPEECH_TO_TEXT_STREAM_API_TYPE,
+		mode: SttSelectionMode
 	): string | undefined {
-		const configuredProviderId = this.getConfiguredProviderId();
+		const configuredProviderId = this.getConfiguredProviderId(mode);
 		if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
-		const modelId = getVoiceModelId();
+		const modelId = getVoiceModelId(mode);
 		return modelId && supportsSpeechToTextModelApiType(providerId, modelId, apiType)
 			? modelId
 			: undefined;
