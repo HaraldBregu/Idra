@@ -21,7 +21,7 @@ export class SettingsStore {
 	private readonly providerStore = new ProviderService();
 
 	constructor(private readonly config: Config, defaults: SettingsSchema) {
-		this.settings = new ElectronStore<SettingsSchema>({
+		this.settings = new Store<SettingsSchema>({
 			name: SETTINGS_STORE_NAME,
 			cwd: path.resolve(this.config.location),
 			accessPropertiesByDotNotation: false,
