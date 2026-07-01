@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { Session } from './core/session';
+import { Session, loadMessages, clearMessages } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
 import { agentLocation } from './shared/location';
