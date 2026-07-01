@@ -64,11 +64,7 @@ export class Agent {
 
 			this.session.init(input);
 
-			const runner = new Runner(
-				this.config,
-				this.mcp,
-				this.session
-			);
+			const runner = new Runner(this.config, this.session);
 
 			const stream = runner.run(input);
 
