@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { agentLocation } from '../shared/location';
+import { agentLocation } from '../shared/agent-location';
 import type { PersistedCronState } from './cron-types';
 
 const CRON_STORE_NAME = 'cron';
