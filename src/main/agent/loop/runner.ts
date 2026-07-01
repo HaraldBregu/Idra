@@ -20,8 +20,6 @@ import { System } from '../core/system';
 import { Skills } from '../skills/skills';
 import { formatToolOutput } from '../shared/format';
 import { McpStore } from '../mcp/store';
-import { CronStore } from '../cron/store';
-import { SkillsStore } from '../skills/store';
 
 interface ModelTurn {
 	content: string;
