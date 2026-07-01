@@ -300,7 +300,9 @@ export class Cron {
 		return [];
 	}
 
-	deleteJob(_id: string): void {}
+	deleteJob(_id: string): void {
+		void _id;
+	}
 
 	private activate(schedule: CronSchedule): CronSchedule {
 		if (!isActiveSchedule(schedule)) return schedule;
