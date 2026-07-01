@@ -235,7 +235,7 @@ export class SttService {
 	}
 
 	private getConfiguredProviderId(): SpeechToTextProviderId | undefined {
-		const providerId = this.getProviderId();
+		const providerId = getVoiceProviderId();
 		if (!providerId) return undefined;
 		try {
 			return this.resolveProviderId(providerId);
