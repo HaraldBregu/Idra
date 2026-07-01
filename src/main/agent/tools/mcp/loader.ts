@@ -1,12 +1,11 @@
 import type { Context, Tool } from '../../core/tool';
 import type { JSONSchema } from '../../core/types';
-import { McpStore } from '../../mcp/mcp-store';
+import { getMcpServers } from '../../mcp/mcp-store';
 import { McpClient } from '../../mcp/client';
 import { McpTool } from './tool';
 
 export async function loadMcpTools(
 	context: Context,
-	store: McpStore,
 ): Promise<{ tools: Tool[]; close: () => Promise<void> }> {
 	const tools: Tool[] = [];
 	const clients: McpClient[] = [];
