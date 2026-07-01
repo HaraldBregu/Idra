@@ -31,7 +31,7 @@ export class McpClient {
 	}
 }
 
-function buildTransport(id: string, data: McpData, store: McpStore): Transport {
+function buildTransport(id: string, data: McpData): Transport {
 	if (data.type === 'stdio') {
 		return new StdioClientTransport({
 			command: data.command,
