@@ -1,4 +1,4 @@
-import { AgentModel } from '../../llm';
+import { AgentModel } from '../../models/llm';
 import type {
 	Provider,
 	RuntimeEvent,
