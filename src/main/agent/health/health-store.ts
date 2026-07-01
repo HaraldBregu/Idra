@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { agentLocation } from '../shared/location';
-import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './types';
+import { DEFAULT_HEALTH_SETTINGS, type HealthSettings } from './health-types';
 
 const HEALTH_STORE_NAME = 'health';
 
