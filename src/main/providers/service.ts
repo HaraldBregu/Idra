@@ -1,5 +1,5 @@
 import type { Provider, ProviderRecord } from '../../shared/providers/types';
-import { createProviderStore, readProviders, type ProviderStoreOptions } from './store';
+import { createProviderStore, readProviders, type ProviderStoreOptions } from './providers-store';
 
 export const PROVIDER_SERVICE = 'provider-service';
 
