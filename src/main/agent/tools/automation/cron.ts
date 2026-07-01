@@ -240,12 +240,12 @@ export class ListSchedulesTool extends CronTool {
 		additionalProperties: false,
 	};
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(): CronSchedule[] {
-		return this.cron.listSchedules();
+		return listSchedules();
 	}
 }
 
