@@ -1,7 +1,6 @@
-import type { McpCallResult, McpClient } from '../../mcp/mcp-types';
+import { callTool, type McpCallResult, type McpClient } from '../../mcp';
 import { jsonTool } from '../../tool';
 import type { JSONSchema } from '../../types';
-import { callTool } from '../../mcp/mcp-client-call-tool';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
