@@ -4,7 +4,7 @@ import type {
 	SttRealtimeSession,
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
-} from '../../shared/stt/transcription';
+} from '../../../shared/stt/transcription';
 
 export interface SttProviderSpec {
 	id: string;
