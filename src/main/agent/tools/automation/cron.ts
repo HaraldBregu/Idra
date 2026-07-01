@@ -222,12 +222,12 @@ export class GetScheduleTool extends CronTool {
 	readonly description: string = 'Fetch a single cron schedule by id.';
 	readonly schema: JSONSchema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): CronSchedule {
-		return this.cron.getSchedule(requireScheduleId(input, 'get_schedule'));
+		return getSchedule(requireScheduleId(input, 'get_schedule'));
 	}
 }
 
