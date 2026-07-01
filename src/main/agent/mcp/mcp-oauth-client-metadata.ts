@@ -1,0 +1,13 @@
+import type { OAuthClientMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
+
+export const MCP_OAUTH_REDIRECT_URL = 'http://127.0.0.1:8989/oauth/callback';
+
+export function clientMetadata(hasSecret: boolean): OAuthClientMetadata {
+	return {
+		client_name: 'Friday',
+		redirect_uris: [MCP_OAUTH_REDIRECT_URL],
+		grant_types: ['authorization_code', 'refresh_token'],
+		response_types: ['code'],
+		token_endpoint_auth_method: hasSecret ? 'client_secret_post' : 'none',
+	};
+}
