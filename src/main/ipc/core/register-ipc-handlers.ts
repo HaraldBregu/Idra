@@ -12,11 +12,9 @@ import { ChannelRegistry } from '../../channels';
 import { ProviderService } from '../../providers';
 import { SttService } from '../../stt/service';
 import { Cron } from '../../agent/core/cron';
-import { Skills } from '../../agent/core/skills';
 
 export interface RegisterIpcHandlersServices {
 	cron: Cron;
-	skills: Skills;
 }
 
 export function registerIpcHandlers(
