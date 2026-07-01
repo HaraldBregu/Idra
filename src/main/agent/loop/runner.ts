@@ -37,19 +37,14 @@ interface ModelTurn {
 
 export class Runner {
 	private readonly model = new AgentModel();
-	private readonly cron: Cron;
-	private readonly skills: Skills;
 
 	constructor(
 		private readonly config: Config,
 		private readonly settingsStore: SettingsStore,
-		readonly cronStore: CronStore,
-		readonly skillsStore: SkillsStore,
+		private readonly cron: Cron,
+		private readonly skills: Skills,
 		private readonly mcpStore: McpStore,
-	) {
-		this.cron = new Cron(cronStore);
-		this.skills = new Skills(this.config, skillsStore);
-	}
+	) {}
 
 	async *run(input: RuntimeInput): AsyncGenerator<RuntimeEvent> {
 		const signal = new AbortController().signal;
