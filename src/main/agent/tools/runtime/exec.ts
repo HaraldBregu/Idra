@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
-import { BaseTool, Context } from '../../core/tool';
+import { BaseTool, Context } from '../../core/types';
 import { registry } from './process';
 
 function resolvePath(p: string): string {
