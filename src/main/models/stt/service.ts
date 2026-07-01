@@ -30,7 +30,7 @@ import {
 	cloneModels,
 	normalizeProviderId,
 	type ProviderModel,
-} from '../../shared/providers/models/types';
+} from '../../../shared/providers/models/types';
 import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
