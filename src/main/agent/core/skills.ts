@@ -14,7 +14,7 @@ import type {
 	SkillValidationResult,
 } from '../../../shared/skills/types';
 import { Config } from './config';
-import { getSkill, removeSkill, setSkill, type SkillsStore } from '../store/skills-store';
+import { getSkill, removeSkill, setSkill } from '../store/skills-store';
 
 const SKILL_FILE = 'SKILL.md';
 const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
