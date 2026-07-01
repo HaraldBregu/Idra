@@ -39,7 +39,6 @@ const DEFAULT_HEALTH_SETTINGS: HealthSettings = {
 
 const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
 
-@Service()
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
