@@ -99,7 +99,7 @@ export class Agent {
 				message,
 			} satisfies RuntimeInput;
 
-			const session = new Session(this.config).init(input);
+			this.session.init(input);
 
 			const runner = new Runner(
 				this.config,
@@ -107,7 +107,7 @@ export class Agent {
 				this.cron,
 				this.skills,
 				this.mcp,
-				session
+				this.session
 			);
 
  			const stream = runner.run(input);
