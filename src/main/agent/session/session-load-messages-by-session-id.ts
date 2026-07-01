@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import type { Message, SessionCategory } from '../core/types';
+import type { Message, SessionCategory } from './session-types';
 import { isMessage } from './session-is-message';
 import { isRecord } from './session-is-record';
 import { legacyFilePath } from './session-legacy-file-path';
