@@ -5,23 +5,21 @@ import type { Config } from '../core/config';
 
 const CRON_STORE_NAME = 'cron';
 
-export class CronStore {
-	private readonly cron: ElectronStore<PersistedCronState>;
+export type CronStore = ElectronStore<PersistedCronState>;
 
-	constructor(private readonly config: Config, defaults: PersistedCronState) {
-		this.cron = new ElectronStore<PersistedCronState>({
-			name: CRON_STORE_NAME,
-			cwd: path.resolve(this.config.location),
-			accessPropertiesByDotNotation: false,
-			defaults,
-		});
-	}
+export function createCronStore(config: Config, defaults: PersistedCronState): CronStore {
+	return new ElectronStore<PersistedCronState>({
+		name: CRON_STORE_NAME,
+		cwd: path.resolve(config.location),
+		accessPropertiesByDotNotation: false,
+		defaults,
+	});
+}
 
-	getState(): PersistedCronState {
-		return this.cron.store;
-	}
+export function getCronState(store: CronStore): PersistedCronState {
+	return store.store;
+}
 
-	setState(value: PersistedCronState): void {
-		this.cron.store = value;
-	}
+export function setCronState(store: CronStore, value: PersistedCronState): void {
+	store.store = value;
 }
