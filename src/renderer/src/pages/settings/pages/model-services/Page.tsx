@@ -271,6 +271,10 @@ const ModelServicePage: React.FC = () => {
 	);
 	const navigationItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === serviceId);
 	const [state, setState] = useState<ModelServicePageState>(initialState);
+	const [speechStates, setSpeechStates] = useState<SpeechModeStateMap>({
+		realtime: initialState,
+		transcribe: initialState,
+	});
 	const [historyDeleting, setHistoryDeleting] = useState(false);
 
 	const selectedGroup = useMemo(
