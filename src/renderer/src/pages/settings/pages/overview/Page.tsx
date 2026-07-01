@@ -9,7 +9,6 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsSection,
 } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
@@ -21,7 +20,6 @@ import {
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
-		titleKey: 'settings.overview.groups.general',
 		entries: [
 			{ type: 'path', value: '/settings/application' },
 			{ type: 'path', value: '/settings/providers' },
@@ -39,7 +37,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		id: 'modelServices',
-		titleKey: 'settings.overview.groups.modelServices',
 		entries: [
 			{ type: 'agent', value: AGENTS.speechToText },
 			{ type: 'agent', value: AGENTS.textToSpeech },
@@ -153,9 +150,9 @@ const OverviewPage: React.FC = () => {
 		<SettingsPageShell>
 			<SettingsPageHeader title={t('settings.title')} description={t('settings.description')} />
 			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
-				const panel = (
-					<SettingsPanel>
-						{group.entries.map((entry) => {
+			const panel = (
+				<SettingsPanel>
+					{group.entries.map((entry) => {
 							const item = entry.type === 'agent'
 								? getSettingsOverviewAgentItem(entry.value)
 								: getSettingsNavigationItem(entry.value);
@@ -166,24 +163,16 @@ const OverviewPage: React.FC = () => {
 									disabled={disabledOverviewPaths.has(item.path)}
 								/>
 							);
-						})}
-					</SettingsPanel>
-				);
+					})}
+				</SettingsPanel>
+			);
 
-				if (!group.titleKey) {
-					return (
-						<section key={group.id} className="flex flex-col gap-2">
-							{panel}
-						</section>
-					);
-				}
-
-				return (
-					<SettingsSection key={group.id} hideTitle={group.id === 'app'} title={t(group.titleKey)}>
-						{panel}
-					</SettingsSection>
-				);
-			})}
+			return (
+				<section key={group.id} className="flex flex-col gap-2">
+					{panel}
+				</section>
+			);
+		})}
 		</SettingsPageShell>
 	);
 };
