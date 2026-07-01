@@ -19,8 +19,6 @@ import {
 } from './shared/error-reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
-import { Cron } from './agent/cron/cron';
-import { Skills } from './agent/skills/skills';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
 // // exception 0xE0000008) come from the V8/JS heap or from native/C++
@@ -83,18 +81,14 @@ const {
 	windowContextManager,
 	agentService,
 } = bootstrapServices();
-const cron = new Cron(agentService.cron);
-const skills = new Skills(agentService.config, agentService.skills);
-void cron.start().catch((error) => {
-	logger.error('Cron', 'Failed to start persistent cron scheduler', error);
-});
+agentService.start(logger);
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
 setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(container, eventBus, { cron, skills });
+registerIpcHandlers(container, eventBus, agentService);
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
@@ -162,6 +156,6 @@ app.whenReady().then(async () => {
 // Note: window-all-closed and before-quit handlers are now managed by setupAppLifecycle
 
 app.on('quit', () => {
-	cron.destroy();
+	agentService.destroy();
 	cleanup(container);
 });
