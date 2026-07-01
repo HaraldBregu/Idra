@@ -81,7 +81,6 @@ export class Agent {
 				this.config,
 				this.settings,
 				this.cron,
-				this.skills,
 				this.mcp,
 				this.session
 			);

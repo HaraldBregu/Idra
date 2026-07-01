@@ -39,7 +39,6 @@ export class Runner {
 		private readonly config: Config,
 		private readonly settingsStore: SettingsStore,
 		private readonly cron: Cron,
-		private readonly skills: Skills,
 		private readonly mcpStore: McpStore,
 		private readonly session: Session,
 	) {}
