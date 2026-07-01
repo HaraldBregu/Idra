@@ -1,6 +1,5 @@
 import type { Context, Tool } from '../core/tool';
 import type { Cron } from '../core/cron';
-import type { Skills } from '../core/skills';
 import { ReadTool } from './filesystem/read';
 import { WriteTool } from './filesystem/write';
 import { EditTool } from './filesystem/edit';
