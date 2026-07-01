@@ -1,6 +1,11 @@
 export {
 	PROVIDER_SERVICE,
-	createProviderService,
-} from './service';
-export { clearProviders, readProviders, writeProviders } from './providers-store';
+	clearProviders,
+	deleteProvider,
+	getProvider,
+	hasProvider,
+	listProviders,
+	providerService,
+	setProvider,
+} from './providers-store';
 export type { Provider, ProviderRecord, ProviderService } from './providers-types';
