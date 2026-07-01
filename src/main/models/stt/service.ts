@@ -55,8 +55,8 @@ export class SttService {
 	}
 
 	getSelection(): SttModelSelection | undefined {
-		const configuredProviderId = getVoiceProviderId();
-		const configuredModelId = getVoiceModelId();
+		const configuredProviderId = getVoiceProviderId('transcribe');
+		const configuredModelId = getVoiceModelId('transcribe');
 		if (!configuredProviderId || !configuredModelId) return undefined;
 
 		try {
