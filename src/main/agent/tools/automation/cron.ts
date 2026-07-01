@@ -194,12 +194,12 @@ export class ResumeScheduleTool extends CronTool {
 	readonly description: string = 'Resume a paused cron schedule by id.';
 	readonly schema: JSONSchema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): void {
-		this.cron.resumeSchedule(requireScheduleId(input, 'resume_schedule'));
+		resumeSchedule(requireScheduleId(input, 'resume_schedule'));
 	}
 }
 
