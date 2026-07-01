@@ -31,3 +31,10 @@ export type McpOAuthStorage = {
 	load: () => McpOAuthState;
 	save: (state: McpOAuthState) => void;
 };
+
+export type McpOAuthProviderParams = {
+	storage: McpOAuthStorage;
+	clientId?: string;
+	clientSecret?: string;
+	onRedirect?: (url: URL) => void;
+};
