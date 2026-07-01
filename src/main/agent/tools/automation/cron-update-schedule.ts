@@ -3,7 +3,7 @@ import {
 	type CronScheduleUpdateRequest,
 } from '../../cron';
 import { BaseTool, type Context } from '../../types';
-import { actionSchema, requireScheduleId } from './schema';
+import { actionSchema, requireScheduleId } from './cron-schema';
 
 export class UpdateScheduleTool extends BaseTool {
 	readonly name = 'update_schedule';
