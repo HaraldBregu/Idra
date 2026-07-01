@@ -1,5 +1,4 @@
-import { Context } from '../core/tool';
-import type { ContextState } from '../core/tool';
+import { Context, type ContextState } from '../core/types';
 
 export class ToolContext extends Context {
 	private readonly state: ContextState = {};
