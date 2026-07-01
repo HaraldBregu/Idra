@@ -60,7 +60,9 @@ export class Agent {
 	readonly session: Session;
 
 	constructor() {
-		this.config = new Config({ location: agentLocation() });
+		this.config = new Config({
+			location: agentLocation()
+		});
 		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
 		this.cronStore = new CronStore(this.config, DEFAULT_CRON_STATE);
 		this.skillsStore = new SkillsStore(this.config, DEFAULT_SKILLS);
@@ -110,8 +112,8 @@ export class Agent {
 				this.session
 			);
 
- 			const stream = runner.run(input);
-			
+			const stream = runner.run(input);
+
 			this.activeRuns.set(resolvedAgentId, controller);
 
 			for await (const event of stream) {
