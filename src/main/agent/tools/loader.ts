@@ -4,7 +4,7 @@ import { writeTool } from './file/file-write';
 import { editTool } from './file/file-edit';
 import { execTool } from './run/run-exec';
 import { processTool } from './run/run-process';
-import { loadSkillTool } from './skills/load';
+import { loadSkillTool } from './skill/skill-load';
 import { createScheduleTool } from './automation/cron-create-schedule';
 import { updateScheduleTool } from './automation/cron-update-schedule';
 import { pauseScheduleTool } from './automation/cron-pause-schedule';
