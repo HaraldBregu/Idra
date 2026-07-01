@@ -22,10 +22,7 @@ const RESOURCE_DIRECTORIES = ['scripts', 'references', 'assets'] as const;
 export class Skills {
 	private readonly root: string;
 
-	constructor(
-		private readonly config: Config,
-		private readonly store: SkillsStore,
-	) {
+	constructor(private readonly config: Config) {
 		this.root = path.resolve(this.config.location, 'skills');
 	}
 
