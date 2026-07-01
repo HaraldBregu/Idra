@@ -254,11 +254,11 @@ export class RunScheduleNowTool extends CronTool {
 	readonly description: string = 'Trigger a cron schedule to run immediately by id.';
 	readonly schema: JSONSchema = scheduleIdSchema;
 
-	constructor(cron: Cron, context: Context) {
-		super(cron, context);
+	constructor(context: Context) {
+		super(context);
 	}
 
 	run(input: Record<string, unknown>): CronScheduledTask {
-		return this.cron.runScheduleNow(requireScheduleId(input, 'run_schedule_now'));
+		return runScheduleNow(requireScheduleId(input, 'run_schedule_now'));
 	}
 }

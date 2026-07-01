@@ -17,7 +17,6 @@ import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
 export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: Agent;
-	cron: Cron;
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
