@@ -1,6 +1,10 @@
 import type { ModelEvent } from '../../llm';
 import type { Tool } from './tool';
 
+export interface Config {
+	location: string;
+}
+
 export interface Provider {
 	id: string,
 	apiKey: string,
