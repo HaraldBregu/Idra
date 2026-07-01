@@ -322,6 +322,22 @@ export const voice: VoiceApi = {
 		if (!normalizedModelId) throw new Error('Invalid speech-to-text model id.');
 		return typedInvokeUnwrap(SttChannels.saveSelection, normalizedProviderId, normalizedModelId);
 	},
+	getProviderId: () => {
+		return typedInvokeUnwrap(SttChannels.getProviderId);
+	},
+	setProviderId: (providerId) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid voice provider id.');
+		return typedInvokeUnwrap(SttChannels.setProviderId, normalizedProviderId);
+	},
+	getModelId: () => {
+		return typedInvokeUnwrap(SttChannels.getModelId);
+	},
+	setModelId: (modelId) => {
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedModelId) throw new Error('Invalid voice model id.');
+		return typedInvokeUnwrap(SttChannels.setModelId, normalizedModelId);
+	},
 };
 
 export const channels: ChannelsApi = {
