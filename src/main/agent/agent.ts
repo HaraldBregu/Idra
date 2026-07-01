@@ -7,7 +7,6 @@ import { DEFAULT_AGENT_SETTINGS, SettingsStore } from './store/settings';
 import { Cron, DEFAULT_CRON_STATE } from './core/cron';
 import { CronStore } from './store/cron';
 import { Skills } from './core/skills';
-import { createSkillsStore, DEFAULT_SKILLS, type SkillsStore } from './store/skills-store';
 import { DEFAULT_HEALTH_SETTINGS, HealthStore } from './store/health';
 import { DEFAULT_MCP_SETTINGS, McpStore } from './store/mcp';
 import type { Message, RuntimeEvent, RuntimeInput } from './core/types';
