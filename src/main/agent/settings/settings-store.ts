@@ -30,8 +30,8 @@ export function getProvider(): Provider | undefined {
 }
 
 export function setProvider(provider: Provider): void {
-	const existing = providerStore.get(provider.id);
-	providerStore.set(provider.id, {
+	const existing = getStoredProvider(provider.id);
+	setStoredProvider(provider.id, {
 		name: existing?.name ?? provider.id,
 		apiKey: provider.apiKey,
 		baseUrl: provider.baseURL,
