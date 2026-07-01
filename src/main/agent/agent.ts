@@ -46,7 +46,7 @@ export class Agent {
 	start(logger: { error(scope: string, message: string, error?: unknown): void }): void {
 		if (this.isStarted) return;
 		this.isStarted = true;
-		void this.cron.start().catch((error) => {
+		void startCron().catch((error) => {
 			logger.error('Cron', 'Failed to start persistent cron scheduler', error);
 		});
 	}
