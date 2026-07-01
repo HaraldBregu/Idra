@@ -127,7 +127,8 @@ export class SttService {
 		);
 		const modelId = this.resolveModelId(
 			providerId,
-			normalized.modelId ?? this.getConfiguredModelId(providerId, SPEECH_TO_TEXT_STREAM_API_TYPE),
+			normalized.modelId ??
+				this.getConfiguredModelId('realtime', providerId, SPEECH_TO_TEXT_STREAM_API_TYPE),
 			SPEECH_TO_TEXT_STREAM_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
