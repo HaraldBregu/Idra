@@ -1,11 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Accessibility,
-	Camera,
-	Mic,
 	MonitorUp,
-	ShieldCheck,
 	type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,54 +15,14 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
-import type {
-	CameraPermissionSettings,
-	MicrophonePermissionSettings,
-	SystemPreferencePaneId,
-} from '../../../../../../shared/app/app-permissions';
+import { MediaPermissionsSection } from '../../components/media';
+import type { SystemPreferencePaneId } from '../../../../../../shared/app/app-permissions';
 import {
 	SYSTEM_CAPABILITY_GROUPS,
 	type SystemCapabilityAvailability,
 	type SystemCapabilityGroup,
 	type SystemCapabilityItem,
 } from './capabilities';
-
-type MediaPermissionKind = 'microphone' | 'camera';
-
-const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
-	enabled: true,
-	systemStatus: 'unknown',
-	canRequest: false,
-};
-
-const DEFAULT_CAMERA_PERMISSION: CameraPermissionSettings = {
-	enabled: true,
-	systemStatus: 'unknown',
-	canRequest: false,
-};
-
-const MEDIA_PERMISSION_COPY = {
-	microphone: {
-		enabledTitleKey: 'settings.microphone.recording',
-		enabledDescriptionKey: 'settings.microphone.recordingDescription',
-		systemPermissionKey: 'settings.microphone.systemPermission',
-		systemPermissionDescriptionKey: 'settings.microphone.systemPermissionDescription',
-	},
-	camera: {
-		enabledTitleKey: 'settings.camera.access',
-		enabledDescriptionKey: 'settings.camera.accessDescription',
-		systemPermissionKey: 'settings.camera.systemPermission',
-		systemPermissionDescriptionKey: 'settings.camera.systemPermissionDescription',
-	},
-} satisfies Record<
-	MediaPermissionKind,
-	{
-		readonly enabledTitleKey: string;
-		readonly enabledDescriptionKey: string;
-		readonly systemPermissionKey: string;
-		readonly systemPermissionDescriptionKey: string;
-	}
->;
 
 function errorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
