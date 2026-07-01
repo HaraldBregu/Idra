@@ -141,6 +141,24 @@ export class Session {
 	}
 }
 
+export function loadMessages(
+	sessionId: string,
+	config: Config,
+	category: SessionCategory = DEFAULT_CATEGORY
+): Message[] {
+	const resolvedSessionId = resolveStoredSessionId(sessionId, category, config.location);
+	return loadMessagesBySessionId(resolvedSessionId, category, config.location);
+}
+
+export function clearMessages(
+	sessionId: string,
+	config: Config,
+	category: SessionCategory = DEFAULT_CATEGORY
+): void {
+	const resolvedSessionId = resolveStoredSessionId(sessionId, category, config.location);
+	clearMessagesBySessionId(resolvedSessionId, category, config.location);
+}
+
 function loadMessagesBySessionId(
 	sessionId: string,
 	category: SessionCategory,
