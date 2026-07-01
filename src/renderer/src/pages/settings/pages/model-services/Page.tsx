@@ -413,6 +413,39 @@ const ModelServicePage: React.FC = () => {
 		}));
 	};
 
+	const handleSpeechProviderChange = (
+		mode: SttSelectionMode,
+		nextProviderId: string | null
+	): void => {
+		const providerId = nextProviderId ?? '';
+		setSpeechStates((current) => {
+			const modeState = current[mode];
+			const group = modeState.modelGroups.find((item) => item.provider.id === providerId);
+			return {
+				...current,
+				[mode]: {
+					...modeState,
+					providerId,
+					modelId: group?.models[0]?.id ?? '',
+					saved: false,
+					error: null,
+				},
+			};
+		});
+	};
+
+	const handleSpeechModelChange = (mode: SttSelectionMode, nextModelId: string | null): void => {
+		setSpeechStates((current) => ({
+			...current,
+			[mode]: {
+				...current[mode],
+				modelId: nextModelId ?? '',
+				saved: false,
+				error: null,
+			},
+		}));
+	};
+
 	const handleSave = async (): Promise<void> => {
 		if (!service || !selectedProvider || !selectedModel) return;
 		setState((current) => ({ ...current, saving: true, saved: false, error: null }));
@@ -429,6 +462,36 @@ const ModelServicePage: React.FC = () => {
 				...current,
 				saving: false,
 				error: firstErrorMessage(error, t('settings.modelServices.saveError')),
+			}));
+		}
+	};
+
+	const handleSpeechSave = async (mode: SttSelectionMode): Promise<void> => {
+		const modeState = speechStates[mode];
+		const group = modeState.modelGroups.find((item) => item.provider.id === modeState.providerId);
+		const provider = group?.provider;
+		const model = group?.models.find((item) => item.id === modeState.modelId);
+		if (!provider || !model) return;
+
+		setSpeechStates((current) => ({
+			...current,
+			[mode]: { ...current[mode], saving: true, saved: false, error: null },
+		}));
+		try {
+			const didSave = await window.voice.saveSelection(provider.id, model.id, mode);
+			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
+			setSpeechStates((current) => ({
+				...current,
+				[mode]: { ...current[mode], saving: false, saved: true },
+			}));
+		} catch (error) {
+			setSpeechStates((current) => ({
+				...current,
+				[mode]: {
+					...current[mode],
+					saving: false,
+					error: firstErrorMessage(error, t('settings.modelServices.saveError')),
+				},
 			}));
 		}
 	};
