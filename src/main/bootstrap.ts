@@ -10,7 +10,6 @@ import {
 import { LoggerService } from './shared';
 import { Cron } from './agent/cron/cron';
 import { Config } from './agent/core/config';
-import { agentLocation } from './agent/shared/location';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
@@ -36,9 +35,9 @@ export function bootstrapServices(): BootstrapResult {
 	container.set(LoggerService, logger);
 	container.get(AppPermissionsService);
 
-	const config = new Config({ location: agentLocation() });
+	const agentService = new Agent();
+	const config = agentService.config;
 	container.set(Config, config);
-	const agentService = new Agent(config);
 	container.set(Agent, agentService);
 
 	const channels = new ChannelsService(logger);

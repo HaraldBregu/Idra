@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { Session } from './core/session';
 import { Runner } from './loop/runner';
 import { Config } from './core/config';
+import { agentLocation } from './shared/location';
 import { SettingsStore, type SettingsSchema } from './core/store.settings';
 import { CronStore } from './cron/store';
 import { SkillsStore, type SkillsSchema } from './skills/store';
@@ -49,13 +50,15 @@ export interface AgentSendOptions {
 export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
+	readonly config: Config;
 	readonly settings: SettingsStore;
 	readonly cron: CronStore;
 	readonly skills: SkillsStore;
 	readonly health: HealthStore;
 	readonly mcp: McpStore;
 
-	constructor(readonly config: Config) {
+	constructor() {
+		this.config = new Config({ location: agentLocation() });
 		this.settings = new SettingsStore(this.config, DEFAULT_AGENT_SETTINGS);
 		this.cron = new CronStore(this.config, DEFAULT_CRON_STATE);
 		this.skills = new SkillsStore(this.config, DEFAULT_SKILLS);
