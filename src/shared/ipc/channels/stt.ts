@@ -49,7 +49,7 @@ export interface SttInvokeChannelMap {
 		result: void;
 	};
 	[SttChannels.getSelection]: {
-		args: [];
+		args: [mode?: SttSelectionMode];
 		result: SttModelSelection | undefined;
 	};
 	[SttChannels.listProviders]: {
