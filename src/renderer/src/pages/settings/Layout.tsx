@@ -12,7 +12,7 @@ function SettingsBreadcrumbHeader(): React.JSX.Element | null {
 	if (items.length === 0) return null;
 
 	return (
-		<header className="sticky top-0 z-20 border-b border-border/50 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+		<header className="sticky top-0 z-20 border-b border-border/50 bg-background/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
 			<nav
 				aria-label={t('settings.breadcrumb.label')}
 				className="mx-auto flex w-full max-w-4xl min-w-0 items-center gap-1 text-[11px] text-muted-foreground"
