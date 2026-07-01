@@ -18,7 +18,6 @@ export interface AgentIpcDeps {
 	logger: LoggerService;
 	agent: Agent;
 	cron: Cron;
-	skills: Skills;
 }
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
