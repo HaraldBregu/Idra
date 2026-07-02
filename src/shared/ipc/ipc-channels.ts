@@ -2,6 +2,7 @@ export { AgentChannels } from './channels/agent';
 export { AppChannels } from './channels/app';
 export { ChannelsChannels } from './channels/channels';
 export { ProviderStoreChannels } from './channels/provider';
+export { SpeechChannels } from './channels/speech';
 export { SttChannels } from './channels/stt';
 export { WindowChannels } from './channels/window';
 
