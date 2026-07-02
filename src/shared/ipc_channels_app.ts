@@ -31,30 +31,30 @@ export interface AppInvokeChannelMap {
 	};
 	[AppChannels.getMicrophonePermission]: {
 		args: [];
-		result: import('./app_permissions').MicrophonePermissionSettings;
+		result: import('./app.types').MicrophonePermissionSettings;
 	};
 	[AppChannels.setMicrophoneEnabled]: {
 		args: [enabled: boolean];
-		result: import('./app_permissions').MicrophonePermissionSettings;
+		result: import('./app.types').MicrophonePermissionSettings;
 	};
 	[AppChannels.requestMicrophonePermission]: {
 		args: [];
-		result: import('./app_permissions').MicrophonePermissionSettings;
+		result: import('./app.types').MicrophonePermissionSettings;
 	};
 	[AppChannels.openSystemPreference]: {
-		args: [pane: import('./app_permissions').SystemPreferencePaneId];
+		args: [pane: import('./app.types').SystemPreferencePaneId];
 		result: void;
 	};
 	[AppChannels.getCameraPermission]: {
 		args: [];
-		result: import('./app_permissions').CameraPermissionSettings;
+		result: import('./app.types').CameraPermissionSettings;
 	};
 	[AppChannels.setCameraEnabled]: {
 		args: [enabled: boolean];
-		result: import('./app_permissions').CameraPermissionSettings;
+		result: import('./app.types').CameraPermissionSettings;
 	};
 	[AppChannels.requestCameraPermission]: {
 		args: [];
-		result: import('./app_permissions').CameraPermissionSettings;
+		result: import('./app.types').CameraPermissionSettings;
 	};
 }
