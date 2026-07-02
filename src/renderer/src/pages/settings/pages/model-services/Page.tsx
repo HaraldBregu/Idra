@@ -13,7 +13,7 @@ import {
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	supportsSpeechToTextModelApiType,
 } from '../../../../../../shared/provider_models.definitions';
-import type { SpeechToTextApiType } from '../../../../../../shared/provider_models.types';
+import type { SpeechToTextApiType } from '../../../../../../shared/provider_models_types';
 import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import { Button } from '@/components/ui/button';
 import {
