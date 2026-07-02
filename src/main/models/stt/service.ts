@@ -256,7 +256,7 @@ export class SttService {
 	): string | undefined {
 		const configuredProviderId = this.getConfiguredProviderId(mode);
 		if (!configuredProviderId || configuredProviderId !== providerId) return undefined;
-		const modelId = getVoiceModelId(mode);
+		const modelId = getTranscribeModelId(mode);
 		return modelId && supportsSpeechToTextModelApiType(providerId, modelId, apiType)
 			? modelId
 			: undefined;
