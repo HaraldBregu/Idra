@@ -1,4 +1,4 @@
-import { normalizeProviderId, ProviderModel } from '../providers_models.types';
+import { normalizeProviderId, ProviderModel } from './providers_models.types';
 
 export interface ProviderApiConfiguration {
 	readonly credentialType: string | null;
