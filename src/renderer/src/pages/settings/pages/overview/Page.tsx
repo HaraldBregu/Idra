@@ -119,11 +119,11 @@ function SettingsOverviewCard({
 		>
 			<ItemIcon icon={item.icon} className="size-8 [&_svg]:size-4" />
 			<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal text-muted-foreground">
+				<ItemTitle className="w-full max-w-full truncate leading-4 tracking-normal">
 					{t(item.labelKey)}
 				</ItemTitle>
 				{'descriptionKey' in item && item.descriptionKey && (
-					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground/50">
+					<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
 						{t(item.descriptionKey)}
 					</p>
 				)}
