@@ -16,7 +16,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { MediaPermissionsSection } from '../../components/media';
-import type { SystemPreferencePaneId } from '../../../../../../shared/app.types';
+import type { SystemPreferencePaneId } from '../../../../../../shared/app_types';
 import {
 	SYSTEM_CAPABILITY_GROUPS,
 	type SystemCapabilityAvailability,
