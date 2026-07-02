@@ -2,7 +2,7 @@ import { synthesize as synthesizeTextToSpeech } from '../models/tts';
 import type {
 	SpeechSynthesisRequest,
 	SpeechSynthesisResult,
-} from '../../shared/speech.types';
+} from '../../shared/speech_types';
 
 export async function synthesize(
 	request: SpeechSynthesisRequest
