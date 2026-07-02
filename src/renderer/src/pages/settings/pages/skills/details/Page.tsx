@@ -5,7 +5,7 @@ import { AlertTriangle, Download, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
-import type { SkillInfo } from '../../../../../../../shared/skills.types';
+import type { SkillInfo } from '../../../../../../../shared/skills_types';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
