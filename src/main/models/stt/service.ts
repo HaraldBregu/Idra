@@ -12,7 +12,7 @@ import {
 	getSpeechToTextModelApiTypes,
 	supportsSpeechToTextModelApiType,
 } from '../../../shared/provider_models.definitions';
-import type { SpeechToTextProviderId } from '../../../shared/provider_models.types';
+import type { SpeechToTextProviderId } from '../../../shared/provider_models_types';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
@@ -30,7 +30,7 @@ import {
 	cloneModels,
 	normalizeProviderId,
 } from '../../../shared/provider_models.definitions';
-import type { ProviderModel } from '../../../shared/provider_models.types';
+import type { ProviderModel } from '../../../shared/provider_models_types';
 import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
