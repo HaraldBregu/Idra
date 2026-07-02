@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { Service } from 'typedi';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../shared/providers';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../shared';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
@@ -12,7 +12,7 @@ import {
 	getSpeechToTextModelApiTypes,
 	supportsSpeechToTextModelApiType,
 	type SpeechToTextProviderId,
-} from '../../../shared/providers/models/stt';
+} from '../../../shared/provider_models_stt';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
@@ -25,7 +25,7 @@ import {
 	type SttSelectionMode,
 	type SttTranscriptionRequest,
 	type SttTranscriptionResult,
-} from '../../../shared/stt/transcription';
+} from '../../../shared/stt_transcription';
 import {
 	cloneModels,
 	normalizeProviderId,
@@ -35,7 +35,7 @@ import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
 import { getProvider } from '../../providers';
-import type { Provider as CatalogProvider } from '../../../shared/providers/definitions';
+import type { Provider as CatalogProvider } from '../../../shared/providers_definitions';
 import {
 	getModelId as getVoiceModelId,
 	getProviderId as getVoiceProviderId,

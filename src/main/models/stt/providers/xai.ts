@@ -9,11 +9,11 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from '../types';
-import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt/transcription';
+import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
 import {
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
 	XAI_SPEECH_TO_TEXT_PROVIDER_ID,
-} from '../../../../shared/providers/models/stt';
+} from '../../../../shared/provider_models_stt';
 
 const XAI_STT_PATH = 'stt';
 const XAI_STT_AUTH_SCHEME = 'Bearer';

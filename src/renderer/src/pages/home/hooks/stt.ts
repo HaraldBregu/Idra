@@ -1,4 +1,4 @@
-import type { SttAudioInput } from '@shared/stt/transcription';
+import type { SttAudioInput } from '@shared/stt_transcription';
 
 export async function fileToSttAudioInput(file: File): Promise<SttAudioInput> {
 	const bytes = new Uint8Array(await file.arrayBuffer());

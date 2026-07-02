@@ -3,7 +3,7 @@ import type {
 	OAuthClientInformationMixed,
 	OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
-import type { McpSettings } from '../../../shared/mcp/mcp';
+import type { McpSettings } from '../../../shared/mcp';
 
 export type McpClient = Client;
 

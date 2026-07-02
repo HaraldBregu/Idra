@@ -30,7 +30,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { MediaPermissionsSection } from '../../components/media';
-import type { SystemPreferencePaneId } from '../../../../../../shared/app/app-permissions';
+import type { SystemPreferencePaneId } from '../../../../../../shared/app_permissions';
 import {
 	SYSTEM_CAPABILITY_GROUPS,
 	type SystemCapabilityAvailability,

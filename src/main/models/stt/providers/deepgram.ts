@@ -9,12 +9,12 @@ import type {
 	SttRealtimeConnection,
 	SttRealtimeEventHandler,
 } from '../types';
-import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt/transcription';
+import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_transcription';
 import {
 	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
 	DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/providers/models/stt';
+} from '../../../../shared/provider_models_stt';
 
 const DEEPGRAM_LISTEN_PATH = 'listen';
 const DEEPGRAM_FLUX_LISTEN_PATH = '../v2/listen';

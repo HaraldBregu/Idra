@@ -1,5 +1,5 @@
-import type { ChannelStatusEvent } from '../../shared/channels';
-import { ChannelsChannels } from '../../shared/ipc/ipc-channels';
+import type { ChannelStatusEvent } from '../../shared';
+import { ChannelsChannels } from '../../shared/ipc_channels';
 import type { EventBus } from '../app/event-bus';
 import type { LoggerService } from '../shared';
 import type { Agent } from '../agent/agent';
@@ -16,7 +16,7 @@ import type {
 		ChannelOutboundMessage,
 		ChannelStatusUpdate,
 	} from './types';
-import type { ChannelType, TelegramChannelProperties } from '../../shared/channels';
+import type { ChannelType, TelegramChannelProperties } from '../../shared';
 
 export interface ChannelRegistryOptions {
 	telegram?: TelegramAdapterOptions;

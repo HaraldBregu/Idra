@@ -1,10 +1,10 @@
-import { DEFAULT_PROVIDERS } from '../../../shared/providers';
+import { DEFAULT_PROVIDERS } from '../../../shared';
 import {
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	TEXT_TO_SPEECH_PROVIDER_IDS,
 	type TextToSpeechProviderId,
-} from '../../../shared/providers/models/tts';
+} from '../../../shared/provider_models_tts';
 import { normalizeProviderId } from '../../../shared/providers_models.types';
 import {
 	normalizeSpeechSynthesisRequest,

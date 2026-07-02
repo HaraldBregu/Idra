@@ -31,30 +31,30 @@ export interface AppInvokeChannelMap {
 	};
 	[AppChannels.getMicrophonePermission]: {
 		args: [];
-		result: import('../../app_permissions').MicrophonePermissionSettings;
+		result: import('./app_permissions').MicrophonePermissionSettings;
 	};
 	[AppChannels.setMicrophoneEnabled]: {
 		args: [enabled: boolean];
-		result: import('../../app_permissions').MicrophonePermissionSettings;
+		result: import('./app_permissions').MicrophonePermissionSettings;
 	};
 	[AppChannels.requestMicrophonePermission]: {
 		args: [];
-		result: import('../../app_permissions').MicrophonePermissionSettings;
+		result: import('./app_permissions').MicrophonePermissionSettings;
 	};
 	[AppChannels.openSystemPreference]: {
-		args: [pane: import('../../app_permissions').SystemPreferencePaneId];
+		args: [pane: import('./app_permissions').SystemPreferencePaneId];
 		result: void;
 	};
 	[AppChannels.getCameraPermission]: {
 		args: [];
-		result: import('../../app_permissions').CameraPermissionSettings;
+		result: import('./app_permissions').CameraPermissionSettings;
 	};
 	[AppChannels.setCameraEnabled]: {
 		args: [enabled: boolean];
-		result: import('../../app_permissions').CameraPermissionSettings;
+		result: import('./app_permissions').CameraPermissionSettings;
 	};
 	[AppChannels.requestCameraPermission]: {
 		args: [];
-		result: import('../../app_permissions').CameraPermissionSettings;
+		result: import('./app_permissions').CameraPermissionSettings;
 	};
 }

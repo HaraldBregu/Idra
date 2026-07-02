@@ -4,7 +4,7 @@ import { AlertTriangle, ChevronDown, ListChecks, LoaderCircle, Save } from 'luci
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
-} from '../../../../../../shared/providers/models/llm';
+} from '../../../../../../shared/provider_models_llm';
 import type { Model } from '@/lib/compat';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

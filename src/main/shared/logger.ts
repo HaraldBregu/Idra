@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { app } from 'electron';
 import type { EventBus } from '../app/event-bus';
-import type { AppLogEntry } from '../../shared/app/app-log';
+import type { AppLogEntry } from '../../shared/app_log';
 
 interface Disposable {
 	destroy(): void;

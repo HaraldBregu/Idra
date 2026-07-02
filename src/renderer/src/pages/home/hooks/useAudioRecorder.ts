@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MicrophonePermissionSettings } from '@shared/app/app-permissions';
+import type { MicrophonePermissionSettings } from '@shared/app_permissions';
 
 export type AudioRecorderStatus = 'idle' | 'checking-permission' | 'recording' | 'stopping' | 'error';
 export type AudioRecorderPermissionState =

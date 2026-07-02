@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { AGENTS } from '@/lib/compat';
-import type { PublicProvider } from '../../../../shared/providers';
+import type { PublicProvider } from '../../../../shared';
 import type { Model, ModelSelection } from '@/lib/compat';
 
 export type ProviderOption = {

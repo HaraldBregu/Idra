@@ -1,4 +1,4 @@
-import type { ChannelConnectionStatus, ChannelDmPolicy, ChannelType } from '../../shared/channels';
+import type { ChannelConnectionStatus, ChannelDmPolicy, ChannelType } from '../../shared';
 
 export type ChannelChatType = 'dm' | 'group' | 'channel' | 'thread';
 export type ChannelAckPolicy =

@@ -2,18 +2,18 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AlertTriangle, ChevronDown, LoaderCircle, Save, Trash2 } from 'lucide-react';
-import { DEFAULT_PROVIDERS } from '../../../../../../shared/providers';
+import { DEFAULT_PROVIDERS } from '../../../../../../shared';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
-} from '../../../../../../shared/providers/models/llm';
+} from '../../../../../../shared/provider_models_llm';
 import {
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	supportsSpeechToTextModelApiType,
 	type SpeechToTextApiType,
-} from '../../../../../../shared/providers/models/stt';
-import type { SttSelectionMode } from '../../../../../../shared/stt/transcription';
+} from '../../../../../../shared/provider_models_stt';
+import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import { Button } from '@/components/ui/button';
 import {
 	Collapsible,
@@ -30,7 +30,7 @@ import {
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
 import type { Model } from '@/lib/compat';
-import type { PublicProvider } from '../../../../../../shared/providers';
+import type { PublicProvider } from '../../../../../../shared';
 import {
 	MODEL_SERVICE_DEFINITIONS,
 	getProviderCatalogItem,

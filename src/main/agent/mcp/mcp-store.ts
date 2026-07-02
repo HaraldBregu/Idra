@@ -1,6 +1,6 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { McpSettings } from '../../../shared/mcp/mcp';
+import type { McpSettings } from '../../../shared/mcp';
 import { agentLocation } from '../shared/agent-location';
 import type { ConnectorStoreSchema, McpOAuthState } from './mcp-types';
 

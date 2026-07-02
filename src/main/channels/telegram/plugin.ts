@@ -2,7 +2,7 @@ import type {
 	ChannelDmPolicy,
 	TelegramChannelAccountProperties,
 	TelegramChannelProperties,
-} from '../../../shared/channels';
+} from '../../../shared';
 import { createChatChannelPlugin, createScopedDmSecurityAdapter, defineChannelPluginEntry } from '../plugin';
 import { normalizeTelegramTextMessage } from './receive';
 import type {

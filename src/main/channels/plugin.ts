@@ -7,7 +7,7 @@ import type {
 	ChannelSecurityAdapter,
 	ChannelThreadingAdapter,
 } from './types';
-import type { ChannelType } from '../../shared/channels';
+import type { ChannelType } from '../../shared';
 
 const DEFAULT_CAPABILITIES: ChannelCapabilities = {
 	inbound: true,

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { SttRealtimeEvent } from '@shared/stt/transcription';
+import type { SttRealtimeEvent } from '@shared/stt_transcription';
 
 export type RealtimeDictationStatus =
 	| 'idle'

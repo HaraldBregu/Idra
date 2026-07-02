@@ -14,9 +14,9 @@ export interface AppEvents {
 	'window:created': { windowId: number; type: string };
 	'window:closed': { windowId: number };
 	'tray:set-enabled': { enabled: boolean };
-	'channel:status': import('../../shared/channels').ChannelStatusEvent;
+	'channel:status': import('../../shared').ChannelStatusEvent;
 	'channel:route': {
-		channel: import('../../shared/channels').ChannelType;
+		channel: import('../../shared').ChannelType;
 		accountId?: string;
 		to: string;
 		threadId?: string;

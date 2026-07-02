@@ -7,7 +7,7 @@ import {
 	ChannelsChannels,
 	ProviderStoreChannels,
 	SttChannels,
-} from '../shared/ipc/ipc-channels';
+} from '../shared/ipc_channels';
 import type {
 	AppApi,
 	AgentApi,
@@ -16,21 +16,21 @@ import type {
 	VoiceApi,
 	WindowApi,
 } from './index.d';
-import type { PublicProvider } from '../shared/providers';
+import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	ModelReasoningEffort,
 } from '../shared/agent.types';
-import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
-import type { ChannelCatalogEntry } from '../shared/channels';
+import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
+import type { ChannelCatalogEntry } from '../shared';
 import type { Provider } from '../shared/providers.types';
 import {
 	normalizeSttRealtimeAudioChunk,
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
-} from '../shared/stt/transcription';
-import { McpOAuthStart, McpSettings } from '../shared/mcp/mcp';
+} from '../shared/stt_transcription';
+import { McpOAuthStart, McpSettings } from '../shared/mcp';
 import type { HealthSettings } from '../main/agent/health/health-types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [

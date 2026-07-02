@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { getChannelCatalogEntry } from '../../../../../shared/channels';
+import { getChannelCatalogEntry } from '../../../../../shared';
 import { AGENTS } from '@/lib/compat';
 import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_NAVIGATION } from '../navigation';
 

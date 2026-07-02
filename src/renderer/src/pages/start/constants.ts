@@ -2,10 +2,10 @@ import { Bot, Image as ImageIcon, Mic, Music, Video, Volume2 } from 'lucide-reac
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
-} from '../../../../shared/providers';
+} from '../../../../shared';
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
-import type { PublicProvider } from '../../../../shared/providers';
+import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
 import type {
 	ModelServiceDefinition,

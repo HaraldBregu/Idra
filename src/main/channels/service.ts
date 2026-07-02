@@ -10,7 +10,7 @@ import {
 	type ChannelType,
 	type GenericChannelProperties,
 	type TelegramChannelProperties,
-} from '../../shared/channels';
+} from '../../shared';
 
 export interface ChannelsLogger {
 	debug(source: string, message: string, data?: unknown): void;

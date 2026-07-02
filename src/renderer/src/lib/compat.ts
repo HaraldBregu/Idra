@@ -1,7 +1,7 @@
-import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/providers/models/llm';
+import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/provider_models_llm';
 import { cloneModels, type ProviderModel } from '../../../shared/providers_models.types';
-import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/providers/models/stt';
-import type { PublicProvider } from '../../../shared/providers';
+import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models_stt';
+import type { PublicProvider } from '../../../shared';
 import type { Provider as StoredProvider } from '../../../shared/providers.types';
 import type {
 	AgentHistoryContentBlock,
@@ -11,7 +11,7 @@ import type {
 	AgentToolResultStatus,
 	ModelReasoningEffort,
 } from '../../../shared/agent.types';
-import type { SttRealtimeEvent } from '../../../shared/stt/transcription';
+import type { SttRealtimeEvent } from '../../../shared/stt_transcription';
 
 export const AGENTS = {
 	assistant: 'assistant',

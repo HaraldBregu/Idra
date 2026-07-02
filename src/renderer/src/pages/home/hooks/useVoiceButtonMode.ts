@@ -3,7 +3,7 @@ import {
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	getSpeechToTextModelApiTypes,
-} from '@shared/providers/models/stt';
+} from '@shared/provider_models_stt';
 
 export type VoiceButtonMode = 'dictate' | 'record' | 'disabled';
 

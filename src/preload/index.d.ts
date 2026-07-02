@@ -77,16 +77,16 @@ export interface VoiceApi {
 	setModelId: (modelId: string) => Promise<void>;
 }
 
-import type { PublicProvider } from '../shared/providers';
+import type { PublicProvider } from '../shared';
 import type { Provider } from '../shared/providers.types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health-types';
 import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent.types';
-import type { ProviderModel } from '../shared/providers';
-import type { ChannelStatusEvent } from '../shared/channels';
-import type { Channel, ChannelType } from '../shared/channels';
-import type { ChannelCatalogEntry } from '../shared/channels';
+import type { ProviderModel } from '../shared';
+import type { ChannelStatusEvent } from '../shared';
+import type { Channel, ChannelType } from '../shared';
+import type { ChannelCatalogEntry } from '../shared';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -95,7 +95,7 @@ import type {
 	SttTranscriptionResult,
 	SttModelSelection,
 	SttSelectionMode,
-} from '../shared/stt/transcription';
+} from '../shared/stt_transcription';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
@@ -107,7 +107,7 @@ import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
-} from '../shared/app/app-permissions';
+} from '../shared/app_permissions';
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

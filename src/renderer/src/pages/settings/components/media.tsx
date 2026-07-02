@@ -7,7 +7,7 @@ import type {
 	CameraPermissionSettings,
 	MicrophonePermissionSettings,
 	SystemPreferencePaneId,
-} from '@shared/app/app-permissions';
+} from '@shared/app_permissions';
 import {
 	SettingsNotice,
 	SettingsPanel,

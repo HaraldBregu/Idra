@@ -52,12 +52,12 @@ import type {
 	GenericChannelProperties,
 	TelegramChannelProperties,
 	WhatsappChannelProperties,
-} from '../../../../../../../shared/channels';
+} from '../../../../../../../shared';
 import {
 	buildChannelDocsUrl,
 	isChannelId,
 	type ChannelCatalogEntry,
-} from '../../../../../../../shared/channels';
+} from '../../../../../../../shared';
 import { ChannelIcon } from '../ChannelIcon';
 
 type EditableChannelConfig = Channel[ChannelType];
