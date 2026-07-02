@@ -8,11 +8,11 @@ export const ProviderStoreChannels = ProviderChannels;
 export interface ProviderInvokeChannelMap {
 	[ProviderChannels.get]: {
 		args: [id: string];
-		result: import('../../providers/types').Provider | undefined;
+		result: import('../../providers.types').Provider | undefined;
 	};
 	[ProviderChannels.set]: {
-		args: [id: string, provider: import('../../providers/types').Provider];
-		result: import('../../providers/types').Provider;
+		args: [id: string, provider: import('../../providers.types').Provider];
+		result: import('../../providers.types').Provider;
 	};
 }
 
