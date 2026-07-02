@@ -48,9 +48,7 @@ export function registerIpcHandlers(
 		)
 	);
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
-	safeRegister('speech', () =>
-		new SpeechIpc().register({ speech: container.get(SpeechService) }, eventBus)
-	);
+	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
 	safeRegister('stt', () => new SttIpc().register({ stt: container.get(SttService) }, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
