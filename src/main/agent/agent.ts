@@ -7,7 +7,7 @@ import {
 	loadMessages,
 	type SessionState,
 } from './session';
-import { run } from './loop';
+import { run } from './loop/runner';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
