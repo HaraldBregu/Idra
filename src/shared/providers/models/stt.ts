@@ -1,4 +1,4 @@
-import { model, normalizeProviderId, type ModelCatalog } from './types';
+import { model, normalizeProviderId, type ModelCatalog } from '../../providers.models.types';
 
 export const DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID = 'deepgram';
 export const ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID = 'elevenlabs';
