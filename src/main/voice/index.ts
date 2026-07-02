@@ -1,10 +1,10 @@
-export { synthesize } from './speech_synthesize';
+export { synthesize } from './voice_synthesize';
 export {
 	getModelId,
 	getProviderId,
-	getSpeechStore,
+	getVoiceStore,
 	setModelId,
 	setProviderId,
-	setSpeechStore,
-} from './speech_store';
-export type { SpeechStoreState } from './speech_store';
+	setVoiceStore,
+} from './voice_store';
+export type { VoiceStoreState } from './voice_store';
