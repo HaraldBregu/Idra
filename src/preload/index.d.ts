@@ -86,16 +86,16 @@ export interface TranscribeApi {
 }
 
 import type { PublicProvider } from '../shared';
-import type { Provider } from '../shared/providers.types';
-import type { McpOAuthStart, McpSettings } from '../shared/mcp.types';
+import type { Provider } from '../shared/providers_types';
+import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health_types';
-import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent.types';
+import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent_types';
 import type { ProviderModel } from '../shared';
 import type { ChannelStatusEvent } from '../shared';
 import type { Channel, ChannelType } from '../shared';
 import type { ChannelCatalogEntry } from '../shared';
-import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../shared/speech.types';
+import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../shared/speech_types';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
@@ -111,12 +111,12 @@ import type {
 	SkillImportResult,
 	SkillInfo,
 	SkillLoadResult,
-} from '../shared/skills.types';
+} from '../shared/skills_types';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
-} from '../shared/app.types';
+} from '../shared/app_types';
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;
