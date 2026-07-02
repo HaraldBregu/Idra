@@ -348,6 +348,28 @@ export const voice: VoiceApi = {
 	},
 };
 
+export const speech: SpeechApi = {
+	synthesize: (request) => {
+		return typedInvokeUnwrap(SpeechChannels.synthesize, normalizeSpeechSynthesisRequest(request));
+	},
+	getProviderId: () => {
+		return typedInvokeUnwrap(SpeechChannels.getProviderId);
+	},
+	setProviderId: (providerId) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid speech provider id.');
+		return typedInvokeUnwrap(SpeechChannels.setProviderId, normalizedProviderId);
+	},
+	getModelId: () => {
+		return typedInvokeUnwrap(SpeechChannels.getModelId);
+	},
+	setModelId: (modelId) => {
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedModelId) throw new Error('Invalid speech model id.');
+		return typedInvokeUnwrap(SpeechChannels.setModelId, normalizedModelId);
+	},
+};
+
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
