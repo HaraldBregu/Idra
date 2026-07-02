@@ -1,4 +1,4 @@
-import type { ModelReasoningEffort } from '../../../shared/agent/types';
+import type { ModelReasoningEffort } from '../../../shared/agent-types';
 
 export interface CronJobInfo {
 	readonly id: string;
