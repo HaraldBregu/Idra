@@ -1,5 +1,5 @@
 import type { ChannelStatusEvent } from '../../shared';
-import { ChannelsChannels } from '../../shared/ipc_channels.definitions';
+import { ChannelsChannels } from '../../shared/ipc_channels_definitions';
 import type { EventBus } from '../app/event_bus';
 import type { LoggerService } from '../shared';
 import type { Agent } from '../agent/agent';
