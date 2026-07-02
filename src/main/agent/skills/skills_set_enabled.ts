@@ -1,4 +1,4 @@
-import type { SkillInfo } from '../../../shared/skills.types';
+import type { SkillInfo } from '../../../shared/skills_types';
 import { setSkill } from './skills_store';
 import { readSkill } from './skills_read';
 import { resolveSkillFolder } from './skills_resolve_folder';
