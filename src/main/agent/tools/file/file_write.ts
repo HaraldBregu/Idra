@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
-import { tool } from '../../shared/tool';
+import { tool } from '../tool';
 
 function resolvePath(p: string): string {
 	if (p === '~') return os.homedir();

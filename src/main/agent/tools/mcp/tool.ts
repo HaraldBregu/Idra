@@ -1,5 +1,5 @@
 import { callTool, type McpCallResult, type McpClient } from '../../mcp';
-import { jsonTool } from '../../shared/tool';
+import { jsonTool } from '../tool';
 import type { JSONSchema } from '../../types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {

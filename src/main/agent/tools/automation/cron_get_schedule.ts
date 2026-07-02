@@ -1,5 +1,5 @@
 import { getSchedule } from '../../cron';
-import { tool } from '../../shared/tool';
+import { tool } from '../tool';
 import { scheduleIdSchema } from './cron_schema';
 
 export const getScheduleTool = tool({

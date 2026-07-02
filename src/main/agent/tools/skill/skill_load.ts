@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { tool } from '../../shared/tool';
+import { tool } from '../tool';
 import { listSkills, loadSkill } from '../../skills';
 
 export const loadSkillTool = tool({

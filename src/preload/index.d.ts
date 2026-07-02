@@ -60,7 +60,7 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
-export interface VoiceApi {
+export interface TranscribeApi {
 	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
 	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
 	appendRealtimeAudio: (sessionId: string, audio: string) => Promise<void>;

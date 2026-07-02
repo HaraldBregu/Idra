@@ -1,5 +1,5 @@
 import { createSchedule } from '../../cron';
-import { tool } from '../../shared/tool';
+import { tool } from '../tool';
 import { z } from 'zod';
 import { createScheduleRequestSchema } from './cron_schema';
 
