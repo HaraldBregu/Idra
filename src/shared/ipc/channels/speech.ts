@@ -1,4 +1,4 @@
-import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../../speech/speech-types';
+import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../../speech.types';
 
 export const SpeechChannels = {
 	getModelId: 'speech:get-model-id',
