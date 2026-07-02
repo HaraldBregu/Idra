@@ -11,7 +11,6 @@ import { LoggerService } from '../../shared';
 import { Agent } from '../../agent/agent';
 import { ChannelRegistry } from '../../channels';
 import { SttService } from '../../models/stt/service';
-import { SpeechService } from '../../speech';
 
 export function registerIpcHandlers(
 	container: ContainerInstance,
