@@ -193,6 +193,13 @@ async function loadServiceProviders(
 	if (service.id === AGENTS.speechToText) {
 		return mergeProviders(await window.transcribe.listProviders(), selection?.provider);
 	}
+	if (service.id === AGENTS.textToSpeech) {
+		const providers = TEXT_TO_SPEECH_PROVIDER_IDS.flatMap((providerId) => {
+			const provider = getCatalogProviderById(providerId);
+			return provider ? [toPublicProvider(provider)] : [];
+		});
+		return mergeProviders(providers, selection?.provider);
+	}
 	return mergeProviders(await appApi.getProviders(), selection?.provider);
 }
 
