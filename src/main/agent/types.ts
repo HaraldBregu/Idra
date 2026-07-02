@@ -62,7 +62,7 @@ import type {
 	SessionResultSubtype,
 	SessionTurn,
 	SessionUsage,
-} from './session/session-types';
+} from './session/session_types';
 
 export type {
 	SessionCategory,

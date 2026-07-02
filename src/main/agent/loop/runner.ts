@@ -8,8 +8,8 @@ import type {
 	ToolCall,
 } from '../types';
 import type { Config, Tool } from '../types';
-import { parseToolArgs } from '../shared/parse-tool-args';
-import { getModelId, getProvider } from '../settings/settings-store';
+import { parseToolArgs } from '../shared/parse_tool_args';
+import { getModelId, getProvider } from '../settings/settings_store';
 import {
 	addAssistantMessage,
 	addToolResults,
@@ -22,7 +22,7 @@ import {
 import { loadTools } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { buildSystemPrompt } from '../system';
-import { formatToolOutput } from '../shared/format-tool-output';
+import { formatToolOutput } from '../shared/format_tool_output';
 
 interface ModelTurn {
 	content: string;

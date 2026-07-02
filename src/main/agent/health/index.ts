@@ -2,7 +2,7 @@ export {
 	getHealthSettings,
 	resetHealthSettings,
 	updateHealthSettings,
-} from './health-store';
+} from './health_store';
 export {
 	DEFAULT_HEALTH_SETTINGS,
 	type HealthActiveHours,
@@ -10,4 +10,4 @@ export {
 	type HealthEvery,
 	type HealthSettings,
 	type HealthTarget,
-} from './health-types';
+} from './health_types';

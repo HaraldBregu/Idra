@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron';
 import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../app/event-bus';
-import { wrapSimpleHandler } from './core/error-handler';
+import type { EventBus } from '../app/event_bus';
+import { wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels.definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
@@ -18,9 +18,9 @@ import {
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers.definitions';
 import type { ModelReasoningEffort } from '../../shared/agent.types';
-import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health-store';
-import type { HealthSettings } from '../agent/health/health-types';
-import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings-store';
+import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health_store';
+import type { HealthSettings } from '../agent/health/health_types';
+import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings_store';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp.types';
 
 export interface AgentIpcDeps {

@@ -1,5 +1,5 @@
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../app/event-bus';
+import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
 import { ProviderStoreChannels } from '../../shared/ipc_channels.definitions';
 import type { Provider } from '../../shared/providers.types';

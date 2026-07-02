@@ -1,6 +1,6 @@
 import { app, ipcMain, shell, systemPreferences } from 'electron';
 import type { IpcModule } from './core/module';
-import type { EventBus } from '../app/event-bus';
+import type { EventBus } from '../app/event_bus';
 import type {
 	MicrophonePermissionSettings,
 	MicrophoneSystemPermissionStatus,
@@ -8,7 +8,7 @@ import type {
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
 } from '../../shared/app.types';
-import { wrapSimpleHandler } from './core/error-handler';
+import { wrapSimpleHandler } from './core/error_handler';
 import { AppChannels } from '../../shared/ipc_channels.definitions';
 import type { LoggerService } from '../shared';
 

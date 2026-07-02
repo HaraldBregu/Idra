@@ -38,7 +38,7 @@ jest.mock('../../../../src/main/agent/loop/runner', () => ({
 	}),
 }));
 
-jest.mock('../../../../src/main/agent/shared/agent-location', () => ({
+jest.mock('../../../../src/main/agent/shared/agent_location', () => ({
 	agentLocation: jest.fn(() => '/tmp/friday-agent-test'),
 }));
 

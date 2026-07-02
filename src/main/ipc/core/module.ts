@@ -1,4 +1,4 @@
-import type { EventBus } from '../../app/event-bus';
+import type { EventBus } from '../../app/event_bus';
 
 /**
  * Interface for self-contained IPC handler modules.

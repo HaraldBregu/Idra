@@ -31,7 +31,7 @@ import {
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt_transcription';
 import { McpOAuthStart, McpSettings } from '../shared/mcp.types';
-import type { HealthSettings } from '../main/agent/health/health-types';
+import type { HealthSettings } from '../main/agent/health/health_types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',

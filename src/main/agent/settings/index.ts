@@ -6,8 +6,8 @@ export {
 	setModelId,
 	setProvider,
 	setProviderId,
-} from './settings-store';
+} from './settings_store';
 export {
 	DEFAULT_AGENT_SETTINGS,
 	type SettingsSchema,
-} from './settings-types';
+} from './settings_types';

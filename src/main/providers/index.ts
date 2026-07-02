@@ -5,5 +5,5 @@ export {
 	hasProvider,
 	listProviders,
 	setProvider,
-} from './providers-store';
-export type { Provider, ProviderRecord } from './providers-types';
+} from './providers_store';
+export type { Provider, ProviderRecord } from './providers_types';

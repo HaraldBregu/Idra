@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { app, BrowserWindow, crashReporter } from 'electron';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Main } from './app/create-window';
+import { Main } from './app/create_window';
 import { Tray } from './app/tray';
 import { Menu } from './app/menu';
 import { ShortcutManager } from './app/shortcuts';
@@ -12,11 +12,11 @@ import {
 	registerLocalResourceProtocolScheme,
 	setupMediaPermissionHandlers,
 } from './app/protocol';
-import { registerIpcHandlers } from './ipc/core/register-ipc-handlers';
+import { registerIpcHandlers } from './ipc/core/register_ipc_handlers';
 import {
 	setupEventLogging,
 	setupProcessSafetyNet,
-} from './shared/error-reporter';
+} from './shared/error_reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 

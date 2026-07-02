@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import type { AppState } from './app-state';
+import type { AppState } from './app_state';
 import type { LoggerService } from '../shared';
 
 export function setupAppLifecycle(appState: AppState, logger?: LoggerService): void {

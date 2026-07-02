@@ -1,10 +1,10 @@
 import type { ChannelStatusEvent } from '../../shared';
 import { ChannelsChannels } from '../../shared/ipc_channels.definitions';
-import type { EventBus } from '../app/event-bus';
+import type { EventBus } from '../app/event_bus';
 import type { LoggerService } from '../shared';
 import type { Agent } from '../agent/agent';
 import type { TelegramAdapterOptions } from './telegram/types';
-import { createBundledCatalogPlugins } from './catalog-plugins';
+import { createBundledCatalogPlugins } from './catalog_plugins';
 import { listChannelCatalog, normalizeChannelId } from './catalog';
 import { telegramChannelPlugin } from './telegram/plugin';
 import { runChannelTurn } from './turn';

@@ -1,0 +1,10 @@
+import { getSchedule } from '../../cron';
+import { tool } from '../../shared/tool';
+import { scheduleIdSchema } from './cron_schema';
+
+export const getScheduleTool = tool({
+	name: 'get_schedule',
+	description: 'Fetch a single cron schedule by id.',
+	inputSchema: scheduleIdSchema,
+	execute: ({ scheduleId }) => getSchedule(scheduleId),
+});

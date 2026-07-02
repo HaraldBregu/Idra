@@ -1,5 +1,5 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
-import { wrapSimpleHandler, wrapIpcHandler } from './error-handler';
+import { wrapSimpleHandler, wrapIpcHandler } from './error_handler';
 import type { InvokeChannelMap } from '../../../shared/ipc_channels.types';
 
 // ---- registerQuery --------------------------------------------------------

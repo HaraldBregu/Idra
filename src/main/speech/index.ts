@@ -1,4 +1,4 @@
-export { synthesize } from './speech-synthesize';
+export { synthesize } from './speech_synthesize';
 export {
 	getModelId,
 	getProviderId,
@@ -6,5 +6,5 @@ export {
 	setModelId,
 	setProviderId,
 	setSpeechStore,
-} from './speech-store';
-export type { SpeechStoreState } from './speech-store';
+} from './speech_store';
+export type { SpeechStoreState } from './speech_store';

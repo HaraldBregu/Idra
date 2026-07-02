@@ -1,13 +1,13 @@
-export { addAssistantMessage } from './session-add-assistant-message';
-export { addToolResults } from './session-add-tool-results';
-export { appendRun } from './session-append-run';
-export { clearMessages } from './session-clear-messages';
-export { init } from './session-init';
-export { isExhausted } from './session-is-exhausted';
-export { loadMessages } from './session-load-messages';
-export { createSessionState } from './session-module-state';
-export { recordTurn } from './session-record-turn';
-export { toResult } from './session-to-result';
+export { addAssistantMessage } from './session_add_assistant_message';
+export { addToolResults } from './session_add_tool_results';
+export { appendRun } from './session_append_run';
+export { clearMessages } from './session_clear_messages';
+export { init } from './session_init';
+export { isExhausted } from './session_is_exhausted';
+export { loadMessages } from './session_load_messages';
+export { createSessionState } from './session_module_state';
+export { recordTurn } from './session_record_turn';
+export { toResult } from './session_to_result';
 export {
 	DEFAULT_CATEGORY,
 	type SessionCategory,
@@ -17,4 +17,4 @@ export {
 	type SessionState,
 	type SessionTurn,
 	type SessionUsage,
-} from './session-types';
+} from './session_types';

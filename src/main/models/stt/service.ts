@@ -40,7 +40,7 @@ import {
 	getModelId as getVoiceModelId,
 	getProviderId as getVoiceProviderId,
 	setSelection as setVoiceSelection,
-} from '../../voice/voice-store';
+} from '../../voice/voice_store';
 
 @Service()
 export class SttService {

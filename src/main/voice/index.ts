@@ -1,9 +1,9 @@
-export { toText } from './voice-text';
-export { transcribe } from './voice-transcribe';
-export { startRealtime } from './voice-realtime-start';
-export { appendRealtimeAudio } from './voice-realtime-audio';
-export { finishRealtime } from './voice-realtime-finish';
-export { cancelRealtime } from './voice-realtime-cancel';
+export { toText } from './voice_text';
+export { transcribe } from './voice_transcribe';
+export { startRealtime } from './voice_realtime_start';
+export { appendRealtimeAudio } from './voice_realtime_audio';
+export { finishRealtime } from './voice_realtime_finish';
+export { cancelRealtime } from './voice_realtime_cancel';
 export {
 	getModelId,
 	getProviderId,
@@ -12,12 +12,12 @@ export {
 	setProviderId,
 	setSelection,
 	setVoiceStore,
-} from './voice-store';
-export type { VoiceMode, VoiceSelection, VoiceStoreState } from './voice-store';
+} from './voice_store';
+export type { VoiceMode, VoiceSelection, VoiceStoreState } from './voice_store';
 export type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
 	SttTranscriptionResult,
 	VoiceRealtimeStartRequest,
 	VoiceToTextRequest,
-} from './voice-types';
+} from './voice_types';
