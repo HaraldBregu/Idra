@@ -19,7 +19,20 @@ import {
 	toResult,
 	type SessionState,
 } from '../session';
-import { loadTools } from '../tools/loader';
+import { readTool } from '../tools/file_read';
+import { writeTool } from '../tools/file_write';
+import { editTool } from '../tools/file_edit';
+import { execTool } from '../tools/run_exec';
+import { processTool } from '../tools/run_process';
+import { loadSkillTool } from '../tools/skill_load';
+import { createScheduleTool } from '../tools/cron_create_schedule';
+import { updateScheduleTool } from '../tools/cron_update_schedule';
+import { pauseScheduleTool } from '../tools/cron_pause_schedule';
+import { resumeScheduleTool } from '../tools/cron_resume_schedule';
+import { deleteScheduleTool } from '../tools/cron_delete_schedule';
+import { getScheduleTool } from '../tools/cron_get_schedule';
+import { listSchedulesTool } from '../tools/cron_list_schedules';
+import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
 import { loadMcpTools } from '../tools/mcp_loader';
 import { buildSystemPrompt } from '../system';
 import { formatToolOutput } from './format_tool_output';
@@ -71,9 +84,22 @@ async function* stream(
 	if (!provider || !modelId)
 		throw new Error('Agent requires a configured provider and model.');
 
-	const tools: Tool[] = [];
-
-	tools.push(...loadTools());
+	const tools: Tool[] = [
+		readTool,
+		writeTool,
+		editTool,
+		execTool,
+		processTool,
+		loadSkillTool,
+		createScheduleTool,
+		updateScheduleTool,
+		pauseScheduleTool,
+		resumeScheduleTool,
+		deleteScheduleTool,
+		getScheduleTool,
+		listSchedulesTool,
+		runScheduleNowTool,
+	];
 
 	const mcp = await loadMcpTools();
 	tools.push(...mcp.tools);
