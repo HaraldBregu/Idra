@@ -10,7 +10,7 @@ import type {
 	AgentRunState,
 	AgentToolResultStatus,
 	ModelReasoningEffort,
-} from '../../../shared/agent-types';
+} from '../../../shared/agent.types';
 import type { SttRealtimeEvent } from '../../../shared/stt/transcription';
 
 export const AGENTS = {
