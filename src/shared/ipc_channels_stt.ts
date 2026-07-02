@@ -8,7 +8,7 @@ import type {
 	SttTranscriptionResult,
 } from '../../stt/transcription';
 import type { PublicProvider } from '../../providers';
-import type { ProviderModel } from '../../providers.models.types';
+import type { ProviderModel } from '../../providers_models.types';
 
 export const SttChannels = {
 	appendRealtimeAudio: 'stt:append-realtime-audio',

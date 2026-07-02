@@ -1,6 +1,6 @@
 import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './speech-audio';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech-types';
-import type { SpeechSynthesisResult } from '../../../shared/speech/speech-types';
+import type { SpeechSynthesisResult } from '../../../shared/speech.types';
 
 const MISTRAL_TTS_PATH = 'audio/speech';
 

@@ -1,4 +1,4 @@
-import { model, normalizeProviderId, type ModelCatalog } from '../../providers.models.types';
+import { model, normalizeProviderId, type ModelCatalog } from '../../providers_models.types';
 
 export const REALTIME_VOICE_MODELS_BY_PROVIDER = {
 	google: [model('gemini-3.1-flash-live-preview', 'Gemini 3.1 Flash Live Preview')],

@@ -1,6 +1,6 @@
 import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './speech-audio';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech-types';
-import type { SpeechSynthesisResult } from '../../../shared/speech/speech-types';
+import type { SpeechSynthesisResult } from '../../../shared/speech.types';
 
 const DEEPGRAM_TTS_PATH = 'speak';
 const DEEPGRAM_DEFAULT_VOICE = 'thalia';

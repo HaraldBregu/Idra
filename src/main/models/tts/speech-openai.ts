@@ -1,6 +1,6 @@
 import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './speech-audio';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech-types';
-import type { SpeechSynthesisResult } from '../../../shared/speech/speech-types';
+import type { SpeechSynthesisResult } from '../../../shared/speech.types';
 
 const OPENAI_TTS_PATH = 'audio/speech';
 const OPENAI_DEFAULT_VOICE = 'alloy';

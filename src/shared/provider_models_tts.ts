@@ -1,4 +1,4 @@
-import { model, type ModelCatalog } from '../../providers.models.types';
+import { model, type ModelCatalog } from '../../providers_models.types';
 
 export const TEXT_TO_SPEECH_PROVIDER_ID = 'elevenlabs';
 

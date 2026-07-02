@@ -1,7 +1,7 @@
 import { ensureSpeechResponseOk, speechResult } from './speech-audio';
 import { SpeechProviderRequestError } from './speech-errors';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech-types';
-import type { SpeechSynthesisResult } from '../../../shared/speech/speech-types';
+import type { SpeechSynthesisResult } from '../../../shared/speech.types';
 
 const MINIMAX_TTS_PATH = 't2a_v2';
 const MINIMAX_DEFAULT_VOICE_ID = 'English_expressive_narrator';

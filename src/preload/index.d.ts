@@ -78,7 +78,7 @@ export interface VoiceApi {
 }
 
 import type { PublicProvider } from '../shared/providers';
-import type { Provider } from '../shared/providers/types';
+import type { Provider } from '../shared/providers.types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health-types';
@@ -102,7 +102,7 @@ import type {
 	SkillImportResult,
 	SkillInfo,
 	SkillLoadResult,
-} from '../shared/skills/types';
+} from '../shared/skills.types';
 import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,

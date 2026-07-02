@@ -24,7 +24,7 @@ import {
 	getProviderApiConfigurationUrl,
 	type PublicProvider,
 } from '../../../../shared/providers';
-import type { Provider as StoredProvider } from '../../../../shared/providers/types';
+import type { Provider as StoredProvider } from '../../../../shared/providers.types';
 import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '../../../../shared/providers/models/llm';
 import { AGENTS, type AgentId } from '@/lib/compat';
 import type { Model, ModelSelection } from '@/lib/compat';

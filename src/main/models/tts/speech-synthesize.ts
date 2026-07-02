@@ -5,12 +5,12 @@ import {
 	TEXT_TO_SPEECH_PROVIDER_IDS,
 	type TextToSpeechProviderId,
 } from '../../../shared/providers/models/tts';
-import { normalizeProviderId } from '../../../shared/providers/models/types';
+import { normalizeProviderId } from '../../../shared/providers_models.types';
 import {
 	normalizeSpeechSynthesisRequest,
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
-} from '../../../shared/speech/speech-types';
+} from '../../../shared/speech.types';
 import { getProvider } from '../../providers';
 import { buildSpeechAdapter } from './speech-factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './speech-errors';

@@ -1,5 +1,5 @@
 import { Service } from 'typedi';
-import { normalizeProviderId } from '../../../shared/providers/models/types';
+import { normalizeProviderId } from '../../../shared/providers_models.types';
 import {
 	DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID,
 	ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID,

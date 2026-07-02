@@ -1,5 +1,5 @@
 import { contextBridge } from 'electron';
-import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc/types';
+import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc.types';
 import {
 	WindowChannels,
 	AgentChannels,
@@ -24,7 +24,7 @@ import type {
 } from '../shared/agent.types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
-import type { Provider } from '../shared/providers/types';
+import type { Provider } from '../shared/providers.types';
 import {
 	normalizeSttRealtimeAudioChunk,
 	normalizeSttRealtimeStartRequest,
