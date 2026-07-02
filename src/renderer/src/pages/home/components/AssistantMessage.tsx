@@ -48,11 +48,6 @@ export function AssistantMessage({
 
 	const hasContent = message.content.length > 0;
 	const messageText = message.content.trim();
-	const canSpeak =
-		messageText.length > 0 &&
-		typeof window !== 'undefined' &&
-		'speechSynthesis' in window &&
-		typeof window.SpeechSynthesisUtterance === 'function';
 	const hasTools = message.tools.length > 0;
 	const showActivity =
 		hasTools ||
@@ -68,12 +63,6 @@ export function AssistantMessage({
 	const copyMessage = (): void => {
 		if (messageText.length === 0) return;
 		void navigator.clipboard?.writeText(messageText);
-	};
-
-	const speakMessage = (): void => {
-		if (!canSpeak) return;
-		window.speechSynthesis.cancel();
-		window.speechSynthesis.speak(new SpeechSynthesisUtterance(messageText));
 	};
 
 	return (
@@ -129,8 +118,7 @@ export function AssistantMessage({
 							className="text-muted-foreground hover:text-foreground"
 							aria-label="Read message aloud"
 							title="Read message aloud"
-							disabled={!canSpeak}
-							onClick={speakMessage}
+							disabled
 						>
 							<Volume2 className="size-3.5" />
 						</Button>
@@ -154,7 +142,7 @@ export function AssistantMessage({
 									<Copy className="size-3.5" />
 									Copy
 								</DropdownMenuItem>
-								<DropdownMenuItem disabled={!canSpeak} onClick={speakMessage}>
+								<DropdownMenuItem disabled>
 									<Volume2 className="size-3.5" />
 									Read aloud
 								</DropdownMenuItem>
