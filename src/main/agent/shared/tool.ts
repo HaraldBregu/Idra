@@ -1,20 +1,6 @@
 import { z } from 'zod';
 import type { JSONSchema, JsonToolConfig, Tool, ToolConfig } from '../types';
 
-type ToolConfig<T extends z.ZodType> = {
-	name: string;
-	description: string;
-	inputSchema: T;
-	execute: (input: z.infer<T>) => Promise<unknown> | unknown;
-};
-
-type JsonToolConfig = {
-	name: string;
-	description: string;
-	schema: JSONSchema;
-	execute: (input: Record<string, unknown>) => Promise<unknown> | unknown;
-};
-
 function toJsonSchema(schema: z.ZodType): JSONSchema {
 	const jsonSchema = { ...z.toJSONSchema(schema) } as JSONSchema;
 	delete jsonSchema.$schema;
