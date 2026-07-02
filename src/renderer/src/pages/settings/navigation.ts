@@ -61,11 +61,10 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	{
 		id: AGENTS.textToSpeech,
 		path: `/settings/model-services/${AGENTS.textToSpeech}/details`,
-		labelKey: 'settings.modelServices.textToSpeechName',
-		descriptionKey: 'settings.modelServices.textToSpeechDescription',
-		keywords: 'text to speech tts voice output speaking audio model',
+		labelKey: 'settings.modelServices.voiceName',
+		descriptionKey: 'settings.modelServices.voiceDescription',
+		keywords: 'voice text to speech tts output speaking audio synthesis model',
 		icon: Volume2,
-		comingSoon: true,
 	},
 	{
 		id: AGENTS.textToImage,
