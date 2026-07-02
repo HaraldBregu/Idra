@@ -27,6 +27,7 @@ import type {
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
 import type { ChannelCatalogEntry } from '../shared';
 import type { Provider } from '../shared/providers.types';
+import { normalizeSpeechSynthesisRequest } from '../shared/speech.types';
 import {
 	normalizeSttRealtimeAudioChunk,
 	normalizeSttRealtimeStartRequest,
