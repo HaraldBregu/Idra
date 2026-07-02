@@ -63,12 +63,11 @@ export function AssistantMessage({
 	const copyMessage = (): void => {
 		if (messageText.length === 0) return;
 		void (async () => {
-			try {
-				if (navigator.clipboard?.writeText) {
-					await navigator.clipboard.writeText(messageText);
-					return;
-				}
-			} catch {
+			if (navigator.clipboard?.writeText) {
+				const copied = await navigator.clipboard
+					.writeText(messageText)
+					.then(() => true, () => false);
+				if (copied) return;
 			}
 
 			const textarea = document.createElement('textarea');
