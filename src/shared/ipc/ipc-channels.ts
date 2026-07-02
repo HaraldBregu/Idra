@@ -27,6 +27,7 @@ export interface InvokeChannelMap
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
+		SpeechInvokeChannelMap,
 		SttInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
