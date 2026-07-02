@@ -16,7 +16,7 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunStopReason,
-} from '../../shared/agent.types';
+} from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
 
 
