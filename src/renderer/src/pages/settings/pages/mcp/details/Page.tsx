@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { AlertTriangle, Pencil, Plug } from 'lucide-react';
-import type { McpHttpData } from '@shared/mcp.types.types';
+import type { McpHttpData } from '@shared/mcp.types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
