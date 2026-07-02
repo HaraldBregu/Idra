@@ -6,5 +6,5 @@ export * from './providers';
 export * from './app/shortcuts';
 export * from './skills/types';
 export * from './app/store';
-export * from './stt-types';
+export * from './stt.types';
 export * from './stt/transcription';
