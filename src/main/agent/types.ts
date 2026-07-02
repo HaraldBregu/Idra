@@ -43,6 +43,20 @@ export interface Tool {
 	run(input: Record<string, unknown>): Promise<unknown> | unknown;
 }
 
+export type ToolConfig<T extends z.ZodType> = {
+	name: string;
+	description: string;
+	inputSchema: T;
+	execute: (input: z.infer<T>) => Promise<unknown> | unknown;
+};
+
+export type JsonToolConfig = {
+	name: string;
+	description: string;
+	schema: JSONSchema;
+	execute: (input: Record<string, unknown>) => Promise<unknown> | unknown;
+};
+
 export interface MessageContentBlock {
 	type: string;
 	[key: string]: unknown;
