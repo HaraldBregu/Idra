@@ -5,7 +5,7 @@ import {
 	getProvider as getStoredProvider,
 	setProvider as setStoredProvider,
 } from '../../providers';
-import { agentLocation } from '../shared/agent_location';
+import { agentLocation } from '../../shared/agent_location';
 import { DEFAULT_AGENT_SETTINGS, type SettingsSchema } from './settings_types';
 
 const SETTINGS_STORE_NAME = 'settings';

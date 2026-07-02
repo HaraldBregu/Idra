@@ -1,5 +1,4 @@
 export * from './app.types';
-export * from './ipc.types';
 export * from './channels.types';
 export * from './channels.definitions';
 export * from './mcp.types';
