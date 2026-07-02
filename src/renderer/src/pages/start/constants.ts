@@ -40,9 +40,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Transcribes your voice and audio into text before Friday responds.',
 		icon: Mic,
 		required: false,
-		getSelection: () => window.voice.getSelection(),
-		getModels: (provider) => window.voice.listModels(provider.id),
-		saveSelection: (provider, model) => window.voice.saveSelection(provider.id, model.id),
+		getSelection: () => window.transcribe.getSelection(),
+		getModels: (provider) => window.transcribe.listModels(provider.id),
+		saveSelection: (provider, model) => window.transcribe.saveSelection(provider.id, model.id),
 	},
 	{
 		id: AGENTS.textToSpeech,
