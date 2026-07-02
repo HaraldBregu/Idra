@@ -13,6 +13,7 @@ import type {
 	ChannelsInvokeChannelMap,
 } from './channels/channels';
 import type { ProviderStoreInvokeChannelMap } from './channels/provider';
+import type { SpeechInvokeChannelMap } from './channels/speech';
 import type { SttEventChannelMap, SttInvokeChannelMap } from './channels/stt';
 import type {
 	WindowEventChannelMap,
