@@ -83,12 +83,12 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.skillsOpenRoot]: { args: []; result: void };
 	[AgentChannels.skillsGetRoot]: { args: []; result: string };
-	[AgentChannels.healthSettings]: { args: []; result: import('../../../main/agent/health/health-types').HealthSettings };
+	[AgentChannels.healthSettings]: { args: []; result: import('../main/agent/health/health-types').HealthSettings };
 	[AgentChannels.healthSaveSettings]: {
-		args: [request: Partial<import('../../../main/agent/health/health-types').HealthSettings>];
-		result: import('../../../main/agent/health/health-types').HealthSettings;
+		args: [request: Partial<import('../main/agent/health/health-types').HealthSettings>];
+		result: import('../main/agent/health/health-types').HealthSettings;
 	};
-	[AgentChannels.healthResetSettings]: { args: []; result: import('../../../main/agent/health/health-types').HealthSettings };
+	[AgentChannels.healthResetSettings]: { args: []; result: import('../main/agent/health/health-types').HealthSettings };
 	[AgentChannels.mcpList]: { args: []; result: import('./mcp').McpSettings };
 	[AgentChannels.mcpGet]: { args: [id: string]; result: import('./mcp').McpSettings };
 	[AgentChannels.mcpSave]: { args: [input: import('./mcp').McpSettings]; result: import('./mcp').McpSettings };
