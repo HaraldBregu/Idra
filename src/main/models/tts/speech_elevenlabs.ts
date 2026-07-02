@@ -1,6 +1,6 @@
 import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './speech_audio';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech_types';
-import type { SpeechSynthesisResult } from '../../../shared/speech.types';
+import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 const ELEVENLABS_TTS_PATH = 'text-to-speech';
 const ELEVENLABS_API_KEY_HEADER = 'xi-api-key';
