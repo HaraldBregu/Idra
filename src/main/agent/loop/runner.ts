@@ -20,7 +20,7 @@ import {
 	type SessionState,
 } from '../session';
 import { loadTools } from '../tools/loader';
-import { loadMcpTools } from '../tools/mcp/loader';
+import { loadMcpTools } from '../tools/mcp_loader';
 import { buildSystemPrompt } from '../system';
 import { formatToolOutput } from './format_tool_output';
 
