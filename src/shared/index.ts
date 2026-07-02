@@ -8,5 +8,6 @@ export * from './provider_models.definitions';
 export * from './providers.definitions';
 export type { Provider, ProviderRecord } from './providers.types';
 export * from './skills.types';
+export * from './skills.definitions';
 export * from './stt.types';
 export * from './stt_transcription';
