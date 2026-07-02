@@ -1,24 +1,72 @@
-import type {
-	CHANNEL_CONNECTION_STATUSES,
-	CHANNEL_DM_POLICIES,
-	CHANNEL_PROVIDER_IDS,
-} from './channels.definitions';
-import type {
-	CHANNEL_CATALOG_EXPOSURES,
-	CHANNEL_RUNTIME_SUPPORT_VALUES,
-	CHANNEL_SETUP_FIELDS,
-} from './channels.definitions';
+export const CHANNEL_PROVIDER_IDS = [
+	'clickclack',
+	'discord',
+	'feishu',
+	'googlechat',
+	'imessage',
+	'irc',
+	'line',
+	'matrix',
+	'mattermost',
+	'msteams',
+	'nextcloud-talk',
+	'nostr',
+	'qa-channel',
+	'qqbot',
+	'signal',
+	'slack',
+	'synology-chat',
+	'telegram',
+	'tlon',
+	'twitch',
+	'whatsapp',
+	'zalo',
+	'zalouser',
+] as const;
 
 export type ChannelType = (typeof CHANNEL_PROVIDER_IDS)[number];
 
+export const CHANNEL_DEFAULT_ACCOUNT_ID = 'default';
+
+export const CHANNEL_DM_POLICIES = ['allowlist', 'pairing', 'open', 'deny'] as const;
+
 export type ChannelDmPolicy = (typeof CHANNEL_DM_POLICIES)[number];
+
+export const CHANNEL_DEFAULT_DM_POLICY: ChannelDmPolicy = 'allowlist';
+
+export const CHANNEL_CONNECTION_STATUSES = [
+	'connecting',
+	'pairing_code',
+	'connected',
+	'disconnected',
+	'error',
+] as const;
 
 export type ChannelConnectionStatus = (typeof CHANNEL_CONNECTION_STATUSES)[number];
 
+export const CHANNEL_RUNTIME_SUPPORT_VALUES = ['bundled', 'catalog-only'] as const;
+export const CHANNEL_CATALOG_EXPOSURES = ['stable', 'preview', 'hidden'] as const;
+export const CHANNEL_SETUP_FIELDS = [
+	'enabled',
+	'token',
+	'secret',
+	'serverUrl',
+	'webhookUrl',
+	'appId',
+	'clientId',
+	'clientSecret',
+	'username',
+	'phoneNumber',
+	'botUserId',
+	'allowFrom',
+	'groupAllowFrom',
+	'defaultTarget',
+	'dmPolicy',
+	'heartbeat',
+] as const;
+
 export type ChannelRuntimeSupport = (typeof CHANNEL_RUNTIME_SUPPORT_VALUES)[number];
-
 export type ChannelCatalogExposure = (typeof CHANNEL_CATALOG_EXPOSURES)[number];
-
 export type ChannelSetupField = (typeof CHANNEL_SETUP_FIELDS)[number];
 
 export interface ChannelHeartbeatVisibilityConfig {
