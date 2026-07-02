@@ -6,6 +6,7 @@ import { DEFAULT_PROVIDERS } from '../../../../../../shared';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
+	TEXT_TO_SPEECH_PROVIDER_IDS,
 } from '../../../../../../shared/provider_models.definitions';
 import {
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
