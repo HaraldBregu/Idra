@@ -51,15 +51,30 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 	{
 		id: AGENTS.textToSpeech,
-		label: 'Text to Speech',
-		stepName: 'Text to speech',
-		stepTitle: 'Text to speech',
+		label: 'Voice',
+		stepName: 'Voice',
+		stepTitle: 'Voice',
 		stepDescription: 'The voice Friday uses when reading responses and content aloud.',
 		icon: Volume2,
 		required: false,
-		getSelection: () => appApi.getTextToSpeechService(),
-		getModels: (provider) => appApi.getTextToSpeechModels(provider),
-		saveSelection: (provider, model) => appApi.saveTextToSpeechService(provider, model),
+		getSelection: async () => {
+			const [providerId, modelId] = await Promise.all([
+				window.voice.getProviderId(),
+				window.voice.getModelId(),
+			]);
+			if (!providerId || !modelId) return undefined;
+			const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+			const model = getVoiceModels(providerId).find((item) => item.id === modelId);
+			if (!provider || !model) return undefined;
+			const { apiKey: _apiKey, ...publicProvider } = provider;
+			return { provider: publicProvider, model };
+		},
+		getModels: (provider) => Promise.resolve(getVoiceModels(provider.id)),
+		saveSelection: async (provider, model) => {
+			await window.voice.setProviderId(provider.id);
+			await window.voice.setModelId(model.id);
+			return true;
+		},
 	},
 	{
 		id: AGENTS.textToImage,
