@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import { list } from './skills_list';
 import { stripFrontmatter } from './skills_strip_frontmatter';
-import type { SkillLoadResult } from '../../../shared/skills.types';
+import type { SkillLoadResult } from '../../../shared/skills_types';
 
 export async function loadSkill(name: string): Promise<SkillLoadResult | undefined> {
 	const wanted = name.trim().toLowerCase();
