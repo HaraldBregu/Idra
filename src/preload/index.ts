@@ -32,6 +32,7 @@ import {
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt/transcription';
+import { normalizeSpeechSynthesisRequest } from '../shared/speech/speech-types';
 import { McpOAuthStart, McpSettings } from '../shared/mcp/mcp';
 import type { HealthSettings } from '../main/agent/health/health-types';
 
