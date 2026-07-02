@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { McpHttpData } from '@shared/mcp.types';
+import type { McpHttpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import {
 	Dialog,
