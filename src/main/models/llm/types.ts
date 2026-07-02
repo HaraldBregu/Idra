@@ -1,4 +1,4 @@
-import { ModelReasoningEffort } from '../../../shared/agent-types';
+import { ModelReasoningEffort } from '../../../shared/agent.types';
 
 export interface ProviderSpec {
 	id: string;
