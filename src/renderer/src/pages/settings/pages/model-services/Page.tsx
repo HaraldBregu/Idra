@@ -6,13 +6,13 @@ import { DEFAULT_PROVIDERS } from '../../../../../../shared';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
-} from '../../../../../../shared/provider_models_llm';
+} from '../../../../../../shared/provider_models_llm.definitions';
 import {
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	supportsSpeechToTextModelApiType,
 	type SpeechToTextApiType,
-} from '../../../../../../shared/provider_models_stt';
+} from '../../../../../../shared/provider_models_stt.definitions';
 import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import { Button } from '@/components/ui/button';
 import {

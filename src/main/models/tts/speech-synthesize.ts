@@ -4,7 +4,7 @@ import {
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	TEXT_TO_SPEECH_PROVIDER_IDS,
 	type TextToSpeechProviderId,
-} from '../../../shared/provider_models_tts';
+} from '../../../shared/provider_models_tts.definitions';
 import { normalizeProviderId } from '../../../shared/providers_models.types';
 import {
 	normalizeSpeechSynthesisRequest,

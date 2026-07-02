@@ -14,7 +14,7 @@ import {
 	DEEPGRAM_FLUX_SPEECH_TO_TEXT_MODEL_ID,
 	DEEPGRAM_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models_stt';
+} from '../../../../shared/provider_models_stt.definitions';
 
 const DEEPGRAM_LISTEN_PATH = 'listen';
 const DEEPGRAM_FLUX_LISTEN_PATH = '../v2/listen';
