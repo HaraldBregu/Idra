@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Home, Menu, PanelLeft, User } from 'lucide-react';
+import { Menu, PanelLeft, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
@@ -12,6 +12,7 @@ import { NavButton } from './components/NavButton';
 // import { NavigationButtons } from './components/NavigationButtons';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
+import { GradientSphere } from '@/components/ui/gradient-sphere';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -135,7 +136,7 @@ export const TitleBar = React.memo(function TitleBar({
 							aria-label={routeButtonLabel}
 						>
 							{isSettings ? (
-								<Home className="size-4" strokeWidth={1.8} />
+								<GradientSphere size={18} className="pointer-events-none" />
 							) : (
 								<User className="size-4" strokeWidth={1.8} />
 							)}
