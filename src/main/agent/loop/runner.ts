@@ -22,7 +22,7 @@ import {
 import { loadTools } from '../tools/loader';
 import { loadMcpTools } from '../tools/mcp/loader';
 import { buildSystemPrompt } from '../system';
-import { formatToolOutput } from '../shared/format_tool_output';
+import { formatToolOutput } from './format_tool_output';
 
 interface ModelTurn {
 	content: string;
