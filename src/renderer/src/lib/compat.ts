@@ -1,9 +1,9 @@
 import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/provider_models.definitions';
 import { cloneModels } from '../../../shared/provider_models.definitions';
-import type { ProviderModel } from '../../../shared/provider_models.types';
+import type { ProviderModel } from '../../../shared/provider_models_types';
 import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models.definitions';
 import type { PublicProvider } from '../../../shared';
-import type { Provider as StoredProvider } from '../../../shared/providers.types';
+import type { Provider as StoredProvider } from '../../../shared/providers_types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
@@ -11,7 +11,7 @@ import type {
 	AgentRunState,
 	AgentToolResultStatus,
 	ModelReasoningEffort,
-} from '../../../shared/agent.types';
+} from '../../../shared/agent_types';
 import type { SttRealtimeEvent } from '../../../shared/stt_transcription';
 
 export const AGENTS = {
