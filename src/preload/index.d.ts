@@ -95,6 +95,7 @@ import type { ProviderModel } from '../shared';
 import type { ChannelStatusEvent } from '../shared';
 import type { Channel, ChannelType } from '../shared';
 import type { ChannelCatalogEntry } from '../shared';
+import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../shared/speech.types';
 import type {
 	SttRealtimeEvent,
 	SttRealtimeSession,
