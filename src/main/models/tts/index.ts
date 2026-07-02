@@ -1,11 +1,8 @@
 export { synthesize } from './speech-synthesize';
+export { buildSpeechAdapter } from './speech-factory';
 export {
-	getModelId,
-	getProviderId,
-	getSpeechStore,
-	setModelId,
-	setProviderId,
-	setSpeechStore,
-} from './speech-store';
-export type { SpeechStoreState } from './speech-store';
+	SpeechProviderAuthError,
+	SpeechProviderRequestError,
+	SpeechProviderUnsupportedError,
+} from './speech-errors';
 export type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech-types';
