@@ -6,6 +6,7 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ProviderStoreChannels,
+	SpeechChannels,
 	SttChannels,
 } from '../shared/ipc_channels.definitions';
 import type {
@@ -14,6 +15,7 @@ import type {
 	ChannelsApi,
 	ProviderApi,
 	TranscribeApi,
+	VoiceApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared';
