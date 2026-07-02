@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { Menu, PanelLeft, User } from 'lucide-react';
+import { Home, Menu, PanelLeft, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { TitleBarContainer } from './TitleBarContainer';
@@ -12,7 +12,6 @@ import { NavButton } from './components/NavButton';
 // import { NavigationButtons } from './components/NavigationButtons';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
-import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
 
 // Synchronous platform check — no hooks, no async, no state.
 // macOS uses native traffic-light buttons; every other OS needs custom controls.
@@ -56,8 +55,8 @@ export const TitleBar = React.memo(function TitleBar({
 	const isSettings = location.pathname.startsWith('/settings');
 	const titleBarTitle = isSettings ? t('settings.title', 'Settings') : title;
 	const homeButtonLabel = t('titleBar.home', 'Home');
-	const chatButtonLabel = t('titleBar.chat', 'Chat');
 	const settingsButtonLabel = t('settings.title', 'Settings');
+	const routeButtonLabel = isSettings ? homeButtonLabel : settingsButtonLabel;
 
 	return (
 		<TitleBarProvider value={{ isMac, isFullScreen }}>
@@ -120,7 +119,7 @@ export const TitleBar = React.memo(function TitleBar({
 					</div>
 				)}
 
-				{/* ── Right actions: chat + settings ── */}
+				{/* ── Right action: home/settings toggle ── */}
 				{!isStart && (
 					<div
 						className="z-10 mr-3 flex h-full items-center gap-1"
@@ -131,22 +130,15 @@ export const TitleBar = React.memo(function TitleBar({
 							variant="ghost"
 							size="icon"
 							className="size-8 rounded-full"
-							onClick={() => navigate('/home')}
-							title={chatButtonLabel}
-							aria-label={chatButtonLabel}
+							onClick={() => navigate(isSettings ? '/home' : '/settings')}
+							title={routeButtonLabel}
+							aria-label={routeButtonLabel}
 						>
-							<AppIconFriday className="size-4" />
-						</Button>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							className="size-8 rounded-full"
-							onClick={() => navigate('/settings')}
-							title={settingsButtonLabel}
-							aria-label={settingsButtonLabel}
-						>
-							<User className="size-4" strokeWidth={1.8} />
+							{isSettings ? (
+								<Home className="size-4" strokeWidth={1.8} />
+							) : (
+								<User className="size-4" strokeWidth={1.8} />
+							)}
 						</Button>
 					</div>
 				)}
