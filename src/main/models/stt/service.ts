@@ -37,10 +37,10 @@ import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
 import { getProvider } from '../../providers';
 import type { Provider as CatalogProvider } from '../../../shared/providers.definitions';
 import {
-	getModelId as getVoiceModelId,
-	getProviderId as getVoiceProviderId,
-	setSelection as setVoiceSelection,
-} from '../../voice/voice_store';
+	getModelId as getTranscribeModelId,
+	getProviderId as getTranscribeProviderId,
+	setSelection as setTranscribeSelection,
+} from '../../transcribe/transcribe_store';
 
 @Service()
 export class SttService {
