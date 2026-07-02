@@ -22,7 +22,7 @@ jest.mock('../../../../src/main/agent/session', () => ({
 	loadMessages: jest.fn(() => []),
 }));
 
-jest.mock('../../../../src/main/agent/loop/runner', () => ({
+jest.mock('../../../../src/main/agent/loop', () => ({
 	run: jest.fn(async function* (): AsyncGenerator<RuntimeEvent> {
 		yield {
 			type: 'run_finished',
