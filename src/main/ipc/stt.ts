@@ -1,7 +1,7 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerCommandWithEvent, registerQuery } from './core/gateway';
-import { SttChannels } from '../../shared/ipc_channels.definitions';
+import { SttChannels } from '../../shared/ipc_channels_definitions';
 import type { SttService } from '../models/stt/service';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../transcribe';
 
