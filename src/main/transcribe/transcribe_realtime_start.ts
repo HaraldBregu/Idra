@@ -1,9 +1,9 @@
 import type { SttService } from '../models/stt/service';
-import type { SttRealtimeEvent, SttRealtimeSession, VoiceRealtimeStartRequest } from './voice_types';
+import type { SttRealtimeEvent, SttRealtimeSession, TranscribeRealtimeStartRequest } from './transcribe_types';
 
 export async function startRealtime(
 	stt: SttService,
-	request: VoiceRealtimeStartRequest | undefined,
+	request: TranscribeRealtimeStartRequest | undefined,
 	onEvent: (event: SttRealtimeEvent) => void
 ): Promise<SttRealtimeSession> {
 	return stt.startRealtime(request, onEvent);
