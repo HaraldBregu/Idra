@@ -28,3 +28,4 @@ export const TEXT_TO_SPEECH_PROVIDER_IDS = [
 	'mistral',
 	'openai',
 ] as const;
+export type TextToSpeechProviderId = (typeof TEXT_TO_SPEECH_PROVIDER_IDS)[number];
