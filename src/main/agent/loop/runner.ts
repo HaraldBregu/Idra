@@ -8,7 +8,7 @@ import type {
 	ToolCall,
 } from '../types';
 import type { Config, Tool } from '../types';
-import { parseToolArgs } from '../shared/parse_tool_args';
+import { parseToolArgs } from '../../shared/parse_tool_args';
 import { getModelId, getProvider } from '../settings/settings_store';
 import {
 	addAssistantMessage,
