@@ -2,30 +2,30 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 
-export type SpeechStoreState = {
+export type VoiceStoreState = {
 	providerId: string | undefined;
 	modelId: string | undefined;
 };
 
-const SPEECH_STORE_NAME = 'settings';
+const VOICE_STORE_NAME = 'settings';
 
-const DEFAULT_SPEECH_STORE: SpeechStoreState = {
+const DEFAULT_VOICE_STORE: VoiceStoreState = {
 	providerId: undefined,
 	modelId: undefined,
 };
 
-const store = new Store<SpeechStoreState>({
-	name: SPEECH_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'speech'),
+const store = new Store<VoiceStoreState>({
+	name: VOICE_STORE_NAME,
+	cwd: path.resolve(userDataLocation(), 'voice'),
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_SPEECH_STORE,
+	defaults: DEFAULT_VOICE_STORE,
 });
 
-export function getSpeechStore(): SpeechStoreState {
+export function getVoiceStore(): VoiceStoreState {
 	return store.store;
 }
 
-export function setSpeechStore(value: SpeechStoreState): void {
+export function setVoiceStore(value: VoiceStoreState): void {
 	store.store = value;
 }
 
