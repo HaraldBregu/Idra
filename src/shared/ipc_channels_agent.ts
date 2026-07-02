@@ -57,14 +57,14 @@ export interface AgentInvokeChannelMap {
 		args: [modelId: string];
 		result: boolean;
 	};
-	[AgentChannels.cronList]: { args: []; result: import('../../../main/agent/cron').CronSchedule[] };
+	[AgentChannels.cronList]: { args: []; result: import('../main/agent/cron').CronSchedule[] };
 	[AgentChannels.cronGetRuntime]: {
 		args: [];
-		result: import('../../../main/agent/cron').CronRuntime | undefined;
+		result: import('../main/agent/cron').CronRuntime | undefined;
 	};
 	[AgentChannels.cronSetRuntime]: {
 		args: [providerId: string, modelId: string];
-		result: import('../../../main/agent/cron').CronRuntime;
+		result: import('../main/agent/cron').CronRuntime;
 	};
 	[AgentChannels.skillsList]: { args: []; result: import('./skills.types').SkillInfo[] };
 	[AgentChannels.skillsLoad]: {
