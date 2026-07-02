@@ -1,6 +1,5 @@
 import {
 	CHANNEL_PROVIDER_IDS,
-	CHANNEL_RUNTIME_SUPPORT_VALUES,
 	CHANNEL_SETUP_FIELDS,
 	type ChannelCatalogEntry,
 	type ChannelCatalogInput,
