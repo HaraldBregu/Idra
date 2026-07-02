@@ -21,7 +21,7 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	ModelReasoningEffort,
-} from '../shared/agent/types';
+} from '../shared/agent-types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { Provider } from '../shared/providers/types';
