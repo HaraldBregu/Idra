@@ -340,7 +340,7 @@ export const transcribe: TranscribeApi = {
 	},
 	setModelId: (modelId) => {
 		const normalizedModelId = optionalTrimmedString(modelId);
-		if (!normalizedModelId) throw new Error('Invalid voice model id.');
+		if (!normalizedModelId) throw new Error('Invalid transcribe model id.');
 		return typedInvokeUnwrap(SttChannels.setModelId, normalizedModelId);
 	},
 };
