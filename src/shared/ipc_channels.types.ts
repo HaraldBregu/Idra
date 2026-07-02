@@ -9,7 +9,7 @@ import type {
 	SttTranscriptionResult,
 } from './stt_transcription';
 import type { PublicProvider } from './providers_definitions';
-import type { ProviderModel } from './providers_models.types';
+import type { ProviderModel } from './provider_models.types';
 import {
 	AgentChannels,
 	AppChannels,
