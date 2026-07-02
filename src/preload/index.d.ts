@@ -60,14 +60,6 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
-export interface SpeechApi {
-	synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
-	getProviderId: () => Promise<string | undefined>;
-	setProviderId: (providerId: string) => Promise<void>;
-	getModelId: () => Promise<string | undefined>;
-	setModelId: (modelId: string) => Promise<void>;
-}
-
 export interface VoiceApi {
 	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
 	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
@@ -90,7 +82,7 @@ import type { Provider } from '../shared/providers/types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health-types';
-import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent-types';
+import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent/types';
 import type { ProviderModel } from '../shared/providers';
 import type { ChannelStatusEvent } from '../shared/channels';
 import type { Channel, ChannelType } from '../shared/channels';
@@ -104,10 +96,6 @@ import type {
 	SttModelSelection,
 	SttSelectionMode,
 } from '../shared/stt/transcription';
-import type {
-	SpeechSynthesisRequest,
-	SpeechSynthesisResult,
-} from '../shared/speech/speech-types';
 import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
@@ -142,7 +130,6 @@ declare global {
 		agent: AgentApi;
 		channels: ChannelsApi;
 		provider: ProviderApi;
-		speech: SpeechApi;
 		voice: VoiceApi;
 	}
 }

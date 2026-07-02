@@ -6,7 +6,6 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ProviderStoreChannels,
-	SpeechChannels,
 	SttChannels,
 } from '../shared/ipc/ipc-channels';
 import type {
@@ -14,7 +13,6 @@ import type {
 	AgentApi,
 	ChannelsApi,
 	ProviderApi,
-	SpeechApi,
 	VoiceApi,
 	WindowApi,
 } from './index.d';
@@ -23,7 +21,7 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	ModelReasoningEffort,
-} from '../shared/agent-types';
+} from '../shared/agent/types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared/channels';
 import type { ChannelCatalogEntry } from '../shared/channels';
 import type { Provider } from '../shared/providers/types';
@@ -32,7 +30,6 @@ import {
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt/transcription';
-import { normalizeSpeechSynthesisRequest } from '../shared/speech/speech-types';
 import { McpOAuthStart, McpSettings } from '../shared/mcp/mcp';
 import type { HealthSettings } from '../main/agent/health/health-types';
 
@@ -348,28 +345,6 @@ export const voice: VoiceApi = {
 	},
 };
 
-export const speech: SpeechApi = {
-	synthesize: (request) => {
-		return typedInvokeUnwrap(SpeechChannels.synthesize, normalizeSpeechSynthesisRequest(request));
-	},
-	getProviderId: () => {
-		return typedInvokeUnwrap(SpeechChannels.getProviderId);
-	},
-	setProviderId: (providerId) => {
-		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid speech provider id.');
-		return typedInvokeUnwrap(SpeechChannels.setProviderId, normalizedProviderId);
-	},
-	getModelId: () => {
-		return typedInvokeUnwrap(SpeechChannels.getModelId);
-	},
-	setModelId: (modelId) => {
-		const normalizedModelId = optionalTrimmedString(modelId);
-		if (!normalizedModelId) throw new Error('Invalid speech model id.');
-		return typedInvokeUnwrap(SpeechChannels.setModelId, normalizedModelId);
-	},
-};
-
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
@@ -409,7 +384,6 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('provider', provider);
-		contextBridge.exposeInMainWorld('speech', speech);
 		contextBridge.exposeInMainWorld('voice', voice);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
@@ -425,8 +399,6 @@ if (process.contextIsolated) {
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
-	// @ts-ignore (define in dts)
-	globalThis.speech = speech;
 	// @ts-ignore (define in dts)
 	globalThis.voice = voice;
 }
