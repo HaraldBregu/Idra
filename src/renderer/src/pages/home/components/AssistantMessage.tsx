@@ -1,16 +1,10 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
-import { Copy, Ellipsis, Volume2 } from 'lucide-react';
+import { Copy, Reply, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message, MessageActions } from '@/components/prompt-kit/message';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { type AgentMessage } from '../context';
 import { markdownComponents } from './markdown';
@@ -35,12 +29,14 @@ export function AssistantMessage({
 	isStreaming = false,
 	collapseLongContent = false,
 	className,
+	onReply,
 }: {
 	readonly message: AgentMessage;
 	readonly isStreaming?: boolean;
 	readonly showHeader?: boolean;
 	readonly collapseLongContent?: boolean;
 	readonly className?: string;
+	readonly onReply?: () => void;
 }): ReactElement {
 	const canToggleContent =
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
@@ -139,32 +135,18 @@ export function AssistantMessage({
 						>
 							<Volume2 className="size-3.5" />
 						</Button>
-						<DropdownMenu>
-							<DropdownMenuTrigger
-								render={
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon-xs"
-										className="text-muted-foreground hover:text-foreground"
-										aria-label="Message options"
-										title="Message options"
-									>
-										<Ellipsis className="size-3.5" />
-									</Button>
-								}
-							/>
-							<DropdownMenuContent align="start" side="bottom" className="min-w-36">
-								<DropdownMenuItem onClick={copyMessage}>
-									<Copy className="size-3.5" />
-									Copy
-								</DropdownMenuItem>
-								<DropdownMenuItem disabled>
-									<Volume2 className="size-3.5" />
-									Read aloud
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-xs"
+							className="text-muted-foreground hover:text-foreground"
+							aria-label="Reply"
+							title="Reply"
+							disabled={!onReply}
+							onClick={onReply}
+						>
+							<Reply className="size-3.5" />
+						</Button>
 					</MessageActions>
 				</>
 			)}
