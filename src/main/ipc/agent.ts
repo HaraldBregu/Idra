@@ -21,7 +21,7 @@ import type { ModelReasoningEffort } from '../../shared/agent.types';
 import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health-store';
 import type { HealthSettings } from '../agent/health/health-types';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings-store';
-import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp';
+import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp.types';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;

@@ -1,5 +1,5 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import type { McpData } from '../../../shared/mcp';
+import type { McpData } from '../../../shared/mcp.types';
 import type { McpClient } from './mcp-types';
 import { buildTransport } from './mcp-client-build-transport';
 
