@@ -58,6 +58,23 @@ export const TitleBar = React.memo(function TitleBar({
 	const homeButtonLabel = t('titleBar.home', 'Home');
 	const settingsButtonLabel = t('settings.title', 'Settings');
 	const routeButtonLabel = isSettings ? homeButtonLabel : settingsButtonLabel;
+	const routeButton = !isStart ? (
+		<Button
+			type="button"
+			variant="ghost"
+			size="icon"
+			className="size-8 rounded-full"
+			onClick={() => navigate(isSettings ? '/home' : '/settings')}
+			title={routeButtonLabel}
+			aria-label={routeButtonLabel}
+		>
+			{isSettings ? (
+				<GradientSphere size={18} className="pointer-events-none" />
+			) : (
+				<User className="size-4" strokeWidth={1.8} />
+			)}
+		</Button>
+	) : null;
 
 	return (
 		<TitleBarProvider value={{ isMac, isFullScreen }}>
@@ -74,6 +91,8 @@ export const TitleBar = React.memo(function TitleBar({
 							<Menu className="h-[15px] w-[15px]" strokeWidth={1.5} />
 						</button>
 					)}
+
+					{!isMac && routeButton}
 
 					{!isHome && !isStart && !isSettings && (
 						<Button
@@ -121,26 +140,12 @@ export const TitleBar = React.memo(function TitleBar({
 				)}
 
 				{/* ── Right action: home/settings toggle ── */}
-				{!isStart && (
+				{isMac && routeButton && (
 					<div
 						className="z-10 mr-3 flex h-full items-center gap-1"
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							className="size-8 rounded-full"
-							onClick={() => navigate(isSettings ? '/home' : '/settings')}
-							title={routeButtonLabel}
-							aria-label={routeButtonLabel}
-						>
-							{isSettings ? (
-								<GradientSphere size={18} className="pointer-events-none" />
-							) : (
-								<User className="size-4" strokeWidth={1.8} />
-							)}
-						</Button>
+						{routeButton}
 					</div>
 				)}
 
