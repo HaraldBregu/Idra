@@ -66,20 +66,20 @@ export interface AgentInvokeChannelMap {
 		args: [providerId: string, modelId: string];
 		result: import('../../../main/agent/cron').CronRuntime;
 	};
-	[AgentChannels.skillsList]: { args: []; result: import('../../skills/types').SkillInfo[] };
+	[AgentChannels.skillsList]: { args: []; result: import('../../skills.types').SkillInfo[] };
 	[AgentChannels.skillsLoad]: {
 		args: [name: string];
-		result: import('../../skills/types').SkillLoadResult | undefined;
+		result: import('../../skills.types').SkillLoadResult | undefined;
 	};
-	[AgentChannels.skillsImport]: { args: []; result: import('../../skills/types').SkillImportResult | undefined };
+	[AgentChannels.skillsImport]: { args: []; result: import('../../skills.types').SkillImportResult | undefined };
 	[AgentChannels.skillsDownload]: {
 		args: [name: string];
-		result: import('../../skills/types').SkillDownloadResult | undefined;
+		result: import('../../skills.types').SkillDownloadResult | undefined;
 	};
-	[AgentChannels.skillsDelete]: { args: [name: string]; result: import('../../skills/types').SkillDeleteResult };
+	[AgentChannels.skillsDelete]: { args: [name: string]; result: import('../../skills.types').SkillDeleteResult };
 	[AgentChannels.skillsSetEnabled]: {
 		args: [id: string, enabled: boolean];
-		result: import('../../skills/types').SkillInfo;
+		result: import('../../skills.types').SkillInfo;
 	};
 	[AgentChannels.skillsOpenRoot]: { args: []; result: void };
 	[AgentChannels.skillsGetRoot]: { args: []; result: string };
