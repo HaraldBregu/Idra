@@ -20,38 +20,38 @@ export interface ChannelsInvokeChannelMap {
 	};
 	[ChannelsChannels.getConfig]: {
 		args: [];
-		result: import('./channels_definitions').Channel;
+		result: import('./channels.types').Channel;
 	};
 	[ChannelsChannels.getChannelConfig]: {
-		args: [type: import('./channels_definitions').ChannelType];
-		result: import('./channels_definitions').Channel[import('./channels_definitions').ChannelType];
+		args: [type: import('./channels.types').ChannelType];
+		result: import('./channels.types').Channel[import('./channels.types').ChannelType];
 	};
 	[ChannelsChannels.saveChannelConfig]: {
 		args: [
-			type: import('./channels_definitions').ChannelType,
-			config: import('./channels_definitions').Channel[import('./channels_definitions').ChannelType],
+			type: import('./channels.types').ChannelType,
+			config: import('./channels.types').Channel[import('./channels.types').ChannelType],
 		];
-		result: import('./channels_definitions').Channel[import('./channels_definitions').ChannelType];
+		result: import('./channels.types').Channel[import('./channels.types').ChannelType];
 	};
 	[ChannelsChannels.getStatus]: {
-		args: [type?: import('./channels_definitions').ChannelType];
-		result: import('./channels_definitions').ChannelStatusEvent | undefined;
+		args: [type?: import('./channels.types').ChannelType];
+		result: import('./channels.types').ChannelStatusEvent | undefined;
 	};
 	[ChannelsChannels.getTelegramConfig]: {
 		args: [];
-		result: import('./channels_definitions').TelegramChannelProperties;
+		result: import('./channels.types').TelegramChannelProperties;
 	};
 	[ChannelsChannels.saveTelegramConfig]: {
-		args: [config: import('./channels_definitions').TelegramChannelProperties];
-		result: import('./channels_definitions').TelegramChannelProperties;
+		args: [config: import('./channels.types').TelegramChannelProperties];
+		result: import('./channels.types').TelegramChannelProperties;
 	};
 	[ChannelsChannels.getTelegramStatus]: {
 		args: [];
-		result: import('./channels_definitions').ChannelStatusEvent | undefined;
+		result: import('./channels.types').ChannelStatusEvent | undefined;
 	};
 	[ChannelsChannels.startTelegram]: {
 		args: [];
-		result: import('./channels_definitions').ChannelStatusEvent | undefined;
+		result: import('./channels.types').ChannelStatusEvent | undefined;
 	};
 	[ChannelsChannels.stopTelegram]: {
 		args: [];
@@ -59,10 +59,10 @@ export interface ChannelsInvokeChannelMap {
 	};
 	[ChannelsChannels.restartTelegram]: {
 		args: [];
-		result: import('./channels_definitions').ChannelStatusEvent | undefined;
+		result: import('./channels.types').ChannelStatusEvent | undefined;
 	};
 }
 
 export interface ChannelsEventChannelMap {
-	[ChannelsChannels.statusChanged]: { data: import('./channels_definitions').ChannelStatusEvent };
+	[ChannelsChannels.statusChanged]: { data: import('./channels.types').ChannelStatusEvent };
 }
