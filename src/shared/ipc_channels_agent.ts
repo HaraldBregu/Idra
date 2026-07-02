@@ -89,11 +89,11 @@ export interface AgentInvokeChannelMap {
 		result: import('../../../main/agent/health/health-types').HealthSettings;
 	};
 	[AgentChannels.healthResetSettings]: { args: []; result: import('../../../main/agent/health/health-types').HealthSettings };
-	[AgentChannels.mcpList]: { args: []; result: import('../../mcp').McpSettings };
-	[AgentChannels.mcpGet]: { args: [id: string]; result: import('../../mcp').McpSettings };
-	[AgentChannels.mcpSave]: { args: [input: import('../../mcp').McpSettings]; result: import('../../mcp').McpSettings };
+	[AgentChannels.mcpList]: { args: []; result: import('./mcp').McpSettings };
+	[AgentChannels.mcpGet]: { args: [id: string]; result: import('./mcp').McpSettings };
+	[AgentChannels.mcpSave]: { args: [input: import('./mcp').McpSettings]; result: import('./mcp').McpSettings };
 	[AgentChannels.mcpDelete]: { args: [id: string]; result: void };
-	[AgentChannels.mcpOauthStart]: { args: [id: string]; result: import('../../mcp').McpOAuthStart };
+	[AgentChannels.mcpOauthStart]: { args: [id: string]; result: import('./mcp').McpOAuthStart };
 	[AgentChannels.mcpOauthFinish]: { args: [id: string, code: string]; result: void };
 }
 
