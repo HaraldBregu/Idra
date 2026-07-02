@@ -105,6 +105,10 @@ import type {
 	SttSelectionMode,
 } from '../shared/stt/transcription';
 import type {
+	SpeechSynthesisRequest,
+	SpeechSynthesisResult,
+} from '../shared/speech/speech-types';
+import type {
 	SkillDeleteResult,
 	SkillDownloadResult,
 	SkillImportResult,
