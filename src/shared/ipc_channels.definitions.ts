@@ -1,0 +1,103 @@
+export const AgentChannels = {
+	send: 'agent:send',
+	response: 'agent:response',
+	cancel: 'agent:cancel',
+	lastMessages: 'agent:last-messages',
+	clearMessages: 'agent:clear-messages',
+	getProvider: 'agent:get-provider',
+	setProvider: 'agent:set-provider',
+	getModelId: 'agent:get-model-id',
+	setModelId: 'agent:set-model-id',
+	cronList: 'agent:cron:list',
+	cronGetRuntime: 'agent:cron:runtime:get',
+	cronSetRuntime: 'agent:cron:runtime:set',
+	skillsList: 'agent:skills:list',
+	skillsLoad: 'agent:skills:load',
+	skillsImport: 'agent:skills:import',
+	skillsDownload: 'agent:skills:download',
+	skillsDelete: 'agent:skills:delete',
+	skillsSetEnabled: 'agent:skills:set-enabled',
+	skillsOpenRoot: 'agent:skills:open-root',
+	skillsGetRoot: 'agent:skills:get-root',
+	healthSettings: 'agent:health:settings',
+	healthSaveSettings: 'agent:health:settings:save',
+	healthResetSettings: 'agent:health:settings:reset',
+	mcpList: 'agent:mcp:list',
+	mcpGet: 'agent:mcp:get',
+	mcpSave: 'agent:mcp:save',
+	mcpDelete: 'agent:mcp:delete',
+	mcpOauthStart: 'agent:mcp:oauth:start',
+	mcpOauthFinish: 'agent:mcp:oauth:finish',
+} as const;
+
+export const AppChannels = {
+	openAppDataFolder: 'app:open-app-data-folder',
+	openExternalUrl: 'app:open-external-url',
+	openSystemPreference: 'app:open-system-preference',
+	setTrayEnabled: 'app:set-tray-enabled',
+	getTrayEnabled: 'app:get-tray-enabled',
+	getMicrophonePermission: 'app:get-microphone-permission',
+	setMicrophoneEnabled: 'app:set-microphone-enabled',
+	requestMicrophonePermission: 'app:request-microphone-permission',
+	getCameraPermission: 'app:get-camera-permission',
+	setCameraEnabled: 'app:set-camera-enabled',
+	requestCameraPermission: 'app:request-camera-permission',
+} as const;
+
+export const ChannelsChannels = {
+	listCatalog: 'channels:catalog',
+	getConfig: 'channels:get-config',
+	getChannelConfig: 'channels:get-channel-config',
+	saveChannelConfig: 'channels:save-channel-config',
+	getStatus: 'channels:get-status',
+	getTelegramConfig: 'channels:telegram:get-config',
+	saveTelegramConfig: 'channels:telegram:save-config',
+	getTelegramStatus: 'channels:telegram:get-status',
+	startTelegram: 'channels:telegram:start',
+	stopTelegram: 'channels:telegram:stop',
+	restartTelegram: 'channels:telegram:restart',
+	statusChanged: 'channels:status-changed',
+} as const;
+
+export const ProviderChannels = {
+	get: 'provider-store:get',
+	set: 'provider-store:set',
+} as const;
+
+export const ProviderStoreChannels = ProviderChannels;
+
+export const SpeechChannels = {
+	getModelId: 'speech:get-model-id',
+	getProviderId: 'speech:get-provider-id',
+	setModelId: 'speech:set-model-id',
+	setProviderId: 'speech:set-provider-id',
+	synthesize: 'speech:synthesize',
+} as const;
+
+export const SttChannels = {
+	appendRealtimeAudio: 'stt:append-realtime-audio',
+	cancelRealtime: 'stt:cancel-realtime',
+	finishRealtime: 'stt:finish-realtime',
+	getModelId: 'stt:get-model-id',
+	getProviderId: 'stt:get-provider-id',
+	getSelection: 'stt:get-selection',
+	listModels: 'stt:list-models',
+	listProviders: 'stt:list-providers',
+	realtimeEvent: 'stt:realtime-event',
+	saveSelection: 'stt:save-selection',
+	setModelId: 'stt:set-model-id',
+	setProviderId: 'stt:set-provider-id',
+	startRealtime: 'stt:start-realtime',
+	transcribe: 'stt:transcribe',
+} as const;
+
+export const WindowChannels = {
+	minimize: 'window:minimize',
+	maximize: 'window:maximize',
+	close: 'window:close',
+	isMaximized: 'window:is-maximized',
+	isFullScreen: 'window:is-fullscreen',
+	maximizeChange: 'window:maximize-change',
+	fullScreenChange: 'window:fullscreen-change',
+	popupMenu: 'window:popup-menu',
+} as const;
