@@ -15,7 +15,7 @@ import {
 	OPENAI_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models.definitions';
+} from '../../../../shared/provider_models_definitions';
 
 const OPENAI_REALTIME_PATH = 'realtime';
 const OPENAI_REALTIME_AUTH_SCHEME = 'Bearer';
