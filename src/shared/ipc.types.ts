@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import type { InvokeChannelMap, SendChannelMap, EventChannelMap } from './ipc/ipc-channels';
+import type { InvokeChannelMap, SendChannelMap, EventChannelMap } from './ipc_channels';
 
 interface IpcError {
 	success: false;
