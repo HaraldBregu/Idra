@@ -1,4 +1,4 @@
-import type { MicrophonePermissionSettings } from '@shared/app.types';
+import type { MicrophonePermissionSettings } from '@shared/app_types';
 
 // ─── shared ──────────────────────────────────────────────────────────────────
 
