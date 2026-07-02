@@ -2,7 +2,7 @@ import { ipcMain, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { wrapIpcHandler } from './core/error_handler';
-import { WindowChannels } from '../../shared/ipc_channels.definitions';
+import { WindowChannels } from '../../shared/ipc_channels_definitions';
 import type { LoggerService } from '../shared';
 
 export interface WindowIpcDeps {
