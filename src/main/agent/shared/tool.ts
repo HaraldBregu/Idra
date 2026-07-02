@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { JSONSchema, Tool } from '../types';
+import type { JSONSchema, JsonToolConfig, Tool, ToolConfig } from '../types';
 
 type ToolConfig<T extends z.ZodType> = {
 	name: string;
