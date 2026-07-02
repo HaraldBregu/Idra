@@ -38,7 +38,7 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.cancel]: { args: []; result: void };
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];
-		result: import('../../agent/types').AgentHistoryMessage[];
+		result: import('../../agent-types').AgentHistoryMessage[];
 	};
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
 	[AgentChannels.getProvider]: {
@@ -98,5 +98,5 @@ export interface AgentInvokeChannelMap {
 }
 
 export interface AgentEventChannelMap {
-	[AgentChannels.response]: { data: import('../../agent/types').AgentResponseEvent };
+	[AgentChannels.response]: { data: import('../../agent-types').AgentResponseEvent };
 }
