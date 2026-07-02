@@ -93,7 +93,7 @@ export class SttService {
 				`Speech-to-text model does not support ${apiType} transcription: ${normalizedProviderId}/${normalizedModelId}`
 			);
 		}
-		setVoiceSelection(normalizedProviderId, normalizedModelId, mode);
+		setTranscribeSelection(normalizedProviderId, normalizedModelId, mode);
 		return true;
 	}
 
