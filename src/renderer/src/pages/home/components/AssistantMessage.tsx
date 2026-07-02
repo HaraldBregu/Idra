@@ -69,7 +69,6 @@ export function AssistantMessage({
 					return;
 				}
 			} catch {
-				// Fall back below when the async Clipboard API is unavailable or denied.
 			}
 
 			const textarea = document.createElement('textarea');
