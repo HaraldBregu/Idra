@@ -14,7 +14,10 @@ import {
 import { getProvider } from '../../providers';
 import { buildSpeechAdapter } from './speech-factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './speech-errors';
-import { getModelId as getStoredModelId, getProviderId as getStoredProviderId } from './speech-store';
+import {
+	getModelId as getStoredModelId,
+	getProviderId as getStoredProviderId,
+} from '../../speech/speech-store';
 import type { SpeechProviderSpec } from './speech-types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {
