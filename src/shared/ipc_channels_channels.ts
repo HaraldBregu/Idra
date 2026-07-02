@@ -16,7 +16,7 @@ export const ChannelsChannels = {
 export interface ChannelsInvokeChannelMap {
 	[ChannelsChannels.listCatalog]: {
 		args: [];
-		result: import('./channels_catalog').ChannelCatalogEntry[];
+		result: import('./channels.types').ChannelCatalogEntry[];
 	};
 	[ChannelsChannels.getConfig]: {
 		args: [];
