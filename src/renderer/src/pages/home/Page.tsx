@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, Volume2, X } from 'lucide-react';
+import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import {
@@ -259,50 +259,50 @@ function VoiceButton({
 	);
 }
 
-function SpeakButton({
-	text,
-	disabled,
-	onError,
-}: {
-	readonly text: string;
-	readonly disabled?: boolean;
-	readonly onError: (message: string | null) => void;
-}): ReactElement {
-	const [speaking, setSpeaking] = useState(false);
+// function SpeakButton({
+// 	text,
+// 	disabled,
+// 	onError,
+// }: {
+// 	readonly text: string;
+// 	readonly disabled?: boolean;
+// 	readonly onError: (message: string | null) => void;
+// }): ReactElement {
+// 	const [speaking, setSpeaking] = useState(false);
 
-	const speak = async (): Promise<void> => {
-		setSpeaking(true);
-		onError(null);
-		try {
-			const result = await window.speech.synthesize({ text });
-			await new Audio(`data:${result.mimeType};base64,${result.audio}`).play();
-		} catch (error) {
-			onError(
-				error instanceof Error && error.message.trim()
-					? error.message
-					: 'Speech synthesis failed.'
-			);
-		} finally {
-			setSpeaking(false);
-		}
-	};
+// 	const speak = async (): Promise<void> => {
+// 		setSpeaking(true);
+// 		onError(null);
+// 		try {
+// 			const result = await window.speech.synthesize({ text });
+// 			await new Audio(`data:${result.mimeType};base64,${result.audio}`).play();
+// 		} catch (error) {
+// 			onError(
+// 				error instanceof Error && error.message.trim()
+// 					? error.message
+// 					: 'Speech synthesis failed.'
+// 			);
+// 		} finally {
+// 			setSpeaking(false);
+// 		}
+// 	};
 
-	return (
-		<PromptInputAction tooltip="Speak text">
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="size-8 rounded-full text-foreground hover:bg-muted"
-				aria-label="Speak text"
-				disabled={disabled || speaking}
-				onClick={() => void speak()}
-			>
-				<Volume2 className="size-4" />
-			</Button>
-		</PromptInputAction>
-	);
-}
+// 	return (
+// 		<PromptInputAction tooltip="Speak text">
+// 			<Button
+// 				type="button"
+// 				variant="ghost"
+// 				size="icon"
+// 				className="size-8 rounded-full text-foreground hover:bg-muted"
+// 				aria-label="Speak text"
+// 				disabled={disabled || speaking}
+// 				onClick={() => void speak()}
+// 			>
+// 				<Volume2 className="size-4" />
+// 			</Button>
+// 		</PromptInputAction>
+// 	);
+// }
 
 function SubmitButton({
 	isLoading,
