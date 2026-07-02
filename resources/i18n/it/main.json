@@ -735,7 +735,7 @@
 			"fridayBreadcrumb": "Friday",
 			"assistantName": "Agent",
 			"fridayDescription": "Risponde alle domande, pianifica il lavoro e usa strumenti.",
-			"speechTranscriberName": "Voice",
+			"speechTranscriberName": "Trascrivi",
 			"speechTranscriberDescription": "Trascrive l'audio del microfono in testo.",
 			"speechConfigurationSubtitle": "Scegli provider e modello di trascrizione.",
 			"speechProviderDescription": "Provider vocale usato per la trascrizione.",
