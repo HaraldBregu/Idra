@@ -1,9 +1,16 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
+import { Copy, Ellipsis, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
+import { Message, MessageActions } from '@/components/prompt-kit/message';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
-import { Message } from '@/components/prompt-kit/message';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { type AgentMessage } from '../context';
 import { markdownComponents } from './markdown';
@@ -40,6 +47,12 @@ export function AssistantMessage({
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
 
 	const hasContent = message.content.length > 0;
+	const messageText = message.content.trim();
+	const canSpeak =
+		messageText.length > 0 &&
+		typeof window !== 'undefined' &&
+		'speechSynthesis' in window &&
+		typeof window.SpeechSynthesisUtterance === 'function';
 	const hasTools = message.tools.length > 0;
 	const showActivity =
 		hasTools ||
@@ -51,6 +64,17 @@ export function AssistantMessage({
 		'inline-flex min-h-6 max-w-full items-center rounded-full px-2 py-0.5 text-xs font-semibold',
 		stateTone(message.state)
 	);
+
+	const copyMessage = (): void => {
+		if (messageText.length === 0) return;
+		void navigator.clipboard?.writeText(messageText);
+	};
+
+	const speakMessage = (): void => {
+		if (!canSpeak) return;
+		window.speechSynthesis.cancel();
+		window.speechSynthesis.speak(new SpeechSynthesisUtterance(messageText));
+	};
 
 	return (
 		<Message className={cn('flex w-full flex-col', className)}>
@@ -86,6 +110,57 @@ export function AssistantMessage({
 							{isContentExpanded ? 'Less' : 'More'}
 						</Button>
 					) : null}
+					<MessageActions className="mt-1 gap-1">
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-xs"
+							className="text-muted-foreground hover:text-foreground"
+							aria-label="Copy message"
+							title="Copy message"
+							onClick={copyMessage}
+						>
+							<Copy className="size-3.5" />
+						</Button>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-xs"
+							className="text-muted-foreground hover:text-foreground"
+							aria-label="Read message aloud"
+							title="Read message aloud"
+							disabled={!canSpeak}
+							onClick={speakMessage}
+						>
+							<Volume2 className="size-3.5" />
+						</Button>
+						<DropdownMenu>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon-xs"
+										className="text-muted-foreground hover:text-foreground"
+										aria-label="Message options"
+										title="Message options"
+									>
+										<Ellipsis className="size-3.5" />
+									</Button>
+								}
+							/>
+							<DropdownMenuContent align="start" side="bottom" className="min-w-36">
+								<DropdownMenuItem onClick={copyMessage}>
+									<Copy className="size-3.5" />
+									Copy
+								</DropdownMenuItem>
+								<DropdownMenuItem disabled={!canSpeak} onClick={speakMessage}>
+									<Volume2 className="size-3.5" />
+									Read aloud
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</MessageActions>
 				</>
 			)}
 			{showActivity && !hasTools && (
