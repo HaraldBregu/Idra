@@ -11,7 +11,7 @@ import {
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	getSpeechToTextModelApiTypes,
 	supportsSpeechToTextModelApiType,
-} from '../../../shared/provider_models.definitions';
+} from '../../../shared/provider_models_definitions';
 import type { SpeechToTextProviderId } from '../../../shared/provider_models_types';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
@@ -29,13 +29,13 @@ import {
 import {
 	cloneModels,
 	normalizeProviderId,
-} from '../../../shared/provider_models.definitions';
+} from '../../../shared/provider_models_definitions';
 import type { ProviderModel } from '../../../shared/provider_models_types';
 import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
 import { getProvider } from '../../providers';
-import type { Provider as CatalogProvider } from '../../../shared/providers.definitions';
+import type { Provider as CatalogProvider } from '../../../shared/providers_definitions';
 import {
 	getModelId as getTranscribeModelId,
 	getProviderId as getTranscribeProviderId,
