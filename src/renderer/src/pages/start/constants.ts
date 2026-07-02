@@ -7,7 +7,7 @@ import {
 	cloneModels,
 	normalizeProviderId,
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-} from '../../../../shared/provider_models.definitions';
+} from '../../../../shared/provider_models_definitions';
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared';
