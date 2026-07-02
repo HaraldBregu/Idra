@@ -1,12 +1,19 @@
 import { AgentModel } from '../../models/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
-import type { Message, MessageContentBlock, Provider, RuntimeEvent, Tool } from '../types';
+import type {
+	Message,
+	MessageContentBlock,
+	Provider,
+	RuntimeEvent,
+	RuntimeInput,
+	Tool,
+} from '../types';
 import type { ModelTurn } from './types';
 
 const agentModel = new AgentModel();
 
 export async function* runModelTurn(
-	_input: unknown,
+	_input: RuntimeInput,
 	provider: Provider,
 	modelId: string,
 	systemPrompt: string | undefined,
