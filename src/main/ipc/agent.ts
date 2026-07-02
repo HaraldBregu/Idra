@@ -3,7 +3,7 @@ import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { wrapSimpleHandler } from './core/error-handler';
-import { AgentChannels } from '../../shared/ipc_channels';
+import { AgentChannels } from '../../shared/ipc_channels.definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
 import * as skills from '../agent/skills';

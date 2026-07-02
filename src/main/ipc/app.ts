@@ -9,7 +9,7 @@ import type {
 	SystemPreferencePaneId,
 } from '../../shared/app.types';
 import { wrapSimpleHandler } from './core/error-handler';
-import { AppChannels } from '../../shared/ipc_channels';
+import { AppChannels } from '../../shared/ipc_channels.definitions';
 import type { LoggerService } from '../shared';
 
 export interface AppIpcDeps {

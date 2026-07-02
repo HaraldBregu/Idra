@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { wrapSimpleHandler } from './core/error-handler';
-import { ChannelsChannels } from '../../shared/ipc_channels';
+import { ChannelsChannels } from '../../shared/ipc_channels.definitions';
 import { type ChannelStatusEvent, type ChannelType } from '../../shared';
 import { listChannelCatalog } from '../../shared';
 import type { ChannelRegistry } from '../channels';

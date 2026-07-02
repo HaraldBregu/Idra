@@ -1,7 +1,7 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
 import { registerCommand, registerQuery } from './core/gateway';
-import { SpeechChannels } from '../../shared/ipc_channels';
+import { SpeechChannels } from '../../shared/ipc_channels.definitions';
 import { getModelId, getProviderId, setModelId, setProviderId, synthesize } from '../speech';
 
 export class SpeechIpc implements IpcModule {

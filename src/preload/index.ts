@@ -7,7 +7,7 @@ import {
 	ChannelsChannels,
 	ProviderStoreChannels,
 	SttChannels,
-} from '../shared/ipc_channels';
+} from '../shared/ipc_channels.definitions';
 import type {
 	AppApi,
 	AgentApi,
