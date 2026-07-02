@@ -8,7 +8,7 @@ import type {
 
 export type { SttRealtimeEvent, SttRealtimeSession, SttTranscriptionResult };
 
-export interface VoiceToTextRequest {
+export interface TranscribeToTextRequest {
 	audio: SttAudioInput;
 	providerId?: string;
 	modelId?: string;
@@ -17,4 +17,4 @@ export interface VoiceToTextRequest {
 	temperature?: number;
 }
 
-export type VoiceRealtimeStartRequest = SttRealtimeStartRequest;
+export type TranscribeRealtimeStartRequest = SttRealtimeStartRequest;
