@@ -240,7 +240,7 @@ export class SttService {
 	}
 
 	private getConfiguredProviderId(mode: SttSelectionMode): SpeechToTextProviderId | undefined {
-		const providerId = getVoiceProviderId(mode);
+		const providerId = getTranscribeProviderId(mode);
 		if (!providerId) return undefined;
 		try {
 			return this.resolveProviderId(providerId);
