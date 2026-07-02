@@ -24,6 +24,10 @@ import type {
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 
+function getVoiceModels(providerId: string): Model[] {
+	return cloneModels(TEXT_TO_SPEECH_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
+}
+
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: AGENTS.assistant,
