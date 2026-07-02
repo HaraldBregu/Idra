@@ -1,4 +1,4 @@
-import { CHANNEL_PROVIDER_IDS, type ChannelType } from './definitions';
+import { CHANNEL_PROVIDER_IDS, type ChannelType } from './channels_definitions';
 
 export const CHANNEL_RUNTIME_SUPPORT_VALUES = ['bundled', 'catalog-only'] as const;
 export const CHANNEL_CATALOG_EXPOSURES = ['stable', 'preview', 'hidden'] as const;
