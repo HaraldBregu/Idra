@@ -1,4 +1,4 @@
-export const MCP_APPROVAL_POLICIES = ['always', 'never'] as const;
+import { MCP_APPROVAL_POLICIES } from './mcp.definitions';
 
 export type McpApprovalPolicy = (typeof MCP_APPROVAL_POLICIES)[number];
 
