@@ -6,6 +6,7 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ProviderStoreChannels,
+	SpeechChannels,
 	SttChannels,
 } from '../shared/ipc/ipc-channels';
 import type {
@@ -13,6 +14,7 @@ import type {
 	AgentApi,
 	ChannelsApi,
 	ProviderApi,
+	SpeechApi,
 	VoiceApi,
 	WindowApi,
 } from './index.d';
