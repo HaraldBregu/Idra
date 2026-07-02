@@ -10,13 +10,27 @@ import {
 	SPEECH_TO_TEXT_PROVIDER_IDS,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	getSpeechToTextModelApiTypes,
+	supportsSpeechToTextModelApiType,
 } from '../../../shared/provider_models_stt.definitions';
 import type { SpeechToTextProviderId } from '../../../shared/provider_models_stt.types';
 import {
+	STT_DEFAULT_REALTIME_SAMPLE_RATE,
+	normalizeSttRealtimeAudioChunk,
+	normalizeSttRealtimeStartRequest,
+	normalizeSttTranscriptionRequest,
+	type SttRealtimeEvent,
+	type SttRealtimeSession,
+	type SttRealtimeStartRequest,
+	type SttModelSelection,
+	type SttSelectionMode,
+	type SttTranscriptionRequest,
+	type SttTranscriptionResult,
+} from '../../../shared/stt_transcription';
+import {
 	cloneModels,
 	normalizeProviderId,
-	type ProviderModel,
 } from '../../../shared/providers_models.definitions';
+import type { ProviderModel } from '../../../shared/providers_models.types';
 import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
