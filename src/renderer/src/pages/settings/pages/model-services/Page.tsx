@@ -11,8 +11,8 @@ import {
 	SPEECH_TO_TEXT_BATCH_API_TYPE,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	supportsSpeechToTextModelApiType,
-	type SpeechToTextApiType,
 } from '../../../../../../shared/provider_models_stt.definitions';
+import type { SpeechToTextApiType } from '../../../../../../shared/provider_models_stt.types';
 import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import { Button } from '@/components/ui/button';
 import {
