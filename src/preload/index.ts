@@ -272,7 +272,7 @@ export const provider: ProviderApi = {
 	},
 };
 
-export const voice: VoiceApi = {
+export const transcribe: TranscribeApi = {
 	transcribe: (request) => {
 		return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
 	},
