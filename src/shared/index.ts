@@ -1,2 +1,14 @@
 export * from './app.types';
+export * from './ipc.types';
+export * from './channels_definitions';
+export * from './channels_catalog';
+export * from './mcp';
+export * from './providers_models.types';
+export * from './providers_definitions';
+export * from './provider_models_llm';
+export * from './provider_models_image';
+export * from './provider_models_audio';
+export type { Provider, ProviderRecord } from './providers.types';
+export * from './skills.types';
+export * from './stt.types';
 export * from './stt_transcription';

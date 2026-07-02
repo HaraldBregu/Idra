@@ -107,7 +107,7 @@ import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
-} from '../shared/app_permissions';
+} from '../shared/app.types';
 
 export interface AppApi {
 	openAppDataFolder: () => Promise<void>;

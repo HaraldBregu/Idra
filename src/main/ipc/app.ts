@@ -7,7 +7,7 @@ import type {
 	CameraPermissionSettings,
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
-} from '../../shared/app_permissions';
+} from '../../shared/app.types';
 import { wrapSimpleHandler } from './core/error-handler';
 import { AppChannels } from '../../shared/ipc_channels';
 import type { LoggerService } from '../shared';
