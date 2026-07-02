@@ -4,13 +4,13 @@ import {
 	TEXT_TO_SPEECH_PROVIDER_ID,
 	TEXT_TO_SPEECH_PROVIDER_IDS,
 } from '../../../shared/provider_models.definitions';
-import type { TextToSpeechProviderId } from '../../../shared/provider_models.types';
+import type { TextToSpeechProviderId } from '../../../shared/provider_models_types';
 import { normalizeProviderId } from '../../../shared/provider_models.definitions';
 import {
 	normalizeSpeechSynthesisRequest,
 	type SpeechSynthesisRequest,
 	type SpeechSynthesisResult,
-} from '../../../shared/speech.types';
+} from '../../../shared/speech_types';
 import { getProvider } from '../../providers';
 import { buildSpeechAdapter } from './speech_factory';
 import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './speech_errors';
