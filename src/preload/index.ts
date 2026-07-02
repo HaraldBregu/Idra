@@ -409,6 +409,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('provider', provider);
+		contextBridge.exposeInMainWorld('speech', speech);
 		contextBridge.exposeInMainWorld('voice', voice);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
