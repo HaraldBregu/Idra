@@ -1,5 +1,5 @@
 import { contextBridge } from 'electron';
-import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc.types';
+import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc_types';
 import {
 	WindowChannels,
 	AgentChannels,
@@ -8,7 +8,7 @@ import {
 	ProviderStoreChannels,
 	SpeechChannels,
 	SttChannels,
-} from '../shared/ipc_channels.definitions';
+} from '../shared/ipc_channels_definitions';
 import type {
 	AppApi,
 	AgentApi,
@@ -23,17 +23,17 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	ModelReasoningEffort,
-} from '../shared/agent.types';
+} from '../shared/agent_types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
 import type { ChannelCatalogEntry } from '../shared';
-import type { Provider } from '../shared/providers.types';
-import { normalizeSpeechSynthesisRequest } from '../shared/speech.types';
+import type { Provider } from '../shared/providers_types';
+import { normalizeSpeechSynthesisRequest } from '../shared/speech_types';
 import {
 	normalizeSttRealtimeAudioChunk,
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt_transcription';
-import { McpOAuthStart, McpSettings } from '../shared/mcp.types';
+import { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
