@@ -60,6 +60,14 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface VoiceApi {
+	synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
 export interface TranscribeApi {
 	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
 	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
