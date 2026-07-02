@@ -3,6 +3,11 @@ import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
 } from '../../../../shared';
+import {
+	cloneModels,
+	normalizeProviderId,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+} from '../../../../shared/provider_models.definitions';
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared';
