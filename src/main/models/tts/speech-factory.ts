@@ -1,5 +1,5 @@
-import { normalizeProviderId } from '../../../shared/providers_models.types';
-import type { TextToSpeechProviderId } from '../../../shared/provider_models_tts.definitions';
+import { normalizeProviderId } from '../../../shared/providers_models.definitions';
+import type { TextToSpeechProviderId } from '../../../shared/provider_models_tts.types';
 import { createCartesiaSpeechAdapter } from './speech-cartesia';
 import { createDeepgramSpeechAdapter } from './speech-deepgram';
 import { createElevenLabsSpeechAdapter } from './speech-elevenlabs';
