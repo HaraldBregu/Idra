@@ -3,7 +3,7 @@ import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
-import { AgentChannels } from '../../shared/ipc_channels.definitions';
+import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
 import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
 import * as skills from '../agent/skills';
@@ -16,7 +16,7 @@ import {
 	type McpOAuthStorage,
 } from '../agent/mcp';
 import type { LoggerService } from '../shared';
-import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers.definitions';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_definitions';
 import type { ModelReasoningEffort } from '../../shared/agent_types';
 import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health_store';
 import type { HealthSettings } from '../agent/health/health_types';
