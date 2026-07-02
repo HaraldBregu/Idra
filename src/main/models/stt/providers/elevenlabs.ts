@@ -13,7 +13,7 @@ import type { SttTranscriptionResult } from '../../../../shared/stt_transcriptio
 import {
 	ELEVENLABS_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models_stt.definitions';
+} from '../../../../shared/provider_models.definitions';
 
 const ELEVENLABS_STT_PATH = 'speech-to-text';
 const ELEVENLABS_REALTIME_STT_PATH = 'speech-to-text/realtime';

@@ -13,7 +13,7 @@ import {
 	QWEN_ASR_FLASH_REALTIME_SPEECH_TO_TEXT_MODEL_ID,
 	QWEN_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models_stt.definitions';
+} from '../../../../shared/provider_models.definitions';
 
 const QWEN_AUTH_SCHEME = 'Bearer';
 const QWEN_REALTIME_BETA_HEADER = 'OpenAI-Beta';

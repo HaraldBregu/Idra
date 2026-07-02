@@ -8,7 +8,7 @@ import type {
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
 } from './stt_transcription';
-import type { PublicProvider } from './providers_definitions';
+import type { PublicProvider } from './providers.definitions';
 import type { ProviderModel } from './provider_models.types';
 import {
 	AgentChannels,
@@ -33,10 +33,10 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
 	[AgentChannels.getProvider]: {
 		args: [];
-		result: import('./providers_definitions').PublicProvider | undefined;
+		result: import('./providers.definitions').PublicProvider | undefined;
 	};
 	[AgentChannels.setProvider]: {
-		args: [provider: import('./providers_definitions').PublicProvider];
+		args: [provider: import('./providers.definitions').PublicProvider];
 		result: boolean;
 	};
 	[AgentChannels.getModelId]: {

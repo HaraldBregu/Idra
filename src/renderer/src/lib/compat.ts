@@ -1,7 +1,7 @@
-import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/provider_models_llm.definitions';
-import { cloneModels } from '../../../shared/providers_models.definitions';
-import type { ProviderModel } from '../../../shared/providers_models.types';
-import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models_stt.definitions';
+import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/provider_models.definitions';
+import { cloneModels } from '../../../shared/provider_models.definitions';
+import type { ProviderModel } from '../../../shared/provider_models.types';
+import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models.definitions';
 import type { PublicProvider } from '../../../shared';
 import type { Provider as StoredProvider } from '../../../shared/providers.types';
 import type {

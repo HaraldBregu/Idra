@@ -5,7 +5,7 @@ export * from './channels.definitions';
 export * from './mcp';
 export * from './provider_models.types';
 export * from './provider_models.definitions';
-export * from './providers_definitions';
+export * from './providers.definitions';
 export type { Provider, ProviderRecord } from './providers.types';
 export * from './skills.types';
 export * from './stt.types';

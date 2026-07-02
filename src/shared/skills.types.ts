@@ -1,20 +1,4 @@
-export const SKILL_CATEGORIES = [
-	'communication',
-	'research',
-	'coding',
-	'planning',
-	'analytics',
-	'productivity',
-	'content',
-	'workflow',
-	'automation',
-	'support',
-	'retrieval',
-	'reasoning',
-	'creative',
-	'operations',
-	'developerTools',
-] as const;
+import { SKILL_CATEGORIES } from './skills.definitions';
 
 export type SkillCategory = (typeof SKILL_CATEGORIES)[number];
 
@@ -164,4 +148,37 @@ export interface SkillImportSkipped {
 export interface SkillImportResult {
 	imported: SkillInfo[];
 	skipped: SkillImportSkipped[];
+}
+
+export interface AnthropicSkillEntry {
+	type: 'anthropic' | 'custom';
+	skill_id: string;
+	version?: string;
+}
+
+export interface AnthropicSkillContainer {
+	skills: AnthropicSkillEntry[];
+}
+
+export interface OpenAIHostedSkillEntry {
+	type: 'skill_reference';
+	skill_id: string;
+	version?: number | 'latest';
+}
+
+export interface OpenAILocalSkillEntry {
+	name: string;
+	description: string;
+	path: string;
+}
+
+export type SkillAdapterTarget =
+	| { provider: 'anthropic'; remoteId: string; version?: string }
+	| { provider: 'openai-hosted'; remoteId: string; version?: number | 'latest' }
+	| { provider: 'openai-local' };
+
+export interface ResolvedSkillAttachment {
+	anthropic?: AnthropicSkillContainer;
+	openaiHosted?: OpenAIHostedSkillEntry[];
+	openaiLocal?: OpenAILocalSkillEntry[];
 }

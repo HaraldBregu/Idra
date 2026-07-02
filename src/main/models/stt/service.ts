@@ -11,8 +11,8 @@ import {
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	getSpeechToTextModelApiTypes,
 	supportsSpeechToTextModelApiType,
-} from '../../../shared/provider_models_stt.definitions';
-import type { SpeechToTextProviderId } from '../../../shared/provider_models_stt.types';
+} from '../../../shared/provider_models.definitions';
+import type { SpeechToTextProviderId } from '../../../shared/provider_models.types';
 import {
 	STT_DEFAULT_REALTIME_SAMPLE_RATE,
 	normalizeSttRealtimeAudioChunk,
@@ -29,13 +29,13 @@ import {
 import {
 	cloneModels,
 	normalizeProviderId,
-} from '../../../shared/providers_models.definitions';
-import type { ProviderModel } from '../../../shared/providers_models.types';
+} from '../../../shared/provider_models.definitions';
+import type { ProviderModel } from '../../../shared/provider_models.types';
 import { SttAdapterFactory } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
 import { getProvider } from '../../providers';
-import type { Provider as CatalogProvider } from '../../../shared/providers_definitions';
+import type { Provider as CatalogProvider } from '../../../shared/providers.definitions';
 import {
 	getModelId as getVoiceModelId,
 	getProviderId as getVoiceProviderId,
