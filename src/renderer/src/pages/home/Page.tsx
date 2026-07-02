@@ -211,7 +211,7 @@ function AttachmentTray({
 	);
 }
 
-function AttachmentButton(): ReactElement {
+function AttachmentButton({ disabled }: { readonly disabled?: boolean }): ReactElement {
 	const { triggerFileUpload } = usePromptInput();
 	return (
 		<PromptInputAction tooltip="Add attachment">
@@ -221,6 +221,7 @@ function AttachmentButton(): ReactElement {
 				size="icon"
 				className="size-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
 				aria-label="Add attachment"
+				disabled={disabled}
 				onClick={triggerFileUpload}
 			>
 				<Plus className="size-4" />
@@ -344,6 +345,7 @@ function PageContent(): ReactElement {
 		recorderStatus === 'stopping' ||
 		transcribingRecording;
 	const voiceBusy = dictationBusy || recordingBusy;
+	const attachmentDisabled = voiceMode !== null || voiceBusy;
 	const activeVoiceElapsedMs =
 		activeDictationMode === 'record' ? recorder.elapsedMs : dictation.elapsedMs;
 	const activeVoiceMuted =
@@ -562,7 +564,7 @@ function PageContent(): ReactElement {
 							maxHeight={360}
 							onSubmit={agent.handleSubmit}
 							textareaRef={agent.inputRef}
-							leadingAction={<AttachmentButton />}
+							leadingAction={<AttachmentButton disabled={attachmentDisabled} />}
 							voiceMode={voiceMode}
 							voiceElapsedMs={voiceMode === 'dictation' ? activeVoiceElapsedMs : undefined}
 							voiceMuted={voiceMode === 'dictation' ? activeVoiceMuted : undefined}
