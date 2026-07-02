@@ -332,7 +332,7 @@ export const transcribe: TranscribeApi = {
 	},
 	setProviderId: (providerId) => {
 		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid voice provider id.');
+		if (!normalizedProviderId) throw new Error('Invalid transcribe provider id.');
 		return typedInvokeUnwrap(SttChannels.setProviderId, normalizedProviderId);
 	},
 	getModelId: () => {

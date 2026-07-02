@@ -184,7 +184,7 @@ export function useRealtimeDictation({
 	}, []);
 
 	useEffect(() => {
-		const api = window.voice;
+		const api = window.transcribe;
 		if (!api) return;
 
 		return api.onRealtimeEvent((event: SttRealtimeEvent) => {
@@ -253,7 +253,7 @@ export function useRealtimeDictation({
 		baseTextRef.current = valueRef.current;
 
 		try {
-			const transcriptionApi = window.voice;
+			const transcriptionApi = window.transcribe;
 			if (!transcriptionApi) {
 				throw new Error('Speech-to-text API is unavailable.');
 			}
@@ -303,7 +303,7 @@ export function useRealtimeDictation({
 			return true;
 		} catch (error) {
 			if (sessionIdRef.current) {
-				await window.voice?.cancelRealtime(sessionIdRef.current).catch(() => undefined);
+				await window.transcribe?.cancelRealtime(sessionIdRef.current).catch(() => undefined);
 				sessionIdRef.current = null;
 			}
 			stopClock();
@@ -324,7 +324,7 @@ export function useRealtimeDictation({
 		mutedRef.current = false;
 		setElapsedMs(0);
 		setStatus('idle');
-		if (sessionId) await window.voice?.cancelRealtime(sessionId).catch(() => undefined);
+		if (sessionId) await window.transcribe?.cancelRealtime(sessionId).catch(() => undefined);
 	}, [stopAudio, stopClock]);
 
 	const finish = useCallback(async (): Promise<void> => {
@@ -341,7 +341,7 @@ export function useRealtimeDictation({
 
 		setStatus('finishing');
 		try {
-			await window.voice?.finishRealtime(sessionId);
+			await window.transcribe?.finishRealtime(sessionId);
 		} catch (error) {
 			sessionIdRef.current = null;
 			setStatus('error');
@@ -355,7 +355,7 @@ export function useRealtimeDictation({
 			sessionIdRef.current = null;
 			stopClock();
 			stopAudio();
-			if (sessionId) void window.voice?.cancelRealtime(sessionId).catch(() => undefined);
+			if (sessionId) void window.transcribe?.cancelRealtime(sessionId).catch(() => undefined);
 		};
 	}, [stopAudio, stopClock]);
 
