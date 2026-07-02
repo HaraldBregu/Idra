@@ -6,9 +6,9 @@ import type {
 	SttRealtimeSession,
 	SttTranscriptionRequest,
 	SttTranscriptionResult,
-} from '../../stt/transcription';
-import type { PublicProvider } from '../../providers';
-import type { ProviderModel } from '../../providers_models.types';
+} from './stt_transcription';
+import type { PublicProvider } from './providers_definitions';
+import type { ProviderModel } from './providers_models.types';
 
 export const SttChannels = {
 	appendRealtimeAudio: 'stt:append-realtime-audio',
