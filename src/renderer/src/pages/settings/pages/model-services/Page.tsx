@@ -190,7 +190,7 @@ async function loadServiceProviders(
 	selection: Awaited<ReturnType<ModelServiceDefinition['getSelection']>>
 ): Promise<PublicProvider[]> {
 	if (service.id === AGENTS.speechToText) {
-		return mergeProviders(await window.voice.listProviders(), selection?.provider);
+		return mergeProviders(await window.transcribe.listProviders(), selection?.provider);
 	}
 	return mergeProviders(await appApi.getProviders(), selection?.provider);
 }
@@ -214,14 +214,14 @@ async function loadSpeechModeState(
 	fallbackModelErrorMessage: string
 ): Promise<ModelServicePageState> {
 	try {
-		const selection = await window.voice.getSelection(mode);
-		const providers = mergeProviders(await window.voice.listProviders(), selection?.provider);
+		const selection = await window.transcribe.getSelection(mode);
+		const providers = mergeProviders(await window.transcribe.listProviders(), selection?.provider);
 		const modelGroups: ProviderModelGroup[] = [];
 		let firstModelError: unknown;
 
 		for (const provider of providers) {
 			try {
-				const models = speechModeModels(provider.id, await window.voice.listModels(provider.id), mode);
+				const models = speechModeModels(provider.id, await window.transcribe.listModels(provider.id), mode);
 				const nextModels =
 					selection?.provider.id === provider.id &&
 					supportsSpeechToTextModelApiType(provider.id, selection.model.id, speechModeApiType(mode))
@@ -478,7 +478,7 @@ const ModelServicePage: React.FC = () => {
 			[mode]: { ...current[mode], saving: true, saved: false, error: null },
 		}));
 		try {
-			const didSave = await window.voice.saveSelection(provider.id, model.id, mode);
+			const didSave = await window.transcribe.saveSelection(provider.id, model.id, mode);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
 			setSpeechStates((current) => ({
 				...current,
