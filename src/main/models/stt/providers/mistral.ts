@@ -13,7 +13,7 @@ import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_tr
 import {
 	MISTRAL_SPEECH_TO_TEXT_PROVIDER_ID,
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
-} from '../../../../shared/provider_models.definitions';
+} from '../../../../shared/provider_models_definitions';
 
 type MistralTranscriptionClient = {
 	audio: {
