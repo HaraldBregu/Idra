@@ -1,4 +1,4 @@
-import type { MODEL_CAPABILITIES } from './providers_models.definitions';
+import { MODEL_CAPABILITIES } from './providers_models.definitions';
 
 export type ProviderModelStatus = 'active' | 'deprecated' | 'verify';
 
