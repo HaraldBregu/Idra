@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import type { SkillValidationIssue, SkillValidationResult } from '../../../shared/skills.types';
+import type { SkillValidationIssue, SkillValidationResult } from '../../../shared/skills_types';
 import { SKILL_FILE } from './skills_read';
 
 export function validateSkill(folder: string): SkillValidationResult {
