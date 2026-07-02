@@ -13,7 +13,7 @@ import type { SttTranscriptionResult, SttUsage } from '../../../../shared/stt_tr
 import {
 	SPEECH_TO_TEXT_PROVIDER_BASE_URLS,
 	XAI_SPEECH_TO_TEXT_PROVIDER_ID,
-} from '../../../../shared/provider_models.definitions';
+} from '../../../../shared/provider_models_definitions';
 
 const XAI_STT_PATH = 'stt';
 const XAI_STT_AUTH_SCHEME = 'Bearer';
