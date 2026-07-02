@@ -1,7 +1,7 @@
 import { ensureSpeechResponseOk, speechResult } from './speech_audio';
 import { SpeechProviderRequestError } from './speech_errors';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech_types';
-import type { SpeechSynthesisResult } from '../../../shared/speech.types';
+import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 const GOOGLE_DEFAULT_VOICE = 'Kore';
 const GOOGLE_DEFAULT_SAMPLE_RATE = 24_000;
