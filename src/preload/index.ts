@@ -426,5 +426,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
+	globalThis.speech = speech;
+	// @ts-ignore (define in dts)
 	globalThis.voice = voice;
 }
