@@ -140,5 +140,6 @@ declare global {
 		channels: ChannelsApi;
 		provider: ProviderApi;
 		transcribe: TranscribeApi;
+		voice: VoiceApi;
 	}
 }
