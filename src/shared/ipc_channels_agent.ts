@@ -43,10 +43,10 @@ export interface AgentInvokeChannelMap {
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
 	[AgentChannels.getProvider]: {
 		args: [];
-		result: import('../../providers').PublicProvider | undefined;
+		result: import('./providers_definitions').PublicProvider | undefined;
 	};
 	[AgentChannels.setProvider]: {
-		args: [provider: import('../../providers').PublicProvider];
+		args: [provider: import('./providers_definitions').PublicProvider];
 		result: boolean;
 	};
 	[AgentChannels.getModelId]: {
