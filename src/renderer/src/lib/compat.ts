@@ -1,5 +1,6 @@
 import { CHAT_MODELS_BY_PROVIDER } from '../../../shared/provider_models_llm.definitions';
-import { cloneModels, type ProviderModel } from '../../../shared/providers_models.types';
+import { cloneModels } from '../../../shared/providers_models.definitions';
+import type { ProviderModel } from '../../../shared/providers_models.types';
 import { isRealtimeSpeechToTextModel as isRealtimeSpeechToTextModelFromCatalog } from '../../../shared/provider_models_stt.definitions';
 import type { PublicProvider } from '../../../shared';
 import type { Provider as StoredProvider } from '../../../shared/providers.types';
