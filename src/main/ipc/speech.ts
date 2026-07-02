@@ -1,17 +1,17 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event-bus';
-import { registerCommand } from './core/gateway';
+import { registerCommand, registerQuery } from './core/gateway';
 import { SpeechChannels } from '../../shared/ipc/ipc-channels';
-import type { SpeechService } from '../speech';
+import { getModelId, getProviderId, setModelId, setProviderId, synthesize } from '../models/tts';
 
-export interface SpeechIpcDeps {
-	speech: SpeechService;
-}
-
-export class SpeechIpc implements IpcModule<SpeechIpcDeps> {
+export class SpeechIpc implements IpcModule {
 	readonly name = 'speech';
 
-	register({ speech }: SpeechIpcDeps, _eventBus: EventBus): void {
-		registerCommand(SpeechChannels.synthesize, (request) => speech.synthesize(request));
+	register(_deps: void, _eventBus: EventBus): void {
+		registerCommand(SpeechChannels.synthesize, (request) => synthesize(request));
+		registerQuery(SpeechChannels.getProviderId, () => getProviderId());
+		registerCommand(SpeechChannels.setProviderId, (providerId) => setProviderId(providerId));
+		registerQuery(SpeechChannels.getModelId, () => getModelId());
+		registerCommand(SpeechChannels.setModelId, (modelId) => setModelId(modelId));
 	}
 }
