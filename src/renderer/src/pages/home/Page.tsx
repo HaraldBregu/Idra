@@ -538,6 +538,7 @@ function PageContent(): ReactElement {
 											showHeader={showAssistantHeader}
 											collapseLongContent={isPreviousMessage}
 											className={groupedAssistantClassName}
+											onReply={agent.switchToTyping}
 										/>
 									);
 								})}
