@@ -1,4 +1,4 @@
-import { model, type ModelCatalog } from './types';
+import { model, type ModelCatalog } from '../../providers.models.types';
 
 export const TEXT_TO_AUDIO_MODELS_BY_PROVIDER = {
 	elevenlabs: [
