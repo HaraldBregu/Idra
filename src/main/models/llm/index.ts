@@ -1,6 +1,6 @@
 import type { Tool } from '../../agent/types';
 import type { Message, Provider, ToolCall } from '../../agent/types';
-import type { ModelReasoningEffort } from '../../../shared/agent/types';
+import type { ModelReasoningEffort } from '../../../shared/agent-types';
 
 export interface ModelRequest {
 	messages: Message[];
