@@ -31,7 +31,6 @@ export {
 	type CronSchedule,
 	type CronScheduleCreateRequest,
 	type CronScheduleEvent,
-	type CronScheduleEventType,
 	type CronScheduledTask,
 	type CronScheduleUpdateRequest,
 	type PersistedCronState,

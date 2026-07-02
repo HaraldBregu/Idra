@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { listeners } from './cron_module_state';
-import type { CronSchedule, CronScheduleEventType } from './cron_types';
+import type { CronSchedule, CronScheduleEvent } from './cron_types';
 
-export function emit(schedule: CronSchedule, type: CronScheduleEventType, message: string): void {
+export function emit(schedule: CronSchedule, type: CronScheduleEvent['type'], message: string): void {
 	const event = {
 		eventId: randomUUID(),
 		scheduleId: schedule.id,

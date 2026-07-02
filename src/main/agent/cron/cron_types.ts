@@ -10,23 +10,6 @@ export interface CronJobInfo {
 	readonly updatedAt: string;
 }
 
-export type CronScheduleEventType =
-	| 'schedule.created'
-	| 'schedule.updated'
-	| 'schedule.paused'
-	| 'schedule.resumed'
-	| 'schedule.deleted'
-	| 'schedule.loaded'
-	| 'schedule.recovered'
-	| 'schedule.due'
-	| 'schedule.triggered'
-	| 'schedule.skipped'
-	| 'schedule.missed'
-	| 'schedule.failed'
-	| 'schedule.completed'
-	| 'schedule.permissionDenied'
-	| 'schedule.nextRunUpdated';
-
 export interface CronScheduledTask {
 	id: string;
 	title: string;
@@ -64,7 +47,22 @@ export type CronScheduleUpdateRequest = Partial<
 export interface CronScheduleEvent {
 	eventId: string;
 	scheduleId: string;
-	type: CronScheduleEventType;
+	type:
+		| 'schedule.created'
+		| 'schedule.updated'
+		| 'schedule.paused'
+		| 'schedule.resumed'
+		| 'schedule.deleted'
+		| 'schedule.loaded'
+		| 'schedule.recovered'
+		| 'schedule.due'
+		| 'schedule.triggered'
+		| 'schedule.skipped'
+		| 'schedule.missed'
+		| 'schedule.failed'
+		| 'schedule.completed'
+		| 'schedule.permissionDenied'
+		| 'schedule.nextRunUpdated';
 	timestamp: string;
 	message: string;
 }
