@@ -35,7 +35,7 @@ import { getScheduleTool } from '../tools/cron_get_schedule';
 import { listSchedulesTool } from '../tools/cron_list_schedules';
 import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
 import { loadMcpTools } from '../tools/mcp_loader';
-import { addSkillPrompt, buildSystemPrompt } from '../system';
+import { buildSystemPrompt } from '../system';
 import { formatToolOutput } from './format_tool_output';
 
 interface ModelTurn {
