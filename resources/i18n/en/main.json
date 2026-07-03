@@ -753,7 +753,7 @@
 			"transcribeProviderDescription": "Provider used for recorded audio transcription.",
 			"transcribeModelDescription": "Batch-capable model used to transcribe recorded audio.",
 			"voiceName": "Voice",
-			"voiceDescription": "The voice Friday speaks with. Choose the provider and model used to synthesize spoken responses.",
+			"voiceDescription": "Text-to-speech models",
 			"textToSpeechConfigurationSubtitle": "Voice output settings are listed here.",
 			"textToSpeechProviderDescription": "Provider used for spoken responses.",
 			"textToSpeechModel": "Voice model",
