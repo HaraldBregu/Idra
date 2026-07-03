@@ -10,6 +10,7 @@ import {
 import { run } from './run/run';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
+import { rejectPendingToolPermissions } from './permissions';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentHistoryContentBlock,
