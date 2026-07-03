@@ -333,6 +333,7 @@ export function agentChatReducer(
 				...message,
 				state: 'cancelled',
 				errorText: 'Cancelled.',
+				pendingPermission: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
