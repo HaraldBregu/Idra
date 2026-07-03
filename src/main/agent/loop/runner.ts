@@ -106,8 +106,6 @@ async function* stream(
 	const mcp = await loadMcpTools();
 	tools.push(...mcp.tools);
 
-	const basePrompt = await buildSystemPrompt(config);
-
 	yield {
 		type: 'run_started',
 		sessionId: session.id,
