@@ -49,6 +49,8 @@ export async function* stream(
 		execTool,
 		processTool,
 		loadSkillTool,
+		searchSkillsTool,
+		selectSkillTool,
 		createScheduleTool,
 		updateScheduleTool,
 		pauseScheduleTool,
