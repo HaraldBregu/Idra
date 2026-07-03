@@ -107,6 +107,7 @@ export async function* stream(
 
 			yield* runToolCalls(tools, turn.toolCalls);
 			addToolResults(session, turn.toolCalls);
+			session.skillId = getLoopContext().selectedSkill?.id;
 		}
 	} finally {
 		await mcp.close();
