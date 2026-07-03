@@ -42,7 +42,7 @@ export function AssistantMessage({
 	const canToggleContent =
 		collapseLongContent && message.content.trim().length > LONG_MESSAGE_LENGTH;
 	const [isContentExpanded, setIsContentExpanded] = useState(false);
-	const [isSpeaking, setIsSpeaking] = useState(false);
+	const { speak, isSpeaking, errorMessage: speakErrorMessage, clearError } = useReadMessageAloud();
 
 	const hasContent = message.content.length > 0;
 	const messageText = message.content.trim();
