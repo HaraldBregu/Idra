@@ -10,6 +10,12 @@ export interface UserMessage {
 	readonly content: string;
 }
 
+export interface PendingToolPermission {
+	readonly toolCallId: string;
+	readonly toolName: string;
+	readonly input: unknown;
+}
+
 export interface AgentMessage {
 	readonly id: string;
 	readonly role: 'agent';
@@ -18,6 +24,7 @@ export interface AgentMessage {
 	readonly runId?: string;
 	readonly state: AgentRunState;
 	readonly tools: readonly AgentToolPart[];
+	readonly pendingPermission?: PendingToolPermission;
 	readonly errorText?: string;
 	readonly startedAtMs?: number;
 	readonly completedAtMs?: number;
