@@ -171,7 +171,8 @@
 				"mcp": "Server Model Context Protocol",
 				"providers": "Chiavi API AI",
 				"cron": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate",
-				"heartbeat": "Controlli periodici agenti"
+				"heartbeat": "Controlli periodici agenti",
+				"health": "Configurazione controlli di salute dell'agente"
 			}
 		},
 		"tabs": {
