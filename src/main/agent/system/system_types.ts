@@ -1,6 +1,6 @@
 export const AGENT_FILE = 'AGENTS.md' as const;
 export const BOOTSTRAP_FILE = 'BOOTSTRAP.md' as const;
-export const HEARTBEAT_FILE = 'HEARTBEAT.md' as const;
+export const HEALTH_FILE = 'HEALTH.md' as const;
 export const IDENTITY_FILE = 'IDENTITY.md' as const;
 export const MEMORY_FILE = 'MEMORY.md' as const;
 export const SOUL_FILE = 'SOUL.md' as const;
