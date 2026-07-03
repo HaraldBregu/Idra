@@ -2,6 +2,7 @@ export const AgentChannels = {
 	send: 'agent:send',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
+	respondToolPermission: 'agent:respond-tool-permission',
 	lastMessages: 'agent:last-messages',
 	clearMessages: 'agent:clear-messages',
 	getProvider: 'agent:get-provider',
