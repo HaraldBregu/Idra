@@ -13,7 +13,7 @@ export const selectSkillTool = tool({
 			.describe('The skill name (or id) to select. An empty string clears the selection.'),
 	}),
 	execute: async ({ name }) => {
-		const context = getToolContext();
+		const context = getLoopContext();
 		if (!name.trim()) {
 			context.selectedSkill = undefined;
 			return { selected: null };
