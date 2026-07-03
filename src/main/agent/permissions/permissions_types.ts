@@ -20,3 +20,7 @@ export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 		edit: { mode: 'ask' },
 	},
 };
+
+export function isPermissionGatedTool(toolName: string): toolName is PermissionGatedTool {
+	return (PERMISSION_GATED_TOOLS as readonly string[]).includes(toolName);
+}
