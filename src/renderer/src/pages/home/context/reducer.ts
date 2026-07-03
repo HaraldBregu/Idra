@@ -320,6 +320,7 @@ export function agentChatReducer(
 					message.state === 'error' || message.state === 'cancelled'
 						? message.state
 						: 'completed',
+				pendingPermission: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
