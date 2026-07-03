@@ -8,6 +8,9 @@ export {
 export { resolveToolPermission } from './permissions_resolve';
 export {
 	DEFAULT_PERMISSIONS,
+	isPermissionGatedTool,
+	PERMISSION_GATED_TOOLS,
+	type PermissionGatedTool,
 	type PermissionMode,
 	type PermissionsSchema,
 	type ToolPermission,
