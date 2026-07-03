@@ -12,6 +12,7 @@ import { loadMcpTools } from '../tools/mcp_loader';
 import { readTool } from '../tools/file_read';
 import { writeTool } from '../tools/file_write';
 import { editTool } from '../tools/file_edit';
+import { applyPatchTool } from '../tools/file_apply_patch';
 import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
 import { loadSkillTool } from '../tools/skill_load';
