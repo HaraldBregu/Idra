@@ -117,14 +117,18 @@ export function ToolActivityGroup({
 					)}
 				>
 					<div className="flex flex-col gap-1">
-						{tools.map((tool) => (
-							<Tool
-								key={tool.toolCallId}
-								toolPart={tool}
-								label={toolPartLabel(tool)}
-								className="mt-0"
-							/>
-						))}
+						{groupToolsByType(tools).map((group) =>
+							group.tools.length > 1 ? (
+								<ToolTypeSection key={group.tools[0].toolCallId} group={group} />
+							) : (
+								<Tool
+									key={group.tools[0].toolCallId}
+									toolPart={group.tools[0]}
+									label={toolPartLabel(group.tools[0])}
+									className="mt-0"
+								/>
+							)
+						)}
 					</div>
 				</CollapsibleContent>
 			</Collapsible>
