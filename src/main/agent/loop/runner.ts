@@ -121,7 +121,7 @@ async function* stream(
 				input,
 				provider,
 				modelId,
-				systemPrompt,
+				addSkillPrompt(basePrompt),
 				session.messages,
 				tools,
 				signal,
