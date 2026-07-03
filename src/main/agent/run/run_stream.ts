@@ -15,6 +15,8 @@ import { editTool } from '../tools/file_edit';
 import { applyPatchTool } from '../tools/file_apply_patch';
 import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
+import { webSearchTool } from '../tools/web_search';
+import { webFetchTool } from '../tools/web_fetch';
 import { loadSkillTool } from '../tools/skill_load';
 import { searchSkillsTool } from '../tools/skill_search';
 import { selectSkillTool } from '../tools/skill_select';
