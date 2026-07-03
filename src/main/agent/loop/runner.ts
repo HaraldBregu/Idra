@@ -92,6 +92,7 @@ async function* stream(
 		execTool,
 		processTool,
 		loadSkillTool,
+		selectSkillTool,
 		createScheduleTool,
 		updateScheduleTool,
 		pauseScheduleTool,
