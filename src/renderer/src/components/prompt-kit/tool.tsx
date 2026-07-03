@@ -97,13 +97,13 @@ function Tool({ toolPart, label, defaultOpen = false, className }: ToolProps) {
 							<div className="flex min-w-0 items-center gap-1.5">
 								<span
 									className={cn(
-										'truncate text-sm font-medium',
+										'truncate text-xs font-medium',
 										label ? 'font-sans' : 'font-mono capitalize'
 									)}
 								>
 									{triggerLabel}
 								</span>
-								<ChevronDown className={cn('size-3.5', isOpen && 'rotate-180')} />
+								<ChevronDown className={cn('size-3', isOpen && 'rotate-180')} />
 							</div>
 						</Button>
 					}
