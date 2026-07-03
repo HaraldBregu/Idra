@@ -1,10 +1,13 @@
 export {
+	addToolAllowedPath,
 	getPermissions,
+	getToolAllowedPaths,
 	getToolPermission,
 	resetPermissions,
 	setToolPermission,
 	updatePermissions,
 } from './permissions_store';
+export { isPathWithin, toolPathDir } from './permissions_path';
 export { resolveToolPermission } from './permissions_resolve';
 export {
 	rejectPendingToolPermissions,
