@@ -771,7 +771,7 @@
 			"videoModel": "Modello video",
 			"videoModelDescription": "Modello usato per creare video.",
 			"musicCreatorName": "Text to Audio",
-			"musicCreatorDescription": "Crea musica.",
+			"musicCreatorDescription": "Modelli generazione audio",
 			"musicConfigurationSubtitle": "La configurazione musica apparira qui.",
 			"musicProviderDescription": "Provider usato per la musica.",
 			"musicModel": "Modello musica",
