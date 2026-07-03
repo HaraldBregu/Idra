@@ -239,7 +239,15 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'tasks',
+						path: 'tasks/health',
+							element: (
+								<SettingsRouteWrapper>
+									<HealthPage />
+								</SettingsRouteWrapper>
+							),
+						},
+						{
+							path: 'tasks',
 						element: (
 							<SettingsRouteWrapper>
 								<TasksPage />
