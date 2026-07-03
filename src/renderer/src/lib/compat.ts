@@ -33,6 +33,7 @@ export type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunState,
+	AgentToolPermissionDecision,
 	ModelReasoningEffort,
 	StoredProvider,
 };
