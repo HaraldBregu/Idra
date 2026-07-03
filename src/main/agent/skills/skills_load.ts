@@ -11,6 +11,7 @@ export async function loadSkill(name: string): Promise<SkillLoadResult | undefin
 	if (!skill || !skill.skillPath) return undefined;
 	const content = fs.readFileSync(skill.skillPath, 'utf8');
 	return {
+		id: skill.id,
 		name: skill.name,
 		directory: skill.folderPath,
 		content: stripFrontmatter(content),
