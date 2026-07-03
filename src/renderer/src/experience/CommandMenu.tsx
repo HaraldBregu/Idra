@@ -150,14 +150,55 @@ function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 	];
 }
 
+function CommandMenuItem({
+	item,
+	onSelect,
+}: {
+	readonly item: AppRouteItem;
+	readonly onSelect: (path: string) => void;
+}): React.JSX.Element {
+	const Icon = item.icon;
+
+	return (
+		<CommandItem
+			key={item.id}
+			value={item.searchValue}
+			keywords={item.keywords}
+			onSelect={() => onSelect(item.path)}
+			className="items-start gap-2 px-2 py-1.5"
+		>
+			<span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md bg-muted/70 text-muted-foreground">
+				<Icon className="size-3" aria-hidden="true" strokeWidth={1.8} />
+			</span>
+			<span className="flex min-w-0 flex-1 flex-col">
+				<span className="truncate text-xs font-medium leading-4">
+					{item.label}
+				</span>
+				{item.description && (
+					<span className="truncate text-[10px] leading-3.5 text-muted-foreground">
+						{item.description}
+					</span>
+				)}
+			</span>
+			<CommandShortcut className="hidden max-w-32 truncate font-mono text-[9px] sm:block">
+				{item.path}
+			</CommandShortcut>
+		</CommandItem>
+	);
+}
+
 export function CommandMenu(): React.JSX.Element {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
+	const [search, setSearch] = useState('');
 	const groups = useMemo(() => buildCommandGroups(t), [t]);
+	const allItems = useMemo(() => groups.flatMap((group) => group.items), [groups]);
+	const isSearching = search.trim().length > 0;
 
 	const handleOpenChange = useCallback((nextOpen: boolean) => {
 		setOpen(nextOpen);
+		if (!nextOpen) setSearch('');
 	}, []);
 
 	const navigateTo = useCallback(
