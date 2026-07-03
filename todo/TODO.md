@@ -2,13 +2,9 @@
 
 ## Goal
 
-Replace per-tool collapsibles in assistant messages with a single grouped activity row that summarizes exploration work and expands to show each call in plain language.
+Assistant messages with tool calls show a single grouped activity row that summarizes exploration work and expands to list each call in plain language.
 
-## Current behavior
-
-`AssistantMessage` renders one `<Tool>` per entry in `message.tools` (`src/renderer/src/pages/home/components/AssistantMessage.tsx`). Each row shows the raw tool name (e.g. `read`) and exposes full input/output on expand (`src/renderer/src/components/prompt-kit/tool.tsx`).
-
-## Desired behavior
+## Behavior
 
 When an assistant message has tool calls, show **one** collapsible above the markdown reply:
 
@@ -19,7 +15,7 @@ When an assistant message has tool calls, show **one** collapsible above the mar
 
 - `n` = number of tool calls in `message.tools`.
 - Use singular when `n === 1`: `Exploring 1 file` / `Explored 1 file`.
-- While exploring, optionally shimmer the summary label (match existing `TextShimmer` usage).
+- While exploring, shimmer the summary label.
 
 **Collapsed (default):** summary label + chevron only.
 
@@ -38,19 +34,19 @@ Derive each list item from `AgentToolPart`:
    - `read` + `path` → `Read <basename>`
    - `grep` / `search` + `pattern` or `query` → `Searched … for "<pattern>"`
    - `list_dir` + `path` → `Listed <basename>`
-   - Fallback → capitalize `type` (today's behavior).
+   - Fallback → capitalize `type`.
 
-Keep labels short; show full paths, args, output, errors, and duration only inside a nested expand per item (reuse existing `Tool` input/output UI or equivalent).
+Keep labels short; show full paths, args, output, errors, and duration only inside a nested expand per item.
 
 ### Placement & interaction
 
-- Render the group **above** the assistant markdown, same position as today's tool block.
+- Render the group **above** the assistant markdown.
 - Default collapsed; user expands to inspect individual calls.
 - Failed calls (`output-error`) still count toward `n`; show the error in the nested detail, not in the summary count wording.
 
 ## Scope
 
-- **In:** `AssistantMessage`, new grouped wrapper component, label helper for tool parts.
+- **In:** `AssistantMessage`, grouped wrapper component, label helper for tool parts.
 - **Out:** changing backend event shape unless `displayName` is already available and unused.
 - **Out:** regrouping tools across multiple assistant messages or turns.
 
@@ -60,4 +56,4 @@ Keep labels short; show full paths, args, output, errors, and duration only insi
 2. Single file → `Explored 1 file`.
 3. Mixed tools (read + grep) → count includes all calls; labels use the rules above.
 4. Tool error → summary still reaches `Explored n files`; failed item shows error on nested expand.
-5. Message with no tools → no activity row (unchanged).
+5. Message with no tools → no activity row.
