@@ -1,7 +1,9 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import {
+	addToolAllowedPath,
 	resolveToolPermission,
 	setToolPermission,
+	toolPathDir,
 	waitForToolPermission,
 } from '../permissions';
 import { formatToolOutput } from './run_common';
