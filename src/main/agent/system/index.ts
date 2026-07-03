@@ -19,7 +19,7 @@ export { workspacePath } from './system_workspace_path';
 export {
 	AGENT_FILE,
 	BOOTSTRAP_FILE,
-	HEARTBEAT_FILE,
+	HEALTH_FILE,
 	IDENTITY_FILE,
 	MEMORY_FILE,
 	SOUL_FILE,
