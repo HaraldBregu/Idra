@@ -22,6 +22,7 @@ import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
+	AgentToolPermissionDecision,
 	ModelReasoningEffort,
 } from '../shared/agent_types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
