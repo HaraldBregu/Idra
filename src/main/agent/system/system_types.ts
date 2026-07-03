@@ -10,7 +10,7 @@ export const USER_FILE = 'USER.md' as const;
 export type WorkspaceFile =
 	| typeof AGENT_FILE
 	| typeof BOOTSTRAP_FILE
-	| typeof HEARTBEAT_FILE
+	| typeof HEALTH_FILE
 	| typeof IDENTITY_FILE
 	| typeof MEMORY_FILE
 	| typeof SOUL_FILE

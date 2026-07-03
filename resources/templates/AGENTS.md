@@ -16,7 +16,7 @@ follow-up read.
 - `TOOLS.md` - local setup notes and tool-specific details
 - `IDENTITY.md` - assistant name, avatar, vibe, and metadata
 - `USER.md` - user profile and preferences
-- `HEARTBEAT.md` - proactive or periodic task guidance
+- `HEALTH.md` - proactive or periodic task guidance
 - `BOOTSTRAP.md` - one-time onboarding workflow
 - `MEMORY.md` - curated long-term memory, when present
 
