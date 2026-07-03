@@ -21,6 +21,8 @@ export type AgentRunStopReason =
 
 export type AgentToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
+export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always';
+
 export type AgentHistoryContentBlock =
 	| {
 			type: 'text';
