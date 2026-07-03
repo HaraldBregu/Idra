@@ -45,14 +45,9 @@ export function toolPartLabel(tool: AgentToolPart): string {
 		return query ? `Searched skills for "${query}"` : 'Searched skills';
 	}
 
-	if (type === 'select_skill') {
-		const name = stringArg(input, 'name');
-		return name ? `Selected skill "${name}"` : 'Cleared skill selection';
-	}
-
 	if (type === 'load_skill') {
 		const name = stringArg(input, 'name');
-		return name ? `Loaded skill "${name}"` : 'Loaded skill';
+		return name ? `Loaded skill "${name}"` : 'Cleared skill selection';
 	}
 
 	if (type === 'list_dir') {
