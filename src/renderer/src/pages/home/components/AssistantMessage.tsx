@@ -82,23 +82,12 @@ export function AssistantMessage({
 
 	const speakMessage = (): void => {
 		if (messageText.length === 0 || isSpeaking) return;
-		setIsSpeaking(true);
-		void (async () => {
-			try {
-				const result = await window.voice.synthesize({
-					text: messageText.slice(0, SPEECH_MAX_TEXT_LENGTH),
-				});
-				const audio = new Audio(`data:${result.mimeType};base64,${result.audio}`);
-				await audio.play();
-				await new Promise((resolve) => {
-					audio.onended = resolve;
-					audio.onerror = resolve;
-				});
-			} finally {
-				setIsSpeaking(false);
-			}
-		})().catch(() => {});
+		clearError();
+		speak(message.content);
 	};
+
+	const readAloudTitle =
+		speakErrorMessage ?? (isSpeaking ? 'Reading message aloud' : 'Read message aloud');
 
 	return (
 		<Message className={cn('flex w-full flex-col', className)}>
