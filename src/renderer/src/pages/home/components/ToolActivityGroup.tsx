@@ -21,7 +21,7 @@ export function ToolActivityGroup({
 }): ReactElement {
 	const [isOpen, setIsOpen] = useState(false);
 	const isExploring = tools.some(isToolRunning);
-	const summary = toolActivitySummary(tools);
+	const { verb, detail } = toolActivitySummary(tools);
 
 	return (
 		<div className={cn('w-full max-w-2xl', className)}>
@@ -34,13 +34,14 @@ export function ToolActivityGroup({
 							className="p-0! h-auto w-full justify-start rounded-md bg-transparent! py-1 font-normal text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
-								{isExploring ? (
-									<TextShimmer className="truncate text-xs font-medium">
-										{summary}
-									</TextShimmer>
-								) : (
-									<span className="truncate text-xs font-medium">{summary}</span>
-								)}
+								<span className="flex min-w-0 items-baseline gap-1 truncate text-xs font-medium">
+									{isExploring ? (
+										<TextShimmer>{verb}</TextShimmer>
+									) : (
+										<span>{verb}</span>
+									)}
+									<span className="text-muted-foreground/50">{detail}</span>
+								</span>
 								<ChevronDown className={cn('size-3 shrink-0', isOpen && 'rotate-180')} />
 							</div>
 						</Button>
