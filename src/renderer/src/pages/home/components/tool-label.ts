@@ -58,6 +58,16 @@ export function toolPartLabel(tool: AgentToolPart): string {
 	return capitalizeType(tool.type);
 }
 
+const groupVerbs: Record<string, { readonly running: string; readonly done: string }> = {
+	browser: { running: 'Browsing', done: 'Browsed' },
+};
+
+export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
+	const verbs = groupVerbs[type.toLowerCase()];
+	if (verbs) return tools.some(isToolRunning) ? verbs.running : verbs.done;
+	return capitalizeType(type);
+}
+
 export function isToolRunning(tool: AgentToolPart): boolean {
 	return tool.state === 'input-streaming' || tool.state === 'input-available';
 }
