@@ -4,6 +4,7 @@ import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message, MessageActions } from '@/components/prompt-kit/message';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { ToolActivityGroup } from './ToolActivityGroup';
+import { ToolPermissionCard } from './ToolPermissionCard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { type AgentMessage } from '../context';
