@@ -132,6 +132,13 @@ export type RuntimeEvent =
 			input: Record<string, unknown>;
 	  }
 	| {
+			type: 'tool_permission_request';
+			toolCallId: string;
+			toolName: string;
+			input: Record<string, unknown>;
+			mode: 'ask';
+	  }
+	| {
 			type: 'tool_call_end';
 			toolCallId: string;
 			toolName: string;
