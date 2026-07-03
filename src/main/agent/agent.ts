@@ -248,6 +248,19 @@ function runtimeEventToAgentEvents(
 			},
 		];
 	}
+	if (event.type === 'tool_permission_request') {
+		return [
+			{
+				type: 'tool_permission_request',
+				toolCallId: event.toolCallId,
+				toolName: event.toolName,
+				input: event.input,
+				mode: 'ask',
+				agentId,
+				runId,
+			},
+		];
+	}
 	if (event.type === 'tool_call_end') {
 		const status = event.isError ? 'error' : 'ok';
 		return [
