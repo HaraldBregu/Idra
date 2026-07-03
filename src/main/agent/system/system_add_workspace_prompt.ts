@@ -5,7 +5,6 @@ import { readBootstrap } from './system_read_bootstrap';
 import { readIdentity } from './system_read_identity';
 import { readMemory } from './system_read_memory';
 import { readSoul } from './system_read_soul';
-import { readTools } from './system_read_tools';
 import { readUser } from './system_read_user';
 import { workspacePath } from './system_workspace_path';
 
