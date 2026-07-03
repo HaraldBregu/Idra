@@ -115,11 +115,12 @@ async function* stream(
 
 	try {
 		while (true) {
+			const context = await refreshLoopContext(config);
 			const turn = yield* runModelTurn(
 				input,
 				provider,
 				modelId,
-				await buildSystemPrompt(config),
+				context.systemPrompt,
 				session.messages,
 				tools,
 				signal,
