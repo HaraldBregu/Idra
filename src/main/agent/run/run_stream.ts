@@ -47,6 +47,7 @@ export async function* stream(
 		readTool,
 		writeTool,
 		editTool,
+		applyPatchTool,
 		execTool,
 		processTool,
 		loadSkillTool,
