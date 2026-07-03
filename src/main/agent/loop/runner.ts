@@ -119,7 +119,7 @@ async function* stream(
 				input,
 				provider,
 				modelId,
-				addSkillPrompt(basePrompt),
+				await buildSystemPrompt(config),
 				session.messages,
 				tools,
 				signal,
