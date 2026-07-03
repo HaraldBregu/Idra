@@ -91,6 +91,15 @@ function getPage(targetId?: string): { id: string; page: Page } {
 	return { id: last[0], page: last[1] };
 }
 
+// ponytail: scheme check only, no private-host blocking — driving localhost apps
+// is a core use case, and the agent already has exec/file tools (no new access)
+function assertHttpUrl(url: string): string {
+	const parsed = new URL(url);
+	if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')
+		throw new Error('Invalid URL: must be http or https');
+	return parsed.toString();
+}
+
 function refSelector(ref: string): string {
 	if (!/^e\d+$/.test(ref)) throw new Error(`Invalid ref "${ref}". Refs look like "e12" from snapshot output.`);
 	return `[data-agent-ref="${ref}"]`;
