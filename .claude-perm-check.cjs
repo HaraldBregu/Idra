@@ -1,0 +1,10 @@
+const { toolPathDir, isPathWithin } = require(process.env.TMPDIR + '/perm_path.cjs');
+const assert = require('node:assert');
+const desktop = toolPathDir({ path: '~/Desktop/notes.txt' });
+assert(desktop.endsWith('/Desktop'), desktop);
+assert(isPathWithin(desktop, toolPathDir({ path: '~/Desktop/other.txt' })));
+assert(isPathWithin(desktop, toolPathDir({ path: '~/Desktop/sub/deep.txt' })));
+assert(!isPathWithin(desktop, toolPathDir({ path: '~/Documents/x.txt' })));
+assert(!isPathWithin(desktop, toolPathDir({ path: '~/Desktop2/x.txt' })));
+assert(toolPathDir({}) === undefined);
+console.log('ok');
