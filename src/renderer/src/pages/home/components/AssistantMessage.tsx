@@ -3,7 +3,7 @@ import { Copy, Reply, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message, MessageActions } from '@/components/prompt-kit/message';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
-import { Tool } from '@/components/prompt-kit/tool';
+import { ToolActivityGroup } from './ToolActivityGroup';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SPEECH_MAX_TEXT_LENGTH } from '@shared/speech_types';
