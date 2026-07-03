@@ -102,19 +102,7 @@ export function AssistantMessage({
 
 	return (
 		<Message className={cn('flex w-full flex-col', className)}>
-			{hasTools && (
-				<div className="w-full">
-					<div className="flex w-full flex-col gap-4">
-						{message.tools.map((tool) => (
-							<Tool
-								key={tool.toolCallId}
-								toolPart={tool}
-								className="mt-0 w-full max-w-2xl"
-							/>
-						))}
-					</div>
-				</div>
-			)}
+			{hasTools && <ToolActivityGroup tools={message.tools} />}
 			{hasContent && (
 				<>
 					<Markdown
