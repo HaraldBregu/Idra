@@ -161,18 +161,18 @@
 				"automations": "Automations"
 			},
 			"descriptions": {
-				"application": "General setup, permissions, and desktop capabilities",
-				"general": "App info, appearance, folders",
-				"modelServices": "Model service configuration",
-				"system": "Permissions, keep-awake controls, and desktop capabilities",
-				"channels": "Messaging channels",
-				"skills": "Installed skills",
-				"connectors": "Connected apps",
-				"mcp": "Model Context Protocol servers",
-				"providers": "AI API keys",
-				"cron": "View, run, pause, and delete scheduled agent tasks",
+				"application": "App setup and permissions",
+				"general": "App info and appearance",
+				"modelServices": "Model service setup",
+				"system": "Permissions and desktop",
+				"channels": "Messaging integrations",
+				"skills": "Installed agent skills",
+				"connectors": "Connected app accounts",
+				"mcp": "External tool servers",
+				"providers": "API keys and providers",
+				"cron": "Scheduled agent tasks",
 				"heartbeat": "Periodic agent checks",
-				"health": "Agent health check configuration"
+				"health": "Periodic health checks"
 			}
 		},
 		"tabs": {
