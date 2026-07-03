@@ -147,6 +147,18 @@ export const agent: AgentApi = {
 	cancel: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.cancel);
 	},
+	respondToolPermission: (
+		toolCallId: string,
+		decision: AgentToolPermissionDecision
+	): Promise<boolean> => {
+		const normalizedToolCallId = optionalTrimmedString(toolCallId);
+		if (!normalizedToolCallId) throw new Error('Invalid tool call id.');
+		return typedInvokeUnwrap(
+			AgentChannels.respondToolPermission,
+			normalizedToolCallId,
+			decision
+		);
+	},
 	getLastMessages: (sessionId: string): Promise<AgentHistoryMessage[]> => {
 		const normalizedSessionId = optionalTrimmedString(sessionId);
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
