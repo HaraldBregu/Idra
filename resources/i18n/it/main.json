@@ -192,6 +192,7 @@
 			"editor": "Editor",
 			"taskScheduler": "Attivita",
 			"heartbeat": "Heartbeat",
+			"health": "Health",
 			"developer": "Sviluppatore",
 			"skills": "Abilità"
 		},
