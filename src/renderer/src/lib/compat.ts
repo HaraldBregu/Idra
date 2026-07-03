@@ -9,6 +9,7 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunState,
+	AgentToolPermissionDecision,
 	AgentToolResultStatus,
 	ModelReasoningEffort,
 } from '../../../shared/agent_types';
