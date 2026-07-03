@@ -276,10 +276,11 @@ export const browserTool = tool({
 				return JSON.stringify({ tabs: await tabList() });
 			case 'open': {
 				if (!params.url) throw new Error('open requires a url.');
+				const url = assertHttpUrl(params.url);
 				const ctx = await ensureStarted();
 				const page = await ctx.newPage();
 				const targetId = [...pages.entries()].find(([, p]) => p === page)?.[0] ?? trackPage(page);
-				await page.goto(params.url, { waitUntil: 'domcontentloaded' });
+				await page.goto(url, { waitUntil: 'domcontentloaded' });
 				return JSON.stringify({ targetId, url: page.url(), title: await page.title() });
 			}
 			case 'focus': {
