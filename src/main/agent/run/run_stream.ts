@@ -52,6 +52,8 @@ export async function* stream(
 		applyPatchTool,
 		execTool,
 		processTool,
+		webSearchTool,
+		webFetchTool,
 		loadSkillTool,
 		searchSkillsTool,
 		selectSkillTool,
