@@ -28,6 +28,19 @@ export function getToolPermission(toolName: string): PermissionMode {
 	return store.get('defaultMode');
 }
 
+export function getToolAllowedPaths(toolName: string): string[] {
+	return store.get('tools')[toolName]?.allowedPaths ?? [];
+}
+
+export function addToolAllowedPath(toolName: string, dirPath: string): void {
+	const tools = { ...store.get('tools') };
+	const entry = tools[toolName] ?? { mode: 'ask' as PermissionMode };
+	const allowedPaths = entry.allowedPaths ?? [];
+	if (allowedPaths.includes(dirPath)) return;
+	tools[toolName] = { ...entry, allowedPaths: [...allowedPaths, dirPath] };
+	store.set('tools', tools);
+}
+
 export function setToolPermission(toolName: string, mode: PermissionMode): void {
 	const tools = { ...store.get('tools') };
 	const next: ToolPermission = { mode };
