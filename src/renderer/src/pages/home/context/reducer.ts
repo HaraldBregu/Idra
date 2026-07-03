@@ -361,6 +361,7 @@ export function agentChatReducer(
 				content: message.content || action.errorText,
 				state: 'error',
 				errorText: action.errorText,
+				pendingPermission: undefined,
 				startedAtMs: message.startedAtMs ?? action.completedAtMs,
 				completedAtMs: action.completedAtMs ?? message.completedAtMs,
 			}));
