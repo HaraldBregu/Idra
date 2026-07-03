@@ -35,13 +35,13 @@ export function ToolActivityGroup({
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
 								{isExploring ? (
-									<TextShimmer className="truncate text-sm font-medium">
+									<TextShimmer className="truncate text-xs font-medium">
 										{summary}
 									</TextShimmer>
 								) : (
-									<span className="truncate text-sm font-medium">{summary}</span>
+									<span className="truncate text-xs font-medium">{summary}</span>
 								)}
-								<ChevronDown className={cn('size-3.5 shrink-0', isOpen && 'rotate-180')} />
+								<ChevronDown className={cn('size-3 shrink-0', isOpen && 'rotate-180')} />
 							</div>
 						</Button>
 					}
