@@ -77,11 +77,12 @@ function ToolOutput({ output }: { readonly output: unknown }) {
 	);
 }
 
-function Tool({ toolPart, defaultOpen = false, className }: ToolProps) {
+function Tool({ toolPart, label, defaultOpen = false, className }: ToolProps) {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
 	const { state, toolCallId } = toolPart;
 	const input = toolPart.input ?? (toolPart.inputText ? { raw: toolPart.inputText } : undefined);
 	const output = toolPart.output ?? toolPart.outputText;
+	const triggerLabel = label ?? toolPart.type;
 
 	return (
 		<div className={cn('overflow-hidden rounded-md', className)}>
