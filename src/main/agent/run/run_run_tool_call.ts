@@ -1,5 +1,5 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import { formatToolOutput } from './_common';
+import { formatToolOutput } from './run_common';
 
 export async function* runToolCall(
 	tool: Tool | undefined,
