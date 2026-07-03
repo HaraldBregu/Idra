@@ -28,7 +28,7 @@ export async function* runToolCall(
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
 	} else {
-		let permission = resolveToolPermission(toolCall.name);
+		let permission = resolveToolPermission(toolCall.name, toolCall.args);
 
 		if (permission === 'ask') {
 			yield {
