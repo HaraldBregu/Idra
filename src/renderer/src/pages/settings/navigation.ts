@@ -167,6 +167,12 @@ export const SETTINGS_NAVIGATION = [
 		icon: ListChecks,
 	},
 	{
+		path: '/settings/tasks/health',
+		labelKey: 'settings.tabs.health',
+		descriptionKey: 'settings.overview.descriptions.health',
+		icon: HeartPulse,
+	},
+	{
 		path: '/settings/channels',
 		labelKey: 'settings.tabs.channels',
 		descriptionKey: 'settings.overview.descriptions.channels',
