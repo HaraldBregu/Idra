@@ -29,6 +29,7 @@ export type ToolPart = {
 
 export type ToolProps = {
 	toolPart: ToolPart;
+	label?: string;
 	defaultOpen?: boolean;
 	className?: string;
 };
