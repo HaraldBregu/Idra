@@ -40,6 +40,10 @@ export async function* runToolCall(
 			};
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision === 'approve_always') setToolPermission(toolCall.name, 'allow');
+			if (decision !== 'reject') {
+				const dir = toolPathDir(toolCall.args);
+				if (dir) addToolAllowedPath(toolCall.name, dir);
+			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
 
