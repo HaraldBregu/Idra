@@ -66,6 +66,7 @@ export interface SkillDownloadResult {
 }
 
 export interface SkillLoadResult {
+	id: string;
 	name: string;
 	directory: string;
 	content: string;
