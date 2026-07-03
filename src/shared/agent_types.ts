@@ -158,6 +158,13 @@ export type AgentRunStreamEvent =
 			input: unknown;
 			argsText: string;
 	  } & Partial<AgentToolCapabilitySummary>)
+	| {
+			type: 'tool_permission_request';
+			toolCallId: string;
+			toolName: string;
+			input: unknown;
+			mode: 'ask';
+	  }
 	| ({
 			type: 'tool_call_result';
 			iteration: number;
