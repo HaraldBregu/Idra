@@ -131,6 +131,12 @@ function Tool({ toolPart, label, defaultOpen = false, className }: ToolProps) {
 							<div className="text-xs text-muted-foreground">Processing tool call...</div>
 						)}
 
+						{toolPart.durationMs !== undefined && (
+							<div className="text-[11px] text-muted-foreground">
+								Duration: {toolPart.durationMs}ms
+							</div>
+						)}
+
 						{toolCallId && (
 							<div className="text-[11px] text-muted-foreground">
 								<span className="font-mono">Call ID: {toolCallId}</span>
