@@ -52,9 +52,12 @@ export function isToolRunning(tool: AgentToolPart): boolean {
 	return tool.state === 'input-streaming' || tool.state === 'input-available';
 }
 
-export function toolActivitySummary(tools: readonly AgentToolPart[]): string {
+export function toolActivitySummary(tools: readonly AgentToolPart[]): {
+	readonly verb: string;
+	readonly detail: string;
+} {
 	const count = tools.length;
 	const verb = tools.some(isToolRunning) ? 'Exploring' : 'Explored';
 	const noun = count === 1 ? 'file' : 'files';
-	return `${verb} ${count} ${noun}`;
+	return { verb, detail: `${count} ${noun}` };
 }
