@@ -1,4 +1,9 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
+import {
+	resolveToolPermission,
+	setToolPermission,
+	waitForToolPermission,
+} from '../permissions';
 import { formatToolOutput } from './run_common';
 
 export async function* runToolCall(
@@ -21,12 +26,32 @@ export async function* runToolCall(
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
 	} else {
-		try {
-			output = await tool.run(toolCall.args);
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			output = `Error: tool '${toolCall.name}' failed: ${message}`;
+		let permission = resolveToolPermission(toolCall.name);
+
+		if (permission === 'ask') {
+			yield {
+				type: 'tool_permission_request',
+				toolCallId: toolCall.id,
+				toolName: toolCall.name,
+				input: toolCall.args,
+				mode: 'ask',
+			};
+			const decision = await waitForToolPermission(toolCall.id);
+			if (decision === 'approve_always') setToolPermission(toolCall.name, 'allow');
+			permission = decision === 'reject' ? 'deny' : 'allow';
+		}
+
+		if (permission === 'deny') {
+			output = `Error: permission denied for '${toolCall.name}'`;
 			isError = true;
+		} else {
+			try {
+				output = await tool.run(toolCall.args);
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				output = `Error: tool '${toolCall.name}' failed: ${message}`;
+				isError = true;
+			}
 		}
 	}
 
