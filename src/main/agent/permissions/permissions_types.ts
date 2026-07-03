@@ -6,6 +6,7 @@ export type PermissionGatedTool = (typeof PERMISSION_GATED_TOOLS)[number];
 
 export interface ToolPermission {
 	mode: PermissionMode;
+	allowedPaths?: string[];
 }
 
 export interface PermissionsSchema {
