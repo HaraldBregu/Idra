@@ -33,8 +33,6 @@ export async function addWorkspacePrompt(config: Config, prompt: string): Promis
 		workspaceContext += `\n\n${identityText.trim()}`;
 	if (soulText.trim())
 		workspaceContext += `\n\n${soulText.trim()}`;
-	if (toolsText.trim())
-		workspaceContext += `\n\n${toolsText.trim()}`;
 	if (userText.trim())
 		workspaceContext += `\n\n${userText.trim()}`;
 	if (memoryText.trim())
