@@ -171,7 +171,8 @@
 				"mcp": "Model Context Protocol servers",
 				"providers": "AI API keys",
 				"cron": "View, run, pause, and delete scheduled agent tasks",
-				"heartbeat": "Periodic agent checks"
+				"heartbeat": "Periodic agent checks",
+				"health": "Agent health check configuration"
 			}
 		},
 		"tabs": {
