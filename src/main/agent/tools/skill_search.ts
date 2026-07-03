@@ -5,7 +5,7 @@ import { list } from '../skills';
 export const searchSkillsTool = tool({
 	name: 'search_skills',
 	description:
-		'Search the available Agent Skills by keyword. Returns matching skills with their id, name, and description. Pass an empty query to list all skills. Use select_skill to activate one.',
+		'Search the available Agent Skills by keyword. Returns matching skills with their id, name, and description. Pass an empty query to list all skills. Use load_skill to activate one.',
 	inputSchema: z.object({
 		query: z.string().describe('Keywords to match against skill names and descriptions.'),
 	}),
