@@ -7,6 +7,11 @@ export {
 } from './permissions_store';
 export { resolveToolPermission } from './permissions_resolve';
 export {
+	rejectPendingToolPermissions,
+	respondToolPermission,
+	waitForToolPermission,
+} from './permissions_pending';
+export {
 	DEFAULT_PERMISSIONS,
 	isPermissionGatedTool,
 	PERMISSION_GATED_TOOLS,
