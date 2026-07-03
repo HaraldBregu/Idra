@@ -55,7 +55,6 @@ export async function* stream(
 		webFetchTool,
 		loadSkillTool,
 		searchSkillsTool,
-		selectSkillTool,
 		createScheduleTool,
 		updateScheduleTool,
 		pauseScheduleTool,
