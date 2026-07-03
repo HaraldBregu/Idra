@@ -94,7 +94,11 @@ import type { Provider } from '../shared/providers_types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health_types';
-import type { AgentHistoryMessage, AgentResponseEvent } from '../shared/agent_types';
+import type {
+	AgentHistoryMessage,
+	AgentResponseEvent,
+	AgentToolPermissionDecision,
+} from '../shared/agent_types';
 import type { ProviderModel } from '../shared';
 import type { ChannelStatusEvent } from '../shared';
 import type { Channel, ChannelType } from '../shared';
