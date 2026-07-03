@@ -175,6 +175,11 @@ function applyResponseEvent(
 			runId: event.runId,
 			state: 'using_tools',
 			tools,
+			pendingPermission:
+				event.type === 'tool_call_result' &&
+				message.pendingPermission?.toolCallId === event.toolCallId
+					? undefined
+					: message.pendingPermission,
 			content: event.type === 'tool_call_start' ? '' : message.content,
 			startedAtMs: message.startedAtMs ?? receivedAtMs,
 		})
