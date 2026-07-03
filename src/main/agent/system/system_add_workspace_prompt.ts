@@ -19,7 +19,6 @@ export async function addWorkspacePrompt(config: Config, prompt: string): Promis
 	const agentText = await readAgent(resolvedWorkspacePath);
 	const identityText = await readIdentity(resolvedWorkspacePath);
 	const soulText = await readSoul(resolvedWorkspacePath);
-	const toolsText = await readTools(resolvedWorkspacePath);
 	const userText = await readUser(resolvedWorkspacePath);
 	const memoryText = await readMemory(resolvedWorkspacePath);
 
