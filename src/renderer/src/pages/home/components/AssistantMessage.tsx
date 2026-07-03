@@ -93,6 +93,12 @@ export function AssistantMessage({
 	return (
 		<Message className={cn('flex w-full flex-col', className)}>
 			{hasTools && <ToolActivityGroup tools={message.tools} />}
+			{message.pendingPermission && (
+				<ToolPermissionCard
+					key={message.pendingPermission.toolCallId}
+					permission={message.pendingPermission}
+				/>
+			)}
 			{hasContent && (
 				<>
 					<Markdown
