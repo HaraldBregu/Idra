@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { tool } from './tool';
 import { listSkills, loadSkill } from '../skills';
-import { getLoopContext } from '../run/run_loop_context';
+import { getLoopContext } from '../run/_common';
 
 export const selectSkillTool = tool({
 	name: 'select_skill',
