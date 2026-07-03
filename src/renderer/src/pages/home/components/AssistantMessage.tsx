@@ -6,6 +6,7 @@ import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { Tool } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { SPEECH_MAX_TEXT_LENGTH } from '@shared/speech_types';
 import { type AgentMessage } from '../context';
 import { markdownComponents } from './markdown';
 import { statusLabel, isRunningState, stateTone } from './status';
