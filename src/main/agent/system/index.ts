@@ -12,7 +12,6 @@ export { readIdentity } from './system_read_identity';
 export { readMemory } from './system_read_memory';
 export { readSoul } from './system_read_soul';
 export { readTextFile } from './system_read_text_file';
-export { readTools } from './system_read_tools';
 export { readUser } from './system_read_user';
 export { resolveTemplatePath } from './system_resolve_template_path';
 export { resolveWorkspacePath } from './system_resolve_workspace_path';
