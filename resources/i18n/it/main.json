@@ -753,7 +753,7 @@
 			"transcribeProviderDescription": "Provider usato per la trascrizione di audio registrato.",
 			"transcribeModelDescription": "Modello batch usato per trascrivere audio registrato.",
 			"voiceName": "Voce",
-			"voiceDescription": "La voce con cui parla Friday. Scegli il provider e il modello usati per sintetizzare le risposte vocali.",
+			"voiceDescription": "Modelli text-to-speech",
 			"textToSpeechConfigurationSubtitle": "Le impostazioni della voce in uscita sono elencate qui.",
 			"textToSpeechProviderDescription": "Provider usato per le risposte vocali.",
 			"textToSpeechModel": "Modello voce",
