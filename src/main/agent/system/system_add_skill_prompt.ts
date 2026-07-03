@@ -1,4 +1,4 @@
-import { getLoopContext } from '../loop/loop_context';
+import { getLoopContext } from '../run/run_loop_context';
 
 export function addSkillPrompt(prompt: string): string {
 	const skill = getLoopContext().selectedSkill;
