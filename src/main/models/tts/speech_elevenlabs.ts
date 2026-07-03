@@ -16,6 +16,7 @@ export function createElevenLabsSpeechAdapter(provider: SpeechProviderSpec): Spe
 					method: 'POST',
 					headers: {
 						[ELEVENLABS_API_KEY_HEADER]: provider.apiKey,
+						Accept: 'audio/mpeg',
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
