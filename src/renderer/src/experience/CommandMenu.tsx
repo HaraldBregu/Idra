@@ -161,7 +161,6 @@ function CommandMenuItem({
 
 	return (
 		<CommandItem
-			key={item.id}
 			value={item.searchValue}
 			keywords={item.keywords}
 			onSelect={() => onSelect(item.path)}
