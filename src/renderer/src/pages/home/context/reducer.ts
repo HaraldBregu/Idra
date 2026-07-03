@@ -132,6 +132,23 @@ function applyResponseEvent(
 		return ensured.state;
 	}
 
+	if (event.type === 'tool_permission_request') {
+		return updateAgentMessage(
+			{ ...ensured.state, activeAgentId: ensured.message.id, activeRunId: event.runId },
+			ensured.message.id,
+			(message) => ({
+				...message,
+				runId: event.runId,
+				pendingPermission: {
+					toolCallId: event.toolCallId,
+					toolName: event.toolName,
+					input: event.input,
+				},
+				startedAtMs: message.startedAtMs ?? receivedAtMs,
+			})
+		);
+	}
+
 	if (event.type === 'text_delta') {
 		if (!event.delta) return ensured.state;
 		return updateAgentMessage(
