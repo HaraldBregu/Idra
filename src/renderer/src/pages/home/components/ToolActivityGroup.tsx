@@ -52,7 +52,7 @@ export function ToolActivityGroup({
 						'data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down'
 					)}
 				>
-					<div className="flex flex-col gap-1 pl-1">
+					<div className="flex flex-col gap-1 py-1">
 						{tools.map((tool) => (
 							<Tool
 								key={tool.toolCallId}
