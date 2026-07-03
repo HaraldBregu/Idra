@@ -153,7 +153,8 @@ export function AssistantMessage({
 							className="text-muted-foreground hover:text-foreground"
 							aria-label="Read message aloud"
 							title="Read message aloud"
-							disabled
+							disabled={isSpeaking}
+							onClick={speakMessage}
 						>
 							<Volume2 className="size-3.5" />
 						</Button>
