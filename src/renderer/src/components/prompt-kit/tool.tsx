@@ -95,8 +95,13 @@ function Tool({ toolPart, label, defaultOpen = false, className }: ToolProps) {
 							className="p-0! h-auto w-full justify-start rounded-md bg-transparent! py-1 font-normal text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
-								<span className="truncate font-mono text-sm font-medium capitalize">
-									{toolPart.type}
+								<span
+									className={cn(
+										'truncate text-sm font-medium',
+										label ? 'font-sans' : 'font-mono capitalize'
+									)}
+								>
+									{triggerLabel}
 								</span>
 								<ChevronDown className={cn('size-3.5', isOpen && 'rotate-180')} />
 							</div>
