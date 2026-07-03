@@ -765,7 +765,7 @@
 			"imageModel": "Image model",
 			"imageModelDescription": "Model used to generate or edit images.",
 			"videoCreatorName": "Text to Video",
-			"videoCreatorDescription": "Creates videos from text prompts.",
+			"videoCreatorDescription": "Video generation models",
 			"videoConfigurationSubtitle": "Video setup will appear here.",
 			"videoProviderDescription": "Provider used for video.",
 			"videoModel": "Video model",
