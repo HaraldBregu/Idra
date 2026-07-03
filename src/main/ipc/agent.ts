@@ -197,6 +197,16 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.respondToolPermission,
+			wrapSimpleHandler((toolCallId: unknown, decision: unknown): boolean => {
+				const id = optionalTrimmedString(toolCallId);
+				if (!id) throw new Error('Invalid tool call id.');
+				if (!isToolPermissionDecision(decision)) throw new Error('Invalid permission decision.');
+				return respondToolPermission(id, decision);
+			}, AgentChannels.respondToolPermission)
+		);
+
+		ipcMain.handle(
 			AgentChannels.lastMessages,
 			wrapSimpleHandler((sessionId: unknown) => {
 				return agent.getLastMessages(normalizeAgentSessionId(sessionId));
