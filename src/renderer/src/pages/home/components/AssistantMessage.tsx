@@ -127,9 +127,12 @@ export function AssistantMessage({
 							type="button"
 							variant="ghost"
 							size="icon-xs"
-							className="text-muted-foreground hover:text-foreground"
+							className={cn(
+								'text-muted-foreground hover:text-foreground',
+								speakErrorMessage && 'text-destructive hover:text-destructive'
+							)}
 							aria-label="Read message aloud"
-							title="Read message aloud"
+							title={readAloudTitle}
 							disabled={isSpeaking}
 							onClick={speakMessage}
 						>
