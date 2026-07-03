@@ -7,6 +7,9 @@ dist
 .DS_Store
 *.tsbuildinfo
 
+# Local notes
+todo/
+
 # Claude worktrees
 .claude/worktrees/
 
