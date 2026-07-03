@@ -29,6 +29,16 @@ export interface AgentIpcDeps {
 	agent: Agent;
 }
 
+const TOOL_PERMISSION_DECISIONS: readonly AgentToolPermissionDecision[] = [
+	'approve',
+	'reject',
+	'approve_always',
+];
+
+function isToolPermissionDecision(value: unknown): value is AgentToolPermissionDecision {
+	return TOOL_PERMISSION_DECISIONS.includes(value as AgentToolPermissionDecision);
+}
+
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
 	'minimal',
