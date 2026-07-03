@@ -25,6 +25,7 @@ import { editTool } from '../tools/file_edit';
 import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
 import { loadSkillTool } from '../tools/skill_load';
+import { selectSkillTool } from '../tools/skill_select';
 import { createScheduleTool } from '../tools/cron_create_schedule';
 import { updateScheduleTool } from '../tools/cron_update_schedule';
 import { pauseScheduleTool } from '../tools/cron_pause_schedule';
