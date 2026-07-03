@@ -114,6 +114,7 @@ export class Agent {
 	}
 
 	cancel(agentId?: string): void {
+		rejectPendingToolPermissions();
 		if (agentId) {
 			this.activeRuns.get(agentId)?.abort();
 			this.activeRuns.delete(agentId);
