@@ -24,8 +24,8 @@ import { getScheduleTool } from '../tools/cron_get_schedule';
 import { listSchedulesTool } from '../tools/cron_list_schedules';
 import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
-import { runModelTurn } from './run_run_model_turn';
-import { runToolCalls } from './run_run_tool_calls';
+import { runModelTurn } from './run_model_turn';
+import { runToolCalls } from './run_tool_calls';
 
 export async function* stream(
 	config: Config,
