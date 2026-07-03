@@ -297,7 +297,7 @@ export const browserTool = tool({
 				const { id, page } = getPage(params.targetId);
 				if (params.back) await page.goBack({ waitUntil: 'domcontentloaded' });
 				else if (params.forward) await page.goForward({ waitUntil: 'domcontentloaded' });
-				else if (params.url) await page.goto(params.url, { waitUntil: 'domcontentloaded' });
+				else if (params.url) await page.goto(assertHttpUrl(params.url), { waitUntil: 'domcontentloaded' });
 				else throw new Error('navigate requires url, back, or forward.');
 				return JSON.stringify({ targetId: id, url: page.url(), title: await page.title() });
 			}
