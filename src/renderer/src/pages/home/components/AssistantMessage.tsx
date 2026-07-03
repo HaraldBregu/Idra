@@ -6,8 +6,8 @@ import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { ToolActivityGroup } from './ToolActivityGroup';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { SPEECH_MAX_TEXT_LENGTH } from '@shared/speech_types';
 import { type AgentMessage } from '../context';
+import { useReadMessageAloud } from '../hooks';
 import { markdownComponents } from './markdown';
 import { statusLabel, isRunningState, stateTone } from './status';
 
