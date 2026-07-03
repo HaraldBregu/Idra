@@ -759,7 +759,7 @@
 			"textToSpeechModel": "Modello voce",
 			"textToSpeechModelDescription": "Modello usato per l'output vocale.",
 			"imageAssistantName": "Text to Image",
-			"imageAssistantDescription": "Crea immagini.",
+			"imageAssistantDescription": "Modelli generazione immagini",
 			"imageConfigurationSubtitle": "Scegli provider e modello con capacita immagini.",
 			"imageProviderDescription": "Provider usato per la generazione immagini.",
 			"imageModel": "Modello immagine",
