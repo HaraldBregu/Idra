@@ -13,6 +13,10 @@ export interface AgentApi {
 		onEvent?: (event: AgentResponseEvent) => void
 	) => Promise<string>;
 	cancel: () => Promise<void>;
+	respondToolPermission: (
+		toolCallId: string,
+		decision: AgentToolPermissionDecision
+	) => Promise<boolean>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	clearMessages: (sessionId: string) => Promise<void>;
 	getProvider: () => Promise<PublicProvider | undefined>;
