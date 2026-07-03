@@ -73,6 +73,7 @@ export async function* stream(
 
 	try {
 		while (true) {
+			const systemPrompt = await buildSystemPrompt(config);
 			const turn = yield* runModelTurn(
 				input,
 				provider,
