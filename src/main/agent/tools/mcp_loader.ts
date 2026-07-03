@@ -1,5 +1,5 @@
-import { close, connect, getMcpServers, listTools, type McpClient } from '../../mcp';
-import type { JSONSchema, Tool } from '../../types';
+import { close, connect, getMcpServers, listTools, type McpClient } from '../mcp';
+import type { JSONSchema, Tool } from '../types';
 import { mcpTool } from './tool';
 
 export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Promise<void> }> {

@@ -8,7 +8,7 @@ import type {
 	RuntimeInput,
 	Tool,
 } from '../types';
-import type { ModelTurn } from './types';
+import type { ModelTurn } from './loop_types';
 
 const agentModel = new AgentModel();
 
