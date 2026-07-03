@@ -13,6 +13,7 @@ export {
 	type AgentRunState,
 	type AgentToolPart,
 	type HomeChatMessage,
+	type PendingToolPermission,
 	type UserMessage,
 } from './state';
 export {
