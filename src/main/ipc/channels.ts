@@ -3,7 +3,7 @@ import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
 import { ChannelsChannels } from '../../shared/ipc_channels_definitions';
-import { listChannelCatalog, type Channel, type ChannelStatusEvent, type ChannelType } from '../../shared';
+import { type Channel, type ChannelStatusEvent, type ChannelType } from '../../shared';
 import { getChannels, setChannelConfig, type ChannelRegistry } from '../channels';
 import type { LoggerService } from '../shared';
 
