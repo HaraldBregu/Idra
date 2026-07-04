@@ -18,27 +18,6 @@ export const CHANNEL_CONNECTION_STATUSES = [
 
 export type ChannelConnectionStatus = (typeof CHANNEL_CONNECTION_STATUSES)[number];
 
-export const CHANNEL_RUNTIME_SUPPORT_VALUES = ['bundled', 'catalog-only'] as const;
-export const CHANNEL_CATALOG_EXPOSURES = ['stable', 'preview', 'hidden'] as const;
-export const CHANNEL_SETUP_FIELDS = [
-	'enabled',
-	'token',
-	'secret',
-	'appId',
-	'clientId',
-	'clientSecret',
-	'botUserId',
-	'allowFrom',
-	'groupAllowFrom',
-	'defaultTarget',
-	'dmPolicy',
-	'heartbeat',
-] as const;
-
-export type ChannelRuntimeSupport = (typeof CHANNEL_RUNTIME_SUPPORT_VALUES)[number];
-export type ChannelCatalogExposure = (typeof CHANNEL_CATALOG_EXPOSURES)[number];
-export type ChannelSetupField = (typeof CHANNEL_SETUP_FIELDS)[number];
-
 export interface ChannelHeartbeatVisibilityConfig {
 	showOk?: boolean;
 	showAlerts?: boolean;
