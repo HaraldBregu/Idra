@@ -9,7 +9,7 @@ export function createImageTool(sessionDir: string): Tool {
 	return tool({
 		name: 'create_image',
 		description:
-			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image under the session resources directory and returns its path.',
+			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image under the session resources directory and returns its absolute path. The image is shown to the user automatically; if you reference it in markdown, use the returned absolute path.',
 		inputSchema: z.object({
 			prompt: z.string().min(1).describe('Text prompt describing the image to generate.'),
 		}),
