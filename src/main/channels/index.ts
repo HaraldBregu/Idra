@@ -22,7 +22,5 @@ export type {
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
 } from './types';
-export { createTelegramAdapter } from './telegram';
-export type { TelegramAdapterOptions } from './telegram';
-export { createDiscordAdapter } from './discord';
-export type { DiscordAdapterOptions } from './discord';
+export type { TelegramAdapterOptions } from './telegram/types';
+export type { DiscordAdapterOptions } from './discord/types';
