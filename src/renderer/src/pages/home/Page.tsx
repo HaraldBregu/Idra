@@ -166,7 +166,7 @@ function AttachmentTray({
 	if (attachments.length === 0) return null;
 
 	return (
-		<div className="mb-2 flex max-h-32 w-full flex-col gap-1.5 overflow-y-auto rounded-lg border border-border/60 bg-card/95 p-2 shadow-sm shadow-foreground/5">
+		<div className="mb-2 flex max-h-24 w-full flex-wrap gap-1.5 overflow-y-auto">
 			{attachments.map((attachment) => {
 				const isAudio = attachment.kind === 'audio';
 				const title = isAudio
@@ -176,33 +176,29 @@ function AttachmentTray({
 				return (
 					<div
 						key={attachment.id}
-						className="flex min-w-0 items-center gap-2 rounded-md border border-border/50 bg-background/70 px-2 py-1.5"
+						className="flex min-w-0 max-w-56 items-center gap-1.5 rounded-full border border-border/60 bg-card/95 py-1 pl-2 pr-1 shadow-sm shadow-foreground/5"
 					>
-						<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-							{isAudio ? <FileAudio className="size-4" /> : <Paperclip className="size-4" />}
+						<span className="shrink-0 text-muted-foreground">
+							{isAudio ? <FileAudio className="size-3.5" /> : <Paperclip className="size-3.5" />}
 						</span>
-						<div className="min-w-0 flex-1">
-							<p className="truncate text-xs font-medium leading-4">{title}</p>
-							<p className="truncate text-[11px] leading-4 text-muted-foreground">
-								{attachment.file.name} - {formatFileSize(attachment.file.size)}
-							</p>
-						</div>
+						<span className="min-w-0 truncate text-xs font-medium" title={attachment.file.name}>
+							{title}
+						</span>
+						<span className="shrink-0 text-[11px] text-muted-foreground">
+							{formatFileSize(attachment.file.size)}
+						</span>
 						{isAudio && attachment.url ? (
-							<audio
-								controls
-								src={attachment.url}
-								className="h-7 w-32 shrink-0 sm:w-40"
-							/>
+							<audio controls src={attachment.url} className="h-6 w-28 shrink-0" />
 						) : null}
 						<Button
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="size-7 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+							className="size-5 shrink-0 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
 							aria-label={`Remove ${title}`}
 							onClick={() => onRemove(attachment.id)}
 						>
-							<X className="size-3.5" />
+							<X className="size-3" />
 						</Button>
 					</div>
 				);
