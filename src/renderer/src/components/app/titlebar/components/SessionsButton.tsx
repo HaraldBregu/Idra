@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
 	DropdownMenu,
+	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useChatSession } from '@/contexts/chat-session';
+import { DEFAULT_CHAT_SESSION_ID, useChatSession } from '@/contexts/chat-session';
 import type { AgentSessionSummary } from '@/lib/compat';
 
 export function SessionsButton(): ReactElement {
