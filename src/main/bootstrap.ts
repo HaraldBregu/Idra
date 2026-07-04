@@ -28,7 +28,6 @@ export function bootstrapServices(): BootstrapResult {
 	const logger = new LoggerService(eventBus);
 	const agentService = new Agent();
 	const channels = new ChannelsService(logger);
-	const stt = new SttService();
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
 	const windowFactory = new WindowFactory(logger);
 	const windowContextManager = new WindowContextManager(logger, eventBus);
