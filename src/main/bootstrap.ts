@@ -1,5 +1,3 @@
-import 'reflect-metadata';
-import { Container, type ContainerInstance } from 'typedi';
 import {
 	EventBus,
 	WindowFactory,
@@ -12,59 +10,51 @@ import { ChannelRegistry, ChannelsService } from './channels';
 import { Agent } from './agent/agent';
 import { SttService } from './models/stt/service';
 
-export interface BootstrapResult {
-	container: ContainerInstance;
-	eventBus: EventBus;
-	windowFactory: WindowFactory;
+export interface MainServices {
 	appState: AppState;
+	eventBus: EventBus;
 	logger: LoggerService;
-	windowContextManager: WindowContextManager;
 	agentService: Agent;
+	channels: ChannelsService;
+	stt: SttService;
+	channelRegistry: ChannelRegistry;
+	windowFactory: WindowFactory;
+	windowContextManager: WindowContextManager;
 }
 
+export interface BootstrapResult extends MainServices {}
+
 export function bootstrapServices(): BootstrapResult {
-	const container = Container.of('main');
-	const appState = container.get(AppState);
-	const eventBus = container.get(EventBus);
-
+	const appState = new AppState();
+	const eventBus = new EventBus();
 	const logger = new LoggerService(eventBus);
-	container.set(LoggerService, logger);
-
 	const agentService = new Agent();
-	container.set(Agent, agentService);
-
 	const channels = new ChannelsService(logger);
-	container.set(ChannelsService, channels);
-
-	container.get(SttService);
-
+	const stt = new SttService();
 	const channelRegistry = new ChannelRegistry({ logger, eventBus, agentService });
-	container.set(ChannelRegistry, channelRegistry);
-
 	const windowFactory = new WindowFactory(logger);
-	container.set(WindowFactory, windowFactory);
-
-	const windowContextManager = new WindowContextManager(container, eventBus);
-	container.set(WindowContextManager, windowContextManager);
+	const windowContextManager = new WindowContextManager(logger, eventBus);
 
 	logger.info('Bootstrap', 'Registered global services');
 
 	return {
-		container,
-		eventBus,
-		windowFactory,
 		appState,
+		eventBus,
 		logger,
-		windowContextManager,
 		agentService,
+		channels,
+		stt,
+		channelRegistry,
+		windowFactory,
+		windowContextManager,
 	};
 }
 
-export async function cleanup(container: ContainerInstance): Promise<void> {
-	const logger = container.get(LoggerService);
+export async function cleanup(services: MainServices): Promise<void> {
+	const { logger, windowContextManager, channelRegistry } = services;
 	logger.info('Bootstrap', 'Starting cleanup');
-	await container.get(WindowContextManager).destroyAll();
-	container.get(ChannelRegistry).destroy();
-	container.get(LoggerService).destroy();
+	await windowContextManager.destroyAll();
+	channelRegistry.destroy();
+	logger.destroy();
 	logger.info('Bootstrap', 'Cleanup complete');
 }
