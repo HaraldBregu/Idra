@@ -88,7 +88,7 @@ export type {
 	SessionUsage,
 };
 
-export type RuntimeModelEvent = ModelEvent;
+export type RuntimeModelEvent = LlmEvent;
 
 export type RuntimeOutput = SessionResult;
 
