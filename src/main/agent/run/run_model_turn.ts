@@ -1,4 +1,4 @@
-import { AgentModel } from '../../models/llm';
+import { LlmModel } from '../../models/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
 import type {
 	Message,
@@ -10,7 +10,7 @@ import type {
 } from '../types';
 import type { ModelTurn } from './run_loop_types';
 
-const agentModel = new AgentModel();
+const llmModel = new LlmModel();
 
 export async function* runModelTurn(
 	_input: RuntimeInput,
