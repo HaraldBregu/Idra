@@ -159,7 +159,7 @@ export function AssistantMessage({
 							key={path}
 							src={localResourceUrl(path)}
 							alt="Generated image"
-							className="max-w-md rounded-lg border border-border/50"
+							className="h-auto max-w-full rounded-lg border border-border/50"
 						/>
 					))}
 				</div>
