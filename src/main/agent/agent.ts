@@ -113,6 +113,10 @@ export class Agent {
 		}
 	}
 
+	listSessions(): AgentSessionSummary[] {
+		return listSessions(this.config.location);
+	}
+
 	getLastMessages(sessionId: string): AgentHistoryMessage[] {
 		return loadMessages(this.config, sessionId)
 			.slice(-this.lastMessagesLimit)
