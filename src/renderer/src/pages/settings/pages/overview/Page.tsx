@@ -23,7 +23,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		entries: [
 			{ type: 'path', value: '/settings/application' },
 			{ type: 'path', value: '/settings/providers' },
-			{ type: 'path', value: '/settings/channels' },
 		],
 	},
 	{
