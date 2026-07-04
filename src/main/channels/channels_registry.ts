@@ -13,6 +13,8 @@ import type {
 	ChannelStatusUpdate,
 } from './channels_types';
 
+const CHANNEL_SESSION_ID = 'channel';
+
 export interface ChannelRegistryDependencies {
 	logger: LoggerService;
 	eventBus: EventBus;
