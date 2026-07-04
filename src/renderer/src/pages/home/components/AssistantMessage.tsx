@@ -147,7 +147,7 @@ export function AssistantMessage({
 			{hasContent && (
 				<>
 					<Markdown
-						components={markdownComponents}
+						components={messageMarkdownComponents}
 					>
 						{message.content}
 					</Markdown>
