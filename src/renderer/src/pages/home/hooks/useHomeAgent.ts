@@ -142,7 +142,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				dispatchChat({ type: 'error_active', errorText: message, completedAtMs: Date.now() });
 			}
 		},
-		[dispatchChat]
+		[dispatchChat, sessionId]
 	);
 
 	// useEffect(() => {
