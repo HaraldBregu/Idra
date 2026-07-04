@@ -27,18 +27,21 @@ function localResourceUrl(path: string): string {
 	return `local-resource://file${encodeURI(path)}`;
 }
 
-function localImageSrc(src: string | undefined, imagePaths: readonly string[]): string | undefined {
-	if (!src || /^[a-z][a-z0-9+.-]*:/i.test(src)) return src;
+function resolveLocalImagePath(
+	src: string | undefined,
+	imagePaths: readonly string[]
+): string | undefined {
+	if (!src || /^[a-z][a-z0-9+.-]*:/i.test(src)) return undefined;
 	let decoded = src;
 	try {
 		decoded = decodeURIComponent(src);
 	} catch {
 		// keep src as-is when it contains malformed percent sequences
 	}
-	const resolved =
+	return (
 		imagePaths.find((path) => path === decoded || path.endsWith(`/${decoded}`)) ??
-		(decoded.startsWith('/') ? decoded : undefined);
-	return resolved ? localResourceUrl(resolved) : src;
+		(decoded.startsWith('/') ? decoded : undefined)
+	);
 }
 
 function fileName(path: string): string {
