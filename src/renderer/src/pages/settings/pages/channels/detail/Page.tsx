@@ -503,10 +503,8 @@ function getDefaultAccountConfig(
 	const account = config.accounts?.[config.defaultAccountId ?? 'default'];
 	return {
 		...account,
-		label: account?.label ?? (channelId === 'telegram' ? 'Telegram bot' : 'Discord bot'),
 		enabled: config.enabled ?? account?.enabled ?? false,
 		token: account?.token ?? config.token,
-		defaultTarget: account?.defaultTarget ?? config.defaultTarget,
 		allowFrom: account?.allowFrom ?? config.allowFrom,
 		groupAllowFrom: account?.groupAllowFrom ?? config.groupAllowFrom ?? [],
 		dmPolicy: account?.dmPolicy ?? config.dmPolicy ?? 'allowlist',
