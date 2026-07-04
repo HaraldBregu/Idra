@@ -30,7 +30,7 @@ import {
 	normalizeProviderId,
 } from '../../../shared/provider_models_definitions';
 import type { ProviderModel } from '../../../shared/provider_models_types';
-import { SttAdapterFactory } from './factory';
+import { buildSttAdapter } from './factory';
 import { SttProviderAuthError, SttProviderUnsupportedError } from './errors';
 import type { SttActiveRealtimeSession, SttProviderSpec } from './types';
 import { getProvider } from '../../providers';
