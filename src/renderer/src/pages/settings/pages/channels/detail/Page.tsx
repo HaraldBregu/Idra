@@ -496,10 +496,7 @@ function ListEditor({
 	);
 }
 
-function getDefaultAccountConfig(
-	channelId: ChannelType,
-	config: EditableChannelConfig
-): ChannelAccountProperties {
+function getDefaultAccountConfig(config: EditableChannelConfig): ChannelAccountProperties {
 	const account = config.accounts?.[config.defaultAccountId ?? 'default'];
 	return {
 		...account,
@@ -512,11 +509,10 @@ function getDefaultAccountConfig(
 }
 
 function updateDefaultAccountConfig(
-	channelId: ChannelType,
 	config: EditableChannelConfig,
 	patch: Partial<ChannelAccountProperties>
 ): EditableChannelConfig {
-	const nextAccount = { ...getDefaultAccountConfig(channelId, config), ...patch };
+	const nextAccount = { ...getDefaultAccountConfig(config), ...patch };
 	return {
 		...config,
 		token: nextAccount.token ?? '',
