@@ -111,6 +111,7 @@ import type { ProviderModel } from '../shared';
 import type { ChannelStatusEvent } from '../shared';
 import type { Channel, ChannelType } from '../shared';
 import type { ChannelCatalogEntry } from '../shared';
+import type { CreatorImageRequest, CreatorImageResult } from '../shared/creator_types';
 import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../shared/speech_types';
 import type {
 	SttRealtimeEvent,
