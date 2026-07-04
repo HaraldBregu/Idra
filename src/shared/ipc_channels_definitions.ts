@@ -60,12 +60,12 @@ export const ChannelsChannels = {
 	statusChanged: 'channels:status-changed',
 } as const;
 
-export const CreatorChannels = {
-	createImage: 'creator:create-image',
-	getModelId: 'creator:get-model-id',
-	getProviderId: 'creator:get-provider-id',
-	setModelId: 'creator:set-model-id',
-	setProviderId: 'creator:set-provider-id',
+export const ImageChannels = {
+	createImage: 'image:create-image',
+	getModelId: 'image:get-model-id',
+	getProviderId: 'image:get-provider-id',
+	setModelId: 'image:set-model-id',
+	setProviderId: 'image:set-provider-id',
 } as const;
 
 export const ProviderChannels = {
