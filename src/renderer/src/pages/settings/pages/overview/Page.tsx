@@ -73,20 +73,9 @@ type SettingsOverviewAgentItem = Omit<SettingsModelServiceItem, 'id'> & {
 	readonly id: SettingsOverviewAgentId;
 };
 
-const MODEL_SERVICE_ROUTE_IDS_BY_AGENT_ID = {
-	[AGENTS.assistant]: AGENTS.assistant,
-	[AGENTS.speechToText]: AGENTS.speechToText,
-	[AGENTS.textToSpeech]: AGENTS.textToSpeech,
-	[AGENTS.textToImage]: AGENTS.textToImage,
-	[AGENTS.textToVideo]: AGENTS.textToVideo,
-	[AGENTS.textToAudio]: AGENTS.textToAudio,
-} as const satisfies Record<SettingsOverviewAgentId, string>;
-
 function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): SettingsOverviewAgentItem {
-	const routeId = MODEL_SERVICE_ROUTE_IDS_BY_AGENT_ID[agentId];
-	const path = `/settings/model-services/${routeId}/details`;
-	const item = SETTINGS_MODEL_SERVICE_ITEMS.find((serviceItem) => serviceItem.path === path);
-	if (!item) throw new Error(`Missing settings overview agent route: ${path}`);
+	const item = SETTINGS_MODEL_SERVICE_ITEMS.find((serviceItem) => serviceItem.id === agentId);
+	if (!item) throw new Error(`Missing settings overview agent route: ${agentId}`);
 	const icon = agentId === AGENTS.speechToText ? AudioWaveform : item.icon;
 	return { ...item, id: agentId, icon };
 }
