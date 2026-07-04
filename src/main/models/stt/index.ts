@@ -1,4 +1,4 @@
-export { SttAdapterFactory } from './factory';
+export { buildSttAdapter } from './factory';
 export {
 	SttProviderAuthError,
 	SttProviderRequestError,
