@@ -56,9 +56,6 @@ export type RendererAppApi = Window['app'] & {
 	getSpeechTranscriberService(): Promise<ModelSelection | undefined>;
 	getSpeechToTextModels(provider: PublicProvider): Promise<Model[]>;
 	saveSpeechTranscriberService(provider: PublicProvider, model: Model): Promise<boolean>;
-	getImageCreatorService(): Promise<ModelSelection | undefined>;
-	getImageCreatorModels(provider: PublicProvider): Promise<Model[]>;
-	saveImageCreatorService(provider: PublicProvider, model: Model): Promise<boolean>;
 	getTextToVideoService(): Promise<ModelSelection | undefined>;
 	getTextToVideoModels(provider: PublicProvider): Promise<Model[]>;
 	saveTextToVideoService(provider: PublicProvider, model: Model): Promise<boolean>;
