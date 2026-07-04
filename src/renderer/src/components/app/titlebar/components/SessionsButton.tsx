@@ -53,6 +53,8 @@ export function SessionsButton(): ReactElement {
 	}
 
 	const historyLabel = t('titleBar.chatHistory', 'Chat history');
+	const currentSessionId =
+		sessionId === DEFAULT_CHAT_SESSION_ID ? sessions[0]?.id : sessionId;
 	return (
 		<DropdownMenu
 			onOpenChange={(open) => {
