@@ -119,6 +119,12 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
 	// Skills
 	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
+	// Tasks
+	{ path: '/settings/tasks', labelKey: 'settings.cron.runtime.title', descriptionKey: 'settings.cron.runtime.description', keywords: 'scheduled agent provider model runtime' },
+	{ path: '/settings/tasks', labelKey: 'settings.cron.schedulesTitle', descriptionKey: 'settings.cron.schedulesDescription', keywords: 'cron schedule recurring task' },
+	// Health
+	{ path: '/settings/tasks/health', labelKey: 'settings.health.settingsTitle', descriptionKey: 'settings.health.settingsDescription', keywords: 'periodic health check interval provider model' },
+	{ path: '/settings/tasks/health', labelKey: 'settings.health.checklistTitle', descriptionKey: 'settings.health.checklistDescription', keywords: 'health checklist instructions agent HEALTH.md' },
 	// Model services
 	...SETTINGS_MODEL_SERVICE_ITEMS,
 	{ path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
