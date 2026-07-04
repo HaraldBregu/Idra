@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { app, BrowserWindow, crashReporter } from 'electron';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
