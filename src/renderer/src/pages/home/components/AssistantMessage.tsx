@@ -97,7 +97,7 @@ export function AssistantMessage({
 			<img
 				src={localImageSrc(src, imagePaths)}
 				alt={alt ?? ''}
-				className="my-2 max-w-md rounded-lg border border-border/50"
+				className="my-2 h-auto max-w-full rounded-lg border border-border/50"
 			/>
 		),
 	};
