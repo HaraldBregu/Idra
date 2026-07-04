@@ -307,7 +307,7 @@ export class LlmModel implements LlmAdapter {
 
 	private *adaptOpenAIResponseEvent(
 		event: ResponseStreamEvent,
-		usage: Usage,
+		usage: LlmUsage,
 		stateFor: (
 			outputIndex: number,
 			fallbackId: string,
