@@ -17,6 +17,7 @@ export interface AgentApi {
 		toolCallId: string,
 		decision: AgentToolPermissionDecision
 	) => Promise<boolean>;
+	listSessions: () => Promise<AgentSessionSummary[]>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	clearMessages: (sessionId: string) => Promise<void>;
 	getProvider: () => Promise<PublicProvider | undefined>;
