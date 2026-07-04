@@ -5,7 +5,7 @@ import {
 	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
-	CreatorChannels,
+	ImageChannels,
 	ProviderStoreChannels,
 	SpeechChannels,
 	SttChannels,
