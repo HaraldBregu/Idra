@@ -56,32 +56,6 @@ import { ChannelIcon } from '../ChannelIcon';
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
-const PHONE_CHANNELS = new Set<ChannelType>([
-	'imessage',
-	'line',
-	'qqbot',
-	'signal',
-	'telegram',
-	'whatsapp',
-	'zalo',
-	'zalouser',
-]);
-const SERVER_CHANNELS = new Set<ChannelType>([
-	'discord',
-	'feishu',
-	'googlechat',
-	'irc',
-	'matrix',
-	'mattermost',
-	'msteams',
-	'nextcloud-talk',
-	'nostr',
-	'slack',
-	'synology-chat',
-	'tlon',
-	'twitch',
-]);
-
 const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 
 function getConnectionBadgeVariant(

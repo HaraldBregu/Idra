@@ -1,9 +1,9 @@
 import type { ModelReasoningEffort } from '../../../shared/agent_types';
 import type { Message, MessageContentBlock, ToolCall } from '../types';
 
-export const DEFAULT_CATEGORY: SessionCategory = 'main';
+export const DEFAULT_CATEGORY: SessionCategory = 'home';
 
-export type SessionCategory = 'main' | 'task' | 'health';
+export type SessionCategory = 'home' | 'task' | 'heartbeat' | 'health';
 
 export type SessionResultSubtype = 'success' | 'error_max_turns';
 
