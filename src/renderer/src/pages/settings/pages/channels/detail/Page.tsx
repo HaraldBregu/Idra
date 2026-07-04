@@ -189,7 +189,6 @@ const ChannelDetailPage: React.FC = () => {
 		setBusyChannel('telegram');
 		setLoadError(null);
 		try {
-			await saveSelectedConfig();
 			const status =
 				action === 'start'
 					? await window.channels.startTelegram()
