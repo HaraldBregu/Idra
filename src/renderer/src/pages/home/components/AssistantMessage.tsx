@@ -107,6 +107,18 @@ export function AssistantMessage({
 					permission={message.pendingPermission}
 				/>
 			)}
+			{imagePaths.length > 0 && (
+				<div className="flex w-full flex-col gap-2">
+					{imagePaths.map((path) => (
+						<img
+							key={path}
+							src={`local-resource://${encodeURI(path)}`}
+							alt="Generated image"
+							className="max-w-md rounded-lg border border-border/50"
+						/>
+					))}
+				</div>
+			)}
 			{hasContent && (
 				<>
 					<Markdown
