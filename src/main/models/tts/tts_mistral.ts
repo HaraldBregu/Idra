@@ -1,27 +1,31 @@
-import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './tts_audio';
+import { Mistral } from '@mistralai/mistralai';
+import { speechResult } from './tts_audio';
+import { SpeechProviderRequestError } from './tts_errors';
 import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';
 import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
-const MISTRAL_TTS_PATH = 'audio/speech';
-
 export function createMistralSpeechAdapter(provider: SpeechProviderSpec): SpeechAdapter {
+	const client = new Mistral({
+		apiKey: provider.apiKey,
+		serverURL: provider.baseURL.replace(/\/v1\/?$/, ''),
+	});
 	return {
 		async synthesize(request: SpeechAdapterRequest): Promise<SpeechSynthesisResult> {
-			const response = await fetch(new URL(MISTRAL_TTS_PATH, `${provider.baseURL}/`), {
-				method: 'POST',
-				headers: {
-					Authorization: `Bearer ${provider.apiKey}`,
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					model: request.modelId,
-					input: request.text,
-					...(request.voice ? { voice: request.voice } : {}),
-				}),
+			const voiceId =
+				request.voice ?? (await client.audio.voices.list({ limit: 1 })).items[0]?.id;
+			if (!voiceId) {
+				throw new SpeechProviderRequestError(
+					`${provider.name}: no voice available. Create a voice on Mistral before synthesizing speech.`
+				);
+			}
+			const response = await client.audio.speech.complete({
+				model: request.modelId,
+				input: request.text,
+				voiceId,
+				responseFormat: 'mp3',
+				stream: false,
 			});
-			await ensureSpeechResponseOk(response, provider.name);
-			const mimeType = response.headers.get('content-type') ?? 'audio/mpeg';
-			return speechResult(await responseAudioToBase64(response), mimeType, provider, request);
+			return speechResult(response.audioData, 'audio/mpeg', provider, request);
 		},
 	};
 }
