@@ -143,7 +143,7 @@ export class LlmModel implements LlmAdapter {
 			model: request.model,
 			effort: request.effort,
 			system,
-			messages: messages.flatMap(toLlmTranscriptEntry),
+			messages: messages.flatMap(llmToTranscriptEntry),
 			tools: (request.tools ?? []).map((tool) => ({
 				name: tool.name,
 				description: tool.description ?? '',
