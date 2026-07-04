@@ -109,9 +109,9 @@ const ChannelDetailPage: React.FC = () => {
 
 	const selectedEntry = selectedId ? getChannelCatalogEntry(selectedId) ?? null : null;
 	const selectedConfig = selectedId ? configs?.[selectedId] ?? null : null;
-	const selectedAccount = selectedConfig && selectedId
-		? getDefaultAccountConfig(selectedId, selectedConfig)
-		: emptyAccountConfig(selectedId ?? 'telegram');
+	const selectedAccount = selectedConfig
+		? getDefaultAccountConfig(selectedConfig)
+		: emptyAccountConfig();
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
 
