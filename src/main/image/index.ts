@@ -1,10 +1,10 @@
-export { createImage } from './creator_create';
+export { createImage } from './image_create';
 export {
-	getCreatorStore,
+	getImageStore,
 	getModelId,
 	getProviderId,
-	setCreatorStore,
+	setImageStore,
 	setModelId,
 	setProviderId,
-} from './creator_store';
-export type { CreatorStoreState } from './creator_store';
+} from './image_store';
+export type { ImageStoreState } from './image_store';
