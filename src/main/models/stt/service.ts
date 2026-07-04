@@ -98,7 +98,7 @@ export class SttService {
 			SPEECH_TO_TEXT_BATCH_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
-		const adapter = this.adapterFactory.build(provider);
+		const adapter = buildSttAdapter(provider);
 
 		return adapter.transcribe({
 			...normalized,
@@ -122,7 +122,7 @@ export class SttService {
 			SPEECH_TO_TEXT_STREAM_API_TYPE
 		);
 		const provider = this.resolveProvider(providerId);
-		const adapter = this.adapterFactory.build(provider);
+		const adapter = buildSttAdapter(provider);
 		if (!adapter.startRealtime) {
 			throw new SttProviderUnsupportedError(
 				`Speech-to-text provider does not support realtime transcription: ${providerId}`
