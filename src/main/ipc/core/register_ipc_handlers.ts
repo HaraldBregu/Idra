@@ -30,6 +30,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
 	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
+	safeRegister('text', () => new TextIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
 	logger.info('Bootstrap', 'Registered IPC modules');
