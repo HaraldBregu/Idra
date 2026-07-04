@@ -1,5 +1,5 @@
-import type { SttService } from '../models/stt/service';
+import { finishRealtime as sttFinishRealtime } from '../models/stt';
 
-export async function finishRealtime(stt: SttService, sessionId: string): Promise<void> {
-	return stt.finishRealtime(sessionId);
+export async function finishRealtime(sessionId: string): Promise<void> {
+	return sttFinishRealtime(sessionId);
 }
