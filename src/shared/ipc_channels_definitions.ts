@@ -45,6 +45,7 @@ export const AppChannels = {
 	getCameraPermission: 'app:get-camera-permission',
 	setCameraEnabled: 'app:set-camera-enabled',
 	requestCameraPermission: 'app:request-camera-permission',
+	showImageContextMenu: 'app:show-image-context-menu',
 } as const;
 
 export const ChannelsChannels = {
