@@ -431,68 +431,6 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						{PHONE_CHANNELS.has(selectedId) && (
-							<Item variant="outline" size="md" className="border-b border-border/60">
-								<ItemMedia variant="icon">
-									<Phone className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<ItemContent>
-									<ItemTitle>{t('settings.channels.phoneNumber')}</ItemTitle>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none justify-end">
-									<Input
-										type="tel"
-										value={selectedAccount.phoneNumber ?? ''}
-										onChange={(event) => updateAccountField('phoneNumber', event.target.value)}
-										onBlur={() => void saveSelectedConfig()}
-										placeholder={t('settings.channels.phoneNumberPlaceholder')}
-										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-										aria-label={t('settings.channels.phoneNumber')}
-									/>
-								</ItemActions>
-							</Item>
-						)}
-
-						{SERVER_CHANNELS.has(selectedId) && (
-							<Item variant="outline" size="md" className="border-b border-border/60">
-								<ItemMedia variant="icon">
-									<Server className="size-3" strokeWidth={1.8} />
-								</ItemMedia>
-								<ItemContent>
-									<ItemTitle>{t('settings.channels.serverUrl')}</ItemTitle>
-								</ItemContent>
-								<ItemActions className="ml-auto flex-none justify-end">
-									<Input
-										value={selectedAccount.serverUrl ?? ''}
-										onChange={(event) => updateAccountField('serverUrl', event.target.value)}
-										onBlur={() => void saveSelectedConfig()}
-										placeholder={t('settings.channels.serverUrlPlaceholder')}
-										className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-										aria-label={t('settings.channels.serverUrl')}
-									/>
-								</ItemActions>
-							</Item>
-						)}
-
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<Link2 className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.webhookUrl')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.webhookUrl ?? ''}
-									onChange={(event) => updateAccountField('webhookUrl', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.webhookUrlPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.webhookUrl')}
-								/>
-							</ItemActions>
-						</Item>
-
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
 								<Hash className="size-3" strokeWidth={1.8} />
