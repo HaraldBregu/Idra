@@ -336,6 +336,7 @@ function PromptInput({
   onValueChange,
   onSubmit,
   children,
+  header,
   leadingAction,
   actions,
   disabled = false,
