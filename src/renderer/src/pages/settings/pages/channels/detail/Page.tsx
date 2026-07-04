@@ -157,29 +157,6 @@ const ChannelDetailPage: React.FC = () => {
 		);
 	};
 
-	const handleRuntimeAction = async (action: 'start' | 'restart' | 'stop'): Promise<void> => {
-		if (selectedId !== 'telegram') return;
-		setBusyChannel('telegram');
-		setLoadError(null);
-		try {
-			await saveSelectedConfig();
-			const status =
-				action === 'start'
-					? await window.channels.startTelegram()
-					: action === 'restart'
-						? await window.channels.restartTelegram()
-						: (await window.channels.stopTelegram(), undefined);
-			setStatusByChannel((current) => ({
-				...current,
-				telegram: status?.status ?? (action === 'stop' ? 'disconnected' : current.telegram),
-			}));
-		} catch (error) {
-			setLoadError(error instanceof Error ? error.message : String(error));
-		} finally {
-			setBusyChannel(null);
-		}
-	};
-
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
