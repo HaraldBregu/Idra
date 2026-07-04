@@ -51,8 +51,6 @@ import {
 	isChannelId,
 	type ChannelCatalogEntry,
 } from '../../../../../../../shared';
-import { ChannelIcon } from '../ChannelIcon';
-
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
