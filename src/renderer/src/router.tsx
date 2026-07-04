@@ -17,7 +17,11 @@ import { SettingsPageSkeleton } from './pages/settings/components';
 import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
-import { ChatSessionContext, DEFAULT_CHAT_SESSION_ID } from './contexts/chat-session';
+import {
+	ChatSessionContext,
+	persistChatSessionId,
+	readPersistedChatSessionId,
+} from './contexts/chat-session';
 import { cn } from './lib/utils';
 import HomePage from './pages/home/Page';
 
