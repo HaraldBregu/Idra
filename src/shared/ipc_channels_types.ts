@@ -207,6 +207,29 @@ export interface ProviderInvokeChannelMap {
 
 export type ProviderStoreInvokeChannelMap = ProviderInvokeChannelMap;
 
+export interface CreatorInvokeChannelMap {
+	[CreatorChannels.createImage]: {
+		args: [request: CreatorImageRequest];
+		result: CreatorImageResult;
+	};
+	[CreatorChannels.getProviderId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[CreatorChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[CreatorChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[CreatorChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
+}
+
 export interface SpeechInvokeChannelMap {
 	[SpeechChannels.synthesize]: {
 		args: [request: SpeechSynthesisRequest];
