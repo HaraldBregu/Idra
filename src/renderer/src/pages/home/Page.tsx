@@ -167,7 +167,7 @@ function AttachmentTray({
 
 	return (
 		<div
-			className="flex max-h-24 w-full flex-wrap gap-1.5 overflow-y-auto"
+			className="flex w-full gap-1.5 overflow-x-auto overscroll-x-contain"
 			onClick={(event) => event.stopPropagation()}
 		>
 			{attachments.map((attachment) => {
@@ -179,29 +179,29 @@ function AttachmentTray({
 				return (
 					<div
 						key={attachment.id}
-						className="flex min-w-0 max-w-56 items-center gap-1.5 rounded-lg border border-border/50 bg-muted/50 py-1 pl-2 pr-1"
+						className="flex max-w-44 shrink-0 items-center gap-1 rounded-lg border border-border/50 bg-muted/50 py-0.5 pl-1.5 pr-0.5"
 					>
 						<span className="shrink-0 text-muted-foreground">
-							{isAudio ? <FileAudio className="size-3" /> : <Paperclip className="size-3" />}
+							{isAudio ? <FileAudio className="size-2.5" /> : <Paperclip className="size-2.5" />}
 						</span>
-						<span className="min-w-0 truncate text-[10px] font-medium" title={attachment.file.name}>
+						<span className="min-w-0 truncate text-[9px] leading-tight" title={attachment.file.name}>
 							{title}
 						</span>
-						<span className="shrink-0 text-[9px] text-muted-foreground">
+						<span className="shrink-0 text-[8px] leading-tight text-muted-foreground">
 							{formatFileSize(attachment.file.size)}
 						</span>
 						{isAudio && attachment.url ? (
-							<audio controls src={attachment.url} className="h-6 w-28 shrink-0" />
+							<audio controls src={attachment.url} className="h-5 w-24 shrink-0" />
 						) : null}
 						<Button
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="size-5 shrink-0 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+							className="size-4 shrink-0 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
 							aria-label={`Remove ${title}`}
 							onClick={() => onRemove(attachment.id)}
 						>
-							<X className="size-3" />
+							<X className="size-2.5" />
 						</Button>
 					</div>
 				);
