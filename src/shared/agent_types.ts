@@ -46,6 +46,12 @@ export interface AgentHistoryMessage {
 	output?: unknown;
 }
 
+export interface AgentSessionSummary {
+	id: string;
+	createdAtMs: number;
+	title: string;
+}
+
 export type AgentCapabilityServiceKind = 'tool' | 'connector' | 'mcp';
 
 export interface AgentToolCapabilitySummary {
