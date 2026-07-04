@@ -385,33 +385,33 @@ export const voice: VoiceApi = {
 	},
 };
 
-export const creator: CreatorApi = {
+export const image: ImageApi = {
 	createImage: (request) => {
 		const prompt = optionalTrimmedString(request?.prompt);
-		if (!prompt) throw new Error('Invalid creator prompt.');
+		if (!prompt) throw new Error('Invalid image prompt.');
 		const providerId = optionalTrimmedString(request?.providerId);
 		const modelId = optionalTrimmedString(request?.modelId);
-		return typedInvokeUnwrap(CreatorChannels.createImage, {
+		return typedInvokeUnwrap(ImageChannels.createImage, {
 			prompt,
 			...(providerId ? { providerId } : {}),
 			...(modelId ? { modelId } : {}),
 		});
 	},
 	getProviderId: () => {
-		return typedInvokeUnwrap(CreatorChannels.getProviderId);
+		return typedInvokeUnwrap(ImageChannels.getProviderId);
 	},
 	setProviderId: (providerId) => {
 		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid creator provider id.');
-		return typedInvokeUnwrap(CreatorChannels.setProviderId, normalizedProviderId);
+		if (!normalizedProviderId) throw new Error('Invalid image provider id.');
+		return typedInvokeUnwrap(ImageChannels.setProviderId, normalizedProviderId);
 	},
 	getModelId: () => {
-		return typedInvokeUnwrap(CreatorChannels.getModelId);
+		return typedInvokeUnwrap(ImageChannels.getModelId);
 	},
 	setModelId: (modelId) => {
 		const normalizedModelId = optionalTrimmedString(modelId);
-		if (!normalizedModelId) throw new Error('Invalid creator model id.');
-		return typedInvokeUnwrap(CreatorChannels.setModelId, normalizedModelId);
+		if (!normalizedModelId) throw new Error('Invalid image model id.');
+		return typedInvokeUnwrap(ImageChannels.setModelId, normalizedModelId);
 	},
 };
 
