@@ -116,6 +116,7 @@ import type { HealthSettings } from '../main/agent/health/health_types';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
+	AgentSessionSummary,
 	AgentToolPermissionDecision,
 } from '../shared/agent_types';
 import type { ProviderModel } from '../shared';
