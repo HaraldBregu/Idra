@@ -4,6 +4,7 @@ import {
 	clearMessages as clearSessionMessages,
 	createSessionState,
 	init,
+	listSessions,
 	loadMessages,
 	type SessionCategory,
 	type SessionState,
