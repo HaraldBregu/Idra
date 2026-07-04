@@ -264,44 +264,6 @@ const ChannelDetailPage: React.FC = () => {
 
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.accountLabel')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.label ?? ''}
-									onChange={(event) => updateAccountField('label', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.accountLabelPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.accountLabel')}
-								/>
-							</ItemActions>
-						</Item>
-
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.botUserId')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.botUserId ?? ''}
-									onChange={(event) => updateAccountField('botUserId', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.botUserIdPlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.botUserId')}
-								/>
-							</ItemActions>
-						</Item>
-
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
 								<KeyRound className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
