@@ -29,7 +29,12 @@ function localResourceUrl(path: string): string {
 
 function localImageSrc(src: string | undefined, imagePaths: readonly string[]): string | undefined {
 	if (!src || /^[a-z][a-z0-9+.-]*:/i.test(src)) return src;
-	const decoded = src.includes('%') ? decodeURIComponent(src) : src;
+	let decoded = src;
+	try {
+		decoded = decodeURIComponent(src);
+	} catch {
+		// keep src as-is when it contains malformed percent sequences
+	}
 	const resolved =
 		imagePaths.find((path) => path === decoded || path.endsWith(`/${decoded}`)) ??
 		(decoded.startsWith('/') ? decoded : undefined);
