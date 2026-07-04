@@ -26,6 +26,7 @@ import { toError } from '../ipc/core/error';
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
+	category?: SessionCategory;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
