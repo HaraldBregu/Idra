@@ -274,6 +274,7 @@ const ChannelDetailPage: React.FC = () => {
 									type="password"
 									value={selectedAccount.token ?? ''}
 									onChange={(event) => updateAccountField('token', event.target.value)}
+									onBlur={() => void saveSelectedConfig()}
 									placeholder={getTokenPlaceholder(selectedId, t)}
 									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
 									aria-label={t('settings.channels.token')}
