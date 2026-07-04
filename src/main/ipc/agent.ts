@@ -337,6 +337,19 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			}, AgentChannels.healthResetSettings)
 		);
 
+		ipcMain.handle(
+			AgentChannels.healthData,
+			wrapSimpleHandler(() => getHealthData(agent.config), AgentChannels.healthData)
+		);
+
+		ipcMain.handle(
+			AgentChannels.healthSaveData,
+			wrapSimpleHandler((content: unknown) => {
+				if (typeof content !== 'string') throw new Error('Invalid health data content.');
+				return saveHealthData(agent.config, content);
+			}, AgentChannels.healthSaveData)
+		);
+
 		const listMcp = (): McpSettings => {
 			const servers = getMcpServers();
 			const out: McpSettings = {};
