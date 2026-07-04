@@ -16,7 +16,6 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
-import { MediaPermissionsSection } from '../../components/media';
 import { Switch } from '@/components/ui/switch';
 import { useApp, type AppLanguage } from '@/contexts';
 
