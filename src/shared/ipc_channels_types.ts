@@ -10,10 +10,12 @@ import type {
 } from './stt_transcription';
 import type { PublicProvider } from './providers_definitions';
 import type { ProviderModel } from './provider_models_types';
+import type { CreatorImageRequest, CreatorImageResult } from './creator_types';
 import {
 	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
+	CreatorChannels,
 	ProviderChannels,
 	SpeechChannels,
 	SttChannels,
