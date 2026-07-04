@@ -112,7 +112,26 @@ function getSettingsRouteIcon(path: string): LucideIcon {
 	)?.icon ?? Settings;
 }
 
-function buildCommandGroups(t: TFunction): AppRouteGroup[] {
+function mapSettingsDetailItem(
+	item: SettingsDetailItem,
+	group: string,
+	t: TFunction,
+): AppRouteItem {
+	return createCommandItem({
+		id: `settings-detail-${item.path}-${item.labelKey}`,
+		label: t(item.labelKey),
+		description: item.descriptionKey ? t(item.descriptionKey) : undefined,
+		group,
+		icon: item.icon ?? getSettingsRouteIcon(item.path),
+		path: item.path,
+		keywords: item.keywords,
+	});
+}
+
+function buildCommandGroups(t: TFunction): {
+	readonly groups: AppRouteGroup[];
+	readonly searchOnlyItems: AppRouteItem[];
+} {
 	const routesHeading = t('command.groups.routes', 'Routes');
 	const settingsRoutesHeading = t('command.groups.settingsRoutes', 'Settings routes');
 	const settingsPagePaths = new Set(SETTINGS_NAVIGATION.map((item) => item.path));
@@ -134,24 +153,20 @@ function buildCommandGroups(t: TFunction): AppRouteGroup[] {
 			path: item.path,
 		})
 	);
-	const settingsSubroutes = SETTINGS_DETAIL_ITEMS
+	const deepSettingsItems = SETTINGS_DETAIL_ITEMS
 		.filter((item) => item.path.startsWith('/settings/') && !settingsPagePaths.has(item.path))
-		.map((item) =>
-			createCommandItem({
-				id: `settings-subroute-${item.path}`,
-				label: t(item.labelKey),
-				description: item.descriptionKey ? t(item.descriptionKey) : undefined,
-				group: settingsRoutesHeading,
-				icon: item.icon ?? getSettingsRouteIcon(item.path),
-				path: item.path,
-				keywords: item.keywords,
-			})
-		);
+		.map((item) => mapSettingsDetailItem(item, settingsRoutesHeading, t));
+	const searchOnlyItems = SETTINGS_DETAIL_ITEMS
+		.filter((item) => item.path.startsWith('/settings/') && settingsPagePaths.has(item.path))
+		.map((item) => mapSettingsDetailItem(item, settingsRoutesHeading, t));
 
-	return [
-		{ heading: routesHeading, items: routes },
-		{ heading: settingsRoutesHeading, items: [...settingsRoutes, ...settingsSubroutes] },
-	];
+	return {
+		groups: [
+			{ heading: routesHeading, items: routes },
+			{ heading: settingsRoutesHeading, items: [...settingsRoutes, ...deepSettingsItems] },
+		],
+		searchOnlyItems,
+	};
 }
 
 function CommandMenuItem({
