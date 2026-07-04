@@ -149,10 +149,6 @@ export interface AppInvokeChannelMap {
 }
 
 export interface ChannelsInvokeChannelMap {
-	[ChannelsChannels.listCatalog]: {
-		args: [];
-		result: import('./channels_types').ChannelCatalogEntry[];
-	};
 	[ChannelsChannels.getConfig]: {
 		args: [];
 		result: import('./channels_types').Channel;
