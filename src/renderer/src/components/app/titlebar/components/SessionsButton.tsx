@@ -15,7 +15,7 @@ import type { AgentSessionSummary } from '@/lib/compat';
 
 export function SessionsButton(): ReactElement {
 	const { t } = useTranslation();
-	const { setSessionId } = useChatSession();
+	const { sessionId, setSessionId } = useChatSession();
 	const [sessions, setSessions] = useState<AgentSessionSummary[]>([]);
 
 	const refresh = useCallback((): void => {
