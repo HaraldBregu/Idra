@@ -2,7 +2,7 @@ import type {
 	ChannelDeliveryPart,
 	ChannelMessageReceipt,
 	ChannelOutboundMessage,
-} from './types';
+} from './channels_types';
 
 export async function sendDurableMessageBatch(
 	message: ChannelOutboundMessage,
