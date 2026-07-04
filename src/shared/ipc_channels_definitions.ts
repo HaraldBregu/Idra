@@ -102,6 +102,14 @@ export const SttChannels = {
 	transcribe: 'stt:transcribe',
 } as const;
 
+export const TextChannels = {
+	generateText: 'text:generate-text',
+	getModelId: 'text:get-model-id',
+	getProviderId: 'text:get-provider-id',
+	setModelId: 'text:set-model-id',
+	setProviderId: 'text:set-provider-id',
+} as const;
+
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
