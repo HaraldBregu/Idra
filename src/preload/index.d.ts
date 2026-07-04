@@ -170,5 +170,6 @@ declare global {
 		transcribe: TranscribeApi;
 		voice: VoiceApi;
 		image: ImageApi;
+		text: TextApi;
 	}
 }
