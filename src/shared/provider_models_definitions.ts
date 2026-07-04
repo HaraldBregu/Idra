@@ -288,7 +288,7 @@ export const TEXT_TO_SPEECH_MODELS_BY_PROVIDER = {
 		model('eleven_flash_v2_5', 'Eleven Flash v2.5'),
 	],
 	google: [model('gemini-3.1-flash-tts-preview', 'Gemini 3.1 Flash TTS Preview')],
-	minimax: [model('Speech-2.8-HD', 'Speech 2.8 HD'), model('Speech-2.8-Turbo', 'Speech 2.8 Turbo')],
+	minimax: [model('speech-2.8-hd', 'Speech 2.8 HD'), model('speech-2.8-turbo', 'Speech 2.8 Turbo')],
 	mistral: [model('voxtral-mini-tts-2603', 'Voxtral Mini TTS 2603')],
 	openai: [model('gpt-4o-mini-tts', 'GPT-4o Mini TTS'), model('tts-1-hd', 'TTS-1 HD')],
 } as const satisfies ModelCatalog;
