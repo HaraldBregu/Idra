@@ -45,7 +45,6 @@ import type {
 	ChannelType,
 } from '../../../../../../../shared';
 import {
-	buildChannelDocsUrl,
 	getChannelCatalogEntry,
 	isChannelId,
 } from '../../../../../../../shared';
