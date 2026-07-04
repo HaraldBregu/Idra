@@ -10,8 +10,10 @@ import {
 	systemPreferences,
 	type IpcMainInvokeEvent,
 } from 'electron';
+import { realpathSync } from 'node:fs';
 import { copyFile } from 'node:fs/promises';
 import path from 'node:path';
+import { agentLocation } from '../shared/agent_location';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import type {
