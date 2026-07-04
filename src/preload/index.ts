@@ -17,6 +17,7 @@ import type {
 	ChannelsApi,
 	ImageApi,
 	ProviderApi,
+	TextApi,
 	TranscribeApi,
 	VoiceApi,
 	WindowApi,
