@@ -50,7 +50,6 @@ export const AppChannels = {
 } as const;
 
 export const ChannelsChannels = {
-	listCatalog: 'channels:catalog',
 	getConfig: 'channels:get-config',
 	getChannelConfig: 'channels:get-channel-config',
 	saveChannelConfig: 'channels:save-channel-config',
