@@ -456,6 +456,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('transcribe', transcribe);
 		contextBridge.exposeInMainWorld('voice', voice);
+		contextBridge.exposeInMainWorld('creator', creator);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
