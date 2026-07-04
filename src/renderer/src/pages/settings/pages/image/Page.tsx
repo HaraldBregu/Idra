@@ -32,7 +32,7 @@ function modelsFor(providerId: string): readonly { readonly id: string; readonly
 	return MODELS_BY_PROVIDER[providerId] ?? [];
 }
 
-const CreatorPage: React.FC = () => {
+const ImagePage: React.FC = () => {
 	const { t } = useTranslation();
 	const [providerId, setProviderId] = useState('');
 	const [modelId, setModelId] = useState('');
@@ -49,8 +49,8 @@ const CreatorPage: React.FC = () => {
 		void (async () => {
 			try {
 				const [storedProviderId, storedModelId] = await Promise.all([
-					window.creator.getProviderId(),
-					window.creator.getModelId(),
+					window.image.getProviderId(),
+					window.image.getModelId(),
 				]);
 				if (!mounted) return;
 				const nextProviderId =
@@ -91,8 +91,8 @@ const CreatorPage: React.FC = () => {
 		setSaved(false);
 		setError(null);
 		try {
-			await window.creator.setProviderId(providerId);
-			await window.creator.setModelId(modelId);
+			await window.image.setProviderId(providerId);
+			await window.image.setModelId(modelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
@@ -106,13 +106,13 @@ const CreatorPage: React.FC = () => {
 		setGenerating(true);
 		setError(null);
 		try {
-			const result = await window.creator.createImage({ prompt, providerId, modelId });
+			const result = await window.image.createImage({ prompt, providerId, modelId });
 			setImageSrc(`data:${result.mimeType};base64,${result.base64}`);
 		} catch (err) {
 			setError(
 				err instanceof Error && err.message.trim()
 					? err.message
-					: t('settings.creator.generateError')
+					: t('settings.image.generateError')
 			);
 		} finally {
 			setGenerating(false);
@@ -137,7 +137,7 @@ const CreatorPage: React.FC = () => {
 					<div className="grid gap-3 px-3 py-3">
 						<div className="grid gap-3 sm:grid-cols-2">
 							<SettingsField
-								id="creator-provider"
+								id="image-provider"
 								label={t('settings.modelServices.provider')}
 								description={t('settings.modelServices.providerDescription')}
 							>
@@ -146,7 +146,7 @@ const CreatorPage: React.FC = () => {
 									onValueChange={handleProviderChange}
 									disabled={loading || saving}
 								>
-									<SelectTrigger id="creator-provider" className="w-full text-xs">
+									<SelectTrigger id="image-provider" className="w-full text-xs">
 										<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
 									</SelectTrigger>
 									<SelectContent>
@@ -160,7 +160,7 @@ const CreatorPage: React.FC = () => {
 							</SettingsField>
 
 							<SettingsField
-								id="creator-model"
+								id="image-model"
 								label={t('settings.modelServices.model')}
 								description={t('settings.modelServices.modelDescription')}
 							>
@@ -173,7 +173,7 @@ const CreatorPage: React.FC = () => {
 									}}
 									disabled={loading || saving || models.length === 0}
 								>
-									<SelectTrigger id="creator-model" className="w-full text-xs">
+									<SelectTrigger id="image-model" className="w-full text-xs">
 										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
 									</SelectTrigger>
 									<SelectContent>
@@ -212,18 +212,18 @@ const CreatorPage: React.FC = () => {
 				</SettingsPanel>
 			</SettingsSection>
 
-			<SettingsSection title={t('settings.creator.prompt')}>
+			<SettingsSection title={t('settings.image.prompt')}>
 				<SettingsPanel>
 					<div className="grid gap-3 px-3 py-3">
 						<SettingsField
-							id="creator-prompt"
-							label={t('settings.creator.prompt')}
-							description={t('settings.creator.promptDescription')}
+							id="image-prompt"
+							label={t('settings.image.prompt')}
+							description={t('settings.image.promptDescription')}
 						>
 							<Textarea
-								id="creator-prompt"
+								id="image-prompt"
 								value={prompt}
-								placeholder={t('settings.creator.promptPlaceholder')}
+								placeholder={t('settings.image.promptPlaceholder')}
 								disabled={generating}
 								onChange={(event) => setPrompt(event.target.value)}
 							/>
@@ -241,14 +241,14 @@ const CreatorPage: React.FC = () => {
 								) : (
 									<Sparkles className="size-3" />
 								)}
-								{generating ? t('settings.creator.generating') : t('settings.creator.generate')}
+								{generating ? t('settings.image.generating') : t('settings.image.generate')}
 							</Button>
 						</div>
 
 						{imageSrc && (
 							<img
 								src={imageSrc}
-								alt={t('settings.creator.resultAlt')}
+								alt={t('settings.image.resultAlt')}
 								className="w-full rounded-lg border border-border/70"
 							/>
 						)}
@@ -259,4 +259,4 @@ const CreatorPage: React.FC = () => {
 	);
 };
 
-export default CreatorPage;
+export default ImagePage;
