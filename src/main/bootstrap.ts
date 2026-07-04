@@ -40,7 +40,6 @@ export function bootstrapServices(): BootstrapResult {
 		logger,
 		agentService,
 		channels,
-		stt,
 		channelRegistry,
 		windowFactory,
 		windowContextManager,
