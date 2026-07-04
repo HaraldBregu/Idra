@@ -94,8 +94,8 @@ export const TitleBar = React.memo(function TitleBar({
 						</button>
 					)}
 
-					{!isMac && sessionsButton}
 					{!isMac && routeButton}
+					{!isMac && sessionsButton}
 
 					{!isHome && !isStart && !isSettings && (
 						<Button
