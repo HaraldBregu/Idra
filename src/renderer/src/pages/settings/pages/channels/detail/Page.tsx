@@ -54,36 +54,25 @@ const ChannelDetailPage: React.FC = () => {
 		allowFrom: '',
 		groupAllowFrom: '',
 	});
-	const [statusByChannel, setStatusByChannel] = useState<
-		Partial<Record<ChannelType, ChannelConnectionStatus>>
-	>({});
 	const [busyChannel, setBusyChannel] = useState<ChannelType | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
 
-		Promise.all([window.channels.getConfig(), window.channels.getStatus()])
-			.then(([nextConfig, telegramStatus]) => {
+		window.channels
+			.getConfig()
+			.then((nextConfig) => {
 				if (!mounted) return;
 				setConfigs(nextConfig);
-				if (telegramStatus) {
-					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
-				}
 			})
 			.catch((error) => {
 				console.error('[ChannelDetailPage] Failed to load channel settings:', error);
 				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
 			});
 
-		const unsubscribe = window.channels.onStatusChanged((event) => {
-			setStatusByChannel((current) => ({ ...current, [event.type]: event.status }));
-			if (event.error) setLoadError(event.error);
-		});
-
 		return () => {
 			mounted = false;
-			unsubscribe();
 		};
 	}, []);
 
