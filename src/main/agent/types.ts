@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import type { ModelEvent } from '../models/llm';
+import type { LlmEvent } from '../models/llm';
 
 export interface Config {
 	location: string;
