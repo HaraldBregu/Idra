@@ -5,7 +5,7 @@ import {
 	WindowContextManager,
 } from './app';
 import { LoggerService } from './shared';
-import { ChannelRegistry, ChannelsService } from './channels';
+import { createChannelRegistry, type ChannelRegistry } from './channels';
 
 import { Agent } from './agent/agent';
 
@@ -14,7 +14,6 @@ export interface MainServices {
 	eventBus: EventBus;
 	logger: LoggerService;
 	agentService: Agent;
-	channels: ChannelsService;
 	channelRegistry: ChannelRegistry;
 	windowFactory: WindowFactory;
 	windowContextManager: WindowContextManager;
