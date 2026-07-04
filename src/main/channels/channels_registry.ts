@@ -11,7 +11,7 @@ import type {
 	ChannelMessageReceipt,
 	ChannelOutboundMessage,
 	ChannelStatusUpdate,
-} from './types';
+} from './channels_types';
 
 export interface ChannelRegistryDependencies {
 	logger: LoggerService;
