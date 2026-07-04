@@ -31,7 +31,6 @@ import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
-	SettingsSection,
 } from '../../../components';
 import type {
 	Channel,
