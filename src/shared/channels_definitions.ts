@@ -1,4 +1,4 @@
-import type { ChannelCatalogEntry, ChannelType } from './channels_types';
+import { CHANNEL_PROVIDER_IDS, type ChannelCatalogEntry, type ChannelType } from './channels_types';
 
 export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = [
 	{
@@ -8,25 +8,6 @@ export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = [
 		docsPath: 'docs/channels/discord/index.md',
 		docsLabel: 'Discord setup',
 		brandIconId: 'discord',
-		aliases: [],
-		order: 20,
-		markdownCapable: true,
-		exposure: 'preview',
-		runtime: 'bundled',
-		setupVisible: true,
-		catalogVisible: true,
-		setupFields: [
-			'token',
-			'appId',
-			'clientId',
-			'clientSecret',
-			'botUserId',
-			'defaultTarget',
-			'allowFrom',
-			'groupAllowFrom',
-		],
-		cliHints: ['friday channels setup discord'],
-		setupHints: ['Configure Discord accounts from Settings > Channels.'],
 	},
 	{
 		id: 'telegram',
@@ -35,34 +16,12 @@ export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = [
 		docsPath: 'docs/channels/telegram/index.md',
 		docsLabel: 'Telegram setup',
 		brandIconId: 'telegram',
-		aliases: [],
-		order: 180,
-		markdownCapable: true,
-		exposure: 'preview',
-		runtime: 'bundled',
-		setupVisible: true,
-		catalogVisible: true,
-		setupFields: [
-			'token',
-			'secret',
-			'botUserId',
-			'defaultTarget',
-			'allowFrom',
-			'groupAllowFrom',
-			'dmPolicy',
-		],
-		cliHints: ['friday channels setup telegram'],
-		setupHints: ['Configure Telegram accounts from Settings > Channels.'],
 	},
 ];
 
 const CHANNEL_CATALOG_BY_ID = new Map<string, ChannelCatalogEntry>(
 	CHANNEL_CATALOG.map((entry) => [entry.id, entry])
 );
-
-export function listChannelCatalog(): readonly ChannelCatalogEntry[] {
-	return CHANNEL_CATALOG;
-}
 
 export function getChannelCatalogEntry(idOrAlias: string): ChannelCatalogEntry | undefined {
 	const id = normalizeChannelId(idOrAlias);
@@ -84,14 +43,11 @@ export function buildChannelDocsUrl(docsPath: string, repositoryHomepage: string
 
 export function normalizeChannelId(idOrAlias: string): ChannelType | null {
 	const normalized = idOrAlias.trim().toLowerCase();
-	for (const entry of CHANNEL_CATALOG) {
-		if (entry.id === normalized || entry.aliases.includes(normalized)) return entry.id;
-	}
-	return null;
+	return isChannelId(normalized) ? normalized : null;
 }
 
 export function isChannelId(value: string): value is ChannelType {
-	return normalizeChannelId(value) === value;
+	return (CHANNEL_PROVIDER_IDS as readonly string[]).includes(value);
 }
 
 function normalizeChannelDocsPath(value: string): string | null {
