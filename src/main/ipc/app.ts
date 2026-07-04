@@ -203,6 +203,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.showImageContextMenu,
+			wrapIpcHandler((event, imagePath: string) => {
+				showImageContextMenu(event, imagePath);
+			}, AppChannels.showImageContextMenu)
+		);
+
+		ipcMain.handle(
 			AppChannels.requestCameraPermission,
 			wrapSimpleHandler(async () => {
 				if (process.platform === 'darwin') {
