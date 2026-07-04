@@ -22,6 +22,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'general',
 		entries: [
 			{ type: 'path', value: '/settings/application' },
+			{ type: 'path', value: '/settings/system' },
 			{ type: 'path', value: '/settings/providers' },
 		],
 	},
