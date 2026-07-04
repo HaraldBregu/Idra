@@ -41,18 +41,8 @@ import {
 	setSelection as setTranscribeSelection,
 } from '../../transcribe/transcribe_store';
 
-@Service()
 export class SttService {
-	private readonly adapterFactory: SttAdapterFactory;
 	private readonly realtimeSessions = new Map<string, SttActiveRealtimeSession>();
-
-	constructor();
-	constructor(adapterFactory: SttAdapterFactory);
-	constructor(adapterFactory: unknown = new SttAdapterFactory()) {
-		this.adapterFactory = isSttAdapterFactory(adapterFactory)
-			? adapterFactory
-			: new SttAdapterFactory();
-	}
 
 	getSelection(mode: SttSelectionMode = 'transcribe'): SttModelSelection | undefined {
 		const configuredProviderId = getTranscribeProviderId(mode);
