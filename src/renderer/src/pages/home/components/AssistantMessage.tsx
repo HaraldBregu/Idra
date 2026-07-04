@@ -21,12 +21,19 @@ function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
 		.filter((path): path is string => typeof path === 'string');
 }
 
+function localResourceUrl(path: string): string {
+	// 'file' is a dummy host: local-resource is a standard scheme, so without it
+	// Chromium would swallow the first path segment as the URL host.
+	return `local-resource://file${encodeURI(path)}`;
+}
+
 function localImageSrc(src: string | undefined, imagePaths: readonly string[]): string | undefined {
 	if (!src || /^[a-z][a-z0-9+.-]*:/i.test(src)) return src;
+	const decoded = src.includes('%') ? decodeURIComponent(src) : src;
 	const resolved =
-		imagePaths.find((path) => path === src || path.endsWith(`/${src}`)) ??
-		(src.startsWith('/') ? src : undefined);
-	return resolved ? `local-resource://${encodeURI(resolved)}` : src;
+		imagePaths.find((path) => path === decoded || path.endsWith(`/${decoded}`)) ??
+		(decoded.startsWith('/') ? decoded : undefined);
+	return resolved ? localResourceUrl(resolved) : src;
 }
 
 function fileName(path: string): string {
