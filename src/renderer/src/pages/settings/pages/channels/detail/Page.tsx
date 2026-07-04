@@ -45,14 +45,6 @@ type ListField = 'allowFrom' | 'groupAllowFrom';
 const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 const SETTINGS_INPUT_CLASS = 'h-8 w-full text-xs sm:w-80';
 
-function getConnectionBadgeVariant(
-	status: ChannelConnectionStatus
-): 'secondary' | 'destructive' | 'outline' {
-	if (status === 'connected') return 'secondary';
-	if (status === 'error') return 'destructive';
-	return 'outline';
-}
-
 const ChannelDetailPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { channelId } = useParams<{ channelId: string }>();
