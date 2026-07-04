@@ -385,6 +385,36 @@ export const voice: VoiceApi = {
 	},
 };
 
+export const creator: CreatorApi = {
+	createImage: (request) => {
+		const prompt = optionalTrimmedString(request?.prompt);
+		if (!prompt) throw new Error('Invalid creator prompt.');
+		const providerId = optionalTrimmedString(request?.providerId);
+		const modelId = optionalTrimmedString(request?.modelId);
+		return typedInvokeUnwrap(CreatorChannels.createImage, {
+			prompt,
+			...(providerId ? { providerId } : {}),
+			...(modelId ? { modelId } : {}),
+		});
+	},
+	getProviderId: () => {
+		return typedInvokeUnwrap(CreatorChannels.getProviderId);
+	},
+	setProviderId: (providerId) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid creator provider id.');
+		return typedInvokeUnwrap(CreatorChannels.setProviderId, normalizedProviderId);
+	},
+	getModelId: () => {
+		return typedInvokeUnwrap(CreatorChannels.getModelId);
+	},
+	setModelId: (modelId) => {
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedModelId) throw new Error('Invalid creator model id.');
+		return typedInvokeUnwrap(CreatorChannels.setModelId, normalizedModelId);
+	},
+};
+
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
