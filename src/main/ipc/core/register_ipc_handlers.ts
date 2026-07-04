@@ -2,6 +2,7 @@ import type { ContainerInstance } from 'typedi';
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
+import { CreatorIpc } from '../creator';
 import { ProviderStoreIpc } from '../provider';
 import { SpeechIpc } from '../speech';
 import { SttIpc } from '../stt';
