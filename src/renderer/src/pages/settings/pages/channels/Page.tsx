@@ -71,53 +71,50 @@ const ChannelsPage: React.FC = () => {
 						const status = statusByChannel[entry.id] ?? 'disconnected';
 
 						return (
-							<button
+							<Item
 								key={entry.id}
+								as="button"
 								type="button"
 								onClick={() =>
 									navigate(`/settings/channels/channelDetail/${encodeURIComponent(entry.id)}`)
 								}
-								className="w-full text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+								variant="outline"
+								size="md"
+								className={cn(
+									'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center cursor-pointer border-b border-border/60 text-left hover:bg-muted/50',
+									index === visibleCatalog.length - 1 && 'border-b-0'
+								)}
 							>
-								<Item
-									variant="outline"
-									size="md"
-									className={cn(
-										'cursor-pointer border-b border-border/60 hover:bg-muted/50',
-										index === visibleCatalog.length - 1 && 'border-b-0'
+								<ChannelIcon
+									channelId={entry.id}
+									name={entry.label}
+									brandIconId={entry.brandIconId}
+								/>
+								<ItemContent className="min-w-0">
+									<ItemTitle className="w-full max-w-full truncate">{entry.label}</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-0 flex-none justify-end gap-1.5">
+									{isRuntimeChannel ? (
+										<Badge
+											variant={getConnectionBadgeVariant(status)}
+											className="h-5 px-2 text-[10px]"
+										>
+											{t(`channels.status.${status}`)}
+										</Badge>
+									) : (
+										<Badge variant="outline" className="h-5 px-2 text-[10px]">
+											{t('settings.channels.configOnly')}
+										</Badge>
 									)}
-								>
-									<ChannelIcon
-										channelId={entry.id}
-										name={entry.label}
-										brandIconId={entry.brandIconId}
+									{!isRuntimeChannel && (
+										<CircleOff className="size-3.5 text-muted-foreground" />
+									)}
+									<ChevronRight
+										className="size-3.5 text-muted-foreground"
+										strokeWidth={1.8}
 									/>
-									<ItemContent className="min-w-0">
-										<ItemTitle className="w-full max-w-full truncate">{entry.label}</ItemTitle>
-									</ItemContent>
-									<ItemActions className="ml-auto flex-none justify-end gap-1.5">
-										{isRuntimeChannel ? (
-											<Badge
-												variant={getConnectionBadgeVariant(status)}
-												className="h-5 px-2 text-[10px]"
-											>
-												{t(`channels.status.${status}`)}
-											</Badge>
-										) : (
-											<Badge variant="outline" className="h-5 px-2 text-[10px]">
-												{t('settings.channels.configOnly')}
-											</Badge>
-										)}
-										{!isRuntimeChannel && (
-											<CircleOff className="size-3.5 text-muted-foreground" />
-										)}
-										<ChevronRight
-											className="size-3.5 text-muted-foreground"
-											strokeWidth={1.8}
-										/>
-									</ItemActions>
-								</Item>
-							</button>
+								</ItemActions>
+							</Item>
 						);
 					})}
 				</Card>
