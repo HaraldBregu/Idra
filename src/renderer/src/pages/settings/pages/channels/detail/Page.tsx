@@ -154,25 +154,19 @@ const ChannelDetailPage: React.FC = () => {
 	};
 
 	const updateSelectedConfig = (
-		updater: (config: EditableChannelConfig) => EditableChannelConfig,
-		options?: { save?: boolean }
+		updater: (config: EditableChannelConfig) => EditableChannelConfig
 	): void => {
 		if (!selectedConfig || !selectedId) return;
-		const nextConfig = updater(selectedConfig);
-		setSelectedConfig(nextConfig);
-		if (options?.save) void saveChannelConfig(selectedId, nextConfig);
+		setSaved(false);
+		setSelectedConfig(updater(selectedConfig));
 	};
 
 	const updateAccountField = (
 		field: keyof ChannelAccountProperties,
-		value: ChannelAccountProperties[keyof ChannelAccountProperties],
-		options?: { save?: boolean }
+		value: ChannelAccountProperties[keyof ChannelAccountProperties]
 	): void => {
 		if (!selectedId) return;
-		updateSelectedConfig(
-			(config) => updateDefaultAccountConfig(config, { [field]: value }),
-			options
-		);
+		updateSelectedConfig((config) => updateDefaultAccountConfig(config, { [field]: value }));
 	};
 
 	const addListValue = (field: ListField): void => {
@@ -180,14 +174,13 @@ const ChannelDetailPage: React.FC = () => {
 		if (!value) return;
 		const nextValues = normalizeList([...(selectedAccount[field] ?? []), value]);
 		setListDrafts((current) => ({ ...current, [field]: '' }));
-		updateAccountField(field, nextValues, { save: true });
+		updateAccountField(field, nextValues);
 	};
 
 	const removeListValue = (field: ListField, value: string): void => {
 		updateAccountField(
 			field,
-			(selectedAccount[field] ?? []).filter((item) => item !== value),
-			{ save: true }
+			(selectedAccount[field] ?? []).filter((item) => item !== value)
 		);
 	};
 
