@@ -69,12 +69,11 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToImage,
-		path: `/settings/model-services/${AGENTS.textToImage}/details`,
+		path: '/settings/creator',
 		labelKey: 'settings.modelServices.imageAssistantName',
 		descriptionKey: 'settings.modelServices.imageAssistantDescription',
-		keywords: 'image generation image assistant editing creative model',
+		keywords: 'creator image generation prompt creative model',
 		icon: ImageIcon,
-		comingSoon: true,
 	},
 	{
 		id: AGENTS.textToVideo,
