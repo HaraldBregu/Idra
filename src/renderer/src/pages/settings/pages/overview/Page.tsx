@@ -62,8 +62,6 @@ const _SETTINGS_OVERVIEW_AGENT_IDS = [
 	AGENTS.speechToText,
 	AGENTS.textToSpeech,
 	AGENTS.textToImage,
-	AGENTS.textToVideo,
-	AGENTS.textToAudio,
 ] as const satisfies readonly AgentId[];
 
 type SettingsOverviewAgentId = (typeof _SETTINGS_OVERVIEW_AGENT_IDS)[number];
