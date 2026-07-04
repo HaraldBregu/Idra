@@ -1,11 +1,10 @@
-import type { ContainerInstance } from 'typedi';
 import type { EventBus } from './index';
-import { LoggerService } from '../shared';
+import type { LoggerService } from '../shared';
 
 export interface WindowScopedFactoryContext {
-	globalContainer: ContainerInstance;
+	logger: LoggerService | undefined;
 	eventBus: EventBus;
-	windowContainer: ContainerInstance;
+	windowServices: Map<string, unknown>;
 }
 
 export interface WindowScopedServiceDefinition {
@@ -24,27 +23,28 @@ export class WindowScopedServiceFactory {
 	}
 
 	async createAndRegisterAll(
-		container: ContainerInstance,
+		windowServices: Map<string, unknown>,
 		context: {
-			globalContainer: ContainerInstance;
+			logger: LoggerService | undefined;
 			eventBus: EventBus;
 		}
 	): Promise<void> {
-		const logger = context.globalContainer.get(LoggerService);
+		const { logger, eventBus } = context;
 		logger?.info(
 			'WindowScopedServiceFactory',
 			`Creating ${this.definitions.size} window-scoped services`
 		);
 
-	const enrichedContext: WindowScopedFactoryContext = {
-			...context,
-			windowContainer: container,
+		const enrichedContext: WindowScopedFactoryContext = {
+			logger,
+			eventBus,
+			windowServices,
 		};
 
 		for (const definition of this.definitions.values()) {
 			try {
 				const service = await definition.factory(enrichedContext);
-				container.set(definition.key, service);
+				windowServices.set(definition.key, service);
 				logger?.info('WindowScopedServiceFactory', `Registered service: ${definition.key}`);
 			} catch (error) {
 				logger?.error(
@@ -72,6 +72,5 @@ export class WindowScopedServiceFactory {
 }
 
 export function createDefaultWindowScopedServiceFactory(): WindowScopedServiceFactory {
-	const factory = new WindowScopedServiceFactory();
-	return factory;
+	return new WindowScopedServiceFactory();
 }
