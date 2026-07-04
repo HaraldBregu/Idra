@@ -168,7 +168,6 @@ const ChannelDetailPage: React.FC = () => {
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
 
 			{selectedId ? (
-				<SettingsSection title={t('settings.channels.configuration')}>
 					<Card size="sm" className="gap-0! p-0!">
 						<Item variant="outline" size="md" className="border-b border-border/60">
 							<ItemMedia variant="icon">
