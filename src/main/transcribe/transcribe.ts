@@ -1,9 +1,8 @@
-import type { SttService } from '../models/stt/service';
+import { transcribe as sttTranscribe } from '../models/stt';
 import type { SttTranscriptionResult, TranscribeToTextRequest } from './transcribe_types';
 
 export async function transcribe(
-	stt: SttService,
 	request: TranscribeToTextRequest
 ): Promise<SttTranscriptionResult> {
-	return stt.transcribe(request);
+	return sttTranscribe(request);
 }
