@@ -76,6 +76,8 @@ const ChannelDetailPage: React.FC = () => {
 		Partial<Record<ChannelType, ChannelConnectionStatus>>
 	>({});
 	const [busyChannel, setBusyChannel] = useState<ChannelType | null>(null);
+	const [saving, setSaving] = useState(false);
+	const [saved, setSaved] = useState(false);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	useEffect(() => {
