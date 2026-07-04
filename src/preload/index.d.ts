@@ -64,6 +64,14 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface CreatorApi {
+	createImage: (request: CreatorImageRequest) => Promise<CreatorImageResult>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
 export interface VoiceApi {
 	synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
 	getProviderId: () => Promise<string | undefined>;
