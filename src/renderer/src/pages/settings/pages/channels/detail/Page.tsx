@@ -231,10 +231,10 @@ const ChannelDetailPage: React.FC = () => {
 								{selectedId}
 							</Badge>
 							<Badge
-								variant={isChannelEnabled(selectedId, selectedConfig) ? 'secondary' : 'outline'}
+								variant={isChannelEnabled(selectedConfig) ? 'secondary' : 'outline'}
 								className="h-5 px-2 text-[10px]"
 							>
-								{isChannelEnabled(selectedId, selectedConfig)
+								{isChannelEnabled(selectedConfig)
 									? t('settings.channels.enabled')
 									: t('settings.channels.disabled')}
 							</Badge>
