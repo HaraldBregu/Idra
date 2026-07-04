@@ -287,6 +287,11 @@ export const app: AppApi = {
 	requestCameraPermission: () => {
 		return typedInvokeUnwrap(AppChannels.requestCameraPermission);
 	},
+	showImageContextMenu: (path: string): Promise<void> => {
+		const normalizedPath = optionalTrimmedString(path);
+		if (!normalizedPath) throw new Error('Invalid image path.');
+		return typedInvokeUnwrap(AppChannels.showImageContextMenu, normalizedPath);
+	},
 };
 
 export const provider: ProviderApi = {
