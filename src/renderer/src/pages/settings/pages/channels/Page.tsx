@@ -23,7 +23,6 @@ function getConnectionBadgeVariant(
 const ChannelsPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [catalog, setCatalog] = useState<readonly ChannelCatalogEntry[]>([]);
 	const [statusByChannel, setStatusByChannel] = useState<
 		Partial<Record<ChannelType, ChannelConnectionStatus>>
 	>({});
