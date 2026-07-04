@@ -75,7 +75,13 @@ function RootRouteComponent(): React.JSX.Element {
 	return (
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
 			<ChatSessionContext.Provider
-				value={{ sessionId: chatSessionId, setSessionId: setChatSessionId }}
+				value={{
+					sessionId: chatSessionId,
+					setSessionId: (sessionId) => {
+						setChatSessionId(sessionId);
+						persistChatSessionId(sessionId);
+					},
+				}}
 			>
 				<div
 					className={cn(
