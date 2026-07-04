@@ -98,7 +98,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			const submittedAtMs = Date.now();
 			const runtimeOptions = {
 				...runtimeOptionsForPrompt(trimmed),
-				sessionId: HOME_AGENT_SESSION_ID,
+				sessionId,
 			};
 
 			setInput('');
