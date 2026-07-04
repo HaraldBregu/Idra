@@ -423,6 +423,36 @@ export const image: ImageApi = {
 	},
 };
 
+export const text: TextApi = {
+	generateText: (request) => {
+		const prompt = optionalTrimmedString(request?.prompt);
+		if (!prompt) throw new Error('Invalid text prompt.');
+		const providerId = optionalTrimmedString(request?.providerId);
+		const modelId = optionalTrimmedString(request?.modelId);
+		return typedInvokeUnwrap(TextChannels.generateText, {
+			prompt,
+			...(providerId ? { providerId } : {}),
+			...(modelId ? { modelId } : {}),
+		});
+	},
+	getProviderId: () => {
+		return typedInvokeUnwrap(TextChannels.getProviderId);
+	},
+	setProviderId: (providerId) => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid text provider id.');
+		return typedInvokeUnwrap(TextChannels.setProviderId, normalizedProviderId);
+	},
+	getModelId: () => {
+		return typedInvokeUnwrap(TextChannels.getModelId);
+	},
+	setModelId: (modelId) => {
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedModelId) throw new Error('Invalid text model id.');
+		return typedInvokeUnwrap(TextChannels.setModelId, normalizedModelId);
+	},
+};
+
 export const channels: ChannelsApi = {
 	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
 		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
