@@ -474,6 +474,10 @@
 			"checklistTitle": "Checklist",
 			"checklistDescription": "Instructions the agent follows on each health check (HEALTH.md). Keep it empty or comment-only to skip runs.",
 			"fields": {
+				"provider": "Provider",
+				"providerPlaceholder": "Select provider",
+				"model": "Model",
+				"modelPlaceholder": "Select model",
 				"every": "Interval",
 				"everyOff": "Off",
 				"target": "Target",
