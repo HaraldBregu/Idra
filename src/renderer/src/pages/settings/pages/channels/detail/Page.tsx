@@ -85,7 +85,6 @@ const ChannelDetailPage: React.FC = () => {
 	const selectedAccount = selectedConfig
 		? getDefaultAccountConfig(selectedConfig)
 		: emptyAccountConfig();
-	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
