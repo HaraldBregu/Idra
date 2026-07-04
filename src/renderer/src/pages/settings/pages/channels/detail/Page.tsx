@@ -31,7 +31,6 @@ import {
 import type {
 	Channel,
 	ChannelAccountProperties,
-	ChannelConnectionStatus,
 	ChannelDmPolicy,
 	ChannelType,
 } from '../../../../../../../shared';
