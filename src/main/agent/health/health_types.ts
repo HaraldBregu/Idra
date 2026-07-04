@@ -23,6 +23,8 @@ export interface HealthSettings {
 	skipWhenBusy: boolean;
 	activeHours?: HealthActiveHours;
 	includeReasoning?: boolean;
+	providerId?: string;
+	modelId?: string;
 }
 
 export const DEFAULT_HEALTH_SETTINGS: HealthSettings = {
