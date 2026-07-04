@@ -58,7 +58,7 @@ export function ChannelIcon({
 	return (
 		<span
 			className={cn(
-				'flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-background p-1',
+				'relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border/70 bg-background p-1',
 				className
 			)}
 			aria-hidden="true"
@@ -70,13 +70,13 @@ export function ChannelIcon({
 						src={asset.light}
 						alt=""
 						draggable={false}
-						className={cn('size-full object-contain dark:hidden', imageClassName)}
+						className={cn('absolute inset-0 size-full object-contain dark:hidden', imageClassName)}
 					/>
 					<img
 						src={asset.dark}
 						alt=""
 						draggable={false}
-						className={cn('hidden size-full object-contain dark:block', imageClassName)}
+						className={cn('absolute inset-0 hidden size-full object-contain dark:block', imageClassName)}
 					/>
 				</>
 			) : (
