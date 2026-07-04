@@ -31,6 +31,9 @@ export function createMiniMaxSpeechAdapter(provider: SpeechProviderSpec): Speech
 			await ensureSpeechResponseOk(response, provider.name);
 
 			const data = (await response.json()) as MiniMaxTtsResponse;
+			if (data.base_resp?.status_code === 1004) {
+				throw new SpeechProviderAuthError(`${provider.name}: ${data.base_resp.status_msg}`);
+			}
 			if (data.base_resp?.status_code !== 0 || !data.data?.audio) {
 				throw new SpeechProviderRequestError(
 					`${provider.name}: ${data.base_resp?.status_msg ?? 'response contained no audio.'}`
