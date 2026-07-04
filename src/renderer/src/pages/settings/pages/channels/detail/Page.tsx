@@ -114,7 +114,6 @@ const ChannelDetailPage: React.FC = () => {
 		: emptyAccountConfig(selectedId ?? 'telegram');
 	const selectedStatus = selectedId ? statusByChannel[selectedId] ?? 'disconnected' : 'disconnected';
 	const selectedTitle = selectedEntry?.label ?? t('settings.channels.configuration');
-	const selectedDocsUrl = selectedEntry ? buildChannelDocsUrl(selectedEntry.docsPath, __APP_HOMEPAGE__) : null;
 
 	const setSelectedConfig = (nextConfig: EditableChannelConfig): void => {
 		if (!selectedId) return;
