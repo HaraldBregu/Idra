@@ -292,11 +292,3 @@ function findSpeechToTextModel(
 function realtimeSampleRate(providerId: SpeechToTextProviderId): number {
 	return SPEECH_TO_TEXT_PROVIDER_SAMPLE_RATES[providerId] ?? STT_DEFAULT_REALTIME_SAMPLE_RATE;
 }
-
-function isSttAdapterFactory(value: unknown): value is SttAdapterFactory {
-	return (
-		typeof value === 'object' &&
-		value !== null &&
-		typeof (value as { build?: unknown }).build === 'function'
-	);
-}
