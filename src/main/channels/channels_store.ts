@@ -1,8 +1,9 @@
+import path from 'node:path';
 import Store from 'electron-store';
+import { userDataLocation } from '../shared/user_data_location';
 import {
 	CHANNEL_DEFAULT_DM_POLICY,
 	CHANNEL_DM_POLICIES,
-	CHANNEL_PROVIDER_IDS,
 	type Channel,
 	type ChannelAccountProperties,
 	type ChannelDmPolicy,
@@ -10,7 +11,9 @@ import {
 	type ChannelType,
 } from '../../shared';
 
-type ChannelStoreSchema = Partial<Channel>;
+export type ChannelsStoreState = Partial<Channel>;
+
+const CHANNELS_STORE_NAME = 'settings';
 
 const ACCOUNT_STRING_KEYS = [
 	'label',
@@ -25,14 +28,31 @@ const ACCOUNT_STRING_KEYS = [
 
 const ACCOUNT_LIST_KEYS = ['allowFrom', 'groupAllowFrom'] as const;
 
-let store: Store<ChannelStoreSchema> | null = null;
+function defaultChannelConfig(): Channel[ChannelType] {
+	return {
+		token: '',
+		allowFrom: [],
+		enabled: false,
+		defaultAccountId: 'default',
+		dmPolicy: CHANNEL_DEFAULT_DM_POLICY,
+		groupAllowFrom: [],
+	};
+}
 
-function channelStore(): Store<ChannelStoreSchema> {
-	store ??= new Store<ChannelStoreSchema>({
-		name: 'channels',
-		accessPropertiesByDotNotation: false,
-	});
-	return store;
+const DEFAULT_CHANNELS_STORE: ChannelsStoreState = {
+	telegram: defaultChannelConfig(),
+	discord: defaultChannelConfig(),
+};
+
+const store = new Store<ChannelsStoreState>({
+	name: CHANNELS_STORE_NAME,
+	cwd: path.resolve(userDataLocation(), 'channels'),
+	accessPropertiesByDotNotation: false,
+	defaults: DEFAULT_CHANNELS_STORE,
+});
+
+export function getChannelsStore(): ChannelsStoreState {
+	return store.store;
 }
 
 export function getChannels(): Channel {
@@ -44,7 +64,7 @@ export function getChannels(): Channel {
 }
 
 export function getChannelConfig<TKey extends ChannelType>(channel: TKey): Channel[TKey] {
-	return mergeChannelConfig(channelStore().get(channel));
+	return mergeChannelConfig(store.get(channel));
 }
 
 export function setChannelConfig<TKey extends ChannelType>(
@@ -53,7 +73,7 @@ export function setChannelConfig<TKey extends ChannelType>(
 ): Channel[TKey] {
 	const error = validateChannelConfig(config);
 	if (error) throw new Error(error);
-	channelStore().set(channel, mergeChannelConfig(config));
+	store.set(channel, mergeChannelConfig(config));
 	return getChannelConfig(channel);
 }
 
@@ -61,21 +81,17 @@ export function setChannelProperties<TKey extends ChannelType>(
 	channel: TKey,
 	properties: Partial<Channel[TKey]>
 ): Channel[TKey] {
-	const current = readRecord(channelStore().get(channel)) ?? {};
+	const current = readRecord(store.get(channel)) ?? {};
 	return setChannelConfig(channel, { ...current, ...properties } as Channel[TKey]);
 }
 
 export function deleteChannelConfig<TKey extends ChannelType>(channel: TKey): Channel[TKey] {
-	channelStore().delete(channel);
+	store.set(channel, defaultChannelConfig());
 	return getChannelConfig(channel);
 }
 
-export function listConfiguredChannels(): ChannelType[] {
-	return CHANNEL_PROVIDER_IDS.filter((channel) => readRecord(channelStore().get(channel)));
-}
-
 function readDefaults(): Channel['defaults'] {
-	const defaults = readRecord(channelStore().get('defaults'));
+	const defaults = readRecord(store.get('defaults'));
 	if (!defaults) return undefined;
 	return { heartbeat: normalizeHeartbeat(defaults.heartbeat) };
 }
