@@ -1,4 +1,5 @@
 import { LlmModel } from '../models/llm';
+import type { TextRequest } from '../../shared/text_types';
 import { getProvider } from '../providers';
 import {
 	getModelId as getStoredModelId,
@@ -7,12 +8,6 @@ import {
 
 const llmModel = new LlmModel();
 const MAX_TOKENS = 4096;
-
-export interface TextRequest {
-	prompt: string;
-	providerId?: string;
-	modelId?: string;
-}
 
 export async function generateText(request: TextRequest): Promise<string> {
 	const prompt = request.prompt?.trim();
