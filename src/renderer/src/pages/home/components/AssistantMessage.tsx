@@ -157,7 +157,7 @@ export function AssistantMessage({
 					<Markdown
 						components={messageMarkdownComponents}
 					>
-						{message.content}
+						{normalizeImageLinks(message.content)}
 					</Markdown>
 					{canToggleContent ? (
 						<Button
