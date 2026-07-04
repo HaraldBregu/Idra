@@ -476,5 +476,5 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.voice = voice;
 	// @ts-ignore (define in dts)
-	globalThis.creator = creator;
+	globalThis.image = image;
 }
