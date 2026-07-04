@@ -14,7 +14,7 @@ import type {
 	AppApi,
 	AgentApi,
 	ChannelsApi,
-	CreatorApi,
+	ImageApi,
 	ProviderApi,
 	TranscribeApi,
 	VoiceApi,
