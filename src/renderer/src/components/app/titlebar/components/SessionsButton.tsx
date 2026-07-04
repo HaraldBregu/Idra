@@ -75,18 +75,23 @@ export function SessionsButton(): ReactElement {
 			>
 				<History className="size-4" strokeWidth={1.8} />
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-64">
+			<DropdownMenuContent align="end" className="w-44">
 				<DropdownMenuItem onClick={newSession}>
 					<Plus className="size-4" />
 					{newChatLabel}
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				{sessions.map((session) => (
-					<DropdownMenuItem key={session.id} onClick={() => setSessionId(session.id)}>
+					<DropdownMenuCheckboxItem
+						key={session.id}
+						checked={session.id === currentSessionId}
+						closeOnClick
+						onClick={() => setSessionId(session.id)}
+					>
 						<span className="truncate">
 							{session.title || new Date(session.createdAtMs).toLocaleString()}
 						</span>
-					</DropdownMenuItem>
+					</DropdownMenuCheckboxItem>
 				))}
 			</DropdownMenuContent>
 		</DropdownMenu>
