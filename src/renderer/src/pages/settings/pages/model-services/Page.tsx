@@ -764,6 +764,19 @@ const ModelServicePage: React.FC = () => {
 				)}
 			</SettingsSection>
 
+			{(service.id === AGENTS.speechToText || service.id === AGENTS.textToSpeech) && (
+				<SettingsSection
+					title={t('settings.modelServices.test')}
+					description={t(
+						service.id === AGENTS.speechToText
+							? 'settings.modelServices.testTranscribeDescription'
+							: 'settings.modelServices.testVoiceDescription'
+					)}
+				>
+					{service.id === AGENTS.speechToText ? <TranscribeTest /> : <VoiceTest />}
+				</SettingsSection>
+			)}
+
 			{service.id === AGENTS.assistant && (
 				<SettingsSection title={t('settings.modelServices.history')}>
 					<SettingsPanel>
