@@ -179,7 +179,7 @@ function AttachmentTray({
 				return (
 					<div
 						key={attachment.id}
-						className="flex min-w-0 max-w-56 items-center gap-1.5 rounded-full border border-border/60 bg-card/95 py-1 pl-2 pr-1 shadow-sm shadow-foreground/5"
+						className="flex min-w-0 max-w-56 items-center gap-1.5 rounded-lg border border-border/50 bg-muted/50 py-1 pl-2 pr-1"
 					>
 						<span className="shrink-0 text-muted-foreground">
 							{isAudio ? <FileAudio className="size-3.5" /> : <Paperclip className="size-3.5" />}
