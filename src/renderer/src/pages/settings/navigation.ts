@@ -138,12 +138,6 @@ export const SETTINGS_NAVIGATION = [
 		icon: Info,
 	},
 	{
-		path: '/settings/general',
-		labelKey: 'settings.tabs.general',
-		descriptionKey: 'settings.overview.descriptions.general',
-		icon: Info,
-	},
-	{
 		path: '/settings/system',
 		labelKey: 'settings.tabs.system',
 		descriptionKey: 'settings.overview.descriptions.system',
