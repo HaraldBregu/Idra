@@ -63,6 +63,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		return items;
 	}
 
+	const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find(
+		(item) => item.path === location.pathname
+	);
+	if (serviceItem) return [{ label: t(serviceItem.labelKey) }];
+
 	const current = SETTINGS_NAVIGATION.find((item) => (
 		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
 	));
