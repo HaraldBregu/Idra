@@ -68,6 +68,19 @@ export function AssistantMessage({
 	const messageText = message.content.trim();
 	const hasTools = message.tools.length > 0;
 	const imagePaths = generatedImagePaths(message.tools);
+	const standaloneImagePaths = imagePaths.filter(
+		(path) => !message.content.includes(fileName(path))
+	);
+	const messageMarkdownComponents = {
+		...markdownComponents,
+		img: ({ src, alt }: { src?: string; alt?: string }) => (
+			<img
+				src={localImageSrc(src, imagePaths)}
+				alt={alt ?? ''}
+				className="my-2 max-w-md rounded-lg border border-border/50"
+			/>
+		),
+	};
 	const showActivity =
 		hasTools ||
 		(message.state !== 'idle' && message.state !== 'completed') ||
