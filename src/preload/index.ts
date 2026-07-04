@@ -225,6 +225,12 @@ export const agent: AgentApi = {
 	healthResetSettings: (): Promise<HealthSettings> => {
 		return typedInvokeUnwrap(AgentChannels.healthResetSettings);
 	},
+	healthGetData: (): Promise<string> => {
+		return typedInvokeUnwrap(AgentChannels.healthData);
+	},
+	healthSaveData: (content: string): Promise<string> => {
+		return typedInvokeUnwrap(AgentChannels.healthSaveData, content);
+	},
 	mcpList: (): Promise<McpSettings> => {
 		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpList);
 	},
