@@ -57,6 +57,7 @@ export async function* stream(
 		webSearchTool,
 		webFetchTool,
 		browserTool,
+		createImageTool(sessionDir(session)),
 		loadSkillTool,
 		searchSkillsTool,
 		createScheduleTool,
