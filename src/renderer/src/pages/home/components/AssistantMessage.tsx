@@ -14,6 +14,13 @@ import { statusLabel, isRunningState, stateTone } from './status';
 
 const LONG_MESSAGE_LENGTH = 600;
 
+function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
+	return tools
+		.filter((tool) => tool.type === 'create_image' && tool.state === 'output-available')
+		.map((tool) => (tool.output as { path?: unknown } | undefined)?.path)
+		.filter((path): path is string => typeof path === 'string');
+}
+
 function statusLabelContent(
 	message: AgentMessage,
 	isStreaming: boolean,
