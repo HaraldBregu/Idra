@@ -10,7 +10,7 @@ import type { EventBus } from '../../app';
 import type { MainServices } from '../../bootstrap';
 
 export function registerIpcHandlers(services: MainServices, eventBus: EventBus): void {
-	const { logger, agentService, channelRegistry, stt } = services;
+	const { logger, agentService, channelRegistry } = services;
 
 	const safeRegister = (name: string, register: () => void): void => {
 		try {
