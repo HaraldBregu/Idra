@@ -194,7 +194,7 @@ export function llmBuildAnthropicMessages(
 		}
 		if (entry.role === 'tool') {
 			const isError = entry.status ? entry.status !== 'ok' : entry.isError === true;
-			const blocks: Anthropic.Messages.LlmToolResultBlockParam[] = [
+			const blocks: Anthropic.Messages.ToolResultBlockParam[] = [
 				{
 					type: 'tool_result',
 					tool_use_id: entry.toolUseId,
