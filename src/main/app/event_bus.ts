@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-import { Service } from 'typedi';
 
 export interface AppEvent {
 	type: string;
