@@ -1,334 +1,63 @@
-import {
-	CHANNEL_PROVIDER_IDS,
-	CHANNEL_SETUP_FIELDS,
-	type ChannelCatalogEntry,
-	type ChannelCatalogInput,
-	type ChannelRuntimeSupport,
-	type ChannelSetupField,
-	type ChannelType,
-} from './channels_types';
+import type { ChannelCatalogEntry, ChannelType } from './channels_types';
 
-const SETUP_FIELDS_BY_CHANNEL_ID: Readonly<Record<ChannelType, readonly ChannelSetupField[]>> = {
-	clickclack: [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'allowFrom',
-		'groupAllowFrom',
-		'defaultTarget',
-	],
-	discord: [
-		'token',
-		'appId',
-		'clientId',
-		'clientSecret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	feishu: [
-		'appId',
-		'clientSecret',
-		'token',
-		'secret',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	googlechat: [
-		'appId',
-		'clientId',
-		'clientSecret',
-		'secret',
-		'webhookUrl',
-		'serverUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	imessage: [
-		'serverUrl',
-		'username',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-		'appId',
-		'clientId',
-		'clientSecret',
-		'webhookUrl',
-	],
-	irc: [
-		'serverUrl',
-		'username',
-		'token',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	line: [
-		'token',
-		'secret',
-		'appId',
-		'botUserId',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	matrix: [
-		'serverUrl',
-		'username',
-		'token',
-		'secret',
-		'appId',
-		'clientSecret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	mattermost: [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'username',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	msteams: [
-		'appId',
-		'clientId',
-		'clientSecret',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	'nextcloud-talk': [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'username',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	nostr: ['serverUrl', 'secret', 'botUserId', 'defaultTarget', 'allowFrom', 'groupAllowFrom'],
-	'qa-channel': ['enabled', 'defaultTarget', 'allowFrom', 'groupAllowFrom', 'heartbeat'],
-	qqbot: [
-		'appId',
-		'token',
-		'clientSecret',
-		'secret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	signal: [
-		'phoneNumber',
-		'username',
-		'serverUrl',
-		'token',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	slack: [
-		'token',
-		'secret',
-		'appId',
-		'clientId',
-		'clientSecret',
-		'webhookUrl',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	'synology-chat': [
-		'serverUrl',
-		'token',
-		'secret',
-		'webhookUrl',
-		'username',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	telegram: [
-		'token',
-		'secret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-		'dmPolicy',
-	],
-	tlon: [
-		'serverUrl',
-		'username',
-		'token',
-		'secret',
-		'appId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	twitch: [
-		'clientId',
-		'clientSecret',
-		'token',
-		'secret',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	whatsapp: [
-		'token',
-		'phoneNumber',
-		'appId',
-		'clientSecret',
-		'secret',
-		'webhookUrl',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	zalo: [
-		'appId',
-		'clientSecret',
-		'token',
-		'secret',
-		'webhookUrl',
-		'botUserId',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-	zalouser: [
-		'phoneNumber',
-		'username',
-		'serverUrl',
-		'token',
-		'secret',
-		'defaultTarget',
-		'allowFrom',
-		'groupAllowFrom',
-	],
-};
-
-const CHANNEL_CATALOG_INPUT: readonly ChannelCatalogInput[] = [
-	entry('clickclack', 'ClickClack', 'Connect ClickClack conversations.', [], 10, false),
-	entry('discord', 'Discord', 'Receive and send Discord bot messages.', [], 20, true, 'preview', 'discord'),
-	entry('feishu', 'Feishu', 'Connect Feishu or Lark chat workspaces.', ['lark'], 30, true),
-	entry(
-		'googlechat',
-		'Google Chat',
-		'Connect Google Chat spaces and DMs.',
-		['gchat', 'google-chat'],
-		40,
-		true,
-		'preview',
-		'google_chat'
-	),
-	entry('imessage', 'iMessage', 'Route local-device iMessage conversations.', ['imsg'], 50, false),
-	entry('irc', 'IRC', 'Connect Internet Relay Chat networks.', ['internet-relay-chat'], 60, false),
-	entry('line', 'LINE', 'Connect LINE bot chats.', [], 70, false),
-	entry('matrix', 'Matrix', 'Connect Matrix rooms and direct messages.', [], 80, true),
-	entry('mattermost', 'Mattermost', 'Connect Mattermost teams and channels.', [], 90, true),
-	entry(
-		'msteams',
-		'Microsoft Teams',
-		'Connect Microsoft Teams chats and channels.',
-		['teams'],
-		100,
-		true,
-		'preview',
-		'microsoft_teams'
-	),
-	entry(
-		'nextcloud-talk',
-		'Nextcloud Talk',
-		'Connect Nextcloud Talk conversations.',
-		['nc-talk', 'nc'],
-		110,
-		true
-	),
-	entry('nostr', 'Nostr', 'Connect Nostr direct messages and relays.', [], 120, false),
-	entry(
-		'qa-channel',
-		'QA Channel',
-		'Synthetic channel for local QA and contract tests.',
-		[],
-		130,
-		true,
-		'hidden'
-	),
-	entry('qqbot', 'QQ Bot', 'Connect QQ bot conversations.', [], 140, false),
-	entry('signal', 'Signal', 'Connect Signal local-device messages.', [], 150, false),
-	entry('slack', 'Slack', 'Connect Slack channels, DMs, and threads.', [], 160, true, 'preview', 'slack'),
-	entry('synology-chat', 'Synology Chat', 'Connect Synology Chat channels.', [], 170, true),
+export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = [
 	{
-		...entry('telegram', 'Telegram', 'Receive Telegram bot messages and send agent replies.', [], 180, true),
+		id: 'discord',
+		label: 'Discord',
+		blurb: 'Receive and send Discord bot messages.',
+		docsPath: 'docs/channels/discord/index.md',
+		docsLabel: 'Discord setup',
+		brandIconId: 'discord',
+		aliases: [],
+		order: 20,
+		markdownCapable: true,
+		exposure: 'preview',
 		runtime: 'bundled',
+		setupVisible: true,
+		catalogVisible: true,
+		setupFields: [
+			'token',
+			'appId',
+			'clientId',
+			'clientSecret',
+			'botUserId',
+			'defaultTarget',
+			'allowFrom',
+			'groupAllowFrom',
+		],
+		cliHints: ['friday channels setup discord'],
+		setupHints: ['Configure Discord accounts from Settings > Channels.'],
 	},
-	entry('tlon', 'Tlon', 'Connect Tlon groups and conversations.', [], 190, true),
-	entry('twitch', 'Twitch', 'Connect Twitch chat channels.', ['twitch-chat'], 200, false),
-	entry('whatsapp', 'WhatsApp', 'Connect WhatsApp web or device sessions.', [], 210, false),
-	entry('zalo', 'Zalo', 'Connect Zalo bot conversations.', ['zl'], 220, false),
-	entry('zalouser', 'Zalo Personal', 'Connect Zalo personal user sessions.', ['zlu'], 230, false),
+	{
+		id: 'telegram',
+		label: 'Telegram',
+		blurb: 'Receive Telegram bot messages and send agent replies.',
+		docsPath: 'docs/channels/telegram/index.md',
+		docsLabel: 'Telegram setup',
+		aliases: [],
+		order: 180,
+		markdownCapable: true,
+		exposure: 'preview',
+		runtime: 'bundled',
+		setupVisible: true,
+		catalogVisible: true,
+		setupFields: [
+			'token',
+			'secret',
+			'botUserId',
+			'defaultTarget',
+			'allowFrom',
+			'groupAllowFrom',
+			'dmPolicy',
+		],
+		cliHints: ['friday channels setup telegram'],
+		setupHints: ['Configure Telegram accounts from Settings > Channels.'],
+	},
 ];
 
-export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = CHANNEL_CATALOG_INPUT.map((item) => ({
-	...item,
-	docsLabel: item.docsLabel ?? `${item.label} setup`,
-	runtime: item.runtime ?? 'catalog-only',
-	setupVisible: item.setupVisible ?? item.exposure !== 'hidden',
-	catalogVisible: item.catalogVisible ?? item.exposure !== 'hidden',
-})).sort((left, right) => left.order - right.order);
-
-export const CHANNEL_CATALOG_BY_ID = indexCatalogById((entry) => entry);
-
-export const CHANNEL_ALIASES_BY_ID = indexCatalogById((entry) => entry.aliases);
-
-export const CHANNEL_DOCS_PATH_BY_ID = indexCatalogById((entry) => entry.docsPath);
-
-export const CHANNEL_RUNTIME_BY_ID = indexCatalogById((entry) => entry.runtime);
-
-export const CHANNEL_SETUP_FIELDS_BY_ID = indexCatalogById((entry) => entry.setupFields);
-
-export const CHANNEL_BUNDLED_RUNTIME_IDS = listChannelIdsWhere(
-	(entry) => entry.runtime === 'bundled'
+const CHANNEL_CATALOG_BY_ID = new Map<string, ChannelCatalogEntry>(
+	CHANNEL_CATALOG.map((entry) => [entry.id, entry])
 );
-
-export const CHANNEL_CATALOG_ONLY_RUNTIME_IDS = listChannelIdsWhere(
-	(entry) => entry.runtime === 'catalog-only'
-);
-
-export const CHANNEL_VISIBLE_CATALOG_IDS = listChannelIdsWhere((entry) => entry.catalogVisible);
-
-export const CHANNEL_HIDDEN_CATALOG_IDS = listChannelIdsWhere((entry) => !entry.catalogVisible);
-
-const CHANNEL_IDS = new Set<string>(CHANNEL_PROVIDER_IDS);
-const CHANNEL_ALIAS_TO_ID = new Map<string, ChannelType>();
-
-for (const entry of CHANNEL_CATALOG) {
-	CHANNEL_ALIAS_TO_ID.set(entry.id, entry.id);
-	for (const alias of CHANNEL_ALIASES_BY_ID[entry.id]) {
-		CHANNEL_ALIAS_TO_ID.set(normalizeChannelKey(alias), entry.id);
-	}
-}
 
 export function listChannelCatalog(): readonly ChannelCatalogEntry[] {
 	return CHANNEL_CATALOG;
@@ -336,7 +65,7 @@ export function listChannelCatalog(): readonly ChannelCatalogEntry[] {
 
 export function getChannelCatalogEntry(idOrAlias: string): ChannelCatalogEntry | undefined {
 	const id = normalizeChannelId(idOrAlias);
-	return id ? CHANNEL_CATALOG_BY_ID[id] : undefined;
+	return id ? CHANNEL_CATALOG_BY_ID.get(id) : undefined;
 }
 
 export function getChannelBrandIconId(idOrAlias: string): string | undefined {
@@ -353,57 +82,15 @@ export function buildChannelDocsUrl(docsPath: string, repositoryHomepage: string
 }
 
 export function normalizeChannelId(idOrAlias: string): ChannelType | null {
-	const normalized = normalizeChannelKey(idOrAlias);
-	return CHANNEL_ALIAS_TO_ID.get(normalized) ?? (CHANNEL_IDS.has(normalized) ? (normalized as ChannelType) : null);
+	const normalized = idOrAlias.trim().toLowerCase();
+	for (const entry of CHANNEL_CATALOG) {
+		if (entry.id === normalized || entry.aliases.includes(normalized)) return entry.id;
+	}
+	return null;
 }
 
 export function isChannelId(value: string): value is ChannelType {
 	return normalizeChannelId(value) === value;
-}
-
-export function extractChannelCatalogFromPackageMetadata(
-	metadata: unknown
-): readonly ChannelCatalogEntry[] {
-	if (!metadata || typeof metadata !== 'object') return CHANNEL_CATALOG;
-	const packageMetadata = metadata as Record<string, unknown>;
-	const fridayChannel = packageMetadata['friday.channel'];
-	if (!fridayChannel || typeof fridayChannel !== 'object') return CHANNEL_CATALOG;
-	const catalog = (fridayChannel as { catalog?: unknown }).catalog;
-	if (!Array.isArray(catalog)) return CHANNEL_CATALOG;
-
-	const entries = catalog.filter(isPackageCatalogEntry);
-	return entries.length === CHANNEL_PROVIDER_IDS.length ? entries : CHANNEL_CATALOG;
-}
-
-function entry(
-	id: ChannelType,
-	label: string,
-	blurb: string,
-	aliases: readonly string[],
-	order: number,
-	markdownCapable: boolean,
-	exposure: ChannelCatalogEntry['exposure'] = 'preview',
-	brandIconId?: string
-): ChannelCatalogInput {
-	return {
-		id,
-		label,
-		blurb,
-		docsPath: `docs/channels/${id}/index.md`,
-		docsLabel: `${label} setup`,
-		...(brandIconId ? { brandIconId } : {}),
-		aliases,
-		order,
-		markdownCapable,
-		exposure,
-		setupFields: SETUP_FIELDS_BY_CHANNEL_ID[id],
-		cliHints: [`friday channels setup ${id}`],
-		setupHints: [`Configure ${label} accounts from Settings > Channels.`],
-	};
-}
-
-function normalizeChannelKey(value: string): string {
-	return value.trim().toLowerCase();
 }
 
 function normalizeChannelDocsPath(value: string): string | null {
@@ -417,51 +104,4 @@ function normalizeChannelDocsPath(value: string): string | null {
 		return null;
 	}
 	return normalized;
-}
-
-function isPackageCatalogEntry(value: unknown): value is ChannelCatalogEntry {
-	if (!value || typeof value !== 'object') return false;
-	const item = value as Partial<ChannelCatalogEntry>;
-	return (
-		typeof item.id === 'string' &&
-		CHANNEL_IDS.has(item.id) &&
-		typeof item.label === 'string' &&
-		typeof item.blurb === 'string' &&
-		typeof item.docsPath === 'string' &&
-		typeof item.docsLabel === 'string' &&
-		(item.brandIconId === undefined || typeof item.brandIconId === 'string') &&
-		Array.isArray(item.aliases) &&
-		typeof item.order === 'number' &&
-		typeof item.markdownCapable === 'boolean' &&
-		isChannelRuntimeSupport(item.runtime) &&
-		typeof item.setupVisible === 'boolean' &&
-		typeof item.catalogVisible === 'boolean' &&
-		Array.isArray(item.setupFields) &&
-		item.setupFields.every(isChannelSetupField)
-	);
-}
-
-function isChannelRuntimeSupport(value: unknown): value is ChannelRuntimeSupport {
-	return value === 'bundled' || value === 'catalog-only';
-}
-
-function isChannelSetupField(value: unknown): value is ChannelSetupField {
-	return typeof value === 'string' && CHANNEL_SETUP_FIELDS.includes(value as ChannelSetupField);
-}
-
-function indexCatalogById<TValue>(
-	resolve: (entry: ChannelCatalogEntry) => TValue
-): Readonly<Record<ChannelType, TValue>> {
-	return Object.freeze(
-		Object.fromEntries(CHANNEL_CATALOG.map((entry) => [entry.id, resolve(entry)])) as Record<
-			ChannelType,
-			TValue
-		>
-	);
-}
-
-function listChannelIdsWhere(
-	predicate: (entry: ChannelCatalogEntry) => boolean
-): readonly ChannelType[] {
-	return Object.freeze(CHANNEL_CATALOG.filter(predicate).map((entry) => entry.id));
 }
