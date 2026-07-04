@@ -2,18 +2,13 @@ import React from 'react';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import discordIcon from '@resources/icons/brands/discord/raw/discord_source.svg';
-import telegramIconDark from '@resources/icons/brands/telegram/telegram_dark.png';
-import telegramIconLight from '@resources/icons/brands/telegram/telegram_light.png';
+import telegramIcon from '@resources/icons/brands/telegram/raw/telegram_source.svg';
 import type { ChannelType } from '../../../../../../shared';
 import { getChannelBrandIconId } from '../../../../../../shared';
 
-type ChannelIconAsset = {
-	readonly light: string;
-	readonly dark: string;
-};
-
-const CHANNEL_ICON_ASSETS: Readonly<Record<string, ChannelIconAsset>> = {
-	telegram: { light: telegramIconLight, dark: telegramIconDark },
+const CHANNEL_SVG_ICONS: Partial<Record<string, string>> = {
+	discord: discordIcon,
+	telegram: telegramIcon,
 };
 
 export function ChannelIcon({
@@ -32,7 +27,7 @@ export function ChannelIcon({
 	readonly fallbackClassName?: string;
 }): React.JSX.Element {
 	const iconId = brandIconId ?? (channelId ? getChannelBrandIconId(channelId) : undefined);
-	const asset = iconId ? CHANNEL_ICON_ASSETS[iconId] : undefined;
+	const svgIcon = iconId ? CHANNEL_SVG_ICONS[iconId] : undefined;
 
 	return (
 		<span
@@ -43,28 +38,13 @@ export function ChannelIcon({
 			aria-hidden="true"
 			title={name}
 		>
-			{iconId === 'discord' ? (
+			{svgIcon ? (
 				<img
-					src={discordIcon}
+					src={svgIcon}
 					alt=""
 					draggable={false}
 					className={cn('size-full object-contain', imageClassName)}
 				/>
-			) : asset ? (
-				<>
-					<img
-						src={asset.light}
-						alt=""
-						draggable={false}
-						className={cn('absolute inset-0 size-full object-contain dark:hidden', imageClassName)}
-					/>
-					<img
-						src={asset.dark}
-						alt=""
-						draggable={false}
-						className={cn('absolute inset-0 hidden size-full object-contain dark:block', imageClassName)}
-					/>
-				</>
 			) : (
 				<Bot className={cn('size-3.5 text-muted-foreground', fallbackClassName)} strokeWidth={1.8} />
 			)}
