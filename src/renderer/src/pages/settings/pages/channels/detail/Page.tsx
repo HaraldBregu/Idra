@@ -279,6 +279,32 @@ const ChannelDetailPage: React.FC = () => {
 						</Item>
 
 						<Item variant="outline" size="md" className="flex-col items-stretch gap-3">
+							<div className="flex w-full min-w-0 items-start gap-3">
+								<ItemMedia variant="icon">
+									<Hash className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<div className="min-w-0 flex-1">
+									<ItemTitle className="w-full">{t('settings.channels.groupAllowFrom')}</ItemTitle>
+									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.groupAllowFromDescription')}
+									</p>
+								</div>
+							</div>
+							<ListEditor
+								id={`${selectedId}-group-allow-from`}
+								value={listDrafts.groupAllowFrom}
+								items={selectedAccount.groupAllowFrom ?? []}
+								placeholder={t('settings.channels.groupAllowFromPlaceholder')}
+								addLabel={t('settings.channels.addGroupAllowFrom')}
+								removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
+								emptyLabel={t('settings.channels.noGroupAllowFrom')}
+								onDraftChange={(value) =>
+									setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
+								}
+								onAdd={() => addListValue('groupAllowFrom')}
+								onRemove={(value) => removeListValue('groupAllowFrom', value)}
+							/>
+						</Item>
 					</Card>
 				</SettingsSection>
 			) : (
