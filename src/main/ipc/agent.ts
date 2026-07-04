@@ -208,6 +208,11 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.listSessions,
+			wrapSimpleHandler(() => agent.listSessions(), AgentChannels.listSessions)
+		);
+
+		ipcMain.handle(
 			AgentChannels.lastMessages,
 			wrapSimpleHandler((sessionId: unknown) => {
 				return agent.getLastMessages(normalizeAgentSessionId(sessionId));
