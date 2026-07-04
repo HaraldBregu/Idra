@@ -132,9 +132,9 @@ export function AssistantMessage({
 					permission={message.pendingPermission}
 				/>
 			)}
-			{imagePaths.length > 0 && (
+			{standaloneImagePaths.length > 0 && (
 				<div className="flex w-full flex-col gap-2">
-					{imagePaths.map((path) => (
+					{standaloneImagePaths.map((path) => (
 						<img
 							key={path}
 							src={`local-resource://${encodeURI(path)}`}
