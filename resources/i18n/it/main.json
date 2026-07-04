@@ -725,7 +725,7 @@
 			"keySaved": "Chiave API salvata",
 			"keyMissing": "Chiave API mancante"
 		},
-		"creator": {
+		"image": {
 			"prompt": "Prompt",
 			"promptDescription": "L'immagine viene generata con il provider e il modello selezionati.",
 			"promptPlaceholder": "Descrivi l'immagine che vuoi creare...",
