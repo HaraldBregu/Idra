@@ -158,6 +158,6 @@ declare global {
 		provider: ProviderApi;
 		transcribe: TranscribeApi;
 		voice: VoiceApi;
-		creator: CreatorApi;
+		image: ImageApi;
 	}
 }
