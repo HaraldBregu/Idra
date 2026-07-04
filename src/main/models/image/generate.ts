@@ -1,4 +1,4 @@
-import { ImageAdapterFactory } from './factory';
+import { buildImageAdapter } from './factory';
 import type { ImageGenerationResult } from './types';
 
 export interface GenerateImageOptions {
@@ -11,7 +11,7 @@ export interface GenerateImageOptions {
 }
 
 export async function generateImage(options: GenerateImageOptions): Promise<ImageGenerationResult> {
-	const adapter = new ImageAdapterFactory().build({
+	const adapter = buildImageAdapter({
 		id: options.providerId,
 		name: options.providerId,
 		apiKey: options.apiKey,
