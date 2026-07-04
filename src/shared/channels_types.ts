@@ -1,32 +1,6 @@
-export const CHANNEL_PROVIDER_IDS = [
-	'clickclack',
-	'discord',
-	'feishu',
-	'googlechat',
-	'imessage',
-	'irc',
-	'line',
-	'matrix',
-	'mattermost',
-	'msteams',
-	'nextcloud-talk',
-	'nostr',
-	'qa-channel',
-	'qqbot',
-	'signal',
-	'slack',
-	'synology-chat',
-	'telegram',
-	'tlon',
-	'twitch',
-	'whatsapp',
-	'zalo',
-	'zalouser',
-] as const;
+export const CHANNEL_PROVIDER_IDS = ['discord', 'telegram'] as const;
 
 export type ChannelType = (typeof CHANNEL_PROVIDER_IDS)[number];
-
-export const CHANNEL_DEFAULT_ACCOUNT_ID = 'default';
 
 export const CHANNEL_DM_POLICIES = ['allowlist', 'pairing', 'open', 'deny'] as const;
 
@@ -50,13 +24,9 @@ export const CHANNEL_SETUP_FIELDS = [
 	'enabled',
 	'token',
 	'secret',
-	'serverUrl',
-	'webhookUrl',
 	'appId',
 	'clientId',
 	'clientSecret',
-	'username',
-	'phoneNumber',
 	'botUserId',
 	'allowFrom',
 	'groupAllowFrom',
@@ -80,13 +50,9 @@ export interface ChannelAccountProperties {
 	enabled?: boolean;
 	token?: string;
 	secret?: string;
-	serverUrl?: string;
-	webhookUrl?: string;
 	appId?: string;
 	clientId?: string;
 	clientSecret?: string;
-	username?: string;
-	phoneNumber?: string;
 	botUserId?: string;
 	allowFrom?: string[];
 	groupAllowFrom?: string[];
@@ -102,23 +68,6 @@ export interface TelegramChannelProperties {
 	defaultAccountId?: string;
 	defaultTarget?: string;
 	dmPolicy?: ChannelDmPolicy;
-	groupAllowFrom?: string[];
-	accounts?: Record<string, TelegramChannelAccountProperties>;
-	heartbeat?: ChannelHeartbeatVisibilityConfig;
-}
-
-export interface TelegramChannelAccountProperties extends ChannelAccountProperties {
-	token?: string;
-}
-
-export interface WhatsappChannelProperties {
-	phoneNumber: string;
-	token: string;
-	enabled?: boolean;
-	defaultAccountId?: string;
-	defaultTarget?: string;
-	dmPolicy?: ChannelDmPolicy;
-	allowFrom?: string[];
 	groupAllowFrom?: string[];
 	accounts?: Record<string, ChannelAccountProperties>;
 	heartbeat?: ChannelHeartbeatVisibilityConfig;
@@ -136,25 +85,13 @@ export interface DiscordChannelProperties {
 	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
-export interface GenericChannelProperties {
-	enabled?: boolean;
-	defaultAccountId?: string;
-	accounts?: Record<string, ChannelAccountProperties>;
-	heartbeat?: ChannelHeartbeatVisibilityConfig;
-}
-
 export interface ChannelDefaultsProperties {
 	heartbeat?: ChannelHeartbeatVisibilityConfig;
 }
 
-type ChannelConfigById = {
-	[id in ChannelType]: GenericChannelProperties;
-};
-
-export interface Channel extends ChannelConfigById {
+export interface Channel {
 	defaults?: ChannelDefaultsProperties;
 	telegram: TelegramChannelProperties;
-	whatsapp: WhatsappChannelProperties;
 	discord: DiscordChannelProperties;
 }
 
@@ -184,9 +121,3 @@ export interface ChannelCatalogEntry {
 	cliHints: readonly string[];
 	setupHints: readonly string[];
 }
-
-export type ChannelCatalogInput = Omit<
-	ChannelCatalogEntry,
-	'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'
-> &
-	Partial<Pick<ChannelCatalogEntry, 'docsLabel' | 'setupVisible' | 'catalogVisible' | 'runtime'>>;
