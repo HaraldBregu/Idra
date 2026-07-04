@@ -527,19 +527,18 @@ function updateDefaultAccountConfig(
 }
 
 function updateChannelEnabled(
-	channelId: ChannelType,
 	config: EditableChannelConfig,
 	enabled: boolean
 ): EditableChannelConfig {
-	return updateDefaultAccountConfig(channelId, { ...config, enabled }, { enabled });
+	return updateDefaultAccountConfig({ ...config, enabled }, { enabled });
 }
 
-function isChannelEnabled(channelId: ChannelType, config: EditableChannelConfig | null | undefined): boolean {
+function isChannelEnabled(config: EditableChannelConfig | null | undefined): boolean {
 	if (!config) return false;
-	return Boolean(config.enabled ?? getDefaultAccountConfig(channelId, config).enabled);
+	return Boolean(config.enabled ?? getDefaultAccountConfig(config).enabled);
 }
 
-function emptyAccountConfig(_channelId: ChannelType): ChannelAccountProperties {
+function emptyAccountConfig(): ChannelAccountProperties {
 	return {
 		enabled: false,
 		token: '',
