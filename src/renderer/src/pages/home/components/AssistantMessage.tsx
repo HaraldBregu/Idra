@@ -7,7 +7,7 @@ import { ToolActivityGroup } from './ToolActivityGroup';
 import { ToolPermissionCard } from './ToolPermissionCard';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { type AgentMessage } from '../context';
+import { type AgentMessage, type AgentToolPart } from '../context';
 import { useReadMessageAloud } from '../hooks';
 import { markdownComponents } from './markdown';
 import { statusLabel, isRunningState, stateTone } from './status';
