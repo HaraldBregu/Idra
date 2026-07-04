@@ -668,52 +668,17 @@ function getDefaultAccountConfig(
 	channelId: ChannelType,
 	config: EditableChannelConfig
 ): ChannelAccountProperties {
-	if (channelId === 'telegram') {
-		const telegram = config as TelegramChannelProperties;
-		const account = telegram.accounts?.[telegram.defaultAccountId ?? 'default'];
-		return {
-			...account,
-			label: account?.label ?? 'Telegram bot',
-			enabled: telegram.enabled ?? account?.enabled ?? false,
-			token: account?.token ?? telegram.token,
-			defaultTarget: account?.defaultTarget ?? telegram.defaultTarget,
-			allowFrom: account?.allowFrom ?? telegram.allowFrom,
-			groupAllowFrom: account?.groupAllowFrom ?? telegram.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? telegram.dmPolicy ?? 'allowlist',
-		};
-	}
-	if (channelId === 'discord') {
-		const discord = config as DiscordChannelProperties;
-		const account = discord.accounts?.[discord.defaultAccountId ?? 'default'];
-		return {
-			...account,
-			label: account?.label ?? 'Discord bot',
-			enabled: discord.enabled ?? account?.enabled ?? false,
-			token: account?.token ?? discord.token,
-			defaultTarget: account?.defaultTarget ?? discord.defaultTarget,
-			allowFrom: account?.allowFrom ?? discord.allowFrom,
-			groupAllowFrom: account?.groupAllowFrom ?? discord.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? discord.dmPolicy ?? 'allowlist',
-		};
-	}
-	if (channelId === 'whatsapp') {
-		const whatsapp = config as WhatsappChannelProperties;
-		const account = whatsapp.accounts?.[whatsapp.defaultAccountId ?? 'default'];
-		return {
-			...account,
-			label: account?.label ?? 'WhatsApp account',
-			enabled: whatsapp.enabled ?? account?.enabled ?? false,
-			token: account?.token ?? whatsapp.token,
-			phoneNumber: account?.phoneNumber ?? whatsapp.phoneNumber,
-			defaultTarget: account?.defaultTarget ?? whatsapp.defaultTarget,
-			allowFrom: account?.allowFrom ?? whatsapp.allowFrom ?? [],
-			groupAllowFrom: account?.groupAllowFrom ?? whatsapp.groupAllowFrom ?? [],
-			dmPolicy: account?.dmPolicy ?? whatsapp.dmPolicy ?? 'allowlist',
-		};
-	}
-
-	const generic = config as GenericChannelProperties;
-	return generic.accounts?.[generic.defaultAccountId ?? 'default'] ?? emptyAccountConfig(channelId);
+	const account = config.accounts?.[config.defaultAccountId ?? 'default'];
+	return {
+		...account,
+		label: account?.label ?? (channelId === 'telegram' ? 'Telegram bot' : 'Discord bot'),
+		enabled: config.enabled ?? account?.enabled ?? false,
+		token: account?.token ?? config.token,
+		defaultTarget: account?.defaultTarget ?? config.defaultTarget,
+		allowFrom: account?.allowFrom ?? config.allowFrom,
+		groupAllowFrom: account?.groupAllowFrom ?? config.groupAllowFrom ?? [],
+		dmPolicy: account?.dmPolicy ?? config.dmPolicy ?? 'allowlist',
+	};
 }
 
 function updateDefaultAccountConfig(
@@ -721,62 +686,16 @@ function updateDefaultAccountConfig(
 	config: EditableChannelConfig,
 	patch: Partial<ChannelAccountProperties>
 ): EditableChannelConfig {
-	const current = getDefaultAccountConfig(channelId, config);
-	const nextAccount = { ...current, ...patch };
-
-	if (channelId === 'telegram') {
-		const telegram = config as TelegramChannelProperties;
-		return {
-			...telegram,
-			token: nextAccount.token ?? '',
-			defaultTarget: nextAccount.defaultTarget,
-			allowFrom: normalizeList(nextAccount.allowFrom ?? []),
-			groupAllowFrom: normalizeList(nextAccount.groupAllowFrom ?? []),
-			dmPolicy: nextAccount.dmPolicy,
-			accounts: {
-				...(telegram.accounts ?? {}),
-				default: nextAccount,
-			},
-		};
-	}
-	if (channelId === 'discord') {
-		const discord = config as DiscordChannelProperties;
-		return {
-			...discord,
-			token: nextAccount.token ?? '',
-			defaultTarget: nextAccount.defaultTarget,
-			allowFrom: normalizeList(nextAccount.allowFrom ?? []),
-			groupAllowFrom: normalizeList(nextAccount.groupAllowFrom ?? []),
-			dmPolicy: nextAccount.dmPolicy,
-			accounts: {
-				...(discord.accounts ?? {}),
-				default: nextAccount,
-			},
-		};
-	}
-	if (channelId === 'whatsapp') {
-		const whatsapp = config as WhatsappChannelProperties;
-		return {
-			...whatsapp,
-			token: nextAccount.token ?? '',
-			phoneNumber: nextAccount.phoneNumber ?? '',
-			defaultTarget: nextAccount.defaultTarget,
-			allowFrom: normalizeList(nextAccount.allowFrom ?? []),
-			groupAllowFrom: normalizeList(nextAccount.groupAllowFrom ?? []),
-			dmPolicy: nextAccount.dmPolicy,
-			accounts: {
-				...(whatsapp.accounts ?? {}),
-				default: nextAccount,
-			},
-		};
-	}
-
-	const generic = config as GenericChannelProperties;
+	const nextAccount = { ...getDefaultAccountConfig(channelId, config), ...patch };
 	return {
-		...generic,
-		defaultAccountId: generic.defaultAccountId ?? 'default',
+		...config,
+		token: nextAccount.token ?? '',
+		defaultTarget: nextAccount.defaultTarget,
+		allowFrom: normalizeList(nextAccount.allowFrom ?? []),
+		groupAllowFrom: normalizeList(nextAccount.groupAllowFrom ?? []),
+		dmPolicy: nextAccount.dmPolicy,
 		accounts: {
-			...(generic.accounts ?? {}),
+			...(config.accounts ?? {}),
 			default: nextAccount,
 		},
 	};
@@ -787,13 +706,12 @@ function updateChannelEnabled(
 	config: EditableChannelConfig,
 	enabled: boolean
 ): EditableChannelConfig {
-	const nextConfig = { ...(config as GenericChannelProperties), enabled };
-	return updateDefaultAccountConfig(channelId, nextConfig, { enabled });
+	return updateDefaultAccountConfig(channelId, { ...config, enabled }, { enabled });
 }
 
 function isChannelEnabled(channelId: ChannelType, config: EditableChannelConfig | null | undefined): boolean {
 	if (!config) return false;
-	return Boolean((config as GenericChannelProperties).enabled ?? getDefaultAccountConfig(channelId, config).enabled);
+	return Boolean(config.enabled ?? getDefaultAccountConfig(channelId, config).enabled);
 }
 
 function emptyAccountConfig(channelId: ChannelType): ChannelAccountProperties {
@@ -801,8 +719,6 @@ function emptyAccountConfig(channelId: ChannelType): ChannelAccountProperties {
 		label: `${channelId} default`,
 		enabled: false,
 		token: '',
-		serverUrl: '',
-		webhookUrl: '',
 		defaultTarget: '',
 		allowFrom: [],
 		groupAllowFrom: [],
@@ -815,9 +731,9 @@ function normalizeList(values: readonly string[]): string[] {
 }
 
 function getTokenPlaceholder(channelId: ChannelType, t: (key: string) => string): string {
-	if (channelId === 'telegram') return t('settings.channels.telegramTokenPlaceholder');
-	if (channelId === 'discord') return t('settings.channels.discordTokenPlaceholder');
-	return t('settings.channels.tokenPlaceholder');
+	return channelId === 'telegram'
+		? t('settings.channels.telegramTokenPlaceholder')
+		: t('settings.channels.discordTokenPlaceholder');
 }
 
 export default ChannelDetailPage;
