@@ -99,10 +99,17 @@ async function saveImageAs(imagePath: string, window: BrowserWindow | null): Pro
 	await copyFile(imagePath, result.filePath);
 }
 
-function showImageContextMenu(event: IpcMainInvokeEvent, imagePath: string): void {
-	if (!path.isAbsolute(imagePath)) {
-		throw new Error('Image path must be absolute.');
+function validatedAgentImagePath(requestedPath: string): string {
+	const root = realpathSync(path.resolve(agentLocation()));
+	const real = realpathSync(path.resolve(requestedPath));
+	if (!real.startsWith(root + path.sep)) {
+		throw new Error('Image path must be inside the agent data directory.');
 	}
+	return real;
+}
+
+function showImageContextMenu(event: IpcMainInvokeEvent, requestedPath: string): void {
+	const imagePath = validatedAgentImagePath(requestedPath);
 	const window = BrowserWindow.fromWebContents(event.sender);
 	const menu = Menu.buildFromTemplate([
 		{ label: 'Open', click: () => void shell.openPath(imagePath) },
