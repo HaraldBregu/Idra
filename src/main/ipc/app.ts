@@ -21,7 +21,7 @@ import type {
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
 } from '../../shared/app_types';
-import { wrapSimpleHandler } from './core/error_handler';
+import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import type { LoggerService } from '../shared';
 
