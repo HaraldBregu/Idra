@@ -66,6 +66,7 @@ export type PromptInputProps = {
   wrapperClassName?: string
   contentClassName?: string
   footerClassName?: string
+  header?: React.ReactNode
   leadingAction?: React.ReactNode
   actions?: React.ReactNode
   disabled?: boolean
