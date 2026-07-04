@@ -12,13 +12,13 @@ import {
 	type SpeechSynthesisResult,
 } from '../../../shared/speech_types';
 import { getProvider } from '../../providers';
-import { buildSpeechAdapter } from './speech_factory';
-import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './speech_errors';
+import { buildSpeechAdapter } from './tts_factory';
+import { SpeechProviderAuthError, SpeechProviderUnsupportedError } from './tts_errors';
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
 } from '../../voice/voice_store';
-import type { SpeechProviderSpec } from './speech_types';
+import type { SpeechProviderSpec } from './tts_types';
 
 export async function synthesize(request: SpeechSynthesisRequest): Promise<SpeechSynthesisResult> {
 	const normalized = normalizeSpeechSynthesisRequest(request);

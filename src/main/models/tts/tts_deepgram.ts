@@ -1,5 +1,5 @@
-import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './speech_audio';
-import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech_types';
+import { ensureSpeechResponseOk, responseAudioToBase64, speechResult } from './tts_audio';
+import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';
 import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 const DEEPGRAM_TTS_PATH = 'speak';

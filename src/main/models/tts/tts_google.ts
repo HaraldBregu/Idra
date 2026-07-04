@@ -1,6 +1,6 @@
-import { ensureSpeechResponseOk, speechResult } from './speech_audio';
-import { SpeechProviderRequestError } from './speech_errors';
-import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech_types';
+import { ensureSpeechResponseOk, speechResult } from './tts_audio';
+import { SpeechProviderRequestError } from './tts_errors';
+import type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';
 import type { SpeechSynthesisResult } from '../../../shared/speech_types';
 
 const GOOGLE_DEFAULT_VOICE = 'Kore';

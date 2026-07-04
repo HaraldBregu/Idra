@@ -1,8 +1,8 @@
-export { synthesize } from './speech_synthesize';
-export { buildSpeechAdapter } from './speech_factory';
+export { synthesize } from './tts_synthesize';
+export { buildSpeechAdapter } from './tts_factory';
 export {
 	SpeechProviderAuthError,
 	SpeechProviderRequestError,
 	SpeechProviderUnsupportedError,
-} from './speech_errors';
-export type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './speech_types';
+} from './tts_errors';
+export type { SpeechAdapter, SpeechAdapterRequest, SpeechProviderSpec } from './tts_types';

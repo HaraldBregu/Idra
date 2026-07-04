@@ -1,14 +1,14 @@
 import { normalizeProviderId } from '../../../shared/provider_models_definitions';
 import type { TextToSpeechProviderId } from '../../../shared/provider_models_types';
-import { createCartesiaSpeechAdapter } from './speech_cartesia';
-import { createDeepgramSpeechAdapter } from './speech_deepgram';
-import { createElevenLabsSpeechAdapter } from './speech_elevenlabs';
-import { createGoogleSpeechAdapter } from './speech_google';
-import { createMiniMaxSpeechAdapter } from './speech_minimax';
-import { createMistralSpeechAdapter } from './speech_mistral';
-import { createOpenAISpeechAdapter } from './speech_openai';
-import { SpeechProviderUnsupportedError } from './speech_errors';
-import type { SpeechAdapter, SpeechProviderSpec } from './speech_types';
+import { createCartesiaSpeechAdapter } from './tts_cartesia';
+import { createDeepgramSpeechAdapter } from './tts_deepgram';
+import { createElevenLabsSpeechAdapter } from './tts_elevenlabs';
+import { createGoogleSpeechAdapter } from './tts_google';
+import { createMiniMaxSpeechAdapter } from './tts_minimax';
+import { createMistralSpeechAdapter } from './tts_mistral';
+import { createOpenAISpeechAdapter } from './tts_openai';
+import { SpeechProviderUnsupportedError } from './tts_errors';
+import type { SpeechAdapter, SpeechProviderSpec } from './tts_types';
 
 const SPEECH_ADAPTERS: Readonly<
 	Record<TextToSpeechProviderId, (spec: SpeechProviderSpec) => SpeechAdapter>

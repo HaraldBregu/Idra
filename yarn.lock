@@ -8536,7 +8536,6 @@ __metadata:
     react-resizable-panels: "npm:^4.9.0"
     react-router-dom: "npm:^7.1.1"
     react-syntax-highlighter: "npm:^16.1.0"
-    reflect-metadata: "npm:^0.2.2"
     remark-breaks: "npm:^4.0.0"
     remark-gfm: "npm:^4.0.1"
     rimraf: "npm:^6.0.1"
@@ -8548,7 +8547,6 @@ __metadata:
     three: "npm:^0.184.0"
     ts-jest: "npm:^29.4.6"
     tw-animate-css: "npm:^1.4.0"
-    typedi: "npm:^0.10.0"
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:^8.18.2"
     use-stick-to-bottom: "npm:^1.1.4"
@@ -14161,13 +14159,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reflect-metadata@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "reflect-metadata@npm:0.2.2"
-  checksum: 10c0/1cd93a15ea291e420204955544637c264c216e7aac527470e393d54b4bb075f10a17e60d8168ec96600c7e0b9fcc0cb0bb6e91c3fbf5b0d8c9056f04e6ac1ec2
-  languageName: node
-  linkType: hard
-
 "reflect.getprototypeof@npm:^1.0.6, reflect.getprototypeof@npm:^1.0.9":
   version: 1.0.10
   resolution: "reflect.getprototypeof@npm:1.0.10"
@@ -16232,13 +16223,6 @@ __metadata:
   version: 0.0.6
   resolution: "typedarray@npm:0.0.6"
   checksum: 10c0/6005cb31df50eef8b1f3c780eb71a17925f3038a100d82f9406ac2ad1de5eb59f8e6decbdc145b3a1f8e5836e17b0c0002fb698b9fe2516b8f9f9ff602d36412
-  languageName: node
-  linkType: hard
-
-"typedi@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "typedi@npm:0.10.0"
-  checksum: 10c0/99f8227f3670321ff5a0dfaf28a03155757d9e2d5ed184cba8fcf26f03188e7eb46e44d69fab118f89aecafaa4f8cb2860272b597d0a175e2b9a0d136cdcddde
   languageName: node
   linkType: hard
 
