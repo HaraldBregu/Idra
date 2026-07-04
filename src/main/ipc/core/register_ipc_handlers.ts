@@ -5,6 +5,7 @@ import { ImageIpc } from '../image';
 import { ProviderStoreIpc } from '../provider';
 import { SpeechIpc } from '../speech';
 import { SttIpc } from '../stt';
+import { TextIpc } from '../text';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
 import type { MainServices } from '../../bootstrap';
