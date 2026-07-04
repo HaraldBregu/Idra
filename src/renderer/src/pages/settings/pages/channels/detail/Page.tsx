@@ -301,7 +301,6 @@ const ChannelDetailPage: React.FC = () => {
 							/>
 						</Item>
 					</Card>
-				</SettingsSection>
 			) : (
 				<SettingsNotice variant="destructive">
 					{t('settings.channels.notConfigured')}
