@@ -4,7 +4,6 @@ import {
 	addToolResults,
 	isExhausted,
 	recordTurn,
-	sessionDir,
 	toResult,
 	type SessionState,
 } from '../session';
