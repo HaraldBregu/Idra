@@ -72,9 +72,8 @@ try {
 
 // Bootstrap new architecture - FULL INTEGRATION ENABLED
 const {
-	container,
-	eventBus,
 	appState,
+	eventBus,
 	windowFactory,
 	logger,
 	windowContextManager,
@@ -87,7 +86,12 @@ setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(container, eventBus);
+registerIpcHandlers(
+	{ appState, eventBus, logger, windowFactory, windowContextManager, agentService } as Parameters<
+		typeof registerIpcHandlers
+	>[0],
+	eventBus
+);
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
