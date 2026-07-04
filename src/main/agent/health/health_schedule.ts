@@ -1,7 +1,7 @@
 import type { Agent } from '../agent';
 import { runHealthCheck } from './health_run';
 import { getHealthSettings } from './health_store';
-import type { HealthEvery } from './health_types';
+import type { HealthEvery, HealthLogger } from './health_types';
 
 const INTERVAL_MS: Record<HealthEvery, number> = {
 	'0m': 0,
@@ -12,9 +12,11 @@ const INTERVAL_MS: Record<HealthEvery, number> = {
 
 let timer: ReturnType<typeof setInterval> | undefined;
 let healthAgent: Agent | undefined;
+let healthLogger: HealthLogger | undefined;
 
-export function startHealth(agent: Agent): void {
+export function startHealth(agent: Agent, logger: HealthLogger): void {
 	healthAgent = agent;
+	healthLogger = logger;
 	schedule();
 }
 
@@ -22,6 +24,7 @@ export function stopHealth(): void {
 	if (timer) clearInterval(timer);
 	timer = undefined;
 	healthAgent = undefined;
+	healthLogger = undefined;
 }
 
 export function rescheduleHealth(): void {
@@ -32,11 +35,17 @@ function schedule(): void {
 	if (timer) clearInterval(timer);
 	timer = undefined;
 	const agent = healthAgent;
-	const ms = INTERVAL_MS[getHealthSettings().every] ?? 0;
-	if (!ms || !agent) return;
+	const logger = healthLogger;
+	const every = getHealthSettings().every;
+	const ms = INTERVAL_MS[every] ?? 0;
+	if (!ms || !agent || !logger) {
+		logger?.info('Health', 'Health check disabled');
+		return;
+	}
+	logger.info('Health', `Health check scheduled every ${every}`);
 	timer = setInterval(() => {
-		runHealthCheck(agent).catch((error) => {
-			console.error('[Health]', 'Health check failed', error);
+		runHealthCheck(agent, logger).catch((error) => {
+			logger.error('Health', 'Health check failed', error);
 		});
 	}, ms);
 	timer.unref();
