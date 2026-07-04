@@ -41,6 +41,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			{ type: 'agent', value: AGENTS.speechToText },
 			{ type: 'agent', value: AGENTS.textToSpeech },
 			{ type: 'agent', value: AGENTS.textToImage },
+			{ type: 'path', value: '/settings/channels' },
 		],
 	},
 ] satisfies readonly {
