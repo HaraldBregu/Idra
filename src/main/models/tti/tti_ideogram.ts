@@ -1,6 +1,6 @@
-import { ImageProviderAuthError, ImageProviderRequestError } from '../errors';
-import { fetchImageAsBase64, requestJson } from '../shared';
-import type { ImageAdapter, ImageProviderSpec } from '../types';
+import { ImageProviderAuthError, ImageProviderRequestError } from './tti_errors';
+import { fetchImageAsBase64, requestJson } from './tti_shared';
+import type { ImageAdapter, ImageProviderSpec } from './tti_types';
 
 const IDEOGRAM_BASE_URL = 'https://api.ideogram.ai';
 const IDEOGRAM_LEGACY_MODELS: Record<string, string> = { 'ideogram-2a': 'V_2A' };

@@ -1,6 +1,6 @@
-import { ImageProviderAuthError, ImageProviderRequestError } from '../errors';
-import { requestJson } from '../shared';
-import type { ImageAdapter, ImageProviderSpec } from '../types';
+import { ImageProviderAuthError, ImageProviderRequestError } from './tti_errors';
+import { requestJson } from './tti_shared';
+import type { ImageAdapter, ImageProviderSpec } from './tti_types';
 
 const GOOGLE_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta';
 

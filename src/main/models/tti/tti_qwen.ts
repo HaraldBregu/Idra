@@ -1,6 +1,6 @@
-import { ImageProviderAuthError, ImageProviderRequestError } from '../errors';
-import { fetchImageAsBase64, requestJson } from '../shared';
-import type { ImageAdapter, ImageProviderSpec } from '../types';
+import { ImageProviderAuthError, ImageProviderRequestError } from './tti_errors';
+import { fetchImageAsBase64, requestJson } from './tti_shared';
+import type { ImageAdapter, ImageProviderSpec } from './tti_types';
 
 const QWEN_BASE_URL = 'https://dashscope-intl.aliyuncs.com/api/v1';
 

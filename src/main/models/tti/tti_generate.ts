@@ -1,5 +1,5 @@
-import { buildImageAdapter } from './factory';
-import type { ImageGenerationResult } from './types';
+import { buildImageAdapter } from './tti_factory';
+import type { ImageGenerationResult } from './tti_types';
 
 export interface GenerateImageOptions {
 	providerId: string;

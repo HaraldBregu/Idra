@@ -1,13 +1,13 @@
 import { normalizeProviderId } from '../../../shared/provider_models_definitions';
-import { createBflImageAdapter } from './providers/bfl';
-import { createGoogleImageAdapter } from './providers/google';
-import { createIdeogramImageAdapter } from './providers/ideogram';
-import { createLumaImageAdapter } from './providers/luma';
-import { createQwenImageAdapter } from './providers/qwen';
-import { createStabilityImageAdapter } from './providers/stability';
-import { createXaiImageAdapter } from './providers/xai';
-import { ImageProviderUnsupportedError } from './errors';
-import type { ImageAdapter, ImageProviderSpec } from './types';
+import { createBflImageAdapter } from './tti_bfl';
+import { createGoogleImageAdapter } from './tti_google';
+import { createIdeogramImageAdapter } from './tti_ideogram';
+import { createLumaImageAdapter } from './tti_luma';
+import { createQwenImageAdapter } from './tti_qwen';
+import { createStabilityImageAdapter } from './tti_stability';
+import { createXaiImageAdapter } from './tti_xai';
+import { ImageProviderUnsupportedError } from './tti_errors';
+import type { ImageAdapter, ImageProviderSpec } from './tti_types';
 
 export function buildImageAdapter(provider: ImageProviderSpec): ImageAdapter {
 	const id = normalizeProviderId(provider.id);

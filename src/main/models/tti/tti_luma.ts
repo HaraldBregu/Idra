@@ -1,6 +1,6 @@
-import { ImageProviderAuthError, ImageProviderRequestError } from '../errors';
-import { fetchImageAsBase64, poll, requestJson } from '../shared';
-import type { ImageAdapter, ImageProviderSpec } from '../types';
+import { ImageProviderAuthError, ImageProviderRequestError } from './tti_errors';
+import { fetchImageAsBase64, poll, requestJson } from './tti_shared';
+import type { ImageAdapter, ImageProviderSpec } from './tti_types';
 
 const LUMA_BASE_URL = 'https://api.lumalabs.ai/dream-machine/v1';
 

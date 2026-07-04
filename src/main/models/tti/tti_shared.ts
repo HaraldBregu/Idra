@@ -1,5 +1,5 @@
-import { ImageProviderAuthError, ImageProviderRequestError } from './errors';
-import type { ImageGenerationResult } from './types';
+import { ImageProviderAuthError, ImageProviderRequestError } from './tti_errors';
+import type { ImageGenerationResult } from './tti_types';
 
 export async function requestJson<T>(
 	providerName: string,

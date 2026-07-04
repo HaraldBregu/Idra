@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
-import { ImageProviderAuthError, ImageProviderRequestError } from '../errors';
-import { detectMimeType, fetchImageAsBase64 } from '../shared';
-import type { ImageAdapter, ImageProviderSpec } from '../types';
+import { ImageProviderAuthError, ImageProviderRequestError } from './tti_errors';
+import { detectMimeType, fetchImageAsBase64 } from './tti_shared';
+import type { ImageAdapter, ImageProviderSpec } from './tti_types';
 
 const XAI_BASE_URL = 'https://api.x.ai/v1';
 

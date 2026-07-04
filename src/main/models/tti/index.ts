@@ -1,14 +1,14 @@
-export { buildImageAdapter } from './factory';
-export { generateImage } from './generate';
-export type { GenerateImageOptions } from './generate';
+export { buildImageAdapter } from './tti_factory';
+export { generateImage } from './tti_generate';
+export type { GenerateImageOptions } from './tti_generate';
 export {
 	ImageProviderAuthError,
 	ImageProviderRequestError,
 	ImageProviderUnsupportedError,
-} from './errors';
+} from './tti_errors';
 export type {
 	ImageAdapter,
 	ImageAdapterGenerationRequest,
 	ImageGenerationResult,
 	ImageProviderSpec,
-} from './types';
+} from './tti_types';
