@@ -8,7 +8,6 @@ import { LoggerService } from './shared';
 import { ChannelRegistry, ChannelsService } from './channels';
 
 import { Agent } from './agent/agent';
-import { SttService } from './models/stt/service';
 
 export interface MainServices {
 	appState: AppState;
@@ -16,7 +15,6 @@ export interface MainServices {
 	logger: LoggerService;
 	agentService: Agent;
 	channels: ChannelsService;
-	stt: SttService;
 	channelRegistry: ChannelRegistry;
 	windowFactory: WindowFactory;
 	windowContextManager: WindowContextManager;
