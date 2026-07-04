@@ -297,60 +297,60 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 
-						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-								<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.allowFromDescription')}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
-								<ListEditor
-									id={`${selectedId}-allow-from`}
-									value={listDrafts.allowFrom}
-									items={selectedAccount.allowFrom ?? []}
-									placeholder={t('settings.channels.allowFromPlaceholder')}
-									addLabel={t('settings.channels.addAllowFrom')}
-									removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
-									emptyLabel={t('settings.channels.noAllowFrom')}
-									onDraftChange={(value) =>
-										setListDrafts((current) => ({ ...current, allowFrom: value }))
-									}
-									onAdd={() => addListValue('allowFrom')}
-									onRemove={(value) => removeListValue('allowFrom', value)}
-								/>
-							</ItemActions>
+						<Item variant="outline" size="md" className="flex-col items-stretch gap-3 border-b border-border/60">
+							<div className="flex w-full min-w-0 items-start gap-3">
+								<ItemMedia variant="icon">
+									<UserRound className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<div className="min-w-0 flex-1">
+									<ItemTitle className="w-full">{t('settings.channels.allowFrom')}</ItemTitle>
+									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.allowFromDescription')}
+									</p>
+								</div>
+							</div>
+							<ListEditor
+								id={`${selectedId}-allow-from`}
+								value={listDrafts.allowFrom}
+								items={selectedAccount.allowFrom ?? []}
+								placeholder={t('settings.channels.allowFromPlaceholder')}
+								addLabel={t('settings.channels.addAllowFrom')}
+								removeLabel={(item) => t('settings.channels.removeAllowFrom', { value: item })}
+								emptyLabel={t('settings.channels.noAllowFrom')}
+								onDraftChange={(value) =>
+									setListDrafts((current) => ({ ...current, allowFrom: value }))
+								}
+								onAdd={() => addListValue('allowFrom')}
+								onRemove={(value) => removeListValue('allowFrom', value)}
+							/>
 						</Item>
 
-						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
-							<ItemMedia variant="icon">
-								<Hash className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-								<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
-								<p className="text-[11px] leading-4 text-muted-foreground">
-									{t('settings.channels.groupAllowFromDescription')}
-								</p>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
-								<ListEditor
-									id={`${selectedId}-group-allow-from`}
-									value={listDrafts.groupAllowFrom}
-									items={selectedAccount.groupAllowFrom ?? []}
-									placeholder={t('settings.channels.groupAllowFromPlaceholder')}
-									addLabel={t('settings.channels.addGroupAllowFrom')}
-									removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
-									emptyLabel={t('settings.channels.noGroupAllowFrom')}
-									onDraftChange={(value) =>
-										setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
-									}
-									onAdd={() => addListValue('groupAllowFrom')}
-									onRemove={(value) => removeListValue('groupAllowFrom', value)}
-								/>
-							</ItemActions>
+						<Item variant="outline" size="md" className="flex-col items-stretch gap-3 border-b border-border/60">
+							<div className="flex w-full min-w-0 items-start gap-3">
+								<ItemMedia variant="icon">
+									<Hash className="size-3" strokeWidth={1.8} />
+								</ItemMedia>
+								<div className="min-w-0 flex-1">
+									<ItemTitle className="w-full">{t('settings.channels.groupAllowFrom')}</ItemTitle>
+									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.channels.groupAllowFromDescription')}
+									</p>
+								</div>
+							</div>
+							<ListEditor
+								id={`${selectedId}-group-allow-from`}
+								value={listDrafts.groupAllowFrom}
+								items={selectedAccount.groupAllowFrom ?? []}
+								placeholder={t('settings.channels.groupAllowFromPlaceholder')}
+								addLabel={t('settings.channels.addGroupAllowFrom')}
+								removeLabel={(item) => t('settings.channels.removeGroupAllowFrom', { value: item })}
+								emptyLabel={t('settings.channels.noGroupAllowFrom')}
+								onDraftChange={(value) =>
+									setListDrafts((current) => ({ ...current, groupAllowFrom: value }))
+								}
+								onAdd={() => addListValue('groupAllowFrom')}
+								onRemove={(value) => removeListValue('groupAllowFrom', value)}
+							/>
 						</Item>
 
 						<Item variant="outline" size="md">
