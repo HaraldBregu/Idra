@@ -54,7 +54,6 @@ const ChannelDetailPage: React.FC = () => {
 		allowFrom: '',
 		groupAllowFrom: '',
 	});
-	const [busyChannel, setBusyChannel] = useState<ChannelType | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	useEffect(() => {
