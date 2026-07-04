@@ -1,0 +1,48 @@
+import { existsSync, readdirSync, statSync } from 'node:fs';
+import type { AgentSessionSummary } from '../../../shared/agent_types';
+import type { SessionCategory } from './session_types';
+import { DEFAULT_CATEGORY } from './session_types';
+import { isUuid } from './session_is_uuid';
+import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
+import { sessionPath } from './session_session_path';
+import { sessionsRoot } from './session_sessions_root';
+
+function sessionTitle(sessionId: string, category: SessionCategory, location: string): string {
+	const firstUserMessage = loadMessagesBySessionId(sessionId, category, location).find(
+		(message) => message.role === 'user'
+	);
+	if (!firstUserMessage) return '';
+	const text =
+		typeof firstUserMessage.content === 'string'
+			? firstUserMessage.content
+			: firstUserMessage.content
+					.map((block) =>
+						block.type === 'text' && typeof block.text === 'string' ? block.text : ''
+					)
+					.filter(Boolean)
+					.join(' ');
+	return text.trim().replace(/\s+/g, ' ').slice(0, 60);
+}
+
+export function listSessions(
+	location: string,
+	category: SessionCategory = DEFAULT_CATEGORY
+): AgentSessionSummary[] {
+	const root = sessionsRoot(location, category);
+	if (!existsSync(root)) return [];
+	try {
+		return readdirSync(root, { withFileTypes: true })
+			.filter((entry) => entry.isDirectory() && isUuid(entry.name))
+			.map((entry) => {
+				const stats = statSync(sessionPath(root, entry.name));
+				return {
+					id: entry.name,
+					createdAtMs: stats.birthtimeMs || stats.ctimeMs || stats.mtimeMs,
+					title: sessionTitle(entry.name, category, location),
+				};
+			})
+			.sort((a, b) => b.createdAtMs - a.createdAtMs || b.id.localeCompare(a.id));
+	} catch {
+		return [];
+	}
+}
