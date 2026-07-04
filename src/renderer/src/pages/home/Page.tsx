@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/prompt-input';
 import { PromptSuggestion } from '@/components/ui/prompt-suggestion';
 import { ScrollButton } from '@/components/ui/scroll-button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useChatMode } from '@/contexts/chat-mode';
 import { cn } from '@/lib/utils';
 import { AssistantMessage } from './components/AssistantMessage';
