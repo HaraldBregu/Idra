@@ -23,6 +23,8 @@ export const AgentChannels = {
 	healthSettings: 'agent:health:settings',
 	healthSaveSettings: 'agent:health:settings:save',
 	healthResetSettings: 'agent:health:settings:reset',
+	healthData: 'agent:health:data',
+	healthSaveData: 'agent:health:data:save',
 	mcpList: 'agent:mcp:list',
 	mcpGet: 'agent:mcp:get',
 	mcpSave: 'agent:mcp:save',
