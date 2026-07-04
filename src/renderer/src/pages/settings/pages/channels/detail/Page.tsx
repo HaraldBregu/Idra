@@ -37,7 +37,6 @@ import {
 	SettingsPageShell,
 	SettingsSection,
 } from '../../../components';
-import { openExternalUrl } from '@/lib/external-links';
 import type {
 	Channel,
 	ChannelAccountProperties,
