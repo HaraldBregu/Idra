@@ -107,8 +107,6 @@ const GeneralPage: React.FC = () => {
 					</Card>
 			</SettingsSection>
 
-			<MediaPermissionsSection />
-
 			<SettingsSection title={t('settings.sections.layout')}>
 				<Card size="sm" className="gap-0! p-0!">
 					<Item variant="outline" size="md" className="border-b border-border/60">
