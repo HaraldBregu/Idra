@@ -37,6 +37,8 @@ export interface AgentApi {
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
 	healthResetSettings: () => Promise<HealthSettings>;
+	healthGetData: () => Promise<string>;
+	healthSaveData: (content: string) => Promise<string>;
 	mcpList: () => Promise<McpSettings>;
 	mcpGet: (id: string) => Promise<McpSettings>;
 	mcpSave: (input: McpSettings) => Promise<McpSettings>;
