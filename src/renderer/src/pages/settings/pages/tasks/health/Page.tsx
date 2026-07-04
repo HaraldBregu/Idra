@@ -187,51 +187,67 @@ const HealthPage: React.FC = () => {
 								</SettingsField>
 							</div>
 
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField
-									id="health-active-start"
-									label={t('settings.health.fields.activeHoursStart')}
-								>
-									<Input
-										id="health-active-start"
-										type="time"
-										className="text-xs"
-										value={settings.activeHours?.start ?? ''}
-										onChange={(event) =>
-											update({
-												activeHours: {
-													start: event.target.value,
-													end: settings.activeHours?.end ?? '',
-												},
-											})
-										}
-										disabled={saving}
-									/>
-								</SettingsField>
-
-								<SettingsField
-									id="health-active-end"
-									label={t('settings.health.fields.activeHoursEnd')}
-								>
-									<Input
-										id="health-active-end"
-										type="time"
-										className="text-xs"
-										value={settings.activeHours?.end ?? ''}
-										onChange={(event) =>
-											update({
-												activeHours: {
-													start: settings.activeHours?.start ?? '',
-													end: event.target.value,
-												},
-											})
-										}
-										disabled={saving}
-									/>
-								</SettingsField>
-							</div>
-
 							<SettingsPanel>
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.health.fields.activeHoursStart')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Input
+											id="health-active-start"
+											type="date"
+											className="h-7 w-36 text-xs"
+											value={settings.activeHours?.start ?? ''}
+											onChange={(event) =>
+												update({
+													activeHours: {
+														start: event.target.value,
+														end: settings.activeHours?.end ?? '',
+													},
+												})
+											}
+											disabled={saving}
+											aria-label={t('settings.health.fields.activeHoursStart')}
+										/>
+									</ItemActions>
+								</Item>
+
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.health.fields.activeHoursEnd')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Input
+											id="health-active-end"
+											type="date"
+											className="h-7 w-36 text-xs"
+											value={settings.activeHours?.end ?? ''}
+											onChange={(event) =>
+												update({
+													activeHours: {
+														start: settings.activeHours?.start ?? '',
+														end: event.target.value,
+													},
+												})
+											}
+											disabled={saving}
+											aria-label={t('settings.health.fields.activeHoursEnd')}
+										/>
+									</ItemActions>
+								</Item>
+
 								{SWITCH_FIELDS.map((field) => (
 									<Item
 										key={field}
