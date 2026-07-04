@@ -9,6 +9,7 @@ import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
 	AgentRunState,
+	AgentSessionSummary,
 	AgentToolPermissionDecision,
 	AgentToolResultStatus,
 	ModelReasoningEffort,
