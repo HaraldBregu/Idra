@@ -31,7 +31,6 @@ export interface AppEvents {
  * - broadcast() and sendTo(): For Main -> Renderer IPC communication
  * - emit() and on(): For typed Main Process events (analytics, logging, monitoring)
  */
-@Service()
 export class EventBus {
 	private mainProcessListeners = new Map<string, Set<(event: AppEvent) => void>>();
 	/**
