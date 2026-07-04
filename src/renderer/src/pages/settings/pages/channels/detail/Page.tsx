@@ -110,7 +110,7 @@ const ChannelDetailPage: React.FC = () => {
 		setListDrafts({ allowFrom: '', groupAllowFrom: '' });
 	}, [selectedId]);
 
-	const selectedEntry = selectedId ? catalog.find((entry) => entry.id === selectedId) : null;
+	const selectedEntry = selectedId ? getChannelCatalogEntry(selectedId) ?? null : null;
 	const selectedConfig = selectedId ? configs?.[selectedId] ?? null : null;
 	const selectedAccount = selectedConfig && selectedId
 		? getDefaultAccountConfig(selectedId, selectedConfig)
