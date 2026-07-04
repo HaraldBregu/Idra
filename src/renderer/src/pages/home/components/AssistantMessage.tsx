@@ -169,6 +169,7 @@ export function AssistantMessage({
 							src={localResourceUrl(path)}
 							alt="Generated image"
 							className="h-auto max-w-full rounded-lg border border-border/50"
+							onContextMenu={() => void window.app.showImageContextMenu(path)}
 						/>
 					))}
 				</div>
