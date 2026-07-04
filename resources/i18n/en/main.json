@@ -725,6 +725,15 @@
 			"keySaved": "API key saved",
 			"keyMissing": "API key missing"
 		},
+		"creator": {
+			"prompt": "Prompt",
+			"promptDescription": "The image is generated with the selected provider and model.",
+			"promptPlaceholder": "Describe the image you want to create...",
+			"generate": "Generate",
+			"generating": "Generating...",
+			"generateError": "Unable to generate the image.",
+			"resultAlt": "Generated image"
+		},
 		"modelServices": {
 			"title": "Model services",
 			"description": "Review the job-specific model services available to Friday.",
