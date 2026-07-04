@@ -234,6 +234,29 @@ export interface ImageInvokeChannelMap {
 	};
 }
 
+export interface TextInvokeChannelMap {
+	[TextChannels.generateText]: {
+		args: [request: TextRequest];
+		result: string;
+	};
+	[TextChannels.getProviderId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[TextChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[TextChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[TextChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
+}
+
 export interface SpeechInvokeChannelMap {
 	[SpeechChannels.synthesize]: {
 		args: [request: SpeechSynthesisRequest];
