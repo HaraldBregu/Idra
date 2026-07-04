@@ -35,6 +35,7 @@ const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page')
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
 const ModelServicePage = lazy(() => import('./pages/settings/pages/model-services/Page'));
+const CreatorPage = lazy(() => import('./pages/settings/pages/creator/Page'));
 
 function RouteWrapper({
 	children,
