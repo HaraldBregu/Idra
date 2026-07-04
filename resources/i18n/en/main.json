@@ -468,6 +468,33 @@
 			"notFoundTitle": "MCP server not found",
 			"notFoundDescription": "The MCP server may have been removed."
 		},
+		"health": {
+			"settingsTitle": "Settings",
+			"settingsDescription": "Configure the periodic health check.",
+			"checklistTitle": "Checklist",
+			"checklistDescription": "Instructions the agent follows on each health check (HEALTH.md). Keep it empty or comment-only to skip runs.",
+			"fields": {
+				"every": "Interval",
+				"everyOff": "Off",
+				"target": "Target",
+				"targetNone": "None",
+				"targetLast": "Last session",
+				"directPolicy": "Direct policy",
+				"directAllow": "Allow",
+				"directBlock": "Block",
+				"lightContext": "Light context",
+				"isolatedSession": "Isolated session",
+				"skipWhenBusy": "Skip when busy",
+				"includeReasoning": "Include reasoning",
+				"activeHoursStart": "Active from",
+				"activeHoursEnd": "Active until"
+			},
+			"saving": "Saving…",
+			"saved": "Saved",
+			"errors": {
+				"saveFailed": "Failed to save health settings."
+			}
+		},
 		"cron": {
 			"description": "View, run, pause, and delete scheduled agent tasks.",
 			"columns": {
