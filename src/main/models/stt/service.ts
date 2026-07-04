@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { Service } from 'typedi';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../../shared';
 import {
 	OPENAI_SPEECH_TO_TEXT_PROVIDER_ID,
