@@ -195,6 +195,14 @@ function validateAccounts(value: unknown): string | undefined {
 	return undefined;
 }
 
+function validateStringList(value: unknown, key: string): string | undefined {
+	if (value === undefined) return undefined;
+	if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
+		return `${key} must be an array of strings`;
+	}
+	return undefined;
+}
+
 function validateHeartbeat(value: unknown, key: string): string | undefined {
 	if (value === undefined) return undefined;
 	const heartbeat = readRecord(value);
