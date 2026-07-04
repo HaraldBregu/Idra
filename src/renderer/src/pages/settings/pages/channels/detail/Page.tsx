@@ -404,6 +404,27 @@ const ChannelDetailPage: React.FC = () => {
 							</ItemActions>
 						</Item>
 					</Card>
+
+					<div className="flex flex-col items-end gap-2 pt-3">
+						{saved && (
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.modelServices.saved')}
+							</p>
+						)}
+						<Button
+							type="button"
+							size="sm"
+							disabled={!configs || saving || busyChannel !== null}
+							onClick={() => void saveSelectedConfig()}
+						>
+							{saving ? (
+								<LoaderCircle className="size-3 animate-spin" />
+							) : (
+								<Save className="size-3" />
+							)}
+							{saving ? t('settings.modelServices.saving') : t('common.save')}
+						</Button>
+					</div>
 				</SettingsSection>
 			) : (
 				<SettingsNotice variant="destructive">
