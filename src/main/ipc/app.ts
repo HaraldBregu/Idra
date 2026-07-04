@@ -88,6 +88,35 @@ async function openPathOrThrow(target: string): Promise<void> {
 	}
 }
 
+async function saveImageAs(imagePath: string, window: BrowserWindow | null): Promise<void> {
+	const options = { defaultPath: path.basename(imagePath) };
+	const result = window
+		? await dialog.showSaveDialog(window, options)
+		: await dialog.showSaveDialog(options);
+	if (result.canceled || !result.filePath) return;
+	await copyFile(imagePath, result.filePath);
+}
+
+function showImageContextMenu(event: IpcMainInvokeEvent, imagePath: string): void {
+	if (!path.isAbsolute(imagePath)) {
+		throw new Error('Image path must be absolute.');
+	}
+	const window = BrowserWindow.fromWebContents(event.sender);
+	const menu = Menu.buildFromTemplate([
+		{ label: 'Open', click: () => void shell.openPath(imagePath) },
+		{ label: 'Open File Location', click: () => shell.showItemInFolder(imagePath) },
+		{ type: 'separator' },
+		{
+			label: 'Copy Image',
+			click: () => clipboard.writeImage(nativeImage.createFromPath(imagePath)),
+		},
+		{ label: 'Copy Path', click: () => clipboard.writeText(imagePath) },
+		{ type: 'separator' },
+		{ label: 'Save As…', click: () => void saveImageAs(imagePath, window) },
+	]);
+	menu.popup(window ? { window } : {});
+}
+
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
