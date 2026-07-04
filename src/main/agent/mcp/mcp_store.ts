@@ -4,7 +4,7 @@ import type { McpSettings } from '../../../shared/mcp_types';
 import { agentLocation } from '../../shared/agent_location';
 import type { ConnectorStoreSchema, McpOAuthState } from './mcp_types';
 
-export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { mcpServers: {}, oauth: {} };
+export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { servers: {}, oauth: {} };
 
 const MCP_STORE_NAME = 'mcp';
 
@@ -16,7 +16,7 @@ const store = new Store<ConnectorStoreSchema>({
 });
 
 export function getMcpServers(): McpSettings {
-	return store.store.mcpServers ?? {};
+	return store.store.servers ?? {};
 }
 
 export function setMcpServers(servers: McpSettings): void {

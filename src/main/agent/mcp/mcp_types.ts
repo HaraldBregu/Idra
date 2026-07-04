@@ -23,7 +23,7 @@ export type McpOAuthState = {
 };
 
 export type ConnectorStoreSchema = {
-	mcpServers: McpSettings;
+	servers: McpSettings;
 	oauth: Record<string, McpOAuthState>;
 };
 
