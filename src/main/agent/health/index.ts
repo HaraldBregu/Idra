@@ -1,3 +1,4 @@
+export { rescheduleHealth, startHealth, stopHealth } from './health_schedule';
 export {
 	getHealthSettings,
 	resetHealthSettings,
