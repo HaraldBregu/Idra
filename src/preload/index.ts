@@ -9,6 +9,7 @@ import {
 	ProviderStoreChannels,
 	SpeechChannels,
 	SttChannels,
+	TextChannels,
 } from '../shared/ipc_channels_definitions';
 import type {
 	AppApi,
