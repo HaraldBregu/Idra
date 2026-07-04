@@ -1,4 +1,17 @@
-import { app, ipcMain, shell, systemPreferences } from 'electron';
+import {
+	app,
+	BrowserWindow,
+	clipboard,
+	dialog,
+	ipcMain,
+	Menu,
+	nativeImage,
+	shell,
+	systemPreferences,
+	type IpcMainInvokeEvent,
+} from 'electron';
+import { copyFile } from 'node:fs/promises';
+import path from 'node:path';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import type {
