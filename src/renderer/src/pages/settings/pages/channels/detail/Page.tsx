@@ -48,8 +48,8 @@ import type {
 } from '../../../../../../../shared';
 import {
 	buildChannelDocsUrl,
+	getChannelCatalogEntry,
 	isChannelId,
-	type ChannelCatalogEntry,
 } from '../../../../../../../shared';
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
