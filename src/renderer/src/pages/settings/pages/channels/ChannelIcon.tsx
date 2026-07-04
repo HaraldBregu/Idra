@@ -18,38 +18,6 @@ const CHANNEL_ICON_ASSETS: Readonly<Record<string, ChannelIconAsset>> = {
 	telegram: { light: telegramIconLight, dark: telegramIconDark },
 };
 
-const channelIconModules = import.meta.glob<string>('@resources/icons/brands/*/*.png', {
-	eager: true,
-	import: 'default',
-});
-
-function buildIconAssets(): Readonly<Record<string, ChannelIconAsset>> {
-	const partialAssets: Record<string, Partial<ChannelIconAsset>> = {
-		...Object.fromEntries(
-			Object.entries(CHANNEL_ICON_ASSETS).map(([id, asset]) => [id, { ...asset }])
-		),
-	};
-
-	for (const [path, url] of Object.entries(channelIconModules)) {
-		const match = path.match(/brands\/[^/]+\/([^/]+)_(light|dark)(?:_NOT_A_LOGO)?\.png$/);
-		if (!match) continue;
-		const [, id, theme] = match;
-		if (!id || (theme !== 'light' && theme !== 'dark')) continue;
-		partialAssets[id] = { ...partialAssets[id], [theme]: url };
-	}
-
-	return Object.freeze(
-		Object.fromEntries(
-			Object.entries(partialAssets).filter(
-				(entry): entry is [string, ChannelIconAsset] =>
-					typeof entry[1].light === 'string' && typeof entry[1].dark === 'string'
-			)
-		)
-	);
-}
-
-const CHANNEL_ICON_LOOKUP = buildIconAssets();
-
 export function ChannelIcon({
 	channelId,
 	name,
