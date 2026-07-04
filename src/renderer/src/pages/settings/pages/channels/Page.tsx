@@ -31,10 +31,10 @@ const ChannelsPage: React.FC = () => {
 	useEffect(() => {
 		let mounted = true;
 
-		Promise.all([window.channels.listCatalog(), window.channels.getStatus()])
-			.then(([nextCatalog, telegramStatus]) => {
+		window.channels
+			.getStatus()
+			.then((telegramStatus) => {
 				if (!mounted) return;
-				setCatalog(nextCatalog);
 				if (telegramStatus) {
 					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
 				}
