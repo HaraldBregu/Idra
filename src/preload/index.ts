@@ -31,7 +31,6 @@ import type {
 	ModelReasoningEffort,
 } from '../shared/agent_types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
-import type { ChannelCatalogEntry } from '../shared';
 import type { Provider } from '../shared/providers_types';
 import { normalizeSpeechSynthesisRequest } from '../shared/speech_types';
 import {
