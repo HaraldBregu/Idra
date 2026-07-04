@@ -256,6 +256,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'creator',
+						element: (
+							<SettingsRouteWrapper>
+								<CreatorPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'model-services',
 						children: [
 							{
