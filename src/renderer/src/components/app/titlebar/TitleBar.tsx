@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { TitleBarProvider } from './context/TitleBarContext';
 import { NavButton } from './components/NavButton';
 // import { NavigationButtons } from './components/NavigationButtons';
+import { SessionsButton } from './components/SessionsButton';
 import { WindowControls } from './components/WindowControls';
 import { useWindowState } from './hooks/useWindowState';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
