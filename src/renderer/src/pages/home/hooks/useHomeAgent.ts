@@ -182,9 +182,13 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		const agent = getAgentApi();
 		if (!agent) return;
 
+		requestIdRef.current += 1;
+		requestActiveRef.current = false;
+		localInteractionRef.current = false;
+		setIsLoading(false);
 		setHistoryLoading(true);
 		agent
-			.getLastMessages(HOME_AGENT_SESSION_ID)
+			.getLastMessages(sessionId)
 			.then((history) => {
 				if (cancelled || localInteractionRef.current) return;
 				dispatchChat({ type: 'restore_history', history });
@@ -197,7 +201,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 		return () => {
 			cancelled = true;
 		};
-	}, [dispatchChat]);
+	}, [dispatchChat, sessionId]);
 
 	useEffect(() => {
 		return () => {
