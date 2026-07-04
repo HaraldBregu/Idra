@@ -25,6 +25,10 @@ import type {
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 
+function getImageModels(providerId: string): Model[] {
+	return cloneModels(TEXT_TO_IMAGE_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
+}
+
 function getVoiceModels(providerId: string): Model[] {
 	return cloneModels(TEXT_TO_SPEECH_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
 }
