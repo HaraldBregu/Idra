@@ -49,7 +49,6 @@ export interface AgentApi {
 }
 
 export interface ChannelsApi {
-	listCatalog: () => Promise<ChannelCatalogEntry[]>;
 	getConfig: () => Promise<Channel>;
 	saveChannelConfig: <TKey extends ChannelType>(
 		type: TKey,
