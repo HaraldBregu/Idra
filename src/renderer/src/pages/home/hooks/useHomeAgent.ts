@@ -49,6 +49,7 @@ function runtimeOptionsForPrompt(prompt: string) {
 
 export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) => void }) {
 	const { chatState, dispatchChat } = useHomeAgentContext();
+	const { sessionId } = useChatSession();
 	const [input, setInput] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [historyLoading, setHistoryLoading] = useState(false);
