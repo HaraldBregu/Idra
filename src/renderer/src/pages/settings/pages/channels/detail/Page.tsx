@@ -98,7 +98,6 @@ const ChannelDetailPage: React.FC = () => {
 		channelId: ChannelType,
 		config: EditableChannelConfig
 	): Promise<void> => {
-		setBusyChannel(channelId);
 		setLoadError(null);
 		try {
 			const saved = await window.channels.saveChannelConfig(channelId, config);
@@ -108,8 +107,6 @@ const ChannelDetailPage: React.FC = () => {
 			});
 		} catch (error) {
 			setLoadError(error instanceof Error ? error.message : String(error));
-		} finally {
-			setBusyChannel(null);
 		}
 	};
 
