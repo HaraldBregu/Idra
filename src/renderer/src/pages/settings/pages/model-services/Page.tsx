@@ -49,6 +49,8 @@ import {
 	SettingsSection,
 } from '../../components';
 import { SETTINGS_MODEL_SERVICE_ITEMS } from '../../navigation';
+import TranscribeTest from './TranscribeTest';
+import VoiceTest from './VoiceTest';
 
 interface ModelServicePageState {
 	readonly providers: PublicProvider[];
