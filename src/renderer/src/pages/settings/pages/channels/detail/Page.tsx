@@ -45,10 +45,6 @@ import type {
 	ChannelConnectionStatus,
 	ChannelDmPolicy,
 	ChannelType,
-	DiscordChannelProperties,
-	GenericChannelProperties,
-	TelegramChannelProperties,
-	WhatsappChannelProperties,
 } from '../../../../../../../shared';
 import {
 	buildChannelDocsUrl,
