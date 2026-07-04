@@ -439,6 +439,11 @@ function PromptInput({
                 />
               ) : (
                 <>
+                  {header ? (
+                    <motion.div layout transition={transition} className="mb-2 shrink-0">
+                      {header}
+                    </motion.div>
+                  ) : null}
                   <AnimatePresence initial={false}>
                     {!isPromptExpanded && leadingAction && (
                       <PromptInputMotionSlot transition={transition}>
