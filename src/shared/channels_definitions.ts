@@ -34,6 +34,7 @@ export const CHANNEL_CATALOG: readonly ChannelCatalogEntry[] = [
 		blurb: 'Receive Telegram bot messages and send agent replies.',
 		docsPath: 'docs/channels/telegram/index.md',
 		docsLabel: 'Telegram setup',
+		brandIconId: 'telegram',
 		aliases: [],
 		order: 180,
 		markdownCapable: true,
