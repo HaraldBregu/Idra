@@ -7,14 +7,14 @@ import type {
 } from 'openai/resources/responses/responses';
 import type { Message } from '../../agent/types';
 import type {
-	AgentContentBlock,
-	ProviderStreamRequest,
-	TranscriptEntry,
-} from './types';
+	LlmContentBlock,
+	LlmStreamRequest,
+	LlmTranscriptEntry,
+} from './llm_types';
 
-type ReasoningContentBlock = Extract<AgentContentBlock, { type: 'reasoning' }>;
+type ReasoningContentBlock = Extract<LlmContentBlock, { type: 'reasoning' }>;
 
-export function toTranscriptEntry(message: Message): TranscriptEntry[] {
+export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 	if (message.role === 'assistant') {
 		const content = toAssistantContent(message.content);
 		for (const toolCall of message.toolCalls ?? []) {
@@ -27,7 +27,7 @@ export function toTranscriptEntry(message: Message): TranscriptEntry[] {
 		}
 		if (content.length === 0) content.push({ type: 'text', text: '' });
 
-		const entries: TranscriptEntry[] = [{ role: 'assistant', content }];
+		const entries: LlmTranscriptEntry[] = [{ role: 'assistant', content }];
 		for (const toolCall of message.toolCalls ?? []) {
 			if (!toolCall.result) continue;
 			entries.push({
@@ -43,10 +43,10 @@ export function toTranscriptEntry(message: Message): TranscriptEntry[] {
 	return [{ role: 'user', content: toTextContent(message.content) }];
 }
 
-function toAssistantContent(content: Message['content']): AgentContentBlock[] {
+function toAssistantContent(content: Message['content']): LlmContentBlock[] {
 	if (typeof content === 'string') return content ? [{ type: 'text', text: content }] : [];
 	return content
-		.map((block): AgentContentBlock | undefined => {
+		.map((block): LlmContentBlock | undefined => {
 			if (block.type === 'text' && typeof block.text === 'string')
 				return { type: 'text', text: block.text };
 			if (block.type === 'provider_item' && block.provider === 'openai') {
@@ -54,7 +54,7 @@ function toAssistantContent(content: Message['content']): AgentContentBlock[] {
 			}
 			return undefined;
 		})
-		.filter((block): block is AgentContentBlock => block !== undefined);
+		.filter((block): block is LlmContentBlock => block !== undefined);
 }
 
 function toTextContent(content: Message['content']): string {
@@ -65,7 +65,7 @@ function toTextContent(content: Message['content']): string {
 		.join('\n');
 }
 
-export function parseToolArgs(argsText: string): Record<string, unknown> {
+export function llmParseToolArgs(argsText: string): Record<string, unknown> {
 	if (!argsText.trim()) return {};
 	try {
 		const parsed = JSON.parse(argsText);
@@ -78,17 +78,17 @@ export function parseToolArgs(argsText: string): Record<string, unknown> {
 	}
 }
 
-function toolResultText(entry: Extract<TranscriptEntry, { role: 'tool' }>): string {
+function toolResultText(entry: Extract<LlmTranscriptEntry, { role: 'tool' }>): string {
 	return entry.content.map((c) => (c.type === 'text' ? c.text : '[binary content]')).join('\n');
 }
 
 function isOpenAIReasoningBlock(
-	block: AgentContentBlock
+	block: LlmContentBlock
 ): block is ReasoningContentBlock & { provider: 'openai' } {
 	return block.type === 'reasoning' && block.provider === 'openai';
 }
 
-function isDeepSeekReasoningBlock(block: AgentContentBlock): block is ReasoningContentBlock {
+function isDeepSeekReasoningBlock(block: LlmContentBlock): block is ReasoningContentBlock {
 	return block.type === 'reasoning' && block.provider === 'deepseek';
 }
 
@@ -104,7 +104,7 @@ function asResponseInputItem(value: unknown): ResponseInputItem | null {
 		: null;
 }
 
-export function buildResponseInput(transcript: TranscriptEntry[]): ResponseInput {
+export function llmBuildResponseInput(transcript: LlmTranscriptEntry[]): ResponseInput {
 	const input: ResponseInput = [];
 
 	for (const entry of transcript) {
@@ -159,12 +159,12 @@ export function buildResponseInput(transcript: TranscriptEntry[]): ResponseInput
 	return input;
 }
 
-export function hasFunctionCall(output: ResponseOutputItem[] | undefined): boolean {
+export function llmHasFunctionCall(output: ResponseOutputItem[] | undefined): boolean {
 	return output?.some((item) => item.type === 'function_call') ?? false;
 }
 
-export function buildAnthropicMessages(
-	transcript: TranscriptEntry[]
+export function llmBuildAnthropicMessages(
+	transcript: LlmTranscriptEntry[]
 ): Anthropic.Messages.MessageParam[] {
 	const msgs: Anthropic.Messages.MessageParam[] = [];
 	for (const entry of transcript) {
@@ -194,7 +194,7 @@ export function buildAnthropicMessages(
 		}
 		if (entry.role === 'tool') {
 			const isError = entry.status ? entry.status !== 'ok' : entry.isError === true;
-			const blocks: Anthropic.Messages.ToolResultBlockParam[] = [
+			const blocks: Anthropic.Messages.LlmToolResultBlockParam[] = [
 				{
 					type: 'tool_result',
 					tool_use_id: entry.toolUseId,
@@ -223,9 +223,9 @@ export function buildAnthropicMessages(
 	return msgs;
 }
 
-export function buildChatMessages(
+export function llmBuildChatMessages(
 	system: string,
-	transcript: TranscriptEntry[],
+	transcript: LlmTranscriptEntry[],
 	options: { includeReasoningContent?: boolean } = {}
 ): OpenAI.ChatCompletionMessageParam[] {
 	const msgs: OpenAI.ChatCompletionMessageParam[] = [];
@@ -238,11 +238,11 @@ export function buildChatMessages(
 		}
 		if (entry.role === 'assistant') {
 			const text = entry.content
-				.filter((b): b is Extract<AgentContentBlock, { type: 'text' }> => b.type === 'text')
+				.filter((b): b is Extract<LlmContentBlock, { type: 'text' }> => b.type === 'text')
 				.map((b) => b.text)
 				.join('');
 			const toolCalls: OpenAI.ChatCompletionMessageToolCall[] = entry.content
-				.filter((b): b is Extract<AgentContentBlock, { type: 'tool_use' }> => b.type === 'tool_use')
+				.filter((b): b is Extract<LlmContentBlock, { type: 'tool_use' }> => b.type === 'tool_use')
 				.map((b) => ({
 					id: b.toolUseId,
 					type: 'function' as const,
@@ -278,8 +278,8 @@ export function buildChatMessages(
 	return msgs;
 }
 
-export function toDeepSeekReasoningEffort(
-	effort: ProviderStreamRequest['effort']
+export function llmToDeepSeekReasoningEffort(
+	effort: LlmStreamRequest['effort']
 ): 'high' | 'max' | undefined {
 	if (!effort || effort === 'none') return undefined;
 	if (effort === 'xhigh') return 'max';

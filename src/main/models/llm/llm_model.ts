@@ -6,36 +6,36 @@ import type {
 	ResponseFunctionToolCall,
 	ResponseStreamEvent,
 } from 'openai/resources/responses/responses';
-import type { ModelEvent, ModelRequest, ModelResponse } from './index';
+import type { LlmEvent, LlmRequest, LlmResponse } from './llm_types';
 import type {
-	ProviderAdapter,
-	ProviderEvent,
-	ProviderSpec,
-	ProviderStreamRequest,
+	LlmAdapter,
+	LlmProviderEvent,
+	LlmProviderSpec,
+	LlmStreamRequest,
 	Usage,
-} from './types';
-import { ContextOverflowError, ProviderAuthError } from './types';
+} from './llm_types';
+import { LlmContextOverflowError, LlmProviderAuthError } from './llm_types';
 import {
-	buildAnthropicMessages,
-	buildChatMessages,
-	buildResponseInput,
-	hasFunctionCall,
+	llmBuildAnthropicMessages,
+	llmBuildChatMessages,
+	llmBuildResponseInput,
+	llmHasFunctionCall,
 	isRecord,
-	parseToolArgs,
-	toDeepSeekReasoningEffort,
-	toTranscriptEntry,
-} from './shared';
+	llmParseToolArgs,
+	llmToDeepSeekReasoningEffort,
+	toLlmTranscriptEntry,
+} from './llm_shared';
 
-type ProviderModelFactory = (provider: ProviderSpec) => ProviderAdapter;
+type LlmModelFactory = (provider: LlmProviderSpec) => LlmAdapter;
 
 interface LlmClientFactoryInput {
 	apiKey: string;
 	baseURL?: string;
 }
 
-export interface AgentModelOptions {
-	provider?: ProviderSpec;
-	providerModelFactory?: ProviderModelFactory;
+export interface LlmModelOptions {
+	provider?: LlmProviderSpec;
+	providerModelFactory?: LlmModelFactory;
 	openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
 	anthropicClientFactory?: (opts: LlmClientFactoryInput) => Anthropic;
 	reasoningEffortEnabled?: boolean;
@@ -58,16 +58,16 @@ interface ChatToolCallState {
 	emittedStart: boolean;
 }
 
-export class AgentModel implements ProviderAdapter {
-	private readonly provider?: ProviderSpec;
-	private readonly providerModelFactory?: ProviderModelFactory;
+export class LlmModel implements LlmAdapter {
+	private readonly provider?: LlmProviderSpec;
+	private readonly providerModelFactory?: LlmModelFactory;
 	private readonly openAIClientFactory?: (opts: LlmClientFactoryInput) => OpenAI;
 	private readonly anthropicClientFactory?: (opts: LlmClientFactoryInput) => Anthropic;
 	private readonly reasoningEffortEnabled: boolean;
 	private readonly reasoningContentEnabled: boolean;
 	private readonly thinkingModeEnabled: boolean;
 
-	constructor(options: AgentModelOptions = {}) {
+	constructor(options: LlmModelOptions = {}) {
 		this.provider = options.provider;
 		this.providerModelFactory = options.providerModelFactory;
 		this.openAIClientFactory = options.openAIClientFactory;
@@ -77,11 +77,11 @@ export class AgentModel implements ProviderAdapter {
 		this.thinkingModeEnabled = options.thinkingModeEnabled ?? false;
 	}
 
-	async generate(request: ModelRequest): Promise<ModelResponse> {
+	async generate(request: LlmRequest): Promise<LlmResponse> {
 		let content = '';
 		const toolCalls = new Map<string, { name: string; argsText: string }>();
 		let stopReason: string | undefined;
-		let usage: ModelResponse['usage'];
+		let usage: LlmResponse['usage'];
 
 		for await (const event of this.stream(request)) {
 			if (event.type === 'model_call_delta') {
@@ -105,7 +105,7 @@ export class AgentModel implements ProviderAdapter {
 			toolCalls: [...toolCalls].map(([id, toolCall]) => ({
 				id,
 				name: toolCall.name,
-				args: parseToolArgs(toolCall.argsText),
+				args: llmParseToolArgs(toolCall.argsText),
 			})),
 			model: request.model,
 			stopReason,
@@ -113,12 +113,12 @@ export class AgentModel implements ProviderAdapter {
 		};
 	}
 
-	stream(request: ModelRequest): AsyncIterable<ModelEvent>;
-	stream(request: ProviderStreamRequest): AsyncIterable<ProviderEvent>;
+	stream(request: LlmRequest): AsyncIterable<LlmEvent>;
+	stream(request: LlmStreamRequest): AsyncIterable<LlmProviderEvent>;
 	async *stream(
-		request: ModelRequest | ProviderStreamRequest
-	): AsyncIterable<ModelEvent | ProviderEvent> {
-		if (isModelRequest(request)) {
+		request: LlmRequest | LlmStreamRequest
+	): AsyncIterable<LlmEvent | LlmProviderEvent> {
+		if (isLlmRequest(request)) {
 			yield* this.streamAgent(request);
 			return;
 		}
@@ -126,7 +126,7 @@ export class AgentModel implements ProviderAdapter {
 		yield* this.streamProvider(request);
 	}
 
-	private async *streamAgent(request: ModelRequest): AsyncIterable<ModelEvent> {
+	private async *streamAgent(request: LlmRequest): AsyncIterable<LlmEvent> {
 		const system = [
 			request.systemPrompt,
 			...request.messages
@@ -143,7 +143,7 @@ export class AgentModel implements ProviderAdapter {
 			model: request.model,
 			effort: request.effort,
 			system,
-			messages: messages.flatMap(toTranscriptEntry),
+			messages: messages.flatMap(toLlmTranscriptEntry),
 			tools: (request.tools ?? []).map((tool) => ({
 				name: tool.name,
 				description: tool.description ?? '',
@@ -182,9 +182,9 @@ export class AgentModel implements ProviderAdapter {
 		}
 	}
 
-	private createProviderModel(provider: ProviderSpec): ProviderAdapter {
+	private createProviderModel(provider: LlmProviderSpec): LlmAdapter {
 		if (this.providerModelFactory) return this.providerModelFactory(provider);
-		return new AgentModel({
+		return new LlmModel({
 			provider,
 			openAIClientFactory: this.openAIClientFactory,
 			anthropicClientFactory: this.anthropicClientFactory,
@@ -194,9 +194,9 @@ export class AgentModel implements ProviderAdapter {
 		});
 	}
 
-	private async *streamProvider(req: ProviderStreamRequest): AsyncIterable<ProviderEvent> {
+	private async *streamProvider(req: LlmStreamRequest): AsyncIterable<LlmProviderEvent> {
 		const provider = this.provider;
-		if (!provider) throw new Error('AgentModel requires a provider for LLM streaming.');
+		if (!provider) throw new Error('LlmModel requires a provider for LLM streaming.');
 
 		const id = provider.id.toLowerCase();
 		if (id === 'anthropic') {
@@ -211,9 +211,9 @@ export class AgentModel implements ProviderAdapter {
 	}
 
 	private async *streamOpenAIResponses(
-		provider: ProviderSpec,
-		req: ProviderStreamRequest
-	): AsyncIterable<ProviderEvent> {
+		provider: LlmProviderSpec,
+		req: LlmStreamRequest
+	): AsyncIterable<LlmProviderEvent> {
 		const client = this.createOpenAIClient(provider, 'OpenAI api key not configured');
 		const tools: FunctionTool[] = req.tools.map((tool) => ({
 			type: 'function',
@@ -228,7 +228,7 @@ export class AgentModel implements ProviderAdapter {
 			instructions: req.system || undefined,
 			input:
 				(req.inputItems as ResponseCreateParamsStreaming['input']) ??
-				buildResponseInput(req.messages),
+				llmBuildResponseInput(req.messages),
 			previous_response_id: req.previousResponseId,
 			tools: tools.length > 0 ? tools : undefined,
 			reasoning: req.effort ? { effort: req.effort } : undefined,
@@ -243,14 +243,14 @@ export class AgentModel implements ProviderAdapter {
 		let stopReason = 'end_turn';
 		const callsByOutputIndex = new Map<number, ResponseToolCallState>();
 
-		const emitToolStart = function* (state: ResponseToolCallState): Iterable<ProviderEvent> {
+		const emitToolStart = function* (state: ResponseToolCallState): Iterable<LlmProviderEvent> {
 			if (state.emittedStart) return;
 			if (!state.id || !state.name) return;
 			state.emittedStart = true;
 			yield { type: 'tool_call_start', id: state.id, name: state.name };
 		};
 
-		const emitToolEnd = function* (state: ResponseToolCallState): Iterable<ProviderEvent> {
+		const emitToolEnd = function* (state: ResponseToolCallState): Iterable<LlmProviderEvent> {
 			if (state.emittedEnd || !state.emittedStart) return;
 			state.emittedEnd = true;
 			yield { type: 'tool_call_end', id: state.id };
@@ -314,10 +314,10 @@ export class AgentModel implements ProviderAdapter {
 			fallbackName?: string,
 			preferId?: boolean
 		) => ResponseToolCallState,
-		emitToolStart: (state: ResponseToolCallState) => Iterable<ProviderEvent>,
-		emitToolEnd: (state: ResponseToolCallState) => Iterable<ProviderEvent>,
+		emitToolStart: (state: ResponseToolCallState) => Iterable<LlmProviderEvent>,
+		emitToolEnd: (state: ResponseToolCallState) => Iterable<LlmProviderEvent>,
 		setStopReason: (stopReason: string) => void
-	): Iterable<ProviderEvent> {
+	): Iterable<LlmProviderEvent> {
 		switch (event.type) {
 			case 'response.created':
 				yield { type: 'response_created', id: event.response.id };
@@ -430,7 +430,7 @@ export class AgentModel implements ProviderAdapter {
 			case 'response.completed':
 				usage.inputTokens = event.response.usage?.input_tokens ?? usage.inputTokens;
 				usage.outputTokens = event.response.usage?.output_tokens ?? usage.outputTokens;
-				setStopReason(hasFunctionCall(event.response.output) ? 'tool_calls' : 'end_turn');
+				setStopReason(llmHasFunctionCall(event.response.output) ? 'tool_calls' : 'end_turn');
 				break;
 			case 'response.incomplete':
 				usage.inputTokens = event.response.usage?.input_tokens ?? usage.inputTokens;
@@ -449,9 +449,9 @@ export class AgentModel implements ProviderAdapter {
 	}
 
 	private async *streamAnthropic(
-		provider: ProviderSpec,
-		req: ProviderStreamRequest
-	): AsyncIterable<ProviderEvent> {
+		provider: LlmProviderSpec,
+		req: LlmStreamRequest
+	): AsyncIterable<LlmProviderEvent> {
 		const client = this.createAnthropicClient(provider);
 		const tools: Anthropic.Messages.Tool[] = req.tools.map((t) => ({
 			name: t.name,
@@ -471,7 +471,7 @@ export class AgentModel implements ProviderAdapter {
 				system: req.system,
 				max_tokens: req.maxTokens,
 				tools: tools.length > 0 ? tools : undefined,
-				messages: buildAnthropicMessages(req.messages),
+				messages: llmBuildAnthropicMessages(req.messages),
 			}, { signal: req.signal });
 
 			for await (const rawEvent of stream) {
@@ -515,9 +515,9 @@ export class AgentModel implements ProviderAdapter {
 	}
 
 	private async *streamOpenAIChat(
-		provider: ProviderSpec,
-		req: ProviderStreamRequest
-	): AsyncIterable<ProviderEvent> {
+		provider: LlmProviderSpec,
+		req: LlmStreamRequest
+	): AsyncIterable<LlmProviderEvent> {
 		const client = this.createOpenAIClient(provider, 'API key not configured');
 		const tools: OpenAI.ChatCompletionTool[] = req.tools.map((t) => ({
 			type: 'function' as const,
@@ -537,7 +537,7 @@ export class AgentModel implements ProviderAdapter {
 		try {
 			const params: Record<string, unknown> = {
 				model: req.model,
-				messages: buildChatMessages(req.system, req.messages, {
+				messages: llmBuildChatMessages(req.system, req.messages, {
 					includeReasoningContent: this.reasoningContentEnabled,
 				}),
 				tools: tools.length > 0 ? tools : undefined,
@@ -550,7 +550,7 @@ export class AgentModel implements ProviderAdapter {
 				params.thinking = { type: req.effort === 'none' ? 'disabled' : 'enabled' };
 			}
 			if (this.reasoningEffortEnabled) {
-				const reasoningEffort = toDeepSeekReasoningEffort(req.effort);
+				const reasoningEffort = llmToDeepSeekReasoningEffort(req.effort);
 				if (reasoningEffort) params.reasoning_effort = reasoningEffort;
 			}
 			const stream = await client.chat.completions.create(
@@ -631,15 +631,15 @@ export class AgentModel implements ProviderAdapter {
 		yield { type: 'message_end', stopReason, usage };
 	}
 
-	private createOpenAIClient(provider: ProviderSpec, missingKeyMessage: string): OpenAI {
-		if (!provider.apiKey) throw new ProviderAuthError(missingKeyMessage);
+	private createOpenAIClient(provider: LlmProviderSpec, missingKeyMessage: string): OpenAI {
+		if (!provider.apiKey) throw new LlmProviderAuthError(missingKeyMessage);
 		const factory =
 			this.openAIClientFactory ?? ((c) => new OpenAI({ apiKey: c.apiKey, baseURL: c.baseURL }));
 		return factory({ apiKey: provider.apiKey, baseURL: provider.baseURL });
 	}
 
-	private createAnthropicClient(provider: ProviderSpec): Anthropic {
-		if (!provider.apiKey) throw new ProviderAuthError('Anthropic api key not configured');
+	private createAnthropicClient(provider: LlmProviderSpec): Anthropic {
+		if (!provider.apiKey) throw new LlmProviderAuthError('Anthropic api key not configured');
 		const factory =
 			this.anthropicClientFactory ??
 			((c) => new Anthropic({ apiKey: c.apiKey, baseURL: c.baseURL }));
@@ -649,16 +649,16 @@ export class AgentModel implements ProviderAdapter {
 	private throwProviderError(err: unknown): never {
 		const status = (err as { status?: number }).status ?? 0;
 		const msg = (err as Error).message ?? String(err);
-		if (status === 401 || status === 403) throw new ProviderAuthError(msg);
+		if (status === 401 || status === 403) throw new LlmProviderAuthError(msg);
 		if (/context|too long|max.*tokens|exceed/i.test(msg)) {
-			throw new ContextOverflowError(msg);
+			throw new LlmContextOverflowError(msg);
 		}
 		throw err;
 	}
 }
 
-function isModelRequest(
-	request: ModelRequest | ProviderStreamRequest
-): request is ModelRequest {
+function isLlmRequest(
+	request: LlmRequest | LlmStreamRequest
+): request is LlmRequest {
 	return 'provider' in request;
 }
