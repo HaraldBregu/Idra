@@ -52,12 +52,27 @@ function hasChecklistItems(text: string): boolean {
 }
 
 function withinActiveHours(hours?: HealthActiveHours): boolean {
+	if (isDate(hours?.start) && isDate(hours?.end)) {
+		const today = localDate();
+		return today >= (hours?.start ?? '') && today <= (hours?.end ?? '');
+	}
 	const start = parseMinutes(hours?.start);
 	const end = parseMinutes(hours?.end);
 	if (start === undefined || end === undefined || start === end) return true;
 	const now = new Date();
 	const minutes = now.getHours() * 60 + now.getMinutes();
 	return start < end ? minutes >= start && minutes < end : minutes >= start || minutes < end;
+}
+
+function isDate(value?: string): boolean {
+	return /^\d{4}-\d{2}-\d{2}$/.test(value?.trim() ?? '');
+}
+
+function localDate(): string {
+	const now = new Date();
+	const month = String(now.getMonth() + 1).padStart(2, '0');
+	const day = String(now.getDate()).padStart(2, '0');
+	return `${now.getFullYear()}-${month}-${day}`;
 }
 
 function parseMinutes(value?: string): number | undefined {
