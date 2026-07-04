@@ -11,7 +11,7 @@ import {
 	ImageProviderAuthError,
 	ImageProviderRequestError,
 	ImageProviderUnsupportedError,
-} from '../models/image';
+} from '../models/tti';
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
