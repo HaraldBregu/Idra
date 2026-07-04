@@ -369,7 +369,7 @@ function PromptInput({
   })
   const isConversationMode = voiceMode === "conversation"
   const isDictationMode = voiceMode === "dictation"
-  const isPromptExpanded = isExpanded || isDictationMode
+  const isPromptExpanded = isExpanded || isDictationMode || Boolean(header)
 
   const handleChange = (newValue: string) => {
     setInternalValue(newValue)
