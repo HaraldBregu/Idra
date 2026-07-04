@@ -364,7 +364,8 @@ export interface InvokeChannelMap
 		ChannelsInvokeChannelMap,
 		ImageInvokeChannelMap,
 		SpeechInvokeChannelMap,
-		SttInvokeChannelMap {}
+		SttInvokeChannelMap,
+		TextInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 
