@@ -164,7 +164,7 @@ const ChannelDetailPage: React.FC = () => {
 	): void => {
 		if (!selectedId) return;
 		updateSelectedConfig(
-			(config) => updateDefaultAccountConfig(selectedId, config, { [field]: value }),
+			(config) => updateDefaultAccountConfig(config, { [field]: value }),
 			options
 		);
 	};
