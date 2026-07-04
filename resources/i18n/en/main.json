@@ -725,7 +725,7 @@
 			"keySaved": "API key saved",
 			"keyMissing": "API key missing"
 		},
-		"creator": {
+		"image": {
 			"prompt": "Prompt",
 			"promptDescription": "The image is generated with the selected provider and model.",
 			"promptPlaceholder": "Describe the image you want to create...",
