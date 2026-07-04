@@ -41,13 +41,16 @@ export class Agent {
 		this.session = createSessionState();
 	}
 
-	start(logger: { error(scope: string, message: string, error?: unknown): void }): void {
+	start(logger: {
+		info(scope: string, message: string, data?: unknown): void;
+		error(scope: string, message: string, error?: unknown): void;
+	}): void {
 		if (this.isStarted) return;
 		this.isStarted = true;
 		void startCron().catch((error) => {
 			logger.error('Cron', 'Failed to start persistent cron scheduler', error);
 		});
-		startHealth(this);
+		startHealth(this, logger);
 	}
 
 	destroy(): void {
