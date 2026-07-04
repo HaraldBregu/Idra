@@ -152,7 +152,7 @@ export function AssistantMessage({
 					{standaloneImagePaths.map((path) => (
 						<img
 							key={path}
-							src={`local-resource://${encodeURI(path)}`}
+							src={localResourceUrl(path)}
 							alt="Generated image"
 							className="max-w-md rounded-lg border border-border/50"
 						/>
