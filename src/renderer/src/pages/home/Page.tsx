@@ -182,12 +182,12 @@ function AttachmentTray({
 						className="flex min-w-0 max-w-56 items-center gap-1.5 rounded-lg border border-border/50 bg-muted/50 py-1 pl-2 pr-1"
 					>
 						<span className="shrink-0 text-muted-foreground">
-							{isAudio ? <FileAudio className="size-3.5" /> : <Paperclip className="size-3.5" />}
+							{isAudio ? <FileAudio className="size-3" /> : <Paperclip className="size-3" />}
 						</span>
-						<span className="min-w-0 truncate text-xs font-medium" title={attachment.file.name}>
+						<span className="min-w-0 truncate text-[10px] font-medium" title={attachment.file.name}>
 							{title}
 						</span>
-						<span className="shrink-0 text-[11px] text-muted-foreground">
+						<span className="shrink-0 text-[9px] text-muted-foreground">
 							{formatFileSize(attachment.file.size)}
 						</span>
 						{isAudio && attachment.url ? (
