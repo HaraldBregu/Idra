@@ -89,14 +89,4 @@ export interface ChannelCatalogEntry {
 	docsPath: string;
 	docsLabel: string;
 	brandIconId?: string;
-	aliases: readonly string[];
-	order: number;
-	markdownCapable: boolean;
-	exposure: ChannelCatalogExposure;
-	runtime: ChannelRuntimeSupport;
-	setupVisible: boolean;
-	catalogVisible: boolean;
-	setupFields: readonly ChannelSetupField[];
-	cliHints: readonly string[];
-	setupHints: readonly string[];
 }
