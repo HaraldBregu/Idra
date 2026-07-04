@@ -16,7 +16,11 @@ import {
 	CommandList,
 	CommandShortcut,
 } from '@/components/ui/command';
-import { SETTINGS_DETAIL_ITEMS, SETTINGS_NAVIGATION } from '@/pages/settings/navigation';
+import {
+	SETTINGS_DETAIL_ITEMS,
+	SETTINGS_NAVIGATION,
+	type SettingsDetailItem,
+} from '@/pages/settings/navigation';
 
 interface AppRouteItem {
 	readonly id: string;
