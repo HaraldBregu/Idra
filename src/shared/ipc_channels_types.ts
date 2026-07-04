@@ -335,7 +335,7 @@ export interface InvokeChannelMap
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
-		CreatorInvokeChannelMap,
+		ImageInvokeChannelMap,
 		SpeechInvokeChannelMap,
 		SttInvokeChannelMap {}
 
