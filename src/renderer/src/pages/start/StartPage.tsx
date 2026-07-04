@@ -352,10 +352,10 @@ const StartPage: React.FC = () => {
 	const [textToSpeechModelGroups, setTextToSpeechModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [textToSpeechProviderId, setTextToSpeechProviderId] = useState('');
 	const [selectedTextToSpeechModel, setSelectedTextToSpeechModel] = useState('');
-	const [savedImageCreatorService, setSavedImageCreatorService] = useState<ModelSelection>();
-	const [imageCreatorModelGroups, setImageCreatorModelGroups] = useState<ProviderModelGroup[]>([]);
-	const [imageCreatorProviderId, setImageCreatorProviderId] = useState('');
-	const [selectedImageCreatorModel, setSelectedImageCreatorModel] = useState('');
+	const [savedImageService, setSavedImageService] = useState<ModelSelection>();
+	const [imageModelGroups, setImageModelGroups] = useState<ProviderModelGroup[]>([]);
+	const [imageProviderId, setImageProviderId] = useState('');
+	const [selectedImageModel, setSelectedImageModel] = useState('');
 	const [savedTextToVideoService, setSavedTextToVideoService] = useState<ModelSelection>();
 	const [textToVideoModelGroups, setTextToVideoModelGroups] = useState<ProviderModelGroup[]>([]);
 	const [textToVideoProviderId, setTextToVideoProviderId] = useState('');
@@ -521,8 +521,8 @@ const StartPage: React.FC = () => {
 				setSavedSpeechModelId('');
 				setSavedTextToSpeechService(undefined);
 				setTextToSpeechProviderId('');
-				setSavedImageCreatorService(undefined);
-				setImageCreatorProviderId('');
+				setSavedImageService(undefined);
+				setImageProviderId('');
 				setSavedTextToVideoService(undefined);
 				setTextToVideoProviderId('');
 				setSavedMusicCreatorService(undefined);
@@ -538,8 +538,8 @@ const StartPage: React.FC = () => {
 				setSavedSpeechModelId('');
 				setSavedTextToSpeechService(undefined);
 				setTextToSpeechProviderId('');
-				setSavedImageCreatorService(undefined);
-				setImageCreatorProviderId('');
+				setSavedImageService(undefined);
+				setImageProviderId('');
 				setSavedTextToVideoService(undefined);
 				setTextToVideoProviderId('');
 				setSavedMusicCreatorService(undefined);
@@ -565,7 +565,7 @@ const StartPage: React.FC = () => {
 				setAgentModelGroups([]);
 				setSpeechModelGroups([]);
 				setTextToSpeechModelGroups([]);
-				setImageCreatorModelGroups([]);
+				setImageModelGroups([]);
 				setTextToVideoModelGroups([]);
 				setMusicCreatorModelGroups([]);
 				setSelectedModel('');
@@ -573,8 +573,8 @@ const StartPage: React.FC = () => {
 				setSelectedSpeechModel('');
 				setTextToSpeechProviderId('');
 				setSelectedTextToSpeechModel('');
-				setImageCreatorProviderId('');
-				setSelectedImageCreatorModel('');
+				setImageProviderId('');
+				setSelectedImageModel('');
 				setTextToVideoProviderId('');
 				setSelectedTextToVideoModel('');
 				setMusicCreatorProviderId('');
@@ -588,7 +588,7 @@ const StartPage: React.FC = () => {
 				const nextAgentGroups: ProviderModelGroup[] = [];
 				const nextSpeechGroups: ProviderModelGroup[] = [];
 				const nextTextToSpeechGroups: ProviderModelGroup[] = [];
-				const nextImageCreatorGroups: ProviderModelGroup[] = [];
+				const nextImageGroups: ProviderModelGroup[] = [];
 				const nextTextToVideoGroups: ProviderModelGroup[] = [];
 				const nextMusicCreatorGroups: ProviderModelGroup[] = [];
 
@@ -604,7 +604,7 @@ const StartPage: React.FC = () => {
 				setAgentModelGroups(nextAgentGroups);
 				setSpeechModelGroups(nextSpeechGroups);
 				setTextToSpeechModelGroups(nextTextToSpeechGroups);
-				setImageCreatorModelGroups(nextImageCreatorGroups);
+				setImageModelGroups(nextImageGroups);
 				setTextToVideoModelGroups(nextTextToVideoGroups);
 				setMusicCreatorModelGroups(nextMusicCreatorGroups);
 
@@ -643,13 +643,13 @@ const StartPage: React.FC = () => {
 				setTextToSpeechProviderId(preferredTextToSpeechOption?.provider.id ?? '');
 				setSelectedTextToSpeechModel(preferredTextToSpeechOption?.model.id ?? '');
 
-				const preferredImageCreatorOption = getPreferredProviderModelOption(
-					nextImageCreatorGroups,
-					savedImageCreatorService?.provider.id ?? '',
-					savedImageCreatorService?.model.id ?? ''
+				const preferredImageOption = getPreferredProviderModelOption(
+					nextImageGroups,
+					savedImageService?.provider.id ?? '',
+					savedImageService?.model.id ?? ''
 				);
-				setImageCreatorProviderId(preferredImageCreatorOption?.provider.id ?? '');
-				setSelectedImageCreatorModel(preferredImageCreatorOption?.model.id ?? '');
+				setImageProviderId(preferredImageOption?.provider.id ?? '');
+				setSelectedImageModel(preferredImageOption?.model.id ?? '');
 
 				const preferredTextToVideoOption = getPreferredProviderModelOption(
 					nextTextToVideoGroups,
@@ -671,7 +671,7 @@ const StartPage: React.FC = () => {
 				setAgentModelGroups([]);
 				setSpeechModelGroups([]);
 				setTextToSpeechModelGroups([]);
-				setImageCreatorModelGroups([]);
+				setImageModelGroups([]);
 				setTextToVideoModelGroups([]);
 				setMusicCreatorModelGroups([]);
 				setSelectedModel('');
@@ -679,8 +679,8 @@ const StartPage: React.FC = () => {
 				setSelectedSpeechModel('');
 				setTextToSpeechProviderId('');
 				setSelectedTextToSpeechModel('');
-				setImageCreatorProviderId('');
-				setSelectedImageCreatorModel('');
+				setImageProviderId('');
+				setSelectedImageModel('');
 				setTextToVideoProviderId('');
 				setSelectedTextToVideoModel('');
 				setMusicCreatorProviderId('');
@@ -701,7 +701,7 @@ const StartPage: React.FC = () => {
 	}, [
 		configProvider,
 		providers,
-		savedImageCreatorService,
+		savedImageService,
 		savedModelId,
 		savedMusicCreatorService,
 		savedSpeechModelId,
@@ -834,17 +834,17 @@ const StartPage: React.FC = () => {
 		setSelectedTextToSpeechModel(value ?? '');
 	}
 
-	function handleImageCreatorProviderChange(value: string | null): void {
+	function handleImageProviderChange(value: string | null): void {
 		const providerId = value ?? '';
-		const group = imageCreatorModelGroups.find((item) => item.provider.id === providerId);
+		const group = imageModelGroups.find((item) => item.provider.id === providerId);
 		setErrorMessage('');
-		setImageCreatorProviderId(providerId);
-		setSelectedImageCreatorModel(group?.models[0]?.id ?? '');
+		setImageProviderId(providerId);
+		setSelectedImageModel(group?.models[0]?.id ?? '');
 	}
 
-	function handleImageCreatorModelChange(value: string | null): void {
+	function handleImageModelChange(value: string | null): void {
 		setErrorMessage('');
-		setSelectedImageCreatorModel(value ?? '');
+		setSelectedImageModel(value ?? '');
 	}
 
 	function handleTextToVideoProviderChange(value: string | null): void {
@@ -1119,10 +1119,10 @@ const StartPage: React.FC = () => {
 			(group) => group.provider.id === textToSpeechProviderId
 		);
 		const selectedTextToSpeechModels = selectedTextToSpeechGroup?.models ?? [];
-		const selectedImageCreatorGroup = imageCreatorModelGroups.find(
-			(group) => group.provider.id === imageCreatorProviderId
+		const selectedImageGroup = imageModelGroups.find(
+			(group) => group.provider.id === imageProviderId
 		);
-		const selectedImageCreatorModels = selectedImageCreatorGroup?.models ?? [];
+		const selectedImageModels = selectedImageGroup?.models ?? [];
 		const selectedTextToVideoGroup = textToVideoModelGroups.find(
 			(group) => group.provider.id === textToVideoProviderId
 		);
@@ -1433,24 +1433,24 @@ const StartPage: React.FC = () => {
 							? 'Loading models...'
 							: getProviderModelSelectionLabel(
 									getProviderModelOption(
-										imageCreatorModelGroups,
-										imageCreatorProviderId,
-										selectedImageCreatorModel
+										imageModelGroups,
+										imageProviderId,
+										selectedImageModel
 									)
 								),
 						<>
 							{renderProviderModelFields({
 								providerSelectId: MODEL_FIELD_IDS[AGENTS.textToImage].provider,
 								modelSelectId: MODEL_FIELD_IDS[AGENTS.textToImage].model,
-								providerId: imageCreatorProviderId,
-								modelId: selectedImageCreatorModel,
-								groups: imageCreatorModelGroups,
-								models: selectedImageCreatorModels,
+								providerId: imageProviderId,
+								modelId: selectedImageModel,
+								groups: imageModelGroups,
+								models: selectedImageModels,
 								providerLabel: 'Provider',
 								modelLabel: 'Image model',
 								placeholder: 'No image model',
-								onProviderChange: handleImageCreatorProviderChange,
-								onModelChange: handleImageCreatorModelChange,
+								onProviderChange: handleImageProviderChange,
+								onModelChange: handleImageModelChange,
 							})}
 						</>,
 						true

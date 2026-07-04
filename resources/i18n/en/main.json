@@ -767,7 +767,7 @@
 			"textToSpeechProviderDescription": "Provider used for spoken responses.",
 			"textToSpeechModel": "Voice model",
 			"textToSpeechModelDescription": "Model used for spoken output.",
-			"imageAssistantName": "Creator",
+			"imageAssistantName": "Image",
 			"imageAssistantDescription": "Create images from prompts",
 			"imageConfigurationSubtitle": "Choose the image-capable provider and model.",
 			"imageProviderDescription": "Provider used for image generation.",
