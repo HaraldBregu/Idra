@@ -256,10 +256,10 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'creator',
+						path: 'image',
 						element: (
 							<SettingsRouteWrapper>
-								<CreatorPage />
+								<ImagePage />
 							</SettingsRouteWrapper>
 						),
 					},
