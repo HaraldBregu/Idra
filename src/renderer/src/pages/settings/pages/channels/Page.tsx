@@ -40,7 +40,7 @@ const ChannelsPage: React.FC = () => {
 				}
 			})
 			.catch((error) => {
-				console.error('[ChannelsPage] Failed to load channel catalog:', error);
+				console.error('[ChannelsPage] Failed to load channel status:', error);
 				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
 			});
 
