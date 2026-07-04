@@ -26,6 +26,7 @@ import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
+	AgentSessionSummary,
 	AgentToolPermissionDecision,
 	ModelReasoningEffort,
 } from '../shared/agent_types';
