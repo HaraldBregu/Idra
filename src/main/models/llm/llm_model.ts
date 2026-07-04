@@ -12,7 +12,7 @@ import type {
 	LlmProviderEvent,
 	LlmProviderSpec,
 	LlmStreamRequest,
-	Usage,
+	LlmUsage,
 } from './llm_types';
 import { LlmContextOverflowError, LlmProviderAuthError } from './llm_types';
 import {
@@ -20,10 +20,10 @@ import {
 	llmBuildChatMessages,
 	llmBuildResponseInput,
 	llmHasFunctionCall,
-	isRecord,
+	llmIsRecord,
 	llmParseToolArgs,
 	llmToDeepSeekReasoningEffort,
-	toLlmTranscriptEntry,
+	llmToTranscriptEntry,
 } from './llm_shared';
 
 type LlmModelFactory = (provider: LlmProviderSpec) => LlmAdapter;
