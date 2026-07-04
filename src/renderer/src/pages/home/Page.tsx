@@ -167,7 +167,7 @@ function AttachmentTray({
 
 	return (
 		<div
-			className="flex w-full gap-1.5 overflow-x-auto overscroll-x-contain"
+			className="flex w-full flex-wrap gap-1.5"
 			onClick={(event) => event.stopPropagation()}
 		>
 			{attachments.map((attachment) => {
