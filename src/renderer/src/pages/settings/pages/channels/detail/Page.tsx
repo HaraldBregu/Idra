@@ -253,7 +253,7 @@ const ChannelDetailPage: React.FC = () => {
 								<Switch
 									checked={isChannelEnabled(selectedId, selectedConfig)}
 									onCheckedChange={(checked) =>
-										updateSelectedConfig((config) => updateChannelEnabled(selectedId, config, checked), {
+										updateSelectedConfig((config) => updateChannelEnabled(config, checked), {
 											save: true,
 										})
 									}
