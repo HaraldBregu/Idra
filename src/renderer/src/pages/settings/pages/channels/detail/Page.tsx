@@ -520,7 +520,6 @@ function updateDefaultAccountConfig(
 	return {
 		...config,
 		token: nextAccount.token ?? '',
-		defaultTarget: nextAccount.defaultTarget,
 		allowFrom: normalizeList(nextAccount.allowFrom ?? []),
 		groupAllowFrom: normalizeList(nextAccount.groupAllowFrom ?? []),
 		dmPolicy: nextAccount.dmPolicy,
