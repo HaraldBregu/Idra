@@ -319,25 +319,6 @@ const ChannelDetailPage: React.FC = () => {
 								<UserRound className="size-3" strokeWidth={1.8} />
 							</ItemMedia>
 							<ItemContent>
-								<ItemTitle>{t('settings.channels.username')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
-								<Input
-									value={selectedAccount.username ?? ''}
-									onChange={(event) => updateAccountField('username', event.target.value)}
-									onBlur={() => void saveSelectedConfig()}
-									placeholder={t('settings.channels.usernamePlaceholder')}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
-									aria-label={t('settings.channels.username')}
-								/>
-							</ItemActions>
-						</Item>
-
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
 								<ItemTitle>{t('settings.channels.botUserId')}</ItemTitle>
 							</ItemContent>
 							<ItemActions className="ml-auto flex-none justify-end">
