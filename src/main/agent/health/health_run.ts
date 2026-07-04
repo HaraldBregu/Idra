@@ -32,11 +32,10 @@ export async function runHealthCheck(agent: Agent, logger: HealthLogger): Promis
 
 	logger.info('Health', 'Health check started');
 	const message = `${HEALTH_PROMPT_HEADER}\n\n${checklist.trim()}`;
-	const response = await agent.send(
-		message,
-		HEALTH_AGENT_ID,
-		settings.isolatedSession ? { sessionId: HEALTH_SESSION_ID } : {}
-	);
+	const response = await agent.send(message, HEALTH_AGENT_ID, {
+		category: 'health',
+		...(settings.isolatedSession ? { sessionId: HEALTH_SESSION_ID } : {}),
+	});
 	if (response.trim() === HEALTH_OK) {
 		logger.info('Health', 'Health check completed: HEALTH_OK');
 		return;
