@@ -474,6 +474,10 @@
 			"checklistTitle": "Checklist",
 			"checklistDescription": "Istruzioni che l'agente segue a ogni controllo di salute (HEALTH.md). Lascialo vuoto o con soli commenti per saltare le esecuzioni.",
 			"fields": {
+				"provider": "Provider",
+				"providerPlaceholder": "Seleziona provider",
+				"model": "Modello",
+				"modelPlaceholder": "Seleziona modello",
 				"every": "Intervallo",
 				"everyOff": "Disattivato",
 				"target": "Destinazione",
