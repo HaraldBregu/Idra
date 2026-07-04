@@ -213,20 +213,6 @@ const ChannelDetailPage: React.FC = () => {
 			<SettingsPageHeader
 				title={selectedTitle}
 				description={selectedEntry?.blurb}
-				action={
-					selectedDocsUrl && selectedEntry ? (
-						<Button
-							type="button"
-							variant="outline"
-							size="icon-xs"
-							aria-label={selectedEntry.docsLabel}
-							title={selectedEntry.docsLabel}
-							onClick={() => openExternalUrl(selectedDocsUrl)}
-						>
-							<ExternalLink className="size-3" />
-						</Button>
-					) : undefined
-				}
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
