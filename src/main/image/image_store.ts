@@ -2,30 +2,30 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 
-export type CreatorStoreState = {
+export type ImageStoreState = {
 	providerId: string | undefined;
 	modelId: string | undefined;
 };
 
-const CREATOR_STORE_NAME = 'settings';
+const IMAGE_STORE_NAME = 'settings';
 
-const DEFAULT_CREATOR_STORE: CreatorStoreState = {
+const DEFAULT_IMAGE_STORE: ImageStoreState = {
 	providerId: undefined,
 	modelId: undefined,
 };
 
-const store = new Store<CreatorStoreState>({
-	name: CREATOR_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'creator'),
+const store = new Store<ImageStoreState>({
+	name: IMAGE_STORE_NAME,
+	cwd: path.resolve(userDataLocation(), 'image'),
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_CREATOR_STORE,
+	defaults: DEFAULT_IMAGE_STORE,
 });
 
-export function getCreatorStore(): CreatorStoreState {
+export function getImageStore(): ImageStoreState {
 	return store.store;
 }
 
-export function setCreatorStore(value: CreatorStoreState): void {
+export function setImageStore(value: ImageStoreState): void {
 	store.store = value;
 }
 
