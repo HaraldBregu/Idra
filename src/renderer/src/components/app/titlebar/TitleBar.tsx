@@ -148,6 +148,7 @@ export const TitleBar = React.memo(function TitleBar({
 						className="z-10 mr-3 flex h-full items-center gap-1"
 						style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
 					>
+						{sessionsButton}
 						{routeButton}
 					</div>
 				)}
