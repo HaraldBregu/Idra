@@ -468,6 +468,33 @@
 			"notFoundTitle": "Server MCP non trovato",
 			"notFoundDescription": "Il server MCP potrebbe essere stato rimosso."
 		},
+		"health": {
+			"settingsTitle": "Impostazioni",
+			"settingsDescription": "Configura il controllo di salute periodico.",
+			"checklistTitle": "Checklist",
+			"checklistDescription": "Istruzioni che l'agente segue a ogni controllo di salute (HEALTH.md). Lascialo vuoto o con soli commenti per saltare le esecuzioni.",
+			"fields": {
+				"every": "Intervallo",
+				"everyOff": "Disattivato",
+				"target": "Destinazione",
+				"targetNone": "Nessuna",
+				"targetLast": "Ultima sessione",
+				"directPolicy": "Politica diretta",
+				"directAllow": "Consenti",
+				"directBlock": "Blocca",
+				"lightContext": "Contesto leggero",
+				"isolatedSession": "Sessione isolata",
+				"skipWhenBusy": "Salta se occupato",
+				"includeReasoning": "Includi ragionamento",
+				"activeHoursStart": "Attivo dalle",
+				"activeHoursEnd": "Attivo fino alle"
+			},
+			"saving": "Salvataggio…",
+			"saved": "Salvato",
+			"errors": {
+				"saveFailed": "Impossibile salvare le impostazioni di salute."
+			}
+		},
 		"cron": {
 			"description": "Visualizza, esegui, metti in pausa ed elimina le attivita agente pianificate.",
 			"columns": {
