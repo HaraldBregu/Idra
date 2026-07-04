@@ -93,9 +93,24 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Creates images and visual assets from your text prompts.',
 		icon: ImageIcon,
 		required: false,
-		getSelection: () => appApi.getImageCreatorService(),
-		getModels: (provider) => appApi.getImageCreatorModels(provider),
-		saveSelection: (provider, model) => appApi.saveImageCreatorService(provider, model),
+		getSelection: async () => {
+			const [providerId, modelId] = await Promise.all([
+				window.image.getProviderId(),
+				window.image.getModelId(),
+			]);
+			if (!providerId || !modelId) return undefined;
+			const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+			const model = getImageModels(providerId).find((item) => item.id === modelId);
+			if (!provider || !model) return undefined;
+			const { apiKey: _apiKey, ...publicProvider } = provider;
+			return { provider: publicProvider, model };
+		},
+		getModels: (provider) => Promise.resolve(getImageModels(provider.id)),
+		saveSelection: async (provider, model) => {
+			await window.image.setProviderId(provider.id);
+			await window.image.setModelId(model.id);
+			return true;
+		},
 	},
 	{
 		id: AGENTS.textToVideo,
