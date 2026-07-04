@@ -166,7 +166,10 @@ function AttachmentTray({
 	if (attachments.length === 0) return null;
 
 	return (
-		<div className="mb-2 flex max-h-24 w-full flex-wrap gap-1.5 overflow-y-auto">
+		<div
+			className="flex max-h-24 w-full flex-wrap gap-1.5 overflow-y-auto"
+			onClick={(event) => event.stopPropagation()}
+		>
 			{attachments.map((attachment) => {
 				const isAudio = attachment.kind === 'audio';
 				const title = isAudio
