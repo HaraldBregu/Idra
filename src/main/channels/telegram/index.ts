@@ -1,3 +1,2 @@
-export { TelegramAdapter } from './adapter';
-export { telegramChannelPlugin } from './plugin';
+export { createTelegramAdapter } from './adapter';
 export type { TelegramAdapterOptions } from './types';
