@@ -77,7 +77,7 @@ export class Agent {
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 			} satisfies RuntimeInput;
 
-			init(this.session, this.config, input);
+			init(this.session, this.config, input, options.category);
 
 			const stream = run(this.config, this.session, input);
 
