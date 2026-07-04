@@ -25,7 +25,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('channels', () =>
 		new ChannelsIpc().register({ logger, channelRegistry }, eventBus)
 	);
-	safeRegister('creator', () => new CreatorIpc().register(undefined, eventBus));
+	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
 	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
