@@ -64,11 +64,15 @@ function RootRouteComponent(): React.JSX.Element {
 	const { t } = useTranslation();
 	const location = useLocation();
 	const [chatMode, setChatMode] = useState<ChatMode>('chat');
+	const [chatSessionId, setChatSessionId] = useState<string>(DEFAULT_CHAT_SESSION_ID);
 
 	const isStart = location.pathname === '/start';
 
 	return (
 		<ChatModeContext.Provider value={{ mode: chatMode, setMode: setChatMode }}>
+			<ChatSessionContext.Provider
+				value={{ sessionId: chatSessionId, setSessionId: setChatSessionId }}
+			>
 			<div
 				className={cn(
 					'app-translucent-window flex h-screen flex-col overflow-hidden bg-background text-foreground'
