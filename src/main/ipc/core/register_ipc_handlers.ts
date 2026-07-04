@@ -1,4 +1,3 @@
-import type { ContainerInstance } from 'typedi';
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
@@ -8,16 +7,10 @@ import { SpeechIpc } from '../speech';
 import { SttIpc } from '../stt';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
-import { LoggerService } from '../../shared';
-import { Agent } from '../../agent/agent';
-import { ChannelRegistry } from '../../channels';
-import { SttService } from '../../models/stt/service';
+import type { MainServices } from '../../bootstrap';
 
-export function registerIpcHandlers(
-	container: ContainerInstance,
-	eventBus: EventBus
-): void {
-	const logger = container.get(LoggerService);
+export function registerIpcHandlers(services: MainServices, eventBus: EventBus): void {
+	const { logger, agentService, channelRegistry, stt } = services;
 
 	const safeRegister = (name: string, register: () => void): void => {
 		try {
@@ -27,31 +20,15 @@ export function registerIpcHandlers(
 		}
 	};
 
-	safeRegister('app', () =>
-		new AppIpc().register(
-			{ logger },
-			eventBus
-		)
-	);
-	safeRegister('agent', () =>
-		new AgentIpc().register(
-			{
-				logger,
-				agent: container.get(Agent),
-			},
-			eventBus
-		)
-	);
+	safeRegister('app', () => new AppIpc().register({ logger }, eventBus));
+	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
 	safeRegister('channels', () =>
-		new ChannelsIpc().register(
-			{ logger, channelRegistry: container.get(ChannelRegistry) },
-			eventBus
-		)
+		new ChannelsIpc().register({ logger, channelRegistry }, eventBus)
 	);
 	safeRegister('creator', () => new CreatorIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
-	safeRegister('stt', () => new SttIpc().register({ stt: container.get(SttService) }, eventBus));
+	safeRegister('stt', () => new SttIpc().register({ stt }, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
 	logger.info('Bootstrap', 'Registered IPC modules');
