@@ -4,7 +4,7 @@ import {
 	TEXT_TO_IMAGE_PROVIDER_IDS,
 	normalizeProviderId,
 } from '../../shared/provider_models_definitions';
-import type { CreatorImageRequest, CreatorImageResult } from '../../shared/creator_types';
+import type { ImageRequest, ImageResult } from '../../shared/image_types';
 import { getProvider } from '../providers';
 import {
 	generateImage,
@@ -15,16 +15,16 @@ import {
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
-} from './creator_store';
+} from './image_store';
 
-const DEFAULT_CREATOR_PROVIDER_ID = 'google';
+const DEFAULT_IMAGE_PROVIDER_ID = 'google';
 
-export async function createImage(request: CreatorImageRequest): Promise<CreatorImageResult> {
+export async function createImage(request: ImageRequest): Promise<ImageResult> {
 	const prompt = request.prompt?.trim();
 	if (!prompt) throw new ImageProviderRequestError('Prompt is required.');
 
 	const providerId = resolveProviderId(
-		request.providerId ?? getStoredProviderId() ?? DEFAULT_CREATOR_PROVIDER_ID
+		request.providerId ?? getStoredProviderId() ?? DEFAULT_IMAGE_PROVIDER_ID
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getStoredModelId());
 	const apiKey = resolveApiKey(providerId);
