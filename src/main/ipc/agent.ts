@@ -20,7 +20,7 @@ import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_d
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { respondToolPermission } from '../agent/permissions';
 import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health_store';
-import { rescheduleHealth } from '../agent/health';
+import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
 import { getModelId, getProviderId, setModelId, setProviderId } from '../agent/settings/settings_store';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
