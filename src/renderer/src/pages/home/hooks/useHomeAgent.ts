@@ -9,7 +9,6 @@ type WindowWithOptionalAgent = Window & {
 };
 
 const HOME_AGENT_ID = 'main';
-const HOME_AGENT_SESSION_ID = 'home';
 const HIGH_REASONING_PATTERN =
 	/\b(architecture|analy[sz]e|debug|diagnose|investigate|refactor|review|root cause|security|performance|race condition|trade-?off|think hard|deep dive|step by step|plan|design|why|failing|broken|error|exception|stack trace)\b/i;
 const MEDIUM_REASONING_PATTERN =
