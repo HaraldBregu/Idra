@@ -80,7 +80,7 @@ const ChannelsPage: React.FC = () => {
 								size="md"
 								className={cn(
 									'grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center cursor-pointer border-b border-border/60 text-left hover:bg-muted/50',
-									index === visibleCatalog.length - 1 && 'border-b-0'
+									index === CHANNEL_CATALOG.length - 1 && 'border-b-0'
 								)}
 							>
 								<ChannelIcon
