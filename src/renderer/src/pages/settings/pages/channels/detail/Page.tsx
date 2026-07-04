@@ -293,7 +293,7 @@ const ChannelDetailPage: React.FC = () => {
 								<Select
 									value={selectedAccount.dmPolicy ?? 'allowlist'}
 									onValueChange={(value) =>
-										updateAccountField('dmPolicy', value as ChannelDmPolicy)
+										updateAccountField('dmPolicy', value as ChannelDmPolicy, { save: true })
 									}
 								>
 									<SelectTrigger size="sm" className="w-full sm:w-56">
