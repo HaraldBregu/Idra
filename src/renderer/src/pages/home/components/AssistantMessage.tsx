@@ -21,6 +21,18 @@ function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
 		.filter((path): path is string => typeof path === 'string');
 }
 
+function localImageSrc(src: string | undefined, imagePaths: readonly string[]): string | undefined {
+	if (!src || /^[a-z][a-z0-9+.-]*:/i.test(src)) return src;
+	const resolved =
+		imagePaths.find((path) => path === src || path.endsWith(`/${src}`)) ??
+		(src.startsWith('/') ? src : undefined);
+	return resolved ? `local-resource://${encodeURI(resolved)}` : src;
+}
+
+function fileName(path: string): string {
+	return path.slice(path.lastIndexOf('/') + 1);
+}
+
 function statusLabelContent(
 	message: AgentMessage,
 	isStreaming: boolean,
