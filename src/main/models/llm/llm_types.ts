@@ -1,11 +1,10 @@
-import type { Tool } from '../../agent/types';
-import type { Message, ToolCall } from '../../agent/types';
+import type { Message, Provider, Tool, ToolCall } from '../../agent/types';
 import type { ModelReasoningEffort } from '../../../shared/agent_types';
 
 export interface LlmRequest {
 	messages: Message[];
 	systemPrompt?: string;
-	provider: import('../../agent/types').Provider;
+	provider: Provider;
 	model: string;
 	effort?: ModelReasoningEffort;
 	maxTokens: number;
