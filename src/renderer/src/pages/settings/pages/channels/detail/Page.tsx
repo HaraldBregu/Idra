@@ -543,12 +543,10 @@ function isChannelEnabled(channelId: ChannelType, config: EditableChannelConfig 
 	return Boolean(config.enabled ?? getDefaultAccountConfig(channelId, config).enabled);
 }
 
-function emptyAccountConfig(channelId: ChannelType): ChannelAccountProperties {
+function emptyAccountConfig(_channelId: ChannelType): ChannelAccountProperties {
 	return {
-		label: `${channelId} default`,
 		enabled: false,
 		token: '',
-		defaultTarget: '',
 		allowFrom: [],
 		groupAllowFrom: [],
 		dmPolicy: 'allowlist',
