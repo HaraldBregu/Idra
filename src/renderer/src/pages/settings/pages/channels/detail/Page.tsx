@@ -14,7 +14,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import {
 	InputGroup,
@@ -30,11 +29,12 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
 } from '../../../components';
 import type {
@@ -48,10 +48,12 @@ import {
 	getChannelCatalogEntry,
 	isChannelId,
 } from '../../../../../../../shared';
+
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
 const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
+const SETTINGS_INPUT_CLASS = 'h-8 w-full text-xs sm:w-80';
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
@@ -241,15 +243,11 @@ const ChannelDetailPage: React.FC = () => {
 						</div>
 					}
 				>
-					<Card size="sm" className="gap-0! p-0!">
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<ShieldCheck className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.enabled')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
+					<SettingsPanel>
+						<SettingsRow
+							title={t('settings.channels.enabled')}
+							icon={ShieldCheck}
+							actions={
 								<Switch
 									checked={isChannelEnabled(selectedConfig)}
 									onCheckedChange={(checked) =>
@@ -259,44 +257,42 @@ const ChannelDetailPage: React.FC = () => {
 									}
 									aria-label={t('settings.channels.enabled')}
 								/>
-							</ItemActions>
-						</Item>
+							}
+						/>
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<KeyRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.token')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
+						<SettingsRow
+							title={t('settings.channels.token')}
+							description={t('settings.channels.tokenDescription')}
+							icon={KeyRound}
+							actionClassName="w-full sm:w-80"
+							actions={
 								<Input
+									id={`${selectedId}-token`}
 									type="password"
+									autoComplete="off"
 									value={selectedAccount.token ?? ''}
 									onChange={(event) => updateAccountField('token', event.target.value)}
 									onBlur={() => void saveSelectedConfig()}
 									placeholder={getTokenPlaceholder(selectedId, t)}
-									className="h-7 w-full min-w-0 px-2 text-xs sm:w-80 md:text-xs"
+									className={SETTINGS_INPUT_CLASS}
 									aria-label={t('settings.channels.token')}
 								/>
-							</ItemActions>
-						</Item>
+							}
+						/>
 
-						<Item variant="outline" size="md" className="border-b border-border/60">
-							<ItemMedia variant="icon">
-								<ShieldCheck className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.dmPolicy')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none justify-end">
+						<SettingsRow
+							title={t('settings.channels.dmPolicy')}
+							description={t('settings.channels.dmPolicyDescription')}
+							icon={ShieldCheck}
+							actionClassName="w-full sm:w-56"
+							actions={
 								<Select
 									value={selectedAccount.dmPolicy ?? 'allowlist'}
 									onValueChange={(value) =>
 										updateAccountField('dmPolicy', value as ChannelDmPolicy, { save: true })
 									}
 								>
-									<SelectTrigger size="sm" className="w-full sm:w-56">
+									<SelectTrigger id={`${selectedId}-dm-policy`} className="w-full text-xs">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
@@ -307,18 +303,18 @@ const ChannelDetailPage: React.FC = () => {
 										))}
 									</SelectContent>
 								</Select>
-							</ItemActions>
-						</Item>
+							}
+						/>
 
-						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
-							<ItemMedia variant="icon">
-								<UserRound className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.allowFrom')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+						<SettingsRow
+							title={t('settings.channels.allowFrom')}
+							description={t('settings.channels.allowFromDescription')}
+							icon={UserRound}
+							className="items-start sm:items-center"
+							actionClassName="w-full sm:w-[26rem]"
+							actions={
 								<ListEditor
+									id={`${selectedId}-allow-from`}
 									value={listDrafts.allowFrom}
 									items={selectedAccount.allowFrom ?? []}
 									placeholder={t('settings.channels.allowFromPlaceholder')}
@@ -331,18 +327,18 @@ const ChannelDetailPage: React.FC = () => {
 									onAdd={() => addListValue('allowFrom')}
 									onRemove={(value) => removeListValue('allowFrom', value)}
 								/>
-							</ItemActions>
-						</Item>
+							}
+						/>
 
-						<Item variant="outline" size="md" className="border-b border-border/60 flex-wrap">
-							<ItemMedia variant="icon">
-								<Hash className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.groupAllowFrom')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto w-full justify-end sm:w-[26rem] sm:flex-none">
+						<SettingsRow
+							title={t('settings.channels.groupAllowFrom')}
+							description={t('settings.channels.groupAllowFromDescription')}
+							icon={Hash}
+							className="items-start sm:items-center"
+							actionClassName="w-full sm:w-[26rem]"
+							actions={
 								<ListEditor
+									id={`${selectedId}-group-allow-from`}
 									value={listDrafts.groupAllowFrom}
 									items={selectedAccount.groupAllowFrom ?? []}
 									placeholder={t('settings.channels.groupAllowFromPlaceholder')}
@@ -355,59 +351,58 @@ const ChannelDetailPage: React.FC = () => {
 									onAdd={() => addListValue('groupAllowFrom')}
 									onRemove={(value) => removeListValue('groupAllowFrom', value)}
 								/>
-							</ItemActions>
-						</Item>
+							}
+						/>
 
-						<Item variant="outline" size="md">
-							<ItemMedia variant="icon">
-								<RadioTower className="size-3" strokeWidth={1.8} />
-							</ItemMedia>
-							<ItemContent>
-								<ItemTitle>{t('settings.channels.status')}</ItemTitle>
-							</ItemContent>
-							<ItemActions className="ml-auto flex-none flex-wrap justify-end gap-2">
-								<Badge
-									variant={getConnectionBadgeVariant(selectedStatus)}
-									className="h-4 px-1.5 text-[10px] capitalize"
-								>
-									{selectedStatus.replaceAll('_', ' ')}
-								</Badge>
-								{selectedId === 'telegram' ? (
-									<ButtonGroup>
-										<Button
-											type="button"
-											variant="outline"
-											size="xs"
-											disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
-											onClick={() => void handleRuntimeAction('start')}
-										>
-											{t('settings.channels.pair')}
-										</Button>
-										<Button
-											type="button"
-											variant="outline"
-											size="xs"
-											disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
-											onClick={() => void handleRuntimeAction('restart')}
-										>
-											{t('settings.channels.reconnect')}
-										</Button>
-										<Button
-											type="button"
-											variant="outline"
-											size="xs"
-											disabled={busyChannel === 'telegram'}
-											onClick={() => void handleRuntimeAction('stop')}
-										>
-											{t('common.close')}
-										</Button>
-									</ButtonGroup>
-								) : (
-									<CircleOff className="size-3.5 text-muted-foreground" />
-								)}
-							</ItemActions>
-						</Item>
-					</Card>
+						<SettingsRow
+							title={t('settings.channels.status')}
+							icon={RadioTower}
+							actionClassName="flex-wrap justify-end gap-2"
+							actions={
+								<>
+									<Badge
+										variant={getConnectionBadgeVariant(selectedStatus)}
+										className="h-4 px-1.5 text-[10px] capitalize"
+									>
+										{selectedStatus.replaceAll('_', ' ')}
+									</Badge>
+									{selectedId === 'telegram' ? (
+										<ButtonGroup>
+											<Button
+												type="button"
+												variant="outline"
+												size="xs"
+												disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
+												onClick={() => void handleRuntimeAction('start')}
+											>
+												{t('settings.channels.pair')}
+											</Button>
+											<Button
+												type="button"
+												variant="outline"
+												size="xs"
+												disabled={busyChannel === 'telegram' || !selectedAccount.token?.trim()}
+												onClick={() => void handleRuntimeAction('restart')}
+											>
+												{t('settings.channels.reconnect')}
+											</Button>
+											<Button
+												type="button"
+												variant="outline"
+												size="xs"
+												disabled={busyChannel === 'telegram'}
+												onClick={() => void handleRuntimeAction('stop')}
+											>
+												{t('common.close')}
+											</Button>
+										</ButtonGroup>
+									) : (
+										<CircleOff className="size-3.5 text-muted-foreground" />
+									)}
+								</>
+							}
+						/>
+					</SettingsPanel>
 				</SettingsSection>
 			) : (
 				<SettingsNotice variant="destructive">
@@ -419,6 +414,7 @@ const ChannelDetailPage: React.FC = () => {
 };
 
 function ListEditor({
+	id,
 	value,
 	items,
 	placeholder,
@@ -429,6 +425,7 @@ function ListEditor({
 	onAdd,
 	onRemove,
 }: {
+	readonly id: string;
 	readonly value: string;
 	readonly items: readonly string[];
 	readonly placeholder: string;
@@ -441,8 +438,9 @@ function ListEditor({
 }): React.JSX.Element {
 	return (
 		<div className="flex w-full min-w-0 flex-col gap-1.5">
-			<InputGroup className="h-7">
+			<InputGroup className="h-8">
 				<InputGroupInput
+					id={id}
 					value={value}
 					onChange={(event) => onDraftChange(event.target.value)}
 					onKeyDown={(event) => {
@@ -452,7 +450,7 @@ function ListEditor({
 						}
 					}}
 					placeholder={placeholder}
-					className="h-7 min-w-0 px-2 text-xs md:text-xs"
+					className="text-xs"
 					aria-label={placeholder}
 				/>
 				<InputGroupAddon align="inline-end" className="py-0 pr-1">
