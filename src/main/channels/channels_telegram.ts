@@ -174,7 +174,7 @@ export function createTelegramAdapter(options: TelegramAdapterOptions): ChannelA
 function registerTextHandler(bot: Bot, accountId: string, emit: ChannelInboundHandler): void {
 	bot.on('message:text', (ctx) => {
 		const text = ctx.message.text;
-		if (!text || text.startsWith('/')) return;
+		if (!text) return;
 
 		const chatId = String(ctx.chat.id);
 		const threadId = ctx.message.message_thread_id
