@@ -381,7 +381,7 @@ export class LlmModel implements LlmAdapter {
 						tools: event.item.tools.map((tool) => ({
 							name: tool.name,
 							description: tool.description ?? undefined,
-							inputSchema: isRecord(tool.input_schema) ? tool.input_schema : undefined,
+							inputSchema: llmIsRecord(tool.input_schema) ? tool.input_schema : undefined,
 						})),
 					};
 					break;
