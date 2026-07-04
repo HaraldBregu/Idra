@@ -9,6 +9,11 @@ export interface HealthActiveHours {
 	end: string;
 }
 
+export interface HealthLogger {
+	info(source: string, message: string, data?: unknown): void;
+	error(source: string, message: string, data?: unknown): void;
+}
+
 export interface HealthSettings {
 	every: HealthEvery;
 	target: HealthTarget;
