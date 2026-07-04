@@ -5,6 +5,7 @@ import {
 	createSessionState,
 	init,
 	loadMessages,
+	type SessionCategory,
 	type SessionState,
 } from './session';
 import { run } from './run/run';
