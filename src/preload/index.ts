@@ -475,4 +475,6 @@ if (process.contextIsolated) {
 	globalThis.transcribe = transcribe;
 	// @ts-ignore (define in dts)
 	globalThis.voice = voice;
+	// @ts-ignore (define in dts)
+	globalThis.creator = creator;
 }
