@@ -1,16 +1,17 @@
-export { createChannelRegistry } from './registry';
-export type { ChannelRegistry, ChannelRegistryDependencies } from './registry';
+export { createChannelRegistry } from './channels_registry';
+export type { ChannelRegistry, ChannelRegistryDependencies } from './channels_registry';
 export {
 	deleteChannelConfig,
 	getChannelConfig,
 	getChannels,
-	listConfiguredChannels,
+	getChannelsStore,
 	setChannelConfig,
 	setChannelProperties,
-} from './store';
-export { canReceive } from './security';
-export type { ChannelSecurityDecision } from './security';
-export { sendDurableMessageBatch } from './batch';
+} from './channels_store';
+export type { ChannelsStoreState } from './channels_store';
+export { canReceive } from './channels_security';
+export type { ChannelSecurityDecision } from './channels_security';
+export { sendDurableMessageBatch } from './channels_batch';
 export type {
 	ChannelAdapter,
 	ChannelChatType,
@@ -21,6 +22,6 @@ export type {
 	ChannelOutboundMessage,
 	ChannelStatusHandler,
 	ChannelStatusUpdate,
-} from './types';
-export type { TelegramAdapterOptions } from './telegram/types';
-export type { DiscordAdapterOptions } from './discord/types';
+} from './channels_types';
+export type { TelegramAdapterOptions } from './channels_telegram';
+export type { DiscordAdapterOptions } from './channels_discord';
