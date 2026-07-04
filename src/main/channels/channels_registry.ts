@@ -68,9 +68,25 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			});
 			return;
 		}
-		if (!agentService) return;
+		const reply = (text: string) =>
+			send({
+				channel: message.channel,
+				accountId: message.accountId,
+				to: message.chatId,
+				threadId: message.threadId,
+				replyToMessageId: message.messageId,
+				text,
+				idempotencyKey: `${message.idempotencyKey}:reply`,
+			});
 
 		try {
+			if (message.text.startsWith('/')) {
+				const command = message.text.split(/\s+/)[0].slice(1).split('@')[0].toLowerCase();
+				if (command === 'start') await reply(CHANNEL_START_REPLY);
+				return;
+			}
+			if (!agentService) return;
+
 			eventBus.emit('channel:route', {
 				channel: message.channel,
 				accountId: message.accountId,
@@ -79,20 +95,12 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				replyToMessageId: message.messageId,
 				chatType: message.chatType,
 			});
-			const reply = await agentService.send(
+			const response = await agentService.send(
 				message.text,
 				'channels',
 				config.isolatedSession ? { category: 'channel', sessionId: CHANNEL_SESSION_ID } : {}
 			);
-			await send({
-				channel: message.channel,
-				accountId: message.accountId,
-				to: message.chatId,
-				threadId: message.threadId,
-				replyToMessageId: message.messageId,
-				text: reply,
-				idempotencyKey: `${message.idempotencyKey}:reply`,
-			});
+			await reply(response);
 		} catch (error) {
 			logger.error('ChannelRegistry', 'Channel agent reply failed', error);
 		}
