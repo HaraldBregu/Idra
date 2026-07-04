@@ -34,7 +34,7 @@ export function ChannelIcon({
 	readonly fallbackClassName?: string;
 }): React.JSX.Element {
 	const iconId = brandIconId ?? (channelId ? getChannelBrandIconId(channelId) : undefined);
-	const asset = iconId ? CHANNEL_ICON_LOOKUP[iconId] : undefined;
+	const asset = iconId ? CHANNEL_ICON_ASSETS[iconId] : undefined;
 
 	return (
 		<span
