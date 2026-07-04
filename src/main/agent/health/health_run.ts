@@ -1,7 +1,7 @@
 import type { Agent } from '../agent';
-import { HEALTH_FILE, readTextFile, workspacePath } from '../system';
+import { getHealthData } from './health_data';
 import { getHealthSettings } from './health_store';
-import type { HealthActiveHours } from './health_types';
+import type { HealthActiveHours, HealthLogger } from './health_types';
 
 const HEALTH_AGENT_ID = 'health';
 const HEALTH_SESSION_ID = 'health';
@@ -13,22 +13,35 @@ const HEALTH_PROMPT_HEADER = [
 	`If nothing needs attention, reply with exactly ${HEALTH_OK} and nothing else.`,
 ].join('\n');
 
-export async function runHealthCheck(agent: Agent): Promise<void> {
+export async function runHealthCheck(agent: Agent, logger: HealthLogger): Promise<void> {
 	const settings = getHealthSettings();
-	if (settings.skipWhenBusy && (agent.isBusy('main') || agent.isBusy(HEALTH_AGENT_ID))) return;
-	if (!withinActiveHours(settings.activeHours)) return;
+	if (settings.skipWhenBusy && (agent.isBusy('main') || agent.isBusy(HEALTH_AGENT_ID))) {
+		logger.info('Health', 'Health check skipped: agent busy');
+		return;
+	}
+	if (!withinActiveHours(settings.activeHours)) {
+		logger.info('Health', 'Health check skipped: outside active hours');
+		return;
+	}
 
-	const checklist = await readTextFile(workspacePath(agent.config), HEALTH_FILE);
-	if (!hasChecklistItems(checklist)) return;
+	const checklist = await getHealthData(agent.config);
+	if (!hasChecklistItems(checklist)) {
+		logger.info('Health', 'Health check skipped: HEALTH.md has no checklist items');
+		return;
+	}
 
+	logger.info('Health', 'Health check started');
 	const message = `${HEALTH_PROMPT_HEADER}\n\n${checklist.trim()}`;
 	const response = await agent.send(
 		message,
 		HEALTH_AGENT_ID,
 		settings.isolatedSession ? { sessionId: HEALTH_SESSION_ID } : {}
 	);
-	if (response.trim() === HEALTH_OK) return;
-	console.info('[Health]', response);
+	if (response.trim() === HEALTH_OK) {
+		logger.info('Health', 'Health check completed: HEALTH_OK');
+		return;
+	}
+	logger.info('Health', 'Health check needs attention', response);
 }
 
 function hasChecklistItems(text: string): boolean {
