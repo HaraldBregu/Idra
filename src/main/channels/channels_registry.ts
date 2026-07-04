@@ -14,6 +14,7 @@ import type {
 } from './channels_types';
 
 const CHANNEL_SESSION_ID = 'channel';
+const CHANNEL_START_REPLY = "Hi! I'm connected. Send me a message and I'll reply.";
 
 export interface ChannelRegistryDependencies {
 	logger: LoggerService;
