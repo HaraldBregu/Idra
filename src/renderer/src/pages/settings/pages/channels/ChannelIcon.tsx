@@ -1,8 +1,7 @@
 import React from 'react';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import discordIconDark from '@resources/icons/brands/discord/discord_dark.png';
-import discordIconLight from '@resources/icons/brands/discord/discord_light.png';
+import discordIcon from '@resources/icons/brands/discord/raw/discord_source.svg';
 import telegramIconDark from '@resources/icons/brands/telegram/telegram_dark.png';
 import telegramIconLight from '@resources/icons/brands/telegram/telegram_light.png';
 import type { ChannelType } from '../../../../../../shared';
@@ -14,7 +13,6 @@ type ChannelIconAsset = {
 };
 
 const CHANNEL_ICON_ASSETS: Readonly<Record<string, ChannelIconAsset>> = {
-	discord: { light: discordIconLight, dark: discordIconDark },
 	telegram: { light: telegramIconLight, dark: telegramIconDark },
 };
 
@@ -45,7 +43,14 @@ export function ChannelIcon({
 			aria-hidden="true"
 			title={name}
 		>
-			{asset ? (
+			{iconId === 'discord' ? (
+				<img
+					src={discordIcon}
+					alt=""
+					draggable={false}
+					className={cn('size-full object-contain', imageClassName)}
+				/>
+			) : asset ? (
 				<>
 					<img
 						src={asset.light}
