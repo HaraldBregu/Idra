@@ -233,17 +233,6 @@ const ChannelDetailPage: React.FC = () => {
 						</Button>
 					) : undefined
 				}
-				iconNode={
-					selectedId ? (
-						<ChannelIcon
-							channelId={selectedId}
-							name={selectedTitle}
-							brandIconId={selectedEntry?.brandIconId}
-							className="size-full border-0 bg-transparent p-1"
-							fallbackClassName="size-3"
-						/>
-					) : undefined
-				}
 			/>
 
 			{loadError && <SettingsNotice variant="destructive">{loadError}</SettingsNotice>}
