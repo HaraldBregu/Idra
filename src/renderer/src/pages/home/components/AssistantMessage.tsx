@@ -55,6 +55,7 @@ export function AssistantMessage({
 	const hasContent = message.content.length > 0;
 	const messageText = message.content.trim();
 	const hasTools = message.tools.length > 0;
+	const imagePaths = generatedImagePaths(message.tools);
 	const showActivity =
 		hasTools ||
 		(message.state !== 'idle' && message.state !== 'completed') ||
