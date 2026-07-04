@@ -327,7 +327,10 @@ export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
 		model('stable-image-ultra', 'Stable Image Ultra'),
 		model('stable-image-core', 'Stable Image Core'),
 	],
-	xai: [model('grok-imagine', 'Grok Imagine')],
+	xai: [
+		model('grok-imagine-image', 'Grok Imagine Image'),
+		model('grok-imagine-image-pro', 'Grok Imagine Image Pro'),
+	],
 } as const satisfies ModelCatalog;
 
 export const IMAGE_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_IMAGE_MODELS_BY_PROVIDER;
