@@ -47,9 +47,11 @@ export class Agent {
 		void startCron().catch((error) => {
 			logger.error('Cron', 'Failed to start persistent cron scheduler', error);
 		});
+		startHealth(this);
 	}
 
 	destroy(): void {
+		stopHealth();
 		destroyCron();
 	}
 
