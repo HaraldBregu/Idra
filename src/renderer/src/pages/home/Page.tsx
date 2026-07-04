@@ -178,33 +178,35 @@ function AttachmentTray({
 					: attachment.file.name;
 
 				return (
-					<div
-						key={attachment.id}
-						className="flex max-w-44 items-center gap-1 rounded-lg border border-border/50 bg-muted/50 py-0.5 pl-1.5 pr-0.5"
-					>
-						<span className="shrink-0 text-muted-foreground">
-							{isAudio ? <FileAudio className="size-2.5" /> : <Paperclip className="size-2.5" />}
-						</span>
-						<span className="min-w-0 truncate text-[9px] leading-tight" title={attachment.file.name}>
-							{title}
-						</span>
-						<span className="shrink-0 text-[8px] leading-tight text-muted-foreground">
-							{formatFileSize(attachment.file.size)}
-						</span>
-						{isAudio && attachment.url ? (
-							<audio controls src={attachment.url} className="h-5 w-24 shrink-0" />
-						) : null}
-						<Button
-							type="button"
-							variant="ghost"
-							size="icon"
-							className="size-4 shrink-0 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-							aria-label={`Remove ${title}`}
-							onClick={() => onRemove(attachment.id)}
-						>
-							<X className="size-2.5" />
-						</Button>
-					</div>
+					<Tooltip key={attachment.id}>
+						<TooltipTrigger
+							render={
+								<div className="flex max-w-44 items-center gap-1 rounded-lg border border-border/50 bg-muted/50 py-0.5 pl-1.5 pr-0.5">
+									<span className="shrink-0 text-muted-foreground">
+										{isAudio ? <FileAudio className="size-2.5" /> : <Paperclip className="size-2.5" />}
+									</span>
+									<span className="min-w-0 truncate text-[9px] leading-tight">{title}</span>
+									<span className="shrink-0 text-[8px] leading-tight text-muted-foreground">
+										{formatFileSize(attachment.file.size)}
+									</span>
+									{isAudio && attachment.url ? (
+										<audio controls src={attachment.url} className="h-5 w-24 shrink-0" />
+									) : null}
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-4 shrink-0 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+										aria-label={`Remove ${title}`}
+										onClick={() => onRemove(attachment.id)}
+									>
+										<X className="size-2.5" />
+									</Button>
+								</div>
+							}
+						/>
+						<TooltipContent side="top">{attachment.file.name}</TooltipContent>
+					</Tooltip>
 				);
 			})}
 		</div>
