@@ -71,14 +71,8 @@ try {
 }
 
 // Bootstrap new architecture - FULL INTEGRATION ENABLED
-const {
-	appState,
-	eventBus,
-	windowFactory,
-	logger,
-	windowContextManager,
-	agentService,
-} = bootstrapServices();
+const services = bootstrapServices();
+const { eventBus, appState, windowFactory, logger, windowContextManager, agentService } = services;
 agentService.start(logger);
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
@@ -86,12 +80,7 @@ setupMemoryMonitor(logger);
 logger.info('CrashReporter', `Crash dumps path: ${app.getPath('crashDumps')}`);
 logger.info('Main', 'Starting app');
 logger.info('Main', 'Enabling IPC modules...');
-registerIpcHandlers(
-	{ appState, eventBus, logger, windowFactory, windowContextManager, agentService } as Parameters<
-		typeof registerIpcHandlers
-	>[0],
-	eventBus
-);
+registerIpcHandlers(services, eventBus);
 setupAppLifecycle(appState, logger);
 setupEventLogging(logger);
 
