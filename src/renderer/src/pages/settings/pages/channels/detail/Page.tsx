@@ -252,9 +252,7 @@ const ChannelDetailPage: React.FC = () => {
 								<Switch
 									checked={isChannelEnabled(selectedConfig)}
 									onCheckedChange={(checked) =>
-										updateSelectedConfig((config) => updateChannelEnabled(config, checked), {
-											save: true,
-										})
+										updateSelectedConfig((config) => updateChannelEnabled(config, checked))
 									}
 									aria-label={t('settings.channels.enabled')}
 								/>
