@@ -86,7 +86,5 @@ export interface ChannelCatalogEntry {
 	id: ChannelType;
 	label: string;
 	blurb: string;
-	docsPath: string;
-	docsLabel: string;
 	brandIconId?: string;
 }
