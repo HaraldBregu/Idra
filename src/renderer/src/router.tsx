@@ -86,8 +86,9 @@ function RootRouteComponent(): React.JSX.Element {
 						<Outlet />
 					</PageTransition>
 				</div>
-				<CommandMenu />
-			</div>
+					<CommandMenu />
+				</div>
+			</ChatSessionContext.Provider>
 		</ChatModeContext.Provider>
 	);
 }
