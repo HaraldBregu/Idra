@@ -1,4 +1,4 @@
-export { ImageAdapterFactory } from './factory';
+export { buildImageAdapter } from './factory';
 export { generateImage } from './generate';
 export type { GenerateImageOptions } from './generate';
 export {
