@@ -149,5 +149,5 @@ app.whenReady().then(async () => {
 
 app.on('quit', () => {
 	agentService.destroy();
-	cleanup(container);
+	cleanup(services);
 });
