@@ -1,6 +1,10 @@
 import React from 'react';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import discordIconDark from '@resources/icons/brands/discord/discord_dark.png';
+import discordIconLight from '@resources/icons/brands/discord/discord_light.png';
+import telegramIconDark from '@resources/icons/brands/telegram/telegram_dark.png';
+import telegramIconLight from '@resources/icons/brands/telegram/telegram_light.png';
 import type { ChannelType } from '../../../../../../shared';
 import { getChannelBrandIconId } from '../../../../../../shared';
 
@@ -9,13 +13,22 @@ type ChannelIconAsset = {
 	readonly dark: string;
 };
 
+const CHANNEL_ICON_ASSETS: Readonly<Record<string, ChannelIconAsset>> = {
+	discord: { light: discordIconLight, dark: discordIconDark },
+	telegram: { light: telegramIconLight, dark: telegramIconDark },
+};
+
 const channelIconModules = import.meta.glob<string>('@resources/icons/brands/*/*.png', {
 	eager: true,
 	import: 'default',
 });
 
 function buildIconAssets(): Readonly<Record<string, ChannelIconAsset>> {
-	const partialAssets: Record<string, Partial<ChannelIconAsset>> = {};
+	const partialAssets: Record<string, Partial<ChannelIconAsset>> = {
+		...Object.fromEntries(
+			Object.entries(CHANNEL_ICON_ASSETS).map(([id, asset]) => [id, { ...asset }])
+		),
+	};
 
 	for (const [path, url] of Object.entries(channelIconModules)) {
 		const match = path.match(/brands\/[^/]+\/([^/]+)_(light|dark)(?:_NOT_A_LOGO)?\.png$/);
@@ -35,7 +48,7 @@ function buildIconAssets(): Readonly<Record<string, ChannelIconAsset>> {
 	);
 }
 
-const CHANNEL_ICON_ASSETS = buildIconAssets();
+const CHANNEL_ICON_LOOKUP = buildIconAssets();
 
 export function ChannelIcon({
 	channelId,
