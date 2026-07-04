@@ -96,13 +96,19 @@ export function AssistantMessage({
 	);
 	const messageMarkdownComponents = {
 		...markdownComponents,
-		img: ({ src, alt }: { src?: string; alt?: string }) => (
-			<img
-				src={localImageSrc(src, imagePaths)}
-				alt={alt ?? ''}
-				className="my-2 h-auto max-w-full rounded-lg border border-border/50"
-			/>
-		),
+		img: ({ src, alt }: { src?: string; alt?: string }) => {
+			const localPath = resolveLocalImagePath(src, imagePaths);
+			return (
+				<img
+					src={localPath ? localResourceUrl(localPath) : src}
+					alt={alt ?? ''}
+					className="my-2 h-auto max-w-full rounded-lg border border-border/50"
+					onContextMenu={
+						localPath ? () => void window.app.showImageContextMenu(localPath) : undefined
+					}
+				/>
+			);
+		},
 	};
 	const showActivity =
 		hasTools ||
