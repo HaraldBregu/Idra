@@ -32,7 +32,7 @@ export async function* runModelTurn(
 
 		const maxTokens = 4096;
 		try {
-			for await (const event of agentModel.stream({
+			for await (const event of llmModel.stream({
 				provider,
 				model,
 				systemPrompt,
