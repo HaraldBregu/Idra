@@ -1,5 +1,5 @@
-import type { SttService } from '../models/stt/service';
+import { cancelRealtime as sttCancelRealtime } from '../models/stt';
 
-export async function cancelRealtime(stt: SttService, sessionId: string): Promise<void> {
-	return stt.cancelRealtime(sessionId);
+export async function cancelRealtime(sessionId: string): Promise<void> {
+	return sttCancelRealtime(sessionId);
 }
