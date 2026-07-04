@@ -225,24 +225,7 @@ const ChannelDetailPage: React.FC = () => {
 			)}
 
 			{selectedId ? (
-				<SettingsSection
-					title={t('settings.channels.configuration')}
-					action={
-						<div className="flex flex-wrap items-center gap-1.5">
-							<Badge variant="outline" className="h-5 px-2 text-[10px]">
-								{selectedId}
-							</Badge>
-							<Badge
-								variant={isChannelEnabled(selectedConfig) ? 'secondary' : 'outline'}
-								className="h-5 px-2 text-[10px]"
-							>
-								{isChannelEnabled(selectedConfig)
-									? t('settings.channels.enabled')
-									: t('settings.channels.disabled')}
-							</Badge>
-						</div>
-					}
-				>
+				<SettingsSection title={t('settings.channels.configuration')}>
 					<SettingsPanel>
 						<SettingsRow
 							title={t('settings.channels.enabled')}
