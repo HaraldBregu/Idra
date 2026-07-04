@@ -64,7 +64,7 @@ const ChannelsPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.channels.catalog')}>
 				<Card size="sm" className="gap-0! p-0!">
-					{catalog.filter((entry) => entry.catalogVisible).map((entry, index, visibleCatalog) => {
+					{CHANNEL_CATALOG.filter((entry) => entry.catalogVisible).map((entry, index, visibleCatalog) => {
 						const isRuntimeChannel = RUNTIME_CHANNELS.has(entry.id);
 						const status = statusByChannel[entry.id] ?? 'disconnected';
 

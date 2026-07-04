@@ -68,7 +68,6 @@ const ChannelDetailPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { channelId } = useParams<{ channelId: string }>();
 	const selectedId = channelId && isChannelId(channelId) ? channelId : null;
-	const [catalog, setCatalog] = useState<readonly ChannelCatalogEntry[]>([]);
 	const [configs, setConfigs] = useState<Channel | null>(null);
 	const [listDrafts, setListDrafts] = useState<Record<ListField, string>>({
 		allowFrom: '',
