@@ -73,19 +73,19 @@ function RootRouteComponent(): React.JSX.Element {
 			<ChatSessionContext.Provider
 				value={{ sessionId: chatSessionId, setSessionId: setChatSessionId }}
 			>
-			<div
-				className={cn(
-					'app-translucent-window flex h-screen flex-col overflow-hidden bg-background text-foreground'
-				)}
-			>
-				<TitleBar
-					title={isStart ? 'Set up Friday' : t('appTitle')}
-				/>
-				<div className="min-h-0 flex-1 overflow-hidden pt-12">
-					<PageTransition>
-						<Outlet />
-					</PageTransition>
-				</div>
+				<div
+					className={cn(
+						'app-translucent-window flex h-screen flex-col overflow-hidden bg-background text-foreground'
+					)}
+				>
+					<TitleBar
+						title={isStart ? 'Set up Friday' : t('appTitle')}
+					/>
+					<div className="min-h-0 flex-1 overflow-hidden pt-12">
+						<PageTransition>
+							<Outlet />
+						</PageTransition>
+					</div>
 					<CommandMenu />
 				</div>
 			</ChatSessionContext.Provider>
