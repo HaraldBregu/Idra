@@ -3,7 +3,7 @@ import type { Message, MessageContentBlock, ToolCall } from '../types';
 
 export const DEFAULT_CATEGORY: SessionCategory = 'home';
 
-export type SessionCategory = 'home' | 'task' | 'heartbeat' | 'health';
+export type SessionCategory = 'home' | 'task' | 'heartbeat' | 'health' | 'channel';
 
 export type SessionResultSubtype = 'success' | 'error_max_turns';
 
