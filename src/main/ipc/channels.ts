@@ -18,13 +18,6 @@ export class ChannelsIpc implements IpcModule<ChannelsIpcDeps> {
 	register({ logger, channelRegistry }: ChannelsIpcDeps, _eventBus: EventBus): void {
 
 		ipcMain.handle(
-			ChannelsChannels.listCatalog,
-			wrapSimpleHandler(() => {
-				return listChannelCatalog();
-			}, ChannelsChannels.listCatalog)
-		);
-
-		ipcMain.handle(
 			ChannelsChannels.getConfig,
 			wrapSimpleHandler((): Channel => {
 				return getChannels();

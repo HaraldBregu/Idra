@@ -7,8 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
-import type { ChannelConnectionStatus, ChannelType } from '../../../../../../shared';
-import type { ChannelCatalogEntry } from '../../../../../../shared';
+import { CHANNEL_CATALOG, type ChannelConnectionStatus, type ChannelType } from '../../../../../../shared';
 import { ChannelIcon } from './ChannelIcon';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
