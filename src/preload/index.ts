@@ -164,6 +164,9 @@ export const agent: AgentApi = {
 			decision
 		);
 	},
+	listSessions: (): Promise<AgentSessionSummary[]> => {
+		return typedInvokeUnwrap(AgentChannels.listSessions);
+	},
 	getLastMessages: (sessionId: string): Promise<AgentHistoryMessage[]> => {
 		const normalizedSessionId = optionalTrimmedString(sessionId);
 		if (!normalizedSessionId) throw new Error('Invalid assistant session id.');
