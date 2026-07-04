@@ -76,6 +76,7 @@ export const TitleBar = React.memo(function TitleBar({
 			)}
 		</Button>
 	) : null;
+	const sessionsButton = isHome ? <SessionsButton /> : null;
 
 	return (
 		<TitleBarProvider value={{ isMac, isFullScreen }}>
