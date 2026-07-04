@@ -64,8 +64,8 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
-export interface CreatorApi {
-	createImage: (request: CreatorImageRequest) => Promise<CreatorImageResult>;
+export interface ImageApi {
+	createImage: (request: ImageRequest) => Promise<ImageResult>;
 	getProviderId: () => Promise<string | undefined>;
 	setProviderId: (providerId: string) => Promise<void>;
 	getModelId: () => Promise<string | undefined>;
