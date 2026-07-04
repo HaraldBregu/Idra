@@ -436,58 +436,67 @@ function ListEditor({
 	readonly onAdd: () => void;
 	readonly onRemove: (value: string) => void;
 }): React.JSX.Element {
+	const canAdd = value.trim().length > 0;
+
 	return (
-		<div className="flex w-full min-w-0 flex-col gap-1.5">
-			<InputGroup className="h-8">
-				<InputGroupInput
+		<div className="flex w-full min-w-0 flex-col gap-2">
+			<div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row">
+				<Input
 					id={id}
 					value={value}
 					onChange={(event) => onDraftChange(event.target.value)}
 					onKeyDown={(event) => {
-						if (event.key === 'Enter') {
+						if (event.key === 'Enter' && canAdd) {
 							event.preventDefault();
 							onAdd();
 						}
 					}}
 					placeholder={placeholder}
-					className="text-xs"
+					className="h-8 w-full text-xs"
 					aria-label={placeholder}
 				/>
-				<InputGroupAddon align="inline-end" className="py-0 pr-1">
-					<InputGroupButton
-						type="button"
-						size="icon-xs"
-						onClick={onAdd}
-						aria-label={addLabel}
-						title={addLabel}
-					>
-						<Plus className="size-3" />
-					</InputGroupButton>
-				</InputGroupAddon>
-			</InputGroup>
-			<div className="flex min-h-6 flex-wrap items-center gap-1.5">
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					className="h-8 shrink-0 sm:px-3"
+					disabled={!canAdd}
+					onClick={onAdd}
+					aria-label={addLabel}
+				>
+					<Plus className="size-3" />
+					<span className="hidden sm:inline">{addLabel}</span>
+				</Button>
+			</div>
+
+			<div className="rounded-lg border border-border/70 bg-muted/20 p-2">
 				{items.length > 0 ? (
-					items.map((item) => (
-						<Badge
-							key={item}
-							variant="outline"
-							className="h-4 max-w-full gap-1 px-1.5 pr-0.5 text-[10px]"
-						>
-							<span className="max-w-48 truncate">{item}</span>
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-xs"
-								onClick={() => onRemove(item)}
-								className="size-4 rounded-sm p-0 text-muted-foreground hover:text-foreground"
-								aria-label={removeLabel(item)}
+					<ul className="flex flex-col gap-1">
+						{items.map((item) => (
+							<li
+								key={item}
+								className="flex min-h-8 items-center gap-2 rounded-md border border-border/60 bg-background px-2 py-1"
 							>
-								<X className="size-2.5" />
-							</Button>
-						</Badge>
-					))
+								<span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground">
+									{item}
+								</span>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon-xs"
+									onClick={() => onRemove(item)}
+									className="size-6 shrink-0 text-muted-foreground hover:text-foreground"
+									aria-label={removeLabel(item)}
+								>
+									<X className="size-3" />
+								</Button>
+							</li>
+						))}
+					</ul>
 				) : (
-					<span className="text-[11px] text-muted-foreground">{emptyLabel}</span>
+					<p className="px-1 py-3 text-center text-[11px] leading-4 text-muted-foreground">
+						{emptyLabel}
+					</p>
 				)}
 			</div>
 		</div>
