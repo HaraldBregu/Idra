@@ -6,6 +6,7 @@ import {
 import {
 	cloneModels,
 	normalizeProviderId,
+	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 } from '../../../../shared/provider_models_definitions';
 import { AGENTS } from '@/lib/compat';
