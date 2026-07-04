@@ -102,6 +102,7 @@ function mergeChannelConfig(stored: unknown): Channel[ChannelType] {
 		token: typeof source.token === 'string' ? source.token : '',
 		allowFrom: normalizeStringList(source.allowFrom),
 		enabled: typeof source.enabled === 'boolean' ? source.enabled : false,
+		isolatedSession: typeof source.isolatedSession === 'boolean' ? source.isolatedSession : undefined,
 		defaultAccountId:
 			typeof source.defaultAccountId === 'string' ? source.defaultAccountId : 'default',
 		defaultTarget: typeof source.defaultTarget === 'string' ? source.defaultTarget : undefined,
