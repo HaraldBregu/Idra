@@ -462,9 +462,6 @@ export const text: TextApi = {
 };
 
 export const channels: ChannelsApi = {
-	listCatalog: (): Promise<ChannelCatalogEntry[]> => {
-		return typedInvokeUnwrap(ChannelsChannels.listCatalog);
-	},
 	getConfig: (): Promise<Channel> => {
 		return typedInvokeUnwrap(ChannelsChannels.getConfig);
 	},
