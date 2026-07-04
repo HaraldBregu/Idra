@@ -601,7 +601,6 @@ function PageContent(): ReactElement {
 				<div className="absolute inset-x-0 bottom-0 z-20 flex justify-center px-4 py-3">
 					<div className="w-full max-w-[96rem]">
 						<RecorderErrorMessage message={voiceErrorMessage} />
-						<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
 						<PromptInput
 							value={agent.input}
 							onValueChange={agent.setInput}
@@ -609,6 +608,11 @@ function PageContent(): ReactElement {
 							maxHeight={360}
 							onSubmit={agent.handleSubmit}
 							textareaRef={agent.inputRef}
+							header={
+								attachments.length > 0 ? (
+									<AttachmentTray attachments={attachments} onRemove={removeAttachment} />
+								) : undefined
+							}
 							leadingAction={<AttachmentButton disabled={attachmentDisabled} />}
 							voiceMode={voiceMode}
 							voiceElapsedMs={voiceMode === 'dictation' ? activeVoiceElapsedMs : undefined}
