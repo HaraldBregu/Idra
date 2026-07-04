@@ -16,14 +16,14 @@ export function registerLocalResourceProtocolScheme(): void {
 export function registerLocalResourceProtocolHandler(
 	logger: Pick<LoggerService, 'error'>
 ): void {
-	protocol.handle(LOCAL_RESOURCE_SCHEME, (request) => {
+	protocol.handle(LOCAL_RESOURCE_SCHEME, async (request) => {
 		try {
 			const url = new URL(request.url);
 			let pathname = decodeURIComponent(url.pathname);
 			if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(pathname)) {
 				pathname = pathname.slice(1);
 			}
-			return net.fetch(pathToFileURL(pathname).toString());
+			return await net.fetch(pathToFileURL(pathname).toString());
 		} catch (err) {
 			logger.error('App', `${LOCAL_RESOURCE_SCHEME} fetch failed for ${request.url}`, err);
 			return new Response(null, { status: 500 });
