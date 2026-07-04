@@ -345,8 +345,8 @@ function ListEditor({
 
 	return (
 		<div className="flex w-full min-w-0 flex-col gap-2">
-			<div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row">
-				<Input
+			<InputGroup className="h-8">
+				<InputGroupInput
 					id={id}
 					value={value}
 					onChange={(event) => onDraftChange(event.target.value)}
@@ -357,22 +357,22 @@ function ListEditor({
 						}
 					}}
 					placeholder={placeholder}
-					className="h-8 w-full text-xs"
+					className="text-xs"
 					aria-label={placeholder}
 				/>
-				<Button
-					type="button"
-					variant="outline"
-					size="sm"
-					className="h-8 shrink-0 sm:px-3"
-					disabled={!canAdd}
-					onClick={onAdd}
-					aria-label={addLabel}
-				>
-					<Plus className="size-3" />
-					<span className="hidden sm:inline">{addLabel}</span>
-				</Button>
-			</div>
+				<InputGroupAddon align="inline-end" className="py-0 pr-1">
+					<InputGroupButton
+						type="button"
+						size="icon-xs"
+						disabled={!canAdd}
+						onClick={onAdd}
+						aria-label={addLabel}
+						title={addLabel}
+					>
+						<Plus className="size-3" />
+					</InputGroupButton>
+				</InputGroupAddon>
+			</InputGroup>
 
 			<div className="rounded-lg border border-border/70 bg-muted/20 p-2">
 				{items.length > 0 ? (
