@@ -17,8 +17,7 @@ const store = new Store<SettingsSchema>({
 	defaults: DEFAULT_AGENT_SETTINGS,
 });
 
-export function getProvider(): Provider | undefined {
-	const providerId = getProviderId();
+export function getProvider(providerId: string | undefined = getProviderId()): Provider | undefined {
 	if (!providerId) return undefined;
 	const provider = getStoredProvider(providerId);
 	if (!provider) return undefined;
