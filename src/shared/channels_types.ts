@@ -72,6 +72,8 @@ export interface ChannelDefaultsProperties {
 
 export interface Channel {
 	defaults?: ChannelDefaultsProperties;
+	providerId?: string;
+	modelId?: string;
 	telegram: TelegramChannelProperties;
 	discord: DiscordChannelProperties;
 }
