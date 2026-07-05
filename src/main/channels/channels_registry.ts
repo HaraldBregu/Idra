@@ -100,6 +100,8 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 			const response = await agentService.send(message.text, 'channels', {
 				category: 'bot',
 				sessionId: CHANNEL_SESSION_ID,
+				...(config.providerId ? { providerId: config.providerId } : {}),
+				...(config.modelId ? { modelId: config.modelId } : {}),
 			});
 			await reply(response);
 			logger.info('ChannelRegistry', 'Replied to channel message', {
