@@ -132,14 +132,6 @@ function applyResponseEvent(
 		return ensured.state;
 	}
 
-	if (event.type === 'skill_selected') {
-		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
-			...message,
-			runId: event.runId,
-			skill: event.skill,
-		}));
-	}
-
 	if (event.type === 'tool_permission_request') {
 		return updateAgentMessage(
 			{ ...ensured.state, activeAgentId: ensured.message.id, activeRunId: event.runId },
