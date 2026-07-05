@@ -5,8 +5,12 @@ export {
 	getChannelConfig,
 	getChannels,
 	getChannelsStore,
+	getModelId,
+	getProviderId,
 	setChannelConfig,
 	setChannelProperties,
+	setModelId,
+	setProviderId,
 } from './channels_store';
 export type { ChannelsStoreState } from './channels_store';
 export { canReceive } from './channels_security';
