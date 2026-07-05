@@ -135,81 +135,22 @@ const ImagePage: React.FC = () => {
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
 				<SettingsPanel>
-					<div className="grid gap-3 px-3 py-3">
-						<div className="grid gap-3 sm:grid-cols-2">
-							<SettingsField
-								id="image-provider"
-								label={t('settings.modelServices.provider')}
-								description={t('settings.modelServices.providerDescription')}
-							>
-								<Select
-									value={providerId}
-									onValueChange={handleProviderChange}
-									disabled={loading || saving}
-								>
-									<SelectTrigger id="image-provider" className="w-full text-xs">
-										<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
-									</SelectTrigger>
-									<SelectContent>
-										{TEXT_TO_IMAGE_PROVIDER_IDS.map((id) => (
-											<SelectItem key={id} value={id}>
-												{getProviderCatalogItem(id).name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</SettingsField>
-
-							<SettingsField
-								id="image-model"
-								label={t('settings.modelServices.model')}
-								description={t('settings.modelServices.modelDescription')}
-							>
-								<Select
-									value={modelId}
-									onValueChange={(nextModelId) => {
-										setModelId(nextModelId ?? '');
-										setSaved(false);
-										setError(null);
-									}}
-									disabled={loading || saving || models.length === 0}
-								>
-									<SelectTrigger id="image-model" className="w-full text-xs">
-										<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
-									</SelectTrigger>
-									<SelectContent>
-										{models.map((model) => (
-											<SelectItem key={model.id} value={model.id}>
-												{model.name || model.id}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</SettingsField>
-						</div>
-
-						{saved && (
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.modelServices.saved')}
-							</p>
-						)}
-
-						<div className="flex justify-end">
-							<Button
-								type="button"
-								size="sm"
-								disabled={loading || saving || !providerId || !modelId}
-								onClick={() => void handleSave()}
-							>
-								{saving ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<Save className="size-3" />
-								)}
-								{saving ? t('settings.modelServices.saving') : t('common.save')}
-							</Button>
-						</div>
-					</div>
+					<ModelProviderSelect
+						layout="inline"
+						idPrefix="image"
+						providerGroups={IMAGE_PROVIDER_GROUPS}
+						providerId={providerId}
+						modelId={modelId}
+						onProviderChange={handleProviderChange}
+						onModelChange={handleModelChange}
+						loading={loading}
+						saving={saving}
+						saved={saved}
+						error={error}
+						onSave={handleSave}
+						showFieldDescriptions
+						disabled={loading}
+					/>
 				</SettingsPanel>
 			</SettingsSection>
 
