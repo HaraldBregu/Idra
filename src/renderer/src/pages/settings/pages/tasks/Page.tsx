@@ -1,31 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ChevronDown, ListChecks, LoaderCircle, Save } from 'lucide-react';
-import {
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-} from '../../../../../../shared/provider_models_definitions';
+import { AlertTriangle, ChevronDown, ListChecks } from 'lucide-react';
 import type { Model } from '@/lib/compat';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { getProviderCatalogItem } from '../../../start/constants';
+	firstModelIdForProvider,
+	LLM_PROVIDER_GROUPS,
+	ModelProviderSelect,
+	resolveStoredModelProvider,
+} from '@/components/model-provider-select';
 import {
 	SettingsEmptyState,
-	SettingsField,
-	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -34,16 +20,6 @@ import {
 } from '../../components';
 
 type Task = Awaited<ReturnType<typeof window.agent.cronList>>[number];
-
-interface ProviderGroup {
-	readonly id: string;
-	readonly models: readonly Model[];
-}
-
-const PROVIDER_GROUPS: readonly ProviderGroup[] = LLM_PROVIDERS.map((id) => ({
-	id,
-	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
-})).filter((group) => group.models.length > 0);
 
 function describeAction(task: Task): string {
 	return task.action.type === 'agent' ? task.action.prompt : task.action.message;
