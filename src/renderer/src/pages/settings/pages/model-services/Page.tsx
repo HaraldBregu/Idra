@@ -21,13 +21,7 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { ModelProviderSelect, toModelProviderGroups } from '@/components/model-provider-select';
 import { AGENTS } from '@/lib/compat';
 import { appApi } from '@/lib/compat';
 import type { Model } from '@/lib/compat';
