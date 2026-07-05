@@ -81,7 +81,7 @@ const TextToSpeechPage: React.FC = () => {
 
 				for (const provider of mergedProviders) {
 					try {
-						const models = await service.getModels(provider);
+						const models = await activeService.getModels(provider);
 						const nextModels =
 							selection?.provider.id === provider.id
 								? mergeModels(models, selection.model)
