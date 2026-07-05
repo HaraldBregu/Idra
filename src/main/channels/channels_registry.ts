@@ -13,7 +13,8 @@ import type {
 	ChannelStatusUpdate,
 } from './channels_types';
 
-const CHANNEL_SESSION_ID = 'channel';
+// Fixed UUID so every channel message reuses the same agent session.
+const CHANNEL_SESSION_ID = '7c1f41d3-9b2a-4e8f-b5c6-2d0a8e4f6a91';
 const CHANNEL_START_REPLY = "Hi! I'm connected. Send me a message and I'll reply.";
 
 export interface ChannelRegistryDependencies {
