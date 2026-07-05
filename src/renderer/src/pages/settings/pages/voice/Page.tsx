@@ -39,7 +39,7 @@ function getCatalogProviderById(providerId: string): CatalogProvider | undefined
 	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
 }
 
-const TextToSpeechPage: React.FC = () => {
+const VoicePage: React.FC = () => {
 	const { t } = useTranslation();
 	const service = MODEL_SERVICE_DEFINITIONS.find(
 		(definition): definition is ModelServiceDefinition => definition.id === AGENTS.textToSpeech
