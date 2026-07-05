@@ -134,23 +134,19 @@ const ImagePage: React.FC = () => {
 			)}
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<SettingsPanel>
-					<ModelProviderSelect
-						layout="inline"
-						idPrefix="image"
-						providerGroups={IMAGE_PROVIDER_GROUPS}
-						providerId={providerId}
-						modelId={modelId}
-						onProviderChange={handleProviderChange}
-						onModelChange={handleModelChange}
-						loading={loading}
-						saving={saving}
-						saved={saved}
-						onSave={handleSave}
-						showFieldDescriptions
-						disabled={loading}
-					/>
-				</SettingsPanel>
+				<ModelProviderSelect
+					idPrefix="image"
+					providerGroups={IMAGE_PROVIDER_GROUPS}
+					providerId={providerId}
+					modelId={modelId}
+					onProviderChange={handleProviderChange}
+					onModelChange={handleModelChange}
+					loading={loading}
+					saving={saving}
+					saved={saved}
+					onSave={handleSave}
+					disabled={loading}
+				/>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.image.prompt')}>
