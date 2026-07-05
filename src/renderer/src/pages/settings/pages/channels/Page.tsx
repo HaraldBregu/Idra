@@ -101,6 +101,75 @@ const ChannelsPage: React.FC = () => {
 				description={t('settings.channels.description')}
 			/>
 
+			<SettingsSection title={t('settings.modelServices.configuration')}>
+				<Card size="sm" className="gap-0! p-0!">
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
+							<Sparkles className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+							<ItemTitle>{t('settings.modelServices.provider')}</ItemTitle>
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.modelServices.providerDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
+							<Select
+								value={providerId}
+								onValueChange={(value) => {
+									if (!value) return;
+									saveModelSelection(value, modelsFor(value)[0]?.id ?? '');
+								}}
+							>
+								<SelectTrigger id="channels-provider" className="w-full text-xs">
+									<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
+								</SelectTrigger>
+								<SelectContent>
+									{LLM_PROVIDERS.map((id) => (
+										<SelectItem key={id} value={id}>
+											{getProviderCatalogItem(id).name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ItemActions>
+					</Item>
+
+					<Item variant="outline" size="md">
+						<ItemMedia variant="icon">
+							<Cpu className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent className="min-w-0 flex-col items-start gap-0.5">
+							<ItemTitle>{t('settings.modelServices.model')}</ItemTitle>
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.modelServices.modelDescription')}
+							</p>
+						</ItemContent>
+						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
+							<Select
+								value={modelId}
+								onValueChange={(value) => {
+									if (!value) return;
+									saveModelSelection(providerId, value);
+								}}
+								disabled={modelsFor(providerId).length === 0}
+							>
+								<SelectTrigger id="channels-model" className="w-full text-xs">
+									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
+								</SelectTrigger>
+								<SelectContent>
+									{modelsFor(providerId).map((model) => (
+										<SelectItem key={model.id} value={model.id}>
+											{model.name || model.id}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</ItemActions>
+					</Item>
+				</Card>
+			</SettingsSection>
+
 			<SettingsSection title={t('settings.channels.catalog')}>
 				<Card size="sm" className="gap-0! p-0!">
 					{CHANNEL_CATALOG.map((entry, index) => {
