@@ -52,6 +52,8 @@ interface ModelProviderSelectLabels {
 	readonly model?: string;
 	readonly providerPlaceholder?: string;
 	readonly modelPlaceholder?: string;
+	readonly providerDescription?: ReactNode;
+	readonly modelDescription?: ReactNode;
 }
 
 interface ModelProviderSelectProps {
@@ -62,6 +64,7 @@ interface ModelProviderSelectProps {
 	readonly onProviderChange: (nextProviderId: string) => void;
 	readonly onModelChange: (nextModelId: string) => void;
 	readonly disabled?: boolean;
+	readonly modelDisabled?: boolean;
 	readonly labels?: ModelProviderSelectLabels;
 	readonly showFieldDescriptions?: boolean;
 }
