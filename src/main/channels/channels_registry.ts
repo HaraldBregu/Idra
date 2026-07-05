@@ -97,11 +97,10 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				replyToMessageId: message.messageId,
 				chatType: message.chatType,
 			});
-			const response = await agentService.send(
-				message.text,
-				'channels',
-				config.isolatedSession ? { category: 'channel', sessionId: CHANNEL_SESSION_ID } : {}
-			);
+			const response = await agentService.send(message.text, 'channels', {
+				category: 'channel',
+				sessionId: CHANNEL_SESSION_ID,
+			});
 			await reply(response);
 			logger.info('ChannelRegistry', 'Replied to channel message', {
 				channel: message.channel,
