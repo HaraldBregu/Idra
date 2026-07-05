@@ -52,3 +52,10 @@ export const markdownComponents: Partial<Components> = {
 	),
 	td: ({ children }) => <td className="border-t border-border px-3 py-2">{children}</td>,
 };
+
+export const userMarkdownComponents: Partial<Components> = {
+	p: ({ children }) => <p className="m-0 whitespace-pre-wrap">{children}</p>,
+	a: markdownLink(
+		'font-medium text-link-on-primary underline decoration-link-on-primary/40 underline-offset-4 hover:opacity-80'
+	),
+};

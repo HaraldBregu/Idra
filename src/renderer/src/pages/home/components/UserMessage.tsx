@@ -1,7 +1,9 @@
 import { useState, type ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
-import { Message, MessageContent } from '@/components/prompt-kit/message';
+import { Markdown } from '@/components/prompt-kit/markdown';
+import { Message } from '@/components/prompt-kit/message';
 import { cn } from '@/lib/utils';
+import { userMarkdownComponents } from './markdown';
 
 const LONG_MESSAGE_LENGTH = 600;
 
