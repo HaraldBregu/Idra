@@ -1,12 +1,15 @@
 export {
+	addToolAllowedCommand,
 	addToolAllowedPath,
 	getPermissions,
+	getToolAllowedCommands,
 	getToolAllowedPaths,
 	getToolPermission,
 	resetPermissions,
 	setToolPermission,
 	updatePermissions,
 } from './policy_store';
+export { toolCommandName } from './policy_command';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { resolveToolPermission } from './policy_resolve';
 export {
