@@ -132,7 +132,6 @@ export type AgentRunStreamEvent =
 			model: string;
 			effort?: ModelReasoningEffort;
 	  }
-	| { type: 'skill_selected'; skill: string }
 	| { type: 'capability_resolution_start' }
 	| ({ type: 'capability_resolution_result' } & AgentCapabilityResolutionSummary)
 	| {
