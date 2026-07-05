@@ -30,7 +30,7 @@ import { deleteScheduleTool } from '../tools/cron_delete_schedule';
 import { getScheduleTool } from '../tools/cron_get_schedule';
 import { listSchedulesTool } from '../tools/cron_list_schedules';
 import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
-import { researchTool } from '../subagent';
+import { researchTool } from '../tools/subagent_research';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
