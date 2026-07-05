@@ -57,7 +57,6 @@ export async function* stream(
 		browserTool,
 		createImageTool(config.location),
 		loadSkillTool,
-		searchSkillsTool,
 		createScheduleTool,
 		updateScheduleTool,
 		pauseScheduleTool,
