@@ -43,12 +43,13 @@ const TasksPage: React.FC = () => {
 			.then(([list, runtime]) => {
 				if (!mounted) return;
 				setTasks(list);
-				const group =
-					PROVIDER_GROUPS.find((item) => item.id === runtime?.providerId) ?? PROVIDER_GROUPS[0];
-				const model =
-					group?.models.find((item) => item.id === runtime?.modelId) ?? group?.models[0];
-				setProviderId(group?.id ?? '');
-				setModelId(model?.id ?? '');
+				const resolved = resolveStoredModelProvider(
+					LLM_PROVIDER_GROUPS,
+					runtime?.providerId,
+					runtime?.modelId
+				);
+				setProviderId(resolved.providerId);
+				setModelId(resolved.modelId);
 			})
 			.catch((err: unknown) => {
 				if (mounted) setError(err instanceof Error ? err.message : String(err));
