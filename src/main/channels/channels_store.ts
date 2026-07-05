@@ -33,8 +33,6 @@ function defaultChannelConfig(): Channel[ChannelType] {
 		token: '',
 		allowFrom: [],
 		enabled: false,
-		providerId: '',
-		modelId: '',
 		defaultAccountId: 'default',
 		dmPolicy: CHANNEL_DEFAULT_DM_POLICY,
 		groupAllowFrom: [],
@@ -42,6 +40,8 @@ function defaultChannelConfig(): Channel[ChannelType] {
 }
 
 const DEFAULT_CHANNELS_STORE: ChannelsStoreState = {
+	providerId: '',
+	modelId: '',
 	telegram: defaultChannelConfig(),
 	discord: defaultChannelConfig(),
 };
