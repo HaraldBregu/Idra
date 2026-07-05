@@ -27,7 +27,6 @@ import { getProviderCatalogItem } from '../../../start/constants';
 import type { ProviderModelGroup } from '../../../start/types';
 import TranscribeTest from './TranscribeTest';
 
-type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 type SpeechModeStateMap = Record<SttSelectionMode, ModelConfigurationState>;
 
 interface SpeechModeConfig {
