@@ -40,8 +40,9 @@ export async function* runToolCall(
 				mode: 'ask',
 			};
 			const decision = await waitForToolPermission(toolCall.id);
-			if (decision === 'approve_always') setToolPermission(toolCall.name, 'allow');
-			if (decision !== 'reject') {
+			if (decision === 'approve_always') {
+				const command = toolCommandName(toolCall.args);
+				if (command) addToolAllowedCommand(toolCall.name, command);
 				const dir = toolPathDir(toolCall.args);
 				if (dir) addToolAllowedPath(toolCall.name, dir);
 			}
