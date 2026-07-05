@@ -36,7 +36,7 @@ export async function runSubagent(task: string, tools: Tool[]): Promise<string> 
 			input,
 			provider,
 			modelId,
-			instructions,
+			systemPrompt,
 			messages,
 			tools,
 			signal,
