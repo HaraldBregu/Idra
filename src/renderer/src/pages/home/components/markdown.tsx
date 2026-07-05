@@ -1,6 +1,20 @@
 import type { Components } from 'react-markdown';
 import { handleExternalLinkClick, isExternalHref } from '@/lib/external-links';
 
+function markdownLink(className: string): NonNullable<Components['a']> {
+	return ({ children, href }) => (
+		<a
+			href={href}
+			target={isExternalHref(href) ? '_blank' : undefined}
+			rel={isExternalHref(href) ? 'noreferrer' : undefined}
+			onClick={(event) => handleExternalLinkClick(event, href)}
+			className={className}
+		>
+			{children}
+		</a>
+	);
+}
+
 export const markdownComponents: Partial<Components> = {
 	p: ({ children }) => <p className="my-2 first:mt-0 last:mb-0">{children}</p>,
 	ul: ({ children }) => <ul className="my-2 list-disc space-y-1 pl-5 last:mb-0">{children}</ul>,
