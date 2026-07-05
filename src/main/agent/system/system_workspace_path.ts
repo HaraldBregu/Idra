@@ -4,7 +4,7 @@ import type { Config } from '../types';
 import { ensureWorkspaceFiles } from './system_ensure_workspace_files';
 
 export function workspacePath(config: Config): string {
-	const resolvedPath = path.resolve(config.location, 'workspace');
+	const resolvedPath = path.resolve(config.location);
 	if (!existsSync(resolvedPath)) {
 		mkdirSync(resolvedPath, { recursive: true });
 	}
