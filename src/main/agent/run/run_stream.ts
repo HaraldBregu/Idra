@@ -17,7 +17,7 @@ import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
 import { webSearchTool } from '../tools/web_search';
 import { webFetchTool } from '../tools/web_fetch';
-import { browserTool } from '../tools/browser';
+import { webBrowserTool } from '../tools/web_browser';
 import { createImageTool } from '../tools/image_create';
 import { loadSkillTool } from '../tools/skill_load';
 import { createScheduleTool } from '../tools/cron_create_schedule';
