@@ -68,11 +68,11 @@ export async function* stream(
 		getScheduleTool,
 		listSchedulesTool,
 		runScheduleNowTool,
-		researchTool,
 	];
 
 	const mcp = await loadMcpTools();
 	tools.push(...mcp.tools);
+	tools.push(subagentTool([...tools]));
 
 	yield {
 		type: 'run_started',
