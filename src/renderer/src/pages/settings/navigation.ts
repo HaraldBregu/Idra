@@ -77,7 +77,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToVideo,
-		path: `/settings/model-services/${AGENTS.textToVideo}/details`,
+		path: '/settings/text-to-video',
 		labelKey: 'settings.modelServices.videoCreatorName',
 		descriptionKey: 'settings.modelServices.videoCreatorDescription',
 		keywords: 'text to video generation model',
@@ -86,7 +86,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToAudio,
-		path: `/settings/model-services/${AGENTS.textToAudio}/details`,
+		path: '/settings/text-to-audio',
 		labelKey: 'settings.modelServices.musicCreatorName',
 		descriptionKey: 'settings.modelServices.musicCreatorDescription',
 		keywords: 'music audio generation creator model',
