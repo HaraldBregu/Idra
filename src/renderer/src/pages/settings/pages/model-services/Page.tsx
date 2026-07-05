@@ -692,8 +692,7 @@ const ModelServicePage: React.FC = () => {
 										triggerDescription: summary,
 										providerDescription: t(config.providerDescriptionKey),
 										modelDescription: t(config.modelDescriptionKey),
-										providerFieldId: `model-service-${config.mode}-provider`,
-										modelFieldId: `model-service-${config.mode}-model`,
+										idPrefix: `model-service-${config.mode}`,
 										showInlineError: true,
 										onProviderChange: (nextProviderId) =>
 											handleSpeechProviderChange(config.mode, nextProviderId),
