@@ -233,10 +233,6 @@ export function ModelProviderSelect({
 			</div>
 		);
 
-	if (layout === 'inline') {
-		return content;
-	}
-
 	return (
 		<Collapsible className="rounded-lg border border-border/70 bg-card">
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
