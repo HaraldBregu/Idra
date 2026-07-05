@@ -77,6 +77,7 @@ export function ModelProviderSelect({
 	onProviderChange,
 	onModelChange,
 	disabled = false,
+	modelDisabled,
 	labels,
 	showFieldDescriptions = false,
 }: ModelProviderSelectProps): React.JSX.Element {
@@ -85,15 +86,19 @@ export function ModelProviderSelect({
 		() => providerGroups.find((group) => group.id === providerId),
 		[providerGroups, providerId]
 	);
+	const providerDescription =
+		labels?.providerDescription ??
+		(showFieldDescriptions ? t('settings.modelServices.providerDescription') : undefined);
+	const modelDescription =
+		labels?.modelDescription ??
+		(showFieldDescriptions ? t('settings.modelServices.modelDescription') : undefined);
 
 	return (
 		<div className="grid gap-3 sm:grid-cols-2">
 			<SettingsField
 				id={`${idPrefix}-provider`}
 				label={labels?.provider ?? t('settings.modelServices.provider')}
-				description={
-					showFieldDescriptions ? t('settings.modelServices.providerDescription') : undefined
-				}
+				description={providerDescription}
 			>
 				<Select
 					value={providerId}
