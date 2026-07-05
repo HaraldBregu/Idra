@@ -58,5 +58,4 @@ export interface SessionState {
 	stopReason?: string;
 	sessionsPath: string;
 	folderName: string;
-	skillId?: string;
 }
