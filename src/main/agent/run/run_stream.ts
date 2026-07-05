@@ -71,7 +71,7 @@ export async function* stream(
 	tools.push(...mcp.tools);
 	tools.push(subagentTool([...tools]));
 
-	session.skill = undefined;
+	session.context.skill = undefined;
 
 	yield {
 		type: 'run_started',
