@@ -55,6 +55,7 @@ const TextToSpeechPage: React.FC = () => {
 
 	useEffect(() => {
 		if (!service) return;
+		const activeService = service;
 		let mounted = true;
 
 		async function loadService(): Promise<void> {
@@ -67,7 +68,7 @@ const TextToSpeechPage: React.FC = () => {
 			}));
 
 			try {
-				const selection = await service.getSelection();
+				const selection = await activeService.getSelection();
 				const providers = TEXT_TO_SPEECH_PROVIDER_IDS.flatMap((providerId) => {
 					const provider = getCatalogProviderById(providerId);
 					return provider ? [toPublicProvider(provider)] : [];
