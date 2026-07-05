@@ -15,6 +15,7 @@ import {
 import { TitleBar } from './components/app/titlebar/TitleBar';
 import { Layout as SettingsLayout } from './pages/settings';
 import { SettingsPageSkeleton } from './pages/settings/components';
+import { SETTINGS_MODEL_SERVICE_ITEMS } from './pages/settings/navigation';
 import { useTranslation } from 'react-i18next';
 import { CommandMenu, PageTransition } from './experience';
 import { ChatModeContext, type ChatMode } from './contexts/chat-mode';
