@@ -101,6 +101,8 @@ export class Agent {
 			}
 			return response;
 		} catch (error) {
+			// A run superseded by cancel/new message ends quietly instead of surfacing an error.
+			if (controller?.signal.aborted) return response;
 			const cause = toError(error, 'Agent request failed.');
 			const responseEvent = {
 				type: 'run_state',
