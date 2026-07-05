@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, LoaderCircle, Save, Sparkles } from 'lucide-react';
+import { AlertTriangle, Sparkles } from 'lucide-react';
 import {
 	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_IMAGE_PROVIDER_IDS,
 } from '../../../../../../shared/provider_models_definitions';
 import { Button } from '@/components/ui/button';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { getProviderCatalogItem } from '../../../start/constants';
+import {
+	firstModelIdForProvider,
+	type ModelProviderGroup,
+	ModelProviderSelect,
+} from '@/components/model-provider-select';
 import {
 	SettingsField,
 	SettingsNotice,
@@ -24,13 +21,12 @@ import {
 	SettingsSection,
 } from '../../components';
 
-const MODELS_BY_PROVIDER = TEXT_TO_IMAGE_MODELS_BY_PROVIDER as Readonly<
-	Record<string, readonly { readonly id: string; readonly name: string }[]>
->;
-
-function modelsFor(providerId: string): readonly { readonly id: string; readonly name: string }[] {
-	return MODELS_BY_PROVIDER[providerId] ?? [];
-}
+const IMAGE_PROVIDER_GROUPS: readonly ModelProviderGroup[] = TEXT_TO_IMAGE_PROVIDER_IDS.map(
+	(id) => ({
+		id,
+		models: TEXT_TO_IMAGE_MODELS_BY_PROVIDER[id] ?? [],
+	})
+).filter((group) => group.models.length > 0);
 
 const ImagePage: React.FC = () => {
 	const { t } = useTranslation();
