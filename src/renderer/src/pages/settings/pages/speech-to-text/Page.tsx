@@ -9,7 +9,6 @@ import {
 import type { SpeechToTextApiType } from '../../../../../../shared/provider_models_types';
 import type { SttSelectionMode } from '../../../../../../shared/stt_transcription';
 import type { Model } from '@/lib/compat';
-import type { PublicProvider } from '../../../../../../shared';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
