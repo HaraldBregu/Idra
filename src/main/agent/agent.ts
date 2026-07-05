@@ -239,6 +239,9 @@ function runtimeEventToAgentEvents(
 	if (event.type === 'model_call_start') {
 		return [{ type: 'model_selected', model: event.model, effort: event.effort, agentId, runId }];
 	}
+	if (event.type === 'skill_selected') {
+		return [{ type: 'skill_selected', skill: event.skill, agentId, runId }];
+	}
 	if (event.type === 'model_call_delta') {
 		return [{ type: 'text_delta', delta: event.delta, agentId, runId }];
 	}
