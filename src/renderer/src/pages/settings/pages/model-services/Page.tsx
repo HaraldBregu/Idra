@@ -574,70 +574,34 @@ const ModelServicePage: React.FC = () => {
 								</SettingsNotice>
 							)}
 
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField
-									id={providerFieldId}
-									label={t('settings.modelServices.provider')}
-									description={providerDescription}
-								>
-									<Select
-										value={configState.providerId}
-										onValueChange={onProviderChange}
-										disabled={
-											configState.loading ||
-											configState.saving ||
-											configState.modelGroups.length === 0
-										}
-									>
-										<SelectTrigger id={providerFieldId} className="w-full text-xs">
-											<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
-										</SelectTrigger>
-										<SelectContent>
-											{configState.modelGroups.map((item) => (
-												<SelectItem key={item.provider.id} value={item.provider.id}>
-													{getProviderCatalogItem(item.provider.id).name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-
-								<SettingsField
-									id={modelFieldId}
-									label={t('settings.modelServices.model')}
-									description={modelDescription}
-								>
-									<Select
-										value={configState.modelId}
-										onValueChange={onModelChange}
-										disabled={
-											configState.loading ||
-											configState.loadingModels ||
-											configState.saving ||
-											!provider ||
-											!group ||
-											group.models.length === 0
-										}
-									>
-										<SelectTrigger id={modelFieldId} className="w-full text-xs">
-											<SelectValue
-												placeholder={
-													configState.loadingModels
-														? t('settings.modelServices.modelsLoading')
-														: t('settings.modelServices.modelPlaceholder')
-												}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{group?.models.map((item) => (
-												<SelectItem key={item.id} value={item.id}>
-													{item.name || item.id}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-							</div>
+							<ModelProviderSelect
+								idPrefix={idPrefix}
+								providerGroups={toModelProviderGroups(configState.modelGroups)}
+								providerId={configState.providerId}
+								modelId={configState.modelId}
+								onProviderChange={(nextProviderId) => onProviderChange(nextProviderId)}
+								onModelChange={(nextModelId) => onModelChange(nextModelId)}
+								disabled={
+									configState.loading ||
+									configState.saving ||
+									configState.modelGroups.length === 0
+								}
+								modelDisabled={
+									configState.loading ||
+									configState.loadingModels ||
+									configState.saving ||
+									!provider ||
+									!group ||
+									group.models.length === 0
+								}
+								labels={{
+									providerDescription,
+									modelDescription,
+									modelPlaceholder: configState.loadingModels
+										? t('settings.modelServices.modelsLoading')
+										: undefined,
+								}}
+							/>
 
 							{configState.providers.length === 0 && (
 								<p className="text-[11px] leading-4 text-muted-foreground">
