@@ -177,7 +177,7 @@ export function ModelProviderSelect({
 	providerId,
 	modelId,
 	...fieldsProps
-}: ModelProviderSelectProps): React.ReactNode {
+}: ModelProviderSelectProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const selectedGroup = useMemo(
 		() => providerGroups.find((group) => group.id === providerId),
