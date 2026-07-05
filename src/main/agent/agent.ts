@@ -29,6 +29,8 @@ export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
 	category?: SessionCategory;
+	providerId?: string;
+	modelId?: string;
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
