@@ -18,9 +18,9 @@ export interface PermissionsSchema {
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultMode: 'allow',
 	tools: {
-		write: { mode: 'ask' },
 		edit: { mode: 'ask' },
 		exec: { mode: 'ask' },
+		apply_patch: { mode: 'ask' },
 	},
 };
 
