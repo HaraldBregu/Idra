@@ -29,13 +29,18 @@ export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 
 		const entries: LlmTranscriptEntry[] = [{ role: 'assistant', content }];
 		for (const toolCall of message.toolCalls ?? []) {
-			if (!toolCall.result) continue;
+			// Providers reject assistant tool_calls without a matching tool message,
+			// so a missing result (cancelled or interrupted run) becomes an error reply.
+			const result = toolCall.result ?? {
+				content: 'Error: tool call was cancelled before it completed',
+				isError: true,
+			};
 			entries.push({
 				role: 'tool',
 				toolUseId: toolCall.id,
-				content: [{ type: 'text', text: toTextContent(toolCall.result.content) }],
-				isError: toolCall.result.isError,
-				status: toolCall.result.isError ? 'error' : 'ok',
+				content: [{ type: 'text', text: toTextContent(result.content) }],
+				isError: result.isError,
+				status: result.isError ? 'error' : 'ok',
 			});
 		}
 		return entries;
