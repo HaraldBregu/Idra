@@ -4,7 +4,15 @@ import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
 import { ChannelsChannels } from '../../shared/ipc_channels_definitions';
 import { type Channel, type ChannelStatusEvent, type ChannelType } from '../../shared';
-import { getChannels, setChannelConfig, type ChannelRegistry } from '../channels';
+import {
+	getChannels,
+	getModelId,
+	getProviderId,
+	setChannelConfig,
+	setModelId,
+	setProviderId,
+	type ChannelRegistry,
+} from '../channels';
 import type { LoggerService } from '../shared';
 
 export interface ChannelsIpcDeps {
