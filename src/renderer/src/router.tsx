@@ -4,6 +4,7 @@ import {
 	Outlet,
 	createHashRouter,
 	useLocation,
+	useParams,
 	type RouteObject,
 } from 'react-router-dom';
 import { ErrorBoundary, RouteErrorElement } from './components/app/base/ErrorBoundary';
