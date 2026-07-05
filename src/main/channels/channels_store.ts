@@ -193,7 +193,7 @@ function validateChannelConfig(value: unknown): string | undefined {
 	if (config.isolatedSession !== undefined && typeof config.isolatedSession !== 'boolean') {
 		return 'isolatedSession must be a boolean';
 	}
-	for (const field of ['token', 'defaultAccountId', 'defaultTarget', 'providerId', 'modelId']) {
+	for (const field of ['token', 'defaultAccountId', 'defaultTarget']) {
 		if (config[field] !== undefined && typeof config[field] !== 'string') {
 			return `${field} must be a string`;
 		}
