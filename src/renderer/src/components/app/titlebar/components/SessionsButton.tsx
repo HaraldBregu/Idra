@@ -34,24 +34,6 @@ export function SessionsButton(): ReactElement {
 	}, [setSessionId]);
 
 	const newChatLabel = t('titleBar.newChat', 'New chat');
-
-	if (sessions.length <= 1) {
-		return (
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="size-8 rounded-full"
-				onPointerEnter={refresh}
-				onClick={newSession}
-				title={newChatLabel}
-				aria-label={newChatLabel}
-			>
-				<Plus className="size-4" strokeWidth={1.8} />
-			</Button>
-		);
-	}
-
 	const historyLabel = t('titleBar.chatHistory', 'Chat history');
 	const currentSessionId =
 		sessionId === DEFAULT_CHAT_SESSION_ID ? sessions[0]?.id : sessionId;
