@@ -45,7 +45,7 @@ export interface SettingsModelServiceItem {
 export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] = [
 	{
 		id: AGENTS.assistant,
-		path: '/settings/model-services/assistant/details',
+		path: '/settings/assistant',
 		labelKey: 'settings.modelServices.assistantName',
 		descriptionKey: 'settings.modelServices.fridayDescription',
 		keywords: 'friday service default provider model',
@@ -53,7 +53,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.speechToText,
-		path: `/settings/model-services/${AGENTS.speechToText}/details`,
+		path: '/settings/speech-to-text',
 		labelKey: 'settings.modelServices.speechTranscriberName',
 		descriptionKey: 'settings.modelServices.speechTranscriberDescription',
 		keywords: 'speech transcription transcribe audio voice microphone model',
@@ -61,7 +61,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToSpeech,
-		path: `/settings/model-services/${AGENTS.textToSpeech}/details`,
+		path: '/settings/text-to-speech',
 		labelKey: 'settings.modelServices.voiceName',
 		descriptionKey: 'settings.modelServices.voiceDescription',
 		keywords: 'voice text to speech tts output speaking audio synthesis model',
