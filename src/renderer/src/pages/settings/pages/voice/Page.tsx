@@ -201,4 +201,4 @@ const VoicePage: React.FC = () => {
 	);
 };
 
-export default TextToSpeechPage;
+export default VoicePage;
