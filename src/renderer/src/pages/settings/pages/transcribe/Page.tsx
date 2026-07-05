@@ -247,7 +247,7 @@ const TranscribePage: React.FC = () => {
 								triggerDescription={summary}
 								providerDescription={t(config.providerDescriptionKey)}
 								modelDescription={t(config.modelDescriptionKey)}
-								idPrefix={`speech-to-text-${config.mode}`}
+								idPrefix={`transcribe-${config.mode}`}
 								showInlineError
 								onProviderChange={(nextProviderId) =>
 									handleSpeechProviderChange(config.mode, nextProviderId)
