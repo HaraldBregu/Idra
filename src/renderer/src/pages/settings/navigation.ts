@@ -127,7 +127,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	{ path: '/settings/tasks/health', labelKey: 'settings.health.checklistTitle', descriptionKey: 'settings.health.checklistDescription', keywords: 'health checklist instructions agent HEALTH.md' },
 	// Model services
 	...SETTINGS_MODEL_SERVICE_ITEMS,
-	{ path: '/settings/model-services/assistant/details/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
+	{ path: '/settings/assistant/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
