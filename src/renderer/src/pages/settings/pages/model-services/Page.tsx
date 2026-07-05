@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
 import { AlertTriangle, ChevronDown, LoaderCircle, Save, Trash2 } from 'lucide-react';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared';
 import {
