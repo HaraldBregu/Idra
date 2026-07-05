@@ -119,47 +119,26 @@ const HealthPage: React.FC = () => {
 						description={t('settings.health.settingsDescription')}
 					>
 						<div className="grid gap-3">
-							<div className="grid gap-3 sm:grid-cols-2">
-								<SettingsField id="health-provider" label={t('settings.health.fields.provider')}>
-									<Select
-										value={settings.providerId ?? ''}
-										onValueChange={handleProviderChange}
-										disabled={saving}
-									>
-										<SelectTrigger id="health-provider" className="w-full text-xs">
-											<SelectValue
-												placeholder={t('settings.health.fields.providerPlaceholder')}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{PROVIDER_GROUPS.map((group) => (
-												<SelectItem key={group.id} value={group.id}>
-													{getProviderCatalogItem(group.id).name}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-
-								<SettingsField id="health-model" label={t('settings.health.fields.model')}>
-									<Select
-										value={settings.modelId ?? ''}
-										onValueChange={(value) => update({ modelId: value ?? undefined })}
-										disabled={saving || !selectedGroup || selectedGroup.models.length === 0}
-									>
-										<SelectTrigger id="health-model" className="w-full text-xs">
-											<SelectValue placeholder={t('settings.health.fields.modelPlaceholder')} />
-										</SelectTrigger>
-										<SelectContent>
-											{selectedGroup?.models.map((model) => (
-												<SelectItem key={model.id} value={model.id}>
-													{model.name || model.id}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-							</div>
+							<ModelProviderSelect
+								idPrefix="health"
+								providerGroups={LLM_PROVIDER_GROUPS}
+								providerId={settings.providerId ?? ''}
+								modelId={settings.modelId ?? ''}
+								onProviderChange={(nextProviderId) =>
+									update({
+										providerId: nextProviderId,
+										modelId: firstModelIdForProvider(LLM_PROVIDER_GROUPS, nextProviderId),
+									})
+								}
+								onModelChange={(nextModelId) => update({ modelId: nextModelId })}
+								disabled={saving}
+								labels={{
+									provider: t('settings.health.fields.provider'),
+									model: t('settings.health.fields.model'),
+									providerPlaceholder: t('settings.health.fields.providerPlaceholder'),
+									modelPlaceholder: t('settings.health.fields.modelPlaceholder'),
+								}}
+							/>
 
 							<div className="grid gap-3 sm:grid-cols-3">
 								<SettingsField id="health-every" label={t('settings.health.fields.every')}>
