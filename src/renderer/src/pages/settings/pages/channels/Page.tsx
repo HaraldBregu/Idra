@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, CircleOff } from 'lucide-react';
+import { ChevronRight, CircleOff, Cpu, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
+import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
 import { CHANNEL_CATALOG, type ChannelConnectionStatus, type ChannelType } from '../../../../../../shared';
+import {
+	LLM_MODELS_BY_PROVIDER,
+	LLM_PROVIDERS,
+} from '../../../../../../shared/provider_models_definitions';
+import { getProviderCatalogItem } from '../../../start/constants';
 import { ChannelIcon } from './ChannelIcon';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
