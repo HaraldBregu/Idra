@@ -1,8 +1,9 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import {
+	addToolAllowedCommand,
 	addToolAllowedPath,
 	resolveToolPermission,
-	setToolPermission,
+	toolCommandName,
 	toolPathDir,
 	waitForToolPermission,
 } from '../policy';
