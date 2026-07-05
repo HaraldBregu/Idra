@@ -62,19 +62,23 @@ export function SessionsButton(): ReactElement {
 					<Plus className="size-4" />
 					{newChatLabel}
 				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				{sessions.map((session) => (
-					<DropdownMenuCheckboxItem
-						key={session.id}
-						checked={session.id === currentSessionId}
-						closeOnClick
-						onClick={() => setSessionId(session.id)}
-					>
-						<span className="truncate">
-							{session.title || new Date(session.createdAtMs).toLocaleString()}
-						</span>
-					</DropdownMenuCheckboxItem>
-				))}
+				{sessions.length > 0 && (
+					<>
+						<DropdownMenuSeparator />
+						{sessions.map((session) => (
+							<DropdownMenuCheckboxItem
+								key={session.id}
+								checked={session.id === currentSessionId}
+								closeOnClick
+								onClick={() => setSessionId(session.id)}
+							>
+								<span className="truncate">
+									{session.title || new Date(session.createdAtMs).toLocaleString()}
+								</span>
+							</DropdownMenuCheckboxItem>
+						))}
+					</>
+				)}
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);
