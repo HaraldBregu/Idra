@@ -125,14 +125,14 @@ export function ModelProviderSelect({
 			<SettingsField
 				id={`${idPrefix}-model`}
 				label={labels?.model ?? t('settings.modelServices.model')}
-				description={
-					showFieldDescriptions ? t('settings.modelServices.modelDescription') : undefined
-				}
+				description={modelDescription}
 			>
 				<Select
 					value={modelId}
 					onValueChange={(value) => onModelChange(value ?? '')}
-					disabled={disabled || !selectedGroup || selectedGroup.models.length === 0}
+					disabled={
+						modelDisabled ?? (disabled || !selectedGroup || selectedGroup.models.length === 0)
+					}
 				>
 					<SelectTrigger id={`${idPrefix}-model`} className="w-full text-xs">
 						<SelectValue
