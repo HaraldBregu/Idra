@@ -98,6 +98,7 @@ export interface RuntimeInput extends Pick<
 > {
 	task: string;
 	message: string;
+	providerId?: string;
 }
 
 export interface RuntimeModelRoute {
