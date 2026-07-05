@@ -20,6 +20,7 @@ export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	tools: {
 		write: { mode: 'ask' },
 		edit: { mode: 'ask' },
+		exec: { mode: 'ask' },
 	},
 };
 
