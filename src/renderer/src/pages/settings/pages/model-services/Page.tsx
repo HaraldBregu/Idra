@@ -33,7 +33,6 @@ import {
 import type { ModelServiceDefinition, ProviderModelGroup } from '../../../start/types';
 import {
 	SettingsEmptyState,
-	SettingsField,
 	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
