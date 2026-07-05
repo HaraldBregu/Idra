@@ -47,6 +47,18 @@ export function resolveStoredModelProvider(
 	};
 }
 
+export function toModelProviderGroups(
+	groups: readonly {
+		readonly provider: { readonly id: string };
+		readonly models: readonly { readonly id: string; readonly name: string }[];
+	}[]
+): readonly ModelProviderGroup[] {
+	return groups.map((group) => ({
+		id: group.provider.id,
+		models: group.models,
+	}));
+}
+
 interface ModelProviderSelectLabels {
 	readonly provider?: string;
 	readonly model?: string;
