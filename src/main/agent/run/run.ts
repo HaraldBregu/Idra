@@ -6,9 +6,8 @@ export async function* run(
 	config: Config,
 	session: SessionState,
 	input: RuntimeInput,
+	signal: AbortSignal,
 ): AsyncGenerator<RuntimeEvent> {
-	const signal = new AbortController().signal;
-
 	try {
 		for await (const event of stream(config, session, input, signal)) {
 			appendRun(session, event);
