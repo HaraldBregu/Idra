@@ -24,6 +24,7 @@ export async function runSubagent(task: string, tools: Tool[]): Promise<string> 
 		throw new Error('Subagent requires a configured provider and model.');
 
 	const signal = new AbortController().signal;
+	const systemPrompt = addSkillPrompt(instructions);
 	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 	const input: RuntimeInput = { task: 'subagent', message: task };
 	// Fresh context: the subagent never sees the main agent's conversation.
