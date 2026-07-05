@@ -55,7 +55,7 @@ export function toolPartLabel(tool: AgentToolPart): string {
 
 type ToolVerbs = { readonly running: string; readonly done: string };
 
-function toolVerbs(type: string): ToolVerbs {
+export function toolVerbs(type: string): ToolVerbs {
 	const t = type.toLowerCase();
 	if (t === 'edit' || t === 'write' || t === 'apply_patch') {
 		return { running: 'Editing', done: 'Edited' };
