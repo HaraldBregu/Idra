@@ -46,21 +46,28 @@ const ChannelsPage: React.FC = () => {
 	const [statusByChannel, setStatusByChannel] = useState<
 		Partial<Record<ChannelType, ChannelConnectionStatus>>
 	>({});
+	const [providerId, setProviderId] = useState('');
+	const [modelId, setModelId] = useState('');
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
 
-		window.channels
-			.getStatus()
-			.then((telegramStatus) => {
+		Promise.all([
+			window.channels.getStatus(),
+			window.channels.getProviderId(),
+			window.channels.getModelId(),
+		])
+			.then(([telegramStatus, storedProviderId, storedModelId]) => {
 				if (!mounted) return;
 				if (telegramStatus) {
 					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
 				}
+				setProviderId(storedProviderId);
+				setModelId(storedModelId);
 			})
 			.catch((error) => {
-				console.error('[ChannelsPage] Failed to load channel status:', error);
+				console.error('[ChannelsPage] Failed to load channel settings:', error);
 				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
 			});
 
@@ -74,6 +81,18 @@ const ChannelsPage: React.FC = () => {
 			unsubscribe();
 		};
 	}, []);
+
+	const saveModelSelection = (nextProviderId: string, nextModelId: string): void => {
+		setProviderId(nextProviderId);
+		setModelId(nextModelId);
+		setLoadError(null);
+		Promise.all([
+			window.channels.setProviderId(nextProviderId),
+			nextModelId ? window.channels.setModelId(nextModelId) : Promise.resolve(),
+		]).catch((error) => {
+			setLoadError(error instanceof Error ? error.message : String(error));
+		});
+	};
 
 	return (
 		<SettingsPageShell>
