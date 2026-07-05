@@ -73,12 +73,15 @@ const ImagePage: React.FC = () => {
 		};
 	}, []);
 
-	const models = modelsFor(providerId);
+	const handleProviderChange = (nextProviderId: string): void => {
+		setProviderId(nextProviderId);
+		setModelId(firstModelIdForProvider(IMAGE_PROVIDER_GROUPS, nextProviderId));
+		setSaved(false);
+		setError(null);
+	};
 
-	const handleProviderChange = (nextProviderId: string | null): void => {
-		const id = nextProviderId ?? '';
-		setProviderId(id);
-		setModelId(modelsFor(id)[0]?.id ?? '');
+	const handleModelChange = (nextModelId: string): void => {
+		setModelId(nextModelId);
 		setSaved(false);
 		setError(null);
 	};
