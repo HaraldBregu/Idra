@@ -1,6 +1,6 @@
-import { isPathWithin, toolPathDir } from './permissions_path';
-import { getToolAllowedPaths, getToolPermission } from './permissions_store';
-import { isPermissionGatedTool, type PermissionMode } from './permissions_types';
+import { isPathWithin, toolPathDir } from './policy_path';
+import { getToolAllowedPaths, getToolPermission } from './policy_store';
+import { isPermissionGatedTool, type PermissionMode } from './policy_types';
 
 export function resolveToolPermission(
 	toolName: string,
