@@ -46,6 +46,17 @@ const SpeechToTextPage = lazy(() => import('./pages/settings/pages/speech-to-tex
 const TextToSpeechPage = lazy(() => import('./pages/settings/pages/text-to-speech/Page'));
 const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
 
+function ModelServiceLegacyRedirect(): React.JSX.Element {
+	const location = useLocation();
+	const { serviceId } = useParams();
+	const decoded = decodeURIComponent(serviceId ?? '');
+	const normalized = decoded === 'friday' || decoded === 'main' ? 'assistant' : decoded;
+	const item = SETTINGS_MODEL_SERVICE_ITEMS.find((entry) => entry.id === normalized);
+	if (!item) return <Navigate to="/settings" replace />;
+	const isChatHistory = location.pathname.endsWith('/chathistory');
+	return <Navigate to={isChatHistory ? `${item.path}/chathistory` : item.path} replace />;
+}
+
 function RouteWrapper({
 	children,
 	fallback = <PageLoadingSkeleton />,
