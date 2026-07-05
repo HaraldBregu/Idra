@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { getChannelCatalogEntry } from '../../../../../shared';
-import { AGENTS } from '@/lib/compat';
 import { SETTINGS_MODEL_SERVICE_ITEMS, SETTINGS_NAVIGATION } from '../navigation';
 
 interface SettingsBreadcrumbItem {
@@ -42,25 +41,15 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname === '/settings') return [];
 
-	if (location.pathname.startsWith('/settings/model-services/')) {
-		const parts = location.pathname.split('/');
-		const serviceId = decodeURIComponent(parts[3] ?? '');
-		const isChatHistoryPage = parts[5] === 'chathistory';
-		const normalizedServiceId = serviceId === 'friday' || serviceId === 'main'
-			? AGENTS.assistant
-			: serviceId;
-		const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find(
-			(item) => item.id === normalizedServiceId
-		);
-		const label = serviceItem ? t(serviceItem.labelKey) : serviceId;
-		const items: SettingsBreadcrumbItem[] = [{
-			label,
-			path: isChatHistoryPage ? `/settings/model-services/${encodeURIComponent(serviceId)}/details` : undefined,
-		}];
-		if (isChatHistoryPage) {
-			items.push({ label: t('settings.modelServices.history') });
-		}
-		return items;
+	if (location.pathname === '/settings/assistant/chathistory') {
+		const assistantItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === 'assistant');
+		return [
+			{
+				label: assistantItem ? t(assistantItem.labelKey) : t('settings.modelServices.assistantName'),
+				path: '/settings/assistant',
+			},
+			{ label: t('settings.modelServices.history') },
+		];
 	}
 
 	const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find(
