@@ -264,10 +264,15 @@ async function loadSpeechModeState(
 	}
 }
 
-const ModelServicePage: React.FC = () => {
+interface ModelServiceSettingsPageProps {
+	readonly serviceId: string;
+}
+
+export function ModelServiceSettingsPage({
+	serviceId: rawServiceId,
+}: ModelServiceSettingsPageProps): React.JSX.Element {
 	const { t } = useTranslation();
-	const { serviceId: routeServiceId } = useParams();
-	const serviceId = normalizeServiceId(routeServiceId);
+	const serviceId = normalizeServiceId(rawServiceId);
 	const service = MODEL_SERVICE_DEFINITIONS.find(
 		(definition): definition is ModelServiceDefinition => definition.id === serviceId
 	);
