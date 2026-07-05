@@ -40,6 +40,34 @@ export class ChannelsIpc implements IpcModule<ChannelsIpcDeps> {
 		);
 
 		ipcMain.handle(
+			ChannelsChannels.getProviderId,
+			wrapSimpleHandler((): string => {
+				return getProviderId();
+			}, ChannelsChannels.getProviderId)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.setProviderId,
+			wrapSimpleHandler((providerId: string): void => {
+				setProviderId(providerId);
+			}, ChannelsChannels.setProviderId)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.getModelId,
+			wrapSimpleHandler((): string => {
+				return getModelId();
+			}, ChannelsChannels.getModelId)
+		);
+
+		ipcMain.handle(
+			ChannelsChannels.setModelId,
+			wrapSimpleHandler((modelId: string): void => {
+				setModelId(modelId);
+			}, ChannelsChannels.setModelId)
+		);
+
+		ipcMain.handle(
 			ChannelsChannels.getStatus,
 			wrapSimpleHandler((type?: ChannelType): ChannelStatusEvent | undefined => {
 				return channelRegistry.getStatus(type);
