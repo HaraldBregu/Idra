@@ -10,7 +10,13 @@ import {
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import type { AgentToolPart } from '../context';
-import { isToolRunning, toolActivitySummary, toolGroupLabel, toolPartLabel } from './tool-label';
+import {
+	isToolRunning,
+	toolActivitySummary,
+	toolGroupLabel,
+	toolPartLabel,
+	toolVerbs,
+} from './tool-label';
 
 type ToolTypeGroup = {
 	readonly type: string;
