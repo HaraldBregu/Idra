@@ -98,7 +98,7 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				chatType: message.chatType,
 			});
 			const response = await agentService.send(message.text, 'channels', {
-				category: 'channel',
+				category: 'bot',
 				sessionId: CHANNEL_SESSION_ID,
 			});
 			await reply(response);
