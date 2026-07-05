@@ -274,6 +274,43 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'assistant',
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<AssistantPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'chathistory',
+								element: (
+									<SettingsRouteWrapper>
+										<AssistantPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
+					},
+					{
+						path: 'speech-to-text',
+						element: (
+							<SettingsRouteWrapper>
+								<SpeechToTextPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'text-to-speech',
+						element: (
+							<SettingsRouteWrapper>
+								<TextToSpeechPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'image',
 						element: (
 							<SettingsRouteWrapper>
@@ -282,25 +319,8 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'model-services',
-						children: [
-							{
-								path: ':serviceId/details',
-								element: (
-									<SettingsRouteWrapper>
-										<ModelServicePage />
-									</SettingsRouteWrapper>
-								),
-							},
-							{
-								path: ':serviceId/details/chathistory',
-								element: (
-									<SettingsRouteWrapper>
-										<ModelServicePage />
-									</SettingsRouteWrapper>
-								),
-							},
-						],
+						path: 'model-services/:serviceId/details/*',
+						element: <Navigate to="/settings" replace />,
 					},
 					{
 						path: '*',
