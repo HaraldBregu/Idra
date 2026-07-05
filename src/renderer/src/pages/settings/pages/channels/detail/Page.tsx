@@ -305,11 +305,12 @@ const ChannelDetailPage: React.FC = () => {
 							<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
 								<Select
 									value={selectedConfig?.modelId ?? ''}
-									onValueChange={(value) =>
+									onValueChange={(value) => {
+										if (!value) return;
 										updateSelectedConfig((config) => ({ ...config, modelId: value }), {
 											save: true,
-										})
-									}
+										});
+									}}
 									disabled={modelsFor(selectedConfig?.providerId ?? '').length === 0}
 								>
 									<SelectTrigger id={`${selectedId}-model`} className="w-full text-xs">
