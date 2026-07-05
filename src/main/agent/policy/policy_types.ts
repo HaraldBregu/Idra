@@ -1,6 +1,6 @@
 export type PermissionMode = 'allow' | 'deny' | 'ask';
 
-export const PERMISSION_GATED_TOOLS = ['write', 'edit', 'exec'] as const;
+export const PERMISSION_GATED_TOOLS = ['edit', 'exec', 'apply_patch'] as const;
 
 export type PermissionGatedTool = (typeof PERMISSION_GATED_TOOLS)[number];
 
