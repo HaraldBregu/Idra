@@ -27,7 +27,7 @@ function groupToolsByType(tools: readonly AgentToolPart[]): ToolTypeGroup[] {
 	const groups: ToolTypeGroup[] = [];
 	for (const tool of tools) {
 		const last = groups[groups.length - 1];
-		if (last && last.type === tool.type) {
+		if (last && toolVerbs(last.type).done === toolVerbs(tool.type).done) {
 			last.tools.push(tool);
 		} else {
 			groups.push({ type: tool.type, tools: [tool] });
