@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared';
 import { TEXT_TO_SPEECH_PROVIDER_IDS } from '../../../../../../shared/provider_models_definitions';
-import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
 	SettingsNotice,
