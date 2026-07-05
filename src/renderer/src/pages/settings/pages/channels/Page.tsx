@@ -37,13 +37,15 @@ import { ChannelIcon } from './ChannelIcon';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
 
-const MODELS_BY_PROVIDER = LLM_MODELS_BY_PROVIDER as Readonly<
-	Record<string, readonly { readonly id: string; readonly name: string }[]>
->;
-
-function modelsFor(providerId: string): readonly { readonly id: string; readonly name: string }[] {
-	return MODELS_BY_PROVIDER[providerId] ?? [];
+interface ProviderGroup {
+	readonly id: string;
+	readonly models: readonly { readonly id: string; readonly name: string }[];
 }
+
+const PROVIDER_GROUPS: readonly ProviderGroup[] = LLM_PROVIDERS.map((id) => ({
+	id,
+	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
+})).filter((group) => group.models.length > 0);
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
