@@ -133,6 +133,13 @@ app.whenReady().then(async () => {
 	// Create main window
 	mainWindow.create();
 
+	// Start enabled messaging channels (registry skips disabled/unconfigured ones)
+	for (const channel of CHANNEL_PROVIDER_IDS) {
+		services.channelRegistry.start(channel).catch((error) => {
+			logger.error('Main', `Failed to start ${channel} channel`, error);
+		});
+	}
+
 	// Update tray menu when window visibility changes
 	mainWindow.setOnWindowVisibilityChange(() => {
 		trayManager.updateContextMenu();
