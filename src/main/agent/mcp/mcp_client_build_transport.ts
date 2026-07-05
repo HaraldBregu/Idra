@@ -10,7 +10,7 @@ export function buildTransport(id: string, data: McpData): Transport {
 		return new StdioClientTransport({
 			command: data.command,
 			args: data.args ? [...data.args] : undefined,
-			env: data.env ? { ...data.env } : undefined,
+			env: data.env ? { ...getDefaultEnvironment(), ...data.env } : undefined,
 			cwd: data.cwd,
 		});
 	}
