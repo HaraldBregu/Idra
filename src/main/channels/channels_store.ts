@@ -60,9 +60,29 @@ export function getChannelsStore(): ChannelsStoreState {
 export function getChannels(): Channel {
 	return {
 		defaults: readDefaults(),
+		providerId: getProviderId(),
+		modelId: getModelId(),
 		telegram: getChannelConfig('telegram'),
 		discord: getChannelConfig('discord'),
 	};
+}
+
+export function getProviderId(): string {
+	const providerId = store.get('providerId');
+	return typeof providerId === 'string' ? providerId.trim() : '';
+}
+
+export function setProviderId(providerId: string): void {
+	store.set('providerId', providerId.trim());
+}
+
+export function getModelId(): string {
+	const modelId = store.get('modelId');
+	return typeof modelId === 'string' ? modelId.trim() : '';
+}
+
+export function setModelId(modelId: string): void {
+	store.set('modelId', modelId.trim());
 }
 
 export function getChannelConfig<TKey extends ChannelType>(channel: TKey): Channel[TKey] {
