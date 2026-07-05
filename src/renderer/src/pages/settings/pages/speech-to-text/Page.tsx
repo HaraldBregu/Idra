@@ -54,20 +54,6 @@ const SPEECH_MODE_CONFIGS: readonly SpeechModeConfig[] = [
 	},
 ];
 
-function toPublicProvider(provider: CatalogProvider): PublicProvider {
-	return {
-		id: provider.id,
-		name: provider.name,
-		baseUrl: provider.baseUrl,
-		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
-		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
-	};
-}
-
-function getCatalogProviderById(providerId: string): CatalogProvider | undefined {
-	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
-}
-
 function speechModeApiType(mode: SttSelectionMode): SpeechToTextApiType {
 	return mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
 }
