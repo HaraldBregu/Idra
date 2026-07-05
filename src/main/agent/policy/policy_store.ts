@@ -6,12 +6,12 @@ import {
 	type PermissionMode,
 	type PermissionsSchema,
 	type ToolPermission,
-} from './permissions_types';
+} from './policy_types';
 
-const PERMISSIONS_STORE_NAME = 'permissions';
+const POLICY_STORE_NAME = 'policy';
 
 const store = new Store<PermissionsSchema>({
-	name: PERMISSIONS_STORE_NAME,
+	name: POLICY_STORE_NAME,
 	cwd: path.resolve(agentLocation()),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_PERMISSIONS,
