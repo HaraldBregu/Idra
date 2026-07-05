@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
-	ModelProviderConfiguration,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -18,6 +17,7 @@ import {
 	SettingsRow,
 	SettingsSection,
 } from '../../components';
+import { ModelProviderConfiguration } from '../../components/model-configuration';
 import {
 	firstErrorMessage,
 	initialModelConfigurationState,
