@@ -146,7 +146,6 @@ const ImagePage: React.FC = () => {
 						loading={loading}
 						saving={saving}
 						saved={saved}
-						error={error}
 						onSave={handleSave}
 						showFieldDescriptions
 						disabled={loading}
