@@ -164,6 +164,22 @@ export interface ChannelsInvokeChannelMap {
 		];
 		result: import('./channels_types').Channel[import('./channels_types').ChannelType];
 	};
+	[ChannelsChannels.getProviderId]: {
+		args: [];
+		result: string;
+	};
+	[ChannelsChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[ChannelsChannels.getModelId]: {
+		args: [];
+		result: string;
+	};
+	[ChannelsChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
 	[ChannelsChannels.getStatus]: {
 		args: [type?: import('./channels_types').ChannelType];
 		result: import('./channels_types').ChannelStatusEvent | undefined;
