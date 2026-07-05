@@ -58,12 +58,13 @@ const ChannelsPage: React.FC = () => {
 				if (telegramStatus) {
 					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
 				}
-				const group =
-					PROVIDER_GROUPS.find((item) => item.id === storedProviderId) ?? PROVIDER_GROUPS[0];
-				const model =
-					group?.models.find((item) => item.id === storedModelId) ?? group?.models[0];
-				setProviderId(group?.id ?? '');
-				setModelId(model?.id ?? '');
+				const resolved = resolveStoredModelProvider(
+					LLM_PROVIDER_GROUPS,
+					storedProviderId,
+					storedModelId
+				);
+				setProviderId(resolved.providerId);
+				setModelId(resolved.modelId);
 			})
 			.catch((error) => {
 				console.error('[ChannelsPage] Failed to load channel settings:', error);
