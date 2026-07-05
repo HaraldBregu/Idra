@@ -53,26 +53,44 @@ export function toolPartLabel(tool: AgentToolPart): string {
 	return capitalizeType(tool.type);
 }
 
-const groupVerbs: Record<string, { readonly running: string; readonly done: string }> = {
-	browser: { running: 'Browsing', done: 'Browsed' },
-};
+type ToolVerbs = { readonly running: string; readonly done: string };
+
+function toolVerbs(type: string): ToolVerbs {
+	const t = type.toLowerCase();
+	if (t === 'edit' || t === 'write' || t === 'apply_patch') {
+		return { running: 'Editing', done: 'Edited' };
+	}
+	if (t === 'browser' || t.startsWith('web_') || t.startsWith('mcp__')) {
+		return { running: 'Browsing', done: 'Browsed' };
+	}
+	if (t.includes('schedule')) return { running: 'Task', done: 'Task' };
+	if (t === 'create_image') return { running: 'Creating image', done: 'Created image' };
+	if (t === 'subagent') return { running: 'Subagent', done: 'Subagent' };
+	if (t.includes('skill')) return { running: 'Skill', done: 'Skill' };
+	return { running: 'Exploring', done: 'Explored' };
+}
 
 export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
-	const verbs = groupVerbs[type.toLowerCase()];
-	if (verbs) return tools.some(isToolRunning) ? verbs.running : verbs.done;
-	return capitalizeType(type);
+	const verbs = toolVerbs(type);
+	return tools.some(isToolRunning) ? verbs.running : verbs.done;
 }
 
 export function isToolRunning(tool: AgentToolPart): boolean {
 	return tool.state === 'input-streaming' || tool.state === 'input-available';
 }
 
+const fileVerbs = new Set(['Exploring', 'Explored', 'Editing', 'Edited']);
+
 export function toolActivitySummary(tools: readonly AgentToolPart[]): {
 	readonly verb: string;
 	readonly detail: string;
 } {
+	const running = tools.some(isToolRunning);
+	const key = running ? 'running' : 'done';
+	const labels = new Set(tools.map((tool) => toolVerbs(tool.type)[key]));
+	const verb =
+		labels.size === 1 ? (labels.values().next().value as string) : running ? 'Working' : 'Finished';
 	const count = tools.length;
-	const verb = tools.some(isToolRunning) ? 'Exploring' : 'Explored';
-	const noun = count === 1 ? 'file' : 'files';
-	return { verb, detail: `${count} ${noun}` };
+	const detail = fileVerbs.has(verb) ? `${count} ${count === 1 ? 'file' : 'files'}` : `${count}`;
+	return { verb, detail };
 }
