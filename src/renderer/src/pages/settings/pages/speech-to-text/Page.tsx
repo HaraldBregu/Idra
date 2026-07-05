@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared';
+import {
+	SPEECH_TO_TEXT_BATCH_API_TYPE,
 	SPEECH_TO_TEXT_STREAM_API_TYPE,
 	supportsSpeechToTextModelApiType,
 } from '../../../../../../shared/provider_models_definitions';
