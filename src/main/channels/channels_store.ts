@@ -103,6 +103,8 @@ function mergeChannelConfig(stored: unknown): Channel[ChannelType] {
 		allowFrom: normalizeStringList(source.allowFrom),
 		enabled: typeof source.enabled === 'boolean' ? source.enabled : false,
 		isolatedSession: typeof source.isolatedSession === 'boolean' ? source.isolatedSession : undefined,
+		providerId: typeof source.providerId === 'string' ? source.providerId : undefined,
+		modelId: typeof source.modelId === 'string' ? source.modelId : undefined,
 		defaultAccountId:
 			typeof source.defaultAccountId === 'string' ? source.defaultAccountId : 'default',
 		defaultTarget: typeof source.defaultTarget === 'string' ? source.defaultTarget : undefined,
