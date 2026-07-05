@@ -1,3 +1,4 @@
+import { createContext } from '../context';
 import type { SessionState } from './session_types';
 
 export function createSessionState(): SessionState {
@@ -12,5 +13,6 @@ export function createSessionState(): SessionState {
 		finalText: '',
 		sessionsPath: '',
 		folderName: '',
+		context: createContext(),
 	};
 }
