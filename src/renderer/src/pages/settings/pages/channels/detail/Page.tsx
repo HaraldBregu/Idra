@@ -38,12 +38,25 @@ import {
 	getChannelCatalogEntry,
 	isChannelId,
 } from '../../../../../../../shared';
+import {
+	LLM_MODELS_BY_PROVIDER,
+	LLM_PROVIDERS,
+} from '../../../../../../../shared/provider_models_definitions';
+import { getProviderCatalogItem } from '../../../../start/constants';
 
 type EditableChannelConfig = Channel[ChannelType];
 type ListField = 'allowFrom' | 'groupAllowFrom';
 
 const DM_POLICY_OPTIONS: readonly ChannelDmPolicy[] = ['allowlist', 'pairing', 'open', 'deny'];
 const SETTINGS_INPUT_CLASS = 'h-8 w-full text-xs sm:w-80';
+
+const MODELS_BY_PROVIDER = LLM_MODELS_BY_PROVIDER as Readonly<
+	Record<string, readonly { readonly id: string; readonly name: string }[]>
+>;
+
+function modelsFor(providerId: string): readonly { readonly id: string; readonly name: string }[] {
+	return MODELS_BY_PROVIDER[providerId] ?? [];
+}
 
 const ChannelDetailPage: React.FC = () => {
 	const { t } = useTranslation();
