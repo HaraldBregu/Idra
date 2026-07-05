@@ -23,7 +23,6 @@ import {
 	initialModelConfigurationState,
 	type ModelConfigurationState,
 } from '../../components/model-configuration-state';
-import { getProviderCatalogItem } from '../../../start/constants';
 import type { ProviderModelGroup } from '../../../start/types';
 
 const HOME_AGENT_SESSION_ID = 'home';
