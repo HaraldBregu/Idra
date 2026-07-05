@@ -140,6 +140,7 @@
 	--code-number: oklch(0.52 0.01 75);
 	--selection: oklch(0.245 0.008 75);
 	--selection-foreground: oklch(0.972 0.007 75);
+	--link: oklch(0.45 0.18 254);
 }
 
 .dark {
