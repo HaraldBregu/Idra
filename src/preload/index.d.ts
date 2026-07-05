@@ -54,6 +54,10 @@ export interface ChannelsApi {
 		type: TKey,
 		config: Channel[TKey]
 	) => Promise<Channel[TKey]>;
+	getProviderId: () => Promise<string>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string>;
+	setModelId: (modelId: string) => Promise<void>;
 	getStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
 	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
 	stopTelegram: () => Promise<void>;
