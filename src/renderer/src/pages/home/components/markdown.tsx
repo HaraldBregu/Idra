@@ -22,16 +22,8 @@ export const markdownComponents: Partial<Components> = {
 		<ol className="my-2 list-decimal space-y-1 pl-5 last:mb-0">{children}</ol>
 	),
 	li: ({ children }) => <li className="pl-1">{children}</li>,
-	a: ({ children, href }) => (
-		<a
-			href={href}
-			target={isExternalHref(href) ? '_blank' : undefined}
-			rel={isExternalHref(href) ? 'noreferrer' : undefined}
-			onClick={(event) => handleExternalLinkClick(event, href)}
-			className="font-medium text-link underline decoration-link/30 underline-offset-4 hover:opacity-80"
-		>
-			{children}
-		</a>
+	a: markdownLink(
+		'font-medium text-link underline decoration-link/30 underline-offset-4 hover:opacity-80'
 	),
 	blockquote: ({ children }) => (
 		<blockquote className="my-3 border-l-2 border-border pl-3 italic text-muted-foreground">
