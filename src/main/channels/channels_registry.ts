@@ -97,11 +97,13 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				replyToMessageId: message.messageId,
 				chatType: message.chatType,
 			});
+			const providerId = getProviderId();
+			const modelId = getModelId();
 			const response = await agentService.send(message.text, 'channels', {
 				category: 'bot',
 				sessionId: CHANNEL_SESSION_ID,
-				...(config.providerId ? { providerId: config.providerId } : {}),
-				...(config.modelId ? { modelId: config.modelId } : {}),
+				...(providerId ? { providerId } : {}),
+				...(modelId ? { modelId } : {}),
 			});
 			await reply(response);
 			logger.info('ChannelRegistry', 'Replied to channel message', {
