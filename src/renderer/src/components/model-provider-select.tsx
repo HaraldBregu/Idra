@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { type ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	LLM_MODELS_BY_PROVIDER,
