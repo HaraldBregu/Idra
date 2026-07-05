@@ -14,7 +14,7 @@ export const markdownComponents: Partial<Components> = {
 			target={isExternalHref(href) ? '_blank' : undefined}
 			rel={isExternalHref(href) ? 'noreferrer' : undefined}
 			onClick={(event) => handleExternalLinkClick(event, href)}
-			className="font-medium text-primary underline decoration-border underline-offset-4 hover:text-foreground"
+			className="font-medium text-link underline decoration-link/30 underline-offset-4 hover:opacity-80"
 		>
 			{children}
 		</a>
