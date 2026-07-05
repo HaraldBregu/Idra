@@ -50,10 +50,12 @@ const ImagePage: React.FC = () => {
 				]);
 				if (!mounted) return;
 				const nextProviderId =
-					storedProviderId && modelsFor(storedProviderId).length > 0
+					storedProviderId &&
+					IMAGE_PROVIDER_GROUPS.some((group) => group.id === storedProviderId)
 						? storedProviderId
-						: TEXT_TO_IMAGE_PROVIDER_IDS[0];
-				const models = modelsFor(nextProviderId);
+						: (IMAGE_PROVIDER_GROUPS[0]?.id ?? '');
+				const models =
+					IMAGE_PROVIDER_GROUPS.find((group) => group.id === nextProviderId)?.models ?? [];
 				setProviderId(nextProviderId);
 				setModelId(
 					storedModelId && models.some((model) => model.id === storedModelId)
