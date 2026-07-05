@@ -53,7 +53,7 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.speechToText,
-		path: '/settings/speech-to-text',
+		path: '/settings/transcribe',
 		labelKey: 'settings.modelServices.speechTranscriberName',
 		descriptionKey: 'settings.modelServices.speechTranscriberDescription',
 		keywords: 'speech transcription transcribe audio voice microphone model',
