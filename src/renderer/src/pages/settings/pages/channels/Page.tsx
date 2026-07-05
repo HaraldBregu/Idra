@@ -53,6 +53,12 @@ const ChannelsPage: React.FC = () => {
 	const [runtimeError, setRuntimeError] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
+	const selectedGroup = useMemo(
+		() => LLM_PROVIDER_GROUPS.find((group) => group.id === providerId),
+		[providerId]
+	);
+	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
+
 	useEffect(() => {
 		let mounted = true;
 
