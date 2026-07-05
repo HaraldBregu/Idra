@@ -125,6 +125,7 @@ export interface RuntimePerception {
 export type RuntimeEvent =
 	| RuntimeModelEvent
 	| { type: 'run_started'; sessionId: string; model: string; providerId: string }
+	| { type: 'skill_selected'; skill: string }
 	| { type: 'assistant_message'; content: string; toolCalls: ToolCall[] }
 	| {
 			type: 'tool_call_start';
