@@ -20,7 +20,7 @@ export function getMcpServers(): McpSettings {
 }
 
 export function setMcpServers(servers: McpSettings): void {
-	store.set('mcpServers', servers);
+	store.set('servers', servers);
 }
 
 export function getMcpOauth(id: string): McpOAuthState {
