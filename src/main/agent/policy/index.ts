@@ -6,14 +6,14 @@ export {
 	resetPermissions,
 	setToolPermission,
 	updatePermissions,
-} from './permissions_store';
-export { isPathWithin, toolPathDir } from './permissions_path';
-export { resolveToolPermission } from './permissions_resolve';
+} from './policy_store';
+export { isPathWithin, toolPathDir } from './policy_path';
+export { resolveToolPermission } from './policy_resolve';
 export {
 	rejectPendingToolPermissions,
 	respondToolPermission,
 	waitForToolPermission,
-} from './permissions_pending';
+} from './policy_pending';
 export {
 	DEFAULT_PERMISSIONS,
 	isPermissionGatedTool,
@@ -22,4 +22,4 @@ export {
 	type PermissionMode,
 	type PermissionsSchema,
 	type ToolPermission,
-} from './permissions_types';
+} from './policy_types';
