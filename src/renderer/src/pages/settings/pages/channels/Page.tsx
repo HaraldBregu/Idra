@@ -1,51 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, CircleOff, LoaderCircle, Save } from 'lucide-react';
+import { ChevronRight, CircleOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+	firstModelIdForProvider,
+	LLM_PROVIDER_GROUPS,
+	ModelProviderSelect,
+	resolveStoredModelProvider,
+} from '@/components/model-provider-select';
 import { cn } from '@/lib/utils';
 import {
-	SettingsField,
-	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
 import { CHANNEL_CATALOG, type ChannelConnectionStatus, type ChannelType } from '../../../../../../shared';
-import {
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-} from '../../../../../../shared/provider_models_definitions';
-import { getProviderCatalogItem } from '../../../start/constants';
 import { ChannelIcon } from './ChannelIcon';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
-
-interface ProviderGroup {
-	readonly id: string;
-	readonly models: readonly { readonly id: string; readonly name: string }[];
-}
-
-const PROVIDER_GROUPS: readonly ProviderGroup[] = LLM_PROVIDERS.map((id) => ({
-	id,
-	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
-})).filter((group) => group.models.length > 0);
 
 function getConnectionBadgeVariant(
 	status: ChannelConnectionStatus
