@@ -134,19 +134,42 @@ const ImagePage: React.FC = () => {
 			)}
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<ModelProviderSelect
-					idPrefix="image"
-					providerGroups={IMAGE_PROVIDER_GROUPS}
-					providerId={providerId}
-					modelId={modelId}
-					onProviderChange={handleProviderChange}
-					onModelChange={handleModelChange}
-					loading={loading}
-					saving={saving}
-					saved={saved}
-					onSave={handleSave}
-					disabled={loading}
-				/>
+				<SettingsPanel>
+					<div className="grid gap-3 px-3 py-3">
+						<ModelProviderSelect
+							idPrefix="image"
+							providerGroups={IMAGE_PROVIDER_GROUPS}
+							providerId={providerId}
+							modelId={modelId}
+							onProviderChange={handleProviderChange}
+							onModelChange={handleModelChange}
+							disabled={loading || saving}
+							showFieldDescriptions
+						/>
+
+						{saved && (
+							<p className="text-[11px] leading-4 text-muted-foreground">
+								{t('settings.modelServices.saved')}
+							</p>
+						)}
+
+						<div className="flex justify-end">
+							<Button
+								type="button"
+								size="sm"
+								disabled={loading || saving || !providerId || !modelId}
+								onClick={() => void handleSave()}
+							>
+								{saving ? (
+									<LoaderCircle className="size-3 animate-spin" />
+								) : (
+									<Save className="size-3" />
+								)}
+								{saving ? t('settings.modelServices.saving') : t('common.save')}
+							</Button>
+						</div>
+					</div>
+				</SettingsPanel>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.image.prompt')}>
