@@ -1,16 +1,9 @@
-import React, { type ReactNode, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, LoaderCircle, Save } from 'lucide-react';
 import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
 } from '../../../shared/provider_models_definitions';
-import { Button } from '@/components/ui/button';
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import {
 	Select,
 	SelectContent,
@@ -18,7 +11,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { SettingsField, SettingsLoadingRows } from '@pages/settings/components';
+import { SettingsField } from '@pages/settings/components';
 import { getProviderCatalogItem } from '@pages/start/constants';
 
 export interface ModelProviderGroup {
@@ -59,12 +52,9 @@ interface ModelProviderSelectLabels {
 	readonly model?: string;
 	readonly providerPlaceholder?: string;
 	readonly modelPlaceholder?: string;
-	readonly saved?: string;
-	readonly saving?: string;
-	readonly save?: string;
 }
 
-interface ModelProviderFieldsProps {
+interface ModelProviderSelectProps {
 	readonly idPrefix: string;
 	readonly providerGroups: readonly ModelProviderGroup[];
 	readonly providerId: string;
@@ -76,7 +66,7 @@ interface ModelProviderFieldsProps {
 	readonly showFieldDescriptions?: boolean;
 }
 
-export function ModelProviderFields({
+export function ModelProviderSelect({
 	idPrefix,
 	providerGroups,
 	providerId,
@@ -86,7 +76,7 @@ export function ModelProviderFields({
 	disabled = false,
 	labels,
 	showFieldDescriptions = false,
-}: ModelProviderFieldsProps): React.JSX.Element {
+}: ModelProviderSelectProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const selectedGroup = useMemo(
 		() => providerGroups.find((group) => group.id === providerId),
@@ -153,102 +143,5 @@ export function ModelProviderFields({
 				</Select>
 			</SettingsField>
 		</div>
-	);
-}
-
-interface ModelProviderSelectProps extends ModelProviderFieldsProps {
-	readonly loading?: boolean;
-	readonly saving?: boolean;
-	readonly saved?: boolean;
-	readonly error?: string | null;
-	readonly onSave: () => void | Promise<void>;
-	readonly emptyState?: ReactNode;
-}
-
-export function ModelProviderSelect({
-	loading = false,
-	saving = false,
-	saved = false,
-	error = null,
-	onSave,
-	emptyState,
-	labels,
-	providerGroups,
-	providerId,
-	modelId,
-	...fieldsProps
-}: ModelProviderSelectProps): React.JSX.Element {
-	const { t } = useTranslation();
-	const selectedGroup = useMemo(
-		() => providerGroups.find((group) => group.id === providerId),
-		[providerGroups, providerId]
-	);
-	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
-
-	const providerPlaceholder =
-		labels?.providerPlaceholder ?? t('settings.modelServices.providerPlaceholder');
-	const modelPlaceholder =
-		labels?.modelPlaceholder ?? t('settings.modelServices.modelPlaceholder');
-
-	const content =
-		loading ? (
-			<SettingsLoadingRows rows={1} />
-		) : providerGroups.length === 0 && emptyState ? (
-			emptyState
-		) : (
-			<div className="grid gap-3 px-3 py-3">
-				<ModelProviderFields
-					providerGroups={providerGroups}
-					providerId={providerId}
-					modelId={modelId}
-					labels={labels}
-					disabled={fieldsProps.disabled || saving}
-					{...fieldsProps}
-				/>
-
-				{error && <p className="text-[11px] leading-4 text-destructive">{error}</p>}
-				{saved && (
-					<p className="text-[11px] leading-4 text-muted-foreground">
-						{labels?.saved ?? t('settings.modelServices.saved')}
-					</p>
-				)}
-
-				<div className="flex justify-end">
-					<Button
-						type="button"
-						size="sm"
-						disabled={saving || !providerId || !modelId}
-						onClick={() => void onSave()}
-					>
-						{saving ? (
-							<LoaderCircle className="size-3 animate-spin" />
-						) : (
-							<Save className="size-3" />
-						)}
-						{saving
-							? (labels?.saving ?? t('settings.modelServices.saving'))
-							: (labels?.save ?? t('common.save'))}
-					</Button>
-				</div>
-			</div>
-		);
-
-	return (
-		<Collapsible className="rounded-lg border border-border/70 bg-card">
-			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
-				<div className="min-w-0 flex-1">
-					<div className="truncate text-[13px] font-medium leading-4 text-foreground">
-						{selectedGroup
-							? getProviderCatalogItem(selectedGroup.id).name
-							: providerPlaceholder}
-					</div>
-					<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
-						{selectedModel?.name ?? selectedModel?.id ?? modelPlaceholder}
-					</p>
-				</div>
-				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
-			</CollapsibleTrigger>
-			<CollapsibleContent className="border-t border-border/60">{content}</CollapsibleContent>
-		</Collapsible>
 	);
 }
