@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AudioWaveform, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { AGENTS, type AgentId } from '@/lib/compat';
+import { AGENTS } from '@/lib/compat';
 import {
 	SettingsPageHeader,
 	SettingsPageShell,
@@ -20,64 +20,44 @@ import {
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
-		entries: [
-			{ type: 'path', value: '/settings/application' },
-			{ type: 'path', value: '/settings/system' },
-			{ type: 'path', value: '/settings/providers' },
-		],
+		paths: ['/settings/application', '/settings/system', '/settings/providers'],
 	},
 	{
 		id: 'primary',
-		entries: [
-			{ type: 'agent', value: AGENTS.assistant },
-			{ type: 'path', value: '/settings/skills' },
-			{ type: 'path', value: '/settings/mcp' },
-			{ type: 'path', value: '/settings/tasks' },
-			{ type: 'path', value: '/settings/tasks/health' },
+		paths: [
+			'/settings/assistant',
+			'/settings/skills',
+			'/settings/mcp',
+			'/settings/tasks',
+			'/settings/tasks/health',
 		],
 	},
 	{
 		id: 'modelServices',
-		entries: [
-			{ type: 'agent', value: AGENTS.speechToText },
-			{ type: 'agent', value: AGENTS.textToSpeech },
-			{ type: 'agent', value: AGENTS.textToImage },
+		paths: [
+			'/settings/speech-to-text',
+			'/settings/text-to-speech',
+			'/settings/image',
 		],
 	},
 	{
 		id: 'channels',
-		entries: [{ type: 'path', value: '/settings/channels' }],
+		paths: ['/settings/channels'],
 	},
-] satisfies readonly {
-	readonly id: string;
-	readonly titleKey?: string;
-	readonly entries: readonly (
-		| { readonly type: 'path'; readonly value: string }
-		| { readonly type: 'agent'; readonly value: SettingsOverviewAgentId }
-	)[];
-}[];
+] as const;
 
-function getSettingsNavigationItem(path: string): SettingsNavigationItem {
-	return SETTINGS_NAVIGATION.find((item) => item.path === path)!;
-}
+function getSettingsOverviewItem(
+	path: string
+): SettingsNavigationItem | SettingsModelServiceItem {
+	const navigationItem = SETTINGS_NAVIGATION.find((item) => item.path === path);
+	if (navigationItem) return navigationItem;
 
-const _SETTINGS_OVERVIEW_AGENT_IDS = [
-	AGENTS.assistant,
-	AGENTS.speechToText,
-	AGENTS.textToSpeech,
-	AGENTS.textToImage,
-] as const satisfies readonly AgentId[];
-
-type SettingsOverviewAgentId = (typeof _SETTINGS_OVERVIEW_AGENT_IDS)[number];
-type SettingsOverviewAgentItem = Omit<SettingsModelServiceItem, 'id'> & {
-	readonly id: SettingsOverviewAgentId;
-};
-
-function getSettingsOverviewAgentItem(agentId: SettingsOverviewAgentId): SettingsOverviewAgentItem {
-	const item = SETTINGS_MODEL_SERVICE_ITEMS.find((serviceItem) => serviceItem.id === agentId);
-	if (!item) throw new Error(`Missing settings overview agent route: ${agentId}`);
-	const icon = agentId === AGENTS.speechToText ? AudioWaveform : item.icon;
-	return { ...item, id: agentId, icon };
+	const serviceItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.path === path);
+	if (!serviceItem) throw new Error(`Missing settings overview item: ${path}`);
+	if (serviceItem.id === AGENTS.speechToText) {
+		return { ...serviceItem, icon: AudioWaveform };
+	}
+	return serviceItem;
 }
 
 function SettingsOverviewCard({
@@ -139,30 +119,22 @@ const OverviewPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader title={t('settings.title')} description={t('settings.description')} />
-			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
-			const panel = (
-				<SettingsPanel>
-					{group.entries.map((entry) => {
-							const item = entry.type === 'agent'
-								? getSettingsOverviewAgentItem(entry.value)
-								: getSettingsNavigationItem(entry.value);
+			{SETTINGS_OVERVIEW_GROUPS.map((group) => (
+				<section key={group.id} className="flex flex-col gap-2">
+					<SettingsPanel>
+						{group.paths.map((path) => {
+							const item = getSettingsOverviewItem(path);
 							return (
 								<SettingsOverviewCard
-									key={item.path}
+									key={path}
 									item={item}
-									disabled={disabledOverviewPaths.has(item.path)}
+									disabled={disabledOverviewPaths.has(path)}
 								/>
 							);
-					})}
-				</SettingsPanel>
-			);
-
-			return (
-				<section key={group.id} className="flex flex-col gap-2">
-					{panel}
+						})}
+					</SettingsPanel>
 				</section>
-			);
-		})}
+			))}
 		</SettingsPageShell>
 	);
 };
