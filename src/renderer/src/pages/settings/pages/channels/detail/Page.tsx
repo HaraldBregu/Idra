@@ -266,7 +266,8 @@ const ChannelDetailPage: React.FC = () => {
 							<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
 								<Select
 									value={selectedConfig?.providerId ?? ''}
-									onValueChange={(value) =>
+									onValueChange={(value) => {
+										if (!value) return;
 										updateSelectedConfig(
 											(config) => ({
 												...config,
@@ -274,8 +275,8 @@ const ChannelDetailPage: React.FC = () => {
 												modelId: modelsFor(value)[0]?.id,
 											}),
 											{ save: true }
-										)
-									}
+										);
+									}}
 								>
 									<SelectTrigger id={`${selectedId}-provider`} className="w-full text-xs">
 										<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
