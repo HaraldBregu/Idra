@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ListChecks } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ListChecks, LoaderCircle, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	firstModelIdForProvider,
@@ -11,12 +17,14 @@ import {
 } from '@/components/model-provider-select';
 import {
 	SettingsEmptyState,
+	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
 	SettingsSection,
 } from '../../components';
+import { getProviderCatalogItem } from '../../../start/constants';
 
 type Task = Awaited<ReturnType<typeof window.agent.cronList>>[number];
 
