@@ -102,6 +102,10 @@ export function createChannelRegistry(dependencies: ChannelRegistryDependencies)
 				config.isolatedSession ? { category: 'channel', sessionId: CHANNEL_SESSION_ID } : {}
 			);
 			await reply(response);
+			logger.info('ChannelRegistry', 'Replied to channel message', {
+				channel: message.channel,
+				chatType: message.chatType,
+			});
 		} catch (error) {
 			logger.error('ChannelRegistry', 'Channel agent reply failed', error);
 		}
