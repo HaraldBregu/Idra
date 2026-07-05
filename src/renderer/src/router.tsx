@@ -333,7 +333,7 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'model-services/:serviceId/details/*',
-						element: <Navigate to="/settings" replace />,
+						element: <ModelServiceLegacyRedirect />,
 					},
 					{
 						path: '*',
