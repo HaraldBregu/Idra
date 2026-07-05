@@ -35,8 +35,8 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'modelServices',
 		paths: [
-			'/settings/speech-to-text',
-			'/settings/text-to-speech',
+			'/settings/transcribe',
+			'/settings/voice',
 			'/settings/image',
 		],
 	},
