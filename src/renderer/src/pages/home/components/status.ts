@@ -37,10 +37,6 @@ function formatElapsedSeconds(message: AgentMessage): string | undefined {
 }
 
 export function statusLabel(message: AgentMessage): string {
-	if (message.skill && isRunningState(message.state)) {
-		return `Running skill "${message.skill}"`;
-	}
-
 	if (message.state === 'answering' && message.tools.length > 0) {
 		return 'Answering with tool results';
 	}
