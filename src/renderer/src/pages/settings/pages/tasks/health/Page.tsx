@@ -39,11 +39,6 @@ const SWITCH_FIELDS = [
 	'includeReasoning',
 ] as const;
 
-const PROVIDER_GROUPS = LLM_PROVIDERS.map((id) => ({
-	id,
-	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
-})).filter((group) => group.models.length > 0);
-
 const HealthPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [settings, setSettings] = useState<HealthSettings | null>(null);
