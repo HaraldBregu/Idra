@@ -127,7 +127,7 @@ async function loadSpeechModeState(
 	}
 }
 
-const SpeechToTextPage: React.FC = () => {
+const TranscribePage: React.FC = () => {
 	const { t } = useTranslation();
 	const [speechStates, setSpeechStates] = useState<SpeechModeStateMap>({
 		realtime: initialModelConfigurationState,
