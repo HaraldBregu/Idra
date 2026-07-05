@@ -40,8 +40,8 @@ export async function* stream(
 	input: RuntimeInput,
 	signal: AbortSignal,
 ): AsyncGenerator<RuntimeEvent> {
-	const provider = getProvider();
-	const modelId = getModelId();
+	const provider = getProvider(input.providerId);
+	const modelId = input.model ?? getModelId();
 
 	if (!provider || !modelId)
 		throw new Error('Agent requires a configured provider and model.');
