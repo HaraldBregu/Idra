@@ -50,9 +50,13 @@ function fileName(path: string): string {
 
 function normalizeImageLinks(content: string): string {
 	return content.replace(/!\[([^\]]*)\]\(([^()\n]+)\)/g, (match, alt: string, dest: string) => {
-		const destination = dest.trim();
-		if (!destination.includes(' ') || destination.startsWith('<')) return match;
-		return `![${alt}](<${destination}>)`;
+		// react-markdown's default urlTransform strips file: URLs, so rewrite
+		// them to plain absolute paths served via local-resource://.
+		let destination = dest.trim().replace(/^file:\/\//i, '');
+		if (destination.includes(' ') && !destination.startsWith('<')) {
+			destination = `<${destination}>`;
+		}
+		return destination === dest.trim() ? match : `![${alt}](${destination})`;
 	});
 }
 
