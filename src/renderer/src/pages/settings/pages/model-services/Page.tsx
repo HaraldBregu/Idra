@@ -767,4 +767,3 @@ export function ModelServiceSettingsPage({
 	);
 };
 
-export default ModelServicePage;
