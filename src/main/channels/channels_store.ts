@@ -33,6 +33,8 @@ function defaultChannelConfig(): Channel[ChannelType] {
 		token: '',
 		allowFrom: [],
 		enabled: false,
+		providerId: '',
+		modelId: '',
 		defaultAccountId: 'default',
 		dmPolicy: CHANNEL_DEFAULT_DM_POLICY,
 		groupAllowFrom: [],
