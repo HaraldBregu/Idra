@@ -523,8 +523,7 @@ const ModelServicePage: React.FC = () => {
 		triggerDescription,
 		providerDescription,
 		modelDescription,
-		providerFieldId,
-		modelFieldId,
+		idPrefix,
 		showInlineError,
 		onProviderChange,
 		onModelChange,
@@ -535,8 +534,7 @@ const ModelServicePage: React.FC = () => {
 		readonly triggerDescription?: React.ReactNode;
 		readonly providerDescription: React.ReactNode;
 		readonly modelDescription: React.ReactNode;
-		readonly providerFieldId: string;
-		readonly modelFieldId: string;
+		readonly idPrefix: string;
 		readonly showInlineError?: boolean;
 		readonly onProviderChange: (nextProviderId: string | null) => void;
 		readonly onModelChange: (nextModelId: string | null) => void;
