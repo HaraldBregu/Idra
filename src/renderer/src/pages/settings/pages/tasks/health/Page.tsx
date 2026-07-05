@@ -97,13 +97,6 @@ const HealthPage: React.FC = () => {
 			? (['none', 'last', settings.target] as const)
 			: (['none', 'last'] as const);
 
-	const selectedGroup = PROVIDER_GROUPS.find((group) => group.id === settings?.providerId);
-
-	const handleProviderChange = (value: string | null): void => {
-		const group = PROVIDER_GROUPS.find((item) => item.id === (value ?? ''));
-		update({ providerId: group?.id, modelId: group?.models[0]?.id });
-	};
-
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
