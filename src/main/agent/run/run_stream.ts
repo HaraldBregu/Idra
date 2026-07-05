@@ -114,7 +114,15 @@ export async function* stream(
 				return;
 			}
 
-			yield* runToolCalls(tools, turn.toolCalls);
+			for await (const event of runToolCalls(tools, turn.toolCalls)) {
+				yield event;
+				if (event.type !== 'tool_call_end' || event.toolName !== loadSkillTool.name) continue;
+				const skill = (event.output as { skill?: unknown } | undefined)?.skill;
+				if (typeof skill === 'string') {
+					session.skill = skill;
+					yield { type: 'skill_selected', skill };
+				}
+			}
 			addToolResults(session, turn.toolCalls);
 		}
 	} finally {
