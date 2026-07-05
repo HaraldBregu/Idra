@@ -45,8 +45,6 @@ export interface TelegramChannelProperties {
 	allowFrom: string[];
 	enabled?: boolean;
 	isolatedSession?: boolean;
-	providerId?: string;
-	modelId?: string;
 	defaultAccountId?: string;
 	defaultTarget?: string;
 	dmPolicy?: ChannelDmPolicy;
