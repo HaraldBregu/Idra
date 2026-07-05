@@ -44,6 +44,12 @@ const TasksPage: React.FC = () => {
 	const [saved, setSaved] = useState(false);
 	const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
+	const selectedGroup = useMemo(
+		() => LLM_PROVIDER_GROUPS.find((group) => group.id === providerId),
+		[providerId]
+	);
+	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
+
 	useEffect(() => {
 		let mounted = true;
 		void Promise.all([window.agent.cronList(), window.agent.cronGetRuntime()])
