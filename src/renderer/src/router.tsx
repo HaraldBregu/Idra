@@ -39,7 +39,9 @@ const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/detail
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
-const ModelServicePage = lazy(() => import('./pages/settings/pages/model-services/Page'));
+const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
+const SpeechToTextPage = lazy(() => import('./pages/settings/pages/speech-to-text/Page'));
+const TextToSpeechPage = lazy(() => import('./pages/settings/pages/text-to-speech/Page'));
 const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
 
 function RouteWrapper({
