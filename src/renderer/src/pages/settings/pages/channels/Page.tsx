@@ -136,19 +136,63 @@ const ChannelsPage: React.FC = () => {
 			/>
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<ModelProviderSelect
-					idPrefix="channels"
-					providerGroups={LLM_PROVIDER_GROUPS}
-					providerId={providerId}
-					modelId={modelId}
-					onProviderChange={handleProviderChange}
-					onModelChange={handleModelChange}
-					loading={loadingRuntime}
-					saving={saving}
-					saved={saved}
-					error={runtimeError}
-					onSave={handleSave}
-				/>
+				<Collapsible className="rounded-lg border border-border/70 bg-card">
+					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="min-w-0 flex-1">
+							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+								{selectedGroup
+									? getProviderCatalogItem(selectedGroup.id).name
+									: t('settings.modelServices.providerPlaceholder')}
+							</div>
+							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+								{selectedModel?.name ?? selectedModel?.id ?? t('settings.modelServices.modelPlaceholder')}
+							</p>
+						</div>
+						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+					</CollapsibleTrigger>
+					<CollapsibleContent className="border-t border-border/60">
+						{loadingRuntime ? (
+							<SettingsLoadingRows rows={1} />
+						) : (
+							<div className="grid gap-3 px-3 py-3">
+								<ModelProviderSelect
+									idPrefix="channels"
+									providerGroups={LLM_PROVIDER_GROUPS}
+									providerId={providerId}
+									modelId={modelId}
+									onProviderChange={handleProviderChange}
+									onModelChange={handleModelChange}
+									disabled={saving}
+								/>
+
+								{runtimeError && (
+									<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
+								)}
+								{saved && (
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.modelServices.saved')}
+									</p>
+								)}
+
+								<div className="flex justify-end">
+									<Button
+										type="button"
+										size="sm"
+										disabled={saving || !providerId || !modelId}
+										onClick={() => void handleSave()}
+									>
+										{saving ? (
+											<LoaderCircle className="size-3 animate-spin" />
+										) : (
+											<Save className="size-3" />
+										)}
+										{saving ? t('settings.modelServices.saving') : t('common.save')}
+									</Button>
+								</div>
+							</div>
+						)}
+					</CollapsibleContent>
+				</Collapsible>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.channels.catalog')}>
