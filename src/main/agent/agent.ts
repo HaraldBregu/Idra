@@ -145,6 +145,10 @@ export class Agent {
 	isBusy(agentId: string): boolean {
 		return this.activeRuns.has(agentId);
 	}
+
+	runningSkill(): string | undefined {
+		return this.session.context.skill;
+	}
 }
 
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
