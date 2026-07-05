@@ -182,7 +182,7 @@ const VoicePage: React.FC = () => {
 			<SettingsSection title={t('settings.modelServices.configuration')}>
 				<ModelProviderConfiguration
 					configState={state}
-					idPrefix="text-to-speech"
+					idPrefix="voice"
 					providerDescription={t('settings.modelServices.providerDescription')}
 					modelDescription={t('settings.modelServices.modelDescription')}
 					onProviderChange={handleProviderChange}

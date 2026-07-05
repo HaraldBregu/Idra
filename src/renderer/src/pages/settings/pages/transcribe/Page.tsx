@@ -272,4 +272,4 @@ const TranscribePage: React.FC = () => {
 	);
 };
 
-export default SpeechToTextPage;
+export default TranscribePage;
