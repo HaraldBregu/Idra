@@ -79,6 +79,8 @@ export class Agent {
 				task: 'chat',
 				message,
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
+				...(options.providerId ? { providerId: options.providerId } : {}),
+				...(options.modelId ? { model: options.modelId } : {}),
 			} satisfies RuntimeInput;
 
 			init(this.session, this.config, input, options.category);
