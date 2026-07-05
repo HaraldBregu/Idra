@@ -13,7 +13,7 @@ import { run } from './run/run';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
 import { startHealth, stopHealth } from './health';
-import { rejectPendingToolPermissions } from './permissions';
+import { rejectPendingToolPermissions } from './policy';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentHistoryContentBlock,
