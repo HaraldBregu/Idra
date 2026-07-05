@@ -5,7 +5,7 @@ import {
 	setToolPermission,
 	toolPathDir,
 	waitForToolPermission,
-} from '../permissions';
+} from '../policy';
 import { formatToolOutput } from './run_common';
 
 export async function* runToolCall(
