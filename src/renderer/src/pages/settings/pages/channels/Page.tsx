@@ -63,7 +63,17 @@ const ChannelsPage: React.FC = () => {
 	>({});
 	const [providerId, setProviderId] = useState('');
 	const [modelId, setModelId] = useState('');
+	const [loadingRuntime, setLoadingRuntime] = useState(true);
+	const [saving, setSaving] = useState(false);
+	const [saved, setSaved] = useState(false);
+	const [runtimeError, setRuntimeError] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
+
+	const selectedGroup = useMemo(
+		() => PROVIDER_GROUPS.find((group) => group.id === providerId),
+		[providerId]
+	);
+	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
 
 	useEffect(() => {
 		let mounted = true;
@@ -78,12 +88,19 @@ const ChannelsPage: React.FC = () => {
 				if (telegramStatus) {
 					setStatusByChannel({ [telegramStatus.type]: telegramStatus.status });
 				}
-				setProviderId(storedProviderId);
-				setModelId(storedModelId);
+				const group =
+					PROVIDER_GROUPS.find((item) => item.id === storedProviderId) ?? PROVIDER_GROUPS[0];
+				const model =
+					group?.models.find((item) => item.id === storedModelId) ?? group?.models[0];
+				setProviderId(group?.id ?? '');
+				setModelId(model?.id ?? '');
 			})
 			.catch((error) => {
 				console.error('[ChannelsPage] Failed to load channel settings:', error);
 				if (mounted) setLoadError(error instanceof Error ? error.message : String(error));
+			})
+			.finally(() => {
+				if (mounted) setLoadingRuntime(false);
 			});
 
 		const unsubscribe = window.channels.onStatusChanged((event) => {
@@ -97,16 +114,35 @@ const ChannelsPage: React.FC = () => {
 		};
 	}, []);
 
-	const saveModelSelection = (nextProviderId: string, nextModelId: string): void => {
-		setProviderId(nextProviderId);
-		setModelId(nextModelId);
-		setLoadError(null);
-		Promise.all([
-			window.channels.setProviderId(nextProviderId),
-			nextModelId ? window.channels.setModelId(nextModelId) : Promise.resolve(),
-		]).catch((error) => {
-			setLoadError(error instanceof Error ? error.message : String(error));
-		});
+	const handleProviderChange = (nextProviderId: string | null): void => {
+		const id = nextProviderId ?? '';
+		const group = PROVIDER_GROUPS.find((item) => item.id === id);
+		setProviderId(id);
+		setModelId(group?.models[0]?.id ?? '');
+		setSaved(false);
+		setRuntimeError(null);
+	};
+
+	const handleModelChange = (nextModelId: string | null): void => {
+		setModelId(nextModelId ?? '');
+		setSaved(false);
+		setRuntimeError(null);
+	};
+
+	const handleSave = async (): Promise<void> => {
+		if (!providerId || !modelId) return;
+		setSaving(true);
+		setSaved(false);
+		setRuntimeError(null);
+		try {
+			await window.channels.setProviderId(providerId);
+			await window.channels.setModelId(modelId);
+			setSaved(true);
+		} catch (error) {
+			setRuntimeError(error instanceof Error ? error.message : String(error));
+		} finally {
+			setSaving(false);
+		}
 	};
 
 	return (
