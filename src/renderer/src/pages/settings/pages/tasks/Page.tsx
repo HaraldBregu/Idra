@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ChevronDown, ListChecks } from 'lucide-react';
-import type { Model } from '@/lib/compat';
+import { AlertTriangle, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
