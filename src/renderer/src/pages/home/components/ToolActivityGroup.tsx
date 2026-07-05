@@ -91,6 +91,7 @@ export function ToolActivityGroup({
 	const [isOpen, setIsOpen] = useState(false);
 	const isExploring = tools.some(isToolRunning);
 	const { verb, detail } = toolActivitySummary(tools);
+	const groups = groupToolsByType(tools);
 
 	return (
 		<div className={cn('w-full max-w-2xl', className)}>
