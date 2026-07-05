@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, CircleOff, Cpu, Sparkles } from 'lucide-react';
+import { ChevronDown, ChevronRight, CircleOff, LoaderCircle, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Item, ItemActions, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	Select,
 	SelectContent,
@@ -13,7 +19,14 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsSection } from '../../components';
+import {
+	SettingsField,
+	SettingsLoadingRows,
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsSection,
+} from '../../components';
 import { CHANNEL_CATALOG, type ChannelConnectionStatus, type ChannelType } from '../../../../../../shared';
 import {
 	LLM_MODELS_BY_PROVIDER,
