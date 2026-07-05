@@ -473,6 +473,22 @@ export const channels: ChannelsApi = {
 			Channel[TKey]
 		>;
 	},
+	getProviderId: (): Promise<string> => {
+		return typedInvokeUnwrap(ChannelsChannels.getProviderId);
+	},
+	setProviderId: (providerId: string): Promise<void> => {
+		const normalizedProviderId = optionalTrimmedString(providerId);
+		if (!normalizedProviderId) throw new Error('Invalid channels provider id.');
+		return typedInvokeUnwrap(ChannelsChannels.setProviderId, normalizedProviderId);
+	},
+	getModelId: (): Promise<string> => {
+		return typedInvokeUnwrap(ChannelsChannels.getModelId);
+	},
+	setModelId: (modelId: string): Promise<void> => {
+		const normalizedModelId = optionalTrimmedString(modelId);
+		if (!normalizedModelId) throw new Error('Invalid channels model id.');
+		return typedInvokeUnwrap(ChannelsChannels.setModelId, normalizedModelId);
+	},
 	getStatus: (type?: ChannelType): Promise<ChannelStatusEvent | undefined> => {
 		return typedInvokeUnwrap(ChannelsChannels.getStatus, type);
 	},
