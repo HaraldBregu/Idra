@@ -153,72 +153,92 @@ const ChannelsPage: React.FC = () => {
 			/>
 
 			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<Card size="sm" className="gap-0! p-0!">
-					<Item variant="outline" size="md" className="border-b border-border/60">
-						<ItemMedia variant="icon">
-							<Sparkles className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-							<ItemTitle>{t('settings.modelServices.provider')}</ItemTitle>
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.modelServices.providerDescription')}
+				<Collapsible className="rounded-lg border border-border/70 bg-card">
+					<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+						<div className="min-w-0 flex-1">
+							<div className="truncate text-[13px] font-medium leading-4 text-foreground">
+								{selectedGroup
+									? getProviderCatalogItem(selectedGroup.id).name
+									: t('settings.modelServices.providerPlaceholder')}
+							</div>
+							<p className="mt-0.5 truncate text-[11px] leading-4 text-muted-foreground">
+								{selectedModel?.name ?? selectedModel?.id ?? t('settings.modelServices.modelPlaceholder')}
 							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
-							<Select
-								value={providerId}
-								onValueChange={(value) => {
-									if (!value) return;
-									saveModelSelection(value, modelsFor(value)[0]?.id ?? '');
-								}}
-							>
-								<SelectTrigger id="channels-provider" className="w-full text-xs">
-									<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
-								</SelectTrigger>
-								<SelectContent>
-									{LLM_PROVIDERS.map((id) => (
-										<SelectItem key={id} value={id}>
-											{getProviderCatalogItem(id).name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</ItemActions>
-					</Item>
+						</div>
+						<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
+					</CollapsibleTrigger>
+					<CollapsibleContent className="border-t border-border/60">
+						{loadingRuntime ? (
+							<SettingsLoadingRows rows={1} />
+						) : (
+							<div className="grid gap-3 px-3 py-3">
+								<div className="grid gap-3 sm:grid-cols-2">
+									<SettingsField
+										id="channels-provider"
+										label={t('settings.modelServices.provider')}
+									>
+										<Select value={providerId} onValueChange={handleProviderChange} disabled={saving}>
+											<SelectTrigger id="channels-provider" className="w-full text-xs">
+												<SelectValue placeholder={t('settings.modelServices.providerPlaceholder')} />
+											</SelectTrigger>
+											<SelectContent>
+												{PROVIDER_GROUPS.map((group) => (
+													<SelectItem key={group.id} value={group.id}>
+														{getProviderCatalogItem(group.id).name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
 
-					<Item variant="outline" size="md">
-						<ItemMedia variant="icon">
-							<Cpu className="size-3" strokeWidth={1.8} />
-						</ItemMedia>
-						<ItemContent className="min-w-0 flex-col items-start gap-0.5">
-							<ItemTitle>{t('settings.modelServices.model')}</ItemTitle>
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.modelServices.modelDescription')}
-							</p>
-						</ItemContent>
-						<ItemActions className="ml-auto w-full flex-none justify-end sm:w-56">
-							<Select
-								value={modelId}
-								onValueChange={(value) => {
-									if (!value) return;
-									saveModelSelection(providerId, value);
-								}}
-								disabled={modelsFor(providerId).length === 0}
-							>
-								<SelectTrigger id="channels-model" className="w-full text-xs">
-									<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
-								</SelectTrigger>
-								<SelectContent>
-									{modelsFor(providerId).map((model) => (
-										<SelectItem key={model.id} value={model.id}>
-											{model.name || model.id}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</ItemActions>
-					</Item>
-				</Card>
+									<SettingsField id="channels-model" label={t('settings.modelServices.model')}>
+										<Select
+											value={modelId}
+											onValueChange={handleModelChange}
+											disabled={saving || !selectedGroup || selectedGroup.models.length === 0}
+										>
+											<SelectTrigger id="channels-model" className="w-full text-xs">
+												<SelectValue placeholder={t('settings.modelServices.modelPlaceholder')} />
+											</SelectTrigger>
+											<SelectContent>
+												{selectedGroup?.models.map((model) => (
+													<SelectItem key={model.id} value={model.id}>
+														{model.name || model.id}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</SettingsField>
+								</div>
+
+								{runtimeError && (
+									<p className="text-[11px] leading-4 text-destructive">{runtimeError}</p>
+								)}
+								{saved && (
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.modelServices.saved')}
+									</p>
+								)}
+
+								<div className="flex justify-end">
+									<Button
+										type="button"
+										size="sm"
+										disabled={saving || !providerId || !modelId}
+										onClick={() => void handleSave()}
+									>
+										{saving ? (
+											<LoaderCircle className="size-3 animate-spin" />
+										) : (
+											<Save className="size-3" />
+										)}
+										{saving ? t('settings.modelServices.saving') : t('common.save')}
+									</Button>
+								</div>
+							</div>
+						)}
+					</CollapsibleContent>
+				</Collapsible>
 			</SettingsSection>
 
 			<SettingsSection title={t('settings.channels.catalog')}>
