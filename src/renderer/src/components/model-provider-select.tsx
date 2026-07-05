@@ -157,7 +157,6 @@ export function ModelProviderFields({
 }
 
 interface ModelProviderSelectProps extends ModelProviderFieldsProps {
-	readonly layout?: 'collapsible' | 'inline';
 	readonly loading?: boolean;
 	readonly saving?: boolean;
 	readonly saved?: boolean;
@@ -167,7 +166,6 @@ interface ModelProviderSelectProps extends ModelProviderFieldsProps {
 }
 
 export function ModelProviderSelect({
-	layout = 'collapsible',
 	loading = false,
 	saving = false,
 	saved = false,
