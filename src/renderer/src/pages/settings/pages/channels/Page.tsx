@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronRight, CircleOff } from 'lucide-react';
+import { ChevronDown, ChevronRight, CircleOff, LoaderCircle, Save } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	firstModelIdForProvider,
@@ -13,12 +19,14 @@ import {
 } from '@/components/model-provider-select';
 import { cn } from '@/lib/utils';
 import {
+	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsSection,
 } from '../../components';
 import { CHANNEL_CATALOG, type ChannelConnectionStatus, type ChannelType } from '../../../../../../shared';
+import { getProviderCatalogItem } from '../../../start/constants';
 import { ChannelIcon } from './ChannelIcon';
 
 const RUNTIME_CHANNELS = new Set<ChannelType>(['telegram']);
