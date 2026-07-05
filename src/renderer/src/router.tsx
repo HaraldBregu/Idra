@@ -308,20 +308,28 @@ const routes: RouteObject[] = [
 						],
 					},
 					{
-						path: 'speech-to-text',
+						path: 'transcribe',
 						element: (
 							<SettingsRouteWrapper>
-								<SpeechToTextPage />
+								<TranscribePage />
 							</SettingsRouteWrapper>
 						),
 					},
 					{
-						path: 'text-to-speech',
+						path: 'voice',
 						element: (
 							<SettingsRouteWrapper>
-								<TextToSpeechPage />
+								<VoicePage />
 							</SettingsRouteWrapper>
 						),
+					},
+					{
+						path: 'speech-to-text',
+						element: <Navigate to="/settings/transcribe" replace />,
+					},
+					{
+						path: 'text-to-speech',
+						element: <Navigate to="/settings/voice" replace />,
 					},
 					{
 						path: 'image',
