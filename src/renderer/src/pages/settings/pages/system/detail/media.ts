@@ -39,7 +39,7 @@ export const SYSTEM_MEDIA: readonly SystemMedia[] = [
 	},
 	{
 		id: 'screen',
-		titleKey: 'settings.system.media.screen.title',
+		titleKey: 'settings.system.media.screen.label',
 		descriptionKey: 'settings.system.media.screen.description',
 		icon: MonitorUp,
 		source: 'display',
