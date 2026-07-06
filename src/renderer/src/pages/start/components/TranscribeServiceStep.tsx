@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
 import { SPEECH_MODE_IDS } from '../constants';
-import type { ModelServiceDefinition, ModelServiceState, SpeechModeStateMap } from '../types';
+import type { ModelServiceDefinition, SpeechModeStateMap } from '../types';
 import type { SttSelectionMode } from '../../../../../shared/stt_transcription';
 import { toModelConfigurationState } from './ModelServiceStep';
 
