@@ -35,7 +35,7 @@ export function setupMediaPermissionHandlers(): void {
 	session.defaultSession.setPermissionCheckHandler(
 		(webContents, permission, requestingOrigin, details) => {
 			if (permission !== 'media') return false;
-			if (details.mediaType !== 'audio') return false;
+			if (details.mediaType !== 'audio' && details.mediaType !== 'video') return false;
 			if (!details.isMainFrame) return false;
 			if (!isAppWindowWebContents(webContents)) return false;
 			return isTrustedMediaRequestSource(
@@ -57,8 +57,7 @@ export function setupMediaPermissionHandlers(): void {
 			const requestsAudio = mediaDetails.mediaTypes?.includes('audio') ?? false;
 			const requestsVideo = mediaDetails.mediaTypes?.includes('video') ?? false;
 			const allowed =
-				requestsAudio &&
-				!requestsVideo &&
+				(requestsAudio || requestsVideo) &&
 				mediaDetails.isMainFrame &&
 				isAppWindowWebContents(webContents) &&
 				isTrustedMediaRequestSource(
@@ -70,6 +69,20 @@ export function setupMediaPermissionHandlers(): void {
 			callback(allowed);
 		}
 	);
+
+	session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
+		if (!isTrustedRendererOrigin(request.securityOrigin)) {
+			callback({});
+			return;
+		}
+		desktopCapturer
+			.getSources({ types: ['screen', 'window'] })
+			.then((sources) => {
+				const source = sources[0];
+				callback(source ? { video: source } : {});
+			})
+			.catch(() => callback({}));
+	});
 }
 
 function rendererDevOrigin(): string | null {
