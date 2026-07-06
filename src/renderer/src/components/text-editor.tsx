@@ -65,6 +65,13 @@ function TextEditor({
 				)
 					return false;
 				if (slashMenuPluginKey.getState(view.state)?.active) return false;
+				// Inside lists and code blocks Enter keeps its editing role
+				// (next item / newline); an empty trailing item exits the block first.
+				const { $from } = view.state.selection;
+				for (let depth = $from.depth; depth > 0; depth--) {
+					const nodeName = $from.node(depth).type.name;
+					if (nodeName === 'listItem' || nodeName === 'codeBlock') return false;
+				}
 				onSubmitRef.current?.();
 				return true;
 			},
