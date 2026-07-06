@@ -186,6 +186,7 @@ export function MediaPermissionsSection({
 	const handleRequestMicrophonePermission = useCallback(async (): Promise<void> => {
 		setMicrophoneError('');
 		try {
+			await acquireMediaStream({ audio: true });
 			setMicrophonePermission(await window.app.requestMicrophonePermission());
 		} catch (error) {
 			setMicrophoneError(errorMessage(error, t('settings.microphone.errors.request')));
