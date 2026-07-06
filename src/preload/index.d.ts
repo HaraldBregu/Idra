@@ -20,6 +20,7 @@ export interface AgentApi {
 	listSessions: () => Promise<AgentSessionSummary[]>;
 	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
 	clearMessages: (sessionId: string) => Promise<void>;
+	deleteSession: (sessionId: string) => Promise<void>;
 	getProvider: () => Promise<PublicProvider | undefined>;
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;
