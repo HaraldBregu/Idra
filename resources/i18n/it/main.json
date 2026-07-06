@@ -382,8 +382,8 @@
 			}
 		},
 		"chatHistory": {
-			"title": "Chat",
-			"description": "Contesto salvato e pulizia.",
+			"title": "Cronologia chat",
+			"description": "Sessioni chat salvate e pulizia.",
 			"messages": "Messaggi salvati",
 			"breakdown": "{{user}} utente / {{assistant}} assistente / {{tool}} strumenti",
 			"messageCountValue": "{{count}} messaggi",
@@ -395,8 +395,13 @@
 			"refresh": "Aggiorna",
 			"openFolder": "Apri cartella cronologia chat",
 			"delete": "Elimina Cronologia",
+			"deleteSession": "Elimina {{title}}",
 			"deleting": "Eliminazione...",
 			"confirmDelete": "Eliminare la cronologia chat e cancellare la chat corrente?",
+			"confirmDeleteSession": "Eliminare la sessione chat \"{{title}}\"?",
+			"untitled": "Chat senza titolo",
+			"empty": "Nessuna sessione salvata",
+			"emptyDescription": "Avvia una nuova chat per creare una sessione.",
 			"loading": "Caricamento...",
 			"errors": {
 				"load": "Impossibile caricare la cronologia chat.",
