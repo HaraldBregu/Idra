@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Camera, Mic, RefreshCw, Settings, ShieldCheck, type LucideIcon } from 'lucide-react';
+import {
+	Camera,
+	ChevronRight,
+	Mic,
+	MonitorUp,
+	RefreshCw,
+	Settings,
+	ShieldCheck,
+	type LucideIcon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type {
