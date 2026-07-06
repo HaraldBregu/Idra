@@ -66,6 +66,7 @@ export async function* stream(
 		getScheduleTool,
 		listSchedulesTool,
 		runScheduleNowTool,
+		completeBootstrapTool,
 	];
 
 	const mcp = await loadMcpTools();
