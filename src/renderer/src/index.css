@@ -411,9 +411,10 @@ input[type='range']:hover::-moz-range-thumb {
 	background-color: var(--app-sidebar-background);
 }
 
-.tiptap {
+/* Higher specificity than Tiptap's runtime-injected .ProseMirror styles */
+.tiptap.ProseMirror {
 	white-space: pre-wrap;
-	word-break: break-word;
+	overflow-wrap: anywhere;
 }
 
 .tiptap:focus-visible {
