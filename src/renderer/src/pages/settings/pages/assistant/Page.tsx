@@ -150,6 +150,31 @@ const AssistantPage: React.FC = () => {
 		}
 	};
 
+	return (
+		<SettingsPageShell>
+			<SettingsPageHeader
+				title={t('settings.modelServices.assistantName')}
+				description={t('settings.modelServices.fridayDescription')}
+			/>
+
+			{state.error && (
+				<SettingsNotice variant="destructive" icon={AlertTriangle}>
+					{state.error}
+				</SettingsNotice>
+			)}
+
+			<SettingsSection title={t('settings.modelServices.configuration')}>
+				<ModelProviderConfiguration
+					configState={state}
+					idPrefix="assistant"
+					providerDescription={t('settings.modelServices.providerDescription')}
+					modelDescription={t('settings.modelServices.modelDescription')}
+					onProviderChange={handleProviderChange}
+					onModelChange={handleModelChange}
+					onSave={() => void handleSave()}
+				/>
+			</SettingsSection>
+
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
 					<SettingsRow
