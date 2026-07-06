@@ -21,6 +21,7 @@ interface ModelProviderConfigurationProps {
 	readonly triggerDescription?: ReactNode;
 	readonly showInlineError?: boolean;
 	readonly showSaveButton?: boolean;
+	readonly collapsible?: boolean;
 	readonly defaultOpen?: boolean;
 	readonly onProviderChange: (nextProviderId: string) => void;
 	readonly onModelChange: (nextModelId: string) => void;
@@ -36,6 +37,7 @@ export function ModelProviderConfiguration({
 	triggerDescription,
 	showInlineError = false,
 	showSaveButton = true,
+	collapsible = true,
 	defaultOpen = false,
 	onProviderChange,
 	onModelChange,
@@ -52,6 +54,86 @@ export function ModelProviderConfiguration({
 		? getProviderCatalogItem(provider.id).name
 		: t('settings.modelServices.providerPlaceholder');
 	const modelName = model?.name ?? model?.id ?? t('settings.modelServices.modelUnavailable');
+
+	const configurationBody =
+		configState.loading ? (
+			<SettingsLoadingRows rows={2} />
+		) : (
+			<div className="grid gap-3 px-3 py-3">
+				{showInlineError && configState.error && (
+					<SettingsNotice variant="destructive" icon={AlertTriangle}>
+						{configState.error}
+					</SettingsNotice>
+				)}
+
+				<ModelProviderSelect
+					idPrefix={idPrefix}
+					providerGroups={toModelProviderGroups(configState.modelGroups)}
+					providerId={configState.providerId}
+					modelId={configState.modelId}
+					onProviderChange={onProviderChange}
+					onModelChange={onModelChange}
+					disabled={
+						configState.loading || configState.saving || configState.modelGroups.length === 0
+					}
+					modelDisabled={
+						configState.loading ||
+						configState.loadingModels ||
+						configState.saving ||
+						!provider ||
+						!group ||
+						group.models.length === 0
+					}
+					labels={{
+						providerDescription,
+						modelDescription,
+						modelPlaceholder: configState.loadingModels
+							? t('settings.modelServices.modelsLoading')
+							: undefined,
+					}}
+				/>
+
+				{configState.providers.length === 0 && (
+					<p className="text-[11px] leading-4 text-muted-foreground">
+						{t('settings.providers.noProviders')}
+					</p>
+				)}
+				{configState.providers.length > 0 && configState.modelGroups.length === 0 && (
+					<p className="text-[11px] leading-4 text-muted-foreground">
+						{t('settings.modelServices.noModels')}
+					</p>
+				)}
+				{configState.saved && (
+					<p className="text-[11px] leading-4 text-muted-foreground">
+						{t('settings.modelServices.saved')}
+					</p>
+				)}
+
+				{showSaveButton ? (
+					<div className="flex justify-end">
+						<Button
+							type="button"
+							size="sm"
+							disabled={configState.saving || !provider || !model}
+							onClick={onSave}
+						>
+							{configState.saving ? (
+								<LoaderCircle className="size-3 animate-spin" />
+							) : (
+								<Save className="size-3" />
+							)}
+							{configState.saving ? t('settings.modelServices.saving') : t('common.save')}
+						</Button>
+					</div>
+				) : null}
+			</div>
+		);
+
+	if (!collapsible) {
+		return (
+			<div className="rounded-lg border border-border/70 bg-card">{configurationBody}</div>
+		);
+	}
 
 	return (
 		<Collapsible
@@ -71,80 +153,7 @@ export function ModelProviderConfiguration({
 				<ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-panel-open:rotate-180" />
 			</CollapsibleTrigger>
 			<CollapsibleContent className="border-t border-border/60">
-				{configState.loading ? (
-					<SettingsLoadingRows rows={2} />
-				) : (
-					<div className="grid gap-3 px-3 py-3">
-						{showInlineError && configState.error && (
-							<SettingsNotice variant="destructive" icon={AlertTriangle}>
-								{configState.error}
-							</SettingsNotice>
-						)}
-
-						<ModelProviderSelect
-							idPrefix={idPrefix}
-							providerGroups={toModelProviderGroups(configState.modelGroups)}
-							providerId={configState.providerId}
-							modelId={configState.modelId}
-							onProviderChange={onProviderChange}
-							onModelChange={onModelChange}
-							disabled={
-								configState.loading ||
-								configState.saving ||
-								configState.modelGroups.length === 0
-							}
-							modelDisabled={
-								configState.loading ||
-								configState.loadingModels ||
-								configState.saving ||
-								!provider ||
-								!group ||
-								group.models.length === 0
-							}
-							labels={{
-								providerDescription,
-								modelDescription,
-								modelPlaceholder: configState.loadingModels
-									? t('settings.modelServices.modelsLoading')
-									: undefined,
-							}}
-						/>
-
-						{configState.providers.length === 0 && (
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.providers.noProviders')}
-							</p>
-						)}
-						{configState.providers.length > 0 && configState.modelGroups.length === 0 && (
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.modelServices.noModels')}
-							</p>
-						)}
-						{configState.saved && (
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.modelServices.saved')}
-							</p>
-						)}
-
-						{showSaveButton ? (
-							<div className="flex justify-end">
-								<Button
-									type="button"
-									size="sm"
-									disabled={configState.saving || !provider || !model}
-									onClick={onSave}
-								>
-									{configState.saving ? (
-										<LoaderCircle className="size-3 animate-spin" />
-									) : (
-										<Save className="size-3" />
-									)}
-									{configState.saving ? t('settings.modelServices.saving') : t('common.save')}
-								</Button>
-							</div>
-						) : null}
-					</div>
-				)}
+				{configurationBody}
 			</CollapsibleContent>
 		</Collapsible>
 	);
