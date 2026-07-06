@@ -2,6 +2,7 @@ export { addAssistantMessage } from './session_add_assistant_message';
 export { addToolResults } from './session_add_tool_results';
 export { appendRun } from './session_append_run';
 export { clearMessages } from './session_clear_messages';
+export { deleteSession } from './session_delete_session';
 export { init } from './session_init';
 export { isExhausted } from './session_is_exhausted';
 export { listSessions } from './session_list_sessions';
