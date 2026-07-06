@@ -109,6 +109,31 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
 				},
 			};
 
+		case 'CHANGE_SPEECH_MODE_PROVIDER':
+			return {
+				...state,
+				speechModeStates: {
+					...state.speechModeStates,
+					[action.mode]: {
+						...state.speechModeStates[action.mode],
+						providerId: action.providerId,
+						modelId: action.modelId,
+					},
+				},
+			};
+
+		case 'CHANGE_SPEECH_MODE_MODEL':
+			return {
+				...state,
+				speechModeStates: {
+					...state.speechModeStates,
+					[action.mode]: {
+						...state.speechModeStates[action.mode],
+						modelId: action.modelId,
+					},
+				},
+			};
+
 		case 'SET_SAVING_CONFIG':
 			return { ...state, savingConfig: action.saving };
 
