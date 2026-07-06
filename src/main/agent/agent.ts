@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import {
 	clearMessages as clearSessionMessages,
+	deleteSession as deleteStoredSession,
 	createSessionState,
 	init,
 	listSessions,
