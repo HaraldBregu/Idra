@@ -4,6 +4,7 @@ import { PluginKey } from '@tiptap/pm/state';
 import { ReactRenderer } from '@tiptap/react';
 import {
 	Suggestion,
+	exitSuggestion,
 	type SuggestionKeyDownProps,
 	type SuggestionProps,
 } from '@tiptap/suggestion';
