@@ -41,7 +41,9 @@ export function useModelServices(
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
 				const configuredSelections = await Promise.all(
-					MODEL_SERVICE_DEFINITIONS.map((service) => service.getSelection())
+					MODEL_SERVICE_DEFINITIONS.map((service) =>
+						service.id === AGENTS.assistant ? service.getSelection() : Promise.resolve(undefined)
+					)
 				);
 				if (cancelled) return;
 
