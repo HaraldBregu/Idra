@@ -176,6 +176,7 @@ export function MediaPermissionsSection({
 	readonly className?: string;
 }): React.JSX.Element {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [microphonePermission, setMicrophonePermission] =
 		useState<MicrophonePermissionSettings>(DEFAULT_MICROPHONE_PERMISSION);
 	const [microphoneError, setMicrophoneError] = useState('');
