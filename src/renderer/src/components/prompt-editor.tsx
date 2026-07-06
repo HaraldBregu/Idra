@@ -20,8 +20,7 @@ function PromptEditorArea({
 	readonly placeholder?: string;
 	readonly ariaLabel?: string;
 }): ReactElement {
-	const { value, setValue, onSubmit, disabled, textareaRef, isExpanded, adaptiveLayout } =
-		usePromptInput();
+	const { value, setValue, onSubmit, disabled, textareaRef } = usePromptInput();
 
 	return (
 		<TextEditor
