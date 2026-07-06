@@ -4394,6 +4394,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/markdown@npm:^3.27.2":
+  version: 3.27.2
+  resolution: "@tiptap/markdown@npm:3.27.2"
+  dependencies:
+    marked: "npm:^17.0.1"
+  peerDependencies:
+    "@tiptap/core": 3.27.2
+    "@tiptap/pm": 3.27.2
+  checksum: 10c0/45639b9e8823a4046edc2bd1eb90f075e0e5ea4ee03523d3671fd8226b6f1cf41fb7d4c8ffade03c0948284b912646022e165e808bcb671f5d114ea92adcf5bf
+  languageName: node
+  linkType: hard
+
 "@tiptap/pm@npm:^3.27.2":
   version: 3.27.2
   resolution: "@tiptap/pm@npm:3.27.2"
@@ -8820,6 +8832,7 @@ __metadata:
     "@testing-library/user-event": "npm:^14.6.1"
     "@tiptap/core": "npm:^3.27.2"
     "@tiptap/extensions": "npm:^3.27.2"
+    "@tiptap/markdown": "npm:^3.27.2"
     "@tiptap/pm": "npm:^3.27.2"
     "@tiptap/react": "npm:^3.27.2"
     "@tiptap/starter-kit": "npm:^3.27.2"
@@ -11834,6 +11847,15 @@ __metadata:
   peerDependencies:
     marked: ">=1 <16"
   checksum: 10c0/59d23c2ed9488c40856d828f431ae1d5d57426e791bbce8f05ec5a7d3a1f848cdb3b8d8880d76ae45570415f8b48ae459f50bbbd88ece5a31306f1e3de57f021
+  languageName: node
+  linkType: hard
+
+"marked@npm:^17.0.1":
+  version: 17.0.6
+  resolution: "marked@npm:17.0.6"
+  bin:
+    marked: bin/marked.js
+  checksum: 10c0/77961fbb360511d6638491e097cb15b1ef5e643f27c25b9cd52aa3cd92e216fc3cda7dbfc6a10adb7922d1b38df132510df65de4afe6c53c7280772c9d4221bd
   languageName: node
   linkType: hard
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactElement } from 'react';
-import { type AnyExtension, type JSONContent } from '@tiptap/core';
+import { type AnyExtension } from '@tiptap/core';
 import { Placeholder } from '@tiptap/extensions';
+import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { cn } from '@/lib/utils';
