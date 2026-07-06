@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Main } from './app/create_window';
 import { Tray } from './app/tray';
+import { setTrayEnabled } from './app/set_tray_enabled';
 import { Menu } from './app/menu';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
