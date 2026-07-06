@@ -29,7 +29,7 @@ export const SYSTEM_MEDIA: readonly SystemMedia[] = [
 	},
 	{
 		id: 'microphone',
-		titleKey: 'settings.system.media.microphone.title',
+		titleKey: 'settings.system.media.microphone.label',
 		descriptionKey: 'settings.system.media.microphone.description',
 		icon: Mic,
 		source: 'user',
