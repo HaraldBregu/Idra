@@ -26,7 +26,7 @@ import {
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
 
-async function loadAssistantState(): Promise<ModelConfigurationState> {
+type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
 
 function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	return {
