@@ -8,6 +8,7 @@ import {
 	LLM_PROVIDERS,
 } from '../../../../../../shared/provider_models_definitions';
 import { Button } from '@/components/ui/button';
+import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
 	SettingsNotice,
