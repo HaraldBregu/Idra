@@ -39,13 +39,15 @@ function TextEditor({
 		extensions: [
 			StarterKit,
 			Placeholder.configure({ placeholder }),
+			Markdown,
 			...(extensions ?? []),
 		],
-		content: textToDoc(value ?? ''),
+		content: value ?? '',
+		contentType: 'markdown',
 		editable: !disabled,
 		onCreate: ({ editor: createdEditor }) => onEditorReady?.(createdEditor),
 		onUpdate: ({ editor: updatedEditor }) =>
-			onValueChangeRef.current?.(editorText(updatedEditor)),
+			onValueChangeRef.current?.(updatedEditor.getMarkdown()),
 		editorProps: {
 			attributes: {
 				role: 'textbox',
