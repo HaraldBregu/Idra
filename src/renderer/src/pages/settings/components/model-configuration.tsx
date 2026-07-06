@@ -35,6 +35,8 @@ export function ModelProviderConfiguration({
 	triggerTitle,
 	triggerDescription,
 	showInlineError = false,
+	showSaveButton = true,
+	defaultOpen = false,
 	onProviderChange,
 	onModelChange,
 	onSave,
