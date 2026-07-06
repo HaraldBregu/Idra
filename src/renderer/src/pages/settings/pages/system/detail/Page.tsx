@@ -88,7 +88,6 @@ function MediaDetail({ media }: { readonly media: SystemMedia }): React.JSX.Elem
 			<SettingsPageHeader
 				title={t(media.titleKey)}
 				description={t(media.descriptionKey)}
-				icon={media.icon}
 			/>
 
 			{permissionError && (
