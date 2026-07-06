@@ -177,24 +177,26 @@ const AssistantPage: React.FC = () => {
 
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
-					<SettingsRow
-						title={t('settings.chatHistory.title')}
-						description={t('settings.chatHistory.description')}
-						className="grid-cols-[minmax(0,1fr)_auto]"
-						actionClassName="w-auto justify-end"
-						actions={
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon"
-								className="size-8"
-								aria-label={t('settings.chatHistory.title')}
-								onClick={() => navigate('/settings/assistant/chathistory')}
-							>
-								<ChevronRight className="size-4" />
-							</Button>
-						}
-					/>
+					<div
+						role="button"
+						tabIndex={0}
+						className="cursor-pointer hover:bg-muted/40"
+						onClick={() => navigate('/settings/assistant/chathistory')}
+						onKeyDown={(event) => {
+							if (event.key === 'Enter' || event.key === ' ') {
+								event.preventDefault();
+								navigate('/settings/assistant/chathistory');
+							}
+						}}
+					>
+						<SettingsRow
+							title={t('settings.chatHistory.title')}
+							description={t('settings.chatHistory.description')}
+							className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
+							actionClassName="w-auto justify-end"
+							actions={<ChevronRight className="size-4 text-muted-foreground" />}
+						/>
+					</div>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
