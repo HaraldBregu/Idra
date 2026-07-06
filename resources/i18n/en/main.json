@@ -268,14 +268,17 @@
 			"media": {
 				"open": "Open details",
 				"camera": {
+					"label": "Camera",
 					"title": "Camera (video recording)",
 					"description": "Record video from the webcam to verify camera access."
 				},
 				"microphone": {
+					"label": "Microphone",
 					"title": "Microphone recording",
 					"description": "Record audio from the microphone to verify input access."
 				},
 				"screen": {
+					"label": "Screen",
 					"title": "Screen recording",
 					"description": "Capture the screen to verify screen recording access."
 				},
