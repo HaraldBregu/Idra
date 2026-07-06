@@ -1,4 +1,4 @@
-import { actionableProviderCatalog, createInitialModelServiceState } from '../constants';
+import { actionableProviderCatalog, createInitialModelServiceState, createInitialSpeechModeState } from '../constants';
 import type { SetupAction } from './actions';
 import type { SetupState } from './types';
 
