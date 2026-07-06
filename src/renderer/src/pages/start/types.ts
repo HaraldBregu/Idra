@@ -56,4 +56,6 @@ export type ModelServiceState = {
 
 export type ModelServiceStateMap = Record<ModelServiceId, ModelServiceState>;
 
+export type SpeechModeStateMap = Record<SttSelectionMode, ModelServiceState>;
+
 export type SetupStep = 'presentation' | 'providers' | ModelServiceId;
