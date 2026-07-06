@@ -20,8 +20,14 @@ function formatSessionDate(createdAtMs: number): string {
 	return new Date(createdAtMs).toLocaleString();
 }
 
+function isInteractiveTarget(target: EventTarget | null): boolean {
+	return target instanceof HTMLElement && Boolean(target.closest('button,a'));
+}
+
 const ChatHistoryPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const { setSessionId } = useChatSession();
 	const [sessions, setSessions] = useState<AgentSessionSummary[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
