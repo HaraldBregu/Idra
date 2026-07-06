@@ -35,6 +35,7 @@ export interface AgentInvokeChannelMap {
 		result: import('./agent_types').AgentHistoryMessage[];
 	};
 	[AgentChannels.clearMessages]: { args: [sessionId: string]; result: void };
+	[AgentChannels.deleteSession]: { args: [sessionId: string]; result: void };
 	[AgentChannels.getProvider]: {
 		args: [];
 		result: import('./providers_definitions').PublicProvider | undefined;
