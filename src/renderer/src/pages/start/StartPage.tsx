@@ -1,11 +1,13 @@
 import React, { useReducer } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { AGENTS } from '@/lib/compat';
 import { Button } from '@/components/ui/button';
 import { ModelServiceStep } from './components/ModelServiceStep';
 import { PresentationStep } from './components/PresentationStep';
 import { ProviderStep } from './components/ProviderStep';
 import { StepProgress } from './components/StepProgress';
+import { TranscribeServiceStep } from './components/TranscribeServiceStep';
 import {
 	getSelectedServiceModel,
 	isModelStep,
