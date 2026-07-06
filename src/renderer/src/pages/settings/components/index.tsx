@@ -58,7 +58,7 @@ export function SettingsPageHeader({
 						{title}
 					</h1>
 					{description && (
-						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-[10px] leading-4 text-muted-foreground">
 							{description}
 						</p>
 					)}
@@ -100,7 +100,7 @@ export function SettingsSection({
 						</h2>
 					)}
 					{description && (
-						<p className="mt-0.5 max-w-2xl text-[11px] leading-4 text-muted-foreground">
+						<p className="mt-0.5 max-w-2xl text-[10px] leading-4 text-muted-foreground">
 							{description}
 						</p>
 					)}
