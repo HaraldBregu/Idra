@@ -114,8 +114,14 @@ function usePromptInputExpansion({
 
     // Sticky while non-empty: collapsing widens/narrows the field, so re-measuring
     // after expansion can flip the state back and forth on every keystroke.
+    // The scrollWidth check catches long unbroken words that overflow
+    // horizontally instead of soft-wrapping.
     setIsExpanded(
-      (prev) => prev || value.includes("\n") || textarea.scrollHeight > threshold
+      (prev) =>
+        prev ||
+        value.includes("\n") ||
+        textarea.scrollHeight > threshold ||
+        textarea.scrollWidth > textarea.clientWidth + 1
     )
   }, [enabled, threshold, textareaRef, value])
 
