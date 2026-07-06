@@ -101,8 +101,12 @@ export function createInitialSpeechModeState(): SpeechModeStateMap {
 	};
 }
 
-export async function loadSpeechModeState(mode: SttSelectionMode): Promise<ModelServiceState> {
-	const selection = await window.transcribe.getSelection(mode);
+export async function loadSpeechModeState(
+	mode: SttSelectionMode,
+	options: { readonly restoreSelection?: boolean } = {}
+): Promise<ModelServiceState> {
+	const { restoreSelection = true } = options;
+	const selection = restoreSelection ? await window.transcribe.getSelection(mode) : undefined;
 	const providers = mergeProviders(await window.transcribe.listProviders(), selection?.provider);
 	const modelGroups: ProviderModelGroup[] = [];
 
