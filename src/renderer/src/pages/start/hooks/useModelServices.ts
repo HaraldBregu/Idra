@@ -1,12 +1,17 @@
 import type { Dispatch } from 'react';
 import { useEffect } from 'react';
+import { AGENTS } from '@/lib/compat';
+import type { SttSelectionMode } from '../../../../../shared/stt_transcription';
 import {
 	createInitialModelServiceState,
+	createInitialSpeechModeState,
 	getErrorMessage,
 	getProvidersForService,
 	getSelectedServiceModel,
+	loadSpeechModeStates,
 	MODEL_SERVICE_DEFINITIONS,
 	SETUP_STEPS,
+	SPEECH_MODE_IDS,
 } from '../constants';
 import type { ModelServiceDefinition, ModelServiceId, ProviderModelGroup } from '../types';
 import type { SetupAction } from '../state/actions';
@@ -17,7 +22,7 @@ export function useModelServices(
 	dispatch: Dispatch<SetupAction>,
 	navigate: (path: string) => void
 ) {
-	const { step, serviceStates, savingConfig } = state;
+	const { step, serviceStates, speechModeStates, savingConfig } = state;
 
 	useEffect(() => {
 		if (step === 'presentation' || step === 'providers') return;
@@ -37,6 +42,8 @@ export function useModelServices(
 
 				for (let i = 0; i < MODEL_SERVICE_DEFINITIONS.length; i += 1) {
 					const service = MODEL_SERVICE_DEFINITIONS[i];
+					if (service.id === AGENTS.speechToText) continue;
+
 					const selection = configuredSelections[i];
 
 					let providers: Awaited<ReturnType<typeof getProvidersForService>> = [];
@@ -86,8 +93,17 @@ export function useModelServices(
 					nextServiceStates[service.id] = { providerId, modelId, modelGroups };
 				}
 
+				let nextSpeechModeStates = createInitialSpeechModeState();
+				try {
+					nextSpeechModeStates = await loadSpeechModeStates();
+				} catch (error) {
+					console.warn('[useModelServices] Failed to load speech mode states:', error);
+					firstError ??= error;
+				}
+
 				if (cancelled) return;
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: nextServiceStates });
+				dispatch({ type: 'LOAD_SPEECH_MODE_STATES', states: nextSpeechModeStates });
 
 				if (firstError) {
 					dispatch({
@@ -99,6 +115,7 @@ export function useModelServices(
 				if (cancelled) return;
 				console.error('[useModelServices] Failed to load service configuration:', error);
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: createInitialModelServiceState() });
+				dispatch({ type: 'LOAD_SPEECH_MODE_STATES', states: createInitialSpeechModeState() });
 				dispatch({
 					type: 'SET_ERROR',
 					message: getErrorMessage(error, 'Could not load models for this provider.'),
@@ -135,22 +152,61 @@ export function useModelServices(
 		dispatch({ type: 'CHANGE_SERVICE_MODEL', serviceId, modelId: value ?? '' });
 	}
 
+	function handleSpeechModeProviderChange(mode: SttSelectionMode, value: string | null): void {
+		const providerId = value ?? '';
+		const group = speechModeStates[mode].modelGroups.find(
+			(item) => item.provider.id === providerId
+		);
+		dispatch({ type: 'CLEAR_ERROR' });
+		dispatch({
+			type: 'CHANGE_SPEECH_MODE_PROVIDER',
+			mode,
+			providerId: group?.provider.id ?? providerId,
+			modelId: '',
+		});
+	}
+
+	function handleSpeechModeModelChange(mode: SttSelectionMode, value: string | null): void {
+		dispatch({ type: 'CLEAR_ERROR' });
+		dispatch({ type: 'CHANGE_SPEECH_MODE_MODEL', mode, modelId: value ?? '' });
+	}
+
+	async function saveSpeechModeSelections(): Promise<void> {
+		for (const mode of SPEECH_MODE_IDS) {
+			const selected = getSelectedServiceModel(speechModeStates[mode]);
+			if (!selected) continue;
+			const saved = await window.transcribe.saveSelection(
+				selected.provider.id,
+				selected.model.id,
+				mode
+			);
+			if (!saved) {
+				throw new Error(`Could not save the selected ${mode} transcribe model.`);
+			}
+		}
+	}
+
 	async function handleSaveModelStep(
 		service: ModelServiceDefinition,
 		stepIndex: number
 	): Promise<void> {
 		if (savingConfig) return;
 
-		const selected = getSelectedServiceModel(serviceStates[service.id]);
 		dispatch({ type: 'SET_SAVING_CONFIG', saving: true });
 		dispatch({ type: 'CLEAR_ERROR' });
 		try {
-			if (selected) {
-				const saved = await service.saveSelection(selected.provider, selected.model);
-				if (!saved) {
-					throw new Error(`Could not save the selected ${service.stepTitle} model.`);
+			if (service.id === AGENTS.speechToText) {
+				await saveSpeechModeSelections();
+			} else {
+				const selected = getSelectedServiceModel(serviceStates[service.id]);
+				if (selected) {
+					const saved = await service.saveSelection(selected.provider, selected.model);
+					if (!saved) {
+						throw new Error(`Could not save the selected ${service.stepTitle} model.`);
+					}
 				}
 			}
+
 			const nextStep = SETUP_STEPS[stepIndex + 1];
 			if (!nextStep) {
 				navigate('/home');
@@ -171,6 +227,8 @@ export function useModelServices(
 	return {
 		handleServiceProviderChange,
 		handleServiceModelChange,
+		handleSpeechModeProviderChange,
+		handleSpeechModeModelChange,
 		handleSaveModelStep,
 	};
 }
