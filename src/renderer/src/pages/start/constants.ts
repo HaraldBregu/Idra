@@ -28,8 +28,10 @@ import type {
 	ModelServiceState,
 	ModelServiceStateMap,
 	ProviderCatalogItem,
+	ProviderModelGroup,
 	ProviderOption,
 	SetupStep,
+	SpeechModeStateMap,
 } from './types';
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
