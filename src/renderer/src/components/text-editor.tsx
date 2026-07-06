@@ -19,20 +19,6 @@ export type TextEditorProps = {
 	readonly onEditorReady?: (editor: Editor) => void;
 };
 
-function textToDoc(text: string): JSONContent {
-	return {
-		type: 'doc',
-		content: text.split('\n').map((line) => ({
-			type: 'paragraph',
-			...(line ? { content: [{ type: 'text', text: line }] } : {}),
-		})),
-	};
-}
-
-function editorText(editor: Editor): string {
-	return editor.getText({ blockSeparator: '\n' });
-}
-
 function TextEditor({
 	value,
 	onValueChange,
