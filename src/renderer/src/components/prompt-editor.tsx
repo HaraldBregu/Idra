@@ -35,7 +35,7 @@ function PromptEditorArea({
 				// both of which the contenteditable element supports
 				textareaRef.current = editor.view.dom as unknown as HTMLTextAreaElement;
 			}}
-			className="max-h-[34vh] min-h-14 overflow-y-auto text-sm leading-6 text-foreground"
+			className="max-h-[34vh] min-h-7 overflow-y-auto text-sm leading-6 text-foreground"
 		/>
 	);
 }
