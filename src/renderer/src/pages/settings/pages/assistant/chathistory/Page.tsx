@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, History, LoaderCircle, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, LoaderCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { AgentSessionSummary } from '@/lib/compat';
 import {
