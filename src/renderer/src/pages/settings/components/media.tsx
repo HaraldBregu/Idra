@@ -155,6 +155,15 @@ function MediaPermissionRow({
 					>
 						<RefreshCw className="size-3" />
 					</Button>
+					<Button
+						variant="ghost"
+						size="icon-xs"
+						onClick={onOpenDetail}
+						aria-label={t('settings.system.media.open')}
+						title={t('settings.system.media.open')}
+					>
+						<ChevronRight className="size-3" />
+					</Button>
 				</>
 			}
 		/>
