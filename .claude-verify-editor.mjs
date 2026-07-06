@@ -30,6 +30,19 @@ try {
 	console.log('url:', page.url());
 	await shot('00-initial');
 	console.log('body text head:', (await page.evaluate(() => document.body.innerText)).slice(0, 400));
+	if (page.url().includes('#start')) {
+		const skipped = await page.evaluate(() => {
+			const el = [...document.querySelectorAll('button, a, [role="button"]')].find(
+				(b) => b.textContent?.trim() === 'Skip'
+			);
+			if (!el) return false;
+			el.click();
+			return true;
+		});
+		console.log('clicked Skip:', skipped);
+		await page.waitForTimeout(2_000);
+		console.log('url after skip:', page.url());
+	}
 	await page.waitForSelector('.tiptap', { timeout: 30_000 });
 	console.log('editor found');
 	await shot('01-landing');
