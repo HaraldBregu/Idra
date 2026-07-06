@@ -6,6 +6,7 @@ export const AgentChannels = {
 	listSessions: 'agent:list-sessions',
 	lastMessages: 'agent:last-messages',
 	clearMessages: 'agent:clear-messages',
+	deleteSession: 'agent:delete-session',
 	getProvider: 'agent:get-provider',
 	setProvider: 'agent:set-provider',
 	getModelId: 'agent:get-model-id',
