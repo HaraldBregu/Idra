@@ -4,7 +4,6 @@ import {
 	usePromptInput,
 	type PromptInputProps,
 } from '@/components/ui/prompt-input';
-import { cn } from '@/lib/utils';
 import { SlashMenu } from './slash-menu';
 import { TextEditor } from './text-editor';
 
