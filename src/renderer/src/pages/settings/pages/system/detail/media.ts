@@ -19,7 +19,7 @@ export interface SystemMedia {
 export const SYSTEM_MEDIA: readonly SystemMedia[] = [
 	{
 		id: 'camera',
-		titleKey: 'settings.system.media.camera.title',
+		titleKey: 'settings.system.media.camera.label',
 		descriptionKey: 'settings.system.media.camera.description',
 		icon: Camera,
 		source: 'user',
