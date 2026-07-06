@@ -87,9 +87,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 	{
 		id: AGENTS.textToImage,
-		label: 'Text to Image',
-		stepName: 'Images',
-		stepTitle: 'Image generation',
+		label: 'Image',
+		stepName: 'Image',
+		stepTitle: 'Image',
 		stepDescription: 'Creates images and visual assets from your text prompts.',
 		icon: ImageIcon,
 		required: false,
@@ -111,30 +111,6 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 			await window.image.setModelId(model.id);
 			return true;
 		},
-	},
-	{
-		id: AGENTS.textToVideo,
-		label: 'Text to Video',
-		stepName: 'Video',
-		stepTitle: 'Video generation',
-		stepDescription: 'Generates and edits short clips from prompts or existing footage.',
-		icon: Video,
-		required: false,
-		getSelection: () => appApi.getTextToVideoService(),
-		getModels: (provider) => appApi.getTextToVideoModels(provider),
-		saveSelection: (provider, model) => appApi.saveTextToVideoService(provider, model),
-	},
-	{
-		id: AGENTS.textToAudio,
-		label: 'Text to Audio',
-		stepName: 'Music',
-		stepTitle: 'Music generation',
-		stepDescription: 'Composes songs, loops, and short audio pieces.',
-		icon: Music,
-		required: false,
-		getSelection: () => appApi.getTextToSoundService(),
-		getModels: (provider) => appApi.getTextToSoundModels(provider),
-		saveSelection: (provider, model) => appApi.saveTextToSoundService(provider, model),
 	},
 ];
 
