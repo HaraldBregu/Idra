@@ -134,6 +134,10 @@ export class Agent {
 		clearSessionMessages(this.session, this.config, sessionId);
 	}
 
+	deleteSession(sessionId: string): void {
+		deleteStoredSession(this.session, this.config, sessionId);
+	}
+
 	cancel(agentId?: string): void {
 		rejectPendingToolPermissions();
 		if (agentId) {
