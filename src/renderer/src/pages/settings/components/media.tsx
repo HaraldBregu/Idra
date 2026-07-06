@@ -44,28 +44,22 @@ export function MediaPermissionsSection({
 	const { t } = useTranslation();
 
 	return (
-		<SettingsSection
-			title={t('settings.system.mediaPermissions.title')}
-			description={t('settings.system.mediaPermissions.description')}
-			className={className}
-		>
-			<SettingsPanel>
-				<MediaRow
-					icon={Mic}
-					title={t('settings.system.media.microphone.label')}
-					detailPath="/settings/system/media/microphone"
-				/>
-				<MediaRow
-					icon={Camera}
-					title={t('settings.system.media.camera.label')}
-					detailPath="/settings/system/media/camera"
-				/>
-				<MediaRow
-					icon={MonitorUp}
-					title={t('settings.system.media.screen.label')}
-					detailPath="/settings/system/media/screen"
-				/>
-			</SettingsPanel>
-		</SettingsSection>
+		<SettingsPanel className={className}>
+			<MediaRow
+				icon={Mic}
+				title={t('settings.system.media.microphone.label')}
+				detailPath="/settings/system/media/microphone"
+			/>
+			<MediaRow
+				icon={Camera}
+				title={t('settings.system.media.camera.label')}
+				detailPath="/settings/system/media/camera"
+			/>
+			<MediaRow
+				icon={MonitorUp}
+				title={t('settings.system.media.screen.label')}
+				detailPath="/settings/system/media/screen"
+			/>
+		</SettingsPanel>
 	);
 }
