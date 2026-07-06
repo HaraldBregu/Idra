@@ -25,6 +25,11 @@ const shot = async (name) => {
 };
 
 try {
+	await page.waitForTimeout(6_000);
+	console.log('windows:', app.windows().map((w) => w.url()));
+	console.log('url:', page.url());
+	await shot('00-initial');
+	console.log('body text head:', (await page.evaluate(() => document.body.innerText)).slice(0, 400));
 	await page.waitForSelector('.tiptap', { timeout: 30_000 });
 	console.log('editor found');
 	await shot('01-landing');
