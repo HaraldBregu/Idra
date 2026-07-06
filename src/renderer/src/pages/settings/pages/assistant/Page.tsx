@@ -150,69 +150,23 @@ const AssistantPage: React.FC = () => {
 		}
 	};
 
-	const handleClearHistory = async (): Promise<void> => {
-		if (!window.confirm(t('settings.chatHistory.confirmDelete'))) return;
-		setHistoryDeleting(true);
-		setState((current) => ({ ...current, error: null }));
-		try {
-			await window.agent.clearMessages(HOME_AGENT_SESSION_ID);
-		} catch (error) {
-			setState((current) => ({
-				...current,
-				error: firstErrorMessage(error, t('settings.chatHistory.errors.delete')),
-			}));
-		} finally {
-			setHistoryDeleting(false);
-		}
-	};
-
-	return (
-		<SettingsPageShell>
-			<SettingsPageHeader
-				title={t('settings.modelServices.assistantName')}
-				description={t('settings.modelServices.fridayDescription')}
-			/>
-
-			{state.error && (
-				<SettingsNotice variant="destructive" icon={AlertTriangle}>
-					{state.error}
-				</SettingsNotice>
-			)}
-
-			<SettingsSection title={t('settings.modelServices.configuration')}>
-				<ModelProviderConfiguration
-					configState={state}
-					idPrefix="assistant"
-					providerDescription={t('settings.modelServices.providerDescription')}
-					modelDescription={t('settings.modelServices.modelDescription')}
-					onProviderChange={handleProviderChange}
-					onModelChange={handleModelChange}
-					onSave={() => void handleSave()}
-				/>
-			</SettingsSection>
-
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
 					<SettingsRow
-						title={t('settings.modelServices.history')}
+						title={t('settings.chatHistory.title')}
 						description={t('settings.chatHistory.description')}
 						className="grid-cols-[minmax(0,1fr)_auto]"
 						actionClassName="w-auto justify-end"
 						actions={
 							<Button
 								type="button"
-								variant="destructive"
+								variant="ghost"
 								size="icon"
 								className="size-8"
-								disabled={historyDeleting}
-								aria-label={t('settings.chatHistory.delete')}
-								onClick={() => void handleClearHistory()}
+								aria-label={t('settings.chatHistory.title')}
+								onClick={() => navigate('/settings/assistant/chathistory')}
 							>
-								{historyDeleting ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<Trash2 className="size-3" />
-								)}
+								<ChevronRight className="size-4" />
 							</Button>
 						}
 					/>
