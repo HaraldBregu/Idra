@@ -83,6 +83,71 @@ export async function getProvidersForService(serviceId: ModelServiceId): Promise
 	return [];
 }
 
+export const SPEECH_MODE_IDS: readonly SttSelectionMode[] = ['realtime', 'transcribe'];
+
+function speechModeApiType(mode: SttSelectionMode): SpeechToTextApiType {
+	return mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
+}
+
+function speechModeModels(providerId: string, models: readonly Model[], mode: SttSelectionMode): Model[] {
+	const apiType = speechModeApiType(mode);
+	return models.filter((model) => supportsSpeechToTextModelApiType(providerId, model.id, apiType));
+}
+
+export function createInitialSpeechModeState(): SpeechModeStateMap {
+	return {
+		realtime: { providerId: '', modelId: '', modelGroups: [] },
+		transcribe: { providerId: '', modelId: '', modelGroups: [] },
+	};
+}
+
+export async function loadSpeechModeState(mode: SttSelectionMode): Promise<ModelServiceState> {
+	const selection = await window.transcribe.getSelection(mode);
+	const providers = mergeProviders(await window.transcribe.listProviders(), selection?.provider);
+	const modelGroups: ProviderModelGroup[] = [];
+
+	for (const provider of providers) {
+		const models = speechModeModels(
+			provider.id,
+			await window.transcribe.listModels(provider.id),
+			mode
+		);
+		const nextModels =
+			selection?.provider.id === provider.id &&
+			supportsSpeechToTextModelApiType(
+				provider.id,
+				selection.model.id,
+				speechModeApiType(mode)
+			)
+				? mergeModels(models, selection.model)
+				: models;
+		if (nextModels.length > 0) {
+			modelGroups.push({ provider, models: nextModels });
+		}
+	}
+
+	let providerId = '';
+	let modelId = '';
+	if (selection) {
+		const selectedGroup = modelGroups.find((group) => group.provider.id === selection.provider.id);
+		const selectedModel = selectedGroup?.models.find((model) => model.id === selection.model.id);
+		if (selectedGroup && selectedModel) {
+			providerId = selectedGroup.provider.id;
+			modelId = selectedModel.id;
+		}
+	}
+
+	return { providerId, modelId, modelGroups };
+}
+
+export async function loadSpeechModeStates(): Promise<SpeechModeStateMap> {
+	const [realtime, transcribe] = await Promise.all([
+		loadSpeechModeState('realtime'),
+		loadSpeechModeState('transcribe'),
+	]);
+	return { realtime, transcribe };
+}
+
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: AGENTS.assistant,
