@@ -265,6 +265,31 @@
 				"title": "Media permissions",
 				"description": "Control camera and microphone access used by Friday features."
 			},
+			"media": {
+				"open": "Open details",
+				"camera": {
+					"title": "Camera (video recording)",
+					"description": "Record video from the webcam to verify camera access."
+				},
+				"microphone": {
+					"title": "Microphone recording",
+					"description": "Record audio from the microphone to verify input access."
+				},
+				"screen": {
+					"title": "Screen recording",
+					"description": "Capture the screen to verify screen recording access."
+				},
+				"test": {
+					"title": "Recording test",
+					"description": "Record a short sample and play it back to confirm it works.",
+					"start": "Start test",
+					"stop": "Stop",
+					"retry": "Record again",
+					"result": "Recorded sample",
+					"recording": "Recording… {{time}}",
+					"audioIdle": "Press Start test to record a short audio sample."
+				}
+			},
 			"permissionStatus": {
 				"not-determined": "Not Asked",
 				"granted": "Active",
