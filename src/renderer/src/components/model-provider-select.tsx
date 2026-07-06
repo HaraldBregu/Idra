@@ -147,10 +147,12 @@ export function ModelProviderSelect({
 				description={modelDescription}
 			>
 				<Select
+					key={`${idPrefix}-model-${providerId || 'none'}`}
 					value={modelId || null}
 					onValueChange={(value) => onModelChange(value ?? '')}
 					disabled={
-						modelDisabled ?? (disabled || !selectedGroup || selectedGroup.models.length === 0)
+						modelDisabled ??
+						(disabled || !providerId || !selectedGroup || selectedGroup.models.length === 0)
 					}
 				>
 					<SelectTrigger id={`${idPrefix}-model`} className="w-full text-xs">
