@@ -416,6 +416,10 @@ input[type='range']:hover::-moz-range-thumb {
 	word-break: break-word;
 }
 
+.tiptap:focus-visible {
+	outline: none;
+}
+
 .tiptap .is-editor-empty:first-child::before {
 	content: attr(data-placeholder);
 	color: var(--muted-foreground);
