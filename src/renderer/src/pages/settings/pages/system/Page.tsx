@@ -77,10 +77,6 @@ const SystemPage: React.FC = () => {
 		handleOpenSystemPreference('Accessibility');
 	}, [handleOpenSystemPreference]);
 
-	const handleOpenScreenRecording = useCallback(() => {
-		handleOpenSystemPreference('ScreenCapture');
-	}, [handleOpenSystemPreference]);
-
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
