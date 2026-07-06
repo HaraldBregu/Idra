@@ -166,8 +166,7 @@ export const SlashMenu = Extension.create({
 						onUpdate: (props) => component?.updateProps(props),
 						onKeyDown: (props) => {
 							if (props.event.key === 'Escape') {
-								unmount?.();
-								unmount = null;
+								exitSuggestion(props.view, slashMenuPluginKey);
 								return true;
 							}
 							return component?.ref?.onKeyDown(props) ?? false;
