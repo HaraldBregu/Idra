@@ -15,7 +15,6 @@ import type { SetupState } from '../state/types';
 export function useModelServices(
 	state: SetupState,
 	dispatch: Dispatch<SetupAction>,
-	connectedProviderIds: ReadonlySet<string>,
 	navigate: (path: string) => void
 ) {
 	const { step, serviceStates, savingConfig } = state;
