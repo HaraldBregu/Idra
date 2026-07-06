@@ -26,6 +26,7 @@ const StartPage: React.FC = () => {
 		providerEntries,
 		savingProviderId,
 		serviceStates,
+		speechModeStates,
 		loadingModels,
 		savingConfig,
 		errorMessage,
