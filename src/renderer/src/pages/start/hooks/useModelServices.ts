@@ -95,7 +95,7 @@ export function useModelServices(
 
 				let nextSpeechModeStates = createInitialSpeechModeState();
 				try {
-					nextSpeechModeStates = await loadSpeechModeStates();
+					nextSpeechModeStates = await loadSpeechModeStates({ restoreSelection: false });
 				} catch (error) {
 					console.warn('[useModelServices] Failed to load speech mode states:', error);
 					firstError ??= error;
