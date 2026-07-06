@@ -61,8 +61,10 @@ try {
 		results[`${label} text + long word`] = await probe();
 		await clear();
 
-		await page.evaluate(() => navigator.clipboard.writeText('c'.repeat(300)));
-		await page.keyboard.press('Meta+v');
+		await page.evaluate(() => {
+			document.querySelector('.tiptap').focus();
+			document.execCommand('insertText', false, 'c'.repeat(300));
+		});
 		await page.waitForTimeout(300);
 		results[`${label} pasted long word`] = await probe();
 		if (label === 'wide-1600px') {
