@@ -1,4 +1,4 @@
-import { BrowserWindow, net, protocol, session } from 'electron';
+import { BrowserWindow, desktopCapturer, net, protocol, session } from 'electron';
 import { pathToFileURL } from 'node:url';
 import type { LoggerService } from '../shared';
 
