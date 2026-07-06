@@ -112,6 +112,19 @@ const StartPage: React.FC = () => {
 		}
 
 		if (currentService) {
+			if (currentService.id === AGENTS.speechToText) {
+				return (
+					<TranscribeServiceStep
+						service={currentService}
+						speechModeStates={speechModeStates}
+						loadingModels={loadingModels}
+						savingConfig={savingConfig}
+						onProviderChange={handleSpeechModeProviderChange}
+						onModelChange={handleSpeechModeModelChange}
+					/>
+				);
+			}
+
 			return (
 				<ModelServiceStep
 					service={currentService}
