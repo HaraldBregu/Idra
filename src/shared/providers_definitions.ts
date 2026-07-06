@@ -322,14 +322,6 @@ export const DEFAULT_PROVIDERS: readonly Provider[] = [
 		apiConfiguration: PROVIDER_API_CONFIGURATIONS.google,
 	},
 	{
-		id: 'meta',
-		name: 'Meta',
-		baseUrl: 'https://ai.meta.com',
-		apiKey: '',
-		capabilities: 'Chat - Video',
-		apiConfiguration: PROVIDER_API_CONFIGURATIONS.meta,
-	},
-	{
 		id: 'xai',
 		name: 'xAI',
 		baseUrl: 'https://api.x.ai/v1',
