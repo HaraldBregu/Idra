@@ -113,7 +113,7 @@ export function ModelProviderSelect({
 				description={providerDescription}
 			>
 				<Select
-					value={providerId}
+					value={providerId || null}
 					onValueChange={(value) => onProviderChange(value ?? '')}
 					disabled={disabled}
 				>
