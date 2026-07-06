@@ -112,6 +112,7 @@ export function useModelServices(
 				if (cancelled) return;
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: nextServiceStates });
 				dispatch({ type: 'LOAD_SPEECH_MODE_STATES', states: nextSpeechModeStates });
+				modelsLoadedRef.current = true;
 
 				if (firstError) {
 					dispatch({
