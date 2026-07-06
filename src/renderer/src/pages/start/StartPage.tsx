@@ -40,7 +40,7 @@ const StartPage: React.FC = () => {
 		handleOpenProviderLink,
 	} = useProviderSetup(state, dispatch);
 
-	const { handleServiceProviderChange, handleServiceModelChange, handleSaveModelStep } =
+	const { handleServiceProviderChange, handleServiceModelChange, handleSpeechModeProviderChange, handleSpeechModeModelChange, handleSaveModelStep } =
 		useModelServices(state, dispatch, navigate);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
