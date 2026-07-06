@@ -42,6 +42,7 @@ export function ModelProviderConfiguration({
 	onSave,
 }: ModelProviderConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
+	const [isOpen, setIsOpen] = useState(defaultOpen);
 	const group = configState.modelGroups.find(
 		(item) => item.provider.id === configState.providerId
 	);
