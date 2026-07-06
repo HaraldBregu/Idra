@@ -105,6 +105,7 @@ function MediaPermissionRow({
 	onRequest,
 	onOpenSettings,
 	onRefresh,
+	onOpenDetail,
 }: {
 	readonly config: MediaPermissionConfig;
 	readonly permission: MicrophonePermissionSettings | CameraPermissionSettings;
@@ -112,6 +113,7 @@ function MediaPermissionRow({
 	readonly onRequest: () => void;
 	readonly onOpenSettings: () => void;
 	readonly onRefresh: () => void;
+	readonly onOpenDetail: () => void;
 }): React.JSX.Element {
 	const { t } = useTranslation();
 	const Icon = config.icon;
