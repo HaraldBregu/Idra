@@ -648,13 +648,7 @@ function PageContent(): ReactElement {
 									/>
 								</PromptInputActions>
 							}
-						>
-							<PromptInputTextarea
-								placeholder="Ask anything"
-								aria-label="Message Friday"
-								className="rounded-none"
-							/>
-						</PromptInput>
+						/>
 					</div>
 				</div>
 			</div>
