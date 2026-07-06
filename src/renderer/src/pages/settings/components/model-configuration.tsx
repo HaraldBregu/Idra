@@ -121,21 +121,23 @@ export function ModelProviderConfiguration({
 							</p>
 						)}
 
-						<div className="flex justify-end">
-							<Button
-								type="button"
-								size="sm"
-								disabled={configState.saving || !provider || !model}
-								onClick={onSave}
-							>
-								{configState.saving ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<Save className="size-3" />
-								)}
-								{configState.saving ? t('settings.modelServices.saving') : t('common.save')}
-							</Button>
-						</div>
+						{showSaveButton ? (
+							<div className="flex justify-end">
+								<Button
+									type="button"
+									size="sm"
+									disabled={configState.saving || !provider || !model}
+									onClick={onSave}
+								>
+									{configState.saving ? (
+										<LoaderCircle className="size-3 animate-spin" />
+									) : (
+										<Save className="size-3" />
+									)}
+									{configState.saving ? t('settings.modelServices.saving') : t('common.save')}
+								</Button>
+							</div>
+						) : null}
 					</div>
 				)}
 			</CollapsibleContent>
