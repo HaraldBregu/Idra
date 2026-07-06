@@ -52,13 +52,6 @@ export function useModelServices(
 						firstError ??= error;
 					}
 
-					const preferredProvider =
-						(selection
-							? providers.find((provider) => provider.id === selection.provider.id)
-							: undefined) ??
-						providers.find((provider) => connectedProviderIds.has(provider.id)) ??
-						providers[0];
-
 					const modelGroups: ProviderModelGroup[] = [];
 					for (const provider of providers) {
 						try {
@@ -76,15 +69,20 @@ export function useModelServices(
 						}
 					}
 
-					const preferredGroup =
-						modelGroups.find((group) => group.provider.id === preferredProvider?.id) ??
-						modelGroups[0];
-					const providerId = preferredGroup?.provider.id ?? '';
-					const preferredModelId = selection?.model.id;
-					const modelId =
-						preferredGroup?.models.find((model) => model.id === preferredModelId)?.id ??
-						preferredGroup?.models[0]?.id ??
-						'';
+					let providerId = '';
+					let modelId = '';
+					if (selection) {
+						const selectedGroup = modelGroups.find(
+							(group) => group.provider.id === selection.provider.id
+						);
+						const selectedModel = selectedGroup?.models.find(
+							(model) => model.id === selection.model.id
+						);
+						if (selectedGroup && selectedModel) {
+							providerId = selectedGroup.provider.id;
+							modelId = selectedModel.id;
+						}
+					}
 
 					nextServiceStates[service.id] = { providerId, modelId, modelGroups };
 				}
