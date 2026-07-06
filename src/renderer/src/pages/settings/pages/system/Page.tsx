@@ -121,17 +121,6 @@ const SystemPage: React.FC = () => {
 					/>
 				</SettingsPanel>
 			</SettingsSection>
-
-			<SettingsSection
-				title={t('settings.system.capabilities.title')}
-				className="mt-4"
-			>
-				<div className="grid gap-3 lg:grid-cols-2">
-					{SYSTEM_CAPABILITY_GROUPS.map((group) => (
-						<SystemCapabilityGroupPanel key={group.id} group={group} />
-					))}
-				</div>
-			</SettingsSection>
 		</SettingsPageShell>
 	);
 };
