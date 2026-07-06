@@ -196,6 +196,7 @@ export function MediaPermissionsSection({
 	const handleRequestCameraPermission = useCallback(async (): Promise<void> => {
 		setCameraError('');
 		try {
+			await acquireMediaStream({ video: true });
 			setCameraPermission(await window.app.requestCameraPermission());
 		} catch (error) {
 			setCameraError(errorMessage(error, t('settings.camera.errors.request')));
