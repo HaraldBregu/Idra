@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, LoaderCircle, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared';
 import {
 	LLM_MODELS_BY_PROVIDER,
