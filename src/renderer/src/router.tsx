@@ -187,11 +187,24 @@ const routes: RouteObject[] = [
 					},
 					{
 						path: 'system',
-						element: (
-							<SettingsRouteWrapper>
-								<SystemPage />
-							</SettingsRouteWrapper>
-						),
+						children: [
+							{
+								index: true,
+								element: (
+									<SettingsRouteWrapper>
+										<SystemPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'media/:mediaId',
+								element: (
+									<SettingsRouteWrapper>
+										<SystemMediaDetailPage />
+									</SettingsRouteWrapper>
+								),
+							},
+						],
 					},
 					{
 						path: 'channels',
