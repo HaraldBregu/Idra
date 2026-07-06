@@ -227,6 +227,13 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.deleteSession,
+			wrapSimpleHandler((sessionId: unknown): void => {
+				agent.deleteSession(normalizeAgentSessionId(sessionId));
+			}, AgentChannels.deleteSession)
+		);
+
+		ipcMain.handle(
 			AgentChannels.getProvider,
 			wrapSimpleHandler((): PublicProvider | undefined => {
 				const providerId = getProviderId();
