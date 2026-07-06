@@ -17,47 +17,9 @@ import {
 } from '../../components';
 import { MediaPermissionsSection } from '../../components/media';
 import type { SystemPreferencePaneId } from '../../../../../../shared/app_types';
-import {
-	SYSTEM_CAPABILITY_GROUPS,
-	type SystemCapabilityAvailability,
-	type SystemCapabilityGroup,
-	type SystemCapabilityItem,
-} from './capabilities';
 
 function errorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
-}
-
-function availabilityClassName(availability: SystemCapabilityAvailability): string {
-	switch (availability) {
-		case 'yes':
-			return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300';
-		case 'oftenYes':
-			return 'border-sky-500/30 bg-sky-500/10 text-sky-700 dark:text-sky-300';
-		case 'sometimes':
-			return 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300';
-		case 'comingSoon':
-			return 'border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300';
-	}
-}
-
-function AvailabilityBadge({
-	availability,
-}: {
-	readonly availability: SystemCapabilityAvailability;
-}): React.JSX.Element {
-	const { t } = useTranslation();
-
-	return (
-		<span
-			className={cn(
-				'inline-flex h-6 shrink-0 items-center rounded-md border px-2 text-[11px] font-medium',
-				availabilityClassName(availability)
-			)}
-		>
-			{t(`settings.system.availability.${availability}`)}
-		</span>
-	);
 }
 
 function SystemSettingsItem({
