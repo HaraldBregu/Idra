@@ -62,37 +62,6 @@ function SystemSettingsItem({
 	);
 }
 
-function SystemCapabilityRow({
-	capability,
-}: {
-	readonly capability: SystemCapabilityItem;
-}): React.JSX.Element {
-	const { t } = useTranslation();
-
-	return (
-		<SystemSettingsItem
-			title={t(capability.titleKey)}
-			description={t(capability.noteKey)}
-			icon={capability.icon}
-			actions={<AvailabilityBadge availability={capability.availability} />}
-		/>
-	);
-}
-
-function SystemCapabilityGroupPanel({
-	group,
-}: {
-	readonly group: SystemCapabilityGroup;
-}): React.JSX.Element {
-	return (
-		<SettingsPanel className="h-full">
-			{group.capabilities.map((capability) => (
-				<SystemCapabilityRow key={capability.id} capability={capability} />
-			))}
-		</SettingsPanel>
-	);
-}
-
 const SystemPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [systemPreferenceError, setSystemPreferenceError] = useState('');
