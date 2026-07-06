@@ -52,7 +52,8 @@ export function useModelServices(
 					const service = MODEL_SERVICE_DEFINITIONS[i];
 					if (service.id === AGENTS.speechToText) continue;
 
-					const selection = configuredSelections[i];
+					const selection =
+						service.id === AGENTS.assistant ? configuredSelections[i] : undefined;
 
 					let providers: Awaited<ReturnType<typeof getProvidersForService>> = [];
 					try {
