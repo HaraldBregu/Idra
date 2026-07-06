@@ -76,14 +76,6 @@ export function ModelProviderConfiguration({
 					disabled={
 						configState.loading || configState.saving || configState.modelGroups.length === 0
 					}
-					modelDisabled={
-						configState.loading ||
-						configState.loadingModels ||
-						configState.saving ||
-						!provider ||
-						!group ||
-						group.models.length === 0
-					}
 					labels={{
 						providerDescription,
 						modelDescription,
