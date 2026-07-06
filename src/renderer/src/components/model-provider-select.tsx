@@ -127,7 +127,9 @@ export function ModelProviderSelect({
 							placeholder={
 								labels?.providerPlaceholder ?? t('settings.modelServices.providerPlaceholder')
 							}
-						/>
+						>
+							{selectedProviderLabel}
+						</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
 						{providerGroups.map((group) => (
