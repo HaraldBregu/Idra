@@ -12,6 +12,7 @@ export const initialSetupState: SetupState = {
 	})),
 	savingProviderId: null,
 	serviceStates: createInitialModelServiceState(),
+	speechModeStates: createInitialSpeechModeState(),
 	loadingModels: false,
 	savingConfig: false,
 	errorMessage: '',
