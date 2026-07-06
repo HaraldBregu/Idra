@@ -343,6 +343,7 @@ function PromptInput({
   maxHeight = 240,
   maxLength,
   expandedThreshold = 52,
+  expanded,
   value,
   onValueChange,
   onSubmit,
