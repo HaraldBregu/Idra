@@ -23,9 +23,17 @@ export function useModelServices(
 	navigate: (path: string) => void
 ) {
 	const { step, serviceStates, speechModeStates, savingConfig } = state;
+	const modelsLoadedRef = useRef(false);
+
+	useEffect(() => {
+		if (step === 'providers') {
+			modelsLoadedRef.current = false;
+		}
+	}, [step]);
 
 	useEffect(() => {
 		if (step === 'presentation' || step === 'providers') return;
+		if (modelsLoadedRef.current) return;
 		let cancelled = false;
 
 		async function loadServiceModels(): Promise<void> {
