@@ -1,7 +1,8 @@
-import React from 'react';
-import { LoaderCircle } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
-import { ModelProviderSelect, toModelProviderGroups } from '@/components/model-provider-select';
+import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
+import type { ModelConfigurationState } from '@pages/settings/components/model-configuration-state';
 import type { ModelServiceDefinition, ModelServiceId, ModelServiceState } from '../types';
 
 type ModelServiceStepProps = {
@@ -13,6 +14,24 @@ type ModelServiceStepProps = {
 	readonly onModelChange: (serviceId: ModelServiceId, value: string | null) => void;
 };
 
+function toModelConfigurationState(
+	serviceState: ModelServiceState,
+	loadingModels: boolean,
+	savingConfig: boolean
+): ModelConfigurationState {
+	return {
+		providers: serviceState.modelGroups.map((group) => group.provider),
+		modelGroups: serviceState.modelGroups,
+		providerId: serviceState.providerId,
+		modelId: serviceState.modelId,
+		loading: loadingModels && serviceState.modelGroups.length === 0,
+		loadingModels,
+		saving: savingConfig,
+		saved: false,
+		error: null,
+	};
+}
+
 export function ModelServiceStep({
 	service,
 	serviceState,
@@ -21,8 +40,12 @@ export function ModelServiceStep({
 	onProviderChange,
 	onModelChange,
 }: ModelServiceStepProps): React.JSX.Element {
+	const { t } = useTranslation();
 	const ServiceIcon = service.icon;
-	const noModels = !loadingModels && serviceState.modelGroups.length === 0;
+	const configState = useMemo(
+		() => toModelConfigurationState(serviceState, loadingModels, savingConfig),
+		[loadingModels, savingConfig, serviceState]
+	);
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
@@ -42,41 +65,20 @@ export function ModelServiceStep({
 			</p>
 
 			<div className="mt-8 max-w-md">
-				<ModelProviderSelect
+				<ModelProviderConfiguration
+					configState={configState}
 					idPrefix={service.id}
-					providerGroups={toModelProviderGroups(serviceState.modelGroups)}
-					providerId={serviceState.providerId}
-					modelId={serviceState.modelId}
+					triggerTitle={service.stepTitle}
+					triggerDescription={service.stepDescription}
+					providerDescription={t('settings.modelServices.providerDescription')}
+					modelDescription={t('settings.modelServices.modelDescription')}
+					defaultOpen
+					showSaveButton={false}
 					onProviderChange={(value) => onProviderChange(service.id, value)}
 					onModelChange={(value) => onModelChange(service.id, value)}
-					disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
-					labels={{
-						providerPlaceholder: loadingModels
-							? 'Loading...'
-							: noModels
-								? 'No providers'
-								: 'Select provider',
-						modelPlaceholder: loadingModels
-							? 'Loading...'
-							: noModels
-								? 'No models'
-								: 'Select model',
-					}}
+					onSave={() => undefined}
 				/>
 			</div>
-
-			{loadingModels ? (
-				<div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-					<LoaderCircle className="size-3.5 animate-spin" />
-					<span>Loading compatible models...</span>
-				</div>
-			) : null}
-
-			{noModels ? (
-				<p className="mt-4 text-xs text-muted-foreground">
-					Connect a compatible provider to choose a model for this step.
-				</p>
-			) : null}
 		</div>
 	);
 }
