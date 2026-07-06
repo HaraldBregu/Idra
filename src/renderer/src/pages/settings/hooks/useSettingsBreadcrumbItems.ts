@@ -48,7 +48,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 				label: assistantItem ? t(assistantItem.labelKey) : t('settings.modelServices.assistantName'),
 				path: '/settings/assistant',
 			},
-			{ label: t('settings.modelServices.history') },
+			{ label: t('settings.chatHistory.title') },
 		];
 	}
 
