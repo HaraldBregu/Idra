@@ -26,9 +26,7 @@ import {
 } from '../../components/model-configuration-state';
 import type { ProviderModelGroup } from '../../../start/types';
 
-const HOME_AGENT_SESSION_ID = 'home';
-
-type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
+async function loadAssistantState(): Promise<ModelConfigurationState> {
 
 function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	return {
