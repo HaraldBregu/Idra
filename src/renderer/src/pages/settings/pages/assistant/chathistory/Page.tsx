@@ -87,7 +87,6 @@ const ChatHistoryPage: React.FC = () => {
 					<SettingsLoadingRows rows={4} />
 				) : sessions.length === 0 ? (
 					<SettingsEmptyState
-						icon={History}
 						title={t('settings.chatHistory.empty')}
 						description={t('settings.chatHistory.emptyDescription')}
 					/>
