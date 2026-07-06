@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import type { SttSelectionMode } from '../../../../shared/stt_transcription';
 import { AGENTS } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared';
 import type { Model, ModelSelection } from '@/lib/compat';
