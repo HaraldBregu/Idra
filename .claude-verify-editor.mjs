@@ -30,15 +30,19 @@ try {
 	await page.waitForSelector('[role="listbox"]', { timeout: 5_000 });
 	await page.keyboard.press('Enter'); // Heading 1
 	await page.keyboard.type('My title', { delay: 5 });
-	// new paragraph + bullet list via slash command
-	await page.keyboard.press('Shift+Enter');
-	await page.keyboard.type('/bullet', { delay: 10 });
+	await page.waitForTimeout(300);
+	console.log('heading markdown:', JSON.stringify(await markdown()));
+
+	await page.keyboard.press('Meta+a');
+	await page.keyboard.press('Backspace');
+
+	// bold text + quote via slash command
+	await page.keyboard.type('hello **bold** world ', { delay: 5 });
+	await page.keyboard.type('/quo', { delay: 10 });
 	await page.waitForSelector('[role="listbox"]', { timeout: 5_000 });
 	await page.keyboard.press('Enter');
-	await page.keyboard.type('first item', { delay: 5 });
 	await page.waitForTimeout(300);
-
-	console.log('markdown value:', JSON.stringify(await markdown()));
+	console.log('quote markdown:', JSON.stringify(await markdown()));
 } finally {
 	await app.close().catch(() => {});
 }
