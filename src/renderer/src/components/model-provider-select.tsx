@@ -98,6 +98,11 @@ export function ModelProviderSelect({
 		() => providerGroups.find((group) => group.id === providerId),
 		[providerGroups, providerId]
 	);
+	const selectedProviderLabel = providerId
+		? getProviderCatalogItem(providerId).name
+		: undefined;
+	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
+	const selectedModelLabel = selectedModel ? selectedModel.name || selectedModel.id : undefined;
 	const providerDescription =
 		labels?.providerDescription ??
 		(showFieldDescriptions ? t('settings.modelServices.providerDescription') : undefined);
