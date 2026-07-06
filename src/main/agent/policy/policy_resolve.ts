@@ -29,5 +29,7 @@ export function resolveToolPermission(
 	}
 	const dir = toolPathDir(args);
 	if (dir && isDirAllowed(toolName, dir)) return 'allow';
+	// While BOOTSTRAP.md exists, the agent may edit its own workspace files freely.
+	if (dir && isBootstrapPath(dir)) return 'allow';
 	return 'ask';
 }
