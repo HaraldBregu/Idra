@@ -36,6 +36,45 @@ function getVoiceModels(providerId: string): Model[] {
 	return cloneModels(TEXT_TO_SPEECH_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
 }
 
+function getAssistantModels(providerId: string): Model[] {
+	return [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
+}
+
+function toPublicProvider(provider: CatalogProvider): PublicProvider {
+	return {
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
+		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
+	};
+}
+
+function getCatalogProvidersByIds(providerIds: readonly string[]): PublicProvider[] {
+	return providerIds.flatMap((providerId) => {
+		const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+		return provider ? [toPublicProvider(provider)] : [];
+	});
+}
+
+export async function getProvidersForService(serviceId: ModelServiceId): Promise<PublicProvider[]> {
+	if (serviceId === AGENTS.assistant) {
+		return getCatalogProvidersByIds(
+			LLM_PROVIDERS.filter((providerId) => getAssistantModels(providerId).length > 0)
+		);
+	}
+	if (serviceId === AGENTS.speechToText) {
+		return window.transcribe.listProviders();
+	}
+	if (serviceId === AGENTS.textToSpeech) {
+		return getCatalogProvidersByIds(TEXT_TO_SPEECH_PROVIDER_IDS);
+	}
+	if (serviceId === AGENTS.textToImage) {
+		return getCatalogProvidersByIds(TEXT_TO_IMAGE_PROVIDER_IDS);
+	}
+	return [];
+}
+
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: AGENTS.assistant,
@@ -45,9 +84,21 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		stepDescription: 'Powers chat replies, reasoning, summaries, and planning.',
 		icon: Bot,
 		required: true,
-		getSelection: () => appApi.getAgentService(),
-		getModels: (provider) => appApi.getModels(provider),
-		saveSelection: (provider, model) => appApi.saveAgentService(provider, model),
+		getSelection: async () => {
+			const [provider, modelId] = await Promise.all([
+				window.agent.getProvider(),
+				window.agent.getModelId(),
+			]);
+			if (!provider || !modelId) return undefined;
+			const model = getAssistantModels(provider.id).find((item) => item.id === modelId);
+			if (!model) return undefined;
+			return { provider, model };
+		},
+		getModels: (provider) => Promise.resolve(getAssistantModels(provider.id)),
+		saveSelection: async (provider, model) => {
+			await window.agent.setProvider(provider);
+			return window.agent.setModelId(model.id);
+		},
 	},
 	{
 		id: AGENTS.speechToText,
