@@ -32,6 +32,7 @@ const SettingsOverviewPage = lazy(() => import('./pages/settings/pages/overview/
 const ApplicationPage = lazy(() => import('./pages/settings/pages/application/Page'));
 const GeneralPage = lazy(() => import('./pages/settings/pages/general/Page'));
 const SystemPage = lazy(() => import('./pages/settings/pages/system/Page'));
+const SystemMediaDetailPage = lazy(() => import('./pages/settings/pages/system/detail/Page'));
 const ChannelsPage = lazy(() => import('./pages/settings/pages/channels/Page'));
 const ChannelDetailPage = lazy(() => import('./pages/settings/pages/channels/detail/Page'));
 const McpPage = lazy(() => import('./pages/settings/pages/mcp/Page'));
