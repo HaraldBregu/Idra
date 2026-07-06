@@ -69,11 +69,9 @@ export function ModelServiceStep({
 					key={service.id}
 					configState={configState}
 					idPrefix={service.id}
-					triggerTitle={service.stepTitle}
-					triggerDescription={service.stepDescription}
 					providerDescription={t('settings.modelServices.providerDescription')}
 					modelDescription={t('settings.modelServices.modelDescription')}
-					defaultOpen
+					collapsible={false}
 					showSaveButton={false}
 					onProviderChange={(value) => onProviderChange(service.id, value)}
 					onModelChange={(value) => onModelChange(service.id, value)}
