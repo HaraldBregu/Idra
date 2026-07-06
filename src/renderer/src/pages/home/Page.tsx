@@ -10,11 +10,10 @@ import {
 } from '@/components/ui/chat-container';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
+import { PromptEditor } from '@/components/prompt-editor';
 import {
-	PromptInput,
 	PromptInputAction,
 	PromptInputActions,
-	PromptInputTextarea,
 	usePromptInput,
 	type PromptInputVoiceMode,
 } from '@/components/ui/prompt-input';
