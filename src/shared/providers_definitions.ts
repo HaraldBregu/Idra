@@ -65,17 +65,6 @@ export const PROVIDER_API_CONFIGURATIONS = {
 			'For Vertex AI or Cloud Speech/Text-to-Speech, prefer Google Cloud project credentials and IAM.',
 		],
 	},
-	meta: {
-		credentialType: 'Llama API key',
-		apiKeyManagementUrl: 'https://llama.developer.meta.com/',
-		configurationDocsUrl: 'https://llama.developer.meta.com/docs/api-keys/',
-		authMethod: 'API key authentication',
-		recommendedEnvVars: ['LLAMA_API_KEY'],
-		baseUrls: [],
-		importantNotes: [
-			'Meta Llama API has its own API-key dashboard; availability may depend on preview/rollout access.',
-		],
-	},
 	xai: {
 		credentialType: 'API key',
 		apiKeyManagementUrl: 'https://console.x.ai/',
