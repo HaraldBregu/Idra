@@ -72,7 +72,7 @@ function MediaDetail({ media }: { readonly media: SystemMedia }): React.JSX.Elem
 					: await window.app.requestMicrophonePermission();
 			setStatus(result.systemStatus);
 		} catch (error) {
-			setPermissionError(errorMessage(error, t('settings.camera.errors.request')));
+			setPermissionError(errorMessage(error, t(`settings.${media.permission}.errors.request`)));
 		}
 	}, [media.permission, t]);
 
