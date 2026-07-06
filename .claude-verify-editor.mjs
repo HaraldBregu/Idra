@@ -25,24 +25,35 @@ try {
 	await page.waitForSelector('.tiptap', { timeout: 30_000 });
 	await page.evaluate(() => document.querySelector('.tiptap').focus());
 
-	// heading via slash command
-	await page.keyboard.type('/head', { delay: 10 });
+	// bullet list via slash command, multiple items with Enter
+	await page.keyboard.type('/bullet', { delay: 10 });
 	await page.waitForSelector('[role="listbox"]', { timeout: 5_000 });
-	await page.keyboard.press('Enter'); // Heading 1
-	await page.keyboard.type('My title', { delay: 5 });
+	await page.keyboard.press('Enter');
+	await page.keyboard.type('first item', { delay: 5 });
+	await page.keyboard.press('Enter');
+	await page.keyboard.type('second item', { delay: 5 });
 	await page.waitForTimeout(300);
-	console.log('heading markdown:', JSON.stringify(await markdown()));
+	console.log('bullet list markdown:', JSON.stringify(await markdown()));
 
 	await page.keyboard.press('Meta+a');
 	await page.keyboard.press('Backspace');
 
-	// bold text + quote via slash command
-	await page.keyboard.type('hello **bold** world ', { delay: 5 });
-	await page.keyboard.type('/quo', { delay: 10 });
-	await page.waitForSelector('[role="listbox"]', { timeout: 5_000 });
+	// ordered list via typed markdown input rule
+	await page.keyboard.type('1. alpha', { delay: 5 });
 	await page.keyboard.press('Enter');
+	await page.keyboard.type('beta', { delay: 5 });
 	await page.waitForTimeout(300);
-	console.log('quote markdown:', JSON.stringify(await markdown()));
+	console.log('ordered list markdown:', JSON.stringify(await markdown()));
+
+	// Enter on empty trailing item exits the list; Enter in paragraph still submits
+	await page.keyboard.press('Enter'); // new empty item
+	await page.keyboard.press('Enter'); // exits list -> paragraph
+	await page.waitForTimeout(200);
+	console.log('after exit markdown:', JSON.stringify(await markdown()));
+	await page.keyboard.press('Enter'); // submit
+	await page.waitForTimeout(1200);
+	console.log('after submit, editor markdown:', JSON.stringify(await markdown()));
+	console.log('message sent:', await page.evaluate(() => document.body.innerText.includes('second item')));
 } finally {
 	await app.close().catch(() => {});
 }
