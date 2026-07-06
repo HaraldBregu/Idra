@@ -382,8 +382,8 @@
 			}
 		},
 		"chatHistory": {
-			"title": "Chat",
-			"description": "Stored context and cleanup.",
+			"title": "Chat history",
+			"description": "Stored chat sessions and cleanup.",
 			"messages": "Stored messages",
 			"breakdown": "{{user}} user / {{assistant}} assistant / {{tool}} tool",
 			"messageCountValue": "{{count}} messages",
@@ -395,8 +395,13 @@
 			"refresh": "Refresh",
 			"openFolder": "Open chat history folder",
 			"delete": "Delete History",
+			"deleteSession": "Delete {{title}}",
 			"deleting": "Deleting...",
 			"confirmDelete": "Delete chat history and clear the current chat?",
+			"confirmDeleteSession": "Delete the chat session \"{{title}}\"?",
+			"untitled": "Untitled chat",
+			"empty": "No stored sessions",
+			"emptyDescription": "Start a new chat to create a session.",
 			"loading": "Loading...",
 			"errors": {
 				"load": "Could not load chat history.",
