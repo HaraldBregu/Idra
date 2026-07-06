@@ -633,13 +633,11 @@ function PageContent(): ReactElement {
 							className="w-full"
 							actions={
 								<PromptInputActions className="justify-end gap-1.5">
-									{!canSubmit && (
-										<VoiceButton
-											onVoiceModeRequest={() => void startDictation()}
-											disabled={voiceBusy || agent.isLoading}
-											mode={voiceButtonMode}
-										/>
-									)}
+									<VoiceButton
+										onVoiceModeRequest={() => void startDictation()}
+										disabled={voiceBusy || agent.isLoading}
+										mode={voiceButtonMode}
+									/>
 									<SubmitButton
 										isLoading={agent.isLoading}
 										canSubmit={canSubmit}
