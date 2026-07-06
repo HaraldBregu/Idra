@@ -9,6 +9,7 @@ import {
 } from '../session';
 import { buildSystemPrompt } from '../system';
 import { loadMcpTools } from '../tools/mcp_loader';
+import { completeBootstrapTool } from '../tools/bootstrap_complete';
 import { readTool } from '../tools/file_read';
 import { writeTool } from '../tools/file_write';
 import { editTool } from '../tools/file_edit';
