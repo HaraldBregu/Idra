@@ -140,7 +140,7 @@ export function ModelProviderSelect({
 				description={modelDescription}
 			>
 				<Select
-					value={modelId}
+					value={modelId || null}
 					onValueChange={(value) => onModelChange(value ?? '')}
 					disabled={
 						modelDisabled ?? (disabled || !selectedGroup || selectedGroup.models.length === 0)
