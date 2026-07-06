@@ -3,7 +3,7 @@ import { Camera, ChevronRight, Mic, MonitorUp, type LucideIcon } from 'lucide-re
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
-import { SettingsPanel, SettingsSection } from './index';
+import { SettingsPanel } from './index';
 
 function MediaRow({
 	icon,
