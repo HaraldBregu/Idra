@@ -114,7 +114,7 @@ export function useModelServices(
 		return () => {
 			cancelled = true;
 		};
-	}, [connectedProviderIds, step, dispatch]);
+	}, [step, dispatch]);
 
 	function handleServiceProviderChange(serviceId: ModelServiceId, value: string | null): void {
 		const providerId = value ?? '';
