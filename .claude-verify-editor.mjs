@@ -1,10 +1,7 @@
 import { _electron as electron } from 'playwright-core';
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 const APP_DIR = import.meta.dirname;
-const SHOT_DIR = '/tmp/claude/shots';
-fs.mkdirSync(SHOT_DIR, { recursive: true });
 
 const app = await electron.launch({
 	executablePath: path.join(APP_DIR, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'),
@@ -16,6 +13,9 @@ const page = await app.firstWindow();
 await page.waitForLoadState('domcontentloaded');
 await page.waitForTimeout(5_000);
 
+const expanded = () =>
+	page.evaluate(() => document.querySelector('[data-expanded]')?.getAttribute('data-expanded'));
+
 try {
 	if (page.url().includes('#start')) {
 		await page.evaluate(() => {
@@ -26,25 +26,20 @@ try {
 	await page.waitForSelector('.tiptap', { timeout: 30_000 });
 	await page.evaluate(() => document.querySelector('.tiptap').focus());
 
-	await page.keyboard.type('a'.repeat(120), { delay: 2 });
-	await page.waitForTimeout(400);
-	console.log(JSON.stringify(await page.evaluate(() => {
-		const tiptap = document.querySelector('.tiptap');
-		const p = tiptap.querySelector('p');
-		const s = getComputedStyle(tiptap);
-		return {
-			expanded: document.querySelector('[data-expanded]')?.getAttribute('data-expanded'),
-			tiptapScrollHeight: tiptap.scrollHeight,
-			tiptapScrollWidth: tiptap.scrollWidth,
-			tiptapClientWidth: tiptap.clientWidth,
-			pHeight: p?.offsetHeight,
-			whiteSpace: s.whiteSpace,
-			wordBreak: s.wordBreak,
-			overflowWrap: s.overflowWrap,
-		};
-	}), null, 1));
-	await page.screenshot({ path: path.join(SHOT_DIR, '40-long-word.png') });
-	console.log('screenshot: 40-long-word');
+	// type one long unbroken word char by char, record every state transition
+	const states = [];
+	for (let i = 1; i <= 100; i++) {
+		await page.keyboard.type('a');
+		const e = await expanded();
+		if (states.length === 0 || states[states.length - 1].e !== e) states.push({ chars: i, e });
+	}
+	console.log('transitions:', JSON.stringify(states));
+
+	// clearing should collapse again
+	await page.keyboard.press('Meta+a');
+	await page.keyboard.press('Backspace');
+	await page.waitForTimeout(300);
+	console.log('after clear:', await expanded());
 } finally {
 	await app.close().catch(() => {});
 }
