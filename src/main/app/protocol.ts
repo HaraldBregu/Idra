@@ -71,7 +71,12 @@ export function setupMediaPermissionHandlers(): void {
 	);
 
 	session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
-		if (!isTrustedRendererOrigin(request.securityOrigin)) {
+		const trusted = isTrustedMediaRequestSource(
+			undefined,
+			request.frame?.url,
+			request.securityOrigin
+		);
+		if (!trusted) {
 			callback({});
 			return;
 		}
