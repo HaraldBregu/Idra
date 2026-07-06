@@ -16,12 +16,6 @@ const page = await app.firstWindow();
 await page.waitForLoadState('domcontentloaded');
 await page.waitForTimeout(5_000);
 
-const state = () =>
-	page.evaluate(() => {
-		const frame = document.querySelector('[data-expanded]');
-		return { expanded: frame?.getAttribute('data-expanded'), frameHeight: frame?.offsetHeight };
-	});
-
 try {
 	if (page.url().includes('#start')) {
 		await page.evaluate(() => {
@@ -32,15 +26,25 @@ try {
 	await page.waitForSelector('.tiptap', { timeout: 30_000 });
 	await page.evaluate(() => document.querySelector('.tiptap').focus());
 
-	const samples = [JSON.stringify(await state())];
-	for (const chunk of ['short', ' text that', ' slowly gets', ' longer and longer', ' until it finally wraps onto a second line here']) {
-		await page.keyboard.type(chunk, { delay: 5 });
-		await page.waitForTimeout(200);
-		samples.push(JSON.stringify(await state()));
-	}
-	console.log(samples.join('\n'));
-	await page.screenshot({ path: path.join(SHOT_DIR, '30-final.png') });
-	console.log('screenshot: 30-final');
+	await page.keyboard.type('a'.repeat(120), { delay: 2 });
+	await page.waitForTimeout(400);
+	console.log(JSON.stringify(await page.evaluate(() => {
+		const tiptap = document.querySelector('.tiptap');
+		const p = tiptap.querySelector('p');
+		const s = getComputedStyle(tiptap);
+		return {
+			expanded: document.querySelector('[data-expanded]')?.getAttribute('data-expanded'),
+			tiptapScrollHeight: tiptap.scrollHeight,
+			tiptapScrollWidth: tiptap.scrollWidth,
+			tiptapClientWidth: tiptap.clientWidth,
+			pHeight: p?.offsetHeight,
+			whiteSpace: s.whiteSpace,
+			wordBreak: s.wordBreak,
+			overflowWrap: s.overflowWrap,
+		};
+	}), null, 1));
+	await page.screenshot({ path: path.join(SHOT_DIR, '40-long-word.png') });
+	console.log('screenshot: 40-long-word');
 } finally {
 	await app.close().catch(() => {});
 }
