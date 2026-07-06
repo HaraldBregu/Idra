@@ -20,6 +20,8 @@ interface ModelProviderConfigurationProps {
 	readonly triggerTitle?: ReactNode;
 	readonly triggerDescription?: ReactNode;
 	readonly showInlineError?: boolean;
+	readonly showSaveButton?: boolean;
+	readonly defaultOpen?: boolean;
 	readonly onProviderChange: (nextProviderId: string) => void;
 	readonly onModelChange: (nextModelId: string) => void;
 	readonly onSave: () => void;
