@@ -34,6 +34,7 @@ interface MediaPermissionConfig {
 	readonly requestLabelKey: string;
 	readonly openSettingsLabelKey: string;
 	readonly refreshLabelKey: string;
+	readonly detailPath: string;
 }
 
 const MICROPHONE_PERMISSION: MediaPermissionConfig = {
@@ -43,6 +44,7 @@ const MICROPHONE_PERMISSION: MediaPermissionConfig = {
 	requestLabelKey: 'settings.microphone.actions.request',
 	openSettingsLabelKey: 'settings.microphone.actions.openSettings',
 	refreshLabelKey: 'settings.microphone.actions.refresh',
+	detailPath: '/settings/system/media/microphone',
 };
 
 const CAMERA_PERMISSION: MediaPermissionConfig = {
@@ -52,6 +54,7 @@ const CAMERA_PERMISSION: MediaPermissionConfig = {
 	requestLabelKey: 'settings.camera.actions.request',
 	openSettingsLabelKey: 'settings.camera.actions.openSettings',
 	refreshLabelKey: 'settings.camera.actions.refresh',
+	detailPath: '/settings/system/media/camera',
 };
 
 const DEFAULT_MICROPHONE_PERMISSION: MicrophonePermissionSettings = {
