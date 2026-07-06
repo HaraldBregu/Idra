@@ -39,8 +39,8 @@ function PromptEditorArea({
 			}}
 			className={cn(
 				'text-sm leading-6 text-foreground',
-				adaptiveLayout &&
-					(isExpanded ? 'max-h-[34vh] min-h-14 overflow-y-auto' : 'h-7 overflow-hidden')
+				adaptiveLayout && 'max-h-[34vh] overflow-y-auto',
+				adaptiveLayout && (isExpanded ? 'min-h-14' : 'min-h-7')
 			)}
 		/>
 	);
