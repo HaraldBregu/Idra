@@ -112,7 +112,11 @@ function usePromptInputExpansion({
       return
     }
 
-    setIsExpanded(value.includes("\n") || textarea.scrollHeight > threshold)
+    // Sticky while non-empty: collapsing widens/narrows the field, so re-measuring
+    // after expansion can flip the state back and forth on every keystroke.
+    setIsExpanded(
+      (prev) => prev || value.includes("\n") || textarea.scrollHeight > threshold
+    )
   }, [enabled, threshold, textareaRef, value])
 
   return isExpanded
