@@ -3,15 +3,14 @@ import { useEffect } from 'react';
 import {
 	createInitialModelServiceState,
 	getErrorMessage,
+	getProvidersForService,
 	getSelectedServiceModel,
 	MODEL_SERVICE_DEFINITIONS,
 	SETUP_STEPS,
-	supportedProviderIds,
 } from '../constants';
 import type { ModelServiceDefinition, ModelServiceId, ProviderModelGroup } from '../types';
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';
-import { appApi } from '@/lib/compat';
 
 export function useModelServices(
 	state: SetupState,
@@ -29,54 +28,65 @@ export function useModelServices(
 			dispatch({ type: 'SET_LOADING_MODELS', loading: true });
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
-				const [storedProviders, ...configuredSelections] = await Promise.all([
-					appApi.getProviders(),
-					...MODEL_SERVICE_DEFINITIONS.map((service) => service.getSelection()),
-				]);
+				const configuredSelections = await Promise.all(
+					MODEL_SERVICE_DEFINITIONS.map((service) => service.getSelection())
+				);
 				if (cancelled) return;
 
-				const selectableProviders = storedProviders.filter((provider) =>
-					supportedProviderIds.has(provider.id)
-				);
 				const nextServiceStates = createInitialModelServiceState();
 				let firstError: unknown;
 
-				if (selectableProviders.length > 0) {
-					for (let i = 0; i < MODEL_SERVICE_DEFINITIONS.length; i += 1) {
-						const service = MODEL_SERVICE_DEFINITIONS[i];
-						const selection = configuredSelections[i];
+				for (let i = 0; i < MODEL_SERVICE_DEFINITIONS.length; i += 1) {
+					const service = MODEL_SERVICE_DEFINITIONS[i];
+					const selection = configuredSelections[i];
 
-						const preferredProvider =
-							(selection
-								? selectableProviders.find((p) => p.id === selection.provider.id)
-								: undefined) ??
-							selectableProviders.find((p) => connectedProviderIds.has(p.id)) ??
-							selectableProviders[0];
-
-						const modelGroups: ProviderModelGroup[] = [];
-						for (const provider of selectableProviders) {
-							try {
-								const models = await service.getModels(provider);
-								if (models.length > 0) {
-									modelGroups.push({ provider, models });
-								}
-							} catch (error) {
-								console.warn('[useModelServices] Failed to load models for provider:', provider.id, error);
-								firstError ??= error;
-							}
-						}
-
-						const preferredGroup =
-							modelGroups.find((g) => g.provider.id === preferredProvider?.id) ?? modelGroups[0];
-						const providerId = preferredGroup?.provider.id ?? '';
-						const preferredModelId = selection?.model.id;
-						const modelId =
-							preferredGroup?.models.find((m) => m.id === preferredModelId)?.id ??
-							preferredGroup?.models[0]?.id ??
-							'';
-
-						nextServiceStates[service.id] = { providerId, modelId, modelGroups };
+					let providers: Awaited<ReturnType<typeof getProvidersForService>> = [];
+					try {
+						providers = await getProvidersForService(service.id);
+					} catch (error) {
+						console.warn(
+							'[useModelServices] Failed to load providers for service:',
+							service.id,
+							error
+						);
+						firstError ??= error;
 					}
+
+					const preferredProvider =
+						(selection
+							? providers.find((provider) => provider.id === selection.provider.id)
+							: undefined) ??
+						providers.find((provider) => connectedProviderIds.has(provider.id)) ??
+						providers[0];
+
+					const modelGroups: ProviderModelGroup[] = [];
+					for (const provider of providers) {
+						try {
+							const models = await service.getModels(provider);
+							if (models.length > 0) {
+								modelGroups.push({ provider, models });
+							}
+						} catch (error) {
+							console.warn(
+								'[useModelServices] Failed to load models for provider:',
+								provider.id,
+								error
+							);
+							firstError ??= error;
+						}
+					}
+
+					const preferredGroup =
+						modelGroups.find((group) => group.provider.id === preferredProvider?.id) ??
+						modelGroups[0];
+					const providerId = preferredGroup?.provider.id ?? '';
+					const preferredModelId = selection?.model.id;
+					const modelId =
+						preferredGroup?.models.find((model) => model.id === preferredModelId)?.id ??
+						preferredGroup?.models[0]?.id ??
+						'';
+
+					nextServiceStates[service.id] = { providerId, modelId, modelGroups };
 				}
 
 				if (cancelled) return;
