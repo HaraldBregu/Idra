@@ -8,12 +8,18 @@ import {
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
 	normalizeProviderId,
+	SPEECH_TO_TEXT_BATCH_API_TYPE,
+	SPEECH_TO_TEXT_STREAM_API_TYPE,
+	supportsSpeechToTextModelApiType,
 	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
 	TEXT_TO_IMAGE_PROVIDER_IDS,
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_PROVIDER_IDS,
 } from '../../../../shared/provider_models_definitions';
+import type { SpeechToTextApiType } from '../../../../shared/provider_models_types';
+import type { SttSelectionMode } from '../../../../shared/stt_transcription';
 import { AGENTS } from '@/lib/compat';
+import { mergeModels, mergeProviders } from '@pages/settings/components/model-configuration-state';
 import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
 import type {
