@@ -96,30 +96,49 @@ const ChatHistoryPage: React.FC = () => {
 						const title = session.title.trim() || t('settings.chatHistory.untitled');
 						const isDeleting = deletingSessionId === session.id;
 						return (
-							<SettingsRow
+							<div
 								key={session.id}
-								title={title}
-								description={formatSessionDate(session.createdAtMs)}
-								className="grid-cols-[minmax(0,1fr)_auto]"
-								actionClassName="w-auto justify-end"
-								actions={
-									<Button
-										type="button"
-										variant="destructive"
-										size="icon"
-										className="size-8"
-										disabled={deletingSessionId !== null}
-										aria-label={t('settings.chatHistory.deleteSession', { title })}
-										onClick={() => void handleDelete(session)}
-									>
-										{isDeleting ? (
-											<LoaderCircle className="size-3 animate-spin" />
-										) : (
-											<Trash2 className="size-3" />
-										)}
-									</Button>
-								}
-							/>
+								role="button"
+								tabIndex={0}
+								className="cursor-pointer border-b border-border/60 last:border-b-0 hover:bg-muted/40"
+								onClick={(event) => {
+									if (isInteractiveTarget(event.target)) return;
+									handleOpenSession(session.id);
+								}}
+								onKeyDown={(event) => {
+									if (event.key === 'Enter' || event.key === ' ') {
+										event.preventDefault();
+										handleOpenSession(session.id);
+									}
+								}}
+							>
+								<SettingsRow
+									title={title}
+									description={formatSessionDate(session.createdAtMs)}
+									className="grid-cols-[minmax(0,1fr)_auto] border-b-0"
+									actionClassName="w-auto justify-end"
+									actions={
+										<Button
+											type="button"
+											variant="destructive"
+											size="icon"
+											className="size-8"
+											disabled={deletingSessionId !== null}
+											aria-label={t('settings.chatHistory.deleteSession', { title })}
+											onClick={(event) => {
+												event.stopPropagation();
+												void handleDelete(session);
+											}}
+										>
+											{isDeleting ? (
+												<LoaderCircle className="size-3 animate-spin" />
+											) : (
+												<Trash2 className="size-3" />
+											)}
+										</Button>
+									}
+								/>
+							</div>
 						);
 					})
 				)}
