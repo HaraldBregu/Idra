@@ -119,15 +119,12 @@ export function useModelServices(
 
 	function handleServiceProviderChange(serviceId: ModelServiceId, value: string | null): void {
 		const providerId = value ?? '';
-		const group = serviceStates[serviceId].modelGroups.find(
-			(item) => item.provider.id === providerId
-		);
 		dispatch({ type: 'CLEAR_ERROR' });
 		dispatch({
 			type: 'CHANGE_SERVICE_PROVIDER',
 			serviceId,
 			providerId,
-			modelId: group?.models[0]?.id ?? '',
+			modelId: '',
 		});
 	}
 
