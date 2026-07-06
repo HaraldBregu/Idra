@@ -144,10 +144,12 @@ export async function loadSpeechModeState(
 	return { providerId, modelId, modelGroups };
 }
 
-export async function loadSpeechModeStates(): Promise<SpeechModeStateMap> {
+export async function loadSpeechModeStates(
+	options: { readonly restoreSelection?: boolean } = {}
+): Promise<SpeechModeStateMap> {
 	const [realtime, transcribe] = await Promise.all([
-		loadSpeechModeState('realtime'),
-		loadSpeechModeState('transcribe'),
+		loadSpeechModeState('realtime', options),
+		loadSpeechModeState('transcribe', options),
 	]);
 	return { realtime, transcribe };
 }
