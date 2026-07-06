@@ -1,3 +1,4 @@
+import { isBootstrapPath } from './policy_bootstrap';
 import { toolCommandName } from './policy_command';
 import { patchOnlyAddsFiles } from './policy_patch';
 import { isPathWithin, toolPathDir } from './policy_path';
