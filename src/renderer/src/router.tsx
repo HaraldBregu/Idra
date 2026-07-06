@@ -42,6 +42,7 @@ const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page')
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
 const AssistantPage = lazy(() => import('./pages/settings/pages/assistant/Page'));
+const ChatHistoryPage = lazy(() => import('./pages/settings/pages/assistant/chathistory/Page'));
 const TranscribePage = lazy(() => import('./pages/settings/pages/transcribe/Page'));
 const VoicePage = lazy(() => import('./pages/settings/pages/voice/Page'));
 const ImagePage = lazy(() => import('./pages/settings/pages/image/Page'));
