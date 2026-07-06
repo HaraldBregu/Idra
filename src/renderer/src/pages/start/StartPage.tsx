@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer } from 'react';
+import React, { useReducer } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
