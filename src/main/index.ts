@@ -124,11 +124,7 @@ app.whenReady().then(async () => {
 	// Toggle tray from renderer settings
 	eventBus.on('tray:set-enabled', (event) => {
 		const { enabled } = event.payload as { enabled: boolean };
-		if (enabled && !trayManager.isCreated()) {
-			trayManager.create();
-		} else if (!enabled && trayManager.isCreated()) {
-			trayManager.destroy();
-		}
+		setTrayEnabled(trayManager, enabled);
 	});
 
 	// Create main window
