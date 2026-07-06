@@ -109,16 +109,6 @@ const SystemPage: React.FC = () => {
 							</Button>
 						}
 					/>
-					<SystemSettingsItem
-						title={t('settings.application.screenRecording')}
-						description={t('settings.application.screenRecordingDescription')}
-						icon={MonitorUp}
-						actions={
-							<Button variant="outline" size="xs" onClick={handleOpenScreenRecording}>
-								{t('settings.application.openScreenRecording')}
-							</Button>
-						}
-					/>
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
