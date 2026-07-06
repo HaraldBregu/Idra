@@ -55,11 +55,6 @@ export const LLM_MODELS_BY_PROVIDER = {
 		model('kimi-k2.5', 'Kimi K2.5'),
 		model('kimi-k2-thinking', 'Kimi K2 Thinking'),
 	],
-	meta: [
-		model('muse-spark', 'Muse Spark'),
-		model('llama-4-maverick', 'Llama 4 Maverick'),
-		model('llama-4-scout', 'Llama 4 Scout'),
-	],
 	minimax: [model('MiniMax-M2.7', 'MiniMax M2.7'), model('MiniMax-M2.5', 'MiniMax M2.5')],
 	mistral: [
 		model('mistral-large-2512', 'Mistral Large 2512'),
