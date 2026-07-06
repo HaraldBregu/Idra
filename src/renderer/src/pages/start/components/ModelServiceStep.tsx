@@ -66,6 +66,7 @@ export function ModelServiceStep({
 
 			<div className="mt-8 max-w-md">
 				<ModelProviderConfiguration
+					key={service.id}
 					configState={configState}
 					idPrefix={service.id}
 					triggerTitle={service.stepTitle}
