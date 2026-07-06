@@ -53,7 +53,7 @@ export function ModelProviderConfiguration({
 	const modelName = model?.name ?? model?.id ?? t('settings.modelServices.modelUnavailable');
 
 	return (
-		<Collapsible className="rounded-lg border border-border/70 bg-card">
+		<Collapsible defaultOpen={defaultOpen} className="rounded-lg border border-border/70 bg-card">
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 				<div className="min-w-0 flex-1">
 					<div className="truncate text-[13px] font-medium leading-4 text-foreground">
