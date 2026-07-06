@@ -259,7 +259,7 @@
 			"openAppData": "Open Folder"
 		},
 		"system": {
-			"description": "Manage operating system permissions, background behavior, and desktop capability boundaries.",
+			"description": "Manage operating system permissions.",
 			"actionsDescription": "Open required operating system panels and control background power behavior.",
 			"mediaPermissions": {
 				"title": "Media permissions",
