@@ -67,7 +67,14 @@ function TextEditor({
 				class: 'outline-none',
 			},
 			handleKeyDown: (view, event) => {
-				if (event.key !== 'Enter' || event.shiftKey) return false;
+				if (
+					event.key !== 'Enter' ||
+					event.shiftKey ||
+					event.altKey ||
+					event.metaKey ||
+					event.ctrlKey
+				)
+					return false;
 				if (slashMenuPluginKey.getState(view.state)?.active) return false;
 				onSubmitRef.current?.();
 				return true;
