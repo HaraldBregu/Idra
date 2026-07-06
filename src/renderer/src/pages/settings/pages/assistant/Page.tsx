@@ -3,11 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared';
-import {
-	LLM_MODELS_BY_PROVIDER,
-	LLM_PROVIDERS,
-} from '../../../../../../shared/provider_models_definitions';
-import { Button } from '@/components/ui/button';
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
