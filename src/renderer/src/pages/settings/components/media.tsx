@@ -262,6 +262,7 @@ export function MediaPermissionsSection({
 						onRequest={() => void handleRequestMicrophonePermission()}
 						onOpenSettings={handleOpenMicrophoneSettings}
 						onRefresh={() => void refreshMicrophonePermission()}
+						onOpenDetail={() => navigate(MICROPHONE_PERMISSION.detailPath)}
 					/>
 					<MediaPermissionRow
 						config={CAMERA_PERMISSION}
@@ -270,6 +271,34 @@ export function MediaPermissionsSection({
 						onRequest={() => void handleRequestCameraPermission()}
 						onOpenSettings={handleOpenCameraSettings}
 						onRefresh={() => void refreshCameraPermission()}
+						onOpenDetail={() => navigate(CAMERA_PERMISSION.detailPath)}
+					/>
+					<SettingsRow
+						title={t('settings.system.media.screen.title')}
+						description={t('settings.system.media.screen.description')}
+						icon={MonitorUp}
+						actionClassName="gap-1.5"
+						actions={
+							<>
+								<Button
+									variant="outline"
+									size="xs"
+									onClick={() => handleOpenSystemPreference('ScreenCapture')}
+								>
+									<Settings className="size-3" />
+									{t('settings.application.openScreenRecording')}
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon-xs"
+									onClick={() => navigate('/settings/system/media/screen')}
+									aria-label={t('settings.system.media.open')}
+									title={t('settings.system.media.open')}
+								>
+									<ChevronRight className="size-3" />
+								</Button>
+							</>
+						}
 					/>
 				</SettingsPanel>
 			</SettingsSection>
