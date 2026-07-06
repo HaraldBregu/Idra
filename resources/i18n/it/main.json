@@ -259,7 +259,7 @@
 			"openAppData": "Apri Cartella"
 		},
 		"system": {
-			"description": "Gestisci permessi del sistema operativo, comportamento in background e limiti delle capacita desktop.",
+			"description": "Gestisci i permessi del sistema operativo.",
 			"actionsDescription": "Apri i pannelli richiesti del sistema operativo e controlla il comportamento energetico in background.",
 			"mediaPermissions": {
 				"title": "Permessi media",
