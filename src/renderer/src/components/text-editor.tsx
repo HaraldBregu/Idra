@@ -72,8 +72,10 @@ function TextEditor({
 	});
 
 	useEffect(() => {
-		if (!editor || editorText(editor) === (value ?? '')) return;
-		const chain = editor.chain().setContent(textToDoc(value ?? ''), { emitUpdate: false });
+		if (!editor || editor.getMarkdown() === (value ?? '')) return;
+		const chain = editor
+			.chain()
+			.setContent(value ?? '', { emitUpdate: false, contentType: 'markdown' });
 		if (editor.isFocused) chain.focus('end');
 		chain.run();
 	}, [editor, value]);
