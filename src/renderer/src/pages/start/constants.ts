@@ -1,4 +1,4 @@
-import { Bot, Image as ImageIcon, Mic, Music, Video, Volume2 } from 'lucide-react';
+import { Bot, Image as ImageIcon, Mic, Volume2 } from 'lucide-react';
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
