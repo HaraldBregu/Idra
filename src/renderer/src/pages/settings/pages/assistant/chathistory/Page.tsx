@@ -62,18 +62,6 @@ const ChatHistoryPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.chatHistory.title')}
 				description={t('settings.chatHistory.description')}
-				action={
-					<Button
-						type="button"
-						variant="outline"
-						size="xs"
-						disabled={loading || deletingSessionId !== null}
-						onClick={() => void loadSessions()}
-					>
-						<RefreshCw className="size-3" />
-						{t('settings.chatHistory.refresh')}
-					</Button>
-				}
 			/>
 
 			{error && (
