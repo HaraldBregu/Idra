@@ -268,14 +268,17 @@
 			"media": {
 				"open": "Apri dettagli",
 				"camera": {
+					"label": "Fotocamera",
 					"title": "Fotocamera (registrazione video)",
 					"description": "Registra un video dalla webcam per verificare l'accesso alla fotocamera."
 				},
 				"microphone": {
+					"label": "Microfono",
 					"title": "Registrazione microfono",
 					"description": "Registra l'audio dal microfono per verificare l'accesso all'ingresso."
 				},
 				"screen": {
+					"label": "Schermo",
 					"title": "Registrazione schermo",
 					"description": "Cattura lo schermo per verificare l'accesso alla registrazione dello schermo."
 				},
