@@ -83,5 +83,11 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 		items.push({ label: skillId });
 	}
 
+	if (location.pathname.startsWith('/settings/system/media/')) {
+		const media = getSystemMedia(decodeURIComponent(location.pathname.split('/').at(-1) ?? ''));
+		items[0] = { ...items[0], path: current.path };
+		items.push({ label: media ? t(media.titleKey) : t('settings.tabs.system') });
+	}
+
 	return items;
 }
