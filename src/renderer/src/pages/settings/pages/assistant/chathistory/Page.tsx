@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, LoaderCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { AgentSessionSummary } from '@/lib/compat';
+import { useChatSession } from '@/contexts/chat-session';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
