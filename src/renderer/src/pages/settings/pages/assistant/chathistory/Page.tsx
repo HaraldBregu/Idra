@@ -65,6 +65,11 @@ const ChatHistoryPage: React.FC = () => {
 		}
 	};
 
+	const handleOpenSession = (sessionId: string): void => {
+		setSessionId(sessionId);
+		navigate('/home');
+	};
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
