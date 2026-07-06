@@ -1,16 +1,8 @@
 import React from 'react';
 import { LoaderCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { getProviderCatalogItem } from '../constants';
+import { ModelProviderSelect, toModelProviderGroups } from '@/components/model-provider-select';
 import type { ModelServiceDefinition, ModelServiceId, ModelServiceState } from '../types';
-import { StepField } from './StepField';
 
 type ModelServiceStepProps = {
 	readonly service: ModelServiceDefinition;
@@ -30,16 +22,7 @@ export function ModelServiceStep({
 	onModelChange,
 }: ModelServiceStepProps): React.JSX.Element {
 	const ServiceIcon = service.icon;
-	const availableModels =
-		serviceState.modelGroups.find((g) => g.provider.id === serviceState.providerId)?.models ?? [];
 	const noModels = !loadingModels && serviceState.modelGroups.length === 0;
-
-	const selectedProviderLabel = serviceState.providerId
-		? getProviderCatalogItem(serviceState.providerId).name
-		: undefined;
-	const selectedModelLabel = serviceState.modelId
-		? (availableModels.find((m) => m.id === serviceState.modelId)?.name ?? undefined)
-		: undefined;
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
@@ -58,56 +41,28 @@ export function ModelServiceStep({
 				{service.stepDescription}
 			</p>
 
-			<div className="mt-8 max-w-xs space-y-4">
-				<StepField id={`${service.id}-provider`} label="Provider">
-					<Select
-						value={serviceState.providerId}
-						onValueChange={(value) => onProviderChange(service.id, value)}
-						disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
-					>
-						<SelectTrigger id={`${service.id}-provider`} className="w-full text-xs">
-							<SelectValue
-								placeholder={
-									loadingModels ? 'Loading...' : noModels ? 'No providers' : 'Select provider'
-								}
-							>
-								{selectedProviderLabel}
-							</SelectValue>
-						</SelectTrigger>
-						<SelectContent>
-							{serviceState.modelGroups.map((group) => (
-								<SelectItem key={group.provider.id} value={group.provider.id}>
-									{getProviderCatalogItem(group.provider.id).name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</StepField>
-
-				<StepField id={`${service.id}-model`} label="Model">
-					<Select
-						value={serviceState.modelId}
-						onValueChange={(value) => onModelChange(service.id, value)}
-						disabled={loadingModels || availableModels.length === 0 || savingConfig}
-					>
-						<SelectTrigger id={`${service.id}-model`} className="w-full text-xs">
-							<SelectValue
-								placeholder={
-									loadingModels ? 'Loading...' : noModels ? 'No models' : 'Select model'
-								}
-							>
-								{selectedModelLabel}
-							</SelectValue>
-						</SelectTrigger>
-						<SelectContent>
-							{availableModels.map((model) => (
-								<SelectItem key={model.id} value={model.id}>
-									{model.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</StepField>
+			<div className="mt-8 max-w-md">
+				<ModelProviderSelect
+					idPrefix={service.id}
+					providerGroups={toModelProviderGroups(serviceState.modelGroups)}
+					providerId={serviceState.providerId}
+					modelId={serviceState.modelId}
+					onProviderChange={(value) => onProviderChange(service.id, value)}
+					onModelChange={(value) => onModelChange(service.id, value)}
+					disabled={loadingModels || serviceState.modelGroups.length === 0 || savingConfig}
+					labels={{
+						providerPlaceholder: loadingModels
+							? 'Loading...'
+							: noModels
+								? 'No providers'
+								: 'Select provider',
+						modelPlaceholder: loadingModels
+							? 'Loading...'
+							: noModels
+								? 'No models'
+								: 'Select model',
+					}}
+				/>
 			</div>
 
 			{loadingModels ? (
@@ -115,6 +70,12 @@ export function ModelServiceStep({
 					<LoaderCircle className="size-3.5 animate-spin" />
 					<span>Loading compatible models...</span>
 				</div>
+			) : null}
+
+			{noModels ? (
+				<p className="mt-4 text-xs text-muted-foreground">
+					Connect a compatible provider to choose a model for this step.
+				</p>
 			) : null}
 		</div>
 	);
