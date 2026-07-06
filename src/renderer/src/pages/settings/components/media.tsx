@@ -41,34 +41,33 @@ function MediaRow({
 	const navigate = useNavigate();
 
 	return (
-		<SettingsRow
-			title={title}
-			icon={icon}
-			actionClassName="gap-1.5"
-			actions={
-				<>
-					{status && (
-						<span
-							className={cn(
-								'inline-flex h-6 min-w-20 shrink-0 items-center justify-center rounded-md border px-2 text-[11px] font-medium',
-								statusClassName(status)
-							)}
-						>
-							{t(`settings.system.permissionStatus.${status}`)}
-						</span>
-					)}
-					<Button
-						variant="ghost"
-						size="icon-xs"
-						onClick={() => navigate(detailPath)}
-						aria-label={t('settings.system.media.open')}
-						title={t('settings.system.media.open')}
+		<Item variant="outline" size="md" className="min-h-11 border-b border-border/60 last:border-b-0">
+			<ItemIcon icon={icon} className="[&_svg]:size-4" />
+			<ItemContent className="min-w-0 flex-1">
+				<ItemTitle className="truncate">{title}</ItemTitle>
+			</ItemContent>
+			<ItemActions className="ml-auto flex-none items-center justify-end gap-1.5">
+				{status && (
+					<span
+						className={cn(
+							'inline-flex h-6 min-w-20 shrink-0 items-center justify-center rounded-md border px-2 text-[11px] font-medium',
+							statusClassName(status)
+						)}
 					>
-						<ChevronRight className="size-3" />
-					</Button>
-				</>
-			}
-		/>
+						{t(`settings.system.permissionStatus.${status}`)}
+					</span>
+				)}
+				<Button
+					variant="ghost"
+					size="icon-xs"
+					onClick={() => navigate(detailPath)}
+					aria-label={t('settings.system.media.open')}
+					title={t('settings.system.media.open')}
+				>
+					<ChevronRight className="size-3" />
+				</Button>
+			</ItemActions>
+		</Item>
 	);
 }
 
