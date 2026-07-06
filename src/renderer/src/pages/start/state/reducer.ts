@@ -81,6 +81,9 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
 		case 'LOAD_SERVICE_STATES':
 			return { ...state, serviceStates: action.states };
 
+		case 'LOAD_SPEECH_MODE_STATES':
+			return { ...state, speechModeStates: action.states };
+
 		case 'CHANGE_SERVICE_PROVIDER':
 			return {
 				...state,
