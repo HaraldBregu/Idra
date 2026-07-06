@@ -60,6 +60,11 @@ function errorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
 }
 
+async function acquireMediaStream(constraints: MediaStreamConstraints): Promise<void> {
+	const stream = await navigator.mediaDevices.getUserMedia(constraints);
+	stream.getTracks().forEach((track) => track.stop());
+}
+
 function statusClassName(status: MediaSystemPermissionStatus): string {
 	switch (status) {
 		case 'granted':
