@@ -32,9 +32,7 @@ export type ModelServiceId =
 	| typeof AGENTS.assistant
 	| typeof AGENTS.speechToText
 	| typeof AGENTS.textToSpeech
-	| typeof AGENTS.textToImage
-	| typeof AGENTS.textToVideo
-	| typeof AGENTS.textToAudio;
+	| typeof AGENTS.textToImage;
 
 export type ModelServiceDefinition = {
 	id: ModelServiceId;
