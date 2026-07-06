@@ -64,6 +64,18 @@ export function ProviderCard({
 					</div>
 
 					<div className="flex shrink-0 items-center gap-1">
+						{provider.apiConfigurationUrl ? (
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon-xs"
+								className="text-muted-foreground hover:text-foreground"
+								aria-label={`Open ${provider.name} API setup`}
+								onClick={() => onOpenLink(provider)}
+							>
+								<ExternalLink className="size-3.5" />
+							</Button>
+						) : null}
 						{provider.supported ? (
 							connected && !editing ? (
 								<Button
@@ -76,26 +88,14 @@ export function ProviderCard({
 									<Pencil className="size-3.5" />
 								</Button>
 							) : editing ? null : (
-								<>
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon-xs"
-										className="text-muted-foreground hover:text-foreground"
-										aria-label={`Open ${provider.name} API setup`}
-										onClick={() => onOpenLink(provider)}
-									>
-										<ExternalLink className="size-3.5" />
-									</Button>
-									<Button
-										type="button"
-										variant="outline"
-										size="xs"
-										onClick={() => onUpdateEntry(provider.id, { editing: true })}
-									>
-										Connect
-									</Button>
-								</>
+								<Button
+									type="button"
+									variant="outline"
+									size="xs"
+									onClick={() => onUpdateEntry(provider.id, { editing: true })}
+								>
+									Connect
+								</Button>
 							)
 						) : (
 							<Button type="button" variant="outline" size="xs" disabled>
