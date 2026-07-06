@@ -29,24 +29,8 @@ const StartPage: React.FC = () => {
 		errorMessage,
 	} = state;
 
-	const connectedProviderIds = useMemo(
-		() =>
-			new Set(
-				providerEntries.filter((entry) => entry.apiKeySaved).map((entry) => entry.providerId)
-			),
-		[providerEntries]
-	);
-
-	const {
-		updateProviderEntry,
-		handleProviderApiKeyChange,
-		saveProviderEntry,
-		handleContinueProviders,
-		handleOpenProviderLink,
-	} = useProviderSetup(state, dispatch);
-
 	const { handleServiceProviderChange, handleServiceModelChange, handleSaveModelStep } =
-		useModelServices(state, dispatch, connectedProviderIds, navigate);
+		useModelServices(state, dispatch, navigate);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
 	const currentService = isModelStep(step)
