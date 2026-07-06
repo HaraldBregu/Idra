@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	Accessibility,
-	MonitorUp,
 	type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
