@@ -29,6 +29,14 @@ const StartPage: React.FC = () => {
 		errorMessage,
 	} = state;
 
+	const {
+		updateProviderEntry,
+		handleProviderApiKeyChange,
+		saveProviderEntry,
+		handleContinueProviders,
+		handleOpenProviderLink,
+	} = useProviderSetup(state, dispatch);
+
 	const { handleServiceProviderChange, handleServiceModelChange, handleSaveModelStep } =
 		useModelServices(state, dispatch, navigate);
 
