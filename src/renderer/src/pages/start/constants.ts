@@ -48,9 +48,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 	{
 		id: AGENTS.speechToText,
-		label: 'Speech to Text',
-		stepName: 'Speech to text',
-		stepTitle: 'Speech to text',
+		label: 'Transcribe',
+		stepName: 'Transcribe',
+		stepTitle: 'Transcribe',
 		stepDescription: 'Transcribes your voice and audio into text before Friday responds.',
 		icon: Mic,
 		required: false,
