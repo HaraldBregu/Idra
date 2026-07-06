@@ -62,7 +62,6 @@ const ChatHistoryPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.chatHistory.title')}
 				description={t('settings.chatHistory.description')}
-				icon={History}
 				action={
 					<Button
 						type="button"
