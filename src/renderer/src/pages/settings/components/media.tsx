@@ -3,9 +3,10 @@ import { Camera, ChevronRight, Mic, MonitorUp, type LucideIcon } from 'lucide-re
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { cn } from '@/lib/utils';
 import type { MicrophonePermissionSettings } from '@shared/app_types';
-import { SettingsPanel, SettingsRow, SettingsSection } from './index';
+import { SettingsPanel, SettingsSection } from './index';
 
 type MediaSystemPermissionStatus = MicrophonePermissionSettings['systemStatus'];
 
