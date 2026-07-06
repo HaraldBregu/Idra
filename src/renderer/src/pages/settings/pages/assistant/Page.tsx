@@ -82,8 +82,8 @@ async function loadAssistantState(): Promise<ModelConfigurationState> {
 
 const AssistantPage: React.FC = () => {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
-	const [historyDeleting, setHistoryDeleting] = useState(false);
 
 	const selectedGroup = useMemo(
 		() => state.modelGroups.find((group) => group.provider.id === state.providerId),
