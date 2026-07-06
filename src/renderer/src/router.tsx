@@ -302,7 +302,7 @@ const routes: RouteObject[] = [
 								path: 'chathistory',
 								element: (
 									<SettingsRouteWrapper>
-										<AssistantPage />
+										<ChatHistoryPage />
 									</SettingsRouteWrapper>
 								),
 							},
