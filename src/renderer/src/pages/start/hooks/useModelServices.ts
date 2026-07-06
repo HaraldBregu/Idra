@@ -1,5 +1,5 @@
 import type { Dispatch } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { AGENTS } from '@/lib/compat';
 import type { SttSelectionMode } from '../../../../../shared/stt_transcription';
 import {
