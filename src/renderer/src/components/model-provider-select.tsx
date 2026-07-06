@@ -158,7 +158,9 @@ export function ModelProviderSelect({
 							placeholder={
 								labels?.modelPlaceholder ?? t('settings.modelServices.modelPlaceholder')
 							}
-						/>
+						>
+							{selectedModelLabel}
+						</SelectValue>
 					</SelectTrigger>
 					<SelectContent>
 						{selectedGroup?.models.map((model) => (
