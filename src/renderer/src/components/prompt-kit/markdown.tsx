@@ -1,7 +1,7 @@
 'use client';
 
 import { memo, useId, useMemo } from 'react';
-import type { Components } from 'react-markdown';
+import type { Components, Options } from 'react-markdown';
 import ReactMarkdown from 'react-markdown';
 import { marked } from 'marked';
 import remarkBreaks from 'remark-breaks';
