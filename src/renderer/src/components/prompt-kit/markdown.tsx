@@ -14,6 +14,7 @@ export type MarkdownProps = {
 	id?: string;
 	className?: string;
 	components?: Partial<Components>;
+	urlTransform?: Options['urlTransform'];
 };
 
 function parseMarkdownIntoBlocks(markdown: string): string[] {
