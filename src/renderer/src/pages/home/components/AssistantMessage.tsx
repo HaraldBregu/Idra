@@ -73,6 +73,16 @@ function fileName(path: string): string {
 	return path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1);
 }
 
+// The create_image tool displays its result automatically via the standalone
+// block. Suppress that only when the model actually embeds the file as a markdown
+// image (![...](...)); a plain-text mention or link must not hide the image.
+function contentEmbedsImage(content: string, path: string): boolean {
+	const name = fileName(path);
+	if (!name) return false;
+	const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	return new RegExp(`!\\[[^\\]]*\\]\\(<?[^\\n]*${escaped}`).test(content);
+}
+
 function normalizeImageLinks(content: string): string {
 	return content.replace(/!\[([^\]]*)\]\(([^()\n]+)\)/g, (match, alt: string, dest: string) => {
 		// react-markdown's default urlTransform strips file: URLs, so rewrite
