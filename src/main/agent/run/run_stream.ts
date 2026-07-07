@@ -85,7 +85,7 @@ export async function* stream(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const systemPrompt = await buildSystemPrompt(config, tools);
+			const systemPrompt = await buildSystemPrompt(config, tools, session.context.loadedSkills);
 			const turn = yield* runModelTurn(
 				input,
 				provider,
