@@ -120,7 +120,8 @@ export async function* stream(
 			for await (const event of runToolCalls(tools, turn.toolCalls)) {
 				yield event;
 				if (event.type !== 'tool_call_end' || event.toolName !== loadSkillTool.name) continue;
-				const skill = (event.output as { skill?: unknown } | undefined)?.skill;
+				const output = event.output as { skill?: unknown; content?: unknown } | undefined;
+					const skill = output?.skill;
 				if (typeof skill === 'string') session.context.skill = skill;
 			}
 			addToolResults(session, turn.toolCalls);
