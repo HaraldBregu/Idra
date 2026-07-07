@@ -158,6 +158,8 @@ export function AssistantMessage({
 	const hasContent = message.content.length > 0;
 	const messageText = message.content.trim();
 	const hasTools = message.tools.length > 0;
+	const skillTools = message.tools.filter(isSkillTool);
+	const otherTools = message.tools.filter((tool) => !isSkillTool(tool));
 	const imagePaths = generatedImagePaths(message.tools);
 	const standaloneImagePaths = imagePaths.filter(
 		(path) => !contentEmbedsImage(message.content, path)
