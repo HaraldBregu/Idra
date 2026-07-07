@@ -3,6 +3,7 @@ import {
 	addAssistantMessage,
 	addToolResults,
 	isExhausted,
+	persistSystemPrompt,
 	recordTurn,
 	toResult,
 	type SessionState,
