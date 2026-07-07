@@ -94,6 +94,7 @@ function MarkdownComponent({
 	id,
 	className,
 	components = initialComponents,
+	urlTransform,
 }: MarkdownProps) {
 	const generatedId = useId();
 	const blockId = id ?? generatedId;
@@ -113,6 +114,7 @@ function MarkdownComponent({
 					key={`${blockId}-block-${index}`}
 					content={block}
 					components={mergedComponents}
+					urlTransform={urlTransform}
 				/>
 			))}
 		</div>
