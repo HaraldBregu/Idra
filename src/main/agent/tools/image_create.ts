@@ -9,18 +9,18 @@ export function createImageTool(agentDir: string): Tool {
 	return tool({
 		name: 'create_image',
 		description:
-			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image under the agent resources directory and returns its absolute path. The image is shown to the user automatically; if you reference it in markdown, use the returned absolute path.',
+			'Generate an image from a text prompt using the configured text-to-image provider. Saves the image under the agent resources directory and returns its path relative to the agent directory. The image is shown to the user automatically; if you reference it in markdown, use the returned path.',
 		inputSchema: z.object({
 			prompt: z.string().min(1).describe('Text prompt describing the image to generate.'),
 		}),
 		execute: async ({ prompt }) => {
 			const { base64, mimeType } = await createImage({ prompt });
 			const ext = mimeType.split('/')[1]?.split('+')[0] || 'png';
+			const fileName = `image-${Date.now()}.${ext}`;
 			const resourcesDir = path.join(agentDir, 'resources');
-			const filePath = path.join(resourcesDir, `image-${Date.now()}.${ext}`);
 			await fs.mkdir(resourcesDir, { recursive: true });
-			await fs.writeFile(filePath, Buffer.from(base64, 'base64'));
-			return { path: filePath, mimeType };
+			await fs.writeFile(path.join(resourcesDir, fileName), Buffer.from(base64, 'base64'));
+			return { path: path.posix.join('resources', fileName), mimeType };
 		},
 	});
 }
