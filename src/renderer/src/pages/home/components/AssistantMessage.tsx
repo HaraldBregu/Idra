@@ -31,11 +31,16 @@ function isLocalImagePath(value: string): boolean {
 }
 
 function localResourceUrl(path: string): string {
-	// 'file' is a dummy host: local-resource is a standard scheme, so without it
+	// The host selects how the main process resolves the path: 'file' for an
+	// absolute path, 'agent' for a path relative to the agent data directory. The
+	// host is required because local-resource is a standard scheme, so without it
 	// Chromium would swallow the first path segment as the URL host.
-	// Windows paths use backslashes and start with a drive letter (C:\...) rather
-	// than a slash, so normalize both to produce a valid slash-separated pathname.
 	const posixPath = path.replace(/\\/g, '/');
+	if (!isLocalImagePath(path)) {
+		return `local-resource://agent/${encodeURI(posixPath.replace(/^\/+/, ''))}`;
+	}
+	// Windows paths start with a drive letter (C:\...) rather than a slash, so add
+	// a leading slash to produce a valid slash-separated pathname.
 	const absolutePath = posixPath.startsWith('/') ? posixPath : `/${posixPath}`;
 	return `local-resource://file${encodeURI(absolutePath)}`;
 }
