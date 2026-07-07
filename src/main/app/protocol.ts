@@ -22,7 +22,11 @@ export function registerLocalResourceProtocolHandler(
 		try {
 			const url = new URL(request.url);
 			let pathname = decodeURIComponent(url.pathname);
-			if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(pathname)) {
+			if (url.host === 'agent') {
+				// Path is relative to the agent data directory; resolve it here where
+				// the agent location is known.
+				pathname = path.join(agentLocation(), pathname.replace(/^\/+/, ''));
+			} else if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(pathname)) {
 				pathname = pathname.slice(1);
 			}
 			return await net.fetch(pathToFileURL(pathname).toString());
