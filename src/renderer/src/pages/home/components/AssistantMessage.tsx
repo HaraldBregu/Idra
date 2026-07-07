@@ -22,6 +22,14 @@ function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
 		.filter((path): path is string => typeof path === 'string');
 }
 
+function isLocalImagePath(value: string): boolean {
+	return (
+		/^[A-Za-z]:[\\/]/.test(value) || // Windows drive path (C:\... or C:/...)
+		value.startsWith('\\\\') || // Windows UNC path
+		value.startsWith('/') // POSIX absolute path
+	);
+}
+
 function localResourceUrl(path: string): string {
 	// 'file' is a dummy host: local-resource is a standard scheme, so without it
 	// Chromium would swallow the first path segment as the URL host.
@@ -32,32 +40,49 @@ function localResourceUrl(path: string): string {
 	return `local-resource://file${encodeURI(absolutePath)}`;
 }
 
+// react-markdown drops URLs whose scheme is not in its safe list, and a Windows
+// drive letter (C:) looks exactly like a scheme, so preserve local file paths and
+// defer to the default transform for everything else.
+function transformImageUrl(url: string): string {
+	return isLocalImagePath(url) ? url : defaultUrlTransform(url);
+}
+
 function resolveLocalImagePath(
 	src: string | undefined,
 	imagePaths: readonly string[]
 ): string | undefined {
-	if (!src || /^[a-z][a-z0-9+.-]*:/i.test(src)) return undefined;
+	if (!src) return undefined;
+	const isWindowsDrivePath = /^[A-Za-z]:[\\/]/.test(src);
+	if (!isWindowsDrivePath && /^[a-z][a-z0-9+.-]*:/i.test(src)) return undefined;
 	let decoded = src;
 	try {
 		decoded = decodeURIComponent(src);
 	} catch {
 		// keep src as-is when it contains malformed percent sequences
 	}
-	return (
-		imagePaths.find((path) => path === decoded || path.endsWith(`/${decoded}`)) ??
-		(decoded.startsWith('/') ? decoded : undefined)
-	);
+	const decodedPosix = decoded.replace(/\\/g, '/');
+	const matched = imagePaths.find((path) => {
+		const posix = path.replace(/\\/g, '/');
+		return posix === decodedPosix || posix.endsWith(`/${decodedPosix}`);
+	});
+	if (matched) return matched;
+	return isLocalImagePath(decodedPosix) ? decoded : undefined;
 }
 
 function fileName(path: string): string {
-	return path.slice(path.lastIndexOf('/') + 1);
+	return path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1);
 }
 
 function normalizeImageLinks(content: string): string {
 	return content.replace(/!\[([^\]]*)\]\(([^()\n]+)\)/g, (match, alt: string, dest: string) => {
 		// react-markdown's default urlTransform strips file: URLs, so rewrite
-		// them to plain absolute paths served via local-resource://.
+		// them to plain absolute paths served via local-resource://. Windows paths
+		// use backslashes, which the markdown parser percent-encodes and mangles, so
+		// switch local paths to forward slashes before they reach the parser.
 		let destination = dest.trim().replace(/^file:\/\//i, '');
+		if (isLocalImagePath(destination)) {
+			destination = destination.replace(/\\/g, '/');
+		}
 		if (destination.includes(' ') && !destination.startsWith('<')) {
 			destination = `<${destination}>`;
 		}
