@@ -84,10 +84,13 @@ export async function* stream(
 		providerId: provider.id,
 	};
 
+	let firstTurn = true;
 	try {
 		while (true) {
 			if (signal.aborted) return;
 			const systemPrompt = await buildSystemPrompt(config, tools, session.context.loadedSkills);
+			persistSystemPrompt(session, systemPrompt, firstTurn);
+			firstTurn = false;
 			const turn = yield* runModelTurn(
 				input,
 				provider,
