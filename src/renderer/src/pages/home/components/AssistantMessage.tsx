@@ -18,8 +18,23 @@ const LONG_MESSAGE_LENGTH = 600;
 function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
 	return tools
 		.filter((tool) => tool.type === 'create_image' && tool.state === 'output-available')
-		.map((tool) => (tool.output as { path?: unknown } | undefined)?.path)
-		.filter((path): path is string => typeof path === 'string');
+		.map((tool) => imagePathFromOutput(tool.output))
+		.filter((path): path is string => typeof path === 'string' && path.length > 0);
+}
+
+// While streaming, tool.output is the structured result object; once the message
+// is rebuilt from persisted history it arrives as a JSON string, so accept both.
+function imagePathFromOutput(output: unknown): string | undefined {
+	let value = output;
+	if (typeof value === 'string') {
+		try {
+			value = JSON.parse(value);
+		} catch {
+			return undefined;
+		}
+	}
+	const path = (value as { path?: unknown } | null | undefined)?.path;
+	return typeof path === 'string' ? path : undefined;
 }
 
 function isLocalImagePath(value: string): boolean {
