@@ -212,6 +212,7 @@ export function AssistantMessage({
 				<>
 					<Markdown
 						components={messageMarkdownComponents}
+						urlTransform={transformImageUrl}
 					>
 						{normalizeImageLinks(message.content)}
 					</Markdown>
