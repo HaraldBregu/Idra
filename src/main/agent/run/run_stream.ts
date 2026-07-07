@@ -5,7 +5,6 @@ import {
 	isExhausted,
 	recordTurn,
 	toResult,
-	writeSystemPrompt,
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
@@ -85,15 +84,9 @@ export async function* stream(
 	};
 
 	try {
-		let firstTurn = true;
 		while (true) {
 			if (signal.aborted) return;
 			const systemPrompt = await buildSystemPrompt(config, tools, session.context.loadedSkills);
-			if (firstTurn) {
-				writeSystemPrompt(session, 'initial_system.md', systemPrompt);
-				firstTurn = false;
-			}
-			writeSystemPrompt(session, 'run_system.md', systemPrompt);
 			const turn = yield* runModelTurn(
 				input,
 				provider,

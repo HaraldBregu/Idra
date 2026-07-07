@@ -10,7 +10,6 @@ export { loadMessages } from './session_load_messages';
 export { createSessionState } from './session_module_state';
 export { recordTurn } from './session_record_turn';
 export { toResult } from './session_to_result';
-export { writeSystemPrompt } from './session_write_system_prompt';
 export {
 	DEFAULT_CATEGORY,
 	type SessionCategory,
