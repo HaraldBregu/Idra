@@ -62,18 +62,28 @@ const MemoizedMarkdownBlock = memo(
 	function MarkdownBlock({
 		content,
 		components = initialComponents,
+		urlTransform,
 	}: {
 		content: string;
 		components?: Partial<Components>;
+		urlTransform?: Options['urlTransform'];
 	}) {
 		return (
-			<ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>
+			<ReactMarkdown
+				remarkPlugins={[remarkGfm, remarkBreaks]}
+				components={components}
+				urlTransform={urlTransform}
+			>
 				{content}
 			</ReactMarkdown>
 		);
 	},
 	function propsAreEqual(prevProps, nextProps) {
-		return prevProps.content === nextProps.content && prevProps.components === nextProps.components;
+		return (
+			prevProps.content === nextProps.content &&
+			prevProps.components === nextProps.components &&
+			prevProps.urlTransform === nextProps.urlTransform
+		);
 	}
 );
 
