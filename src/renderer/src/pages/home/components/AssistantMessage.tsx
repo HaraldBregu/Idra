@@ -224,7 +224,8 @@ export function AssistantMessage({
 
 	return (
 		<Message className={cn('flex w-full flex-col', className)}>
-			{hasTools && <ToolActivityGroup tools={message.tools} />}
+			{skillTools.length > 0 && <ToolActivityGroup tools={skillTools} />}
+			{otherTools.length > 0 && <ToolActivityGroup tools={otherTools} />}
 			{message.pendingPermission && (
 				<ToolPermissionCard
 					key={message.pendingPermission.toolCallId}
