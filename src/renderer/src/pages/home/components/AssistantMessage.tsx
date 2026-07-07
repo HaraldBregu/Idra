@@ -136,7 +136,7 @@ export function AssistantMessage({
 	const hasTools = message.tools.length > 0;
 	const imagePaths = generatedImagePaths(message.tools);
 	const standaloneImagePaths = imagePaths.filter(
-		(path) => !message.content.includes(fileName(path))
+		(path) => !contentEmbedsImage(message.content, path)
 	);
 	const messageMarkdownComponents = {
 		...markdownComponents,
