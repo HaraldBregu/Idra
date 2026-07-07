@@ -7,6 +7,7 @@ import {
 	toResult,
 	type SessionState,
 } from '../session';
+import { rememberSkill } from '../context';
 import { buildSystemPrompt } from '../system';
 import { loadMcpTools } from '../tools/mcp_loader';
 import { completeBootstrapTool } from '../tools/bootstrap_complete';
