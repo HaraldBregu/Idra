@@ -115,27 +115,6 @@ export class Menu {
 							},
 						],
 					},
-					{
-						label: m.logs,
-						click: (): void => {
-							const win = BrowserWindow.getFocusedWindow();
-							if (win) win.webContents.send('app:open-logs-dialog');
-						},
-					},
-					{
-						label: m.redux,
-						click: (): void => {
-							const win = BrowserWindow.getFocusedWindow();
-							if (win) win.webContents.send('app:open-redux-dialog');
-						},
-					},
-					{
-						label: m.cron,
-						click: (): void => {
-							const win = BrowserWindow.getFocusedWindow();
-							if (win) win.webContents.send('app:open-cron-dialog');
-						},
-					},
 					{ type: 'separator' as const },
 					{
 						label: m.showConsole,
