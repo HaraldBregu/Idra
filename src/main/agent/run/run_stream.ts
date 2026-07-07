@@ -5,6 +5,7 @@ import {
 	isExhausted,
 	recordTurn,
 	toResult,
+	writeSystemPrompt,
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
