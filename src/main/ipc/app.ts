@@ -101,7 +101,7 @@ async function saveImageAs(imagePath: string, window: BrowserWindow | null): Pro
 
 function validatedAgentImagePath(requestedPath: string): string {
 	const root = realpathSync(path.resolve(agentLocation()));
-	const real = realpathSync(path.resolve(requestedPath));
+	const real = realpathSync(path.resolve(agentLocation(), requestedPath));
 	if (!real.startsWith(root + path.sep)) {
 		throw new Error('Image path must be inside the agent data directory.');
 	}
