@@ -8,6 +8,7 @@ export { isExhausted } from './session_is_exhausted';
 export { listSessions } from './session_list_sessions';
 export { loadMessages } from './session_load_messages';
 export { createSessionState } from './session_module_state';
+export { persistSystemPrompt } from './session_persist_system';
 export { recordTurn } from './session_record_turn';
 export { toResult } from './session_to_result';
 export {
