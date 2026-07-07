@@ -89,6 +89,10 @@ function resolveLocalImagePath(
 	return isLocalImagePath(decodedPosix) ? decoded : undefined;
 }
 
+function isSkillTool(tool: AgentToolPart): boolean {
+	return tool.type.toLowerCase().includes('skill');
+}
+
 function fileName(path: string): string {
 	return path.slice(Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\')) + 1);
 }
