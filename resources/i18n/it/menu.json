@@ -26,10 +26,6 @@
 	"hideOthers": "Nascondi altri",
 	"unhide": "Mostra tutti",
 	"front": "Porta tutto in primo piano",
-	"tasks": "Attività",
-	"logs": "Log",
-	"redux": "Stato Redux",
-	"cron": "Cron",
 	"showConsole": "Mostra Console",
 	"refresh": "Ricarica"
 }
