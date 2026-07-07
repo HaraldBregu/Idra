@@ -24,7 +24,11 @@ function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
 function localResourceUrl(path: string): string {
 	// 'file' is a dummy host: local-resource is a standard scheme, so without it
 	// Chromium would swallow the first path segment as the URL host.
-	return `local-resource://file${encodeURI(path)}`;
+	// Windows paths use backslashes and start with a drive letter (C:\...) rather
+	// than a slash, so normalize both to produce a valid slash-separated pathname.
+	const posixPath = path.replace(/\\/g, '/');
+	const absolutePath = posixPath.startsWith('/') ? posixPath : `/${posixPath}`;
+	return `local-resource://file${encodeURI(absolutePath)}`;
 }
 
 function resolveLocalImagePath(
