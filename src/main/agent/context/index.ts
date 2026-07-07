@@ -1,2 +1,2 @@
 export { createContext } from './context_create';
-export type { AgentContext } from './context_types';
+export type { AgentContext, LoadedSkill } from './context_types';
