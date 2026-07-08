@@ -125,7 +125,7 @@ const McpDetailsPage: React.FC = () => {
 	const { id, server } = selected;
 	const httpServer = server.type === 'http' ? server : undefined;
 	const stdioServer = server.type === 'stdio' ? server : undefined;
-	const authLabel = httpServer?.token ? 'Access token' : 'Remote MCP';
+	const authLabel = httpServer ? (httpServer.token ? 'Access token' : 'OAuth / none') : 'Local process';
 	const displayName = server.name ?? id;
 	const status = mcpServerStatus(server);
 
