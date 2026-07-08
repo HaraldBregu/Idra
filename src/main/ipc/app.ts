@@ -211,6 +211,7 @@ export class AppIpc implements IpcModule {
 			AppChannels.setTheme,
 			wrapSimpleHandler((theme: AppTheme) => {
 				setStoredTheme(theme);
+				nativeTheme.themeSource = theme;
 			}, AppChannels.setTheme)
 		);
 
