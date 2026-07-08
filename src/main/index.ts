@@ -112,6 +112,7 @@ const trayManager = new Tray({
 
 const menuManager = new Menu({
 	onLanguageChange: (lng) => {
+		setStoredLanguage(lng as AppLanguage);
 		trayManager.updateLanguage(lng);
 		BrowserWindow.getAllWindows().forEach((win) => {
 			win.webContents.send('change-language', lng);
