@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Plus } from 'lucide-react';
-import type { McpData, McpHttpData } from '@shared/mcp_types';
+import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import {
 	SettingsNotice,
@@ -10,6 +10,7 @@ import {
 } from '../../components';
 import { McpServerCard } from './components/McpServerCard';
 import { OAuthMcpServerDialog } from './components/OAuthMcpServerDialog';
+import { StdioMcpServerDialog } from './components/StdioMcpServerDialog';
 import { useMcpServers } from './hooks/useMcpServers';
 
 type McpServerEntry = [id: string, entry: McpData];
