@@ -8,7 +8,7 @@ import {
 	type SuggestionKeyDownProps,
 	type SuggestionProps,
 } from '@tiptap/suggestion';
-import { Code, Heading1, Heading2, List, ListOrdered, TextQuote, type LucideIcon } from 'lucide-react';
+import { Sparkles, Target, Zap, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const slashMenuPluginKey = new PluginKey('slashMenu');
@@ -17,53 +17,56 @@ type SlashMenuItem = {
 	readonly title: string;
 	readonly description: string;
 	readonly icon: LucideIcon;
-	readonly command: (props: { editor: Editor; range: Range }) => void;
+	readonly run: (props: { editor: Editor; range: Range }) => void;
 };
 
-const slashMenuItems: readonly SlashMenuItem[] = [
+// ponytail: eager one-shot load; refreshed on the next keystroke if it lands late.
+let skillNames: readonly string[] = [];
+void window.agent
+	?.skillsList()
+	.then((list) => {
+		skillNames = list.map((skill) => skill.name);
+	})
+	.catch(() => {});
+
+const insert = (text: string) => ({ editor, range }: { editor: Editor; range: Range }) =>
+	editor.chain().focus().insertContentAt(range, text).run();
+
+const categoryItems: readonly SlashMenuItem[] = [
 	{
-		title: 'Heading 1',
-		description: 'Large section heading',
-		icon: Heading1,
-		command: ({ editor, range }) =>
-			editor.chain().focus().deleteRange(range).setNode('heading', { level: 1 }).run(),
+		title: 'Skills',
+		description: 'Run a skill',
+		icon: Sparkles,
+		run: insert('/skill '),
 	},
 	{
-		title: 'Heading 2',
-		description: 'Medium section heading',
-		icon: Heading2,
-		command: ({ editor, range }) =>
-			editor.chain().focus().deleteRange(range).setNode('heading', { level: 2 }).run(),
-	},
-	{
-		title: 'Bullet list',
-		description: 'Create a simple bullet list',
-		icon: List,
-		command: ({ editor, range }) =>
-			editor.chain().focus().deleteRange(range).toggleBulletList().run(),
-	},
-	{
-		title: 'Numbered list',
-		description: 'Create a numbered list',
-		icon: ListOrdered,
-		command: ({ editor, range }) =>
-			editor.chain().focus().deleteRange(range).toggleOrderedList().run(),
-	},
-	{
-		title: 'Quote',
-		description: 'Capture a quote',
-		icon: TextQuote,
-		command: ({ editor, range }) =>
-			editor.chain().focus().deleteRange(range).toggleBlockquote().run(),
-	},
-	{
-		title: 'Code block',
-		description: 'Add a code snippet',
-		icon: Code,
-		command: ({ editor, range }) =>
-			editor.chain().focus().deleteRange(range).toggleCodeBlock().run(),
+		title: 'Goal',
+		description: 'Set a goal',
+		icon: Target,
+		run: insert('/goal '),
 	},
 ];
+
+function skillItems(): SlashMenuItem[] {
+	return skillNames.map((name) => ({
+		title: name,
+		description: 'Skill',
+		icon: Zap,
+		run: insert(`/skill ${name} `),
+	}));
+}
+
+// Text after the '/' up to the cursor, without a trailing category token.
+const isSkillPhase = (query: string): boolean => /^skill\s/i.test(query);
+
+function itemsForQuery(query: string): SlashMenuItem[] {
+	const q = query.toLowerCase();
+	if (isSkillPhase(q)) {
+		const rest = q.replace(/^skill\s+/, '');
+		return skillItems().filter((item) => item.title.toLowerCase().includes(rest));
+	}
+	return categoryItems.filter((item) => item.title.toLowerCase().includes(q));
+}
 
 type SlashMenuListRef = {
 	onKeyDown: (props: SuggestionKeyDownProps) => boolean;
@@ -142,12 +145,17 @@ export const SlashMenu = Extension.create({
 				editor: this.editor,
 				pluginKey: slashMenuPluginKey,
 				char: '/',
+				allowSpaces: true,
 				placement: 'top-start',
-				items: ({ query }) =>
-					slashMenuItems.filter((item) =>
-						item.title.toLowerCase().includes(query.toLowerCase())
-					),
-				command: ({ editor, range, props }) => props.command({ editor, range }),
+				// Show while picking a category (single token) or a skill (skill + partial
+				// name). Any completed command ("/skill demo ", "/goal ") closes the menu.
+				allow: ({ state, range }) => {
+					const text = state.doc.textBetween(range.from, range.to);
+					const query = text.startsWith('/') ? text.slice(1) : text;
+					return /^\S*$/.test(query) || /^skill\s+\S*$/i.test(query);
+				},
+				items: ({ query }) => itemsForQuery(query),
+				command: ({ editor, range, props }) => props.run({ editor, range }),
 				render: () => {
 					let component: ReactRenderer<
 						SlashMenuListRef,
