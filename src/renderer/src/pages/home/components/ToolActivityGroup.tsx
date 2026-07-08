@@ -107,6 +107,7 @@ export function ToolActivityGroup({
 						>
 							<div className="flex min-w-0 items-center gap-1.5">
 								{showImageIcon && <Image className="size-3.5 shrink-0" />}
+								{showSkillIcon && <Sparkles className="size-3.5 shrink-0" />}
 								<span className="flex min-w-0 items-baseline gap-1 truncate text-xs font-medium">
 									{isExploring ? (
 										<TextShimmer>{verb}</TextShimmer>
