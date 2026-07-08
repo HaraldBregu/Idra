@@ -133,29 +133,16 @@ const McpDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={displayName}
 				action={
-					httpServer ? (
-						<OAuthMcpServerDialog
-							initial={{ id, entry: httpServer }}
-							trigger={
-								<Button variant="outline" size="sm">
-									<Pencil className="size-3.5" />
-									Edit
-								</Button>
-							}
-							onSubmit={updateMcpServer}
-						/>
-					) : stdioServer ? (
-						<StdioMcpServerDialog
-							initial={{ id, entry: stdioServer }}
-							trigger={
-								<Button variant="outline" size="sm">
-									<Pencil className="size-3.5" />
-									Edit
-								</Button>
-							}
-							onSubmit={updateMcpServer}
-						/>
-					) : undefined
+					<McpServerDialog
+						initial={{ id, entry: server }}
+						trigger={
+							<Button variant="outline" size="sm">
+								<Pencil className="size-3.5" />
+								Edit
+							</Button>
+						}
+						onSubmit={updateMcpServer}
+					/>
 				}
 			/>
 
