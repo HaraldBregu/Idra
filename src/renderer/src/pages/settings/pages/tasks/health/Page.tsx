@@ -163,7 +163,7 @@ const HealthPage: React.FC = () => {
 									})
 								}
 								onModelChange={(nextModelId) => update({ modelId: nextModelId })}
-								onSave={() => {}}
+								onSave={() => void handleSave()}
 							/>
 
 							<SettingsPanel>
