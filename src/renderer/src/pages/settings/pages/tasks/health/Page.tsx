@@ -138,25 +138,33 @@ const HealthPage: React.FC = () => {
 						description={t('settings.health.settingsDescription')}
 					>
 						<div className="grid gap-3">
-							<ModelProviderSelect
+							<ModelProviderConfiguration
+								configState={{
+									providers: LLM_PROVIDERS_PUBLIC,
+									modelGroups: LLM_MODEL_GROUPS,
+									providerId: settings.providerId ?? '',
+									modelId: settings.modelId ?? '',
+									loading: false,
+									loadingModels: false,
+									saving,
+									saved: false,
+									error: null,
+								}}
 								idPrefix="health"
-								providerGroups={LLM_PROVIDER_GROUPS}
-								providerId={settings.providerId ?? ''}
-								modelId={settings.modelId ?? ''}
+								collapsible={false}
+								showSaveButton={false}
+								providerDescription={t('settings.modelServices.providerDescription')}
+								modelDescription={t('settings.modelServices.modelDescription')}
 								onProviderChange={(nextProviderId) =>
 									update({
 										providerId: nextProviderId,
-										modelId: firstModelIdForProvider(LLM_PROVIDER_GROUPS, nextProviderId),
+										modelId:
+											LLM_MODEL_GROUPS.find((group) => group.provider.id === nextProviderId)
+												?.models[0]?.id ?? '',
 									})
 								}
 								onModelChange={(nextModelId) => update({ modelId: nextModelId })}
-								disabled={saving}
-								labels={{
-									provider: t('settings.health.fields.provider'),
-									model: t('settings.health.fields.model'),
-									providerPlaceholder: t('settings.health.fields.providerPlaceholder'),
-									modelPlaceholder: t('settings.health.fields.modelPlaceholder'),
-								}}
+								onSave={() => {}}
 							/>
 
 							<div className="grid gap-3 sm:grid-cols-3">
