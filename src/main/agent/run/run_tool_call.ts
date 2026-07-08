@@ -48,6 +48,7 @@ export async function* runToolCall(
 				if (command) addToolAllowedCommand(toolCall.name, command);
 				const dir = toolPathDir(toolCall.args);
 				if (dir) addToolAllowedPath(toolCall.name, dir);
+				for (const escaped of escapes) addSandboxRoot(escaped);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
