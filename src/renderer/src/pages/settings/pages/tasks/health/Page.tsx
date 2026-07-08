@@ -44,8 +44,6 @@ const LLM_MODEL_GROUPS: ProviderModelGroup[] = LLM_PROVIDERS.flatMap((providerId
 	return provider && models.length > 0 ? [{ provider: toPublicProvider(provider), models }] : [];
 });
 
-const LLM_PROVIDERS_PUBLIC: PublicProvider[] = LLM_MODEL_GROUPS.map((group) => group.provider);
-
 type HealthSettings = Awaited<ReturnType<typeof window.agent.healthGetSettings>>;
 
 const EVERY_OPTIONS: readonly HealthSettings['every'][] = ['0m', '1m', '30m', '1h'];
