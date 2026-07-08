@@ -74,11 +74,13 @@ async function execute(
 
 	// Subagents cannot prompt the user, so anything short of a stored 'allow' is denied.
 	if (resolveToolPermission(name, args) !== 'allow') {
+		recordToolUse(name, 'deny');
 		return {
 			content: `Error: tool '${name}' requires user permission, which subagents cannot request.`,
 			isError: true,
 		};
 	}
+	recordToolUse(name, 'allow');
 
 	try {
 		return { content: formatToolOutput(await tool.run(args)) };
