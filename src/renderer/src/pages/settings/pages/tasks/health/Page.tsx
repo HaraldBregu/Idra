@@ -56,6 +56,7 @@ const HealthPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
+	const [openPicker, setOpenPicker] = useState<'start' | 'end' | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
