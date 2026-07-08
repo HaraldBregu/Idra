@@ -390,42 +390,51 @@ const HealthPage: React.FC = () => {
 										</ItemTitle>
 									</ItemContent>
 									<ItemActions className="ml-auto flex-none justify-end">
-										<Popover>
+										<Popover
+											open={openPicker === 'end'}
+											onOpenChange={(open) => setOpenPicker(open ? 'end' : null)}
+										>
 											<PopoverTrigger asChild>
 												<Button
 													id="health-active-end"
 													type="button"
 													variant="outline"
-													className="h-7 w-44 justify-start px-2 text-xs font-normal"
+													data-empty={!settings.activeHours?.end}
+													className="h-7 w-44 justify-start px-2 text-xs font-normal data-[empty=true]:text-muted-foreground"
 													disabled={saving}
 													aria-label={t('settings.health.fields.activeHoursEnd')}
 												>
-													<CalendarIcon className="size-3" />
-													{settings.activeHours?.end ? (
-														format(parseISO(settings.activeHours.end), 'PPP')
-													) : (
-														<span className="text-muted-foreground">
-															{t('settings.health.fields.pickDate')}
-														</span>
-													)}
+													<CalendarIcon className="size-3 shrink-0 opacity-60" />
+													<span className="truncate">
+														{settings.activeHours?.end
+															? format(parseISO(settings.activeHours.end), 'PP')
+															: t('settings.health.fields.pickDate')}
+													</span>
 												</Button>
 											</PopoverTrigger>
-											<PopoverContent className="w-auto p-0" align="end">
+											<PopoverContent className="w-auto p-0" align="end" sideOffset={6}>
 												<Calendar
 													mode="single"
+													captionLayout="dropdown"
 													selected={
 														settings.activeHours?.end
 															? parseISO(settings.activeHours.end)
 															: undefined
 													}
-													onSelect={(date) =>
+													defaultMonth={
+														settings.activeHours?.end
+															? parseISO(settings.activeHours.end)
+															: undefined
+													}
+													onSelect={(date) => {
 														update({
 															activeHours: {
 																start: settings.activeHours?.start ?? '',
 																end: date ? format(date, 'yyyy-MM-dd') : '',
 															},
-														})
-													}
+														});
+														setOpenPicker(null);
+													}}
 												/>
 											</PopoverContent>
 										</Popover>
