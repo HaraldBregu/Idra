@@ -20,15 +20,20 @@ export function StepProgress({ currentIndex }: StepProgressProps): React.JSX.Ele
 					<span
 						key={setupStep}
 						className={cn(
-							'h-1.5 rounded-full transition-all',
-							index === currentIndex ? 'w-6 bg-primary' : 'w-1.5',
-							index < currentIndex ? 'bg-primary' : 'bg-muted',
-							index > currentIndex ? 'bg-muted' : undefined
+							'h-1.5 rounded-full transition-all duration-300',
+							index === currentIndex
+								? 'w-6 bg-primary'
+								: index < currentIndex
+									? 'w-1.5 bg-primary/50'
+									: 'w-1.5 bg-muted'
 						)}
 					/>
 				))}
 			</div>
-			<p className="truncate text-[11px] text-muted-foreground">{currentStepName}</p>
+			<p className="truncate text-[11px] text-muted-foreground">
+				<span className="font-medium text-foreground">{currentStepName}</span>
+				{` · ${currentIndex + 1} of ${SETUP_STEPS.length}`}
+			</p>
 		</div>
 	);
 }
