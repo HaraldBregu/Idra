@@ -127,8 +127,7 @@ const menuManager = new Menu({
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers();
-	menuManager.create();
-	// Apply persisted settings on startup
+	// Apply persisted settings on startup (updateLanguage builds the menu)
 	const storedLanguage = getLanguage();
 	menuManager.updateLanguage(storedLanguage);
 	setTrayEnabled(trayManager, getTrayEnabled());
