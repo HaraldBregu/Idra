@@ -213,11 +213,7 @@ const HealthPage: React.FC = () => {
 												</SelectValue>
 											</SelectTrigger>
 											<SelectContent>
-												{(
-													LLM_MODEL_GROUPS.find(
-														(group) => group.provider.id === settings.providerId
-													)?.models ?? []
-												).map((model) => (
+												{(selectedGroup?.models ?? []).map((model) => (
 													<SelectItem key={model.id} value={model.id}>
 														{model.name ?? model.id}
 													</SelectItem>
