@@ -58,26 +58,15 @@ const McpPage = () => {
 				title="MCP"
 				description="Connected MCP servers."
 				action={
-					<div className="flex gap-2">
-						<StdioMcpServerDialog
-							trigger={
-								<Button variant="outline" size="sm">
-									<Plus className="size-3.5" />
-									Add local server
-								</Button>
-							}
-							onSubmit={addMcpServer}
-						/>
-						<OAuthMcpServerDialog
-							trigger={
-								<Button variant="outline" size="sm">
-									<Plus className="size-3.5" />
-									Add remote server
-								</Button>
-							}
-							onSubmit={addMcpServer}
-						/>
-					</div>
+					<McpServerDialog
+						trigger={
+							<Button variant="outline" size="sm">
+								<Plus className="size-3.5" />
+								Add MCP server
+							</Button>
+						}
+						onSubmit={addMcpServer}
+					/>
 				}
 			/>
 
