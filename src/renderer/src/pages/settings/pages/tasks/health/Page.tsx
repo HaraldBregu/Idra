@@ -158,7 +158,7 @@ const HealthPage: React.FC = () => {
 									</ItemContent>
 									<ItemActions className="ml-auto flex-none justify-end">
 										<Select
-											value={settings.providerId ?? ''}
+											value={settings.providerId || null}
 											onValueChange={(value) =>
 												updateAndSave({
 													providerId: value ?? '',
@@ -172,7 +172,9 @@ const HealthPage: React.FC = () => {
 											<SelectTrigger id="health-provider" className="h-7 w-44 text-xs">
 												<SelectValue
 													placeholder={t('settings.modelServices.providerPlaceholder')}
-												/>
+												>
+													{selectedGroup?.provider.name ?? settings.providerId}
+												</SelectValue>
 											</SelectTrigger>
 											<SelectContent>
 												{LLM_MODEL_GROUPS.map((group) => (
