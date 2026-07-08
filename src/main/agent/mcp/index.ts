@@ -4,6 +4,7 @@ export { close } from './mcp_client_close';
 export { connect } from './mcp_client_connect';
 export { listTools } from './mcp_client_list_tools';
 export { clientMetadata, MCP_OAUTH_REDIRECT_URL } from './mcp_oauth_client_metadata';
+export { startOauthCallbackServer } from './mcp_oauth_callback';
 export { createOAuthProvider } from './mcp_oauth_create_provider';
 export {
 	DEFAULT_MCP_SETTINGS,
