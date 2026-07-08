@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Badge } from '@/components/ui/badge';
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
+import { StepHeader } from './StepHeader';
 import type { ModelConfigurationState } from '@pages/settings/components/model-configuration-state';
 import type { ModelServiceDefinition, ModelServiceId, ModelServiceState } from '../types';
 
