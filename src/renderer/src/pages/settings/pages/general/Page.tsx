@@ -101,6 +101,17 @@ const GeneralPage: React.FC = () => {
 					</Item>
 					<Item variant="outline" size="md" className="border-b border-border/60">
 						<ItemMedia variant="icon">
+							<Coffee className="size-3" strokeWidth={1.8} />
+						</ItemMedia>
+						<ItemContent>
+							<ItemTitle>{t('settings.application.keepAwake')}</ItemTitle>
+						</ItemContent>
+						<ItemActions className="ml-auto flex-none justify-end">
+							<Switch checked={keepAwake} onCheckedChange={handleKeepAwakeToggle} aria-label={t('settings.application.keepAwake')} />
+						</ItemActions>
+					</Item>
+					<Item variant="outline" size="md" className="border-b border-border/60">
+						<ItemMedia variant="icon">
 							<FolderOpen className="size-3" strokeWidth={1.8} />
 						</ItemMedia>
 						<ItemContent>
