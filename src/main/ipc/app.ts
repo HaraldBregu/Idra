@@ -192,6 +192,34 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.setLanguage,
+			wrapSimpleHandler((language: AppLanguage) => {
+				setStoredLanguage(language);
+			}, AppChannels.setLanguage)
+		);
+
+		ipcMain.handle(
+			AppChannels.getLanguage,
+			wrapSimpleHandler(() => {
+				return getStoredLanguage();
+			}, AppChannels.getLanguage)
+		);
+
+		ipcMain.handle(
+			AppChannels.setTheme,
+			wrapSimpleHandler((theme: AppTheme) => {
+				setStoredTheme(theme);
+			}, AppChannels.setTheme)
+		);
+
+		ipcMain.handle(
+			AppChannels.getTheme,
+			wrapSimpleHandler(() => {
+				return getStoredTheme();
+			}, AppChannels.getTheme)
+		);
+
+		ipcMain.handle(
 			AppChannels.getMicrophonePermission,
 			wrapSimpleHandler(() => {
 				return microphoneSettings();
