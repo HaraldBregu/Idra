@@ -60,6 +60,7 @@ const StartPage: React.FC = () => {
 		!loadingModels &&
 		!savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
+	const canSkip = currentService !== undefined && !currentService.required;
 
 	function handleBack(): void {
 		const previousStep = SETUP_STEPS[Math.max(0, stepIndex - 1)];
