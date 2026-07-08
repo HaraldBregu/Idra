@@ -47,7 +47,6 @@ const categoryItems: readonly SlashMenuItem[] = [
 function skillItems(): SlashMenuItem[] {
 	return skillNames.map((name) => ({
 		title: name,
-		description: 'Skill',
 		icon: Zap,
 		run: insert(`/skill ${name} `),
 	}));
