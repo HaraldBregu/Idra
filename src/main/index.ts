@@ -128,13 +128,24 @@ app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers();
 	menuManager.create();
-	// Honor the persisted tray setting on startup
+	// Apply persisted settings on startup
+	const storedLanguage = getLanguage();
+	menuManager.updateLanguage(storedLanguage);
 	setTrayEnabled(trayManager, getTrayEnabled());
+	trayManager.updateLanguage(storedLanguage);
+	nativeTheme.themeSource = getTheme();
 
 	// Toggle tray from renderer settings
 	eventBus.on('tray:set-enabled', (event) => {
 		const { enabled } = event.payload as { enabled: boolean };
 		setTrayEnabled(trayManager, enabled);
+	});
+
+	// Sync native menu + tray when language changes from renderer settings
+	eventBus.on('language:changed', (event) => {
+		const { language } = event.payload as { language: AppLanguage };
+		menuManager.updateLanguage(language);
+		trayManager.updateLanguage(language);
 	});
 
 	// Create main window
