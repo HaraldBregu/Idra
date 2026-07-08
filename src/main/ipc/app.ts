@@ -6,6 +6,7 @@ import {
 	ipcMain,
 	Menu,
 	nativeImage,
+	nativeTheme,
 	shell,
 	systemPreferences,
 	type IpcMainInvokeEvent,
