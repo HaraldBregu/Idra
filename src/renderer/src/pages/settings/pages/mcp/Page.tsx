@@ -23,6 +23,7 @@ function describeMcpServer(entry: McpData): string {
 const McpPage = () => {
 	const navigate = useNavigate();
 	const { servers, error, load } = useMcpServers();
+	const [adding, setAdding] = useState(false);
 
 	const openMcpServerDetails = (id: string): void => {
 		navigate(`/settings/mcp/details/${encodeURIComponent(id)}`);
@@ -31,6 +32,7 @@ const McpPage = () => {
 	const addMcpServer = async (id: string, entry: McpData): Promise<void> => {
 		await window.agent.mcpSave({ ...servers, [id]: entry });
 		await load();
+		setAdding(false);
 	};
 
 	const entries = Object.entries(servers) as McpServerEntry[];
