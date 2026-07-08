@@ -151,7 +151,7 @@ const HealthPage: React.FC = () => {
 								}}
 								idPrefix="health"
 								collapsible={false}
-								showSaveButton={false}
+								showSaveButton
 								providerDescription={t('settings.modelServices.providerDescription')}
 								modelDescription={t('settings.modelServices.modelDescription')}
 								onProviderChange={(nextProviderId) =>
