@@ -136,9 +136,10 @@ export class AppIpc implements IpcModule {
 
 	private trayEnabled = true;
 
-	private keepAwake = false;
-
 	register({ logger }: AppIpcDeps, eventBus: EventBus): void {
+		// Honor the persisted keep-awake setting on startup
+		applyKeepAwake(getStoredKeepAwake());
+
 		// Open application data folder in system file explorer
 		ipcMain.handle(
 			AppChannels.openAppDataFolder,
