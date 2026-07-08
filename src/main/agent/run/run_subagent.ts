@@ -1,5 +1,5 @@
 import { getModelId, getProvider } from '../settings/settings_store';
-import { resolveToolPermission } from '../policy';
+import { recordToolUse, resolveToolPermission } from '../policy';
 import { addSkillPrompt } from '../system';
 import { runModelTurn } from './run_model_turn';
 import { formatToolOutput } from './run_common';
