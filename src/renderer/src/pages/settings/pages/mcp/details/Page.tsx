@@ -17,6 +17,7 @@ import {
 import { McpStatusBadge } from '../components/McpStatusBadge';
 import { McpOAuthButton } from '../components/McpOAuthButton';
 import { OAuthMcpServerDialog } from '../components/OAuthMcpServerDialog';
+import { StdioMcpServerDialog } from '../components/StdioMcpServerDialog';
 
 type McpServerRecord = Awaited<ReturnType<typeof window.agent.mcpList>>;
 type McpServerEntry = McpServerRecord[string];
