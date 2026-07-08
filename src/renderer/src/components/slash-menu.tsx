@@ -120,10 +120,7 @@ const SlashMenuList = forwardRef<SlashMenuListRef, SuggestionProps<SlashMenuItem
 							onClick={() => command(item)}
 						>
 							<item.icon className="size-4 shrink-0 text-muted-foreground" />
-							<span className="flex min-w-0 flex-col">
-								<span className="truncate font-medium">{item.title}</span>
-								<span className="truncate text-xs text-muted-foreground">{item.description}</span>
-							</span>
+							<span className="truncate font-medium">{item.title}</span>
 						</button>
 					))
 				)}
