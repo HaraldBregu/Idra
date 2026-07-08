@@ -234,7 +234,7 @@ const HealthPage: React.FC = () => {
 											}
 											disabled={saving}
 										>
-											<SelectTrigger id="health-every" className="h-7 w-36 text-xs">
+											<SelectTrigger id="health-every" className="h-7 w-44 text-xs">
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
@@ -264,7 +264,7 @@ const HealthPage: React.FC = () => {
 											onValueChange={(value) => update({ target: value ?? 'none' })}
 											disabled={saving}
 										>
-											<SelectTrigger id="health-target" className="h-7 w-36 text-xs">
+											<SelectTrigger id="health-target" className="h-7 w-44 text-xs">
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
@@ -302,7 +302,7 @@ const HealthPage: React.FC = () => {
 											}
 											disabled={saving}
 										>
-											<SelectTrigger id="health-direct-policy" className="h-7 w-36 text-xs">
+											<SelectTrigger id="health-direct-policy" className="h-7 w-44 text-xs">
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
