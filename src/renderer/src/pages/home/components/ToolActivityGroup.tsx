@@ -93,6 +93,7 @@ export function ToolActivityGroup({
 	const { verb, detail } = toolActivitySummary(tools);
 	const groups = groupToolsByType(tools);
 	const showImageIcon = verb === 'Creating image' || verb === 'Created image';
+	const showSkillIcon = verb === 'Skill';
 
 	return (
 		<div className={cn('w-full max-w-2xl', className)}>
