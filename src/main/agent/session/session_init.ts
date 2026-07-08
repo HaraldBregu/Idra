@@ -26,7 +26,6 @@ export function init(
 		...(input.messages ?? []),
 	];
 	if (input.message) state.messages.push({ role: 'user', content: input.message });
-	state.context.loadedSkills = loadLoadedSkills(state.messages);
 	state.model = input.model ?? 'default';
 	state.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 	persist(state);
