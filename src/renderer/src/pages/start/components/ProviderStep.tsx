@@ -3,6 +3,7 @@ import { KeyRound } from 'lucide-react';
 import { actionableProviderCatalog, STEP_COPY } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 import { ProviderCard } from './ProviderCard';
+import { StepHeader } from './StepHeader';
 
 type ProviderStepProps = {
 	readonly providerEntries: ProviderSetupEntry[];
