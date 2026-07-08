@@ -227,7 +227,7 @@ const McpDetailsPage: React.FC = () => {
 				</Card>
 			</SettingsSection>
 
-			{httpServer && httpServer.client_id && (
+			{httpServer && !httpServer.token && (
 				<SettingsSection title="Authentication" description="Sign in to this server with OAuth.">
 					<McpOAuthButton id={id} />
 				</SettingsSection>
