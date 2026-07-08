@@ -13,6 +13,7 @@ import {
 	getMcpServers,
 	saveMcpOauth,
 	setMcpServers,
+	startOauthCallbackServer,
 	type McpOAuthStorage,
 } from '../agent/mcp';
 import type { LoggerService } from '../shared';
