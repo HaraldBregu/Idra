@@ -7,6 +7,7 @@ import {
 	toolPathDir,
 	waitForToolPermission,
 } from '../policy';
+import { addSandboxRoot, sandboxEscapes } from '../sandbox';
 import { formatToolOutput } from './run_common';
 
 export async function* runToolCall(
