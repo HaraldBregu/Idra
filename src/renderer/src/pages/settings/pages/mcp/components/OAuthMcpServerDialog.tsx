@@ -91,7 +91,8 @@ export function OAuthMcpServerDialog({
 					<DialogHeader>
 						<DialogTitle>{isEdit ? 'Edit MCP server' : 'Add MCP server'}</DialogTitle>
 						<DialogDescription>
-							Remote MCP server authenticated with OAuth client credentials.
+							Remote MCP server over HTTP. Leave the auth fields empty for public servers or
+							OAuth with dynamic client registration.
 						</DialogDescription>
 					</DialogHeader>
 
