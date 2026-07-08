@@ -1,8 +1,8 @@
-import { isBootstrapPath } from './policy_bootstrap';
+import { isWithinSandbox } from '../sandbox/sandbox_check';
 import { toolCommandName } from './policy_command';
-import { patchOnlyAddsFiles } from './policy_patch';
-import { isPathWithin, toolPathDir } from './policy_path';
+import { isPathWithin } from './policy_path';
 import { getToolAllowedCommands, getToolAllowedPaths, getToolPermission } from './policy_store';
+import { toolTargetDirs } from './policy_targets';
 import { isPermissionGatedTool, type PermissionMode } from './policy_types';
 
 function isDirAllowed(toolName: string, dir: string): boolean {
@@ -16,20 +16,13 @@ export function resolveToolPermission(
 	if (!isPermissionGatedTool(toolName)) return 'allow';
 	const mode = getToolPermission(toolName);
 	if (mode !== 'ask') return mode;
-	// Patches that delete or update files always re-prompt; creating files is free.
-	if (toolName === 'apply_patch') {
-		return patchOnlyAddsFiles(args) ? 'allow' : 'ask';
-	}
+	// Inside the sandbox (agent location, tmpdir) the agent works without permissions.
+	const outside = toolTargetDirs(toolName, args).filter((dir) => !isWithinSandbox(dir));
+	if (outside.length === 0) return 'allow';
+	// Outside the sandbox, only previously granted paths (and commands, for exec) pass.
 	if (toolName === 'exec') {
 		const command = toolCommandName(args);
 		if (!command || !getToolAllowedCommands(toolName).includes(command)) return 'ask';
-		const dir = toolPathDir(args);
-		if (dir && !isDirAllowed(toolName, dir)) return 'ask';
-		return 'allow';
 	}
-	const dir = toolPathDir(args);
-	if (dir && isDirAllowed(toolName, dir)) return 'allow';
-	// While BOOTSTRAP.md exists, the agent may edit its own workspace files freely.
-	if (dir && isBootstrapPath(dir)) return 'allow';
-	return 'ask';
+	return outside.every((dir) => isDirAllowed(toolName, dir)) ? 'allow' : 'ask';
 }
