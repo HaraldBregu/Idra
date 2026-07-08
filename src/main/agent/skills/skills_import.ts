@@ -28,7 +28,7 @@ export async function importSkills(): Promise<SkillImportResult | undefined> {
 			});
 			continue;
 		}
-		const id = slug(path.basename(source));
+		const id = readSkill(source, path.basename(source))?.name ?? path.basename(source);
 		const destination = path.join(skillsRoot, id);
 		fs.rmSync(destination, { recursive: true, force: true });
 		fs.cpSync(source, destination, { recursive: true });
