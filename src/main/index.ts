@@ -4,7 +4,13 @@ import { resolve } from 'node:path';
 import { Main } from './app/create_window';
 import { Tray } from './app/tray';
 import { setTrayEnabled } from './app/set_tray_enabled';
-import { getTrayEnabled } from './app/settings_store';
+import {
+	getTrayEnabled,
+	getLanguage,
+	setLanguage as setStoredLanguage,
+	getTheme,
+} from './app/settings_store';
+import type { AppLanguage } from '../shared/app_types';
 import { Menu } from './app/menu';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
