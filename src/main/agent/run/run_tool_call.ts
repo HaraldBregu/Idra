@@ -32,8 +32,6 @@ export async function* runToolCall(
 		isError = true;
 	} else {
 		let permission = resolveToolPermission(toolCall.name, toolCall.args);
-		const escapes = sandboxEscapes(toolCall.name, toolCall.args);
-		if (permission === 'allow' && escapes.length > 0) permission = 'ask';
 
 		if (permission === 'ask') {
 			yield {
@@ -47,12 +45,14 @@ export async function* runToolCall(
 			if (decision === 'approve_always') {
 				const command = toolCommandName(toolCall.args);
 				if (command) addToolAllowedCommand(toolCall.name, command);
-				const dir = toolPathDir(toolCall.args);
-				if (dir) addToolAllowedPath(toolCall.name, dir);
-				for (const escaped of escapes) addSandboxRoot(escaped);
+				const dirs = toolTargetDirs(toolCall.name, toolCall.args);
+				for (const dir of dirs.filter((d) => !isWithinSandbox(d)))
+					addToolAllowedPath(toolCall.name, dir);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
+
+		recordToolUse(toolCall.name, permission);
 
 		if (permission === 'deny') {
 			output = `Error: permission denied for '${toolCall.name}'`;
