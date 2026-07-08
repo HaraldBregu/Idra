@@ -5,12 +5,15 @@ export {
 	getToolAllowedCommands,
 	getToolAllowedPaths,
 	getToolPermission,
+	getToolUsage,
+	recordToolUse,
 	resetPermissions,
 	setToolPermission,
 	updatePermissions,
 } from './policy_store';
 export { toolCommandName } from './policy_command';
 export { isPathWithin, toolPathDir } from './policy_path';
+export { toolTargetDirs } from './policy_targets';
 export { resolveToolPermission } from './policy_resolve';
 export {
 	rejectPendingToolPermissions,
