@@ -164,7 +164,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.setTrayEnabled,
 			wrapSimpleHandler((enabled: boolean) => {
-				this.trayEnabled = enabled;
+				setStoredTrayEnabled(enabled);
 				eventBus.emit('tray:set-enabled', { enabled });
 			}, AppChannels.setTrayEnabled)
 		);
@@ -172,7 +172,7 @@ export class AppIpc implements IpcModule {
 		ipcMain.handle(
 			AppChannels.getTrayEnabled,
 			wrapSimpleHandler(() => {
-				return this.trayEnabled;
+				return getStoredTrayEnabled();
 			}, AppChannels.getTrayEnabled)
 		);
 
