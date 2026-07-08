@@ -143,22 +143,24 @@ const StartPage: React.FC = () => {
 
 	return (
 		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			<header className="pointer-events-none fixed inset-x-0 top-12 z-40 px-4 py-3 sm:px-6">
-				<nav
-					aria-label="Setup navigation"
-					className="mx-auto flex w-full max-w-2xl items-center justify-end"
-				>
-					<Button
-						type="button"
-						variant="ghost"
-						size="xs"
-						className="pointer-events-auto"
-						onClick={() => navigate('/home')}
+			{canSkip ? (
+				<header className="pointer-events-none fixed inset-x-0 top-12 z-40 px-4 py-3 sm:px-6">
+					<nav
+						aria-label="Setup navigation"
+						className="mx-auto flex w-full max-w-2xl items-center justify-end"
 					>
-						Skip
-					</Button>
-				</nav>
-			</header>
+						<Button
+							type="button"
+							variant="ghost"
+							size="xs"
+							className="pointer-events-auto"
+							onClick={() => navigate('/home')}
+						>
+							Skip
+						</Button>
+					</nav>
+				</header>
+			) : null}
 
 			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-4 sm:px-6">
 				{renderStepContent()}
