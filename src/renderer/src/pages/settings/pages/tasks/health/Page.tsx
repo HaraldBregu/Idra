@@ -388,22 +388,45 @@ const HealthPage: React.FC = () => {
 										</ItemTitle>
 									</ItemContent>
 									<ItemActions className="ml-auto flex-none justify-end">
-										<Input
-											id="health-active-end"
-											type="date"
-											className="h-7 w-36 text-xs"
-											value={settings.activeHours?.end ?? ''}
-											onChange={(event) =>
-												update({
-													activeHours: {
-														start: settings.activeHours?.start ?? '',
-														end: event.target.value,
-													},
-												})
-											}
-											disabled={saving}
-											aria-label={t('settings.health.fields.activeHoursEnd')}
-										/>
+										<Popover>
+											<PopoverTrigger asChild>
+												<Button
+													id="health-active-end"
+													type="button"
+													variant="outline"
+													className="h-7 w-44 justify-start px-2 text-xs font-normal"
+													disabled={saving}
+													aria-label={t('settings.health.fields.activeHoursEnd')}
+												>
+													<CalendarIcon className="size-3" />
+													{settings.activeHours?.end ? (
+														format(parseISO(settings.activeHours.end), 'PPP')
+													) : (
+														<span className="text-muted-foreground">
+															{t('settings.health.fields.pickDate')}
+														</span>
+													)}
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent className="w-auto p-0" align="end">
+												<Calendar
+													mode="single"
+													selected={
+														settings.activeHours?.end
+															? parseISO(settings.activeHours.end)
+															: undefined
+													}
+													onSelect={(date) =>
+														update({
+															activeHours: {
+																start: settings.activeHours?.start ?? '',
+																end: date ? format(date, 'yyyy-MM-dd') : '',
+															},
+														})
+													}
+												/>
+											</PopoverContent>
+										</Popover>
 									</ItemActions>
 								</Item>
 
