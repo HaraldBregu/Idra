@@ -50,7 +50,6 @@ export function TranscribeServiceStep({
 	onModelChange,
 }: TranscribeServiceStepProps): React.JSX.Element {
 	const { t } = useTranslation();
-	const ServiceIcon = service.icon;
 	const modeConfigStates = useMemo(
 		() =>
 			SPEECH_MODE_IDS.reduce(
