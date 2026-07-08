@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
