@@ -109,11 +109,15 @@ export function OAuthMcpServerDialog({
 						<Input id="oauth-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/mcp" />
 					</Field>
 					<Field>
-						<Label htmlFor="oauth-client-id">Client ID</Label>
+						<Label htmlFor="oauth-token">Access token (optional)</Label>
+						<Input id="oauth-token" type="password" value={token} onChange={(e) => setToken(e.target.value)} autoComplete="off" />
+					</Field>
+					<Field>
+						<Label htmlFor="oauth-client-id">Client ID (optional)</Label>
 						<Input id="oauth-client-id" value={clientId} onChange={(e) => setClientId(e.target.value)} autoComplete="off" />
 					</Field>
 					<Field>
-						<Label htmlFor="oauth-client-secret">Client secret</Label>
+						<Label htmlFor="oauth-client-secret">Client secret (optional)</Label>
 						<Input id="oauth-client-secret" type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} autoComplete="off" />
 					</Field>
 

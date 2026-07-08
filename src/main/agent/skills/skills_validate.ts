@@ -4,6 +4,8 @@ import matter from 'gray-matter';
 import type { SkillValidationIssue, SkillValidationResult } from '../../../shared/skills_types';
 import { SKILL_FILE } from './skills_read';
 
+const NAME_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 export function validateSkill(folder: string): SkillValidationResult {
 	const issues: SkillValidationIssue[] = [];
 	const skillPath = path.join(folder, SKILL_FILE);
