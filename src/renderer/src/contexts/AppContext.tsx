@@ -4,16 +4,17 @@ import React, {
 	useContext,
 	useEffect,
 	useMemo,
+	useRef,
 	useState,
 	type ReactNode,
 } from 'react';
 import i18n from '../i18n';
+import type { AppLanguage, AppTheme } from '../../../shared/app_types';
 
 const LANGUAGE_STORAGE_KEY = 'app-language';
 const THEME_STORAGE_KEY = 'app-theme';
 
-export type AppLanguage = 'en' | 'it';
-export type AppTheme = 'light' | 'dark' | 'system';
+export type { AppLanguage, AppTheme };
 export type SidebarState = 'expanded' | 'collapsed';
 
 export interface AppContextValue {
