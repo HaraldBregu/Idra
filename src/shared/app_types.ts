@@ -35,6 +35,10 @@ export interface CameraPermissionSettings {
 
 export type SystemPreferencePaneId = 'Accessibility' | 'ScreenCapture' | 'Camera' | 'Microphone';
 
+export type AppLanguage = 'en' | 'it';
+
+export type AppTheme = 'light' | 'dark' | 'system';
+
 export const ShortcutId = {
 	openDocumentList: 'openDocumentList',
 	openAppSearch: 'openAppSearch',
