@@ -26,8 +26,14 @@ import type {
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { setKeepAwake as applyKeepAwake } from '../app/keep_awake';
 import {
+	getTrayEnabled as getStoredTrayEnabled,
+	setTrayEnabled as setStoredTrayEnabled,
 	getKeepAwake as getStoredKeepAwake,
 	setKeepAwake as setStoredKeepAwake,
+	getLanguage as getStoredLanguage,
+	setLanguage as setStoredLanguage,
+	getTheme as getStoredTheme,
+	setTheme as setStoredTheme,
 } from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import type { LoggerService } from '../shared';
