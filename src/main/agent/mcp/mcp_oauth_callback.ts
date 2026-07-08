@@ -30,7 +30,10 @@ export function startOauthCallbackServer(timeoutMs = 300_000): Promise<{
 			() => rejectCode(new Error('Timed out waiting for the OAuth callback.')),
 			timeoutMs,
 		);
-		server.once('error', rejectListen);
+		server.once('error', (err) => {
+			clearTimeout(timer);
+			rejectListen(err);
+		});
 		server.listen(Number(redirect.port), redirect.hostname, () => {
 			resolveListen({
 				code,
