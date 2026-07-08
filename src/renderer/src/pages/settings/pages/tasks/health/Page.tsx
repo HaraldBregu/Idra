@@ -49,13 +49,6 @@ type HealthSettings = Awaited<ReturnType<typeof window.agent.healthGetSettings>>
 
 const EVERY_OPTIONS: readonly HealthSettings['every'][] = ['0m', '1m', '30m', '1h'];
 
-const SWITCH_FIELDS = [
-	'lightContext',
-	'isolatedSession',
-	'skipWhenBusy',
-	'includeReasoning',
-] as const;
-
 const HealthPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [settings, setSettings] = useState<HealthSettings | null>(null);
