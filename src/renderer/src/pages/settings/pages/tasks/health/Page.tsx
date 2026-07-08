@@ -113,6 +113,11 @@ const HealthPage: React.FC = () => {
 		}
 	};
 
+	const selectedGroup = LLM_MODEL_GROUPS.find(
+		(group) => group.provider.id === settings?.providerId
+	);
+	const selectedModel = selectedGroup?.models.find((model) => model.id === settings?.modelId);
+
 	const targetOptions =
 		settings && settings.target !== 'none' && settings.target !== 'last'
 			? (['none', 'last', settings.target] as const)
