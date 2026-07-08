@@ -248,12 +248,14 @@ export function CommandMenu(): React.JSX.Element {
 		<CommandDialog
 			open={open}
 			onOpenChange={handleOpenChange}
-			value={search}
-			onValueChange={setSearch}
 			label={t('command.label', 'Route search')}
 			loop
 		>
-			<CommandInput placeholder={t('command.placeholder', 'Search routes and settings...')} />
+			<CommandInput
+				value={search}
+				onValueChange={setSearch}
+				placeholder={t('command.placeholder', 'Search routes and settings...')}
+			/>
 			<CommandList>
 				<CommandEmpty>
 					{t('command.empty', 'No matching route or setting.')}
