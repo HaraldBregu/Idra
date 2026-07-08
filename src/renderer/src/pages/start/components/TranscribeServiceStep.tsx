@@ -68,20 +68,12 @@ export function TranscribeServiceStep({
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
-			<div className="mb-6 flex size-11 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground">
-				<ServiceIcon className="size-5" strokeWidth={1.6} aria-hidden="true" />
-			</div>
-
-			<Badge variant="secondary" className="mb-3 w-fit">
-				Optional
-			</Badge>
-
-			<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-				{service.stepTitle}
-			</h1>
-			<p className="mt-2 max-w-md text-xs font-medium leading-relaxed text-muted-foreground">
-				{service.stepDescription}
-			</p>
+			<StepHeader
+				icon={service.icon}
+				required={false}
+				title={service.stepTitle}
+				description={service.stepDescription}
+			/>
 
 			<div className="mt-8 max-w-md space-y-6">
 				{SPEECH_MODE_CONFIGS.map((config) => (
