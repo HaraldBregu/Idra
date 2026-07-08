@@ -521,7 +521,8 @@
 				"skipWhenBusy": "Salta se occupato",
 				"includeReasoning": "Includi ragionamento",
 				"activeHoursStart": "Attivo dalle",
-				"activeHoursEnd": "Attivo fino alle"
+				"activeHoursEnd": "Attivo fino alle",
+				"pickDate": "Scegli una data"
 			},
 			"saving": "Salvataggio…",
 			"saved": "Salvato",
