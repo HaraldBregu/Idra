@@ -27,7 +27,7 @@ const McpPage = () => {
 		navigate(`/settings/mcp/details/${encodeURIComponent(id)}`);
 	};
 
-	const addMcpServer = async (id: string, entry: McpHttpData): Promise<void> => {
+	const addMcpServer = async (id: string, entry: McpData): Promise<void> => {
 		await window.agent.mcpSave({ ...servers, [id]: entry });
 		await load();
 	};
