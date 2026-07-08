@@ -22,6 +22,8 @@ import type {
 	CameraPermissionSettings,
 	CameraSystemPermissionStatus,
 	SystemPreferencePaneId,
+	AppLanguage,
+	AppTheme,
 } from '../../shared/app_types';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
 import { setKeepAwake as applyKeepAwake } from '../app/keep_awake';
