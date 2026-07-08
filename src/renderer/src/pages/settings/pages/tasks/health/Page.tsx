@@ -167,80 +167,108 @@ const HealthPage: React.FC = () => {
 								onSave={() => {}}
 							/>
 
-							<div className="grid gap-3 sm:grid-cols-3">
-								<SettingsField id="health-every" label={t('settings.health.fields.every')}>
-									<Select
-										value={settings.every}
-										onValueChange={(value) =>
-											update({ every: (value ?? '0m') as HealthSettings['every'] })
-										}
-										disabled={saving}
-									>
-										<SelectTrigger id="health-every" className="w-full text-xs">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{EVERY_OPTIONS.map((option) => (
-												<SelectItem key={option} value={option}>
-													{option === '0m' ? t('settings.health.fields.everyOff') : option}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-
-								<SettingsField id="health-target" label={t('settings.health.fields.target')}>
-									<Select
-										value={settings.target}
-										onValueChange={(value) => update({ target: value ?? 'none' })}
-										disabled={saving}
-									>
-										<SelectTrigger id="health-target" className="w-full text-xs">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{targetOptions.map((option) => (
-												<SelectItem key={option} value={option}>
-													{option === 'none'
-														? t('settings.health.fields.targetNone')
-														: option === 'last'
-															? t('settings.health.fields.targetLast')
-															: option}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-								</SettingsField>
-
-								<SettingsField
-									id="health-direct-policy"
-									label={t('settings.health.fields.directPolicy')}
-								>
-									<Select
-										value={settings.directPolicy}
-										onValueChange={(value) =>
-											update({
-												directPolicy: (value ?? 'allow') as HealthSettings['directPolicy'],
-											})
-										}
-										disabled={saving}
-									>
-										<SelectTrigger id="health-direct-policy" className="w-full text-xs">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="allow">
-												{t('settings.health.fields.directAllow')}
-											</SelectItem>
-											<SelectItem value="block">
-												{t('settings.health.fields.directBlock')}
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</SettingsField>
-							</div>
-
 							<SettingsPanel>
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.health.fields.every')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Select
+											value={settings.every}
+											onValueChange={(value) =>
+												update({ every: (value ?? '0m') as HealthSettings['every'] })
+											}
+											disabled={saving}
+										>
+											<SelectTrigger id="health-every" className="h-7 w-36 text-xs">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{EVERY_OPTIONS.map((option) => (
+													<SelectItem key={option} value={option}>
+														{option === '0m' ? t('settings.health.fields.everyOff') : option}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</ItemActions>
+								</Item>
+
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.health.fields.target')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Select
+											value={settings.target}
+											onValueChange={(value) => update({ target: value ?? 'none' })}
+											disabled={saving}
+										>
+											<SelectTrigger id="health-target" className="h-7 w-36 text-xs">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{targetOptions.map((option) => (
+													<SelectItem key={option} value={option}>
+														{option === 'none'
+															? t('settings.health.fields.targetNone')
+															: option === 'last'
+																? t('settings.health.fields.targetLast')
+																: option}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</ItemActions>
+								</Item>
+
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.health.fields.directPolicy')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Select
+											value={settings.directPolicy}
+											onValueChange={(value) =>
+												update({
+													directPolicy: (value ?? 'allow') as HealthSettings['directPolicy'],
+												})
+											}
+											disabled={saving}
+										>
+											<SelectTrigger id="health-direct-policy" className="h-7 w-36 text-xs">
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectItem value="allow">
+													{t('settings.health.fields.directAllow')}
+												</SelectItem>
+												<SelectItem value="block">
+													{t('settings.health.fields.directBlock')}
+												</SelectItem>
+											</SelectContent>
+										</Select>
+									</ItemActions>
+								</Item>
+
 								<Item
 									variant="outline"
 									size="md"
