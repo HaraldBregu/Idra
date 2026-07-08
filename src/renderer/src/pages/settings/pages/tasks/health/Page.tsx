@@ -13,7 +13,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '@shared';
 import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '@shared/provider_models_definitions';
