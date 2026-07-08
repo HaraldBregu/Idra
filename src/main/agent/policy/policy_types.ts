@@ -10,18 +10,27 @@ export interface ToolPermission {
 	allowedCommands?: string[];
 }
 
+export interface ToolUseRecord {
+	tool: string;
+	permission: PermissionMode;
+	at: number;
+}
+
 export interface PermissionsSchema {
 	defaultMode: PermissionMode;
 	tools: Record<string, ToolPermission>;
+	usage: ToolUseRecord[];
 }
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultMode: 'allow',
 	tools: {
+		write: { mode: 'ask' },
 		edit: { mode: 'ask' },
 		exec: { mode: 'ask' },
 		apply_patch: { mode: 'ask' },
 	},
+	usage: [],
 };
 
 export function isPermissionGatedTool(toolName: string): toolName is PermissionGatedTool {
