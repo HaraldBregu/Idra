@@ -76,6 +76,7 @@ export async function* stream(
 	tools.push(subagentTool([...tools]));
 
 	session.context.skill = undefined;
+	session.context.loadedSkills = undefined;
 
 	yield {
 		type: 'run_started',
