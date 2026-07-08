@@ -41,6 +41,8 @@ export const AppChannels = {
 	openSystemPreference: 'app:open-system-preference',
 	setTrayEnabled: 'app:set-tray-enabled',
 	getTrayEnabled: 'app:get-tray-enabled',
+	setKeepAwake: 'app:set-keep-awake',
+	getKeepAwake: 'app:get-keep-awake',
 	getMicrophonePermission: 'app:get-microphone-permission',
 	setMicrophoneEnabled: 'app:set-microphone-enabled',
 	requestMicrophonePermission: 'app:request-microphone-permission',
