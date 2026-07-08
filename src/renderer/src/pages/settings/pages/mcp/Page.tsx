@@ -9,8 +9,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { McpServerCard } from './components/McpServerCard';
-import { OAuthMcpServerDialog } from './components/OAuthMcpServerDialog';
-import { StdioMcpServerDialog } from './components/StdioMcpServerDialog';
+import { McpServerDialog } from './components/McpServerDialog';
 import { useMcpServers } from './hooks/useMcpServers';
 
 type McpServerEntry = [id: string, entry: McpData];
