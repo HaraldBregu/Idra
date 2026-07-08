@@ -521,7 +521,8 @@
 				"skipWhenBusy": "Skip when busy",
 				"includeReasoning": "Include reasoning",
 				"activeHoursStart": "Active from",
-				"activeHoursEnd": "Active until"
+				"activeHoursEnd": "Active until",
+				"pickDate": "Pick a date"
 			},
 			"saving": "Saving…",
 			"saved": "Saved",
