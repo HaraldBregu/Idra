@@ -192,7 +192,9 @@ const ApplicationPage: React.FC = () => {
 									className="w-36 text-xs [&_svg]:size-3"
 									aria-label={t('settings.theme.title')}
 								>
-									<SelectValue />
+									<SelectValue>
+										{t(THEME_OPTIONS.find((o) => o.value === theme)?.labelKey ?? '')}
+									</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									{THEME_OPTIONS.map((option) => (
