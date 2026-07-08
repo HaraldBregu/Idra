@@ -101,7 +101,7 @@ const SlashMenuList = forwardRef<SlashMenuListRef, SuggestionProps<SlashMenuItem
 			<div
 				role="listbox"
 				aria-label="Slash commands"
-				className="z-50 w-64 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md"
+				className="z-50 w-44 overflow-hidden rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md"
 			>
 				{items.length === 0 ? (
 					<p className="px-2 py-1.5 text-sm text-muted-foreground">No results</p>
