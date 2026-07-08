@@ -430,30 +430,6 @@ const HealthPage: React.FC = () => {
 									</ItemActions>
 								</Item>
 
-								{SWITCH_FIELDS.map((field) => (
-									<Item
-										key={field}
-										variant="outline"
-										size="md"
-										className="border-b border-border/60 last:border-b-0"
-									>
-										<ItemContent className="min-w-0 flex-1">
-											<ItemTitle className="max-w-full truncate">
-												{t(`settings.health.fields.${field}`)}
-											</ItemTitle>
-										</ItemContent>
-										<ItemActions className="ml-auto flex-none justify-end">
-											<Switch
-												checked={Boolean(settings[field])}
-												onCheckedChange={(checked) =>
-													update({ [field]: checked } as Partial<HealthSettings>)
-												}
-												disabled={saving}
-												aria-label={t(`settings.health.fields.${field}`)}
-											/>
-										</ItemActions>
-									</Item>
-								))}
 							</SettingsPanel>
 						</div>
 					</SettingsSection>
