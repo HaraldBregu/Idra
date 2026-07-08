@@ -121,7 +121,8 @@ app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers();
 	menuManager.create();
-	trayManager.create();
+	// Honor the persisted tray setting on startup
+	setTrayEnabled(trayManager, getTrayEnabled());
 
 	// Toggle tray from renderer settings
 	eventBus.on('tray:set-enabled', (event) => {
