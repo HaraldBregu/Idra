@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertTriangle, Plus } from 'lucide-react';
 import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
@@ -9,7 +11,7 @@ import {
 	SettingsSection,
 } from '../../components';
 import { McpServerCard } from './components/McpServerCard';
-import { McpServerDialog } from './components/McpServerDialog';
+import { McpServerForm } from './components/McpServerForm';
 import { useMcpServers } from './hooks/useMcpServers';
 
 type McpServerEntry = [id: string, entry: McpData];
