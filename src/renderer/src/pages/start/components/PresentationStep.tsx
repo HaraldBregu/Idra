@@ -1,6 +1,7 @@
 import React from 'react';
 import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
-import { STEP_COPY } from '../constants';
+import { Item, ItemIcon, ItemTitle } from '@/components/ui/item';
+import { MODEL_SERVICE_DEFINITIONS, STEP_COPY } from '../constants';
 
 export function PresentationStep(): React.JSX.Element {
 	const { title, description } = STEP_COPY.presentation;
@@ -14,6 +15,18 @@ export function PresentationStep(): React.JSX.Element {
 			<p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
 				{description}
 			</p>
+
+			<div className="mt-8 grid w-full max-w-md grid-cols-2 gap-2">
+				{MODEL_SERVICE_DEFINITIONS.map((service) => (
+					<Item
+						key={service.id}
+						className="rounded-lg bg-card ring-1 ring-foreground/10"
+					>
+						<ItemIcon icon={service.icon} />
+						<ItemTitle>{service.label}</ItemTitle>
+					</Item>
+				))}
+			</div>
 		</div>
 	);
 }
