@@ -280,6 +280,18 @@ export const app: AppApi = {
 	getKeepAwake: (): Promise<boolean> => {
 		return typedInvokeUnwrap(AppChannels.getKeepAwake);
 	},
+	setLanguage: (language) => {
+		return typedInvokeUnwrap(AppChannels.setLanguage, language);
+	},
+	getLanguage: () => {
+		return typedInvokeUnwrap(AppChannels.getLanguage);
+	},
+	setTheme: (theme) => {
+		return typedInvokeUnwrap(AppChannels.setTheme, theme);
+	},
+	getTheme: () => {
+		return typedInvokeUnwrap(AppChannels.getTheme);
+	},
 	getMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
 	},
