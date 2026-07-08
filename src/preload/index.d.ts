@@ -158,6 +158,10 @@ export interface AppApi {
 	getTrayEnabled: () => Promise<boolean>;
 	setKeepAwake: (enabled: boolean) => Promise<void>;
 	getKeepAwake: () => Promise<boolean>;
+	setLanguage: (language: AppLanguage) => Promise<void>;
+	getLanguage: () => Promise<AppLanguage>;
+	setTheme: (theme: AppTheme) => Promise<void>;
+	getTheme: () => Promise<AppTheme>;
 	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
 	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
 	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
