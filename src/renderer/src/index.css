@@ -65,6 +65,7 @@
 	--color-selection-foreground: var(--selection-foreground);
 	--color-link: var(--link);
 	--color-link-on-primary: var(--link-on-primary);
+	--color-command: var(--command);
 }
 
 :root {
