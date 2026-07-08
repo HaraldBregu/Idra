@@ -90,6 +90,12 @@ export function toolActivitySummary(tools: readonly AgentToolPart[]): {
 	const labels = new Set(tools.map((tool) => toolVerbs(tool.type)[key]));
 	const verb =
 		labels.size === 1 ? (labels.values().next().value as string) : running ? 'Working' : 'Finished';
+	if (verb === 'Skill') {
+		const names = tools
+			.map((tool) => (isRecord(tool.input) ? stringArg(tool.input, 'name') : undefined))
+			.filter((name): name is string => Boolean(name));
+		if (names.length > 0) return { verb, detail: names.join(', ') };
+	}
 	const count = tools.length;
 	const detail = fileVerbs.has(verb) ? `${count} ${count === 1 ? 'file' : 'files'}` : `${count}`;
 	return { verb, detail };
