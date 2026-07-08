@@ -144,6 +144,7 @@
 	--selection-foreground: oklch(0.972 0.007 75);
 	--link: oklch(0.45 0.18 254);
 	--link-on-primary: oklch(0.78 0.12 254);
+	--command: oklch(0.45 0.18 300);
 }
 
 .dark {
