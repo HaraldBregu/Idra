@@ -6,7 +6,6 @@ export { deleteSession } from './session_delete_session';
 export { init } from './session_init';
 export { isExhausted } from './session_is_exhausted';
 export { listSessions } from './session_list_sessions';
-export { loadLoadedSkills } from './session_load_loaded_skills';
 export { loadMessages } from './session_load_messages';
 export { createSessionState } from './session_module_state';
 export { persistSystemPrompt } from './session_persist_system';
