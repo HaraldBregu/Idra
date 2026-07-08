@@ -70,11 +70,23 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		initialState?.theme ?? readPersistedTheme()
 	);
 
+	// localStorage is the synchronous paint cache (avoids a theme/language flash);
+	// the app settings store is the durable source of truth, hydrated on mount.
+	const hydrated = useRef(false);
+
 	const setLanguage = useCallback((next: AppLanguage) => setLanguageState(next), []);
 	const setTheme = useCallback((next: AppTheme) => setThemeState(next), []);
 	const resetState = useCallback(() => {
 		setLanguageState(readPersistedLanguage());
 		setThemeState(readPersistedTheme());
+	}, []);
+
+	useEffect(() => {
+		void Promise.all([window.app.getLanguage(), window.app.getTheme()]).then(([lang, th]) => {
+			setLanguageState(lang);
+			setThemeState(th);
+			hydrated.current = true;
+		});
 	}, []);
 
 	useEffect(() => {
@@ -84,6 +96,7 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		} catch {
 			/* empty */
 		}
+		if (hydrated.current) void window.app.setLanguage(language);
 	}, [language]);
 
 	useEffect(() => {
@@ -93,6 +106,7 @@ export function AppProvider({ children, initialState }: AppProviderProps): React
 		} catch {
 			/* empty */
 		}
+		if (hydrated.current) void window.app.setTheme(theme);
 		if (theme !== 'system') return;
 		const mq = window.matchMedia('(prefers-color-scheme: dark)');
 		const onChange = (): void => applyTheme('system');
