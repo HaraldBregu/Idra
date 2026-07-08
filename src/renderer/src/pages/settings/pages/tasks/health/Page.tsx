@@ -161,7 +161,7 @@ const HealthPage: React.FC = () => {
 											value={settings.providerId ?? ''}
 											onValueChange={(value) =>
 												updateAndSave({
-													providerId: value,
+													providerId: value ?? '',
 													modelId:
 														LLM_MODEL_GROUPS.find((group) => group.provider.id === value)
 															?.models[0]?.id ?? '',
