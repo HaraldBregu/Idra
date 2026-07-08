@@ -24,7 +24,11 @@ import type {
 	SystemPreferencePaneId,
 } from '../../shared/app_types';
 import { wrapIpcHandler, wrapSimpleHandler } from './core/error_handler';
-import { setKeepAwake } from '../app/keep_awake';
+import { setKeepAwake as applyKeepAwake } from '../app/keep_awake';
+import {
+	getKeepAwake as getStoredKeepAwake,
+	setKeepAwake as setStoredKeepAwake,
+} from '../app/settings_store';
 import { AppChannels } from '../../shared/ipc_channels_definitions';
 import type { LoggerService } from '../shared';
 
