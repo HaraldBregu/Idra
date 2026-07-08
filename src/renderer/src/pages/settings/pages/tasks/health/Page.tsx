@@ -335,22 +335,45 @@ const HealthPage: React.FC = () => {
 										</ItemTitle>
 									</ItemContent>
 									<ItemActions className="ml-auto flex-none justify-end">
-										<Input
-											id="health-active-start"
-											type="date"
-											className="h-7 w-36 text-xs"
-											value={settings.activeHours?.start ?? ''}
-											onChange={(event) =>
-												update({
-													activeHours: {
-														start: event.target.value,
-														end: settings.activeHours?.end ?? '',
-													},
-												})
-											}
-											disabled={saving}
-											aria-label={t('settings.health.fields.activeHoursStart')}
-										/>
+										<Popover>
+											<PopoverTrigger asChild>
+												<Button
+													id="health-active-start"
+													type="button"
+													variant="outline"
+													className="h-7 w-44 justify-start px-2 text-xs font-normal"
+													disabled={saving}
+													aria-label={t('settings.health.fields.activeHoursStart')}
+												>
+													<CalendarIcon className="size-3" />
+													{settings.activeHours?.start ? (
+														format(parseISO(settings.activeHours.start), 'PPP')
+													) : (
+														<span className="text-muted-foreground">
+															{t('settings.health.fields.pickDate')}
+														</span>
+													)}
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent className="w-auto p-0" align="end">
+												<Calendar
+													mode="single"
+													selected={
+														settings.activeHours?.start
+															? parseISO(settings.activeHours.start)
+															: undefined
+													}
+													onSelect={(date) =>
+														update({
+															activeHours: {
+																start: date ? format(date, 'yyyy-MM-dd') : '',
+																end: settings.activeHours?.end ?? '',
+															},
+														})
+													}
+												/>
+											</PopoverContent>
+										</Popover>
 									</ItemActions>
 								</Item>
 
