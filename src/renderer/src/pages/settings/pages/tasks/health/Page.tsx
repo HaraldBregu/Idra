@@ -198,7 +198,7 @@ const HealthPage: React.FC = () => {
 									<ItemActions className="ml-auto flex-none justify-end">
 										<Select
 											value={settings.modelId ?? ''}
-											onValueChange={(value) => updateAndSave({ modelId: value })}
+											onValueChange={(value) => updateAndSave({ modelId: value ?? '' })}
 											disabled={saving || !settings.providerId}
 										>
 											<SelectTrigger id="health-model" className="h-7 w-44 text-xs">
