@@ -149,6 +149,8 @@ import type {
 	MicrophonePermissionSettings,
 	CameraPermissionSettings,
 	SystemPreferencePaneId,
+	AppLanguage,
+	AppTheme,
 } from '../shared/app_types';
 
 export interface AppApi {
