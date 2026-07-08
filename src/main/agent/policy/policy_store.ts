@@ -55,6 +55,19 @@ export function addToolAllowedCommand(toolName: string, command: string): void {
 	store.set('tools', tools);
 }
 
+// ponytail: flat capped array; aggregate per-tool counts if the log ever needs stats.
+const USAGE_LIMIT = 500;
+
+export function recordToolUse(toolName: string, permission: PermissionMode): void {
+	const usage = store.get('usage') ?? [];
+	const record: ToolUseRecord = { tool: toolName, permission, at: Date.now() };
+	store.set('usage', [...usage, record].slice(-USAGE_LIMIT));
+}
+
+export function getToolUsage(): ToolUseRecord[] {
+	return store.get('usage') ?? [];
+}
+
 export function setToolPermission(toolName: string, mode: PermissionMode): void {
 	const tools = { ...store.get('tools') };
 	const next: ToolPermission = { mode };
