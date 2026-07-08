@@ -75,6 +75,17 @@ const McpPage = () => {
 				</SettingsNotice>
 			)}
 
+			{adding && (
+				<SettingsSection
+					title="New MCP server"
+					description="Remote MCP server over HTTP or local MCP server started as a command."
+				>
+					<Card size="sm" className="p-3!">
+						<McpServerForm onSubmit={addMcpServer} onCancel={() => setAdding(false)} />
+					</Card>
+				</SettingsSection>
+			)}
+
 			<SettingsSection title="Remote MCP servers" description="MCP servers available over HTTP.">
 				{renderList(remoteEntries, 'No remote MCP servers configured.')}
 			</SettingsSection>
