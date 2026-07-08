@@ -196,6 +196,7 @@ export class AppIpc implements IpcModule {
 			AppChannels.setLanguage,
 			wrapSimpleHandler((language: AppLanguage) => {
 				setStoredLanguage(language);
+				eventBus.emit('language:changed', { language });
 			}, AppChannels.setLanguage)
 		);
 
