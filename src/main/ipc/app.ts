@@ -166,6 +166,21 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.setKeepAwake,
+			wrapSimpleHandler((enabled: boolean) => {
+				this.keepAwake = enabled;
+				setKeepAwake(enabled);
+			}, AppChannels.setKeepAwake)
+		);
+
+		ipcMain.handle(
+			AppChannels.getKeepAwake,
+			wrapSimpleHandler(() => {
+				return this.keepAwake;
+			}, AppChannels.getKeepAwake)
+		);
+
+		ipcMain.handle(
 			AppChannels.getMicrophonePermission,
 			wrapSimpleHandler(() => {
 				return microphoneSettings();
