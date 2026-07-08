@@ -34,13 +34,11 @@ const insert = (text: string) => ({ editor, range }: { editor: Editor; range: Ra
 const categoryItems: readonly SlashMenuItem[] = [
 	{
 		title: 'Skills',
-		description: 'Run a skill',
 		icon: Sparkles,
 		run: insert('/skill '),
 	},
 	{
 		title: 'Goal',
-		description: 'Set a goal',
 		icon: Target,
 		run: insert('/goal '),
 	},
