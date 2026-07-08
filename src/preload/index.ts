@@ -274,6 +274,12 @@ export const app: AppApi = {
 	getTrayEnabled: (): Promise<boolean> => {
 		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
 	},
+	setKeepAwake: (enabled: boolean): Promise<void> => {
+		return typedInvokeUnwrap(AppChannels.setKeepAwake, enabled);
+	},
+	getKeepAwake: (): Promise<boolean> => {
+		return typedInvokeUnwrap(AppChannels.getKeepAwake);
+	},
 	getMicrophonePermission: () => {
 		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
 	},
