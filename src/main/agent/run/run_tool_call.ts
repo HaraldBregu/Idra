@@ -2,12 +2,13 @@ import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import {
 	addToolAllowedCommand,
 	addToolAllowedPath,
+	recordToolUse,
 	resolveToolPermission,
 	toolCommandName,
-	toolPathDir,
+	toolTargetDirs,
 	waitForToolPermission,
 } from '../policy';
-import { addSandboxRoot, sandboxEscapes } from '../sandbox';
+import { isWithinSandbox } from '../sandbox';
 import { formatToolOutput } from './run_common';
 
 export async function* runToolCall(
