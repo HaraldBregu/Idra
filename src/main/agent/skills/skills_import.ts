@@ -5,7 +5,6 @@ import { setSkill } from './skills_store';
 import { skillsRoot } from './skills_root';
 import { readSkill } from './skills_read';
 import { pickDirectories } from './skills_pick_directories';
-import { slug } from './skills_slug';
 import { validateSkill } from './skills_validate';
 
 export async function importSkills(): Promise<SkillImportResult | undefined> {
