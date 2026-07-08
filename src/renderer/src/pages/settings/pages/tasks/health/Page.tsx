@@ -90,6 +90,17 @@ const HealthPage: React.FC = () => {
 		setSaved(false);
 	};
 
+	const updateAndSave = (patch: Partial<HealthSettings>): void => {
+		if (!settings) return;
+		const next = { ...settings, ...patch };
+		setSettings(next);
+		const activeHours =
+			next.activeHours?.start && next.activeHours?.end ? next.activeHours : undefined;
+		window.agent.healthSaveSettings({ ...next, activeHours }).catch((err: unknown) => {
+			setError(err instanceof Error ? err.message : t('settings.health.errors.saveFailed'));
+		});
+	};
+
 	const handleSave = async (): Promise<void> => {
 		if (!settings) return;
 		setSaving(true);
