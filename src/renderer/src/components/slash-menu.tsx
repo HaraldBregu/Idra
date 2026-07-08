@@ -15,7 +15,6 @@ export const slashMenuPluginKey = new PluginKey('slashMenu');
 
 type SlashMenuItem = {
 	readonly title: string;
-	readonly description: string;
 	readonly icon: LucideIcon;
 	readonly run: (props: { editor: Editor; range: Range }) => void;
 };
