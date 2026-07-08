@@ -62,15 +62,10 @@ const McpPage = () => {
 				title="MCP"
 				description="Connected MCP servers."
 				action={
-					<McpServerDialog
-						trigger={
-							<Button variant="outline" size="sm">
-								<Plus className="size-3.5" />
-								Add MCP server
-							</Button>
-						}
-						onSubmit={addMcpServer}
-					/>
+					<Button variant="outline" size="sm" disabled={adding} onClick={() => setAdding(true)}>
+						<Plus className="size-3.5" />
+						Add MCP server
+					</Button>
 				}
 			/>
 
