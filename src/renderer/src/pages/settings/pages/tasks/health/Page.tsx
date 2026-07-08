@@ -137,36 +137,82 @@ const HealthPage: React.FC = () => {
 						description={t('settings.health.settingsDescription')}
 					>
 						<div className="grid gap-3">
-							<ModelProviderConfiguration
-								configState={{
-									providers: LLM_PROVIDERS_PUBLIC,
-									modelGroups: LLM_MODEL_GROUPS,
-									providerId: settings.providerId ?? '',
-									modelId: settings.modelId ?? '',
-									loading: false,
-									loadingModels: false,
-									saving,
-									saved: false,
-									error: null,
-								}}
-								idPrefix="health"
-								collapsible={false}
-								showSaveButton
-								providerDescription={t('settings.modelServices.providerDescription')}
-								modelDescription={t('settings.modelServices.modelDescription')}
-								onProviderChange={(nextProviderId) =>
-									update({
-										providerId: nextProviderId,
-										modelId:
-											LLM_MODEL_GROUPS.find((group) => group.provider.id === nextProviderId)
-												?.models[0]?.id ?? '',
-									})
-								}
-								onModelChange={(nextModelId) => update({ modelId: nextModelId })}
-								onSave={() => void handleSave()}
-							/>
-
 							<SettingsPanel>
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.modelServices.provider')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Select
+											value={settings.providerId ?? ''}
+											onValueChange={(value) =>
+												updateAndSave({
+													providerId: value,
+													modelId:
+														LLM_MODEL_GROUPS.find((group) => group.provider.id === value)
+															?.models[0]?.id ?? '',
+												})
+											}
+											disabled={saving}
+										>
+											<SelectTrigger id="health-provider" className="h-7 w-44 text-xs">
+												<SelectValue
+													placeholder={t('settings.modelServices.providerPlaceholder')}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{LLM_MODEL_GROUPS.map((group) => (
+													<SelectItem key={group.provider.id} value={group.provider.id}>
+														{group.provider.name}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</ItemActions>
+								</Item>
+
+								<Item
+									variant="outline"
+									size="md"
+									className="border-b border-border/60 last:border-b-0"
+								>
+									<ItemContent className="min-w-0 flex-1">
+										<ItemTitle className="max-w-full truncate">
+											{t('settings.modelServices.model')}
+										</ItemTitle>
+									</ItemContent>
+									<ItemActions className="ml-auto flex-none justify-end">
+										<Select
+											value={settings.modelId ?? ''}
+											onValueChange={(value) => updateAndSave({ modelId: value })}
+											disabled={saving || !settings.providerId}
+										>
+											<SelectTrigger id="health-model" className="h-7 w-44 text-xs">
+												<SelectValue
+													placeholder={t('settings.modelServices.modelPlaceholder')}
+												/>
+											</SelectTrigger>
+											<SelectContent>
+												{(
+													LLM_MODEL_GROUPS.find(
+														(group) => group.provider.id === settings.providerId
+													)?.models ?? []
+												).map((model) => (
+													<SelectItem key={model.id} value={model.id}>
+														{model.name ?? model.id}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</ItemActions>
+								</Item>
+
 								<Item
 									variant="outline"
 									size="md"
