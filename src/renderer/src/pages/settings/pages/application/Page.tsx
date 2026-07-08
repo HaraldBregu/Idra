@@ -161,7 +161,7 @@ const ApplicationPage: React.FC = () => {
 							<Select value={language} onValueChange={handleLanguageChange}>
 								<SelectTrigger
 									size="sm"
-									className="w-36 text-xs [&_svg]:size-3"
+									className="w-28 text-xs [&_svg]:size-3"
 									aria-label={t('settings.language.title')}
 								>
 									<SelectValue>
@@ -189,7 +189,7 @@ const ApplicationPage: React.FC = () => {
 							<Select value={theme} onValueChange={handleThemeChange}>
 								<SelectTrigger
 									size="sm"
-									className="w-36 text-xs [&_svg]:size-3"
+									className="w-28 text-xs [&_svg]:size-3"
 									aria-label={t('settings.theme.title')}
 								>
 									<SelectValue>
