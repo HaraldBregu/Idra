@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 
-function resolveUserPath(raw: string): string {
+export function resolveUserPath(raw: string): string {
 	if (raw === '~') return os.homedir();
 	if (raw.startsWith('~/') || raw.startsWith('~\\'))
 		return path.resolve(os.homedir(), raw.slice(2));
