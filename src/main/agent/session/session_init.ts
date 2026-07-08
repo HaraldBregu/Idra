@@ -1,6 +1,5 @@
 import type { Config } from '../types';
 import type { SessionInput, SessionCategory, SessionState } from './session_types';
-import { loadLoadedSkills } from './session_load_loaded_skills';
 import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
 import { persist } from './session_persist';
 import { resolveSessionId } from './session_resolve_session_id';
