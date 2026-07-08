@@ -50,14 +50,21 @@ const ApplicationPage: React.FC = () => {
 	const { t } = useTranslation();
 	const { language, setLanguage, theme, setTheme } = useApp();
 	const [trayEnabled, setTrayEnabled] = useState(true);
+	const [keepAwake, setKeepAwake] = useState(false);
 
 	useEffect(() => {
 		void window.app.getTrayEnabled().then(setTrayEnabled);
+		void window.app.getKeepAwake().then(setKeepAwake);
 	}, []);
 
 	const handleTrayToggle = useCallback((checked: boolean) => {
 		setTrayEnabled(checked);
 		void window.app.setTrayEnabled(checked);
+	}, []);
+
+	const handleKeepAwakeToggle = useCallback((checked: boolean) => {
+		setKeepAwake(checked);
+		void window.app.setKeepAwake(checked);
 	}, []);
 
 	const handleOpenAppDataFolder = useCallback(() => {
