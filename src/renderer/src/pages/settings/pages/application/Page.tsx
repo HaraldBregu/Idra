@@ -164,7 +164,9 @@ const ApplicationPage: React.FC = () => {
 									className="w-36 text-xs [&_svg]:size-3"
 									aria-label={t('settings.language.title')}
 								>
-									<SelectValue />
+									<SelectValue>
+										{t(LANGUAGE_OPTIONS.find((o) => o.value === language)?.labelKey ?? '')}
+									</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
 									{LANGUAGE_OPTIONS.map((option) => (
