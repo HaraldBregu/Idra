@@ -41,7 +41,6 @@ export function ModelServiceStep({
 	onModelChange,
 }: ModelServiceStepProps): React.JSX.Element {
 	const { t } = useTranslation();
-	const ServiceIcon = service.icon;
 	const configState = useMemo(
 		() => toModelConfigurationState(serviceState, loadingModels, savingConfig),
 		[loadingModels, savingConfig, serviceState]
@@ -49,20 +48,12 @@ export function ModelServiceStep({
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
-			<div className="mb-6 flex size-11 items-center justify-center rounded-full bg-foreground/[0.06] text-foreground">
-				<ServiceIcon className="size-5" strokeWidth={1.6} aria-hidden="true" />
-			</div>
-
-			<Badge variant={service.required ? 'default' : 'secondary'} className="mb-3 w-fit">
-				{service.required ? 'Required' : 'Optional'}
-			</Badge>
-
-			<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-				{service.stepTitle}
-			</h1>
-			<p className="mt-2 max-w-md text-xs font-medium leading-relaxed text-muted-foreground">
-				{service.stepDescription}
-			</p>
+			<StepHeader
+				icon={service.icon}
+				required={service.required}
+				title={service.stepTitle}
+				description={service.stepDescription}
+			/>
 
 			<div className="mt-8 max-w-md">
 				<ModelProviderConfiguration
