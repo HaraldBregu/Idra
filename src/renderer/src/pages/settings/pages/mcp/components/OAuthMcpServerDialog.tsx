@@ -29,6 +29,7 @@ export function OAuthMcpServerDialog({
 	const [id, setId] = useState('');
 	const [name, setName] = useState('');
 	const [url, setUrl] = useState('');
+	const [token, setToken] = useState('');
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [error, setError] = useState<string | null>(null);
@@ -38,6 +39,7 @@ export function OAuthMcpServerDialog({
 		setId(initial?.id ?? '');
 		setName(initial?.entry.name ?? '');
 		setUrl(initial?.entry.url ?? '');
+		setToken(initial?.entry.token ?? '');
 		setClientId(initial?.entry.client_id ?? '');
 		setClientSecret(initial?.entry.client_secret ?? '');
 		setError(null);
@@ -46,8 +48,8 @@ export function OAuthMcpServerDialog({
 	const submit = async (event: React.FormEvent): Promise<void> => {
 		event.preventDefault();
 		const serverId = id.trim().toLowerCase();
-		if (!serverId || !url.trim() || !clientId.trim()) {
-			setError('ID, server URL and client ID are required.');
+		if (!serverId || !url.trim()) {
+			setError('ID and server URL are required.');
 			return;
 		}
 		const now = new Date().toISOString();
@@ -56,7 +58,8 @@ export function OAuthMcpServerDialog({
 			type: 'http',
 			name: name.trim() || undefined,
 			url: url.trim(),
-			client_id: clientId.trim(),
+			token: token.trim() || undefined,
+			client_id: clientId.trim() || undefined,
 			client_secret: clientSecret.trim() || undefined,
 			enabled: initial?.entry.enabled ?? true,
 			created_at: initial?.entry.created_at ?? now,
