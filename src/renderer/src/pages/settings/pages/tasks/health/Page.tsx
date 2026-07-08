@@ -13,11 +13,10 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import {
-	firstModelIdForProvider,
-	LLM_PROVIDER_GROUPS,
-	ModelProviderSelect,
-} from '@/components/model-provider-select';
+import { DEFAULT_PROVIDERS, type PublicProvider } from '@shared';
+import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '@shared/provider_models_definitions';
+import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
+import type { ProviderModelGroup } from '@pages/start/types';
 import {
 	SettingsField,
 	SettingsLoadingRows,
@@ -27,6 +26,26 @@ import {
 	SettingsPanel,
 	SettingsSection,
 } from '../../../components';
+
+type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
+
+function toPublicProvider(provider: CatalogProvider): PublicProvider {
+	return {
+		id: provider.id,
+		name: provider.name,
+		baseUrl: provider.baseUrl,
+		...(provider.capabilities ? { capabilities: provider.capabilities } : {}),
+		...(provider.apiConfiguration ? { apiConfiguration: provider.apiConfiguration } : {}),
+	};
+}
+
+const LLM_MODEL_GROUPS: ProviderModelGroup[] = LLM_PROVIDERS.flatMap((providerId) => {
+	const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
+	const models = [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
+	return provider && models.length > 0 ? [{ provider: toPublicProvider(provider), models }] : [];
+});
+
+const LLM_PROVIDERS_PUBLIC: PublicProvider[] = LLM_MODEL_GROUPS.map((group) => group.provider);
 
 type HealthSettings = Awaited<ReturnType<typeof window.agent.healthGetSettings>>;
 
