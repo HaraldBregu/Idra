@@ -87,7 +87,7 @@ const McpDetailsPage: React.FC = () => {
 		};
 	}, [mcpServerId, t]);
 
-	const updateMcpServer = async (id: string, entry: McpHttpData): Promise<void> => {
+	const updateMcpServer = async (id: string, entry: McpData): Promise<void> => {
 		const all = await window.agent.mcpList();
 		await window.agent.mcpSave({ ...all, [id]: entry });
 		if (mcpServerId) setServerRecord(await window.agent.mcpGet(mcpServerId));
