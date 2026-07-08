@@ -18,7 +18,6 @@ import { LLM_MODELS_BY_PROVIDER, LLM_PROVIDERS } from '@shared/provider_models_d
 import { ModelProviderConfiguration } from '@pages/settings/components/model-configuration';
 import type { ProviderModelGroup } from '@pages/start/types';
 import {
-	SettingsField,
 	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
