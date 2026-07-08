@@ -31,6 +31,8 @@ export async function* runToolCall(
 		isError = true;
 	} else {
 		let permission = resolveToolPermission(toolCall.name, toolCall.args);
+		const escapes = sandboxEscapes(toolCall.name, toolCall.args);
+		if (permission === 'allow' && escapes.length > 0) permission = 'ask';
 
 		if (permission === 'ask') {
 			yield {
