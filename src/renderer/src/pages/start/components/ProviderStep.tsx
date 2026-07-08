@@ -26,16 +26,9 @@ export function ProviderStep({
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
-			<div>
-				<h1 className="text-2xl font-bold leading-tight tracking-normal text-foreground">
-					{title}
-				</h1>
-				<p className="mt-2 max-w-xl text-xs font-medium leading-relaxed text-muted-foreground">
-					{description}
-				</p>
-			</div>
+			<StepHeader icon={KeyRound} required title={title} description={description} />
 
-			<div className="mt-4 space-y-2">
+			<div className="mt-6 space-y-2">
 				{actionableProviderCatalog.map((provider) => (
 					<ProviderCard
 						key={provider.id}
