@@ -1888,5 +1888,12 @@
 		"loading": "Loading\u2026",
 		"loadError": "Failed to load workspace information. Please try again.",
 		"saveError": "Failed to save changes. The field is still open so you can retry."
+	},
+	"taskCommands": {
+		"list": "Show the list of scheduled tasks",
+		"create": "Create and schedule a task with this message: {{message}}",
+		"createEmpty": "I want to create and schedule a task. Ask me what the task message should be.",
+		"delete": "Delete the scheduled task: {{message}}",
+		"deleteEmpty": "I want to delete a scheduled task. Show the list of scheduled tasks and ask me which one to delete."
 	}
 }
