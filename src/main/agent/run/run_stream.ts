@@ -2,6 +2,7 @@ import { getModelId, getProvider } from '../settings/settings_store';
 import {
 	addAssistantMessage,
 	addToolResults,
+	appendRun,
 	isExhausted,
 	persistSystemPrompt,
 	recordTurn,
@@ -36,11 +37,39 @@ import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 
+export interface StreamOptions {
+	systemPrompt?: string;
+	tools?: Tool[];
+	interactive?: boolean;
+}
+
 export async function* stream(
 	config: Config,
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
+	options: StreamOptions = {},
+): AsyncGenerator<RuntimeEvent> {
+	try {
+		for await (const event of loop(config, session, input, signal, options)) {
+			appendRun(session, event);
+			yield event;
+		}
+	} catch (error) {
+		appendRun(session, {
+			type: 'run_error',
+			message: error instanceof Error ? error.message : String(error),
+		});
+		throw error;
+	}
+}
+
+async function* loop(
+	config: Config,
+	session: SessionState,
+	input: RuntimeInput,
+	signal: AbortSignal,
+	options: StreamOptions,
 ): AsyncGenerator<RuntimeEvent> {
 	const provider = getProvider(input.providerId);
 	const modelId = input.model ?? getModelId();
@@ -48,7 +77,8 @@ export async function* stream(
 	if (!provider || !modelId)
 		throw new Error('Agent requires a configured provider and model.');
 
-	const tools: Tool[] = [
+	const interactive = options.interactive ?? true;
+	const tools: Tool[] = options.tools ?? [
 		readTool,
 		writeTool,
 		editTool,
@@ -71,9 +101,13 @@ export async function* stream(
 		completeBootstrapTool,
 	];
 
-	const mcp = await loadMcpTools();
-	tools.push(...mcp.tools);
-	tools.push(subagentTool([...tools]));
+	let closeMcp: (() => Promise<void>) | undefined;
+	if (!options.tools) {
+		const mcp = await loadMcpTools();
+		tools.push(...mcp.tools);
+		tools.push(subagentTool(config, [...tools]));
+		closeMcp = mcp.close;
+	}
 
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
@@ -89,7 +123,9 @@ export async function* stream(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const systemPrompt = await buildSystemPrompt(config, tools, session.context.loadedSkills);
+			const systemPrompt =
+				options.systemPrompt ??
+				(await buildSystemPrompt(config, tools, session.context.loadedSkills));
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(
@@ -123,7 +159,7 @@ export async function* stream(
 				return;
 			}
 
-			for await (const event of runToolCalls(tools, turn.toolCalls)) {
+			for await (const event of runToolCalls(tools, turn.toolCalls, interactive)) {
 				yield event;
 				if (event.type !== 'tool_call_end' || event.toolName !== loadSkillTool.name) continue;
 				const output = event.output as { skill?: unknown; content?: unknown } | undefined;
@@ -136,6 +172,6 @@ export async function* stream(
 			addToolResults(session, turn.toolCalls);
 		}
 	} finally {
-		await mcp.close();
+		await closeMcp?.();
 	}
 }
