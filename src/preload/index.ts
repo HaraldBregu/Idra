@@ -38,6 +38,7 @@ import {
 	normalizeSttRealtimeStartRequest,
 	normalizeSttTranscriptionRequest,
 } from '../shared/stt_transcription';
+import { normalizeAgentInputFiles } from '../shared/agent_files';
 import { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 
