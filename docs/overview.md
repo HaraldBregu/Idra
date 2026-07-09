@@ -286,7 +286,7 @@ Friday is built to keep you in control of your data and actions:
 - **Skill** — a reusable, packaged workflow that teaches Friday how to handle a class of tasks.
 - **MCP (Model Context Protocol)** — an open standard for connecting external tools and data to
   the assistant.
-- **Channel** — a messaging platform (like Telegram) you can use to reach Friday from outside
-  the app.
+- **Channel** — a messaging platform (Telegram or Discord) you can use to reach Friday from
+  outside the app.
 - **Task scheduler (cron)** — recurring jobs that run the assistant automatically.
 - **Health check** — a periodic, checklist-driven run that verifies your setup and reports back.
