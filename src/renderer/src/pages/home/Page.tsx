@@ -628,7 +628,7 @@ function PageContent(): ReactElement {
 							onValueChange={agent.setInput}
 							isLoading={agent.isLoading}
 							maxHeight={360}
-							onSubmit={agent.handleSubmit}
+							onSubmit={submitPrompt}
 							textareaRef={agent.inputRef}
 							header={
 								attachments.length > 0 ? (
