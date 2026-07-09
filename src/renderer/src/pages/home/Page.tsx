@@ -377,7 +377,7 @@ function PageContent(): ReactElement {
 		!agent.isLoading &&
 		!agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
-	const canSubmit = agent.input.trim().length > 0;
+	const canSubmit = agent.input.trim().length > 0 || attachments.length > 0;
 	const dictationStatus = dictation.status;
 	const cancelDictationSession = dictation.cancel;
 	const recorderStatus = recorder.status;
