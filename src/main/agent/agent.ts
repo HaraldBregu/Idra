@@ -81,6 +81,7 @@ export class Agent {
 			const input = {
 				task: 'chat',
 				message,
+				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
 				...(options.modelId ? { model: options.modelId } : {}),
