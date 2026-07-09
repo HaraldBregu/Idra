@@ -23,6 +23,12 @@ export type AgentToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
 export type AgentToolPermissionDecision = 'approve' | 'reject' | 'approve_always';
 
+export interface AgentInputFile {
+	name: string;
+	mimeType: string;
+	data: string;
+}
+
 export type AgentHistoryContentBlock =
 	| {
 			type: 'text';
