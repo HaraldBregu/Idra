@@ -162,13 +162,16 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	// 	};
 	// }, [dispatchChat]);
 
-	const handleSubmit = useCallback((): void => {
-		if (isLoading) {
-			stopResponse();
-			return;
-		}
-		void sendPrompt(input);
-	}, [input, isLoading, sendPrompt, stopResponse]);
+	const handleSubmit = useCallback(
+		(files?: File[]): void => {
+			if (isLoading) {
+				stopResponse();
+				return;
+			}
+			void sendPrompt(input, files);
+		},
+		[input, isLoading, sendPrompt, stopResponse]
+	);
 
 	const resetChat = useCallback((): void => {
 		requestIdRef.current += 1;
