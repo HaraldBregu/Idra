@@ -102,7 +102,7 @@ Tools are the assistant's hands. Depending on your setup, Friday can:
 | **Web fetch** | Pull the contents of a specific page or URL. |
 | **Web browser** | Drive a real browser to interact with web pages when a simple fetch isn't enough. |
 | **Create image** | Generate images from a text description. |
-| **Schedule (cron)** | Create, update, pause, resume, list, and run scheduled jobs. |
+| **Schedule (cron)** | Create, update, pause, resume, list, delete, and run scheduled jobs. |
 | **Load skills** | Pull in a reusable skill to handle a class of work. |
 | **Subagents** | Spin up focused helper agents for independent parts of a larger task. |
 | **MCP tools** | Use any tool exposed by a connected MCP server (see [MCP servers](#8-mcp-servers)). |
