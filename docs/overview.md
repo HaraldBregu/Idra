@@ -243,11 +243,11 @@ Friday is built to keep you in control of your data and actions:
   on your own machine.
 - **Bring your own keys.** You use your own AI provider accounts; Friday doesn't put a vendor
   in between.
-- **Secrets stay secret.** API keys and channel/connector credentials are stored as
-  credentials and are not shown in plain text after saving, not logged, and not rendered.
-- **Explicit permissions.** Any tool or connector action that writes, deletes, publishes, or
-  reads private data must pass a permission check. The app shows confirmation prompts before
-  sensitive changes.
+- **Secrets stay secret.** API keys and channel credentials are stored as credentials and are
+  not shown in plain text after saving, not logged, and not rendered.
+- **Explicit permissions.** Any tool action that writes, deletes, publishes, or reads private
+  data must pass a permission check. The app shows confirmation prompts before sensitive
+  changes.
 - **Hardened app shell.** The user interface runs in a locked-down, sandboxed environment with
   strict isolation from the underlying system, and browser windows are created through safe
   defaults.
