@@ -52,7 +52,7 @@ working data on your own machine, and asks for permission before doing anything 
 ## Who it's for
 
 - **Anyone who wants a personal AI assistant** that lives on their desktop instead of a browser tab.
-- **Professionals and power users** who want the AI to actually *do* things: manage files, draft documents, automate recurring tasks, and pull from their email, calendar, and cloud storage.
+- **Professionals and power users** who want the AI to actually *do* things: manage files, draft documents, automate recurring tasks, and work with the external tools they connect.
 - **People who care about privacy** and prefer to use their own AI provider accounts and keep data local.
 - **Tinkerers and teams** who want to extend the assistant with custom skills, tool servers, and messaging integrations.
 
