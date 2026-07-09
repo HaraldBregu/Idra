@@ -283,6 +283,33 @@ export function llmBuildAnthropicMessages(
 	return msgs;
 }
 
+function toAnthropicUserContent(
+	content: string | LlmUserContentBlock[]
+): string | Anthropic.Messages.ContentBlockParam[] {
+	if (typeof content === 'string') return content;
+	return content.map((block): Anthropic.Messages.ContentBlockParam => {
+		if (block.type === 'text') return { type: 'text', text: block.text };
+		if (block.type === 'image') {
+			return {
+				type: 'image',
+				source: {
+					type: 'base64',
+					media_type: (block.mimeType ?? 'image/png') as
+						| 'image/png'
+						| 'image/jpeg'
+						| 'image/gif'
+						| 'image/webp',
+					data: block.base64,
+				},
+			};
+		}
+		return {
+			type: 'document',
+			source: { type: 'base64', media_type: 'application/pdf', data: block.base64 },
+		};
+	});
+}
+
 export function llmBuildChatMessages(
 	system: string,
 	transcript: LlmTranscriptEntry[],
