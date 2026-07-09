@@ -16,7 +16,7 @@ See [docs/overview.md](docs/overview.md) for the full feature tour.
 - **Voice** — real-time dictation (speech-to-text) and read-aloud replies (text-to-speech).
 - **Skills** — reusable packaged workflows, auto-discovered per request, with declared tool limits.
 - **MCP servers** — connect remote (HTTP) or local (stdio) Model Context Protocol tool servers.
-- **Channels** — chat with Friday from messaging platforms (Telegram live today; catalog entries for Slack, Discord, WhatsApp, Signal, Matrix, Teams, and more).
+- **Channels** — chat with Friday from messaging platforms (Telegram and Discord).
 - **Task scheduler & health checks** — recurring cron jobs and periodic checklist-driven health runs.
 - **Memory & personalization** — durable memory, user profile, and a local workspace.
 - **Platforms & languages** — Windows, macOS (x64 and arm64), Linux; English and Italian UI; light/dark/system themes.
