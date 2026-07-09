@@ -4,10 +4,11 @@ import { runToolCall } from './run_tool_call';
 export async function* runToolCalls(
 	tools: Tool[],
 	toolCalls: ToolCall[],
+	interactive = true,
 ): AsyncGenerator<RuntimeEvent, void> {
 	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 
 	for (const toolCall of toolCalls) {
-		yield* runToolCall(toolMap.get(toolCall.name), toolCall);
+		yield* runToolCall(toolMap.get(toolCall.name), toolCall, interactive);
 	}
 }
