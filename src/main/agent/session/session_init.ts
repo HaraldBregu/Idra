@@ -1,4 +1,5 @@
-import type { Config } from '../types';
+import type { AgentInputFile } from '../../../shared/agent_types';
+import type { Config, Message, MessageContentBlock } from '../types';
 import type { SessionInput, SessionCategory, SessionState } from './session_types';
 import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
 import { persist } from './session_persist';
