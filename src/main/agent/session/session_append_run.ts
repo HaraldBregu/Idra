@@ -5,6 +5,7 @@ import { runFilePath } from './session_run_file_path';
 import { stringifyRunEntry } from './session_stringify_run_entry';
 
 export function appendRun(state: SessionState, entry: unknown): void {
+	if (!state.sessionsPath) return;
 	ensureSession(state);
 	appendFileSync(runFilePath(state), `${stringifyRunEntry(entry)}\n`, 'utf8');
 }
