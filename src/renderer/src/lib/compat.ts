@@ -33,6 +33,7 @@ export type Model = ProviderModel;
 export type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunState,
 	AgentSessionSummary,
