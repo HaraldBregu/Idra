@@ -84,6 +84,7 @@ What makes it more than a chatbot:
   as it works.
 - **Permission prompts.** When an action is sensitive (like writing or editing a file), Friday
   shows a confirmation card so you approve before it happens.
+- **Attachments.** Send images and PDFs alongside your prompt.
 - **Natural, direct tone.** The assistant is tuned to sound human and practical, brief for
   quick questions and more careful for complex work.
 - **Session history.** Conversations are saved locally so you can revisit or clear them.
