@@ -248,6 +248,7 @@ export function AssistantMessage({
 			{hasContent && (
 				<>
 					<Markdown
+						className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
 						components={messageMarkdownComponents}
 						urlTransform={transformImageUrl}
 					>
