@@ -10,7 +10,7 @@ import {
 	type SessionCategory,
 	type SessionState,
 } from './session';
-import { run } from './run/run';
+import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
 import { startHealth, stopHealth } from './health';
