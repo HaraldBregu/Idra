@@ -19,6 +19,7 @@ import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunStopReason,
 	AgentSessionSummary,
