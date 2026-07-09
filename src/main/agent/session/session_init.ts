@@ -33,3 +33,17 @@ export function init(
 	state.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 	persist(state);
 }
+
+function toUserContent(message: string, files: AgentInputFile[]): Message['content'] {
+	if (files.length === 0) return message;
+	const blocks: MessageContentBlock[] = [];
+	if (message) blocks.push({ type: 'text', text: message });
+	for (const file of files) {
+		blocks.push(
+			file.mimeType.startsWith('image/')
+				? { type: 'image', mimeType: file.mimeType, base64: file.data }
+				: { type: 'file', name: file.name, mimeType: file.mimeType, base64: file.data }
+		);
+	}
+	return blocks;
+}
