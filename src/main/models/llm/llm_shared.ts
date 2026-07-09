@@ -148,7 +148,7 @@ export function llmBuildResponseInput(transcript: LlmTranscriptEntry[]): Respons
 
 	for (const entry of transcript) {
 		if (entry.role === 'user') {
-			input.push({ role: 'user', content: entry.content });
+			input.push({ role: 'user', content: toResponseUserContent(entry.content) });
 			continue;
 		}
 
