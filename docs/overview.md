@@ -284,8 +284,6 @@ Friday is built to keep you in control of your data and actions:
 - **Tool** — a specific action the assistant can perform, such as reading a file or searching
   the web.
 - **Skill** — a reusable, packaged workflow that teaches Friday how to handle a class of tasks.
-- **Connector** — a link to an external service (Google, Microsoft, Dropbox) so the assistant
-  can work with your email, calendar, and files.
 - **MCP (Model Context Protocol)** — an open standard for connecting external tools and data to
   the assistant.
 - **Channel** — a messaging platform (like Telegram) you can use to reach Friday from outside
