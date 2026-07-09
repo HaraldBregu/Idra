@@ -14,8 +14,7 @@ See [docs/overview.md](docs/overview.md) for the full feature tour.
 - **Attachments** — send images and PDFs alongside your prompt.
 - **Bring your own AI** — provider adapters normalize many vendors (including OpenAI-compatible endpoints) behind one interface; pick a provider + model per capability (assistant, speech-to-text, text-to-speech, text-to-image).
 - **Voice** — real-time dictation (speech-to-text) and read-aloud replies (text-to-speech).
-- **Skills** — reusable packaged workflows, auto-discovered per request, with declared tool/connector limits.
-- **Connectors** — Google (Gmail, Calendar, Drive), Microsoft (Outlook, SharePoint, Teams), Dropbox.
+- **Skills** — reusable packaged workflows, auto-discovered per request, with declared tool limits.
 - **MCP servers** — connect remote (HTTP) or local (stdio) Model Context Protocol tool servers.
 - **Channels** — chat with Friday from messaging platforms (Telegram live today; catalog entries for Slack, Discord, WhatsApp, Signal, Matrix, Teams, and more).
 - **Task scheduler & health checks** — recurring cron jobs and periodic checklist-driven health runs.
