@@ -102,6 +102,11 @@ export type LlmToolResultBlock =
 	| { type: 'text'; text: string }
 	| { type: 'image'; mimeType?: string; base64?: string };
 
+export type LlmUserContentBlock =
+	| { type: 'text'; text: string }
+	| { type: 'image'; mimeType?: string; base64: string }
+	| { type: 'file'; name?: string; mimeType?: string; base64: string };
+
 export type LlmToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
 export type LlmTranscriptEntry =
