@@ -25,7 +25,9 @@ export function init(
 		...(storedMessages.length > 0 ? storedMessages : legacyMessages),
 		...(input.messages ?? []),
 	];
-	if (input.message) state.messages.push({ role: 'user', content: input.message });
+	if (input.message || (input.files?.length ?? 0) > 0) {
+		state.messages.push({ role: 'user', content: toUserContent(input.message, input.files ?? []) });
+	}
 	state.model = input.model ?? 'default';
 	state.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
 	persist(state);
