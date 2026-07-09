@@ -89,7 +89,7 @@ yarn dist:linux:appimage  # Linux AppImage
 - Renderer windows use sandboxing, context isolation, disabled Node integration, and web security.
 - Preload APIs should expose narrow typed IPC methods only.
 - Secrets must not be committed, logged, rendered, or stored in plaintext where avoidable.
-- Connector and tool actions that write, delete, publish, or access private data must pass explicit permission checks.
+- Tool actions that write, delete, publish, or access private data must pass explicit permission checks.
 
 See [SECURITY.md](SECURITY.md) for the security policy and how to report vulnerabilities.
 
