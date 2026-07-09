@@ -9,6 +9,7 @@ export function persistSystemPrompt(
 	systemPrompt: string,
 	initial: boolean,
 ): void {
+	if (!state.sessionsPath) return;
 	ensureSession(state);
 	const dir = sessionDir(state);
 	if (initial) writeFileSync(path.join(dir, 'initial_system.md'), `${systemPrompt}\n`, 'utf8');
