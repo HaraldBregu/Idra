@@ -32,6 +32,7 @@ export interface AgentSendOptions {
 	category?: SessionCategory;
 	providerId?: string;
 	modelId?: string;
+	files?: AgentInputFile[];
 	streamEvent?: (event: AgentResponseEvent) => void;
 }
 
