@@ -1891,9 +1891,9 @@
 	},
 	"taskCommands": {
 		"list": "Mostra l'elenco delle attivit\u00e0 pianificate",
-		"create": "Crea e pianifica un'attivit\u00e0 con questo messaggio: {{message}}",
+		"create": "Crea e pianifica un'attivit\u00e0 con questi dettagli: {{message}}",
 		"createEmpty": "Voglio creare e pianificare un'attivit\u00e0. Chiedimi qual \u00e8 il messaggio dell'attivit\u00e0.",
-		"delete": "Elimina l'attivit\u00e0 pianificata: {{message}}",
+		"delete": "Elimina l'attivit\u00e0 pianificata con questi dettagli: {{message}}",
 		"deleteEmpty": "Voglio eliminare un'attivit\u00e0 pianificata. Mostrami l'elenco delle attivit\u00e0 pianificate e chiedimi quale eliminare."
 	}
 }
