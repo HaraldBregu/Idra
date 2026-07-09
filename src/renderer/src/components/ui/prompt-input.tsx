@@ -81,6 +81,7 @@ export type PromptInputProps = {
   onVoiceConfirm?: () => void
   onVoiceMutedChange?: (muted: boolean) => void
   onFilesChange?: (files: File[]) => void
+  filesAccept?: string
 } & React.ComponentProps<"div">
 
 export type PromptInputVoiceMode = "conversation" | "dictation"
