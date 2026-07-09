@@ -229,7 +229,7 @@ export function llmBuildAnthropicMessages(
 	const msgs: Anthropic.Messages.MessageParam[] = [];
 	for (const entry of transcript) {
 		if (entry.role === 'user') {
-			msgs.push({ role: 'user', content: entry.content });
+			msgs.push({ role: 'user', content: toAnthropicUserContent(entry.content) });
 			continue;
 		}
 		if (entry.role === 'assistant') {
