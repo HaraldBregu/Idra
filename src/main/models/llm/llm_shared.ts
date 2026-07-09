@@ -320,7 +320,7 @@ export function llmBuildChatMessages(
 
 	for (const entry of transcript) {
 		if (entry.role === 'user') {
-			msgs.push({ role: 'user', content: entry.content });
+			msgs.push({ role: 'user', content: toChatUserContent(entry.content) });
 			continue;
 		}
 		if (entry.role === 'assistant') {
