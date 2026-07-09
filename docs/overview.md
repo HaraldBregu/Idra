@@ -197,7 +197,7 @@ and have the assistant run them automatically.
 - Each schedule runs an agent turn with its own instructions, using the provider and model you
   choose for scheduled work.
 
-### 11. Health checks
+### 10. Health checks
 
 The **health** feature runs the assistant on a periodic interval against a checklist you
 define, so Friday can proactively verify that things are in order and report back. You set the
