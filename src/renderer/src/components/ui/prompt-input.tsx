@@ -363,6 +363,7 @@ function PromptInput({
   onVoiceConfirm,
   onVoiceMutedChange,
   onFilesChange,
+  filesAccept,
   onClick,
   ...props
 }: PromptInputProps) {
