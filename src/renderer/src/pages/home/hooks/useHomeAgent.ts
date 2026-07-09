@@ -3,6 +3,7 @@ import type { ChatMode } from '@/contexts/chat-mode';
 import { useChatSession } from '@/contexts/chat-session';
 import type { ModelReasoningEffort } from '@/lib/compat';
 import { useHomeAgentContext } from '../context';
+import { filesToAgentInput } from './files';
 
 type WindowWithOptionalAgent = Window & {
 	agent?: Window['agent'];
