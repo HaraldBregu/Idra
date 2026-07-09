@@ -27,6 +27,7 @@ export interface SessionResult {
 export interface SessionInput {
 	task: string;
 	message: string;
+	files?: AgentInputFile[];
 	sessionId?: string;
 	messages?: Message[];
 	model?: string;
