@@ -239,8 +239,8 @@ A simple mental model of what happens when you ask Friday to do something:
 
 Friday is built to keep you in control of your data and actions:
 
-- **Local by default.** The app, your settings, provider keys, connector credentials, and
-  conversation history live on your own machine.
+- **Local by default.** The app, your settings, provider keys, and conversation history live
+  on your own machine.
 - **Bring your own keys.** You use your own AI provider accounts; Friday doesn't put a vendor
   in between.
 - **Secrets stay secret.** API keys and channel/connector credentials are stored as
