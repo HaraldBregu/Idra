@@ -198,6 +198,27 @@ export function llmBuildResponseInput(transcript: LlmTranscriptEntry[]): Respons
 	return input;
 }
 
+function toResponseUserContent(
+	content: string | LlmUserContentBlock[]
+): string | ResponseInputContent[] {
+	if (typeof content === 'string') return content;
+	return content.map((block): ResponseInputContent => {
+		if (block.type === 'text') return { type: 'input_text', text: block.text };
+		if (block.type === 'image') {
+			return {
+				type: 'input_image',
+				image_url: toDataUrl(block.mimeType ?? 'image/png', block.base64),
+				detail: 'auto',
+			};
+		}
+		return {
+			type: 'input_file',
+			filename: block.name,
+			file_data: toDataUrl(block.mimeType ?? 'application/pdf', block.base64),
+		};
+	});
+}
+
 export function llmHasFunctionCall(output: ResponseOutputItem[] | undefined): boolean {
 	return output?.some((item) => item.type === 'function_call') ?? false;
 }
