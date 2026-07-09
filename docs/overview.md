@@ -204,7 +204,7 @@ define, so Friday can proactively verify that things are in order and report bac
 interval, the provider/model, and the checklist instructions that describe what "healthy"
 means for your setup.
 
-### 12. Memory and personalization
+### 11. Memory and personalization
 
 Friday builds up a personal working context so it gets more useful over time:
 
