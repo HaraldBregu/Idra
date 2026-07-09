@@ -90,7 +90,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 
 	const sendPrompt = useCallback(
 		async (prompt: string, files: File[] = []): Promise<void> => {
-			const trimmed = prompt.trim();
+			const trimmed = expandTaskCommand(prompt.trim());
 			if (!trimmed && files.length === 0) return;
 
 			const requestId = requestIdRef.current + 1;
