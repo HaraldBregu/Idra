@@ -42,6 +42,21 @@ const categoryItems: readonly SlashMenuItem[] = [
 		icon: Target,
 		run: insert('/goal '),
 	},
+	{
+		title: 'Task List',
+		icon: ListTodo,
+		run: insert('/task_list '),
+	},
+	{
+		title: 'Create Task',
+		icon: ListPlus,
+		run: insert('/create_task '),
+	},
+	{
+		title: 'Delete Task',
+		icon: ListX,
+		run: insert('/delete_task '),
+	},
 ];
 
 function skillItems(): SlashMenuItem[] {
