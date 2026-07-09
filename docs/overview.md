@@ -160,25 +160,10 @@ instructions, reference material, templates, schemas, and optional executable be
   more into your personal skill library, then enable or disable each one.
 - **Automatic discovery.** Before answering, Friday looks at your request and selects the
   most relevant enabled skills to guide its work.
-- **Safe by design.** Skills run within declared limits (allowed tools, required connectors,
-  timeouts), and unsafe or disabled skills are blocked. Friday keeps an audit of why a skill
-  was chosen or rejected.
+- **Safe by design.** Skills run within declared limits (allowed tools, timeouts), and unsafe
+  or disabled skills are blocked. Friday keeps an audit of why a skill was chosen or rejected.
 
-### 7. Connectors
-
-**Connectors** link Friday to the external services where your work lives, so the assistant
-can act on your email, calendar, files, and workspaces. Connector families include:
-
-- **Google** — Gmail, Google Calendar, Google Drive.
-- **Microsoft** — Outlook email, Outlook calendar, SharePoint, Microsoft Teams.
-- **Dropbox** — file storage.
-
-Connectors are powered by the MCP standard (below): each connector's actual tools are
-discovered from a configured tool server, and secrets are referenced securely rather than
-pasted into plain records. Actions that read private data or make changes go through
-Friday's permission checks.
-
-### 8. MCP servers
+### 7. MCP servers
 
 Friday supports the **Model Context Protocol (MCP)**, an open standard for giving AI
 assistants access to external tools and data. You can connect:
