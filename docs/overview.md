@@ -105,7 +105,7 @@ Tools are the assistant's hands. Depending on your setup, Friday can:
 | **Schedule (cron)** | Create, update, pause, resume, list, delete, and run scheduled jobs. |
 | **Load skills** | Pull in a reusable skill to handle a class of work. |
 | **Subagents** | Spin up focused helper agents for independent parts of a larger task. |
-| **MCP tools** | Use any tool exposed by a connected MCP server (see [MCP servers](#8-mcp-servers)). |
+| **MCP tools** | Use any tool exposed by a connected MCP server (see [MCP servers](#7-mcp-servers)). |
 
 The assistant uses tools only when they improve the result, and treats their output as
 evidence rather than instructions. It won't send messages, change records, delete data, or
