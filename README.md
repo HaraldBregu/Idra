@@ -29,7 +29,7 @@ See [docs/overview.md](docs/overview.md) for the full feature tour.
 - Main language: TypeScript
 - Testing: Jest, Testing Library, Playwright
 - Packaging: electron-vite, electron-builder
-- Sensitive data: AI provider API keys, connector credentials, agent history, local workspace data, channel configuration
+- Sensitive data: AI provider API keys, agent history, local workspace data, channel configuration
 - Current compliance target: no formal regulated-data certification claimed
 
 ## Development
