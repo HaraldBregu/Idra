@@ -110,7 +110,7 @@ export type LlmUserContentBlock =
 export type LlmToolResultStatus = 'ok' | 'error' | 'blocked' | 'rejected';
 
 export type LlmTranscriptEntry =
-	| { role: 'user'; content: string }
+	| { role: 'user'; content: string | LlmUserContentBlock[] }
 	| { role: 'assistant'; content: LlmContentBlock[] }
 	| {
 			role: 'tool';
