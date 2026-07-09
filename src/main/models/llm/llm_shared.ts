@@ -365,6 +365,28 @@ export function llmBuildChatMessages(
 	return msgs;
 }
 
+function toChatUserContent(
+	content: string | LlmUserContentBlock[]
+): string | OpenAI.ChatCompletionContentPart[] {
+	if (typeof content === 'string') return content;
+	return content.map((block): OpenAI.ChatCompletionContentPart => {
+		if (block.type === 'text') return { type: 'text', text: block.text };
+		if (block.type === 'image') {
+			return {
+				type: 'image_url',
+				image_url: { url: toDataUrl(block.mimeType ?? 'image/png', block.base64) },
+			};
+		}
+		return {
+			type: 'file',
+			file: {
+				filename: block.name,
+				file_data: toDataUrl(block.mimeType ?? 'application/pdf', block.base64),
+			},
+		};
+	});
+}
+
 export function llmToDeepSeekReasoningEffort(
 	effort: LlmStreamRequest['effort']
 ): 'high' | 'max' | undefined {
