@@ -548,7 +548,7 @@ function PageContent(): ReactElement {
 
 	const handlePrimaryAction = (): void => {
 		if (agent.isLoading || canSubmit) {
-			agent.handleSubmit();
+			submitPrompt();
 			return;
 		}
 		startVoiceConversation();
