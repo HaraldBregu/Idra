@@ -14,6 +14,7 @@ import { formatToolOutput } from './run_common';
 export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
+	interactive = true,
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 
