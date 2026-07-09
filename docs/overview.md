@@ -175,22 +175,19 @@ Once connected, the tools that server provides become available to the assistant
 automatically. This is how Friday stays extensible: any capability someone can package as an
 MCP server can plug into Friday without changing the app.
 
-### 9. Channels: chat from anywhere
+### 8. Channels: chat from anywhere
 
 **Channels** let you talk to Friday from outside the app, through the messaging platforms you
 already use. A message arrives from a channel, Friday runs an agent turn, and the reply is
 delivered back through the same channel.
 
-- **Live today: Telegram.** Connect a Telegram bot and chat with your assistant from your phone
-  or desktop, with reliable delivery and reconnection built in.
-- **Catalog ready:** entries are included for many platforms, including Slack, Discord,
-  Microsoft Teams, WhatsApp, Signal, Matrix, Mattermost, Google Chat, LINE, IRC, Twitch, and
-  more. These become active as their runtime adapters are enabled.
+- **Supported today: Telegram and Discord.** Connect a bot and chat with your assistant from
+  your phone or desktop, with reliable delivery and reconnection built in.
 - **Access control.** Each channel has its own configuration, enabled state, and a
-  direct-message policy (for example, an allowlist of who is allowed to reach the assistant),
-  so you decide who can message Friday. Channel secrets stay in the channel's own records.
+  direct-message policy (allowlist, pairing, open, or deny), so you decide who can message
+  Friday. Channel secrets stay in the channel's own records.
 
-### 10. Task scheduler
+### 9. Task scheduler
 
 Friday can work on a schedule, even when you're not actively chatting. The **task scheduler**
 (cron) lets you set up recurring jobs, a daily summary, a periodic check, a routine cleanup,
