@@ -94,7 +94,7 @@ export type RuntimeOutput = SessionResult;
 
 export interface RuntimeInput extends Pick<
 	SessionInput,
-	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations'
+	'sessionId' | 'messages' | 'model' | 'effort' | 'maxTurns' | 'maxIterations' | 'files'
 > {
 	task: string;
 	message: string;
