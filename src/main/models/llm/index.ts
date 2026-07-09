@@ -19,5 +19,6 @@ export type {
 	LlmToolSpec,
 	LlmTranscriptEntry,
 	LlmUsage,
+	LlmUserContentBlock,
 } from './llm_types';
 export { llmAuthorizationToken } from './llm_mcp_token';
