@@ -271,8 +271,8 @@ Friday is built to keep you in control of your data and actions:
    transcription, voice, and image generation.
 4. **Start chatting.** Ask Friday to do something. Approve any permission prompts for actions
    that touch your files or accounts.
-5. **Extend it (optional).** Enable skills, connect your Google/Microsoft/Dropbox accounts,
-   add MCP tool servers, link a Telegram channel, or schedule a recurring task.
+5. **Extend it (optional).** Enable skills, add MCP tool servers, link a Telegram or Discord
+   channel, or schedule a recurring task.
 
 ## Glossary
 
