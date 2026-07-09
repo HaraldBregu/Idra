@@ -89,11 +89,11 @@ export class Agent {
 
 			init(this.session, this.config, input, options.category);
 
-			const stream = run(this.config, this.session, input, controller.signal);
+			const events = stream(this.config, this.session, input, controller.signal);
 
 			this.activeRuns.set(resolvedAgentId, controller);
 
-			for await (const event of stream) {
+			for await (const event of events) {
 				// if (event.type === 'run_started')
 				// 	providerId = event.providerId;
 				if (event.type === 'model_call_delta') response += event.delta;
