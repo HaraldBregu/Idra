@@ -47,7 +47,39 @@ export function llmToTranscriptEntry(message: Message): LlmTranscriptEntry[] {
 		}
 		return entries;
 	}
-	return [{ role: 'user', content: toTextContent(message.content) }];
+	return [{ role: 'user', content: toUserContent(message.content) }];
+}
+
+function toUserContent(content: Message['content']): string | LlmUserContentBlock[] {
+	if (typeof content === 'string') return content;
+	const blocks = content
+		.map((block): LlmUserContentBlock | undefined => {
+			if (block.type === 'text' && typeof block.text === 'string')
+				return { type: 'text', text: block.text };
+			if (block.type === 'image' && typeof block.base64 === 'string') {
+				return {
+					type: 'image',
+					mimeType: typeof block.mimeType === 'string' ? block.mimeType : undefined,
+					base64: block.base64,
+				};
+			}
+			if (block.type === 'file' && typeof block.base64 === 'string') {
+				return {
+					type: 'file',
+					name: typeof block.name === 'string' ? block.name : undefined,
+					mimeType: typeof block.mimeType === 'string' ? block.mimeType : undefined,
+					base64: block.base64,
+				};
+			}
+			return undefined;
+		})
+		.filter((block): block is LlmUserContentBlock => block !== undefined);
+	if (blocks.every((block) => block.type === 'text')) return toTextContent(content);
+	return blocks;
+}
+
+function toDataUrl(mimeType: string, base64: string): string {
+	return `data:${mimeType};base64,${base64}`;
 }
 
 function toAssistantContent(content: Message['content']): LlmContentBlock[] {
