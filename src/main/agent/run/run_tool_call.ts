@@ -34,6 +34,8 @@ export async function* runToolCall(
 	} else {
 		let permission = resolveToolPermission(toolCall.name, toolCall.args);
 
+		if (permission === 'ask' && !interactive) permission = 'deny';
+
 		if (permission === 'ask') {
 			yield {
 				type: 'tool_permission_request',
