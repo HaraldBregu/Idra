@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import type {
 	ResponseInput,
+	ResponseInputContent,
 	ResponseInputItem,
 	ResponseOutputItem,
 } from 'openai/resources/responses/responses';
@@ -10,6 +11,7 @@ import type {
 	LlmContentBlock,
 	LlmStreamRequest,
 	LlmTranscriptEntry,
+	LlmUserContentBlock,
 } from './llm_types';
 
 type ReasoningContentBlock = Extract<LlmContentBlock, { type: 'reasoning' }>;
