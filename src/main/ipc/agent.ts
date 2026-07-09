@@ -161,6 +161,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 
 	const sessionId =
 		optionalTrimmedString(options.sessionId) ?? optionalTrimmedString(options.agentRuntime);
+	const files = normalizeAgentInputFiles(options.files);
 	return {
 		...(optionalTrimmedString(options.runId)
 			? { runId: optionalTrimmedString(options.runId) }
@@ -173,6 +174,7 @@ export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOpt
 			? { modelId: optionalTrimmedString(options.model) }
 			: {}),
 		...(isModelReasoningEffort(options.effort) ? { effort: options.effort } : {}),
+		...(files ? { files } : {}),
 	};
 }
 
