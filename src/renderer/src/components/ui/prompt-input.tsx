@@ -528,6 +528,7 @@ function PromptInput({
           ref={fileInputRef}
           type="file"
           multiple
+          accept={filesAccept}
           className="hidden"
           onChange={(e) => {
             const files = Array.from(e.target.files ?? [])
