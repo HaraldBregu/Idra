@@ -7,6 +7,7 @@ import type { Provider as StoredProvider } from '../../../shared/providers_types
 import type {
 	AgentHistoryContentBlock,
 	AgentHistoryMessage,
+	AgentInputFile,
 	AgentResponseEvent,
 	AgentRunState,
 	AgentSessionSummary,
