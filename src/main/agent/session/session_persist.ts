@@ -4,6 +4,7 @@ import { ensureSession } from './session_ensure_session';
 import { messagesFilePath } from './session_messages_file_path';
 
 export function persist(state: SessionState): void {
+	if (!state.sessionsPath) return;
 	ensureSession(state);
 	writeFileSync(
 		messagesFilePath(state),
