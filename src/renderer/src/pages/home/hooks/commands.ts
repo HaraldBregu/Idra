@@ -1,13 +1,15 @@
+import i18n from '@/i18n';
+
 const TASK_COMMANDS: Record<string, (rest: string) => string> = {
-	'/task_list': () => 'List all my tasks.',
+	'/task_list': () => i18n.t('taskCommands.list'),
 	'/create_task': (rest) =>
 		rest
-			? `Create a new task: ${rest}`
-			: 'I want to create a new task. Ask me what the task should be.',
+			? i18n.t('taskCommands.create', { message: rest })
+			: i18n.t('taskCommands.createEmpty'),
 	'/delete_task': (rest) =>
 		rest
-			? `Delete this task: ${rest}`
-			: 'I want to delete a task. List my tasks and ask me which one to delete.',
+			? i18n.t('taskCommands.delete', { message: rest })
+			: i18n.t('taskCommands.deleteEmpty'),
 };
 
 export function expandTaskCommand(prompt: string): string {
