@@ -435,6 +435,24 @@ function PageContent(): ReactElement {
 		);
 	}, []);
 
+	const clearAttachments = useCallback((): void => {
+		setAttachments((current) => {
+			for (const attachment of current) {
+				if (attachment.url) URL.revokeObjectURL(attachment.url);
+			}
+			return [];
+		});
+	}, []);
+
+	const submitPrompt = (): void => {
+		if (agent.isLoading) {
+			agent.handleSubmit();
+			return;
+		}
+		agent.handleSubmit(attachments.map((attachment) => attachment.file));
+		clearAttachments();
+	};
+
 	const returnToChat = (): void => {
 		setActiveDictationMode(null);
 		setVoiceMode(null);
