@@ -226,7 +226,7 @@ A simple mental model of what happens when you ask Friday to do something:
    critical is ambiguous, it asks a focused question; otherwise it proceeds with a reasonable,
    reversible assumption.
 3. **It plans and picks tools.** For multi-step or risky work, it forms a short plan and
-   chooses the right tools, skills, connectors, or subagents.
+   chooses the right tools, skills, or subagents.
 4. **It acts, with permission.** Sensitive actions (writing files, sending messages, touching
    private data) prompt you for approval first.
 5. **It verifies and responds.** Friday checks the result against your request and returns a
