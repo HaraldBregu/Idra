@@ -98,6 +98,9 @@ function normalizeAgentSendRuntimeOptions(
 		...(optionalStringList(options.toolsDeny)
 			? { toolsDeny: optionalStringList(options.toolsDeny) }
 			: {}),
+		...(normalizeAgentInputFiles(options.files)
+			? { files: normalizeAgentInputFiles(options.files) }
+			: {}),
 	};
 	return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
