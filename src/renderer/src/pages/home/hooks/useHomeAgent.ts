@@ -87,19 +87,15 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 	}, [dispatchChat]);
 
 	const sendPrompt = useCallback(
-		async (prompt: string): Promise<void> => {
+		async (prompt: string, files: File[] = []): Promise<void> => {
 			const trimmed = prompt.trim();
-			if (!trimmed) return;
+			if (!trimmed && files.length === 0) return;
 
 			const requestId = requestIdRef.current + 1;
 			requestIdRef.current = requestId;
 			requestActiveRef.current = true;
 			localInteractionRef.current = true;
 			const submittedAtMs = Date.now();
-			const runtimeOptions = {
-				...runtimeOptionsForPrompt(trimmed),
-				sessionId,
-			};
 
 			setInput('');
 			setIsLoading(true);
@@ -107,7 +103,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 				type: 'submit_user_message',
 				userMessageId: messageId('user'),
 				agentMessageId: messageId('agent'),
-				content: trimmed,
+				content: trimmed || files.map((file) => file.name).join(', '),
 				submittedAtMs,
 			});
 
@@ -124,6 +120,12 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 			}
 
 			try {
+				const inputFiles = files.length > 0 ? await filesToAgentInput(files) : [];
+				const runtimeOptions = {
+					...runtimeOptionsForPrompt(trimmed),
+					sessionId,
+					...(inputFiles.length > 0 ? { files: inputFiles } : {}),
+				};
 				let response = '';
 				response = await agent.send(trimmed, runtimeOptions, (event) => {
 					if (requestIdRef.current !== requestId || event.agentId !== HOME_AGENT_ID) return;
