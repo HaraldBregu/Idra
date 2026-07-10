@@ -6,6 +6,7 @@ import {
 	getErrorMessage,
 	getSelectedServiceModel,
 	isModelStep,
+	MODEL_SERVICE_DEFINITIONS,
 	SETUP_STEPS,
 } from '../constants';
 import type { ModelServiceDefinition, ModelServiceId, ProviderModelGroup } from '../types';
@@ -29,25 +30,20 @@ export function useModelServices(
 	useEffect(() => {
 		if (!isModelStep(step)) return;
 		if (modelsLoadedRef.current) return;
+		const service = MODEL_SERVICE_DEFINITIONS.find((item) => item.id === step);
+		if (!service) return;
 		let cancelled = false;
-		const serviceId = step;
 
-		async function loadServiceModels(service: ModelServiceId): Promise<void> {
+		async function loadServiceModels(definition: ModelServiceDefinition): Promise<void> {
 			dispatch({ type: 'SET_LOADING_MODELS', loading: true });
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
-				const [selection, providers] = await Promise.all([
-					window.agent.getProvider().then(async (provider) => {
-						const modelId = await window.agent.getModelId();
-						return provider && modelId ? { providerId: provider.id, modelId } : undefined;
-					}),
-					Promise.resolve(getAssistantProviders()),
-				]);
+				const selection = await definition.getSelection().catch(() => undefined);
 				if (cancelled) return;
 
 				const modelGroups: ProviderModelGroup[] = [];
-				for (const provider of providers) {
-					const models = await MODEL_SERVICE_DEFINITIONS_BY_ID[service].getModels(provider);
+				for (const provider of getAssistantProviders()) {
+					const models = await definition.getModels(provider);
 					if (models.length > 0) {
 						modelGroups.push({ provider, models });
 					}
@@ -57,10 +53,10 @@ export function useModelServices(
 				let modelId = '';
 				if (selection) {
 					const selectedGroup = modelGroups.find(
-						(group) => group.provider.id === selection.providerId
+						(group) => group.provider.id === selection.provider.id
 					);
 					const selectedModel = selectedGroup?.models.find(
-						(model) => model.id === selection.modelId
+						(model) => model.id === selection.model.id
 					);
 					if (selectedGroup && selectedModel) {
 						providerId = selectedGroup.provider.id;
@@ -70,7 +66,7 @@ export function useModelServices(
 
 				if (cancelled) return;
 				const nextServiceStates = createInitialModelServiceState();
-				nextServiceStates[service] = { providerId, modelId, modelGroups };
+				nextServiceStates[definition.id] = { providerId, modelId, modelGroups };
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: nextServiceStates });
 				modelsLoadedRef.current = true;
 			} catch (error) {
@@ -88,7 +84,7 @@ export function useModelServices(
 			}
 		}
 
-		void loadServiceModels(serviceId);
+		void loadServiceModels(service);
 		return () => {
 			cancelled = true;
 		};
