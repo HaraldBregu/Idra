@@ -23,6 +23,7 @@ import { webSearchTool } from '../tools/web_search';
 import { webFetchTool } from '../tools/web_fetch';
 import { webBrowserTool } from '../tools/web_browser';
 import { createImageTool } from '../tools/image_create';
+import { createVideoTool } from '../tools/video_create';
 import { saveMemoryTool } from '../tools/memory_save';
 import { forgetMemoryTool } from '../tools/memory_forget';
 import { updateHealthTool } from '../tools/health_update';
