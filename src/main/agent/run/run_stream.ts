@@ -95,6 +95,8 @@ async function* loop(
 		createImageTool(config.location),
 		saveMemoryTool(config),
 		forgetMemoryTool(config),
+		updateHealthTool(config),
+		updateHealthSettingsTool,
 		loadSkillTool,
 		createScheduleTool,
 		updateScheduleTool,
