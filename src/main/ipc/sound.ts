@@ -21,6 +21,7 @@ export class SoundIpc implements IpcModule {
 			await saveSoundFile(result);
 			return result;
 		});
+		registerQuery(SoundChannels.listSounds, () => listSounds());
 		registerQuery(SoundChannels.getProviderId, () => getProviderId());
 		registerCommand(SoundChannels.setProviderId, (providerId) => setProviderId(providerId));
 		registerQuery(SoundChannels.getModelId, () => getModelId());
