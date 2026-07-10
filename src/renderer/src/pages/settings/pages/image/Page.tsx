@@ -73,27 +73,15 @@ const ImagePage: React.FC = () => {
 		};
 	}, []);
 
-	const handleProviderChange = (nextProviderId: string): void => {
+	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		setProviderId(nextProviderId);
-		setModelId(firstModelIdForProvider(IMAGE_PROVIDER_GROUPS, nextProviderId));
-		setSaved(false);
-		setError(null);
-	};
-
-	const handleModelChange = (nextModelId: string): void => {
 		setModelId(nextModelId);
-		setSaved(false);
-		setError(null);
-	};
-
-	const handleSave = async (): Promise<void> => {
-		if (!providerId || !modelId) return;
 		setSaving(true);
 		setSaved(false);
 		setError(null);
 		try {
-			await window.image.setProviderId(providerId);
-			await window.image.setModelId(modelId);
+			await window.image.setProviderId(nextProviderId);
+			await window.image.setModelId(nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
