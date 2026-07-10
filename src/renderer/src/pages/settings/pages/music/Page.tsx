@@ -90,8 +90,8 @@ const MusicPage: React.FC = () => {
 		setSaved(false);
 		setError(null);
 		try {
-			await window.music.setProviderId(providerId);
-			await window.music.setModelId(modelId);
+			await window.sound.setProviderId(providerId);
+			await window.sound.setModelId(modelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
