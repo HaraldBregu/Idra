@@ -331,6 +331,11 @@ export const app: AppApi = {
 		if (!normalizedPath) throw new Error('Invalid video path.');
 		return typedInvokeUnwrap(AppChannels.showVideoContextMenu, normalizedPath);
 	},
+	showAudioContextMenu: (path: string): Promise<void> => {
+		const normalizedPath = optionalTrimmedString(path);
+		if (!normalizedPath) throw new Error('Invalid audio path.');
+		return typedInvokeUnwrap(AppChannels.showAudioContextMenu, normalizedPath);
+	},
 };
 
 export const provider: ProviderApi = {
