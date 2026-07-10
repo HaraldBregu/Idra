@@ -122,6 +122,14 @@ export const TextChannels = {
 	setProviderId: 'text:set-provider-id',
 } as const;
 
+export const VideoChannels = {
+	createVideo: 'video:create-video',
+	getModelId: 'video:get-model-id',
+	getProviderId: 'video:get-provider-id',
+	setModelId: 'video:set-model-id',
+	setProviderId: 'video:set-provider-id',
+} as const;
+
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
