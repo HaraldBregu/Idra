@@ -1,4 +1,4 @@
-import React, { type ReactNode, useMemo } from 'react';
+import React, { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	LLM_MODELS_BY_PROVIDER,
@@ -23,14 +23,6 @@ export const LLM_PROVIDER_GROUPS: readonly ModelProviderGroup[] = LLM_PROVIDERS.
 	id,
 	models: LLM_MODELS_BY_PROVIDER[id] ?? [],
 })).filter((group) => group.models.length > 0);
-
-export function firstModelIdForProvider(
-	providerGroups: readonly ModelProviderGroup[],
-	providerId: string
-): string {
-	const group = providerGroups.find((item) => item.id === providerId);
-	return group?.models[0]?.id ?? '';
-}
 
 export function resolveStoredModelProvider(
 	providerGroups: readonly ModelProviderGroup[],
@@ -59,13 +51,16 @@ export function toModelProviderGroups(
 	}));
 }
 
+const VALUE_SEPARATOR = '';
+
+function modelLabel(providerId: string, model: { id: string; name: string }): string {
+	return `${getProviderCatalogItem(providerId).name} / ${model.name || model.id}`;
+}
+
 interface ModelProviderSelectLabels {
-	readonly provider?: string;
-	readonly model?: string;
-	readonly providerPlaceholder?: string;
-	readonly modelPlaceholder?: string;
-	readonly providerDescription?: ReactNode;
-	readonly modelDescription?: ReactNode;
+	readonly label?: string;
+	readonly placeholder?: string;
+	readonly description?: ReactNode;
 }
 
 interface ModelProviderSelectProps {
@@ -73,12 +68,9 @@ interface ModelProviderSelectProps {
 	readonly providerGroups: readonly ModelProviderGroup[];
 	readonly providerId: string;
 	readonly modelId: string;
-	readonly onProviderChange: (nextProviderId: string) => void;
-	readonly onModelChange: (nextModelId: string) => void;
+	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
 	readonly disabled?: boolean;
-	readonly modelDisabled?: boolean;
 	readonly labels?: ModelProviderSelectLabels;
-	readonly showFieldDescriptions?: boolean;
 }
 
 export function ModelProviderSelect({
@@ -86,93 +78,50 @@ export function ModelProviderSelect({
 	providerGroups,
 	providerId,
 	modelId,
-	onProviderChange,
-	onModelChange,
+	onChange,
 	disabled = false,
-	modelDisabled,
 	labels,
-	showFieldDescriptions = false,
 }: ModelProviderSelectProps): React.JSX.Element {
 	const { t } = useTranslation();
-	const selectedGroup = useMemo(
-		() => providerGroups.find((group) => group.id === providerId),
-		[providerGroups, providerId]
-	);
-	const selectedProviderLabel = providerId
-		? getProviderCatalogItem(providerId).name
-		: undefined;
+	const selectedGroup = providerGroups.find((group) => group.id === providerId);
 	const selectedModel = selectedGroup?.models.find((model) => model.id === modelId);
-	const selectedModelLabel = selectedModel ? selectedModel.name || selectedModel.id : undefined;
-	const providerDescription =
-		labels?.providerDescription ??
-		(showFieldDescriptions ? t('settings.modelServices.providerDescription') : undefined);
-	const modelDescription =
-		labels?.modelDescription ??
-		(showFieldDescriptions ? t('settings.modelServices.modelDescription') : undefined);
+	const selectedLabel = selectedModel ? modelLabel(providerId, selectedModel) : undefined;
 
 	return (
-		<div className="grid gap-3 sm:grid-cols-2">
-			<SettingsField
-				id={`${idPrefix}-provider`}
-				label={labels?.provider ?? t('settings.modelServices.provider')}
-				description={providerDescription}
+		<SettingsField
+			id={`${idPrefix}-model`}
+			label={labels?.label ?? t('settings.modelServices.model')}
+			description={labels?.description}
+		>
+			<Select
+				value={selectedModel ? `${providerId}${VALUE_SEPARATOR}${modelId}` : null}
+				onValueChange={(value) => {
+					if (!value) return;
+					const [nextProviderId = '', nextModelId = ''] = value.split(VALUE_SEPARATOR);
+					onChange(nextProviderId, nextModelId);
+				}}
+				disabled={disabled || providerGroups.length === 0}
 			>
-				<Select
-					value={providerId || null}
-					onValueChange={(value) => onProviderChange(value ?? '')}
-					disabled={disabled}
-				>
-					<SelectTrigger id={`${idPrefix}-provider`} className="w-full text-xs">
-						<SelectValue
-							placeholder={
-								labels?.providerPlaceholder ?? t('settings.modelServices.providerPlaceholder')
-							}
-						>
-							{selectedProviderLabel}
-						</SelectValue>
-					</SelectTrigger>
-					<SelectContent>
-						{providerGroups.map((group) => (
-							<SelectItem key={group.id} value={group.id}>
-								{getProviderCatalogItem(group.id).name}
+				<SelectTrigger id={`${idPrefix}-model`} className="w-full text-xs">
+					<SelectValue
+						placeholder={labels?.placeholder ?? t('settings.modelServices.modelPlaceholder')}
+					>
+						{selectedLabel}
+					</SelectValue>
+				</SelectTrigger>
+				<SelectContent>
+					{providerGroups.flatMap((group) =>
+						group.models.map((model) => (
+							<SelectItem
+								key={`${group.id}${VALUE_SEPARATOR}${model.id}`}
+								value={`${group.id}${VALUE_SEPARATOR}${model.id}`}
+							>
+								{modelLabel(group.id, model)}
 							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</SettingsField>
-
-			<SettingsField
-				id={`${idPrefix}-model`}
-				label={labels?.model ?? t('settings.modelServices.model')}
-				description={modelDescription}
-			>
-				<Select
-					key={`${idPrefix}-model-${providerId || 'none'}`}
-					value={modelId || null}
-					onValueChange={(value) => onModelChange(value ?? '')}
-					disabled={
-						modelDisabled ??
-						(disabled || !providerId || !selectedGroup || selectedGroup.models.length === 0)
-					}
-				>
-					<SelectTrigger id={`${idPrefix}-model`} className="w-full text-xs">
-						<SelectValue
-							placeholder={
-								labels?.modelPlaceholder ?? t('settings.modelServices.modelPlaceholder')
-							}
-						>
-							{selectedModelLabel}
-						</SelectValue>
-					</SelectTrigger>
-					<SelectContent>
-						{selectedGroup?.models.map((model) => (
-							<SelectItem key={model.id} value={model.id}>
-								{model.name || model.id}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</SettingsField>
-		</div>
+						))
+					)}
+				</SelectContent>
+			</Select>
+		</SettingsField>
 	);
 }
