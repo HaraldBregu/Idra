@@ -360,6 +360,18 @@ const routes: RouteObject[] = [
 						element: <Navigate to="/settings/video" replace />,
 					},
 					{
+						path: 'music',
+						element: (
+							<SettingsRouteWrapper>
+								<MusicPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'text-to-audio',
+						element: <Navigate to="/settings/music" replace />,
+					},
+					{
 						path: 'model-services/:serviceId/details/*',
 						element: <ModelServiceLegacyRedirect />,
 					},
