@@ -6,6 +6,7 @@ import {
 	createSound,
 	getModelId,
 	getProviderId,
+	listSounds,
 	saveSoundFile,
 	setModelId,
 	setProviderId,
