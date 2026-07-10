@@ -1,13 +1,11 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { AGENTS } from '@/lib/compat';
 import { Button } from '@/components/ui/button';
 import { ModelServiceStep } from './components/ModelServiceStep';
 import { PresentationStep } from './components/PresentationStep';
 import { ProviderStep } from './components/ProviderStep';
 import { StepProgress } from './components/StepProgress';
-import { TranscribeServiceStep } from './components/TranscribeServiceStep';
 import {
 	getSelectedServiceModel,
 	isModelStep,
@@ -20,17 +18,35 @@ import { initialSetupState, setupReducer } from './state/reducer';
 
 const StartPage: React.FC = () => {
 	const navigate = useNavigate();
+	const [checkingSetup, setCheckingSetup] = useState(true);
 	const [state, dispatch] = useReducer(setupReducer, initialSetupState);
 	const {
 		step,
 		providerEntries,
 		savingProviderId,
 		serviceStates,
-		speechModeStates,
 		loadingModels,
 		savingConfig,
 		errorMessage,
 	} = state;
+
+	useEffect(() => {
+		let cancelled = false;
+		void MODEL_SERVICE_DEFINITIONS[0]
+			.getSelection()
+			.catch(() => undefined)
+			.then((selection) => {
+				if (cancelled) return;
+				if (selection) {
+					navigate('/home', { replace: true });
+				} else {
+					setCheckingSetup(false);
+				}
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [navigate]);
 
 	const {
 		updateProviderEntry,
@@ -40,7 +56,7 @@ const StartPage: React.FC = () => {
 		handleOpenProviderLink,
 	} = useProviderSetup(state, dispatch);
 
-	const { handleServiceProviderChange, handleServiceModelChange, handleSpeechModeProviderChange, handleSpeechModeModelChange, handleSaveModelStep } =
+	const { handleServiceProviderChange, handleServiceModelChange, handleSaveModelStep } =
 		useModelServices(state, dispatch, navigate);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
@@ -56,11 +72,10 @@ const StartPage: React.FC = () => {
 		: undefined;
 	const canContinueModelStep =
 		currentService !== undefined &&
-		(!currentService.required || selectedServiceModel !== undefined) &&
+		selectedServiceModel !== undefined &&
 		!loadingModels &&
 		!savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
-	const canSkip = currentService !== undefined && !currentService.required;
 
 	function handleBack(): void {
 		const previousStep = SETUP_STEPS[Math.max(0, stepIndex - 1)];
@@ -97,8 +112,6 @@ const StartPage: React.FC = () => {
 	}
 
 	function renderStepContent(): React.JSX.Element {
-		if (step === 'presentation') return <PresentationStep />;
-
 		if (step === 'providers') {
 			return (
 				<ProviderStep
@@ -113,19 +126,6 @@ const StartPage: React.FC = () => {
 		}
 
 		if (currentService) {
-			if (currentService.id === AGENTS.speechToText) {
-				return (
-					<TranscribeServiceStep
-						service={currentService}
-						speechModeStates={speechModeStates}
-						loadingModels={loadingModels}
-						savingConfig={savingConfig}
-						onProviderChange={handleSpeechModeProviderChange}
-						onModelChange={handleSpeechModeModelChange}
-					/>
-				);
-			}
-
 			return (
 				<ModelServiceStep
 					service={currentService}
@@ -141,27 +141,12 @@ const StartPage: React.FC = () => {
 		return <PresentationStep />;
 	}
 
+	if (checkingSetup) {
+		return <main className="h-full bg-background" />;
+	}
+
 	return (
 		<main className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
-			{canSkip ? (
-				<header className="pointer-events-none fixed inset-x-0 top-12 z-40 px-4 py-3 sm:px-6">
-					<nav
-						aria-label="Setup navigation"
-						className="mx-auto flex w-full max-w-2xl items-center justify-end"
-					>
-						<Button
-							type="button"
-							variant="ghost"
-							size="xs"
-							className="pointer-events-auto"
-							onClick={() => navigate('/home')}
-						>
-							Skip
-						</Button>
-					</nav>
-				</header>
-			) : null}
-
 			<section className="min-h-0 flex-1 overflow-y-auto bg-muted/40 px-4 sm:px-6">
 				{renderStepContent()}
 				{errorMessage ? (
@@ -186,12 +171,12 @@ const StartPage: React.FC = () => {
 						disabled={isPrimaryDisabled()}
 						onClick={handlePrimaryAction}
 					>
+						{getPrimaryLabel()}
 						{isBusy ? (
 							<LoaderCircle className="size-3.5 animate-spin" />
 						) : (
 							<ArrowRight className="size-3.5" />
 						)}
-						{getPrimaryLabel()}
 					</Button>
 				</div>
 			</footer>
