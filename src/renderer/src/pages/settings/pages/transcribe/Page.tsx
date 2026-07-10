@@ -159,45 +159,27 @@ const TranscribePage: React.FC = () => {
 		};
 	}, [t]);
 
-	const handleSpeechProviderChange = (mode: SttSelectionMode, nextProviderId: string): void => {
-		setSpeechStates((current) => {
-			const modeState = current[mode];
-			const group = modeState.modelGroups.find((item) => item.provider.id === nextProviderId);
-			return {
-				...current,
-				[mode]: {
-					...modeState,
-					providerId: nextProviderId,
-					modelId: group?.models[0]?.id ?? '',
-					saved: false,
-					error: null,
-				},
-			};
-		});
-	};
-
-	const handleSpeechModelChange = (mode: SttSelectionMode, nextModelId: string): void => {
-		setSpeechStates((current) => ({
-			...current,
-			[mode]: {
-				...current[mode],
-				modelId: nextModelId,
-				saved: false,
-				error: null,
-			},
-		}));
-	};
-
-	const handleSpeechSave = async (mode: SttSelectionMode): Promise<void> => {
+	const handleSpeechChange = async (
+		mode: SttSelectionMode,
+		nextProviderId: string,
+		nextModelId: string
+	): Promise<void> => {
 		const modeState = speechStates[mode];
-		const group = modeState.modelGroups.find((item) => item.provider.id === modeState.providerId);
+		const group = modeState.modelGroups.find((item) => item.provider.id === nextProviderId);
 		const provider = group?.provider;
-		const model = group?.models.find((item) => item.id === modeState.modelId);
+		const model = group?.models.find((item) => item.id === nextModelId);
 		if (!provider || !model) return;
 
 		setSpeechStates((current) => ({
 			...current,
-			[mode]: { ...current[mode], saving: true, saved: false, error: null },
+			[mode]: {
+				...current[mode],
+				providerId: nextProviderId,
+				modelId: nextModelId,
+				saving: true,
+				saved: false,
+				error: null,
+			},
 		}));
 		try {
 			const didSave = await window.transcribe.saveSelection(provider.id, model.id, mode);
