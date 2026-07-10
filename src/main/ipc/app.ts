@@ -141,6 +141,34 @@ function showImageContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 	menu.popup(window ? { window } : {});
 }
 
+function validatedAudioPath(requestedPath: string): string {
+	const roots = [agentLocation(), path.resolve(userDataLocation(), 'sound')];
+	for (const root of roots) {
+		try {
+			const realRoot = realpathSync(path.resolve(root));
+			const real = realpathSync(path.resolve(root, requestedPath));
+			if (real.startsWith(realRoot + path.sep)) return real;
+		} catch {
+			// Root or file missing under this root; try the next one.
+		}
+	}
+	throw new Error('Audio path must be inside the agent or sound data directory.');
+}
+
+function showAudioContextMenu(event: IpcMainInvokeEvent, requestedPath: string): void {
+	const audioPath = validatedAudioPath(requestedPath);
+	const window = BrowserWindow.fromWebContents(event.sender);
+	const menu = Menu.buildFromTemplate([
+		{ label: 'Open', click: () => void shell.openPath(audioPath) },
+		{ label: 'Open File Location', click: () => shell.showItemInFolder(audioPath) },
+		{ type: 'separator' },
+		{ label: 'Copy Path', click: () => clipboard.writeText(audioPath) },
+		{ type: 'separator' },
+		{ label: 'Save As…', click: () => void saveImageAs(audioPath, window) },
+	]);
+	menu.popup(window ? { window } : {});
+}
+
 function validatedVideoPath(requestedPath: string): string {
 	const root = realpathSync(path.resolve(userDataLocation(), 'video'));
 	const real = realpathSync(path.resolve(root, requestedPath));
