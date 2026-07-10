@@ -107,6 +107,16 @@ export function toolActivitySummary(tools: readonly AgentToolPart[]): {
 			.filter((name): name is string => Boolean(name));
 		if (names.length > 0) return { verb, detail: names.join(', ') };
 	}
+	if (verb === 'Calling' || verb === 'Called') {
+		const servers = [
+			...new Set(
+				tools
+					.map((tool) => mcpParts(tool.type)?.server)
+					.filter((server): server is string => Boolean(server))
+			),
+		];
+		if (servers.length > 0) return { verb, detail: servers.join(', ') };
+	}
 	const count = tools.length;
 	const detail = fileVerbs.has(verb) ? `${count} ${count === 1 ? 'file' : 'files'}` : `${count}`;
 	return { verb, detail };
