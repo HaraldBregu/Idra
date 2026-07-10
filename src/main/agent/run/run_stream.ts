@@ -91,6 +91,8 @@ async function* loop(
 		webFetchTool,
 		webBrowserTool,
 		createImageTool(config.location),
+		saveMemoryTool(config),
+		forgetMemoryTool(config),
 		loadSkillTool,
 		createScheduleTool,
 		updateScheduleTool,
