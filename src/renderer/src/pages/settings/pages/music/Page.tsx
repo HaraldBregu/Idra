@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AudioPlayer } from 'react-video-audio-player';
 import { AlertTriangle, LoaderCircle, Save, Sparkles } from 'lucide-react';
 import {
 	MUSIC_PROVIDER_IDS,
