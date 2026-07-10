@@ -858,8 +858,7 @@
 			"promptPlaceholder": "Descrivi la musica che vuoi creare...",
 			"generate": "Genera",
 			"generating": "Generazione...",
-			"generateError": "Impossibile generare l'audio.",
-			"resultFallback": "Il browser non può riprodurre l'audio generato."
+			"generateError": "Impossibile generare l'audio."
 		},
 		"modelServices": {
 			"title": "Servizi modello",
