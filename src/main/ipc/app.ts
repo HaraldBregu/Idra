@@ -338,6 +338,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.showAudioContextMenu,
+			wrapIpcHandler((event, audioPath: string) => {
+				showAudioContextMenu(event, audioPath);
+			}, AppChannels.showAudioContextMenu)
+		);
+
+		ipcMain.handle(
 			AppChannels.requestCameraPermission,
 			wrapSimpleHandler(async () => {
 				if (process.platform === 'darwin') {
