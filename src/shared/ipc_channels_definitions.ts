@@ -86,6 +86,7 @@ export const ImageChannels = {
 
 export const SoundChannels = {
 	createSound: 'sound:create-sound',
+	listSounds: 'sound:list-sounds',
 	getModelId: 'sound:get-model-id',
 	getProviderId: 'sound:get-provider-id',
 	setModelId: 'sound:set-model-id',
