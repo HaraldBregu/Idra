@@ -40,6 +40,7 @@ const VideoPage: React.FC = () => {
 	const [prompt, setPrompt] = useState('');
 	const [generating, setGenerating] = useState(false);
 	const [videoSrc, setVideoSrc] = useState<string | null>(null);
+	const [videoPath, setVideoPath] = useState<string | null>(null);
 
 	useEffect(() => {
 		let mounted = true;
