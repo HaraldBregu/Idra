@@ -255,6 +255,29 @@ export interface ImageInvokeChannelMap {
 	};
 }
 
+export interface MusicInvokeChannelMap {
+	[MusicChannels.createMusic]: {
+		args: [request: MusicRequest];
+		result: MusicResult;
+	};
+	[MusicChannels.getProviderId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[MusicChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[MusicChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[MusicChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
+}
+
 export interface VideoInvokeChannelMap {
 	[VideoChannels.createVideo]: {
 		args: [request: VideoRequest];

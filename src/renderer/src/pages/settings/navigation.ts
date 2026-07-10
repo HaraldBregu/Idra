@@ -77,12 +77,11 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToVideo,
-		path: '/settings/text-to-video',
+		path: '/settings/video',
 		labelKey: 'settings.modelServices.videoCreatorName',
 		descriptionKey: 'settings.modelServices.videoCreatorDescription',
 		keywords: 'text to video generation model',
 		icon: Video,
-		comingSoon: true,
 	},
 	{
 		id: AGENTS.textToAudio,
