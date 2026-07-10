@@ -227,17 +227,12 @@ const TranscribePage: React.FC = () => {
 								configState={modeState}
 								triggerTitle={t(config.titleKey)}
 								triggerDescription={summary}
-								providerDescription={t(config.providerDescriptionKey)}
-								modelDescription={t(config.modelDescriptionKey)}
+								description={t(config.modelDescriptionKey)}
 								idPrefix={`transcribe-${config.mode}`}
 								showInlineError
-								onProviderChange={(nextProviderId) =>
-									handleSpeechProviderChange(config.mode, nextProviderId)
+								onChange={(nextProviderId, nextModelId) =>
+									void handleSpeechChange(config.mode, nextProviderId, nextModelId)
 								}
-								onModelChange={(nextModelId) =>
-									handleSpeechModelChange(config.mode, nextModelId)
-								}
-								onSave={() => void handleSpeechSave(config.mode)}
 							/>
 						);
 					})}
