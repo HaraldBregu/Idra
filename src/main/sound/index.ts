@@ -1,10 +1,10 @@
-export { createMusic } from './music_create';
+export { createSound } from './sound_create';
 export {
 	getModelId,
-	getMusicStore,
 	getProviderId,
+	getSoundStore,
 	setModelId,
-	setMusicStore,
 	setProviderId,
-} from './music_store';
-export type { MusicStoreState } from './music_store';
+	setSoundStore,
+} from './sound_store';
+export type { SoundStoreState } from './sound_store';
