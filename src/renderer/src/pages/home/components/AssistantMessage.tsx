@@ -182,6 +182,9 @@ export function AssistantMessage({
 		...markdownComponents,
 		img: ({ src, alt }: { src?: string; alt?: string }) => {
 			const localPath = resolveLocalImagePath(src, mediaPaths);
+			if (localPath && isAudioPath(localPath)) {
+				return <audio src={localResourceUrl(localPath)} controls className="my-2 w-full max-w-md" />;
+			}
 			if (localPath && isVideoPath(localPath)) {
 				return (
 					<video
