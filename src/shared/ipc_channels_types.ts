@@ -151,6 +151,10 @@ export interface AppInvokeChannelMap {
 		args: [path: string];
 		result: void;
 	};
+	[AppChannels.showVideoContextMenu]: {
+		args: [path: string];
+		result: void;
+	};
 }
 
 export interface ChannelsInvokeChannelMap {
