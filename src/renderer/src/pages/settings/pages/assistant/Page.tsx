@@ -148,11 +148,8 @@ const AssistantPage: React.FC = () => {
 				<ModelProviderConfiguration
 					configState={state}
 					idPrefix="assistant"
-					providerDescription={t('settings.modelServices.providerDescription')}
-					modelDescription={t('settings.modelServices.modelDescription')}
-					onProviderChange={handleProviderChange}
-					onModelChange={handleModelChange}
-					onSave={() => void handleSave()}
+					description={t('settings.modelServices.modelDescription')}
+					onChange={(providerId, modelId) => void handleChange(providerId, modelId)}
 				/>
 			</SettingsSection>
 
