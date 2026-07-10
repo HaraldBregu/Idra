@@ -66,6 +66,8 @@
 	--color-link: var(--link);
 	--color-link-on-primary: var(--link-on-primary);
 	--color-command: var(--command);
+	--animate-panel-down: panel-down 0.2s ease-out;
+	--animate-panel-up: panel-up 0.2s ease-out;
 }
 
 :root {
