@@ -149,7 +149,7 @@ const VoicePage: React.FC = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [service, t]);
+	}, [t]);
 
 	const handleProviderChange = (nextProviderId: string): void => {
 		const group = state.modelGroups.find((item) => item.provider.id === nextProviderId);
