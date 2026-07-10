@@ -105,7 +105,7 @@ const MusicPage: React.FC = () => {
 		setGenerating(true);
 		setError(null);
 		try {
-			const result = await window.music.createMusic({ prompt, providerId, modelId });
+			const result = await window.sound.createSound({ prompt, providerId, modelId });
 			setAudioSrc(`data:${result.mimeType};base64,${result.base64}`);
 		} catch (err) {
 			setError(
