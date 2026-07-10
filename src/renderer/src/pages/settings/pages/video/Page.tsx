@@ -209,11 +209,15 @@ const VideoPage: React.FC = () => {
 						</div>
 
 						{videoSrc && (
-							<VideoPlayer
-								src={videoSrc}
-								controls
-								className="w-full overflow-hidden rounded-lg border border-border/70"
-							/>
+							<div
+								onContextMenu={
+									videoPath
+										? () => void window.app.showVideoContextMenu(videoPath)
+										: undefined
+								}
+							>
+								<VideoPlayer src={videoSrc} controls />
+							</div>
 						)}
 					</div>
 				</SettingsPanel>
