@@ -28,19 +28,7 @@ export async function createVideo(request: VideoRequest): Promise<VideoResult> {
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getStoredModelId());
 	const apiKey = resolveApiKey(providerId);
-	const result = await generateVideo({ providerId, apiKey, modelId, prompt });
-	await saveVideoFile(result);
-	return result;
-}
-
-async function saveVideoFile(result: VideoResult): Promise<void> {
-	const ext = result.mimeType.split('/')[1]?.split('+')[0] || 'mp4';
-	const videoDir = path.resolve(userDataLocation(), 'video');
-	await fs.mkdir(videoDir, { recursive: true });
-	await fs.writeFile(
-		path.join(videoDir, `video-${Date.now()}.${ext}`),
-		Buffer.from(result.base64, 'base64')
-	);
+	return generateVideo({ providerId, apiKey, modelId, prompt });
 }
 
 function resolveProviderId(providerId: string): string {
