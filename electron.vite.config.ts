@@ -55,6 +55,19 @@ export default defineConfig({
 		plugins: [
 			react(),
 			tsconfigPaths({ ignoreConfigErrors: true }),
+			{
+				// react-video-audio-player ships Tailwind v3 CSS whose unlayered
+				// `*, :before, :after { --tw-*: 0 }` reset overrides the app's
+				// layered Tailwind v4 utilities. Demote it to the lowest layer.
+				name: 'vendor-css-layer',
+				enforce: 'pre',
+				transform(code, id) {
+					if (id.includes('react-video-audio-player') && id.endsWith('.css')) {
+						return { code: `@layer vendor {\n${code}\n}`, map: null };
+					}
+					return null;
+				},
+			},
 		],
 		build: {
 			rollupOptions: {
