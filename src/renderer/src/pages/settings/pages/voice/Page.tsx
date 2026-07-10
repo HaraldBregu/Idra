@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import { DEFAULT_PROVIDERS } from '../../../../../../shared';
-import { TEXT_TO_SPEECH_PROVIDER_IDS } from '../../../../../../shared/provider_models_definitions';
+import {
+	cloneModels,
+	normalizeProviderId,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	TEXT_TO_SPEECH_PROVIDER_IDS,
+} from '../../../../../../shared/provider_models_definitions';
 import type { PublicProvider } from '../../../../../../shared';
 import {
 	SettingsNotice,
