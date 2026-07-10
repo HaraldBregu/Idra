@@ -43,15 +43,10 @@ function getCatalogProvidersByIds(providerIds: readonly string[]): PublicProvide
 	});
 }
 
-export function getProvidersForService(serviceId: ModelServiceId): Promise<PublicProvider[]> {
-	if (serviceId === AGENTS.assistant) {
-		return Promise.resolve(
-			getCatalogProvidersByIds(
-				LLM_PROVIDERS.filter((providerId) => getAssistantModels(providerId).length > 0)
-			)
-		);
-	}
-	return Promise.resolve([]);
+export function getAssistantProviders(): PublicProvider[] {
+	return getCatalogProvidersByIds(
+		LLM_PROVIDERS.filter((providerId) => getAssistantModels(providerId).length > 0)
+	);
 }
 
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
