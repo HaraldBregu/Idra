@@ -917,7 +917,7 @@
 			"imageProviderDescription": "Provider used for image generation.",
 			"imageModel": "Image model",
 			"imageModelDescription": "Model used to generate or edit images.",
-			"videoCreatorName": "Text to Video",
+			"videoCreatorName": "Video",
 			"videoCreatorDescription": "Video generation models",
 			"videoConfigurationSubtitle": "Video setup will appear here.",
 			"videoProviderDescription": "Provider used for video.",

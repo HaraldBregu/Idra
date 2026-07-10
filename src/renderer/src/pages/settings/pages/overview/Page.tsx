@@ -39,6 +39,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/voice',
 			'/settings/image',
 			'/settings/video',
+			'/settings/music',
 		],
 	},
 	{
