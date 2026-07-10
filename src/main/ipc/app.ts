@@ -141,6 +141,29 @@ function showImageContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 	menu.popup(window ? { window } : {});
 }
 
+function validatedVideoPath(requestedPath: string): string {
+	const root = realpathSync(path.resolve(userDataLocation(), 'video'));
+	const real = realpathSync(path.resolve(root, requestedPath));
+	if (!real.startsWith(root + path.sep)) {
+		throw new Error('Video path must be inside the video data directory.');
+	}
+	return real;
+}
+
+function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string): void {
+	const videoPath = validatedVideoPath(requestedPath);
+	const window = BrowserWindow.fromWebContents(event.sender);
+	const menu = Menu.buildFromTemplate([
+		{ label: 'Open', click: () => void shell.openPath(videoPath) },
+		{ label: 'Open File Location', click: () => shell.showItemInFolder(videoPath) },
+		{ type: 'separator' },
+		{ label: 'Copy Path', click: () => clipboard.writeText(videoPath) },
+		{ type: 'separator' },
+		{ label: 'Save As…', click: () => void saveImageAs(videoPath, window) },
+	]);
+	menu.popup(window ? { window } : {});
+}
+
 export class AppIpc implements IpcModule {
 	readonly name = 'app';
 
