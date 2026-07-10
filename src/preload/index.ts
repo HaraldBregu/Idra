@@ -10,6 +10,7 @@ import {
 	SpeechChannels,
 	SttChannels,
 	TextChannels,
+	VideoChannels,
 } from '../shared/ipc_channels_definitions';
 import type {
 	AppApi,
@@ -19,6 +20,7 @@ import type {
 	ProviderApi,
 	TextApi,
 	TranscribeApi,
+	VideoApi,
 	VoiceApi,
 	WindowApi,
 } from './index.d';
