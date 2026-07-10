@@ -69,13 +69,6 @@ const VoicePage: React.FC = () => {
 	const { t } = useTranslation();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
 
-	const selectedGroup = useMemo(
-		() => state.modelGroups.find((group) => group.provider.id === state.providerId),
-		[state.modelGroups, state.providerId]
-	);
-	const selectedProvider = selectedGroup?.provider;
-	const selectedModel = selectedGroup?.models.find((model) => model.id === state.modelId);
-
 	useEffect(() => {
 		let mounted = true;
 
