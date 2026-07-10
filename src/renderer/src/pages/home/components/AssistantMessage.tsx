@@ -15,11 +15,19 @@ import { statusLabel, isRunningState, stateTone } from './status';
 
 const LONG_MESSAGE_LENGTH = 600;
 
-function generatedImagePaths(tools: readonly AgentToolPart[]): string[] {
+function generatedMediaPaths(tools: readonly AgentToolPart[]): string[] {
 	return tools
-		.filter((tool) => tool.type === 'create_image' && tool.state === 'output-available')
+		.filter(
+			(tool) =>
+				(tool.type === 'create_image' || tool.type === 'create_video') &&
+				tool.state === 'output-available'
+		)
 		.map((tool) => imagePathFromOutput(tool.output))
 		.filter((path): path is string => typeof path === 'string' && path.length > 0);
+}
+
+function isVideoPath(path: string): boolean {
+	return /\.(mp4|webm|mov|m4v|ogv)$/i.test(path);
 }
 
 // While streaming, tool.output is the structured result object; once the message
