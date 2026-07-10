@@ -1,25 +1,13 @@
-import { Bot, Image as ImageIcon, Mic, Volume2 } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
 } from '../../../../shared';
 import {
-	cloneModels,
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
-	normalizeProviderId,
-	SPEECH_TO_TEXT_BATCH_API_TYPE,
-	SPEECH_TO_TEXT_STREAM_API_TYPE,
-	supportsSpeechToTextModelApiType,
-	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
-	TEXT_TO_IMAGE_PROVIDER_IDS,
-	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
-	TEXT_TO_SPEECH_PROVIDER_IDS,
 } from '../../../../shared/provider_models_definitions';
-import type { SpeechToTextApiType } from '../../../../shared/provider_models_types';
-import type { SttSelectionMode } from '../../../../shared/stt_transcription';
 import { AGENTS } from '@/lib/compat';
-import { mergeModels, mergeProviders } from '@pages/settings/components/model-configuration-state';
 import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
 import type {
@@ -28,21 +16,11 @@ import type {
 	ModelServiceState,
 	ModelServiceStateMap,
 	ProviderCatalogItem,
-	ProviderModelGroup,
 	ProviderOption,
 	SetupStep,
-	SpeechModeStateMap,
 } from './types';
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
-
-function getImageModels(providerId: string): Model[] {
-	return cloneModels(TEXT_TO_IMAGE_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
-}
-
-function getVoiceModels(providerId: string): Model[] {
-	return cloneModels(TEXT_TO_SPEECH_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
-}
 
 function getAssistantModels(providerId: string): Model[] {
 	return [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
@@ -65,104 +43,24 @@ function getCatalogProvidersByIds(providerIds: readonly string[]): PublicProvide
 	});
 }
 
-export async function getProvidersForService(serviceId: ModelServiceId): Promise<PublicProvider[]> {
+export function getProvidersForService(serviceId: ModelServiceId): Promise<PublicProvider[]> {
 	if (serviceId === AGENTS.assistant) {
-		return getCatalogProvidersByIds(
-			LLM_PROVIDERS.filter((providerId) => getAssistantModels(providerId).length > 0)
-		);
-	}
-	if (serviceId === AGENTS.speechToText) {
-		return window.transcribe.listProviders();
-	}
-	if (serviceId === AGENTS.textToSpeech) {
-		return getCatalogProvidersByIds(TEXT_TO_SPEECH_PROVIDER_IDS);
-	}
-	if (serviceId === AGENTS.textToImage) {
-		return getCatalogProvidersByIds(TEXT_TO_IMAGE_PROVIDER_IDS);
-	}
-	return [];
-}
-
-export const SPEECH_MODE_IDS: readonly SttSelectionMode[] = ['realtime', 'transcribe'];
-
-function speechModeApiType(mode: SttSelectionMode): SpeechToTextApiType {
-	return mode === 'realtime' ? SPEECH_TO_TEXT_STREAM_API_TYPE : SPEECH_TO_TEXT_BATCH_API_TYPE;
-}
-
-function speechModeModels(providerId: string, models: readonly Model[], mode: SttSelectionMode): Model[] {
-	const apiType = speechModeApiType(mode);
-	return models.filter((model) => supportsSpeechToTextModelApiType(providerId, model.id, apiType));
-}
-
-export function createInitialSpeechModeState(): SpeechModeStateMap {
-	return {
-		realtime: { providerId: '', modelId: '', modelGroups: [] },
-		transcribe: { providerId: '', modelId: '', modelGroups: [] },
-	};
-}
-
-export async function loadSpeechModeState(
-	mode: SttSelectionMode,
-	options: { readonly restoreSelection?: boolean } = {}
-): Promise<ModelServiceState> {
-	const { restoreSelection = true } = options;
-	const selection = restoreSelection ? await window.transcribe.getSelection(mode) : undefined;
-	const providers = mergeProviders(await window.transcribe.listProviders(), selection?.provider);
-	const modelGroups: ProviderModelGroup[] = [];
-
-	for (const provider of providers) {
-		const models = speechModeModels(
-			provider.id,
-			await window.transcribe.listModels(provider.id),
-			mode
-		);
-		const nextModels =
-			selection?.provider.id === provider.id &&
-			supportsSpeechToTextModelApiType(
-				provider.id,
-				selection.model.id,
-				speechModeApiType(mode)
+		return Promise.resolve(
+			getCatalogProvidersByIds(
+				LLM_PROVIDERS.filter((providerId) => getAssistantModels(providerId).length > 0)
 			)
-				? mergeModels(models, selection.model)
-				: models;
-		if (nextModels.length > 0) {
-			modelGroups.push({ provider, models: nextModels });
-		}
+		);
 	}
-
-	let providerId = '';
-	let modelId = '';
-	if (selection) {
-		const selectedGroup = modelGroups.find((group) => group.provider.id === selection.provider.id);
-		const selectedModel = selectedGroup?.models.find((model) => model.id === selection.model.id);
-		if (selectedGroup && selectedModel) {
-			providerId = selectedGroup.provider.id;
-			modelId = selectedModel.id;
-		}
-	}
-
-	return { providerId, modelId, modelGroups };
-}
-
-export async function loadSpeechModeStates(
-	options: { readonly restoreSelection?: boolean } = {}
-): Promise<SpeechModeStateMap> {
-	const [realtime, transcribe] = await Promise.all([
-		loadSpeechModeState('realtime', options),
-		loadSpeechModeState('transcribe', options),
-	]);
-	return { realtime, transcribe };
+	return Promise.resolve([]);
 }
 
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
 		id: AGENTS.assistant,
-		label: 'AI Assistant',
 		stepName: 'Assistant',
-		stepTitle: 'AI assistant',
+		stepTitle: 'Choose your assistant model',
 		stepDescription: 'Powers chat replies, reasoning, summaries, and planning.',
 		icon: Bot,
-		required: true,
 		getSelection: async () => {
 			const [provider, modelId] = await Promise.all([
 				window.agent.getProvider(),
@@ -177,72 +75,6 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		saveSelection: async (provider, model) => {
 			await window.agent.setProvider(provider);
 			return window.agent.setModelId(model.id);
-		},
-	},
-	{
-		id: AGENTS.speechToText,
-		label: 'Transcribe',
-		stepName: 'Transcribe',
-		stepTitle: 'Transcribe',
-		stepDescription: 'Configure realtime dictation and file transcription models.',
-		icon: Mic,
-		required: false,
-		getSelection: async () => undefined,
-		getModels: async () => [],
-		saveSelection: async () => true,
-	},
-	{
-		id: AGENTS.textToSpeech,
-		label: 'Voice',
-		stepName: 'Voice',
-		stepTitle: 'Voice',
-		stepDescription: 'The voice Friday uses when reading responses and content aloud.',
-		icon: Volume2,
-		required: false,
-		getSelection: async () => {
-			const [providerId, modelId] = await Promise.all([
-				window.voice.getProviderId(),
-				window.voice.getModelId(),
-			]);
-			if (!providerId || !modelId) return undefined;
-			const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
-			const model = getVoiceModels(providerId).find((item) => item.id === modelId);
-			if (!provider || !model) return undefined;
-			const { apiKey: _apiKey, ...publicProvider } = provider;
-			return { provider: publicProvider, model };
-		},
-		getModels: (provider) => Promise.resolve(getVoiceModels(provider.id)),
-		saveSelection: async (provider, model) => {
-			await window.voice.setProviderId(provider.id);
-			await window.voice.setModelId(model.id);
-			return true;
-		},
-	},
-	{
-		id: AGENTS.textToImage,
-		label: 'Image',
-		stepName: 'Image',
-		stepTitle: 'Image',
-		stepDescription: 'Creates images and visual assets from your text prompts.',
-		icon: ImageIcon,
-		required: false,
-		getSelection: async () => {
-			const [providerId, modelId] = await Promise.all([
-				window.image.getProviderId(),
-				window.image.getModelId(),
-			]);
-			if (!providerId || !modelId) return undefined;
-			const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
-			const model = getImageModels(providerId).find((item) => item.id === modelId);
-			if (!provider || !model) return undefined;
-			const { apiKey: _apiKey, ...publicProvider } = provider;
-			return { provider: publicProvider, model };
-		},
-		getModels: (provider) => Promise.resolve(getImageModels(provider.id)),
-		saveSelection: async (provider, model) => {
-			await window.image.setProviderId(provider.id);
-			await window.image.setModelId(model.id);
-			return true;
 		},
 	},
 ];
@@ -269,7 +101,7 @@ export const STEP_COPY: Record<'presentation' | 'providers', { title: string; de
 		presentation: {
 			title: 'Welcome to Friday',
 			description:
-				'Connect your AI providers and pick a model for each capability. It only takes a minute.',
+				'Connect an AI provider and pick the model that powers your assistant. It only takes a minute.',
 		},
 		providers: {
 			title: 'Connect a provider',
