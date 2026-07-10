@@ -168,14 +168,23 @@ export function AssistantMessage({
 	const hasTools = message.tools.length > 0;
 	const skillTools = message.tools.filter(isSkillTool);
 	const otherTools = message.tools.filter((tool) => !isSkillTool(tool));
-	const imagePaths = generatedImagePaths(message.tools);
-	const standaloneImagePaths = imagePaths.filter(
+	const mediaPaths = generatedMediaPaths(message.tools);
+	const standaloneMediaPaths = mediaPaths.filter(
 		(path) => !contentEmbedsImage(message.content, path)
 	);
 	const messageMarkdownComponents = {
 		...markdownComponents,
 		img: ({ src, alt }: { src?: string; alt?: string }) => {
-			const localPath = resolveLocalImagePath(src, imagePaths);
+			const localPath = resolveLocalImagePath(src, mediaPaths);
+			if (localPath && isVideoPath(localPath)) {
+				return (
+					<video
+						src={localResourceUrl(localPath)}
+						controls
+						className="my-2 h-auto max-w-full rounded-lg border border-border/50"
+					/>
+				);
+			}
 			return (
 				<img
 					src={localPath ? localResourceUrl(localPath) : src}
