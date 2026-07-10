@@ -2,30 +2,30 @@ import path from 'node:path';
 import Store from 'electron-store';
 import { userDataLocation } from '../shared/user_data_location';
 
-export type MusicStoreState = {
+export type SoundStoreState = {
 	providerId: string | undefined;
 	modelId: string | undefined;
 };
 
-const MUSIC_STORE_NAME = 'settings';
+const SOUND_STORE_NAME = 'settings';
 
-const DEFAULT_MUSIC_STORE: MusicStoreState = {
+const DEFAULT_SOUND_STORE: SoundStoreState = {
 	providerId: undefined,
 	modelId: undefined,
 };
 
-const store = new Store<MusicStoreState>({
-	name: MUSIC_STORE_NAME,
-	cwd: path.resolve(userDataLocation(), 'music'),
+const store = new Store<SoundStoreState>({
+	name: SOUND_STORE_NAME,
+	cwd: path.resolve(userDataLocation(), 'sound'),
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_MUSIC_STORE,
+	defaults: DEFAULT_SOUND_STORE,
 });
 
-export function getMusicStore(): MusicStoreState {
+export function getSoundStore(): SoundStoreState {
 	return store.store;
 }
 
-export function setMusicStore(value: MusicStoreState): void {
+export function setSoundStore(value: SoundStoreState): void {
 	store.store = value;
 }
 
