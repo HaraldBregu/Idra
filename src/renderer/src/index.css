@@ -299,6 +299,30 @@
 	}
 }
 
+/* Base UI collapsible panels expose --collapsible-panel-height (not the Radix
+   var that tw-animate-css targets), so define matching keyframes here. */
+@keyframes panel-down {
+	from {
+		height: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--collapsible-panel-height);
+		opacity: 1;
+	}
+}
+
+@keyframes panel-up {
+	from {
+		height: var(--collapsible-panel-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		opacity: 0;
+	}
+}
+
 /* Style native range inputs to match the design system */
 input[type='range'] {
 	-webkit-appearance: none;
