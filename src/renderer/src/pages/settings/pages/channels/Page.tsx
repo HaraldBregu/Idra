@@ -99,27 +99,15 @@ const ChannelsPage: React.FC = () => {
 		};
 	}, []);
 
-	const handleProviderChange = (nextProviderId: string): void => {
+	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		setProviderId(nextProviderId);
-		setModelId(firstModelIdForProvider(LLM_PROVIDER_GROUPS, nextProviderId));
-		setSaved(false);
-		setRuntimeError(null);
-	};
-
-	const handleModelChange = (nextModelId: string): void => {
 		setModelId(nextModelId);
-		setSaved(false);
-		setRuntimeError(null);
-	};
-
-	const handleSave = async (): Promise<void> => {
-		if (!providerId || !modelId) return;
 		setSaving(true);
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			await window.channels.setProviderId(providerId);
-			await window.channels.setModelId(modelId);
+			await window.channels.setProviderId(nextProviderId);
+			await window.channels.setModelId(nextModelId);
 			setSaved(true);
 		} catch (error) {
 			setRuntimeError(error instanceof Error ? error.message : String(error));
