@@ -326,6 +326,11 @@ export const app: AppApi = {
 		if (!normalizedPath) throw new Error('Invalid image path.');
 		return typedInvokeUnwrap(AppChannels.showImageContextMenu, normalizedPath);
 	},
+	showVideoContextMenu: (path: string): Promise<void> => {
+		const normalizedPath = optionalTrimmedString(path);
+		if (!normalizedPath) throw new Error('Invalid video path.');
+		return typedInvokeUnwrap(AppChannels.showVideoContextMenu, normalizedPath);
+	},
 };
 
 export const provider: ProviderApi = {
