@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { DEFAULT_PROVIDERS } from '../../shared';
 import {
 	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
