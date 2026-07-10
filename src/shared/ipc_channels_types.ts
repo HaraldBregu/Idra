@@ -255,24 +255,24 @@ export interface ImageInvokeChannelMap {
 	};
 }
 
-export interface MusicInvokeChannelMap {
-	[MusicChannels.createMusic]: {
-		args: [request: MusicRequest];
-		result: MusicResult;
+export interface SoundInvokeChannelMap {
+	[SoundChannels.createSound]: {
+		args: [request: SoundRequest];
+		result: SoundResult;
 	};
-	[MusicChannels.getProviderId]: {
+	[SoundChannels.getProviderId]: {
 		args: [];
 		result: string | undefined;
 	};
-	[MusicChannels.setProviderId]: {
+	[SoundChannels.setProviderId]: {
 		args: [providerId: string];
 		result: void;
 	};
-	[MusicChannels.getModelId]: {
+	[SoundChannels.getModelId]: {
 		args: [];
 		result: string | undefined;
 	};
-	[MusicChannels.setModelId]: {
+	[SoundChannels.setModelId]: {
 		args: [modelId: string];
 		result: void;
 	};
