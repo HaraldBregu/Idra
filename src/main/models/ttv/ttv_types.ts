@@ -1,0 +1,21 @@
+export interface VideoProviderSpec {
+	id: string;
+	name: string;
+	apiKey: string;
+	baseURL?: string;
+}
+
+export interface VideoAdapterGenerationRequest {
+	modelId: string;
+	prompt: string;
+	signal?: AbortSignal;
+}
+
+export interface VideoGenerationResult {
+	base64: string;
+	mimeType: string;
+}
+
+export interface VideoAdapter {
+	generate(request: VideoAdapterGenerationRequest): Promise<VideoGenerationResult>;
+}
