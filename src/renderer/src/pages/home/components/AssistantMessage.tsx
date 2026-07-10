@@ -184,14 +184,16 @@ export function AssistantMessage({
 		img: ({ src, alt }: { src?: string; alt?: string }) => {
 			const localPath = resolveLocalImagePath(src, mediaPaths);
 			if (localPath && isAudioPath(localPath)) {
-				return <audio src={localResourceUrl(localPath)} controls className="my-2 w-full max-w-md" />;
+				return (
+					<AudioPlayer src={localResourceUrl(localPath)} controls className="my-2 w-full max-w-md" />
+				);
 			}
 			if (localPath && isVideoPath(localPath)) {
 				return (
-					<video
+					<VideoPlayer
 						src={localResourceUrl(localPath)}
 						controls
-						className="my-2 h-auto max-w-full rounded-lg border border-border/50"
+						className="my-2 max-w-full overflow-hidden rounded-lg border border-border/50"
 					/>
 				);
 			}
