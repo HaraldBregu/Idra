@@ -11,6 +11,7 @@ import type {
 import type { PublicProvider } from './providers_definitions';
 import type { ProviderModel } from './provider_models_types';
 import type { ImageRequest, ImageResult } from './image_types';
+import type { VideoRequest, VideoResult } from './video_types';
 import type { TextRequest } from './text_types';
 import {
 	AgentChannels,
@@ -21,6 +22,7 @@ import {
 	SpeechChannels,
 	SttChannels,
 	TextChannels,
+	VideoChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
 
