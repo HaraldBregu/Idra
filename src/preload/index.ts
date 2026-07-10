@@ -18,6 +18,7 @@ import type {
 	AgentApi,
 	ChannelsApi,
 	ImageApi,
+	MusicApi,
 	ProviderApi,
 	TextApi,
 	TranscribeApi,
