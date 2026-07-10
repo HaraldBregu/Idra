@@ -185,12 +185,14 @@ export function AssistantMessage({
 			const localPath = resolveLocalImagePath(src, mediaPaths);
 			if (localPath && isAudioPath(localPath)) {
 				return (
-					<AudioPlayer
-						src={localResourceUrl(localPath)}
-						controls
-						controlsToExclude={['playbackRate', 'volume']}
-						className="mb-4 mt-2 w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
-					/>
+					<div onContextMenu={() => void window.app.showAudioContextMenu(localPath)}>
+						<AudioPlayer
+							src={localResourceUrl(localPath)}
+							controls
+							controlsToExclude={['playbackRate', 'volume']}
+							className="mb-4 mt-2 w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+						/>
+					</div>
 				);
 			}
 			if (localPath && isVideoPath(localPath)) {
