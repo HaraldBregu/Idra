@@ -23,8 +23,18 @@ function capitalizeType(type: string): string {
 	return normalized.charAt(0).toUpperCase() + normalized.slice(1);
 }
 
+function mcpParts(type: string): { server: string; tool: string } | undefined {
+	if (!type.toLowerCase().startsWith('mcp__')) return undefined;
+	const segments = type.split('__');
+	if (segments.length < 3) return undefined;
+	return { server: segments[1], tool: segments.slice(2).join('__') };
+}
+
 export function toolPartLabel(tool: AgentToolPart): string {
 	if (tool.displayName) return tool.displayName;
+
+	const mcp = mcpParts(tool.type);
+	if (mcp) return `${mcp.server} · ${mcp.tool}`;
 
 	const input = isRecord(tool.input) ? tool.input : {};
 	const type = tool.type.toLowerCase();
