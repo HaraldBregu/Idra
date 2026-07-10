@@ -17,8 +17,8 @@ export class VideoIpc implements IpcModule {
 	register(_deps: void, _eventBus: EventBus): void {
 		registerCommand(VideoChannels.createVideo, async (request) => {
 			const result = await createVideo(request);
-			await saveVideoFile(result);
-			return result;
+			const path = await saveVideoFile(result);
+			return { ...result, path };
 		});
 		registerQuery(VideoChannels.getProviderId, () => getProviderId());
 		registerCommand(VideoChannels.setProviderId, (providerId) => setProviderId(providerId));
