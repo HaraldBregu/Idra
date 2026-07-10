@@ -89,7 +89,7 @@ const VoicePage: React.FC = () => {
 			}));
 
 			try {
-				const selection = await activeService.getSelection();
+				const selection = await getVoiceSelection();
 				const providers = TEXT_TO_SPEECH_PROVIDER_IDS.flatMap((providerId) => {
 					const provider = getCatalogProviderById(providerId);
 					return provider ? [toPublicProvider(provider)] : [];
