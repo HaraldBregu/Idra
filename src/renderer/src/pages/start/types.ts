@@ -1,5 +1,4 @@
 import type { LucideIcon } from 'lucide-react';
-import type { SttSelectionMode } from '../../../../shared/stt_transcription';
 import { AGENTS } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared';
 import type { Model, ModelSelection } from '@/lib/compat';
@@ -29,20 +28,14 @@ export type ProviderModelGroup = {
 	models: Model[];
 };
 
-export type ModelServiceId =
-	| typeof AGENTS.assistant
-	| typeof AGENTS.speechToText
-	| typeof AGENTS.textToSpeech
-	| typeof AGENTS.textToImage;
+export type ModelServiceId = typeof AGENTS.assistant;
 
 export type ModelServiceDefinition = {
 	id: ModelServiceId;
-	label: string;
 	stepName: string;
 	stepTitle: string;
 	stepDescription: string;
 	icon: LucideIcon;
-	required: boolean;
 	getSelection: () => Promise<ModelSelection | undefined>;
 	getModels: (provider: PublicProvider) => Promise<Model[]>;
 	saveSelection: (provider: PublicProvider, model: Model) => Promise<boolean>;
@@ -55,7 +48,5 @@ export type ModelServiceState = {
 };
 
 export type ModelServiceStateMap = Record<ModelServiceId, ModelServiceState>;
-
-export type SpeechModeStateMap = Record<SttSelectionMode, ModelServiceState>;
 
 export type SetupStep = 'presentation' | 'providers' | ModelServiceId;
