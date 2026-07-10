@@ -87,8 +87,8 @@ export interface VideoApi {
 	setModelId: (modelId: string) => Promise<void>;
 }
 
-export interface MusicApi {
-	createMusic: (request: MusicRequest) => Promise<MusicResult>;
+export interface SoundApi {
+	createSound: (request: SoundRequest) => Promise<SoundResult>;
 	getProviderId: () => Promise<string | undefined>;
 	setProviderId: (providerId: string) => Promise<void>;
 	getModelId: () => Promise<string | undefined>;
