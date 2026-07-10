@@ -135,6 +135,7 @@ import type { ProviderModel } from '../shared';
 import type { ChannelStatusEvent } from '../shared';
 import type { Channel, ChannelType } from '../shared';
 import type { ImageRequest, ImageResult } from '../shared/image_types';
+import type { VideoRequest, VideoResult } from '../shared/video_types';
 import type { TextRequest } from '../shared/text_types';
 import type { SpeechSynthesisRequest, SpeechSynthesisResult } from '../shared/speech_types';
 import type {
