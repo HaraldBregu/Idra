@@ -356,7 +356,7 @@ export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER = {
 	pika: [model('pika-2.2', 'Pika 2.2')],
 	qwen: [model('wan2.5-t2v', 'Wan 2.5 T2V'), model('wan2.2-t2v-plus', 'Wan 2.2 T2V Plus')],
 	runway: [model('gen4_turbo', 'Gen-4 Turbo'), model('gen3a_turbo', 'Gen-3 Alpha Turbo')],
-	xai: [model('grok-imagine-video', 'Grok Imagine Video')],
+	xai: [model('grok-imagine-video-1.5', 'Grok Imagine Video 1.5')],
 } as const satisfies ModelCatalog;
 
 export const VIDEO_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_VIDEO_MODELS_BY_PROVIDER;
