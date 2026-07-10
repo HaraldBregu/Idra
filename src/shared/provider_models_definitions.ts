@@ -324,7 +324,7 @@ export const TEXT_TO_IMAGE_MODELS_BY_PROVIDER = {
 	],
 	xai: [
 		model('grok-imagine-image', 'Grok Imagine Image'),
-		model('grok-imagine-image-pro', 'Grok Imagine Image Pro'),
+		model('grok-imagine-image-quality', 'Grok Imagine Image Quality'),
 	],
 } as const satisfies ModelCatalog;
 
