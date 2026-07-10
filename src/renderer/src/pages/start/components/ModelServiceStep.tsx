@@ -14,7 +14,7 @@ type ModelServiceStepProps = {
 	readonly onModelChange: (serviceId: ModelServiceId, value: string | null) => void;
 };
 
-export function toModelConfigurationState(
+function toModelConfigurationState(
 	serviceState: ModelServiceState,
 	loadingModels: boolean,
 	savingConfig: boolean
