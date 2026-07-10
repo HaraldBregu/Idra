@@ -249,17 +249,26 @@ export function AssistantMessage({
 					permission={message.pendingPermission}
 				/>
 			)}
-			{standaloneImagePaths.length > 0 && (
+			{standaloneMediaPaths.length > 0 && (
 				<div className="flex w-full flex-col gap-2">
-					{standaloneImagePaths.map((path) => (
-						<img
-							key={path}
-							src={localResourceUrl(path)}
-							alt="Generated image"
-							className="h-auto max-w-full rounded-lg border border-border/50"
-							onContextMenu={() => void window.app.showImageContextMenu(path)}
-						/>
-					))}
+					{standaloneMediaPaths.map((path) =>
+						isVideoPath(path) ? (
+							<video
+								key={path}
+								src={localResourceUrl(path)}
+								controls
+								className="h-auto max-w-full rounded-lg border border-border/50"
+							/>
+						) : (
+							<img
+								key={path}
+								src={localResourceUrl(path)}
+								alt="Generated image"
+								className="h-auto max-w-full rounded-lg border border-border/50"
+								onContextMenu={() => void window.app.showImageContextMenu(path)}
+							/>
+						)
+					)}
 				</div>
 			)}
 			{hasContent && (
