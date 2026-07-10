@@ -430,7 +430,7 @@ export interface InvokeChannelMap
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		ImageInvokeChannelMap,
-		MusicInvokeChannelMap,
+		SoundInvokeChannelMap,
 		SpeechInvokeChannelMap,
 		SttInvokeChannelMap,
 		TextInvokeChannelMap,
