@@ -88,27 +88,15 @@ const MusicPage: React.FC = () => {
 		};
 	}, [refreshSounds]);
 
-	const handleProviderChange = (nextProviderId: string): void => {
+	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		setProviderId(nextProviderId);
-		setModelId(firstModelIdForProvider(MUSIC_PROVIDER_GROUPS, nextProviderId));
-		setSaved(false);
-		setError(null);
-	};
-
-	const handleModelChange = (nextModelId: string): void => {
 		setModelId(nextModelId);
-		setSaved(false);
-		setError(null);
-	};
-
-	const handleSave = async (): Promise<void> => {
-		if (!providerId || !modelId) return;
 		setSaving(true);
 		setSaved(false);
 		setError(null);
 		try {
-			await window.sound.setProviderId(providerId);
-			await window.sound.setModelId(modelId);
+			await window.sound.setProviderId(nextProviderId);
+			await window.sound.setModelId(nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
