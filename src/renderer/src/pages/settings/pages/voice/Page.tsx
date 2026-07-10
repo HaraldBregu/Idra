@@ -77,8 +77,6 @@ const VoicePage: React.FC = () => {
 	const selectedModel = selectedGroup?.models.find((model) => model.id === state.modelId);
 
 	useEffect(() => {
-		if (!service) return;
-		const activeService = service;
 		let mounted = true;
 
 		async function loadService(): Promise<void> {
