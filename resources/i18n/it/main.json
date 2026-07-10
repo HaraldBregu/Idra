@@ -923,7 +923,7 @@
 			"videoProviderDescription": "Provider usato per i video.",
 			"videoModel": "Modello video",
 			"videoModelDescription": "Modello usato per creare video.",
-			"musicCreatorName": "Text to Audio",
+			"musicCreatorName": "Audio",
 			"musicCreatorDescription": "Modelli generazione audio",
 			"musicConfigurationSubtitle": "La configurazione musica apparira qui.",
 			"musicProviderDescription": "Provider usato per la musica.",
