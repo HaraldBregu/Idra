@@ -31,6 +31,10 @@ export class Tray {
 		this.tray.setToolTip('Friday');
 
 		this.tray.on('click', () => {
+			this.callbacks.onToggleApp();
+		});
+
+		this.tray.on('right-click', () => {
 			this.buildContextMenu();
 			if (this.contextMenu) {
 				this.tray?.popUpContextMenu(this.contextMenu);
