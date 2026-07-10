@@ -50,7 +50,6 @@ export function ModelServiceStep({
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
 			<StepHeader
 				icon={service.icon}
-				required={service.required}
 				title={service.stepTitle}
 				description={service.stepDescription}
 			/>
