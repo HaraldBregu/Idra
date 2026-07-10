@@ -633,5 +633,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.video = video;
 	// @ts-ignore (define in dts)
+	globalThis.music = music;
+	// @ts-ignore (define in dts)
 	globalThis.text = text;
 }
