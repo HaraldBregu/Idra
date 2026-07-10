@@ -4,7 +4,7 @@ import {
 	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
 	normalizeProviderId,
 } from '../../shared/provider_models_definitions';
-import type { MusicRequest, MusicResult } from '../../shared/music_types';
+import type { SoundRequest, SoundResult } from '../../shared/sound_types';
 import { getProvider } from '../providers';
 import {
 	generateMusic,
@@ -15,16 +15,16 @@ import {
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
-} from './music_store';
+} from './sound_store';
 
-const DEFAULT_MUSIC_PROVIDER_ID = 'elevenlabs';
+const DEFAULT_SOUND_PROVIDER_ID = 'elevenlabs';
 
-export async function createMusic(request: MusicRequest): Promise<MusicResult> {
+export async function createSound(request: SoundRequest): Promise<SoundResult> {
 	const prompt = request.prompt?.trim();
 	if (!prompt) throw new MusicProviderRequestError('Prompt is required.');
 
 	const providerId = resolveProviderId(
-		request.providerId ?? getStoredProviderId() ?? DEFAULT_MUSIC_PROVIDER_ID
+		request.providerId ?? getStoredProviderId() ?? DEFAULT_SOUND_PROVIDER_ID
 	);
 	const modelId = resolveModelId(providerId, request.modelId ?? getStoredModelId());
 	const apiKey = resolveApiKey(providerId);
