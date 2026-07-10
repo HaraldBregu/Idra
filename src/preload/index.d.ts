@@ -89,6 +89,7 @@ export interface VideoApi {
 
 export interface SoundApi {
 	createSound: (request: SoundRequest) => Promise<SoundResult>;
+	listSounds: () => Promise<SoundFile[]>;
 	getProviderId: () => Promise<string | undefined>;
 	setProviderId: (providerId: string) => Promise<void>;
 	getModelId: () => Promise<string | undefined>;
