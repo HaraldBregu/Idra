@@ -205,9 +205,12 @@ const MusicPage: React.FC = () => {
 						</div>
 
 						{audioSrc && (
-							<audio controls src={audioSrc} className="w-full">
-								{t('settings.music.resultFallback')}
-							</audio>
+							<AudioPlayer
+								src={audioSrc}
+								controls
+								controlsToExclude={['playbackRate', 'volume']}
+								className="w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+							/>
 						)}
 					</div>
 				</SettingsPanel>
