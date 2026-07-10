@@ -347,6 +347,18 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'video',
+						element: (
+							<SettingsRouteWrapper>
+								<VideoPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
+						path: 'text-to-video',
+						element: <Navigate to="/settings/video" replace />,
+					},
+					{
 						path: 'model-services/:serviceId/details/*',
 						element: <ModelServiceLegacyRedirect />,
 					},

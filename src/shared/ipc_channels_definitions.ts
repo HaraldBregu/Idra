@@ -82,6 +82,14 @@ export const ImageChannels = {
 	setProviderId: 'image:set-provider-id',
 } as const;
 
+export const MusicChannels = {
+	createMusic: 'music:create-music',
+	getModelId: 'music:get-model-id',
+	getProviderId: 'music:get-provider-id',
+	setModelId: 'music:set-model-id',
+	setProviderId: 'music:set-provider-id',
+} as const;
+
 export const ProviderChannels = {
 	get: 'provider-store:get',
 	set: 'provider-store:set',
