@@ -79,11 +79,12 @@ export class Tray {
 		this.contextMenu = Menu.buildFromTemplate([
 			{
 				label: isVisible ? m.hideFriday || 'Hide Friday' : m.showFriday || 'Show Friday',
-				click: () => {
-					this.callbacks.onToggleApp();
-					// Rebuild menu after toggle to update the label
-					setTimeout(() => this.buildContextMenu(), 100);
-				},
+				click: () => this.callbacks.onToggleApp(),
+			},
+			{
+				// ponytail: placeholder, no Apps concept exists yet — wire a click handler when it does
+				label: m.apps || 'Apps',
+				enabled: false,
 			},
 			{ type: 'separator' },
 			{
