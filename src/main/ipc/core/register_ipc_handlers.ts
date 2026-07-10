@@ -29,7 +29,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 		new ChannelsIpc().register({ logger, channelRegistry }, eventBus)
 	);
 	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
-	safeRegister('music', () => new MusicIpc().register(undefined, eventBus));
+	safeRegister('sound', () => new SoundIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
 	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
