@@ -144,31 +144,20 @@ const VoicePage: React.FC = () => {
 		};
 	}, [t]);
 
-	const handleProviderChange = (nextProviderId: string): void => {
+	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		const group = state.modelGroups.find((item) => item.provider.id === nextProviderId);
+		const model = group?.models.find((item) => item.id === nextModelId);
+		if (!group || !model) return;
 		setState((current) => ({
 			...current,
 			providerId: nextProviderId,
-			modelId: group?.models[0]?.id ?? '',
-			saved: false,
-			error: null,
-		}));
-	};
-
-	const handleModelChange = (nextModelId: string): void => {
-		setState((current) => ({
-			...current,
 			modelId: nextModelId,
+			saving: true,
 			saved: false,
 			error: null,
 		}));
-	};
-
-	const handleSave = async (): Promise<void> => {
-		if (!selectedProvider || !selectedModel) return;
-		setState((current) => ({ ...current, saving: true, saved: false, error: null }));
 		try {
-			const didSave = await saveVoiceSelection(selectedProvider, selectedModel);
+			const didSave = await saveVoiceSelection(group.provider, model);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
 			setState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
