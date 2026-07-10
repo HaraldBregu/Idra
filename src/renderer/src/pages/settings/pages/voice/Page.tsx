@@ -23,9 +23,8 @@ import {
 	mergeProviders,
 	type ModelConfigurationState,
 } from '../../components/model-configuration-state';
-import { MODEL_SERVICE_DEFINITIONS } from '../../../start/constants';
-import type { ModelServiceDefinition, ProviderModelGroup } from '../../../start/types';
-import { AGENTS } from '@/lib/compat';
+import type { ProviderModelGroup } from '../../../start/types';
+import type { Model, ModelSelection } from '@/lib/compat';
 import VoiceTest from './VoiceTest';
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
