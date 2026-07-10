@@ -172,10 +172,10 @@ const VoicePage: React.FC = () => {
 	};
 
 	const handleSave = async (): Promise<void> => {
-		if (!service || !selectedProvider || !selectedModel) return;
+		if (!selectedProvider || !selectedModel) return;
 		setState((current) => ({ ...current, saving: true, saved: false, error: null }));
 		try {
-			const didSave = await service.saveSelection(selectedProvider, selectedModel);
+			const didSave = await saveVoiceSelection(selectedProvider, selectedModel);
 			if (!didSave) throw new Error(t('settings.modelServices.saveError'));
 			setState((current) => ({ ...current, saving: false, saved: true }));
 		} catch (error) {
