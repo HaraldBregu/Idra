@@ -102,7 +102,7 @@ const VoicePage: React.FC = () => {
 
 				for (const provider of mergedProviders) {
 					try {
-						const models = await activeService.getModels(provider);
+						const models = getVoiceModels(provider.id);
 						const nextModels =
 							selection?.provider.id === provider.id
 								? mergeModels(models, selection.model)
