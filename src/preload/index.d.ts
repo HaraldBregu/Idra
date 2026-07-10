@@ -203,6 +203,7 @@ declare global {
 		voice: VoiceApi;
 		image: ImageApi;
 		video: VideoApi;
+		music: MusicApi;
 		text: TextApi;
 	}
 }
