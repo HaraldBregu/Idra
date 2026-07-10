@@ -494,9 +494,56 @@
 			"modeDescription": "Abilita strumenti e opzioni avanzate per sviluppatori"
 		},
 		"mcp": {
-			"detailsTitle": "Dettagli server MCP",
-			"notFoundTitle": "Server MCP non trovato",
-			"notFoundDescription": "Il server MCP potrebbe essere stato rimosso."
+			"title": "Server MCP",
+			"description": "Configura server Model Context Protocol per estendere l'agente con strumenti esterni.",
+			"addServer": "Aggiungi server",
+			"refresh": "Aggiorna",
+			"empty": "Nessun server MCP",
+			"emptyDescription": "Aggiungi un server per estendere l'agente con strumenti esterni tramite il Model Context Protocol.",
+			"addTitle": "Aggiungi server",
+			"detailsTitle": "Dettagli server",
+			"notFoundTitle": "Server non trovato",
+			"notFoundDescription": "Il server MCP potrebbe essere stato rimosso.",
+			"save": "Salva",
+			"saving": "Salvataggio…",
+			"delete": "Elimina",
+			"deleting": "Eliminazione…",
+			"deleteConfirm": "Eliminare questo server MCP?",
+			"enabled": "Abilitato",
+			"enabledDescription": "Connetti questo server all'avvio dell'agente.",
+			"loadError": "Impossibile caricare i server MCP.",
+			"saveError": "Impossibile salvare il server MCP.",
+			"deleteError": "Impossibile eliminare il server MCP.",
+			"form": {
+				"label": "Etichetta",
+				"labelPlaceholder": "Il mio server MCP",
+				"transport": "Trasporto",
+				"command": "Comando",
+				"commandPlaceholder": "npx -y @modelcontextprotocol/server-filesystem",
+				"args": "Argomenti",
+				"argsDescription": "Un argomento per riga",
+				"env": "Variabili d'ambiente",
+				"envDescription": "CHIAVE=valore, una per riga",
+				"cwd": "Directory di lavoro",
+				"cwdDescription": "Opzionale",
+				"url": "URL",
+				"headers": "Header",
+				"headersDescription": "Chiave: Valore, uno per riga"
+			},
+			"transport": {
+				"stdio": "stdio",
+				"sse": "SSE",
+				"http": "HTTP"
+			},
+			"status": {
+				"connected": "Connesso",
+				"connecting": "Connessione",
+				"error": "Errore",
+				"disconnected": "Disconnesso",
+				"disabled": "Disabilitato"
+			},
+			"tools": "{{count}} strumenti",
+			"tool": "1 strumento"
 		},
 		"health": {
 			"settingsTitle": "Impostazioni",
@@ -796,6 +843,15 @@
 			"generateError": "Impossibile generare l'immagine.",
 			"resultAlt": "Immagine generata"
 		},
+		"video": {
+			"prompt": "Prompt",
+			"promptDescription": "Il video viene generato con il provider e il modello selezionati.",
+			"promptPlaceholder": "Descrivi il video che vuoi creare...",
+			"generate": "Genera",
+			"generating": "Generazione...",
+			"generateError": "Impossibile generare il video.",
+			"resultAlt": "Video generato"
+		},
 		"music": {
 			"prompt": "Prompt",
 			"promptDescription": "L'audio viene generato con il provider e il modello selezionati.",
@@ -1041,58 +1097,6 @@
 			"deleteErrorFallback": "Eliminazione del tema non riuscita. Riprova.",
 			"dismissError": "Chiudi errore",
 			"dismissSuccess": "Chiudi"
-		},
-		"mcp": {
-			"title": "Server MCP",
-			"description": "Configura server Model Context Protocol per estendere l'agente con strumenti esterni.",
-			"addServer": "Aggiungi server",
-			"refresh": "Aggiorna",
-			"empty": "Nessun server MCP",
-			"emptyDescription": "Aggiungi un server per estendere l'agente con strumenti esterni tramite il Model Context Protocol.",
-			"addTitle": "Aggiungi server",
-			"detailsTitle": "Dettagli server",
-			"notFoundTitle": "Server non trovato",
-			"notFoundDescription": "Il server MCP potrebbe essere stato rimosso.",
-			"save": "Salva",
-			"saving": "Salvataggio…",
-			"delete": "Elimina",
-			"deleting": "Eliminazione…",
-			"deleteConfirm": "Eliminare questo server MCP?",
-			"enabled": "Abilitato",
-			"enabledDescription": "Connetti questo server all'avvio dell'agente.",
-			"loadError": "Impossibile caricare i server MCP.",
-			"saveError": "Impossibile salvare il server MCP.",
-			"deleteError": "Impossibile eliminare il server MCP.",
-			"form": {
-				"label": "Etichetta",
-				"labelPlaceholder": "Il mio server MCP",
-				"transport": "Trasporto",
-				"command": "Comando",
-				"commandPlaceholder": "npx -y @modelcontextprotocol/server-filesystem",
-				"args": "Argomenti",
-				"argsDescription": "Un argomento per riga",
-				"env": "Variabili d'ambiente",
-				"envDescription": "CHIAVE=valore, una per riga",
-				"cwd": "Directory di lavoro",
-				"cwdDescription": "Opzionale",
-				"url": "URL",
-				"headers": "Header",
-				"headersDescription": "Chiave: Valore, uno per riga"
-			},
-			"transport": {
-				"stdio": "stdio",
-				"sse": "SSE",
-				"http": "HTTP"
-			},
-			"status": {
-				"connected": "Connesso",
-				"connecting": "Connessione",
-				"error": "Errore",
-				"disconnected": "Disconnesso",
-				"disabled": "Disabilitato"
-			},
-			"tools": "{{count}} strumenti",
-			"tool": "1 strumento"
 		}
 	},
 	"dialogs": {
@@ -1886,23 +1890,23 @@
 		"noAgents": "Nessun agente configurato",
 		"noAgentsDescription": "Configura gli agenti nella pagina Modelli",
 		"schemaVersion": "Versione Schema",
-		"schemaVersionDescription": "Versione del formato dati per la compatibilit\u00e0",
+		"schemaVersionDescription": "Versione del formato dati per la compatibilità",
 		"appVersion": "Versione App",
 		"appVersionDescription": "Versione dell'applicazione che ha creato questa area di lavoro",
 		"createdAt": "Creato",
-		"createdAtDescription": "Quando questa area di lavoro \u00e8 stata creata",
+		"createdAtDescription": "Quando questa area di lavoro è stata creata",
 		"updatedAt": "Ultimo Aggiornamento",
-		"updatedAtDescription": "Quando questa area di lavoro \u00e8 stata modificata l'ultima volta",
+		"updatedAtDescription": "Quando questa area di lavoro è stata modificata l'ultima volta",
 		"notSet": "Non impostata",
-		"loading": "Caricamento\u2026",
+		"loading": "Caricamento…",
 		"loadError": "Impossibile caricare le informazioni dell'area di lavoro. Riprova.",
-		"saveError": "Impossibile salvare le modifiche. Il campo \u00e8 ancora aperto per riprovare."
+		"saveError": "Impossibile salvare le modifiche. Il campo è ancora aperto per riprovare."
 	},
 	"taskCommands": {
-		"list": "Mostra l'elenco delle attivit\u00e0 pianificate",
-		"create": "Crea e pianifica un'attivit\u00e0 con questi dettagli: {{message}}",
-		"createEmpty": "Voglio creare e pianificare un'attivit\u00e0. Chiedimi qual \u00e8 il messaggio dell'attivit\u00e0.",
-		"delete": "Elimina l'attivit\u00e0 pianificata con questi dettagli: {{message}}",
-		"deleteEmpty": "Voglio eliminare un'attivit\u00e0 pianificata. Mostrami l'elenco delle attivit\u00e0 pianificate e chiedimi quale eliminare."
+		"list": "Mostra l'elenco delle attività pianificate",
+		"create": "Crea e pianifica un'attività con questi dettagli: {{message}}",
+		"createEmpty": "Voglio creare e pianificare un'attività. Chiedimi qual è il messaggio dell'attività.",
+		"delete": "Elimina l'attività pianificata con questi dettagli: {{message}}",
+		"deleteEmpty": "Voglio eliminare un'attività pianificata. Mostrami l'elenco delle attività pianificate e chiedimi quale eliminare."
 	}
 }

@@ -494,9 +494,56 @@
 			"modeDescription": "Enable advanced developer tools and options"
 		},
 		"mcp": {
-			"detailsTitle": "MCP Server Details",
-			"notFoundTitle": "MCP server not found",
-			"notFoundDescription": "The MCP server may have been removed."
+			"title": "MCP Servers",
+			"description": "Configure Model Context Protocol servers to extend the agent with external tools.",
+			"addServer": "Add Server",
+			"refresh": "Refresh",
+			"empty": "No MCP servers",
+			"emptyDescription": "Add a server to extend the agent with external tools via the Model Context Protocol.",
+			"addTitle": "Add Server",
+			"detailsTitle": "Server Details",
+			"notFoundTitle": "Server not found",
+			"notFoundDescription": "The MCP server may have been removed.",
+			"save": "Save",
+			"saving": "Saving…",
+			"delete": "Delete",
+			"deleting": "Deleting…",
+			"deleteConfirm": "Delete this MCP server?",
+			"enabled": "Enabled",
+			"enabledDescription": "Connect this server when the agent starts.",
+			"loadError": "Unable to load MCP servers.",
+			"saveError": "Unable to save MCP server.",
+			"deleteError": "Unable to delete MCP server.",
+			"form": {
+				"label": "Label",
+				"labelPlaceholder": "My MCP Server",
+				"transport": "Transport",
+				"command": "Command",
+				"commandPlaceholder": "npx -y @modelcontextprotocol/server-filesystem",
+				"args": "Arguments",
+				"argsDescription": "One argument per line",
+				"env": "Environment variables",
+				"envDescription": "KEY=value, one per line",
+				"cwd": "Working directory",
+				"cwdDescription": "Optional",
+				"url": "URL",
+				"headers": "Headers",
+				"headersDescription": "Key: Value, one per line"
+			},
+			"transport": {
+				"stdio": "stdio",
+				"sse": "SSE",
+				"http": "HTTP"
+			},
+			"status": {
+				"connected": "Connected",
+				"connecting": "Connecting",
+				"error": "Error",
+				"disconnected": "Disconnected",
+				"disabled": "Disabled"
+			},
+			"tools": "{{count}} tools",
+			"tool": "1 tool"
 		},
 		"health": {
 			"settingsTitle": "Settings",
@@ -796,6 +843,15 @@
 			"generateError": "Unable to generate the image.",
 			"resultAlt": "Generated image"
 		},
+		"video": {
+			"prompt": "Prompt",
+			"promptDescription": "The video is generated with the selected provider and model.",
+			"promptPlaceholder": "Describe the video you want to create...",
+			"generate": "Generate",
+			"generating": "Generating...",
+			"generateError": "Unable to generate the video.",
+			"resultAlt": "Generated video"
+		},
 		"music": {
 			"prompt": "Prompt",
 			"promptDescription": "The audio is generated with the selected provider and model.",
@@ -1041,58 +1097,6 @@
 			"deleteErrorFallback": "Failed to delete the theme. Please try again.",
 			"dismissError": "Dismiss error",
 			"dismissSuccess": "Dismiss"
-		},
-		"mcp": {
-			"title": "MCP Servers",
-			"description": "Configure Model Context Protocol servers to extend the agent with external tools.",
-			"addServer": "Add Server",
-			"refresh": "Refresh",
-			"empty": "No MCP servers",
-			"emptyDescription": "Add a server to extend the agent with external tools via the Model Context Protocol.",
-			"addTitle": "Add Server",
-			"detailsTitle": "Server Details",
-			"notFoundTitle": "Server not found",
-			"notFoundDescription": "The MCP server may have been removed.",
-			"save": "Save",
-			"saving": "Saving…",
-			"delete": "Delete",
-			"deleting": "Deleting…",
-			"deleteConfirm": "Delete this MCP server?",
-			"enabled": "Enabled",
-			"enabledDescription": "Connect this server when the agent starts.",
-			"loadError": "Unable to load MCP servers.",
-			"saveError": "Unable to save MCP server.",
-			"deleteError": "Unable to delete MCP server.",
-			"form": {
-				"label": "Label",
-				"labelPlaceholder": "My MCP Server",
-				"transport": "Transport",
-				"command": "Command",
-				"commandPlaceholder": "npx -y @modelcontextprotocol/server-filesystem",
-				"args": "Arguments",
-				"argsDescription": "One argument per line",
-				"env": "Environment variables",
-				"envDescription": "KEY=value, one per line",
-				"cwd": "Working directory",
-				"cwdDescription": "Optional",
-				"url": "URL",
-				"headers": "Headers",
-				"headersDescription": "Key: Value, one per line"
-			},
-			"transport": {
-				"stdio": "stdio",
-				"sse": "SSE",
-				"http": "HTTP"
-			},
-			"status": {
-				"connected": "Connected",
-				"connecting": "Connecting",
-				"error": "Error",
-				"disconnected": "Disconnected",
-				"disabled": "Disabled"
-			},
-			"tools": "{{count}} tools",
-			"tool": "1 tool"
 		}
 	},
 	"dialogs": {
@@ -1894,7 +1898,7 @@
 		"updatedAt": "Last Updated",
 		"updatedAtDescription": "When this workspace was last modified",
 		"notSet": "Not set",
-		"loading": "Loading\u2026",
+		"loading": "Loading…",
 		"loadError": "Failed to load workspace information. Please try again.",
 		"saveError": "Failed to save changes. The field is still open so you can retry."
 	},
