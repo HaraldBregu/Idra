@@ -75,26 +75,14 @@ const TasksPage: React.FC = () => {
 		};
 	}, []);
 
-	const handleProviderChange = (nextProviderId: string): void => {
+	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		setProviderId(nextProviderId);
-		setModelId(firstModelIdForProvider(LLM_PROVIDER_GROUPS, nextProviderId));
-		setSaved(false);
-		setRuntimeError(null);
-	};
-
-	const handleModelChange = (nextModelId: string): void => {
 		setModelId(nextModelId);
-		setSaved(false);
-		setRuntimeError(null);
-	};
-
-	const handleSave = async (): Promise<void> => {
-		if (!providerId || !modelId) return;
 		setSaving(true);
 		setSaved(false);
 		setRuntimeError(null);
 		try {
-			await window.agent.cronSetRuntime(providerId, modelId);
+			await window.agent.cronSetRuntime(nextProviderId, nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setRuntimeError(
