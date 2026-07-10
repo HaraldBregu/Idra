@@ -4,19 +4,18 @@ import { Button } from '@/components/ui/button';
 import type { AgentToolPermissionDecision } from '@/lib/compat';
 import type { PendingToolPermission } from '../context';
 
-const TOOL_TITLES: Record<string, string> = {
-	write: 'Write file',
-	edit: 'Edit file',
+const TOOL_ACTIONS: Record<string, string> = {
+	write: 'write this file',
+	edit: 'edit this file',
+	apply_patch: 'apply this patch',
+	exec: 'run this command',
 };
 
-function toolTitle(toolName: string): string {
-	return TOOL_TITLES[toolName] ?? toolName.charAt(0).toUpperCase() + toolName.slice(1);
-}
-
-function filePath(input: unknown): string | undefined {
-	if (!input || typeof input !== 'object') return undefined;
-	const path = (input as Record<string, unknown>).path;
-	return typeof path === 'string' && path.length > 0 ? path : undefined;
+function toolDetail(permission: PendingToolPermission): string | undefined {
+	if (!permission.input || typeof permission.input !== 'object') return undefined;
+	const { path, command } = permission.input as Record<string, unknown>;
+	const value = permission.toolName === 'exec' ? command : path;
+	return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 
 export function ToolPermissionCard({
@@ -25,7 +24,8 @@ export function ToolPermissionCard({
 	readonly permission: PendingToolPermission;
 }): ReactElement {
 	const [responded, setResponded] = useState(false);
-	const path = filePath(permission.input);
+	const detail = toolDetail(permission);
+	const action = TOOL_ACTIONS[permission.toolName] ?? `use ${permission.toolName}`;
 
 	const respond = (decision: AgentToolPermissionDecision): void => {
 		if (responded) return;
@@ -36,38 +36,34 @@ export function ToolPermissionCard({
 	};
 
 	return (
-		<div className="mb-2 w-full rounded-lg border border-border/70 bg-card/95 p-3 shadow-sm shadow-foreground/5">
-			<div className="flex items-start gap-2">
-				<span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-					<ShieldAlert className="size-4" />
-				</span>
-				<div className="min-w-0 flex-1">
-					<p className="text-sm font-medium leading-5">
-						{toolTitle(permission.toolName)}
-					</p>
-					<p className="truncate text-xs leading-5 text-muted-foreground">
-						{path ?? `The agent wants to run ${permission.toolName}.`}
-					</p>
-				</div>
+		<div className="mb-2 w-full max-w-2xl rounded-lg border border-border/70 bg-card/95 p-3 shadow-sm shadow-foreground/5">
+			<div className="flex items-center gap-2">
+				<ShieldAlert className="size-4 shrink-0 text-muted-foreground" />
+				<p className="text-sm font-medium leading-5">Allow Friday to {action}?</p>
 			</div>
+			{detail && (
+				<p className="mt-2 max-h-24 overflow-y-auto break-all rounded-md bg-muted px-2 py-1.5 font-mono text-xs text-muted-foreground">
+					{detail}
+				</p>
+			)}
 			<div className="mt-3 flex flex-wrap justify-end gap-2">
 				<Button
 					type="button"
 					variant="ghost"
 					size="sm"
 					disabled={responded}
-					onClick={() => respond('approve_always')}
+					onClick={() => respond('reject')}
 				>
-					Always allow
+					Deny
 				</Button>
 				<Button
 					type="button"
 					variant="outline"
 					size="sm"
 					disabled={responded}
-					onClick={() => respond('reject')}
+					onClick={() => respond('approve_always')}
 				>
-					Deny
+					Always allow
 				</Button>
 				<Button
 					type="button"
