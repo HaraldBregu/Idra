@@ -341,6 +341,37 @@ export const TEXT_TO_IMAGE_PROVIDER_IDS = [
 	'xai',
 ] as const;
 
+export const TEXT_TO_VIDEO_MODELS_BY_PROVIDER = {
+	google: [model('veo-3.1', 'Veo 3.1'), model('veo-3.1-fast', 'Veo 3.1 Fast')],
+	kling: [
+		model('kling-v2.5-turbo', 'Kling v2.5 Turbo'),
+		model('kling-v2.1-master', 'Kling v2.1 Master'),
+	],
+	luma: [model('ray-3', 'Ray 3'), model('ray-2', 'Ray 2')],
+	midjourney: [model('midjourney-video-v1', 'Midjourney Video v1')],
+	minimax: [
+		model('MiniMax-Hailuo-2.3', 'Hailuo 2.3'),
+		model('MiniMax-Hailuo-02', 'Hailuo 02'),
+	],
+	pika: [model('pika-2.2', 'Pika 2.2')],
+	qwen: [model('wan2.5-t2v', 'Wan 2.5 T2V'), model('wan2.2-t2v-plus', 'Wan 2.2 T2V Plus')],
+	runway: [model('gen4_turbo', 'Gen-4 Turbo'), model('gen3a_turbo', 'Gen-3 Alpha Turbo')],
+	xai: [model('grok-imagine-video', 'Grok Imagine Video')],
+} as const satisfies ModelCatalog;
+
+export const VIDEO_CREATOR_MODELS_BY_PROVIDER = TEXT_TO_VIDEO_MODELS_BY_PROVIDER;
+export const TEXT_TO_VIDEO_PROVIDER_IDS = [
+	'google',
+	'kling',
+	'luma',
+	'midjourney',
+	'minimax',
+	'pika',
+	'qwen',
+	'runway',
+	'xai',
+] as const;
+
 export const TEXT_TO_AUDIO_MODELS_BY_PROVIDER = {
 	elevenlabs: [
 		model('eleven-music', 'Eleven Music'),
