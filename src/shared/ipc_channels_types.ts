@@ -253,6 +253,29 @@ export interface ImageInvokeChannelMap {
 	};
 }
 
+export interface VideoInvokeChannelMap {
+	[VideoChannels.createVideo]: {
+		args: [request: VideoRequest];
+		result: VideoResult;
+	};
+	[VideoChannels.getProviderId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[VideoChannels.setProviderId]: {
+		args: [providerId: string];
+		result: void;
+	};
+	[VideoChannels.getModelId]: {
+		args: [];
+		result: string | undefined;
+	};
+	[VideoChannels.setModelId]: {
+		args: [modelId: string];
+		result: void;
+	};
+}
+
 export interface TextInvokeChannelMap {
 	[TextChannels.generateText]: {
 		args: [request: TextRequest];
