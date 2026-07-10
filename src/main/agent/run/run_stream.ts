@@ -23,6 +23,8 @@ import { webSearchTool } from '../tools/web_search';
 import { webFetchTool } from '../tools/web_fetch';
 import { webBrowserTool } from '../tools/web_browser';
 import { createImageTool } from '../tools/image_create';
+import { saveMemoryTool } from '../tools/memory_save';
+import { forgetMemoryTool } from '../tools/memory_forget';
 import { loadSkillTool } from '../tools/skill_load';
 import { createScheduleTool } from '../tools/cron_create_schedule';
 import { updateScheduleTool } from '../tools/cron_update_schedule';
