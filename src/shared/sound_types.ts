@@ -8,3 +8,9 @@ export interface SoundResult {
 	base64: string;
 	mimeType: string;
 }
+
+export interface SoundFile {
+	name: string;
+	path: string;
+	createdAt: number;
+}
