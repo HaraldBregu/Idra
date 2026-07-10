@@ -207,11 +207,10 @@ const VideoPage: React.FC = () => {
 						</div>
 
 						{videoSrc && (
-							<video
+							<VideoPlayer
 								src={videoSrc}
 								controls
-								aria-label={t('settings.video.resultAlt')}
-								className="w-full rounded-lg border border-border/70"
+								className="w-full overflow-hidden rounded-lg border border-border/70"
 							/>
 						)}
 					</div>
