@@ -14,6 +14,7 @@ import {
 	VideoProviderRequestError,
 	VideoProviderUnsupportedError,
 } from '../models/ttv';
+import { userDataLocation } from '../shared/user_data_location';
 import {
 	getModelId as getStoredModelId,
 	getProviderId as getStoredProviderId,
