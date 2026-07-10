@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AudioPlayer } from 'react-video-audio-player';
-import { AlertTriangle, LoaderCircle, Music, Save, Sparkles } from 'lucide-react';
+import { AlertTriangle, LoaderCircle, Music, Sparkles } from 'lucide-react';
 import type { SoundFile } from '../../../../../../shared/sound_types';
 import {
 	MUSIC_PROVIDER_IDS,
