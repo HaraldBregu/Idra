@@ -796,6 +796,15 @@
 			"generateError": "Impossibile generare l'immagine.",
 			"resultAlt": "Immagine generata"
 		},
+		"music": {
+			"prompt": "Prompt",
+			"promptDescription": "L'audio viene generato con il provider e il modello selezionati.",
+			"promptPlaceholder": "Descrivi la musica che vuoi creare...",
+			"generate": "Genera",
+			"generating": "Generazione...",
+			"generateError": "Impossibile generare l'audio.",
+			"resultFallback": "Il browser non può riprodurre l'audio generato."
+		},
 		"modelServices": {
 			"title": "Servizi modello",
 			"description": "Rivedi i servizi modello con incarichi specifici disponibili in Friday.",
