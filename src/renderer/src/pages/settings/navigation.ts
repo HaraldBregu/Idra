@@ -85,12 +85,11 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 	},
 	{
 		id: AGENTS.textToAudio,
-		path: '/settings/text-to-audio',
+		path: '/settings/music',
 		labelKey: 'settings.modelServices.musicCreatorName',
 		descriptionKey: 'settings.modelServices.musicCreatorDescription',
 		keywords: 'music audio generation creator model',
 		icon: Music,
-		comingSoon: true,
 	},
 ] as const;
 
