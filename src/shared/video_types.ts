@@ -7,4 +7,5 @@ export interface VideoRequest {
 export interface VideoResult {
 	base64: string;
 	mimeType: string;
+	path?: string;
 }
