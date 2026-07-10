@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AudioPlayer } from 'react-video-audio-player';
-import { AlertTriangle, LoaderCircle, Save, Sparkles } from 'lucide-react';
+import { AlertTriangle, LoaderCircle, Music, Save, Sparkles } from 'lucide-react';
+import type { SoundFile } from '../../../../../../shared/sound_types';
 import {
 	MUSIC_PROVIDER_IDS,
 	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
@@ -27,6 +28,12 @@ const MUSIC_PROVIDER_GROUPS: readonly ModelProviderGroup[] = MUSIC_PROVIDER_IDS.
 	models: TEXT_TO_AUDIO_MODELS_BY_PROVIDER[id] ?? [],
 })).filter((group) => group.models.length > 0);
 
+function localResourceUrl(filePath: string): string {
+	const posixPath = filePath.replace(/\\/g, '/');
+	const absolutePath = posixPath.startsWith('/') ? posixPath : `/${posixPath}`;
+	return `local-resource://file${encodeURI(absolutePath)}`;
+}
+
 const MusicPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [providerId, setProviderId] = useState('');
@@ -37,7 +44,15 @@ const MusicPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [prompt, setPrompt] = useState('');
 	const [generating, setGenerating] = useState(false);
-	const [audioSrc, setAudioSrc] = useState<string | null>(null);
+	const [sounds, setSounds] = useState<SoundFile[]>([]);
+
+	const refreshSounds = useCallback(async (): Promise<void> => {
+		try {
+			setSounds(await window.sound.listSounds());
+		} catch {
+			// Listing is best-effort; generation errors are surfaced separately.
+		}
+	}, []);
 
 	useEffect(() => {
 		let mounted = true;
@@ -67,10 +82,11 @@ const MusicPage: React.FC = () => {
 				if (mounted) setLoading(false);
 			}
 		})();
+		void refreshSounds();
 		return () => {
 			mounted = false;
 		};
-	}, []);
+	}, [refreshSounds]);
 
 	const handleProviderChange = (nextProviderId: string): void => {
 		setProviderId(nextProviderId);
@@ -106,8 +122,8 @@ const MusicPage: React.FC = () => {
 		setGenerating(true);
 		setError(null);
 		try {
-			const result = await window.sound.createSound({ prompt, providerId, modelId });
-			setAudioSrc(`data:${result.mimeType};base64,${result.base64}`);
+			await window.sound.createSound({ prompt, providerId, modelId });
+			await refreshSounds();
 		} catch (err) {
 			setError(
 				err instanceof Error && err.message.trim()
@@ -203,16 +219,39 @@ const MusicPage: React.FC = () => {
 								{generating ? t('settings.music.generating') : t('settings.music.generate')}
 							</Button>
 						</div>
-
-						{audioSrc && (
-							<AudioPlayer
-								src={audioSrc}
-								controls
-								controlsToExclude={['playbackRate', 'volume']}
-								className="w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
-							/>
-						)}
 					</div>
+				</SettingsPanel>
+			</SettingsSection>
+
+			<SettingsSection title={t('settings.music.libraryTitle')}>
+				<SettingsPanel>
+					{sounds.length === 0 ? (
+						<p className="px-3 py-3 text-[11px] leading-4 text-muted-foreground">
+							{t('settings.music.libraryEmpty')}
+						</p>
+					) : (
+						sounds.map((sound) => (
+							<div
+								key={sound.path}
+								className="grid gap-2 border-b border-border/30 px-3 py-3 last:border-b-0"
+								onContextMenu={() => void window.app.showAudioContextMenu(sound.path)}
+							>
+								<div className="flex items-center gap-2 text-xs">
+									<Music className="size-3.5 shrink-0 text-muted-foreground" />
+									<span className="min-w-0 flex-1 truncate font-medium">{sound.name}</span>
+									<span className="shrink-0 text-[11px] text-muted-foreground">
+										{new Date(sound.createdAt).toLocaleString()}
+									</span>
+								</div>
+								<AudioPlayer
+									src={localResourceUrl(sound.path)}
+									controls
+									controlsToExclude={['playbackRate', 'volume']}
+									className="w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+								/>
+							</div>
+						))
+					)}
 				</SettingsPanel>
 			</SettingsSection>
 		</SettingsPageShell>
