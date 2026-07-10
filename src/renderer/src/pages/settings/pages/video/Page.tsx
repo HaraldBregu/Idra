@@ -75,27 +75,15 @@ const VideoPage: React.FC = () => {
 		};
 	}, []);
 
-	const handleProviderChange = (nextProviderId: string): void => {
+	const handleChange = async (nextProviderId: string, nextModelId: string): Promise<void> => {
 		setProviderId(nextProviderId);
-		setModelId(firstModelIdForProvider(VIDEO_PROVIDER_GROUPS, nextProviderId));
-		setSaved(false);
-		setError(null);
-	};
-
-	const handleModelChange = (nextModelId: string): void => {
 		setModelId(nextModelId);
-		setSaved(false);
-		setError(null);
-	};
-
-	const handleSave = async (): Promise<void> => {
-		if (!providerId || !modelId) return;
 		setSaving(true);
 		setSaved(false);
 		setError(null);
 		try {
-			await window.video.setProviderId(providerId);
-			await window.video.setModelId(modelId);
+			await window.video.setProviderId(nextProviderId);
+			await window.video.setModelId(nextModelId);
 			setSaved(true);
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));
