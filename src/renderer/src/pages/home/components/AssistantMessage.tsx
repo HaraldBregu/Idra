@@ -275,14 +275,14 @@ export function AssistantMessage({
 								src={localResourceUrl(path)}
 								controls
 								controlsToExclude={['playbackRate', 'volume']}
-								className="w-full max-w-xs !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+								className="mb-4 w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
 							/>
 						) : isVideoPath(path) ? (
 							<VideoPlayer
 								key={path}
 								src={localResourceUrl(path)}
 								controls
-								className="max-w-full overflow-hidden rounded-xl border border-border/50"
+								className="mb-4 w-full overflow-hidden rounded-xl border border-border/50"
 							/>
 						) : (
 							<img
