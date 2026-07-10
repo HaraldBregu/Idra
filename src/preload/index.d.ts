@@ -193,6 +193,7 @@ declare global {
 		transcribe: TranscribeApi;
 		voice: VoiceApi;
 		image: ImageApi;
+		video: VideoApi;
 		text: TextApi;
 	}
 }
