@@ -272,13 +272,17 @@ export function AssistantMessage({
 				<div className="flex w-full flex-col gap-2">
 					{standaloneMediaPaths.map((path) =>
 						isAudioPath(path) ? (
-							<AudioPlayer
+							<div
 								key={path}
-								src={localResourceUrl(path)}
-								controls
-								controlsToExclude={['playbackRate', 'volume']}
-								className="mb-4 w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
-							/>
+								onContextMenu={() => void window.app.showAudioContextMenu(path)}
+							>
+								<AudioPlayer
+									src={localResourceUrl(path)}
+									controls
+									controlsToExclude={['playbackRate', 'volume']}
+									className="mb-4 w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+								/>
+							</div>
 						) : isVideoPath(path) ? (
 							<VideoPlayer
 								key={path}
