@@ -79,6 +79,14 @@ export interface ImageApi {
 	setModelId: (modelId: string) => Promise<void>;
 }
 
+export interface VideoApi {
+	createVideo: (request: VideoRequest) => Promise<VideoResult>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
 export interface TextApi {
 	generateText: (request: TextRequest) => Promise<string>;
 	getProviderId: () => Promise<string | undefined>;
