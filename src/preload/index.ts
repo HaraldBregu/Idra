@@ -514,6 +514,9 @@ export const sound: SoundApi = {
 			...(modelId ? { modelId } : {}),
 		});
 	},
+	listSounds: () => {
+		return typedInvokeUnwrap(SoundChannels.listSounds);
+	},
 	getProviderId: () => {
 		return typedInvokeUnwrap(SoundChannels.getProviderId);
 	},
