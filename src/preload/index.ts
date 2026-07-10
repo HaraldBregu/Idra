@@ -6,6 +6,7 @@ import {
 	AppChannels,
 	ChannelsChannels,
 	ImageChannels,
+	MusicChannels,
 	ProviderStoreChannels,
 	SpeechChannels,
 	SttChannels,
