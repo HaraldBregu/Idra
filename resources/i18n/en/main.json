@@ -858,7 +858,9 @@
 			"promptPlaceholder": "Describe the music you want to create...",
 			"generate": "Generate",
 			"generating": "Generating...",
-			"generateError": "Unable to generate the audio."
+			"generateError": "Unable to generate the audio.",
+			"libraryTitle": "Generated audio",
+			"libraryEmpty": "No audio generated yet."
 		},
 		"modelServices": {
 			"title": "Model services",
