@@ -598,5 +598,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.image = image;
 	// @ts-ignore (define in dts)
+	globalThis.video = video;
+	// @ts-ignore (define in dts)
 	globalThis.text = text;
 }
