@@ -1,10 +1,10 @@
-export interface MusicRequest {
+export interface SoundRequest {
 	prompt: string;
 	providerId?: string;
 	modelId?: string;
 }
 
-export interface MusicResult {
+export interface SoundResult {
 	base64: string;
 	mimeType: string;
 }
