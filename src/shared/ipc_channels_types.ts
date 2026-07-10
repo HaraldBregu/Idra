@@ -155,6 +155,10 @@ export interface AppInvokeChannelMap {
 		args: [path: string];
 		result: void;
 	};
+	[AppChannels.showAudioContextMenu]: {
+		args: [path: string];
+		result: void;
+	};
 }
 
 export interface ChannelsInvokeChannelMap {
