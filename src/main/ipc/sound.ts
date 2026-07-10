@@ -1,17 +1,17 @@
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { registerCommand, registerQuery } from './core/gateway';
-import { MusicChannels } from '../../shared/ipc_channels_definitions';
-import { createMusic, getModelId, getProviderId, setModelId, setProviderId } from '../music';
+import { SoundChannels } from '../../shared/ipc_channels_definitions';
+import { createSound, getModelId, getProviderId, setModelId, setProviderId } from '../sound';
 
-export class MusicIpc implements IpcModule {
-	readonly name = 'music';
+export class SoundIpc implements IpcModule {
+	readonly name = 'sound';
 
 	register(_deps: void, _eventBus: EventBus): void {
-		registerCommand(MusicChannels.createMusic, (request) => createMusic(request));
-		registerQuery(MusicChannels.getProviderId, () => getProviderId());
-		registerCommand(MusicChannels.setProviderId, (providerId) => setProviderId(providerId));
-		registerQuery(MusicChannels.getModelId, () => getModelId());
-		registerCommand(MusicChannels.setModelId, (modelId) => setModelId(modelId));
+		registerCommand(SoundChannels.createSound, (request) => createSound(request));
+		registerQuery(SoundChannels.getProviderId, () => getProviderId());
+		registerCommand(SoundChannels.setProviderId, (providerId) => setProviderId(providerId));
+		registerQuery(SoundChannels.getModelId, () => getModelId());
+		registerCommand(SoundChannels.setModelId, (modelId) => setModelId(modelId));
 	}
 }
