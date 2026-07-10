@@ -10,7 +10,13 @@ export function registerLocalResourceProtocolScheme(): void {
 	protocol.registerSchemesAsPrivileged([
 		{
 			scheme: LOCAL_RESOURCE_SCHEME,
-			privileges: { standard: true, secure: true, bypassCSP: true, supportFetchAPI: true },
+			privileges: {
+				standard: true,
+				secure: true,
+				bypassCSP: true,
+				supportFetchAPI: true,
+				stream: true,
+			},
 		},
 	]);
 }
