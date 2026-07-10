@@ -492,33 +492,33 @@ export const video: VideoApi = {
 	},
 };
 
-export const music: MusicApi = {
-	createMusic: (request) => {
+export const sound: SoundApi = {
+	createSound: (request) => {
 		const prompt = optionalTrimmedString(request?.prompt);
-		if (!prompt) throw new Error('Invalid music prompt.');
+		if (!prompt) throw new Error('Invalid sound prompt.');
 		const providerId = optionalTrimmedString(request?.providerId);
 		const modelId = optionalTrimmedString(request?.modelId);
-		return typedInvokeUnwrap(MusicChannels.createMusic, {
+		return typedInvokeUnwrap(SoundChannels.createSound, {
 			prompt,
 			...(providerId ? { providerId } : {}),
 			...(modelId ? { modelId } : {}),
 		});
 	},
 	getProviderId: () => {
-		return typedInvokeUnwrap(MusicChannels.getProviderId);
+		return typedInvokeUnwrap(SoundChannels.getProviderId);
 	},
 	setProviderId: (providerId) => {
 		const normalizedProviderId = optionalTrimmedString(providerId);
-		if (!normalizedProviderId) throw new Error('Invalid music provider id.');
-		return typedInvokeUnwrap(MusicChannels.setProviderId, normalizedProviderId);
+		if (!normalizedProviderId) throw new Error('Invalid sound provider id.');
+		return typedInvokeUnwrap(SoundChannels.setProviderId, normalizedProviderId);
 	},
 	getModelId: () => {
-		return typedInvokeUnwrap(MusicChannels.getModelId);
+		return typedInvokeUnwrap(SoundChannels.getModelId);
 	},
 	setModelId: (modelId) => {
 		const normalizedModelId = optionalTrimmedString(modelId);
-		if (!normalizedModelId) throw new Error('Invalid music model id.');
-		return typedInvokeUnwrap(MusicChannels.setModelId, normalizedModelId);
+		if (!normalizedModelId) throw new Error('Invalid sound model id.');
+		return typedInvokeUnwrap(SoundChannels.setModelId, normalizedModelId);
 	},
 };
 
