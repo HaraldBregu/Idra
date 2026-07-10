@@ -1,3 +1,4 @@
+@layer vendor;
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
