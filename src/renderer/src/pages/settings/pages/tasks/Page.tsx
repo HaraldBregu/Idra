@@ -133,14 +133,13 @@ const TasksPage: React.FC = () => {
 									providerGroups={LLM_PROVIDER_GROUPS}
 									providerId={providerId}
 									modelId={modelId}
-									onProviderChange={handleProviderChange}
-									onModelChange={handleModelChange}
+									onChange={(nextProviderId, nextModelId) =>
+										void handleChange(nextProviderId, nextModelId)
+									}
 									disabled={saving}
 									labels={{
-										provider: t('settings.cron.runtime.provider'),
-										model: t('settings.cron.runtime.model'),
-										providerPlaceholder: t('settings.cron.runtime.providerPlaceholder'),
-										modelPlaceholder: t('settings.cron.runtime.modelPlaceholder'),
+										label: t('settings.cron.runtime.model'),
+										placeholder: t('settings.cron.runtime.modelPlaceholder'),
 									}}
 								/>
 
@@ -152,22 +151,6 @@ const TasksPage: React.FC = () => {
 										{t('settings.cron.runtime.saved')}
 									</p>
 								)}
-
-								<div className="flex justify-end">
-									<Button
-										type="button"
-										size="sm"
-										disabled={saving || !providerId || !modelId}
-										onClick={() => void handleSave()}
-									>
-										{saving ? (
-											<LoaderCircle className="size-3 animate-spin" />
-										) : (
-											<Save className="size-3" />
-										)}
-										{saving ? t('settings.cron.runtime.saving') : t('common.save')}
-									</Button>
-								</div>
 							</div>
 						)}
 					</CollapsibleContent>
