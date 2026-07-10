@@ -70,9 +70,10 @@ export function toolVerbs(type: string): ToolVerbs {
 	if (t === 'edit' || t === 'write' || t === 'apply_patch') {
 		return { running: 'Editing', done: 'Edited' };
 	}
-	if (t === 'browser' || t.startsWith('web_') || t.startsWith('mcp__')) {
+	if (t === 'browser' || t.startsWith('web_')) {
 		return { running: 'Browsing', done: 'Browsed' };
 	}
+	if (t.startsWith('mcp__')) return { running: 'Calling', done: 'Called' };
 	if (t.includes('schedule')) return { running: 'Task', done: 'Task' };
 	if (t === 'create_image') return { running: 'Creating image', done: 'Created image' };
 	if (t === 'subagent') return { running: 'Subagent', done: 'Subagent' };
