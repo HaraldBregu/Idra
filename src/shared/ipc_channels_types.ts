@@ -407,7 +407,8 @@ export interface InvokeChannelMap
 		ImageInvokeChannelMap,
 		SpeechInvokeChannelMap,
 		SttInvokeChannelMap,
-		TextInvokeChannelMap {}
+		TextInvokeChannelMap,
+		VideoInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
 
