@@ -191,6 +191,7 @@ export interface AppApi {
 	requestCameraPermission: () => Promise<CameraPermissionSettings>;
 	showImageContextMenu: (path: string) => Promise<void>;
 	showVideoContextMenu: (path: string) => Promise<void>;
+	showAudioContextMenu: (path: string) => Promise<void>;
 }
 
 declare global {
