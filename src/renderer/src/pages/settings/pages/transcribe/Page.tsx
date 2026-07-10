@@ -31,7 +31,6 @@ interface SpeechModeConfig {
 	readonly mode: SttSelectionMode;
 	readonly titleKey: string;
 	readonly descriptionKey: string;
-	readonly providerDescriptionKey: string;
 	readonly modelDescriptionKey: string;
 }
 
@@ -40,14 +39,12 @@ const SPEECH_MODE_CONFIGS: readonly SpeechModeConfig[] = [
 		mode: 'realtime',
 		titleKey: 'settings.modelServices.realtimeConfiguration',
 		descriptionKey: 'settings.modelServices.realtimeConfigurationDescription',
-		providerDescriptionKey: 'settings.modelServices.realtimeProviderDescription',
 		modelDescriptionKey: 'settings.modelServices.realtimeModelDescription',
 	},
 	{
 		mode: 'transcribe',
 		titleKey: 'settings.modelServices.transcribeConfiguration',
 		descriptionKey: 'settings.modelServices.transcribeConfigurationDescription',
-		providerDescriptionKey: 'settings.modelServices.transcribeProviderDescription',
 		modelDescriptionKey: 'settings.modelServices.transcribeModelDescription',
 	},
 ];
