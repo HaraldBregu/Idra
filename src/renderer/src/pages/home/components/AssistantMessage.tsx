@@ -32,6 +32,10 @@ function isVideoPath(path: string): boolean {
 	return /\.(mp4|webm|mov|m4v|ogv)$/i.test(path);
 }
 
+function isAudioPath(path: string): boolean {
+	return /\.(mp3|wav|ogg|oga|m4a|flac|aac|opus)$/i.test(path);
+}
+
 // While streaming, tool.output is the structured result object; once the message
 // is rebuilt from persisted history it arrives as a JSON string, so accept both.
 function imagePathFromOutput(output: unknown): string | undefined {
