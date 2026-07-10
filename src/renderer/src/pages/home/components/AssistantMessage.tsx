@@ -19,7 +19,9 @@ function generatedMediaPaths(tools: readonly AgentToolPart[]): string[] {
 	return tools
 		.filter(
 			(tool) =>
-				(tool.type === 'create_image' || tool.type === 'create_video') &&
+				(tool.type === 'create_image' ||
+					tool.type === 'create_video' ||
+					tool.type === 'create_sound') &&
 				tool.state === 'output-available'
 		)
 		.map((tool) => imagePathFromOutput(tool.output))
