@@ -132,10 +132,11 @@ const VideoPage: React.FC = () => {
 							providerGroups={VIDEO_PROVIDER_GROUPS}
 							providerId={providerId}
 							modelId={modelId}
-							onProviderChange={handleProviderChange}
-							onModelChange={handleModelChange}
+							onChange={(nextProviderId, nextModelId) =>
+								void handleChange(nextProviderId, nextModelId)
+							}
 							disabled={loading || saving}
-							showFieldDescriptions
+							labels={{ description: t('settings.modelServices.modelDescription') }}
 						/>
 
 						{saved && (
@@ -143,22 +144,6 @@ const VideoPage: React.FC = () => {
 								{t('settings.modelServices.saved')}
 							</p>
 						)}
-
-						<div className="flex justify-end">
-							<Button
-								type="button"
-								size="sm"
-								disabled={loading || saving || !providerId || !modelId}
-								onClick={() => void handleSave()}
-							>
-								{saving ? (
-									<LoaderCircle className="size-3 animate-spin" />
-								) : (
-									<Save className="size-3" />
-								)}
-								{saving ? t('settings.modelServices.saving') : t('common.save')}
-							</Button>
-						</div>
 					</div>
 				</SettingsPanel>
 			</SettingsSection>
