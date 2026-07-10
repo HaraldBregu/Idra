@@ -111,6 +111,7 @@ const VideoPage: React.FC = () => {
 		try {
 			const result = await window.video.createVideo({ prompt, providerId, modelId });
 			setVideoSrc(`data:${result.mimeType};base64,${result.base64}`);
+			setVideoPath(result.path ?? null);
 		} catch (err) {
 			setError(
 				err instanceof Error && err.message.trim()
