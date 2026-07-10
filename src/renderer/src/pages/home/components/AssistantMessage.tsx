@@ -265,18 +265,18 @@ export function AssistantMessage({
 				<div className="flex w-full flex-col gap-2">
 					{standaloneMediaPaths.map((path) =>
 						isAudioPath(path) ? (
-							<audio
+							<AudioPlayer
 								key={path}
 								src={localResourceUrl(path)}
 								controls
 								className="w-full max-w-md"
 							/>
 						) : isVideoPath(path) ? (
-							<video
+							<VideoPlayer
 								key={path}
 								src={localResourceUrl(path)}
 								controls
-								className="h-auto max-w-full rounded-lg border border-border/50"
+								className="max-w-full overflow-hidden rounded-lg border border-border/50"
 							/>
 						) : (
 							<img
