@@ -189,7 +189,7 @@ export function AssistantMessage({
 						src={localResourceUrl(localPath)}
 						controls
 						controlsToExclude={['playbackRate', 'volume']}
-						className="my-2 w-full max-w-xs !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+						className="mb-4 mt-2 w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
 					/>
 				);
 			}
@@ -198,7 +198,7 @@ export function AssistantMessage({
 					<VideoPlayer
 						src={localResourceUrl(localPath)}
 						controls
-						className="my-2 max-w-full overflow-hidden rounded-xl border border-border/50"
+						className="mb-4 mt-2 w-full overflow-hidden rounded-xl border border-border/50"
 					/>
 				);
 			}
