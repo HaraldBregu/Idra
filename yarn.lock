@@ -9264,6 +9264,7 @@ __metadata:
     react-resizable-panels: "npm:^4.9.0"
     react-router-dom: "npm:^7.1.1"
     react-syntax-highlighter: "npm:^16.1.0"
+    react-video-audio-player: "npm:^1.4.0"
     remark-breaks: "npm:^4.0.0"
     remark-gfm: "npm:^4.0.1"
     rimraf: "npm:^6.0.1"
@@ -14748,6 +14749,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:>=16.8.0":
+  version: 19.2.7
+  resolution: "react-dom@npm:19.2.7"
+  dependencies:
+    scheduler: "npm:^0.27.0"
+  peerDependencies:
+    react: ^19.2.7
+  checksum: 10c0/970ff600f6e80d47d39e2f226f12f226173b3cba3382efc97c5f0cd663de9af38c7a4c11c213fb936094faeac83060d660247accaa96b752180d5b951b9cfecb
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^19.2.0":
   version: 19.2.6
   resolution: "react-dom@npm:19.2.6"
@@ -14949,6 +14961,27 @@ __metadata:
   peerDependencies:
     react: ">= 0.14.0"
   checksum: 10c0/5f3d7361f3db68dc1ec38aaf2b347d4fe15398b21aa3b4c69593d4d146ee1db15289c8c3bcd491e6bf73a656afd490d3cd8a6189c7dd180a8aae81ec035bffa4
+  languageName: node
+  linkType: hard
+
+"react-video-audio-player@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "react-video-audio-player@npm:1.4.0"
+  dependencies:
+    react: "npm:>=16.8.0"
+    react-dom: "npm:>=16.8.0"
+    wavesurfer.js: "npm:>=7.9.1"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 10c0/8ad0872d6fa1fe1324e5437c9164e8fdb76311aceb31a8b4e305a7ca33eca8ad6b932cd63668d2ad49719a0bdd27960fc4b75c167928fd6786e87ea02749f72b
+  languageName: node
+  linkType: hard
+
+"react@npm:>=16.8.0":
+  version: 19.2.7
+  resolution: "react@npm:19.2.7"
+  checksum: 10c0/0bd0e2f1bbd4ba97561c6597bf8a5fec05e6476fe61e165c1065598d16668efc6715205599c94d3ddd49d36cb0f21cbf1b9bcc18ee840b805ce222c3e8d558ac
   languageName: node
   linkType: hard
 
@@ -17715,6 +17748,13 @@ __metadata:
   dependencies:
     makeerror: "npm:1.0.12"
   checksum: 10c0/a17e037bccd3ca8a25a80cb850903facdfed0de4864bd8728f1782370715d679fa72e0a0f5da7c1c1379365159901e5935f35be531229da53bbfc0efdabdb48e
+  languageName: node
+  linkType: hard
+
+"wavesurfer.js@npm:>=7.9.1":
+  version: 7.12.10
+  resolution: "wavesurfer.js@npm:7.12.10"
+  checksum: 10c0/ece78a38a8679d34395194f9eeca9fa2b5b9c772c1e66c81cd3103fbc62a1a365973ac9b31ceeb6448e5b9fa8c14da477eb7286ad28c42ce939998aa71e3af1f
   languageName: node
   linkType: hard
 
