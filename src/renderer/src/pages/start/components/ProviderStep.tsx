@@ -26,7 +26,7 @@ export function ProviderStep({
 
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col px-4 py-8 sm:px-6">
-			<StepHeader icon={KeyRound} required title={title} description={description} />
+			<StepHeader icon={KeyRound} title={title} description={description} />
 
 			<div className="mt-6 space-y-2">
 				{actionableProviderCatalog.map((provider) => (
