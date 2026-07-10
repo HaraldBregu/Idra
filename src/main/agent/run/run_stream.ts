@@ -96,6 +96,7 @@ async function* loop(
 		webBrowserTool,
 		createImageTool(config.location),
 		createVideoTool(config.location),
+		createSoundTool(config.location),
 		saveMemoryTool(config),
 		forgetMemoryTool(config),
 		updateHealthTool(config),
