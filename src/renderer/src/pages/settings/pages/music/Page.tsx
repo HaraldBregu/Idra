@@ -43,8 +43,8 @@ const MusicPage: React.FC = () => {
 		void (async () => {
 			try {
 				const [storedProviderId, storedModelId] = await Promise.all([
-					window.music.getProviderId(),
-					window.music.getModelId(),
+					window.sound.getProviderId(),
+					window.sound.getModelId(),
 				]);
 				if (!mounted) return;
 				const nextProviderId =
