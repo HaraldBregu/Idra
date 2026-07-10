@@ -51,7 +51,7 @@ export function toModelProviderGroups(
 	}));
 }
 
-const VALUE_SEPARATOR = '';
+const VALUE_SEPARATOR = '\u001F';
 
 function modelLabel(providerId: string, model: { id: string; name: string }): string {
 	return `${getProviderCatalogItem(providerId).name} / ${model.name || model.id}`;

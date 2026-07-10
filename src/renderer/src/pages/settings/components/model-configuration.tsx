@@ -1,7 +1,6 @@
 import React, { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ChevronDown, LoaderCircle, Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { AlertTriangle, ChevronDown } from 'lucide-react';
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -15,33 +14,25 @@ import type { ModelConfigurationState } from './model-configuration-state';
 interface ModelProviderConfigurationProps {
 	readonly configState: ModelConfigurationState;
 	readonly idPrefix: string;
-	readonly providerDescription: ReactNode;
-	readonly modelDescription: ReactNode;
+	readonly description?: ReactNode;
 	readonly triggerTitle?: ReactNode;
 	readonly triggerDescription?: ReactNode;
 	readonly showInlineError?: boolean;
-	readonly showSaveButton?: boolean;
 	readonly collapsible?: boolean;
 	readonly defaultOpen?: boolean;
-	readonly onProviderChange: (nextProviderId: string) => void;
-	readonly onModelChange: (nextModelId: string) => void;
-	readonly onSave: () => void;
+	readonly onChange: (nextProviderId: string, nextModelId: string) => void;
 }
 
 export function ModelProviderConfiguration({
 	configState,
 	idPrefix,
-	providerDescription,
-	modelDescription,
+	description,
 	triggerTitle,
 	triggerDescription,
 	showInlineError = false,
-	showSaveButton = true,
 	collapsible = true,
 	defaultOpen = false,
-	onProviderChange,
-	onModelChange,
-	onSave,
+	onChange,
 }: ModelProviderConfigurationProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -71,15 +62,13 @@ export function ModelProviderConfiguration({
 					providerGroups={toModelProviderGroups(configState.modelGroups)}
 					providerId={configState.providerId}
 					modelId={configState.modelId}
-					onProviderChange={onProviderChange}
-					onModelChange={onModelChange}
+					onChange={onChange}
 					disabled={
 						configState.loading || configState.saving || configState.modelGroups.length === 0
 					}
 					labels={{
-						providerDescription,
-						modelDescription,
-						modelPlaceholder: configState.loadingModels
+						description,
+						placeholder: configState.loadingModels
 							? t('settings.modelServices.modelsLoading')
 							: undefined,
 					}}
@@ -100,24 +89,6 @@ export function ModelProviderConfiguration({
 						{t('settings.modelServices.saved')}
 					</p>
 				)}
-
-				{showSaveButton ? (
-					<div className="flex justify-end">
-						<Button
-							type="button"
-							size="sm"
-							disabled={configState.saving || !provider || !model}
-							onClick={onSave}
-						>
-							{configState.saving ? (
-								<LoaderCircle className="size-3 animate-spin" />
-							) : (
-								<Save className="size-3" />
-							)}
-							{configState.saving ? t('settings.modelServices.saving') : t('common.save')}
-						</Button>
-					</div>
-				) : null}
 			</div>
 		);
 
