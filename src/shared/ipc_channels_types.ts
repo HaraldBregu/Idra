@@ -268,6 +268,10 @@ export interface SoundInvokeChannelMap {
 		args: [request: SoundRequest];
 		result: SoundResult;
 	};
+	[SoundChannels.listSounds]: {
+		args: [];
+		result: SoundFile[];
+	};
 	[SoundChannels.getProviderId]: {
 		args: [];
 		result: string | undefined;
