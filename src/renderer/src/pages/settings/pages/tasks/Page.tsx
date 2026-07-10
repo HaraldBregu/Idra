@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, ChevronDown, ListChecks, LoaderCircle, Save } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ListChecks } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -10,7 +9,6 @@ import {
 } from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	firstModelIdForProvider,
 	LLM_PROVIDER_GROUPS,
 	ModelProviderSelect,
 	resolveStoredModelProvider,
