@@ -43,11 +43,30 @@ function getCatalogProviderById(providerId: string): CatalogProvider | undefined
 	return DEFAULT_PROVIDERS.find((provider) => provider.id === providerId);
 }
 
+function getVoiceModels(providerId: string): Model[] {
+	return cloneModels(TEXT_TO_SPEECH_MODELS_BY_PROVIDER[normalizeProviderId(providerId)]);
+}
+
+async function getVoiceSelection(): Promise<ModelSelection | undefined> {
+	const [providerId, modelId] = await Promise.all([
+		window.voice.getProviderId(),
+		window.voice.getModelId(),
+	]);
+	if (!providerId || !modelId) return undefined;
+	const provider = getCatalogProviderById(providerId);
+	const model = getVoiceModels(providerId).find((item) => item.id === modelId);
+	if (!provider || !model) return undefined;
+	return { provider: toPublicProvider(provider), model };
+}
+
+async function saveVoiceSelection(provider: PublicProvider, model: Model): Promise<boolean> {
+	await window.voice.setProviderId(provider.id);
+	await window.voice.setModelId(model.id);
+	return true;
+}
+
 const VoicePage: React.FC = () => {
 	const { t } = useTranslation();
-	const service = MODEL_SERVICE_DEFINITIONS.find(
-		(definition): definition is ModelServiceDefinition => definition.id === AGENTS.textToSpeech
-	);
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
 
 	const selectedGroup = useMemo(
