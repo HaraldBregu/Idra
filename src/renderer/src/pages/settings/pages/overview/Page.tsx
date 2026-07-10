@@ -38,6 +38,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/transcribe',
 			'/settings/voice',
 			'/settings/image',
+			'/settings/video',
 		],
 	},
 	{
