@@ -35,7 +35,10 @@ export function registerLocalResourceProtocolHandler(
 			} else if (process.platform === 'win32' && /^\/[A-Za-z]:/.test(pathname)) {
 				pathname = pathname.slice(1);
 			}
-			return await net.fetch(pathToFileURL(pathname).toString());
+			// Forward headers so media Range requests get 206 responses for seeking.
+			return await net.fetch(pathToFileURL(pathname).toString(), {
+				headers: request.headers,
+			});
 		} catch (err) {
 			logger.error('App', `${LOCAL_RESOURCE_SCHEME} fetch failed for ${request.url}`, err);
 			return new Response(null, { status: 500 });
