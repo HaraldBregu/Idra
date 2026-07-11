@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactElement } from 'rea
 import { AnimatePresence, motion } from 'motion/react';
 import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
+import { AudioPlayer } from '@/components/audio-player';
 import { Button } from '@/components/ui/button';
 import {
 	ChatContainerContent,
@@ -201,11 +202,9 @@ function AttachmentTray({
 										{formatFileSize(attachment.file.size)}
 									</span>
 									{isAudio && attachment.url ? (
-										<audio
-											controls
-											preload="metadata"
+										<AudioPlayer
 											src={attachment.url}
-											className="order-last h-8 w-full"
+											className="order-last basis-full border-0 bg-transparent px-1 py-1"
 										/>
 									) : null}
 									<Button
