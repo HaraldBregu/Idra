@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { AlertCircle, ArrowUp, AudioLines, FileAudio, Mic, Paperclip, Plus, Square, X } from 'lucide-react';
+import {
+	AlertCircle,
+	ArrowUp,
+	AudioLines,
+	FileAudio,
+	Mic,
+	Paperclip,
+	Plus,
+	Square,
+	X,
+} from 'lucide-react';
 import { PageContainer } from '@/components/app/base/page';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,7 +18,13 @@ import {
 	ChatContainerRoot,
 	ChatContainerScrollAnchor,
 } from '@/components/ui/chat-container';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
+import {
+	Empty,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from '@/components/ui/empty';
 import { GradientSphere } from '@/components/ui/gradient-sphere';
 import { PromptEditor } from '@/components/prompt-editor';
 import {
@@ -169,10 +185,7 @@ function AttachmentTray({
 	if (attachments.length === 0) return null;
 
 	return (
-		<div
-			className="flex w-full flex-wrap gap-1.5"
-			onClick={(event) => event.stopPropagation()}
-		>
+		<div className="flex w-full flex-wrap gap-1.5" onClick={(event) => event.stopPropagation()}>
 			{attachments.map((attachment) => {
 				const isAudio = attachment.kind === 'audio';
 				const title = isAudio
@@ -190,7 +203,11 @@ function AttachmentTray({
 									)}
 								>
 									<span className="shrink-0 text-muted-foreground">
-										{isAudio ? <FileAudio className="size-2.5" /> : <Paperclip className="size-2.5" />}
+										{isAudio ? (
+											<FileAudio className="size-2.5" />
+										) : (
+											<Paperclip className="size-2.5" />
+										)}
 									</span>
 									<span className="min-w-0 truncate text-[9px] leading-tight">{title}</span>
 									<span className="shrink-0 text-[8px] leading-tight text-muted-foreground">
@@ -329,7 +346,11 @@ function SubmitButton({
 	readonly disabled?: boolean;
 	readonly onAction: () => void;
 }): ReactElement {
-	const label = isLoading ? 'Stop generation' : canSubmit ? 'Send message' : 'Start voice conversation';
+	const label = isLoading
+		? 'Stop generation'
+		: canSubmit
+			? 'Send message'
+			: 'Start voice conversation';
 	const iconKey = isLoading ? 'stop' : canSubmit ? 'send' : 'voice';
 	const icon = isLoading ? (
 		<Square className="size-4 fill-current" />
@@ -386,9 +407,7 @@ function PageContent(): ReactElement {
 		(message) => message.id !== welcomeMessage.id
 	);
 	const showEmptyConversation =
-		visibleMessages.length === 0 &&
-		!agent.isLoading &&
-		!agent.historyLoading;
+		visibleMessages.length === 0 && !agent.isLoading && !agent.historyLoading;
 	const showPromptSuggestions = showEmptyConversation && voiceMode === null;
 	const canSubmit = agent.input.trim().length > 0 || attachments.length > 0;
 	const dictationStatus = dictation.status;
@@ -407,10 +426,8 @@ function PageContent(): ReactElement {
 	const attachmentDisabled = voiceMode !== null || voiceBusy;
 	const activeVoiceElapsedMs =
 		activeDictationMode === 'record' ? recorder.elapsedMs : dictation.elapsedMs;
-	const activeVoiceMuted =
-		activeDictationMode === 'record' ? recorder.isMuted : dictation.isMuted;
-	const activeVoiceStream =
-		activeDictationMode === 'record' ? recorder.stream : dictation.stream;
+	const activeVoiceMuted = activeDictationMode === 'record' ? recorder.isMuted : dictation.isMuted;
+	const activeVoiceStream = activeDictationMode === 'record' ? recorder.stream : dictation.stream;
 	const activeVoiceSetMuted =
 		activeDictationMode === 'record' ? recorder.setMuted : dictation.setMuted;
 	const voiceErrorMessage =
@@ -608,10 +625,7 @@ function PageContent(): ReactElement {
 										<AssistantMessage
 											key={message.id}
 											message={message}
-											isStreaming={
-												agent.isLoading &&
-												message.id === agent.chatState.activeAgentId
-											}
+											isStreaming={agent.isLoading && message.id === agent.chatState.activeAgentId}
 											showHeader={showAssistantHeader}
 											collapseLongContent={isPreviousMessage}
 											className={groupedAssistantClassName}
