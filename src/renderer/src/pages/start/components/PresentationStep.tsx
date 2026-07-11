@@ -28,16 +28,11 @@ export function PresentationStep(): React.JSX.Element {
 			<h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-foreground">
 				{title}
 			</h1>
-			<p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
-				{description}
-			</p>
+			<p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>
 
 			<div className="mt-8 grid w-full max-w-md grid-cols-2 gap-2">
 				{CAPABILITIES.map((capability) => (
-					<Item
-						key={capability.label}
-						className="rounded-lg bg-card ring-1 ring-foreground/10"
-					>
+					<Item key={capability.label} className="rounded-lg bg-card ring-1 ring-foreground/10">
 						<ItemIcon icon={capability.icon} />
 						<ItemTitle>{capability.label}</ItemTitle>
 					</Item>
