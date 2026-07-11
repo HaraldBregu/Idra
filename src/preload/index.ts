@@ -321,6 +321,11 @@ export const app: AppApi = {
 	requestCameraPermission: () => {
 		return typedInvokeUnwrap(AppChannels.requestCameraPermission);
 	},
+	openVideo: (path: string): Promise<void> => {
+		const normalizedPath = optionalTrimmedString(path);
+		if (!normalizedPath) throw new Error('Invalid video path.');
+		return typedInvokeUnwrap(AppChannels.openVideo, normalizedPath);
+	},
 	showImageContextMenu: (path: string): Promise<void> => {
 		const normalizedPath = optionalTrimmedString(path);
 		if (!normalizedPath) throw new Error('Invalid image path.');

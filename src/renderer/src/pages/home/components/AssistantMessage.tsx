@@ -199,6 +199,7 @@ export function AssistantMessage({
 						src={localResourceUrl(localPath)}
 						controls
 						className="mb-4 mt-2 w-full overflow-hidden rounded-xl border border-border/50"
+						onOpenFile={() => void window.app.openVideo(localPath)}
 						onContextMenu={() => void window.app.showVideoContextMenu(localPath)}
 					/>
 				);
@@ -281,9 +282,10 @@ export function AssistantMessage({
 							<VideoPlayer
 								key={path}
 								src={localResourceUrl(path)}
-								controls
-								className="mb-4 w-full overflow-hidden rounded-xl border border-border/50"
-								onContextMenu={() => void window.app.showVideoContextMenu(path)}
+							controls
+							className="mb-4 w-full overflow-hidden rounded-xl border border-border/50"
+							onOpenFile={() => void window.app.openVideo(path)}
+							onContextMenu={() => void window.app.showVideoContextMenu(path)}
 							/>
 						) : (
 							<img

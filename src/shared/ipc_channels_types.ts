@@ -147,6 +147,10 @@ export interface AppInvokeChannelMap {
 		args: [];
 		result: import('./app_types').CameraPermissionSettings;
 	};
+	[AppChannels.openVideo]: {
+		args: [path: string];
+		result: void;
+	};
 	[AppChannels.showImageContextMenu]: {
 		args: [path: string];
 		result: void;

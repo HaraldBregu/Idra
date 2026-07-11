@@ -53,6 +53,7 @@ export const AppChannels = {
 	getCameraPermission: 'app:get-camera-permission',
 	setCameraEnabled: 'app:set-camera-enabled',
 	requestCameraPermission: 'app:request-camera-permission',
+	openVideo: 'app:open-video',
 	showImageContextMenu: 'app:show-image-context-menu',
 	showVideoContextMenu: 'app:show-video-context-menu',
 	showAudioContextMenu: 'app:show-audio-context-menu',

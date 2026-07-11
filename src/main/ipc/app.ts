@@ -329,6 +329,13 @@ export class AppIpc implements IpcModule {
 		);
 
 		ipcMain.handle(
+			AppChannels.openVideo,
+			wrapSimpleHandler(async (videoPath: string) => {
+				await openPathOrThrow(validatedVideoPath(videoPath));
+			}, AppChannels.openVideo)
+		);
+
+		ipcMain.handle(
 			AppChannels.showImageContextMenu,
 			wrapIpcHandler((event, imagePath: string) => {
 				showImageContextMenu(event, imagePath);

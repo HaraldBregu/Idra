@@ -190,6 +190,7 @@ export interface AppApi {
 	getCameraPermission: () => Promise<CameraPermissionSettings>;
 	setCameraEnabled: (enabled: boolean) => Promise<CameraPermissionSettings>;
 	requestCameraPermission: () => Promise<CameraPermissionSettings>;
+	openVideo: (path: string) => Promise<void>;
 	showImageContextMenu: (path: string) => Promise<void>;
 	showVideoContextMenu: (path: string) => Promise<void>;
 	showAudioContextMenu: (path: string) => Promise<void>;
