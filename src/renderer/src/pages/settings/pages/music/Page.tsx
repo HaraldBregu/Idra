@@ -215,11 +215,10 @@ const MusicPage: React.FC = () => {
 										{new Date(sound.createdAt).toLocaleString()}
 									</span>
 								</div>
-								<AudioPlayer
+								<audio
 									src={localResourceUrl(sound.path)}
 									controls
-									controlsToExclude={['playbackRate', 'volume']}
-									className="w-full !rounded-xl !border !border-border/50 !bg-muted/30 !p-2"
+									className="w-full rounded-xl border border-border/50 bg-muted/30 p-2"
 								/>
 							</div>
 						))
