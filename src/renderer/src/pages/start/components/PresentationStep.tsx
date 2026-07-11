@@ -19,7 +19,7 @@ export function PresentationStep(): React.JSX.Element {
 			<div className="flex w-full flex-wrap items-start justify-center gap-8">
 				<LogoView />
 			</div>
-			<h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-foreground">
+			<h1 className="mt-6 text-3xl font-bold leading-tight tracking-tight text-foreground">
 				{title}
 			</h1>
 			<p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>
