@@ -201,7 +201,7 @@ function AttachmentTray({
 											controls
 											preload="metadata"
 											src={attachment.url}
-											className="h-8 w-full"
+											className="order-last h-8 w-full"
 										/>
 									) : null}
 									<Button
