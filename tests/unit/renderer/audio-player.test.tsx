@@ -22,8 +22,11 @@ jest.mock('@/components/ui/slider', () => {
 			onValueChange: _onValueChange,
 			onValueCommit: _onValueCommit,
 			...props
-		}: { value: number[]; onValueChange: unknown; onValueCommit: unknown }) =>
-			React.createElement('input', { ...props, type: 'range', value: value[0] }),
+		}: {
+			value: number[];
+			onValueChange: unknown;
+			onValueCommit: unknown;
+		}) => React.createElement('input', { ...props, type: 'range', value: value[0] }),
 	};
 });
 

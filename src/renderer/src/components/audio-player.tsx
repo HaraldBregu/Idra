@@ -62,10 +62,14 @@ export function AudioPlayer({
 				onPlay={() => setIsPlaying(true)}
 				onPause={() => setIsPlaying(false)}
 				onLoadedMetadata={(event) => {
-					setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0);
+					setDuration(
+						Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0
+					);
 				}}
 				onDurationChange={(event) => {
-					setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0);
+					setDuration(
+						Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0
+					);
 				}}
 				onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
 				onEnded={() => setIsPlaying(false)}
