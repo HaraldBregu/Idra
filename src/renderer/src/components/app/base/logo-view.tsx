@@ -2,7 +2,7 @@ import React from 'react';
 
 const ORBIT_STYLE: React.CSSProperties = {
 	background:
-		'radial-gradient(ellipse at center, #40143f 0%, #40143f 65%, #ffbf82 67%, #f67879 72%, #58174b 74%, #ff986f 78%, #ffca8d 83%, #7b1e59 86%, #ed4d76 90%, #ffb775 95%, #54184f 100%)',
+		'radial-gradient(ellipse at center, #180a35 0%, #180a35 65%, #ffbd74 67%, #ff9a63 72%, #4c176a 74%, #ff6a55 78%, #ed3b66 83%, #8b1d7b 86%, #cc2477 90%, #ff9a63 95%, #4c176a 100%)',
 	mask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
 	maskComposite: 'exclude',
 	WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
