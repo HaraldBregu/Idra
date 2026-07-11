@@ -2,7 +2,7 @@
      width="404" height="404" viewBox="54 54 404 404"
      role="img" aria-labelledby="title desc">
   <title id="title">Flowing sphere logo</title>
-  <desc id="desc">A centered black sphere with flowing white bands on a transparent background.</desc>
+  <desc id="desc">A centered black sphere with flowing bands in shades of black on a transparent background.</desc>
 
   <defs>
     <clipPath id="sphereClip">
@@ -14,6 +14,15 @@
     <circle cx="256" cy="256" r="202" fill="#000000"/>
 
     <g clip-path="url(#sphereClip)">
+      <!-- Top cap -->
+      <path d="M60 205
+               C98 92, 198 42, 314 54
+               C393 62, 452 111, 466 175
+               C444 221, 398 248, 334 244
+               C250 238, 198 181, 126 179
+               C98 178, 75 187, 60 205Z"
+            fill="#2b2b2b"/>
+
       <!-- Upper band -->
       <path d="M49 238
                C88 158, 150 136, 213 166
@@ -23,7 +32,18 @@
                C444 328, 402 346, 350 331
                C285 312, 243 259, 180 244
                C122 230, 82 247, 52 286Z"
-            fill="#ffffff"/>
+            fill="#4a4a4a"/>
+
+      <!-- Middle band -->
+      <path d="M47 296
+               C82 238, 126 218, 182 232
+               C251 249, 296 309, 366 318
+               C410 324, 446 310, 468 282
+               L468 359
+               C429 393, 383 400, 330 384
+               C266 365, 220 314, 160 303
+               C112 295, 76 314, 51 348Z"
+            fill="#1a1a1a"/>
 
       <!-- Lower band -->
       <path d="M58 349
@@ -32,7 +52,7 @@
                C405 392, 442 379, 464 357
                C448 421, 387 459, 316 466
                C216 476, 118 432, 72 370Z"
-            fill="#ffffff"/>
+            fill="#3a3a3a"/>
     </g>
   </g>
 </svg>
