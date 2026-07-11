@@ -19,14 +19,23 @@ jest.mock('@/components/ui/slider', () => {
 	return {
 		Slider: ({
 			value,
-			onValueChange: _onValueChange,
-			onValueCommit: _onValueCommit,
+			onValueChange,
+			onValueCommit,
 			...props
 		}: {
 			value: number[];
-			onValueChange: unknown;
-			onValueCommit: unknown;
-		}) => React.createElement('input', { ...props, type: 'range', value: value[0] }),
+			onValueChange: (value: number[]) => void;
+			onValueCommit: (value: number[]) => void;
+		}) =>
+			React.createElement('input', {
+				...props,
+				type: 'range',
+				value: value[0],
+				onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
+					onValueChange([Number(event.target.value)]),
+				onMouseUp: (event: React.MouseEvent<HTMLInputElement>) =>
+					onValueCommit([Number(event.currentTarget.value)]),
+			}),
 	};
 });
 
@@ -41,6 +50,27 @@ describe('AudioPlayer', () => {
 
 		expect(screen.getByText('1:01:01')).toBeInTheDocument();
 		expect(screen.getByLabelText('Seek')).toBeEnabled();
+	});
+
+	it('seeks audio while the slider moves', () => {
+		const { container } = render(<AudioPlayer src="local-resource://file/audio.mp3" />);
+		const audio = container.querySelector('audio');
+		let currentTime = 0;
+
+		expect(audio).not.toBeNull();
+		Object.defineProperty(audio, 'duration', { configurable: true, value: 120 });
+		Object.defineProperty(audio, 'currentTime', {
+			configurable: true,
+			get: () => currentTime,
+			set: (value: number) => {
+				currentTime = value;
+			},
+		});
+		fireEvent.loadedMetadata(audio!);
+		fireEvent.change(screen.getByLabelText('Seek'), { target: { value: '90' } });
+
+		expect(currentTime).toBe(90);
+		expect(screen.getByText('1:30')).toBeInTheDocument();
 	});
 
 	it('clears the previous track progress when the source changes', () => {
