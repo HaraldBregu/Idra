@@ -283,6 +283,7 @@ export function AssistantMessage({
 								src={localResourceUrl(path)}
 								controls
 								className="mb-4 w-full overflow-hidden rounded-xl border border-border/50"
+								onContextMenu={() => void window.app.showVideoContextMenu(path)}
 							/>
 						) : (
 							<img
