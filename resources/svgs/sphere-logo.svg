@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="404" height="404" viewBox="54 54 404 404"
+     role="img" aria-labelledby="title desc">
+  <title id="title">Flowing sphere logo</title>
+  <desc id="desc">A centered black sphere with flowing white bands on a transparent background.</desc>
+
+  <defs>
+    <clipPath id="sphereClip">
+      <circle cx="256" cy="256" r="202"/>
+    </clipPath>
+  </defs>
+
+  <g>
+    <circle cx="256" cy="256" r="202" fill="#000000"/>
+
+    <g clip-path="url(#sphereClip)">
+      <!-- Upper band -->
+      <path d="M49 238
+               C88 158, 150 136, 213 166
+               C279 197, 318 246, 388 247
+               C426 248, 451 230, 468 201
+               L470 281
+               C444 328, 402 346, 350 331
+               C285 312, 243 259, 180 244
+               C122 230, 82 247, 52 286Z"
+            fill="#ffffff"/>
+
+      <!-- Lower band -->
+      <path d="M58 349
+               C98 291, 144 280, 197 299
+               C258 321, 298 369, 360 382
+               C405 392, 442 379, 464 357
+               C448 421, 387 459, 316 466
+               C216 476, 118 432, 72 370Z"
+            fill="#ffffff"/>
+    </g>
+  </g>
+</svg>
