@@ -199,6 +199,7 @@ export function AssistantMessage({
 						src={localResourceUrl(localPath)}
 						controls
 						className="mb-4 mt-2 w-full overflow-hidden rounded-xl border border-border/50"
+						onContextMenu={() => void window.app.showVideoContextMenu(localPath)}
 					/>
 				);
 			}

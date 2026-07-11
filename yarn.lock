@@ -10299,7 +10299,7 @@ react-day-picker@^10.0.1:
     "@date-fns/tz" "^1.4.1"
     date-fns "^4.1.0"
 
-react-dom@^19.2.0, react-dom@>=16.8.0:
+react-dom@^19.2.0:
   version "19.2.6"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-19.2.6.tgz"
   integrity sha512-0prMI+hvBbPjsWnxDLxlCGyM8PN6UuWjEUCYmZhO67xIV9Xasa/r/vDnq+Xyq4Lo27g8QSbO5YzARu0D1Sps3g==
@@ -10437,16 +10437,7 @@ react-syntax-highlighter@^16.1.0:
     prismjs "^1.30.0"
     refractor "^5.0.0"
 
-react-video-audio-player@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/react-video-audio-player/-/react-video-audio-player-1.4.0.tgz"
-  integrity sha512-gs5FBHTCiqHPID55GNdWfh6QO7CQ/MAA/9Tpuq4E8D5TIar0lhO4rs5KL3Ehf2DB0uEi5X0ZYqj5bsG+YHt3Jw==
-  dependencies:
-    react ">=16.8.0"
-    react-dom ">=16.8.0"
-    wavesurfer.js ">=7.9.1"
-
-react@^19.2.0, react@>=16.8.0:
+react@^19.2.0:
   version "19.2.6"
   resolved "https://registry.npmjs.org/react/-/react-19.2.6.tgz"
   integrity sha512-sfWGGfavi0xr8Pg0sVsyHMAOziVYKgPLNrS7ig+ivMNb3wbCBw3KxtflsGBAwD3gYQlE/AEZsTLgToRrSCjb0Q==
@@ -12485,11 +12476,6 @@ walker@^1.0.8:
   integrity sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==
   dependencies:
     makeerror "1.0.12"
-
-wavesurfer.js@>=7.9.1:
-  version "7.12.10"
-  resolved "https://registry.npmjs.org/wavesurfer.js/-/wavesurfer.js-7.12.10.tgz"
-  integrity sha512-M3AC5biFmvfy7Oxe8FN6I88H0z1c8Vuz81N6Oq2CY4kOumNDb6U1/0qg4pomjP619vJqdWADlgUcpOKvfGifng==
 
 weakmap-polyfill@2.0.4:
   version "2.0.4"
