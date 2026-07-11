@@ -11,6 +11,14 @@ jest.mock('react-player', () => {
 	};
 });
 
+jest.mock('@/components/ui/slider', () => {
+	const React = require('react');
+	return {
+		Slider: ({ value, ...props }: { value: number[] }) =>
+			React.createElement('input', { ...props, type: 'range', value: value[0] }),
+	};
+});
+
 describe('AudioPlayer', () => {
 	it('shows hour-based timestamps for long audio files', () => {
 		const { container } = render(<AudioPlayer src="local-resource://file/audio.mp3" />);
