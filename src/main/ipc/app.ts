@@ -170,12 +170,17 @@ function showAudioContextMenu(event: IpcMainInvokeEvent, requestedPath: string):
 }
 
 function validatedVideoPath(requestedPath: string): string {
-	const root = realpathSync(path.resolve(userDataLocation(), 'video'));
-	const real = realpathSync(path.resolve(root, requestedPath));
-	if (!real.startsWith(root + path.sep)) {
-		throw new Error('Video path must be inside the video data directory.');
+	const roots = [agentLocation(), path.resolve(userDataLocation(), 'video')];
+	for (const root of roots) {
+		try {
+			const realRoot = realpathSync(path.resolve(root));
+			const real = realpathSync(path.resolve(root, requestedPath));
+			if (real.startsWith(realRoot + path.sep)) return real;
+		} catch {
+			// Root or file missing under this root; try the next one.
+		}
 	}
-	return real;
+	throw new Error('Video path must be inside the agent or video data directory.');
 }
 
 function showVideoContextMenu(event: IpcMainInvokeEvent, requestedPath: string): void {
