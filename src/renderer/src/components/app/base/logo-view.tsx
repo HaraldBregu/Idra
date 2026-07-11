@@ -1,6 +1,6 @@
 import React from 'react';
-import icon from '@resources/icons/icon.png';
+import sphere from '@resources/svgs/sphere.svg';
 
 export function LogoView(): React.JSX.Element {
-	return <img src={icon} alt="App logo" className="size-[260px] object-contain" />;
+	return <img src={sphere} alt="App logo" className="size-[260px] object-contain" />;
 }
