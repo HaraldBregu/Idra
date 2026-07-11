@@ -2,19 +2,27 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { AudioPlayer } from '@/components/audio-player';
 
 jest.mock('react-player', () => {
-	const React = require('react');
+	const React = jest.requireActual<typeof import('react')>('react');
 	return {
 		__esModule: true,
-		default: React.forwardRef((props: object, ref: React.ForwardedRef<HTMLAudioElement>) =>
-			React.createElement('audio', { ...props, ref })
-		),
+		default: React.forwardRef(function MockPlayer(
+			props: object,
+			ref: React.ForwardedRef<HTMLAudioElement>
+		) {
+			return React.createElement('audio', { ...props, ref });
+		}),
 	};
 });
 
 jest.mock('@/components/ui/slider', () => {
-	const React = require('react');
+	const React = jest.requireActual<typeof import('react')>('react');
 	return {
-		Slider: ({ value, ...props }: { value: number[] }) =>
+		Slider: ({
+			value,
+			onValueChange: _onValueChange,
+			onValueCommit: _onValueCommit,
+			...props
+		}: { value: number[]; onValueChange: unknown; onValueCommit: unknown }) =>
 			React.createElement('input', { ...props, type: 'range', value: value[0] }),
 	};
 });
