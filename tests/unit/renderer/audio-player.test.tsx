@@ -1,6 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { AudioPlayer } from '@/components/audio-player';
 
+jest.mock('react-player', () => {
+	const React = require('react');
+	return {
+		__esModule: true,
+		default: React.forwardRef((props: object, ref: React.ForwardedRef<HTMLAudioElement>) =>
+			React.createElement('audio', { ...props, ref })
+		),
+	};
+});
+
 describe('AudioPlayer', () => {
 	it('shows hour-based timestamps for long audio files', () => {
 		const { container } = render(<AudioPlayer src="local-resource://file/audio.mp3" />);
