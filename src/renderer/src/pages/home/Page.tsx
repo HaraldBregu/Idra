@@ -82,9 +82,12 @@ function attachmentId(): string {
 
 function formatDuration(durationMs: number): string {
 	const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
-	const minutes = Math.floor(totalSeconds / 60);
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
 	const seconds = totalSeconds % 60;
-	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	return hours > 0
+		? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+		: `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 function formatFileSize(size: number): string {
@@ -180,7 +183,12 @@ function AttachmentTray({
 					<Tooltip key={attachment.id}>
 						<TooltipTrigger
 							render={
-								<div className="flex max-w-44 items-center gap-1 rounded-lg border border-border/50 bg-muted/50 py-0.5 pl-1.5 pr-0.5">
+								<div
+									className={cn(
+										'flex items-center gap-1 rounded-lg border border-border/50 bg-muted/50 py-0.5 pl-1.5 pr-0.5',
+										isAudio ? 'max-w-md flex-wrap' : 'max-w-44'
+									)}
+								>
 									<span className="shrink-0 text-muted-foreground">
 										{isAudio ? <FileAudio className="size-2.5" /> : <Paperclip className="size-2.5" />}
 									</span>
@@ -189,7 +197,12 @@ function AttachmentTray({
 										{formatFileSize(attachment.file.size)}
 									</span>
 									{isAudio && attachment.url ? (
-										<audio controls src={attachment.url} className="h-5 w-24 shrink-0" />
+										<audio
+											controls
+											preload="metadata"
+											src={attachment.url}
+											className="h-8 w-full"
+										/>
 									) : null}
 									<Button
 										type="button"
