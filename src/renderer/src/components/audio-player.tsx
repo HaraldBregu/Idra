@@ -91,10 +91,13 @@ export function AudioPlayer({
 				step={0.1}
 				aria-label="Seek"
 				disabled={duration === 0}
-				onValueChange={([value]) => setSeekTime(value)}
-				onValueCommit={([value]) => {
+				onValueChange={([value]) => {
 					const player = playerRef.current;
 					if (player) player.currentTime = value;
+					setCurrentTime(value);
+					setSeekTime(value);
+				}}
+				onValueCommit={([value]) => {
 					setCurrentTime(value);
 					setSeekTime(null);
 				}}
