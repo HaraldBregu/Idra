@@ -1,17 +1,25 @@
-import type { ComponentProps, ReactElement } from 'react';
+import { useEffect, useRef, type ComponentProps, type ReactElement } from 'react';
 
 type VideoPlayerProps = ComponentProps<'video'> & {
 	readonly onOpenFile?: () => void;
 };
 
-export function VideoPlayer({ onFullscreenChange, onOpenFile, ...props }: VideoPlayerProps): ReactElement {
-	const handleFullscreenChange: ComponentProps<'video'>['onFullscreenChange'] = (event) => {
-		onFullscreenChange?.(event);
-		if (!onOpenFile || document.fullscreenElement !== event.currentTarget) return;
+export function VideoPlayer({ onOpenFile, ...props }: VideoPlayerProps): ReactElement {
+	const videoRef = useRef<HTMLVideoElement>(null);
 
-		void document.exitFullscreen().catch(() => undefined);
-		onOpenFile();
-	};
+	useEffect(() => {
+		const video = videoRef.current;
+		if (!video || !onOpenFile) return;
 
-	return <video {...props} onFullscreenChange={handleFullscreenChange} />;
+		const handleFullscreenChange = (): void => {
+			if (document.fullscreenElement !== video) return;
+			void document.exitFullscreen().catch(() => undefined);
+			onOpenFile();
+		};
+
+		document.addEventListener('fullscreenchange', handleFullscreenChange);
+		return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+	}, [onOpenFile]);
+
+	return <video ref={videoRef} {...props} />;
 }
