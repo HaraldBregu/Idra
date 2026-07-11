@@ -66,13 +66,16 @@ export function AudioPlayer({
 			</Button>
 			<span className="text-xs tabular-nums text-muted-foreground">{formatTime(currentTime)}</span>
 			<Slider
-				value={[currentTime]}
+				value={[seekTime ?? currentTime]}
 				max={duration || 1}
 				step={0.1}
 				aria-label="Seek"
-				onValueChange={([value]) => {
+				onValueChange={([value]) => setSeekTime(value)}
+				onValueCommit={([value]) => {
 					const player = playerRef.current;
 					if (player) player.currentTime = value;
+					setCurrentTime(value);
+					setSeekTime(null);
 				}}
 			/>
 			<span className="text-xs tabular-nums text-muted-foreground">{formatTime(duration)}</span>
