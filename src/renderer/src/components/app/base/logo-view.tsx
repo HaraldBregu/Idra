@@ -1,5 +1,4 @@
 import React from 'react';
-import { AppIconFriday } from '@/components/app/icons/AppIconFriday';
 
 export function LogoView(): React.JSX.Element {
 	return (
@@ -7,15 +6,13 @@ export function LogoView(): React.JSX.Element {
 			<div
 				className="relative flex size-[260px] items-center justify-center"
 				role="img"
-				aria-label="Friday logo orb"
+				aria-label="Magenta and orange planet with a glowing ring"
 			>
-				<div className="absolute inset-5 animate-pulse rounded-full bg-primary/20 blur-2xl" />
-				<div className="absolute inset-0 rounded-full border border-primary/25 [animation:spin_18s_linear_infinite]" />
-				<div className="absolute inset-5 rounded-full border border-primary/35 [transform:rotateX(68deg)_rotateZ(35deg)]" />
-				<div className="absolute inset-10 rounded-full border border-primary/20 [transform:rotateX(62deg)_rotateZ(-42deg)]" />
-				<div className="relative flex size-44 items-center justify-center rounded-full border border-primary/30 bg-gradient-to-br from-primary/30 via-background to-primary/10 shadow-[0_0_60px_hsl(var(--primary)/0.25)]">
-					<AppIconFriday className="size-24 text-primary" />
-				</div>
+				<div className="absolute left-2 top-[118px] h-8 w-[244px] rounded-[50%] border-2 border-fuchsia-500 shadow-[0_0_10px_#ec4899]" />
+				<div className="absolute left-2 top-[118px] h-8 w-[244px] rounded-[50%] border-2 border-orange-400 shadow-[0_0_10px_#fb923c] [clip-path:inset(0_0_0_50%)]" />
+				<div className="relative z-10 size-[210px] rounded-full bg-[radial-gradient(circle_at_68%_32%,#ffb15c_0%,#ff654f_24%,#d51f70_52%,#55116e_78%,#160a35_100%)] shadow-[inset_-20px_-24px_35px_rgba(14,4,38,0.55),0_0_28px_rgba(225,39,116,0.32)]" />
+				<div className="absolute left-2 top-[118px] z-20 h-8 w-[244px] rounded-[50%] border-2 border-fuchsia-400 shadow-[0_0_10px_#f472b6] [clip-path:inset(50%_0_0_0)]" />
+				<div className="absolute left-2 top-[118px] z-20 h-8 w-[244px] rounded-[50%] border-2 border-orange-300 shadow-[0_0_10px_#fdba74] [clip-path:inset(50%_0_0_50%)]" />
 			</div>
 			<div className="flex h-[22px] items-center gap-2">
 				<div className="size-2 animate-pulse rounded-full bg-primary" />
