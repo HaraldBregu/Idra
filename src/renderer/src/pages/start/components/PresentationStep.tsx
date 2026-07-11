@@ -1,9 +1,6 @@
 import React from 'react';
 import { Bot, Image as ImageIcon, Mic, Volume2 } from 'lucide-react';
 import { LogoView } from '@/components/app/base/logo-view';
-import { VoiceOrbJupiter } from '@/components/app/base/voice-orb-jupiter';
-import { VoiceOrbNeptune } from '@/components/app/base/voice-orb-neptune';
-import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
 import { Item, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { STEP_COPY } from '../constants';
 
@@ -20,9 +17,6 @@ export function PresentationStep(): React.JSX.Element {
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-5xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
 			<div className="flex w-full flex-wrap items-start justify-center gap-8">
-				<VoiceOrbThree />
-				<VoiceOrbNeptune />
-				<VoiceOrbJupiter />
 				<LogoView />
 			</div>
 			<h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-foreground">
