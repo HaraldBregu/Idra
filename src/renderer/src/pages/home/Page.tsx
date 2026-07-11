@@ -610,7 +610,7 @@ function PageContent(): ReactElement {
 						)}
 						<ChatContainerScrollAnchor className={showEmptyConversation ? 'h-0' : undefined} />
 					</ChatContainerContent>
-					<div className="pointer-events-none absolute inset-x-0 bottom-24 flex justify-center">
+					<div className="pointer-events-none absolute inset-x-0 bottom-24 z-30 flex justify-center">
 						<ScrollButton
 							type="button"
 							aria-label="Scroll to latest"
