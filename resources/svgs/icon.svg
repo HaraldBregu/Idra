@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1323 1189">
+  <defs>
+    <radialGradient id="sphere" cx="66%" cy="32%" r="85%">
+      <stop offset="0%" stop-color="#ffc96b"/>
+      <stop offset="30%" stop-color="#ff8c4a"/>
+      <stop offset="60%" stop-color="#f74e6e"/>
+      <stop offset="85%" stop-color="#c93a9e"/>
+      <stop offset="100%" stop-color="#7d3fd4"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff2fd2"/>
+      <stop offset="45%" stop-color="#ff4f9e"/>
+      <stop offset="100%" stop-color="#ffa53f"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <clipPath id="front">
+      <rect x="-660" y="0" width="1320" height="220"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1323" height="1189" fill="#000"/>
+
+  <g transform="translate(661 580) rotate(-4)">
+    <ellipse rx="600" ry="72" fill="none" stroke="url(#ring)" stroke-width="9" filter="url(#glow)"/>
+    <ellipse rx="600" ry="72" fill="none" stroke="url(#ring)" stroke-width="6"/>
+  </g>
+
+  <circle cx="661" cy="580" r="345" fill="url(#sphere)"/>
+
+  <g transform="translate(661 580) rotate(-4)" clip-path="url(#front)">
+    <ellipse rx="600" ry="72" fill="none" stroke="url(#ring)" stroke-width="9" filter="url(#glow)"/>
+    <ellipse rx="600" ry="72" fill="none" stroke="url(#ring)" stroke-width="6"/>
+  </g>
+</svg>
