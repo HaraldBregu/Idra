@@ -270,12 +270,10 @@ export function AssistantMessage({
 				<div className="flex w-full flex-col gap-2">
 					{standaloneMediaPaths.map((path) =>
 						isAudioPath(path) ? (
-							<ReactPlayer
+							<AudioPlayer
 								key={path}
 								src={localResourceUrl(path)}
-								controls
 								className="mb-4"
-								style={{ width: '100%', height: 54 }}
 								onContextMenu={() => void window.app.showAudioContextMenu(path)}
 							/>
 						) : isVideoPath(path) ? (

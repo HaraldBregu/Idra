@@ -492,18 +492,3 @@ input[type='range']:hover::-moz-range-thumb {
 	font-family: var(--font-mono);
 	font-size: 0.75rem;
 }
-
-/* react-video-audio-player: align control colors with the app theme. The
-   package styles hover via `.accent-color-hover:hover` with !important, so
-   these overrides need !important too. */
-.audio-player-wrapper .play-pause-button,
-.audio-player-wrapper .mute-button,
-.audio-player-wrapper .current-time-duration {
-	color: var(--muted-foreground) !important;
-}
-
-.audio-player-wrapper .accent-color-hover:hover,
-.video-player-wrapper .accent-color-hover:hover {
-	background-color: var(--accent) !important;
-	color: var(--accent-foreground) !important;
-}
