@@ -62,9 +62,15 @@ export const LLM_MODELS_BY_PROVIDER = {
 		model('devstral-2512', 'Devstral 2512'),
 	],
 	openai: [
+		model('gpt-5.6-sol', 'GPT-5.6 Sol'),
+		model('gpt-5.6-terra', 'GPT-5.6 Terra'),
+		model('gpt-5.6-luna', 'GPT-5.6 Luna'),
 		model('gpt-5.5', 'GPT-5.5'),
+		model('gpt-5.5-pro', 'GPT-5.5 Pro'),
 		model('gpt-5.4', 'GPT-5.4'),
+		model('gpt-5.4-pro', 'GPT-5.4 Pro'),
 		model('gpt-5.4-mini', 'GPT-5.4 Mini'),
+		model('gpt-5.4-nano', 'GPT-5.4 Nano'),
 	],
 	qwen: [
 		model('qwen3.7-max', 'Qwen3.7 Max'),
