@@ -1,11 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1323 1189">
   <defs>
-    <radialGradient id="sphere" cx="66%" cy="32%" r="85%">
-      <stop offset="0%" stop-color="#ffc96b"/>
-      <stop offset="30%" stop-color="#ff8c4a"/>
-      <stop offset="60%" stop-color="#f74e6e"/>
-      <stop offset="85%" stop-color="#c93a9e"/>
-      <stop offset="100%" stop-color="#7d3fd4"/>
+    <radialGradient id="sphere" cx="68%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="#ffcf70"/>
+      <stop offset="25%" stop-color="#ff9350"/>
+      <stop offset="52%" stop-color="#fa5a64"/>
+      <stop offset="78%" stop-color="#ee3a86"/>
+      <stop offset="92%" stop-color="#b83cb0"/>
+      <stop offset="100%" stop-color="#7a3fd8"/>
     </radialGradient>
     <linearGradient id="ring" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ff2fd2"/>
