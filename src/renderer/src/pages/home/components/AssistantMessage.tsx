@@ -1,7 +1,7 @@
 import { useState, type ReactElement, type ReactNode } from 'react';
 import { defaultUrlTransform } from 'react-markdown';
 import ReactPlayer from 'react-player';
-import { VideoPlayer } from 'react-video-audio-player';
+import { VideoPlayer } from '@/components/video-player';
 import { Copy, Reply, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message, MessageActions } from '@/components/prompt-kit/message';
@@ -272,11 +272,12 @@ export function AssistantMessage({
 				<div className="flex w-full flex-col gap-2">
 					{standaloneMediaPaths.map((path) =>
 						isAudioPath(path) ? (
-							<audio
+							<ReactPlayer
 								key={path}
-								controls
 								src={localResourceUrl(path)}
-								className="mb-4 w-full"
+								controls
+								className="mb-4"
+								style={{ width: '100%', height: 54 }}
 								onContextMenu={() => void window.app.showAudioContextMenu(path)}
 							/>
 						) : isVideoPath(path) ? (

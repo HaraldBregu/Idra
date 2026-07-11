@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, LoaderCircle, Sparkles } from 'lucide-react';
-import { VideoPlayer } from 'react-video-audio-player';
+import { VideoPlayer } from '@/components/video-player';
 import {
 	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
 	TEXT_TO_VIDEO_PROVIDER_IDS,
