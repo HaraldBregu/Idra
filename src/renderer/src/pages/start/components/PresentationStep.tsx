@@ -1,6 +1,8 @@
 import React from 'react';
 import { Bot, Image as ImageIcon, Mic, Volume2 } from 'lucide-react';
-import { DomeWaveAnimation } from '@/components/ui/dome-wave-animation';
+import { VoiceOrbJupiter } from '@/components/app/base/voice-orb-jupiter';
+import { VoiceOrbNeptune } from '@/components/app/base/voice-orb-neptune';
+import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
 import { Item, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { STEP_COPY } from '../constants';
 
@@ -15,8 +17,12 @@ export function PresentationStep(): React.JSX.Element {
 	const { title, description } = STEP_COPY.presentation;
 
 	return (
-		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
-			<DomeWaveAnimation height={120} className="w-full max-w-sm" />
+		<div className="mx-auto flex min-h-full w-full max-w-5xl flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
+			<div className="flex w-full flex-wrap items-start justify-center gap-8">
+				<VoiceOrbThree />
+				<VoiceOrbNeptune />
+				<VoiceOrbJupiter />
+			</div>
 			<h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-foreground">
 				{title}
 			</h1>
