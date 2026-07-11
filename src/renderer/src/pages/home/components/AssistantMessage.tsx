@@ -140,11 +140,7 @@ function normalizeImageLinks(content: string): string {
 	});
 }
 
-function statusLabelContent(
-	message: AgentMessage,
-	isStreaming: boolean,
-	label: string
-): ReactNode {
+function statusLabelContent(message: AgentMessage, isStreaming: boolean, label: string): ReactNode {
 	if (isStreaming && isRunningState(message.state)) {
 		return <TextShimmer className="text-sm">{label}</TextShimmer>;
 	}
@@ -231,9 +227,10 @@ export function AssistantMessage({
 		if (messageText.length === 0) return;
 		void (async () => {
 			if (navigator.clipboard?.writeText) {
-				const copied = await navigator.clipboard
-					.writeText(messageText)
-					.then(() => true, () => false);
+				const copied = await navigator.clipboard.writeText(messageText).then(
+					() => true,
+					() => false
+				);
 				if (copied) return;
 			}
 
@@ -282,10 +279,10 @@ export function AssistantMessage({
 							<VideoPlayer
 								key={path}
 								src={localResourceUrl(path)}
-							controls
-							className="mb-4 w-full overflow-hidden rounded-xl border border-border/50"
-							onOpenFile={() => void window.app.openVideo(path)}
-							onContextMenu={() => void window.app.showVideoContextMenu(path)}
+								controls
+								className="mb-4 w-full overflow-hidden rounded-xl border border-border/50"
+								onOpenFile={() => void window.app.openVideo(path)}
+								onContextMenu={() => void window.app.showVideoContextMenu(path)}
 							/>
 						) : (
 							<img

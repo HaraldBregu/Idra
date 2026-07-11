@@ -70,31 +70,49 @@ export interface AgentInvokeChannelMap {
 		args: [name: string];
 		result: import('./skills_types').SkillLoadResult | undefined;
 	};
-	[AgentChannels.skillsImport]: { args: []; result: import('./skills_types').SkillImportResult | undefined };
+	[AgentChannels.skillsImport]: {
+		args: [];
+		result: import('./skills_types').SkillImportResult | undefined;
+	};
 	[AgentChannels.skillsDownload]: {
 		args: [name: string];
 		result: import('./skills_types').SkillDownloadResult | undefined;
 	};
-	[AgentChannels.skillsDelete]: { args: [name: string]; result: import('./skills_types').SkillDeleteResult };
+	[AgentChannels.skillsDelete]: {
+		args: [name: string];
+		result: import('./skills_types').SkillDeleteResult;
+	};
 	[AgentChannels.skillsSetEnabled]: {
 		args: [id: string, enabled: boolean];
 		result: import('./skills_types').SkillInfo;
 	};
 	[AgentChannels.skillsOpenRoot]: { args: []; result: void };
 	[AgentChannels.skillsGetRoot]: { args: []; result: string };
-	[AgentChannels.healthSettings]: { args: []; result: import('../main/agent/health/health_types').HealthSettings };
+	[AgentChannels.healthSettings]: {
+		args: [];
+		result: import('../main/agent/health/health_types').HealthSettings;
+	};
 	[AgentChannels.healthSaveSettings]: {
 		args: [request: Partial<import('../main/agent/health/health_types').HealthSettings>];
 		result: import('../main/agent/health/health_types').HealthSettings;
 	};
-	[AgentChannels.healthResetSettings]: { args: []; result: import('../main/agent/health/health_types').HealthSettings };
+	[AgentChannels.healthResetSettings]: {
+		args: [];
+		result: import('../main/agent/health/health_types').HealthSettings;
+	};
 	[AgentChannels.healthData]: { args: []; result: string };
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
 	[AgentChannels.mcpList]: { args: []; result: import('./mcp_types').McpSettings };
 	[AgentChannels.mcpGet]: { args: [id: string]; result: import('./mcp_types').McpSettings };
-	[AgentChannels.mcpSave]: { args: [input: import('./mcp_types').McpSettings]; result: import('./mcp_types').McpSettings };
+	[AgentChannels.mcpSave]: {
+		args: [input: import('./mcp_types').McpSettings];
+		result: import('./mcp_types').McpSettings;
+	};
 	[AgentChannels.mcpDelete]: { args: [id: string]; result: void };
-	[AgentChannels.mcpOauthStart]: { args: [id: string]; result: import('./mcp_types').McpOAuthStart };
+	[AgentChannels.mcpOauthStart]: {
+		args: [id: string];
+		result: import('./mcp_types').McpOAuthStart;
+	};
 	[AgentChannels.mcpOauthFinish]: { args: [id: string, code: string]; result: void };
 }
 
@@ -440,7 +458,8 @@ export interface WindowEventChannelMap {
 }
 
 export interface InvokeChannelMap
-	extends AppInvokeChannelMap,
+	extends
+		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		WindowInvokeChannelMap,
@@ -455,7 +474,8 @@ export interface InvokeChannelMap
 export interface SendChannelMap extends WindowSendChannelMap {}
 
 export interface EventChannelMap
-	extends AgentEventChannelMap,
+	extends
+		AgentEventChannelMap,
 		WindowEventChannelMap,
 		ChannelsEventChannelMap,
 		SttEventChannelMap {}

@@ -165,11 +165,7 @@ export const agent: AgentApi = {
 	): Promise<boolean> => {
 		const normalizedToolCallId = optionalTrimmedString(toolCallId);
 		if (!normalizedToolCallId) throw new Error('Invalid tool call id.');
-		return typedInvokeUnwrap(
-			AgentChannels.respondToolPermission,
-			normalizedToolCallId,
-			decision
-		);
+		return typedInvokeUnwrap(AgentChannels.respondToolPermission, normalizedToolCallId, decision);
 	},
 	listSessions: (): Promise<AgentSessionSummary[]> => {
 		return typedInvokeUnwrap(AgentChannels.listSessions);
