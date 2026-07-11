@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import { Pause, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,9 +7,13 @@ import { cn } from '@/lib/utils';
 
 function formatTime(seconds: number): string {
 	if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
-	const minutes = Math.floor(seconds / 60);
-	const secs = Math.floor(seconds % 60);
-	return `${minutes}:${String(secs).padStart(2, '0')}`;
+	const totalSeconds = Math.floor(seconds);
+	const hours = Math.floor(totalSeconds / 3600);
+	const minutes = Math.floor((totalSeconds % 3600) / 60);
+	const secs = totalSeconds % 60;
+	return hours > 0
+		? `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+		: `${minutes}:${String(secs).padStart(2, '0')}`;
 }
 
 export function AudioPlayer({
@@ -28,6 +32,13 @@ export function AudioPlayer({
 	// While the user drags the slider, the thumb must follow the pointer instead
 	// of the timeupdate events; the seek happens once on release.
 	const [seekTime, setSeekTime] = useState<number | null>(null);
+
+	useEffect(() => {
+		setIsPlaying(false);
+		setDuration(0);
+		setCurrentTime(0);
+		setSeekTime(null);
+	}, [src]);
 
 	const togglePlay = (): void => {
 		const player = playerRef.current;
@@ -50,8 +61,13 @@ export function AudioPlayer({
 				style={{ display: 'none' }}
 				onPlay={() => setIsPlaying(true)}
 				onPause={() => setIsPlaying(false)}
-				onDurationChange={() => setDuration(playerRef.current?.duration ?? 0)}
-				onTimeUpdate={() => setCurrentTime(playerRef.current?.currentTime ?? 0)}
+				onLoadedMetadata={(event) => {
+					setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0);
+				}}
+				onDurationChange={(event) => {
+					setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0);
+				}}
+				onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
 				onEnded={() => setIsPlaying(false)}
 			/>
 			<Button
@@ -70,6 +86,7 @@ export function AudioPlayer({
 				max={duration || 1}
 				step={0.1}
 				aria-label="Seek"
+				disabled={duration === 0}
 				onValueChange={([value]) => setSeekTime(value)}
 				onValueCommit={([value]) => {
 					const player = playerRef.current;
