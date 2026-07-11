@@ -25,6 +25,9 @@ export function AudioPlayer({
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
+	// While the user drags the slider, the thumb must follow the pointer instead
+	// of the timeupdate events; the seek happens once on release.
+	const [seekTime, setSeekTime] = useState<number | null>(null);
 
 	const togglePlay = (): void => {
 		const player = playerRef.current;
