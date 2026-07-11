@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bot, Image as ImageIcon, Mic, Volume2 } from 'lucide-react';
+import { LogoView } from '@/components/app/base/logo-view';
 import { VoiceOrbJupiter } from '@/components/app/base/voice-orb-jupiter';
 import { VoiceOrbNeptune } from '@/components/app/base/voice-orb-neptune';
 import { VoiceOrbThree } from '@/components/app/base/voice-orb-three';
@@ -22,6 +23,7 @@ export function PresentationStep(): React.JSX.Element {
 				<VoiceOrbThree />
 				<VoiceOrbNeptune />
 				<VoiceOrbJupiter />
+				<LogoView />
 			</div>
 			<h1 className="mt-8 text-3xl font-bold leading-tight tracking-tight text-foreground">
 				{title}
