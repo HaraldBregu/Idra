@@ -7,11 +7,12 @@ const ORBIT_STYLE: React.CSSProperties = {
 	maskComposite: 'exclude',
 	WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
 	WebkitMaskComposite: 'xor',
+	padding: 14,
 };
 
 const ORBITS = [
-	{ width: 350, height: 92, padding: 18, opacity: 1 },
-	{ width: 430, height: 120, padding: 9, opacity: 0.45 },
+	{ width: 350, height: 92 },
+	{ width: 378, height: 120 },
 ] as const;
 
 export function LogoView(): React.JSX.Element {
