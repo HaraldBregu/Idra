@@ -186,10 +186,11 @@ export function AssistantMessage({
 			const localPath = resolveLocalImagePath(src, mediaPaths);
 			if (localPath && isAudioPath(localPath)) {
 				return (
-					<audio
-						controls
+					<ReactPlayer
 						src={localResourceUrl(localPath)}
-						className="mb-4 mt-2 w-full"
+						controls
+						className="mb-4 mt-2"
+						style={{ width: '100%', height: 54 }}
 						onContextMenu={() => void window.app.showAudioContextMenu(localPath)}
 					/>
 				);
