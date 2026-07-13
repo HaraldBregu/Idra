@@ -2,16 +2,30 @@ import type { Dispatch } from 'react';
 import { useEffect, useRef } from 'react';
 import {
 	createInitialModelServiceState,
-	getAssistantProviders,
 	getErrorMessage,
 	getSelectedServiceModel,
-	isModelStep,
 	MODEL_SERVICE_DEFINITIONS,
-	SETUP_STEPS,
 } from '../constants';
-import type { ModelServiceDefinition, ModelServiceId, ProviderModelGroup } from '../types';
+import type { ModelServiceDefinition, ModelServiceId, ModelServiceState } from '../types';
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';
+
+async function loadServiceState(service: ModelServiceDefinition): Promise<ModelServiceState> {
+	const [selection, modelGroups] = await Promise.all([
+		service.getSelection().catch(() => undefined),
+		service.loadModelGroups().catch(() => []),
+	]);
+	const selectedGroup =
+		modelGroups.find((group) => group.provider.id === selection?.providerId) ?? modelGroups[0];
+	const selectedModel =
+		selectedGroup?.models.find((model) => model.id === selection?.modelId) ??
+		selectedGroup?.models[0];
+	return {
+		providerId: selectedGroup?.provider.id ?? '',
+		modelId: selectedModel?.id ?? '',
+		modelGroups,
+	};
+}
 
 export function useModelServices(
 	state: SetupState,
@@ -28,45 +42,22 @@ export function useModelServices(
 	}, [step]);
 
 	useEffect(() => {
-		if (!isModelStep(step)) return;
+		if (step !== 'models') return;
 		if (modelsLoadedRef.current) return;
-		const service = MODEL_SERVICE_DEFINITIONS.find((item) => item.id === step);
-		if (!service) return;
 		let cancelled = false;
 
-		async function loadServiceModels(definition: ModelServiceDefinition): Promise<void> {
+		async function loadAllServices(): Promise<void> {
 			dispatch({ type: 'SET_LOADING_MODELS', loading: true });
 			dispatch({ type: 'CLEAR_ERROR' });
 			try {
-				const selection = await definition.getSelection().catch(() => undefined);
-				if (cancelled) return;
-
-				const modelGroups: ProviderModelGroup[] = [];
-				for (const provider of getAssistantProviders()) {
-					const models = await definition.getModels(provider);
-					if (models.length > 0) {
-						modelGroups.push({ provider, models });
-					}
-				}
-
-				let providerId = '';
-				let modelId = '';
-				if (selection) {
-					const selectedGroup = modelGroups.find(
-						(group) => group.provider.id === selection.provider.id
-					);
-					const selectedModel = selectedGroup?.models.find(
-						(model) => model.id === selection.model.id
-					);
-					if (selectedGroup && selectedModel) {
-						providerId = selectedGroup.provider.id;
-						modelId = selectedModel.id;
-					}
-				}
-
+				const loadedStates = await Promise.all(
+					MODEL_SERVICE_DEFINITIONS.map((service) => loadServiceState(service))
+				);
 				if (cancelled) return;
 				const nextServiceStates = createInitialModelServiceState();
-				nextServiceStates[definition.id] = { providerId, modelId, modelGroups };
+				MODEL_SERVICE_DEFINITIONS.forEach((service, index) => {
+					nextServiceStates[service.id] = loadedStates[index];
+				});
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: nextServiceStates });
 				modelsLoadedRef.current = true;
 			} catch (error) {
@@ -75,7 +66,7 @@ export function useModelServices(
 				dispatch({ type: 'LOAD_SERVICE_STATES', states: createInitialModelServiceState() });
 				dispatch({
 					type: 'SET_ERROR',
-					message: getErrorMessage(error, 'Could not load models for this provider.'),
+					message: getErrorMessage(error, 'Could not load models.'),
 				});
 			} finally {
 				if (!cancelled) {
@@ -84,59 +75,41 @@ export function useModelServices(
 			}
 		}
 
-		void loadServiceModels(service);
+		void loadAllServices();
 		return () => {
 			cancelled = true;
 		};
 	}, [step, dispatch]);
 
-	function handleServiceProviderChange(serviceId: ModelServiceId, value: string | null): void {
-		const providerId = value ?? '';
-		const group = serviceStates[serviceId].modelGroups.find(
-			(item) => item.provider.id === providerId
-		);
+	function handleServiceChange(
+		serviceId: ModelServiceId,
+		providerId: string,
+		modelId: string
+	): void {
 		dispatch({ type: 'CLEAR_ERROR' });
-		dispatch({
-			type: 'CHANGE_SERVICE_PROVIDER',
-			serviceId,
-			providerId: group?.provider.id ?? providerId,
-			modelId: '',
-		});
+		dispatch({ type: 'CHANGE_SERVICE_SELECTION', serviceId, providerId, modelId });
 	}
 
-	function handleServiceModelChange(serviceId: ModelServiceId, value: string | null): void {
-		dispatch({ type: 'CLEAR_ERROR' });
-		dispatch({ type: 'CHANGE_SERVICE_MODEL', serviceId, modelId: value ?? '' });
-	}
-
-	async function handleSaveModelStep(
-		service: ModelServiceDefinition,
-		stepIndex: number
-	): Promise<void> {
+	async function handleSaveModels(): Promise<void> {
 		if (savingConfig) return;
 
 		dispatch({ type: 'SET_SAVING_CONFIG', saving: true });
 		dispatch({ type: 'CLEAR_ERROR' });
 		try {
-			const selected = getSelectedServiceModel(serviceStates[service.id]);
-			if (selected) {
+			for (const service of MODEL_SERVICE_DEFINITIONS) {
+				const selected = getSelectedServiceModel(serviceStates[service.id]);
+				if (!selected) continue;
 				const saved = await service.saveSelection(selected.provider, selected.model);
 				if (!saved) {
-					throw new Error(`Could not save the selected ${service.stepTitle} model.`);
+					throw new Error(`Could not save the selected ${service.title} model.`);
 				}
 			}
-
-			const nextStep = SETUP_STEPS[stepIndex + 1];
-			if (!nextStep) {
-				navigate('/home');
-				return;
-			}
-			dispatch({ type: 'GO_TO_STEP', step: nextStep });
+			navigate('/home');
 		} catch (error) {
 			console.error('[useModelServices] Failed to save model service config:', error);
 			dispatch({
 				type: 'SET_ERROR',
-				message: getErrorMessage(error, `Could not save the selected ${service.stepTitle} model.`),
+				message: getErrorMessage(error, 'Could not save your model selections.'),
 			});
 		} finally {
 			dispatch({ type: 'SET_SAVING_CONFIG', saving: false });
@@ -144,8 +117,7 @@ export function useModelServices(
 	}
 
 	return {
-		handleServiceProviderChange,
-		handleServiceModelChange,
-		handleSaveModelStep,
+		handleServiceChange,
+		handleSaveModels,
 	};
 }
