@@ -6,8 +6,14 @@ import {
 	cloneModels,
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
+	MUSIC_PROVIDER_IDS,
+	TEXT_TO_AUDIO_MODELS_BY_PROVIDER,
+	TEXT_TO_IMAGE_MODELS_BY_PROVIDER,
+	TEXT_TO_IMAGE_PROVIDER_IDS,
 	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
 	TEXT_TO_SPEECH_PROVIDER_IDS,
+	TEXT_TO_VIDEO_MODELS_BY_PROVIDER,
+	TEXT_TO_VIDEO_PROVIDER_IDS,
 } from '../../../../shared/provider_models_definitions';
 import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
