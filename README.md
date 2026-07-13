@@ -1,6 +1,12 @@
-# Friday
+<p align="center">
+  <img src="resources/svgs/logo.svg" alt="Friday logo" width="144" />
+</p>
 
-**Your desktop AI copilot for everyday tasks.**
+<h1 align="center">Friday</h1>
+
+<p align="center">
+  <strong>Your desktop AI copilot for everyday tasks.</strong>
+</p>
 
 Friday is an Electron desktop app for AI-assisted workflows. You chat with it in plain language (typed or spoken, with image and PDF attachments) and it gets real work done: it reads and writes files, runs commands, searches the web, generates images, transcribes your voice, speaks back, runs on a schedule, and connects to the tools and messaging apps you already use.
 
