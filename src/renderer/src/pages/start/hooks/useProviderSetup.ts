@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { openExternalUrl } from '@/lib/external-links';
 import { DEFAULT_PROVIDERS } from '../../../../../shared';
 import type { Provider } from '../../../../../shared/providers_types';
-import { actionableProviderCatalog, getErrorMessage, MODEL_SERVICE_STEP_IDS } from '../constants';
+import { actionableProviderCatalog, getErrorMessage } from '../constants';
 import type { ProviderCatalogItem, ProviderSetupEntry } from '../types';
 import type { SetupAction } from '../state/actions';
 import type { SetupState } from '../state/types';
