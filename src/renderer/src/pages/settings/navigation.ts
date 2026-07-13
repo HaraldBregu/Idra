@@ -161,6 +161,12 @@ export const SETTINGS_NAVIGATION = [
 		icon: Plug,
 	},
 	{
+		path: '/settings/library',
+		labelKey: 'settings.tabs.library',
+		descriptionKey: 'settings.overview.descriptions.library',
+		icon: LibraryBig,
+	},
+	{
 		path: '/settings/tasks',
 		labelKey: 'settings.tabs.taskScheduler',
 		descriptionKey: 'settings.overview.descriptions.cron',
