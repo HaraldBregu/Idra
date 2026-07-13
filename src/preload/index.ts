@@ -263,6 +263,9 @@ export const agent: AgentApi = {
 	mcpOauthFinish: (id: string, code: string): Promise<void> => {
 		return typedInvokeUnwrap<void>(AgentChannels.mcpOauthFinish, id, code);
 	},
+	libraryList: (): Promise<LibraryFile[]> => {
+		return typedInvokeUnwrap(AgentChannels.libraryList);
+	},
 } satisfies AgentApi;
 
 export const app: AppApi = {
