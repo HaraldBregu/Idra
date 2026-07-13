@@ -80,7 +80,7 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
 		case 'LOAD_SERVICE_STATES':
 			return { ...state, serviceStates: action.states };
 
-		case 'CHANGE_SERVICE_PROVIDER':
+		case 'CHANGE_SERVICE_SELECTION':
 			return {
 				...state,
 				serviceStates: {
@@ -88,18 +88,6 @@ export function setupReducer(state: SetupState, action: SetupAction): SetupState
 					[action.serviceId]: {
 						...state.serviceStates[action.serviceId],
 						providerId: action.providerId,
-						modelId: action.modelId,
-					},
-				},
-			};
-
-		case 'CHANGE_SERVICE_MODEL':
-			return {
-				...state,
-				serviceStates: {
-					...state.serviceStates,
-					[action.serviceId]: {
-						...state.serviceStates[action.serviceId],
 						modelId: action.modelId,
 					},
 				},
