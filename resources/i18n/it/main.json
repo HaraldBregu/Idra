@@ -172,7 +172,8 @@
 				"providers": "Chiavi API e provider",
 				"cron": "Attivita agente pianificate",
 				"heartbeat": "Controlli periodici agente",
-				"health": "Controlli salute periodici"
+				"health": "Controlli salute periodici",
+				"library": "File multimediali generati"
 			}
 		},
 		"tabs": {
