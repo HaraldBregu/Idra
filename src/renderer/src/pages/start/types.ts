@@ -26,7 +26,15 @@ export type ProviderModelGroup = {
 	models: Model[];
 };
 
-export type ModelServiceId = 'assistant' | 'voice' | 'transcription' | 'tasks' | 'health';
+export type ModelServiceId =
+	| 'assistant'
+	| 'voice'
+	| 'transcription'
+	| 'image'
+	| 'video'
+	| 'audio'
+	| 'tasks'
+	| 'health';
 
 export type ModelServiceSelection = {
 	providerId: string;
