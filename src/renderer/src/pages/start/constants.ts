@@ -168,7 +168,7 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 	models: {
 		title: 'Choose your models',
 		description:
-			'Pick the model each service should use. You can change any of these later in settings.',
+			'Pick the model each service should use. Only the assistant is required — you can change any of these later in settings.',
 	},
 };
 
