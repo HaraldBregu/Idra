@@ -48,7 +48,6 @@ describe('resolveToolPermission', () => {
 
 	it('allows exec when both command and dir are allowlisted', () => {
 		getToolPermission.mockReturnValue('ask');
-		isWithinSandbox.mockReturnValue(false);
 		getToolAllowedPaths.mockReturnValue(['/work']);
 		getToolAllowedCommands.mockReturnValue(['git']);
 		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/work' })).toBe('allow');
