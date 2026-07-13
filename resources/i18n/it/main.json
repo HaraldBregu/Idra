@@ -864,6 +864,12 @@
 			"libraryTitle": "Audio generati",
 			"libraryEmpty": "Nessun audio generato."
 		},
+		"library": {
+			"title": "Libreria",
+			"description": "Sfoglia i file multimediali nella libreria dell'agente.",
+			"itemsTitle": "Tutti i file",
+			"empty": "Nessun file multimediale."
+		},
 		"modelServices": {
 			"title": "Servizi modello",
 			"description": "Rivedi i servizi modello con incarichi specifici disponibili in Friday.",
