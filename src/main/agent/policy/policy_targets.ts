@@ -13,8 +13,8 @@ function patchDirs(input: string): string[] {
 	return dirs;
 }
 
-// ponytail: exec is confined by its workdir only; a command can still touch paths
-// outside the sandbox. Airtight confinement needs OS-level isolation, not cwd checks.
+// ponytail: exec is gated by its workdir only; a command can still touch paths
+// outside it. Airtight confinement needs OS-level isolation, not cwd checks.
 export function toolTargetDirs(toolName: string, args: Record<string, unknown>): string[] {
 	if (toolName === 'apply_patch')
 		return typeof args.input === 'string' ? patchDirs(args.input) : [];
