@@ -56,6 +56,31 @@ function getLlmModelGroups(): ProviderModelGroup[] {
 	return toModelGroups(LLM_PROVIDERS, LLM_MODELS_BY_PROVIDER);
 }
 
+type ModelIdApi = {
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+};
+
+function toIdSelectionHandlers(
+	getApi: () => ModelIdApi
+): Pick<ModelServiceDefinition, 'getSelection' | 'saveSelection'> {
+	return {
+		getSelection: async () => {
+			const api = getApi();
+			const [providerId, modelId] = await Promise.all([api.getProviderId(), api.getModelId()]);
+			return providerId && modelId ? { providerId, modelId } : undefined;
+		},
+		saveSelection: async (provider, model) => {
+			const api = getApi();
+			await api.setProviderId(provider.id);
+			await api.setModelId(model.id);
+			return true;
+		},
+	};
+}
+
 async function getTranscriptionModelGroups(): Promise<ProviderModelGroup[]> {
 	const providers = await window.transcribe.listProviders();
 	const modelGroups: ProviderModelGroup[] = [];
