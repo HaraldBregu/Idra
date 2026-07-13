@@ -29,8 +29,10 @@ describe('safeName', () => {
 	it('replaces disallowed characters with underscores', () => {
 		expect(safeName('a/b c:d')).toBe('a_b_c_d');
 	});
-	it('falls back to "session" when everything is stripped', () => {
-		expect(safeName('///')).toBe('session');
+	it('replaces each disallowed char (does not collapse them)', () => {
+		expect(safeName('///')).toBe('___');
+	});
+	it('falls back to "session" only when the result is empty', () => {
 		expect(safeName('')).toBe('session');
 	});
 });
