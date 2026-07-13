@@ -1,7 +1,5 @@
-import type { LucideIcon } from 'lucide-react';
-import { AGENTS } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared';
-import type { Model, ModelSelection } from '@/lib/compat';
+import type { Model } from '@/lib/compat';
 
 export type ProviderOption = {
 	label: string;
@@ -28,16 +26,19 @@ export type ProviderModelGroup = {
 	models: Model[];
 };
 
-export type ModelServiceId = typeof AGENTS.assistant;
+export type ModelServiceId = 'assistant' | 'voice' | 'transcription' | 'tasks' | 'health';
+
+export type ModelServiceSelection = {
+	providerId: string;
+	modelId: string;
+};
 
 export type ModelServiceDefinition = {
 	id: ModelServiceId;
-	stepName: string;
-	stepTitle: string;
-	stepDescription: string;
-	icon: LucideIcon;
-	getSelection: () => Promise<ModelSelection | undefined>;
-	getModels: (provider: PublicProvider) => Promise<Model[]>;
+	title: string;
+	description: string;
+	getSelection: () => Promise<ModelServiceSelection | undefined>;
+	loadModelGroups: () => Promise<ProviderModelGroup[]>;
 	saveSelection: (provider: PublicProvider, model: Model) => Promise<boolean>;
 };
 
@@ -49,4 +50,4 @@ export type ModelServiceState = {
 
 export type ModelServiceStateMap = Record<ModelServiceId, ModelServiceState>;
 
-export type SetupStep = 'presentation' | 'providers' | ModelServiceId;
+export type SetupStep = 'presentation' | 'providers' | 'models';
