@@ -133,6 +133,7 @@ export interface TranscribeApi {
 import type { PublicProvider } from '../shared';
 import type { Provider } from '../shared/providers_types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
+import type { LibraryFile } from '../shared/library_types';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type {
