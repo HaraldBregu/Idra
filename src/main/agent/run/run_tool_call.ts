@@ -47,8 +47,7 @@ export async function* runToolCall(
 			if (decision === 'approve_always') {
 				const command = toolCommandName(toolCall.args);
 				if (command) addToolAllowedCommand(toolCall.name, command);
-				const dirs = toolTargetDirs(toolCall.name, toolCall.args);
-				for (const dir of dirs.filter((d) => !isWithinSandbox(d)))
+				for (const dir of toolTargetDirs(toolCall.name, toolCall.args))
 					addToolAllowedPath(toolCall.name, dir);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
