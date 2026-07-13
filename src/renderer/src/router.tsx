@@ -373,6 +373,14 @@ const routes: RouteObject[] = [
 						element: <Navigate to="/settings/music" replace />,
 					},
 					{
+						path: 'library',
+						element: (
+							<SettingsRouteWrapper>
+								<LibraryPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'model-services/:serviceId/details/*',
 						element: <ModelServiceLegacyRedirect />,
 					},
