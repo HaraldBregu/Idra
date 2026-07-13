@@ -864,6 +864,12 @@
 			"libraryTitle": "Generated audio",
 			"libraryEmpty": "No audio generated yet."
 		},
+		"library": {
+			"title": "Library",
+			"description": "Browse the media files in the agent library.",
+			"itemsTitle": "All files",
+			"empty": "No media files yet."
+		},
 		"modelServices": {
 			"title": "Model services",
 			"description": "Review the job-specific model services available to Friday.",
