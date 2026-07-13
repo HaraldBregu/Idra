@@ -10,6 +10,5 @@ export type SetupAction =
 	| { type: 'SET_SAVING_PROVIDER'; providerId: string | null }
 	| { type: 'SET_LOADING_MODELS'; loading: boolean }
 	| { type: 'LOAD_SERVICE_STATES'; states: ModelServiceStateMap }
-	| { type: 'CHANGE_SERVICE_PROVIDER'; serviceId: ModelServiceId; providerId: string; modelId: string }
-	| { type: 'CHANGE_SERVICE_MODEL'; serviceId: ModelServiceId; modelId: string }
+	| { type: 'CHANGE_SERVICE_SELECTION'; serviceId: ModelServiceId; providerId: string; modelId: string }
 	| { type: 'SET_SAVING_CONFIG'; saving: boolean };
