@@ -2,13 +2,12 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { AlertCircle, ArrowRight, LoaderCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ModelServiceStep } from './components/ModelServiceStep';
+import { ModelsStep } from './components/ModelsStep';
 import { PresentationStep } from './components/PresentationStep';
 import { ProviderStep } from './components/ProviderStep';
 import { StepProgress } from './components/StepProgress';
 import {
 	getSelectedServiceModel,
-	isModelStep,
 	MODEL_SERVICE_DEFINITIONS,
 	SETUP_STEPS,
 } from './constants';
@@ -56,23 +55,15 @@ const StartPage: React.FC = () => {
 		handleOpenProviderLink,
 	} = useProviderSetup(state, dispatch);
 
-	const { handleServiceProviderChange, handleServiceModelChange, handleSaveModelStep } =
-		useModelServices(state, dispatch, navigate);
+	const { handleServiceChange, handleSaveModels } = useModelServices(state, dispatch, navigate);
 
 	const stepIndex = SETUP_STEPS.indexOf(step);
-	const currentService = isModelStep(step)
-		? MODEL_SERVICE_DEFINITIONS.find((service) => service.id === step)
-		: undefined;
 	const hasProviderDraft = providerEntries.some(
 		(entry) => entry.apiKeySaved || entry.apiKey.trim().length > 0
 	);
 	const canContinueProviders = hasProviderDraft && savingProviderId === null;
-	const selectedServiceModel = currentService
-		? getSelectedServiceModel(serviceStates[currentService.id])
-		: undefined;
-	const canContinueModelStep =
-		currentService !== undefined &&
-		selectedServiceModel !== undefined &&
+	const canContinueModels =
+		getSelectedServiceModel(serviceStates.assistant) !== undefined &&
 		!loadingModels &&
 		!savingConfig;
 	const isBusy = savingProviderId !== null || savingConfig;
@@ -93,9 +84,7 @@ const StartPage: React.FC = () => {
 			return;
 		}
 
-		if (currentService) {
-			void handleSaveModelStep(currentService, stepIndex);
-		}
+		void handleSaveModels();
 	}
 
 	function getPrimaryLabel(): string {
@@ -107,7 +96,7 @@ const StartPage: React.FC = () => {
 
 	function isPrimaryDisabled(): boolean {
 		if (step === 'providers') return !canContinueProviders;
-		if (currentService) return !canContinueModelStep;
+		if (step === 'models') return !canContinueModels;
 		return isBusy;
 	}
 
@@ -125,15 +114,13 @@ const StartPage: React.FC = () => {
 			);
 		}
 
-		if (currentService) {
+		if (step === 'models') {
 			return (
-				<ModelServiceStep
-					service={currentService}
-					serviceState={serviceStates[currentService.id]}
+				<ModelsStep
+					serviceStates={serviceStates}
 					loadingModels={loadingModels}
 					savingConfig={savingConfig}
-					onProviderChange={handleServiceProviderChange}
-					onModelChange={handleServiceModelChange}
+					onServiceChange={handleServiceChange}
 				/>
 			);
 		}

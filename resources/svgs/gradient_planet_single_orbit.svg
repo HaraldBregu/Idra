@@ -1,0 +1,24 @@
+<svg width="100%" viewBox="0 0 690 690" role="img" xmlns="http://www.w3.org/2000/svg" style=""><title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Gradient planet with single orbit</title><desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">A glowing sphere with purple, pink and orange gradient, surrounded by one orbital ring, on a black background.</desc>
+<defs>
+<radialGradient id="planetB" cx="62%" cy="38%" r="85%">
+<stop offset="0%" stop-color="#ffb347"/>
+<stop offset="28%" stop-color="#ff8a3d"/>
+<stop offset="52%" stop-color="#f4436c"/>
+<stop offset="75%" stop-color="#e0335f"/>
+<stop offset="100%" stop-color="#5b21b6"/>
+</radialGradient>
+<radialGradient id="planetGlowB" cx="50%" cy="50%" r="50%">
+<stop offset="60%" stop-color="#f4436c" stop-opacity="0.35"/>
+<stop offset="100%" stop-color="#f4436c" stop-opacity="0"/>
+</radialGradient>
+<linearGradient id="ringB" x1="100%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" stop-color="#ff9838"/>
+<stop offset="55%" stop-color="#ff2d78"/>
+<stop offset="100%" stop-color="#8a2be2"/>
+</linearGradient>
+</defs>
+<rect x="0" y="0" width="680" height="680" fill="#050505" style="fill:rgb(5, 5, 5);stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="340" cy="340" r="245" fill="none" stroke="url(#ringB)" stroke-width="3" style="fill:none;color:rgb(11, 11, 11);stroke-width:3px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="340" cy="340" r="215" fill="url(#planetGlowB)" style="stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+<circle cx="340" cy="340" r="165" fill="url(#planetB)" style="stroke:none;color:rgb(11, 11, 11);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+</svg>
