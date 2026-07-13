@@ -482,6 +482,11 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			}, AgentChannels.mcpOauthFinish)
 		);
 
+		ipcMain.handle(
+			AgentChannels.libraryList,
+			wrapSimpleHandler(() => listLibrary(agent.config), AgentChannels.libraryList)
+		);
+
 		logger.info('AgentIpc', `Registered ${this.name} module`);
 	}
 }
