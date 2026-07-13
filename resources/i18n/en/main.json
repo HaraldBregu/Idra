@@ -172,7 +172,8 @@
 				"providers": "API keys and providers",
 				"cron": "Scheduled agent tasks",
 				"heartbeat": "Periodic agent checks",
-				"health": "Periodic health checks"
+				"health": "Periodic health checks",
+				"library": "Generated media files"
 			}
 		},
 		"tabs": {
