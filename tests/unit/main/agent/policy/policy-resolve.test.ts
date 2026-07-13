@@ -1,15 +1,11 @@
 const getToolPermission = jest.fn();
 const getToolAllowedPaths = jest.fn();
 const getToolAllowedCommands = jest.fn();
-const isWithinSandbox = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	getToolPermission,
 	getToolAllowedPaths,
 	getToolAllowedCommands,
-}));
-jest.mock('../../../../../src/main/agent/sandbox/sandbox_check', () => ({
-	isWithinSandbox,
 }));
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
