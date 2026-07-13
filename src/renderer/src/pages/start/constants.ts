@@ -1,30 +1,27 @@
-import { Bot } from 'lucide-react';
 import {
 	DEFAULT_PROVIDERS,
 	getProviderApiConfigurationUrl,
 } from '../../../../shared';
 import {
+	cloneModels,
 	LLM_MODELS_BY_PROVIDER,
 	LLM_PROVIDERS,
+	TEXT_TO_SPEECH_MODELS_BY_PROVIDER,
+	TEXT_TO_SPEECH_PROVIDER_IDS,
 } from '../../../../shared/provider_models_definitions';
-import { AGENTS } from '@/lib/compat';
 import type { PublicProvider } from '../../../../shared';
 import type { Model } from '@/lib/compat';
 import type {
 	ModelServiceDefinition,
-	ModelServiceId,
 	ModelServiceState,
 	ModelServiceStateMap,
 	ProviderCatalogItem,
+	ProviderModelGroup,
 	ProviderOption,
 	SetupStep,
 } from './types';
 
 type CatalogProvider = (typeof DEFAULT_PROVIDERS)[number];
-
-function getAssistantModels(providerId: string): Model[] {
-	return [...(LLM_MODELS_BY_PROVIDER[providerId] ?? [])];
-}
 
 function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	return {
@@ -36,74 +33,144 @@ function toPublicProvider(provider: CatalogProvider): PublicProvider {
 	};
 }
 
-function getCatalogProvidersByIds(providerIds: readonly string[]): PublicProvider[] {
+function toModelGroups(
+	providerIds: readonly string[],
+	modelsByProvider: Record<string, readonly Model[]>
+): ProviderModelGroup[] {
 	return providerIds.flatMap((providerId) => {
 		const provider = DEFAULT_PROVIDERS.find((item) => item.id === providerId);
-		return provider ? [toPublicProvider(provider)] : [];
+		const models = cloneModels(modelsByProvider[providerId]);
+		return provider && models.length > 0
+			? [{ provider: toPublicProvider(provider), models }]
+			: [];
 	});
 }
 
-export function getAssistantProviders(): PublicProvider[] {
-	return getCatalogProvidersByIds(
-		LLM_PROVIDERS.filter((providerId) => getAssistantModels(providerId).length > 0)
-	);
+function getLlmModelGroups(): ProviderModelGroup[] {
+	return toModelGroups(LLM_PROVIDERS, LLM_MODELS_BY_PROVIDER);
+}
+
+async function getTranscriptionModelGroups(): Promise<ProviderModelGroup[]> {
+	const providers = await window.transcribe.listProviders();
+	const modelGroups: ProviderModelGroup[] = [];
+	for (const provider of providers) {
+		const models = await window.transcribe.listModels(provider.id);
+		if (models.length > 0) modelGroups.push({ provider, models });
+	}
+	return modelGroups;
 }
 
 export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	{
-		id: AGENTS.assistant,
-		stepName: 'Assistant',
-		stepTitle: 'Choose your assistant model',
-		stepDescription: 'Powers chat replies, reasoning, summaries, and planning.',
-		icon: Bot,
+		id: 'assistant',
+		title: 'Assistant',
+		description: 'Powers chat replies, reasoning, summaries, and planning.',
 		getSelection: async () => {
 			const [provider, modelId] = await Promise.all([
 				window.agent.getProvider(),
 				window.agent.getModelId(),
 			]);
-			if (!provider || !modelId) return undefined;
-			const model = getAssistantModels(provider.id).find((item) => item.id === modelId);
-			if (!model) return undefined;
-			return { provider, model };
+			return provider && modelId ? { providerId: provider.id, modelId } : undefined;
 		},
-		getModels: (provider) => Promise.resolve(getAssistantModels(provider.id)),
+		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
 		saveSelection: async (provider, model) => {
 			await window.agent.setProvider(provider);
 			return window.agent.setModelId(model.id);
 		},
 	},
+	{
+		id: 'voice',
+		title: 'Voice',
+		description: 'Reads responses aloud with text-to-speech.',
+		getSelection: async () => {
+			const [providerId, modelId] = await Promise.all([
+				window.voice.getProviderId(),
+				window.voice.getModelId(),
+			]);
+			return providerId && modelId ? { providerId, modelId } : undefined;
+		},
+		loadModelGroups: () =>
+			Promise.resolve(toModelGroups(TEXT_TO_SPEECH_PROVIDER_IDS, TEXT_TO_SPEECH_MODELS_BY_PROVIDER)),
+		saveSelection: async (provider, model) => {
+			await window.voice.setProviderId(provider.id);
+			await window.voice.setModelId(model.id);
+			return true;
+		},
+	},
+	{
+		id: 'transcription',
+		title: 'Transcription',
+		description: 'Converts your speech into text.',
+		getSelection: async () => {
+			const selection = await window.transcribe.getSelection();
+			return selection
+				? { providerId: selection.provider.id, modelId: selection.model.id }
+				: undefined;
+		},
+		loadModelGroups: getTranscriptionModelGroups,
+		saveSelection: (provider, model) => window.transcribe.saveSelection(provider.id, model.id),
+	},
+	{
+		id: 'tasks',
+		title: 'Tasks',
+		description: 'Runs your scheduled tasks in the background.',
+		getSelection: async () => {
+			const runtime = await window.agent.cronGetRuntime();
+			return runtime?.providerId && runtime.modelId
+				? { providerId: runtime.providerId, modelId: runtime.modelId }
+				: undefined;
+		},
+		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
+		saveSelection: async (provider, model) => {
+			await window.agent.cronSetRuntime(provider.id, model.id);
+			return true;
+		},
+	},
+	{
+		id: 'health',
+		title: 'Health check',
+		description: 'Runs periodic checks and reports issues.',
+		getSelection: async () => {
+			const settings = await window.agent.healthGetSettings();
+			return settings.providerId && settings.modelId
+				? { providerId: settings.providerId, modelId: settings.modelId }
+				: undefined;
+		},
+		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
+		saveSelection: async (provider, model) => {
+			await window.agent.healthSaveSettings({ providerId: provider.id, modelId: model.id });
+			return true;
+		},
+	},
 ];
 
-export const MODEL_SERVICE_STEP_IDS: readonly ModelServiceId[] = MODEL_SERVICE_DEFINITIONS.map(
-	(service) => service.id
-);
+export const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
 
-export const SETUP_STEPS: readonly SetupStep[] = [
-	'presentation',
-	'providers',
-	...MODEL_SERVICE_STEP_IDS,
-];
-
-export const SETUP_STEP_TITLES: Record<SetupStep, string> = MODEL_SERVICE_DEFINITIONS.reduce(
-	(acc, service) => ({ ...acc, [service.id]: service.stepName }),
-	{ presentation: 'Welcome', providers: 'Providers' } as Record<SetupStep, string>
-);
+export const SETUP_STEP_TITLES: Record<SetupStep, string> = {
+	presentation: 'Welcome',
+	providers: 'Providers',
+	models: 'Models',
+};
 
 export const MASKED_API_KEY_LABEL = 'sk-************' as const;
 
-export const STEP_COPY: Record<'presentation' | 'providers', { title: string; description: string }> =
-	{
-		presentation: {
-			title: 'Welcome to Friday',
-			description:
-				'Connect an AI provider and pick the model that powers your assistant. It only takes a minute.',
-		},
-		providers: {
-			title: 'Connect a provider',
-			description:
-				'Add at least one API key to continue. You can connect more providers at any time.',
-		},
-	};
+export const STEP_COPY: Record<SetupStep, { title: string; description: string }> = {
+	presentation: {
+		title: 'Welcome to Friday',
+		description:
+			'Connect an AI provider and pick the model that powers your assistant. It only takes a minute.',
+	},
+	providers: {
+		title: 'Connect a provider',
+		description:
+			'Add at least one API key to continue. You can connect more providers at any time.',
+	},
+	models: {
+		title: 'Choose your models',
+		description:
+			'Pick the model each service should use. You can change any of these later in settings.',
+	},
+};
 
 function normalizeProvider(provider: CatalogProvider, index: number): ProviderOption {
 	const value = provider.id || `provider-${index}`;
@@ -143,10 +210,6 @@ export function getProviderCatalogItem(providerId: string): ProviderCatalogItem 
 			supported: supportedProviderIds.has(providerId),
 		}
 	);
-}
-
-export function isModelStep(step: SetupStep): step is ModelServiceId {
-	return step !== 'presentation' && step !== 'providers';
 }
 
 export function createInitialModelServiceState(): ModelServiceStateMap {
