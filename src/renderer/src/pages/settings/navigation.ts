@@ -3,6 +3,7 @@ import {
 	HeartPulse,
 	ImageIcon,
 	Info,
+	LibraryBig,
 	ListChecks,
 	Mic,
 	MonitorCog,
