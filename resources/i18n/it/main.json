@@ -195,7 +195,8 @@
 			"heartbeat": "Heartbeat",
 			"health": "Health",
 			"developer": "Sviluppatore",
-			"skills": "Abilità"
+			"skills": "Abilità",
+			"library": "Libreria"
 		},
 		"breadcrumb": {
 			"label": "Navigazione impostazioni",
