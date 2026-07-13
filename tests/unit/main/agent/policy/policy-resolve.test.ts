@@ -27,29 +27,20 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('write', { path: '/x' })).toBe('deny');
 	});
 
-	it('allows an "ask" tool whose targets are all inside the sandbox', () => {
+	it('asks when a target is not allowlisted', () => {
 		getToolPermission.mockReturnValue('ask');
-		isWithinSandbox.mockReturnValue(true);
-		expect(resolveToolPermission('write', { path: '/sandbox/a.txt' })).toBe('allow');
-	});
-
-	it('asks when a target lies outside the sandbox and is not allowlisted', () => {
-		getToolPermission.mockReturnValue('ask');
-		isWithinSandbox.mockReturnValue(false);
 		getToolAllowedPaths.mockReturnValue([]);
 		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('ask');
 	});
 
-	it('allows an outside target that is within an allowlisted path', () => {
+	it('allows a target that is within an allowlisted path', () => {
 		getToolPermission.mockReturnValue('ask');
-		isWithinSandbox.mockReturnValue(false);
 		getToolAllowedPaths.mockReturnValue(['/outside']);
 		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');
 	});
 
 	it('asks for exec when the command is not allowlisted, even if the dir is', () => {
 		getToolPermission.mockReturnValue('ask');
-		isWithinSandbox.mockReturnValue(false);
 		getToolAllowedPaths.mockReturnValue(['/work']);
 		getToolAllowedCommands.mockReturnValue([]);
 		expect(resolveToolPermission('exec', { command: 'rm -rf /', workdir: '/work' })).toBe('ask');
