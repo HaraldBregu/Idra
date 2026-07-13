@@ -50,29 +50,34 @@ const promptSuggestions = [
 			'Introduce yourself as Friday, my personal assistant. Keep it brief and specific: explain what you can help me do, how I should ask for help, and suggest three useful first tasks.',
 	},
 	{
-		label: 'Say hi',
-		prompt:
-			'Say hi and start a short onboarding conversation. Ask what I am working on today, then offer a few practical ways you can help me right now.',
-	},
-	{
-		label: 'Meet your assistant',
-		prompt:
-			'Give me a quick tour of Friday as my personal assistant. Summarize your main capabilities, explain the best way to work with you, and propose three starter prompts I can try.',
-	},
-	{
 		label: 'Plan my day',
 		prompt:
 			'Help me plan today. Ask for my priorities, time constraints, and any deadlines, then turn them into a practical schedule.',
 	},
 	{
-		label: 'Draft a message',
+		label: 'Create an image',
 		prompt:
-			'Help me draft a clear message. Ask who it is for, what I need to say, and the tone I want.',
+			'Create an image for me. Ask what I want to see and the style I prefer, then generate it.',
 	},
 	{
-		label: 'Brainstorm ideas',
+		label: 'Make a video',
 		prompt:
-			'Brainstorm ten practical ideas for something I can improve this week, then help me choose one small next action.',
+			'Create a short video for me. Ask what it should show and the mood I want, then generate it.',
+	},
+	{
+		label: 'Compose music',
+		prompt:
+			'Compose a short piece of music for me. Ask about the genre and mood I want, then generate it.',
+	},
+	{
+		label: 'Schedule a task',
+		prompt:
+			'Help me set up a recurring task. Ask what you should do and how often, then create the schedule.',
+	},
+	{
+		label: 'Search the web',
+		prompt:
+			'Search the web for me. Ask what topic I want to catch up on, then find and summarize the latest news about it.',
 	},
 ] as const;
 
