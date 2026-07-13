@@ -33,6 +33,7 @@ export const AgentChannels = {
 	mcpDelete: 'agent:mcp:delete',
 	mcpOauthStart: 'agent:mcp:oauth:start',
 	mcpOauthFinish: 'agent:mcp:oauth:finish',
+	libraryList: 'agent:library:list',
 } as const;
 
 export const AppChannels = {
