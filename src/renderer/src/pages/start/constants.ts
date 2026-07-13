@@ -113,20 +113,9 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		id: 'voice',
 		title: 'Voice',
 		description: 'Reads responses aloud with text-to-speech.',
-		getSelection: async () => {
-			const [providerId, modelId] = await Promise.all([
-				window.voice.getProviderId(),
-				window.voice.getModelId(),
-			]);
-			return providerId && modelId ? { providerId, modelId } : undefined;
-		},
 		loadModelGroups: () =>
 			Promise.resolve(toModelGroups(TEXT_TO_SPEECH_PROVIDER_IDS, TEXT_TO_SPEECH_MODELS_BY_PROVIDER)),
-		saveSelection: async (provider, model) => {
-			await window.voice.setProviderId(provider.id);
-			await window.voice.setModelId(model.id);
-			return true;
-		},
+		...toIdSelectionHandlers(() => window.voice),
 	},
 	{
 		id: 'transcription',
