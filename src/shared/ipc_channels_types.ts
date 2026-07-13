@@ -114,6 +114,10 @@ export interface AgentInvokeChannelMap {
 		result: import('./mcp_types').McpOAuthStart;
 	};
 	[AgentChannels.mcpOauthFinish]: { args: [id: string, code: string]; result: void };
+	[AgentChannels.libraryList]: {
+		args: [];
+		result: import('./library_types').LibraryFile[];
+	};
 }
 
 export interface AgentEventChannelMap {
