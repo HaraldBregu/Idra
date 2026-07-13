@@ -131,6 +131,30 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 		saveSelection: (provider, model) => window.transcribe.saveSelection(provider.id, model.id),
 	},
 	{
+		id: 'image',
+		title: 'Image',
+		description: 'Generates images from your prompts.',
+		loadModelGroups: () =>
+			Promise.resolve(toModelGroups(TEXT_TO_IMAGE_PROVIDER_IDS, TEXT_TO_IMAGE_MODELS_BY_PROVIDER)),
+		...toIdSelectionHandlers(() => window.image),
+	},
+	{
+		id: 'video',
+		title: 'Video',
+		description: 'Generates videos from your prompts.',
+		loadModelGroups: () =>
+			Promise.resolve(toModelGroups(TEXT_TO_VIDEO_PROVIDER_IDS, TEXT_TO_VIDEO_MODELS_BY_PROVIDER)),
+		...toIdSelectionHandlers(() => window.video),
+	},
+	{
+		id: 'audio',
+		title: 'Audio',
+		description: 'Generates music and sounds from your prompts.',
+		loadModelGroups: () =>
+			Promise.resolve(toModelGroups(MUSIC_PROVIDER_IDS, TEXT_TO_AUDIO_MODELS_BY_PROVIDER)),
+		...toIdSelectionHandlers(() => window.sound),
+	},
+	{
 		id: 'tasks',
 		title: 'Tasks',
 		description: 'Runs your scheduled tasks in the background.',
