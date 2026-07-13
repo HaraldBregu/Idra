@@ -1,14 +1,25 @@
 import React from 'react';
-import { Bot, Image as ImageIcon, Mic, Volume2 } from 'lucide-react';
+import { Code2, Sparkles, Workflow } from 'lucide-react';
 import { LogoView } from '@/components/app/base/logo-view';
-import { Item, ItemIcon, ItemTitle } from '@/components/ui/item';
+import { ItemIcon } from '@/components/ui/item';
 import { STEP_COPY } from '../constants';
 
-const CAPABILITIES = [
-	{ icon: Bot, label: 'AI Assistant' },
-	{ icon: Mic, label: 'Transcribe' },
-	{ icon: Volume2, label: 'Voice' },
-	{ icon: ImageIcon, label: 'Image' },
+const FEATURES = [
+	{
+		icon: Sparkles,
+		title: 'Personal Assistant',
+		description: 'Chat naturally, transcribe audio, and create with voice, design, and audio tools.',
+	},
+	{
+		icon: Code2,
+		title: 'Developer Agent',
+		description: 'Writes real code and extends itself with Skills and remote tools via MCP servers.',
+	},
+	{
+		icon: Workflow,
+		title: 'Autonomous Work',
+		description: 'Runs background Tasks, pursues Goals, and reaches you on your chat channels.',
+	},
 ] as const;
 
 export function PresentationStep(): React.JSX.Element {
@@ -24,12 +35,16 @@ export function PresentationStep(): React.JSX.Element {
 			</h1>
 			<p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">{description}</p>
 
-			<div className="mt-8 grid w-full max-w-md grid-cols-2 gap-2">
-				{CAPABILITIES.map((capability) => (
-					<Item key={capability.label} className="rounded-lg bg-card ring-1 ring-foreground/10">
-						<ItemIcon icon={capability.icon} />
-						<ItemTitle>{capability.label}</ItemTitle>
-					</Item>
+			<div className="mt-8 grid w-full max-w-3xl gap-3 sm:grid-cols-3">
+				{FEATURES.map((feature) => (
+					<div
+						key={feature.title}
+						className="flex flex-col items-center gap-2 rounded-lg bg-card p-4 ring-1 ring-foreground/10"
+					>
+						<ItemIcon icon={feature.icon} />
+						<h2 className="text-sm font-medium text-foreground">{feature.title}</h2>
+						<p className="text-xs leading-relaxed text-muted-foreground">{feature.description}</p>
+					</div>
 				))}
 			</div>
 
