@@ -128,7 +128,7 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 	},
 	{
 		id: 'health',
-		title: 'Health check',
+		title: 'Health',
 		description: 'Runs periodic checks and reports issues.',
 		getSelection: async () => {
 			const settings = await window.agent.healthGetSettings();
