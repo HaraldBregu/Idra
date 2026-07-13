@@ -14,7 +14,6 @@ beforeEach(() => {
 	getToolPermission.mockReset();
 	getToolAllowedPaths.mockReset().mockReturnValue([]);
 	getToolAllowedCommands.mockReset().mockReturnValue([]);
-	isWithinSandbox.mockReset().mockReturnValue(false);
 });
 
 describe('resolveToolPermission', () => {
