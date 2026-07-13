@@ -47,6 +47,7 @@ export interface AgentApi {
 	mcpDelete: (id: string) => Promise<void>;
 	mcpOauthStart: (id: string) => Promise<McpOAuthStart>;
 	mcpOauthFinish: (id: string, code: string) => Promise<void>;
+	libraryList: () => Promise<LibraryFile[]>;
 }
 
 export interface ChannelsApi {
