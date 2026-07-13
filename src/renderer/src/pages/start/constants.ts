@@ -202,7 +202,7 @@ export const STEP_COPY: Record<SetupStep, { title: string; description: string }
 	presentation: {
 		title: 'Welcome to Friday',
 		description:
-			'Connect an AI provider and pick the model that powers your assistant. It only takes a minute.',
+			'Your personal AI agent — it assists, builds, and works for you in the background.',
 	},
 	providers: {
 		title: 'Connect a provider',
