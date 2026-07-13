@@ -200,9 +200,9 @@ export const MASKED_API_KEY_LABEL = 'sk-************' as const;
 
 export const STEP_COPY: Record<SetupStep, { title: string; description: string }> = {
 	presentation: {
-		title: 'Welcome to Friday',
+		title: "Hi, I'm Friday",
 		description:
-			'Your personal AI agent — it assists, builds, and works for you in the background.',
+			"Your personal AI agent. I can help with everyday tasks, write code, and keep working in the background while you're away.",
 	},
 	providers: {
 		title: 'Connect a provider',
