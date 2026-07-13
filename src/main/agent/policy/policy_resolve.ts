@@ -1,4 +1,3 @@
-import { isWithinSandbox } from '../sandbox/sandbox_check';
 import { toolCommandName } from './policy_command';
 import { isPathWithin } from './policy_path';
 import { getToolAllowedCommands, getToolAllowedPaths, getToolPermission } from './policy_store';
