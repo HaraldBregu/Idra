@@ -1,7 +1,9 @@
 import { _electron as electron, type ElectronApplication, type Page } from '@playwright/test';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const MAIN_ENTRY = path.resolve(__dirname, '../../out/main/index.js');
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+const MAIN_ENTRY = path.resolve(dirname, '../../out/main/index.js');
 
 /**
  * Launch the built Electron app and return the app handle plus its first window.
