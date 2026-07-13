@@ -8,96 +8,95 @@
   <strong>Your desktop AI copilot for everyday tasks.</strong>
 </p>
 
-Friday is an Electron desktop app for AI-assisted workflows. You chat with it in plain language (typed or spoken, with image and PDF attachments) and it gets real work done: it reads and writes files, runs commands, searches the web, generates images, transcribes your voice, speaks back, runs on a schedule, and connects to the tools and messaging apps you already use.
+Friday is a cross-platform desktop AI assistant that turns conversations into actions. Type or speak a request, attach images or PDFs, and let the agent work with files, run commands, research the web, create media, or automate a recurring task.
 
-You bring your own AI provider keys, your data and credentials stay local, and every action that touches your files, accounts, or the outside world passes through explicit permission checks.
+You choose the providers and models behind each AI capability. Friday keeps its settings, provider keys, conversations, and workspace data on your machine, while requests are sent only to the AI providers and connected services you configure.
 
-See [docs/overview.md](docs/overview.md) for the full feature tour.
+## What Friday Can Do
 
-## Features
+- **Work with your computer** — read, create, and edit files; apply precise patches; and run commands or long-lived processes.
+- **Understand more than text** — accept image and PDF attachments, transcribe speech, and read responses aloud.
+- **Research and browse** — search the web, fetch pages, and automate browser interactions when a task requires them.
+- **Create media** — generate images, videos, music, and sound effects with your selected providers and models.
+- **Use your preferred AI providers** — configure your own API keys and select models separately for chat, speech, image, video, and audio.
+- **Extend the agent** — import reusable skills, connect remote HTTP or local stdio MCP servers, and delegate independent work to subagents.
+- **Automate routines** — create recurring schedules and periodic checklist-based health runs.
+- **Remember useful context** — maintain durable memory, personalization files, conversation history, and a local working directory.
+- **Chat from other apps** — connect Telegram or Discord channels to reach Friday away from the desktop app.
 
-- **Agent chat with tools** — file read/write/edit, patches, shell commands, web search/fetch, browser automation, image generation, subagents, and streamed responses with transparent tool activity.
-- **Attachments** — send images and PDFs alongside your prompt.
-- **Bring your own AI** — provider adapters normalize many vendors (including OpenAI-compatible endpoints) behind one interface; pick a provider + model per capability (assistant, speech-to-text, text-to-speech, text-to-image).
-- **Voice** — real-time dictation (speech-to-text) and read-aloud replies (text-to-speech).
-- **Skills** — reusable packaged workflows, auto-discovered per request, with declared tool limits.
-- **MCP servers** — connect remote (HTTP) or local (stdio) Model Context Protocol tool servers.
-- **Channels** — chat with Friday from messaging platforms (Telegram and Discord).
-- **Task scheduler & health checks** — recurring cron jobs and periodic checklist-driven health runs.
-- **Memory & personalization** — durable memory, user profile, and a local workspace.
-- **Platforms & languages** — Windows, macOS (x64 and arm64), Linux; English and Italian UI; light/dark/system themes.
+Friday runs on Windows, macOS, and Linux, with English and Italian interfaces and light, dark, and system themes.
 
-## Project Context
+## Control and Privacy
 
-- Project type: desktop app
-- Runtime: Electron, Node.js
-- UI: React, Tailwind CSS, shadcn-style components
-- Main language: TypeScript
-- Testing: Jest, Testing Library, Playwright
-- Packaging: electron-vite, electron-builder
-- Sensitive data: AI provider API keys, agent history, local workspace data, channel configuration
-- Current compliance target: no formal regulated-data certification claimed
+- Provider API keys and Friday's application data are stored locally.
+- Prompts, attachments, and tool data may be sent to the providers, MCP servers, websites, or messaging channels you configure.
+- File writes, edits, patches, and command execution are governed by the agent permission policy.
+- Tool activity is streamed into the conversation so you can follow what the agent is doing.
+- Friday does not claim formal certification for regulated data.
 
-## Development
+## Technology
 
-Requirements: Node.js 22+, Yarn 4 (via Corepack).
+- Electron 41 and Node.js
+- React 19, TypeScript, Tailwind CSS 4, and shadcn components
+- Jest, Testing Library, and Playwright
+- electron-vite and electron-builder
+
+## Getting Started
+
+Requirements: Node.js 22+ and Yarn 4 through Corepack.
 
 ```bash
-yarn install --frozen-lockfile
+corepack enable
+yarn install --immutable
 yarn dev
 ```
 
-Use the Linux variants when running in a Linux environment that requires Electron sandbox changes:
+On first launch, add an API key under **Settings → Providers**, then select the provider and model for the assistant. Configure speech and media models only for the capabilities you plan to use.
+
+For Linux environments that require Electron sandbox changes, run:
 
 ```bash
 yarn dev-linux
 ```
 
-## Quality Gates
+## Quality Checks
 
-Run the same baseline expected in CI before merging:
+Run the main local checks before submitting changes:
 
 ```bash
 yarn quality:check
 ```
 
-Focused commands:
+This runs the TypeScript checks, ESLint, main-process tests, and renderer tests. Run the end-to-end suite separately:
 
 ```bash
-yarn typecheck
-yarn lint
-yarn test:main
-yarn test:renderer
 yarn test:e2e
 ```
 
-## Building & Packaging
+## Build and Package
 
 ```bash
-yarn build                # typecheck + production build
+yarn build                # Type-check and create a production build
 yarn dist:win             # Windows x64 installer
-yarn dist:mac             # macOS pkg (x64 + arm64)
-yarn dist:mac:dmg         # macOS dmg (x64 + arm64)
+yarn dist:mac             # macOS package for x64 and arm64
+yarn dist:mac:dmg         # macOS DMG for x64 and arm64
 yarn dist:linux:appimage  # Linux AppImage
 ```
 
-## Architecture Notes
+## Project Structure
 
-- Main-process services live under `src/main` (agent, channels, providers, image, voice, transcribe, IPC, app services).
-- Renderer code lives under `src/renderer/src`.
-- Cross-process API contracts live under `src/shared` and `src/preload`.
-- Agent runs are streamed (`src/main/agent/run`), with sessions, tools, skills, cron, health, sandbox, and permission policy as sibling modules.
-- Browser windows should be created through `WindowFactory` so Electron security defaults stay consistent.
-- Provider-specific AI logic should stay behind provider adapters, not leak into agent or UI code.
+- `src/main` contains the Electron main process, agent runtime, channels, model integrations, media services, transcription, IPC, and application services.
+- `src/renderer/src` contains the React user interface.
+- `src/preload` exposes the narrow bridge between the renderer and main process.
+- `src/shared` contains cross-process types and API contracts.
+- `src/main/agent` contains sessions, tools, skills, memory, schedules, health runs, sandboxing, and permission policy.
+- `src/main/models` contains provider-specific model integrations.
 
-## Security Baseline
+## Security
 
-- Renderer windows use sandboxing, context isolation, disabled Node integration, and web security.
-- Preload APIs should expose narrow typed IPC methods only.
-- Secrets must not be committed, logged, rendered, or stored in plaintext where avoidable.
-- Tool actions that write, delete, publish, or access private data must pass explicit permission checks.
+Renderer windows use sandboxing, context isolation, disabled Node integration, and web security. Preload APIs expose narrow typed IPC methods, and agent writes, edits, patches, and command execution are subject to the permission policy.
 
-See [SECURITY.md](SECURITY.md) for the security policy and how to report vulnerabilities.
+See [SECURITY.md](SECURITY.md) for the security policy and vulnerability reporting process.
 
 ## Contributing
 
