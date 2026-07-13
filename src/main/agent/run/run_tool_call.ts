@@ -8,7 +8,6 @@ import {
 	toolTargetDirs,
 	waitForToolPermission,
 } from '../policy';
-import { isWithinSandbox } from '../sandbox';
 import { formatToolOutput } from './run_common';
 
 export async function* runToolCall(
