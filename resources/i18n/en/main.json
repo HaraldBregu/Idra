@@ -791,6 +791,7 @@
 			"restrictedDescription": "No tool can read, write, or run inside these directories. Recursive also blocks all subdirectories.",
 			"pathPlaceholder": "/path/to/directory",
 			"recursive": "Recursive",
+			"browse": "Browse",
 			"add": "Add",
 			"empty": "No restricted directories",
 			"reset": "Reset",
