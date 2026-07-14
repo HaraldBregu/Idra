@@ -20,7 +20,7 @@ describe('agent filesystem prompt', () => {
 		await fs.rm(root, { recursive: true, force: true });
 	});
 
-	it('lists every file and folder as sorted paths relative to the agent root', async () => {
+	it('lists only sorted files and folders directly inside the agent root', async () => {
 		await fs.mkdir(path.join(root, 'library', 'archive'), { recursive: true });
 		await fs.writeFile(path.join(root, 'library', 'image.jpeg'), 'image-content');
 		await fs.writeFile(path.join(root, 'library', 'archive', 'notes.txt'), 'private-content');
@@ -31,30 +31,24 @@ describe('agent filesystem prompt', () => {
 
 		expect(prompt).toContain('## Agent filesystem');
 		expect(prompt).toContain(`Root directory: ${JSON.stringify(root)}`);
-		expect(inventory).toEqual([
-			'- "library/"',
-			'- "library/archive/"',
-			'- "library/archive/notes.txt"',
-			'- "library/image.jpeg"',
-			'- "notes.txt"',
-		]);
+		expect(inventory).toEqual(['- "library/"', '- "notes.txt"']);
+		expect(prompt).not.toContain('library/archive');
+		expect(prompt).not.toContain('library/image.jpeg');
 		expect(prompt).not.toContain('image-content');
 		expect(prompt).not.toContain('private-content');
 		expect(prompt).not.toContain('root-content');
 	});
 
 	it('reflects filesystem changes each time the prompt is built', async () => {
-		await fs.mkdir(path.join(root, 'library'));
-
 		const before = await addFilesystemPrompt({ location: root }, 'base');
-		await fs.writeFile(path.join(root, 'library', 'new.mp3'), 'audio');
+		await fs.writeFile(path.join(root, 'new.txt'), 'text');
 		const afterCreate = await addFilesystemPrompt({ location: root }, 'base');
-		await fs.rm(path.join(root, 'library', 'new.mp3'));
+		await fs.rm(path.join(root, 'new.txt'));
 		const afterDelete = await addFilesystemPrompt({ location: root }, 'base');
 
-		expect(before).not.toContain('library/new.mp3');
-		expect(afterCreate).toContain('- "library/new.mp3"');
-		expect(afterDelete).not.toContain('library/new.mp3');
+		expect(before).not.toContain('new.txt');
+		expect(afterCreate).toContain('- "new.txt"');
+		expect(afterDelete).not.toContain('new.txt');
 	});
 
 	it('keeps the prompt available when the agent root cannot be read', async () => {
@@ -73,6 +67,7 @@ describe('agent filesystem prompt', () => {
 		const prompt = await buildSystemPrompt({ location: root });
 
 		expect(prompt).toContain('## Agent filesystem');
-		expect(prompt).toContain('- "library/clip.mp4"');
+		expect(prompt).toContain('- "library/"');
+		expect(prompt).not.toContain('library/clip.mp4');
 	});
 });
