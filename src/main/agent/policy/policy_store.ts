@@ -12,11 +12,19 @@ import {
 
 const POLICY_STORE_NAME = 'policy';
 
+const agentDir = path.resolve(agentLocation());
+
+// The agent's own data folder (policy store included) is off-limits by default.
+const defaults: PermissionsSchema = {
+	...DEFAULT_PERMISSIONS,
+	restrictedDirectories: [{ path: agentDir, recursive: true }],
+};
+
 const store = new Store<PermissionsSchema>({
 	name: POLICY_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	cwd: agentDir,
 	accessPropertiesByDotNotation: false,
-	defaults: DEFAULT_PERMISSIONS,
+	defaults,
 });
 
 export function getPermissions(): PermissionsSchema {
