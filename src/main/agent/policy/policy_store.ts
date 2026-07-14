@@ -107,6 +107,6 @@ export function updatePermissions(patch: Partial<PermissionsSchema>): Permission
 }
 
 export function resetPermissions(): PermissionsSchema {
-	store.store = DEFAULT_PERMISSIONS;
+	store.store = defaults;
 	return getPermissions();
 }
