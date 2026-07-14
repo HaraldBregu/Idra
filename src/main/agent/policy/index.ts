@@ -31,6 +31,7 @@ export {
 	type PermissionGatedTool,
 	type PermissionMode,
 	type PermissionsSchema,
+	type RestrictedDirectory,
 	type ToolPermission,
 	type ToolUseRecord,
 } from './policy_types';
