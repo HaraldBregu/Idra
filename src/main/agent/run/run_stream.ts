@@ -135,9 +135,9 @@ async function* loop(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const systemPrompt = options.systemPrompt
-				? await addFilesystemPrompt(config, options.systemPrompt)
-				: await buildSystemPrompt(config, tools, session.context.loadedSkills);
+			const systemPrompt = options.systemPrompt === undefined
+				? await buildSystemPrompt(config, tools, session.context.loadedSkills)
+				: await addFilesystemPrompt(config, options.systemPrompt);
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(

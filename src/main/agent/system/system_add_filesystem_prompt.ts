@@ -23,7 +23,7 @@ export async function addFilesystemPrompt(config: Config, prompt: string): Promi
 		}
 	}
 
-	paths.sort((left, right) => left.localeCompare(right));
+	paths.sort();
 
 	prompt += '\n\n## Agent filesystem';
 	prompt += `\nRoot directory: ${JSON.stringify(root)}`;
