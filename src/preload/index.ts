@@ -231,6 +231,21 @@ export const agent: AgentApi = {
 	cronSetRuntime: (providerId: string, modelId: string) => {
 		return typedInvokeUnwrap(AgentChannels.cronSetRuntime, providerId, modelId);
 	},
+	policyGet: (): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policyGet);
+	},
+	policySetToolMode: (toolName: string, mode: PermissionMode): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policySetToolMode, toolName, mode);
+	},
+	policyAddRestrictedDirectory: (path: string, recursive: boolean): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policyAddRestrictedDirectory, path, recursive);
+	},
+	policyRemoveRestrictedDirectory: (path: string): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policyRemoveRestrictedDirectory, path);
+	},
+	policyReset: (): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policyReset);
+	},
 	healthGetSettings: (): Promise<HealthSettings> => {
 		return typedInvokeUnwrap(AgentChannels.healthSettings);
 	},
