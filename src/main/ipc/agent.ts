@@ -52,6 +52,12 @@ function isToolPermissionDecision(value: unknown): value is AgentToolPermissionD
 	return TOOL_PERMISSION_DECISIONS.includes(value as AgentToolPermissionDecision);
 }
 
+const PERMISSION_MODES: readonly PermissionMode[] = ['allow', 'deny', 'ask'];
+
+function isPermissionMode(value: unknown): value is PermissionMode {
+	return PERMISSION_MODES.includes(value as PermissionMode);
+}
+
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
 	'minimal',
