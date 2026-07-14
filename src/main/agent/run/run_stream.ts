@@ -183,6 +183,17 @@ async function* loop(
 					rememberSkill(session.context, skill, output.content);
 			}
 			addToolResults(session, turn.toolCalls);
+
+			const restricted = turn.toolCalls
+				.flatMap((call) => toolTargetDirs(call.name, call.args))
+				.find(isDirRestricted);
+			if (restricted) {
+				const content = `I can't do that: '${restricted}' is a restricted directory.`;
+				yield { type: 'assistant_message', content, toolCalls: [] };
+				addAssistantMessage(session, content, []);
+				yield { type: 'run_finished', result: toResult(session, 'success') };
+				return;
+			}
 		}
 	} finally {
 		await closeMcp?.();
