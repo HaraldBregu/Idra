@@ -24,6 +24,7 @@ export const AgentChannels = {
 	skillsGetRoot: 'agent:skills:get-root',
 	policyGet: 'agent:policy:get',
 	policySetToolMode: 'agent:policy:tool-mode:set',
+	policyPickDirectory: 'agent:policy:restricted:pick',
 	policyAddRestrictedDirectory: 'agent:policy:restricted:add',
 	policyRemoveRestrictedDirectory: 'agent:policy:restricted:remove',
 	policyReset: 'agent:policy:reset',
