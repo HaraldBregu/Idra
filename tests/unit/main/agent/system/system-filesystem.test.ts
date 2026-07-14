@@ -1,6 +1,11 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+
+jest.mock('../../../../../src/main/agent/skills', () => ({
+	listSkills: jest.fn(() => []),
+}));
+
 import { addFilesystemPrompt } from '../../../../../src/main/agent/system/system_add_filesystem_prompt';
 import { buildSystemPrompt } from '../../../../../src/main/agent/system/system_build_prompt';
 
