@@ -5,6 +5,7 @@ import {
 	DEFAULT_PERMISSIONS,
 	type PermissionMode,
 	type PermissionsSchema,
+	type RestrictedDirectory,
 	type ToolPermission,
 	type ToolUseRecord,
 } from './policy_types';
