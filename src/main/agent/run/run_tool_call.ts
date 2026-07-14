@@ -2,9 +2,9 @@ import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import {
 	addToolAllowedCommand,
 	addToolAllowedPath,
-	isDirRestricted,
 	recordToolUse,
 	resolveToolPermission,
+	restrictedToolDir,
 	toolCommandName,
 	toolTargetDirs,
 	waitForToolPermission,
