@@ -44,8 +44,12 @@ const PoliciesPage: React.FC = () => {
 	};
 
 	useEffect(() => {
-		apply(window.agent.policyGet());
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		window.agent
+			.policyGet()
+			.then(setPolicy)
+			.catch((err: unknown) => {
+				setError(err instanceof Error ? err.message : String(err));
+			});
 	}, []);
 
 	const addDirectory = (): void => {
