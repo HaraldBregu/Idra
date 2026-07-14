@@ -791,6 +791,7 @@
 			"restrictedDescription": "Nessuno strumento può leggere, scrivere o eseguire in queste cartelle. Ricorsivo blocca anche tutte le sottocartelle.",
 			"pathPlaceholder": "/percorso/della/cartella",
 			"recursive": "Ricorsivo",
+			"browse": "Sfoglia",
 			"add": "Aggiungi",
 			"empty": "Nessuna cartella riservata",
 			"reset": "Ripristina",
