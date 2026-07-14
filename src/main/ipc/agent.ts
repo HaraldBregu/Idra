@@ -20,7 +20,16 @@ import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_definitions';
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
-import { respondToolPermission } from '../agent/policy';
+import {
+	addRestrictedDirectory,
+	getPermissions,
+	removeRestrictedDirectory,
+	resetPermissions,
+	respondToolPermission,
+	setToolPermission,
+	type PermissionMode,
+	type PermissionsSchema,
+} from '../agent/policy';
 import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health_store';
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
