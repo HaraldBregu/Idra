@@ -34,6 +34,19 @@ describe('addToolsPrompt', () => {
 		const prompt = addToolsPrompt('base', [tool('x', 'line1\nline2')]);
 		expect(prompt).toContain('| `x` | line1 line2 |');
 	});
+	it('omits MCP tools while retaining built-in tools', () => {
+		const prompt = addToolsPrompt('base', [
+			tool('read', 'Read a file'),
+			tool('mcp__notion__notion-search', 'Search Notion'),
+		]);
+		expect(prompt).toContain('| `read` | Read a file |');
+		expect(prompt).not.toContain('mcp__notion__notion-search');
+		expect(prompt).not.toContain('Search Notion');
+	});
+	it('does not add a tools section when only MCP tools are provided', () => {
+		const prompt = addToolsPrompt('base', [tool('mcp__notion__notion-search')]);
+		expect(prompt).toBe('base');
+	});
 });
 
 describe('hasUserProfile', () => {
