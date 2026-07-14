@@ -183,6 +183,12 @@ export const SETTINGS_NAVIGATION = [
 		icon: HeartPulse,
 	},
 	{
+		path: '/settings/policies',
+		labelKey: 'settings.tabs.policies',
+		descriptionKey: 'settings.overview.descriptions.policies',
+		icon: ShieldCheck,
+	},
+	{
 		path: '/settings/channels',
 		labelKey: 'settings.tabs.channels',
 		descriptionKey: 'settings.overview.descriptions.channels',
