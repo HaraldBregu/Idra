@@ -238,6 +238,9 @@ export const agent: AgentApi = {
 	policySetToolMode: (toolName: string, mode: PermissionMode): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policySetToolMode, toolName, mode);
 	},
+	policyPickDirectory: (): Promise<string | undefined> => {
+		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
+	},
 	policyAddRestrictedDirectory: (path: string, recursive: boolean): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyAddRestrictedDirectory, path, recursive);
 	},
