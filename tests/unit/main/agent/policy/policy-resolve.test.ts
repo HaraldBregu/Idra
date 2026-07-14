@@ -1,11 +1,13 @@
 const getToolPermission = jest.fn();
 const getToolAllowedPaths = jest.fn();
 const getToolAllowedCommands = jest.fn();
+const getRestrictedDirectories = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	getToolPermission,
 	getToolAllowedPaths,
 	getToolAllowedCommands,
+	getRestrictedDirectories,
 }));
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
@@ -14,6 +16,7 @@ beforeEach(() => {
 	getToolPermission.mockReset();
 	getToolAllowedPaths.mockReset().mockReturnValue([]);
 	getToolAllowedCommands.mockReset().mockReturnValue([]);
+	getRestrictedDirectories.mockReset().mockReturnValue([]);
 });
 
 describe('resolveToolPermission', () => {
