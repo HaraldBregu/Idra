@@ -31,6 +31,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/library',
 			'/settings/tasks',
 			'/settings/tasks/health',
+			'/settings/policies',
 		],
 	},
 	{
