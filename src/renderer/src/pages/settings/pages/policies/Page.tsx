@@ -193,7 +193,7 @@ const PoliciesPage: React.FC = () => {
 							)}
 
 							<Item variant="outline" size="md">
-								<ItemContent className="min-w-0 flex-1">
+								<ItemContent className="min-w-0 flex-1 gap-2">
 									<Input
 										value={newPath}
 										onChange={(event) => setNewPath(event.target.value)}
@@ -204,6 +204,16 @@ const PoliciesPage: React.FC = () => {
 										className="h-7 w-full font-mono text-xs"
 										aria-label={t('settings.policies.pathPlaceholder')}
 									/>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										className="flex-none"
+										onClick={browseDirectory}
+									>
+										<FolderOpen className="size-3" />
+										{t('settings.policies.browse')}
+									</Button>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end gap-2">
 									<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
