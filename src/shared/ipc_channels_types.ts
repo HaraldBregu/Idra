@@ -96,6 +96,10 @@ export interface AgentInvokeChannelMap {
 		args: [toolName: string, mode: import('../main/agent/policy/policy_types').PermissionMode];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
+	[AgentChannels.policyPickDirectory]: {
+		args: [];
+		result: string | undefined;
+	};
 	[AgentChannels.policyAddRestrictedDirectory]: {
 		args: [path: string, recursive: boolean];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
