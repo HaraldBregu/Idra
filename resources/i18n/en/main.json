@@ -195,6 +195,7 @@
 			"taskScheduler": "Tasks",
 			"heartbeat": "Heartbeat",
 			"health": "Health",
+			"policies": "Policies",
 			"developer": "Developer",
 			"skills": "Skills",
 			"library": "Library"
