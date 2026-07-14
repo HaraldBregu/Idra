@@ -10,6 +10,13 @@ export interface ToolPermission {
 	allowedCommands?: string[];
 }
 
+// A directory no tool may touch. recursive: false blocks only its direct
+// contents; subdirectories are treated as ordinary resources.
+export interface RestrictedDirectory {
+	path: string;
+	recursive: boolean;
+}
+
 export interface ToolUseRecord {
 	tool: string;
 	permission: PermissionMode;
