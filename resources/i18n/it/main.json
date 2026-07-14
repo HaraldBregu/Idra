@@ -782,6 +782,25 @@
 			"restricted": "Limitata",
 			"notDetermined": "Non determinata"
 		},
+		"policies": {
+			"toolsTitle": "Permessi strumenti",
+			"toolsDescription": "Come l'agente può usare gli strumenti di modifica ed esecuzione.",
+			"defaultMode": "Predefinito per gli altri strumenti",
+			"granted": "Sempre consentito: {{items}}",
+			"restrictedTitle": "Cartelle riservate",
+			"restrictedDescription": "Nessuno strumento può leggere, scrivere o eseguire in queste cartelle. Ricorsivo blocca anche tutte le sottocartelle.",
+			"pathPlaceholder": "/percorso/della/cartella",
+			"recursive": "Ricorsivo",
+			"add": "Aggiungi",
+			"empty": "Nessuna cartella riservata",
+			"reset": "Ripristina",
+			"saveFailed": "Impossibile salvare la politica.",
+			"modes": {
+				"allow": "Consenti",
+				"ask": "Chiedi",
+				"deny": "Nega"
+			}
+		},
 		"workspace": {
 			"currentWorkspace": "Area di Lavoro Corrente",
 			"notSet": "Non impostata",
