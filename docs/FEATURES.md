@@ -10,7 +10,30 @@ This document describes the feature set present in the current source tree. It d
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | Available    | The current renderer and main process are connected to an implementation. Provider credentials or OS permissions may still be required. |
 | Partial      | A useful portion is implemented, but an important control or execution path is missing.                                                 |
+| Placeholder  | A visible control or surface exists, but its intended workflow is not connected.                                                        |
 | Catalog only | The provider or model is selectable or described, but no working execution adapter is present.                                          |
+
+## Contents
+
+- [Product overview](#product-overview)
+- [First-run setup](#first-run-setup)
+- [Conversation experience](#conversation-experience)
+- [Sessions and conversation history](#sessions-and-conversation-history)
+- [Agent runtime](#agent-runtime)
+- [Permissions and execution control](#permissions-and-execution-control)
+- [Personalization, workspace, and memory](#personalization-workspace-and-memory)
+- [Skills](#skills)
+- [MCP servers](#mcp-servers)
+- [Scheduled tasks](#scheduled-tasks)
+- [Periodic health checks](#periodic-health-checks)
+- [Speech services](#speech-services)
+- [Image, video, and audio generation](#image-video-and-audio-generation)
+- [Chat and research providers](#chat-and-research-providers)
+- [Messaging channels](#messaging-channels)
+- [Settings and desktop integration](#settings-and-desktop-integration)
+- [Privacy, storage, and security](#privacy-storage-and-security)
+- [Platform and packaging](#platform-and-packaging)
+- [Source map](#source-map)
 
 ## Product overview
 
@@ -25,7 +48,7 @@ Friday provides:
 - Persistent schedules and periodic `HEALTH.md` checks.
 - Telegram and Discord bot connections with sender policies.
 - Local configuration, conversation history, memory, generated-media storage, and operational logs.
-- Windows, macOS, and Linux packaging; English and Italian application interfaces; light, dark, and system themes.
+- Windows, macOS, and Linux packaging; partial English and Italian localization; light, dark, and system themes.
 
 ## First-run setup
 
@@ -111,7 +134,7 @@ Friday uses an iterative tool-calling loop:
 
 Each model turn currently allows up to 4,096 output tokens and is retried once after a provider failure.
 
-The Home prompt classifier selects `none`, `medium`, or `high` reasoning based on prompt language, length, and code context. The selected effort is visible in renderer events, but the current main-process send path does not forward the Home `effort`, `lightContext`, `toolsAllow`, or `toolsDeny` options into agent execution. These controls are therefore only partially effective.
+The Home prompt classifier computes `none`, `medium`, or `high` reasoning based on prompt language, length, and code context. The current send path drops that `effort` before model execution; `lightContext`, `toolsAllow`, and `toolsDeny` are also dropped. These Home options therefore have no execution effect at present.
 
 ### Built-in tools
 
@@ -125,7 +148,7 @@ The Home prompt classifier selects `none`, `medium`, or `high` reasoning based o
 | Browser    | Start or stop a persistent visible Chrome profile; manage tabs; navigate; take DOM/text snapshots, screenshots, or PDFs; read console output; and click, type, press, hover, drag, select, fill, wait, or evaluate. |
 | Media      | Generate an image, video, music track, or sound effect with the configured service and save agent-created output in the media library.                                                                              |
 | Memory     | Save a durable fact or forget all saved facts containing a case-insensitive match.                                                                                                                                  |
-| Skills     | Load an enabled `SKILL.md` and its directory into the current run.                                                                                                                                                  |
+| Skills     | Load an enabled skill's `SKILL.md` instructions and return its directory path to the current run.                                                                                                                   |
 | MCP        | Load enabled server tools dynamically as `mcp__<server>__<tool>`.                                                                                                                                                   |
 | Schedules  | Create, update, pause, resume, delete, inspect, list, or trigger persistent schedule records. See [Scheduled tasks](#scheduled-tasks) for the execution limit.                                                      |
 | Health     | Replace the `HEALTH.md` checklist or update health-run settings.                                                                                                                                                    |
@@ -193,7 +216,7 @@ The Skills settings area can:
 
 Validation requires frontmatter `name` and `description`. Names are lowercase alphanumeric/hyphen identifiers of 1–64 characters, and descriptions are limited to 1,024 characters. Importing an existing ID replaces its folder. Only enabled skills can be loaded by the agent.
 
-The Home slash menu searches installed skills, and the agent can load a selected skill's full instructions plus bundled files during a run.
+The Home slash menu searches installed skills, and the agent can load a selected skill's `SKILL.md` instructions during a run. The loader returns the skill directory path; bundled scripts, references, and assets must be read separately when needed.
 
 ## MCP servers
 
@@ -249,7 +272,7 @@ Available behavior:
 - An isolated `health` session when enabled.
 - Heading-only or empty checklists are skipped.
 - A response of exactly `HEALTH_OK` is treated as healthy; other responses are logged as needing attention.
-- The Health screen can read, edit, and save the checklist and configuration. Runtime APIs also support resetting the health configuration.
+- The Health screen can read, edit, and save the checklist and configuration. An unmounted runtime API can reset the health configuration, but the screen has no reset action and there is no checklist-reset API.
 
 The Health settings screen exposes provider, model, interval, target, direct policy, start/end dates, and the checklist editor. The agent tool can additionally update light-context, isolated-session, skip-when-busy, active-hours, and include-reasoning fields.
 
@@ -493,7 +516,7 @@ Known boundaries:
 - Windows: NSIS installer for x64, selectable installation directory, desktop shortcut, and retained app data on uninstall.
 - macOS: PKG and DMG targets for x64 and arm64, dark-mode support, hardened runtime, and microphone/camera entitlements.
 - Linux: AppImage script and AppImage/DEB builder configuration.
-- The application UI is localized in English and Italian. The Windows installer additionally declares Italian, English, Spanish, French, and German installer languages.
+- English and Italian translation catalogs and a locale selector are present, but localization is partial: major first-run and Home copy, including suggestions and the editor placeholder, remains hardcoded in English. The Windows installer additionally declares Italian, English, Spanish, French, and German installer languages.
 
 ## Source map
 
