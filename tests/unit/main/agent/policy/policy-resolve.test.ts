@@ -56,3 +56,32 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/work' })).toBe('allow');
 	});
 });
+
+describe('restricted directories', () => {
+	it('denies every tool inside a restricted directory, read included', () => {
+		getRestrictedDirectories.mockReturnValue([{ path: '/secret', recursive: true }]);
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/secret' })).toBe('deny');
+	});
+
+	it('recursive restriction covers nested directories', () => {
+		getRestrictedDirectories.mockReturnValue([{ path: '/secret', recursive: true }]);
+		expect(resolveToolPermission('read', { path: '/secret/deep/a.txt' })).toBe('deny');
+	});
+
+	it('non-recursive restriction blocks only direct contents', () => {
+		getToolPermission.mockReturnValue('allow');
+		getRestrictedDirectories.mockReturnValue([{ path: '/secret', recursive: false }]);
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/secret/sub/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('write', { path: '/secret/sub/a.txt' })).toBe('allow');
+	});
+
+	it('overrides a stored allow mode and allowlisted paths', () => {
+		getToolPermission.mockReturnValue('allow');
+		getToolAllowedPaths.mockReturnValue(['/secret']);
+		getRestrictedDirectories.mockReturnValue([{ path: '/secret', recursive: true }]);
+		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('deny');
+	});
+});
