@@ -122,6 +122,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Tasks
 	{ path: '/settings/tasks', labelKey: 'settings.cron.runtime.title', descriptionKey: 'settings.cron.runtime.description', keywords: 'scheduled agent provider model runtime' },
 	{ path: '/settings/tasks', labelKey: 'settings.cron.schedulesTitle', descriptionKey: 'settings.cron.schedulesDescription', keywords: 'cron schedule recurring task' },
+	// Policies
+	{ path: '/settings/policies', labelKey: 'settings.policies.toolsTitle', descriptionKey: 'settings.policies.toolsDescription', keywords: 'policy permission tool write edit exec allow deny ask' },
+	{ path: '/settings/policies', labelKey: 'settings.policies.restrictedTitle', descriptionKey: 'settings.policies.restrictedDescription', keywords: 'restricted directory folder blocked deny recursive access' },
 	// Health
 	{ path: '/settings/tasks/health', labelKey: 'settings.health.settingsTitle', descriptionKey: 'settings.health.settingsDescription', keywords: 'periodic health check interval provider model' },
 	{ path: '/settings/tasks/health', labelKey: 'settings.health.checklistTitle', descriptionKey: 'settings.health.checklistDescription', keywords: 'health checklist instructions agent HEALTH.md' },
