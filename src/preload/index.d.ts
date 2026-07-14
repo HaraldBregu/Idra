@@ -38,6 +38,7 @@ export interface AgentApi {
 	cronSetRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
 	policyGet: () => Promise<PermissionsSchema>;
 	policySetToolMode: (toolName: string, mode: PermissionMode) => Promise<PermissionsSchema>;
+	policyPickDirectory: () => Promise<string | undefined>;
 	policyAddRestrictedDirectory: (path: string, recursive: boolean) => Promise<PermissionsSchema>;
 	policyRemoveRestrictedDirectory: (path: string) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
