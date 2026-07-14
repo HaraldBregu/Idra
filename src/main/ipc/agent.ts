@@ -347,6 +347,47 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.policyGet,
+			wrapSimpleHandler((): PermissionsSchema => getPermissions(), AgentChannels.policyGet)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policySetToolMode,
+			wrapSimpleHandler((toolName: unknown, mode: unknown): PermissionsSchema => {
+				const tool = optionalTrimmedString(toolName);
+				if (!tool) throw new Error('Invalid tool name.');
+				if (!isPermissionMode(mode)) throw new Error('Invalid permission mode.');
+				setToolPermission(tool, mode);
+				return getPermissions();
+			}, AgentChannels.policySetToolMode)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policyAddRestrictedDirectory,
+			wrapSimpleHandler((dirPath: unknown, recursive: unknown): PermissionsSchema => {
+				const dir = optionalTrimmedString(dirPath);
+				if (!dir) throw new Error('Invalid directory path.');
+				addRestrictedDirectory(dir, recursive === true);
+				return getPermissions();
+			}, AgentChannels.policyAddRestrictedDirectory)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policyRemoveRestrictedDirectory,
+			wrapSimpleHandler((dirPath: unknown): PermissionsSchema => {
+				const dir = optionalTrimmedString(dirPath);
+				if (!dir) throw new Error('Invalid directory path.');
+				removeRestrictedDirectory(dir);
+				return getPermissions();
+			}, AgentChannels.policyRemoveRestrictedDirectory)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policyReset,
+			wrapSimpleHandler((): PermissionsSchema => resetPermissions(), AgentChannels.policyReset)
+		);
+
+		ipcMain.handle(
 			AgentChannels.healthSettings,
 			wrapSimpleHandler(() => getHealthSettings(), AgentChannels.healthSettings)
 		);
