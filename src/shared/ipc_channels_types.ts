@@ -88,6 +88,26 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.skillsOpenRoot]: { args: []; result: void };
 	[AgentChannels.skillsGetRoot]: { args: []; result: string };
+	[AgentChannels.policyGet]: {
+		args: [];
+		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+	};
+	[AgentChannels.policySetToolMode]: {
+		args: [toolName: string, mode: import('../main/agent/policy/policy_types').PermissionMode];
+		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+	};
+	[AgentChannels.policyAddRestrictedDirectory]: {
+		args: [path: string, recursive: boolean];
+		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+	};
+	[AgentChannels.policyRemoveRestrictedDirectory]: {
+		args: [path: string];
+		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+	};
+	[AgentChannels.policyReset]: {
+		args: [];
+		result: import('../main/agent/policy/policy_types').PermissionsSchema;
+	};
 	[AgentChannels.healthSettings]: {
 		args: [];
 		result: import('../main/agent/health/health_types').HealthSettings;
