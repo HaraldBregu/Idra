@@ -11,6 +11,7 @@ import {
 	Plug,
 	RadioTower,
 	Server,
+	ShieldCheck,
 	Sparkles,
 	Video,
 	Volume2,
