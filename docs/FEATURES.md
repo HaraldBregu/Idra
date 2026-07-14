@@ -249,7 +249,7 @@ Available behavior:
 - An isolated `health` session when enabled.
 - Heading-only or empty checklists are skipped.
 - A response of exactly `HEALTH_OK` is treated as healthy; other responses are logged as needing attention.
-- Settings can read, edit, save, and reset both the checklist and health configuration.
+- The Health screen can read, edit, and save the checklist and configuration. Runtime APIs also support resetting the health configuration.
 
 The Health settings screen exposes provider, model, interval, target, direct policy, start/end dates, and the checklist editor. The agent tool can additionally update light-context, isolated-session, skip-when-busy, active-hours, and include-reasoning fields.
 
