@@ -43,6 +43,22 @@ export function addToolAllowedPath(toolName: string, dirPath: string): void {
 	store.set('tools', tools);
 }
 
+export function getRestrictedDirectories(): RestrictedDirectory[] {
+	return store.get('restrictedDirectories') ?? [];
+}
+
+export function addRestrictedDirectory(dirPath: string, recursive: boolean): void {
+	const dirs = getRestrictedDirectories().filter((dir) => dir.path !== dirPath);
+	store.set('restrictedDirectories', [...dirs, { path: dirPath, recursive }]);
+}
+
+export function removeRestrictedDirectory(dirPath: string): void {
+	store.set(
+		'restrictedDirectories',
+		getRestrictedDirectories().filter((dir) => dir.path !== dirPath),
+	);
+}
+
 export function getToolAllowedCommands(toolName: string): string[] {
 	return store.get('tools')[toolName]?.allowedCommands ?? [];
 }
