@@ -10,7 +10,7 @@ import {
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
-import { buildSystemPrompt } from '../system';
+import { addFilesystemPrompt, buildSystemPrompt } from '../system';
 import { loadMcpTools } from '../tools/mcp_loader';
 import { completeBootstrapTool } from '../tools/bootstrap_complete';
 import { readTool } from '../tools/file_read';
@@ -135,9 +135,9 @@ async function* loop(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const systemPrompt =
-				options.systemPrompt ??
-				(await buildSystemPrompt(config, tools, session.context.loadedSkills));
+			const systemPrompt = options.systemPrompt
+				? await addFilesystemPrompt(config, options.systemPrompt)
+				: await buildSystemPrompt(config, tools, session.context.loadedSkills);
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(
