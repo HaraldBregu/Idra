@@ -297,6 +297,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'policies',
+						element: (
+							<SettingsRouteWrapper>
+								<PoliciesPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'assistant',
 						children: [
 							{
