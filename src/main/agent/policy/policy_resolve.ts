@@ -1,5 +1,6 @@
 import { toolCommandName } from './policy_command';
 import { isPathWithin } from './policy_path';
+import { isDirRestricted } from './policy_restricted';
 import { getToolAllowedCommands, getToolAllowedPaths, getToolPermission } from './policy_store';
 import { toolTargetDirs } from './policy_targets';
 import { isPermissionGatedTool, type PermissionMode } from './policy_types';
@@ -8,15 +9,18 @@ function isDirAllowed(toolName: string, dir: string): boolean {
 	return getToolAllowedPaths(toolName).some((allowed) => isPathWithin(allowed, dir));
 }
 
+// Resolution order: restricted directories deny every tool (read included),
+// then ungated tools pass, then the tool's stored mode, then — for 'ask' —
+// previously granted paths (and commands, for exec) pass without asking.
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
+	const dirs = toolTargetDirs(toolName, args);
+	if (dirs.some(isDirRestricted)) return 'deny';
 	if (!isPermissionGatedTool(toolName)) return 'allow';
 	const mode = getToolPermission(toolName);
 	if (mode !== 'ask') return mode;
-	// Only previously granted paths (and commands, for exec) pass without asking.
-	const dirs = toolTargetDirs(toolName, args);
 	if (toolName === 'exec') {
 		const command = toolCommandName(args);
 		if (!command || !getToolAllowedCommands(toolName).includes(command)) return 'ask';
