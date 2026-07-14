@@ -61,6 +61,18 @@ const PoliciesPage: React.FC = () => {
 		setNewPath('');
 	};
 
+	const browseDirectory = (): void => {
+		setError(null);
+		window.agent
+			.policyPickDirectory()
+			.then((picked) => {
+				if (picked) setNewPath(picked);
+			})
+			.catch((err: unknown) => {
+				setError(err instanceof Error ? err.message : String(err));
+			});
+	};
+
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
