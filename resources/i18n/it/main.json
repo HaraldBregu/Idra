@@ -173,6 +173,7 @@
 				"cron": "Attivita agente pianificate",
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
+				"policies": "Permessi strumenti e cartelle riservate",
 				"library": "File multimediali generati"
 			}
 		},
