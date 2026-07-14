@@ -1,6 +1,6 @@
 import { toolCommandName } from './policy_command';
 import { isPathWithin } from './policy_path';
-import { isDirRestricted } from './policy_restricted';
+import { restrictedToolDir } from './policy_restricted';
 import { getToolAllowedCommands, getToolAllowedPaths, getToolPermission } from './policy_store';
 import { toolTargetDirs } from './policy_targets';
 import { isPermissionGatedTool, type PermissionMode } from './policy_types';
@@ -16,8 +16,8 @@ export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
+	if (restrictedToolDir(toolName, args)) return 'deny';
 	const dirs = toolTargetDirs(toolName, args);
-	if (dirs.some(isDirRestricted)) return 'deny';
 	if (!isPermissionGatedTool(toolName)) return 'allow';
 	const mode = getToolPermission(toolName);
 	if (mode !== 'ask') return mode;
