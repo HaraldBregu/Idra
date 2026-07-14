@@ -17,7 +17,7 @@ export {
 export { toolCommandName } from './policy_command';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { toolTargetDirs } from './policy_targets';
-export { isDirRestricted } from './policy_restricted';
+export { isDirRestricted, restrictedToolDir } from './policy_restricted';
 export { resolveToolPermission } from './policy_resolve';
 export {
 	rejectPendingToolPermissions,
