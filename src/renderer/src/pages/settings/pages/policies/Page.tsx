@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, FolderX, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { Label } from '@/components/ui/label';
 import {
 	Select,
@@ -19,7 +20,6 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
-	SettingsRow,
 	SettingsSection,
 	SettingsValue,
 } from '../../components';
@@ -28,6 +28,8 @@ type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
 type PermissionMode = Permissions['defaultMode'];
 
 const MODES: readonly PermissionMode[] = ['allow', 'ask', 'deny'];
+
+const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
 const PoliciesPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -92,26 +94,35 @@ const PoliciesPage: React.FC = () => {
 						description={t('settings.policies.toolsDescription')}
 					>
 						<SettingsPanel>
-							<SettingsRow
-								title={t('settings.policies.defaultMode')}
-								actions={<SettingsValue>{t(`settings.policies.modes.${policy.defaultMode}`)}</SettingsValue>}
-							/>
+							<Item variant="outline" size="md" className={ROW_CLASS}>
+								<ItemContent className="min-w-0 flex-1">
+									<ItemTitle className="max-w-full truncate">
+										{t('settings.policies.defaultMode')}
+									</ItemTitle>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end">
+									<SettingsValue>{t(`settings.policies.modes.${policy.defaultMode}`)}</SettingsValue>
+								</ItemActions>
+							</Item>
+
 							{Object.entries(policy.tools).map(([toolName, entry]) => {
 								const grants = [...(entry.allowedCommands ?? []), ...(entry.allowedPaths ?? [])];
 								return (
-									<SettingsRow
-										key={toolName}
-										title={<span className="font-mono">{toolName}</span>}
-										description={
-											grants.length > 0
-												? t('settings.policies.granted', { items: grants.join(', ') })
-												: undefined
-										}
-										actions={
+									<Item key={toolName} variant="outline" size="md" className={ROW_CLASS}>
+										<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+											<ItemTitle className="max-w-full truncate font-mono">{toolName}</ItemTitle>
+											{grants.length > 0 && (
+												<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+													{t('settings.policies.granted', { items: grants.join(', ') })}
+												</p>
+											)}
+										</ItemContent>
+										<ItemActions className="ml-auto flex-none justify-end">
 											<Select
 												value={entry.mode}
 												onValueChange={(value) => {
-													if (value) apply(window.agent.policySetToolMode(toolName, value as PermissionMode));
+													if (value)
+														apply(window.agent.policySetToolMode(toolName, value as PermissionMode));
 												}}
 											>
 												<SelectTrigger className="h-7 w-28 text-xs">
@@ -125,8 +136,8 @@ const PoliciesPage: React.FC = () => {
 													))}
 												</SelectContent>
 											</Select>
-										}
-									/>
+										</ItemActions>
+									</Item>
 								);
 							})}
 						</SettingsPanel>
@@ -141,58 +152,59 @@ const PoliciesPage: React.FC = () => {
 								<SettingsEmptyState icon={FolderX} title={t('settings.policies.empty')} />
 							) : (
 								policy.restrictedDirectories.map((dir) => (
-									<SettingsRow
-										key={dir.path}
-										title={<span className="font-mono">{dir.path}</span>}
-										actions={
-											<>
-												<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-													{t('settings.policies.recursive')}
-													<Switch
-														checked={dir.recursive}
-														onCheckedChange={(checked) =>
-															apply(window.agent.policyAddRestrictedDirectory(dir.path, checked))
-														}
-													/>
-												</Label>
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-sm"
-													aria-label={t('common.delete')}
-													onClick={() =>
-														apply(window.agent.policyRemoveRestrictedDirectory(dir.path))
+									<Item key={dir.path} variant="outline" size="md" className={ROW_CLASS}>
+										<ItemContent className="min-w-0 flex-1">
+											<ItemTitle className="max-w-full truncate font-mono">{dir.path}</ItemTitle>
+										</ItemContent>
+										<ItemActions className="ml-auto flex-none justify-end gap-2">
+											<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+												{t('settings.policies.recursive')}
+												<Switch
+													checked={dir.recursive}
+													onCheckedChange={(checked) =>
+														apply(window.agent.policyAddRestrictedDirectory(dir.path, checked))
 													}
-												>
-													<Trash2 className="size-3" />
-												</Button>
-											</>
-										}
-									/>
+												/>
+											</Label>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon-sm"
+												aria-label={t('common.delete')}
+												onClick={() => apply(window.agent.policyRemoveRestrictedDirectory(dir.path))}
+											>
+												<Trash2 className="size-3" />
+											</Button>
+										</ItemActions>
+									</Item>
 								))
 							)}
-						</SettingsPanel>
 
-						<div className="flex flex-wrap items-center gap-2">
-							<Input
-								value={newPath}
-								onChange={(event) => setNewPath(event.target.value)}
-								onKeyDown={(event) => {
-									if (event.key === 'Enter') addDirectory();
-								}}
-								placeholder={t('settings.policies.pathPlaceholder')}
-								className="h-7 w-64 font-mono text-xs"
-								aria-label={t('settings.policies.pathPlaceholder')}
-							/>
-							<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-								{t('settings.policies.recursive')}
-								<Switch checked={newRecursive} onCheckedChange={setNewRecursive} />
-							</Label>
-							<Button type="button" size="sm" disabled={!newPath.trim()} onClick={addDirectory}>
-								<Plus className="size-3" />
-								{t('settings.policies.add')}
-							</Button>
-						</div>
+							<Item variant="outline" size="md">
+								<ItemContent className="min-w-0 flex-1">
+									<Input
+										value={newPath}
+										onChange={(event) => setNewPath(event.target.value)}
+										onKeyDown={(event) => {
+											if (event.key === 'Enter') addDirectory();
+										}}
+										placeholder={t('settings.policies.pathPlaceholder')}
+										className="h-7 w-full font-mono text-xs"
+										aria-label={t('settings.policies.pathPlaceholder')}
+									/>
+								</ItemContent>
+								<ItemActions className="ml-auto flex-none justify-end gap-2">
+									<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+										{t('settings.policies.recursive')}
+										<Switch checked={newRecursive} onCheckedChange={setNewRecursive} />
+									</Label>
+									<Button type="button" size="sm" disabled={!newPath.trim()} onClick={addDirectory}>
+										<Plus className="size-3" />
+										{t('settings.policies.add')}
+									</Button>
+								</ItemActions>
+							</Item>
+						</SettingsPanel>
 					</SettingsSection>
 				</>
 			)}

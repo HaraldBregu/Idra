@@ -4,7 +4,6 @@ import {
 	addToolAllowedPath,
 	recordToolUse,
 	resolveToolPermission,
-	restrictedToolDir,
 	toolCommandName,
 	toolTargetDirs,
 	waitForToolPermission,
@@ -57,10 +56,7 @@ export async function* runToolCall(
 		recordToolUse(toolCall.name, permission);
 
 		if (permission === 'deny') {
-			const restricted = restrictedToolDir(toolCall.name, toolCall.args);
-			output = restricted
-				? `Error: '${restricted}' is a restricted directory; '${toolCall.name}' is not allowed there`
-				: `Error: permission denied for '${toolCall.name}'`;
+			output = `Error: permission denied for '${toolCall.name}'`;
 			isError = true;
 		} else {
 			try {
