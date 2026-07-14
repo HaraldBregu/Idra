@@ -57,6 +57,15 @@ describe('agent filesystem prompt', () => {
 		expect(afterDelete).not.toContain('library/new.mp3');
 	});
 
+	it('keeps the prompt available when the agent root cannot be read', async () => {
+		const missingRoot = path.join(root, 'missing');
+
+		const prompt = await addFilesystemPrompt({ location: missingRoot }, 'base');
+
+		expect(prompt).toContain(`Root directory: ${JSON.stringify(missingRoot)}`);
+		expect(prompt).toContain('- "." (unavailable)');
+	});
+
 	it('adds the live inventory through the normal system prompt builder', async () => {
 		await fs.mkdir(path.join(root, 'library'));
 		await fs.writeFile(path.join(root, 'library', 'clip.mp4'), 'video');
