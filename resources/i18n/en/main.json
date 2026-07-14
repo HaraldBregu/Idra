@@ -173,6 +173,7 @@
 				"cron": "Scheduled agent tasks",
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
+				"policies": "Tool permissions and restricted folders",
 				"library": "Generated media files"
 			}
 		},
