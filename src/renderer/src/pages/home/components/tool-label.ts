@@ -63,61 +63,6 @@ export function toolPartLabel(tool: AgentToolPart): string {
 	return capitalizeType(tool.type);
 }
 
-type ToolVerbs = { readonly running: string; readonly done: string };
-
-export function toolVerbs(type: string): ToolVerbs {
-	const t = type.toLowerCase();
-	if (t === 'edit' || t === 'write' || t === 'apply_patch') {
-		return { running: 'Editing', done: 'Edited' };
-	}
-	if (t === 'browser' || t.startsWith('web_')) {
-		return { running: 'Browsing', done: 'Browsed' };
-	}
-	if (t.startsWith('mcp__')) return { running: 'Calling', done: 'Called' };
-	if (t.includes('schedule')) return { running: 'Task', done: 'Task' };
-	if (t === 'create_image') return { running: 'Creating image', done: 'Created image' };
-	if (t === 'subagent') return { running: 'Subagent', done: 'Subagent' };
-	if (t.includes('skill')) return { running: 'Skill', done: 'Skill' };
-	return { running: 'Exploring', done: 'Explored' };
-}
-
-export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
-	const verbs = toolVerbs(type);
-	return tools.some(isToolRunning) ? verbs.running : verbs.done;
-}
-
 export function isToolRunning(tool: AgentToolPart): boolean {
 	return tool.state === 'input-streaming' || tool.state === 'input-available';
-}
-
-const fileVerbs = new Set(['Exploring', 'Explored', 'Editing', 'Edited']);
-
-export function toolActivitySummary(tools: readonly AgentToolPart[]): {
-	readonly verb: string;
-	readonly detail: string;
-} {
-	const running = tools.some(isToolRunning);
-	const key = running ? 'running' : 'done';
-	const labels = new Set(tools.map((tool) => toolVerbs(tool.type)[key]));
-	const verb =
-		labels.size === 1 ? (labels.values().next().value as string) : running ? 'Working' : 'Finished';
-	if (verb === 'Skill') {
-		const names = tools
-			.map((tool) => (isRecord(tool.input) ? stringArg(tool.input, 'name') : undefined))
-			.filter((name): name is string => Boolean(name));
-		if (names.length > 0) return { verb, detail: names.join(', ') };
-	}
-	if (verb === 'Calling' || verb === 'Called') {
-		const servers = [
-			...new Set(
-				tools
-					.map((tool) => mcpParts(tool.type)?.server)
-					.filter((server): server is string => Boolean(server))
-			),
-		];
-		if (servers.length > 0) return { verb, detail: servers.join(', ') };
-	}
-	const count = tools.length;
-	const detail = fileVerbs.has(verb) ? `${count} ${count === 1 ? 'file' : 'files'}` : `${count}`;
-	return { verb, detail };
 }
