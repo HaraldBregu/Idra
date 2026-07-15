@@ -27,14 +27,14 @@ export interface ToolUseRecord {
 
 export interface PermissionsSchema {
 	defaultMode: PermissionMode;
-	restrictedDirectories: RestrictedDirectory[];
+	pathModes: PathMode[];
 	tools: Record<string, ToolPermission>;
 	usage: ToolUseRecord[];
 }
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultMode: 'allow',
-	restrictedDirectories: [],
+	pathModes: [],
 	tools: {
 		write: { mode: 'ask' },
 		edit: { mode: 'ask' },
