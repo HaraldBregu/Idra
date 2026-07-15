@@ -37,7 +37,7 @@ function staggerStyle(index: number): { animationDelay: string } {
 function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactElement {
 	const [isOpen, setIsOpen] = useState(false);
 	const isRunning = group.tools.some(isToolRunning);
-	const label = group.tools.map(toolPartLabel).join(', ');
+	const label = toolGroupLabel(group.type, group.tools);
 
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>

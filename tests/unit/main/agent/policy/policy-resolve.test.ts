@@ -169,9 +169,9 @@ describe('Tool(pattern) rules', () => {
 		expect(resolveToolPermission('read', { path: '/etc/passwd' })).toBe('deny');
 	});
 
-	it('a rule wins over the path defaults', () => {
+	it('a path default overrides a rule', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Read(/secret/a.txt)'] });
 		getPathPermissions.mockReturnValue([rule('/secret', [], ['*'])]);
-		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
 	});
 });
