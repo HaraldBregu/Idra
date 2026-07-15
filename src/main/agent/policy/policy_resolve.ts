@@ -1,19 +1,8 @@
-import { toolCommandName } from './policy_command';
 import { pathPermissionFor } from './policy_override';
-import { isPathWithin } from './policy_path';
-import {
-	getPermissionRules,
-	getToolAllowedCommands,
-	getToolAllowedPaths,
-	getToolPermission,
-} from './policy_store';
+import { getDefaultMode, getPermissionRules } from './policy_store';
 import { toolRuleSignature } from './policy_signature';
 import { toolTargetDirs } from './policy_targets';
 import { isPermissionGatedTool, type PermissionMode } from './policy_types';
-
-function isDirAllowed(toolName: string, dir: string): boolean {
-	return getToolAllowedPaths(toolName).some((allowed) => isPathWithin(allowed, dir));
-}
 
 function ruleMatches(rule: string, signature: string): boolean {
 	if (rule === signature) return true;
