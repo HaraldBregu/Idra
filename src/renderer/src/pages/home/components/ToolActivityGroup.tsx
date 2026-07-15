@@ -18,16 +18,16 @@ type ToolTypeGroup = {
 };
 
 function groupToolsByType(tools: readonly AgentToolPart[]): ToolTypeGroup[] {
-	const groups = new Map<string, AgentToolPart[]>();
+	const groups: ToolTypeGroup[] = [];
 	for (const tool of tools) {
-		const existing = groups.get(tool.type);
-		if (existing) {
-			existing.push(tool);
+		const last = groups[groups.length - 1];
+		if (last && last.type === tool.type) {
+			last.tools.push(tool);
 		} else {
-			groups.set(tool.type, [tool]);
+			groups.push({ type: tool.type, tools: [tool] });
 		}
 	}
-	return [...groups.entries()].map(([type, list]) => ({ type, tools: list }));
+	return groups;
 }
 
 function staggerStyle(index: number): { animationDelay: string } {
