@@ -241,6 +241,23 @@ const PoliciesPage: React.FC = () => {
 									</Button>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end gap-2">
+									<Select
+										value={newMode}
+										onValueChange={(value) => {
+											if (value) setNewMode(value as PermissionMode);
+										}}
+									>
+										<SelectTrigger className="h-7 w-24 text-xs">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											{MODES.map((mode) => (
+												<SelectItem key={mode} value={mode}>
+													{t(`settings.policies.modes.${mode}`)}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
 									<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
 										{t('settings.policies.recursive')}
 										<Switch checked={newRecursive} onCheckedChange={setNewRecursive} />
