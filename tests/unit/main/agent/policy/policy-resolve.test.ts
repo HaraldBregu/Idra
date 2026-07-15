@@ -73,6 +73,14 @@ describe('path permissions', () => {
 		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/secret' })).toBe('deny');
 	});
 
+	it('accepts the bare "*" string form for a selector', () => {
+		getPathPermissions.mockReturnValue([
+			{ path: '/secret', allow: [], deny: '*', ask: [], recursive: true },
+		]);
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('deny');
+	});
+
 	it('applies to the whole subtree', () => {
 		getPathPermissions.mockReturnValue([rule('/secret', [], ['*'])]);
 		expect(resolveToolPermission('read', { path: '/secret/deep/a.txt' })).toBe('deny');
