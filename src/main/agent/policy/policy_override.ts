@@ -6,10 +6,16 @@ function listMatches(list: string[], toolName: string): boolean {
 	return list.includes('*') || list.includes(toolName);
 }
 
-// The decision a single rule makes for a tool: deny wins over allow, and a rule
-// that mentions neither stays out of the way.
-function ruleDecision(allow: string[], deny: string[], toolName: string): PermissionMode | undefined {
+// The decision a single rule makes for a tool: deny wins over ask wins over
+// allow, and a rule that mentions none of them stays out of the way.
+function ruleDecision(
+	allow: string[],
+	deny: string[],
+	ask: string[],
+	toolName: string,
+): PermissionMode | undefined {
 	if (listMatches(deny, toolName)) return 'deny';
+	if (listMatches(ask, toolName)) return 'ask';
 	if (listMatches(allow, toolName)) return 'allow';
 	return undefined;
 }
@@ -19,10 +25,11 @@ function ruleDecision(allow: string[], deny: string[], toolName: string): Permis
 // wins.
 export function pathPermissionFor(toolName: string, dir: string): PermissionMode | undefined {
 	let best: { root: string; decision: PermissionMode } | undefined;
-	for (const { absolutePath, allow, deny } of getPathPermissions()) {
-		const root = resolveUserPath(absolutePath);
-		if (!isPathWithin(root, dir)) continue;
-		const decision = ruleDecision(allow, deny, toolName);
+	for (const { path, allow, deny, ask, recursive } of getPathPermissions()) {
+		const root = resolveUserPath(path);
+		const matches = recursive ? isPathWithin(root, dir) : root === dir;
+		if (!matches) continue;
+		const decision = ruleDecision(allow, deny, ask, toolName);
 		if (decision && (!best || root.length > best.root.length)) best = { root, decision };
 	}
 	return best?.decision;
