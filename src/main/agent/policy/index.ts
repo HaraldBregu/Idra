@@ -16,6 +16,7 @@ export {
 	updatePermissions,
 } from './policy_store';
 export { toolCommandName } from './policy_command';
+export { toolRuleSignature } from './policy_signature';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { toolTargetDirs } from './policy_targets';
 export { pathPermissionFor } from './policy_override';
