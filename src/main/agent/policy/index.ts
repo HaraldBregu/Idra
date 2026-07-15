@@ -28,10 +28,10 @@ export {
 	DEFAULT_PERMISSIONS,
 	isPermissionGatedTool,
 	PERMISSION_GATED_TOOLS,
+	type PathMode,
 	type PermissionGatedTool,
 	type PermissionMode,
 	type PermissionsSchema,
-	type RestrictedDirectory,
 	type ToolPermission,
 	type ToolUseRecord,
 } from './policy_types';
