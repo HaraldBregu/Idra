@@ -1,5 +1,5 @@
 import { toolCommandName } from './policy_command';
-import { pathModeFor } from './policy_override';
+import { pathPermissionFor } from './policy_override';
 import { isPathWithin } from './policy_path';
 import { getToolAllowedCommands, getToolAllowedPaths, getToolPermission } from './policy_store';
 import { toolTargetDirs } from './policy_targets';
@@ -9,13 +9,12 @@ function isDirAllowed(toolName: string, dir: string): boolean {
 	return getToolAllowedPaths(toolName).some((allowed) => isPathWithin(allowed, dir));
 }
 
-// Fold the path-rule modes of a tool's target dirs into one, most restrictive
-// wins: deny > ask > allow.
-function pathOverride(dirs: string[]): PermissionMode | undefined {
-	const modes = dirs.map(pathModeFor);
-	if (modes.includes('deny')) return 'deny';
-	if (modes.includes('ask')) return 'ask';
-	if (modes.includes('allow')) return 'allow';
+// Fold the path-rule decisions across a tool's target dirs into one, most
+// restrictive wins: deny > allow.
+function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefined {
+	const decisions = dirs.map((dir) => pathPermissionFor(toolName, dir));
+	if (decisions.includes('deny')) return 'deny';
+	if (decisions.includes('allow')) return 'allow';
 	return undefined;
 }
 
@@ -28,7 +27,7 @@ export function resolveToolPermission(
 	args: Record<string, unknown> = {},
 ): PermissionMode {
 	const dirs = toolTargetDirs(toolName, args);
-	const override = pathOverride(dirs);
+	const override = pathOverride(toolName, dirs);
 	if (override) return override;
 	if (!isPermissionGatedTool(toolName)) return 'allow';
 	const mode = getToolPermission(toolName);
