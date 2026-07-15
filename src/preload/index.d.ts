@@ -39,12 +39,12 @@ export interface AgentApi {
 	policyGet: () => Promise<PermissionsSchema>;
 	policySetToolMode: (toolName: string, mode: PermissionMode) => Promise<PermissionsSchema>;
 	policyPickDirectory: () => Promise<string | undefined>;
-	policySetPathMode: (
+	policySetPathPermission: (
 		path: string,
-		mode: PermissionMode,
-		recursive: boolean,
+		allow: string[],
+		deny: string[],
 	) => Promise<PermissionsSchema>;
-	policyRemovePathMode: (path: string) => Promise<PermissionsSchema>;
+	policyRemovePathPermission: (path: string) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
