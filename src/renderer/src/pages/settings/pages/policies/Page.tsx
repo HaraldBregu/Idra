@@ -25,8 +25,13 @@ import {
 
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
 type PermissionMode = Permissions['defaultMode'];
+type PathPermission = Permissions['permissions'][number];
+type ToolState = 'inherit' | 'allow' | 'deny';
 
 const MODES: readonly PermissionMode[] = ['allow', 'ask', 'deny'];
+
+// The wildcard plus the tools whose access a path rule can flip.
+const PERM_TOOLS = ['*', 'write', 'edit', 'exec', 'apply_patch'] as const;
 
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
@@ -35,8 +40,6 @@ const PoliciesPage: React.FC = () => {
 	const [policy, setPolicy] = useState<Permissions | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [newPath, setNewPath] = useState('');
-	const [newMode, setNewMode] = useState<PermissionMode>('allow');
-	const [newRecursive, setNewRecursive] = useState(true);
 
 	const apply = (operation: Promise<Permissions>): void => {
 		setError(null);
