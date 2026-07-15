@@ -1,14 +1,9 @@
 export type PermissionMode = 'allow' | 'deny' | 'ask';
 
-export const PERMISSION_GATED_TOOLS = ['write', 'edit', 'exec', 'apply_patch'] as const;
+// The destructive tools gated by permissions; every other tool is always allowed.
+export const PERMISSION_GATED_TOOLS = ['exec', 'read', 'write'] as const;
 
 export type PermissionGatedTool = (typeof PERMISSION_GATED_TOOLS)[number];
-
-export interface ToolPermission {
-	mode: PermissionMode;
-	allowedPaths?: string[];
-	allowedCommands?: string[];
-}
 
 // A set of tools: the string "*" for every tool, or a list of tool names (which
 // may itself contain "*").
