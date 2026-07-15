@@ -12,11 +12,12 @@ jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
 
-const rule = (absolutePath: string, allow: string[], deny: string[]) => ({
-	absolutePath,
-	relativePath: absolutePath,
+const rule = (path: string, allow: string[], deny: string[], ask: string[] = []) => ({
+	path,
 	allow,
 	deny,
+	ask,
+	recursive: true,
 });
 
 beforeEach(() => {
