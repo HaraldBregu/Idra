@@ -58,7 +58,7 @@ const PoliciesPage: React.FC = () => {
 	const addDirectory = (): void => {
 		const path = newPath.trim();
 		if (!path) return;
-		apply(window.agent.policyAddRestrictedDirectory(path, newRecursive));
+		apply(window.agent.policySetPathMode(path, newMode, newRecursive));
 		setNewPath('');
 	};
 
