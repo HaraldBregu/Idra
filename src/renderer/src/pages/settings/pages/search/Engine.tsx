@@ -77,9 +77,7 @@ export function Engine({
 						{selected ? (
 							<Badge variant="secondary" className="gap-1 text-[10px]">
 								<Check className="size-3" />
-								{t(
-									active ? 'settings.searchEngine.active' : 'settings.searchEngine.selected'
-								)}
+								{t(active ? 'settings.searchEngine.active' : 'settings.searchEngine.selected')}
 							</Badge>
 						) : null}
 						{configured && !selected ? (
