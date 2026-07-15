@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import type { AgentToolPart } from '../context';
-import { isToolRunning, toolPartLabel } from './tool-label';
+import { isToolRunning, toolGroupLabel, toolPartLabel } from './tool-label';
 
 type ToolTypeGroup = {
 	readonly type: string;
@@ -18,16 +18,16 @@ type ToolTypeGroup = {
 };
 
 function groupToolsByType(tools: readonly AgentToolPart[]): ToolTypeGroup[] {
-	const groups: ToolTypeGroup[] = [];
+	const groups = new Map<string, AgentToolPart[]>();
 	for (const tool of tools) {
-		const last = groups[groups.length - 1];
-		if (last && last.type === tool.type) {
-			last.tools.push(tool);
+		const existing = groups.get(tool.type);
+		if (existing) {
+			existing.push(tool);
 		} else {
-			groups.push({ type: tool.type, tools: [tool] });
+			groups.set(tool.type, [tool]);
 		}
 	}
-	return groups;
+	return [...groups.entries()].map(([type, list]) => ({ type, tools: list }));
 }
 
 function staggerStyle(index: number): { animationDelay: string } {

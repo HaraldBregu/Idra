@@ -136,8 +136,8 @@ describe('Tool(pattern) rules', () => {
 
 	it('allows an exact Bash(...) command over an asking default', () => {
 		getDefaultMode.mockReturnValue('ask');
-		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Bash(yarn cache clean)'] });
-		expect(resolveToolPermission('exec', { command: 'yarn cache clean', workdir: '/x' })).toBe(
+		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Bash(rm -rf node_modules)'] });
+		expect(resolveToolPermission('exec', { command: 'rm -rf node_modules', workdir: '/x' })).toBe(
 			'allow',
 		);
 	});
