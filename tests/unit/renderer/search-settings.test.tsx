@@ -4,10 +4,8 @@ import { MemoryRouter } from 'react-router-dom';
 import SearchPage from '../../../src/renderer/src/pages/settings/pages/search/Page';
 import OverviewPage from '../../../src/renderer/src/pages/settings/pages/overview/Page';
 
-jest.mock('react-i18next', () => ({
-	useTranslation: () => ({
-		t: (key: string, values?: Record<string, string>) => {
-			const translations: Record<string, string> = {
+jest.mock('react-i18next', () => {
+	const translations: Record<string, string> = {
 				'common.cancel': 'Cancel',
 				'common.save': 'Save',
 				'settings.tabs.searchEngine': 'Search engine',
@@ -25,11 +23,11 @@ jest.mock('react-i18next', () => ({
 				'settings.searchEngine.localNote': 'Keys stay local.',
 				'settings.searchEngine.braveName': 'Brave',
 				'settings.searchEngine.tavilyName': 'Tavily',
-			};
-			return (translations[key] ?? key).replace('{{name}}', values?.name ?? '');
-		},
-	}),
-}));
+	};
+	const t = (key: string, values?: Record<string, string>): string =>
+		(translations[key] ?? key).replace('{{name}}', values?.name ?? '');
+	return { useTranslation: () => ({ t }) };
+});
 
 jest.mock('@/components/provider-avatar', () => {
 	const React = jest.requireActual<typeof import('react')>('react');
