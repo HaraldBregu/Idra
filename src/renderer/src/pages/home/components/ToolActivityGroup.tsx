@@ -92,10 +92,10 @@ export function ToolActivityGroup({
 		<div className={cn('flex w-full max-w-2xl flex-col gap-1', className)}>
 			{groups.map((group, index) =>
 				group.tools.length > 1 ? (
-					<ToolTypeSection key={group.type} group={group} />
+					<ToolTypeSection key={group.tools[0].toolCallId} group={group} />
 				) : (
 					<Tool
-						key={group.type}
+						key={group.tools[0].toolCallId}
 						toolPart={group.tools[0]}
 						label={toolPartLabel(group.tools[0])}
 						className="mt-0"
