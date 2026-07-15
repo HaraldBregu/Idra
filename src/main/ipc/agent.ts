@@ -79,6 +79,11 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	return trimmed || undefined;
 }
 
+function toToolList(value: unknown): string[] {
+	if (!Array.isArray(value)) return [];
+	return value.filter((item): item is string => typeof item === 'string' && item.length > 0);
+}
+
 function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
 	return MODEL_REASONING_EFFORTS.includes(value as ModelReasoningEffort);
 }
