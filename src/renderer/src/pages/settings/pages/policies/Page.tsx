@@ -157,25 +157,49 @@ const PoliciesPage: React.FC = () => {
 					</SettingsSection>
 
 					<SettingsSection
-						title={t('settings.policies.restrictedTitle')}
-						description={t('settings.policies.restrictedDescription')}
+						title={t('settings.policies.pathModesTitle')}
+						description={t('settings.policies.pathModesDescription')}
 					>
 						<SettingsPanel>
-							{policy.restrictedDirectories.length === 0 ? (
+							{policy.pathModes.length === 0 ? (
 								<SettingsEmptyState icon={FolderX} title={t('settings.policies.empty')} />
 							) : (
-								policy.restrictedDirectories.map((dir) => (
+								policy.pathModes.map((dir) => (
 									<Item key={dir.path} variant="outline" size="md" className={ROW_CLASS}>
 										<ItemContent className="min-w-0 flex-1">
 											<ItemTitle className="max-w-full truncate font-mono">{dir.path}</ItemTitle>
 										</ItemContent>
 										<ItemActions className="ml-auto flex-none justify-end gap-2">
+											<Select
+												value={dir.mode}
+												onValueChange={(value) => {
+													if (value)
+														apply(
+															window.agent.policySetPathMode(
+																dir.path,
+																value as PermissionMode,
+																dir.recursive,
+															),
+														);
+												}}
+											>
+												<SelectTrigger className="h-7 w-24 text-xs">
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													{MODES.map((mode) => (
+														<SelectItem key={mode} value={mode}>
+															{t(`settings.policies.modes.${mode}`)}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
 											<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
 												{t('settings.policies.recursive')}
 												<Switch
 													checked={dir.recursive}
 													onCheckedChange={(checked) =>
-														apply(window.agent.policyAddRestrictedDirectory(dir.path, checked))
+														apply(window.agent.policySetPathMode(dir.path, dir.mode, checked))
 													}
 												/>
 											</Label>
@@ -184,7 +208,7 @@ const PoliciesPage: React.FC = () => {
 												variant="ghost"
 												size="icon-sm"
 												aria-label={t('common.delete')}
-												onClick={() => apply(window.agent.policyRemoveRestrictedDirectory(dir.path))}
+												onClick={() => apply(window.agent.policyRemovePathMode(dir.path))}
 											>
 												<Trash2 className="size-3" />
 											</Button>
