@@ -2,6 +2,7 @@ export {
 	addToolAllowedCommand,
 	addToolAllowedPath,
 	getPathPermissions,
+	getPermissionRules,
 	getPermissions,
 	getToolAllowedCommands,
 	getToolAllowedPaths,
