@@ -242,9 +242,6 @@ export const agent: AgentApi = {
 	policyGet: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyGet);
 	},
-	policySetToolMode: (toolName: string, mode: PermissionMode): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policySetToolMode, toolName, mode);
-	},
 	policyPickDirectory: (): Promise<string | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
 	},
