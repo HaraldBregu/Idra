@@ -86,7 +86,7 @@ describe('path permissions', () => {
 
 	it('an ask rule forces a prompt even for an ungated tool', () => {
 		getPathPermissions.mockReturnValue([rule('/watched', [], [], ['*'])]);
-		expect(resolveToolPermission('edit', { path: '/watched/a.txt' })).toBe('ask');
+		expect(resolveToolPermission('read', { path: '/watched/a.txt' })).toBe('ask');
 	});
 
 	it('deny wins over ask wins over allow within a rule', () => {
