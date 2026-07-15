@@ -351,17 +351,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.policySetToolMode,
-			wrapSimpleHandler((toolName: unknown, mode: unknown): PermissionsSchema => {
-				const tool = optionalTrimmedString(toolName);
-				if (!tool) throw new Error('Invalid tool name.');
-				if (!isPermissionMode(mode)) throw new Error('Invalid permission mode.');
-				setToolPermission(tool, mode);
-				return getPermissions();
-			}, AgentChannels.policySetToolMode)
-		);
-
-		ipcMain.handle(
 			AgentChannels.policyPickDirectory,
 			wrapSimpleHandler(async (): Promise<string | undefined> => {
 				const window = BrowserWindow.getFocusedWindow();
