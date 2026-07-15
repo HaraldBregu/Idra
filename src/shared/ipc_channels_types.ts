@@ -101,15 +101,11 @@ export interface AgentInvokeChannelMap {
 		args: [];
 		result: string | undefined;
 	};
-	[AgentChannels.policySetPathMode]: {
-		args: [
-			path: string,
-			mode: import('../main/agent/policy/policy_types').PermissionMode,
-			recursive: boolean,
-		];
+	[AgentChannels.policySetPathPermission]: {
+		args: [path: string, allow: string[], deny: string[]];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
-	[AgentChannels.policyRemovePathMode]: {
+	[AgentChannels.policyRemovePathPermission]: {
 		args: [path: string];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
