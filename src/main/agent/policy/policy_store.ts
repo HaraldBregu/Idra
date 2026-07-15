@@ -17,7 +17,7 @@ const agentDir = path.resolve(agentLocation());
 // The agent's own data folder (policy store included) is off-limits by default.
 const defaults: PermissionsSchema = {
 	...DEFAULT_PERMISSIONS,
-	permissions: [{ relativePath: agentDir, absolutePath: agentDir, allow: [], deny: ['*'] }],
+	permissions: [{ path: agentDir, allow: [], deny: ['*'], ask: [], recursive: true }],
 };
 
 const store = new Store<PermissionsSchema>({
