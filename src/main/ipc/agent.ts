@@ -21,11 +21,11 @@ import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_d
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import {
-	addRestrictedDirectory,
 	getPermissions,
-	removeRestrictedDirectory,
+	removePathMode,
 	resetPermissions,
 	respondToolPermission,
+	setPathMode,
 	setToolPermission,
 	type PermissionMode,
 	type PermissionsSchema,
