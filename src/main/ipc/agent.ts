@@ -394,9 +394,9 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 					if (!dir) throw new Error('Invalid directory path.');
 					setPathPermission({
 						path: dir,
-						allow: toToolList(allow),
-						deny: toToolList(deny),
-						ask: toToolList(ask),
+						allow: toToolSelector(allow),
+						deny: toToolSelector(deny),
+						ask: toToolSelector(ask),
 						recursive: recursive === true,
 					});
 					return getPermissions();
