@@ -29,7 +29,7 @@ type PathPermission = Permissions['defaultPermissions'][number];
 type ToolState = 'inherit' | 'allow' | 'ask' | 'deny';
 
 // The wildcard plus the tools whose access a path rule can flip.
-const PERM_TOOLS = ['*', 'exec', 'read', 'write'] as const;
+const PERM_TOOLS = ['*', 'exec', 'read', 'write', 'edit', 'apply_patch'] as const;
 
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
