@@ -29,6 +29,7 @@ import {
 	setToolPermission,
 	type PermissionMode,
 	type PermissionsSchema,
+	type ToolSelector,
 } from '../agent/policy';
 import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health_store';
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
