@@ -23,10 +23,11 @@ import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../sh
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import {
 	getPermissions,
-	removePathMode,
+	removePathPermission,
 	resetPermissions,
+	resolveUserPath,
 	respondToolPermission,
-	setPathMode,
+	setPathPermission,
 	setToolPermission,
 	type PermissionMode,
 	type PermissionsSchema,
