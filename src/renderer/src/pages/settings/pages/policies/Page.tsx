@@ -27,7 +27,7 @@ import {
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
 type PermissionMode = Permissions['defaultMode'];
 type PathPermission = Permissions['permissions'][number];
-type ToolState = 'inherit' | 'allow' | 'deny';
+type ToolState = 'inherit' | 'allow' | 'ask' | 'deny';
 
 const MODES: readonly PermissionMode[] = ['allow', 'ask', 'deny'];
 
