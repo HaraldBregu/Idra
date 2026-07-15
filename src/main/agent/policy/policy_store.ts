@@ -32,6 +32,13 @@ export function getPermissions(): PermissionsSchema {
 	return store.store;
 }
 
+export function getPermissionRules(): PermissionRules {
+	const rules = store.get('permissions');
+	// Guard against stale on-disk data from before this field became an object.
+	if (!rules || Array.isArray(rules)) return { allow: [], deny: [], ask: [] };
+	return { allow: rules.allow ?? [], deny: rules.deny ?? [], ask: rules.ask ?? [] };
+}
+
 export function getToolPermission(toolName: string): PermissionMode {
 	const tools = store.get('tools');
 	const entry = tools[toolName];
