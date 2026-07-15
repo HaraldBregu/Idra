@@ -158,6 +158,24 @@ describe('Tool(pattern) rules', () => {
 		);
 	});
 
+	it('anchors the ":*" wildcard at an argument boundary', () => {
+		getToolPermission.mockReturnValue('allow');
+		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Bash(git:*)'] });
+		// bare and space-separated forms are denied...
+		expect(resolveToolPermission('exec', { command: 'git', workdir: '/x' })).toBe('deny');
+		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/x' })).toBe('deny');
+		// ...but a different command sharing the prefix is not.
+		expect(resolveToolPermission('exec', { command: 'git-evil --root', workdir: '/x' })).toBe(
+			'allow',
+		);
+	});
+
+	it('anchors path-rule wildcards at a path separator', () => {
+		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Read(/home/alice:*)'] });
+		expect(resolveToolPermission('read', { path: '/home/alice/secret' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/home/alice-other/secret' })).toBe('allow');
+	});
+
 	it('keys path tools by their path, e.g. Read(...)', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Read(/etc/passwd)'] });
 		expect(resolveToolPermission('read', { path: '/etc/passwd' })).toBe('deny');
