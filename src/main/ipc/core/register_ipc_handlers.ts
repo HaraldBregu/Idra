@@ -4,6 +4,7 @@ import { ChannelsIpc } from '../channels';
 import { ImageIpc } from '../image';
 import { SoundIpc } from '../sound';
 import { ProviderStoreIpc } from '../provider';
+import { SearchIpc } from '../search';
 import { SpeechIpc } from '../speech';
 import { SttIpc } from '../stt';
 import { TextIpc } from '../text';
@@ -31,6 +32,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
 	safeRegister('sound', () => new SoundIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
+	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
 	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
 	safeRegister('text', () => new TextIpc().register(undefined, eventBus));

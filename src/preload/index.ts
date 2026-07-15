@@ -8,6 +8,7 @@ import {
 	ImageChannels,
 	SoundChannels,
 	ProviderStoreChannels,
+	SearchChannels,
 	SpeechChannels,
 	SttChannels,
 	TextChannels,
@@ -20,6 +21,7 @@ import type {
 	ImageApi,
 	SoundApi,
 	ProviderApi,
+	SearchApi,
 	TextApi,
 	TranscribeApi,
 	VideoApi,
@@ -36,6 +38,7 @@ import type {
 } from '../shared/agent_types';
 import type { Channel, ChannelStatusEvent, ChannelType } from '../shared';
 import type { Provider } from '../shared/providers_types';
+import type { SearchEngineId, SearchEngineInput, SearchSettings } from '../shared/search_types';
 import { normalizeSpeechSynthesisRequest } from '../shared/speech_types';
 import {
 	normalizeSttRealtimeAudioChunk,
@@ -371,6 +374,18 @@ export const provider: ProviderApi = {
 	},
 };
 
+export const search: SearchApi = {
+	getSettings: (): Promise<SearchSettings> => {
+		return typedInvokeUnwrap(SearchChannels.getSettings);
+	},
+	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput): Promise<SearchSettings> => {
+		return typedInvokeUnwrap(SearchChannels.saveEngine, engineId, input);
+	},
+	selectEngine: (engineId: SearchEngineId): Promise<SearchSettings> => {
+		return typedInvokeUnwrap(SearchChannels.selectEngine, engineId);
+	},
+};
+
 export const transcribe: TranscribeApi = {
 	transcribe: (request) => {
 		return typedInvokeUnwrap(SttChannels.transcribe, normalizeSttTranscriptionRequest(request));
@@ -641,6 +656,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
 		contextBridge.exposeInMainWorld('provider', provider);
+		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('transcribe', transcribe);
 		contextBridge.exposeInMainWorld('voice', voice);
 		contextBridge.exposeInMainWorld('image', image);
@@ -661,6 +677,8 @@ if (process.contextIsolated) {
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
+	// @ts-ignore (define in dts)
+	globalThis.search = search;
 	// @ts-ignore (define in dts)
 	globalThis.transcribe = transcribe;
 	// @ts-ignore (define in dts)

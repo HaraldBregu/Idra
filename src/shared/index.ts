@@ -7,6 +7,7 @@ export * from './provider_models_types';
 export * from './provider_models_definitions';
 export * from './providers_definitions';
 export type { Provider, ProviderRecord } from './providers_types';
+export * from './search_types';
 export * from './skills_types';
 export * from './skills_definitions';
 export * from './stt_types';

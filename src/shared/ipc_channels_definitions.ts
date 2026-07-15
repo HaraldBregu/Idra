@@ -108,6 +108,12 @@ export const ProviderChannels = {
 
 export const ProviderStoreChannels = ProviderChannels;
 
+export const SearchChannels = {
+	getSettings: 'search:settings:get',
+	saveEngine: 'search:engine:save',
+	selectEngine: 'search:engine:select',
+} as const;
+
 export const SpeechChannels = {
 	getModelId: 'speech:get-model-id',
 	getProviderId: 'speech:get-provider-id',

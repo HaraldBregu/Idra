@@ -21,6 +21,7 @@ import {
 	ImageChannels,
 	SoundChannels,
 	ProviderChannels,
+	SearchChannels,
 	SpeechChannels,
 	SttChannels,
 	TextChannels,
@@ -290,6 +291,24 @@ export interface ProviderInvokeChannelMap {
 
 export type ProviderStoreInvokeChannelMap = ProviderInvokeChannelMap;
 
+export interface SearchInvokeChannelMap {
+	[SearchChannels.getSettings]: {
+		args: [];
+		result: import('./search_types').SearchSettings;
+	};
+	[SearchChannels.saveEngine]: {
+		args: [
+			engineId: import('./search_types').SearchEngineId,
+			input: import('./search_types').SearchEngineInput,
+		];
+		result: import('./search_types').SearchSettings;
+	};
+	[SearchChannels.selectEngine]: {
+		args: [engineId: import('./search_types').SearchEngineId];
+		result: import('./search_types').SearchSettings;
+	};
+}
+
 export interface ImageInvokeChannelMap {
 	[ImageChannels.createImage]: {
 		args: [request: ImageRequest];
@@ -490,6 +509,7 @@ export interface InvokeChannelMap
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
+		SearchInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		ImageInvokeChannelMap,

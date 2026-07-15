@@ -78,6 +78,12 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface SearchApi {
+	getSettings: () => Promise<SearchSettings>;
+	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
+	selectEngine: (engineId: SearchEngineId) => Promise<SearchSettings>;
+}
+
 export interface ImageApi {
 	createImage: (request: ImageRequest) => Promise<ImageResult>;
 	getProviderId: () => Promise<string | undefined>;
@@ -138,6 +144,7 @@ export interface TranscribeApi {
 
 import type { PublicProvider } from '../shared';
 import type { Provider } from '../shared/providers_types';
+import type { SearchEngineId, SearchEngineInput, SearchSettings } from '../shared/search_types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
@@ -212,6 +219,7 @@ declare global {
 		agent: AgentApi;
 		channels: ChannelsApi;
 		provider: ProviderApi;
+		search: SearchApi;
 		transcribe: TranscribeApi;
 		voice: VoiceApi;
 		image: ImageApi;
