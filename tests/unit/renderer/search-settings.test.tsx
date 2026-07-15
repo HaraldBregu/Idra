@@ -94,9 +94,13 @@ describe('Search engine settings', () => {
 
 		await user.click(await screen.findByRole('button', { name: 'Use' }));
 		await waitFor(() => expect(searchApi.selectEngine).toHaveBeenCalledWith('tavily'));
-		const tavilyCard = screen.getByRole('heading', { name: 'Tavily' }).closest('[data-slot="card"]');
-		expect(tavilyCard).not.toBeNull();
-		expect(within(tavilyCard as HTMLElement).getByText('Active')).toBeInTheDocument();
+		await waitFor(() => {
+			const tavilyCard = screen
+				.getByRole('heading', { name: 'Tavily' })
+				.closest('[data-slot="card"]');
+			expect(tavilyCard).not.toBeNull();
+			expect(within(tavilyCard as HTMLElement).getByText('Active')).toBeInTheDocument();
+		});
 	});
 });
 
