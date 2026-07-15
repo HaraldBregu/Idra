@@ -31,16 +31,25 @@ export interface ToolUseRecord {
 	at: number;
 }
 
+// Tool-call rules in "Tool(pattern)" form, e.g. "Bash(rm -rf node_modules)".
+export interface PermissionRules {
+	allow: string[];
+	deny: string[];
+	ask: string[];
+}
+
 export interface PermissionsSchema {
 	defaultMode: PermissionMode;
-	permissions: PathPermission[];
+	defaultPermissions: PathPermission[];
+	permissions: PermissionRules;
 	tools: Record<string, ToolPermission>;
 	usage: ToolUseRecord[];
 }
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultMode: 'allow',
-	permissions: [],
+	defaultPermissions: [],
+	permissions: { allow: [], deny: [], ask: [] },
 	tools: {
 		write: { mode: 'ask' },
 		edit: { mode: 'ask' },
