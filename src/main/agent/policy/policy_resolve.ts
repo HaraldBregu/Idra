@@ -17,9 +17,17 @@ function isDirAllowed(toolName: string, dir: string): boolean {
 
 function ruleMatches(rule: string, signature: string): boolean {
 	if (rule === signature) return true;
-	// ponytail: only a trailing ":*" wildcard, matching the argument prefix —
-	// the common Claude Code case; add richer globbing if a rule ever needs it.
-	if (rule.endsWith(':*)')) return signature.startsWith(rule.slice(0, -3));
+	// ponytail: only a trailing ":*" wildcard. The base must end at a boundary —
+	// exact, then a space (next argv token) or "/" (next path segment) — so
+	// "Bash(git:*)" matches "git" and "git push" but never "git-evil".
+	if (rule.endsWith(':*)')) {
+		const base = rule.slice(0, -3);
+		return (
+			signature === `${base})` ||
+			signature.startsWith(`${base} `) ||
+			signature.startsWith(`${base}/`)
+		);
+	}
 	return false;
 }
 
