@@ -56,14 +56,14 @@ export function getPathPermissions(): PathPermission[] {
 }
 
 export function setPathPermission(entry: PathPermission): void {
-	const rest = getPathPermissions().filter((e) => e.absolutePath !== entry.absolutePath);
+	const rest = getPathPermissions().filter((e) => e.path !== entry.path);
 	store.set('permissions', [...rest, entry]);
 }
 
-export function removePathPermission(absolutePath: string): void {
+export function removePathPermission(path: string): void {
 	store.set(
 		'permissions',
-		getPathPermissions().filter((e) => e.absolutePath !== absolutePath),
+		getPathPermissions().filter((e) => e.path !== path),
 	);
 }
 
