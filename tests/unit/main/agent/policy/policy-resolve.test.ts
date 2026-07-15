@@ -135,3 +135,37 @@ describe('path permissions', () => {
 		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
 	});
 });
+
+describe('Tool(pattern) rules', () => {
+	it('denies a shell command matched by a Bash(...) deny rule', () => {
+		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Bash(rm -rf /)'] });
+		expect(resolveToolPermission('exec', { command: 'rm -rf /', workdir: '/x' })).toBe('deny');
+	});
+
+	it('allows an exact Bash(...) command without asking', () => {
+		getToolPermission.mockReturnValue('ask');
+		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Bash(yarn cache clean)'] });
+		expect(resolveToolPermission('exec', { command: 'yarn cache clean', workdir: '/x' })).toBe(
+			'allow',
+		);
+	});
+
+	it('matches a ":*" prefix wildcard on the command', () => {
+		getToolPermission.mockReturnValue('ask');
+		getPermissionRules.mockReturnValue({ ...noRules, ask: ['Bash(git push:*)'] });
+		expect(resolveToolPermission('exec', { command: 'git push origin main', workdir: '/x' })).toBe(
+			'ask',
+		);
+	});
+
+	it('keys path tools by their path, e.g. Read(...)', () => {
+		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Read(/etc/passwd)'] });
+		expect(resolveToolPermission('read', { path: '/etc/passwd' })).toBe('deny');
+	});
+
+	it('a rule wins over the path defaults', () => {
+		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Read(/secret/a.txt)'] });
+		getPathPermissions.mockReturnValue([rule('/secret', [], ['*'])]);
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('allow');
+	});
+});
