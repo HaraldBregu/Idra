@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, KeyRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import type { SearchEngineId, SearchSettings } from '../../../../../../shared/search_types';
 import { getErrorMessage } from '../../../start/constants';
 import {
@@ -9,6 +16,7 @@ import {
 	SettingsPageHeader,
 	SettingsPageShell,
 	SettingsPanel,
+	SettingsRow,
 	SettingsSection,
 } from '../../components';
 import { SEARCH_ENGINES } from './catalog';
@@ -57,6 +65,11 @@ const SearchPage: React.FC = () => {
 		}
 	};
 
+	const handleEngineChange = (engineId: string | null): void => {
+		if (engineId === null) return;
+		void selectEngine(engineId as SearchEngineId);
+	};
+
 	const selectEngine = async (engineId: SearchEngineId): Promise<void> => {
 		setSavingEngineId(engineId);
 		setError(null);
@@ -80,6 +93,43 @@ const SearchPage: React.FC = () => {
 				<SettingsNotice variant="destructive" icon={AlertTriangle}>
 					{error}
 				</SettingsNotice>
+			)}
+
+			{settings && (
+				<SettingsSection title={t('settings.searchEngine.defaultTitle')}>
+					<SettingsPanel>
+						<SettingsRow
+							title={t('settings.searchEngine.provider')}
+							description={t('settings.searchEngine.defaultDescription')}
+							actions={
+								<Select
+									value={settings.engineId}
+									onValueChange={handleEngineChange}
+									disabled={savingEngineId !== null}
+								>
+									<SelectTrigger
+										size="sm"
+										className="w-32 text-xs [&_svg]:size-3"
+										aria-label={t('settings.searchEngine.defaultTitle')}
+									>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{SEARCH_ENGINES.map((engine) => (
+											<SelectItem
+												key={engine.id}
+												value={engine.id}
+												disabled={!settings.configured[engine.id]}
+											>
+												{engine.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							}
+						/>
+					</SettingsPanel>
+				</SettingsSection>
 			)}
 
 			<SettingsSection title={t('settings.searchEngine.engines')}>

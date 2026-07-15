@@ -862,6 +862,9 @@
 		},
 		"searchEngine": {
 			"description": "Scegli il provider di ricerca web usato dall'assistente.",
+			"defaultTitle": "Motore di ricerca predefinito",
+			"provider": "Provider",
+			"defaultDescription": "Usato dall'assistente per le ricerche sul web.",
 			"engines": "Provider di ricerca",
 			"braveName": "Brave",
 			"braveDescription": "API indipendente per la ricerca web.",

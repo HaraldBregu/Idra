@@ -10,6 +10,9 @@ jest.mock('react-i18next', () => {
 		'common.save': 'Save',
 		'settings.tabs.searchEngine': 'Search engine',
 		'settings.searchEngine.description': 'Choose the web search provider.',
+		'settings.searchEngine.defaultTitle': 'Default search engine',
+		'settings.searchEngine.provider': 'Provider',
+		'settings.searchEngine.defaultDescription': 'Used by the assistant for web searches.',
 		'settings.searchEngine.engines': 'Search providers',
 		'settings.searchEngine.braveDescription': 'Independent web search API.',
 		'settings.searchEngine.tavilyDescription': 'Search API optimized for AI.',
@@ -114,6 +117,23 @@ describe('Search engine settings', () => {
 			expect(tavilyCard).not.toBeNull();
 			expect(within(tavilyCard as HTMLElement).getByText('Active')).toBeInTheDocument();
 		});
+	});
+
+	it('selects the default provider from the search engine control', async () => {
+		const user = userEvent.setup();
+		searchApi.getSettings.mockResolvedValue({
+			engineId: 'brave',
+			configured: { brave: true, tavily: true },
+		});
+		render(<SearchPage />);
+
+		await user.click(await screen.findByRole('combobox', { name: 'Default search engine' }));
+		await user.click(screen.getByRole('option', { name: 'Tavily' }));
+
+		await waitFor(() => expect(searchApi.selectEngine).toHaveBeenCalledWith('tavily'));
+		expect(screen.getByRole('combobox', { name: 'Default search engine' })).toHaveTextContent(
+			'Tavily'
+		);
 	});
 });
 
