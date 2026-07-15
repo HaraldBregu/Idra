@@ -4,6 +4,7 @@ import { AlertTriangle, FolderOpen, FolderX, Plus, RotateCcw, Trash2 } from 'luc
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
+import { Label } from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
@@ -11,6 +12,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import {
 	SettingsEmptyState,
 	SettingsLoadingRows,
