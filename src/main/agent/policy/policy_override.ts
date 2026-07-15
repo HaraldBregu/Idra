@@ -1,17 +1,18 @@
 import { isPathWithin, resolveUserPath } from './policy_path';
 import { getPathPermissions } from './policy_store';
-import type { PermissionMode } from './policy_types';
+import type { PermissionMode, ToolSelector } from './policy_types';
 
-function listMatches(list: string[], toolName: string): boolean {
-	return list.includes('*') || list.includes(toolName);
+function listMatches(selector: ToolSelector, toolName: string): boolean {
+	if (selector === '*') return true;
+	return selector.includes('*') || selector.includes(toolName);
 }
 
 // The decision a single rule makes for a tool: deny wins over ask wins over
 // allow, and a rule that mentions none of them stays out of the way.
 function ruleDecision(
-	allow: string[],
-	deny: string[],
-	ask: string[],
+	allow: ToolSelector,
+	deny: ToolSelector,
+	ask: ToolSelector,
 	toolName: string,
 ): PermissionMode | undefined {
 	if (listMatches(deny, toolName)) return 'deny';
