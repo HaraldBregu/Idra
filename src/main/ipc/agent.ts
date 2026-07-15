@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
 import type { IpcModule } from './core/module';
