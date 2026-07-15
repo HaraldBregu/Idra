@@ -375,23 +375,24 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.policyAddRestrictedDirectory,
-			wrapSimpleHandler((dirPath: unknown, recursive: unknown): PermissionsSchema => {
+			AgentChannels.policySetPathMode,
+			wrapSimpleHandler((dirPath: unknown, mode: unknown, recursive: unknown): PermissionsSchema => {
 				const dir = optionalTrimmedString(dirPath);
 				if (!dir) throw new Error('Invalid directory path.');
-				addRestrictedDirectory(dir, recursive === true);
+				if (!isPermissionMode(mode)) throw new Error('Invalid permission mode.');
+				setPathMode(dir, mode, recursive === true);
 				return getPermissions();
-			}, AgentChannels.policyAddRestrictedDirectory)
+			}, AgentChannels.policySetPathMode)
 		);
 
 		ipcMain.handle(
-			AgentChannels.policyRemoveRestrictedDirectory,
+			AgentChannels.policyRemovePathMode,
 			wrapSimpleHandler((dirPath: unknown): PermissionsSchema => {
 				const dir = optionalTrimmedString(dirPath);
 				if (!dir) throw new Error('Invalid directory path.');
-				removeRestrictedDirectory(dir);
+				removePathMode(dir);
 				return getPermissions();
-			}, AgentChannels.policyRemoveRestrictedDirectory)
+			}, AgentChannels.policyRemovePathMode)
 		);
 
 		ipcMain.handle(
