@@ -794,7 +794,6 @@
 			"allTools": "All tools",
 			"inherit": "Default",
 			"pathPlaceholder": "/path/to/directory",
-			"recursive": "Recursive",
 			"browse": "Browse",
 			"add": "Add",
 			"empty": "No path rules",
