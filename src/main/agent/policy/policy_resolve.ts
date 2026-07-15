@@ -10,10 +10,11 @@ function isDirAllowed(toolName: string, dir: string): boolean {
 }
 
 // Fold the path-rule decisions across a tool's target dirs into one, most
-// restrictive wins: deny > allow.
+// restrictive wins: deny > ask > allow.
 function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefined {
 	const decisions = dirs.map((dir) => pathPermissionFor(toolName, dir));
 	if (decisions.includes('deny')) return 'deny';
+	if (decisions.includes('ask')) return 'ask';
 	if (decisions.includes('allow')) return 'allow';
 	return undefined;
 }
