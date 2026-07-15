@@ -24,7 +24,6 @@ import {
 	getPermissions,
 	removePathPermission,
 	resetPermissions,
-	resolveUserPath,
 	respondToolPermission,
 	setPathPermission,
 	setToolPermission,
