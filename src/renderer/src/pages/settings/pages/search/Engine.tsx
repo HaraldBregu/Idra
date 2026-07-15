@@ -79,13 +79,7 @@ export function Engine({
 								{t('settings.searchEngine.active')}
 							</Badge>
 						) : configured ? (
-							<Button
-								type="button"
-								variant="outline"
-								size="xs"
-								disabled={busy}
-								onClick={onSelect}
-							>
+							<Button type="button" variant="outline" size="xs" disabled={busy} onClick={onSelect}>
 								{saving ? <LoaderCircle className="size-3 animate-spin" /> : null}
 								{t('settings.searchEngine.use')}
 							</Button>
@@ -124,13 +118,7 @@ export function Engine({
 							type="password"
 							value={apiKey}
 						/>
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							disabled={saving}
-							onClick={onCancel}
-						>
+						<Button type="button" variant="outline" size="sm" disabled={saving} onClick={onCancel}>
 							{t('common.cancel')}
 						</Button>
 						<Button type="button" size="sm" disabled={!canSave} onClick={onSave}>

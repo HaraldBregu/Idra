@@ -25,10 +25,7 @@ import { getSearchKey } from '../../../../src/main/search/search_get_key';
 import { getSearchSettings } from '../../../../src/main/search/search_get_settings';
 import { saveSearchEngine } from '../../../../src/main/search/search_save_engine';
 import { selectSearchEngine } from '../../../../src/main/search/search_select_engine';
-import {
-	DEFAULT_SEARCH_STORE,
-	searchStore,
-} from '../../../../src/main/search/search_store';
+import { DEFAULT_SEARCH_STORE, searchStore } from '../../../../src/main/search/search_store';
 import { searchWeb } from '../../../../src/main/search/search_web';
 
 const originalFetch = global.fetch;
@@ -108,9 +105,7 @@ describe('search adapters', () => {
 			results: [{ title: 'Brave result', url: 'https://brave.example', description: 'Text' }],
 		});
 		const [url, init] = (global.fetch as jest.Mock).mock.calls[0] as [URL, RequestInit];
-		expect(url.toString()).toBe(
-			'https://api.search.brave.com/res/v1/web/search?q=friday&count=3'
-		);
+		expect(url.toString()).toBe('https://api.search.brave.com/res/v1/web/search?q=friday&count=3');
 		expect(init.headers).toEqual({
 			Accept: 'application/json',
 			'X-Subscription-Token': 'brave-key',

@@ -22,17 +22,8 @@ describe('SearchIpc', () => {
 	it('registers the typed search settings handlers', () => {
 		new SearchIpc().register(undefined, {} as EventBus);
 
-		expect(registerQuery).toHaveBeenCalledWith(
-			SearchChannels.getSettings,
-			getSearchSettings
-		);
-		expect(registerCommand).toHaveBeenCalledWith(
-			SearchChannels.saveEngine,
-			saveSearchEngine
-		);
-		expect(registerCommand).toHaveBeenCalledWith(
-			SearchChannels.selectEngine,
-			selectSearchEngine
-		);
+		expect(registerQuery).toHaveBeenCalledWith(SearchChannels.getSettings, getSearchSettings);
+		expect(registerCommand).toHaveBeenCalledWith(SearchChannels.saveEngine, saveSearchEngine);
+		expect(registerCommand).toHaveBeenCalledWith(SearchChannels.selectEngine, selectSearchEngine);
 	});
 });
