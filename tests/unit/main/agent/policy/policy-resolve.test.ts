@@ -1,22 +1,30 @@
 const getToolPermission = jest.fn();
 const getToolAllowedPaths = jest.fn();
 const getToolAllowedCommands = jest.fn();
-const getPathModes = jest.fn();
+const getPathPermissions = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	getToolPermission,
 	getToolAllowedPaths,
 	getToolAllowedCommands,
-	getPathModes,
+	getPathPermissions,
 }));
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
+
+type Rule = { allow: string[]; deny: string[]; absolutePath: string };
+const rule = (absolutePath: string, allow: string[], deny: string[]): Rule => ({
+	absolutePath,
+	relativePath: absolutePath,
+	allow,
+	deny,
+});
 
 beforeEach(() => {
 	getToolPermission.mockReset();
 	getToolAllowedPaths.mockReset().mockReturnValue([]);
 	getToolAllowedCommands.mockReset().mockReturnValue([]);
-	getPathModes.mockReset().mockReturnValue([]);
+	getPathPermissions.mockReset().mockReturnValue([]);
 });
 
 describe('resolveToolPermission', () => {
@@ -57,44 +65,43 @@ describe('resolveToolPermission', () => {
 	});
 });
 
-describe('path modes', () => {
-	it('denies every tool inside a deny path, read included', () => {
-		getPathModes.mockReturnValue([{ path: '/secret', mode: 'deny', recursive: true }]);
+describe('path permissions', () => {
+	it('a deny "*" rule blocks every tool, read included', () => {
+		getPathPermissions.mockReturnValue([rule('/secret', [], ['*'])]);
 		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
 		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('deny');
 		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/secret' })).toBe('deny');
 	});
 
-	it('recursive rule covers nested directories', () => {
-		getPathModes.mockReturnValue([{ path: '/secret', mode: 'deny', recursive: true }]);
+	it('applies to the whole subtree', () => {
+		getPathPermissions.mockReturnValue([rule('/secret', [], ['*'])]);
 		expect(resolveToolPermission('read', { path: '/secret/deep/a.txt' })).toBe('deny');
 	});
 
-	it('non-recursive rule matches only direct contents', () => {
+	it('denies only the listed tools, others fall through', () => {
 		getToolPermission.mockReturnValue('allow');
-		getPathModes.mockReturnValue([{ path: '/secret', mode: 'deny', recursive: false }]);
-		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/secret/sub/a.txt' })).toBe('allow');
-		expect(resolveToolPermission('write', { path: '/secret/sub/a.txt' })).toBe('allow');
-	});
-
-	it('a deny rule overrides a stored allow mode and allowlisted paths', () => {
-		getToolPermission.mockReturnValue('allow');
-		getToolAllowedPaths.mockReturnValue(['/secret']);
-		getPathModes.mockReturnValue([{ path: '/secret', mode: 'deny', recursive: true }]);
-		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('deny');
+		getPathPermissions.mockReturnValue([rule('/repo', [], ['write', 'edit'])]);
+		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/repo/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/repo' })).toBe('allow');
 	});
 
 	it('an allow rule lets a gated tool through without asking', () => {
 		getToolPermission.mockReturnValue('ask');
-		getPathModes.mockReturnValue([{ path: '/trusted', mode: 'allow', recursive: true }]);
+		getPathPermissions.mockReturnValue([rule('/trusted', ['write'], [])]);
 		expect(resolveToolPermission('write', { path: '/trusted/a.txt' })).toBe('allow');
 	});
 
+	it('deny wins over allow within a rule', () => {
+		getPathPermissions.mockReturnValue([rule('/repo', ['*'], ['write'])]);
+		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/repo/a.txt' })).toBe('allow');
+	});
+
 	it('the deepest matching rule wins', () => {
-		getPathModes.mockReturnValue([
-			{ path: '/repo', mode: 'deny', recursive: true },
-			{ path: '/repo/pub', mode: 'allow', recursive: true },
+		getPathPermissions.mockReturnValue([
+			rule('/repo', [], ['*']),
+			rule('/repo/pub', ['*'], []),
 		]);
 		expect(resolveToolPermission('write', { path: '/repo/pub/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
