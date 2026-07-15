@@ -250,9 +250,9 @@ export const agent: AgentApi = {
 	},
 	policySetPathPermission: (
 		path: string,
-		allow: string[],
-		deny: string[],
-		ask: string[],
+		allow: ToolSelector,
+		deny: ToolSelector,
+		ask: ToolSelector,
 		recursive: boolean,
 	): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(
