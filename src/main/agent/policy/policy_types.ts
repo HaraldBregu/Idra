@@ -1,8 +1,10 @@
 export type PermissionMode = 'allow' | 'deny' | 'ask';
 
-// The destructive tools that require permission; every other tool (read
-// included) is always allowed unless a path or "Tool(pattern)" rule says otherwise.
-export const PERMISSION_GATED_TOOLS = ['exec', 'write', 'edit', 'apply_patch'] as const;
+// The tools that can rewrite or destroy existing files and so ask by default;
+// every other tool (read and write included) is always allowed unless a path
+// or "Tool(pattern)" rule says otherwise. exec only asks for destructive
+// commands (see policy_exec.ts).
+export const PERMISSION_GATED_TOOLS = ['exec', 'edit', 'apply_patch'] as const;
 
 export type PermissionGatedTool = (typeof PERMISSION_GATED_TOOLS)[number];
 
