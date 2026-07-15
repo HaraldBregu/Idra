@@ -7,8 +7,6 @@ import {
 	type PermissionMode,
 	type PermissionRules,
 	type PermissionsSchema,
-	type ToolPermission,
-	type ToolUseRecord,
 } from './policy_types';
 
 const POLICY_STORE_NAME = 'policy';
