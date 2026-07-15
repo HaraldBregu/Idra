@@ -54,7 +54,7 @@ export async function* stream(
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
-	options: StreamOptions = {}
+	options: StreamOptions = {},
 ): AsyncGenerator<RuntimeEvent> {
 	try {
 		for await (const event of loop(config, session, input, signal, options)) {
@@ -75,12 +75,13 @@ async function* loop(
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
-	options: StreamOptions
+	options: StreamOptions,
 ): AsyncGenerator<RuntimeEvent> {
 	const provider = getProvider(input.providerId);
 	const modelId = input.model ?? getModelId();
 
-	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
+	if (!provider || !modelId)
+		throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
 	const tools: Tool[] = options.tools ?? [
@@ -134,10 +135,9 @@ async function* loop(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const systemPrompt =
-				options.systemPrompt === undefined
-					? await buildSystemPrompt(config, tools, session.context.loadedSkills)
-					: await addFilesystemPrompt(config, options.systemPrompt);
+			const systemPrompt = options.systemPrompt === undefined
+				? await buildSystemPrompt(config, tools, session.context.loadedSkills)
+				: await addFilesystemPrompt(config, options.systemPrompt);
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(
@@ -147,7 +147,7 @@ async function* loop(
 				systemPrompt,
 				session.messages,
 				tools,
-				signal
+				signal,
 			);
 
 			recordTurn(session, turn);
