@@ -1,3 +1,4 @@
+import { isDestructiveCommand } from './policy_exec';
 import { pathPermissionFor } from './policy_override';
 import { getDefaultMode, getPermissionRules } from './policy_store';
 import { toolRuleSignature } from './policy_signature';
