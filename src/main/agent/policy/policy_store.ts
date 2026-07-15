@@ -52,17 +52,17 @@ export function addToolAllowedPath(toolName: string, dirPath: string): void {
 }
 
 export function getPathPermissions(): PathPermission[] {
-	return store.get('permissions') ?? [];
+	return store.get('defaultPermissions') ?? [];
 }
 
 export function setPathPermission(entry: PathPermission): void {
 	const rest = getPathPermissions().filter((e) => e.path !== entry.path);
-	store.set('permissions', [...rest, entry]);
+	store.set('defaultPermissions', [...rest, entry]);
 }
 
 export function removePathPermission(path: string): void {
 	store.set(
-		'permissions',
+		'defaultPermissions',
 		getPathPermissions().filter((e) => e.path !== path),
 	);
 }
