@@ -51,7 +51,6 @@ function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactEle
 						<div className="flex min-w-0 items-center gap-1.5">
 							<span className="flex min-w-0 items-baseline gap-1 truncate text-xs font-medium">
 								{isRunning ? <TextShimmer>{label}</TextShimmer> : <span>{label}</span>}
-								<span className="text-muted-foreground/50">{group.tools.length}</span>
 							</span>
 							<ChevronDown
 								className={cn(

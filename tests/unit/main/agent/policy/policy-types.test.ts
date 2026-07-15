@@ -12,6 +12,7 @@ describe('isPermissionGatedTool', () => {
 	});
 	it('rejects ungated tools', () => {
 		expect(isPermissionGatedTool('read')).toBe(false);
+		expect(isPermissionGatedTool('write')).toBe(false);
 		expect(isPermissionGatedTool('web_search')).toBe(false);
 	});
 });
