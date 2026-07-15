@@ -29,14 +29,14 @@ export interface ToolUseRecord {
 
 export interface PermissionsSchema {
 	defaultMode: PermissionMode;
-	pathModes: PathMode[];
+	permissions: PathPermission[];
 	tools: Record<string, ToolPermission>;
 	usage: ToolUseRecord[];
 }
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultMode: 'allow',
-	pathModes: [],
+	permissions: [],
 	tools: {
 		write: { mode: 'ask' },
 		edit: { mode: 'ask' },
