@@ -98,43 +98,170 @@ export const SETTINGS_MODEL_SERVICE_ITEMS: readonly SettingsModelServiceItem[] =
 
 export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// General
-	{ path: '/settings/application', labelKey: 'settings.language.title', descriptionKey: 'settings.language.description', keywords: 'locale english italian i18n' },
-	{ path: '/settings/application', labelKey: 'settings.application.menuBar', descriptionKey: 'settings.application.menuBarDescription', keywords: 'tray dock icon toggle' },
-	{ path: '/settings/application', labelKey: 'settings.application.appData', descriptionKey: 'settings.application.appDataDescription', keywords: 'folder files storage' },
+	{
+		path: '/settings/application',
+		labelKey: 'settings.language.title',
+		descriptionKey: 'settings.language.description',
+		keywords: 'locale english italian i18n',
+	},
+	{
+		path: '/settings/application',
+		labelKey: 'settings.application.menuBar',
+		descriptionKey: 'settings.application.menuBarDescription',
+		keywords: 'tray dock icon toggle',
+	},
+	{
+		path: '/settings/application',
+		labelKey: 'settings.application.appData',
+		descriptionKey: 'settings.application.appDataDescription',
+		keywords: 'folder files storage',
+	},
 	// Application
-	{ path: '/settings/application', labelKey: 'settings.theme.title', keywords: 'appearance dark light system mode' },
+	{
+		path: '/settings/application',
+		labelKey: 'settings.theme.title',
+		keywords: 'appearance dark light system mode',
+	},
 	// System — permissions
-	{ path: '/settings/system', labelKey: 'settings.microphone.title', descriptionKey: 'settings.microphone.systemPermissionDescription', keywords: 'microphone audio recorder permission activate disable' },
-	{ path: '/settings/system', labelKey: 'settings.camera.title', descriptionKey: 'settings.camera.systemPermissionDescription', keywords: 'camera webcam video permission activate disable' },
-	{ path: '/settings/system', labelKey: 'settings.application.accessibility', descriptionKey: 'settings.application.accessibilityDescription', keywords: 'permission system' },
-	{ path: '/settings/system', labelKey: 'settings.application.screenRecording', descriptionKey: 'settings.application.screenRecordingDescription', keywords: 'permission capture screen' },
-	{ path: '/settings/system', labelKey: 'settings.system.capabilities.title', descriptionKey: 'settings.system.capabilities.description', keywords: 'windows files network webcam microphone audio bluetooth usb printer scanner clipboard notifications gps location system information drivers daemons hardware' },
+	{
+		path: '/settings/system',
+		labelKey: 'settings.microphone.title',
+		descriptionKey: 'settings.microphone.systemPermissionDescription',
+		keywords: 'microphone audio recorder permission activate disable',
+	},
+	{
+		path: '/settings/system',
+		labelKey: 'settings.camera.title',
+		descriptionKey: 'settings.camera.systemPermissionDescription',
+		keywords: 'camera webcam video permission activate disable',
+	},
+	{
+		path: '/settings/system',
+		labelKey: 'settings.application.accessibility',
+		descriptionKey: 'settings.application.accessibilityDescription',
+		keywords: 'permission system',
+	},
+	{
+		path: '/settings/system',
+		labelKey: 'settings.application.screenRecording',
+		descriptionKey: 'settings.application.screenRecordingDescription',
+		keywords: 'permission capture screen',
+	},
+	{
+		path: '/settings/system',
+		labelKey: 'settings.system.capabilities.title',
+		descriptionKey: 'settings.system.capabilities.description',
+		keywords:
+			'windows files network webcam microphone audio bluetooth usb printer scanner clipboard notifications gps location system information drivers daemons hardware',
+	},
 	// Providers — API keys
-	{ path: '/settings/providers', labelKey: 'settings.providers.keySaved', keywords: 'api key anthropic openai google' },
-	{ path: '/settings/providers', labelKey: 'settings.providers.apiKeyPlaceholder', keywords: 'api key secret token' },
+	{
+		path: '/settings/providers',
+		labelKey: 'settings.providers.keySaved',
+		keywords: 'api key anthropic openai google',
+	},
+	{
+		path: '/settings/providers',
+		labelKey: 'settings.providers.apiKeyPlaceholder',
+		keywords: 'api key secret token',
+	},
 	// Search engines
-	{ path: '/settings/search', labelKey: 'settings.searchEngine.braveName', descriptionKey: 'settings.searchEngine.braveDescription', keywords: 'brave web search api key' },
-	{ path: '/settings/search', labelKey: 'settings.searchEngine.tavilyName', descriptionKey: 'settings.searchEngine.tavilyDescription', keywords: 'tavily web search api key' },
+	{
+		path: '/settings/search',
+		labelKey: 'settings.searchEngine.braveName',
+		descriptionKey: 'settings.searchEngine.braveDescription',
+		keywords: 'brave web search api key',
+	},
+	{
+		path: '/settings/search',
+		labelKey: 'settings.searchEngine.tavilyName',
+		descriptionKey: 'settings.searchEngine.tavilyDescription',
+		keywords: 'tavily web search api key',
+	},
 	// Channels
-	{ path: '/settings/channels', labelKey: 'settings.channels.enabled', descriptionKey: 'settings.channels.enabledDescription', keywords: 'toggle on off activate' },
-	{ path: '/settings/channels', labelKey: 'settings.channels.token', descriptionKey: 'settings.channels.tokenDescription', keywords: 'bot secret key telegram discord' },
-	{ path: '/settings/channels', labelKey: 'settings.channels.dmPolicy', descriptionKey: 'settings.channels.dmPolicyDescription', keywords: 'allowlist open pairing deny direct message' },
-	{ path: '/settings/channels', labelKey: 'settings.channels.allowFrom', descriptionKey: 'settings.channels.allowFromDescription', keywords: 'whitelist users allowed senders' },
-	{ path: '/settings/channels', labelKey: 'settings.channels.status', keywords: 'connected disconnected runtime start stop' },
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.channels.enabled',
+		descriptionKey: 'settings.channels.enabledDescription',
+		keywords: 'toggle on off activate',
+	},
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.channels.token',
+		descriptionKey: 'settings.channels.tokenDescription',
+		keywords: 'bot secret key telegram discord',
+	},
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.channels.dmPolicy',
+		descriptionKey: 'settings.channels.dmPolicyDescription',
+		keywords: 'allowlist open pairing deny direct message',
+	},
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.channels.allowFrom',
+		descriptionKey: 'settings.channels.allowFromDescription',
+		keywords: 'whitelist users allowed senders',
+	},
+	{
+		path: '/settings/channels',
+		labelKey: 'settings.channels.status',
+		keywords: 'connected disconnected runtime start stop',
+	},
 	// Skills
-	{ path: '/settings/skills', labelKey: 'settings.skills.title', keywords: 'plugins import folder delete refresh' },
+	{
+		path: '/settings/skills',
+		labelKey: 'settings.skills.title',
+		keywords: 'plugins import folder delete refresh',
+	},
 	// Tasks
-	{ path: '/settings/tasks', labelKey: 'settings.cron.runtime.title', descriptionKey: 'settings.cron.runtime.description', keywords: 'scheduled agent provider model runtime' },
-	{ path: '/settings/tasks', labelKey: 'settings.cron.schedulesTitle', descriptionKey: 'settings.cron.schedulesDescription', keywords: 'cron schedule recurring task' },
+	{
+		path: '/settings/tasks',
+		labelKey: 'settings.cron.runtime.title',
+		descriptionKey: 'settings.cron.runtime.description',
+		keywords: 'scheduled agent provider model runtime',
+	},
+	{
+		path: '/settings/tasks',
+		labelKey: 'settings.cron.schedulesTitle',
+		descriptionKey: 'settings.cron.schedulesDescription',
+		keywords: 'cron schedule recurring task',
+	},
 	// Policies
-	{ path: '/settings/policies', labelKey: 'settings.policies.toolsTitle', descriptionKey: 'settings.policies.toolsDescription', keywords: 'policy permission tool write edit exec allow deny ask' },
-	{ path: '/settings/policies', labelKey: 'settings.policies.restrictedTitle', descriptionKey: 'settings.policies.restrictedDescription', keywords: 'restricted directory folder blocked deny recursive access' },
+	{
+		path: '/settings/policies',
+		labelKey: 'settings.policies.toolsTitle',
+		descriptionKey: 'settings.policies.toolsDescription',
+		keywords: 'policy permission tool write edit exec allow deny ask',
+	},
+	{
+		path: '/settings/policies',
+		labelKey: 'settings.policies.restrictedTitle',
+		descriptionKey: 'settings.policies.restrictedDescription',
+		keywords: 'restricted directory folder blocked deny recursive access',
+	},
 	// Health
-	{ path: '/settings/tasks/health', labelKey: 'settings.health.settingsTitle', descriptionKey: 'settings.health.settingsDescription', keywords: 'periodic health check interval provider model' },
-	{ path: '/settings/tasks/health', labelKey: 'settings.health.checklistTitle', descriptionKey: 'settings.health.checklistDescription', keywords: 'health checklist instructions agent HEALTH.md' },
+	{
+		path: '/settings/tasks/health',
+		labelKey: 'settings.health.settingsTitle',
+		descriptionKey: 'settings.health.settingsDescription',
+		keywords: 'periodic health check interval provider model',
+	},
+	{
+		path: '/settings/tasks/health',
+		labelKey: 'settings.health.checklistTitle',
+		descriptionKey: 'settings.health.checklistDescription',
+		keywords: 'health checklist instructions agent HEALTH.md',
+	},
 	// Model services
 	...SETTINGS_MODEL_SERVICE_ITEMS,
-	{ path: '/settings/assistant/chathistory', labelKey: 'settings.chatHistory.title', descriptionKey: 'settings.chatHistory.description', keywords: 'chat history transcript messages context delete clear folder', icon: Bot },
+	{
+		path: '/settings/assistant/chathistory',
+		labelKey: 'settings.chatHistory.title',
+		descriptionKey: 'settings.chatHistory.description',
+		keywords: 'chat history transcript messages context delete clear folder',
+		icon: Bot,
+	},
 ] as const;
 
 export const SETTINGS_NAVIGATION = [

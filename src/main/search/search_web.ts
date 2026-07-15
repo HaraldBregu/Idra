@@ -1,8 +1,4 @@
-import type {
-	SearchEngineId,
-	SearchRequest,
-	SearchResponse,
-} from '../../shared/search_types';
+import type { SearchEngineId, SearchRequest, SearchResponse } from '../../shared/search_types';
 import { searchBrave } from './search_brave';
 import { getSearchKey } from './search_get_key';
 import { getSearchSettings } from './search_get_settings';

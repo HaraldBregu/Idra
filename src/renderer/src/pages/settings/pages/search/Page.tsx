@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-	AlertTriangle,
-	Check,
-	ExternalLink,
-	KeyRound,
-	LoaderCircle,
-	Pencil,
-} from 'lucide-react';
+import { AlertTriangle, Check, ExternalLink, KeyRound, LoaderCircle, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProviderAvatar } from '@/components/provider-avatar';
 import { Badge } from '@/components/ui/badge';

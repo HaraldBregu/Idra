@@ -5,11 +5,7 @@ import { AudioWaveform, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS } from '@/lib/compat';
-import {
-	SettingsPageHeader,
-	SettingsPageShell,
-	SettingsPanel,
-} from '../../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
 	SETTINGS_MODEL_SERVICE_ITEMS,
@@ -50,9 +46,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 ] as const;
 
-function getSettingsOverviewItem(
-	path: string
-): SettingsNavigationItem | SettingsModelServiceItem {
+function getSettingsOverviewItem(path: string): SettingsNavigationItem | SettingsModelServiceItem {
 	const navigationItem = SETTINGS_NAVIGATION.find((item) => item.path === path);
 	if (navigationItem) return navigationItem;
 
