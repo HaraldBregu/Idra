@@ -236,9 +236,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	{
 		path: '/settings/policies',
-		labelKey: 'settings.policies.pathModesTitle',
-		descriptionKey: 'settings.policies.pathModesDescription',
-		keywords: 'path directory folder allow deny ask mode recursive access override',
+		labelKey: 'settings.policies.permissionsTitle',
+		descriptionKey: 'settings.policies.permissionsDescription',
+		keywords: 'path directory folder permission allow deny tool access override',
 	},
 	// Health
 	{
