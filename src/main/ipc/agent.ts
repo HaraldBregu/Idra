@@ -26,8 +26,6 @@ import {
 	resetPermissions,
 	respondToolPermission,
 	setPathPermission,
-	setToolPermission,
-	type PermissionMode,
 	type PermissionsSchema,
 	type ToolSelector,
 } from '../agent/policy';
