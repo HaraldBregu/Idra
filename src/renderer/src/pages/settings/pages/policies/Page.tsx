@@ -60,8 +60,22 @@ const PoliciesPage: React.FC = () => {
 	const addDirectory = (): void => {
 		const path = newPath.trim();
 		if (!path) return;
-		apply(window.agent.policySetPathMode(path, newMode, newRecursive));
+		apply(window.agent.policySetPathPermission(path, ['*'], []));
 		setNewPath('');
+	};
+
+	const toolState = (entry: PathPermission, tool: string): ToolState => {
+		if (entry.deny.includes(tool)) return 'deny';
+		if (entry.allow.includes(tool)) return 'allow';
+		return 'inherit';
+	};
+
+	const setToolState = (entry: PathPermission, tool: string, state: ToolState): void => {
+		const allow = entry.allow.filter((name) => name !== tool);
+		const deny = entry.deny.filter((name) => name !== tool);
+		if (state === 'allow') allow.push(tool);
+		if (state === 'deny') deny.push(tool);
+		apply(window.agent.policySetPathPermission(entry.absolutePath, allow, deny));
 	};
 
 	const browseDirectory = (): void => {
