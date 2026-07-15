@@ -43,6 +43,8 @@ export interface AgentApi {
 		path: string,
 		allow: string[],
 		deny: string[],
+		ask: string[],
+		recursive: boolean,
 	) => Promise<PermissionsSchema>;
 	policyRemovePathPermission: (path: string) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
