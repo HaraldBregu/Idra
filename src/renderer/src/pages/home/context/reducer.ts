@@ -259,6 +259,20 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 			.filter((tool): tool is AgentToolPart => Boolean(tool));
 
 		if (content.length === 0 && tools.length === 0) return;
+
+		const last = out[out.length - 1];
+		if (last && isAgentMessage(last)) {
+			out[out.length - 1] = {
+				...last,
+				content:
+					last.content.length > 0 && content.length > 0
+						? `${last.content}\n\n${content}`
+						: last.content + content,
+				tools: [...last.tools, ...tools],
+			};
+			return;
+		}
+
 		out.push({
 			id: `agent-history-${index}`,
 			role: 'agent',
