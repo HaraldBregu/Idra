@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AudioWaveform, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS } from '@/lib/compat';
+import type { SearchEngineId } from '../../../../../../shared/search_types';
 import { SettingsPageHeader, SettingsPageShell, SettingsPanel } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
@@ -113,6 +114,20 @@ function SettingsOverviewCard({
 const OverviewPage: React.FC = () => {
 	const { t } = useTranslation();
 	const disabledOverviewPaths = new Set<string>([]);
+	const [selectedSearchEngine, setSelectedSearchEngine] = useState<SearchEngineId | null>(null);
+
+	useEffect(() => {
+		let cancelled = false;
+		void window.search.getSettings().then(
+			(settings) => {
+				if (!cancelled) setSelectedSearchEngine(settings.engineId);
+			},
+			() => undefined
+		);
+		return () => {
+			cancelled = true;
+		};
+	}, []);
 
 	return (
 		<SettingsPageShell>
@@ -126,6 +141,13 @@ const OverviewPage: React.FC = () => {
 								<SettingsOverviewCard
 									key={path}
 									item={item}
+									badge={
+										path === '/settings/search' && selectedSearchEngine ? (
+											<Badge variant="outline" className="text-[10px] leading-none">
+												{t(`settings.searchEngine.${selectedSearchEngine}Name`)}
+											</Badge>
+										) : undefined
+									}
 									disabled={disabledOverviewPaths.has(path)}
 								/>
 							);

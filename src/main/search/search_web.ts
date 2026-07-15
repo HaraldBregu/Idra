@@ -1,13 +1,11 @@
 import type { SearchEngineId, SearchRequest, SearchResponse } from '../../shared/search_types';
-import { searchBrave } from './search_brave';
+import type { SearchAdapter } from './adapters/adapter';
+import { searchBrave } from './adapters/brave';
+import { searchTavily } from './adapters/tavily';
 import { getSearchKey } from './search_get_key';
 import { getSearchSettings } from './search_get_settings';
-import { searchTavily } from './search_tavily';
 
-const searchers: Record<
-	SearchEngineId,
-	(request: Required<SearchRequest>, apiKey: string) => Promise<SearchResponse>
-> = {
+const searchers: Record<SearchEngineId, SearchAdapter> = {
 	brave: searchBrave,
 	tavily: searchTavily,
 };
