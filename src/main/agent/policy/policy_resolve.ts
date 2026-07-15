@@ -43,17 +43,21 @@ function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefi
 	return undefined;
 }
 
-// Resolution order: a "Tool(pattern)" rule wins first, then a matching path rule
-// (a 'deny' there blocks reads too), then ungated tools pass, then a destructive
-// tool falls back to the default mode.
+// Resolution order: a defaultPermissions path rule overrides everything (an
+// allow-'*' folder frees every tool there, a 'deny' blocks reads too), then
+// "Tool(pattern)" rules, then ungated tools (read, write, ...) pass, then exec
+// passes unless the command is destructive, and what's left falls back to the
+// default mode.
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
-	const ruled = ruleOverride(toolName, args);
-	if (ruled) return ruled;
 	const override = pathOverride(toolName, toolTargetDirs(toolName, args));
 	if (override) return override;
+	const ruled = ruleOverride(toolName, args);
+	if (ruled) return ruled;
 	if (!isPermissionGatedTool(toolName)) return 'allow';
+	if (toolName === 'exec' && typeof args.command === 'string' && !isDestructiveCommand(args.command))
+		return 'allow';
 	return getDefaultMode();
 }

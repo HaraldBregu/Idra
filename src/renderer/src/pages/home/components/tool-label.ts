@@ -66,3 +66,47 @@ export function toolPartLabel(tool: AgentToolPart): string {
 export function isToolRunning(tool: AgentToolPart): boolean {
 	return tool.state === 'input-streaming' || tool.state === 'input-available';
 }
+
+type GroupVerbs = { readonly running: string; readonly done: string; readonly noun: string };
+
+function groupVerbs(type: string): GroupVerbs {
+	const t = type.toLowerCase();
+	if (t === 'read') return { running: 'Reading', done: 'Read', noun: 'file' };
+	if (t === 'edit' || t === 'apply_patch') return { running: 'Editing', done: 'Edited', noun: 'file' };
+	if (t === 'write') return { running: 'Writing', done: 'Wrote', noun: 'file' };
+	if (t === 'exec' || t === 'process') return { running: 'Running', done: 'Ran', noun: 'command' };
+	if (t === 'grep' || t === 'search') return { running: 'Searching', done: 'Searched', noun: 'pattern' };
+	if (t === 'list_dir') return { running: 'Listing', done: 'Listed', noun: 'folder' };
+	if (t === 'load_skill') return { running: 'Loading', done: 'Loaded', noun: 'skill' };
+	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
+		return { running: 'Browsing', done: 'Browsed', noun: 'page' };
+	}
+	if (t.startsWith('mcp__')) return { running: 'Calling', done: 'Called', noun: 'tool' };
+	return { running: 'Running', done: 'Ran', noun: 'tool' };
+}
+
+function toolRunningDetail(tool: AgentToolPart): string | undefined {
+	const input = isRecord(tool.input) ? tool.input : {};
+	const t = tool.type.toLowerCase();
+	if (t === 'read' || t === 'edit' || t === 'write' || t === 'apply_patch' || t === 'list_dir') {
+		const path = stringArg(input, 'path', 'file_path', 'filepath');
+		return path ? basename(path) : undefined;
+	}
+	if (t === 'exec' || t === 'process') return stringArg(input, 'command', 'name');
+	if (t === 'grep' || t === 'search') return stringArg(input, 'pattern', 'query');
+	if (t === 'load_skill') return stringArg(input, 'name');
+	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
+		return stringArg(input, 'url', 'query');
+	}
+	return undefined;
+}
+
+export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
+	const verbs = groupVerbs(type);
+	const running = tools.filter(isToolRunning);
+	if (running.length > 0) {
+		const detail = toolRunningDetail(running[running.length - 1]);
+		return detail ? `${verbs.running} ${detail}` : `${verbs.running}…`;
+	}
+	return `${verbs.done} ${tools.length} ${verbs.noun}${tools.length === 1 ? '' : 's'}`;
+}
