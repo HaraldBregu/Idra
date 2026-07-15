@@ -383,19 +383,27 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.policySetPathPermission,
-			wrapSimpleHandler((dirPath: unknown, allow: unknown, deny: unknown): PermissionsSchema => {
-				const dir = optionalTrimmedString(dirPath);
-				if (!dir) throw new Error('Invalid directory path.');
-				const absolutePath = resolveUserPath(dir);
-				const relativePath = path.relative(path.resolve(agent.config.location), absolutePath) || '.';
-				setPathPermission({
-					relativePath,
-					absolutePath,
-					allow: toToolList(allow),
-					deny: toToolList(deny),
-				});
-				return getPermissions();
-			}, AgentChannels.policySetPathPermission)
+			wrapSimpleHandler(
+				(
+					dirPath: unknown,
+					allow: unknown,
+					deny: unknown,
+					ask: unknown,
+					recursive: unknown
+				): PermissionsSchema => {
+					const dir = optionalTrimmedString(dirPath);
+					if (!dir) throw new Error('Invalid directory path.');
+					setPathPermission({
+						path: dir,
+						allow: toToolList(allow),
+						deny: toToolList(deny),
+						ask: toToolList(ask),
+						recursive: recursive === true,
+					});
+					return getPermissions();
+				},
+				AgentChannels.policySetPathPermission
+			)
 		);
 
 		ipcMain.handle(
@@ -403,7 +411,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			wrapSimpleHandler((dirPath: unknown): PermissionsSchema => {
 				const dir = optionalTrimmedString(dirPath);
 				if (!dir) throw new Error('Invalid directory path.');
-				removePathPermission(resolveUserPath(dir));
+				removePathPermission(dir);
 				return getPermissions();
 			}, AgentChannels.policyRemovePathPermission)
 		);
