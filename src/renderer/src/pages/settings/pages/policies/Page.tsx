@@ -62,12 +62,13 @@ const PoliciesPage: React.FC = () => {
 	const addDirectory = (): void => {
 		const path = newPath.trim();
 		if (!path) return;
-		apply(window.agent.policySetPathPermission(path, ['*'], []));
+		apply(window.agent.policySetPathPermission(path, ['*'], [], [], newRecursive));
 		setNewPath('');
 	};
 
 	const toolState = (entry: PathPermission, tool: string): ToolState => {
 		if (entry.deny.includes(tool)) return 'deny';
+		if (entry.ask.includes(tool)) return 'ask';
 		if (entry.allow.includes(tool)) return 'allow';
 		return 'inherit';
 	};
@@ -75,9 +76,23 @@ const PoliciesPage: React.FC = () => {
 	const setToolState = (entry: PathPermission, tool: string, state: ToolState): void => {
 		const allow = entry.allow.filter((name) => name !== tool);
 		const deny = entry.deny.filter((name) => name !== tool);
+		const ask = entry.ask.filter((name) => name !== tool);
 		if (state === 'allow') allow.push(tool);
 		if (state === 'deny') deny.push(tool);
-		apply(window.agent.policySetPathPermission(entry.absolutePath, allow, deny));
+		if (state === 'ask') ask.push(tool);
+		apply(window.agent.policySetPathPermission(entry.path, allow, deny, ask, entry.recursive));
+	};
+
+	const setRecursive = (entry: PathPermission, recursive: boolean): void => {
+		apply(
+			window.agent.policySetPathPermission(
+				entry.path,
+				entry.allow,
+				entry.deny,
+				entry.ask,
+				recursive,
+			),
+		);
 	};
 
 	const browseDirectory = (): void => {
