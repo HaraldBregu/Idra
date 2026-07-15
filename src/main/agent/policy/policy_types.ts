@@ -20,12 +20,6 @@ export interface PathPermission {
 	recursive: boolean;
 }
 
-export interface ToolUseRecord {
-	tool: string;
-	permission: PermissionMode;
-	at: number;
-}
-
 // Tool-call rules in "Tool(pattern)" form, e.g. "Bash(rm -rf node_modules)".
 export interface PermissionRules {
 	allow: string[];
@@ -37,21 +31,12 @@ export interface PermissionsSchema {
 	defaultMode: PermissionMode;
 	defaultPermissions: PathPermission[];
 	permissions: PermissionRules;
-	tools: Record<string, ToolPermission>;
-	usage: ToolUseRecord[];
 }
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultMode: 'allow',
 	defaultPermissions: [],
 	permissions: { allow: [], deny: [], ask: [] },
-	tools: {
-		write: { mode: 'ask' },
-		edit: { mode: 'ask' },
-		exec: { mode: 'ask' },
-		apply_patch: { mode: 'ask' },
-	},
-	usage: [],
 };
 
 export function isPermissionGatedTool(toolName: string): toolName is PermissionGatedTool {
