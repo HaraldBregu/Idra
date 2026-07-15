@@ -37,24 +37,14 @@ export function getPermissionRules(): PermissionRules {
 	return { allow: rules.allow ?? [], deny: rules.deny ?? [], ask: rules.ask ?? [] };
 }
 
-export function getToolPermission(toolName: string): PermissionMode {
-	const tools = store.get('tools');
-	const entry = tools[toolName];
-	if (entry) return entry.mode;
+export function addPermissionRule(bucket: keyof PermissionRules, rule: string): void {
+	const rules = getPermissionRules();
+	if (rules[bucket].includes(rule)) return;
+	store.set('permissions', { ...rules, [bucket]: [...rules[bucket], rule] });
+}
+
+export function getDefaultMode(): PermissionMode {
 	return store.get('defaultMode');
-}
-
-export function getToolAllowedPaths(toolName: string): string[] {
-	return store.get('tools')[toolName]?.allowedPaths ?? [];
-}
-
-export function addToolAllowedPath(toolName: string, dirPath: string): void {
-	const tools = { ...store.get('tools') };
-	const entry = tools[toolName] ?? { mode: 'ask' as PermissionMode };
-	const allowedPaths = entry.allowedPaths ?? [];
-	if (allowedPaths.includes(dirPath)) return;
-	tools[toolName] = { ...entry, allowedPaths: [...allowedPaths, dirPath] };
-	store.set('tools', tools);
 }
 
 export function getPathPermissions(): PathPermission[] {
