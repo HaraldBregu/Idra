@@ -42,15 +42,11 @@ export async function* runToolCall(
 			};
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision === 'approve_always') {
-				const command = toolCommandName(toolCall.args);
-				if (command) addToolAllowedCommand(toolCall.name, command);
-				for (const dir of toolTargetDirs(toolCall.name, toolCall.args))
-					addToolAllowedPath(toolCall.name, dir);
+				const signature = toolRuleSignature(toolCall.name, toolCall.args);
+				if (signature) addPermissionRule('allow', signature);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
-
-		recordToolUse(toolCall.name, permission);
 
 		if (permission === 'deny') {
 			output = `Error: permission denied for '${toolCall.name}'`;
