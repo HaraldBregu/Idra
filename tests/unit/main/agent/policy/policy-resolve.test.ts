@@ -92,10 +92,25 @@ describe('path permissions', () => {
 		expect(resolveToolPermission('write', { path: '/trusted/a.txt' })).toBe('allow');
 	});
 
-	it('deny wins over allow within a rule', () => {
-		getPathPermissions.mockReturnValue([rule('/repo', ['*'], ['write'])]);
+	it('an ask rule forces a prompt even for an ungated tool', () => {
+		getPathPermissions.mockReturnValue([rule('/watched', [], [], ['*'])]);
+		expect(resolveToolPermission('read', { path: '/watched/a.txt' })).toBe('ask');
+	});
+
+	it('deny wins over ask wins over allow within a rule', () => {
+		getPathPermissions.mockReturnValue([rule('/repo', ['*'], ['write'], ['edit'])]);
 		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('edit', { path: '/repo/a.txt' })).toBe('ask');
 		expect(resolveToolPermission('read', { path: '/repo/a.txt' })).toBe('allow');
+	});
+
+	it('a non-recursive rule matches only the directory itself', () => {
+		getToolPermission.mockReturnValue('allow');
+		getPathPermissions.mockReturnValue([
+			{ path: '/secret', allow: [], deny: ['*'], ask: [], recursive: false },
+		]);
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/secret/sub/a.txt' })).toBe('allow');
 	});
 
 	it('the deepest matching rule wins', () => {
