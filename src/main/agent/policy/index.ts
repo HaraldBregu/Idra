@@ -33,5 +33,6 @@ export {
 	type PermissionMode,
 	type PermissionsSchema,
 	type ToolPermission,
+	type ToolSelector,
 	type ToolUseRecord,
 } from './policy_types';
