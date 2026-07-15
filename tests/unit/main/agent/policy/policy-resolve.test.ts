@@ -2,13 +2,17 @@ const getToolPermission = jest.fn();
 const getToolAllowedPaths = jest.fn();
 const getToolAllowedCommands = jest.fn();
 const getPathPermissions = jest.fn();
+const getPermissionRules = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	getToolPermission,
 	getToolAllowedPaths,
 	getToolAllowedCommands,
 	getPathPermissions,
+	getPermissionRules,
 }));
+
+const noRules = { allow: [] as string[], deny: [] as string[], ask: [] as string[] };
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
 
