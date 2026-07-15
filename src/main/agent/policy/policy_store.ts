@@ -51,19 +51,19 @@ export function addToolAllowedPath(toolName: string, dirPath: string): void {
 	store.set('tools', tools);
 }
 
-export function getPathModes(): PathMode[] {
-	return store.get('pathModes') ?? [];
+export function getPathPermissions(): PathPermission[] {
+	return store.get('permissions') ?? [];
 }
 
-export function setPathMode(dirPath: string, mode: PermissionMode, recursive: boolean): void {
-	const rest = getPathModes().filter((entry) => entry.path !== dirPath);
-	store.set('pathModes', [...rest, { path: dirPath, mode, recursive }]);
+export function setPathPermission(entry: PathPermission): void {
+	const rest = getPathPermissions().filter((e) => e.absolutePath !== entry.absolutePath);
+	store.set('permissions', [...rest, entry]);
 }
 
-export function removePathMode(dirPath: string): void {
+export function removePathPermission(absolutePath: string): void {
 	store.set(
-		'pathModes',
-		getPathModes().filter((entry) => entry.path !== dirPath),
+		'permissions',
+		getPathPermissions().filter((e) => e.absolutePath !== absolutePath),
 	);
 }
 
