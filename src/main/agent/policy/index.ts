@@ -1,23 +1,23 @@
 export {
 	addToolAllowedCommand,
 	addToolAllowedPath,
-	getPathModes,
+	getPathPermissions,
 	getPermissions,
 	getToolAllowedCommands,
 	getToolAllowedPaths,
 	getToolPermission,
 	getToolUsage,
 	recordToolUse,
-	removePathMode,
+	removePathPermission,
 	resetPermissions,
-	setPathMode,
+	setPathPermission,
 	setToolPermission,
 	updatePermissions,
 } from './policy_store';
 export { toolCommandName } from './policy_command';
-export { isPathWithin, toolPathDir } from './policy_path';
+export { isPathWithin, resolveUserPath, toolPathDir } from './policy_path';
 export { toolTargetDirs } from './policy_targets';
-export { pathModeFor } from './policy_override';
+export { pathPermissionFor } from './policy_override';
 export { resolveToolPermission } from './policy_resolve';
 export {
 	rejectPendingToolPermissions,
