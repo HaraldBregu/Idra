@@ -1,12 +1,38 @@
 import { toolCommandName } from './policy_command';
 import { pathPermissionFor } from './policy_override';
 import { isPathWithin } from './policy_path';
-import { getToolAllowedCommands, getToolAllowedPaths, getToolPermission } from './policy_store';
+import {
+	getPermissionRules,
+	getToolAllowedCommands,
+	getToolAllowedPaths,
+	getToolPermission,
+} from './policy_store';
+import { toolRuleSignature } from './policy_signature';
 import { toolTargetDirs } from './policy_targets';
 import { isPermissionGatedTool, type PermissionMode } from './policy_types';
 
 function isDirAllowed(toolName: string, dir: string): boolean {
 	return getToolAllowedPaths(toolName).some((allowed) => isPathWithin(allowed, dir));
+}
+
+function ruleMatches(rule: string, signature: string): boolean {
+	if (rule === signature) return true;
+	// ponytail: only a trailing ":*" wildcard, matching the argument prefix —
+	// the common Claude Code case; add richer globbing if a rule ever needs it.
+	if (rule.endsWith(':*)')) return signature.startsWith(rule.slice(0, -3));
+	return false;
+}
+
+// A "Tool(pattern)" rule matching this call: deny > ask > allow.
+function ruleOverride(toolName: string, args: Record<string, unknown>): PermissionMode | undefined {
+	const signature = toolRuleSignature(toolName, args);
+	if (!signature) return undefined;
+	const { allow, deny, ask } = getPermissionRules();
+	const hit = (rules: string[]): boolean => rules.some((rule) => ruleMatches(rule, signature));
+	if (hit(deny)) return 'deny';
+	if (hit(ask)) return 'ask';
+	if (hit(allow)) return 'allow';
+	return undefined;
 }
 
 // Fold the path-rule decisions across a tool's target dirs into one, most
@@ -19,14 +45,16 @@ function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefi
 	return undefined;
 }
 
-// Resolution order: a matching path rule overrides everything (a 'deny' rule
-// blocks reads too), then ungated tools pass, then the tool's stored mode, then
-// — for 'ask' — previously granted paths (and commands, for exec) pass without
-// asking.
+// Resolution order: a "Tool(pattern)" rule wins first, then a matching path rule
+// (a 'deny' there blocks reads too), then ungated tools pass, then the tool's
+// stored mode, then — for 'ask' — previously granted paths (and commands, for
+// exec) pass without asking.
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
+	const ruled = ruleOverride(toolName, args);
+	if (ruled) return ruled;
 	const dirs = toolTargetDirs(toolName, args);
 	const override = pathOverride(toolName, dirs);
 	if (override) return override;
