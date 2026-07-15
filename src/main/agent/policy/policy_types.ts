@@ -10,15 +10,15 @@ export interface ToolPermission {
 	allowedCommands?: string[];
 }
 
-// Per-path override of tool permissions. A rule applies to its path and the
-// whole subtree; matching uses absolutePath while relativePath (to the
-// workspace root) is what the user sees. "*" in a list matches every tool, and
-// deny wins over allow.
+// Per-path override of tool permissions. recursive: false applies only to the
+// directory itself; true also covers its subtree. "*" in a list matches every
+// tool, and deny wins over ask wins over allow.
 export interface PathPermission {
-	relativePath: string;
-	absolutePath: string;
+	path: string;
 	allow: string[];
 	deny: string[];
+	ask: string[];
+	recursive: boolean;
 }
 
 export interface ToolUseRecord {
