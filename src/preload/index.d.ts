@@ -155,7 +155,11 @@ import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health_types';
-import type { PermissionMode, PermissionsSchema } from '../main/agent/policy/policy_types';
+import type {
+	PermissionMode,
+	PermissionsSchema,
+	ToolSelector,
+} from '../main/agent/policy/policy_types';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,
