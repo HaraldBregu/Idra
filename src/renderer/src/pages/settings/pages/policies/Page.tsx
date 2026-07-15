@@ -279,6 +279,10 @@ const PoliciesPage: React.FC = () => {
 									</Button>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end gap-2">
+									<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+										{t('settings.policies.recursive')}
+										<Switch checked={newRecursive} onCheckedChange={setNewRecursive} />
+									</Label>
 									<Button type="button" size="sm" disabled={!newPath.trim()} onClick={addDirectory}>
 										<Plus className="size-3" />
 										{t('settings.policies.add')}
