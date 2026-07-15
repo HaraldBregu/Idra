@@ -3,9 +3,9 @@ import Store from 'electron-store';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	DEFAULT_PERMISSIONS,
+	type PathMode,
 	type PermissionMode,
 	type PermissionsSchema,
-	type RestrictedDirectory,
 	type ToolPermission,
 	type ToolUseRecord,
 } from './policy_types';
