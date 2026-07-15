@@ -51,19 +51,19 @@ export function addToolAllowedPath(toolName: string, dirPath: string): void {
 	store.set('tools', tools);
 }
 
-export function getRestrictedDirectories(): RestrictedDirectory[] {
-	return store.get('restrictedDirectories') ?? [];
+export function getPathModes(): PathMode[] {
+	return store.get('pathModes') ?? [];
 }
 
-export function addRestrictedDirectory(dirPath: string, recursive: boolean): void {
-	const dirs = getRestrictedDirectories().filter((dir) => dir.path !== dirPath);
-	store.set('restrictedDirectories', [...dirs, { path: dirPath, recursive }]);
+export function setPathMode(dirPath: string, mode: PermissionMode, recursive: boolean): void {
+	const rest = getPathModes().filter((entry) => entry.path !== dirPath);
+	store.set('pathModes', [...rest, { path: dirPath, mode, recursive }]);
 }
 
-export function removeRestrictedDirectory(dirPath: string): void {
+export function removePathMode(dirPath: string): void {
 	store.set(
-		'restrictedDirectories',
-		getRestrictedDirectories().filter((dir) => dir.path !== dirPath),
+		'pathModes',
+		getPathModes().filter((entry) => entry.path !== dirPath),
 	);
 }
 
