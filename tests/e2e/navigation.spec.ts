@@ -28,6 +28,7 @@ const routes = [
 	'/settings/mcp',
 	'/settings/skills',
 	'/settings/providers',
+	'/settings/search',
 	'/settings/tasks',
 	'/settings/tasks/health',
 	'/settings/assistant',

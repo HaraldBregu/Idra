@@ -170,6 +170,7 @@
 				"connectors": "Account app collegati",
 				"mcp": "Server strumenti esterni",
 				"providers": "Chiavi API e provider",
+				"searchEngine": "Provider di ricerca web e chiave API",
 				"cron": "Attivita agente pianificate",
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
@@ -186,6 +187,7 @@
 			"mcp": "MCP",
 			"workspace": "Area di Lavoro",
 			"providers": "Provider",
+			"searchEngine": "Motore di ricerca",
 			"media": "Media",
 			"devices": "Dispositivi",
 			"tools": "Strumenti",
@@ -857,6 +859,27 @@
 			"saving": "Salvataggio...",
 			"keySaved": "Chiave API salvata",
 			"keyMissing": "Chiave API mancante"
+		},
+		"searchEngine": {
+			"description": "Scegli il provider di ricerca web usato dall'assistente.",
+			"engines": "Provider di ricerca",
+			"braveName": "Brave",
+			"braveDescription": "API indipendente per la ricerca web.",
+			"tavilyName": "Tavily",
+			"tavilyDescription": "API di ricerca ottimizzata per applicazioni di IA.",
+			"apiKeyPlaceholder": "Incolla la chiave API",
+			"apiKeyLabel": "Chiave API {{name}}",
+			"openSetup": "Apri la configurazione API di {{name}}",
+			"editKey": "Modifica la chiave API di {{name}}",
+			"active": "Attivo",
+			"connect": "Connetti",
+			"use": "Usa",
+			"localNote": "Le chiavi API restano nei dati locali di Friday e vengono inviate solo al provider di ricerca selezionato.",
+			"errors": {
+				"load": "Impossibile caricare le impostazioni del motore di ricerca.",
+				"save": "Impossibile salvare la chiave API del motore di ricerca.",
+				"select": "Impossibile selezionare il motore di ricerca."
+			}
 		},
 		"image": {
 			"prompt": "Prompt",

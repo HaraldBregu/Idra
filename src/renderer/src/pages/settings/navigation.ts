@@ -10,6 +10,7 @@ import {
 	Music,
 	Plug,
 	RadioTower,
+	Search,
 	Server,
 	ShieldCheck,
 	Sparkles,
@@ -111,6 +112,9 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	// Providers — API keys
 	{ path: '/settings/providers', labelKey: 'settings.providers.keySaved', keywords: 'api key anthropic openai google' },
 	{ path: '/settings/providers', labelKey: 'settings.providers.apiKeyPlaceholder', keywords: 'api key secret token' },
+	// Search engines
+	{ path: '/settings/search', labelKey: 'settings.searchEngine.braveName', descriptionKey: 'settings.searchEngine.braveDescription', keywords: 'brave web search api key' },
+	{ path: '/settings/search', labelKey: 'settings.searchEngine.tavilyName', descriptionKey: 'settings.searchEngine.tavilyDescription', keywords: 'tavily web search api key' },
 	// Channels
 	{ path: '/settings/channels', labelKey: 'settings.channels.enabled', descriptionKey: 'settings.channels.enabledDescription', keywords: 'toggle on off activate' },
 	{ path: '/settings/channels', labelKey: 'settings.channels.token', descriptionKey: 'settings.channels.tokenDescription', keywords: 'bot secret key telegram discord' },
@@ -151,6 +155,12 @@ export const SETTINGS_NAVIGATION = [
 		labelKey: 'settings.tabs.providers',
 		descriptionKey: 'settings.overview.descriptions.providers',
 		icon: Server,
+	},
+	{
+		path: '/settings/search',
+		labelKey: 'settings.tabs.searchEngine',
+		descriptionKey: 'settings.overview.descriptions.searchEngine',
+		icon: Search,
 	},
 	{
 		path: '/settings/skills',

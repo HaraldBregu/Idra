@@ -170,6 +170,7 @@
 				"connectors": "Connected app accounts",
 				"mcp": "External tool servers",
 				"providers": "API keys and providers",
+				"searchEngine": "Web search provider and API key",
 				"cron": "Scheduled agent tasks",
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
@@ -186,6 +187,7 @@
 			"mcp": "MCP",
 			"workspace": "Workspace",
 			"providers": "Providers",
+			"searchEngine": "Search engine",
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
@@ -857,6 +859,27 @@
 			"saving": "Saving...",
 			"keySaved": "API key saved",
 			"keyMissing": "API key missing"
+		},
+		"searchEngine": {
+			"description": "Choose the web search provider used by the assistant.",
+			"engines": "Search providers",
+			"braveName": "Brave",
+			"braveDescription": "Independent web search API.",
+			"tavilyName": "Tavily",
+			"tavilyDescription": "Search API optimized for AI applications.",
+			"apiKeyPlaceholder": "Paste API key",
+			"apiKeyLabel": "{{name}} API key",
+			"openSetup": "Open {{name}} API setup",
+			"editKey": "Edit {{name}} API key",
+			"active": "Active",
+			"connect": "Connect",
+			"use": "Use",
+			"localNote": "API keys stay in Friday's local app data and are only sent to the selected search provider.",
+			"errors": {
+				"load": "Could not load search engine settings.",
+				"save": "Could not save the search engine API key.",
+				"select": "Could not select the search engine."
+			}
 		},
 		"image": {
 			"prompt": "Prompt",
