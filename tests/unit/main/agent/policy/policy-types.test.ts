@@ -11,16 +11,15 @@ describe('isPermissionGatedTool', () => {
 		}
 	});
 	it('rejects ungated tools', () => {
-		expect(isPermissionGatedTool('read')).toBe(false);
+		expect(isPermissionGatedTool('edit')).toBe(false);
 		expect(isPermissionGatedTool('web_search')).toBe(false);
 	});
 });
 
 describe('DEFAULT_PERMISSIONS', () => {
-	it('defaults gated tools to ask and everything else to allow', () => {
+	it('allows by default and starts with empty permission stores', () => {
 		expect(DEFAULT_PERMISSIONS.defaultMode).toBe('allow');
-		for (const tool of PERMISSION_GATED_TOOLS) {
-			expect(DEFAULT_PERMISSIONS.tools[tool].mode).toBe('ask');
-		}
+		expect(DEFAULT_PERMISSIONS.defaultPermissions).toEqual([]);
+		expect(DEFAULT_PERMISSIONS.permissions).toEqual({ allow: [], deny: [], ask: [] });
 	});
 });
