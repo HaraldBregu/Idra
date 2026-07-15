@@ -101,11 +101,15 @@ export interface AgentInvokeChannelMap {
 		args: [];
 		result: string | undefined;
 	};
-	[AgentChannels.policyAddRestrictedDirectory]: {
-		args: [path: string, recursive: boolean];
+	[AgentChannels.policySetPathMode]: {
+		args: [
+			path: string,
+			mode: import('../main/agent/policy/policy_types').PermissionMode,
+			recursive: boolean,
+		];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
-	[AgentChannels.policyRemoveRestrictedDirectory]: {
+	[AgentChannels.policyRemovePathMode]: {
 		args: [path: string];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
