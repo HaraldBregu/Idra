@@ -794,6 +794,7 @@
 			"allTools": "Tutti gli strumenti",
 			"inherit": "Predefinito",
 			"pathPlaceholder": "/percorso/della/cartella",
+			"recursive": "Ricorsivo",
 			"browse": "Sfoglia",
 			"add": "Aggiungi",
 			"empty": "Nessuna regola di percorso",
