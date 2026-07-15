@@ -244,11 +244,15 @@ export const agent: AgentApi = {
 	policyPickDirectory: (): Promise<string | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
 	},
-	policyAddRestrictedDirectory: (path: string, recursive: boolean): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policyAddRestrictedDirectory, path, recursive);
+	policySetPathMode: (
+		path: string,
+		mode: PermissionMode,
+		recursive: boolean,
+	): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policySetPathMode, path, mode, recursive);
 	},
-	policyRemoveRestrictedDirectory: (path: string): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policyRemoveRestrictedDirectory, path);
+	policyRemovePathMode: (path: string): Promise<PermissionsSchema> => {
+		return typedInvokeUnwrap(AgentChannels.policyRemovePathMode, path);
 	},
 	policyReset: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyReset);
