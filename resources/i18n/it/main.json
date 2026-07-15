@@ -795,7 +795,7 @@
 			"recursive": "Ricorsivo",
 			"browse": "Sfoglia",
 			"add": "Aggiungi",
-			"empty": "Nessuna cartella riservata",
+			"empty": "Nessuna regola di percorso",
 			"reset": "Ripristina",
 			"saveFailed": "Impossibile salvare la politica.",
 			"modes": {
