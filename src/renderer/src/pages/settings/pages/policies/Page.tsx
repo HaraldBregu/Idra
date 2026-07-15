@@ -173,62 +173,66 @@ const PoliciesPage: React.FC = () => {
 					</SettingsSection>
 
 					<SettingsSection
-						title={t('settings.policies.pathModesTitle')}
-						description={t('settings.policies.pathModesDescription')}
+						title={t('settings.policies.permissionsTitle')}
+						description={t('settings.policies.permissionsDescription')}
 					>
 						<SettingsPanel>
-							{policy.pathModes.length === 0 ? (
+							{policy.permissions.length === 0 ? (
 								<SettingsEmptyState icon={FolderX} title={t('settings.policies.empty')} />
 							) : (
-								policy.pathModes.map((dir) => (
-									<Item key={dir.path} variant="outline" size="md" className={ROW_CLASS}>
-										<ItemContent className="min-w-0 flex-1">
-											<ItemTitle className="max-w-full truncate font-mono">{dir.path}</ItemTitle>
+								policy.permissions.map((entry) => (
+									<Item key={entry.absolutePath} variant="outline" size="md" className={ROW_CLASS}>
+										<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
+											<ItemTitle className="max-w-full truncate font-mono">
+												{entry.relativePath}
+											</ItemTitle>
+											{entry.absolutePath !== entry.relativePath && (
+												<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
+													{entry.absolutePath}
+												</p>
+											)}
 										</ItemContent>
-										<ItemActions className="ml-auto flex-none justify-end gap-2">
-											<Select
-												value={dir.mode}
-												onValueChange={(value) => {
-													if (value)
-														apply(
-															window.agent.policySetPathMode(
-																dir.path,
-																value as PermissionMode,
-																dir.recursive,
-															),
-														);
-												}}
-											>
-												<SelectTrigger className="h-7 w-24 text-xs">
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent>
-													{MODES.map((mode) => (
-														<SelectItem key={mode} value={mode}>
-															{t(`settings.policies.modes.${mode}`)}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-												{t('settings.policies.recursive')}
-												<Switch
-													checked={dir.recursive}
-													onCheckedChange={(checked) =>
-														apply(window.agent.policySetPathMode(dir.path, dir.mode, checked))
-													}
-												/>
-											</Label>
+										<ItemActions className="ml-auto flex-none justify-end">
 											<Button
 												type="button"
 												variant="ghost"
 												size="icon-sm"
 												aria-label={t('common.delete')}
-												onClick={() => apply(window.agent.policyRemovePathMode(dir.path))}
+												onClick={() => apply(window.agent.policyRemovePathPermission(entry.absolutePath))}
 											>
 												<Trash2 className="size-3" />
 											</Button>
 										</ItemActions>
+										<div className="flex w-full flex-wrap items-end gap-2 pt-1">
+											{PERM_TOOLS.map((tool) => (
+												<label key={tool} className="flex flex-col gap-1">
+													<span className="font-mono text-[11px] text-muted-foreground">
+														{tool === '*' ? t('settings.policies.allTools') : tool}
+													</span>
+													<Select
+														value={toolState(entry, tool)}
+														onValueChange={(value) => {
+															if (value) setToolState(entry, tool, value as ToolState);
+														}}
+													>
+														<SelectTrigger className="h-7 w-24 text-xs">
+															<SelectValue />
+														</SelectTrigger>
+														<SelectContent>
+															<SelectItem value="inherit">
+																{t('settings.policies.inherit')}
+															</SelectItem>
+															<SelectItem value="allow">
+																{t('settings.policies.modes.allow')}
+															</SelectItem>
+															<SelectItem value="deny">
+																{t('settings.policies.modes.deny')}
+															</SelectItem>
+														</SelectContent>
+													</Select>
+												</label>
+											))}
+										</div>
 									</Item>
 								))
 							)}
@@ -257,27 +261,6 @@ const PoliciesPage: React.FC = () => {
 									</Button>
 								</ItemContent>
 								<ItemActions className="ml-auto flex-none justify-end gap-2">
-									<Select
-										value={newMode}
-										onValueChange={(value) => {
-											if (value) setNewMode(value as PermissionMode);
-										}}
-									>
-										<SelectTrigger className="h-7 w-24 text-xs">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{MODES.map((mode) => (
-												<SelectItem key={mode} value={mode}>
-													{t(`settings.policies.modes.${mode}`)}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-										{t('settings.policies.recursive')}
-										<Switch checked={newRecursive} onCheckedChange={setNewRecursive} />
-									</Label>
 									<Button type="button" size="sm" disabled={!newPath.trim()} onClick={addDirectory}>
 										<Plus className="size-3" />
 										{t('settings.policies.add')}
