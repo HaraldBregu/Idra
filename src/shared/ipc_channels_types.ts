@@ -102,7 +102,7 @@ export interface AgentInvokeChannelMap {
 		result: string | undefined;
 	};
 	[AgentChannels.policySetPathPermission]: {
-		args: [path: string, allow: string[], deny: string[]];
+		args: [path: string, allow: string[], deny: string[], ask: string[], recursive: boolean];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
 	[AgentChannels.policyRemovePathPermission]: {
