@@ -10,10 +10,12 @@ export interface ToolPermission {
 	allowedCommands?: string[];
 }
 
-// A directory no tool may touch. recursive: false blocks only its direct
-// contents; subdirectories are treated as ordinary resources.
-export interface RestrictedDirectory {
+// Overrides the default permission mode for tools acting inside a path.
+// recursive: false applies only to the directory itself; true also covers
+// its subdirectories.
+export interface PathMode {
 	path: string;
+	mode: PermissionMode;
 	recursive: boolean;
 }
 
