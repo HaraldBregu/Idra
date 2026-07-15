@@ -28,8 +28,8 @@ beforeEach(() => {
 
 describe('resolveToolPermission', () => {
 	it('allows an ungated tool outright', () => {
-		// edit is no longer in the destructive set.
-		expect(resolveToolPermission('edit', { path: '/x' })).toBe('allow');
+		// read is not in the destructive set.
+		expect(resolveToolPermission('read', { path: '/x' })).toBe('allow');
 		expect(getDefaultMode).not.toHaveBeenCalled();
 	});
 
@@ -37,16 +37,16 @@ describe('resolveToolPermission', () => {
 		getDefaultMode.mockReturnValue('ask');
 		expect(resolveToolPermission('write', { path: '/x' })).toBe('ask');
 		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/x' })).toBe('ask');
-		expect(resolveToolPermission('read', { path: '/x' })).toBe('ask');
+		expect(resolveToolPermission('edit', { path: '/x' })).toBe('ask');
 	});
 
-	it('gates exactly exec, read, and write', () => {
+	it('gates exactly exec, write, edit, and apply_patch', () => {
 		getDefaultMode.mockReturnValue('deny');
 		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/x' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/x' })).toBe('deny');
 		expect(resolveToolPermission('write', { path: '/x' })).toBe('deny');
-		expect(resolveToolPermission('edit', { path: '/x' })).toBe('allow');
-		expect(resolveToolPermission('apply_patch', { input: '' })).toBe('allow');
+		expect(resolveToolPermission('edit', { path: '/x' })).toBe('deny');
+		expect(resolveToolPermission('apply_patch', { input: '' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/x' })).toBe('allow');
 	});
 });
 
