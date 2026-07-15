@@ -1,21 +1,13 @@
 export {
-	addToolAllowedCommand,
-	addToolAllowedPath,
+	addPermissionRule,
 	getPathPermissions,
 	getPermissionRules,
 	getPermissions,
-	getToolAllowedCommands,
-	getToolAllowedPaths,
-	getToolPermission,
-	getToolUsage,
-	recordToolUse,
 	removePathPermission,
 	resetPermissions,
 	setPathPermission,
-	setToolPermission,
 	updatePermissions,
 } from './policy_store';
-export { toolCommandName } from './policy_command';
 export { toolRuleSignature } from './policy_signature';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { toolTargetDirs } from './policy_targets';
@@ -35,7 +27,5 @@ export {
 	type PermissionMode,
 	type PermissionRules,
 	type PermissionsSchema,
-	type ToolPermission,
 	type ToolSelector,
-	type ToolUseRecord,
 } from './policy_types';
