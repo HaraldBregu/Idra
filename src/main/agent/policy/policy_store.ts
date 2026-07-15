@@ -17,7 +17,7 @@ const agentDir = path.resolve(agentLocation());
 // The agent's own data folder is allowed for every tool by default.
 const defaults: PermissionsSchema = {
 	...DEFAULT_PERMISSIONS,
-	permissions: [{ path: agentDir, allow: ['*'], deny: [], ask: [], recursive: true }],
+	permissions: [{ path: agentDir, allow: '*', deny: [], ask: [], recursive: true }],
 };
 
 const store = new Store<PermissionsSchema>({
