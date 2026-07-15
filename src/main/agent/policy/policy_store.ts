@@ -5,6 +5,7 @@ import {
 	DEFAULT_PERMISSIONS,
 	type PathPermission,
 	type PermissionMode,
+	type PermissionRules,
 	type PermissionsSchema,
 	type ToolPermission,
 	type ToolUseRecord,
