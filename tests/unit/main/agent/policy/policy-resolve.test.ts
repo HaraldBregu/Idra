@@ -85,8 +85,17 @@ describe('path permissions', () => {
 
 	it('an allow rule lets a destructive tool through even when the default asks', () => {
 		getDefaultMode.mockReturnValue('ask');
-		getPathPermissions.mockReturnValue([rule('/trusted', ['write'], [])]);
-		expect(resolveToolPermission('write', { path: '/trusted/a.txt' })).toBe('allow');
+		getPathPermissions.mockReturnValue([rule('/trusted', ['edit'], [])]);
+		expect(resolveToolPermission('edit', { path: '/trusted/a.txt' })).toBe('allow');
+	});
+
+	it('an allow-"*" folder frees every tool there, destructive exec included', () => {
+		getDefaultMode.mockReturnValue('ask');
+		getPathPermissions.mockReturnValue([rule('/trusted', ['*'], [])]);
+		expect(resolveToolPermission('edit', { path: '/trusted/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/trusted' })).toBe(
+			'allow',
+		);
 	});
 
 	it('an ask rule forces a prompt even for an ungated tool', () => {
