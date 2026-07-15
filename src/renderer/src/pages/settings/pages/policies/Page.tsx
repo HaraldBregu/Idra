@@ -25,14 +25,11 @@ import {
 } from '../../components';
 
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
-type PermissionMode = Permissions['defaultMode'];
 type PathPermission = Permissions['defaultPermissions'][number];
 type ToolState = 'inherit' | 'allow' | 'ask' | 'deny';
 
-const MODES: readonly PermissionMode[] = ['allow', 'ask', 'deny'];
-
 // The wildcard plus the tools whose access a path rule can flip.
-const PERM_TOOLS = ['*', 'write', 'edit', 'exec', 'apply_patch'] as const;
+const PERM_TOOLS = ['*', 'exec', 'read', 'write'] as const;
 
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
@@ -153,42 +150,6 @@ const PoliciesPage: React.FC = () => {
 									<SettingsValue>{t(`settings.policies.modes.${policy.defaultMode}`)}</SettingsValue>
 								</ItemActions>
 							</Item>
-
-							{Object.entries(policy.tools).map(([toolName, entry]) => {
-								const grants = [...(entry.allowedCommands ?? []), ...(entry.allowedPaths ?? [])];
-								return (
-									<Item key={toolName} variant="outline" size="md" className={ROW_CLASS}>
-										<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-											<ItemTitle className="max-w-full truncate font-mono">{toolName}</ItemTitle>
-											{grants.length > 0 && (
-												<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-													{t('settings.policies.granted', { items: grants.join(', ') })}
-												</p>
-											)}
-										</ItemContent>
-										<ItemActions className="ml-auto flex-none justify-end">
-											<Select
-												value={entry.mode}
-												onValueChange={(value) => {
-													if (value)
-														apply(window.agent.policySetToolMode(toolName, value as PermissionMode));
-												}}
-											>
-												<SelectTrigger className="h-7 w-28 text-xs">
-													<SelectValue />
-												</SelectTrigger>
-												<SelectContent>
-													{MODES.map((mode) => (
-														<SelectItem key={mode} value={mode}>
-															{t(`settings.policies.modes.${mode}`)}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</ItemActions>
-									</Item>
-								);
-							})}
 						</SettingsPanel>
 					</SettingsSection>
 
