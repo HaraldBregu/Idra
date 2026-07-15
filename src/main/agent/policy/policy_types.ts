@@ -10,13 +10,15 @@ export interface ToolPermission {
 	allowedCommands?: string[];
 }
 
-// Overrides the default permission mode for tools acting inside a path.
-// recursive: false applies only to the directory itself; true also covers
-// its subdirectories.
-export interface PathMode {
-	path: string;
-	mode: PermissionMode;
-	recursive: boolean;
+// Per-path override of tool permissions. A rule applies to its path and the
+// whole subtree; matching uses absolutePath while relativePath (to the
+// workspace root) is what the user sees. "*" in a list matches every tool, and
+// deny wins over allow.
+export interface PathPermission {
+	relativePath: string;
+	absolutePath: string;
+	allow: string[];
+	deny: string[];
 }
 
 export interface ToolUseRecord {
