@@ -23,7 +23,6 @@ export const AgentChannels = {
 	skillsOpenRoot: 'agent:skills:open-root',
 	skillsGetRoot: 'agent:skills:get-root',
 	policyGet: 'agent:policy:get',
-	policySetToolMode: 'agent:policy:tool-mode:set',
 	policyPickDirectory: 'agent:policy:permission:pick',
 	policySetPathPermission: 'agent:policy:permission:set',
 	policyRemovePathPermission: 'agent:policy:permission:remove',
