@@ -35,18 +35,23 @@ describe('resolveToolPermission', () => {
 
 	it('falls back to the default mode for a destructive tool', () => {
 		getDefaultMode.mockReturnValue('ask');
-		expect(resolveToolPermission('write', { path: '/x' })).toBe('ask');
-		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/x' })).toBe('ask');
 		expect(resolveToolPermission('edit', { path: '/x' })).toBe('ask');
+		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/x' })).toBe('ask');
 	});
 
-	it('gates exactly exec, write, edit, and apply_patch', () => {
+	it('gates exactly destructive exec, edit, and apply_patch', () => {
 		getDefaultMode.mockReturnValue('deny');
-		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/x' })).toBe('deny');
-		expect(resolveToolPermission('write', { path: '/x' })).toBe('deny');
+		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/x' })).toBe('deny');
 		expect(resolveToolPermission('edit', { path: '/x' })).toBe('deny');
 		expect(resolveToolPermission('apply_patch', { input: '' })).toBe('deny');
+		expect(resolveToolPermission('write', { path: '/x' })).toBe('allow');
 		expect(resolveToolPermission('read', { path: '/x' })).toBe('allow');
+	});
+
+	it('allows a safe exec command without asking', () => {
+		getDefaultMode.mockReturnValue('ask');
+		expect(resolveToolPermission('exec', { command: 'ls -la', workdir: '/x' })).toBe('allow');
+		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/x' })).toBe('allow');
 	});
 });
 
