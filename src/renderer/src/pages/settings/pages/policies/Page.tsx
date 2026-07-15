@@ -66,17 +66,20 @@ const PoliciesPage: React.FC = () => {
 		setNewPath('');
 	};
 
+	const asList = (selector: PathPermission['allow']): string[] =>
+		selector === '*' ? ['*'] : selector;
+
 	const toolState = (entry: PathPermission, tool: string): ToolState => {
-		if (entry.deny.includes(tool)) return 'deny';
-		if (entry.ask.includes(tool)) return 'ask';
-		if (entry.allow.includes(tool)) return 'allow';
+		if (asList(entry.deny).includes(tool)) return 'deny';
+		if (asList(entry.ask).includes(tool)) return 'ask';
+		if (asList(entry.allow).includes(tool)) return 'allow';
 		return 'inherit';
 	};
 
 	const setToolState = (entry: PathPermission, tool: string, state: ToolState): void => {
-		const allow = entry.allow.filter((name) => name !== tool);
-		const deny = entry.deny.filter((name) => name !== tool);
-		const ask = entry.ask.filter((name) => name !== tool);
+		const allow = asList(entry.allow).filter((name) => name !== tool);
+		const deny = asList(entry.deny).filter((name) => name !== tool);
+		const ask = asList(entry.ask).filter((name) => name !== tool);
 		if (state === 'allow') allow.push(tool);
 		if (state === 'deny') deny.push(tool);
 		if (state === 'ask') ask.push(tool);
