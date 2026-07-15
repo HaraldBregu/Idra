@@ -198,24 +198,24 @@ const PoliciesPage: React.FC = () => {
 								<SettingsEmptyState icon={FolderX} title={t('settings.policies.empty')} />
 							) : (
 								policy.permissions.map((entry) => (
-									<Item key={entry.absolutePath} variant="outline" size="md" className={ROW_CLASS}>
-										<ItemContent className="min-w-0 flex-1 flex-col items-start gap-0">
-											<ItemTitle className="max-w-full truncate font-mono">
-												{entry.relativePath}
-											</ItemTitle>
-											{entry.absolutePath !== entry.relativePath && (
-												<p className="mt-0.5 w-full truncate text-[11px] leading-4 text-muted-foreground">
-													{entry.absolutePath}
-												</p>
-											)}
+									<Item key={entry.path} variant="outline" size="md" className={ROW_CLASS}>
+										<ItemContent className="min-w-0 flex-1">
+											<ItemTitle className="max-w-full truncate font-mono">{entry.path}</ItemTitle>
 										</ItemContent>
-										<ItemActions className="ml-auto flex-none justify-end">
+										<ItemActions className="ml-auto flex-none justify-end gap-2">
+											<Label className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+												{t('settings.policies.recursive')}
+												<Switch
+													checked={entry.recursive}
+													onCheckedChange={(checked) => setRecursive(entry, checked)}
+												/>
+											</Label>
 											<Button
 												type="button"
 												variant="ghost"
 												size="icon-sm"
 												aria-label={t('common.delete')}
-												onClick={() => apply(window.agent.policyRemovePathPermission(entry.absolutePath))}
+												onClick={() => apply(window.agent.policyRemovePathPermission(entry.path))}
 											>
 												<Trash2 className="size-3" />
 											</Button>
@@ -242,6 +242,7 @@ const PoliciesPage: React.FC = () => {
 															<SelectItem value="allow">
 																{t('settings.policies.modes.allow')}
 															</SelectItem>
+															<SelectItem value="ask">{t('settings.policies.modes.ask')}</SelectItem>
 															<SelectItem value="deny">
 																{t('settings.policies.modes.deny')}
 															</SelectItem>
