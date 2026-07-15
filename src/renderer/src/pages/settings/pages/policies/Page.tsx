@@ -197,10 +197,10 @@ const PoliciesPage: React.FC = () => {
 						description={t('settings.policies.permissionsDescription')}
 					>
 						<SettingsPanel>
-							{policy.permissions.length === 0 ? (
+							{policy.defaultPermissions.length === 0 ? (
 								<SettingsEmptyState icon={FolderX} title={t('settings.policies.empty')} />
 							) : (
-								policy.permissions.map((entry) => (
+								policy.defaultPermissions.map((entry) => (
 									<Item key={entry.path} variant="outline" size="md" className={ROW_CLASS}>
 										<ItemContent className="min-w-0 flex-1">
 											<ItemTitle className="max-w-full truncate font-mono">{entry.path}</ItemTitle>
