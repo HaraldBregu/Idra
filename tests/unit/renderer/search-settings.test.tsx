@@ -31,6 +31,14 @@ jest.mock('react-i18next', () => ({
 	}),
 }));
 
+jest.mock('@/components/provider-avatar', () => {
+	const React = jest.requireActual<typeof import('react')>('react');
+	return {
+		ProviderAvatar: ({ name }: { name: string }) =>
+			React.createElement('span', { 'aria-hidden': true }, name.slice(0, 1)),
+	};
+});
+
 const searchApi = {
 	getSettings: jest.fn(),
 	saveEngine: jest.fn(),
