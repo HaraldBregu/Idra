@@ -31,6 +31,7 @@ export {
 	type PathPermission,
 	type PermissionGatedTool,
 	type PermissionMode,
+	type PermissionRules,
 	type PermissionsSchema,
 	type ToolPermission,
 	type ToolSelector,
