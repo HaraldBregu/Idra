@@ -19,7 +19,7 @@ import { editTool } from '../tools/file_edit';
 import { applyPatchTool } from '../tools/file_apply_patch';
 import { execTool } from '../tools/run_exec';
 import { processTool } from '../tools/run_process';
-import { webSearchTool } from '../tools/web_search';
+import { getWebSearchTools } from '../tools/web_search';
 import { webFetchTool } from '../tools/web_fetch';
 import { webBrowserTool } from '../tools/web_browser';
 import { createImageTool } from '../tools/image_create';
@@ -91,7 +91,7 @@ async function* loop(
 		applyPatchTool,
 		execTool,
 		processTool,
-		webSearchTool,
+		...getWebSearchTools(),
 		webFetchTool,
 		webBrowserTool,
 		createImageTool(config.location),

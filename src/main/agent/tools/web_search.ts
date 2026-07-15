@@ -1,8 +1,9 @@
 import { z } from 'zod';
-import { searchWeb } from '../../search';
+import { getSearchSettings, searchWeb } from '../../search';
+import type { Tool } from '../types';
 import { tool } from './tool';
 
-export const webSearchTool = tool({
+const webSearchTool = tool({
 	name: 'web_search',
 	description:
 		'Search the web for current information using the configured search engine. Returns a list of results with title, url, and description.',
@@ -20,3 +21,8 @@ export const webSearchTool = tool({
 		return JSON.stringify(await searchWeb({ query, count }), null, 2);
 	},
 });
+
+export function getWebSearchTools(): Tool[] {
+	const { configured } = getSearchSettings();
+	return configured.brave || configured.tavily ? [webSearchTool] : [];
+}
