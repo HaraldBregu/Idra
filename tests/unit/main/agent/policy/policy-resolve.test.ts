@@ -12,8 +12,7 @@ jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
 
-type Rule = { allow: string[]; deny: string[]; absolutePath: string };
-const rule = (absolutePath: string, allow: string[], deny: string[]): Rule => ({
+const rule = (absolutePath: string, allow: string[], deny: string[]) => ({
 	absolutePath,
 	relativePath: absolutePath,
 	allow,
