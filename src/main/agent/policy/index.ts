@@ -28,7 +28,7 @@ export {
 	DEFAULT_PERMISSIONS,
 	isPermissionGatedTool,
 	PERMISSION_GATED_TOOLS,
-	type PathMode,
+	type PathPermission,
 	type PermissionGatedTool,
 	type PermissionMode,
 	type PermissionsSchema,
