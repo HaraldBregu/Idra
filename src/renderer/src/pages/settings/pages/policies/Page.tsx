@@ -36,6 +36,7 @@ const PoliciesPage: React.FC = () => {
 	const [policy, setPolicy] = useState<Permissions | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [newPath, setNewPath] = useState('');
+	const [newMode, setNewMode] = useState<PermissionMode>('allow');
 	const [newRecursive, setNewRecursive] = useState(true);
 
 	const apply = (operation: Promise<Permissions>): void => {
