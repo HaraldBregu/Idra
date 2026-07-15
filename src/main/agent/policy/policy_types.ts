@@ -10,14 +10,18 @@ export interface ToolPermission {
 	allowedCommands?: string[];
 }
 
+// A set of tools: the string "*" for every tool, or a list of tool names (which
+// may itself contain "*").
+export type ToolSelector = '*' | string[];
+
 // Per-path override of tool permissions. recursive: false applies only to the
-// directory itself; true also covers its subtree. "*" in a list matches every
-// tool, and deny wins over ask wins over allow.
+// directory itself; true also covers its subtree. deny wins over ask wins over
+// allow.
 export interface PathPermission {
 	path: string;
-	allow: string[];
-	deny: string[];
-	ask: string[];
+	allow: ToolSelector;
+	deny: ToolSelector;
+	ask: ToolSelector;
 	recursive: boolean;
 }
 
