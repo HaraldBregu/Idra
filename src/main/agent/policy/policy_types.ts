@@ -35,7 +35,7 @@ export interface PermissionsSchema {
 }
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
-	defaultMode: 'allow',
+	defaultMode: 'ask',
 	defaultPermissions: [],
 	permissions: { allow: [], deny: [], ask: [] },
 };
