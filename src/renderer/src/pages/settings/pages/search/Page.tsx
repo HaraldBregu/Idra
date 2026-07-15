@@ -90,7 +90,7 @@ const SearchPage: React.FC = () => {
 								key={engine.id}
 								engine={engine}
 								apiKey={drafts[engine.id]}
-								active={settings.configured[engine.id] && settings.engineId === engine.id}
+								selected={settings.engineId === engine.id}
 								configured={settings.configured[engine.id]}
 								editing={editingEngineId === engine.id}
 								saving={savingEngineId === engine.id}

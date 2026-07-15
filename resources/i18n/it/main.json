@@ -872,6 +872,7 @@
 			"openSetup": "Apri la configurazione API di {{name}}",
 			"editKey": "Modifica la chiave API di {{name}}",
 			"active": "Attivo",
+			"selected": "Selezionato",
 			"connect": "Connetti",
 			"use": "Usa",
 			"localNote": "Le chiavi API restano nei dati locali di Friday e vengono inviate solo al provider di ricerca selezionato.",

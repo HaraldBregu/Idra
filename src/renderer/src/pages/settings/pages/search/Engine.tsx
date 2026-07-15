@@ -13,7 +13,7 @@ import type { SearchEngineDefinition } from './catalog';
 interface EngineProps {
 	readonly engine: SearchEngineDefinition;
 	readonly apiKey: string;
-	readonly active: boolean;
+	readonly selected: boolean;
 	readonly configured: boolean;
 	readonly editing: boolean;
 	readonly saving: boolean;
@@ -28,7 +28,7 @@ interface EngineProps {
 export function Engine({
 	engine,
 	apiKey,
-	active,
+	selected,
 	configured,
 	editing,
 	saving,
@@ -41,6 +41,7 @@ export function Engine({
 }: EngineProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const canSave = apiKey.trim().length > 0 && !saving;
+	const active = selected && configured;
 
 	return (
 		<Card
@@ -73,17 +74,20 @@ export function Engine({
 						</p>
 					</div>
 					<div className="flex shrink-0 items-center justify-end gap-1.5">
-						{active ? (
+						{selected ? (
 							<Badge variant="secondary" className="gap-1 text-[10px]">
 								<Check className="size-3" />
-								{t('settings.searchEngine.active')}
+								{t(
+									active ? 'settings.searchEngine.active' : 'settings.searchEngine.selected'
+								)}
 							</Badge>
-						) : configured ? (
+						) : null}
+						{configured && !selected ? (
 							<Button type="button" variant="outline" size="xs" disabled={busy} onClick={onSelect}>
 								{saving ? <LoaderCircle className="size-3 animate-spin" /> : null}
 								{t('settings.searchEngine.use')}
 							</Button>
-						) : !editing ? (
+						) : !configured && !editing ? (
 							<Button type="button" variant="outline" size="xs" onClick={onEdit}>
 								{t('settings.searchEngine.connect')}
 							</Button>

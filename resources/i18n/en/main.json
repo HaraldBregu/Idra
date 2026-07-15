@@ -872,6 +872,7 @@
 			"openSetup": "Open {{name}} API setup",
 			"editKey": "Edit {{name}} API key",
 			"active": "Active",
+			"selected": "Selected",
 			"connect": "Connect",
 			"use": "Use",
 			"localNote": "API keys stay in Friday's local app data and are only sent to the selected search provider.",

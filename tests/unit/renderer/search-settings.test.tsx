@@ -18,6 +18,7 @@ jest.mock('react-i18next', () => {
 		'settings.searchEngine.openSetup': 'Open {{name}} API setup',
 		'settings.searchEngine.editKey': 'Edit {{name}} API key',
 		'settings.searchEngine.active': 'Active',
+		'settings.searchEngine.selected': 'Selected',
 		'settings.searchEngine.connect': 'Connect',
 		'settings.searchEngine.use': 'Use',
 		'settings.searchEngine.localNote': 'Keys stay local.',
@@ -63,6 +64,20 @@ beforeEach(() => {
 });
 
 describe('Search engine settings', () => {
+	it('shows the selected provider before it is configured', async () => {
+		searchApi.getSettings.mockResolvedValue({
+			engineId: 'brave',
+			configured: { brave: false, tavily: false },
+		});
+		render(<SearchPage />);
+
+		const brave = await screen.findByRole('heading', { name: 'Brave' });
+		const braveCard = brave.closest('[data-slot="card"]');
+		expect(braveCard).not.toBeNull();
+		expect(within(braveCard as HTMLElement).getByText('Selected')).toBeInTheDocument();
+		expect(within(braveCard as HTMLElement).getByRole('button', { name: 'Connect' })).toBeEnabled();
+	});
+
 	it('lists Brave and Tavily, marks the selected provider, and saves a provider key', async () => {
 		const user = userEvent.setup();
 		render(<SearchPage />);
