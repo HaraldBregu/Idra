@@ -18,18 +18,18 @@ jest.mock('electron-store', () =>
 	})
 );
 
-import { webSearchTool } from '../../../../../src/main/agent/tools/web_search';
-import { searchBrave } from '../../../../../src/main/search/adapters/brave';
-import { searchTavily } from '../../../../../src/main/search/adapters/tavily';
-import { getSearchKey } from '../../../../../src/main/search/search_get_key';
-import { getSearchSettings } from '../../../../../src/main/search/search_get_settings';
-import { saveSearchEngine } from '../../../../../src/main/search/search_save_engine';
-import { selectSearchEngine } from '../../../../../src/main/search/search_select_engine';
+import { webSearchTool } from '../../../../src/main/agent/tools/web_search';
+import { searchBrave } from '../../../../src/main/search/adapters/brave';
+import { searchTavily } from '../../../../src/main/search/adapters/tavily';
+import { getSearchKey } from '../../../../src/main/search/search_get_key';
+import { getSearchSettings } from '../../../../src/main/search/search_get_settings';
+import { saveSearchEngine } from '../../../../src/main/search/search_save_engine';
+import { selectSearchEngine } from '../../../../src/main/search/search_select_engine';
 import {
 	DEFAULT_SEARCH_STORE,
 	searchStore,
-} from '../../../../../src/main/search/search_store';
-import { searchWeb } from '../../../../../src/main/search/search_web';
+} from '../../../../src/main/search/search_store';
+import { searchWeb } from '../../../../src/main/search/search_web';
 
 const originalFetch = global.fetch;
 
