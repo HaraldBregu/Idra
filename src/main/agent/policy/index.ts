@@ -1,23 +1,23 @@
 export {
-	addRestrictedDirectory,
 	addToolAllowedCommand,
 	addToolAllowedPath,
+	getPathModes,
 	getPermissions,
-	getRestrictedDirectories,
 	getToolAllowedCommands,
 	getToolAllowedPaths,
 	getToolPermission,
 	getToolUsage,
 	recordToolUse,
-	removeRestrictedDirectory,
+	removePathMode,
 	resetPermissions,
+	setPathMode,
 	setToolPermission,
 	updatePermissions,
 } from './policy_store';
 export { toolCommandName } from './policy_command';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { toolTargetDirs } from './policy_targets';
-export { isDirRestricted } from './policy_restricted';
+export { pathModeFor } from './policy_override';
 export { resolveToolPermission } from './policy_resolve';
 export {
 	rejectPendingToolPermissions,
