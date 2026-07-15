@@ -127,8 +127,10 @@ describe('Search engine settings', () => {
 		});
 		render(<SearchPage />);
 
-		await user.click(await screen.findByRole('combobox', { name: 'Default search engine' }));
-		await user.click(screen.getByRole('option', { name: 'Tavily' }));
+		const selector = await screen.findByRole('combobox', { name: 'Default search engine' });
+		selector.focus();
+		await user.keyboard('{ArrowDown}');
+		await user.click(await screen.findByRole('option', { name: 'Tavily' }));
 
 		await waitFor(() => expect(searchApi.selectEngine).toHaveBeenCalledWith('tavily'));
 		expect(screen.getByRole('combobox', { name: 'Default search engine' })).toHaveTextContent(

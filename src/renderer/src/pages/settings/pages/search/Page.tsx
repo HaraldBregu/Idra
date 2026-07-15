@@ -70,6 +70,8 @@ const SearchPage: React.FC = () => {
 		void selectEngine(engineId as SearchEngineId);
 	};
 
+	const selectedEngine = SEARCH_ENGINES.find((engine) => engine.id === settings?.engineId);
+
 	const selectEngine = async (engineId: SearchEngineId): Promise<void> => {
 		setSavingEngineId(engineId);
 		setError(null);
@@ -112,7 +114,7 @@ const SearchPage: React.FC = () => {
 										className="w-32 text-xs [&_svg]:size-3"
 										aria-label={t('settings.searchEngine.defaultTitle')}
 									>
-										<SelectValue />
+										<SelectValue>{selectedEngine?.name}</SelectValue>
 									</SelectTrigger>
 									<SelectContent>
 										{SEARCH_ENGINES.map((engine) => (
