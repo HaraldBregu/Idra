@@ -29,6 +29,7 @@ beforeEach(() => {
 	getToolAllowedPaths.mockReset().mockReturnValue([]);
 	getToolAllowedCommands.mockReset().mockReturnValue([]);
 	getPathPermissions.mockReset().mockReturnValue([]);
+	getPermissionRules.mockReset().mockReturnValue(noRules);
 });
 
 describe('resolveToolPermission', () => {
