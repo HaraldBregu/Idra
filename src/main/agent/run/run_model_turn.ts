@@ -38,7 +38,7 @@ export async function* runModelTurn(
 
 		const maxTokens = 4096;
 		try {
-			for await (const event of llmModel.stream({
+			for await (const event of llm.stream({
 				provider,
 				model,
 				systemPrompt,
