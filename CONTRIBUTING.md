@@ -77,7 +77,7 @@ See [SECURITY.md](SECURITY.md) for the security policy.
 
 - Keep commits small and focused — one logical change per commit.
 - Write descriptive, lower-case subjects that state what changed and where, matching the existing history (e.g. `early return added when sessionsPath is missing in persist`).
-- Before opening a PR: run `yarn quality:check`, describe what changed and why, and note any follow-up work.
+- Before opening a PR: run `npm run quality:check`, describe what changed and why, and note any follow-up work.
 - Don't bundle unrelated refactors or formatting changes with a functional change.
 
 ## Reporting Issues
