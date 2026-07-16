@@ -10,7 +10,6 @@ build
 *.min.js
 *.min.css
 pnpm-lock.yaml
-yarn.lock
 package-lock.json
 .env
 .env.local
