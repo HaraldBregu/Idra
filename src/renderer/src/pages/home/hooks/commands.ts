@@ -19,3 +19,8 @@ export function expandTaskCommand(prompt: string): string {
 	const expand = TASK_COMMANDS[match[1].replaceAll('\\', '').toLowerCase()];
 	return expand ? expand(match[2].trim()) : prompt;
 }
+
+export function parseGoalCommand(prompt: string): string | undefined {
+	const match = /^\/goal\s+([\s\S]+)$/i.exec(prompt);
+	return match ? match[1].trim() || undefined : undefined;
+}
