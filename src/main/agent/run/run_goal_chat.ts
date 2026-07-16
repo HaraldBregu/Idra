@@ -1,4 +1,4 @@
-import { getModelId, getProvider } from '../settings/settings_store';
+import { getGoalSettings, getModelId, getProvider } from '../settings/settings_store';
 import { readTool } from '../tools/file_read';
 import { writeTool } from '../tools/file_write';
 import { editTool } from '../tools/file_edit';
