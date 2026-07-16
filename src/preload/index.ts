@@ -116,6 +116,7 @@ function normalizeAgentSendRuntimeOptions(
 }
 
 function sendAgent(
+	channel: typeof AgentChannels.send | typeof AgentChannels.goal,
 	message: string,
 	options?: Record<string, unknown>,
 	onEvent?: (event: AgentResponseEvent) => void
@@ -130,8 +131,8 @@ function sendAgent(
 
 	return (
 		runtimeOptions
-			? typedInvokeUnwrap<string>(AgentChannels.send, message, runtimeOptions)
-			: typedInvokeUnwrap<string>(AgentChannels.send, message)
+			? typedInvokeUnwrap<string>(channel, message, runtimeOptions)
+			: typedInvokeUnwrap<string>(channel, message)
 	).finally(offResponse);
 }
 
