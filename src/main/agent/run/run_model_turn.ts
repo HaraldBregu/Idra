@@ -1,4 +1,5 @@
 import { LlmModel } from '../../models/llm';
+import type { LlmEvent, LlmRequest } from '../../models/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
 import type {
 	Message,
@@ -10,6 +11,10 @@ import type {
 } from '../types';
 import type { ModelTurn } from './run_loop_types';
 
+export interface ModelTurnStream {
+	stream(request: LlmRequest): AsyncIterable<LlmEvent>;
+}
+
 const llmModel = new LlmModel();
 
 export async function* runModelTurn(
@@ -20,6 +25,7 @@ export async function* runModelTurn(
 	messages: Message[],
 	tools: Tool[],
 	signal: AbortSignal,
+	llm: ModelTurnStream = llmModel,
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
 	for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
