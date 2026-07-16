@@ -6,7 +6,8 @@ import {
 	setProvider as setStoredProvider,
 } from '../../providers';
 import { agentLocation } from '../../shared/agent_location';
-import { DEFAULT_AGENT_SETTINGS, type SettingsSchema } from './settings_types';
+import type { GoalBudget } from '../run/run_goal_types';
+import { DEFAULT_AGENT_SETTINGS, DEFAULT_GOAL_SETTINGS, type SettingsSchema } from './settings_types';
 
 const SETTINGS_STORE_NAME = 'settings';
 
