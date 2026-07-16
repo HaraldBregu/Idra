@@ -7,7 +7,7 @@ const MAIN_ENTRY = path.resolve(dirname, '../../out/main/index.js');
 
 /**
  * Launch the built Electron app and return the app handle plus its first window.
- * Requires a prior `yarn build` so that out/main, out/preload and out/renderer exist.
+ * Requires a prior `npm run build` so that out/main, out/preload and out/renderer exist.
  */
 export async function launchApp(): Promise<{ app: ElectronApplication; page: Page }> {
 	const app = await electron.launch({
