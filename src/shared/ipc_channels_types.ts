@@ -38,6 +38,14 @@ export interface AgentInvokeChannelMap {
 		args: [message: string, options?: Record<string, unknown>];
 		result: string;
 	};
+	[AgentChannels.goalSettings]: {
+		args: [];
+		result: import('../main/agent/run/run_goal_types').GoalBudget;
+	};
+	[AgentChannels.goalSaveSettings]: {
+		args: [settings: Partial<import('../main/agent/run/run_goal_types').GoalBudget>];
+		result: import('../main/agent/run/run_goal_types').GoalBudget;
+	};
 	[AgentChannels.cancel]: { args: []; result: void };
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];
