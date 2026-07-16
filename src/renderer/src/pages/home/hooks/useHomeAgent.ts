@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMode } from '@/contexts/chat-mode';
 import { useChatSession } from '@/contexts/chat-session';
 import type { ModelReasoningEffort } from '@/lib/compat';
+import type { AgentResponseEvent } from '@/lib/compat';
 import { useHomeAgentContext } from '../context';
-import { expandTaskCommand } from './commands';
+import { expandTaskCommand, parseGoalCommand } from './commands';
 import { filesToAgentInput } from './files';
 
 type WindowWithOptionalAgent = Window & {
