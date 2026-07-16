@@ -43,12 +43,11 @@ Friday runs on Windows, macOS, and Linux, with English and Italian interfaces an
 
 ## Getting Started
 
-Requirements: Node.js 22+ and Yarn 4 through Corepack.
+Requirements: Node.js 22+ (npm is included with Node.js).
 
 ```bash
-corepack enable
-yarn install --immutable
-yarn dev
+npm ci
+npm run dev
 ```
 
 On first launch, add an API key under **Settings → Providers**, then select the provider and model for the assistant. Configure speech and media models only for the capabilities you plan to use.
