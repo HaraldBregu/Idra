@@ -69,7 +69,7 @@ npm run quality:check
 This runs the TypeScript checks, ESLint, main-process tests, and renderer tests. Run the end-to-end suite separately:
 
 ```bash
-yarn test:e2e
+npm run test:e2e
 ```
 
 ## Build and Package
