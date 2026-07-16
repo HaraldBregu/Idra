@@ -91,7 +91,7 @@ export async function runGoal(options: GoalRunOptions): Promise<GoalRunResult> {
 			// ACT: model turns with tools until it stops calling them.
 			messages.push({ role: 'user', content: actPrompt });
 			let finalResponse = '';
-			acting: while (true) {
+			while (true) {
 				if (overBudget()) {
 					finishIteration(log);
 					return budgetExceeded();
