@@ -31,24 +31,24 @@ On Linux environments that require Electron sandbox changes, use `npm run dev-li
 Run the full baseline before opening a pull request:
 
 ```bash
-yarn quality:check
+npm run quality:check
 ```
 
 This runs, in order:
 
 ```bash
-yarn typecheck        # tsc for node + web configs
-yarn lint             # eslint
-yarn test:main        # Jest, main-process project
-yarn test:renderer    # Jest, renderer project
+npm run typecheck        # tsc for node + web configs
+npm run lint             # eslint
+npm run test:main        # Jest, main-process project
+npm run test:renderer    # Jest, renderer project
 ```
 
 Additional commands:
 
 ```bash
-yarn test:e2e         # Playwright end-to-end tests
-yarn format           # prettier --write .
-yarn format:check     # prettier --check .
+npm run test:e2e         # Playwright end-to-end tests
+npm run format           # prettier --write .
+npm run format:check     # prettier --check .
 ```
 
 ## Code Standards
