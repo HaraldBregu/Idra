@@ -210,6 +210,16 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
+			AgentChannels.goal,
+			wrapSimpleHandler(async (message: string, options?: unknown): Promise<string> => {
+				return agent.sendGoal(message, 'main', {
+					...normalizeAgentSendRuntimeOptions(options),
+					streamEvent: (event) => eventBus.broadcast(AgentChannels.response, event),
+				});
+			}, AgentChannels.goal)
+		);
+
+		ipcMain.handle(
 			AgentChannels.cancel,
 			wrapSimpleHandler((): void => {
 				agent.cancel();
