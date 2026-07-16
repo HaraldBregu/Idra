@@ -54,6 +54,7 @@ export async function* streamChatGoal(
 
 // A goal typed in chat is free text, so the one checkable criterion is the
 // text itself, judged by a separate LLM call against real tool outputs.
+// The budget comes from the agent settings store so it can be raised there.
 function goalFromText(text: string): Goal {
 	return {
 		description: text,
@@ -65,7 +66,7 @@ function goalFromText(text: string): Goal {
 			},
 		],
 		constraints: [],
-		budget: { maxIterations: 5, maxToolCalls: 30, timeoutMs: 10 * 60 * 1000 },
+		budget: getGoalSettings(),
 	};
 }
 
