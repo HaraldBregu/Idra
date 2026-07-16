@@ -63,7 +63,7 @@ npm run dev-linux
 Run the main local checks before submitting changes:
 
 ```bash
-yarn quality:check
+npm run quality:check
 ```
 
 This runs the TypeScript checks, ESLint, main-process tests, and renderer tests. Run the end-to-end suite separately:
