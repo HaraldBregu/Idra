@@ -1,10 +1,11 @@
 import { LlmModel } from '../../models/llm';
 import { formatToolOutput } from '../run/run_common';
-import type { Goal, Message, Tool, ToolCall } from './goal_imports';
+import type { Message, Tool, ToolCall } from '../types';
 import { createJudge } from './goal_judge';
 import { detectStuck } from './goal_stuck';
 import { verifyGoal } from './goal_verify';
 import type {
+	Goal,
 	GoalAction,
 	GoalIterationLog,
 	GoalRunOptions,
