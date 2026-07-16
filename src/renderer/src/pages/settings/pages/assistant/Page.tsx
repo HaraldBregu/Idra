@@ -221,6 +221,41 @@ const AssistantPage: React.FC = () => {
 				/>
 			</SettingsSection>
 
+			<SettingsSection
+				title={t('settings.goal.title')}
+				description={t('settings.goal.description')}
+			>
+				{goalError && (
+					<SettingsNotice variant="destructive" icon={AlertTriangle}>
+						{goalError}
+					</SettingsNotice>
+				)}
+				{goalSettings ? (
+					<SettingsPanel>
+						<GoalBudgetRow
+							id="goal-max-iterations"
+							title={t('settings.goal.fields.maxIterations')}
+							value={goalSettings.maxIterations}
+							onCommit={(value) => saveGoalSettings({ maxIterations: value })}
+						/>
+						<GoalBudgetRow
+							id="goal-max-tool-calls"
+							title={t('settings.goal.fields.maxToolCalls')}
+							value={goalSettings.maxToolCalls}
+							onCommit={(value) => saveGoalSettings({ maxToolCalls: value })}
+						/>
+						<GoalBudgetRow
+							id="goal-timeout-minutes"
+							title={t('settings.goal.fields.timeoutMinutes')}
+							value={Math.max(1, Math.round((goalSettings.timeoutMs ?? 600000) / 60000))}
+							onCommit={(value) => saveGoalSettings({ timeoutMs: value * 60000 })}
+						/>
+					</SettingsPanel>
+				) : (
+					<SettingsLoadingRows rows={3} />
+				)}
+			</SettingsSection>
+
 			<SettingsSection title={t('settings.modelServices.history')}>
 				<SettingsPanel>
 					<div
