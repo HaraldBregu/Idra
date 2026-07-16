@@ -82,10 +82,75 @@ async function loadAssistantState(): Promise<ModelConfigurationState> {
 	};
 }
 
+type GoalSettings = Awaited<ReturnType<typeof window.agent.goalGetSettings>>;
+
+const GoalBudgetRow: React.FC<{
+	id: string;
+	title: string;
+	value: number;
+	onCommit: (value: number) => void;
+}> = ({ id, title, value, onCommit }) => (
+	<Item variant="outline" size="md" className="border-b border-border/60 last:border-b-0">
+		<ItemContent className="min-w-0 flex-1">
+			<ItemTitle className="max-w-full truncate">{title}</ItemTitle>
+		</ItemContent>
+		<ItemActions className="ml-auto flex-none justify-end">
+			<Input
+				key={`${id}-${value}`}
+				id={id}
+				type="number"
+				min={1}
+				defaultValue={value}
+				aria-label={title}
+				className="h-7 w-44 text-xs"
+				onKeyDown={(event) => {
+					if (event.key === 'Enter') event.currentTarget.blur();
+				}}
+				onBlur={(event) => {
+					const next = Number.parseInt(event.currentTarget.value, 10);
+					if (!Number.isInteger(next) || next < 1) {
+						event.currentTarget.value = String(value);
+						return;
+					}
+					if (next !== value) onCommit(next);
+				}}
+			/>
+		</ItemActions>
+	</Item>
+);
+
 const AssistantPage: React.FC = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [state, setState] = useState<ModelConfigurationState>(initialModelConfigurationState);
+	const [goalSettings, setGoalSettings] = useState<GoalSettings | null>(null);
+	const [goalError, setGoalError] = useState<string | null>(null);
+
+	useEffect(() => {
+		let mounted = true;
+		void window.agent
+			.goalGetSettings()
+			.then((settings) => {
+				if (mounted) setGoalSettings(settings);
+			})
+			.catch((error: unknown) => {
+				if (!mounted) return;
+				setGoalError(error instanceof Error ? error.message : t('settings.goal.errors.load'));
+			});
+		return () => {
+			mounted = false;
+		};
+	}, [t]);
+
+	const saveGoalSettings = (patch: Partial<GoalSettings>): void => {
+		setGoalError(null);
+		window.agent
+			.goalSaveSettings(patch)
+			.then(setGoalSettings)
+			.catch((error: unknown) => {
+				setGoalError(error instanceof Error ? error.message : t('settings.goal.errors.save'));
+			});
+	};
 
 	useEffect(() => {
 		let mounted = true;
