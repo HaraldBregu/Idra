@@ -160,7 +160,14 @@ export const agent: AgentApi = {
 		options?: Record<string, unknown>,
 		onEvent?: (event: AgentResponseEvent) => void
 	): Promise<string> => {
-		return sendAgent(message, options, onEvent);
+		return sendAgent(AgentChannels.send, message, options, onEvent);
+	},
+	goal: (
+		message: string,
+		options?: Record<string, unknown>,
+		onEvent?: (event: AgentResponseEvent) => void
+	): Promise<string> => {
+		return sendAgent(AgentChannels.goal, message, options, onEvent);
 	},
 	cancel: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.cancel);
