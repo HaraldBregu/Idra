@@ -75,11 +75,11 @@ npm run test:e2e
 ## Build and Package
 
 ```bash
-yarn build                # Type-check and create a production build
-yarn dist:win             # Windows x64 installer
-yarn dist:mac             # macOS package for x64 and arm64
-yarn dist:mac:dmg         # macOS DMG for x64 and arm64
-yarn dist:linux:appimage  # Linux AppImage
+npm run build                # Type-check and create a production build
+npm run dist:win             # Windows x64 installer
+npm run dist:mac             # macOS package for x64 and arm64
+npm run dist:mac:dmg         # macOS DMG for x64 and arm64
+npm run dist:linux:appimage  # Linux AppImage
 ```
 
 ## Project Structure
