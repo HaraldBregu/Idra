@@ -130,11 +130,15 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					...(inputFiles.length > 0 ? { files: inputFiles } : {}),
 				};
 				let response = '';
-				response = await agent.send(trimmed, runtimeOptions, (event) => {
+				const onEvent = (event: AgentResponseEvent): void => {
 					if (requestIdRef.current !== requestId || event.agentId !== HOME_AGENT_ID) return;
 					if (event.type === 'text_delta') response += event.delta;
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
-				});
+				};
+				const goalText = parseGoalCommand(trimmed);
+				response = goalText
+					? await agent.goal(goalText, runtimeOptions, onEvent)
+					: await agent.send(trimmed, runtimeOptions, onEvent);
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
