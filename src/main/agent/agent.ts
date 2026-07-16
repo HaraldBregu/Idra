@@ -11,7 +11,7 @@ import {
 	type SessionState,
 } from './session';
 import { stream } from './run/run_stream';
-import { runChatGoal } from './goal/goal_chat';
+import { streamChatGoal } from './run/run_goal_chat';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
 import { startHealth, stopHealth } from './health';
