@@ -55,7 +55,7 @@ On first launch, add an API key under **Settings → Providers**, then select th
 For Linux environments that require Electron sandbox changes, run:
 
 ```bash
-yarn dev-linux
+npm run dev-linux
 ```
 
 ## Quality Checks
