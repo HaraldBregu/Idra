@@ -1,42 +1,58 @@
-import { runGoal } from '../../../../../src/main/agent/goal/goal_run';
+import { streamGoal } from '../../../../../src/main/agent/run/run_goal';
+import type { ModelTurnStream } from '../../../../../src/main/agent/run/run_model_turn';
 import type {
 	CriterionCheck,
 	Goal,
 	GoalBudget,
-	GoalModel,
-} from '../../../../../src/main/agent/goal/goal_types';
-import type { Provider, Tool, ToolCall } from '../../../../../src/main/agent/types';
-import type { LlmRequest, LlmResponse } from '../../../../../src/main/models/llm';
+	GoalRunResult,
+	GoalStreamOptions,
+} from '../../../../../src/main/agent/run/run_goal_types';
+import type { LlmEvent, LlmRequest } from '../../../../../src/main/models/llm';
+import type { Provider, RuntimeEvent, Tool } from '../../../../../src/main/agent/types';
 
-class FakeLlm implements GoalModel {
+interface ScriptedTurn {
+	content?: string;
+	toolCalls?: Array<{ id: string; name: string; args: Record<string, unknown> }>;
+}
+
+class FakeLlm implements ModelTurnStream {
 	readonly prompts: string[] = [];
-	private readonly responses: LlmResponse[];
+	private readonly turns: ScriptedTurn[];
 
-	constructor(responses: LlmResponse[]) {
-		this.responses = [...responses];
+	constructor(turns: ScriptedTurn[]) {
+		this.turns = [...turns];
 	}
 
-	async generate(request: LlmRequest): Promise<LlmResponse> {
+	async *stream(request: LlmRequest): AsyncIterable<LlmEvent> {
 		const last = request.messages[request.messages.length - 1];
 		this.prompts.push(typeof last?.content === 'string' ? last.content : '');
-		const response = this.responses.shift();
-		if (!response) throw new Error('FakeLlm ran out of scripted responses');
-		return response;
+		const turn = this.turns.shift();
+		if (!turn) throw new Error('FakeLlm ran out of scripted turns');
+		if (turn.content) yield { type: 'model_call_delta', delta: turn.content };
+		for (const toolCall of turn.toolCalls ?? []) {
+			yield { type: 'model_tool_call_start', id: toolCall.id, name: toolCall.name };
+			yield {
+				type: 'model_tool_call_args_delta',
+				id: toolCall.id,
+				jsonDelta: JSON.stringify(toolCall.args),
+			};
+			yield { type: 'model_tool_call_end', id: toolCall.id };
+		}
+		yield {
+			type: 'model_call_end',
+			model: request.model,
+			stopReason: turn.toolCalls?.length ? 'tool_calls' : 'end_turn',
+		};
 	}
 }
 
 const provider: Provider = { id: 'anthropic', apiKey: 'test-key', baseURL: '' };
 
-const plan = (text: string): LlmResponse => ({ content: text });
-const act = (toolCalls: ToolCall[] = [], content = 'done'): LlmResponse => ({
-	content,
-	toolCalls,
-});
-const call = (id: string, name: string, args: Record<string, unknown> = {}): ToolCall => ({
-	id,
-	name,
-	args,
-});
+const plan = (text: string): ScriptedTurn => ({ content: text });
+const act = (
+	toolCalls: ScriptedTurn['toolCalls'] = [],
+	content = 'done',
+): ScriptedTurn => ({ content, toolCalls });
 
 function makeGoal(check: () => CriterionCheck, budget: Partial<GoalBudget> = {}): Goal {
 	return {
@@ -53,12 +69,22 @@ function makeTool(name: string, run: Tool['run']): Tool {
 	return { name, description: `fake ${name}`, schema: { type: 'object' }, run };
 }
 
-describe('runGoal', () => {
+async function runToResult(
+	goal: Goal,
+	options: GoalStreamOptions,
+): Promise<GoalRunResult> {
+	const events = streamGoal(goal, options);
+	let step: IteratorResult<RuntimeEvent, GoalRunResult> = await events.next();
+	while (!step.done) step = await events.next();
+	return step.value;
+}
+
+describe('streamGoal', () => {
 	it('returns achieved when verification passes on the first iteration', async () => {
 		const llm = new FakeLlm([plan('1. nothing to do'), act()]);
 		const goal = makeGoal(() => ({ passed: true, evidence: 'all green' }));
 
-		const result = await runGoal({ goal, tools: [], provider, model: 'test-model', llm });
+		const result = await runToResult(goal, { tools: [], provider, model: 'test-model', llm });
 
 		expect(result.status).toBe('achieved');
 		if (result.status !== 'achieved') return;
@@ -80,14 +106,19 @@ describe('runGoal', () => {
 			plan('1. inspect'),
 			act([], 'nothing done yet'),
 			plan('1. run the fix tool'),
-			act([call('t1', 'fix')]),
+			act([{ id: 't1', name: 'fix', args: {} }]),
 			act([], 'fix applied'),
 		]);
 		const goal = makeGoal(() =>
 			fixed ? { passed: true, evidence: 'fix applied' } : { passed: false, evidence: 'still red' },
 		);
 
-		const result = await runGoal({ goal, tools: [fixTool], provider, model: 'test-model', llm });
+		const result = await runToResult(goal, {
+			tools: [fixTool],
+			provider,
+			model: 'test-model',
+			llm,
+		});
 
 		expect(result.status).toBe('achieved');
 		if (result.status !== 'achieved') return;
@@ -104,7 +135,7 @@ describe('runGoal', () => {
 		const llm = new FakeLlm([plan('1. try'), act(), plan('1. try again'), act()]);
 		const goal = makeGoal(() => ({ passed: false, evidence: 'still red' }), { maxIterations: 2 });
 
-		const result = await runGoal({ goal, tools: [], provider, model: 'test-model', llm });
+		const result = await runToResult(goal, { tools: [], provider, model: 'test-model', llm });
 
 		expect(result.status).toBe('budget_exceeded');
 		if (result.status !== 'budget_exceeded') return;
@@ -115,16 +146,15 @@ describe('runGoal', () => {
 
 	it('returns stuck when the same failing action repeats across iterations', async () => {
 		const retryTool = makeTool('retry', () => 'no effect');
-		const iteration = (): LlmResponse[] => [
+		const iteration = (): ScriptedTurn[] => [
 			plan('1. retry'),
-			act([call('t', 'retry', { target: 'same' })]),
+			act([{ id: 't', name: 'retry', args: { target: 'same' } }]),
 			act(),
 		];
 		const llm = new FakeLlm([...iteration(), ...iteration(), ...iteration()]);
 		const goal = makeGoal(() => ({ passed: false, evidence: 'still red' }), { maxIterations: 10 });
 
-		const result = await runGoal({
-			goal,
+		const result = await runToResult(goal, {
 			tools: [retryTool],
 			provider,
 			model: 'test-model',
