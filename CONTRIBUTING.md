@@ -7,14 +7,14 @@ Thanks for your interest in contributing! This document describes how to set up 
 Requirements:
 
 - Node.js 22+
-- Yarn 4 (enable via `corepack enable`; the repo pins `yarn@4.14.1`)
+- npm (included with Node.js)
 
 ```bash
-yarn install --frozen-lockfile
-yarn dev
+npm ci
+npm run dev
 ```
 
-On Linux environments that require Electron sandbox changes, use `yarn dev-linux`.
+On Linux environments that require Electron sandbox changes, use `npm run dev-linux`.
 
 ## Project Layout
 
