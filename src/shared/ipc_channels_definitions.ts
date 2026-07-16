@@ -1,5 +1,6 @@
 export const AgentChannels = {
 	send: 'agent:send',
+	goal: 'agent:goal',
 	response: 'agent:response',
 	cancel: 'agent:cancel',
 	respondToolPermission: 'agent:respond-tool-permission',
