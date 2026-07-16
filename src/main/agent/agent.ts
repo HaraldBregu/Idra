@@ -124,6 +124,41 @@ export class Agent {
 		}
 	}
 
+	async sendGoal(goalText: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
+		const resolvedAgentId = agentId.trim();
+
+		this.cancel(resolvedAgentId);
+		const runId = options.runId ?? randomUUID();
+
+		let controller: AbortController | undefined;
+		try {
+			controller = new AbortController();
+			this.activeRuns.set(resolvedAgentId, controller);
+
+			return await runChatGoal(goalText, {
+				providerId: options.providerId,
+				model: options.modelId,
+				signal: controller.signal,
+				emit: (event) =>
+					options.streamEvent?.({ ...event, agentId: resolvedAgentId, runId }),
+			});
+		} catch (error) {
+			if (controller?.signal.aborted) return '';
+			const cause = toError(error, 'Agent goal request failed.');
+			options.streamEvent?.({
+				type: 'run_state',
+				state: 'error',
+				label: cause.message,
+				agentId: resolvedAgentId,
+				runId,
+			});
+			throw cause;
+		} finally {
+			if (controller && this.activeRuns.get(resolvedAgentId) === controller)
+				this.activeRuns.delete(resolvedAgentId);
+		}
+	}
+
 	listSessions(): AgentSessionSummary[] {
 		return listSessions(this.config.location);
 	}
