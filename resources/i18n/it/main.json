@@ -440,6 +440,19 @@
 				"openFolder": "Impossibile aprire la cartella della cronologia chat."
 			}
 		},
+		"goal": {
+			"title": "Esecuzioni obiettivo",
+			"description": "Budget per gli obiettivi avviati con /goal in chat. Aumenta questi limiti per far durare di piu un obiettivo.",
+			"fields": {
+				"maxIterations": "Iterazioni massime",
+				"maxToolCalls": "Chiamate strumenti massime",
+				"timeoutMinutes": "Timeout (minuti)"
+			},
+			"errors": {
+				"load": "Impossibile caricare le impostazioni obiettivo.",
+				"save": "Impossibile salvare le impostazioni obiettivo."
+			}
+		},
 		"microphone": {
 			"title": "Permessi microfono",
 			"description": "Controlla se Friday puo registrare audio dal campo prompt.",
