@@ -104,7 +104,7 @@ export async function runGoal(options: GoalRunOptions): Promise<GoalRunResult> {
 				});
 				if (turn.toolCalls.length === 0) {
 					finalResponse = turn.content;
-					break acting;
+					break;
 				}
 
 				for (const toolCall of turn.toolCalls) {
