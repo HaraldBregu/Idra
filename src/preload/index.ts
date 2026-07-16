@@ -170,6 +170,12 @@ export const agent: AgentApi = {
 	): Promise<string> => {
 		return sendAgent(AgentChannels.goal, message, options, onEvent);
 	},
+	goalGetSettings: (): Promise<GoalBudget> => {
+		return typedInvokeUnwrap(AgentChannels.goalSettings);
+	},
+	goalSaveSettings: (settings: Partial<GoalBudget>): Promise<GoalBudget> => {
+		return typedInvokeUnwrap(AgentChannels.goalSaveSettings, settings);
+	},
 	cancel: (): Promise<void> => {
 		return typedInvokeUnwrap(AgentChannels.cancel);
 	},
