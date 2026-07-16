@@ -130,20 +130,29 @@ export class Agent {
 		this.cancel(resolvedAgentId);
 		const runId = options.runId ?? randomUUID();
 
+		let response = '';
 		let controller: AbortController | undefined;
 		try {
 			controller = new AbortController();
 			this.activeRuns.set(resolvedAgentId, controller);
 
-			return await runChatGoal(goalText, {
+			const events = streamChatGoal(goalText, {
 				providerId: options.providerId,
 				model: options.modelId,
 				signal: controller.signal,
-				emit: (event) =>
-					options.streamEvent?.({ ...event, agentId: resolvedAgentId, runId }),
 			});
+
+			for await (const event of events) {
+				if (event.type === 'model_call_delta') response += event.delta;
+				if (event.type === 'run_finished') response = event.result.text || response;
+
+				for (const responseEvent of runtimeEventToAgentEvents(event, resolvedAgentId, runId)) {
+					options.streamEvent?.(responseEvent);
+				}
+			}
+			return response;
 		} catch (error) {
-			if (controller?.signal.aborted) return '';
+			if (controller?.signal.aborted) return response;
 			const cause = toError(error, 'Agent goal request failed.');
 			options.streamEvent?.({
 				type: 'run_state',
