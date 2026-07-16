@@ -49,6 +49,7 @@ import { normalizeAgentInputFiles } from '../shared/agent_files';
 import { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
+import type { GoalBudget } from '../main/agent/run/run_goal_types';
 import type { PermissionsSchema, ToolSelector } from '../main/agent/policy/policy_types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
