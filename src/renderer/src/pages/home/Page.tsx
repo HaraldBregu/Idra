@@ -130,7 +130,7 @@ function EmptyConversation(): ReactElement {
 		<Empty className="mx-auto max-w-sm border-0 p-0">
 			<EmptyHeader>
 				<EmptyMedia className="mt-8">
-					<img src={logo} alt="" className="size-[72px] object-contain" />
+					<img src={logo} alt="" className="size-[72px] rounded-2xl object-contain" />
 				</EmptyMedia>
 				<EmptyTitle>Start a conversation</EmptyTitle>
 				<EmptyDescription>
