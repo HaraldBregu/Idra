@@ -27,7 +27,6 @@ import type {
 } from '../../shared/agent_types';
 import { toError } from '../ipc/core/error';
 
-
 export interface AgentSendOptions {
 	runId?: string;
 	sessionId?: string;
@@ -95,7 +94,7 @@ export class Agent {
 				this.session,
 				input,
 				controller.signal,
-				options.category,
+				options.category
 			);
 
 			this.activeRuns.set(resolvedAgentId, controller);
@@ -130,7 +129,11 @@ export class Agent {
 		}
 	}
 
-	async sendGoal(goalText: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
+	async sendGoal(
+		goalText: string,
+		agentId: string,
+		options: AgentSendOptions = {}
+	): Promise<string> {
 		const resolvedAgentId = agentId.trim();
 
 		this.cancel(resolvedAgentId);
@@ -157,7 +160,7 @@ export class Agent {
 				this.session,
 				input,
 				controller.signal,
-				options.category,
+				options.category
 			);
 
 			for await (const event of events) {
@@ -284,13 +287,13 @@ function toHistoryMessages(message: Message): AgentHistoryMessage[] {
 function toHistoryContentBlocks(message: Message): AgentHistoryContentBlock[] {
 	const blocks = Array.isArray(message.content)
 		? message.content
-			.map((block): AgentHistoryContentBlock | undefined => {
-				if (block.type === 'text' && typeof block.text === 'string') {
-					return { type: 'text', text: block.text };
-				}
-				return undefined;
-			})
-			.filter((block): block is AgentHistoryContentBlock => block !== undefined)
+				.map((block): AgentHistoryContentBlock | undefined => {
+					if (block.type === 'text' && typeof block.text === 'string') {
+						return { type: 'text', text: block.text };
+					}
+					return undefined;
+				})
+				.filter((block): block is AgentHistoryContentBlock => block !== undefined)
 		: [];
 
 	for (const toolCall of message.toolCalls ?? []) {

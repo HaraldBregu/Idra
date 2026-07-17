@@ -11,10 +11,4 @@ export { loadGoal } from './load';
 export { saveGoal } from './save';
 export { setGoal } from './set';
 export { updateGoal } from './update';
-export type {
-	GoalBudget,
-	GoalBudgetReason,
-	GoalStatus,
-	GoalUsage,
-	ThreadGoal,
-} from './types';
+export type { GoalBudget, GoalBudgetReason, GoalStatus, GoalUsage, ThreadGoal } from './types';

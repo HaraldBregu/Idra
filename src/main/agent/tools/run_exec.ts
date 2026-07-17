@@ -36,7 +36,7 @@ const execInputSchema = z.object({
 		.min(1)
 		.optional()
 		.describe(
-			'Working directory. Relative paths resolve from the workspace; ~ expands to the user home.',
+			'Working directory. Relative paths resolve from the workspace; ~ expands to the user home.'
 		),
 	env: z.record(z.string(), z.string()).optional(),
 	yieldMs: z
@@ -53,9 +53,7 @@ const execInputSchema = z.object({
 	pty: z
 		.boolean()
 		.optional()
-		.describe(
-			'Run in a pseudo-terminal (PTY) when available (TTY-required CLIs, coding agents)',
-		),
+		.describe('Run in a pseudo-terminal (PTY) when available (TTY-required CLIs, coding agents)'),
 	elevated: z
 		.boolean()
 		.optional()
@@ -68,20 +66,20 @@ const execInputSchema = z.object({
 		.string()
 		.optional()
 		.describe(
-			'Ignored for normal calls; exec security is set by tools.exec.security and host approvals.',
+			'Ignored for normal calls; exec security is set by tools.exec.security and host approvals.'
 		),
 	ask: z
 		.string()
 		.optional()
 		.describe(
-			'Baseline ask comes from tools.exec.ask and host approvals; channel-origin calls ignore per-call ask when effective host ask is off.',
+			'Baseline ask comes from tools.exec.ask and host approvals; channel-origin calls ignore per-call ask when effective host ask is off.'
 		),
 	node: z.string().optional().describe('Node id/name for host=node.'),
 });
 
 async function runExec(
 	input: z.infer<typeof execInputSchema>,
-	abortSignal?: AbortSignal,
+	abortSignal?: AbortSignal
 ): Promise<ExecResult> {
 	const {
 		command,
@@ -214,10 +212,10 @@ async function runExec(
 			child.stdout.removeAllListeners('data');
 			child.stderr.removeAllListeners('data');
 			child.stdout.on('data', (chunk: Buffer | string) =>
-				registry.append(session, 'stdout', chunk.toString()),
+				registry.append(session, 'stdout', chunk.toString())
 			);
 			child.stderr.on('data', (chunk: Buffer | string) =>
-				registry.append(session, 'stderr', chunk.toString()),
+				registry.append(session, 'stderr', chunk.toString())
 			);
 			child.once('close', (exitCode, signal) => {
 				session.exited = true;

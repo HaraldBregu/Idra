@@ -1,7 +1,10 @@
 import type { GoalBudgetReason, ThreadGoal } from './types';
 
 export function goalBudgetReason(goal: ThreadGoal, activeTimeMs = 0): GoalBudgetReason | undefined {
-	if (goal.budget.timeoutMs !== undefined && goal.usage.timeUsedMs + activeTimeMs >= goal.budget.timeoutMs)
+	if (
+		goal.budget.timeoutMs !== undefined &&
+		goal.usage.timeUsedMs + activeTimeMs >= goal.budget.timeoutMs
+	)
 		return 'timeout';
 	if (
 		goal.budget.maxTokens !== undefined &&

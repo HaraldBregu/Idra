@@ -1,10 +1,4 @@
-import {
-	clearGoal,
-	goalCommandResponse,
-	loadGoal,
-	setGoal,
-	updateGoal,
-} from '../goal';
+import { clearGoal, goalCommandResponse, loadGoal, setGoal, updateGoal } from '../goal';
 import type { SessionCategory, SessionState } from '../session';
 import { addAssistantMessage, appendRun } from '../session';
 import { getGoalSettings } from '../settings/settings_store';
@@ -16,7 +10,7 @@ export async function* streamChatGoal(
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
-	category?: SessionCategory,
+	category?: SessionCategory
 ): AsyncGenerator<RuntimeEvent> {
 	const command = input.message.trim();
 	if (!command) {

@@ -7,11 +7,7 @@ export interface GoalBudget {
 
 export type GoalStatus = 'active' | 'paused' | 'complete' | 'budget_limited';
 
-export type GoalBudgetReason =
-	| 'max_iterations'
-	| 'max_tool_calls'
-	| 'max_tokens'
-	| 'timeout';
+export type GoalBudgetReason = 'max_iterations' | 'max_tool_calls' | 'max_tokens' | 'timeout';
 
 export interface GoalUsage {
 	iterations: number;

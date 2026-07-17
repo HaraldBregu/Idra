@@ -10,11 +10,15 @@ export function completeGoalTool(state: SessionState) {
 		description:
 			'Mark the active thread goal complete after auditing the entire objective against concrete evidence.',
 		inputSchema: z.object({
-			evidence: z.string().min(1).describe('Concise concrete evidence that every part of the goal is complete.'),
+			evidence: z
+				.string()
+				.min(1)
+				.describe('Concise concrete evidence that every part of the goal is complete.'),
 		}),
 		execute: ({ evidence }) => {
 			const goal = loadGoal(state);
-			if (!goal || goal.status !== 'active') throw new Error('There is no active goal to complete.');
+			if (!goal || goal.status !== 'active')
+				throw new Error('There is no active goal to complete.');
 			updateGoal(state, { status: 'complete', completionEvidence: evidence });
 			return { status: 'complete', evidence };
 		},

@@ -50,7 +50,7 @@ export interface AgentApi {
 		allow: ToolSelector,
 		deny: ToolSelector,
 		ask: ToolSelector,
-		recursive: boolean,
+		recursive: boolean
 	) => Promise<PermissionsSchema>;
 	policyRemovePathPermission: (path: string) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;

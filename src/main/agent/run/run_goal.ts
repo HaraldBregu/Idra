@@ -23,7 +23,7 @@ export async function* streamGoal(
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
-	category?: SessionCategory,
+	category?: SessionCategory
 ): AsyncGenerator<RuntimeEvent> {
 	let continuation = false;
 
@@ -49,7 +49,7 @@ export async function* streamGoal(
 				session,
 				config,
 				{ ...input, task: 'goal', message: '', files: undefined, sessionId: session.id },
-				category,
+				category
 			);
 		}
 
@@ -64,7 +64,7 @@ export async function* streamGoal(
 				? undefined
 				: setTimeout(
 						() => timeoutController.abort(new Error('Goal time limit reached.')),
-						remainingTimeout,
+						remainingTimeout
 					);
 		timeout?.unref();
 		const runSignal = timeout ? AbortSignal.any([signal, timeoutController.signal]) : signal;
@@ -94,9 +94,7 @@ export async function* streamGoal(
 				}
 				if (event.type === 'model_call_end') {
 					const current = loadGoal(session);
-					const reason = current
-						? goalBudgetReason(current, Date.now() - startedAtMs)
-						: undefined;
+					const reason = current ? goalBudgetReason(current, Date.now() - startedAtMs) : undefined;
 					if (reason === 'max_tokens' || reason === 'timeout') {
 						stoppedByBudget = reason;
 						break;

@@ -7,7 +7,11 @@ import {
 } from '../../providers';
 import { agentLocation } from '../../shared/agent_location';
 import type { GoalBudget } from '../goal';
-import { DEFAULT_AGENT_SETTINGS, DEFAULT_GOAL_SETTINGS, type SettingsSchema } from './settings_types';
+import {
+	DEFAULT_AGENT_SETTINGS,
+	DEFAULT_GOAL_SETTINGS,
+	type SettingsSchema,
+} from './settings_types';
 
 const SETTINGS_STORE_NAME = 'settings';
 
@@ -18,7 +22,9 @@ const store = new Store<SettingsSchema>({
 	defaults: DEFAULT_AGENT_SETTINGS,
 });
 
-export function getProvider(providerId: string | undefined = getProviderId()): Provider | undefined {
+export function getProvider(
+	providerId: string | undefined = getProviderId()
+): Provider | undefined {
 	if (!providerId) return undefined;
 	const provider = getStoredProvider(providerId);
 	if (!provider) return undefined;

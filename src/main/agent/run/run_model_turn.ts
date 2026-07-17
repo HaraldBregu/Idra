@@ -25,7 +25,7 @@ export async function* runModelTurn(
 	messages: Message[],
 	tools: Tool[],
 	signal: AbortSignal,
-	llm: ModelTurnStream = llmModel,
+	llm: ModelTurnStream = llmModel
 ): AsyncGenerator<RuntimeEvent, ModelTurn> {
 	const maxRetries = 1;
 	for (let attempt = 0; attempt <= maxRetries; attempt += 1) {

@@ -5,7 +5,7 @@ import type { ThreadGoal } from './types';
 
 export function updateGoal(
 	state: SessionState,
-	patch: Partial<Pick<ThreadGoal, 'status' | 'budget' | 'budgetReason' | 'completionEvidence'>>,
+	patch: Partial<Pick<ThreadGoal, 'status' | 'budget' | 'budgetReason' | 'completionEvidence'>>
 ): ThreadGoal | undefined {
 	const current = loadGoal(state);
 	if (!current) return undefined;

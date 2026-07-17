@@ -55,7 +55,7 @@ export async function* stream(
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
-	options: StreamOptions = {},
+	options: StreamOptions = {}
 ): AsyncGenerator<RuntimeEvent> {
 	try {
 		for await (const event of loop(config, session, input, signal, options)) {
@@ -76,43 +76,44 @@ async function* loop(
 	session: SessionState,
 	input: RuntimeInput,
 	signal: AbortSignal,
-	options: StreamOptions,
+	options: StreamOptions
 ): AsyncGenerator<RuntimeEvent> {
 	const provider = getProvider(input.providerId);
 	const modelId = input.model ?? getModelId();
 
-	if (!provider || !modelId)
-		throw new Error('Agent requires a configured provider and model.');
+	if (!provider || !modelId) throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const tools: Tool[] = options.tools ? [...options.tools] : [
-		readTool,
-		writeTool,
-		editTool,
-		applyPatchTool,
-		execTool,
-		processTool,
-		...getWebSearchTools(),
-		webFetchTool,
-		webBrowserTool,
-		createImageTool(config.location),
-		createVideoTool(config.location),
-		createSoundTool(config.location),
-		saveMemoryTool(config),
-		forgetMemoryTool(config),
-		updateHealthTool(config),
-		updateHealthSettingsTool,
-		loadSkillTool,
-		createScheduleTool,
-		updateScheduleTool,
-		pauseScheduleTool,
-		resumeScheduleTool,
-		deleteScheduleTool,
-		getScheduleTool,
-		listSchedulesTool,
-		runScheduleNowTool,
-		completeBootstrapTool,
-	];
+	const tools: Tool[] = options.tools
+		? [...options.tools]
+		: [
+				readTool,
+				writeTool,
+				editTool,
+				applyPatchTool,
+				execTool,
+				processTool,
+				...getWebSearchTools(),
+				webFetchTool,
+				webBrowserTool,
+				createImageTool(config.location),
+				createVideoTool(config.location),
+				createSoundTool(config.location),
+				saveMemoryTool(config),
+				forgetMemoryTool(config),
+				updateHealthTool(config),
+				updateHealthSettingsTool,
+				loadSkillTool,
+				createScheduleTool,
+				updateScheduleTool,
+				pauseScheduleTool,
+				resumeScheduleTool,
+				deleteScheduleTool,
+				getScheduleTool,
+				listSchedulesTool,
+				runScheduleNowTool,
+				completeBootstrapTool,
+			];
 
 	let closeMcp: (() => Promise<void>) | undefined;
 	if (!options.tools) {
@@ -137,9 +138,10 @@ async function* loop(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const baseSystemPrompt = options.systemPrompt === undefined
-				? await buildSystemPrompt(config, tools, session.context.loadedSkills)
-				: await addFilesystemPrompt(config, options.systemPrompt);
+			const baseSystemPrompt =
+				options.systemPrompt === undefined
+					? await buildSystemPrompt(config, tools, session.context.loadedSkills)
+					: await addFilesystemPrompt(config, options.systemPrompt);
 			const systemPrompt = addGoalPrompt(baseSystemPrompt, loadGoal(session));
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
@@ -150,7 +152,7 @@ async function* loop(
 				systemPrompt,
 				session.messages,
 				tools,
-				signal,
+				signal
 			);
 
 			recordTurn(session, turn);

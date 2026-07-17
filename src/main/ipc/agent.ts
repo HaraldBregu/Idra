@@ -29,7 +29,11 @@ import {
 	type PermissionsSchema,
 	type ToolSelector,
 } from '../agent/policy';
-import { getHealthSettings, resetHealthSettings, updateHealthSettings } from '../agent/health/health_store';
+import {
+	getHealthSettings,
+	resetHealthSettings,
+	updateHealthSettings,
+} from '../agent/health/health_store';
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
 import {
@@ -220,7 +224,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 	readonly name = 'agent';
 
 	register({ logger, agent }: AgentIpcDeps, eventBus: EventBus): void {
-
 		ipcMain.handle(
 			AgentChannels.send,
 			wrapSimpleHandler(async (message: string, options?: unknown): Promise<string> => {
@@ -494,7 +497,9 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 			save: (state) => saveMcpOauth(id, state),
 		});
 
-		const getHttpMcpServer = (id: string): {
+		const getHttpMcpServer = (
+			id: string
+		): {
 			id: string;
 			url: string;
 			clientId?: string;
@@ -560,7 +565,8 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 					});
 				const result = await auth(provider(), { serverUrl: server.url });
 				if (result === 'AUTHORIZED') return { status: 'authorized' };
-				if (!redirectUrl) throw new Error(`MCP server "${id}" did not return an authorization URL.`);
+				if (!redirectUrl)
+					throw new Error(`MCP server "${id}" did not return an authorization URL.`);
 
 				let callback: Awaited<ReturnType<typeof startOauthCallbackServer>>;
 				try {

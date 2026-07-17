@@ -261,7 +261,7 @@ export const agent: AgentApi = {
 		allow: ToolSelector,
 		deny: ToolSelector,
 		ask: ToolSelector,
-		recursive: boolean,
+		recursive: boolean
 	): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(
 			AgentChannels.policySetPathPermission,
@@ -269,7 +269,7 @@ export const agent: AgentApi = {
 			allow,
 			deny,
 			ask,
-			recursive,
+			recursive
 		);
 	},
 	policyRemovePathPermission: (path: string): Promise<PermissionsSchema> => {

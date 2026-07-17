@@ -11,7 +11,7 @@ export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
 	interactive = true,
-	signal?: AbortSignal,
+	signal?: AbortSignal
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 

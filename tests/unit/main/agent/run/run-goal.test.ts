@@ -110,9 +110,7 @@ describe('thread goals', () => {
 			status: 'active',
 			usage: { iterations: 2, toolCalls: 1, inputTokens: 18, outputTokens: 9 },
 		});
-		expect(session.messages.at(-1)?.content).toEqual([
-			expect.objectContaining({ internal: true }),
-		]);
+		expect(session.messages.at(-1)?.content).toEqual([expect.objectContaining({ internal: true })]);
 	});
 
 	it('marks the goal budget-limited instead of starting another turn', async () => {
@@ -172,7 +170,7 @@ describe('thread goals', () => {
 		await expect(
 			(async () => {
 				for await (const event of streamGoal(config, session, input, controller.signal)) void event;
-			})(),
+			})()
 		).rejects.toThrow('cancelled');
 		expect(loadGoal(session)?.status).toBe('paused');
 	});

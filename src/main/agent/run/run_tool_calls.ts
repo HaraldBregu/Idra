@@ -5,7 +5,7 @@ export async function* runToolCalls(
 	tools: Tool[],
 	toolCalls: ToolCall[],
 	interactive = true,
-	signal?: AbortSignal,
+	signal?: AbortSignal
 ): AsyncGenerator<RuntimeEvent, void> {
 	const toolMap = new Map(tools.map((tool) => [tool.name, tool]));
 

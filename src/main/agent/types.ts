@@ -6,9 +6,9 @@ export interface Config {
 }
 
 export interface Provider {
-	id: string,
-	apiKey: string,
-	baseURL: string,
+	id: string;
+	apiKey: string;
+	baseURL: string;
 }
 
 export type MessageRole = 'system' | 'user' | 'assistant';

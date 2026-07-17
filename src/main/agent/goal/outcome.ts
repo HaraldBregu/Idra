@@ -4,7 +4,7 @@ import type { GoalBudgetReason, ThreadGoal } from './types';
 export function goalBudgetOutcome(
 	state: SessionState,
 	goal: ThreadGoal,
-	reason: GoalBudgetReason,
+	reason: GoalBudgetReason
 ): SessionResult {
 	const labels: Record<GoalBudgetReason, string> = {
 		max_iterations: 'iteration limit',
