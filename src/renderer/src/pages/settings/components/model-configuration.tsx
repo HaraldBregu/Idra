@@ -95,7 +95,7 @@ export function ModelProviderConfiguration({
 
 	if (!collapsible) {
 		return (
-			<div className="rounded-lg border border-border/70 bg-card">{configurationBody}</div>
+			<div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">{configurationBody}</div>
 		);
 	}
 
