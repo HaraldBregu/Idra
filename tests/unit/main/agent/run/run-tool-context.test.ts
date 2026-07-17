@@ -14,7 +14,11 @@ jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	getPermissionRules,
 }));
 
-import { createContext } from '../../../../../src/main/agent/context';
+import {
+	createContext,
+	fileToolState,
+	rememberTool,
+} from '../../../../../src/main/agent/context';
 import { respondToolPermission } from '../../../../../src/main/agent/policy';
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
@@ -205,6 +209,26 @@ describe('tool context permissions', () => {
 		expect(respondToolPermission(call.id, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(context.tools).toBeUndefined();
+	});
+
+	it('does not override a read deny with an allowed folder context', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-denied-'));
+		const target = path.join(root, 'example.txt');
+		getPathPermissions.mockReturnValue([
+			{ path: root, allow: [], deny: ['read'], ask: [], recursive: true },
+		]);
+		const read = jest.fn().mockResolvedValue('content');
+		const call: ToolCall = { id: 'read-denied', name: 'read', args: { path: target } };
+		const context = createContext();
+		rememberTool(context, fileToolState('read', call.args, '/appdata/agent')!);
+		const events: RuntimeEvent[] = [];
+
+		for await (const event of runToolCall(fakeTool('read', read), call, true, undefined, context))
+			events.push(event);
+
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(read).not.toHaveBeenCalled();
 	});
 });
 
