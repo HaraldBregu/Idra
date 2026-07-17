@@ -1,55 +1,44 @@
 import path from 'node:path';
-import { toolTargetDirs } from '../../../../../src/main/agent/policy/policy_targets';
+import { toolPermissionTargets } from '../../../../../src/main/agent/policy/policy_targets';
 import { resolveUserPath } from '../../../../../src/main/shared/user_path';
 
 const agentDir = path.resolve('/appdata/agent');
 
-describe('toolTargetDirs', () => {
-	it('extracts dirs from apply_patch add/update/delete headers', () => {
+describe('toolPermissionTargets', () => {
+	it('extracts full targets from apply_patch headers and moves', () => {
 		const input = [
 			'*** Begin Patch',
 			'*** Add File: src/a.ts',
 			'*** Update File: lib/b.ts',
+			'*** Move to: moved/b.ts',
 			'*** End Patch',
 		].join('\n');
-		const dirs = toolTargetDirs('apply_patch', { input }, agentDir);
-		expect(dirs).toEqual([
-			path.dirname(resolveUserPath('src/a.ts', agentDir)),
-			path.dirname(resolveUserPath('lib/b.ts', agentDir)),
+		expect(toolPermissionTargets('apply_patch', { input }, agentDir)).toEqual([
+			resolveUserPath('src/a.ts', agentDir),
+			resolveUserPath('lib/b.ts', agentDir),
+			resolveUserPath('moved/b.ts', agentDir),
 		]);
 	});
 
-	it('includes move-to targets in apply_patch', () => {
-		const input = '*** Update File: a.ts\n*** Move to: dir/b.ts';
-		const dirs = toolTargetDirs('apply_patch', { input }, agentDir);
-		expect(dirs).toContain(path.dirname(resolveUserPath('dir/b.ts', agentDir)));
-	});
-
-	it('extracts whitespace-prefixed patch headers like the patch parser', () => {
+	it('extracts whitespace-prefixed patch headers', () => {
 		const input = '  *** Update File: outside/a.ts\n\t*** Move to: outside/b.ts';
-		expect(toolTargetDirs('apply_patch', { input }, agentDir)).toEqual([
-			path.dirname(resolveUserPath('outside/a.ts', agentDir)),
-			path.dirname(resolveUserPath('outside/b.ts', agentDir)),
+		expect(toolPermissionTargets('apply_patch', { input }, agentDir)).toEqual([
+			resolveUserPath('outside/a.ts', agentDir),
+			resolveUserPath('outside/b.ts', agentDir),
 		]);
 	});
 
-	it('returns [] for apply_patch without string input', () => {
-		expect(toolTargetDirs('apply_patch', {}, agentDir)).toEqual([]);
+	it('returns the raw exec command', () => {
+		expect(toolPermissionTargets('exec', { command: 'git status' }, agentDir)).toEqual([
+			'git status',
+		]);
+		expect(toolPermissionTargets('exec', {}, agentDir)).toEqual([]);
 	});
 
-	it('resolves the exec workdir, defaulting to cwd', () => {
-		expect(toolTargetDirs('exec', { workdir: '/work' }, agentDir)).toEqual([
-			resolveUserPath('/work', agentDir),
+	it('returns the full file path for path tools', () => {
+		expect(toolPermissionTargets('write', { path: '/a/b.txt' }, agentDir)).toEqual([
+			resolveUserPath('/a/b.txt', agentDir),
 		]);
-		expect(toolTargetDirs('exec', {}, agentDir)).toEqual([
-			resolveUserPath('.', agentDir),
-		]);
-	});
-
-	it('falls back to the tool path dir for other tools', () => {
-		expect(toolTargetDirs('write', { path: '/a/b.txt' }, agentDir)).toEqual([
-			path.dirname(resolveUserPath('/a/b.txt', agentDir)),
-		]);
-		expect(toolTargetDirs('write', {}, agentDir)).toEqual([]);
+		expect(toolPermissionTargets('write', {}, agentDir)).toEqual([]);
 	});
 });

@@ -1,17 +1,13 @@
 export {
 	addPermissionRule,
-	getPathPermissions,
-	getPermissionRules,
 	getPermissions,
-	removePathPermission,
+	getToolPermission,
 	resetPermissions,
-	setPathPermission,
-	updatePermissions,
+	setToolPermission,
 } from './policy_store';
-export { toolRuleSignature } from './policy_signature';
 export { isPathWithin, toolPathDir } from './policy_path';
-export { toolTargetDirs } from './policy_targets';
-export { pathPermissionFor } from './policy_override';
+export { toolPermissionTargets } from './policy_targets';
+export { toolPermissionFor } from './policy_override';
 export { resolveToolPermission } from './policy_resolve';
 export {
 	rejectPendingToolPermissions,
@@ -20,9 +16,9 @@ export {
 } from './policy_pending';
 export {
 	DEFAULT_PERMISSIONS,
-	type PathPermission,
+	POLICY_TOOLS,
+	type PermissionBucket,
 	type PermissionMode,
-	type PermissionRules,
 	type PermissionsSchema,
-	type ToolSelector,
+	type ToolPermission,
 } from './policy_types';

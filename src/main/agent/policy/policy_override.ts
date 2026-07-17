@@ -1,39 +1,41 @@
+import os from 'node:os';
 import { resolveUserPath } from '../../shared/user_path';
 import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
-import { AGENT_DIRECTORY, getPathPermissions } from './policy_store';
-import type { PermissionMode, ToolSelector } from './policy_types';
+import { getPermissions } from './policy_store';
+import type { PermissionMode } from './policy_types';
 
-function listMatches(selector: ToolSelector, toolName: string): boolean {
-	if (selector === '*') return true;
-	return selector.includes('*') || selector.includes(toolName);
+const PRIORITY: Record<PermissionMode, number> = { allow: 1, ask: 2, deny: 3 };
+
+function commandMatches(rule: string, command: string): boolean {
+	if (rule === command) return true;
+	if (!rule.endsWith(':*')) return false;
+	const base = rule.slice(0, -2);
+	return command === base || command.startsWith(`${base} `) || command.startsWith(`${base}/`);
 }
 
-// The decision a single rule makes for a tool: deny wins over ask wins over
-// allow, and a rule that mentions none of them stays out of the way.
-function ruleDecision(
-	allow: ToolSelector,
-	deny: ToolSelector,
-	ask: ToolSelector,
+export function toolPermissionFor(
 	toolName: string,
+	target: string,
 ): PermissionMode | undefined {
-	if (listMatches(deny, toolName)) return 'deny';
-	if (listMatches(ask, toolName)) return 'ask';
-	if (listMatches(allow, toolName)) return 'allow';
-	return undefined;
-}
-
-// The permission a path rule imposes on `toolName` at `dir`, or undefined when
-// no rule applies. When several rules match, the deepest (most specific) path
-// wins.
-export function pathPermissionFor(toolName: string, dir: string): PermissionMode | undefined {
-	let best: { root: string; decision: PermissionMode } | undefined;
-	for (const { path, allow, deny, ask, recursive } of getPathPermissions()) {
-		const root = realPath(resolveUserPath(path, AGENT_DIRECTORY));
-		const matches = recursive ? isPathWithin(root, dir) : root === dir;
-		if (!matches) continue;
-		const decision = ruleDecision(allow, deny, ask, toolName);
-		if (decision && (!best || root.length > best.root.length)) best = { root, decision };
+	const permission = getPermissions()[toolName];
+	if (!permission) return undefined;
+	let best: { specificity: number; decision: PermissionMode } | undefined;
+	for (const decision of ['allow', 'ask', 'deny'] as const) {
+		for (const rule of permission[decision]) {
+			const matches =
+				toolName === 'exec'
+					? commandMatches(rule, target)
+					: isPathWithin(realPath(resolveUserPath(rule, os.homedir())), target);
+			if (!matches) continue;
+			const specificity = rule.length;
+			if (
+				!best ||
+				specificity > best.specificity ||
+				(specificity === best.specificity && PRIORITY[decision] > PRIORITY[best.decision])
+			)
+				best = { specificity, decision };
+		}
 	}
 	return best?.decision;
 }

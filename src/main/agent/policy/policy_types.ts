@@ -1,35 +1,77 @@
 export type PermissionMode = 'allow' | 'deny' | 'ask';
 
-// A set of tools: the string "*" for every tool, or a list of tool names (which
-// may itself contain "*").
-export type ToolSelector = '*' | string[];
+export type PermissionBucket = Exclude<PermissionMode, never>;
 
-// Per-path override of tool permissions. recursive: false applies only to the
-// directory itself; true also covers its subtree. deny wins over ask wins over
-// allow.
-export interface PathPermission {
-	path: string;
-	allow: ToolSelector;
-	deny: ToolSelector;
-	ask: ToolSelector;
-	recursive: boolean;
-}
-
-// Tool-call rules in "Tool(pattern)" form, e.g. "Bash(rm -rf node_modules)".
-export interface PermissionRules {
+export interface ToolPermission {
+	default: PermissionMode;
 	allow: string[];
 	deny: string[];
 	ask: string[];
 }
 
-export interface PermissionsSchema {
-	defaultMode: PermissionMode;
-	defaultPermissions: PathPermission[];
-	permissions: PermissionRules;
-}
+export type PermissionsSchema = Record<string, ToolPermission>;
+
+export const POLICY_TOOLS = [
+	'read',
+	'write',
+	'edit',
+	'apply_patch',
+	'exec',
+	'process',
+	'web_search',
+	'web_fetch',
+	'web_browser',
+	'create_image',
+	'create_video',
+	'create_sound',
+	'memory_save',
+	'memory_forget',
+	'health_update',
+	'health_settings_update',
+	'load_skill',
+	'create_schedule',
+	'update_schedule',
+	'pause_schedule',
+	'resume_schedule',
+	'delete_schedule',
+	'get_schedule',
+	'list_schedules',
+	'run_schedule_now',
+	'complete_bootstrap',
+	'subagent',
+	'goal_complete',
+] as const;
+
+const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], ask: [] });
+const ask = (): ToolPermission => ({ default: 'ask', allow: [], deny: [], ask: [] });
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
-	defaultMode: 'ask',
-	defaultPermissions: [],
-	permissions: { allow: [], deny: [], ask: [] },
+	read: { default: 'allow', allow: ['Desktop'], deny: [], ask: [] },
+	write: allow(),
+	edit: { default: 'ask', allow: ['Desktop/file.txt'], deny: [], ask: [] },
+	apply_patch: ask(),
+	exec: ask(),
+	process: allow(),
+	web_search: allow(),
+	web_fetch: allow(),
+	web_browser: allow(),
+	create_image: allow(),
+	create_video: allow(),
+	create_sound: allow(),
+	memory_save: allow(),
+	memory_forget: allow(),
+	health_update: allow(),
+	health_settings_update: allow(),
+	load_skill: allow(),
+	create_schedule: allow(),
+	update_schedule: allow(),
+	pause_schedule: allow(),
+	resume_schedule: allow(),
+	delete_schedule: allow(),
+	get_schedule: allow(),
+	list_schedules: allow(),
+	run_schedule_now: allow(),
+	complete_bootstrap: allow(),
+	subagent: allow(),
+	goal_complete: allow(),
 };

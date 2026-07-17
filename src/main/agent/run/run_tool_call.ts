@@ -4,7 +4,7 @@ import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
 	resolveToolPermission,
-	toolRuleSignature,
+	toolPermissionTargets,
 	waitForToolPermission,
 } from '../policy';
 import { formatToolOutput } from './run_common';
@@ -49,8 +49,12 @@ export async function* runToolCall(
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
 			if (decision === 'approve_always') {
-				const signature = toolRuleSignature(toolCall.name, toolCall.args);
-				if (signature) addPermissionRule('allow', signature);
+				for (const target of toolPermissionTargets(
+					toolCall.name,
+					toolCall.args,
+					agentLocation(),
+				))
+					addPermissionRule(toolCall.name, 'allow', target);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}
