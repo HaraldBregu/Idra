@@ -62,6 +62,15 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('write', { path: '/secret/a.txt' })).toBe('allow');
 	});
 
+	it('reuses a stored read-folder approval for another file in that folder', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			read: entry('ask', { allow: ['/approved'] }),
+		});
+		expect(resolveToolPermission('read', { path: '/approved/next.txt' })).toBe('allow');
+		expect(resolveToolPermission('read', { path: '/other/next.txt' })).toBe('ask');
+	});
+
 	it('uses the most specific matching path', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
