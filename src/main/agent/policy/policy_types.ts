@@ -1,13 +1,5 @@
 export type PermissionMode = 'allow' | 'deny' | 'ask';
 
-// The tools that can rewrite or destroy existing files and so ask by default;
-// every other tool (read and write included) is always allowed unless a path
-// or "Tool(pattern)" rule says otherwise. exec only asks for destructive
-// commands (see policy_exec.ts).
-export const PERMISSION_GATED_TOOLS = ['exec', 'edit', 'apply_patch'] as const;
-
-export type PermissionGatedTool = (typeof PERMISSION_GATED_TOOLS)[number];
-
 // A set of tools: the string "*" for every tool, or a list of tool names (which
 // may itself contain "*").
 export type ToolSelector = '*' | string[];
@@ -41,7 +33,3 @@ export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	defaultPermissions: [],
 	permissions: { allow: [], deny: [], ask: [] },
 };
-
-export function isPermissionGatedTool(toolName: string): toolName is PermissionGatedTool {
-	return (PERMISSION_GATED_TOOLS as readonly string[]).includes(toolName);
-}

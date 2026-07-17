@@ -8,7 +8,6 @@ export {
 	setPathPermission,
 	updatePermissions,
 } from './policy_store';
-export { isDestructiveCommand } from './policy_exec';
 export { toolRuleSignature } from './policy_signature';
 export { isPathWithin, toolPathDir } from './policy_path';
 export { toolTargetDirs } from './policy_targets';
@@ -21,10 +20,7 @@ export {
 } from './policy_pending';
 export {
 	DEFAULT_PERMISSIONS,
-	isPermissionGatedTool,
-	PERMISSION_GATED_TOOLS,
 	type PathPermission,
-	type PermissionGatedTool,
 	type PermissionMode,
 	type PermissionRules,
 	type PermissionsSchema,

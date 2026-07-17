@@ -11,17 +11,19 @@ import {
 
 const POLICY_STORE_NAME = 'policy';
 
-const agentDir = path.resolve(agentLocation());
+export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 // The agent's own data folder is allowed for every tool by default.
 const defaults: PermissionsSchema = {
 	...DEFAULT_PERMISSIONS,
-	defaultPermissions: [{ path: agentDir, allow: '*', deny: [], ask: [], recursive: true }],
+	defaultPermissions: [
+		{ path: AGENT_DIRECTORY, allow: '*', deny: [], ask: [], recursive: true },
+	],
 };
 
 const store = new Store<PermissionsSchema>({
 	name: POLICY_STORE_NAME,
-	cwd: agentDir,
+	cwd: AGENT_DIRECTORY,
 	accessPropertiesByDotNotation: false,
 	defaults,
 });

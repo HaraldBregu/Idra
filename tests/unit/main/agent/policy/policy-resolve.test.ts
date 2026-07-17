@@ -3,6 +3,7 @@ const getPathPermissions = jest.fn();
 const getPermissionRules = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
+	AGENT_DIRECTORY: '/appdata/agent',
 	getDefaultMode,
 	getPathPermissions,
 	getPermissionRules,
@@ -21,37 +22,61 @@ const rule = (path: string, allow: string[], deny: string[], ask: string[] = [])
 });
 
 beforeEach(() => {
-	getDefaultMode.mockReset().mockReturnValue('allow');
+	getDefaultMode.mockReset().mockReturnValue('ask');
 	getPathPermissions.mockReset().mockReturnValue([]);
 	getPermissionRules.mockReset().mockReturnValue(noRules);
 });
 
 describe('resolveToolPermission', () => {
-	it('allows an ungated tool outright', () => {
-		// read is not in the destructive set.
-		expect(resolveToolPermission('read', { path: '/x' })).toBe('allow');
+	it('allows every targeted tool inside the agent directory', () => {
+		getDefaultMode.mockReturnValue('deny');
+		getPathPermissions.mockReturnValue([rule('/appdata/agent', [], ['*'])]);
+		getPermissionRules.mockReturnValue({
+			allow: [],
+			deny: ['Read(/appdata/agent/secret.txt)', 'Bash(rm -rf *)'],
+			ask: [],
+		});
+
+		expect(resolveToolPermission('read', { path: '/appdata/agent/secret.txt' })).toBe('allow');
+		expect(resolveToolPermission('write', { path: '/appdata/agent/new.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit', { path: '/appdata/agent/config/a.txt' })).toBe('allow');
+		expect(
+			resolveToolPermission('exec', {
+				command: 'rm -rf *',
+				workdir: '/appdata/agent/work',
+			}),
+		).toBe('allow');
+		expect(
+			resolveToolPermission('apply_patch', {
+				input: '*** Update File: /appdata/agent/a.ts',
+			}),
+		).toBe('allow');
 		expect(getDefaultMode).not.toHaveBeenCalled();
 	});
 
-	it('falls back to the default mode for a destructive tool', () => {
-		getDefaultMode.mockReturnValue('ask');
+	it('asks for every targeted tool outside the agent directory', () => {
+		expect(resolveToolPermission('read', { path: '/outside/a.txt' })).toBe('ask');
+		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('ask');
 		expect(resolveToolPermission('edit', { path: '/x' })).toBe('ask');
 		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/x' })).toBe('ask');
+		expect(resolveToolPermission('exec', { command: 'ls -la', workdir: '/x' })).toBe('ask');
+		expect(resolveToolPermission('apply_patch', { input: '*** Add File: /outside/a.ts' })).toBe(
+			'ask',
+		);
+		expect(resolveToolPermission('read', { path: '/appdata/agent-other/a.txt' })).toBe('ask');
 	});
 
-	it('gates exactly destructive exec, edit, and apply_patch', () => {
-		getDefaultMode.mockReturnValue('deny');
-		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/x' })).toBe('deny');
-		expect(resolveToolPermission('edit', { path: '/x' })).toBe('deny');
-		expect(resolveToolPermission('apply_patch', { input: '' })).toBe('deny');
-		expect(resolveToolPermission('write', { path: '/x' })).toBe('allow');
-		expect(resolveToolPermission('read', { path: '/x' })).toBe('allow');
+	it('asks when any apply_patch target is outside the agent directory', () => {
+		const input = [
+			'*** Update File: /appdata/agent/a.ts',
+			'*** Update File: /outside/b.ts',
+		].join('\n');
+		expect(resolveToolPermission('apply_patch', { input })).toBe('ask');
 	});
 
-	it('allows a safe exec command without asking', () => {
-		getDefaultMode.mockReturnValue('ask');
-		expect(resolveToolPermission('exec', { command: 'ls -la', workdir: '/x' })).toBe('allow');
-		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/x' })).toBe('allow');
+	it('allows tools that have no filesystem target', () => {
+		expect(resolveToolPermission('web_search', { query: 'Friday' })).toBe('allow');
+		expect(getDefaultMode).not.toHaveBeenCalled();
 	});
 });
 
@@ -79,8 +104,8 @@ describe('path permissions', () => {
 	it('denies only the listed tools, others fall through', () => {
 		getPathPermissions.mockReturnValue([rule('/repo', [], ['write'])]);
 		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/repo/a.txt' })).toBe('allow');
-		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/repo' })).toBe('allow');
+		expect(resolveToolPermission('read', { path: '/repo/a.txt' })).toBe('ask');
+		expect(resolveToolPermission('exec', { command: 'ls', workdir: '/repo' })).toBe('ask');
 	});
 
 	it('an allow rule lets a destructive tool through even when the default asks', () => {
@@ -115,7 +140,7 @@ describe('path permissions', () => {
 			{ path: '/secret', allow: [], deny: ['*'], ask: [], recursive: false },
 		]);
 		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/secret/sub/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('read', { path: '/secret/sub/a.txt' })).toBe('ask');
 	});
 
 	it('the deepest matching rule wins', () => {
@@ -153,15 +178,13 @@ describe('Tool(pattern) rules', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Bash(git:*)'] });
 		expect(resolveToolPermission('exec', { command: 'git', workdir: '/x' })).toBe('deny');
 		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/x' })).toBe('deny');
-		expect(resolveToolPermission('exec', { command: 'git-evil --root', workdir: '/x' })).toBe(
-			'allow',
-		);
+		expect(resolveToolPermission('exec', { command: 'git-evil --root', workdir: '/x' })).toBe('ask');
 	});
 
 	it('anchors path-rule wildcards at a path separator', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Read(/home/alice:*)'] });
 		expect(resolveToolPermission('read', { path: '/home/alice/secret' })).toBe('deny');
-		expect(resolveToolPermission('read', { path: '/home/alice-other/secret' })).toBe('allow');
+		expect(resolveToolPermission('read', { path: '/home/alice-other/secret' })).toBe('ask');
 	});
 
 	it('keys path tools by their path, e.g. Read(...)', () => {

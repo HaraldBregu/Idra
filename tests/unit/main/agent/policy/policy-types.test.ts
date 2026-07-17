@@ -1,21 +1,4 @@
-import {
-	isPermissionGatedTool,
-	PERMISSION_GATED_TOOLS,
-	DEFAULT_PERMISSIONS,
-} from '../../../../../src/main/agent/policy/policy_types';
-
-describe('isPermissionGatedTool', () => {
-	it('recognizes gated tools', () => {
-		for (const tool of PERMISSION_GATED_TOOLS) {
-			expect(isPermissionGatedTool(tool)).toBe(true);
-		}
-	});
-	it('rejects ungated tools', () => {
-		expect(isPermissionGatedTool('read')).toBe(false);
-		expect(isPermissionGatedTool('write')).toBe(false);
-		expect(isPermissionGatedTool('web_search')).toBe(false);
-	});
-});
+import { DEFAULT_PERMISSIONS } from '../../../../../src/main/agent/policy/policy_types';
 
 describe('DEFAULT_PERMISSIONS', () => {
 	it('asks by default and starts with empty permission stores', () => {

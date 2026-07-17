@@ -1,9 +1,9 @@
-import { isDestructiveCommand } from './policy_exec';
 import { pathPermissionFor } from './policy_override';
-import { getDefaultMode, getPermissionRules } from './policy_store';
+import { isPathWithin } from './policy_path';
+import { AGENT_DIRECTORY, getDefaultMode, getPermissionRules } from './policy_store';
 import { toolRuleSignature } from './policy_signature';
 import { toolTargetDirs } from './policy_targets';
-import { isPermissionGatedTool, type PermissionMode } from './policy_types';
+import type { PermissionMode } from './policy_types';
 
 function ruleMatches(rule: string, signature: string): boolean {
 	if (rule === signature) return true;
@@ -43,21 +43,22 @@ function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefi
 	return undefined;
 }
 
-// Resolution order: a defaultPermissions path rule overrides everything (an
-// allow-'*' folder frees every tool there, a 'deny' blocks reads too), then
-// "Tool(pattern)" rules, then ungated tools (read, write, ...) pass, then exec
-// passes unless the command is destructive, and what's left falls back to the
-// default mode.
+// The agent data directory is an unconditional trust boundary. Outside it,
+// path and tool rules apply before the default permission mode.
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
-	const override = pathOverride(toolName, toolTargetDirs(toolName, args));
+	const targetDirs = toolTargetDirs(toolName, args);
+	if (
+		targetDirs.length > 0 &&
+		targetDirs.every((targetDir) => isPathWithin(AGENT_DIRECTORY, targetDir))
+	)
+		return 'allow';
+
+	const override = pathOverride(toolName, targetDirs);
 	if (override) return override;
 	const ruled = ruleOverride(toolName, args);
 	if (ruled) return ruled;
-	if (!isPermissionGatedTool(toolName)) return 'allow';
-	if (toolName === 'exec' && typeof args.command === 'string' && !isDestructiveCommand(args.command))
-		return 'allow';
-	return getDefaultMode();
+	return targetDirs.length > 0 ? getDefaultMode() : 'allow';
 }
