@@ -7,6 +7,7 @@ import {
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { ModelProviderSelect, toModelProviderGroups } from '@/components/model-provider-select';
+import { ProviderAvatar } from '@/components/provider-avatar';
 import { getProviderCatalogItem } from '../../start/constants';
 import { SettingsLoadingRows, SettingsNotice } from './index';
 import type { ModelConfigurationState } from './model-configuration-state';
