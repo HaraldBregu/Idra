@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="resources/svgs/logo.svg" alt="Friday logo" width="144" />
+  <img src="resources/icons/icon.png" alt="Friday logo" width="144" />
 </p>
 
 <h1 align="center">Friday</h1>
