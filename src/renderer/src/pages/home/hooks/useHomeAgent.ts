@@ -136,7 +136,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 				};
 				const goalText = parseGoalCommand(trimmed);
-				response = goalText
+				response = goalText !== undefined
 					? await agent.goal(goalText, runtimeOptions, onEvent)
 					: await agent.send(trimmed, runtimeOptions, onEvent);
 				if (requestIdRef.current !== requestId) return;

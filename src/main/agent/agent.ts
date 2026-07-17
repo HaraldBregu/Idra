@@ -243,6 +243,12 @@ function outputText(output: unknown): string {
 
 function toHistoryMessages(message: Message): AgentHistoryMessage[] {
 	if (message.role === 'system') return [];
+	if (
+		Array.isArray(message.content) &&
+		message.content.length > 0 &&
+		message.content.every((block) => block.internal === true)
+	)
+		return [];
 
 	const content = toTextContent(message.content);
 

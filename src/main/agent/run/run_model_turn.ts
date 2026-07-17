@@ -83,6 +83,7 @@ export async function* runModelTurn(
 				})),
 			};
 		} catch (error) {
+			if (signal.aborted) throw error;
 			if (attempt >= maxRetries) throw error;
 		}
 	}

@@ -4,8 +4,9 @@ import { goalPath } from './path';
 import type { ThreadGoal } from './types';
 
 export function loadGoal(state: SessionState): ThreadGoal | undefined {
+	if (!state.sessionsPath) return undefined;
 	const file = goalPath(state);
-	if (!state.sessionsPath || !existsSync(file)) return undefined;
+	if (!existsSync(file)) return undefined;
 	try {
 		const value = JSON.parse(readFileSync(file, 'utf8')) as Partial<ThreadGoal>;
 		if (
