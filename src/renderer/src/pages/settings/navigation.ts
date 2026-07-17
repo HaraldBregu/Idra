@@ -263,7 +263,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		icon: Bot,
 	},
 	{
-		path: '/settings/assistant',
+		path: '/settings/assistant/goal',
 		labelKey: 'settings.goal.title',
 		descriptionKey: 'settings.goal.description',
 		keywords: 'goal budget iterations tool calls timeout limits',
