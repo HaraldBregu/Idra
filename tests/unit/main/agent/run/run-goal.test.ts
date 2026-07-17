@@ -55,6 +55,22 @@ describe('thread goals', () => {
 		expect(loadGoal(restored)).toBeUndefined();
 	});
 
+	it('preserves usage when a budget-limited goal is set again', () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, { maxIterations: 1, maxToolCalls: 5 });
+		const limited = loadGoal(session)!;
+		limited.usage.iterations = 1;
+		updateGoal(session, { status: 'budget_limited', budgetReason: 'max_iterations' });
+		setGoal(session, input.message, { maxIterations: 3, maxToolCalls: 5 });
+
+		expect(loadGoal(session)).toMatchObject({
+			status: 'active',
+			usage: { iterations: 1 },
+			budget: { maxIterations: 3 },
+		});
+	});
+
 	it('continues after a tool-using turn and stops after a text-only turn', async () => {
 		const session = createSessionState();
 		init(session, config, input);
@@ -291,6 +307,29 @@ describe('thread goals', () => {
 			void event;
 
 		expect(loadGoal(session)?.status).toBe('paused');
+		expect(streamMock).not.toHaveBeenCalled();
+	});
+
+	it('does not resume a completed goal', async () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, { maxIterations: 3, maxToolCalls: 5 });
+		updateGoal(session, { status: 'complete', completionEvidence: 'verified' });
+
+		const events: RuntimeEvent[] = [];
+		for await (const event of streamChatGoal(
+			config,
+			session,
+			{ ...input, message: 'resume' },
+			new AbortController().signal
+		))
+			events.push(event);
+
+		expect(loadGoal(session)?.status).toBe('complete');
+		expect(events.at(-1)).toMatchObject({
+			type: 'run_finished',
+			result: { text: expect.stringContaining('cannot be resumed') },
+		});
 		expect(streamMock).not.toHaveBeenCalled();
 	});
 

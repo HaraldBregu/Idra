@@ -11,7 +11,9 @@ export function setGoal(state: SessionState, objective: string, budget: GoalBudg
 	const current = loadGoal(state);
 	const preserveUsage =
 		current?.objective === normalized &&
-		(current.status === 'active' || current.status === 'paused');
+		(current.status === 'active' ||
+			current.status === 'paused' ||
+			current.status === 'budget_limited');
 	const goal: ThreadGoal = preserveUsage
 		? { ...current, status: 'active', budget, budgetReason: undefined }
 		: {

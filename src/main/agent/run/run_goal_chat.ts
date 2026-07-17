@@ -35,8 +35,13 @@ export async function* streamChatGoal(
 	}
 
 	if (action === 'pause') {
-		const goal = updateGoal(session, { status: 'paused' });
-		const text = goal ? 'Goal paused.' : 'No goal is set for this thread.';
+		const current = loadGoal(session);
+		const goal = current?.status === 'active' ? updateGoal(session, { status: 'paused' }) : current;
+		const text = !goal
+			? 'No goal is set for this thread.'
+			: goal.status === 'paused'
+				? 'Goal paused.'
+				: `Goal is ${goal.status}.`;
 		const result = goalCommandResponse(session, text);
 		addAssistantMessage(session, text, []);
 		appendRun(session, { type: 'run_finished', result });
@@ -56,19 +61,24 @@ export async function* streamChatGoal(
 	}
 
 	if (action === 'resume') {
-		const goal = updateGoal(session, {
-			status: 'active',
-			budget: getGoalSettings(),
-			budgetReason: undefined,
-		});
-		if (!goal) {
-			const text = 'No goal is set for this thread.';
+		const current = loadGoal(session);
+		if (!current || current.status === 'complete') {
+			const text = current
+				? 'Completed goals cannot be resumed. Set a new goal to continue.'
+				: 'No goal is set for this thread.';
 			const result = goalCommandResponse(session, text);
 			addAssistantMessage(session, text, []);
 			appendRun(session, { type: 'run_finished', result });
 			yield { type: 'model_call_delta', delta: text };
 			yield { type: 'run_finished', result };
 			return;
+		}
+		if (current.status !== 'active') {
+			updateGoal(session, {
+				status: 'active',
+				budget: getGoalSettings(),
+				budgetReason: undefined,
+			});
 		}
 		appendGoalContinuation(session);
 		yield* streamGoal(config, session, input, signal, category);
