@@ -35,7 +35,7 @@ describe('Policies settings', () => {
 	it('renders top-level tool defaults and their rules', async () => {
 		render(<PoliciesPage />);
 
-		expect(await screen.findByText('read')).toBeInTheDocument();
+		expect((await screen.findAllByText('read')).length).toBeGreaterThan(0);
 		expect(screen.getByText('write')).toBeInTheDocument();
 		expect(screen.getByText('edit')).toBeInTheDocument();
 		expect(screen.getByText('Desktop')).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('Policies settings', () => {
 	it('updates the default owned by one tool', async () => {
 		const user = userEvent.setup();
 		render(<PoliciesPage />);
-		await screen.findByText('read');
+		await screen.findByText('Desktop/file.txt');
 
 		const readDefault = screen.getAllByRole('combobox')[0];
 		readDefault.focus();
@@ -63,7 +63,7 @@ describe('Policies settings', () => {
 	it('adds a rule to the selected tool bucket', async () => {
 		const user = userEvent.setup();
 		render(<PoliciesPage />);
-		await screen.findByText('read');
+		await screen.findByText('Desktop/file.txt');
 
 		await user.type(screen.getByPlaceholderText('pathPlaceholder'), '/tmp/shared');
 		await user.click(screen.getByRole('button', { name: 'add' }));
