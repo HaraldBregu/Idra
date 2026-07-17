@@ -229,13 +229,13 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Policies
 	{
-		path: '/settings/policies',
+		path: '/settings/assistant/policies',
 		labelKey: 'settings.policies.toolsTitle',
 		descriptionKey: 'settings.policies.toolsDescription',
 		keywords: 'policy permission tool write edit exec allow deny ask',
 	},
 	{
-		path: '/settings/policies',
+		path: '/settings/assistant/policies',
 		labelKey: 'settings.policies.permissionsTitle',
 		descriptionKey: 'settings.policies.permissionsDescription',
 		keywords: 'path directory folder permission allow deny tool access override',
@@ -327,7 +327,7 @@ export const SETTINGS_NAVIGATION = [
 		icon: HeartPulse,
 	},
 	{
-		path: '/settings/policies',
+		path: '/settings/assistant/policies',
 		labelKey: 'settings.tabs.policies',
 		descriptionKey: 'settings.overview.descriptions.policies',
 		icon: ShieldCheck,
