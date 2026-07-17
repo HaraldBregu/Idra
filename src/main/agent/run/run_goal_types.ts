@@ -1,13 +1,9 @@
 import type { Provider, Tool } from '../types';
 import type { LlmRequest, LlmResponse } from '../../models/llm';
 import type { ModelTurnStream } from './run_model_turn';
+import type { GoalBudget } from '../goal';
 
-export interface GoalBudget {
-	maxIterations: number;
-	maxToolCalls: number;
-	maxTokens?: number;
-	timeoutMs?: number;
-}
+export type { GoalBudget } from '../goal';
 
 export interface CriterionCheck {
 	passed: boolean;

@@ -40,7 +40,7 @@ import {
 	setModelId,
 	setProviderId,
 } from '../agent/settings/settings_store';
-import type { GoalBudget } from '../agent/run/run_goal_types';
+import type { GoalBudget } from '../agent/goal';
 import { listLibrary } from '../agent/library';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
 

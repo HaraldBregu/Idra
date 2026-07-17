@@ -1,4 +1,4 @@
-import type { GoalBudget } from '../run/run_goal_types';
+import type { GoalBudget } from '../goal';
 
 export type SettingsSchema = {
 	providerId: string | undefined;

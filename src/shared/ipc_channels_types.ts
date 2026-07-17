@@ -40,11 +40,11 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.goalSettings]: {
 		args: [];
-		result: import('../main/agent/run/run_goal_types').GoalBudget;
+		result: import('../main/agent/goal').GoalBudget;
 	};
 	[AgentChannels.goalSaveSettings]: {
-		args: [settings: Partial<import('../main/agent/run/run_goal_types').GoalBudget>];
-		result: import('../main/agent/run/run_goal_types').GoalBudget;
+		args: [settings: Partial<import('../main/agent/goal').GoalBudget>];
+		result: import('../main/agent/goal').GoalBudget;
 	};
 	[AgentChannels.cancel]: { args: []; result: void };
 	[AgentChannels.lastMessages]: {
