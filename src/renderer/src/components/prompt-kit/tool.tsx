@@ -67,6 +67,7 @@ export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	if (toolPart.serviceKind === 'mcp' || type.startsWith('mcp__')) return Plug;
 	if (type.includes('skill')) return Sparkles;
 	if (type === 'create_image') return Image;
+	if (type === 'exec') return Terminal;
 	return Wrench;
 }
 
