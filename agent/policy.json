@@ -1,0 +1,17 @@
+{
+	"defaultMode": "ask",
+	"defaultPermissions": [
+		{
+			"path": "/Users/haraldbregu/Documents/friday/agent",
+			"allow": "*",
+			"deny": [],
+			"ask": [],
+			"recursive": true
+		}
+	],
+	"permissions": {
+		"allow": [],
+		"deny": [],
+		"ask": []
+	}
+}
