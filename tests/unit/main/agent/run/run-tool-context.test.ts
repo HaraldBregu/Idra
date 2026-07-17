@@ -14,11 +14,7 @@ jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	getPermissionRules,
 }));
 
-import {
-	createContext,
-	fileToolState,
-	rememberTool,
-} from '../../../../../src/main/agent/context';
+import { createContext, fileToolState, rememberTool } from '../../../../../src/main/agent/context';
 import { respondToolPermission } from '../../../../../src/main/agent/policy';
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
@@ -136,35 +132,41 @@ describe('tool context permissions', () => {
 	it.each(['approve', 'approve_always'] as const)(
 		'remembers an %s read folder for the next read in that folder',
 		async (decision) => {
-		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-folder-'));
-		const firstPath = path.join(root, 'first.txt');
-		const secondPath = path.join(root, 'second.txt');
-		const read = jest.fn().mockResolvedValue('content');
-		const context = createContext();
-		const firstCall: ToolCall = { id: 'read-first', name: 'read', args: { path: firstPath } };
-		const firstEvents = runToolCall(fakeTool('read', read), firstCall, true, undefined, context);
+			const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-folder-'));
+			const firstPath = path.join(root, 'first.txt');
+			const secondPath = path.join(root, 'second.txt');
+			const read = jest.fn().mockResolvedValue('content');
+			const context = createContext();
+			const firstCall: ToolCall = { id: 'read-first', name: 'read', args: { path: firstPath } };
+			const firstEvents = runToolCall(fakeTool('read', read), firstCall, true, undefined, context);
 
-		expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_call_start' });
-		expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_permission_request' });
-		const firstEnd = firstEvents.next();
-		expect(respondToolPermission(firstCall.id, decision)).toBe(true);
-		expect((await firstEnd).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(context.tools).toEqual([
-			{
-				toolName: 'read',
-				fileName: 'first.txt',
-				path: realPath(firstPath),
-				folderPath: realPath(root),
-			},
-		]);
+			expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_call_start' });
+			expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_permission_request' });
+			const firstEnd = firstEvents.next();
+			expect(respondToolPermission(firstCall.id, decision)).toBe(true);
+			expect((await firstEnd).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
+			expect(context.tools).toEqual([
+				{
+					toolName: 'read',
+					fileName: 'first.txt',
+					path: realPath(firstPath),
+					folderPath: realPath(root),
+				},
+			]);
 
-		const secondCall: ToolCall = { id: 'read-second', name: 'read', args: { path: secondPath } };
-		const secondEvents = runToolCall(fakeTool('read', read), secondCall, true, undefined, context);
-		const sequence = [(await secondEvents.next()).value, (await secondEvents.next()).value];
+			const secondCall: ToolCall = { id: 'read-second', name: 'read', args: { path: secondPath } };
+			const secondEvents = runToolCall(
+				fakeTool('read', read),
+				secondCall,
+				true,
+				undefined,
+				context
+			);
+			const sequence = [(await secondEvents.next()).value, (await secondEvents.next()).value];
 
-		expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
-		expect(read).toHaveBeenCalledTimes(2);
-		},
+			expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
+			expect(read).toHaveBeenCalledTimes(2);
+		}
 	);
 
 	it('asks again when the next read is in a different folder', async () => {

@@ -1,10 +1,5 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import {
-	fileToolState,
-	isFileCreation,
-	rememberTool,
-	type AgentContext,
-} from '../context';
+import { fileToolState, isFileCreation, rememberTool, type AgentContext } from '../context';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
@@ -52,8 +47,7 @@ export async function* runToolCall(
 				mode: 'ask',
 			};
 			const decision = await waitForToolPermission(toolCall.id);
-			if (decision !== 'reject' && toolCall.name === 'read' && state)
-				rememberTool(context, state);
+			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
 			if (decision === 'approve_always') {
 				const signature = toolRuleSignature(toolCall.name, toolCall.args);
 				if (signature) addPermissionRule('allow', signature);

@@ -17,7 +17,7 @@ describe('tool context state', () => {
 		const context: AgentContext = {};
 		const state = fileToolState('write', { path: 'directory/example.txt' }, root);
 
-			expect(state).toEqual({
+		expect(state).toEqual({
 			toolName: 'write',
 			fileName: 'example.txt',
 			path: realPath(path.join(root, 'directory', 'example.txt')),
