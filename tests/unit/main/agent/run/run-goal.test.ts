@@ -175,4 +175,118 @@ describe('thread goals', () => {
 		).rejects.toThrow('cancelled');
 		expect(loadGoal(session)?.status).toBe('paused');
 	});
+
+	it('does not execute a tool batch that exceeds the remaining tool budget', async () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, { maxIterations: 3, maxToolCalls: 1 });
+		streamMock.mockImplementationOnce(async function* () {
+			yield {
+				type: 'assistant_message',
+				content: '',
+				toolCalls: [
+					{ id: 'tool-1', name: 'inspect', args: {} },
+					{ id: 'tool-2', name: 'inspect', args: {} },
+				],
+			};
+			throw new Error('the rejected tool batch must not resume');
+		});
+
+		const events: RuntimeEvent[] = [];
+		for await (const event of streamGoal(config, session, input, new AbortController().signal))
+			events.push(event);
+
+		expect(events.some((event) => event.type === 'tool_call_start')).toBe(false);
+		expect(loadGoal(session)).toMatchObject({
+			status: 'budget_limited',
+			budgetReason: 'max_tool_calls',
+			usage: { toolCalls: 0 },
+		});
+	});
+
+	it('stops before tool execution when the token budget is crossed', async () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, {
+			maxIterations: 3,
+			maxToolCalls: 5,
+			maxTokens: 10,
+		});
+		streamMock.mockImplementationOnce(async function* () {
+			yield {
+				type: 'model_call_end',
+				model: 'test-model',
+				usage: { inputTokens: 7, outputTokens: 4 },
+			};
+			throw new Error('the over-budget turn must not resume');
+		});
+
+		for await (const event of streamGoal(config, session, input, new AbortController().signal))
+			void event;
+
+		expect(loadGoal(session)).toMatchObject({
+			status: 'budget_limited',
+			budgetReason: 'max_tokens',
+			usage: { inputTokens: 7, outputTokens: 4 },
+		});
+	});
+
+	it('stops after goal_complete changes the durable status', async () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, { maxIterations: 3, maxToolCalls: 5 });
+		const result: SessionResult = {
+			text: 'done',
+			model: 'test-model',
+			toolCalls: [],
+			numTurns: 1,
+			subtype: 'success',
+			sessionId,
+			stopReason: 'end_turn',
+		};
+		streamMock.mockImplementationOnce(async function* () {
+			yield {
+				type: 'tool_call_start',
+				toolCallId: 'complete-1',
+				toolName: 'goal_complete',
+				input: { evidence: 'tests passed' },
+			};
+			updateGoal(session, { status: 'complete', completionEvidence: 'tests passed' });
+			yield { type: 'run_finished', result };
+		});
+
+		const events: RuntimeEvent[] = [];
+		for await (const event of streamGoal(config, session, input, new AbortController().signal))
+			events.push(event);
+
+		expect(streamMock).toHaveBeenCalledTimes(1);
+		expect(loadGoal(session)).toMatchObject({
+			status: 'complete',
+			completionEvidence: 'tests passed',
+		});
+		expect(events.at(-1)).toEqual({ type: 'run_finished', result });
+	});
+
+	it('turns an expired deadline into a timeout outcome', async () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, {
+			maxIterations: 3,
+			maxToolCalls: 5,
+			timeoutMs: 5,
+		});
+		streamMock.mockImplementationOnce(async function* (_config, _session, _input, signal) {
+			await new Promise<void>((_, reject) => {
+				signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+			});
+		});
+
+		for await (const event of streamGoal(config, session, input, new AbortController().signal))
+			void event;
+
+		expect(loadGoal(session)).toMatchObject({
+			status: 'budget_limited',
+			budgetReason: 'timeout',
+		});
+	});
 });

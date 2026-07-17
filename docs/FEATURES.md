@@ -86,7 +86,8 @@ Provider API keys are stored in Friday's local application data and are masked a
 Typing `/` opens a keyboard- and mouse-accessible command menu:
 
 - `/skill` selects and invokes an installed skill.
-- `/goal` asks the agent to establish a goal.
+- `/goal <objective>` creates a durable goal for the current conversation. Active goals continue only after tool-using turns, keep their usage budget in `goal.json`, and require an evidence audit before completion.
+- `/goal` shows the current thread goal; `/goal pause`, `/goal resume`, and `/goal clear` control its lifecycle.
 - `/task_list` asks for the scheduled-task list.
 - `/create_task` asks the agent to create a schedule.
 - `/delete_task` asks the agent to delete a schedule.
