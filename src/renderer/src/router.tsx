@@ -316,6 +316,14 @@ const routes: RouteObject[] = [
 								),
 							},
 							{
+								path: 'goal',
+								element: (
+									<SettingsRouteWrapper>
+										<GoalPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
 								path: 'health',
 								element: (
 									<SettingsRouteWrapper>
