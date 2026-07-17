@@ -1,0 +1,11 @@
+{
+	"engineId": "brave",
+	"engines": {
+		"brave": {
+			"apiKey": ""
+		},
+		"tavily": {
+			"apiKey": ""
+		}
+	}
+}
