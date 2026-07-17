@@ -165,6 +165,7 @@ describe('thread goals', () => {
 		const controller = new AbortController();
 		controller.abort(new Error('cancelled'));
 		streamMock.mockImplementationOnce(async function* () {
+			yield* [] as RuntimeEvent[];
 			throw new Error('cancelled');
 		});
 
@@ -276,6 +277,7 @@ describe('thread goals', () => {
 			timeoutMs: 5,
 		});
 		streamMock.mockImplementationOnce(async function* (_config, _session, _input, signal) {
+			yield* [] as RuntimeEvent[];
 			await new Promise<void>((_, reject) => {
 				signal.addEventListener('abort', () => reject(signal.reason), { once: true });
 			});
