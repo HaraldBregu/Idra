@@ -9,6 +9,7 @@ import {
 	LoaderCircle,
 	Plug,
 	Sparkles,
+	Terminal,
 	Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
