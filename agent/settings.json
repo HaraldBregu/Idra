@@ -1,7 +1,0 @@
-{
-	"goal": {
-		"maxIterations": 5,
-		"maxToolCalls": 30,
-		"timeoutMs": 600000
-	}
-}
