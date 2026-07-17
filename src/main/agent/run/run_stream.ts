@@ -127,7 +127,6 @@ async function* loop(
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.tools = undefined;
-	session.context.toolPermissions = undefined;
 
 	yield {
 		type: 'run_started',

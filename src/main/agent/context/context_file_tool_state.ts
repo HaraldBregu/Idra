@@ -10,5 +10,10 @@ export function fileToolState(
 ): ToolContextState | undefined {
 	if (typeof args.path !== 'string' || args.path.length === 0) return undefined;
 	const resolved = realPath(resolveUserPath(args.path, baseDir));
-	return { toolName, fileName: path.basename(resolved), path: resolved };
+	return {
+		toolName,
+		fileName: path.basename(resolved),
+		path: resolved,
+		folderPath: path.dirname(resolved),
+	};
 }

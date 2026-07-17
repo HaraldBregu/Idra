@@ -5,9 +5,11 @@ import { realPath } from '../../../../../src/main/shared/real_path';
 
 const getPathPermissions = jest.fn();
 const getPermissionRules = jest.fn();
+const addPermissionRule = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
+	addPermissionRule,
 	getPathPermissions,
 	getPermissionRules,
 }));
@@ -21,6 +23,7 @@ import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent
 const noRules = { allow: [] as string[], deny: [] as string[], ask: [] as string[] };
 
 beforeEach(() => {
+	addPermissionRule.mockReset();
 	getPathPermissions.mockReset().mockReturnValue([]);
 	getPermissionRules.mockReset().mockReturnValue(noRules);
 });
@@ -54,7 +57,12 @@ describe('tool context permissions', () => {
 		expect(write).toHaveBeenCalledTimes(1);
 		expect(edit).toHaveBeenCalledTimes(1);
 		expect(context.tools).toEqual([
-			{ toolName: 'write', fileName: 'example.txt', path: realPath(target) },
+			{
+				toolName: 'write',
+				fileName: 'example.txt',
+				path: realPath(target),
+				folderPath: realPath(path.dirname(target)),
+			},
 		]);
 	});
 
@@ -121,7 +129,9 @@ describe('tool context permissions', () => {
 		expect(context.tools).toBeUndefined();
 	});
 
-	it('remembers an approved read folder for the next read in that folder', async () => {
+	it.each(['approve', 'approve_always'] as const)(
+		'remembers an %s read folder for the next read in that folder',
+		async (decision) => {
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-folder-'));
 		const firstPath = path.join(root, 'first.txt');
 		const secondPath = path.join(root, 'second.txt');
@@ -133,10 +143,15 @@ describe('tool context permissions', () => {
 		expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_call_start' });
 		expect((await firstEvents.next()).value).toMatchObject({ type: 'tool_permission_request' });
 		const firstEnd = firstEvents.next();
-		expect(respondToolPermission(firstCall.id, 'approve')).toBe(true);
+		expect(respondToolPermission(firstCall.id, decision)).toBe(true);
 		expect((await firstEnd).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
-		expect(context.toolPermissions).toEqual([
-			{ toolName: 'read', folderPath: realPath(root), permission: 'allow' },
+		expect(context.tools).toEqual([
+			{
+				toolName: 'read',
+				fileName: 'first.txt',
+				path: realPath(firstPath),
+				folderPath: realPath(root),
+			},
 		]);
 
 		const secondCall: ToolCall = { id: 'read-second', name: 'read', args: { path: secondPath } };
@@ -145,7 +160,8 @@ describe('tool context permissions', () => {
 
 		expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
 		expect(read).toHaveBeenCalledTimes(2);
-	});
+		},
+	);
 
 	it('asks again when the next read is in a different folder', async () => {
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-other-'));
@@ -153,8 +169,13 @@ describe('tool context permissions', () => {
 		const otherFolder = path.join(root, 'other');
 		const read = jest.fn().mockResolvedValue('content');
 		const context = createContext();
-		context.toolPermissions = [
-			{ toolName: 'read', folderPath: realPath(approvedFolder), permission: 'allow' },
+		context.tools = [
+			{
+				toolName: 'read',
+				fileName: 'approved.txt',
+				path: realPath(path.join(approvedFolder, 'approved.txt')),
+				folderPath: realPath(approvedFolder),
+			},
 		];
 		const call: ToolCall = {
 			id: 'read-other',
@@ -183,7 +204,7 @@ describe('tool context permissions', () => {
 		const end = events.next();
 		expect(respondToolPermission(call.id, 'reject')).toBe(true);
 		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(context.toolPermissions).toBeUndefined();
+		expect(context.tools).toBeUndefined();
 	});
 });
 

@@ -6,11 +6,9 @@ export function hasToolPermission(
 	folderPath: string,
 ): boolean {
 	return (
-		context?.toolPermissions?.some(
+		context?.tools?.some(
 			(state) =>
-				state.toolName === toolName &&
-				state.folderPath === folderPath &&
-				state.permission === 'allow',
+				state.toolName === toolName && state.folderPath === folderPath,
 		) ?? false
 	);
 }

@@ -7,17 +7,11 @@ export interface ToolContextState {
 	toolName: string;
 	fileName: string;
 	path: string;
-}
-
-export interface ToolPermissionContextState {
-	toolName: string;
 	folderPath: string;
-	permission: 'allow';
 }
 
 export interface AgentContext {
 	skill?: string;
 	loadedSkills?: LoadedSkill[];
 	tools?: ToolContextState[];
-	toolPermissions?: ToolPermissionContextState[];
 }

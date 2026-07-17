@@ -6,10 +6,4 @@ export { hasToolPermission } from './context_has_tool_permission';
 export { isFileCreation } from './context_is_file_creation';
 export { rememberSkill } from './context_remember_skill';
 export { rememberTool } from './context_remember_tool';
-export { rememberToolPermission } from './context_remember_tool_permission';
-export type {
-	AgentContext,
-	LoadedSkill,
-	ToolContextState,
-	ToolPermissionContextState,
-} from './context_types';
+export type { AgentContext, LoadedSkill, ToolContextState } from './context_types';
