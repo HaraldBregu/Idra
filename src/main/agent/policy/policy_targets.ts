@@ -2,8 +2,8 @@ import path from 'node:path';
 import { resolveUserPath } from '../../shared/user_path';
 import { toolPathDir } from './policy_path';
 
-const PATCH_TARGET = /^\s*\*\* (?:Add|Delete|Update) File: (.+?)\s*$/gm;
-const PATCH_MOVE = /^\s*\*\* Move to: (.+?)\s*$/gm;
+const PATCH_TARGET = /^[ \t]*[*]{3} (?:Add|Delete|Update) File: (.+?)[ \t]*$/gm;
+const PATCH_MOVE = /^[ \t]*[*]{3} Move to: (.+?)[ \t]*$/gm;
 
 function patchDirs(input: string, baseDir: string): string[] {
 	const dirs: string[] = [];
