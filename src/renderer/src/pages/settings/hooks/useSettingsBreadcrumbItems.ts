@@ -58,9 +58,9 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 	);
 	if (serviceItem) return [{ label: t(serviceItem.labelKey) }];
 
-	const current = SETTINGS_NAVIGATION.find((item) => (
+	const current = SETTINGS_NAVIGATION.filter((item) => (
 		location.pathname === item.path || location.pathname.startsWith(`${item.path}/`)
-	));
+	)).sort((a, b) => b.path.length - a.path.length)[0];
 	if (!current) return [];
 
 	const items: SettingsBreadcrumbItem[] = [{ label: t(current.labelKey) }];
