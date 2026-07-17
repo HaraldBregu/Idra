@@ -192,14 +192,9 @@ describe('thread goals', () => {
 		controller.abort(new Error('cancelled'));
 		streamMock.mockImplementationOnce(async function* () {
 			yield* [] as RuntimeEvent[];
-			throw new Error('cancelled');
 		});
 
-		await expect(
-			(async () => {
-				for await (const event of streamGoal(config, session, input, controller.signal)) void event;
-			})()
-		).rejects.toThrow('cancelled');
+		for await (const event of streamGoal(config, session, input, controller.signal)) void event;
 		expect(loadGoal(session)?.status).toBe('paused');
 	});
 
@@ -350,8 +345,8 @@ describe('thread goals', () => {
 		});
 		streamMock.mockImplementationOnce(async function* (_config, _session, _input, signal) {
 			yield* [] as RuntimeEvent[];
-			await new Promise<void>((_, reject) => {
-				signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+			await new Promise<void>((resolve) => {
+				signal.addEventListener('abort', () => resolve(), { once: true });
 			});
 		});
 

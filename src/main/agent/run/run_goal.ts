@@ -100,7 +100,7 @@ export async function* streamGoal(
 			}
 		} catch (error) {
 			if (signal.aborted) {
-				updateGoal(session, { status: 'paused' });
+				if (loadGoal(session)?.status === 'active') updateGoal(session, { status: 'paused' });
 				throw error;
 			}
 			if (timeoutController.signal.aborted) {
@@ -113,6 +113,11 @@ export async function* streamGoal(
 		}
 
 		finishGoalTurn(session, Date.now() - startedAtMs);
+		if (signal.aborted) {
+			if (loadGoal(session)?.status === 'active') updateGoal(session, { status: 'paused' });
+			return;
+		}
+		if (timeoutController.signal.aborted) stoppedByBudget = 'timeout';
 		goal = loadGoal(session);
 		if (!goal) {
 			if (lastResult) yield { type: 'run_finished', result: lastResult };
