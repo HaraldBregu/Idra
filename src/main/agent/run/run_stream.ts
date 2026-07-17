@@ -85,7 +85,7 @@ async function* loop(
 		throw new Error('Agent requires a configured provider and model.');
 
 	const interactive = options.interactive ?? true;
-	const tools: Tool[] = options.tools ?? [
+	const tools: Tool[] = options.tools ? [...options.tools] : [
 		readTool,
 		writeTool,
 		editTool,
@@ -169,12 +169,13 @@ async function* loop(
 			}
 
 			if (isExhausted(session)) {
+				session.stopReason = 'max_iterations';
 				const result = toResult(session, 'error_max_turns');
 				yield { type: 'run_finished', result };
 				return;
 			}
 
-			for await (const event of runToolCalls(tools, turn.toolCalls, interactive)) {
+			for await (const event of runToolCalls(tools, turn.toolCalls, interactive, signal)) {
 				yield event;
 				if (event.type !== 'tool_call_end' || event.toolName !== loadSkillTool.name) continue;
 				const output = event.output as { skill?: unknown; content?: unknown } | undefined;

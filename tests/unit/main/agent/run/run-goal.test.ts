@@ -27,6 +27,7 @@ describe('thread goals', () => {
 	let config: Config;
 
 	beforeEach(async () => {
+		streamMock.mockReset();
 		location = await fs.mkdtemp(path.join(os.tmpdir(), 'friday-goal-'));
 		config = { location };
 	});

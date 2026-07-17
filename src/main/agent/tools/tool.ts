@@ -17,8 +17,8 @@ export function tool<T extends z.ZodType>({
 		name,
 		description,
 		schema: toJsonSchema(inputSchema),
-		async run(input: Record<string, unknown>) {
-			return execute(inputSchema.parse(input));
+		async run(input: Record<string, unknown>, signal?: AbortSignal) {
+			return execute(inputSchema.parse(input), signal);
 		},
 	};
 }
@@ -28,8 +28,8 @@ export function jsonTool({ name, description, schema, execute }: JsonToolConfig)
 		name,
 		description,
 		schema,
-		async run(input: Record<string, unknown>) {
-			return execute(input);
+		async run(input: Record<string, unknown>, signal?: AbortSignal) {
+			return execute(input, signal);
 		},
 	};
 }

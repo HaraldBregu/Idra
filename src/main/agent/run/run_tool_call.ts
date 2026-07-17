@@ -11,6 +11,7 @@ export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
 	interactive = true,
+	signal?: AbortSignal,
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 
@@ -53,8 +54,21 @@ export async function* runToolCall(
 			isError = true;
 		} else {
 			try {
-				output = await tool.run(toolCall.args);
+				if (signal?.aborted) throw signal.reason;
+				let abort: ((reason?: unknown) => void) | undefined;
+				const aborted = new Promise<never>((_, reject) => {
+					abort = () => reject(signal?.reason ?? new Error('Tool call aborted.'));
+					signal?.addEventListener('abort', abort, { once: true });
+				});
+				try {
+					output = await (signal
+						? Promise.race([Promise.resolve(tool.run(toolCall.args, signal)), aborted])
+						: tool.run(toolCall.args));
+				} finally {
+					if (abort) signal?.removeEventListener('abort', abort);
+				}
 			} catch (error) {
+				if (signal?.aborted) throw error;
 				const message = error instanceof Error ? error.message : String(error);
 				output = `Error: tool '${toolCall.name}' failed: ${message}`;
 				isError = true;

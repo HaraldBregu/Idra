@@ -16,6 +16,8 @@ export type AgentRunStopReason =
 	| 'end_turn'
 	| 'max_tokens'
 	| 'max_iterations'
+	| 'max_tool_calls'
+	| 'timeout'
 	| 'error'
 	| 'cancelled';
 

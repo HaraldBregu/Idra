@@ -227,6 +227,8 @@ export class Agent {
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
 	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
+	if (value === 'max_tool_calls') return 'max_tool_calls';
+	if (value === 'timeout') return 'timeout';
 	if (value === 'cancelled') return 'cancelled';
 	if (value === 'error') return 'error';
 	return 'end_turn';
@@ -389,10 +391,7 @@ function runtimeEventToAgentEvents(
 		return [
 			{
 				type: 'run_finished',
-				stopReason:
-					event.result.subtype === 'error_max_turns'
-						? 'max_iterations'
-						: normalizeStopReason(event.result.stopReason),
+				stopReason: normalizeStopReason(event.result.stopReason),
 				outputChars: event.result.text.length,
 				agentId,
 				runId,

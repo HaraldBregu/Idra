@@ -79,7 +79,10 @@ const execInputSchema = z.object({
 	node: z.string().optional().describe('Node id/name for host=node.'),
 });
 
-async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResult> {
+async function runExec(
+	input: z.infer<typeof execInputSchema>,
+	abortSignal?: AbortSignal,
+): Promise<ExecResult> {
 	const {
 		command,
 		workdir,
@@ -236,6 +239,8 @@ async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResu
 				stderrTruncated: stderrTruncated || undefined,
 			});
 		}, yieldMs);
+		const abort = () => child.kill('SIGTERM');
+		abortSignal?.addEventListener('abort', abort, { once: true });
 
 		if (timeoutMs !== undefined) {
 			timeoutTimer = setTimeout(() => {
@@ -249,10 +254,12 @@ async function runExec(input: z.infer<typeof execInputSchema>): Promise<ExecResu
 			settled = true;
 			clearTimeout(yieldTimer);
 			if (timeoutTimer) clearTimeout(timeoutTimer);
+			abortSignal?.removeEventListener('abort', abort);
 			reject(error);
 		});
 		child.on('close', (exitCode, signal) => {
 			if (timeoutTimer) clearTimeout(timeoutTimer);
+			abortSignal?.removeEventListener('abort', abort);
 			if (settled) return;
 			settled = true;
 			clearTimeout(yieldTimer);
