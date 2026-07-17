@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { fileToolState } from './context_file_tool_state';
 import { hasCreatedFile } from './context_has_created_file';
 import { hasToolPermission } from './context_has_tool_permission';
@@ -15,5 +14,5 @@ export function contextAllowsTool(
 	if (!state) return false;
 	if (isFileCreation(state)) return true;
 	if (toolName === 'edit') return hasCreatedFile(context, state.path);
-	return toolName === 'read' && hasToolPermission(context, toolName, path.dirname(state.path));
+	return toolName === 'read' && hasToolPermission(context, toolName, state.folderPath);
 }
