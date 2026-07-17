@@ -242,13 +242,13 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 	},
 	// Health
 	{
-		path: '/settings/tasks/health',
+		path: '/settings/assistant/health',
 		labelKey: 'settings.health.settingsTitle',
 		descriptionKey: 'settings.health.settingsDescription',
 		keywords: 'periodic health check interval provider model',
 	},
 	{
-		path: '/settings/tasks/health',
+		path: '/settings/assistant/health',
 		labelKey: 'settings.health.checklistTitle',
 		descriptionKey: 'settings.health.checklistDescription',
 		keywords: 'health checklist instructions agent HEALTH.md',
@@ -321,7 +321,7 @@ export const SETTINGS_NAVIGATION = [
 		icon: ListChecks,
 	},
 	{
-		path: '/settings/tasks/health',
+		path: '/settings/assistant/health',
 		labelKey: 'settings.tabs.health',
 		descriptionKey: 'settings.overview.descriptions.health',
 		icon: HeartPulse,
