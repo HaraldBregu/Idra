@@ -10,7 +10,6 @@ import {
 import type { Model } from '@/lib/compat';
 import type { PublicProvider } from '../../../../../../shared';
 import {
-	SettingsLoadingRows,
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
