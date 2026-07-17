@@ -4,7 +4,6 @@ import { agentLocation } from '../../shared/agent_location';
 import {
 	DEFAULT_PERMISSIONS,
 	type PathPermission,
-	type PermissionMode,
 	type PermissionRules,
 	type PermissionsSchema,
 } from './policy_types';
