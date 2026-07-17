@@ -296,14 +296,6 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'policies',
-						element: (
-							<SettingsRouteWrapper>
-								<PoliciesPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'assistant',
 						children: [
 							{
@@ -319,6 +311,22 @@ const routes: RouteObject[] = [
 								element: (
 									<SettingsRouteWrapper>
 										<ChatHistoryPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'health',
+								element: (
+									<SettingsRouteWrapper>
+										<HealthPage />
+									</SettingsRouteWrapper>
+								),
+							},
+							{
+								path: 'policies',
+								element: (
+									<SettingsRouteWrapper>
+										<PoliciesPage />
 									</SettingsRouteWrapper>
 								),
 							},
