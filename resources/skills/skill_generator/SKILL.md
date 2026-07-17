@@ -43,7 +43,7 @@ Each skill is one folder. The folder name is the skill id.
 
 Rules:
 
-- The folder name (skill id) must be unique under the skills root. Use a short, lowercase, hyphen- or underscore-separated name (e.g. `commit-helper`, `pdf_summarizer`).
+- The folder name (skill id) must be unique under the skills root. Use a short, lowercase snake_case name — words separated by underscores, never hyphens (e.g. `commit_helper`, `pdf_summarizer`).
 - `SKILL.md` must be named exactly that, at the top level of the folder.
 - Only create `scripts/`, `references/`, or `assets/` when the skill actually ships files in them — never empty.
 
