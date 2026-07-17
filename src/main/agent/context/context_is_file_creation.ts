@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import type { ToolContextState } from './context_types';
+
+export function isFileCreation(state: ToolContextState): boolean {
+	if (state.toolName !== 'write') return false;
+	try {
+		fs.lstatSync(state.path);
+		return false;
+	} catch (error) {
+		return error instanceof Error && 'code' in error && error.code === 'ENOENT';
+	}
+}

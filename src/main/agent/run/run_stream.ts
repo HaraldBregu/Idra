@@ -126,6 +126,7 @@ async function* loop(
 
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
+	session.context.tools = undefined;
 
 	yield {
 		type: 'run_started',
@@ -177,7 +178,13 @@ async function* loop(
 				return;
 			}
 
-			for await (const event of runToolCalls(tools, turn.toolCalls, interactive, signal)) {
+			for await (const event of runToolCalls(
+				tools,
+				turn.toolCalls,
+				interactive,
+				signal,
+				session.context,
+			)) {
 				yield event;
 				if (event.type !== 'tool_call_end' || event.toolName !== loadSkillTool.name) continue;
 				const output = event.output as { skill?: unknown; content?: unknown } | undefined;

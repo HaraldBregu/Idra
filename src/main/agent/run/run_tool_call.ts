@@ -1,5 +1,12 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
 import {
+	fileToolState,
+	isFileCreation,
+	rememberTool,
+	type AgentContext,
+} from '../context';
+import { agentLocation } from '../../shared/agent_location';
+import {
 	addPermissionRule,
 	resolveToolPermission,
 	toolRuleSignature,
@@ -11,9 +18,12 @@ export async function* runToolCall(
 	tool: Tool | undefined,
 	toolCall: ToolCall,
 	interactive = true,
-	signal?: AbortSignal
+	signal?: AbortSignal,
+	context?: AgentContext,
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
+	const state = fileToolState(toolCall.name, toolCall.args, agentLocation());
+	const createsFile = state ? isFileCreation(state) : false;
 
 	yield {
 		type: 'tool_call_start',
@@ -29,7 +39,7 @@ export async function* runToolCall(
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
 	} else {
-		let permission = resolveToolPermission(toolCall.name, toolCall.args);
+		let permission = resolveToolPermission(toolCall.name, toolCall.args, context);
 
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
@@ -64,6 +74,7 @@ export async function* runToolCall(
 					output = await (signal
 						? Promise.race([Promise.resolve(tool.run(toolCall.args, signal)), aborted])
 						: tool.run(toolCall.args));
+					if (createsFile && state) rememberTool(context, state);
 				} finally {
 					if (abort) signal?.removeEventListener('abort', abort);
 				}

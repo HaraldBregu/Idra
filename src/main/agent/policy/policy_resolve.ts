@@ -1,3 +1,4 @@
+import { contextAllowsTool, type AgentContext } from '../context';
 import { pathPermissionFor } from './policy_override';
 import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
@@ -49,18 +50,23 @@ function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefi
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
+	context?: AgentContext,
 ): PermissionMode {
 	const agentDirectory = realPath(AGENT_DIRECTORY);
 	const targetDirs = toolTargetDirs(toolName, args, AGENT_DIRECTORY).map(realPath);
+	let permission: PermissionMode;
 	if (
 		targetDirs.length > 0 &&
 		targetDirs.every((targetDir) => isPathWithin(agentDirectory, targetDir))
 	)
-		return 'allow';
+		permission = 'allow';
+	else {
+		const override = pathOverride(toolName, targetDirs);
+		const ruled = ruleOverride(toolName, args);
+		permission = override ?? ruled ?? (targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow');
+	}
 
-	const override = pathOverride(toolName, targetDirs);
-	if (override) return override;
-	const ruled = ruleOverride(toolName, args);
-	if (ruled) return ruled;
-	return targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow';
+	if (permission === 'ask' && contextAllowsTool(context, toolName, args, AGENT_DIRECTORY))
+		return 'allow';
+	return permission;
 }
