@@ -95,13 +95,7 @@ describe('tool context permissions', () => {
 		const write = jest.fn().mockRejectedValue(new Error('failed'));
 		const call: ToolCall = { id: 'write-failed', name: 'write', args: { path: target } };
 		const context = createContext();
-		const events = runToolCall(
-			fakeTool('write', write),
-			call,
-			true,
-			undefined,
-			context,
-		);
+		const events = runToolCall(fakeTool('write', write), call, true, undefined, context);
 		const sequence = [(await events.next()).value, (await events.next()).value];
 
 		expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
@@ -119,13 +113,7 @@ describe('tool context permissions', () => {
 		const context = createContext();
 		const events: RuntimeEvent[] = [];
 
-		for await (const event of runToolCall(
-			fakeTool('write', write),
-			call,
-			true,
-			undefined,
-			context,
-		))
+		for await (const event of runToolCall(fakeTool('write', write), call, true, undefined, context))
 			events.push(event);
 
 		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });

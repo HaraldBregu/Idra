@@ -7,7 +7,7 @@ export function contextAllowsTool(
 	context: AgentContext | undefined,
 	toolName: string,
 	args: Record<string, unknown>,
-	baseDir: string,
+	baseDir: string
 ): boolean {
 	const state = fileToolState(toolName, args, baseDir);
 	if (!state) return false;

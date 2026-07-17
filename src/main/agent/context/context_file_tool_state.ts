@@ -6,7 +6,7 @@ import type { ToolContextState } from './context_types';
 export function fileToolState(
 	toolName: string,
 	args: Record<string, unknown>,
-	baseDir: string,
+	baseDir: string
 ): ToolContextState | undefined {
 	if (typeof args.path !== 'string' || args.path.length === 0) return undefined;
 	const resolved = realPath(resolveUserPath(args.path, baseDir));

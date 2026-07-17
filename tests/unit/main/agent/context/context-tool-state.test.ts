@@ -2,11 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
 import { realPath } from '../../../../../src/main/shared/real_path';
-import {
-	fileToolState,
-	hasCreatedFile,
-	rememberTool,
-} from '../../../../../src/main/agent/context';
+import { fileToolState, hasCreatedFile, rememberTool } from '../../../../../src/main/agent/context';
 import type { AgentContext } from '../../../../../src/main/agent/context';
 
 describe('tool context state', () => {

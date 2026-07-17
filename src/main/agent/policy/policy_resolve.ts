@@ -50,7 +50,7 @@ function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefi
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
-	context?: AgentContext,
+	context?: AgentContext
 ): PermissionMode {
 	const agentDirectory = realPath(AGENT_DIRECTORY);
 	const targetDirs = toolTargetDirs(toolName, args, AGENT_DIRECTORY).map(realPath);
@@ -64,9 +64,7 @@ export function resolveToolPermission(
 		const override = pathOverride(toolName, targetDirs);
 		const ruled = ruleOverride(toolName, args);
 		permission =
-			override ??
-			ruled ??
-			(targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow');
+			override ?? ruled ?? (targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow');
 	}
 
 	if (permission === 'ask' && contextAllowsTool(context, toolName, args, AGENT_DIRECTORY))

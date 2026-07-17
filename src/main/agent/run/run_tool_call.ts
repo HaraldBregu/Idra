@@ -1,10 +1,5 @@
 import type { RuntimeEvent, Tool, ToolCall } from '../types';
-import {
-	fileToolState,
-	isFileCreation,
-	rememberTool,
-	type AgentContext,
-} from '../context';
+import { fileToolState, isFileCreation, rememberTool, type AgentContext } from '../context';
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
@@ -19,7 +14,7 @@ export async function* runToolCall(
 	toolCall: ToolCall,
 	interactive = true,
 	signal?: AbortSignal,
-	context?: AgentContext,
+	context?: AgentContext
 ): AsyncGenerator<RuntimeEvent, void> {
 	const startedAtMs = Date.now();
 	const state = fileToolState(toolCall.name, toolCall.args, agentLocation());

@@ -40,12 +40,12 @@ describe('resolveToolPermission', () => {
 			resolveToolPermission('exec', {
 				command: 'rm -rf *',
 				workdir: '/appdata/agent/work',
-			}),
+			})
 		).toBe('allow');
 		expect(
 			resolveToolPermission('apply_patch', {
 				input: '*** Update File: /appdata/agent/a.ts',
-			}),
+			})
 		).toBe('allow');
 	});
 
@@ -56,17 +56,16 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/x' })).toBe('ask');
 		expect(resolveToolPermission('exec', { command: 'ls -la', workdir: '/x' })).toBe('ask');
 		expect(resolveToolPermission('apply_patch', { input: '*** Add File: /outside/a.ts' })).toBe(
-			'ask',
+			'ask'
 		);
 		expect(resolveToolPermission('read', { path: '/appdata/agent-other/a.txt' })).toBe('ask');
 	});
 
 	it('asks when any apply_patch target is outside the agent directory', () => {
 		getPathPermissions.mockReturnValue([rule('/appdata/agent', ['*'], [])]);
-		const input = [
-			'*** Update File: /appdata/agent/a.ts',
-			'*** Update File: /outside/b.ts',
-		].join('\n');
+		const input = ['*** Update File: /appdata/agent/a.ts', '*** Update File: /outside/b.ts'].join(
+			'\n'
+		);
 		expect(resolveToolPermission('apply_patch', { input })).toBe('ask');
 	});
 
@@ -117,7 +116,7 @@ describe('path permissions', () => {
 		getPathPermissions.mockReturnValue([rule('/trusted', ['*'], [])]);
 		expect(resolveToolPermission('edit', { path: '/trusted/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/trusted' })).toBe(
-			'allow',
+			'allow'
 		);
 	});
 
@@ -142,10 +141,7 @@ describe('path permissions', () => {
 	});
 
 	it('the deepest matching rule wins', () => {
-		getPathPermissions.mockReturnValue([
-			rule('/repo', [], ['*']),
-			rule('/repo/pub', ['*'], []),
-		]);
+		getPathPermissions.mockReturnValue([rule('/repo', [], ['*']), rule('/repo/pub', ['*'], [])]);
 		expect(resolveToolPermission('write', { path: '/repo/pub/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('write', { path: '/repo/a.txt' })).toBe('deny');
 	});
@@ -160,14 +156,14 @@ describe('Tool(pattern) rules', () => {
 	it('allows an exact Bash(...) command over an asking default', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Bash(rm -rf node_modules)'] });
 		expect(resolveToolPermission('exec', { command: 'rm -rf node_modules', workdir: '/x' })).toBe(
-			'allow',
+			'allow'
 		);
 	});
 
 	it('matches a ":*" prefix wildcard on the command', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, ask: ['Bash(git push:*)'] });
 		expect(resolveToolPermission('exec', { command: 'git push origin main', workdir: '/x' })).toBe(
-			'ask',
+			'ask'
 		);
 	});
 
@@ -175,7 +171,9 @@ describe('Tool(pattern) rules', () => {
 		getPermissionRules.mockReturnValue({ ...noRules, deny: ['Bash(git:*)'] });
 		expect(resolveToolPermission('exec', { command: 'git', workdir: '/x' })).toBe('deny');
 		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/x' })).toBe('deny');
-		expect(resolveToolPermission('exec', { command: 'git-evil --root', workdir: '/x' })).toBe('ask');
+		expect(resolveToolPermission('exec', { command: 'git-evil --root', workdir: '/x' })).toBe(
+			'ask'
+		);
 	});
 
 	it('anchors path-rule wildcards at a path separator', () => {
