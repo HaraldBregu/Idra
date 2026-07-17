@@ -27,8 +27,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/mcp',
 			'/settings/library',
 			'/settings/tasks',
-			'/settings/tasks/health',
-			'/settings/policies',
 		],
 	},
 	{
