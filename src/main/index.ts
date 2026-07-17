@@ -26,6 +26,7 @@ import {
 } from './shared/error_reporter';
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
+import { sync as syncSkills } from './agent/skills';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
