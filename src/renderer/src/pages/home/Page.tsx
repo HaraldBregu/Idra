@@ -10,7 +10,7 @@ import {
 	ChatContainerScrollAnchor,
 } from '@/components/ui/chat-container';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty';
-import logo from '@resources/svgs/logo.svg';
+import logo from '@resources/icons/icon.png';
 import { PromptEditor } from '@/components/prompt-editor';
 import {
 	PromptInputAction,
