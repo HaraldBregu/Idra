@@ -16,7 +16,7 @@ function patchTargets(input: string, baseDir: string): string[] {
 export function toolPermissionTargets(
 	toolName: string,
 	args: Record<string, unknown>,
-	baseDir: string,
+	baseDir: string
 ): string[] {
 	if (toolName === 'apply_patch')
 		return typeof args.input === 'string' ? patchTargets(args.input, baseDir) : [];

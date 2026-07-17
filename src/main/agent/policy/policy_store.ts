@@ -52,11 +52,7 @@ export function setToolPermission(toolName: string, permission: ToolPermission):
 	return getPermissions();
 }
 
-export function addPermissionRule(
-	toolName: string,
-	bucket: PermissionBucket,
-	rule: string,
-): void {
+export function addPermissionRule(toolName: string, bucket: PermissionBucket, rule: string): void {
 	const permission = getToolPermission(toolName);
 	if (permission[bucket].includes(rule)) return;
 	setToolPermission(toolName, {

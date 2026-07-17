@@ -49,11 +49,7 @@ export async function* runToolCall(
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
 			if (decision === 'approve_always') {
-				for (const target of toolPermissionTargets(
-					toolCall.name,
-					toolCall.args,
-					agentLocation(),
-				))
+				for (const target of toolPermissionTargets(toolCall.name, toolCall.args, agentLocation()))
 					addPermissionRule(toolCall.name, 'allow', target);
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';

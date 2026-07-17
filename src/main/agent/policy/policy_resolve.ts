@@ -7,7 +7,7 @@ import type { PermissionMode } from './policy_types';
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
-	context?: AgentContext,
+	context?: AgentContext
 ): PermissionMode {
 	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const configured = getPermissions()[toolName];
@@ -16,13 +16,9 @@ export function resolveToolPermission(
 	else if (targets.length === 0) permission = configured.default;
 	else {
 		const decisions = targets.map(
-			(target) => toolPermissionFor(toolName, target) ?? configured.default,
+			(target) => toolPermissionFor(toolName, target) ?? configured.default
 		);
-		permission = decisions.includes('deny')
-			? 'deny'
-			: decisions.includes('ask')
-				? 'ask'
-				: 'allow';
+		permission = decisions.includes('deny') ? 'deny' : decisions.includes('ask') ? 'ask' : 'allow';
 	}
 
 	if (permission === 'ask' && contextAllowsTool(context, toolName, args, AGENT_DIRECTORY))

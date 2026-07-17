@@ -1,9 +1,6 @@
 import type { ToolPermission } from './policy_types';
 
-export function normalizeToolPermission(
-	value: unknown,
-	fallback: ToolPermission,
-): ToolPermission {
+export function normalizeToolPermission(value: unknown, fallback: ToolPermission): ToolPermission {
 	if (!value || typeof value !== 'object' || Array.isArray(value))
 		return {
 			default: fallback.default,
@@ -23,7 +20,7 @@ export function normalizeToolPermission(
 						candidate
 							.filter((item): item is string => typeof item === 'string')
 							.map((item) => item.trim())
-							.filter(Boolean),
+							.filter(Boolean)
 					),
 				]
 			: [...otherwise];

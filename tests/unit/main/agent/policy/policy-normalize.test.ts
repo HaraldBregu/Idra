@@ -14,8 +14,8 @@ describe('normalizeToolPermission', () => {
 					ask: [],
 					permissions: { allow: ['legacy'] },
 				},
-				fallback,
-			),
+				fallback
+			)
 		).toEqual({ default: 'allow', allow: ['Desktop'], deny: [], ask: [] });
 	});
 

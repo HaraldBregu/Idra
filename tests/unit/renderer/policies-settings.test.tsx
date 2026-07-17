@@ -56,7 +56,7 @@ describe('Policies settings', () => {
 			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
 				...policy.read,
 				default: 'ask',
-			}),
+			})
 		);
 	});
 
@@ -72,7 +72,7 @@ describe('Policies settings', () => {
 			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
 				...policy.read,
 				allow: ['Desktop', '/tmp/shared'],
-			}),
+			})
 		);
 	});
 });

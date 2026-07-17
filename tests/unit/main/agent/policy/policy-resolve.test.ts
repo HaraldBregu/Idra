@@ -16,7 +16,7 @@ import type {
 
 const entry = (
 	defaultMode: ToolPermission['default'],
-	overrides: Partial<ToolPermission> = {},
+	overrides: Partial<ToolPermission> = {}
 ): ToolPermission => ({
 	default: defaultMode,
 	allow: [],
@@ -43,9 +43,9 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('edit', { path: '/outside/a.txt' })).toBe('ask');
 		expect(resolveToolPermission('exec', { command: 'rm -rf build' })).toBe('ask');
-		expect(
-			resolveToolPermission('apply_patch', { input: '*** Update File: /outside/a.ts' }),
-		).toBe('ask');
+		expect(resolveToolPermission('apply_patch', { input: '*** Update File: /outside/a.ts' })).toBe(
+			'ask'
+		);
 	});
 
 	it('allows unconfigured targetless tools but asks for unconfigured path tools', () => {
@@ -91,7 +91,7 @@ describe('resolveToolPermission', () => {
 		expect(
 			resolveToolPermission('read', {
 				path: path.join(os.homedir(), 'Desktop', 'example.txt'),
-			}),
+			})
 		).toBe('allow');
 	});
 
@@ -113,10 +113,7 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			apply_patch: entry('allow', { deny: ['/secret'] }),
 		});
-		const input = [
-			'*** Update File: /public/a.ts',
-			'*** Update File: /secret/b.ts',
-		].join('\n');
+		const input = ['*** Update File: /public/a.ts', '*** Update File: /secret/b.ts'].join('\n');
 		expect(resolveToolPermission('apply_patch', { input })).toBe('deny');
 	});
 

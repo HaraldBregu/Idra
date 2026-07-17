@@ -14,10 +14,7 @@ function commandMatches(rule: string, command: string): boolean {
 	return command === base || command.startsWith(`${base} `) || command.startsWith(`${base}/`);
 }
 
-export function toolPermissionFor(
-	toolName: string,
-	target: string,
-): PermissionMode | undefined {
+export function toolPermissionFor(toolName: string, target: string): PermissionMode | undefined {
 	const permission = getPermissions()[toolName];
 	if (!permission) return undefined;
 	let best: { specificity: number; decision: PermissionMode } | undefined;

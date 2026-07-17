@@ -76,7 +76,7 @@ const PoliciesPage: React.FC = () => {
 			window.agent.policySetTool(toolName, {
 				...permission,
 				[mode]: permission[mode].filter((value) => value !== target),
-			}),
+			})
 		);
 	};
 
@@ -96,8 +96,8 @@ const PoliciesPage: React.FC = () => {
 	const rules = policy
 		? tools.flatMap((toolName) =>
 				RULE_MODES.flatMap((mode) =>
-					policy[toolName][mode].map((target) => ({ toolName, mode, target })),
-				),
+					policy[toolName][mode].map((target) => ({ toolName, mode, target }))
+				)
 			)
 		: [];
 
@@ -137,9 +137,7 @@ const PoliciesPage: React.FC = () => {
 							{tools.map((toolName) => (
 								<Item key={toolName} variant="outline" size="md" className={ROW_CLASS}>
 									<ItemContent className="min-w-0 flex-1">
-										<ItemTitle className="max-w-full truncate font-mono">
-											{toolName}
-										</ItemTitle>
+										<ItemTitle className="max-w-full truncate font-mono">{toolName}</ItemTitle>
 									</ItemContent>
 									<ItemActions className="ml-auto flex-none justify-end gap-2">
 										<span className="text-xs text-muted-foreground">
@@ -184,14 +182,10 @@ const PoliciesPage: React.FC = () => {
 										className={ROW_CLASS}
 									>
 										<ItemContent className="min-w-0 flex-1">
-											<ItemTitle className="max-w-full truncate font-mono">
-												{target}
-											</ItemTitle>
+											<ItemTitle className="max-w-full truncate font-mono">{target}</ItemTitle>
 										</ItemContent>
 										<ItemActions className="ml-auto flex-none justify-end gap-2">
-											<span className="font-mono text-xs text-muted-foreground">
-												{toolName}
-											</span>
+											<span className="font-mono text-xs text-muted-foreground">{toolName}</span>
 											<span className="text-xs text-muted-foreground">
 												{t(`settings.policies.modes.${mode}`)}
 											</span>
@@ -248,7 +242,7 @@ const PoliciesPage: React.FC = () => {
 											placeholder={t(
 												newTool === 'exec'
 													? 'settings.policies.commandPlaceholder'
-													: 'settings.policies.pathPlaceholder',
+													: 'settings.policies.pathPlaceholder'
 											)}
 											className="h-7 min-w-48 flex-1 font-mono text-xs"
 										/>
