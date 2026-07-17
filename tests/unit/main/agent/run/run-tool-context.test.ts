@@ -3,15 +3,13 @@ import os from 'node:os';
 import path from 'node:path';
 import { realPath } from '../../../../../src/main/shared/real_path';
 
-const getPathPermissions = jest.fn();
-const getPermissionRules = jest.fn();
+const getPermissions = jest.fn();
 const addPermissionRule = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
 	addPermissionRule,
-	getPathPermissions,
-	getPermissionRules,
+	getPermissions,
 }));
 
 import { createContext, fileToolState, rememberTool } from '../../../../../src/main/agent/context';
@@ -20,12 +18,18 @@ import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import { runToolCalls } from '../../../../../src/main/agent/run/run_tool_calls';
 import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent/types';
 
-const noRules = { allow: [] as string[], deny: [] as string[], ask: [] as string[] };
+const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };
+const askingPermissions = {
+	read: asking,
+	write: asking,
+	edit: asking,
+	apply_patch: asking,
+	exec: asking,
+};
 
 beforeEach(() => {
 	addPermissionRule.mockReset();
-	getPathPermissions.mockReset().mockReturnValue([]);
-	getPermissionRules.mockReset().mockReturnValue(noRules);
+	getPermissions.mockReset().mockReturnValue(askingPermissions);
 });
 
 describe('tool context permissions', () => {
@@ -113,9 +117,10 @@ describe('tool context permissions', () => {
 
 	it('never overrides a deny rule', async () => {
 		const target = path.join(os.tmpdir(), 'friday-denied', 'example.txt');
-		getPathPermissions.mockReturnValue([
-			{ path: path.dirname(target), allow: [], deny: ['write'], ask: [], recursive: true },
-		]);
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			write: { ...asking, deny: [path.dirname(target)] },
+		});
 		const write = jest.fn().mockResolvedValue({ path: target });
 		const call: ToolCall = { id: 'write-denied', name: 'write', args: { path: target } };
 		const context = createContext();
@@ -166,6 +171,8 @@ describe('tool context permissions', () => {
 
 			expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
 			expect(read).toHaveBeenCalledTimes(2);
+			if (decision === 'approve_always')
+				expect(addPermissionRule).toHaveBeenCalledWith('read', 'allow', realPath(firstPath));
 		}
 	);
 
@@ -216,9 +223,10 @@ describe('tool context permissions', () => {
 	it('does not override a read deny with an allowed folder context', async () => {
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-denied-'));
 		const target = path.join(root, 'example.txt');
-		getPathPermissions.mockReturnValue([
-			{ path: root, allow: [], deny: ['read'], ask: [], recursive: true },
-		]);
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			read: { ...asking, deny: [root] },
+		});
 		const read = jest.fn().mockResolvedValue('content');
 		const call: ToolCall = { id: 'read-denied', name: 'read', args: { path: target } };
 		const context = createContext();
