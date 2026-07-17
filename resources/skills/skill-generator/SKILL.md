@@ -1,5 +1,5 @@
 ---
-name: skill_generator
+name: skill-generator
 description: Creates new skills for this application. Gathers what the skill should do, generates a valid SKILL.md, and installs it into the agent skills folder so the app can discover, search, and load it.
 category: developerTools
 tags:
@@ -11,7 +11,7 @@ version: 1.0.0
 
 # Skill Generator
 
-You are running with the skill_generator skill active. Your job is to author a new skill for this application and store it in the agent skills folder, following the exact format the app's skill loader expects.
+You are running with the skill-generator skill active. Your job is to author a new skill for this application and store it in the agent skills folder, following the exact format the app's skill loader expects.
 
 ## Where skills live
 
