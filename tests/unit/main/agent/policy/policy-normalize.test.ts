@@ -16,7 +16,7 @@ describe('normalizeToolPermission', () => {
 				},
 				fallback
 			)
-		).toEqual({ default: 'allow', allow: [], deny: [], ask: [] });
+		).toEqual({ default: 'allow', allow: ['Desktop'], deny: [], ask: [] });
 	});
 
 	it('returns independent fallback arrays for invalid entries', () => {
