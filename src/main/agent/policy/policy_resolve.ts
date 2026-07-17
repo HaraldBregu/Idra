@@ -63,7 +63,10 @@ export function resolveToolPermission(
 	else {
 		const override = pathOverride(toolName, targetDirs);
 		const ruled = ruleOverride(toolName, args);
-		permission = override ?? ruled ?? (targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow');
+		permission =
+			override ??
+			ruled ??
+			(targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow');
 	}
 
 	if (permission === 'ask' && contextAllowsTool(context, toolName, args, AGENT_DIRECTORY))

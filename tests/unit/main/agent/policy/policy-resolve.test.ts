@@ -49,9 +49,9 @@ describe('resolveToolPermission', () => {
 		).toBe('allow');
 	});
 
-	it('asks for every targeted tool outside the agent directory', () => {
+	it('allows new-file writes but asks for other targeted tools outside the agent directory', () => {
 		expect(resolveToolPermission('read', { path: '/outside/a.txt' })).toBe('ask');
-		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('ask');
+		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('edit', { path: '/x' })).toBe('ask');
 		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/x' })).toBe('ask');
 		expect(resolveToolPermission('exec', { command: 'ls -la', workdir: '/x' })).toBe('ask');

@@ -7,6 +7,8 @@ export function isFileCreation(state: ToolContextState): boolean {
 		fs.lstatSync(state.path);
 		return false;
 	} catch (error) {
-		return typeof error === 'object' && error !== null && 'code' in error && error.code === 'ENOENT';
+		return (
+			typeof error === 'object' && error !== null && 'code' in error && error.code === 'ENOENT'
+		);
 	}
 }
