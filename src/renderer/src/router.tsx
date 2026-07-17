@@ -288,14 +288,6 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'tasks/health',
-						element: (
-							<SettingsRouteWrapper>
-								<HealthPage />
-							</SettingsRouteWrapper>
-						),
-					},
-					{
 						path: 'tasks',
 						element: (
 							<SettingsRouteWrapper>
