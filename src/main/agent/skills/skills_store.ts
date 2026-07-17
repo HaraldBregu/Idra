@@ -34,6 +34,10 @@ export function setSkill(id: string, settings: SkillSettings): void {
 	store.set('skills', { ...allSkills(), [id]: settings });
 }
 
+export function setSkills(skills: Record<string, SkillSettings>): void {
+	store.set('skills', skills);
+}
+
 export function removeSkill(id: string): void {
 	const next = { ...allSkills() };
 	delete next[id];
