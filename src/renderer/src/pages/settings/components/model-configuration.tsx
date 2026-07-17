@@ -105,6 +105,9 @@ export function ModelProviderConfiguration({
 			className="rounded-lg border border-border/70 bg-card"
 		>
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
+				{provider && (
+					<ProviderAvatar providerId={provider.id} name={providerName} className="size-6" />
+				)}
 				<div className="min-w-0 flex-1">
 					<div className="truncate text-[13px] font-medium leading-4 text-foreground">
 						{triggerTitle ?? providerName}

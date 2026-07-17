@@ -441,8 +441,8 @@
 			}
 		},
 		"goal": {
-			"title": "Goal runs",
-			"description": "Budget for goals started with /goal in chat. Raise these limits to let a goal run longer.",
+			"title": "Goal",
+			"description": "Budget for goals started with /goal in chat.",
 			"fields": {
 				"maxIterations": "Max iterations",
 				"maxToolCalls": "Max tool calls",

@@ -441,8 +441,8 @@
 			}
 		},
 		"goal": {
-			"title": "Esecuzioni obiettivo",
-			"description": "Budget per gli obiettivi avviati con /goal in chat. Aumenta questi limiti per far durare di piu un obiettivo.",
+			"title": "Obiettivo",
+			"description": "Budget per gli obiettivi avviati con /goal in chat.",
 			"fields": {
 				"maxIterations": "Iterazioni massime",
 				"maxToolCalls": "Chiamate strumenti massime",
