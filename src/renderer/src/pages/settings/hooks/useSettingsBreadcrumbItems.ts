@@ -10,6 +10,12 @@ interface SettingsBreadcrumbItem {
 	readonly path?: string;
 }
 
+const ASSISTANT_SUBPAGE_LABEL_KEYS: Record<string, string> = {
+	'/settings/assistant/chathistory': 'settings.chatHistory.title',
+	'/settings/assistant/health': 'settings.tabs.health',
+	'/settings/assistant/policies': 'settings.tabs.policies',
+};
+
 export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] {
 	const { t } = useTranslation();
 	const location = useLocation();
