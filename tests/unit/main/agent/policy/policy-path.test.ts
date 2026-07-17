@@ -1,33 +1,34 @@
 import os from 'node:os';
 import path from 'node:path';
-import {
-	resolveUserPath,
-	toolPathDir,
-	isPathWithin,
-} from '../../../../../src/main/agent/policy/policy_path';
+import { resolveUserPath } from '../../../../../src/main/shared/user_path';
+import { toolPathDir, isPathWithin } from '../../../../../src/main/agent/policy/policy_path';
+
+const agentDir = path.resolve('/appdata/agent');
 
 describe('resolveUserPath', () => {
 	it('expands a bare tilde to the home directory', () => {
-		expect(resolveUserPath('~')).toBe(os.homedir());
+		expect(resolveUserPath('~', agentDir)).toBe(os.homedir());
 	});
 	it('expands ~/ prefixes', () => {
-		expect(resolveUserPath('~/docs')).toBe(path.resolve(os.homedir(), 'docs'));
+		expect(resolveUserPath('~/docs', agentDir)).toBe(path.resolve(os.homedir(), 'docs'));
 	});
-	it('resolves ordinary paths absolutely', () => {
-		expect(resolveUserPath('foo/bar')).toBe(path.resolve('foo/bar'));
+	it('resolves relative paths from the agent directory', () => {
+		expect(resolveUserPath('foo/bar', agentDir)).toBe(path.resolve(agentDir, 'foo/bar'));
 	});
 });
 
 describe('toolPathDir', () => {
 	it('returns the parent dir of a path arg', () => {
-		expect(toolPathDir({ path: '/a/b/c.txt' })).toBe(path.dirname(path.resolve('/a/b/c.txt')));
+		expect(toolPathDir({ path: '/a/b/c.txt' }, agentDir)).toBe(
+			path.dirname(path.resolve('/a/b/c.txt')),
+		);
 	});
 	it('falls back to workdir', () => {
-		expect(toolPathDir({ workdir: '/a/b' })).toBe(path.resolve('/a/b'));
+		expect(toolPathDir({ workdir: '/a/b' }, agentDir)).toBe(path.resolve('/a/b'));
 	});
 	it('returns undefined when neither is present', () => {
-		expect(toolPathDir({})).toBeUndefined();
-		expect(toolPathDir({ path: '' })).toBeUndefined();
+		expect(toolPathDir({}, agentDir)).toBeUndefined();
+		expect(toolPathDir({ path: '' }, agentDir)).toBeUndefined();
 	});
 });
 

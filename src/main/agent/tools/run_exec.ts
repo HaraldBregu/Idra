@@ -1,16 +1,10 @@
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import os from 'node:os';
-import path from 'node:path';
 import { z } from 'zod';
+import { agentLocation } from '../../shared/agent_location';
+import { resolveUserPath } from '../../shared/user_path';
 import { tool } from './tool';
 import { registry } from './run_process';
-
-function resolvePath(p: string): string {
-	if (p === '~') return os.homedir();
-	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
-	return path.resolve(p);
-}
 
 interface ExecResult {
 	command: string;
@@ -107,7 +101,7 @@ async function runExec(
 		}
 	}
 
-	const cwd = resolvePath(workdir ?? '.');
+	const cwd = resolveUserPath(workdir ?? '.', agentLocation());
 	const yieldMs = yieldMsInput ?? 10000;
 	const timeoutMs = timeoutInput === undefined ? undefined : timeoutInput * 1000;
 	const startedAt = Date.now();

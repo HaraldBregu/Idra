@@ -67,11 +67,17 @@ describe('resolveToolPermission', () => {
 	});
 
 	it('asks when any apply_patch target is outside the agent directory', () => {
+		getPathPermissions.mockReturnValue([rule('/appdata/agent', ['*'], [])]);
 		const input = [
 			'*** Update File: /appdata/agent/a.ts',
 			'*** Update File: /outside/b.ts',
 		].join('\n');
 		expect(resolveToolPermission('apply_patch', { input })).toBe('ask');
+	});
+
+	it('resolves relative targets inside the agent directory', () => {
+		expect(resolveToolPermission('write', { path: 'notes/a.txt' })).toBe('allow');
+		expect(resolveToolPermission('exec', { command: 'ls' })).toBe('allow');
 	});
 
 	it('allows tools that have no filesystem target', () => {

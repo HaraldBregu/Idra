@@ -1,7 +1,8 @@
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
+import { agentLocation } from '../../shared/agent_location';
+import { resolveUserPath } from '../../shared/user_path';
 import { tool } from './tool';
 
 const BEGIN_PATCH_MARKER = '*** Begin Patch';
@@ -23,12 +24,6 @@ type Hunk =
 	| { kind: 'add'; path: string; contents: string }
 	| { kind: 'delete'; path: string }
 	| { kind: 'update'; path: string; movePath?: string; chunks: UpdateChunk[] };
-
-function resolvePath(p: string): string {
-	if (p === '~') return os.homedir();
-	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
-	return path.resolve(p);
-}
 
 function parsePatch(input: string): Hunk[] {
 	const lines = input.trim().split(/\r?\n/);
@@ -243,7 +238,7 @@ export const applyPatchTool = tool({
 		const deleted: string[] = [];
 
 		for (const hunk of hunks) {
-			const target = resolvePath(hunk.path);
+			const target = resolveUserPath(hunk.path, agentLocation());
 			if (hunk.kind === 'add') {
 				await fs.mkdir(path.dirname(target), { recursive: true });
 				await fs.writeFile(target, hunk.contents, 'utf8');
@@ -255,7 +250,7 @@ export const applyPatchTool = tool({
 				const contents = await fs.readFile(target, 'utf8');
 				const applied = applyUpdateChunks(target, contents, hunk.chunks);
 				if (hunk.movePath) {
-					const moveTarget = resolvePath(hunk.movePath);
+					const moveTarget = resolveUserPath(hunk.movePath, agentLocation());
 					await fs.mkdir(path.dirname(moveTarget), { recursive: true });
 					await fs.writeFile(moveTarget, applied, 'utf8');
 					if (moveTarget !== target) await fs.rm(target);

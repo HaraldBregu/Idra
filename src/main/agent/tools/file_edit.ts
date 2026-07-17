@@ -1,14 +1,8 @@
 import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
 import { z } from 'zod';
+import { agentLocation } from '../../shared/agent_location';
+import { resolveUserPath } from '../../shared/user_path';
 import { tool } from './tool';
-
-function resolvePath(p: string): string {
-	if (p === '~') return os.homedir();
-	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
-	return path.resolve(p);
-}
 
 export const editTool = tool({
 	name: 'edit',
@@ -23,7 +17,7 @@ export const editTool = tool({
 		newText: z.string().describe('Replacement text.'),
 	}),
 	execute: async ({ path: filePath, oldText, newText }) => {
-		const resolved = resolvePath(filePath);
+		const resolved = resolveUserPath(filePath, agentLocation());
 		const content = await fs.readFile(resolved, 'utf8');
 		const firstIndex = content.indexOf(oldText);
 		if (firstIndex === -1) {

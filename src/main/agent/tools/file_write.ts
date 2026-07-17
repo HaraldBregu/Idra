@@ -1,14 +1,9 @@
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { z } from 'zod';
+import { agentLocation } from '../../shared/agent_location';
+import { resolveUserPath } from '../../shared/user_path';
 import { tool } from './tool';
-
-function resolvePath(p: string): string {
-	if (p === '~') return os.homedir();
-	if (p.startsWith('~/') || p.startsWith('~\\')) return path.resolve(os.homedir(), p.slice(2));
-	return path.resolve(p);
-}
 
 export const writeTool = tool({
 	name: 'write',
@@ -22,7 +17,7 @@ export const writeTool = tool({
 		content: z.string().describe('UTF-8 text content to write.'),
 	}),
 	execute: async ({ path: filePath, content }) => {
-		const resolved = resolvePath(filePath);
+		const resolved = resolveUserPath(filePath, agentLocation());
 		await fs.mkdir(path.dirname(resolved), { recursive: true });
 		await fs.writeFile(resolved, content, 'utf8');
 		return { path: resolved };

@@ -39,7 +39,7 @@ function pathOverride(toolName: string, dirs: string[]): PermissionMode | undefi
 	const decisions = dirs.map((dir) => pathPermissionFor(toolName, dir));
 	if (decisions.includes('deny')) return 'deny';
 	if (decisions.includes('ask')) return 'ask';
-	if (decisions.includes('allow')) return 'allow';
+	if (decisions.length > 0 && decisions.every((decision) => decision === 'allow')) return 'allow';
 	return undefined;
 }
 
@@ -49,7 +49,7 @@ export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
-	const targetDirs = toolTargetDirs(toolName, args);
+	const targetDirs = toolTargetDirs(toolName, args, AGENT_DIRECTORY);
 	if (
 		targetDirs.length > 0 &&
 		targetDirs.every((targetDir) => isPathWithin(AGENT_DIRECTORY, targetDir))
