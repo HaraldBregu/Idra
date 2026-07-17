@@ -1,7 +1,13 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { clearGoal, loadGoal, setGoal, updateGoal } from '../../../../../src/main/agent/goal';
+import {
+	clearGoal,
+	loadGoal,
+	saveGoal,
+	setGoal,
+	updateGoal,
+} from '../../../../../src/main/agent/goal';
 import {
 	createSessionState,
 	init,
@@ -61,6 +67,7 @@ describe('thread goals', () => {
 		setGoal(session, input.message, { maxIterations: 1, maxToolCalls: 5 });
 		const limited = loadGoal(session)!;
 		limited.usage.iterations = 1;
+		saveGoal(session, limited);
 		updateGoal(session, { status: 'budget_limited', budgetReason: 'max_iterations' });
 		setGoal(session, input.message, { maxIterations: 3, maxToolCalls: 5 });
 
