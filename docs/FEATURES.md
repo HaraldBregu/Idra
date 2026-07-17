@@ -162,25 +162,26 @@ Subagents are non-interactive. Any tool that resolves to `ask` is denied because
 
 The Policies screen provides persistent controls for sensitive tools:
 
-- `write`, `edit`, `exec`, and `apply_patch` default to **Ask**.
-- Each gated tool can be set to **Allow**, **Ask**, or **Deny**.
+- Every tool owns a top-level policy object with `default`, `allow`, `ask`, and `deny` fields.
+- `read` and `write` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
+- Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
-- An always-allow decision stores the relevant directory and, for a simple executable command, the command name.
-- Allowed paths and commands are shown beneath each policy entry.
+- An always-allow decision stores the exact file or patch target in that tool's `allow` list; `exec` stores the raw command.
+- Tool-specific paths and commands can be added to or removed from the `allow`, `ask`, and `deny` lists.
 - The policy can be reset to defaults.
 
-Restricted directories are stronger than tool modes:
+Rule resolution is tool-local:
 
-- A restriction denies every tool that targets the directory, including read operations.
-- Restrictions can be recursive or direct-child only.
-- Directories can be typed or selected with the folder picker, changed between recursive and non-recursive, and removed.
-- Friday's own agent data directory is recursively restricted by default.
+- A file path matches that file, while a directory path also matches its descendants.
+- The most specific matching path wins; equally specific rules use **Deny**, then **Ask**, then **Allow** precedence.
+- `exec` supports exact command rules and a trailing `:*` prefix form such as `git push:*`.
+- A rule for one tool never changes another tool's decision.
 
 Important boundaries:
 
-- Command allowlisting rejects commands containing shell control operators, redirection, command substitution, backticks, or newlines.
-- `exec` policy resolution examines the working directory and command name; it is not an operating-system sandbox and cannot prove that a command will not access another path.
-- The default policy mode is displayed in Settings but cannot currently be edited there.
+- `exec` policy resolution examines the command string; it is not an operating-system sandbox and cannot prove which paths a command will access.
+- Relative policy paths such as `Desktop` resolve from the user home directory.
+- Defaults and rule lists are editable from Settings for every stored tool policy.
 
 ## Personalization, workspace, and memory
 
