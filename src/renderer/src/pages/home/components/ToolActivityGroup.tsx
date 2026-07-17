@@ -38,6 +38,7 @@ function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactEle
 	const [isOpen, setIsOpen] = useState(false);
 	const isRunning = group.tools.some(isToolRunning);
 	const label = toolGroupLabel(group.type, group.tools);
+	const KindIcon = toolIcon(group.tools[0]);
 
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
