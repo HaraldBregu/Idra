@@ -42,14 +42,15 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 	if (location.pathname === '/settings') return [];
 
-	if (location.pathname === '/settings/assistant/chathistory') {
+	const assistantSubpageLabelKey = ASSISTANT_SUBPAGE_LABEL_KEYS[location.pathname];
+	if (assistantSubpageLabelKey) {
 		const assistantItem = SETTINGS_MODEL_SERVICE_ITEMS.find((item) => item.id === 'assistant');
 		return [
 			{
 				label: assistantItem ? t(assistantItem.labelKey) : t('settings.modelServices.assistantName'),
 				path: '/settings/assistant',
 			},
-			{ label: t('settings.chatHistory.title') },
+			{ label: t(assistantSubpageLabelKey) },
 		];
 	}
 
