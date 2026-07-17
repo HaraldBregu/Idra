@@ -119,7 +119,7 @@ function ToolOutput({ output }: { readonly output: unknown }) {
 	);
 }
 
-function Tool({ toolPart, label, defaultOpen = false, className, style }: ToolProps) {
+function Tool({ toolPart, label, defaultOpen = false, hideIcon = false, className, style }: ToolProps) {
 	const [isOpen, setIsOpen] = useState(defaultOpen);
 	const { state, toolCallId } = toolPart;
 	const input = toolPart.input ?? (toolPart.inputText ? { raw: toolPart.inputText } : undefined);
