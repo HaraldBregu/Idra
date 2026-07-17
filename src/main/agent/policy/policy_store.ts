@@ -45,7 +45,10 @@ export function getToolPermission(toolName: string): ToolPermission {
 }
 
 export function setToolPermission(toolName: string, permission: ToolPermission): PermissionsSchema {
-	store.set(toolName, normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION));
+	store.store = {
+		...getPermissions(),
+		[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),
+	};
 	return getPermissions();
 }
 

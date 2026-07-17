@@ -1,6 +1,6 @@
 export type PermissionMode = 'allow' | 'deny' | 'ask';
 
-export type PermissionBucket = Exclude<PermissionMode, never>;
+export type PermissionBucket = 'allow' | 'deny' | 'ask';
 
 export interface ToolPermission {
 	default: PermissionMode;
