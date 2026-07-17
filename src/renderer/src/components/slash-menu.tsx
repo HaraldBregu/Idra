@@ -19,14 +19,17 @@ type SlashMenuItem = {
 	readonly run: (props: { editor: Editor; range: Range }) => void;
 };
 
-// ponytail: eager one-shot load; refreshed on the next keystroke if it lands late.
+// ponytail: cached list, refreshed each time the menu enters the skill phase.
 let skillNames: readonly string[] = [];
-void window.agent
-	?.skillsList()
-	.then((list) => {
-		skillNames = list.map((skill) => skill.name);
-	})
-	.catch(() => {});
+async function refreshSkillNames(): Promise<void> {
+	try {
+		const list = await window.agent?.skillsList();
+		if (list) skillNames = list.map((skill) => skill.name);
+	} catch {
+		// keep the previous list
+	}
+}
+void refreshSkillNames();
 
 const insert = (text: string) => ({ editor, range }: { editor: Editor; range: Range }) =>
 	editor.chain().focus().insertContentAt(range, text).run();
