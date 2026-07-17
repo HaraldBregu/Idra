@@ -109,18 +109,11 @@ export interface AgentInvokeChannelMap {
 		args: [];
 		result: string | undefined;
 	};
-	[AgentChannels.policySetPathPermission]: {
+	[AgentChannels.policySetTool]: {
 		args: [
-			path: string,
-			allow: import('../main/agent/policy/policy_types').ToolSelector,
-			deny: import('../main/agent/policy/policy_types').ToolSelector,
-			ask: import('../main/agent/policy/policy_types').ToolSelector,
-			recursive: boolean,
+			toolName: string,
+			permission: import('../main/agent/policy/policy_types').ToolPermission,
 		];
-		result: import('../main/agent/policy/policy_types').PermissionsSchema;
-	};
-	[AgentChannels.policyRemovePathPermission]: {
-		args: [path: string];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
 	};
 	[AgentChannels.policyReset]: {

@@ -45,14 +45,7 @@ export interface AgentApi {
 	cronSetRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
 	policyGet: () => Promise<PermissionsSchema>;
 	policyPickDirectory: () => Promise<string | undefined>;
-	policySetPathPermission: (
-		path: string,
-		allow: ToolSelector,
-		deny: ToolSelector,
-		ask: ToolSelector,
-		recursive: boolean
-	) => Promise<PermissionsSchema>;
-	policyRemovePathPermission: (path: string) => Promise<PermissionsSchema>;
+	policySetTool: (toolName: string, permission: ToolPermission) => Promise<PermissionsSchema>;
 	policyReset: () => Promise<PermissionsSchema>;
 	healthGetSettings: () => Promise<HealthSettings>;
 	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
@@ -162,7 +155,7 @@ import type { LibraryFile } from '../shared/library_types';
 import type { CronRuntime, CronSchedule } from '../main/agent/cron';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { GoalBudget } from '../main/agent/goal';
-import type { PermissionsSchema, ToolSelector } from '../main/agent/policy/policy_types';
+import type { PermissionsSchema, ToolPermission } from '../main/agent/policy/policy_types';
 import type {
 	AgentHistoryMessage,
 	AgentResponseEvent,

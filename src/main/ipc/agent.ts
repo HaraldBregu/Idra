@@ -22,12 +22,11 @@ import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../sh
 import { normalizeAgentInputFiles } from '../../shared/agent_files';
 import {
 	getPermissions,
-	removePathPermission,
 	resetPermissions,
 	respondToolPermission,
-	setPathPermission,
+	setToolPermission,
 	type PermissionsSchema,
-	type ToolSelector,
+	type ToolPermission,
 } from '../agent/policy';
 import {
 	getHealthSettings,
@@ -82,10 +81,20 @@ function optionalTrimmedString(value: unknown): string | undefined {
 	return trimmed || undefined;
 }
 
-function toToolSelector(value: unknown): ToolSelector {
-	if (value === '*') return '*';
-	if (!Array.isArray(value)) return [];
-	return value.filter((item): item is string => typeof item === 'string' && item.length > 0);
+function toToolPermission(value: unknown): ToolPermission {
+	if (!isRecord(value)) throw new Error('Invalid tool permission.');
+	if (value.default !== 'allow' && value.default !== 'ask' && value.default !== 'deny')
+		throw new Error('Invalid default permission.');
+	const list = (input: unknown): string[] => {
+		if (!Array.isArray(input)) throw new Error('Invalid permission rules.');
+		return [...new Set(input.map(optionalTrimmedString).filter((item): item is string => !!item))];
+	};
+	return {
+		default: value.default,
+		allow: list(value.allow),
+		deny: list(value.deny),
+		ask: list(value.ask),
+	};
 }
 
 function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
@@ -410,38 +419,12 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.policySetPathPermission,
-			wrapSimpleHandler(
-				(
-					dirPath: unknown,
-					allow: unknown,
-					deny: unknown,
-					ask: unknown,
-					recursive: unknown
-				): PermissionsSchema => {
-					const dir = optionalTrimmedString(dirPath);
-					if (!dir) throw new Error('Invalid directory path.');
-					setPathPermission({
-						path: dir,
-						allow: toToolSelector(allow),
-						deny: toToolSelector(deny),
-						ask: toToolSelector(ask),
-						recursive: recursive === true,
-					});
-					return getPermissions();
-				},
-				AgentChannels.policySetPathPermission
-			)
-		);
-
-		ipcMain.handle(
-			AgentChannels.policyRemovePathPermission,
-			wrapSimpleHandler((dirPath: unknown): PermissionsSchema => {
-				const dir = optionalTrimmedString(dirPath);
-				if (!dir) throw new Error('Invalid directory path.');
-				removePathPermission(dir);
-				return getPermissions();
-			}, AgentChannels.policyRemovePathPermission)
+			AgentChannels.policySetTool,
+			wrapSimpleHandler((toolName: unknown, value: unknown): PermissionsSchema => {
+				const tool = optionalTrimmedString(toolName);
+				if (!tool) throw new Error('Invalid tool name.');
+				return setToolPermission(tool, toToolPermission(value));
+			}, AgentChannels.policySetTool)
 		);
 
 		ipcMain.handle(

@@ -50,7 +50,7 @@ import { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type { GoalBudget } from '../main/agent/goal';
-import type { PermissionsSchema, ToolSelector } from '../main/agent/policy/policy_types';
+import type { PermissionsSchema, ToolPermission } from '../main/agent/policy/policy_types';
 
 const MODEL_REASONING_EFFORTS: readonly ModelReasoningEffort[] = [
 	'none',
@@ -256,24 +256,11 @@ export const agent: AgentApi = {
 	policyPickDirectory: (): Promise<string | undefined> => {
 		return typedInvokeUnwrap(AgentChannels.policyPickDirectory);
 	},
-	policySetPathPermission: (
-		path: string,
-		allow: ToolSelector,
-		deny: ToolSelector,
-		ask: ToolSelector,
-		recursive: boolean
+	policySetTool: (
+		toolName: string,
+		permission: ToolPermission
 	): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(
-			AgentChannels.policySetPathPermission,
-			path,
-			allow,
-			deny,
-			ask,
-			recursive
-		);
-	},
-	policyRemovePathPermission: (path: string): Promise<PermissionsSchema> => {
-		return typedInvokeUnwrap(AgentChannels.policyRemovePathPermission, path);
+		return typedInvokeUnwrap(AgentChannels.policySetTool, toolName, permission);
 	},
 	policyReset: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyReset);
