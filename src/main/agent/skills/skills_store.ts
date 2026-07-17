@@ -4,6 +4,9 @@ import { agentLocation } from '../../shared/agent_location';
 
 export interface SkillSettings {
 	enabled: boolean;
+	name?: string;
+	title?: string;
+	description?: string;
 }
 
 export type SkillsSchema = {
