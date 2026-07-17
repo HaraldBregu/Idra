@@ -73,9 +73,10 @@ function skillItems(): SlashMenuItem[] {
 // Text after the '/' up to the cursor, without a trailing category token.
 const isSkillPhase = (query: string): boolean => /^skill\s/i.test(query);
 
-function itemsForQuery(query: string): SlashMenuItem[] {
+async function itemsForQuery(query: string): Promise<SlashMenuItem[]> {
 	const q = query.toLowerCase();
 	if (isSkillPhase(q)) {
+		await refreshSkillNames();
 		const rest = q.replace(/^skill\s+/, '');
 		return skillItems().filter((item) => item.title.toLowerCase().includes(rest));
 	}
