@@ -5,16 +5,11 @@ import {
 	goalBudgetOutcome,
 	goalBudgetReason,
 	loadGoal,
+	recordGoalOutcome,
 	updateGoal,
 	type GoalBudgetReason,
 } from '../goal';
-import {
-	appendRun,
-	init,
-	type SessionCategory,
-	type SessionResult,
-	type SessionState,
-} from '../session';
+import { init, type SessionCategory, type SessionResult, type SessionState } from '../session';
 import type { Config, RuntimeEvent, RuntimeInput } from '../types';
 import { stream } from './run_stream';
 
@@ -38,6 +33,7 @@ export async function* streamGoal(
 		if (budgetReason) {
 			goal = updateGoal(session, { status: 'budget_limited', budgetReason }) ?? goal;
 			const result = goalBudgetOutcome(session, goal, budgetReason);
+			recordGoalOutcome(session, result, result.text);
 			yield { type: 'model_call_delta', delta: result.text };
 			yield { type: 'run_finished', result };
 			return;
@@ -131,8 +127,7 @@ export async function* streamGoal(
 				}) ?? goal;
 			const result = goalBudgetOutcome(session, goal, stoppedByBudget);
 			const delta = `\n\n${result.text}`;
-			appendRun(session, { type: 'model_call_delta', delta });
-			appendRun(session, { type: 'run_finished', result });
+			recordGoalOutcome(session, result, delta);
 			yield { type: 'model_call_delta', delta };
 			yield { type: 'run_finished', result };
 			return;
@@ -148,6 +143,7 @@ export async function* streamGoal(
 			goal = updateGoal(session, { status: 'budget_limited', budgetReason }) ?? goal;
 			const result = goalBudgetOutcome(session, goal, budgetReason);
 			const delta = `\n\n${result.text}`;
+			recordGoalOutcome(session, result, delta);
 			yield { type: 'model_call_delta', delta };
 			yield { type: 'run_finished', result };
 			return;

@@ -1,4 +1,11 @@
-import { clearGoal, goalCommandResponse, loadGoal, setGoal, updateGoal } from '../goal';
+import {
+	appendGoalContinuation,
+	clearGoal,
+	goalCommandResponse,
+	loadGoal,
+	setGoal,
+	updateGoal,
+} from '../goal';
 import type { SessionCategory, SessionState } from '../session';
 import { addAssistantMessage, appendRun } from '../session';
 import { getGoalSettings } from '../settings/settings_store';
@@ -13,6 +20,7 @@ export async function* streamChatGoal(
 	category?: SessionCategory
 ): AsyncGenerator<RuntimeEvent> {
 	const command = input.message.trim();
+	const action = command.toLowerCase();
 	if (!command) {
 		const goal = loadGoal(session);
 		const text = goal
@@ -26,7 +34,7 @@ export async function* streamChatGoal(
 		return;
 	}
 
-	if (command === 'pause') {
+	if (action === 'pause') {
 		const goal = updateGoal(session, { status: 'paused' });
 		const text = goal ? 'Goal paused.' : 'No goal is set for this thread.';
 		const result = goalCommandResponse(session, text);
@@ -37,7 +45,7 @@ export async function* streamChatGoal(
 		return;
 	}
 
-	if (command === 'clear') {
+	if (action === 'clear') {
 		const text = clearGoal(session) ? 'Goal cleared.' : 'No goal is set for this thread.';
 		const result = goalCommandResponse(session, text);
 		addAssistantMessage(session, text, []);
@@ -47,7 +55,7 @@ export async function* streamChatGoal(
 		return;
 	}
 
-	if (command === 'resume') {
+	if (action === 'resume') {
 		const goal = updateGoal(session, {
 			status: 'active',
 			budget: getGoalSettings(),
@@ -62,6 +70,7 @@ export async function* streamChatGoal(
 			yield { type: 'run_finished', result };
 			return;
 		}
+		appendGoalContinuation(session);
 		yield* streamGoal(config, session, input, signal, category);
 		return;
 	}

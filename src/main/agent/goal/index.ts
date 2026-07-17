@@ -8,6 +8,7 @@ export { goalBudgetReason } from './budget';
 export { goalBudgetOutcome } from './outcome';
 export { goalCommandResponse } from './response';
 export { loadGoal } from './load';
+export { recordGoalOutcome } from './record';
 export { saveGoal } from './save';
 export { setGoal } from './set';
 export { updateGoal } from './update';

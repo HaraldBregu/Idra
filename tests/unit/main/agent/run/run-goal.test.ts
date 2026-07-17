@@ -8,6 +8,7 @@ import {
 	type SessionResult,
 } from '../../../../../src/main/agent/session';
 import { streamGoal } from '../../../../../src/main/agent/run/run_goal';
+import { streamChatGoal } from '../../../../../src/main/agent/run/run_goal_chat';
 import { stream } from '../../../../../src/main/agent/run/run_stream';
 import type { Config, RuntimeEvent, RuntimeInput } from '../../../../../src/main/agent/types';
 
@@ -154,6 +155,10 @@ describe('thread goals', () => {
 			type: 'run_finished',
 			result: { subtype: 'error_max_turns', stopReason: 'max_iterations' },
 		});
+		expect(session.messages.at(-1)).toMatchObject({
+			role: 'assistant',
+			content: [expect.objectContaining({ text: expect.stringContaining('iteration limit') })],
+		});
 	});
 
 	it('pauses an active goal when its run is interrupted', async () => {
@@ -251,6 +256,11 @@ describe('thread goals', () => {
 				input: { evidence: 'tests passed' },
 			};
 			updateGoal(session, { status: 'complete', completionEvidence: 'tests passed' });
+			yield {
+				type: 'model_call_end',
+				model: 'test-model',
+				usage: { inputTokens: 6, outputTokens: 2 },
+			};
 			yield { type: 'run_finished', result };
 		});
 
@@ -262,8 +272,26 @@ describe('thread goals', () => {
 		expect(loadGoal(session)).toMatchObject({
 			status: 'complete',
 			completionEvidence: 'tests passed',
+			usage: { inputTokens: 6, outputTokens: 2 },
 		});
 		expect(events.at(-1)).toEqual({ type: 'run_finished', result });
+	});
+
+	it('treats lifecycle commands case-insensitively', async () => {
+		const session = createSessionState();
+		init(session, config, input);
+		setGoal(session, input.message, { maxIterations: 3, maxToolCalls: 5 });
+
+		for await (const event of streamChatGoal(
+			config,
+			session,
+			{ ...input, message: 'PAUSE' },
+			new AbortController().signal
+		))
+			void event;
+
+		expect(loadGoal(session)?.status).toBe('paused');
+		expect(streamMock).not.toHaveBeenCalled();
 	});
 
 	it('turns an expired deadline into a timeout outcome', async () => {
