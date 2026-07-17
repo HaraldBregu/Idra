@@ -52,7 +52,7 @@ export function toolPartLabel(tool: AgentToolPart): string {
 
 	if (type === 'load_skill') {
 		const name = stringArg(input, 'name');
-		return name ? `Loaded skill "${name}"` : 'Loaded skill';
+		return name ? `Using skill '${name}'` : 'Using skill';
 	}
 
 	if (type === 'list_dir') {
