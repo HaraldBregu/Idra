@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
 import { toolPathDir } from './policy_path';
 
@@ -8,9 +9,9 @@ const PATCH_MOVE = /^[ \t]*[*]{3} Move to: (.+?)[ \t]*$/gm;
 function patchDirs(input: string, baseDir: string): string[] {
 	const dirs: string[] = [];
 	for (const match of input.matchAll(PATCH_TARGET))
-		dirs.push(path.dirname(resolveUserPath(match[1], baseDir)));
+		dirs.push(path.dirname(realPath(resolveUserPath(match[1], baseDir))));
 	for (const match of input.matchAll(PATCH_MOVE))
-		dirs.push(path.dirname(resolveUserPath(match[1], baseDir)));
+		dirs.push(path.dirname(realPath(resolveUserPath(match[1], baseDir))));
 	return dirs;
 }
 

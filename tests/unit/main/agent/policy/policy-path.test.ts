@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { resolveUserPath } from '../../../../../src/main/shared/user_path';
@@ -29,6 +30,23 @@ describe('toolPathDir', () => {
 	it('returns undefined when neither is present', () => {
 		expect(toolPathDir({}, agentDir)).toBeUndefined();
 		expect(toolPathDir({ path: '' }, agentDir)).toBeUndefined();
+	});
+	it('uses the destination directory of a symlinked file', () => {
+		const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-policy-path-'));
+		try {
+			const inside = path.join(tempDir, 'agent');
+			const outside = path.join(tempDir, 'outside');
+			const outsideFile = path.join(outside, 'secret.txt');
+			const link = path.join(inside, 'secret.txt');
+			fs.mkdirSync(inside);
+			fs.mkdirSync(outside);
+			fs.writeFileSync(outsideFile, 'secret');
+			fs.symlinkSync(outsideFile, link);
+
+			expect(toolPathDir({ path: link }, inside)).toBe(fs.realpathSync(outside));
+		} finally {
+			fs.rmSync(tempDir, { recursive: true, force: true });
+		}
 	});
 });
 
