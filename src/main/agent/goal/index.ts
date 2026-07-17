@@ -5,6 +5,8 @@ export { clearGoal } from './clear';
 export { completeGoalTool } from './complete';
 export { finishGoalTurn } from './finish';
 export { goalBudgetReason } from './budget';
+export { goalBudgetOutcome } from './outcome';
+export { goalCommandResponse } from './response';
 export { loadGoal } from './load';
 export { saveGoal } from './save';
 export { setGoal } from './set';

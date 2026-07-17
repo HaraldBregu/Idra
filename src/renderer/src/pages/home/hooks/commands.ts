@@ -21,6 +21,6 @@ export function expandTaskCommand(prompt: string): string {
 }
 
 export function parseGoalCommand(prompt: string): string | undefined {
-	const match = /^\/goal\s+([\s\S]+)$/i.exec(prompt);
-	return match ? match[1].trim() || undefined : undefined;
+	const match = /^\/goal(?:\s+([\s\S]*))?$/i.exec(prompt);
+	return match ? (match[1] ?? '').trim() : undefined;
 }

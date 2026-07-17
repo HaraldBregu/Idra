@@ -10,7 +10,7 @@ import {
 	type SessionCategory,
 	type SessionState,
 } from './session';
-import { stream } from './run/run_stream';
+import { streamGoal } from './run/run_goal';
 import { streamChatGoal } from './run/run_goal_chat';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
@@ -90,7 +90,13 @@ export class Agent {
 
 			init(this.session, this.config, input, options.category);
 
-			const events = stream(this.config, this.session, input, controller.signal);
+			const events = streamGoal(
+				this.config,
+				this.session,
+				input,
+				controller.signal,
+				options.category,
+			);
 
 			this.activeRuns.set(resolvedAgentId, controller);
 
@@ -134,13 +140,25 @@ export class Agent {
 		let controller: AbortController | undefined;
 		try {
 			controller = new AbortController();
+			const input = {
+				task: 'goal',
+				message: goalText,
+				...(options.files?.length ? { files: options.files } : {}),
+				...(options.sessionId ? { sessionId: options.sessionId } : {}),
+				...(options.providerId ? { providerId: options.providerId } : {}),
+				...(options.modelId ? { model: options.modelId } : {}),
+			} satisfies RuntimeInput;
+
+			init(this.session, this.config, input, options.category);
 			this.activeRuns.set(resolvedAgentId, controller);
 
-			const events = streamChatGoal(goalText, {
-				providerId: options.providerId,
-				model: options.modelId,
-				signal: controller.signal,
-			});
+			const events = streamChatGoal(
+				this.config,
+				this.session,
+				input,
+				controller.signal,
+				options.category,
+			);
 
 			for await (const event of events) {
 				if (event.type === 'model_call_delta') response += event.delta;

@@ -39,6 +39,7 @@ import { getScheduleTool } from '../tools/cron_get_schedule';
 import { listSchedulesTool } from '../tools/cron_list_schedules';
 import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
 import { subagentTool } from '../tools/subagent';
+import { addGoalPrompt, completeGoalTool, loadGoal } from '../goal';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
@@ -120,6 +121,7 @@ async function* loop(
 		tools.push(subagentTool(config, [...tools]));
 		closeMcp = mcp.close;
 	}
+	if (loadGoal(session)?.status === 'active') tools.push(completeGoalTool(session));
 
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
@@ -135,9 +137,10 @@ async function* loop(
 	try {
 		while (true) {
 			if (signal.aborted) return;
-			const systemPrompt = options.systemPrompt === undefined
+			const baseSystemPrompt = options.systemPrompt === undefined
 				? await buildSystemPrompt(config, tools, session.context.loadedSkills)
 				: await addFilesystemPrompt(config, options.systemPrompt);
+			const systemPrompt = addGoalPrompt(baseSystemPrompt, loadGoal(session));
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(

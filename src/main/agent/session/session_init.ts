@@ -31,6 +31,11 @@ export function init(
 	}
 	state.model = input.model ?? 'default';
 	state.maxTurns = input.maxTurns ?? input.maxIterations ?? 20;
+	state.toolCalls = [];
+	state.usage = { inputTokens: 0, outputTokens: 0 };
+	state.numTurns = 0;
+	state.finalText = '';
+	state.stopReason = undefined;
 	persist(state);
 }
 

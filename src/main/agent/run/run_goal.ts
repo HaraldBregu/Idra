@@ -1,247 +1,165 @@
-import { LlmModel } from '../../models/llm';
-import type { Message, RuntimeEvent, RuntimeInput, Tool } from '../types';
-import { runModelTurn } from './run_model_turn';
-import { runToolCalls } from './run_tool_calls';
-import { createJudge } from './run_goal_judge';
-import { detectStuck } from './run_goal_stuck';
-import { verifyGoal } from './run_goal_verify';
-import type {
-	Goal,
-	GoalIterationLog,
-	GoalRunResult,
-	GoalStreamOptions,
-	GoalVerdict,
-} from './run_goal_types';
-import type { ModelTurn } from './run_loop_types';
-
-const judgeModel = new LlmModel();
+import {
+	accountGoalEvent,
+	appendGoalContinuation,
+	finishGoalTurn,
+	goalBudgetOutcome,
+	goalBudgetReason,
+	loadGoal,
+	updateGoal,
+	type GoalBudgetReason,
+} from '../goal';
+import {
+	appendRun,
+	init,
+	type SessionCategory,
+	type SessionResult,
+	type SessionState,
+} from '../session';
+import type { Config, RuntimeEvent, RuntimeInput } from '../types';
+import { stream } from './run_stream';
 
 export async function* streamGoal(
-	goal: Goal,
-	options: GoalStreamOptions,
-): AsyncGenerator<RuntimeEvent, GoalRunResult> {
-	const { tools, provider, model, checkpoint } = options;
-	const judge = options.judge ?? createJudge(judgeModel, provider, model);
-	const stuckAfter = options.stuckAfter ?? 3;
-	const interactive = options.interactive ?? true;
-	const signal = options.signal ?? new AbortController().signal;
-	const startedAtMs = Date.now();
-	const input: RuntimeInput = { task: 'goal', message: goal.description };
-	const systemPrompt = buildSystemPrompt(goal, tools);
-	const messages: Message[] = [];
-	const transcript: GoalIterationLog[] = [];
-	let tokensUsed = 0;
-	let toolCallsUsed = 0;
-	let lastVerdict: GoalVerdict | undefined;
+	config: Config,
+	session: SessionState,
+	input: RuntimeInput,
+	signal: AbortSignal,
+	category?: SessionCategory,
+): AsyncGenerator<RuntimeEvent> {
+	let continuation = false;
 
-	const overBudget = (): boolean =>
-		(goal.budget.timeoutMs !== undefined && Date.now() - startedAtMs >= goal.budget.timeoutMs) ||
-		(goal.budget.maxTokens !== undefined && tokensUsed >= goal.budget.maxTokens);
-
-	const budgetExceeded = (): GoalRunResult => ({
-		status: 'budget_exceeded',
-		partialProgress: lastVerdict,
-		transcript,
-	});
-
-	const finishIteration = (log: GoalIterationLog): void => {
-		transcript.push(log);
-		options.onIteration?.(log);
-	};
-
-	const trackUsage = (turn: ModelTurn): void => {
-		tokensUsed += (turn.usage?.inputTokens ?? 0) + (turn.usage?.outputTokens ?? 0);
-	};
-
-	try {
-		for (let iteration = 1; iteration <= goal.budget.maxIterations; iteration += 1) {
-			if (overBudget()) return budgetExceeded();
-
-			const every = checkpoint?.everyIterations;
-			if (every && iteration > 1 && (iteration - 1) % every === 0) {
-				const decision = await checkpoint.confirm({
-					reason: 'interval',
-					iteration,
-					lastVerification: lastVerdict,
-				});
-				if (decision === 'abort') {
-					return {
-						status: 'aborted',
-						reason: `Stopped at the human checkpoint before iteration ${iteration}.`,
-						transcript,
-					};
-				}
-			}
-
-			const log: GoalIterationLog = { iteration, plan: '', actions: [], observations: [] };
-
-			// PLAN / REPLAN: no tools offered, so the model can only plan here.
-			messages.push({ role: 'user', content: planPrompt(iteration, lastVerdict) });
-			const planned = yield* runModelTurn(
-				input,
-				provider,
-				model,
-				systemPrompt,
-				messages,
-				[],
-				signal,
-				options.llm,
-			);
-			trackUsage(planned);
-			log.plan = planned.content.trim();
-			messages.push({ role: 'assistant', content: planned.content });
-
-			// ACT: model turns with tools until the model stops calling them.
-			messages.push({ role: 'user', content: actPrompt });
-			let finalResponse = '';
-			while (true) {
-				if (overBudget()) {
-					finishIteration(log);
-					return budgetExceeded();
-				}
-				const turn = yield* runModelTurn(
-					input,
-					provider,
-					model,
-					systemPrompt,
-					messages,
-					tools,
-					signal,
-					options.llm,
-				);
-				trackUsage(turn);
-				messages.push({
-					role: 'assistant',
-					content: turn.content,
-					...(turn.toolCalls.length > 0 ? { toolCalls: turn.toolCalls } : {}),
-				});
-				if (turn.toolCalls.length === 0) {
-					finalResponse = turn.content;
-					break;
-				}
-
-				for (const toolCall of turn.toolCalls) {
-					const violated = goal.constraints.find((constraint) =>
-						constraint.violatedBy?.(toolCall.name, toolCall.args),
-					);
-					if (violated) {
-						finishIteration(log);
-						return {
-							status: 'aborted',
-							reason: `Constraint violated by tool '${toolCall.name}': ${violated.description}`,
-							transcript,
-						};
-					}
-
-					if (checkpoint?.irreversibleTools?.includes(toolCall.name)) {
-						const decision = await checkpoint.confirm({
-							reason: 'irreversible_action',
-							iteration,
-							toolName: toolCall.name,
-							input: toolCall.args,
-							lastVerification: lastVerdict,
-						});
-						if (decision === 'abort') {
-							finishIteration(log);
-							return {
-								status: 'aborted',
-								reason: `Stopped at the human checkpoint before irreversible tool '${toolCall.name}'.`,
-								transcript,
-							};
-						}
-					}
-				}
-
-				if (toolCallsUsed + turn.toolCalls.length > goal.budget.maxToolCalls || overBudget()) {
-					finishIteration(log);
-					return budgetExceeded();
-				}
-				toolCallsUsed += turn.toolCalls.length;
-
-				// OBSERVE: runToolCalls records each real output on toolCall.result.
-				yield* runToolCalls(tools, turn.toolCalls, interactive);
-
-				for (const toolCall of turn.toolCalls) {
-					const output =
-						typeof toolCall.result?.content === 'string' ? toolCall.result.content : '';
-					log.actions.push({
-						toolCallId: toolCall.id,
-						toolName: toolCall.name,
-						input: toolCall.args,
-						output,
-						isError: toolCall.result?.isError ?? false,
-					});
-					log.observations.push(`${toolCall.name}: ${output}`);
-				}
-			}
-
-			// VERIFY: a dedicated verifier, separate from the actor conversation.
-			const verdict = await verifyGoal(goal, buildEvidence(log, finalResponse), judge);
-			log.verification = verdict;
-			lastVerdict = verdict;
-			finishIteration(log);
-
-			if (verdict.passed) {
-				return { status: 'achieved', evidence: verdict.criteria, transcript };
-			}
-
-			const stuckReason = detectStuck(transcript, stuckAfter);
-			if (stuckReason) return { status: 'stuck', reason: stuckReason, transcript };
+	while (true) {
+		let goal = loadGoal(session);
+		if (!goal || goal.status !== 'active') {
+			yield* stream(config, session, input, signal);
+			return;
 		}
 
-		return budgetExceeded();
-	} catch (error) {
-		if (signal.aborted) throw error;
-		const message = error instanceof Error ? error.message : String(error);
-		return { status: 'aborted', reason: `Unrecoverable error: ${message}`, transcript };
+		let budgetReason = goalBudgetReason(goal);
+		if (budgetReason) {
+			goal = updateGoal(session, { status: 'budget_limited', budgetReason }) ?? goal;
+			const result = goalBudgetOutcome(session, goal, budgetReason);
+			yield { type: 'model_call_delta', delta: result.text };
+			yield { type: 'run_finished', result };
+			return;
+		}
+
+		if (continuation) {
+			appendGoalContinuation(session);
+			init(
+				session,
+				config,
+				{ ...input, task: 'goal', message: '', files: undefined, sessionId: session.id },
+				category,
+			);
+		}
+
+		const startedAtMs = Date.now();
+		const timeoutController = new AbortController();
+		const remainingTimeout =
+			goal.budget.timeoutMs === undefined
+				? undefined
+				: Math.max(1, goal.budget.timeoutMs - goal.usage.timeUsedMs);
+		const timeout =
+			remainingTimeout === undefined
+				? undefined
+				: setTimeout(
+						() => timeoutController.abort(new Error('Goal time limit reached.')),
+						remainingTimeout,
+					);
+		timeout?.unref();
+		const runSignal = timeout ? AbortSignal.any([signal, timeoutController.signal]) : signal;
+		const events = stream(config, session, input, runSignal);
+		let toolCallsThisTurn = 0;
+		let lastResult: SessionResult | undefined;
+		let stoppedByBudget: GoalBudgetReason | undefined;
+
+		try {
+			for await (const event of events) {
+				if (event.type === 'assistant_message') {
+					const current = loadGoal(session);
+					if (
+						current?.status === 'active' &&
+						current.usage.toolCalls + event.toolCalls.length > current.budget.maxToolCalls
+					) {
+						stoppedByBudget = 'max_tool_calls';
+						break;
+					}
+				}
+
+				accountGoalEvent(session, event);
+				if (event.type === 'tool_call_start') toolCallsThisTurn += 1;
+				if (event.type === 'run_finished') {
+					lastResult = event.result;
+					continue;
+				}
+				if (event.type === 'model_call_end') {
+					const current = loadGoal(session);
+					const reason = current
+						? goalBudgetReason(current, Date.now() - startedAtMs)
+						: undefined;
+					if (reason === 'max_tokens' || reason === 'timeout') {
+						stoppedByBudget = reason;
+						break;
+					}
+				}
+				yield event;
+			}
+		} catch (error) {
+			if (signal.aborted) {
+				updateGoal(session, { status: 'paused' });
+				throw error;
+			}
+			if (timeoutController.signal.aborted) {
+				stoppedByBudget = 'timeout';
+			} else {
+				throw error;
+			}
+		} finally {
+			if (timeout) clearTimeout(timeout);
+		}
+
+		finishGoalTurn(session, Date.now() - startedAtMs);
+		goal = loadGoal(session);
+		if (!goal) {
+			if (lastResult) yield { type: 'run_finished', result: lastResult };
+			return;
+		}
+
+		if (stoppedByBudget) {
+			goal =
+				updateGoal(session, {
+					status: 'budget_limited',
+					budgetReason: stoppedByBudget,
+				}) ?? goal;
+			const result = goalBudgetOutcome(session, goal, stoppedByBudget);
+			const delta = `\n\n${result.text}`;
+			appendRun(session, { type: 'model_call_delta', delta });
+			appendRun(session, { type: 'run_finished', result });
+			yield { type: 'model_call_delta', delta };
+			yield { type: 'run_finished', result };
+			return;
+		}
+
+		if (goal.status !== 'active') {
+			if (lastResult) yield { type: 'run_finished', result: lastResult };
+			return;
+		}
+
+		budgetReason = goalBudgetReason(goal);
+		if (budgetReason) {
+			goal = updateGoal(session, { status: 'budget_limited', budgetReason }) ?? goal;
+			const result = goalBudgetOutcome(session, goal, budgetReason);
+			const delta = `\n\n${result.text}`;
+			yield { type: 'model_call_delta', delta };
+			yield { type: 'run_finished', result };
+			return;
+		}
+
+		if (!lastResult || toolCallsThisTurn === 0) {
+			if (lastResult) yield { type: 'run_finished', result: lastResult };
+			return;
+		}
+
+		continuation = true;
 	}
-}
-
-function buildSystemPrompt(goal: Goal, tools: Tool[]): string {
-	const criteria = goal.successCriteria
-		.map((criterion) => `- [${criterion.id}] ${criterion.description}`)
-		.join('\n');
-	const constraints = goal.constraints
-		.map((constraint) => `- ${constraint.description}`)
-		.join('\n');
-	return [
-		'You are an autonomous agent working toward a goal. You cannot declare the goal ' +
-			'achieved yourself: an external verifier checks every success criterion after each ' +
-			'iteration, and only real evidence counts.',
-		`Goal: ${goal.description}`,
-		`Success criteria:\n${criteria || '- none'}`,
-		constraints ? `Constraints (never do these):\n${constraints}` : '',
-		`Available tools: ${tools.map((tool) => tool.name).join(', ') || 'none'}`,
-	]
-		.filter(Boolean)
-		.join('\n\n');
-}
-
-function planPrompt(iteration: number, lastVerdict?: GoalVerdict): string {
-	if (iteration === 1 || !lastVerdict) {
-		return 'Write a short numbered plan (5 steps at most) to achieve the goal. Reply with the plan only.';
-	}
-	const failures = lastVerdict.criteria
-		.filter((criterion) => !criterion.passed)
-		.map((criterion) => `- [${criterion.id}] ${criterion.description}\n  Evidence: ${criterion.evidence}`)
-		.join('\n');
-	return (
-		`Verification failed on these criteria:\n${failures}\n\n` +
-		'Revise your plan using these failure details. Reply with the updated short numbered plan only.'
-	);
-}
-
-const actPrompt =
-	'Execute the next step of your plan now, using tools as needed. When you have done ' +
-	'everything you can this iteration, reply without tool calls and summarize what you did.';
-
-function buildEvidence(log: GoalIterationLog, finalResponse: string): string {
-	return [
-		log.observations.length > 0
-			? `Observed tool outputs:\n${log.observations.join('\n')}`
-			: 'No tool outputs were observed this iteration.',
-		finalResponse ? `Actor's final message (a claim, not proof):\n${finalResponse}` : '',
-	]
-		.filter(Boolean)
-		.join('\n\n');
 }
