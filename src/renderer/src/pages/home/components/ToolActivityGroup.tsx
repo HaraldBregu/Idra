@@ -71,6 +71,7 @@ function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactEle
 							key={tool.toolCallId}
 							toolPart={tool}
 							label={toolPartLabel(tool)}
+							hideIcon
 							className="mt-0"
 							style={staggerStyle(index)}
 						/>
