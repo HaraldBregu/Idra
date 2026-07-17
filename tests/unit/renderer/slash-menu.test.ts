@@ -36,7 +36,11 @@ describe('SlashMenu', () => {
 			},
 		});
 
-		editor.chain().setTextSelection('end').insertContent('/').run();
+		editor
+			.chain()
+			.setTextSelection(editor.state.doc.content.size - 1)
+			.insertContent('/')
+			.run();
 
 		expect(slashMenuPluginKey.getState(editor.state)?.active).toBe(false);
 		editor.destroy();
