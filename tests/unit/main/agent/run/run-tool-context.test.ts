@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { realPath } from '../../../../../src/main/shared/real_path';
 
 const getPathPermissions = jest.fn();
 const getPermissionRules = jest.fn();
@@ -53,7 +54,7 @@ describe('tool context permissions', () => {
 		expect(write).toHaveBeenCalledTimes(1);
 		expect(edit).toHaveBeenCalledTimes(1);
 		expect(context.tools).toEqual([
-			{ toolName: 'write', fileName: 'example.txt', path: target },
+			{ toolName: 'write', fileName: 'example.txt', path: realPath(target) },
 		]);
 	});
 
