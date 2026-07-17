@@ -172,7 +172,7 @@ describe('tool context permissions', () => {
 			expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
 			expect(read).toHaveBeenCalledTimes(2);
 			if (decision === 'approve_always')
-				expect(addPermissionRule).toHaveBeenCalledWith('read', 'allow', realPath(firstPath));
+				expect(addPermissionRule).toHaveBeenCalledWith('read', 'allow', realPath(root));
 		}
 	);
 
