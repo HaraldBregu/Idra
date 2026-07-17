@@ -83,7 +83,7 @@ Body guidelines:
 ## Workflow
 
 1. **Gather requirements.** From the user's request, determine: what the skill does, when it should trigger, and any files it needs. If the purpose is genuinely ambiguous, ask one clarifying question; otherwise proceed.
-2. **Pick the id.** Derive a short lowercase id from the purpose. Check the skills root for a folder with the same name; if taken, ask whether to overwrite or pick a different id.
+2. **Pick the id.** Derive a short snake_case id from the purpose (lowercase, underscores between words). Check the skills root for a folder with the same name; if taken, ask whether to overwrite or pick a different id.
 3. **Write the skill.** Create `<userData>/agent/skills/<skill-id>/SKILL.md` with the format above, plus any resource directories the skill needs.
 4. **Validate.** Re-read the file and confirm: frontmatter parses as YAML, `name` and `description` are non-empty strings, the body has at least one instruction, and `category` (if present) is from the allowed list.
 5. **Report.** State the absolute path of the created skill folder, its id, and its description, and mention that the app will pick it up on the next skill listing.
