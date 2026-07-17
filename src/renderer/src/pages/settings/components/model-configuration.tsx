@@ -103,7 +103,7 @@ export function ModelProviderConfiguration({
 		<Collapsible
 			open={isOpen}
 			onOpenChange={setIsOpen}
-			className="rounded-lg border border-border/70 bg-card"
+			className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10"
 		>
 			<CollapsibleTrigger className="group flex w-full items-center gap-3 px-3 py-2.5 text-left">
 				{provider && (
