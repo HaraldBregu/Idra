@@ -46,9 +46,9 @@ const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], as
 const ask = (): ToolPermission => ({ default: 'ask', allow: [], deny: [], ask: [] });
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
-	read: { default: 'allow', allow: ['Desktop'], deny: [], ask: [] },
+	read: allow(),
 	write: allow(),
-	edit: { default: 'ask', allow: ['Desktop/file.txt'], deny: [], ask: [] },
+	edit: ask(),
 	apply_patch: ask(),
 	exec: ask(),
 	process: allow(),

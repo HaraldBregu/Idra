@@ -8,7 +8,7 @@ describe('DEFAULT_PERMISSIONS', () => {
 		expect(Object.keys(DEFAULT_PERMISSIONS)).toEqual(POLICY_TOOLS);
 		expect(DEFAULT_PERMISSIONS.read).toEqual({
 			default: 'allow',
-			allow: ['Desktop'],
+			allow: [],
 			deny: [],
 			ask: [],
 		});
@@ -20,7 +20,7 @@ describe('DEFAULT_PERMISSIONS', () => {
 		});
 		expect(DEFAULT_PERMISSIONS.edit).toEqual({
 			default: 'ask',
-			allow: ['Desktop/file.txt'],
+			allow: [],
 			deny: [],
 			ask: [],
 		});

@@ -26,9 +26,9 @@ const entry = (
 });
 
 const defaults = (): PermissionsSchema => ({
-	read: entry('allow', { allow: ['Desktop'] }),
+	read: entry('allow'),
 	write: entry('allow'),
-	edit: entry('ask', { allow: ['Desktop/file.txt'] }),
+	edit: entry('ask'),
 	apply_patch: entry('ask'),
 	exec: entry('ask'),
 });
