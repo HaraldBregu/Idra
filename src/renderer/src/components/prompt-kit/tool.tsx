@@ -40,6 +40,7 @@ export type ToolProps = {
 	toolPart: ToolPart;
 	label?: string;
 	defaultOpen?: boolean;
+	hideIcon?: boolean;
 	className?: string;
 	style?: CSSProperties;
 };
