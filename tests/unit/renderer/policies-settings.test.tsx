@@ -37,7 +37,7 @@ describe('Policies settings', () => {
 
 		expect((await screen.findAllByText('read')).length).toBeGreaterThan(0);
 		expect(screen.getByText('write')).toBeInTheDocument();
-		expect(screen.getByText('edit')).toBeInTheDocument();
+		expect(screen.getAllByText('edit').length).toBeGreaterThan(0);
 		expect(screen.getByText('Desktop')).toBeInTheDocument();
 		expect(screen.getByText('Desktop/file.txt')).toBeInTheDocument();
 	});
