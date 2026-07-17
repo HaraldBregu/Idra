@@ -61,7 +61,7 @@ function formatDuration(ms: number): string {
 	return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
 }
 
-function toolIcon(toolPart: ToolPart): typeof Wrench {
+export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	const type = toolPart.type.toLowerCase();
 	if (toolPart.serviceKind === 'mcp' || type.startsWith('mcp__')) return Plug;
 	if (type.includes('skill')) return Sparkles;
