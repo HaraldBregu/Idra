@@ -6,7 +6,7 @@ const dom = new JSDOM('<!doctype html><html><body><div id="app"></div></body></h
 });
 global.window = dom.window;
 global.document = dom.window.document;
-global.navigator = dom.window.navigator;
+Object.defineProperty(global, 'navigator', { value: dom.window.navigator, configurable: true });
 for (const key of [
 	'Node',
 	'Element',
