@@ -1,6 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
+import { realPath } from '../../../../../src/main/shared/real_path';
 import {
 	fileToolState,
 	hasCreatedFile,
@@ -18,7 +19,7 @@ describe('tool context state', () => {
 		expect(state).toEqual({
 			toolName: 'write',
 			fileName: 'example.txt',
-			path: path.join(root, 'directory', 'example.txt'),
+			path: realPath(path.join(root, 'directory', 'example.txt')),
 		});
 		rememberTool(context, state!);
 		expect(hasCreatedFile(context, state!.path)).toBe(true);

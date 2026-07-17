@@ -36,12 +36,20 @@ describe('tool context permissions', () => {
 			{ id: 'edit-1', name: 'edit', args: { path: target, oldText: 'one', newText: 'two' } },
 		];
 		const context = createContext();
-		const events: RuntimeEvent[] = [];
+		const events = runToolCalls(tools, calls, true, undefined, context);
+		const sequence = [
+			(await events.next()).value,
+			(await events.next()).value,
+			(await events.next()).value,
+			(await events.next()).value,
+		];
 
-		for await (const event of runToolCalls(tools, calls, true, undefined, context))
-			events.push(event);
-
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(sequence.map((event) => event?.type)).toEqual([
+			'tool_call_start',
+			'tool_call_end',
+			'tool_call_start',
+			'tool_call_end',
+		]);
 		expect(write).toHaveBeenCalledTimes(1);
 		expect(edit).toHaveBeenCalledTimes(1);
 		expect(context.tools).toEqual([
@@ -86,19 +94,17 @@ describe('tool context permissions', () => {
 		const write = jest.fn().mockRejectedValue(new Error('failed'));
 		const call: ToolCall = { id: 'write-failed', name: 'write', args: { path: target } };
 		const context = createContext();
-		const events: RuntimeEvent[] = [];
-
-		for await (const event of runToolCall(
+		const events = runToolCall(
 			fakeTool('write', write),
 			call,
 			true,
 			undefined,
 			context,
-		))
-			events.push(event);
+		);
+		const sequence = [(await events.next()).value, (await events.next()).value];
 
-		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(sequence.map((event) => event?.type)).toEqual(['tool_call_start', 'tool_call_end']);
+		expect(sequence.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(context.tools).toBeUndefined();
 	});
 
