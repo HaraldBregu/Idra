@@ -158,7 +158,7 @@ export const SlashMenu = Extension.create({
 				// Show while picking a category (single token) or a skill (skill + partial
 				// name). Any completed command ("/skill demo ", "/goal ") closes the menu.
 				allow: ({ state, range }) => {
-					if (state.doc.textBetween(0, range.from, '\n') !== '') return false;
+					if (range.from !== 1) return false;
 					const text = state.doc.textBetween(range.from, range.to);
 					const query = text.startsWith('/') ? text.slice(1) : text;
 					return /^\S*$/.test(query) || /^skill\s+\S*$/i.test(query);
