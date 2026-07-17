@@ -1,7 +1,7 @@
 import { useState, type ReactElement } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
-import { Tool } from '@/components/prompt-kit/tool';
+import { Tool, toolIcon } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import {
 	Collapsible,
