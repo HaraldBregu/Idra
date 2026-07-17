@@ -1,10 +1,8 @@
-const getDefaultMode = jest.fn();
 const getPathPermissions = jest.fn();
 const getPermissionRules = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
-	getDefaultMode,
 	getPathPermissions,
 	getPermissionRules,
 }));
@@ -22,14 +20,12 @@ const rule = (path: string, allow: string[], deny: string[], ask: string[] = [])
 });
 
 beforeEach(() => {
-	getDefaultMode.mockReset().mockReturnValue('ask');
 	getPathPermissions.mockReset().mockReturnValue([]);
 	getPermissionRules.mockReset().mockReturnValue(noRules);
 });
 
 describe('resolveToolPermission', () => {
 	it('allows every targeted tool inside the agent directory', () => {
-		getDefaultMode.mockReturnValue('deny');
 		getPathPermissions.mockReturnValue([rule('/appdata/agent', [], ['*'])]);
 		getPermissionRules.mockReturnValue({
 			allow: [],
@@ -51,7 +47,6 @@ describe('resolveToolPermission', () => {
 				input: '*** Update File: /appdata/agent/a.ts',
 			}),
 		).toBe('allow');
-		expect(getDefaultMode).not.toHaveBeenCalled();
 	});
 
 	it('asks for every targeted tool outside the agent directory', () => {
@@ -82,7 +77,6 @@ describe('resolveToolPermission', () => {
 
 	it('allows tools that have no filesystem target', () => {
 		expect(resolveToolPermission('web_search', { query: 'Friday' })).toBe('allow');
-		expect(getDefaultMode).not.toHaveBeenCalled();
 	});
 });
 
@@ -115,13 +109,11 @@ describe('path permissions', () => {
 	});
 
 	it('an allow rule lets a destructive tool through even when the default asks', () => {
-		getDefaultMode.mockReturnValue('ask');
 		getPathPermissions.mockReturnValue([rule('/trusted', ['edit'], [])]);
 		expect(resolveToolPermission('edit', { path: '/trusted/a.txt' })).toBe('allow');
 	});
 
 	it('an allow-"*" folder frees every tool there, destructive exec included', () => {
-		getDefaultMode.mockReturnValue('ask');
 		getPathPermissions.mockReturnValue([rule('/trusted', ['*'], [])]);
 		expect(resolveToolPermission('edit', { path: '/trusted/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/trusted' })).toBe(
@@ -166,7 +158,6 @@ describe('Tool(pattern) rules', () => {
 	});
 
 	it('allows an exact Bash(...) command over an asking default', () => {
-		getDefaultMode.mockReturnValue('ask');
 		getPermissionRules.mockReturnValue({ ...noRules, allow: ['Bash(rm -rf node_modules)'] });
 		expect(resolveToolPermission('exec', { command: 'rm -rf node_modules', workdir: '/x' })).toBe(
 			'allow',

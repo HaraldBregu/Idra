@@ -1,4 +1,5 @@
 import { resolveUserPath } from '../../shared/user_path';
+import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
 import { AGENT_DIRECTORY, getPathPermissions } from './policy_store';
 import type { PermissionMode, ToolSelector } from './policy_types';
@@ -28,7 +29,7 @@ function ruleDecision(
 export function pathPermissionFor(toolName: string, dir: string): PermissionMode | undefined {
 	let best: { root: string; decision: PermissionMode } | undefined;
 	for (const { path, allow, deny, ask, recursive } of getPathPermissions()) {
-		const root = resolveUserPath(path, AGENT_DIRECTORY);
+		const root = realPath(resolveUserPath(path, AGENT_DIRECTORY));
 		const matches = recursive ? isPathWithin(root, dir) : root === dir;
 		if (!matches) continue;
 		const decision = ruleDecision(allow, deny, ask, toolName);

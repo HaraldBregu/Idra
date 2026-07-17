@@ -1,9 +1,10 @@
 import { pathPermissionFor } from './policy_override';
+import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
-import { AGENT_DIRECTORY, getDefaultMode, getPermissionRules } from './policy_store';
+import { AGENT_DIRECTORY, getPermissionRules } from './policy_store';
 import { toolRuleSignature } from './policy_signature';
 import { toolTargetDirs } from './policy_targets';
-import type { PermissionMode } from './policy_types';
+import { DEFAULT_PERMISSIONS, type PermissionMode } from './policy_types';
 
 function ruleMatches(rule: string, signature: string): boolean {
 	if (rule === signature) return true;
@@ -49,10 +50,11 @@ export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 ): PermissionMode {
-	const targetDirs = toolTargetDirs(toolName, args, AGENT_DIRECTORY);
+	const agentDirectory = realPath(AGENT_DIRECTORY);
+	const targetDirs = toolTargetDirs(toolName, args, AGENT_DIRECTORY).map(realPath);
 	if (
 		targetDirs.length > 0 &&
-		targetDirs.every((targetDir) => isPathWithin(AGENT_DIRECTORY, targetDir))
+		targetDirs.every((targetDir) => isPathWithin(agentDirectory, targetDir))
 	)
 		return 'allow';
 
@@ -60,5 +62,5 @@ export function resolveToolPermission(
 	if (override) return override;
 	const ruled = ruleOverride(toolName, args);
 	if (ruled) return ruled;
-	return targetDirs.length > 0 ? getDefaultMode() : 'allow';
+	return targetDirs.length > 0 ? DEFAULT_PERMISSIONS.defaultMode : 'allow';
 }

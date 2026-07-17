@@ -29,7 +29,7 @@ const store = new Store<PermissionsSchema>({
 });
 
 export function getPermissions(): PermissionsSchema {
-	return store.store;
+	return { ...store.store, defaultMode: DEFAULT_PERMISSIONS.defaultMode };
 }
 
 export function getPermissionRules(): PermissionRules {
@@ -43,10 +43,6 @@ export function addPermissionRule(bucket: keyof PermissionRules, rule: string): 
 	const rules = getPermissionRules();
 	if (rules[bucket].includes(rule)) return;
 	store.set('permissions', { ...rules, [bucket]: [...rules[bucket], rule] });
-}
-
-export function getDefaultMode(): PermissionMode {
-	return store.get('defaultMode');
 }
 
 export function getPathPermissions(): PathPermission[] {
@@ -66,7 +62,7 @@ export function removePathPermission(path: string): void {
 }
 
 export function updatePermissions(patch: Partial<PermissionsSchema>): PermissionsSchema {
-	const next = { ...getPermissions(), ...patch };
+	const next = { ...getPermissions(), ...patch, defaultMode: DEFAULT_PERMISSIONS.defaultMode };
 	store.store = next;
 	return next;
 }
