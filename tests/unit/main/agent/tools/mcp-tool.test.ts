@@ -1,3 +1,17 @@
+jest.mock('electron-store', () =>
+	jest.fn().mockImplementation((options: { defaults?: unknown }) => {
+		let backing = structuredClone(options.defaults ?? {});
+		return {
+			get store() {
+				return backing;
+			},
+			set store(value: unknown) {
+				backing = value;
+			},
+		};
+	})
+);
+
 import { mcpTool } from '../../../../../src/main/agent/tools/mcp_tool';
 import type { McpClient } from '../../../../../src/main/agent/mcp';
 
