@@ -801,13 +801,6 @@
 			"browseDirectory": "Browse for directory",
 			"addDirectory": "Add directory permission",
 			"removeDirectory": "Remove directory permission",
-			"permissionsTitle": "Tool rules",
-			"permissionsDescription": "Add allow, ask, or deny targets to one tool. File paths cover their descendants; exec rules match commands.",
-			"pathPlaceholder": "/path/to/directory",
-			"commandPlaceholder": "git status or git push:*",
-			"browse": "Browse",
-			"add": "Add",
-			"empty": "No tool rules",
 			"reset": "Reset",
 			"saveFailed": "Could not save the policy.",
 			"modes": {

@@ -801,13 +801,6 @@
 			"browseDirectory": "Sfoglia cartella",
 			"addDirectory": "Aggiungi permesso cartella",
 			"removeDirectory": "Rimuovi permesso cartella",
-			"permissionsTitle": "Regole strumenti",
-			"permissionsDescription": "Aggiungi destinazioni da consentire, chiedere o negare a uno strumento. I percorsi includono i discendenti; le regole exec corrispondono ai comandi.",
-			"pathPlaceholder": "/percorso/della/cartella",
-			"commandPlaceholder": "git status o git push:*",
-			"browse": "Sfoglia",
-			"add": "Aggiungi",
-			"empty": "Nessuna regola strumento",
 			"reset": "Ripristina",
 			"saveFailed": "Impossibile salvare la politica.",
 			"modes": {

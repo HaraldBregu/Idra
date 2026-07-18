@@ -232,7 +232,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		path: '/settings/assistant/policies',
 		labelKey: 'settings.policies.toolsTitle',
 		descriptionKey: 'settings.policies.toolsDescription',
-		keywords: 'policy permission tool write edit exec allow deny ask',
+		keywords: 'policy permission directory recursive tool write edit exec allow deny ask',
 	},
 	// Health
 	{

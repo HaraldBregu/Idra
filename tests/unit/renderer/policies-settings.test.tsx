@@ -40,14 +40,14 @@ beforeEach(() => {
 });
 
 describe('Policies settings', () => {
-	it('renders top-level tool defaults and their rules', async () => {
+	it('renders directory permissions and top-level tool defaults', async () => {
 		render(<PoliciesPage />);
 
 		expect((await screen.findAllByText('read')).length).toBeGreaterThan(0);
 		expect(screen.getByText('write')).toBeInTheDocument();
 		expect(screen.getAllByText('edit').length).toBeGreaterThan(0);
-		expect(screen.getByText('Desktop')).toBeInTheDocument();
-		expect(screen.getByText('Desktop/file.txt')).toBeInTheDocument();
+		expect(screen.queryByText('Desktop')).not.toBeInTheDocument();
+		expect(screen.queryByText('Desktop/file.txt')).not.toBeInTheDocument();
 		expect(screen.getByText('/tmp')).toBeInTheDocument();
 		expect(screen.getAllByText('recursive').length).toBeGreaterThan(0);
 	});
@@ -55,7 +55,7 @@ describe('Policies settings', () => {
 	it('updates the default owned by one tool', async () => {
 		const user = userEvent.setup();
 		render(<PoliciesPage />);
-		await screen.findByText('Desktop/file.txt');
+		await screen.findByText('/tmp');
 
 		const readDefault = screen.getAllByRole('combobox')[0];
 		readDefault.focus();
@@ -66,22 +66,6 @@ describe('Policies settings', () => {
 			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
 				...policy.read,
 				default: 'ask',
-			})
-		);
-	});
-
-	it('adds a rule to the selected tool bucket', async () => {
-		const user = userEvent.setup();
-		render(<PoliciesPage />);
-		await screen.findByText('Desktop/file.txt');
-
-		await user.type(screen.getByPlaceholderText('pathPlaceholder'), '/tmp/shared');
-		await user.click(screen.getByRole('button', { name: 'add' }));
-
-		await waitFor(() =>
-			expect(agentApi.policySetTool).toHaveBeenCalledWith('read', {
-				...policy.read,
-				allow: ['Desktop', '/tmp/shared'],
 			})
 		);
 	});
