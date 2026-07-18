@@ -41,11 +41,6 @@ const categoryItems: readonly SlashMenuItem[] = [
 		run: insert('/skill '),
 	},
 	{
-		title: 'Goal',
-		icon: Target,
-		run: insert('/goal '),
-	},
-	{
 		title: 'Task List',
 		icon: ListTodo,
 		run: insert('/task_list '),
