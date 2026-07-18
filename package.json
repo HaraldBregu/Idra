@@ -118,7 +118,6 @@
 		"@tiptap/pm": "^3.27.2",
 		"@tiptap/react": "^3.27.2",
 		"@tiptap/starter-kit": "^3.27.2",
-		"@tiptap/suggestion": "^3.27.2",
 		"@types/three": "^0.184.1",
 		"@whiskeysockets/baileys": "^7.0.0-rc.9",
 		"chokidar": "^5.0.0",
