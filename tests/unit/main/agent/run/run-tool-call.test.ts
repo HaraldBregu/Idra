@@ -1,3 +1,17 @@
+jest.mock('electron-store', () =>
+	jest.fn().mockImplementation((options: { defaults?: unknown }) => {
+		let backing = structuredClone(options.defaults ?? {});
+		return {
+			get store() {
+				return backing;
+			},
+			set store(value: unknown) {
+				backing = value;
+			},
+		};
+	})
+);
+
 import { runToolCall } from '../../../../../src/main/agent/run/run_tool_call';
 import type { Tool, ToolCall } from '../../../../../src/main/agent/types';
 
