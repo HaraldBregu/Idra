@@ -152,17 +152,24 @@ async function* loop(
 					: await addFilesystemPrompt(config, options.systemPrompt);
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
+			// Re-read each turn so mid-run status changes start/stop the injection.
+			const goalContext = goalDir ? activeGoalContext(goalDir) : undefined;
 			const turn = yield* runModelTurn(
 				input,
 				provider,
 				modelId,
-				systemPrompt,
+				goalContext ? `${systemPrompt}\n\n${goalContext}` : systemPrompt,
 				session.messages,
 				tools,
 				signal
 			);
 
 			recordTurn(session, turn);
+			if (goalDir)
+				accountGoalUsage(
+					goalDir,
+					(turn.usage?.inputTokens ?? 0) + (turn.usage?.outputTokens ?? 0)
+				);
 
 			yield {
 				type: 'assistant_message',
