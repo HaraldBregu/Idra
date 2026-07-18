@@ -9,10 +9,7 @@ jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 }));
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
-import {
-	registry,
-	type ProcessSession,
-} from '../../../../../src/main/agent/tools/run_process';
+import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
 import type {
 	PermissionsSchema,
 	ToolPermission,
@@ -236,9 +233,9 @@ describe('resolveToolPermission', () => {
 			expect(
 				resolveToolPermission('process', { action: 'poll', sessionId: 'process-directory' })
 			).toBe('allow');
-			expect(
-				resolveToolPermission('process', { action: 'poll', sessionId: 'process-tool' })
-			).toBe('deny');
+			expect(resolveToolPermission('process', { action: 'poll', sessionId: 'process-tool' })).toBe(
+				'deny'
+			);
 		} finally {
 			for (const session of sessions) registry.remove(session.id);
 		}
