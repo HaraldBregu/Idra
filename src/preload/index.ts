@@ -117,7 +117,7 @@ function normalizeAgentSendRuntimeOptions(
 }
 
 function sendAgent(
-	channel: typeof AgentChannels.send | typeof AgentChannels.goal,
+	channel: typeof AgentChannels.send,
 	message: string,
 	options?: Record<string, unknown>,
 	onEvent?: (event: AgentResponseEvent) => void
