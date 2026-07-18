@@ -77,9 +77,29 @@ export class Agent {
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
 		const resolvedAgentId = agentId.trim();
+		const runId = options.runId ?? randomUUID();
+
+		// /goal commands mutate the session goal before any run starts; most reply
+		// directly, while start/resume continue into an agent turn on the goal.
+		let goalContinuation: string | undefined;
+		const goalCommand = parseGoalCommand(message);
+		if (goalCommand) {
+			const category = options.category ?? DEFAULT_CATEGORY;
+			const sessionId = resolveSessionId(options.sessionId, category, this.config.location);
+			const outcome = applyGoalCommand(
+				sessionPath(sessionsRoot(this.config.location, category), sessionFolderName(sessionId)),
+				goalCommand
+			);
+			if ('reply' in outcome) {
+				for (const event of goalReplyEvents(outcome.reply, resolvedAgentId, runId))
+					options.streamEvent?.(event);
+				return outcome.reply;
+			}
+			goalContinuation = outcome.continuation;
+			options = { ...options, sessionId };
+		}
 
 		this.cancel(resolvedAgentId);
-		const runId = options.runId ?? randomUUID();
 
 		let response = '';
 		let controller: AbortController | undefined;
@@ -88,7 +108,7 @@ export class Agent {
 
 			const input = {
 				task: 'chat',
-				message: resolveSkillCommand(message),
+				message: goalContinuation ?? resolveSkillCommand(message),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
