@@ -59,15 +59,3 @@ export function setModelId(modelId: string): void {
 export function getModelId(): string | undefined {
 	return store.get('modelId');
 }
-
-// Merging with the defaults keeps settings files written before the goal
-// section existed working.
-export function getGoalSettings(): GoalBudget {
-	return { ...DEFAULT_GOAL_SETTINGS, ...store.get('goal') };
-}
-
-export function setGoalSettings(settings: Partial<GoalBudget>): GoalBudget {
-	const next = { ...getGoalSettings(), ...settings };
-	store.set('goal', next);
-	return next;
-}
