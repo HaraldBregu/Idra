@@ -1,6 +1,7 @@
 import { callTool, type McpCallResult, type McpClient } from '../mcp';
 import { jsonTool } from './tool';
 import type { JSONSchema } from '../types';
+import type { McpApprovalPolicy } from '../../../shared/mcp_types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
@@ -21,10 +22,12 @@ export function mcpTool(
 	description: string,
 	schema: JSONSchema,
 	serverId: string,
+	approval?: McpApprovalPolicy
 ) {
 	return jsonTool({
 		name: `mcp__${serverId}__${toolName}`,
 		description,
+		defaultPermission: approval === 'never' ? 'allow' : 'ask',
 		schema,
 		execute: async (input) => {
 			const result = (await callTool(client, toolName, input)) as McpCallResult;

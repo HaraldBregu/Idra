@@ -10,12 +10,14 @@ function toJsonSchema(schema: z.ZodType): JSONSchema {
 export function tool<T extends z.ZodType>({
 	name,
 	description,
+	defaultPermission,
 	inputSchema,
 	execute,
 }: ToolConfig<T>): Tool {
 	return {
 		name,
 		description,
+		defaultPermission,
 		schema: toJsonSchema(inputSchema),
 		async run(input: Record<string, unknown>, signal?: AbortSignal) {
 			return execute(inputSchema.parse(input), signal);
@@ -23,10 +25,17 @@ export function tool<T extends z.ZodType>({
 	};
 }
 
-export function jsonTool({ name, description, schema, execute }: JsonToolConfig): Tool {
+export function jsonTool({
+	name,
+	description,
+	defaultPermission,
+	schema,
+	execute,
+}: JsonToolConfig): Tool {
 	return {
 		name,
 		description,
+		defaultPermission,
 		schema,
 		async run(input: Record<string, unknown>, signal?: AbortSignal) {
 			return execute(input, signal);

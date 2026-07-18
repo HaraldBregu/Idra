@@ -40,12 +40,14 @@ export interface Tool {
 	readonly name: string;
 	readonly description: string;
 	readonly schema: JSONSchema;
+	readonly defaultPermission?: 'allow' | 'ask' | 'deny';
 	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
 
 export type ToolConfig<T extends z.ZodType> = {
 	name: string;
 	description: string;
+	defaultPermission?: 'allow' | 'ask' | 'deny';
 	inputSchema: T;
 	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };
@@ -53,6 +55,7 @@ export type ToolConfig<T extends z.ZodType> = {
 export type JsonToolConfig = {
 	name: string;
 	description: string;
+	defaultPermission?: 'allow' | 'ask' | 'deny';
 	schema: JSONSchema;
 	execute: (input: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown> | unknown;
 };

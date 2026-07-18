@@ -36,7 +36,13 @@ export async function* runToolCall(
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
 	} else {
-		let permission = resolveToolPermission(toolCall.name, toolCall.args, context, interactive);
+		let permission = resolveToolPermission(
+			toolCall.name,
+			toolCall.args,
+			context,
+			interactive,
+			tool.defaultPermission
+		);
 
 		if (permission === 'ask' && !interactive) permission = 'deny';
 

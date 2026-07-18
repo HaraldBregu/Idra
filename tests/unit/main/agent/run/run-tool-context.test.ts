@@ -186,6 +186,43 @@ describe('tool context permissions', () => {
 		expect(context.tools).toBeUndefined();
 	});
 
+	it('enforces a matching directory denial before running the tool', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-dir-denied-'));
+		const target = path.join(root, 'example.txt');
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			dir: { [root]: { recoursive: true, tools: ['read'] } },
+			write: { ...asking, default: 'allow' },
+		});
+		const write = jest.fn().mockResolvedValue({ path: target });
+		const call: ToolCall = { id: 'write-dir-denied', name: 'write', args: { path: target } };
+		const events: RuntimeEvent[] = [];
+
+		for await (const event of runToolCall(fakeTool('write', write), call, true)) events.push(event);
+
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(write).not.toHaveBeenCalled();
+	});
+
+	it('runs a tool allowed by a matching directory', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-dir-allowed-'));
+		const target = path.join(root, 'example.txt');
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			dir: { [root]: { recoursive: true, tools: ['edit'] } },
+		});
+		const edit = jest.fn().mockResolvedValue({ path: target });
+		const call: ToolCall = { id: 'edit-dir-allowed', name: 'edit', args: { path: target } };
+		const events: RuntimeEvent[] = [];
+
+		for await (const event of runToolCall(fakeTool('edit', edit), call, true)) events.push(event);
+
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(edit).toHaveBeenCalledTimes(1);
+	});
+
 	it.each(['approve', 'approve_always'] as const)(
 		'remembers an %s read folder for the next read in that folder',
 		async (decision) => {
@@ -290,6 +327,27 @@ describe('tool context permissions', () => {
 
 		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
 		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(read).not.toHaveBeenCalled();
+	});
+
+	it('does not override an explicit ask with an allowed folder context', async () => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-read-explicit-ask-'));
+		const target = path.join(root, 'example.txt');
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			read: { ...asking, ask: [target] },
+		});
+		const read = jest.fn().mockResolvedValue('content');
+		const call: ToolCall = { id: 'read-explicit-ask', name: 'read', args: { path: target } };
+		const context = createContext();
+		rememberTool(context, fileToolState('read', call.args, '/appdata/agent')!);
+		const events = runToolCall(fakeTool('read', read), call, true, undefined, context);
+
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const end = events.next();
+		expect(respondToolPermission(call.id, 'reject')).toBe(true);
+		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: true });
 		expect(read).not.toHaveBeenCalled();
 	});
 });

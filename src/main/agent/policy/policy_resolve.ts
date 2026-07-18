@@ -11,7 +11,8 @@ export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
 	context?: AgentContext,
-	reuseContext = true
+	reuseContext = true,
+	fallback: PermissionMode = 'ask'
 ): PermissionMode {
 	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const directoryTargets = directoryPermissionTargets(toolName, args, AGENT_DIRECTORY);
@@ -21,7 +22,7 @@ export function resolveToolPermission(
 	const directories = policy.dir ?? {};
 	let contextCanAllow = true;
 	let permission: PermissionMode;
-	if (targets.length === 0) permission = configured?.default ?? 'ask';
+	if (targets.length === 0) permission = configured?.default ?? fallback;
 	else {
 		const decisions = targets.map((target, index) => {
 			const explicit = configured ? toolPermissionFor(toolName, target, configured) : undefined;
@@ -33,7 +34,7 @@ export function resolveToolPermission(
 			return (
 				(directoryTarget && directoryPermissionFor(directories, toolName, directoryTarget)) ||
 				configured?.default ||
-				'ask'
+				fallback
 			);
 		});
 		permission = decisions.includes('deny') ? 'deny' : decisions.includes('ask') ? 'ask' : 'allow';

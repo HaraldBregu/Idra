@@ -54,6 +54,15 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('custom_file_tool', { path: '/outside/a.txt' })).toBe('ask');
 	});
 
+	it('uses a tool-provided fallback only when no stored policy exists', () => {
+		expect(resolveToolPermission('mcp__safe__lookup', {}, undefined, true, 'allow')).toBe('allow');
+		getPermissions.mockReturnValue({
+			...defaults(),
+			mcp__safe__lookup: entry('deny'),
+		});
+		expect(resolveToolPermission('mcp__safe__lookup', {}, undefined, true, 'allow')).toBe('deny');
+	});
+
 	it('applies a path rule only to its owning tool', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),

@@ -15,7 +15,14 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 				const listed = await listTools(client);
 				for (const t of listed.tools) {
 					tools.push(
-						mcpTool(client, t.name, t.description ?? '', t.inputSchema as JSONSchema, id),
+						mcpTool(
+							client,
+							t.name,
+							t.description ?? '',
+							t.inputSchema as JSONSchema,
+							id,
+							data.require_approval
+						),
 					);
 				}
 			} catch {
