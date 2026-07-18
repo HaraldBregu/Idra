@@ -24,7 +24,9 @@ import {
 	getPermissions,
 	resetPermissions,
 	respondToolPermission,
+	setDirectoryPermissions,
 	setToolPermission,
+	type DirectoryPermissions,
 	type PermissionsSchema,
 	type ToolPermission,
 } from '../agent/policy';
@@ -92,6 +94,29 @@ function toToolPermission(value: unknown): ToolPermission {
 		deny: list(value.deny),
 		ask: list(value.ask),
 	};
+}
+
+function toDirectoryPermissions(value: unknown): DirectoryPermissions {
+	if (!isRecord(value)) throw new Error('Invalid directory permissions.');
+	const result: DirectoryPermissions = {};
+	for (const [rawDirectory, candidate] of Object.entries(value)) {
+		const directory = optionalTrimmedString(rawDirectory);
+		if (!directory || !isRecord(candidate) || typeof candidate.recoursive !== 'boolean')
+			throw new Error('Invalid directory permission.');
+		let tools: '*' | string[];
+		if (candidate.tools === '*') tools = '*';
+		else if (Array.isArray(candidate.tools))
+			tools = [
+				...new Set(
+					candidate.tools
+						.map(optionalTrimmedString)
+						.filter((tool): tool is string => !!tool)
+				),
+			];
+		else throw new Error('Invalid directory tools.');
+		result[directory] = { recoursive: candidate.recoursive, tools };
+	}
+	return result;
 }
 
 function isModelReasoningEffort(value: unknown): value is ModelReasoningEffort {
@@ -386,6 +411,13 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 				if (!tool) throw new Error('Invalid tool name.');
 				return setToolPermission(tool, toToolPermission(value));
 			}, AgentChannels.policySetTool)
+		);
+
+		ipcMain.handle(
+			AgentChannels.policySetDirectories,
+			wrapSimpleHandler((value: unknown): PermissionsSchema => {
+				return setDirectoryPermissions(toDirectoryPermissions(value));
+			}, AgentChannels.policySetDirectories)
 		);
 
 		ipcMain.handle(

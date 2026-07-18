@@ -25,6 +25,7 @@ export const AgentChannels = {
 	policyGet: 'agent:policy:get',
 	policyPickDirectory: 'agent:policy:permission:pick',
 	policySetTool: 'agent:policy:tool:set',
+	policySetDirectories: 'agent:policy:directories:set',
 	policyReset: 'agent:policy:reset',
 	healthSettings: 'agent:health:settings',
 	healthSaveSettings: 'agent:health:settings:save',
