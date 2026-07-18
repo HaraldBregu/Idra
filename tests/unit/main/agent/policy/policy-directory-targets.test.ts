@@ -1,5 +1,9 @@
 import path from 'node:path';
 import { directoryPermissionTargets } from '../../../../../src/main/agent/policy/policy_directory_targets';
+import {
+	registry,
+	type ProcessSession,
+} from '../../../../../src/main/agent/tools/run_process';
 
 const agentDir = path.resolve('/appdata/agent');
 
@@ -34,5 +38,45 @@ describe('directoryPermissionTargets', () => {
 		expect(directoryPermissionTargets('read', { path: '/workspace/a.txt' }, agentDir)).toEqual([
 			path.resolve('/workspace'),
 		]);
+	});
+
+	it.each([
+		['memory_save', 'MEMORY.md'],
+		['health_update', 'HEALTH.md'],
+		['health_settings_update', 'health.json'],
+		['complete_bootstrap', 'BOOTSTRAP.md'],
+		['create_schedule', 'cron.json'],
+	] as const)('maps %s to its agent-owned resource', (toolName, fileName) => {
+		expect(directoryPermissionTargets(toolName, {}, agentDir)).toEqual([
+			path.join(agentDir, fileName),
+		]);
+	});
+
+	it('maps generated media and loaded skills inside the agent directory', () => {
+		expect(directoryPermissionTargets('create_image', {}, agentDir)).toEqual([
+			path.join(agentDir, 'library', '.generated'),
+		]);
+		expect(directoryPermissionTargets('load_skill', { name: 'example' }, agentDir)).toEqual([
+			path.join(agentDir, 'skills', 'example'),
+		]);
+	});
+
+	it('uses the originating exec workdir for process calls', () => {
+		const session = {
+			id: 'policy-session',
+			workdir: '/workspace/app',
+		} as ProcessSession;
+		registry.register(session);
+		try {
+			expect(
+				directoryPermissionTargets(
+					'process',
+					{ action: 'poll', sessionId: session.id },
+					agentDir
+				)
+			).toEqual([path.resolve('/workspace/app')]);
+		} finally {
+			registry.remove(session.id);
+		}
 	});
 });

@@ -168,7 +168,7 @@ The Policies screen provides persistent controls for sensitive tools:
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
 - An always-allow decision stores the containing folder for `read`, the exact target for other file and patch tools, and the raw command for `exec`.
-- Tool-specific paths and commands can be added to or removed from the `allow`, `ask`, and `deny` lists.
+- Always-allow decisions persist path or command rules in the owning tool's `allow` list.
 - The policy can be reset to defaults.
 
 Directory permissions use this top-level structure:
@@ -182,7 +182,7 @@ Directory permissions use this top-level structure:
 
 Rule resolution is tool-local:
 
-- The first layer is the built-in system policy: every path-aware tool is allowed recursively inside the agent directory.
+- The first layer is the built-in system policy: tools targeting the agent directory are allowed recursively, including tools with fixed agent-owned resources such as memory, health, schedules, media, bootstrap, and skills.
 - If the system layer does not allow the whole call, the second layer checks `dir`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
 - If the directory layer does not allow the whole call, resolution continues to the third layer: the named tool's explicit rules and default.
 - A file path matches that file, while a directory path also matches its descendants.
@@ -198,7 +198,7 @@ Important boundaries:
 - `exec` policy resolution examines the command string; it is not an operating-system sandbox and cannot prove which paths a command will access.
 - Directory policy resolves `exec` from its working directory, but commands can still access paths outside that directory.
 - Relative policy paths such as `Desktop` resolve from the user home directory.
-- Defaults and rule lists are editable from Settings for every stored tool policy.
+- Tool defaults and directory pre-authorizations are editable from Settings.
 
 ## Personalization, workspace, and memory
 

@@ -51,7 +51,7 @@ describe('resolveToolPermission', () => {
 		);
 	});
 
-	it('allows every path-aware tool recursively inside the agent directory first', () => {
+	it('allows path-aware and agent-owned tools recursively inside the agent directory first', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
 			read: entry('deny'),
@@ -59,6 +59,8 @@ describe('resolveToolPermission', () => {
 			apply_patch: entry('deny'),
 			exec: entry('deny'),
 			mcp__files__inspect: entry('deny'),
+			memory_save: entry('deny'),
+			create_schedule: entry('deny'),
 		});
 		expect(resolveToolPermission('read', { path: '/appdata/agent/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('edit', { path: '/appdata/agent/nested/a.txt' })).toBe('allow');
@@ -73,6 +75,8 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('mcp__files__inspect', { path: '/appdata/agent/a.txt' })).toBe(
 			'allow'
 		);
+		expect(resolveToolPermission('memory_save', { fact: 'remember me' })).toBe('allow');
+		expect(resolveToolPermission('create_schedule', { request: {} })).toBe('allow');
 	});
 
 	it('requires every target to pass the system layer', () => {
