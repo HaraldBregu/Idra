@@ -29,9 +29,13 @@ type RuleMode = Exclude<keyof Permission, 'default'>;
 const RULE_MODES: RuleMode[] = ['allow', 'ask', 'deny'];
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
 
+const isPermission = (entry: Permissions[string]): entry is Permission =>
+	'default' in entry &&
+	(entry.default === 'allow' || entry.default === 'ask' || entry.default === 'deny');
+
 const permissionFor = (policy: Permissions | null, toolName: string): Permission | undefined => {
 	const entry = policy?.[toolName];
-	return entry && 'default' in entry ? entry : undefined;
+	return entry && isPermission(entry) ? entry : undefined;
 };
 
 const PoliciesPage: React.FC = () => {
