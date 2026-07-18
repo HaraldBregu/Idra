@@ -171,6 +171,15 @@ The Policies screen provides persistent controls for sensitive tools:
 - Tool-specific paths and commands can be added to or removed from the `allow`, `ask`, and `deny` lists.
 - The policy can be reset to defaults.
 
+Directory permissions use this top-level structure:
+
+```json
+"dir": {
+  "/path/to/folder": { "recoursive": true, "tools": "*" },
+  "/path/to/another/folder": { "recoursive": true, "tools": ["read"] }
+}
+```
+
 Rule resolution is tool-local:
 
 - A file path matches that file, while a directory path also matches its descendants.

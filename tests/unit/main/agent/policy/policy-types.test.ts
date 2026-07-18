@@ -28,5 +28,9 @@ describe('DEFAULT_PERMISSIONS', () => {
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('permissions');
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultMode');
 		expect(DEFAULT_PERMISSIONS).not.toHaveProperty('defaultPermissions');
+		for (const toolName of POLICY_TOOLS) {
+			const permission = DEFAULT_PERMISSIONS[toolName];
+			expect(permission).toMatchObject({ allow: [], deny: [], ask: [] });
+		}
 	});
 });

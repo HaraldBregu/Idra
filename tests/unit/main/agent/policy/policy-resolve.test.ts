@@ -98,6 +98,16 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('edit', { path: '/shared/nested/file.txt' })).toBe('ask');
 	});
 
+	it('limits non-recursive read entries to files directly in that folder', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			read: entry('ask'),
+			dir: { '/shared': { recoursive: false, tools: ['read'] } },
+		});
+		expect(resolveToolPermission('read', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('read', { path: '/shared/nested/file.txt' })).toBe('ask');
+	});
+
 	it('uses the most-specific matching directory entry', () => {
 		getPermissions.mockReturnValue({
 			...defaults(),
@@ -134,6 +144,31 @@ describe('resolveToolPermission', () => {
 			'allow'
 		);
 		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/outside' })).toBe('ask');
+	});
+
+	it('denies exec when a matching working directory omits it', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: { '/shared': { recoursive: true, tools: ['read'] } },
+		});
+		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/shared/app' })).toBe(
+			'deny'
+		);
+	});
+
+	it('requires every patch target to satisfy its directory policy', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: {
+				'/shared': { recoursive: true, tools: '*' },
+				'/shared/read-only': { recoursive: true, tools: ['read'] },
+			},
+		});
+		const input = [
+			'*** Update File: /shared/a.ts',
+			'*** Update File: /shared/read-only/b.ts',
+		].join('\n');
+		expect(resolveToolPermission('apply_patch', { input })).toBe('deny');
 	});
 
 	it('uses the most specific matching path', () => {
