@@ -88,13 +88,7 @@ export class Agent {
 
 			init(this.session, this.config, input, options.category);
 
-			const events = streamGoal(
-				this.config,
-				this.session,
-				input,
-				controller.signal,
-				options.category
-			);
+			const events = stream(this.config, this.session, input, controller.signal);
 
 			this.activeRuns.set(resolvedAgentId, controller);
 
