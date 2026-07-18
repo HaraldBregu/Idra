@@ -43,7 +43,9 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('read', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('edit', { path: '/outside/a.txt' })).toBe('ask');
-		expect(resolveToolPermission('exec', { command: 'rm -rf build' })).toBe('ask');
+		expect(
+			resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/outside' })
+		).toBe('ask');
 		expect(resolveToolPermission('apply_patch', { input: '*** Update File: /outside/a.ts' })).toBe(
 			'ask'
 		);
@@ -273,9 +275,15 @@ describe('resolveToolPermission', () => {
 				deny: ['git push:*'],
 			}),
 		});
-		expect(resolveToolPermission('exec', { command: 'git status' })).toBe('allow');
-		expect(resolveToolPermission('exec', { command: 'git push origin main' })).toBe('deny');
-		expect(resolveToolPermission('exec', { command: 'git-evil push' })).toBe('ask');
+		expect(resolveToolPermission('exec', { command: 'git status', workdir: '/outside' })).toBe(
+			'allow'
+		);
+		expect(
+			resolveToolPermission('exec', { command: 'git push origin main', workdir: '/outside' })
+		).toBe('deny');
+		expect(resolveToolPermission('exec', { command: 'git-evil push', workdir: '/outside' })).toBe(
+			'ask'
+		);
 	});
 
 	it('uses the most restrictive result across apply_patch targets', () => {
