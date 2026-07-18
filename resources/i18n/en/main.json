@@ -440,19 +440,6 @@
 				"openFolder": "Could not open the chat history folder."
 			}
 		},
-		"goal": {
-			"title": "Goal",
-			"description": "Budget for goals started with /goal in chat.",
-			"fields": {
-				"maxIterations": "Max iterations",
-				"maxToolCalls": "Max tool calls",
-				"timeoutMinutes": "Timeout (minutes)"
-			},
-			"errors": {
-				"load": "Could not load goal settings.",
-				"save": "Could not save goal settings."
-			}
-		},
 		"microphone": {
 			"title": "Microphone permissions",
 			"description": "Control whether Friday can record audio from the prompt input.",

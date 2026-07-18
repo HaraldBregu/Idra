@@ -8,7 +8,7 @@ import {
 	type SuggestionKeyDownProps,
 	type SuggestionProps,
 } from '@tiptap/suggestion';
-import { ListPlus, ListTodo, ListX, Sparkles, Target, Zap, type LucideIcon } from 'lucide-react';
+import { ListPlus, ListTodo, ListX, Sparkles, Zap, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const slashMenuPluginKey = new PluginKey('slashMenu');
