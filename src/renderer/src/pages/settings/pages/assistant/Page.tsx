@@ -183,26 +183,6 @@ const AssistantPage: React.FC = () => {
 					role="button"
 					tabIndex={0}
 					className="cursor-pointer hover:bg-muted/40"
-					onClick={() => navigate('/settings/assistant/goal')}
-					onKeyDown={(event) => {
-						if (event.key === 'Enter' || event.key === ' ') {
-							event.preventDefault();
-							navigate('/settings/assistant/goal');
-						}
-					}}
-				>
-					<SettingsRow
-						title={t('settings.goal.title')}
-						description={t('settings.goal.description')}
-						className="grid-cols-[minmax(0,1fr)_auto]"
-						actionClassName="w-auto justify-end"
-						actions={<ChevronRight className="size-4 text-muted-foreground" />}
-					/>
-				</div>
-				<div
-					role="button"
-					tabIndex={0}
-					className="cursor-pointer hover:bg-muted/40"
 					onClick={() => navigate('/settings/assistant/health')}
 					onKeyDown={(event) => {
 						if (event.key === 'Enter' || event.key === ' ') {
