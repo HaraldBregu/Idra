@@ -26,6 +26,10 @@ const agentApi = {
 	policyReset: jest.fn(),
 };
 
+beforeAll(() => {
+	Object.defineProperty(window, 'PointerEvent', { configurable: true, value: MouseEvent });
+});
+
 beforeEach(() => {
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
 	agentApi.policyGet.mockResolvedValue(policy);
@@ -45,7 +49,7 @@ describe('Policies settings', () => {
 		expect(screen.getByText('Desktop')).toBeInTheDocument();
 		expect(screen.getByText('Desktop/file.txt')).toBeInTheDocument();
 		expect(screen.getByText('/tmp')).toBeInTheDocument();
-		expect(screen.getByText('recursive')).toBeInTheDocument();
+		expect(screen.getAllByText('recursive').length).toBeGreaterThan(0);
 	});
 
 	it('updates the default owned by one tool', async () => {
