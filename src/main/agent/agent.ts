@@ -4,12 +4,19 @@ import {
 	clearMessages as clearSessionMessages,
 	deleteSession as deleteStoredSession,
 	createSessionState,
+	DEFAULT_CATEGORY,
 	init,
 	listSessions,
 	loadMessages,
+	resolveSessionId,
+	sessionFolderName,
+	sessionPath,
+	sessionsRoot,
 	type SessionCategory,
 	type SessionState,
 } from './session';
+import { applyGoalCommand } from './run/run_goal_apply';
+import { parseGoalCommand } from './run/run_goal_parse';
 import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
