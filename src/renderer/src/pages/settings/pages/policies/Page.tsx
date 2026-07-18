@@ -156,8 +156,8 @@ const PoliciesPage: React.FC = () => {
 										<span className="text-xs text-muted-foreground">
 											{t('settings.policies.defaultMode')}
 										</span>
-									<Select
-										value={permissionFor(policy, toolName)!.default}
+										<Select
+											value={permissionFor(policy, toolName)!.default}
 											onValueChange={(value) => {
 												if (value) setDefault(toolName, value as PermissionMode);
 											}}

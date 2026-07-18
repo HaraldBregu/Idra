@@ -10,7 +10,8 @@ export function directoryPermissionFor(
 	toolName: string,
 	target: string
 ): PermissionMode | undefined {
-	const targetDirectory = toolName === 'read' || toolName === 'exec' ? target : path.dirname(target);
+	const targetDirectory =
+		toolName === 'read' || toolName === 'exec' ? target : path.dirname(target);
 	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const [directory, permission] of Object.entries(directories)) {
 		const root = realPath(resolveUserPath(directory, os.homedir()));
@@ -20,8 +21,7 @@ export function directoryPermissionFor(
 		if (!matches || (best && best.specificity >= root.length)) continue;
 		best = {
 			specificity: root.length,
-			decision:
-				permission.tools === '*' || permission.tools.includes(toolName) ? 'allow' : 'deny',
+			decision: permission.tools === '*' || permission.tools.includes(toolName) ? 'allow' : 'deny',
 		};
 	}
 	return best?.decision;

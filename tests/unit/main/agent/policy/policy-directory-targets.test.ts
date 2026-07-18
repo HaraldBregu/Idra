@@ -21,9 +21,7 @@ describe('directoryPermissionTargets', () => {
 	});
 
 	it('does not create an exec target without a command', () => {
-		expect(directoryPermissionTargets('exec', { workdir: '/workspace/app' }, agentDir)).toEqual(
-			[]
-		);
+		expect(directoryPermissionTargets('exec', { workdir: '/workspace/app' }, agentDir)).toEqual([]);
 	});
 
 	it('reuses file targets for filesystem tools', () => {
