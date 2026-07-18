@@ -155,7 +155,7 @@ export const SlashMenu = Extension.create({
 				allowSpaces: true,
 				placement: 'top-start',
 				// Show while picking a category (single token) or a skill (skill + partial
-				// name). Any completed command ("/skill demo ", "/goal ") closes the menu.
+				// name). Any completed command ("/skill demo ", "/task_list ") closes the menu.
 				allow: ({ state, range }) => {
 					if (range.from !== 1) return false;
 					const text = state.doc.textBetween(range.from, range.to);
