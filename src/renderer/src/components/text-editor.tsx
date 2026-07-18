@@ -5,7 +5,6 @@ import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { cn } from '@/lib/utils';
-import { slashMenuPluginKey } from './slash-menu';
 
 export type TextEditorProps = {
 	readonly value?: string;
