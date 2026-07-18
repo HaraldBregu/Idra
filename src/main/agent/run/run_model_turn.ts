@@ -36,7 +36,8 @@ export async function* runModelTurn(
 		const providerItems: MessageContentBlock[] = [];
 		const pending = new Map<string, { name: string; argsText: string }>();
 
-		const maxTokens = 4096;
+		// ponytail: flat cap; per-model output limits if a provider rejects 8192.
+		const maxTokens = 8192;
 		try {
 			for await (const event of llm.stream({
 				provider,
