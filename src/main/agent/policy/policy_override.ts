@@ -2,6 +2,7 @@ import os from 'node:os';
 import { resolveUserPath } from '../../shared/user_path';
 import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
+import { isToolPermission } from './policy_is_tool_permission';
 import { getPermissions } from './policy_store';
 import type { PermissionMode } from './policy_types';
 
@@ -16,7 +17,7 @@ function commandMatches(rule: string, command: string): boolean {
 
 export function toolPermissionFor(toolName: string, target: string): PermissionMode | undefined {
 	const permission = getPermissions()[toolName];
-	if (!permission) return undefined;
+	if (!isToolPermission(permission)) return undefined;
 	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const decision of ['allow', 'ask', 'deny'] as const) {
 		for (const rule of permission[decision]) {

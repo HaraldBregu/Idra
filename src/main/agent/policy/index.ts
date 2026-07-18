@@ -7,6 +7,7 @@ export {
 	setToolPermission,
 } from './policy_store';
 export { isPathWithin, toolPathDir } from './policy_path';
+export { directoryAllowsTool } from './policy_directory';
 export { toolPermissionTargets } from './policy_targets';
 export { toolPermissionFor } from './policy_override';
 export { resolveToolPermission } from './policy_resolve';
