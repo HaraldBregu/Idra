@@ -21,6 +21,7 @@ const policy = {
 const agentApi = {
 	policyGet: jest.fn(),
 	policyPickDirectory: jest.fn(),
+	policySetDirectories: jest.fn(),
 	policySetTool: jest.fn(),
 	policyReset: jest.fn(),
 };
@@ -28,6 +29,8 @@ const agentApi = {
 beforeEach(() => {
 	Object.defineProperty(window, 'agent', { configurable: true, value: agentApi });
 	agentApi.policyGet.mockResolvedValue(policy);
+	agentApi.policyPickDirectory.mockResolvedValue(undefined);
+	agentApi.policySetDirectories.mockResolvedValue(policy);
 	agentApi.policySetTool.mockResolvedValue(policy);
 	agentApi.policyReset.mockResolvedValue(policy);
 });
@@ -41,7 +44,8 @@ describe('Policies settings', () => {
 		expect(screen.getAllByText('edit').length).toBeGreaterThan(0);
 		expect(screen.getByText('Desktop')).toBeInTheDocument();
 		expect(screen.getByText('Desktop/file.txt')).toBeInTheDocument();
-		expect(screen.queryByText('/tmp')).not.toBeInTheDocument();
+		expect(screen.getByText('/tmp')).toBeInTheDocument();
+		expect(screen.getByText('recursive')).toBeInTheDocument();
 	});
 
 	it('updates the default owned by one tool', async () => {
@@ -76,5 +80,55 @@ describe('Policies settings', () => {
 				allow: ['Desktop', '/tmp/shared'],
 			})
 		);
+	});
+
+	it('adds a directory with a normalized tool allow-list', async () => {
+		const user = userEvent.setup();
+		render(<PoliciesPage />);
+		await screen.findByText('/tmp');
+
+		await user.type(screen.getByRole('textbox', { name: 'directoryPath' }), '/workspace');
+		const tools = screen.getByRole('textbox', { name: 'directoryTools' });
+		await user.clear(tools);
+		await user.type(tools, 'read, write, read');
+		await user.click(screen.getByRole('switch', { name: 'recursive' }));
+		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
+
+		await waitFor(() =>
+			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
+				...policy.dir,
+				'/workspace': { recoursive: false, tools: ['read', 'write'] },
+			})
+		);
+	});
+
+	it('uses the directory picker and saves wildcard permissions', async () => {
+		const user = userEvent.setup();
+		agentApi.policyPickDirectory.mockResolvedValue('/picked');
+		render(<PoliciesPage />);
+		await screen.findByText('/tmp');
+
+		await user.click(screen.getByRole('button', { name: 'browseDirectory' }));
+		await waitFor(() =>
+			expect(screen.getByRole('textbox', { name: 'directoryPath' })).toHaveValue('/picked')
+		);
+		await user.click(screen.getByRole('button', { name: 'addDirectory' }));
+
+		await waitFor(() =>
+			expect(agentApi.policySetDirectories).toHaveBeenCalledWith({
+				...policy.dir,
+				'/picked': { recoursive: true, tools: '*' },
+			})
+		);
+	});
+
+	it('removes a directory permission', async () => {
+		const user = userEvent.setup();
+		render(<PoliciesPage />);
+		await screen.findByText('/tmp');
+
+		await user.click(screen.getByRole('button', { name: 'removeDirectory' }));
+
+		await waitFor(() => expect(agentApi.policySetDirectories).toHaveBeenCalledWith({}));
 	});
 });
