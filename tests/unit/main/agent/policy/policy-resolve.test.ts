@@ -164,10 +164,9 @@ describe('resolveToolPermission', () => {
 				'/shared/read-only': { recoursive: true, tools: ['read'] },
 			},
 		});
-		const input = [
-			'*** Update File: /shared/a.ts',
-			'*** Update File: /shared/read-only/b.ts',
-		].join('\n');
+		const input = ['*** Update File: /shared/a.ts', '*** Update File: /shared/read-only/b.ts'].join(
+			'\n'
+		);
 		expect(resolveToolPermission('apply_patch', { input })).toBe('deny');
 	});
 

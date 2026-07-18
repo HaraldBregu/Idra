@@ -39,7 +39,6 @@ import { getScheduleTool } from '../tools/cron_get_schedule';
 import { listSchedulesTool } from '../tools/cron_list_schedules';
 import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
 import { subagentTool } from '../tools/subagent';
-import { addGoalPrompt, completeGoalTool, loadGoal } from '../goal';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
