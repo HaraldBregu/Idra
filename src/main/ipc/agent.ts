@@ -304,18 +304,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.goalSettings,
-			wrapSimpleHandler((): GoalBudget => getGoalSettings(), AgentChannels.goalSettings)
-		);
-
-		ipcMain.handle(
-			AgentChannels.goalSaveSettings,
-			wrapSimpleHandler((settings: unknown): GoalBudget => {
-				return setGoalSettings(normalizeGoalSettingsPatch(settings));
-			}, AgentChannels.goalSaveSettings)
-		);
-
-		ipcMain.handle(
 			AgentChannels.cronList,
 			wrapSimpleHandler(() => listSchedules(), AgentChannels.cronList)
 		);
