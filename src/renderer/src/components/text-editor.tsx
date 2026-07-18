@@ -1,5 +1,4 @@
 import { useEffect, useRef, type ReactElement } from 'react';
-import { type AnyExtension } from '@tiptap/core';
 import { Placeholder } from '@tiptap/extensions';
 import { Markdown } from '@tiptap/markdown';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
