@@ -35,6 +35,9 @@ export async function* runToolCall(
 	if (!tool) {
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
+	} else if ('__unparsed' in toolCall.args) {
+		output = `Error: tool '${toolCall.name}' arguments were not valid JSON (likely truncated by the output token limit). Retry with smaller arguments, e.g. write large files in multiple steps.`;
+		isError = true;
 	} else {
 		let permission = resolveToolPermission(
 			toolCall.name,
