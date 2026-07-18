@@ -12,13 +12,6 @@ export interface AgentApi {
 		options?: Record<string, unknown>,
 		onEvent?: (event: AgentResponseEvent) => void
 	) => Promise<string>;
-	goal: (
-		message: string,
-		options?: Record<string, unknown>,
-		onEvent?: (event: AgentResponseEvent) => void
-	) => Promise<string>;
-	goalGetSettings: () => Promise<GoalBudget>;
-	goalSaveSettings: (settings: Partial<GoalBudget>) => Promise<GoalBudget>;
 	cancel: () => Promise<void>;
 	respondToolPermission: (
 		toolCallId: string,
