@@ -81,7 +81,6 @@ export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	run_schedule_now: allow(),
 	complete_bootstrap: allow(),
 	subagent: allow(),
-	goal_complete: allow(),
 };
 
 export const DEFAULT_PERMISSIONS: PermissionsSchema = {
