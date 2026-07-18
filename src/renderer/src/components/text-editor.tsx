@@ -32,12 +32,7 @@ function TextEditor({
 	onSubmitRef.current = onSubmit;
 
 	const editor = useEditor({
-		extensions: [
-			StarterKit,
-			Placeholder.configure({ placeholder }),
-			Markdown,
-			...(extensions ?? []),
-		],
+		extensions: [StarterKit, Placeholder.configure({ placeholder }), Markdown],
 		content: value ?? '',
 		contentType: 'markdown',
 		editable: !disabled,
