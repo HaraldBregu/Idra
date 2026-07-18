@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron';
+import { contextBridge, webUtils } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc_types';
 import {
 	WindowChannels,
