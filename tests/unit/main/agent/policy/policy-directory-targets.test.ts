@@ -29,4 +29,10 @@ describe('directoryPermissionTargets', () => {
 			path.resolve('/workspace/a.txt'),
 		]);
 	});
+
+	it('uses the containing folder for read', () => {
+		expect(directoryPermissionTargets('read', { path: '/workspace/a.txt' }, agentDir)).toEqual([
+			path.resolve('/workspace'),
+		]);
+	});
 });

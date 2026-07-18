@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
 
@@ -25,7 +24,7 @@ export function toolPermissionTargets(
 		return typeof args.command === 'string' && args.command.length > 0 ? [args.command] : [];
 	if (typeof args.path === 'string' && args.path.length > 0) {
 		const target = realPath(resolveUserPath(args.path, baseDir));
-		return [toolName === 'read' ? path.dirname(target) : target];
+		return [target];
 	}
 	return [];
 }

@@ -42,9 +42,9 @@ describe('toolPermissionTargets', () => {
 		expect(toolPermissionTargets('write', {}, agentDir)).toEqual([]);
 	});
 
-	it('returns the containing folder for read', () => {
+	it('returns the exact file for read policy evaluation', () => {
 		expect(toolPermissionTargets('read', { path: '/a/b.txt' }, agentDir)).toEqual([
-			resolveUserPath('/a', agentDir),
+			resolveUserPath('/a/b.txt', agentDir),
 		]);
 	});
 });

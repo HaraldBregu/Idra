@@ -10,6 +10,7 @@ export {
 export { isPathWithin, toolPathDir } from './policy_path';
 export { directoryPermissionFor } from './policy_directory';
 export { directoryPermissionTargets } from './policy_directory_targets';
+export { toolApprovalTargets } from './policy_approval_targets';
 export { toolPermissionTargets } from './policy_targets';
 export { toolPermissionFor } from './policy_override';
 export { resolveToolPermission } from './policy_resolve';

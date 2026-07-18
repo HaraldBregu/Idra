@@ -10,7 +10,8 @@ import type { PermissionMode } from './policy_types';
 export function resolveToolPermission(
 	toolName: string,
 	args: Record<string, unknown> = {},
-	context?: AgentContext
+	context?: AgentContext,
+	reuseContext = true
 ): PermissionMode {
 	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const directoryTargets = directoryPermissionTargets(toolName, args, AGENT_DIRECTORY);
@@ -18,12 +19,16 @@ export function resolveToolPermission(
 	const configuredEntry = policy[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
 	const directories = policy.dir ?? {};
+	let contextCanAllow = true;
 	let permission: PermissionMode;
-	if (targets.length === 0) permission = configured?.default ?? 'allow';
+	if (targets.length === 0) permission = configured?.default ?? 'ask';
 	else {
 		const decisions = targets.map((target, index) => {
-			const explicit = toolPermissionFor(toolName, target);
-			if (explicit) return explicit;
+			const explicit = configured ? toolPermissionFor(toolName, target, configured) : undefined;
+			if (explicit) {
+				if (explicit === 'ask') contextCanAllow = false;
+				return explicit;
+			}
 			const directoryTarget = directoryTargets[index];
 			return (
 				(directoryTarget && directoryPermissionFor(directories, toolName, directoryTarget)) ||
@@ -34,7 +39,12 @@ export function resolveToolPermission(
 		permission = decisions.includes('deny') ? 'deny' : decisions.includes('ask') ? 'ask' : 'allow';
 	}
 
-	if (permission === 'ask' && contextAllowsTool(context, toolName, args, AGENT_DIRECTORY))
+	if (
+		permission === 'ask' &&
+		reuseContext &&
+		contextCanAllow &&
+		contextAllowsTool(context, toolName, args, AGENT_DIRECTORY)
+	)
 		return 'allow';
 	return permission;
 }

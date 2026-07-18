@@ -5,11 +5,15 @@ import { realPath } from '../../../../../src/main/shared/real_path';
 
 const getPermissions = jest.fn();
 const addPermissionRule = jest.fn();
+const getToolPermission = jest.fn();
+const setToolPermission = jest.fn();
 
 jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 	AGENT_DIRECTORY: '/appdata/agent',
 	addPermissionRule,
 	getPermissions,
+	getToolPermission,
+	setToolPermission,
 }));
 
 import { createContext, fileToolState, rememberTool } from '../../../../../src/main/agent/context';
@@ -30,11 +34,17 @@ const askingPermissions = {
 
 beforeEach(() => {
 	addPermissionRule.mockReset();
+	getToolPermission.mockReset().mockReturnValue(asking);
 	getPermissions.mockReset().mockReturnValue(askingPermissions);
+	setToolPermission.mockReset();
 });
 
 describe('tool context permissions', () => {
 	it('allows a new-file write and the following exact-file edit without approval', async () => {
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			write: { ...asking, default: 'allow' },
+		});
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-tools-'));
 		const target = path.join(root, 'directory', 'example.txt');
 		const write = jest.fn().mockResolvedValue({ path: target });
@@ -69,6 +79,37 @@ describe('tool context permissions', () => {
 				folderPath: realPath(path.dirname(target)),
 			},
 		]);
+	});
+
+	it('denies a non-interactive ask instead of auto-allowing a new file', async () => {
+		const target = path.join(os.tmpdir(), 'friday-noninteractive', 'example.txt');
+		const write = jest.fn().mockResolvedValue({ path: target });
+		const call: ToolCall = { id: 'write-background', name: 'write', args: { path: target } };
+		const events: RuntimeEvent[] = [];
+
+		for await (const event of runToolCall(fakeTool('write', write), call, false, undefined, createContext()))
+			events.push(event);
+
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
+		expect(write).not.toHaveBeenCalled();
+	});
+
+	it('persists always-allow as the default for a targetless tool', async () => {
+		const run = jest.fn().mockResolvedValue('done');
+		const call: ToolCall = { id: 'targetless-always', name: 'inspect', args: {} };
+		const events = runToolCall(fakeTool('inspect', run), call, true, undefined, createContext());
+
+		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });
+		expect((await events.next()).value).toMatchObject({ type: 'tool_permission_request' });
+		const end = events.next();
+		expect(respondToolPermission(call.id, 'approve_always')).toBe(true);
+		expect((await end).value).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(setToolPermission).toHaveBeenCalledWith('inspect', {
+			...asking,
+			default: 'allow',
+		});
+		expect(run).toHaveBeenCalledTimes(1);
 	});
 
 	it('asks before editing a file that was not created in the tool context', async () => {

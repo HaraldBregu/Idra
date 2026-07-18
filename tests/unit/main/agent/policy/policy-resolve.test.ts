@@ -49,8 +49,8 @@ describe('resolveToolPermission', () => {
 		);
 	});
 
-	it('allows unconfigured targetless tools but asks for unconfigured path tools', () => {
-		expect(resolveToolPermission('web_search', { query: 'Friday' })).toBe('allow');
+	it('asks for unconfigured tools whether or not they expose a path', () => {
+		expect(resolveToolPermission('mcp__records__delete', { id: '1' })).toBe('ask');
 		expect(resolveToolPermission('custom_file_tool', { path: '/outside/a.txt' })).toBe('ask');
 	});
 
@@ -70,6 +70,15 @@ describe('resolveToolPermission', () => {
 		});
 		expect(resolveToolPermission('read', { path: '/approved/next.txt' })).toBe('allow');
 		expect(resolveToolPermission('read', { path: '/other/next.txt' })).toBe('ask');
+	});
+
+	it('matches an exact read-file rule without affecting its sibling', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			read: entry('allow', { deny: ['/secret/a.txt'] }),
+		});
+		expect(resolveToolPermission('read', { path: '/secret/a.txt' })).toBe('deny');
+		expect(resolveToolPermission('read', { path: '/secret/b.txt' })).toBe('allow');
 	});
 
 	it('allows every tool in a recursive wildcard directory', () => {

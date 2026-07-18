@@ -4,7 +4,7 @@ import { realPath } from '../../shared/real_path';
 import { isPathWithin } from './policy_path';
 import { isToolPermission } from './policy_is_tool_permission';
 import { getPermissions } from './policy_store';
-import type { PermissionMode } from './policy_types';
+import type { PermissionMode, ToolPermission } from './policy_types';
 
 const PRIORITY: Record<PermissionMode, number> = { allow: 1, ask: 2, deny: 3 };
 
@@ -15,8 +15,12 @@ function commandMatches(rule: string, command: string): boolean {
 	return command === base || command.startsWith(`${base} `) || command.startsWith(`${base}/`);
 }
 
-export function toolPermissionFor(toolName: string, target: string): PermissionMode | undefined {
-	const permission = getPermissions()[toolName];
+export function toolPermissionFor(
+	toolName: string,
+	target: string,
+	configured?: ToolPermission
+): PermissionMode | undefined {
+	const permission = configured ?? getPermissions()[toolName];
 	if (!isToolPermission(permission)) return undefined;
 	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const decision of ['allow', 'ask', 'deny'] as const) {

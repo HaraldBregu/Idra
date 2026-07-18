@@ -3,8 +3,10 @@ import { fileToolState, isFileCreation, rememberTool, type AgentContext } from '
 import { agentLocation } from '../../shared/agent_location';
 import {
 	addPermissionRule,
+	getToolPermission,
 	resolveToolPermission,
-	toolPermissionTargets,
+	setToolPermission,
+	toolApprovalTargets,
 	waitForToolPermission,
 } from '../policy';
 import { formatToolOutput } from './run_common';
@@ -34,7 +36,7 @@ export async function* runToolCall(
 		output = `Error: unknown tool '${toolCall.name}'`;
 		isError = true;
 	} else {
-		let permission = resolveToolPermission(toolCall.name, toolCall.args, context);
+		let permission = resolveToolPermission(toolCall.name, toolCall.args, context, interactive);
 
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
@@ -49,8 +51,13 @@ export async function* runToolCall(
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
 			if (decision === 'approve_always') {
-				for (const target of toolPermissionTargets(toolCall.name, toolCall.args, agentLocation()))
-					addPermissionRule(toolCall.name, 'allow', target);
+				const targets = toolApprovalTargets(toolCall.name, toolCall.args, agentLocation());
+				if (targets.length === 0) {
+					const configured = getToolPermission(toolCall.name);
+					setToolPermission(toolCall.name, { ...configured, default: 'allow' });
+				} else {
+					for (const target of targets) addPermissionRule(toolCall.name, 'allow', target);
+				}
 			}
 			permission = decision === 'reject' ? 'deny' : 'allow';
 		}

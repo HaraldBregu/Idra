@@ -29,6 +29,7 @@ import { toError } from '../ipc/core/error';
 
 export interface AgentSendOptions {
 	runId?: string;
+	interactive?: boolean;
 	sessionId?: string;
 	category?: SessionCategory;
 	providerId?: string;
@@ -89,7 +90,9 @@ export class Agent {
 
 			init(this.session, this.config, input, options.category);
 
-			const events = stream(this.config, this.session, input, controller.signal);
+			const events = stream(this.config, this.session, input, controller.signal, {
+				interactive: options.interactive ?? true,
+			});
 
 			this.activeRuns.set(resolvedAgentId, controller);
 

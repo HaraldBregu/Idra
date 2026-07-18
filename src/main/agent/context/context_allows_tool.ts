@@ -1,7 +1,6 @@
 import { fileToolState } from './context_file_tool_state';
 import { hasCreatedFile } from './context_has_created_file';
 import { hasToolPermission } from './context_has_tool_permission';
-import { isFileCreation } from './context_is_file_creation';
 import type { AgentContext } from './context_types';
 
 export function contextAllowsTool(
@@ -12,7 +11,6 @@ export function contextAllowsTool(
 ): boolean {
 	const state = fileToolState(toolName, args, baseDir);
 	if (!state) return false;
-	if (isFileCreation(state)) return true;
 	if (toolName === 'edit') return hasCreatedFile(context, state.path);
 	return toolName === 'read' && hasToolPermission(context, toolName, state.folderPath);
 }
