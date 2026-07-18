@@ -6,7 +6,7 @@ describe('runToolCall', () => {
 		const controller = new AbortController();
 		let receivedSignal: AbortSignal | undefined;
 		const tool: Tool = {
-			name: 'inspect',
+			name: 'web_search',
 			description: 'inspect',
 			schema: { type: 'object' },
 			run: (_input, signal) => {
@@ -14,7 +14,7 @@ describe('runToolCall', () => {
 				return new Promise(() => undefined);
 			},
 		};
-		const call: ToolCall = { id: 'tool-1', name: 'inspect', args: {} };
+		const call: ToolCall = { id: 'tool-1', name: 'web_search', args: {} };
 		const events = runToolCall(tool, call, false, controller.signal);
 
 		expect((await events.next()).value).toMatchObject({ type: 'tool_call_start' });

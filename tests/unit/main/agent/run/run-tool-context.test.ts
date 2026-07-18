@@ -151,6 +151,10 @@ describe('tool context permissions', () => {
 	});
 
 	it('does not remember a failed file creation', async () => {
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			write: { ...asking, default: 'allow' },
+		});
 		const target = path.join(os.tmpdir(), 'friday-failed', 'example.txt');
 		const write = jest.fn().mockRejectedValue(new Error('failed'));
 		const call: ToolCall = { id: 'write-failed', name: 'write', args: { path: target } };
