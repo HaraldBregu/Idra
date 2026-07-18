@@ -87,7 +87,13 @@ describe('tool context permissions', () => {
 		const call: ToolCall = { id: 'write-background', name: 'write', args: { path: target } };
 		const events: RuntimeEvent[] = [];
 
-		for await (const event of runToolCall(fakeTool('write', write), call, false, undefined, createContext()))
+		for await (const event of runToolCall(
+			fakeTool('write', write),
+			call,
+			false,
+			undefined,
+			createContext()
+		))
 			events.push(event);
 
 		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
