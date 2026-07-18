@@ -1,17 +1,3 @@
-jest.mock('electron-store', () =>
-	jest.fn().mockImplementation((options: { defaults?: unknown }) => {
-		let backing = structuredClone(options.defaults ?? {});
-		return {
-			get store() {
-				return backing;
-			},
-			set store(value: unknown) {
-				backing = value;
-			},
-		};
-	})
-);
-
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
