@@ -11,7 +11,9 @@ export function directoryPermissionFor(
 	target: string
 ): PermissionMode | undefined {
 	const targetDirectory =
-		toolName === 'read' || toolName === 'exec' ? target : path.dirname(target);
+		toolName === 'read' || toolName === 'exec' || toolName === 'process'
+			? target
+			: path.dirname(target);
 	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const [directory, permission] of Object.entries(directories)) {
 		const root = realPath(resolveUserPath(directory, os.homedir()));
