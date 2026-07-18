@@ -34,18 +34,6 @@ export interface AgentInvokeChannelMap {
 		args: [message: string, options?: Record<string, unknown>];
 		result: string;
 	};
-	[AgentChannels.goal]: {
-		args: [message: string, options?: Record<string, unknown>];
-		result: string;
-	};
-	[AgentChannels.goalSettings]: {
-		args: [];
-		result: import('../main/agent/goal').GoalBudget;
-	};
-	[AgentChannels.goalSaveSettings]: {
-		args: [settings: Partial<import('../main/agent/goal').GoalBudget>];
-		result: import('../main/agent/goal').GoalBudget;
-	};
 	[AgentChannels.cancel]: { args: []; result: void };
 	[AgentChannels.lastMessages]: {
 		args: [sessionId: string];
