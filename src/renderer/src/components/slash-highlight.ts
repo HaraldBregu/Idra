@@ -3,7 +3,7 @@ import { type Node } from '@tiptap/pm/model';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
 
-const commandPattern = /(^|\s)(\/(?:skill|goal|task_list|create_task|delete_task))(?=\s|$)/gi;
+const commandPattern = /(^|\s)(\/(?:skill|task_list|create_task|delete_task))(?=\s|$)/gi;
 
 function decorate(doc: Node): DecorationSet {
 	const decorations: Decoration[] = [];
