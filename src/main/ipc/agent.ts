@@ -108,9 +108,7 @@ function toDirectoryPermissions(value: unknown): DirectoryPermissions {
 		else if (Array.isArray(candidate.tools))
 			tools = [
 				...new Set(
-					candidate.tools
-						.map(optionalTrimmedString)
-						.filter((tool): tool is string => !!tool)
+					candidate.tools.map(optionalTrimmedString).filter((tool): tool is string => !!tool)
 				),
 			];
 		else throw new Error('Invalid directory tools.');

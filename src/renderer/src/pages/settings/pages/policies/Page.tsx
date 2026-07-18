@@ -43,7 +43,14 @@ const permissionFor = (policy: Permissions | null, toolName: string): Permission
 const directoryToolsFor = (value: string): '*' | string[] => {
 	const normalized = value.trim();
 	if (normalized === '*') return '*';
-	return [...new Set(normalized.split(',').map((tool) => tool.trim()).filter(Boolean))];
+	return [
+		...new Set(
+			normalized
+				.split(',')
+				.map((tool) => tool.trim())
+				.filter(Boolean)
+		),
+	];
 };
 
 const PoliciesPage: React.FC = () => {
@@ -195,16 +202,9 @@ const PoliciesPage: React.FC = () => {
 											? t('settings.policies.allTools')
 											: permission.tools.join(', ');
 									return (
-										<Item
-											key={directory}
-											variant="outline"
-											size="md"
-											className={ROW_CLASS}
-										>
+										<Item key={directory} variant="outline" size="md" className={ROW_CLASS}>
 											<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-												<ItemTitle className="max-w-full truncate font-mono">
-													{directory}
-												</ItemTitle>
+												<ItemTitle className="max-w-full truncate font-mono">{directory}</ItemTitle>
 												<span
 													className="max-w-full truncate font-mono text-xs text-muted-foreground"
 													title={tools}
