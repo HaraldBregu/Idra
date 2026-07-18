@@ -22,7 +22,6 @@ function TextEditor({
 	onSubmit,
 	placeholder,
 	disabled = false,
-	extensions,
 	className,
 	ariaLabel,
 	onEditorReady,
