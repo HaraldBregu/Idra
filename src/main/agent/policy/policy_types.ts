@@ -9,7 +9,14 @@ export interface ToolPermission {
 	ask: string[];
 }
 
-export type PermissionsSchema = Record<string, ToolPermission>;
+export interface DirectoryPermission {
+	recoursive: boolean;
+	tools: '*' | string[];
+}
+
+export type DirectoryPermissions = Record<string, DirectoryPermission>;
+
+export type PermissionsSchema = Record<string, ToolPermission | DirectoryPermissions>;
 
 export const POLICY_TOOLS = [
 	'read',
@@ -45,7 +52,7 @@ export const POLICY_TOOLS = [
 const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], ask: [] });
 const ask = (): ToolPermission => ({ default: 'ask', allow: [], deny: [], ask: [] });
 
-export const DEFAULT_PERMISSIONS: PermissionsSchema = {
+export const DEFAULT_TOOL_PERMISSIONS: Record<string, ToolPermission> = {
 	read: allow(),
 	write: allow(),
 	edit: ask(),
@@ -74,4 +81,9 @@ export const DEFAULT_PERMISSIONS: PermissionsSchema = {
 	complete_bootstrap: allow(),
 	subagent: allow(),
 	goal_complete: allow(),
+};
+
+export const DEFAULT_PERMISSIONS: PermissionsSchema = {
+	dir: {},
+	...DEFAULT_TOOL_PERMISSIONS,
 };
