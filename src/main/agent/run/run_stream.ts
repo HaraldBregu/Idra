@@ -41,6 +41,9 @@ import { listSchedulesTool } from '../tools/cron_list_schedules';
 import { runScheduleNowTool } from '../tools/cron_run_schedule_now';
 import { subagentTool } from '../tools/subagent';
 import type { Config, RuntimeEvent, RuntimeInput, Tool } from '../types';
+import { accountGoalUsage } from './run_goal_account_usage';
+import { activeGoalContext } from './run_goal_context';
+import { goalTools } from './run_goal_tools';
 import { runModelTurn } from './run_model_turn';
 import { runToolCalls } from './run_tool_calls';
 
