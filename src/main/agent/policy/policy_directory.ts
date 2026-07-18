@@ -3,20 +3,26 @@ import path from 'node:path';
 import { realPath } from '../../shared/real_path';
 import { resolveUserPath } from '../../shared/user_path';
 import { isPathWithin } from './policy_path';
-import type { DirectoryPermissions } from './policy_types';
+import type { DirectoryPermissions, PermissionMode } from './policy_types';
 
-export function directoryAllowsTool(
+export function directoryPermissionFor(
 	directories: DirectoryPermissions,
 	toolName: string,
 	target: string
-): boolean {
-	if (toolName === 'exec') return false;
-	const targetDirectory = toolName === 'read' ? target : path.dirname(target);
+): PermissionMode | undefined {
+	const targetDirectory = toolName === 'read' || toolName === 'exec' ? target : path.dirname(target);
+	let best: { specificity: number; decision: PermissionMode } | undefined;
 	for (const [directory, permission] of Object.entries(directories)) {
-		if (permission.tools !== '*' && !permission.tools.includes(toolName)) continue;
 		const root = realPath(resolveUserPath(directory, os.homedir()));
-		if (permission.recoursive ? isPathWithin(root, targetDirectory) : root === targetDirectory)
-			return true;
+		const matches = permission.recoursive
+			? isPathWithin(root, targetDirectory)
+			: root === targetDirectory;
+		if (!matches || (best && best.specificity >= root.length)) continue;
+		best = {
+			specificity: root.length,
+			decision:
+				permission.tools === '*' || permission.tools.includes(toolName) ? 'allow' : 'deny',
+		};
 	}
-	return false;
+	return best?.decision;
 }
