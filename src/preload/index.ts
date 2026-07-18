@@ -294,6 +294,9 @@ export const agent: AgentApi = {
 } satisfies AgentApi;
 
 export const app: AppApi = {
+	getPathForFile: (file: File): string => {
+		return webUtils.getPathForFile(file);
+	},
 	openAppDataFolder: (): Promise<void> => {
 		return typedInvokeUnwrap(AppChannels.openAppDataFolder);
 	},
