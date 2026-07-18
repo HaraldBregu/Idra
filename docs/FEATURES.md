@@ -182,13 +182,16 @@ Directory permissions use this top-level structure:
 
 Rule resolution is tool-local:
 
+- The first layer is the built-in system policy: every path-aware tool is allowed recursively inside the agent directory.
+- If the system layer does not allow the whole call, the second layer checks `dir`. The call is allowed when every target is covered by a matching directory entry that lists the tool.
+- If the directory layer does not allow the whole call, resolution continues to the third layer: the named tool's explicit rules and default.
 - A file path matches that file, while a directory path also matches its descendants.
 - The most specific matching path wins; equally specific rules use **Deny**, then **Ask**, then **Allow** precedence.
 - `exec` supports exact command rules and a trailing `:*` prefix form such as `git push:*`.
 - A rule for one tool never changes another tool's decision.
-- A matching `dir` entry allows the listed tools and denies unlisted tools. `"*"` allows every tool.
+- A matching `dir` entry allows listed tools early. An unlisted tool falls through to its own policy instead of being denied by the directory layer. `"*"` allows every tool.
 - Nested directory entries use the most-specific match. `recoursive: true` includes descendants; `false` covers direct files only.
-- Explicit per-tool path or command rules take precedence over directory entries.
+- System and directory approval happen before per-tool path or command rules.
 
 Important boundaries:
 

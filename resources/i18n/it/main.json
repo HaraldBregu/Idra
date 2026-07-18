@@ -789,7 +789,7 @@
 			"toolsDescription": "Imposta la decisione predefinita in modo indipendente per ogni strumento dell'agente.",
 			"defaultMode": "Predefinito",
 			"directoriesTitle": "Permessi cartelle",
-			"directoriesDescription": "Scegli quali strumenti possono operare in ogni cartella. Usa * per tutti gli strumenti o inserisci un elenco separato da virgole.",
+			"directoriesDescription": "Pre-autorizza gli strumenti in ogni cartella. Gli strumenti non elencati continuano con la propria policy.",
 			"directoriesEmpty": "Nessun permesso cartella",
 			"directoryPath": "Percorso cartella",
 			"directoryPlaceholder": "/percorso/della/cartella",

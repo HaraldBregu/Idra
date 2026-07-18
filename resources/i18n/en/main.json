@@ -789,7 +789,7 @@
 			"toolsDescription": "Set the default decision independently for every agent tool.",
 			"defaultMode": "Default",
 			"directoriesTitle": "Directory permissions",
-			"directoriesDescription": "Choose which tools can operate in each directory. Use * for every tool or enter a comma-separated allow-list.",
+			"directoriesDescription": "Pre-authorize tools in each directory. Tools not listed continue to their own policy.",
 			"directoriesEmpty": "No directory permissions",
 			"directoryPath": "Directory path",
 			"directoryPlaceholder": "/path/to/directory",
