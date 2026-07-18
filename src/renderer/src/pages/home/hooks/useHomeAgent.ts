@@ -4,7 +4,7 @@ import { useChatSession } from '@/contexts/chat-session';
 import type { ModelReasoningEffort } from '@/lib/compat';
 import type { AgentResponseEvent } from '@/lib/compat';
 import { useHomeAgentContext } from '../context';
-import { expandTaskCommand, parseGoalCommand } from './commands';
+import { expandTaskCommand } from './commands';
 import { filesToAgentInput } from './files';
 
 type WindowWithOptionalAgent = Window & {
