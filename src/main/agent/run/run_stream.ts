@@ -126,6 +126,11 @@ async function* loop(
 		closeMcp = mcp.close;
 	}
 
+	// Goal tools are scoped to this run's session, so subagents (fresh session
+	// state, no sessionsPath) never see or mutate the parent goal.
+	const goalDir = session.sessionsPath ? sessionDir(session) : undefined;
+	if (goalDir && !options.tools) tools.push(...goalTools(goalDir));
+
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
 	session.context.tools = undefined;
