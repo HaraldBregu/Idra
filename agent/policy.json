@@ -1,0 +1,171 @@
+{
+	"dir": {},
+	"read": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"write": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"edit": {
+		"default": "ask",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"apply_patch": {
+		"default": "ask",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"exec": {
+		"default": "ask",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"process": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"web_search": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"web_fetch": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"web_browser": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"create_image": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"create_video": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"create_sound": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"memory_save": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"memory_forget": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"health_update": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"health_settings_update": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"load_skill": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"create_schedule": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"update_schedule": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"pause_schedule": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"resume_schedule": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"delete_schedule": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"get_schedule": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"list_schedules": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"run_schedule_now": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"complete_bootstrap": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"subagent": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	},
+	"goal_complete": {
+		"default": "allow",
+		"allow": [],
+		"deny": [],
+		"ask": []
+	}
+}
