@@ -55,6 +55,20 @@ function TextEditor({
 				...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
 				class: 'outline-none',
 			},
+			handleDrop: (view, event) => {
+				const files = Array.from(event.dataTransfer?.files ?? []);
+				if (files.length === 0) return false;
+				const paths = files
+					.map((file) => window.app.getPathForFile(file))
+					.filter((path) => path.length > 0);
+				if (paths.length > 0) {
+					const pos =
+						view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
+						view.state.selection.to;
+					view.dispatch(view.state.tr.insertText(paths.join(' '), pos));
+				}
+				return true;
+			},
 			handleKeyDown: (view, event) => {
 				if (
 					event.key !== 'Enter' ||
