@@ -238,7 +238,7 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		path: '/settings/assistant/policies',
 		labelKey: 'settings.policies.permissionsTitle',
 		descriptionKey: 'settings.policies.permissionsDescription',
-		keywords: 'tool rule path command permission allow deny ask override',
+		keywords: 'tool rule path directory recursive command permission allow deny ask override',
 	},
 	// Health
 	{

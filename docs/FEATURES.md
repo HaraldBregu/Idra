@@ -163,10 +163,11 @@ Subagents are non-interactive. Any tool that resolves to `ask` is denied because
 The Policies screen provides persistent controls for sensitive tools:
 
 - Every tool owns a top-level policy object with `default`, `allow`, `ask`, and `deny` fields.
+- The top-level `dir` map assigns directory-scoped tool allow-lists using `{ "recoursive": boolean, "tools": "*" | string[] }` entries.
 - `read` and `write` default to **Allow**; `edit`, `exec`, and `apply_patch` default to **Ask**.
 - Other built-in tools retain independent **Allow** defaults.
 - An interactive permission card offers **Deny**, **Allow once**, and **Always allow**.
-- An always-allow decision stores the exact file or patch target in that tool's `allow` list; `exec` stores the raw command.
+- An always-allow decision stores the containing folder for `read`, the exact target for other file and patch tools, and the raw command for `exec`.
 - Tool-specific paths and commands can be added to or removed from the `allow`, `ask`, and `deny` lists.
 - The policy can be reset to defaults.
 
@@ -176,10 +177,14 @@ Rule resolution is tool-local:
 - The most specific matching path wins; equally specific rules use **Deny**, then **Ask**, then **Allow** precedence.
 - `exec` supports exact command rules and a trailing `:*` prefix form such as `git push:*`.
 - A rule for one tool never changes another tool's decision.
+- A matching `dir` entry allows the listed tools and denies unlisted tools. `"*"` allows every tool.
+- Nested directory entries use the most-specific match. `recoursive: true` includes descendants; `false` covers direct files only.
+- Explicit per-tool path or command rules take precedence over directory entries.
 
 Important boundaries:
 
 - `exec` policy resolution examines the command string; it is not an operating-system sandbox and cannot prove which paths a command will access.
+- Directory policy resolves `exec` from its working directory, but commands can still access paths outside that directory.
 - Relative policy paths such as `Desktop` resolve from the user home directory.
 - Defaults and rule lists are editable from Settings for every stored tool policy.
 
