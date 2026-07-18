@@ -191,6 +191,15 @@ export class Agent {
 	}
 }
 
+function goalReplyEvents(reply: string, agentId: string, runId: string): AgentResponseEvent[] {
+	return [
+		{ type: 'run_state', state: 'thinking', agentId, runId },
+		{ type: 'text_delta', delta: reply, agentId, runId },
+		{ type: 'run_finished', stopReason: 'end_turn', outputChars: reply.length, agentId, runId },
+		{ type: 'run_state', state: 'completed', agentId, runId },
+	];
+}
+
 function normalizeStopReason(value: string | undefined): AgentRunStopReason {
 	if (value === 'max_tokens') return 'max_tokens';
 	if (value === 'max_iterations' || value === 'error_max_turns') return 'max_iterations';
