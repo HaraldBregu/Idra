@@ -28,7 +28,6 @@ function PromptEditorArea({
 			disabled={disabled}
 			placeholder={placeholder}
 			ariaLabel={ariaLabel}
-			extensions={[SlashMenu, SlashHighlight]}
 			onEditorReady={(editor) => {
 				// ponytail: PromptInput only uses this ref for focus() and scrollHeight,
 				// both of which the contenteditable element supports
