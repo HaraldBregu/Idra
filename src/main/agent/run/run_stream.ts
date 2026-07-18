@@ -6,6 +6,7 @@ import {
 	isExhausted,
 	persistSystemPrompt,
 	recordTurn,
+	sessionDir,
 	toResult,
 	type SessionState,
 } from '../session';
