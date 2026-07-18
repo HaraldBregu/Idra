@@ -122,66 +122,6 @@ export class Agent {
 		}
 	}
 
-	async sendGoal(
-		goalText: string,
-		agentId: string,
-		options: AgentSendOptions = {}
-	): Promise<string> {
-		const resolvedAgentId = agentId.trim();
-
-		this.cancel(resolvedAgentId);
-		const runId = options.runId ?? randomUUID();
-
-		let response = '';
-		let controller: AbortController | undefined;
-		try {
-			controller = new AbortController();
-			const input = {
-				task: 'goal',
-				message: goalText,
-				...(options.files?.length ? { files: options.files } : {}),
-				...(options.sessionId ? { sessionId: options.sessionId } : {}),
-				...(options.providerId ? { providerId: options.providerId } : {}),
-				...(options.modelId ? { model: options.modelId } : {}),
-			} satisfies RuntimeInput;
-
-			init(this.session, this.config, input, options.category);
-			this.activeRuns.set(resolvedAgentId, controller);
-
-			const events = streamChatGoal(
-				this.config,
-				this.session,
-				input,
-				controller.signal,
-				options.category
-			);
-
-			for await (const event of events) {
-				if (event.type === 'model_call_delta') response += event.delta;
-				if (event.type === 'run_finished') response = event.result.text || response;
-
-				for (const responseEvent of runtimeEventToAgentEvents(event, resolvedAgentId, runId)) {
-					options.streamEvent?.(responseEvent);
-				}
-			}
-			return response;
-		} catch (error) {
-			if (controller?.signal.aborted) return response;
-			const cause = toError(error, 'Agent goal request failed.');
-			options.streamEvent?.({
-				type: 'run_state',
-				state: 'error',
-				label: cause.message,
-				agentId: resolvedAgentId,
-				runId,
-			});
-			throw cause;
-		} finally {
-			if (controller && this.activeRuns.get(resolvedAgentId) === controller)
-				this.activeRuns.delete(resolvedAgentId);
-		}
-	}
-
 	listSessions(): AgentSessionSummary[] {
 		return listSessions(this.config.location);
 	}
