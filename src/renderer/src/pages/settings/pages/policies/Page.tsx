@@ -202,7 +202,7 @@ const PoliciesPage: React.FC = () => {
 											className={ROW_CLASS}
 										>
 											<ItemContent className="min-w-0 flex-1 flex-col items-start gap-1">
-												<ItemTitle className="max-w-full truncate font-mono" title={directory}>
+												<ItemTitle className="max-w-full truncate font-mono">
 													{directory}
 												</ItemTitle>
 												<span
@@ -274,6 +274,7 @@ const PoliciesPage: React.FC = () => {
 										type="button"
 										variant="outline"
 										size="sm"
+										aria-label={t('settings.policies.browseDirectory')}
 										onClick={() => browseDirectory(setNewDirectory)}
 									>
 										<FolderOpen className="size-3" />
@@ -282,6 +283,7 @@ const PoliciesPage: React.FC = () => {
 									<Button
 										type="button"
 										size="sm"
+										aria-label={t('settings.policies.addDirectory')}
 										disabled={!canAddDirectory}
 										onClick={addDirectory}
 									>
