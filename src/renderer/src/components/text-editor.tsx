@@ -77,7 +77,6 @@ function TextEditor({
 					event.ctrlKey
 				)
 					return false;
-				if (slashMenuPluginKey.getState(view.state)?.active) return false;
 				// Inside lists and code blocks Enter keeps its editing role
 				// (next item / newline); an empty trailing item exits the block first.
 				const { $from } = view.state.selection;
