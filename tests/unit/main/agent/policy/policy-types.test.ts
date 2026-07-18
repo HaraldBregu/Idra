@@ -5,7 +5,8 @@ import {
 
 describe('DEFAULT_PERMISSIONS', () => {
 	it('uses a complete top-level tool policy schema', () => {
-		expect(Object.keys(DEFAULT_PERMISSIONS)).toEqual(POLICY_TOOLS);
+		expect(Object.keys(DEFAULT_PERMISSIONS)).toEqual(['dir', ...POLICY_TOOLS]);
+		expect(DEFAULT_PERMISSIONS.dir).toEqual({});
 		expect(DEFAULT_PERMISSIONS.read).toEqual({
 			default: 'allow',
 			allow: [],

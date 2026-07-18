@@ -26,6 +26,7 @@ const entry = (
 });
 
 const defaults = (): PermissionsSchema => ({
+	dir: {},
 	read: entry('allow'),
 	write: entry('allow'),
 	edit: entry('ask'),
@@ -69,6 +70,70 @@ describe('resolveToolPermission', () => {
 		});
 		expect(resolveToolPermission('read', { path: '/approved/next.txt' })).toBe('allow');
 		expect(resolveToolPermission('read', { path: '/other/next.txt' })).toBe('ask');
+	});
+
+	it('allows every tool in a recursive wildcard directory', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: { '/shared': { recoursive: true, tools: '*' } },
+		});
+		expect(resolveToolPermission('edit', { path: '/shared/nested/file.txt' })).toBe('allow');
+	});
+
+	it('denies tools omitted from a matching directory allow-list', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: { '/shared': { recoursive: true, tools: ['read'] } },
+		});
+		expect(resolveToolPermission('read', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('write', { path: '/shared/file.txt' })).toBe('deny');
+	});
+
+	it('limits non-recursive entries to direct files', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: { '/shared': { recoursive: false, tools: '*' } },
+		});
+		expect(resolveToolPermission('edit', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit', { path: '/shared/nested/file.txt' })).toBe('ask');
+	});
+
+	it('uses the most-specific matching directory entry', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: {
+				'/shared': { recoursive: true, tools: '*' },
+				'/shared/read-only': { recoursive: true, tools: ['read'] },
+			},
+		});
+		expect(resolveToolPermission('edit', { path: '/shared/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit', { path: '/shared/read-only/file.txt' })).toBe('deny');
+	});
+
+	it('keeps explicit tool rules above directory permissions', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: { '/shared': { recoursive: true, tools: ['read'] } },
+			edit: entry('ask', {
+				allow: ['/shared/allowed'],
+				ask: ['/shared/review'],
+				deny: ['/shared/blocked'],
+			}),
+		});
+		expect(resolveToolPermission('edit', { path: '/shared/allowed/file.txt' })).toBe('allow');
+		expect(resolveToolPermission('edit', { path: '/shared/review/file.txt' })).toBe('ask');
+		expect(resolveToolPermission('edit', { path: '/shared/blocked/file.txt' })).toBe('deny');
+	});
+
+	it('applies directory permissions to exec by working directory', () => {
+		getPermissions.mockReturnValue({
+			...defaults(),
+			dir: { '/shared': { recoursive: true, tools: ['exec'] } },
+		});
+		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/shared/app' })).toBe(
+			'allow'
+		);
+		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/outside' })).toBe('ask');
 	});
 
 	it('uses the most specific matching path', () => {

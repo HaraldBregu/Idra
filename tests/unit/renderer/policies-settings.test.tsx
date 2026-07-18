@@ -7,6 +7,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 const policy = {
+	dir: { '/tmp': { recoursive: true, tools: ['read'] } },
 	read: { default: 'allow' as const, allow: ['Desktop'], deny: [], ask: [] },
 	write: { default: 'allow' as const, allow: [], deny: [], ask: [] },
 	edit: {
@@ -40,6 +41,7 @@ describe('Policies settings', () => {
 		expect(screen.getAllByText('edit').length).toBeGreaterThan(0);
 		expect(screen.getByText('Desktop')).toBeInTheDocument();
 		expect(screen.getByText('Desktop/file.txt')).toBeInTheDocument();
+		expect(screen.queryByText('/tmp')).not.toBeInTheDocument();
 	});
 
 	it('updates the default owned by one tool', async () => {
