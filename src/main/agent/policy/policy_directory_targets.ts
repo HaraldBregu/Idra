@@ -30,7 +30,8 @@ export function directoryPermissionTargets(
 ): string[] {
 	if (toolName === 'exec') {
 		if (typeof args.command !== 'string' || args.command.length === 0) return [];
-		const workdir = typeof args.workdir === 'string' && args.workdir.length > 0 ? args.workdir : '.';
+		const workdir =
+			typeof args.workdir === 'string' && args.workdir.length > 0 ? args.workdir : '.';
 		return [realPath(resolveUserPath(workdir, baseDir))];
 	}
 	if (toolName === 'process') {

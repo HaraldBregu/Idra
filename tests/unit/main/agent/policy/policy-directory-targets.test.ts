@@ -1,9 +1,6 @@
 import path from 'node:path';
 import { directoryPermissionTargets } from '../../../../../src/main/agent/policy/policy_directory_targets';
-import {
-	registry,
-	type ProcessSession,
-} from '../../../../../src/main/agent/tools/run_process';
+import { registry, type ProcessSession } from '../../../../../src/main/agent/tools/run_process';
 
 const agentDir = path.resolve('/appdata/agent');
 
@@ -69,11 +66,7 @@ describe('directoryPermissionTargets', () => {
 		registry.register(session);
 		try {
 			expect(
-				directoryPermissionTargets(
-					'process',
-					{ action: 'poll', sessionId: session.id },
-					agentDir
-				)
+				directoryPermissionTargets('process', { action: 'poll', sessionId: session.id }, agentDir)
 			).toEqual([path.resolve('/workspace/app')]);
 		} finally {
 			registry.remove(session.id);
