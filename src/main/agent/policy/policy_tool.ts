@@ -22,11 +22,7 @@ export function resolveStoredToolPolicy(
 		return explicit;
 	});
 	return {
-		permission: decisions.includes('deny')
-			? 'deny'
-			: decisions.includes('ask')
-				? 'ask'
-				: 'allow',
+		permission: decisions.includes('deny') ? 'deny' : decisions.includes('ask') ? 'ask' : 'allow',
 		contextCanAllow,
 	};
 }

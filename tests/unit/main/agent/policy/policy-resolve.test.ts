@@ -43,9 +43,9 @@ describe('resolveToolPermission', () => {
 		expect(resolveToolPermission('read', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('write', { path: '/outside/a.txt' })).toBe('allow');
 		expect(resolveToolPermission('edit', { path: '/outside/a.txt' })).toBe('ask');
-		expect(
-			resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/outside' })
-		).toBe('ask');
+		expect(resolveToolPermission('exec', { command: 'rm -rf build', workdir: '/outside' })).toBe(
+			'ask'
+		);
 		expect(resolveToolPermission('apply_patch', { input: '*** Update File: /outside/a.ts' })).toBe(
 			'ask'
 		);
@@ -80,10 +80,9 @@ describe('resolveToolPermission', () => {
 			...defaults(),
 			apply_patch: entry('deny'),
 		});
-		const input = [
-			'*** Update File: /appdata/agent/a.ts',
-			'*** Update File: /outside/b.ts',
-		].join('\n');
+		const input = ['*** Update File: /appdata/agent/a.ts', '*** Update File: /outside/b.ts'].join(
+			'\n'
+		);
 		expect(resolveToolPermission('apply_patch', { input })).toBe('deny');
 	});
 
