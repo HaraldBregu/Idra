@@ -10,8 +10,7 @@ import {
 	type SessionCategory,
 	type SessionState,
 } from './session';
-import { streamGoal } from './run/run_goal';
-import { streamChatGoal } from './run/run_goal_chat';
+import { stream } from './run/run_stream';
 import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from './cron';
 import { startHealth, stopHealth } from './health';

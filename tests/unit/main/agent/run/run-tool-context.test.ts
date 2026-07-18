@@ -20,6 +20,7 @@ import type { RuntimeEvent, Tool, ToolCall } from '../../../../../src/main/agent
 
 const asking = { default: 'ask' as const, allow: [], deny: [], ask: [] };
 const askingPermissions = {
+	dir: {},
 	read: asking,
 	write: asking,
 	edit: asking,

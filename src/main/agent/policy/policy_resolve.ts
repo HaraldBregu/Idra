@@ -17,7 +17,7 @@ export function resolveToolPermission(
 	const policy = getPermissions();
 	const configuredEntry = policy[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
-	const directories = policy.dir;
+	const directories = policy.dir ?? {};
 	let permission: PermissionMode;
 	if (targets.length === 0) permission = configured?.default ?? 'allow';
 	else {
