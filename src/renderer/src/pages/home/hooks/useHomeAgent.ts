@@ -135,11 +135,7 @@ export function useHomeAgent({ setMode }: { readonly setMode: (mode: ChatMode) =
 					if (event.type === 'text_delta') response += event.delta;
 					dispatchChat({ type: 'apply_response_event', event, receivedAtMs: Date.now() });
 				};
-				const goalText = parseGoalCommand(trimmed);
-				response =
-					goalText !== undefined
-						? await agent.goal(goalText, runtimeOptions, onEvent)
-						: await agent.send(trimmed, runtimeOptions, onEvent);
+				response = await agent.send(trimmed, runtimeOptions, onEvent);
 				if (requestIdRef.current !== requestId) return;
 				requestActiveRef.current = false;
 				setIsLoading(false);
