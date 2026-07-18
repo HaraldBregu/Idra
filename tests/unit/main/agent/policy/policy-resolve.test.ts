@@ -9,6 +9,10 @@ jest.mock('../../../../../src/main/agent/policy/policy_store', () => ({
 }));
 
 import { resolveToolPermission } from '../../../../../src/main/agent/policy/policy_resolve';
+import {
+	registry,
+	type ProcessSession,
+} from '../../../../../src/main/agent/tools/run_process';
 import type {
 	PermissionsSchema,
 	ToolPermission,
@@ -211,6 +215,33 @@ describe('resolveToolPermission', () => {
 			'allow'
 		);
 		expect(resolveToolPermission('exec', { command: 'npm test', workdir: '/outside' })).toBe('ask');
+	});
+
+	it('resolves process calls through system, directory, then tool policy', () => {
+		const sessions = [
+			{ id: 'process-system', workdir: '/appdata/agent/app' },
+			{ id: 'process-directory', workdir: '/shared/app' },
+			{ id: 'process-tool', workdir: '/outside/app' },
+		] as ProcessSession[];
+		for (const session of sessions) registry.register(session);
+		try {
+			getPermissions.mockReturnValue({
+				...defaults(),
+				dir: { '/shared': { recoursive: true, tools: ['process'] } },
+				process: entry('deny'),
+			});
+			expect(
+				resolveToolPermission('process', { action: 'poll', sessionId: 'process-system' })
+			).toBe('allow');
+			expect(
+				resolveToolPermission('process', { action: 'poll', sessionId: 'process-directory' })
+			).toBe('allow');
+			expect(
+				resolveToolPermission('process', { action: 'poll', sessionId: 'process-tool' })
+			).toBe('deny');
+		} finally {
+			for (const session of sessions) registry.remove(session.id);
+		}
 	});
 
 	it('uses exec policy when a matching working directory omits it', () => {
