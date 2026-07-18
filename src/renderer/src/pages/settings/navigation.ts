@@ -262,13 +262,6 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		keywords: 'chat history transcript messages context delete clear folder',
 		icon: Bot,
 	},
-	{
-		path: '/settings/assistant/goal',
-		labelKey: 'settings.goal.title',
-		descriptionKey: 'settings.goal.description',
-		keywords: 'goal budget iterations tool calls timeout limits',
-		icon: Bot,
-	},
 ] as const;
 
 export const SETTINGS_NAVIGATION = [
