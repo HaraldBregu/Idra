@@ -192,6 +192,7 @@ import type {
 } from '../shared/app_types';
 
 export interface AppApi {
+	getPathForFile: (file: File) => string;
 	openAppDataFolder: () => Promise<void>;
 	openExternalUrl: (url: string) => Promise<void>;
 	setTrayEnabled: (enabled: boolean) => Promise<void>;
