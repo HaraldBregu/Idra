@@ -48,7 +48,6 @@ export const POLICY_TOOLS = [
 	'run_schedule_now',
 	'complete_bootstrap',
 	'subagent',
-	'goal_complete',
 ] as const;
 
 const allow = (): ToolPermission => ({ default: 'allow', allow: [], deny: [], ask: [] });
