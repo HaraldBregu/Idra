@@ -186,7 +186,7 @@ describe('tool context permissions', () => {
 		expect(context.tools).toBeUndefined();
 	});
 
-	it('enforces a matching directory denial before running the tool', async () => {
+	it('falls through to an allowing tool policy when a directory omits the tool', async () => {
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-dir-denied-'));
 		const target = path.join(root, 'example.txt');
 		getPermissions.mockReturnValue({
@@ -201,8 +201,25 @@ describe('tool context permissions', () => {
 		for await (const event of runToolCall(fakeTool('write', write), call, true)) events.push(event);
 
 		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
-		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: true });
-		expect(write).not.toHaveBeenCalled();
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(write).toHaveBeenCalledTimes(1);
+	});
+
+	it('runs a system-directory tool before consulting its stored deny', async () => {
+		const target = '/appdata/agent/nested/example.txt';
+		getPermissions.mockReturnValue({
+			...askingPermissions,
+			write: { ...asking, default: 'deny', deny: ['/appdata/agent'] },
+		});
+		const write = jest.fn().mockResolvedValue({ path: target });
+		const call: ToolCall = { id: 'write-system-allowed', name: 'write', args: { path: target } };
+		const events: RuntimeEvent[] = [];
+
+		for await (const event of runToolCall(fakeTool('write', write), call, true)) events.push(event);
+
+		expect(events.some((event) => event.type === 'tool_permission_request')).toBe(false);
+		expect(events.at(-1)).toMatchObject({ type: 'tool_call_end', isError: undefined });
+		expect(write).toHaveBeenCalledTimes(1);
 	});
 
 	it('runs a tool allowed by a matching directory', async () => {
