@@ -1,5 +1,6 @@
 import { contextAllowsTool, type AgentContext } from '../context';
-import { directoryAllowsTool } from './policy_directory';
+import { directoryPermissionFor } from './policy_directory';
+import { directoryPermissionTargets } from './policy_directory_targets';
 import { isToolPermission } from './policy_is_tool_permission';
 import { toolPermissionFor } from './policy_override';
 import { AGENT_DIRECTORY, getPermissions } from './policy_store';
@@ -12,18 +13,23 @@ export function resolveToolPermission(
 	context?: AgentContext
 ): PermissionMode {
 	const targets = toolPermissionTargets(toolName, args, AGENT_DIRECTORY);
+	const directoryTargets = directoryPermissionTargets(toolName, args, AGENT_DIRECTORY);
 	const policy = getPermissions();
 	const configuredEntry = policy[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
 	const directories = policy.dir as DirectoryPermissions;
 	let permission: PermissionMode;
-	if (!configured) permission = targets.length > 0 ? 'ask' : 'allow';
-	else if (targets.length === 0) permission = configured.default;
+	if (targets.length === 0) permission = configured?.default ?? 'allow';
 	else {
-		const decisions = targets.map((target) => {
+		const decisions = targets.map((target, index) => {
 			const explicit = toolPermissionFor(toolName, target);
 			if (explicit) return explicit;
-			return directoryAllowsTool(directories, toolName, target) ? 'allow' : configured.default;
+			const directoryTarget = directoryTargets[index];
+			return (
+				(directoryTarget && directoryPermissionFor(directories, toolName, directoryTarget)) ||
+				configured?.default ||
+				'ask'
+			);
 		});
 		permission = decisions.includes('deny') ? 'deny' : decisions.includes('ask') ? 'ask' : 'allow';
 	}
