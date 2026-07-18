@@ -189,20 +189,6 @@ function normalizeHealthSettingsPatch(value: Partial<HealthSettings>): Partial<H
 	return { ...value };
 }
 
-function isPositiveInteger(value: unknown): value is number {
-	return typeof value === 'number' && Number.isInteger(value) && value > 0;
-}
-
-function normalizeGoalSettingsPatch(value: unknown): Partial<GoalBudget> {
-	if (!isRecord(value)) return {};
-	return {
-		...(isPositiveInteger(value.maxIterations) ? { maxIterations: value.maxIterations } : {}),
-		...(isPositiveInteger(value.maxToolCalls) ? { maxToolCalls: value.maxToolCalls } : {}),
-		...(isPositiveInteger(value.maxTokens) ? { maxTokens: value.maxTokens } : {}),
-		...(isPositiveInteger(value.timeoutMs) ? { timeoutMs: value.timeoutMs } : {}),
-	};
-}
-
 export function normalizeAgentSendRuntimeOptions(options: unknown): AgentSendOptions {
 	if (options === undefined || options === null) return {};
 	if (!isRecord(options)) throw new Error('Invalid assistant runtime options.');
