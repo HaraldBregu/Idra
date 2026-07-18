@@ -283,7 +283,7 @@ const PoliciesPage: React.FC = () => {
 												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
-											{PERMISSION_MODES.map((mode) => (
+												{PERMISSION_MODES.map((mode) => (
 													<SelectItem key={mode} value={mode}>
 														{t(`settings.policies.modes.${mode}`)}
 													</SelectItem>
