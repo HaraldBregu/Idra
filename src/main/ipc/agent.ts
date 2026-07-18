@@ -36,14 +36,11 @@ import {
 import { getHealthData, rescheduleHealth, saveHealthData } from '../agent/health';
 import type { HealthSettings } from '../agent/health/health_types';
 import {
-	getGoalSettings,
 	getModelId,
 	getProviderId,
-	setGoalSettings,
 	setModelId,
 	setProviderId,
 } from '../agent/settings/settings_store';
-import type { GoalBudget } from '../agent/goal';
 import { listLibrary } from '../agent/library';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
 
