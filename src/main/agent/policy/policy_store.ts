@@ -1,9 +1,13 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { agentLocation } from '../../shared/agent_location';
+import { isToolPermission } from './policy_is_tool_permission';
+import { normalizeDirectoryPermissions } from './policy_normalize_directories';
 import { normalizeToolPermission } from './policy_normalize';
 import {
 	DEFAULT_PERMISSIONS,
+	DEFAULT_TOOL_PERMISSIONS,
+	type DirectoryPermissions,
 	type PermissionBucket,
 	type PermissionsSchema,
 	type ToolPermission,
@@ -28,23 +32,27 @@ const store = new Store<PermissionsSchema>({
 
 export function getPermissions(): PermissionsSchema {
 	const stored = store.store as Record<string, unknown>;
-	const result: PermissionsSchema = {};
-	for (const [toolName, fallback] of Object.entries(DEFAULT_PERMISSIONS))
+	const result: PermissionsSchema = { dir: normalizeDirectoryPermissions(stored.dir) };
+	for (const [toolName, fallback] of Object.entries(DEFAULT_TOOL_PERMISSIONS))
 		result[toolName] = normalizeToolPermission(stored[toolName], fallback);
 	for (const [toolName, value] of Object.entries(stored)) {
-		if (result[toolName] || !value || typeof value !== 'object' || Array.isArray(value)) continue;
-		const entry = value as Record<string, unknown>;
-		if (!('default' in entry)) continue;
+		if (toolName === 'dir' || result[toolName] || !isToolPermission(value)) continue;
 		result[toolName] = normalizeToolPermission(value, UNKNOWN_TOOL_PERMISSION);
 	}
 	return result;
 }
 
+export function getDirectoryPermissions(): DirectoryPermissions {
+	return getPermissions().dir as DirectoryPermissions;
+}
+
 export function getToolPermission(toolName: string): ToolPermission {
-	return getPermissions()[toolName] ?? { ...UNKNOWN_TOOL_PERMISSION };
+	const permission = getPermissions()[toolName];
+	return isToolPermission(permission) ? permission : { ...UNKNOWN_TOOL_PERMISSION };
 }
 
 export function setToolPermission(toolName: string, permission: ToolPermission): PermissionsSchema {
+	if (toolName === 'dir') throw new Error("'dir' is reserved for directory permissions.");
 	store.store = {
 		...getPermissions(),
 		[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),

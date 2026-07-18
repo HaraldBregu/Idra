@@ -1,5 +1,6 @@
 export {
 	addPermissionRule,
+	getDirectoryPermissions,
 	getPermissions,
 	getToolPermission,
 	resetPermissions,
@@ -16,7 +17,10 @@ export {
 } from './policy_pending';
 export {
 	DEFAULT_PERMISSIONS,
+	DEFAULT_TOOL_PERMISSIONS,
 	POLICY_TOOLS,
+	type DirectoryPermission,
+	type DirectoryPermissions,
 	type PermissionBucket,
 	type PermissionMode,
 	type PermissionsSchema,
