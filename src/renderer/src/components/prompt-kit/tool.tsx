@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties } from 'react';
 import {
+	AudioLines,
 	Check,
 	ChevronDown,
 	CircleX,
@@ -10,6 +11,7 @@ import {
 	Plug,
 	Sparkles,
 	Terminal,
+	Video,
 	Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
