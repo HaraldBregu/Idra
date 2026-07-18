@@ -11,7 +11,9 @@ function extractText(result: McpCallResult): string {
 	const content = result.content;
 	if (!Array.isArray(content)) return content === undefined ? '' : JSON.stringify(content);
 	const texts = content
-		.filter((b): b is { text: string } => isRecord(b) && b.type === 'text' && typeof b.text === 'string')
+		.filter(
+			(b): b is { text: string } => isRecord(b) && b.type === 'text' && typeof b.text === 'string'
+		)
 		.map((b) => b.text);
 	return texts.length > 0 ? texts.join('\n') : JSON.stringify(content);
 }

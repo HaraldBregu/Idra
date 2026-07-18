@@ -22,13 +22,13 @@ export async function loadMcpTools(): Promise<{ tools: Tool[]; close: () => Prom
 							t.inputSchema as JSONSchema,
 							id,
 							data.require_approval
-						),
+						)
 					);
 				}
 			} catch {
 				// ponytail: skip servers that fail to connect (offline / needs OAuth); they contribute no tools
 			}
-		}),
+		})
 	);
 
 	return {
