@@ -11,7 +11,6 @@ export type TextEditorProps = {
 	readonly onSubmit?: () => void;
 	readonly placeholder?: string;
 	readonly disabled?: boolean;
-	readonly extensions?: readonly AnyExtension[];
 	readonly className?: string;
 	readonly ariaLabel?: string;
 	readonly onEditorReady?: (editor: Editor) => void;
