@@ -121,7 +121,6 @@ async function* loop(
 		tools.push(subagentTool(config, [...tools]));
 		closeMcp = mcp.close;
 	}
-	if (loadGoal(session)?.status === 'active') tools.push(completeGoalTool(session));
 
 	session.context.skill = undefined;
 	session.context.loadedSkills = undefined;
