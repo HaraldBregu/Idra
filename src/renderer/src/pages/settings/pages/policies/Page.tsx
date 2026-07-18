@@ -22,12 +22,17 @@ import {
 } from '../../components';
 
 type Permissions = Awaited<ReturnType<typeof window.agent.policyGet>>;
-type Permission = Permissions[string];
+type Permission = Extract<Permissions[string], { default: unknown }>;
 type PermissionMode = Permission['default'];
 type RuleMode = Exclude<keyof Permission, 'default'>;
 
 const RULE_MODES: RuleMode[] = ['allow', 'ask', 'deny'];
 const ROW_CLASS = 'border-b border-border/60 last:border-b-0';
+
+const permissionFor = (policy: Permissions | null, toolName: string): Permission | undefined => {
+	const entry = policy?.[toolName];
+	return entry && 'default' in entry ? entry : undefined;
+};
 
 const PoliciesPage: React.FC = () => {
 	const { t } = useTranslation();
@@ -54,13 +59,14 @@ const PoliciesPage: React.FC = () => {
 	}, []);
 
 	const setDefault = (toolName: string, mode: PermissionMode): void => {
-		if (!policy?.[toolName]) return;
-		apply(window.agent.policySetTool(toolName, { ...policy[toolName], default: mode }));
+		const permission = permissionFor(policy, toolName);
+		if (!permission) return;
+		apply(window.agent.policySetTool(toolName, { ...permission, default: mode }));
 	};
 
 	const addRule = (): void => {
 		const target = newTarget.trim();
-		const permission = policy?.[newTool];
+		const permission = permissionFor(policy, newTool);
 		if (!target || !permission) return;
 		const values = permission[newMode].includes(target)
 			? permission[newMode]
@@ -70,7 +76,7 @@ const PoliciesPage: React.FC = () => {
 	};
 
 	const removeRule = (toolName: string, mode: RuleMode, target: string): void => {
-		const permission = policy?.[toolName];
+		const permission = permissionFor(policy, toolName);
 		if (!permission) return;
 		apply(
 			window.agent.policySetTool(toolName, {
@@ -92,13 +98,16 @@ const PoliciesPage: React.FC = () => {
 			});
 	};
 
-	const tools = policy ? Object.keys(policy) : [];
+	const tools = policy
+		? Object.keys(policy).filter((toolName) => permissionFor(policy, toolName) !== undefined)
+		: [];
 	const rules = policy
-		? tools.flatMap((toolName) =>
-				RULE_MODES.flatMap((mode) =>
-					policy[toolName][mode].map((target) => ({ toolName, mode, target }))
-				)
-			)
+		? tools.flatMap((toolName) => {
+				const permission = permissionFor(policy, toolName)!;
+				return RULE_MODES.flatMap((mode) =>
+					permission[mode].map((target) => ({ toolName, mode, target }))
+				);
+			})
 		: [];
 
 	return (
@@ -143,8 +152,8 @@ const PoliciesPage: React.FC = () => {
 										<span className="text-xs text-muted-foreground">
 											{t('settings.policies.defaultMode')}
 										</span>
-										<Select
-											value={policy[toolName].default}
+									<Select
+										value={permissionFor(policy, toolName)!.default}
 											onValueChange={(value) => {
 												if (value) setDefault(toolName, value as PermissionMode);
 											}}
