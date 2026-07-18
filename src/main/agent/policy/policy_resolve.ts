@@ -5,7 +5,7 @@ import { isToolPermission } from './policy_is_tool_permission';
 import { toolPermissionFor } from './policy_override';
 import { AGENT_DIRECTORY, getPermissions } from './policy_store';
 import { toolPermissionTargets } from './policy_targets';
-import type { DirectoryPermissions, PermissionMode } from './policy_types';
+import type { PermissionMode } from './policy_types';
 
 export function resolveToolPermission(
 	toolName: string,
@@ -17,7 +17,7 @@ export function resolveToolPermission(
 	const policy = getPermissions();
 	const configuredEntry = policy[toolName];
 	const configured = isToolPermission(configuredEntry) ? configuredEntry : undefined;
-	const directories = policy.dir as DirectoryPermissions;
+	const directories = policy.dir;
 	let permission: PermissionMode;
 	if (targets.length === 0) permission = configured?.default ?? 'allow';
 	else {

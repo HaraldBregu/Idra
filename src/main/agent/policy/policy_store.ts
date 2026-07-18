@@ -43,7 +43,7 @@ export function getPermissions(): PermissionsSchema {
 }
 
 export function getDirectoryPermissions(): DirectoryPermissions {
-	return getPermissions().dir as DirectoryPermissions;
+	return getPermissions().dir;
 }
 
 export function getToolPermission(toolName: string): ToolPermission {
@@ -57,6 +57,11 @@ export function setToolPermission(toolName: string, permission: ToolPermission):
 		...getPermissions(),
 		[toolName]: normalizeToolPermission(permission, UNKNOWN_TOOL_PERMISSION),
 	};
+	return getPermissions();
+}
+
+export function setDirectoryPermissions(directories: DirectoryPermissions): PermissionsSchema {
+	store.store = { ...getPermissions(), dir: normalizeDirectoryPermissions(directories) };
 	return getPermissions();
 }
 

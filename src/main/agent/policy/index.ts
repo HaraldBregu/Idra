@@ -4,6 +4,7 @@ export {
 	getPermissions,
 	getToolPermission,
 	resetPermissions,
+	setDirectoryPermissions,
 	setToolPermission,
 } from './policy_store';
 export { isPathWithin, toolPathDir } from './policy_path';

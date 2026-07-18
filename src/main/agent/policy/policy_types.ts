@@ -16,7 +16,9 @@ export interface DirectoryPermission {
 
 export type DirectoryPermissions = Record<string, DirectoryPermission>;
 
-export type PermissionsSchema = Record<string, ToolPermission | DirectoryPermissions>;
+export type PermissionsSchema = Record<string, ToolPermission | DirectoryPermissions> & {
+	dir: DirectoryPermissions;
+};
 
 export const POLICY_TOOLS = [
 	'read',
