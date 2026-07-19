@@ -258,6 +258,7 @@ export function CommandMenu(): React.JSX.Element {
 			open={open}
 			onOpenChange={handleOpenChange}
 			label={t('command.label', 'Route search')}
+			filter={filterCommandItem}
 			loop
 		>
 			<CommandInput
