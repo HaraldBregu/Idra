@@ -5,7 +5,6 @@
 	"files": ["out/**", "resources/**"],
 	"icon": "./resources/icons/win/icon.ico",
 	"extraResources": [
-		"out/preload/index.js",
 		{
 			"from": "./resources",
 			"to": "resources",
