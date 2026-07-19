@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/collapsible';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
-	firstModelIdForProvider,
 	LLM_PROVIDER_GROUPS,
 	ModelProviderSelect,
 	resolveStoredModelProvider,
