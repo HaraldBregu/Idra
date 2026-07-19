@@ -215,7 +215,7 @@ export function CommandMenu(): React.JSX.Element {
 		() => [...groups.flatMap((group) => group.items), ...searchOnlyItems],
 		[groups, searchOnlyItems]
 	);
-	const isSearching = search.trim().length > 0;
+	const isSearching = search.trim().length >= MIN_SEARCH_LENGTH;
 
 	const handleOpenChange = useCallback((nextOpen: boolean) => {
 		setOpen(nextOpen);
