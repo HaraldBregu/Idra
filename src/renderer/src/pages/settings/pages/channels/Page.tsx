@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, CircleOff, LoaderCircle, Save } from 'lucide-react';
+import { ChevronDown, ChevronRight, CircleOff } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
 	Collapsible,
