@@ -47,6 +47,15 @@ interface StaticRouteDefinition {
 	readonly keywords: string;
 }
 
+const MIN_SEARCH_LENGTH = 2;
+
+function filterCommandItem(value: string, query: string, keywords?: string[]): number {
+	const term = query.trim().toLowerCase();
+	if (term.length < MIN_SEARCH_LENGTH) return 1;
+	const haystack = [value, ...(keywords ?? [])].join(' ').toLowerCase();
+	return term.split(/\s+/).every((token) => haystack.includes(token)) ? 1 : 0;
+}
+
 const TOP_LEVEL_ROUTES: readonly StaticRouteDefinition[] = [
 	{
 		id: 'route-home',
