@@ -668,7 +668,6 @@ function PageContent(): ReactElement {
 							onFilesChange={(files) =>
 								setAttachments((current) => [...current, ...filesToAttachments(files)])
 							}
-							filesAccept="image/*,application/pdf"
 							wrapperClassName="max-w-none"
 							className="w-full"
 							footerClassName="-mx-1.5 -mb-1.5"
