@@ -107,7 +107,7 @@
 			"entry": {
 				"Type": "Application",
 				"Name": "Friday",
-				"Comment": "Advanced AI manager",
+				"Comment": "Your desktop AI copilot for everyday tasks",
 				"Icon": "friday",
 				"Terminal": false,
 				"Categories": "Office;WordProcessor;AI;",
