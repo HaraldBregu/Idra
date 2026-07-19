@@ -73,6 +73,7 @@ export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	if (type === 'create_video') return Video;
 	if (type === 'create_sound') return AudioLines;
 	if (type === 'exec') return Terminal;
+	if (type === 'write') return PenLine;
 	return Wrench;
 }
 
