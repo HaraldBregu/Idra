@@ -11,11 +11,11 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            args: --mac --x64 --arm64
+            dist: npm run dist:mac
           - os: ubuntu-latest
-            args: --linux
+            dist: npm run build && npx electron-builder --linux
           - os: windows-latest
-            args: --win --x64
+            dist: npm run dist:win
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -24,8 +24,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
-      - run: npx electron-builder ${{ matrix.args }} --publish never
+      - run: ${{ matrix.dist }}
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}
