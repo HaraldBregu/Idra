@@ -44,7 +44,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: version
-        run: echo "v=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "v=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          echo "date=$(date +%Y.%m.%d)" >> "$GITHUB_OUTPUT"
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
