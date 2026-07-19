@@ -8,6 +8,7 @@ import {
 	CircleX,
 	Image,
 	LoaderCircle,
+	PenLine,
 	Plug,
 	Sparkles,
 	Terminal,
