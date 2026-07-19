@@ -21,6 +21,7 @@
 			"icon": "./resources/icons/icon.png"
 		}
 	],
+	"publish": null,
 	"asar": true,
 	"asarUnpack": [],
 	"nodeGypRebuild": false,
