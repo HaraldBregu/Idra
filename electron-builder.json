@@ -99,8 +99,8 @@
 		"artifactName": "${productName}-${version}.${ext}",
 		"icon": "./resources/icons/png",
 		"maintainer": "Friday Project",
-		"synopsis": "Friday",
-		"description": "Friday - Advanced AI manager",
+		"synopsis": "Your desktop AI copilot for everyday tasks",
+		"description": "Friday is a cross-platform desktop AI assistant that turns conversations into actions. Type or speak a request, attach images or PDFs, and let the agent work with files, run commands, research the web, create media, or automate recurring tasks.",
 		"vendor": "Friday Project",
 		"executableName": "friday",
 		"desktop": {
