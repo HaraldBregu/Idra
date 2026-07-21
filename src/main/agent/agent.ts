@@ -86,7 +86,7 @@ export class Agent {
 
 			const input = {
 				task: 'chat',
-				message: goalContinuation ?? resolveSkillCommand(message),
+				message: resolveSkillCommand(message),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
