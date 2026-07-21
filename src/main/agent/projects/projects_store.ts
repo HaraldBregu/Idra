@@ -5,7 +5,6 @@ import type { ProjectMetadata } from './projects_types';
 
 type ProjectsSchema = {
 	projects: Record<string, ProjectMetadata>;
-	selected?: string;
 };
 
 const PROJECTS_STORE_NAME = 'projects';
@@ -33,13 +32,4 @@ export function removeProject(id: string): void {
 	const next = { ...allProjects() };
 	delete next[id];
 	store.set('projects', next);
-}
-
-export function getSelectedProject(): string | undefined {
-	return store.get('selected');
-}
-
-export function setSelectedProject(id: string | undefined): void {
-	if (id === undefined) store.delete('selected');
-	else store.set('selected', id);
 }
