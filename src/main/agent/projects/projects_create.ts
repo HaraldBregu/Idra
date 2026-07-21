@@ -11,7 +11,8 @@ export function createProject(
 	instructions?: string
 ): ProjectInfo {
 	const folder = resolveProjectFolder(name);
-	if (fs.existsSync(folder)) throw new Error(`Project "${name}" already exists.`);
+	if (fs.existsSync(path.join(folder, PROJECT_FILE)))
+		throw new Error(`Project "${name}" already exists.`);
 	fs.mkdirSync(folder, { recursive: true });
 	fs.writeFileSync(
 		path.join(folder, PROJECT_FILE),
