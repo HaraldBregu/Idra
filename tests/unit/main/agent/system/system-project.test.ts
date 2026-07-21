@@ -1,11 +1,13 @@
-import { findProject, list, readInstructions } from '../../../../../src/main/agent/projects';
+import { findProject } from '../../../../../src/main/agent/projects/projects_find';
+import { readInstructions } from '../../../../../src/main/agent/projects/projects_instructions';
+import { list } from '../../../../../src/main/agent/projects/projects_list';
 import { addProjectPrompt } from '../../../../../src/main/agent/system/system_add_project_prompt';
 
-jest.mock('../../../../../src/main/agent/projects', () => ({
-	findProject: jest.fn(),
-	list: jest.fn(),
+jest.mock('../../../../../src/main/agent/projects/projects_find', () => ({ findProject: jest.fn() }));
+jest.mock('../../../../../src/main/agent/projects/projects_instructions', () => ({
 	readInstructions: jest.fn(),
 }));
+jest.mock('../../../../../src/main/agent/projects/projects_list', () => ({ list: jest.fn() }));
 
 const listMock = jest.mocked(list);
 const findProjectMock = jest.mocked(findProject);

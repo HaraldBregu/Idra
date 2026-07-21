@@ -1,4 +1,6 @@
-import { findProject, list, readInstructions } from '../projects';
+import { findProject } from '../projects/projects_find';
+import { readInstructions } from '../projects/projects_instructions';
+import { list } from '../projects/projects_list';
 
 const inline = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
