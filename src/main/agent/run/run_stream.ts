@@ -207,7 +207,7 @@ async function* loop(
 					if (typeof output?.project === 'string') setProject(session, output.project);
 					continue;
 				}
-				if (event.toolName === unloadProjectTool.name) {
+				if (event.toolName === unloadProjectTool.name && !event.isError) {
 					setProject(session);
 					continue;
 				}
