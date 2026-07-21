@@ -1,6 +1,7 @@
 import type { AgentInputFile } from '../../../shared/agent_types';
 import type { Config, Message, MessageContentBlock } from '../types';
 import type { SessionInput, SessionCategory, SessionState } from './session_types';
+import { loadProject } from './session_load_project';
 import { loadMessagesBySessionId } from './session_load_messages_by_session_id';
 import { persist } from './session_persist';
 import { resolveSessionId } from './session_resolve_session_id';
@@ -14,11 +15,10 @@ export function init(
 	input: SessionInput,
 	category: SessionCategory = DEFAULT_CATEGORY
 ): void {
-	const previousId = state.id;
 	state.id = resolveSessionId(input.sessionId, category, config.location);
-	if (state.id !== previousId) state.context.project = undefined;
 	state.folderName = sessionFolderName(state.id);
 	state.sessionsPath = sessionsRoot(config.location, category);
+	state.context.project = loadProject(state);
 	const storedMessages = loadMessagesBySessionId(state.id, category, config.location);
 	const legacyMessages =
 		input.sessionId && input.sessionId !== state.id && storedMessages.length === 0

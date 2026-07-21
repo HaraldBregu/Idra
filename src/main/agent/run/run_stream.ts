@@ -6,6 +6,7 @@ import {
 	isExhausted,
 	persistSystemPrompt,
 	recordTurn,
+	setProject,
 	toResult,
 	type SessionState,
 } from '../session';
@@ -203,17 +204,17 @@ async function* loop(
 				if (event.type !== 'tool_call_end') continue;
 				if (event.toolName === selectProjectTool.name) {
 					const output = event.output as { project?: unknown } | undefined;
-					if (typeof output?.project === 'string') session.context.project = output.project;
+					if (typeof output?.project === 'string') setProject(session, output.project);
 					continue;
 				}
 				if (event.toolName === unloadProjectTool.name) {
-					session.context.project = undefined;
+					setProject(session);
 					continue;
 				}
 				if (event.toolName === deleteProjectTool.name) {
 					const output = event.output as { id?: unknown } | undefined;
 					if (typeof output?.id === 'string' && output.id === session.context.project)
-						session.context.project = undefined;
+						setProject(session);
 					continue;
 				}
 				if (event.toolName !== loadSkillTool.name) continue;
