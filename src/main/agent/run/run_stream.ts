@@ -11,7 +11,7 @@ import {
 	type SessionState,
 } from '../session';
 import { rememberSkill } from '../context';
-import { addFilesystemPrompt, buildSystemPrompt } from '../system';
+import { addFilesystemPrompt, addProjectPrompt, buildSystemPrompt } from '../system';
 import { loadMcpTools } from '../tools/mcp_loader';
 import { completeBootstrapTool } from '../tools/bootstrap_complete';
 import { readTool } from '../tools/file_read';
@@ -158,7 +158,10 @@ async function* loop(
 							session.context.loadedSkills,
 							session.context.project
 						)
-					: await addFilesystemPrompt(config, options.systemPrompt);
+					: addProjectPrompt(
+							await addFilesystemPrompt(config, options.systemPrompt),
+							session.context.project
+						);
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(
