@@ -151,7 +151,12 @@ async function* loop(
 			if (signal.aborted) return;
 			const systemPrompt =
 				options.systemPrompt === undefined
-					? await buildSystemPrompt(config, tools, session.context.loadedSkills)
+					? await buildSystemPrompt(
+							config,
+							tools,
+							session.context.loadedSkills,
+							session.context.project
+						)
 					: await addFilesystemPrompt(config, options.systemPrompt);
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
