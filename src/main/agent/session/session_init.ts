@@ -14,7 +14,9 @@ export function init(
 	input: SessionInput,
 	category: SessionCategory = DEFAULT_CATEGORY
 ): void {
+	const previousId = state.id;
 	state.id = resolveSessionId(input.sessionId, category, config.location);
+	if (state.id !== previousId) state.context.project = undefined;
 	state.folderName = sessionFolderName(state.id);
 	state.sessionsPath = sessionsRoot(config.location, category);
 	const storedMessages = loadMessagesBySessionId(state.id, category, config.location);
