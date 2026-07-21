@@ -3,7 +3,9 @@ import { list } from './projects_list';
 
 export function findProject(name: string): ProjectInfo | undefined {
 	const wanted = name.trim().toLowerCase();
-	return list().find(
-		(project) => project.id.toLowerCase() === wanted || project.title.toLowerCase() === wanted
+	const projects = list();
+	return (
+		projects.find((project) => project.id.toLowerCase() === wanted) ??
+		projects.find((project) => project.title.toLowerCase() === wanted)
 	);
 }
