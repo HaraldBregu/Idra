@@ -77,26 +77,6 @@ export class Agent {
 		const resolvedAgentId = agentId.trim();
 		const runId = options.runId ?? randomUUID();
 
-		// /goal commands mutate the session goal before any run starts; most reply
-		// directly, while start/resume continue into an agent turn on the goal.
-		let goalContinuation: string | undefined;
-		const goalCommand = parseGoalCommand(message);
-		if (goalCommand) {
-			const category = options.category ?? DEFAULT_CATEGORY;
-			const sessionId = resolveSessionId(options.sessionId, category, this.config.location);
-			const outcome = applyGoalCommand(
-				sessionPath(sessionsRoot(this.config.location, category), sessionFolderName(sessionId)),
-				goalCommand
-			);
-			if ('reply' in outcome) {
-				for (const event of goalReplyEvents(outcome.reply, resolvedAgentId, runId))
-					options.streamEvent?.(event);
-				return outcome.reply;
-			}
-			goalContinuation = outcome.continuation;
-			options = { ...options, sessionId };
-		}
-
 		this.cancel(resolvedAgentId);
 
 		let response = '';
