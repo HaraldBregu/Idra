@@ -200,7 +200,23 @@ async function* loop(
 				session.context
 			)) {
 				yield event;
-				if (event.type !== 'tool_call_end' || event.toolName !== loadSkillTool.name) continue;
+				if (event.type !== 'tool_call_end') continue;
+				if (event.toolName === selectProjectTool.name) {
+					const output = event.output as { project?: unknown } | undefined;
+					if (typeof output?.project === 'string') session.context.project = output.project;
+					continue;
+				}
+				if (event.toolName === unloadProjectTool.name) {
+					session.context.project = undefined;
+					continue;
+				}
+				if (event.toolName === deleteProjectTool.name) {
+					const output = event.output as { id?: unknown } | undefined;
+					if (typeof output?.id === 'string' && output.id === session.context.project)
+						session.context.project = undefined;
+					continue;
+				}
+				if (event.toolName !== loadSkillTool.name) continue;
 				const output = event.output as { skill?: unknown; content?: unknown } | undefined;
 				const skill = output?.skill;
 				if (typeof skill !== 'string') continue;
