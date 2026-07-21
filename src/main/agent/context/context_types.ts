@@ -14,4 +14,5 @@ export interface AgentContext {
 	skill?: string;
 	loadedSkills?: LoadedSkill[];
 	tools?: ToolContextState[];
+	project?: string;
 }
