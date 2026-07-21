@@ -6,6 +6,7 @@ export const createProjectTool = tool({
 	name: 'create_project',
 	description:
 		'Create a new project: makes a folder with that name under the agent projects root containing an AGENTS.md instructions file and a project.json metadata file (title, description), and registers it in the projects store.',
+	defaultPermission: 'allow',
 	inputSchema: z.object({
 		name: z.string().describe('Folder-safe project name, e.g. "demo-project".'),
 		description: z.string().describe('Short description of the project.'),
