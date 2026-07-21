@@ -11,12 +11,13 @@ export async function buildSystemPrompt(
 	config: Config,
 	tools: Tool[] = [],
 	loadedSkills: LoadedSkill[] = [],
+	activeProject?: string,
 ): Promise<string> {
 	let prompt = addBasePrompt('');
 	prompt = addToolsPrompt(prompt, tools);
 	prompt = await addWorkspacePrompt(config, prompt);
 	prompt = await addFilesystemPrompt(config, prompt);
 	prompt = addSkillPrompt(prompt, loadedSkills);
-	prompt = addProjectPrompt(prompt);
+	prompt = addProjectPrompt(prompt, activeProject);
 	return prompt;
 }
