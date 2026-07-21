@@ -1,14 +1,10 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import { agentLocation } from '../../shared/agent_location';
+import type { ProjectMetadata } from './projects_types';
 
-export interface ProjectSettings {
-	title: string;
-	description: string;
-}
-
-export type ProjectsSchema = {
-	projects: Record<string, ProjectSettings>;
+type ProjectsSchema = {
+	projects: Record<string, ProjectMetadata>;
 	selected?: string;
 };
 
@@ -21,15 +17,15 @@ const store = new Store<ProjectsSchema>({
 	defaults: { projects: {} },
 });
 
-export function allProjects(): Record<string, ProjectSettings> {
+function allProjects(): Record<string, ProjectMetadata> {
 	return store.store.projects ?? {};
 }
 
-export function setProject(id: string, settings: ProjectSettings): void {
-	store.set('projects', { ...allProjects(), [id]: settings });
+export function setProject(id: string, metadata: ProjectMetadata): void {
+	store.set('projects', { ...allProjects(), [id]: metadata });
 }
 
-export function setProjects(projects: Record<string, ProjectSettings>): void {
+export function setProjects(projects: Record<string, ProjectMetadata>): void {
 	store.set('projects', projects);
 }
 
