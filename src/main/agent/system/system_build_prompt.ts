@@ -17,5 +17,6 @@ export async function buildSystemPrompt(
 	prompt = await addWorkspacePrompt(config, prompt);
 	prompt = await addFilesystemPrompt(config, prompt);
 	prompt = addSkillPrompt(prompt, loadedSkills);
+	prompt = addProjectPrompt(prompt);
 	return prompt;
 }
