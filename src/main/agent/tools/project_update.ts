@@ -5,7 +5,6 @@ import { list, updateProject } from '../projects';
 export const updateProjectTool = tool({
 	name: 'update_project',
 	description: 'Update a project title, description, and/or AGENTS.md instructions.',
-	defaultPermission: 'allow',
 	inputSchema: z.object({
 		name: z.string().describe('The project name (or title) to update.'),
 		title: z.string().optional().describe('New title for the project.'),
@@ -20,6 +19,6 @@ export const updateProjectTool = tool({
 				available: list().map((entry) => entry.id),
 			};
 		}
-		return { project };
+		return { project: project.id, title: project.title, description: project.description };
 	},
 });
