@@ -149,6 +149,10 @@ function applyResponseEvent(
 		);
 	}
 
+	if (event.type === 'model_usage') {
+		return { ...ensured.state, pendingTurnOutputTokens: event.usage?.outputTokens };
+	}
+
 	if (event.type === 'run_finished') {
 		if (!event.usage) return ensured.state;
 		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
