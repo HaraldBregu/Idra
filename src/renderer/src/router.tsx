@@ -398,6 +398,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'widgets',
+						element: (
+							<SettingsRouteWrapper>
+								<WidgetsPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'model-services/:serviceId/details/*',
 						element: <ModelServiceLegacyRedirect />,
 					},
