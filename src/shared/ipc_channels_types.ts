@@ -540,6 +540,7 @@ export interface InvokeChannelMap
 		SttInvokeChannelMap,
 		TextInvokeChannelMap,
 		VideoInvokeChannelMap,
+		NotesInvokeChannelMap,
 		WidgetsInvokeChannelMap {}
 
 export interface SendChannelMap extends WindowSendChannelMap {}
