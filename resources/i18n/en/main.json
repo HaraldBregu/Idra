@@ -201,7 +201,8 @@
 			"policies": "Policies",
 			"developer": "Developer",
 			"skills": "Skills",
-			"library": "Library"
+			"library": "Library",
+			"widgets": "Widgets"
 		},
 		"breadcrumb": {
 			"label": "Settings navigation",
