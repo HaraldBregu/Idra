@@ -168,6 +168,11 @@ function Tool({ toolPart, label, defaultOpen = false, hideIcon = false, classNam
 										{formatDuration(toolPart.durationMs)}
 									</span>
 								)}
+								{toolPart.outputTokens !== undefined && toolPart.outputTokens > 0 && (
+									<span className="ml-auto shrink-0 pl-2 text-[10px] tabular-nums text-muted-foreground/50">
+										{toolPart.outputTokens.toLocaleString()} tok
+									</span>
+								)}
 								<ChevronDown
 									className={cn(
 										'size-3 shrink-0 transition-transform duration-200',
