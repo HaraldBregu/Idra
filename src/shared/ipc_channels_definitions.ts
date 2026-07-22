@@ -107,6 +107,17 @@ export const ProviderChannels = {
 
 export const ProviderStoreChannels = ProviderChannels;
 
+export const CloudChannels = {
+	getConfig: 'cloud:get-config',
+	saveConfig: 'cloud:save-config',
+	testConnection: 'cloud:test-connection',
+	listObjects: 'cloud:list-objects',
+	putObject: 'cloud:put-object',
+	getObject: 'cloud:get-object',
+	deleteObject: 'cloud:delete-object',
+	sync: 'cloud:sync',
+} as const;
+
 export const SearchChannels = {
 	getSettings: 'search:settings:get',
 	saveEngine: 'search:engine:save',
