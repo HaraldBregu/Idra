@@ -71,6 +71,7 @@ export interface Message {
 	role: MessageRole;
 	content: MessageContent;
 	toolCalls?: ToolCall[];
+	usage?: SessionUsage;
 }
 
 import type {
