@@ -28,6 +28,11 @@ import { createVideoTool } from '../tools/video_create';
 import { createSoundTool } from '../tools/sound_create';
 import { saveMemoryTool } from '../tools/memory_save';
 import { forgetMemoryTool } from '../tools/memory_forget';
+import { createNoteTool } from '../tools/note_create';
+import { readNoteTool } from '../tools/note_read';
+import { updateNoteTool } from '../tools/note_update';
+import { deleteNoteTool } from '../tools/note_delete';
+import { searchNotesTool } from '../tools/note_search';
 import { updateHealthTool } from '../tools/health_update';
 import { updateHealthSettingsTool } from '../tools/health_settings_update';
 import { loadSkillTool } from '../tools/skill_load';
@@ -107,6 +112,11 @@ async function* loop(
 				createSoundTool(config.location),
 				saveMemoryTool(config),
 				forgetMemoryTool(config),
+				createNoteTool(config),
+				readNoteTool(config),
+				updateNoteTool(config),
+				deleteNoteTool(config),
+				searchNotesTool(config),
 				updateHealthTool(config),
 				updateHealthSettingsTool,
 				loadSkillTool,
