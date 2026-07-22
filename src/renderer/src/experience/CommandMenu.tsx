@@ -274,7 +274,7 @@ export function CommandMenu(): React.JSX.Element {
 				onValueChange={setSearch}
 				placeholder={t('command.placeholder', 'Search routes and settings...')}
 			/>
-			<CommandList>
+			<CommandList ref={listRef}>
 				<CommandEmpty>
 					{t('command.empty', 'No matching route or setting.')}
 				</CommandEmpty>
