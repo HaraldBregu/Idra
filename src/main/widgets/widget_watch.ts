@@ -5,7 +5,7 @@ const updateDelay = 150;
 
 export function watchWidgets(
 	onChange: () => void,
-	onError: (error: Error) => void,
+	onError: (error: unknown) => void,
 	appLocation?: string
 ): () => Promise<void> {
 	let updateTimer: ReturnType<typeof setTimeout> | undefined;

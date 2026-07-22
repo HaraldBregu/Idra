@@ -61,6 +61,7 @@ describe('application menu widgets', () => {
 			},
 		];
 		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
+		buildFromTemplate.mockClear();
 		buildFromTemplate.mockImplementation((template: MenuEntry[]) => template);
 		const menu = new Menu({
 			onLanguageChange: jest.fn(),
