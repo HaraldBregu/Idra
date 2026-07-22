@@ -77,6 +77,17 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface CloudApi {
+	getConfig: () => Promise<CloudConfig>;
+	saveConfig: (config: CloudConfig) => Promise<CloudConfig>;
+	testConnection: (config: CloudConfig) => Promise<CloudTestResult>;
+	listObjects: (prefix?: string) => Promise<CloudObjectInfo[]>;
+	putObject: (key: string, data: Uint8Array, contentType?: string) => Promise<void>;
+	getObject: (key: string) => Promise<Uint8Array>;
+	deleteObject: (key: string) => Promise<void>;
+	sync: (localDir: string, prefix?: string) => Promise<CloudSyncResult>;
+}
+
 export interface WidgetsApi {
 	list: () => Promise<Widget[]>;
 }
