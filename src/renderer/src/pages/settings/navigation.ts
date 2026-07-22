@@ -326,4 +326,10 @@ export const SETTINGS_NAVIGATION = [
 		descriptionKey: 'settings.overview.descriptions.channels',
 		icon: RadioTower,
 	},
+	{
+		path: '/settings/widgets',
+		labelKey: 'settings.tabs.widgets',
+		descriptionKey: 'settings.overview.descriptions.widgets',
+		icon: LayoutGrid,
+	},
 ] satisfies readonly SettingsNavigationItem[];
