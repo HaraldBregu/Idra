@@ -149,6 +149,15 @@ function applyResponseEvent(
 		);
 	}
 
+	if (event.type === 'run_finished') {
+		if (!event.usage) return ensured.state;
+		return updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+			...message,
+			inputTokens: event.usage?.inputTokens ?? message.inputTokens,
+			outputTokens: event.usage?.outputTokens ?? message.outputTokens,
+		}));
+	}
+
 	if (event.type === 'text_delta') {
 		if (!event.delta) return ensured.state;
 		return updateAgentMessage(
