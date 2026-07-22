@@ -9,6 +9,7 @@ describe('toolIcon', () => {
 	it('uses the project icon for project tools', () => {
 		expect(toolIcon(toolPart('project_create'))).toBe(FolderKanban);
 		expect(toolIcon(toolPart('PROJECT_LIST'))).toBe(FolderKanban);
+		expect(toolIcon({ ...toolPart('project_select'), serviceKind: 'mcp' })).toBe(FolderKanban);
 		expect(toolIcon(toolPart('custom_tool'))).toBe(Wrench);
 	});
 });
