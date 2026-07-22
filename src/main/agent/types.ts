@@ -42,6 +42,7 @@ export interface Tool {
 	readonly schema: JSONSchema;
 	readonly defaultPermission?: 'allow' | 'ask' | 'deny';
 	readonly alwaysAsk?: boolean;
+	readonly stopOnReject?: boolean;
 	readonly confirmDetail?: (args: Record<string, unknown>) => string | undefined;
 	run(input: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> | unknown;
 }
