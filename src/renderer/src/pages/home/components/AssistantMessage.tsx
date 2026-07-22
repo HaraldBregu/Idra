@@ -356,14 +356,6 @@ export function AssistantMessage({
 						>
 							<Reply className="size-3.5" />
 						</Button>
-						{hasTokenUsage && (
-							<span
-								className="ml-1 text-xs text-muted-foreground"
-								title={`Input: ${(message.inputTokens ?? 0).toLocaleString()} tokens · Output: ${outputTokens.toLocaleString()} tokens`}
-							>
-								{outputTokens.toLocaleString()} tokens
-							</span>
-						)}
 					</MessageActions>
 				</>
 			)}
