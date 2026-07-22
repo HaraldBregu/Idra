@@ -1,6 +1,7 @@
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
+import { CloudIpc } from '../cloud';
 import { ImageIpc } from '../image';
 import { NotesIpc } from '../notes';
 import { SoundIpc } from '../sound';
