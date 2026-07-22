@@ -47,6 +47,10 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'widgets',
 		paths: ['/settings/widgets'],
 	},
+	{
+		id: 'cloud',
+		paths: ['/settings/cloud'],
+	},
 ] as const;
 
 function getSettingsOverviewItem(path: string): SettingsNavigationItem | SettingsModelServiceItem {
