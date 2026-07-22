@@ -175,7 +175,8 @@
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
 				"policies": "Permessi strumenti e regole di percorso",
-				"library": "File multimediali generati"
+				"library": "File multimediali generati",
+				"widgets": "App widget installate"
 			}
 		},
 		"tabs": {
