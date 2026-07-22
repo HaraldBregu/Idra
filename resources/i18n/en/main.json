@@ -895,7 +895,7 @@
 			}
 		},
 		"cloud": {
-			"description": "Connect an S3-compatible bucket to store, retrieve and sync objects.",
+			"description": "S3-compatible object storage.",
 			"connectionTitle": "Connection",
 			"endpoint": "Endpoint URL",
 			"region": "Region",
@@ -915,7 +915,10 @@
 				"load": "Could not load cloud settings.",
 				"save": "Could not save cloud settings.",
 				"test": "Connection failed."
-			}
+			},
+			"edit": "Edit",
+			"cancel": "Cancel",
+			"endpointDefault": "AWS default"
 		},
 		"image": {
 			"prompt": "Prompt",

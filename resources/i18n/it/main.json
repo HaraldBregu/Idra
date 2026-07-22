@@ -895,7 +895,7 @@
 			}
 		},
 		"cloud": {
-			"description": "Collega un bucket compatibile con S3 per archiviare, recuperare e sincronizzare oggetti.",
+			"description": "Archiviazione oggetti compatibile con S3.",
 			"connectionTitle": "Connessione",
 			"endpoint": "URL endpoint",
 			"region": "Regione",
@@ -915,7 +915,10 @@
 				"load": "Impossibile caricare le impostazioni cloud.",
 				"save": "Impossibile salvare le impostazioni cloud.",
 				"test": "Connessione non riuscita."
-			}
+			},
+			"edit": "Modifica",
+			"cancel": "Annulla",
+			"endpointDefault": "Predefinito AWS"
 		},
 		"image": {
 			"prompt": "Prompt",
