@@ -272,7 +272,7 @@ export function historyToChatMessages(history: AgentHistoryMessage[]): HomeChatM
 		if (message.role !== 'assistant') return;
 		const content = typeof message.content === 'string' ? message.content : '';
 		const tools = (message.contentBlocks ?? [])
-			.map(agentToolPartFromHistoryBlock)
+			.map((block) => agentToolPartFromHistoryBlock(block, message.usage?.outputTokens))
 			.filter((tool): tool is AgentToolPart => Boolean(tool));
 
 		if (content.length === 0 && tools.length === 0) return;
