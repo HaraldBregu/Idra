@@ -78,7 +78,6 @@ function groupVerbs(type: string): GroupVerbs {
 	if (t === 'grep' || t === 'search') return { running: 'Searching', done: 'Searched', noun: 'pattern' };
 	if (t === 'list_dir') return { running: 'Listing', done: 'Listed', noun: 'folder' };
 	if (t === 'load_skill') return { running: 'Loading', done: 'Loaded', noun: 'skill' };
-	if (t === 'project') return { running: 'Using', done: 'Used', noun: 'project tool' };
 	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
 		return { running: 'Browsing', done: 'Browsed', noun: 'page' };
 	}
@@ -103,8 +102,12 @@ function toolRunningDetail(tool: AgentToolPart): string | undefined {
 }
 
 export function toolGroupLabel(type: string, tools: readonly AgentToolPart[]): string {
-	const verbs = groupVerbs(type);
 	const running = tools.filter(isToolRunning);
+	if (type.toLowerCase() === 'project') {
+		return running.length > 0 ? 'Tooling project' : 'Project tools';
+	}
+
+	const verbs = groupVerbs(type);
 	if (running.length > 0) {
 		const detail = toolRunningDetail(running[running.length - 1]);
 		return detail ? `${verbs.running} ${detail}` : `${verbs.running}…`;

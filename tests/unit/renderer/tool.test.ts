@@ -28,7 +28,7 @@ describe('toolIcon', () => {
 	});
 
 	it('groups adjacent project tools in Home assistant tool activity', () => {
-		const { container } = render(
+		const { container, rerender } = render(
 			createElement(ToolActivityGroup, {
 				tools: [
 					{ ...toolPart('create_project'), toolCallId: 'create-project', durationMs: 120 },
@@ -37,12 +37,27 @@ describe('toolIcon', () => {
 			})
 		);
 
-		const group = screen.getByRole('button', { name: /Used 2 project tools 350ms/ });
+		const group = screen.getByRole('button', { name: /Project tools 350ms/ });
 		expect(container.querySelectorAll('svg.lucide-folder-kanban')).toHaveLength(1);
 
 		fireEvent.click(group);
 
 		expect(screen.getByRole('button', { name: /Create project/ })).toBeInTheDocument();
 		expect(screen.getByRole('button', { name: /List projects/ })).toBeInTheDocument();
+
+		rerender(
+			createElement(ToolActivityGroup, {
+				tools: [
+					{
+						...toolPart('create_project'),
+						toolCallId: 'create-project',
+						state: 'input-streaming',
+					},
+					{ ...toolPart('list_projects'), toolCallId: 'list-projects', durationMs: 230 },
+				],
+			})
+		);
+
+		expect(screen.getByRole('button', { name: /Tooling project 230ms/ })).toBeInTheDocument();
 	});
 });
