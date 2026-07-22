@@ -1,9 +1,8 @@
-import { contextBridge, webUtils } from 'electron';
+import { contextBridge } from 'electron';
 import { typedInvokeUnwrap, typedSend, typedOn } from '../shared/ipc_types';
 import {
 	WindowChannels,
 	AgentChannels,
-	AppChannels,
 	ChannelsChannels,
 	ImageChannels,
 	SoundChannels,
@@ -15,7 +14,6 @@ import {
 	VideoChannels,
 } from '../shared/ipc_channels_definitions';
 import type {
-	AppApi,
 	AgentApi,
 	ChannelsApi,
 	ImageApi,
@@ -28,6 +26,7 @@ import type {
 	VoiceApi,
 	WindowApi,
 } from './index.d';
+import { app } from './app';
 import type { PublicProvider } from '../shared';
 import type {
 	AgentHistoryMessage,
@@ -293,82 +292,7 @@ export const agent: AgentApi = {
 	},
 } satisfies AgentApi;
 
-export const app: AppApi = {
-	getPathForFile: (file: File): string => {
-		return webUtils.getPathForFile(file);
-	},
-	openAppDataFolder: (): Promise<void> => {
-		return typedInvokeUnwrap(AppChannels.openAppDataFolder);
-	},
-	openExternalUrl: (url: string): Promise<void> => {
-		return typedInvokeUnwrap(AppChannels.openExternalUrl, url);
-	},
-	setTrayEnabled: (enabled: boolean): Promise<void> => {
-		return typedInvokeUnwrap(AppChannels.setTrayEnabled, enabled);
-	},
-	getTrayEnabled: (): Promise<boolean> => {
-		return typedInvokeUnwrap(AppChannels.getTrayEnabled);
-	},
-	setKeepAwake: (enabled: boolean): Promise<void> => {
-		return typedInvokeUnwrap(AppChannels.setKeepAwake, enabled);
-	},
-	getKeepAwake: (): Promise<boolean> => {
-		return typedInvokeUnwrap(AppChannels.getKeepAwake);
-	},
-	setLanguage: (language) => {
-		return typedInvokeUnwrap(AppChannels.setLanguage, language);
-	},
-	getLanguage: () => {
-		return typedInvokeUnwrap(AppChannels.getLanguage);
-	},
-	setTheme: (theme) => {
-		return typedInvokeUnwrap(AppChannels.setTheme, theme);
-	},
-	getTheme: () => {
-		return typedInvokeUnwrap(AppChannels.getTheme);
-	},
-	getMicrophonePermission: () => {
-		return typedInvokeUnwrap(AppChannels.getMicrophonePermission);
-	},
-	setMicrophoneEnabled: (enabled: boolean) => {
-		return typedInvokeUnwrap(AppChannels.setMicrophoneEnabled, enabled);
-	},
-	requestMicrophonePermission: () => {
-		return typedInvokeUnwrap(AppChannels.requestMicrophonePermission);
-	},
-	openSystemPreference: (pane) => {
-		return typedInvokeUnwrap(AppChannels.openSystemPreference, pane);
-	},
-	getCameraPermission: () => {
-		return typedInvokeUnwrap(AppChannels.getCameraPermission);
-	},
-	setCameraEnabled: (enabled: boolean) => {
-		return typedInvokeUnwrap(AppChannels.setCameraEnabled, enabled);
-	},
-	requestCameraPermission: () => {
-		return typedInvokeUnwrap(AppChannels.requestCameraPermission);
-	},
-	openVideo: (path: string): Promise<void> => {
-		const normalizedPath = optionalTrimmedString(path);
-		if (!normalizedPath) throw new Error('Invalid video path.');
-		return typedInvokeUnwrap(AppChannels.openVideo, normalizedPath);
-	},
-	showImageContextMenu: (path: string): Promise<void> => {
-		const normalizedPath = optionalTrimmedString(path);
-		if (!normalizedPath) throw new Error('Invalid image path.');
-		return typedInvokeUnwrap(AppChannels.showImageContextMenu, normalizedPath);
-	},
-	showVideoContextMenu: (path: string): Promise<void> => {
-		const normalizedPath = optionalTrimmedString(path);
-		if (!normalizedPath) throw new Error('Invalid video path.');
-		return typedInvokeUnwrap(AppChannels.showVideoContextMenu, normalizedPath);
-	},
-	showAudioContextMenu: (path: string): Promise<void> => {
-		const normalizedPath = optionalTrimmedString(path);
-		if (!normalizedPath) throw new Error('Invalid audio path.');
-		return typedInvokeUnwrap(AppChannels.showAudioContextMenu, normalizedPath);
-	},
-};
+export { app };
 
 export const provider: ProviderApi = {
 	get: (id: string): Promise<Provider | undefined> => {

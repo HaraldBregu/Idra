@@ -90,6 +90,7 @@ npm run dist:linux:appimage  # Linux AppImage
 - `src/shared` contains cross-process types and API contracts.
 - `src/main/agent` contains sessions, tools, skills, memory, schedules, health runs, sandboxing, and permission policy.
 - `src/main/models` contains provider-specific model integrations.
+- [Widget authoring](docs/WIDGETS.md) explains the widget manifest, local files, and `window.app` API.
 
 ## Security
 

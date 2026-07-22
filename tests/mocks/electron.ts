@@ -10,6 +10,21 @@ export const ipcMain = {
 	removeHandler: jest.fn(),
 };
 
+export const ipcRenderer = {
+	invoke: jest.fn(),
+	send: jest.fn(),
+	on: jest.fn(),
+	removeListener: jest.fn(),
+};
+
+export const contextBridge = {
+	exposeInMainWorld: jest.fn(),
+};
+
+export const webUtils = {
+	getPathForFile: jest.fn(),
+};
+
 export const shell = {
 	openExternal: jest.fn(async () => undefined),
 	openPath: jest.fn(async () => ''),
