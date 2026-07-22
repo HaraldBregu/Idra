@@ -16,7 +16,7 @@ type MenuEntry = {
 
 describe('application menu widgets', () => {
 	it('opens Notes and Project from the Widgets menu', () => {
-		const widgets = [
+		const widgetConfigurations = [
 			{ id: 'notes', name: 'Notes' },
 			{ id: 'project', name: 'Project' },
 		];
@@ -26,18 +26,18 @@ describe('application menu widgets', () => {
 		const menu = new Menu({
 			onLanguageChange: jest.fn(),
 			onNewWindow: jest.fn(),
-			getWidgets: () => widgets,
+			getWidgets: () => widgetConfigurations,
 			onOpenWidget,
 		});
 
 		menu.create();
 
 		const template = buildFromTemplate.mock.calls[0][0] as MenuEntry[];
-		const widgets = template.find((entry) => entry.label === 'Widgets');
-		widgets?.submenu?.find((entry) => entry.label === 'Notes')?.click?.();
-		widgets?.submenu?.find((entry) => entry.label === 'Project')?.click?.();
+		const widgetsMenu = template.find((entry) => entry.label === 'Widgets');
+		widgetsMenu?.submenu?.find((entry) => entry.label === 'Notes')?.click?.();
+		widgetsMenu?.submenu?.find((entry) => entry.label === 'Project')?.click?.();
 
-		expect(onOpenWidget).toHaveBeenNthCalledWith(1, widgets[0]);
-		expect(onOpenWidget).toHaveBeenNthCalledWith(2, widgets[1]);
+		expect(onOpenWidget).toHaveBeenNthCalledWith(1, widgetConfigurations[0]);
+		expect(onOpenWidget).toHaveBeenNthCalledWith(2, widgetConfigurations[1]);
 	});
 });
