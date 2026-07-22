@@ -1,12 +1,13 @@
 import type { MessageContentBlock, ToolCall } from '../types';
 import { persist } from './session_persist';
-import type { SessionState } from './session_types';
+import type { SessionState, SessionUsage } from './session_types';
 
 export function addAssistantMessage(
 	state: SessionState,
 	content: string,
 	toolCalls: ToolCall[],
-	providerItems: MessageContentBlock[] = []
+	providerItems: MessageContentBlock[] = [],
+	usage?: SessionUsage
 ): void {
 	const contentBlocks: MessageContentBlock[] = [...providerItems];
 	if (content || contentBlocks.length === 0) {
@@ -16,6 +17,7 @@ export function addAssistantMessage(
 		role: 'assistant',
 		content: contentBlocks,
 		...(toolCalls.length > 0 ? { toolCalls } : {}),
+		...(usage ? { usage } : {}),
 	});
 	persist(state);
 }
