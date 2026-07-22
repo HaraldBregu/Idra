@@ -19,7 +19,7 @@ The root `settings.json` controls all widgets:
 
 ```json
 {
-  "enabled": true
+	"enabled": true
 }
 ```
 
@@ -27,13 +27,13 @@ The widget's `manifest.json` supplies its menu title, description, metadata, and
 
 ```json
 {
-  "title": "Project",
-  "description": "A compact project board for tracking work from backlog to completion.",
-  "metadata": {
-    "version": "1.0.0",
-    "category": "project-management",
-    "entry": "index.html"
-  }
+	"title": "Project",
+	"description": "A compact project board for tracking work from backlog to completion.",
+	"metadata": {
+		"version": "1.0.0",
+		"category": "project-management",
+		"entry": "index.html"
+	}
 }
 ```
 
@@ -48,20 +48,20 @@ Use an external module script and a restrictive Content Security Policy:
 ```html
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'none'"
-    />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project</title>
-  </head>
-  <body>
-    <p id="status">Loading…</p>
-    <button id="website" type="button">Open website</button>
-    <script type="module" src="./widget.js"></script>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https:; object-src 'none'; base-uri 'none'; form-action 'none'"
+		/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Project</title>
+	</head>
+	<body>
+		<p id="status">Loading…</p>
+		<button id="website" type="button">Open website</button>
+		<script type="module" src="./widget.js"></script>
+	</body>
 </html>
 ```
 
@@ -71,15 +71,15 @@ Call the API from `widget.js`:
 const status = document.querySelector('#status');
 
 try {
-  const theme = await window.app.getTheme();
-  const language = await window.app.getLanguage();
-  status.textContent = `Theme: ${theme}; language: ${language}`;
+	const theme = await window.app.getTheme();
+	const language = await window.app.getLanguage();
+	status.textContent = `Theme: ${theme}; language: ${language}`;
 } catch (error) {
-  status.textContent = error instanceof Error ? error.message : 'Unable to load app settings.';
+	status.textContent = error instanceof Error ? error.message : 'Unable to load app settings.';
 }
 
 document.querySelector('#website').addEventListener('click', async () => {
-  await window.app.openExternalUrl('https://example.com');
+	await window.app.openExternalUrl('https://example.com');
 });
 ```
 
@@ -89,28 +89,28 @@ All IPC-backed methods return promises, so handle rejected calls with `try`/`cat
 
 ```ts
 interface AppApi {
-  getPathForFile(file: File): string;
-  openAppDataFolder(): Promise<void>;
-  openExternalUrl(url: string): Promise<void>;
-  setTrayEnabled(enabled: boolean): Promise<void>;
-  getTrayEnabled(): Promise<boolean>;
-  setKeepAwake(enabled: boolean): Promise<void>;
-  getKeepAwake(): Promise<boolean>;
-  setLanguage(language: 'en' | 'it'): Promise<void>;
-  getLanguage(): Promise<'en' | 'it'>;
-  setTheme(theme: 'light' | 'dark' | 'system'): Promise<void>;
-  getTheme(): Promise<'light' | 'dark' | 'system'>;
-  getMicrophonePermission(): Promise<MicrophonePermissionSettings>;
-  setMicrophoneEnabled(enabled: boolean): Promise<MicrophonePermissionSettings>;
-  requestMicrophonePermission(): Promise<MicrophonePermissionSettings>;
-  openSystemPreference(pane: SystemPreferencePaneId): Promise<void>;
-  getCameraPermission(): Promise<CameraPermissionSettings>;
-  setCameraEnabled(enabled: boolean): Promise<CameraPermissionSettings>;
-  requestCameraPermission(): Promise<CameraPermissionSettings>;
-  openVideo(path: string): Promise<void>;
-  showImageContextMenu(path: string): Promise<void>;
-  showVideoContextMenu(path: string): Promise<void>;
-  showAudioContextMenu(path: string): Promise<void>;
+	getPathForFile(file: File): string;
+	openAppDataFolder(): Promise<void>;
+	openExternalUrl(url: string): Promise<void>;
+	setTrayEnabled(enabled: boolean): Promise<void>;
+	getTrayEnabled(): Promise<boolean>;
+	setKeepAwake(enabled: boolean): Promise<void>;
+	getKeepAwake(): Promise<boolean>;
+	setLanguage(language: 'en' | 'it'): Promise<void>;
+	getLanguage(): Promise<'en' | 'it'>;
+	setTheme(theme: 'light' | 'dark' | 'system'): Promise<void>;
+	getTheme(): Promise<'light' | 'dark' | 'system'>;
+	getMicrophonePermission(): Promise<MicrophonePermissionSettings>;
+	setMicrophoneEnabled(enabled: boolean): Promise<MicrophonePermissionSettings>;
+	requestMicrophonePermission(): Promise<MicrophonePermissionSettings>;
+	openSystemPreference(pane: SystemPreferencePaneId): Promise<void>;
+	getCameraPermission(): Promise<CameraPermissionSettings>;
+	setCameraEnabled(enabled: boolean): Promise<CameraPermissionSettings>;
+	requestCameraPermission(): Promise<CameraPermissionSettings>;
+	openVideo(path: string): Promise<void>;
+	showImageContextMenu(path: string): Promise<void>;
+	showVideoContextMenu(path: string): Promise<void>;
+	showAudioContextMenu(path: string): Promise<void>;
 }
 ```
 
