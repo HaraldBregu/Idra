@@ -656,6 +656,12 @@ export const channels: ChannelsApi = {
 	},
 };
 
+export const widgets: WidgetsApi = {
+	list: () => {
+		return typedInvokeUnwrap(WidgetChannels.list);
+	},
+};
+
 if (process.contextIsolated) {
 	try {
 		contextBridge.exposeInMainWorld('app', app);
