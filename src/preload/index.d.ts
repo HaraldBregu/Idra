@@ -81,6 +81,14 @@ export interface WidgetsApi {
 	list: () => Promise<Widget[]>;
 }
 
+export interface NotesApi {
+	list: () => Promise<Note[]>;
+	get: (id: string) => Promise<Note | undefined>;
+	create: (input: CreateNoteInput) => Promise<Note>;
+	update: (id: string, updates: UpdateNoteInput) => Promise<Note | undefined>;
+	delete: (id: string) => Promise<boolean>;
+}
+
 export interface SearchApi {
 	getSettings: () => Promise<SearchSettings>;
 	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
