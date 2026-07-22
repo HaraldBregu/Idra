@@ -14,13 +14,17 @@ import {
 	type SettingsModelServiceItem,
 } from '../../navigation';
 
+// Icon colors grouped by functionality: core app (blue), AI media generation
+// (violet), integrations/connectivity (emerald).
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
+		color: 'text-blue-500',
 		paths: ['/settings/application', '/settings/system', '/settings/providers'],
 	},
 	{
 		id: 'primary',
+		color: 'text-blue-500',
 		paths: [
 			'/settings/assistant',
 			'/settings/skills',
@@ -31,6 +35,7 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		id: 'modelServices',
+		color: 'text-violet-500',
 		paths: [
 			'/settings/transcribe',
 			'/settings/voice',
@@ -41,18 +46,22 @@ const SETTINGS_OVERVIEW_GROUPS = [
 	},
 	{
 		id: 'channels',
+		color: 'text-emerald-500',
 		paths: ['/settings/channels'],
 	},
 	{
 		id: 'widgets',
+		color: 'text-emerald-500',
 		paths: ['/settings/widgets'],
 	},
 	{
 		id: 'cloud',
+		color: 'text-emerald-500',
 		paths: ['/settings/cloud'],
 	},
 	{
 		id: 'search',
+		color: 'text-emerald-500',
 		paths: ['/settings/search'],
 	},
 ] as const;
