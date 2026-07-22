@@ -177,7 +177,11 @@ function applyResponseEvent(
 		);
 	}
 
-	const tools = applyAgentResponseEventToTools(ensured.message.tools, event);
+	const tools = applyAgentResponseEventToTools(
+		ensured.message.tools,
+		event,
+		ensured.state.pendingTurnOutputTokens
+	);
 	if (!tools) return ensured.state;
 
 	return updateAgentMessage(
