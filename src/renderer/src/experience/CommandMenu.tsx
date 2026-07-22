@@ -227,6 +227,13 @@ export function CommandMenu(): React.JSX.Element {
 	);
 	const isSearching = search.trim().length >= MIN_SEARCH_LENGTH;
 
+	// Filtered results re-render into the scroll container without resetting its
+	// position, leaving top matches hidden above the viewport. Scroll to top on
+	// every query change so results are always visible.
+	useEffect(() => {
+		listRef.current?.scrollTo({ top: 0 });
+	}, [search]);
+
 	const handleOpenChange = useCallback((nextOpen: boolean) => {
 		setOpen(nextOpen);
 		if (!nextOpen) setSearch('');
