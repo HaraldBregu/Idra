@@ -14,19 +14,19 @@ import {
 	type SettingsModelServiceItem,
 } from '../../navigation';
 
-// Each group owns a hue; items within a group alternate one shade step for a
-// subtle per-item difference. Muted, low-contrast band: light 500/600, and a
-// uniform lighter shade (400) in dark mode so icons stay readable in both
-// themes. Colors are aligned index-for-index with paths, as literal class
-// strings so Tailwind's static extraction keeps them.
+// Each group owns a hue applied as a soft tint to the icon *container* (the
+// icon glyph keeps its default muted color). Items within a group alternate
+// opacity for a subtle per-item difference. Low-contrast band: light ~10-15%,
+// dark ~20-25%. Colors are aligned index-for-index with paths, as literal
+// class strings so Tailwind's static extraction keeps them.
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
 		paths: ['/settings/application', '/settings/system', '/settings/providers'],
 		colors: [
-			'text-slate-600 dark:text-slate-400',
-			'text-slate-500 dark:text-slate-400',
-			'text-slate-600 dark:text-slate-400',
+			'bg-slate-500/10 dark:bg-slate-500/20',
+			'bg-slate-500/15 dark:bg-slate-500/25',
+			'bg-slate-500/10 dark:bg-slate-500/20',
 		],
 	},
 	{
@@ -39,11 +39,11 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/tasks',
 		],
 		colors: [
-			'text-blue-600 dark:text-blue-400',
-			'text-blue-500 dark:text-blue-400',
-			'text-blue-600 dark:text-blue-400',
-			'text-blue-500 dark:text-blue-400',
-			'text-blue-600 dark:text-blue-400',
+			'bg-blue-500/10 dark:bg-blue-500/20',
+			'bg-blue-500/15 dark:bg-blue-500/25',
+			'bg-blue-500/10 dark:bg-blue-500/20',
+			'bg-blue-500/15 dark:bg-blue-500/25',
+			'bg-blue-500/10 dark:bg-blue-500/20',
 		],
 	},
 	{
@@ -56,32 +56,32 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/music',
 		],
 		colors: [
-			'text-violet-600 dark:text-violet-400',
-			'text-violet-500 dark:text-violet-400',
-			'text-violet-600 dark:text-violet-400',
-			'text-violet-500 dark:text-violet-400',
-			'text-violet-600 dark:text-violet-400',
+			'bg-violet-500/10 dark:bg-violet-500/20',
+			'bg-violet-500/15 dark:bg-violet-500/25',
+			'bg-violet-500/10 dark:bg-violet-500/20',
+			'bg-violet-500/15 dark:bg-violet-500/25',
+			'bg-violet-500/10 dark:bg-violet-500/20',
 		],
 	},
 	{
 		id: 'channels',
 		paths: ['/settings/channels'],
-		colors: ['text-emerald-600 dark:text-emerald-400'],
+		colors: ['bg-emerald-500/10 dark:bg-emerald-500/20'],
 	},
 	{
 		id: 'widgets',
 		paths: ['/settings/widgets'],
-		colors: ['text-amber-600 dark:text-amber-400'],
+		colors: ['bg-amber-500/10 dark:bg-amber-500/20'],
 	},
 	{
 		id: 'cloud',
 		paths: ['/settings/cloud'],
-		colors: ['text-cyan-600 dark:text-cyan-400'],
+		colors: ['bg-cyan-500/10 dark:bg-cyan-500/20'],
 	},
 	{
 		id: 'search',
 		paths: ['/settings/search'],
-		colors: ['text-rose-600 dark:text-rose-400'],
+		colors: ['bg-rose-500/10 dark:bg-rose-500/20'],
 	},
 ] as const;
 
