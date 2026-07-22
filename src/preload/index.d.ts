@@ -167,6 +167,12 @@ export interface TranscribeApi {
 import type { PublicProvider } from '../shared';
 import type { Provider } from '../shared/providers_types';
 import type { SearchEngineId, SearchEngineInput, SearchSettings } from '../shared/search_types';
+import type {
+	CloudConfig,
+	CloudObjectInfo,
+	CloudSyncResult,
+	CloudTestResult,
+} from '../shared/cloud_types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { Widget } from '../shared/widget_types';
