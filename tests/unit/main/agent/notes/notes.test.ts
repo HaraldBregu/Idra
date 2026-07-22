@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
 	createNote,
 	deleteNote,
+	initNotes,
 	noteFilePath,
 	notesSettingsPath,
 	readNote,
@@ -25,6 +26,17 @@ afterEach(() => {
 });
 
 describe('notes', () => {
+	it('creates an empty settings store during initialization without overwriting it', () => {
+		initNotes(config);
+		expect(JSON.parse(fs.readFileSync(notesSettingsPath(config), 'utf8'))).toEqual({ notes: {} });
+
+		fs.writeFileSync(notesSettingsPath(config), '{"notes":{"existing":{}}}\n', 'utf8');
+		initNotes(config);
+		expect(fs.readFileSync(notesSettingsPath(config), 'utf8')).toBe(
+			'{"notes":{"existing":{}}}\n'
+		);
+	});
+
 	it('creates and reads a note with an indexed settings entry', () => {
 		const note = createNote(config, {
 			title: ' Release plan ',
