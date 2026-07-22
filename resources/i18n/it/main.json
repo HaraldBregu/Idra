@@ -201,7 +201,8 @@
 			"policies": "Politiche",
 			"developer": "Sviluppatore",
 			"skills": "Abilità",
-			"library": "Libreria"
+			"library": "Libreria",
+			"widgets": "Widget"
 		},
 		"breadcrumb": {
 			"label": "Navigazione impostazioni",
