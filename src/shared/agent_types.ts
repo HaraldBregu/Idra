@@ -185,6 +185,7 @@ export type AgentRunStreamEvent =
 			toolName: string;
 			input: unknown;
 			mode: 'ask';
+			detail?: string;
 	  }
 	| ({
 			type: 'tool_call_result';
