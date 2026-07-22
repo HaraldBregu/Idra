@@ -50,7 +50,8 @@ export function updateAgentToolPart(
 
 export function applyAgentResponseEventToTools(
 	tools: readonly AgentToolPart[],
-	event: AgentResponseEvent
+	event: AgentResponseEvent,
+	outputTokens?: number
 ): AgentToolPart[] | undefined {
 	switch (event.type) {
 		case 'run_state':
@@ -63,6 +64,7 @@ export function applyAgentResponseEventToTools(
 				state: 'input-streaming',
 				iteration: event.iteration,
 				inputText: '',
+				outputTokens,
 			});
 		case 'tool_call_args_delta':
 			return updateAgentToolPart(tools, event.toolCallId, {
