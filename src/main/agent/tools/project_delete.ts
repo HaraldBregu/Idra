@@ -7,6 +7,7 @@ export const deleteProjectTool = tool({
 	description:
 		'Delete a project: removes its folder (including AGENTS.md and metadata) and unselects it if it was the active project.',
 	alwaysAsk: true,
+	stopOnReject: true,
 	confirmDetail: (args) => (typeof args.name === 'string' ? projectContents(args.name) : undefined),
 	inputSchema: z.object({
 		name: z.string().describe('The project name (or title) to delete.'),
