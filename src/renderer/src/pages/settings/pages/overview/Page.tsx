@@ -162,6 +162,7 @@ const OverviewPage: React.FC = () => {
 								<SettingsOverviewCard
 									key={path}
 									item={item}
+									iconColor={group.color}
 									badge={
 										path === '/settings/search' && selectedSearchEngine ? (
 											<Badge variant="outline" className="text-[10px] leading-none">
