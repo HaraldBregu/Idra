@@ -14,17 +14,17 @@ import {
 	type SettingsModelServiceItem,
 } from '../../navigation';
 
-// Icon colors grouped by functionality: core app (blue), AI media generation
-// (violet), integrations/connectivity (emerald).
+// Each group owns a hue; each item within a group gets a progressive shade of
+// that hue (colors aligned index-for-index with paths). Literal class strings
+// so Tailwind's static extraction keeps them.
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
-		color: 'text-blue-500',
 		paths: ['/settings/application', '/settings/system', '/settings/providers'],
+		colors: ['text-slate-400', 'text-slate-500', 'text-slate-600'],
 	},
 	{
 		id: 'primary',
-		color: 'text-blue-500',
 		paths: [
 			'/settings/assistant',
 			'/settings/skills',
@@ -32,10 +32,16 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/library',
 			'/settings/tasks',
 		],
+		colors: [
+			'text-blue-300',
+			'text-blue-400',
+			'text-blue-500',
+			'text-blue-600',
+			'text-blue-700',
+		],
 	},
 	{
 		id: 'modelServices',
-		color: 'text-violet-500',
 		paths: [
 			'/settings/transcribe',
 			'/settings/voice',
@@ -43,26 +49,33 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/video',
 			'/settings/music',
 		],
+		colors: [
+			'text-violet-300',
+			'text-violet-400',
+			'text-violet-500',
+			'text-violet-600',
+			'text-violet-700',
+		],
 	},
 	{
 		id: 'channels',
-		color: 'text-emerald-500',
 		paths: ['/settings/channels'],
+		colors: ['text-emerald-500'],
 	},
 	{
 		id: 'widgets',
-		color: 'text-emerald-500',
 		paths: ['/settings/widgets'],
+		colors: ['text-amber-500'],
 	},
 	{
 		id: 'cloud',
-		color: 'text-emerald-500',
 		paths: ['/settings/cloud'],
+		colors: ['text-cyan-500'],
 	},
 	{
 		id: 'search',
-		color: 'text-emerald-500',
 		paths: ['/settings/search'],
+		colors: ['text-rose-500'],
 	},
 ] as const;
 
