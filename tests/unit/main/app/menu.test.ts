@@ -2,6 +2,13 @@ import { Menu as ElectronMenu } from 'electron';
 import { Menu } from '../../../../src/main/app/menu';
 
 jest.mock('@electron-toolkit/utils', () => ({ is: { dev: true } }));
+jest.mock('../../../../src/main/app/i18n', () => ({
+	loadTranslations: () => ({
+		widgets: 'Widgets',
+		notes: 'Notes',
+		project: 'Project',
+	}),
+}));
 
 type MenuEntry = {
 	label?: string;
