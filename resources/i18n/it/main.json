@@ -918,7 +918,12 @@
 			},
 			"edit": "Modifica",
 			"cancel": "Annulla",
-			"endpointDefault": "Predefinito AWS"
+			"endpointDefault": "Predefinito AWS",
+			"connectionDescription": "Credenziali per il tuo bucket compatibile con S3.",
+			"credentialsTitle": "Credenziali",
+			"optionsTitle": "Opzioni",
+			"enabled": "Attivo",
+			"disabled": "Disattivato"
 		},
 		"image": {
 			"prompt": "Prompt",

@@ -918,7 +918,12 @@
 			},
 			"edit": "Edit",
 			"cancel": "Cancel",
-			"endpointDefault": "AWS default"
+			"endpointDefault": "AWS default",
+			"connectionDescription": "Credentials for your S3-compatible bucket.",
+			"credentialsTitle": "Credentials",
+			"optionsTitle": "Options",
+			"enabled": "Enabled",
+			"disabled": "Disabled"
 		},
 		"image": {
 			"prompt": "Prompt",
