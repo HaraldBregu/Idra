@@ -14,7 +14,6 @@ export function render(windowFactory: WindowFactory, file: string, title: string
 			title,
 			autoHideMenuBar: true,
 			backgroundColor: '#f5f5f2',
-			webPreferences: { preload: undefined },
 		},
 		{ file }
 	);
