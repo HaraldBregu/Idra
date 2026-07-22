@@ -290,6 +290,14 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
+						path: 'cloud',
+						element: (
+							<SettingsRouteWrapper>
+								<CloudPage />
+							</SettingsRouteWrapper>
+						),
+					},
+					{
 						path: 'tasks',
 						element: (
 							<SettingsRouteWrapper>
