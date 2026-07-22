@@ -72,12 +72,10 @@ function getSettingsOverviewItem(path: string): SettingsNavigationItem | Setting
 function SettingsOverviewCard({
 	item,
 	badge,
-	iconContainerColor,
 	disabled = false,
 }: {
 	readonly item: SettingsNavigationItem | SettingsModelServiceItem;
 	readonly badge?: React.ReactNode;
-	readonly iconContainerColor?: string;
 	readonly disabled?: boolean;
 }): React.JSX.Element {
 	const { t } = useTranslation();
