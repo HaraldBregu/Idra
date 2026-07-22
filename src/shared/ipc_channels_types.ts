@@ -26,6 +26,7 @@ import {
 	SttChannels,
 	TextChannels,
 	VideoChannels,
+	WidgetChannels,
 	WindowChannels,
 } from './ipc_channels_definitions';
 
