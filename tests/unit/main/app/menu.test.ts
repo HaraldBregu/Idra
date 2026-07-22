@@ -15,10 +15,20 @@ type MenuEntry = {
 };
 
 describe('application menu widgets', () => {
-	it('opens Notes and Project from the Widgets menu', () => {
+	it('opens manifest-defined widgets from the Widgets menu', () => {
 		const widgetConfigurations = [
-			{ id: 'notes', name: 'Notes' },
-			{ id: 'project', name: 'Project' },
+			{
+				id: 'weather',
+				name: 'Weather',
+				description: 'Local forecast',
+				metadata: { version: '1.0.0' },
+			},
+			{
+				id: 'clock',
+				name: 'World Clock',
+				description: 'Times around the world',
+				metadata: { version: '2.0.0' },
+			},
 		];
 		const onOpenWidget = jest.fn();
 		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
@@ -34,8 +44,8 @@ describe('application menu widgets', () => {
 
 		const template = buildFromTemplate.mock.calls[0][0] as MenuEntry[];
 		const widgetsMenu = template.find((entry) => entry.label === 'Widgets');
-		widgetsMenu?.submenu?.find((entry) => entry.label === 'Notes')?.click?.();
-		widgetsMenu?.submenu?.find((entry) => entry.label === 'Project')?.click?.();
+		widgetsMenu?.submenu?.find((entry) => entry.label === 'Weather')?.click?.();
+		widgetsMenu?.submenu?.find((entry) => entry.label === 'World Clock')?.click?.();
 
 		expect(onOpenWidget).toHaveBeenNthCalledWith(1, widgetConfigurations[0]);
 		expect(onOpenWidget).toHaveBeenNthCalledWith(2, widgetConfigurations[1]);

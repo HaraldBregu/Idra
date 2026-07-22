@@ -1,12 +1,12 @@
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
-import type { WidgetConfiguration } from '../widgets';
+import type { Widget } from '../widgets';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
 	onNewWindow: () => void;
-	getWidgets: () => WidgetConfiguration[];
-	onOpenWidget: (widget: WidgetConfiguration) => void;
+	getWidgets: () => Widget[];
+	onOpenWidget: (widget: Widget) => void;
 }
 
 export class Menu {

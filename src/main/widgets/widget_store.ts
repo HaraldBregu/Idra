@@ -5,7 +5,9 @@ import { widgetsSettingsPath } from './widget_settings';
 import type { WidgetConfiguration, WidgetsSettings } from './widget_types';
 
 export function storeWidgets(widgets: readonly WidgetConfiguration[], appLocation?: string): void {
-	const settings: WidgetsSettings = { widgets: widgets.filter(isWidgetConfiguration) };
+	const settings: WidgetsSettings = {
+		widgets: widgets.filter(isWidgetConfiguration).map(({ id }) => ({ id })),
+	};
 	mkdirSync(widgetsRoot(appLocation), { recursive: true });
 	writeFileSync(
 		widgetsSettingsPath(appLocation),
