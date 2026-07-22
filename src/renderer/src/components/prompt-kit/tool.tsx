@@ -152,7 +152,7 @@ function Tool({ toolPart, label, defaultOpen = false, hideIcon = false, classNam
 							variant="ghost"
 							className="p-0! h-auto w-full justify-start rounded-md bg-transparent! py-1 font-normal text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
 						>
-							<div className="flex min-w-0 items-center gap-1.5">
+							<div className="flex w-full min-w-0 items-center gap-1.5">
 								{!hideIcon && <KindIcon className="size-3.5 shrink-0 text-muted-foreground/60" />}
 								<span
 									className={cn(
