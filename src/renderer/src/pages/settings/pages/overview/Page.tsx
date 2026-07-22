@@ -145,13 +145,12 @@ const OverviewPage: React.FC = () => {
 			{SETTINGS_OVERVIEW_GROUPS.map((group) => (
 				<section key={group.id} className="flex flex-col gap-2">
 					<SettingsPanel>
-						{group.paths.map((path, index) => {
+						{group.paths.map((path) => {
 							const item = getSettingsOverviewItem(path);
 							return (
 								<SettingsOverviewCard
 									key={path}
 									item={item}
-									iconContainerColor={group.colors[index]}
 									badge={
 										path === '/settings/search' && selectedSearchEngine ? (
 											<Badge variant="outline" className="text-[10px] leading-none">
