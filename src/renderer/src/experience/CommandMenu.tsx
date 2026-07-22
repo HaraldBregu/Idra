@@ -219,6 +219,7 @@ export function CommandMenu(): React.JSX.Element {
 	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState('');
+	const listRef = useRef<HTMLDivElement>(null);
 	const { groups, searchOnlyItems } = useMemo(() => buildCommandGroups(t), [t]);
 	const allItems = useMemo(
 		() => [...groups.flatMap((group) => group.items), ...searchOnlyItems],
