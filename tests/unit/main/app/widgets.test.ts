@@ -90,11 +90,7 @@ describe('widget storage and loading', () => {
 		fs.writeFileSync(
 			widgetsSettingsPath(appLocation),
 			JSON.stringify({
-				widgets: [
-					{ id: 'notes' },
-					{ id: '../outside' },
-					{},
-				],
+				widgets: [{ id: 'notes' }, { id: '../outside' }, {}],
 			})
 		);
 
