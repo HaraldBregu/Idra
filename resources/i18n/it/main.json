@@ -895,7 +895,7 @@
 			}
 		},
 		"cloud": {
-			"description": "Archiviazione oggetti compatibile con S3.",
+			"description": "Archiviazione oggetti compatibile con S3 per i file.",
 			"connectionTitle": "Connessione",
 			"endpoint": "URL endpoint",
 			"region": "Regione",

@@ -17,7 +17,7 @@ import {
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
-		paths: ['/settings/application', '/settings/system', '/settings/providers', '/settings/search'],
+		paths: ['/settings/application', '/settings/system', '/settings/providers'],
 	},
 	{
 		id: 'primary',

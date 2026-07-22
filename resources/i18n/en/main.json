@@ -895,7 +895,7 @@
 			}
 		},
 		"cloud": {
-			"description": "S3-compatible object storage.",
+			"description": "S3-compatible object storage for your files.",
 			"connectionTitle": "Connection",
 			"endpoint": "Endpoint URL",
 			"region": "Region",
