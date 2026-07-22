@@ -11,6 +11,8 @@ export function tool<T extends z.ZodType>({
 	name,
 	description,
 	defaultPermission,
+	alwaysAsk,
+	confirmDetail,
 	inputSchema,
 	execute,
 }: ToolConfig<T>): Tool {
@@ -18,6 +20,8 @@ export function tool<T extends z.ZodType>({
 		name,
 		description,
 		defaultPermission,
+		alwaysAsk,
+		confirmDetail,
 		schema: toJsonSchema(inputSchema),
 		async run(input: Record<string, unknown>, signal?: AbortSignal) {
 			return execute(inputSchema.parse(input), signal);
