@@ -709,4 +709,6 @@ if (process.contextIsolated) {
 	globalThis.text = text;
 	// @ts-ignore (define in dts)
 	globalThis.widgets = widgets;
+	// @ts-ignore (define in dts)
+	globalThis.notes = notes;
 }
