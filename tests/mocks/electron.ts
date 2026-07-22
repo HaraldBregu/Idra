@@ -20,10 +20,14 @@ export const systemPreferences = {
 	getMediaAccessStatus: jest.fn(() => 'unknown'),
 };
 
-export const BrowserWindow = jest.fn();
+export const BrowserWindow = Object.assign(jest.fn(), {
+	getAllWindows: jest.fn(() => []),
+	getFocusedWindow: jest.fn(() => null),
+});
 
 export const Menu = {
 	buildFromTemplate: jest.fn(() => ({})),
+	setApplicationMenu: jest.fn(),
 };
 
 export const Tray = jest.fn();

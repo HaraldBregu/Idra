@@ -1,5 +1,4 @@
 import { resolve } from 'path';
-import { readFileSync } from 'node:fs';
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -8,21 +7,7 @@ import pkg from './package.json';
 export default defineConfig({
 	main: {
 		envPrefix: ['MAIN_VITE_', 'VITE_'],
-		plugins: [
-			externalizeDepsPlugin(),
-			{
-				name: 'widget-pages',
-				generateBundle() {
-					for (const file of ['notes.html', 'project.html']) {
-						this.emitFile({
-							type: 'asset',
-							fileName: `widgets/${file}`,
-							source: readFileSync(resolve(__dirname, 'src/main/widgets', file)),
-						});
-					}
-				},
-			},
-		],
+		plugins: [externalizeDepsPlugin()],
 		build: {
 			rollupOptions: {
 				input: {

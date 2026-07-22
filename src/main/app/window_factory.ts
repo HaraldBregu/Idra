@@ -111,7 +111,7 @@ export class WindowFactory {
 		const { html = 'index.html', hash, file } = content;
 
 		if (file) {
-			win.loadFile(path.join(__dirname, file));
+			win.loadFile(file);
 			return;
 		}
 
