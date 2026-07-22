@@ -12,11 +12,11 @@ export type SkillsSchema = {
 	skills: Record<string, SkillSettings>;
 };
 
-const SKILLS_STORE_NAME = 'skills';
+const SETTINGS_STORE_NAME = 'settings';
 
 const store = new Store<SkillsSchema>({
-	name: SKILLS_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	name: SETTINGS_STORE_NAME,
+	cwd: skillsRoot,
 	accessPropertiesByDotNotation: false,
 	defaults: { skills: {} },
 });
