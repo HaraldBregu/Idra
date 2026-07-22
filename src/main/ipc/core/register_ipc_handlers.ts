@@ -9,6 +9,7 @@ import { SpeechIpc } from '../speech';
 import { SttIpc } from '../stt';
 import { TextIpc } from '../text';
 import { VideoIpc } from '../video';
+import { WidgetsIpc } from '../widgets';
 import { WindowIpc } from '../window';
 import type { EventBus } from '../../app';
 import type { MainServices } from '../../bootstrap';
