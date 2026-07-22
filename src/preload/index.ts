@@ -676,6 +676,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('video', video);
 		contextBridge.exposeInMainWorld('sound', sound);
 		contextBridge.exposeInMainWorld('text', text);
+		contextBridge.exposeInMainWorld('widgets', widgets);
 	} catch (error) {
 		console.error('[preload] Failed to expose IPC APIs:', error);
 	}
