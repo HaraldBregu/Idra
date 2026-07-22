@@ -163,7 +163,6 @@ const CloudPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.cloud')}
 				description={t('settings.cloud.description')}
-				iconNode={<Cloud className="size-5" strokeWidth={1.8} />}
 			/>
 
 			{error && (
