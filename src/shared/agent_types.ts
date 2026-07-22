@@ -31,6 +31,11 @@ export interface AgentInputFile {
 	data: string;
 }
 
+export interface AgentTokenUsage {
+	inputTokens?: number;
+	outputTokens?: number;
+}
+
 export type AgentHistoryContentBlock =
 	| {
 			type: 'text';
