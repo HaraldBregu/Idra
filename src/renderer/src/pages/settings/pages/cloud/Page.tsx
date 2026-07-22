@@ -182,7 +182,7 @@ const CloudPage: React.FC = () => {
 			)}
 
 			<Card size="sm">
-				<CardHeader className="border-b [.border-b]:pb-3">
+				<CardHeader className="border-b">
 					<CardTitle>{t('settings.cloud.connectionTitle')}</CardTitle>
 					<CardDescription className="text-xs">
 						{t('settings.cloud.connectionDescription')}
