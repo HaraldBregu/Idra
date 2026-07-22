@@ -143,6 +143,7 @@ function applyResponseEvent(
 					toolCallId: event.toolCallId,
 					toolName: event.toolName,
 					input: event.input,
+					detail: event.detail,
 				},
 				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})
