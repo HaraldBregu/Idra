@@ -235,5 +235,6 @@ declare global {
 		video: VideoApi;
 		sound: SoundApi;
 		text: TextApi;
+		widgets: WidgetsApi;
 	}
 }
