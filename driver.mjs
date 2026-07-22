@@ -25,7 +25,7 @@ const menu = await app.evaluate(async ({ Menu }) => {
 });
 
 if (!menu.ok) {
-	console.log('RESULT', JSON.stringify({ error: 'Notes menu item not found' }));
+	console.log('RESULT ' + JSON.stringify({ error: 'Notes menu item not found' }));
 	await app.close();
 	process.exit(1);
 }
@@ -54,6 +54,6 @@ const result = await win.evaluate(async () => {
 	};
 });
 
-console.log('RESULT', JSON.stringify(result, null, 2));
+console.log('RESULT ' + JSON.stringify(result));
 await app.close();
 process.exit(0);
