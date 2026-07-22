@@ -181,7 +181,10 @@ async function* loop(
 				content: turn.content,
 				toolCalls: turn.toolCalls,
 			};
-			addAssistantMessage(session, turn.content, turn.toolCalls, turn.providerItems);
+			addAssistantMessage(session, turn.content, turn.toolCalls, turn.providerItems, {
+				inputTokens: turn.usage?.inputTokens ?? 0,
+				outputTokens: turn.usage?.outputTokens ?? 0,
+			});
 
 			if (turn.toolCalls.length === 0) {
 				const result = toResult(session, 'success');
