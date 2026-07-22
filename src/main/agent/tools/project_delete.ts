@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import { tool } from './tool';
-import { deleteProject, list } from '../projects';
+import { deleteProject, list, projectContents } from '../projects';
 
 export const deleteProjectTool = tool({
 	name: 'delete_project',
 	description:
 		'Delete a project: removes its folder (including AGENTS.md and metadata) and unselects it if it was the active project.',
-	defaultPermission: 'allow',
+	alwaysAsk: true,
+	confirmDetail: (args) => (typeof args.name === 'string' ? projectContents(args.name) : undefined),
 	inputSchema: z.object({
 		name: z.string().describe('The project name (or title) to delete.'),
 	}),
