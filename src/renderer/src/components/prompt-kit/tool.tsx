@@ -23,6 +23,7 @@ import {
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { isProjectToolType } from './project';
 
 export type ToolPart = {
 	type: string;
@@ -68,13 +69,7 @@ function formatDuration(ms: number): string {
 
 export function toolIcon(toolPart: ToolPart): typeof Wrench {
 	const type = toolPart.type.toLowerCase();
-	if (
-		type.startsWith('project_') ||
-		type.endsWith('_project') ||
-		type.endsWith('_projects')
-	) {
-		return FolderKanban;
-	}
+	if (isProjectToolType(type)) return FolderKanban;
 	if (toolPart.serviceKind === 'mcp' || type.startsWith('mcp__')) return Plug;
 	if (type.includes('skill')) return Sparkles;
 	if (type === 'create_image') return Image;

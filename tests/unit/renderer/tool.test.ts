@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { FolderKanban, Wrench } from 'lucide-react';
 import { toolIcon, type ToolPart } from '../../../src/renderer/src/components/prompt-kit/tool';
 import { ToolActivityGroup } from '../../../src/renderer/src/pages/home/components/ToolActivityGroup';
@@ -25,5 +25,24 @@ describe('toolIcon', () => {
 		);
 
 		expect(container.querySelector('svg.lucide-folder-kanban')).toBeInTheDocument();
+	});
+
+	it('groups adjacent project tools in Home assistant tool activity', () => {
+		const { container } = render(
+			createElement(ToolActivityGroup, {
+				tools: [
+					{ ...toolPart('create_project'), toolCallId: 'create-project' },
+					{ ...toolPart('list_projects'), toolCallId: 'list-projects' },
+				],
+			})
+		);
+
+		const group = screen.getByRole('button', { name: /Used 2 project tools/ });
+		expect(container.querySelectorAll('svg.lucide-folder-kanban')).toHaveLength(1);
+
+		fireEvent.click(group);
+
+		expect(screen.getByRole('button', { name: /Create project/ })).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /List projects/ })).toBeInTheDocument();
 	});
 });

@@ -1,6 +1,7 @@
 import { useState, type ReactElement } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
+import { isProjectToolType } from '@/components/prompt-kit/project';
 import { Tool, toolIcon } from '@/components/prompt-kit/tool';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,11 +21,12 @@ type ToolTypeGroup = {
 function groupToolsByType(tools: readonly AgentToolPart[]): ToolTypeGroup[] {
 	const groups: ToolTypeGroup[] = [];
 	for (const tool of tools) {
+		const type = isProjectToolType(tool.type) ? 'project' : tool.type;
 		const last = groups[groups.length - 1];
-		if (last && last.type === tool.type) {
+		if (last && last.type === type) {
 			last.tools.push(tool);
 		} else {
-			groups.push({ type: tool.type, tools: [tool] });
+			groups.push({ type, tools: [tool] });
 		}
 	}
 	return groups;

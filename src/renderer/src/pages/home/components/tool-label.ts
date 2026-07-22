@@ -78,6 +78,7 @@ function groupVerbs(type: string): GroupVerbs {
 	if (t === 'grep' || t === 'search') return { running: 'Searching', done: 'Searched', noun: 'pattern' };
 	if (t === 'list_dir') return { running: 'Listing', done: 'Listed', noun: 'folder' };
 	if (t === 'load_skill') return { running: 'Loading', done: 'Loaded', noun: 'skill' };
+	if (t === 'project') return { running: 'Using', done: 'Used', noun: 'project tool' };
 	if (t === 'web_browser' || t === 'web_fetch' || t === 'web_search') {
 		return { running: 'Browsing', done: 'Browsed', noun: 'page' };
 	}
