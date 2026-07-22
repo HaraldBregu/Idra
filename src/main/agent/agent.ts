@@ -333,6 +333,7 @@ function runtimeEventToAgentEvents(
 				type: 'run_finished',
 				stopReason: normalizeStopReason(event.result.stopReason),
 				outputChars: event.result.text.length,
+				usage: event.result.usage,
 				agentId,
 				runId,
 			},
