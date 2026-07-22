@@ -1,6 +1,5 @@
-import path from 'node:path';
 import Store from 'electron-store';
-import { agentLocation } from '../../shared/agent_location';
+import { skillsRoot } from './skills_root';
 
 export interface SkillSettings {
 	enabled: boolean;
