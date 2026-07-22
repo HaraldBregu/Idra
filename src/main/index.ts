@@ -12,7 +12,7 @@ import {
 } from './app/settings_store';
 import type { AppLanguage } from '../shared/app_types';
 import { Menu } from './app/menu';
-import { ensureWidgets, listWidgets, loadWidget } from './widgets/widget_index';
+import { ensureWidgets, listWidgets, loadWidget, watchWidgets } from './widgets/widget_index';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
 import {
@@ -133,6 +133,13 @@ app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers();
 	ensureWidgets();
+	const stopWatchingWidgets = watchWidgets(
+		() => menuManager.create(),
+		(error) => logger.error('Widgets', 'Widget watcher failed', error)
+	);
+	app.once('before-quit', () => {
+		void stopWatchingWidgets();
+	});
 	syncSkills();
 	syncProjects();
 	// Apply persisted settings on startup (updateLanguage builds the menu)

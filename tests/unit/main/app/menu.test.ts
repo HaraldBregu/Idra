@@ -50,4 +50,38 @@ describe('application menu widgets', () => {
 		expect(onOpenWidget).toHaveBeenNthCalledWith(1, widgetConfigurations[0]);
 		expect(onOpenWidget).toHaveBeenNthCalledWith(2, widgetConfigurations[1]);
 	});
+
+	it('rebuilds the Widgets submenu from the current widget list', () => {
+		let widgets = [
+			{
+				id: 'weather',
+				title: 'Weather',
+				description: 'Local forecast',
+				metadata: { version: '1.0.0', category: 'information', entry: 'index.html' },
+			},
+		];
+		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
+		buildFromTemplate.mockImplementation((template: MenuEntry[]) => template);
+		const menu = new Menu({
+			onLanguageChange: jest.fn(),
+			onNewWindow: jest.fn(),
+			getWidgets: () => widgets,
+			onOpenWidget: jest.fn(),
+		});
+		menu.create();
+		widgets = [
+			{
+				id: 'clock',
+				title: 'World Clock',
+				description: 'Times around the world',
+				metadata: { version: '2.0.0', category: 'utility', entry: 'index.html' },
+			},
+		];
+
+		menu.create();
+
+		const template = buildFromTemplate.mock.calls[1][0] as MenuEntry[];
+		const widgetsMenu = template.find((entry) => entry.label === 'Widgets');
+		expect(widgetsMenu?.submenu?.map((entry) => entry.label)).toEqual(['World Clock']);
+	});
 });

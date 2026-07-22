@@ -18,7 +18,11 @@ export function listWidgets(appLocation?: string): Widget[] {
 		const manifest = readWidgetManifest(directory.name, appLocation);
 		if (!manifest) continue;
 		const entry = widgetEntryPath(directory.name, manifest.metadata.entry, appLocation);
-		if (!existsSync(entry) || !statSync(entry).isFile()) continue;
+		try {
+			if (!statSync(entry).isFile()) continue;
+		} catch {
+			continue;
+		}
 		widgets.push({ id: directory.name, ...manifest });
 	}
 	return widgets;
