@@ -19,15 +19,15 @@ describe('application menu widgets', () => {
 		const widgetConfigurations = [
 			{
 				id: 'weather',
-				name: 'Weather',
+				title: 'Weather',
 				description: 'Local forecast',
-				metadata: { version: '1.0.0' },
+				metadata: { version: '1.0.0', category: 'information', entry: 'index.html' },
 			},
 			{
 				id: 'clock',
-				name: 'World Clock',
+				title: 'World Clock',
 				description: 'Times around the world',
-				metadata: { version: '2.0.0' },
+				metadata: { version: '2.0.0', category: 'utility', entry: 'index.html' },
 			},
 		];
 		const onOpenWidget = jest.fn();

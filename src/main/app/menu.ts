@@ -92,7 +92,7 @@ export class Menu {
 			{
 				label: m.widgets,
 				submenu: this.callbacks.getWidgets().map((widget) => ({
-					label: widget.name,
+					label: widget.title,
 					click: (): void => this.callbacks.onOpenWidget(widget),
 				})),
 			},

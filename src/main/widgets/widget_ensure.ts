@@ -2,11 +2,13 @@ import { existsSync, mkdirSync } from 'node:fs';
 import { listWidgets } from './widget_list';
 import { widgetsRoot } from './widget_root';
 import { widgetsSettingsPath } from './widget_settings';
-import { storeWidgets } from './widget_store';
-import type { WidgetConfiguration } from './widget_types';
+import { storeWidgetSettings } from './widget_store';
+import type { Widget } from './widget_types';
 
-export function ensureWidgets(appLocation?: string): WidgetConfiguration[] {
+export function ensureWidgets(appLocation?: string): Widget[] {
 	mkdirSync(widgetsRoot(appLocation), { recursive: true });
-	if (!existsSync(widgetsSettingsPath(appLocation))) storeWidgets([], appLocation);
+	if (!existsSync(widgetsSettingsPath(appLocation))) {
+		storeWidgetSettings({ enabled: true }, appLocation);
+	}
 	return listWidgets(appLocation);
 }

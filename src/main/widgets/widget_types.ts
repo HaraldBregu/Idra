@@ -1,15 +1,20 @@
-export type WidgetConfiguration = {
-	id: string;
+export type WidgetMetadata = {
+	version: string;
+	category: string;
+	entry: string;
+	[key: string]: unknown;
 };
 
 export type WidgetManifest = {
-	name: string;
+	title: string;
 	description: string;
-	metadata: Record<string, unknown>;
+	metadata: WidgetMetadata;
 };
 
-export type Widget = WidgetConfiguration & WidgetManifest;
+export type Widget = WidgetManifest & {
+	id: string;
+};
 
-export type WidgetsSettings = {
-	widgets: WidgetConfiguration[];
+export type WidgetSettings = {
+	enabled: boolean;
 };

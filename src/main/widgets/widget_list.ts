@@ -1,25 +1,25 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { widgetPagePath } from './widget_page';
+import { existsSync, readdirSync, statSync } from 'node:fs';
+import { widgetEntryPath } from './widget_entry';
+import { isWidgetId } from './widget_id';
 import { readWidgetManifest } from './widget_read';
-import { widgetsSettingsPath } from './widget_settings';
-import { isWidgetConfiguration } from './widget_validate';
-import type { Widget, WidgetsSettings } from './widget_types';
+import { widgetsRoot } from './widget_root';
+import { readWidgetSettings } from './widget_settings_read';
+import type { Widget } from './widget_types';
 
 export function listWidgets(appLocation?: string): Widget[] {
-	const file = widgetsSettingsPath(appLocation);
-	if (!existsSync(file)) return [];
-
-	try {
-		const settings = JSON.parse(readFileSync(file, 'utf8')) as Partial<WidgetsSettings>;
-		if (!Array.isArray(settings.widgets)) return [];
-		const widgets: Widget[] = [];
-		for (const configuration of settings.widgets.filter(isWidgetConfiguration)) {
-			if (!existsSync(widgetPagePath(configuration.id, appLocation))) continue;
-			const manifest = readWidgetManifest(configuration.id, appLocation);
-			if (manifest) widgets.push({ id: configuration.id, ...manifest });
-		}
-		return widgets;
-	} catch {
-		return [];
+	if (!readWidgetSettings(appLocation).enabled) return [];
+	const root = widgetsRoot(appLocation);
+	if (!existsSync(root)) return [];
+	const widgets: Widget[] = [];
+	const directories = readdirSync(root, { withFileTypes: true })
+		.filter((entry) => entry.isDirectory() && isWidgetId(entry.name))
+		.sort((left, right) => left.name.localeCompare(right.name));
+	for (const directory of directories) {
+		const manifest = readWidgetManifest(directory.name, appLocation);
+		if (!manifest) continue;
+		const entry = widgetEntryPath(directory.name, manifest.metadata.entry, appLocation);
+		if (!existsSync(entry) || !statSync(entry).isFile()) continue;
+		widgets.push({ id: directory.name, ...manifest });
 	}
+	return widgets;
 }
