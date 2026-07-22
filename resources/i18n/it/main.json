@@ -1027,6 +1027,14 @@
 			"loadError": "Impossibile caricare le impostazioni dei servizi modello.",
 			"saveError": "Impossibile salvare le impostazioni dei servizi modello."
 		},
+		"widgets": {
+			"title": "Widget installati",
+			"description": "App widget esterne che si aprono in una finestra dedicata e possono usare le API dell'app.",
+			"refresh": "Aggiorna",
+			"empty": "Nessun widget installato",
+			"emptyDescription": "Aggiungi una cartella widget che contiene manifest.json e il file di ingresso.",
+			"loadError": "Impossibile caricare i widget."
+		},
 		"skills": {
 			"title": "Abilità installate",
 			"description": "Carica, scarica, ispeziona o rimuovi le abilità locali disponibili per Friday.",
