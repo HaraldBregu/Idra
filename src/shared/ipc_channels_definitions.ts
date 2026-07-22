@@ -154,6 +154,10 @@ export const VideoChannels = {
 	setProviderId: 'video:set-provider-id',
 } as const;
 
+export const WidgetChannels = {
+	list: 'widgets:list',
+} as const;
+
 export const WindowChannels = {
 	minimize: 'window:minimize',
 	maximize: 'window:maximize',
