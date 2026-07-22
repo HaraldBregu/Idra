@@ -146,6 +146,7 @@ export type AgentRunStreamEvent =
 			model: string;
 			effort?: ModelReasoningEffort;
 	  }
+	| { type: 'model_usage'; usage?: AgentTokenUsage }
 	| { type: 'capability_resolution_start' }
 	| ({ type: 'capability_resolution_result' } & AgentCapabilityResolutionSummary)
 	| {
