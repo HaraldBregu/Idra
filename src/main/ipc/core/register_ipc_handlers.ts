@@ -2,6 +2,7 @@ import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
 import { ImageIpc } from '../image';
+import { NotesIpc } from '../notes';
 import { SoundIpc } from '../sound';
 import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
