@@ -40,6 +40,7 @@ const SkillsPage = lazy(() => import('./pages/settings/pages/skills/Page'));
 const SkillDetailsPage = lazy(() => import('./pages/settings/pages/skills/details/Page'));
 const ProvidersPage = lazy(() => import('./pages/settings/pages/providers/Page'));
 const SearchPage = lazy(() => import('./pages/settings/pages/search/Page'));
+const CloudPage = lazy(() => import('./pages/settings/pages/cloud/Page'));
 const TasksPage = lazy(() => import('./pages/settings/pages/tasks/Page'));
 const PoliciesPage = lazy(() => import('./pages/settings/pages/policies/Page'));
 const HealthPage = lazy(() => import('./pages/settings/pages/tasks/health/Page'));
