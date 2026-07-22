@@ -200,6 +200,7 @@ function toHistoryMessages(message: Message): AgentHistoryMessage[] {
 				role: 'assistant',
 				content,
 				contentBlocks: toHistoryContentBlocks(message),
+				...(message.usage ? { usage: message.usage } : {}),
 			},
 		];
 		for (const toolCall of message.toolCalls ?? []) {
