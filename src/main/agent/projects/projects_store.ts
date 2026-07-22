@@ -1,17 +1,16 @@
-import path from 'node:path';
 import Store from 'electron-store';
-import { agentLocation } from '../../shared/agent_location';
+import { projectsRoot } from './projects_root';
 import type { ProjectMetadata } from './projects_types';
 
 type ProjectsSchema = {
 	projects: Record<string, ProjectMetadata>;
 };
 
-const PROJECTS_STORE_NAME = 'projects';
+const SETTINGS_STORE_NAME = 'settings';
 
 const store = new Store<ProjectsSchema>({
-	name: PROJECTS_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	name: SETTINGS_STORE_NAME,
+	cwd: projectsRoot,
 	accessPropertiesByDotNotation: false,
 	defaults: { projects: {} },
 });
