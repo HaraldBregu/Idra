@@ -47,19 +47,22 @@ export async function* runToolCall(
 			tool.defaultPermission
 		);
 
+		if (tool.alwaysAsk) permission = 'ask';
 		if (permission === 'ask' && !interactive) permission = 'deny';
 
 		if (permission === 'ask') {
+			const detail = tool.confirmDetail?.(toolCall.args);
 			yield {
 				type: 'tool_permission_request',
 				toolCallId: toolCall.id,
 				toolName: toolCall.name,
 				input: toolCall.args,
 				mode: 'ask',
+				...(detail ? { detail } : {}),
 			};
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
-			if (decision === 'approve_always') {
+			if (decision === 'approve_always' && !tool.alwaysAsk) {
 				const targets = toolApprovalTargets(toolCall.name, toolCall.args, agentLocation());
 				if (targets.length === 0) {
 					const configured = getToolPermission(toolCall.name);
