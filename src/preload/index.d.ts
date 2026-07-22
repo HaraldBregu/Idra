@@ -77,6 +77,10 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
+export interface WidgetsApi {
+	list: () => Promise<Widget[]>;
+}
+
 export interface SearchApi {
 	getSettings: () => Promise<SearchSettings>;
 	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
