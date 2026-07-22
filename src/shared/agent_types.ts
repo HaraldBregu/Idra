@@ -201,6 +201,7 @@ export type AgentRunStreamEvent =
 			type: 'run_finished';
 			stopReason: AgentRunStopReason;
 			outputChars: number;
+			usage?: AgentTokenUsage;
 	  };
 
 export type AgentResponseEvent = AgentRunStreamEvent & {
