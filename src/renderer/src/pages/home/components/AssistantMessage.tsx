@@ -169,6 +169,8 @@ export function AssistantMessage({
 
 	const hasContent = message.content.length > 0;
 	const messageText = message.content.trim();
+	const outputTokens = message.outputTokens ?? 0;
+	const hasTokenUsage = !isStreaming && outputTokens > 0;
 	const hasTools = message.tools.length > 0;
 	const skillTools = message.tools.filter(isSkillTool);
 	const otherTools = message.tools.filter((tool) => !isSkillTool(tool));
