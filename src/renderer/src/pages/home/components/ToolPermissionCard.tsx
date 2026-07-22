@@ -59,15 +59,17 @@ export function ToolPermissionCard({
 				>
 					Deny
 				</Button>
-				<Button
-					type="button"
-					variant="outline"
-					size="sm"
-					disabled={responded}
-					onClick={() => respond('approve_always')}
-				>
-					Always allow
-				</Button>
+				{canAlwaysAllow && (
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						disabled={responded}
+						onClick={() => respond('approve_always')}
+					>
+						Always allow
+					</Button>
+				)}
 				<Button
 					type="button"
 					variant="default"
