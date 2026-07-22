@@ -36,6 +36,7 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
 	safeRegister('text', () => new TextIpc().register(undefined, eventBus));
 	safeRegister('video', () => new VideoIpc().register(undefined, eventBus));
+	safeRegister('widgets', () => new WidgetsIpc().register(undefined, eventBus));
 	safeRegister('window', () => new WindowIpc().register({ logger }, eventBus));
 
 	logger.info('Bootstrap', 'Registered IPC modules');
