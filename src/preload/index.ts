@@ -705,4 +705,6 @@ if (process.contextIsolated) {
 	globalThis.sound = sound;
 	// @ts-ignore (define in dts)
 	globalThis.text = text;
+	// @ts-ignore (define in dts)
+	globalThis.widgets = widgets;
 }
