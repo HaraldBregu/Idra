@@ -78,6 +78,19 @@ describe('widget storage and loading', () => {
 		});
 	});
 
+	it('removes legacy catalog data while preserving the enabled setting', () => {
+		fs.mkdirSync(path.dirname(widgetsSettingsPath(appLocation)), { recursive: true });
+		fs.writeFileSync(
+			widgetsSettingsPath(appLocation),
+			JSON.stringify({ enabled: false, widgets: [{ id: 'project' }] })
+		);
+
+		expect(ensureWidgets(appLocation)).toEqual([]);
+		expect(JSON.parse(fs.readFileSync(widgetsSettingsPath(appLocation), 'utf8'))).toEqual({
+			enabled: false,
+		});
+	});
+
 	it('discovers widget folders from their manifests', () => {
 		installWidget(appLocation, 'project', projectManifest);
 
