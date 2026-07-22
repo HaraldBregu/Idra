@@ -15,4 +15,5 @@ export interface AgentContext {
 	loadedSkills?: LoadedSkill[];
 	tools?: ToolContextState[];
 	project?: string;
+	cancelled?: boolean;
 }
