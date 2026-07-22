@@ -38,6 +38,7 @@ export interface AgentChatState {
 	readonly messages: readonly HomeChatMessage[];
 	readonly activeAgentId?: string;
 	readonly activeRunId?: string;
+	readonly pendingTurnOutputTokens?: number;
 }
 
 export const welcomeMessage: AgentMessage = {
