@@ -41,6 +41,7 @@ export type ToolPart = {
 	durationMs?: number;
 	toolCallId?: string;
 	errorText?: string;
+	outputTokens?: number;
 };
 
 export type ToolProps = {
