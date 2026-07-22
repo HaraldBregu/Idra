@@ -36,6 +36,11 @@ describe('widget storage and loading', () => {
 			{ id: 'notes', name: 'Notes' },
 			{ id: 'project', name: 'Project' },
 		];
+		for (const widget of widgets) {
+			const page = widgetPagePath(widget.id, appLocation);
+			fs.mkdirSync(path.dirname(page), { recursive: true });
+			fs.writeFileSync(page, `<h1>${widget.name}</h1>`);
+		}
 
 		storeWidgets(widgets, appLocation);
 
@@ -45,36 +50,18 @@ describe('widget storage and loading', () => {
 		expect(listWidgets(appLocation)).toEqual(widgets);
 	});
 
-	it('installs default pages into one folder per widget without overwriting them', () => {
-		const templates = path.join(appLocation, 'templates');
-		const notesTemplate = path.join(templates, 'notes.html');
-		const projectTemplate = path.join(templates, 'project.html');
-		fs.mkdirSync(templates);
-		fs.writeFileSync(notesTemplate, '<h1>Notes</h1>');
-		fs.writeFileSync(projectTemplate, '<h1>Project</h1>');
-
-		const widgets = ensureWidgets(appLocation, {
-			notes: notesTemplate,
-			project: projectTemplate,
+	it('initializes an empty app-data catalog without installing widget pages', () => {
+		expect(ensureWidgets(appLocation)).toEqual([]);
+		expect(JSON.parse(fs.readFileSync(widgetsSettingsPath(appLocation), 'utf8'))).toEqual({
+			widgets: [],
 		});
-
-		expect(widgets).toEqual([
-			{ id: 'notes', name: 'Notes' },
-			{ id: 'project', name: 'Project' },
-		]);
-		expect(fs.readFileSync(widgetPagePath('notes', appLocation), 'utf8')).toBe('<h1>Notes</h1>');
-		expect(fs.readFileSync(widgetPagePath('project', appLocation), 'utf8')).toBe(
-			'<h1>Project</h1>'
-		);
-
-		fs.writeFileSync(widgetPagePath('notes', appLocation), '<h1>Custom Notes</h1>');
-		ensureWidgets(appLocation, { notes: notesTemplate, project: projectTemplate });
-		expect(fs.readFileSync(widgetPagePath('notes', appLocation), 'utf8')).toBe(
-			'<h1>Custom Notes</h1>'
-		);
+		expect(fs.readdirSync(path.join(appLocation, 'widgets'))).toEqual(['settings.json']);
 	});
 
 	it('filters invalid widget configurations when retrieving the list', () => {
+		const notesPage = widgetPagePath('notes', appLocation);
+		fs.mkdirSync(path.dirname(notesPage), { recursive: true });
+		fs.writeFileSync(notesPage, '<h1>Notes</h1>');
 		fs.mkdirSync(path.dirname(widgetsSettingsPath(appLocation)), { recursive: true });
 		fs.writeFileSync(
 			widgetsSettingsPath(appLocation),
@@ -88,6 +75,11 @@ describe('widget storage and loading', () => {
 		);
 
 		expect(listWidgets(appLocation)).toEqual([{ id: 'notes', name: 'Notes' }]);
+	});
+
+	it('omits configured widgets that do not exist under the app-data widgets folder', () => {
+		storeWidgets([{ id: 'notes', name: 'Notes' }], appLocation);
+		expect(listWidgets(appLocation)).toEqual([]);
 	});
 
 	it('loads a retrieved widget page in a standalone window', () => {
