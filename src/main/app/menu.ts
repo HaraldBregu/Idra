@@ -1,11 +1,12 @@
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
+import type { WidgetConfiguration } from '../widgets';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
 	onNewWindow: () => void;
-	onNotesWidget: () => void;
-	onProjectWidget: () => void;
+	getWidgets: () => WidgetConfiguration[];
+	onOpenWidget: (widget: WidgetConfiguration) => void;
 }
 
 export class Menu {
@@ -90,16 +91,10 @@ export class Menu {
 			},
 			{
 				label: m.widgets,
-				submenu: [
-					{
-						label: m.notes,
-						click: (): void => this.callbacks.onNotesWidget(),
-					},
-					{
-						label: m.project,
-						click: (): void => this.callbacks.onProjectWidget(),
-					},
-				],
+				submenu: this.callbacks.getWidgets().map((widget) => ({
+					label: widget.name,
+					click: (): void => this.callbacks.onOpenWidget(widget),
+				})),
 			},
 			{
 				label: m.window,

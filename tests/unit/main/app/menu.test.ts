@@ -5,8 +5,6 @@ jest.mock('@electron-toolkit/utils', () => ({ is: { dev: true } }));
 jest.mock('../../../../src/main/app/i18n', () => ({
 	loadTranslations: () => ({
 		widgets: 'Widgets',
-		notes: 'Notes',
-		project: 'Project',
 	}),
 }));
 
@@ -18,15 +16,18 @@ type MenuEntry = {
 
 describe('application menu widgets', () => {
 	it('opens Notes and Project from the Widgets menu', () => {
-		const onNotesWidget = jest.fn();
-		const onProjectWidget = jest.fn();
+		const widgets = [
+			{ id: 'notes', name: 'Notes' },
+			{ id: 'project', name: 'Project' },
+		];
+		const onOpenWidget = jest.fn();
 		const buildFromTemplate = ElectronMenu.buildFromTemplate as jest.Mock;
 		buildFromTemplate.mockImplementation((template: MenuEntry[]) => template);
 		const menu = new Menu({
 			onLanguageChange: jest.fn(),
 			onNewWindow: jest.fn(),
-			onNotesWidget,
-			onProjectWidget,
+			getWidgets: () => widgets,
+			onOpenWidget,
 		});
 
 		menu.create();
@@ -36,7 +37,7 @@ describe('application menu widgets', () => {
 		widgets?.submenu?.find((entry) => entry.label === 'Notes')?.click?.();
 		widgets?.submenu?.find((entry) => entry.label === 'Project')?.click?.();
 
-		expect(onNotesWidget).toHaveBeenCalledTimes(1);
-		expect(onProjectWidget).toHaveBeenCalledTimes(1);
+		expect(onOpenWidget).toHaveBeenNthCalledWith(1, widgets[0]);
+		expect(onOpenWidget).toHaveBeenNthCalledWith(2, widgets[1]);
 	});
 });

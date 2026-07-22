@@ -12,8 +12,7 @@ import {
 } from './app/settings_store';
 import type { AppLanguage } from '../shared/app_types';
 import { Menu } from './app/menu';
-import { renderNotes } from './widgets/notes';
-import { renderProject } from './widgets/project';
+import { ensureWidgets, listWidgets, loadWidget } from './widgets';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
 import {
@@ -126,13 +125,14 @@ const menuManager = new Menu({
 		logger.info('Menu', 'Creating new launcher window');
 		mainWindow.createAdditionalWindow();
 	},
-	onNotesWidget: () => renderNotes(windowFactory),
-	onProjectWidget: () => renderProject(windowFactory),
+	getWidgets: () => listWidgets(),
+	onOpenWidget: (widget) => loadWidget(windowFactory, widget),
 });
 
 app.whenReady().then(async () => {
 	registerLocalResourceProtocolHandler(logger);
 	setupMediaPermissionHandlers();
+	ensureWidgets();
 	syncSkills();
 	syncProjects();
 	// Apply persisted settings on startup (updateLanguage builds the menu)

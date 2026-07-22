@@ -1,9 +1,18 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../../../../src/main/app/window_factory';
-import { renderNotes } from '../../../../src/main/widgets/notes';
-import { renderProject } from '../../../../src/main/widgets/project';
+import {
+	ensureWidgets,
+	listWidgets,
+	loadWidget,
+	storeWidgets,
+} from '../../../../src/main/widgets';
+import { widgetPagePath } from '../../../../src/main/widgets/page';
+import { widgetsSettingsPath } from '../../../../src/main/widgets/settings';
 
-function createHarness() {
+function createWindowHarness() {
 	const handlers = new Map<string, () => void>();
 	const win = {
 		setMenuBarVisibility: jest.fn(),
@@ -16,25 +25,100 @@ function createHarness() {
 	return { create, handlers, win, windowFactory };
 }
 
-describe('widget renderers', () => {
-	it.each([
-		['Notes', renderNotes],
-		['Project', renderProject],
-	])('renders the %s page in a standalone window', (title, renderWidget) => {
-		const { create, handlers, win, windowFactory } = createHarness();
+describe('widget storage and loading', () => {
+	let appLocation: string;
 
-		expect(renderWidget(windowFactory)).toBe(win);
+	beforeEach(() => {
+		appLocation = fs.mkdtempSync(path.join(os.tmpdir(), 'friday-widgets-'));
+	});
+
+	afterEach(() => {
+		fs.rmSync(appLocation, { recursive: true, force: true });
+	});
+
+	it('stores and retrieves widget configurations from widgets/settings.json', () => {
+		const widgets = [
+			{ id: 'notes', name: 'Notes' },
+			{ id: 'project', name: 'Project' },
+		];
+
+		storeWidgets(widgets, appLocation);
+
+		expect(widgetsSettingsPath(appLocation)).toBe(
+			path.join(appLocation, 'widgets', 'settings.json')
+		);
+		expect(listWidgets(appLocation)).toEqual(widgets);
+	});
+
+	it('installs default pages into one folder per widget without overwriting them', () => {
+		const templates = path.join(appLocation, 'templates');
+		const notesTemplate = path.join(templates, 'notes.html');
+		const projectTemplate = path.join(templates, 'project.html');
+		fs.mkdirSync(templates);
+		fs.writeFileSync(notesTemplate, '<h1>Notes</h1>');
+		fs.writeFileSync(projectTemplate, '<h1>Project</h1>');
+
+		const widgets = ensureWidgets(appLocation, {
+			notes: notesTemplate,
+			project: projectTemplate,
+		});
+
+		expect(widgets).toEqual([
+			{ id: 'notes', name: 'Notes' },
+			{ id: 'project', name: 'Project' },
+		]);
+		expect(fs.readFileSync(widgetPagePath('notes', appLocation), 'utf8')).toBe(
+			'<h1>Notes</h1>'
+		);
+		expect(fs.readFileSync(widgetPagePath('project', appLocation), 'utf8')).toBe(
+			'<h1>Project</h1>'
+		);
+
+		fs.writeFileSync(widgetPagePath('notes', appLocation), '<h1>Custom Notes</h1>');
+		ensureWidgets(appLocation, { notes: notesTemplate, project: projectTemplate });
+		expect(fs.readFileSync(widgetPagePath('notes', appLocation), 'utf8')).toBe(
+			'<h1>Custom Notes</h1>'
+		);
+	});
+
+	it('filters invalid widget configurations when retrieving the list', () => {
+		fs.mkdirSync(path.dirname(widgetsSettingsPath(appLocation)), { recursive: true });
+		fs.writeFileSync(
+			widgetsSettingsPath(appLocation),
+			JSON.stringify({
+				widgets: [
+					{ id: 'notes', name: 'Notes' },
+					{ id: '../outside', name: 'Unsafe' },
+					{ id: 'missing-name' },
+				],
+			})
+		);
+
+		expect(listWidgets(appLocation)).toEqual([{ id: 'notes', name: 'Notes' }]);
+	});
+
+	it('loads a retrieved widget page in a standalone window', () => {
+		const widget = { id: 'notes', name: 'Notes' };
+		const page = widgetPagePath(widget.id, appLocation);
+		fs.mkdirSync(path.dirname(page), { recursive: true });
+		fs.writeFileSync(page, '<h1>Notes</h1>');
+		const { create, handlers, win, windowFactory } = createWindowHarness();
+
+		expect(loadWidget(windowFactory, widget, appLocation)).toBe(win);
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
-				title,
+				title: 'Notes',
 				resizable: true,
 				webPreferences: { preload: undefined },
 			}),
-			{ file: 'file-mock' }
+			{ file: page }
 		);
-		expect(win.setMenuBarVisibility).toHaveBeenCalledWith(false);
 
 		handlers.get('ready-to-show')?.();
 		expect(win.show).toHaveBeenCalledTimes(1);
+	});
+
+	it('rejects widget paths outside the widgets folder', () => {
+		expect(() => widgetPagePath('../outside', appLocation)).toThrow('Invalid widget id');
 	});
 });

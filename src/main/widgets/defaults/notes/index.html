@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'none'; style-src 'unsafe-inline'; form-action 'none'"
+		/>
+		<title>Notes</title>
+		<style>
+			:root {
+				color-scheme: light dark;
+				font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+				background: #f5f5f2;
+				color: #252522;
+			}
+			* { box-sizing: border-box; }
+			body { margin: 0; min-height: 100vh; background: #f5f5f2; }
+			.app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+			aside { padding: 28px 20px; border-right: 1px solid #deded8; background: #ecece7; }
+			h1 { margin: 0 0 28px; font-size: 18px; letter-spacing: -0.02em; }
+			.label { margin: 0 8px 10px; color: #77776f; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+			.note { width: 100%; margin-bottom: 8px; padding: 12px; border: 0; border-radius: 10px; background: transparent; color: inherit; text-align: left; }
+			.note strong, .note span { display: block; }
+			.note strong { margin-bottom: 4px; font-size: 13px; }
+			.note span { overflow: hidden; color: #77776f; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+			.note[aria-current="page"] { background: #fff; box-shadow: 0 1px 3px #0000000d; }
+			main { display: flex; flex-direction: column; padding: 48px 56px; background: #fff; }
+			.meta { margin-bottom: 22px; color: #8a8a82; font-size: 12px; }
+			input, textarea { width: 100%; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; }
+			input { margin-bottom: 22px; font-size: 30px; font-weight: 700; letter-spacing: -0.035em; }
+			textarea { flex: 1; min-height: 340px; resize: none; font-family: Georgia, serif; font-size: 17px; line-height: 1.75; }
+			footer { display: flex; justify-content: space-between; padding-top: 20px; border-top: 1px solid #ededE8; color: #8a8a82; font-size: 11px; }
+			@media (prefers-color-scheme: dark) {
+				:root, body { background: #191918; color: #ededE8; }
+				aside { border-color: #353531; background: #222220; }
+				main, .note[aria-current="page"] { background: #191918; }
+				.note[aria-current="page"] { box-shadow: inset 0 0 0 1px #383834; }
+				footer { border-color: #353531; }
+			}
+			@media (max-width: 680px) { .app { grid-template-columns: 180px 1fr; } main { padding: 36px 30px; } }
+		</style>
+	</head>
+	<body>
+		<div class="app">
+			<aside>
+				<h1>Notes</h1>
+				<p class="label">Today</p>
+				<button class="note" aria-current="page"><strong>Widget ideas</strong><span>A small place for quick thoughts...</span></button>
+				<button class="note"><strong>Meeting recap</strong><span>Decisions and next actions</span></button>
+				<button class="note"><strong>Reading list</strong><span>Designing calm software</span></button>
+			</aside>
+			<main>
+				<p class="meta">Wednesday, July 22</p>
+				<input aria-label="Note title" value="Widget ideas" />
+				<textarea aria-label="Note body">A useful widget should open quickly, stay focused, and feel like a natural extension of Friday.
+
+This demo is a standalone HTML app. You can edit this text directly.</textarea>
+				<footer><span>Demo note</span><span>Editable</span></footer>
+			</main>
+		</div>
+	</body>
+</html>
