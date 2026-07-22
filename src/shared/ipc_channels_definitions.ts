@@ -154,6 +154,14 @@ export const VideoChannels = {
 	setProviderId: 'video:set-provider-id',
 } as const;
 
+export const NotesChannels = {
+	list: 'notes:list',
+	get: 'notes:get',
+	create: 'notes:create',
+	update: 'notes:update',
+	delete: 'notes:delete',
+} as const;
+
 export const WidgetChannels = {
 	list: 'widgets:list',
 } as const;
