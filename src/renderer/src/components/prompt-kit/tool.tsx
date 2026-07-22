@@ -23,6 +23,7 @@ import {
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { formatDuration } from './duration';
 import { isProjectToolType } from './project';
 
 export type ToolPart = {
@@ -61,10 +62,6 @@ function formatValue(value: unknown): string {
 	if (typeof value === 'string') return value;
 	if (typeof value === 'object') return JSON.stringify(value, null, 2);
 	return String(value);
-}
-
-function formatDuration(ms: number): string {
-	return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
 }
 
 export function toolIcon(toolPart: ToolPart): typeof Wrench {

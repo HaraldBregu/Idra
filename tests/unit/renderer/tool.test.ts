@@ -31,13 +31,13 @@ describe('toolIcon', () => {
 		const { container } = render(
 			createElement(ToolActivityGroup, {
 				tools: [
-					{ ...toolPart('create_project'), toolCallId: 'create-project' },
-					{ ...toolPart('list_projects'), toolCallId: 'list-projects' },
+					{ ...toolPart('create_project'), toolCallId: 'create-project', durationMs: 120 },
+					{ ...toolPart('list_projects'), toolCallId: 'list-projects', durationMs: 230 },
 				],
 			})
 		);
 
-		const group = screen.getByRole('button', { name: /Used 2 project tools/ });
+		const group = screen.getByRole('button', { name: /Used 2 project tools 350ms/ });
 		expect(container.querySelectorAll('svg.lucide-folder-kanban')).toHaveLength(1);
 
 		fireEvent.click(group);

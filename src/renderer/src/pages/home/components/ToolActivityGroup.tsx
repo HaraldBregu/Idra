@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { formatDuration } from '@/components/prompt-kit/duration';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
 import { isProjectToolType } from '@/components/prompt-kit/project';
 import { Tool, toolIcon } from '@/components/prompt-kit/tool';
@@ -41,6 +42,8 @@ function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactEle
 	const isRunning = group.tools.some(isToolRunning);
 	const label = toolGroupLabel(group.type, group.tools);
 	const KindIcon = toolIcon(group.tools[0]);
+	const hasDuration = group.tools.some((tool) => tool.durationMs !== undefined);
+	const durationMs = group.tools.reduce((total, tool) => total + (tool.durationMs ?? 0), 0);
 
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -56,6 +59,11 @@ function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactEle
 							<span className="flex min-w-0 items-baseline gap-1 truncate text-xs font-medium">
 								{isRunning ? <TextShimmer>{label}</TextShimmer> : <span>{label}</span>}
 							</span>
+							{hasDuration && (
+								<span className="shrink-0 text-[10px] tabular-nums text-muted-foreground/50">
+									{formatDuration(durationMs)}
+								</span>
+							)}
 							<ChevronDown
 								className={cn(
 									'size-3 shrink-0 transition-transform duration-200',
