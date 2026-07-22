@@ -180,6 +180,51 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		descriptionKey: 'settings.searchEngine.tavilyDescription',
 		keywords: 'tavily web search api key',
 	},
+	// Cloud storage
+	{
+		path: '/settings/cloud',
+		labelKey: 'settings.cloud.connectionTitle',
+		descriptionKey: 'settings.cloud.connectionDescription',
+		keywords: 's3 object storage endpoint region bucket url minio aws provider',
+	},
+	{
+		path: '/settings/cloud',
+		labelKey: 'settings.cloud.credentialsTitle',
+		keywords: 'access key id secret access key api credentials token',
+	},
+	{
+		path: '/settings/cloud',
+		labelKey: 'settings.cloud.forcePathStyle',
+		descriptionKey: 'settings.cloud.forcePathStyleDescription',
+		keywords: 'minio path style option compatible',
+	},
+	// MCP
+	{
+		path: '/settings/mcp',
+		labelKey: 'settings.mcp.title',
+		descriptionKey: 'settings.mcp.description',
+		keywords: 'model context protocol server external tools remote local stdio sse http',
+	},
+	{
+		path: '/settings/mcp',
+		labelKey: 'settings.mcp.addServer',
+		descriptionKey: 'settings.mcp.emptyDescription',
+		keywords: 'new mcp server command url transport connect',
+	},
+	// Library
+	{
+		path: '/settings/library',
+		labelKey: 'settings.library.itemsTitle',
+		descriptionKey: 'settings.library.description',
+		keywords: 'media files browse agent library images audio video documents',
+	},
+	// Widgets
+	{
+		path: '/settings/widgets',
+		labelKey: 'settings.widgets.title',
+		descriptionKey: 'settings.widgets.description',
+		keywords: 'external widget apps window manifest api install folder entry',
+	},
 	// Channels
 	{
 		path: '/settings/channels',
