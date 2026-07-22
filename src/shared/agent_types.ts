@@ -57,6 +57,7 @@ export interface AgentHistoryMessage {
 	isError?: boolean;
 	status?: AgentToolResultStatus;
 	output?: unknown;
+	usage?: AgentTokenUsage;
 }
 
 export interface AgentSessionSummary {
