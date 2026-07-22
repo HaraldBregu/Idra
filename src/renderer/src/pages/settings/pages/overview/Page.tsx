@@ -14,20 +14,10 @@ import {
 	type SettingsModelServiceItem,
 } from '../../navigation';
 
-// Each group owns a hue applied as a soft tint to the icon *container* (the
-// icon glyph keeps its default muted color). Items within a group alternate
-// opacity for a subtle per-item difference. Low-contrast band: light ~10-15%,
-// dark ~20-25%. Colors are aligned index-for-index with paths, as literal
-// class strings so Tailwind's static extraction keeps them.
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
 		paths: ['/settings/application', '/settings/system', '/settings/providers'],
-		colors: [
-			'bg-slate-500/10 dark:bg-slate-500/20',
-			'bg-slate-500/15 dark:bg-slate-500/25',
-			'bg-slate-500/10 dark:bg-slate-500/20',
-		],
 	},
 	{
 		id: 'primary',
@@ -37,13 +27,6 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/mcp',
 			'/settings/library',
 			'/settings/tasks',
-		],
-		colors: [
-			'bg-blue-500/10 dark:bg-blue-500/20',
-			'bg-blue-500/15 dark:bg-blue-500/25',
-			'bg-blue-500/10 dark:bg-blue-500/20',
-			'bg-blue-500/15 dark:bg-blue-500/25',
-			'bg-blue-500/10 dark:bg-blue-500/20',
 		],
 	},
 	{
@@ -55,33 +38,22 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/video',
 			'/settings/music',
 		],
-		colors: [
-			'bg-violet-500/10 dark:bg-violet-500/20',
-			'bg-violet-500/15 dark:bg-violet-500/25',
-			'bg-violet-500/10 dark:bg-violet-500/20',
-			'bg-violet-500/15 dark:bg-violet-500/25',
-			'bg-violet-500/10 dark:bg-violet-500/20',
-		],
 	},
 	{
 		id: 'channels',
 		paths: ['/settings/channels'],
-		colors: ['bg-emerald-500/10 dark:bg-emerald-500/20'],
 	},
 	{
 		id: 'widgets',
 		paths: ['/settings/widgets'],
-		colors: ['bg-amber-500/10 dark:bg-amber-500/20'],
 	},
 	{
 		id: 'cloud',
 		paths: ['/settings/cloud'],
-		colors: ['bg-cyan-500/10 dark:bg-cyan-500/20'],
 	},
 	{
 		id: 'search',
 		paths: ['/settings/search'],
-		colors: ['bg-rose-500/10 dark:bg-rose-500/20'],
 	},
 ] as const;
 
