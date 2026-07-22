@@ -1,6 +1,12 @@
-import type { JsonValue } from 'type-fest';
+export type NoteMetadata = Record<string, NoteMetadataValue>;
 
-export type NoteMetadata = Record<string, JsonValue>;
+export type NoteMetadataValue =
+	| string
+	| number
+	| boolean
+	| null
+	| NoteMetadataValue[]
+	| { [key: string]: NoteMetadataValue };
 
 export interface NoteSettingsEntry {
 	title: string;

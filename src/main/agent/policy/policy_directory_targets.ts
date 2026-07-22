@@ -22,6 +22,13 @@ const SCHEDULE_TOOLS = new Set([
 	'list_schedules',
 	'run_schedule_now',
 ]);
+const NOTE_TOOLS = new Set([
+	'create_note',
+	'read_note',
+	'update_note',
+	'delete_note',
+	'search_notes',
+]);
 
 export function directoryPermissionTargets(
 	toolName: string,
@@ -46,6 +53,7 @@ export function directoryPermissionTargets(
 	if (fileName) return [realPath(path.join(baseDir, fileName))];
 	if (MEDIA_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'library', '.generated'))];
 	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'cron.json'))];
+	if (NOTE_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'notes'))];
 	if (toolName === 'load_skill')
 		return [realPath(path.join(baseDir, 'skills', String(args.name ?? '')))];
 	return [];

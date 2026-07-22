@@ -9,6 +9,7 @@ export type {
 	CreateNoteInput,
 	Note,
 	NoteMetadata,
+	NoteMetadataValue,
 	NoteSettingsEntry,
 	NotesSettings,
 	UpdateNoteInput,

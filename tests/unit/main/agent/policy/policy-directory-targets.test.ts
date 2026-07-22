@@ -58,6 +58,15 @@ describe('directoryPermissionTargets', () => {
 		]);
 	});
 
+	it.each(['create_note', 'read_note', 'update_note', 'delete_note', 'search_notes'])(
+		'maps %s to the agent notes directory',
+		(toolName) => {
+			expect(directoryPermissionTargets(toolName, {}, agentDir)).toEqual([
+				path.join(agentDir, 'notes'),
+			]);
+		}
+	);
+
 	it('uses the originating exec workdir for process calls', () => {
 		const session = {
 			id: 'policy-session',

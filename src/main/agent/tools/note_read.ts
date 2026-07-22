@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { readNote } from '../notes';
 import type { Config, Tool } from '../types';
 import { noteIdSchema } from './note_schema';
@@ -8,7 +9,7 @@ export function readNoteTool(config: Config): Tool {
 		name: 'read_note',
 		description: 'Read a persistent note by ID, including its content and metadata.',
 		defaultPermission: 'allow',
-		inputSchema: noteIdSchema.transform((id) => ({ id })),
+		inputSchema: z.object({ id: noteIdSchema }),
 		execute: ({ id }) => readNote(config, id) ?? { error: `Note '${id}' not found.` },
 	});
 }

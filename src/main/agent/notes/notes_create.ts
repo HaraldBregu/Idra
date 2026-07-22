@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import type { Config } from '../types';
 import { noteFilePath } from './notes_file_path';
 import { readNotesSettings } from './notes_read_settings';
+import { notesRoot } from './notes_root';
 import type { CreateNoteInput, Note } from './notes_types';
 import { writeNotesSettings } from './notes_write_settings';
 
@@ -18,7 +19,7 @@ export function createNote(config: Config, input: CreateNoteInput): Note {
 		updatedAt: now,
 		metadata: input.metadata ?? {},
 	};
-	fs.mkdirSync(noteFilePath(config, id).replace(/[/\\][^/\\]+$/, ''), { recursive: true });
+	fs.mkdirSync(notesRoot(config), { recursive: true });
 	fs.writeFileSync(noteFilePath(config, id), note.content, 'utf8');
 	settings.notes[id] = {
 		title: note.title,
