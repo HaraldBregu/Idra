@@ -18,6 +18,7 @@ import {
 	AgentChannels,
 	AppChannels,
 	ChannelsChannels,
+	CloudChannels,
 	ImageChannels,
 	SoundChannels,
 	ProviderChannels,
