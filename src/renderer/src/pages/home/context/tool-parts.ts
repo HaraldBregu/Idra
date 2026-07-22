@@ -110,7 +110,8 @@ export function applyAgentResponseEventToTools(
 }
 
 export function agentToolPartFromHistoryBlock(
-	block: AgentHistoryContentBlock
+	block: AgentHistoryContentBlock,
+	outputTokens?: number
 ): AgentToolPart | undefined {
 	if (block.type !== 'tool_use') return undefined;
 
@@ -119,5 +120,6 @@ export function agentToolPartFromHistoryBlock(
 		type: block.toolName,
 		state: 'input-available',
 		input: block.toolArgs ?? {},
+		outputTokens,
 	};
 }
