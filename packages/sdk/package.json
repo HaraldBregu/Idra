@@ -1,0 +1,23 @@
+{
+  "name": "@friday/sdk",
+  "version": "0.1.0",
+  "description": "Friday SDK — demo scoped public package",
+  "type": "module",
+  "main": "index.js",
+  "exports": "./index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "demo": "node index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "friday",
+    "sdk"
+  ],
+  "author": "Harald Bregu <harald.bregu@gmail.com>",
+  "license": "MIT"
+}
