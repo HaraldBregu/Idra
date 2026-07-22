@@ -14,6 +14,7 @@ export interface PendingToolPermission {
 	readonly toolCallId: string;
 	readonly toolName: string;
 	readonly input: unknown;
+	readonly detail?: string;
 }
 
 export interface AgentMessage {
