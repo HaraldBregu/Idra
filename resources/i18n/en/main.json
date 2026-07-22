@@ -1027,6 +1027,14 @@
 			"loadError": "Unable to load model service settings.",
 			"saveError": "Unable to save model service settings."
 		},
+		"widgets": {
+			"title": "Installed widgets",
+			"description": "External widget apps that open in their own window and can call the app API.",
+			"refresh": "Refresh",
+			"empty": "No widgets installed",
+			"emptyDescription": "Add a widget folder that contains a manifest.json and entry file.",
+			"loadError": "Unable to load widgets."
+		},
 		"skills": {
 			"title": "Installed skills",
 			"description": "Upload, download, inspect, or remove local skills available to Friday.",
