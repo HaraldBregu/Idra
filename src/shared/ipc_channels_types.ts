@@ -311,6 +311,41 @@ export interface SearchInvokeChannelMap {
 	};
 }
 
+export interface CloudInvokeChannelMap {
+	[CloudChannels.getConfig]: {
+		args: [];
+		result: import('./cloud_types').CloudConfig;
+	};
+	[CloudChannels.saveConfig]: {
+		args: [config: import('./cloud_types').CloudConfig];
+		result: import('./cloud_types').CloudConfig;
+	};
+	[CloudChannels.testConnection]: {
+		args: [config: import('./cloud_types').CloudConfig];
+		result: import('./cloud_types').CloudTestResult;
+	};
+	[CloudChannels.listObjects]: {
+		args: [prefix?: string];
+		result: import('./cloud_types').CloudObjectInfo[];
+	};
+	[CloudChannels.putObject]: {
+		args: [key: string, data: Uint8Array, contentType?: string];
+		result: void;
+	};
+	[CloudChannels.getObject]: {
+		args: [key: string];
+		result: Uint8Array;
+	};
+	[CloudChannels.deleteObject]: {
+		args: [key: string];
+		result: void;
+	};
+	[CloudChannels.sync]: {
+		args: [localDir: string, prefix?: string];
+		result: import('./cloud_types').CloudSyncResult;
+	};
+}
+
 export interface ImageInvokeChannelMap {
 	[ImageChannels.createImage]: {
 		args: [request: ImageRequest];
