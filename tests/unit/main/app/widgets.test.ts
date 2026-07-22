@@ -3,12 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { BrowserWindow } from 'electron';
 import type { WindowFactory } from '../../../../src/main/app/window_factory';
-import {
-	ensureWidgets,
-	listWidgets,
-	loadWidget,
-	storeWidgets,
-} from '../../../../src/main/widgets';
+import { ensureWidgets, listWidgets, loadWidget, storeWidgets } from '../../../../src/main/widgets';
 import { widgetPagePath } from '../../../../src/main/widgets/widget_page';
 import { widgetsSettingsPath } from '../../../../src/main/widgets/widget_settings';
 
@@ -67,9 +62,7 @@ describe('widget storage and loading', () => {
 			{ id: 'notes', name: 'Notes' },
 			{ id: 'project', name: 'Project' },
 		]);
-		expect(fs.readFileSync(widgetPagePath('notes', appLocation), 'utf8')).toBe(
-			'<h1>Notes</h1>'
-		);
+		expect(fs.readFileSync(widgetPagePath('notes', appLocation), 'utf8')).toBe('<h1>Notes</h1>');
 		expect(fs.readFileSync(widgetPagePath('project', appLocation), 'utf8')).toBe(
 			'<h1>Project</h1>'
 		);

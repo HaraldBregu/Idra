@@ -3,11 +3,7 @@ import type { WindowFactory } from '../app/window_factory';
 
 const windows = new Set<BrowserWindow>();
 
-export function render(
-	windowFactory: WindowFactory,
-	file: string,
-	title: string
-): BrowserWindow {
+export function render(windowFactory: WindowFactory, file: string, title: string): BrowserWindow {
 	const win = windowFactory.create(
 		{
 			width: 820,
