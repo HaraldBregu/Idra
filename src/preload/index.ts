@@ -35,6 +35,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
+		contextBridge.exposeInMainWorld('cloud', cloud);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('transcribe', transcribe);
