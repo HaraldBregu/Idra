@@ -43,6 +43,10 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		id: 'channels',
 		paths: ['/settings/channels'],
 	},
+	{
+		id: 'widgets',
+		paths: ['/settings/widgets'],
+	},
 ] as const;
 
 function getSettingsOverviewItem(path: string): SettingsNavigationItem | SettingsModelServiceItem {
