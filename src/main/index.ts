@@ -184,7 +184,7 @@ app.whenReady().then(async () => {
 	});
 });
 
-// Note: window-all-closed and before-quit handlers are now managed by setupAppLifecycle
+// Core window and quit-state handlers are managed by setupAppLifecycle.
 
 app.on('quit', () => {
 	agentService.destroy();
