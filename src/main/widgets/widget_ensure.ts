@@ -1,12 +1,12 @@
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { DEFAULT_WIDGET_PAGES, DEFAULT_WIDGETS } from './defaults';
-import { listWidgets } from './list';
-import { widgetPagePath } from './page';
-import { widgetsRoot } from './root';
-import { widgetsSettingsPath } from './settings';
-import { storeWidgets } from './store';
-import type { WidgetConfiguration } from './types';
+import { DEFAULT_WIDGET_PAGES, DEFAULT_WIDGETS } from './widget_defaults';
+import { listWidgets } from './widget_list';
+import { widgetPagePath } from './widget_page';
+import { widgetsRoot } from './widget_root';
+import { widgetsSettingsPath } from './widget_settings';
+import { storeWidgets } from './widget_store';
+import type { WidgetConfiguration } from './widget_types';
 
 export function ensureWidgets(
 	appLocation?: string,

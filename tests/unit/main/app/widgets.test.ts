@@ -9,8 +9,8 @@ import {
 	loadWidget,
 	storeWidgets,
 } from '../../../../src/main/widgets';
-import { widgetPagePath } from '../../../../src/main/widgets/page';
-import { widgetsSettingsPath } from '../../../../src/main/widgets/settings';
+import { widgetPagePath } from '../../../../src/main/widgets/widget_page';
+import { widgetsSettingsPath } from '../../../../src/main/widgets/widget_settings';
 
 function createWindowHarness() {
 	const handlers = new Map<string, () => void>();

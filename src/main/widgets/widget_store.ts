@@ -1,8 +1,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { isWidgetConfiguration } from './validate';
-import { widgetsRoot } from './root';
-import { widgetsSettingsPath } from './settings';
-import type { WidgetConfiguration, WidgetsSettings } from './types';
+import { isWidgetConfiguration } from './widget_validate';
+import { widgetsRoot } from './widget_root';
+import { widgetsSettingsPath } from './widget_settings';
+import type { WidgetConfiguration, WidgetsSettings } from './widget_types';
 
 export function storeWidgets(widgets: readonly WidgetConfiguration[], appLocation?: string): void {
 	const settings: WidgetsSettings = { widgets: widgets.filter(isWidgetConfiguration) };

@@ -1,5 +1,5 @@
-import { isWidgetId } from './id';
-import type { WidgetConfiguration } from './types';
+import { isWidgetId } from './widget_id';
+import type { WidgetConfiguration } from './widget_types';
 
 export function isWidgetConfiguration(value: unknown): value is WidgetConfiguration {
 	if (!value || typeof value !== 'object') return false;
