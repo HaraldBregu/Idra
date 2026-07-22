@@ -12,5 +12,5 @@ export function loadWidget(
 ): BrowserWindow {
 	const entry = widgetEntryPath(widget.id, widget.metadata.entry, appLocation);
 	if (!existsSync(entry)) throw new Error(`Widget entry not found: ${widget.id}`);
-	return render(windowFactory, entry, widget.title, widget.id);
+	return render(windowFactory, entry, widget.title);
 }

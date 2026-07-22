@@ -24,10 +24,6 @@ export default defineConfig({
 		build: {
 			target: 'node22',
 			rollupOptions: {
-				input: {
-					index: resolve(__dirname, 'src/preload/index.ts'),
-					widget_index: resolve(__dirname, 'src/preload/widget_index.ts'),
-				},
 				output: {
 					format: 'cjs',
 					entryFileNames: '[name].js',

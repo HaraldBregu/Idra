@@ -17,16 +17,7 @@ import type { WidgetManifest } from '../../../../src/main/widgets/widget_types';
 
 function createWindowHarness() {
 	const handlers = new Map<string, () => void>();
-	const setPermissionCheckHandler = jest.fn();
-	const setPermissionRequestHandler = jest.fn();
-	const setWindowOpenHandler = jest.fn();
-	const webContentsOn = jest.fn();
 	const win = {
-		webContents: {
-			setWindowOpenHandler,
-			on: webContentsOn,
-			session: { setPermissionCheckHandler, setPermissionRequestHandler },
-		},
 		setMenuBarVisibility: jest.fn(),
 		show: jest.fn(),
 		once: jest.fn((event: string, handler: () => void) => handlers.set(event, handler)),
@@ -34,16 +25,7 @@ function createWindowHarness() {
 	} as unknown as BrowserWindow;
 	const create = jest.fn(() => win);
 	const windowFactory = { create } as unknown as WindowFactory;
-	return {
-		create,
-		handlers,
-		setPermissionCheckHandler,
-		setPermissionRequestHandler,
-		setWindowOpenHandler,
-		webContentsOn,
-		win,
-		windowFactory,
-	};
+	return { create, handlers, win, windowFactory };
 }
 
 function installWidget(
@@ -178,33 +160,17 @@ describe('widget storage and loading', () => {
 		};
 		const entry = installWidget(appLocation, 'project', manifest);
 		const widget = { id: 'project', ...manifest };
-		const {
-			create,
-			handlers,
-			setPermissionCheckHandler,
-			setPermissionRequestHandler,
-			setWindowOpenHandler,
-			webContentsOn,
-			win,
-			windowFactory,
-		} = createWindowHarness();
+		const { create, handlers, win, windowFactory } = createWindowHarness();
 
 		expect(loadWidget(windowFactory, widget, appLocation)).toBe(win);
 		expect(create).toHaveBeenCalledWith(
 			expect.objectContaining({
 				title: 'Project',
 				resizable: true,
-				webPreferences: {
-					preload: expect.stringMatching(/preload[/\\]widget_index\.js$/),
-					partition: 'persist:friday-widget-project',
-				},
+				webPreferences: { preload: undefined },
 			}),
 			{ file: entry }
 		);
-		expect(setWindowOpenHandler).toHaveBeenCalledTimes(1);
-		expect(webContentsOn).toHaveBeenCalledWith('will-navigate', expect.any(Function));
-		expect(setPermissionCheckHandler).toHaveBeenCalledTimes(1);
-		expect(setPermissionRequestHandler).toHaveBeenCalledTimes(1);
 
 		handlers.get('ready-to-show')?.();
 		expect(win.show).toHaveBeenCalledTimes(1);
