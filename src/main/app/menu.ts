@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Menu as ElectronMenu } from 'electron';
 import { loadTranslations } from './i18n';
-import type { Widget } from '../widgets';
+import type { Widget } from '../widgets/widget_index';
 
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;

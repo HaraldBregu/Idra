@@ -9,7 +9,7 @@ import {
 	loadWidget,
 	readWidgetSettings,
 	storeWidgetSettings,
-} from '../../../../src/main/widgets';
+} from '../../../../src/main/widgets/widget_index';
 import { widgetEntryPath } from '../../../../src/main/widgets/widget_entry';
 import { widgetManifestPath } from '../../../../src/main/widgets/widget_manifest';
 import { widgetsSettingsPath } from '../../../../src/main/widgets/widget_settings';
