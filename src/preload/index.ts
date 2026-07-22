@@ -13,6 +13,7 @@ import {
 	SttChannels,
 	TextChannels,
 	VideoChannels,
+	WidgetChannels,
 } from '../shared/ipc_channels_definitions';
 import type {
 	AppApi,
