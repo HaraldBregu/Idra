@@ -175,7 +175,8 @@
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
 				"policies": "Tool permissions and path rules",
-				"library": "Generated media files"
+				"library": "Generated media files",
+				"widgets": "Installed widget apps"
 			}
 		},
 		"tabs": {
