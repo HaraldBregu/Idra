@@ -286,6 +286,12 @@ export const SETTINGS_NAVIGATION = [
 		icon: Search,
 	},
 	{
+		path: '/settings/cloud',
+		labelKey: 'settings.tabs.cloud',
+		descriptionKey: 'settings.overview.descriptions.cloud',
+		icon: Cloud,
+	},
+	{
 		path: '/settings/skills',
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
