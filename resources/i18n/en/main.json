@@ -171,6 +171,7 @@
 				"mcp": "External tool servers",
 				"providers": "API keys and providers",
 				"searchEngine": "Web search provider and API key",
+				"cloud": "S3-compatible object storage",
 				"cron": "Scheduled agent tasks",
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
@@ -189,6 +190,7 @@
 			"workspace": "Workspace",
 			"providers": "Providers",
 			"searchEngine": "Search engine",
+			"cloud": "Cloud",
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
@@ -890,6 +892,29 @@
 				"load": "Could not load search engine settings.",
 				"save": "Could not save the search engine API key.",
 				"select": "Could not select the search engine."
+			}
+		},
+		"cloud": {
+			"description": "Connect an S3-compatible bucket to store, retrieve and sync objects.",
+			"connectionTitle": "Connection",
+			"endpoint": "Endpoint URL",
+			"region": "Region",
+			"bucket": "Bucket",
+			"accessKeyId": "Access key ID",
+			"secretAccessKey": "Secret access key",
+			"forcePathStyle": "Force path-style",
+			"forcePathStyleDescription": "Required by MinIO and some S3-compatible providers.",
+			"test": "Test connection",
+			"testing": "Testing…",
+			"testOk": "Connection successful.",
+			"save": "Save",
+			"saving": "Saving…",
+			"saved": "Cloud settings saved.",
+			"localNote": "Credentials stay in Friday's local app data and are only sent to the configured storage endpoint.",
+			"errors": {
+				"load": "Could not load cloud settings.",
+				"save": "Could not save cloud settings.",
+				"test": "Connection failed."
 			}
 		},
 		"image": {

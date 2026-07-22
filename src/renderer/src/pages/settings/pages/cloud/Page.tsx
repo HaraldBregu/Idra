@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Cloud } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Cloud, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import {
 	SettingsPanel,
 	SettingsRow,
 	SettingsSection,
+	SettingsValue,
 } from '../../components';
 
 type StringConfigKey = 'endpoint' | 'region' | 'bucket' | 'accessKeyId' | 'secretAccessKey';
@@ -32,9 +33,17 @@ const TEXT_FIELDS: readonly {
 	{ key: 'secretAccessKey', labelKey: 'settings.cloud.secretAccessKey', type: 'password' },
 ];
 
+const isConfigured = (config: CloudConfig): boolean =>
+	Boolean(config.bucket && config.accessKeyId && config.secretAccessKey);
+
+const mask = (value: string): string =>
+	value.length > 4 ? `••••${value.slice(-4)}` : '•'.repeat(value.length);
+
 const CloudPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [config, setConfig] = useState<CloudConfig | null>(null);
+	const [draft, setDraft] = useState<CloudConfig | null>(null);
+	const [editing, setEditing] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [testing, setTesting] = useState(false);
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
@@ -44,7 +53,10 @@ const CloudPage: React.FC = () => {
 		let cancelled = false;
 		void window.cloud.getConfig().then(
 			(value) => {
-				if (!cancelled) setConfig(value);
+				if (cancelled) return;
+				setConfig(value);
+				setDraft(value);
+				setEditing(!isConfigured(value));
 			},
 			(err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.cloud.errors.load')));
@@ -56,16 +68,33 @@ const CloudPage: React.FC = () => {
 	}, [t]);
 
 	const update = <K extends keyof CloudConfig>(key: K, value: CloudConfig[K]): void => {
-		setConfig((current) => (current ? { ...current, [key]: value } : current));
+		setDraft((current) => (current ? { ...current, [key]: value } : current));
 		setStatus(null);
 	};
 
+	const startEditing = (): void => {
+		setDraft(config);
+		setEditing(true);
+		setStatus(null);
+		setError(null);
+	};
+
+	const cancelEditing = (): void => {
+		setDraft(config);
+		setEditing(false);
+		setStatus(null);
+		setError(null);
+	};
+
 	const save = async (): Promise<void> => {
-		if (!config) return;
+		if (!draft) return;
 		setSaving(true);
 		setError(null);
 		try {
-			setConfig(await window.cloud.saveConfig(config));
+			const saved = await window.cloud.saveConfig(draft);
+			setConfig(saved);
+			setDraft(saved);
+			setEditing(false);
 			setStatus({ ok: true, message: t('settings.cloud.saved') });
 		} catch (err) {
 			setError(getErrorMessage(err, t('settings.cloud.errors.save')));
@@ -75,10 +104,11 @@ const CloudPage: React.FC = () => {
 	};
 
 	const test = async (): Promise<void> => {
-		if (!config) return;
+		const target = editing ? draft : config;
+		if (!target) return;
 		setTesting(true);
 		setStatus(null);
-		const result = await window.cloud.testConnection(config);
+		const result = await window.cloud.testConnection(target);
 		setStatus({
 			ok: result.ok,
 			message: result.ok ? t('settings.cloud.testOk') : (result.error ?? t('settings.cloud.errors.test')),
@@ -91,7 +121,7 @@ const CloudPage: React.FC = () => {
 			<SettingsPageHeader
 				title={t('settings.tabs.cloud')}
 				description={t('settings.cloud.description')}
-				icon={Cloud}
+				iconNode={<Cloud className="size-5" strokeWidth={1.8} />}
 			/>
 
 			{error && (
@@ -109,7 +139,11 @@ const CloudPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			{config ? (
+			{!config ? (
+				<SettingsPanel>
+					<SettingsLoadingRows rows={4} />
+				</SettingsPanel>
+			) : editing && draft ? (
 				<SettingsSection title={t('settings.cloud.connectionTitle')}>
 					<SettingsPanel>
 						<div className="grid gap-3 p-3">
@@ -118,7 +152,7 @@ const CloudPage: React.FC = () => {
 									<Input
 										id={`cloud-${field.key}`}
 										type={field.type ?? 'text'}
-										value={config[field.key]}
+										value={draft[field.key]}
 										placeholder={field.placeholder}
 										autoComplete="off"
 										onChange={(event) => update(field.key, event.target.value)}
@@ -131,7 +165,7 @@ const CloudPage: React.FC = () => {
 							description={t('settings.cloud.forcePathStyleDescription')}
 							actions={
 								<Switch
-									checked={config.forcePathStyle}
+									checked={draft.forcePathStyle}
 									onCheckedChange={(checked) => update('forcePathStyle', checked)}
 								/>
 							}
@@ -147,17 +181,59 @@ const CloudPage: React.FC = () => {
 						>
 							{testing ? t('settings.cloud.testing') : t('settings.cloud.test')}
 						</Button>
+						{isConfigured(config) && (
+							<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
+								{t('settings.cloud.cancel')}
+							</Button>
+						)}
 						<Button size="sm" onClick={() => void save()} disabled={saving}>
 							{saving ? t('settings.cloud.saving') : t('settings.cloud.save')}
 						</Button>
 					</div>
 				</SettingsSection>
 			) : (
-				!error && (
+				<SettingsSection
+					title={t('settings.cloud.connectionTitle')}
+					action={
+						<Button variant="outline" size="sm" onClick={startEditing}>
+							<Pencil className="size-3" />
+							{t('settings.cloud.edit')}
+						</Button>
+					}
+				>
 					<SettingsPanel>
-						<SettingsLoadingRows rows={4} />
+						<SettingsRow title={t('settings.cloud.endpoint')}>
+							<SettingsValue mono>{config.endpoint || t('settings.cloud.endpointDefault')}</SettingsValue>
+						</SettingsRow>
+						<SettingsRow title={t('settings.cloud.region')}>
+							<SettingsValue mono>{config.region}</SettingsValue>
+						</SettingsRow>
+						<SettingsRow title={t('settings.cloud.bucket')}>
+							<SettingsValue mono>{config.bucket}</SettingsValue>
+						</SettingsRow>
+						<SettingsRow title={t('settings.cloud.accessKeyId')}>
+							<SettingsValue mono>{mask(config.accessKeyId)}</SettingsValue>
+						</SettingsRow>
+						<SettingsRow title={t('settings.cloud.secretAccessKey')}>
+							<SettingsValue mono>{mask(config.secretAccessKey)}</SettingsValue>
+						</SettingsRow>
+						<SettingsRow
+							title={t('settings.cloud.forcePathStyle')}
+							actions={<Switch checked={config.forcePathStyle} disabled />}
+						/>
 					</SettingsPanel>
-				)
+
+					<div className="flex justify-end">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => void test()}
+							disabled={testing}
+						>
+							{testing ? t('settings.cloud.testing') : t('settings.cloud.test')}
+						</Button>
+					</div>
+				</SettingsSection>
 			)}
 
 			<SettingsNotice icon={Cloud}>{t('settings.cloud.localNote')}</SettingsNotice>

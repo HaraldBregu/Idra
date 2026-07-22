@@ -171,6 +171,7 @@
 				"mcp": "Server strumenti esterni",
 				"providers": "Chiavi API e provider",
 				"searchEngine": "Provider di ricerca web e chiave API",
+				"cloud": "Archiviazione oggetti compatibile con S3",
 				"cron": "Attivita agente pianificate",
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
@@ -189,6 +190,7 @@
 			"workspace": "Area di Lavoro",
 			"providers": "Provider",
 			"searchEngine": "Motore di ricerca",
+			"cloud": "Cloud",
 			"media": "Media",
 			"devices": "Dispositivi",
 			"tools": "Strumenti",
@@ -890,6 +892,29 @@
 				"load": "Impossibile caricare le impostazioni del motore di ricerca.",
 				"save": "Impossibile salvare la chiave API del motore di ricerca.",
 				"select": "Impossibile selezionare il motore di ricerca."
+			}
+		},
+		"cloud": {
+			"description": "Collega un bucket compatibile con S3 per archiviare, recuperare e sincronizzare oggetti.",
+			"connectionTitle": "Connessione",
+			"endpoint": "URL endpoint",
+			"region": "Regione",
+			"bucket": "Bucket",
+			"accessKeyId": "ID chiave di accesso",
+			"secretAccessKey": "Chiave di accesso segreta",
+			"forcePathStyle": "Forza path-style",
+			"forcePathStyleDescription": "Richiesto da MinIO e da alcuni provider compatibili con S3.",
+			"test": "Prova connessione",
+			"testing": "Verifica…",
+			"testOk": "Connessione riuscita.",
+			"save": "Salva",
+			"saving": "Salvataggio…",
+			"saved": "Impostazioni cloud salvate.",
+			"localNote": "Le credenziali restano nei dati locali di Friday e vengono inviate solo all'endpoint di archiviazione configurato.",
+			"errors": {
+				"load": "Impossibile caricare le impostazioni cloud.",
+				"save": "Impossibile salvare le impostazioni cloud.",
+				"test": "Connessione non riuscita."
 			}
 		},
 		"image": {
