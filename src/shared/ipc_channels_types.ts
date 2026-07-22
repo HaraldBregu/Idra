@@ -568,6 +568,7 @@ export interface InvokeChannelMap
 		AgentInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		SearchInvokeChannelMap,
+		CloudInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		ImageInvokeChannelMap,
