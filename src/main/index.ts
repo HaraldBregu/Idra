@@ -12,6 +12,7 @@ import {
 } from './app/settings_store';
 import type { AppLanguage } from '../shared/app_types';
 import { Menu } from './app/menu';
+import { Widget } from './app/widget';
 import { ShortcutManager } from './app/shortcuts';
 import { setupAppLifecycle } from './app/lifecycle';
 import {
@@ -102,6 +103,7 @@ app.on('browser-window-created', (_event, win) => {
 });
 
 const mainWindow = new Main(appState, windowFactory, windowContextManager);
+const widgetManager = new Widget(windowFactory);
 
 const trayManager = new Tray({
 	onToggleApp: () => mainWindow.toggleVisibility(),
@@ -124,6 +126,8 @@ const menuManager = new Menu({
 		logger.info('Menu', 'Creating new launcher window');
 		mainWindow.createAdditionalWindow();
 	},
+	onNotesWidget: () => widgetManager.renderNotes(),
+	onProjectWidget: () => widgetManager.renderProject(),
 });
 
 app.whenReady().then(async () => {

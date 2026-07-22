@@ -4,6 +4,8 @@ import { loadTranslations } from './i18n';
 interface MenuManagerCallbacks {
 	onLanguageChange: (lng: string) => void;
 	onNewWindow: () => void;
+	onNotesWidget: () => void;
+	onProjectWidget: () => void;
 }
 
 export class Menu {
@@ -84,6 +86,19 @@ export class Menu {
 				submenu: [
 					{ label: m.reload, role: 'reload' as const },
 					{ label: m.forceReload, role: 'forceReload' as const },
+				],
+			},
+			{
+				label: m.widgets,
+				submenu: [
+					{
+						label: m.notes,
+						click: (): void => this.callbacks.onNotesWidget(),
+					},
+					{
+						label: m.project,
+						click: (): void => this.callbacks.onProjectWidget(),
+					},
 				],
 			},
 			{

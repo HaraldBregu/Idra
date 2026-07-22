@@ -11,6 +11,7 @@ export interface WindowPreset {
 export interface RendererContentOptions {
 	html?: string;
 	hash?: string;
+	file?: string;
 }
 
 export class WindowFactory {
@@ -107,7 +108,12 @@ export class WindowFactory {
 	 * Load the renderer content (dev URL or production file).
 	 */
 	loadContent(win: BrowserWindow, content: RendererContentOptions = {}): void {
-		const { html = 'index.html', hash } = content;
+		const { html = 'index.html', hash, file } = content;
+
+		if (file) {
+			win.loadFile(path.join(__dirname, file));
+			return;
+		}
 
 		if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
 			const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
