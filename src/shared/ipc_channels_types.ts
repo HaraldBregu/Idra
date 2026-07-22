@@ -487,6 +487,10 @@ export interface SttEventChannelMap {
 	[SttChannels.realtimeEvent]: { data: SttRealtimeEvent };
 }
 
+export interface WidgetsInvokeChannelMap {
+	[WidgetChannels.list]: { args: []; result: import('./widget_types').Widget[] };
+}
+
 export interface WindowInvokeChannelMap {
 	[WindowChannels.isMaximized]: { args: []; result: boolean };
 	[WindowChannels.isFullScreen]: { args: []; result: boolean };
