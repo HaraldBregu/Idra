@@ -14,14 +14,20 @@ import {
 	type SettingsModelServiceItem,
 } from '../../navigation';
 
-// Each group owns a hue; each item within a group gets a progressive shade of
-// that hue (colors aligned index-for-index with paths). Literal class strings
-// so Tailwind's static extraction keeps them.
+// Each group owns a hue; items within a group alternate one shade step for a
+// subtle per-item difference. Muted, low-contrast band: light 500/600, and a
+// uniform lighter shade (400) in dark mode so icons stay readable in both
+// themes. Colors are aligned index-for-index with paths, as literal class
+// strings so Tailwind's static extraction keeps them.
 const SETTINGS_OVERVIEW_GROUPS = [
 	{
 		id: 'general',
 		paths: ['/settings/application', '/settings/system', '/settings/providers'],
-		colors: ['text-slate-400', 'text-slate-500', 'text-slate-600'],
+		colors: [
+			'text-slate-600 dark:text-slate-400',
+			'text-slate-500 dark:text-slate-400',
+			'text-slate-600 dark:text-slate-400',
+		],
 	},
 	{
 		id: 'primary',
@@ -33,11 +39,11 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/tasks',
 		],
 		colors: [
-			'text-blue-300',
-			'text-blue-400',
-			'text-blue-500',
-			'text-blue-600',
-			'text-blue-700',
+			'text-blue-600 dark:text-blue-400',
+			'text-blue-500 dark:text-blue-400',
+			'text-blue-600 dark:text-blue-400',
+			'text-blue-500 dark:text-blue-400',
+			'text-blue-600 dark:text-blue-400',
 		],
 	},
 	{
@@ -50,32 +56,32 @@ const SETTINGS_OVERVIEW_GROUPS = [
 			'/settings/music',
 		],
 		colors: [
-			'text-violet-300',
-			'text-violet-400',
-			'text-violet-500',
-			'text-violet-600',
-			'text-violet-700',
+			'text-violet-600 dark:text-violet-400',
+			'text-violet-500 dark:text-violet-400',
+			'text-violet-600 dark:text-violet-400',
+			'text-violet-500 dark:text-violet-400',
+			'text-violet-600 dark:text-violet-400',
 		],
 	},
 	{
 		id: 'channels',
 		paths: ['/settings/channels'],
-		colors: ['text-emerald-500'],
+		colors: ['text-emerald-600 dark:text-emerald-400'],
 	},
 	{
 		id: 'widgets',
 		paths: ['/settings/widgets'],
-		colors: ['text-amber-500'],
+		colors: ['text-amber-600 dark:text-amber-400'],
 	},
 	{
 		id: 'cloud',
 		paths: ['/settings/cloud'],
-		colors: ['text-cyan-500'],
+		colors: ['text-cyan-600 dark:text-cyan-400'],
 	},
 	{
 		id: 'search',
 		paths: ['/settings/search'],
-		colors: ['text-rose-500'],
+		colors: ['text-rose-600 dark:text-rose-400'],
 	},
 ] as const;
 
