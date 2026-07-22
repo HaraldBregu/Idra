@@ -12,6 +12,7 @@ export function tool<T extends z.ZodType>({
 	description,
 	defaultPermission,
 	alwaysAsk,
+	stopOnReject,
 	confirmDetail,
 	inputSchema,
 	execute,
@@ -21,6 +22,7 @@ export function tool<T extends z.ZodType>({
 		description,
 		defaultPermission,
 		alwaysAsk,
+		stopOnReject,
 		confirmDetail,
 		schema: toJsonSchema(inputSchema),
 		async run(input: Record<string, unknown>, signal?: AbortSignal) {
