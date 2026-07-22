@@ -65,6 +65,7 @@ export async function* runToolCall(
 			};
 			const decision = await waitForToolPermission(toolCall.id);
 			if (decision !== 'reject' && toolCall.name === 'read' && state) rememberTool(context, state);
+			if (decision === 'reject' && tool.stopOnReject && context) context.cancelled = true;
 			if (decision === 'approve_always' && !tool.alwaysAsk) {
 				const targets = toolApprovalTargets(toolCall.name, toolCall.args, agentLocation());
 				if (targets.length === 0) {
