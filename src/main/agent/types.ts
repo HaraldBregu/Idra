@@ -52,6 +52,7 @@ export type ToolConfig<T extends z.ZodType> = {
 	description: string;
 	defaultPermission?: 'allow' | 'ask' | 'deny';
 	alwaysAsk?: boolean;
+	stopOnReject?: boolean;
 	confirmDetail?: (args: Record<string, unknown>) => string | undefined;
 	inputSchema: T;
 	execute: (input: z.infer<T>, signal?: AbortSignal) => Promise<unknown> | unknown;
