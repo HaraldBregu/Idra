@@ -145,6 +145,21 @@ describe('widget storage and loading', () => {
 		expect(win.show).toHaveBeenCalledTimes(1);
 	});
 
+	it('does not open a window when the widget page is missing', () => {
+		const widget = {
+			id: 'notes',
+			name: 'Notes',
+			description: 'Notes demo',
+			metadata: {},
+		};
+		const { create, windowFactory } = createWindowHarness();
+
+		expect(() => loadWidget(windowFactory, widget, appLocation)).toThrow(
+			'Widget page not found: notes'
+		);
+		expect(create).not.toHaveBeenCalled();
+	});
+
 	it('rejects widget paths outside the widgets folder', () => {
 		expect(() => widgetPagePath('../outside', appLocation)).toThrow('Invalid widget id');
 	});
