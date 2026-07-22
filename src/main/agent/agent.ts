@@ -334,16 +334,22 @@ function runtimeEventToAgentEvents(
 		];
 	}
 	if (event.type === 'run_finished') {
+		const stopReason = normalizeStopReason(event.result.stopReason);
 		return [
 			{
 				type: 'run_finished',
-				stopReason: normalizeStopReason(event.result.stopReason),
+				stopReason,
 				outputChars: event.result.text.length,
 				usage: event.result.usage,
 				agentId,
 				runId,
 			},
-			{ type: 'run_state', state: 'completed', agentId, runId },
+			{
+				type: 'run_state',
+				state: stopReason === 'cancelled' ? 'cancelled' : 'completed',
+				agentId,
+				runId,
+			},
 		];
 	}
 	return [];
