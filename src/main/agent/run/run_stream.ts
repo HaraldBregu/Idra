@@ -243,6 +243,13 @@ async function* loop(
 					rememberSkill(session.context, skill, output.content);
 			}
 			addToolResults(session, turn.toolCalls);
+
+			if (session.context.cancelled) {
+				session.stopReason = 'cancelled';
+				const result = toResult(session, 'success');
+				yield { type: 'run_finished', result };
+				return;
+			}
 		}
 	} finally {
 		await closeMcp?.();
