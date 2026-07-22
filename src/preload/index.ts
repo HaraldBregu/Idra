@@ -27,6 +27,7 @@ import type {
 	TranscribeApi,
 	VideoApi,
 	VoiceApi,
+	WidgetsApi,
 	WindowApi,
 } from './index.d';
 import type { PublicProvider } from '../shared';
