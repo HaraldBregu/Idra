@@ -8,6 +8,7 @@ import type {
 export type AgentToolPart = ToolPart & {
 	toolCallId: string;
 	status?: AgentToolCallStatus;
+	outputTokens?: number;
 };
 
 type AgentToolPartPatch = Omit<Partial<AgentToolPart>, 'toolCallId'>;
