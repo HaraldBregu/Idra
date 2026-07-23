@@ -22,7 +22,7 @@ function describeOne(error: unknown): string {
 	return parts.join(', ');
 }
 
-export function describeFileStorageError(error: unknown): string {
+export function describeStorageError(error: unknown): string {
 	const chain: string[] = [describeOne(error)];
 
 	let cause = error instanceof Error ? error.cause : undefined;
