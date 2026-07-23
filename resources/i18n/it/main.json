@@ -940,7 +940,8 @@
 				"save": "Impossibile salvare le impostazioni di archiviazione.",
 				"delete": "Impossibile rimuovere il provider.",
 				"test": "Connessione non riuscita.",
-				"push": "Impossibile caricare i file."
+				"push": "Impossibile caricare i file.",
+				"pull": "Impossibile scaricare i file."
 			},
 			"pathsTitle": "Cartelle da sincronizzare",
 			"folders": {
