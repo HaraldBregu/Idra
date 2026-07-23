@@ -455,7 +455,7 @@ export function ProviderCard({
 								{syncFolders.map((folder) => {
 									const active = (editing ? draft : canonical).paths.includes(folder.path);
 									return (
-										<Item key={folder.key} variant="outline" size="sm">
+										<Item key={folder.key} variant="outline" size="sm" className="px-0">
 											<ItemContent className="min-w-0 flex-1">
 												<ItemTitle>{t(`settings.storage.folders.${folder.key}`)}</ItemTitle>
 											</ItemContent>
