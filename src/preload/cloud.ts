@@ -12,4 +12,6 @@ export const cloud: CloudApi = {
 	getObject: (key) => typedInvokeUnwrap(CloudChannels.getObject, key),
 	deleteObject: (key) => typedInvokeUnwrap(CloudChannels.deleteObject, key),
 	sync: (localDir, prefix) => typedInvokeUnwrap(CloudChannels.sync, localDir, prefix),
+	pickFiles: () => typedInvokeUnwrap(CloudChannels.pickFiles),
+	push: () => typedInvokeUnwrap(CloudChannels.push),
 };
