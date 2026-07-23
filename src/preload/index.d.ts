@@ -90,6 +90,8 @@ export interface StorageApi {
 	pickFiles: () => Promise<string[] | undefined>;
 	pickFolders: () => Promise<string[] | undefined>;
 	push: (id: string) => Promise<StoragePushResult>;
+	getSyncSettings: () => Promise<StorageSyncSettings>;
+	saveSyncSettings: (settings: StorageSyncSettings) => Promise<StorageSyncSettings>;
 }
 
 export interface WidgetsApi {
