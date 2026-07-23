@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
 	AlertTriangle,
 	CheckCircle2,
+	ChevronDown,
 	FilePlus2,
 	FolderPlus,
 	Pencil,
@@ -20,6 +21,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
@@ -30,6 +32,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 import type { StorageConfig } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import { SettingsField, SettingsNotice } from '../../components';
