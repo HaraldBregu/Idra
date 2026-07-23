@@ -7,6 +7,7 @@ import { SoundIpc } from '../sound';
 import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
 import { SpeechIpc } from '../speech';
+import { StorageIpc } from '../storage';
 import { SttIpc } from '../stt';
 import { TextIpc } from '../text';
 import { VideoIpc } from '../video';
