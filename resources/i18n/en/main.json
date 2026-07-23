@@ -894,8 +894,14 @@
 				"select": "Could not select the search engine."
 			}
 		},
-		"cloud": {
-			"description": "S3-compatible object storage for your files.",
+		"fileStorage": {
+			"description": "Configure one or more S3-compatible storage providers for your files.",
+			"addProvider": "Add provider",
+			"removeProvider": "Remove provider",
+			"newProviderTitle": "New file storage",
+			"empty": "No file storage providers configured yet.",
+			"name": "Name",
+			"namePlaceholder": "e.g. Cloudflare R2, AWS backup",
 			"connectionTitle": "Connection",
 			"endpoint": "Endpoint URL",
 			"region": "Region",
@@ -909,11 +915,12 @@
 			"testOk": "Connection successful.",
 			"save": "Save",
 			"saving": "Saving…",
-			"saved": "Cloud settings saved.",
+			"saved": "File storage settings saved.",
 			"localNote": "Credentials stay in Friday's local app data and are only sent to the configured storage endpoint.",
 			"errors": {
-				"load": "Could not load cloud settings.",
-				"save": "Could not save cloud settings.",
+				"load": "Could not load file storage settings.",
+				"save": "Could not save file storage settings.",
+				"delete": "Could not remove the provider.",
 				"test": "Connection failed.",
 				"pickFiles": "Could not open the file picker.",
 				"push": "Could not push files."
