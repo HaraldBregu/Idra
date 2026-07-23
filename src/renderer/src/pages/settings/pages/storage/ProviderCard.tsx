@@ -107,6 +107,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 	const startEditing = (): void => {
 		setDraft(canonical);
 		setEditing(true);
+		setExpanded(true);
 		setStatus(null);
 		setError(null);
 	};
