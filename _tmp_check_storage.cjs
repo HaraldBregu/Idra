@@ -12,49 +12,52 @@ async function main() {
 	const page = await app.firstWindow();
 	await page.waitForLoadState('domcontentloaded');
 
-	page.on('console', (msg) => console.log(`[console:${msg.type()}]`, msg.text()));
-	page.on('pageerror', (err) => console.log('[pageerror]', err.message, '\n', err.stack));
+	let consoleHitCount = 0;
+	page.on('console', (msg) => {
+		consoleHitCount += 1;
+		console.log(`[RENDERER console:${msg.type()}]`, msg.text());
+	});
+	page.on('pageerror', (err) => console.log('[RENDERER pageerror]', err.message, '\n', err.stack));
 
-	await page.waitForTimeout(1000);
+	await page.waitForTimeout(500);
+	await page.evaluate(() => console.log('MARKER_TEST_FROM_EVALUATE'));
+	await page.waitForTimeout(300);
+	console.log('consoleHitCount after marker =', consoleHitCount);
 
-	console.log('--- overview ---');
-	await page.evaluate(() => { window.location.hash = '#/settings'; });
-	await page.waitForTimeout(1500);
-
-	console.log('--- storage list ---');
+	console.log('--- navigate to storage ---');
 	await page.evaluate(() => { window.location.hash = '#/settings/storage'; });
 	await page.waitForTimeout(1000);
 
 	console.log('--- add provider ---');
 	await page.getByRole('button', { name: /add provider/i }).click();
-	await page.waitForTimeout(800);
-
-	console.log('--- fill name field ---');
-	const nameInput = page.getByLabel('Name', { exact: true });
-	await nameInput.fill('Test R2').catch((e) => console.log('name fill error', e.message));
-	await page.waitForTimeout(300);
-
-	console.log('--- fill endpoint/region/bucket ---');
-	await page.getByLabel('Endpoint URL').fill('https://abc123.r2.cloudflarestorage.com').catch((e) => console.log('endpoint fill error', e.message));
-	await page.getByLabel('Bucket').fill('my-bucket').catch((e) => console.log('bucket fill error', e.message));
-	await page.getByLabel('Access key ID').fill('AKIAEXAMPLE').catch((e) => console.log('accesskey fill error', e.message));
-	await page.getByLabel('Secret access key').fill('secretexample').catch((e) => console.log('secretkey fill error', e.message));
 	await page.waitForTimeout(500);
 
-	console.log('--- toggle force path style ---');
-	await page.getByRole('switch').first().click().catch((e) => console.log('switch error', e.message));
+	await page.getByLabel('Name', { exact: true }).fill('Test Provider');
+	await page.getByLabel('Endpoint URL').fill('https://example.com');
+	await page.getByLabel('Bucket').fill('my-bucket');
+	await page.getByLabel('Access key ID').fill('AKIAEXAMPLE');
+	await page.getByLabel('Secret access key').fill('secretexample');
 	await page.waitForTimeout(300);
 
-	console.log('--- click Test connection ---');
-	await page.getByRole('button', { name: /test connection/i }).click().catch((e) => console.log('test click error', e.message));
-	await page.waitForTimeout(2000);
+	console.log('--- click Save ---');
+	await page.getByRole('button', { name: /^save$/i }).click();
+	await page.waitForTimeout(1000);
 
-	const afterTestText = await page.locator('#root').innerText();
-	console.log('=== TEXT AFTER TEST ===');
-	console.log(afterTestText);
+	const afterSaveText = await page.locator('#root').innerText();
+	console.log('=== TEXT AFTER SAVE ===');
+	console.log(afterSaveText);
+	console.log('=== END ===');
+	await page.screenshot({ path: path.resolve(__dirname, '_tmp_screenshot_after_save.png') });
+
+	console.log('--- click Edit on saved card ---');
+	await page.getByRole('button', { name: /^edit$/i }).click().catch((e) => console.log('edit click error', e.message));
+	await page.waitForTimeout(500);
+	const afterEditText = await page.locator('#root').innerText();
+	console.log('=== TEXT AFTER EDIT CLICK ===');
+	console.log(afterEditText);
 	console.log('=== END ===');
 
-	await page.screenshot({ path: path.resolve(__dirname, '_tmp_screenshot_filled_card.png') });
+	console.log('final consoleHitCount =', consoleHitCount);
 
 	await app.close();
 }
