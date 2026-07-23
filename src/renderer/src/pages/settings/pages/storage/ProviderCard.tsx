@@ -255,43 +255,58 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 
 	return (
 		<Card size="sm">
-			<CardHeader className="border-b">
-				<CardTitle>
-					{editing ? (
-						<Input
-							value={draft.name}
-							placeholder={t('settings.storage.namePlaceholder')}
-							onChange={(event) => update('name', event.target.value)}
-							className="h-7 max-w-64 text-sm font-semibold"
-							aria-label={t('settings.storage.name')}
+			<Collapsible open={expanded} onOpenChange={setExpanded}>
+				<CardHeader className="border-b">
+					<CardTitle>
+						{editing ? (
+							<Input
+								value={draft.name}
+								placeholder={t('settings.storage.namePlaceholder')}
+								onChange={(event) => update('name', event.target.value)}
+								className="h-7 max-w-64 text-sm font-semibold"
+								aria-label={t('settings.storage.name')}
+							/>
+						) : (
+							canonical.name || t('settings.storage.newProviderTitle')
+						)}
+					</CardTitle>
+					<CardDescription className="text-xs">
+						{t('settings.storage.connectionDescription')}
+					</CardDescription>
+					<CardAction className="flex items-center gap-2">
+						{!editing && isConfigured(canonical) && (
+							<Badge variant="secondary" className="gap-1 text-[10px]">
+								<CheckCircle2 className="size-3" />
+								{t('settings.storage.enabled')}
+							</Badge>
+						)}
+						<CollapsibleTrigger
+							render={
+								<Button
+									variant="ghost"
+									size="icon-sm"
+									aria-label={expanded ? t('settings.storage.collapse') : t('settings.storage.expand')}
+								>
+									<ChevronDown
+										className={cn('size-3 transition-transform', expanded && 'rotate-180')}
+									/>
+								</Button>
+							}
 						/>
-					) : (
-						canonical.name || t('settings.storage.newProviderTitle')
-					)}
-				</CardTitle>
-				<CardDescription className="text-xs">
-					{t('settings.storage.connectionDescription')}
-				</CardDescription>
-				<CardAction className="flex items-center gap-2">
-					{!editing && isConfigured(canonical) && (
-						<Badge variant="secondary" className="gap-1 text-[10px]">
-							<CheckCircle2 className="size-3" />
-							{t('settings.storage.enabled')}
-						</Badge>
-					)}
-					<Button
-						variant="ghost"
-						size="icon-sm"
-						aria-label={t('settings.storage.removeProvider')}
-						onClick={() => void remove()}
-						disabled={removing || saving}
-					>
-						<Trash2 className="size-3" />
-					</Button>
-				</CardAction>
-			</CardHeader>
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							aria-label={t('settings.storage.removeProvider')}
+							onClick={() => void remove()}
+							disabled={removing || saving}
+						>
+							<Trash2 className="size-3" />
+						</Button>
+					</CardAction>
+				</CardHeader>
 
-			<CardContent>
+				<CollapsibleContent>
+				<CardContent>
 				{error && (
 					<SettingsNotice variant="destructive" icon={AlertTriangle}>
 						{error}
