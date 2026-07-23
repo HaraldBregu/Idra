@@ -44,5 +44,6 @@ export class StorageIpc implements IpcModule {
 		);
 		registerQuery(StorageChannels.syncFolders, () => syncFolders());
 		registerCommand(StorageChannels.push, (id) => pushFiles(id));
+		registerCommand(StorageChannels.pull, (id) => pullFiles(id));
 	}
 }
