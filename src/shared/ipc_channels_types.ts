@@ -356,6 +356,10 @@ export interface StorageInvokeChannelMap {
 		args: [id: string];
 		result: import('./storage_types').StoragePushResult;
 	};
+	[StorageChannels.pull]: {
+		args: [id: string];
+		result: import('./storage_types').StoragePullResult;
+	};
 }
 
 export interface ImageInvokeChannelMap {
