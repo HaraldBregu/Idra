@@ -580,7 +580,7 @@ export interface InvokeChannelMap
 		AgentInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		SearchInvokeChannelMap,
-		FileStorageInvokeChannelMap,
+		StorageInvokeChannelMap,
 		WindowInvokeChannelMap,
 		ChannelsInvokeChannelMap,
 		ImageInvokeChannelMap,
