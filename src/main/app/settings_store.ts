@@ -66,7 +66,7 @@ export function setTheme(theme: AppTheme): void {
 
 export function getProvider(
 	providerId: string | undefined = getProviderId()
-): Provider | undefined {
+): ResolvedProvider | undefined {
 	if (!providerId) return undefined;
 	const provider = getStoredProvider(providerId);
 	if (!provider) return undefined;
