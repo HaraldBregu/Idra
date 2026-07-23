@@ -42,7 +42,7 @@ import {
 	getProviderId,
 	setModelId,
 	setProviderId,
-} from '../agent/settings/settings_store';
+} from '../app/settings_store';
 import { listLibrary } from '../agent/library';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
 
