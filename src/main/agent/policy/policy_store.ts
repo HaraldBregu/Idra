@@ -13,7 +13,7 @@ import {
 	type ToolPermission,
 } from './policy_types';
 
-const POLICY_STORE_NAME = 'policy';
+const POLICY_STORE_NAME = 'settings';
 const UNKNOWN_TOOL_PERMISSION: ToolPermission = {
 	default: 'ask',
 	allow: [],
