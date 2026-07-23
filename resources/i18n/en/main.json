@@ -897,12 +897,12 @@
 				"select": "Could not select the search engine."
 			}
 		},
-		"fileStorage": {
+		"storage": {
 			"description": "Configure one or more S3-compatible storage providers for your files.",
 			"addProvider": "Add provider",
 			"removeProvider": "Remove provider",
-			"newProviderTitle": "New file storage",
-			"empty": "No file storage providers configured yet.",
+			"newProviderTitle": "New storage",
+			"empty": "No storage providers configured yet.",
 			"name": "Name",
 			"namePlaceholder": "e.g. Cloudflare R2, AWS backup",
 			"connectionTitle": "Connection",
@@ -918,11 +918,11 @@
 			"testOk": "Connection successful.",
 			"save": "Save",
 			"saving": "Saving…",
-			"saved": "File storage settings saved.",
+			"saved": "Storage settings saved.",
 			"localNote": "Credentials stay in Friday's local app data and are only sent to the configured storage endpoint.",
 			"errors": {
-				"load": "Could not load file storage settings.",
-				"save": "Could not save file storage settings.",
+				"load": "Could not load storage settings.",
+				"save": "Could not save storage settings.",
 				"delete": "Could not remove the provider.",
 				"test": "Connection failed.",
 				"pickFiles": "Could not open the file picker.",
