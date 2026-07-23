@@ -16,12 +16,20 @@ const store = new Store<StorageStoreShape>({
 	defaults: DEFAULT_STORE,
 });
 
+// Reads saved before the `filePaths` -> `paths` rename won't have `paths` yet.
+function normalizeStorage(config: StorageConfig & { filePaths?: string[] }): StorageConfig {
+	if (config.paths) return config;
+	const { filePaths, ...rest } = config;
+	return { ...rest, paths: filePaths ?? [] };
+}
+
 export function getStorages(): StorageConfig[] {
-	return store.store.storages;
+	return store.store.storages.map(normalizeStorage);
 }
 
 export function getStorage(id: string): StorageConfig | undefined {
-	return store.store.storages.find((storage) => storage.id === id);
+	const storage = store.store.storages.find((storage) => storage.id === id);
+	return storage ? normalizeStorage(storage) : undefined;
 }
 
 export function saveStorageConfig(config: StorageConfig): StorageConfig {
