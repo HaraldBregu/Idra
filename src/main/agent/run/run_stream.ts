@@ -1,4 +1,4 @@
-import { getModelId, getProvider } from '../settings/settings_store';
+import { getModelId, getProvider } from '../../app/settings_store';
 import {
 	addAssistantMessage,
 	addToolResults,
