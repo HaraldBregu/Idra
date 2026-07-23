@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { FileStorageSyncResult } from '../../shared/file_storage_types';
+import type { FileStorageSyncResult } from '../../../shared/file_storage_types';
 import { listObjects } from './file_storage_list';
 import { putObject } from './file_storage_put';
 
