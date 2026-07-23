@@ -899,6 +899,21 @@
 		},
 		"storage": {
 			"description": "Configura uno o più provider di archiviazione compatibili con S3 per i tuoi file.",
+			"autoSync": {
+				"title": "Sincronizzazione automatica",
+				"description": "Carica automaticamente i file e le cartelle configurati su ogni provider di archiviazione secondo una pianificazione.",
+				"interval": "Intervallo di sincronizzazione",
+				"off": "Disattivata",
+				"every15m": "Ogni 15 minuti",
+				"every30m": "Ogni 30 minuti",
+				"every1h": "Ogni ora",
+				"every3h": "Ogni 3 ore",
+				"every6h": "Ogni 6 ore",
+				"every12h": "Ogni 12 ore",
+				"every1d": "Ogni giorno",
+				"every2d": "Ogni 2 giorni",
+				"every7d": "Ogni 7 giorni"
+			},
 			"addProvider": "Aggiungi provider",
 			"removeProvider": "Rimuovi provider",
 			"newProviderTitle": "Nuovo storage",
