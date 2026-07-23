@@ -59,7 +59,7 @@ if (process.contextIsolated) {
 	// @ts-ignore (define in dts)
 	globalThis.channels = channels;
 	// @ts-ignore (define in dts)
-	globalThis.fileStorage = fileStorage;
+	globalThis.storage = storage;
 	// @ts-ignore (define in dts)
 	globalThis.provider = provider;
 	// @ts-ignore (define in dts)
