@@ -1,5 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
+import type { Provider } from '../agent/types';
+import { getProvider as getStoredProvider } from '../providers';
 import { userDataLocation } from '../shared/user_data_location';
 import type { AppLanguage, AppTheme } from '../../shared/app_types';
 
@@ -8,6 +10,8 @@ export type AppSettingsState = {
 	keepAwake: boolean;
 	language: AppLanguage;
 	theme: AppTheme;
+	providerId: string | undefined;
+	modelId: string | undefined;
 };
 
 const APP_SETTINGS_STORE_NAME = 'settings';
@@ -17,6 +21,8 @@ const DEFAULT_APP_SETTINGS: AppSettingsState = {
 	keepAwake: false,
 	language: 'en',
 	theme: 'system',
+	providerId: undefined,
+	modelId: undefined,
 };
 
 const store = new Store<AppSettingsState>({
