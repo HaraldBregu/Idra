@@ -336,7 +336,7 @@ export const SETTINGS_NAVIGATION = [
 		path: '/settings/storage',
 		labelKey: 'settings.tabs.storage',
 		descriptionKey: 'settings.overview.descriptions.storage',
-		icon: Cloud,
+		icon: File,
 	},
 	{
 		path: '/settings/database',
