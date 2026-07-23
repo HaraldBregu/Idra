@@ -180,6 +180,7 @@ import type {
 	StorageSyncResult,
 	StorageTestResult,
 } from '../shared/storage_types';
+import type { StorageSyncSettings } from '../main/cloud/storage/storage_sync_types';
 import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { Widget } from '../shared/widget_types';
