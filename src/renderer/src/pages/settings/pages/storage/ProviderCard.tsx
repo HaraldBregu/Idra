@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
-import type { FileStorageConfig } from '../../../../../../shared/file_storage_types';
+import type { StorageConfig } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import { SettingsField, SettingsNotice } from '../../components';
 
@@ -31,19 +31,19 @@ interface FieldDef {
 const CONNECTION_FIELDS: readonly FieldDef[] = [
 	{
 		key: 'endpoint',
-		labelKey: 'settings.fileStorage.endpoint',
+		labelKey: 'settings.storage.endpoint',
 		placeholder: 'https://s3.amazonaws.com',
 	},
-	{ key: 'region', labelKey: 'settings.fileStorage.region', placeholder: 'us-east-1' },
-	{ key: 'bucket', labelKey: 'settings.fileStorage.bucket' },
+	{ key: 'region', labelKey: 'settings.storage.region', placeholder: 'us-east-1' },
+	{ key: 'bucket', labelKey: 'settings.storage.bucket' },
 ];
 
 const CREDENTIAL_FIELDS: readonly FieldDef[] = [
-	{ key: 'accessKeyId', labelKey: 'settings.fileStorage.accessKeyId' },
-	{ key: 'secretAccessKey', labelKey: 'settings.fileStorage.secretAccessKey', type: 'password' },
+	{ key: 'accessKeyId', labelKey: 'settings.storage.accessKeyId' },
+	{ key: 'secretAccessKey', labelKey: 'settings.storage.secretAccessKey', type: 'password' },
 ];
 
-const isConfigured = (config: FileStorageConfig): boolean =>
+const isConfigured = (config: StorageConfig): boolean =>
 	Boolean(config.bucket && config.accessKeyId && config.secretAccessKey);
 
 const mask = (value: string): string =>
@@ -58,8 +58,8 @@ function GroupHeading({ children }: { readonly children: React.ReactNode }): Rea
 }
 
 interface ProviderCardProps {
-	readonly storage: FileStorageConfig;
-	readonly onSaved: (saved: FileStorageConfig) => void;
+	readonly storage: StorageConfig;
+	readonly onSaved: (saved: StorageConfig) => void;
 	readonly onRemoved: () => void;
 }
 
@@ -103,14 +103,14 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 		setSaving(true);
 		setError(null);
 		try {
-			const saved = await window.fileStorage.saveFileStorageConfig(draft);
+			const saved = await window.storage.saveStorageConfig(draft);
 			setCanonical(saved);
 			setDraft(saved);
 			setEditing(false);
-			setStatus({ ok: true, message: t('settings.fileStorage.saved') });
+			setStatus({ ok: true, message: t('settings.storage.saved') });
 			onSaved(saved);
 		} catch (err) {
-			setError(getErrorMessage(err, t('settings.fileStorage.errors.save')));
+			setError(getErrorMessage(err, t('settings.storage.errors.save')));
 		} finally {
 			setSaving(false);
 		}
@@ -124,10 +124,10 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 		setRemoving(true);
 		setError(null);
 		try {
-			await window.fileStorage.deleteFileStorageConfig(canonical.id);
+			await window.storage.deleteStorageConfig(canonical.id);
 			onRemoved();
 		} catch (err) {
-			setError(getErrorMessage(err, t('settings.fileStorage.errors.delete')));
+			setError(getErrorMessage(err, t('settings.storage.errors.delete')));
 			setRemoving(false);
 		}
 	};
@@ -136,12 +136,12 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 		const target = editing ? draft : canonical;
 		setTesting(true);
 		setStatus(null);
-		const result = await window.fileStorage.testConnection(target);
+		const result = await window.storage.testConnection(target);
 		setStatus({
 			ok: result.ok,
 			message: result.ok
-				? t('settings.fileStorage.testOk')
-				: (result.error ?? t('settings.fileStorage.errors.test')),
+				? t('settings.storage.testOk')
+				: (result.error ?? t('settings.storage.errors.test')),
 		});
 		setTesting(false);
 	};
@@ -149,14 +149,14 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 	const addFiles = async (): Promise<void> => {
 		setError(null);
 		try {
-			const picked = await window.fileStorage.pickFiles();
+			const picked = await window.storage.pickFiles();
 			if (!picked) return;
 			setDraft((current) => ({
 				...current,
 				filePaths: Array.from(new Set([...current.filePaths, ...picked])),
 			}));
 		} catch (err) {
-			setError(getErrorMessage(err, t('settings.fileStorage.errors.pickFiles')));
+			setError(getErrorMessage(err, t('settings.storage.errors.pickFiles')));
 		}
 	};
 
@@ -172,29 +172,29 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 		setStatus(null);
 		setError(null);
 		try {
-			const result = await window.fileStorage.push(canonical.id);
+			const result = await window.storage.push(canonical.id);
 			const failedCount = result.failed.length;
 			setStatus({
 				ok: failedCount === 0,
 				message:
 					failedCount === 0
-						? t('settings.fileStorage.pushOk', { count: result.uploaded.length })
-						: t('settings.fileStorage.pushPartial', {
+						? t('settings.storage.pushOk', { count: result.uploaded.length })
+						: t('settings.storage.pushPartial', {
 								uploaded: result.uploaded.length,
 								failed: failedCount,
 							}),
 			});
 		} catch (err) {
-			setError(getErrorMessage(err, t('settings.fileStorage.errors.push')));
+			setError(getErrorMessage(err, t('settings.storage.errors.push')));
 		} finally {
 			setPushing(false);
 		}
 	};
 
 	const renderField = (field: FieldDef, value: string): React.JSX.Element => (
-		<SettingsField key={field.key} id={`file-storage-${instanceId}-${field.key}`} label={t(field.labelKey)}>
+		<SettingsField key={field.key} id={`storage-${instanceId}-${field.key}`} label={t(field.labelKey)}>
 			<Input
-				id={`file-storage-${instanceId}-${field.key}`}
+				id={`storage-${instanceId}-${field.key}`}
 				type={field.type ?? 'text'}
 				value={value}
 				placeholder={field.placeholder}
@@ -206,13 +206,13 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 
 	const viewRows: readonly { labelKey: string; value: string }[] = [
 		{
-			labelKey: 'settings.fileStorage.endpoint',
-			value: canonical.endpoint || t('settings.fileStorage.endpointDefault'),
+			labelKey: 'settings.storage.endpoint',
+			value: canonical.endpoint || t('settings.storage.endpointDefault'),
 		},
-		{ labelKey: 'settings.fileStorage.region', value: canonical.region },
-		{ labelKey: 'settings.fileStorage.bucket', value: canonical.bucket },
-		{ labelKey: 'settings.fileStorage.accessKeyId', value: mask(canonical.accessKeyId) },
-		{ labelKey: 'settings.fileStorage.secretAccessKey', value: mask(canonical.secretAccessKey) },
+		{ labelKey: 'settings.storage.region', value: canonical.region },
+		{ labelKey: 'settings.storage.bucket', value: canonical.bucket },
+		{ labelKey: 'settings.storage.accessKeyId', value: mask(canonical.accessKeyId) },
+		{ labelKey: 'settings.storage.secretAccessKey', value: mask(canonical.secretAccessKey) },
 	];
 
 	return (
@@ -222,29 +222,29 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 					{editing ? (
 						<Input
 							value={draft.name}
-							placeholder={t('settings.fileStorage.namePlaceholder')}
+							placeholder={t('settings.storage.namePlaceholder')}
 							onChange={(event) => update('name', event.target.value)}
 							className="h-7 max-w-64 text-sm font-semibold"
-							aria-label={t('settings.fileStorage.name')}
+							aria-label={t('settings.storage.name')}
 						/>
 					) : (
-						canonical.name || t('settings.fileStorage.newProviderTitle')
+						canonical.name || t('settings.storage.newProviderTitle')
 					)}
 				</CardTitle>
 				<CardDescription className="text-xs">
-					{t('settings.fileStorage.connectionDescription')}
+					{t('settings.storage.connectionDescription')}
 				</CardDescription>
 				<CardAction className="flex items-center gap-2">
 					{!editing && isConfigured(canonical) && (
 						<Badge variant="secondary" className="gap-1 text-[10px]">
 							<CheckCircle2 className="size-3" />
-							{t('settings.fileStorage.enabled')}
+							{t('settings.storage.enabled')}
 						</Badge>
 					)}
 					<Button
 						variant="ghost"
 						size="icon-sm"
-						aria-label={t('settings.fileStorage.removeProvider')}
+						aria-label={t('settings.storage.removeProvider')}
 						onClick={() => void remove()}
 						disabled={removing || saving}
 					>
@@ -271,7 +271,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 				{editing ? (
 					<div className="space-y-5">
 						<section className="space-y-3">
-							<GroupHeading>{t('settings.fileStorage.connectionTitle')}</GroupHeading>
+							<GroupHeading>{t('settings.storage.connectionTitle')}</GroupHeading>
 							{renderField(CONNECTION_FIELDS[0], draft.endpoint)}
 							<div className="grid gap-3 sm:grid-cols-2">
 								{renderField(CONNECTION_FIELDS[1], draft.region)}
@@ -280,19 +280,19 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 						</section>
 
 						<section className="space-y-3">
-							<GroupHeading>{t('settings.fileStorage.credentialsTitle')}</GroupHeading>
+							<GroupHeading>{t('settings.storage.credentialsTitle')}</GroupHeading>
 							{CREDENTIAL_FIELDS.map((field) => renderField(field, draft[field.key]))}
 						</section>
 
 						<section className="space-y-2">
-							<GroupHeading>{t('settings.fileStorage.optionsTitle')}</GroupHeading>
+							<GroupHeading>{t('settings.storage.optionsTitle')}</GroupHeading>
 							<div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2">
 								<div className="min-w-0">
 									<div className="text-[13px] font-medium leading-4 text-foreground">
-										{t('settings.fileStorage.forcePathStyle')}
+										{t('settings.storage.forcePathStyle')}
 									</div>
 									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.fileStorage.forcePathStyleDescription')}
+										{t('settings.storage.forcePathStyleDescription')}
 									</p>
 								</div>
 								<Switch
@@ -303,12 +303,12 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 						</section>
 
 						<section className="space-y-2">
-							<GroupHeading>{t('settings.fileStorage.filesTitle')}</GroupHeading>
+							<GroupHeading>{t('settings.storage.filesTitle')}</GroupHeading>
 							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.fileStorage.filesDescription')}
+								{t('settings.storage.filesDescription')}
 							</p>
 							{draft.filePaths.length === 0 ? (
-								<p className="text-xs text-muted-foreground">{t('settings.fileStorage.noFiles')}</p>
+								<p className="text-xs text-muted-foreground">{t('settings.storage.noFiles')}</p>
 							) : (
 								<div className="space-y-1.5">
 									{draft.filePaths.map((filePath) => (
@@ -323,7 +323,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 													type="button"
 													variant="ghost"
 													size="icon-sm"
-													aria-label={t('settings.fileStorage.removeFile')}
+													aria-label={t('settings.storage.removeFile')}
 													onClick={() => removeFile(filePath)}
 												>
 													<Trash2 className="size-3" />
@@ -335,7 +335,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 							)}
 							<Button type="button" variant="outline" size="sm" onClick={() => void addFiles()}>
 								<FilePlus2 className="size-3" />
-								{t('settings.fileStorage.addFiles')}
+								{t('settings.storage.addFiles')}
 							</Button>
 						</section>
 					</div>
@@ -352,14 +352,14 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 							))}
 							<div className="flex min-w-0 flex-col gap-1">
 								<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-									{t('settings.fileStorage.forcePathStyle')}
+									{t('settings.storage.forcePathStyle')}
 								</dt>
 								<dd>
 									<Badge variant="secondary" className="text-[10px]">
 										{t(
 											canonical.forcePathStyle
-												? 'settings.fileStorage.enabled'
-												: 'settings.fileStorage.disabled'
+												? 'settings.storage.enabled'
+												: 'settings.storage.disabled'
 										)}
 									</Badge>
 								</dd>
@@ -367,9 +367,9 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 						</dl>
 
 						<section className="space-y-2">
-							<GroupHeading>{t('settings.fileStorage.filesTitle')}</GroupHeading>
+							<GroupHeading>{t('settings.storage.filesTitle')}</GroupHeading>
 							{canonical.filePaths.length === 0 ? (
-								<p className="text-xs text-muted-foreground">{t('settings.fileStorage.noFiles')}</p>
+								<p className="text-xs text-muted-foreground">{t('settings.storage.noFiles')}</p>
 							) : (
 								<ul className="space-y-1">
 									{canonical.filePaths.map((filePath) => (
@@ -391,7 +391,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 			<CardFooter className="justify-between gap-2">
 				<div className="flex gap-2">
 					<Button variant="outline" size="sm" onClick={() => void test()} disabled={testing || saving}>
-						{testing ? t('settings.fileStorage.testing') : t('settings.fileStorage.test')}
+						{testing ? t('settings.storage.testing') : t('settings.storage.test')}
 					</Button>
 					{!editing && isConfigured(canonical) && (
 						<Button
@@ -401,7 +401,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 							disabled={pushing || canonical.filePaths.length === 0}
 						>
 							<UploadCloud className="size-3" />
-							{pushing ? t('settings.fileStorage.pushing') : t('settings.fileStorage.push')}
+							{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
 						</Button>
 					)}
 				</div>
@@ -410,17 +410,17 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 						<>
 							{canonical.id && (
 								<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
-									{t('settings.fileStorage.cancel')}
+									{t('settings.storage.cancel')}
 								</Button>
 							)}
 							<Button size="sm" onClick={() => void save()} disabled={saving}>
-								{saving ? t('settings.fileStorage.saving') : t('settings.fileStorage.save')}
+								{saving ? t('settings.storage.saving') : t('settings.storage.save')}
 							</Button>
 						</>
 					) : (
 						<Button size="sm" onClick={startEditing}>
 							<Pencil className="size-3" />
-							{t('settings.fileStorage.edit')}
+							{t('settings.storage.edit')}
 						</Button>
 					)}
 				</div>
