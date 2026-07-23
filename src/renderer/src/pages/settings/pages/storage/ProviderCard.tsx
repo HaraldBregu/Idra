@@ -458,9 +458,6 @@ export function ProviderCard({
 										<Item key={folder.key} variant="outline" size="sm">
 											<ItemContent className="min-w-0 flex-1">
 												<ItemTitle>{t(`settings.storage.folders.${folder.key}`)}</ItemTitle>
-												<p className="max-w-full truncate font-mono text-[11px] text-muted-foreground">
-													{folder.path}
-												</p>
 											</ItemContent>
 											<ItemActions className="ml-auto flex-none">
 												<Switch
