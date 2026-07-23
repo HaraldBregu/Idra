@@ -1,40 +1,48 @@
-import { runAutoSync } from './storage_auto_sync';
-import { getStorageSyncSettings } from './storage_store';
+import type { StorageConfig } from '../../../shared/storage_types';
+import { isAutoSyncable, runProviderSync } from './storage_auto_sync';
+import { getStorages } from './storage_store';
 import type { StorageSyncLogger } from './storage_sync_types';
 
-let timer: ReturnType<typeof setInterval> | undefined;
+const timers = new Map<string, ReturnType<typeof setInterval>>();
 let syncLogger: StorageSyncLogger | undefined;
 
 export function startStorageSync(logger: StorageSyncLogger): void {
 	syncLogger = logger;
-	schedule();
+	scheduleAll();
 }
 
 export function stopStorageSync(): void {
-	if (timer) clearInterval(timer);
-	timer = undefined;
+	for (const timer of timers.values()) clearInterval(timer);
+	timers.clear();
 	syncLogger = undefined;
 }
 
 export function rescheduleStorageSync(): void {
-	if (syncLogger) schedule();
+	if (syncLogger) scheduleAll();
 }
 
-function schedule(): void {
-	if (timer) clearInterval(timer);
-	timer = undefined;
+function scheduleAll(): void {
+	for (const timer of timers.values()) clearInterval(timer);
+	timers.clear();
 	const logger = syncLogger;
-	const { intervalMinutes } = getStorageSyncSettings();
-	const ms = intervalMinutes * 60_000;
-	if (!ms || !logger) {
-		logger?.info('Storage', 'Automatic sync disabled');
-		return;
+	if (!logger) return;
+	for (const storage of getStorages()) {
+		scheduleStorage(storage, logger);
 	}
-	logger.info('Storage', `Automatic sync scheduled every ${intervalMinutes} minute(s)`);
-	timer = setInterval(() => {
-		runAutoSync(logger).catch((error) => {
-			logger.error('Storage', 'Automatic sync failed', error);
+}
+
+function scheduleStorage(storage: StorageConfig, logger: StorageSyncLogger): void {
+	if (!isAutoSyncable(storage)) return;
+	const ms = storage.syncIntervalMinutes * 60_000;
+	logger.info(
+		'Storage',
+		`Auto sync "${storage.name}" scheduled every ${storage.syncIntervalMinutes} minute(s)`
+	);
+	const timer = setInterval(() => {
+		runProviderSync(storage, logger).catch((error) => {
+			logger.error('Storage', `Auto sync failed for "${storage.name}"`, error);
 		});
 	}, ms);
 	timer.unref();
+	timers.set(storage.id, timer);
 }
