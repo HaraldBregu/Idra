@@ -3,6 +3,7 @@ import path from 'node:path';
 import type { StorageSyncResult } from '../../../shared/storage_types';
 import { listObjects } from './storage_list';
 import { putObject } from './storage_put';
+import { walkFiles } from './storage_walk';
 
 // ponytail: upload-only mirror with size-only diff; add download direction / checksums if content drift matters
 export async function syncDirectory(
@@ -13,7 +14,7 @@ export async function syncDirectory(
 	const remote = new Map((await listObjects(id, prefix)).map((item) => [item.key, item.size]));
 	const uploaded: string[] = [];
 	const skipped: string[] = [];
-	for (const file of await walk(localDir)) {
+	for (const file of await walkFiles(localDir)) {
 		const key = prefix + path.relative(localDir, file).split(path.sep).join('/');
 		const data = await fs.readFile(file);
 		if (remote.get(key) === data.byteLength) {
@@ -24,15 +25,4 @@ export async function syncDirectory(
 		uploaded.push(key);
 	}
 	return { uploaded, skipped };
-}
-
-async function walk(dir: string): Promise<string[]> {
-	const entries = await fs.readdir(dir, { withFileTypes: true });
-	const nested = await Promise.all(
-		entries.map((entry) => {
-			const full = path.join(dir, entry.name);
-			return entry.isDirectory() ? walk(full) : Promise.resolve([full]);
-		})
-	);
-	return nested.flat();
 }
