@@ -87,6 +87,7 @@ try {
 const services = bootstrapServices();
 const { eventBus, appState, windowFactory, logger, windowContextManager, agentService } = services;
 agentService.start(logger);
+startStorageSync(logger);
 // Re-bind safety net with the real logger now that it exists.
 setupProcessSafetyNet(logger);
 setupMemoryMonitor(logger);
