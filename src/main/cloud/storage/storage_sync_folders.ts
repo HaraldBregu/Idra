@@ -6,5 +6,6 @@ export function syncFolders(): StorageSyncFolder[] {
 	return [
 		{ key: 'library', path: path.join(agentLocation(), 'library') },
 		{ key: 'notes', path: path.join(agentLocation(), 'notes') },
+		{ key: 'projects', path: path.join(agentLocation(), 'projects') },
 	];
 }
