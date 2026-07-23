@@ -333,6 +333,31 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 									onCheckedChange={(checked) => update('forcePathStyle', checked)}
 								/>
 							</div>
+							<div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2">
+								<div className="min-w-0">
+									<div className="text-[13px] font-medium leading-4 text-foreground">
+										{t('settings.storage.autoSync.interval')}
+									</div>
+									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+										{t('settings.storage.autoSync.description')}
+									</p>
+								</div>
+								<Select
+									value={String(draft.syncIntervalMinutes)}
+									onValueChange={(value) => update('syncIntervalMinutes', Number(value))}
+								>
+									<SelectTrigger id={`storage-${instanceId}-sync-interval`} className="h-7 w-44 text-xs">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										{SYNC_INTERVAL_OPTIONS.map((option) => (
+											<SelectItem key={option.minutes} value={String(option.minutes)}>
+												{t(option.labelKey)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
 						</section>
 
 						<section className="space-y-2">
