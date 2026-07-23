@@ -1,6 +1,7 @@
 import {
 	Bot,
 	Cloud,
+	Database,
 	HeartPulse,
 	ImageIcon,
 	Info,
