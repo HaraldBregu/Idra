@@ -940,7 +940,8 @@
 				"save": "Could not save storage settings.",
 				"delete": "Could not remove the provider.",
 				"test": "Connection failed.",
-				"push": "Could not push files."
+				"push": "Could not push files.",
+				"pull": "Could not pull files."
 			},
 			"pathsTitle": "Folders to sync",
 			"folders": {
