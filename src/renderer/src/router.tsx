@@ -290,10 +290,10 @@ const routes: RouteObject[] = [
 						),
 					},
 					{
-						path: 'file-storage',
+						path: 'storage',
 						element: (
 							<SettingsRouteWrapper>
-								<FileStoragePage />
+								<StoragePage />
 							</SettingsRouteWrapper>
 						),
 					},
