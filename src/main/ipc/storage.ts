@@ -40,5 +40,11 @@ export class StorageIpc implements IpcModule {
 		registerCommand(StorageChannels.pickFiles, () => pickFiles());
 		registerCommand(StorageChannels.pickFolders, () => pickFolders());
 		registerCommand(StorageChannels.push, (id) => pushFiles(id));
+		registerQuery(StorageChannels.getSyncSettings, () => getStorageSyncSettings());
+		registerCommand(StorageChannels.saveSyncSettings, (settings) => {
+			const saved = saveStorageSyncSettings(settings);
+			rescheduleStorageSync();
+			return saved;
+		});
 	}
 }
