@@ -10,8 +10,8 @@ interface FileStorageStoreShape {
 const DEFAULT_STORE: FileStorageStoreShape = { storages: [] };
 
 const store = new Store<FileStorageStoreShape>({
-	name: 'settings',
-	cwd: path.resolve(userDataLocation(), 'file-storage'),
+	name: 'file-storage',
+	cwd: path.resolve(userDataLocation(), 'cloud'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_STORE,
 });
