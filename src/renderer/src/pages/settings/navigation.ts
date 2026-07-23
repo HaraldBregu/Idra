@@ -333,9 +333,9 @@ export const SETTINGS_NAVIGATION = [
 		icon: Search,
 	},
 	{
-		path: '/settings/file-storage',
-		labelKey: 'settings.tabs.fileStorage',
-		descriptionKey: 'settings.overview.descriptions.fileStorage',
+		path: '/settings/storage',
+		labelKey: 'settings.tabs.storage',
+		descriptionKey: 'settings.overview.descriptions.storage',
 		icon: Cloud,
 	},
 	{
