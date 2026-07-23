@@ -315,26 +315,47 @@ const CloudPage: React.FC = () => {
 							</section>
 						</div>
 					) : (
-						<dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-							{viewRows.map((row) => (
-								<div key={row.labelKey} className="flex min-w-0 flex-col gap-1">
+						<div className="space-y-5">
+							<dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+								{viewRows.map((row) => (
+									<div key={row.labelKey} className="flex min-w-0 flex-col gap-1">
+										<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+											{t(row.labelKey)}
+										</dt>
+										<dd className="truncate font-mono text-xs text-foreground">{row.value}</dd>
+									</div>
+								))}
+								<div className="flex min-w-0 flex-col gap-1">
 									<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-										{t(row.labelKey)}
+										{t('settings.cloud.forcePathStyle')}
 									</dt>
-									<dd className="truncate font-mono text-xs text-foreground">{row.value}</dd>
+									<dd>
+										<Badge variant="secondary" className="text-[10px]">
+											{t(config.forcePathStyle ? 'settings.cloud.enabled' : 'settings.cloud.disabled')}
+										</Badge>
+									</dd>
 								</div>
-							))}
-							<div className="flex min-w-0 flex-col gap-1">
-								<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-									{t('settings.cloud.forcePathStyle')}
-								</dt>
-								<dd>
-									<Badge variant="secondary" className="text-[10px]">
-										{t(config.forcePathStyle ? 'settings.cloud.enabled' : 'settings.cloud.disabled')}
-									</Badge>
-								</dd>
-							</div>
-						</dl>
+							</dl>
+
+							<section className="space-y-2">
+								<GroupHeading>{t('settings.cloud.filesTitle')}</GroupHeading>
+								{config.filePaths.length === 0 ? (
+									<p className="text-xs text-muted-foreground">{t('settings.cloud.noFiles')}</p>
+								) : (
+									<ul className="space-y-1">
+										{config.filePaths.map((filePath) => (
+											<li
+												key={filePath}
+												className="truncate rounded-md border border-border/60 px-3 py-1.5 font-mono text-xs text-foreground"
+												title={filePath}
+											>
+												{filePath}
+											</li>
+										))}
+									</ul>
+								)}
+							</section>
+						</div>
 					)}
 				</CardContent>
 
