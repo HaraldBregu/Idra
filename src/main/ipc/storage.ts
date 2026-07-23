@@ -9,6 +9,7 @@ import {
 	getStorages,
 	listObjects,
 	pickFiles,
+	pickFolders,
 	putObject,
 	pushFiles,
 	saveStorageConfig,
