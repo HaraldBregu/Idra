@@ -13,6 +13,7 @@ import {
 	rescheduleStorageSync,
 	saveStorageConfig,
 	syncDirectory,
+	syncFolders,
 	testConnection,
 } from '../cloud/storage';
 
