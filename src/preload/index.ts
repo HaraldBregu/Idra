@@ -22,6 +22,7 @@ export { image } from './image';
 export { provider } from './provider';
 export { search } from './search';
 export { sound } from './sound';
+export { storage } from './storage';
 export { text } from './text';
 export { transcribe } from './transcribe';
 export { video } from './video';
