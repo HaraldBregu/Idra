@@ -946,7 +946,8 @@
 			"pathsTitle": "Folders to sync",
 			"folders": {
 				"library": "Library",
-				"notes": "Notes"
+				"notes": "Notes",
+				"projects": "Projects"
 			},
 			"push": "Push to bucket",
 			"pushing": "Pushing…",
