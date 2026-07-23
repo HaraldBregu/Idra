@@ -280,7 +280,7 @@ export function ProviderCard({
 						)}
 					</CardTitle>
 					<CardAction
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 self-center"
 						onClick={(event) => event.stopPropagation()}
 					>
 						<CollapsibleTrigger
