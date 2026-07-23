@@ -380,58 +380,6 @@ export function ProviderCard({
 									</div>
 								</section>
 
-								<section className="space-y-2">
-									<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
-									<p className="text-[11px] leading-4 text-muted-foreground">
-										{t('settings.storage.pathsDescription')}
-									</p>
-									{draft.paths.length === 0 ? (
-										<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
-									) : (
-										<div className="space-y-1.5">
-											{draft.paths.map((entryPath) => (
-												<Item key={entryPath} variant="outline" size="sm">
-													<ItemContent className="min-w-0 flex-1">
-														<ItemTitle className="max-w-full truncate font-mono text-xs">
-															{entryPath}
-														</ItemTitle>
-													</ItemContent>
-													<ItemActions className="ml-auto flex-none">
-														<Button
-															type="button"
-															variant="ghost"
-															size="icon-sm"
-															aria-label={t('settings.storage.removePath')}
-															onClick={() => removePath(entryPath)}
-														>
-															<Trash2 className="size-3" />
-														</Button>
-													</ItemActions>
-												</Item>
-											))}
-										</div>
-									)}
-									<div className="flex gap-2">
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={() => void addFiles()}
-										>
-											<FilePlus2 className="size-3" />
-											{t('settings.storage.addFiles')}
-										</Button>
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={() => void addFolders()}
-										>
-											<FolderPlus className="size-3" />
-											{t('settings.storage.addFolders')}
-										</Button>
-									</div>
-								</section>
 							</div>
 						) : (
 							<div className="space-y-5">
