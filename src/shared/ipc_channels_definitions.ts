@@ -119,6 +119,7 @@ export const StorageChannels = {
 	sync: 'storage:sync',
 	syncFolders: 'storage:sync-folders',
 	push: 'storage:push',
+	pull: 'storage:pull',
 } as const;
 
 export const SearchChannels = {
