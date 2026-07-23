@@ -117,8 +117,7 @@ export const StorageChannels = {
 	getObject: 'storage:get-object',
 	deleteObject: 'storage:delete-object',
 	sync: 'storage:sync',
-	pickFiles: 'storage:pick-files',
-	pickFolders: 'storage:pick-folders',
+	syncFolders: 'storage:sync-folders',
 	push: 'storage:push',
 } as const;
 
