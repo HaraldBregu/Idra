@@ -2,6 +2,9 @@ import { S3Client } from '@aws-sdk/client-s3';
 import type { CloudConfig } from '../../shared/cloud_types';
 import { getCloudConfig } from './cloud_store';
 
+const isR2Endpoint = (endpoint: string): boolean =>
+	/\.r2\.cloudflarestorage\.com$/i.test(new URL(endpoint).hostname);
+
 export function createCloudClient(config: CloudConfig): S3Client {
 	return new S3Client({
 		region: config.region || 'us-east-1',
@@ -10,7 +13,11 @@ export function createCloudClient(config: CloudConfig): S3Client {
 			secretAccessKey: config.secretAccessKey,
 		},
 		...(config.endpoint ? { endpoint: config.endpoint } : {}),
-		forcePathStyle: config.forcePathStyle,
+		// R2 requires path-style addressing; virtual-hosted-style bucket subdomains don't resolve.
+		forcePathStyle: config.forcePathStyle || (config.endpoint ? isR2Endpoint(config.endpoint) : false),
+		// R2 doesn't support the CRC32 checksums the SDK now sends by default on every request.
+		requestChecksumCalculation: 'WHEN_REQUIRED',
+		responseChecksumValidation: 'WHEN_REQUIRED',
 	});
 }
 
