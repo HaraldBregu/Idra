@@ -86,6 +86,8 @@ export interface CloudApi {
 	getObject: (key: string) => Promise<Uint8Array>;
 	deleteObject: (key: string) => Promise<void>;
 	sync: (localDir: string, prefix?: string) => Promise<CloudSyncResult>;
+	pickFiles: () => Promise<string[] | undefined>;
+	push: () => Promise<CloudPushResult>;
 }
 
 export interface WidgetsApi {
