@@ -48,8 +48,8 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/widgets'],
 	},
 	{
-		id: 'cloud',
-		paths: ['/settings/cloud'],
+		id: 'file-storage',
+		paths: ['/settings/file-storage'],
 	},
 	{
 		id: 'search',
