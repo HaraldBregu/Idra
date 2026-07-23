@@ -13,7 +13,6 @@ export const storage: StorageApi = {
 	getObject: (id, key) => typedInvokeUnwrap(StorageChannels.getObject, id, key),
 	deleteObject: (id, key) => typedInvokeUnwrap(StorageChannels.deleteObject, id, key),
 	sync: (id, localDir, prefix) => typedInvokeUnwrap(StorageChannels.sync, id, localDir, prefix),
-	pickFiles: () => typedInvokeUnwrap(StorageChannels.pickFiles),
-	pickFolders: () => typedInvokeUnwrap(StorageChannels.pickFolders),
+	syncFolders: () => typedInvokeUnwrap(StorageChannels.syncFolders),
 	push: (id) => typedInvokeUnwrap(StorageChannels.push, id),
 };
