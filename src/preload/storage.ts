@@ -15,4 +15,5 @@ export const storage: StorageApi = {
 	sync: (id, localDir, prefix) => typedInvokeUnwrap(StorageChannels.sync, id, localDir, prefix),
 	syncFolders: () => typedInvokeUnwrap(StorageChannels.syncFolders),
 	push: (id) => typedInvokeUnwrap(StorageChannels.push, id),
+	pull: (id) => typedInvokeUnwrap(StorageChannels.pull, id),
 };
