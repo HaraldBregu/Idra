@@ -10,6 +10,7 @@ export const DEFAULT_CLOUD_CONFIG: CloudConfig = {
 	secretAccessKey: '',
 	bucket: '',
 	forcePathStyle: false,
+	filePaths: [],
 };
 
 const store = new Store<CloudConfig>({
