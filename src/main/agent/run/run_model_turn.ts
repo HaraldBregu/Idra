@@ -19,7 +19,7 @@ const llmModel = new LlmModel();
 
 export async function* runModelTurn(
 	_input: RuntimeInput,
-	provider: Provider,
+	provider: ResolvedProvider,
 	modelId: string,
 	systemPrompt: string | undefined,
 	messages: Message[],
