@@ -2,12 +2,17 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { StorageConfig } from '../../../shared/storage_types';
 import { userDataLocation } from '../../shared/user_data_location';
+import { DEFAULT_STORAGE_SYNC_SETTINGS, type StorageSyncSettings } from './storage_sync_types';
 
 interface StorageStoreShape {
 	storages: StorageConfig[];
+	sync: StorageSyncSettings;
 }
 
-const DEFAULT_STORE: StorageStoreShape = { storages: [] };
+const DEFAULT_STORE: StorageStoreShape = {
+	storages: [],
+	sync: DEFAULT_STORAGE_SYNC_SETTINGS,
+};
 
 const store = new Store<StorageStoreShape>({
 	name: 'storage',
