@@ -1,10 +1,10 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import type { FileStorageConfig } from '../../../shared/file_storage_types';
-import { getFileStorage } from './file_storage_store';
+import type { StorageConfig } from '../../../shared/storage_types';
+import { getStorage } from './storage_store';
 
 const isR2Endpoint = (endpoint: string): boolean => /\.r2\.cloudflarestorage\.com(\/|$)/i.test(endpoint);
 
-export function createFileStorageClient(config: FileStorageConfig): S3Client {
+export function createStorageClient(config: StorageConfig): S3Client {
 	return new S3Client({
 		region: config.region || 'us-east-1',
 		credentials: {
@@ -20,11 +20,11 @@ export function createFileStorageClient(config: FileStorageConfig): S3Client {
 	});
 }
 
-export function fileStorageClient(id: string): { client: S3Client; bucket: string } {
-	const config = getFileStorage(id);
-	if (!config) throw new Error('File storage is not configured.');
+export function storageClient(id: string): { client: S3Client; bucket: string } {
+	const config = getStorage(id);
+	if (!config) throw new Error('Storage is not configured.');
 	if (!config.bucket || !config.accessKeyId || !config.secretAccessKey) {
-		throw new Error('File storage is not configured.');
+		throw new Error('Storage is not configured.');
 	}
-	return { client: createFileStorageClient(config), bucket: config.bucket };
+	return { client: createStorageClient(config), bucket: config.bucket };
 }
