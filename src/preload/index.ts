@@ -35,7 +35,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld('win', win);
 		contextBridge.exposeInMainWorld('agent', agent);
 		contextBridge.exposeInMainWorld('channels', channels);
-		contextBridge.exposeInMainWorld('fileStorage', fileStorage);
+		contextBridge.exposeInMainWorld('storage', storage);
 		contextBridge.exposeInMainWorld('provider', provider);
 		contextBridge.exposeInMainWorld('search', search);
 		contextBridge.exposeInMainWorld('transcribe', transcribe);
