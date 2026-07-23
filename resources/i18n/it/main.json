@@ -897,11 +897,11 @@
 				"select": "Impossibile selezionare il motore di ricerca."
 			}
 		},
-		"fileStorage": {
+		"storage": {
 			"description": "Configura uno o più provider di archiviazione compatibili con S3 per i tuoi file.",
 			"addProvider": "Aggiungi provider",
 			"removeProvider": "Rimuovi provider",
-			"newProviderTitle": "Nuova archiviazione file",
+			"newProviderTitle": "Nuovo storage",
 			"empty": "Nessun provider di archiviazione configurato.",
 			"name": "Nome",
 			"namePlaceholder": "es. Cloudflare R2, backup AWS",
