@@ -1,10 +1,10 @@
 import { LlmModel } from '../../models/llm';
 import type { LlmEvent, LlmRequest } from '../../models/llm';
 import { parseToolArgs } from '../../shared/parse_tool_args';
+import type { ResolvedProvider } from '../../../shared/providers_types';
 import type {
 	Message,
 	MessageContentBlock,
-	Provider,
 	RuntimeEvent,
 	RuntimeInput,
 	Tool,
