@@ -172,6 +172,7 @@ import type { SearchEngineId, SearchEngineInput, SearchSettings } from '../share
 import type {
 	CloudConfig,
 	CloudObjectInfo,
+	CloudPushResult,
 	CloudSyncResult,
 	CloudTestResult,
 } from '../shared/cloud_types';
