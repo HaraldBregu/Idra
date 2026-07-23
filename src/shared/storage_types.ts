@@ -42,3 +42,9 @@ export interface StoragePushResult {
 	uploaded: string[];
 	failed: StoragePushFailure[];
 }
+
+export interface StoragePullResult {
+	downloaded: string[];
+	skipped: string[];
+	failed: StoragePushFailure[];
+}
