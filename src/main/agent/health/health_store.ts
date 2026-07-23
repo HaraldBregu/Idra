@@ -12,6 +12,8 @@ const store = new Store<HealthSettings>({
 	defaults: DEFAULT_HEALTH_SETTINGS,
 });
 
+export const healthStorePath = store.path;
+
 export function getHealthSettings(): HealthSettings {
 	return store.store;
 }
