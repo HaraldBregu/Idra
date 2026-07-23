@@ -257,7 +257,7 @@ declare global {
 		app: AppApi;
 		agent: AgentApi;
 		channels: ChannelsApi;
-		fileStorage: FileStorageApi;
+		storage: StorageApi;
 		provider: ProviderApi;
 		search: SearchApi;
 		transcribe: TranscribeApi;
