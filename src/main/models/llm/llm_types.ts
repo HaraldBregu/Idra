@@ -1,4 +1,5 @@
-import type { Message, Provider, Tool, ToolCall } from '../../agent/types';
+import type { Message, Tool, ToolCall } from '../../agent/types';
+import type { ResolvedProvider } from '../../../shared/providers_types';
 import type { ModelReasoningEffort } from '../../../shared/agent_types';
 
 export interface LlmRequest {
