@@ -360,6 +360,14 @@ export interface StorageInvokeChannelMap {
 		args: [id: string];
 		result: import('./storage_types').StoragePushResult;
 	};
+	[StorageChannels.getSyncSettings]: {
+		args: [];
+		result: import('../main/cloud/storage/storage_sync_types').StorageSyncSettings;
+	};
+	[StorageChannels.saveSyncSettings]: {
+		args: [settings: import('../main/cloud/storage/storage_sync_types').StorageSyncSettings];
+		result: import('../main/cloud/storage/storage_sync_types').StorageSyncSettings;
+	};
 }
 
 export interface ImageInvokeChannelMap {
