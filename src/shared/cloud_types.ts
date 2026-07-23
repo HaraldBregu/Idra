@@ -5,6 +5,7 @@ export interface CloudConfig {
 	secretAccessKey: string;
 	bucket: string;
 	forcePathStyle: boolean;
+	filePaths: string[];
 }
 
 export interface CloudObjectInfo {
