@@ -7,6 +7,7 @@ import { notes } from './notes';
 import { provider } from './provider';
 import { search } from './search';
 import { sound } from './sound';
+import { storage } from './storage';
 import { text } from './text';
 import { transcribe } from './transcribe';
 import { video } from './video';
