@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Item, ItemActions, ItemContent, ItemIcon, ItemTitle } from '@/components/ui/item';
 import { AGENTS } from '@/lib/compat';
 import type { SearchEngineId } from '../../../../../../shared/search_types';
-import { SettingsPageHeader, SettingsPageShell, SettingsPanel } from '../../components';
+import { SettingsPageHeader, SettingsPageShell, SettingsPanel, SettingsSection } from '../../components';
 import {
 	SETTINGS_NAVIGATION,
 	SETTINGS_MODEL_SERVICE_ITEMS,
