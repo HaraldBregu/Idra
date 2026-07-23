@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { FileStoragePushResult } from '../../shared/file_storage_types';
+import type { FileStoragePushResult } from '../../../shared/file_storage_types';
 import { describeFileStorageError } from './file_storage_error';
 import { putObject } from './file_storage_put';
 import { getFileStorage } from './file_storage_store';
