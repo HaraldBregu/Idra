@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Cloud, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import type { FileStorageConfig } from '../../../../../../shared/file_storage_types';
+import type { StorageConfig } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsLoadingRows } from '../../components';
 import { ProviderCard } from './ProviderCard';
 
-const BLANK_STORAGE: FileStorageConfig = {
+const BLANK_STORAGE: StorageConfig = {
 	id: '',
 	name: '',
 	endpoint: '',
@@ -21,23 +21,23 @@ const BLANK_STORAGE: FileStorageConfig = {
 
 interface StorageEntry {
 	key: string;
-	storage: FileStorageConfig;
+	storage: StorageConfig;
 }
 
-const FileStoragePage: React.FC = () => {
+const StoragePage: React.FC = () => {
 	const { t } = useTranslation();
 	const [entries, setEntries] = useState<StorageEntry[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		let cancelled = false;
-		void window.fileStorage.getFileStorages().then(
+		void window.storage.getStorages().then(
 			(storages) => {
 				if (cancelled) return;
 				setEntries(storages.map((storage) => ({ key: storage.id, storage })));
 			},
 			(err) => {
-				if (!cancelled) setError(getErrorMessage(err, t('settings.fileStorage.errors.load')));
+				if (!cancelled) setError(getErrorMessage(err, t('settings.storage.errors.load')));
 			}
 		);
 		return () => {
@@ -55,8 +55,8 @@ const FileStoragePage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader
-				title={t('settings.tabs.fileStorage')}
-				description={t('settings.fileStorage.description')}
+				title={t('settings.tabs.storage')}
+				description={t('settings.storage.description')}
 			/>
 
 			{error && (
@@ -70,7 +70,7 @@ const FileStoragePage: React.FC = () => {
 			) : (
 				<>
 					{entries.length === 0 && (
-						<SettingsNotice>{t('settings.fileStorage.empty')}</SettingsNotice>
+						<SettingsNotice>{t('settings.storage.empty')}</SettingsNotice>
 					)}
 
 					{entries.map((entry) => (
@@ -92,14 +92,14 @@ const FileStoragePage: React.FC = () => {
 
 					<Button variant="outline" size="sm" onClick={addProvider} className="self-start">
 						<Plus className="size-3" />
-						{t('settings.fileStorage.addProvider')}
+						{t('settings.storage.addProvider')}
 					</Button>
 				</>
 			)}
 
-			<SettingsNotice icon={Cloud}>{t('settings.fileStorage.localNote')}</SettingsNotice>
+			<SettingsNotice icon={Cloud}>{t('settings.storage.localNote')}</SettingsNotice>
 		</SettingsPageShell>
 	);
 };
 
-export default FileStoragePage;
+export default StoragePage;
