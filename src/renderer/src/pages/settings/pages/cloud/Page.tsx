@@ -66,6 +66,7 @@ const CloudPage: React.FC = () => {
 	const [editing, setEditing] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const [testing, setTesting] = useState(false);
+	const [pushing, setPushing] = useState(false);
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
