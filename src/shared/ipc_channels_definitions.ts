@@ -116,6 +116,8 @@ export const CloudChannels = {
 	getObject: 'cloud:get-object',
 	deleteObject: 'cloud:delete-object',
 	sync: 'cloud:sync',
+	pickFiles: 'cloud:pick-files',
+	push: 'cloud:push',
 } as const;
 
 export const SearchChannels = {
