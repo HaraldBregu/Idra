@@ -118,6 +118,32 @@ const StoragePage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
+			<SettingsSection
+				title={t('settings.storage.autoSync.title')}
+				description={t('settings.storage.autoSync.description')}
+			>
+				<SettingsPanel>
+					<SettingsRow title={t('settings.storage.autoSync.interval')}>
+						<Select
+							value={syncSettings ? String(syncSettings.intervalMinutes) : undefined}
+							onValueChange={(value) => void updateSyncInterval(Number(value))}
+							disabled={!syncSettings || savingSyncSettings}
+						>
+							<SelectTrigger id="storage-sync-interval" className="h-7 w-44 text-xs">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{SYNC_INTERVAL_OPTIONS.map((option) => (
+									<SelectItem key={option.minutes} value={String(option.minutes)}>
+										{t(option.labelKey)}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</SettingsRow>
+				</SettingsPanel>
+			</SettingsSection>
+
 			{!entries ? (
 				<SettingsLoadingRows rows={4} />
 			) : (
