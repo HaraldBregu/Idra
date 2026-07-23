@@ -28,6 +28,7 @@ export interface SettingsNavigationItem {
 	readonly labelKey: string;
 	readonly descriptionKey: string;
 	readonly icon: LucideIcon;
+	readonly comingSoon?: boolean;
 }
 
 export interface SettingsDetailItem {
