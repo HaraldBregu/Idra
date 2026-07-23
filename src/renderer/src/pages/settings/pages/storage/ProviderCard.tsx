@@ -488,15 +488,26 @@ export function ProviderCard({
 								{testing ? t('settings.storage.testing') : t('settings.storage.test')}
 							</Button>
 							{!editing && isConfigured(canonical) && (
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => void push()}
-									disabled={pushing || canonical.paths.length === 0}
-								>
-									<UploadCloud className="size-3" />
-									{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
-								</Button>
+								<>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => void push()}
+										disabled={pushing || pulling || canonical.paths.length === 0}
+									>
+										<UploadCloud className="size-3" />
+										{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
+									</Button>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => void pull()}
+										disabled={pulling || pushing || canonical.paths.length === 0}
+									>
+										<DownloadCloud className="size-3" />
+										{pulling ? t('settings.storage.pulling') : t('settings.storage.pull')}
+									</Button>
+								</>
 							)}
 						</div>
 						<div className="flex gap-2">
