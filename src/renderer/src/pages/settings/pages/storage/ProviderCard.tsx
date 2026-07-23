@@ -420,26 +420,35 @@ export function ProviderCard({
 									</div>
 								</dl>
 
-								<section className="space-y-2">
-									<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
-									{canonical.paths.length === 0 ? (
-										<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
-									) : (
-										<ul className="space-y-1">
-											{canonical.paths.map((entryPath) => (
-												<li
-													key={entryPath}
-													className="truncate rounded-md border border-border/60 px-3 py-1.5 font-mono text-xs text-foreground"
-													title={entryPath}
-												>
-													{entryPath}
-												</li>
-											))}
-										</ul>
-									)}
-								</section>
 							</div>
 						)}
+
+						<section className="space-y-2">
+							<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
+							<div className="space-y-1.5">
+								{syncFolders.map((folder) => {
+									const active = (editing ? draft : canonical).paths.includes(folder.path);
+									return (
+										<Item key={folder.key} variant="outline" size="sm">
+											<ItemContent className="min-w-0 flex-1">
+												<ItemTitle>{t(`settings.storage.folders.${folder.key}`)}</ItemTitle>
+												<p className="max-w-full truncate font-mono text-[11px] text-muted-foreground">
+													{folder.path}
+												</p>
+											</ItemContent>
+											<ItemActions className="ml-auto flex-none">
+												<Switch
+													checked={active}
+													onCheckedChange={(checked) => toggleSyncFolder(folder.path, checked)}
+													disabled={saving}
+													aria-label={t(`settings.storage.folders.${folder.key}`)}
+												/>
+											</ItemActions>
+										</Item>
+									);
+								})}
+							</div>
+						</section>
 					</CardContent>
 
 					<CardFooter className="justify-between gap-2">
