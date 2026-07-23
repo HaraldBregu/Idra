@@ -352,6 +352,10 @@ export interface StorageInvokeChannelMap {
 		args: [];
 		result: string[] | undefined;
 	};
+	[StorageChannels.pickFolders]: {
+		args: [];
+		result: string[] | undefined;
+	};
 	[StorageChannels.push]: {
 		args: [id: string];
 		result: import('./storage_types').StoragePushResult;
