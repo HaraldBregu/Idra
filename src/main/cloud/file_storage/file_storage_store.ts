@@ -1,7 +1,7 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { FileStorageConfig } from '../../shared/file_storage_types';
-import { userDataLocation } from '../shared/user_data_location';
+import type { FileStorageConfig } from '../../../shared/file_storage_types';
+import { userDataLocation } from '../../shared/user_data_location';
 
 interface FileStorageStoreShape {
 	storages: FileStorageConfig[];
