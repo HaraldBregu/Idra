@@ -143,8 +143,8 @@ const OverviewPage: React.FC = () => {
 	return (
 		<SettingsPageShell>
 			<SettingsPageHeader title={t('settings.title')} description={t('settings.description')} />
-			{SETTINGS_OVERVIEW_GROUPS.map((group) => (
-				<section key={group.id} className="flex flex-col gap-2">
+			{SETTINGS_OVERVIEW_GROUPS.map((group) => {
+				const panel = (
 					<SettingsPanel>
 						{group.paths.map((path) => {
 							const item = getSettingsOverviewItem(path);
@@ -164,8 +164,18 @@ const OverviewPage: React.FC = () => {
 							);
 						})}
 					</SettingsPanel>
-				</section>
-			))}
+				);
+
+				return 'titleKey' in group ? (
+					<SettingsSection key={group.id} title={t(group.titleKey)}>
+						{panel}
+					</SettingsSection>
+				) : (
+					<section key={group.id} className="flex flex-col gap-2">
+						{panel}
+					</section>
+				);
+			})}
 		</SettingsPageShell>
 	);
 };
