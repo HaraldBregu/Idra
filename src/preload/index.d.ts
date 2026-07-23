@@ -174,6 +174,7 @@ import type { SearchEngineId, SearchEngineInput, SearchSettings } from '../share
 import type {
 	StorageConfig,
 	StorageObjectInfo,
+	StoragePullResult,
 	StoragePushResult,
 	StorageSyncFolder,
 	StorageSyncResult,
