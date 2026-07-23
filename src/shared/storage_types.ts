@@ -7,7 +7,7 @@ export interface StorageConfig {
 	secretAccessKey: string;
 	bucket: string;
 	forcePathStyle: boolean;
-	filePaths: string[];
+	paths: string[];
 }
 
 export interface StorageObjectInfo {
