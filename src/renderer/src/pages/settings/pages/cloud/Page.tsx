@@ -137,6 +137,48 @@ const CloudPage: React.FC = () => {
 		setTesting(false);
 	};
 
+	const addFiles = async (): Promise<void> => {
+		setError(null);
+		try {
+			const picked = await window.cloud.pickFiles();
+			if (!picked) return;
+			setDraft((current) =>
+				current
+					? { ...current, filePaths: Array.from(new Set([...current.filePaths, ...picked])) }
+					: current
+			);
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.cloud.errors.pickFiles')));
+		}
+	};
+
+	const removeFile = (filePath: string): void => {
+		setDraft((current) =>
+			current ? { ...current, filePaths: current.filePaths.filter((path) => path !== filePath) } : current
+		);
+	};
+
+	const push = async (): Promise<void> => {
+		setPushing(true);
+		setStatus(null);
+		setError(null);
+		try {
+			const result = await window.cloud.push();
+			const failedCount = result.failed.length;
+			setStatus({
+				ok: failedCount === 0,
+				message:
+					failedCount === 0
+						? t('settings.cloud.pushOk', { count: result.uploaded.length })
+						: t('settings.cloud.pushPartial', { uploaded: result.uploaded.length, failed: failedCount }),
+			});
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.cloud.errors.push')));
+		} finally {
+			setPushing(false);
+		}
+	};
+
 	const renderField = (field: FieldDef, value: string): React.JSX.Element => (
 		<SettingsField key={field.key} id={`cloud-${field.key}`} label={t(field.labelKey)}>
 			<Input
