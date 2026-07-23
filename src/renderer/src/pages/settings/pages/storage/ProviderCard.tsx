@@ -269,8 +269,8 @@ export function ProviderCard({
 
 	return (
 		<Card size="sm">
-			<Collapsible open={expanded} onOpenChange={setExpanded}>
-				<CardHeader className="border-b">
+			<Collapsible open={expanded} onOpenChange={setExpanded} className="flex flex-col gap-3">
+				<CardHeader className={cn(expanded && 'border-b')}>
 					<CardTitle>
 						{editing ? (
 							<Input
