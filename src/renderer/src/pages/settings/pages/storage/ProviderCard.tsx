@@ -277,13 +277,17 @@ export function ProviderCard({
 	return (
 		<Card size="sm">
 			<Collapsible open={expanded} onOpenChange={setExpanded} className="flex flex-col gap-3">
-				<CardHeader className={cn(expanded && 'border-b')}>
+				<CardHeader
+					className={cn('cursor-pointer select-none', expanded && 'border-b')}
+					onClick={() => setExpanded((value) => !value)}
+				>
 					<CardTitle>
 						{editing ? (
 							<Input
 								value={draft.name}
 								placeholder={t('settings.storage.namePlaceholder')}
 								onChange={(event) => update('name', event.target.value)}
+								onClick={(event) => event.stopPropagation()}
 								className="h-7 max-w-64 text-sm font-semibold"
 								aria-label={t('settings.storage.name')}
 							/>
@@ -291,14 +295,13 @@ export function ProviderCard({
 							canonical.name || t('settings.storage.newProviderTitle')
 						)}
 					</CardTitle>
-					<CardDescription className="text-xs">
-						{t('settings.storage.connectionDescription')}
-					</CardDescription>
-					<CardAction className="flex items-center gap-2">
+					<CardAction
+						className="flex items-center gap-2"
+						onClick={(event) => event.stopPropagation()}
+					>
 						{!editing && isConfigured(canonical) && (
 							<Badge variant="secondary" className="gap-1 text-[10px]">
 								<CheckCircle2 className="size-3" />
-								{t('settings.storage.enabled')}
 							</Badge>
 						)}
 						<CollapsibleTrigger
@@ -316,6 +319,16 @@ export function ProviderCard({
 								</Button>
 							}
 						/>
+						{!editing && (
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								aria-label={t('settings.storage.edit')}
+								onClick={startEditing}
+							>
+								<Pencil className="size-3" />
+							</Button>
+						)}
 						<Button
 							variant="ghost"
 							size="icon-sm"
