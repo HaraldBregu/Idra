@@ -361,14 +361,27 @@ const CloudPage: React.FC = () => {
 
 				{config && (
 					<CardFooter className="justify-between gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => void test()}
-							disabled={testing || saving}
-						>
-							{testing ? t('settings.cloud.testing') : t('settings.cloud.test')}
-						</Button>
+						<div className="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => void test()}
+								disabled={testing || saving}
+							>
+								{testing ? t('settings.cloud.testing') : t('settings.cloud.test')}
+							</Button>
+							{!editing && isConfigured(config) && (
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => void push()}
+									disabled={pushing || config.filePaths.length === 0}
+								>
+									<UploadCloud className="size-3" />
+									{pushing ? t('settings.cloud.pushing') : t('settings.cloud.push')}
+								</Button>
+							)}
+						</div>
 						<div className="flex gap-2">
 							{editing ? (
 								<>
