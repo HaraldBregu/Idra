@@ -38,7 +38,13 @@ import { getErrorMessage } from '../../../start/constants';
 import { SettingsField, SettingsNotice } from '../../components';
 import { SYNC_INTERVAL_OPTIONS } from './constants';
 
-type StringConfigKey = 'name' | 'endpoint' | 'region' | 'bucket' | 'accessKeyId' | 'secretAccessKey';
+type StringConfigKey =
+	| 'name'
+	| 'endpoint'
+	| 'region'
+	| 'bucket'
+	| 'accessKeyId'
+	| 'secretAccessKey';
 
 interface FieldDef {
 	key: StringConfigKey;
@@ -82,7 +88,11 @@ interface ProviderCardProps {
 	readonly onRemoved: () => void;
 }
 
-export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps): React.JSX.Element {
+export function ProviderCard({
+	storage,
+	onSaved,
+	onRemoved,
+}: ProviderCardProps): React.JSX.Element {
 	const { t } = useTranslation();
 	const [instanceId] = useState(() => storage.id || crypto.randomUUID());
 	const [canonical, setCanonical] = useState(storage);
@@ -230,7 +240,11 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 	};
 
 	const renderField = (field: FieldDef, value: string): React.JSX.Element => (
-		<SettingsField key={field.key} id={`storage-${instanceId}-${field.key}`} label={t(field.labelKey)}>
+		<SettingsField
+			key={field.key}
+			id={`storage-${instanceId}-${field.key}`}
+			label={t(field.labelKey)}
+		>
 			<Input
 				id={`storage-${instanceId}-${field.key}`}
 				type={field.type ?? 'text'}
@@ -285,7 +299,9 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 								<Button
 									variant="ghost"
 									size="icon-sm"
-									aria-label={expanded ? t('settings.storage.collapse') : t('settings.storage.expand')}
+									aria-label={
+										expanded ? t('settings.storage.collapse') : t('settings.storage.expand')
+									}
 								>
 									<ChevronDown
 										className={cn('size-3 transition-transform', expanded && 'rotate-180')}
@@ -306,222 +322,240 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 				</CardHeader>
 
 				<CollapsibleContent>
-				<CardContent>
-				{error && (
-					<SettingsNotice variant="destructive" icon={AlertTriangle}>
-						{error}
-					</SettingsNotice>
-				)}
-				{status && (
-					<SettingsNotice
-						variant={status.ok ? 'default' : 'destructive'}
-						icon={status.ok ? CheckCircle2 : AlertTriangle}
-					>
-						{status.message}
-					</SettingsNotice>
-				)}
+					<CardContent>
+						{error && (
+							<SettingsNotice variant="destructive" icon={AlertTriangle}>
+								{error}
+							</SettingsNotice>
+						)}
+						{status && (
+							<SettingsNotice
+								variant={status.ok ? 'default' : 'destructive'}
+								icon={status.ok ? CheckCircle2 : AlertTriangle}
+							>
+								{status.message}
+							</SettingsNotice>
+						)}
 
-				{editing ? (
-					<div className="space-y-5">
-						<section className="space-y-3">
-							<GroupHeading>{t('settings.storage.connectionTitle')}</GroupHeading>
-							{renderField(CONNECTION_FIELDS[0], draft.endpoint)}
-							<div className="grid gap-3 sm:grid-cols-2">
-								{renderField(CONNECTION_FIELDS[1], draft.region)}
-								{renderField(CONNECTION_FIELDS[2], draft.bucket)}
-							</div>
-						</section>
-
-						<section className="space-y-3">
-							<GroupHeading>{t('settings.storage.credentialsTitle')}</GroupHeading>
-							{CREDENTIAL_FIELDS.map((field) => renderField(field, draft[field.key]))}
-						</section>
-
-						<section className="space-y-2">
-							<GroupHeading>{t('settings.storage.optionsTitle')}</GroupHeading>
-							<div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2">
-								<div className="min-w-0">
-									<div className="text-[13px] font-medium leading-4 text-foreground">
-										{t('settings.storage.forcePathStyle')}
+						{editing ? (
+							<div className="space-y-5">
+								<section className="space-y-3">
+									<GroupHeading>{t('settings.storage.connectionTitle')}</GroupHeading>
+									{renderField(CONNECTION_FIELDS[0], draft.endpoint)}
+									<div className="grid gap-3 sm:grid-cols-2">
+										{renderField(CONNECTION_FIELDS[1], draft.region)}
+										{renderField(CONNECTION_FIELDS[2], draft.bucket)}
 									</div>
-									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.storage.forcePathStyleDescription')}
-									</p>
-								</div>
-								<Switch
-									checked={draft.forcePathStyle}
-									onCheckedChange={(checked) => update('forcePathStyle', checked)}
-								/>
-							</div>
-							<div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2">
-								<div className="min-w-0">
-									<div className="text-[13px] font-medium leading-4 text-foreground">
-										{t('settings.storage.autoSync.interval')}
+								</section>
+
+								<section className="space-y-3">
+									<GroupHeading>{t('settings.storage.credentialsTitle')}</GroupHeading>
+									{CREDENTIAL_FIELDS.map((field) => renderField(field, draft[field.key]))}
+								</section>
+
+								<section className="space-y-2">
+									<GroupHeading>{t('settings.storage.optionsTitle')}</GroupHeading>
+									<div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2">
+										<div className="min-w-0">
+											<div className="text-[13px] font-medium leading-4 text-foreground">
+												{t('settings.storage.forcePathStyle')}
+											</div>
+											<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+												{t('settings.storage.forcePathStyleDescription')}
+											</p>
+										</div>
+										<Switch
+											checked={draft.forcePathStyle}
+											onCheckedChange={(checked) => update('forcePathStyle', checked)}
+										/>
 									</div>
-									<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
-										{t('settings.storage.autoSync.description')}
-									</p>
-								</div>
-								<Select
-									value={String(draft.syncIntervalMinutes)}
-									onValueChange={(value) => update('syncIntervalMinutes', Number(value))}
-								>
-									<SelectTrigger id={`storage-${instanceId}-sync-interval`} className="h-7 w-44 text-xs">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										{SYNC_INTERVAL_OPTIONS.map((option) => (
-											<SelectItem key={option.minutes} value={String(option.minutes)}>
-												{t(option.labelKey)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-						</section>
-
-						<section className="space-y-2">
-							<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
-							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.storage.pathsDescription')}
-							</p>
-							{draft.paths.length === 0 ? (
-								<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
-							) : (
-								<div className="space-y-1.5">
-									{draft.paths.map((entryPath) => (
-										<Item key={entryPath} variant="outline" size="sm">
-											<ItemContent className="min-w-0 flex-1">
-												<ItemTitle className="max-w-full truncate font-mono text-xs">
-													{entryPath}
-												</ItemTitle>
-											</ItemContent>
-											<ItemActions className="ml-auto flex-none">
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon-sm"
-													aria-label={t('settings.storage.removePath')}
-													onClick={() => removePath(entryPath)}
-												>
-													<Trash2 className="size-3" />
-												</Button>
-											</ItemActions>
-										</Item>
-									))}
-								</div>
-							)}
-							<div className="flex gap-2">
-								<Button type="button" variant="outline" size="sm" onClick={() => void addFiles()}>
-									<FilePlus2 className="size-3" />
-									{t('settings.storage.addFiles')}
-								</Button>
-								<Button type="button" variant="outline" size="sm" onClick={() => void addFolders()}>
-									<FolderPlus className="size-3" />
-									{t('settings.storage.addFolders')}
-								</Button>
-							</div>
-						</section>
-					</div>
-				) : (
-					<div className="space-y-5">
-						<dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
-							{viewRows.map((row) => (
-								<div key={row.labelKey} className="flex min-w-0 flex-col gap-1">
-									<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-										{t(row.labelKey)}
-									</dt>
-									<dd className="truncate font-mono text-xs text-foreground">{row.value}</dd>
-								</div>
-							))}
-							<div className="flex min-w-0 flex-col gap-1">
-								<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-									{t('settings.storage.forcePathStyle')}
-								</dt>
-								<dd>
-									<Badge variant="secondary" className="text-[10px]">
-										{t(
-											canonical.forcePathStyle
-												? 'settings.storage.enabled'
-												: 'settings.storage.disabled'
-										)}
-									</Badge>
-								</dd>
-							</div>
-							<div className="flex min-w-0 flex-col gap-1">
-								<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-									{t('settings.storage.autoSync.interval')}
-								</dt>
-								<dd className="truncate font-mono text-xs text-foreground">
-									{t(
-										SYNC_INTERVAL_OPTIONS.find(
-											(option) => option.minutes === canonical.syncIntervalMinutes
-										)?.labelKey ?? 'settings.storage.autoSync.off'
-									)}
-								</dd>
-							</div>
-						</dl>
-
-						<section className="space-y-2">
-							<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
-							{canonical.paths.length === 0 ? (
-								<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
-							) : (
-								<ul className="space-y-1">
-									{canonical.paths.map((entryPath) => (
-										<li
-											key={entryPath}
-											className="truncate rounded-md border border-border/60 px-3 py-1.5 font-mono text-xs text-foreground"
-											title={entryPath}
+									<div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 px-3 py-2">
+										<div className="min-w-0">
+											<div className="text-[13px] font-medium leading-4 text-foreground">
+												{t('settings.storage.autoSync.interval')}
+											</div>
+											<p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+												{t('settings.storage.autoSync.description')}
+											</p>
+										</div>
+										<Select
+											value={String(draft.syncIntervalMinutes)}
+											onValueChange={(value) => update('syncIntervalMinutes', Number(value))}
 										>
-											{entryPath}
-										</li>
-									))}
-								</ul>
-							)}
-						</section>
-					</div>
-				)}
-			</CardContent>
+											<SelectTrigger
+												id={`storage-${instanceId}-sync-interval`}
+												className="h-7 w-44 text-xs"
+											>
+												<SelectValue />
+											</SelectTrigger>
+											<SelectContent>
+												{SYNC_INTERVAL_OPTIONS.map((option) => (
+													<SelectItem key={option.minutes} value={String(option.minutes)}>
+														{t(option.labelKey)}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+									</div>
+								</section>
 
-			<CardFooter className="justify-between gap-2">
-				<div className="flex gap-2">
-					<Button variant="outline" size="sm" onClick={() => void test()} disabled={testing || saving}>
-						{testing ? t('settings.storage.testing') : t('settings.storage.test')}
-					</Button>
-					{!editing && isConfigured(canonical) && (
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => void push()}
-							disabled={pushing || canonical.paths.length === 0}
-						>
-							<UploadCloud className="size-3" />
-							{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
-						</Button>
-					)}
-				</div>
-				<div className="flex gap-2">
-					{editing ? (
-						<>
-							{canonical.id && (
-								<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
-									{t('settings.storage.cancel')}
+								<section className="space-y-2">
+									<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
+									<p className="text-[11px] leading-4 text-muted-foreground">
+										{t('settings.storage.pathsDescription')}
+									</p>
+									{draft.paths.length === 0 ? (
+										<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
+									) : (
+										<div className="space-y-1.5">
+											{draft.paths.map((entryPath) => (
+												<Item key={entryPath} variant="outline" size="sm">
+													<ItemContent className="min-w-0 flex-1">
+														<ItemTitle className="max-w-full truncate font-mono text-xs">
+															{entryPath}
+														</ItemTitle>
+													</ItemContent>
+													<ItemActions className="ml-auto flex-none">
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon-sm"
+															aria-label={t('settings.storage.removePath')}
+															onClick={() => removePath(entryPath)}
+														>
+															<Trash2 className="size-3" />
+														</Button>
+													</ItemActions>
+												</Item>
+											))}
+										</div>
+									)}
+									<div className="flex gap-2">
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => void addFiles()}
+										>
+											<FilePlus2 className="size-3" />
+											{t('settings.storage.addFiles')}
+										</Button>
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() => void addFolders()}
+										>
+											<FolderPlus className="size-3" />
+											{t('settings.storage.addFolders')}
+										</Button>
+									</div>
+								</section>
+							</div>
+						) : (
+							<div className="space-y-5">
+								<dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
+									{viewRows.map((row) => (
+										<div key={row.labelKey} className="flex min-w-0 flex-col gap-1">
+											<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+												{t(row.labelKey)}
+											</dt>
+											<dd className="truncate font-mono text-xs text-foreground">{row.value}</dd>
+										</div>
+									))}
+									<div className="flex min-w-0 flex-col gap-1">
+										<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+											{t('settings.storage.forcePathStyle')}
+										</dt>
+										<dd>
+											<Badge variant="secondary" className="text-[10px]">
+												{t(
+													canonical.forcePathStyle
+														? 'settings.storage.enabled'
+														: 'settings.storage.disabled'
+												)}
+											</Badge>
+										</dd>
+									</div>
+									<div className="flex min-w-0 flex-col gap-1">
+										<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+											{t('settings.storage.autoSync.interval')}
+										</dt>
+										<dd className="truncate font-mono text-xs text-foreground">
+											{t(
+												SYNC_INTERVAL_OPTIONS.find(
+													(option) => option.minutes === canonical.syncIntervalMinutes
+												)?.labelKey ?? 'settings.storage.autoSync.off'
+											)}
+										</dd>
+									</div>
+								</dl>
+
+								<section className="space-y-2">
+									<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
+									{canonical.paths.length === 0 ? (
+										<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
+									) : (
+										<ul className="space-y-1">
+											{canonical.paths.map((entryPath) => (
+												<li
+													key={entryPath}
+													className="truncate rounded-md border border-border/60 px-3 py-1.5 font-mono text-xs text-foreground"
+													title={entryPath}
+												>
+													{entryPath}
+												</li>
+											))}
+										</ul>
+									)}
+								</section>
+							</div>
+						)}
+					</CardContent>
+
+					<CardFooter className="justify-between gap-2">
+						<div className="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => void test()}
+								disabled={testing || saving}
+							>
+								{testing ? t('settings.storage.testing') : t('settings.storage.test')}
+							</Button>
+							{!editing && isConfigured(canonical) && (
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => void push()}
+									disabled={pushing || canonical.paths.length === 0}
+								>
+									<UploadCloud className="size-3" />
+									{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
 								</Button>
 							)}
-							<Button size="sm" onClick={() => void save()} disabled={saving}>
-								{saving ? t('settings.storage.saving') : t('settings.storage.save')}
-							</Button>
-						</>
-					) : (
-						<Button size="sm" onClick={startEditing}>
-							<Pencil className="size-3" />
-							{t('settings.storage.edit')}
-						</Button>
-					)}
-				</div>
-			</CardFooter>
-			</CollapsibleContent>
+						</div>
+						<div className="flex gap-2">
+							{editing ? (
+								<>
+									{canonical.id && (
+										<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
+											{t('settings.storage.cancel')}
+										</Button>
+									)}
+									<Button size="sm" onClick={() => void save()} disabled={saving}>
+										{saving ? t('settings.storage.saving') : t('settings.storage.save')}
+									</Button>
+								</>
+							) : (
+								<Button size="sm" onClick={startEditing}>
+									<Pencil className="size-3" />
+									{t('settings.storage.edit')}
+								</Button>
+							)}
+						</div>
+					</CardFooter>
+				</CollapsibleContent>
 			</Collapsible>
 		</Card>
 	);

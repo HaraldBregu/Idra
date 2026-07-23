@@ -957,6 +957,8 @@
 			"pushEmpty": "Add at least one file before pushing.",
 			"edit": "Edit",
 			"cancel": "Cancel",
+			"collapse": "Collapse",
+			"expand": "Expand",
 			"endpointDefault": "AWS default",
 			"connectionDescription": "Credentials for your S3-compatible bucket.",
 			"credentialsTitle": "Credentials",
