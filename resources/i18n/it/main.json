@@ -172,7 +172,7 @@
 				"mcp": "Server strumenti esterni",
 				"providers": "Chiavi API e provider",
 				"searchEngine": "Provider di ricerca web e chiave API",
-				"fileStorage": "Archiviazione oggetti compatibile con S3",
+				"storage": "Archiviazione oggetti compatibile con S3",
 				"database": "Archiviazione dati strutturati",
 				"cron": "Attivita agente pianificate",
 				"heartbeat": "Controlli periodici agente",
