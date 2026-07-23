@@ -1,7 +1,7 @@
 import {
 	Bot,
 	Database,
-	File,
+	Folder,
 	HeartPulse,
 	ImageIcon,
 	Info,
