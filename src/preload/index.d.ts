@@ -89,6 +89,7 @@ export interface StorageApi {
 	sync: (id: string, localDir: string, prefix?: string) => Promise<StorageSyncResult>;
 	syncFolders: () => Promise<StorageSyncFolder[]>;
 	push: (id: string) => Promise<StoragePushResult>;
+	pull: (id: string) => Promise<StoragePullResult>;
 }
 
 export interface WidgetsApi {
