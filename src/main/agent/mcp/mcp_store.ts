@@ -1,16 +1,16 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import type { McpSettings } from '../../../shared/mcp_types';
-import { agentLocation } from '../../shared/agent_location';
+import { userDataLocation } from '../../shared/user_data_location';
 import type { ConnectorStoreSchema, McpOAuthState } from './mcp_types';
 
 export const DEFAULT_MCP_SETTINGS: ConnectorStoreSchema = { servers: {}, oauth: {} };
 
-const MCP_STORE_NAME = 'mcp';
+const MCP_STORE_NAME = 'settings';
 
 const store = new Store<ConnectorStoreSchema>({
 	name: MCP_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	cwd: path.resolve(userDataLocation(), 'mcp'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_MCP_SETTINGS,
 });
