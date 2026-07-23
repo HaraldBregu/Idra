@@ -26,7 +26,7 @@ export const AGENT_DIRECTORY = path.resolve(agentLocation());
 
 const store = new Store<PermissionsSchema>({
 	name: POLICY_STORE_NAME,
-	cwd: AGENT_DIRECTORY,
+	cwd: path.resolve(userDataLocation(), 'policy'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_PERMISSIONS,
 });
