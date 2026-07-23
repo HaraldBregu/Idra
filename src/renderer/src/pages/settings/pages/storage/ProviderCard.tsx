@@ -262,7 +262,7 @@ export function ProviderCard({
 		<Card size="sm">
 			<Collapsible open={expanded} onOpenChange={setExpanded} className="flex flex-col gap-3">
 				<CardHeader
-					className={cn('cursor-pointer select-none', expanded && 'border-b')}
+					className={cn('cursor-pointer select-none items-center', expanded && 'border-b')}
 					onClick={() => setExpanded((value) => !value)}
 				>
 					<CardTitle>
