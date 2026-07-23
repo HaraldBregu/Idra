@@ -339,6 +339,13 @@ export const SETTINGS_NAVIGATION = [
 		icon: Cloud,
 	},
 	{
+		path: '/settings/database',
+		labelKey: 'settings.tabs.database',
+		descriptionKey: 'settings.overview.descriptions.database',
+		icon: Database,
+		comingSoon: true,
+	},
+	{
 		path: '/settings/skills',
 		labelKey: 'settings.tabs.skills',
 		descriptionKey: 'settings.overview.descriptions.skills',
