@@ -58,6 +58,8 @@ const StoragePage: React.FC = () => {
 	const { t } = useTranslation();
 	const [entries, setEntries] = useState<StorageEntry[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [syncSettings, setSyncSettings] = useState<StorageSyncSettings | null>(null);
+	const [savingSyncSettings, setSavingSyncSettings] = useState(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -65,6 +67,14 @@ const StoragePage: React.FC = () => {
 			(storages) => {
 				if (cancelled) return;
 				setEntries(storages.map((storage) => ({ key: storage.id, storage })));
+			},
+			(err) => {
+				if (!cancelled) setError(getErrorMessage(err, t('settings.storage.errors.load')));
+			}
+		);
+		void window.storage.getSyncSettings().then(
+			(settings) => {
+				if (!cancelled) setSyncSettings(settings);
 			},
 			(err) => {
 				if (!cancelled) setError(getErrorMessage(err, t('settings.storage.errors.load')));
@@ -80,6 +90,19 @@ const StoragePage: React.FC = () => {
 			...(current ?? []),
 			{ key: crypto.randomUUID(), storage: BLANK_STORAGE },
 		]);
+	};
+
+	const updateSyncInterval = async (minutes: number): Promise<void> => {
+		setSavingSyncSettings(true);
+		setError(null);
+		try {
+			const saved = await window.storage.saveSyncSettings({ intervalMinutes: minutes });
+			setSyncSettings(saved);
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.storage.errors.save')));
+		} finally {
+			setSavingSyncSettings(false);
+		}
 	};
 
 	return (
