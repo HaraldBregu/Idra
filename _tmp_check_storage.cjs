@@ -20,19 +20,31 @@ async function main() {
 		consoleMessages.push(`[pageerror] ${err.message}\n${err.stack ?? ''}`);
 	});
 
-	const routes = ['/settings', '/settings/storage'];
+	// Overview: scroll down to see the new Cloud section (Storage + Database)
+	await page.evaluate(() => {
+		window.location.hash = '#/settings';
+	});
+	await page.waitForTimeout(1200);
+	await page.mouse.wheel(0, 900);
+	await page.waitForTimeout(500);
+	await page.screenshot({ path: path.resolve(__dirname, '_tmp_screenshot_overview_scrolled.png') });
 
-	for (const route of routes) {
-		consoleMessages.push(`--- navigating to ${route} ---`);
-		await page.evaluate((hash) => {
-			window.location.hash = `#${hash}`;
-		}, route);
-		await page.waitForTimeout(1500);
-		const bodyText = await page.locator('#root').innerText().catch(() => '(could not read #root)');
-		const crashed = bodyText.includes('This page crashed');
-		consoleMessages.push(`crashed=${crashed}`);
-		await page.screenshot({ path: path.resolve(__dirname, `_tmp_screenshot_${route.replace(/\//g, '_')}.png`) });
-	}
+	const cloudSectionText = await page.locator('#root').innerText().catch(() => '');
+	consoleMessages.push(`overview contains "Cloud": ${cloudSectionText.includes('Cloud')}`);
+	consoleMessages.push(`overview contains "Database": ${cloudSectionText.includes('Database')}`);
+	consoleMessages.push(`overview contains "Storage": ${cloudSectionText.includes('Storage')}`);
+
+	// Storage page: click "Add provider" to render a fresh ProviderCard in edit mode
+	await page.evaluate(() => {
+		window.location.hash = '#/settings/storage';
+	});
+	await page.waitForTimeout(800);
+	await page.getByRole('button', { name: /add provider/i }).click();
+	await page.waitForTimeout(500);
+	await page.screenshot({ path: path.resolve(__dirname, '_tmp_screenshot_new_provider.png') });
+
+	const bodyText = await page.locator('#root').innerText().catch(() => '(could not read #root)');
+	consoleMessages.push(`crashed after add provider=${bodyText.includes('This page crashed')}`);
 
 	console.log(consoleMessages.join('\n'));
 
