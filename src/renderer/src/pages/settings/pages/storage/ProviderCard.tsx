@@ -428,6 +428,18 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 									</Badge>
 								</dd>
 							</div>
+							<div className="flex min-w-0 flex-col gap-1">
+								<dt className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+									{t('settings.storage.autoSync.interval')}
+								</dt>
+								<dd className="truncate font-mono text-xs text-foreground">
+									{t(
+										SYNC_INTERVAL_OPTIONS.find(
+											(option) => option.minutes === canonical.syncIntervalMinutes
+										)?.labelKey ?? 'settings.storage.autoSync.off'
+									)}
+								</dd>
+							</div>
 						</dl>
 
 						<section className="space-y-2">
