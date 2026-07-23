@@ -5,3 +5,9 @@ export interface Provider {
 }
 
 export type ProviderRecord = Record<string, Provider>;
+
+export interface ResolvedProvider {
+	id: string;
+	apiKey: string;
+	baseURL: string;
+}
