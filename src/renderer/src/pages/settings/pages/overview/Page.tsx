@@ -48,8 +48,9 @@ const SETTINGS_OVERVIEW_GROUPS = [
 		paths: ['/settings/widgets'],
 	},
 	{
-		id: 'file-storage',
-		paths: ['/settings/file-storage'],
+		id: 'cloud',
+		titleKey: 'settings.overview.groups.cloud',
+		paths: ['/settings/file-storage', '/settings/database'],
 	},
 	{
 		id: 'search',
