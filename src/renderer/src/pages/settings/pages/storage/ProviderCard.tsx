@@ -521,6 +521,8 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 					)}
 				</div>
 			</CardFooter>
+			</CollapsibleContent>
+			</Collapsible>
 		</Card>
 	);
 }
