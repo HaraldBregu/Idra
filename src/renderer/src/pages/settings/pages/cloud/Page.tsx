@@ -293,7 +293,6 @@ const CloudPage: React.FC = () => {
 														{filePath}
 													</ItemTitle>
 												</ItemContent>
-
 												<ItemActions className="ml-auto flex-none">
 													<Button
 														type="button"
