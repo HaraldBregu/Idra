@@ -30,13 +30,13 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('app', () => new AppIpc().register({ logger }, eventBus));
 	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
 	safeRegister('channels', () => new ChannelsIpc().register({ logger, channelRegistry }, eventBus));
-	safeRegister('file-storage', () => new FileStorageIpc().register(undefined, eventBus));
 	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
 	safeRegister('notes', () => new NotesIpc().register(undefined, eventBus));
 	safeRegister('sound', () => new SoundIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
 	safeRegister('speech', () => new SpeechIpc().register(undefined, eventBus));
+	safeRegister('storage', () => new StorageIpc().register(undefined, eventBus));
 	safeRegister('stt', () => new SttIpc().register(undefined, eventBus));
 	safeRegister('text', () => new TextIpc().register(undefined, eventBus));
 	safeRegister('video', () => new VideoIpc().register(undefined, eventBus));
