@@ -120,8 +120,6 @@ export const StorageChannels = {
 	pickFiles: 'storage:pick-files',
 	pickFolders: 'storage:pick-folders',
 	push: 'storage:push',
-	getSyncSettings: 'storage:sync-settings:get',
-	saveSyncSettings: 'storage:sync-settings:save',
 } as const;
 
 export const SearchChannels = {
