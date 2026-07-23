@@ -940,16 +940,13 @@
 				"save": "Could not save storage settings.",
 				"delete": "Could not remove the provider.",
 				"test": "Connection failed.",
-				"pickFiles": "Could not open the file picker.",
-				"pickFolders": "Could not open the folder picker.",
 				"push": "Could not push files."
 			},
-			"pathsTitle": "Files & folders to push",
-			"pathsDescription": "Local files and folders that will be uploaded to the bucket.",
-			"addFiles": "Add files",
-			"addFolders": "Add folders",
-			"noPaths": "Nothing added yet.",
-			"removePath": "Remove",
+			"pathsTitle": "Folders to sync",
+			"folders": {
+				"library": "Library",
+				"notes": "Notes"
+			},
 			"push": "Push to bucket",
 			"pushing": "Pushing…",
 			"pushOk": "Pushed {{count}} file(s).",
