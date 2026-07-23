@@ -894,8 +894,14 @@
 				"select": "Impossibile selezionare il motore di ricerca."
 			}
 		},
-		"cloud": {
-			"description": "Archiviazione oggetti compatibile con S3 per i file.",
+		"fileStorage": {
+			"description": "Configura uno o più provider di archiviazione compatibili con S3 per i tuoi file.",
+			"addProvider": "Aggiungi provider",
+			"removeProvider": "Rimuovi provider",
+			"newProviderTitle": "Nuova archiviazione file",
+			"empty": "Nessun provider di archiviazione configurato.",
+			"name": "Nome",
+			"namePlaceholder": "es. Cloudflare R2, backup AWS",
 			"connectionTitle": "Connessione",
 			"endpoint": "URL endpoint",
 			"region": "Regione",
@@ -909,11 +915,12 @@
 			"testOk": "Connessione riuscita.",
 			"save": "Salva",
 			"saving": "Salvataggio…",
-			"saved": "Impostazioni cloud salvate.",
+			"saved": "Impostazioni di archiviazione salvate.",
 			"localNote": "Le credenziali restano nei dati locali di Friday e vengono inviate solo all'endpoint di archiviazione configurato.",
 			"errors": {
-				"load": "Impossibile caricare le impostazioni cloud.",
-				"save": "Impossibile salvare le impostazioni cloud.",
+				"load": "Impossibile caricare le impostazioni di archiviazione.",
+				"save": "Impossibile salvare le impostazioni di archiviazione.",
+				"delete": "Impossibile rimuovere il provider.",
 				"test": "Connessione non riuscita.",
 				"pickFiles": "Impossibile aprire il selettore di file.",
 				"push": "Impossibile caricare i file."
