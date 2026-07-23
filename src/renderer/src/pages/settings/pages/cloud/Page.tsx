@@ -276,6 +276,43 @@ const CloudPage: React.FC = () => {
 									/>
 								</div>
 							</section>
+
+							<section className="space-y-2">
+								<GroupHeading>{t('settings.cloud.filesTitle')}</GroupHeading>
+								<p className="text-[11px] leading-4 text-muted-foreground">
+									{t('settings.cloud.filesDescription')}
+								</p>
+								{draft.filePaths.length === 0 ? (
+									<p className="text-xs text-muted-foreground">{t('settings.cloud.noFiles')}</p>
+								) : (
+									<div className="space-y-1.5">
+										{draft.filePaths.map((filePath) => (
+											<Item key={filePath} variant="outline" size="sm">
+												<ItemContent className="min-w-0 flex-1">
+													<ItemTitle className="max-w-full truncate font-mono text-xs" title={filePath}>
+														{filePath}
+													</ItemTitle>
+												</ItemContent>
+												<ItemActions className="ml-auto flex-none">
+													<Button
+														type="button"
+														variant="ghost"
+														size="icon-sm"
+														aria-label={t('settings.cloud.removeFile')}
+														onClick={() => removeFile(filePath)}
+													>
+														<Trash2 className="size-3" />
+													</Button>
+												</ItemActions>
+											</Item>
+										))}
+									</div>
+								)}
+								<Button type="button" variant="outline" size="sm" onClick={() => void addFiles()}>
+									<FilePlus2 className="size-3" />
+									{t('settings.cloud.addFiles')}
+								</Button>
+							</section>
 						</div>
 					) : (
 						<dl className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
