@@ -136,11 +136,11 @@ export function ProviderCard({
 		setError(null);
 	};
 
-	const save = async (): Promise<void> => {
+	const save = async (target: StorageConfig = draft): Promise<void> => {
 		setSaving(true);
 		setError(null);
 		try {
-			const saved = await window.storage.saveStorageConfig(draft);
+			const saved = await window.storage.saveStorageConfig(target);
 			setCanonical(saved);
 			setDraft(saved);
 			setEditing(false);
