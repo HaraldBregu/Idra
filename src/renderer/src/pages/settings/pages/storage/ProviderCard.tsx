@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { AlertTriangle, CheckCircle2, FilePlus2, Pencil, Trash2, UploadCloud } from 'lucide-react';
+import {
+	AlertTriangle,
+	CheckCircle2,
+	FilePlus2,
+	FolderPlus,
+	Pencil,
+	Trash2,
+	UploadCloud,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -153,17 +161,31 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 			if (!picked) return;
 			setDraft((current) => ({
 				...current,
-				filePaths: Array.from(new Set([...current.filePaths, ...picked])),
+				paths: Array.from(new Set([...current.paths, ...picked])),
 			}));
 		} catch (err) {
 			setError(getErrorMessage(err, t('settings.storage.errors.pickFiles')));
 		}
 	};
 
-	const removeFile = (filePath: string): void => {
+	const addFolders = async (): Promise<void> => {
+		setError(null);
+		try {
+			const picked = await window.storage.pickFolders();
+			if (!picked) return;
+			setDraft((current) => ({
+				...current,
+				paths: Array.from(new Set([...current.paths, ...picked])),
+			}));
+		} catch (err) {
+			setError(getErrorMessage(err, t('settings.storage.errors.pickFolders')));
+		}
+	};
+
+	const removePath = (targetPath: string): void => {
 		setDraft((current) => ({
 			...current,
-			filePaths: current.filePaths.filter((path) => path !== filePath),
+			paths: current.paths.filter((path) => path !== targetPath),
 		}));
 	};
 
@@ -303,19 +325,19 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 						</section>
 
 						<section className="space-y-2">
-							<GroupHeading>{t('settings.storage.filesTitle')}</GroupHeading>
+							<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
 							<p className="text-[11px] leading-4 text-muted-foreground">
-								{t('settings.storage.filesDescription')}
+								{t('settings.storage.pathsDescription')}
 							</p>
-							{draft.filePaths.length === 0 ? (
-								<p className="text-xs text-muted-foreground">{t('settings.storage.noFiles')}</p>
+							{draft.paths.length === 0 ? (
+								<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
 							) : (
 								<div className="space-y-1.5">
-									{draft.filePaths.map((filePath) => (
-										<Item key={filePath} variant="outline" size="sm">
+									{draft.paths.map((entryPath) => (
+										<Item key={entryPath} variant="outline" size="sm">
 											<ItemContent className="min-w-0 flex-1">
 												<ItemTitle className="max-w-full truncate font-mono text-xs">
-													{filePath}
+													{entryPath}
 												</ItemTitle>
 											</ItemContent>
 											<ItemActions className="ml-auto flex-none">
@@ -323,8 +345,8 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 													type="button"
 													variant="ghost"
 													size="icon-sm"
-													aria-label={t('settings.storage.removeFile')}
-													onClick={() => removeFile(filePath)}
+													aria-label={t('settings.storage.removePath')}
+													onClick={() => removePath(entryPath)}
 												>
 													<Trash2 className="size-3" />
 												</Button>
@@ -333,10 +355,16 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 									))}
 								</div>
 							)}
-							<Button type="button" variant="outline" size="sm" onClick={() => void addFiles()}>
-								<FilePlus2 className="size-3" />
-								{t('settings.storage.addFiles')}
-							</Button>
+							<div className="flex gap-2">
+								<Button type="button" variant="outline" size="sm" onClick={() => void addFiles()}>
+									<FilePlus2 className="size-3" />
+									{t('settings.storage.addFiles')}
+								</Button>
+								<Button type="button" variant="outline" size="sm" onClick={() => void addFolders()}>
+									<FolderPlus className="size-3" />
+									{t('settings.storage.addFolders')}
+								</Button>
+							</div>
 						</section>
 					</div>
 				) : (
@@ -367,18 +395,18 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 						</dl>
 
 						<section className="space-y-2">
-							<GroupHeading>{t('settings.storage.filesTitle')}</GroupHeading>
-							{canonical.filePaths.length === 0 ? (
-								<p className="text-xs text-muted-foreground">{t('settings.storage.noFiles')}</p>
+							<GroupHeading>{t('settings.storage.pathsTitle')}</GroupHeading>
+							{canonical.paths.length === 0 ? (
+								<p className="text-xs text-muted-foreground">{t('settings.storage.noPaths')}</p>
 							) : (
 								<ul className="space-y-1">
-									{canonical.filePaths.map((filePath) => (
+									{canonical.paths.map((entryPath) => (
 										<li
-											key={filePath}
+											key={entryPath}
 											className="truncate rounded-md border border-border/60 px-3 py-1.5 font-mono text-xs text-foreground"
-											title={filePath}
+											title={entryPath}
 										>
-											{filePath}
+											{entryPath}
 										</li>
 									))}
 								</ul>
@@ -398,7 +426,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 							variant="outline"
 							size="sm"
 							onClick={() => void push()}
-							disabled={pushing || canonical.filePaths.length === 0}
+							disabled={pushing || canonical.paths.length === 0}
 						>
 							<UploadCloud className="size-3" />
 							{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
