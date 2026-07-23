@@ -29,6 +29,7 @@ import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncProjects } from './agent/projects';
 import { sync as syncSkills } from './agent/skills';
+import { startStorageSync, stopStorageSync } from './cloud/storage';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
 
 // // DIAG: bump V8 old-space heap to confirm whether crashes (Chromium OOM,
