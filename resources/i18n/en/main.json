@@ -899,6 +899,21 @@
 		},
 		"storage": {
 			"description": "Configure one or more S3-compatible storage providers for your files.",
+			"autoSync": {
+				"title": "Automatic sync",
+				"description": "Automatically push your configured files and folders to each storage provider on a schedule.",
+				"interval": "Sync interval",
+				"off": "Off",
+				"every15m": "Every 15 minutes",
+				"every30m": "Every 30 minutes",
+				"every1h": "Every hour",
+				"every3h": "Every 3 hours",
+				"every6h": "Every 6 hours",
+				"every12h": "Every 12 hours",
+				"every1d": "Every day",
+				"every2d": "Every 2 days",
+				"every7d": "Every 7 days"
+			},
 			"addProvider": "Add provider",
 			"removeProvider": "Remove provider",
 			"newProviderTitle": "New storage",
