@@ -190,7 +190,7 @@
 			"workspace": "Workspace",
 			"providers": "Providers",
 			"searchEngine": "Search engine",
-			"cloud": "Cloud",
+			"fileStorage": "File storage",
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
