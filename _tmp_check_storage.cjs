@@ -9,25 +9,10 @@ async function main() {
 		env: { ...process.env, NODE_ENV: 'development', ELECTRON_RENDERER_URL: '' },
 	});
 
-	const page = await app.firstWindow();
-	await page.waitForLoadState('domcontentloaded');
-
-	page.on('console', (msg) => console.log(`[RENDERER console:${msg.type()}]`, msg.text()));
-	page.on('pageerror', (err) => console.log('[RENDERER pageerror]', err.message, '\n', err.stack));
-
-	await page.waitForTimeout(800);
-
-	console.log('--- navigate to storage (REAL user data) ---');
-	await page.evaluate(() => { window.location.hash = '#/settings/storage'; });
-	await page.waitForTimeout(1500);
-
-	const text = await page.locator('#root').innerText().catch((e) => `ERROR READING TEXT: ${e.message}`);
-	console.log('=== TEXT ===');
-	console.log(text);
-	console.log('=== END ===');
-	console.log('crashed=', text.includes('This page crashed'));
-
-	await page.screenshot({ path: path.resolve(__dirname, '_tmp_screenshot_real_data.png') });
+	const userDataPath = await app.evaluate(({ app }) => app.getPath('userData'));
+	const appName = await app.evaluate(({ app }) => app.getName());
+	console.log('userData path:', userDataPath);
+	console.log('app name:', appName);
 
 	await app.close();
 }
