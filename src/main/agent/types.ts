@@ -5,12 +5,6 @@ export interface Config {
 	location: string;
 }
 
-export interface Provider {
-	id: string;
-	apiKey: string;
-	baseURL: string;
-}
-
 export type MessageRole = 'system' | 'user' | 'assistant';
 
 export interface ToolResult {
