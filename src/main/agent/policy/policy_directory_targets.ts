@@ -53,10 +53,11 @@ export function directoryPermissionTargets(
 	}
 	const fileName = AGENT_FILES[toolName];
 	if (fileName) return [realPath(path.join(baseDir, fileName))];
+	if (toolName === 'health_settings_update') return [realPath(healthStorePath)];
 	if (MEDIA_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'library', '.generated'))];
-	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'cron.json'))];
+	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(cronStorePath)];
 	if (NOTE_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'notes'))];
 	if (toolName === 'load_skill')
-		return [realPath(path.join(baseDir, 'skills', String(args.name ?? '')))];
+		return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
 	return [];
 }
