@@ -289,7 +289,7 @@ const CloudPage: React.FC = () => {
 										{draft.filePaths.map((filePath) => (
 											<Item key={filePath} variant="outline" size="sm">
 												<ItemContent className="min-w-0 flex-1">
-													<ItemTitle className="max-w-full truncate font-mono text-xs" title={filePath}>
+													<ItemTitle className="max-w-full truncate font-mono text-xs">
 														{filePath}
 													</ItemTitle>
 												</ItemContent>
