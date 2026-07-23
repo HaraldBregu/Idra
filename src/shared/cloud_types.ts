@@ -23,3 +23,13 @@ export interface CloudSyncResult {
 	uploaded: string[];
 	skipped: string[];
 }
+
+export interface CloudPushFailure {
+	path: string;
+	error: string;
+}
+
+export interface CloudPushResult {
+	uploaded: string[];
+	failed: CloudPushFailure[];
+}
