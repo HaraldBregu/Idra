@@ -914,8 +914,20 @@
 			"errors": {
 				"load": "Impossibile caricare le impostazioni cloud.",
 				"save": "Impossibile salvare le impostazioni cloud.",
-				"test": "Connessione non riuscita."
+				"test": "Connessione non riuscita.",
+				"pickFiles": "Impossibile aprire il selettore di file.",
+				"push": "Impossibile caricare i file."
 			},
+			"filesTitle": "File da caricare",
+			"filesDescription": "File locali che verranno caricati sul bucket.",
+			"addFiles": "Aggiungi file",
+			"noFiles": "Nessun file aggiunto.",
+			"removeFile": "Rimuovi file",
+			"push": "Carica sul bucket",
+			"pushing": "Caricamento…",
+			"pushOk": "Caricati {{count}} file.",
+			"pushPartial": "Caricati {{uploaded}} file, {{failed}} non riusciti.",
+			"pushEmpty": "Aggiungi almeno un file prima di caricare.",
 			"edit": "Modifica",
 			"cancel": "Annulla",
 			"endpointDefault": "Predefinito AWS",
