@@ -8,6 +8,7 @@ import {
 	getObject,
 	getStorages,
 	listObjects,
+	pullFiles,
 	putObject,
 	pushFiles,
 	rescheduleStorageSync,
