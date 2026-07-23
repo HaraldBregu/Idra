@@ -311,50 +311,50 @@ export interface SearchInvokeChannelMap {
 	};
 }
 
-export interface FileStorageInvokeChannelMap {
-	[FileStorageChannels.getFileStorages]: {
+export interface StorageInvokeChannelMap {
+	[StorageChannels.getStorages]: {
 		args: [];
-		result: import('./file_storage_types').FileStorageConfig[];
+		result: import('./storage_types').StorageConfig[];
 	};
-	[FileStorageChannels.saveFileStorageConfig]: {
-		args: [config: import('./file_storage_types').FileStorageConfig];
-		result: import('./file_storage_types').FileStorageConfig;
+	[StorageChannels.saveStorageConfig]: {
+		args: [config: import('./storage_types').StorageConfig];
+		result: import('./storage_types').StorageConfig;
 	};
-	[FileStorageChannels.deleteFileStorageConfig]: {
+	[StorageChannels.deleteStorageConfig]: {
 		args: [id: string];
 		result: void;
 	};
-	[FileStorageChannels.testConnection]: {
-		args: [config: import('./file_storage_types').FileStorageConfig];
-		result: import('./file_storage_types').FileStorageTestResult;
+	[StorageChannels.testConnection]: {
+		args: [config: import('./storage_types').StorageConfig];
+		result: import('./storage_types').StorageTestResult;
 	};
-	[FileStorageChannels.listObjects]: {
+	[StorageChannels.listObjects]: {
 		args: [id: string, prefix?: string];
-		result: import('./file_storage_types').FileStorageObjectInfo[];
+		result: import('./storage_types').StorageObjectInfo[];
 	};
-	[FileStorageChannels.putObject]: {
+	[StorageChannels.putObject]: {
 		args: [id: string, key: string, data: Uint8Array, contentType?: string];
 		result: void;
 	};
-	[FileStorageChannels.getObject]: {
+	[StorageChannels.getObject]: {
 		args: [id: string, key: string];
 		result: Uint8Array;
 	};
-	[FileStorageChannels.deleteObject]: {
+	[StorageChannels.deleteObject]: {
 		args: [id: string, key: string];
 		result: void;
 	};
-	[FileStorageChannels.sync]: {
+	[StorageChannels.sync]: {
 		args: [id: string, localDir: string, prefix?: string];
-		result: import('./file_storage_types').FileStorageSyncResult;
+		result: import('./storage_types').StorageSyncResult;
 	};
-	[FileStorageChannels.pickFiles]: {
+	[StorageChannels.pickFiles]: {
 		args: [];
 		result: string[] | undefined;
 	};
-	[FileStorageChannels.push]: {
+	[StorageChannels.push]: {
 		args: [id: string];
-		result: import('./file_storage_types').FileStoragePushResult;
+		result: import('./storage_types').StoragePushResult;
 	};
 }
 
