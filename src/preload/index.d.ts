@@ -174,6 +174,7 @@ import type {
 	StorageConfig,
 	StorageObjectInfo,
 	StoragePushResult,
+	StorageSyncFolder,
 	StorageSyncResult,
 	StorageTestResult,
 } from '../shared/storage_types';
