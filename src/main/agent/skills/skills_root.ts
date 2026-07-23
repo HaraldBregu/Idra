@@ -1,7 +1,7 @@
 import path from 'node:path';
-import { agentLocation } from '../../shared/agent_location';
+import { userDataLocation } from '../../shared/user_data_location';
 
-export const skillsRoot = path.resolve(agentLocation(), 'skills');
+export const skillsRoot = path.resolve(userDataLocation(), 'skills');
 
 export function getRoot(): string {
 	return skillsRoot;
