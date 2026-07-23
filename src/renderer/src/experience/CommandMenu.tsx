@@ -152,7 +152,7 @@ function buildCommandGroups(t: TFunction): {
 		})
 	);
 
-	const settingsRoutes = SETTINGS_NAVIGATION.map((item) =>
+	const settingsRoutes = SETTINGS_NAVIGATION.filter((item) => !item.comingSoon).map((item) =>
 		createCommandItem({
 			id: `settings-route-${item.path}`,
 			label: t(item.labelKey),
