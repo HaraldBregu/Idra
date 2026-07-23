@@ -311,46 +311,50 @@ export interface SearchInvokeChannelMap {
 	};
 }
 
-export interface CloudInvokeChannelMap {
-	[CloudChannels.getConfig]: {
+export interface FileStorageInvokeChannelMap {
+	[FileStorageChannels.getFileStorages]: {
 		args: [];
-		result: import('./cloud_types').CloudConfig;
+		result: import('./file_storage_types').FileStorageConfig[];
 	};
-	[CloudChannels.saveConfig]: {
-		args: [config: import('./cloud_types').CloudConfig];
-		result: import('./cloud_types').CloudConfig;
+	[FileStorageChannels.saveFileStorageConfig]: {
+		args: [config: import('./file_storage_types').FileStorageConfig];
+		result: import('./file_storage_types').FileStorageConfig;
 	};
-	[CloudChannels.testConnection]: {
-		args: [config: import('./cloud_types').CloudConfig];
-		result: import('./cloud_types').CloudTestResult;
-	};
-	[CloudChannels.listObjects]: {
-		args: [prefix?: string];
-		result: import('./cloud_types').CloudObjectInfo[];
-	};
-	[CloudChannels.putObject]: {
-		args: [key: string, data: Uint8Array, contentType?: string];
+	[FileStorageChannels.deleteFileStorageConfig]: {
+		args: [id: string];
 		result: void;
 	};
-	[CloudChannels.getObject]: {
-		args: [key: string];
+	[FileStorageChannels.testConnection]: {
+		args: [config: import('./file_storage_types').FileStorageConfig];
+		result: import('./file_storage_types').FileStorageTestResult;
+	};
+	[FileStorageChannels.listObjects]: {
+		args: [id: string, prefix?: string];
+		result: import('./file_storage_types').FileStorageObjectInfo[];
+	};
+	[FileStorageChannels.putObject]: {
+		args: [id: string, key: string, data: Uint8Array, contentType?: string];
+		result: void;
+	};
+	[FileStorageChannels.getObject]: {
+		args: [id: string, key: string];
 		result: Uint8Array;
 	};
-	[CloudChannels.deleteObject]: {
-		args: [key: string];
+	[FileStorageChannels.deleteObject]: {
+		args: [id: string, key: string];
 		result: void;
 	};
-	[CloudChannels.sync]: {
-		args: [localDir: string, prefix?: string];
-		result: import('./cloud_types').CloudSyncResult;
+	[FileStorageChannels.sync]: {
+		args: [id: string, localDir: string, prefix?: string];
+		result: import('./file_storage_types').FileStorageSyncResult;
 	};
-	[CloudChannels.pickFiles]: {
+	[FileStorageChannels.pickFiles]: {
 		args: [];
 		result: string[] | undefined;
 	};
-	[CloudChannels.push]: {
-		args: [];
-		result: import('./cloud_types').CloudPushResult;
+	[FileStorageChannels.push]: {
+		args: [id: string];
+		result: import('./file_storage_types').FileStoragePushResult;
 	};
 }
 
