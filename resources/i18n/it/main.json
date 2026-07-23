@@ -158,7 +158,8 @@
 				"general": "Configurazione generale",
 				"aiAgents": "Agenti AI",
 				"aiFeatures": "Funzionalita AI",
-				"automations": "Automazioni"
+				"automations": "Automazioni",
+				"cloud": "Cloud"
 			},
 			"descriptions": {
 				"application": "Setup e permessi app",
@@ -172,6 +173,7 @@
 				"providers": "Chiavi API e provider",
 				"searchEngine": "Provider di ricerca web e chiave API",
 				"fileStorage": "Archiviazione oggetti compatibile con S3",
+				"database": "Archiviazione dati strutturati",
 				"cron": "Attivita agente pianificate",
 				"heartbeat": "Controlli periodici agente",
 				"health": "Controlli salute periodici",
@@ -190,6 +192,7 @@
 			"workspace": "Area di Lavoro",
 			"providers": "Provider",
 			"searchEngine": "Motore di ricerca",
+			"database": "Database",
 			"fileStorage": "Archiviazione file",
 			"media": "Media",
 			"devices": "Dispositivi",
