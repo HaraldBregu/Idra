@@ -2,8 +2,7 @@ export { getStorages, getStorage, saveStorageConfig, deleteStorageConfig } from 
 export { deleteObject } from './storage_delete';
 export { getObject } from './storage_get';
 export { listObjects } from './storage_list';
-export { pickFiles } from './storage_pick_files';
-export { pickFolders } from './storage_pick_folders';
+export { syncFolders } from './storage_sync_folders';
 export { putObject } from './storage_put';
 export { pushFiles } from './storage_push';
 export { syncDirectory } from './storage_sync';
