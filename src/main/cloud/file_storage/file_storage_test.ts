@@ -1,5 +1,5 @@
 import { HeadBucketCommand } from '@aws-sdk/client-s3';
-import type { FileStorageConfig, FileStorageTestResult } from '../../shared/file_storage_types';
+import type { FileStorageConfig, FileStorageTestResult } from '../../../shared/file_storage_types';
 import { createFileStorageClient } from './file_storage_client';
 import { describeFileStorageError } from './file_storage_error';
 
