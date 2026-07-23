@@ -2,8 +2,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 import type { CloudConfig } from '../../shared/cloud_types';
 import { getCloudConfig } from './cloud_store';
 
-const isR2Endpoint = (endpoint: string): boolean =>
-	/\.r2\.cloudflarestorage\.com$/i.test(new URL(endpoint).hostname);
+const isR2Endpoint = (endpoint: string): boolean => /\.r2\.cloudflarestorage\.com(\/|$)/i.test(endpoint);
 
 export function createCloudClient(config: CloudConfig): S3Client {
 	return new S3Client({
