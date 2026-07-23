@@ -12,6 +12,8 @@ const store = new Store<PersistedCronState>({
 	defaults: { schedules: [] },
 });
 
+export const cronStorePath = store.path;
+
 export function getCronState(): PersistedCronState {
 	return store.store;
 }
