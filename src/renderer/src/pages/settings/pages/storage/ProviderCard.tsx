@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	AlertTriangle,
 	CheckCircle2,
 	ChevronDown,
-	FilePlus2,
-	FolderPlus,
 	Pencil,
 	Trash2,
 	UploadCloud,
