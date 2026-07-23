@@ -1,10 +1,4 @@
-export interface StorageSyncSettings {
-	intervalMinutes: number;
-}
-
-export const DEFAULT_STORAGE_SYNC_SETTINGS: StorageSyncSettings = {
-	intervalMinutes: 24 * 60,
-};
+export const DEFAULT_SYNC_INTERVAL_MINUTES = 24 * 60;
 
 export interface StorageSyncLogger {
 	info(source: string, message: string, data?: unknown): void;
