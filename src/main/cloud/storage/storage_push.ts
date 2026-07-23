@@ -1,15 +1,15 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { FileStoragePushResult } from '../../../shared/file_storage_types';
-import { describeFileStorageError } from './file_storage_error';
-import { putObject } from './file_storage_put';
-import { getFileStorage } from './file_storage_store';
+import type { StoragePushResult } from '../../../shared/storage_types';
+import { describeStorageError } from './storage_error';
+import { putObject } from './storage_put';
+import { getStorage } from './storage_store';
 
-export async function pushFiles(id: string): Promise<FileStoragePushResult> {
-	const config = getFileStorage(id);
+export async function pushFiles(id: string): Promise<StoragePushResult> {
+	const config = getStorage(id);
 	const filePaths = config?.filePaths ?? [];
 	const uploaded: string[] = [];
-	const failed: FileStoragePushResult['failed'] = [];
+	const failed: StoragePushResult['failed'] = [];
 
 	for (const filePath of filePaths) {
 		try {
@@ -17,7 +17,7 @@ export async function pushFiles(id: string): Promise<FileStoragePushResult> {
 			await putObject(id, path.basename(filePath), data);
 			uploaded.push(filePath);
 		} catch (error) {
-			failed.push({ path: filePath, error: describeFileStorageError(error) });
+			failed.push({ path: filePath, error: describeStorageError(error) });
 		}
 	}
 
