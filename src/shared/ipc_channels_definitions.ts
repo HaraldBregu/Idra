@@ -107,17 +107,18 @@ export const ProviderChannels = {
 
 export const ProviderStoreChannels = ProviderChannels;
 
-export const CloudChannels = {
-	getConfig: 'cloud:get-config',
-	saveConfig: 'cloud:save-config',
-	testConnection: 'cloud:test-connection',
-	listObjects: 'cloud:list-objects',
-	putObject: 'cloud:put-object',
-	getObject: 'cloud:get-object',
-	deleteObject: 'cloud:delete-object',
-	sync: 'cloud:sync',
-	pickFiles: 'cloud:pick-files',
-	push: 'cloud:push',
+export const FileStorageChannels = {
+	getFileStorages: 'file-storage:get-all',
+	saveFileStorageConfig: 'file-storage:save',
+	deleteFileStorageConfig: 'file-storage:delete',
+	testConnection: 'file-storage:test-connection',
+	listObjects: 'file-storage:list-objects',
+	putObject: 'file-storage:put-object',
+	getObject: 'file-storage:get-object',
+	deleteObject: 'file-storage:delete-object',
+	sync: 'file-storage:sync',
+	pickFiles: 'file-storage:pick-files',
+	push: 'file-storage:push',
 } as const;
 
 export const SearchChannels = {
