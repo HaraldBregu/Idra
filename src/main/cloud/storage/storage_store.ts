@@ -51,5 +51,14 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 }
 
 export function deleteStorageConfig(id: string): void {
-	store.store = { storages: store.store.storages.filter((storage) => storage.id !== id) };
+	store.store = { ...store.store, storages: store.store.storages.filter((storage) => storage.id !== id) };
+}
+
+export function getStorageSyncSettings(): StorageSyncSettings {
+	return store.store.sync ?? DEFAULT_STORAGE_SYNC_SETTINGS;
+}
+
+export function saveStorageSyncSettings(settings: StorageSyncSettings): StorageSyncSettings {
+	store.store = { ...store.store, sync: settings };
+	return settings;
 }
