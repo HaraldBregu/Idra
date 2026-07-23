@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Cloud, Pencil } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Cloud, FilePlus2, Pencil, Trash2, UploadCloud } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
 import type { CloudConfig } from '../../../../../../shared/cloud_types';
 import { getErrorMessage } from '../../../start/constants';
