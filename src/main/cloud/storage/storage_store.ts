@@ -1,31 +1,31 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import type { FileStorageConfig } from '../../../shared/file_storage_types';
+import type { StorageConfig } from '../../../shared/storage_types';
 import { userDataLocation } from '../../shared/user_data_location';
 
-interface FileStorageStoreShape {
-	storages: FileStorageConfig[];
+interface StorageStoreShape {
+	storages: StorageConfig[];
 }
 
-const DEFAULT_STORE: FileStorageStoreShape = { storages: [] };
+const DEFAULT_STORE: StorageStoreShape = { storages: [] };
 
-const store = new Store<FileStorageStoreShape>({
-	name: 'file-storage',
+const store = new Store<StorageStoreShape>({
+	name: 'storage',
 	cwd: path.resolve(userDataLocation(), 'cloud'),
 	accessPropertiesByDotNotation: false,
 	defaults: DEFAULT_STORE,
 });
 
-export function getFileStorages(): FileStorageConfig[] {
+export function getStorages(): StorageConfig[] {
 	return store.store.storages;
 }
 
-export function getFileStorage(id: string): FileStorageConfig | undefined {
+export function getStorage(id: string): StorageConfig | undefined {
 	return store.store.storages.find((storage) => storage.id === id);
 }
 
-export function saveFileStorageConfig(config: FileStorageConfig): FileStorageConfig {
-	const saved: FileStorageConfig = { ...config, id: config.id || crypto.randomUUID() };
+export function saveStorageConfig(config: StorageConfig): StorageConfig {
+	const saved: StorageConfig = { ...config, id: config.id || crypto.randomUUID() };
 	const storages = store.store.storages;
 	const index = storages.findIndex((storage) => storage.id === saved.id);
 	store.store = {
@@ -37,6 +37,6 @@ export function saveFileStorageConfig(config: FileStorageConfig): FileStorageCon
 	return saved;
 }
 
-export function deleteFileStorageConfig(id: string): void {
+export function deleteStorageConfig(id: string): void {
 	store.store = { storages: store.store.storages.filter((storage) => storage.id !== id) };
 }
