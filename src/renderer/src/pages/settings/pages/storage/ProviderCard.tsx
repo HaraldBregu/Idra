@@ -170,20 +170,6 @@ export function ProviderCard({
 		}
 	};
 
-	const test = async (): Promise<void> => {
-		const target = editing ? draft : canonical;
-		setTesting(true);
-		setStatus(null);
-		const result = await window.storage.testConnection(target);
-		setStatus({
-			ok: result.ok,
-			message: result.ok
-				? t('settings.storage.testOk')
-				: (result.error ?? t('settings.storage.errors.test')),
-		});
-		setTesting(false);
-	};
-
 	const toggleSyncFolder = (folderPath: string, enabled: boolean): void => {
 		const base = editing ? draft : canonical;
 		const paths = enabled
