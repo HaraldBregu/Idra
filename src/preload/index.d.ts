@@ -77,18 +77,18 @@ export interface ProviderApi {
 	set: (id: string, provider: Provider) => Promise<Provider>;
 }
 
-export interface FileStorageApi {
-	getFileStorages: () => Promise<FileStorageConfig[]>;
-	saveFileStorageConfig: (config: FileStorageConfig) => Promise<FileStorageConfig>;
-	deleteFileStorageConfig: (id: string) => Promise<void>;
-	testConnection: (config: FileStorageConfig) => Promise<FileStorageTestResult>;
-	listObjects: (id: string, prefix?: string) => Promise<FileStorageObjectInfo[]>;
+export interface StorageApi {
+	getStorages: () => Promise<StorageConfig[]>;
+	saveStorageConfig: (config: StorageConfig) => Promise<StorageConfig>;
+	deleteStorageConfig: (id: string) => Promise<void>;
+	testConnection: (config: StorageConfig) => Promise<StorageTestResult>;
+	listObjects: (id: string, prefix?: string) => Promise<StorageObjectInfo[]>;
 	putObject: (id: string, key: string, data: Uint8Array, contentType?: string) => Promise<void>;
 	getObject: (id: string, key: string) => Promise<Uint8Array>;
 	deleteObject: (id: string, key: string) => Promise<void>;
-	sync: (id: string, localDir: string, prefix?: string) => Promise<FileStorageSyncResult>;
+	sync: (id: string, localDir: string, prefix?: string) => Promise<StorageSyncResult>;
 	pickFiles: () => Promise<string[] | undefined>;
-	push: (id: string) => Promise<FileStoragePushResult>;
+	push: (id: string) => Promise<StoragePushResult>;
 }
 
 export interface WidgetsApi {
