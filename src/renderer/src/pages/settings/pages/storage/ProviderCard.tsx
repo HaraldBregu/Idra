@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-import type { StorageConfig } from '../../../../../../shared/storage_types';
+import type { StorageConfig, StorageSyncFolder } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
 import { SettingsField, SettingsNotice } from '../../components';
 import { SYNC_INTERVAL_OPTIONS } from './constants';
