@@ -2,7 +2,7 @@ import { contextBridge } from 'electron';
 import { agent } from './agent';
 import { app } from './app';
 import { channels } from './channels';
-import { cloud } from './cloud';
+import { fileStorage } from './file_storage';
 import { image } from './image';
 import { notes } from './notes';
 import { provider } from './provider';
