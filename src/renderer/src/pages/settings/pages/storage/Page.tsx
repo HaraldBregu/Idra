@@ -16,7 +16,7 @@ const BLANK_STORAGE: StorageConfig = {
 	secretAccessKey: '',
 	bucket: '',
 	forcePathStyle: false,
-	filePaths: [],
+	paths: [],
 };
 
 interface StorageEntry {
