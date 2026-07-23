@@ -946,7 +946,8 @@
 			"pathsTitle": "Cartelle da sincronizzare",
 			"folders": {
 				"library": "Libreria",
-				"notes": "Note"
+				"notes": "Note",
+				"projects": "Progetti"
 			},
 			"push": "Carica sul bucket",
 			"pushing": "Caricamento…",
