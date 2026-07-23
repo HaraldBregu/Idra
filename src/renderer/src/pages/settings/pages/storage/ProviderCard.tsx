@@ -102,6 +102,7 @@ export function ProviderCard({
 	const [removing, setRemoving] = useState(false);
 	const [testing, setTesting] = useState(false);
 	const [pushing, setPushing] = useState(false);
+	const [pulling, setPulling] = useState(false);
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [syncFolders, setSyncFolders] = useState<StorageSyncFolder[]>([]);
