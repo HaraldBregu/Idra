@@ -92,7 +92,10 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 	const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const update = (key: StringConfigKey | 'forcePathStyle', value: string | boolean): void => {
+	const update = (
+		key: StringConfigKey | 'forcePathStyle' | 'syncIntervalMinutes',
+		value: string | boolean | number
+	): void => {
 		setDraft((current) => ({ ...current, [key]: value }));
 		setStatus(null);
 	};
