@@ -193,7 +193,7 @@
 			"providers": "Providers",
 			"searchEngine": "Search engine",
 			"database": "Database",
-			"fileStorage": "File storage",
+			"storage": "Storage",
 			"media": "Media",
 			"devices": "Devices",
 			"tools": "Tools",
