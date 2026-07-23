@@ -487,59 +487,48 @@ export function ProviderCard({
 						</section>
 					</CardContent>
 
-					<CardFooter className="justify-between gap-2">
-						<div className="flex gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => void test()}
-								disabled={testing || saving}
-							>
-								{testing ? t('settings.storage.testing') : t('settings.storage.test')}
-							</Button>
-							{!editing && isConfigured(canonical) && (
-								<>
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => void push()}
-										disabled={pushing || pulling || canonical.paths.length === 0}
-									>
-										<UploadCloud className="size-3" />
-										{pushing ? t('settings.storage.pushing') : t('settings.storage.push')}
-									</Button>
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => void pull()}
-										disabled={pulling || pushing || canonical.paths.length === 0}
-									>
-										<DownloadCloud className="size-3" />
-										{pulling ? t('settings.storage.pulling') : t('settings.storage.pull')}
-									</Button>
-								</>
-							)}
-						</div>
-						<div className="flex gap-2">
-							{editing ? (
-								<>
-									{canonical.id && (
-										<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
-											{t('settings.storage.cancel')}
+					{(editing || isConfigured(canonical)) && (
+						<CardFooter className="justify-between gap-2">
+							<div className="flex gap-2">
+								{!editing && isConfigured(canonical) && (
+									<>
+										<Button
+											variant="outline"
+											size="icon-sm"
+											aria-label={t('settings.storage.push')}
+											onClick={() => void push()}
+											disabled={pushing || pulling || canonical.paths.length === 0}
+										>
+											<UploadCloud className="size-3" />
 										</Button>
-									)}
-									<Button size="sm" onClick={() => void save()} disabled={saving}>
-										{saving ? t('settings.storage.saving') : t('settings.storage.save')}
-									</Button>
-								</>
-							) : (
-								<Button size="sm" onClick={startEditing}>
-									<Pencil className="size-3" />
-									{t('settings.storage.edit')}
-								</Button>
-							)}
-						</div>
-					</CardFooter>
+										<Button
+											variant="outline"
+											size="icon-sm"
+											aria-label={t('settings.storage.pull')}
+											onClick={() => void pull()}
+											disabled={pulling || pushing || canonical.paths.length === 0}
+										>
+											<DownloadCloud className="size-3" />
+										</Button>
+									</>
+								)}
+							</div>
+							<div className="flex gap-2">
+								{editing && (
+									<>
+										{canonical.id && (
+											<Button variant="ghost" size="sm" onClick={cancelEditing} disabled={saving}>
+												{t('settings.storage.cancel')}
+											</Button>
+										)}
+										<Button size="sm" onClick={() => void save()} disabled={saving}>
+											{saving ? t('settings.storage.saving') : t('settings.storage.save')}
+										</Button>
+									</>
+								)}
+							</div>
+						</CardFooter>
+					)}
 				</CollapsibleContent>
 			</Collapsible>
 		</Card>
