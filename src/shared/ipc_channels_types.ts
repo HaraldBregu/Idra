@@ -344,6 +344,14 @@ export interface CloudInvokeChannelMap {
 		args: [localDir: string, prefix?: string];
 		result: import('./cloud_types').CloudSyncResult;
 	};
+	[CloudChannels.pickFiles]: {
+		args: [];
+		result: string[] | undefined;
+	};
+	[CloudChannels.push]: {
+		args: [];
+		result: import('./cloud_types').CloudPushResult;
+	};
 }
 
 export interface ImageInvokeChannelMap {
