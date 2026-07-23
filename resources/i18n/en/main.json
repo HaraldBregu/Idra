@@ -914,8 +914,20 @@
 			"errors": {
 				"load": "Could not load cloud settings.",
 				"save": "Could not save cloud settings.",
-				"test": "Connection failed."
+				"test": "Connection failed.",
+				"pickFiles": "Could not open the file picker.",
+				"push": "Could not push files."
 			},
+			"filesTitle": "Files to push",
+			"filesDescription": "Local files that will be uploaded to the bucket.",
+			"addFiles": "Add files",
+			"noFiles": "No files added yet.",
+			"removeFile": "Remove file",
+			"push": "Push to bucket",
+			"pushing": "Pushing…",
+			"pushOk": "Pushed {{count}} file(s).",
+			"pushPartial": "Pushed {{uploaded}} file(s), {{failed}} failed.",
+			"pushEmpty": "Add at least one file before pushing.",
 			"edit": "Edit",
 			"cancel": "Cancel",
 			"endpointDefault": "AWS default",
