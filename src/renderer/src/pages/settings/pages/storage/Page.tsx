@@ -2,10 +2,40 @@ import React, { useEffect, useState } from 'react';
 import { AlertTriangle, Cloud, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import type { StorageConfig } from '../../../../../../shared/storage_types';
 import { getErrorMessage } from '../../../start/constants';
-import { SettingsNotice, SettingsPageHeader, SettingsPageShell, SettingsLoadingRows } from '../../components';
+import {
+	SettingsNotice,
+	SettingsPageHeader,
+	SettingsPageShell,
+	SettingsLoadingRows,
+	SettingsPanel,
+	SettingsRow,
+	SettingsSection,
+} from '../../components';
 import { ProviderCard } from './ProviderCard';
+
+type StorageSyncSettings = Awaited<ReturnType<typeof window.storage.getSyncSettings>>;
+
+const SYNC_INTERVAL_OPTIONS: readonly { minutes: number; labelKey: string }[] = [
+	{ minutes: 0, labelKey: 'settings.storage.autoSync.off' },
+	{ minutes: 15, labelKey: 'settings.storage.autoSync.every15m' },
+	{ minutes: 30, labelKey: 'settings.storage.autoSync.every30m' },
+	{ minutes: 60, labelKey: 'settings.storage.autoSync.every1h' },
+	{ minutes: 180, labelKey: 'settings.storage.autoSync.every3h' },
+	{ minutes: 360, labelKey: 'settings.storage.autoSync.every6h' },
+	{ minutes: 720, labelKey: 'settings.storage.autoSync.every12h' },
+	{ minutes: 1440, labelKey: 'settings.storage.autoSync.every1d' },
+	{ minutes: 2880, labelKey: 'settings.storage.autoSync.every2d' },
+	{ minutes: 10080, labelKey: 'settings.storage.autoSync.every7d' },
+];
 
 const BLANK_STORAGE: StorageConfig = {
 	id: '',
