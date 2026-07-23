@@ -182,22 +182,22 @@ export const SETTINGS_DETAIL_ITEMS: readonly SettingsDetailItem[] = [
 		descriptionKey: 'settings.searchEngine.tavilyDescription',
 		keywords: 'tavily web search api key',
 	},
-	// File storage
+	// Storage
 	{
-		path: '/settings/file-storage',
-		labelKey: 'settings.fileStorage.connectionTitle',
-		descriptionKey: 'settings.fileStorage.connectionDescription',
+		path: '/settings/storage',
+		labelKey: 'settings.storage.connectionTitle',
+		descriptionKey: 'settings.storage.connectionDescription',
 		keywords: 's3 object storage endpoint region bucket url minio aws provider',
 	},
 	{
-		path: '/settings/file-storage',
-		labelKey: 'settings.fileStorage.credentialsTitle',
+		path: '/settings/storage',
+		labelKey: 'settings.storage.credentialsTitle',
 		keywords: 'access key id secret access key api credentials token',
 	},
 	{
-		path: '/settings/file-storage',
-		labelKey: 'settings.fileStorage.forcePathStyle',
-		descriptionKey: 'settings.fileStorage.forcePathStyleDescription',
+		path: '/settings/storage',
+		labelKey: 'settings.storage.forcePathStyle',
+		descriptionKey: 'settings.storage.forcePathStyleDescription',
 		keywords: 'minio path style option compatible',
 	},
 	// MCP
