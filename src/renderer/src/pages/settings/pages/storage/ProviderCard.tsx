@@ -183,39 +183,17 @@ export function ProviderCard({
 		setTesting(false);
 	};
 
-	const addFiles = async (): Promise<void> => {
-		setError(null);
-		try {
-			const picked = await window.storage.pickFiles();
-			if (!picked) return;
-			setDraft((current) => ({
-				...current,
-				paths: Array.from(new Set([...current.paths, ...picked])),
-			}));
-		} catch (err) {
-			setError(getErrorMessage(err, t('settings.storage.errors.pickFiles')));
+	const toggleSyncFolder = (folderPath: string, enabled: boolean): void => {
+		const base = editing ? draft : canonical;
+		const paths = enabled
+			? Array.from(new Set([...base.paths, folderPath]))
+			: base.paths.filter((path) => path !== folderPath);
+		if (editing) {
+			setDraft((current) => ({ ...current, paths }));
+			setStatus(null);
+		} else {
+			void save({ ...canonical, paths });
 		}
-	};
-
-	const addFolders = async (): Promise<void> => {
-		setError(null);
-		try {
-			const picked = await window.storage.pickFolders();
-			if (!picked) return;
-			setDraft((current) => ({
-				...current,
-				paths: Array.from(new Set([...current.paths, ...picked])),
-			}));
-		} catch (err) {
-			setError(getErrorMessage(err, t('settings.storage.errors.pickFolders')));
-		}
-	};
-
-	const removePath = (targetPath: string): void => {
-		setDraft((current) => ({
-			...current,
-			paths: current.paths.filter((path) => path !== targetPath),
-		}));
 	};
 
 	const push = async (): Promise<void> => {
