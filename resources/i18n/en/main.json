@@ -171,7 +171,7 @@
 				"mcp": "External tool servers",
 				"providers": "API keys and providers",
 				"searchEngine": "Web search provider and API key",
-				"cloud": "S3-compatible object storage",
+				"fileStorage": "S3-compatible object storage",
 				"cron": "Scheduled agent tasks",
 				"heartbeat": "Periodic agent checks",
 				"health": "Periodic health checks",
