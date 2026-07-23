@@ -88,6 +88,7 @@ export function ProviderCard({ storage, onSaved, onRemoved }: ProviderCardProps)
 	const [canonical, setCanonical] = useState(storage);
 	const [draft, setDraft] = useState(storage);
 	const [editing, setEditing] = useState(!storage.id);
+	const [expanded, setExpanded] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [removing, setRemoving] = useState(false);
 	const [testing, setTesting] = useState(false);
