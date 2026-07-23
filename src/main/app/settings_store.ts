@@ -63,3 +63,32 @@ export function getTheme(): AppTheme {
 export function setTheme(theme: AppTheme): void {
 	store.set('theme', theme);
 }
+
+export function getProvider(
+	providerId: string | undefined = getProviderId()
+): Provider | undefined {
+	if (!providerId) return undefined;
+	const provider = getStoredProvider(providerId);
+	if (!provider) return undefined;
+	return {
+		id: providerId,
+		apiKey: provider.apiKey,
+		baseURL: provider.baseUrl,
+	};
+}
+
+export function getProviderId(): string | undefined {
+	return store.get('providerId');
+}
+
+export function setProviderId(providerId: string): void {
+	store.set('providerId', providerId);
+}
+
+export function getModelId(): string | undefined {
+	return store.get('modelId');
+}
+
+export function setModelId(modelId: string): void {
+	store.set('modelId', modelId);
+}
