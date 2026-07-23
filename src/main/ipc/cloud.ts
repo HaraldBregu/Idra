@@ -7,7 +7,9 @@ import {
 	getCloudConfig,
 	getObject,
 	listObjects,
+	pickFiles,
 	putObject,
+	pushFiles,
 	setCloudConfig,
 	syncDirectory,
 	testConnection,
@@ -27,5 +29,7 @@ export class CloudIpc implements IpcModule {
 		registerQuery(CloudChannels.getObject, (key) => getObject(key));
 		registerCommand(CloudChannels.deleteObject, (key) => deleteObject(key));
 		registerCommand(CloudChannels.sync, (localDir, prefix) => syncDirectory(localDir, prefix));
+		registerCommand(CloudChannels.pickFiles, () => pickFiles());
+		registerCommand(CloudChannels.push, () => pushFiles());
 	}
 }
