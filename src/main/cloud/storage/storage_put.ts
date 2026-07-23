@@ -1,5 +1,5 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { fileStorageClient } from './file_storage_client';
+import { storageClient } from './storage_client';
 
 export async function putObject(
 	id: string,
@@ -7,7 +7,7 @@ export async function putObject(
 	data: Uint8Array,
 	contentType?: string
 ): Promise<void> {
-	const { client, bucket } = fileStorageClient(id);
+	const { client, bucket } = storageClient(id);
 	await client.send(
 		new PutObjectCommand({
 			Bucket: bucket,
