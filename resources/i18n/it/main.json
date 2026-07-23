@@ -940,16 +940,13 @@
 				"save": "Impossibile salvare le impostazioni di archiviazione.",
 				"delete": "Impossibile rimuovere il provider.",
 				"test": "Connessione non riuscita.",
-				"pickFiles": "Impossibile aprire il selettore di file.",
-				"pickFolders": "Impossibile aprire il selettore di cartelle.",
 				"push": "Impossibile caricare i file."
 			},
-			"pathsTitle": "File e cartelle da caricare",
-			"pathsDescription": "File e cartelle locali che verranno caricati sul bucket.",
-			"addFiles": "Aggiungi file",
-			"addFolders": "Aggiungi cartelle",
-			"noPaths": "Nessun elemento aggiunto.",
-			"removePath": "Rimuovi",
+			"pathsTitle": "Cartelle da sincronizzare",
+			"folders": {
+				"library": "Libreria",
+				"notes": "Note"
+			},
 			"push": "Carica sul bucket",
 			"pushing": "Caricamento…",
 			"pushOk": "Caricati {{count}} file.",
