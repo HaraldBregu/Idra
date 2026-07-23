@@ -18,7 +18,6 @@ import { win } from './win';
 export { agent } from './agent';
 export { app } from './app';
 export { channels } from './channels';
-export { fileStorage } from './file_storage';
 export { image } from './image';
 export { provider } from './provider';
 export { search } from './search';
