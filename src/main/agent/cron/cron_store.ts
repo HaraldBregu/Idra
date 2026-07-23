@@ -1,13 +1,13 @@
 import path from 'node:path';
 import Store from 'electron-store';
-import { agentLocation } from '../../shared/agent_location';
+import { userDataLocation } from '../../shared/user_data_location';
 import type { PersistedCronState } from './cron_types';
 
-const CRON_STORE_NAME = 'cron';
+const CRON_STORE_NAME = 'settings';
 
 const store = new Store<PersistedCronState>({
 	name: CRON_STORE_NAME,
-	cwd: path.resolve(agentLocation()),
+	cwd: path.resolve(userDataLocation(), 'cron'),
 	accessPropertiesByDotNotation: false,
 	defaults: { schedules: [] },
 });
