@@ -2,17 +2,13 @@ import path from 'node:path';
 import Store from 'electron-store';
 import type { StorageConfig } from '../../../shared/storage_types';
 import { userDataLocation } from '../../shared/user_data_location';
-import { DEFAULT_STORAGE_SYNC_SETTINGS, type StorageSyncSettings } from './storage_sync_types';
+import { DEFAULT_SYNC_INTERVAL_MINUTES } from './storage_sync_types';
 
 interface StorageStoreShape {
 	storages: StorageConfig[];
-	sync: StorageSyncSettings;
 }
 
-const DEFAULT_STORE: StorageStoreShape = {
-	storages: [],
-	sync: DEFAULT_STORAGE_SYNC_SETTINGS,
-};
+const DEFAULT_STORE: StorageStoreShape = { storages: [] };
 
 const store = new Store<StorageStoreShape>({
 	name: 'storage',
@@ -21,11 +17,15 @@ const store = new Store<StorageStoreShape>({
 	defaults: DEFAULT_STORE,
 });
 
-// Reads saved before the `filePaths` -> `paths` rename won't have `paths` yet.
+// Reads saved before the `filePaths` -> `paths` rename won't have `paths` yet,
+// and reads saved before `syncIntervalMinutes` was introduced won't have it either.
 function normalizeStorage(config: StorageConfig & { filePaths?: string[] }): StorageConfig {
-	if (config.paths) return config;
 	const { filePaths, ...rest } = config;
-	return { ...rest, paths: filePaths ?? [] };
+	return {
+		...rest,
+		paths: rest.paths ?? filePaths ?? [],
+		syncIntervalMinutes: rest.syncIntervalMinutes ?? DEFAULT_SYNC_INTERVAL_MINUTES,
+	};
 }
 
 export function getStorages(): StorageConfig[] {
@@ -42,7 +42,6 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 	const storages = store.store.storages;
 	const index = storages.findIndex((storage) => storage.id === saved.id);
 	store.store = {
-		...store.store,
 		storages:
 			index >= 0
 				? storages.map((storage, i) => (i === index ? saved : storage))
@@ -52,14 +51,5 @@ export function saveStorageConfig(config: StorageConfig): StorageConfig {
 }
 
 export function deleteStorageConfig(id: string): void {
-	store.store = { ...store.store, storages: store.store.storages.filter((storage) => storage.id !== id) };
-}
-
-export function getStorageSyncSettings(): StorageSyncSettings {
-	return store.store.sync ?? DEFAULT_STORAGE_SYNC_SETTINGS;
-}
-
-export function saveStorageSyncSettings(settings: StorageSyncSettings): StorageSyncSettings {
-	store.store = { ...store.store, sync: settings };
-	return settings;
+	store.store = { storages: store.store.storages.filter((storage) => storage.id !== id) };
 }
