@@ -957,6 +957,8 @@
 			"pushEmpty": "Aggiungi almeno un file prima di caricare.",
 			"edit": "Modifica",
 			"cancel": "Annulla",
+			"collapse": "Comprimi",
+			"expand": "Espandi",
 			"endpointDefault": "Predefinito AWS",
 			"connectionDescription": "Credenziali per il tuo bucket compatibile con S3.",
 			"credentialsTitle": "Credenziali",
