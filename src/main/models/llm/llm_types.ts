@@ -5,7 +5,7 @@ import type { ModelReasoningEffort } from '../../../shared/agent_types';
 export interface LlmRequest {
 	messages: Message[];
 	systemPrompt?: string;
-	provider: Provider;
+	provider: ResolvedProvider;
 	model: string;
 	effort?: ModelReasoningEffort;
 	maxTokens: number;
