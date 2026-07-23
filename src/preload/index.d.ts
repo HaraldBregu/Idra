@@ -87,8 +87,7 @@ export interface StorageApi {
 	getObject: (id: string, key: string) => Promise<Uint8Array>;
 	deleteObject: (id: string, key: string) => Promise<void>;
 	sync: (id: string, localDir: string, prefix?: string) => Promise<StorageSyncResult>;
-	pickFiles: () => Promise<string[] | undefined>;
-	pickFolders: () => Promise<string[] | undefined>;
+	syncFolders: () => Promise<StorageSyncFolder[]>;
 	push: (id: string) => Promise<StoragePushResult>;
 }
 
