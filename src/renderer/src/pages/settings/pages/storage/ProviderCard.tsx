@@ -283,11 +283,6 @@ export function ProviderCard({
 						className="flex items-center gap-2"
 						onClick={(event) => event.stopPropagation()}
 					>
-						{!editing && isConfigured(canonical) && (
-							<Badge variant="secondary" className="gap-1 text-[10px]">
-								<CheckCircle2 className="size-3" />
-							</Badge>
-						)}
 						<CollapsibleTrigger
 							render={
 								<Button
