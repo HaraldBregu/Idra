@@ -96,6 +96,8 @@ const FileStoragePage: React.FC = () => {
 					</Button>
 				</>
 			)}
+
+			<SettingsNotice icon={Cloud}>{t('settings.fileStorage.localNote')}</SettingsNotice>
 		</SettingsPageShell>
 	);
 };
