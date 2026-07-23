@@ -12,6 +12,11 @@ export interface StorageConfig {
 	syncIntervalMinutes: number;
 }
 
+export interface StorageSyncFolder {
+	key: 'library' | 'notes';
+	path: string;
+}
+
 export interface StorageObjectInfo {
 	key: string;
 	size: number;
