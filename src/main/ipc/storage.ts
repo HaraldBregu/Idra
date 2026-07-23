@@ -8,8 +8,6 @@ import {
 	getObject,
 	getStorages,
 	listObjects,
-	pickFiles,
-	pickFolders,
 	putObject,
 	pushFiles,
 	rescheduleStorageSync,
