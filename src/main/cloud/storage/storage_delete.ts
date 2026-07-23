@@ -1,7 +1,7 @@
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
-import { fileStorageClient } from './file_storage_client';
+import { storageClient } from './storage_client';
 
 export async function deleteObject(id: string, key: string): Promise<void> {
-	const { client, bucket } = fileStorageClient(id);
+	const { client, bucket } = storageClient(id);
 	await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }
