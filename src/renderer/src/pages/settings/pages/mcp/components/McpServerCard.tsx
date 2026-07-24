@@ -29,6 +29,7 @@ export function McpServerCard({
 	connecting,
 	server,
 	onConnect,
+	onToggle,
 	onViewDetails,
 }: {
 	readonly catalogEntry: McpServerCardEntry;
@@ -38,6 +39,7 @@ export function McpServerCard({
 		readonly entry: McpServerEntry;
 	};
 	readonly onConnect: () => void;
+	readonly onToggle?: (enabled: boolean) => void;
 	readonly onViewDetails?: () => void;
 }): React.JSX.Element {
 	const status = server ? mcpStatus(server.entry) : undefined;
