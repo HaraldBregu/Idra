@@ -31,8 +31,6 @@ import {
 	setModelId,
 	setProviderId,
 } from '../app/settings_store';
-import { listLibrary } from '../library';
-import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
 
 export interface AgentIpcDeps {
 	logger: LoggerService;
