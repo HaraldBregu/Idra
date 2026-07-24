@@ -116,7 +116,7 @@
 	--secondary: oklch(0.9 0.009 75);
 	--secondary-foreground: oklch(0.205 0.008 75);
 	--muted: oklch(0.9 0.009 75);
-	--muted-foreground: oklch(0.45 0.01 75);
+	--muted-foreground: oklch(0.4 0.01 75);
 	--accent: oklch(0.9 0.009 75);
 	--accent-foreground: oklch(0.205 0.008 75);
 	--destructive: oklch(0.577 0.245 27.325);
@@ -142,7 +142,7 @@
 	--code: var(--surface);
 	--code-foreground: var(--surface-foreground);
 	--code-highlight: oklch(0.92 0.01 75);
-	--code-number: oklch(0.45 0.01 75);
+	--code-number: oklch(0.4 0.01 75);
 	--selection: oklch(0.205 0.008 75);
 	--selection-foreground: oklch(0.972 0.007 75);
 	--link: oklch(0.45 0.18 254);
