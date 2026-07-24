@@ -178,15 +178,22 @@ function Tool({ toolPart, label, defaultOpen = false, hideIcon = false, classNam
 									{triggerLabel}
 								</span>
 								<StatusIcon state={state} />
-								{toolPart.durationMs !== undefined && (
+								{displayDurationMs !== undefined && (
 									<span className="shrink-0 text-[10px] tabular-nums text-muted-foreground/50">
-										{formatDuration(toolPart.durationMs)}
+										{formatDuration(displayDurationMs)}
 									</span>
 								)}
-								{toolPart.outputTokens !== undefined && toolPart.outputTokens > 0 && (
+								{streamingTokens > 0 ? (
 									<span className="ml-auto shrink-0 pl-2 text-[10px] tabular-nums text-muted-foreground/50">
-										{toolPart.outputTokens.toLocaleString()} tok
+										~{streamingTokens.toLocaleString()} tok
 									</span>
+								) : (
+									toolPart.outputTokens !== undefined &&
+									toolPart.outputTokens > 0 && (
+										<span className="ml-auto shrink-0 pl-2 text-[10px] tabular-nums text-muted-foreground/50">
+											{toolPart.outputTokens.toLocaleString()} tok
+										</span>
+									)
 								)}
 								<ChevronDown
 									className={cn(
