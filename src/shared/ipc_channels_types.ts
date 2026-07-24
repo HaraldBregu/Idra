@@ -24,7 +24,6 @@ import {
 	ProviderChannels,
 	SearchChannels,
 	SpeechChannels,
-	NotesChannels,
 	SttChannels,
 	TextChannels,
 	VideoChannels,
