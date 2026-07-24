@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ProjectInfo } from './projects_types';
+import { projects } from './projects_data';
 import { findProject } from './projects_find';
 import { PROJECT_FILE } from './projects_read';
-import { setProject } from './projects_store';
+import type { ProjectInfo } from './projects_types';
 
 export function updateProject(
 	name: string,
@@ -19,6 +19,7 @@ export function updateProject(
 	);
 	if (updates.instructions !== undefined)
 		fs.writeFileSync(project.instructionsPath, updates.instructions);
-	setProject(project.id, { title, description });
-	return { ...project, title, description };
+	const updated: ProjectInfo = { ...project, title, description };
+	projects.set(project.id, updated);
+	return updated;
 }
