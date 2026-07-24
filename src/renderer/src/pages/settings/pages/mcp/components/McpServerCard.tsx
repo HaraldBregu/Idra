@@ -93,6 +93,13 @@ export function McpServerCard({
 						{connecting ? 'Connecting' : 'Connect'}
 					</Button>
 				)}
+				{server && onToggle && (
+					<Switch
+						checked={server.entry.enabled !== false}
+						onCheckedChange={onToggle}
+						aria-label={`${server.entry.enabled !== false ? 'Deactivate' : 'Activate'} ${title}`}
+					/>
+				)}
 				{hasDetails && (
 					<Button
 						variant="ghost"
