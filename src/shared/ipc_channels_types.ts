@@ -539,23 +539,6 @@ export interface SttEventChannelMap {
 	[SttChannels.realtimeEvent]: { data: SttRealtimeEvent };
 }
 
-export interface NotesInvokeChannelMap {
-	[NotesChannels.list]: { args: []; result: import('../main/agent/notes/notes_types').Note[] };
-	[NotesChannels.get]: {
-		args: [id: string];
-		result: import('../main/agent/notes/notes_types').Note | undefined;
-	};
-	[NotesChannels.create]: {
-		args: [input: import('../main/agent/notes/notes_types').CreateNoteInput];
-		result: import('../main/agent/notes/notes_types').Note;
-	};
-	[NotesChannels.update]: {
-		args: [id: string, updates: import('../main/agent/notes/notes_types').UpdateNoteInput];
-		result: import('../main/agent/notes/notes_types').Note | undefined;
-	};
-	[NotesChannels.delete]: { args: [id: string]; result: boolean };
-}
-
 export interface WidgetsInvokeChannelMap {
 	[WidgetChannels.list]: { args: []; result: import('./widget_types').Widget[] };
 }
