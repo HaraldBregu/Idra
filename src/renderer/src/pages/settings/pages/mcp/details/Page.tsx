@@ -6,6 +6,7 @@ import type { McpData } from '@shared/mcp_types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
 import {
 	SettingsEmptyState,
