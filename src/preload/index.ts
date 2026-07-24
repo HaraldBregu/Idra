@@ -3,7 +3,6 @@ import { agent } from './agent';
 import { app } from './app';
 import { channels } from './channels';
 import { image } from './image';
-import { notes } from './notes';
 import { provider } from './provider';
 import { search } from './search';
 import { sound } from './sound';
