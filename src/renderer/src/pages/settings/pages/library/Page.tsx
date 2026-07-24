@@ -78,6 +78,7 @@ const LibraryPage: React.FC = () => {
 	const [files, setFiles] = useState<LibraryFile[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [viewMode, setViewMode] = useState<LibraryViewMode>('collection');
 
 	useEffect(() => {
 		let mounted = true;
