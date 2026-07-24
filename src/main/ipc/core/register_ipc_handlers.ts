@@ -1,7 +1,11 @@
 import { AgentIpc } from '../agent';
 import { AppIpc } from '../app';
 import { ChannelsIpc } from '../channels';
+import { CronIpc } from '../cron';
 import { ImageIpc } from '../image';
+import { LibraryIpc } from '../library';
+import { McpIpc } from '../mcp';
+import { SkillsIpc } from '../skills';
 import { SoundIpc } from '../sound';
 import { ProviderStoreIpc } from '../provider';
 import { SearchIpc } from '../search';
