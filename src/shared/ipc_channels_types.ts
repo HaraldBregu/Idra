@@ -580,6 +580,10 @@ export interface InvokeChannelMap
 	extends
 		AppInvokeChannelMap,
 		AgentInvokeChannelMap,
+		CronInvokeChannelMap,
+		SkillsInvokeChannelMap,
+		McpInvokeChannelMap,
+		LibraryInvokeChannelMap,
 		ProviderStoreInvokeChannelMap,
 		SearchInvokeChannelMap,
 		StorageInvokeChannelMap,
