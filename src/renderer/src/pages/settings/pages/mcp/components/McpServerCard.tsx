@@ -3,6 +3,7 @@ import { ChevronRight, PlugZap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemTitle } from '@/components/ui/item';
+import { Switch } from '@/components/ui/switch';
 import { McpStatusBadge, type McpStatus } from './McpStatusBadge';
 
 type McpServerCardEntry = {
