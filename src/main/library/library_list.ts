@@ -24,8 +24,8 @@ const EXTENSION_TYPES: Record<string, LibraryFileType> = {
 	'.avi': 'video',
 };
 
-export async function listLibrary(config: Config): Promise<LibraryFile[]> {
-	const libraryDir = path.join(config.location, 'library');
+export async function listLibrary(): Promise<LibraryFile[]> {
+	const libraryDir = libraryLocation();
 	let entries;
 	try {
 		entries = await fs.readdir(libraryDir, { withFileTypes: true });
