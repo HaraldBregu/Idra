@@ -298,7 +298,6 @@ export function AssistantMessage({
 			)}
 			{hasContent && (
 				<>
-					<MessageStats message={message} isStreaming={isStreaming} className="mb-1" />
 					<Markdown
 						className="min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
 						components={messageMarkdownComponents}
