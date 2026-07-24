@@ -47,7 +47,6 @@ export class Agent {
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
-		initNotes(this.config);
 		initCron();
 		this.session = createSessionState();
 	}
