@@ -25,13 +25,6 @@ const SCHEDULE_TOOLS = new Set([
 	'list_schedules',
 	'run_schedule_now',
 ]);
-const NOTE_TOOLS = new Set([
-	'create_note',
-	'read_note',
-	'update_note',
-	'delete_note',
-	'search_notes',
-]);
 
 export function directoryPermissionTargets(
 	toolName: string,
