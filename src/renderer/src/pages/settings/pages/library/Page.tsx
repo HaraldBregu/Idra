@@ -110,11 +110,38 @@ const LibraryPage: React.FC = () => {
 				</SettingsNotice>
 			)}
 
-			<SettingsSection title={t('settings.library.itemsTitle')}>
+			<SettingsSection
+				title={t('settings.library.itemsTitle')}
+				action={
+					!loading &&
+					files.length > 0 && (
+						<ToggleGroup
+							type="single"
+							value={viewMode}
+							onValueChange={(value) => {
+								if (value) setViewMode(value as LibraryViewMode);
+							}}
+						>
+							<ToggleGroupItem value="collection" aria-label={t('settings.library.viewCollection')}>
+								<LayoutGrid />
+							</ToggleGroupItem>
+							<ToggleGroupItem value="list" aria-label={t('settings.library.viewList')}>
+								<ListIcon />
+							</ToggleGroupItem>
+						</ToggleGroup>
+					)
+				}
+			>
 				{!loading && files.length === 0 ? (
 					<p className="px-3 py-3 text-[11px] leading-4 text-muted-foreground">
 						{t('settings.library.empty')}
 					</p>
+				) : viewMode === 'list' ? (
+					<SettingsPanel>
+						{files.map((file) => (
+							<LibraryListRow key={file.path} file={file} />
+						))}
+					</SettingsPanel>
 				) : (
 					<div className="grid grid-cols-2 gap-3 md:grid-cols-3">
 						{files.map((file) => (
