@@ -5,7 +5,6 @@ function useNow(active: boolean, intervalMs = 100): number {
 
 	React.useEffect(() => {
 		if (!active) return;
-		setNow(Date.now());
 		const id = window.setInterval(() => setNow(Date.now()), intervalMs);
 		return () => window.clearInterval(id);
 	}, [active, intervalMs]);
