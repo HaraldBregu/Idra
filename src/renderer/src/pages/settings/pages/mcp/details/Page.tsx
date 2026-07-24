@@ -134,16 +134,31 @@ const McpDetailsPage: React.FC = () => {
 			<SettingsPageHeader
 				title={displayName}
 				action={
-					<McpServerDialog
-						initial={{ id, entry: server }}
-						trigger={
-							<Button variant="outline" size="sm">
-								<Pencil className="size-3.5" />
-								Edit
-							</Button>
-						}
-						onSubmit={updateMcpServer}
-					/>
+					<div className="flex flex-wrap items-center gap-1.5">
+						<label className="mr-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+							<Switch
+								checked={server.enabled !== false}
+								onCheckedChange={(enabled) =>
+									void updateMcpServer(id, {
+										...server,
+										enabled,
+										updated_at: new Date().toISOString(),
+									})
+								}
+							/>
+							{server.enabled !== false ? 'Active' : 'Inactive'}
+						</label>
+						<McpServerDialog
+							initial={{ id, entry: server }}
+							trigger={
+								<Button variant="outline" size="sm">
+									<Pencil className="size-3.5" />
+									Edit
+								</Button>
+							}
+							onSubmit={updateMcpServer}
+						/>
+					</div>
 				}
 			/>
 
