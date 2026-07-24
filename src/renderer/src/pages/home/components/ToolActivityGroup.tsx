@@ -38,13 +38,27 @@ function staggerStyle(index: number): { animationDelay: string } {
 	return { animationDelay: `${Math.min(index * 40, 240)}ms` };
 }
 
+function isLiveTool(tool: AgentToolPart): boolean {
+	return (
+		tool.durationMs === undefined && tool.startedAtMs !== undefined && isToolRunning(tool)
+	);
+}
+
 function ToolTypeSection({ group }: { readonly group: ToolTypeGroup }): ReactElement {
 	const [isOpen, setIsOpen] = useState(false);
 	const isRunning = group.tools.some(isToolRunning);
 	const label = toolGroupLabel(group.type, group.tools);
 	const KindIcon = toolIcon(group.tools[0]);
-	const hasDuration = group.tools.some((tool) => tool.durationMs !== undefined);
-	const durationMs = group.tools.reduce((total, tool) => total + (tool.durationMs ?? 0), 0);
+	const hasLiveTool = group.tools.some(isLiveTool);
+	const now = useNow(hasLiveTool);
+	const hasDuration =
+		hasLiveTool || group.tools.some((tool) => tool.durationMs !== undefined);
+	const durationMs = group.tools.reduce((total, tool) => {
+		if (tool.durationMs !== undefined) return total + tool.durationMs;
+		if (isLiveTool(tool) && tool.startedAtMs !== undefined)
+			return total + Math.max(0, now - tool.startedAtMs);
+		return total;
+	}, 0);
 
 	return (
 		<Collapsible open={isOpen} onOpenChange={setIsOpen}>
