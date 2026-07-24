@@ -1001,7 +1001,9 @@
 			"title": "Libreria",
 			"description": "Sfoglia i file multimediali nella libreria dell'agente.",
 			"itemsTitle": "Tutti i file",
-			"empty": "Nessun file multimediale."
+			"empty": "Nessun file multimediale.",
+			"viewCollection": "Vista raccolta",
+			"viewList": "Vista elenco"
 		},
 		"modelServices": {
 			"title": "Servizi modello",
