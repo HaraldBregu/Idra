@@ -100,19 +100,63 @@ export interface AgentInvokeChannelMap {
 	};
 	[AgentChannels.healthData]: { args: []; result: string };
 	[AgentChannels.healthSaveData]: { args: [content: string]; result: string };
-	[AgentChannels.mcpList]: { args: []; result: import('./mcp_types').McpSettings };
-	[AgentChannels.mcpGet]: { args: [id: string]; result: import('./mcp_types').McpSettings };
-	[AgentChannels.mcpSave]: {
+}
+
+export interface CronInvokeChannelMap {
+	[CronChannels.list]: { args: []; result: import('../main/cron').CronSchedule[] };
+	[CronChannels.getRuntime]: {
+		args: [];
+		result: import('../main/cron').CronRuntime | undefined;
+	};
+	[CronChannels.setRuntime]: {
+		args: [providerId: string, modelId: string];
+		result: import('../main/cron').CronRuntime;
+	};
+}
+
+export interface SkillsInvokeChannelMap {
+	[SkillsChannels.list]: { args: []; result: import('./skills_types').SkillInfo[] };
+	[SkillsChannels.load]: {
+		args: [name: string];
+		result: import('./skills_types').SkillLoadResult | undefined;
+	};
+	[SkillsChannels.import]: {
+		args: [];
+		result: import('./skills_types').SkillImportResult | undefined;
+	};
+	[SkillsChannels.download]: {
+		args: [name: string];
+		result: import('./skills_types').SkillDownloadResult | undefined;
+	};
+	[SkillsChannels.delete]: {
+		args: [name: string];
+		result: import('./skills_types').SkillDeleteResult;
+	};
+	[SkillsChannels.setEnabled]: {
+		args: [id: string, enabled: boolean];
+		result: import('./skills_types').SkillInfo;
+	};
+	[SkillsChannels.openRoot]: { args: []; result: void };
+	[SkillsChannels.getRoot]: { args: []; result: string };
+}
+
+export interface McpInvokeChannelMap {
+	[McpChannels.list]: { args: []; result: import('./mcp_types').McpSettings };
+	[McpChannels.get]: { args: [id: string]; result: import('./mcp_types').McpSettings };
+	[McpChannels.save]: {
 		args: [input: import('./mcp_types').McpSettings];
 		result: import('./mcp_types').McpSettings;
 	};
-	[AgentChannels.mcpDelete]: { args: [id: string]; result: void };
-	[AgentChannels.mcpOauthStart]: {
+	[McpChannels.delete]: { args: [id: string]; result: void };
+	[McpChannels.oauthStart]: {
 		args: [id: string];
 		result: import('./mcp_types').McpOAuthStart;
 	};
-	[AgentChannels.mcpOauthFinish]: { args: [id: string, code: string]; result: void };
-	[AgentChannels.libraryList]: {
+	[McpChannels.oauthFinish]: { args: [id: string, code: string]; result: void };
+}
+
+export interface LibraryInvokeChannelMap {
+	[LibraryChannels.list]: {
 		args: [];
 		result: import('./library_types').LibraryFile[];
 	};
