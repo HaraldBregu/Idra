@@ -35,13 +35,36 @@ export interface AgentApi {
 	healthResetSettings: () => Promise<HealthSettings>;
 	healthGetData: () => Promise<string>;
 	healthSaveData: (content: string) => Promise<string>;
-	mcpList: () => Promise<McpSettings>;
-	mcpGet: (id: string) => Promise<McpSettings>;
-	mcpSave: (input: McpSettings) => Promise<McpSettings>;
-	mcpDelete: (id: string) => Promise<void>;
-	mcpOauthStart: (id: string) => Promise<McpOAuthStart>;
-	mcpOauthFinish: (id: string, code: string) => Promise<void>;
-	libraryList: () => Promise<LibraryFile[]>;
+}
+
+export interface CronApi {
+	list: () => Promise<CronSchedule[]>;
+	getRuntime: () => Promise<CronRuntime | undefined>;
+	setRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
+}
+
+export interface SkillsApi {
+	list: () => Promise<SkillInfo[]>;
+	load: (name: string) => Promise<SkillLoadResult | undefined>;
+	import: () => Promise<SkillImportResult | undefined>;
+	download: (name: string) => Promise<SkillDownloadResult | undefined>;
+	delete: (name: string) => Promise<SkillDeleteResult>;
+	setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
+	openRoot: () => Promise<void>;
+	getRoot: () => Promise<string>;
+}
+
+export interface McpApi {
+	list: () => Promise<McpSettings>;
+	get: (id: string) => Promise<McpSettings>;
+	save: (input: McpSettings) => Promise<McpSettings>;
+	delete: (id: string) => Promise<void>;
+	oauthStart: (id: string) => Promise<McpOAuthStart>;
+	oauthFinish: (id: string, code: string) => Promise<void>;
+}
+
+export interface LibraryApi {
+	list: () => Promise<LibraryFile[]>;
 }
 
 export interface ChannelsApi {
