@@ -151,7 +151,16 @@ function applyResponseEvent(
 	}
 
 	if (event.type === 'model_usage') {
-		return { ...ensured.state, pendingTurnOutputTokens: event.usage?.outputTokens };
+		const turnOutputTokens = event.usage?.outputTokens;
+		const nextState =
+			turnOutputTokens === undefined
+				? ensured.state
+				: updateAgentMessage(ensured.state, ensured.message.id, (message) => ({
+						...message,
+						settledOutputTokens: (message.settledOutputTokens ?? 0) + turnOutputTokens,
+						streamedChars: 0,
+					}));
+		return { ...nextState, pendingTurnOutputTokens: turnOutputTokens };
 	}
 
 	if (event.type === 'run_finished') {
