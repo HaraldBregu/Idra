@@ -31,6 +31,8 @@ export interface AgentMessage {
 	readonly completedAtMs?: number;
 	readonly inputTokens?: number;
 	readonly outputTokens?: number;
+	readonly settledOutputTokens?: number;
+	readonly streamedChars?: number;
 }
 
 export type HomeChatMessage = UserMessage | AgentMessage;
