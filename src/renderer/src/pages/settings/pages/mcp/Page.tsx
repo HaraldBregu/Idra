@@ -35,6 +35,14 @@ const McpPage = () => {
 		setAdding(false);
 	};
 
+	const toggleMcpServer = async (id: string, entry: McpData, enabled: boolean): Promise<void> => {
+		await window.agent.mcpSave({
+			...servers,
+			[id]: { ...entry, enabled, updated_at: new Date().toISOString() },
+		});
+		await load();
+	};
+
 	const entries = Object.entries(servers) as McpServerEntry[];
 	const remoteEntries = entries.filter(([, entry]) => entry.type === 'http');
 	const localEntries = entries.filter(([, entry]) => entry.type === 'stdio');
