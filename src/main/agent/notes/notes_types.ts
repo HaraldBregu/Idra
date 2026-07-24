@@ -8,20 +8,13 @@ export type NoteMetadataValue =
 	| NoteMetadataValue[]
 	| { [key: string]: NoteMetadataValue };
 
-export interface NoteSettingsEntry {
+export interface Note {
+	id: string;
 	title: string;
+	content: string;
 	createdAt: string;
 	updatedAt: string;
 	metadata: NoteMetadata;
-}
-
-export interface NotesSettings {
-	notes: Record<string, NoteSettingsEntry>;
-}
-
-export interface Note extends NoteSettingsEntry {
-	id: string;
-	content: string;
 }
 
 export interface CreateNoteInput {
