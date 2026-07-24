@@ -33,7 +33,11 @@ export function registerIpcHandlers(services: MainServices, eventBus: EventBus):
 	safeRegister('app', () => new AppIpc().register({ logger }, eventBus));
 	safeRegister('agent', () => new AgentIpc().register({ logger, agent: agentService }, eventBus));
 	safeRegister('channels', () => new ChannelsIpc().register({ logger, channelRegistry }, eventBus));
+	safeRegister('cron', () => new CronIpc().register(undefined, eventBus));
 	safeRegister('image', () => new ImageIpc().register(undefined, eventBus));
+	safeRegister('library', () => new LibraryIpc().register(undefined, eventBus));
+	safeRegister('mcp', () => new McpIpc().register(undefined, eventBus));
+	safeRegister('skills', () => new SkillsIpc().register(undefined, eventBus));
 	safeRegister('sound', () => new SoundIpc().register(undefined, eventBus));
 	safeRegister('provider-store', () => new ProviderStoreIpc().register(undefined, eventBus));
 	safeRegister('search', () => new SearchIpc().register(undefined, eventBus));
