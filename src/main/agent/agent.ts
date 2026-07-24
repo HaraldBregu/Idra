@@ -16,6 +16,17 @@ import { destroyCron, initCron, startCron } from '../cron';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
 import { resolveSkillCommand } from '../skills';
+import {
+	agentView,
+	beginCommand,
+	createContextState,
+	enqueueCommand,
+	finishCommand,
+	interruptCommands,
+	trackEvent,
+	type AgentCommand,
+	type AgentContextState,
+} from './context';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
 	AgentHistoryContentBlock,
