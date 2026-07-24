@@ -6,7 +6,6 @@ import { libraryLocation } from '../../shared/library_location';
 export function syncFolders(): StorageSyncFolder[] {
 	return [
 		{ key: 'library', path: libraryLocation() },
-		{ key: 'notes', path: path.join(agentLocation(), 'notes') },
 		{ key: 'projects', path: path.join(agentLocation(), 'projects') },
 	];
 }
