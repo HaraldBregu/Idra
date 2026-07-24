@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { Config } from '../agent/types';
+import { libraryLocation } from '../shared/library_location';
 import type { LibraryFile, LibraryFileType } from '../../shared/library_types';
 
 const EXTENSION_TYPES: Record<string, LibraryFileType> = {
