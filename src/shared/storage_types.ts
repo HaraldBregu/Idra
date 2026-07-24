@@ -13,7 +13,7 @@ export interface StorageConfig {
 }
 
 export interface StorageSyncFolder {
-	key: 'library' | 'notes' | 'projects';
+	key: 'library' | 'projects';
 	path: string;
 }
 
