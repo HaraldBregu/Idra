@@ -21,13 +21,36 @@ export const AgentChannels = {
 	healthResetSettings: 'agent:health:settings:reset',
 	healthData: 'agent:health:data',
 	healthSaveData: 'agent:health:data:save',
-	mcpList: 'agent:mcp:list',
-	mcpGet: 'agent:mcp:get',
-	mcpSave: 'agent:mcp:save',
-	mcpDelete: 'agent:mcp:delete',
-	mcpOauthStart: 'agent:mcp:oauth:start',
-	mcpOauthFinish: 'agent:mcp:oauth:finish',
-	libraryList: 'agent:library:list',
+} as const;
+
+export const CronChannels = {
+	list: 'cron:list',
+	getRuntime: 'cron:runtime:get',
+	setRuntime: 'cron:runtime:set',
+} as const;
+
+export const SkillsChannels = {
+	list: 'skills:list',
+	load: 'skills:load',
+	import: 'skills:import',
+	download: 'skills:download',
+	delete: 'skills:delete',
+	setEnabled: 'skills:set-enabled',
+	openRoot: 'skills:open-root',
+	getRoot: 'skills:get-root',
+} as const;
+
+export const McpChannels = {
+	list: 'mcp:list',
+	get: 'mcp:get',
+	save: 'mcp:save',
+	delete: 'mcp:delete',
+	oauthStart: 'mcp:oauth:start',
+	oauthFinish: 'mcp:oauth:finish',
+} as const;
+
+export const LibraryChannels = {
+	list: 'library:list',
 } as const;
 
 export const AppChannels = {
