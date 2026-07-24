@@ -166,25 +166,4 @@ export const agent: AgentApi = {
 	healthSaveData: (content: string): Promise<string> => {
 		return typedInvokeUnwrap(AgentChannels.healthSaveData, content);
 	},
-	mcpList: (): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpList);
-	},
-	mcpGet: (id: string): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpGet, id);
-	},
-	mcpSave: (input: McpSettings): Promise<McpSettings> => {
-		return typedInvokeUnwrap<McpSettings>(AgentChannels.mcpSave, input);
-	},
-	mcpDelete: (id: string): Promise<void> => {
-		return typedInvokeUnwrap<void>(AgentChannels.mcpDelete, id);
-	},
-	mcpOauthStart: (id: string): Promise<McpOAuthStart> => {
-		return typedInvokeUnwrap<McpOAuthStart>(AgentChannels.mcpOauthStart, id);
-	},
-	mcpOauthFinish: (id: string, code: string): Promise<void> => {
-		return typedInvokeUnwrap<void>(AgentChannels.mcpOauthFinish, id, code);
-	},
-	libraryList: (): Promise<LibraryFile[]> => {
-		return typedInvokeUnwrap(AgentChannels.libraryList);
-	},
 } satisfies AgentApi;
