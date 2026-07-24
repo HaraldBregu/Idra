@@ -1001,7 +1001,9 @@
 			"title": "Library",
 			"description": "Browse the media files in the agent library.",
 			"itemsTitle": "All files",
-			"empty": "No media files yet."
+			"empty": "No media files yet.",
+			"viewCollection": "Collection view",
+			"viewList": "List view"
 		},
 		"modelServices": {
 			"title": "Model services",
