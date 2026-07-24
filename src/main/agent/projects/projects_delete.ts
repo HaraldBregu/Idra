@@ -1,6 +1,6 @@
 import fs from 'node:fs';
+import { projects } from './projects_data';
 import { findProject } from './projects_find';
-import { removeProject } from './projects_store';
 
 export function deleteProject(
 	name: string
@@ -8,6 +8,6 @@ export function deleteProject(
 	const project = findProject(name);
 	if (!project) return undefined;
 	fs.rmSync(project.folderPath, { recursive: true, force: true });
-	removeProject(project.id);
+	projects.delete(project.id);
 	return { id: project.id, title: project.title, deleted: true };
 }
