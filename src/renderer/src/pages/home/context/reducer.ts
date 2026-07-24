@@ -182,6 +182,7 @@ function applyResponseEvent(
 				runId: event.runId,
 				state: 'answering',
 				content: message.content + event.delta,
+				streamedChars: (message.streamedChars ?? 0) + event.delta.length,
 				startedAtMs: message.startedAtMs ?? receivedAtMs,
 			})
 		);
@@ -190,7 +191,8 @@ function applyResponseEvent(
 	const tools = applyAgentResponseEventToTools(
 		ensured.message.tools,
 		event,
-		ensured.state.pendingTurnOutputTokens
+		ensured.state.pendingTurnOutputTokens,
+		receivedAtMs
 	);
 	if (!tools) return ensured.state;
 
@@ -208,6 +210,10 @@ function applyResponseEvent(
 					? undefined
 					: message.pendingPermission,
 			content: event.type === 'tool_call_start' ? '' : message.content,
+			streamedChars:
+				event.type === 'tool_call_args_delta'
+					? (message.streamedChars ?? 0) + event.jsonDelta.length
+					: message.streamedChars,
 			startedAtMs: message.startedAtMs ?? receivedAtMs,
 		})
 	);
