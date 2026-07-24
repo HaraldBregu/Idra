@@ -48,6 +48,31 @@ function LibraryItemPlayer({ file }: { readonly file: LibraryFile }): React.JSX.
 	);
 }
 
+function LibraryFileTypeIcon({ type }: { readonly type: LibraryFileType }): React.JSX.Element {
+	if (type === 'image') return <ImageIcon className="size-4" />;
+	if (type === 'video') return <VideoIcon className="size-4" />;
+	return <Music className="size-4" />;
+}
+
+function LibraryListRow({ file }: { readonly file: LibraryFile }): React.JSX.Element {
+	return (
+		<div
+			className="grid min-h-11 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border/60 px-3 py-2 last:border-b-0"
+			onContextMenu={() => showContextMenu(file)}
+		>
+			<span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
+				<LibraryFileTypeIcon type={file.type} />
+			</span>
+			<span className="min-w-0 truncate text-[13px] font-medium text-foreground">
+				{file.name}
+			</span>
+			<span className="shrink-0 text-[11px] text-muted-foreground">
+				{new Date(file.createdAt).toLocaleString()}
+			</span>
+		</div>
+	);
+}
+
 const LibraryPage: React.FC = () => {
 	const { t } = useTranslation();
 	const [files, setFiles] = useState<LibraryFile[]>([]);
