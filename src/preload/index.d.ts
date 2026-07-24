@@ -261,6 +261,5 @@ declare global {
 		sound: SoundApi;
 		text: TextApi;
 		widgets: WidgetsApi;
-		notes: NotesApi;
 	}
 }
