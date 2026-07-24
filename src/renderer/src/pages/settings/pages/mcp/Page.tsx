@@ -58,6 +58,7 @@ const McpPage = () => {
 						catalogEntry={{ id, name: entry.name ?? id, description: describeMcpServer(entry) }}
 						server={{ id, entry }}
 						onConnect={() => openMcpServerDetails(id)}
+						onToggle={(enabled) => void toggleMcpServer(id, entry, enabled)}
 						onViewDetails={() => openMcpServerDetails(id)}
 					/>
 				))}
