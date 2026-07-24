@@ -53,13 +53,16 @@ export class Agent {
 	private readonly activeRuns = new Map<string, AbortController>();
 	private readonly lastMessagesLimit = 50;
 	private isStarted = false;
+	private queue: Promise<unknown> = Promise.resolve();
 	readonly config: Config;
 	readonly session: SessionState;
+	readonly state: AgentContextState;
 
 	constructor() {
 		this.config = { location: path.resolve(agentLocation()) };
 		initCron();
 		this.session = createSessionState();
+		this.state = createContextState(this.session.context);
 	}
 
 	start(logger: {
