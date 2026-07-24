@@ -15,7 +15,6 @@ import { agentLocation } from '../shared/agent_location';
 import { destroyCron, initCron, startCron } from '../cron';
 import { startHealth, stopHealth } from './health';
 import { rejectPendingToolPermissions } from './policy';
-import { initNotes } from './notes';
 import { resolveSkillCommand } from '../skills';
 import type { Config, Message, RuntimeEvent, RuntimeInput } from './types';
 import type {
