@@ -20,12 +20,16 @@ const store = new Store<StorageStoreShape>({
 });
 
 // Reads saved before the `filePaths` -> `paths` rename won't have `paths` yet,
-// and reads saved before `syncIntervalMinutes` was introduced won't have it either.
+// reads saved before `syncIntervalMinutes` was introduced won't have it either,
+// and reads saved before the library folder moved out of agent/ point at the old path.
 function normalizeStorage(config: StorageConfig & { filePaths?: string[] }): StorageConfig {
 	const { filePaths, ...rest } = config;
+	const legacyLibrary = path.join(agentLocation(), 'library');
 	return {
 		...rest,
-		paths: rest.paths ?? filePaths ?? [],
+		paths: (rest.paths ?? filePaths ?? []).map((entry) =>
+			entry === legacyLibrary ? libraryLocation() : entry
+		),
 		syncIntervalMinutes: rest.syncIntervalMinutes ?? DEFAULT_SYNC_INTERVAL_MINUTES,
 	};
 }
