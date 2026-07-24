@@ -579,7 +579,7 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 
 		ipcMain.handle(
 			AgentChannels.libraryList,
-			wrapSimpleHandler(() => listLibrary(agent.config), AgentChannels.libraryList)
+			wrapSimpleHandler(() => listLibrary(), AgentChannels.libraryList)
 		);
 
 		logger.info('AgentIpc', `Registered ${this.name} module`);
