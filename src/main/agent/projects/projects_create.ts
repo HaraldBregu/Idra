@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ProjectInfo } from './projects_types';
+import { projects } from './projects_data';
 import { INSTRUCTIONS_FILE, PROJECT_FILE } from './projects_read';
 import { resolveProjectFolder } from './projects_resolve_folder';
-import { setProject } from './projects_store';
+import type { ProjectInfo } from './projects_types';
 
 export function createProject(
 	name: string,
@@ -22,12 +22,13 @@ export function createProject(
 		path.join(folder, INSTRUCTIONS_FILE),
 		instructions ?? `# ${name}\n\n${description}\n`
 	);
-	setProject(name, { title: name, description });
-	return {
+	const info: ProjectInfo = {
 		id: name,
 		title: name,
 		description,
 		folderPath: folder,
 		instructionsPath: path.join(folder, INSTRUCTIONS_FILE),
 	};
+	projects.set(info.id, info);
+	return info;
 }
