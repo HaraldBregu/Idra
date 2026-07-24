@@ -19,7 +19,7 @@ import { McpStatusBadge } from '../components/McpStatusBadge';
 import { McpOAuthButton } from '../components/McpOAuthButton';
 import { McpServerDialog } from '../components/McpServerDialog';
 
-type McpServerRecord = Awaited<ReturnType<typeof window.agent.mcpList>>;
+type McpServerRecord = Awaited<ReturnType<typeof window.mcp.list>>;
 type McpServerEntry = McpServerRecord[string];
 
 function mcpServerStatus(server: McpServerEntry): 'configured' | 'disabled' | 'error' {
@@ -67,7 +67,7 @@ const McpDetailsPage: React.FC = () => {
 		setLoading(true);
 		setError(null);
 
-		void window.agent.mcpGet(mcpServerId).then(
+		void window.mcp.get(mcpServerId).then(
 			(nextServer) => {
 				if (!mounted) return;
 				setServerRecord(nextServer);
@@ -88,9 +88,9 @@ const McpDetailsPage: React.FC = () => {
 	}, [mcpServerId, t]);
 
 	const updateMcpServer = async (id: string, entry: McpData): Promise<void> => {
-		const all = await window.agent.mcpList();
-		await window.agent.mcpSave({ ...all, [id]: entry });
-		if (mcpServerId) setServerRecord(await window.agent.mcpGet(mcpServerId));
+		const all = await window.mcp.list();
+		await window.mcp.save({ ...all, [id]: entry });
+		if (mcpServerId) setServerRecord(await window.mcp.get(mcpServerId));
 	};
 
 	if (loading) {

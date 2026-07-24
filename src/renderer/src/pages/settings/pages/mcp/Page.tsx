@@ -30,13 +30,13 @@ const McpPage = () => {
 	};
 
 	const addMcpServer = async (id: string, entry: McpData): Promise<void> => {
-		await window.agent.mcpSave({ ...servers, [id]: entry });
+		await window.mcp.save({ ...servers, [id]: entry });
 		await load();
 		setAdding(false);
 	};
 
 	const toggleMcpServer = async (id: string, entry: McpData, enabled: boolean): Promise<void> => {
-		await window.agent.mcpSave({
+		await window.mcp.save({
 			...servers,
 			[id]: { ...entry, enabled, updated_at: new Date().toISOString() },
 		});

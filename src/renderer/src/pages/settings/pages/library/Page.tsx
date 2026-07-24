@@ -84,7 +84,7 @@ const LibraryPage: React.FC = () => {
 		let mounted = true;
 		void (async () => {
 			try {
-				const items = await window.agent.libraryList();
+				const items = await window.library.list();
 				if (mounted) setFiles(items);
 			} catch (err) {
 				if (mounted) setError(err instanceof Error ? err.message : String(err));

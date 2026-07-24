@@ -32,7 +32,7 @@ export function useSettingsBreadcrumbItems(): readonly SettingsBreadcrumbItem[] 
 
 		let mounted = true;
 		setMcpServerDetailName(null);
-		void window.agent.mcpList().then(
+		void window.mcp.list().then(
 			() => {
 				if (mounted) setMcpServerDetailName(mcpServerDetailId);
 			},

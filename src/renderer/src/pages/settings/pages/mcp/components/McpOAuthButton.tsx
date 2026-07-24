@@ -23,7 +23,7 @@ export function McpOAuthButton({ id }: { readonly id: string }): React.JSX.Eleme
 		setError(null);
 		setPhase('busy');
 		try {
-			const result = await window.agent.mcpOauthStart(id);
+			const result = await window.mcp.oauthStart(id);
 			if (result.status === 'authorized') {
 				setPhase('done');
 				return;
@@ -45,7 +45,7 @@ export function McpOAuthButton({ id }: { readonly id: string }): React.JSX.Eleme
 		setError(null);
 		setPhase('busy');
 		try {
-			await window.agent.mcpOauthFinish(id, code);
+			await window.mcp.oauthFinish(id, code);
 			setPhase('done');
 		} catch (err) {
 			setError(err instanceof Error ? err.message : String(err));

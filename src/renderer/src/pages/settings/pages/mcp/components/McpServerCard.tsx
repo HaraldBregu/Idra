@@ -12,7 +12,7 @@ type McpServerCardEntry = {
 	readonly description: string;
 };
 
-type McpServerEntry = Awaited<ReturnType<typeof window.agent.mcpList>>[string];
+type McpServerEntry = Awaited<ReturnType<typeof window.mcp.list>>[string];
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
 	return target instanceof HTMLElement && Boolean(target.closest('button,a'));
