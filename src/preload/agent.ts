@@ -10,8 +10,6 @@ import type {
 	ModelReasoningEffort,
 } from '../shared/agent_types';
 import { normalizeAgentInputFiles } from '../shared/agent_files';
-import { McpOAuthStart, McpSettings } from '../shared/mcp_types';
-import type { LibraryFile } from '../shared/library_types';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type {
 	DirectoryPermissions,
