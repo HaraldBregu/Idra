@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { createSound } from '../../sound';
+import { libraryLocation } from '../../shared/library_location';
 import type { Tool } from '../types';
 import { tool } from './tool';
 
