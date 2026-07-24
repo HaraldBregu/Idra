@@ -163,6 +163,7 @@ async function* loop(
 							await addFilesystemPrompt(config, options.systemPrompt),
 							session.context.project
 						);
+			session.context.systemPrompt = systemPrompt;
 			persistSystemPrompt(session, systemPrompt, firstTurn);
 			firstTurn = false;
 			const turn = yield* runModelTurn(
