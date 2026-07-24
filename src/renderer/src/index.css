@@ -133,10 +133,10 @@
 	--sidebar-foreground: oklch(0.2 0.006 75);
 	--sidebar-primary: oklch(0.245 0.008 75);
 	--sidebar-primary-foreground: oklch(0.972 0.007 75);
-	--sidebar-accent: oklch(0.948 0.009 75);
+	--sidebar-accent: oklch(0.925 0.009 75);
 	--sidebar-accent-foreground: oklch(0.245 0.008 75);
-	--sidebar-border: oklch(0.905 0.01 75);
-	--sidebar-ring: oklch(0.69 0.01 75);
+	--sidebar-border: oklch(0.868 0.01 75);
+	--sidebar-ring: oklch(0.6 0.01 75);
 	--surface: var(--app-surface-background);
 	--surface-foreground: var(--foreground);
 	--code: var(--surface);
