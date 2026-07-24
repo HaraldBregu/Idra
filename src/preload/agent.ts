@@ -136,39 +136,6 @@ export const agent: AgentApi = {
 	setModelId: (modelId: string): Promise<boolean> => {
 		return typedInvokeUnwrap(AgentChannels.setModelId, modelId);
 	},
-	skillsList: () => {
-		return typedInvokeUnwrap(AgentChannels.skillsList);
-	},
-	skillsLoad: (name: string) => {
-		return typedInvokeUnwrap(AgentChannels.skillsLoad, name);
-	},
-	skillsImport: () => {
-		return typedInvokeUnwrap(AgentChannels.skillsImport);
-	},
-	skillsDownload: (name: string) => {
-		return typedInvokeUnwrap(AgentChannels.skillsDownload, name);
-	},
-	skillsDelete: (name: string) => {
-		return typedInvokeUnwrap(AgentChannels.skillsDelete, name);
-	},
-	skillsSetEnabled: (id: string, enabled: boolean) => {
-		return typedInvokeUnwrap(AgentChannels.skillsSetEnabled, id, enabled);
-	},
-	skillsOpenRoot: () => {
-		return typedInvokeUnwrap(AgentChannels.skillsOpenRoot);
-	},
-	skillsGetRoot: (): Promise<string> => {
-		return typedInvokeUnwrap(AgentChannels.skillsGetRoot);
-	},
-	cronList: () => {
-		return typedInvokeUnwrap(AgentChannels.cronList);
-	},
-	cronGetRuntime: () => {
-		return typedInvokeUnwrap(AgentChannels.cronGetRuntime);
-	},
-	cronSetRuntime: (providerId: string, modelId: string) => {
-		return typedInvokeUnwrap(AgentChannels.cronSetRuntime, providerId, modelId);
-	},
 	policyGet: (): Promise<PermissionsSchema> => {
 		return typedInvokeUnwrap(AgentChannels.policyGet);
 	},
