@@ -89,6 +89,7 @@ export function applyAgentResponseEventToTools(
 				iteration: event.iteration,
 				input: event.input,
 				inputText: event.argsText,
+				startedAtMs: receivedAtMs,
 			});
 		case 'tool_call_result': {
 			const isError = event.status !== 'ok';
