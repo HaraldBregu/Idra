@@ -16,4 +16,5 @@ export interface AgentContext {
 	tools?: ToolContextState[];
 	project?: string;
 	cancelled?: boolean;
+	systemPrompt?: string;
 }
