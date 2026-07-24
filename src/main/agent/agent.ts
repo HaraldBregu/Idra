@@ -98,13 +98,19 @@ export class Agent {
 
 			this.activeRuns.set(resolvedAgentId, controller);
 
+			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();
 			for await (const event of events) {
 				// if (event.type === 'run_started')
 				// 	providerId = event.providerId;
 				if (event.type === 'model_call_delta') response += event.delta;
 				if (event.type === 'run_finished') response = event.result.text || response;
 
-				for (const responseEvent of runtimeEventToAgentEvents(event, resolvedAgentId, runId)) {
+				for (const responseEvent of runtimeEventToAgentEvents(
+					event,
+					resolvedAgentId,
+					runId,
+					streamingToolArgs
+				)) {
 					options.streamEvent?.(responseEvent);
 				}
 			}
