@@ -22,9 +22,11 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { useNow } from '@/components/hooks/use-now';
 import { cn } from '@/lib/utils';
 import { formatDuration } from './duration';
 import { isProjectToolType } from './project';
+import { estimateTokens } from './tokens';
 
 export type ToolPart = {
 	type: string;
@@ -42,6 +44,7 @@ export type ToolPart = {
 	toolCallId?: string;
 	errorText?: string;
 	outputTokens?: number;
+	startedAtMs?: number;
 };
 
 export type ToolProps = {
