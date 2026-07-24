@@ -366,7 +366,9 @@ export function AssistantMessage({
 					<span className={statusClassName}>{labelContent}</span>
 				</div>
 			)}
-			<MessageStats message={message} isStreaming={isStreaming} className="mt-1" />
+			{!hasContent && (
+				<MessageStats message={message} isStreaming={isStreaming} className="mt-1" />
+			)}
 		</Message>
 	);
 }
