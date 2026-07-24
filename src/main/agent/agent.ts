@@ -265,13 +265,46 @@ function toTextContent(content: Message['content']): string {
 function runtimeEventToAgentEvents(
 	event: RuntimeEvent,
 	agentId: string,
-	runId: string
+	runId: string,
+	streamingToolArgs: Map<string, { name: string; argsText: string }>
 ): AgentResponseEvent[] {
 	if (event.type === 'run_started') {
 		return [{ type: 'run_state', state: 'thinking', agentId, runId }];
 	}
 	if (event.type === 'model_call_start') {
 		return [{ type: 'model_selected', model: event.model, effort: event.effort, agentId, runId }];
+	}
+	if (event.type === 'model_tool_call_start') {
+		streamingToolArgs.set(event.id, { name: event.name, argsText: '' });
+		return [
+			{
+				type: 'tool_call_start',
+				iteration: 0,
+				toolCallId: event.id,
+				toolName: event.name,
+				name: event.name,
+				serviceKind: 'tool',
+				agentId,
+				runId,
+			},
+		];
+	}
+	if (event.type === 'model_tool_call_args_delta') {
+		const pending = streamingToolArgs.get(event.id);
+		if (!pending) return [];
+		pending.argsText += event.jsonDelta;
+		return [
+			{
+				type: 'tool_call_args_delta',
+				iteration: 0,
+				toolCallId: event.id,
+				toolName: pending.name,
+				jsonDelta: event.jsonDelta,
+				argsText: pending.argsText,
+				agentId,
+				runId,
+			},
+		];
 	}
 	if (event.type === 'model_call_end') {
 		return [{ type: 'model_usage', usage: event.usage, agentId, runId }];
