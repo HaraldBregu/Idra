@@ -63,38 +63,6 @@ export interface AgentInvokeChannelMap {
 		args: [modelId: string];
 		result: boolean;
 	};
-	[AgentChannels.cronList]: { args: []; result: import('../main/cron').CronSchedule[] };
-	[AgentChannels.cronGetRuntime]: {
-		args: [];
-		result: import('../main/cron').CronRuntime | undefined;
-	};
-	[AgentChannels.cronSetRuntime]: {
-		args: [providerId: string, modelId: string];
-		result: import('../main/cron').CronRuntime;
-	};
-	[AgentChannels.skillsList]: { args: []; result: import('./skills_types').SkillInfo[] };
-	[AgentChannels.skillsLoad]: {
-		args: [name: string];
-		result: import('./skills_types').SkillLoadResult | undefined;
-	};
-	[AgentChannels.skillsImport]: {
-		args: [];
-		result: import('./skills_types').SkillImportResult | undefined;
-	};
-	[AgentChannels.skillsDownload]: {
-		args: [name: string];
-		result: import('./skills_types').SkillDownloadResult | undefined;
-	};
-	[AgentChannels.skillsDelete]: {
-		args: [name: string];
-		result: import('./skills_types').SkillDeleteResult;
-	};
-	[AgentChannels.skillsSetEnabled]: {
-		args: [id: string, enabled: boolean];
-		result: import('./skills_types').SkillInfo;
-	};
-	[AgentChannels.skillsOpenRoot]: { args: []; result: void };
-	[AgentChannels.skillsGetRoot]: { args: []; result: string };
 	[AgentChannels.policyGet]: {
 		args: [];
 		result: import('../main/agent/policy/policy_types').PermissionsSchema;
