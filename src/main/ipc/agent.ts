@@ -1,21 +1,9 @@
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron';
-import { auth } from '@modelcontextprotocol/sdk/client/auth.js';
+import { BrowserWindow, dialog, ipcMain } from 'electron';
 import type { IpcModule } from './core/module';
 import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
-import { getRuntime, listSchedules, setRuntime } from '../cron';
-import * as skills from '../skills';
-import {
-	createOAuthProvider,
-	getMcpOauth,
-	getMcpServers,
-	saveMcpOauth,
-	setMcpServers,
-	startOauthCallbackServer,
-	type McpOAuthStorage,
-} from '../mcp';
 import type { LoggerService } from '../shared';
 import { DEFAULT_PROVIDERS, type PublicProvider } from '../../shared/providers_definitions';
 import type { AgentToolPermissionDecision, ModelReasoningEffort } from '../../shared/agent_types';
