@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { realPath } from '../../shared/real_path';
+import { libraryLocation } from '../../shared/library_location';
 import { resolveUserPath } from '../../shared/user_path';
 import { cronStorePath } from '../../cron/cron_store';
 import { healthStorePath } from '../health/health_store';
