@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Music } from 'lucide-react';
-import type { LibraryFile } from '../../../../../../shared/library_types';
+import {
+	AlertTriangle,
+	Image as ImageIcon,
+	LayoutGrid,
+	List as ListIcon,
+	Music,
+	Video as VideoIcon,
+} from 'lucide-react';
+import type { LibraryFile, LibraryFileType } from '../../../../../../shared/library_types';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
 	SettingsNotice,
 	SettingsPageHeader,
 	SettingsPageShell,
+	SettingsPanel,
 	SettingsSection,
 } from '../../components';
+
+type LibraryViewMode = 'collection' | 'list';
 
 function localResourceUrl(filePath: string): string {
 	const posixPath = filePath.replace(/\\/g, '/');
