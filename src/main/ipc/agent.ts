@@ -246,65 +246,6 @@ export class AgentIpc implements IpcModule<AgentIpcDeps> {
 		);
 
 		ipcMain.handle(
-			AgentChannels.cronList,
-			wrapSimpleHandler(() => listSchedules(), AgentChannels.cronList)
-		);
-
-		ipcMain.handle(
-			AgentChannels.cronGetRuntime,
-			wrapSimpleHandler(() => getRuntime(), AgentChannels.cronGetRuntime)
-		);
-
-		ipcMain.handle(
-			AgentChannels.cronSetRuntime,
-			wrapSimpleHandler((providerId: string, modelId: string) => {
-				return setRuntime(providerId, modelId);
-			}, AgentChannels.cronSetRuntime)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsList,
-			wrapSimpleHandler(() => skills.list(), AgentChannels.skillsList)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsLoad,
-			wrapSimpleHandler((name: string) => skills.loadSkill(name), AgentChannels.skillsLoad)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsImport,
-			wrapSimpleHandler(() => skills.importSkills(), AgentChannels.skillsImport)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsDownload,
-			wrapSimpleHandler((name: string) => skills.downloadSkill(name), AgentChannels.skillsDownload)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsDelete,
-			wrapSimpleHandler((name: string) => skills.deleteSkill(name), AgentChannels.skillsDelete)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsSetEnabled,
-			wrapSimpleHandler((id: string, enabled: boolean) => {
-				return skills.setEnabled(id, enabled);
-			}, AgentChannels.skillsSetEnabled)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsOpenRoot,
-			wrapSimpleHandler(() => skills.openRoot(), AgentChannels.skillsOpenRoot)
-		);
-
-		ipcMain.handle(
-			AgentChannels.skillsGetRoot,
-			wrapSimpleHandler(() => skills.getRoot(), AgentChannels.skillsGetRoot)
-		);
-
-		ipcMain.handle(
 			AgentChannels.policyGet,
 			wrapSimpleHandler((): PermissionsSchema => getPermissions(), AgentChannels.policyGet)
 		);
