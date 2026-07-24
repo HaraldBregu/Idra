@@ -1,12 +1,12 @@
 const readState = jest.fn();
 
-jest.mock('../../../../../src/main/agent/cron/cron_read_state', () => ({
+jest.mock('../../../../../src/main/cron/cron_read_state', () => ({
 	readState,
 }));
 
-import { exists } from '../../../../../src/main/agent/cron/cron_exists';
-import { requireSchedule } from '../../../../../src/main/agent/cron/cron_require_schedule';
-import { getSchedule } from '../../../../../src/main/agent/cron/cron_get_schedule';
+import { exists } from '../../../../../src/main/cron/cron_exists';
+import { requireSchedule } from '../../../../../src/main/cron/cron_require_schedule';
+import { getSchedule } from '../../../../../src/main/cron/cron_get_schedule';
 
 const scheduleFixture = {
 	id: 's1',

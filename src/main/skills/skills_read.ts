@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
-import type { SkillInfo, SkillManifest } from '../../../shared/skills_types';
+import type { SkillInfo, SkillManifest } from '../../shared/skills_types';
 import { getSkill } from './skills_store';
 
 export const SKILL_FILE = 'SKILL.md';

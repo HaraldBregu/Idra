@@ -28,7 +28,7 @@ import {
 import { setupMemoryMonitor } from './shared/metrics';
 import { bootstrapServices, cleanup } from './bootstrap';
 import { sync as syncProjects } from './agent/projects';
-import { sync as syncSkills } from './agent/skills';
+import { sync as syncSkills } from './skills';
 import { startStorageSync, stopStorageSync } from './cloud/storage';
 import { CHANNEL_PROVIDER_IDS } from '../shared';
 

@@ -5,8 +5,8 @@ import type { EventBus } from '../app/event_bus';
 import { wrapSimpleHandler } from './core/error_handler';
 import { AgentChannels } from '../../shared/ipc_channels_definitions';
 import type { Agent, AgentSendOptions } from '../agent/agent';
-import { getRuntime, listSchedules, setRuntime } from '../agent/cron';
-import * as skills from '../agent/skills';
+import { getRuntime, listSchedules, setRuntime } from '../cron';
+import * as skills from '../skills';
 import {
 	createOAuthProvider,
 	getMcpOauth,
@@ -43,7 +43,7 @@ import {
 	setModelId,
 	setProviderId,
 } from '../app/settings_store';
-import { listLibrary } from '../agent/library';
+import { listLibrary } from '../library';
 import type { McpData, McpOAuthStart, McpSettings } from '../../shared/mcp_types';
 
 export interface AgentIpcDeps {

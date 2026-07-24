@@ -184,7 +184,7 @@ import type { McpOAuthStart, McpSettings } from '../shared/mcp_types';
 import type { LibraryFile } from '../shared/library_types';
 import type { Widget } from '../shared/widget_types';
 import type { CreateNoteInput, Note, UpdateNoteInput } from '../main/agent/notes/notes_types';
-import type { CronRuntime, CronSchedule } from '../main/agent/cron';
+import type { CronRuntime, CronSchedule } from '../main/cron';
 import type { HealthSettings } from '../main/agent/health/health_types';
 import type {
 	DirectoryPermissions,

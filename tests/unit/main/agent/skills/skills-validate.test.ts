@@ -4,11 +4,11 @@ jest.mock('node:fs', () => ({
 	existsSync: jest.fn(),
 	readFileSync: jest.fn(),
 }));
-jest.mock('../../../../../src/main/agent/skills/skills_read', () => ({
+jest.mock('../../../../../src/main/skills/skills_read', () => ({
 	SKILL_FILE: 'SKILL.md',
 }));
 
-import { validateSkill } from '../../../../../src/main/agent/skills/skills_validate';
+import { validateSkill } from '../../../../../src/main/skills/skills_validate';
 
 const existsMock = fs.existsSync as jest.Mock;
 const readMock = fs.readFileSync as jest.Mock;

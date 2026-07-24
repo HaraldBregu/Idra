@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import type { Config } from '../types';
-import type { LibraryFile, LibraryFileType } from '../../../shared/library_types';
+import type { Config } from '../agent/types';
+import type { LibraryFile, LibraryFileType } from '../../shared/library_types';
 
 const EXTENSION_TYPES: Record<string, LibraryFileType> = {
 	'.png': 'image',

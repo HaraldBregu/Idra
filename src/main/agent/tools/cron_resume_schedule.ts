@@ -1,4 +1,4 @@
-import { resumeSchedule } from '../cron';
+import { resumeSchedule } from '../../cron';
 import { tool } from './tool';
 import { scheduleIdSchema } from './cron_schema';
 

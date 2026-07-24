@@ -1,4 +1,4 @@
-import { stripFrontmatter } from '../../../../../src/main/agent/skills/skills_strip_frontmatter';
+import { stripFrontmatter } from '../../../../../src/main/skills/skills_strip_frontmatter';
 
 describe('stripFrontmatter', () => {
 	it('removes a leading YAML frontmatter block', () => {

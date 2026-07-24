@@ -106,11 +106,11 @@
 	--app-scrollbar-thumb: color-mix(in oklch, var(--muted-foreground) 34%, transparent);
 	--app-scrollbar-thumb-hover: color-mix(in oklch, var(--muted-foreground) 52%, transparent);
 	--background: var(--app-window-background);
-	--foreground: oklch(0.2 0.006 75);
+	--foreground: oklch(0.145 0.006 75);
 	--card: var(--app-surface-background);
-	--card-foreground: oklch(0.2 0.006 75);
+	--card-foreground: oklch(0.145 0.006 75);
 	--popover: var(--app-popover-background);
-	--popover-foreground: oklch(0.2 0.006 75);
+	--popover-foreground: oklch(0.145 0.006 75);
 	--primary: oklch(0.245 0.008 75);
 	--primary-foreground: oklch(0.972 0.007 75);
 	--secondary: oklch(0.925 0.009 75);
@@ -130,7 +130,7 @@
 	--chart-4: var(--color-blue-700);
 	--chart-5: var(--color-blue-800);
 	--sidebar: var(--app-sidebar-background);
-	--sidebar-foreground: oklch(0.2 0.006 75);
+	--sidebar-foreground: oklch(0.145 0.006 75);
 	--sidebar-primary: oklch(0.245 0.008 75);
 	--sidebar-primary-foreground: oklch(0.972 0.007 75);
 	--sidebar-accent: oklch(0.925 0.009 75);

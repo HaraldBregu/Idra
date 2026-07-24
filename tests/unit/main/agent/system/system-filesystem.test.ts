@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-jest.mock('../../../../../src/main/agent/skills', () => ({
+jest.mock('../../../../../src/main/skills', () => ({
 	listSkills: jest.fn(() => []),
 }));
 

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SkillDownloadResult } from '../../../shared/skills_types';
+import type { SkillDownloadResult } from '../../shared/skills_types';
 import { readSkill } from './skills_read';
 import { resolveSkillFolder } from './skills_resolve_folder';
 import { pickDirectories } from './skills_pick_directories';
