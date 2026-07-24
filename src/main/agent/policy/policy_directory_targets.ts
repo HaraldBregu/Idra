@@ -50,7 +50,6 @@ export function directoryPermissionTargets(
 	if (toolName === 'health_settings_update') return [realPath(healthStorePath)];
 	if (MEDIA_TOOLS.has(toolName)) return [realPath(path.join(libraryLocation(), '.generated'))];
 	if (SCHEDULE_TOOLS.has(toolName)) return [realPath(cronStorePath)];
-	if (NOTE_TOOLS.has(toolName)) return [realPath(path.join(baseDir, 'notes'))];
 	if (toolName === 'load_skill')
 		return [realPath(path.join(skillsRoot, String(args.name ?? '')))];
 	return [];
