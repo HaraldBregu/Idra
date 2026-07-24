@@ -262,6 +262,10 @@ declare global {
 		win: WindowApi;
 		app: AppApi;
 		agent: AgentApi;
+		cron: CronApi;
+		skills: SkillsApi;
+		mcp: McpApi;
+		library: LibraryApi;
 		channels: ChannelsApi;
 		storage: StorageApi;
 		provider: ProviderApi;
