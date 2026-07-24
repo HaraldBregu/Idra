@@ -31,6 +31,7 @@ function createAgentToolPart(
 		errorText: patch.errorText,
 		status: patch.status,
 		outputTokens: patch.outputTokens,
+		startedAtMs: patch.startedAtMs,
 	};
 }
 
