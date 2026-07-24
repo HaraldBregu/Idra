@@ -6,6 +6,7 @@ import { Copy, Reply, Volume2 } from 'lucide-react';
 import { Markdown } from '@/components/prompt-kit/markdown';
 import { Message, MessageActions } from '@/components/prompt-kit/message';
 import { TextShimmer } from '@/components/prompt-kit/text-shimmer';
+import { MessageStats } from './MessageStats';
 import { ToolActivityGroup } from './ToolActivityGroup';
 import { ToolPermissionCard } from './ToolPermissionCard';
 import { Button } from '@/components/ui/button';
