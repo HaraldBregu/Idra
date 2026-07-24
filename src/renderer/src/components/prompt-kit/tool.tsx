@@ -138,6 +138,18 @@ function Tool({ toolPart, label, defaultOpen = false, hideIcon = false, classNam
 	const output = toolPart.output ?? toolPart.outputText;
 	const triggerLabel = label ?? toolPart.type;
 	const KindIcon = toolIcon(toolPart);
+	const isExecuting =
+		toolPart.durationMs === undefined &&
+		toolPart.startedAtMs !== undefined &&
+		(state === 'input-streaming' || state === 'input-available');
+	const now = useNow(isExecuting);
+	const displayDurationMs =
+		toolPart.durationMs ??
+		(isExecuting && toolPart.startedAtMs !== undefined
+			? Math.max(0, now - toolPart.startedAtMs)
+			: undefined);
+	const streamingTokens =
+		state === 'input-streaming' ? estimateTokens(toolPart.inputText?.length ?? 0) : 0;
 
 	return (
 		<div
