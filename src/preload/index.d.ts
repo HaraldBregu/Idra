@@ -25,17 +25,6 @@ export interface AgentApi {
 	setProvider: (provider: PublicProvider) => Promise<boolean>;
 	getModelId: () => Promise<string | undefined>;
 	setModelId: (modelId: string) => Promise<boolean>;
-	skillsList: () => Promise<SkillInfo[]>;
-	skillsLoad: (name: string) => Promise<SkillLoadResult | undefined>;
-	skillsImport: () => Promise<SkillImportResult | undefined>;
-	skillsDownload: (name: string) => Promise<SkillDownloadResult | undefined>;
-	skillsDelete: (name: string) => Promise<SkillDeleteResult>;
-	skillsSetEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
-	skillsOpenRoot: () => Promise<void>;
-	skillsGetRoot: () => Promise<string>;
-	cronList: () => Promise<CronSchedule[]>;
-	cronGetRuntime: () => Promise<CronRuntime | undefined>;
-	cronSetRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
 	policyGet: () => Promise<PermissionsSchema>;
 	policyPickDirectory: () => Promise<string | undefined>;
 	policySetTool: (toolName: string, permission: ToolPermission) => Promise<PermissionsSchema>;
