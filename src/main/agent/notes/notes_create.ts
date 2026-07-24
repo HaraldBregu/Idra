@@ -1,32 +1,17 @@
 import { randomUUID } from 'node:crypto';
-import fs from 'node:fs';
-import type { Config } from '../types';
-import { noteFilePath } from './notes_file_path';
-import { readNotesSettings } from './notes_read_settings';
-import { notesRoot } from './notes_root';
+import { notes } from './notes_data';
 import type { CreateNoteInput, Note } from './notes_types';
-import { writeNotesSettings } from './notes_write_settings';
 
-export function createNote(config: Config, input: CreateNoteInput): Note {
-	const settings = readNotesSettings(config);
-	const id = randomUUID();
+export function createNote(input: CreateNoteInput): Note {
 	const now = new Date().toISOString();
 	const note: Note = {
-		id,
+		id: randomUUID(),
 		title: input.title.trim(),
 		content: input.content,
 		createdAt: now,
 		updatedAt: now,
 		metadata: input.metadata ?? {},
 	};
-	fs.mkdirSync(notesRoot(config), { recursive: true });
-	fs.writeFileSync(noteFilePath(config, id), note.content, 'utf8');
-	settings.notes[id] = {
-		title: note.title,
-		createdAt: note.createdAt,
-		updatedAt: note.updatedAt,
-		metadata: note.metadata,
-	};
-	writeNotesSettings(config, settings);
+	notes[note.id] = note;
 	return note;
 }
