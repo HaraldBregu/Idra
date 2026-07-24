@@ -1,6 +1,8 @@
 import path from 'node:path';
 import Store from 'electron-store';
 import type { StorageConfig } from '../../../shared/storage_types';
+import { agentLocation } from '../../shared/agent_location';
+import { libraryLocation } from '../../shared/library_location';
 import { userDataLocation } from '../../shared/user_data_location';
 import { DEFAULT_SYNC_INTERVAL_MINUTES } from './storage_sync_types';
 
