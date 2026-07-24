@@ -141,7 +141,7 @@
 	--surface-foreground: var(--foreground);
 	--code: var(--surface);
 	--code-foreground: var(--surface-foreground);
-	--code-highlight: oklch(0.92 0.01 75);
+	--code-highlight: oklch(0.895 0.01 75);
 	--code-number: oklch(0.4 0.01 75);
 	--selection: oklch(0.205 0.008 75);
 	--selection-foreground: oklch(0.972 0.007 75);
