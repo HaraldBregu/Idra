@@ -83,10 +83,25 @@ export class Agent {
 	}
 
 	async send(message: string, agentId: string, options: AgentSendOptions = {}): Promise<string> {
-		const resolvedAgentId = agentId.trim();
-		const runId = options.runId ?? randomUUID();
+		const command: AgentCommand<AgentSendOptions> = {
+			id: options.runId ?? randomUUID(),
+			agentId: agentId.trim(),
+			message,
+			options,
+			queuedAt: Date.now(),
+		};
+		enqueueCommand(this.state, command);
+		const run = this.queue.then(() => this.process(command));
+		this.queue = run.catch(() => undefined);
+		return run;
+	}
 
-		this.cancel(resolvedAgentId);
+	private async process(command: AgentCommand<AgentSendOptions>): Promise<string> {
+		if (!this.state.pending.includes(command)) return '';
+		beginCommand(this.state, command);
+		const view = agentView(this.state);
+		const { options } = command;
+		const startedAt = Date.now();
 
 		let response = '';
 		let controller: AbortController | undefined;
@@ -95,7 +110,7 @@ export class Agent {
 
 			const input = {
 				task: 'chat',
-				message: resolveSkillCommand(message),
+				message: resolveSkillCommand(view.message),
 				...(options.files?.length ? { files: options.files } : {}),
 				...(options.sessionId ? { sessionId: options.sessionId } : {}),
 				...(options.providerId ? { providerId: options.providerId } : {}),
@@ -108,41 +123,55 @@ export class Agent {
 				interactive: options.interactive ?? true,
 			});
 
-			this.activeRuns.set(resolvedAgentId, controller);
+			this.activeRuns.set(view.agentId, controller);
 
 			const streamingToolArgs = new Map<string, { name: string; argsText: string }>();
 			for await (const event of events) {
-				// if (event.type === 'run_started')
-				// 	providerId = event.providerId;
+				trackEvent(this.state, event);
 				if (event.type === 'model_call_delta') response += event.delta;
 				if (event.type === 'run_finished') response = event.result.text || response;
 
 				for (const responseEvent of runtimeEventToAgentEvents(
 					event,
-					resolvedAgentId,
-					runId,
+					view.agentId,
+					view.id,
 					streamingToolArgs
 				)) {
 					options.streamEvent?.(responseEvent);
 				}
 			}
+			finishCommand(
+				this.state,
+				command,
+				{ status: controller.signal.aborted ? 'cancelled' : 'ok', response },
+				startedAt
+			);
 			return response;
 		} catch (error) {
-			// A run superseded by cancel/new message ends quietly instead of surfacing an error.
-			if (controller?.signal.aborted) return response;
+			// A cancelled run ends quietly instead of surfacing an error.
+			if (controller?.signal.aborted) {
+				finishCommand(this.state, command, { status: 'cancelled', response }, startedAt);
+				return response;
+			}
 			const cause = toError(error, 'Agent request failed.');
+			finishCommand(
+				this.state,
+				command,
+				{ status: 'error', response, error: cause.message },
+				startedAt
+			);
 			const responseEvent = {
 				type: 'run_state',
 				state: 'error',
 				label: cause.message,
-				agentId: resolvedAgentId,
-				runId,
+				agentId: view.agentId,
+				runId: view.id,
 			} satisfies AgentResponseEvent;
 			options.streamEvent?.(responseEvent);
 			throw cause;
 		} finally {
-			if (controller && this.activeRuns.get(resolvedAgentId) === controller)
-				this.activeRuns.delete(resolvedAgentId);
+			if (controller && this.activeRuns.get(view.agentId) === controller)
+				this.activeRuns.delete(view.agentId);
 		}
 	}
 
