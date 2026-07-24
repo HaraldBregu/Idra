@@ -53,7 +53,8 @@ export function updateAgentToolPart(
 export function applyAgentResponseEventToTools(
 	tools: readonly AgentToolPart[],
 	event: AgentResponseEvent,
-	outputTokens?: number
+	outputTokens?: number,
+	receivedAtMs?: number
 ): AgentToolPart[] | undefined {
 	switch (event.type) {
 		case 'run_state':
