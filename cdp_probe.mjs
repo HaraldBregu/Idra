@@ -25,7 +25,7 @@ await new Promise((resolve) => ws.once('open', resolve));
 
 const expr = `
 (async () => {
-  const { BrowserWindow } = require('electron');
+  const { BrowserWindow } = await import('electron');
   const wins = BrowserWindow.getAllWindows();
   const win = wins[0];
   if (!win) return 'no window';
