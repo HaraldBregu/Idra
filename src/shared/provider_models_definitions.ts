@@ -38,6 +38,9 @@ export function normalizeProviderId(providerId: string): string {
 
 export const LLM_MODELS_BY_PROVIDER = {
 	anthropic: [
+		model('claude-fable-5', 'Claude Fable 5'),
+		model('claude-opus-5', 'Claude Opus 5'),
+		model('claude-sonnet-5', 'Claude Sonnet 5'),
 		model('claude-opus-4-7', 'Claude Opus 4.7'),
 		model('claude-sonnet-4-6', 'Claude Sonnet 4.6'),
 		model('claude-haiku-4-5-20251001', 'Claude Haiku 4.5 20251001'),
