@@ -43,7 +43,6 @@ export class EventBus {
 				win.webContents.send(channel, ...args);
 			}
 		});
-		publish(channel, args[0]);
 	}
 
 	/**
