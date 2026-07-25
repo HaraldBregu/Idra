@@ -1,3 +1,4 @@
+import { TASK_TOOL_LABELS } from '@/components/prompt-kit/task';
 import type { AgentToolPart } from '../context';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
