@@ -1,6 +1,7 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 import { wrapSimpleHandler, wrapIpcHandler } from './error_handler';
 import { ipcHandlers } from './registry';
+import type { IpcResult } from '../../../shared/ipc_types';
 import type { InvokeChannelMap } from '../../../shared/ipc_channels_types';
 
 /** Register a handler for renderers, and for callers outside a renderer window. */
