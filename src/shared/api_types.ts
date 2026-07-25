@@ -1,0 +1,257 @@
+import type { PublicProvider } from './providers_definitions';
+import type { Provider } from './providers_types';
+import type { SearchEngineId, SearchEngineInput, SearchSettings } from './search_types';
+import type {
+	StorageConfig,
+	StorageObjectInfo,
+	StoragePullResult,
+	StoragePushResult,
+	StorageSyncFolder,
+	StorageSyncResult,
+	StorageTestResult,
+} from './storage_types';
+import type { McpOAuthStart, McpSettings } from './mcp_types';
+import type { LibraryFile } from './library_types';
+import type { Widget } from './widget_types';
+import type { CronRuntime, CronSchedule } from '../main/cron/cron_types';
+import type { HealthSettings } from '../main/agent/health/health_types';
+import type {
+	DirectoryPermissions,
+	PermissionsSchema,
+	ToolPermission,
+} from '../main/agent/policy/policy_types';
+import type {
+	AgentHistoryMessage,
+	AgentResponseEvent,
+	AgentSessionSummary,
+	AgentToolPermissionDecision,
+} from './agent_types';
+import type { ProviderModel } from './provider_models_types';
+import type { Channel, ChannelStatusEvent, ChannelType } from './channels_types';
+import type { ImageRequest, ImageResult } from './image_types';
+import type { SoundFile, SoundRequest, SoundResult } from './sound_types';
+import type { VideoRequest, VideoResult } from './video_types';
+import type { TextRequest } from './text_types';
+import type { SpeechSynthesisRequest, SpeechSynthesisResult } from './speech_types';
+import type {
+	SttRealtimeEvent,
+	SttRealtimeSession,
+	SttRealtimeStartRequest,
+	SttTranscriptionRequest,
+	SttTranscriptionResult,
+	SttModelSelection,
+	SttSelectionMode,
+} from './stt_transcription';
+import type {
+	SkillDeleteResult,
+	SkillDownloadResult,
+	SkillImportResult,
+	SkillInfo,
+	SkillLoadResult,
+} from './skills_types';
+import type {
+	MicrophonePermissionSettings,
+	CameraPermissionSettings,
+	SystemPreferencePaneId,
+	AppLanguage,
+	AppTheme,
+} from './app_types';
+
+export interface WindowApi {
+	minimize: () => void;
+	close: () => void;
+	popupMenu: () => void;
+	isFullScreen: () => Promise<boolean>;
+	onFullScreenChange: (callback: (isFullScreen: boolean) => void) => () => void;
+}
+
+export interface AgentApi {
+	send: (
+		message: string,
+		options?: Record<string, unknown>,
+		onEvent?: (event: AgentResponseEvent) => void
+	) => Promise<string>;
+	cancel: () => Promise<void>;
+	respondToolPermission: (
+		toolCallId: string,
+		decision: AgentToolPermissionDecision
+	) => Promise<boolean>;
+	listSessions: () => Promise<AgentSessionSummary[]>;
+	getLastMessages: (sessionId: string) => Promise<AgentHistoryMessage[]>;
+	clearMessages: (sessionId: string) => Promise<void>;
+	deleteSession: (sessionId: string) => Promise<void>;
+	getProvider: () => Promise<PublicProvider | undefined>;
+	setProvider: (provider: PublicProvider) => Promise<boolean>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<boolean>;
+	policyGet: () => Promise<PermissionsSchema>;
+	policyPickDirectory: () => Promise<string | undefined>;
+	policySetTool: (toolName: string, permission: ToolPermission) => Promise<PermissionsSchema>;
+	policySetDirectories: (directories: DirectoryPermissions) => Promise<PermissionsSchema>;
+	policyReset: () => Promise<PermissionsSchema>;
+	healthGetSettings: () => Promise<HealthSettings>;
+	healthSaveSettings: (settings: Partial<HealthSettings>) => Promise<HealthSettings>;
+	healthResetSettings: () => Promise<HealthSettings>;
+	healthGetData: () => Promise<string>;
+	healthSaveData: (content: string) => Promise<string>;
+}
+
+export interface CronApi {
+	list: () => Promise<CronSchedule[]>;
+	getRuntime: () => Promise<CronRuntime | undefined>;
+	setRuntime: (providerId: string, modelId: string) => Promise<CronRuntime>;
+}
+
+export interface SkillsApi {
+	list: () => Promise<SkillInfo[]>;
+	load: (name: string) => Promise<SkillLoadResult | undefined>;
+	import: () => Promise<SkillImportResult | undefined>;
+	download: (name: string) => Promise<SkillDownloadResult | undefined>;
+	delete: (name: string) => Promise<SkillDeleteResult>;
+	setEnabled: (id: string, enabled: boolean) => Promise<SkillInfo>;
+	openRoot: () => Promise<void>;
+	getRoot: () => Promise<string>;
+}
+
+export interface McpApi {
+	list: () => Promise<McpSettings>;
+	get: (id: string) => Promise<McpSettings>;
+	save: (input: McpSettings) => Promise<McpSettings>;
+	delete: (id: string) => Promise<void>;
+	oauthStart: (id: string) => Promise<McpOAuthStart>;
+	oauthFinish: (id: string, code: string) => Promise<void>;
+}
+
+export interface LibraryApi {
+	list: () => Promise<LibraryFile[]>;
+}
+
+export interface ChannelsApi {
+	getConfig: () => Promise<Channel>;
+	saveChannelConfig: <TKey extends ChannelType>(
+		type: TKey,
+		config: Channel[TKey]
+	) => Promise<Channel[TKey]>;
+	getProviderId: () => Promise<string>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string>;
+	setModelId: (modelId: string) => Promise<void>;
+	getStatus: (type?: ChannelType) => Promise<ChannelStatusEvent | undefined>;
+	startTelegram: () => Promise<ChannelStatusEvent | undefined>;
+	stopTelegram: () => Promise<void>;
+	restartTelegram: () => Promise<ChannelStatusEvent | undefined>;
+	onStatusChanged: (callback: (event: ChannelStatusEvent) => void) => () => void;
+}
+
+export interface ProviderApi {
+	get: (id: string) => Promise<Provider | undefined>;
+	set: (id: string, provider: Provider) => Promise<Provider>;
+}
+
+export interface StorageApi {
+	getStorages: () => Promise<StorageConfig[]>;
+	saveStorageConfig: (config: StorageConfig) => Promise<StorageConfig>;
+	deleteStorageConfig: (id: string) => Promise<void>;
+	testConnection: (config: StorageConfig) => Promise<StorageTestResult>;
+	listObjects: (id: string, prefix?: string) => Promise<StorageObjectInfo[]>;
+	putObject: (id: string, key: string, data: Uint8Array, contentType?: string) => Promise<void>;
+	getObject: (id: string, key: string) => Promise<Uint8Array>;
+	deleteObject: (id: string, key: string) => Promise<void>;
+	sync: (id: string, localDir: string, prefix?: string) => Promise<StorageSyncResult>;
+	syncFolders: () => Promise<StorageSyncFolder[]>;
+	push: (id: string) => Promise<StoragePushResult>;
+	pull: (id: string) => Promise<StoragePullResult>;
+}
+
+export interface WidgetsApi {
+	list: () => Promise<Widget[]>;
+}
+
+export interface SearchApi {
+	getSettings: () => Promise<SearchSettings>;
+	saveEngine: (engineId: SearchEngineId, input: SearchEngineInput) => Promise<SearchSettings>;
+	selectEngine: (engineId: SearchEngineId) => Promise<SearchSettings>;
+}
+
+export interface ImageApi {
+	createImage: (request: ImageRequest) => Promise<ImageResult>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
+export interface VideoApi {
+	createVideo: (request: VideoRequest) => Promise<VideoResult>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
+export interface SoundApi {
+	createSound: (request: SoundRequest) => Promise<SoundResult>;
+	listSounds: () => Promise<SoundFile[]>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
+export interface TextApi {
+	generateText: (request: TextRequest) => Promise<string>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
+export interface VoiceApi {
+	synthesize: (request: SpeechSynthesisRequest) => Promise<SpeechSynthesisResult>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
+export interface TranscribeApi {
+	transcribe: (request: SttTranscriptionRequest) => Promise<SttTranscriptionResult>;
+	startRealtime: (request?: SttRealtimeStartRequest) => Promise<SttRealtimeSession>;
+	appendRealtimeAudio: (sessionId: string, audio: string) => Promise<void>;
+	finishRealtime: (sessionId: string) => Promise<void>;
+	cancelRealtime: (sessionId: string) => Promise<void>;
+	onRealtimeEvent: (callback: (event: SttRealtimeEvent) => void) => () => void;
+	getSelection: (mode?: SttSelectionMode) => Promise<SttModelSelection | undefined>;
+	listProviders: () => Promise<PublicProvider[]>;
+	listModels: (providerId: string) => Promise<ProviderModel[]>;
+	saveSelection: (providerId: string, modelId: string, mode?: SttSelectionMode) => Promise<boolean>;
+	getProviderId: () => Promise<string | undefined>;
+	setProviderId: (providerId: string) => Promise<void>;
+	getModelId: () => Promise<string | undefined>;
+	setModelId: (modelId: string) => Promise<void>;
+}
+
+export interface AppApi {
+	getPathForFile: (file: File) => string;
+	openAppDataFolder: () => Promise<void>;
+	openExternalUrl: (url: string) => Promise<void>;
+	setTrayEnabled: (enabled: boolean) => Promise<void>;
+	getTrayEnabled: () => Promise<boolean>;
+	setKeepAwake: (enabled: boolean) => Promise<void>;
+	getKeepAwake: () => Promise<boolean>;
+	setLanguage: (language: AppLanguage) => Promise<void>;
+	getLanguage: () => Promise<AppLanguage>;
+	setTheme: (theme: AppTheme) => Promise<void>;
+	getTheme: () => Promise<AppTheme>;
+	getMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
+	setMicrophoneEnabled: (enabled: boolean) => Promise<MicrophonePermissionSettings>;
+	requestMicrophonePermission: () => Promise<MicrophonePermissionSettings>;
+	openSystemPreference: (pane: SystemPreferencePaneId) => Promise<void>;
+	getCameraPermission: () => Promise<CameraPermissionSettings>;
+	setCameraEnabled: (enabled: boolean) => Promise<CameraPermissionSettings>;
+	requestCameraPermission: () => Promise<CameraPermissionSettings>;
+	openVideo: (path: string) => Promise<void>;
+	showImageContextMenu: (path: string) => Promise<void>;
+	showVideoContextMenu: (path: string) => Promise<void>;
+	showAudioContextMenu: (path: string) => Promise<void>;
+}
