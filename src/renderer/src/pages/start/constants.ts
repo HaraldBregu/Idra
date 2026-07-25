@@ -154,38 +154,6 @@ export const MODEL_SERVICE_DEFINITIONS: readonly ModelServiceDefinition[] = [
 			Promise.resolve(toModelGroups(MUSIC_PROVIDER_IDS, TEXT_TO_AUDIO_MODELS_BY_PROVIDER)),
 		...toIdSelectionHandlers(() => window.sound),
 	},
-	{
-		id: 'tasks',
-		title: 'Tasks',
-		description: 'Runs your scheduled tasks in the background.',
-		getSelection: async () => {
-			const runtime = await window.cron.getRuntime();
-			return runtime?.providerId && runtime.modelId
-				? { providerId: runtime.providerId, modelId: runtime.modelId }
-				: undefined;
-		},
-		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
-		saveSelection: async (provider, model) => {
-			await window.cron.setRuntime(provider.id, model.id);
-			return true;
-		},
-	},
-	{
-		id: 'health',
-		title: 'Health',
-		description: 'Runs periodic checks and reports issues.',
-		getSelection: async () => {
-			const settings = await window.agent.healthGetSettings();
-			return settings.providerId && settings.modelId
-				? { providerId: settings.providerId, modelId: settings.modelId }
-				: undefined;
-		},
-		loadModelGroups: () => Promise.resolve(getLlmModelGroups()),
-		saveSelection: async (provider, model) => {
-			await window.agent.healthSaveSettings({ providerId: provider.id, modelId: model.id });
-			return true;
-		},
-	},
 ];
 
 export const SETUP_STEPS: readonly SetupStep[] = ['presentation', 'providers', 'models'];
