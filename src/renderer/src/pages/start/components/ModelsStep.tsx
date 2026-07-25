@@ -49,11 +49,8 @@ export function ModelsStep({
 }: ModelsStepProps): React.JSX.Element {
 	return (
 		<div className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center px-4 py-8 sm:px-6">
-			<StepHeader
-				icon={Bot}
-				title={STEP_COPY.models.title}
-				description={STEP_COPY.models.description}
-			/>
+			<LogoView className="mb-6 size-11 rounded-xl" />
+			<StepHeader title={STEP_COPY.models.title} description={STEP_COPY.models.description} />
 
 			<div className="mt-8 grid gap-2">
 				{MODEL_SERVICE_DEFINITIONS.map((service, index) => (
