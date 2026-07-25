@@ -45,39 +45,19 @@ type PromptAttachment = {
 
 const promptSuggestions = [
 	{
-		label: 'Introduce yourself',
+		label: 'Schedule a task',
 		prompt:
-			'Introduce yourself as Friday, my personal assistant. Keep it brief and specific: explain what you can help me do, how I should ask for help, and suggest three useful first tasks.',
+			'Help me set up a recurring task that runs in the background. Ask what you should do and how often, then create the schedule.',
 	},
 	{
-		label: 'Plan my day',
+		label: 'Run a health check',
 		prompt:
-			'Help me plan today. Ask for my priorities, time constraints, and any deadlines, then turn them into a practical schedule.',
+			'Set up a periodic health check. Ask what you should watch and how often to report, then configure it.',
 	},
 	{
 		label: 'Create an image',
 		prompt:
 			'Create an image for me. Ask what I want to see and the style I prefer, then generate it.',
-	},
-	{
-		label: 'Make a video',
-		prompt:
-			'Create a short video for me. Ask what it should show and the mood I want, then generate it.',
-	},
-	{
-		label: 'Compose music',
-		prompt:
-			'Compose a short piece of music for me. Ask about the genre and mood I want, then generate it.',
-	},
-	{
-		label: 'Schedule a task',
-		prompt:
-			'Help me set up a recurring task. Ask what you should do and how often, then create the schedule.',
-	},
-	{
-		label: 'Search the web',
-		prompt:
-			'Search the web for me. Ask what topic I want to catch up on, then find and summarize the latest news about it.',
 	},
 ] as const;
 
